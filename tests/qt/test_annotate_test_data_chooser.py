@@ -70,14 +70,12 @@ def test_closing_without_choosing_reports_nothing(chooser):
 
 
 def test_the_screen_button_sits_left_of_generate(screen):
-    """Asked for explicitly, and it is a layout fact rather than a preference."""
-    row = screen._btn_generate.parentWidget().layout()
-    order = []
-    for i in range(row.count()):
-        item = row.itemAt(i)
-        w = item.widget() if item is not None else None
-        if w is not None:
-            order.append(w)
+    """Asked for explicitly: Load test data comes before Generate.
+
+    Both are one-time setup commands on the Setup menu now, so "left of"
+    is "above" on that menu.
+    """
+    order = screen._setup_menu.actions()
     assert screen._btn_test_data in order and screen._btn_generate in order
     assert order.index(screen._btn_test_data) < order.index(screen._btn_generate)
 

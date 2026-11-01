@@ -119,11 +119,12 @@ def test_a_successful_run_reports_the_table(dialog, monkeypatch):
 
 
 def test_the_button_exists_on_the_screen():
+    """Generate is a one-time setup command, so it sits on the Setup menu."""
     source = Path(
         __import__("spacr.qt.screens.annotate", fromlist=["x"]).__file__
     ).read_text(encoding="utf-8")
-    assert 'QPushButton("Generate annotation database…")' in source
-    assert "self._btn_generate.clicked.connect(" in source
+    assert 'menu.addAction("Generate annotation database…")' in source
+    assert "self._btn_generate.triggered.connect(" in source
 
 
 def test_a_second_table_is_opened_rather_than_reported():

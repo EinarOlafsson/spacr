@@ -88,6 +88,7 @@ from PySide6.QtCore import (
     Qt,
     QEvent,
     QLocale,
+    QPoint,
     QPointF,
     QRect,
     QRectF,
@@ -171,6 +172,7 @@ from .. import iconset, path_probe, prefs
 from ..theme import SPACING, palette_for, register_widget_qss
 from ..widgets.column_picker import attach_column_picker
 from ..widgets import Divider, EmptyState
+from ..widgets.flow import FlowLayout, _alive
 from ..widgets.fold_strip import FoldStrip
 from ..widgets.collapsible_splitter import CollapsibleSplitter
 from .map_barcodes import FoldOpener, restate_fold_button
@@ -4580,6 +4582,196 @@ _AUTO_ANNOTATE_OPEN_UMAP = 101
 
 
 
+class _ToolbarFlow(FlowLayout):
+    """The Annotate toolbar's wrapping row of groups, last group at the right.
+
+    Whole groups wrap onto a new line when the next one would not fit, as in
+    :class:`~spacr.qt.widgets.flow.FlowLayout`, with a wider gap between
+    groups on a line than between lines. The last group (the Danger zone)
+    is then pushed to the right edge of the line it landed on. Navigate
+    comes first, so the destructive commands never sit beside Back and Next.
+
+    :param parent: the widget the layout lives in.
+    :param spacing: the gap between groups on a line.
+    :param line_spacing: the gap between lines.
+    """
+
+    def __init__(self, parent=None, spacing: int = 16, line_spacing: int = 8):
+        """Create the layout with separate gaps across and down."""
+        super().__init__(parent, spacing=spacing)
+        self._line_space = line_spacing
+
+    def _do_layout(self, rect, test_only: bool) -> int:
+        """Wrap the groups, then right-align the last one on its line.
+
+        :param rect: the area to lay out in.
+        :param test_only: measure without moving anything.
+        :returns: the height the groups needed.
+        """
+        if not _alive(self):
+            return 0
+        margins = self.contentsMargins()
+        area = rect.adjusted(margins.left(), margins.top(),
+                             -margins.right(), -margins.bottom())
+        x, y, line_height = area.x(), area.y(), 0
+        placed = []
+        for item in self._items:
+            if item.isEmpty():
+                continue
+            hint = item.sizeHint()
+            if x > area.x() and x + hint.width() > area.right() + 1:
+                x = area.x()
+                y = y + line_height + self._line_space
+                line_height = 0
+            placed.append((item, QRect(QPoint(x, y), hint)))
+            x = x + hint.width() + self._space
+            line_height = max(line_height, hint.height())
+        if not test_only:
+            if placed:
+                item, place = placed[-1]
+                if place.right() < area.right():
+                    place.moveRight(area.right())
+            for item, place in placed:
+                item.setGeometry(place)
+        return y + line_height - rect.y() + margins.bottom()
+
+
+class _ToolbarScroll(QScrollArea):
+    """Holds the Annotate toolbar: its full height when there is room, else one line and a scroll bar.
+
+    The toolbar asks for the height its groups wrap into. On a short
+    window at a high Zoom the screen cannot give it that much, and a plain
+    layout squeezed it: the last lines of commands were drawn under the key
+    legend. Here the toolbar can shrink to its first line, and the lines it
+    cannot show are scrolled to instead of hidden.
+
+    :param toolbar: the :class:`~spacr.qt.widgets.flow.FlowHost` of groups.
+    """
+
+    def __init__(self, toolbar: QWidget):
+        """Wrap ``toolbar`` with no frame and no horizontal scrolling."""
+        super().__init__()
+        self.setObjectName("AnnotateToolbarScroll")
+        self.setFrameShape(QScrollArea.NoFrame)
+        self.setWidgetResizable(True)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        self.viewport().setAutoFillBackground(False)
+        self.setAutoFillBackground(False)
+        toolbar.setAutoFillBackground(False)
+        self.setWidget(toolbar)
+        policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        policy.setHeightForWidth(True)
+        self.setSizePolicy(policy)
+
+    def hasHeightForWidth(self) -> bool:      # noqa: N802 (Qt override)
+        """Yes: the toolbar's height depends on how its groups wrap."""
+        return True
+
+    def heightForWidth(self, width: int) -> int:   # noqa: N802 (Qt override)
+        """The height the whole toolbar needs at ``width``.
+
+        :param width: the width offered, in pixels.
+        :returns: the toolbar's own height for that width.
+        """
+        toolbar = self.widget()
+        if toolbar is None:
+            return super().heightForWidth(width)
+        return toolbar.heightForWidth(width)
+
+    def sizeHint(self) -> QSize:              # noqa: N802 (Qt override)
+        """The toolbar's full height at the current width."""
+        toolbar = self.widget()
+        if toolbar is None:
+            return super().sizeHint()
+        width = max(self.width(), toolbar.minimumSizeHint().width())
+        return QSize(width, toolbar.heightForWidth(width))
+
+    def minimumSizeHint(self) -> QSize:       # noqa: N802 (Qt override)
+        """As narrow as the widest group, as short as the tallest one."""
+        toolbar = self.widget()
+        if toolbar is None:
+            return super().minimumSizeHint()
+        tallest = 0
+        layout = toolbar.layout()
+        for index in range(layout.count() if layout is not None else 0):
+            item = layout.itemAt(index)
+            if item is not None and not item.isEmpty():
+                tallest = max(tallest, item.sizeHint().height())
+        return QSize(toolbar.minimumSizeHint().width(), tallest)
+
+
+class _ToolbarGroup(QWidget):
+    """One labelled group of the Annotate toolbar: a caption, then one fixed row.
+
+    The toolbar wraps whole groups, never the commands inside one, so a
+    command keeps its place beside its neighbours at every window width and
+    every Zoom. A member hidden on its own (an alpha control, the Suggest
+    progress shown only while a run is going) takes no room, and a group
+    whose members are all hidden hides itself, caption and all.
+    """
+
+    def __init__(self, key: str, caption: str, members, parent=None):
+        """Lay the caption and the members out left to right.
+
+        :param key: the group's name, also its ``toolbarGroup`` property.
+        :param caption: the translated title shown before the commands.
+        :param members: the widgets of the row, left to right.
+        :param parent: parent widget, or ``None``.
+        """
+        super().__init__(parent)
+        self.key = key
+        self.members = list(members)
+        self.setObjectName("AnnotateToolbarGroup")
+        self.setProperty("toolbarGroup", key)
+        self.setAccessibleName(caption)
+        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.row = QHBoxLayout(self)
+        self.row.setContentsMargins(0, 0, 0, 0)
+        self.row.setSpacing(SPACING["sm"])
+        self.caption = QLabel(caption, self)
+        self.caption.setObjectName("SubtitleSmall")
+        self.caption.setProperty("toolbarGroupCaption", key)
+        self.row.addWidget(self.caption)
+        for widget in self.members:
+            self.row.addWidget(widget)
+            widget.installEventFilter(self)
+        self._follow_members()
+
+    def eventFilter(self, watched, event):    # noqa: N802 (Qt override)
+        """Show the group while any member is shown, hide it when none is.
+
+        :param watched: a member.
+        :param event: the event it received.
+        :returns: ``False``; the member still handles the event.
+        """
+        if event.type() in (QEvent.ShowToParent, QEvent.HideToParent):
+            self._follow_members()
+        return False
+
+    def _follow_members(self) -> None:
+        """Match the group's own visibility to its members'.
+
+        Only an explicit hide counts: a member not yet shown because the
+        screen is not shown yet is still a member the group shows.
+        """
+        wanted = not all(map(_hidden_on_purpose, self.members))
+        if not wanted and not _hidden_on_purpose(self):
+            self.hide()
+        elif wanted and _hidden_on_purpose(self):
+            self.show()
+
+
+def _hidden_on_purpose(widget: QWidget) -> bool:
+    """Whether ``widget`` was hidden by a call, not merely not shown yet.
+
+    :param widget: any widget.
+    :returns: ``True`` after ``hide()`` or ``setVisible(False)``.
+    """
+    return bool(widget.testAttribute(Qt.WA_WState_ExplicitShowHide)
+                and widget.isHidden())
+
+
 class AnnotateScreen(QWidget):
     """Main Qt widget for the annotate app.
 
@@ -4862,51 +5054,57 @@ class AnnotateScreen(QWidget):
         outer.addWidget(header)
         outer.addWidget(Divider())
 
-        from ..widgets.flow import FlowHost, FlowLayout
+        from ..widgets.flow import FlowHost
         toolbar = FlowHost()
-        row = FlowLayout(toolbar, spacing=SPACING["sm"])
+        toolbar.setObjectName("AnnotateToolbar")
+        row = _ToolbarFlow(toolbar, spacing=SPACING["lg"],
+                           line_spacing=SPACING["sm"])
         row.setContentsMargins(0, 0, 0, 0)
+        groups = {key: [] for key in ("navigate", "source", "data",
+                                      "view", "similar", "model", "bulk",
+                                      "danger")}
         self._btn_open = QPushButton("Open source…")
         self._btn_open.setObjectName("PrimaryButton")
         self._btn_open.setIcon(iconset.contrast_icon("open"))
         self._btn_open.setCursor(Qt.PointingHandCursor)
         self._btn_open.clicked.connect(self._on_pick_source)
-        row.addWidget(self._btn_open)
+        groups["source"].append(self._btn_open)
 
         self._btn_settings = QPushButton("Settings")
         self._btn_settings.setIcon(iconset.icon("settings"))
         self._btn_settings.setCursor(Qt.PointingHandCursor)
         self._btn_settings.clicked.connect(self._on_open_settings)
-        row.addWidget(self._btn_settings)
-        row.addWidget(self._build_blind_toggle())
-        row.addWidget(self._build_similar_button())
-        row.addWidget(self._build_similar_options())
-        row.addWidget(self._build_field_qc_button())
+        groups["source"].append(self._build_setup_menu())
+        groups["source"].append(self._btn_settings)
+        groups["view"].append(self._build_blind_toggle())
+        groups["similar"].append(self._build_similar_button())
+        groups["similar"].append(self._build_similar_options())
+        groups["view"].append(self._build_field_qc_button())
 
         self._btn_prev = QPushButton("Back")
         self._btn_prev.setIcon(iconset.icon("prev"))
         self._btn_prev.setCursor(Qt.PointingHandCursor)
         self._btn_prev.clicked.connect(self._on_prev)
-        row.addWidget(self._btn_prev)
+        groups["navigate"].append(self._btn_prev)
 
         self._btn_next = QPushButton("Next")
         self._btn_next.setIcon(iconset.icon("next"))
         self._btn_next.setLayoutDirection(Qt.RightToLeft)
         self._btn_next.setCursor(Qt.PointingHandCursor)
         self._btn_next.clicked.connect(self._on_next)
-        row.addWidget(self._btn_next)
+        groups["navigate"].append(self._btn_next)
 
         self._btn_skip = QPushButton("Skip to last annotated")
         self._btn_skip.setIcon(iconset.icon("skip"))
         self._btn_skip.setCursor(Qt.PointingHandCursor)
         self._btn_skip.clicked.connect(self._on_skip)
-        row.addWidget(self._btn_skip)
+        groups["navigate"].append(self._btn_skip)
 
         self._btn_count = QPushButton("Class counts")
         self._btn_count.setIcon(iconset.icon("chart"))
         self._btn_count.setCursor(Qt.PointingHandCursor)
         self._btn_count.clicked.connect(self._on_class_counts)
-        row.addWidget(self._btn_count)
+        groups["data"].append(self._btn_count)
 
         self._btn_coverage = QPushButton("Coverage")
         self._btn_coverage.setIcon(iconset.icon("chart"))
@@ -4917,7 +5115,7 @@ class AnnotateScreen(QWidget):
             "within a small number of wells or plates."
         )
         self._btn_coverage.clicked.connect(self._on_coverage)
-        row.addWidget(self._btn_coverage)
+        groups["data"].append(self._btn_coverage)
 
         self._btn_retrain = QPushButton("Retrain")
         self._btn_retrain.setIcon(iconset.icon("classify"))
@@ -4929,7 +5127,7 @@ class AnnotateScreen(QWidget):
             "labelling one field of view. Each round writes a model card."
         )
         self._btn_retrain.clicked.connect(self._on_retrain)
-        row.addWidget(self._btn_retrain)
+        groups["model"].append(self._btn_retrain)
 
         self._btn_suggest = QPushButton("Suggest…")
         self._btn_suggest.setIcon(iconset.icon("classify"))
@@ -4942,7 +5140,7 @@ class AnnotateScreen(QWidget):
             "them all away, or answer the ones it got wrong one at a time."
         )
         self._btn_suggest.clicked.connect(self._on_suggest_menu)
-        row.addWidget(self._btn_suggest)
+        groups["model"].append(self._btn_suggest)
 
         self._btn_suggest_cancel = QPushButton(tr("Cancel"))
         self._btn_suggest_cancel.setObjectName("AnnotateSuggestCancel")
@@ -4955,7 +5153,7 @@ class AnnotateScreen(QWidget):
             "run is going."))
         self._btn_suggest_cancel.clicked.connect(self._cancel_suggest)
         self._btn_suggest_cancel.hide()
-        row.addWidget(self._btn_suggest_cancel)
+        groups["model"].append(self._btn_suggest_cancel)
 
         self._suggest_progress = QProgressBar()
         self._suggest_progress.setObjectName("AnnotateSuggestProgress")
@@ -4966,11 +5164,11 @@ class AnnotateScreen(QWidget):
             "How far the suggestion run has got. The window stays usable "
             "while it runs; Cancel stops it at its next step."))
         self._suggest_progress.hide()
-        row.addWidget(self._suggest_progress)
+        groups["model"].append(self._suggest_progress)
         self._suggest_stage = QLabel()
         self._suggest_stage.setObjectName("AnnotateSuggestStage")
         self._suggest_stage.hide()
-        row.addWidget(self._suggest_stage)
+        groups["model"].append(self._suggest_stage)
 
         self._btn_suggest_model = QPushButton(tr("Suggestion model…"))
         self._btn_suggest_model.setObjectName("AnnotateSuggestModel")
@@ -4984,8 +5182,8 @@ class AnnotateScreen(QWidget):
             "again."))
         self._btn_suggest_model.clicked.connect(self._open_suggest_model)
         self._btn_suggest_model.setEnabled(False)
-        row.addWidget(self._btn_suggest_model)
-        row.addWidget(self._build_sort_control())
+        groups["model"].append(self._btn_suggest_model)
+        groups["navigate"].append(self._build_sort_control())
 
         self._btn_curve = QPushButton("Rounds")
         self._btn_curve.setIcon(iconset.icon("chart"))
@@ -4996,7 +5194,7 @@ class AnnotateScreen(QWidget):
             "longer improve the model."
         )
         self._btn_curve.clicked.connect(self._on_learning_curve)
-        row.addWidget(self._btn_curve)
+        groups["model"].append(self._btn_curve)
 
         self._btn_train = QPushButton("Train…")
         self._btn_train.setIcon(iconset.icon("classify"))
@@ -5028,7 +5226,7 @@ class AnnotateScreen(QWidget):
         self._train_menu = train_menu
         self._btn_train_cv = self._btn_train
         self._btn_train_xg = self._btn_train
-        row.addWidget(self._btn_train)
+        groups["bulk"].append(self._btn_train)
 
         self._btn_auto = QPushButton("Auto-annotate…")
         self._btn_auto.setCursor(Qt.PointingHandCursor)
@@ -5036,7 +5234,7 @@ class AnnotateScreen(QWidget):
             "Label a whole population at once — by metadata, by measurement "
             "thresholds, by a gate, or by UMAP cluster.")
         self._btn_auto.clicked.connect(self._on_auto_annotate)
-        row.addWidget(self._btn_auto)
+        groups["bulk"].append(self._btn_auto)
 
         self._btn_browse_db = QPushButton("View in database")
         self._btn_browse_db.setCursor(Qt.PointingHandCursor)
@@ -5044,52 +5242,50 @@ class AnnotateScreen(QWidget):
             "Open png_list in the Database Browser to see the annotation "
             "column as it is stored.")
         self._btn_browse_db.clicked.connect(self._on_browse_db)
-        row.addWidget(self._btn_browse_db)
+        groups["data"].append(self._btn_browse_db)
 
         self._btn_annotate_page = QPushButton("Annotate page")
         self._btn_annotate_page.setCursor(Qt.PointingHandCursor)
         self._btn_annotate_page.setToolTip(
             "Give every image on this page the same class. Asks which.")
         self._btn_annotate_page.clicked.connect(self._on_annotate_page)
-        row.addWidget(self._btn_annotate_page)
+        groups["bulk"].append(self._btn_annotate_page)
 
         self._btn_clear_page = QPushButton("Clear page")
         self._btn_clear_page.setCursor(Qt.PointingHandCursor)
         self._btn_clear_page.setToolTip(
             "Remove the annotations on this page only. Undoable.")
         self._btn_clear_page.clicked.connect(self._on_clear_page)
-        row.addWidget(self._btn_clear_page)
+        groups["danger"].append(self._btn_clear_page)
 
         self._btn_clear = QPushButton("Clear column")
         self._btn_clear.setObjectName("DangerButton")
         self._btn_clear.setIcon(iconset.icon("clear", color=PALETTE["error"]))
         self._btn_clear.setCursor(Qt.PointingHandCursor)
         self._btn_clear.clicked.connect(self._on_clear_column)
-        row.addWidget(self._btn_clear)
-
-        self._btn_test_data = QPushButton(tr("Load test data"))
-        self._btn_test_data.setCursor(Qt.PointingHandCursor)
-        self._btn_test_data.setToolTip(tr(
-            "Download an example plate to annotate, and fill in the settings "
-            "that go with it."))
-        self._btn_test_data.clicked.connect(self._choose_the_test_data)
-        row.addWidget(self._btn_test_data)
-
-        self._btn_generate = QPushButton("Generate annotation database…")
-        self._btn_generate.setCursor(Qt.PointingHandCursor)
-        self._btn_generate.setToolTip(
-            "Build a set of crops to annotate by streaming them from the "
-            "merged arrays or from the coordinates in measurements.db, "
-            "without measuring the plate again. The result is registered as "
-            "a new png_list table.")
-        self._btn_generate.clicked.connect(self._on_generate_annotation_db)
-        row.addWidget(self._btn_generate)
+        groups["danger"].append(self._btn_clear)
 
         self._page_label = QLabel("")
         self._page_label.setObjectName("SubtitleSmall")
         self._page_label.setProperty("i18nSkipText", True)
-        row.addWidget(self._page_label)
-        outer.addWidget(toolbar)
+        groups["navigate"].append(self._page_label)
+        captions = {
+            "navigate": tr("Navigate"),
+            "source": tr("Source"),
+            "model": tr("Label model"),
+            "bulk": tr("Train and apply"),
+            "view": tr("View"),
+            "similar": tr("Find similar"),
+            "data": tr("Data"),
+            "danger": tr("Danger zone"),
+        }
+        self._toolbar_groups = {
+            key: _ToolbarGroup(key, captions[key], members)
+            for key, members in groups.items()}
+        for group in self._toolbar_groups.values():
+            row.addWidget(group)
+        self._toolbar_scroll = _ToolbarScroll(toolbar)
+        outer.addWidget(self._toolbar_scroll)
 
         self._al_label = QLabel("")
         self._al_label.setObjectName("SubtitleSmall")
@@ -7776,6 +7972,44 @@ class AnnotateScreen(QWidget):
             return ""
         return tr("Suggested class {c}, probability {p}", c=shown,
                   p=f"{float(matrix[row, column]):.2f}")
+
+    def _build_setup_menu(self) -> QPushButton:
+        """The Setup button, whose menu holds the one-time setup commands.
+
+        Load test data and Generate annotation database are used once per
+        plate, so they sit on a menu rather than among the commands used on
+        every page. They stay reachable by keyboard (the menu opens from the
+        focused button with Space) and keep their names as
+        ``_btn_test_data`` and ``_btn_generate``; both are actions, so a
+        download or blinding disables the menu entry itself.
+
+        :returns: the button, with its menu.
+        """
+        button = QPushButton(tr("Setup"))
+        button.setObjectName("AnnotateSetupMenu")
+        button.setAccessibleName(tr("Setup"))
+        button.setIcon(iconset.icon("settings"))
+        button.setCursor(Qt.PointingHandCursor)
+        menu = QMenu(button)
+        menu.setToolTipsVisible(True)
+        self._btn_test_data = menu.addAction(tr("Load test data"))
+        self._btn_test_data.setObjectName("AnnotateLoadTestData")
+        self._btn_test_data.setToolTip(tr(
+            "Download an example plate to annotate, and fill in the settings "
+            "that go with it."))
+        self._btn_test_data.triggered.connect(self._choose_the_test_data)
+        self._btn_generate = menu.addAction("Generate annotation database…")
+        self._btn_generate.setObjectName("AnnotateGenerateDatabase")
+        self._btn_generate.setToolTip(
+            "Build a set of crops to annotate by streaming them from the "
+            "merged arrays or from the coordinates in measurements.db, "
+            "without measuring the plate again. The result is registered as "
+            "a new png_list table.")
+        self._btn_generate.triggered.connect(self._on_generate_annotation_db)
+        button.setMenu(menu)
+        self._setup_menu = menu
+        self._btn_setup = button
+        return button
 
     def _build_sort_control(self) -> QWidget:
         """The "Order" control: pages by class or by suggestion probability."""
