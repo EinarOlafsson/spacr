@@ -335,9 +335,10 @@ class FoldingSummaryView(QScrollArea):
         """
         self._sections = []
         keep = getattr(self, "_actions", None)
+        from .flow import _take_item
+
         while self._layout.count():
-            item = self._layout.takeAt(0)
-            widget = item.widget()
+            widget, _nested = _take_item(self._layout, 0)
             if widget is None or widget is keep:
                 continue
             widget.setParent(None)

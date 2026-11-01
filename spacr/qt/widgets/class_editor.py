@@ -556,9 +556,10 @@ class ClassEditorWidget(QWidget):
         """
         from ..theme import active_palette
 
+        from .flow import _take_item
+
         while self._chips_layout.count():
-            item = self._chips_layout.takeAt(0)
-            widget = item.widget()
+            widget, _nested = _take_item(self._chips_layout, 0)
             if widget is not None:
                 widget.setParent(None)
                 widget.deleteLater()

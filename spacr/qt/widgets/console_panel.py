@@ -2422,9 +2422,10 @@ class ConsolePanel(QWidget):
 
     def clear(self) -> None:
         """Wipe every entry (topic bars, stdout blocks, chat bubbles)."""
+        from .flow import _take_item
+
         while self._entries.count() > 1:
-            item = self._entries.takeAt(0)
-            w = item.widget() if item else None
+            w, _nested = _take_item(self._entries, 0)
             if w is not None:
                 w.setParent(None)
                 w.deleteLater()

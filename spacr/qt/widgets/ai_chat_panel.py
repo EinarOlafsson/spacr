@@ -1174,9 +1174,10 @@ class AIChatPanel(QWidget):
         self._messages.clear()
         self._pending_bubble = None
         self._pending_buf = []
+        from .flow import _take_item
+
         while self._chat_layout.count() > 1:
-            item = self._chat_layout.takeAt(0)
-            w = item.widget() if item else None
+            w, _nested = _take_item(self._chat_layout, 0)
             if w is not None:
                 w.setParent(None)
                 w.deleteLater()

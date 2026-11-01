@@ -632,9 +632,10 @@ class DatabaseSetWidget(QWidget):
         Chips stop being removable at ``min_items``, so the set cannot be
         emptied below what the module requires.
         """
+        from .flow import _take_item
+
         while self._chips.count() > 1:
-            item = self._chips.takeAt(0)
-            widget = item.widget()
+            widget, _nested = _take_item(self._chips, 0)
             if widget is not None:
                 widget.setParent(None)
                 widget.deleteLater()

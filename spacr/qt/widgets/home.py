@@ -885,9 +885,10 @@ class Panel(QWidget):
         text size the new rows sit at new heights, so the old ones showed
         through and the panel read as drawn twice.
         """
+        from .flow import _take_item
+
         while self.body_layout.count():
-            item = self.body_layout.takeAt(0)
-            widget = item.widget()
+            widget, _nested = _take_item(self.body_layout, 0)
             if widget is not None:
                 widget.hide()
                 widget.deleteLater()
@@ -2093,9 +2094,10 @@ class NewsPanel(Panel):
         self._pending_releases = []
         self._headline_labels = []
         self._older_blocks = []
+        from .flow import _take_item
+
         while self._notes_column.count():
-            item = self._notes_column.takeAt(0)
-            widget = item.widget()
+            widget, _nested = _take_item(self._notes_column, 0)
             if widget is not None and widget is not self._placeholder:
                 widget.setParent(None)
                 widget.deleteLater()
@@ -8201,10 +8203,11 @@ class _EasyHomePage(QWidget):
             if view is not None:
                 view.hide()
                 view.deleteLater()
-        while self._protocol_details_layout.count():
-            item = self._protocol_details_layout.takeAt(0)
-            item.widget().hide()
-            item.widget().deleteLater()
+        from .flow import _take_every_item
+
+        for widget, _nested in _take_every_item(self._protocol_details_layout):
+            widget.hide()
+            widget.deleteLater()
         self._protocol_detail_combos = {}
         options = (_protocol_options() if self._protocol_step == 0
                    else _protocol_options(self._protocol_family))

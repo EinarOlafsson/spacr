@@ -1440,9 +1440,10 @@ class _WellTab(QWidget):
 
     def clear(self) -> None:
         """Empty the grid, leaving nothing of the previous fill behind."""
+        from .flow import _take_item
+
         while self._grid.count():
-            item = self._grid.takeAt(0)
-            widget = item.widget()
+            widget, _nested = _take_item(self._grid, 0)
             if widget is not None:
                 widget.setParent(None)
                 widget.deleteLater()

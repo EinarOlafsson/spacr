@@ -789,9 +789,10 @@ class FigureGridView(QScrollArea):
         """Drop every figure and release the pixmaps behind them."""
         doomed = []
         live = set(map(id, self._live))
+        from .flow import _take_item
+
         while self._grid.count():
-            item = self._grid.takeAt(0)
-            widget = item.widget()
+            widget, _nested = _take_item(self._grid, 0)
             if widget is not None and id(widget) not in live:
                 doomed.append(widget)
         seen = set(map(id, doomed))
@@ -1021,8 +1022,10 @@ class FigureGridView(QScrollArea):
         for header in self._headers:
             self._discard(header)
         self._headers = []
+        from .flow import _take_item
+
         for index in reversed(range(self._grid.count())):
-            self._grid.takeAt(index)
+            _take_item(self._grid, index)
 
         columns = cells_across(self.viewport().width(), self._target)
         available = max(self.viewport().width() - 24, MIN_CELL_PX)
