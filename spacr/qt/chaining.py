@@ -796,9 +796,10 @@ class ChainingBar(QFrame):
 
     def _draw_next(self, settings: Dict[str, Any], *, finished: bool) -> None:
         """Row 4 — what can run on what this one just produced."""
+        from .widgets.flow import _take_item
+
         while self._next_layout.count() > 1:
-            item = self._next_layout.takeAt(1)
-            widget = item.widget() if item is not None else None
+            widget, _nested = _take_item(self._next_layout, 1)
             if widget is not None:
                 widget.setParent(None)
                 widget.deleteLater()

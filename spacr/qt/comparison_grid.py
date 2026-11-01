@@ -339,8 +339,10 @@ class ComparisonGrid(LinkedView, QWidget):
         The column count is the one given at construction, or the nearest square
         for however many panels there now are.
         """
+        from .widgets.flow import _take_item
+
         while self.grid.count():
-            self.grid.takeAt(0)
+            _take_item(self.grid, 0)
         n = len(self._panels)
         columns = self._columns or max(1, int(math.ceil(math.sqrt(n))))
         for index, panel in enumerate(self._panels.values()):

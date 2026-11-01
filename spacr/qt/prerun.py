@@ -852,9 +852,10 @@ class SegQCBanner(_JobMixin, QFrame):
 
     def _clear_findings(self) -> None:
         """Empty the findings list."""
+        from .widgets.flow import _take_item
+
         while self._findings_layout.count():
-            item = self._findings_layout.takeAt(0)
-            widget = item.widget()
+            widget, _nested = _take_item(self._findings_layout, 0)
             if widget is not None:
                 widget.setParent(None)
                 widget.deleteLater()
@@ -1337,9 +1338,10 @@ class DiameterPanel(_JobMixin, QFrame):
 
     def _clear_rows(self) -> None:
         """Empty the results rows."""
+        from .widgets.flow import _take_item
+
         while self._rows_layout.count():
-            item = self._rows_layout.takeAt(0)
-            widget = item.widget()
+            widget, _nested = _take_item(self._rows_layout, 0)
             if widget is not None:
                 widget.setParent(None)
                 widget.deleteLater()

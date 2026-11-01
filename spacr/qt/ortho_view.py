@@ -384,14 +384,15 @@ class OrthoView(LinkedView, QWidget):
 
     def _build_sliders(self) -> None:
         """One slider per axis the panels do not both span, plus time."""
+        from .widgets.flow import _take_item
+
         while self.slider_box.count():
-            item = self.slider_box.takeAt(0)
-            widget = item.widget()
+            widget, _nested = _take_item(self.slider_box, 0)
             if widget is not None:
                 widget.deleteLater()
-            elif item.layout() is not None:
-                self._drain(item.layout())
-                item.layout().deleteLater()
+            elif _nested is not None:
+                self._drain(_nested)
+                _nested.deleteLater()
         self._sliders = {}
         if self._views is None:
             return
@@ -409,9 +410,10 @@ class OrthoView(LinkedView, QWidget):
 
         :param layout: the layout to empty.
         """
+        from .widgets.flow import _take_item
+
         while layout.count():
-            item = layout.takeAt(0)
-            widget = item.widget()
+            widget, _nested = _take_item(layout, 0)
             if widget is not None:
                 widget.deleteLater()
 
