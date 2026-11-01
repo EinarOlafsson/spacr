@@ -251,8 +251,12 @@ def record_gates(app, window, screen, stage, captures, capture, settle, write_js
     # database, never to the downloaded source.
     file_dialog(screen._save_graph, work / 'gate_graph.png', '12b_save_graph', save=True,
                 next_frame='12c_exported_gate_membership')
+    # Save graph now renders on a worker; wait for the actual file rather than looking once.
+    saved_by = time.monotonic() + 30
+    while not (work / 'gate_graph.png').is_file() and time.monotonic() < saved_by:
+        settle(0.5)
     if not (work / 'gate_graph.png').is_file():
-        raise RuntimeError('The actual Save graph action produced no PNG')
+        raise RuntimeError('The actual Save graph action produced no PNG within 30 s')
     QTest.mouseClick(screen._export, Qt.LeftButton)
     wait()
     if not screen._source.text().startswith('wrote ') or 'could not export' in screen._source.text():
