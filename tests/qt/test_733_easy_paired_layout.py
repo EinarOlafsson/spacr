@@ -254,6 +254,8 @@ def test_duplicate_completion_after_a_real_copy_cannot_reopen_or_change_the_curr
     monkeypatch.setattr(mm.QFileDialog, 'getExistingDirectory', lambda *a, **k: str(tmp_path))
     assert screen._open_paired_layout(pairs)
     qtbot.waitUntil(lambda: screen._paired_layout_job is None, timeout=20000)
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                   and screen._load_worker is None and screen._canvas.mask is not None)
     token, folder = screen._load_token, screen._folder
     assert folder == str(tmp_path / 'make_masks' / 'images')
     monkeypatch.setattr(screen, '_open_folder', lambda *a, **k: pytest.fail('Completed copy reopened'))

@@ -816,3 +816,40 @@ def test_multichannel_paired_mask_keep_saves_exact_ids_and_reopens_the_curated_c
     np.testing.assert_array_equal(screen._canvas.mask, edited)
     assert screen._canvas.retain_label_ids() and not screen.warnings
     assert (source.read_bytes(), paired.read_bytes(), following.read_bytes()) == originals
+
+
+def test_calibrated_ome_tiff_header_reads_without_the_conversion_pipeline(tmp_path):
+    """A TIFF header is read by tifffile alone: no spacr.convert, pandas or spacr.io.
+
+    The header is read on a worker while the save-path warmer imports
+    spacr.io (torch) on another; importing spacr.convert there queued the
+    review behind that import for seconds on a cold, traced CI runner.
+    """
+    import json
+    import os
+    import subprocess
+    import sys
+
+    source = tmp_path / 'field.ome.tif'
+    tifffile.imwrite(source, np.arange(48, dtype=np.uint16).reshape(6, 8), ome=True,
+                     metadata={'axes': 'YX', 'PhysicalSizeX': 0.5, 'PhysicalSizeY': 0.5})
+    before = source.read_bytes()
+    probe = (
+        "import json, sys\n"
+        "from spacr.qt import mask_engine as engine\n"
+        "header = engine._container_image_header(sys.argv[1])\n"
+        "print(json.dumps([header['series'][0]['axes'], list(header['series'][0]['shape']),\n"
+        "                  header['series'][0]['pixel_size_nm'],\n"
+        "                  sorted(m for m in ('spacr.convert', 'pandas', 'spacr.io', 'spacr.core')\n"
+        "                         if m in sys.modules)]))\n")
+    done = subprocess.run([sys.executable, '-c', probe, str(source)], capture_output=True,
+                          text=True, timeout=120, check=True,
+                          env=dict(os.environ, QT_QPA_PLATFORM='offscreen',
+                                   PYTHONPATH=os.pathsep.join(
+                                       [str(Path(__file__).resolve().parents[2]),
+                                        os.environ.get('PYTHONPATH', '')])))
+    axes, shape, pixel_size, loaded = json.loads(done.stdout.strip().splitlines()[-1])
+    assert (axes, shape) == ('YX', [6, 8])
+    assert pixel_size == pytest.approx(500.0)
+    assert loaded == []
+    assert source.read_bytes() == before

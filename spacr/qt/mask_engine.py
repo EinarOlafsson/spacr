@@ -813,16 +813,18 @@ def _container_pixel_sizes(path, ext, series):
 
 def _container_image_header(path):
     """Inspect shared reader metadata without decoding container pixels."""
-    from .. import convert
     from .i18n import tr
 
     path = os.path.abspath(os.fspath(path))
     before = _source_identity(path)
     ext = Path(path).suffix.lower()
-    if ext not in _image_extensions() or ext == '.npy':
-        raise ValueError(tr('This file has no shared image reader. Use Import to inspect it.'))
-    if not convert.reader_available(ext):
-        raise ValueError(convert.missing_reader_message(ext))
+    if ext not in ('.tif', '.tiff'):
+        from .. import convert
+
+        if ext not in _image_extensions() or ext == '.npy':
+            raise ValueError(tr('This file has no shared image reader. Use Import to inspect it.'))
+        if not convert.reader_available(ext):
+            raise ValueError(convert.missing_reader_message(ext))
     if ext in ('.tif', '.tiff'):
         import tifffile
 
