@@ -406,15 +406,17 @@ def test_workspace_height_grip_drag_and_reset_preserve_category_expansion(qtbot)
     start = section._body.height()
     local = QPointF(grip.rect().center())
     global_point = QPointF(grip.mapToGlobal(grip.rect().center()))
-    for event in (
-        QMouseEvent(QEvent.MouseButtonPress, local, global_point, Qt.LeftButton, Qt.LeftButton, Qt.NoModifier),
-        QMouseEvent(QEvent.MouseMove, local + QPointF(0, 45), global_point + QPointF(0, 45),
-                    Qt.NoButton, Qt.LeftButton, Qt.NoModifier),
-        QMouseEvent(QEvent.MouseButtonRelease, local + QPointF(0, 45), global_point + QPointF(0, 45),
-                    Qt.LeftButton, Qt.NoButton, Qt.NoModifier),
-    ):
-        from PySide6.QtWidgets import QApplication
-        QApplication.sendEvent(grip, event)
+    from PySide6.QtWidgets import QApplication
+
+    # Each event is built just before it is sent: Qt 6 keeps one persistent
+    # point per pointing device; built up front (PySide6 6.10), the press and
+    # the move read the same position and the drag measured 0 px.
+    for kind, offset, button, buttons in (
+            (QEvent.MouseButtonPress, 0, Qt.LeftButton, Qt.LeftButton),
+            (QEvent.MouseMove, 45, Qt.NoButton, Qt.LeftButton),
+            (QEvent.MouseButtonRelease, 45, Qt.LeftButton, Qt.NoButton)):
+        QApplication.sendEvent(grip, QMouseEvent(kind, local + QPointF(0, offset), global_point + QPointF(0, offset),
+                                                 button, buttons, Qt.NoModifier))
     assert section._body.minimumHeight() == start + 45
     qtbot.mouseDClick(grip, Qt.LeftButton)
     assert section._body.minimumHeight() == 0 and section.is_expanded()
