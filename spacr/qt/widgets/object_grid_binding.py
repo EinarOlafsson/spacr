@@ -19,7 +19,8 @@ against a dictionary rather than against a built screen.
 from __future__ import annotations
 
 import logging
-
+import sys
+import threading
 from typing import Any, Dict, FrozenSet, Mapping, Optional
 
 from PySide6.QtCore import QObject
@@ -76,6 +77,10 @@ class ObjectGridBinding(QObject):
         self._followed: set = set()
         self._grid.settings_changed.connect(self._write_back)
         self._grid.settings_changed.connect(self.follow_the_form)
+        if "spacr.qt.mask_engine" not in sys.modules:
+            threading.Thread(target=_warm_the_filter_parser,
+                             name="spacr-warm-filter-parser",
+                             daemon=True).start()
 
 
     def owned_keys(self) -> FrozenSet[str]:
@@ -385,6 +390,20 @@ def _same(a: Any, b: Any) -> bool:
     if isinstance(a, (int, float)) and isinstance(b, (int, float)):
         return float(a) == float(b)
     return a == b
+
+
+def _warm_the_filter_parser() -> None:
+    """Import, off the GUI thread, the parser :func:`_filters_of` needs.
+
+    :mod:`spacr.qt.mask_engine` brings imageio, and imported cold by the
+    first keystroke in a Mask channel it held that keystroke 85-120 ms on a
+    shared core. It creates no Qt object when imported; a failure is left
+    for :func:`_filters_of` to meet.
+    """
+    try:
+        import spacr.qt.mask_engine  # noqa: F401
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not warm the filter parser", exc_info=True)
 
 
 def _filters_of(value: Any) -> Any:
