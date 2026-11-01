@@ -337,3 +337,31 @@ def _tiff_pixel_size_nm(path):
     if factor is None or per_unit <= 0:
         return None
     return factor / per_unit
+
+
+_WATCH_OME_UNITS = {'\u00b5m': 1.0, 'um': 1.0, 'nm': 1e-3, 'mm': 1e3, 'm': 1e6}
+
+
+def _watch_um(value, scale=1.0):
+    """A positive finite length in micrometres, or None.
+
+    :param value: the declared length.
+    :param scale: micrometres per declared unit.
+    """
+    try:
+        number = float(value) * float(scale)
+    except (TypeError, ValueError):
+        return None
+    return number if np.isfinite(number) and number > 0 else None
+
+
+def _watch_square_um(x, y):
+    """One square pixel size from declared X and Y sizes, or None.
+
+    spaCR's ``voxel_size_xy_um`` assumes square pixels, so X and Y that differ
+    by more than 1 % are treated as undeclared.
+    """
+    x, y = _watch_um(x), _watch_um(y)
+    if x is None or y is None or abs(x - y) > 0.01 * max(x, y):
+        return None
+    return (x + y) / 2.0

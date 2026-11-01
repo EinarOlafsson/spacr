@@ -746,8 +746,7 @@ def _tiff_series_pixel_size(handle, image):
     unit = (handle.imagej_metadata or {}).get('unit') if len(handle.series) == 1 else None
     if exact is None and not handle.is_ome and not unit and page.resolutionunit != 3:
         return None
-    from ..core import _WATCH_OME_UNITS, _watch_square_um, _watch_um
-    from ..io import _nm_per
+    from ..tiff_io import _WATCH_OME_UNITS, _nm_per, _watch_square_um, _watch_um
 
     exact_um = _watch_um(exact, .001)
     if exact_um is not None:
@@ -783,7 +782,7 @@ def _tiff_series_pixel_size(handle, image):
 def _container_pixel_sizes(path, ext, series):
     """Retain declared square-pixel calibration through existing unit validators."""
     from .. import convert
-    from ..core import _watch_czi_voxel, _watch_square_um, _watch_um
+    from ..tiff_io import _watch_square_um, _watch_um
 
     if ext == '.nd2':
         module = convert._import_reader(ext)
@@ -801,6 +800,8 @@ def _container_pixel_sizes(path, ext, series):
             sizes.append(None if xy is None else xy * 1000)
         return sizes
     if ext == '.czi':
+        from ..core import _watch_czi_voxel
+
         module = convert._import_reader(ext)
         with module.CziFile(path) as handle:
             read_metadata = getattr(handle, 'metadata', None)

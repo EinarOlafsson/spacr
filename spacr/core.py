@@ -77,6 +77,7 @@ import warnings
 import weakref
 
 from .errors import RunLedger, raise_if_strict
+from .tiff_io import _WATCH_OME_UNITS, _watch_square_um, _watch_um
 
 from . import artifacts as artifact_status
 from .runctx import run_context
@@ -1706,31 +1707,6 @@ def _watch_czi_declared(text):
     return declared
 
 
-def _watch_um(value, scale=1.0):
-    """A positive finite length in micrometres, or None.
-
-    :param value: the declared length.
-    :param scale: micrometres per declared unit.
-    """
-    try:
-        number = float(value) * float(scale)
-    except (TypeError, ValueError):
-        return None
-    return number if np.isfinite(number) and number > 0 else None
-
-
-def _watch_square_um(x, y):
-    """One square pixel size from declared X and Y sizes, or None.
-
-    spaCR's ``voxel_size_xy_um`` assumes square pixels, so X and Y that differ
-    by more than 1 % are treated as undeclared.
-    """
-    x, y = _watch_um(x), _watch_um(y)
-    if x is None or y is None or abs(x - y) > 0.01 * max(x, y):
-        return None
-    return (x + y) / 2.0
-
-
 def _watch_nd2_voxel(handle, sizes):
     """The calibrated pixel size and Z step an ND2 declares.
 
@@ -1784,9 +1760,6 @@ def _watch_lif_voxel(image, sizes):
 
     return {'xy': _watch_square_um(step('X'), step('Y')),
             'z': step('Z') if sizes.get('Z', 1) > 1 else None}
-
-
-_WATCH_OME_UNITS = {'\u00b5m': 1.0, 'um': 1.0, 'nm': 1e-3, 'mm': 1e3, 'm': 1e6}
 
 
 def _watch_tiff_voxel(path):

@@ -11,7 +11,9 @@ with tifffile alone.
 The run is a fresh process in which importing :mod:`spacr.io` never
 finishes, a stand-in for the slowest cold import. The save must still land
 within a few seconds, and the window must keep pumping events through the
-save and the move to the next field.
+save and the move to the next field. A calibrated TIFF is opened and read
+for its pixel size through tifffile alone too, so neither the field's load
+nor its save imports torch.
 """
 from __future__ import annotations
 
@@ -78,12 +80,15 @@ from spacr.qt.screens import make_masks as mm
 from tests.qt.test_gui_responsiveness import LoopWatchdog
 
 tmp = sys.argv[1]
+calibrated = sys.argv[2] == "calibrated"
 prefs._s = lambda: QSettings(os.path.join(tmp, "editor.ini"), QSettings.IniFormat)
 folder = os.path.join(tmp, "fields")
 os.makedirs(folder)
 for index in range(2):
     tifffile.imwrite(os.path.join(folder, f"field_{index}.tif"),
-                     np.full((64, 64), index + 1, dtype=np.uint16))
+                     np.full((64, 64), index + 1, dtype=np.uint16),
+                     **({"resolution": (1e6, 1e6), "resolutionunit": "CENTIMETER"}
+                        if calibrated else {}))
 
 
 def pump_until(done, limit):
@@ -115,17 +120,21 @@ print(json.dumps({
     "saved": saved, "seconds": seconds, "moved": moved, "worst": dog.worst,
     "exists": os.path.isfile(path),
     "spacr_io_held": held.is_set(),
+    "pixel_size_nm": engine.pixel_size_nm(os.path.join(folder, "field_0.tif")),
+    "torch_imported": "torch" in sys.modules,
 }), flush=True)
 os._exit(0)
 '''
 
 
-def test_a_fresh_process_saves_and_moves_on_while_spacr_io_cannot_import(tmp_path):
+@pytest.mark.parametrize("calibration", ["uncalibrated", "calibrated"])
+def test_a_fresh_process_saves_and_moves_on_while_spacr_io_cannot_import(
+        tmp_path, calibration):
     env = dict(os.environ, QT_QPA_PLATFORM="offscreen", CUDA_VISIBLE_DEVICES="",
                SPACR_HOME=str(tmp_path / "home"), SPACR_NO_NETWORK="1",
                PYTHONPATH=os.pathsep.join(
                    [str(REPO)] + [p for p in [os.environ.get("PYTHONPATH")] if p]))
-    out = subprocess.run([sys.executable, "-c", CHILD, str(tmp_path)],
+    out = subprocess.run([sys.executable, "-c", CHILD, str(tmp_path), calibration],
                          capture_output=True, text=True, timeout=180,
                          cwd=str(REPO), env=env)
     assert out.returncode == 0, out.stderr[-3000:]
@@ -135,3 +144,6 @@ def test_a_fresh_process_saves_and_moves_on_while_spacr_io_cannot_import(tmp_pat
     assert result["moved"], result
     assert result["worst"] < 1.0, result
     assert result["spacr_io_held"], result
+    assert not result["torch_imported"], result
+    expected = 10.0 if calibration == "calibrated" else None
+    assert result["pixel_size_nm"] == (pytest.approx(expected) if expected else None), result
