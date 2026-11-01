@@ -6636,7 +6636,7 @@ class AppScreen(QWidget):
                     importlib.import_module(name)
                 imported += 1
             except Exception:                                # noqa: BLE001
-                LOG.debug("could not import %s early", name, exc_info=True)
+                LOG.warning("could not import %s early", name, exc_info=True)
         return imported
 
     def _build_the_prepared_results_part(self, _imported=None) -> bool:

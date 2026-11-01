@@ -398,12 +398,13 @@ def _warm_the_filter_parser() -> None:
     :mod:`spacr.qt.mask_engine` brings imageio, and imported cold by the
     first keystroke in a Mask channel it held that keystroke 85-120 ms on a
     shared core. It creates no Qt object when imported; a failure is left
-    for :func:`_filters_of` to meet.
+    for :func:`_filters_of` to meet. The import goes through
+    :func:`spacr.qt.bridge._warm_import`, one warm-up at a time under the
+    heavy-import lock, with a failure logged as a warning.
     """
-    try:
-        import spacr.qt.mask_engine  # noqa: F401
-    except Exception:                                        # noqa: BLE001
-        LOG.debug("could not warm the filter parser", exc_info=True)
+    from ..bridge import _warm_import
+
+    _warm_import("spacr.qt.mask_engine")
 
 
 def _filters_of(value: Any) -> Any:

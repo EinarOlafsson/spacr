@@ -2482,12 +2482,44 @@ def _import_the_entry_module(name: str) -> None:
                 if torch is not None:
                     torch.cuda.is_available()
         except Exception:
-            LOG.debug("could not import %s off the GUI thread", name,
-                      exc_info=True)
+            LOG.warning("could not import %s off the GUI thread", name,
+                        exc_info=True)
         finally:
             _freeze_survivors()
             if lock is not None:
                 lock.release()
+
+
+def _warm_import(name: str) -> bool:
+    """Import ``name`` for a background warm-up, one warm at a time, never raising.
+
+    Holds the application's heavy-import lock when the application is
+    loaded and registers the thread as a background importer, as
+    :func:`_import_the_entry_module` does, so two warm-ups never initialise
+    one package together and a thread arriving at a gated module waits for
+    this one. A failure is logged as a warning with its traceback: a heavy
+    package left half imported by a warm-up is imported again by the next
+    thread that needs it, and torch refuses a second start ("Only a single
+    TORCH_LIBRARY can be used to register the namespace triton").
+
+    :param name: the module to import.
+    :returns: whether the import succeeded.
+    """
+    app_module = sys.modules.get("spacr.qt.app")
+    lock = getattr(app_module, "HEAVY_IMPORT_LOCK", None)
+    if lock is not None:
+        lock.acquire()
+    try:
+        with _importing_in_the_background():
+            importlib.import_module(name)
+        return True
+    except Exception:
+        LOG.warning("could not warm %s off the GUI thread", name,
+                    exc_info=True)
+        return False
+    finally:
+        if lock is not None:
+            lock.release()
 
 
 def _import_the_entry_off_the_gui_thread(

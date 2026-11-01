@@ -3734,7 +3734,7 @@ def _map_the_torch_libraries() -> None:
         with _timing.span("background warm", "cuda driver"):
             _initialise_the_cuda_driver()
     except Exception:                                        # noqa: BLE001
-        LOG.debug("could not map the torch libraries early", exc_info=True)
+        LOG.warning("could not map the torch libraries early", exc_info=True)
 
 
 def _map_the_torch_libraries_off_the_gui_thread() -> Optional[threading.Thread]:
@@ -3953,7 +3953,7 @@ class _PipelinePreloader:
                 with HEAVY_IMPORT_LOCK, _importing_in_the_background():
                     importlib.import_module(module)
             except Exception:                                # noqa: BLE001
-                LOG.debug("preloading %s failed", module, exc_info=True)
+                LOG.warning("preloading %s failed", module, exc_info=True)
             self._i += 1
         self._done.set()
 
@@ -13046,7 +13046,7 @@ def _start_settings_prewarm(wait_for_home: bool = False) -> threading.Thread:
 
                 _mask_engine._filter_catalogue()
         except Exception:
-            LOG.debug("Could not prewarm GUI settings imports", exc_info=True)
+            LOG.warning("Could not prewarm GUI settings imports", exc_info=True)
 
     thread = threading.Thread(target=warm, name="spacr-prewarm", daemon=True)
     _SETTINGS_PREWARM_THREAD = thread

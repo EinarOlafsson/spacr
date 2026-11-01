@@ -10308,8 +10308,8 @@ def _import_attribution_off_the_gui_thread() -> Optional[threading.Thread]:
             try:
                 importlib.import_module(_ATTRIBUTION_MODULE)
             except Exception:                                # noqa: BLE001
-                LOGGER.debug("could not import the attribution rules",
-                             exc_info=True)
+                LOGGER.warning("could not import the attribution rules",
+                               exc_info=True)
 
     thread = threading.Thread(target=_work, daemon=True,
                               name="spacr-attribution-import")

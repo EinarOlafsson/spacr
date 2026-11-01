@@ -13728,17 +13728,18 @@ def _warm_the_folded_imports():
 
 
 def _import_the_cold_modules() -> None:
-    """Import each of ``_COLD_IMPORTS``, leaving a failure for the build to meet."""
-    import importlib
+    """Import each of ``_COLD_IMPORTS``, leaving a failure for the build to meet.
+
+    Each goes through :func:`spacr.qt.bridge._warm_import`, one warm-up at a
+    time under the heavy-import lock, with a failure logged as a warning.
+    """
+    from ..bridge import _warm_import
 
     names = _COLD_IMPORTS + tuple(
         f"spacr.qt.i18n_catalogs.{code}" for code in _WARM_LANGUAGE
         if code.isidentifier() and code != "en")
     for name in names:
-        try:
-            importlib.import_module(name)
-        except Exception:                                    # noqa: BLE001
-            LOG.debug("could not warm %s", name, exc_info=True)
+        _warm_import(name)
 
 
 class MakeMasksScreen(QWidget):
