@@ -278,6 +278,17 @@ def record_overview(app, window, captures, capture, settle, write_json,
 
                 switch = screen._ops_switch
                 if not switch.isChecked():
+                    # The wrapping actions row can put the switch below the visible part of its pane.
+                    folder = getattr(screen, '_actions_folder', None)
+                    if folder is not None and folder.shut:
+                        click(folder.heading)
+                    from PySide6.QtWidgets import QScrollArea
+                    area = switch.parentWidget()
+                    while area is not None and not isinstance(area, QScrollArea):
+                        area = area.parentWidget()
+                    if area is not None and switch.visibleRegion().isEmpty():
+                        capture_ui.scroll_to(capture, area, switch)
+                        settle(.4)
                     click(switch)
                 settle(1)
                 manager = ops_page(screen)
