@@ -7542,8 +7542,14 @@ def _perform_drug_screen_regression(settings):
         from matplotlib.figure import Figure
 
         with figure_style(theme_target()):
+            from .figures.bundle import _register_figure_data
+
             figure = Figure(figsize=(6, 4))
             axes = figure.add_subplot()
+            _register_figure_data(
+                figure, shown, x='concentration', y='effect', hue='drug',
+                kind='scatter',
+                title=f"{settings['dependent_variable']} against vehicle")
             for drug, group in shown.groupby('drug', sort=True):
                 axes.errorbar(group['concentration'], group['effect'],
                               yerr=[group['effect'] - group['ci_low'],

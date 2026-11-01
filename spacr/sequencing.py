@@ -1244,6 +1244,10 @@ def _unsupported_read_files(folder):
     return found
 
 
+class _EmptyReadFile(ValueError):
+    """A read file that is readable FASTQ but holds no record at all."""
+
+
 def _fastq_head(path, records=1):
     """Return the first FASTQ records of a file, refusing what is not FASTQ.
 
@@ -1293,7 +1297,7 @@ def _fastq_head(path, records=1):
                     f"equal sequence and quality length.")
             head.append(tuple(lines))
     if not head:
-        raise ValueError(f"{name} holds no reads.")
+        raise _EmptyReadFile(f"{name} holds no reads.")
     return compression, head
 
 
@@ -1372,13 +1376,25 @@ def _inspect_sample_reads(sample, files, sequencer, pairing):
         return None
     described = {}
     conventions = set()
+    empty = set()
     for mate, path in sorted(files.items()):
-        compression, head = _fastq_head(path)
+        try:
+            compression, head = _fastq_head(path)
+        except _EmptyReadFile:
+            empty.add(mate)
+            described[mate] = dict(path=path, compression='',
+                                   header_convention='no reads',
+                                   first_read='')
+            continue
         convention = _header_convention(head[0][0])
         conventions.add(convention)
         described[mate] = dict(path=path, compression=compression,
                                header_convention=convention or 'unrecognised',
                                first_read=_read_identity(head[0][0]))
+    if empty:
+        LOG.warning(
+            "%s: %s holds no reads, so nothing is decoded from it.",
+            sample, ', '.join(sorted(empty)))
     machine = {c for c in conventions if c in _CONVENTION_SEQUENCERS}
     if len(machine) > 1:
         raise ValueError(
@@ -1400,7 +1416,7 @@ def _inspect_sample_reads(sample, files, sequencer, pairing):
                 f"which produces single reads; decode them with mode='single'.")
     else:
         inferred = sequencer
-    if pairing == 'paired':
+    if pairing == 'paired' and not empty:
         names = {row['first_read'] for row in described.values()}
         if len(names) != 1:
             raise ValueError(

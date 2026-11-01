@@ -43,11 +43,12 @@ This linked reference contains the full generated setting descriptions. Return t
 
 
 <details>
-<summary>Sequencing Input (2 settings)</summary>
+<summary>Sequencing Input (3 settings)</summary>
 
 #### Sequencing Input
 
-- **`mode`** *(optional)* — (str) - Read-pairing strategy for barcode extraction: 'paired' locates target_sequence in R1 and in the reverse complement of R2 and merges them base-by-base into a quality-weighted consensus; 'single' scans one mate alone, chosen by single_direction. Paired calls barcodes more accurately but discards any read whose anchor is missing from either mate. Default 'paired'. Default: `'paired'`.
+- **`sequencer`** *(optional)* — (str) - The machine that produced the reads: 'auto' (default) reads the platform from the FASTQ headers where they identify one; 'illumina', 'element' (AVITI), 'mgi' (DNBSEQ), 'ultima', 'ont' (Oxford Nanopore), 'pacbio' or 'other'. It sets no decoding parameter: headers that follow another platform's convention are refused, and Ultima, Oxford Nanopore and PacBio reads must use mode 'single' because those runs produce no mate pairs. Illumina and Element headers look alike, so auto reports them as Illumina-style. Default: `'auto'`.
+- **`mode`** *(optional)* — (str) - Read-pairing strategy for barcode extraction: 'paired' locates target_sequence in R1 and in the reverse complement of R2 and merges them base-by-base into a quality-weighted consensus; 'single' scans one mate alone, chosen by single_direction; 'mixed' decodes each sample that has both mates as paired and each sample with one mate from its single_direction file, skipping samples that only have the other mate. Paired calls barcodes more accurately but discards any read whose anchor is missing from either mate. Default 'paired'. Default: `'paired'`.
 - **`single_direction`** *(optional)* — (str) - Which mate to scan when mode is 'single': 'R1' or 'R2'. The chosen file is read as-is with no reverse-complementing, so selecting 'R2' means target_sequence and regex must be written in R2 orientation or nothing will match. Ignored when mode is 'paired'. Default 'R1'. Default: `'R1'`.
 
 </details>

@@ -43,15 +43,24 @@ This linked reference contains the full generated setting descriptions. Return t
 
 
 <details>
-<summary>Input Tables (5 settings)</summary>
+<summary>Input Tables (14 settings)</summary>
 
 #### Input Tables
 
+- **`screen_type`** *(optional)* — (str) - What the Regression module analyses. 'pooled' (default) regresses phenotype scores on the mapped guide or barcode counts of a pooled screen. 'drug_screen' reads no guides or barcodes: it compares each drug and concentration with the vehicle wells named by vehicle_control, using the response in drug_data and each well's drug and concentration. Each drug-at-concentration is its own level in one linear model, with a plate fixed effect when the wells span several plates; doses are never pooled, and dose curves belong to Dose-Response. Default 'pooled'. Default: `'pooled'`.
 - **`metadata_files`** *(optional)* — (list) - Gene-annotation CSVs, each with a 'Gene ID' column, that are joined onto the regression results by gene, writing an extra results CSV per file. These are gene tables, not plate/well metadata. When toxo is True the order matters: index 0 is read as the ME49 transcription table and index 1 as the GT1 phenotype table. Default []. Default: `[]`.
 - **`count_grna_column`** *(optional)* — (str) - Name of the column in the count CSV containing the guide identifier. Set this value to the column produced by the sequencing pipeline. Default 'grna'. Default: `'grna'`.
 - **`count_value_column`** *(optional)* — (str) - Name of the column in the count CSV holding the read count for one guide in one well; it becomes the per-well fraction the fraction_threshold sweep works on. Set it when the file names this column differently, for example 'reads' or 'n'. Default 'count'. Default: `'count'`.
 - **`independent_variable_layout`** *(optional)* — (str) - Shape of the independent-variable/count table: 'long' means one row per well and guide, 'wide' means one row per well with one guide per column, and 'auto' detects long from count_grna_column plus count_value_column and otherwise treats the numeric non-metadata columns as guides. Wide input is melted losslessly before filtering. Default 'auto'. Default: `'auto'`.
 - **`wide_predictor_columns`** *(optional)* — (list) - Guide columns in a wide independent-variable table. Leave empty to use all numeric columns other than plate/well metadata; list them explicitly when the table contains additional numeric metadata. Ignored for long input. Default []. Default: `[]`.
+- **`drug_data`** *(optional)* — (str) - Drug-screen mode only: the spaCR measurements database, or a CSV/Parquet/Excel table, holding the response named by dependent_variable, one row per object or per well. Each row needs its well: a prc column, plateID with rowID and columnID, or a well name such as A01 (with plateID when there are several plates). Image crops are not needed. Default ''. Default: `''`.
+- **`drug_table`** *(optional)* — (str) - Drug-screen mode only: the table of drug_data to read when it is a database, for example cell, nucleus or a per-well table. Ignored for a file table. Default 'cell'. Default: `'cell'`.
+- **`treatment_map`** *(optional)* — (str or None) - Drug-screen mode only: a plate map naming each well's drug and concentration, with the same well columns as drug_data. Leave empty when drug_data itself carries drug_column and concentration_column. A well given two treatments is refused. Default None. Default: `None`.
+- **`drug_column`** *(optional)* — (str) - Drug-screen mode only: the column naming the compound in each well; the vehicle wells carry the value set in vehicle_control. Default 'drug'. Default: `'drug'`.
+- **`concentration_column`** *(optional)* — (str) - Drug-screen mode only: the column holding each well's concentration, a number in concentration_unit. Every non-vehicle well needs a positive concentration; the vehicle wells' value is not read. Default 'concentration'. Default: `'concentration'`.
+- **`concentration_unit`** *(optional)* — (str or None) - Drug-screen mode only, required: the unit of concentration_column, for example uM or nM. It is kept as part of every drug-at-concentration level and on the figure axis; spaCR does not convert units. Default None. Default: `None`.
+- **`vehicle_control`** *(optional)* — (str, list or None) - Drug-screen mode only, required: the drug_column value or values of the vehicle wells, for example DMSO. Every effect is the difference from these wells, plate-adjusted when there are several plates, and each plate with treated wells needs vehicle wells of its own. Default None. Default: `None`.
+- **`replicate_column`** *(optional)* — (str or None) - Drug-screen mode only, optional: a column naming the biological replicate of each well. It is counted per level in drug_effects.csv and not modelled. Default None. Default: `None`.
 
 </details>
 
