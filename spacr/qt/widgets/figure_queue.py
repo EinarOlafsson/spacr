@@ -436,6 +436,26 @@ def _too_slow_for_the_live_canvas(fig) -> bool:
 _PRINT_PROCESS_WROTE = 0
 _PRINT_PROCESS_REFUSED = 3
 
+#: What :func:`_serve_print_renders` sends once its imports are done, before
+#: it takes a request.
+_PRINT_PROCESS_READY = 7
+
+#: Seconds a save waits for a process that is still starting to say it is
+#: ready. Its imports (:mod:`spacr.plot` brings torch) take about 2.5 s on a
+#: warm disk and much longer under heavy I/O; past this the save is drawn on
+#: the worker and the process keeps starting for the next save.
+_PRINT_PROCESS_READY_S = 3.0
+
+#: Seconds a process that never said it is ready may keep starting before a
+#: save ends it.
+_PRINT_PROCESS_START_LIMIT_S = 60.0
+
+#: Seconds a ready process has to answer one render. A 200,000-point print
+#: raster takes about 1 s; a process that has not answered by then is ended
+#: and the save is drawn on the worker, so a hung or stopped process cannot
+#: keep a save from being written.
+_PRINT_PROCESS_ANSWER_S = 10.0
+
 #: Seconds the print-render process waits for another save before it ends,
 #: so its memory (it imports :mod:`spacr.plot`) is held only while saves come.
 _PRINT_PROCESS_IDLE_S = 300.0
@@ -466,6 +486,8 @@ class _PrintRenderProcess:
         self._process = None
         self._connection = None
         self._idle = None
+        self._ready = False
+        self._started = 0.0
 
     def warm(self) -> bool:
         """Start the process if it is not running.
@@ -494,6 +516,7 @@ class _PrintRenderProcess:
                 LOG.debug("no print render process", exc_info=True)
                 return False
             self._process, self._connection = process, here
+            self._ready, self._started = False, time.monotonic()
             if not _PrintRenderProcess._exit_hooked:
                 import atexit
 
@@ -510,8 +533,10 @@ class _PrintRenderProcess:
         :param write_pdf: write the sibling PDF too.
         :returns: whether the PNG was written, or ``None`` when the process
             could not take the render (the figure does not pickle, the
-            process did not start or it ended without an answer) and the
-            caller renders it here.
+            process did not start, is not ready within
+            :data:`_PRINT_PROCESS_READY_S`, or ended or did not answer within
+            :data:`_PRINT_PROCESS_ANSWER_S`) and the caller renders it here.
+            Every wait is bounded; a process that did not answer is ended.
         """
         import pickle
 
@@ -524,12 +549,16 @@ class _PrintRenderProcess:
             if not self.warm():
                 return None
             self._cancel_idle()
-            try:
-                self._connection.send((blob, str(png_path), bool(write_pdf)))
-                answer = self._connection.recv()
-            except (EOFError, OSError, ValueError):
-                LOG.info("the print render process ended without an answer")
-                self._close()
+            if not self._wait_until_ready(_PRINT_PROCESS_READY_S):
+                if self.running():
+                    self._rearm()
+                return None
+            answer = self._exchange((blob, str(png_path), bool(write_pdf)),
+                                    _PRINT_PROCESS_ANSWER_S)
+            if answer is None:
+                LOG.info("the print render process did not answer; "
+                         "drawing the save here")
+                self._kill()
                 return None
             self._rearm()
         if answer == _PRINT_PROCESS_WROTE:
@@ -537,6 +566,74 @@ class _PrintRenderProcess:
         if answer == _PRINT_PROCESS_REFUSED:
             return False
         return None
+
+    def _wait_until_ready(self, timeout_s: float) -> bool:
+        """Wait at most ``timeout_s`` for the process to finish its imports.
+
+        A process that ended is forgotten; one still starting is left to
+        start unless it has been at it longer than
+        :data:`_PRINT_PROCESS_START_LIMIT_S`, when it is ended.
+
+        :param timeout_s: the longest wait, in seconds.
+        :returns: whether the process is ready for a request.
+        """
+        if self._ready:
+            return True
+        from multiprocessing.connection import wait
+
+        connection, process = self._connection, self._process
+        try:
+            woken = wait([connection, process.sentinel], timeout_s)
+            if connection in woken and \
+                    connection.recv() == _PRINT_PROCESS_READY:
+                self._ready = True
+                return True
+        except (EOFError, OSError, ValueError):
+            woken = [process.sentinel]
+        if woken or not process.is_alive():
+            LOG.info("the print render process ended while starting")
+            self._kill()
+        elif time.monotonic() - self._started > _PRINT_PROCESS_START_LIMIT_S:
+            LOG.info("the print render process did not start; ending it")
+            self._kill()
+        return False
+
+    def _exchange(self, request, timeout_s: float):
+        """Send ``request`` and wait at most ``timeout_s`` for its answer.
+
+        The process is killed if the send or the answer runs past the limit,
+        which also releases a send blocked on a full pipe.
+
+        :param request: the ``(blob, png, pdf)`` tuple.
+        :param timeout_s: the longest exchange, in seconds.
+        :returns: the answer, or ``None`` when there was none in time.
+        """
+        from multiprocessing.connection import wait
+
+        connection, process = self._connection, self._process
+        deadline = time.monotonic() + timeout_s
+        watchdog = threading.Timer(timeout_s, _end_a_process, args=(process,))
+        watchdog.daemon = True
+        watchdog.start()
+        try:
+            connection.send(request)
+            remaining = max(0.0, deadline - time.monotonic())
+            if connection not in wait([connection, process.sentinel],
+                                      remaining):
+                return None
+            return connection.recv()
+        except (EOFError, OSError, ValueError):
+            return None
+        finally:
+            watchdog.cancel()
+
+    def _kill(self) -> None:
+        """End the process at once and forget it."""
+        process = self._process
+        if process is not None:
+            _end_a_process(process)
+            process.join(1.0)
+        self._close()
 
     def running(self) -> bool:
         """Whether the process is alive."""
@@ -562,6 +659,9 @@ class _PrintRenderProcess:
                 if process.is_alive():
                     process.terminate()
                     process.join(1.0)
+                if process.is_alive():
+                    _end_a_process(process)
+                    process.join(1.0)
             self._close()
 
     def _rearm(self) -> None:
@@ -580,6 +680,7 @@ class _PrintRenderProcess:
 
     def _close(self) -> None:
         """Forget the process and close the parent's end of the pipe."""
+        self._ready = False
         connection, self._connection = self._connection, None
         if connection is not None:
             try:
@@ -595,6 +696,18 @@ class _PrintRenderProcess:
 
 
 _PRINT_RENDER_PROCESS = _PrintRenderProcess()
+
+
+def _end_a_process(process) -> None:
+    """Kill ``process`` if it is still running.
+
+    :param process: a :class:`multiprocessing.Process`.
+    """
+    try:
+        if process.is_alive():
+            process.kill()
+    except (OSError, ValueError):
+        LOG.debug("could not end the print render process", exc_info=True)
 
 
 def _stop_the_print_render_process() -> None:
@@ -617,7 +730,8 @@ def _render_print_in_a_process(figure, png_path: str, write_pdf: bool):
 def _serve_print_renders(connection, safe_mode: bool) -> None:
     """The spawned side of :class:`_PrintRenderProcess`.
 
-    Imports the print writer once, then answers ``(figure, png, pdf)``
+    Imports the print writer and Matplotlib's font list once, says
+    :data:`_PRINT_PROCESS_READY`, then answers ``(figure, png, pdf)``
     requests until it is sent ``None`` or the parent's end closes.
 
     :param connection: this process's end of the pipe.
@@ -626,11 +740,17 @@ def _serve_print_renders(connection, safe_mode: bool) -> None:
     """
     import pickle
 
+    from matplotlib import font_manager  # noqa: F401
+
     from .. import preferences
     from ... import plot  # noqa: F401
 
     if safe_mode:
         preferences._SAFE_MODE = True
+    try:
+        connection.send(_PRINT_PROCESS_READY)
+    except (OSError, ValueError):
+        return
     request = _next_print_request(connection)
     while request is not None:
         blob, png_path, write_pdf = request
