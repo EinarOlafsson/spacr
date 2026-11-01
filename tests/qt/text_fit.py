@@ -89,6 +89,12 @@ def _label_need(label: QLabel):
     rich = (label.textFormat() == Qt.RichText
             or (label.textFormat() == Qt.AutoText and _GuiQt.mightBeRichText(text)))
     if label.wordWrap() or label.hasHeightForWidth():
+        if not rich:
+            metrics = QFontMetrics(label.font())
+            widest = max((metrics.horizontalAdvance(word)
+                          for word in text.split()), default=0)
+            if widest > room.width() + SLACK:
+                return ("width", widest, room.width())
         needed = label.heightForWidth(label.width())
         if needed > label.height() + SLACK:
             return ("height", needed, label.height())
@@ -140,6 +146,16 @@ def _placeholder_need(edit: QLineEdit):
 def _combo_need(combo: QComboBox):
     text = combo.currentText()
     if not text or combo.isEditable():
+        return None
+    painted = getattr(combo, "_painted_text_layout", None)
+    if callable(painted):
+        font, rect, flags, text = painted()
+        bounds = QFontMetrics(font).boundingRect(
+            QRect(0, 0, rect.width(), 1 << 20), flags, text)
+        if bounds.width() > rect.width() + SLACK:
+            return ("width", bounds.width(), rect.width())
+        if bounds.height() > rect.height() + SLACK:
+            return ("height", bounds.height(), rect.height())
         return None
     option = QStyleOptionComboBox()
     option.initFrom(combo)
@@ -372,16 +388,131 @@ def sweep(scale: float, language: str, shots: str = "") -> list:
     return sorted(f"{key}|@{screen}" for key, screen in found.items())
 
 
+def _protocol_states():
+    """Protocol choices the protocol sweep walks, as (family, format, choices).
+
+    Each dependent field is varied once, so every long convention, organism
+    and sequencer name is shown at least once.
+    """
+    from spacr.qt.organisms import ORGANISMS
+    from spacr.regex_infer import _METADATA_CONVENTIONS
+    from spacr.qt.widgets.sample_project import workflow_map
+
+    wizard = workflow_map()["protocol_wizard"]
+    states = [(family, "", {}) for family in wizard["families"]]
+    for key in [row["key"] for row in _METADATA_CONVENTIONS]:
+        states.append(("plate_images", "tiff_other",
+                       {"metadata_type": key, "goal": "recommended"}))
+    for key in wizard["image_formats"]:
+        states.append(("small_images", "other_metadata",
+                       {"image_format": key, "metadata_type": "custom"}))
+    for key in wizard["sequencers"]:
+        states.append(("sequencing", "fastq_gz", {"sequencer": key}))
+    for key in wizard["read_modes"]:
+        states.append(("sequencing", "fastq_gz",
+                       {"sequencer": "illumina", "read_mode": key,
+                        "single_direction": "R1"}))
+    for key in wizard["barcodes"]:
+        states.append(("features", "database_crops",
+                       {"experiment": "screen", "barcodes": key}))
+    for key in ["other", *ORGANISMS]:
+        states.append(("features", "database",
+                       {"experiment": "other", "organism": key}))
+    return states
+
+
+def protocol_sweep(scale: float, language: str) -> list:
+    """Walk the Navigator protocol steps and list what is cut off in them.
+
+    Every family, then each long dependent choice (all filename
+    conventions, image formats, sequencers, read pairings, barcode
+    states and organisms) is chosen through the real selectors, and the
+    protocol controls and description box are measured after each choice.
+
+    :param scale: the Zoom factor.
+    :param language: the interface language code.
+    :returns: sorted unique offender keys, each with its first state.
+    """
+    import os
+    import tempfile
+
+    from PySide6.QtCore import QEventLoop, QSettings, QTimer
+    from PySide6.QtWidgets import QApplication
+
+    tmp = tempfile.mkdtemp(prefix="spacr-text-fit-protocols-")
+    os.environ["SPACR_HOME"] = os.path.join(tmp, "home")
+    os.environ["XDG_CONFIG_HOME"] = os.path.join(tmp, "config")
+    os.environ["SPACR_LANGUAGE"] = language
+    os.environ["SPACR_NO_NETWORK"] = "1"
+    app = QApplication.instance() or QApplication([])
+    from spacr.qt import preferences
+
+    store = os.path.join(tmp, "preferences.ini")
+    preferences._settings = lambda: QSettings(store, QSettings.IniFormat)
+    preferences.set_font_scale(float(scale))
+    preferences.set_language(language)
+    preferences.set_reduce_motion(True)
+    preferences.set_ambient_enabled(False)
+    preferences.set_easy_mode(True)
+    from spacr.qt import app as app_mod
+    from spacr.qt.first_run import mark_tour_seen
+
+    mark_tour_seen()
+    preferences.apply_preferences_to_app(app)
+    window = app_mod.MainWindow(initial_app="__home__")
+    window.resize(1600, 1000)
+    window.show()
+    page = window._startup
+    config = f"{language}-{scale}"
+    found = {}
+
+    def settle(ms=150):
+        loop = QEventLoop()
+        QTimer.singleShot(ms, loop.quit)
+        loop.exec()
+
+    def pick(combo, key):
+        index = combo.findData(key)
+        if index < 0:
+            return
+        combo.setCurrentIndex(index)
+        combo.activated.emit(index)
+
+    settle(800)
+    page.path_edit.protocols.setChecked(True)
+    for family, format_, choices in _protocol_states():
+        page._protocol_step = 0
+        page._protocol_render()
+        pick(page._protocol_select, family)
+        if format_:
+            page._protocol_next()
+            pick(page._protocol_select, format_)
+            for name, value in choices.items():
+                combo = page._protocol_detail_combos.get(name)
+                if combo is not None:
+                    pick(combo, value)
+        settle()
+        state = "/".join([family, format_, *choices.values()]).strip("/")
+        for record in offenders(page.field.protocol_controls, "NavigatorProtocols"):
+            text = re.sub(r"\d+", "#", " ".join(record.text.split()))[:60]
+            found.setdefault(f"{config}|{record.kind}|{record.name}|{text}", state)
+    window.close()
+    return sorted(f"{key}|@{state}" for key, state in found.items())
+
+
 def main(argv=None) -> int:
-    """``python -m tests.qt.text_fit SCALE LANGUAGE OUT [SHOTS]``."""
+    """``python -m tests.qt.text_fit SCALE LANGUAGE OUT [SHOTS] [--protocols]``."""
     import json
     import os
     import sys
 
     args = list(sys.argv[1:] if argv is None else argv)
+    protocols = "--protocols" in args
+    args = [arg for arg in args if arg != "--protocols"]
     scale, language, out = args[0], args[1], args[2]
     shots = args[3] if len(args) > 3 else ""
-    keys = sweep(float(scale), language, shots)
+    keys = (protocol_sweep(float(scale), language) if protocols
+            else sweep(float(scale), language, shots))
     with open(out, "w", encoding="utf-8") as handle:
         json.dump(keys, handle, ensure_ascii=False, indent=1)
     sys.stdout.flush()

@@ -5683,6 +5683,8 @@ class _NavigatorProtocolOptions(QListView):
         self.setObjectName('NavigatorProtocolOptions')
         self.setAccessibleName(owner.accessibleName())
         self.setFrameShape(QFrame.NoFrame)
+        self.setWordWrap(True)
+        self.setTextElideMode(Qt.ElideNone)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.setMouseTracking(True)
@@ -5736,6 +5738,113 @@ class _NavigatorProtocolOptions(QListView):
             self._owner.hidePopup()
 
 
+class _NavigatorProtocolField(QWidget):
+    """One protocol field: its label beside the choice when both fit, otherwise above it."""
+
+    _GAP = 8
+
+    def __init__(self, parent=None):
+        """Start empty; :meth:`set_parts` adds the label and its choice.
+
+        :param parent: the protocol controls surface.
+        """
+        super().__init__(parent)
+        self._label = None
+        self._choice = None
+        policy = self.sizePolicy()
+        policy.setHeightForWidth(True)
+        self.setSizePolicy(policy)
+
+    def set_parts(self, label, choice):
+        """Own the field label and its choice and place them for the current width.
+
+        :param label: the field's word-wrapping caption.
+        :param choice: the field's choice selector.
+        """
+        self._label, self._choice = label, choice
+        choice.currentIndexChanged.connect(self._refit)
+        self._refit()
+
+    def _refit(self, *_):
+        """Place the parts again after the choice text changes."""
+        self.updateGeometry()
+        self._place(self.width())
+
+    def _label_width(self):
+        """Return the label's natural one-line width at the current Zoom."""
+        from PySide6.QtGui import QFontMetrics
+
+        metrics = QFontMetrics(self._label.font())
+        return max((metrics.horizontalAdvance(line) for line in self._label.text().splitlines()), default=0) + 2
+
+    def beside(self, width):
+        """Report whether the label and the whole choice text fit on one row.
+
+        :param width: the field width in pixels.
+        :returns: True to put the label beside the choice, False to put it above.
+        """
+        if self._label is None:
+            return True
+        label = self._label_width()
+        return label + self._GAP + self._choice.sizeHint().width() <= width
+
+    def hasHeightForWidth(self):
+        """The height depends on whether the label moves above the choice."""
+        return True
+
+    def heightForWidth(self, width):
+        """Return the field height for one row or for the label stacked above the choice.
+
+        :param width: the width offered by the owning layout.
+        :returns: the height that shows the label and every line of the choice.
+        """
+        if self._label is None:
+            return 0
+        if self.beside(width):
+            room = width - self._label_width() - self._GAP
+            return max(self._label.heightForWidth(self._label_width()), self._choice.heightForWidth(room))
+        return self._label.heightForWidth(width) + 2 + self._choice.heightForWidth(width)
+
+    def sizeHint(self):
+        """Ask for the one-row width and its height."""
+        if self._label is None:
+            return QSize(0, 0)
+        width = self._label_width() + self._GAP + self._choice.sizeHint().width()
+        return QSize(width, self.heightForWidth(width))
+
+    def minimumSizeHint(self):
+        """Allow any width: the label moves above and long choices wrap."""
+        return QSize(0, self.heightForWidth(max(1, self.width())) if self._label is not None else 0)
+
+    def resizeEvent(self, event):
+        """Place the label and choice for the new width.
+
+        :param event: native resize notification.
+        """
+        super().resizeEvent(event)
+        self._place(event.size().width())
+
+    def _place(self, width):
+        """Set the label and choice geometry for one row or a stacked pair.
+
+        :param width: the field width in pixels.
+        """
+        if self._label is None or width <= 0:
+            return
+        if self.beside(width):
+            label = self._label_width()
+            room = width - label - self._GAP
+            height = self._choice.heightForWidth(room)
+            self._label.setGeometry(0, 0, label, max(height, self._label.heightForWidth(label)))
+            self._label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+            self._choice.setGeometry(label + self._GAP, 0, room, height)
+        else:
+            top = self._label.heightForWidth(width)
+            self._label.setGeometry(0, 0, width, top)
+            self._label.setAlignment(Qt.AlignLeft | Qt.AlignBottom)
+            self._choice.setGeometry(0, top + 2, width, self._choice.heightForWidth(width))
+
+
 class _NavigatorProtocolChoice(QComboBox):
     """Retain a combo model while revealing its options within the composer."""
 
@@ -5753,9 +5862,82 @@ class _NavigatorProtocolChoice(QComboBox):
         self.setStyleSheet('QComboBox { background: transparent; border: none; padding: 2px 20px 2px 4px; } '
                            'QComboBox::drop-down { border: none; width: 18px; } '
                            'QComboBox::down-arrow { image: none; border: none; width: 0px; height: 0px; }')
+        policy = self.sizePolicy()
+        policy.setVerticalPolicy(QSizePolicy.Minimum)
+        policy.setHeightForWidth(True)
+        self.setSizePolicy(policy)
+        self.currentIndexChanged.connect(self._text_changed)
+
+    def _text_changed(self, index):
+        """Name the full current choice in the tooltip and fit the height to its wrapped text.
+
+        :param index: the new current row, or -1 for the placeholder.
+        """
+        self.setToolTip(self.currentText() if index >= 0 else '')
+        self.updateGeometry()
+
+    def _painted_text(self):
+        """Return the current choice, or the placeholder when nothing is chosen."""
+        return self.currentText() if self.currentIndex() >= 0 else self.placeholderText()
+
+    def _painted_font(self):
+        """Return the Zoom-scaled font the choice text is drawn with."""
+        font = self.font()
+        font.setPixelSize(font_px(16))
+        return font
+
+    def _wrap_flags(self, width):
+        """Wrap at words, and inside a word only when one word is wider than the room.
+
+        :param width: room for the text in pixels.
+        :returns: Qt alignment and wrap flags for drawing and measuring.
+        """
+        from PySide6.QtGui import QFontMetrics
+
+        metrics = QFontMetrics(self._painted_font())
+        widest = max((metrics.horizontalAdvance(word) for word in self._painted_text().split()), default=0)
+        wrap = Qt.TextWrapAnywhere if widest > width else Qt.TextWordWrap
+        return Qt.AlignVCenter | Qt.AlignLeft | wrap
+
+    def _painted_text_layout(self):
+        """Describe how the choice text is drawn so a fit check measures the real text.
+
+        :returns: ``(font, rect, flags, text)`` as used by :meth:`paintEvent`.
+        """
+        rect = QRect(4, 0, max(1, self.width() - 26), self.height())
+        return self._painted_font(), rect, self._wrap_flags(rect.width()), self._painted_text()
+
+    def hasHeightForWidth(self):
+        """Grow in height when a long choice wraps onto more lines."""
+        return True
+
+    def heightForWidth(self, width):
+        """Return the height that shows every wrapped line of the current text.
+
+        :param width: the width offered by the owning layout.
+        :returns: at least the single-line height, plus one line per wrap.
+        """
+        from PySide6.QtGui import QFontMetrics
+
+        room = max(1, width - 26)
+        bounds = QFontMetrics(self._painted_font()).boundingRect(
+            QRect(0, 0, room, 1 << 20), self._wrap_flags(room), self._painted_text())
+        return max(self.minimumHeight(), 28, bounds.height() + 8)
+
+    def sizeHint(self):
+        """Ask for the width of the whole current text on one line."""
+        from PySide6.QtGui import QFontMetrics
+
+        width = QFontMetrics(self._painted_font()).horizontalAdvance(self._painted_text()) + 30
+        return QSize(width, self.heightForWidth(width))
+
+    def minimumSizeHint(self):
+        """Allow narrowing: the text wraps instead of forcing a horizontal scroll."""
+        hint = super().minimumSizeHint()
+        return QSize(min(hint.width(), 80), hint.height())
 
     def paintEvent(self, event):
-        """Draw the label and compact chevron within the shared composer surface.
+        """Draw the whole choice, wrapped when needed, and a compact chevron.
 
         :param event: native repaint request.
         """
@@ -5764,15 +5946,11 @@ class _NavigatorProtocolChoice(QComboBox):
 
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
-        font = self.font()
-        font.setPixelSize(font_px(16))
+        font, rect, flags, text = self._painted_text_layout()
         painter.setFont(font)
-        text = self.currentText() if self.currentIndex() >= 0 else self.placeholderText()
         colors = palette_for('dark')
         painter.setPen(QColor(colors['fg'] if self.currentIndex() >= 0 and self.isEnabled() else colors['fg_muted']))
-        painter.drawText(QRect(4, 0, max(1, self.width() - 26), self.height()),
-                         Qt.AlignVCenter | Qt.AlignLeft,
-                         painter.fontMetrics().elidedText(text, Qt.ElideRight, max(1, self.width() - 26)))
+        painter.drawText(rect, flags, text)
         painter.setPen(QPen(QColor(colors['fg_muted']), 1))
         direction = -1 if hasattr(self, '_inline_view') and self._inline_view.isVisible() else 1
         center = QPointF(self.width() - 10, self.height() / 2)
@@ -6937,7 +7115,10 @@ class _EasyHomeField(QWidget):
             panel_width = min(panel_width, max(180, 2 * (right - 16) - width))
         panel_height = self.panel.height()
         protocols = getattr(self, 'protocol_controls', None)
-        controls_height = protocols.sizeHint().height() if protocols is not None and not protocols.isHidden() else 0
+        controls_height = 0
+        if protocols is not None and not protocols.isHidden():
+            fitted = protocols.heightForWidth(max(1, round(panel_width * 0.75)))
+            controls_height = fitted if fitted > 0 else protocols.sizeHint().height()
         panel_y = max(16, (height - panel_height) // 2)
         self._place_fixed(self.panel, QRect((width - panel_width) // 2, panel_y, panel_width, panel_height))
         active = bool(controls_height)
@@ -7908,8 +8089,8 @@ class _EasyHomePage(QWidget):
         self._protocol_next_button.setIcon(self.field.details._arrow_icon('forward'))
         self._protocol_next_button.clicked.connect(self._protocol_next)
         row.addWidget(self._protocol_select, 1)
-        row.addWidget(self._protocol_back_button)
-        row.addWidget(self._protocol_next_button)
+        row.addWidget(self._protocol_back_button, 0, Qt.AlignVCenter)
+        row.addWidget(self._protocol_next_button, 0, Qt.AlignVCenter)
         column.addLayout(row)
         self._protocol_details_layout = QVBoxLayout()
         self._protocol_details_layout.setAlignment(Qt.AlignTop)
@@ -8021,13 +8202,10 @@ class _EasyHomePage(QWidget):
             self._protocol_choices = {name: value for name, value in self._protocol_choices.items()
                                       if name in active_names}
             for field in fields:
-                holder = QWidget(self.field.protocol_controls)
+                holder = _NavigatorProtocolField(self.field.protocol_controls)
                 make_transparent(holder)
-                row = QHBoxLayout(holder)
-                row.setContentsMargins(0, 0, 0, 0)
                 label = QLabel(field['label'], holder)
                 label.setWordWrap(True)
-                label.setFixedWidth(116)
                 label.setStyleSheet(f'color: {palette_for("dark")["fg_muted"]}; background: transparent;')
                 detail = _NavigatorProtocolChoice(holder)
                 detail.setMinimumHeight(28)
@@ -8045,8 +8223,7 @@ class _EasyHomePage(QWidget):
                                     if option['key'] == chosen)
                 detail.activated.connect(partial(self._protocol_detail_selected, field['name']))
                 label.setBuddy(detail)
-                row.addWidget(label)
-                row.addWidget(detail, 1)
+                holder.set_parts(label, detail)
                 self._protocol_detail_combos[field['name']] = detail
                 self._protocol_details_layout.addWidget(holder)
                 holder.show()
