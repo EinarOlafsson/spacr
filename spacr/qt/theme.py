@@ -6177,6 +6177,25 @@ QCheckBox::indicator:disabled {{
     background: {P["surface"]};
     border-color: {P["border_soft"]};
 }}
+/* Checkable rows in lists, trees and tables draw the same outlined box.
+   Unstyled, Fusion filled an unchecked row's box solid black in light. */
+QListView::indicator, QTreeView::indicator, QTableView::indicator {{
+    width: 14px;
+    height: 14px;
+    border: 1px solid {P["border"]};
+    border-radius: {R["sm"]}px;
+    background: {P["surface_alt"]};
+}}
+QListView::indicator:checked, QTreeView::indicator:checked,
+QTableView::indicator:checked {{
+    background: {P["accent"]};
+    border-color: {P["accent"]};
+}}
+QListView::indicator:indeterminate, QTreeView::indicator:indeterminate,
+QTableView::indicator:indeterminate {{
+    background: {P["accent_soft"]};
+    border-color: {P["accent"]};
+}}
 QRadioButton {{
     color: {P["fg"]};
     background: transparent;

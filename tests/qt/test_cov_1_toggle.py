@@ -240,9 +240,11 @@ def test_existing_plain_and_wrapped_tracks_fit_across_live_scale_changes(
             gui_scale.set_gui_scale_live(scale)
             QApplication.processEvents()
             for toggle in toggles:
-                floor = toggle._track_h + 2
+                track = toggle._track_h + 2
+                floor = max(track, gui_scale.scale_int(Toggle._TARGET_PX, scale))
                 assert gui_scale._actual_minimum_height(toggle) >= floor
-                assert gui_scale._actual_minimum_height(toggle) <= max(floor, gui_scale.scale_int(floor, scale))
+                assert gui_scale._actual_minimum_height(toggle) <= max(
+                    floor, gui_scale.scale_int(track, scale))
                 top = (toggle.height() - toggle._track_h) // 2
                 assert top >= .75
                 assert top + toggle._track_h + .75 <= toggle.height()

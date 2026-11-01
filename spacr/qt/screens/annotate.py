@@ -5117,7 +5117,14 @@ class AnnotateScreen(QWidget):
             cta_label="Open source…",
             on_action=self._on_pick_source,
         )
-        self._content_stack.addWidget(self._empty_state)
+        self._empty_page = QScrollArea()
+        self._empty_page.setObjectName("AnnotateEmptyPage")
+        self._empty_page.setWidgetResizable(True)
+        self._empty_page.setFrameShape(QScrollArea.NoFrame)
+        self._empty_page.viewport().setAutoFillBackground(False)
+        self._empty_page.setWidget(self._empty_state)
+        self._empty_state.setAutoFillBackground(False)
+        self._content_stack.addWidget(self._empty_page)
 
         self._grid_scroll = QScrollArea()
         self._grid_scroll.setWidgetResizable(True)
@@ -5140,7 +5147,7 @@ class AnnotateScreen(QWidget):
         self._grid_scroll.viewport().installEventFilter(self)
         self._grid_holder.installEventFilter(self)
         self._content_stack.addWidget(self._grid_scroll)
-        self._content_stack.setCurrentWidget(self._empty_state)
+        self._content_stack.setCurrentWidget(self._empty_page)
 
         self._runtime_splitter = CollapsibleSplitter(
             Qt.Vertical, self, persist_key="annotate::runtime")

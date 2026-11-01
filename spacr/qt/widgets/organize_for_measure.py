@@ -2242,16 +2242,15 @@ class OrganizeForMeasureDialog(QDialog):
         self.status.setWordWrap(True)
         layout.addWidget(self.status)
 
-        buttons = QHBoxLayout()
+        buttons = QDialogButtonBox(self)
         self.cancel_button = QPushButton(tr("Cancel"))
         self.apply_button = QPushButton(tr("Apply"))
         self.apply_button.setObjectName("PrimaryButton")
         self.cancel_button.clicked.connect(self.reject)
         self.apply_button.clicked.connect(self._on_apply)
-        buttons.addStretch(1)
-        buttons.addWidget(self.cancel_button)
-        buttons.addWidget(self.apply_button)
-        layout.addLayout(buttons)
+        buttons.addButton(self.cancel_button, QDialogButtonBox.RejectRole)
+        buttons.addButton(self.apply_button, QDialogButtonBox.AcceptRole)
+        layout.addWidget(buttons)
 
         for folder in channel_folders or ():
             self.add_files(self.add_column("channel"),

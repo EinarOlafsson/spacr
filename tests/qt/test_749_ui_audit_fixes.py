@@ -470,3 +470,137 @@ def test_the_curate_paths_carry_their_captions_as_names(qtbot):
     qtbot.addWidget(screen)
     assert screen._mask_edit.accessibleName() == 'Mask'
     assert screen._tracks_edit.accessibleName() == 'Tracks'
+
+@pytest.mark.parametrize('theme_name', ['light', 'dark'])
+def test_an_unchecked_list_row_draws_an_outlined_box_not_a_filled_one(qtbot, theme_name):
+    from PySide6.QtGui import QColor
+    from PySide6.QtWidgets import QListWidget, QListWidgetItem, QWidget
+
+    from spacr.qt import theme
+
+    palette = theme.palette_for(theme_name)
+    host = QWidget()
+    host.setStyleSheet(theme.stylesheet(theme_name))
+    qtbot.addWidget(host)
+    view = QListWidget(host)
+    for checked in (Qt.Unchecked, Qt.Checked):
+        item = QListWidgetItem('rhoptries', view)
+        item.setFlags(item.flags() | Qt.ItemIsUserCheckable)
+        item.setCheckState(checked)
+    view.resize(240, 120)
+    host.resize(260, 140)
+    host.show()
+    qtbot.waitExposed(host)
+    image = view.viewport().grab().toImage()
+    ratio = image.devicePixelRatio()
+
+    def box(row):
+        rect = view.visualItemRect(view.item(row))
+        colours = [QColor(image.pixel(int(x * ratio), int(y * ratio)))
+                   for x in range(rect.left(), rect.left() + 22)
+                   for y in range(rect.top() + 2, rect.bottom() - 1)]
+        return {c.name() for c in colours}
+
+    unchecked, checked = box(0), box(1)
+    assert palette['surface_alt'].lower() in unchecked
+    assert palette['accent'].lower() not in unchecked
+    assert palette['accent'].lower() in checked
+
+
+def test_a_toggle_is_a_24_pixel_target(qtbot):
+    from spacr.qt.widgets.toggle import Toggle
+
+    for toggle in (Toggle(), Toggle('Show older releases'), Toggle('Wrapped caption', word_wrap=True)):
+        qtbot.addWidget(toggle)
+        toggle.show()
+        qtbot.waitExposed(toggle)
+        assert toggle.minimumSizeHint().height() >= 24
+        assert toggle.height() >= 24
+
+
+@pytest.mark.parametrize('theme_name', ['light', 'dark'])
+def test_a_home_panel_action_word_is_a_24_pixel_target(qtbot, theme_name):
+    from PySide6.QtWidgets import QWidget
+
+    from spacr.qt import theme
+    from spacr.qt.widgets.home import Panel
+
+    host = QWidget()
+    host.setStyleSheet(theme.stylesheet(theme_name))
+    qtbot.addWidget(host)
+    panel = Panel('System', host)
+    word = panel.add_action('Refresh', kind='safe')
+    host.resize(300, 200)
+    panel.resize(300, 200)
+    host.show()
+    qtbot.waitExposed(host)
+    assert word.height() >= 24 and word.width() >= 24
+
+
+def test_a_settings_field_action_button_is_a_centred_24_pixel_target(qtbot):
+    from PySide6.QtWidgets import QLineEdit, QToolButton
+
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen('mask')
+    qtbot.addWidget(screen)
+    screen.resize(1800, 1000)
+    screen.show()
+    qtbot.waitExposed(screen)
+    button = screen.findChild(QToolButton, 'GenerateMasksFieldOverview')
+    assert button is not None
+    field = button.parentWidget()
+    assert isinstance(field, QLineEdit)
+    siblings = [b for b in field.findChildren(QToolButton) if b.isVisibleTo(field)]
+    assert len(siblings) >= 2
+    for each in siblings:
+        assert each.height() >= 24 and each.width() >= 24
+        assert abs(each.geometry().center().y() - field.rect().center().y()) <= 1
+        assert each.geometry().top() >= 0 and each.geometry().bottom() <= field.rect().bottom()
+    ordered = sorted(siblings, key=lambda b: b.x())
+    for left, right in zip(ordered, ordered[1:]):
+        assert left.geometry().right() < right.geometry().left()
+
+
+def test_the_annotate_empty_state_scrolls_instead_of_overlapping_when_short(qtbot):
+    from PySide6.QtWidgets import QLabel
+
+    from spacr.qt.screens.annotate import AnnotateScreen
+
+    screen = AnnotateScreen()
+    qtbot.addWidget(screen)
+    screen.resize(1300, 560)
+    screen.show()
+    qtbot.waitExposed(screen)
+    qtbot.wait(100)
+    card = screen._empty_state
+    assert screen._content_stack.currentWidget() is screen._empty_page
+    assert screen._content_stack.height() < card.minimumSizeHint().height()
+    labels = [label for label in card.findChildren(QLabel) if label.text()]
+    button = card.cta_button
+    bottom = max(label.geometry().bottom() for label in labels)
+    assert button.geometry().top() > bottom
+    assert card.height() >= card.minimumSizeHint().height()
+
+
+def test_the_shortcut_and_organize_dialogs_use_platform_button_boxes(qtbot, tmp_path):
+    from PySide6.QtWidgets import QMainWindow
+
+    from spacr.qt import shortcuts
+    from spacr.qt.widgets.organize_for_measure import OrganizeForMeasureDialog
+
+    window = QMainWindow()
+    qtbot.addWidget(window)
+    keymap = shortcuts._KeymapDialog(window)
+    qtbot.addWidget(keymap)
+    box = keymap.findChild(QDialogButtonBox)
+    assert box is not None
+    assert box.buttonRole(keymap._btn_save) == QDialogButtonBox.AcceptRole
+    assert box.buttonRole(keymap._btn_defaults) == QDialogButtonBox.ResetRole
+    assert len(box.buttons()) == 3
+    organize = OrganizeForMeasureDialog(str(tmp_path))
+    qtbot.addWidget(organize)
+    box = organize.findChild(QDialogButtonBox)
+    assert box is not None
+    assert box.buttonRole(organize.apply_button) == QDialogButtonBox.AcceptRole
+    assert box.buttonRole(organize.cancel_button) == QDialogButtonBox.RejectRole

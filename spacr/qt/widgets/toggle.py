@@ -13,6 +13,8 @@ from ..theme import _painting_palette
 class Toggle(QCheckBox):
     """A compact switch that can be clicked or dragged between states."""
 
+    _TARGET_PX = 24
+
     def __init__(self, text: str = "", parent=None, *, word_wrap: bool = False):
         """Initialize the switch with an optional trailing label.
 
@@ -44,7 +46,7 @@ class Toggle(QCheckBox):
         self._anim = QPropertyAnimation(self, b"knobPos", self)
         self._anim.setDuration(140)
         self.stateChanged.connect(self._start_anim)
-        self.setMinimumHeight(self._track_h + 2)
+        self.setMinimumHeight(max(self._track_h + 2, self._TARGET_PX))
         from ..gui_scale import add_listener
 
         add_listener(self._fit_track)
@@ -70,7 +72,9 @@ class Toggle(QCheckBox):
         from PySide6.QtWidgets import QWidget
         from ..gui_scale import _ORIGINAL, _actual_minimum_height
 
-        needed = self._track_h + 2
+        from ..gui_scale import scale_int
+
+        needed = max(self._track_h + 2, scale_int(self._TARGET_PX))
         if self.text() and not self._word_wrap:
             needed = max(needed, self.fontMetrics().height())
         if _actual_minimum_height(self) < needed:
@@ -92,7 +96,7 @@ class Toggle(QCheckBox):
     def sizeHint(self) -> "QSize":
         """Return the default checkbox hint widened to fit the switch track."""
         base = super().sizeHint()
-        base.setHeight(max(base.height(), self._track_h + 2))
+        base.setHeight(max(base.height(), self._track_h + 2, self._target_height()))
         base.setWidth(
             self._track_x + self._track_w + self._label_gap + base.width())
         if self._word_wrap:
@@ -104,11 +108,12 @@ class Toggle(QCheckBox):
         """Allow wrapped captions to shrink without making their text a width floor."""
         if not self._word_wrap:
             base = super().minimumSizeHint()
-            base.setHeight(max(base.height(), self._track_h + 2))
+            base.setHeight(max(base.height(), self._track_h + 2, self._target_height()))
             return base
         width = self._track_x + self._track_w + self._label_gap
         return QSize(width + self.fontMetrics().averageCharWidth() * 8,
-                     max(self._track_h + 2, self.fontMetrics().height() + 4))
+                     max(self._track_h + 2, self.fontMetrics().height() + 4,
+                         self._target_height()))
 
     def heightForWidth(self, width: int) -> int:
         """Return enough height to paint the complete wrapped caption.
@@ -121,7 +126,13 @@ class Toggle(QCheckBox):
         text_width = max(1, width - self._track_x - self._track_w - self._label_gap)
         bounds = self.fontMetrics().boundingRect(
             QRect(0, 0, text_width, 100000), Qt.TextWordWrap, self.text())
-        return max(self._track_h + 2, bounds.height() + 4)
+        return max(self._track_h + 2, bounds.height() + 4, self._target_height())
+
+    def _target_height(self) -> int:
+        """The 24 px pointer target of WCAG 2.2 SC 2.5.8 at the current Zoom."""
+        from ..gui_scale import scale_int
+
+        return scale_int(self._TARGET_PX)
 
     def _minimum_knob_x(self) -> int:
         """Return the knob's left edge in the unchecked position."""

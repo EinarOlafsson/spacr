@@ -47,8 +47,8 @@ from PySide6.QtGui import (QAction, QColor, QKeySequence, QPainter, QPen,
 from PySide6.QtWidgets import (
     QApplication,
     QDialog,
+    QDialogButtonBox,
     QGridLayout,
-    QHBoxLayout,
     QKeySequenceEdit,
     QLabel,
     QMainWindow,
@@ -1071,21 +1071,20 @@ class _KeymapDialog(QDialog):
         self._conflict_label.setWordWrap(True)
         column.addWidget(self._conflict_label)
 
-        buttons = QHBoxLayout()
+        buttons = QDialogButtonBox(self)
         self._btn_defaults = QPushButton(tr("Restore defaults"), self)
         self._btn_defaults.setObjectName("KeymapRestoreDefaults")
         self._btn_defaults.clicked.connect(self.restore_defaults)
-        buttons.addWidget(self._btn_defaults)
-        buttons.addStretch(1)
+        buttons.addButton(self._btn_defaults, QDialogButtonBox.ResetRole)
         cancel = QPushButton(tr("Cancel"), self)
         cancel.clicked.connect(self.reject)
-        buttons.addWidget(cancel)
+        buttons.addButton(cancel, QDialogButtonBox.RejectRole)
         self._btn_save = QPushButton(tr("Save"), self)
         self._btn_save.setObjectName("KeymapSave")
         self._btn_save.setDefault(True)
         self._btn_save.clicked.connect(self.save)
-        buttons.addWidget(self._btn_save)
-        column.addLayout(buttons)
+        buttons.addButton(self._btn_save, QDialogButtonBox.AcceptRole)
+        column.addWidget(buttons)
         self._refresh()
 
     def keymap(self) -> dict:

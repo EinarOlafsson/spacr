@@ -803,6 +803,7 @@ class Panel(QWidget):
         word.setStyleSheet(
             "QPushButton#HomePanelAction {"
             " background: transparent; border: none; padding: 0px;"
+            " min-height: 24px; min-width: 24px;"
             f" font-family: {QSS_FONT_FAMILY}; font-weight: 600;"
             f" font-size: {font_px(10)}px; letter-spacing: 1px;"
             f" color: {P['fg_dim']}; }}"

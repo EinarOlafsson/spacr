@@ -121,7 +121,8 @@ def test_annotate_screen_starts_on_empty_state(qtbot, qt_theme_applied):
     from spacr.qt.screens.annotate import AnnotateScreen
     screen = AnnotateScreen()
     qtbot.addWidget(screen)
-    assert screen._content_stack.currentWidget() is screen._empty_state
+    assert screen._content_stack.currentWidget() is screen._empty_page
+    assert screen._empty_page.widget() is screen._empty_state
 
 
 def test_make_masks_screen_starts_on_empty_state(qtbot, qt_theme_applied):

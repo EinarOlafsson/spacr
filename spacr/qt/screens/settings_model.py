@@ -37,10 +37,12 @@ from PySide6.QtWidgets import (
     QLayout,
     QLineEdit,
     QPlainTextEdit,
+    QProxyStyle,
     QPushButton,
     QSizePolicy,
     QSpinBox,
     QDoubleSpinBox,
+    QStyle,
     QTextBrowser,
     QTextEdit,
     QToolButton,
@@ -7088,6 +7090,45 @@ _SOURCE_FOLDER_KEYS = frozenset({
 })
 
 
+class _RoomySideButtons(QProxyStyle):
+    """A field style whose action buttons meet the 24 px target of WCAG 2.2 SC 2.5.8.
+
+    Qt sizes a line edit's action buttons from ``PM_LineEditIconSize``:
+    16 px icons in 22 x 18 px buttons. A 22 px icon gives a 28 x 24 px
+    button, still centred in the field.
+    """
+
+    def pixelMetric(self, metric, option=None, widget=None):
+        """Raise the line-edit icon size to 22 px and pass every other metric on."""
+        value = super().pixelMetric(metric, option, widget)
+        if metric == QStyle.PixelMetric.PM_LineEditIconSize:
+            return max(value, 22)
+        return value
+
+
+def _give_side_buttons_room(edit):
+    """Give the action buttons of ``edit`` the 24 px pointer target.
+
+    Every field shares one style, owned by the application, so no field
+    outlives the style it draws with.
+
+    :param edit: a settings field that carries trailing actions.
+    """
+    from PySide6.QtWidgets import QApplication, QStyleFactory
+    from shiboken6 import isValid
+
+    app = QApplication.instance()
+    if not edit.actions() or app is None:
+        return
+    style = getattr(app, "_spacr_roomy_side_buttons", None)
+    if style is None or not isValid(style):
+        style = _RoomySideButtons(QStyleFactory.create(QApplication.style().name()))
+        style.setParent(app)
+        app._spacr_roomy_side_buttons = style
+    if edit.style() is not style:
+        edit.setStyle(style)
+
+
 def _add_folder_browse_action(edit, choose=None):
     """Choose a local folder through the field's existing commit signals."""
     previous = getattr(edit, "_spacr_folder_browse_action", None)
@@ -10998,6 +11039,8 @@ class SettingsWidgets:
         if (key == "measurement_backend_target" and self.app_key == "measure"
                 and isinstance(widget, QLineEdit)):
             _add_measurement_migration_action(widget)
+        if isinstance(widget, QLineEdit):
+            _give_side_buttons_room(widget)
 
     def _choose_counterfactual_checkpoint(self, widget, checked=False):
         """Commit a local path without reading it or changing its SHA or generator."""
