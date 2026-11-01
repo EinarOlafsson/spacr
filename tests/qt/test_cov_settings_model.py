@@ -1206,34 +1206,27 @@ def test_a_nested_layout_is_walked_to_find_the_field(qtbot):
 
 
 def test_an_index_the_layout_answers_nothing_for_is_stepped_over(qtbot):
-    """``item.widget()`` on a None item is a crash inside a tooltip refresh.
+    """An index that holds no widget is stepped over on the way to the field.
 
-    Qt answers None for an index that has been emptied under it, which a
-    layout being rebuilt while the panel is walked does reach.
+    A layout being rebuilt while the panel is walked has indexes that hold
+    no widget (a spacer, an emptied slot). The walk reads the layout's
+    widgets through ``indexOf`` rather than asking it for each item, so such
+    an index is never touched and the field is still found at its own index.
     """
+    from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
+
     host = QWidget()
     qtbot.addWidget(host)
+    column = QVBoxLayout(host)
+    row = QHBoxLayout()
+    column.addLayout(row)
+    row.addSpacing(8)
     field = QLineEdit(host)
+    row.addWidget(field)
 
-    class _Item:
-        def widget(self):
-            return field
+    layout, index = SM._owning_layout(column, field)
 
-        def layout(self):
-            return None
-
-    class _HoleyLayout:
-        """Answers None for its first index and the field for its second."""
-
-        def count(self):
-            return 2
-
-        def itemAt(self, index):
-            return None if index == 0 else _Item()
-
-    layout, index = SM._owning_layout(_HoleyLayout(), field)
-
-    assert index == 1 and isinstance(layout, _HoleyLayout)
+    assert index == 1 and layout is row
 
 
 def test_the_api_module_registry_waits_when_the_app_is_still_being_built():
