@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
   "label": "tests",
-  "message": "99917/100776",
+  "message": "41071/41359",
   "color": "green",
-  "passed": 99917,
-  "total": 100776,
-  "run_id": "41208565428",
-  "source_sha": "57b37f44bcc35258a0a77f23f7b049ca7d84484c"
+  "passed": 41071,
+  "total": 41359,
+  "run_id": "41238879650",
+  "source_sha": "f64f918e924e14f41632a46c381b6f7a0c9fa48f"
 }
