@@ -6917,9 +6917,8 @@ def size_close_mark(button, body_px: Optional[int] = None) -> None:
     hint = button.sizeHint()
     floor_h = scale_int(button.minimumHeight())
     floor_w = scale_int(button.minimumWidth())
-    height = max(side, floor_h, hint.height())
-    width = max(side, floor_w, min(hint.width(), height))
-    button.setFixedSize(width, height)
+    square = max(side, floor_h, floor_w, hint.height(), hint.width())
+    button.setFixedSize(square, square)
 
 
 class _CloseMarkResizer(QObject):
