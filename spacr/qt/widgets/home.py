@@ -8156,7 +8156,7 @@ class _EasyHomePage(QWidget):
         image = folder + '/image.tif'
         lines = (
             tr('spaCR AI: Ask for help using spaCR, e.g., ‘How do I generate object masks?’ or ‘How do i train a Cellpose or Torch model?’'),
-            tr('Protocols: Click P to choose your input and follow a guided workflow.'),
+            tr('Protocols: Click the dot beside the AI icon to choose your input and follow a guided workflow.'),
             tr('File/folder: Drop an image or a folder of images to see image based modules.'),
             tr('Path: Paste {folder} or {image} to see compatible modules. You can also type a file type, such as tif.',
                folder=folder, image=image),
