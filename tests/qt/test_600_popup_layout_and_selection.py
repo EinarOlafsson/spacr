@@ -85,7 +85,7 @@ def test_the_maintainers_button_layout(qtbot, qt_theme_applied, monkeypatch,
 
     ANNOTATION (Keep, Skip, Discard) at the image's top right, IO (Open File
     / Folder, Measure, Load test data, ROIs) at its bottom left, NAVIGATION
-    (Save mask, Previous, Next) at its bottom right; each group on one line
+    (Previous, Next) at its bottom right; each group on one line
     even with wider captions.
     """
     from spacr.qt import preferences
@@ -103,7 +103,7 @@ def test_the_maintainers_button_layout(qtbot, qt_theme_applied, monkeypatch,
     curate = [screen._btn_keep, screen._btn_skip, screen._btn_discard]
     io = [screen._btn_open, screen._btn_organize, screen._btn_test_data,
           screen._btn_rois]
-    steps = [screen._btn_save, screen._btn_prev, screen._btn_next]
+    steps = [screen._btn_prev, screen._btn_next]
     assert widgets(screen._annotation_group) == curate
     assert widgets(screen._io_group) == io
     assert widgets(screen._navigation_group) == steps
@@ -134,8 +134,8 @@ def test_the_maintainers_button_layout(qtbot, qt_theme_applied, monkeypatch,
             assert len({y for y, _x in places}) == 1
         for button in row:
             assert button.visibleRegion().boundingRect() == button.rect()
-    assert top_left(screen._btn_open).x() < top_left(screen._btn_save).x()
-    assert top_left(screen._btn_keep).y() < top_left(screen._btn_save).y()
+    assert top_left(screen._btn_open).x() < top_left(screen._btn_prev).x()
+    assert top_left(screen._btn_keep).y() < top_left(screen._btn_prev).y()
 
 
 # -- the popup's header ----------------------------------------------------

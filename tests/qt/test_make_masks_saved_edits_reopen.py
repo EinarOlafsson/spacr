@@ -36,7 +36,7 @@ def test_saved_mouse_edits_replace_legacy_mask_on_reopen(
         qtbot.mouseMove(screen._canvas, pos=point)
     qtbot.mouseRelease(screen._canvas, Qt.LeftButton, pos=mapped[-1])
     assert screen._canvas.mask.any(), "the physical gesture must create labels"
-    screen._btn_save.click()
+    screen._act_save_mask.trigger()
     saved_path = Path(engine.mask_save_path(str(folder), "field_00" + extension))
     saved = imageio.imread(saved_path)
     assert saved.any()

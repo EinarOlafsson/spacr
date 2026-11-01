@@ -1,8 +1,8 @@
 """Make Masks' titled button groups, collapsible bars and the shared arrow (707).
 
 The maintainer's 2026-10-16 layout: TOOLS top left and ANNOTATION top right
-of the image, IO bottom left and NAVIGATION bottom right; Keep and Save mask
-carry menus; the title, the top bar and the bottom bar fold behind the same
+of the image, IO bottom left and NAVIGATION bottom right; Keep, which saves
+the mask (2026-11-01), carries a menu; the title, the top bar and the bottom bar fold behind the same
 collapse arrow as the settings and stay folded; vvvv export is one
 Preferences -> Plugins switch; the brush starts at 1 px; the field's index
 and name stay together below the image pixels; and the collapse arrow is 75 percent of
@@ -109,7 +109,7 @@ def test_every_button_is_in_its_group_once(screen):
         screen._annotation_group: ["Keep", "Skip", "Discard"],
         screen._io_group: ["Open File / Folder…", "Measure…",
                            "Load test data…", "ROIs…"],
-        screen._navigation_group: ["Save mask", "Previous", "Next"],
+        screen._navigation_group: ["Previous", "Next"],
     }
     seen = []
     for group, labels in expected.items():
@@ -221,20 +221,20 @@ def test_object_operations_hold_the_moved_actions(screen):
 def test_keep_menu(screen):
     menu = screen._btn_keep.split_menu()
     actions = [a for a in menu.actions() if not a.isSeparator()]
-    assert [a.text() for a in actions] == ["Hide judged fields",
-                                           "First unreviewed", "Blind"]
-    assert actions[0] is screen._btn_hide_judged and actions[0].isCheckable()
-    assert actions[1] is screen._btn_first_unreviewed
-    assert actions[2] is screen._btn_blind and actions[2].isCheckable()
-    assert actions[2].objectName() == "MakeMasksBlindToggle"
+    assert [a.text() for a in actions] == [
+        "Save mask and stay", "Save on navigation", "Upload data…",
+        "Hide judged fields", "First unreviewed", "Blind"]
+    assert actions[0] is screen._act_save_mask
+    assert actions[3] is screen._btn_hide_judged and actions[3].isCheckable()
+    assert actions[4] is screen._btn_first_unreviewed
+    assert actions[5] is screen._btn_blind and actions[5].isCheckable()
+    assert actions[5].objectName() == "MakeMasksBlindToggle"
 
 
-def test_save_menu_has_the_boolean_and_upload(screen, monkeypatch):
-    menu = screen._btn_save.split_menu()
+def test_keep_menu_has_the_boolean_and_upload(screen, monkeypatch):
+    menu = screen._btn_keep.split_menu()
     actions = [a for a in menu.actions() if not a.isSeparator()]
-    assert [a.text() for a in actions] == ["Save on navigation",
-                                           "Upload data…"]
-    toggle, upload = actions
+    toggle, upload = actions[1:3]
     assert toggle is screen._btn_save_on_navigation
     assert toggle.isCheckable() and not toggle.isChecked()
     assert upload.objectName() == "MakeMasksUploadDataButton"

@@ -175,7 +175,7 @@ def record_puncta(app, window, screen, stage, captures, capture, settle, write_j
     rec.stop()
     rec = drv.scene(capture, settle, 'puncta_04_saved_mask_and_measurements')
     capture_ui.when_modal(capture, 700, reject_warning)
-    QTest.mouseClick(screen._btn_save, Qt.LeftButton)
+    screen._act_save_mask.trigger()
     settle()
     if errors:
         raise RuntimeError('; '.join(errors))

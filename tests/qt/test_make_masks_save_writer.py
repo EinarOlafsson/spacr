@@ -105,7 +105,7 @@ def test_a_fast_save_is_written_by_the_writer_and_reported_at_once(opened, monke
     monkeypatch.setattr(engine, "save_mask", recorded)
     monkeypatch.setattr(engine, "_MASK_SAVE_WAIT_SECONDS", 30.0)
     screen._canvas.mask[12:20, 12:20] = 7
-    screen._btn_save.click()
+    screen._act_save_mask.trigger()
     assert threads == ["spacr-mask-writer"]
     assert screen._status_label.text().startswith("Saved")
     assert np.all(tifffile.imread(_saved(folder, 0))[12:20, 12:20] > 0)
@@ -134,7 +134,7 @@ def test_logged_brush_saves_keep_the_mask_and_ledger_artifact_together(
         assert screen._log.edits[-1].n_changed == changed
         expected = engine.canonical_labels(screen._canvas.mask)
 
-        qtbot.mouseClick(screen._btn_save, Qt.LeftButton)
+        screen._act_save_mask.trigger()
         assert mm._wait_for_mask_writes(path, timeout=10)
         qtbot.waitUntil(lambda: screen._status_label.text().startswith("Saved"),
                         timeout=10000)
@@ -170,7 +170,7 @@ def test_save_binds_a_caller_supplied_unbound_ledger_to_the_written_mask(opened,
     expected = engine.canonical_labels(screen._canvas.mask)
     path = _saved(folder, 0)
 
-    qtbot.mouseClick(screen._btn_save, Qt.LeftButton)
+    screen._act_save_mask.trigger()
     assert mm._wait_for_mask_writes(path, timeout=10)
     qtbot.waitUntil(lambda: screen._status_label.text().startswith("Saved"), timeout=10000)
     np.testing.assert_array_equal(tifffile.imread(path), expected)

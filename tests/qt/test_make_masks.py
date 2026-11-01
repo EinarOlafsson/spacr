@@ -209,7 +209,7 @@ def test_make_masks_screen_constructs(qtbot, qt_theme_applied):
     # Nav buttons start disabled (no folder open)
     assert not screen._btn_prev.isEnabled()
     assert not screen._btn_next.isEnabled()
-    assert not screen._btn_save.isEnabled()
+    assert not screen._act_save_mask.isEnabled()
 
 
 def test_make_masks_open_folder_loads_first_image(qtbot, qt_theme_applied,
@@ -226,7 +226,7 @@ def test_make_masks_open_folder_loads_first_image(qtbot, qt_theme_applied,
     assert screen._canvas.mask is not None
     # Nav is now enabled
     assert screen._btn_next.isEnabled()
-    assert screen._btn_save.isEnabled()
+    assert screen._act_save_mask.isEnabled()
 
 
 def test_make_masks_large_decode_runs_off_the_gui_thread(
@@ -256,12 +256,12 @@ def test_make_masks_large_decode_runs_off_the_gui_thread(
 
     assert screen._canvas.image is None
     assert screen._load_worker is not None
-    assert not screen._btn_save.isEnabled()
+    assert not screen._act_save_mask.isEnabled()
 
     release.set()
     qtbot.waitUntil(lambda: screen._canvas.image is not None, timeout=5000)
     assert screen._load_worker is None
-    assert screen._btn_save.isEnabled()
+    assert screen._act_save_mask.isEnabled()
 
 
 def test_make_masks_navigation(qtbot, qt_theme_applied, synth_mask_folder: Path):

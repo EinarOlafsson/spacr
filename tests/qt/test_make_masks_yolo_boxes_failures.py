@@ -49,7 +49,7 @@ def test_linked_images_curate_save_and_resume_without_box_popups(
         assert widget._box_load_error is not None
         assert not widget._canvas.boxes_editable
         widget._canvas.mask[12:24, 12:24] = 1
-        widget._btn_save.click()
+        widget._act_save_mask.trigger()
         saved = imageio.imread(masks / 'field_0.tif')
         assert saved[12:24, 12:24].all()
         assert build_queue(folder, order='name').summary.done == 1

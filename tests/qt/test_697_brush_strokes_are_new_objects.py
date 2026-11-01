@@ -268,7 +268,7 @@ def test_saved_mask_and_object_table_show_the_new_objects(screen):
     stroke(canvas, [(40, 50), (55, 50)], Qt.ShiftModifier, to_widget)
     stroke(canvas, [(5, 50), (15, 50)], Qt.NoModifier, to_widget)
     assert screen._objects_now() == 3
-    screen._btn_save.click()
+    screen._act_save_mask.trigger()
     saved = imageio.imread(engine.mask_save_path(str(screen.folder), "field_00.tif"))
     assert ids(saved) == {1, 2, 3}
     assert int(saved[50, 45]) == 2, "the Shift piece stays object 2 on disk"
@@ -321,7 +321,7 @@ def test_brush_label_256_and_shift_identity_survive_unicode_save_reopen(
         assert _state(canvas.mask) == expected
     assert canvas.manual_ids
     expected = canvas.mask.copy()
-    widget._btn_save.click()
+    widget._act_save_mask.trigger()
     saved_path = engine.mask_save_path(str(folder), filename)
     assert mm._wait_for_mask_writes(saved_path, timeout=10)
     saved = imageio.imread(saved_path)

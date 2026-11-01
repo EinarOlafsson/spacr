@@ -225,8 +225,8 @@ def test_native_volume_gate_history_save_and_reopen(tmp_path):
                 action=screen._act_undo if operation=='undo' else screen._act_redo
                 assert action.isEnabled(); action.trigger()
             elif operation=='save':
-                reveal(screen._btn_save)
-                screen._btn_save.click()
+                reveal(screen._btn_keep)
+                screen._act_save_mask.trigger()
                 assert not stage.dirty
             elif operation=='reopen':
                 assert not stage.dirty
@@ -857,7 +857,7 @@ def test_save_keeps_shape_axes_and_voxel_size_and_ctrl_s_saves_the_volume(screen
     assert not stage.session.mask.any()
     screen._act_redo.trigger()
     assert np.array_equal(stage.session.mask, drawn)
-    screen._btn_save.click()
+    screen._act_save_mask.trigger()
     assert not stage.dirty and "Saved 3D mask" in screen._status_label.text()
     reopened = engine.load_volume_image_and_mask(str(tmp_path), path.name)
     assert reopened.mask.shape == (8, 8, 8) and reopened.axes == "ZYX"

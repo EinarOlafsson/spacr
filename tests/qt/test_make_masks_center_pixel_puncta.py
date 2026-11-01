@@ -142,7 +142,7 @@ def test_choose_detect_save_and_undo_keeps_parents_and_exports_exact_values(
         assert window._btn_otsu.isEnabled()
         assert np.count_nonzero(np.unique(window._canvas.mask)) == (2 if has_spots else 0)
         assert window._canvas.preserve_ids
-        window._btn_save.click()
+        window._act_save_mask.trigger()
         np.testing.assert_array_equal(tifffile.imread(folder/'masks/a.tif'), window._canvas.mask)
         rows = tabular.read_table(folder/'masks/a.puncta.csv', canonicalise=False)
         assert rows.included.sum() == (2 if has_spots else 0)

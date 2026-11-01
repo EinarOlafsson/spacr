@@ -13756,6 +13756,10 @@ class MakeMasksScreen(QWidget):
         self._loaded_mask: Optional[np.ndarray] = None
         self._loaded_from_save_path = False
         self._last_saved_mask: Optional[np.ndarray] = None
+        #: Whether the field on screen has a mask file that holds
+        #: ``_last_saved_mask``: it opened from one, or Keep or Save wrote it.
+        #: With no edit since, the Saved mark shows in ANNOTATION.
+        self._mask_saved_here = False
         #: The masks folder of a sibling-layout session, which is beside the
         #: images rather than beneath them; ``None`` means ``<folder>/masks``.
         #: Set with the folder by :meth:`_open_folder`, so no field of one
@@ -15399,7 +15403,7 @@ class MakeMasksScreen(QWidget):
         THE BUTTONS SIT IN FOUR TITLED GROUPS AROUND THE IMAGE: TOOLS at its
         top left and ANNOTATION (Keep, Skip, Discard) at its top right,
         IO (Open File / Folder, Measure, Load test data, ROIs) at its bottom
-        left and NAVIGATION (Save mask, Previous, Next) at its bottom right. The top
+        left and NAVIGATION (Previous, Next) at its bottom right. The top
         and bottom bars are EDGE panes of one vertical
         :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`
         around the views, and the title with its row of folded modules is an
@@ -15631,9 +15635,13 @@ class MakeMasksScreen(QWidget):
         """Build the ANNOTATION, IO and NAVIGATION groups.
 
         ANNOTATION joins TOOLS on the bar above the image, IO and NAVIGATION
-        make the bar below it. Keep carries a menu with Hide judged fields,
-        First unreviewed and Blind; Save mask one with Save on navigation and
-        Upload data, the way Load test data carries its datasets.
+        make the bar below it. Keep is the one commit: it saves the mask,
+        records the verdict and moves on, and the Saved mark in the group's
+        title row says
+        whether the mask on screen is the one on disk. Its menu carries Save
+        mask and stay, Save on navigation, Upload data, Hide judged fields,
+        First unreviewed and Blind, the way Load test data carries its
+        datasets.
         """
         from PySide6.QtGui import QAction
 
@@ -15646,22 +15654,71 @@ class MakeMasksScreen(QWidget):
         self._annotation_group = annotation
         self._nav_curate_group = annotation
 
+        self._saved_state = QLabel(tr("Saved ✓"))
+        self._saved_state.setObjectName("MakeMasksSavedState")
+        self._saved_state.setToolTip(tr(
+            "This image's mask is saved. Editing the mask clears the mark "
+            "until it is saved again."))
+        self._saved_state.setAlignment(Qt.AlignRight | Qt.AlignTop)
+        saved_policy = self._saved_state.sizePolicy()
+        saved_policy.setRetainSizeWhenHidden(True)
+        self._saved_state.setSizePolicy(saved_policy)
+        self._saved_state.setVisible(False)
+        heading = annotation.layout()
+        heading.removeWidget(annotation.title_label)
+        title_row = QHBoxLayout()
+        title_row.setContentsMargins(0, 0, 0, 0)
+        title_row.setSpacing(SPACING["sm"])
+        title_row.addWidget(annotation.title_label, 0, Qt.AlignLeft | Qt.AlignTop)
+        title_row.addStretch(1)
+        title_row.addWidget(self._saved_state, 0, Qt.AlignRight | Qt.AlignTop)
+        heading.insertLayout(0, title_row)
+
         self._btn_keep = _SplitMenuButton(tr("Keep"), self)
         self._btn_keep.setObjectName("MakeMasksKeepButton")
         self._btn_keep.setIcon(iconset.icon("check"))
         self._btn_keep.setCheckable(True)
         self._btn_keep.setCursor(Qt.PointingHandCursor)
         self._btn_keep.setToolTip(tr(
-            "Mark this field as one to keep and move to the next. The "
-            "verdict is written to csv/keep_discard.csv beside the images, "
-            "with the image, its mask and the number of objects the mask "
-            "holds right now.") + " " + tr(
-            "The arrow offers Hide judged fields, First unreviewed and "
-            "Blind."))
+            "Save this field's mask, mark the field as one to keep and move "
+            "to the next. The verdict is written to csv/keep_discard.csv "
+            "beside the images, with the image, its mask and the number of "
+            "objects the mask holds right now.") + " " + tr(
+            "The arrow offers Save mask and stay (Ctrl+S), Save on "
+            "navigation, Upload data, Hide judged fields, First unreviewed "
+            "and Blind."))
         self._btn_keep.clicked.connect(lambda: self._on_curate(True))
         keep_menu = QMenu(self._btn_keep)
         keep_menu.setObjectName("MakeMasksKeepMenu")
         keep_menu.setToolTipsVisible(True)
+
+        self._act_save_mask = QAction(tr("Save mask and stay"), keep_menu)
+        self._act_save_mask.setObjectName("MakeMasksSaveMask")
+        self._act_save_mask.setToolTip(tr(
+            "Save this field's mask in its masks folder. TIFF masks use "
+            "uint16 for ordinary labels, retain existing uint32 IDs and width, "
+            "and use uint32 for exact-ID modes when needed or masks with "
+            "Time lineage.") + " " + tr(
+            "It records no verdict and stays on this image (Ctrl+S)."))
+        self._act_save_mask.triggered.connect(
+            lambda _checked=False: self._on_save())
+        keep_menu.addAction(self._act_save_mask)
+        self._btn_save_on_navigation = QAction(tr("Save on navigation"),
+                                               keep_menu)
+        self._btn_save_on_navigation.setObjectName("MakeMasksSaveOnNavigate")
+        self._btn_save_on_navigation.setCheckable(True)
+        self._btn_save_on_navigation.setToolTip(tr(
+            "Save an edited mask before Discard, Next or Previous; Keep "
+            "always saves. If saving fails, stay on this image without "
+            "recording a verdict. Off by default; Skip still writes no mask."))
+        self._btn_save_on_navigation.setChecked(bool(_s().value(
+            "make_masks/save_on_navigation", False, type=bool)))
+        self._btn_save_on_navigation.toggled.connect(
+            lambda enabled: _s().setValue(
+                "make_masks/save_on_navigation", bool(enabled)))
+        keep_menu.addAction(self._btn_save_on_navigation)
+        keep_menu.addAction(self._build_contribute_button(keep_menu))
+        keep_menu.addSeparator()
 
         self._btn_hide_judged = QAction(tr("Hide judged fields"), keep_menu)
         self._btn_hide_judged.setObjectName("MakeMasksHideJudged")
@@ -15770,40 +15827,6 @@ class MakeMasksScreen(QWidget):
             tr("NAVIGATION"), "MakeMasksNavigationGroup", keep_one_line=True)
         nav_row._space = SPACING["xs"]
         self._navigation_group = nav_group
-        self._btn_save = _SplitMenuButton(tr("Save mask"), self)
-        self._btn_save.setObjectName("PrimaryButton")
-        self._btn_save.setIcon(iconset.contrast_icon("save"))
-        self._btn_save.setCursor(Qt.PointingHandCursor)
-        self._btn_save.setToolTip(tr(
-            "Save this field's mask in its masks folder. TIFF masks use "
-            "uint16 for ordinary labels, retain existing uint32 IDs and width, "
-            "and use uint32 for exact-ID modes when needed or masks with "
-            "Time lineage.") + " " + tr(
-            "The arrow offers Save on navigation and Upload data."))
-        self._btn_save.clicked.connect(self._on_save)
-        save_menu = QMenu(self._btn_save)
-        save_menu.setObjectName("MakeMasksSaveMenu")
-        save_menu.setToolTipsVisible(True)
-        self._btn_save_on_navigation = QAction(tr("Save on navigation"),
-                                               save_menu)
-        self._btn_save_on_navigation.setObjectName("MakeMasksSaveOnNavigate")
-        self._btn_save_on_navigation.setCheckable(True)
-        self._btn_save_on_navigation.setToolTip(tr(
-            "Save an edited mask before Keep, Discard, Next or Previous. "
-            "If saving fails, stay on this image without recording a verdict. "
-            "Off by default; Skip still writes no mask."))
-        self._btn_save_on_navigation.setChecked(bool(_s().value(
-            "make_masks/save_on_navigation", False, type=bool)))
-        self._btn_save_on_navigation.toggled.connect(
-            lambda enabled: _s().setValue(
-                "make_masks/save_on_navigation", bool(enabled)))
-        save_menu.addAction(self._btn_save_on_navigation)
-        save_menu.addSeparator()
-        save_menu.addAction(self._build_contribute_button(save_menu))
-        self._btn_save.set_split_menu(save_menu)
-        self._save_menu = save_menu
-        nav_row.addWidget(self._btn_save)
-
         self._btn_prev = QPushButton(tr("Previous"))
         self._btn_prev.setObjectName("MakeMasksPreviousButton")
         self._btn_prev.setIcon(iconset.icon("prev"))
@@ -15818,7 +15841,7 @@ class MakeMasksScreen(QWidget):
         self._btn_next.setCursor(Qt.PointingHandCursor)
         self._btn_next.clicked.connect(self._on_next)
         nav_row.addWidget(self._btn_next)
-        for button in (self._btn_save, self._btn_prev, self._btn_next):
+        for button in (self._btn_prev, self._btn_next):
             button.setMinimumHeight(32)
 
         bottom = QWidget()
@@ -16453,7 +16476,7 @@ class MakeMasksScreen(QWidget):
         return button
 
     def _build_contribute_button(self, menu=None):
-        """"Upload data…" in Save mask's menu: send images and masks to a community set.
+        """"Upload data…" in Keep's menu: send images and masks to a community set.
 
         It was "Contribute images and masks…" and then a button of its own;
         the object name and the dialog it opens are unchanged.
@@ -17899,15 +17922,21 @@ class MakeMasksScreen(QWidget):
         curated after hand editing records the objects the user was looking
         at when they pressed the button.
 
-        With mask layers loaded, Keep accepts the curated overlay as edited:
-        it is saved to the save folder, with its decisions log, whether or
-        not Save on navigation is on.
+        Keep is the commit: it saves the mask on screen first, a 3D mask
+        included, whether or not Save on navigation is on, and a save that
+        fails leaves the field on screen with no verdict. With mask layers loaded the mask saved is
+        the curated overlay, with its decisions log. Discard saves only
+        through Save on navigation.
 
         :param keep: True for Keep, False for Discard.
         :returns: the CSV's path, or None when there was nothing to record.
         """
-        if (keep and self._layers_active() and self._canvas.mask is not None
-                and self._mask_stage.session is None
+        stage = self._mask_stage
+        if (keep and stage.session is not None and stage.dirty
+                and not stage.busy and not stage.save()):
+            return None
+        if (keep and self._image_files and self._canvas.mask is not None
+                and stage.session is None
                 and self._save_mask() is None):
             return None
         if not self._save_mask_if_needed() or not self._save_boxes_if_needed():
@@ -19365,7 +19394,8 @@ class MakeMasksScreen(QWidget):
         self._canvas.cancel_gesture()
         self._canvas.mode = mode
         self._box_controls.setVisible(mode == MODE_BOX)
-        self._btn_save.setText(tr("Save boxes") if mode == MODE_BOX else tr("Save mask"))
+        self._act_save_mask.setText(tr("Save boxes and stay") if mode == MODE_BOX
+                                    else tr("Save mask and stay"))
         self._refresh_history_buttons()
         self._canvas.ruler.set_active(mode == MODE_RULER)
         if mode in (MODE_RULER, MODE_BOX, MODE_DIVIDE, MODE_EDIT_LABEL, MODE_LABEL_TIME):
@@ -19739,6 +19769,25 @@ class MakeMasksScreen(QWidget):
         history = self._box_history if self._canvas.mode == MODE_BOX else self._history
         self._act_undo.setEnabled(history.can_undo())
         self._act_redo.setEnabled(history.can_redo())
+        self._refresh_saved_state()
+
+    def _mask_is_saved(self) -> bool:
+        """Whether the 2D mask on screen is the one in its mask file.
+
+        :returns: True once Keep or Save wrote this field's mask, or it
+            opened from its file, and no edit has changed it since.
+        """
+        return bool(self._image_files and self._canvas.mask is not None
+                    and not self._loading
+                    and self._mask_stage.session is None
+                    and getattr(self, "_mask_saved_here", False)
+                    and not self._edits_unsaved())
+
+    def _refresh_saved_state(self) -> None:
+        """Show the Saved mark in ANNOTATION while the mask on screen is saved."""
+        label = getattr(self, "_saved_state", None)
+        if label is not None:
+            label.setVisible(self._mask_is_saved())
 
     def _on_boxes_changed(self):
         """Snapshot one box edit without changing segmentation history."""
@@ -22377,7 +22426,7 @@ class MakeMasksScreen(QWidget):
             form.addRow(label, widget)
             widget.valueChanged.connect(self._on_magnifier_context_changed)
         card.body_layout.addLayout(form)
-        note = QLabel(tr('Choose the parent-mask folder above. Use whole-image Replace, then Save mask. Centre measurements are saved beside the mask; shared centre pixels have one label owner. Min area is bypassed.'))
+        note = QLabel(tr('Choose the parent-mask folder above. Use whole-image Replace, then Keep. Centre measurements are saved beside the mask; shared centre pixels have one label owner. Min area is bypassed.'))
         note.setWordWrap(True)
         card.body_layout.addWidget(note)
         return card
@@ -23921,7 +23970,7 @@ class MakeMasksScreen(QWidget):
         self._mag_auto_accept.setToolTip(tr(
             "Accept proposals without clicking. Region mode follows Objects added; "
             "Whole image accepts only the object under the pointer. Undo is "
-            "available; Save mask, or moving to another image with Save on "
+            "available; Keep, or moving to another image with Save on "
             "navigation on, writes the masks."))
         self._mag_auto_accept.toggled.connect(magnifier.set_auto_accept)
         form.addRow(self._mag_auto_accept)
@@ -24462,7 +24511,7 @@ class MakeMasksScreen(QWidget):
         self._btn_prompt_accept.setCursor(Qt.PointingHandCursor)
         self._btn_prompt_accept.setToolTip(tr(
             "Add the outline micro-SAM drew as one new object: one edit, "
-            "undone by one Ctrl+Z, written by Save mask and recorded in the "
+            "undone by one Ctrl+Z, written by Keep and recorded in the "
             "field's curation ledger with the prompt, the model and the "
             "micro-SAM version. Enter on the image does the same. "
             "Default unavailable until an outline is shown."))
@@ -24591,7 +24640,7 @@ class MakeMasksScreen(QWidget):
         One edit: one ledger entry, ``prompt``, that names the new id and
         keeps the prompt (points, box), the model, its score, the device
         and the environment's package versions, and one undo step. Nothing
-        is written until Save mask. The overlap rule is read from the
+        is written until Keep saves it. The overlap rule is read from the
         category's Overlap box (:func:`spacr.qt.mask_engine.
         _paste_region_objects`); an outline the rule leaves nothing of adds
         nothing.
@@ -26126,6 +26175,7 @@ class MakeMasksScreen(QWidget):
         self._loaded_mask = None
         self._loaded_from_save_path = False
         self._last_saved_mask = None
+        self._mask_saved_here = False
         self._refresh_history_buttons()
         self._btn_reset_zoom.setEnabled(False)
         from ..i18n import tr
@@ -26193,6 +26243,7 @@ class MakeMasksScreen(QWidget):
             self._folder, filename, **self._layout_kwargs()))
         if from_target is not None:
             self._loaded_from_save_path = from_target
+        self._mask_saved_here = bool(self._loaded_from_save_path)
         self._recrop_children = []
         self._reset_flow_panes()
         self._history.clear()
@@ -26569,6 +26620,8 @@ class MakeMasksScreen(QWidget):
             self._status_label.setText(
                 tr("Unchanged, nothing rewritten → {path}").format(path=path))
             self._last_saved_mask = np.array(self._canvas.mask, copy=True)
+            self._mask_saved_here = True
+            self._refresh_saved_state()
             self._write_layer_decisions(filename)
             return path
         preserve_ids = self._canvas.retain_label_ids() or self._layers_active()
@@ -26597,6 +26650,8 @@ class MakeMasksScreen(QWidget):
             previous=(self._last_saved_mask, self._lineage_format, self._lineage_dirty),
             deliver=self._deliver_mask_write)
         self._last_saved_mask = np.array(mask, copy=True)
+        self._mask_saved_here = True
+        self._refresh_saved_state()
         self._log_field_visit("save", mask)
         self._lineage = lineage
         self._lineage_format = lineage is not None
@@ -26651,7 +26706,9 @@ class MakeMasksScreen(QWidget):
             if same:
                 (self._last_saved_mask, self._lineage_format,
                  self._lineage_dirty) = request["previous"]
+                self._mask_saved_here = False
                 self._refresh_lineage_rows()
+                self._refresh_saved_state()
             self._warn("Save failed", str(request["error"]))
             return
         path = request["result"]
@@ -26906,7 +26963,7 @@ class MakeMasksScreen(QWidget):
         """Enable each control only when it has something to act on."""
         has_files = bool(self._image_files)
         editable = has_files and not self._loading
-        for b in (self._btn_prev, self._btn_next, self._btn_save,
+        for b in (self._btn_prev, self._btn_next, self._act_save_mask,
                    self._btn_hide_judged,
                    self._box_class_combo, self._btn_add_box_class, self._btn_export_yolo,
                    self._btn_save_boxes,
@@ -26917,6 +26974,7 @@ class MakeMasksScreen(QWidget):
                    *self._mode_buttons.values()):
             b.setEnabled(editable)
         self._btn_skip.setEnabled(editable and self._queue is not None)
+        self._refresh_saved_state()
         self._btn_prompt.setEnabled(editable)
         self._box_controls.setEnabled(editable and self._box_load_error is None
                                       and self._box_field is not None

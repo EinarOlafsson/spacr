@@ -184,7 +184,7 @@ def test_a_sibling_save_lands_in_the_sets_own_masks_folder(
     screen = handed_screen(qtbot, sibling)
     screen._btn_del_obj.click()
     click(screen._canvas, *OBJECT_ONE)
-    screen._btn_save.click()
+    screen._act_save_mask.trigger()
 
     saved = imageio.imread(sibling / "masks" / "s_0.tif")
     assert 1 not in np.unique(saved), "the erased object is still on disk"
@@ -276,7 +276,7 @@ def test_a_seg_save_writes_the_labels_back_into_the_bundle(
     screen = handed_screen(qtbot, seg)
     screen._btn_del_obj.click()
     click(screen._canvas, *OBJECT_ONE)
-    screen._btn_save.click()
+    screen._act_save_mask.trigger()
 
     saved = bundle(seg / "b_0_seg.npy")
     assert 1 not in np.unique(saved["masks"])

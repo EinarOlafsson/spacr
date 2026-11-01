@@ -358,7 +358,7 @@ def test_saved_boxes_and_classes_follow_their_field_on_reopen(screen, qtbot):
     widget._set_mode(MODE_BOX)
     assert widget._on_add_box_class("infected") == 1
     _drag_pixels(widget._canvas, (12, 44), (24, 56))
-    widget._btn_save.click()
+    widget._act_save_mask.trigger()
 
     widget._on_next()
     qtbot.waitUntil(lambda: not widget._loading and widget._reader_worker is None

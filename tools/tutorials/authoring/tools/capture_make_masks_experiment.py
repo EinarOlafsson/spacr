@@ -117,7 +117,7 @@ def main() -> int:
         "source": screen._src_label,
         "canvas": screen._canvas,
         "tools": screen._body_splitter.widget(1),
-        "navigation": [screen._btn_prev, screen._btn_next, screen._btn_save],
+        "navigation": [screen._btn_prev, screen._btn_next],
     })
 
     tools_card = card_named(screen, "Tools")
@@ -254,7 +254,7 @@ def main() -> int:
     screen._on_save()
     settle(app, 30)
     capture.save("14_save", {
-        "save": screen._btn_save,
+        "save": screen._btn_keep,
         "status": screen._status_label,
         "canvas": screen._canvas,
     })
@@ -263,7 +263,7 @@ def main() -> int:
     wait_for_image(app, screen, "second real ER field")
     capture.save("15_next", {
         "next": screen._btn_next,
-        "navigation": [screen._btn_prev, screen._btn_next, screen._btn_save],
+        "navigation": [screen._btn_prev, screen._btn_next],
         "status": screen._status_label,
         "canvas": screen._canvas,
     })
@@ -276,7 +276,7 @@ def main() -> int:
         "button": screen._btn_brush,
         "brush": brush_card,
         "canvas": screen._canvas,
-        "save": screen._btn_save,
+        "save": screen._btn_keep,
     })
 
     capture.write_geometry()

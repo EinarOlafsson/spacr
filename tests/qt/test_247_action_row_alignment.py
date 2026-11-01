@@ -1,4 +1,4 @@
-"""Make Masks Save mask, Previous and Next share the NAVIGATION group."""
+"""Make Masks Previous and Next share the NAVIGATION group; Ctrl+S's save stays put."""
 import numpy as np
 import pytest
 import tifffile
@@ -17,15 +17,16 @@ def test_save_navigation_share_action_row(qtbot, qt_theme_applied, tmp_path, wid
     screen.resize(width, 900)
     screen.show()
     qtbot.waitExposed(screen)
-    buttons = (screen._btn_save, screen._btn_prev, screen._btn_next)
-    qtbot.waitUntil(lambda: screen._btn_save.isVisible())
-    center = screen._btn_save.mapTo(screen, screen._btn_save.rect().center()).y()
+    buttons = (screen._btn_prev, screen._btn_next)
+    qtbot.waitUntil(lambda: screen._btn_prev.isVisible())
+    center = screen._btn_prev.mapTo(screen, screen._btn_prev.rect().center()).y()
     for button in buttons:
         assert button.parentWidget() is screen._navigation_group
         assert abs(button.mapTo(screen, button.rect().center()).y() - center) <= 1
         assert button.visibleRegion().boundingRect() == button.rect()
     screen._canvas.mask[1:3, 1:3] = 37
-    screen._btn_save.click()
+    screen._act_save_mask.trigger()
+    assert screen._current_index == 0
     saved = tifffile.imread(tmp_path / "masks/a.tif")
     assert np.max(saved) == 1  # Existing saver numbers new objects from one.
     assert np.count_nonzero(saved) == 4

@@ -43,12 +43,12 @@ def _saved_mask(folder, index):
     return engine.mask_save_path(str(folder), f"field_{index}.tif")
 
 
-def test_toggle_is_in_save_masks_menu_and_default_off_without_changing_manual_navigation(
+def test_toggle_is_in_keeps_menu_and_default_off_without_changing_manual_navigation(
         opened):
     screen, folder, _settings_path = opened
     toggle = screen._btn_save_on_navigation
     assert toggle.objectName() == "MakeMasksSaveOnNavigate"
-    assert screen._btn_save.split_menu().actions()[0] is toggle
+    assert screen._btn_keep.split_menu().actions()[1] is toggle
     assert not toggle.isChecked()
     _edit_mask(screen)
 

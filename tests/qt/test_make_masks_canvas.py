@@ -870,7 +870,7 @@ def test_open_folder_without_images_reports_and_keeps_empty_state(
     assert s._folder == ""
     assert s._status_label.text().startswith("No images:")
     assert s._body_stack.currentWidget() is s._empty_state
-    assert not s._btn_save.isEnabled()
+    assert not s._act_save_mask.isEnabled()
 
 
 def test_load_current_without_files_is_a_noop(qtbot, qt_theme_applied):

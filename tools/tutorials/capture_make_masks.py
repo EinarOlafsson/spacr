@@ -747,7 +747,7 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
         rec.stop()
 
     rec = drv.scene(capture, settle, '11_saved_restored_mask')
-    QTest.mouseClick(screen._btn_save, Qt.LeftButton)
+    screen._act_save_mask.trigger()
     settle()
     saved = tifffile.imread(evidence[0]['mask'])
     if not np.array_equal(saved > 0, original > 0):
