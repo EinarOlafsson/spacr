@@ -786,8 +786,8 @@ def class_labels(metrics, classes=None):
         which is what lets the live plot and the model card name the classes
         without every helper having to be handed the list again.
     :returns: list of ``str``, length ``num_classes``. Falls back to
-        ``class_0, class_1, …`` — never to an empty list, because the caller
-        is about to index it per class.
+        ``class_0, class_1, …``. The list is empty when ``metrics`` holds
+        neither ``num_classes`` nor ``per_class_accuracy``.
     """
     per_class = list(metrics.get('per_class_accuracy') or [])
     count = int(metrics.get('num_classes') or len(per_class) or 0)

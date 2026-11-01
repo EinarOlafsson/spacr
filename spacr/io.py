@@ -859,8 +859,8 @@ class spacrDataLoader(_TorchDataLoader):
 
     Wraps ``torch.utils.data.DataLoader`` and runs a daemon thread that
     stays one or more batches ahead of consumption to hide I/O latency.
-    End-of-stream is signalled with a sentinel, so the full batch stream
-    is always delivered.
+    End-of-stream is signalled with a sentinel. If no batch arrives within
+    60 s, iteration stops with ``StopIteration`` as if the stream had ended.
 
     :param preload_batches: Number of batches to keep queued ahead.
         Default ``1``.
@@ -929,10 +929,12 @@ class spacrDataLoader(_TorchDataLoader):
             return batch
 
     def __iter__(self):
-        """Start a fresh pass over the data and return self.
+        """Start a pass over the data and return self.
 
-        Safe to call more than once (``list(iter(dl))`` calls it twice): any
-        in-flight producer is stopped first, so the stream is never doubled.
+        While a pass is active the call returns self without restarting
+        (``list(iter(dl))`` calls it twice), so the stream is not doubled. A
+        new pass starts only after the previous one reached its end or timed
+        out.
         """
         if self._iteration_active:
             if self.current_batch_index == 0:
@@ -5492,9 +5494,9 @@ def save_object_mask(output_folder, filename, mask, compression='lzw'):
     """Save an integer label mask as a lossless, compressed TIFF.
 
     Masks are saved as TIFF (not .npy) so they're readable by ImageJ/other
-    tools, with lossless compression (default LZW). Object labels are never
-    altered — the array is written verbatim as uint16, exactly as recorded in
-    the measurements database.
+    tools, with lossless compression (default LZW). The array is cast to
+    uint16 with ``astype``: labels 0 to 65535 are written unchanged, and
+    larger labels wrap (65536 becomes 0) because no range check is made.
 
     :param output_folder: destination folder (e.g. ``masks/cell_mask_stack``).
     :param filename: reference filename (the stack basename; extension ignored).

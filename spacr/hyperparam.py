@@ -17,7 +17,8 @@ silhouette) rewards a *different* property, and they routinely disagree about
 which ``n_neighbors``/``min_dist`` wins. The scores are an aid for ranking a
 panel of embeddings you then look at; they are not a verdict. Anything that
 prints "best embedding" without naming the criterion is misleading, so
-:func:`format_search` always names it and always prints the caveat.
+:func:`format_search` always names it, and prints its caveat for the UMAP and
+activation criteria.
 
 **Selecting on the test split leaks.** :func:`cv_search` scores every trial on
 cross-validation folds, never on test, and refuses to run if a caller hands it
@@ -26,7 +27,7 @@ folds that touch the held-out test indices. It defaults to *grouped* folds
 well share focus, illumination and seeding density, so an ungrouped search picks
 the model that memorised wells and reports an inflated score.
 
-**A winner is reported with its spread.** When the top ten configurations sit
+**A winner is reported with its spread.** When the top three configurations sit
 inside the fold-to-fold standard deviation, the hyperparameter did not matter and
 the "winner" is noise. Every :class:`SearchResult` reports the spread and raises
 a ``within_noise`` flag when that is what happened.

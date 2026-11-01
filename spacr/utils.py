@@ -7954,11 +7954,10 @@ def plot_umap_images(ax, image_paths, embedding, labels, image_nr, img_zoom, col
     :param img_zoom: scale factor handed to ``OffsetImage``. It sizes the
         thumbnail from the file's own pixel dimensions in display space, so
         rescaling the axes does not change how big the image is drawn.
-    :param colors: only zipped against ``np.unique(labels)`` to drive the
-        iteration; the color itself is never drawn. Its LENGTH is therefore a
-        silent limit, and because ``np.unique`` includes the ``-1`` noise label
-        a palette sized to the real clusters leaves the last cluster with no
-        images. Unused (``None`` is fine) when ``plot_by_cluster`` is false.
+    :param colors: passed to :func:`plot_images_by_cluster`, which does not
+        read it. No colour is drawn and its length does not limit which
+        clusters are visited. Unused (``None`` is fine) when
+        ``plot_by_cluster`` is false.
     :param plot_by_cluster: true samples per cluster and skips label ``-1``;
         false ignores ``labels`` and ``colors`` entirely and samples globally.
     :param remove_image_canvas: forwarded to :func:`plot_image`; true masks
@@ -10391,9 +10390,11 @@ def cleanup_pipeline_folders(src, keep_intermediate=False, keep_original=False,
     embedded in ``merged/`` and object labels are recorded in the database) and
     the raw ``orig/`` backup, unless the caller opts to keep them.
 
-    Heavily guarded so it never destroys un-merged data: ``stack/`` + ``masks/``
-    are only removed when ``merged/`` is non-empty AND every ``stack/*.npy`` has
-    a matching ``merged/*.npy`` (i.e. every field of view was merged).
+    Nothing is removed unless ``merged/`` holds at least one ``.npy``.
+    ``stack/``, ``masks/`` and the numbered folders are then removed only when
+    every ``stack/*.npy`` has a matching ``merged/*.npy``; without ``stack/``
+    there is no per-field check. ``orig/`` is removed whenever
+    ``keep_original`` is False, even when some fields were not merged.
 
     :param src: run root folder (holds ``merged/``, ``stack/``, ``masks/``, ``orig/``).
     :param keep_intermediate: keep ``stack/`` + ``masks/`` when True.

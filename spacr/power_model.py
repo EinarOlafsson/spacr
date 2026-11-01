@@ -48,7 +48,7 @@ is no Python drop-in: ``cmdstanpy`` needs a C++ toolchain at install
 time, which is not acceptable for a pip-installed package.  So the
 backend is pluggable:
 
-``"torch"``   (default, always available)
+``"torch"``   (always available; what ``"auto"`` falls back to)
     Mean-field **ADVI** — automatic-differentiation variational
     inference — in a non-centred parameterisation, using the torch spaCR
     already depends on.  Zero new dependencies, seconds not minutes, and
@@ -56,7 +56,7 @@ backend is pluggable:
 ``"numpyro"`` / ``"pymc"`` (optional, lazily imported)
     Exact NUTS, if the user has installed either.  Never added to
     ``install_requires``.
-``"auto"``
+``"auto"`` (default)
     numpyro, else pymc, else torch — and it *says which*, both in the log
     and in :attr:`PowerFit.backend`, so a result can never be mistaken
     for one produced by a different method.  Pin ``backend=`` explicitly

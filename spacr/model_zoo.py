@@ -3646,10 +3646,11 @@ def default_version_index(pairs: Sequence[Tuple[str, Any]]) -> int:
 def source_of(entry: Any) -> str:
     """Which of :data:`ZOO_SOURCES` this row belongs under.
 
-    Decided from the row's own ``source``, ``kind`` and ``uri``, never from a
-    separate list of names: such a list goes stale the first time a model is
-    added, and a model missing from it appears in the catalogue under no
-    heading, where nobody can see it.
+    Decided from the row's own ``source``, ``kind`` and ``uri``, with one
+    list of names checked first: a row whose ``key`` is in
+    :data:`THIRD_PARTY_MODEL_KEYS` is filed under ``Third-party`` unless it is
+    a community row that spaCR did not publish. Every other row is filed by
+    its own fields, so a model missing from that list still gets a heading.
 
     The order of the tests is the rule, and it matters in one place: a
     Cellpose 3 checkpoint published on bioimage.io is a bioimage.io row, not
@@ -3729,13 +3730,17 @@ def catalogue(include_bundled: bool = True, remote: bool = True,
               catalogue_path: Any = None,
               include_plugins: bool = True,
               block: Optional[bool] = None) -> List[ModelEntry]:
-    """Everything the zoo knows about without scanning the user's disks.
+    """Return the zoo's model entries without scanning the user's disks.
 
     That is: the models bundled with the installed package (whatever
-    :func:`spacr.utils.download_models` has put in ``resources/models``), plus
-    the declared remote entries — :data:`BUNDLED_REMOTE_MODELS` and, if one is
-    configured, the JSON catalogue named by ``catalogue_path`` or the
-    :data:`CATALOGUE_ENV_VAR` environment variable.
+    :func:`spacr.utils.download_models` has put in ``resources/models``); the
+    stock Cellpose models, the optional segmentation backends and their
+    models; with ``remote`` on, the cached bioimage.io rows,
+    :data:`BUNDLED_REMOTE_MODELS` and, if one is configured, the JSON
+    catalogue named by ``catalogue_path`` or the :data:`CATALOGUE_ENV_VAR`
+    environment variable; and, with ``include_plugins``, the entries of
+    installed model providers. Names in :data:`RETIRED_MODEL_NAMES` are
+    dropped.
 
     Local apart from one thing:
     with ``remote`` on, this also asks :func:`shared_catalogue` for the
@@ -3745,16 +3750,17 @@ def catalogue(include_bundled: bool = True, remote: bool = True,
 
     :param include_bundled: list the models in the package resources folder.
     :param remote: list declared remote entries.
-    :param catalogue_path: a JSON catalogue to add; defaults to
-        ``$SPACR_MODEL_CATALOGUE`` when that names a file.
+    :param catalogue_path: a JSON catalogue to add when ``remote`` is on;
+        defaults to ``$SPACR_MODEL_CATALOGUE`` when that names a file.
     :param include_plugins: include entries returned by installed spaCR model
         providers. Provider failures are recorded in plugin diagnostics and do
         not hide built-in entries.
     :param block: passed to :func:`shared_catalogue`. ``False`` takes the
         community rows from its cache rather than waiting for the network;
         ``None`` lets that function decide from the thread it is on.
-    :returns: bundled entries first, then remote ones already present locally
-        are dropped (a downloaded model is listed once, as the local file).
+    :returns: entries in the order above. An entry whose ``(key, name)`` is
+        already listed is not added again, so a downloaded model is listed
+        once, as the local file.
     """
     entries: List[ModelEntry] = []
     if include_bundled:

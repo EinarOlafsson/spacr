@@ -27,8 +27,9 @@ are well suited, and the smoothers are used there: showing whether the
 phenotype moves smoothly with a nuisance variable the linear model is assuming
 away.
 
-Splits are grouped by well. Cells in one well are not independent, so any split
-these methods need goes through the well, never through the cell.
+No method here splits the data. :func:`agreement` fits its model and computes
+permutation importance on the same rows (one row per well), so the importances
+are in-sample.
 """
 from __future__ import annotations
 
@@ -339,10 +340,9 @@ def agreement(design, response, linear_effect: Dict[str, float], *,
     :param response: phenotype value for every row of ``design``.
     :param linear_effect: the fit's own per-guide effect, ranked by
         magnitude to give the ranking this is compared against.
-    :param groups: the well each row belongs to. Passed to the splitter so
-        one well's rows never straddle a split -- cells in one well share
-        that well's phenotype, and a split that crossed one would score a
-        model on its own training data.
+    :param groups: the well each row belongs to. Accepted and not used: no
+        split is made, and the model is fitted and its permutation importance
+        computed on all rows.
     :param moved_by: how many places a guide must move to be worth naming.
     """
     from scipy.stats import spearmanr

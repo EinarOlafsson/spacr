@@ -4282,9 +4282,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     """Command-line entry point. ``python -m spacr.crashreport``.
 
     :param argv: arguments, defaulting to ``sys.argv[1:]``.
-    :returns: ``0`` when the bundle was written, ``1`` when it could not be —
-        and never anything else; a section that could not be gathered does not
-        change the exit code.
+    :returns: ``0`` when the bundle was written, ``1`` when it could not be;
+        a section that could not be gathered does not change the exit code.
+        Invalid arguments and ``--help`` leave through :mod:`argparse`
+        (``SystemExit`` with code 2 or 0) before anything is written.
     """
     args = build_parser().parse_args(argv)
     try:

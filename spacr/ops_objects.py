@@ -370,9 +370,10 @@ def sew(observations: Sequence[WindowObject], *,
     complete means no window saw that nucleus whole, which :func:`number`
     refuses.
 
-    Two labels of one window are never one object, because a label image does
-    not give one nucleus two labels. Two complete observations from different
-    windows are one nucleus when their centroids agree within ``tolerance``
+    Two complete labels of one window are never one object, because a label
+    image does not give one nucleus two labels; two clipped labels of one
+    window may join the same complete observation. Two complete observations
+    from different windows are one nucleus when their centroids agree within ``tolerance``
     on each axis and either their areas agree to ``area_ratio`` or their
     centroids lie within the smaller one's equivalent radius -- the radius of
     a disc of its area. Pairs whose areas agree are joined first, then the

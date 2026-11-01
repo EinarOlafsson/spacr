@@ -920,9 +920,9 @@ def sweep_grid(threshold: float, span: float = DEFAULT_SWEEP_SPAN,
         into the bleed-through tail, where the collision rate turns — so the
         curve shows the cost of relaxing the cutoff into it.
     :param high: absolute upper end, overriding ``threshold * span``.
-    :returns: sorted unique array of cutoffs in ``(0, 1]``, always
-        containing ``threshold`` itself so the derived point is on the
-        curve and not merely near it.
+    :returns: sorted unique array of cutoffs in ``(0, 1]``, containing
+        ``threshold`` itself when it is at most 1, so the derived point is on
+        the curve and not merely near it.
     :raises ValueError: on a non-positive threshold, a span at or below 1,
         fewer than 3 points, or a ``low`` that is not below ``high``.
     """

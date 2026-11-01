@@ -57,8 +57,9 @@ A z-stack is ``n_z`` times a field, and volumetric segmentation transiently
 needs several copies of it. :func:`estimate_peak_bytes` gives the number for a
 given field; the pipeline processes **one field at a time** and never holds a
 plate. For a 2048x2048 field at 21 planes in float32 that is ~350 MB for the
-volume, and ~1.4 GB peak in :data:`MODE_VOLUMETRIC` with resampling at
-anisotropy 5 (the isotropic copy is ``anisotropy`` times taller). This is why
+volume, and :func:`estimate_peak_bytes` gives ~8.1 GB peak in
+:data:`MODE_VOLUMETRIC` at anisotropy 5 (the isotropic copy is ``anisotropy``
+times taller, and the estimate counts it four times). This is why
 :data:`MODE_VOLUMETRIC` is not the default.
 
 Scope

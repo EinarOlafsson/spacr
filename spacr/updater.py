@@ -2,8 +2,11 @@
 Auto-updater — compare local ``spacr`` to PyPI + the nightly branch.
 
 Exposes a small API the Qt GUI's Help → "Check for updates" menu
-entry can call. Nothing runs automatically; users always trigger a
-check + confirm any upgrade.
+entry can call. The version check and any upgrade run only when the
+user starts them, and an upgrade is confirmed first. The release-notes
+fetch is not user-started: Home's News panel and the post-update notes
+call :func:`fetch_release_notes` on their own unless the News refresh
+preference is off or ``SPACR_NO_NETWORK`` is set.
 
 The updater talks to two sources:
 
@@ -17,8 +20,9 @@ the published releases, cached for a day, so a running copy can show a
 release newer than the one bundled in its own wheel.
 
 Both fetches use ``urllib`` from the stdlib to avoid pulling in an
-extra HTTP dependency. Timeouts are short (3 s) so a slow / offline
-network doesn't block the UI. Errors are absorbed and surfaced as
+extra HTTP dependency. Timeouts are short (3 s for the version check,
+4 s for the release notes) so a slow / offline network doesn't block the
+UI. Errors are absorbed and surfaced as
 "couldn't check" — never a crash.
 
 Public API::

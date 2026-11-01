@@ -5526,9 +5526,9 @@ def save_summary_to_file(model, file_path=SUMMARY_FILENAME):
     :param file_path: Destination path. Default :data:`SUMMARY_FILENAME`.
     :returns: the path written, or ``None`` if there was nothing to write.
 
-    Never raises. This is called after every table has been written, so an
-    exception from a backend's ``summary()`` is not propagated; ``None`` is
-    returned instead.
+    This is called after every table has been written, so an exception from
+    a backend's ``summary()`` is printed and ``None`` is returned. Errors
+    creating the folder or writing the file (``OSError``) are raised.
     """
     summary = getattr(model, 'summary', None)
     if not callable(summary):

@@ -917,15 +917,16 @@ def find_runs(root: Any, max_depth: int = DEFAULT_SCAN_DEPTH,
               limit: int = 200) -> List[TrainingRun]:
     """Discover every training run under ``root``, newest folder first.
 
-    Walks at most ``max_depth`` levels, skips hidden folders, and never returns
-    a ``fold_<i>`` folder found *below* ``root`` in its own right — folds belong
-    to the run above them and are loaded as part of it. Pointing ``root``
-    straight at a fold folder still loads that one fold, because then it is
-    what the caller asked for.
+    Walks at most ``max_depth`` levels, skips hidden folders, and does not
+    enter a ``fold_<i>`` folder whose parent is itself a run — those folds are
+    loaded as part of that run. A ``fold_<i>`` folder under a folder that is
+    not a run is scanned like any other. Pointing ``root`` straight at a fold
+    folder loads that one fold.
 
+    A folder counts as a run when it holds a progress CSV, a ``.pth``
+    checkpoint, a ``*_per_fold.csv`` or ``fold_<i>`` subfolders with curves.
     Runs that are broken (no curves, no settings, zero-epoch log) are returned
-    with their notes rather than skipped, so a scan never silently drops a
-    folder.
+    with their notes rather than skipped; other folders are not returned.
 
     :param root: folder to scan (may itself be a run folder).
     :param max_depth: how deep below ``root`` to look.

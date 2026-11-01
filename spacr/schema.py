@@ -2502,8 +2502,9 @@ def add_screen_column(df, screen: Any = None, *, overwrite: bool = False):
       ``overwrite=True`` to restamp every row.
 
     Blanks are never left blank: ``None``, ``NaN`` and ``''`` become
-    :data:`DEFAULT_SCREEN`, because an empty screen id is not an identity and
-    every row carrying one would group with every other.
+    ``screen`` when it is given and :data:`DEFAULT_SCREEN` otherwise, because
+    an empty screen id is not an identity and every row carrying one would
+    group with every other.
 
     :param df: :class:`pandas.DataFrame`.
     :param screen: the screen label for rows that do not have one.

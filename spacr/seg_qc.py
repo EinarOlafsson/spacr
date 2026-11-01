@@ -1572,7 +1572,9 @@ class Finding:
     """One reported QC finding, with its evidence.
 
     :param severity: ``'fail'``, ``'warn'`` or ``'ok'`` — how a banner should
-        colour it. Never a gate: nothing in this module blocks anything.
+        colour it. A finding blocks nothing; only
+        :func:`run_segmentation_qc` with ``mode='stop'`` raises
+        :class:`SegmentationQCFailed` for a failed plate.
     :param kind: ``'flag'``, ``'count_gradient'``, ``'size_gradient'`` or
         ``'clean'``. What the finding is about, for a caller that wants to
         show one kind and not another.
@@ -1944,8 +1946,9 @@ class QCDigest:
     :param findings: what :func:`diagnose` made of current, readable cards.
     :param stale: True when any card is older than its masks.
     :param checked_at: when this digest was built (``time.time()``).
-    :param blocks_run: always ``False``; segmentation QC advises the user but
-        never prevents them from continuing a run.
+    :param blocks_run: always ``False``; the digest reports QC and does not
+        stop a run. Stopping happens only in :func:`run_segmentation_qc` with
+        ``mode='stop'``.
     """
 
     root: str = ""

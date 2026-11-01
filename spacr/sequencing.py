@@ -1778,9 +1778,9 @@ def graph_sequencing_stats(settings):
             ``xlim(0, 0.1)`` applied afterwards is then rejected by matplotlib
             as a non-positive limit on a log axis, so the view autoscales.
         :param log_y: the same for the y axis and ``ylim(0, 20)``.
-        :param dst: when set, writes ``<dst>/results/fraction_threshold.pdf``,
-            creating the directories; ``None`` only shows the figure. The sole
-            caller always passes a path, so the default is unreachable there.
+        :param dst: writes ``<dst>/results/fraction_threshold.pdf``, creating
+            the directories. ``None`` raises ``TypeError`` from
+            :func:`os.path.join`. The sole caller always passes a path.
         :returns: the chosen threshold as a ``numpy.float64``. A threshold that
             empties the table yields NaN rather than 0, so a table whose
             fractions are all below 0.001 makes every sweep point NaN and the
