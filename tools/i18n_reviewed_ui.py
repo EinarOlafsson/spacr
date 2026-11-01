@@ -1650,6 +1650,16 @@ REVIEWED_UI_TRANSLATIONS: Final[dict[str, dict[str, str]]] = {
         '둘 이상을 선택하면 겹쳐서 표시합니다. !로 표시된 실행은 곡선이나 설정이 없지만 비교할 수는 있습니다.',
         'Hakaðu við tvær eða fleiri til að leggja þær hver yfir aðra. Keyrslur merktar með ! vantar ferla eða stillingar, en samt má bera þær saman.',
         'Cochez-en deux ou plus pour les superposer. Les exécutions marquées d’un ! n’ont pas de courbes ou de réglages, mais restent comparables.'),
+    'Drag to paint the active label, right-drag to erase, [ and ] resize, Backspace undoes the last stroke': _row(
+        'Dra för att måla med den aktiva etiketten, högerdra för att sudda, [ och ] ändrar penselstorleken, Backsteg ångrar det senaste penseldraget',
+        'Ziehen, um mit dem aktiven Label zu malen, mit der rechten Maustaste ziehen zum Radieren, [ und ] ändern die Pinselgröße, Rücktaste nimmt den letzten Pinselstrich zurück',
+        'Arrastre para pintar con la etiqueta activa, arrastre con el botón derecho para borrar, [ y ] cambian el tamaño del pincel, Retroceso deshace el último trazo',
+        '拖动以用当前标签绘制，右键拖动以擦除，[ 和 ] 调整画笔大小，Backspace 撤销上一笔',
+        'Arraste para pintar com o rótulo ativo, arraste com o botão direito para apagar, [ e ] mudam o tamanho do pincel, Backspace desfaz o último traço',
+        'सक्रिय लेबल से रंगने के लिए खींचें, मिटाने के लिए दायाँ बटन दबाकर खींचें, [ और ] ब्रश का आकार बदलते हैं, Backspace आखिरी ब्रश स्ट्रोक पूर्ववत करता है',
+        '드래그하여 활성 레이블로 칠하고, 오른쪽 버튼으로 드래그하여 지웁니다. [ 와 ]는 브러시 크기를 바꾸고, Backspace는 마지막 획을 취소합니다',
+        'Dragðu til að mála með virka merkinu, dragðu með hægri hnappi til að stroka út, [ og ] breyta stærð pensilsins, Backspace afturkallar síðasta pensilstrok',
+        "Faites glisser pour peindre avec l'étiquette active, faites glisser avec le bouton droit pour effacer, [ et ] changent la taille du pinceau, Retour arrière annule le dernier tracé"),
 }
 
 
