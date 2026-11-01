@@ -457,14 +457,9 @@ def scrim_under(theme: str) -> str:
       survive. Measured: the shipped ``microtubules`` master peaks at
       0.098 against a 0.109 limit, ``filopodia`` at 0.073.
 
-    * **Space** can be the procedurally generated sky, whose exposure is
-      anchored on the 40th percentile *precisely so a sun stays
-      white-hot* (:data:`spacr.qt.space.TARGET_SKY_PERCENTILE`). That is
-      a deliberate look, and it means the sky really does present a
-      near-white region the size of a line of text: the 1440x900 galaxy
-      sky measures 0.49 over a text window, colour ``#bab9b9``. Only a
-      strong scrim saves text over that, so Space is judged against
-      white and its panels stay much more opaque than Cell's.
+    * **Glass** is judged against the fixed grey
+      :data:`GLASS_BACKDROP_UNDER` (``#454950``), not a value solved from
+      a wallpaper.
 
     Anything that is not an image theme gets white; its alphas are 1.0
     and the answer is never used.
@@ -2288,8 +2283,9 @@ def contrast_report(theme: str) -> List[dict]:
 
     Each entry is ``{"fg", "bg", "fg_color", "bg_color", "ratio",
     "required", "passes"}``. Surfaces are resolved through
-    :func:`effective_surface`, so Space is judged on the composited
-    scrim rather than on a colour the user never actually sees.
+    :func:`effective_surface`, so the image themes (Cell and Glass) are
+    judged on the composited scrim rather than on a colour the user never
+    actually sees.
 
     :param theme: the theme name, as passed to :func:`palette_for`.
     """
@@ -2690,7 +2686,7 @@ def _colour_scheme_enum():
 
 
 def system_colour_scheme(app=None) -> Optional[str]:
-    """What the operating system's own light/dark setting is, if Qt knows.
+    """What the operating system's own light/dark setting is, if Qt reports it.
 
     Any scheme spaCR asked for earlier is released first
     (``QStyleHints.unsetColorScheme``, Qt 6.8+), so the answer is the

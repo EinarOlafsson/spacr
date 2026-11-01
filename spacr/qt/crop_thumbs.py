@@ -9,7 +9,7 @@ Decoding therefore never happens on the paint path, and each crop is decoded
 once:
 
 * :meth:`CropThumbnails.peek` answers from memory or not at all. It is what a
-  hover handler calls, because the answer has to be instant or absent.
+  hover handler calls, because a hover handler must not decode.
 * :meth:`CropThumbnails.pixmap` decodes on a miss. A caller runs it behind a
   short debounce (or on a click), never once per mouse-move event.
 * The cache is keyed on ``(path, mtime, size, px)``, following
@@ -270,7 +270,7 @@ class CropThumbnails:
         return existed
 
     def prime(self, path: str) -> Optional[QPixmap]:
-        """Decode ``path`` now so a later :meth:`peek` is instant.
+        """Decode ``path`` now so a later :meth:`peek` finds it in memory.
 
         The same as :meth:`pixmap`; named separately because a debounce timer
         runs it to fill the cache, not a hover handler.

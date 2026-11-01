@@ -11574,8 +11574,8 @@ class PreferencesDialog:
                 """Say which renderer 'auto' will actually pick HERE.
 
                 The label cannot state it: it depends on whether vispy is
-                importable on this machine, and the honest answer is the one
-                the user will get.
+                importable on this machine, so the note names the renderer
+                this machine will use.
                 """
                 from .widgets.fractal_travel import (
                     gpu_is_available, platform_can_do_opengl, resolve_backend)

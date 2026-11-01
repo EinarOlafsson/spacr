@@ -28,13 +28,15 @@ reading this source file:
   The page cache belongs to the kernel and dropping it would slow down the
   whole machine, spaCR included — it is not a free win, it is a transfer
   from everybody to nobody.
-* **A run in flight is never disturbed.** No queued job is dropped, no
-  worker is cancelled, no thread pool is emptied of work that has not
-  started yet. :func:`spacr.qt.bridge.registry` is *read* here and never
-  cancelled.
+* **No run is cancelled.** No queued job is dropped, no worker is
+  cancelled, no thread pool is emptied of work that has not started yet.
+  :func:`spacr.qt.bridge.registry` is *read* here and never cancelled. A
+  manual clear can still slow a running job: **clear RAM** drops caches the
+  job may be reading, and **clear CPU** lowers the torch and OpenCV thread
+  counts for the whole process.
 
-What each button can honestly do
---------------------------------
+What each button does
+---------------------
 
 ``clear RAM``
     Drops spaCR's own caches: the merged-field LRU
@@ -60,8 +62,9 @@ What each button can honestly do
     Releases parked worker threads that have since exited
     (:func:`spacr.qt.bridge.prune_parked_threads`), lets Qt's global pool
     retire its idle threads, and lowers spaCR's own library thread counts
-    (torch, OpenCV) to a floor. It retires *idle* capacity only: work that
-    is queued or running is left exactly where it is.
+    (torch, OpenCV) to a floor. It cancels nothing: queued and running work
+    stays where it is, but a running job then has fewer torch and OpenCV
+    threads.
 
 ``check disk space``
     Read-only. ``shutil.disk_usage`` over the filesystems the current
@@ -141,7 +144,7 @@ class Reclaim:
     :param before: the measurement taken before anything ran, in bytes.
     :param after: the same measurement, taken after.
     :param details: what was actually done, one short phrase each.
-    :param note: the honest caveat, if there is one. A cleanup that could
+    :param note: the caveat, if there is one. A cleanup that could
         do nothing in the current state says so here.
     :param measured: ``False`` when there was no measurement to take at all
         (no CUDA device, no way to read RSS), which is different from a
@@ -306,7 +309,7 @@ class _BudgetEntry:
 
 
 def human_bytes(count: int) -> str:
-    """``1536`` -> ``"1.5 KB"``. Two significant places, never a fake one."""
+    """``1536`` -> ``"1.5 KB"``. Whole bytes below 1 KB, one decimal place above."""
     value = float(max(0, int(count)))
     for unit in ("B", "KB", "MB", "GB", "TB"):
         if value < 1024 or unit == "TB":

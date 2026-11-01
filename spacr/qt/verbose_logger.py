@@ -454,9 +454,9 @@ def apply_verbose_logging(on: bool) -> None:
     """Flip DEBUG ↔ INFO on every attached spaCR logger + handlers.
 
     The user reaches this via the Preferences dialog. It's idempotent
-    and cheap — safe to call on every dialog save. Also ensures the
-    rotating file handler is attached so bug reports always have a
-    trail on disk regardless of verbose state.
+    and cheap — safe to call on every dialog save. Also attaches the
+    rotating file handler, when the log file can be opened, so bug reports
+    have a trail on disk regardless of verbose state.
 
     The ``cellpose`` logger goes to INFO while verbose is on, so it can
     say which model it loaded, and back to WARNING when verbose is off.

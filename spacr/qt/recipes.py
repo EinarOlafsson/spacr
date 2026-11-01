@@ -212,7 +212,7 @@ class Recipe:
             and a ``settings`` dict. Missing ``name`` falls back to
             ``"Untitled"``.
         :raises ValueError: when the mapping is not a recipe at all, or is a
-            format version this build does not understand. Both raise an
+            format version newer than this build reads. Both raise an
             explicit error, so an arbitrary JSON file such as a
             ``package.json`` is not applied as settings.
         """

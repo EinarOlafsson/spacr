@@ -256,7 +256,7 @@ def guidance(mode: str) -> str:
 
 
 def engine_algorithm(mode: str) -> str:
-    """The name :mod:`spacr.qt.mask_engine` knows ``mode`` by.
+    """The name :mod:`spacr.qt.mask_engine` uses for ``mode``.
 
     Multi-Otsu is asked for by a class count rather than by name, so it
     maps back to ``otsu``; the engine's ``classes`` parameter is what makes

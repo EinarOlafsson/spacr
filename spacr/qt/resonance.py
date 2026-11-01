@@ -195,7 +195,7 @@ def silence() -> Moment:
 
 @dataclass(frozen=True)
 class Resonance:
-    """Everything the visualiser knows about one piece of audio.
+    """The analysis of one piece of audio that the visualiser reads.
 
     :param fps: analysis frames per second.
     :param duration: length of the audio in seconds.
