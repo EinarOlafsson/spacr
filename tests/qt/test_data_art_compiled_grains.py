@@ -139,7 +139,8 @@ def test_unavailable_compiler_keeps_exact_numpy_once(monkeypatch, failure):
         def start(self):
             targets.append(self.target)
 
-    monkeypatch.setattr(ambient, 'threading', SimpleNamespace(Thread=ImmediateThread))
+    monkeypatch.setattr(ambient, 'threading', SimpleNamespace(
+        **{**vars(threading), 'Thread': ImmediateThread}))
     assert ambient._ready_packed_scatter() is None
     targets[0]()
     for _ in range(3):
