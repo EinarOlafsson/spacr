@@ -33,6 +33,9 @@ pytestmark = pytest.mark.qt
 FIELD_FPS = 60
 REPAINT_S = 0.018
 TOLERANCE = 0.10
+#: Saves made back to back and counted as one span: a save served by the
+#: ready process took 0.21 s, too short alone to count a rate over.
+SAVES = 6
 
 
 @pytest.fixture(autouse=True)
@@ -54,6 +57,24 @@ def _pump(seconds, until=None):
             return True
         time.sleep(0.0005)
     return until() if until is not None else True
+
+
+def _a_ready_print_process():
+    """Start the shared print-render process and wait for its ready signal.
+
+    A save waits at most ``_PRINT_PROCESS_READY_S`` (3 s) for a process
+    that is still importing and then draws on the worker. A cold start in a
+    test (every test begins without one) took 3.8-8.3 s on a loaded
+    workstation, so a test of the process itself warms it first, as the save
+    dialog does while it is open.
+    """
+    from spacr.qt.widgets import figure_queue
+
+    renderer = figure_queue._PRINT_RENDER_PROCESS
+    assert renderer.warm()
+    with renderer._lock:
+        assert renderer._wait_until_ready(120.0), "the process never got ready"
+    return renderer
 
 
 def _table(rows=200000):
@@ -93,15 +114,18 @@ def test_the_field_keeps_its_rate_while_the_gate_graph_is_saved(
     host.show()
     _pump(1.0)
 
-    target = tmp_path / "graph.png"
+    targets = [tmp_path / f"graph{index}.png" for index in range(SAVES)]
+    chosen = iter(targets)
     monkeypatch.setattr(QFileDialog, "getSaveFileName",
-                        staticmethod(lambda *a, **k: (str(target), "")))
+                        staticmethod(lambda *a, **k: (str(next(chosen)), "")))
+    _a_ready_print_process()
     stamps.clear()
     started = time.perf_counter()
     held = []
-    screen.save_graph_in_background()
-    assert _pump(120, lambda: (held.append(gil_priority.active())
-                               or (target.exists() and target.stat().st_size > 1000)))
+    for target in targets:
+        screen.save_graph_in_background()
+        assert _pump(120, lambda: (held.append(gil_priority.active())
+                                   or (target.exists() and target.stat().st_size > 1000)))
     finished = time.perf_counter()
     span = finished - started
     assert any(held), "the save ran without the responsive-GUI claim"
@@ -177,7 +201,7 @@ def test_saves_share_one_warm_process_no_slower_than_drawing_here(tmp_path):
         write_pdf=False)
     here = time.perf_counter() - started
     try:
-        assert renderer.warm()
+        assert _a_ready_print_process() is renderer
         assert figure_queue._render_print_in_a_process(
             _scatter_figure(), str(tmp_path / "first.png"), False) is True
         pid = renderer._process.pid

@@ -186,10 +186,10 @@ def _no_print_render_process_crosses_tests():
 
     The process is shared by the whole interpreter and stays warm for five
     minutes. Under xdist a Gate Editor save left one ready for a later test
-    in the same worker, and the backdrop-rate test, which needs a save that
-    starts the process cold, then saw a 0.21 s save it could not count a
-    rate over. Stopping it before and after each test means no test depends
-    on which test ran before it in the worker.
+    in the same worker, and the backdrop-rate test then saw a 0.21 s save it
+    could not count a rate over. Stopping it before and after each test means
+    no test depends on which test ran before it in the worker; a test that
+    needs the process ready warms it and waits for its ready signal itself.
     """
     _stop_the_print_render_process()
     yield
