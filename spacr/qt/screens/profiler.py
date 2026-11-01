@@ -592,9 +592,10 @@ class ProfilerScreen(QWidget):
 
     def _build_sliders(self) -> None:
         """One slider per held input, for the most influential few."""
+        from ..widgets.flow import _take_item
+
         while self._held_layout.count():
-            item = self._held_layout.takeAt(0)
-            widget = item.widget()
+            widget, _nested = _take_item(self._held_layout, 0)
             if widget is not None:
                 widget.deleteLater()
         self._sliders.clear()

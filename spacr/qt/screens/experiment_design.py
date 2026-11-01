@@ -826,9 +826,10 @@ class ExperimentDesignScreen(QWidget):
             wells absent from it are drawn unassigned.
         """
         chosen = self.selected_wells()
+        from ..widgets.flow import _take_item
+
         while self._plate_grid.count():
-            item = self._plate_grid.takeAt(0)
-            widget = item.widget()
+            widget, _nested = _take_item(self._plate_grid, 0)
             if widget is not None:
                 widget.setParent(None)
         self._well_labels = []
@@ -882,9 +883,10 @@ class ExperimentDesignScreen(QWidget):
         :param findings: the design checks to show; each carries a severity that
             selects its mark and its style.
         """
+        from ..widgets.flow import _take_item
+
         while self._findings_layout.count():
-            item = self._findings_layout.takeAt(0)
-            widget = item.widget()
+            widget, _nested = _take_item(self._findings_layout, 0)
             if widget is not None:
                 widget.setParent(None)
         self._findings_labels = []

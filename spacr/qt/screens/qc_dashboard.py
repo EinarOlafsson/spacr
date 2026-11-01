@@ -464,9 +464,10 @@ class QCDashboardScreen(QWidget):
             f"{dashboard.verdict.upper()} — {dashboard.headline}")
         self._verdict.setProperty("spacrQCVerdictLevel", dashboard.verdict)
 
+        from ..widgets.flow import _take_item
+
         while self._cards_layout.count():
-            item = self._cards_layout.takeAt(0)
-            widget = item.widget()
+            widget, _nested = _take_item(self._cards_layout, 0)
             if widget is not None:
                 widget.setParent(None)
         self._card_labels = []

@@ -2429,9 +2429,10 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         while more than one table is loaded -- removing the last one would leave
         the screen with nothing to plot.
         """
+        from ..widgets.flow import _take_item
+
         while self._chips.count() > 1:
-            item = self._chips.takeAt(0)
-            widget = item.widget()
+            widget, _nested = _take_item(self._chips, 0)
             if widget is not None:
                 widget.deleteLater()
         for index, name in enumerate(self._tables):
@@ -2464,9 +2465,10 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         every session this screen has ever had, and a chip strip naming the
         file the header already names is noise.
         """
+        from ..widgets.flow import _take_item
+
         while self._db_chips.count() > 2:
-            item = self._db_chips.takeAt(1)
-            widget = item.widget()
+            widget, _nested = _take_item(self._db_chips, 1)
             if widget is not None:
                 widget.deleteLater()
         show = len(self._paths) > 1

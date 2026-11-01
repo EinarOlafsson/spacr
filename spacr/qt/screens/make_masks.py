@@ -12493,10 +12493,11 @@ class _VolumeStage(QWidget):
         from ...layers import ImageLayer
 
         holder = self._layer_list.layout()
-        while holder.count():
-            item = holder.takeAt(0)
-            if item.widget() is not None:
-                item.widget().deleteLater()
+        from ..widgets.flow import _take_every_item
+
+        for widget, _nested in _take_every_item(holder):
+            if widget is not None:
+                widget.deleteLater()
         self._layer_rows = {}
         if self._layers is None:
             return
@@ -15103,9 +15104,10 @@ class MakeMasksScreen(QWidget):
         """Show the loaded layers, the base and the save folder."""
         from ..i18n import tr
 
-        while self._layer_rows.count():
-            item = self._layer_rows.takeAt(0)
-            item.widget().deleteLater()
+        from ..widgets.flow import _take_every_item
+
+        for widget, _nested in _take_every_item(self._layer_rows):
+            widget.deleteLater()
         for index, layer in enumerate(self._layers):
             row = QWidget(self._layer_rows_host)
             line = QHBoxLayout(row)
