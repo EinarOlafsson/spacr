@@ -2035,7 +2035,7 @@ class BarcodeSearchPanel(QWidget):
     What it costs. Every file is read inside a submitted job, one chunk at a
     time, so the interface stays live throughout and a search can be abandoned
     at any point. Cancelling proposes nothing: an interrupted measurement is
-    an honest partial report and a dishonest recommendation.
+    left on screen as it is, and nothing is proposed from it.
 
     :param screen: the Map Barcodes screen whose settings form is read for the
         search and written by Apply. May be None, which leaves the panel

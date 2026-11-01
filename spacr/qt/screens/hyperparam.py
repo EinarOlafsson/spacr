@@ -1336,9 +1336,10 @@ class HyperparamPanel(QWidget):
     def apply_settings(self, settings: Dict[str, Any]) -> None:
         """Adopt the host screen's current settings as the search's base.
 
-        Any searched parameter that already has a value in ``settings`` and no
-        list in its field is seeded with that single value, so a search always
-        includes what the user has configured.
+        A free-list field that is empty is seeded with the parameter's value
+        from ``settings``. A fixed-choice field is set to that value when it
+        is one of its choices, whatever was selected before; a value that is
+        not a choice leaves the field unchanged.
 
         :param settings: the host screen's settings dict.
         """

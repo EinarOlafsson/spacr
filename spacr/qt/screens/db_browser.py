@@ -1936,8 +1936,8 @@ class DbBrowserScreen(LinkedView, QWidget):
     def set_column_filter(self, text: str) -> None:
         """Narrow the displayed columns to those containing ``text``.
 
-        Purely a view operation — no re-query — so it stays instant on a
-        table with hundreds of feature columns. An empty string restores
+        Purely a view operation — the database is not queried again, even
+        on a table with hundreds of feature columns. An empty string restores
         every column.
 
         :param text: case-insensitive substring required in visible names.

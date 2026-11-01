@@ -1,8 +1,8 @@
 """Searchable run-history dashboard for every journalled spaCR job.
 
 The screen is read-only. Enumerating hundreds of manifests and settings files
-runs in a worker thread; filtering and rendering the already-loaded records is
-instant and stays on the GUI thread.
+runs in a worker thread; filtering and rendering the already-loaded records
+stays on the GUI thread.
 """
 from __future__ import annotations
 

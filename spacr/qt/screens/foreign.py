@@ -36,7 +36,7 @@ Design notes:
   disabled while the plan has a blocking problem — a target that collides
   with a spaCR feature name, a measurement table with no object-label
   column, a field whose masks do not pair.
-* **Editing is instant and local.** A cell edit calls
+* **Editing does not read the disk.** A cell edit calls
   :meth:`spacr.foreign.ImportPlan.with_column_maps`, which re-resolves the
   columns without touching the disk, so the unmapped list, the conflict
   list and the Import button update as you type.

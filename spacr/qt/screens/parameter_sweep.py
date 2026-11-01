@@ -309,8 +309,9 @@ def _make_screen(app_key=None, host=None):
 
             An unticked axis is not dropped -- it is PINNED to its first
             value and applied to every trial, so the settings a sweep ran
-            under are always fully recorded rather than left to defaults that
-            might change.
+            under are recorded rather than left to defaults that might
+            change. An axis whose field is empty is left out of the space and
+            runs at its default.
             """
             import ast
 

@@ -42,7 +42,7 @@ Design notes:
   one answer fixing every file that shares it, rather than by retyping eight
   thousand rows. That is also the only correction
   :meth:`spacr.image_import.ImportPlan.with_mapping` can apply without
-  re-walking the disk, which is what makes editing instant.
+  re-walking the disk, so an edit does not scan the folder again.
 * **Everything the plan could not place is on screen**, with its values, and
   counted. Silence about unparsed files is how a plate imports with a third
   of its fields missing.

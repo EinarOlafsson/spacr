@@ -335,7 +335,7 @@ class MeasureInputsScreen(QDialog):
         self._destination = str(path) if path else None
 
     def destination(self) -> Optional[str]:
-        """Where the next run would write, as far as this window knows."""
+        """The folder set with :meth:`set_destination`, or ``None`` (beside the input files)."""
         return self._destination
 
     def result(self) -> Optional[Dict[str, Any]]:
