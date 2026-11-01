@@ -412,3 +412,39 @@ def test_a_finished_cluster_walk_draws_the_graph_once(screen):
     assert panel.canvas.active_gate == active
     assert panel.tree._threshold_gate == active
     assert gap < STALL_BUDGET_S
+
+
+def test_a_gate_name_dialog_is_polished_before_the_first_gate(
+        qapp, monkeypatch):
+    from PySide6.QtWidgets import QInputDialog
+
+    from spacr.qt.widgets import gate_editor
+
+    polished = []
+    original = QInputDialog.ensurePolished
+
+    def counted(dialog):
+        polished.append(dialog.windowTitle())
+        return original(dialog)
+
+    monkeypatch.setattr(QInputDialog, "ensurePolished", counted)
+    win = GateEditorScreen()
+    win.resize(1200, 800)
+    win.show()
+    panel = win.gates
+    assert not panel._name_dialog_warmed
+    gap = _gap_while(lambda: win.set_frame(_table(), label="test"),
+                     lambda: panel._name_dialog_warmed,
+                     limit=gate_editor._NAME_DIALOG_WARM_MS / 1000 + 5)
+    assert panel._name_dialog_warmed
+    assert polished == ["Name this gate"]
+    win.set_frame(_table(3000), label="again")
+    _pump(gate_editor._NAME_DIALOG_WARM_MS / 1000 + 0.5)
+    assert polished == ["Name this gate"]
+    asked = []
+    monkeypatch.setattr(QInputDialog, "getText", staticmethod(
+        lambda *a, **k: (asked.append(a[1]), ("  live  ", True))[1]))
+    assert panel._ask_name() == "live"
+    assert asked == ["Name this gate"]
+    assert gap < STALL_BUDGET_S
+    win.close()

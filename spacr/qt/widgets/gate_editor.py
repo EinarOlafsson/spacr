@@ -304,6 +304,11 @@ GRAPH_SPLIT_KEY = "gate_editor::graph"
 #: Prefix of the fold keys of the graph and the gate table sections.
 FOLD_KEY = "gate_editor"
 
+#: Milliseconds after a table reaches the gating surface before a gate-name
+#: dialog is built and polished once, so the first gate drawn does not pay a
+#: dialog's first styling (its card, backdrop and sheet, and their imports).
+_NAME_DIALOG_WARM_MS = 1500
+
 
 def _gate_tree_qss(palette, opacity=None) -> str:
     """Colours for the gate list.
@@ -4939,6 +4944,8 @@ class GateEditorPanel(QWidget):
         self._gates = GateSet()
         self._frame: Optional[pd.DataFrame] = None
         self._namer = None
+        self._name_dialog_warmed = False
+        self._name_dialog_warming = False
         #: The gate-editor settings, kept because the CLUSTER button needs
         #: them and the canvas only takes the drawing ones. None until
         #: `apply_settings` runs, which is why every read below falls back to
@@ -5286,6 +5293,8 @@ class GateEditorPanel(QWidget):
         self.canvas.set_frame(frame)
         self.tree.set_gates(self._gates, frame)
         self._refresh_status()
+        if frame is not None:
+            self._warm_the_name_dialog_soon()
 
     def set_spec(self, spec: GraphSpec) -> None:
         """Draw a different chart under the gates.
@@ -5594,6 +5603,34 @@ class GateEditorPanel(QWidget):
             "A gate is not a gate until it is named — the name is what makes "
             "it re-appliable and what the hierarchy is read by:")
         return name.strip() if ok else ""
+
+    def _warm_the_name_dialog_soon(self) -> None:
+        """Polish a gate-name dialog a moment after a table arrives.
+
+        A table is what gates are drawn on, so the first styling of the
+        dialog (its card, backdrop and sheet, and the imports behind them)
+        is paid before the first gate is drawn rather than as it is; the
+        build waits :data:`_NAME_DIALOG_WARM_MS` so it does not add to the
+        table's own arrival.
+        """
+        if not self._name_dialog_warmed and not self._name_dialog_warming:
+            self._name_dialog_warming = True
+            from .. import _after
+
+            _after(_NAME_DIALOG_WARM_MS, self, self._warm_the_name_dialog)
+
+    def _warm_the_name_dialog(self) -> None:
+        """Build and polish one gate-name dialog, then let it go."""
+        self._name_dialog_warming = False
+        if self._name_dialog_warmed or not self.isVisible() or \
+                self._namer is not None:
+            return
+        dialog = QInputDialog(self)
+        dialog.setInputMode(QInputDialog.TextInput)
+        dialog.setWindowTitle("Name this gate")
+        dialog.ensurePolished()
+        dialog.deleteLater()
+        self._name_dialog_warmed = True
 
     def _on_active_changed(self, name: str) -> None:
         """Redraw for a different active gate.
