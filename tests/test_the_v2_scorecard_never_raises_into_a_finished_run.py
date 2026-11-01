@@ -93,3 +93,23 @@ def test_a_missing_merged_folder_does_not_raise(tmp_path):
 
     assert core._score_v2_masks(tmp_path, {"verbose": True},
                                 object_type="cell") is None
+
+
+@pytest.mark.parametrize("strict", [False, True])
+def test_seg_qc_stop_ends_a_v2_run_whatever_strict_is(tmp_path, capsys,
+                                                      monkeypatch, strict):
+    """The gate's own failure is not a scorecard bug: it must reach the run."""
+    from spacr import core
+    from spacr import seg_qc
+
+    def gate(*_args, **_kwargs):
+        raise seg_qc.SegmentationQCFailed("Segmentation QC (cell) FAILED",
+                                          {"verdict": "fail"})
+
+    monkeypatch.setattr(seg_qc, "run_segmentation_qc", gate)
+
+    with pytest.raises(seg_qc.SegmentationQCFailed, match="FAILED") as excinfo:
+        core._score_v2_masks(_v2_plate(tmp_path), {"seg_qc": "stop"},
+                             object_type="cell", strict=strict)
+    assert excinfo.value.summary["verdict"] == "fail"
+    assert "Segmentation QC skipped" not in capsys.readouterr().out

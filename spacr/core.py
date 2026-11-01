@@ -111,9 +111,17 @@ def _score_v2_masks(src, settings, object_type: str = "cell", *, strict=False):
     rule `_run_seg_qc` follows.
     """
     try:
-        from .seg_qc import qc_mode, run_segmentation_qc, thresholds_from_settings
+        from .seg_qc import (SegmentationQCFailed, qc_mode,
+                             run_segmentation_qc, thresholds_from_settings)
         from ._v1_v2_bridge import v2_mask_source
+    except Exception as exc:                                 # noqa: BLE001
+        if strict:
+            raise
+        print(f"Segmentation QC skipped for {object_type}: "
+              f"{type(exc).__name__}: {exc}")
+        return None
 
+    try:
         mode = qc_mode(settings)
         if mode == 'off':
             return None
@@ -134,6 +142,8 @@ def _score_v2_masks(src, settings, object_type: str = "cell", *, strict=False):
             thresholds=thresholds_from_settings(settings),
             verbose=bool(settings.get('verbose', True)),
         )
+    except SegmentationQCFailed:
+        raise
     except Exception as exc:                                 # noqa: BLE001
         if strict:
             raise
