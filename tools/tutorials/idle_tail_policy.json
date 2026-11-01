@@ -4580,6 +4580,176 @@
           "idle_tail_start": 3.0
         }
       ]
+    },
+    {
+      "lesson": "22_model_zoo",
+      "master_sha256": "8f3102aeac4222fdb85a16f823b884be7c9b6e222b0b66502dbe1c3bb6f92de9",
+      "visual_timing_sha256": "a4115317defbb48297b07288c022bd453931aa4a6297253040677d928e33eb2a",
+      "scenes": [
+        {
+          "visual": "00_home",
+          "source_start": 0.0,
+          "source_end": 16.833333333333332,
+          "idle_tail_start": 3.0
+        },
+        {
+          "visual": "03_current_catalogue_and_local_models",
+          "source_start": 16.833333333333332,
+          "source_end": 45.599999999999994,
+          "idle_tail_start": 20.5
+        },
+        {
+          "visual": "03b_cellpose3_models",
+          "source_start": 45.599999999999994,
+          "source_end": 74.46666666666667,
+          "idle_tail_start": 11.0
+        },
+        {
+          "visual": "03c_bioimageio_models",
+          "source_start": 74.46666666666667,
+          "source_end": 99.46666666666667,
+          "idle_tail_start": 24.5
+        },
+        {
+          "visual": "04_actual_cpsam_provenance",
+          "source_start": 99.46666666666667,
+          "source_end": 126.36666666666667,
+          "idle_tail_start": 16.0
+        },
+        {
+          "visual": "06_three_verified_real_fields",
+          "source_start": 126.36666666666667,
+          "source_end": 150.20000000000002,
+          "idle_tail_start": 23.0
+        },
+        {
+          "visual": "07_actual_test_started",
+          "source_start": 150.20000000000002,
+          "source_end": 169.66666666666669,
+          "idle_tail_start": 6.5
+        },
+        {
+          "visual": "08_actual_preview_02",
+          "source_start": 169.66666666666669,
+          "source_end": 195.13333333333335,
+          "idle_tail_start": 3.0
+        },
+        {
+          "visual": "09_actual_benchmark_summary",
+          "source_start": 195.13333333333335,
+          "source_end": 226.90000000000003,
+          "idle_tail_start": 3.0
+        },
+        {
+          "visual": "09b_mask_source_and_channels",
+          "source_start": 226.90000000000003,
+          "source_end": 252.33333333333337,
+          "idle_tail_start": 21.0
+        },
+        {
+          "visual": "10_mask_model_zoo_popup",
+          "source_start": 252.33333333333337,
+          "source_end": 272.1666666666667,
+          "idle_tail_start": 11.5
+        },
+        {
+          "visual": "11_measure_diameters_popup",
+          "source_start": 272.1666666666667,
+          "source_end": 293.6666666666667,
+          "idle_tail_start": 4.0
+        },
+        {
+          "visual": "12_measured_diameters",
+          "source_start": 293.6666666666667,
+          "source_end": 316.6,
+          "idle_tail_start": 3.0
+        }
+      ]
+    },
+    {
+      "lesson": "19_train_cellpose",
+      "master_sha256": "0309c19207c1b2282f31a3028e8ae6f1d7f53a334e5570a7435809e713690433",
+      "visual_timing_sha256": "cba32c42ac998e92138fc0b175390ea454259b0a44a056e4bb5b3ebf05b505e5",
+      "scenes": [
+        {
+          "visual": "home_make_masks",
+          "source_start": 0.0,
+          "source_end": 21.966666666666665,
+          "idle_tail_start": 9.5
+        },
+        {
+          "visual": "train_source",
+          "source_start": 21.966666666666665,
+          "source_end": 57.46666666666667,
+          "idle_tail_start": 24.0
+        },
+        {
+          "visual": "train_pairs",
+          "source_start": 57.46666666666667,
+          "source_end": 88.7,
+          "idle_tail_start": 28.0
+        },
+        {
+          "visual": "train_channels",
+          "source_start": 88.7,
+          "source_end": 118.83333333333334,
+          "idle_tail_start": 5.0
+        },
+        {
+          "visual": "train_model_output",
+          "source_start": 118.83333333333334,
+          "source_end": 150.96666666666667,
+          "idle_tail_start": 10.0
+        },
+        {
+          "visual": "train_schedule",
+          "source_start": 150.96666666666667,
+          "source_end": 178.73333333333335,
+          "idle_tail_start": 8.0
+        },
+        {
+          "visual": "train_normalization",
+          "source_start": 178.73333333333335,
+          "source_end": 206.63333333333335,
+          "idle_tail_start": 9.0
+        },
+        {
+          "visual": "train_validation",
+          "source_start": 206.63333333333335,
+          "source_end": 233.53333333333336,
+          "idle_tail_start": 5.5
+        },
+        {
+          "visual": "train_run_console",
+          "source_start": 233.53333333333336,
+          "source_end": 346.7666666666667,
+          "idle_tail_start": 4.5
+        },
+        {
+          "visual": "train_checkpoint",
+          "source_start": 346.7666666666667,
+          "source_end": 374.80000000000007,
+          "idle_tail_start": 3.5
+        },
+        {
+          "visual": "apply_checkpoint",
+          "source_start": 374.80000000000007,
+          "source_end": 422.96666666666675,
+          "idle_tail_start": 36.0
+        },
+        {
+          "visual": "apply_preview",
+          "source_start": 422.96666666666675,
+          "source_end": 451.80000000000007,
+          "idle_tail_start": 15.5
+        },
+        {
+          "visual": "apply_result",
+          "source_start": 451.80000000000007,
+          "source_end": 484.46666666666675,
+          "idle_tail_start": 5.0
+        }
+      ]
     }
   ]
 }
