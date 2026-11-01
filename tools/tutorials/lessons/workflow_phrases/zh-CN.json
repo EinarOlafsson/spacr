@@ -1657,9 +1657,9 @@
       "translation": "图像分析模块通常按此顺序运行。Mask 在原始图像中分割对象，并写出合并后的图像数组和标签掩膜。如需手动修正掩膜或导入现有掩膜，请使用 Make Masks。Measure 读取合并后的数组和掩膜，将每个对象的测量值写入数据库，还可以保存每个对象的 PNG 裁剪图。分类、图像探索、门控和检测模块都从这些测量值和裁剪图开始。当图块需要共享同一坐标系时，请先在 Align & Stitch 中构建拼接图。"
     },
     {
-      "source": "Before a classifier can learn anything, it needs examples. Open Annotate from Home and it shows you the object crops Measure saved or streams. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
-      "source_sha256": "d26a849a4d4900f909b8056eafd6c3bb1c4f49a44a94d6165f64e9124f185245",
-      "translation": "分类器在学习之前需要示例。从 Home 打开 Annotate，它会显示 Measure 保存或流式提供的对象裁剪图像。浏览有代表性的细胞并为它们加标签。每个标签都会写入 png_list 表中的一个注释列，并与该对象的标识关联。每个问题使用单独的一列，并留出一些已标注的对象用于评估。接下来 Classify 训练时使用的就是这个注释列。"
+      "source": "Before a classifier can learn anything, it needs examples. Open Annotate from Home to view the object crops associated with your measured project. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
+      "source_sha256": "596b44e04082b8667f4475347ab44c9aa7eb8231dd655c18b32ed57656e45742",
+      "translation": "分类器在学习之前需要示例。从 Home 打开 Annotate，查看与已完成测量的项目关联的对象裁剪图像。浏览有代表性的细胞并为它们加标签。每个标签都会写入 png_list 表中的一个注释列，并与该对象的标识关联。每个问题使用单独的一列，并留出一些已标注的对象用于评估。接下来 Classify 训练时使用的就是这个注释列。"
     },
     {
       "source": "Sequencing is how a pooled screen learns which guide sits in which well or cell, and spaCR reads it two ways. Reads from a sequencer go into Map Barcodes. Barcodes imaged cycle by cycle go into OPS, which lives inside Mask. Either way, the barcode identities end up beside your phenotypes in Regression. Around that core sit the planning tools, Experiment Design and Power, for before you acquire, and Dose–Response and Run Compare for your results.",
@@ -1814,6 +1814,14 @@
         "translation": "在 Mask 中打开 Timelapse，对有序帧中的对象进行分割和关联；开展后续运动性分析前先检查关联。"
       },
       "reason": "2026-10-24: Timelapse moved under the Mask Time control (ad35831724); guidance replaced in e69d0b3bf9; previous translation retained."
+    },
+    {
+      "record": {
+        "source": "Before a classifier can learn anything, it needs examples. Open Annotate from Home and it shows you the object crops Measure saved or streams. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
+        "source_sha256": "d26a849a4d4900f909b8056eafd6c3bb1c4f49a44a94d6165f64e9124f185245",
+        "translation": "分类器在学习之前需要示例。从 Home 打开 Annotate，它会显示 Measure 保存或流式提供的对象裁剪图像。浏览有代表性的细胞并为它们加标签。每个标签都会写入 png_list 表中的一个注释列，并与该对象的标识关联。每个问题使用单独的一列，并留出一些已标注的对象用于评估。接下来 Classify 训练时使用的就是这个注释列。"
+      },
+      "reason": "2026-10-31: the spaCR screens Annotate scene reads \"Open Annotate from Home to view the object crops associated with your measured project.\" again (79575c32bf); translation reused exactly from the reviewed lesson 78 prose of 6d4473af9c (AI review, Claude Opus 5.5, no native-speaker sign-off)."
     }
   ]
 }

@@ -450,9 +450,9 @@
       "translation": "Myndgreiningareiningarnar keyra venjulega í þessari röð. Mask hlutar hluti í hráum myndum og skrifar sameinuð myndafylki og merkimaska. Notaðu Make Masks til að leiðrétta maska handvirkt eða flytja inn maska sem þegar eru til. Measure les sameinuðu fylkin og maskana, skrifar mælingar fyrir hvern hlut í gagnagrunn og getur einnig vistað PNG-úrklippu af hverjum hlut. Flokkun, myndkönnun, gating og prófunareiningarnar byggja á þessum mælingum og úrklippum. Þegar flísar þurfa að deila einu hnitakerfi skaltu fyrst búa til mósaík í Align & Stitch."
     },
     {
-      "source": "Before a classifier can learn anything, it needs examples. Open Annotate from Home and it shows you the object crops Measure saved or streams. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
-      "source_sha256": "d26a849a4d4900f909b8056eafd6c3bb1c4f49a44a94d6165f64e9124f185245",
-      "translation": "Áður en flokkari getur lært eitthvað þarf hann dæmi. Opnaðu Annotate frá Home og það sýnir úrklipp hlutanna sem Measure vistaði eða streymir. Farðu í gegnum dæmigerðar frumur og merktu þær. Hver merking er skrifuð í merkingadálk í töflunni png_list, tengd auðkenni hlutarins. Notaðu sérstakan dálk fyrir hverja spurningu og settu nokkra merkta hluti til hliðar fyrir mat. Það er þessi merkingadálkur sem Classify þjálfar á næst."
+      "source": "Before a classifier can learn anything, it needs examples. Open Annotate from Home to view the object crops associated with your measured project. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
+      "source_sha256": "596b44e04082b8667f4475347ab44c9aa7eb8231dd655c18b32ed57656e45742",
+      "translation": "Áður en flokkari getur lært eitthvað þarf hann dæmi. Opnaðu Annotate frá Home til að skoða úrklipp hlutanna sem tengjast verkefninu þínu með mælingum. Farðu í gegnum dæmigerðar frumur og merktu þær. Hver merking er skrifuð í merkingadálk í töflunni png_list, tengd auðkenni hlutarins. Notaðu sérstakan dálk fyrir hverja spurningu og settu nokkra merkta hluti til hliðar fyrir mat. Það er þessi merkingadálkur sem Classify þjálfar á næst."
     },
     {
       "source": "Sequencing is how a pooled screen learns which guide sits in which well or cell, and spaCR reads it two ways. Reads from a sequencer go into Map Barcodes. Barcodes imaged cycle by cycle go into OPS, which lives inside Mask. Either way, the barcode identities end up beside your phenotypes in Regression. Around that core sit the planning tools, Experiment Design and Power, for before you acquire, and Dose–Response and Run Compare for your results.",
@@ -1523,6 +1523,14 @@
         "translation": "Opnaðu Timelapse innan Mask til að aðgreina og tengja hluti yfir raðaða ramma; skoðaðu tengslin fyrir hreyfanleikagreiningu."
       },
       "reason": "2026-10-24: Timelapse moved under the Mask Time control (ad35831724); guidance replaced in e69d0b3bf9; previous translation retained."
+    },
+    {
+      "record": {
+        "source": "Before a classifier can learn anything, it needs examples. Open Annotate from Home and it shows you the object crops Measure saved or streams. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
+        "source_sha256": "d26a849a4d4900f909b8056eafd6c3bb1c4f49a44a94d6165f64e9124f185245",
+        "translation": "Áður en flokkari getur lært eitthvað þarf hann dæmi. Opnaðu Annotate frá Home og það sýnir úrklipp hlutanna sem Measure vistaði eða streymir. Farðu í gegnum dæmigerðar frumur og merktu þær. Hver merking er skrifuð í merkingadálk í töflunni png_list, tengd auðkenni hlutarins. Notaðu sérstakan dálk fyrir hverja spurningu og settu nokkra merkta hluti til hliðar fyrir mat. Það er þessi merkingadálkur sem Classify þjálfar á næst."
+      },
+      "reason": "2026-10-31: the spaCR screens Annotate scene reads \"Open Annotate from Home to view the object crops associated with your measured project.\" again (79575c32bf); translation reused exactly from the reviewed lesson 78 prose of 6d4473af9c (AI review, Claude Opus 5.5, no native-speaker sign-off)."
     }
   ]
 }

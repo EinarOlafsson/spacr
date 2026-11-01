@@ -1657,9 +1657,9 @@
       "translation": "Les modules d’analyse d’image s’exécutent généralement dans cet ordre. Mask segmente les objets dans les images brutes et écrit des tableaux d’images fusionnés et des masques d’étiquettes. Pour corriger des masques à la main ou importer des masques existants, utilisez Make Masks. Measure lit les tableaux fusionnés et les masques, écrit des mesures par objet dans une base de données et peut aussi enregistrer un recadrage PNG de chaque objet. La classification, l’exploration d’images, le gating et les modules d’essai partent de ces mesures et recadrages. Lorsque des tuiles doivent partager un même système de coordonnées, construisez d’abord une mosaïque dans Align & Stitch."
     },
     {
-      "source": "Before a classifier can learn anything, it needs examples. Open Annotate from Home and it shows you the object crops Measure saved or streams. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
-      "source_sha256": "d26a849a4d4900f909b8056eafd6c3bb1c4f49a44a94d6165f64e9124f185245",
-      "translation": "Avant qu’un classificateur puisse apprendre quoi que ce soit, il lui faut des exemples. Ouvrez Annotate depuis Home : il vous montre les recadrages d’objets que Measure a enregistrés ou qu’il fournit à la demande. Parcourez des cellules représentatives et étiquetez-les. Chaque étiquette est écrite dans une colonne d’annotation de la table png_list, rattachée à l’identité de l’objet. Utilisez une colonne distincte par question, et mettez de côté quelques objets étiquetés pour l’évaluation. C’est sur cette colonne d’annotation que Classify s’entraîne ensuite."
+      "source": "Before a classifier can learn anything, it needs examples. Open Annotate from Home to view the object crops associated with your measured project. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
+      "source_sha256": "596b44e04082b8667f4475347ab44c9aa7eb8231dd655c18b32ed57656e45742",
+      "translation": "Avant qu’un classificateur puisse apprendre quoi que ce soit, il lui faut des exemples. Ouvrez Annotate depuis Home pour afficher les recadrages d’objets associés à votre projet de mesures. Parcourez des cellules représentatives et étiquetez-les. Chaque étiquette est écrite dans une colonne d’annotation de la table png_list, rattachée à l’identité de l’objet. Utilisez une colonne distincte par question, et mettez de côté quelques objets étiquetés pour l’évaluation. C’est sur cette colonne d’annotation que Classify s’entraîne ensuite."
     },
     {
       "source": "Sequencing is how a pooled screen learns which guide sits in which well or cell, and spaCR reads it two ways. Reads from a sequencer go into Map Barcodes. Barcodes imaged cycle by cycle go into OPS, which lives inside Mask. Either way, the barcode identities end up beside your phenotypes in Regression. Around that core sit the planning tools, Experiment Design and Power, for before you acquire, and Dose–Response and Run Compare for your results.",
@@ -1814,6 +1814,14 @@
         "translation": "Ouvrez Timelapse dans Mask pour segmenter et relier les objets au fil d’images ordonnées ; examinez les liens avant l’analyse ultérieure de motilité."
       },
       "reason": "2026-10-24: Timelapse moved under the Mask Time control (ad35831724); guidance replaced in e69d0b3bf9; previous translation retained."
+    },
+    {
+      "record": {
+        "source": "Before a classifier can learn anything, it needs examples. Open Annotate from Home and it shows you the object crops Measure saved or streams. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
+        "source_sha256": "d26a849a4d4900f909b8056eafd6c3bb1c4f49a44a94d6165f64e9124f185245",
+        "translation": "Avant qu’un classificateur puisse apprendre quoi que ce soit, il lui faut des exemples. Ouvrez Annotate depuis Home : il vous montre les recadrages d’objets que Measure a enregistrés ou qu’il fournit à la demande. Parcourez des cellules représentatives et étiquetez-les. Chaque étiquette est écrite dans une colonne d’annotation de la table png_list, rattachée à l’identité de l’objet. Utilisez une colonne distincte par question, et mettez de côté quelques objets étiquetés pour l’évaluation. C’est sur cette colonne d’annotation que Classify s’entraîne ensuite."
+      },
+      "reason": "2026-10-31: the spaCR screens Annotate scene reads \"Open Annotate from Home to view the object crops associated with your measured project.\" again (79575c32bf); translation reused exactly from the reviewed lesson 78 prose of 6d4473af9c (AI review, Claude Opus 5.5, no native-speaker sign-off)."
     }
   ]
 }

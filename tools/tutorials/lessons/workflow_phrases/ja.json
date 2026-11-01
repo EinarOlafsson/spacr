@@ -1657,9 +1657,9 @@
       "translation": "画像解析モジュールは通常この順序で実行します。Mask は生画像内のオブジェクトをセグメント化し、統合した画像配列とラベルマスクを書き出します。マスクを手作業で修正する場合や既存のマスクを取り込む場合は Make Masks を使います。Measure は統合した配列とマスクを読み込み、オブジェクトごとの測定値をデータベースに書き込み、各オブジェクトの PNG 切り抜きも保存できます。分類、画像探索、ゲーティング、アッセイモジュールはこれらの測定値と切り抜きから始まります。タイルを一つの座標系にそろえる必要がある場合は、先に Align & Stitch でモザイクを作成します。"
     },
     {
-      "source": "Before a classifier can learn anything, it needs examples. Open Annotate from Home and it shows you the object crops Measure saved or streams. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
-      "source_sha256": "d26a849a4d4900f909b8056eafd6c3bb1c4f49a44a94d6165f64e9124f185245",
-      "translation": "分類器が何かを学ぶ前に、例が必要です。Home から Annotate を開くと、Measure が保存した、またはストリーミングするオブジェクトの切り出し画像が表示されます。代表的な細胞を順に見て、ラベルを付けます。各ラベルは、png_list テーブルのアノテーション列に、そのオブジェクトの識別と結び付けて書き込まれます。問いごとに別の列を使い、評価用にラベル付きのオブジェクトをいくつか取り分けておきます。次に Classify が学習に使うのは、このアノテーション列です。"
+      "source": "Before a classifier can learn anything, it needs examples. Open Annotate from Home to view the object crops associated with your measured project. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
+      "source_sha256": "596b44e04082b8667f4475347ab44c9aa7eb8231dd655c18b32ed57656e45742",
+      "translation": "分類器が何かを学ぶ前に、例が必要です。Home から Annotate を開き、測定済みプロジェクトに関連付けられたオブジェクトの切り出し画像を表示します。代表的な細胞を順に見て、ラベルを付けます。各ラベルは、png_list テーブルのアノテーション列に、そのオブジェクトの識別と結び付けて書き込まれます。問いごとに別の列を使い、評価用にラベル付きのオブジェクトをいくつか取り分けておきます。次に Classify が学習に使うのは、このアノテーション列です。"
     },
     {
       "source": "Sequencing is how a pooled screen learns which guide sits in which well or cell, and spaCR reads it two ways. Reads from a sequencer go into Map Barcodes. Barcodes imaged cycle by cycle go into OPS, which lives inside Mask. Either way, the barcode identities end up beside your phenotypes in Regression. Around that core sit the planning tools, Experiment Design and Power, for before you acquire, and Dose–Response and Run Compare for your results.",
@@ -1814,6 +1814,14 @@
         "translation": "Mask 内で Timelapse を開き、順序付きフレーム間でオブジェクトをセグメンテーションして関連付けます。後続の運動性解析の前にリンクを確認します。"
       },
       "reason": "2026-10-24: Timelapse moved under the Mask Time control (ad35831724); guidance replaced in e69d0b3bf9; previous translation retained."
+    },
+    {
+      "record": {
+        "source": "Before a classifier can learn anything, it needs examples. Open Annotate from Home and it shows you the object crops Measure saved or streams. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
+        "source_sha256": "d26a849a4d4900f909b8056eafd6c3bb1c4f49a44a94d6165f64e9124f185245",
+        "translation": "分類器が何かを学ぶ前に、例が必要です。Home から Annotate を開くと、Measure が保存した、またはストリーミングするオブジェクトの切り出し画像が表示されます。代表的な細胞を順に見て、ラベルを付けます。各ラベルは、png_list テーブルのアノテーション列に、そのオブジェクトの識別と結び付けて書き込まれます。問いごとに別の列を使い、評価用にラベル付きのオブジェクトをいくつか取り分けておきます。次に Classify が学習に使うのは、このアノテーション列です。"
+      },
+      "reason": "2026-10-31: the spaCR screens Annotate scene reads \"Open Annotate from Home to view the object crops associated with your measured project.\" again (79575c32bf); translation reused exactly from the reviewed lesson 78 prose of 6d4473af9c (AI review, Claude Opus 5.5, no native-speaker sign-off)."
     }
   ]
 }

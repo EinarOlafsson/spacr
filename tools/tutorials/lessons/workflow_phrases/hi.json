@@ -1657,9 +1657,9 @@
       "translation": "इमेज-विश्लेषण मॉड्यूल आम तौर पर इसी क्रम में चलते हैं। Mask कच्ची छवियों में वस्तुओं को सेगमेंट करता है और मर्ज की गई इमेज ऐरे तथा लेबल मास्क लिखता है। मास्क को हाथ से सुधारने या मौजूदा मास्क आयात करने के लिए Make Masks का उपयोग करें। Measure मर्ज की गई ऐरे और मास्क पढ़ता है, प्रति-वस्तु माप एक डेटाबेस में लिखता है और हर वस्तु का PNG क्रॉप भी सहेज सकता है। वर्गीकरण, इमेज अन्वेषण, गेटिंग और परख मॉड्यूल इन्हीं मापों और क्रॉप से शुरू होते हैं। जब टाइलों को एक ही निर्देशांक प्रणाली साझा करनी हो, तो पहले Align & Stitch में मोज़ेक बनाएँ।"
     },
     {
-      "source": "Before a classifier can learn anything, it needs examples. Open Annotate from Home and it shows you the object crops Measure saved or streams. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
-      "source_sha256": "d26a849a4d4900f909b8056eafd6c3bb1c4f49a44a94d6165f64e9124f185245",
-      "translation": "कोई क्लासिफ़ायर कुछ सीख सके, उससे पहले उसे उदाहरण चाहिए। Home से Annotate खोलें, और यह Measure के सहेजे या स्ट्रीम किए गए वस्तु क्रॉप दिखाता है। प्रतिनिधि कोशिकाओं को देखें और उन पर लेबल लगाएँ। हर लेबल png_list तालिका के एक एनोटेशन कॉलम में लिखा जाता है, जो उस वस्तु की पहचान से जुड़ा होता है। हर प्रश्न के लिए अलग कॉलम इस्तेमाल करें, और मूल्यांकन के लिए कुछ लेबल वाली वस्तुएँ अलग रखें। Classify आगे इसी एनोटेशन कॉलम पर प्रशिक्षित होता है।"
+      "source": "Before a classifier can learn anything, it needs examples. Open Annotate from Home to view the object crops associated with your measured project. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
+      "source_sha256": "596b44e04082b8667f4475347ab44c9aa7eb8231dd655c18b32ed57656e45742",
+      "translation": "कोई क्लासिफ़ायर कुछ सीख सके, उससे पहले उसे उदाहरण चाहिए। अपने माप किए गए प्रोजेक्ट से जुड़े वस्तु क्रॉप देखने के लिए Home से Annotate खोलें। प्रतिनिधि कोशिकाओं को देखें और उन पर लेबल लगाएँ। हर लेबल png_list तालिका के एक एनोटेशन कॉलम में लिखा जाता है, जो उस वस्तु की पहचान से जुड़ा होता है। हर प्रश्न के लिए अलग कॉलम इस्तेमाल करें, और मूल्यांकन के लिए कुछ लेबल वाली वस्तुएँ अलग रखें। Classify आगे इसी एनोटेशन कॉलम पर प्रशिक्षित होता है।"
     },
     {
       "source": "Sequencing is how a pooled screen learns which guide sits in which well or cell, and spaCR reads it two ways. Reads from a sequencer go into Map Barcodes. Barcodes imaged cycle by cycle go into OPS, which lives inside Mask. Either way, the barcode identities end up beside your phenotypes in Regression. Around that core sit the planning tools, Experiment Design and Power, for before you acquire, and Dose–Response and Run Compare for your results.",
@@ -1814,6 +1814,14 @@
         "translation": "क्रमबद्ध फ़्रेम में वस्तुओं का विभाजन और उन्हें जोड़ने के लिए Mask के भीतर Timelapse खोलें; आगे की गतिशीलता जाँच से पहले संबंध देखें।"
       },
       "reason": "2026-10-24: Timelapse moved under the Mask Time control (ad35831724); guidance replaced in e69d0b3bf9; previous translation retained."
+    },
+    {
+      "record": {
+        "source": "Before a classifier can learn anything, it needs examples. Open Annotate from Home and it shows you the object crops Measure saved or streams. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
+        "source_sha256": "d26a849a4d4900f909b8056eafd6c3bb1c4f49a44a94d6165f64e9124f185245",
+        "translation": "कोई क्लासिफ़ायर कुछ सीख सके, उससे पहले उसे उदाहरण चाहिए। Home से Annotate खोलें, और यह Measure के सहेजे या स्ट्रीम किए गए वस्तु क्रॉप दिखाता है। प्रतिनिधि कोशिकाओं को देखें और उन पर लेबल लगाएँ। हर लेबल png_list तालिका के एक एनोटेशन कॉलम में लिखा जाता है, जो उस वस्तु की पहचान से जुड़ा होता है। हर प्रश्न के लिए अलग कॉलम इस्तेमाल करें, और मूल्यांकन के लिए कुछ लेबल वाली वस्तुएँ अलग रखें। Classify आगे इसी एनोटेशन कॉलम पर प्रशिक्षित होता है।"
+      },
+      "reason": "2026-10-31: the spaCR screens Annotate scene reads \"Open Annotate from Home to view the object crops associated with your measured project.\" again (79575c32bf); translation reused exactly from the reviewed lesson 78 prose of 6d4473af9c (AI review, Claude Opus 5.5, no native-speaker sign-off)."
     }
   ]
 }

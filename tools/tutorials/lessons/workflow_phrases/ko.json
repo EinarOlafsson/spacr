@@ -450,9 +450,9 @@
       "translation": "이미지 분석 모듈은 보통 이 순서로 실행합니다. Mask는 원본 이미지에서 객체를 분할하고 병합된 이미지 배열과 라벨 마스크를 기록합니다. 마스크를 직접 수정하거나 기존 마스크를 가져오려면 Make Masks를 사용합니다. Measure는 병합된 배열과 마스크를 읽어 객체별 측정값을 데이터베이스에 기록하고, 각 객체의 PNG 크롭도 저장할 수 있습니다. 분류, 이미지 탐색, 게이팅, 분석 모듈은 이 측정값과 크롭에서 시작합니다. 타일이 하나의 좌표계를 공유해야 하면 먼저 Align & Stitch에서 모자이크를 만드세요."
     },
     {
-      "source": "Before a classifier can learn anything, it needs examples. Open Annotate from Home and it shows you the object crops Measure saved or streams. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
-      "source_sha256": "d26a849a4d4900f909b8056eafd6c3bb1c4f49a44a94d6165f64e9124f185245",
-      "translation": "분류기가 무엇이든 배우려면 예시가 필요합니다. Home에서 Annotate를 열면 Measure가 저장했거나 스트리밍하는 객체 크롭이 표시됩니다. 대표적인 세포를 넘겨 보며 라벨을 붙이세요. 각 라벨은 png_list 테이블의 주석 열에 해당 객체의 식별 정보와 연결되어 기록됩니다. 질문마다 별도의 열을 쓰고, 라벨을 붙인 객체 일부는 평가용으로 떼어 두세요. 다음에 Classify가 학습하는 것이 바로 이 주석 열입니다."
+      "source": "Before a classifier can learn anything, it needs examples. Open Annotate from Home to view the object crops associated with your measured project. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
+      "source_sha256": "596b44e04082b8667f4475347ab44c9aa7eb8231dd655c18b32ed57656e45742",
+      "translation": "분류기가 무엇이든 배우려면 예시가 필요합니다. Home에서 Annotate를 열면 측정된 프로젝트와 연결된 객체 크롭을 볼 수 있습니다. 대표적인 세포를 넘겨 보며 라벨을 붙이세요. 각 라벨은 png_list 테이블의 주석 열에 해당 객체의 식별 정보와 연결되어 기록됩니다. 질문마다 별도의 열을 쓰고, 라벨을 붙인 객체 일부는 평가용으로 떼어 두세요. 다음에 Classify가 학습하는 것이 바로 이 주석 열입니다."
     },
     {
       "source": "Sequencing is how a pooled screen learns which guide sits in which well or cell, and spaCR reads it two ways. Reads from a sequencer go into Map Barcodes. Barcodes imaged cycle by cycle go into OPS, which lives inside Mask. Either way, the barcode identities end up beside your phenotypes in Regression. Around that core sit the planning tools, Experiment Design and Power, for before you acquire, and Dose–Response and Run Compare for your results.",
@@ -1523,6 +1523,14 @@
         "translation": "Mask 안에서 Timelapse를 열어 순서가 있는 프레임에 걸쳐 객체를 분할하고 연결하세요. 후속 운동성 분석 전에 연결을 확인하세요."
       },
       "reason": "2026-10-24: Timelapse moved under the Mask Time control (ad35831724); guidance replaced in e69d0b3bf9; previous translation retained."
+    },
+    {
+      "record": {
+        "source": "Before a classifier can learn anything, it needs examples. Open Annotate from Home and it shows you the object crops Measure saved or streams. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
+        "source_sha256": "d26a849a4d4900f909b8056eafd6c3bb1c4f49a44a94d6165f64e9124f185245",
+        "translation": "분류기가 무엇이든 배우려면 예시가 필요합니다. Home에서 Annotate를 열면 Measure가 저장했거나 스트리밍하는 객체 크롭이 표시됩니다. 대표적인 세포를 넘겨 보며 라벨을 붙이세요. 각 라벨은 png_list 테이블의 주석 열에 해당 객체의 식별 정보와 연결되어 기록됩니다. 질문마다 별도의 열을 쓰고, 라벨을 붙인 객체 일부는 평가용으로 떼어 두세요. 다음에 Classify가 학습하는 것이 바로 이 주석 열입니다."
+      },
+      "reason": "2026-10-31: the spaCR screens Annotate scene reads \"Open Annotate from Home to view the object crops associated with your measured project.\" again (79575c32bf); translation reused exactly from the reviewed lesson 78 prose of 6d4473af9c (AI review, Claude Opus 5.5, no native-speaker sign-off)."
     }
   ]
 }

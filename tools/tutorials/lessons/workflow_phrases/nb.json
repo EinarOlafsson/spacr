@@ -1657,9 +1657,9 @@
       "translation": "Bildeanalysemodulene kjøres vanligvis i denne rekkefølgen. Mask segmenterer objekter i råbildene og skriver sammenslåtte bildematriser og etikettmasker. Bruk Make Masks for å rette masker for hånd eller importere eksisterende masker. Measure leser de sammenslåtte matrisene og maskene, skriver målinger per objekt til en database og kan også lagre et PNG-utsnitt av hvert objekt. Klassifisering, bildeutforsking, gating og analysemodulene tar utgangspunkt i disse målingene og utsnittene. Når fliser må dele ett koordinatsystem, bygger du først en mosaikk i Align & Stitch."
     },
     {
-      "source": "Before a classifier can learn anything, it needs examples. Open Annotate from Home and it shows you the object crops Measure saved or streams. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
-      "source_sha256": "d26a849a4d4900f909b8056eafd6c3bb1c4f49a44a94d6165f64e9124f185245",
-      "translation": "Før en klassifikator kan lære noe, trenger den eksempler. Åpne Annotate fra Home, så viser den objektutsnittene som Measure har lagret eller strømmer. Gå gjennom representative celler og merk dem. Hver merkelapp skrives til en annotasjonskolonne i tabellen png_list, knyttet til objektets identitet. Bruk en egen kolonne for hvert spørsmål, og sett av noen merkede objekter til evaluering. Det er denne annotasjonskolonnen Classify trener på deretter."
+      "source": "Before a classifier can learn anything, it needs examples. Open Annotate from Home to view the object crops associated with your measured project. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
+      "source_sha256": "596b44e04082b8667f4475347ab44c9aa7eb8231dd655c18b32ed57656e45742",
+      "translation": "Før en klassifikator kan lære noe, trenger den eksempler. Åpne Annotate fra Home for å se objektutsnittene som er knyttet til prosjektet ditt med målinger. Gå gjennom representative celler og merk dem. Hver merkelapp skrives til en annotasjonskolonne i tabellen png_list, knyttet til objektets identitet. Bruk en egen kolonne for hvert spørsmål, og sett av noen merkede objekter til evaluering. Det er denne annotasjonskolonnen Classify trener på deretter."
     },
     {
       "source": "Sequencing is how a pooled screen learns which guide sits in which well or cell, and spaCR reads it two ways. Reads from a sequencer go into Map Barcodes. Barcodes imaged cycle by cycle go into OPS, which lives inside Mask. Either way, the barcode identities end up beside your phenotypes in Regression. Around that core sit the planning tools, Experiment Design and Power, for before you acquire, and Dose–Response and Run Compare for your results.",
@@ -1814,6 +1814,14 @@
         "translation": "Åpne Timelapse i Mask for å segmentere og koble objekter på tvers av ordnede rammer; undersøk koblingene før videre bevegelsesanalyse."
       },
       "reason": "2026-10-24: Timelapse moved under the Mask Time control (ad35831724); guidance replaced in e69d0b3bf9; previous translation retained."
+    },
+    {
+      "record": {
+        "source": "Before a classifier can learn anything, it needs examples. Open Annotate from Home and it shows you the object crops Measure saved or streams. Click through representative cells and label them. Each label is written to an annotation column in the png_list table, tied to that object's identity. Use a separate column for each question, and set some labelled objects aside for evaluation. That annotation column is what Classify trains on next.",
+        "source_sha256": "d26a849a4d4900f909b8056eafd6c3bb1c4f49a44a94d6165f64e9124f185245",
+        "translation": "Før en klassifikator kan lære noe, trenger den eksempler. Åpne Annotate fra Home, så viser den objektutsnittene som Measure har lagret eller strømmer. Gå gjennom representative celler og merk dem. Hver merkelapp skrives til en annotasjonskolonne i tabellen png_list, knyttet til objektets identitet. Bruk en egen kolonne for hvert spørsmål, og sett av noen merkede objekter til evaluering. Det er denne annotasjonskolonnen Classify trener på deretter."
+      },
+      "reason": "2026-10-31: the spaCR screens Annotate scene reads \"Open Annotate from Home to view the object crops associated with your measured project.\" again (79575c32bf); translation reused exactly from the reviewed lesson 78 prose of 6d4473af9c (AI review, Claude Opus 5.5, no native-speaker sign-off)."
     }
   ]
 }

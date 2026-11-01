@@ -13,8 +13,10 @@ from typing import Optional, Callable
 from PySide6.QtCore import QEvent, Qt, QSize, Signal
 from PySide6.QtGui import QIcon
 from PySide6.QtWidgets import (
+    QFrame,
     QLabel,
     QPushButton,
+    QScrollArea,
     QVBoxLayout,
     QWidget,
 )
@@ -136,7 +138,22 @@ class EmptyState(QWidget):
         :param parent: parent widget, or ``None``.
         """
         super().__init__(parent)
-        outer = QVBoxLayout(self)
+        frame = QVBoxLayout(self)
+        frame.setContentsMargins(0, 0, 0, 0)
+        scroll = QScrollArea(self)
+        scroll.setObjectName("EmptyStateScroll")
+        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setWidgetResizable(True)
+        scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        scroll.setStyleSheet(
+            "QScrollArea#EmptyStateScroll, QWidget#EmptyStateBody "
+            "{ background: transparent; }")
+        body = QWidget()
+        body.setObjectName("EmptyStateBody")
+        scroll.setWidget(body)
+        scroll.viewport().setAutoFillBackground(False)
+        frame.addWidget(scroll)
+        outer = QVBoxLayout(body)
         outer.setContentsMargins(SPACING["xxl"], SPACING["xxl"],
                                   SPACING["xxl"], SPACING["xxl"])
         outer.setSpacing(SPACING["md"])
