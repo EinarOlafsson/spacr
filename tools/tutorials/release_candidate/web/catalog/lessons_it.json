@@ -16322,7 +16322,7 @@
         },
         {
           "visual": "module_measure",
-          "narration": "Poi apri Measure da Home e indirizzalo allo stesso progetto, con gli indici dei canali di immagine e maschera impostati correttamente. Measure legge ogni array unito, immagini e piani di etichette insieme, e scrive ogni cellula, nucleo o parassita come una riga in measurements.db. Attiva il salvataggio dei ritagli e taglierà anche un piccolo PNG intorno a ogni oggetto, indicizzato in png_list. Da qui la storia si dirama. Annotate mostra quei ritagli per etichettare esempi, e Classify impara dai ritagli o dalle caratteristiche misurate, quindi mantieni stabili le identità degli oggetti.",
+          "narration": "Poi apri Measure da Home e indirizzalo allo stesso progetto, con gli indici dei canali di immagine e maschera impostati correttamente. Measure legge ogni array unito, immagini e piani di etichette insieme, e scrive ogni cellula, nucleo o parassita come una riga in measurements.db. Con il salvataggio dei ritagli attivo, l’impostazione predefinita, taglia anche un piccolo PNG intorno a ogni oggetto, indicizzato in png_list. Da qui la storia si dirama. Annotate mostra quei ritagli per etichettare esempi, e Classify impara dai ritagli o dalle caratteristiche misurate, quindi mantieni stabili le identità degli oggetti.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -16330,7 +16330,7 @@
             "09_annotate",
             "41_classify"
           ],
-          "speech_text": "Poi apri Measure da Home e indirizzalo allo stesso progetto, con gli indici dei canali di immagine e maschera impostati correttamente. Measure legge ogni array unito, immagini e piani di etichette insieme, e scrive ogni cellula, nucleo o parassita come una riga in measurements punto di bi. Attiva il salvataggio dei ritagli e taglierà anche un piccolo PNG intorno a ogni oggetto, indicizzato in png_list. Da qui la storia si dirama. Annotate mostra quei ritagli per etichettare esempi, e Classify impara dai ritagli o dalle caratteristiche misurate, quindi mantieni stabili le identità degli oggetti."
+          "speech_text": "Poi apri Measure da Home e indirizzalo allo stesso progetto, con gli indici dei canali di immagine e maschera impostati correttamente. Measure legge ogni array unito, immagini e piani di etichette insieme, e scrive ogni cellula, nucleo o parassita come una riga in measurements punto di bi. Con il salvataggio dei ritagli attivo, l’impostazione predefinita, taglia anche un piccolo PNG intorno a ogni oggetto, indicizzato in png_list. Da qui la storia si dirama. Annotate mostra quei ritagli per etichettare esempi, e Classify impara dai ritagli o dalle caratteristiche misurate, quindi mantieni stabili le identità degli oggetti."
         },
         {
           "visual": "module_annotate",

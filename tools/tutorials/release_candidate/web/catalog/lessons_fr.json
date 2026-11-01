@@ -16322,7 +16322,7 @@
         },
         {
           "visual": "module_measure",
-          "narration": "Ouvrez ensuite Measure depuis Home et dirigez-le vers le même projet, avec les indices de canaux d’image et de masque correctement réglés. Measure lit chaque tableau fusionné, images et plans d’étiquettes ensemble, et écrit chaque cellule, noyau ou parasite comme une ligne de measurements.db. Activez l’enregistrement des recadrages et il découpe aussi un petit PNG autour de chaque objet, indexé dans png_list. À partir d’ici, l’histoire bifurque. Annotate affiche ces recadrages pour que vous étiquetiez des exemples, et Classify apprend soit des recadrages soit des caractéristiques mesurées ; gardez donc des identités d’objets stables.",
+          "narration": "Ouvrez ensuite Measure depuis Home et dirigez-le vers le même projet, avec les indices de canaux d’image et de masque correctement réglés. Measure lit chaque tableau fusionné, images et plans d’étiquettes ensemble, et écrit chaque cellule, noyau ou parasite comme une ligne de measurements.db. Avec l’enregistrement des recadrages activé, le réglage par défaut, il découpe aussi un petit PNG autour de chaque objet, indexé dans png_list. À partir d’ici, l’histoire bifurque. Annotate affiche ces recadrages pour que vous étiquetiez des exemples, et Classify apprend soit des recadrages soit des caractéristiques mesurées ; gardez donc des identités d’objets stables.",
           "hold_after": 0.7,
           "related_lessons": [
             "07_mask",
@@ -16330,7 +16330,7 @@
             "09_annotate",
             "41_classify"
           ],
-          "speech_text": "Ouvrez ensuite Measure depuis Home et dirigez-le vers le même projet, avec les indices de canaux d’image et de masque correctement réglés. Measure lit chaque tableau fusionné, images et plans d’étiquettes ensemble, et écrit chaque cellule, noyau ou parasite comme une ligne de measurements point dé bé. Activez l’enregistrement des recadrages et il découpe aussi un petit PNG autour de chaque objet, indexé dans png_list. À partir d’ici, l’histoire bifurque. Annotate affiche ces recadrages pour que vous étiquetiez des exemples, et Classify apprend soit des recadrages soit des caractéristiques mesurées ; gardez donc des identités d’objets stables."
+          "speech_text": "Ouvrez ensuite Measure depuis Home et dirigez-le vers le même projet, avec les indices de canaux d’image et de masque correctement réglés. Measure lit chaque tableau fusionné, images et plans d’étiquettes ensemble, et écrit chaque cellule, noyau ou parasite comme une ligne de measurements point dé bé. Avec l’enregistrement des recadrages activé, le réglage par défaut, il découpe aussi un petit PNG autour de chaque objet, indexé dans png_list. À partir d’ici, l’histoire bifurque. Annotate affiche ces recadrages pour que vous étiquetiez des exemples, et Classify apprend soit des recadrages soit des caractéristiques mesurées ; gardez donc des identités d’objets stables."
         },
         {
           "visual": "module_annotate",
