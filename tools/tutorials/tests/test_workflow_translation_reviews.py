@@ -31,8 +31,10 @@ def test_default_generator_keeps_all_current_english_scripts_unchanged():
 def test_shared_generator_preserves_every_scene_route_and_literal_identifier(inputs):
     data, bank = inputs
     reviews = translation.compose_reviews(bank, data, 'test-map')
-    assert len(reviews['79_module_inputs_outputs']['scenes']) == 78
-    for identity, previous_count in (('79_module_inputs_outputs', 77),):
+    # 2026-11-01: 78 -> 77 scenes; the OPS scene left lesson 79 because Mask's OPS
+    # switch is alpha-only (ALPHA_FEATURES 372) and lessons keep alpha off.
+    assert len(reviews['79_module_inputs_outputs']['scenes']) == 77
+    for identity, previous_count in (('79_module_inputs_outputs', 76),):
         scenes = translation.workflow.lesson_document(data, identity)['scenes']
         assert sum(scene['visual'] == 'module_host_pathogen' for scene in scenes) == 1
         assert len([scene for scene in scenes if scene['visual'] != 'module_host_pathogen']) == previous_count
@@ -43,11 +45,14 @@ def test_shared_generator_preserves_every_scene_route_and_literal_identifier(inp
     assert 'pixels to answers' not in ' '.join(reviews['80_image_analysis_pathways']['scenes'])
     reference = reviews['79_module_inputs_outputs']
     prose = ' '.join(reference['scenes'])
-    from spacr.settings import _alpha_names
-    hidden = set(_alpha_names('apps'))
+    from spacr.settings import ALPHA_FEATURES, _alpha_names
+    from spacr.qt.screens.mask import ALPHA_FEATURE_PAGES
+    alpha_widgets = {name for entry in ALPHA_FEATURES.values() for name in entry.get('widgets', ())}
+    hidden = set(_alpha_names('apps')) | {key for key, switch in ALPHA_FEATURE_PAGES.items()
+                                         if switch in alpha_widgets}
     for key, module in data['modules'].items():
         if key in hidden:
-            continue  # alpha species (634) and alpha modules are left out of lesson 79
+            continue  # alpha species (634), alpha modules and alpha-switch pages are left out of lesson 79
         assert module['name'] in prose
         if module.get('api_entry'):
             assert module['api_entry'] in prose

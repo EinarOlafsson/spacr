@@ -2841,7 +2841,6 @@
         "anndata_export",
         "motility",
         "timelapse",
-        "ops",
         "classifier_evaluation",
         "explain_cv",
         "activation",

@@ -419,12 +419,19 @@ def _alpha_only_modules():
     return set(_alpha_names('apps')) | pages
 
 
-def test_the_sequencing_lesson_opens_no_alpha_only_module():
+ALPHA_LESSONS = {'86', '87'}
+
+
+def test_no_default_lesson_opens_an_alpha_only_module():
     data = workflow.load()
     hidden = _alpha_only_modules()
     assert 'ops' in hidden
-    scenes = workflow.lesson_document(data, '81_sequencing_pathways')['scenes']
-    opened = {scene['visual'][len('module_'):] for scene in scenes
-              if scene['visual'].startswith('module_')}
-    assert not opened & hidden, sorted(opened & hidden)
-    assert 'OPS' in scenes[0]['narration']
+    for key in data['tutorials']:
+        if key.split('_', 1)[0] in ALPHA_LESSONS:
+            continue
+        scenes = workflow.lesson_document(data, key)['scenes']
+        opened = {scene['visual'][len('module_'):] for scene in scenes
+                  if scene['visual'].startswith('module_')}
+        assert not opened & hidden, (key, sorted(opened & hidden))
+    introduction = workflow.lesson_document(data, '81_sequencing_pathways')['scenes'][0]
+    assert 'OPS' in introduction['narration']
