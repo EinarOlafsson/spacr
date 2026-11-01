@@ -213,6 +213,14 @@ _TEXT_CONSTRUCTORS = {
 # registry names: adding one to ``i18n._ROWS`` would create two authoritative
 # owners and is rejected by the runtime ratchet.
 _INDIRECT_CHROME_UI_SOURCES = frozenset({
+    # The settings strip's level switch and Templates button caption
+    # themselves from local variables (settings_search, recipes).
+    "Essentials",
+    "All settings",
+    "Showing every setting. Click for the essentials only.",
+    "Showing the settings this module cannot run without. Click for all of them.",
+    "Templates",
+    "Save these settings under a name, reuse a saved one, or share it as a file.",
     # Settings-section headings assembled by settings_model.
     "Plate Sources & Workflow",
     "Labels & Classes",
@@ -4456,6 +4464,15 @@ def _indirect_runtime_ui_sources() -> set[str]:
     found.update(_parascape_progress_sources())
     found.update(_organism_description_sources())
     found.update(_make_masks_shortcut_sources())
+    # The Make Masks masthead's instruction and the Cellpose Workbench's
+    # per-tab help reach the header label as keyword or tuple values; the
+    # vendor CLI usage lines reach tr() through a dictionary lookup.
+    from spacr.qt.ai.providers import CLI_USAGE_TEXT
+    from spacr.qt.screens.make_masks import HEADER_INSTRUCTION
+    from spacr.qt.screens.train_cellpose import TABS as WORKBENCH_TABS
+    found.add(HEADER_INSTRUCTION)
+    found.update(help_text for _key, _label, help_text in WORKBENCH_TABS)
+    found.update(CLI_USAGE_TEXT.values())
     found.update(label for _mode, label, _icon in tool_row_entries())
     for detector_modes in (cpu_modes, organelle_modes):
         found.update(detector_modes.MODE_LABELS.values())
