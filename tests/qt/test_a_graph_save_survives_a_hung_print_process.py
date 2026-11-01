@@ -71,11 +71,14 @@ def _pid(renderer):
 
 
 def _save(tmp_path, name):
+    import pickle
+
     from spacr.qt.screens.gate_editor import _render_the_graph
 
     png = tmp_path / name
+    snapshot = pickle.dumps(_figure())
     started = time.perf_counter()
-    assert _render_the_graph(_figure(), str(png), False) is True
+    assert _render_the_graph(snapshot, str(png), False) is True
     assert png.stat().st_size > 1000
     return time.perf_counter() - started
 

@@ -309,27 +309,30 @@ def _warm_the_print_renderer() -> None:
     _PRINT_RENDER_PROCESS.warm()
 
 
-def _render_the_graph(figure, png_path: str, write_pdf: bool) -> bool:
-    """Render a copy of the gate graph in the print style; no widget is touched.
+def _render_the_graph(snapshot: bytes, png_path: str, write_pdf: bool) -> bool:
+    """Render the pickled gate graph in the print style; no widget is touched.
 
     The raster is drawn in the warm print-render process
-    (:func:`spacr.qt.widgets.figure_queue._render_print_in_a_process`), so the
-    worker holds no long stretch of the interpreter lock; when no process can
-    take it, it is drawn here.
+    (:func:`spacr.qt.widgets.figure_queue._render_print_in_a_process`), which
+    is handed the snapshot as it is, so the worker holds no long stretch of
+    the interpreter lock; when no process can take it, the figure is
+    unpickled and drawn here.
 
-    :param figure: a detached copy of the graph's figure.
+    :param snapshot: the graph's figure, pickled on the GUI thread.
     :param png_path: the PNG to write.
     :param write_pdf: write the sibling PDF too.
     :returns: whether the PNG was written.
     """
+    import pickle
+
     from ..widgets.figure_queue import (_render_print_in_a_process,
                                         render_figure_to_png)
 
-    written = _render_print_in_a_process(figure, png_path, write_pdf)
+    written = _render_print_in_a_process(snapshot, png_path, write_pdf)
     if written is not None:
         return written
-    return bool(render_figure_to_png(figure, png_path, for_print=True,
-                                     write_pdf=write_pdf))
+    return bool(render_figure_to_png(pickle.loads(snapshot), png_path,
+                                     for_print=True, write_pdf=write_pdf))
 
 
 class GateEditorScreen(DerivedTableSource, QWidget):
@@ -2165,12 +2168,15 @@ class GateEditorScreen(DerivedTableSource, QWidget):
 
     def _save_graph_in_background(self, figure, target: Path,
                                   png_path: Path) -> bool:
-        """Render the saved graph on a worker thread, from a copy of the figure.
+        """Render the saved graph on a worker thread, from a snapshot of the figure.
 
-        The figure is copied here, on the GUI thread (about 20 ms), because a
-        copy taken from a worker could meet a redraw half way; the first-time
-        import of the print renderer and the raster itself, which held the
-        window for seconds, then run off the GUI thread.
+        The figure is pickled here, on the GUI thread, because a snapshot
+        taken from a worker could meet a redraw half way. It is not
+        unpickled here: the print-render process takes the bytes as they are
+        (it unpickled a copy here and the worker pickled it again, 22-59 ms
+        on the GUI thread per save), and only a save the process cannot take
+        unpickles it, on the worker. The first-time import of the print
+        renderer and the raster itself then run off the GUI thread.
 
         :param figure: the figure on screen.
         :param target: the file the user chose.
@@ -2178,11 +2184,14 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         :returns: ``False`` when the figure cannot be copied, and the caller
             saves it here instead.
         """
-        from ..job_runner import JobRunner
-        from ..widgets.save_figure_dialog import copy_figure
+        import pickle
 
-        copy = copy_figure(figure)
-        if copy is None:
+        from ..job_runner import JobRunner
+
+        try:
+            snapshot = pickle.dumps(figure)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("the graph could not be pickled", exc_info=True)
             return False
         runner = getattr(self, "_graph_runner", None)
         if runner is None:
@@ -2190,7 +2199,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
             runner.job_failed.connect(self._graph_save_failed)
             self._graph_runner = runner
         self.setCursor(Qt.BusyCursor)
-        runner.submit(partial(_render_the_graph, copy, str(png_path),
+        runner.submit(partial(_render_the_graph, snapshot, str(png_path),
                               target.suffix.lower() == ".pdf"),
                       partial(self._graph_saved, target, png_path))
         return True

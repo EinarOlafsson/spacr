@@ -528,7 +528,8 @@ class _PrintRenderProcess:
     def render(self, figure, png_path: str, write_pdf: bool):
         """Draw ``figure``'s print files in the process.
 
-        :param figure: a detached copy of the figure, which is not touched.
+        :param figure: a detached copy of the figure, which is not touched,
+            or that figure already pickled (``bytes``), sent as it is.
         :param png_path: the PNG to write.
         :param write_pdf: write the sibling PDF too.
         :returns: whether the PNG was written, or ``None`` when the process
@@ -541,7 +542,7 @@ class _PrintRenderProcess:
         import pickle
 
         try:
-            blob = pickle.dumps(figure)
+            blob = figure if isinstance(figure, bytes) else pickle.dumps(figure)
         except Exception:                                    # noqa: BLE001
             LOG.debug("the print copy does not pickle", exc_info=True)
             return None
@@ -718,7 +719,8 @@ def _stop_the_print_render_process() -> None:
 def _render_print_in_a_process(figure, png_path: str, write_pdf: bool):
     """Draw a detached figure's print files in the warm print-render process.
 
-    :param figure: a detached copy of the figure, which is not touched.
+    :param figure: a detached copy of the figure, which is not touched, or
+        that figure already pickled (``bytes``).
     :param png_path: the PNG to write.
     :param write_pdf: write the sibling PDF too.
     :returns: whether the PNG was written, or ``None`` when the caller

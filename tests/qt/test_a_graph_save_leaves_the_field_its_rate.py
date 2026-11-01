@@ -217,3 +217,73 @@ def test_saves_share_one_warm_process_no_slower_than_drawing_here(tmp_path):
     finally:
         renderer.stop()
     assert not renderer.running()
+
+
+def test_a_pickled_snapshot_writes_the_files_a_copied_figure_wrote(
+        tmp_path, monkeypatch):
+    """Save graph pickles the figure on the GUI thread and hands the bytes
+    on; it unpickled a copy there first. The process, and the worker when no
+    process takes the save, write the same PNG either way."""
+    import pickle
+
+    from spacr.qt.screens import gate_editor
+    from spacr.qt.widgets import figure_queue
+    from spacr.qt.widgets.save_figure_dialog import copy_figure
+
+    figure = _scatter_figure()
+    renderer = _a_ready_print_process()
+    try:
+        assert figure_queue._render_print_in_a_process(
+            copy_figure(figure), str(tmp_path / "copied.png"), False) is True
+        assert gate_editor._render_the_graph(
+            pickle.dumps(figure), str(tmp_path / "pickled.png"), False) is True
+    finally:
+        renderer.stop()
+    assert (tmp_path / "pickled.png").read_bytes() == \
+        (tmp_path / "copied.png").read_bytes()
+    monkeypatch.setattr(figure_queue, "_render_print_in_a_process",
+                        lambda *a, **k: None)
+    assert figure_queue.render_figure_to_png(
+        copy_figure(figure), str(tmp_path / "here_copied.png"),
+        for_print=True, write_pdf=False)
+    assert gate_editor._render_the_graph(
+        pickle.dumps(figure), str(tmp_path / "here_pickled.png"), False)
+    assert (tmp_path / "here_pickled.png").read_bytes() == \
+        (tmp_path / "here_copied.png").read_bytes()
+
+
+def test_save_graph_unpickles_nothing_on_the_gui_thread(
+        qapp, monkeypatch, tmp_path):
+    import pickle
+    import threading
+
+    from spacr.qt.widgets import save_figure_dialog
+
+    monkeypatch.setattr(QMessageBox, "information", staticmethod(lambda *a, **k: None))
+    monkeypatch.setattr(QMessageBox, "warning", staticmethod(lambda *a, **k: None))
+    screen = GateEditorScreen()
+    screen.resize(1200, 800)
+    screen.show()
+    screen.set_frame(_table(20000), label="test")
+    _pump(1.0)
+    screen._y.setCurrentText("intensity")
+    _pump(0.6)
+    on_gui = []
+    loads = pickle.loads
+
+    def watched(*args, **kwargs):
+        if threading.current_thread() is threading.main_thread():
+            on_gui.append("loads")
+        return loads(*args, **kwargs)
+
+    monkeypatch.setattr(pickle, "loads", watched)
+    monkeypatch.setattr(save_figure_dialog, "copy_figure",
+                        lambda *_a, **_k: on_gui.append("copy"))
+    target = tmp_path / "graph.png"
+    monkeypatch.setattr(QFileDialog, "getSaveFileName",
+                        staticmethod(lambda *a, **k: (str(target), "")))
+    _a_ready_print_process()
+    screen.save_graph_in_background()
+    assert _pump(60, lambda: target.exists() and target.stat().st_size > 1000)
+    assert on_gui == []
+    screen.close()
