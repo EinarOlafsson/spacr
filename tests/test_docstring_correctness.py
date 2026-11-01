@@ -3675,7 +3675,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # GateEditorPanel.run_cluster_in_background and
     # GateEditorScreen.save_graph_in_background (LabelsLayer.color and
     # .contour are properties).
-    assert len(callables) == len(by_symbol) == 9998
+    # 2026-11-01 item 749: +1 callable, documented:
+    # OrganismScreen.refresh_maturity_visibility.
+    assert len(callables) == len(by_symbol) == 9999
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -3783,7 +3785,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 2026-11-01 items 748/749: +2 method
         # (GateEditorPanel.run_cluster_in_background,
         # GateEditorScreen.save_graph_in_background).
-        "method": 4312,
+        # 2026-11-01 item 749: +1 method
+        # (OrganismScreen.refresh_maturity_visibility).
+        "method": 4313,
         # -3 on 2026-09-15: spacrStitcher, StitchedMultiAligner and
         # FOVAlignAndCropper.
         # Item 600: +1 constructor (OrganizeForMeasureDialog).
@@ -3858,7 +3862,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 2026-10-31: +8 autoapi, the eight callables named in the total.
         # 2026-11-01 items 748/749: +2 autoapi, the two Gate Editor
         # background routes named in the total.
-        "autoapi": 9993,
+        # 2026-11-01 item 749: +1 autoapi, OrganismScreen.refresh_maturity_visibility.
+        "autoapi": 9994,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -3920,7 +3925,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-10-19: -1, FoldButton.paintEvent retired.
     # Item 600, 2026-10-19: -14, one per retired callable.
     # 2026-11-01 items 748/749: +2, one per Gate Editor background route.
-    assert sum(item.variant_count for item in callables) == 10005
+    # 2026-11-01 item 749: +1, OrganismScreen.refresh_maturity_visibility.
+    assert sum(item.variant_count for item in callables) == 10006
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
@@ -3946,7 +3952,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 2026-10-19: -1, FoldButton.paintEvent retired.
         # Item 600, 2026-10-19: -14, ChannelSortDialog and RegexWindow.
         # 2026-11-01 items 748/749: +2, the two Gate Editor background routes.
-        1: 9991,
+        # 2026-11-01 item 749: +1, OrganismScreen.refresh_maturity_visibility.
+        1: 9992,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -4520,7 +4527,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # GateEditorScreen.save_graph and GateEditorScreen.reduce_to_components gained
     # the optional background=; run_cluster_in_background and
     # save_graph_in_background arrive with them; no row removed.
-) == 'b5d5c3b26aef9a4b3897b1322295d78dfb193ada6550b35b132bb00b8afc9e90'
+    # Moved 2026-11-01 for item 749 (was b5d5c3b2...): the one new row,
+    # OrganismScreen.refresh_maturity_visibility, takes no parameter; the
+    # counts above move by exactly that row and no other row changed.
+) == '01241b81ef90d5222fc98fd33e4642a6082d07eb2202b9565de91e2ba4a8fc96'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
