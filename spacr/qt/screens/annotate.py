@@ -4692,11 +4692,14 @@ class _ToolbarScroll(QScrollArea):
         toolbar = self.widget()
         if toolbar is None:
             return super().minimumSizeHint()
+        from PySide6.QtWidgets import QWidgetItem
+        from ..widgets.flow import _layout_entries
+
         tallest = 0
         layout = toolbar.layout()
-        for index in range(layout.count() if layout is not None else 0):
-            item = layout.itemAt(index)
-            if item is not None and not item.isEmpty():
+        for _index, entry in (_layout_entries(layout) if layout is not None else ()):
+            item = QWidgetItem(entry) if isinstance(entry, QWidget) else entry
+            if not item.isEmpty():
                 tallest = max(tallest, item.sizeHint().height())
         return QSize(toolbar.minimumSizeHint().width(), tallest)
 
