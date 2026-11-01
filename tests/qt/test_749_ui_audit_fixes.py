@@ -366,3 +366,38 @@ def test_the_dock_folds_when_the_content_has_no_room_and_returns(
     qtbot.wait(200)
     assert edge.is_collapsed()
     window.close()
+
+
+def test_a_roomy_rectangle_a_large_zoom_outgrew_scrolls_instead_of_squeezing(
+        qtbot, monkeypatch):
+    """The Dock's automatic fold freed a roomy width; the screen still squeezed.
+
+    A module screen's content fills its rectangle once the rectangle is
+    roomy, and roomy was a fixed 1500 x 900. Every control grows with the
+    Zoom, so at 200 % the same rectangle is cramped: the Dock folding to its
+    edge strip took the content from a width that scrolled to one that filled
+    1588 pixels with controls asking for more, and cut their text off.
+    """
+    from PySide6.QtWidgets import QPushButton, QVBoxLayout, QWidget
+
+    from spacr.qt import preferences
+
+    monkeypatch.setattr(preferences, 'get_font_scale', lambda: 2.0)
+    host = QWidget()
+    qtbot.addWidget(host)
+    outer = QVBoxLayout(host)
+    outer.setContentsMargins(0, 0, 0, 0)
+    content = QWidget()
+    inner = QVBoxLayout(content)
+    button = QPushButton('A control whose label is far too long to fit ' * 9)
+    inner.addWidget(button)
+    scroll = app._CrampedScroll(content, host)
+    outer.addWidget(scroll)
+    host.resize(1588, 1000)
+    host.show()
+    qtbot.waitExposed(host)
+    need = content.minimumSizeHint().expandedTo(content.minimumSize()).width()
+    assert scroll.width() > app._ROOMY_SCREEN[0] < need
+    qtbot.waitUntil(lambda: content.width() >= need, timeout=3000)
+    assert button.width() >= button.sizeHint().width() - 2
+    host.close()

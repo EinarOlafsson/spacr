@@ -1184,9 +1184,7 @@ class DistributedJobsScreen(QWidget):
             self._module.addItem(key, key)
         self._settings_path = QLineEdit(self)
         self._settings_path.setObjectName("DistributedSettingsPath")
-        self._settings_path.setPlaceholderText(
-            "Drop or choose a spaCR settings CSV/JSON"
-        )
+        self._settings_path.setPlaceholderText("Settings file")
         self._settings_path.setToolTip(
             "A settings CSV exported by a module or settings.json from a run "
             "manifest. It is fully resolved before submission."

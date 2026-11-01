@@ -3226,10 +3226,11 @@ _CRAMPED_SCREENS = frozenset({
 class _CrampedScroll(QScrollArea):
     """A module screen's content, which scrolls only on a small screen.
 
-    At :data:`_ROOMY_SCREEN` logical pixels or more the content is laid out
-    in exactly the screen's rectangle, as it was before it was wrapped.
-    Smaller, it keeps at least its minimum size and scrolls, so a 1280 x 720
-    display reaches every control instead of squeezing them out of sight.
+    At :data:`_ROOMY_SCREEN` logical pixels or more, measured at the current
+    Zoom, the content is laid out in exactly the screen's rectangle, as it was
+    before it was wrapped. Smaller, it keeps at least its minimum size and
+    scrolls, so a 1280 x 720 display reaches every control instead of
+    squeezing them out of sight.
     """
 
     def __init__(self, content: QWidget, parent: QWidget):
@@ -3272,16 +3273,23 @@ class _CrampedScroll(QScrollArea):
         minimum height is read at the width the content gets, so word-wrapped
         text counts with every line it wraps onto: a one-line minimum let
         the screen squeeze it and cut its last lines off (item 746).
+
+        :data:`_ROOMY_SCREEN` is a size as designed for a Zoom of 1.0, and
+        every control on the screen grows with the Zoom, so the threshold
+        grows with it too. A rectangle 1588 pixels wide is roomy at 100 % and
+        cramped at 200 %, where the same controls ask for 2342: filling it
+        there squeezed their text away (item 749).
         """
         from .gui_scale import _resize_actual
+        from .preferences import scaled_px
 
         self._fit_pending = False
         content = self.widget()
         if content is None:
             return
         size = self.size()
-        if (size.width() >= _ROOMY_SCREEN[0]
-                and size.height() >= _ROOMY_SCREEN[1]):
+        if (size.width() >= scaled_px(_ROOMY_SCREEN[0])
+                and size.height() >= scaled_px(_ROOMY_SCREEN[1])):
             off = Qt.ScrollBarPolicy.ScrollBarAlwaysOff
             self.setHorizontalScrollBarPolicy(off)
             self.setVerticalScrollBarPolicy(off)

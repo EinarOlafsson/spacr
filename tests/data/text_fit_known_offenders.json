@@ -1,7 +1,5 @@
 {
  "de-2.0|button-width|PreferencesReset|Zurücksetzen auf Standardwerte": "__preferences__:0",
  "de-2.0|label-height|Caption|Zicken Sie zwei oder mehr, um sie zu überlagern. Laufen mark": "train_compare",
- "de-2.0|label-height|TitleHeading|Öffnen Sie ein Experiment, um zu kommentieren": "annotate",
- "en-2.0|label-height|Caption|Tick two or more to overlay them. Runs marked ! are missing ": "train_compare",
- "en-2.0|label-height|TitleHeading|Open an experiment to start annotating": "annotate"
+ "de-2.0|label-height|TitleHeading|Öffnen Sie ein Experiment, um zu kommentieren": "annotate"
 }

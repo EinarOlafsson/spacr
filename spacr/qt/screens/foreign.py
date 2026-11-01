@@ -489,7 +489,8 @@ class ForeignScreen(QWidget):
             "the folder instead."))
         self._naming_box.currentIndexChanged.connect(self._on_naming_changed)
         self._regex_edit = QLineEdit(self)
-        self._regex_edit.setPlaceholderText(tr(
+        self._regex_edit.setPlaceholderText(tr("Pattern"))
+        self._regex_edit.setToolTip(tr(
             "Custom only: a pattern with named groups wellID, fieldID and "
             "chanID"))
         self._regex_edit.setClearButtonEnabled(True)

@@ -283,6 +283,17 @@ class AnonymousReportNotice(QDialog):
         done.clicked.connect(self.accept)
         layout.addWidget(buttons)
         self.finished.connect(self._save_choice)
+        from .dialogs import (OPENS_AT, let_the_content_scroll,
+                              make_the_window_resizable,
+                              open_at_its_natural_size)
+
+        self.ensurePolished()
+        layout.activate()
+        opening = self.sizeHint().expandedTo(self.minimumSize())
+        let_the_content_scroll(self)
+        make_the_window_resizable(self)
+        self.setProperty(OPENS_AT, opening)
+        open_at_its_natural_size(self)
 
     def _save_choice(self, _result: int = 0) -> None:
         """Save the switch as it stands when the notice closes.
