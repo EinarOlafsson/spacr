@@ -565,7 +565,7 @@ class SetupCard(QWidget):
             painter.drawRoundedRect(QRectF(self.rect()),
                                     self._radius, self._radius)
 
-            edge = QColor(palette.get("border", palette["fg"]))
+            edge = QColor(palette.get("border_soft", palette["fg"]))
             edge.setAlpha(235)
             painter.setBrush(Qt.NoBrush)
             painter.setPen(QPen(edge, 1.0))
