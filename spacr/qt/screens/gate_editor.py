@@ -368,6 +368,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         #: population cannot come to depend on how far the plot was cut down.
         self._cutoffs = AxisCutoffs()
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
+        self._threaded = bool(threaded)
         self._jobs.job_failed.connect(self._on_load_failed)
 
         outer = QVBoxLayout(self)
@@ -703,6 +704,22 @@ class GateEditorScreen(DerivedTableSource, QWidget):
 
     def _displayed_population(self):
         """Return canvas rows surviving axis, cutoff and logarithmic-domain filters."""
+        request = self._displayed_request()
+        if request is None:
+            return None
+        frame, axes, key = request
+        cached = self._cached_displayed(frame, key)
+        if cached is not None:
+            return cached
+        displayed = self._narrowed(frame, axes, *self._narrowing_state(axes))
+        self._displayed_cache = (frame, key, displayed)
+        return displayed
+
+    def _displayed_request(self):
+        """The canvas population, its drawn axes and their cache key.
+
+        :returns: ``(frame, axes, key)``, or None when nothing is drawn.
+        """
         frame = self.gates.canvas.population()
         if frame is None:
             return None
@@ -713,37 +730,99 @@ class GateEditorScreen(DerivedTableSource, QWidget):
                tuple((column, repr(self._cutoffs.get(column)))
                      for _axis, column in axes if column),
                tuple(self._settings.scale_for(axis) for axis in ('x', 'y')))
+        return frame, axes, key
+
+    def _cached_displayed(self, frame, key):
+        """The narrowed rows already computed for ``frame`` and ``key``, or None.
+
+        :param frame: the canvas population.
+        :param key: what :meth:`_displayed_request` returned for it.
+        """
         cached = getattr(self, "_displayed_cache", None)
         if cached is not None and cached[0] is frame and cached[1] == key:
             return cached[2]
-        displayed = self._narrow_to_the_axes(frame, axes)
-        self._displayed_cache = (frame, key, displayed)
-        return displayed
+        return None
 
-    def _narrow_to_the_axes(self, frame, axes):
-        """``frame`` without the rows an axis cutoff or log domain hides.
+    def _narrowing_state(self, axes):
+        """The cutoffs and scales that narrow ``axes``, read on the GUI thread.
+
+        :param axes: ``(axis, column)`` pairs for the drawn axes.
+        :returns: ``(cutoffs by column, scale by axis)``.
+        """
+        cutoffs = {column: self._cutoffs.get(column) for _axis, column in axes if column}
+        scales = {axis: self._settings.scale_for(axis) for axis in ('x', 'y')}
+        return cutoffs, scales
+
+    @staticmethod
+    def _narrowed(frame, axes, cutoffs, scales):
+        """``frame`` narrowed by ``cutoffs`` and log ``scales``; touches no widget.
 
         :param frame: the canvas population.
         :param axes: ``(axis, column)`` pairs for the drawn axes.
+        :param cutoffs: the cutoff of each drawn column.
+        :param scales: the scale of the x and y axes.
         """
         for axis, column in axes:
             if not column or column not in frame:
                 continue
             values = pd.to_numeric(frame[column], errors='coerce')
             visible = np.isfinite(values)
-            cutoff = self._cutoffs.get(column)
+            cutoff = cutoffs[column]
             if cutoff.low is not None:
                 visible &= values >= cutoff.low
             if cutoff.high is not None:
                 visible &= values <= cutoff.high
-            if axis in ('x', 'y') and self._settings.scale_for(axis) == 'log':
+            if axis in ('x', 'y') and scales.get(axis) == 'log':
                 visible &= values > 0
             frame = frame.loc[visible]
         return frame
 
     def _update_displayed_count(self):
-        """Show the visible row count, source total and current point limit."""
-        frame = self._displayed_population()
+        """Show the visible row count, source total and current point limit.
+
+        Narrowed once per population, cutoffs and scales: a render with the
+        same state reuses the cached rows, and a new state is narrowed on a
+        worker so a redraw of a large table does not hold the window.
+        """
+        request = self._displayed_request()
+        if request is None:
+            self._show_displayed_count(None)
+            return
+        frame, axes, key = request
+        cached = self._cached_displayed(frame, key)
+        if cached is not None:
+            self._show_displayed_count(cached)
+            return
+        from ..job_runner import JobRunner
+
+        runner = getattr(self, "_count_runner", None)
+        if runner is None:
+            runner = JobRunner(self, threaded=self._threaded,
+                               app_key="gate displayed count",
+                               user_visible=False)
+            self._count_runner = runner
+        runner.cancel()
+        runner.submit(partial(self._narrowed, frame, axes, *self._narrowing_state(axes)),
+                      partial(self._displayed_count_done, frame, key))
+
+    def _displayed_count_done(self, frame, key, displayed):
+        """Cache and show a worker's narrowed rows if they are still current.
+
+        :param frame: the canvas population they were narrowed from.
+        :param key: the axes, cutoffs and scales they were narrowed for.
+        :param displayed: the narrowed rows.
+        """
+        request = self._displayed_request()
+        if request is None or request[0] is not frame or request[2] != key:
+            return
+        self._displayed_cache = (frame, key, displayed)
+        self._show_displayed_count(displayed)
+
+    def _show_displayed_count(self, frame):
+        """Write the point-count line for the narrowed rows ``frame``.
+
+        :param frame: the narrowed rows, or None when nothing is drawn.
+        """
         total = len(self._frame) if self._frame is not None else 0
         self._point_count.setText(tr('Displayed {shown} of {total} points (maximum {limit}).',
                                     shown=f'{len(frame) if frame is not None else 0:,}',
@@ -2613,6 +2692,9 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         :param event: the Qt close event.
         """
         self._jobs.shutdown()
+        counter = getattr(self, "_count_runner", None)
+        if counter is not None:
+            counter.shutdown()
         self.gates.close()
         super().closeEvent(event)
 

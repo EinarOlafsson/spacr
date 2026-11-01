@@ -228,3 +228,112 @@ def test_projecting_in_the_background_keeps_the_gui_turning(qapp):
         lambda: win._frame is not None and "PC1" in win._frame.columns)
     assert gap < PROJECTION_STALL_BUDGET_S
     win.close()
+
+
+def _many_sided(name="ring", sides=120):
+    from spacr.qt.widgets.gate_spec import PolygonGate
+
+    angles = np.linspace(0.0, 2.0 * np.pi, sides, endpoint=False)
+    return PolygonGate(name=name, x_column="area", y_column="intensity",
+                       vertices=tuple((6.0 + 3.0 * np.cos(a),
+                                       6.0 + 3.0 * np.sin(a))
+                                      for a in angles))
+
+
+def _handles_one_norm_at_a_time(canvas, ax, gate):
+    """The anchors as they were placed before the distances were vectorized."""
+    from spacr.qt.widgets.gate_spec import EllipseGate, Handle
+
+    flat = canvas._as_flat(gate)
+    handles = list(flat.handles(canvas._view(ax)))
+    points = canvas._gate_points(ax, flat)
+    density = canvas._anchor_density
+    if isinstance(flat, EllipseGate):
+        positions = [i * len(points) / (8 * density) for i in range(8 * density)]
+    else:
+        positions = [edge + i / (2 * density) for edge in range(len(points))
+                     for i in range(2 * density)]
+    for position in positions:
+        edge = int(position)
+        fraction = position - edge
+        point = np.asarray(points[edge]) + fraction * (
+            np.asarray(points[(edge + 1) % len(points)]) - points[edge])
+        if any(np.linalg.norm(point - (h.x, h.y)) <= 1e-10 for h in handles):
+            continue
+        handles.append(Handle(float(point[0]), float(point[1]),
+                              f"outline:{edge}:{fraction:.17g}"))
+    return tuple(handles)
+
+
+def test_outline_anchors_are_the_ones_one_norm_per_handle_placed(screen):
+    from spacr.qt.widgets.gate_spec import (EllipseGate, PolygonGate,
+                                            RectGate)
+
+    canvas = screen.gates.canvas
+    ax = next(iter(canvas.panel_axes().values()))
+    gates = [
+        _many_sided(),
+        PolygonGate(name="doubled", x_column="area", y_column="intensity",
+                    vertices=((0.0, 0.0), (0.0, 0.0), (4.0, 0.0),
+                              (4.0, 4.0), (4.0, 4.0), (0.0, 4.0))),
+        RectGate(name="box", x_column="area", y_column="intensity",
+                 x_low=1.0, x_high=5.0, y_low=-1.0, y_high=2.0),
+        EllipseGate(name="oval", x_column="area", y_column="intensity",
+                    x_centre=6.0, y_centre=6.0, x_radius=2.0, y_radius=1.0),
+    ]
+    for density in (1, 2, 5):
+        canvas._anchor_density = density
+        for gate in gates:
+            assert canvas._handles_for(ax, gate) == \
+                _handles_one_norm_at_a_time(canvas, ax, gate)
+
+
+def test_one_render_filters_the_population_once(screen):
+    canvas = screen.gates.canvas
+    calls = []
+    original = canvas.linked_visible
+
+    def counted(frame):
+        calls.append(len(frame))
+        return original(frame)
+
+    canvas.linked_visible = counted
+    canvas.set_frame(canvas._frame.copy())
+    assert len(calls) == 1
+
+
+def test_the_displayed_count_from_the_worker_is_the_synchronous_one(screen):
+    screen.set_axis_cutoffs("x", 2.0, 9.0)
+    _pump(10, lambda: not screen._count_runner.is_busy())
+    _pump(0.3)
+    shown = screen._point_count.text()
+    worker_rows = screen._displayed_population()
+    screen._displayed_cache = None
+    pd.testing.assert_frame_equal(screen._displayed_population(), worker_rows)
+    assert f"Displayed {len(worker_rows):,} of " in shown
+    assert 0 < len(worker_rows) < len(screen.gates.canvas.population())
+
+
+def test_toggling_the_projection_with_a_many_sided_gate_keeps_the_gui_turning(
+        qapp, monkeypatch):
+    monkeypatch.setattr(QMessageBox, "information",
+                        staticmethod(lambda *a, **k: 0))
+    win = GateEditorScreen()
+    win.resize(1200, 800)
+    win.show()
+    win.set_frame(_wide(), label="test")
+    _pump(1.0)
+    win._y.setCurrentText("intensity")
+    _pump(0.6)
+    from spacr.qt.widgets.gate_spec import GateSet
+
+    win.gates.set_gates(GateSet().add(_many_sided()))
+    assert win.gates.canvas._handles_for(
+        next(iter(win.gates.canvas.panel_axes().values())), _many_sided())
+    _pump(0.5)
+    gap = _gap_while(
+        lambda: win._on_projection_toggled(True),
+        lambda: win._frame is not None and "PC1" in win._frame.columns)
+    _pump(1.0)
+    assert gap < STALL_BUDGET_S
+    win.close()

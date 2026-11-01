@@ -514,6 +514,43 @@ def _screen_points(ax, points) -> Optional[np.ndarray]:
         return None
 
 
+def _distinct_from(candidates, existing, tolerance: float = 1e-10,
+                   block: int = 128) -> np.ndarray:
+    """Which candidate points are new, taken in order.
+
+    A candidate is kept when it lies farther than ``tolerance`` from every
+    existing point and from every earlier candidate that was kept: the
+    outline anchors a gate adds after its own corners. Distances are taken
+    for a block of candidates at once, so a many-sided polygon costs a few
+    array operations instead of one norm per pair of points.
+
+    :param candidates: ``(n, 2)`` points, in the order they are added.
+    :param existing: ``(k, 2)`` points already present.
+    :param tolerance: largest distance at which two points are the same.
+    :param block: candidates measured per array operation.
+    :returns: a boolean array, True for each candidate to add.
+    """
+    candidates = np.asarray(candidates, dtype=float).reshape(-1, 2)
+    existing = np.asarray(existing, dtype=float).reshape(-1, 2)
+    count = len(candidates)
+    keep = np.zeros(count, dtype=bool)
+    for start in range(0, count, block):
+        stop = min(start + block, count)
+        rows = candidates[start:stop]
+        fresh = np.ones(stop - start, dtype=bool)
+        if len(existing):
+            delta = rows[:, None, :] - existing[None, :, :]
+            fresh = ~(np.sqrt((delta ** 2).sum(axis=2)) <= tolerance).any(axis=1)
+        delta = rows[:, None, :] - candidates[None, :stop, :]
+        near = np.sqrt((delta ** 2).sum(axis=2)) <= tolerance
+        near &= np.arange(stop)[None, :] < np.arange(start, stop)[:, None]
+        crowded = near.any(axis=1)
+        keep[start:stop] = fresh & ~crowded
+        for offset in np.flatnonzero(fresh & crowded):
+            keep[start + offset] = not keep[:stop][near[offset]].any()
+    return keep
+
+
 class GateCanvas(GraphCanvas):
     """A :class:`GraphCanvas` you can draw gates on.
 
@@ -764,15 +801,34 @@ class GateCanvas(GraphCanvas):
         """
         if self._frame is None:
             return None
+        drawing = getattr(self, "_population_in_render", None)
+        if drawing is not None and drawing is self._frame:
+            return drawing
         clauses = getattr(self.link.filter, "clauses", None)
         key = (id(self._frame), len(self._frame),
                tuple(repr(clause) for clause in clauses or ()))
         cached = getattr(self, "_population_cache", None)
         if cached is not None and cached[0] == key and cached[1] is self._frame:
             return cached[2]
-        base, _note = self._apply_filter(self._frame)
-        self._population_cache = (key, self._frame, base)
+        base, note = self._apply_filter(self._frame)
+        self._population_cache = (key, self._frame, base, note)
         return base
+
+    def _apply_filter(self, frame: pd.DataFrame) -> Tuple[pd.DataFrame, str]:
+        """``frame`` narrowed by the shared filter, plus a note if it could not be.
+
+        The population being drawn was narrowed by :meth:`population` just
+        before the draw, so it is returned with that note instead of being
+        filtered a second time.
+
+        :param frame: the table to narrow.
+        """
+        drawing = getattr(self, "_population_in_render", None)
+        if drawing is not None and frame is drawing:
+            cached = getattr(self, "_population_cache", None)
+            note = cached[3] if cached is not None and cached[2] is frame else ""
+            return frame, note
+        return super()._apply_filter(frame)
 
     def apply_settings(self, settings) -> None:
         """Apply drawing settings and redraw the canvas once.
@@ -1458,9 +1514,11 @@ class GateCanvas(GraphCanvas):
         if self._mode in ("3D", "xD") and self._render_volume():
             return
         frame, self._frame = self._frame, self.population()
+        self._population_in_render = self._frame
         try:
             super().render_now()
         finally:
+            self._population_in_render = None
             self._frame = frame
         self._draw_gates()
 
@@ -1643,13 +1701,16 @@ class GateCanvas(GraphCanvas):
                 positions = [i * len(points) / (8 * self._anchor_density) for i in range(8 * self._anchor_density)]
             else:
                 positions = [edge + i / (2 * self._anchor_density) for edge in range(len(points)) for i in range(2 * self._anchor_density)]
-            for position in positions:
-                edge = int(position)
-                fraction = position - edge
-                point = np.asarray(points[edge]) + fraction * (np.asarray(points[(edge + 1) % len(points)]) - points[edge])
-                if any(np.linalg.norm(point - (handle.x, handle.y)) <= 1e-10 for handle in handles):
-                    continue
-                handles.append(Handle(float(point[0]), float(point[1]), f"outline:{edge}:{fraction:.17g}"))
+            positions = np.asarray(positions, dtype=float)
+            edges = positions.astype(int)
+            fractions = positions - edges
+            corners = np.asarray(points, dtype=float)
+            start = corners[edges]
+            candidates = start + fractions[:, None] * (corners[(edges + 1) % len(points)] - start)
+            existing = np.array([(handle.x, handle.y) for handle in handles], dtype=float).reshape(-1, 2)
+            for index in np.flatnonzero(_distinct_from(candidates, existing)):
+                handles.append(Handle(float(candidates[index, 0]), float(candidates[index, 1]),
+                                      f"outline:{int(edges[index])}:{float(fractions[index]):.17g}"))
             return tuple(handles)
         except Exception:
             LOG.debug("no handles for %s", gate.name, exc_info=True)
