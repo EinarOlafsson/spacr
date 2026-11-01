@@ -7998,13 +7998,13 @@ class AnnotateScreen(QWidget):
             "Download an example plate to annotate, and fill in the settings "
             "that go with it."))
         self._btn_test_data.triggered.connect(self._choose_the_test_data)
-        self._btn_generate = menu.addAction("Generate annotation database…")
+        self._btn_generate = menu.addAction(tr("Generate annotation database…"))
         self._btn_generate.setObjectName("AnnotateGenerateDatabase")
-        self._btn_generate.setToolTip(
+        self._btn_generate.setToolTip(tr(
             "Build a set of crops to annotate by streaming them from the "
             "merged arrays or from the coordinates in measurements.db, "
             "without measuring the plate again. The result is registered as "
-            "a new png_list table.")
+            "a new png_list table."))
         self._btn_generate.triggered.connect(self._on_generate_annotation_db)
         button.setMenu(menu)
         self._setup_menu = menu

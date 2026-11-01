@@ -123,7 +123,7 @@ def test_the_button_exists_on_the_screen():
     source = Path(
         __import__("spacr.qt.screens.annotate", fromlist=["x"]).__file__
     ).read_text(encoding="utf-8")
-    assert 'menu.addAction("Generate annotation database…")' in source
+    assert 'menu.addAction(tr("Generate annotation database…"))' in source
     assert "self._btn_generate.triggered.connect(" in source
 
 
