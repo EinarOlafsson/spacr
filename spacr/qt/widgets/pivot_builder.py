@@ -683,7 +683,13 @@ class PivotPanel(QWidget):
             self.table.set_result(None)
             self.notice.setText("Load a table, then drop a column onto Rows.")
             return None
-        spec = self.spec()
+        try:
+            spec = self.spec()
+        except PivotError as exc:
+            self._result = None
+            self.table.set_result(None)
+            self.notice.setText(str(exc))
+            return None
         if spec.is_empty:
             self._result = None
             self.table.set_result(None)
