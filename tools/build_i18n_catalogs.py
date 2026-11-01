@@ -4307,7 +4307,7 @@ def _workflow_ui_sources() -> set[str]:
     while pending:
         node = pending.pop()
         for key, value in node.items():
-            if key in {"label", "explanation", "guidance"} and isinstance(value, str):
+            if key in {"label", "explanation", "guidance", "assumption"} and isinstance(value, str):
                 found.add(value)
             elif isinstance(value, dict):
                 pending.append(value)

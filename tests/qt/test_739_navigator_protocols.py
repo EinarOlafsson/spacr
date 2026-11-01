@@ -477,8 +477,8 @@ def test_downstream_recipe_clears_cached_raw_source_and_fits_visible_sidebar(
     _choose(qtbot, page._protocol_detail_combos['image_format'], 'png')
     from spacr.qt.i18n import tr
 
-    explanation = tr('Inspect a representative file and verify reader availability and axes before conversion.')
-    assert page.field.details.toPlainText().count(explanation) == 1
+    assumption = tr('Images are PNG files.')
+    assert page.field.details.toPlainText().count(assumption) == 1
     _choose(qtbot, page._protocol_select, 'tiff_yokogawa')
     _details(qtbot, page)
     qtbot.mouseClick(page._protocol_next_button, Qt.LeftButton)

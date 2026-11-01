@@ -7243,10 +7243,12 @@
       "small_images": {
         "label": "Some images, low content (~10–50)",
         "explanation": "Image counts are descriptive, not a validity threshold. Collections with fewer than ten images are supported; inspect representative fields.",
+        "assumption": "Images come from a low-content experiment of about 10–50 images.",
         "formats": {
           "tiff_yokogawa": {
             "label": "TIFF with Yokogawa metadata",
             "explanation": "Use the CellVoyager filename convention; verify plate, well, field and channel identities before analysis.",
+            "assumption": "Images are TIFF files that use the Yokogawa CellVoyager metadata structure.",
             "starts": [
               "mask",
               "make_masks",
@@ -7256,6 +7258,7 @@
           "tiff_other": {
             "label": "TIFF with other metadata",
             "explanation": "Choose the actual filename convention or a custom named-group expression. Test it on representative files.",
+            "assumption": "Images are TIFF files.",
             "starts": [
               "foreign",
               "mask",
@@ -7267,6 +7270,7 @@
           "other_yokogawa": {
             "label": "Other images with Yokogawa metadata",
             "explanation": "Choose a supported image container. Import or convert it before a tool that requires organized TIFFs.",
+            "assumption": "Images use the Yokogawa CellVoyager metadata structure in another image format.",
             "starts": [
               "foreign",
               "make_masks",
@@ -7276,6 +7280,7 @@
           "other_metadata": {
             "label": "Other images with other metadata",
             "explanation": "Select the actual image container and filename convention. Optional vendor readers must be installed; inspect their axes before conversion.",
+            "assumption": "Images use another image format and filename metadata structure.",
             "starts": [
               "foreign",
               "make_masks",
@@ -7285,6 +7290,7 @@
           "pdf": {
             "label": "Images on a PDF",
             "explanation": "Use Plaque Assay for scanned monolayers. Inspect page extraction, scale, well boundaries and plaque masks; a PDF is not a general microscopy input.",
+            "assumption": "Images are scanned plaque-assay monolayers on PDF pages.",
             "starts": [
               "analyze_plaques"
             ]
@@ -7294,10 +7300,12 @@
       "plate_images": {
         "label": "Many images, high content (>50)",
         "explanation": "Preserve plate, well, field, channel, time and Z identities. The image count does not select a scientific model.",
+        "assumption": "Images are from a mid- or high-content microscope with more than 50 images.",
         "formats": {
           "tiff_yokogawa": {
             "label": "TIFF with Yokogawa metadata",
             "explanation": "Use the CellVoyager filename convention; verify plate, well, field and channel identities before analysis.",
+            "assumption": "Images are TIFF files that use the Yokogawa CellVoyager metadata structure.",
             "starts": [
               "mask",
               "make_masks",
@@ -7307,6 +7315,7 @@
           "tiff_other": {
             "label": "TIFF with other metadata",
             "explanation": "Choose the actual filename convention or a custom named-group expression. Test it on representative files.",
+            "assumption": "Images are TIFF files.",
             "starts": [
               "foreign",
               "mask",
@@ -7318,6 +7327,7 @@
           "other_yokogawa": {
             "label": "Other images with Yokogawa metadata",
             "explanation": "Choose a supported image container. Import or convert it before a tool that requires organized TIFFs.",
+            "assumption": "Images use the Yokogawa CellVoyager metadata structure in another image format.",
             "starts": [
               "foreign",
               "make_masks",
@@ -7327,6 +7337,7 @@
           "other_metadata": {
             "label": "Other images with other metadata",
             "explanation": "Select the actual image container and filename convention. Optional vendor readers must be installed; inspect their axes before conversion.",
+            "assumption": "Images use another image format and filename metadata structure.",
             "starts": [
               "foreign",
               "make_masks",
@@ -7336,6 +7347,7 @@
           "pdf": {
             "label": "Images on a PDF",
             "explanation": "Use Plaque Assay for scanned monolayers. Inspect page extraction, scale, well boundaries and plaque masks; a PDF is not a general microscopy input.",
+            "assumption": "Images are scanned plaque-assay monolayers on PDF pages.",
             "starts": [
               "analyze_plaques"
             ]
@@ -7345,10 +7357,12 @@
       "sequencing": {
         "label": "Sequencing data",
         "explanation": "Choose the read format, the sequencer and the pairing. Map Barcodes reads gzip-compressed or plain FASTQ with recognized mate filenames and matching barcode references, and checks the read headers against the chosen sequencer.",
+        "assumption": "The data are sequencing reads that carry screen barcodes.",
         "formats": {
           "fastq_gz": {
             "label": "FASTQ (.fastq.gz, .fq.gz, .fastq or .fq)",
             "explanation": "The folder reader groups <sample>_R1… / _R2… and <run>_1 / _2 names, gzip-compressed or plain; index reads (_I1/_I2) are left out. Verify mates and barcode references; the sequencer is checked against the read headers but sets no decoding parameters.",
+            "assumption": "Reads are FASTQ files, gzip-compressed or plain, with recognized mate names.",
             "starts": [
               "map_barcodes"
             ]
@@ -7356,6 +7370,7 @@
           "other": {
             "label": "Other read format (BAM, CRAM, SRA, BCL, FASTA, other compression)",
             "explanation": "Map Barcodes reads FASTQ only. Convert first: samtools fastq for BAM/CRAM, fasterq-dump --split-files for SRA archives, BCL Convert or bcl2fastq for base calls, and gzip for bzip2/zstd/xz or ORA-compressed FASTQ. FASTA lacks the base qualities the paired consensus needs.",
+            "assumption": "Reads are stored in a format other than FASTQ.",
             "starts": []
           }
         }
@@ -7363,10 +7378,12 @@
       "features": {
         "label": "Feature set",
         "explanation": "Choose the table source and whether matching object images are available. Table-only analyses do not require image crops; image-dependent tools need verified image/object provenance.",
+        "assumption": "Objects are already measured and stored as features in a table.",
         "formats": {
           "database_crops": {
             "label": "spaCR-compatible database with crops",
             "explanation": "Retain the measurement database, object identities and matching saved or streamable object images.",
+            "assumption": "Measurements are in a spaCR-compatible database with matching object images.",
             "starts": [
               "annotate",
               "classify_merged",
@@ -7381,6 +7398,7 @@
           "database": {
             "label": "spaCR-compatible database without crops",
             "explanation": "Use table-based analyses. Image-dependent annotation or classification requires separately verified source images and masks.",
+            "assumption": "Measurements are in a spaCR-compatible database without object images.",
             "starts": [
               "ml_analyze",
               "gate_editor",
@@ -7394,6 +7412,7 @@
           "external_database": {
             "label": "Other database",
             "explanation": "Validate table schemas, keys and numeric columns. Import maps external object and image identities; no image provenance is inferred from a numeric table.",
+            "assumption": "Measurements are in a database from other software.",
             "starts": [
               "foreign",
               "graph_builder",
@@ -7404,6 +7423,7 @@
           "csv": {
             "label": "Other CSV/TSV feature table",
             "explanation": "Inspect delimiter, header, identity and numeric columns. Import image/object provenance separately when required.",
+            "assumption": "Measurements are in a CSV or TSV feature table.",
             "starts": [
               "foreign",
               "graph_builder",
@@ -7416,107 +7436,243 @@
     "image_formats": {
       "tif": {
         "label": "TIFF (.tif)",
-        "explanation": "Inspect a representative file and verify reader availability and axes before conversion."
+        "explanation": "Inspect a representative file and verify reader availability and axes before conversion.",
+        "assumption": "Images are .tif files."
       },
       "tiff": {
         "label": "TIFF (.tiff)",
-        "explanation": "Inspect a representative file and verify reader availability and axes before conversion."
+        "explanation": "Inspect a representative file and verify reader availability and axes before conversion.",
+        "assumption": "Images are .tiff files."
       },
       "png": {
         "label": "PNG",
-        "explanation": "Inspect a representative file and verify reader availability and axes before conversion."
+        "explanation": "Inspect a representative file and verify reader availability and axes before conversion.",
+        "assumption": "Images are PNG files."
       },
       "jpg": {
         "label": "JPEG (.jpg)",
-        "explanation": "Inspect a representative file and verify reader availability and axes before conversion."
+        "explanation": "Inspect a representative file and verify reader availability and axes before conversion.",
+        "assumption": "Images are .jpg files."
       },
       "jpeg": {
         "label": "JPEG (.jpeg)",
-        "explanation": "Inspect a representative file and verify reader availability and axes before conversion."
+        "explanation": "Inspect a representative file and verify reader availability and axes before conversion.",
+        "assumption": "Images are .jpeg files."
       },
       "bmp": {
         "label": "BMP",
-        "explanation": "Inspect a representative file and verify reader availability and axes before conversion."
+        "explanation": "Inspect a representative file and verify reader availability and axes before conversion.",
+        "assumption": "Images are BMP files."
       },
       "nd2": {
         "label": "Nikon ND2 (optional reader)",
-        "explanation": "Inspect a representative file and verify reader availability and axes before conversion."
+        "explanation": "Inspect a representative file and verify reader availability and axes before conversion.",
+        "assumption": "Images are Nikon ND2 files, and the optional ND2 reader is installed."
       },
       "czi": {
         "label": "Zeiss CZI (optional reader)",
-        "explanation": "Inspect a representative file and verify reader availability and axes before conversion."
+        "explanation": "Inspect a representative file and verify reader availability and axes before conversion.",
+        "assumption": "Images are Zeiss CZI files, and the optional CZI reader is installed."
       },
       "lif": {
         "label": "Leica LIF (optional reader)",
-        "explanation": "Inspect a representative file and verify reader availability and axes before conversion."
+        "explanation": "Inspect a representative file and verify reader availability and axes before conversion.",
+        "assumption": "Images are Leica LIF files, and the optional LIF reader is installed."
       }
     },
     "experiments": {
       "screen": {
         "label": "spaCR / pooled screen",
-        "explanation": "Regression requires compatible phenotype responses and mapped guide counts with matching plate and well identities."
+        "explanation": "Regression requires compatible phenotype responses and mapped guide counts with matching plate and well identities.",
+        "assumption": "The experiment is a pooled spaCR screen with guide barcodes."
       },
       "drug": {
         "label": "Drug screen",
-        "explanation": "Dose–Response fits a curve per compound; Regression in drug-screen mode compares each drug-at-concentration level with the vehicle wells, without pooling doses. Both need each well's drug and concentration, the concentration unit and the vehicle; neither needs guide or barcode columns or image crops."
+        "explanation": "Dose–Response fits a curve per compound; Regression in drug-screen mode compares each drug-at-concentration level with the vehicle wells, without pooling doses. Both need each well's drug and concentration, the concentration unit and the vehicle; neither needs guide or barcode columns or image crops.",
+        "assumption": "The experiment is a drug screen with one drug and concentration per well and vehicle control wells."
       },
       "other": {
         "label": "Other experiment / organism",
-        "explanation": "Select the organism and use only its registered existing analysis routes. A proposed assay without an implementation is not an available module."
+        "explanation": "Select the organism and use only its registered existing analysis routes. A proposed assay without an implementation is not an available module.",
+        "assumption": "The experiment is neither a pooled screen nor a drug screen."
       }
     },
     "read_modes": {
       "paired": {
         "label": "Paired-end reads",
-        "explanation": "Both recognized mates must be present; paired barcode extraction uses their consensus."
+        "explanation": "Both recognized mates must be present; paired barcode extraction uses their consensus.",
+        "assumption": "Reads are paired-end, with both mates present for every sample."
       },
       "single": {
         "label": "Single-end reads",
-        "explanation": "Choose the mate orientation used by the barcode pattern and references."
+        "explanation": "Choose the mate orientation used by the barcode pattern and references.",
+        "assumption": "Reads are single-end."
       },
       "mixed": {
         "label": "Paired and unpaired reads together",
-        "explanation": "Samples with both mates are decoded as pairs; samples with one mate are read from the chosen orientation, and samples holding only the other mate are skipped with a warning."
+        "explanation": "Samples with both mates are decoded as pairs; samples with one mate are read from the chosen orientation, and samples holding only the other mate are skipped with a warning.",
+        "assumption": "Some samples have both mates and others have one mate."
       }
     },
     "sequencers": {
       "illumina": {
         "label": "Illumina (MiSeq, NextSeq, NovaSeq, iSeq)",
-        "explanation": "Paired or single reads with Illumina headers. The machine name does not establish a barcode layout; verify read orientations and reference sequences."
+        "explanation": "Paired or single reads with Illumina headers. The machine name does not establish a barcode layout; verify read orientations and reference sequences.",
+        "assumption": "Reads come from an Illumina sequencer."
       },
       "element": {
         "label": "Element Biosciences AVITI",
-        "explanation": "Paired or single reads. AVITI FASTQ headers follow the Illumina layout, so headers cannot tell the two apart."
+        "explanation": "Paired or single reads. AVITI FASTQ headers follow the Illumina layout, so headers cannot tell the two apart.",
+        "assumption": "Reads come from an Element Biosciences AVITI sequencer."
       },
       "mgi": {
         "label": "MGI / Complete Genomics DNBSEQ",
-        "explanation": "Paired or single reads with DNBSEQ headers (flow cell, lane, column and row in the read name)."
+        "explanation": "Paired or single reads with DNBSEQ headers (flow cell, lane, column and row in the read name).",
+        "assumption": "Reads come from an MGI / Complete Genomics DNBSEQ sequencer."
       },
       "ultima": {
         "label": "Ultima Genomics UG 100",
-        "explanation": "Single reads only; choose single-end pairing and the mate orientation of the barcode pattern."
+        "explanation": "Single reads only; choose single-end pairing and the mate orientation of the barcode pattern.",
+        "assumption": "Reads come from an Ultima Genomics UG 100 sequencer."
       },
       "ont": {
         "label": "Oxford Nanopore",
-        "explanation": "Single long reads only; choose single-end pairing. The anchor match is exact, so high read error rates lower the number of decoded reads."
+        "explanation": "Single long reads only; choose single-end pairing. The anchor match is exact, so high read error rates lower the number of decoded reads.",
+        "assumption": "Reads come from an Oxford Nanopore sequencer."
       },
       "pacbio": {
         "label": "PacBio (HiFi / CCS)",
-        "explanation": "Single reads only; choose single-end pairing."
+        "explanation": "Single reads only; choose single-end pairing.",
+        "assumption": "Reads come from a PacBio HiFi / CCS sequencer."
       },
       "other": {
         "label": "Other / unknown sequencer",
-        "explanation": "Map Barcodes reads the platform from the FASTQ headers only where they identify one, and otherwise records it as unknown."
+        "explanation": "Map Barcodes reads the platform from the FASTQ headers only where they identify one, and otherwise records it as unknown.",
+        "assumption": "The sequencer is unknown or not listed."
       }
     },
     "barcodes": {
       "mapped": {
         "label": "Barcodes already mapped",
-        "explanation": "Supply compatible guide-count and phenotype tables with matched experimental identities."
+        "explanation": "Supply compatible guide-count and phenotype tables with matched experimental identities.",
+        "assumption": "Barcode reads are already mapped to guide counts."
       },
       "unmapped": {
         "label": "Barcodes not mapped",
-        "explanation": "Map the sequencing reads first; a feature table alone cannot produce barcode counts."
+        "explanation": "Map the sequencing reads first; a feature table alone cannot produce barcode counts.",
+        "assumption": "Barcode reads are not yet mapped to guide counts."
+      }
+    },
+    "detail_assumptions": {
+      "metadata_type": {
+        "cellvoyager": {
+          "assumption": "Images use the Yokogawa CellVoyager (CV7000 / CV8000) metadata structure."
+        },
+        "cq1": {
+          "assumption": "Images use the Yokogawa CQ1 metadata structure."
+        },
+        "opera_phenix": {
+          "assumption": "Images use the Opera Phenix / Operetta CLS Harmony export structure."
+        },
+        "imagexpress": {
+          "assumption": "Images use the ImageXpress / MetaXpress metadata structure."
+        },
+        "arrayscan": {
+          "assumption": "Images use the ArrayScan / CellInsight fixed-endpoint metadata structure."
+        },
+        "arrayscan_kinetic": {
+          "assumption": "Images use the ArrayScan / CellInsight kinetic metadata structure."
+        },
+        "evos": {
+          "assumption": "Images use the EVOS plate-scan metadata structure."
+        },
+        "incell": {
+          "assumption": "Images use the IN Cell Analyzer metadata structure."
+        },
+        "incell_full_form": {
+          "assumption": "Images use the IN Cell Analyzer 7.2 Full Form metadata structure."
+        },
+        "scanr_indexed": {
+          "assumption": "Images use the indexed ScanR metadata structure with an explicit well map."
+        },
+        "scanr": {
+          "assumption": "Images use the ScanR metadata structure."
+        },
+        "zeiss_zen_split_tiles": {
+          "assumption": "Images use the Zeiss ZEN split-tile or scene metadata structure."
+        },
+        "nikon_nis_xy": {
+          "assumption": "Images use the Nikon NIS-Elements TIFF sequence metadata structure."
+        },
+        "nikon_jobs": {
+          "assumption": "Images use the Nikon NIS-Elements JOBS / HCA metadata structure."
+        },
+        "leica_matrix_screener": {
+          "assumption": "Images use the Leica LAS AF / LAS X Matrix Screener metadata structure."
+        },
+        "leica_lasx_series": {
+          "assumption": "Images use the Leica LAS X series export structure."
+        },
+        "leica_lasx_series_time": {
+          "assumption": "Images use the Leica LAS X time-lapse series export structure."
+        },
+        "cytation": {
+          "assumption": "Images use the Agilent BioTek Cytation / Gen5 metadata structure."
+        },
+        "micromanager_mda": {
+          "assumption": "Images use the Micro-Manager 2.0 MDA structure with one file per image."
+        },
+        "auto": {
+          "assumption": "Image names can be renamed to the Yokogawa structure before their metadata is read."
+        },
+        "custom": {
+          "assumption": "Image names follow a custom regular expression with named groups."
+        }
+      },
+      "single_direction": {
+        "R1": {
+          "assumption": "The barcode pattern and references match the R1 mate."
+        },
+        "R2": {
+          "assumption": "The barcode pattern and references match the R2 mate."
+        }
+      },
+      "organism": {
+        "other": {
+          "assumption": "The experiment is not specific to one organism."
+        },
+        "toxoplasma": {
+          "assumption": "The experiment studies Toxoplasma gondii."
+        },
+        "plasmodium": {
+          "assumption": "The experiment studies Plasmodium parasites."
+        },
+        "candida": {
+          "assumption": "The experiment studies Candida yeasts."
+        },
+        "trypanosoma": {
+          "assumption": "The experiment studies Trypanosoma parasites."
+        },
+        "leishmania": {
+          "assumption": "The experiment studies Leishmania parasites."
+        },
+        "giardia": {
+          "assumption": "The experiment studies Giardia duodenalis."
+        },
+        "virus": {
+          "assumption": "Cells are infected with a virus."
+        },
+        "mammalian": {
+          "assumption": "The experiment studies cultured mammalian cells without a pathogen."
+        }
+      },
+      "goal": {
+        "recommended": {
+          "assumption": "No single starting module is assumed."
+        },
+        "module": {
+          "assumption": "The analysis starts in {module}."
+        }
       }
     },
     "requirements": {

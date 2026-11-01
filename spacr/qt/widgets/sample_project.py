@@ -436,10 +436,12 @@ def _protocol_options(family='', format='', choices=None, *, data=None):
 
     data = workflow_map() if data is None else data
     wizard = data['protocol_wizard']
+    stated = wizard.get('detail_assumptions', {})
     choices = dict(choices or {})
     records = wizard['families'] if not family else wizard['families'][family]['formats']
     if not format:
-        return tuple(dict(key=key, label=tr(row['label']), explanation=tr(row['explanation']))
+        return tuple(dict(key=key, label=tr(row['label']), explanation=tr(row['explanation']),
+                          assumption=tr(row['assumption']))
                      for key, row in records.items())
     if format not in records:
         raise ValueError(tr('Choose a supported data format.'))
@@ -448,10 +450,13 @@ def _protocol_options(family='', format='', choices=None, *, data=None):
         if format.startswith('other_'):
             fields.append(dict(name='image_format', label=tr('Image format'), required=True,
                                options=tuple(dict(key=key, label=tr(row['label']),
-                                                  explanation=tr(row['explanation']))
+                                                  explanation=tr(row['explanation']),
+                                                  assumption=tr(row['assumption']))
                                              for key, row in wizard['image_formats'].items())))
         if format.endswith(('other', 'metadata')):
-            options = tuple(dict(key=key, label=tr(label), explanation=tr(status))
+            sentences = stated.get('metadata_type', {})
+            options = tuple(dict(key=key, label=tr(label), explanation=tr(status),
+                                 assumption=tr(sentences[key]['assumption']) if key in sentences else '')
                             for vendor, rows in _metadata_convention_menu()
                             for key, label, status in rows)
             fields.append(dict(name='metadata_type', label=tr('Filename metadata'),
@@ -461,43 +466,78 @@ def _protocol_options(family='', format='', choices=None, *, data=None):
                                     ('read_mode', tr('Read pairing'), 'read_modes')):
             fields.append(dict(name=name, label=label, required=True,
                                options=tuple(dict(key=k, label=tr(v['label']),
-                                                  explanation=tr(v['explanation']))
+                                                  explanation=tr(v['explanation']),
+                                                  assumption=tr(v['assumption']))
                                              for k, v in wizard[source].items())))
         if choices.get('read_mode') in ('single', 'mixed'):
+            sentences = stated.get('single_direction', {})
             fields.append(dict(name='single_direction', label=tr('Read orientation'), required=True,
                                options=tuple(dict(key=mate, label=mate,
-                                                  explanation=tr('Match the barcode pattern and reference to this mate orientation.'))
+                                                  explanation=tr('Match the barcode pattern and reference to this mate orientation.'),
+                                                  assumption=tr(sentences[mate]['assumption']) if mate in sentences else '')
                                              for mate in ('R1', 'R2'))))
     elif family == 'features' and format in ('database', 'database_crops'):
         fields.append(dict(name='experiment', label=tr('Experiment'), required=True,
                            options=tuple(dict(key=k, label=tr(v['label']),
-                                              explanation=tr(v['explanation']))
+                                              explanation=tr(v['explanation']),
+                                              assumption=tr(v['assumption']))
                                          for k, v in wizard['experiments'].items())))
         if choices.get('experiment') == 'screen':
             fields.append(dict(name='barcodes', label=tr('Barcode mapping'), required=True,
                                options=tuple(dict(key=k, label=tr(v['label']),
-                                                  explanation=tr(v['explanation']))
+                                                  explanation=tr(v['explanation']),
+                                                  assumption=tr(v['assumption']))
                                              for k, v in wizard['barcodes'].items())))
         if choices.get('experiment') == 'other':
             from ..ai.prompts import _navigation_modules
 
             available = {row[0] for row in _navigation_modules()}
+            sentences = stated.get('organism', {})
+            rows = [('other', tr('Not organism-specific'),
+                     tr('Use general table tools without assigning an organism or inventing assay metadata.'))]
+            rows.extend((k, tr(v['name']), tr(v['description']))
+                        for k, v in ORGANISMS.items() if k in available)
             fields.append(dict(name='organism', label=tr('Organism'), required=True,
-                               options=(dict(key='other', label=tr('Not organism-specific'),
-                                             explanation=tr('Use general table tools without assigning an organism or inventing assay metadata.')),)
-                               + tuple(dict(key=k, label=tr(v['name']),
-                                            explanation=tr(v['description']))
-                                       for k, v in ORGANISMS.items() if k in available)))
+                               options=tuple(dict(key=k, label=label, explanation=text,
+                                                  assumption=tr(sentences[k]['assumption']) if k in sentences else '')
+                                             for k, label, text in rows)))
     if family in ('small_images', 'plate_images') and format != 'pdf':
         catalog = _protocol_catalog(data)
         candidates = [(key, row) for key, row in catalog.items()
                       if row['available'] and set(row['inputs']).intersection(('raw_images', 'cellpose_tiffs'))]
+        sentences = stated.get('goal', {})
+        route = sentences.get('module', {}).get('assumption', '')
         fields.append(dict(name='goal', label=tr('Analysis route (optional)'), required=False,
                            options=(dict(key='recommended', label=tr('Recommended starting modules'),
-                                         explanation=tr('Choose a starting module after checking its prerequisites.')),)
-                           + tuple(dict(key=key, label=tr(row['name']), explanation=tr(row['guidance']))
+                                         explanation=tr('Choose a starting module after checking its prerequisites.'),
+                                         assumption=tr(sentences.get('recommended', {}).get('assumption', ''))),)
+                           + tuple(dict(key=key, label=tr(row['name']), explanation=tr(row['guidance']),
+                                        assumption=tr(route, module=tr(row['name'])) if route else '')
                                    for key, row in candidates)))
     return tuple(fields)
+
+
+def _protocol_assumptions(family='', format='', choices=None, *, data=None):
+    """State what each made protocol choice assumes about the experiment, in choice order.
+
+    :param family: chosen input family key, or empty before the first choice.
+    :param format: chosen data format key, or empty before the second choice.
+    :param choices: retained dependent selections; unchosen or invalid values add nothing.
+    :param data: optional bundled workflow map for an isolated caller.
+    :returns: a tuple of translated declarative sentences without repeats.
+    """
+    data = workflow_map() if data is None else data
+    stated = []
+    if family:
+        stated.extend(row['assumption'] for row in _protocol_options(data=data) if row['key'] == family)
+    if family and format:
+        stated.extend(row['assumption'] for row in _protocol_options(family, data=data)
+                      if row['key'] == format)
+        choices = dict(choices or {})
+        for field in _protocol_options(family, format, choices, data=data):
+            stated.extend(row['assumption'] for row in field['options']
+                          if row['key'] == choices.get(field['name']))
+    return tuple(dict.fromkeys(sentence for sentence in stated if sentence))
 
 
 def _protocol_catalog(data=None):
@@ -723,6 +763,7 @@ def _protocol_result(family, format, choices=None, source_path='', context=None,
     result = dict(actions=tuple((k, tr(catalog[k]['name']), tr(catalog[k]['guidance']), action_sources[k])
                                 for k in starts), action_sources=action_sources, action_settings=overrides,
                   settings_overrides=deepcopy(overrides), message=tr(record['explanation']),
+                  assumptions=_protocol_assumptions(family, format, choices, data=data),
                   protocol=protocol, path=source_path, source_path=source_path, context=carried,
                   requirements=tuple(requirements))
     protocol['markdown'] = _protocol_markdown(result)

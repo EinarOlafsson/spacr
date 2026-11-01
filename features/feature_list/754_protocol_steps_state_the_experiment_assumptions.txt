@@ -1,0 +1,42 @@
+PROTOCOL STEPS STATE THE EXPERIMENT ASSUMPTIONS
+===============================================
+Lifecycle: new
+Status: OPEN 2026-11-01 — requested by the maintainer.
+Requested: maintainer, 2026-11-01.
+Owner: Home (coordinator assigns an agent).
+Related: 739 Navigator Protocols, 733 Navigator, 746 (no text is cut off), N678 factual language.
+
+WHAT THE USER REQUESTED
+"for the text in the steps in the protocol, or getting to the protocol in the text box at the bottom of
+the screen. it should just state the assumptions about the experiment as the user clicks their way to a
+protocol. like: 'Images use the Yokogawa CellVoyager metadata structure' or 'Images are from a mid or high
+content microscope.' etc"
+
+WHAT TO DO
+- While the user picks choices toward a Navigator protocol (input family, data format and every dependent
+  choice: image format, filename metadata, sequencer, read pairing, read orientation, experiment, barcode
+  mapping, organism, analysis route), the description box at the bottom states what each choice assumes
+  about the experiment: one short declarative sentence per choice, for example "Images use the Yokogawa
+  CellVoyager metadata structure." or "Images are from a mid- or high-content microscope."
+- No instructions, no "you", no questions, no marketing. The existing labels stay.
+- The sentences live beside the choices in spacr/resources/module_workflows.json (protocol_wizard) and are
+  derived from what the choice means in code; no sentence claims something the protocol does not assume.
+- Each step shows the assumptions of the choices made on that step. When the protocol is reached, the box
+  lists all accumulated assumptions, one per line, in choice order, followed by any requirement that keeps
+  a route from starting. Back navigation and changed choices update the list.
+- Navigator search keeps working while a protocol is active (739 requirement).
+
+ACCEPTANCE
+- Every protocol choice has an assumption sentence; tests check that the sentences are declarative, that the
+  box shows the current step's assumptions and the full ordered list at the end, and that the list follows
+  Back navigation.
+- No text is cut off (tests.qt.text_fit 2.0 en and de; known-offender list stays empty). Screenshots in both
+  themes at 100 % and 200 %, offscreen and native Xvfb/Openbox.
+- New strings closed through the normal translation generators in nine languages.
+
+NOTES
+2026-11-01 Item recorded from the maintainer's request.
+2026-11-01 Implemented on branch assumptions-754 (not on nightly yet): 73 assumption sentences in protocol_wizard (families, formats, image formats, sequencers, read pairing, experiments, barcodes, plus detail_assumptions for filename metadata, read orientation, organism and route); the Navigator box lists the choices made through the current step and the full ordered list at the end, then any blocking requirement. build_module_workflows --check validates them; the i18n extractor reads "assumption".
+2026-11-01 Tests: test_754_protocol_assumptions (5) plus 739/protocol/workflow cohort, 106 pass offscreen; text_fit 2.0 en/de stays []. Screenshots light/dark at 100/200 % offscreen and Xvfb/Openbox: /mnt/wd4tb/scratch/claude-assumptions-20261031/shots/. Remaining: nine-locale closure of the 73 strings through the generator owner, then push.
+2026-11-01 Cut-off fix pushed to nightly as eef0fae5ae: protocol choices wrap their full text instead of eliding, field labels move above their choice when they do not fit beside it, and tests.qt.text_fit --protocols measures every protocol family and long choice at 100/200 % in en and de (fails on the old code: 8-26 offenders per configuration, now []).
+2026-11-01 Box growth (e857fea55f) and maintainer decision (f741273aff, amends 739's stationary composer for Protocols only): with Protocols open the description box takes its wrapped text height, and the composer moves up into the empty space above it as far as needed, returning to its centre when Protocols closes; the box scrolls only when no room is left. text_fit --protocol-box checks every choice step and the finished protocol at 1366x768/1920x1080, 100/200 %, en/de.

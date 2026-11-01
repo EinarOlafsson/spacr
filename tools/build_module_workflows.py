@@ -163,10 +163,11 @@ def _validate_protocol_wizard(data):
             raise ValueError(f'{key}: invalid registered navigation contract')
     allowed = set(data['modules']) | set(contracts)
     for family, record in families.items():
-        if not record.get('label') or not record.get('explanation') or not record.get('formats'):
+        if (not record.get('label') or not record.get('explanation')
+                or not _assumption(record) or not record.get('formats')):
             raise ValueError(f'{family}: incomplete protocol input family')
         for key, format_ in record['formats'].items():
-            if (not format_.get('label') or not format_.get('explanation')
+            if (not format_.get('label') or not format_.get('explanation') or not _assumption(format_)
                     or not isinstance(format_.get('starts'), list)
                     or set(format_['starts']) - allowed):
                 raise ValueError(f'{family}/{key}: invalid protocol starter')
@@ -179,8 +180,31 @@ def _validate_protocol_wizard(data):
             raise ValueError(f'invalid curated protocol defaults: {group}')
     for source in ('image_formats', 'experiments', 'read_modes', 'sequencers', 'barcodes'):
         if not wizard.get(source) or any(not row.get('label') or not row.get('explanation')
+                                          or not _assumption(row)
                                           for row in wizard[source].values()):
             raise ValueError(f'invalid protocol detail choices: {source}')
+    stated = wizard.get('detail_assumptions', {})
+    if (set(stated) != {'metadata_type', 'single_direction', 'organism', 'goal'}
+            or any(not rows or any(set(row) != {'assumption'} or not _assumption(row)
+                                   for row in rows.values()) for rows in stated.values())
+            or set(stated['single_direction']) != {'R1', 'R2'}
+            or set(stated['goal']) != {'recommended', 'module'}
+            or '{module}' not in stated['goal']['module']['assumption']
+            or 'other' not in stated['organism']):
+        raise ValueError('invalid protocol detail assumptions')
+
+
+def _assumption(record):
+    """Accept one declarative sentence that states what a protocol choice assumes.
+
+    :param record: a protocol wizard choice record.
+    :returns: True when its assumption is a single non-question sentence without a direct address.
+    """
+    text = record.get('assumption')
+    if not isinstance(text, str) or not text.strip() or not text.endswith('.') or '?' in text:
+        return False
+    words = re.findall(r"[A-Za-z']+", text.lower())
+    return not {'you', 'your', "you're"}.intersection(words) and text.count('. ') == 0
 
 
 def validate(data, root=ROOT, *, live=True):

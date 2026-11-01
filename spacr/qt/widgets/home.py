@@ -8189,7 +8189,7 @@ class _EasyHomePage(QWidget):
     def _protocol_render(self):
         """Rebuild only native choice widgets and retain still-compatible values."""
         from functools import partial
-        from .sample_project import _protocol_options
+        from .sample_project import _protocol_assumptions, _protocol_options
         from ..i18n import tr
 
         active = getattr(self.field.protocol_controls, '_inline_choice', None)
@@ -8217,7 +8217,6 @@ class _EasyHomePage(QWidget):
             combo.addItem(option['label'], option['key'])
         combo.setCurrentIndex(combo.findData(selected))
         combo.setEnabled(self._protocol_step != 2)
-        explanations = [row['explanation'] for row in options if row['key'] == selected]
         if self._protocol_step == 1 and self._protocol_format:
             fields = self._protocol_fields()
             active_names = {field['name'] for field in fields}
@@ -8241,8 +8240,6 @@ class _EasyHomePage(QWidget):
                 detail.setCurrentIndex(index)
                 if index < 0:
                     self._protocol_choices.pop(field['name'], None)
-                explanations.extend(option['explanation'] for option in field['options']
-                                    if option['key'] == chosen)
                 detail.activated.connect(partial(self._protocol_detail_selected, field['name']))
                 label.setBuddy(detail)
                 holder.set_parts(label, detail)
@@ -8256,7 +8253,10 @@ class _EasyHomePage(QWidget):
         color = active_palette()['accent']
         self._protocol_back_button.setIcon(self.field.details._arrow_icon('back', color))
         self._protocol_next_button.setIcon(self.field.details._arrow_icon('forward', color))
-        self._protocol_explanation = '\n\n'.join(dict.fromkeys(explanations)) or tr('Choose your experiment or input to see a compatible workflow. Nothing starts automatically.')
+        assumptions = _protocol_assumptions(self._protocol_family,
+                                            self._protocol_format if self._protocol_step else '',
+                                            self._protocol_choices)
+        self._protocol_explanation = '\n'.join(assumptions) or tr('Choose your experiment or input to see a compatible workflow. Nothing starts automatically.')
         self._cancel_navigator_ai()
         self._protocol_show()
         controls = self.field.protocol_controls
@@ -8270,7 +8270,7 @@ class _EasyHomePage(QWidget):
             controls._arrival.start()
 
     def _protocol_show(self):
-        """Give the result area back to the protocol: its step explanation or final cards."""
+        """Give the result area back to the protocol: its step assumptions or final cards."""
         self.field.set_cards([])
         if self._protocol_step == 2:
             self._protocol_present()
@@ -8286,7 +8286,7 @@ class _EasyHomePage(QWidget):
         self.field._arrange()
 
     def _protocol_selected(self, index):
-        """Store a genuine family or format selection and explain it below."""
+        """Store a genuine family or format selection and state its assumption below."""
         value = self._protocol_select.itemData(index)
         if not value:
             return
@@ -8354,7 +8354,8 @@ class _EasyHomePage(QWidget):
             result['_navigator_inspection'] = (self._inspected_generation, self._inspected_text)
         self._protocol_result = result
         self.field.set_cards(result['actions'])
-        message = '\n\n'.join(dict.fromkeys((result['message'], *result.get('requirements', ()))))
+        stated = '\n'.join(result['assumptions'])
+        message = '\n\n'.join(dict.fromkeys(filter(None, (stated, *result.get('requirements', ())))))
         self.field.details.setPlainText(message)
         for card in self.field.cards:
             card.activated.connect(self._select_suggestion)
