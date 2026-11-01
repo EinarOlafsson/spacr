@@ -31,7 +31,8 @@ class _WrappedLabel(QLabel):
     QFontMetrics.boundingRect(width, TextWordWrap, ...) to compute the
     correct height and pin the label to that exact size.
     """
-    def __init__(self, text: str, wrap_width: int = 560, parent=None):
+    def __init__(self, text: str, wrap_width: int = 560, parent=None,
+                 *, narrows: bool = False):
         """Build a label whose height is measured, not left to the layout.
 
         :param text: the sentence to wrap.
@@ -41,14 +42,42 @@ class _WrappedLabel(QLabel):
             answer before the layout runs and another after, which is how an
             empty state ends up clipped to a single line.
         :param parent: parent widget.
+        :param narrows: make ``wrap_width`` the widest the label gets
+            rather than its fixed width, so a narrower column wraps it on
+            more lines instead of scrolling sideways; the height is
+            measured at the width the label is given.
         """
         super().__init__(text, parent)
         self._wrap_width = wrap_width
+        self._narrows = narrows
         self.setWordWrap(True)
         self.setAlignment(Qt.AlignCenter)
-        self.setFixedWidth(wrap_width)
+        if narrows:
+            self.setMaximumWidth(wrap_width)
+        else:
+            self.setFixedWidth(wrap_width)
         self._fit_wrapped_height()
         add_listener(self._fit_wrapped_height)
+
+    def sizeHint(self) -> QSize:                   # noqa: N802 (Qt casing)
+        """A narrowing label asks for its widest width, at that width's height."""
+        hint = super().sizeHint()
+        if not getattr(self, "_narrows", False):
+            return hint
+        return QSize(self.maximumWidth(), hint.height())
+
+    def minimumSizeHint(self) -> QSize:            # noqa: N802 (Qt casing)
+        """A narrowing label needs only its longest word."""
+        hint = super().minimumSizeHint()
+        if not getattr(self, "_narrows", False):
+            return hint
+        words = self.text().split() or [""]
+        widest = max(self.fontMetrics().horizontalAdvance(word)
+                     for word in words)
+        margins = self.contentsMargins()
+        return QSize(min(self.maximumWidth(),
+                         widest + margins.left() + margins.right()),
+                     hint.height())
 
     def _fit_wrapped_height(self, _scale=None) -> None:
         """Reconcile physical height after measurement or a finished GUI zoom.
@@ -157,7 +186,7 @@ class EmptyState(QWidget):
             outer.addWidget(title_lbl)
 
         if subtitle:
-            sub_lbl = _WrappedLabel(subtitle, wrap_width=560)
+            sub_lbl = _WrappedLabel(subtitle, wrap_width=560, narrows=True)
             sub_lbl.setObjectName("SubtitleSmall")
             outer.addWidget(sub_lbl, alignment=Qt.AlignHCenter)
 

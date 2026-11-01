@@ -8763,6 +8763,173 @@ class _FolderScanWorker(QObject):
         return max(counts.items(), key=lambda pair: (pair[1], pair[0]))[0]
 
 
+class _ExampleFilenameLabel(QLabel):
+    """A selectable, word-wrapped line that also breaks inside a long filename.
+
+    A microscope's example filename is one word to Qt's line breaker
+    (``AssayPlate_Greiner_#655090_B02_T0001F004L01A01Z01C01.tif``), and a
+    word-wrapped QLabel asks for the width of its longest word, so the
+    settings form scrolled sideways to make room for it. This label asks for
+    a floor of about twenty characters instead and, while it is narrower than
+    that word, lays the same text out wrapping at word boundaries, or inside
+    a word that does not fit. The break points exist only on screen:
+    :meth:`text`, the selection and what Copy puts on the clipboard are the
+    exact filename.
+    """
+
+    _FLOOR_CHARACTERS = 20
+
+    def __init__(self, parent: Optional[QWidget] = None) -> None:
+        """Wrap, keep the text plain and let the mouse select it.
+
+        :param parent: parent widget; ownership only.
+        """
+        super().__init__(parent)
+        self.setTextFormat(Qt.PlainText)
+        self.setWordWrap(True)
+        self.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self._anchor = -1
+
+    def _natural_width(self) -> int:
+        """The width QLabel's own word wrap needs: its longest word."""
+        return super().minimumSizeHint().width()
+
+    def breaks_inside_a_word(self) -> bool:
+        """Whether the label is now too narrow for its longest word."""
+        return bool(self.text()) and self.width() < self._natural_width()
+
+    def _document(self, width: int):
+        """The text laid out at ``width``, breaking inside a word that does not fit.
+
+        :param width: the inner width in pixels.
+        """
+        from PySide6.QtGui import QTextDocument, QTextOption
+
+        document = QTextDocument()
+        document.setDefaultFont(self.font())
+        document.setDocumentMargin(0)
+        option = QTextOption(self.alignment())
+        option.setWrapMode(QTextOption.WrapAtWordBoundaryOrAnywhere)
+        document.setDefaultTextOption(option)
+        document.setPlainText(self.text())
+        document.setTextWidth(max(1, width))
+        return document
+
+    def minimumSizeHint(self) -> QSize:            # noqa: N802 (Qt casing)
+        """Ask for about twenty characters, not the whole filename."""
+        base = super().minimumSizeHint()
+        if not self.text():
+            return base
+        margins = self.contentsMargins()
+        floor = (self.fontMetrics().averageCharWidth() * self._FLOOR_CHARACTERS
+                 + margins.left() + margins.right())
+        return QSize(max(1, min(base.width(), floor)), base.height())
+
+    def heightForWidth(self, width: int) -> int:   # noqa: N802 (Qt casing)
+        """The height of the text wrapped at ``width``, inside words if needed.
+
+        :param width: the label's width in pixels.
+        """
+        if not self.text() or width >= self._natural_width():
+            return super().heightForWidth(width)
+        margins = self.contentsMargins()
+        inner = width - margins.left() - margins.right()
+        return (int(self._document(inner).size().height() + 0.999)
+                + margins.top() + margins.bottom())
+
+    def setText(self, text: str) -> None:          # noqa: N802 (Qt casing)
+        """Show ``text`` and ask the layout for the height it now needs.
+
+        :param text: the example line.
+        """
+        super().setText(text)
+        self._anchor = -1
+        self.updateGeometry()
+
+    def _position_at(self, point) -> int:
+        """The character under ``point`` in the wrapped layout.
+
+        :param point: a position in widget coordinates.
+        """
+        rect = self.contentsRect()
+        document = self._document(rect.width())
+        local = point - rect.topLeft()
+        return max(0, document.documentLayout().hitTest(local, Qt.FuzzyHit))
+
+    def mousePressEvent(self, event) -> None:      # noqa: N802 (Qt casing)
+        """Start a selection where the wrapped text is drawn.
+
+        :param event: the press; QLabel handles it while the text fits.
+        """
+        if not self.breaks_inside_a_word() or event.button() != Qt.LeftButton:
+            super().mousePressEvent(event)
+            return
+        self.setFocus(Qt.MouseFocusReason)
+        self._anchor = self._position_at(event.position().toPoint())
+        self.setSelection(self._anchor, 0)
+        self.update()
+
+    def mouseMoveEvent(self, event) -> None:       # noqa: N802 (Qt casing)
+        """Extend the selection over the wrapped text.
+
+        :param event: the drag; QLabel handles it while the text fits.
+        """
+        if self._anchor < 0:
+            super().mouseMoveEvent(event)
+            return
+        here = self._position_at(event.position().toPoint())
+        start, end = sorted((self._anchor, here))
+        self.setSelection(start, end - start)
+        self.update()
+
+    def mouseReleaseEvent(self, event) -> None:    # noqa: N802 (Qt casing)
+        """End a selection made over the wrapped text.
+
+        :param event: the release.
+        """
+        if self._anchor < 0:
+            super().mouseReleaseEvent(event)
+            return
+        self._anchor = -1
+
+    def paintEvent(self, event) -> None:           # noqa: N802 (Qt casing)
+        """Paint as QLabel does, or wrapped inside the word when it is too wide.
+
+        :param event: the paint event.
+        """
+        if not self.breaks_inside_a_word():
+            super().paintEvent(event)
+            return
+        from PySide6.QtGui import (QAbstractTextDocumentLayout, QPainter,
+                                   QPalette, QTextCharFormat, QTextCursor)
+
+        rect = self.contentsRect()
+        document = self._document(rect.width())
+        context = QAbstractTextDocumentLayout.PaintContext()
+        palette = self.palette()
+        context.palette.setColor(QPalette.Text,
+                                 palette.color(self.foregroundRole()))
+        start = self.selectionStart()
+        if start >= 0 and self.hasSelectedText():
+            cursor = QTextCursor(document)
+            cursor.setPosition(start)
+            cursor.setPosition(start + len(self.selectedText()),
+                               QTextCursor.KeepAnchor)
+            chosen = QAbstractTextDocumentLayout.Selection()
+            chosen.cursor = cursor
+            highlight = QTextCharFormat()
+            highlight.setBackground(palette.highlight())
+            highlight.setForeground(palette.highlightedText())
+            chosen.format = highlight
+            context.selections = [chosen]
+        painter = QPainter(self)
+        try:
+            painter.translate(rect.topLeft())
+            document.documentLayout().draw(painter, context)
+        finally:
+            painter.end()
+
+
 class _MetadataTypeField(QWidget):
     """The microscope-convention row: a grouped menu that shows its evidence.
 
@@ -8828,11 +8995,9 @@ class _MetadataTypeField(QWidget):
         self.combo.setMinimumContentsLength(12)
         self._fill_the_menu()
 
-        self.example = QLabel(self)
+        self.example = _ExampleFilenameLabel(self)
         self.example.setObjectName("MetadataTypeExample")
-        self.example.setWordWrap(True)
         self.example.setProperty("i18nSkipText", True)
-        self.example.setTextInteractionFlags(Qt.TextSelectableByMouse)
 
         self.report = QLabel(self)
         self.report.setObjectName("MetadataTypeReport")
@@ -8847,12 +9012,13 @@ class _MetadataTypeField(QWidget):
         self.detect_button.setObjectName("MetadataTypeDetectButton")
         self.detect_button.setToolTip(tr(WHICH_CONVENTION_FITS_HELP))
 
-        buttons = QHBoxLayout()
+        buttons = QBoxLayout(QBoxLayout.LeftToRight)
         buttons.setContentsMargins(0, 0, 0, 0)
         buttons.setSpacing(6)
-        buttons.addWidget(self.test_button, 0)
-        buttons.addWidget(self.detect_button, 0)
+        buttons.addWidget(self.test_button, 0, Qt.AlignLeft)
+        buttons.addWidget(self.detect_button, 0, Qt.AlignLeft)
         buttons.addStretch(1)
+        self._buttons = buttons
 
         column = QVBoxLayout(self)
         column.setContentsMargins(0, 0, 0, 0)
@@ -8914,6 +9080,40 @@ class _MetadataTypeField(QWidget):
     def setText(self, value: str) -> None:  # noqa: N802 - Qt contract
         """Select by key -- the QComboBox contract callers may still use."""
         self.set_value(value)
+
+    def _buttons_side_by_side_width(self) -> int:
+        """The width both buttons need on one line."""
+        return (self.test_button.sizeHint().width() + self._buttons.spacing()
+                + self.detect_button.sizeHint().width())
+
+    def minimumSizeHint(self) -> QSize:            # noqa: N802 (Qt casing)
+        """As narrow as the menu, the example or the wider button allows.
+
+        The two buttons go under each other rather than widening the form;
+        the example line breaks inside its filename (see
+        :class:`_ExampleFilenameLabel`).
+        """
+        base = super().minimumSizeHint()
+        width = max(self.combo.minimumSizeHint().width(),
+                    self.example.minimumSizeHint().width(),
+                    self.report.minimumSizeHint().width()
+                    if self.report.isVisibleTo(self) else 0,
+                    self.test_button.sizeHint().width(),
+                    self.detect_button.sizeHint().width())
+        return QSize(width, base.height())
+
+    def resizeEvent(self, event) -> None:          # noqa: N802 (Qt casing)
+        """Put the buttons under each other when one line is too narrow.
+
+        :param event: the resize event.
+        """
+        super().resizeEvent(event)
+        wanted = (QBoxLayout.TopToBottom
+                  if event.size().width() < self._buttons_side_by_side_width()
+                  else QBoxLayout.LeftToRight)
+        if self._buttons.direction() != wanted:
+            self._buttons.setDirection(wanted)
+            self.updateGeometry()
 
     def set_threaded(self, threaded: bool) -> None:
         """Run the folder scan inline instead of on a thread.
