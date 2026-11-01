@@ -301,13 +301,21 @@ def _read_merge_with_duplicate_notice(path, tables, policy, reader):
 def _render_the_graph(figure, png_path: str, write_pdf: bool) -> bool:
     """Render a copy of the gate graph in the print style; no widget is touched.
 
+    The raster is drawn in its own process (:func:`spacr.qt.widgets.figure_queue._render_print_in_a_process`),
+    so the worker holds no long stretch of the interpreter lock; when no
+    process can take it, it is drawn here.
+
     :param figure: a detached copy of the graph's figure.
     :param png_path: the PNG to write.
     :param write_pdf: write the sibling PDF too.
     :returns: whether the PNG was written.
     """
-    from ..widgets.figure_queue import render_figure_to_png
+    from ..widgets.figure_queue import (_render_print_in_a_process,
+                                        render_figure_to_png)
 
+    written = _render_print_in_a_process(figure, png_path, write_pdf)
+    if written is not None:
+        return written
     return bool(render_figure_to_png(figure, png_path, for_print=True,
                                      write_pdf=write_pdf))
 

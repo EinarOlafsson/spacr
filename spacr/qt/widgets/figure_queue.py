@@ -431,6 +431,91 @@ def _too_slow_for_the_live_canvas(fig) -> bool:
     return seconds > _LIVE_CANVAS_MAX_RASTER_S
 
 
+#: Exit codes of :func:`_render_print_in_this_process`: the PNG was written,
+#: and the render ran but wrote no PNG.
+_PRINT_PROCESS_WROTE = 0
+_PRINT_PROCESS_REFUSED = 3
+
+
+def _render_print_in_a_process(figure, png_path: str, write_pdf: bool):
+    """Render a detached figure's print files in a spawned process.
+
+    Agg draws a large scatter in one call that keeps the interpreter lock for
+    tens of milliseconds, so a print render on a worker thread still starves
+    the GUI thread and the backdrop field however short the switch interval
+    (a Gate Editor save held the field at 22-27 of its 30 frames a second).
+    In its own process the render holds no lock of this one; the worker
+    thread only waits for it.
+
+    :param figure: a detached copy of the figure, which is not touched.
+    :param png_path: the PNG to write.
+    :param write_pdf: write the sibling PDF too.
+    :returns: whether the PNG was written, or ``None`` when no process could
+        take the render (the figure does not pickle, the process did not
+        start or it ended without an answer) and the caller renders it here.
+    """
+    import multiprocessing
+    import pickle
+
+    from .. import preferences
+
+    try:
+        blob = pickle.dumps(figure)
+    except Exception:                                    # noqa: BLE001
+        LOG.debug("the print copy does not pickle; rendering in-process",
+                  exc_info=True)
+        return None
+    try:
+        context = multiprocessing.get_context("spawn")
+        process = context.Process(
+            target=_render_print_in_this_process,
+            args=(blob, str(png_path), bool(write_pdf),
+                  bool(preferences._SAFE_MODE)),
+            name="spacr-print-render", daemon=True)
+        process.start()
+    except Exception:                                    # noqa: BLE001
+        LOG.debug("no print render process; rendering in-process",
+                  exc_info=True)
+        return None
+    try:
+        process.join()
+        code = process.exitcode
+    finally:
+        process.close()
+    if code == _PRINT_PROCESS_WROTE:
+        return True
+    if code == _PRINT_PROCESS_REFUSED:
+        return False
+    LOG.info("the print render process ended with %s; rendering in-process",
+             code)
+    return None
+
+
+def _render_print_in_this_process(blob: bytes, png_path: str, write_pdf: bool,
+                                  safe_mode: bool) -> None:
+    """The spawned side of :func:`_render_print_in_a_process`.
+
+    :param blob: the pickled figure.
+    :param png_path: the PNG to write.
+    :param write_pdf: write the sibling PDF too.
+    :param safe_mode: the parent runs in safe mode, so preferences read as
+        their defaults here too.
+    :raises SystemExit: with :data:`_PRINT_PROCESS_WROTE` or
+        :data:`_PRINT_PROCESS_REFUSED`.
+    """
+    import pickle
+
+    from .. import preferences
+
+    if safe_mode:
+        preferences._SAFE_MODE = True
+    figure = pickle.loads(blob)
+    written = render_figure_to_png(figure, png_path, for_print=True,
+                                   write_pdf=write_pdf)
+    raise SystemExit(_PRINT_PROCESS_WROTE if written
+                     else _PRINT_PROCESS_REFUSED)
+
+
 def render_figure_to_png(fig, png_path: str, *, for_print: bool = False,
                          write_pdf: Optional[bool] = None) -> bool:
     """Style ``fig`` per the app theme and save it as a display-capped PNG —
