@@ -66,17 +66,19 @@ def test_annotate_actions_wrap_without_clipping(
     stack.setFixedSize(width, 800)
     stack.show()
     qtbot.wait(80)
-    toolbar = screen._btn_open.parentWidget()
+    toolbar = screen._toolbar_scroll.widget()
     buttons = toolbar.findChildren(QPushButton)
     assert len(buttons) >= 16
     blind = screen.findChild(QPushButton, 'AnnotateBlindToggle')
     assert blind.isHidden() is not alpha
-    buttons = [button for button in buttons if not button.isHidden()]
+    buttons = [button for button in buttons if button.isVisibleTo(toolbar)]
     for button in buttons:
+        place = QRect(button.mapTo(toolbar, QPoint(0, 0)), button.size())
         assert button.width() >= button.sizeHint().width(), button.text()
-        assert toolbar.rect().contains(button.geometry()), button.text()
+        assert toolbar.rect().contains(place), button.text()
         assert button.visibleRegion().contains(button.rect()), button.text()
-    assert len({button.y() for button in buttons}) > 1
+    assert len({button.mapTo(toolbar, QPoint(0, 0)).y()
+                for button in buttons}) > 1
     screen.close()
 
 
