@@ -223,9 +223,22 @@ def record_overview(app, window, captures, capture, settle, write_json,
             continue
         tiles = [button for button in window._startup.findChildren(QAbstractButton)
                  if button.property('moduleAppKey') == host_key]
-        tile = None
+        tile, via_dock = None, False
         if not tiles and module['parent'] and data['modules'][host_key]['home'] is None:
             screen = search_module(host_key, 'help_host_' + key)
+        elif not hasattr(window._startup, '_tabs'):
+            # The Navigator Home has no category tabs: click a visible Home tile when it
+            # shows one, otherwise open the module from its native dock row.
+            visible = [button for button in tiles if button.isVisible() and button.isEnabled()]
+            if visible:
+                tile = max(visible, key=lambda button: button.width() * button.height())
+                click(tile)
+                settle(2)
+            else:
+                capture_ui.open_module(capture, window, host_key, settle, prefer='tile')
+                via_dock = True
+                settle(1)
+            screen = window._screens.get(host_key)
         else:
             tabs = window._startup._tabs
             for index in range(tabs.count()):
@@ -557,7 +570,8 @@ def record_overview(app, window, captures, capture, settle, write_json,
                        'tile_text': tile.text() if tile is not None else None,
                        'screen_class': type(screen).__name__,
                        'home_tile_clicked': tile is not None, 'screen_visible': True,
-                       'host_opened_through_help': tile is None,
+                       'host_opened_through_help': tile is None and not via_dock,
+                       'host_opened_through_dock': via_dock,
                        'navigation_only_empty_folder_guard': key == 'cellpose_all',
                        'timelapse_switch_enabled_without_running': key == 'timelapse',
                        'parameter_sweep_opened_without_running': key == 'parameter_sweep',
