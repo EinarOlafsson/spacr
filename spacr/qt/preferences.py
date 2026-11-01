@@ -12090,7 +12090,7 @@ class PreferencesDialog:
                 if rippling is not None:
                     rippling.clicked.connect(partial(_field_ripple_for_popup, dlg))
         reset_button = buttons.addButton(
-            tr("Reset to defaults"), QDialogButtonBox.ResetRole)
+            tr("Reset"), QDialogButtonBox.ResetRole)
         reset_button.setObjectName("PreferencesReset")
         reset_button.setToolTip(tr(
             "Put every preference back to the value a fresh install has. "

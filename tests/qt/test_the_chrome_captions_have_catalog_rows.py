@@ -53,7 +53,7 @@ CHROME_CAPTIONS = (
     "Application",
     "Extra Performance",
     "Balanced",
-    "Reset to defaults",
+    "Reset",
     "Log file",
     "Deuteranopia (red-green)",
     "Protanopia (red-green)",
