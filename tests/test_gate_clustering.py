@@ -171,3 +171,63 @@ def test_a_constant_axis_is_refused_and_says_why():
     })
     with pytest.raises(ClusterError, match="same value for every object"):
         cluster_gates(frame, "flat", "spread", eps=0.3, min_samples=10)
+
+
+@pytest.mark.parametrize("seed, eps, min_samples", [
+    (0, 0.3, 10), (1, 0.5, 5), (2, 1.5, 40), (3, 0.2, 3), (4, 0.8, 25)])
+def test_the_clusters_grown_off_the_lock_are_dbscans_labels(
+        seed, eps, min_samples):
+    """The Walk's DBSCAN grows its clusters in bounded NumPy steps, so a
+    worker gives the GUI thread the interpreter lock back; the labels,
+    their numbering and where a shared border point goes are scikit-learn's.
+    """
+    from sklearn.cluster import DBSCAN
+
+    from spacr.qt.widgets.gate_spec import _fit_labels
+
+    rng = np.random.default_rng(seed)
+    points = np.vstack([rng.normal(0, 1, (700, 2)),
+                        rng.normal((2.5, 0), 1, (700, 2)),
+                        rng.uniform(-6, 9, (300, 2))])
+    points = points[rng.permutation(len(points))]
+    expected = DBSCAN(eps=eps, min_samples=min_samples).fit_predict(points)
+    labels = _fit_labels(points, method="dbscan", eps=eps,
+                         min_samples=min_samples)
+    assert labels.dtype == expected.dtype
+    np.testing.assert_array_equal(labels, expected)
+
+
+def test_a_walk_step_gives_the_lock_back_while_it_grows_clusters():
+    """sklearn's dbscan_inner kept the interpreter lock for its whole run
+    (0.34-0.57 s on a 10,000-point Walk step); another thread now waits no
+    longer than a bounded step for it."""
+    import sys
+    import threading
+    import time
+
+    from spacr.qt.widgets.gate_spec import _fit_labels
+
+    rng = np.random.default_rng(0)
+    points = np.vstack([rng.normal(0, 0.2, (5000, 2)),
+                        rng.normal(1.2, 0.2, (5000, 2))])
+    gaps, done = [], threading.Event()
+
+    def tick():
+        last = time.perf_counter()
+        while not done.is_set():
+            time.sleep(0.001)
+            now = time.perf_counter()
+            gaps.append(now - last)
+            last = now
+
+    previous = sys.getswitchinterval()
+    sys.setswitchinterval(0.001)
+    ticker = threading.Thread(target=tick, daemon=True)
+    ticker.start()
+    try:
+        _fit_labels(points, method="dbscan", eps=1.5, min_samples=40)
+    finally:
+        done.set()
+        ticker.join()
+        sys.setswitchinterval(previous)
+    assert max(gaps) < 0.25, max(gaps)

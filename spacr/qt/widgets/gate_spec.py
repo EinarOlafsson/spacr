@@ -3704,6 +3704,59 @@ def best_cluster_candidate(candidates: Sequence[ClusterCandidate], *,
 CLUSTER_METHODS: Tuple[str, ...] = ("dbscan", "hdbscan")
 
 
+#: Core points whose neighbourhoods are joined in one step of
+#: :func:`_dbscan_labels`; it bounds each NumPy call, so a worker running a
+#: Walk gives the interpreter lock back to the GUI thread between steps.
+_DBSCAN_STEP_POINTS = 128
+
+
+def _dbscan_labels(work, *, eps: float, min_samples: int):
+    """The labels ``DBSCAN(eps, min_samples).fit_predict(work)`` returns.
+
+    scikit-learn grows its clusters in ``dbscan_inner``, one compiled loop
+    that keeps the interpreter lock for as long as it runs: 0.34-0.57 s for
+    a 10,000-point Walk step under load, which held the Gate Editor's GUI
+    thread while the Walk ran on a worker. The neighbourhoods are the same
+    query DBSCAN makes; the clusters are grown here in bounded NumPy steps.
+
+    The labels are identical: clusters are numbered in the order of their
+    first core point, and a border point within reach of two clusters joins
+    the one numbered first, as in ``dbscan_inner``.
+
+    :param work: the points, one row each.
+    :param eps: the neighbourhood radius.
+    :param min_samples: neighbours, the point itself included, that make a
+        point a core point.
+    :returns: one label per row, ``-1`` for noise.
+    """
+    from sklearn.neighbors import NearestNeighbors
+
+    neighbourhoods = NearestNeighbors(radius=float(eps)).fit(
+        work).radius_neighbors(work, return_distance=False)
+    sizes = np.fromiter((len(found) for found in neighbourhoods),
+                        dtype=np.intp, count=len(neighbourhoods))
+    core = sizes >= int(min_samples)
+    labels = np.full(len(neighbourhoods), -1, dtype=np.intp)
+    label = 0
+    for seed in np.flatnonzero(core):
+        if labels[seed] != -1:
+            continue
+        labels[seed] = label
+        frontier = [int(seed)]
+        while frontier:
+            grown = []
+            for start in range(0, len(frontier), _DBSCAN_STEP_POINTS):
+                reached = np.concatenate([
+                    neighbourhoods[point] for point in
+                    frontier[start:start + _DBSCAN_STEP_POINTS]])
+                fresh = np.unique(reached[labels[reached] == -1])
+                labels[fresh] = label
+                grown.extend(fresh[core[fresh]].tolist())
+            frontier = grown
+        label += 1
+    return labels
+
+
 def _fit_labels(work, *, method: str, eps: float, min_samples: int):
     """Cluster ``work`` with the named algorithm and return labels.
 
@@ -3717,9 +3770,8 @@ def _fit_labels(work, *, method: str, eps: float, min_samples: int):
     """
     name = str(method or "dbscan").strip().lower()
     if name == "dbscan":
-        from sklearn.cluster import DBSCAN
-        return DBSCAN(eps=float(eps),
-                      min_samples=int(min_samples)).fit_predict(work)
+        return _dbscan_labels(work, eps=float(eps),
+                              min_samples=int(min_samples))
     if name == "hdbscan":
         try:
             from sklearn.cluster import HDBSCAN
