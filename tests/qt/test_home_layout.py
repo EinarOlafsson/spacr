@@ -216,6 +216,13 @@ def test_real_home_compressed_apps_icon_and_name_are_scroll_reachable(qtbot, qap
 
 
 def test_real_home_compressed_header_is_scroll_reachable(qtbot, qapp, monkeypatch):
+    """Keep every masthead part reachable; above 150 % Zoom fold it when a tile row fits.
+
+    Rule chosen by the maintainer on 2026-11-01 (UI audit): a viewport that
+    holds the full masthead and a row of tiles folds the masthead to one strap
+    line with a square mark; a shorter viewport keeps the full masthead with its
+    selected fonts and scrolls it.
+    """
     _check_real_home_compressed_access(qtbot, qapp, monkeypatch, header_only=True)
 
 
@@ -387,8 +394,19 @@ def _check_real_home_compressed_access(qtbot, qapp, monkeypatch, *, header_only=
             assert all(row['source_unchanged'] and row['aspect_preserved']
                        and row['icon_dpr'] == row['actual_dpr']
                        for row in rows if row['target'] == 'HeroMark'), rows
-            assert all(row['selected_unchanged'] and (row['phase'] != 'grow' or row['selected_restored'])
-                       for row in rows if row['target'] != 'HeroMark'), rows
+            assert all(row['selected_unchanged'] for row in rows if row['target'] != 'HeroMark'), rows
+            marks = {row['phase']: row for row in rows if row['target'] == 'HeroMark'}
+            for row in rows:
+                folded = row['phase'] == 'grow'
+                mark_row = marks[row['phase']]
+                if folded:
+                    assert mark_row['drawing'][2] == mark_row['drawing'][3], mark_row
+                    assert row['hero_native_maximum'] == mark_row['drawing'][3] + top + bottom, row
+                    assert row['hero_native_maximum'] < marks['narrow']['hero_native_maximum'], row
+                else:
+                    assert row['hero_native_maximum'] == row['outer_viewport'][1], row
+                if row['target'] == 'HeroSubtitle':
+                    assert row['wrapped'] != folded, row
             assert all(row['reachable'] for row in rows), rows
             before, count_before = header_signature(), len(calls)
             for _ in range(8):

@@ -178,6 +178,7 @@ class _HomeBodyFit(QObject):
         self._busy = True
         try:
             cap = max(1, self._outer_viewport.property('size').height())
+            cap = min(cap, self._fit_masthead(cap))
             if self._hero.property('maximumSize').height() != cap:
                 _set_actual_dim(self._hero, 'maxh', cap)
             self._reflow()
@@ -207,6 +208,45 @@ class _HomeBodyFit(QObject):
                     _set_actual_dim(self._tabs, key, wanted)
         finally:
             self._busy = False
+
+    def _fit_masthead(self, room):
+        """Fold the masthead to one line above 150 % Zoom when that buys a tile row.
+
+        At that Zoom the full masthead takes a quarter of a 768 px window.
+        It folds when the viewport holds the full masthead and a row of
+        tiles, so the fold shows tiles that would otherwise be scrolled
+        away; a viewport too short for both scrolls the full masthead as
+        before. Both heights are independent of the fold, so folding never
+        unfolds it again. Folded, the strap line stays on one line and the
+        mark is no wider than it is tall; the text fit then shrinks the
+        wordmark and the strap line to that line.
+
+        :param room: the Home viewport's height in pixels.
+        :returns: the tallest the masthead may be.
+        """
+        from .. import preferences
+        from ..gui_scale import QWIDGETSIZE_MAX, _set_actual_dim
+
+        mark = self._hero.findChild(QLabel, 'HeroMark')
+        strap = self._hero.findChild(QLabel, 'HeroSubtitle')
+        layout = self._hero.layout()
+        if mark is None or strap is None or layout is None:
+            return QWIDGETSIZE_MAX
+        margins = layout.contentsMargins()
+        vertical = margins.top() + margins.bottom()
+        full = mark.sizeHint().height() + vertical
+        tiles = self._tabs.property('minimumSize').height()
+        folded = preferences.get_font_scale() > 1.5 and room >= full + tiles
+        if strap.wordWrap() == folded:
+            strap._folded = folded
+            strap.setWordWrap(not folded)
+            strap.updateGeometry()
+        font = getattr(strap, '_hero_selected_font', None) or strap.font()
+        line = QFontMetrics(font).height() + vertical
+        wanted = line - vertical if folded else QWIDGETSIZE_MAX
+        if mark.property('maximumSize').width() != wanted:
+            _set_actual_dim(mark, 'maxw', wanted)
+        return line if folded else QWIDGETSIZE_MAX
 
 
 class _HeroMark(QLabel):
@@ -251,6 +291,13 @@ class _HeroLabel(QLabel):
     def sizeHint(self):
         """Let a larger hero restore the font instead of retaining fitted hints."""
         return getattr(self, '_hero_preferred_hint', None) or super().sizeHint()
+
+    def minimumSizeHint(self):
+        """Let the folded strap line narrow below its text; the text fit shrinks the font."""
+        hint = super().minimumSizeHint()
+        if getattr(self, '_folded', False):
+            hint.setWidth(0)
+        return hint
 
     def heightForWidth(self, width):
         """Prefer selected-font wrapped height, not the last fitted allocation."""
