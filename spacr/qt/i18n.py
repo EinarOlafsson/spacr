@@ -4186,20 +4186,48 @@ def _a11y_interactive_types():
 def _a11y_layout_holding(layout, child):
     """The layout, ``layout`` itself or one nested in it, that holds ``child``.
 
+    Walks nested layouts as the layout's QObject children, never through
+    ``itemAt``: PySide's layout glue makes the asked layout the Python parent
+    of every item wrapper ``itemAt`` returns, so a Qt-created item deleted
+    later left its wrapper alive at a freed address, and an object allocated
+    there was handed to an event filter as a ``QWidgetItem``.
+
     :param layout: the outermost layout to search.
     :param child: the widget to look for as a direct item.
     :returns: the layout with ``child`` as a direct item, or ``None``.
     """
+    from PySide6.QtWidgets import QLayout
+
     if layout.indexOf(child) >= 0:
         return layout
-    for position in range(layout.count()):
-        item = layout.itemAt(position)
-        inner = item.layout() if item is not None else None
-        if inner is not None:
+    for inner in layout.children():
+        if isinstance(inner, QLayout):
             found_in = _a11y_layout_holding(inner, child)
             if found_in is not None:
                 return found_in
     return None
+
+
+def _a11y_widgets_laid_out_by(layout):
+    """The widgets ``layout`` holds as direct items, each with its index.
+
+    Read from the widgets themselves (``indexOf``) rather than from
+    ``itemAt``, for the reason :func:`_a11y_layout_holding` gives.
+
+    :param layout: a live layout.
+    :returns: ``(index, widget)`` pairs in item order.
+    """
+    from PySide6.QtWidgets import QWidget
+
+    owner = layout.parentWidget()
+    if owner is None:
+        return []
+    found = []
+    for widget in owner.findChildren(QWidget):
+        index = layout.indexOf(widget)
+        if index >= 0:
+            found.append((index, widget))
+    return sorted(found, key=lambda pair: pair[0])
 
 
 def _a11y_alive(obj) -> bool:
@@ -4313,17 +4341,18 @@ def _a11y_label_beside(widget):
             found = layout.labelForField(current)
         elif isinstance(layout, QGridLayout):
             row, column, _rs, _cs = layout.getItemPosition(index)
-            for left in range(column - 1, -1, -1):
-                item = layout.itemAtPosition(row, left)
-                if item is not None and item.widget() is not None:
-                    found = item.widget()
-                    break
+            left_of = []
+            for other_index, other in _a11y_widgets_laid_out_by(layout):
+                other_row, other_column, _ors, _ocs = layout.getItemPosition(other_index)
+                if other_row == row and other_column < column:
+                    left_of.append((other_column, other))
+            if left_of:
+                found = max(left_of, key=lambda pair: pair[0])[1]
         elif isinstance(layout, QBoxLayout):
-            for before in range(index - 1, -1, -1):
-                item = layout.itemAt(before)
-                if item is not None and item.widget() is not None:
-                    found = item.widget()
-                    break
+            before = [other for other_index, other in _a11y_widgets_laid_out_by(layout)
+                      if other_index < index]
+            if before:
+                found = before[-1]
         if found is not None and not _a11y_alive(found):
             return None
         if isinstance(found, QLabel) and _a11y_plain(found.text()):
