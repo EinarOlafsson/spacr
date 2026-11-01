@@ -135,18 +135,3 @@ def test_the_unavailable_toggle_opens_the_shared_panel_not_a_dialog_of_its_own(
     assert entry["key"] == "cuml"
     # And NOT through a dialog of its own.
     assert not quiet
-
-
-def test_install_completion_requires_restart(screen, monkeypatch, quiet):
-    monkeypatch.setattr("subprocess.run", lambda *a, **k: None)
-    screen._hyperparam._install_cuml()
-    assert "restart" in screen._hyperparam._status.text().lower()
-
-
-def test_failed_install_is_reported(screen, monkeypatch, quiet):
-    def boom(*_args, **_kwargs):
-        raise RuntimeError("network down")
-
-    monkeypatch.setattr("subprocess.run", boom)
-    screen._hyperparam._install_cuml()
-    assert "failed" in screen._hyperparam._status.text().lower()

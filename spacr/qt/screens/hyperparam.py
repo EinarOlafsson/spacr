@@ -1642,39 +1642,6 @@ class HyperparamPanel(QWidget):
                     "scipy are already loaded in this process."))
         return False
 
-    def _install_cuml(self) -> None:
-        """Run the install, then say to restart. Never claim it is live.
-
-        pip can upgrade numpy and scipy underneath a process that has
-        already imported them -- and this one has, several times over. So
-        the new backend is NOT usable in this session whatever pip reports,
-        and pretending otherwise would produce failures nobody could
-        attribute.
-        """
-        import subprocess
-
-        from PySide6.QtWidgets import QMessageBox
-
-        from ...gpu_reduce import install_command
-
-        self._set_status("Installing cuML — this downloads several "
-                         "gigabytes and will take a while…")
-        try:
-            subprocess.run(install_command(), check=True)
-        except Exception as exc:
-            QMessageBox.warning(
-                self, "Install failed",
-                f"{exc}\n\nRun this yourself to see the full output:\n"
-                + " ".join(install_command()))
-            self._set_status("cuML install failed.")
-            return
-        QMessageBox.information(
-            self, "Restart spaCR",
-            "cuML is installed. Restart spaCR before using it — pip may "
-            "have upgraded numpy or scipy underneath this process, which "
-            "has already imported them.")
-        self._set_status("cuML installed. Restart spaCR to use it.")
-
     def _set_status(self, text: str) -> None:
         """Write the status line, if the panel has built one yet.
 

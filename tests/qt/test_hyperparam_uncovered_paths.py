@@ -267,59 +267,6 @@ def test_the_availability_panel_is_anchored_to_the_control_that_asked(
 
 
 # ---------------------------------------------------------------------------
-# Installing cuML
-# ---------------------------------------------------------------------------
-
-def test_a_successful_cuml_install_insists_on_a_restart(panel, monkeypatch):
-    """pip may have moved numpy under this process, so nothing is claimed."""
-    shown = []
-    monkeypatch.setattr("spacr.gpu_reduce.install_command",
-                        lambda: ["python", "-m", "pip", "install", "x"])
-    monkeypatch.setattr("subprocess.run",
-                        lambda *a, **k: shown.append(("ran", a[0])))
-    from PySide6.QtWidgets import QMessageBox
-    monkeypatch.setattr(QMessageBox, "information",
-                        staticmethod(lambda *a, **k: shown.append(a[2])))
-    monkeypatch.setattr(QMessageBox, "warning",
-                        staticmethod(lambda *a, **k: pytest.fail(
-                            "a successful install must not warn")))
-
-    panel._install_cuml()
-
-    assert shown[0] == ("ran", ["python", "-m", "pip", "install", "x"])
-    assert "Restart spaCR before using it" in shown[1]
-    assert panel._status.text() == "cuML installed. Restart spaCR to use it."
-    assert panel.gpu_backend() == "cpu", (
-        "an install does not make this session's GPU backend usable")
-
-
-def test_a_failed_cuml_install_shows_the_command_to_run_by_hand(
-        panel, monkeypatch):
-    """The user is given the exact command rather than a bare failure."""
-    warned = []
-    monkeypatch.setattr("spacr.gpu_reduce.install_command",
-                        lambda: ["python", "-m", "pip", "install", "x"])
-
-    def _explode(*_a, **_k):
-        raise RuntimeError("network is down")
-
-    monkeypatch.setattr("subprocess.run", _explode)
-    from PySide6.QtWidgets import QMessageBox
-    monkeypatch.setattr(QMessageBox, "warning",
-                        staticmethod(lambda *a, **k: warned.append(a[2])))
-    monkeypatch.setattr(QMessageBox, "information",
-                        staticmethod(lambda *a, **k: pytest.fail(
-                            "a failed install must not report success")))
-
-    panel._install_cuml()
-
-    assert len(warned) == 1
-    assert "network is down" in warned[0]
-    assert "python -m pip install x" in warned[0]
-    assert panel._status.text() == "cuML install failed."
-
-
-# ---------------------------------------------------------------------------
 # The deferred UMAP metric list
 # ---------------------------------------------------------------------------
 
