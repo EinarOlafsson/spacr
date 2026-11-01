@@ -14578,6 +14578,7 @@ class _OverviewMetadataWizard(QWidget):
         source_card.body_layout.addLayout(form)
         outer.addWidget(source_card)
         self.preview = self._new_preview_table("OverviewWizardParsePreview")
+        self.preview.destroyed.connect(self._readouts_gone)
         self.preview.setMinimumHeight(240)
         self.plate_previews = QScrollArea()
         self.plate_previews.setObjectName("OverviewWizardPlatePreviews")
@@ -15562,8 +15563,22 @@ class _OverviewMetadataWizard(QWidget):
             self.status.setText(tr("The filename regex must include a valid wellID for every image."))
         self._readout_timer.start(0)
 
+    def _readouts_gone(self, *_):
+        """Stop fitting the readouts once the preview table they are measured against is destroyed.
+
+        The preview lives in the settings content, which a mounted Overview
+        lends to its module and which can be torn down before this wizard is:
+        a resize then queued :meth:`_fit_readouts` against a deleted table.
+
+        :param _: the ``destroyed`` signal's object argument.
+        """
+        self._readouts_alive = False
+        self._readout_timer.stop()
+
     def _fit_readouts(self):
         """Reserve wrapped metadata/status heights instead of clipping their text."""
+        if not getattr(self, "_readouts_alive", True):
+            return
         from ..gui_scale import _set_actual_dim
         width = max(200, self.preview.viewport().width())
         for label in (self.axes, self.status):
@@ -15573,7 +15588,8 @@ class _OverviewMetadataWizard(QWidget):
         """Reflow metadata messages when the normal module pane changes width."""
         super().resizeEvent(event)
         self._widen_settings()
-        self._readout_timer.start(0)
+        if getattr(self, "_readouts_alive", True):
+            self._readout_timer.start(0)
 
     def _settings_moved(self, *_):
         """Keep the width the user dragged the settings column to."""
