@@ -142,6 +142,10 @@ class SetupCard(QWidget):
         #: off course by a mouse movement is not a lap, and the user cannot
         #: tell whether it went round -- which is the whole signal.
         self._laps = 0.0
+        #: Circuits asked for while one runs, in order: +1.0 or -1.0 each.
+        #: Each one waits for the lap before it to finish, so a Previous during
+        #: a Next lap neither cancels nor shortens it.
+        self._pending_laps = []
         #: The preferences this frame is being drawn with, or None between
         #: frames. See :meth:`_held`.
         self._frame = None
@@ -301,7 +305,11 @@ class SetupCard(QWidget):
         through the slides, which is worth more than the animation -- so a
         circuit is never merged with another or shortened to catch up.
         """
-        self._laps += 1.0 if clockwise else -1.0
+        lap = 1.0 if clockwise else -1.0
+        if self._laps:
+            self._pending_laps.append(lap)
+        else:
+            self._laps = lap
         self._start()
 
     @property
@@ -519,7 +527,8 @@ class SetupCard(QWidget):
             self._laps -= step
             if abs(self._laps) < 0.031:
                 self._at = round(self._at + self._laps, 6)
-                self._laps = 0.0
+                self._laps = (self._pending_laps.pop(0)
+                              if self._pending_laps else 0.0)
         else:
             self._aim_at_the_cursor()
             gap = ((self._towards - self._at + 0.5) % 1.0) - 0.5
