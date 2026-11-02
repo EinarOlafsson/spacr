@@ -221,6 +221,9 @@ _INDIRECT_CHROME_UI_SOURCES = frozenset({
     "Showing the settings this module cannot run without. Click for all of them.",
     "Templates",
     "Save these settings under a name, reuse a saved one, or share it as a file.",
+    # The icon-only Export settings button's accessible name, from the
+    # app_screen settings-file button tuple.
+    "Export settings…",
     # Settings-section headings assembled by settings_model.
     "Plate Sources & Workflow",
     "Labels & Classes",

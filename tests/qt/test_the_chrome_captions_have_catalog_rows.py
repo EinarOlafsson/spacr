@@ -28,6 +28,15 @@ CHROME_CAPTIONS = (
     "Evaluation & Results",
     "Classifier",
     "Test-time augmentation",
+    # Settings strip: level switch, Templates and the icon-only Export
+    # settings button's accessible name.
+    "Essentials",
+    "All settings",
+    "Showing every setting. Click for the essentials only.",
+    "Showing the settings this module cannot run without. Click for all of them.",
+    "Templates",
+    "Save these settings under a name, reuse a saved one, or share it as a file.",
+    "Export settings…",
     # Preferences: tabs, theme names, resource buttons, row labels, footer.
     "Performance",
     "Modules",
@@ -269,10 +278,13 @@ def test_chrome_and_related_prose_enter_the_source_inventory_once():
     # Quality labels travel through tr(label); the Plugins tab through tr(title).
     # The anomaly table's mean_percentile header also travels through tr(label).
     # fe937d232 added Gate Editor's nine VOLUME_SHAPES names (tr(label)).
-    assert len(builder._INDIRECT_CHROME_UI_SOURCES) == 68
+    # 4797c3ea04 added the settings strip's six level-switch and Templates
+    # captions, and the icon-only Export settings button keeps its
+    # accessible name "Export settings…" in the inventory.
+    assert len(builder._INDIRECT_CHROME_UI_SOURCES) == 75
     assert len(builder._INDIRECT_CHROME_UI_SOURCES - {
         "Swap object and background", "Test-time augmentation",
-        "Low", "Medium", "High", "Plugins", "Control percentile"}) == 61
+        "Low", "Medium", "High", "Plugins", "Control percentile"}) == 68
     # The shape names await the catalog rebuild, so they have no rows to
     # check yet; they join CHROME_CAPTIONS when the catalogs carry them.
     shapes_awaiting_rows = {
