@@ -19,7 +19,7 @@ def test_localized_data_covers_all_original_task_pairs_and_current_aliases():
         assert english[original] == expected
         assert english[alternate] == expected
     assert len(app._EASY_TASK_GROUPS) == 21
-    assert sum(len(phrases) for _keys, phrases in app._EASY_TASK_GROUPS) == 218
+    assert sum(len(phrases) for _keys, phrases in app._EASY_TASK_GROUPS) == 223
     assert set(app._EASY_TASK_LOCALIZED) == set(_LANGUAGES)
     for language in _LANGUAGES:
         localized = app._EASY_TASK_LOCALIZED[language]
