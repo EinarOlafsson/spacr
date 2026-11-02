@@ -604,3 +604,72 @@ def test_the_shortcut_and_organize_dialogs_use_platform_button_boxes(qtbot, tmp_
     assert box is not None
     assert box.buttonRole(organize.apply_button) == QDialogButtonBox.AcceptRole
     assert box.buttonRole(organize.cancel_button) == QDialogButtonBox.RejectRole
+
+
+def _dock_with_two_sections(qtbot, theme_name):
+    from spacr.qt import theme
+    from spacr.qt.widgets.dock import Dock
+
+    rows = [('mask', 'Mask', 'Masks', 'Core'), ('make_masks', 'Make Masks', 'Draw', 'Tools'),
+            ('umap', 'Image UMAP', 'Embed', 'Tools')]
+    dock = Dock(rows)
+    dock.setStyleSheet(theme.stylesheet(theme_name))
+    qtbot.addWidget(dock)
+    dock.resize(260, 400)
+    dock.show()
+    qtbot.waitExposed(dock)
+    return dock
+
+
+@pytest.mark.parametrize('theme_name', ['light', 'dark'])
+def test_a_dock_heading_shows_the_home_panel_glyph_for_its_fold_state(qtbot, theme_name):
+    from spacr.qt.widgets.dock import SectionHeader
+    from spacr.qt.widgets.foldable import OPEN_MARK, SHUT_MARK
+
+    dock = _dock_with_two_sections(qtbot, theme_name)
+    header = next(h for h in dock.findChildren(SectionHeader) if h.section == 'Tools')
+    assert not dock.section_is_open('Tools')
+    assert header._mark() == SHUT_MARK
+    folded = header.grab().toImage()
+    assert header.text() == 'Tools'
+    dock.toggle_section('Tools')
+    assert header._mark() == OPEN_MARK
+    assert header.grab().toImage() != folded
+    dock.toggle_section('Tools')
+    assert header._mark() == SHUT_MARK
+    assert header.grab().toImage() == folded
+
+
+@pytest.mark.parametrize('theme_name', ['light', 'dark'])
+def test_the_dock_glyph_leaves_room_before_the_name(qtbot, theme_name):
+    from spacr.qt.widgets.dock import SectionHeader
+
+    dock = _dock_with_two_sections(qtbot, theme_name)
+    header = next(h for h in dock.findChildren(SectionHeader) if h.section == 'Core')
+    assert header.indent() >= header.fontMetrics().horizontalAdvance(header._mark())
+    image = header.grab().toImage()
+    background = image.pixelColor(1, 1)
+    columns = [x for x in range(image.width())
+               if any(image.pixelColor(x, y) != background for y in range(image.height()))]
+    assert [b - a for a, b in zip(columns, columns[1:]) if b - a > 1]
+
+
+@pytest.mark.parametrize('theme_name', ['light', 'dark'])
+def test_the_navigator_learning_links_are_underlined(commands, qtbot, monkeypatch, theme_name):
+    from spacr.qt import preferences
+    from spacr.qt.widgets import home
+
+    monkeypatch.setattr(preferences, 'resolve_effective_theme', lambda *a, **k: theme_name)
+    page = _EasyHomePage(commands)
+    qtbot.addWidget(page)
+    page.refresh()
+    details = page.field.details
+    details.setHtml('<p>Explanation.</p>' + home._navigator_learning_links('make_masks'))
+    document = details.document()
+    cursor = document.find('Open Dock')
+    assert not cursor.isNull()
+    cursor.setPosition(cursor.selectionStart() + 1)
+    fmt = cursor.charFormat()
+    assert fmt.isAnchor()
+    assert fmt.fontUnderline()
+    assert not document.find('Explanation').charFormat().fontUnderline()

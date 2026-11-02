@@ -6162,7 +6162,7 @@ def _navigator_learning_links(key=None):
     from ..i18n import tr
 
     return ('<p>' + escape(tr('Dock: open modules and tools.'))
-            + ' <a href="spacr://sidebar" style="text-decoration:none;">'
+            + ' <a href="spacr://sidebar">'
             + escape(tr('Open Dock')) + '</a></p>')
 
 
@@ -8741,7 +8741,7 @@ class _EasyHomePage(QWidget):
             'QListView#NavigatorProtocolOptions::item:hover { background: rgb(58,58,58); } '
             f'QListView#NavigatorProtocolOptions::item:selected {{ background: rgb(48,48,48); color: {colors["accent"]}; }}')
         self.field.details.document().setDefaultStyleSheet(
-            f'a {{ color: {foreground}; text-decoration: none; }}')
+            f'a {{ color: {foreground}; text-decoration: underline; }}')
         if getattr(self, '_easy_stylesheet', None) != sheet:
             self._easy_stylesheet = sheet
             self.setStyleSheet(sheet)

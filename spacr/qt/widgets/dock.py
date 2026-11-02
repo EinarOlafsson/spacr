@@ -50,7 +50,7 @@ from functools import partial
 from PySide6.QtCore import QEvent, Qt, QTimer, Signal
 from PySide6.QtGui import (
     QAccessible, QAccessibleActionInterface, QAccessibleStateChangeEvent, QColor,
-    QPainter,
+    QFontMetrics, QPainter, QPalette,
 )
 from PySide6.QtWidgets import (
     QAccessibleWidget, QFrame, QLabel, QScrollArea, QSizePolicy, QVBoxLayout,
@@ -176,6 +176,65 @@ class SectionHeader(QLabel):
         self.setProperty("sectionName", section)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self.setFocusPolicy(Qt.FocusPolicy.TabFocus)
+        self.setProperty("open", False)
+
+    def _mark(self) -> str:
+        """The disclosure glyph for the fold state on the ``open`` property.
+
+        These are the glyphs the Home side panel's folding headings use.
+        """
+        from .foldable import OPEN_MARK, SHUT_MARK
+
+        return OPEN_MARK if self.property("open") else SHUT_MARK
+
+    def _mark_width(self) -> int:
+        """Pixels the glyph and the space after it take in the heading font."""
+        return QFontMetrics(self.font()).horizontalAdvance(self._mark() + " ")
+
+    def set_open(self, is_open: bool) -> None:
+        """Show the glyph for an open or folded section and make room for it.
+
+        :param is_open: true when the section's rows are shown.
+        """
+        self.setProperty("open", bool(is_open))
+        self._make_room()
+        self.update()
+
+    def _make_room(self) -> None:
+        """Indent the text by the glyph and its space, in the current font."""
+        width = self._mark_width()
+        if self.indent() != width:
+            self.setIndent(width)
+
+    def event(self, event) -> bool:
+        """Re-measure the glyph when the heading font changes.
+
+        :param event: the event.
+        """
+        handled = super().event(event)
+        if event.type() in (QEvent.Type.FontChange, QEvent.Type.StyleChange,
+                            QEvent.Type.Polish):
+            self._make_room()
+        return handled
+
+    def paintEvent(self, event) -> None:  # noqa: N802
+        """Draw the heading with its disclosure glyph before the name.
+
+        The glyph is painted rather than put in the text, so the heading's text
+        stays the section name that lookups and translation work from. The text
+        is pushed right by the glyph's advance through the label indent.
+
+        :param event: the paint event.
+        """
+        super().paintEvent(event)
+        painter = QPainter(self)
+        painter.setFont(self.font())
+        painter.setPen(self.palette().color(QPalette.ColorRole.WindowText))
+        area = self.contentsRect()
+        painter.drawText(area,
+                         int(Qt.AlignmentFlag.AlignLeft
+                             | Qt.AlignmentFlag.AlignVCenter), self._mark())
+        painter.end()
 
 
 class Dock(QWidget):
@@ -494,7 +553,7 @@ class Dock(QWidget):
                 populated.add(section)
         for section, header in self._headers.items():
             header.setVisible(section in populated)
-            header.setProperty("open", section in self._open)
+            header.set_open(section in self._open)
             header.style().unpolish(header)
             header.style().polish(header)
         self.setFixedWidth(self.column_width())
