@@ -1394,7 +1394,10 @@ def test_a_job_that_polls_the_gate_can_genuinely_be_paused(qtbot):
     starts, so the job must park at its very first checkpoint. The
     negative assertion is then unfalsifiable by a slow machine — a job
     that got past the gate would have advanced the counter, and it is
-    still zero.
+    still zero. The waits that follow a handshake only bound a hang: the
+    worker's first run imports the journal and Matplotlib, which on a loaded
+    coverage shard took longer than ten seconds, and a healthy run never
+    waits them out.
     """
     state = {"n": 0}
     running = threading.Event()
@@ -1415,13 +1418,13 @@ def test_a_job_that_polls_the_gate_can_genuinely_be_paused(qtbot):
         worker.gate.pause()           # closed before the job can run
         thread.start()
 
-        assert running.wait(10), "the job never reached its first checkpoint"
+        assert running.wait(60), "the job never reached its first checkpoint"
         assert not finished.wait(0.3), "a paused job ran to completion"
         assert state["n"] == 0, (
             f"a paused job did {state['n']} units of work past the gate")
 
         worker.gate.resume()
-        assert finished.wait(10), "resume did not release the job"
+        assert finished.wait(60), "resume did not release the job"
         assert state["n"] == total
     finally:
         worker.gate.resume()
