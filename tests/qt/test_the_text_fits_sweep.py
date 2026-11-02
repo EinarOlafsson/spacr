@@ -569,7 +569,7 @@ def test_empty_state_subtitle_refits_after_font_scale_and_text_changes(
     large_height = label.height()
     assert large_height > original_height
     assert label.maximumWidth() == 560
-    assert 0 < label.width() <= 560
+    assert label.width() == 560
     assert _fits(label) == ""
 
     label.setText(label.text() + " " + label.text())
@@ -582,7 +582,7 @@ def test_empty_state_subtitle_refits_after_font_scale_and_text_changes(
     settle(qtbot, panel)
     assert label.height() < long_height
     assert label.maximumWidth() == 560
-    assert 0 < label.width() <= 560
+    assert label.width() == 560
     assert _fits(label) == ""
 
 
