@@ -174,10 +174,15 @@ def _the_ambient_compilers_are_not_left_stopped():
 
 
 def _stop_the_print_render_process():
-    """Stop the shared print-render process, if its module is loaded."""
+    """Stop the shared print-render process, if its module is loaded.
+
+    A test may stand a stub module in for ``figure_queue`` in
+    ``sys.modules``; a module without the process has none to stop.
+    """
     figure_queue = sys.modules.get("spacr.qt.widgets.figure_queue")
-    if figure_queue is not None:
-        figure_queue._PRINT_RENDER_PROCESS.stop()
+    process = getattr(figure_queue, "_PRINT_RENDER_PROCESS", None)
+    if process is not None:
+        process.stop()
 
 
 @pytest.fixture(autouse=True)
