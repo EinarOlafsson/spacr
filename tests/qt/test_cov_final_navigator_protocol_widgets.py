@@ -100,9 +100,12 @@ def test_escape_tab_and_enter_in_the_inline_list(qtbot, page):
     assert _key(view, Qt.Key_Escape).isAccepted()
     assert not view.isVisible()
 
-    choice.showPopup()
-    assert _key(view, Qt.Key_Tab).isAccepted()
-    assert not view.isVisible()
+    for key in (Qt.Key_Tab, Qt.Key_Backtab):
+        choice.showPopup()
+        event = QKeyEvent(QEvent.KeyPress, key, Qt.NoModifier)
+        view.keyPressEvent(event)
+        assert event.isAccepted()
+        assert not view.isVisible()
 
     choice.showPopup()
     assert _key(view, Qt.Key_Return).isAccepted()
@@ -202,10 +205,12 @@ def test_escape_returns_from_a_workflow_then_closes_protocols(
     assert shown == [1]
 
 
-def test_closing_protocols_retracts_an_open_choice_list(qtbot, page):
+def test_closing_protocols_retracts_an_open_choice_list(
+        qtbot, page, monkeypatch):
     choice = page._protocol_select
     choice.showPopup()
     assert choice.view().isVisible()
+    monkeypatch.setattr(page, "_show_suggestions", lambda: None)
     page._toggle_protocols(False)
     assert not choice.view().isVisible()
     assert not page.field.protocol_controls.isVisible()
@@ -297,3 +302,27 @@ def test_redrawing_the_news_keeps_the_placeholder_and_drops_old_blocks(
     assert panel._placeholder.parentWidget() is not None
     panel.apply_releases([{"tag": "v1.1", "name": "Second", "body": "More."}])
     assert [label.text() for label in panel._headline_labels] != []
+
+
+def test_rendering_a_step_retracts_the_open_choice_list(qtbot, page):
+    choice = page._protocol_select
+    choice.showPopup()
+    assert page.field.protocol_controls._inline_choice is choice
+    page._protocol_render()
+    assert page.field.protocol_controls._inline_choice is None
+
+
+def test_a_motion_change_with_motion_on_leaves_the_arrival_alone(
+        qtbot, page, monkeypatch):
+    controls = page.field.protocol_controls
+    controls._progress = 0.4
+    monkeypatch.setattr(page.field, "_motion_enabled", lambda: True)
+    page.field._sync_run_state()
+    assert controls._progress == 0.4
+
+
+def test_hiding_a_field_that_has_no_protocol_controls_only_finishes_growth(
+        qtbot, page):
+    page.field.protocol_controls = None
+    page.field.hide()
+    assert not page.field.isVisible()
