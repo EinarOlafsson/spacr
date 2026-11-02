@@ -93,3 +93,77 @@ def test_the_composer_moves_up_only_while_protocols_is_open(qtbot, protocol_prof
     assert page.field.details.geometry().top() > page.field.protocol_controls.geometry().bottom()
     qtbot.mouseClick(page.path_edit.protocols, Qt.LeftButton)
     assert page.field.panel.geometry() == centred
+
+
+def _open_protocols(qtbot, protocol_profile):
+    from PySide6.QtCore import Qt
+
+    from spacr.qt.widgets.home import _EasyHomePage
+    from tests.qt.test_739_navigator_protocols import _choose
+
+    page = _EasyHomePage()
+    qtbot.addWidget(page)
+    page.resize(1366, 600)
+    page.show()
+    qtbot.waitExposed(page)
+    centred = page.field.panel.geometry()
+    qtbot.mouseClick(page.path_edit.protocols, Qt.LeftButton)
+    _choose(qtbot, page._protocol_select, 'sequencing')
+    return page, centred
+
+
+def test_a_protocol_list_still_arriving_is_masked_to_the_part_shown(
+        qtbot, protocol_profile):
+    page, _centred = _open_protocols(qtbot, protocol_profile)
+    field = page.field
+    controls = field.protocol_controls
+    controls._arrival.stop()
+    controls._progress = 0.5
+    field._arrange()
+    shown = controls.mask().boundingRect()
+    assert 0 < shown.height() < controls.height()
+    controls._progress = 1.0
+    field._arrange()
+    assert controls.mask().isEmpty()
+
+
+def test_a_minimised_description_leaves_the_composer_where_it_was(
+        qtbot, protocol_profile):
+    page, centred = _open_protocols(qtbot, protocol_profile)
+    field = page.field
+    field.details._minimized = True
+    field._arrange()
+    assert field.panel.geometry().y() == centred.y()
+    field.details._minimized = False
+    field._arrange()
+    assert field.panel.geometry().y() <= centred.y()
+
+
+def test_the_composer_moves_up_with_no_cards_above_it(qtbot, protocol_profile):
+    page, centred = _open_protocols(qtbot, protocol_profile)
+    field = page.field
+    field.cards = []
+    field._arrange()
+    assert field.panel.geometry().y() <= centred.y()
+
+
+def test_turning_motion_off_finishes_the_arrival_at_once(
+        qtbot, protocol_profile, monkeypatch):
+    page, _centred = _open_protocols(qtbot, protocol_profile)
+    field = page.field
+    controls = field.protocol_controls
+    controls._progress = 0.3
+    monkeypatch.setattr(field, "_motion_enabled", lambda: False)
+    field._sync_run_state()
+    assert controls._progress == 1.0
+    from PySide6.QtCore import QAbstractAnimation
+
+    assert controls._arrival.state() == QAbstractAnimation.Stopped
+
+
+def test_hiding_the_page_finishes_the_arrival(qtbot, protocol_profile):
+    page, _centred = _open_protocols(qtbot, protocol_profile)
+    controls = page.field.protocol_controls
+    controls._progress = 0.3
+    page.field.hide()
+    assert controls._progress == 1.0
