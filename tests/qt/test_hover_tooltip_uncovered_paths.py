@@ -194,3 +194,65 @@ def test_sticky_tooltip_swallows_native_help_delivery_without_losing_accessible_
     assert label.toolTip() == body and label.toolTipDuration() == -1
     assert accessible.text(QAccessible.Text.Description) == body
     assert tooltip.isVisible() and not QToolTip.isVisible()
+
+
+# -- the pointer is on the popup ----------------------------------------------
+
+def test_a_pointer_on_the_popup_keeps_it_and_restarts_the_hide_timer(
+        tooltip, anchor, monkeypatch):
+    tooltip.show_for(anchor, "<p>Expected cell diameter in pixels.</p>",
+                     immediate=True)
+    monkeypatch.setattr(tooltip, "_pointer_is_on_me", lambda: True)
+    started = []
+    monkeypatch.setattr(tooltip._hide_timer, "start", started.append)
+
+    tooltip._maybe_hide()
+
+    assert tooltip.isVisible()
+    assert started == [tooltip.HIDE_DELAY_MS]
+
+
+# -- long help on a small screen ----------------------------------------------
+
+LONG_HELP = "<p>" + "Expected cell diameter in pixels. " * 400 + "</p>"
+
+
+class _Screen:
+    """A screen of the given size, standing in for the popup's own."""
+
+    def __init__(self, width, height):
+        from PySide6.QtCore import QRect
+
+        self._area = QRect(0, 0, width, height)
+
+    def availableGeometry(self):
+        return self._area
+
+
+def test_help_taller_than_a_small_screen_widens_the_column_until_it_fits(
+        tooltip, anchor, monkeypatch):
+    tooltip.show_for(anchor, "<p>short</p>", immediate=True)
+    tooltip._label.setText(LONG_HELP)
+    monkeypatch.setattr(tooltip, "screen", lambda: _Screen(1400, 500))
+
+    tooltip._fit_the_whole_text()
+
+    label = tooltip._label
+    assert label.width() > tooltip._text_width()
+    assert label.height() == label.heightForWidth(label.width())
+
+
+def test_help_taller_than_the_popup_is_still_sized_without_a_screen(
+        tooltip, anchor, monkeypatch):
+    from PySide6.QtGui import QGuiApplication
+
+    tooltip.show_for(anchor, "<p>short</p>", immediate=True)
+    tooltip._label.setText(LONG_HELP)
+    monkeypatch.setattr(tooltip, "screen", lambda: None)
+    monkeypatch.setattr(QGuiApplication, "primaryScreen",
+                        staticmethod(lambda: None))
+
+    tooltip._fit_the_whole_text()
+
+    label = tooltip._label
+    assert label.height() == label.heightForWidth(label.width())
