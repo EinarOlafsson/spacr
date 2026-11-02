@@ -520,3 +520,124 @@ def test_only_slow_opts_into_serial_selected_file_batches():
     inputs = reusable.get('on', reusable.get(True))['workflow_call']['inputs']
     assert inputs['collect_selected_files']['default'] is False
     assert inputs['xdist_workers']['default'] == 0
+
+
+def test_the_file_shard_is_the_one_conftest_keeps():
+    import ast
+    import hashlib
+
+    conftest = runner.REPO_ROOT / "tests" / "conftest.py"
+    tree = ast.parse(conftest.read_text(encoding="utf-8"))
+    [function] = [node for node in tree.body if isinstance(node, ast.FunctionDef)
+                  and node.name == "_ci_file_shard"]
+    namespace = {"Path": Path, "_REPO_ROOT": runner.REPO_ROOT, "_hashlib": hashlib}
+    exec(compile(ast.Module([function], []), str(conftest), "exec"), namespace)
+    reference = namespace["_ci_file_shard"]
+    files = runner._test_files([str(runner.REPO_ROOT / "tests")])
+    assert len(files) > 100
+    relative = [str(Path(path).relative_to(runner.REPO_ROOT)) for path in files[:50]]
+    for count in (3, 6, 12):
+        assert all(runner.file_shard(path, count) == reference(path, count)
+                   for path in files)
+        assert [runner.file_shard(path, count) for path in files[:50]] == [
+            reference(runner.REPO_ROOT / path, count) for path in relative]
+
+
+def test_selecting_the_file_shard_batches_only_that_shards_files(
+    tmp_path, monkeypatch, capsys,
+):
+    for index in range(12):
+        (tmp_path / f"test_{index}.py").write_text("", encoding="utf-8")
+    monkeypatch.setenv("SPACR_PYTEST_FILE_SHARD_INDEX", "1")
+    monkeypatch.setenv("SPACR_PYTEST_FILE_SHARD_COUNT", "3")
+    commands = []
+
+    def run(command, *, timeout, env=None):
+        commands.append(command)
+        return SimpleNamespace(returncode=0)
+
+    monkeypatch.setattr(runner, "_run_bounded", run)
+    assert runner.main([str(tmp_path), "--marker", "qt", "--batch-size", "2",
+                        "--select-file-shard"]) == 0
+    files = runner._test_files([str(tmp_path)])
+    expected = [path for path in files if runner.file_shard(path, 3) == 1]
+    assert 0 < len(expected) < len(files)
+    ran = [path for command in commands for path in command[3:command.index("-m", 3)]]
+    assert ran == expected
+    assert len(commands) == (len(expected) + 1) // 2
+    assert f"file shard 1 of 3: {len(expected)} of 12 files" in capsys.readouterr().out
+
+
+def test_without_the_flag_every_file_is_batched_whatever_the_shard(
+    tmp_path, monkeypatch,
+):
+    for index in range(6):
+        (tmp_path / f"test_{index}.py").write_text("", encoding="utf-8")
+    monkeypatch.setenv("SPACR_PYTEST_FILE_SHARD_INDEX", "1")
+    monkeypatch.setenv("SPACR_PYTEST_FILE_SHARD_COUNT", "3")
+    commands = []
+    monkeypatch.setattr(runner, "_run_bounded", lambda command, *, timeout, env=None:
+                        commands.append(command) or SimpleNamespace(returncode=0))
+    assert runner.main([str(tmp_path), "--marker", "qt", "--batch-size", "1"]) == 0
+    assert len(commands) == 6
+
+
+def test_an_out_of_range_shard_is_refused(tmp_path, monkeypatch):
+    (tmp_path / "test_a.py").write_text("", encoding="utf-8")
+    monkeypatch.setenv("SPACR_PYTEST_FILE_SHARD_INDEX", "3")
+    monkeypatch.setenv("SPACR_PYTEST_FILE_SHARD_COUNT", "3")
+    with pytest.raises(ValueError, match="must be within"):
+        runner.main([str(tmp_path), "--marker", "qt", "--select-file-shard"])
+
+
+def test_preselection_drops_empty_files_and_skips_their_batch_collection(
+    tmp_path, monkeypatch, capsys,
+):
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "tests" / "qt").mkdir(parents=True)
+    names = ["tests/qt/test_q.py", "tests/test_a.py", "tests/test_b.py",
+             "tests/test_c.py", "tests/test_d.py"]
+    for name in names:
+        (tmp_path / name).write_text("", encoding="utf-8")
+    preselections = []
+
+    def collect(files, marker, *, timeout=0, faulthandler_timeout=0):
+        preselections.append(list(files))
+        assert "tests/qt/test_q.py" not in files and marker == "qt and not slow"
+        assert timeout == 60 and faulthandler_timeout == 30
+        if "tests/test_d.py" in files:
+            return 2, []
+        return 0, [path for path in files if path.endswith("test_b.py")]
+
+    commands = []
+
+    def run(command, *, timeout, env=None):
+        commands.append(command)
+        return SimpleNamespace(returncode=runner.NO_TESTS_COLLECTED
+                               if "--collect-only" in command else 0)
+
+    monkeypatch.setattr(runner, "PRESELECT_CHUNK", 2)
+    monkeypatch.setattr(runner, "_collect_selected_files", collect)
+    monkeypatch.setattr(runner, "_run_bounded", run)
+    assert runner.main(["tests", "--marker", "qt and not slow", "--batch-size", "1",
+                        "--workers", "2", "--precollect-nonqt-batches",
+                        "--preselect-nonqt-files", "--batch-timeout", "60",
+                        "--faulthandler-timeout", "30"]) == 0
+    assert preselections == [["tests/test_a.py", "tests/test_b.py"],
+                             ["tests/test_c.py", "tests/test_d.py"]]
+    batches = [(command[3], "--collect-only" in command) for command in commands]
+    assert batches == [
+        ("tests/qt/test_q.py", False),
+        ("tests/test_b.py", False),
+        ("tests/test_c.py", True),
+        ("tests/test_d.py", True),
+    ]
+    out = capsys.readouterr().out
+    assert "exited 2; keeping them for per-batch collection" in out
+    assert "3 of 4 files outside tests/qt select a test" in out
+
+
+def test_preselection_needs_the_per_batch_collection(tmp_path):
+    (tmp_path / "test_a.py").write_text("", encoding="utf-8")
+    with pytest.raises(ValueError, match="requires --precollect-nonqt-batches"):
+        runner.main([str(tmp_path), "--marker", "qt", "--preselect-nonqt-files"])

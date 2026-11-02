@@ -296,6 +296,12 @@ jobs:
       # pass.
       timeout_minutes: 180
       # Recycle the Qt heap before one worker accumulates a full shard.
+      # Batches hold this shard's own files only (--select-file-shard), and
+      # files outside tests/qt that select no Qt test are dropped first by one
+      # collection per 64 files. Run 41462717049 batched the whole tree
+      # instead: Qt shard 4 started 310 batches for its 783 files, spent
+      # 38 min in the 115 that selected nothing and about 20 s importing the
+      # other shards' files in each of the rest, and hit 180 min at 262/310.
       batch_size: 16
       xdist_workers: 2
       file_shard_index: ${{ matrix.shard }}

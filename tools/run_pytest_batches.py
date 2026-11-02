@@ -10,6 +10,7 @@ preserving the same marker selection and test coverage.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import importlib.util
 import json
 import os
@@ -21,6 +22,13 @@ from pathlib import Path
 from typing import Sequence
 
 NO_TESTS_COLLECTED = 5
+
+#: Repository root; file shards are keyed by the path relative to it, exactly
+#: as ``tests/conftest.py`` keys them.
+REPO_ROOT = Path(__file__).resolve().parent.parent
+
+#: Files per serial collection pass that pre-selects non-Qt-directory files.
+PRESELECT_CHUNK = 64
 
 
 #: Exit status reported for a batch killed by ``--batch-timeout``
@@ -79,6 +87,36 @@ def _test_files(paths: Sequence[str]) -> list[str]:
         else:
             raise FileNotFoundError(f"test path does not exist: {path}")
     return [str(path) for path in sorted(found, key=lambda item: str(item))]
+
+
+def file_shard(path, count: int) -> int:
+    """Return the zero-based CI file shard of one test module path.
+
+    The same function as ``_ci_file_shard`` in ``tests/conftest.py``, which
+    drops every other shard's items after collection. Applying it here, before
+    batching, keeps a shard from importing and deselecting the other five
+    sixths of the suite: Qt shard 4 of run 41462717049 started 310 batches for
+    its 783 files, and 115 of them collected nothing.
+    """
+    test_path = Path(str(path))
+    try:
+        label = test_path.resolve().relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        label = test_path.as_posix()
+    digest = hashlib.sha256(label.encode("utf-8")).digest()
+    return int.from_bytes(digest[:8], "big") % int(count)
+
+
+def _environment_file_shard() -> tuple[int, int]:
+    """Read ``(index, count)`` from the variables ``tests/conftest.py`` reads."""
+    count = int(os.environ.get("SPACR_PYTEST_FILE_SHARD_COUNT", "1"))
+    index = int(os.environ.get("SPACR_PYTEST_FILE_SHARD_INDEX", "0"))
+    if count < 1 or index < 0 or index >= count:
+        raise ValueError(
+            "SPACR_PYTEST_FILE_SHARD_INDEX must be within "
+            f"[0, {count}); got {index}"
+        )
+    return index, count
 
 
 def _batches(items: Sequence[str], size: int) -> list[list[str]]:
@@ -172,6 +210,41 @@ def _collect_selected_files(files, marker, *, timeout=0, faulthandler_timeout=0)
         return 0, [allowed[path] for path in sorted(set(selected))]
 
 
+def _preselect_nonqt_files(files, marker, *, timeout=0, faulthandler_timeout=0):
+    """Drop files outside ``tests/qt`` whose collection selects no test.
+
+    Most modules outside ``tests/qt`` have no Qt test, so a batch made only
+    of them used to cost one serial collection each (about 20 s on a hosted
+    runner) to learn that. One collection per ``PRESELECT_CHUNK`` files
+    learns it for all of them. Files under ``tests/qt`` always carry the Qt
+    marker and are kept without collecting. A chunk whose collection fails
+    keeps all of its files, so the per-batch collection still runs them and
+    reports the failure against its batch.
+
+    :returns: ``(kept files in input order, files known to select a test)``.
+    """
+    candidates = [path for path in files if not _only_automatically_qt_files([path])]
+    dropped: set[str] = set()
+    confirmed: set[str] = set()
+    for start in range(0, len(candidates), PRESELECT_CHUNK):
+        chunk = candidates[start:start + PRESELECT_CHUNK]
+        status, selected = _collect_selected_files(
+            chunk, marker, timeout=timeout,
+            faulthandler_timeout=faulthandler_timeout,
+        )
+        if status:
+            print(f"pytest preselection: collection of {len(chunk)} files "
+                  f"exited {status}; keeping them for per-batch collection",
+                  flush=True)
+            continue
+        confirmed.update(selected)
+        dropped.update(set(chunk) - set(selected))
+    kept = [path for path in files if path not in dropped]
+    print(f"pytest preselection: {len(candidates) - len(dropped)} of "
+          f"{len(candidates)} files outside tests/qt select a test", flush=True)
+    return kept, confirmed
+
+
 def build_parser() -> argparse.ArgumentParser:
     """Build the command-line parser."""
     parser = argparse.ArgumentParser(description=__doc__)
@@ -228,6 +301,16 @@ def build_parser() -> argparse.ArgumentParser:
         help="use serial pytest collection to avoid starting workers for empty "
         "Qt selections outside tests/qt; requires a positive Qt conjunction",
     )
+    parser.add_argument(
+        "--select-file-shard", action="store_true",
+        help="keep only the files of the shard named by "
+        "SPACR_PYTEST_FILE_SHARD_INDEX/COUNT before forming batches",
+    )
+    parser.add_argument(
+        "--preselect-nonqt-files", action="store_true",
+        help="with --precollect-nonqt-batches, collect files outside tests/qt "
+        "in chunks once and drop those that select no test before batching",
+    )
     return parser
 
 
@@ -269,6 +352,25 @@ def main(argv: Sequence[str] | None = None) -> int:
         raise FileNotFoundError("no test_*.py files found")
     if args.batch_size < 1:
         raise ValueError("batch size must be at least 1")
+    if args.preselect_nonqt_files and not args.precollect_nonqt_batches:
+        raise ValueError(
+            "--preselect-nonqt-files requires --precollect-nonqt-batches"
+        )
+    if args.select_file_shard:
+        index, count = _environment_file_shard()
+        total = len(files)
+        files = [path for path in files if file_shard(path, count) == index]
+        print(f"file shard {index} of {count}: {len(files)} of {total} files",
+              flush=True)
+        if not files:
+            print("file shard holds no files; no batches started", flush=True)
+            return 0
+    confirmed: set[str] = set()
+    if args.preselect_nonqt_files:
+        files, confirmed = _preselect_nonqt_files(
+            files, args.marker, timeout=args.batch_timeout,
+            faulthandler_timeout=args.faulthandler_timeout,
+        )
     if args.collect_selected_files:
         status, files = _collect_selected_files(
             files, args.marker, timeout=args.batch_timeout,
@@ -355,7 +457,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             ])
         command.extend(["-v", "--tb=short"])
         if (args.precollect_nonqt_batches and args.workers > 1
-                and not _contains_automatically_qt_files(batch)):
+                and not _contains_automatically_qt_files(batch)
+                and not all(path in confirmed for path in batch)):
             collection = [sys.executable, "-m", "pytest", *batch,
                           "-m", args.marker, "--collect-only", "-q", "-n", "0",
                           "--tb=short"]

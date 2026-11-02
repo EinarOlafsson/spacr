@@ -263,8 +263,14 @@ jobs:
             if [ "${{ inputs.collect_selected_files }}" = "true" ]; then
               batch_collection_args=(--collect-selected-files)
             elif [ -n "$SPACR_QT_NATIVE_EVIDENCE_DIR" ]; then
-              batch_collection_args=(--precollect-nonqt-batches)
+              batch_collection_args=(--precollect-nonqt-batches
+                                     --preselect-nonqt-files)
             fi
+            # Batch only this shard's files. conftest.py drops the other
+            # shards' items after collection, so batching the whole tree
+            # made Qt shard 4 of run 41462717049 import every file and
+            # start 310 batches, 115 of which selected nothing.
+            batch_collection_args+=(--select-file-shard)
             python tools/run_pytest_batches.py tests/ \
               "${batch_collection_args[@]}" \
               --marker '${{ inputs.marker_expression }}' \
