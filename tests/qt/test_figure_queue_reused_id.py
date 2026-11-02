@@ -91,3 +91,30 @@ def test_the_same_object_after_eviction_is_reselected_not_requeued(queue):
 
     assert queue.add_figure(fig) == idx
     assert queue._count == count
+
+
+def test_an_object_that_cannot_be_weakly_referenced_is_recorded_by_id_only(
+        queue):
+    class Slotted:
+        __slots__ = ()
+
+    thing = Slotted()
+    queue._fig_refs[id(thing)] = lambda: None
+    queue._remember_figure(thing, 7)
+    assert queue._fig_index[id(thing)] == 7
+    assert id(thing) not in queue._fig_refs
+    assert queue._is_known_figure(thing) is True
+
+
+def test_a_figure_with_no_recorded_reference_is_taken_as_known(queue):
+    assert queue._is_known_figure(_fig()) is True
+
+
+def test_a_recorded_figure_is_known_and_a_stranger_with_its_id_is_not(
+        queue, monkeypatch):
+    kept = _fig()
+    queue._remember_figure(kept, 3)
+    assert queue._is_known_figure(kept) is True
+    stranger = _fig()
+    queue._fig_refs[id(stranger)] = weakref.ref(kept)
+    assert queue._is_known_figure(stranger) is False
