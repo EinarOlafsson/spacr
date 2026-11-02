@@ -301,12 +301,8 @@ def _nm_per(unit):
     return _LENGTH_UNITS_NM.get(unit)
 
 
-def _tiff_pixel_size_nm(path):
-    """The pixel size a TIFF records, in nanometres, or None.
-
-    What :func:`spacr.io.tiff_pixel_size_nm` answers, read with tifffile
-    alone, so a mask save asking a TIFF's calibration never imports
-    :mod:`spacr.io` and the deep-learning stack it brings in.
+def _tiff_calibration_tags(path):
+    """The calibration a TIFF records, or None when it cannot be read.
 
     :param path: the TIFF.
     """
@@ -318,12 +314,38 @@ def _tiff_pixel_size_nm(path):
             tag = page.tags.get("XResolution")
             unit_tag = page.tags.get("ResolutionUnit")
             imagej = tif.imagej_metadata or {}
-            shaped = (tif.shaped_metadata or ({},))[0] or {}
+            shaped: Any = (tif.shaped_metadata or ({},))[0] or {}
     except Exception:
         return None
+    return tag, unit_tag, imagej, shaped
+
+
+def _tiff_pixel_size_nm(path):
+    """The pixel size a TIFF records, in nanometres, or None.
+
+    What :func:`spacr.io.tiff_pixel_size_nm` answers, read with tifffile
+    alone, so a mask save asking a TIFF's calibration never imports
+    :mod:`spacr.io` and the deep-learning stack it brings in.
+
+    :param path: the TIFF.
+    """
+    tags = _tiff_calibration_tags(path)
+    if tags is None:
+        return None
+    tag, unit_tag, imagej, shaped = tags
     exact = shaped.get("pixel_size_nm") if isinstance(shaped, dict) else None
     if isinstance(exact, (int, float)) and exact > 0:
         return float(exact)
+    return _resolution_tag_nm(tag, unit_tag, imagej)
+
+
+def _resolution_tag_nm(tag, unit_tag, imagej):
+    """Nanometres per pixel from a TIFF resolution tag, or None.
+
+    :param tag: the XResolution tag, or None.
+    :param unit_tag: the ResolutionUnit tag, or None.
+    :param imagej: the ImageJ metadata mapping.
+    """
     if tag is None:
         return None
     numerator, denominator = tag.value
