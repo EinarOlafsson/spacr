@@ -12901,8 +12901,12 @@ class _VolumeStage(QWidget):
         screen = screen0 + (corners - origin) @ matrix.T
         figure = self._panel.canvas._figure
         width, height = float(figure.bbox.width), float(figure.bbox.height)
-        x0, x1 = max(0.0, np.floor(screen[:, 0].min())), min(width, np.ceil(screen[:, 0].max()))
-        y0, y1 = max(0.0, np.floor(screen[:, 1].min())), min(height, np.ceil(screen[:, 1].max()))
+        low, high = screen[:, :2].min(axis=0), screen[:, :2].max(axis=0)
+        if (min(width, high[0]) - max(0.0, low[0]) < 1
+                or min(height, high[1]) - max(0.0, low[1]) < 1):
+            return None
+        x0, x1 = max(0.0, np.floor(low[0])), min(width, np.ceil(high[0]))
+        y0, y1 = max(0.0, np.floor(low[1])), min(height, np.ceil(high[1]))
         if x1 - x0 < 2 or y1 - y0 < 2:
             return None
         near, far = float(screen[:, 2].min()), float(screen[:, 2].max())
