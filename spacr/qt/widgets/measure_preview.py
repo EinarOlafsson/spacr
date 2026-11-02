@@ -2530,7 +2530,17 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
     def _finish_crop_export(self, token, crop_token, result) -> None:
         """Publish only the current export, or clean its private staging folder."""
         stage = result.get("stage") if isinstance(result, dict) else None
+        self._last_export_outcome = {
+            "job_token": token, "current_job_token": self._export_job_token,
+            "export_token": self._export_token, "crop_token": crop_token,
+            "current_crop_token": self._crop_token,
+            "cancelled": bool(isinstance(result, dict) and result.get("cancelled")),
+            "error": result.get("error") if isinstance(result, dict) else repr(result),
+            "published": False}
+        self._export_outcomes = (list(getattr(self, "_export_outcomes", ()))
+                                 + [self._last_export_outcome])[-8:]
         if token != self._export_job_token:
+            self._last_export_outcome["skipped"] = "superseded export job"
             if stage is not None:
                 stage.cleanup()
             return
@@ -2541,19 +2551,24 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         if not self._crop_running:
             self.set_preview_busy(False)
         if token != self._export_token or crop_token != self._crop_token:
+            self._last_export_outcome["skipped"] = "export or crop token changed"
             if stage is not None:
                 stage.cleanup()
             return
         if result.get("cancelled"):
+            self._last_export_outcome["skipped"] = "writer returned cancelled"
             self.set_preview_status(tr("Export cancelled."))
         elif result.get("error"):
+            self._last_export_outcome["skipped"] = "writer returned an error"
             self.set_preview_status(tr("Export failed: {error}", error=result["error"]))
         else:
             try:
                 _publish_preview_crop_export(result)
             except Exception as exc:
+                self._last_export_outcome["skipped"] = f"publish raised {exc!r}"
                 self.set_preview_status(tr("Export failed: {error}", error=str(exc)))
             else:
+                self._last_export_outcome["published"] = True
                 self.set_preview_status(tr("Exported {count} crops to {path}.",
                                            count=result["count"],
                                            path=result["destination"]))

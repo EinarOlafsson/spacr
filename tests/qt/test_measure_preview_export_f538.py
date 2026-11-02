@@ -54,8 +54,11 @@ def test_actual_button_exports_full_display_pixels_and_provenance(
     monkeypatch.setattr(mp, '_publish_preview_crop_export', publish)
     widget._export_btn.click()
     qtbot.waitUntil(lambda: not widget._export_running, timeout=10000)
-    assert thread_ids['write'] != threading.get_ident()
-    assert thread_ids['publish'] == threading.get_ident()
+    outcome = getattr(widget, '_last_export_outcome', None)
+    assert thread_ids['write'] != threading.get_ident(), outcome
+    assert thread_ids.get('publish') == threading.get_ident(), (
+        f"publish was not called: {outcome}; all {getattr(widget, '_export_outcomes', None)}; "
+        f"status {widget.preview_status()!r}")
     manifest = json.loads((destination / 'provenance.json').read_text(encoding="utf-8"))
     assert manifest['crop_count'] == len(expected)
     assert manifest['display_primaries'] == primaries
