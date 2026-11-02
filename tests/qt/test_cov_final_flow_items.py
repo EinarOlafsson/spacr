@@ -5,12 +5,10 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtWidgets import (QHBoxLayout, QLabel, QSpacerItem, QVBoxLayout,
-                               QWidget, QWidgetItem)
+from PySide6.QtWidgets import QHBoxLayout, QLabel, QSpacerItem, QVBoxLayout, QWidget, QWidgetItem
 from shiboken6 import Shiboken
 
-from spacr.qt.widgets.flow import (FlowLayout, _item_python_can_track,
-                                   _take_item)
+from spacr.qt.widgets.flow import FlowLayout, _item_python_can_track, _take_item
 
 pytestmark = pytest.mark.qt
 
