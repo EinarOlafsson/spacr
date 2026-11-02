@@ -1886,6 +1886,8 @@ class _IdlePrebuild(QObject):
         self._timer.timeout.connect(self._slice)
         self._watching = False
         self._pointer = None
+        self._wait_ms = 0
+        self._armed = True
         #: Wall time, in ms, of each slice run so far; read by the tests
         #: and the measurements, never by the application.
         self.slices_ms: list = []
@@ -1919,7 +1921,9 @@ class _IdlePrebuild(QObject):
         if not watch:
             self._unwatch()
         self._pointer = self._pointer_now()
-        self._timer.start(ms)
+        self._wait_ms = int(ms)
+        self._armed = False
+        self._timer.start(0)
 
     def _unwatch(self) -> None:
         """Remove the application event filter once when activity observation ends."""
@@ -1961,6 +1965,10 @@ class _IdlePrebuild(QObject):
                 return
         except RuntimeError:
             self.stop()
+            return
+        if not self._armed:
+            self._armed = True
+            self._timer.start(self._wait_ms)
             return
         if not self._watching:
             if self._pointer_now() != self._pointer:
