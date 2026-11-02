@@ -1,15 +1,27 @@
 """Regression results shrink without covering the shell or clipping controls."""
 import pytest
-from PySide6.QtCore import QCoreApplication, QEvent, QPoint
+from PySide6.QtCore import QCoreApplication, QEvent, QEventLoop, QPoint, QTimer
 from PySide6.QtWidgets import QScrollArea
+
+_SETTLE_PASSES = 25
+"""Event-loop passes the regression layout gets to settle; it takes two to five."""
 
 
 def _wait_for_runtime_geometry(qtbot, screen):
     """Observe settled panes and scroll ranges before measuring reachability.
 
+    The layout must settle within :data:`_SETTLE_PASSES` turns of the event
+    loop, not within a wall-clock second. The screen's first passes share
+    the interpreter lock with the background import of the data libraries
+    and paint the ambient animation on the CPU when there is no OpenGL, so
+    on a loaded runner one pass can take most of a second while the number
+    of passes stays the same. A relayout chain that keeps re-queueing itself
+    still fails here. Each pass is a real QEventLoop run, never qWait,
+    which keeps the interpreter lock while it sleeps.
+
     :param qtbot: the event-loop runner for this test.
     :param screen: the real regression screen whose layout must settle.
-    :returns: None after consecutive unchanged readings, within one second.
+    :returns: None after consecutive unchanged readings.
     """
     from spacr.qt.widgets.collapsible_splitter import CollapsibleSplitter
 
@@ -26,7 +38,7 @@ def _wait_for_runtime_geometry(qtbot, screen):
 
     def settled():
         nonlocal previous
-        # qWait can return with a layout request posted during its final sleep.
+        # A pass can end with a layout request posted during its final timer.
         QCoreApplication.sendPostedEvents(None, QEvent.LayoutRequest)
         geometry = (tuple(widget.geometry().getRect() for widget in observed),
                     bar.minimum(), bar.maximum(), bar.pageStep())
@@ -38,7 +50,14 @@ def _wait_for_runtime_geometry(qtbot, screen):
         previous = None if pending else geometry
         return unchanged
 
-    qtbot.waitUntil(settled, timeout=1000)
+    for passes in range(1, _SETTLE_PASSES + 1):
+        loop = QEventLoop()
+        QTimer.singleShot(10, loop.quit)
+        loop.exec()
+        if settled():
+            return
+    pytest.fail(f'regression layout still changing after {passes} event-loop '
+                f'passes: {previous}')
 
 
 @pytest.mark.parametrize('height', [600, 768])
