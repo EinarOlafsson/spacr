@@ -11377,6 +11377,10 @@ _HOLD_RECHECK_S = 1.0
 #: painting widget at once: one GUI step of 238-383 ms on an idle screen,
 #: 1.5 s after the field calmed.
 _HOLD_PROBE_BUDGET_S = 0.004
+#: Seconds a scan for hidden parts still owed a layout is trusted
+#: (:meth:`_HeldRows._waits_for_hidden`). Asked again every recheck it made
+#: the Mask screen's once-a-second walk 11-16 ms instead of 4-8.
+_HOLD_OWING_RECHECK_S = 10.0
 _HOLD_FADE_S = 0.25
 _HOLD_FPS = 20
 _CAPTURE_HELD_FPS = None
@@ -11809,14 +11813,14 @@ class _HeldRows(QObject):
 
         One scan of the widget (:func:`_owing_hidden_layout`) answers for it
         and for every widget under it, and the answers are kept for
-        :data:`_HOLD_RECHECK_S`, so the containers nested in it and a walk
-        taken up again on the next tick do not scan again.
+        :data:`_HOLD_OWING_RECHECK_S`, so the containers nested in it and
+        the walks in between do not scan again.
 
         :param widget: the widget about to be probed.
         """
         now = time.monotonic()
         known = self._owing.get(id(widget))
-        if known is not None and now - known[0] < _HOLD_RECHECK_S:
+        if known is not None and now - known[0] < _HOLD_OWING_RECHECK_S:
             return known[1]
         if len(self._owing) > _HOLD_PROBES_MAX:
             self._owing.clear()
