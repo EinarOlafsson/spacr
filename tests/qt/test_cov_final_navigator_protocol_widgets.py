@@ -362,3 +362,46 @@ def test_a_motion_change_with_motion_off_and_no_controls_finishes_growth(
     page.field.protocol_controls = None
     monkeypatch.setattr(page.field, "_motion_enabled", lambda: False)
     page.field._sync_run_state()
+
+
+def test_a_hovered_href_that_is_nowhere_in_the_document_highlights_nothing(
+        qtbot, page, monkeypatch):
+    from PySide6.QtCore import QPoint, QPointF
+    from PySide6.QtGui import QMouseEvent
+
+    details = page.field.details
+    details.setHtml('<p><a href="https://example.org/x">a link</a></p>')
+    details.resize(400, 120)
+    details.show()
+    monkeypatch.setattr(details, "anchorAt", lambda _point: "https://nowhere")
+    point = QPointF(QPoint(12, 10))
+    event = QMouseEvent(QEvent.MouseMove, point, point,
+                        Qt.NoButton, Qt.NoButton, Qt.NoModifier)
+    details.mouseMoveEvent(event)
+    assert details.extraSelections() == []
+
+
+def test_cards_are_offered_with_only_the_inspected_actions_that_name_a_path(
+        qtbot, page, monkeypatch):
+    from spacr.qt.widgets import sample_project
+
+    seen = {}
+
+    def fake_result(family, fmt, choices, source, context):
+        seen["source"], seen["context"] = source, context
+        return {"actions": [], "assumptions": ["Assumed."], "requirements": []}
+
+    monkeypatch.setattr(sample_project, "_protocol_result", fake_result)
+    page.path_edit.setText("/data/in")
+    page._inspected_text = "/data/in"
+    page._inspected_generation = page._input_generation
+    page._last_result = {
+        "path": "/data/in", "context": {},
+        "actions": [("seg", "Segment", "d", ""), ("seg", "Segment", "d", "/data/in/a"),
+                    ("seg", "Segment", "d", "/data/in/b"), ("cnt", "Count", "d", "/data/in/c")]}
+    page._protocol_present()
+    assert seen["source"] == "/data/in"
+    assert seen["context"]["protocol_native_sources"] == {
+        "seg": "/data/in/a", "cnt": "/data/in/c"}
+    assert page._protocol_result["_navigator_inspection"] == (
+        page._inspected_generation, "/data/in")
