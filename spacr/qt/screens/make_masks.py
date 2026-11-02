@@ -16088,19 +16088,20 @@ class MakeMasksScreen(QWidget):
             allowed, _why = _screen_prewarm_allowed()
             if not allowed or _prewarm_memory_is_short():
                 return
+            from .. import screens as screens_package
+
             app = QApplication.instance()
             window = self.window()
             busy = (app is None
                     or app.mouseButtons() != Qt.MouseButton.NoButton
                     or app.activePopupWidget() is not None
                     or app.activeModalWidget() is not None
-                    or bool(getattr(window, "_opening_a_screen", False)))
+                    or bool(getattr(window, "_opening_a_screen", False))
+                    or screens_package._a_window_is_opening_a_screen)
             if busy:
                 QTimer.singleShot(int(self._PREBUILD_RETRY_S * 1000),
                                   self._prebuild_a_folded_screen)
                 return
-            from .. import screens as screens_package
-
             laid_out = self.__dict__.setdefault("_laid_out_folds", set())
             for key in self._PREBUILD_FOLDED:
                 if key not in self._fold_screens:
@@ -16109,7 +16110,8 @@ class MakeMasksScreen(QWidget):
                     break
                 if key not in laid_out:
                     laid_out.add(key)
-                    self._lay_out_a_folded_screen(self._fold_screens[key])
+                    if key not in self._fold_dialogs:
+                        self._lay_out_a_folded_screen(self._fold_screens[key])
                     break
             if any(key not in self._fold_screens or key not in laid_out
                    for key in self._PREBUILD_FOLDED):
