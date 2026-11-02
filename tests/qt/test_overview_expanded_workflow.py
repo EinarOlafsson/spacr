@@ -2212,9 +2212,13 @@ timer.start(50)
 QTimer.singleShot(20000, lambda: finish(2))
 sys.exit(app.exec())
 '''
+    # The backdrop is off, as low-power and safe mode run it: on a two-core
+    # CI runner without OpenGL its CPU shading thread took most of the
+    # interpreter from the GUI thread this test times.
     environment = dict(os.environ, XDG_CONFIG_HOME=str(tmp_path / "config"),
         XDG_CACHE_HOME=str(tmp_path / "cache"), SPACR_NO_NETWORK="1", SPACR_PREWARM="0",
-        SPACR_ISOLATED_PROFILE="1", SPACR_HOME=str(tmp_path / "profile"))
+        SPACR_ISOLATED_PROFILE="1", SPACR_HOME=str(tmp_path / "profile"),
+        SPACR_NO_BACKDROP="1")
     try:
         result = subprocess.run([sys.executable, "-c", code, host_key, str(tmp_path)],
             env=environment, capture_output=True, text=True, timeout=30)

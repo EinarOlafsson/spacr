@@ -73,6 +73,27 @@ def pytest_configure(config):
     # for the native formats those platforms use.
     os.environ.setdefault("APPDATA", home)
     config._spacr_test_config_home = home
+    _share_one_matplotlib_font_cache()
+
+
+def _share_one_matplotlib_font_cache() -> None:
+    """Hand every child process this run's built matplotlib font cache.
+
+    Child processes that move XDG_CACHE_HOME to a fresh folder, to keep
+    spaCR's own files apart, also moved matplotlib's cache, and each one
+    rebuilt the font list on its first matplotlib import: more than ten
+    seconds of a timed child on a machine with many fonts. A user's
+    matplotlib has its cache. MPLCONFIGDIR names matplotlib's folder alone,
+    so the children keep their own XDG_CACHE_HOME.
+    """
+    if os.environ.get("MPLCONFIGDIR"):
+        return
+    try:
+        import matplotlib
+        import matplotlib.font_manager  # noqa: F401
+    except Exception:                                        # noqa: BLE001
+        return
+    os.environ["MPLCONFIGDIR"] = matplotlib.get_cachedir()
 
 
 def _activate_focus_window(widget, qtbot):
