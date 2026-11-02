@@ -160,8 +160,10 @@ def _freeze_survivors() -> None:
 
     Callable from any thread: it only marks a freeze as due. The next
     GUI-thread tick of :func:`collect_once` collects the generations not yet
-    frozen -- what was made since the last freeze, not the whole heap -- then
-    freezes and records the top-level windows alive at that moment. Once one
+    frozen -- what was made since the last freeze, not the whole heap -- when
+    :func:`_a_sweep_is_owed_before_the_freeze` finds a window shown since the
+    last freeze gone or the collector unfrozen, then freezes and records the
+    top-level windows alive at that moment. Once one
     of those windows has been deleted, a later tick returns the permanent
     generation to the collector (:func:`_reclaim_frozen`). Reclaiming the
     whole heap at every freeze instead cost a full sweep per first module
@@ -208,15 +210,139 @@ def _a_frozen_window_was_deleted() -> bool:
     return False
 
 
-def _collect_and_freeze() -> None:
+_SHOWN_SINCE_FREEZE: dict = {}
+_SHOW_WATCH: dict = {"watcher": None, "class": None, "frozen": None, "lost": False}
+
+
+def _window_show_watcher_class():
+    """The class that hears top-level windows being shown, made on first use.
+
+    Defined on first use, as :func:`spacr.qt.gil_priority._application_event_hub_class`
+    is, so importing this module stays Qt-free.
+    """
+    known = _SHOW_WATCH["class"]
+    if known is not None:
+        return known
+    from PySide6.QtCore import QEvent, QObject, Qt
+
+    class _WindowShows(QObject):
+        """Remembers every top-level window shown since the last freeze."""
+
+        def eventFilter(self, watched, event) -> bool:
+            """Note a shown top-level window; consume nothing.
+
+            :param watched: the object shown.
+            :param event: a show event.
+            :returns: ``False``.
+            """
+            import weakref
+
+            try:
+                if (event.type() == QEvent.Type.Show
+                        and QObject.isWidgetType(watched) and watched.isWindow()
+                        and watched.windowType() not in (Qt.Popup, Qt.ToolTip)):
+                    known = _SHOWN_SINCE_FREEZE.get(id(watched))
+                    if known is not None and known() is not watched:
+                        _SHOW_WATCH["lost"] = True
+                    _SHOWN_SINCE_FREEZE[id(watched)] = weakref.ref(watched)
+            except (RuntimeError, TypeError):
+                pass
+            return False
+
+    _SHOW_WATCH["class"] = _WindowShows
+    return _WindowShows
+
+
+def _watch_window_shows(app) -> None:
+    """Hear the application's top-level windows being shown, through its event hub.
+
+    :param app: the ``QApplication``.
+    """
+    try:
+        from PySide6.QtCore import QEvent
+
+        from .gil_priority import _watch_application_events
+
+        watcher = _SHOW_WATCH["watcher"]
+        if watcher is None:
+            watcher = _window_show_watcher_class()(app)
+            _SHOW_WATCH["watcher"] = watcher
+        _watch_application_events(app, watcher, frozenset((QEvent.Type.Show,)))
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not hear window shows for the freezes", exc_info=True)
+
+
+def _stop_watching_window_shows() -> None:
+    """Stop hearing window shows; the next freeze sweeps first."""
+    watcher = _SHOW_WATCH["watcher"]
+    _SHOW_WATCH["frozen"] = None
+    _SHOWN_SINCE_FREEZE.clear()
+    if watcher is None:
+        return
+    try:
+        from PySide6.QtCore import QCoreApplication
+
+        from .gil_priority import _stop_watching_application_events
+
+        _stop_watching_application_events(QCoreApplication.instance(), watcher)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not stop hearing window shows", exc_info=True)
+
+
+def _a_sweep_is_owed_before_the_freeze() -> bool:
+    """Whether the garbage a freeze would keep can hold a window or a reclaim.
+
+    A freeze moves every tracked object out of the collector's reach, so
+    collecting first keeps a window closed since the last freeze, and what
+    an ``unfreeze`` gave back, out of the permanent generation. Everything
+    else alive then is what the freeze is for, and collecting it first is a
+    walk over all of it on the GUI thread: on an idle Mask or Make Masks
+    the freezes after the screen build and the warm-up imports walked
+    300 000-560 000 objects, 113-477 ms offscreen and 288-641 ms on a real
+    display, while the field was on screen. So the walk is made only when it can free
+    something that matters: a window shown since the last freeze is gone,
+    the collector was unfrozen since, or the shows could not be heard.
+    The permanent generation shrinks as frozen objects are freed by their
+    reference counts, so an ``unfreeze`` is told by it being empty; the
+    first freeze of a process always collects.
+    """
+    from shiboken6 import isValid
+
+    from .gil_priority import _application_watchers
+
+    watcher = _SHOW_WATCH["watcher"]
+    widgets = sys.modules.get("PySide6.QtWidgets")
+    app = widgets.QApplication.instance() if widgets is not None else None
+    if (watcher is None or app is None
+            or not any(seen is watcher for seen in _application_watchers(app))):
+        return True
+    if (_SHOW_WATCH["frozen"] is None or _SHOW_WATCH["lost"]
+            or gc.get_freeze_count() == 0):
+        return True
+    for reference in list(_SHOWN_SINCE_FREEZE.values()):
+        window = reference()
+        if window is None or not isValid(window):
+            return True
+    return False
+
+
+def _collect_and_freeze(sweep: bool = True) -> None:
     """Collect the unfrozen generations, then freeze the survivors.
 
     Runs on the GUI thread only, from :func:`collect_once`.
+
+    :param sweep: collect before the freeze. ``False`` freezes at once,
+        for a freeze :func:`_a_sweep_is_owed_before_the_freeze` found
+        nothing to collect for.
     """
     _FREEZE_DUE.clear()
-    gc.collect()
+    if sweep:
+        gc.collect()
     gc.freeze()
     _remember_frozen_windows()
+    _SHOWN_SINCE_FREEZE.clear()
+    _SHOW_WATCH["lost"] = False
+    _SHOW_WATCH["frozen"] = True
 
 
 def _reclaim_frozen() -> None:
@@ -319,7 +445,7 @@ def collect_once() -> int:
         _reclaim_frozen()
         return 2
     if _FREEZE_DUE.is_set():
-        _collect_and_freeze()
+        _collect_and_freeze(sweep=_a_sweep_is_owed_before_the_freeze())
         return 2
     thresholds = _saved_thresholds or gc.get_threshold()
     counts = gc.get_count()
@@ -346,7 +472,7 @@ def install(parent=None) -> bool:
     if _timer is not None:
         return False
     try:
-        from PySide6.QtCore import QTimer
+        from PySide6.QtCore import QCoreApplication, QTimer
     except Exception:                                        # noqa: BLE001
         return False
     try:
@@ -361,6 +487,7 @@ def install(parent=None) -> bool:
         timer.timeout.connect(collect_once)
         timer.start()
         _timer = timer
+        _watch_window_shows(QCoreApplication.instance())
     except Exception:                                        # noqa: BLE001
         LOG.debug("could not install the GUI-thread GC policy", exc_info=True)
         if _was_enabled:
@@ -389,6 +516,7 @@ def uninstall() -> bool:
         pass
     _timer = None
     _saved_thresholds = None
+    _stop_watching_window_shows()
     with _PAUSE_LOCK:
         if _PAUSE["depth"] > 0:
             _PAUSE["resume"] = _was_enabled

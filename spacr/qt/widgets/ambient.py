@@ -11372,6 +11372,11 @@ class _QuietBackgrounds(QObject):
 
 _HOLD_SETTLE_S = 1.5
 _HOLD_RECHECK_S = 1.0
+#: Seconds of new probe renders one walk may spend (:meth:`_HeldRows._covered`).
+#: The first walk over Mask, or Make Masks with a folder open, rendered every
+#: painting widget at once: one GUI step of 238-383 ms on an idle screen,
+#: 1.5 s after the field calmed.
+_HOLD_PROBE_BUDGET_S = 0.004
 _HOLD_FADE_S = 0.25
 _HOLD_FPS = 20
 _CAPTURE_HELD_FPS = None
@@ -11403,6 +11408,37 @@ _HOLD_RING_SHAPES = (QFrame.Shape.NoFrame, QFrame.Shape.Box,
 _HOLD_PROBES_MAX = 4096
 _HOLD_TILE = 16
 _HELD_CLASSES: Dict[type, Tuple[str, bool]] = {}
+
+
+def _owing_hidden_layout(root) -> Tuple[list, set]:
+    """The widgets under ``root`` whose render would first lay out what is hidden in them.
+
+    ``QWidget.render`` delivers every move and resize event the widget's
+    descendants are still owed, hidden ones included, and a hidden page
+    that was never shown owes them all: on Make Masks the first render of
+    the view tabs resized their hidden pages, 205 ms against 1.6 ms once
+    they had been, and the Mask screen's took 230-300 ms. Such a widget is
+    walked as painting nothing of its own, which only repaints it with the
+    field, until its hidden parts have been shown.
+
+    :param root: the widget whose descendants are looked at.
+    :returns: ``(descendants, owing)``: ``root``'s descendants, and the
+        ``id`` of every one of them, and of ``root``, that has a descendant
+        still owed a move or resize event.
+    """
+    owing = set()
+    descendants = QObject.findChildren(root, QWidget)
+    for child in descendants:
+        if not (QWidget.testAttribute(child, Qt.WA_PendingResizeEvent)
+                or QWidget.testAttribute(child, Qt.WA_PendingMoveEvent)):
+            continue
+        parent = QWidget.parentWidget(child)
+        while parent is not None and id(parent) not in owing:
+            owing.add(id(parent))
+            if parent is root:
+                break
+            parent = QWidget.parentWidget(parent)
+    return descendants, owing
 
 
 def _held_class(cls) -> Tuple[str, bool]:
@@ -11478,6 +11514,11 @@ class _HeldRows(QObject):
         self._walked = float("-inf")
         self._probes: dict = {}
         self._layer: Optional[QImage] = None
+        self._budget: Optional[float] = None
+        self._deadline: Optional[float] = None
+        self._slice: Optional[float] = None
+        self._short = False
+        self._owing: Dict[int, Tuple[float, bool]] = {}
 
     def stir(self) -> None:
         """The field is being moved by the user: show it everywhere."""
@@ -11557,15 +11598,26 @@ class _HeldRows(QObject):
         if (now - self._walked >= _HOLD_RECHECK_S
                 and not self.parent().__dict__.get("_run_paced")):
             self._walked = now
-            if self._covered() != self.region:
+            covered = self._covered_in_slices()
+            if self._short:
+                self._walked = now - _HOLD_RECHECK_S
+            elif covered != self.region:
                 self.release()
                 return None
         return self.live
 
     def _arm(self, now: float) -> None:
-        """Walk the window; hold the next whole frame under what it found."""
+        """Walk the window; hold the next whole frame under what it found.
+
+        A walk that ran out of its probe budget is taken up again on the
+        next tick, with the probes it rendered kept, and the hold arms once
+        a walk is complete.
+        """
         self._walked = now
-        region = self._covered()
+        region = self._covered_in_slices()
+        if self._short:
+            self._walked = now - _HOLD_RECHECK_S
+            return
         if region.isEmpty():
             return
         self.region = region
@@ -11583,6 +11635,17 @@ class _HeldRows(QObject):
         return bool(self.frame is not None and not self.live.isEmpty()
                     and self.live.subtracted(region).isEmpty())
 
+    def _covered_in_slices(self) -> QRegion:
+        """:meth:`_covered`, rendering new probes for at most
+        :data:`_HOLD_PROBE_BUDGET_S`; :attr:`_short` says whether it stopped.
+        """
+        self._short = False
+        self._slice = _HOLD_PROBE_BUDGET_S
+        try:
+            return self._covered()
+        finally:
+            self._slice = None
+
     def _covered(self) -> QRegion:
         """The part of the field something is drawn over, in its coordinates.
 
@@ -11591,14 +11654,24 @@ class _HeldRows(QObject):
         the live region is left in far fewer, larger rectangles (Home 160
         became 71, Measure 83 became 22), which is what each frame's paint
         pays per.
+
+        Inside :meth:`_covered_in_slices` the probes not rendered before
+        get a budget of seconds counted from the first one; a walk that runs
+        out sets :attr:`_short`, and its region is incomplete. Otherwise
+        they are all rendered.
         """
         backdrop = self.parent()
         host = backdrop.parentWidget()
         box = [QRegion()]
-        if host is not None:
-            if len(self._probes) > _HOLD_PROBES_MAX:
-                self._probes.clear()
-            self._walk(host, backdrop, -backdrop.pos(), backdrop.rect(), box)
+        self._short = False
+        self._budget, self._deadline = self.__dict__.get("_slice"), None
+        try:
+            if host is not None:
+                if len(self._probes) > _HOLD_PROBES_MAX:
+                    self._probes.clear()
+                self._walk(host, backdrop, -backdrop.pos(), backdrop.rect(), box)
+        finally:
+            self._budget = self._deadline = None
         grid = _HOLD_GRID
         snapped = QRegion()
         for part in box[0]:
@@ -11608,6 +11681,23 @@ class _HeldRows(QObject):
             snapped = snapped.united(QRect(left, top, right - left,
                                            bottom - top))
         return snapped.intersected(backdrop.rect())
+
+    def _out_of_time(self) -> bool:
+        """Whether this walk has spent its probe budget, before one more render.
+
+        The first render of a walk always goes ahead, so every walk makes
+        progress.
+        """
+        if self._budget is None:
+            return False
+        now = time.perf_counter()
+        if self._deadline is None:
+            self._deadline = now + self._budget
+            return False
+        if now > self._deadline:
+            self._short = True
+            return True
+        return False
 
     def _walk(self, parent, backdrop, offset: QPoint, clip: QRect, box) -> None:
         """Add what ``parent``'s children draw over the field to ``box[0]``."""
@@ -11633,10 +11723,13 @@ class _HeldRows(QObject):
         """Where ``widget`` itself, without its children, paints.
 
         :returns: ``None`` when it is held whole and not walked into (it
-            paints over its area, is a leaf that paints, or is a scrolling
+            paints over its area, is a leaf that paints, is a spin box or
+            combo box, whose editor is its only child, or is a scrolling
             view that draws its own contents); otherwise the region, in its
             own coordinates, that its background, frame and paint event
-            cover -- empty for a plain layout container.
+            cover -- empty for a plain layout container. A spin box was
+            probed like a container, and its first render on Make Masks took
+            130-282 ms against 1.6 ms after.
         """
         if QObject.property(widget, "spacrAmbientTransparentOverlay") is True:
             return QRegion()
@@ -11654,6 +11747,8 @@ class _HeldRows(QObject):
             return (QRegion() if plain and name == "QWidget"
                     and not self._paints_a_background(widget) else None)
         if isinstance(widget, QAbstractScrollArea) and name not in _HOLD_CONTAINERS:
+            return None
+        if isinstance(widget, (QAbstractSpinBox, QComboBox)):
             return None
         if not plain:
             return self._painted_tiles(widget)
@@ -11677,6 +11772,8 @@ class _HeldRows(QObject):
         if (known is not None and known[0] == (width, height)
                 and known[1]() is widget):
             return known[2]
+        if self._waits_for_hidden(widget) or self._out_of_time():
+            return QRegion()
         region = QRegion()
         if width > 0 and height > 0:
             image = QImage(width, height, QImage.Format_ARGB32_Premultiplied)
@@ -11707,6 +11804,28 @@ class _HeldRows(QObject):
         self._probes[key] = ((width, height), weakref.ref(widget), region)
         return region
 
+    def _waits_for_hidden(self, widget) -> bool:
+        """Whether ``widget``'s probe waits until its hidden parts are shown.
+
+        One scan of the widget (:func:`_owing_hidden_layout`) answers for it
+        and for every widget under it, and the answers are kept for
+        :data:`_HOLD_RECHECK_S`, so the containers nested in it and a walk
+        taken up again on the next tick do not scan again.
+
+        :param widget: the widget about to be probed.
+        """
+        now = time.monotonic()
+        known = self._owing.get(id(widget))
+        if known is not None and now - known[0] < _HOLD_RECHECK_S:
+            return known[1]
+        if len(self._owing) > _HOLD_PROBES_MAX:
+            self._owing.clear()
+        descendants, owing = _owing_hidden_layout(widget)
+        for child in descendants:
+            self._owing[id(child)] = (now, id(child) in owing)
+        self._owing[id(widget)] = (now, id(widget) in owing)
+        return id(widget) in owing
+
     def _paints_a_background(self, widget) -> bool:
         """Whether ``widget``'s style sheet background paints any pixel."""
         if (not QWidget.testAttribute(widget, Qt.WA_StyledBackground)
@@ -11720,6 +11839,8 @@ class _HeldRows(QObject):
         known = self._probes.get(key)
         if known is not None and known[0] == size and known[1]() is widget:
             return known[2]
+        if self._out_of_time():
+            return False
         probe = _card_probe(widget, *size)
         blank = QImage(probe.size(), probe.format())
         blank.fill(0)
