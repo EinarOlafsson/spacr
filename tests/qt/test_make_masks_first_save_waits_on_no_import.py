@@ -13,7 +13,11 @@ finishes, a stand-in for the slowest cold import. The save must still land
 within a few seconds, and the window must keep pumping events through the
 save and the move to the next field. When the save and the move take more
 than two seconds together, the child dumps every thread's stack to its
-standard error, which a failure shows. A calibrated TIFF is opened and read
+standard error, which a failure shows. The dumps go to the process's own
+standard error, not ``sys.stderr``: a spaCR worker can leave a routing
+proxy there, which has no file descriptor. The save starts only once the
+import of :mod:`spacr.io` is underway and held, so it is measured against
+the stuck import rather than racing the warm-up thread to it. A calibrated TIFF is opened and read
 for its pixel size through tifffile alone too, so neither the field's load
 nor its save imports torch.
 """
@@ -36,7 +40,12 @@ REPO = Path(__file__).resolve().parents[2]
 CHILD = r'''
 import faulthandler, json, os, sys, threading, time
 
-faulthandler.dump_traceback_later(60, exit=True)
+try:
+    sys.__stderr__.fileno()
+    DUMPS = sys.__stderr__
+except (AttributeError, OSError, ValueError):
+    DUMPS = os.fdopen(2, "w", closefd=False)
+faulthandler.dump_traceback_later(60, exit=True, file=DUMPS)
 
 held = threading.Event()
 
@@ -107,8 +116,9 @@ screen.resize(900, 700)
 screen.show()
 assert screen._open_folder(folder)
 assert pump_until(lambda: screen._canvas.mask is not None, 30)
+pump_until(held.is_set, 30)
 dog = LoopWatchdog()
-faulthandler.dump_traceback_later(2, exit=False)
+faulthandler.dump_traceback_later(2, exit=False, file=DUMPS)
 dog.start()
 screen._canvas.mask[12:20, 12:20] = 7
 began = time.monotonic()
@@ -118,7 +128,7 @@ seconds = time.monotonic() - began
 screen._btn_next.click()
 moved = pump_until(lambda: screen._current_index == 1 and not screen._loading, 5)
 dog.stop()
-faulthandler.dump_traceback_later(60, exit=True)
+faulthandler.dump_traceback_later(60, exit=True, file=DUMPS)
 path = engine.mask_save_path(folder, "field_0.tif")
 print(json.dumps({
     "saved": saved, "seconds": seconds, "moved": moved, "worst": dog.worst,
