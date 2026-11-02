@@ -1245,7 +1245,7 @@ class ObjectSettingsGrid(QWidget):
         """
         full = self._every_column_table()
         self._claimed = full
-        shown = {obj for row in full.values() for obj in row
+        shown = {obj for obj in {obj for row in full.values() for obj in row}
                  if _object_is_in_the_run(obj, self._base)}
         table: Dict[str, Dict[str, Any]] = {}
         for question, row in full.items():

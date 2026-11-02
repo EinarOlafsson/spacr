@@ -23,7 +23,7 @@ import sys
 import threading
 from typing import Any, Dict, FrozenSet, Mapping, Optional
 
-from PySide6.QtCore import QObject
+from PySide6.QtCore import QObject, QTimer
 
 from spacr.object_settings_table import (_CALCULATE_DIAMETERS,
                                          _DIAMETER_OBJECTS, _FILTER_PREFIX,
@@ -42,6 +42,11 @@ _CHANGE_SIGNALS = ("currentTextChanged", "currentIndexChanged", "toggled",
 
 
 LOG = logging.getLogger(__name__)
+
+#: Milliseconds a typist must pause before a channel they are typing that
+#: switched an object on or off redraws the table's columns. Each key
+#: restarts the wait, so typing a channel redraws the table once.
+_REDRAW_AFTER_MS = 150
 
 
 class ObjectGridBinding(QObject):
@@ -75,6 +80,10 @@ class ObjectGridBinding(QObject):
         #: Widgets already connected, so `follow_the_form` can be called
         #: again after the table widens without doubling every connection.
         self._followed: set = set()
+        self._redraw = QTimer(self)
+        self._redraw.setSingleShot(True)
+        self._redraw.setInterval(_REDRAW_AFTER_MS)
+        self._redraw.timeout.connect(self._redraw_the_columns)
         self._grid.settings_changed.connect(self._write_back)
         self._grid.settings_changed.connect(self.follow_the_form)
         if "spacr.qt.mask_engine" not in sys.modules:
@@ -173,6 +182,13 @@ class ObjectGridBinding(QObject):
             widget = widgets.get(key)
             if widget is None or id(widget) in self._followed:
                 continue
+            editor = _text_editor_of(widget)
+            if editor is not None:
+                try:
+                    editor.editingFinished.connect(self._redraw_now)
+                except Exception:                            # noqa: BLE001
+                    LOG.debug("could not follow %s's commit", key,
+                              exc_info=True)
             for name in _CHANGE_SIGNALS:
                 signal = getattr(widget, name, None)
                 if signal is None:
@@ -192,9 +208,30 @@ class ObjectGridBinding(QObject):
 
         Reads the panel once and compares, so a widget that emitted without
         changing -- which most of them do on focus -- costs a dictionary
-        lookup rather than a table write.
+        lookup rather than a table write. A channel being typed that
+        switches an object on or off redraws the columns once the typist
+        pauses for :data:`_REDRAW_AFTER_MS`, not inside the key that did it;
+        a value set any other way redraws them at once.
         """
         if self._busy:
+            return
+        self._busy = True
+        try:
+            self._show_what_the_panel_holds(
+                redraw_later=_typed_into(self.sender()))
+        finally:
+            self._busy = False
+
+    def _redraw_now(self) -> None:
+        """Redraw at once a typed channel's columns when the typist commits it."""
+        if self._redraw.isActive():
+            self._redraw.stop()
+            self._redraw_the_columns()
+
+    def _redraw_the_columns(self) -> None:
+        """Redraw the table from the panel once the typist has paused."""
+        if self._busy:
+            self._redraw.start()
             return
         self._busy = True
         try:
@@ -202,9 +239,11 @@ class ObjectGridBinding(QObject):
         finally:
             self._busy = False
 
-    def _show_what_the_panel_holds(self) -> int:
+    def _show_what_the_panel_holds(self, redraw_later: bool = False) -> int:
         """Write the panel's answers into the cells, one cell at a time.
 
+        :param redraw_later: when the columns must be redrawn, start the
+            typist's pause instead of redrawing now.
         :returns: how many cells changed.
 
         When a channel on the form switches an object on or off, the columns
@@ -217,6 +256,10 @@ class ObjectGridBinding(QObject):
             return 0
         same = getattr(self._grid, "_shows_the_same_objects_as", None)
         if callable(same) and not same(current):
+            if redraw_later:
+                self._redraw.start()
+                return 0
+            self._redraw.stop()
             self._grid.set_settings(current)
             return 1
         keep = getattr(self._grid, "_keep_the_switches", None)
@@ -390,6 +433,37 @@ def _same(a: Any, b: Any) -> bool:
     if isinstance(a, (int, float)) and isinstance(b, (int, float)):
         return float(a) == float(b)
     return a == b
+
+
+def _typed_into(widget) -> bool:
+    """Whether ``widget`` changed because the user is typing into it.
+
+    True for a text field, or an editable box's field, that holds the
+    keyboard focus: a value set from code or a settings file arrives in a
+    widget the user is not typing into.
+
+    :param widget: the widget whose change signal arrived, or ``None``.
+    """
+    from PySide6.QtWidgets import QApplication
+
+    editor = _text_editor_of(widget)
+    if editor is None or not editor.hasFocus():
+        return False
+    app = QApplication.instance()
+    return app is not None and editor is app.focusWidget()
+
+
+def _text_editor_of(widget):
+    """The line edit a user types into for ``widget``, or ``None``.
+
+    :param widget: a settings widget: a line edit, or a box whose field is
+        editable; anything else has none.
+    """
+    from PySide6.QtWidgets import QComboBox, QLineEdit
+
+    if isinstance(widget, QComboBox):
+        widget = widget.lineEdit() if widget.isEditable() else None
+    return widget if isinstance(widget, QLineEdit) else None
 
 
 def _warm_the_filter_parser() -> None:

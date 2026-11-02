@@ -96,3 +96,24 @@ def test_a_typed_channel_reaches_the_run(mask, qapp):
     _type_into(widget, "1")
     qapp.processEvents()
     assert str((model.collect() or {}).get("nucleus_channel", "")) == "1"
+
+
+def test_the_table_shows_a_typed_channel_once_the_typist_pauses(mask, qtbot):
+    """A channel typed key by key redraws the per-object table once, after the
+    last key, and the table then shows the object the channel switched on."""
+    grid = getattr(mask, "_object_grid", None)
+    widget = mask._settings_model._widgets.get("pathogen_channel")
+    if grid is None or widget is None:
+        pytest.skip("this panel has no per-object table or pathogen channel")
+    _type_into(widget, "")
+    qtbot.waitUntil(lambda: "pathogen" not in grid.objects(), timeout=5000)
+    redraws = []
+    original = grid.set_settings
+    grid.set_settings = lambda settings: (redraws.append(1), original(settings))
+    try:
+        for text in ("1", "12", "1"):
+            _type_into(widget, text)
+        qtbot.waitUntil(lambda: "pathogen" in grid.objects(), timeout=5000)
+    finally:
+        del grid.set_settings
+    assert redraws == [1]

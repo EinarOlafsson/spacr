@@ -56,6 +56,10 @@ OBJECT_ORDER: Tuple[str, ...] = (
 #: files every organelle slot under the first one.
 _PREFIXES = tuple(sorted(OBJECT_ORDER, key=len, reverse=True))
 
+#: The same prefixes as a set, so a key is split by looking up its heads
+#: rather than by testing all of the several hundred organelle slots.
+_PREFIX_SET = frozenset(_PREFIXES)
+
 
 #: Questions spelled with the object LAST (``remove_background_cell``).
 #:
@@ -94,9 +98,11 @@ def _split(key: str) -> Optional[Tuple[str, str]]:
         head = question + "_"
         if key.startswith(head) and key[len(head):] in OBJECT_ORDER:
             return key[len(head):], question
-    for prefix in _PREFIXES:
-        if key.startswith(prefix + "_"):
-            return prefix, key[len(prefix) + 1:]
+    cut = key.rfind("_")
+    while cut > 0:
+        if key[:cut] in _PREFIX_SET:
+            return key[:cut], key[cut + 1:]
+        cut = key.rfind("_", 0, cut)
     return None
 
 
