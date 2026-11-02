@@ -4354,7 +4354,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
     def _preview_blocked_reason(self) -> str:
         """Why a pass cannot start, or ``''``."""
-        if self._load_jobs.is_busy() or self._load_jobs.active_jobs():
+        if self._load_jobs.is_busy() or self._load_jobs._jobs_still_working():
             return tr(self.PREVIEW_SOURCE_HINT)
         if not self._jobs.is_busy() and self._jobs.active_jobs():
             return tr("The previous preview is still finishing. Run preview will be available when it exits.")

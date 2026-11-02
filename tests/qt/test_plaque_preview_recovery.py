@@ -200,3 +200,74 @@ def test_fetched_paper_still_loads_when_form_propagation_fails(panel, tmp_path):
                              {"folder": str(tmp_path), "paper": "fixture", "figures": 1})
     assert propagated == [{"src": str(tmp_path)}]
     assert panel.current_path() == source and panel._paper_btn.isEnabled()
+
+
+def test_run_starts_while_a_delivered_load_thread_waits_for_retirement(qtbot, monkeypatch, tmp_path):
+    """A load that has delivered its image no longer blocks Run, even before its thread retires."""
+    from PySide6.QtCore import Qt
+
+    monkeypatch.setattr(ppv, "missing_papers_packages", lambda: [])
+    widget = ppv.PlaquePreviewPanel(threaded=True)
+    qtbot.addWidget(widget)
+    loads = widget._load_jobs
+    held = []
+    monkeypatch.setattr(loads, "_retire_finished_jobs", lambda: held.append(True))
+    path = _image(tmp_path / "a.png")
+    assert widget.load_source_async(tmp_path)
+    qtbot.waitUntil(lambda: widget.current_path() == path and not loads.is_busy()
+                    and widget._view.has_image() and len(held) >= 2, timeout=5000)
+    assert loads.active_jobs() > 0, "the delivered load threads are still unretired"
+    assert loads._jobs_still_working() == 0
+    entered, release = threading.Event(), threading.Event()
+
+    def segment(_path):
+        entered.set()
+        assert release.wait(5)
+        return np.zeros((40, 50), np.int32)
+
+    real_pass = ppv.plaque_pass
+    monkeypatch.setattr(ppv, "plaque_pass",
+                        lambda image, settings, segment=None: real_pass(image, settings, segment=segment_fn))
+    segment_fn = segment
+    try:
+        assert widget._preview_blocked_reason() == ""
+        qtbot.mouseClick(widget._run_btn, Qt.LeftButton)
+        qtbot.waitUntil(entered.is_set, timeout=3000)
+    finally:
+        release.set()
+        monkeypatch.undo()
+        loads._retire_finished_jobs()
+    qtbot.waitUntil(lambda: widget._jobs.active_jobs() == 0, timeout=5000)
+    widget.shutdown()
+
+
+def test_run_still_refuses_while_a_load_is_in_flight(qtbot, monkeypatch, tmp_path):
+    """A load whose worker is still running keeps Run refused, also after it was cancelled."""
+    monkeypatch.setattr(ppv, "missing_papers_packages", lambda: [])
+    widget = ppv.PlaquePreviewPanel(threaded=True)
+    qtbot.addWidget(widget)
+    path = _image(tmp_path / "a.png")
+    assert widget.load_source_async(tmp_path)
+    qtbot.waitUntil(lambda: widget.current_path() == path and not widget._load_jobs.is_busy()
+                    and widget._load_jobs.active_jobs() == 0, timeout=5000)
+    entered, release = threading.Event(), threading.Event()
+
+    def slow(*_args, **_kwargs):
+        entered.set()
+        assert release.wait(5)
+        return np.full((40, 50, 3), 80, np.uint8)
+
+    monkeypatch.setattr(ppv, "load_display_image", slow)
+    try:
+        widget._show_selected_image()
+        qtbot.waitUntil(entered.is_set, timeout=3000)
+        assert widget._preview_blocked_reason()
+        widget._load_jobs.cancel()
+        assert not widget._load_jobs.is_busy()
+        assert widget._load_jobs._jobs_still_working() == 1
+        assert widget._preview_blocked_reason()
+    finally:
+        release.set()
+    qtbot.waitUntil(lambda: widget._load_jobs.active_jobs() == 0, timeout=5000)
+    assert widget._preview_blocked_reason() == ""
+    widget.shutdown()

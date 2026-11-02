@@ -178,6 +178,7 @@ class JobRunner(QObject):
         self._user_visible = bool(user_visible)
         self._jobs: Dict[int, Tuple[Any, Any]] = {}
         self._pending: Dict[int, Tuple[Dict[str, Any], Callable, int]] = {}
+        self._finished_ids: set = set()
         self._next_id = 0
         #: Bumped by :meth:`cancel`. A result whose generation is stale is
         #: retired but never handed to its handler.
@@ -252,6 +253,8 @@ class JobRunner(QObject):
         job_id = getattr(worker, "_spacr_job_id", None)
         if job_id is None:
             return
+        if job_id in self._jobs:
+            self._finished_ids.add(job_id)
         self._on_settled(job_id, ok)
 
     def _relay(self, job_id: int, ok: bool) -> None:
@@ -303,6 +306,16 @@ class JobRunner(QObject):
         for job_id, entry in list(self._jobs.items()):
             if thread_has_stopped(entry[0]):
                 self._jobs.pop(job_id, None)
+                self._finished_ids.discard(job_id)
+
+    def _jobs_still_working(self) -> int:
+        """Count tracked workers whose function has not returned yet.
+
+        Unlike :meth:`active_jobs`, a worker that has finished and only waits
+        for its thread to be retired is not counted; a cancelled worker that
+        is still running is.
+        """
+        return sum(1 for job_id in self._jobs if job_id not in self._finished_ids)
 
     def _on_worker_error_text(self, text: str, event_id: str = "") -> None:
         """Report a worker failure given as raw text.
@@ -403,3 +416,4 @@ class JobRunner(QObject):
             except RuntimeError:
                 pass
         self._jobs.clear()
+        self._finished_ids.clear()
