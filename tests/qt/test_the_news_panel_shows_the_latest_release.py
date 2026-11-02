@@ -107,6 +107,11 @@ def test_news_title_words_fit_the_real_notes_viewport(qtbot, qapp, monkeypatch, 
     from spacr.qt.widgets import home
 
     calls = []
+    # Every measured document lives to the end of the test. A freed one's
+    # address can be reused by the next document's layout while a Python
+    # wrapper of its block layout is still held, and shiboken then returns
+    # that stale QTextLayout wrapper for documentLayout().
+    measured_documents = []
     original_fit = home._NewsTitleFit._fit
 
     def observed_fit(owner):
@@ -204,6 +209,7 @@ def test_news_title_words_fit_the_real_notes_viewport(qtbot, qapp, monkeypatch, 
                 assert QFontInfo(widget.font()).family() == 'Open Sans'
                 if widget.wordWrap():
                     document = QTextDocument()
+                    measured_documents.append(document)
                     document.setDocumentMargin(0)
                     document.setDefaultFont(widget.font())
                     option = QTextOption()
@@ -279,6 +285,11 @@ def test_news_headings_follow_normal_mainwindow_live_scale_rebuilds(
     from spacr.qt.widgets.collapsible_splitter import CollapsibleSplitter
 
     calls = []
+    # Every measured document lives to the end of the test. A freed one's
+    # address can be reused by the next document's layout while a Python
+    # wrapper of its block layout is still held, and shiboken then returns
+    # that stale QTextLayout wrapper for documentLayout().
+    measured_documents = []
     original_fit = home._NewsTitleFit._fit
 
     def observed_fit(owner):
@@ -347,6 +358,7 @@ def test_news_headings_follow_normal_mainwindow_live_scale_rebuilds(
         def document_for(label):
             assert label.margin() == label.frameWidth() == 0 and label.indent() < 0
             document = QTextDocument()
+            measured_documents.append(document)
             document.setDocumentMargin(0)
             document.setDefaultFont(label.font())
             option = QTextOption()
