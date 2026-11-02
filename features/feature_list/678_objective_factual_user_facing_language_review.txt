@@ -3,7 +3,7 @@ OBJECTIVE, FACTUAL LANGUAGE THROUGHOUT SPACR
 ================================================================================
 
 Lifecycle: new
-Status:    IN PROGRESS — completed bounded factual-guide corrections are published; broader app/API/docs/tutorial review remains open.
+Status:    DONE (2026-11-01) — factual review of guides, runtime text and the whole public API (non-Qt and spacr.qt) is published with nine-language reviews; remaining tutorial items belong to the Work tutorial lane and the broader app-text pass to the runtime lane.
 Requested: 2026-10-08
 Owner:     Workstation root; API/docs, runtime translation and tutorial lanes
            support their surfaces. Home receives this item through the repo.
@@ -452,3 +452,5 @@ Native review, fifth batch:
 2026-11-01 — Workflow map: Overview's whole-image measurements (fov table) are listed as a Mask output; the alpha-only OPS scene left lessons 79 and 81 (test covers every non-alpha map lesson); the lesson 78 Annotate sentence is back to its reviewed wording in the map and the 13 phrase banks. Lesson 80's map scene still says "crops Measure saved or streams" (Annotate does the streaming); left for the tutorial owner, as are the stale phrase banks and published lesson catalogs. Whole N678 stays open for its broader review.
 2026-11-01 — API docstrings outside spacr.qt (5,925 symbols): 50 public docstrings corrected to match the code (ledger /mnt/wd4tb/scratch/claude-678api-20261101/ledger.md) and pushed with their nine-language reviewed API records (spacr-translations 57b8eb1f, 568 records; 531 records for the replaced wording retired with a dated reason; api_memory 931838a1); docs/source pages screened, no change needed.
 2026-11-01 — Still open for N678: the same factual review of the spacr.qt API docstrings (~7,700 symbols, not yet screened), lesson 80's map scene and the stale tutorial phrase banks/published lesson catalogs (tutorial owner), and the broader app-text review.
+2026-11-01 — spacr.qt API docstrings (7,732 symbols) reviewed the same way: 44 edits in 40 public docstrings (17 factual, 27 wording; ledger /mnt/wd4tb/scratch/claude-678qt-20261101/ledger.md), pushed with 405 nine-language reviewed API records plus 114 records binding established targets for unchanged shared blocks (spacr-translations 78b176b2; 405 replaced records retired with a dated reason; api_memory 5cff1d1a; help index regenerated). The five behaviour gaps the review found are fixed on nightly, and the dead HyperparamPanel._install_cuml is removed with its two reviewed captions retired.
+2026-11-01 — DONE: the API review (non-Qt and spacr.qt) is complete. Remaining, outside this item's closure: lesson 80's map scene ("crops Measure saved or streams"), the stale tutorial phrase banks and the published lesson catalogs (Work tutorial lane, spacr-d7); the broader screen-by-screen app-text review beyond the strings already corrected (Home runtime/translation lane).
