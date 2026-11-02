@@ -13,6 +13,8 @@ import threading
 
 import pytest
 
+from .gui_timing import assert_within_budget
+
 
 @pytest.fixture
 def window(qapp, monkeypatch, tmp_path):
@@ -159,9 +161,9 @@ def test_the_idle_build_and_the_click_keep_the_gui_turning(
                         timeout=60000)
         qapp.processEvents()
 
-    assert _longest_gui_gap(qapp, build) < STALL_BUDGET_S
-    assert _longest_gui_gap(
-        qapp, lambda: screen.open_folded("train_cellpose")) < STALL_BUDGET_S
+    assert_within_budget(_longest_gui_gap(qapp, build), STALL_BUDGET_S)
+    assert_within_budget(_longest_gui_gap(
+        qapp, lambda: screen.open_folded("train_cellpose")), STALL_BUDGET_S)
 
 
 def test_the_built_screen_is_laid_out_while_idle_too(window, qapp, qtbot):
@@ -363,4 +365,4 @@ def test_a_folded_screens_field_has_its_first_frame_before_the_click(
     screen.open_folded("train_cellpose")
     took = time.perf_counter() - started
     ambient._retire_shading_threads(timeout_s=3.0)
-    assert took < 0.6 + 0.3, took
+    assert_within_budget(took, 0.6 + 0.3)

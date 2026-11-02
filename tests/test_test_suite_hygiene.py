@@ -14,6 +14,11 @@ suite has actually shipped:
    ``/home/<someone>/datasets`` runs on exactly one computer and reports
    green everywhere else.
 
+GUI-timing assertions (stall and gap budgets) go through
+``tests/qt/gui_timing.assert_within_budget``: under coverage tracing the test
+still runs its code and only the timing assert is skipped (maintainer
+decision, 2026-11-02). It is not a skip or a waiver.
+
 Each rule carries a RATCHET list: the violations that existed when the rule
 was written, so the rule passes today and fails the moment a NEW one appears.
 The lists may only shrink. They are keyed by (file, function) rather than by
