@@ -172,7 +172,8 @@ def test_colony_settings_edit_discards_blocked_preview_and_snapshots_nested_sett
     settings = {'colony_counting': True, 'colony_dilution': {'plate': 100}}
     panel.apply_settings(settings)
     panel.load_source_async(path)
-    qtbot.waitUntil(lambda: panel.current_path() == path and not panel._load_jobs.is_busy(), timeout=5000)
+    qtbot.waitUntil(lambda: panel.current_path() == path and not panel._load_jobs.is_busy()
+                    and panel._load_jobs.active_jobs() == 0, timeout=5000)
     entered, release = threading.Event(), threading.Event()
     seen = []
     ready = []
