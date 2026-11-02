@@ -16090,6 +16090,8 @@ class MakeMasksScreen(QWidget):
                 return
             from .. import screens as screens_package
 
+            policy = sys.modules.get("spacr.qt.gc_policy")
+            freezing = getattr(policy, "_FREEZE_DUE", None)
             app = QApplication.instance()
             window = self.window()
             busy = (app is None
@@ -16097,7 +16099,9 @@ class MakeMasksScreen(QWidget):
                     or app.activePopupWidget() is not None
                     or app.activeModalWidget() is not None
                     or bool(getattr(window, "_opening_a_screen", False))
-                    or screens_package._a_window_is_opening_a_screen)
+                    or screens_package._a_window_is_opening_a_screen
+                    or (freezing is not None and policy.is_installed()
+                        and freezing.is_set()))
             if busy:
                 QTimer.singleShot(int(self._PREBUILD_RETRY_S * 1000),
                                   self._prebuild_a_folded_screen)
