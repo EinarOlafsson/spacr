@@ -11,7 +11,9 @@ with tifffile alone.
 The run is a fresh process in which importing :mod:`spacr.io` never
 finishes, a stand-in for the slowest cold import. The save must still land
 within a few seconds, and the window must keep pumping events through the
-save and the move to the next field. A calibrated TIFF is opened and read
+save and the move to the next field. When the save and the move take more
+than two seconds together, the child dumps every thread's stack to its
+standard error, which a failure shows. A calibrated TIFF is opened and read
 for its pixel size through tifffile alone too, so neither the field's load
 nor its save imports torch.
 """
@@ -106,6 +108,7 @@ screen.show()
 assert screen._open_folder(folder)
 assert pump_until(lambda: screen._canvas.mask is not None, 30)
 dog = LoopWatchdog()
+faulthandler.dump_traceback_later(2, exit=False)
 dog.start()
 screen._canvas.mask[12:20, 12:20] = 7
 began = time.monotonic()
@@ -115,6 +118,7 @@ seconds = time.monotonic() - began
 screen._btn_next.click()
 moved = pump_until(lambda: screen._current_index == 1 and not screen._loading, 5)
 dog.stop()
+faulthandler.dump_traceback_later(60, exit=True)
 path = engine.mask_save_path(folder, "field_0.tif")
 print(json.dumps({
     "saved": saved, "seconds": seconds, "moved": moved, "worst": dog.worst,
@@ -139,11 +143,12 @@ def test_a_fresh_process_saves_and_moves_on_while_spacr_io_cannot_import(
                          cwd=str(REPO), env=env)
     assert out.returncode == 0, out.stderr[-3000:]
     result = json.loads(out.stdout.strip().splitlines()[-1])
-    assert result["saved"] and result["exists"], result
-    assert result["seconds"] < 3.0, result
-    assert result["moved"], result
-    assert result["worst"] < 1.0, result
-    assert result["spacr_io_held"], result
-    assert not result["torch_imported"], result
+    said = (result, out.stderr[-12000:])
+    assert result["saved"] and result["exists"], said
+    assert result["seconds"] < 3.0, said
+    assert result["moved"], said
+    assert result["worst"] < 1.0, said
+    assert result["spacr_io_held"], said
+    assert not result["torch_imported"], said
     expected = 10.0 if calibration == "calibrated" else None
-    assert result["pixel_size_nm"] == (pytest.approx(expected) if expected else None), result
+    assert result["pixel_size_nm"] == (pytest.approx(expected) if expected else None), said
