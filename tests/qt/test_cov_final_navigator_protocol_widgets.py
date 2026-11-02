@@ -361,7 +361,21 @@ def test_a_motion_change_with_motion_off_and_no_controls_finishes_growth(
         qtbot, page, monkeypatch):
     page.field.protocol_controls = None
     monkeypatch.setattr(page.field, "_motion_enabled", lambda: False)
+    from PySide6.QtCore import QVariantAnimation
+
+    running = QVariantAnimation(page.field)
+    running.setDuration(60000)
+    running.start()
+    page.field._animations.append(running)
+    assert running.state() == QVariantAnimation.Running
     page.field._sync_run_state()
+    assert running.state() == QVariantAnimation.Stopped
+    assert page.field._animations == []
+    for card in page.field.cards:
+        if card.parentWidget() is page.field and page.field._suggestions_active:
+            assert card._growing is False
+            assert card.isEnabled()
+            assert card.geometry() == card._final_rect
 
 
 def test_a_hovered_href_that_is_nowhere_in_the_document_highlights_nothing(

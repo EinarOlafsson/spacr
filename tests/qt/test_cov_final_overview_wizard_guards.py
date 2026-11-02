@@ -103,16 +103,37 @@ def test_a_wizard_whose_preview_table_is_gone_stops_fitting_its_readouts(
 
 
 def test_a_wizard_other_than_the_current_one_is_ignored(qtbot):
-    class Owner:
-        wizard = object()
+    class Stack:
+        def __init__(self):
+            self.shown = []
 
-        def _drop_wizard(self, _wizard):
-            raise AssertionError("must not drop a stale wizard")
+        def setCurrentWidget(self, widget):
+            self.shown.append(widget)
+
+    class Owner:
+        def __init__(self):
+            self.wizard = object()
+            self.browser = None
+            self.placeholder = object()
+            self.stack = Stack()
+            self.dropped = []
+            self.retired = 0
+
+        def _drop_wizard(self, wizard):
+            self.dropped.append(wizard)
 
         def _retire_browser(self):
-            raise AssertionError("must not retire for a stale wizard")
+            self.retired += 1
 
     owner = Owner()
+    current = owner.wizard
     stale = object()
     browser._OverviewModulePage._wizard_closed(owner, stale)
     browser._OverviewModulePage._show_browser(owner, stale)
+    assert owner.dropped == []
+    assert owner.retired == 0
+    assert owner.stack.shown == []
+    assert owner.wizard is current
+    browser._OverviewModulePage._wizard_closed(owner, current)
+    assert owner.dropped == [current]
+    assert owner.stack.shown == [owner.placeholder]

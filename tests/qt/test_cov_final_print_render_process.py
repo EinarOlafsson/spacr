@@ -285,11 +285,22 @@ def test_the_idle_clock_stops_the_process_when_it_runs_out(monkeypatch):
 
 
 def test_ending_a_process_that_cannot_be_asked_is_harmless():
+    import multiprocessing
+
     class Odd:
+        killed = 0
+
         def is_alive(self):
             raise OSError("gone")
 
-    fq._end_a_process(Odd())
+        def kill(self):
+            self.killed += 1
+
+    odd = Odd()
+    before = multiprocessing.active_children()
+    fq._end_a_process(odd)
+    assert odd.killed == 0
+    assert multiprocessing.active_children() == before
 
 
 def test_a_live_process_is_killed_and_a_dead_one_left():
