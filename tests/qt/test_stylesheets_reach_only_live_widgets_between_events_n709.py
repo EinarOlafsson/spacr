@@ -616,3 +616,39 @@ def test_an_unchanged_sheet_is_not_handed_to_qt_again(applied):
     assert label.style_changes > first
     assert _raw_sheet(label) == "QLabel { color: #654321; }"
     label.deleteLater()
+
+
+def test_a_replaced_application_sheet_is_applied_over_live_widgets_only(
+        applied):
+    """Qt shard 0 core of run 41498455720, in ``QStyleSheetStyle::repolish``.
+
+    Changing one non-empty application sheet for another made Qt walk the
+    keys of its stylesheet rule cache, not ``allWidgets()``, and a key that
+    outlived its object was read before any event was sent. The sheet now
+    goes through ``QApplication::setStyle``, which replaces the application's
+    stylesheet style, so the old one is destroyed; widgets whose deletion is
+    still pending are restyled as the live widgets they are.
+    """
+    app = QApplication.instance()
+    saved = app.styleSheet()
+    doomed = QWidget()
+    layout = QVBoxLayout(doomed)
+    labels = [QLabel("n709walk") for _ in range(4)]
+    for label in labels:
+        label.setObjectName("n709walk")
+        layout.addWidget(label)
+    doomed.ensurePolished()
+    for label in labels:
+        label.ensurePolished()
+    try:
+        app.setStyleSheet(saved + "\nQLabel#n709walk { margin: 1px; }")
+        doomed.deleteLater()
+        replaced = []
+        app.style().destroyed.connect(lambda *_: replaced.append(True))
+        app.setStyleSheet(saved + "\nQLabel#n709walk { margin: 2px; }")
+        assert replaced == [True]
+        assert "margin: 2px" in app.styleSheet()
+        assert all(shiboken6.isValid(label) for label in labels)
+    finally:
+        app.setStyleSheet(saved)
+        QCoreApplication.sendPostedEvents(None, QEvent.DeferredDelete)

@@ -1318,6 +1318,47 @@ def _restyle_holding_every_widget(obj, call, *args):
         del held
 
 
+def _qt_would_repolish_from_its_rule_cache(obj, text: str, raw_set) -> bool:
+    """Would Qt restyle ``obj`` by walking its stylesheet rule cache?
+
+    ``QApplication::setStyleSheet`` from one non-empty sheet to another
+    calls ``QStyleSheetStyle::repolish(qApp)``, which walks the keys of the
+    style's rule cache rather than ``allWidgets()``. A key can outlive its
+    object, and that walk then reads freed memory before it sends a single
+    event: the hosted Qt shard 0 core of 2026-11-01, reproduced by
+    ``test_ai_github_offline`` then ``test_ai_error_storm_prompt`` in one
+    process.
+
+    :param obj: a widget, or the application.
+    :param text: the sheet text about to be handed to Qt.
+    :param raw_set: the setter below the guard.
+    :returns: ``True`` for an application sheet replacing a non-empty one.
+    """
+    if not text or raw_set is not _ORIGINAL.get("guard_raw_app_set"):
+        return False
+    getter = _ORIGINAL.get("guard_raw_app_get")
+    try:
+        return getter is not None and bool(getter(obj))
+    except (RuntimeError, TypeError):
+        return False
+
+
+def _replace_the_app_sheet_over_live_widgets(app, text: str, raw_set) -> None:
+    """Put ``text`` on ``app`` through Qt's walk of the live widgets only.
+
+    Clearing the sheet first sends Qt through ``QApplication::setStyle``
+    both times, and that walks a copy of ``allWidgets()``, which never
+    lists a deleted widget, instead of the rule cache; see
+    :func:`_qt_would_repolish_from_its_rule_cache`.
+
+    :param app: the application.
+    :param text: the new, non-empty sheet text.
+    :param raw_set: the application setter below the guard.
+    """
+    raw_set(app, "")
+    raw_set(app, text)
+
+
 def _apply_now(obj, text: str, raw_set) -> None:
     """Hand ``text`` to Qt, counting the call as a guarded application.
 
@@ -1329,7 +1370,12 @@ def _apply_now(obj, text: str, raw_set) -> None:
         return
     _SHEET_GUARD["depth"] += 1
     try:
-        _restyle_holding_every_widget(obj, raw_set, obj, text)
+        if _qt_would_repolish_from_its_rule_cache(obj, text, raw_set):
+            _restyle_holding_every_widget(
+                obj, _replace_the_app_sheet_over_live_widgets, obj, text,
+                raw_set)
+        else:
+            _restyle_holding_every_widget(obj, raw_set, obj, text)
     finally:
         _SHEET_GUARD["depth"] -= 1
     from .theme import _fit_a_tooltip_to_its_styled_text
