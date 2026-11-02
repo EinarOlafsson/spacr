@@ -538,7 +538,13 @@ def test_no_caption_is_cut_off(app_key, locale, scale, qtbot, at_font_scale,
 
 def test_empty_state_subtitle_refits_after_font_scale_and_text_changes(
         qtbot, at_font_scale):
-    """An existing empty card follows both larger and smaller painted fonts."""
+    """An existing empty card follows both larger and smaller painted fonts.
+
+    The sentence wraps to the width its card gives it, up to 560 px. A
+    top-level wrapping widget is first shown at most two thirds of the
+    screen wide, which on the 800 px offscreen screen is narrower than the
+    card, so the card is given room for the full 560 px first.
+    """
     from spacr.qt.widgets.empty_state import EmptyState
 
     at_font_scale(1.0)
@@ -547,6 +553,9 @@ def test_empty_state_subtitle_refits_after_font_scale_and_text_changes(
         "into the Source field below. Use Load test data when available, "
         "or open Pipeline overviews on Home to choose a walkthrough."))
     qtbot.addWidget(panel)
+    margins = panel.layout().contentsMargins()
+    panel.resize(560 + margins.left() + margins.right() + 40,
+                 panel.sizeHint().height())
     panel.show()
     qtbot.waitExposed(panel)
     settle(qtbot, panel)
