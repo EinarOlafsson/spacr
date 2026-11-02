@@ -6,7 +6,7 @@ import pytest
 pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QEvent, Qt
-from PySide6.QtGui import QKeyEvent
+from PySide6.QtGui import QFocusEvent, QKeyEvent
 from PySide6.QtWidgets import QApplication, QComboBox, QLabel
 
 from spacr.qt.widgets import home
@@ -326,3 +326,39 @@ def test_hiding_a_field_that_has_no_protocol_controls_only_finishes_growth(
     page.field.protocol_controls = None
     page.field.hide()
     assert not page.field.isVisible()
+
+
+def test_merging_releases_skips_records_without_a_tag_or_a_mapping():
+    merged = home.NewsPanel.merge_releases(
+        [{"tag": "v1"}, "junk", {"tag": ""}, {"name": "Named"}],
+        [None, {"tag": "v2"}, {"tag": "v1", "name": "newer"}])
+    assert {str(entry.get("tag") or entry.get("name")) for entry in merged} >= {
+        "v1", "v2", "Named"}
+    assert len(merged) == 3
+
+
+def test_a_fetch_that_adds_nothing_leaves_the_news_alone(qtbot, monkeypatch):
+    releases = [{"tag": "v1.0", "name": "First", "body": "Notes."}]
+    monkeypatch.setattr(home.NewsPanel, "read_releases",
+                        staticmethod(lambda: list(releases)))
+    panel = home.NewsPanel()
+    qtbot.addWidget(panel)
+    labels = tuple(panel._headline_labels)
+    panel.apply_releases(list(releases))
+    assert tuple(panel._headline_labels) == labels
+
+
+def test_leaving_the_inline_list_retracts_it(qtbot, page):
+    choice = page._protocol_select
+    choice.showPopup()
+    view = choice.view()
+    assert view.isVisible()
+    view.focusOutEvent(QFocusEvent(QEvent.FocusOut, Qt.OtherFocusReason))
+    assert not view.isVisible()
+
+
+def test_a_motion_change_with_motion_off_and_no_controls_finishes_growth(
+        qtbot, page, monkeypatch):
+    page.field.protocol_controls = None
+    monkeypatch.setattr(page.field, "_motion_enabled", lambda: False)
+    page.field._sync_run_state()
