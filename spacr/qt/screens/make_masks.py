@@ -21430,8 +21430,7 @@ class MakeMasksScreen(QWidget):
         The width is measured in lines of the current font, so it grows
         with Zoom the way the panels around it do.
 
-        2026-11-01, the maintainer's decision: the height is in pixels, not
-        lines. The image keeps at least 200 px, or the height of ten lines
+        The height is in pixels, not lines. The image keeps at least 200 px, or the height of ten lines
         of body text at 100 % text size (at the current GUI scale), whichever
         is smaller, so a large text size does not raise the floor and fold
         the IO and NAVIGATION groups away.
@@ -21453,9 +21452,8 @@ class MakeMasksScreen(QWidget):
         it and the whole title (height). Each entry is ``(owner, pane name, axis)``; the
         instruction line's owner is this screen (:data:`TITLE_LINE_PANE`).
 
-        2026-11-01, the maintainer's decision: when room is short the title
-        folds to one line, then the toolbar folds to its edge, and only then
-        the bottom bar, so the image keeps its floor and the IO and
+        When room is short the title folds to one line, then the toolbar
+        folds to its edge, and only then the bottom bar, so the image keeps its floor and the IO and
         NAVIGATION groups stay on a 720p screen at 200 % text.
         """
         out = []
