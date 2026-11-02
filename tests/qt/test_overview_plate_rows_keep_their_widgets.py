@@ -55,3 +55,23 @@ def test_a_rescan_reuses_the_row_widgets_and_points_them_at_the_new_plates(tmp_p
     assert sorted(applied) == sorted([str(one), str(two)])
     assert switched == [(toggle.property("platePath"), True)]
     wizard.reject()
+
+
+def test_a_rescan_in_the_same_order_keeps_the_very_same_switch(tmp_path, qtbot):
+    tifffile.imwrite(tmp_path / "A01_C1.tif", np.zeros((5, 7), np.uint16))
+    wizard = browser._OverviewMetadataWizard(str(tmp_path))
+    qtbot.addWidget(wizard)
+    wizard._startup_timer.stop()
+    one, two = tmp_path / "plate_one", tmp_path / "plate_two"
+    wizard._show_plates({"plates": [_plate(one, mixed=True), _plate(two)]})
+    table = wizard.plate_table
+    toggle = table.cellWidget(0, 3)
+    assert toggle is not None and table.cellWidget(1, 3) is None
+    wizard._use_subfolders.add(str(one))
+
+    wizard._show_plates({"plates": [_plate(one, mixed=True), _plate(two)]})
+
+    assert table.cellWidget(0, 3) is toggle
+    assert toggle.property("platePath") == str(one)
+    assert toggle.isChecked()
+    wizard.reject()
