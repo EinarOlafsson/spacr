@@ -106,9 +106,14 @@ ROOT = Path(__file__).resolve().parents[2]
 # the same Navigator change; the four reviewed rows moved from the generated
 # layer, their runtime reviews are archived in spacr-translations 9638217,
 # and the retired caption keeps its `_ROWS` row.
-COMPACT_CAPTION_COUNT = 287
+# 2026-11-01: 287 + 1 - 2 = 286. The platform shortcut change (ad4e3bae71)
+# moved Preferences to Ctrl+, : the tour line "... Ctrl+, opens
+# Preferences. ..." arrived with its nine reviewed `_ROWS` values, and the old
+# "... Ctrl+P opens Preferences. ..." line and "Restart the background" (now a
+# Help > Window menu item with no key) left the surface. Their rows stay.
+COMPACT_CAPTION_COUNT = 286
 COMPACT_CAPTION_SHA256 = (
-    "5df803b240e3b622a9529bc51fc04b17684f391309b8039034f5dda3ada89beb"
+    "b03302af0c4bf02dfb2ea84536af36c545b1be960a75ba80d240a3b7d3e8882a"
 )
 
 # The complementary source-bound layer is pinned separately.  Keys are
