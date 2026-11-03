@@ -297,3 +297,102 @@ def test_a_real_combine_internal_error_after_passing_tests_is_recovered(tmp_path
     assert "status_after_recovery" not in batch
     assert all(reason["exit_kind"] != "coverage-internal-error"
                for reason in batch["lost"])
+
+
+TOY_TRACKER = '''
+import multiprocessing
+import os
+from pathlib import Path
+
+from toypkg import alpha
+
+
+def test_a_spawn_lock_starts_the_resource_tracker():
+    assert alpha.run(True) == 1
+    lock = multiprocessing.get_context("spawn").Lock()
+    with lock:
+        pass
+    from multiprocessing import resource_tracker
+    pid = resource_tracker._resource_tracker._pid
+    assert pid is not None
+    Path(os.environ["TOY_TRACKER"]).write_text(str(pid), encoding="utf-8")
+'''
+
+
+def _run_tracker_toy(root, *, workers, plugin):
+    """Run the tracker toy under real pytest-cov; its tracker pid and data."""
+    project = _toy(root / "toy")
+    for name in ("test_0_half_written.py", "test_1_beta.py"):
+        (project / "tests" / name).unlink()
+    (project / "tests" / "test_tracker.py").write_text(TOY_TRACKER, encoding="utf-8")
+    (project / ".coveragerc").write_text(
+        "[run]\nbranch = True\nparallel = True\nrelative_files = True\n"
+        "source = toypkg\npatch = subprocess\nsigterm = True\n",
+        encoding="utf-8",
+    )
+    data_dir = root / "data"
+    data_dir.mkdir()
+    tracker = root / "tracker.pid"
+    environment = {
+        key: value for key, value in os.environ.items()
+        if not key.startswith(("COV", "PYTEST_", "SPACR_COVERAGE"))
+    }
+    environment.update({
+        "PYTHONPATH": os.pathsep.join([str(PLUGIN_FILE.parent), str(project)]),
+        "COVERAGE_FILE": str(data_dir / ".coverage.toy"),
+        "TOY_TRACKER": str(tracker),
+    })
+    command = [
+        sys.executable, "-m", "pytest", "tests", "-p", "no:randomly",
+        "-p", "no:cacheprovider", "--cov=toypkg", "--cov-branch",
+        "--cov-report=", "--cov-config=.coveragerc", "-q",
+    ]
+    if plugin:
+        environment["SPACR_COVERAGE_LEDGER"] = str(root / "ledger.json")
+        command += ["-p", "xdist_coverage_ledger"]
+    command += ["-n", str(workers)] if workers else ["-p", "no:xdist"]
+    result = subprocess.run(command, cwd=project, env=environment,
+                            capture_output=True, text=True, timeout=300,
+                            check=False)
+    output = result.stdout + result.stderr
+    assert result.returncode == 0, output[-4000:]
+    return int(tracker.read_text(encoding="utf-8")), data_dir, project
+
+
+def _wait_for_exit(pid):
+    psutil = pytest.importorskip("psutil")
+    try:
+        psutil.Process(pid).wait(timeout=60)
+    except psutil.NoSuchProcess:
+        pass
+
+
+@pytest.mark.parametrize("workers", [0, 2], ids=["serial", "xdist"])
+def test_the_resource_tracker_saves_its_coverage_before_the_combine(
+        tmp_path, workers):
+    """The writer CI's empty data file came from, and the stop that ends it.
+
+    multiprocessing's resource tracker is a measured child under
+    ``patch = subprocess`` and exits only when the process that started it
+    does: after an xdist worker reported finished, or after a serial run's
+    combine.  pytest-cov then combined while the tracker was still creating
+    its data file (empty and read only: ``no such table: coverage_schema``),
+    or left that file behind uncombined.
+    """
+    pytest.importorskip("pytest_cov")
+    if workers:
+        pytest.importorskip("xdist")
+
+    pid, data_dir, project = _run_tracker_toy(
+        tmp_path / "with", workers=workers, plugin=True)
+    _wait_for_exit(pid)
+    assert sorted(path.name for path in data_dir.iterdir()) == [".coverage.toy"]
+    assert {2, 3} <= _lines(data_dir, project, "alpha")
+
+    # NEGATIVE CONTROL: without the stop the tracker writes its own data
+    # file after the combine, under its own pid.
+    pid, data_dir, _project = _run_tracker_toy(
+        tmp_path / "without", workers=workers, plugin=False)
+    _wait_for_exit(pid)
+    left = sorted(path.name for path in data_dir.iterdir())
+    assert [name for name in left if f".pid{pid}." in name], left

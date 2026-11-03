@@ -1,8 +1,11 @@
 """pytest plugin: record whose coverage data a pytest-xdist session lost.
 
 Loaded by ``tools/run_coverage_batches.py`` as ``-p xdist_coverage_ledger``
-(item 288).  It does nothing unless ``SPACR_COVERAGE_LEDGER`` names a file,
-and nothing on an xdist worker: only the controller sees every worker.
+(item 288).  It does nothing unless ``SPACR_COVERAGE_LEDGER`` names a file.
+The ledger lives on the controller only, which sees every worker; every
+process, worker or serial, also stops its multiprocessing helpers after its
+last test (:func:`stop_multiprocessing_helpers`), so no measured helper is
+still writing its data file when pytest-cov combines.
 
 WHY IT EXISTS.  pytest-cov's workers save their coverage data when their
 session FINISHES.  A worker that dies by a signal -- the segfault family of
@@ -219,11 +222,73 @@ class CoverageLedger:
         partial.replace(self.path)
 
 
+def stop_multiprocessing_helpers() -> list[str]:
+    """Stop this process's resource tracker and forkserver; name what stopped.
+
+    Both are Python processes that ``multiprocessing`` starts on first use
+    (a spawn or forkserver pool, a ``Queue``, a semaphore) and that exit only
+    when the process that started them does.  Under coverage.py's
+    ``patch = subprocess`` they are measured like any child, so each saves a
+    ``.coverage.<basename>.<host>.pid<N>.<random>`` file in its atexit
+    handler: after the xdist worker that owns it has exited, which is after
+    that worker reported finished, which is when the controller's pytest-cov
+    starts combining.  The combine then read the tracker's file while the
+    tracker was still creating it -- an empty SQLite file, read only:
+    ``no such table: coverage_schema`` and ``attempt to write a readonly
+    database`` (CI run 41665881942, shard 8 batch 12; run 41646358629,
+    shards 6 and 8).  In a serial run the tracker saves after the combine,
+    and its file is left behind uncombined.
+
+    Stopping them is the stdlib's own shutdown: closing the alive pipe ends
+    the helper's loop, and ``waitpid`` returns once its atexit handlers --
+    coverage's save among them -- have run.  A helper started again later
+    simply starts afresh.
+    """
+    import sys
+
+    stopped = []
+    for module_name, attribute, pid_name, label in (
+            ("multiprocessing.resource_tracker", "_resource_tracker", "_pid",
+             "resource tracker"),
+            ("multiprocessing.forkserver", "_forkserver", "_forkserver_pid",
+             "forkserver")):
+        module = sys.modules.get(module_name)
+        helper = getattr(module, attribute, None)
+        pid = getattr(helper, pid_name, None)
+        stop = getattr(helper, "_stop", None)
+        if pid is None or stop is None:
+            continue
+        stop()
+        stopped.append(f"{label} {pid}")
+    return stopped
+
+
+class MultiprocessingHelperStop:
+    """Ends this process's multiprocessing helpers before coverage combines."""
+
+    @pytest.hookimpl(wrapper=True, trylast=True)
+    def pytest_runtestloop(self, session: pytest.Session) -> Any:
+        """After the last test, before pytest-cov saves and combines.
+
+        ``trylast`` makes this the innermost wrapper, so it returns before
+        pytest-cov's own ``pytest_runtestloop`` wrapper finishes: in a serial
+        run that wrapper combines, and on an xdist worker the worker reports
+        finished only after it.
+        """
+        try:
+            return (yield)
+        finally:
+            stop_multiprocessing_helpers()
+
+
 def pytest_configure(config: pytest.Config) -> None:
-    if hasattr(config, "workerinput"):
-        return
     target = os.environ.get(LEDGER_ENV)
     if not target:
+        return
+    config.pluginmanager.register(
+        MultiprocessingHelperStop(), "spacr-multiprocessing-helper-stop",
+    )
+    if hasattr(config, "workerinput"):
         return
     config.pluginmanager.register(
         CoverageLedger(Path(target)), "spacr-xdist-coverage-ledger",
