@@ -5355,3 +5355,19 @@ def test_reviewed_formula_only_block_may_stay_identical_in_every_locale():
         assert not builder._reviewed_api_block_valid(prose, prose, "zh_CN"), prose
     assert not builder._reviewed_api_block_valid(
         "The model is y ~ x.", "The model is y ~ x.", "fr")
+
+
+def test_audit_accepts_a_reviewed_formula_without_target_script():
+    """The audit's script check agrees with the reviewed formula rule."""
+    import build_documentation_i18n as builder
+
+    lacks = builder._api_block_lacks_target_script
+    formula = "mean = (0.485, 0.456, 0.406)   std = (0.229, 0.224, 0.225)"
+    prose = "Draw the heading with its glyph."
+    for language in ("zh_CN", "hi", "ko"):
+        assert not lacks(formula, formula, language, is_reviewed=True)
+        assert lacks(formula, formula, language, is_reviewed=False)
+        assert lacks(formula, formula + " ", language, is_reviewed=True)
+        assert lacks(prose, prose, language, is_reviewed=True)
+    assert not lacks("Draw it.", "绘制它。", "zh_CN", is_reviewed=False)
+    assert not lacks(formula, formula, "fr", is_reviewed=False)

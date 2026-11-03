@@ -5138,6 +5138,28 @@ _TARGET_SCRIPT_PATTERN = {
 }
 
 
+def _api_block_lacks_target_script(
+    source: str, value: str, language: str, *, is_reviewed: bool,
+) -> bool:
+    """Whether the audit must report a catalog block as missing target script.
+
+    Chinese, Hindi and Korean prose has to contain that language's script. A
+    reviewed block that stays exactly its English source because the source is
+    only a formula (see :func:`_api_exact_identity_allowed`) has no prose to
+    carry the script, so the audit accepts it the same way
+    :func:`_reviewed_api_block_valid` does. An unreviewed identical block is
+    still reported.
+    """
+    pattern = _TARGET_SCRIPT_PATTERN.get(language)
+    if pattern is None or pattern.search(str(value)):
+        return False
+    return not (
+        is_reviewed
+        and str(value) == str(source)
+        and _api_exact_identity_allowed(source, language)
+    )
+
+
 def _model_artifact_reasons(
     source: str, value: str, language: str,
 ) -> tuple[str, ...]:
@@ -7100,9 +7122,10 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
                                 source_block, translated_block, language,
                             ):
                                 copied_english_errors.append(label)
-                            pattern = _TARGET_SCRIPT_PATTERN.get(language)
-                            if (pattern is not None
-                                    and not pattern.search(translated_block)):
+                            if _api_block_lacks_target_script(
+                                source_block, translated_block, language,
+                                is_reviewed=is_reviewed,
+                            ):
                                 missing_target_script.append(label)
                         elif (_normalized_block(source_block)
                               != _normalized_block(translated_block)):
