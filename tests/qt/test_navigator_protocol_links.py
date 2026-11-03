@@ -27,7 +27,7 @@ def test_guidance_footer_has_one_explicit_sidebar_link():
     urls = Links(home._navigator_learning_links()).urls
     assert urls == ['spacr://sidebar']
     assert Links(home._navigator_learning_links('mask')).urls == urls
-    assert 'text-decoration:none' in home._navigator_learning_links()
+    assert 'text-decoration' not in home._navigator_learning_links()
 
 
 @pytest.mark.parametrize('phrase', ['Protocols', 'PROTOCOL', 'walkthroughs', 'protokoll', 'Analyseanleitungen',
