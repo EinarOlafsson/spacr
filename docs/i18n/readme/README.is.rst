@@ -140,7 +140,7 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
 .. spacr-installer-links-begin
 
-|InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerSpaCR|
+| |InstallerLinux|\ |InstallerMacOS|\ |InstallerWindows|\ |InstallerSpaCR|
 
 .. |InstallerWindows| raw:: html
 
@@ -151,9 +151,9 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 .. |InstallerLinux| raw:: html
 
    <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.7/spaCR-1.5.1.7-Linux-x86_64-Online.run"><img src="../../readme_assets/cells/platforms/linux.png" width="14.14%" align="middle" alt="Sækja spaCR 1.5.1.7 fyrir 64-bita Linux"></a>
-.. |InstallerSpaCR| image:: ../../../spacr/resources/icons/app_icon.png
-   :target: https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installers.rst
-   :alt: Öll spaCR uppsetningarforrit
+.. |InstallerSpaCR| raw:: html
+
+   <a href="https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installers.rst"><img src="../../readme_assets/cells/app_icon.png" width="14.14%" align="middle" alt="Öll spaCR uppsetningarforrit"></a>
 
 .. spacr-installer-links-end
 
@@ -445,20 +445,24 @@ Vefsíða: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github
 
    <div><a href="../../readme_text/is/data.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/is/data.desktop.svg"><img src="../../readme_images/is/data.svg" alt="Gögn. Viðmiðunargagnasöfn."></picture></a></div>
 
-|DataBioStudies| |DataHuggingFace| |DataNCBI| |DataSpaCRPower| |DataBioRxiv|
+| |DataBioStudies|\ |DataHuggingFace|\ |DataNCBI|\ |DataSpaCRPower|\ |DataBioRxiv|
 
 .. |DataBioStudies| raw:: html
 
    <a href="https://doi.org/10.6019/S-BIAD2135"><img src="../../readme_assets/cells/databanks/biostudies_button.png" width="14.14%" align="middle" alt="Opna smásjárgagnasafnið í BioStudies"></a>
+
 .. |DataHuggingFace| raw:: html
 
    <a href="https://huggingface.co/datasets/einarolafsson/toxo_mito"><img src="../../readme_assets/cells/databanks/huggingface_button.png" width="14.14%" align="middle" alt="Opna prófunargagnasafnið á Hugging Face"></a>
+
 .. |DataNCBI| raw:: html
 
    <a href="https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA1261935"><img src="../../readme_assets/cells/databanks/ncbi_button.png" width="14.14%" align="middle" alt="Opna raðgreiningargagnasafnið hjá NCBI"></a>
+
 .. |DataSpaCRPower| raw:: html
 
    <a href="https://github.com/maomlab/spaCRPower"><img src="../../readme_assets/cells/databanks/spacrpower_button.png" width="14.14%" align="middle" alt="Opna spaCRPower"></a>
+
 .. |DataBioRxiv| raw:: html
 
    <a href="https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1"><img src="../../readme_assets/cells/databanks/biorxiv_button.png" width="14.14%" align="middle" alt="Opna bioRxiv-forprentið"></a>

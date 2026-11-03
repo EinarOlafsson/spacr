@@ -140,7 +140,7 @@
 
 .. spacr-installer-links-begin
 
-|InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerSpaCR|
+| |InstallerLinux|\ |InstallerMacOS|\ |InstallerWindows|\ |InstallerSpaCR|
 
 .. |InstallerWindows| raw:: html
 
@@ -151,9 +151,9 @@
 .. |InstallerLinux| raw:: html
 
    <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.7/spaCR-1.5.1.7-Linux-x86_64-Online.run"><img src="../../readme_assets/cells/platforms/linux.png" width="14.14%" align="middle" alt="下载适用于 64 位 Linux 的 spaCR 1.5.1.7"></a>
-.. |InstallerSpaCR| image:: ../../../spacr/resources/icons/app_icon.png
-   :target: https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installers.rst
-   :alt: 所有 spaCR 安装程序
+.. |InstallerSpaCR| raw:: html
+
+   <a href="https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installers.rst"><img src="../../readme_assets/cells/app_icon.png" width="14.14%" align="middle" alt="所有 spaCR 安装程序"></a>
 
 .. spacr-installer-links-end
 
@@ -445,20 +445,24 @@
 
    <div><a href="../../readme_text/zh_CN/data.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/zh_CN/data.desktop.svg"><img src="../../readme_images/zh_CN/data.svg" alt="数据. 参考数据集."></picture></a></div>
 
-|DataBioStudies| |DataHuggingFace| |DataNCBI| |DataSpaCRPower| |DataBioRxiv|
+| |DataBioStudies|\ |DataHuggingFace|\ |DataNCBI|\ |DataSpaCRPower|\ |DataBioRxiv|
 
 .. |DataBioStudies| raw:: html
 
    <a href="https://doi.org/10.6019/S-BIAD2135"><img src="../../readme_assets/cells/databanks/biostudies_button.png" width="14.14%" align="middle" alt="打开 BioStudies 显微镜数据集"></a>
+
 .. |DataHuggingFace| raw:: html
 
    <a href="https://huggingface.co/datasets/einarolafsson/toxo_mito"><img src="../../readme_assets/cells/databanks/huggingface_button.png" width="14.14%" align="middle" alt="打开 Hugging Face 测试数据集"></a>
+
 .. |DataNCBI| raw:: html
 
    <a href="https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA1261935"><img src="../../readme_assets/cells/databanks/ncbi_button.png" width="14.14%" align="middle" alt="打开 NCBI 测序数据集"></a>
+
 .. |DataSpaCRPower| raw:: html
 
    <a href="https://github.com/maomlab/spaCRPower"><img src="../../readme_assets/cells/databanks/spacrpower_button.png" width="14.14%" align="middle" alt="打开 spaCRPower"></a>
+
 .. |DataBioRxiv| raw:: html
 
    <a href="https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1"><img src="../../readme_assets/cells/databanks/biorxiv_button.png" width="14.14%" align="middle" alt="打开 bioRxiv 预印本"></a>

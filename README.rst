@@ -140,7 +140,7 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
 .. spacr-installer-links-begin
 
-|InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerSpaCR|
+| |InstallerLinux|\ |InstallerMacOS|\ |InstallerWindows|\ |InstallerSpaCR|
 
 .. |InstallerWindows| raw:: html
 
@@ -151,9 +151,9 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 .. |InstallerLinux| raw:: html
 
    <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.7/spaCR-1.5.1.7-Linux-x86_64-Online.run"><img src="docs/readme_assets/cells/platforms/linux.png" width="14.14%" align="middle" alt="Download spaCR 1.5.1.7 for 64-bit Linux"></a>
-.. |InstallerSpaCR| image:: spacr/resources/icons/app_icon.png
-   :target: https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installers.rst
-   :alt: All spaCR installers
+.. |InstallerSpaCR| raw:: html
+
+   <a href="https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installers.rst"><img src="docs/readme_assets/cells/app_icon.png" width="14.14%" align="middle" alt="All spaCR installers"></a>
 
 .. spacr-installer-links-end
 
@@ -445,20 +445,24 @@ Website: `einarolafsson.github.io/projects/spacr <https://einarolafsson.github.i
 
    <div><a href="docs/readme_text/en/data.md"><picture><source media="(min-width: 1280px)" srcset="docs/readme_images/en/data.desktop.svg"><img src="docs/readme_images/en/data.svg" alt="Data. Reference datasets."></picture></a></div>
 
-|DataBioStudies| |DataHuggingFace| |DataNCBI| |DataSpaCRPower| |DataBioRxiv|
+| |DataBioStudies|\ |DataHuggingFace|\ |DataNCBI|\ |DataSpaCRPower|\ |DataBioRxiv|
 
 .. |DataBioStudies| raw:: html
 
    <a href="https://doi.org/10.6019/S-BIAD2135"><img src="docs/readme_assets/cells/databanks/biostudies_button.png" width="14.14%" align="middle" alt="Open the BioStudies microscopy dataset"></a>
+
 .. |DataHuggingFace| raw:: html
 
    <a href="https://huggingface.co/datasets/einarolafsson/toxo_mito"><img src="docs/readme_assets/cells/databanks/huggingface_button.png" width="14.14%" align="middle" alt="Open the Hugging Face testing dataset"></a>
+
 .. |DataNCBI| raw:: html
 
    <a href="https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA1261935"><img src="docs/readme_assets/cells/databanks/ncbi_button.png" width="14.14%" align="middle" alt="Open the NCBI sequencing dataset"></a>
+
 .. |DataSpaCRPower| raw:: html
 
    <a href="https://github.com/maomlab/spaCRPower"><img src="docs/readme_assets/cells/databanks/spacrpower_button.png" width="14.14%" align="middle" alt="Open spaCRPower"></a>
+
 .. |DataBioRxiv| raw:: html
 
    <a href="https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1"><img src="docs/readme_assets/cells/databanks/biorxiv_button.png" width="14.14%" align="middle" alt="Open the bioRxiv preprint"></a>
