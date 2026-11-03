@@ -76,3 +76,24 @@ def test_the_stream_still_captures_while_python_runs(monkeypatch):
     stream.flush()
 
     assert seen == ["ERROR one whole line\n", "ERROR a partial line"]
+
+
+def test_a_finalizing_interpreter_passes_text_through_without_capturing(monkeypatch):
+    """While Python exits the stream writes and flushes, and captures nothing."""
+    import io
+
+    from spacr import crashreport, logging_util
+
+    seen = []
+    monkeypatch.setattr(crashreport, "_capture_error_line", seen.append)
+    terminal = io.StringIO()
+    stream = logging_util._ErrorStream(terminal)
+    stream.write("ERROR a partial line")
+    monkeypatch.setattr(sys, "is_finalizing", lambda: True)
+
+    assert stream.write("ERROR written while exiting\n") == len(
+        "ERROR written while exiting\n")
+    stream.flush()
+
+    assert seen == []
+    assert terminal.getvalue() == "ERROR a partial lineERROR written while exiting\n"

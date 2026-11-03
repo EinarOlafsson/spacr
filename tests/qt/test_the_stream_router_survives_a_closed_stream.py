@@ -18,3 +18,26 @@ def test_a_closed_original_stream_is_not_a_terminal_and_does_not_raise():
     assert router.isatty() is False
     assert router.write("text") == 0
     router.flush()
+
+
+def test_a_finalizing_interpreter_reaches_the_original_without_the_lock(monkeypatch):
+    """While Python exits a write skips the routing table and its lock."""
+    import sys
+    import threading
+
+    original = io.StringIO()
+    console = io.StringIO()
+    router = _ThreadStreamRouter(original)
+    router._targets[threading.get_ident()] = [console]
+
+    class _HeldForever:
+        def __enter__(self):
+            raise AssertionError("the routing lock was taken while finalizing")
+
+        def __exit__(self, *exc):
+            return False
+
+    router._lock = _HeldForever()
+    monkeypatch.setattr(sys, "is_finalizing", lambda: True)
+
+    assert router._target() is original
