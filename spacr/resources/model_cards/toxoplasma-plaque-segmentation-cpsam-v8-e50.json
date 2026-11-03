@@ -1,0 +1,582 @@
+{
+  "schema": "spacr-model-card-v2",
+  "repo_id": "einarolafsson/toxoplasma-plaque-segmentation-cpsam-v8-e50",
+  "key": "toxoplasma_plaque_v7",
+  "display_name": "Toxoplasma Plaque V8 epoch 50 (interim)",
+  "family": "plaque",
+  "round": "complete coverage + D4, interim epoch 50",
+  "status": "candidate",
+  "date": "2026-11-03",
+  "pages": [
+    "cards/page1.png",
+    "cards/page2.png",
+    "cards/page3.png"
+  ],
+  "extra_pages": [
+    "cards/page4.png"
+  ],
+  "scores": {
+    "rows": [
+      {
+        "key": "object_f1",
+        "label": "Object F1 (IoU \u22650.5)",
+        "this": 0.6677316293929713,
+        "stock": 0.199933869723355
+      },
+      {
+        "key": "boundary_f1",
+        "label": "Boundary F1 (2px)",
+        "this": 0.7119941053123143,
+        "stock": 0.22474729718012262
+      },
+      {
+        "key": "precision",
+        "label": "Precision",
+        "this": 0.7536754507628294,
+        "stock": 0.19977973568281937
+      },
+      {
+        "key": "recall",
+        "label": "Recall",
+        "this": 0.5993823075226119,
+        "stock": 0.200088241782484
+      },
+      {
+        "key": "aji",
+        "label": "AJI",
+        "this": 0.6980946179049119,
+        "stock": 0.21053857315037094
+      },
+      {
+        "key": "dice",
+        "label": "Dice",
+        "this": 0.9009977959147241,
+        "stock": 0.3922989852489361
+      }
+    ],
+    "this_model": "toxoplasma_plaque_v7",
+    "stock_model": "cpsam_v2",
+    "stock_note": "Vanilla weights, same well preprocessing, own validation-selected thresholds.",
+    "counts": {
+      "this": {
+        "tp": 2717,
+        "fp": 888,
+        "fn": 1816
+      },
+      "stock": {
+        "tp": 907,
+        "fp": 3633,
+        "fn": 3626
+      }
+    },
+    "ci95": {
+      "this": {
+        "precision": [
+          0.6799955599407993,
+          0.8138095636734051
+        ],
+        "recall": [
+          0.4937871341926109,
+          0.7185172562617785
+        ],
+        "object_f1": [
+          0.575628447024822,
+          0.7558850522507057
+        ],
+        "native_under5": [
+          0.16395646224159005,
+          0.4145930191227696
+        ],
+        "native_5to10": [
+          0.4587995257463846,
+          0.7362662337662338
+        ],
+        "native_ge10": [
+          0.6315436561374407,
+          0.7973275894382718
+        ],
+        "relative_under005": [
+          0.0,
+          0.0
+        ],
+        "relative_005to01": [
+          0.006942066210045662,
+          0.10526315789473684
+        ],
+        "relative_ge01": [
+          0.5113815726412939,
+          0.7339594786002237
+        ],
+        "boundary_f1": [
+          0.651739666087388,
+          0.8562704006741376
+        ],
+        "aji": [
+          0.5824431061813925,
+          0.7640723799270653
+        ],
+        "dice": [
+          0.7780751007503932,
+          0.9295875653644714
+        ]
+      },
+      "stock": {
+        "precision": [
+          0.10278629529474166,
+          0.3867572428749598
+        ],
+        "recall": [
+          0.11619188291371088,
+          0.3103491049725211
+        ],
+        "object_f1": [
+          0.11033175124813216,
+          0.33724256482108833
+        ],
+        "native_under5": [
+          0.002787971282895489,
+          0.11516661794796836
+        ],
+        "native_5to10": [
+          0.06689073543437962,
+          0.2738275166359903
+        ],
+        "native_ge10": [
+          0.16882158309079356,
+          0.4452755763376849
+        ],
+        "relative_under005": [
+          0.0,
+          0.0
+        ],
+        "relative_005to01": [
+          0.0,
+          0.13045260156806832
+        ],
+        "relative_ge01": [
+          0.12022092973222205,
+          0.3183400132858204
+        ],
+        "boundary_f1": [
+          0.16738071121794246,
+          0.3481239700887488
+        ],
+        "aji": [
+          0.11920998709510187,
+          0.5016729948454336
+        ],
+        "dice": [
+          0.2340541226241743,
+          0.7336438592859351
+        ]
+      }
+    },
+    "holdout": {
+      "set": "version8_pooled_curated_grouped_test",
+      "n_fields": 101,
+      "n_objects": 4533,
+      "rule": "Interim epoch-50 release while training continues to >=100 epochs. The 101 test crops were reported previously for an older V8 attempt; they are not a fresh external or prospective test."
+    }
+  },
+  "breakdowns": {
+    "by_size": {
+      "native_under5": {
+        "tp": 171,
+        "n": 654,
+        "recall": 0.26146788990825687
+      },
+      "native_5to10": {
+        "tp": 943,
+        "n": 1652,
+        "recall": 0.5708232445520581
+      },
+      "native_ge10": {
+        "tp": 1603,
+        "n": 2227,
+        "recall": 0.7198024247867085
+      },
+      "relative_under005": {
+        "tp": 0,
+        "n": 32,
+        "recall": 0.0
+      },
+      "relative_005to01": {
+        "tp": 4,
+        "n": 109,
+        "recall": 0.03669724770642202
+      },
+      "relative_ge01": {
+        "tp": 2713,
+        "n": 4392,
+        "recall": 0.6177140255009107
+      }
+    },
+    "by_domain": {
+      "bigbean": {
+        "tp": 204,
+        "fp": 12,
+        "fn": 26,
+        "empty": 0,
+        "empty_fp": 0,
+        "fields": 3,
+        "precision": 0.9444444444444444,
+        "recall": 0.8869565217391304,
+        "f1": 0.9147982062780269,
+        "sizes": {
+          "native_under5": {
+            "tp": 0,
+            "n": 0,
+            "recall": null
+          },
+          "native_5to10": {
+            "tp": 0,
+            "n": 0,
+            "recall": null
+          },
+          "native_ge10": {
+            "tp": 204,
+            "n": 230,
+            "recall": 0.8869565217391304
+          },
+          "relative_under005": {
+            "tp": 0,
+            "n": 0,
+            "recall": null
+          },
+          "relative_005to01": {
+            "tp": 1,
+            "n": 9,
+            "recall": 0.1111111111111111
+          },
+          "relative_ge01": {
+            "tp": 203,
+            "n": 221,
+            "recall": 0.918552036199095
+          }
+        },
+        "boundary_f1": 0.6336158844985005,
+        "aji": 0.7501202319769908,
+        "dice": 0.8983506904839555
+      },
+      "geldoc": {
+        "tp": 414,
+        "fp": 178,
+        "fn": 520,
+        "empty": 0,
+        "empty_fp": 0,
+        "fields": 23,
+        "precision": 0.6993243243243243,
+        "recall": 0.44325481798715205,
+        "f1": 0.5425950196592398,
+        "sizes": {
+          "native_under5": {
+            "tp": 44,
+            "n": 225,
+            "recall": 0.19555555555555557
+          },
+          "native_5to10": {
+            "tp": 284,
+            "n": 547,
+            "recall": 0.5191956124314442
+          },
+          "native_ge10": {
+            "tp": 86,
+            "n": 162,
+            "recall": 0.5308641975308642
+          },
+          "relative_under005": {
+            "tp": 0,
+            "n": 17,
+            "recall": 0.0
+          },
+          "relative_005to01": {
+            "tp": 0,
+            "n": 49,
+            "recall": 0.0
+          },
+          "relative_ge01": {
+            "tp": 414,
+            "n": 868,
+            "recall": 0.4769585253456221
+          }
+        },
+        "boundary_f1": 0.7431108594575088,
+        "aji": 0.4352437393849601,
+        "dice": 0.6291142662221478
+      },
+      "literature": {
+        "tp": 1057,
+        "fp": 413,
+        "fn": 847,
+        "empty": 9,
+        "empty_fp": 33,
+        "fields": 47,
+        "precision": 0.719047619047619,
+        "recall": 0.5551470588235294,
+        "f1": 0.6265560165975104,
+        "sizes": {
+          "native_under5": {
+            "tp": 120,
+            "n": 401,
+            "recall": 0.29925187032418954
+          },
+          "native_5to10": {
+            "tp": 558,
+            "n": 946,
+            "recall": 0.5898520084566596
+          },
+          "native_ge10": {
+            "tp": 379,
+            "n": 557,
+            "recall": 0.6804308797127468
+          },
+          "relative_under005": {
+            "tp": 0,
+            "n": 7,
+            "recall": 0.0
+          },
+          "relative_005to01": {
+            "tp": 1,
+            "n": 14,
+            "recall": 0.07142857142857142
+          },
+          "relative_ge01": {
+            "tp": 1056,
+            "n": 1883,
+            "recall": 0.5608072225172597
+          }
+        },
+        "boundary_f1": 0.8550783182807098,
+        "aji": 0.6837718251169251,
+        "dice": 0.8976037724743706
+      },
+      "malnio": {
+        "tp": 234,
+        "fp": 156,
+        "fn": 161,
+        "empty": 0,
+        "empty_fp": 0,
+        "fields": 9,
+        "precision": 0.6,
+        "recall": 0.5924050632911393,
+        "f1": 0.5961783439490446,
+        "sizes": {
+          "native_under5": {
+            "tp": 0,
+            "n": 2,
+            "recall": 0.0
+          },
+          "native_5to10": {
+            "tp": 14,
+            "n": 50,
+            "recall": 0.28
+          },
+          "native_ge10": {
+            "tp": 220,
+            "n": 343,
+            "recall": 0.641399416909621
+          },
+          "relative_under005": {
+            "tp": 0,
+            "n": 1,
+            "recall": 0.0
+          },
+          "relative_005to01": {
+            "tp": 0,
+            "n": 7,
+            "recall": 0.0
+          },
+          "relative_ge01": {
+            "tp": 234,
+            "n": 387,
+            "recall": 0.6046511627906976
+          }
+        },
+        "boundary_f1": 0.6911690020939699,
+        "aji": 0.48927695574172525,
+        "dice": 0.7031344014291107
+      },
+      "new-geldoc": {
+        "tp": 30,
+        "fp": 31,
+        "fn": 32,
+        "empty": 0,
+        "empty_fp": 0,
+        "fields": 4,
+        "precision": 0.4918032786885246,
+        "recall": 0.4838709677419355,
+        "f1": 0.4878048780487805,
+        "sizes": {
+          "native_under5": {
+            "tp": 7,
+            "n": 23,
+            "recall": 0.30434782608695654
+          },
+          "native_5to10": {
+            "tp": 20,
+            "n": 28,
+            "recall": 0.7142857142857143
+          },
+          "native_ge10": {
+            "tp": 3,
+            "n": 11,
+            "recall": 0.2727272727272727
+          },
+          "relative_under005": {
+            "tp": 0,
+            "n": 1,
+            "recall": 0.0
+          },
+          "relative_005to01": {
+            "tp": 1,
+            "n": 6,
+            "recall": 0.16666666666666666
+          },
+          "relative_ge01": {
+            "tp": 29,
+            "n": 55,
+            "recall": 0.5272727272727272
+          }
+        },
+        "boundary_f1": 0.7918665186928129,
+        "aji": 0.39432555902861266,
+        "dice": 0.5751430057202288
+      },
+      "patrick": {
+        "tp": 451,
+        "fp": 61,
+        "fn": 179,
+        "empty": 0,
+        "empty_fp": 0,
+        "fields": 6,
+        "precision": 0.880859375,
+        "recall": 0.7158730158730159,
+        "f1": 0.7898423817863398,
+        "sizes": {
+          "native_under5": {
+            "tp": 0,
+            "n": 3,
+            "recall": 0.0
+          },
+          "native_5to10": {
+            "tp": 0,
+            "n": 1,
+            "recall": 0.0
+          },
+          "native_ge10": {
+            "tp": 451,
+            "n": 626,
+            "recall": 0.7204472843450479
+          },
+          "relative_under005": {
+            "tp": 0,
+            "n": 4,
+            "recall": 0.0
+          },
+          "relative_005to01": {
+            "tp": 1,
+            "n": 18,
+            "recall": 0.05555555555555555
+          },
+          "relative_ge01": {
+            "tp": 450,
+            "n": 608,
+            "recall": 0.7401315789473685
+          }
+        },
+        "boundary_f1": 0.6363523245858169,
+        "aji": 0.6863014537808695,
+        "dice": 0.9047899355331537
+      },
+      "previous-curation": {
+        "tp": 327,
+        "fp": 37,
+        "fn": 51,
+        "empty": 2,
+        "empty_fp": 0,
+        "fields": 9,
+        "precision": 0.8983516483516484,
+        "recall": 0.8650793650793651,
+        "f1": 0.8814016172506739,
+        "sizes": {
+          "native_under5": {
+            "tp": 0,
+            "n": 0,
+            "recall": null
+          },
+          "native_5to10": {
+            "tp": 67,
+            "n": 80,
+            "recall": 0.8375
+          },
+          "native_ge10": {
+            "tp": 260,
+            "n": 298,
+            "recall": 0.87248322147651
+          },
+          "relative_under005": {
+            "tp": 0,
+            "n": 2,
+            "recall": 0.0
+          },
+          "relative_005to01": {
+            "tp": 0,
+            "n": 6,
+            "recall": 0.0
+          },
+          "relative_ge01": {
+            "tp": 327,
+            "n": 370,
+            "recall": 0.8837837837837837
+          }
+        },
+        "boundary_f1": 0.9211851401656511,
+        "aji": 0.8136683447161392,
+        "dice": 0.9531289326164054
+      }
+    }
+  },
+  "facts": {
+    "rows": [
+      {
+        "key": "training",
+        "label": "Training",
+        "this": "810 curated crops; all 36411 objects",
+        "stock": "Pretrained Cellpose-SAM"
+      },
+      {
+        "key": "epochs",
+        "label": "Epochs",
+        "this": "50 complete (interim; training continues to >=100)",
+        "stock": "No plaque training"
+      },
+      {
+        "key": "coverage",
+        "label": "Coverage",
+        "this": "51192 windows/epoch; 2559600 total",
+        "stock": "Not applicable"
+      }
+    ]
+  },
+  "about": {
+    "segments": "Toxoplasma plaque instances.",
+    "version_line": "One plain native Cellpose-SAM model, vanilla cpsam_v2 initialization.",
+    "trained_on": "All 810 training crops with complete grid coverage and D4 augmentation; 102 validation crops; 101 reporting-only test crops.",
+    "status": "Interim candidate at epoch 50; the final V8 is still training. No claim of detecting every plaque.",
+    "leak_note": "Interim epoch-50 release while training continues to >=100 epochs. The 101 test crops were reported previously for an older V8 attempt; they are not a fresh external or prospective test.",
+    "load_line": "Select toxoplasma_plaque_v7 in spaCR with declared well preprocessing.",
+    "links": {
+      "model": "https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-v8-e50",
+      "stock": "https://huggingface.co/mouseland/cellpose-sam"
+    }
+  },
+  "provenance": {
+    "checkpoint": "weights/cpsam_plaque_v8_e50",
+    "sha256": "b4f4a9e9d026f44c597c2a865cd35ce66cbde4293cc173935720c34daa1dec73",
+    "scored_split": "test",
+    "field_ids_sha256": "a8a8555c509377bda8c8644a74ceb9faf50bfaafeed884fa375017e0c8425cd6",
+    "full_card_sha256": "a7d3b62b2ec376d4f629b11096cbdaf866abc805edb14e951f8503109f4ca55b",
+    "inference_use_bfloat16": false,
+    "split_manifest_sha256": "a900502f45035f623d981985f743d8dc30996c9db80d32f3ebedf7fda951a286"
+  }
+}

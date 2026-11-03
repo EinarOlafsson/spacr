@@ -1337,6 +1337,47 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "though that benchmark is its held-out test set",
         ),
     },
+    {'key': 'toxoplasma_plaque_v7',
+     'name': 'cpsam_plaque_v8_e50',
+     'remote_name': 'cpsam_plaque_v8_e50',
+     'kind': 'cellpose',
+     'repo_id': 'einarolafsson/toxoplasma-plaque-segmentation-cpsam-v8-e50',
+     'repo_type': 'model',
+     'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-v8-e50/resolve/main/weights/cpsam_plaque_v8_e50',
+     'sha256': 'b4f4a9e9d026f44c597c2a865cd35ce66cbde4293cc173935720c34daa1dec73',
+     'size_bytes': 1218650610,
+     'display_name': 'Toxoplasma Plaque V8 epoch 50 (interim candidate)',
+     'candidate': True,
+     'architecture': 'Cellpose-SAM (vanilla cpsam_v2 initialization; Cellpose 4.2.1.1)',
+     'preprocess': {'well_resize': {'side': 1500, 'max_factor': 1500},
+                    'thresholds': {'cellprob': 0.0, 'flow': 0.4, 'min_size': 0},
+                    'use_bfloat16': False},
+     'metrics': {'f1': {'finetuned': 0.6677316293929713,
+                        'vanilla': 0.199933869723355,
+                        'delta': 0.46779775966961623},
+                 'holdout': 'version8_pooled_curated_grouped_test',
+                 'n_fields': 101,
+                 'n_objects': 4533,
+                 'n_train': '810 training crops; 102 validation crops',
+                 'train_objects': '36411',
+                 'n_test': '101 crops',
+                 'test_objects': '4533',
+                 'cv': 'no',
+                 'best_epoch': '50 (interim export; training continues)'},
+     'dataset': '1013 accepted curated well crops; grouped 810 train / 102 validation / 101 test. Historical '
+                'images were pooled and repartitioned.',
+     'trained_on': 'All 51192 overlapping 256 px grid windows per epoch from all 810 training crops at a 1500 px '
+                   'longest well side; whole-image D4 (independent window D4 only in epochs 1-6); 50 epochs from '
+                   'cpsam_v2',
+     'trained_by': 'einarolafsson',
+     'notes': ['Interim export of epoch 50 while V8 trains to at least 100 epochs; the final V8 will be released '
+               'separately.',
+               'Thresholds chosen on the 102 validation crops (cellprob 0.0, flow 0.4, min size 0); test used '
+               'for reporting only. The 101 test crops were reported once before, for an older V8 attempt, so '
+               'they are not a fresh external or prospective test.',
+               'FP32 inference, 1st/99th percentile normalization; well resized to a 1500 px longest side with '
+               'no enlargement cap.',
+               'Candidate; existing plaque models and the default stay as they are.']},
 )
 
 #: Models that are no longer OFFERED, by filename.
@@ -1446,7 +1487,14 @@ _CURATED_SCORECARD_BINDINGS = {'toxoplasma_plaque_v1': {'checkpoint_sha256': 'ee
                       'full_card_sha256': '73b49ea573201d9d2d1e51513398dc9917ff10cbee792bae2a499d18c81ceed2',
                       'resource': 'toxoplasma-pv-segmentation-cpsam-r8.json',
                       'resource_sha256': '34c9df8121b591b5c5c8d0b8566dea5a8294fdb1c26197df7a42180db9d4d40f',
-                      'uri': 'https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r8/resolve/main/weights/cpsam_v2_toxo_r8'}}
+                      'uri': 'https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r8/resolve/main/weights/cpsam_v2_toxo_r8'},
+ 'toxoplasma_plaque_v7': {'checkpoint_sha256': 'b4f4a9e9d026f44c597c2a865cd35ce66cbde4293cc173935720c34daa1dec73',
+                          'field_ids_sha256': 'a8a8555c509377bda8c8644a74ceb9faf50bfaafeed884fa375017e0c8425cd6',
+                          'full_card_sha256': 'a7d3b62b2ec376d4f629b11096cbdaf866abc805edb14e951f8503109f4ca55b',
+                          'resource': 'toxoplasma-plaque-segmentation-cpsam-v8-e50.json',
+                          'resource_sha256': 'ae81b439efb868ea7951cec8b972593200b793da449fd6474f98bcc97b69fe68',
+                          'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-v8-e50/resolve/main/weights/cpsam_plaque_v8_e50'},
+}
 
 
 class ModelZooError(Exception):

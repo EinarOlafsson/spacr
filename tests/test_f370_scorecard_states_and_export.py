@@ -64,8 +64,11 @@ def test_the_nine_reviewed_cards_stay_reviewed():
     # binding to checkpoint a22697dd... and six matched-stock rows against
     # cpsam_v2 on its strict 160-field hold-out, never used for training,
     # checkpoint or threshold choice; build_model_cards.py --check agrees.
+    # 2026-11-03: toxoplasma_plaque_v7 (V8 epoch 50, interim candidate) joined
+    # with a binding to checkpoint b4f4a9e9... and six matched-stock rows on
+    # the 101-crop V8 test, thresholds fixed on validation first.
     assert reviewed == {f"toxoplasma_pv_v{i}" for i in range(1, 6)} | {
-        f"toxoplasma_plaque_v{i}" for i in range(1, 7)}
+        f"toxoplasma_plaque_v{i}" for i in range(1, 8)}
 
 
 def test_an_unevaluated_spacr_model_says_so_and_a_stock_model_does_not():
@@ -106,7 +109,7 @@ def test_reviewed_export_rows_equal_the_packaged_card_json():
     paths = sorted((ROOT / "spacr/resources/model_cards").glob("*.json"))
     bound = sorted(binding["resource"] for binding in zoo._CURATED_SCORECARD_BINDINGS.values())
     assert [path.name for path in paths] == bound
-    assert len(paths) == 11
+    assert len(paths) == 12
     for path in paths:
         card = json.loads(path.read_text(encoding="utf-8"))
         entry = zoo._builtin_entry_from_mapping(_record(card["key"]))

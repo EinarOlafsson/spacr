@@ -140,7 +140,7 @@
 
 .. spacr-installer-links-begin
 
-| |InstallerLinux|\ |InstallerMacOS|\ |InstallerWindows|\ |InstallerSpaCR|
+|InstallerLinux| |InstallerMacOS| |InstallerWindows| |InstallerSpaCR|
 
 .. |InstallerWindows| raw:: html
 
@@ -151,9 +151,9 @@
 .. |InstallerLinux| raw:: html
 
    <a href="https://github.com/EinarOlafsson/spacr/releases/download/v1.5.1.7/spaCR-1.5.1.7-Linux-x86_64-Online.run"><img src="../../readme_assets/cells/platforms/linux.png" width="14.14%" align="middle" alt="64비트 Linux용 spaCR 1.5.1.7 다운로드"></a>
-.. |InstallerSpaCR| raw:: html
-
-   <a href="https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installers.rst"><img src="../../readme_assets/cells/app_icon.png" width="14.14%" align="middle" alt="모든 spaCR 설치 프로그램"></a>
+.. |InstallerSpaCR| image:: ../../../spacr/resources/icons/app_icon.png
+   :target: https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installers.rst
+   :alt: 모든 spaCR 설치 프로그램
 
 .. spacr-installer-links-end
 
@@ -445,24 +445,20 @@
 
    <div><a href="../../readme_text/ko/data.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/data.desktop.svg"><img src="../../readme_images/ko/data.svg" alt="데이터. 참조 데이터세트."></picture></a></div>
 
-| |DataBioStudies|\ |DataHuggingFace|\ |DataNCBI|\ |DataSpaCRPower|\ |DataBioRxiv|
+|DataBioStudies| |DataHuggingFace| |DataNCBI| |DataSpaCRPower| |DataBioRxiv|
 
 .. |DataBioStudies| raw:: html
 
    <a href="https://doi.org/10.6019/S-BIAD2135"><img src="../../readme_assets/cells/databanks/biostudies_button.png" width="14.14%" align="middle" alt="BioStudies 현미경 데이터세트 열기"></a>
-
 .. |DataHuggingFace| raw:: html
 
    <a href="https://huggingface.co/datasets/einarolafsson/toxo_mito"><img src="../../readme_assets/cells/databanks/huggingface_button.png" width="14.14%" align="middle" alt="Hugging Face 테스트 데이터세트 열기"></a>
-
 .. |DataNCBI| raw:: html
 
    <a href="https://www.ncbi.nlm.nih.gov/bioproject/?term=PRJNA1261935"><img src="../../readme_assets/cells/databanks/ncbi_button.png" width="14.14%" align="middle" alt="NCBI 시퀀싱 데이터세트 열기"></a>
-
 .. |DataSpaCRPower| raw:: html
 
    <a href="https://github.com/maomlab/spaCRPower"><img src="../../readme_assets/cells/databanks/spacrpower_button.png" width="14.14%" align="middle" alt="spaCRPower 열기"></a>
-
 .. |DataBioRxiv| raw:: html
 
    <a href="https://www.biorxiv.org/content/10.64898/2026.07.08.737057v1"><img src="../../readme_assets/cells/databanks/biorxiv_button.png" width="14.14%" align="middle" alt="bioRxiv 사전 인쇄본 열기"></a>
@@ -492,7 +488,7 @@
 
 .. raw:: html
 
-   <div><a href="../../models/toxoplasma_pv_v5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/generated-model-zoo-2-link-1.desktop.svg"><img src="../../readme_images/ko/generated-model-zoo-2-link-1.svg" alt="toxoplasma_pv_v5"></picture></a><a href="../../models/toxoplasma_plaque_v3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/generated-model-zoo-2-link-2.desktop.svg"><img src="../../readme_images/ko/generated-model-zoo-2-link-2.svg" alt="toxoplasma_plaque_v3"></picture></a><a href="../../models/live_cell_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/generated-model-zoo-2-link-3.desktop.svg"><img src="../../readme_images/ko/generated-model-zoo-2-link-3.svg" alt="live_cell_v1"></picture></a></div>
+   <div><a href="../../models/toxoplasma_pv_v5.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/generated-model-zoo-2-link-1.desktop.svg"><img src="../../readme_images/ko/generated-model-zoo-2-link-1.svg" alt="toxoplasma_pv_v5"></picture></a><a href="../../models/toxoplasma_plaque_v7.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/generated-model-zoo-2-link-2.desktop.svg"><img src="../../readme_images/ko/generated-model-zoo-2-link-2.svg" alt="toxoplasma_plaque_v7 (후보)"></picture></a><a href="../../models/toxoplasma_plaque_v3.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/generated-model-zoo-2-link-3.desktop.svg"><img src="../../readme_images/ko/generated-model-zoo-2-link-3.svg" alt="toxoplasma_plaque_v3"></picture></a><a href="../../models/live_cell_v1.md"><picture><source media="(min-width: 1280px)" srcset="../../readme_images/ko/generated-model-zoo-2-link-4.desktop.svg"><img src="../../readme_images/ko/generated-model-zoo-2-link-4.svg" alt="live_cell_v1"></picture></a></div>
 
 .. raw:: html
 

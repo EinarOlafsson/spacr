@@ -81,3 +81,7 @@
        (YOLO11n (fine-tuned from detector v3))
      - 452 reviewed training images; 124 validation images; physical plate and figure groups; 150 epochs; YOLO11n v3 initialization
      - Stock was not evaluated in this run; see the named incumbent comparison on the model card
+   * - ``toxoplasma_plaque_v7``
+       (Cellpose-SAM (vanilla cpsam_v2 initialization; Cellpose 4.2.1.1))
+     - 1013 accepted curated well crops; grouped 810 train / 102 validation / 101 test. Historical images were pooled and repartitioned
+     - F1 0.668 against stock cpsam_v2's 0.200 on the 101 strict hold-out fields at IoU 0.5; AJI 0.698 against 0.211
