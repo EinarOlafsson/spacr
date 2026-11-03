@@ -1,0 +1,50 @@
+MECHANISM-OF-ACTION PROFILING BENCHMARK MODULE
+
+Lifecycle: future
+Status: not started
+Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
+           (BMC spaCR paper) worked around must become a spaCR item.
+Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cellprofiler_baseline/REPORT.md, "spaCR gaps", gap 6
+Owner: unassigned. Ships as an ALPHA feature (features/README.md, item 569).
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+spaCR has profiling with mAP (item 547) but no leave-one-compound-out
+mechanism-of-action evaluation. The reanalysis scored it outside spaCR with
+/nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cellprofiler_baseline/run_and_score.py, ljosa_methods.py and
+supervised_moa.py. Item 753 is the CellProfiler head-to-head; this item is
+the reusable scorer it and any profiling run would call.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Without it a profiling result cannot be compared with the published
+BBBC021/Ljosa numbers inside spaCR.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Leave-one-compound-out 1-NN MoA accuracy under NSC (not same compound)
+   and NSCB (not same compound or batch), on per-treatment profiles from
+   spacr.sp_stats.
+2. Supervised arms (logistic regression, XGBoost on CPU, see 759) under the
+   same splits.
+3. Shuffled-label controls, a table via spacr.tabular with a control row and
+   a glossary; register in ALPHA_FEATURES under 760.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+On the BBBC021 CellProfiler table it reproduces run_and_score.py's NSC
+and NSCB accuracies exactly, and the shuffled control is at chance.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Nothing yet.

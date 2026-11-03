@@ -1,0 +1,47 @@
+A PER-CELL EXPORT JOINING CELL, NUCLEUS AND CYTOPLASM
+
+Lifecycle: future
+Status: not started
+Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
+           (BMC spaCR paper) worked around must become a spaCR item.
+Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/spacr/README.md, "Gaps in spaCR worked around here", gap 11
+Owner: unassigned. Ships as an ALPHA feature (features/README.md, item 569).
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+There is no per-cell export joining cell, nucleus and cytoplasm. The
+driver joined cytoplasm 1:1, took each cell's largest nucleus and added
+Metadata_n_nuclei (3-8% of cells have more than one nucleus, 4-8% none).
+Item 377 names the same denominator cases for infection.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Every profiling tool expects one row per cell; each user rebuilding the
+join makes different choices.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. An export with one row per cell: cell, cytoplasm and a chosen nucleus
+   (largest, or aggregated), Metadata_n_nuclei, NaN nucleus features for
+   cells without one; Parquet and CSV through spacr.tabular.
+2. Feature QC (item 756) runs on the exported table.
+3. Register any new setting in ALPHA_FEATURES under 769.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The BBBC021 driver's parquet export is reproduced by spaCR alone, row for
+row.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Nothing yet.

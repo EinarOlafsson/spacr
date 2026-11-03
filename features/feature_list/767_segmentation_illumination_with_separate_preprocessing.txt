@@ -1,0 +1,43 @@
+SEGMENTATION ILLUMINATION WITH SEPARATE PREPROCESSING
+
+Lifecycle: future
+Status: not started
+Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
+           (BMC spaCR paper) worked around must become a spaCR item.
+Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/spacr/README.md, "Gaps in spaCR worked around here", gap 9
+Owner: unassigned. Ships as an ALPHA feature (features/README.md, item 569).
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Segmentation-input illumination correction is prepared only when
+preprocessing and masks run in one call (item 339 documents this), so with
+the prep/segment split of item 766 segmentation is uncorrected.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Splitting the stages for throughput should not change the masks.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Save the segmentation flat field during a preprocess-only run and apply
+   it in a later masks-only run.
+2. A test that split and combined runs give the same masks.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+preprocess=True, masks=False followed by preprocess=False, masks=True
+gives masks identical to one combined call with illumination on.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Nothing yet.

@@ -1,0 +1,78 @@
+FEATURE QC FLAGS DEGENERATE COLUMNS AT EXPORT
+
+Lifecycle: future
+Status: in progress — branch bmc-feature-qc (report by default, drop behind feature_qc_drop).
+Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
+           (BMC spaCR paper) worked around must become a spaCR item.
+Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cellprofiler_baseline/REPORT.md, "spaCR gaps", gap 2
+Owner: unassigned. Ships as an ALPHA feature (features/README.md, item 569).
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+nucleus_zernike_1 and cell_zernike_1 are numerically zero (~1e-15) apart
+from rare ~3e-3 spikes; *_zernike_0 is the constant 1/pi. All are exported as
+features. After per-plate scaling the spikes dominate cosine similarity and
+1-NN mechanism-of-action accuracy on BBBC021 falls to chance (6.8%; 89.3%
+without the two columns). Nothing in spaCR checked feature columns.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A single degenerate column can silently destroy a profiling result, and
+the user sees no warning.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. At the end of every complete Measure run, flag per-object feature
+   columns that are all or mostly missing, numerically zero, constant, or
+   spike-dominated (MAD ~0 while the largest deviation is far larger, carried
+   by a small share of rows).
+2. Report them in the log and in feature_qc.csv / feature_qc.json beside
+   measurements.db; leave measurements.db byte-identical by default.
+3. A setting feature_qc_drop (alpha) removes the flagged columns from the
+   object tables before profiling reads them.
+4. Register feature_qc_drop in ALPHA_FEATURES under 756.
+5. Later: fix the source (drop Zernike moments that are identically zero for
+   a centred disk, or clamp below a tolerance to exactly zero).
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The BBBC021 zernike_1 pattern is flagged as spike_dominated, well-behaved
+columns (areas, intensities, sparse counts, partly missing texture) are not,
+and a run with feature_qc_drop on scores 1-NN MoA like the run without the
+two columns.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Thresholds are fixed function defaults, not settings, until real plates
+show they need tuning. Step 5 (fixing the Zernike source) is not done.
+
+--------------------------------------------------------------------------------
+2026-11-03 — steps 1-4 built on branch bmc-feature-qc (not merged)
+--------------------------------------------------------------------------------
+
+spacr.sp_stats.flag_degenerate_features judges each numeric per-object
+column (identity, position and Metadata_ columns are skipped) and reports
+the first of all_missing, mostly_missing (>50% NaN/inf), numerical_zero
+(|x| <= 1e-12), constant, spike_dominated (MAD < 1e-6 x largest deviation
+and at most 5% of values deviating; needs 10 values). measure_crop calls
+_emit_feature_qc after every complete run: measurements.db is opened
+read-only and stays byte-identical; feature_qc.csv and feature_qc.json are
+written beside it and the first twenty flagged columns are logged.
+feature_qc_drop (alpha, ALPHA_FEATURES[756], under "Profiling α") drops the
+flagged columns with ALTER TABLE ... DROP COLUMN before profiling.
+Tests: tests/test_feature_qc.py (Zernike pattern flagged; areas,
+intensities, sparse counts and partly missing texture not flagged).
+Still needed (generator lock): arrival contract and 9-locale API records for
+spacr.sp_stats.flag_degenerate_features; 9-locale label and tooltip for
+feature_qc_drop; tools/settings_flow.py --rst; the alpha deck PDF re-render
+for the 756 row. Not yet run on the BBBC021 plates.

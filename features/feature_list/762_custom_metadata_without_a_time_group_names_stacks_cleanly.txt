@@ -1,0 +1,44 @@
+CUSTOM METADATA WITHOUT A TIME GROUP NAMES STACKS CLEANLY
+
+Lifecycle: future
+Status: not started
+Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
+           (BMC spaCR paper) worked around must become a spaCR item.
+Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/spacr/README.md, "Gaps in spaCR worked around here", gap 3
+Owner: unassigned. Ships as an ALPHA feature (features/README.md, item 569).
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+metadata_type='custom' with a regex that has no timeID group names stacks
+<plate>_<well>_<field>_None.npy, and Measure then refuses every field. The
+reanalysis worked around it with cellvoyager-named symlinks.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Most single-timepoint screens have no time in their file names.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. A regex without timeID gives one time point (or no time suffix), never
+   the string None.
+2. Measure accepts stacks written that way.
+3. A Mask-then-Measure test with a custom regex lacking timeID.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+BBBC021 imports with a custom regex and no symlinks, and Measure refuses
+no field.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Nothing yet.

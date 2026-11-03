@@ -1,0 +1,52 @@
+MEASURE EXTERNAL LABEL IMAGES (CELLPROFILER, CELLPOSE, ILASTIK)
+
+Lifecycle: future
+Status: not started
+Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
+           (BMC spaCR paper) worked around must become a spaCR item.
+Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cellprofiler_baseline/REPORT.md, "spaCR gaps", gap 1
+Owner: unassigned. Ships as an ALPHA feature (features/README.md, item 569).
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Measure reads only spaCR's own merged/*.npy stacks. To measure CellProfiler
+label TIFFs on BBBC021 the driver built HxWx5 arrays by hand, wrote
+.spacr_plane_layout.json itself and copied spaCR's internal file naming
+(<plate with _ escaped as %5F>_<well>_<site>_<time>.npy). Scripts:
+/nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/swap/swap_halfA.py and make_analysis_from_masks.py.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Swap tests (spaCR features on another tool's masks, and the reverse) are
+the fairest way to separate segmentation from measurement in a benchmark,
+and labs often already have masks from another tool.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. An "import label images" path in Measure: per-object label TIFF/PNG/NPY
+   folders (cell, nucleus, pathogen) matched to the raw channels by a
+   filename pattern (regex_infer), with label dtype and size checks.
+2. Write the merged stacks and the plane layout through spaCR's own writer,
+   never by hand, and record the mask source in the run provenance.
+3. Settings with types, tooltips and categories; tr() for every string.
+4. Register everything in ALPHA_FEATURES under 755.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+The BBBC021 swap half A runs from the Measure settings alone, with no
+driver-built arrays, and gives the same per-cell features as the driver
+(identical parquet up to row order).
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Nothing yet.

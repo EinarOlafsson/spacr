@@ -1,0 +1,44 @@
+TEXTURE FEATURES ARE DEFINED FOR SMALL OBJECTS
+
+Lifecycle: future
+Status: not started
+Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
+           (BMC spaCR paper) worked around must become a spaCR item.
+Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cellprofiler_baseline/REPORT.md, "spaCR gaps", gap 3
+Owner: unassigned. Ships as an ALPHA feature (features/README.md, item 569).
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+nucleus_channel_*_homogeneity_distance_32 is NaN for nuclei smaller than
+the offset, which left 6 BBBC021 wells with non-finite mean profiles.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Non-finite features break well means and every distance computed on
+them; dropping the rows biases against small nuclei (mitotic, apoptotic).
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Cap each GLCM distance by the object's size (or skip offsets that do
+   not fit and record how many were used), so the feature is always finite.
+2. Document the rule in the feature dictionary (spacr/feature_dict.py).
+3. Register any new setting in ALPHA_FEATURES under 757.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+On BBBC021 no well mean is non-finite, and the homogeneity values of
+nuclei large enough for every offset are unchanged.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Nothing yet.

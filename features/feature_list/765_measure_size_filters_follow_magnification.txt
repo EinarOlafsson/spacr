@@ -1,0 +1,45 @@
+MEASURE SIZE FILTERS FOLLOW MAGNIFICATION
+
+Lifecycle: future
+Status: not started
+Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
+           (BMC spaCR paper) worked around must become a spaCR item.
+Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/spacr/README.md, "Gaps in spaCR worked around here", gap 7
+Owner: unassigned. Ships as an ALPHA feature (features/README.md, item 569).
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+cell_min_size (8000 px) and nucleus_min_size (2000 px) are fixed pixel
+counts for 40-60x (spacr/settings.py get_measure_crop_settings); Mask's
+diameters follow magnification but these do not. At 20x they remove nearly
+every BBBC021 cell, so the driver set 177 px by hand.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A default that silently removes every object is worse than no filter.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Derive the defaults from magnification (or pixel size), as Mask's
+   diameters are, or express object_filters area rows in um^2.
+2. Warn when a filter removes most objects of a field.
+3. Register any new setting in ALPHA_FEATURES under 765.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+With magnification=20 and no size settings, BBBC021 keeps the cells
+CellProfiler keeps (median area ~2,800 px).
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Nothing yet.

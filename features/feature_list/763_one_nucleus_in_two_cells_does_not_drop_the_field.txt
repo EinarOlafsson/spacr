@@ -1,0 +1,45 @@
+ONE NUCLEUS IN TWO CELLS DOES NOT DROP THE FIELD
+
+Lifecycle: future
+Status: not started
+Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
+           (BMC spaCR paper) worked around must become a spaCR item.
+Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/spacr/README.md, "Gaps in spaCR worked around here", gap 5
+Owner: unassigned. Ships as an ALPHA feature (features/README.md, item 569).
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Measure drops a whole field (MergeError) when one nucleus overlaps two
+cells; taxol and other mitotic fields are hit most. The lost fields appear
+only as failed: lines in the logs.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Dropping fields biases exactly the treatments with the strongest
+phenotypes.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Resolve the ambiguous nucleus (assign it to the cell with the larger
+   overlap, or drop that one object) and keep the field.
+2. Count resolved and dropped objects per field in the run log and a table.
+3. Register any new setting in ALPHA_FEATURES under 763.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+No BBBC021 field is refused for this reason, and the per-field count of
+resolved objects is reported.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Nothing yet.
