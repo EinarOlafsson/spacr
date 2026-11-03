@@ -42,6 +42,7 @@ from __future__ import annotations
 
 import contextlib
 import gc
+import importlib
 import logging
 import sys
 import threading
@@ -133,6 +134,16 @@ _INPUT_QUIET_S = 0.5
 _INPUT = {"where": None, "moved_at": 0.0, "retry_armed": False}
 
 
+def _loaded(name: str):
+    """Return the Qt module ``name`` without a statement-level import.
+
+    The collection timer fires inside the Qt event loop, where every module
+    it needs is already in ``sys.modules``; looking it up there keeps the
+    callback from importing anything fresh.
+    """
+    return sys.modules.get(name) or importlib.import_module(name)
+
+
 def _freeze_survivors() -> None:
     """Have the GUI-thread collector collect, then freeze what survives.
 
@@ -170,8 +181,8 @@ def _remember_frozen_windows() -> None:
     """
     import weakref
 
-    from PySide6.QtCore import Qt
-    from PySide6.QtWidgets import QApplication
+    Qt = _loaded("PySide6.QtCore").Qt
+    QApplication = _loaded("PySide6.QtWidgets").QApplication
 
     app = QApplication.instance()
     windows = app.topLevelWidgets() if app is not None else []
@@ -188,7 +199,7 @@ def _a_frozen_window_was_deleted() -> bool:
     """
     if not _FROZEN_WINDOWS:
         return False
-    from shiboken6 import isValid
+    isValid = _loaded("shiboken6").isValid
 
     for reference in _FROZEN_WINDOWS:
         window = reference()
@@ -269,8 +280,8 @@ def collect_once() -> int:
     widgets = sys.modules.get("PySide6.QtWidgets")
     app = widgets.QApplication.instance() if widgets is not None else None
     if app is not None:
-        from PySide6.QtCore import Qt
-        from PySide6.QtGui import QCursor
+        Qt = _loaded("PySide6.QtCore").Qt
+        QCursor = _loaded("PySide6.QtGui").QCursor
 
         now = time.monotonic()
         where = QCursor.pos()
@@ -282,8 +293,7 @@ def collect_once() -> int:
     if hands:
         owed = _requested.is_set() or _FREEZE_DUE.is_set() or _a_frozen_window_was_deleted()
         if owed and not _INPUT["retry_armed"]:
-            from PySide6.QtCore import QTimer
-
+            QTimer = _loaded("PySide6.QtCore").QTimer
             _INPUT["retry_armed"] = True
             QTimer.singleShot(int(_INPUT_QUIET_S * 1000),
                               lambda: (_INPUT.update(retry_armed=False), collect_once()))
