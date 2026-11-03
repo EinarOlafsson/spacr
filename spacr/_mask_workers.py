@@ -778,6 +778,7 @@ def _compatible_mask_gpus():
 _CONTROL_GPU_COUNT = []
 _CONTROL_GPU_PROBE = None
 _CONTROL_GPU_TIMER = None
+_CONTROL_GPU_LOCK = threading.Lock()
 
 
 def _probe_mask_gpu_count(connection):
@@ -800,7 +801,9 @@ def _launch_mask_gpu_probe(process, writer, state):
     :param writer: the child's end of the answer pipe, closed here once
         the child has it.
     :param state: the probe's state; ``launch_failed`` is set when the
-        child could not be started.
+        child could not be started. A probe stopped while this launch was
+        still running is marked ``cancelled`` and left to this thread, which
+        then terminates and reaps the child it started.
     """
     try:
         process.start()
@@ -808,6 +811,27 @@ def _launch_mask_gpu_probe(process, writer, state):
         state['launch_failed'] = True
     finally:
         writer.close()
+    with _CONTROL_GPU_LOCK:
+        state['launched'] = True
+        cancelled = state['cancelled']
+    if cancelled and not state['launch_failed']:
+        _reap_cancelled_mask_gpu_probe(process)
+
+
+def _reap_cancelled_mask_gpu_probe(process):
+    """Terminate and reap a discovery child whose probe was stopped mid-launch.
+
+    Runs on the launcher thread, never on the GUI thread, so it may wait.
+
+    :param process: the started discovery child.
+    """
+    if process.is_alive():
+        process.terminate()
+        process.join(1.0)
+    if process.is_alive():
+        process.kill()
+        process.join(None)
+    process.close()
 
 
 def _mask_gpu_count_for_controls():
@@ -829,7 +853,8 @@ def _mask_gpu_count_for_controls():
                                   args=(writer,), daemon=True)
         state = {'process': process, 'reader': reader,
                  'started': time.monotonic(), 'stopping': None,
-                 'killed': False, 'launch_failed': False}
+                 'killed': False, 'launch_failed': False,
+                 'launched': False, 'cancelled': False}
         launcher = threading.Thread(target=_launch_mask_gpu_probe,
                                     args=(process, writer, state),
                                     name='spacr-gpu-probe-launch', daemon=True)
@@ -901,15 +926,16 @@ def _stop_mask_gpu_probe():
         return
     state = _CONTROL_GPU_PROBE
     process = state['process']
-    launcher = state.get('launcher')
-    if launcher is not None:
-        launcher.join(timeout=1.0)
+    with _CONTROL_GPU_LOCK:
+        pending = not state['launched']
+        if pending:
+            state['cancelled'] = True
     if state['reader'] is not None:
         state['reader'].close()
         state['reader'] = None
     if not _CONTROL_GPU_COUNT:
         _CONTROL_GPU_COUNT.append(0)
-    if launcher is not None and (launcher.is_alive() or state.get('launch_failed')):
+    if pending or state['launch_failed']:
         _CONTROL_GPU_PROBE = None
         return
     if process.is_alive():
