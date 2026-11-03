@@ -2820,10 +2820,9 @@ class OrganizeForMeasureDialog(QDialog):
         They still name the columns of the sort before; a Remove or a role
         pressed in between would act on a column that is gone.
         """
-        for index in range(self._editors_row.count()):
-            widget = self._editors_row.itemAt(index).widget()
-            if widget is not None:
-                widget.setEnabled(False)
+        from .flow import _layout_widgets
+        for widget in _layout_widgets(self._editors_row):
+            widget.setEnabled(False)
 
     def _show_editors(self) -> None:
         """Rebuild the column editors for the rows a sort installed, a turn later.
