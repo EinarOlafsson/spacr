@@ -29,6 +29,11 @@ INCOMPLETE MEASUREMENT, which is a different verdict from a regression.
 
 Recovering coverage does not hide the crash: the batch's own exit status is
 still the job's, and a file that cannot be recovered fails the job too.
+One exit is not a crash of the tests: a batch whose tests ALL passed and
+whose pytest-cov combine then stopped with an INTERNALERROR reading a child
+process's half-written data file (see :func:`coverage_internal_error`).
+Its files are re-run serially the same way, and the batch passes only when
+every re-run passed and saved its data; a failed re-run fails it.
 """
 
 from __future__ import annotations
@@ -96,6 +101,8 @@ def _run_bounded(command, *, env=None, timeout: float = 0):
 #: an internal error (3) or a usage error (4) proves nothing was saved.
 DATA_SAVED_STATUSES = (0, 1, NO_TESTS_COLLECTED)
 UNRECOVERED_STATUS = 1
+#: pytest's exit status for an INTERNALERROR.
+INTERNAL_ERROR_STATUS = 3
 #: tests/conftest.py ends a pytest process whose RSS passes
 #: SPACR_TEST_MEMORY_GB (default 6) with ``os._exit(3)``.
 MEMORY_GUARD_STATUS = 3
@@ -141,12 +148,14 @@ def _batches(items: Sequence[Path], size: int) -> list[list[Path]]:
 
 def _unreadable(path: Path) -> str | None:
     """Why a coverage data file cannot be read, or None when it can."""
+    import sqlite3
+
     from coverage import CoverageData
     from coverage.exceptions import CoverageException
 
     try:
         CoverageData(basename=str(path)).read()
-    except CoverageException as exc:
+    except (CoverageException, sqlite3.Error) as exc:
         return str(exc)
     return None
 
@@ -335,6 +344,74 @@ def discarded_child_coverage(
         "running": [],
         "files": files,
     }]
+
+
+def coverage_internal_error(
+    ledger: Mapping[str, Any] | None,
+    batch_files: Sequence[str],
+    batch_status: int | None,
+) -> tuple[list[str], list[dict[str, Any]]] | None:
+    """Every file of a batch whose tests all passed but whose combine failed.
+
+    pytest-cov combines the batch's process data when the session ends,
+    after every test has reported.  A child process that is still saving its
+    own data file then, or was killed while saving it, leaves a file with no
+    schema, and coverage.py's read of it can escape as an INTERNALERROR
+    (``no such table: coverage_schema``, then ``attempt to write a readonly
+    database``): exit 3 for a batch none of whose tests failed, with the
+    combine stopped part way.  Which test started that process is not
+    recorded, so every file of the batch is re-run on its own.
+
+    Only that exact signature qualifies, as the ledger saw it: exit 3, an
+    INTERNALERROR whose chain is coverage data reading, no failed test or
+    collection error, pytest's own failure count zero, no crashed or lost
+    worker and no collected test left unreported.  Anything else is None
+    and the batch's status stands.
+    """
+    if batch_status != INTERNAL_ERROR_STATUS or ledger is None:
+        return None
+    internal = ledger.get("internal_error")
+    if not isinstance(internal, Mapping) or internal.get("coverage_data") is not True:
+        return None
+    if (ledger.get("exitstatus") != INTERNAL_ERROR_STATUS
+            or ledger.get("failed") != [] or ledger.get("testsfailed") != 0
+            or ledger.get("crashes") or ledger.get("unreported_files")):
+        return None
+    if lost_coverage(ledger, batch_files, batch_status)[0]:
+        return None
+    files = sorted(batch_files)
+    chain = [str(item) for item in internal.get("chain", [])]
+    return files, [{
+        "worker": None,
+        "error": "every test passed, then pytest-cov's combine stopped with "
+                 "an INTERNALERROR reading coverage data ("
+                 + " <- ".join(chain) + "), most likely a child process still "
+                 "saving, or killed while saving, its data file",
+        "exit_status": batch_status,
+        "exit_kind": "coverage-internal-error",
+        "exit": None,
+        "running": [],
+        "files": files,
+    }]
+
+
+def _recovered_status(outcomes: Sequence[Mapping[str, Any]], status: int) -> int:
+    """The status of a coverage-internal-error batch after its serial re-runs.
+
+    0 only when every file's coverage was recovered by a run whose tests all
+    passed; 1 when a recovering run had a failed test; otherwise the
+    batch's own ``status``.
+    """
+    codes = []
+    for outcome in outcomes:
+        if not outcome.get("recovered"):
+            return status
+        codes.append(outcome["attempts"][-1]["exit_code"])
+    if any(code == 1 for code in codes):
+        return 1
+    if all(code in (0, NO_TESTS_COLLECTED) for code in codes):
+        return 0
+    return status
 
 
 def _coverage_options(source: str) -> list[str]:
@@ -611,7 +688,12 @@ def _run_batch(
         path.name for path in
         _discard_unreadable_process_data(args.data_dir, data_name + ".")
     ]
-    if discarded and not lost:
+    internal = None if lost else coverage_internal_error(
+        read_ledger(ledger_path), relative, int(result.returncode),
+    )
+    if internal is not None:
+        lost, reasons = internal
+    elif discarded and not lost:
         lost, reasons = discarded_child_coverage(relative, discarded)
     entry: dict[str, Any] = {
         "batch": number,
@@ -643,6 +725,19 @@ def _run_batch(
         )
         key = "recovered_files" if outcome["recovered"] else "unrecovered_files"
         entry[key].append(outcome)
+    if internal is not None:
+        status = _recovered_status(
+            [*entry["recovered_files"], *entry["unrecovered_files"]],
+            entry["exit_code"],
+        )
+        entry["status_after_recovery"] = status
+        print(
+            f"coverage shard {args.shard_index} batch {number}: exit "
+            f"{entry['exit_code']} was pytest-cov's combine failing on "
+            f"coverage data after every test passed; after the serial "
+            f"re-runs the batch's status is {status}",
+            flush=True,
+        )
     return entry
 
 
@@ -695,8 +790,9 @@ def main(argv: Sequence[str] | None = None) -> int:
             flush=True,
         )
         entry = _run_batch(args, number, relative)
-        if entry["exit_code"] not in (0, NO_TESTS_COLLECTED):
-            failures.append((number, entry["exit_code"], batch))
+        status = entry.get("status_after_recovery", entry["exit_code"])
+        if status not in (0, NO_TESTS_COLLECTED):
+            failures.append((number, status, batch))
         record["batches"].append(entry)
         record["batches_finished"] = number
         _write_record(record_path, record)

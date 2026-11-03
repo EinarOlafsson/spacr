@@ -26,6 +26,17 @@ WHAT IT WRITES, at the end of the controller's session, as JSON:
   crashes           every (worker, test id) xdist reported as crashed
   unreported_files  test files with a collected test that no worker ever
                     reported, e.g. after "maximum crashed workers reached"
+  failed            every test id with a failed setup, call or teardown
+                    report, and every collection error (by node id)
+  testsfailed       pytest's own count of failures for the session
+  internal_error    None, or what an INTERNALERROR raised: each exception
+                    of its chain, and whether it came from reading a
+                    coverage data file (``coverage_data``).  pytest-cov
+                    combines at session end, after every test reported, so a
+                    process still writing its data file then (or one killed
+                    while writing it) ends a batch whose tests all passed
+                    with exit 3; the runner re-runs that batch's files
+                    serially only when ``failed`` is empty
 
 The batch runner turns that into the list of files to re-run.  A missing
 ledger is itself evidence -- the controller did not finish -- and the runner
@@ -48,6 +59,53 @@ CONTROLLER = "controller"
 
 def _file_of(nodeid: str) -> str:
     return nodeid.split("::", 1)[0]
+
+
+def _exception_chain(error: BaseException) -> list[BaseException]:
+    """``error`` and every exception it was raised from or during."""
+    chain: list[BaseException] = []
+    while error is not None and all(error is not seen for seen in chain):
+        chain.append(error)
+        error = error.__cause__ or error.__context__
+    return chain
+
+
+def _raised_in_coverage_data(error: BaseException) -> bool:
+    """Whether a frame of ``error``'s traceback is coverage.py's data layer."""
+    traceback = error.__traceback__
+    while traceback is not None:
+        path = Path(traceback.tb_frame.f_code.co_filename)
+        if path.parent.name == "coverage" and path.name in (
+                "sqldata.py", "sqlitedb.py", "data.py"):
+            return True
+        traceback = traceback.tb_next
+    return False
+
+
+def describe_internal_error(error: BaseException) -> dict[str, Any]:
+    """What an INTERNALERROR raised, and whether coverage data reading did.
+
+    ``coverage_data`` is true when the chain holds coverage.py's
+    ``DataError``, or an ``sqlite3`` error raised inside coverage.py's data
+    modules: the second is what escapes when coverage, failing to read a
+    file with no schema, tries to initialise it and the database is read
+    only (a file renamed under the reader by the process still saving it).
+    """
+    chain = _exception_chain(error)
+    coverage_data = False
+    for item in chain:
+        kind = type(item)
+        if kind.__module__.startswith("coverage") and kind.__name__ == "DataError":
+            coverage_data = True
+        elif kind.__module__ == "sqlite3" and _raised_in_coverage_data(item):
+            coverage_data = True
+    return {
+        "chain": [
+            f"{type(item).__module__}.{type(item).__qualname__}: {item}"
+            for item in chain
+        ],
+        "coverage_data": coverage_data,
+    }
 
 
 def _worker_id(node: Any) -> str:
@@ -82,6 +140,8 @@ class CoverageLedger:
         self.crashes: list[dict[str, str]] = []
         self.collected: set[str] = set()
         self.reported: set[str] = set()
+        self.failed: set[str] = set()
+        self.internal_error: dict[str, Any] | None = None
 
     def _worker(self, worker: str) -> dict[str, Any]:
         return self.workers.setdefault(worker, {
@@ -102,6 +162,21 @@ class CoverageLedger:
         worker = _worker_id(getattr(report, "node", None))
         self._worker(worker)["files"].add(_file_of(report.nodeid))
         self.reported.add(report.nodeid)
+        if report.failed:
+            self.failed.add(report.nodeid)
+
+    @pytest.hookimpl
+    def pytest_collectreport(self, report: pytest.CollectReport) -> None:
+        if report.failed:
+            self.failed.add(report.nodeid or "<collection>")
+
+    @pytest.hookimpl
+    def pytest_internalerror(self, excrepr: Any, excinfo: Any) -> None:
+        error = getattr(excinfo, "value", None)
+        if isinstance(error, BaseException):
+            self.internal_error = describe_internal_error(error)
+        else:
+            self.internal_error = {"chain": [str(excrepr)], "coverage_data": False}
 
     @pytest.hookimpl(optionalhook=True)
     def pytest_handlecrashitem(self, crashitem: str, report: Any, sched: Any) -> None:
@@ -134,6 +209,9 @@ class CoverageLedger:
             },
             "crashes": list(self.crashes),
             "unreported_files": unreported,
+            "failed": sorted(self.failed),
+            "testsfailed": int(getattr(session, "testsfailed", 0) or 0),
+            "internal_error": self.internal_error,
         }
         self.path.parent.mkdir(parents=True, exist_ok=True)
         partial = self.path.with_name(self.path.name + ".partial")
