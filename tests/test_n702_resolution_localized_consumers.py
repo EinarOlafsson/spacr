@@ -27,6 +27,7 @@ def publisher(tmp_path, monkeypatch):
     monkeypatch.setattr(zoo, '_spacr_home', lambda: tmp_path / 'node')
     monkeypatch.setattr(zoo, '_on_the_qt_gui_thread', lambda: False)
     monkeypatch.setattr(zoo, 'BUNDLED_REMOTE_MODELS', (raw,))
+    monkeypatch.setattr(zoo, '_SHARED_CATALOGUE_CACHE', {'fetched_at': 0.0, 'entries': ()})
     monkeypatch.setattr(zoo, 'catalogue', lambda **kwargs: [zoo._entry_from_mapping(raw)])
     original = urllib.request.urlopen
 
