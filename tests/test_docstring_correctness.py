@@ -6009,7 +6009,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 2026-11-01 items 748/749: +2, GateEditorPanel.run_cluster_in_background
     # and GateEditorScreen.save_graph_in_background.
     # 2026-11-01 item 749: +1, OrganismScreen.refresh_maturity_visibility.
-    assert len(prior - pipeline_callables) == 9648
+    # 2026-11-03 item 749: +3, dock.SectionHeader.set_open, .event and .paintEvent.
+    assert len(prior - pipeline_callables) == 9651
     # Item 600, 2026-09-29: +11 callables (drop_classification, organize_for_measure).
     # Item 690: +10, as above.
     # Item 700: -23, as above.
@@ -6017,7 +6018,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # Item 600, 2026-10-19: -14, as above.
     # 2026-11-01 items 748/749: +2, the two Gate Editor background routes.
     # 2026-11-01 item 749: +1, OrganismScreen.refresh_maturity_visibility.
-    assert len(prior - pipeline_callables - validation_functions) == 9642
+    # 2026-11-03 item 749: +3, dock.SectionHeader.set_open, .event and .paintEvent.
+    assert len(prior - pipeline_callables - validation_functions) == 9645
     # 9,522 -> 9,630 on 2026-09-25: +109 session_callables, -1 render_cellprob;
     # 9,640 with the ten rebase_callables; 9,687 with merged_callables.
     # 9,727 with item 528's eleven; 9,784 on 2026-09-26, +59 / -2.
@@ -6099,8 +6101,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 2026-11-01 items 748/749: +2, GateEditorPanel.run_cluster_in_background
     # and GateEditorScreen.save_graph_in_background.
     # 2026-11-01 item 749: +1, OrganismScreen.refresh_maturity_visibility.
+    # 2026-11-03 item 749: +3, dock.SectionHeader.set_open, .event and .paintEvent.
     assert len(rendered_documented_callables.keys() - yolo_callables
-               - volume_callables - arrival_callables) == 9971
+               - volume_callables - arrival_callables) == 9974
     # Item 700, 2026-10-15: 9,998 -> 9,975, the 23 retired setup callables.
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)

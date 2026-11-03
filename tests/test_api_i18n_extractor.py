@@ -1510,7 +1510,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # all nine reviewed API catalogs carry them (spacr-translations 997a8d95).
     # 2026-11-01 item 749: +1/-0, spacr.qt.screens.organism_screen.OrganismScreen.refresh_maturity_visibility
     # (reviewed in spacr-translations d8ad7b09); measured again in the item 754/678 closure.
-    expected = 13_190
+    # 2026-11-03 item 749: +3/-0, spacr.qt.widgets.dock.SectionHeader.set_open, .event and .paintEvent
+    # (reviewed in spacr-translations 26599a10).
+    expected = 13_193
     worker_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts/664_665_worker_api_arrivals_2026-10-08.json").read_text(encoding="utf-8"))
     assert len(worker_arrivals) == 8
@@ -2094,7 +2096,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 11,929 -> 11,942 with `expected` above, for item 600's 13.
     # Item 662: +4 public mask_engine YOLO helpers, no removals.
     # All 13,177 prior English records preserved; 662_yolo_support receipt.
-    assert len((historical_docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_home.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_190
+    # 2026-11-03 item 749: 13,190 -> 13,193 with `expected` above.
+    assert len((historical_docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_home.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_193
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

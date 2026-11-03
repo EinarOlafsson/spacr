@@ -29,7 +29,8 @@ TOOLS = ROOT / "tools"
 # under spacr.qt: app._CrampedScroll._fit_content.tallest, screens.make_masks.MakeMasksScreen._hold_the_title_bar_to_its_text.{measure,measure_now}, MakeMasksScreen.showEvent, settings_search.SettingsSearchBar.event, theme.stack_when_narrow, widgets.file_list.PairedFileTableWidget.eventFilter, widgets.flow.{keep_wrapped_height,labelled}, widgets.model_zoo_picker.drawing_in_steps and widgets.toggle.Toggle.changeEvent.
 # 2026-11-01 items 748/749: +4, spacr.layers.LabelsLayer.{color,contour}, spacr.qt.widgets.gate_editor.GateEditorPanel.run_cluster_in_background and spacr.qt.screens.gate_editor.GateEditorScreen.save_graph_in_background.
 # 2026-11-01 item 749: +1, spacr.qt.screens.organism_screen.OrganismScreen.refresh_maturity_visibility.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_218
+# 2026-11-03 item 749: +3, spacr.qt.widgets.dock.SectionHeader.set_open, .event and .paintEvent.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_221
 SOURCE_REVIEWED_SYMBOLS_2026_10_07 = frozenset({
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_background",
     "spacr.convert.read_scn",
