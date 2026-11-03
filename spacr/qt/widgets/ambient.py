@@ -5606,6 +5606,29 @@ def _retire_compiler_threads(timeout_s=3.0):
     return alive
 
 
+def _retire_compilers_before_thread_join() -> None:
+    """Interpreter-exit hook that stops the compilers before Python joins them.
+
+    Python joins every non-daemon thread before it runs ``atexit`` hooks, so
+    the ``atexit`` retirement came too late for a compiler thread waiting on
+    its kernel-cache helper: the exit waited for the whole helper compile.
+    ``threading._register_atexit`` runs this before that join. Only a running
+    helper is cancelled; a compile already inside this interpreter finishes,
+    as it always has. Never raises.
+    """
+    with _COMPILER_LIFECYCLE_LOCK:
+        helper = _PRIME_PROCESS
+    if helper is None:
+        return
+    try:
+        _retire_compiler_threads()
+    except Exception:
+        LOG.debug("ambient compilers did not retire at exit", exc_info=True)
+
+
+threading._register_atexit(_retire_compilers_before_thread_join)
+
+
 def _begin_ambient_startup() -> None:
     """Defer optional compiler imports until the application's first paint."""
     global _PACKED_SCATTER_STARTED
