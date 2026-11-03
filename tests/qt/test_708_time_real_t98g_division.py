@@ -191,6 +191,7 @@ def test_typed_61_merges_lone_daughter_107_and_continues_into_89(qtbot, movie):
         fresh = mm.MakeMasksScreen()
         qtbot.addWidget(fresh)
         assert fresh._open_folder(str(folder), masks_dir=str(folder / "masks"))
+        idle(qtbot, fresh)
         while fresh._current_index < frame:
             fresh._on_next()
             idle(qtbot, fresh)

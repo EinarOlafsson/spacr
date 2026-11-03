@@ -735,6 +735,35 @@ class _MaskReaderMetadataWorker(QThread):
             self.error = exc
 
 
+class _LineageScanWorker(QThread):
+    """Fold the lineage embedded in every frame of a movie off the GUI thread."""
+
+    def __init__(self, state, folder, names, skip, layout, parent=None):
+        """Keep one scan request; the screen compares it again on completion.
+
+        :param state: the lineage graph the scan starts from, or ``None``.
+        :param folder: the folder holding the frames.
+        :param names: the frame file names, merged in this order.
+        :param skip: the frame already merged into ``state``, or ``None``.
+        :param layout: the sibling layout's keywords, or an empty dict.
+        :param parent: parent object.
+        """
+        super().__init__(parent)
+        self.state, self.folder, self.names, self.skip = state, folder, list(names), skip
+        self.layout = dict(layout or {})
+        self.result, self.skipped, self.error = None, 0, None
+
+    def run(self):
+        """Keep the merged graph and the unreadable-mask count, or the original error."""
+        try:
+            _wait_for_mask_writes()
+            self.result, self.skipped = engine._merge_mask_lineages(
+                self.state, self.folder, self.names, skip=self.skip,
+                interrupted=self.isInterruptionRequested, **self.layout)
+        except Exception as exc:
+            self.error = exc
+
+
 class _MaskLoadWorker(QThread):
     """Decode one image/mask pair without blocking Qt's main thread."""
 
@@ -13821,6 +13850,7 @@ class MakeMasksScreen(QWidget):
         self._current_index: int = 0
         self._lineage = None
         self._lineage_scanned = None
+        self._lineage_scans = []
         self._syncing_label = False
         self._selected_cell = None
         self._lineage_dirty = False
@@ -19213,7 +19243,7 @@ class MakeMasksScreen(QWidget):
             return
         current = self._image_files[self._current_index]
         layout = dict(self._layout_kwargs())
-        names = [name for name in self._image_files if name != current]
+        names = [name for name in self._sequence_frame_names() if name != current]
         request = dict(
             kind="lineage", folder=self._folder, names=names, layout=layout,
             lineage=copy.deepcopy(self._lineage),
@@ -26246,7 +26276,8 @@ class MakeMasksScreen(QWidget):
         self._load_token += 1
         self._reader_worker = None
         readers, self._reader_workers = self._reader_workers, []
-        for reader in readers:
+        scans, self._lineage_scans = self._lineage_scans, []
+        for reader in readers + scans:
             reader.requestInterruption()
             if not drain_thread(reader, timeout_ms=5000):
                 reader.setParent(None)
@@ -26322,22 +26353,86 @@ class MakeMasksScreen(QWidget):
         from ..i18n import tr
 
         self._lineage_scanned = folder
-        skipped = 0
-        for name in self._image_files:
-            if name == skip:
-                continue
-            try:
-                incoming = engine.load_mask_metadata(
-                    folder, name, **self._layout_kwargs()).get("lineage")
-                if incoming is not None:
-                    state = engine.merge_lineage_states(
-                        state, incoming, frame=os.path.abspath(os.path.join(folder, name)))
-            except TIFF_READ_ERRORS:
-                skipped += 1
+        state, skipped = engine._merge_mask_lineages(
+            state, folder, self._sequence_frame_names(), skip=skip, **self._layout_kwargs())
         if skipped:
             self._status_label.setText(tr(
                 "Lineage in {n} mask file(s) could not be read and was skipped.", n=skipped))
         return state
+
+    def _sequence_frame_names(self):
+        """The open movie's frames: the queued ones in queue order, then any done ones."""
+        names = list(self._image_files)
+        known = set(names)
+        return names + [name for name in (self._movie_time_order() if names else ())
+                        if name not in known]
+
+    def _start_lineage_scan(self, state, skip, finish, again):
+        """Fold the open folder's embedded lineage on a worker, then call ``finish``.
+
+        :param state: the graph the scan starts from, or ``None``.
+        :param skip: the frame already merged into ``state``, or ``None``.
+        :param finish: called with the worker once a current scan has ended.
+        :param again: starts the request afresh if the lineage changed meanwhile.
+        """
+        for worker in self._lineage_scans:
+            worker.requestInterruption()
+        worker = _LineageScanWorker(state, self._folder, self._sequence_frame_names(), skip,
+                                    self._layout_kwargs(), self)
+        worker.token, worker.base, worker.finish, worker.again = (
+            self._load_token, self._lineage, finish, again)
+        self._lineage_scans.append(worker)
+        self._loading = True
+        self._sync_button_states()
+        worker.finished.connect(lambda: self._on_lineage_scan_finished(worker))
+        worker.start()
+
+    def _on_lineage_scan_finished(self, worker):
+        """Hand a current scan to its caller; a superseded one is dropped."""
+        from ..i18n import tr
+
+        self._lineage_scans = [kept for kept in self._lineage_scans if kept is not worker]
+        self._loading = self._load_worker is not None or bool(self._lineage_scans)
+        stale = (worker.token != self._load_token or worker.folder != self._folder
+                 or worker.isInterruptionRequested())
+        if not stale and worker.base is not self._lineage:
+            worker.again()
+        elif not stale:
+            if worker.error is None:
+                self._lineage_scanned = worker.folder
+            if worker.skipped:
+                self._status_label.setText(tr(
+                    "Lineage in {n} mask file(s) could not be read and was skipped.",
+                    n=worker.skipped))
+            worker.finish(worker)
+        self._sync_button_states()
+        _retire_worker(worker)
+
+    def _scan_then_apply_pair(self, filename, token, image, mask, metadata, channels):
+        """Show the first frame of an unscanned movie once its lineage is folded.
+
+        The frame's own lineage is merged here, as it was before; every other
+        frame's is folded on a worker, so a long movie no longer holds Qt.
+        """
+        state = engine.merge_lineage_states(
+            self._lineage, metadata.get("lineage"),
+            frame=os.path.abspath(os.path.join(self._folder, filename)))
+        self._start_lineage_scan(
+            state, filename,
+            lambda worker: self._apply_scanned_pair(
+                worker, filename, token, image, mask, metadata, channels),
+            lambda: self._scan_then_apply_pair(
+                filename, token, image, mask, metadata, channels))
+
+    def _apply_scanned_pair(self, worker, filename, token, image, mask, metadata, channels):
+        """Install a frame with its movie's folded lineage, reporting any failure."""
+        try:
+            if worker.error is not None:
+                raise worker.error
+            self._apply_loaded_pair(filename, token, image, mask, metadata=metadata,
+                                    lineage_state=worker.result, channels=channels)
+        except Exception as exc:
+            self._handle_load_failure(exc)
 
     def _handle_load_failure(self, error: Exception, *, source_path=None) -> None:
         """Clear stale canvas state and visibly report an image-load error.
@@ -26402,9 +26497,13 @@ class MakeMasksScreen(QWidget):
         """
         if token != self._load_token:
             return
-        self._reader_displayed_field = (self._folder, filename, self._masks_dir)
         if metadata is None:
             metadata = engine.load_mask_metadata(self._folder, filename, **self._layout_kwargs())
+        if lineage_state is ... and self._lineage_scanned != self._folder and (
+                self._lineage is not None or metadata.get("lineage") is not None):
+            self._scan_then_apply_pair(filename, token, image, mask, metadata, channels)
+            return
+        self._reader_displayed_field = (self._folder, filename, self._masks_dir)
         if lineage_state is ...:
             lineage_state = self._lineage_for_loaded_frame(metadata, self._folder, filename)
         self._lineage = lineage_state

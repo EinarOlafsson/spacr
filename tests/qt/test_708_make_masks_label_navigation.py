@@ -739,6 +739,7 @@ def test_named_division_undo_save_and_reopen_without_sidecar(qtbot, screen, monk
     fresh = mm.MakeMasksScreen()
     qtbot.addWidget(fresh)
     assert fresh._open_folder(screen._folder)
+    qtbot.waitUntil(lambda: not fresh._loading and fresh._canvas.mask is not None)
     assert fresh._lineage["cells"][parent]["children"] == children
     assert fresh._lineage["cells"][second]["name"] == "arbitrary branch name"
     assert fresh._lineage["frames"][fresh._lineage_frame()][str(int(fresh._canvas.mask[30, 30]))] == second

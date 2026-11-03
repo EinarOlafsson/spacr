@@ -271,14 +271,14 @@ def test_enabling_time_merges_lineage_found_in_the_other_frames(qtbot, screen):
 
 
 def test_unreadable_lineage_in_another_frame_is_skipped_and_counted(screen, monkeypatch):
-    real = engine.load_mask_metadata
+    real = engine._read_mask_metadata
 
-    def unreadable(folder, name, **kwargs):
+    def unreadable(folder, name, *args, **kwargs):
         if name.endswith("_2.tif"):
             raise ValueError("bad metadata")
-        return real(folder, name, **kwargs)
+        return real(folder, name, *args, **kwargs)
 
-    monkeypatch.setattr(engine, "load_mask_metadata", unreadable)
+    monkeypatch.setattr(engine, "_read_mask_metadata", unreadable)
     result = screen._merge_sequence_lineage(engine.validate_lineage(None), screen._folder)
     assert result is not None
     assert "1 mask file(s) could not be read" in screen._status_label.text()

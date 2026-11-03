@@ -86,7 +86,6 @@ LINEAGE_SCHEMA = "spacr.lineage/v1"
 
 def validate_lineage(state: Optional[dict] = None) -> dict:
     """Copy and validate a versioned lineage graph without recursive traversal."""
-    from uuid import UUID, NAMESPACE_URL, uuid5
     from .i18n import tr
 
     if state is None:
@@ -94,6 +93,18 @@ def validate_lineage(state: Optional[dict] = None) -> dict:
                 "frame_revisions": {}, "deleted_cells": {}, "frame_ids": {}}
     try:
         result = json.loads(json.dumps(state, allow_nan=False))
+    except (KeyError, TypeError, ValueError, AttributeError, OverflowError) as error:
+        raise ValueError(tr("Invalid or unsupported embedded lineage metadata: {reason}",
+                            reason=str(error))) from error
+    return _checked_lineage(result)
+
+
+def _checked_lineage(result) -> dict:
+    """Validate a JSON-shaped lineage graph in place, adding its derived frame identities."""
+    from uuid import UUID, NAMESPACE_URL, uuid5
+    from .i18n import tr
+
+    try:
         if result["schema"] != LINEAGE_SCHEMA:
             raise ValueError("schema")
         cells, frames = result["cells"], result["frames"]
@@ -434,22 +445,46 @@ def merge_lineage_states(active: Optional[dict], incoming: Optional[dict],
     :param active: The active lineage graph, or ``None`` for an empty graph.
     :param incoming: The incoming snapshot, or ``None`` for an empty graph.
     """
+    return _merge_validated_lineage(validate_lineage(active), validate_lineage(incoming), frame)
+
+
+def _lineage_frame_view(state: dict) -> dict:
+    """Shallow-copy a valid graph as an empty frame remap rebuilds it, sharing nested values."""
+    result = dict(state)
+    for key in ("cells", "frames", "frame_ids", "deleted_cells"):
+        result[key] = dict(state[key])
+    result["frame_revisions"] = {name: state["frame_revisions"].get(name, 0)
+                                 for name in state["frames"]}
+    for identity, cell in state["cells"].items():
+        if "born_frame" not in cell or "division_frame" not in cell:
+            cell = dict(cell)
+            for field in ("born_frame", "division_frame"):
+                cell[field] = cell.get(field)
+            result["cells"][identity] = cell
+    return result
+
+
+def _merge_validated_lineage(active: dict, incoming: dict,
+                             frame: Optional[str] = None) -> dict:
+    """Merge two valid graphs without changing either; equal output skips revalidation."""
     from .i18n import tr
 
-    result, source = validate_lineage(active), validate_lineage(incoming)
     current = os.path.abspath(frame) if frame is not None else None
-    known = {identity: path for path, identity in result["frame_ids"].items()}
+    known = {identity: path for path, identity in active["frame_ids"].items()}
     active_paths, source_paths = {}, {}
-    for path, identity in source["frame_ids"].items():
-        if identity in known:
+    for path, identity in incoming["frame_ids"].items():
+        if identity in known and known[identity] != path:
             if path == current:
                 active_paths[known[identity]] = path
             else:
                 source_paths[path] = known[identity]
-        elif path in result["frame_ids"] and result["frame_ids"][path] != identity:
+        elif identity not in known and path in active["frame_ids"] \
+                and active["frame_ids"][path] != identity:
             raise ValueError(tr("Embedded lineage snapshots disagree about a frame's identity."))
-    result = _remap_lineage_frames(result, active_paths)
-    source = _remap_lineage_frames(source, source_paths)
+    result = (_lineage_frame_view(_remap_lineage_frames(active, active_paths)) if active_paths
+              else _lineage_frame_view(active))
+    source = (_remap_lineage_frames(incoming, source_paths) if source_paths
+              else _lineage_frame_view(incoming))
     result["frame_ids"].update(source["frame_ids"])
     for identity, revision in source["deleted_cells"].items():
         result["deleted_cells"][identity] = max(
@@ -475,11 +510,40 @@ def merge_lineage_states(active: Optional[dict], incoming: Optional[dict],
                 > result["frame_revisions"].get(name, 0)):
             result["frames"][name] = mapping
             result["frame_revisions"][name] = source["frame_revisions"].get(name, 0)
-    for mapping in result["frames"].values():
-        for label, identity in list(mapping.items()):
-            if identity not in result["cells"] and identity in result["deleted_cells"]:
-                del mapping[label]
-    return validate_lineage(result)
+    gone = {identity for identity in result["deleted_cells"] if identity not in result["cells"]}
+    for name, mapping in list(result["frames"].items()) if gone else ():
+        if not gone.isdisjoint(mapping.values()):
+            result["frames"][name] = {label: identity for label, identity in mapping.items()
+                                      if identity not in gone}
+    return result if result == active else _checked_lineage(result)
+
+
+def _merge_mask_lineages(state: Optional[dict], folder: str, names, masks_dir=None,
+                         skip=None, interrupted=None):
+    """Fold the lineage embedded in each named mask into ``state`` in order.
+
+    Each frame of a movie usually embeds the same whole-movie graph, so one
+    validated copy per distinct embedded graph is reused, and a merge that
+    changes nothing is not revalidated. Returns ``(state, skipped)``, or
+    ``(None, skipped)`` once ``interrupted()`` is true.
+    """
+    cache = {}
+    skipped, owned = 0, False
+    for name in names:
+        if interrupted is not None and interrupted():
+            return None, skipped
+        if name == skip:
+            continue
+        try:
+            incoming = _read_mask_metadata(folder, name, masks_dir, cache).get("lineage")
+            if incoming is not None:
+                state = _merge_validated_lineage(
+                    state if owned else validate_lineage(state),
+                    incoming, frame=os.path.abspath(os.path.join(folder, name)))
+                owned = True
+        except TIFF_READ_ERRORS:
+            skipped += 1
+    return state, skipped
 
 
 def restore_lineage_state(restored: Optional[dict], current: Optional[dict]) -> dict:
@@ -550,10 +614,15 @@ def _remap_lineage_frames(state: dict, paths: dict) -> dict:
 
 def _relocate_lineage_frame(state: dict, original: str, current: str) -> dict:
     """Rebind moved Windows or POSIX frame aliases without reading their old paths."""
+    result = validate_lineage(state)
+    return _remap_lineage_frames(result, _relocation_paths(result, original, current))
+
+
+def _relocation_paths(result: dict, original: str, current: str) -> dict:
+    """Map a valid graph's frame paths from a moved frame's old folder to its new one."""
     import ntpath
     import posixpath
 
-    result = validate_lineage(state)
     original_path = original.replace("\\", "/")
     old_folder = posixpath.dirname(original_path)
     windows = bool(ntpath.splitdrive(original)[0])
@@ -565,7 +634,7 @@ def _relocate_lineage_frame(state: dict, original: str, current: str) -> dict:
             paths[path] = current
         elif compare(posixpath.dirname(portable)) == compare(old_folder):
             paths[path] = os.path.join(os.path.dirname(current), posixpath.basename(portable))
-    return _remap_lineage_frames(result, paths)
+    return paths
 
 
 def load_mask_metadata(folder: str, filename: str,
@@ -574,6 +643,16 @@ def load_mask_metadata(folder: str, filename: str,
 
     :param folder: The source image folder used to locate the matching mask.
     :param filename: The source image filename whose mask metadata is read.
+    """
+    return _read_mask_metadata(folder, filename, masks_dir)
+
+
+def _read_mask_metadata(folder: str, filename: str, masks_dir=None, cache=None) -> dict:
+    """Read a mask's embedded metadata, reusing ``cache``'s graph for an identical lineage.
+
+    ``cache`` keeps only the latest distinct embedded graph and its latest
+    relocation, so a movie whose frames embed one graph validates it once.
+    The returned lineage may then be shared and must not be changed.
     """
     import tifffile
     from .i18n import tr
@@ -601,14 +680,24 @@ def load_mask_metadata(folder: str, filename: str,
     if not isinstance(metadata, dict) or (metadata and metadata.get("schema") != "spacr.mask/v1"):
         raise ValueError(tr("Invalid or unsupported embedded mask metadata."))
     if metadata.get("lineage") is not None:
-        metadata["lineage"] = validate_lineage(metadata["lineage"])
+        key = None if cache is None else json.dumps(metadata["lineage"])
+        if key is None or cache.get("key") != key:
+            graph = validate_lineage(metadata["lineage"])
+            if key is not None:
+                cache.update(key=key, graph=graph, moved=None)
+        metadata["lineage"] = graph if key is None else cache["graph"]
         original = metadata.get("frame")
         current = os.path.abspath(os.path.join(folder, filename))
         if metadata.get("frame_id") is not None and metadata["frame_id"] \
                 != metadata["lineage"]["frame_ids"].get(original):
             raise ValueError(tr("Invalid or unsupported embedded mask metadata."))
-        if isinstance(original, str) and original != current:
+        if isinstance(original, str) and original != current and key is None:
             metadata["lineage"] = _relocate_lineage_frame(metadata["lineage"], original, current)
+        elif isinstance(original, str) and original != current:
+            paths = _relocation_paths(metadata["lineage"], original, current)
+            if cache["moved"] is None or cache["moved"][0] != paths:
+                cache["moved"] = (paths, _remap_lineage_frames(metadata["lineage"], paths))
+            metadata["lineage"] = cache["moved"][1]
         metadata["frame"] = current
         metadata["frame_id"] = metadata["lineage"]["frame_ids"].get(current)
     return metadata
