@@ -19187,7 +19187,7 @@ class MakeMasksScreen(QWidget):
         if cells[daughter].get("parent_uuid") is not None or cells[mother].get("children"):
             return False
         order = {os.path.abspath(os.path.join(self._folder, name)): index
-                 for index, name in enumerate(self._image_files)}
+                 for index, name in enumerate(self._movie_time_order())}
         spans = {mother: [], daughter: []}
         for frame, mapping in state.get("frames", {}).items():
             for identity in spans:
@@ -19303,11 +19303,11 @@ class MakeMasksScreen(QWidget):
         if not self._canvas.assign_label_at(point, label):
             self._label_time_queue.clear()
             return
-        target = self._current_index + step
         if not self._save_label_time_if_needed() or not self._save_boxes_if_needed():
             self._label_time_queue.clear()
             return
-        if not 0 <= target < len(self._image_files):
+        target = self._time_step_target(step)
+        if target is None:
             QTimer.singleShot(0, self._drain_label_time_queue)
             return
         folder = self._field_folders[target] if self._field_folders else self._folder
@@ -19323,6 +19323,51 @@ class MakeMasksScreen(QWidget):
             "filename": filename, "point": point, "label": label}
         self._canvas.label_time_busy = True
         self._start_background_load(folder, filename, token)
+
+    def _movie_time_order(self):
+        """The open frame's movie in time order, whatever the queue offers.
+
+        A curation queue sorts its fields by score or difficulty and drops
+        the ones already done, so the editor's frame list is not the movie.
+        Time follows the movie instead: every frame of the open frame's
+        folder, of the same kind as it (image files or ``_seg.npy``
+        bundles), in name order.
+
+        :returns: the frame file names, in time order.
+        """
+        current = self._image_files[self._current_index]
+        seg = engine.is_seg_bundle(current)
+        owners = self._field_folders or [self._folder] * len(self._image_files)
+        names = set(engine.list_images(self._folder))
+        names.update(name for name in os.listdir(self._folder) if engine.is_seg_bundle(name))
+        names.update(name for owner, name in zip(owners, self._image_files)
+                     if owner == self._folder)
+        return sorted(name for name in names if engine.is_seg_bundle(name) == seg)
+
+    def _time_step_target(self, step):
+        """The editor index of the time point ``step`` frames from the open one.
+
+        A time point the editor does not offer, because the queue left it
+        out as done, is offered beside the open frame first, so the step
+        loads it like any other field.
+
+        :param step: ``1`` for the next time point, ``-1`` for the previous.
+        :returns: its index in the editor's frame list, or ``None`` past
+            either end of the movie.
+        """
+        order = self._movie_time_order()
+        position = order.index(self._image_files[self._current_index]) + step
+        if not 0 <= position < len(order):
+            return None
+        wanted = (self._folder, order[position])
+        pairs = self._field_pairs()
+        if wanted in pairs:
+            return pairs.index(wanted)
+        target = self._current_index + int(step > 0)
+        pairs.insert(target, wanted)
+        self._set_field_pairs(pairs)
+        self._current_index += int(step < 0)
+        return target
 
     def _take_label_time_frame(self, worker, pending):
         """Commit a decoded adjacent frame only while its wheel request is current."""
