@@ -6,6 +6,12 @@ becomes visible while the screen is built and shown is counted here.
 The flash was the Otsu method group: built without a parent, it was made
 visible by the next group's build and so opened as a window of its own
 until the detection card took it in.
+
+The windows that existed before the click are kept as objects, not as
+``id()`` numbers: a Python wrapper of a window is let go as soon as the
+listing is, so the next listing hands out a new wrapper whose number says
+nothing about the window behind it, and a dialog a previous test left
+open was counted as one Make Masks had made visible.
 """
 from __future__ import annotations
 
@@ -46,12 +52,13 @@ def test_opening_make_masks_shows_no_other_top_level_window(qapp):
                     shown.append(_describe(obj))
             return False
 
-    before = {id(w) for w in QGuiApplication.allWindows()}
+    before = list(QGuiApplication.allWindows())
     seen_visible = []
 
     def _new_visible():
         for handle in QGuiApplication.allWindows():
-            if id(handle) not in before and handle.isVisible() and handle is not win.windowHandle():
+            if (handle.isVisible() and handle is not win.windowHandle()
+                    and not any(handle is old for old in before)):
                 seen_visible.append(_describe(handle))
 
     assert "make_masks" not in win._screens

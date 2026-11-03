@@ -254,6 +254,9 @@ def test_report_folder_structure_logs_detected_labels(qtbot, tmp_path):
         scanner = getattr(screen, "_dnd_scanner", None)
         if scanner is not None:
             scanner.shutdown()
+        for dialog in list(getattr(screen, "_metadata_dialogs", ())):
+            dialog.close()
+            dialog.deleteLater()
     # (Detection may or may not fire on this tiny synthetic tree; the contract
     # we assert is that it never crashes and only ever logs folder-structure
     # info when a template is found.)
