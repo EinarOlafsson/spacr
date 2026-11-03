@@ -1227,6 +1227,38 @@ def _loose_qthreads() -> List[Any]:
     return found
 
 
+def _background_imports_finished_by(deadline: float) -> bool:
+    """Wait until no other thread is in a registered background import.
+
+    The heap walk in :func:`_loose_qthreads` must not run beside one.
+    ``gc.get_objects()`` returns the tuples other threads are still
+    building, and while its list holds one, the builder's resize finds a
+    second reference and raises ``SystemError: bad argument to internal
+    function``. Inside ``import torch`` (its device-backend entry points)
+    that failure is for good: torch refuses a second start in the same
+    process, and every later ``import torch`` raised "can only be
+    initialized once" (Qt shard 3 of CI run 41607985886, a test window
+    closed while its Mask screen imported ``spacr.core``).
+
+    The wait ends early when the importer is blocked on a module lock this
+    thread holds, the one way it could never end.
+
+    :param deadline: the :func:`time.monotonic` time the wait may last to.
+    :returns: True when no background import is running any more.
+    """
+    tid = threading.get_ident()
+    while True:
+        with _BACKGROUND_IMPORTERS_LOCK:
+            others = {other: done for other, done in _BACKGROUND_IMPORTERS.items()
+                      if other != tid}
+        if not others:
+            return True
+        remaining = deadline - time.monotonic()
+        if remaining <= 0 or _held_module_lock_blocks(others, tid):
+            return False
+        next(iter(others.values())).wait(min(0.02, remaining))
+
+
 def _stop_loose_qthreads(timeout_ms: int) -> int:
     """Ask every loose QThread to stop, wait within ``timeout_ms``, park the rest.
 
@@ -1237,6 +1269,11 @@ def _stop_loose_qthreads(timeout_ms: int) -> int:
     :param timeout_ms: the shared wait budget, in milliseconds.
     :returns: how many were parked.
     """
+    deadline = time.monotonic() + max(0, int(timeout_ms)) / 1000.0
+    if not _background_imports_finished_by(deadline):
+        LOG.warning("a background import is still running; the loose "
+                    "threads are left to the exit hook")
+        return 0
     threads = _loose_qthreads()
     for thread in threads:
         try:
@@ -1244,7 +1281,6 @@ def _stop_loose_qthreads(timeout_ms: int) -> int:
             thread.quit()
         except RuntimeError:
             pass
-    deadline = time.monotonic() + max(0, int(timeout_ms)) / 1000.0
     stubborn = []
     for thread in threads:
         remaining = max(0, int((deadline - time.monotonic()) * 1000))
