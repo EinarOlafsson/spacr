@@ -3677,7 +3677,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # .contour are properties).
     # 2026-11-01 item 749: +1 callable, documented:
     # OrganismScreen.refresh_maturity_visibility.
-    assert len(callables) == len(by_symbol) == 9999
+    # 2026-11-03 item 749: +3 callables, all documented: dock.SectionHeader's
+    # set_open, event and paintEvent (the Dock heading fold glyph).
+    assert len(callables) == len(by_symbol) == 10002
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -3787,7 +3789,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # GateEditorScreen.save_graph_in_background).
         # 2026-11-01 item 749: +1 method
         # (OrganismScreen.refresh_maturity_visibility).
-        "method": 4313,
+        # 2026-11-03 item 749: +3 method (dock.SectionHeader.set_open, .event and .paintEvent).
+        "method": 4316,
         # -3 on 2026-09-15: spacrStitcher, StitchedMultiAligner and
         # FOVAlignAndCropper.
         # Item 600: +1 constructor (OrganizeForMeasureDialog).
@@ -3863,7 +3866,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 2026-11-01 items 748/749: +2 autoapi, the two Gate Editor
         # background routes named in the total.
         # 2026-11-01 item 749: +1 autoapi, OrganismScreen.refresh_maturity_visibility.
-        "autoapi": 9994,
+        # 2026-11-03 item 749: +3 autoapi, dock.SectionHeader.set_open, .event and .paintEvent.
+        "autoapi": 9997,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -3926,7 +3930,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Item 600, 2026-10-19: -14, one per retired callable.
     # 2026-11-01 items 748/749: +2, one per Gate Editor background route.
     # 2026-11-01 item 749: +1, OrganismScreen.refresh_maturity_visibility.
-    assert sum(item.variant_count for item in callables) == 10006
+    # 2026-11-03 item 749: +3, dock.SectionHeader.set_open, .event and .paintEvent.
+    assert sum(item.variant_count for item in callables) == 10009
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
@@ -3953,7 +3958,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # Item 600, 2026-10-19: -14, ChannelSortDialog and RegexWindow.
         # 2026-11-01 items 748/749: +2, the two Gate Editor background routes.
         # 2026-11-01 item 749: +1, OrganismScreen.refresh_maturity_visibility.
-        1: 9992,
+        # 2026-11-03 item 749: +3, dock.SectionHeader.set_open, .event and .paintEvent.
+        1: 9995,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -4243,7 +4249,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # color= and contour=, the optional background= of GateEditorPanel.run_cluster,
     # GateEditorScreen.save_graph and GateEditorScreen.reduce_to_components, and
     # the new run_cluster_in_background(ask=) and save_graph_in_background(*_checked).
-    assert sum(len(item.parameters) for item in callables) == 19908
+    # 2026-11-03 item 749: 19,908 -> 19,911, +3: SectionHeader.set_open(is_open),
+    # SectionHeader.event(event) and SectionHeader.paintEvent(event).
+    assert sum(len(item.parameters) for item in callables) == 19911
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -4298,7 +4306,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-10-19: -1 required, FoldButton.paintEvent's event.
     # 2026-10-19 item 600: -5 required, those of ChannelSortDialog's and
     # RegexWindow's retired callables.
-    assert sum(len(item.required_parameters) for item in callables) == 10245
+    # 2026-11-03 item 749: +3 required, the one parameter of each new
+    # SectionHeader callable (is_open, event, event); none has a default.
+    assert sum(len(item.required_parameters) for item in callables) == 10248
     # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
     # subtraction on the full inventory: without that one parameter the digest
     # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
@@ -4530,7 +4540,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Moved 2026-11-01 for item 749 (was b5d5c3b2...): the one new row,
     # OrganismScreen.refresh_maturity_visibility, takes no parameter; the
     # counts above move by exactly that row and no other row changed.
-) == '01241b81ef90d5222fc98fd33e4642a6082d07eb2202b9565de91e2ba4a8fc96'
+    # Moved 2026-11-03 for item 749 (was 01241b81...): the three new rows are
+    # dock.SectionHeader.set_open, .event and .paintEvent; the digest over the
+    # inventory without them is 01241b81... again, so no other row changed.
+) == '09ec3f6df62e0c736da4e34efc88d648a8e90db156bb9d5896acfb4d524067fe'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -5543,12 +5556,13 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # GateEditorScreen.save_graph_in_background.
     # 2026-11-01 item 749: 13153 -> 13154 for
     # OrganismScreen.refresh_maturity_visibility.
+    # 2026-11-03 item 749: 13154 -> 13157 for dock.SectionHeader.set_open, .event and .paintEvent.
     assert len((historical_docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()
                - animation_arrivals.keys()
                - volume_additions.keys()
-               - zoo_additions.keys()) | retired_home.keys()) == 13154
+               - zoo_additions.keys()) | retired_home.keys()) == 13157
     # 2026-10-31: 13,138 -> 13,149, +11 documented symbols: the eight public
     # callables above plus the nested helpers _CrampedScroll._fit_content.tallest
     # and MakeMasksScreen._hold_the_title_bar_to_its_text.measure and
