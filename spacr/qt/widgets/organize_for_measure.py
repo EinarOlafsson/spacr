@@ -2704,10 +2704,14 @@ class OrganizeForMeasureDialog(QDialog):
             aliases={k: dict(v) for k, v in self._alias_cache.items()})
         return inputs
 
-    def _install_sort(self, result) -> Optional[cs.SetReport]:
+    def _install_sort(self, result,
+                      editors: bool = True) -> Optional[cs.SetReport]:
         """Show what :func:`_sort_job` laid out.
 
         :param result: its result.
+        :param editors: rebuild the column editors now; when False the
+            caller rebuilds them a turn later and the old ones are disabled
+            in the meantime.
         :returns: the set report, or None when there was nothing to read.
         """
         self._alias_cache.update(result.get("aliases") or {})
@@ -2729,7 +2733,11 @@ class OrganizeForMeasureDialog(QDialog):
                 "were left out: {names}", n=len(shared),
                 names=", ".join(os.path.basename(m) for m in shared[:4]))
         self._suggest_output()
-        self._refresh()
+        if editors:
+            self._refresh()
+        else:
+            self._hold_editors()
+            self._refresh_table()
         return report
 
     def sort_by_regex(self, pattern: Optional[str] = None,
@@ -2802,9 +2810,33 @@ class OrganizeForMeasureDialog(QDialog):
         self._set_sorting(False)
         self.table.setUpdatesEnabled(False)
         try:
-            self._install_sort(result)
+            self._install_sort(result, editors=False)
         finally:
-            QTimer.singleShot(_DRAW_AFTER_INSTALL_MS, self._show_table)
+            QTimer.singleShot(_DRAW_AFTER_INSTALL_MS, self._show_editors)
+
+    def _hold_editors(self) -> None:
+        """Disable the column editors; :meth:`_show_editors` rebuilds them.
+
+        They still name the columns of the sort before; a Remove or a role
+        pressed in between would act on a column that is gone.
+        """
+        for index in range(self._editors_row.count()):
+            widget = self._editors_row.itemAt(index).widget()
+            if widget is not None:
+                widget.setEnabled(False)
+
+    def _show_editors(self) -> None:
+        """Rebuild the column editors for the rows a sort installed, a turn later.
+
+        Building the editors and laying the popup out again is a GUI-thread
+        step of its own, about as long as installing the rows; run in the
+        same turn the two made one block, so the editors wait a frame and
+        the table draws a frame after them.
+        """
+        if not shiboken_valid(self) or self._thumb_closed:
+            return
+        self._rebuild_editors()
+        QTimer.singleShot(_DRAW_AFTER_INSTALL_MS, self._show_table)
 
     def _show_table(self) -> None:
         """Let the table draw the rows a sort installed, a turn later.
