@@ -181,20 +181,28 @@ def test_a_command_keeps_its_group_and_place_at_every_width_and_zoom(qtbot):
 
 
 def _toolbar_flow(qtbot, widths):
-    from PySide6.QtWidgets import QPushButton, QWidget
+    """A bare ``_ToolbarFlow`` holding one plain 20 px high box per width.
+
+    The boxes are plain widgets, not buttons: an earlier test in the same
+    process can leave the theme's stylesheet on the application, and its
+    ``QPushButton`` rule (8 px padding, 1 px border, 22 px minimum height)
+    raised a fixed 20 px button to 40 px, so the layout arithmetic these
+    tests pin was measured against boxes twice as tall as they asked for.
+    """
+    from PySide6.QtWidgets import QWidget
 
     from spacr.qt.screens.annotate import _ToolbarFlow
 
     host = QWidget()
     qtbot.addWidget(host)
     flow = _ToolbarFlow(host, spacing=10, line_spacing=6)
-    buttons = []
+    boxes = []
     for width in widths:
-        button = QPushButton("group", host)
-        button.setFixedSize(width, 20)
-        flow.addWidget(button)
-        buttons.append(button)
-    return host, flow, buttons
+        box = QWidget(host)
+        box.setFixedSize(width, 20)
+        flow.addWidget(box)
+        boxes.append(box)
+    return host, flow, boxes
 
 
 def test_an_empty_toolbar_flow_needs_no_height_and_places_nothing(qtbot):
