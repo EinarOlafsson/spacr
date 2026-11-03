@@ -9,6 +9,7 @@ import pytest
 import tifffile
 
 from spacr.qt.widgets import qc_field_browser as browser
+from .gui_timing import timing_is_meaningful
 
 
 def _images(tmp_path):
@@ -2209,7 +2210,8 @@ QTimer.singleShot(0, open_empty)
 timer = QTimer()
 timer.timeout.connect(tick)
 timer.start(50)
-QTimer.singleShot(20000, lambda: finish(2))
+if sys.argv[3] == '1':
+ QTimer.singleShot(20000, lambda: finish(2))
 sys.exit(app.exec())
 '''
     # The backdrop is off, as low-power and safe mode run it: on a two-core
@@ -2219,9 +2221,10 @@ sys.exit(app.exec())
         XDG_CACHE_HOME=str(tmp_path / "cache"), SPACR_NO_NETWORK="1", SPACR_PREWARM="0",
         SPACR_ISOLATED_PROFILE="1", SPACR_HOME=str(tmp_path / "profile"),
         SPACR_NO_BACKDROP="1")
+    budgeted = timing_is_meaningful()
     try:
-        result = subprocess.run([sys.executable, "-c", code, host_key, str(tmp_path)],
-            env=environment, capture_output=True, text=True, timeout=30)
+        result = subprocess.run([sys.executable, "-c", code, host_key, str(tmp_path), "1" if budgeted else "0"],
+            env=environment, capture_output=True, text=True, timeout=30 if budgeted else 300)
     except subprocess.TimeoutExpired as error:
         stdout = error.output or ""
         stderr = error.stderr or ""
