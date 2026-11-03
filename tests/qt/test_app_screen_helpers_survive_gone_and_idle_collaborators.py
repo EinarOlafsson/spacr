@@ -213,9 +213,16 @@ def test_a_form_that_has_gone_leaves_nothing_to_build(idle):
 
 def test_a_waiting_heading_starts_the_idle_wait(idle):
     screen, prebuild = idle(["Advanced"])
+    screen.show()
     prebuild.resume()
     assert prebuild._timer.isActive()
     assert prebuild._timer.isSingleShot()
+    assert prebuild._timer.interval() == 0
+    assert prebuild._wait_ms == prebuild.IDLE_MS
+    assert prebuild._armed is False
+    prebuild._slice()
+    assert prebuild._armed is True
+    assert prebuild._timer.isActive()
     assert prebuild._timer.interval() == prebuild.IDLE_MS
 
 
