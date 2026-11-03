@@ -26,6 +26,7 @@ import subprocess
 import sys
 import textwrap
 import threading
+import types
 
 import pytest
 
@@ -382,3 +383,112 @@ def test_an_explicit_request_is_served_while_a_worker_is_busy():
     finally:
         gil_priority.release()
     assert len(destroyed_on) == 5
+
+
+def _no_application(monkeypatch):
+    """A process where Qt widgets are loaded but no QApplication exists."""
+    monkeypatch.setitem(
+        sys.modules, "PySide6.QtWidgets",
+        types.SimpleNamespace(
+            QApplication=types.SimpleNamespace(instance=lambda: None)))
+
+
+def test_a_heavy_import_lock_that_cannot_be_read_does_not_defer_the_tick(
+        monkeypatch):
+    class _Unreadable:
+        def locked(self):
+            raise RuntimeError("lock is gone")
+
+    monkeypatch.setitem(sys.modules, "spacr.qt.app",
+                        types.SimpleNamespace(HEAVY_IMPORT_LOCK=_Unreadable()))
+    assert gc_policy._a_heavy_import_is_running() is False
+
+
+def test_a_worker_count_that_cannot_be_read_does_not_defer_the_tick(monkeypatch):
+    from spacr.qt import gil_priority
+
+    def _broken():
+        raise RuntimeError("no registry")
+
+    monkeypatch.setattr(gil_priority, "active", _broken)
+    monkeypatch.setattr(gc_policy, "_busy_since", [123.0])
+
+    assert gc_policy._defer_for_busy_workers() is False
+    assert gc_policy._busy_since[0] is None
+
+
+def test_an_explicit_request_with_a_freeze_owed_collects_and_freezes(
+        monkeypatch):
+    """A request, a freeze due and no deleted frozen window: freeze, not a bare sweep."""
+    from spacr import _gc
+
+    _no_application(monkeypatch)
+    seen = []
+    monkeypatch.setattr(gc_policy, "_a_frozen_window_was_deleted", lambda: False)
+    monkeypatch.setattr(gc_policy, "_collect_and_freeze",
+                        lambda: seen.append("freeze"))
+    monkeypatch.setattr(gc_policy, "_reclaim_frozen",
+                        lambda: seen.append("reclaim"))
+    gc_policy._FREEZE_DUE.set()
+    _gc._requested.set()
+    try:
+        assert gc_policy.collect_once() == 2
+    finally:
+        gc_policy._FREEZE_DUE.clear()
+        _gc._requested.clear()
+    assert seen == ["freeze"]
+    assert not _gc._requested.is_set()
+
+
+def test_a_generation_the_interpreter_does_not_report_is_skipped(monkeypatch):
+    """With no application the tick still sweeps, and a short count tuple is survived."""
+    from spacr import _gc
+
+    _no_application(monkeypatch)
+    _gc._requested.clear()
+    gc_policy._FREEZE_DUE.clear()
+    monkeypatch.setattr(gc_policy, "_a_frozen_window_was_deleted", lambda: False)
+    monkeypatch.setattr(gc_policy, "_a_heavy_import_is_running", lambda: False)
+    monkeypatch.setattr(gc_policy, "_defer_for_busy_workers", lambda: False)
+    monkeypatch.setattr(gc_policy, "_saved_thresholds", (1, 1, 1))
+    monkeypatch.setattr(gc, "get_count", lambda: (5, 5))
+
+    assert gc_policy.collect_once() == 1
+
+
+def test_a_failed_install_leaves_collection_off_when_it_was_off_before(
+        monkeypatch, qapp):
+    """Only a policy that switched collection off puts it back on failure."""
+    from PySide6 import QtCore
+
+    class _RefusesToStart(QtCore.QTimer):
+        def start(self, *args, **kwargs):
+            raise RuntimeError("no event loop to attach to")
+
+    monkeypatch.setattr(QtCore, "QTimer", _RefusesToStart)
+    gc.disable()
+    try:
+        assert gc_policy.install(qapp) is False
+        assert gc_policy.is_installed() is False
+        assert gc.isenabled() is False
+    finally:
+        gc.enable()
+
+
+def test_uninstalling_during_a_pause_hands_the_resume_to_the_pause(qapp):
+    assert gc_policy.install(qapp) is True
+    with gc_policy._automatic_collection_paused():
+        assert gc_policy.uninstall() is True
+        assert gc.isenabled() is False, "the pause still holds collection off"
+    assert gc.isenabled() is True, "the last pause out restored collection"
+
+
+def test_uninstalling_a_policy_installed_over_a_disabled_collector_keeps_it_off(
+        qapp):
+    gc.disable()
+    try:
+        assert gc_policy.install(qapp) is True
+        assert gc_policy.uninstall() is True
+        assert gc.isenabled() is False
+    finally:
+        gc.enable()

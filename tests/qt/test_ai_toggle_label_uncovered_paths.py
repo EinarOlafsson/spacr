@@ -312,3 +312,31 @@ def test_a_caption_set_while_an_elision_is_running_is_not_stored(qapp):
 
     assert toggle.text() == "Hyperparameter search"
     assert toggle.displayed_text() == "Hyperpa\u2026"
+
+
+def test_a_caption_replaced_behind_the_toggles_back_is_written_back(qapp, qtbot):
+    """The label's own text is rewritten to the logical caption once there is width.
+
+    The shortened string shown while an elision is running is never the
+    caption; when a relayout then finds the label showing something other
+    than the caption, it puts the caption back and leaves the re-entrancy
+    flag down.
+    """
+    toggle = AiToggleLabel(text="Live")
+    qtbot.addWidget(toggle)
+    toggle.show()
+    qapp.processEvents()
+    toggle.resize(200, 20)
+    qapp.processEvents()
+    toggle._eliding = True
+    try:
+        toggle.setText("Li…")
+    finally:
+        toggle._eliding = False
+    assert toggle.displayed_text() == "Li…"
+
+    toggle._apply_elision()
+
+    assert toggle.displayed_text() == "Live"
+    assert toggle.text() == "Live"
+    assert toggle._eliding is False

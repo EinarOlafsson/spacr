@@ -13,6 +13,9 @@ from __future__ import annotations
 
 import os
 
+import ctypes
+import sys
+
 import pytest
 
 from spacr.qt import gil_priority
@@ -111,3 +114,36 @@ def test_the_early_warm_starts_the_driver_after_the_libraries_without_the_import
                         start_driver)
     app._map_the_torch_libraries()
     assert order == ["libraries", ("driver", False)]
+
+
+def test_a_library_that_will_not_load_ends_the_warm_without_raising(monkeypatch):
+    loaded = []
+
+    def _refuse(name):
+        loaded.append(name)
+        raise OSError("libcuda.so.1: cannot open shared object file")
+
+    monkeypatch.setattr(sys, "platform", "linux")
+    monkeypatch.setattr(gil_priority, "_cuda_may_be_used", lambda *a, **k: True)
+    monkeypatch.setattr(ctypes, "CDLL", _refuse)
+
+    assert gil_priority._initialise_the_cuda_driver() is False
+    assert loaded == ["libcuda.so.1"]
+    assert gil_priority._CUDA_DRIVER_TRIED is True
+
+
+def test_the_driver_library_is_loaded_by_name_where_a_device_may_be_used(monkeypatch):
+    driver = _Driver()
+    loaded = []
+
+    def _load(name):
+        loaded.append(name)
+        return driver
+
+    monkeypatch.setattr(sys, "platform", "linux")
+    monkeypatch.setattr(gil_priority, "_cuda_may_be_used", lambda *a, **k: True)
+    monkeypatch.setattr(ctypes, "CDLL", _load)
+
+    assert gil_priority._initialise_the_cuda_driver() is True
+    assert loaded == ["libcuda.so.1"]
+    assert driver.calls == ["cuInit", "cuDeviceGet"]

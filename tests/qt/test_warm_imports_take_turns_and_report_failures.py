@@ -21,6 +21,8 @@ import threading
 import uuid
 from pathlib import Path
 
+import types
+
 import pytest
 
 pytest.importorskip("PySide6")
@@ -144,3 +146,15 @@ def test_a_good_warm_imports_and_says_so(modules, warnings_seen):
     assert bridge._warm_import(modules["signal"]) is True
     assert modules["signal"] in sys.modules
     assert warnings_seen() == []
+
+
+def test_a_warm_import_without_the_application_loaded_takes_no_lock(monkeypatch):
+    monkeypatch.setitem(sys.modules, "spacr.qt.app", types.SimpleNamespace())
+    assert bridge._warm_import("json.tool") is True
+    assert "json.tool" in sys.modules
+
+
+def test_a_failed_warm_import_without_the_application_still_reports_false(
+        monkeypatch):
+    monkeypatch.setitem(sys.modules, "spacr.qt.app", types.SimpleNamespace())
+    assert bridge._warm_import("spacr_no_such_module_20261102") is False

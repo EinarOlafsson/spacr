@@ -19,10 +19,14 @@ import sqlite3
 
 import numpy as np
 import pandas as pd
+import threading
+from types import SimpleNamespace
+
 import pytest
 
 pytest.importorskip("PySide6")
 
+from PySide6.QtCore import Qt  # noqa: E402
 from PySide6.QtGui import QPixmap  # noqa: E402
 from PySide6.QtWidgets import QApplication  # noqa: E402
 
@@ -388,3 +392,117 @@ def test_a_renderer_that_raises_is_reported_instead_of_thrown(drawn, tmp_path,
     assert not doomed.exists()
     assert "Could not save the graph: the PDF backend went away" in \
         drawn.console.log.toPlainText()
+
+
+def test_a_table_with_no_loaded_base_keeps_its_own_kinds_for_the_sample(
+        screen, monkeypatch):
+    from spacr.qt.widgets import data_filter_panel as dfp
+
+    assert screen.formulas.frame() is None
+    frame = _objects()
+    displayed = frame.head(3).copy()
+
+    screen._classify_from_the_table(frame, displayed)
+    monkeypatch.setattr(dfp, "_classify_columns_uncached", lambda f: pytest.fail(
+        "the sample was counted again instead of taking its table's kinds"))
+
+    assert dfp.classify_columns(displayed) == dfp.classify_columns(frame)
+    assert dfp.classify_columns(displayed)["area"] == "category"
+
+
+def test_a_cluster_only_edit_skips_the_redraw_and_reaches_an_open_dialog(
+        screen, monkeypatch):
+    redrawn = []
+    monkeypatch.setattr(screen, "apply_settings", redrawn.append)
+    screen._settings_dialog = SimpleNamespace(_settings=None)
+
+    screen._on_search_settings({"cluster_eps": 0.37, "cluster_min_samples": 9})
+
+    assert redrawn == []
+    assert screen._settings.cluster_eps == pytest.approx(0.37)
+    assert screen._settings_dialog._settings is screen._settings
+
+
+def test_an_edit_of_anything_but_the_clustering_numbers_is_applied_in_full(
+        screen, monkeypatch):
+    applied = []
+    monkeypatch.setattr(screen, "apply_settings", applied.append)
+
+    screen._on_search_settings({"max_points": 7})
+    screen._on_search_settings({"max_points": 9, "cluster_eps": 0.4})
+    screen._on_search_settings({})
+
+    assert [s.max_points for s in applied] == [7, 9, screen._settings.max_points]
+    assert applied[1].cluster_eps == pytest.approx(0.4)
+
+
+def test_the_count_line_is_written_for_nothing_when_nothing_is_drawn(
+        screen, monkeypatch):
+    shown = []
+    monkeypatch.setattr(screen, "_show_displayed_count", shown.append)
+    assert screen._displayed_request() is None
+
+    screen._update_displayed_count()
+
+    assert shown == [None]
+
+
+def test_a_narrowed_count_for_a_population_no_longer_drawn_is_dropped(
+        drawn, monkeypatch):
+    shown = []
+    monkeypatch.setattr(drawn, "_show_displayed_count", shown.append)
+    frame, _axes, key = drawn._displayed_request()
+    drawn._displayed_cache = None
+    narrowed = frame.head(2)
+
+    drawn._displayed_count_done(frame.copy(), key, narrowed)   # another population
+    drawn._displayed_count_done(frame, key + ("stale",), narrowed)  # other axes
+    assert shown == []
+    assert drawn._displayed_cache is None
+
+    drawn._displayed_count_done(frame, key, narrowed)          # the current one
+    assert shown == [narrowed]
+    assert drawn._displayed_cache == (frame, key, narrowed)
+
+
+def test_a_count_arriving_after_the_graph_was_emptied_is_dropped(screen, monkeypatch):
+    shown = []
+    monkeypatch.setattr(screen, "_show_displayed_count", shown.append)
+
+    screen._displayed_count_done(_objects(), (), _objects().head(1))
+
+    assert shown == []
+    assert getattr(screen, "_displayed_cache", None) is None
+
+
+def test_a_graph_that_cannot_be_pickled_is_left_for_the_caller_to_save(
+        screen, tmp_path):
+    figure = SimpleNamespace(lock=threading.Lock())      # locks do not pickle
+
+    assert screen._save_graph_in_background(
+        figure, tmp_path / "g.png", tmp_path / "g.png") is False
+
+    assert getattr(screen, "_graph_runner", None) is None
+    assert screen.cursor().shape() != Qt.CursorShape.BusyCursor
+
+
+def test_a_background_save_that_failed_says_so_and_frees_the_cursor(
+        screen, tmp_path):
+    screen.setCursor(Qt.CursorShape.BusyCursor)
+
+    screen._graph_saved(tmp_path / "g.pdf", tmp_path / "g.png", False)
+
+    assert "Could not save the graph." in screen.console.log.toPlainText()
+    assert "Saved the graph" not in screen.console.log.toPlainText()
+    assert screen.cursor().shape() == Qt.CursorShape.ArrowCursor
+
+
+def test_a_background_worker_that_raised_is_reported_with_its_reason(
+        screen):
+    screen.setCursor(Qt.CursorShape.BusyCursor)
+
+    screen._graph_save_failed("the PDF backend went away")
+
+    assert ("Could not save the graph: the PDF backend went away"
+            in screen.console.log.toPlainText())
+    assert screen.cursor().shape() == Qt.CursorShape.ArrowCursor

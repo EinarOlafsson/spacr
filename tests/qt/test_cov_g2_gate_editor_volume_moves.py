@@ -223,3 +223,128 @@ def test_a_gate_whose_count_is_unavailable_says_so(screen, monkeypatch):  # noqa
     tree.set_gates(gates, screen.gates.canvas.population())
     item = tree.tree.topLevelItem(0)
     assert item.text(1) == tree.UNAVAILABLE
+
+
+def _artist(owner, animated=True, figure=None):
+    return SimpleNamespace(axes=owner, figure=figure, get_animated=lambda: animated)
+
+
+def test_the_overlay_skips_an_artist_with_no_owner_and_survives_one_that_will_not_draw(
+        canvas):
+    drawn = []
+
+    class _Owner:
+        def __init__(self, fails):
+            self.fails = fails
+
+        def draw_artist(self, artist):
+            if self.fails:
+                raise RuntimeError("renderer went away")
+            drawn.append(artist)
+
+    orphan = _artist(None)
+    refused = _artist(_Owner(True))
+    shown = _artist(_Owner(False))
+    canvas._live = None
+    canvas._ghost = [orphan, refused, shown]
+
+    canvas._draw_overlay()
+
+    assert drawn == [shown]
+
+
+def test_a_full_draw_in_the_volume_keeps_the_scene_pixels_or_none_at_all(
+        canvas, monkeypatch):
+    overlays = []
+    monkeypatch.setattr(canvas, "_in_volume", lambda: True)
+    monkeypatch.setattr(canvas, "_draw_overlay", lambda: overlays.append(1))
+    monkeypatch.setattr(canvas._canvas, "copy_from_bbox", lambda bbox: "pixels")
+
+    canvas._on_full_draw(None)
+    assert canvas._overlay_background == (canvas._overlay_key(), "pixels")
+
+    def _cannot_copy(bbox):
+        raise RuntimeError("no renderer yet")
+
+    monkeypatch.setattr(canvas._canvas, "copy_from_bbox", _cannot_copy)
+    canvas._on_full_draw(None)
+
+    assert canvas._overlay_background is None
+    assert overlays == [1, 1], "the overlay is drawn even without saved pixels"
+
+
+def test_a_pointer_move_blits_over_the_saved_scene_and_falls_back_to_a_full_draw(
+        canvas, monkeypatch):
+    calls = []
+    host = canvas._canvas
+    monkeypatch.setattr(host, "_draw_pending", False, raising=False)
+    monkeypatch.setattr(host, "draw_idle", lambda: calls.append("draw_idle"))
+    monkeypatch.setattr(host, "restore_region",
+                        lambda region: calls.append(("restore", region)))
+    monkeypatch.setattr(host, "blit", lambda bbox=None: calls.append("blit"))
+    monkeypatch.setattr(canvas, "_draw_overlay", lambda: calls.append("overlay"))
+    canvas._overlay_background = (canvas._overlay_key(), "saved")
+
+    canvas._show_overlay()
+    assert calls == [("restore", "saved"), "overlay", "blit"]
+
+    del calls[:]
+
+    def _cannot_restore(region):
+        raise RuntimeError("stale region")
+
+    monkeypatch.setattr(host, "restore_region", _cannot_restore)
+    canvas._show_overlay()
+    assert calls == ["draw_idle"]
+
+
+def _ghost_line():
+    removed = []
+    return SimpleNamespace(get_animated=lambda: False,
+                           remove=lambda: removed.append(1)), removed
+
+
+def test_clearing_the_view_polygon_redraws_when_a_ghost_was_taken_down(
+        canvas, monkeypatch):
+    redraws = []
+    monkeypatch.setattr(canvas._canvas, "draw_idle", lambda: redraws.append(1))
+    ghost, removed = _ghost_line()
+    canvas._view_polygon = []
+    canvas._ghost = [ghost]
+
+    canvas._show_view_polygon(None)
+
+    assert removed == [1]
+    assert canvas._ghost == []
+    assert redraws == [1]
+
+
+def test_a_lasso_too_short_to_show_redraws_when_it_took_a_ghost_down(
+        canvas, monkeypatch):
+    redraws = []
+    monkeypatch.setattr(canvas._canvas, "draw_idle", lambda: redraws.append(1))
+    monkeypatch.setattr(canvas, "_lasso_outline", lambda: [(1.0, 1.0)])
+    ghost, removed = _ghost_line()
+    canvas._ghost = [ghost]
+
+    canvas._show_lasso_ghost()
+
+    assert removed == [1]
+    assert canvas._ghost == []
+    assert redraws == [1]
+
+
+def test_rebuilding_the_threshold_rows_retires_widgets_and_skips_widgetless_items(
+        screen):
+    from PySide6.QtWidgets import QHBoxLayout, QLabel
+
+    tree = screen.gates.tree
+    caption = QLabel("kept until the event loop turns")
+    tree._threshold_form.addRow(caption, QHBoxLayout())   # a layout item has no widget
+    assert tree._threshold_form.rowCount() == 1
+
+    tree._rebuild_thresholds("")
+
+    assert tree._threshold_form.rowCount() == 0
+    assert tree._threshold_rows == {}
+    assert caption.isHidden()

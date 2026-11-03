@@ -9,7 +9,9 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtWidgets import QLabel, QLineEdit, QWidget  # noqa: E402
+from PySide6.QtCore import QObject  # noqa: E402
+from PySide6.QtWidgets import (QHBoxLayout, QLabel, QLineEdit,  # noqa: E402
+                               QPushButton, QVBoxLayout, QWidget)
 
 from spacr import logging_util as lu  # noqa: E402
 from spacr.qt import i18n  # noqa: E402
@@ -123,3 +125,72 @@ def test_a_new_only_pass_skips_widgets_it_cannot_read(qtbot):
     edit = QLineEdit(root)
     i18n.retranslate_widget_tree(root, only_new=True)
     assert edit is not None
+
+
+def test_the_layout_search_steps_over_children_that_are_not_layouts(qtbot):
+    host = QWidget()
+    qtbot.addWidget(host)
+    outer = QVBoxLayout(host)
+    bystander = QObject(outer)            # a child of the layout that is no layout
+    inner = QHBoxLayout()
+    outer.addLayout(inner)
+    button = QPushButton("Go", host)
+    inner.addWidget(button)
+
+    assert bystander.parent() is outer
+    assert i18n._a11y_layout_holding(outer, button) is inner
+    assert i18n._a11y_layout_holding(outer, QPushButton("elsewhere")) is None
+
+
+def test_a_layout_with_no_owner_holds_no_widgets():
+    assert i18n._a11y_widgets_laid_out_by(QHBoxLayout()) == []
+
+
+def test_a_layout_lists_the_widgets_it_holds_in_item_order(qtbot):
+    host = QWidget()
+    qtbot.addWidget(host)
+    row = QHBoxLayout(host)
+    first, second = QPushButton("a", host), QPushButton("b", host)
+    row.addWidget(first)
+    row.addWidget(second)
+
+    assert i18n._a11y_widgets_laid_out_by(row) == [(0, first), (1, second)]
+
+
+def test_a_child_whose_children_cannot_be_listed_is_still_collected(
+        qtbot, monkeypatch):
+    class _Unlistable(QWidget):
+        def children(self):
+            raise RuntimeError("deleted while walking")
+
+    root = QWidget()
+    qtbot.addWidget(root)
+    bad = _Unlistable(root)
+    good = QPushButton("ok", root)
+    monkeypatch.setattr(i18n, "_a11y_holds_a_system_dialog", lambda widget: True)
+
+    found = i18n._a11y_spacr_tree(root, QWidget)
+
+    assert root in found and bad in found and good in found
+
+
+def test_a_control_whose_caption_cannot_be_read_is_skipped_and_the_rest_named(
+        qtbot, monkeypatch):
+    root = QWidget()
+    qtbot.addWidget(root)
+    broken, fine = QLineEdit(root), QLineEdit(root)
+    fine.setPlaceholderText("Plate")
+    real = i18n._a11y_source
+
+    def _source(widget, labels_by_key):
+        if widget is broken:
+            raise TypeError("caption is not text")
+        return real(widget, labels_by_key)
+
+    monkeypatch.setattr(i18n, "_a11y_source", _source)
+
+    changed = i18n._name_for_assistive_tech([broken, fine])
+
+    assert changed >= 1
+    assert broken.accessibleName() == ""
+    assert fine.accessibleName() == "Plate"
