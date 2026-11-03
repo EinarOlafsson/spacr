@@ -951,3 +951,38 @@ def test_indexed_example_uses_the_selected_csv_in_real_preview_and_refuses_its_r
     assert screen._well_map_row.isHidden()
     assert before == {path: path.read_bytes() for path in root.rglob("*") if path.is_file()}
     assert not (Path(inputs["images"]).parent / "plate1_spacr").exists()
+
+
+class _StubThread:
+    """A QThread stand-in whose running state the test sets."""
+
+    def __init__(self, running):
+        self.running = running
+
+    def isRunning(self):
+        return self.running
+
+
+def test_the_sweep_retires_only_stopped_jobs_and_keeps_a_newer_current_one(
+        screen):
+    """A stopped older job is retired while a still-running newer job, the
+    screen's current one, keeps its slot and its thread/worker refs."""
+    running, stopped = _StubThread(True), _StubThread(False)
+    current_worker, old_worker = object(), object()
+    screen._jobs = [(running, current_worker), (stopped, old_worker)]
+    screen._thread, screen._worker = running, current_worker
+
+    screen._retire_finished_jobs()
+
+    assert screen._jobs == [(running, current_worker)]
+    assert screen.active_jobs() == 1
+    assert screen._thread is running
+    assert screen._worker is current_worker
+
+    running.running = False
+    screen._retire_finished_jobs()
+
+    assert screen._jobs == []
+    assert screen.active_jobs() == 0
+    assert screen._thread is None
+    assert screen._worker is None
