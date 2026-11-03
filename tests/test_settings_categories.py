@@ -816,6 +816,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # denoising's switch, its model folder and training epochs, under a
     # "Self-Supervised Denoising α" heading in Mask and Timelapse.
     "n2v_denoise", "n2v_model", "n2v_epochs",
+    # A NEW SETTING, not a regrouping (item 756, 2026-11-03): Measure's
+    # feature QC removes the columns it flags only when feature_qc_drop is
+    # on. It joins the "Profiling α" heading, whose profiles it cleans.
+    "feature_qc_drop",
     # NEW SETTINGS, not a regrouping (item 547, 2026-09-26): image-based
     # profiling at the end of Measure -- the switch, plate map, treatment
     # and control, normalisation, feature selection and its correlation

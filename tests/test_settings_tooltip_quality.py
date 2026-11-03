@@ -1249,6 +1249,16 @@ if app_key == "mask":
         assert ast.literal_eval(claims[0].group("value")) == value
         assert resolve_default_settings("regression")[key] == value
     recognized_arrivals |= drug_screen_arrivals
+    # Item 756 adds feature_qc_drop, one parseable claim (False) resolved by
+    # Measure and by External Masks, which measures with Measure's defaults.
+    feature_qc_arrivals = {(app, "feature_qc_drop")
+                           for app in ("measure", "external_masks")}
+    assert {pair for pair in compared_pairs
+            if pair[1] == "feature_qc_drop"} == feature_qc_arrivals
+    assert not feature_qc_arrivals & (recognized_arrivals | variants.keys())
+    for app, key in feature_qc_arrivals:
+        assert resolve_default_settings(app)[key] is False
+    recognized_arrivals |= feature_qc_arrivals
     assert comparisons - len(recognized_arrivals) == 931
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))

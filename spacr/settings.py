@@ -1921,6 +1921,7 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('ram_guard', True)
     settings.setdefault('measurement_backend', 'sqlite')
     settings.setdefault('measurement_backend_target', '')
+    settings.setdefault('feature_qc_drop', False)
     settings.setdefault('profiling', False)
     settings.setdefault('profiling_metadata', '')
     settings.setdefault('profiling_treatment_column', 'columnID')
@@ -3880,6 +3881,7 @@ expected_types = {
     "measure_gpu": bool,
     "measurement_backend": str,
     "measurement_backend_target": str,
+    "feature_qc_drop": bool,
     "profiling": bool,
     "profiling_metadata": str,
     "profiling_treatment_column": (str, list),
@@ -5269,6 +5271,7 @@ tooltips = {
     "profiling_feature_selection": "(list) - Feature-selection steps, run in order after normalisation: variance_threshold drops near-zero variance, frequency_threshold near-constant values, correlation_threshold the more redundant of each pair correlated above profiling_correlation_threshold, drop_na_columns features missing in over 5 % of wells, and drop_outliers any feature with an absolute value above 500. An empty list keeps every feature. Default all five.",
     "profiling_correlation_threshold": "(float) - Pearson correlation above which two features count as redundant in the correlation_threshold selection step. Of each such pair the feature more correlated with all others is removed. Lower values keep fewer, less redundant features. Default 0.9.",
     "profiling_phenotype_column": "(str) - Optional plate-map column holding a phenotype label that different treatments share, such as a mechanism of action, pathway or target gene. When set, consensus profiles are also scored for phenotypic consistency: how well treatments with the same label retrieve each other, as mAP per label. Default blank.",
+    "feature_qc_drop": "(bool) - Remove the columns Feature QC flags from the cell, cytoplasm, nucleus and pathogen tables of measurements.db at the end of the run, before profiling reads them. Every complete run lists all-missing, mostly-missing, numerically zero, constant and spike-dominated columns in feature_qc.csv and feature_qc.json beside measurements.db; this only decides whether they are also dropped. Removal cannot be undone. Default False.",
     "profiling_databases": "(list) - Further measurements.db files to profile together with this run's, one per plate, so replicates on different plates are compared while each plate is still normalised on its own. Every plate needs a distinct plateID. Default [].",
     "cell_cycle": "(bool) - Call the cell-cycle phase of every nucleus after measuring, from the DNA stain: G1, S, G2 or M, plus subG1 and >4N outside the peaks. Writes one row per nucleus to measurements.db:cell_cycle with the call in cell_cycle_phase, the phase fractions per well, overall and in infected and uninfected cells, to cell_cycle_well, and with plot on each plate's fitted DNA histogram. Needs measured nuclei. Default False.",
     "cell_cycle_method": "(str) - How phases are called. measurements gates each plate's DNA-content histogram, fitted as G1 and G2 peaks with S between, and calls condensed 4N nuclei M. xgboost trains a boosted classifier on nucleus features, torch trains an image classifier on nucleus crops with Classify's training; both learn from cell_cycle_labels. all runs the three and keeps their majority. Default measurements.",
@@ -6038,6 +6041,7 @@ categories = {
         "profiling_negative_control", "profiling_normalization",
         "profiling_feature_selection", "profiling_correlation_threshold",
         "profiling_phenotype_column", "profiling_databases",
+        "feature_qc_drop",
     ],
 
     "Cell Cycle α": [
@@ -7813,6 +7817,9 @@ ALPHA_FEATURES = {
     },
     545: {
         'widgets': ('MakeMasksRoisButton',),
+    },
+    756: {
+        'settings': ('feature_qc_drop',),
     },
     547: {
         'settings': ('profiling', 'profiling_metadata',

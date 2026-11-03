@@ -10506,6 +10506,7 @@ def measure_crop(settings):
 
                 if ledger.is_complete:
                     _emit_infection_report(db_path)
+                    _emit_feature_qc(settings, db_path)
                     if settings.get('profiling'):
                         _emit_profiles(settings, db_path)
                     if (str(settings.get('measurement_backend') or 'sqlite')
@@ -11733,6 +11734,50 @@ def _emit_infection_report(db_path):
         return
     if written:
         print(console_safe(f"Infection report: {written}"))
+
+
+def _emit_feature_qc(settings, db_path):
+    """Flag the degenerate feature columns of a finished run.
+
+    Runs :func:`spacr.sp_stats._feature_qc_report` on the run's
+    ``measurements.db``: all or mostly missing, numerically zero, constant
+    and spike-dominated columns are listed in ``feature_qc.csv`` and
+    ``feature_qc.json`` beside it, and named in the log. The database is
+    left as it is unless ``feature_qc_drop`` is on, which removes those
+    columns from the object tables before profiling reads them. Like the
+    infection report, QC never turns a finished run into a failure.
+
+    :param settings: the run's settings, with ``feature_qc_drop``.
+    :param db_path: the ``measurements.db`` the run produced.
+    """
+    from .utils import console_safe
+
+    if not db_path or not os.path.isfile(db_path):
+        return
+    try:
+        from .sp_stats import _feature_qc_report
+
+        flagged, written, dropped = _feature_qc_report(
+            db_path, drop=bool(settings.get('feature_qc_drop')))
+    except Exception as exc:                                 # noqa: BLE001
+        print(console_safe(f"Feature QC could not run: {exc}"))
+        return
+    if flagged.empty:
+        print(console_safe(f"Feature QC: no degenerate feature columns "
+                           f"({written['csv']})"))
+        return
+    # The CSV has every column; the log names the first twenty.
+    shown = flagged.loc[:, ['table', 'feature', 'reason']].head(20)
+    names = ', '.join(f"{table}.{feature} ({reason})" for table, feature, reason
+                      in shown.itertuples(index=False))
+    if len(flagged) > len(shown):
+        names += f" and {len(flagged) - len(shown)} more"
+    print(console_safe(f"Feature QC: {len(flagged)} degenerate feature "
+                       f"column(s): {names}"))
+    if dropped:
+        print(console_safe(f"Feature QC: removed {len(dropped)} column(s) "
+                           f"from measurements.db (feature_qc_drop)"))
+    print(console_safe(f"Feature QC report: {written['csv']}"))
 
 
 def _emit_profiles(settings, db_path):

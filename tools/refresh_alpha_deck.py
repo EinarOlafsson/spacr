@@ -56,6 +56,7 @@ GROUPS = (
         (536, "Scratch / wound-closure assay"),
         (542, "Colony / CFU counting"),
         (547, "Image-based profiling: normalise, select, mAP"),
+        (756, "Feature QC: flag degenerate columns"),
         (566, "GPU measurement (cuCIM, CuPy)"),
         (501, "Estimate plaque scale and growth time"),
     )),

@@ -59,9 +59,21 @@ reported beside it. Profiles are written as CSV and Parquet with
 ``Metadata_`` columns, the consensus also as GCT, with an mAP plot and a
 consensus-similarity heatmap. Measure runs the whole recipe at the end of a
 run when ``profiling`` is on.
+
+Feature QC
+----------
+
+:func:`flag_degenerate_features` finds per-object feature columns that carry
+no usable signal: all or mostly missing, numerically zero, constant, or
+spike-dominated (a bulk with no spread and a few extreme rows, as the first
+Zernike moment shows: ~1e-15 with rare ~3e-3 values, which after per-plate
+scaling dominates every similarity). Measure reports the flagged columns at
+the end of every complete run, beside ``measurements.db``, and removes them
+from the object tables only when ``feature_qc_drop`` is on.
 """
 
 from dataclasses import dataclass, field as _field
+import inspect as _inspect
 from math import lgamma as _lgamma
 from statistics import NormalDist as _NormalDist
 from typing import Any, Dict, List, Optional, Sequence, Tuple
@@ -2242,6 +2254,238 @@ def _aggregate_profiles(frame: pd.DataFrame, features: Sequence[str], *,
         counts = grouped.size().reset_index(name=count_column)
         out = counts.merge(out, on=list(strata), how="right")
     return out
+
+
+_FEATURE_QC_REASONS = ("all_missing", "mostly_missing", "numerical_zero",
+                      "constant", "spike_dominated")
+_FEATURE_QC_FILES = ("feature_qc.csv", "feature_qc.json")
+_FEATURE_QC_COLUMNS = ("table", "feature", "reason", "n", "n_finite",
+                       "missing_fraction", "median", "mad", "max_abs",
+                       "max_deviation", "spike_fraction")
+# Columns read from SQLite at a time, so a large plate is never held whole.
+_FEATURE_QC_CHUNK = 32
+
+
+def flag_degenerate_features(frame: pd.DataFrame,
+                             features: Optional[Sequence[str]] = None, *,
+                             missing_fraction: float = 0.5,
+                             zero_tolerance: float = 1e-12,
+                             relative_tolerance: float = 1e-6,
+                             spike_fraction: float = 0.05,
+                             min_values: int = 10) -> pd.DataFrame:
+    """Flag the feature columns of a per-object table that carry no signal.
+
+    Every column is judged on its finite values; NaN and infinity count as
+    missing. The first matching reason is reported, in this order:
+
+    * ``all_missing``: no finite value.
+    * ``mostly_missing``: more than ``missing_fraction`` of the rows are
+      missing.
+    * ``numerical_zero``: every finite value is within ``zero_tolerance``
+      of zero, float noise rather than a measurement.
+    * ``constant``: no finite value differs from the median by more than
+      ``relative_tolerance`` times the column's largest magnitude.
+    * ``spike_dominated``: the median absolute deviation (MAD) is below
+      ``relative_tolerance`` times the largest deviation, and at most
+      ``spike_fraction`` of the values deviate at all, so a few extreme rows
+      carry the whole spread. Needs ``min_values`` finite values.
+
+    A count that is zero in most objects is not spike-dominated as long as
+    more than ``spike_fraction`` of them are non-zero.
+
+    :param frame: one row per object.
+    :param features: the columns to judge; ``None`` judges every numeric
+        measurement column (:func:`_profile_features`).
+    :param missing_fraction: the largest missing share a column may have.
+    :param zero_tolerance: the magnitude below which a value is zero.
+    :param relative_tolerance: the spread, relative to the column's scale,
+        below which values are taken as equal.
+    :param spike_fraction: the largest share of deviating values that still
+        counts as spikes.
+    :param min_values: the fewest finite values needed to call a spike.
+    :returns: one row per flagged column with ``feature``, ``reason``,
+        ``n``, ``n_finite``, ``missing_fraction``, ``median``, ``mad``,
+        ``max_abs``, ``max_deviation`` and ``spike_fraction``; empty when
+        nothing is flagged.
+    """
+    names = _profile_features(frame) if features is None else list(features)
+    rows = []
+    for name in names:
+        values = pd.to_numeric(frame[name], errors="coerce").to_numpy(
+            dtype=float)
+        row = _feature_qc_row(values, missing_fraction=missing_fraction,
+                              zero_tolerance=zero_tolerance,
+                              relative_tolerance=relative_tolerance,
+                              spike_fraction=spike_fraction,
+                              min_values=min_values)
+        if row is not None:
+            rows.append({"feature": str(name), **row})
+    return pd.DataFrame(rows, columns=list(_FEATURE_QC_COLUMNS[1:]))
+
+
+_FEATURE_QC_DEFAULTS = {
+    name: parameter.default for name, parameter in
+    _inspect.signature(flag_degenerate_features).parameters.items()
+    if parameter.kind is parameter.KEYWORD_ONLY}
+
+
+def _feature_qc_row(values: np.ndarray, *, missing_fraction: float,
+                    zero_tolerance: float, relative_tolerance: float,
+                    spike_fraction: float, min_values: int
+                    ) -> Optional[Dict[str, Any]]:
+    """The QC verdict on one column, or ``None`` when it is well behaved.
+
+    :param values: the column as floats.
+    :returns: the reason and its statistics, as
+        :func:`flag_degenerate_features` reports them.
+    """
+    n = int(values.size)
+    finite = values[np.isfinite(values)]
+    missing = 1.0 - finite.size / n if n else 1.0
+    stats: Dict[str, Any] = {"n": n, "n_finite": int(finite.size),
+                             "missing_fraction": float(missing),
+                             "median": np.nan, "mad": np.nan,
+                             "max_abs": np.nan, "max_deviation": np.nan,
+                             "spike_fraction": np.nan}
+    if not finite.size:
+        return {"reason": "all_missing", **stats}
+    median = float(np.median(finite))
+    deviation = np.abs(finite - median)
+    max_deviation = float(deviation.max())
+    max_abs = float(np.abs(finite).max())
+    mad_value = float(np.median(deviation))
+    deviating = (float(np.mean(deviation > relative_tolerance * max_deviation))
+                 if max_deviation > 0 else 0.0)
+    stats.update(median=median, mad=mad_value, max_abs=max_abs,
+                 max_deviation=max_deviation, spike_fraction=deviating)
+    if missing > missing_fraction:
+        return {"reason": "mostly_missing", **stats}
+    if max_abs <= zero_tolerance:
+        return {"reason": "numerical_zero", **stats}
+    if max_deviation <= relative_tolerance * max_abs:
+        return {"reason": "constant", **stats}
+    if (finite.size >= min_values
+            and mad_value < relative_tolerance * max_deviation
+            and deviating <= spike_fraction):
+        return {"reason": "spike_dominated", **stats}
+    return None
+
+
+def _feature_qc_database(db_path: str, *,
+                         tables: Sequence[str] = _PROFILE_TABLES,
+                         **options) -> pd.DataFrame:
+    """Run :func:`flag_degenerate_features` over a ``measurements.db``.
+
+    Each object table is read a few columns at a time, read-only, so a plate
+    with millions of objects is never held whole.
+
+    :param db_path: the run's ``measurements.db``.
+    :param tables: the object tables to judge; absent ones are skipped.
+    :param options: passed to :func:`flag_degenerate_features`.
+    :returns: the flagged columns with their ``table``, in table order.
+    """
+    import sqlite3
+    from pathlib import Path
+
+    uri = Path(db_path).resolve().as_uri() + "?mode=ro"
+    frames = []
+    with sqlite3.connect(uri, uri=True) as connection:
+        present = {row[0] for row in connection.execute(
+            "SELECT name FROM sqlite_master WHERE type='table'")}
+        for table in tables:
+            if table not in present:
+                continue
+            quoted = '"' + table.replace('"', '""') + '"'
+            sample = pd.read_sql_query(
+                f"SELECT * FROM {quoted} LIMIT 1000", connection)
+            if sample.empty:
+                continue
+            # A column that is NULL in every sampled row has no numeric
+            # dtype yet, but an all-missing column is exactly what QC is for.
+            empty = [c for c in sample.columns if sample[c].isna().all()]
+            sample[empty] = sample[empty].astype(float)
+            names = _profile_features(sample)
+            for start in range(0, len(names), _FEATURE_QC_CHUNK):
+                chunk = names[start:start + _FEATURE_QC_CHUNK]
+                columns = ", ".join(
+                    '"' + str(c).replace('"', '""') + '"' for c in chunk)
+                values = pd.read_sql_query(
+                    f"SELECT {columns} FROM {quoted}", connection)
+                flagged = flag_degenerate_features(values, chunk, **options)
+                if not flagged.empty:
+                    flagged.insert(0, "table", table)
+                    frames.append(flagged)
+    if not frames:
+        return pd.DataFrame(columns=list(_FEATURE_QC_COLUMNS))
+    return pd.concat(frames, ignore_index=True)
+
+
+def _drop_feature_columns(db_path: str, flagged: pd.DataFrame) -> List[str]:
+    """Remove the flagged columns from their object tables in place.
+
+    Uses SQLite's ``ALTER TABLE ... DROP COLUMN``; a column SQLite refuses
+    to drop, such as one in an index, is kept and left out of the result.
+
+    :param db_path: the run's ``measurements.db``.
+    :param flagged: the frame :func:`_feature_qc_database` returned.
+    :returns: ``table.feature`` for every column that was removed.
+    """
+    import sqlite3
+
+    dropped = []
+    with sqlite3.connect(db_path) as connection:
+        for table, feature in flagged.loc[:, ["table", "feature"]].itertuples(
+                index=False):
+            quoted = '"' + str(table).replace('"', '""') + '"'
+            column = '"' + str(feature).replace('"', '""') + '"'
+            try:
+                connection.execute(
+                    f"ALTER TABLE {quoted} DROP COLUMN {column}")
+            except sqlite3.OperationalError:
+                continue
+            dropped.append(f"{table}.{feature}")
+    return dropped
+
+
+def _feature_qc_report(db_path: str, *, drop: bool = False,
+                       **options) -> Tuple[pd.DataFrame, Dict[str, str],
+                                           List[str]]:
+    """Judge a finished run's features and write the report beside it.
+
+    Writes ``feature_qc.csv`` (one row per flagged column) and
+    ``feature_qc.json`` (the thresholds, the counts per reason and the
+    dropped columns) next to ``measurements.db``. The object tables are left
+    untouched unless ``drop`` is true.
+
+    :param db_path: the run's ``measurements.db``.
+    :param drop: remove the flagged columns from the object tables.
+    :param options: passed to :func:`flag_degenerate_features`.
+    :returns: ``(flagged, written, dropped)``: the flagged columns, the
+        report paths by kind and the removed ``table.feature`` names.
+    """
+    import json
+    import os
+
+    flagged = _feature_qc_database(db_path, **options)
+    dropped = _drop_feature_columns(db_path, flagged) if (
+        drop and not flagged.empty) else []
+    folder = os.path.dirname(os.path.abspath(db_path))
+    csv_path, json_path = (os.path.join(folder, name)
+                           for name in _FEATURE_QC_FILES)
+    flagged.to_csv(csv_path, index=False)
+    counts = flagged["reason"].value_counts() if not flagged.empty else {}
+    summary = {
+        "database": os.path.abspath(db_path),
+        "flagged": int(len(flagged)),
+        "reasons": {reason: int(counts.get(reason, 0))
+                    for reason in _FEATURE_QC_REASONS},
+        "options": {**_FEATURE_QC_DEFAULTS, **options},
+        "drop": bool(drop),
+        "dropped": dropped,
+    }
+    with open(json_path, "w", encoding="utf-8") as handle:
+        json.dump(summary, handle, indent=2)
+    return flagged, {"csv": csv_path, "json": json_path}, dropped
 
 
 def _read_well_profiles(databases: Sequence[Any], *,
