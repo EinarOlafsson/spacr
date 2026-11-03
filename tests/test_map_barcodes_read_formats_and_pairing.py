@@ -243,3 +243,22 @@ def test_protocols_carry_sequencer_and_mixed_pairing_into_map_barcodes():
     other = sample._protocol_result('sequencing', 'other')
     assert not other['actions']
     assert any('convert' in text for text in other['requirements'])
+
+
+def test_mates_from_two_platforms_are_refused(tmp_path):
+    (tmp_path / "s_R1.fastq").write_text(_record("A00123:8:HV2:1:1101:1000:1000 1:N:0:A", "ACGT"))
+    (tmp_path / "s_R2.fastq").write_text(_record("V300012345L1C001R0010000001/2", "ACGT"))
+    files = {"R1": str(tmp_path / "s_R1.fastq"), "R2": str(tmp_path / "s_R2.fastq")}
+    with pytest.raises(ValueError, match=r"s: the mates carry different header "
+                                         r"conventions \(illumina, mgi\)"):
+        SEQ._inspect_sample_reads("s", files, "auto", "paired")
+
+
+@pytest.mark.parametrize("sequencer", ["illumina", "element"])
+def test_a_declared_sequencer_that_matches_the_headers_is_kept(tmp_path, sequencer):
+    """Illumina-style headers fit both Illumina and Element; the declaration stands."""
+    (tmp_path / "s_R1.fastq").write_text(_record("A00123:8:HV2:1:1101:1000:1000 1:N:0:A", "ACGT"))
+    lone = {"R1": str(tmp_path / "s_R1.fastq")}
+    described = SEQ._inspect_sample_reads("s", lone, sequencer, "single")
+    assert described["sequencer"] == sequencer
+    assert described["files"]["R1"]["header_convention"] == "illumina"

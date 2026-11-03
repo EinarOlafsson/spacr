@@ -721,6 +721,16 @@ def test_a_label_above_the_16bit_ceiling_is_refused_not_clipped():
         _promote_merged_to_uint16(data, _MASK_SETTINGS)
 
 
+def test_an_empty_field_passes_its_label_planes_without_a_ceiling_check():
+    """A zero-pixel field has no object id to check; it converts to empty."""
+    from spacr.measure import _promote_merged_to_uint16
+
+    data = np.zeros((0, 2, 5), np.uint32)
+    out, factor = _promote_merged_to_uint16(data, _MASK_SETTINGS)
+    assert out.dtype == np.uint16 and out.shape == (0, 2, 5)
+    assert factor == 1.0
+
+
 def test_counts_above_the_16bit_ceiling_are_scaled_down_not_wrapped():
     from spacr.measure import _promote_merged_to_uint16
 

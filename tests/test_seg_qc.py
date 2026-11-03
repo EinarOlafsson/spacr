@@ -717,6 +717,21 @@ def test_seg_qc_stop_stops_the_mask_run(tmp_path, monkeypatch, capsys):
     assert "Segmentation QC skipped" not in capsys.readouterr().out
 
 
+def test_an_unimportable_scorecard_is_skipped_by_the_mask_run(tmp_path,
+                                                             monkeypatch,
+                                                             capsys):
+    """A broken ``seg_qc`` import prints the skip line and returns None."""
+    import sys
+
+    import spacr.object as O
+
+    monkeypatch.setitem(sys.modules, "spacr.seg_qc", None)
+    assert O._run_seg_qc(str(tmp_path), {"seg_qc": "stop"}, "nucleus") is None
+    printed = capsys.readouterr().out
+    assert "Segmentation QC skipped for nucleus" in printed
+    assert "ModuleNotFoundError" in printed
+
+
 def test_the_mask_generators_all_call_the_scorecard():
     """Every path that writes masks has to be wired, not just the SAM one."""
     import inspect

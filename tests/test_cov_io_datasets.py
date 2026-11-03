@@ -294,6 +294,34 @@ def test_spacr_dataloader_next_raises_when_the_producer_is_gone(tmp_path, rng):
         dl.cleanup()
 
 
+def test_spacr_dataloader_a_pass_stopped_by_cleanup_ends_quietly():
+    """A producer gone because cleanup() asked it to stop ends the pass.
+
+    The same empty queue and dead producer as above, but with the stop
+    signal set: that is the end the caller asked for, not a lost pass.
+    """
+    from spacr.io import spacrDataLoader
+
+    dl = spacrDataLoader([1, 2, 3], batch_size=1, num_workers=0,
+                         preload_batches=1)
+    iter(dl)
+    dl.cleanup()
+
+    class _EmptyQueue:
+        def get(self, timeout=None):
+            raise queue.Empty
+
+        def get_nowait(self):
+            raise queue.Empty
+
+    assert dl._stop_signal.is_set()
+    assert not dl.thread.is_alive()
+    dl.batch_queue = _EmptyQueue()
+    with pytest.raises(StopIteration):
+        next(dl)
+    assert dl._iteration_active is False
+
+
 def test_spacr_dataloader_waits_for_a_slow_producer(monkeypatch, caplog):
     """A gap longer than the stall warning delivers every batch, with a warning."""
     import logging

@@ -107,3 +107,18 @@ def test_no_merged_folder_is_noop(tmp_path):
     deleted = cleanup_pipeline_folders(root, verbose=False)
     assert deleted == []
     assert os.path.isdir(os.path.join(root, "stack"))
+
+
+def test_more_than_twenty_unmerged_fields_are_counted_not_all_listed(tmp_path,
+                                                                      capsys):
+    from spacr.utils import cleanup_pipeline_folders
+    root = str(tmp_path)
+    stack = [f"f{i:02d}.npy" for i in range(26)]
+    _mk(root, ["f00.npy"], stack)
+    cleanup_pipeline_folders(root, verbose=False)
+    assert os.path.isfile(os.path.join(root, "orig", "raw.tif"))
+    out = capsys.readouterr().out
+    assert "25 field(s) have no complete merged/ output:" in out
+    assert out.rstrip().endswith("and 5 more")
+    listed = out.split("output: ", 1)[1].split(" and ", 1)[0].split(", ")
+    assert len(listed) == 20

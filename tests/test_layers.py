@@ -1317,3 +1317,85 @@ def test_an_empty_shapes_layer_does_not_drag_the_view_to_the_origin():
         {"y": 1.0, "x": 1.0}, origin={"y": 500.0, "x": 500.0}))
     stack.add_shapes(name="rois")
     assert stack.world_extent()["y"][0] > 400.0
+
+
+# ---------------------------------------------------------------------------
+# Labels outlines, one colour, and float64 compositing
+# ---------------------------------------------------------------------------
+
+def test_a_float64_canvas_composites_back_to_float32():
+    """A float64 canvas still comes back as float32, the viewer's pixel type."""
+    dst = np.full((2, 2, 3), 0.5, dtype=np.float64)
+    src = np.ones((2, 2, 3), dtype=np.float64)
+    out, alpha = Blending.apply(dst, src, np.ones((2, 2)), 0.5,
+                                Blending.MINIMUM)
+    assert out.dtype == np.float32
+    np.testing.assert_allclose(out, 0.5)
+    np.testing.assert_allclose(alpha, 0.5)
+
+
+@pytest.mark.parametrize("width", [-1, 1.5])
+def test_a_negative_or_fractional_contour_is_refused(width):
+    with pytest.raises(LayerError, match="whole number of pixels"):
+        LabelsLayer(np.ones((3, 3), dtype=np.int32), contour=width)
+
+
+def test_setting_the_same_colour_or_contour_again_tells_nobody():
+    stack = LayerStack()
+    labels = stack.add_labels(np.ones((3, 3), dtype=np.int32), color="red",
+                              contour=1)
+    events = []
+    stack.subscribe(events.append)
+    labels.color = (1.0, 0.0, 0.0)
+    labels.contour = 1
+    assert events == []
+    assert labels.color == (1.0, 0.0, 0.0, 1.0) and labels.contour == 1
+    labels.color = None
+    assert [e.detail for e in events] == ["color"]
+    assert labels.color is None
+
+
+def test_a_wider_contour_grows_inward_and_stays_inside_its_object():
+    """Width 2 marks the outer ring and the ring inside it, never background."""
+    from spacr.layers import _label_edges
+
+    mask = np.zeros((9, 9), dtype=np.int32)
+    mask[1:8, 1:8] = 3
+    one = _label_edges(mask, 1)
+    two = _label_edges(mask, 2)
+    assert one[1, 4] and not one[2, 4] and not one[4, 4]
+    assert two[1, 4] and two[2, 4] and not two[3, 4] and not two[4, 4]
+    assert not two[mask == 0].any()
+    assert (two & ~one).sum() == 5 * 4 - 4
+
+
+def test_two_touching_objects_each_get_their_own_edge():
+    from spacr.layers import _label_edges
+
+    mask = np.zeros((4, 6), dtype=np.int32)
+    mask[:, :3] = 1
+    mask[:, 3:] = 2
+    edges = _label_edges(mask, 2)
+    assert edges[1, 2] and edges[1, 3]
+    assert edges[1, 1] and edges[1, 4]
+    assert not edges[1, 0] and not edges[1, 5]
+
+
+def test_a_non_planar_labels_slice_is_drawn_filled():
+    from spacr.layers import _label_edges
+
+    line = np.array([0, 2, 2, 0], dtype=np.int32)
+    np.testing.assert_array_equal(_label_edges(line, 3),
+                                  [False, True, True, False])
+
+
+def test_a_one_colour_contour_draws_only_the_outline_in_that_colour():
+    mask = np.zeros((5, 5), dtype=np.int32)
+    mask[1:4, 1:4] = 7
+    labels = LabelsLayer(mask, color="#00ff00", contour=1)
+    index = np.indices(mask.shape)
+    rgb, coverage = labels._draw_sampled(tuple(index),
+                                         np.ones(mask.shape, dtype=bool))
+    assert coverage[2, 2] == 0.0 and coverage[1, 1] == 1.0
+    np.testing.assert_allclose(rgb[1, 2], (0.0, 1.0, 0.0))
+    np.testing.assert_allclose(rgb[2, 2], 0.0)

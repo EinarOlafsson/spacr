@@ -40,6 +40,22 @@ def test_a_deferred_module_says_whether_it_has_been_imported_yet():
     assert repr(proxy) == "<deferred module 'json' (loaded)>"
 
 
+def test_writing_through_a_deferred_module_sets_the_real_module(monkeypatch):
+    """An assignment imports the module and lands on it, not on the proxy."""
+    import sys
+    import types
+
+    fake = types.ModuleType('spacr_deferred_target')
+    monkeypatch.setitem(sys.modules, 'spacr_deferred_target', fake)
+    proxy = utils._DeferredModule('spacr_deferred_target')
+
+    proxy.answer = 42
+
+    assert fake.answer == 42
+    assert 'answer' not in proxy.__dict__
+    assert proxy.answer == 42
+
+
 def test_the_legacy_skimage_square_is_used_when_the_new_name_is_absent(
         monkeypatch):
     """Without ``footprint_rectangle`` the helper still returns a square.

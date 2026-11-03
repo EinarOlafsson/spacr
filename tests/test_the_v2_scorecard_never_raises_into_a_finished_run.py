@@ -113,3 +113,33 @@ def test_seg_qc_stop_ends_a_v2_run_whatever_strict_is(tmp_path, capsys,
                              object_type="cell", strict=strict)
     assert excinfo.value.summary["verdict"] == "fail"
     assert "Segmentation QC skipped" not in capsys.readouterr().out
+
+
+@pytest.mark.parametrize("strict", [False, True])
+def test_an_unimportable_scorecard_is_skipped_unless_strict(tmp_path, capsys,
+                                                            monkeypatch,
+                                                            strict):
+    """A broken ``seg_qc`` import costs the score, or raises when strict.
+
+    Partitioned outputs pass ``strict=True`` and must see the real import
+    error; a plain run prints the skip line naming the exception and keeps
+    its masks.
+    """
+    import sys
+
+    from spacr import core
+
+    monkeypatch.setitem(sys.modules, "spacr.seg_qc", None)
+    plate = _v2_plate(tmp_path)
+
+    if strict:
+        with pytest.raises(ImportError):
+            core._score_v2_masks(plate, {"verbose": True},
+                                 object_type="cell", strict=True)
+        assert "Segmentation QC skipped" not in capsys.readouterr().out
+    else:
+        assert core._score_v2_masks(plate, {"verbose": True},
+                                    object_type="cell") is None
+        printed = capsys.readouterr().out
+        assert "Segmentation QC skipped for cell" in printed
+        assert "ModuleNotFoundError" in printed

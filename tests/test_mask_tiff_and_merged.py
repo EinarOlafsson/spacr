@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import numpy as np
+import pytest
 
 
 def test_save_object_mask_roundtrip_preserves_labels(tmp_path):
@@ -95,3 +96,27 @@ def test_merged_reader_reads_tif_masks(tmp_path):
     assert merged.shape[-1] == 4
     assert np.array_equal(merged[..., 2], cell)
     assert np.array_equal(merged[..., 3], nuc)
+
+
+def test_mask_storage_refuses_labels_that_are_not_counting_numbers():
+    from spacr.io import _label_mask_storage
+
+    with pytest.raises(ValueError, match="nonnegative integers"):
+        _label_mask_storage(np.array([["a", "b"]]))
+    for bad in ([0.0, 1.5], [0.0, np.nan], [0.0, np.inf]):
+        with pytest.raises(ValueError, match="finite integers"):
+            _label_mask_storage(np.array(bad))
+    with pytest.raises(ValueError, match="nonnegative integers"):
+        _label_mask_storage(np.array([-1, 2]))
+
+
+def test_mask_storage_keeps_whole_float_labels_and_empty_masks():
+    from spacr.io import _label_mask_storage
+
+    whole = _label_mask_storage(np.array([[0.0, 3.0], [70000.0, 1.0]]))
+    assert whole.dtype == np.uint32
+    assert whole.tolist() == [[0, 3], [70000, 1]]
+    small = _label_mask_storage(np.array([0.0, 2.0]))
+    assert small.dtype == np.uint16 and small.tolist() == [0, 2]
+    empty = _label_mask_storage(np.zeros((0, 4), dtype=np.int64))
+    assert empty.dtype == np.uint16 and empty.shape == (0, 4)

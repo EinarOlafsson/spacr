@@ -209,3 +209,139 @@ def test_effects_use_ordinary_least_squares_errors_with_an_optional_plate_term(t
         assert effects.loc[level, "effect"] == pytest.approx(fit.params[level])
         assert effects.loc[level, "standard_error"] == pytest.approx(fit.bse[level])
         assert effects.loc[level, "p_value"] == pytest.approx(fit.pvalues[level])
+
+
+def _per_well_csv(tmp_path, layout, name="wells.csv"):
+    """Write one row per well: ``layout`` is ``[(plate, well, drug, dose, y)]``."""
+    frame = pd.DataFrame(layout, columns=["plateID", "wellID", "drug",
+                                          "concentration", "intensity"])
+    path = tmp_path / name
+    frame.to_csv(path, index=False)
+    return path
+
+
+def _well_settings(path, **extra):
+    settings = dict(screen_type="drug_screen", drug_data=str(path),
+                    dependent_variable="intensity", vehicle_control="DMSO",
+                    concentration_unit="uM", agg_type="mean")
+    settings.update(extra)
+    return settings
+
+
+_TWO_PLATES = [("plate1", "A01", "DMSO", 0.0, 1.0),
+               ("plate1", "A02", "DMSO", 0.0, 1.2),
+               ("plate1", "A03", "ACT", 1.0, 3.0),
+               ("plate1", "A04", "ACT", 1.0, 3.1),
+               ("plate2", "A01", "DMSO", 0.0, 1.1),
+               ("plate2", "A02", "ACT", 1.0, 2.9)]
+
+
+def test_a_table_without_any_well_naming_is_refused_with_its_columns():
+    from spacr.ml import _drug_screen_well_keys
+
+    frame = pd.DataFrame({"intensity": [1.0], "drug": ["DMSO"]})
+    with pytest.raises(ValueError, match="cells.csv names no well") as info:
+        _drug_screen_well_keys(frame, "cells.csv")
+    assert "['intensity', 'drug']" in str(info.value)
+
+
+def test_a_well_reader_refuses_every_inconsistent_input(tmp_path):
+    """The reader's own checks, met without the settings layer in front."""
+    from spacr.ml import _drug_screen_wells
+
+    path = _per_well_csv(tmp_path, _TWO_PLATES)
+    with pytest.raises(ValueError, match="agg_type must be 'mean' or 'median'"):
+        _drug_screen_wells(_well_settings(path, agg_type="sum"))
+    with pytest.raises(ValueError, match="dependent_variable='area' is not a column of wells.csv"):
+        _drug_screen_wells(_well_settings(path, dependent_variable="area"))
+
+    plate_map = pd.DataFrame(
+        [(p, w, d, c) for p, w, d, c, _ in _TWO_PLATES]
+        + [("plate1", "A03", "NUL", 1.0)],
+        columns=["plateID", "wellID", "drug", "concentration"])
+    map_csv = tmp_path / "map.csv"
+    plate_map.to_csv(map_csv, index=False)
+    with pytest.raises(ValueError, match="1 well\\(s\\) carry more than one treatment"):
+        _drug_screen_wells(_well_settings(path, treatment_map=str(map_csv)))
+
+    lonely = [row for row in _TWO_PLATES if not (row[0] == "plate2" and row[2] == "DMSO")]
+    lonely.append(("plate1", "A05", "DMSO", 0.0, 1.0))
+    with pytest.raises(ValueError, match="Plate\\(s\\) plate2 hold treated wells"):
+        _drug_screen_wells(_well_settings(_per_well_csv(tmp_path, lonely, "lonely.csv")))
+
+
+def test_wells_missing_from_the_plate_map_are_counted_and_left_out(tmp_path):
+    from spacr.ml import _drug_screen_wells
+
+    path = _per_well_csv(tmp_path, _TWO_PLATES)
+    plate_map = pd.DataFrame([(p, w, d, c) for p, w, d, c, _ in _TWO_PLATES[:-1]],
+                             columns=["plateID", "wellID", "drug", "concentration"])
+    map_csv = tmp_path / "map.csv"
+    plate_map.to_csv(map_csv, index=False)
+    wells, excluded = _drug_screen_wells(_well_settings(path, treatment_map=str(map_csv)))
+    assert excluded == {"wells_without_treatment": 1}
+    assert len(wells) == 5
+    assert "plate2_r1_c2" not in set(wells["prc"])
+
+
+def test_a_rank_deficient_or_saturated_design_is_not_fitted():
+    from spacr.ml import _drug_screen_fit
+
+    twin = pd.DataFrame({"const": [1.0] * 4, "a": [1.0, 1.0, 0.0, 0.0],
+                         "b": [1.0, 1.0, 0.0, 0.0]})
+    assert _drug_screen_fit([1.0, 2.0, 3.0, 4.0], twin, ["a"]) is None
+    square = pd.DataFrame({"const": [1.0, 1.0], "a": [1.0, 0.0]})
+    assert _drug_screen_fit([1.0, 2.0], square, ["a"]) is None
+    fitted = _drug_screen_fit([1.0, 1.0, 3.0, 3.2],
+                              pd.DataFrame({"const": [1.0] * 4,
+                                            "a": [0.0, 0.0, 1.0, 1.0]}), ["a"])
+    assert fitted["a"][0] == pytest.approx(2.1)
+
+
+def test_levels_that_cannot_be_separated_from_plates_stop_the_screen(tmp_path,
+                                                                      monkeypatch):
+    from spacr import ml
+
+    monkeypatch.setattr(ml, "_drug_screen_fit", lambda *_a, **_k: None)
+    with pytest.raises(ValueError, match="cannot be separated from the plates"):
+        ml._perform_drug_screen_regression(
+            _well_settings(_per_well_csv(tmp_path, _TWO_PLATES)))
+
+
+def test_a_screen_with_only_single_well_levels_writes_tables_but_no_figure(
+        tmp_path, capsys):
+    """Nothing is tested, so there is nothing to draw; the chosen folder is named."""
+    from spacr import ml
+
+    layout = [("plate1", "A01", "DMSO", 0.0, 1.0),
+              ("plate1", "A02", "DMSO", 0.0, 1.2),
+              ("plate1", "A03", "ACT", 1.0, 3.0),
+              ("plate1", "A04", "NUL", 1.0, 1.1)]
+    out = tmp_path / "out"
+    out.mkdir()
+    outcome = ml._perform_drug_screen_regression(
+        _well_settings(_per_well_csv(tmp_path, layout), src=str(out)))
+    assert set(outcome["effects"]["status"]) == {"single well, not tested"}
+    assert "figure" not in outcome["paths"]
+    assert outcome["res_folder"] == str(out / "results" / "drug_screen" / "intensity")
+    assert (out / "results" / "drug_screen" / "intensity" / "drug_effects.csv").is_file()
+    printed = capsys.readouterr().out
+    assert f"Regression output directory: {out}." in printed
+    assert "0 of 2 drug-at-concentration levels tested" in printed
+
+
+def test_rows_without_a_response_are_counted_and_replicates_are_kept(tmp_path):
+    from spacr.ml import _drug_screen_wells
+
+    frame = pd.DataFrame(_TWO_PLATES, columns=["plateID", "wellID", "drug",
+                                               "concentration", "intensity"])
+    frame["batch"] = ["b1", "b1", "b1", "b2", "b2", "b2"]
+    frame = pd.concat([frame, frame.iloc[[0]].assign(intensity=np.nan)])
+    path = tmp_path / "with_gaps.csv"
+    frame.to_csv(path, index=False)
+    wells, excluded = _drug_screen_wells(_well_settings(path, replicate_column="batch"))
+    assert excluded == {"response_missing": 1}
+    assert len(wells) == 6
+    assert list(wells.sort_values("prc")["replicate"]) == ["b1", "b1", "b1", "b2", "b2", "b2"]
+    first = wells.set_index("prc").loc["plate1_r1_c1"]
+    assert first["n_objects"] == 1 and first["response"] == pytest.approx(1.0)
