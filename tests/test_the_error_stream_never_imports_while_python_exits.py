@@ -13,6 +13,7 @@ forever, so a spaCR window could close and its process never end.
 """
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 import textwrap
@@ -51,11 +52,29 @@ _CHILD = textwrap.dedent('''
 ''')
 
 
+def _unmeasured_environment():
+    """This environment without coverage.py's subprocess measurement.
+
+    The child's lock-taking exit handler must be the last Python code that
+    runs before finalization, so it is registered first. A measured child
+    breaks that: for ``--cov=spacr.logging_util`` coverage.py finds the
+    module's file at start-up by importing ``spacr``, which imports
+    ``logging``; that module is then dropped from ``sys.modules`` but its
+    ``shutdown`` is already registered ahead of the handler. It runs after
+    the handler and flushes ``sys.stderr`` while the interpreter is not yet
+    finalizing, so the child waited for the held lock until the 60 s
+    timeout killed it.
+    """
+    return {key: value for key, value in os.environ.items()
+            if key not in ("COVERAGE_PROCESS_START", "COVERAGE_PROCESS_CONFIG")}
+
+
 def test_a_frozen_import_lock_does_not_hang_the_exit():
     """Exit completes although a daemon owns the import lock at finalization."""
     child = subprocess.run(
         [sys.executable, "-c", _CHILD.format(repo=str(REPO))],
-        capture_output=True, text=True, timeout=60)
+        capture_output=True, text=True, timeout=60,
+        env=_unmeasured_environment())
 
     assert "CHILD-REACHED-EXIT" in child.stdout, child.stderr
     assert child.returncode == 0, child.stderr
