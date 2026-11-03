@@ -203,7 +203,13 @@ class _ThreadStreamRouter(io.TextIOBase):
 
         Reads the TOP of that thread's stack, so nested redirections unwind in
         the order they were made rather than the last one winning for good.
+
+        The original once the interpreter is finalizing, without the lock: a
+        daemon thread frozen then inside this method keeps the lock forever,
+        and the final flush of the stream would wait for it.
         """
+        if sys.is_finalizing():
+            return self.original
         with self._lock:
             stack = self._targets.get(threading.get_ident(), [])
             return stack[-1] if stack else self.original

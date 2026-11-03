@@ -792,6 +792,27 @@ def log_path() -> Path:
 
 
 
+def _crashreport_for_streams():
+    """``spacr.crashreport`` for the wrapped streams, or ``None`` while Python exits.
+
+    Nothing is captured once the interpreter is finalizing. Every daemon
+    thread is frozen then where it next asks for the interpreter lock, and
+    one frozen while it owned the global import lock, or a lock the capture
+    takes, never releases it: an import or a capture from the final flush of
+    ``sys.stderr`` then waited forever, and a closed window left its process
+    running. While Python runs the module comes from ``sys.modules`` when it
+    is there, so a write or a flush asks the import system nothing.
+    """
+    if sys.is_finalizing():
+        return None
+    module = sys.modules.get(f"{__package__}.crashreport")
+    if module is not None:
+        return module
+    from . import crashreport
+
+    return crashreport
+
+
 class _ErrorStream:
     """Forward terminal writes intact and collect only explicitly tagged errors."""
 
@@ -812,7 +833,7 @@ class _ErrorStream:
         lines = value.splitlines(keepends=True)
         self._buffers.text = ""
         try:
-            from .crashreport import _capture_error_line
+            _capture_error_line = _crashreport_for_streams()._capture_error_line
         except Exception:
             return result
         for line in lines:
@@ -828,7 +849,9 @@ class _ErrorStream:
     def flush(self):
         """Flush an explicitly tagged partial error without delaying output."""
         try:
-            from .crashreport import _capture_error_line, _ERROR_DISPATCH_LOCAL
+            crashreport = _crashreport_for_streams()
+            _capture_error_line = crashreport._capture_error_line
+            _ERROR_DISPATCH_LOCAL = crashreport._ERROR_DISPATCH_LOCAL
         except Exception:
             return self.original.flush()
         text = getattr(self._buffers, "text", "")

@@ -267,6 +267,11 @@ _LAUNCH_ONCE = r'''
 """One spaCR launch, offscreen, reporting what it built, read and started.
 
 usage: launch_once.py <repo root> <normal|safe> <report.json>
+
+Everything runs under the main guard. A spawn-context child that spaCR
+starts (the settings screens' GPU-count probe) re-runs its parent's main
+script as ``__mp_main__``; unguarded, that probe became a second whole spaCR
+window on the same store, report file and captured pipes.
 """
 import importlib.abc
 import importlib.util
@@ -276,154 +281,155 @@ import re
 import sys
 import threading
 
-repo_root, phase, report_path = sys.argv[1:4]
-POISONED, REPAIRED = sys.argv[4], sys.argv[5]
-sys.path.insert(0, repo_root)
-report = {"phase": phase, "threads": [], "startup_real_store_reads": []}
+if __name__ == "__main__":
+    repo_root, phase, report_path = sys.argv[1:4]
+    POISONED, REPAIRED = sys.argv[4], sys.argv[5]
+    sys.path.insert(0, repo_root)
+    report = {"phase": phase, "threads": [], "startup_real_store_reads": []}
 
 
-def write():
-    with open(report_path, "w") as handle:
-        json.dump(report, handle, indent=1)
+    def write():
+        with open(report_path, "w") as handle:
+            json.dump(report, handle, indent=1)
 
 
-_start = threading.Thread.start
+    _start = threading.Thread.start
 
 
-def _recording_start(thread, *args, **kwargs):
-    report["threads"].append(thread.name)
-    return _start(thread, *args, **kwargs)
+    def _recording_start(thread, *args, **kwargs):
+        report["threads"].append(thread.name)
+        return _start(thread, *args, **kwargs)
 
 
-threading.Thread.start = _recording_start
+    threading.Thread.start = _recording_start
 
 
-class _AbortWhenThePoisonedBackdropIsBuilt(importlib.abc.MetaPathFinder):
-    """Patch the backdrop module as it is imported, never before.
+    class _AbortWhenThePoisonedBackdropIsBuilt(importlib.abc.MetaPathFinder):
+        """Patch the backdrop module as it is imported, never before.
 
-    Importing it here would put it in `sys.modules` for a safe mode that
-    never asked for it, and the import list is one of the things measured.
-    """
+        Importing it here would put it in `sys.modules` for a safe mode that
+        never asked for it, and the import list is one of the things measured.
+        """
 
-    def find_spec(self, name, path, target=None):
-        if name != "spacr.qt.widgets.ambient":
-            return None
-        sys.meta_path.remove(self)
-        spec = importlib.util.find_spec(name)
-        original_exec = spec.loader.exec_module
+        def find_spec(self, name, path, target=None):
+            if name != "spacr.qt.widgets.ambient":
+                return None
+            sys.meta_path.remove(self)
+            spec = importlib.util.find_spec(name)
+            original_exec = spec.loader.exec_module
 
-        def exec_module(module):
-            original_exec(module)
-            original_init = module.AmbientWidget.__init__
+            def exec_module(module):
+                original_exec(module)
+                original_init = module.AmbientWidget.__init__
 
-            def __init__(widget, *args, **kwargs):
-                if kwargs.get("theme") == POISONED:
-                    sys.stderr.write("INJECTED-BACKDROP-ABORT\n")
-                    sys.stderr.flush()
-                    os.abort()
-                original_init(widget, *args, **kwargs)
+                def __init__(widget, *args, **kwargs):
+                    if kwargs.get("theme") == POISONED:
+                        sys.stderr.write("INJECTED-BACKDROP-ABORT\n")
+                        sys.stderr.flush()
+                        os.abort()
+                    original_init(widget, *args, **kwargs)
 
-            module.AmbientWidget.__init__ = __init__
+                module.AmbientWidget.__init__ = __init__
 
-        spec.loader.exec_module = exec_module
-        return spec
-
-
-sys.meta_path.insert(0, _AbortWhenThePoisonedBackdropIsBuilt())
-
-import spacr  # noqa: E402
-
-report["spacr"] = spacr.__file__
-write()
-
-from PySide6 import QtCore, QtWidgets  # noqa: E402
-
-recording = {"on": phase == "safe"}
-_value = QtCore.QSettings.value
+            spec.loader.exec_module = exec_module
+            return spec
 
 
-def _recording_value(settings, key, *args, **kwargs):
-    if recording["on"]:
-        report["startup_real_store_reads"].append(str(key))
-    return _value(settings, key, *args, **kwargs)
+    sys.meta_path.insert(0, _AbortWhenThePoisonedBackdropIsBuilt())
 
+    import spacr  # noqa: E402
 
-QtCore.QSettings.value = _recording_value
-
-MODULES = re.compile(r"opengl|vispy|spacr\.qt\.widgets\.(ambient|fractal)|"
-                     r"torch|cupy|cellpose|^spacr\.settings$|settings_model|"
-                     r"^spacr\.qt\.imagery$", re.I)
-WIDGETS = re.compile(r"Ambient|Fractal|OpenGL|GLWidget|Canvas|Tour|Consent")
-
-
-def _snapshot(app):
-    recording["on"] = False
-    report["startup"] = {
-        "modules": sorted(m for m in sys.modules.copy() if MODULES.search(m)),
-        "widgets": sorted({type(w).__name__ for w in app.allWidgets()
-                           if WIDGETS.search(type(w).__name__)}),
-        "threads": list(report["threads"]),
-        "environment": {name: os.environ.get(name) for name in
-                        ("SPACR_NO_GL", "SPACR_NO_BACKDROP")},
-    }
+    report["spacr"] = spacr.__file__
     write()
 
+    from PySide6 import QtCore, QtWidgets  # noqa: E402
 
-def _watchdog():
-    report["exit"] = "watchdog"
+    recording = {"on": phase == "safe"}
+    _value = QtCore.QSettings.value
+
+
+    def _recording_value(settings, key, *args, **kwargs):
+        if recording["on"]:
+            report["startup_real_store_reads"].append(str(key))
+        return _value(settings, key, *args, **kwargs)
+
+
+    QtCore.QSettings.value = _recording_value
+
+    MODULES = re.compile(r"opengl|vispy|spacr\.qt\.widgets\.(ambient|fractal)|"
+                         r"torch|cupy|cellpose|^spacr\.settings$|settings_model|"
+                         r"^spacr\.qt\.imagery$", re.I)
+    WIDGETS = re.compile(r"Ambient|Fractal|OpenGL|GLWidget|Canvas|Tour|Consent")
+
+
+    def _snapshot(app):
+        recording["on"] = False
+        report["startup"] = {
+            "modules": sorted(m for m in sys.modules.copy() if MODULES.search(m)),
+            "widgets": sorted({type(w).__name__ for w in app.allWidgets()
+                               if WIDGETS.search(type(w).__name__)}),
+            "threads": list(report["threads"]),
+            "environment": {name: os.environ.get(name) for name in
+                            ("SPACR_NO_GL", "SPACR_NO_BACKDROP")},
+        }
+        write()
+
+
+    def _watchdog():
+        report["exit"] = "watchdog"
+        write()
+        os._exit(3)
+
+
+    def _repair_through_preferences(app):
+        _snapshot(app)
+        window = next(w for w in app.topLevelWidgets()
+                      if type(w).__name__ == "MainWindow")
+
+        def in_the_dialog(tries=[0]):
+            dialog = QtWidgets.QApplication.activeModalWidget()
+            if dialog is None and tries[0] < 50:
+                tries[0] += 1
+                QtCore.QTimer.singleShot(200, in_the_dialog)
+                return
+            combo = dialog.findChild(QtWidgets.QComboBox, "AmbientTheme")
+            report["dialog_showed"] = combo.currentData()
+            combo.setCurrentIndex(combo.findData(REPAIRED))
+            box = dialog.findChild(QtWidgets.QDialogButtonBox)
+            box.button(QtWidgets.QDialogButtonBox.Save).click()
+            report["saved"] = True
+
+        QtCore.QTimer.singleShot(500, in_the_dialog)
+        window._open_preferences()
+        report["preferences_closed"] = True
+        window.close()
+
+
+    def _look_and_leave(app):
+        _snapshot(app)
+        app.quit()
+
+
+    _exec = QtWidgets.QApplication.exec
+
+
+    def _driven_exec(app):
+        QtCore.QTimer.singleShot(120000, _watchdog)
+        drive = _repair_through_preferences if phase == "safe" else _look_and_leave
+        QtCore.QTimer.singleShot(3000, lambda: drive(app))
+        return _exec()
+
+
+    QtWidgets.QApplication.exec = _driven_exec
+
+    if phase == "safe":
+        from spacr.qt.safespacr import main
+        report["rc"] = main([])
+    else:
+        from spacr.qt import run
+        report["rc"] = run(["--no-setup"])
+    report["exit"] = "returned"
     write()
-    os._exit(3)
-
-
-def _repair_through_preferences(app):
-    _snapshot(app)
-    window = next(w for w in app.topLevelWidgets()
-                  if type(w).__name__ == "MainWindow")
-
-    def in_the_dialog(tries=[0]):
-        dialog = QtWidgets.QApplication.activeModalWidget()
-        if dialog is None and tries[0] < 50:
-            tries[0] += 1
-            QtCore.QTimer.singleShot(200, in_the_dialog)
-            return
-        combo = dialog.findChild(QtWidgets.QComboBox, "AmbientTheme")
-        report["dialog_showed"] = combo.currentData()
-        combo.setCurrentIndex(combo.findData(REPAIRED))
-        box = dialog.findChild(QtWidgets.QDialogButtonBox)
-        box.button(QtWidgets.QDialogButtonBox.Save).click()
-        report["saved"] = True
-
-    QtCore.QTimer.singleShot(500, in_the_dialog)
-    window._open_preferences()
-    report["preferences_closed"] = True
-    window.close()
-
-
-def _look_and_leave(app):
-    _snapshot(app)
-    app.quit()
-
-
-_exec = QtWidgets.QApplication.exec
-
-
-def _driven_exec(app):
-    QtCore.QTimer.singleShot(120000, _watchdog)
-    drive = _repair_through_preferences if phase == "safe" else _look_and_leave
-    QtCore.QTimer.singleShot(3000, lambda: drive(app))
-    return _exec()
-
-
-QtWidgets.QApplication.exec = _driven_exec
-
-if phase == "safe":
-    from spacr.qt.safespacr import main
-    report["rc"] = main([])
-else:
-    from spacr.qt import run
-    report["rc"] = run(["--no-setup"])
-report["exit"] = "returned"
-write()
 '''
 
 
