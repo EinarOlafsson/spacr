@@ -1311,6 +1311,17 @@ def _isolated_dot_spacr_store(monkeypatch):
 
         monkeypatch.setattr(crashreport, "_open_url", _no_relay,
                             raising=False)
+    # The community catalogue a fetch keeps in the model cache: a file per
+    # test, never the real cache, so one test's rows never reach another.
+    try:
+        from spacr import model_zoo
+    except Exception:                                            # noqa: BLE001
+        pass
+    else:
+        kept = (_DOT_SPACR_SANDBOX / "shared_catalogue"
+                / f"{uuid.uuid4().hex}.json")
+        monkeypatch.setattr(model_zoo, "_shared_catalogue_file",
+                            lambda: kept, raising=False)
     yield
 
 

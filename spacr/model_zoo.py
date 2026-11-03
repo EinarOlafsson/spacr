@@ -2591,6 +2591,7 @@ def shared_catalogue(uri: Optional[str] = None, *,
 
     records = payload.get("models") if isinstance(payload, Mapping) else payload
     entries: List[ModelEntry] = []
+    kept: List[Dict[str, Any]] = []
     for record in (records or ()):
         if isinstance(record, Mapping):
             record = {k: v for k, v in record.items() if k != "source"}
@@ -2598,7 +2599,12 @@ def shared_catalogue(uri: Optional[str] = None, *,
             entries.append(_entry_from_mapping(record, source="shared"))
         except Exception as exc:                            # noqa: BLE001
             LOG.warning("skipping a shared catalogue entry: %s", exc)
-    _SHARED_CATALOGUE_CACHE.update(fetched_at=now, entries=tuple(entries))
+        else:
+            kept.append(dict(record))
+    _SHARED_CATALOGUE_CACHE.update(fetched_at=now, entries=tuple(entries),
+                                   records=tuple(kept))
+    if kept:
+        _persist_shared_catalogue(kept)
     return tuple(entries)
 
 
@@ -2611,6 +2617,94 @@ def shared_catalogue_is_stale() -> bool:
     """
     stamp = float(_SHARED_CATALOGUE_CACHE["fetched_at"])
     return stamp <= 0 or (time.time() - stamp) >= CATALOGUE_CACHE_SECONDS
+
+
+_SHARED_CATALOGUE_PERSISTED: Dict[str, Any] = {"stamp": None, "records": ()}
+
+
+def _shared_catalogue_file() -> Path:
+    """The file in the model cache that keeps the last community catalogue read."""
+    return _model_cache_root() / ".shared-catalogue.json"
+
+
+def _persist_shared_catalogue(records: Sequence[Mapping[str, Any]]) -> None:
+    """Keep the community rows just read for a later process to resolve against.
+
+    A model downloaded from a community row is otherwise unknown to a new
+    process until the catalogue is fetched again, and the previews never
+    fetch it. The rows are only claims: a cached checkpoint still resolves
+    only when its SHA-256 matches its row. A file that cannot be written is
+    logged and changes nothing else.
+
+    :param records: the parsed catalogue rows.
+    """
+    import tempfile
+
+    target = _shared_catalogue_file()
+    temp = None
+    try:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        descriptor, temp = tempfile.mkstemp(
+            dir=str(target.parent), prefix=".shared-catalogue.", suffix=".part")
+        with os.fdopen(descriptor, "w", encoding="utf-8") as handle:
+            json.dump({"models": [dict(r) for r in records]}, handle)
+        os.replace(temp, target)
+        temp = None
+    except (OSError, TypeError, ValueError) as exc:
+        LOG.debug("could not keep the shared model catalogue in %s: %s",
+                  target, exc)
+    finally:
+        if temp is not None:
+            try:
+                os.unlink(temp)
+            except OSError:
+                pass
+
+
+def _persisted_shared_records() -> Tuple[Dict[str, Any], ...]:
+    """The community rows an earlier process kept, read once per file change.
+
+    :returns: the rows, or ``()`` when no readable file is there.
+    """
+    path = _shared_catalogue_file()
+    try:
+        info = path.stat()
+    except OSError:
+        return ()
+    stamp = (str(path), info.st_mtime_ns, info.st_size)
+    if _SHARED_CATALOGUE_PERSISTED["stamp"] != stamp:
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as exc:
+            LOG.debug("ignoring unreadable %s: %s", path, exc)
+            return ()
+        rows = data.get("models") if isinstance(data, Mapping) else data
+        records = tuple(
+            {k: v for k, v in row.items() if k != "source"}
+            for row in (rows if isinstance(rows, list) else ())
+            if isinstance(row, Mapping))
+        _SHARED_CATALOGUE_PERSISTED.update(stamp=stamp, records=records)
+    return tuple(_SHARED_CATALOGUE_PERSISTED["records"])
+
+
+def _known_shared_records() -> Tuple[Dict[str, Any], ...]:
+    """Community rows known without the network: this process's read, else the kept file."""
+    if _SHARED_CATALOGUE_CACHE["entries"]:
+        return tuple(_SHARED_CATALOGUE_CACHE.get("records") or ())
+    return _persisted_shared_records()
+
+
+def _known_shared_entries() -> Tuple["ModelEntry", ...]:
+    """Community entries known without the network, parsed as :func:`shared_catalogue` parses them."""
+    if _SHARED_CATALOGUE_CACHE["entries"]:
+        return tuple(_SHARED_CATALOGUE_CACHE["entries"])
+    entries = []
+    for record in _persisted_shared_records():
+        try:
+            entries.append(_entry_from_mapping(record, source="shared"))
+        except Exception as exc:                            # noqa: BLE001
+            LOG.debug("skipping a kept shared catalogue entry: %s", exc)
+    return tuple(entries)
 
 
 def publish_model(local_path: Any, repo_id: str, *,
@@ -3900,7 +3994,7 @@ def _model_preprocess(requested: Any,
     :param requested: a zoo key, a record ``name``/``remote_name``, or a
         checkpoint path (matched to a record by its file name).
     :param records: the records to search; defaults to
-        :data:`BUNDLED_REMOTE_MODELS`.
+        :data:`BUNDLED_REMOTE_MODELS` followed by the known community rows.
     :returns: a copy of the declaration, ``{}`` when none.
     """
     from copy import deepcopy
@@ -3921,7 +4015,9 @@ def _model_preprocess(requested: Any,
                 if isinstance(data, Mapping):
                     return deepcopy(dict(data))
     base = os.path.basename(text)
-    for record in (BUNDLED_REMOTE_MODELS if records is None else records):
+    if records is None:
+        records = tuple(BUNDLED_REMOTE_MODELS) + _known_shared_records()
+    for record in records:
         names = {str(record.get(k) or "") for k in ("key", "name", "remote_name")}
         if text in names or base in names - {""}:
             declared = record.get("preprocess")
@@ -4301,23 +4397,53 @@ def _planning_model_entries():
 def _resolution_model_entries(download):
     """Select declared metadata without executing providers on an offline node.
 
-    :param download: false retains the existing bundled-only pure planning index.
+    :param download: false plans without the network: the bundled index, then the
+        :data:`CATALOGUE_ENV_VAR` file and the community rows this process or an
+        earlier one read, so a downloaded community model resolves in a preview.
     :returns: online catalogue entries, or offline bundled/local/cached declarations
         in first-key/name order without provider calls or metadata transport.
     """
+    online = os.environ.get("SPACR_MODEL_DOWNLOAD", "").strip().casefold() not in (
+        "0", "off", "false", "no")
+    if download and online:
+        entries = list(catalogue(remote=True))
+        if not _SHARED_CATALOGUE_CACHE["entries"]:
+            entries.extend(_unseen_entries(entries, _known_shared_entries()))
+        return entries
     if not download:
-        return _planning_model_entries()
-    if os.environ.get("SPACR_MODEL_DOWNLOAD", "").strip().casefold() not in (
-            "0", "off", "false", "no"):
-        return catalogue(remote=True)
+        entries = list(_planning_model_entries())
+        entries.extend(_unseen_entries(entries, _declared_extra_entries()))
+        return entries
     entries = _planning_model_entries()
-    path = os.environ.get(CATALOGUE_ENV_VAR, "")
-    if path and os.path.isfile(path):
-        entries.extend(load_catalogue_file(path))
-    entries.extend(_SHARED_CATALOGUE_CACHE["entries"])
+    entries.extend(_declared_extra_entries())
     selected = []
     have = set()
     for entry in entries:
+        identity = (entry.key, entry.name)
+        if identity not in have and entry.name not in RETIRED_MODEL_NAMES:
+            selected.append(entry)
+            have.add(identity)
+    return selected
+
+
+def _declared_extra_entries():
+    """The catalogue file named by :data:`CATALOGUE_ENV_VAR` and the known community rows.
+
+    Read without the network, so a planning caller on Qt's GUI thread may call it.
+    """
+    entries = []
+    path = os.environ.get(CATALOGUE_ENV_VAR, "")
+    if path and os.path.isfile(path):
+        entries.extend(load_catalogue_file(path))
+    entries.extend(_known_shared_entries())
+    return entries
+
+
+def _unseen_entries(existing, extra):
+    """``extra`` entries whose key and name are not in ``existing`` and are not retired."""
+    have = {(entry.key, entry.name) for entry in existing}
+    selected = []
+    for entry in extra:
         identity = (entry.key, entry.name)
         if identity not in have and entry.name not in RETIRED_MODEL_NAMES:
             selected.append(entry)
@@ -4394,6 +4520,11 @@ def _model_resolution_context(requested, *, setting, kinds=()):
         f"[sha256={row.get('sha256')}]"
         for row in BUNDLED_REMOTE_MODELS
         if not kinds or row.get("kind", "cellpose") in kinds]
+    bundled = [_entry_from_mapping(row) for row in BUNDLED_REMOTE_MODELS]
+    choices.extend(
+        f"{entry.key}@{entry.version!r} [sha256={entry.sha256}]"
+        for entry in _unseen_entries(bundled, _declared_extra_entries())
+        if not kinds or entry.kind in kinds)
     return tr(
         "Model setting {setting}: no existing checkpoint or exact model-zoo identity matches {requested}. Available compatible zoo identities: {candidates}.",
         setting=setting, requested=repr(requested), candidates="\n".join(choices) or "[]")
