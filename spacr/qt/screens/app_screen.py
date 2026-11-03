@@ -9469,6 +9469,11 @@ class AppScreen(QWidget):
         handed to the next widget made at the same address, which then read
         as already deleted (the Regression results card's viewport on a
         1366 x 600 window).
+
+        Only widgets in this window are moved: a child of the column that is
+        its own window, a floating preview or a popup, has a separate chain,
+        and Qt refuses to join the two with a warning each time the screen
+        was shown.
         """
         from PySide6.QtWidgets import QWidget as _Widget
 
@@ -9477,7 +9482,7 @@ class AppScreen(QWidget):
         if getattr(self, "_settings_panel", None) is None or side is None or window is None:
             return
         in_side = [widget for widget in side.findChildren(_Widget)
-                   if widget.focusPolicy() & Qt.TabFocus]
+                   if widget.focusPolicy() & Qt.TabFocus and widget.window() == window]
         if not in_side:
             return
         anchor = window.previousInFocusChain()
