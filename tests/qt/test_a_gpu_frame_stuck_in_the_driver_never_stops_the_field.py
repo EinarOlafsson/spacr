@@ -25,6 +25,8 @@ from PySide6.QtGui import QImage                                 # noqa: E402
 from PySide6.QtWidgets import QWidget                            # noqa: E402
 
 from spacr.qt.widgets import ambient                             # noqa: E402
+import types
+import logging
 
 pytestmark = pytest.mark.qt
 
@@ -137,3 +139,131 @@ def test_a_lane_call_is_bounded_and_a_busy_lane_answers_at_once():
         lane.close(lambda: released.append(threading.current_thread().name), 2.0)
     assert released == ["spacr-ambient-gpu"]
     assert not lane.thread.is_alive()
+
+
+class _Backend(ambient._GraphicsBackend):
+    """A bare graphics backend: the mixin needs no engine to be driven."""
+
+    name = "lane-probe"
+
+    def __init__(self, mode="gpu"):
+        self._graphics_backend = mode
+
+
+class _Boom:
+    _owner = None
+
+    def _draw(self, width, height, *args):
+        raise RuntimeError("driver lost")
+
+
+def test_a_draw_error_on_the_shading_thread_pins_the_engine_to_the_cpu(monkeypatch):
+    backend = _Backend()
+    built = []
+    released = []
+    monkeypatch.setattr(ambient._GraphicsBackend, "_graphics_renderer",
+                        lambda self, width, height, work=0: _Boom())
+    monkeypatch.setattr(backend, "_release_point_graphics",
+                        lambda: released.append(True))
+    frame = backend._graphics_frame("_draw", 64, 48,
+                                    build=lambda: built.append(1) or (7,))
+    assert frame is None
+    assert built == [1]
+    assert released == [True]
+    assert backend._graphics_failed is True
+    assert backend._graphics_refusal.startswith("_draw failed in _draw line ")
+    assert "RuntimeError: driver lost" in backend._graphics_refusal
+
+
+def test_a_frame_while_the_lane_is_busy_stays_on_the_cpu():
+    backend = _Backend()
+    lane = types.SimpleNamespace(busy=lambda: True)
+    backend.__dict__["_graphics_lane"] = lane
+    assert backend._graphics_frame_on_lane("_draw", 64, 48, (), 0, None) is None
+    assert backend._graphics_refusal == "a GPU frame is still in the driver"
+
+
+def test_a_canvas_above_4k_is_refused_before_a_lane_starts():
+    backend = _Backend()
+    assert backend._graphics_accepts(3841, 2161) is False
+    assert backend._graphics_refusal == (
+        "canvas larger than 3840x2160 or big-endian host")
+    assert "_graphics_lane" not in backend.__dict__
+
+
+def test_closing_without_a_lane_does_nothing_and_with_one_releases_on_it():
+    backend = _Backend()
+    backend._close_graphics_lane()
+    assert "_graphics_lane" not in backend.__dict__
+    closed = []
+    backend.__dict__["_graphics_lane"] = types.SimpleNamespace(
+        close=lambda release, timeout: closed.append((release, timeout)))
+    backend._close_graphics_lane()
+    assert "_graphics_lane" not in backend.__dict__
+    assert closed == [(backend._release_point_graphics,
+                       ambient._GRAPHICS_LANE_CLOSE_S)]
+
+
+def test_a_lane_whose_release_fails_still_ends_and_says_so(caplog):
+    lane = ambient._GraphicsLane()
+
+    def failing_release():
+        raise OSError("context already gone")
+
+    with caplog.at_level(logging.DEBUG, logger=ambient.LOG.name):
+        lane.close(failing_release, 2.0)
+    assert not lane.thread.is_alive()
+    assert any("could not release the graphics lane's renderer" in r.getMessage()
+               for r in caplog.records)
+
+
+def test_a_lane_closed_from_its_own_thread_does_not_wait_for_itself():
+    lane = ambient._GraphicsLane()
+    released = []
+    started = time.perf_counter()
+    done, result, error = lane.call(
+        lambda: lane.close(lambda: released.append(threading.current_thread().name),
+                           30.0), 5.0)
+    assert (done, error) == (True, None)
+    lane.thread.join(2.0)
+    assert not lane.thread.is_alive()
+    assert time.perf_counter() - started < 5.0
+    assert released == ["spacr-ambient-gpu"]
+
+
+def test_retiring_lanes_joins_a_live_one_and_counts_it_but_skips_ended_ones(
+        monkeypatch):
+    import weakref
+
+    monkeypatch.setattr(ambient, "_LIVE_GRAPHICS_LANES", weakref.WeakSet())
+    ended = ambient._GraphicsLane()
+    ended.close(None, 2.0)
+    busy = ambient._GraphicsLane()
+    release = threading.Event()
+    try:
+        assert busy.call(lambda: release.wait(5), 0.05)[0] is False
+        started = time.perf_counter()
+        assert ambient._retire_graphics_lanes(0.05) == 1
+        assert time.perf_counter() - started < 1.0
+        release.set()
+        busy.close(None, 2.0)
+        assert ambient._retire_graphics_lanes(0.05) == 0
+    finally:
+        release.set()
+
+
+def test_exit_retirement_warns_about_a_lane_still_in_the_driver(monkeypatch, caplog):
+    import weakref
+
+    monkeypatch.setattr(ambient, "_LIVE_GRAPHICS_LANES", weakref.WeakSet())
+    lane = ambient._GraphicsLane()
+    release = threading.Event()
+    try:
+        assert lane.call(lambda: release.wait(5), 0.05)[0] is False
+        with caplog.at_level(logging.WARNING, logger=ambient.LOG.name):
+            ambient._retire_shading_threads(timeout_s=0.05)
+        assert any("graphics lane(s) were still in the driver at exit"
+                   in r.getMessage() for r in caplog.records)
+    finally:
+        release.set()
+        lane.close(None, 2.0)

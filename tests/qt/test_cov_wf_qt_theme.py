@@ -360,3 +360,136 @@ def test_close_hit_targets_stay_large_enough_after_font_cache_eviction(qapp, mon
         assert guard.eventFilter(button, QEvent(QEvent.Type.Enter)) is False
     finally:
         button.close()
+
+
+def test_make_transparent_tags_a_styled_widget_whose_style_has_gone_and_goes_on(qtbot):
+    gone = _StylelessWidget()
+    qtbot.addWidget(gone)
+    gone.setAttribute(Qt.WA_StyleSheet, True)
+    styled = _StyledWidget()
+    qtbot.addWidget(styled)
+    styled.setAttribute(Qt.WA_StyleSheet, True)
+
+    theme.make_transparent(gone, styled)
+
+    assert gone.property(theme.TRANSPARENT_PROPERTY) is True
+    assert styled.property(theme.TRANSPARENT_PROPERTY) is True
+    assert [call for call, _ in styled.recorder.calls] == ["unpolish", "polish"]
+
+
+def test_a_dialog_is_fitted_even_when_it_is_on_no_screen(qtbot, monkeypatch):
+    from PySide6.QtWidgets import QDialog, QLabel, QVBoxLayout
+
+    dialog = QDialog()
+    layout = QVBoxLayout(dialog)
+    label = QLabel(" ".join(["word"] * 400))
+    label.setWordWrap(True)
+    layout.addWidget(label)
+    qtbot.addWidget(dialog)
+    QWidget.resize(dialog, 260, 60)
+    monkeypatch.setattr(QWidget, "screen", lambda self: None)
+    assert theme._fit_a_dialog_to_its_wrapped_text(dialog) is True
+    assert QWidget.height(dialog) == dialog.layout().totalHeightForWidth(260)
+    assert QWidget.width(dialog) == 260
+
+
+def _tooltip_label(qtbot):
+    from PySide6.QtWidgets import QLabel
+
+    label = QLabel("A tooltip that sizes itself to its text")
+    label.setWindowFlags(Qt.ToolTip)
+    qtbot.addWidget(label)
+    return label
+
+
+def test_a_tooltip_is_sized_to_its_text_and_left_alone_once_it_fits(qtbot):
+    label = _tooltip_label(qtbot)
+    label.move(10, 10)
+    assert theme._fit_a_tooltip_to_its_styled_text(label) is True
+    fitted = label.size()
+    assert fitted.width() == label.sizeHint().width() + 1
+    assert theme._fit_a_tooltip_to_its_styled_text(label) is False
+    assert label.size() == fitted
+
+
+@pytest.mark.parametrize("corner", ["bottom-right", "top-left"])
+def test_a_tooltip_that_overhangs_the_screen_is_pulled_back_onto_it(qtbot, corner):
+    label = _tooltip_label(qtbot)
+    area = label.screen().geometry()
+    if corner == "bottom-right":
+        label.move(area.right() + 500, area.bottom() + 500)
+    else:
+        label.move(area.left() - 5000, area.top() - 5000)
+    assert theme._fit_a_tooltip_to_its_styled_text(label) is True
+    placed = label.geometry()
+    assert area.left() <= placed.left() and placed.right() <= area.right()
+    assert area.top() <= placed.top() and placed.bottom() <= area.bottom()
+
+
+def test_the_window_sheeting_filter_survives_a_widget_that_goes_mid_event(monkeypatch):
+    from PySide6.QtCore import QEvent
+
+    def gone(widget):
+        raise RuntimeError("Internal C++ object already deleted")
+
+    sheeted = []
+    monkeypatch.setattr(theme, "_a_decorator_sheets_it", gone)
+    monkeypatch.setattr(theme, "_sheet_one_window", lambda root: sheeted.append(root))
+    window = QWidget()
+    filt = theme._SheetsEveryWindowThatAppears()
+    assert filt.eventFilter(window, QEvent(QEvent.Polish)) is False
+    assert sheeted == []
+
+
+def test_a_missing_window_sheet_means_a_block_may_still_reach_the_window(
+        qtbot, monkeypatch):
+    from types import SimpleNamespace
+
+    widget = QWidget()
+    qtbot.addWidget(widget)
+    monkeypatch.setattr(theme, "_LAST_WIDGET_QSS_FRAGMENT", "QWidget#Other { color: red; }")
+    # no sheet in force on the application at all
+    assert theme._no_missing_block_can_reach(SimpleNamespace(), widget, ["Missing"]) is False
+    # a sheet in force that does not contain the last registered fragment
+    app = SimpleNamespace()
+    setattr(app, theme._WINDOW_SHEET_ATTRIBUTE, "QWidget { color: blue; }")
+    assert theme._no_missing_block_can_reach(app, widget, ["Missing"]) is False
+
+
+def test_a_combo_chevron_is_declined_for_an_invalid_ink_and_an_unwritable_picture(
+        tmp_path, monkeypatch):
+    import tempfile
+
+    import PySide6.QtGui as qtgui
+
+    assert theme._chevron_file("not a colour") is None
+
+    class _Unsaveable(qtgui.QImage):
+        def save(self, *args, **kwargs):
+            return False
+
+    monkeypatch.setattr(tempfile, "gettempdir", lambda: str(tmp_path))
+    monkeypatch.setattr(qtgui, "QImage", _Unsaveable)
+    assert theme._chevron_file("#123456") is None
+    assert list((tmp_path / "spacr-theme-chevrons").glob("chevron-*.png")) == []
+
+
+def test_the_combo_arrow_falls_back_to_a_border_triangle_without_a_picture(monkeypatch):
+    palette = {"fg_muted": "#8899aa"}
+    sizes = {"small": 12}
+    monkeypatch.setattr(theme, "_chevron_file", lambda color, *, disabled=False: None)
+    rules = theme._combo_arrow_rules(palette, sizes)
+    assert "image: none" in rules
+    assert "border-top-color: #8899aa" in rules
+    assert ":disabled" not in rules
+
+
+def test_the_combo_arrow_omits_the_disabled_rule_when_only_that_picture_fails(
+        tmp_path, monkeypatch):
+    normal = tmp_path / "normal.png"
+    normal.write_bytes(b"")
+    monkeypatch.setattr(theme, "_chevron_file",
+                        lambda color, *, disabled=False: None if disabled else normal)
+    rules = theme._combo_arrow_rules({"fg_muted": "#8899aa"}, {"small": 12})
+    assert "normal.png" in rules
+    assert "QComboBox::down-arrow:disabled" not in rules

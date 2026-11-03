@@ -178,3 +178,59 @@ def test_a_command_keeps_its_group_and_place_at_every_width_and_zoom(qtbot):
     assert len(first) >= 15
     for key, record in records.items():
         assert record == first, key
+
+
+def _toolbar_flow(qtbot, widths):
+    from PySide6.QtWidgets import QPushButton, QWidget
+
+    from spacr.qt.screens.annotate import _ToolbarFlow
+
+    host = QWidget()
+    qtbot.addWidget(host)
+    flow = _ToolbarFlow(host, spacing=10, line_spacing=6)
+    buttons = []
+    for width in widths:
+        button = QPushButton("group", host)
+        button.setFixedSize(width, 20)
+        flow.addWidget(button)
+        buttons.append(button)
+    return host, flow, buttons
+
+
+def test_an_empty_toolbar_flow_needs_no_height_and_places_nothing(qtbot):
+    from PySide6.QtCore import QRect
+
+    _host, flow, _ = _toolbar_flow(qtbot, [])
+    assert flow._do_layout(QRect(0, 0, 300, 100), False) == 0
+
+
+def test_a_group_that_already_fills_the_line_is_not_moved(qtbot):
+    from PySide6.QtCore import QRect
+
+    _host, flow, (only,) = _toolbar_flow(qtbot, [200])
+    assert flow._do_layout(QRect(0, 0, 200, 50), False) == 20
+    assert only.geometry().right() == 199 and only.geometry().x() == 0
+    # a group wider than the line stays at the left edge and does not slide right
+    assert flow._do_layout(QRect(0, 0, 100, 50), False) == 20
+    assert only.geometry().x() == 0
+
+
+def test_the_last_group_is_pushed_to_the_right_edge_of_its_line(qtbot):
+    from PySide6.QtCore import QRect
+
+    _host, flow, (first, last) = _toolbar_flow(qtbot, [120, 100])
+    assert flow._do_layout(QRect(5, 7, 300, 100), False) == 20
+    assert first.geometry().x() == 5
+    assert last.geometry().right() == 5 + 300 - 1
+
+
+def test_a_toolbar_flow_whose_c_half_is_gone_lays_nothing_out(qtbot, monkeypatch):
+    from PySide6.QtCore import QRect
+
+    from spacr.qt.screens import annotate
+
+    _host, flow, (only,) = _toolbar_flow(qtbot, [80])
+    only.setGeometry(1, 2, 80, 20)
+    monkeypatch.setattr(annotate, "_alive", lambda layout: False)
+    assert flow._do_layout(QRect(0, 0, 300, 100), False) == 0
+    assert only.geometry().getRect() == (1, 2, 80, 20)

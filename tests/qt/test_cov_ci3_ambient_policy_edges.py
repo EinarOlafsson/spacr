@@ -1121,3 +1121,60 @@ def test_rewinding_the_animation_clock_defers_a_real_selected_node_visit(qtbot):
     finally:
         backdrop.stop()
         host.close()
+
+
+def test_a_node_visit_waits_when_the_shading_thread_holds_the_engine(qtbot, monkeypatch):
+    """The published visit is not consumed under a lock another thread holds,
+    and is consumed on the next visit once the lock is free."""
+    from PySide6.QtWidgets import QWidget
+
+    monkeypatch.setattr(prefs, "get_ambient_enabled", lambda: True)
+    monkeypatch.setattr(prefs, "get_reduce_motion", lambda: False)
+    host = QWidget()
+    qtbot.addWidget(host)
+    host.resize(320, 240)
+    backdrop = ambient.AmbientWidget(host, theme='data_art_impulse_lens', seed=7)
+    backdrop.setGeometry(host.rect())
+    node = QWidget(host)
+    node.setGeometry(80, 60, 100, 80)
+    host.show()
+    holding, release = threading.Event(), threading.Event()
+
+    def hold():
+        with backdrop._engine_lock:
+            holding.set()
+            release.wait(5)
+
+    holder = threading.Thread(target=hold, daemon=True)
+    try:
+        qtbot.waitUntil(lambda: backdrop._should_run())
+        holder.start()
+        assert holding.wait(5)
+        consumed = []
+        monkeypatch.setattr(backdrop._art_input, "_consume",
+                            lambda engine, **kw: consumed.append(engine))
+        serial = backdrop._art_input._node_visit[0]
+        ambient._field_visit_node(node)
+        assert backdrop._art_input._node_visit[0] == serial + 1
+        assert consumed == []
+    finally:
+        release.set()
+        holder.join(5)
+        backdrop.stop()
+    ambient._field_visit_node(node)
+    assert consumed == [backdrop._engine]
+
+
+def test_an_unobserved_gpu_reason_is_logged_once(monkeypatch, caplog):
+    import logging
+
+    monkeypatch.setattr(ambient, "_UNOBSERVED_GPU_LOGGED", set())
+    with caplog.at_level(logging.INFO, logger=ambient.LOG.name):
+        ambient._note_unobserved_gpu("NVML missing")
+        ambient._note_unobserved_gpu("NVML missing")
+        ambient._note_unobserved_gpu("driver too old")
+    messages = [r.getMessage() for r in caplog.records
+                if "cannot see other processes' GPU work" in r.getMessage()]
+    assert messages == [
+        "animation cannot see other processes' GPU work: NVML missing",
+        "animation cannot see other processes' GPU work: driver too old"]

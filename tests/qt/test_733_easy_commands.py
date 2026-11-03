@@ -730,3 +730,20 @@ def test_suggestion_visibility_and_seed_handoff_keep_inputs_unchanged(commands, 
         assert commands.opened == ([route] if mode == 'fallback_override' else [])
         assert training.calls == [(route, seed)] and applied == []
     assert overrides == before and commands.inspections == [] and commands.urls == []
+
+
+def test_an_unknown_shortcut_command_has_no_folder():
+    assert app._easy_shortcut_folder('nothing-like-a-folder') is None
+
+
+def test_a_navigator_shortcut_phrase_is_not_also_offered_as_a_module():
+    assert app._easy_shortcut_match('logs') == 'logs'
+    assert app._easy_module_search('logs') == []
+
+
+def test_a_module_the_page_does_not_list_is_left_out_of_a_partial_name_search(
+        monkeypatch):
+    monkeypatch.setattr(app, '_easy_module_matches',
+                        lambda value: ('a-module-with-no-tile', 'mask'))
+    rows = app._easy_module_search('zzzqq')
+    assert [row[0] for row in rows] == ['mask']

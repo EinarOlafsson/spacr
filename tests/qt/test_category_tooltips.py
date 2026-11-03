@@ -613,3 +613,30 @@ def test_rewiring_does_not_multiply_the_toggled_connection(qtbot):
     finally:
         AppScreen.show_category_hint = original
     assert len(calls) == 1, f"one expand fired {len(calls)} times"
+
+
+def test_a_module_page_anchor_must_name_the_tiles_own_module(monkeypatch):
+    from spacr.qt.screens import settings_model as sm
+
+    monkeypatch.setitem(sm._APP_API_ANCHOR, "probe", "spacr.measure.measure_crop")
+    assert sm._module_level_anchor("probe", "measure") == "spacr.measure.measure_crop"
+    assert sm._module_level_anchor("probe", "plot") == ""
+    assert sm._module_level_anchor("probe", "") == ""
+    assert sm._module_level_anchor("no-such-tile", "measure") == ""
+
+
+def test_the_api_tooltip_filter_ignores_events_it_does_not_replace(qtbot, monkeypatch):
+    from PySide6.QtCore import QEvent
+    from PySide6.QtWidgets import QLabel
+
+    from spacr.qt.screens.settings_model import _ApiTooltipFilter
+    from spacr.qt.widgets.hover_tooltip import HoverTooltip
+
+    monkeypatch.setattr(HoverTooltip, "instance",
+                        classmethod(lambda cls: pytest.fail("a popup was asked for")))
+    label = QLabel("setting")
+    qtbot.addWidget(label)
+    label.setProperty("apiTooltipHtml", "<b>help</b>")
+    filt = _ApiTooltipFilter()
+    assert filt.eventFilter(label, QEvent(QEvent.MouseButtonPress)) is False
+    assert filt.eventFilter(label, QEvent(QEvent.ToolTip)) is True

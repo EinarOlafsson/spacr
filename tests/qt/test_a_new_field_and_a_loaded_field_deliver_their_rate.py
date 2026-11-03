@@ -118,3 +118,54 @@ def test_a_kept_frame_smaller_than_the_field_is_not_used(qtbot):
     _pump(0.2)
     assert "_warmed_first_frame" not in backdrop.__dict__
     assert backdrop._producer_box[0] is not None
+
+
+def _hidden_backdrop(qtbot, theme):
+    host = QWidget()
+    host.setProperty("spacrIndependentBackdrop", True)
+    host.resize(320, 200)
+    backdrop = ambient.AmbientWidget(host, theme=theme, fps=30)
+    backdrop.setGeometry(host.rect())
+    qtbot.addWidget(host)
+    return backdrop
+
+
+def test_a_hidden_field_keeps_no_first_frame_when_it_cannot_or_need_not(
+        qtbot, monkeypatch):
+    backdrop = _hidden_backdrop(qtbot, "blobs")
+    # a producer already runs: the show shades its own frame
+    backdrop._producer_box[0] = object()
+    backdrop._warm_first_frame((64, 40))
+    assert "_warmed_first_frame" not in backdrop.__dict__
+    backdrop._producer_box[0] = None
+    # shading is retired for the exit
+    monkeypatch.setattr(ambient, "_SHADING_RETIRED", [True])
+    backdrop._warm_first_frame((64, 40))
+    assert "_warmed_first_frame" not in backdrop.__dict__
+    monkeypatch.setattr(ambient, "_SHADING_RETIRED", [False])
+    # an empty size
+    shaded = []
+    monkeypatch.setattr(backdrop._engine, "shade",
+                        lambda *size: shaded.append(size) or None, raising=False)
+    backdrop._warm_first_frame((0, 40))
+    backdrop._warm_first_frame((64, -1))
+    assert shaded == []
+    # an engine that is not a buffered one
+    monkeypatch.setattr(backdrop, "_engine", object())
+    backdrop._warm_first_frame((64, 40))
+    assert "_warmed_first_frame" not in backdrop.__dict__
+
+
+def test_a_hidden_non_field_theme_is_shaded_once_and_a_blank_result_is_not_kept(
+        qtbot, monkeypatch):
+    backdrop = _hidden_backdrop(qtbot, "blobs")
+    sizes = []
+    monkeypatch.setattr(backdrop._engine, "shade",
+                        lambda *size: sizes.append(size) or None, raising=False)
+    backdrop._warm_first_frame((64, 40))
+    assert sizes == [(64, 40)]
+    assert "_warmed_first_frame" not in backdrop.__dict__
+    kept = object()
+    monkeypatch.setattr(backdrop._engine, "shade", lambda *size: kept, raising=False)
+    backdrop._warm_first_frame((64, 40))
+    assert backdrop._warmed_first_frame == ((64, 40), kept)

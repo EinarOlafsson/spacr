@@ -188,3 +188,76 @@ def test_the_browser_lists_a_store_off_the_gui_thread(qtbot):
                         timeout=5000)
     finally:
         fs.rm(bucket, recursive=True)
+
+
+def test_going_up_stops_at_the_scheme_and_an_entry_without_a_name_opens_nothing(qtbot):
+    from PySide6.QtWidgets import QListWidgetItem
+
+    from spacr.qt.screens.settings_model import _CloudBrowserDialog
+
+    dialog = _CloudBrowserDialog("")
+    qtbot.addWidget(dialog)
+    for address in ("s3://", "s3://bucket", "nothing-to-go-up-from"):
+        dialog.address.setText(address)
+        dialog.go_up()
+        assert dialog.location() == address
+    dialog._enter(QListWidgetItem("no stored name"))
+    assert dialog.location() == "nothing-to-go-up-from"
+    assert dialog._request == 0, "no listing was asked for"
+
+
+def test_the_browser_describes_a_single_file_instead_of_listing_it(qtbot):
+    from spacr.qt.screens.settings_model import _CloudBrowserDialog
+
+    fs = fsspec.filesystem("memory")
+    bucket = f"/bucket-{uuid.uuid4().hex[:8]}"
+    fs.pipe(f"{bucket}/screens/a.csv", b"x\n1\n")
+    try:
+        dialog = _CloudBrowserDialog(
+            f"memory://{bucket.lstrip('/')}/screens/a.csv", anonymous=True)
+        qtbot.addWidget(dialog)
+        qtbot.waitUntil(lambda: dialog.details.toPlainText().startswith("file:"),
+                        timeout=5000)
+        assert dialog.entries.count() == 0
+        assert "a.csv" in dialog.details.toPlainText()
+    finally:
+        fs.rm(bucket, recursive=True)
+
+
+def test_browsing_cloud_storage_commits_only_a_chosen_location(qtbot, monkeypatch):
+    from PySide6.QtWidgets import QDialog, QLineEdit
+
+    from spacr.qt.screens import settings_model
+
+    def choice(result, location):
+        class Choice:
+            def __init__(self, *args):
+                pass
+
+            def exec(self):
+                return result
+
+            def location(self):
+                return location
+
+            def options(self):
+                return {"cloud_anonymous": True}
+        return Choice
+
+    edit = QLineEdit("/kept")
+    qtbot.addWidget(edit)
+    monkeypatch.setattr(settings_model, "_CloudBrowserDialog",
+                        choice(QDialog.Rejected, "s3://ignored"))
+    assert settings_model._browse_cloud_into(edit) is False
+    monkeypatch.setattr(settings_model, "_CloudBrowserDialog",
+                        choice(QDialog.Accepted, ""))
+    assert settings_model._browse_cloud_into(edit) is False
+    assert edit.text() == "/kept"
+    # accepted, and the field's form offers no setter: only the field changes
+    monkeypatch.setattr(settings_model, "_CloudBrowserDialog",
+                        choice(QDialog.Accepted, "s3://bucket/images"))
+    finished = []
+    edit.editingFinished.connect(lambda: finished.append(edit.text()))
+    assert settings_model._browse_cloud_into(edit, None) is True
+    assert edit.text() == "s3://bucket/images"
+    assert finished == ["s3://bucket/images"]

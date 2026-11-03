@@ -682,3 +682,28 @@ class TestEveryModuleStillOpens:
         assert scr._settings_model._widgets, f"{app_key} built no settings"
         assert scr._settings_sections, f"{app_key} built no sections"
         assert sm._LANGUAGE_SCOPE is None, "the build scope leaked"
+
+
+def test_a_language_scope_survives_a_ui_scope_that_cannot_open_or_close(monkeypatch):
+    from spacr.qt import i18n
+    from spacr.qt.screens import settings_model as sm
+
+    def cannot_open():
+        raise RuntimeError("no ui scope")
+
+    monkeypatch.setattr(i18n, "ui_language_resolved_once", cannot_open)
+    with sm.language_resolved_once():
+        assert sm._LANGUAGE_SCOPE == {}
+    assert sm._LANGUAGE_SCOPE is None
+
+    class _FailsToClose:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            raise ValueError("cannot close")
+
+    monkeypatch.setattr(i18n, "ui_language_resolved_once", _FailsToClose)
+    with sm.language_resolved_once():
+        assert sm._LANGUAGE_SCOPE == {}
+    assert sm._LANGUAGE_SCOPE is None

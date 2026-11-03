@@ -327,3 +327,144 @@ def test_the_migrated_keymap_reaches_the_right_holders(qtbot, monkeypatch):
     S._apply_keymap(window)
     assert home.shortcut() == QKeySequence("Ctrl+Alt+H")
     assert zoom.key() == QKeySequence("Ctrl+0")
+
+
+class _FakeStore:
+    """A settings store whose reads and writes can be made to fail."""
+
+    def __init__(self, value=None, read_error=None, write_error=None):
+        self._value, self._read_error, self._write_error = value, read_error, write_error
+        self.written = {}
+
+    def value(self, key, default=None):
+        if self._read_error is not None:
+            raise self._read_error
+        return self._value
+
+    def setValue(self, key, value):
+        if self._write_error is not None:
+            raise self._write_error
+        self.written[key] = value
+
+
+def test_the_stored_keymap_version_falls_back_without_raising(monkeypatch):
+    from spacr.qt import preferences, shortcuts
+
+    def version_of(store):
+        monkeypatch.setattr(preferences, "_settings", lambda: store)
+        return shortcuts._stored_keymap_version()
+
+    # a value that is not a number, or nothing recorded: the pre-version keymap
+    assert version_of(_FakeStore(value=object())) == 1
+    assert version_of(_FakeStore(value=None)) == 1
+    # an unreadable store: assume the keymap is current rather than migrate it
+    assert version_of(_FakeStore(read_error=RuntimeError("unreadable"))) == (
+        shortcuts._KEYMAP_VERSION)
+
+
+def test_a_migrated_keymap_that_cannot_be_saved_is_dropped_quietly(monkeypatch, caplog):
+    import json
+    import logging
+
+    from spacr.qt import preferences, shortcuts
+
+    failing = _FakeStore(write_error=OSError("read-only store"))
+    monkeypatch.setattr(preferences, "_settings", lambda: failing)
+    with caplog.at_level(logging.DEBUG, logger=shortcuts.LOG.name):
+        shortcuts._store_migrated_keymap({"Ctrl+,": "Ctrl+Shift+P"})
+    assert failing.written == {}
+    assert any("could not save the migrated keymap" in r.getMessage()
+               for r in caplog.records)
+
+    working = _FakeStore()
+    monkeypatch.setattr(preferences, "_settings", lambda: working)
+    shortcuts._store_migrated_keymap({"Ctrl+,": "Ctrl+Shift+P"})
+    assert json.loads(working.written[shortcuts._KEYMAP_KEY]) == {
+        "Ctrl+,": "Ctrl+Shift+P"}
+    assert working.written[shortcuts._KEYMAP_VERSION_KEY] == shortcuts._KEYMAP_VERSION
+
+
+def test_a_keyboard_zoom_that_cannot_read_the_scale_changes_nothing(qtbot, monkeypatch):
+    from PySide6.QtWidgets import QMainWindow
+
+    from spacr.qt import gui_scale, preferences, shortcuts
+
+    def unreadable():
+        raise RuntimeError("no scale")
+
+    monkeypatch.setattr(preferences, "get_font_scale", unreadable)
+    monkeypatch.setattr(gui_scale, "change_scales",
+                        lambda *a, **k: pytest.fail("Zoom changed"))
+    window = QMainWindow()
+    qtbot.addWidget(window)
+    assert shortcuts._step_zoom(window, 1) is None
+    assert getattr(window, "_spacr_keyboard_zoom_from", None) is None
+
+
+def test_settling_a_zoom_burst_asks_only_when_the_scale_moved(qtbot, monkeypatch):
+    from PySide6.QtWidgets import QMainWindow
+
+    from spacr.qt import gui_scale, preferences, shortcuts
+
+    asked = []
+    monkeypatch.setattr(preferences, "get_font_scale", lambda: 1.0)
+    monkeypatch.setattr(gui_scale, "current_scale", lambda: 1.0)
+    monkeypatch.setattr(gui_scale, "change_scales",
+                        lambda window, **kw: asked.append(kw))
+    window = QMainWindow()
+    qtbot.addWidget(window)
+
+    # no burst under way: nothing to ask
+    window._spacr_keyboard_zoom_from = None
+    shortcuts._settle_keyboard_zoom(window)
+    assert asked == []
+
+    # the burst ended where it began: nothing to keep
+    window._spacr_keyboard_zoom_from = 1.0
+    shortcuts._settle_keyboard_zoom(window)
+    assert asked == []
+    assert window._spacr_keyboard_zoom_from is None
+
+    # the scale moved: ask once, with where it began
+    window._spacr_keyboard_zoom_from = 0.9
+    shortcuts._settle_keyboard_zoom(window)
+    assert asked == [{"font": 1.0, "previous": (1.0, 0.9)}]
+
+
+def test_a_zoom_question_or_reset_that_fails_is_swallowed(qtbot, monkeypatch, caplog):
+    import logging
+
+    from PySide6.QtWidgets import QMainWindow
+
+    from spacr.qt import gui_scale, preferences, shortcuts
+
+    def broken(*args, **kwargs):
+        raise RuntimeError("no dialog")
+
+    monkeypatch.setattr(preferences, "get_font_scale", lambda: 1.0)
+    monkeypatch.setattr(gui_scale, "current_scale", lambda: 1.0)
+    monkeypatch.setattr(gui_scale, "change_scales", broken)
+    window = QMainWindow()
+    qtbot.addWidget(window)
+    with caplog.at_level(logging.DEBUG, logger=shortcuts.LOG.name):
+        window._spacr_keyboard_zoom_from = 0.9
+        shortcuts._settle_keyboard_zoom(window)
+        assert window._spacr_keyboard_zoom_from is None
+        # a reset with no pending burst has no timer to stop
+        assert getattr(window, "_spacr_keyboard_zoom_timer", None) is None
+        shortcuts._reset_zoom(window)
+    messages = [r.getMessage() for r in caplog.records]
+    assert "could not ask to keep the keyboard Zoom" in messages
+    assert "could not reset Zoom" in messages
+
+
+def test_preferences_keys_add_each_platform_binding_once_and_skip_empty_ones(
+        monkeypatch):
+    from spacr.qt.app import _preferences_shortcuts
+
+    bindings = [QKeySequence(), QKeySequence("Ctrl+Shift+,"),
+                QKeySequence("Ctrl+,"), QKeySequence("Ctrl+Shift+,")]
+    monkeypatch.setattr(QKeySequence, "keyBindings",
+                        staticmethod(lambda standard: bindings))
+    assert _preferences_shortcuts() == [QKeySequence("Ctrl+,"),
+                                        QKeySequence("Ctrl+Shift+,")]

@@ -190,3 +190,60 @@ def test_source_cloud_action_keeps_existing_dialog_commit(qtbot, monkeypatch, ap
     for key, value in CloudChoice().options().items():
         if key in model._widgets:
             assert model.collect()[key] == value
+
+
+def _trailing_action(edit, name):
+    from PySide6.QtGui import QAction
+    from PySide6.QtWidgets import QLineEdit
+
+    action = QAction(name, edit)
+    action.setObjectName(name)
+    edit.addAction(action, QLineEdit.TrailingPosition)
+    return action
+
+
+def test_a_folder_action_is_found_among_a_fields_other_actions(qtbot):
+    from PySide6.QtWidgets import QLineEdit
+
+    from spacr.qt.screens.settings_model import _folder_browse_action
+
+    edit = QLineEdit()
+    qtbot.addWidget(edit)
+    _trailing_action(edit, "SomethingElse")
+    assert _folder_browse_action(edit) is None
+    _add_folder_browse_action(edit)
+    found = _folder_browse_action(edit)
+    assert found is not None and found.objectName() == "SourceFolderBrowse"
+    _add_folder_browse_action(edit)
+    assert [a.objectName() for a in edit.actions()].count("SourceFolderBrowse") == 1
+
+
+def test_side_button_room_is_given_once_and_shared_by_every_field(qtbot):
+    from PySide6.QtWidgets import QApplication, QLineEdit
+
+    from spacr.qt.screens.settings_model import _give_side_buttons_room
+
+    first, second = QLineEdit(), QLineEdit()
+    for edit in (first, second):
+        qtbot.addWidget(edit)
+        _trailing_action(edit, "Go")
+    _give_side_buttons_room(first)
+    shared = QApplication.instance()._spacr_roomy_side_buttons
+    assert first.style() is shared
+    _give_side_buttons_room(first)          # already roomy: left as it is
+    assert first.style() is shared
+    _give_side_buttons_room(second)
+    assert second.style() is shared
+
+
+def test_a_folder_already_in_the_last_group_is_not_added_twice(qtbot, monkeypatch):
+    edit = _ScalarEdit()
+    qtbot.addWidget(edit)
+    edit.setText("[['/first'], ['/second']]")
+    action = _add_folder_browse_action(edit)
+    monkeypatch.setattr(QFileDialog, 'getExistingDirectory', lambda *args: '/second')
+    action.trigger()
+    assert edit.text() == "[['/first'], ['/second']]"
+    monkeypatch.setattr(QFileDialog, 'getExistingDirectory', lambda *args: '/third')
+    action.trigger()
+    assert edit.text() == "[['/first'], ['/second', '/third']]"

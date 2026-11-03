@@ -337,3 +337,72 @@ def test_deleting_an_unset_built_attribute_raises_attribute_error():
     del holder.panel
     with pytest.raises(AttributeError):
         _ = holder.panel
+
+
+class _PrimingSwitch(_Switch):
+    """A Live switch whose turning on loads the preview, as the real one does."""
+
+    def __init__(self, screen):
+        super().__init__(False)
+        self.screen = screen
+
+    def setChecked(self, value):                             # noqa: N802
+        super().setChecked(value)
+        self.screen._preview_primed = True
+
+
+def _src_screen(switch, primed=False, **extra):
+    calls = []
+    screen = types.SimpleNamespace(
+        _preview_switch=switch,
+        _settings_src_path=lambda: "/data/plate",
+        _preview_card_attr="_measure_preview_card",
+        _preview_primed=primed,
+        _prime_preview=lambda: calls.append("prime"),
+        _autoload_live_preview=lambda source: calls.append(("autoload", source)),
+        **extra)
+    return screen, calls
+
+
+def test_a_live_preview_that_was_on_before_a_rebuild_is_switched_on_and_primed():
+    switch = _Switch(False)
+    screen, calls = _src_screen(switch)
+    aps._show_the_src_live(screen, live_was_on=True)
+    assert switch.checked is True
+    assert calls == ["prime"]
+
+
+def test_a_switch_that_primes_itself_on_is_not_primed_a_second_time():
+    screen, calls = _src_screen(None)
+    screen._preview_switch = _PrimingSwitch(screen)
+    aps._show_the_src_live(screen, live_was_on=True)
+    assert screen._preview_switch.checked is True
+    assert screen._preview_primed is True
+    assert calls == []
+
+
+def test_no_application_means_no_spacr_sheet_is_in_force(monkeypatch):
+    monkeypatch.setattr(aps, "QApplication",
+                        types.SimpleNamespace(instance=lambda: None))
+    assert aps._a_spacr_sheet_is_in_force() is False
+
+
+def test_the_action_word_fit_of_a_switch_without_a_row_only_hears_the_switch(
+        qtbot, monkeypatch):
+    from spacr.qt.widgets.ai_toggle_label import AiToggleLabel
+
+    fitted = []
+    monkeypatch.setattr(aps._ActionWordFit, "_fit", lambda self: fitted.append(True))
+    switch = AiToggleLabel(text="AI")
+    qtbot.addWidget(switch)
+    assert switch.parentWidget() is None
+    fit = aps._ActionWordFit(switch)
+    assert fit._row is None
+    qtbot.waitUntil(lambda: bool(fitted) and not fit._timer.isActive(), timeout=3000)
+    # an event for some other widget, or an unrelated kind, starts nothing
+    assert fit.eventFilter(QWidget(), QEvent(QEvent.Show)) is False
+    assert fit.eventFilter(switch, QEvent(QEvent.MouseButtonPress)) is False
+    assert not fit._timer.isActive()
+    # a style change on the switch itself queues one measurement
+    assert fit.eventFilter(switch, QEvent(QEvent.StyleChange)) is False
+    assert fit._timer.isActive()

@@ -123,3 +123,40 @@ def test_a_matching_size_list_is_restored_over_the_new_pane(qtbot):
     assert bar is not None
     assert splitter.count() == len(before)
     qtbot.waitUntil(lambda: splitter.sizes() == before, timeout=2000)
+
+
+def test_a_box_with_no_placeholder_asks_for_its_own_minimum_width(qtbot):
+    _host, screen, _splitter, _scroll = _screen_in_a_splitter(qtbot)
+    bar = SS.install(screen)
+    assert bar is not None
+    bar._input.setPlaceholderText("")
+    assert bar._placeholder_width() == bar._input.minimumSizeHint().width()
+    bar._input.setPlaceholderText("Search this module's settings")
+    assert bar._placeholder_width() >= bar._input.minimumSizeHint().width()
+
+
+def test_a_settings_file_button_that_cannot_move_beside_templates_is_skipped(
+        qtbot, monkeypatch, caplog):
+    import logging
+
+    from PySide6.QtWidgets import QPushButton
+
+    _host, screen, _splitter, _scroll = _screen_in_a_splitter(qtbot)
+    refused = QPushButton("Import", screen)
+    moved = QPushButton("Export", screen)
+    screen._settings_file_buttons = [refused, moved]
+    original = SS.SettingsSearchBar.add_trailing_widget
+
+    def add(self, widget):
+        if widget is refused:
+            raise RuntimeError("the button was deleted")
+        original(self, widget)
+
+    monkeypatch.setattr(SS.SettingsSearchBar, "add_trailing_widget", add)
+    with caplog.at_level(logging.DEBUG, logger=SS.LOG.name):
+        bar = SS.install(screen)
+
+    assert bar is not None and screen._settings_search is bar
+    assert moved in bar._controls and refused not in bar._controls
+    assert any("could not move Import/Export settings beside Templates"
+               in r.getMessage() for r in caplog.records)
