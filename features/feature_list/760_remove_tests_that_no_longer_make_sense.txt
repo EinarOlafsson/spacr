@@ -23,3 +23,8 @@ REQUIREMENTS
    another test covers that code; the coverage ratchet must not fall.
 4. Report how many tests and files went, the suite's run time before and after,
    and keep the full CI green.
+
+2026-11-04 Inventory pass (no deletions): 4,978 test files (67,690 tests) classified, report /mnt/wd4tb/scratch/claude-deadcode-20261104/tests.md.
+2026-11-04 Proposed for removal: 18 files (124 tests): features/ ledger and index rules, gpu_turn and NAS-guard tooling, one-off investigations (items 424, 434, N684), 3 cov_kept duplicates and the retired _ThoreEngine test.
+2026-11-04 Only qt/test_thore_engine.py is the sole test of its code (dead _ThoreEngine); the others import no spacr module or touch code other tests cover. Without coverage contexts, rerun the ratchet with each file removed.
+2026-11-04 Borderline: 13 named by hand (CI, ratchet and release gates; the attribution guard) plus 316 rule-flagged files listed for triage; 21 groups of identical test bodies across files.

@@ -22,3 +22,9 @@ REQUIREMENTS
 3. Public callables that are removed leave the API catalog and its nine-locale
    records through the normal generators.
 4. Full CI green, and the coverage ratchet must not lose coverage.
+
+2026-11-04 Inventory pass (no deletions): AST scan of 31,154 definitions plus vulture and CI coverage, report /mnt/wd4tb/scratch/claude-deadcode-20261104/functions.md.
+2026-11-04 Certain unused: 4 small methods (_tiles_at_risk, _SoundPlayer.device_ready, PlaquePreviewPanel.ruler_active, _WorkingDots._noop_slot). Likely: 127 private helpers only tests call (largest _FigureSettingsDialog, _make_motility_plots, _ThoreEngine). Unsure: 731, mostly public API only tests call.
+2026-11-04 v1/v2/legacy names: 91. All live (pipeline_v2, _v1_v2_bridge, io v1 migration) except TorchModel_v2 (keep: pickled models may need it) and the Home mock-up variants v01-v30.
+2026-11-04 Comments: no commented-out code; 3 orphaned plain comments; 58 stale-sounding #: doc-comments (under the docstring freeze); 41 pragma no cover; one constant `if True:` at sequencing.py:1602; 3 unused imports.
+2026-11-04 Next: the coordinator schedules removal with API catalog and 9-locale closure, plus the test changes from 760.
