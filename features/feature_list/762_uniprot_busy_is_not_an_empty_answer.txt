@@ -1,0 +1,19 @@
+A BUSY UNIPROT IS NOT AN EMPTY ANSWER
+=====================================
+
+Lifecycle: new
+Status: in progress (agent uniprotbusy), 2026-11-04.
+Requested: Home, 2026-11-04, from CI run 41820109829 (Coverage shard 5).
+
+REQUEST
+Live UniProt lookups for human, Plasmodium falciparum, Neospora caninum and
+Theileria parva returned nothing on a GitHub runner while 52 others passed and
+they all pass locally: UniProt throttled the runner, and spacr/uniprot.py told
+the user "UniProt returned nothing ... Results are not annotated."
+
+REQUIREMENTS
+1. HTTP 429/503, Retry-After and transient connection errors are retried with a
+   bounded backoff off the GUI thread, then reported as "UniProt is busy, try
+   again later", never as "returned nothing". A 200 with no rows stays "nothing".
+2. Offline tests for each case; the live tests skip on a busy UniProt and still
+   fail on a real empty answer.

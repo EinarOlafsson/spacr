@@ -1,0 +1,13 @@
+PREVIEWS REFUSE A CACHED MODEL FILE THAT FAILS ITS CHECKSUM
+===========================================================
+
+Lifecycle: new
+Status: open — for the release after 1.5.1.7.
+Requested: Home, 2026-11-03, from the v7 plaque model fix (9d41718eae).
+
+REQUEST
+_ensure_catalogue_model_file(download=False) returns the cached checkpoint even
+when its SHA-256 does not match its catalogue row, for bundled and community
+rows alike, so a preview can segment with bytes a run would refuse. Make the
+previews verify (cheaply, with a cached digest keyed by size and mtime) and say
+clearly when the cached file does not match, without changing what a run does.

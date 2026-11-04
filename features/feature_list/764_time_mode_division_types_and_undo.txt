@@ -1,0 +1,13 @@
+TIME MODE NAMES DAUGHTERS BY DIVISION TYPE AND CAN REMOVE A DIVISION
+====================================================================
+
+Lifecycle: new
+Status: open — for the release after 1.5.1.7.
+Requested: Timepose session (time-lapse curation), 2026-11-03, issue 4.
+
+REQUEST
+"+ Daughter cells" proposes the mother's name and label for the first daughter,
+which fits budding but not mitosis or fission, where both daughters are new.
+Let the curator choose the division type (budding keeps the mother; mitosis and
+fission give two new daughters), remember the choice per movie, and add a
+"remove division" action that restores the mother's track.

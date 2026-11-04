@@ -1,0 +1,13 @@
+TIME MODE SWAPS TWO CELL IDENTITIES DIRECTLY
+============================================
+
+Lifecycle: new
+Status: open — for the release after 1.5.1.7.
+Requested: Timepose session (time-lapse curation), 2026-11-03, issue 2.
+
+REQUEST
+Selecting cell 2 and scrolling on the object cell 3 holds, in a frame where
+cell 2 already marks another object, is refused with "already labels another
+object in this frame". Curators work around it with a temporary cell three
+times. Add a swap: exchange two identities from this frame onward (and in the
+lineage), as one undoable step.

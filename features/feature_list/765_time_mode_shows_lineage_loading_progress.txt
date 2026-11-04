@@ -1,0 +1,12 @@
+TIME MODE SHOWS PROGRESS WHILE A LARGE MOVIE'S LINEAGE LOADS
+============================================================
+
+Lifecycle: new
+Status: open — for the release after 1.5.1.7.
+Requested: Timepose session, 2026-11-03 (after 0cf0f20db0).
+
+REQUEST
+Opening the largest time-lapse movies takes up to 3.2 min (allen 95-143 s,
+cglutamicum 171-194 s) while the lineage fold runs on its worker. The GUI stays
+responsive but shows nothing happening. Show progress (frames folded of total)
+and allow cancelling the open.
