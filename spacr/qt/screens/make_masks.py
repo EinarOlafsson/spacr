@@ -18823,8 +18823,7 @@ class MakeMasksScreen(QWidget):
         self._label_value.setMaximumWidth(150)
         self._label_value.setAccessibleName(tr("Selected object label"))
         self._label_value.textChanged.connect(self._selected_label_changed)
-        self._label_value.editingFinished.connect(lambda: self._label_value.setText(
-            str(self._canvas.selected_label)))
+        self._label_value.editingFinished.connect(self._selected_label_finished)
         values.addWidget(self._label_value)
         values.addWidget(QLabel(tr("Label"), value_row))
         action = QWidgetAction(menu)
@@ -18852,6 +18851,42 @@ class MakeMasksScreen(QWidget):
             if (self._time_label_enabled and self._canvas.mode == MODE_LABEL_TIME
                     and not self._syncing_label):
                 self._select_label_identity(int(text))
+
+    def _selected_label_finished(self):
+        """Show the label in use and, in Time, move the selected cell's object onto it.
+
+        A number typed for the selected cell is its pixel label from now on;
+        the object it already marks in this frame takes it at once, as one
+        undoable edit, so changing the number visibly changes the object.
+        """
+        self._label_value.setText(str(self._canvas.selected_label))
+        if (not self._time_label_enabled or self._canvas.mode != MODE_LABEL_TIME
+                or self._loading or self._canvas.mask is None or self._syncing_label):
+            return
+        self._relabel_selected_object(self._canvas.selected_label)
+
+    def _relabel_selected_object(self, value):
+        """Give the object the selected cell marks in this frame the pixel label ``value``.
+
+        :returns: whether the object now carries ``value``.
+        """
+        from ..i18n import tr
+
+        mapping = (self._lineage or {}).get("frames", {}).get(self._lineage_frame(), {})
+        current = next((int(local) for local, identity in mapping.items()
+                        if identity == self._selected_cell), None)
+        if not value or current is None or current == value:
+            return current == value
+        pixels = np.argwhere(self._canvas.mask == current)
+        if not len(pixels):
+            return False
+        if np.any(self._canvas.mask == value) or str(value) in mapping:
+            self._status_label.setText(tr(
+                "Label {label} already belongs to another object in this frame.", label=value))
+            return False
+        y, x = (int(axis) for axis in pixels[0])
+        return bool(self._canvas.assign_label_at((x, y), value)) \
+            and int(self._canvas.mask[y, x]) == value
 
     def _select_label_identity(self, value):
         """Select the lineage cell a typed or stepped label number refers to.
