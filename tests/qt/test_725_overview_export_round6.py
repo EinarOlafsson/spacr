@@ -33,6 +33,33 @@ PATTERN = r"(?P<plateID>p\d+)-(?P<wellID>[A-Z]\d+)-f(?P<fieldID>\d+)-c(?P<chanID
 WELLS = ("A01", "A02", "B01", "B02")
 
 
+@pytest.fixture(autouse=True)
+def _no_button_stays_held():
+    """Release a mouse button a test pressed for a drag that was started, not dropped.
+
+    The drag tests press, hold and move without a release, and Qt keeps
+    reporting the button as held for the rest of the process: a later test's
+    GUI-thread collector then saw a hand on the mouse and only collected the
+    young generation (CI run 41810426027, Coverage shard 7).
+    """
+    from PySide6.QtWidgets import QWidget
+
+    yield
+    if QApplication.mouseButtons() != Qt.NoButton:
+        from PySide6.QtTest import QTest
+
+        target = QWidget()
+        target.show()
+        try:
+            for button in (Qt.LeftButton, Qt.RightButton, Qt.MiddleButton):
+                if QApplication.mouseButtons() & button:
+                    QTest.mouseRelease(target, button, Qt.NoModifier, QPoint(1, 1))
+        finally:
+            target.close()
+            target.deleteLater()
+    assert QApplication.mouseButtons() == Qt.NoButton
+
+
 @pytest.fixture
 def source(tmp_path):
     folder = tmp_path / "images"
