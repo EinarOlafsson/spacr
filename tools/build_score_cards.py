@@ -75,7 +75,7 @@ FONT = ("'Open Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', "
 #: so each card embeds the two faces, subset to the characters it draws.
 TITLE_WEIGHT = 400
 TEXT_WEIGHT = 300
-FONT_DIR = (Path(__file__).resolve().parent.parent / "docs" / "resources"
+FONT_DIR = (Path(__file__).resolve().parent.parent / "spacr" / "resources"
             / "font" / "open_sans" / "static")
 FONT_FILES = {400: "OpenSans-Regular.ttf", 300: "OpenSans-Light.ttf"}
 #: The embedded fonts as they appear in a card, for comparisons that must
