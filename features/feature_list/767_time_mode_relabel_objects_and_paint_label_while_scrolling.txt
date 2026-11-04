@@ -1,0 +1,40 @@
+TIME MODE: CHANGE AN OBJECT'S LABEL, AND PAINT A LABEL WHILE SCROLLING
+======================================================================
+
+Lifecycle: new
+Status: open — bug plus feature; next after 1.5.1.7.
+Requested: maintainer, 2026-11-04.
+Related: 763 (swap two identities), 764 (division types), 708 (Time labelling).
+
+REQUEST (maintainer, 2026-11-04)
+"make sure it is possible to change object labels in make mask with time mode
+activated. i tried to scroll through and switch the object number but nothing
+happened. ... at present the scrolling and timemode activation works great its
+only at the stage of changing lable that the modual dosnt work as i like."
+
+REQUIREMENTS
+1. BUG: with Time mode on, changing an object's label does nothing. Reproduce
+   it the way the maintainer did (scroll to a frame, select an object, change its
+   number), find why, fix it, and add a regression test.
+2. Relabel on click: scroll to any frame (for example the frame of a division),
+   click a cell and change its label.
+   a. Make Masks proposes a label (the next unused one); the user can accept it
+      or choose a label manually.
+   b. If another cell already carries the chosen label, ask whether to give that
+      other cell a new label in every frame of the time-lapse; on yes, it gets a
+      unique label (the same one across the whole movie) and the clicked cell
+      takes the chosen label. On no, nothing changes.
+   c. One undoable step; the lineage is updated to match.
+3. Paint label while scrolling: a mode switched on from a dropdown on the Time
+   button. The user chooses a label and hovers a cell; scrolling to the next or
+   previous frame gives the cell under the pointer in that frame the chosen
+   label. If that label is already used by another cell, Make Masks moves that
+   other cell to a new unique label in all frames of the time-lapse, so a label
+   always means one cell across the dataset.
+4. Labels stay unique per cell across the movie in every path; the
+   spacr.lineage/v1 masks and merge_lineage_states stay compatible (the Timepose
+   curation import relies on them).
+5. Offscreen Qt tests for the bug, relabel with a proposed and a manual label,
+   the conflict prompt (yes and no), paint-while-scrolling forward and backward
+   with and without a conflict, and undo. The tutorials that show Time mode are
+   re-recorded once the layout changes.

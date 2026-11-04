@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-670 Lifecycle: new, 76 Lifecycle: future in features/feature_list/.
+671 Lifecycle: new, 76 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -1618,3 +1618,5 @@ NEW FEATURES
        765_time_mode_shows_lineage_loading_progress.txt
   766  PREVIEWS REFUSE A CACHED MODEL FILE THAT FAILS ITS CHECKSUM
        766_previews_refuse_a_model_file_that_fails_its_checksum.txt
+  767  TIME MODE: CHANGE AN OBJECT'S LABEL, AND PAINT A LABEL WHILE SCROLLING
+       767_time_mode_relabel_objects_and_paint_label_while_scrolling.txt
