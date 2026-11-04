@@ -10,3 +10,8 @@ Opening the largest time-lapse movies takes up to 3.2 min (allen 95-143 s,
 cglutamicum 171-194 s) while the lineage fold runs on its worker. The GUI stays
 responsive but shows nothing happening. Show progress (frames folded of total)
 and allow cancelling the open.
+
+2026-11-04 Built: _LineageScanWorker.progress(done, total), throttled to 0.1 s (always sent at the end); engine._merge_mask_lineages takes progress(done, total).
+2026-11-04 The status line shows "Folding lineage... N of M frames (P%)..."; the ellipsis and percent drive the console's one progress bar.
+2026-11-04 A Cancel button beside the status line stops the scan. Cancel leaves the movie unopened (same as a superseded scan: nothing installed, no frame drawn) and says so.
+2026-11-04 New strings (3) await generator closure. Tests: progress order, throttle, cancel mid-scan in test_make_masks_lineage_scan_off_the_gui_thread.py.

@@ -13,6 +13,7 @@ import json
 import os
 import shutil
 import threading
+import types
 import time
 import uuid
 
@@ -371,3 +372,66 @@ def test_an_unreadable_mask_is_counted_and_closing_mid_scan_is_safe(
     threading.Timer(0.2, released.set).start()
     screen.close()
     assert not screen._lineage_scans
+
+
+def test_scan_progress_arrives_in_order_throttled_and_never_blocks_qt(
+        qtbot, screen, tmp_path, monkeypatch):
+    folder = str(tmp_path / "movie")
+    _write_movie(folder, frames=12)
+    seen, shown = [], []
+    real_text = screen._status_label.setText
+    monkeypatch.setattr(screen._status_label, "setText",
+                        lambda text: (shown.append(text), real_text(text)))
+    real_start = screen._start_lineage_scan
+
+    def watched(*args, **kwargs):
+        """Record the worker's progress signal as the screen starts it."""
+        real_start(*args, **kwargs)
+        worker = screen._lineage_scans[-1]
+        worker.progress.connect(lambda done, total: seen.append((done, total)))
+        assert screen._btn_cancel_scan.isVisibleTo(screen)
+
+    monkeypatch.setattr(screen, "_start_lineage_scan", watched)
+    monkeypatch.setattr(mm._LineageScanWorker, "PROGRESS_INTERVAL", 0.0)
+    watchdog = LoopWatchdog(interval_ms=1)
+    watchdog.start()
+    assert screen._open_folder(folder)
+    _spin(qtbot, lambda: _idle(screen))
+    watchdog.stop()
+    assert seen and seen[-1] == (12, 12)
+    assert [done for done, _ in seen] == sorted(done for done, _ in seen)
+    assert all(total == 12 for _, total in seen)
+    assert any("of 12 frames" in text and "%" in text for text in shown)
+    assert not screen._btn_cancel_scan.isVisibleTo(screen)
+    assert watchdog.ticks > 0
+
+
+def test_progress_is_throttled_to_the_interval(qtbot, monkeypatch):
+    worker = mm._LineageScanWorker(None, "folder", [], None, {})
+    got = []
+    worker.progress.connect(lambda done, total: got.append(done))
+    clock = iter([0.0, 0.01, 0.05, 0.11, 0.12, 0.13])
+    monkeypatch.setattr(mm, "time", types.SimpleNamespace(monotonic=lambda: next(clock)))
+    for done in range(5):
+        worker._report(done, 10)
+    worker._report(10, 10)
+    assert got == [0, 3, 10]
+
+
+def test_cancel_stops_the_scan_and_leaves_the_movie_unopened(
+        qtbot, screen, tmp_path, monkeypatch):
+    folder = str(tmp_path / "movie")
+    _write_movie(folder, frames=8)
+    released, started = _gate(monkeypatch)
+    assert screen._open_folder(folder)
+    _spin(qtbot, lambda: started)
+    assert screen._btn_cancel_scan.isVisibleTo(screen)
+    screen._btn_cancel_scan.click()
+    assert not screen._btn_cancel_scan.isVisibleTo(screen)
+    released.set()
+    _spin(qtbot, lambda: not screen._lineage_scans and not screen._loading)
+    assert screen._canvas.mask is None and screen._lineage_scanned is None
+    assert "cancelled" in screen._status_label.text()
+    assert not screen._btn_cancel_scan.isVisibleTo(screen)
+    screen._on_lineage_scan_progress(mm._LineageScanWorker(None, folder, [], None, {}), 1, 2)
+    assert "cancelled" in screen._status_label.text()

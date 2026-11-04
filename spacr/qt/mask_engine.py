@@ -519,8 +519,10 @@ def _merge_validated_lineage(active: dict, incoming: dict,
 
 
 def _merge_mask_lineages(state: Optional[dict], folder: str, names, masks_dir=None,
-                         skip=None, interrupted=None):
+                         skip=None, interrupted=None, progress=None):
     """Fold the lineage embedded in each named mask into ``state`` in order.
+
+    ``progress(done, total)`` is called after each named mask has been folded.
 
     Each frame of a movie usually embeds the same whole-movie graph, so one
     validated copy per distinct embedded graph is reused, and a merge that
@@ -529,7 +531,10 @@ def _merge_mask_lineages(state: Optional[dict], folder: str, names, masks_dir=No
     """
     cache = {}
     skipped, owned = 0, False
-    for name in names:
+    total = len(names)
+    for done, name in enumerate(names, 1):
+        if progress is not None:
+            progress(done - 1, total)
         if interrupted is not None and interrupted():
             return None, skipped
         if name == skip:
@@ -543,6 +548,8 @@ def _merge_mask_lineages(state: Optional[dict], folder: str, names, masks_dir=No
                 owned = True
         except TIFF_READ_ERRORS:
             skipped += 1
+    if progress is not None:
+        progress(total, total)
     return state, skipped
 
 

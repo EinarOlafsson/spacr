@@ -738,6 +738,10 @@ class _MaskReaderMetadataWorker(QThread):
 class _LineageScanWorker(QThread):
     """Fold the lineage embedded in every frame of a movie off the GUI thread."""
 
+    progress = Signal(int, int)
+
+    PROGRESS_INTERVAL = 0.1
+
     def __init__(self, state, folder, names, skip, layout, parent=None):
         """Keep one scan request; the screen compares it again on completion.
 
@@ -752,6 +756,16 @@ class _LineageScanWorker(QThread):
         self.state, self.folder, self.names, self.skip = state, folder, list(names), skip
         self.layout = dict(layout or {})
         self.result, self.skipped, self.error = None, 0, None
+        self.cancelled, self._last_report = False, None
+
+    def _report(self, done, total):
+        """Emit ``(done, total)`` unless one went out under PROGRESS_INTERVAL seconds ago; the last always goes."""
+        now = time.monotonic()
+        if done < total and self._last_report is not None and (
+                now - self._last_report < self.PROGRESS_INTERVAL):
+            return
+        self._last_report = now
+        self.progress.emit(done, total)
 
     def run(self):
         """Keep the merged graph and the unreadable-mask count, or the original error."""
@@ -759,7 +773,8 @@ class _LineageScanWorker(QThread):
             _wait_for_mask_writes()
             self.result, self.skipped = engine._merge_mask_lineages(
                 self.state, self.folder, self.names, skip=self.skip,
-                interrupted=self.isInterruptionRequested, **self.layout)
+                interrupted=self.isInterruptionRequested, progress=self._report,
+                **self.layout)
         except Exception as exc:
             self.error = exc
 
@@ -15654,6 +15669,12 @@ class MakeMasksScreen(QWidget):
         self._status_label.setMinimumWidth(0)
         self._tally_layout.addWidget(self._status_label, 1)
         self._status_label.hide()
+        self._btn_cancel_scan = QPushButton(tr("Cancel"), self)
+        self._btn_cancel_scan.setToolTip(tr(
+            "Stop folding the movie's lineage; the movie stays unopened."))
+        self._btn_cancel_scan.clicked.connect(self._cancel_lineage_scans)
+        self._tally_layout.addWidget(self._btn_cancel_scan)
+        self._btn_cancel_scan.hide()
 
     @staticmethod
     def _titled_group(title: str, object_name: str, wrap: bool = False,
@@ -26418,9 +26439,31 @@ class MakeMasksScreen(QWidget):
             self._load_token, self._lineage, finish, again)
         self._lineage_scans.append(worker)
         self._loading = True
+        self._btn_cancel_scan.show()
+        worker.progress.connect(partial(self._on_lineage_scan_progress, worker))
         self._sync_button_states()
         worker.finished.connect(lambda: self._on_lineage_scan_finished(worker))
         worker.start()
+
+    def _on_lineage_scan_progress(self, worker, done, total):
+        """Show frames folded of the total on the status line and the console's bar."""
+        from ..i18n import tr
+
+        if worker in self._lineage_scans and not worker.isInterruptionRequested():
+            self._status_label.setText(tr(
+                "Folding lineage… {done} of {total} frames ({percent}%)…",
+                done=done, total=total, percent=100 * done // max(total, 1)))
+
+    def _cancel_lineage_scans(self):
+        """Stop every running scan; the movie being opened stays unopened.
+
+        The aborted open is handled as a superseded scan is: nothing is
+        installed, no frame is drawn and the screen keeps what it showed.
+        """
+        for worker in self._lineage_scans:
+            worker.cancelled = True
+            worker.requestInterruption()
+        self._btn_cancel_scan.hide()
 
     def _on_lineage_scan_finished(self, worker):
         """Hand a current scan to its caller; a superseded one is dropped."""
@@ -26428,8 +26471,12 @@ class MakeMasksScreen(QWidget):
 
         self._lineage_scans = [kept for kept in self._lineage_scans if kept is not worker]
         self._loading = self._load_worker is not None or bool(self._lineage_scans)
+        self._btn_cancel_scan.setVisible(bool(self._lineage_scans))
+        if worker.cancelled:
+            self._status_label.setText(tr(
+                "Opening was cancelled; the movie stays unopened."))
         stale = (worker.token != self._load_token or worker.folder != self._folder
-                 or worker.isInterruptionRequested())
+                 or worker.cancelled or worker.isInterruptionRequested())
         if not stale and worker.base is not self._lineage:
             worker.again()
         elif not stale:
