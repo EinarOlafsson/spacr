@@ -22,3 +22,4 @@ REQUIREMENTS
 2026-11-04 -- Root inventory (every entry with its reader) in /mnt/wd4tb/scratch/claude-slimfiles-20261104/inventory.md; packaging, licence, CI/tool config, ledgers and source folders are all read and stay.
 2026-11-04 -- Proposed for approval: remove data/, measurements/, settings/ (output of a run with src = the repo root) and fonts/ (an HTML page saved as a .ttf), with their .dockerignore and source-install exclusion lines.
 2026-11-04 -- Proposed: move proposals/ to docs/notes/proposals/ once the docstring freeze lifts (two spacr docstrings cite proposals/SIM_PORT_PLAN.md). Nothing removed yet.
+2026-11-04 -- Coordinator approved; removed root data/, measurements/, settings/ (run output) and fonts/ (HTML saved as .ttf), with their .dockerignore lines, the source-install `!/data/` exclusion (file and embedded copy) and the stale MANIFEST includes. Remaining: move proposals/ after the docstring freeze.
