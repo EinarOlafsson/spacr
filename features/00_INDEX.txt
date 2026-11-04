@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-690 Lifecycle: new, 91 Lifecycle: future in features/feature_list/.
+690 Lifecycle: new, 92 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -318,6 +318,9 @@ FUTURE FEATURES
 
   769  A PER-CELL EXPORT JOINING CELL, NUCLEUS AND CYTOPLASM
        769_a_per_cell_export_joining_cell_nucleus_and_cytoplasm.txt
+
+  770  MODERN BATCH CORRECTION: TVN (SPHERING) AND HARMONY, BENCHMARKED ON BBBC021
+       770_modern_batch_correction_tvn_and_harmony.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES

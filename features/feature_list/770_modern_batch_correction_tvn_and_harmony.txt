@@ -1,0 +1,69 @@
+MODERN BATCH CORRECTION: TVN (SPHERING) AND HARMONY, BENCHMARKED ON BBBC021
+==========================================================================
+
+Lifecycle: future
+Status: DONE (alpha) 2026-11-04 — spacr.batch_correction gains 'tvn' (typical
+variation normalisation: control-centring per batch, then a whitening fitted
+on the negative controls, globally or per batch, pycytominer Spherize
+semantics) and 'harmony' (Harmony integration of a PCA embedding through the
+optional harmonypy package; returns an embedding, API only). 'tvn' is an
+alpha entry of the batch_correction dropdown (ALPHA_FEATURES[770]).
+Benchmarked on BBBC021 for the spaCR software paper (see BENCHMARK below).
+Branch batch-modern, not pushed. Owner: unassigned.
+Requested: maintainer, 2026-11-04 (approved for the BMC Bioinformatics paper).
+Related: 753 (BBBC021 CellProfiler head-to-head), 547 (profiling).
+
+REQUEST (maintainer, 2026-11-04)
+    Add modern batch correction to spaCR and benchmark it on BBBC021 for the
+    spaCR software paper: TVN / sphering (Ando et al. 2017, pycytominer
+    spherize semantics) and Harmony (Korsunsky et al. 2019), next to the
+    existing none / center / zscore / robust_zscore / control_center /
+    combat; batch = imaging week, controls = DMSO; 1-NN and supervised MoA
+    accuracy under NSC and NSCB, and JUMP-style mAP.
+
+WHAT WAS BUILT
+    spacr/batch_correction.py
+      * METHODS gains "tvn" (aliases sphere, spherize, typical_variation) and
+        "harmony" (alias harmonypy).
+      * spherize_features(features, reference, method, epsilon, center,
+        n_components): ZCA-cor (default, pycytominer normalize's), ZCA,
+        PCA-cor, PCA. Fitted on the reference rows, applied to all rows.
+        n_components None keeps every direction (pycytominer exactly);
+        "auto" keeps the directions the controls span; an int keeps that
+        many. With fewer controls than features the un-spanned directions
+        are scaled by 1/sqrt(epsilon) and dominate distances; the report
+        warns and correct_batch_effects defaults to "auto".
+      * correct_batch_effects(method="tvn", control=, control_values=,
+        tvn_method, tvn_epsilon, tvn_scope "global"|"batch",
+        tvn_center_batches, tvn_n_components).
+      * harmony_embedding(features, batch, n_components=50, theta=2, ...):
+        standardise, PCA, harmonypy.run_harmony with batch as the only
+        covariate. correct_batch_effects(method="harmony") returns that
+        embedding (columns harmony_1 ...), NOT corrected features; the
+        report says so. harmonypy is not a spaCR dependency: without it the
+        call raises ImportError(HARMONY_MISSING_MESSAGE).
+    spacr/settings.py: ALPHA_FEATURES[770] registers the batch_correction
+      choice tvn (harmony is API-only, so there is no dropdown entry to gate;
+      EMBEDDING_METHODS names it, and tests/test_combat_is_reachable.py now
+      expects every dropdown to offer METHODS minus EMBEDDING_METHODS); batch_control_column / batch_control_values
+      are now read for 'tvn' as well as 'control_center'.
+    spacr/qt/screens/settings_model.py: 'tvn' added to the batch_correction
+      dropdown (hidden while Show alpha features is off). 'harmony' is not
+      offered: Classify writes the corrected values back into named feature
+      columns, which an embedding does not have.
+    tests/test_batch_correction_tvn_harmony.py: synthetic plates with known
+      batch shift/gain/nuisance and known treatments; pycytominer formula
+      check for all four whitenings; rank-deficiency, alias, scope and
+      refusal edge cases; Harmony batch mixing and determinism (skipped when
+      harmonypy is absent); the alpha registration.
+
+NOT DONE / NEEDS THE GENERATOR LOCK
+    Arrival-contract and 9-locale catalogue records for the new public names
+    (spherize_features, harmony_embedding, TVN_WHITENINGS, TVN_SCOPES,
+    HARMONY_MISSING_MESSAGE) and an updated 'batch_correction' setting
+    description that mentions tvn, in all 9 locales. Not run here: the master
+    session holds the generator lock.
+
+BENCHMARK
+    /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/batch_benchmark/
+    (REPORT.md, scripts, CSVs).

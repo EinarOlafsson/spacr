@@ -780,8 +780,14 @@ def section_shows_anything(section) -> bool:
 #: the user first: without ``batch_covariate_column`` it refuses to run
 #: rather than deleting the contrast the screen is measuring. See
 #: ``spacr.batch_correction._combat``.
+#:
+#: ``tvn`` (typical variation normalisation, feature item 770) is alpha and
+#: hidden until Show alpha features is on. ``harmony`` is deliberately not
+#: offered: it returns an embedding, and these screens write the corrected
+#: values back into named feature columns.
 _BATCH_CORRECTION_OPTIONS = [
     "none", "control_center", "robust_zscore", "center", "zscore", "combat",
+    "tvn",
 ]
 
 #: What ``control_center`` does on a plate with too few reference controls.

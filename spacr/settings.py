@@ -6620,7 +6620,7 @@ def get_setting_dependencies():
             ('batch_correction',),
             lambda settings, context: str(
                 settings.get('batch_correction') or '').lower()
-                == 'control_center',
+                in ('control_center', 'tvn'),
             lambda settings, context, setting=key: (
                 f"{setting} is read only when batch_correction is "
                 f"'control_center' (currently "
@@ -8134,6 +8134,11 @@ ALPHA_FEATURES = {
                     'RunCompareTestDataButton', 'RunHistoryTestDataButton',
                     'TrainCompareTestDataButton',
                     'InvestigateHitTestDataButton'),
+    },
+    770: {
+        # 'harmony' (also item 770) is API-only: it returns an embedding,
+        # not the features, so it is no dropdown entry and has nothing to gate.
+        'choices': {'batch_correction': ('tvn',)},
     },
 }
 

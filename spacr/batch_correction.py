@@ -3,6 +3,11 @@
 The implementation is dependency-light (pandas/numpy), preserves the original
 row/index order, and never changes metadata columns. It is shared by Image
 UMAP, Classify (ML), UMAP hyperparameter search, and regression.
+
+Two methods are alpha (feature item 770): ``tvn`` (typical variation
+normalisation, a whitening fitted on the negative controls) and ``harmony``
+(Harmony integration of a PCA embedding, through the optional ``harmonypy``
+package). ``harmony`` returns an *embedding*, not the input features.
 """
 from __future__ import annotations
 
@@ -21,8 +26,32 @@ METHODS = (
     "robust_zscore",
     "control_center",
     "combat",
+    "tvn",
+    "harmony",
 )
 """Supported correction methods."""
+
+EMBEDDING_METHODS = ("harmony",)
+"""Methods that return a corrected embedding instead of the input features.
+
+They are API-only: the GUI screens write corrected values back into named
+feature columns, so their batch_correction dropdowns offer
+``set(METHODS) - set(EMBEDDING_METHODS)``.
+"""
+
+TVN_WHITENINGS = ("ZCA-cor", "ZCA", "PCA-cor", "PCA")
+"""Whitening transforms accepted by ``tvn`` (pycytominer ``Spherize`` names)."""
+
+TVN_SCOPES = ("global", "batch")
+"""Where ``tvn`` fits its whitening: on all controls, or per batch."""
+
+HARMONY_MISSING_MESSAGE = (
+    "batch_correction='harmony' needs the optional `harmonypy` package "
+    "(Korsunsky et al. 2019), which spaCR does not install. Install it into "
+    "the environment that runs spaCR with `pip install harmonypy`, or choose "
+    "another method such as 'tvn' or 'combat'."
+)
+"""Error text raised when ``harmony`` is requested without ``harmonypy``."""
 
 NO_COVARIATE = "no_covariate"
 """Explicit declaration that no biological signal needs protecting.
@@ -558,6 +587,318 @@ def _combat(
     )
 
 
+#: Relative eigenvalue floor below which a whitening direction counts as
+#: absent from the reference (``n_components="auto"``).
+_TVN_RANK_TOL = 1e-10
+
+
+def spherize_features(
+    features: pd.DataFrame,
+    reference: Optional[pd.Series] = None,
+    *,
+    method: str = "ZCA-cor",
+    epsilon: float = 1e-6,
+    center: bool = True,
+    n_components: Any = None,
+) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    """Whiten features with a transform fitted on reference (control) rows.
+
+    This is the sphering step of typical variation normalisation (TVN; Ando,
+    McLean & Berndl 2017, bioRxiv 161422) with the semantics of pycytominer's
+    ``Spherize`` (Serrano et al. 2025, pycytominer,
+    ``pycytominer/operations/transform.py``): the reference rows are centred
+    on their mean, their covariance (for the ``-cor`` variants, their
+    correlation) is eigendecomposed as ``U diag(s) U^T``, and every row is
+    mapped by ``W = diag(1/sqrt(s + epsilon)) U^T`` (PCA) or
+    ``U diag(1/sqrt(s + epsilon)) U^T`` (ZCA), the ``-cor`` variants first
+    dividing by the reference standard deviation. Afterwards the reference
+    rows have identity covariance, so variation that is typical of the
+    controls -- plate, position and staining noise -- no longer dominates
+    distances.
+
+    The four whitenings differ only by a rotation when every direction is
+    kept and ``epsilon`` is negligible, so cosine and Euclidean distances
+    between transformed rows agree; they differ once ``n_components``
+    truncates.
+
+    The reference needs more rows than features to be full rank. With fewer,
+    the directions the controls never vary along have eigenvalue 0 and are
+    multiplied by ``1/sqrt(epsilon)`` (1000 at the pycytominer default), so
+    noise in those directions can dominate. ``n_components="auto"`` keeps
+    only the directions the reference spans; an integer keeps that many.
+
+    :param features: numeric feature frame without missing values.
+    :param reference: boolean Series aligned to ``features`` marking the rows
+        the transform is fitted on (normally negative-control wells); ``None``
+        fits on every row.
+    :param method: one of :data:`TVN_WHITENINGS`.
+    :param epsilon: regularisation added to every eigenvalue.
+    :param center: subtract the reference mean before transforming.
+    :param n_components: ``None`` keeps every direction (pycytominer),
+        ``"auto"`` keeps those with eigenvalue above ``1e-10`` of the largest,
+        an integer keeps the largest that many.
+    :returns: ``(whitened, info)``. ZCA variants keep the input columns; PCA
+        variants return columns ``tvn_PC1 ...``. ``info`` holds ``method``,
+        ``epsilon``, ``rank``, ``n_components``, ``n_reference`` and
+        ``warnings``.
+    :raises ValueError: for an unknown method, missing values, fewer than two
+        reference rows, or a ``-cor`` method with a feature that is constant
+        in the reference.
+    """
+    normalized = str(method or "ZCA-cor").strip()
+    lookup = {name.lower(): name for name in TVN_WHITENINGS}
+    if normalized.lower() not in lookup:
+        raise ValueError(
+            f"Unknown tvn whitening {method!r}. Choose one of {TVN_WHITENINGS}."
+        )
+    normalized = lookup[normalized.lower()]
+    if not isinstance(features, pd.DataFrame) or features.empty:
+        raise ValueError("features must be a non-empty pandas DataFrame.")
+    values = features.to_numpy(dtype=float)
+    if not np.isfinite(values).all():
+        raise ValueError(
+            "tvn cannot whiten missing or infinite values; impute or drop "
+            f"them first ({int((~np.isfinite(values)).sum())} found)."
+        )
+    if reference is None:
+        mask = np.ones(len(features), dtype=bool)
+    else:
+        if not reference.index.equals(features.index):
+            reference = reference.reindex(features.index)
+        mask = reference.fillna(False).to_numpy(dtype=bool)
+    fit = values[mask]
+    if len(fit) < 2:
+        raise ValueError(
+            "tvn needs at least 2 reference rows to estimate a covariance; "
+            f"got {len(fit)}."
+        )
+    epsilon = float(epsilon)
+    if not np.isfinite(epsilon) or epsilon < 0:
+        raise ValueError(f"tvn epsilon must be >= 0, not {epsilon!r}.")
+    warnings: List[str] = []
+    mean = fit.mean(axis=0) if center else np.zeros(fit.shape[1])
+    centered_fit = fit - mean
+    inv_sd = np.ones(fit.shape[1])
+    if normalized.endswith("-cor"):
+        sd = centered_fit.std(axis=0, ddof=1)
+        constant = ~(sd > 0)
+        if constant.any():
+            names = [str(c) for c, k in zip(features.columns, constant) if k]
+            raise ValueError(
+                f"tvn {normalized!r} divides by each feature's reference "
+                f"standard deviation, and {int(constant.sum())} feature(s) "
+                f"are constant in the reference rows (e.g. {names[:10]}). "
+                "Remove them, or use method='ZCA'."
+            )
+        inv_sd = 1.0 / sd
+        centered_fit = centered_fit * inv_sd
+    cov = np.atleast_2d(np.cov(centered_fit, rowvar=False))
+    eigvals, eigvecs = np.linalg.eigh(cov)
+    order = np.argsort(eigvals)[::-1]
+    eigvals = np.clip(eigvals[order], 0.0, None)
+    eigvecs = eigvecs[:, order]
+    top = float(eigvals[0])
+    rank = int((eigvals > _TVN_RANK_TOL * max(top, 1e-300)).sum())
+    if n_components is None:
+        keep = len(eigvals)
+    elif isinstance(n_components, str):
+        if n_components.strip().lower() != "auto":
+            raise ValueError(
+                "tvn n_components must be None, 'auto' or an integer, not "
+                f"{n_components!r}."
+            )
+        keep = max(rank, 1)
+    else:
+        keep = int(n_components)
+        if keep < 1:
+            raise ValueError(f"tvn n_components must be >= 1, not {keep}.")
+        keep = min(keep, len(eigvals))
+    if keep > rank:
+        warnings.append(
+            f"The {int(mask.sum())} reference row(s) span {rank} of "
+            f"{len(eigvals)} feature directions; the other {keep - rank} "
+            f"were scaled by 1/sqrt(epsilon={epsilon:g}) and can dominate "
+            "distances. Pass n_components='auto' or add controls."
+        )
+    eigvals = eigvals[:keep]
+    eigvecs = eigvecs[:, :keep]
+    with np.errstate(divide="ignore"):
+        scale = 1.0 / np.sqrt(eigvals + epsilon)
+    if not np.isfinite(scale).all():
+        raise ValueError(
+            "tvn met a direction with zero variance and epsilon=0; use a "
+            "positive epsilon or n_components='auto'."
+        )
+    transformed = (((values - mean) * inv_sd) @ eigvecs) * scale
+    if normalized.startswith("ZCA"):
+        transformed = transformed @ eigvecs.T
+        columns = list(features.columns)
+    else:
+        columns = [f"tvn_PC{index + 1}" for index in range(keep)]
+    info = dict(method=normalized, epsilon=epsilon, rank=rank,
+                n_components=keep, n_reference=int(mask.sum()),
+                warnings=warnings)
+    return (pd.DataFrame(transformed, index=features.index, columns=columns),
+            info)
+
+
+def harmony_embedding(
+    features: pd.DataFrame,
+    batch: pd.Series,
+    *,
+    n_components: int = 50,
+    theta: float = 2.0,
+    standardize: bool = True,
+    seed: int = 0,
+    max_iter: int = 10,
+) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    """Batch-integrate a PCA embedding with Harmony (Korsunsky et al. 2019).
+
+    Harmony does **not** correct the features themselves. It clusters a
+    low-dimensional embedding with soft k-means, penalises clusters that one
+    batch dominates (strength ``theta``) and moves every row by a
+    cluster-weighted, batch-specific linear correction until the clusters mix
+    the batches. The returned frame is that corrected embedding (columns
+    ``harmony_1 ...``): use it for neighbours, clustering, UMAP or a
+    classifier, not as per-feature measurements.
+
+    Steps: optional standardisation of every feature over all rows, PCA to
+    ``n_components`` (capped by the rank of the data), then
+    ``harmonypy.run_harmony`` with the batch as its only covariate.
+    ``harmonypy`` is an optional dependency that spaCR does not install.
+
+    :param features: numeric feature frame without missing values.
+    :param batch: batch label aligned to ``features``.
+    :param n_components: number of principal components to integrate.
+    :param theta: Harmony diversity penalty; 0 turns the batch penalty off.
+    :param standardize: z-score every feature over all rows before the PCA.
+    :param seed: random state passed to Harmony.
+    :param max_iter: maximum Harmony rounds.
+    :returns: ``(embedding, info)``; ``info`` holds ``n_components``,
+        ``theta``, ``explained_variance_ratio`` and ``harmonypy_version``.
+    :raises ImportError: with :data:`HARMONY_MISSING_MESSAGE` when
+        ``harmonypy`` is not installed.
+    :raises ValueError: for missing values or fewer than two batches.
+    """
+    try:
+        import harmonypy
+    except ImportError as exc:
+        raise ImportError(HARMONY_MISSING_MESSAGE) from exc
+    if not isinstance(features, pd.DataFrame) or features.empty:
+        raise ValueError("features must be a non-empty pandas DataFrame.")
+    values = features.to_numpy(dtype=float)
+    if not np.isfinite(values).all():
+        raise ValueError(
+            "harmony cannot embed missing or infinite values; impute or drop "
+            "them first."
+        )
+    if not batch.index.equals(features.index):
+        batch = batch.reindex(features.index)
+    labels = batch.astype(str)
+    if labels.nunique() < 2:
+        raise ValueError("harmony needs at least two batches.")
+    centered = values - values.mean(axis=0)
+    if standardize:
+        sd = centered.std(axis=0, ddof=0)
+        centered = centered / np.where(sd > 0, sd, 1.0)
+    u, singular, _ = np.linalg.svd(centered, full_matrices=False)
+    rank = int((singular > 1e-10 * max(float(singular[0]), 1e-300)).sum())
+    keep = max(1, min(int(n_components), rank, len(values) - 1))
+    scores = u[:, :keep] * singular[:keep]
+    total = max(float((singular ** 2).sum()), 1e-300)
+    meta = pd.DataFrame({"batch": labels.to_numpy()})
+    result = harmonypy.run_harmony(
+        scores, meta, ["batch"], theta=float(theta), random_state=int(seed),
+        max_iter_harmony=int(max_iter), verbose=False,
+    )
+    corrected = np.asarray(result.Z_corr, dtype=float)
+    if corrected.shape[0] != len(values):
+        corrected = corrected.T
+    columns = [f"harmony_{index + 1}" for index in range(keep)]
+    info = dict(n_components=keep, theta=float(theta),
+                explained_variance_ratio=float(
+                    (singular[:keep] ** 2).sum() / total),
+                harmonypy_version=str(getattr(harmonypy, "__version__", "")))
+    return (pd.DataFrame(corrected, index=features.index, columns=columns),
+            info)
+
+
+def _tvn(
+    numeric: pd.DataFrame,
+    labels: pd.Series,
+    batches: Sequence[str],
+    control: Optional[pd.Series],
+    control_values: Any,
+    report: BatchCorrectionReport,
+    *,
+    method: str,
+    epsilon: float,
+    scope: str,
+    center_batches: bool,
+    n_components: Any,
+    min_samples: int,
+) -> pd.DataFrame:
+    """Control-centre each batch, then whiten on the controls (``tvn``)."""
+    controls = _as_controls(control_values)
+    if control is None or not controls:
+        raise ValueError(
+            "tvn fits its whitening on reference controls, so it requires "
+            "batch_control_column and at least one batch_control_value "
+            "(normally the negative control, e.g. DMSO)."
+        )
+    normalized_scope = str(scope or "global").strip().lower()
+    if normalized_scope not in TVN_SCOPES:
+        raise ValueError(
+            f"Unknown tvn scope {scope!r}. Choose one of {TVN_SCOPES}."
+        )
+    if not control.index.equals(numeric.index):
+        control = control.reindex(numeric.index)
+    control_mask = _match_values(control, controls)
+    report.controls = int(control_mask.sum())
+    if report.controls < max(2, min_samples):
+        raise ValueError(
+            f"Only {report.controls} reference-control row(s) matched "
+            f"{controls!r}; tvn needs at least {max(2, min_samples)}."
+        )
+    thin = [label for label in batches
+            if int((control_mask & (labels == label)).sum()) < min_samples]
+    if thin and (center_batches or normalized_scope == "batch"):
+        raise ValueError(
+            f"tvn needs at least {min_samples} reference-control row(s) in "
+            f"every {report.batch_column} batch to centre or whiten it; "
+            f"{thin} have fewer."
+        )
+    work = numeric.copy()
+    if center_batches:
+        for label in batches:
+            rows = labels == label
+            shift = numeric.loc[rows & control_mask].median(axis=0)
+            work.loc[rows] = numeric.loc[rows].subtract(shift, axis=1)
+    if normalized_scope == "global":
+        out, info = spherize_features(
+            work, control_mask, method=method, epsilon=epsilon,
+            n_components=n_components,
+        )
+        report.warnings.extend(info["warnings"])
+        report.features = [str(column) for column in out.columns]
+        return out
+    pieces = []
+    for label in batches:
+        rows = labels == label
+        part, info = spherize_features(
+            work.loc[rows], control_mask.loc[rows], method=method,
+            epsilon=epsilon, n_components=n_components,
+        )
+        if list(part.columns) != list(numeric.columns):
+            raise ValueError(
+                "tvn_scope='batch' needs a ZCA whitening: per-batch PCA "
+                "components are not comparable between batches."
+            )
+        report.warnings.extend(f"{label}: {note}" for note in info["warnings"])
+        pieces.append(part)
+    return pd.concat(pieces).reindex(numeric.index)
+
+
 def correct_batch_effects(
     features: pd.DataFrame,
     batch: pd.Series,
@@ -571,6 +912,14 @@ def correct_batch_effects(
     combat_empirical_bayes: bool = True,
     min_samples: int = 3,
     missing_control: str = "error",
+    tvn_method: str = "ZCA-cor",
+    tvn_epsilon: float = 1e-6,
+    tvn_scope: str = "global",
+    tvn_center_batches: bool = True,
+    tvn_n_components: Any = "auto",
+    harmony_n_components: int = 50,
+    harmony_theta: float = 2.0,
+    harmony_seed: int = 0,
 ) -> Tuple[pd.DataFrame, BatchCorrectionReport]:
     """Normalize numeric features within acquisition batches.
 
@@ -596,6 +945,19 @@ def correct_batch_effects(
     and removes the treatment effect. Pass the biology to keep, or pass :data:`NO_COVARIATE`
     to record that there is none.
 
+    ``tvn`` (alpha) is typical variation normalisation (Ando et al. 2017).
+    With ``tvn_center_batches`` each batch is first centred on the median of
+    its reference controls; :func:`spherize_features` then whitens every row
+    with a transform fitted on the controls, once on all of them
+    (``tvn_scope="global"``) or per batch (``"batch"``). Like
+    ``control_center`` it needs ``control`` and ``control_values``.
+
+    ``harmony`` (alpha) integrates a PCA embedding with Harmony (Korsunsky
+    et al. 2019) through the optional ``harmonypy`` package; see
+    :func:`harmony_embedding`. It returns the corrected **embedding**
+    (columns ``harmony_1 ...``), not the input features, so a caller that
+    needs named features must use another method.
+
     :param features: numeric feature DataFrame; metadata must not be included.
     :param batch: batch/plate label aligned to ``features.index``.
     :param method: one of :data:`METHODS`.
@@ -615,6 +977,17 @@ def correct_batch_effects(
     :param min_samples: minimum rows (or controls) required per batch.
     :param missing_control: ``"error"`` or ``"skip"`` for a batch lacking
         enough reference-control rows.
+    :param tvn_method: ``tvn`` whitening, one of :data:`TVN_WHITENINGS`; the
+        default ``"ZCA-cor"`` is pycytominer ``normalize``'s.
+    :param tvn_epsilon: ``tvn`` eigenvalue regularisation.
+    :param tvn_scope: ``"global"`` or ``"batch"``, see :data:`TVN_SCOPES`.
+    :param tvn_center_batches: centre each batch on its controls before
+        whitening.
+    :param tvn_n_components: ``"auto"`` (the directions the controls span),
+        ``None`` (all of them, as pycytominer) or an integer.
+    :param harmony_n_components: principal components Harmony integrates.
+    :param harmony_theta: Harmony diversity penalty.
+    :param harmony_seed: Harmony random state.
     :returns: ``(corrected_features, report)``.
     :raises ValueError: for unknown methods, misaligned metadata, non-numeric
         features, missing batches, insufficient required controls, a missing
@@ -629,6 +1002,10 @@ def correct_batch_effects(
         "robust": "robust_zscore",
         "negative_control": "control_center",
         "empirical_bayes": "combat",
+        "sphere": "tvn",
+        "spherize": "tvn",
+        "typical_variation": "tvn",
+        "harmonypy": "harmony",
     }
     normalized_method = aliases.get(normalized_method, normalized_method)
     if normalized_method not in METHODS:
@@ -715,7 +1092,27 @@ def correct_batch_effects(
 
     corrected = numeric.copy()
     robust = normalized_method == "robust_zscore"
-    if normalized_method == "combat":
+    if normalized_method == "harmony":
+        corrected, info = harmony_embedding(
+            numeric, labels, n_components=harmony_n_components,
+            theta=harmony_theta, seed=harmony_seed,
+        )
+        report.features = [str(column) for column in corrected.columns]
+        report.warnings.append(
+            f"harmony returned a {info['n_components']}-component corrected "
+            "embedding (PCA of the standardised features, "
+            f"{info['explained_variance_ratio']:.1%} of their variance), not "
+            "the input features; the centroid spread after is measured in "
+            "that embedding."
+        )
+    elif normalized_method == "tvn":
+        corrected = _tvn(
+            numeric, labels, batches, control, control_values, report,
+            method=tvn_method, epsilon=tvn_epsilon, scope=tvn_scope,
+            center_batches=bool(tvn_center_batches),
+            n_components=tvn_n_components, min_samples=min_samples,
+        )
+    elif normalized_method == "combat":
         corrected = _combat(
             numeric,
             labels,

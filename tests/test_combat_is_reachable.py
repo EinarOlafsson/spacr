@@ -84,11 +84,14 @@ def test_no_module_leaves_the_two_batch_choices_as_free_text():
     """
     pytest.importorskip("PySide6")
     from spacr.qt.screens.settings_model import _APP_COMBO_OPTIONS
-    from spacr.batch_correction import METHODS
+    from spacr.batch_correction import EMBEDDING_METHODS, METHODS
 
+    # an embedding method (harmony) cannot be written back into named
+    # feature columns, so it is API-only and absent from every dropdown
+    offered = set(METHODS) - set(EMBEDDING_METHODS)
     for app_key in CORRECTS_BATCHES:
         options = _APP_COMBO_OPTIONS.get(app_key, {})
-        assert set(options.get("batch_correction", ())) == set(METHODS), (
+        assert set(options.get("batch_correction", ())) == offered, (
             f"{app_key} does not offer spacr.batch_correction.METHODS as a "
             f"closed choice; it offers "
             f"{options.get('batch_correction', 'a free-text box')}")
