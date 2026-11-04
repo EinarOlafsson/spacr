@@ -400,23 +400,6 @@ def _edges_at(widget, point):
     return edges
 
 
-def _cursor_for(edges):
-    """The pointer shape that says which way an edge will move."""
-    left = bool(edges & Qt.Edge.LeftEdge)
-    right = bool(edges & Qt.Edge.RightEdge)
-    top = bool(edges & Qt.Edge.TopEdge)
-    bottom = bool(edges & Qt.Edge.BottomEdge)
-    if (left and top) or (right and bottom):
-        return Qt.CursorShape.SizeFDiagCursor
-    if (right and top) or (left and bottom):
-        return Qt.CursorShape.SizeBDiagCursor
-    if left or right:
-        return Qt.CursorShape.SizeHorCursor
-    if top or bottom:
-        return Qt.CursorShape.SizeVerCursor
-    return None
-
-
 def _blue_resize_cursor(edges):
     """Compatibility helper: resizing uses the unchanged native OS arrow."""
     from .cursor_policy import arrow_cursor

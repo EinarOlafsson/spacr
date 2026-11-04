@@ -65,17 +65,6 @@ def test_the_middle_is_not_a_grab(dialog):
     assert glass._edges_at(dialog, QPoint(200, 150)) == Qt.Edge(0)
 
 
-@pytest.mark.parametrize("edges,shape", [
-    (Qt.Edge.LeftEdge, Qt.CursorShape.SizeHorCursor),
-    (Qt.Edge.TopEdge, Qt.CursorShape.SizeVerCursor),
-    (Qt.Edge.LeftEdge | Qt.Edge.TopEdge, Qt.CursorShape.SizeFDiagCursor),
-    (Qt.Edge.RightEdge | Qt.Edge.TopEdge, Qt.CursorShape.SizeBDiagCursor),
-])
-def test_the_pointer_says_which_way_it_will_move(edges, shape):
-    """A resize nobody can see is one nobody finds."""
-    assert glass._cursor_for(edges) == shape
-
-
 def test_the_main_window_is_resizable_too(qtbot, qt_theme_applied):
     from spacr.qt.app import MainWindow
 

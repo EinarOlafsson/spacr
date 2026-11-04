@@ -519,19 +519,6 @@ def test_a_stream_that_ends_with_no_block_open_appends_nothing(panel):
 
 # -- opening a plain output block on demand -----------------------------------
 
-def test_a_plain_output_block_is_opened_when_the_last_entry_was_not_one(panel):
-    """The helper opens one block and reuses it while stdout keeps arriving."""
-    panel._ensure_stdout_block()
-    first = panel._current_stdout
-
-    assert first is not None
-    assert panel._last_entry_kind == "stdout"
-
-    panel._ensure_stdout_block()
-
-    assert panel._current_stdout is first
-
-
 @pytest.mark.usefixtures("console_info_enabled")
 def test_a_block_with_nothing_new_is_skipped_while_a_fresh_one_goes(panel):
     """Only what arrived since the last question is attached to this one."""

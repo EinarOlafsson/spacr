@@ -182,15 +182,6 @@ def _render_tree(root, *, portrait: bool, solid: bool = False) -> bytes:
     return ET.tostring(root, encoding="utf-8")
 
 
-def _diagram_svg(source: str, *, portrait: bool = True) -> bytes:
-    """Return upright white outlines.
-
-    Interactive fills are painted from compartment masks by _CellArtwork,
-    so no selection changes or replaces the original bundled artwork.
-    """
-    return _render_tree(_clean_tree(source), portrait=portrait)
-
-
 _PREPARED: dict = {}
 
 

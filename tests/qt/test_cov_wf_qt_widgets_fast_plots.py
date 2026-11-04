@@ -158,23 +158,6 @@ def test_a_cancelled_style_dialog_leaves_every_kind_of_field_alone(monkeypatch):
     assert style.caption == "after"
 
 
-def test_the_hard_pyqtgraph_guard_is_silent_while_the_library_is_there(
-        monkeypatch):
-    """The guard must be free when it passes and explicit when it does not.
-
-    It stands in front of the few operations with no graceful fallback: if it
-    raised on a healthy install nothing would draw, and if it stayed quiet on
-    a stripped one the caller would fail three frames later with a traceback
-    naming a symptom instead of the missing wheel.
-    """
-    assert fp._require_pyqtgraph() is None
-
-    monkeypatch.setattr(fp, "HAVE_PYQTGRAPH", False)
-    with pytest.raises(RuntimeError) as caught:
-        fp._require_pyqtgraph()
-    assert str(caught.value) == fp.PYQTGRAPH_MISSING_MESSAGE
-
-
 def test_a_violin_of_one_repeated_value_is_refused_rather_than_drawn_flat():
     """A violin from a column with no spread would claim a spread it lacks.
 

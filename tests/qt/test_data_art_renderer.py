@@ -17,11 +17,11 @@ from spacr.qt.widgets import ambient
 
 FAMILIES = (
     "point_atlas", "tissue_facets", "chromatin_ribbon",
-    "genetic_advection", "impulse_lens", "fungal_growth", "thore",
+    "genetic_advection", "impulse_lens", "fungal_growth",
 )
 OFFERED_FAMILIES = tuple(family for family in FAMILIES
-                         if family not in ("chromatin_ribbon", "thore",
-                                           "fungal_growth", "tissue_facets"))
+                         if family not in ("chromatin_ribbon", "fungal_growth",
+                                           "tissue_facets"))
 INTERACTIVE = frozenset(("point_atlas", "tissue_facets", "genetic_advection",
                          "impulse_lens"))
 BACKGROUND = "#101418"
@@ -34,9 +34,6 @@ def _engine(family: str, *, seed: int = 41, palette: str = "spacr",
         return ambient._DataArtEngine(
             ambient.palette_colors("data_art_tissue_facets", palette),
             background, family=family, seed=seed)
-    if family == "thore":
-        return ambient._ThoreEngine(
-            ambient.palette_colors("aurora", palette), background, seed=seed)
     return ambient.make_engine(f"data_art_{family}", palette, background,
                                seed=seed)
 

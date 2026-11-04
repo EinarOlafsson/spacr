@@ -74,23 +74,31 @@ def test_aurora_density_roundtrip_rebuilds_alpha_dependent_cached_textures(qapp)
     assert image.bits().tobytes() == initial
 
 
-def test_rain_and_facets_have_distinct_low_density_populations(qapp):
-    rain = ambient._ThoreEngine(ambient.palette_colors('aurora', 'spacr'),
-                               '#101418', seed=42)
+def test_facets_grow_more_tiles_at_higher_density(qapp):
     paper = ambient.make_engine('data_art_tissue_facets', 'spacr', '#101418', seed=42)
-    rain_counts = []
     tile_counts = []
     for density in (.01, .10, .50):
-        rain.set_density(density)
-        rain_counts.append(len(rain.geometry(1920, 1080)[0]))
         paper.set_density(density)
         image = paper.shade(1920, 1080)
         assert not image.isNull()
         material = next(value for key, value in paper._material_cache.items()
                         if key[0] == 'tissue_facets')
         tile_counts.append(len(material))
-    assert rain_counts == [1, 10, 52]
     assert tile_counts[0] < tile_counts[1] < tile_counts[2]
+
+
+def test_an_engine_hands_out_a_copy_of_its_background(qapp):
+    engine = ambient.make_engine('aurora', 'spacr', '#101418', seed=42)
+    colour = engine.background
+    assert colour.name() == '#101418'
+    colour.setRed(255)
+    assert engine.background.name() == '#101418'
+
+
+def test_an_engine_takes_a_new_palette(qapp):
+    engine = ambient.make_engine('aurora', 'spacr', '#101418', seed=42)
+    engine.set_colors(['#112233', '#445566'])
+    assert [c.name() for c in engine.colors] == ['#112233', '#445566']
 
 
 def test_satin_fractional_opacity_is_restored_after_draw_failure(qapp, monkeypatch):

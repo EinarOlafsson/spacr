@@ -119,16 +119,6 @@ def test_without_pyqtgraph_the_absent_plot_absorbs_the_calls_made_on_it(
     assert "absent" in repr(plot.plot)
 
 
-def test_a_caller_with_no_fallback_is_told_what_to_install(monkeypatch):
-    """Where degrading is impossible, the message still names the extra."""
-    monkeypatch.setattr(fp, "HAVE_PYQTGRAPH", False)
-
-    with pytest.raises(RuntimeError) as caught:
-        fp._require_pyqtgraph()
-
-    assert str(caught.value) == fp.PYQTGRAPH_MISSING_MESSAGE
-
-
 # ---------------------------------------------------------------------------
 # the restyle dialogs
 # ---------------------------------------------------------------------------

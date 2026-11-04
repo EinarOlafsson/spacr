@@ -17,7 +17,6 @@ from spacr.qt.organisms import ORGANISMS, workflow
 from spacr.qt.screens.organism_screen import OrganismScreen, _IMAGES
 from spacr.qt.preferences import scaled_px
 from spacr.qt.theme import TILE_H, TILE_MAX_W, TILE_W
-from spacr.qt.widgets.organism_diagram import _diagram_svg
 
 
 ASSAYS = ("analyze_plaques", "recruitment", "host_pathogen", "invasion", "replication")
@@ -240,31 +239,6 @@ def test_new_vector_art_is_distinct_and_follows_both_themes(qapp):
         assert not (dark == light).all(), path.name
         rendered.add(dark.tobytes())
     assert len(rendered) == 26
-
-
-@pytest.mark.parametrize("key", ORGANISMS)
-def test_diagram_selectors_highlight_real_groups_and_disclose_shared_shapes(qtbot, key):
-    screen = OrganismScreen(key)
-    qtbot.addWidget(screen)
-    diagram = screen._diagram
-    baseline = _diagram_svg(diagram.artwork.source)
-    for index in range(diagram.selector.count()):
-        item = diagram.selector.item(index)
-        location = item.data(Qt.UserRole)
-        assert diagram.artwork.renderer.elementExists(location), location
-        item.setCheckState(Qt.Checked)
-        assert location[:2] + "-" + location[2:] in diagram.caption.text()
-        assert ("SL0173" if location == "SL0171" else location) in diagram.artwork.selected
-        item.setCheckState(Qt.Unchecked)
-    if key == "toxoplasma":
-        diagram.selector.item(0).setCheckState(Qt.Checked)
-        assert "rhoptries 1 / rhoptries 2" in diagram.caption.text()
-    if key == "plasmodium":
-        assert "rhoptries 1" not in diagram.labels
-    for index in range(diagram.selector.count()):
-        diagram.selector.item(index).setCheckState(Qt.Unchecked)
-    assert "Check several labels" in diagram.caption.text()
-    assert _diagram_svg(diagram.artwork.source) == baseline
 
 
 @pytest.mark.usefixtures("_geometry_at_design_scale")

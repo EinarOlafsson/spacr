@@ -1023,16 +1023,6 @@ def mark_advice(kind: str, counts) -> str:
             f"is too few to have a shape.")
 
 
-def _require_pyqtgraph() -> None:
-    """Raise when a caller requires the optional pyqtgraph dependency.
-
-    General plot construction uses an unavailable-state widget instead;
-    callers should use this guard only when no graceful fallback exists.
-    """
-    if not HAVE_PYQTGRAPH:
-        raise RuntimeError(PYQTGRAPH_MISSING_MESSAGE)
-
-
 #: Ink to fall back to when the preference store cannot be read.
 #:
 #: White, because every spaCR theme but one is dark and a plot with invisible

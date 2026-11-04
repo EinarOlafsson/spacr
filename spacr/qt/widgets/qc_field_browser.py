@@ -565,27 +565,6 @@ def _move_field(
     return outcome
 
 
-def _render_or_message(
-    payload: QCFieldImage,
-    channel: int,
-    layers: Tuple[str, ...],
-    language: str,
-) -> Tuple[Optional[np.ndarray], str]:
-    """Render one field, returning a failure instead of raising it.
-
-    Same reason as `_load_and_record_state`: a render abandoned by
-    `_render_jobs.cancel()` must not be able to paint "Could not render this
-    field" over the field that replaced it, and `job_failed` is the one
-    completion path `JobRunner` does not generation-guard.
-    """
-    try:
-        return render_qc_field(payload, channel, layers), ""
-    except Exception as exc:                                     # noqa: BLE001
-        LOG.info("could not render a QC field", exc_info=True)
-        return None, tr("Could not render this field: {error}",
-                        language=language, error=str(exc))
-
-
 def _normalise(plane: np.ndarray) -> np.ndarray:
     """Scale one plane to 8-bit over its 2nd-98th percentile.
 

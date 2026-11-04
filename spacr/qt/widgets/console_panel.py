@@ -531,10 +531,6 @@ class _WorkingDots(QLabel):
         self._n = (self._n + 1) % 3
         self._render()
 
-    @Slot()
-    def _noop_slot(self) -> None:                # pragma: no cover - anchor
-        """Present so the Slot import is used even if the others change."""
-
     def _on_gui_thread(self) -> bool:
         """Whether the caller is the thread this widget lives on."""
         from PySide6.QtCore import QThread
@@ -2918,14 +2914,6 @@ class ConsolePanel(QWidget):
                 "report: {detail}\n",
                 detail=str(outcome.get("detail", "") or "unknown"))
 
-
-    def _ensure_stdout_block(self) -> None:
-        """Open a new plain stdout block if the last entry was not one."""
-        if self._current_stdout is None or self._needs_topic("stdout"):
-            block = _StdoutBlock()
-            self._insert_entry(block)
-            self._current_stdout = block
-            self._last_entry_kind = "stdout"
 
     def _start_stream(self, system: str) -> None:
         """Start the streaming worker for the pending conversation.

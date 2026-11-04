@@ -134,25 +134,6 @@ def test_a_container_that_will_not_go_transparent_is_reported_as_none(
 # Resizing a window that has no frame
 # ---------------------------------------------------------------------------
 
-def test_a_point_in_the_middle_is_not_an_edge(dialog):
-    assert glass._edges_at(dialog, dialog.rect().center()) == Qt.Edge(0)
-    assert glass._cursor_for(Qt.Edge(0)) is None
-
-
-@pytest.mark.parametrize("point,shape", [
-    ((0, 0), Qt.CursorShape.SizeFDiagCursor),
-    ((319, 0), Qt.CursorShape.SizeBDiagCursor),
-    ((0, 239), Qt.CursorShape.SizeBDiagCursor),
-    ((319, 239), Qt.CursorShape.SizeFDiagCursor),
-    ((0, 120), Qt.CursorShape.SizeHorCursor),
-    ((160, 0), Qt.CursorShape.SizeVerCursor),
-])
-def test_each_edge_says_which_way_it_will_move(dialog, point, shape):
-    from PySide6.QtCore import QPoint
-
-    assert glass._cursor_for(glass._edges_at(dialog, QPoint(*point))) == shape
-
-
 def test_hovering_an_edge_shows_a_line_and_leaving_hides_it(
         dialog):
     """A resize you cannot see is one nobody finds."""

@@ -468,39 +468,6 @@ def test_a_custom_object_role_gets_a_stable_distinct_outline_colour():
 # 352: the arms that run when a field, a render or a filesystem misbehaves.
 # ---------------------------------------------------------------------------
 
-def test_a_render_that_raises_becomes_a_message_not_an_exception():
-    """`_render_or_message` is the boundary a worker crosses.
-
-    Its own docstring says why it catches everything: a render abandoned
-    by `_render_jobs.cancel()` must not be able to paint over the field
-    that replaced it, and `job_failed` is the one completion path
-    `JobRunner` does not generation-guard. So the failure has to come back
-    as a VALUE.
-    """
-    from spacr.qt.widgets import qc_field_browser as qcb
-
-    class Exploding:
-        """A payload whose render cannot succeed."""
-
-    image, message = qcb._render_or_message(Exploding(), 0, (), "en")
-    assert image is None
-    assert "Could not render this field" in message
-    assert message.strip() != "Could not render this field: ", (
-        "the reason must reach the user, not just the headline")
-
-
-def test_a_render_that_succeeds_returns_no_message(monkeypatch):
-    """The empty string is the signal that nothing went wrong."""
-    from spacr.qt.widgets import qc_field_browser as qcb
-
-    sentinel = object()
-    monkeypatch.setattr(qcb, "render_qc_field",
-                        lambda *_a, **_k: sentinel)
-    image, message = qcb._render_or_message(object(), 0, (), "en")
-    assert image is sentinel
-    assert message == ""
-
-
 def test_the_paths_for_no_target_are_empty_rather_than_invented():
     """A move with no field must not address one.
 
