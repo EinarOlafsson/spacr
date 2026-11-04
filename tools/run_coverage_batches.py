@@ -110,6 +110,8 @@ MEMORY_GUARD_STATUS = 3
 PLUGIN_DIR = Path(__file__).resolve().parent / "pytest_plugins"
 PLUGIN = "xdist_coverage_ledger"
 LEDGER_ENV = "SPACR_COVERAGE_LEDGER"
+#: Loads the plugin's helper stop and killed-writer set-aside without a ledger.
+GUARD_ENV = "SPACR_COVERAGE_GUARD"
 LEDGER_SCHEMA = "spacr.xdist-coverage-ledger/v1"
 INTEGRITY_SCHEMA = "spacr.coverage-shard-integrity/v1"
 
@@ -523,8 +525,13 @@ def recover_file(
     environment = os.environ.copy()
     environment["COVERAGE_FILE"] = str(data_file)
     environment.pop(LEDGER_ENV, None)
+    environment[GUARD_ENV] = "1"
+    environment["PYTHONPATH"] = os.pathsep.join(
+        part for part in (str(PLUGIN_DIR), environment.get("PYTHONPATH", ""))
+        if part
+    )
     command = [
-        sys.executable, "-m", "pytest", test_file, "-m", marker,
+        sys.executable, "-m", "pytest", test_file, "-m", marker, "-p", PLUGIN,
         *_coverage_options(source), *_timeout_options(per_test_timeout),
         "--cov-append", "-v", "--tb=short",
     ]

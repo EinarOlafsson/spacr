@@ -396,3 +396,176 @@ def test_the_resource_tracker_saves_its_coverage_before_the_combine(
     _wait_for_exit(pid)
     left = sorted(path.name for path in data_dir.iterdir())
     assert [name for name in left if f".pid{pid}." in name], left
+# 2026-11-03, CI run 41748127439 shard 8 batch 12: the serial re-run of
+# tests/test_parallel_queue_lifecycle_boundaries.py ALONE stopped the same
+# way.  Reproduced locally under coverage 7.17.1 with debug=process,dataio:
+# a recycled spawn pool worker had begun its atexit save ("Opening data
+# file") when the pool terminated it; coverage's ``sigterm`` handler logged
+# and the process died, leaving a 0-byte ``.pid<N>.X<random>x`` file that
+# the combine then read.  The ledger plugin now sets such a file aside
+# before pytest-cov combines, in batches and in serial re-runs alike.
+
+
+def _dead_pid() -> int:
+    child = subprocess.Popen([sys.executable, "-c", "pass"])
+    child.wait()
+    return child.pid
+
+
+def _writer_name(base: Path, pid: int, *, host=None, hashed=False) -> Path:
+    plugin = _load_plugin()
+    host = host or plugin.socket.gethostname().replace(".", "_")
+    name = f"{base.name}.{host}.pid{pid}.XabcDEF12x"
+    if hashed:
+        name += ".Habcdef123456h"
+    return base.parent / name
+
+
+def _real_data_file(path: Path) -> Path:
+    coverage = pytest.importorskip("coverage")
+    data = coverage.CoverageData(basename=str(path))
+    data.add_lines({str(path.parent / "toy.py"): [1, 2]})
+    data.write()
+    return path
+
+
+def test_a_dead_writer_s_empty_or_schema_less_file_is_set_aside(tmp_path, monkeypatch):
+    import sqlite3
+
+    monkeypatch.setenv("RUNNER_TEMP", str(tmp_path / "runner"))
+    plugin = _load_plugin()
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    base = data_dir / ".coverage.shard-08.batch-012"
+    dead = _dead_pid()
+    empty = _writer_name(base, dead)
+    empty.write_bytes(b"")
+    schema_less = _writer_name(base, _dead_pid())
+    with sqlite3.connect(schema_less) as connection:
+        connection.execute("CREATE TABLE meta (key text, value text)")
+    connection.close()
+    complete = _real_data_file(_writer_name(base, _dead_pid()))
+    hashed = _writer_name(base, _dead_pid(), hashed=True)
+    hashed.write_bytes(b"")
+    elsewhere = _writer_name(base, _dead_pid(), host="another_runner")
+    elsewhere.write_bytes(b"")
+    other_batch = _writer_name(data_dir / ".coverage.shard-08.batch-013", dead)
+    other_batch.write_bytes(b"")
+
+    lines = []
+    moved = plugin.set_aside_killed_writers(str(base), wait=5, report=lines.append)
+
+    lost = tmp_path / "runner" / "spacr-scientific-diagnostics" / "killed-coverage-writers"
+    assert sorted(moved) == sorted([lost / empty.name, lost / schema_less.name])
+    assert not empty.exists() and not schema_less.exists()
+    assert all(path.is_file() for path in moved)
+    for path in (complete, hashed, elsewhere, other_batch):
+        assert path.exists(), path
+    assert len(lines) == 2
+    assert all("killed while saving its coverage; its lines are lost" in line
+               for line in lines), lines
+    assert any(f"pid {dead}" in line and "0 bytes" in line for line in lines)
+
+
+def test_a_writer_that_is_still_running_is_waited_for_and_never_touched(tmp_path):
+    plugin = _load_plugin()
+    base = tmp_path / ".coverage.toy"
+    child = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(60)"])
+    try:
+        alive = _writer_name(base, child.pid)
+        alive.write_bytes(b"")
+        lines = []
+        assert plugin.set_aside_killed_writers(str(base), wait=0.3,
+                                               report=lines.append) == []
+        assert alive.exists()
+        assert lines and "still running" in lines[0], lines
+    finally:
+        child.kill()
+        child.wait()
+
+    # Once its writer is gone, the same file is set aside.
+    lines = []
+    assert len(plugin.set_aside_killed_writers(str(base), wait=5,
+                                               report=lines.append)) == 1
+    assert not alive.exists()
+
+
+TOY_KILLED_WRITER = '''
+import os
+import socket
+import subprocess
+import sys
+from pathlib import Path
+
+from toypkg import alpha
+
+
+def test_a_child_dies_while_saving_its_coverage():
+    assert alpha.run(True) == 1
+    child = subprocess.Popen([sys.executable, "-c", "pass"])
+    child.wait()
+    host = socket.gethostname().replace(".", "_")
+    shell = Path(f"{os.environ['COVERAGE_FILE']}.{host}.pid{child.pid}.XkilledAx")
+    shell.write_bytes(b"")
+    # coverage 7.17 opens it read only; older versions need the mode set.
+    shell.chmod(0o444)
+'''
+
+
+def _run_killed_writer_toy(root, *, workers, guard):
+    project = _toy(root / "toy")
+    for name in ("test_0_half_written.py", "test_1_beta.py"):
+        (project / "tests" / name).unlink()
+    (project / "tests" / "test_killed.py").write_text(TOY_KILLED_WRITER,
+                                                      encoding="utf-8")
+    data_dir = root / "data"
+    data_dir.mkdir()
+    environment = {
+        key: value for key, value in os.environ.items()
+        if not key.startswith(("COV", "PYTEST_", "SPACR_COVERAGE"))
+    }
+    environment.update({
+        "PYTHONPATH": os.pathsep.join([str(PLUGIN_FILE.parent), str(project)]),
+        "COVERAGE_FILE": str(data_dir / ".coverage.toy"),
+        "RUNNER_TEMP": str(root / "runner"),
+    })
+    command = [
+        sys.executable, "-m", "pytest", "tests", "-p", "no:randomly",
+        "-p", "no:cacheprovider", "--cov=toypkg", "--cov-branch",
+        "--cov-report=", "--cov-config=.coveragerc", "-q",
+    ]
+    if guard:
+        environment["SPACR_COVERAGE_GUARD"] = "1"
+        command += ["-p", "xdist_coverage_ledger"]
+    command += ["-n", str(workers)] if workers else ["-p", "no:xdist"]
+    result = subprocess.run(command, cwd=project, env=environment,
+                            capture_output=True, text=True, timeout=300,
+                            check=False)
+    return result, data_dir, project, root / "runner"
+
+
+@needs_a_read_only_file
+@pytest.mark.parametrize("workers", [0, 2], ids=["serial", "xdist"])
+def test_a_child_killed_while_saving_no_longer_fails_the_combine(tmp_path, workers):
+    pytest.importorskip("pytest_cov")
+    if workers:
+        pytest.importorskip("xdist")
+
+    result, data_dir, project, runner = _run_killed_writer_toy(
+        tmp_path / "with", workers=workers, guard=True)
+    output = result.stdout + result.stderr
+    assert result.returncode == 0, output[-4000:]
+    assert "INTERNALERROR" not in output, output[-4000:]
+    assert "killed while saving its coverage; its lines are lost" in output, output[-4000:]
+    assert sorted(path.name for path in data_dir.iterdir()) == [".coverage.toy"]
+    lost = list((runner / "spacr-scientific-diagnostics"
+                 / "killed-coverage-writers").iterdir())
+    assert len(lost) == 1 and lost[0].stat().st_size == 0
+    assert {2, 3} <= _lines(data_dir, project, "alpha")
+
+    # NEGATIVE CONTROL: without the plugin the same file stops the combine.
+    result, _data_dir, _project, _runner = _run_killed_writer_toy(
+        tmp_path / "without", workers=workers, guard=False)
+    output = result.stdout + result.stderr
+    assert result.returncode == 3, output[-4000:]
+    assert "INTERNALERROR" in output and "coverage_schema" in output, output[-4000:]

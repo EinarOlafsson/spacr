@@ -1,11 +1,14 @@
 """pytest plugin: record whose coverage data a pytest-xdist session lost.
 
 Loaded by ``tools/run_coverage_batches.py`` as ``-p xdist_coverage_ledger``
-(item 288).  It does nothing unless ``SPACR_COVERAGE_LEDGER`` names a file.
+(item 288).  It does nothing unless ``SPACR_COVERAGE_LEDGER`` names a file
+or ``SPACR_COVERAGE_GUARD`` is set (the serial re-runs, which keep no ledger).
 The ledger lives on the controller only, which sees every worker; every
 process, worker or serial, also stops its multiprocessing helpers after its
 last test (:func:`stop_multiprocessing_helpers`), so no measured helper is
-still writing its data file when pytest-cov combines.
+still writing its data file when pytest-cov combines, and sets aside the
+empty data files of children killed while saving
+(:func:`set_aside_killed_writers`), so the combine never reads one.
 
 WHY IT EXISTS.  pytest-cov's workers save their coverage data when their
 session FINISHES.  A worker that dies by a signal -- the segfault family of
@@ -50,6 +53,12 @@ from __future__ import annotations
 
 import json
 import os
+import re
+import shutil
+import socket
+import sqlite3
+import sys
+import time
 from pathlib import Path
 from typing import Any
 
@@ -58,6 +67,13 @@ import pytest
 LEDGER_ENV = "SPACR_COVERAGE_LEDGER"
 LEDGER_SCHEMA = "spacr.xdist-coverage-ledger/v1"
 CONTROLLER = "controller"
+GUARD_ENV = "SPACR_COVERAGE_GUARD"
+LOST_WRITERS_DIR = "killed-coverage-writers"
+KILLED_WRITERS_KEY = "spacr_killed_coverage_writers"
+WRITER_WAIT_SECONDS = 60.0
+_PROCESS_SUFFIX = re.compile(
+    r"^\.(?P<host>[^.]+)\.pid(?P<pid>\d+)\.X\w+x(?P<hash>\.H\w+h)?$"
+)
 
 
 def _file_of(nodeid: str) -> str:
@@ -263,8 +279,156 @@ def stop_multiprocessing_helpers() -> list[str]:
     return stopped
 
 
+def _pid_alive(pid: int) -> bool:
+    """True while ``pid`` runs; a zombie has finished writing."""
+    try:
+        os.kill(pid, 0)
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+    try:
+        stat = Path(f"/proc/{pid}/stat").read_text(encoding="utf-8")
+        state = stat.rsplit(")", 1)[1].split()[0]
+    except (OSError, IndexError):
+        return True
+    return state not in ("Z", "X")
+
+
+def _has_coverage_schema(path: Path) -> bool:
+    """True when ``path`` is a SQLite file holding coverage's schema table."""
+    if path.stat().st_size == 0:
+        return False
+    try:
+        connection = sqlite3.connect(f"{path.resolve().as_uri()}?mode=ro", uri=True)
+    except sqlite3.Error:
+        return False
+    try:
+        row = connection.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'table' "
+            "AND name = 'coverage_schema'"
+        ).fetchone()
+    except sqlite3.Error:
+        return False
+    finally:
+        connection.close()
+    return row is not None
+
+
+def _lost_writers_directory(data_dir: Path) -> Path:
+    temporary = Path(os.environ.get("RUNNER_TEMP", str(data_dir.parent)))
+    return temporary / "spacr-scientific-diagnostics" / LOST_WRITERS_DIR
+
+
+def set_aside_killed_writers(
+        data_file: str | os.PathLike[str] | None,
+        *,
+        wait: float = WRITER_WAIT_SECONDS,
+        report: Any = print,
+) -> list[Path]:
+    """Move aside data files whose writer was killed while saving them.
+
+    coverage.py names a measured process's data file
+    ``<data_file>.<host>.pid<N>.X<random>x`` while that process writes it,
+    and renames it with a ``.H<hash>h`` suffix once the save has finished.
+    A child killed inside its atexit save leaves the unrenamed name behind,
+    holding an empty file or one without the ``coverage_schema`` table.
+    Measured (2026-11-03, coverage 7.17.1, the serial re-run of
+    tests/test_parallel_queue_lifecycle_boundaries.py): a recycled spawn
+    pool worker had started its atexit save when the pool terminated it;
+    coverage's ``sigterm`` handler re-entered the save and the process died
+    with a 0-byte file.  pytest-cov's combine opens such a file read only
+    and stops with an INTERNALERROR (``no such table: coverage_schema``,
+    ``attempt to write a readonly database``), which turns a batch whose
+    every test passed into exit 3 -- serial re-runs included.
+
+    The lines that child measured are already lost; the file holds none of
+    them.  Each such file of this host whose writer process is gone is moved
+    to the scientific diagnostics area and named in ``report``, so the
+    combine reads only data that exists and the coverage ratchet still
+    catches any real drop.  A file whose writer is still alive is never
+    touched: this waits up to ``wait`` seconds for that writer to finish,
+    then leaves its file for the combine.  Returns the moved files' paths.
+    """
+    if not data_file:
+        return []
+    base = Path(data_file)
+    data_dir = base.parent
+    if not data_dir.is_dir():
+        return []
+    host = socket.gethostname().replace(".", "_")
+    candidates: list[tuple[Path, int]] = []
+    for path in sorted(data_dir.glob(f"{base.name}.*")):
+        match = _PROCESS_SUFFIX.match(path.name[len(base.name):])
+        if match is None or match["hash"] or match["host"] != host:
+            continue
+        pid = int(match["pid"])
+        if pid != os.getpid():
+            candidates.append((path, pid))
+    deadline = time.monotonic() + max(0.0, wait)
+    while (any(_pid_alive(pid) for _path, pid in candidates)
+           and time.monotonic() < deadline):
+        time.sleep(0.1)
+    moved: list[Path] = []
+    for path, pid in candidates:
+        if _pid_alive(pid):
+            report(f"coverage data {path.name}: writer pid {pid} is still "
+                   f"running; left for the combine")
+            continue
+        try:
+            if not path.is_file() or _has_coverage_schema(path):
+                continue
+            size = path.stat().st_size
+            target = _lost_writers_directory(data_dir) / path.name
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.move(str(path), str(target))
+        except FileNotFoundError:
+            continue
+        report(
+            f"coverage data {path.name} ({size} bytes, no coverage_schema): "
+            f"a child process (pid {pid}) killed while saving its coverage; "
+            f"its lines are lost; moved to {target}"
+        )
+        moved.append(target)
+    return moved
+
+
+def _session_data_file(session: pytest.Session) -> str | None:
+    """The data file pytest-cov writes: COVERAGE_FILE or its configuration."""
+    plugin = session.config.pluginmanager.get_plugin("_cov")
+    controller = getattr(plugin, "cov_controller", None)
+    cov = getattr(controller, "cov", None)
+    configured = getattr(getattr(cov, "config", None), "data_file", None)
+    return os.environ.get("COVERAGE_FILE") or configured
+
+
 class MultiprocessingHelperStop:
-    """Ends this process's multiprocessing helpers before coverage combines."""
+    """Ends this process's multiprocessing helpers before coverage combines.
+
+    Then it sets aside the data files of children killed while saving
+    (:func:`set_aside_killed_writers`) and names each in the terminal: an
+    xdist worker hands its lines to the controller, which prints them.
+    """
+
+    def __init__(self, config: pytest.Config) -> None:
+        self.config = config
+
+    def _report(self, line: str) -> None:
+        if hasattr(self.config, "workerinput"):
+            self.config.workeroutput.setdefault(KILLED_WRITERS_KEY, []).append(line)
+            return
+        reporter = self.config.pluginmanager.get_plugin("terminalreporter")
+        if reporter is not None:
+            reporter.write_line(line)
+        else:
+            print(line, file=sys.stderr, flush=True)
+
+    @pytest.hookimpl(optionalhook=True)
+    def pytest_testnodedown(self, node: Any, error: Any) -> None:
+        """Print what a worker set aside, on the controller's terminal."""
+        output = getattr(node, "workeroutput", None) or {}
+        for line in output.get(KILLED_WRITERS_KEY, ()):
+            self._report(f"[{_worker_id(node)}] {line}")
 
     @pytest.hookimpl(wrapper=True, trylast=True)
     def pytest_runtestloop(self, session: pytest.Session) -> Any:
@@ -279,16 +443,18 @@ class MultiprocessingHelperStop:
             return (yield)
         finally:
             stop_multiprocessing_helpers()
+            set_aside_killed_writers(_session_data_file(session),
+                                     report=self._report)
 
 
 def pytest_configure(config: pytest.Config) -> None:
     target = os.environ.get(LEDGER_ENV)
-    if not target:
+    if not target and not os.environ.get(GUARD_ENV):
         return
     config.pluginmanager.register(
-        MultiprocessingHelperStop(), "spacr-multiprocessing-helper-stop",
+        MultiprocessingHelperStop(config), "spacr-multiprocessing-helper-stop",
     )
-    if hasattr(config, "workerinput"):
+    if not target or hasattr(config, "workerinput"):
         return
     config.pluginmanager.register(
         CoverageLedger(Path(target)), "spacr-xdist-coverage-ledger",
