@@ -32,7 +32,7 @@ def test_worker_duplicates_and_teardown_failure(tmp_path):
         ("one","b","not_run"),("one","b","passed"),
         ("two","b","passed"),("one","c","skipped"),
         ("one","d","not_run")])
-    assert endpoint(tmp_path)["message"] == "1/4"
+    assert endpoint(tmp_path)["message"] == "1/3, 1 skipped"
 
 
 def test_failure_in_another_dependency_profile_is_retained(tmp_path):
@@ -194,3 +194,40 @@ def test_readme_install_retires_old_badge_and_is_idempotent(tmp_path):
     assert b"|Tests|" not in before
     assert before.count(b".. |Test counts| image::") == 1
     assert b"test-counts.json" in before
+
+
+def shard(tmp_path, job, attempt, rows):
+    folder = tmp_path / f"test-counts-{job}-a{attempt}-{'0' * 31}{attempt}"
+    folder.mkdir()
+    (folder / "r.jsonl").write_text(
+        "".join(json.dumps(dict(session=f"{job}{attempt}", nodeid=n, outcome=o)) + "\n"
+                for n, o in rows), encoding="utf-8")
+
+
+def test_partial_rerun_is_merged_with_first_attempt(tmp_path):
+    shard(tmp_path, "coverage-shards-0", 1, [("a", "passed"), ("b", "passed")])
+    shard(tmp_path, "coverage-shards-1", 1, [("c", "passed"), ("d", "failed")])
+    shard(tmp_path, "coverage-shards-1", 2, [("c", "passed"), ("d", "passed")])
+    badge = endpoint(tmp_path)
+    assert badge["message"] == "4/4"
+    assert badge["color"] == "green"
+
+
+def test_latest_attempt_wins_even_when_it_is_worse(tmp_path):
+    shard(tmp_path, "fast-0", 1, [("a", "passed"), ("b", "passed")])
+    shard(tmp_path, "fast-0", 2, [("a", "passed"), ("b", "failed")])
+    assert endpoint(tmp_path)["message"] == "1/2"
+
+
+def test_skipped_tests_are_not_failures(tmp_path):
+    records(tmp_path, [("s", "a", "passed"), ("s", "b", "skipped"),
+                       ("s", "c", "skipped"), ("s", "d", "passed")])
+    badge = endpoint(tmp_path)
+    assert badge["message"] == "2/2, 2 skipped"
+    assert (badge["passed"], badge["total"], badge["color"]) == (2, 2, "green")
+
+
+def test_failure_still_reads_below_full(tmp_path):
+    records(tmp_path, [("s", "a", "passed"), ("s", "b", "skipped"),
+                       ("s", "c", "failed")])
+    assert endpoint(tmp_path)["message"] == "1/2, 1 skipped"

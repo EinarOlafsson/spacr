@@ -58,9 +58,35 @@ def pytest_runtest_logreport(report):
         _emit(report.nodeid, "passed")
 
 
+_ARTIFACT = re.compile(r"^test-counts-(?P<job>.+)-a(?P<attempt>\d+)-[0-9a-f]{32}$")
+
+
+def latest_attempt_files(directory):
+    """Return the result files of the newest attempt of each job.
+
+    Artifact folders are named ``test-counts-<job>-a<attempt>-<id>``. A rerun
+    of one shard uploads only that shard, so every other job keeps the files
+    of its own latest attempt. Files outside such folders are always kept.
+    """
+    root = Path(directory)
+    newest = {}
+    for folder in root.iterdir() if root.is_dir() else ():
+        match = _ARTIFACT.match(folder.name)
+        if folder.is_dir() and match:
+            attempt = int(match["attempt"])
+            newest[match["job"]] = max(newest.get(match["job"], 0), attempt)
+    files = []
+    for path in sorted(root.rglob("*.jsonl")):
+        parts = path.relative_to(root).parts
+        match = _ARTIFACT.match(parts[0]) if len(parts) > 1 else None
+        if match is None or int(match["attempt"]) == newest[match["job"]]:
+            files.append(path)
+    return files
+
+
 def endpoint(directory, *, run_id="", source_sha=""):
     sessions = {}
-    for path in sorted(Path(directory).rglob("*.jsonl")):
+    for path in latest_attempt_files(directory):
         with path.open(encoding="utf-8") as handle:
             for line in handle:
                 row = json.loads(line)
@@ -73,16 +99,19 @@ def endpoint(directory, *, run_id="", source_sha=""):
     outcomes = {}
     for (_, nodeid), outcome in sessions.items():
         outcomes.setdefault(nodeid, []).append(outcome)
-    total = len(outcomes)
+    skipped = sum(all(value in ("passed", "skipped") for value in values)
+                  and "skipped" in values for values in outcomes.values())
     passed = sum(all(value == "passed" for value in values)
                  for values in outcomes.values())
+    total = len(outcomes) - skipped
     color = ("lightgrey" if not total else
              "green" if passed * 100 > total * 90 else
              "yellow" if passed * 100 >= total * 80 else
              "orange" if passed * 100 >= total * 70 else "red")
     return {"schemaVersion": 1, "label": "tests",
-            "message": f"{passed}/{total}" if total else "pending",
-            "color": color, "passed": passed, "total": total,
+            "message": (f"{passed}/{total}" + (f", {skipped} skipped" if skipped else "")
+                        if total else "pending"),
+            "color": color, "passed": passed, "total": total, "skipped": skipped,
             "run_id": str(run_id), "source_sha": source_sha}
 
 
