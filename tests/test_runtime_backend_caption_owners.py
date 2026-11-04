@@ -23,6 +23,7 @@ def extract_backend_sources(tmp_path, monkeypatch):
         "_lineage_trees.py",
         "utils.py", "channel_sorting.py", "image_import.py", "run_journal.py", "ml.py",
         "regression_layout.py", "regression_failure.py", "regression_backends.py", "power_model.py", "io.py",
+        "uniprot.py",
     ):
         (source_root / filename).write_text("", encoding="utf-8")
     monkeypatch.setattr(builder, "ROOT", tmp_path)
@@ -756,3 +757,13 @@ def test_channel_provenance_refusals_have_only_two_declared_io_owners(extract_ba
         'The normalized channel order cannot be verified.',
         'Restore the original image stacks.',
     }
+
+
+def test_busy_uniprot_notice_enters_only_its_annotation_owner(extract_backend_sources):
+    caption = ("UniProt is busy or unreachable, try again later. "
+               "Results for {name} are not annotated.")
+    source = (f"def annotation_for(text):\n    return None, tr({caption!r}, name=text)\n"
+              "def _fetch(url):\n    return tr('An internal request detail.')\n")
+    assert extract_backend_sources('uniprot.py', source) == {caption}
+    real = Path(__file__).resolve().parents[1] / "spacr" / "uniprot.py"
+    assert caption in extract_backend_sources('uniprot.py', real.read_text(encoding="utf-8"))

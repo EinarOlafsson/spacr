@@ -48,6 +48,26 @@ def _row(
 
 
 REVIEWED_UI_TRANSLATIONS: Final[dict[str, dict[str, str]]] = {
+    'Mitosis': _row(
+        'Mitos',
+        'Mitose',
+        'Mitosis',
+        '有丝分裂',
+        'Mitose',
+        'समसूत्री विभाजन',
+        '유사분열',
+        'Jafnskipting',
+        'Mitose'),
+    'Fission': _row(
+        'Klyvning',
+        'Spaltung',
+        'Fisión',
+        '裂殖',
+        'Fissão',
+        'विखंडन',
+        '이분법',
+        'Tvískipting',
+        'Fission'),
     'Export…': _row(
         'Exportera…',
         'Exportieren…',

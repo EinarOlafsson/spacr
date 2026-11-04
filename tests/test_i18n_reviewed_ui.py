@@ -49,7 +49,9 @@ def test_reviewed_ui_vocabulary_is_complete_and_pinned():
     arrivals, retired = contract["arrivals"], contract["retired"]
     # 2026-11-01 items 748/749: +2 arrivals, the Train Compare overlay caption
     # and the curation brush hint, whose generated targets were mistranslated.
-    assert len(arrivals) == 58
+    # 2026-11-04: +2 arrivals, the Make Masks division types Mitosis and
+    # Fission, whose Spanish and French targets are the same word as English.
+    assert len(arrivals) == 60
     assert set(retired) == {
         "SSH authentication was denied. Test the connection to try again.",
         "Authenticate in spaCR (keyboard-interactive / MFA)",

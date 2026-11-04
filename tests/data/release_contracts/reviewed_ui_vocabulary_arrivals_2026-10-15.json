@@ -637,6 +637,28 @@
       "ko": "드래그하여 활성 레이블로 칠하고, 오른쪽 버튼으로 드래그하여 지웁니다. [ 와 ]는 브러시 크기를 바꾸고, Backspace는 마지막 획을 취소합니다",
       "is": "Dragðu til að mála með virka merkinu, dragðu með hægri hnappi til að stroka út, [ og ] breyta stærð pensilsins, Backspace afturkallar síðasta pensilstrok",
       "fr": "Faites glisser pour peindre avec l'étiquette active, faites glisser avec le bouton droit pour effacer, [ et ] changent la taille du pinceau, Retour arrière annule le dernier tracé"
+    },
+    "Mitosis": {
+      "sv": "Mitos",
+      "de": "Mitose",
+      "es": "Mitosis",
+      "zh_CN": "有丝分裂",
+      "pt": "Mitose",
+      "hi": "समसूत्री विभाजन",
+      "ko": "유사분열",
+      "is": "Jafnskipting",
+      "fr": "Mitose"
+    },
+    "Fission": {
+      "sv": "Klyvning",
+      "de": "Spaltung",
+      "es": "Fisión",
+      "zh_CN": "裂殖",
+      "pt": "Fissão",
+      "hi": "विखंडन",
+      "ko": "이분법",
+      "is": "Tvískipting",
+      "fr": "Fission"
     }
   },
   "historical_source_commit": "d988f1925e986f1da0036cab84dd951a3ff7dbd4",
