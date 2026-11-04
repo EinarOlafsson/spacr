@@ -25,10 +25,13 @@ done its fitting.
 
 from __future__ import annotations
 
+import http.client
 import json
 import logging
 import os
 import re
+import time
+import urllib.error
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
@@ -141,8 +144,8 @@ ORGANISMS: Dict[str, int] = {
     "toxoplasma gondii me49": 508771,
     "toxoplasma gondii gt1": 507601,
     "toxoplasma gondii rh": 383379,
-    "neospora caninum": 572307,
-    "neospora": 572307,
+    "neospora caninum": 29176,
+    "neospora": 29176,
     "hammondia hammondi": 99158,
     "besnoitia besnoiti": 94643,
     "cystoisospora suis": 483139,
@@ -317,15 +320,72 @@ def _write_cache(cache_dir, key: str, payload) -> None:
         LOG.debug("could not cache the UniProt answer", exc_info=True)
 
 
+_BUSY_STATUSES = frozenset({429, 502, 503, 504})
+_ATTEMPTS = 4
+_BACKOFF = 2.0
+_BUSY_WAIT = 20.0
+_sleep = time.sleep
+
+
+class _Busy(Exception):
+    """UniProt kept answering busy, or kept dropping the connection."""
+
+
+def _retry_after(headers) -> Optional[float]:
+    """Seconds a ``Retry-After`` header asks for, or None when it says nothing.
+
+    UniProt may send either form the header allows: a count of seconds or an
+    HTTP date.
+    """
+    value = str((headers or {}).get("Retry-After", "") or "").strip()
+    if not value:
+        return None
+    if value.isdigit():
+        return float(value)
+    import email.utils
+
+    try:
+        when = email.utils.parsedate_to_datetime(value)
+    except (TypeError, ValueError):
+        return None
+    return max(0.0, when.timestamp() - time.time())
+
+
 def _get(url: str) -> Tuple[str, str]:
-    """``(body, next_url)``. The second is UniProt's cursor for the next page."""
+    """``(body, next_url)``. The second is UniProt's cursor for the next page.
+
+    A busy answer (429, 502, 503, 504) or a dropped connection is retried with
+    a doubling wait, or the wait ``Retry-After`` asks for, until
+    ``_BUSY_WAIT`` seconds have been spent; then :class:`_Busy` is raised.
+    Any other HTTP error is raised as it came.
+    """
     request = urllib.request.Request(
         url, headers={"Accept": "text/plain",
                       "User-Agent": "spaCR (https://github.com/EinarOlafsson/spacr)"})
-    with urllib.request.urlopen(request, timeout=TIMEOUT) as response:
-        body = response.read().decode("utf-8", "replace")
-        link = response.headers.get("Link", "") or ""
-    return body, _next_page(link)
+    waited, attempt = 0.0, 0
+    while True:
+        try:
+            with urllib.request.urlopen(request, timeout=TIMEOUT) as response:
+                body = response.read().decode("utf-8", "replace")
+                link = response.headers.get("Link", "") or ""
+            return body, _next_page(link)
+        except urllib.error.HTTPError as error:
+            if error.code not in _BUSY_STATUSES:
+                raise
+            reason = f"HTTP {error.code}"
+            delay = _retry_after(error.headers)
+        except (urllib.error.URLError, ConnectionError, TimeoutError,
+                http.client.HTTPException) as error:
+            reason = str(error) or type(error).__name__
+            delay = None
+        if delay is None:
+            delay = _BACKOFF * (2 ** attempt)
+        attempt += 1
+        if attempt >= _ATTEMPTS or waited + delay > _BUSY_WAIT:
+            raise _Busy(reason)
+        LOG.info("UniProt is busy (%s); asking again in %.0f s", reason, delay)
+        _sleep(delay)
+        waited += delay
 
 
 def _next_page(link_header: str) -> str:
@@ -365,6 +425,13 @@ def fetch(resolution: Resolution, *, cache_dir=None, reviewed: bool = True,
     :param limit: stop after this many rows.
     :returns: a DataFrame, or None when there is nothing to ask.
     """
+    return _fetch(resolution, cache_dir=cache_dir, reviewed=reviewed,
+                  limit=limit)[0]
+
+
+def _fetch(resolution: Resolution, *, cache_dir=None, reviewed: bool = True,
+           limit: int = 20000):
+    """:func:`fetch`, as ``(frame, busy)`` so a caller can tell busy from empty."""
     import pandas as pd
 
     if resolution.kind == "accession":
@@ -378,13 +445,28 @@ def fetch(resolution: Resolution, *, cache_dir=None, reviewed: bool = True,
             query += " AND reviewed:true"
         size = min(PAGE, limit)
     else:
-        return None
+        return None, False
 
     cached = _read_cache(cache_dir, key)
     if cached is not None:
-        return pd.DataFrame(cached)
+        return pd.DataFrame(cached), False
+    frame, busy = _walk(_search_url(query, size), limit,
+                        resolution.text or resolution.accession, LOG.warning)
+    if frame is not None:
+        _write_cache(cache_dir, key, frame.to_dict("records"))
+    return frame, busy
 
-    frames, url, fetched = [], _search_url(query, size), 0
+
+def _walk(url: str, limit, what: str, log):
+    """Follow UniProt's pages from ``url``: ``(frame or None, busy)``.
+
+    ``busy`` is true when no page arrived because UniProt stayed busy or
+    unreachable after :func:`_get`'s retries, as opposed to answering with
+    nothing. Pages that did arrive before a failure are kept.
+    """
+    import pandas as pd
+
+    frames, fetched, busy = [], 0, False
     try:
         while url and fetched < int(limit):
             text, url = _get(url)
@@ -393,17 +475,17 @@ def fetch(resolution: Resolution, *, cache_dir=None, reviewed: bool = True,
                 break
             frames.append(page)
             fetched += len(page)
+    except _Busy as error:
+        busy = True
+        LOG.warning("UniProt is busy or unreachable for %s, even after "
+                    "waiting: %s", what, error)
     except Exception as error:                               # noqa: BLE001
-        LOG.warning("UniProt could not be reached for %s: %s",
-                    resolution.text or resolution.accession, error)
-        if not frames:
-            return None
+        log("UniProt could not be reached for %s: %s", what, error)
     if not frames:
-        return None
+        return None, busy
     frame = pd.concat(frames, ignore_index=True) if len(frames) > 1 \
         else frames[0]
-    _write_cache(cache_dir, key, frame.to_dict("records"))
-    return frame
+    return frame, False
 
 
 def _parse_tsv(text: str):
@@ -443,14 +525,19 @@ def fetch_genes(resolution: Resolution, genes, *, cache_dir=None):
     :param genes: gene names or accessions from the table being annotated.
     :returns: a DataFrame, or None when the query could not be made.
     """
+    return _fetch_genes(resolution, genes, cache_dir=cache_dir)[0]
+
+
+def _fetch_genes(resolution: Resolution, genes, *, cache_dir=None):
+    """:func:`fetch_genes`, as ``(frame, busy)``."""
     import pandas as pd
 
     names = [str(g).strip() for g in (genes or []) if str(g).strip()]
     names = sorted({n for n in names})
     if not names or resolution.kind != "organism":
-        return None
+        return None, False
     if len(names) > TARGETED_MAX:
-        return None
+        return None, False
 
     import hashlib
 
@@ -458,31 +545,17 @@ def fetch_genes(resolution: Resolution, genes, *, cache_dir=None):
     key = f"tax_{resolution.taxon}_genes_{digest}"
     cached = _read_cache(cache_dir, key)
     if cached is not None:
-        return pd.DataFrame(cached)
+        return pd.DataFrame(cached), False
 
     clauses = " OR ".join(
         f"gene:{n}" if not ACCESSION.match(n) else f"accession:{n}"
         for n in names)
     query = f"({clauses}) AND organism_id:{resolution.taxon}"
-    frames, url, fetched = [], _search_url(query, PAGE), 0
-    try:
-        while url and fetched < 20000:
-            text, url = _get(url)
-            page = _parse_tsv(text)
-            if page is None or not len(page):
-                break
-            frames.append(page)
-            fetched += len(page)
-    except Exception as error:                               # noqa: BLE001
-        LOG.debug("targeted UniProt query failed: %s", error)
-        if not frames:
-            return None
-    if not frames:
-        return None
-    frame = pd.concat(frames, ignore_index=True) if len(frames) > 1 \
-        else frames[0]
-    _write_cache(cache_dir, key, frame.to_dict("records"))
-    return frame
+    frame, busy = _walk(_search_url(query, PAGE), 20000, resolution.text,
+                        LOG.debug)
+    if frame is not None:
+        _write_cache(cache_dir, key, frame.to_dict("records"))
+    return frame, busy
 
 
 def annotation_for(text, *, cache_dir=None, genes=None):
@@ -504,16 +577,23 @@ def annotation_for(text, *, cache_dir=None, genes=None):
             f"an accession"
             + (f" -- did you mean {near}?" if near else "")
             + ". Results are not annotated.")
-    frame = fetch_genes(resolution, genes, cache_dir=cache_dir)
-    if frame is None or not len(frame):
-        frame = fetch(resolution, cache_dir=cache_dir)
+    frame, busy = _fetch_genes(resolution, genes, cache_dir=cache_dir)
+    if not busy and (frame is None or not len(frame)):
+        frame, busy = _fetch(resolution, cache_dir=cache_dir)
     note = ""
-    if (frame is None or not len(frame)) and resolution.kind == "organism":
-        frame = fetch(resolution, cache_dir=cache_dir, reviewed=False)
+    if (not busy and (frame is None or not len(frame))
+            and resolution.kind == "organism"):
+        frame, busy = _fetch(resolution, cache_dir=cache_dir, reviewed=False)
         if frame is not None and len(frame):
             note = (f"{resolution.text} has no reviewed (Swiss-Prot) "
                     f"entries; these {len(frame)} are unreviewed TrEMBL "
                     f"predictions.")
+    if busy:
+        from .qt.i18n import tr
+
+        return None, tr("UniProt is busy or unreachable, try again later. "
+                        "Results for {name} are not annotated.",
+                        name=repr(resolution.text))
     if frame is None or not len(frame):
         return None, (f"UniProt returned nothing for {resolution.text!r}. "
                       f"Results are not annotated.")

@@ -55,6 +55,18 @@ needs_uniprot = pytest.mark.skipif(
     "not _has_network()", reason="UniProt is not reachable from here")
 
 
+def _skip_if_uniprot_is_busy(note):
+    """Skip when UniProt stayed busy through spaCR's retries.
+
+    The reachability probe is one request; a job that then makes dozens can
+    be throttled partway through. That is UniProt's load, not spaCR's
+    behaviour, and spaCR says so in the note. An empty answer after a 200
+    is NOT this, and still fails.
+    """
+    if str(note or "").startswith("UniProt is busy or unreachable"):
+        pytest.skip("UniProt is throttling this runner")
+
+
 # ---------------------------------------------------------------------------
 # resolution, offline
 # ---------------------------------------------------------------------------
@@ -182,6 +194,7 @@ def test_a_real_organism_comes_back_with_entries(tmp_path, name):
     frame, note = annotation_for(name, cache_dir=str(tmp_path),
                                  genes=["TP53", "ISN1", "FEN1"])
     if frame is None:                       # an organism with nothing at all
+        _skip_if_uniprot_is_busy(note)
         pytest.fail(f"{name} returned nothing: {note}")
     assert len(frame) > 0
     assert "Entry" in frame.columns
@@ -237,6 +250,7 @@ def test_a_human_coefficient_table_is_annotated(tmp_path):
 
     annotated, note = annotate_with(coefficients, "human",
                                     cache_dir=str(tmp_path))
+    _skip_if_uniprot_is_busy(note)
 
     assert len(annotated) == len(coefficients), "the join multiplied rows"
     assert "product" in annotated.columns
@@ -254,7 +268,9 @@ def test_the_answer_is_cached_so_a_rerun_is_offline(tmp_path, monkeypatch):
     import spacr.uniprot as U
 
     coefficients = pd.DataFrame({"gene": ["TP53"], "coefficient": [1.0]})
-    annotate_with(coefficients, "human", cache_dir=str(tmp_path))
+    _first, note = annotate_with(coefficients, "human",
+                                 cache_dir=str(tmp_path))
+    _skip_if_uniprot_is_busy(note)
 
     def refuse(*_args, **_kwargs):
         raise AssertionError("a cached answer reached the network")
