@@ -11127,12 +11127,13 @@ class AppScreen(QWidget):
         """Ask before a Plaque run can fetch its missing selected checkpoint."""
         if settings.get("colony_counting") and str(settings.get("plaque_mode") or "plaque") != "figure":
             return True
+        from ...model_zoo import ModelUnreadable
         from ...submodules import ModelZooMissing, _requested_plaque_model, _resolve_plaque_model
         from ..model_install import _confirm_checkpoint_download
 
         try:
             _resolve_plaque_model(settings, fetch=False)
-        except ModelZooMissing:
+        except (ModelZooMissing, ModelUnreadable):
             return _confirm_checkpoint_download(self, _requested_plaque_model(settings))
         except Exception as exc:
             QMessageBox.warning(self, tr("Bad settings"), str(exc))

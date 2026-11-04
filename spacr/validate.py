@@ -1539,7 +1539,7 @@ def _check_required_paths(settings: Dict[str, Any], app: str) -> List[Problem]:
                 from .model_zoo import ModelZooError, _ensure_model_file
                 try:
                     if _ensure_model_file(
-                            value, kinds=("classifier",), download=False) is not None:
+                            value, kinds=("classifier",), download=False, verify=False) is not None:
                         return
                 except ModelZooError:
                     pass
@@ -1626,7 +1626,7 @@ def _check_required_paths(settings: Dict[str, Any], app: str) -> List[Problem]:
             from .model_zoo import ModelZooError, _ensure_model_file
             try:
                 downloadable = _ensure_model_file(
-                    custom_model, kinds=("cellpose",), download=False) is not None
+                    custom_model, kinds=("cellpose",), download=False, verify=False) is not None
             except ModelZooError:
                 downloadable = False
             if not downloadable:

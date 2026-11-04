@@ -99,3 +99,22 @@ def test_cached_model_needs_no_confirmation_and_unknown_model_stays_blocked(
     assert not AppScreen._confirm_plaque_model_download(parent, {'plaque_model': 'not-a-catalogue-model'})
     assert warnings and 'not-a-catalogue-model' in warnings[0][-1]
     assert AppScreen._confirm_plaque_model_download(parent, {'colony_counting': True})
+
+
+def test_a_cached_checkpoint_failing_its_checksum_asks_for_a_fresh_download(
+        qtbot, monkeypatch):
+    from spacr import model_zoo, submodules
+    from spacr.qt import model_install
+
+    parent = QWidget()
+    qtbot.addWidget(parent)
+    asked = []
+
+    def mismatch(settings, fetch=True):
+        raise model_zoo.ModelUnreadable('sha256 mismatch')
+
+    monkeypatch.setattr(submodules, '_resolve_plaque_model', mismatch)
+    monkeypatch.setattr(model_install, '_confirm_checkpoint_download',
+                        lambda owner, name: asked.append(name) or True)
+    assert AppScreen._confirm_plaque_model_download(parent, {'plaque_model': 'v7'})
+    assert asked == ['v7']

@@ -1310,7 +1310,7 @@ def _prefixed_split(name, model_name):
     return model.strip(), target.strip().lower()
 
 
-def _prefixed_model(name, model_name, *, download=True, setting=None):
+def _prefixed_model(name, model_name, *, download=True, setting=None, verify=None):
     """The model a prefixed backend's setting selects.
 
     One of the backend's own model names is used as it is, a blank one is
@@ -1335,7 +1335,7 @@ def _prefixed_model(name, model_name, *, download=True, setting=None):
         return os.path.abspath(path)
     from .model_zoo import _ensure_model_file
     downloaded = _ensure_model_file(
-        model, kinds=(name,), download=download,
+        model, kinds=(name,), download=download, verify=verify,
         setting=setting if setting is not None else "model_name", original_request=model_name)
     if downloaded is not None:
         return str(downloaded)
@@ -1357,7 +1357,7 @@ def _prefixed_model_ok(value):
         return None
     from .model_zoo import ModelZooError
     try:
-        _prefixed_model(name, value, download=False)
+        _prefixed_model(name, value, download=False, verify=False)
     except (FileNotFoundError, ModelZooError):
         return False
     return True

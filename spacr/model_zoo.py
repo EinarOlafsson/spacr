@@ -4419,7 +4419,7 @@ def _resolve_pinned_model_file(settings, name, *, kinds=(), download=True):
                if row.get("key", row.get("name")) == record["key"]
                and _model_reference_from_record(record["requested_value"], row) == record)
     resolved = _ensure_catalogue_model_file(
-        _entry_from_mapping(raw), download=download, setting=name,
+        _entry_from_mapping(raw), download=download, setting=name, verify=False,
         requested=record['requested_value'], publisher_version=record['version'])
     if resolved is None:
         _bad_model_metadata(name, f"{record['key']} sha256={record['sha256']}")
@@ -4499,7 +4499,8 @@ def _unseen_entries(existing, extra):
     return selected
 
 
-def _ensure_model_file(requested, *, kinds=(), download=True, setting=None, original_request=None):
+def _ensure_model_file(requested, *, kinds=(), download=True, setting=None, original_request=None,
+                       verify=None):
     """Resolve a catalogue checkpoint and fetch missing verified weights.
 
     Local paths win. Unknown identifiers return None for the caller's
@@ -4509,6 +4510,7 @@ def _ensure_model_file(requested, *, kinds=(), download=True, setting=None, orig
     Optional ``setting`` names the actual input field in a successful-download log.
     ``original_request`` preserves a caller's unmodified prefix/target string in
     that log; None uses the lookup request. It never changes identity selection.
+    ``verify`` is passed to :func:`_ensure_catalogue_model_file`.
     """
     text = os.fspath(requested).strip() if requested is not None else ""
     if not text:
@@ -4543,7 +4545,7 @@ def _ensure_model_file(requested, *, kinds=(), download=True, setting=None, orig
             f"{text!r} is a {entry.kind} model; this operation requires "
             f"one of {', '.join(kinds)}")
     return _ensure_catalogue_model_file(
-        entry, download=download, setting=setting,
+        entry, download=download, setting=setting, verify=verify,
         requested=text if original_request is None else original_request,
         publisher_version=next((row.get("version") for row in BUNDLED_REMOTE_MODELS
                                 if row.get("key", row.get("name")) == entry.key
@@ -4690,8 +4692,28 @@ def _manual_model_copy_command(entry, cached) -> str:
             f"&& echo {check} | sha256sum -c -")
 
 
+_VERIFIED_DIGESTS: Dict[Tuple[str, int, int], str] = {}
+
+
+def _cached_sha256(path, hash_now=True):
+    """SHA-256 of ``path``, hashed once per (path, size, mtime_ns).
+
+    :param path: the file.
+    :param hash_now: false answers None for a file not hashed yet, so a GUI-thread
+        caller never reads a large checkpoint.
+    :returns: the lowercase hex digest, or None when not known and not computed.
+    """
+    stat = Path(path).stat()
+    key = (str(path), stat.st_size, stat.st_mtime_ns)
+    digest = _VERIFIED_DIGESTS.get(key)
+    if digest is None and hash_now:
+        digest = sha256_file(path)
+        _VERIFIED_DIGESTS[key] = digest
+    return digest
+
+
 def _ensure_catalogue_model_file(entry, *, download=True, setting=None, requested=None,
-                                 publisher_version=Ellipsis):
+                                 publisher_version=Ellipsis, verify=None):
     """Acquire one identity under the cache lock and report successful contextual downloads.
 
     :param entry: exact selected catalogue entry.
@@ -4700,23 +4722,40 @@ def _ensure_catalogue_model_file(entry, *, download=True, setting=None, requeste
     :param requested: original path/key, preserved independently of the effective path.
     :param publisher_version: raw recorded version, including None when unspecified;
         Ellipsis uses the selected entry version without inferring one from storage suffixes.
+    :param verify: refuse a cached file whose SHA-256 differs from the catalogue row;
+        None verifies when ``download`` is false, where a preview would otherwise use
+        bytes a run refuses. On Qt's GUI thread an unhashed file is returned unverified,
+        and the worker that loads it verifies.
     :returns: verified existing or acquired path, or None for a non-acquirable entry.
+    :raises ModelUnreadable: when ``verify`` finds a cached file with the wrong digest.
     """
     if entry.path and Path(entry.path).is_file():
         return Path(entry.path)
     if not entry.uri:
         return None
+    verify = (not download) if verify is None else verify
+    hash_now = not (verify and not download and _on_the_qt_gui_thread())
     destination = _model_cache_root()
     cached = destination / Path(entry.name).name
+    found = None
     if cached.is_file():
-        if entry.sha256 and sha256_file(cached) == entry.sha256.lower():
-            return cached
+        if entry.sha256:
+            found = _cached_sha256(cached, hash_now)
+            if found is None or found == entry.sha256.lower():
+                return cached
     if entry.sha256 and destination.is_dir():
         for version in sorted(destination.glob(
                 f"{cached.stem}_v*{cached.suffix}")):
-            if version.is_file() and sha256_file(version) == entry.sha256.lower():
+            if version.is_file() and _cached_sha256(version, hash_now) == entry.sha256.lower():
                 return version
     if not download:
+        if verify and found is not None:
+            from .qt.i18n import tr
+
+            raise ModelUnreadable(tr(
+                "Model file {path} does not match the catalogue checksum for {model}: "
+                "expected sha256 {expected}, found {actual}. Download it again in Model Zoo.",
+                path=str(cached), model=entry.key, expected=entry.sha256, actual=found))
         return cached
     if os.environ.get("SPACR_MODEL_DOWNLOAD", "").strip().casefold() in (
             "0", "off", "false", "no"):
@@ -4746,12 +4785,12 @@ def _ensure_catalogue_model_file(entry, *, download=True, setting=None, requeste
         args=(lock_path, stop, min(30.0, _model_lock_stale_seconds() / 4)), daemon=True)
     heartbeat.start()
     try:
-        if cached.is_file() and entry.sha256 and sha256_file(cached) == entry.sha256.lower():
+        if cached.is_file() and entry.sha256 and _cached_sha256(cached) == entry.sha256.lower():
             return cached
         if entry.sha256:
             for version in sorted(destination.glob(
                     f"{cached.stem}_v*{cached.suffix}")):
-                if version.is_file() and sha256_file(version) == entry.sha256.lower():
+                if version.is_file() and _cached_sha256(version) == entry.sha256.lower():
                     return version
         LOG.info("Downloading requested model %s into %s", entry.key, destination)
         try:

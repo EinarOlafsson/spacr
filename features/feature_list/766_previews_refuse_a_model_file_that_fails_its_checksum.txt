@@ -11,3 +11,7 @@ when its SHA-256 does not match its catalogue row, for bundled and community
 rows alike, so a preview can segment with bytes a run would refuse. Make the
 previews verify (cheaply, with a cached digest keyed by size and mtime) and say
 clearly when the cached file does not match, without changing what a run does.
+
+2026-11-04: _ensure_catalogue_model_file(download=False) now verifies the cached file against its row and raises ModelUnreadable naming the file, the expected and the actual SHA-256; digests are cached in memory by (path, size, mtime_ns), so a checkpoint is hashed once. No sidecar file.
+2026-11-04: On Qt's GUI thread an unhashed file is returned unverified (no hashing there); the preview and segmentation workers (plaque_preview, live_preview resolver) verify off-thread. app_screen's run-consent check treats a mismatch like a missing model, so a run still downloads a fresh copy.
+2026-11-04: validate.py, the prefixed-backend validation and recorded model pins pass verify=False, so validation and what a full run does are unchanged. Tests: tests/test_previews_refuse_a_cached_model_that_fails_its_checksum.py. New string awaits generator closure.
