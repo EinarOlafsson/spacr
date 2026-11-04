@@ -28,3 +28,5 @@ REQUIREMENTS
 2026-11-04 Proposed for removal: 18 files (124 tests): features/ ledger and index rules, gpu_turn and NAS-guard tooling, one-off investigations (items 424, 434, N684), 3 cov_kept duplicates and the retired _ThoreEngine test.
 2026-11-04 Only qt/test_thore_engine.py is the sole test of its code (dead _ThoreEngine); the others import no spacr module or touch code other tests cover. Without coverage contexts, rerun the ratchet with each file removed.
 2026-11-04 Borderline: 13 named by hand (CI, ratchet and release gates; the attribution guard) plus 316 rule-flagged files listed for triage; 21 groups of identical test bodies across files.
+2026-11-04 Removal pass (maintainer approved): the 17 proposed files (116 tests) removed in 02bd42e7f7, and tests/qt/test_thore_engine.py with _ThoreEngine; the 13 borderline files kept.
+2026-11-04 With the 759 removals, 178 test functions and 18 files went, and 3 tests were added: two keep the engine background/set_colors lines covered, one keeps the tissue-facets density check that shared a test with the Thore rain.

@@ -28,3 +28,7 @@ REQUIREMENTS
 2026-11-04 v1/v2/legacy names: 91. All live (pipeline_v2, _v1_v2_bridge, io v1 migration) except TorchModel_v2 (keep: pickled models may need it) and the Home mock-up variants v01-v30.
 2026-11-04 Comments: no commented-out code; 3 orphaned plain comments; 58 stale-sounding #: doc-comments (under the docstring freeze); 41 pragma no cover; one constant `if True:` at sequencing.py:1602; 3 unused imports.
 2026-11-04 Next: the coordinator schedules removal with API catalog and 9-locale closure, plus the test changes from 760.
+2026-11-04 Removal pass (maintainer approved): 24 private functions/classes removed (546 lines) with 61 tests that only exercised them; 3 unused imports, 3 orphaned comments and sequencing.py's `if True:` removed. Commits a66383aea9, 999430e99b, e7a9e81068 and the Thore/widgets commit.
+2026-11-04 Each module group: the related tests ran before and after under branch coverage, and no live line or branch lost coverage. Two lines only the Thore test reached (AmbientEngine.background, set_colors) got a replacement test.
+2026-11-04 Kept 107 of the 131 candidates (list: /mnt/wd4tb/scratch/claude-deadcode-20261104/kept.md): a docs, docstring or API index reference (51), removing it with its tests would drop live coverage (26), a test hook or deliberate shim (14), recent feature code (16).
+2026-11-04 Possible lost wiring, not dead code: MainWindow._resume_last_session (items 647/648); nothing calls it or restart_state._last_session. Stale 'spaCR Thore' rows remain in the nine i18n catalogs (generator closure).
