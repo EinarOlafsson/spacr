@@ -116,7 +116,6 @@ read_the_exclusions() {
 !/Notebooks/
 !/proposals/
 !/tools/
-!/data/
 !/spacr/resources/models/
 !/spacr/resources/home/versions/
 !/spacr/resources/icons/backup_icons/

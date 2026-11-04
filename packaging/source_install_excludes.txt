@@ -29,7 +29,6 @@
 !/Notebooks/
 !/proposals/
 !/tools/
-!/data/
 
 # --- Inside the package, but fetched or regenerated on demand -------------
 

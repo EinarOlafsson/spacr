@@ -27,12 +27,9 @@ tests/
 features/
 Notebooks/
 proposals/
-measurements/
 spaCR_settings/
 spacr_drivers/
-data/
 conda-forge/
-settings/
 
 # 90 home-screen renders the maintainer chooses from, 13 MB, pruned from the
 # distribution by MANIFEST.in.

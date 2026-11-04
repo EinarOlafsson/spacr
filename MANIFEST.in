@@ -75,7 +75,6 @@ recursive-include docs/source *.rst *.py *.html *.css *.js *.png *.svg *.ttf *.w
 # list, so the size never made the problem obvious.
 prune docs/source/_extra/tutorials
 recursive-include path *.csv *.db
-recursive-include settings *.csv
 recursive-include source *.py *.rst
 
 # Recursively include fonts
