@@ -1,0 +1,64 @@
+WHAT TRACKED CELLS DO BEFORE THEY DIVIDE: DIVISION-ALIGNED TRAJECTORIES WITH CONTROLS
+===================================================================================
+Lifecycle: future
+Status: IN PROGRESS (alpha) 2026-11-04 — library module spacr/division_analysis.py and its tests are on branch division-analysis; no GUI surface, setting or screen yet, so nothing is registered with the alpha gate.
+Requested: maintainer, 2026-11-04 (BMC Bioinformatics paper, Fig 7 "Timepose applied: what happens before cells divide"; analysis approved on gold tracks, no model).
+Owner: Home (division-analysis worktree).
+Related: 426 timeflows (the tracker whose output this reads), 535 cell-cycle phase, 539 bleach correction, lineage trees.
+
+WHAT THE STATE IS
+spacr/division_analysis.py turns a tracked label stack (label value = track id) plus a lineage table
+(label, t_start, t_end, parent; CTC man_track semantics) into a controlled answer to "does this
+measurement change before division more than in cells that are not about to divide?":
+- measure_label_stack, add_motion_features: area, major/minor axis, aspect ratio, eccentricity,
+  circularity, solidity, mean intensity normalised to the frame median; speed, displacement, turning.
+- division_events, median_cycle_frames: fission (parent ends, two daughters next frame) and budding
+  (mother continues, each bud one event); t_div = last frame before a daughter is seen.
+- control_slots, match_controls: same-movie, time-overlapping, size-matched (+/-25%) tracks that do
+  not divide in the window or the horizon after their pseudo-division time.
+- shuffled_alignment: the dividing tracks aligned on a random time away from division (null control).
+- align_units, unit_changes: rel_t trajectories (daughters after 0) and late-vs-baseline change
+  (log ratio for positive measures, difference otherwise).
+- effect_size (Hedges g, bootstrap 95% CI, large-sample variance), random_effects_meta
+  (DerSimonian-Laird, tau2, Q, I2).
+- cell_cycles, size_control_fits: birth vs division size, added size; sizer/adder/timer slopes.
+tests/test_division_analysis.py builds synthetic lineages with a planted pre-division change and
+checks that the pipeline finds it while the shuffled control does not, plus the meta-analysis and
+size-control slopes against hand-computed cases.
+
+The first use is the Fig 7 reanalysis in
+/nas_mnt/data/sync/papers/BMCspacr/reanalysis/division_biology/ (REPORT.md there, driver code in code/).
+
+WHY IT MATTERS
+Tracking is only worth its cost when the tracks answer a biological question. This is the question
+almost every time-lapse user asks first (what changes before a cell divides), and without matched and
+shuffled controls the usual answer is a growth curve mistaken for a pre-division signal.
+
+WHAT TO DO
+1. Arrival contract and 9-locale catalogue records for the new public callables, under the master
+   session's generator lock (NOT run on this branch): measure_label_stack, add_motion_features,
+   read_lineage_table, division_events, median_cycle_frames, control_slots, match_controls,
+   shuffled_alignment, align_units, unit_changes, effect_size, random_effects_meta, cell_cycles,
+   size_control_fits; constants SHAPE_MEASURES, MOTION_MEASURES, COMPARED_MEASURES, LOG_MEASURES,
+   LINEAGE_COLUMNS.
+2. Read spaCR's own timelapse output (tracks CSV + label stacks from the timelapse/timeflows step) as
+   input, so a user's tracking run feeds this directly; register the step's settings with
+   ALPHA_FEATURES[755].
+3. A "Division analysis" results panel: aligned trajectories with control bands, the forest plot and the
+   size-control plot, all from the tidy CSVs the module already produces.
+4. Proposed follow-ons found while building Fig 7 (each needs its own decision):
+   a. frame interval and pixel size as first-class per-movie metadata (the corpus manifest has them for
+      6 of 13 datasets; everything else is analysed in frames and pixels);
+   b. a budding-yeast cycle model (bud emergence -> cytokinesis) so size control can be fitted for
+      budding yeast, which needs cytokinesis times the mask/lineage pair does not carry;
+   c. a "will divide within N frames" predictor (xgboost, grouped CV by movie, shuffled-label and
+      age-only controls) packaged as a spaCR step; today it lives in the Fig 7 driver;
+   d. cluster (per-movie) bootstrap for effect-size CIs when a dataset has many movies.
+
+HOW TO KNOW IT WORKED
+CUDA_VISIBLE_DEVICES='' python -m pytest -q tests/test_division_analysis.py -> all pass.
+
+DELIBERATELY NOT DONE
+- No GUI, settings or alpha registration yet: the maintainer asked for the analysis first.
+- No frame-interval guessing: units stay frames/pixels unless the caller converts.
+- Prediction is not in the module: it pulls xgboost/sklearn and belongs in a step with its own settings.
