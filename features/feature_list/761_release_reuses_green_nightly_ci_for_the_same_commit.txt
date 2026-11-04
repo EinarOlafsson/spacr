@@ -1,0 +1,25 @@
+THE RELEASE REUSES GREEN NIGHTLY CI FOR THE EXACT SAME COMMIT
+=============================================================
+
+Lifecycle: new
+Status: open — for the release after 1.5.1.7.
+Requested: maintainer, 2026-11-04 (agreed during the 1.5.1.7 release).
+
+REQUEST
+The 1.5.1.7 release waited about 3 hours after main was fast-forwarded to a
+commit whose Tests, docs and compat-matrix runs were already green on nightly:
+tools/require_release_source_ci.py select_run() accepts only runs whose
+head_branch is main, so the push to main started the whole suite again.
+
+REQUIREMENTS
+1. Accept a completed, successful push or workflow_dispatch run of each required
+   workflow on nightly when its head_sha equals the release commit, and main
+   points at that commit. Keep every existing check: the exact SHA, every
+   required job present and green, the documentation-branch pin job, no
+   cancelled or partial attempt counted as green, and refusal if main moves.
+2. A run re-run in part counts only when its latest attempt of every job is
+   green.
+3. Tests for: a green nightly run reused, a red or cancelled one refused, a
+   different SHA refused, main moving refused, and the existing main-run path
+   unchanged.
+4. allow_unfinished_ci stays as it is.

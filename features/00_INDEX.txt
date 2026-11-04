@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-664 Lifecycle: new, 76 Lifecycle: future in features/feature_list/.
+665 Lifecycle: new, 76 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -1606,3 +1606,5 @@ NEW FEATURES
        759_clean_up_comments_and_unused_functions.txt
   760  REMOVE TESTS THAT NO LONGER MAKE SENSE OR DO NOT TEST HOW spaCR WORKS
        760_remove_tests_that_no_longer_make_sense.txt
+  761  THE RELEASE REUSES GREEN NIGHTLY CI FOR THE EXACT SAME COMMIT
+       761_release_reuses_green_nightly_ci_for_the_same_commit.txt
