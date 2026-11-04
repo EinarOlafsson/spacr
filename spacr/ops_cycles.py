@@ -236,6 +236,8 @@ class AlignedField:
         cycle onto the reference; the reference's own is ``(0, 0)``.
     :ivar refused_channels: ``(cycle, channel)`` pairs whose within-cycle
         registration was refused and which were therefore not moved.
+    :ivar spot_replaced: ``(cycle, channel)`` pairs whose background shift
+        the spot registration overruled (``channel_mode='spots'`` only).
     """
 
     stack: np.ndarray
@@ -245,12 +247,131 @@ class AlignedField:
     channel_shifts: Dict[int, Tuple[Tuple[int, int], ...]]
     cycle_shifts: Dict[int, Tuple[int, int]]
     refused_channels: Tuple[Tuple[int, int], ...] = ()
+    spot_replaced: Tuple[Tuple[int, int], ...] = ()
+
+
+#: How the channels are registered (``align_field(channel_mode=...)``).
+#: ``background`` moves each base channel onto its cycle's first channel on
+#: the clipped cell background, then each cycle onto the reference.
+#: ``spots`` registers every channel of every cycle DIRECTLY onto the
+#: reference cycle's spots: both images are Laplacian-of-Gaussian filtered,
+#: so the cell background and the illumination -- which every channel of one
+#: stage position shares at zero shift -- are gone and only the reads are left.
+CHANNEL_MODES = ("background", "spots")
+
+#: How far a channel's spot registration may disagree with its background
+#: registration before the spot answer replaces it, in pixels. Within this the
+#: two agree and the background answer stands, so a good field is unchanged.
+_SPOT_AGREEMENT_PX = 2
+
+#: The weakest spot-registration peak believed, against the surface mean.
+#: Measured on the Funk et al. 2022 plates (2026-11-04): a true spot peak on a
+#: 1,480 px field stands at hundreds; a field with no reads at a few.
+_SPOT_MIN_PEAK = 20.0
+
+#: The spots overrule the background only when the spot surface at the
+#: background's shift is below this share of the spot peak. Where the
+#: background is right the reads coincide there too and the surface is near
+#: its peak; where it locked onto the zero-shift pattern the reads do not
+#: coincide and the surface there is noise.
+_SPOT_OVERRULE_SHARE = 0.5
+
+
+def _spot_surface(first: np.ndarray, second: np.ndarray) -> np.ndarray:
+    """The phase-correlation surface of two spot images, CPU.
+
+    :param first: the reference spots.
+    :param second: the spots to place.
+    :returns: the real surface; its peak at ``(dy, dx)`` means rolling
+        ``second`` by that lands it on ``first``, as in
+        :func:`spacr.ops_register.phase_correlate`.
+    """
+    a = np.fft.rfft2(np.asarray(first, dtype=np.float64))
+    b = np.fft.rfft2(np.asarray(second, dtype=np.float64))
+    cross = a * np.conj(b)
+    cross /= np.abs(cross) + 1e-12
+    return np.fft.irfft2(cross, s=np.shape(first))
+
+
+def _surface_near(surface: np.ndarray, shift) -> float:
+    """The surface's largest value within one pixel of ``shift``."""
+    height, width = surface.shape
+    return float(max(surface[(shift[0] + dy) % height, (shift[1] + dx) % width]
+                     for dy in (-1, 0, 1) for dx in (-1, 0, 1)))
+
+
+def _spot_image(plane: np.ndarray) -> np.ndarray:
+    """A plane's reads with its background removed: -LoG(1 px), clipped at 0.
+
+    :param plane: one 2-D channel.
+    :returns: float32, high only at spot centres.
+    """
+    from scipy import ndimage
+
+    return np.clip(-ndimage.gaussian_laplace(
+        np.asarray(plane, dtype=np.float32), 1.0), 0, None)
+
+
+def _spot_shifts(usable, kept, background_total, reference, *, tolerance,
+                 gpu):
+    """Each channel's total shift onto the reference cycle, read off the spots.
+
+    :param usable: ``cycle -> raw planes``.
+    :param kept: the cycles whose background registration was accepted.
+    :param background_total: ``cycle -> [(dy, dx) per channel]``, the
+        background answer: cycle shift plus channel shift.
+    :param reference: the reference cycle.
+    :param tolerance: the largest total shift accepted, in pixels.
+    :param gpu: passed to the phase correlation.
+    :returns: ``(totals, replaced)`` -- the shift each channel is moved by,
+        and the ``(cycle, channel)`` pairs whose background answer the spots
+        overruled.
+
+    WHY: on four of the Funk plates' weak wells one cycle's channels came
+    back from the background registration at (0, 0) -- the peak every
+    channel of one stage position shares through the illumination and the
+    camera -- while the true drift was 10 to 25 px, and that one cycle then
+    carried 70 to 84 % of the wells' base-call errors. A read is bright in
+    exactly one channel of a cycle and in some channel of the reference, so a
+    channel's spots are a subset of the reference's and register onto them
+    directly, with nothing at zero shift to lock onto.
+    """
+    ref_spots = [_spot_image(plane) for plane in usable[reference]]
+    target = np.max(np.stack([_translate(image, *background_total[reference][k])
+                              for k, image in enumerate(ref_spots)]), axis=0)
+    totals = {}
+    replaced = []
+    for cycle in kept:
+        totals[cycle] = []
+        for k, plane in enumerate(usable[cycle]):
+            mine = background_total[cycle][k]
+            spots = ref_spots[k] if cycle == reference else _spot_image(plane)
+            surface = _spot_surface(target, spots)
+            flat = int(np.argmax(surface))
+            peak = float(surface.flat[flat])
+            mean = float(np.abs(surface).mean())
+            py, px = np.unravel_index(flat, surface.shape)
+            dy = int(py) - surface.shape[0] if py > surface.shape[0] // 2 else int(py)
+            dx = int(px) - surface.shape[1] if px > surface.shape[1] // 2 else int(px)
+            agree = (abs(dy - mine[0]) <= _SPOT_AGREEMENT_PX
+                     and abs(dx - mine[1]) <= _SPOT_AGREEMENT_PX)
+            believed = (mean > 0 and peak / mean >= _SPOT_MIN_PEAK
+                        and abs(dy) <= tolerance and abs(dx) <= tolerance
+                        and _surface_near(surface, mine)
+                        < _SPOT_OVERRULE_SHARE * peak)
+            if believed and not agree:
+                totals[cycle].append((dy, dx))
+                replaced.append((int(cycle), int(k)))
+            else:
+                totals[cycle].append(tuple(int(v) for v in mine))
+    return totals, replaced
 
 
 def align_field(planes: Mapping[int, Optional[Sequence[np.ndarray]]], *,
                 reference: Optional[int] = None,
                 tolerance: int = CYCLE_TOLERANCE,
-                gpu: bool = True) -> AlignedField:
+                gpu: bool = True,
+                channel_mode: str = "background") -> AlignedField:
     """Register one field's channels within each cycle, then its cycles.
 
     Each base channel is first moved onto its cycle's first channel, on the
@@ -269,10 +390,17 @@ def align_field(planes: Mapping[int, Optional[Sequence[np.ndarray]]], *,
     :param tolerance: how far a cycle may land from the reference and still
         be accepted, in pixels.
     :param gpu: allow the phase correlations to run on the GPU.
+    :param channel_mode: one of :data:`CHANNEL_MODES`. ``spots`` runs the
+        background registration first and then checks every channel against
+        the reference cycle's spots, replacing the shifts the spots disagree
+        with; :attr:`AlignedField.spot_replaced` lists those.
     :returns: the aligned field.
-    :raises ValueError: when no cycle has planes, or when the reference
-        cycle has none.
+    :raises ValueError: when no cycle has planes, when the reference
+        cycle has none, or for an unknown ``channel_mode``.
     """
+    if channel_mode not in CHANNEL_MODES:
+        raise ValueError(f"channel_mode must be one of {list(CHANNEL_MODES)}; "
+                         f"got {channel_mode!r}")
     usable = {}
     missing = []
     for cycle in sorted(planes):
@@ -308,12 +436,28 @@ def align_field(planes: Mapping[int, Optional[Sequence[np.ndarray]]], *,
                                     gpu=gpu)
     kept = sorted([reference] + list(accepted_cycles(registrations)))
     cycle_shifts = {reference: (0, 0)}
-    layers = []
     for cycle in kept:
-        stack = np.stack(moved[cycle])
         if cycle != reference:
             found = registrations[cycle]
             cycle_shifts[cycle] = (int(found.dy), int(found.dx))
+    replaced = []
+    if channel_mode == "spots":
+        background_total = {
+            cycle: [(cycle_shifts[cycle][0] + dy, cycle_shifts[cycle][1] + dx)
+                    for dy, dx in channel_shifts[cycle]] for cycle in kept}
+        totals, replaced = _spot_shifts(
+            usable, kept, background_total, reference,
+            tolerance=tolerance + _CHANNEL_TOLERANCE, gpu=gpu)
+        for cycle in kept:
+            channel_shifts[cycle] = tuple(
+                (dy - cycle_shifts[cycle][0], dx - cycle_shifts[cycle][1])
+                for dy, dx in totals[cycle])
+            moved[cycle] = [_translate(np.asarray(plane, dtype=np.float32), *shift)
+                            for plane, shift in zip(usable[cycle], totals[cycle])]
+    layers = []
+    for cycle in kept:
+        stack = np.stack(moved[cycle])
+        if cycle != reference and channel_mode != "spots":
             stack = _translate(stack, *cycle_shifts[cycle])
         layers.append(stack)
     refused = tuple(sorted(c for c, r in registrations.items()
@@ -322,4 +466,5 @@ def align_field(planes: Mapping[int, Optional[Sequence[np.ndarray]]], *,
         stack=np.stack(layers).astype(np.float32, copy=False),
         kept=tuple(kept), refused=refused, missing=tuple(missing),
         channel_shifts=channel_shifts, cycle_shifts=cycle_shifts,
-        refused_channels=tuple(refused_channels))
+        refused_channels=tuple(refused_channels),
+        spot_replaced=tuple(replaced))

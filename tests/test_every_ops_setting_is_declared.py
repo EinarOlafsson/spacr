@@ -146,6 +146,12 @@ def test_a_measured_default_says_the_same_thing_in_both_places(declared):
         "ops_window_overlap": ops_engine._WINDOW_OVERLAP,
         "ops_read_threshold": ops_engine._THRESHOLD_READS,
         "ops_footprint": ops_engine._FOOTPRINT,
+        "ops_cell_rule": ops_engine._CELL_RULE,
+        "ops_crosstalk": ops_engine._CROSSTALK,
+        "ops_channel_registration": ops_engine._CHANNEL_REGISTRATION,
+        "ops_single_read_quality": ops_engine._SINGLE_READ_QUALITY,
+        "ops_read_mismatches": ops_engine._READ_MISMATCHES,
+        "ops_min_fraction": ops_engine._MIN_FRACTION,
     }
     for key, constant in pairs.items():
         assert ops_settings.OPS_DEFAULTS[key] == constant, key

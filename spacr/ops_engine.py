@@ -203,6 +203,63 @@ _SPOT_DETECTORS = ("native", "spotnet", "spotiflow")
 #: time.
 _BACKEND_SPOT_DETECTORS = ("spotnet", "spotiflow")
 
+#: How a nucleus's reads become one barcode (``ops_cell_rule``).
+#:
+#: ``agree`` is the first validated rule: the reads vote on their RAW called
+#: strings, at least two of them, three in five agreeing, and the winning
+#: string is then corrected to the library at one mismatch. ``mapped`` matches
+#: every read to the library FIRST and votes among the matched reads only.
+#:
+#: Measured on 112 sampled fields of plates A and B (2026-11-04, item 752
+#: decode-yield study): 83 % of nuclei carry at least one read, the same as
+#: Brieflow's 81.7 % "any barcode"; ``agree`` assigned 34 % of them because a
+#: nucleus with one read (a third of those with any) can never vote and two
+#: reads of one guide disagree on their raw string whenever either has one
+#: wrong base. ``mapped`` with exact matches and one read allowed assigned
+#: about two thirds, at an estimated false-assignment rate (a decoy library of
+#: shuffled prefixes matched alongside the real one) twenty times LOWER than
+#: ``agree``'s, because the one-mismatch correction ``agree`` applies is
+#: where most wrong guides come from on this library: its guides sit only two
+#: edits apart, so a read one error away from a guide is often an error from
+#: some other guide.
+_CELL_RULES = ("agree", "mapped")
+_CELL_RULE = "mapped"
+
+#: How many mismatches a single READ may carry and still match its guide
+#: under the ``mapped`` rule. Zero: see :data:`_CELL_RULES` for the
+#: decoy measurement. A base lost with its cycle is an N, not a mismatch.
+_READ_MISMATCHES = 0
+
+#: The share of a nucleus's library-matched reads its guide must hold, with
+#: no tie for first. 0.6 is the ``agree`` rule's own bar, kept.
+_MIN_FRACTION = 0.6
+
+#: The quality a nucleus resting on ONE matched read needs (``ops_single_read_
+#: quality``): that read's worst-cycle margin, after unmixing. 0.02 on the
+#: 116-field subset cut the decoy rate of one-read nuclei by half for 0.4 % of
+#: the nuclei, which put the whole rule's decoy rate, upper 95 % bound
+#: included, below brieflow's rule's on the same reads.
+_SINGLE_READ_QUALITY = 0.02
+
+#: How many reads a nucleus needs, per rule, when ``ops_min_reads`` is empty.
+_MIN_READS = {"agree": 2, "mapped": 1}
+
+#: How the base caller undoes dye bleed-through (``ops_crosstalk``), after
+#: each cycle's channels are divided by their median. ``none`` is the first
+#: validated caller; ``argmax_median`` is brieflow's median transform -- see
+#: :func:`spacr.ops_sbs.compensate_crosstalk`. On the 116-field subset it
+#: raised the library-exact read rate on every plate (pooled 0.558 to 0.574)
+#: and LOWERED the decoy match rate, so it is the default; ``percentile`` is
+#: the variant 372 PART 14-L measured lowering the match, kept for that
+#: comparison.
+_CROSSTALK_METHODS = ("none", "argmax_median", "median", "percentile")
+
+#: How each base channel is registered (``ops_channel_registration``); see
+#: :data:`spacr.ops_cycles.CHANNEL_MODES`.
+_CHANNEL_REGISTRATIONS = ("background", "spots")
+_CHANNEL_REGISTRATION = "spots"
+_CROSSTALK = "argmax_median"
+
 #: SpotNet's detection probability. deepcell-spots' own default.
 _SPOTNET_THRESHOLD = 0.95
 
@@ -1422,10 +1479,13 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         return {**base, "skipped": "the reference cycle could not be read"}
 
     tick = time.perf_counter()
-    field = align_field(planes, reference=reference, gpu=gpu)
+    field = align_field(planes, reference=reference, gpu=gpu,
+                        channel_mode=str(task.get("channel_mode")
+                                         or "background"))
     ticks["align"] = time.perf_counter() - tick
     base.update(kept=list(field.kept), refused=list(field.refused),
-                refused_channels=[list(pair) for pair in field.refused_channels])
+                refused_channels=[list(pair) for pair in field.refused_channels],
+        spot_replaced=[list(pair) for pair in field.spot_replaced])
     if len(field.kept) < _MIN_CYCLES:
         return {**base, "skipped": f"{len(field.kept)} usable cycles"}
 
@@ -1475,14 +1535,15 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     tick = time.perf_counter()
     store_reads = bool(task.get("store_reads", False))
     if store_reads:
-        intensities, calls, margins = called_bases(values, bases=_BASES,
-                                                   gpu=gpu)
+        intensities, calls, margins = called_bases(
+            values, bases=_BASES, gpu=gpu, **_crosstalk_arguments(task))
         worst = np.where(np.isnan(margins), np.inf, margins).min(axis=1) \
             if len(calls) else np.zeros(0, np.float32)
         quality = np.where(np.isfinite(worst), worst, 0.0).astype(np.float32)
     else:
         intensities = margins = None
-        calls, quality = call_reads(values, bases=_BASES, gpu=gpu)
+        calls, quality = call_reads(values, bases=_BASES, gpu=gpu,
+                                    **_crosstalk_arguments(task))
     owner, ambiguous = attribute_reads(
         peaks.astype(float), task["centroids"], task["areas"],
         footprint=float(task.get("footprint", _FOOTPRINT)), tie=_TIE)
@@ -1512,6 +1573,19 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
             if intensities is not None and len(intensities)
             else np.zeros((len(rows), len(cycles), len(_BASES)), np.float32))
     return result
+
+
+def _crosstalk_arguments(task: Mapping[str, Any]) -> Dict[str, Any]:
+    """The base caller's unmixing arguments for one field's task.
+
+    :param task: read for ``crosstalk``, one of :data:`_CROSSTALK_METHODS`.
+    :returns: ``compensate`` and ``method`` for
+        :func:`spacr.ops_sbs.called_bases`; ``none`` turns unmixing off.
+    """
+    method = str(task.get("crosstalk") or "none")
+    if method == "none":
+        return {"compensate": False}
+    return {"compensate": True, "method": method}
 
 
 def _load_library(library) -> List[str]:
@@ -1613,6 +1687,42 @@ def _reads_frame(plate: str, well: str, placements, decoded, cycles, bases):
     return pd.DataFrame(data, columns=columns)
 
 
+def _cell_rule(settings: Mapping[str, Any], library: Sequence[str]
+               ) -> Tuple[str, int, int, float]:
+    """The rule that turns a nucleus's reads into one barcode, checked.
+
+    :param settings: read for ``ops_cell_rule``, ``ops_read_mismatches``,
+        ``ops_min_reads`` and ``ops_min_fraction``; empty takes the defaults.
+    :param library: the guide barcodes. ``mapped`` needs them, so without
+        a library the rule is ``agree`` whatever was asked, and said so.
+    :returns: ``(rule, mismatches, min_reads, min_fraction)``.
+    :raises ValueError: for an unknown rule, a negative mismatch count, a
+        minimum below one read, or a fraction outside ``(0, 1]``.
+    """
+    rule = str(settings.get("ops_cell_rule") or _CELL_RULE).strip().lower()
+    if rule not in _CELL_RULES:
+        raise ValueError(f"ops_cell_rule must be one of {list(_CELL_RULES)}; "
+                         f"got {rule!r}")
+    if rule == "mapped" and not library:
+        _say("decode: ops_cell_rule 'mapped' needs a guide library and none "
+             "was given, so the reads vote on their raw strings ('agree')")
+        rule = "agree"
+    mismatches = int(_setting_number(settings.get("ops_read_mismatches"),
+                                     "ops_read_mismatches", _READ_MISMATCHES))
+    asked = settings.get("ops_min_reads")
+    min_reads = (_MIN_READS[rule] if asked in (None, "")
+                 else int(_setting_number(asked, "ops_min_reads", 1)))
+    fraction = float(_setting_number(settings.get("ops_min_fraction"),
+                                     "ops_min_fraction", _MIN_FRACTION))
+    if mismatches < 0:
+        raise ValueError(f"ops_read_mismatches must be 0 or more; got {mismatches}")
+    if min_reads < 1:
+        raise ValueError(f"ops_min_reads must be 1 or more; got {min_reads}")
+    if not 0 < fraction <= 1:
+        raise ValueError(f"ops_min_fraction must lie in (0, 1]; got {fraction}")
+    return rule, mismatches, min_reads, fraction
+
+
 def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
             settings: Mapping[str, Any], gpu: bool,
             library: Sequence[str]) -> Dict[str, Any]:
@@ -1624,8 +1734,9 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
     :param cycle_files: ``cycle -> site -> channel -> path`` for this well.
     :param reference: the cycle the objects' frame was stitched on.
     :param settings: read for ``n_workers``, ``ops_base_channels``,
-        ``ops_read_threshold``, ``ops_footprint``, ``ops_store_reads`` and
-        ``ops_spot_detector``.
+        ``ops_read_threshold``, ``ops_footprint``, ``ops_store_reads``,
+        ``ops_spot_detector`` and the cell rule's four keys -- see
+        :func:`_cell_rule`.
     :param gpu: let the decode use the card when it runs in this process.
     :param library: the guide barcodes, possibly empty.
     :returns: the decode report. Its ``ops_barcodes_rows`` and
@@ -1671,6 +1782,15 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
                                       "ops_footprint", _FOOTPRINT))
     store_reads = bool(settings.get("ops_store_reads", False))
     detector = _spot_detector(settings)
+    crosstalk = str(settings.get("ops_crosstalk") or _CROSSTALK).strip().lower()
+    if crosstalk not in _CROSSTALK_METHODS:
+        raise ValueError(f"ops_crosstalk must be one of "
+                         f"{list(_CROSSTALK_METHODS)}; got {crosstalk!r}")
+    channel_mode = str(settings.get("ops_channel_registration")
+                       or _CHANNEL_REGISTRATION).strip().lower()
+    if channel_mode not in _CHANNEL_REGISTRATIONS:
+        raise ValueError(f"ops_channel_registration must be one of "
+                         f"{list(_CHANNEL_REGISTRATIONS)}; got {channel_mode!r}")
     tasks = []
     for site in order:
         top, left = placements[site]
@@ -1688,6 +1808,7 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
             "owned": owner_site[near] == site,
             "threshold": threshold, "footprint": footprint,
             "store_reads": store_reads, "spot_detector": detector,
+            "crosstalk": crosstalk, "channel_mode": channel_mode,
         })
 
     library_set = frozenset(library)
@@ -1730,15 +1851,58 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
     for r in decoded:
         for object_id in np.unique(r["ids"]):
             cycles_of[int(object_id)] = r["n_cycles"]
-    assigned = assign_reads_to_objects(all_ids, all_calls, quality=all_quality)
-    distinct = sorted({row["barcode"] for row in assigned.values()})
-    mapped = dict(zip(distinct, correct_to_library(distinct, library))) if library else {}
+    rule, mismatches, min_reads, min_fraction = _cell_rule(settings, library)
+    reads_mapped = None
+    if rule == "mapped":
+        calls_seen = sorted(set(all_calls))
+        to_guide = dict(zip(calls_seen, correct_to_library(
+            calls_seen, library, max_distance=mismatches)))
+        guides = [to_guide[code] or "" for code in all_calls]
+        matched = np.fromiter((bool(g) for g in guides), dtype=bool,
+                              count=len(guides))
+        reads_mapped = int(matched.sum())
+        assigned = assign_reads_to_objects(
+            np.where(matched, all_ids, 0), guides, quality=all_quality,
+            min_reads=min_reads, min_fraction=min_fraction)
+        # ``barcode`` stays what was READ: the commonest raw string among
+        # the reads behind the guide, so an N from a lost cycle still shows,
+        # and ``n_reads`` counts every read the nucleus owns, matched or not.
+        totals = Counter(all_ids.tolist())
+        raw: Dict[int, Counter] = {}
+        for index in np.flatnonzero(matched):
+            object_id = int(all_ids[index])
+            row = assigned.get(object_id)
+            if row is not None and guides[index] == row["barcode"]:
+                raw.setdefault(object_id, Counter())[all_calls[index]] += 1
+        mapped = {}
+        single_q = float(_setting_number(
+            settings.get("ops_single_read_quality"),
+            "ops_single_read_quality", _SINGLE_READ_QUALITY))
+        assigned = {object_id: row for object_id, row in assigned.items()
+                    if row["agreeing"] > 1
+                    or (row["quality"] or 0.0) >= single_q}
+        for object_id, row in assigned.items():
+            row["reads"] = totals[object_id]
+            guide = row["barcode"]
+            row["barcode"] = raw[object_id].most_common(1)[0][0]
+            mapped[object_id] = guide
+        objects_with_mapped = int(len(np.unique(all_ids[matched])))
+    else:
+        assigned = assign_reads_to_objects(
+            all_ids, all_calls, quality=all_quality, min_reads=min_reads,
+            min_fraction=min_fraction)
+        distinct = sorted({row["barcode"] for row in assigned.values()})
+        corrected = (dict(zip(distinct, correct_to_library(distinct, library)))
+                     if library else {})
+        mapped = {object_id: corrected.get(row["barcode"])
+                  for object_id, row in assigned.items()}
+        objects_with_mapped = None
     frame = pd.DataFrame([{
         "plate": plate, "well": well, "object_id": object_id,
         "barcode": row["barcode"], "quality": row["quality"],
         "n_reads": row["reads"], "n_agreeing": row["agreeing"],
         "fraction": row["fraction"], "n_cycles": cycles_of.get(object_id, 0),
-        "mapped_guide": mapped.get(row["barcode"]) or "",
+        "mapped_guide": mapped.get(object_id) or "",
     } for object_id, row in sorted(assigned.items())],
         columns=["plate", "well", "object_id", "barcode", "quality", "n_reads",
                  "n_agreeing", "fraction", "n_cycles", "mapped_guide"])
@@ -1781,6 +1945,13 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
                                            if library else None),
         "objects_mapped": int((frame["mapped_guide"] != "").sum()) if library else None,
         "ops_barcodes_rows": int(len(frame)), "ops_reads_rows": reads_rows,
+        "cell_rule": rule, "read_mismatches": mismatches,
+        "crosstalk": crosstalk, "channel_registration": channel_mode,
+        "channels_spot_registered": sum(len(r.get("spot_replaced", ()))
+                                        for r in decoded),
+        "min_reads": min_reads, "min_fraction": min_fraction,
+        "reads_mapped": reads_mapped,
+        "objects_with_a_mapped_read": objects_with_mapped,
         "read_threshold": threshold, "footprint": footprint,
         "spot_detector": detector,
         "base_channels": list(channels), "workers": workers,

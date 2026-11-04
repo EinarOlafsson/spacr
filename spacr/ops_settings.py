@@ -40,6 +40,13 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_footprint": 10.0,
     "ops_store_reads": False,
     "ops_spot_detector": "native",
+    "ops_cell_rule": "mapped",
+    "ops_crosstalk": "argmax_median",
+    "ops_channel_registration": "spots",
+    "ops_read_mismatches": 0,
+    "ops_min_reads": None,
+    "ops_min_fraction": 0.6,
+    "ops_single_read_quality": 0.02,
     "ops_ph_channels": "DAPI,GFP,A594,AF750",
     "ops_ph_cell_channel": "AF750",
     "ops_ph_nucleus_model": "cpsam",
@@ -78,6 +85,13 @@ OPS_TYPES: Dict[str, object] = {
     "ops_footprint": (float, int),
     "ops_store_reads": bool,
     "ops_spot_detector": str,
+    "ops_cell_rule": str,
+    "ops_crosstalk": str,
+    "ops_channel_registration": str,
+    "ops_read_mismatches": int,
+    "ops_min_reads": (int, type(None)),
+    "ops_min_fraction": (float, int),
+    "ops_single_read_quality": (float, int),
     "ops_ph_channels": str,
     "ops_ph_cell_channel": str,
     "ops_ph_nucleus_model": str,
@@ -113,7 +127,11 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     ],
     "OPS decoding": [
         "ops_base_channels", "ops_read_threshold", "ops_footprint",
-        "ops_store_reads", "ops_spot_detector",
+        "ops_store_reads", "ops_spot_detector", "ops_channel_registration",
+        "ops_crosstalk",
+        "ops_cell_rule",
+        "ops_read_mismatches", "ops_min_reads", "ops_min_fraction",
+        "ops_single_read_quality",
     ],
     "OPS performance": [
         "ops_gpu", "n_workers",
@@ -207,6 +225,62 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "for a plate. Default False.",
     "ops_spot_detector":
         "(str) - Which detector finds the sequencing spots. 'native' is spaCR's own spot score, the one this pipeline was validated with. 'spotnet' is DeepCell's SpotNet, run in its own environment; its spots go through the same base calls and nucleus assignment, and ops_read_threshold no longer applies. SpotNet is licensed for NON-COMMERCIAL ACADEMIC USE ONLY, installs from the Model Zoo and needs a DeepCell token in ~/.spacr/deepcell_token. Default 'native'.",
+    "ops_cell_rule":
+        "(str) - How a nucleus's reads become its guide. 'mapped' matches "
+        "every read to the guide library first and votes among the reads "
+        "that matched, so one clean read is enough and a read with a wrong "
+        "base is left out instead of splitting the vote. 'agree' is the "
+        "earlier rule: at least two reads must agree on their raw called "
+        "string before it is matched. On the Funk et al. 2022 plates "
+        "'mapped' assigned about twice as many nuclei at a lower decoy "
+        "match rate. Without a library the rule is 'agree'. "
+        "Default 'mapped'.",
+    "ops_channel_registration":
+        "(str) - How each base channel is placed onto the reference cycle. "
+        "'spots' registers the channel on its reads, with the cell "
+        "background filtered away, wherever that disagrees with the "
+        "background registration by more than 2 pixels; 'background' "
+        "trusts the background alone, the earlier behaviour. On the Funk "
+        "et al. 2022 plates the background registration left one cycle of "
+        "each weak well at zero shift while it had drifted 10 to 25 pixels, "
+        "and that cycle carried most of the well's base-call errors. "
+        "Default 'spots'.",
+    "ops_crosstalk":
+        "(str) - How the base caller undoes dye bleed-through between the "
+        "four channels, after each cycle is put on a common scale. "
+        "'argmax_median' fits one unmixing from the median of the spots each "
+        "channel wins, the method brieflow uses; on the Funk et al. 2022 "
+        "plates it raised the share of reads matching a guide exactly and "
+        "lowered the decoy match rate. 'none' calls the brightest normalised "
+        "channel as it stands, the earlier caller. 'median' and 'percentile' "
+        "are two older unmixing fits kept for comparison. "
+        "Default 'argmax_median'.",
+    "ops_read_mismatches":
+        "(int) - How many wrong bases one read may carry and still be "
+        "matched to its guide under the 'mapped' rule; a read equally close "
+        "to two guides is never matched. 0 keeps exact matches only, which "
+        "on a library whose guides differ at two positions is what keeps "
+        "wrong guides rare: allowing 1 raised the decoy match rate about "
+        "thirty-fold for a few percent more nuclei. A cycle that was not "
+        "read is an unknown base, not a mismatch. Default 0.",
+    "ops_min_reads":
+        "(int or None) - How many reads a nucleus needs before it may be "
+        "assigned: library-matched reads under 'mapped', any reads under "
+        "'agree'. Raising it trades nuclei for certainty. Empty takes the "
+        "rule's own value, 1 for 'mapped' and 2 for 'agree'. Default None.",
+    "ops_min_fraction":
+        "(float) - The share of a nucleus's counted reads its guide must "
+        "hold, with no tie for first. Lower assigns nuclei whose reads are "
+        "split between two guides, which is where doublets and reads from a "
+        "neighbour end up. Default 0.6.",
+    "ops_single_read_quality":
+        "(float) - Under the 'mapped' rule, the base-call quality a nucleus "
+        "needs when ONE library-matched read is all it has: that read's "
+        "weakest cycle, as the margin between its brightest and second "
+        "channel, 0 to 1. Nuclei with two or more agreeing reads are not "
+        "affected. 0.02 halved the decoy matches among one-read nuclei for "
+        "under half a percent of the nuclei; 0 admits every one-read "
+        "nucleus. Default 0.02.",
     "ops_window_overlap":
         "(int) - How far the segmentation windows overlap each other, in "
         "pixels. A nucleus is only numbered once if at least one window saw "

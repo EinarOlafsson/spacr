@@ -235,18 +235,31 @@ def test_every_nucleus_gets_its_barcode_and_the_lost_cycle_is_an_N(engine_run):
             "SELECT COUNT(*) FROM ops_barcodes b LEFT JOIN ops_objects o "
             "ON b.object_id = o.object_id WHERE o.object_id IS NULL").fetchone()[0]
     assert orphans == 0
-    assert len(barcodes) == len(nuclei)
+    # The default 'mapped' rule matches each read to the library before the
+    # vote, and a read whose lost cycle is the only thing between two guides
+    # matches neither -- so those nuclei, and only those, get no row.
+    library = engine_run[6]
+
+    def ambiguous_without_cycle_3(code):
+        return sum(other[:2] + other[3:] == code[:2] + code[3:]
+                   for other in library) > 1
+
+    seen = set()
     lost = 0
     for y, x, barcode, n_cycles, mapped in barcodes:
         index = int(np.argmin([math.hypot(y - (a - MARGIN), x - (b - MARGIN))
                                for a, b in nuclei]))
+        seen.add(index)
         want = codes[index]
         if n_cycles == CYCLES - 1:
             lost += 1
             assert barcode == want[:2] + "N" + want[3:]
         else:
             assert barcode == want
-        assert mapped == want or (n_cycles == CYCLES - 1 and mapped == "")
+        assert mapped == want
+    missing = set(range(len(nuclei))) - seen
+    assert all(ambiguous_without_cycle_3(codes[i]) for i in missing), missing
+    assert len(missing) <= sum(ambiguous_without_cycle_3(c) for c in codes)
     assert lost > 0, "no object was owned by the field that lost a file"
 
 

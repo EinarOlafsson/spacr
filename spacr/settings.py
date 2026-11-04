@@ -7791,7 +7791,10 @@ ALPHA_FEATURES = {
                      'ops_ph_downsample', 'ops_ph_batch_size',
                      'ops_ph_sites', 'ops_ph_texture', 'ops_merge_threshold',
                      'ops_design', 'ops_control_prefix', 'ops_bootstrap',
-                     'ops_mitotic_dna_z'),
+                     'ops_mitotic_dna_z', 'ops_cell_rule', 'ops_crosstalk',
+                     'ops_channel_registration', 'ops_single_read_quality',
+                     'ops_read_mismatches', 'ops_min_reads',
+                     'ops_min_fraction'),
     },
     691: {
         'models': ('mitonet_mini_v1',),
