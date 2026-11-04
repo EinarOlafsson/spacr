@@ -77,9 +77,6 @@ prune docs/source/_extra/tutorials
 recursive-include path *.csv *.db
 recursive-include source *.py *.rst
 
-# Recursively include fonts
-recursive-include fonts *.ttf
-
 # Exclude unnecessary files
 global-exclude *.pyc
 global-exclude *.pyo
