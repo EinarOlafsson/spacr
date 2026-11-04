@@ -1303,6 +1303,13 @@ def test_the_unix_installer_keeps_old_copies_when_staging_fails(tmp_path):
         printf '#!/bin/sh\\nmkdir -p "$UV_UNMANAGED_INSTALL"\\ncp "{uv}" "$UV_UNMANAGED_INSTALL/uv"\\n' > "$out"
         """), encoding="utf-8")
     curl.chmod(0o755)
+    df = fake / "df"
+    df.write_text(textwrap.dedent("""\
+        #!/bin/sh
+        echo "Filesystem 1024-blocks Used Available Capacity Mounted on"
+        echo "fake 209715200 0 104857600 0% /"
+        """), encoding="utf-8")
+    df.chmod(0o755)
     (tmp_path / "tmp").mkdir()
     env = _clean_environment(
         HOME=str(box.home), TMPDIR=str(tmp_path / "tmp"),
