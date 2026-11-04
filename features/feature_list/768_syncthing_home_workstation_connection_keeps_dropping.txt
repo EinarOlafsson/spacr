@@ -1,0 +1,28 @@
+SYNCTHING: THE HOME-WORKSTATION CONNECTION KEEPS DROPPING
+=========================================================
+
+Lifecycle: new
+Status: open — workaround in place (training-projects paused on Home, 2026-11-04 16:40).
+Requested: maintainer, 2026-11-04 ("for some reason the synkling synk is not working").
+
+FINDINGS (Home, 2026-11-04)
+- Since 2026-11-02 17:57 the connection to the workstation (device "work",
+  JO72HV6, Syncthing v2.1.6) closed every 30 s-2 min with "handling index-update
+  for training-projects: training-projects: folder is not running", so af3,
+  nas-sync and spacr-claude stopped syncing too.
+- training-projects is a 3.8M-file send-only folder on the NAS
+  (/nas_mnt/data/training_data/projects) with fsWatcher off; while it rescans,
+  Home (Syncthing v1.27.2) reports it as not running and rejects the remote's
+  index updates, which drops the whole connection.
+- Home's Syncthing database is a LevelDB on the NAS over NFS
+  (/nas_mnt/data/syncthing_state/home/index, drop-in 95-codex-nas-index.conf),
+  so restarts and full scans are slow; a restart at 15:28 helped only until the
+  rescan began (137 drops by 16:38).
+
+REQUIREMENTS
+1. Decide with the maintainer: upgrade Home to Syncthing v2 (same major version
+   as the workstation) and/or move Home's database to a local SSD.
+2. Make training-projects not block the other folders: smaller folders, a longer
+   rescan interval with the watcher on, or send it on its own connection/device.
+3. Unpause training-projects and verify zero "folder is not running" drops over
+   a full rescan, and af3/nas-sync/spacr-claude staying in sync.
