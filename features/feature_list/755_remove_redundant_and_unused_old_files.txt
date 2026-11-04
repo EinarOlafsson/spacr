@@ -21,3 +21,7 @@ REQUIREMENTS
    (Hugging Face, NAS) behind a pin first.
 3. Report the before and after size of the working tree and of a fresh clone.
 4. Run the full test suite and docs build; the release CI must stay green.
+
+2026-11-04 -- Inventory on ff43447b6e: tree 811,960,324 bytes / 14,820 files; list in /mnt/wd4tb/scratch/claude-slimfiles-20261104/inventory.md. Stray-pattern scan (logs, backups, caches) finds nothing tracked.
+2026-11-04 -- No single file is both unreferenced and outside a whole folder, so nothing removed yet. Proposed for approval: docs/tutorial/ + docs/resources/ (legacy 2024 tutorial pages, duplicate Open Sans and icon copies; 26.8 MB, nothing reads them).
+2026-11-04 -- Kept: old online installers (historical-upgrade workflow), spacr/resources (710), readme_images (generated), tests/data glob sets, tutorial media (item 756). Clone size waits for the 710 history rewrite.
