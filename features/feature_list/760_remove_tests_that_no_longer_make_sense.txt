@@ -1,0 +1,25 @@
+REMOVE TESTS THAT NO LONGER MAKE SENSE OR DO NOT TEST HOW spaCR WORKS
+=====================================================================
+
+Lifecycle: new
+Status: open — for the release after 1.5.1.7.
+Requested: maintainer, 2026-11-04.
+Related: 759 (unused functions and comments), 288 (per-module coverage).
+
+REQUEST
+"do a pass of the code and remove tests that dont make sense to have any more,
+or that test something that does not have to do with the propper functioning
+of the spacr program."
+
+REQUIREMENTS
+1. Classify every test file: does it check behaviour a spaCR user or the
+   release depends on (the app, the pipelines, the API, installers, docs that
+   ship), or something else, such as a retired feature, a one-off investigation,
+   a frozen snapshot of text, a process or tooling rule unrelated to how spaCR
+   runs, or a duplicate of another test?
+2. Remove a test only when it fits the second group and nothing else depends on
+   it. List the borderline ones for the maintainer instead of deleting them.
+3. A test that is the only one covering shipped spaCR code is not removed until
+   another test covers that code; the coverage ratchet must not fall.
+4. Report how many tests and files went, the suite's run time before and after,
+   and keep the full CI green.
