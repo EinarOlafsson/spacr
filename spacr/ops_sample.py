@@ -329,11 +329,15 @@ def pair_nuclei_with_cells(nuclei: np.ndarray, cells: np.ndarray
     return new_nuclei, new_cells, counts
 
 
-def _measurement_settings(channels: int, texture: bool) -> Dict[str, object]:
+def _measurement_settings(channels: int, texture: bool,
+                          gpu: bool = False) -> Dict[str, object]:
     """The measure settings one phenotype field is measured with.
 
     :param channels: how many channels the image holds.
     :param texture: compute the GLCM homogeneity texture block.
+    :param gpu: run the per-object intensity and texture tables on the CUDA
+        card (``measure_gpu``), which computes the same columns within float
+        tolerance; morphology stays on the CPU.
     :returns: the dict :func:`spacr.measure._morphological_measurements` and
         :func:`spacr.measure._intensity_measurements` read.
     """
@@ -344,6 +348,7 @@ def _measurement_settings(channels: int, texture: bool) -> Dict[str, object]:
         "homogeneity": bool(texture), "homogeneity_distances": [2, 4, 8],
         "distance_gaussian_sigma": 10, "spatial_measurements": False,
         "channels": list(range(channels)), "verbose": False,
+        "measure_gpu": bool(gpu),
     }
 
 
@@ -420,7 +425,8 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
                             image: np.ndarray, channel_names: Sequence[str],
                             *, texture: bool = True,
                             funk_features: bool = False,
-                            zernike: bool = False):
+                            zernike: bool = False,
+                            gpu: bool = False):
     """Per-cell features of one phenotype field, with spaCR's own measurement.
 
     :param nuclei: nucleus labels, paired with ``cells`` by
@@ -441,6 +447,8 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
         (``zernike_0`` to ``zernike_24``) of the cell and the nucleus, as
         :func:`spacr.measure._calculate_zernike` computes them with mahotas;
         the cytoplasm gets none. Needs ``spacr[zernike]``. Default False.
+    :param gpu: measure intensity and texture on the CUDA card
+        (:func:`_measurement_settings`).
     :returns: one row per cell, keyed by ``label``, with ``nucleus_``,
         ``cell_`` and ``cytoplasm_`` columns and the nucleus centroid as
         ``centroid_row``/``centroid_col`` in field pixels.
@@ -471,7 +479,7 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
         return pd.DataFrame(columns=["label", "centroid_row", "centroid_col"])
     cytoplasm = np.where(nuclei > 0, 0, cells).astype(np.int32)
     blank = np.zeros_like(cells)
-    settings = _measurement_settings(image.shape[2], texture)
+    settings = _measurement_settings(image.shape[2], texture, gpu)
     morphology = _morphological_measurements(
         cells, nuclei, blank, blank, cytoplasm, settings,
         zernike=bool(zernike))

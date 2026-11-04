@@ -2564,8 +2564,9 @@ def _ph_measure_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     :param task: ``site``, ``files``, ``channels``, ``mask_path``,
         ``cell_path`` and ``texture``; optionally ``flat_folder``, whose
         maps correct the field before it is measured
-        (:func:`spacr.ops_flatfield.correct_field`), ``funk_features`` and
-        ``zernike``.
+        (:func:`spacr.ops_flatfield.correct_field`), ``funk_features``,
+        ``zernike`` and ``measure_gpu``, which measures intensity and
+        texture on the card.
     :returns: ``site``, ``cells``, ``seconds`` and ``unreadable``.
 
     Module level so a spawned process can run it. It reads its own field
@@ -2594,7 +2595,8 @@ def _ph_measure_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         nuclei, cells, stack, task["channels"],
         texture=bool(task["texture"]),
         funk_features=bool(task.get("funk_features", False)),
-        zernike=bool(task.get("zernike", False)))
+        zernike=bool(task.get("zernike", False)),
+        gpu=bool(task.get("measure_gpu", False)))
     table.insert(0, "site", int(task["site"]))
     table.to_parquet(task["cell_path"] + ".part", index=False)
     os.replace(task["cell_path"] + ".part", task["cell_path"])
