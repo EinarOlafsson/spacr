@@ -1,0 +1,20 @@
+REMOVE UNNECESSARY FILES FROM THE spaCR ROOT FOLDER (WHERE setup.py IS)
+=======================================================================
+
+Lifecycle: new
+Status: open — for the release after 1.5.1.7.
+Requested: maintainer, 2026-11-04.
+Related: 755 (redundant and unused files).
+
+REQUEST
+"remove any unneccesary files in the spacr main folder (the one where
+setup.py is)."
+
+REQUIREMENTS
+1. List every file and folder at the repository root with what reads it.
+2. Keep only what the project needs there: packaging (setup.py, pyproject,
+   MANIFEST), the README and licence, CI and tool configuration, and the
+   top-level source and docs folders. Move or remove the rest (stray logs,
+   scratch scripts, one-off reports, old notes, generated files).
+3. Update every path that pointed at a moved file. Packaging, docs and the
+   full CI stay green.

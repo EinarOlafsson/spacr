@@ -1,0 +1,24 @@
+CLEAN UP THE CODE BASE: UNNECESSARY COMMENTS AND UNUSED FUNCTIONS
+=================================================================
+
+Lifecycle: new
+Status: open — for the release after 1.5.1.7.
+Requested: maintainer, 2026-11-04.
+Related: 259 (delete the dead code).
+
+REQUEST
+"clean up the repository code base. Remove unneccesary comments and functions
+that are not used (i used to mark functions with v1, 2v and so on). Only
+remove functions you are sure are not used."
+
+REQUIREMENTS
+1. Find candidate functions, especially old versions named or marked v1, v2,
+   _v1, 2v and similar, and remove a function only when it is proven unused: no
+   call, import, string or getattr lookup, settings or registry entry, entry
+   point, test, docs reference or public API record reaches it. When in doubt,
+   keep it and list it for the maintainer.
+2. Remove comments that are stale, commented-out code or restate the code;
+   keep comments that explain why.
+3. Public callables that are removed leave the API catalog and its nine-locale
+   records through the normal generators.
+4. Full CI green, and the coverage ratchet must not lose coverage.

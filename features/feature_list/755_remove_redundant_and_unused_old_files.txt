@@ -1,0 +1,23 @@
+REMOVE REDUNDANT AND UNUSED OLD FILES FROM THE REPOSITORY
+=========================================================
+
+Lifecycle: new
+Status: open — for the release after 1.5.1.7.
+Requested: maintainer, 2026-11-04.
+Related: 710 (slim the repository), 757 (the folder that holds setup.py).
+
+REQUEST
+"remove any redundant or unused old files in the repository. these are making
+spacr take to muxh space."
+
+REQUIREMENTS
+1. Inventory tracked files by size and by last use: superseded installers and
+   release payloads, old generated artefacts, evidence packets, stale data,
+   duplicate media and anything no code, test, workflow, docs build or packaging
+   step reads.
+2. Remove only files proven unused: no import, path reference, glob, manifest,
+   workflow or packaging rule reaches them. Keep anything a release, installer or
+   reproducibility record needs, or move it to its proper external home
+   (Hugging Face, NAS) behind a pin first.
+3. Report the before and after size of the working tree and of a fresh clone.
+4. Run the full test suite and docs build; the release CI must stay green.

@@ -1,0 +1,23 @@
+REMOVE CLAUDE FROM EVERY COMMIT IT APPEARS ON
+=============================================
+
+Lifecycle: new
+Status: open — for the release after 1.5.1.7. Needs the maintainer's explicit
+approval at execution time: it rewrites published history.
+Requested: maintainer, 2026-11-04.
+Related: 710 (its history rewrite step).
+
+REQUEST
+"do another pass and remove claude from any commits it is on."
+
+REQUIREMENTS
+1. Find every commit that names Claude or Anthropic as author, committer,
+   co-author trailer or generated-by line, on main, nightly and tags.
+2. Prepare the rewrite (git filter-repo with a mailmap and message filter) in a
+   separate clone; show the maintainer the commit count, the before and after of
+   a sample, and what force-pushing main and nightly means for every clone,
+   worktree, peer session and open PR. The spacr-main ruleset forbids
+   non-fast-forward pushes, so it has to be lifted for the push.
+3. Run only after the maintainer approves; then restore the ruleset, re-point
+   the tags and verify a fresh clone has no Claude attribution.
+4. Keep the commit hook that refuses such trailers.

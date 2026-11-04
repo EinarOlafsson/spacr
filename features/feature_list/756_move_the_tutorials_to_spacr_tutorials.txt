@@ -1,0 +1,22 @@
+MOVE THE TUTORIALS OUT OF THE MAIN REPOSITORY INTO spacr-tutorials
+==================================================================
+
+Lifecycle: new
+Status: open — for the release after 1.5.1.7.
+Requested: maintainer, 2026-11-04.
+Related: 710 (slim the repository; its remaining step is moving ~311 MB of
+tutorial media to einarolafsson/spacr-tutorials behind a pin).
+
+REQUEST
+"move the tutorials from the main repository to one another repository called
+spacr-tutorials, because the tutorials take to much space."
+
+REQUIREMENTS
+1. Create or reuse the spacr-tutorials repository and move every tutorial
+   (videos, voice-overs, captions, recordings, scripts and their sources) there.
+2. spaCR's Help and docs reach the tutorials through a pinned revision, the way
+   API catalogs and deck media are pinned now; a missing or offline tutorial
+   source never breaks the app.
+3. The tutorial producers write to the new repository; nothing tutorial-sized
+   is committed to the main repository again (add a guard test).
+4. Report the main repository's size before and after. Full CI green.
