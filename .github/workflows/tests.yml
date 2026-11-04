@@ -233,7 +233,7 @@ jobs:
 
       - name: Name numeric test results
         if: always()
-        run: echo "TEST_COUNT_ARTIFACT=test-counts-${{ github.run_attempt }}-$(python -c 'import uuid; print(uuid.uuid4().hex)')" >> "$GITHUB_ENV"
+        run: echo "TEST_COUNT_ARTIFACT=test-counts-${{ github.job }}-${{ matrix.shard }}-a${{ github.run_attempt }}-$(python -c 'import uuid; print(uuid.uuid4().hex)')" >> "$GITHUB_ENV"
       - name: Upload numeric test results
         if: always()
         uses: actions/upload-artifact@v7
@@ -558,7 +558,7 @@ jobs:
 
       - name: Name numeric test results
         if: always()
-        run: echo "TEST_COUNT_ARTIFACT=test-counts-${{ github.run_attempt }}-$(python -c 'import uuid; print(uuid.uuid4().hex)')" >> "$GITHUB_ENV"
+        run: echo "TEST_COUNT_ARTIFACT=test-counts-${{ github.job }}-${{ matrix.shard }}-a${{ github.run_attempt }}-$(python -c 'import uuid; print(uuid.uuid4().hex)')" >> "$GITHUB_ENV"
       - name: Upload numeric test results
         if: always()
         uses: actions/upload-artifact@v7
@@ -744,7 +744,7 @@ jobs:
 
       - name: Name numeric test results
         if: always()
-        run: echo "TEST_COUNT_ARTIFACT=test-counts-${{ github.run_attempt }}-$(python -c 'import uuid; print(uuid.uuid4().hex)')" >> "$GITHUB_ENV"
+        run: echo "TEST_COUNT_ARTIFACT=test-counts-${{ github.job }}-${{ matrix.shard }}-a${{ github.run_attempt }}-$(python -c 'import uuid; print(uuid.uuid4().hex)')" >> "$GITHUB_ENV"
       - name: Upload numeric test results
         if: always()
         uses: actions/upload-artifact@v7
@@ -808,7 +808,7 @@ jobs:
 
       - name: Name numeric test results
         if: always()
-        run: echo "TEST_COUNT_ARTIFACT=test-counts-${{ github.run_attempt }}-$(python -c 'import uuid; print(uuid.uuid4().hex)')" >> "$GITHUB_ENV"
+        run: echo "TEST_COUNT_ARTIFACT=test-counts-${{ github.job }}-${{ matrix.shard }}-a${{ github.run_attempt }}-$(python -c 'import uuid; print(uuid.uuid4().hex)')" >> "$GITHUB_ENV"
       - name: Upload numeric test results
         if: always()
         uses: actions/upload-artifact@v7
@@ -968,7 +968,7 @@ jobs:
 
       - name: Name numeric test results
         if: always()
-        run: echo "TEST_COUNT_ARTIFACT=test-counts-${{ github.run_attempt }}-$(python -c 'import uuid; print(uuid.uuid4().hex)')" >> "$GITHUB_ENV"
+        run: echo "TEST_COUNT_ARTIFACT=test-counts-${{ github.job }}-${{ matrix.shard }}-a${{ github.run_attempt }}-$(python -c 'import uuid; print(uuid.uuid4().hex)')" >> "$GITHUB_ENV"
       - name: Upload numeric test results
         if: always()
         uses: actions/upload-artifact@v7
@@ -1027,7 +1027,7 @@ jobs:
           PY
       - name: Name numeric test results
         if: always()
-        run: echo "TEST_COUNT_ARTIFACT=test-counts-${{ github.run_attempt }}-$(python -c 'import uuid; print(uuid.uuid4().hex)')" >> "$GITHUB_ENV"
+        run: echo "TEST_COUNT_ARTIFACT=test-counts-${{ github.job }}-${{ matrix.shard }}-a${{ github.run_attempt }}-$(python -c 'import uuid; print(uuid.uuid4().hex)')" >> "$GITHUB_ENV"
       - name: Upload numeric test results
         if: always()
         uses: actions/upload-artifact@v7
@@ -1062,9 +1062,8 @@ jobs:
           ref: nightly
       - uses: actions/download-artifact@v8
         with:
-          pattern: test-counts-${{ github.run_attempt }}-*
+          pattern: test-counts-*
           path: .test-counts
-          merge-multiple: true
       - name: Generate numeric badge
         run: python tools/test_count_badge.py .test-counts docs/source/_static/test-counts.json --run-id '${{ github.run_id }}' --source-sha '${{ github.sha }}'
       - name: Publish numeric badge
