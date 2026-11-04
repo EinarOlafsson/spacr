@@ -820,7 +820,7 @@ def test_a_drain_report_with_unavailable_original_stderr_keeps_native_completion
     """A failed cleanup diagnostic cannot swallow a real worker's result."""
     from types import SimpleNamespace
 
-    from PySide6.QtCore import Slot
+    from PySide6.QtCore import QObject, Slot
 
     from spacr import logging_util
 
@@ -855,6 +855,18 @@ def test_a_drain_report_with_unavailable_original_stderr_keeps_native_completion
                 if inherited is not None:
                     sys.settrace(previous)
 
+    class Retirement(QObject):
+        """Receive ``QThread.finished`` on the GUI thread, as job_runner requires.
+
+        A closure would be queued to the QThread itself, which the wired
+        ``deleteLater`` can destroy while the worker is still emitting, and
+        Qt then drops the closure's call.
+        """
+        @Slot()
+        def record(self):
+            """Note that the job's thread has retired."""
+            retired.append(True)
+
     def fail_drain():
         """Model an unavailable log destination at the existing drain seam."""
         drains.append(threading.get_ident())
@@ -886,7 +898,8 @@ def test_a_drain_report_with_unavailable_original_stderr_keeps_native_completion
         worker.result_ready.connect(lambda value: events.append(("result", value)))
         worker.finished.connect(lambda ok: events.append(("finished", ok)))
         worker.error.connect(failures.append)
-        thread.finished.connect(lambda: retired.append(True))
+        retirement = Retirement()
+        thread.finished.connect(retirement.record)
         thread.start()
         try:
             qtbot.waitUntil(lambda: bool(retired), timeout=5000)
