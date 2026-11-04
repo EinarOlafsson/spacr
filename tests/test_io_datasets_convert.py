@@ -280,14 +280,6 @@ def test_delete_empty_subdirectories(tmp_path):
     assert full.exists()
 
 
-def test_is_dir_empty(tmp_path):
-    from spacr.io import _is_dir_empty
-    e = tmp_path / "e"; e.mkdir()
-    assert _is_dir_empty(str(e)) is True
-    (e / "x").write_text("1", encoding="utf-8")
-    assert _is_dir_empty(str(e)) is False
-
-
 def test_process_non_tif_non_2D_images_converts_png(tmp_path, rng):
     from spacr.io import process_non_tif_non_2D_images
     d = tmp_path / "mixed"; d.mkdir()

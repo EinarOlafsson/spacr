@@ -52,26 +52,8 @@ def cp_stub(monkeypatch):
 
     monkeypatch.setattr(SUB.cp_models, "CellposeModel", _FakeCellposeModel)
     monkeypatch.setattr(SUB.train_cp, "train_seg", _fake_train_seg)
-    monkeypatch.setattr(SUB, "_cellpose_use_gpu", lambda: False)
     monkeypatch.setattr(SUB, "plot_cellpose_batch", _fake_plot)
     return rec
-
-
-def test_cellpose_use_gpu_falls_back_to_cpu_when_the_shared_probe_raises(
-        monkeypatch, capsys):
-    """A failing shared GPU probe must not abort training."""
-
-    def _explode():
-        raise RuntimeError("no GPU driver")
-
-    monkeypatch.setattr('spacr.accelerator.cellpose_gpu', _explode)
-    assert SUB._cellpose_use_gpu() is False
-    assert "GPU probe failed" in capsys.readouterr().out
-
-
-def test_cellpose_use_gpu_reports_a_working_probe(monkeypatch):
-    monkeypatch.setattr('spacr.accelerator.cellpose_gpu', lambda: True)
-    assert SUB._cellpose_use_gpu() is True
 
 
 def _write_annotated_fields(root, n, size=24):

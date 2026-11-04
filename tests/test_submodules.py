@@ -23,23 +23,6 @@ import spacr.submodules as SUB
 # ===========================================================================
 
 
-def test_cellpose_gpu_probe_falls_back_to_cpu(monkeypatch, capsys):
-    """A failed delegated accelerator lookup preserves CPU fallback and diagnosis."""
-    from spacr import accelerator
-
-    calls = []
-
-    def _driver_failure():
-        calls.append("cellpose_gpu")
-        raise RuntimeError("driver mismatch")
-
-    monkeypatch.setattr(accelerator, "cellpose_gpu", _driver_failure)
-    assert SUB._cellpose_use_gpu() is False
-    assert calls == ["cellpose_gpu"]
-    assert capsys.readouterr().out == (
-        "Warning: GPU probe failed; Cellpose will use CPU: driver mismatch\n")
-
-
 @pytest.fixture
 def cellpose_pair_files(tmp_path, rng):
     """A tiny directory of image + label pairs the dataset can read."""

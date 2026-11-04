@@ -63,18 +63,6 @@ def test_track_by_iou_and_filter():
 
 
 # ---------------------------------------------------------------------------
-# _remove_objects_from_first_frame
-# ---------------------------------------------------------------------------
-
-def test_remove_objects_from_first_frame():
-    masks = _moving_masks()
-    n_before = len(np.unique(masks[0])) - 1
-    out = TL._remove_objects_from_first_frame(masks.copy(), percentage=50)
-    n_after = len(np.unique(out[0])) - 1
-    assert n_after < n_before
-
-
-# ---------------------------------------------------------------------------
 # exponential_decay
 # ---------------------------------------------------------------------------
 

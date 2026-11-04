@@ -244,13 +244,6 @@ def test_the_model_is_a_name_the_default_or_a_path_that_exists(
     assert SB._prefixed_model_ok("cpsam") is None
 
 
-def test_a_run_knows_when_an_object_chose_a_prefixed_backend():
-    assert SB._prefixed_is_chosen({"nucleus_model_name": "stardist:"})
-    assert SB._prefixed_is_chosen({"pathogen_model": "stardist:x"})
-    assert not SB._prefixed_is_chosen({"cell_model_name": "cpsam"})
-    assert not SB._prefixed_is_chosen({"cell_model_name": "cellpose3:cyto3"})
-
-
 def test_the_route_table_sends_each_prefix_to_its_backend():
     for name in PREFIXED:
         prefix = SB._SPECS[name].prefix

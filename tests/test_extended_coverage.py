@@ -101,18 +101,6 @@ def test_io_create_database_at_nested_path(tmp_path):
     assert db.exists()
 
 
-def test_io_is_dir_empty_recursive(tmp_path):
-    """Directory with only subdirectories (no files) — behavior check."""
-    import spacr.io as IO
-    d = tmp_path / "outer"
-    d.mkdir()
-    (d / "inner").mkdir()  # subdir but no files
-    # _is_dir_empty checks if listdir returns empty.
-    result = IO._is_dir_empty(str(d))
-    # If listdir returns anything (including subdirs), it's not empty.
-    assert result is False
-
-
 def test_io_get_avg_object_size_averages_across_batch():
     """`_get_avg_object_size` returns (AVERAGE objects per mask, average
     object size). One object across two masks -> mean of 0.5 objects/mask."""

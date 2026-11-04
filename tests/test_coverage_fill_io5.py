@@ -36,16 +36,3 @@ def test_normalize_stack_defaults(tmp_path):
     IO._normalize_stack(str(src))
     assert (tmp_path / "masks" / "b_norm_stack.npz").exists()
 
-
-def test_normalize_timelapse(tmp_path):
-    src = tmp_path / "stack"; src.mkdir()
-    _write_npz(src / "tl.npz", chans=2)
-    IO._normalize_timelapse(str(src))
-    # `assert ... or True` used to sit under a swallowed skip here — neither
-    # half could fail. Check the normalised stack really lands on disk.
-    out = tmp_path / "masks" / "tl_norm_timelapse.npz"
-    assert out.exists()
-    with np.load(str(out)) as d:
-        assert d["data"].shape == (3, 16, 16, 2)
-        assert d["data"].dtype == np.float32
-        assert len(d["filenames"]) == 3

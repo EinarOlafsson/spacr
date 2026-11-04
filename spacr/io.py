@@ -1445,12 +1445,6 @@ def _merge_file(chan_dirs, stack_dir, file_name):
         else:
             print(f"No valid channels to merge for file {file_name}")
 
-def _is_dir_empty(dir_path):
-    """
-    Check if a directory is empty using os module.
-    """
-    return len(os.listdir(dir_path)) == 0
-
 def _generate_time_lists(file_list):
     """
     Generate sorted lists of filenames grouped by plate, well, and field.
@@ -2840,57 +2834,6 @@ def _normalize_stack(src, backgrounds=None, remove_backgrounds=None, lower_perce
         gc.collect()
     
     return print(f'Saved stacks: {output_fldr}')
-
-def _normalize_timelapse(src, lower_percentile=2, save_dtype=np.float32):
-    """
-    Normalize the timelapse data by rescaling the intensity values based on percentiles.
-
-    Args:
-        src (str): The source directory containing the timelapse data files.
-        lower_percentile (int, optional): The lower percentile used to calculate the intensity range. Defaults to 1.
-        save_dtype (numpy.dtype, optional): The data type to save the normalized stack. Defaults to np.float32.
-    """
-    paths = [os.path.join(src, file) for file in os.listdir(src) if file.endswith('.npz')]
-    output_fldr = os.path.join(os.path.dirname(src), 'masks')
-    os.makedirs(output_fldr, exist_ok=True)
-
-    for file_index, path in enumerate(paths):
-        with np.load(path) as data:
-            stack = data['data']
-            filenames = data['filenames']
-
-        normalized_stack = np.zeros_like(stack, dtype=save_dtype)
-        file = os.path.basename(path)
-        name, _ = os.path.splitext(file)
-
-        for chan_index in range(stack.shape[-1]):
-            single_channel = stack[:, :, :, chan_index]
-            for array_index in range(single_channel.shape[0]):
-                arr_2d = single_channel[array_index]
-                non_zero = arr_2d[arr_2d != 0]
-                if non_zero.size:
-                    q_low, q_high = np.percentile(
-                        non_zero, (lower_percentile, 98))
-                    if q_high > q_low:
-                        normalized_stack[array_index, :, :, chan_index] = (
-                            exposure.rescale_intensity(
-                                arr_2d, in_range=(q_low, q_high),
-                                out_range='dtype'))
-                    else:
-                        normalized_stack[array_index, :, :, chan_index] = arr_2d
-                else:
-                    normalized_stack[array_index, :, :, chan_index] = arr_2d
-
-                print(f'channels:{chan_index+1}/{stack.shape[-1]}, arrays:{array_index+1}/{single_channel.shape[0]}', end='\r')
-
-
-        save_loc = os.path.join(output_fldr, f'{name}_norm_timelapse.npz')
-        _savez_atomic(save_loc, data=normalized_stack, filenames=filenames)
-
-        del normalized_stack, stack, filenames
-        gc.collect()
-
-    print(f'\nSaved normalized stacks: {output_fldr}')
 
 def _create_movies_from_npy_per_channel(src, fps=10):
     """

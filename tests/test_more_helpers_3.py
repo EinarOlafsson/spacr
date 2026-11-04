@@ -307,13 +307,6 @@ def test_io_create_database_produces_file_that_can_hold_a_table(tmp_path):
         assert cur.fetchall() == [(1,)]
 
 
-def test_io_is_dir_empty_new_dir(tmp_path):
-    from spacr.io import _is_dir_empty
-    d = tmp_path / "empty"
-    d.mkdir()
-    assert _is_dir_empty(str(d)) is True
-
-
 def test_io_delete_empty_subdirectories_removes_two_levels(tmp_path):
     """Nested empty subdirs should all be swept away (bottom-up)."""
     from spacr.io import delete_empty_subdirectories

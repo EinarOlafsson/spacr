@@ -341,19 +341,6 @@ def test_check_mask_folder(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# _list_endpoint_subdirectories
-# ---------------------------------------------------------------------------
-
-def test_list_endpoint_subdirectories(tmp_path):
-    (tmp_path / "a" / "leaf1").mkdir(parents=True)
-    (tmp_path / "a" / "figure").mkdir()   # excluded
-    (tmp_path / "b").mkdir()
-    out = U._list_endpoint_subdirectories(str(tmp_path))
-    assert any(p.endswith("leaf1") for p in out)
-    assert not any(p.endswith("figure") for p in out)
-
-
-# ---------------------------------------------------------------------------
 # _extract_filename_metadata
 # ---------------------------------------------------------------------------
 

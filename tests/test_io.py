@@ -101,23 +101,6 @@ def test_delete_empty_subdirectories_noop_when_all_populated(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# _is_dir_empty
-# ---------------------------------------------------------------------------
-
-def test_is_dir_empty_true(tmp_path):
-    empty = tmp_path / "e"
-    empty.mkdir()
-    assert IO._is_dir_empty(str(empty)) is True
-
-
-def test_is_dir_empty_false(tmp_path):
-    d = tmp_path / "with"
-    d.mkdir()
-    (d / "f").write_text("", encoding="utf-8")
-    assert IO._is_dir_empty(str(d)) is False
-
-
-# ---------------------------------------------------------------------------
 # _get_avg_object_size — trivial arithmetic on synthetic label masks
 # ---------------------------------------------------------------------------
 

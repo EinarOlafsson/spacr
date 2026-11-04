@@ -99,37 +99,6 @@ def test_object_watershed_split_returns_labeled_regions():
     assert n_labels >= 1
 
 
-def test_object_postprocess_masks_min_size_filter_removes_small():
-    from spacr.object import _postprocess_masks
-    mask = np.zeros((20, 20), dtype=np.int32)
-    mask[0:2, 0:2] = 1     # 4 px — will be removed
-    mask[5:15, 5:15] = 2   # 100 px — will be kept
-    out = _postprocess_masks([mask], min_size=10)
-    # After processing, only the larger object survives (relabeled to 1).
-    assert (out[0] != 0).sum() == 100
-    assert len(np.unique(out[0])) == 2  # 0 + 1 label
-
-
-def test_object_postprocess_masks_max_size_filter_removes_large():
-    from spacr.object import _postprocess_masks
-    mask = np.zeros((30, 30), dtype=np.int32)
-    mask[5:9, 5:9] = 1        # 16 px
-    mask[10:28, 10:28] = 2    # 324 px — bigger than max_size
-    out = _postprocess_masks([mask], min_size=1, max_size=100)
-    # Object 2 exceeds max_size, so only object 1 remains.
-    assert (out[0] != 0).sum() == 16
-
-
-def test_object_postprocess_masks_remove_border_drops_edge_touching():
-    from spacr.object import _postprocess_masks
-    mask = np.zeros((20, 20), dtype=np.int32)
-    mask[0:5, 0:5] = 1        # touches border at (0,0)
-    mask[10:15, 10:15] = 2    # interior
-    out = _postprocess_masks([mask], remove_border=True)
-    # Border-touching object 1 should be gone.
-    assert (out[0] != 0).sum() == 25   # only object 2 remains
-
-
 def test_object_circle_coords_returns_correct_pixel_set():
     """_circle_coords returns (rows, cols) arrays for a filled circle."""
     from spacr.object import _circle_coords

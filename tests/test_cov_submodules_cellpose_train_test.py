@@ -131,7 +131,6 @@ def cp_stub(monkeypatch, tmp_path):
 
     monkeypatch.setattr(SUB.cp_models, "CellposeModel", _FakeCellposeModel)
     monkeypatch.setattr(SUB.train_cp, "train_seg", _fake_train_seg)
-    monkeypatch.setattr(SUB, "_cellpose_use_gpu", lambda: True)
     return rec
 
 

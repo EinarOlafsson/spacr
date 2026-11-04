@@ -19,12 +19,6 @@ from spacr import io as IO
 # directory helpers
 # ---------------------------------------------------------------------------
 
-def test_is_dir_empty(tmp_path):
-    assert IO._is_dir_empty(str(tmp_path)) is True
-    (tmp_path / "f.txt").write_text("x", encoding="utf-8")
-    assert IO._is_dir_empty(str(tmp_path)) is False
-
-
 def test_delete_empty_subdirectories(tmp_path):
     (tmp_path / "empty1").mkdir()
     (tmp_path / "empty2" / "nested_empty").mkdir(parents=True)

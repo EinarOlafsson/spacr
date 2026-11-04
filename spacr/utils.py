@@ -2303,17 +2303,6 @@ def normalize_to_dtype(array, p1=2, p2=98, percentile_list=None, new_dtype=None)
         new_stack[:, :, i] = img
     return new_stack
     
-def _list_endpoint_subdirectories(base_dir):
-    """Return leaf subdirectory paths under ``base_dir``, excluding any named ``figure``."""
-    
-    endpoint_subdirectories = []
-    for root, dirs, _ in os.walk(base_dir):
-        if not dirs:
-            endpoint_subdirectories.append(root)
-            
-    endpoint_subdirectories = [path for path in endpoint_subdirectories if os.path.basename(path) != 'figure']
-    return endpoint_subdirectories
-    
 def _generate_names(file_name, cell_id, cell_nucleus_ids, cell_pathogen_ids,
                     source_folder, crop_mode='cell', timelapse=None,
                     object_id=None):

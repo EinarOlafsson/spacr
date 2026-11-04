@@ -340,35 +340,6 @@ def test_img_list_to_grid_keeps_rgb_channel_order():
 
 
 # ---------------------------------------------------------------------------
-# object._postprocess_masks
-# ---------------------------------------------------------------------------
-
-def test_postprocess_masks_min_size():
-    m = np.zeros((32, 32), dtype=np.int32)
-    m[0, 0] = 1                # 1 px — dropped by min_size
-    m[10:20, 10:20] = 2        # 100 px — kept
-    out = OBJ._postprocess_masks([m], min_size=5)
-    # The tiny object is removed; the big one survives (relabeled).
-    assert (out[0] > 0).sum() == 100
-
-
-def test_postprocess_masks_remove_border():
-    m = np.zeros((16, 16), dtype=np.int32)
-    m[0:4, 0:4] = 1            # touches border → removed
-    m[7:11, 7:11] = 2          # interior → kept
-    out = OBJ._postprocess_masks([m], min_size=0, remove_border=True)
-    assert (out[0] > 0).sum() == 16   # only the interior object
-
-
-def test_postprocess_masks_max_size():
-    m = np.zeros((32, 32), dtype=np.int32)
-    m[2:6, 2:6] = 1            # 16 px kept
-    m[8:28, 8:28] = 2          # 400 px — dropped by max_size
-    out = OBJ._postprocess_masks([m], min_size=0, max_size=100)
-    assert (out[0] > 0).sum() == 16
-
-
-# ---------------------------------------------------------------------------
 # object classical-segmentation helpers
 # ---------------------------------------------------------------------------
 

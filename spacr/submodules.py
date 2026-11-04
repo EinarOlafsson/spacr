@@ -153,17 +153,6 @@ def _style_colour_bar(fig):
 _TRAIN_PREVIEW_N = 8
 
 
-def _cellpose_use_gpu() -> bool:
-    """Return whether Cellpose can use CUDA, falling back safely to CPU."""
-    try:
-        from .accelerator import cellpose_gpu
-
-        return cellpose_gpu()
-    except Exception as exc:
-        print(f"Warning: GPU probe failed; Cellpose will use CPU: {exc}")
-        return False
-
-
 class CellposeLazyDataset(Dataset):
     """Lazy image/label dataset for Cellpose training and inference.
 

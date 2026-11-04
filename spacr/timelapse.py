@@ -410,26 +410,6 @@ def _find_optimal_search_range(features, initial_search_range=500, increment=10,
         print(f'timelapse_displacement={optimal_search_range} is too high. Lower timelapse_displacement or set to None for automatic thresholding.')
     return optimal_search_range
 
-def _remove_objects_from_first_frame(masks, percentage=10):
-        """
-        Removes a specified percentage of objects from the first frame of a sequence of masks.
-
-        Parameters:
-        masks (ndarray): Sequence of masks representing the frames.
-        percentage (int): Percentage of objects to remove from the first frame.
-
-        Returns:
-        ndarray: Sequence of masks with objects removed from the first frame.
-        """
-        first_frame = masks[0]
-        unique_labels = np.unique(first_frame[first_frame != 0])
-        num_labels_to_remove = max(1, int(len(unique_labels) * (percentage / 100)))
-        labels_to_remove = random.sample(list(unique_labels), num_labels_to_remove)
-
-        for label in labels_to_remove:
-            masks[0][first_frame == label] = 0
-        return masks
-
 def _track_by_iou(masks, iou_threshold=0.1):
     """
     Build a track table by linking masks frame→frame via IoU.
@@ -7564,94 +7544,6 @@ def _feature_velocity_correlations(all_df, track_df, measurements_dir):
         )
 
 
-def _make_intensity_sanity_plots(all_df, infection_col, n_channels, motility_dir):
-    """
-    Per-channel intensity sanity-check plots (infected vs uninfected).
-    """
-    import numpy as np
-    import os
-    import matplotlib.pyplot as plt
-
-    if all_df.empty:
-        return
-
-    keys = ["plateID", "wellID", "fieldID", "cellID"]
-    os.makedirs(motility_dir, exist_ok=True)
-
-    for ch in range(n_channels):
-        col_int = f"cell_mean_intensity_ch{ch}"
-        if col_int not in all_df.columns:
-            continue
-
-        cell_level_int = (
-            all_df[keys + [col_int, infection_col]]
-            .groupby(keys, dropna=False)
-            .agg(
-                {
-                    col_int: "mean",
-                    infection_col: "max",
-                }
-            )
-            .reset_index()
-        )
-        cell_level_int = cell_level_int.replace([np.inf, -np.inf], np.nan)
-        cell_level_int = cell_level_int.dropna(subset=[col_int])
-
-        if cell_level_int.empty:
-            print(
-                f"[summarise_tracks_from_merged] No data for intensity "
-                f"channel {ch}, skipping sanity plot."
-            )
-            continue
-
-        mask_inf = cell_level_int[infection_col].astype(bool)
-        vals_inf = cell_level_int.loc[mask_inf, col_int].to_numpy()
-        vals_uninf = cell_level_int.loc[~mask_inf, col_int].to_numpy()
-
-        mean_inf = float(np.nanmean(vals_inf)) if vals_inf.size else np.nan
-        std_inf = (
-            float(np.nanstd(vals_inf, ddof=1)) if vals_inf.size > 1 else np.nan
-        )
-        mean_uninf = float(np.nanmean(vals_uninf)) if vals_uninf.size else np.nan
-        std_uninf = (
-            float(np.nanstd(vals_uninf, ddof=1))
-            if vals_uninf.size > 1
-            else np.nan
-        )
-
-        x_pos = np.arange(2)
-        heights = [mean_inf, mean_uninf]
-        errors = [std_inf, std_uninf]
-
-        with figure_style(theme_target()):
-            fig_ch, ax_ch = plt.subplots(figsize=(4, 4))
-            from .figures.bundle import _register_figure_data
-            _register_figure_data(fig_ch, {"infected": vals_inf, "uninfected": vals_uninf}, x="group", y="intensity", kind="bar_strip")
-        ax_ch.bar(
-            x_pos,
-            heights,
-            yerr=errors,
-            capsize=5,
-            color=[INFECTED_COLOUR, UNINFECTED_COLOUR],
-            alpha=0.7,
-        )
-        ax_ch.set_xticks(x_pos)
-        ax_ch.set_xticklabels(["Infected", "Uninfected"])
-        ax_ch.set_ylabel(f"Mean cell intensity (channel {ch})")
-        ax_ch.set_title(f"Intensity vs infection – channel {ch}")
-        ax_ch.set_ylim(bottom=0)
-        plt.tight_layout()
-        out_ch = os.path.join(
-            motility_dir, f"intensity_channel{ch}_infected_vs_uninfected.png"
-        )
-        out_ch = save_figure_to_path(fig_ch, out_ch)
-        plt.close(fig_ch)
-        print(
-            f"[summarise_tracks_from_merged] Saved intensity sanity plot "
-            f"for channel {ch} to {out_ch}"
-        )
-
-
 def _track_frame(groups, origin=False):
     """One tidy row per track point: ``x``, ``y``, ``track`` and ``infected``.
 
@@ -8321,45 +8213,6 @@ def _make_adjusted_qc_panel(
         f"({label_tag}) to {out_path}"
     )
 
-
-def _load_measurements_from_db(db_path, db_table_name):
-    """
-    Load per-cell measurements from an existing SQLite database.
-
-    Parameters
-    ----------
-    db_path : str
-        Path to the SQLite database file (measurements.db).
-    db_table_name : str
-        Name of the table that stores per-cell measurements.
-
-    Returns
-    -------
-    pandas.DataFrame
-        DataFrame with the measurements, or an empty DataFrame if the
-        database/table is missing or unreadable.
-    """
-    import os
-    import sqlite3
-    import pandas as pd
-
-    if not os.path.isfile(db_path):
-        return pd.DataFrame()
-
-    conn = sqlite3.connect(db_path, timeout=30)
-    try:
-        query = f"SELECT * FROM {db_table_name}"
-        df = pd.read_sql_query(query, conn)
-    except Exception as e:
-        print(
-            "[summarise_tracks_from_merged] Could not load existing measurements "
-            f"from {db_path} (table='{db_table_name}'): {e}"
-        )
-        df = pd.DataFrame()
-    finally:
-        conn.close()
-
-    return df
 
 def _infection_qc_histogram(
     all_df,

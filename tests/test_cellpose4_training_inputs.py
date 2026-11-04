@@ -32,7 +32,6 @@ def training(monkeypatch):
         return 'actual/checkpoint', [1.0], [2.0]
     monkeypatch.setattr(sub.cp_models, 'CellposeModel', lambda **kw: SimpleNamespace(net=object()))
     monkeypatch.setattr(sub.train_cp, 'train_seg', train)
-    monkeypatch.setattr(sub, '_cellpose_use_gpu', lambda: False)
     monkeypatch.setattr(sub, 'plot_cellpose_batch', lambda *a: None)
     monkeypatch.setattr('spacr.utils.save_settings', lambda *a, **k: None)
     return calls

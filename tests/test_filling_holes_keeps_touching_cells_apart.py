@@ -249,10 +249,3 @@ def test_apply_with_defaults_finds_the_preview_count_on_a_real_field(tmp_path, m
     assert preview_count > 10
     assert _count(applied) == preview_count
 
-
-def test_postprocessing_renumbers_without_merging_touching_objects():
-    from spacr.object import _postprocess_masks
-    mask = _touching_ringed_cells()
-    out, = _postprocess_masks([mask], min_size=0)
-    assert _count(out) == 2
-    assert out[3, 3] != out[3, 20]

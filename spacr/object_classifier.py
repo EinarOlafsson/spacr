@@ -149,29 +149,6 @@ def touches_border(mask: np.ndarray, label: int) -> bool:
     return any(bool(np.any(edge == label)) for edge in edges)
 
 
-def _perimeter_pixels(field: np.ndarray, label: int) -> int:
-    """How many of ``label``'s pixels sit against something that is not it."""
-    here = field == label
-    if not here.any():
-        return 0
-    padded = np.pad(here, 1, constant_values=False)
-    neighbours = (padded[:-2, 1:-1] & padded[2:, 1:-1]
-                  & padded[1:-1, :-2] & padded[1:-1, 2:])
-    return int(np.count_nonzero(here & ~neighbours))
-
-
-def _shared_border(field: np.ndarray, first: int, second: int) -> int:
-    """How many pixels of ``first`` are orthogonally against ``second``."""
-    here = field == first
-    there = field == second
-    if not here.any() or not there.any():
-        return 0
-    padded = np.pad(there, 1, constant_values=False)
-    against = (padded[:-2, 1:-1] | padded[2:, 1:-1]
-               | padded[1:-1, :-2] | padded[1:-1, 2:])
-    return int(np.count_nonzero(here & against))
-
-
 def split_candidates(mask: np.ndarray,
                      share: float = 0.25) -> List[Tuple[int, int]]:
     """Pairs of labels that look like one object cut in two.

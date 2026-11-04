@@ -203,15 +203,6 @@ def test_the_value_round_trips_and_names_an_existing_checkpoint(tmp_path):
         "cellpose_dino:", setting="model_name", kinds=("cellpose_dino",))
 
 
-def test_a_run_knows_when_an_object_chose_cellpose_dino():
-    assert SB._cellpose_dino_is_chosen(
-        {"nucleus_model_name": "cellpose_dino:/m/w"})
-    assert SB._cellpose_dino_is_chosen({"pathogen_model": "cellpose_dino:/m"})
-    assert not SB._cellpose_dino_is_chosen({"cell_model_name": "cpsam"})
-    assert not SB._cellpose_dino_is_chosen(
-        {"cell_model_name": "cellpose3:cyto3"})
-
-
 def test_load_backend_builds_the_remote_model_on_the_checkpoint(tmp_path,
                                                                 capsys):
     env = _finish(tmp_path)

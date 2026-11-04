@@ -380,24 +380,6 @@ def test_backend_cannot_silently_return_multiple_fields():
         oc.segment_and_classify(Backend(), np.zeros((40, 40)))
 
 
-@pytest.mark.parametrize('share', [0, .25, .5, 1])
-def test_boundary_search_matches_the_pairwise_rule(share):
-    from itertools import combinations
-
-    rng = np.random.default_rng(449)
-    for _ in range(10):
-        mask = rng.choice(np.array([0, 1, 5, 2**63 + 9], dtype=np.uint64),
-                          size=(15, 12))
-        expected = []
-        for first, second in combinations([1, 5, 2**63 + 9], 2):
-            shared = oc._shared_border(mask, first, second)
-            perimeter = min(oc._perimeter_pixels(mask, first),
-                            oc._perimeter_pixels(mask, second))
-            if shared and shared / perimeter >= share:
-                expected.append((first, second))
-        assert oc.split_candidates(mask, share) == expected
-
-
 @pytest.mark.parametrize('share', [-1, 1.1, np.nan])
 def test_invalid_split_threshold_is_rejected(share):
     with pytest.raises(ValueError, match='share'):

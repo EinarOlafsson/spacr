@@ -495,7 +495,7 @@ def test_move_to_chan_folder_noop_when_stack_exists(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# _generate_time_lists / _is_dir_empty (guards around the ingest)
+# _generate_time_lists (guards around the ingest)
 # ---------------------------------------------------------------------------
 
 def test_generate_time_lists_skips_malformed_names(tmp_path):

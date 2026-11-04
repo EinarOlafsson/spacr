@@ -233,62 +233,6 @@ def test_percentiles_all_objects_nan_returns_empty():
 
 
 # ---------------------------------------------------------------------------
-# _load_measurements_from_db
-# ---------------------------------------------------------------------------
-
-def test_load_measurements_missing_file_returns_empty(tmp_path):
-    from spacr.timelapse import _load_measurements_from_db
-
-    out = _load_measurements_from_db(str(tmp_path / "nope.db"), "cell")
-    assert isinstance(out, pd.DataFrame)
-    assert out.empty
-    assert list(out.columns) == []
-
-
-def test_load_measurements_reads_rows(tmp_path):
-    from spacr.timelapse import _load_measurements_from_db
-
-    db = tmp_path / "measurements.db"
-    src = pd.DataFrame({"cellID": [1, 2, 3], "cell_area": [10.0, 20.0, 30.0]})
-    con = sqlite3.connect(db)
-    try:
-        src.to_sql("tracked_cells", con, index=False)
-    finally:
-        con.close()
-
-    out = _load_measurements_from_db(str(db), "tracked_cells")
-    assert list(out.columns) == ["cellID", "cell_area"]
-    assert out["cell_area"].tolist() == [10.0, 20.0, 30.0]
-
-
-def test_load_measurements_missing_table_returns_empty(tmp_path, capsys):
-    from spacr.timelapse import _load_measurements_from_db
-
-    db = tmp_path / "measurements.db"
-    con = sqlite3.connect(db)
-    try:
-        pd.DataFrame({"a": [1]}).to_sql("present", con, index=False)
-    finally:
-        con.close()
-
-    out = _load_measurements_from_db(str(db), "absent_table")
-    assert out.empty
-    assert "Could not load existing measurements" in capsys.readouterr().out
-
-
-def test_load_measurements_unreadable_file_returns_empty(tmp_path, capsys):
-    """A non-SQLite file still opens but every query raises."""
-    from spacr.timelapse import _load_measurements_from_db
-
-    junk = tmp_path / "junk.db"
-    junk.write_bytes(b"this is definitely not a sqlite database" * 8)
-
-    out = _load_measurements_from_db(str(junk), "cell")
-    assert out.empty
-    assert "Could not load existing measurements" in capsys.readouterr().out
-
-
-# ---------------------------------------------------------------------------
 # _make_adjusted_qc_panel
 # ---------------------------------------------------------------------------
 

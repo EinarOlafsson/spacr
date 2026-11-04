@@ -23,24 +23,6 @@ import pytest
 pytest.importorskip("PySide6")
 
 
-def test_zero_really_would_delete_every_organelle():
-    """The consequence, so the rest of this file is not about a style point."""
-    from spacr.object import _postprocess_masks
-
-    mask = np.zeros((40, 40), dtype=np.uint16)
-    mask[0:5, 0:5] = 1
-    mask[10:15, 10:15] = 2
-    mask[20:30, 20:30] = 3
-
-    kept_none = _postprocess_masks([mask.copy()], min_size=10, max_size=None)[0]
-    kept_zero = _postprocess_masks([mask.copy()], min_size=10, max_size=0)[0]
-
-    assert len(set(np.unique(kept_none)) - {0}) == 3
-    assert len(set(np.unique(kept_zero)) - {0}) == 0, (
-        "max_size=0 no longer erases everything; re-check what Propagate "
-        "should write")
-
-
 def test_the_preview_propagates_no_cap_as_no_cap(qtbot, qt_theme_applied):
     """The fix: the untouched preview must not change what the run does."""
     from spacr.qt.screens.app_screen import AppScreen

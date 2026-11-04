@@ -1242,18 +1242,6 @@ def _cellpose_dino_model(model_name, *, setting=None):
     return os.path.abspath(path)
 
 
-def _cellpose_dino_is_chosen(settings):
-    """Whether a run's settings send any object to Cellpose-DINO.
-
-    :param settings: a settings mapping.
-    :returns: a bool.
-    """
-    return any(_cellpose_dino_choice(value) is not None
-               for key, value in (settings or {}).items()
-               if str(key).endswith("_model_name")
-               or key == "pathogen_model")
-
-
 def _prefixed_names():
     """The backends an object chooses by a model-setting prefix of their
     spec's own (StarDist, InstanSeg, Omnipose), in :data:`_SPECS` order."""
@@ -1361,18 +1349,6 @@ def _prefixed_model_ok(value):
     except (FileNotFoundError, ModelZooError):
         return False
     return True
-
-
-def _prefixed_is_chosen(settings):
-    """Whether a run's settings send any object to a prefixed backend.
-
-    :param settings: a settings mapping.
-    :returns: a bool.
-    """
-    return any(_prefixed_backend(value) is not None
-               for key, value in (settings or {}).items()
-               if str(key).endswith("_model_name")
-               or key == "pathogen_model")
 
 
 def _backends_root(root=None):
