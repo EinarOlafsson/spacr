@@ -7072,19 +7072,34 @@ def _write_mask_request(request):
 def _rewrite_lineage_request(request):
     """Embed one lineage graph in every other saved mask of a sequence.
 
+    With ``sync_pixels`` set, each frame's pixels first follow the labels
+    the graph now gives its cells there, from the labels the file's own
+    embedded graph gave them, so a label means the same cell in every file.
+
     :param request: ``folder``, ``names``, ``lineage`` and ``layout``.
     :returns: how many existing mask files could not be rewritten.
     """
     import tifffile
 
     failed = 0
+    lineage = request["lineage"]
+    reserved = engine._movie_labels(lineage)
     for name in request["names"]:
         path = engine.mask_save_path(request["folder"], name, **request["layout"])
         if not os.path.isfile(path):
             continue
         try:
-            engine.save_mask(request["folder"], name, tifffile.imread(path),
-                             preserve_ids=True, lineage=request["lineage"],
+            labels = tifffile.imread(path)
+            if request.get("sync_pixels"):
+                frame = os.path.abspath(os.path.join(request["folder"], name))
+                embedded = engine.load_mask_metadata(
+                    request["folder"], name, request["layout"].get("masks_dir")).get("lineage")
+                moved = engine._follow_lineage_labels(
+                    labels, (embedded or {}).get("frames", {}).get(frame, {}),
+                    lineage["frames"].get(frame, {}), reserved)
+                labels = labels if moved is None else moved
+            engine.save_mask(request["folder"], name, labels,
+                             preserve_ids=True, lineage=lineage,
                              **request["layout"])
         except (OSError, ValueError, tifffile.TiffFileError):
             failed += 1
@@ -13868,6 +13883,9 @@ class MakeMasksScreen(QWidget):
         self._lineage_scans = []
         self._syncing_label = False
         self._selected_cell = None
+        self._planned_assignment = None
+        self._paint_label_enabled = False
+        self._paint_cell = None
         self._lineage_dirty = False
         self._lineage_format = False
         self._time_label_enabled = False
@@ -18826,12 +18844,19 @@ class MakeMasksScreen(QWidget):
         more.setAccessibleName(tr("Next label"))
         more.clicked.connect(lambda: self._step_selected_label(1))
         tracking_layout.addWidget(more)
-        self._btn_label_time = QPushButton(tr("Time"), group)
+        self._btn_label_time = _SplitMenuButton(tr("Time"), group)
         self._btn_label_time.setObjectName("MakeMasksLabelTime")
         self._btn_label_time.setCheckable(True)
         self._btn_label_time.setToolTip(tr(
             "Enable time labelling and cell divisions with lineage embedded in 32-bit TIFF masks."))
         self._btn_label_time.toggled.connect(self._toggle_label_time)
+        time_menu = QMenu(self._btn_label_time)
+        time_menu.setObjectName("MakeMasksLabelTimeMenu")
+        self._paint_label_action = time_menu.addAction(tr("Paint label while scrolling"))
+        self._paint_label_action.setObjectName("MakeMasksPaintLabel")
+        self._paint_label_action.setCheckable(True)
+        self._paint_label_action.toggled.connect(self._toggle_paint_label)
+        self._btn_label_time.set_split_menu(time_menu)
         layout.addWidget(self._btn_label_time)
         menu = QMenu(button)
         menu.setObjectName("MakeMasksEditLabelMenu")
@@ -19014,6 +19039,13 @@ class MakeMasksScreen(QWidget):
         daughters.setToolTip(_native_prose(tr("Record a division of the selected cell (Ctrl+Shift+D).")))
         daughters.clicked.connect(self._divide_lineage_cell)
         actions.addWidget(daughters)
+        undivide = QPushButton(tr("Remove division"), controls)
+        undivide.setObjectName("MakeMasksRemoveDivision")
+        undivide.setToolTip(tr(
+            "Remove the selected cell's division, or the one it was born in; the first "
+            "daughter's track becomes the mother's again."))
+        undivide.clicked.connect(self._remove_lineage_division)
+        actions.addWidget(undivide)
         layout.addLayout(actions)
         self._lineage_table = QTableView(controls)
         self._lineage_table.setObjectName("MakeMasksLineageCells")
@@ -19080,14 +19112,15 @@ class MakeMasksScreen(QWidget):
         changed = self._lineage != snapshot[0]
         restored, self._selected_cell = copy.deepcopy(snapshot)
         reparented = self._reparented(self._lineage, restored)
+        movie = self._other_frames_differ(self._lineage, restored)
         self._lineage = (engine.restore_lineage_state(restored, self._lineage)
                          if changed else restored)
         if changed:
             self._lineage_dirty = True
             self._label_time_edited = True
         self._refresh_lineage_rows()
-        if reparented:
-            self._rewrite_sequence_lineage()
+        if reparented or movie:
+            self._rewrite_sequence_lineage(sync_pixels=movie)
 
     def _commit_lineage_change(self, state, selected):
         """Commit one metadata edit as one normal mask undo step."""
@@ -19160,16 +19193,32 @@ class MakeMasksScreen(QWidget):
         try:
             first = self._canvas.selected_label or cell["label"]
             second = self._free_lineage_label(first + 1, (first,))
+            third = self._free_lineage_label(second + 1, (first, second))
         except ValueError as error:
             self._status_label.setText(str(error))
             return
+        bud = self._daughter_name(cell["name"])
+        proposals = {
+            "budding": ((cell["name"], first), (bud, second)),
+            "mitosis": ((bud, second), (self._daughter_name(cell["name"], (bud,)), third))}
+        proposals["fission"] = proposals["mitosis"]
         dialog = QDialog(self)
         dialog.setObjectName("MakeMasksDivisionDialog")
         dialog.setWindowTitle(tr("Daughter cells"))
         form = QFormLayout(dialog)
+        kinds = QComboBox(dialog)
+        kinds.setObjectName("MakeMasksDivisionType")
+        kinds.setAccessibleName(tr("Division type"))
+        kinds.setToolTip(tr("Budding keeps the mother's name on the first daughter; mitosis "
+                            "and fission give both daughters new names."))
+        for kind, caption in (("budding", tr("Budding")), ("mitosis", tr("Mitosis")),
+                              ("fission", tr("Fission"))):
+            kinds.addItem(caption, kind)
+        kinds.setCurrentIndex(max(0, kinds.findData(self._division_type())))
+        form.addRow(tr("Division type"), kinds)
         names, labels = [], []
-        for caption, name, label in ((tr("First daughter"), cell["name"], first),
-                                      (tr("Second daughter"), self._daughter_name(cell["name"]), second)):
+        for caption, (name, label) in zip((tr("First daughter"), tr("Second daughter")),
+                                          proposals[kinds.currentData()]):
             row = QWidget(dialog)
             fields = QHBoxLayout(row)
             name_field, label_field = QLineEdit(name, row), QLineEdit(str(label), row)
@@ -19181,6 +19230,8 @@ class MakeMasksScreen(QWidget):
             form.addRow(caption, row)
             names.append(name_field)
             labels.append(label_field)
+        kinds.currentIndexChanged.connect(lambda _index: self._propose_daughters(
+            proposals[kinds.currentData()], names, labels))
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, dialog)
         buttons.accepted.connect(dialog.accept)
         buttons.rejected.connect(dialog.reject)
@@ -19195,11 +19246,50 @@ class MakeMasksScreen(QWidget):
         except ValueError as error:
             self._status_label.setText(str(error))
             return
+        state["cells"][parent]["division_type"] = kinds.currentData()
         self._commit_lineage_change(state, children[0])
 
-    def _daughter_name(self, parent_name):
+    @staticmethod
+    def _propose_daughters(proposal, names, labels):
+        """Fill the daughter fields with the names and labels a division type proposes."""
+        for (name, label), name_field, label_field in zip(proposal, names, labels):
+            name_field.setText(name)
+            label_field.setText(str(label))
+
+    def _division_type(self):
+        """The division type this movie last recorded, budding when none is recorded."""
+        divided = [cell for cell in (self._lineage or {}).get("cells", {}).values()
+                   if cell.get("division_type") in ("budding", "mitosis", "fission")]
+        if not divided:
+            return "budding"
+        return max(divided, key=lambda cell: cell.get("revision", 0))["division_type"]
+
+    def _remove_lineage_division(self):
+        """Remove the selected cell's division, restoring the mother's track, as one undo step."""
+        from ..i18n import tr
+
+        if not self._time_label_enabled or self._loading or self._selected_cell is None:
+            return
+        cells = self._lineage["cells"]
+        mother = self._selected_cell
+        if not cells[mother].get("children"):
+            mother = cells[mother].get("parent_uuid") or mother
+        try:
+            state, _first, second = engine._remove_lineage_division(self._lineage, mother)
+        except ValueError as error:
+            self._status_label.setText(str(error))
+            return
+        self._commit_lineage_change(state, mother)
+        self._rewrite_sequence_lineage()
+        self._status_label.setText(tr(
+            "The division of {name} was removed; {second} is now a separate cell. Undo "
+            "restores the division.", name=state["cells"][mother]["name"],
+            second=state["cells"][second]["name"]))
+
+    def _daughter_name(self, parent_name, excluded=()):
         """Propose a new editable branch name using an unbounded alphabetic suffix."""
         used = {cell["name"] for cell in (self._lineage or {}).get("cells", {}).values()}
+        used.update(excluded)
         number = 1
         while True:
             value, suffix = number, ""
@@ -19213,6 +19303,9 @@ class MakeMasksScreen(QWidget):
 
     def _prepare_label_assignment(self, point, label):
         """Validate graph changes before any pixels or history are modified."""
+        planned, self._planned_assignment = self._planned_assignment, None
+        if planned is not None:
+            return planned
         state, selected = self._lineage, self._selected_cell
         frame = self._lineage_frame()
         mapping = (state or {}).get("frames", {}).get(frame, {})
@@ -19222,8 +19315,11 @@ class MakeMasksScreen(QWidget):
         previous = int(self._canvas.mask[y, x])
         if not previous:
             return self._canvas.mask, 0, label, None
-        assigned, notice = label, ""
+        assigned, notice, movie, base = label, "", False, self._canvas.mask
         if self._time_label_enabled and self._canvas.mode == MODE_LABEL_TIME and label:
+            if self._paint_label_enabled:
+                state, selected, base, movie = self._clear_paint_label(state, frame, x, y, label)
+                mapping = state["frames"].get(frame, {})
             if selected is None:
                 reserved = label if str(label) not in mapping else self._free_lineage_label()
                 state, selected = engine.new_lineage_cell(
@@ -19233,7 +19329,7 @@ class MakeMasksScreen(QWidget):
             if self._continues(state, selected, replaced):
                 state = engine._merge_continuation(state, selected, replaced)
             changed, state, previous, assigned = engine.assign_tracked_object(
-                self._canvas.mask, x, y, state, frame, selected, preferred_label=label)
+                base, x, y, state, frame, selected, preferred_label=label)
             selected = state["frames"][frame].get(str(assigned), selected)
             notice = self._lineage_assignment_notice(before, state, chosen, replaced)
         else:
@@ -19251,8 +19347,8 @@ class MakeMasksScreen(QWidget):
             self._lineage_dirty = True
             self._label_time_edited = True
             self._refresh_lineage_rows()
-            if reparented:
-                self._rewrite_sequence_lineage()
+            if reparented or movie:
+                self._rewrite_sequence_lineage(sync_pixels=movie)
             if label == 0:
                 self._label_value.setText("0")
             if notice:
@@ -19289,11 +19385,13 @@ class MakeMasksScreen(QWidget):
         return any(new[key].get("parent_uuid") != cell.get("parent_uuid")
                    for key, cell in old.items() if key in new)
 
-    def _rewrite_sequence_lineage(self):
+    def _rewrite_sequence_lineage(self, sync_pixels=False):
         """Embed the current lineage in every saved mask of the open sequence.
 
         The open frame is written by its own save. Pixels stay as saved, so
-        reopening from any frame reads the same ancestry.
+        reopening from any frame reads the same ancestry, unless
+        ``sync_pixels`` asks every frame's pixels to follow the labels the
+        lineage now gives its cells.
         """
         if not self._folder or self._lineage is None or not self._image_files:
             return
@@ -19302,7 +19400,7 @@ class MakeMasksScreen(QWidget):
         names = [name for name in self._sequence_frame_names() if name != current]
         request = dict(
             kind="lineage", folder=self._folder, names=names, layout=layout,
-            lineage=copy.deepcopy(self._lineage),
+            lineage=copy.deepcopy(self._lineage), sync_pixels=bool(sync_pixels),
             paths=[engine.mask_save_path(self._folder, name, **layout) for name in names],
             deliver=self._deliver_mask_write)
         self._track_mask_write(request)
@@ -19331,15 +19429,157 @@ class MakeMasksScreen(QWidget):
         if self._loading or self._canvas.mode != MODE_EDIT_LABEL:
             return
         token, mask = self._load_token, self._canvas.mask
+        proposed = previous
+        if self._time_label_enabled:
+            used = engine._movie_labels(self._lineage) | set(map(int, np.unique(mask)))
+            proposed = max(used) + 1
+            if proposed > engine.MAX_MASK_LABEL:
+                try:
+                    proposed = engine._unused_movie_label(self._lineage, used)
+                except ValueError:
+                    proposed = previous
         value, accepted = QInputDialog.getText(
             self, tr("Edit Label"), tr("Label (0 removes the object)"),
-            text=str(previous))
+            text=str(proposed))
         if (accepted and not self._loading and self._load_token == token
                 and self._canvas.mask is mask and self._canvas.mode == MODE_EDIT_LABEL):
-            if not value.strip().isdecimal():
+            if not value.strip().isdecimal() or int(value) > engine.MAX_MASK_LABEL:
                 self._status_label.setText(tr("Enter a non-negative whole-number label."))
                 return
+            if self._time_label_enabled and int(value):
+                self._relabel_time_object(x, y, int(value))
+                return
             self._canvas.assign_label_at((x, y), int(value))
+
+    def _toggle_paint_label(self, enabled):
+        """Switch wheel steps between tracing the selected cell and painting a label.
+
+        Painting gives the object under the pointer the label in the field,
+        frame after frame; a cell already using that label moves to a new
+        label in every frame, so one label always means one cell.
+        """
+        from ..i18n import tr
+
+        self._paint_label_enabled = bool(enabled)
+        if enabled:
+            self._status_label.setText(tr(
+                "Scrolling now gives the object under the pointer label {label} in each frame.",
+                label=self._canvas.selected_label))
+
+    def _clear_paint_label(self, state, frame, x, y, label):
+        """Free ``label`` for the hovered object, so one label means one cell.
+
+        The painted cell is the one this painting continues, or else a cell
+        already carrying ``label``; every other cell carrying it takes a new
+        label in every frame. In this frame, another object on ``label`` with
+        no cell takes a new label, and another object of the painted cell is
+        split off as a new cell with a new label.
+
+        :returns: the graph, the cell to assign, the mask to assign on and
+            whether other frames' labels changed.
+        """
+        mask = self._canvas.mask
+        before = dict((state or {}).get("frames", {}).get(frame, {}))
+        carriers = engine._cells_with_label(state, label)
+        cell = (self._paint_cell if self._paint_cell in carriers
+                else carriers[0] if carriers else None)
+        present = set(map(int, np.unique(mask))) | {label}
+        movie = False
+        for other in carriers:
+            if other != cell:
+                fresh = engine._unused_movie_label(state, present)
+                present.add(fresh)
+                state = engine._relabel_lineage_cell(state, other, fresh)
+                movie = True
+        mapping = (state or {}).get("frames", {}).get(frame, {})
+        moved = engine._follow_lineage_labels(mask, before, mapping, present)
+        changed = (engine.canonical_labels(mask, preserve_ids=True).astype(np.uint32)
+                   if moved is None else moved)
+        for local in sorted(set(map(int, np.unique(changed))) - {0, int(changed[y, x])}):
+            owner = mapping.get(str(local))
+            if local != label and (owner is None or owner != cell):
+                continue
+            fresh = engine._unused_movie_label(state, present)
+            present.add(fresh)
+            if owner is not None:
+                state, split = engine.new_lineage_cell(state, str(fresh), fresh, frame)
+                state = engine.assign_lineage_label(state, frame, fresh, split, old_label=local)
+                mapping = state["frames"][frame]
+            changed[changed == local] = fresh
+        if cell is None:
+            state, cell = engine.new_lineage_cell(state, str(label), label, frame)
+        self._paint_cell = cell
+        return state, cell, changed, movie
+
+    def _relabel_time_object(self, x, y, label):
+        """Give the clicked object, and its cell in every frame, the pixel label ``label``.
+
+        A label another cell already carries is taken only after the user
+        agrees to give that cell a new label in every frame of the movie.
+        Pixels of this frame change as one undoable edit; the other frames'
+        files follow the updated lineage.
+
+        :returns: whether the object now carries ``label``.
+        """
+        from ..i18n import tr
+
+        mask, state = self._canvas.mask, self._lineage
+        original = int(mask[y, x])
+        if not original or original == label:
+            return bool(original)
+        frame = self._lineage_frame()
+        mapping = (state or {}).get("frames", {}).get(frame, {})
+        mine = mapping.get(str(original))
+        holders = [cell for cell in engine._cells_with_label(state, label) if cell != mine]
+        changed = engine.canonical_labels(mask, preserve_ids=True).astype(np.uint32)
+        try:
+            if holders or np.any(mask == label):
+                if not self._confirm(tr("Relabel another cell?"), tr(
+                        "Label {label} already belongs to another cell. Give that cell a new "
+                        "label in every frame of the time-lapse?", label=label)):
+                    return False
+                used = set(map(int, np.unique(mask))) | {label}
+                fresh = engine._unused_movie_label(state, used)
+                changed[mask == label] = fresh
+                for holder in holders:
+                    used.add(fresh)
+                    state = engine._relabel_lineage_cell(state, holder, fresh)
+                    fresh = engine._unused_movie_label(state, used)
+            changed[mask == original] = label
+            if mine is not None:
+                state = engine._relabel_lineage_cell(state, mine, label)
+        except ValueError as error:
+            self._status_label.setText(str(error))
+            return False
+        self._planned_assignment = (changed, original, label,
+                                    self._commit_relabel(state, mine))
+        return bool(self._canvas.assign_label_at((x, y), label))
+
+    def _commit_relabel(self, state, selected):
+        """Install a movie-wide relabel once its frame's pixels are committed.
+
+        :returns: the callable the canvas runs after the mask update.
+        """
+        def commit():
+            """Install the lineage and make every other frame's pixels follow it."""
+            movie = self._other_frames_differ(self._lineage, state)
+            self._lineage = state
+            if selected is not None and state is not None and selected in state["cells"]:
+                self._selected_cell = selected
+            self._lineage_dirty = True
+            self._label_time_edited = True
+            self._refresh_lineage_rows()
+            if movie:
+                self._rewrite_sequence_lineage(sync_pixels=True)
+
+        return commit
+
+    def _other_frames_differ(self, before, after):
+        """Whether two graphs map any frame other than the open one differently."""
+        frame = self._lineage_frame()
+        old, new = (before or {}).get("frames", {}), (after or {}).get("frames", {})
+        return any(old.get(name) != new.get(name) for name in old.keys() | new.keys()
+                   if name != frame)
 
     def _queue_label_time_step(self, steps, point, label):
         """Retain every wheel step with the identity and image point it used."""

@@ -382,6 +382,124 @@ def _merge_continuation(state: dict, mother: str, daughter: str) -> dict:
     return validate_lineage(result)
 
 
+def _movie_labels(state: Optional[dict]) -> set:
+    """Every pixel label a lineage graph uses, in any frame or as a cell's label."""
+    state = state or {}
+    used = {int(cell.get("label", 1)) for cell in state.get("cells", {}).values()}
+    for mapping in state.get("frames", {}).values():
+        used.update(map(int, mapping))
+    return used
+
+
+def _unused_movie_label(state: Optional[dict], excluded=()) -> int:
+    """The lowest pixel label no cell of the movie uses and ``excluded`` does not hold."""
+    from .i18n import tr
+
+    used = _movie_labels(state) | {int(value) for value in excluded}
+    value = 1
+    while value in used:
+        value += 1
+    if value > MAX_MASK_LABEL:
+        raise ValueError(tr("No unused 32-bit label remains."))
+    return value
+
+
+def _cells_with_label(state: Optional[dict], label: int) -> list:
+    """Every cell that carries pixel label ``label`` in some frame or as its own label."""
+    state = state or {}
+    cells = state.get("cells", {})
+    key = str(int(label))
+    found = [identity for identity, cell in cells.items() if cell.get("label") == int(label)]
+    for mapping in state.get("frames", {}).values():
+        if mapping.get(key) in cells and mapping[key] not in found:
+            found.append(mapping[key])
+    return found
+
+
+def _relabel_lineage_cell(state: dict, cell_uuid: str, label: int) -> dict:
+    """Give one cell the pixel label ``label`` in every frame it marks.
+
+    Refused when another cell holds ``label`` in one of those frames.
+    """
+    from .i18n import tr
+
+    result = validate_lineage(state)
+    if cell_uuid not in result["cells"]:
+        raise ValueError(tr("Choose an existing lineage cell before assigning its label."))
+    if isinstance(label, (bool, np.bool_)) or not isinstance(label, Integral) \
+            or not 1 <= int(label) <= MAX_MASK_LABEL:
+        raise ValueError(tr("A lineage cell needs a nonzero uint32 label."))
+    key = str(int(label))
+    stamp = _next_lineage_revision(result)
+    for frame, mapping in result["frames"].items():
+        if cell_uuid not in mapping.values() or mapping.get(key) == cell_uuid:
+            continue
+        if mapping.get(key) is not None:
+            raise ValueError(tr("This frame label already belongs to another lineage cell."))
+        result["frames"][frame] = {(key if identity == cell_uuid else local): identity
+                                   for local, identity in mapping.items()}
+        result["frame_revisions"][frame] = stamp
+    result["cells"][cell_uuid].update(label=int(label), revision=stamp)
+    return validate_lineage(result)
+
+
+def _follow_lineage_labels(mask: np.ndarray, old: dict, new: dict, reserved=()):
+    """Move each cell's pixels from the label ``old`` gave it to the one ``new`` gives it.
+
+    ``old`` and ``new`` map pixel labels to cell identities for one frame.
+    An object that does not move but sits on a label another cell moves to
+    is given a label nothing uses, in this frame or in ``reserved``.
+
+    :returns: the relabelled mask, or ``None`` when no pixel needs to move.
+    """
+    target = {identity: int(local) for local, identity in new.items()}
+    labels = canonical_labels(mask, preserve_ids=True)
+    present = {int(value) for value in np.unique(labels) if value}
+    moves = {int(local): target[identity] for local, identity in old.items()
+             if identity in target and target[identity] != int(local)
+             and int(local) in present}
+    if not moves:
+        return None
+    used = present | set(moves.values()) | {int(value) for value in reserved}
+    fresh = 1
+    for value in sorted((present & set(moves.values())) - set(moves)):
+        while fresh in used:
+            fresh += 1
+        moves[value] = fresh
+        used.add(fresh)
+    result = labels.astype(np.uint32)
+    for source, destination in moves.items():
+        result[labels == source] = destination
+    return result
+
+
+def _remove_lineage_division(state: dict, mother: str) -> Tuple[dict, str, str]:
+    """Undo a recorded division: the first daughter's track becomes the mother's again.
+
+    The first daughter is folded back into ``mother`` (its frames, and any
+    division of its own); the second daughter stays as a separate cell
+    without a parent. Returns the graph and the two daughters' identities.
+    """
+    from .i18n import tr
+
+    result = validate_lineage(state)
+    cells = result["cells"]
+    if mother not in cells or not cells[mother].get("children"):
+        raise ValueError(tr("Select a cell that divided, or one of its daughters."))
+    first, second = cells[mother]["children"]
+    stamp = _next_lineage_revision(result)
+    cells[mother].update(children=[], division_frame=None, revision=stamp)
+    cells[mother].pop("division_frame_id", None)
+    cells[mother].pop("division_type", None)
+    kind = cells[first].get("division_type")
+    for child in (first, second):
+        cells[child].update(parent_uuid=None, revision=stamp)
+    result = _merge_continuation(result, mother, first)
+    if kind is not None:
+        result["cells"][mother]["division_type"] = kind
+    return result, first, second
+
+
 def rename_lineage_cell(state: dict, cell_uuid: str, name: str) -> dict:
     """Rename a segment while retaining its identity and parent links.
 

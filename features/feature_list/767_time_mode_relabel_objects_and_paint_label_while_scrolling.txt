@@ -38,3 +38,8 @@ REQUIREMENTS
    the conflict prompt (yes and no), paint-while-scrolling forward and backward
    with and without a conflict, and undo. The tutorials that show Time mode are
    re-recorded once the layout changes.
+
+2026-11-04: Bug fixed in 08464f0250: in Time mode a typed number only set the next wheel step's label; the traced object now takes it at once (undoable), and a held number is reported. Test: tests/qt/test_make_masks_time_relabel.py.
+2026-11-04: Edit Label with Time on proposes the next label above the highest the movie uses; a label another cell carries asks "give that cell a new label in every frame"; yes relabels it movie-wide and the clicked cell takes the label in every frame (one undo step; other frames' TIFF pixels follow the lineage on the mask writer).
+2026-11-04: Time button dropdown "Paint label while scrolling": wheel steps give the hovered object the field's label; other cells carrying it move to new labels in all frames, other objects on it in the frame move aside. Tests: tests/qt/test_make_masks_time_relabel_movie.py.
+2026-11-04: Remaining: generator closure for the new strings; re-record the tutorials that show the Time button (layout gained a dropdown arrow).

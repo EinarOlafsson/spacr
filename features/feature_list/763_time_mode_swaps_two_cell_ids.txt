@@ -11,3 +11,5 @@ cell 2 already marks another object, is refused with "already labels another
 object in this frame". Curators work around it with a temporary cell three
 times. Add a swap: exchange two identities from this frame onward (and in the
 lineage), as one undoable step.
+
+2026-11-04: Superseded by item 767 (coordinator decision): the relabel conflict prompt is the swap path. Selecting a label another cell carries asks to give that cell a new label in every frame, then the clicked cell takes it, as one undoable step; paint-while-scrolling resolves the same refusal during wheel steps. No separate identity swap was built.

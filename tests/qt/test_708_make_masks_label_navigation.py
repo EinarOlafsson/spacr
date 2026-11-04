@@ -578,7 +578,7 @@ def test_separate_label_tools_switch_without_disabling_time(qtbot, screen, monke
 
     monkeypatch.setattr(mm.QInputDialog, "getText", choose_label)
     qtbot.mouseClick(canvas, Qt.LeftButton, pos=pos.toPoint())
-    assert dialogs == ["321"]
+    assert dialogs == ["322"]
     assert int(canvas.mask[10, 10]) == 654
     assert screen._lineage["frames"][frame] == {"654": identity}
     screen._on_undo()

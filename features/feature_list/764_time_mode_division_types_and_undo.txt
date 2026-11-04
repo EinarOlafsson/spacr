@@ -11,3 +11,6 @@ which fits budding but not mitosis or fission, where both daughters are new.
 Let the curator choose the division type (budding keeps the mother; mitosis and
 fission give two new daughters), remember the choice per movie, and add a
 "remove division" action that restores the mother's track.
+
+2026-11-04: Daughter cells dialog has a Division type (Budding, Mitosis, Fission). Budding keeps the mother's name and label on the first daughter; mitosis and fission propose two new names and labels. The type is stored on the mother as the optional cell field "division_type" in spacr.lineage/v1 (old readers ignore it) and the latest one is the movie's default.
+2026-11-04: "Remove division" folds the first daughter back into the mother (frames and any later division) and leaves the second daughter as a parentless cell; one undo step, other frames' TIFFs rewritten. Tests: tests/qt/test_make_masks_lineage_division_types.py. Remaining: generator closure for the new strings.
