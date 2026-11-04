@@ -146,20 +146,6 @@ AI_ANSWER_WAIT_SECONDS = 60.0
 GEAR_ICON_PX = 18
 
 
-def _a_report_is_in_flight(fingerprint: str) -> bool:
-    """Whether this fingerprint is being filed right now, dropping stale ones.
-
-    :param fingerprint: the traceback fingerprint to look for.
-    :returns: ``True`` only while a report started less than
-        :data:`REPORT_IN_FLIGHT_SECONDS` ago is outstanding.
-    """
-    now = time.monotonic()
-    for key, started in list(_REPORTS_BEING_FILED.items()):
-        if now - started >= REPORT_IN_FLIGHT_SECONDS:
-            _REPORTS_BEING_FILED.pop(key, None)
-    return fingerprint in _REPORTS_BEING_FILED
-
-
 #: Object name the settings column carries, and what the block below keys
 #: off. It is the column itself, and — see `_settings_panel_qss` — the
 #: rule that names it is a rule saying *paint nothing*.
@@ -10586,29 +10572,6 @@ class AppScreen(QWidget):
         sign-in can run ``gh auth token``, and the log copy is file I/O.
         """
         self._send_the_anonymous_report(getattr(self, "_failure_kind", ""))
-
-    def _the_ai_is_still_explaining(self, tb: str) -> bool:
-        """Whether spaCR AI is answering THIS error right now.
-
-        The run ends a moment after the error reaches the AI, so an automatic
-        report filed at once went out before the answer nearly every time --
-        the analysis the report exists to carry was missing from almost all
-        of them.
-
-        :param tb: the traceback the report is about.
-        :returns: True while a stream is running for ``tb`` and no answer to
-            it has been kept yet.
-        """
-        console = self._console
-        if getattr(console, "_ai_worker", None) is None:
-            return False
-        asked = getattr(console, "_ai_error_traceback", "") or ""
-        if not asked or asked.strip() != (tb or "").strip():
-            return False
-        try:
-            return not console.ai_explanation_of(tb)
-        except Exception:                                    # noqa: BLE001
-            return False
 
     def _wait_for_the_ai_then_file(self, tb: str, fingerprint: str) -> None:
         """File when spaCR AI's answer lands, or after a bounded wait.

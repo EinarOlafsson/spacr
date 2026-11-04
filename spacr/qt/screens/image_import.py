@@ -981,17 +981,6 @@ class ImageImportScreen(QWidget):
             return 0
         return sum(1 for entry in self._plan.files.values() if "tile" in entry)
 
-    def _tiles_at_risk(self) -> int:
-        """How many images the current tile policy would DROP.
-
-        Zero unless the policy is to skip them: stitching writes every tile
-        into a field and keeping them as fields writes every tile as one.
-        Counted BEFORE the import rather than reported after it -- the whole
-        point of the plan is that a loss is visible while it can still be
-        prevented.
-        """
-        return self._tiled_images() if self.tile_policy() == "skip" else 0
-
     def _on_tiles_changed(self, *_args) -> None:
         """The tile policy changed: it changes what the report has to say."""
         if self._plan is not None:

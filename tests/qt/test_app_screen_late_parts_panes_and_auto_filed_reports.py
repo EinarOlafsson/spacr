@@ -322,20 +322,6 @@ def test_no_traceback_files_nothing(filing, monkeypatch):
     assert posted == []
 
 
-def test_an_ai_answering_another_error_is_not_waited_for(filing):
-    was = filing._console
-    filing._console = types.SimpleNamespace(
-        _ai_worker=object(), _ai_error_traceback="a different error",
-        ai_explanation_of=lambda tb: "")
-    try:
-        assert filing._the_ai_is_still_explaining(TB) is False
-        filing._console._ai_error_traceback = TB
-        filing._console.ai_explanation_of = _raise(RuntimeError)
-        assert filing._the_ai_is_still_explaining(TB) is False
-    finally:
-        filing._console = was
-
-
 def test_a_rearmed_wait_keeps_one_timer_and_one_listener(filing,
                                                          monkeypatch):
     posted = []

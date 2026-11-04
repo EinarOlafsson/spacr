@@ -549,11 +549,6 @@ class _SoundPlayer(QObject):
         self._fade_steps_left = 0
         self._fade_from = 0.0
 
-    @property
-    def device_ready(self) -> bool:
-        """Whether the sound server has been connected to in this process."""
-        return self._device_ready
-
     @Slot()
     def warm(self) -> float:
         """Connect to the sound server now, and report what it cost.

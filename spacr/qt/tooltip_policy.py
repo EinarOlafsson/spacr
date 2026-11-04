@@ -143,19 +143,6 @@ def _preferred_delay_ms() -> int:
     return _delay_ms
 
 
-def _style_wake_up_ms() -> int:
-    """How long Qt waits before it sends a ``ToolTip`` event at all."""
-    try:
-        from PySide6.QtWidgets import QStyle
-        style = QApplication.style()
-        if style is not None:
-            return max(0, int(style.styleHint(
-                QStyle.StyleHint.SH_ToolTip_WakeUpDelay)))
-    except Exception:                                        # noqa: BLE001
-        return 0
-    return 0
-
-
 def tooltips_enabled() -> bool:
     """Whether tooltips are shown at all. Cached; ``True`` by default.
 

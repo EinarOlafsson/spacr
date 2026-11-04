@@ -28,18 +28,6 @@ def test_an_unreadable_delay_preference_falls_back_to_two_seconds(monkeypatch):
     assert tp._preferred_delay_ms() == tp.SHOW_DELAY_MS
 
 
-def test_the_style_wake_up_is_never_negative_and_survives_no_style(monkeypatch):
-    assert tp._style_wake_up_ms() >= 0
-    monkeypatch.setattr(QApplication, "style", staticmethod(lambda: None))
-    assert tp._style_wake_up_ms() == 0
-
-    def broken():
-        raise RuntimeError("gone")
-
-    monkeypatch.setattr(QApplication, "style", staticmethod(broken))
-    assert tp._style_wake_up_ms() == 0
-
-
 def test_invalidating_forgets_a_hover_whose_object_is_gone(qapp, monkeypatch):
     import shiboken6
 

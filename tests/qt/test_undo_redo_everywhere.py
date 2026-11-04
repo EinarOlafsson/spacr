@@ -140,7 +140,6 @@ def test_an_undone_annotation_can_be_redone(qtbot, tmp_path):
             screen._worker.stop(wait=True)
 
 
-
 def test_committed_organelle_edit_undoes_without_losing_another_slots_hidden_values(qtbot):
     from spacr.qt.screens.app_screen import AppScreen
 
@@ -287,23 +286,6 @@ def test_ram_guard_choices_change_only_the_requested_policy_and_recheck_after_fr
         assert calls == [('unchanged-input', 8)] * (2 if choice == 'free' else 1)
         assert freed == ([True] if choice == 'free' else [])
     screen.close()
-
-
-def test_report_fingerprints_expire_independently_at_the_in_flight_deadline(monkeypatch):
-    from types import SimpleNamespace
-    from spacr.qt.screens import app_screen
-
-    clock = [1000.]
-    pending = {'expired': clock[0] - app_screen.REPORT_IN_FLIGHT_SECONDS,
-               'active': clock[0] - 1}
-    monkeypatch.setattr(app_screen, '_REPORTS_BEING_FILED', pending)
-    monkeypatch.setattr(app_screen, 'time', SimpleNamespace(monotonic=lambda: clock[0]))
-    assert not app_screen._a_report_is_in_flight('expired')
-    assert pending == {'active': 999.}
-    assert app_screen._a_report_is_in_flight('active')
-    assert not app_screen._a_report_is_in_flight('unseen')
-    clock[0] += app_screen.REPORT_IN_FLIGHT_SECONDS
-    assert not app_screen._a_report_is_in_flight('active') and pending == {}
 
 
 def test_analysis_lock_dialog_cancellation_preserves_source_and_invalid_settings_never_open_it(
