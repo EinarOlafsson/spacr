@@ -1599,69 +1599,68 @@ def generate_barecode_mapping(settings=None):
                             key, mode,
                             'R1 and R2' if mode == 'paired' else wanted, have)
                         continue
-                    if True:
-                        key_mode = f"{key}_{mode}"
-                        if mode == 'single':
-                            key_mode = f"{key_mode}_{settings['single_direction']}"
-                        dst = os.path.join(settings['src'], key_mode)
-                        hdf5_file = os.path.join(dst, 'annotated_reads.h5')
-                        unique_combinations_csv = os.path.join(dst, 'unique_combinations.csv')
-                        qc_csv_file = os.path.join(dst, 'qc.csv')
+                    key_mode = f"{key}_{mode}"
+                    if mode == 'single':
+                        key_mode = f"{key_mode}_{settings['single_direction']}"
+                    dst = os.path.join(settings['src'], key_mode)
+                    hdf5_file = os.path.join(dst, 'annotated_reads.h5')
+                    unique_combinations_csv = os.path.join(dst, 'unique_combinations.csv')
+                    qc_csv_file = os.path.join(dst, 'qc.csv')
 
-                        print(f'Analyzing reads from sample {key}')
+                    print(f'Analyzing reads from sample {key}')
 
-                        if mode == 'paired':
-                            function = paired_read_chunked_processing
-                            R1 = r1_path
-                            R2 = r2_path
-                            used = {'R1': R1, 'R2': R2}
+                    if mode == 'paired':
+                        function = paired_read_chunked_processing
+                        R1 = r1_path
+                        R2 = r2_path
+                        used = {'R1': R1, 'R2': R2}
 
+                    else:
+                        function = single_read_chunked_processing
+
+                        if settings['single_direction'] == 'R1':
+                            R1 = r1_path or r2_path
+                            R2 = None
                         else:
-                            function = single_read_chunked_processing
+                            R1 = r2_path or r1_path
+                            R2 = None
+                        used = {('R1' if R1 == r1_path else 'R2'): R1}
+                        if settings['single_direction'] not in used:
+                            LOG.warning(
+                                "%s: single_direction is %s, but only %s "
+                                "is present, so %s is decoded with a "
+                                "pattern meant for %s.", key,
+                                settings['single_direction'], have, have,
+                                settings['single_direction'])
 
-                            if settings['single_direction'] == 'R1':
-                                R1 = r1_path or r2_path
-                                R2 = None
-                            else:
-                                R1 = r2_path or r1_path
-                                R2 = None
-                            used = {('R1' if R1 == r1_path else 'R2'): R1}
-                            if settings['single_direction'] not in used:
-                                LOG.warning(
-                                    "%s: single_direction is %s, but only %s "
-                                    "is present, so %s is decoded with a "
-                                    "pattern meant for %s.", key,
-                                    settings['single_direction'], have, have,
-                                    settings['single_direction'])
+                    provenance = _inspect_sample_reads(
+                        key, used, settings.get('sequencer', 'auto'), mode)
+                    os.makedirs(dst, exist_ok=True)
+                    _write_read_inputs(dst, provenance)
 
-                        provenance = _inspect_sample_reads(
-                            key, used, settings.get('sequencer', 'auto'), mode)
-                        os.makedirs(dst, exist_ok=True)
-                        _write_read_inputs(dst, provenance)
+                    function(r1_file=R1,
+                             r2_file=R2,
+                             regex=regex,
+                             target_sequence=settings['target_sequence'],
+                             offset_start=settings['offset_start'],
+                             expected_end=settings['window_length'],
+                             column_csv=settings['column_csv'],
+                             grna_csv=settings['grna_csv'],
+                             row_csv=settings['row_csv'],
+                             barcode_set=barcode_set,
+                             save_h5 = settings['save_h5'],
+                             comp_type = settings['comp_type'],
+                             comp_level=settings['comp_level'],
+                             hdf5_file=hdf5_file,
+                             unique_combinations_csv=unique_combinations_csv,
+                             qc_csv_file=qc_csv_file,
+                             chunk_size=settings['chunk_size'],
+                             n_jobs=settings['n_jobs'],
+                             test=settings['test'],
+                             fill_na=settings['fill_na'])
 
-                        function(r1_file=R1,
-                                 r2_file=R2,
-                                 regex=regex,
-                                 target_sequence=settings['target_sequence'],
-                                 offset_start=settings['offset_start'],
-                                 expected_end=settings['window_length'],
-                                 column_csv=settings['column_csv'],
-                                 grna_csv=settings['grna_csv'],
-                                 row_csv=settings['row_csv'],
-                                 barcode_set=barcode_set,
-                                 save_h5 = settings['save_h5'],
-                                 comp_type = settings['comp_type'],
-                                 comp_level=settings['comp_level'],
-                                 hdf5_file=hdf5_file,
-                                 unique_combinations_csv=unique_combinations_csv,
-                                 qc_csv_file=qc_csv_file,
-                                 chunk_size=settings['chunk_size'],
-                                 n_jobs=settings['n_jobs'],
-                                 test=settings['test'],
-                                 fill_na=settings['fill_na'])
-
-                        _run_barcode_qc(settings, dst,
-                                        unique_combinations_csv, qc_csv_file)
+                    _run_barcode_qc(settings, dst,
+                                    unique_combinations_csv, qc_csv_file)
 
 def barecodes_reverse_complement(csv_file):
     """Write a copy of a barcode CSV with the ``sequence`` column reverse-complemented.

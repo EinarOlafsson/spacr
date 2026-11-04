@@ -19,8 +19,7 @@ from PySide6.QtWidgets import (QAbstractItemView, QComboBox, QDialog,
                                QPushButton, QTableWidget,
                                QTableWidgetItem, QVBoxLayout, QWidget)
 
-from ...import_plan import (CHANNEL_MEANINGS, ROLES, for_get_regex,
-                            group_names, plan)
+from ...import_plan import (ROLES, for_get_regex, group_names, plan)
 from ..i18n import tr
 from .collapsible_splitter import CollapsibleSplitter
 from .sortable_table import install_sorting, table_item

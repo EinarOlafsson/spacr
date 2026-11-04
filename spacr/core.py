@@ -4942,8 +4942,6 @@ def _validate_umap_source_db(db_path, tables, require_png_list=True):
     :returns: None.
     :raises ValueError: naming ``db_path`` and exactly what is missing.
     """
-    import sqlite3 as _sqlite3
-
     if not os.path.isfile(db_path):
         raise ValueError(
             f"generate_image_umap: no measurements database at {db_path}. "

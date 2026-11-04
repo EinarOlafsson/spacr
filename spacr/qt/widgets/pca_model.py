@@ -1002,7 +1002,6 @@ def pca(frame: pd.DataFrame, spec: Optional[PCASpec] = None) -> PCAResult:
     n, p = standard.shape
     singular, vectors = _decompose(standard)
     largest = float(singular.max()) if singular.size else 0.0
-    # `# pragma: no cover`, and their own reasons were right:
     tolerance = largest * max(n, p) * float(np.finfo(float).eps)
     rank = int((singular > tolerance).sum())
 

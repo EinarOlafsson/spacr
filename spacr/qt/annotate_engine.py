@@ -921,7 +921,6 @@ def parse_image_type(expression: Optional[str]) -> Tuple[str, List[str]]:
     if not text:
         return "", []
 
-    # token list, which is why the guard was marked `# pragma: no cover`
     tokens = _tokenise_image_type(text)
     sql, params, rest = _parse_or(tokens)
     if rest:
@@ -1161,7 +1160,6 @@ def fetch_filtered_paths(
             paths = {row[0] for row in conn.execute(
                 f'SELECT png_path FROM "{quoted_table}" WHERE {where}', params)}
         df = df[df["png_path"].isin(paths)]
-    # It was marked `# pragma: no cover` and counted as an uncoverable
     return df[["png_path", annotation_column]].values.tolist()
 
 

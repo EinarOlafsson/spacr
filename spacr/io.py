@@ -42,7 +42,7 @@ from .figure_sink import _show_if_interactive
 from io import BytesIO
 from multiprocessing import cpu_count
 from .resource_log import _parallel_pool as Pool
-from torch.utils.data import Dataset, DataLoader as _TorchDataLoader, random_split, Subset, WeightedRandomSampler
+from torch.utils.data import Dataset, DataLoader as _TorchDataLoader, Subset, WeightedRandomSampler
 from .resource_log import _parallel_data_loader as DataLoader
 from torchvision.transforms import ToTensor
 import seaborn as sns 
