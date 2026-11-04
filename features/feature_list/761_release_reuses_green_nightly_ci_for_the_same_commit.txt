@@ -23,3 +23,8 @@ REQUIREMENTS
    different SHA refused, main moving refused, and the existing main-run path
    unchanged.
 4. allow_unfinished_ci stays as it is.
+
+2026-11-04 — select_run() now prefers the release branch's run of the exact SHA; a finished main run (green or red) always decides. While main has no run or its run is still going, the newest push/workflow_dispatch nightly run of that SHA is reused only when it completed with success and every required job's latest attempt is green.
+2026-11-04 — Nightly docs runs must show green "Pin the documentation branch", "Build nightly documentation" and the Hugging Face Space publish job; the GitHub Pages publish still comes from main's own docs run, which the release no longer waits for.
+2026-11-04 — Attempts: the real API lists every job under each attempt (run 41820109829 attempt 2 carried all 33 jobs, unchanged ones copied), so the existing per-name merge over attempts gives the latest attempt of each job. Main moving still refuses; allow_unfinished_ci untouched.
+2026-11-04 — tests/test_release_source_ci.py covers nightly reuse (push and dispatch, no main run yet), green main preferred, red main not hidden, red/cancelled/partial/unfinished/skipped/other-event nightly refused, newer red nightly blocks older green, rerun latest attempt, other SHA refused, main moving refused.

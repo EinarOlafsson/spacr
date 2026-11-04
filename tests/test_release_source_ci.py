@@ -27,6 +27,12 @@ EXPECTED = {
                  "Publish main documentation to GitHub Pages": True},
     "compat-matrix.yml": COMPATIBILITY,
 }
+NIGHTLY_EXPECTED = {
+    **EXPECTED,
+    "docs.yml": {"Pin the documentation branch": True,
+                 "Build nightly documentation": True,
+                 "Publish nightly documentation to the Hugging Face Space": True},
+}
 
 
 class Clock:
@@ -52,16 +58,17 @@ class GitHub:
         self.on_dispatch = lambda workflow: None
 
     def add(self, workflow, *, status="completed", conclusion="success",
-            sha=SHA, attempt=1, number=None):
+            sha=SHA, attempt=1, number=None, branch="main", event="push"):
         number = number or len(self.records[workflow]) + 1
         identifier = self.next_id
         self.next_id += 1
-        run = {"id": identifier, "head_sha": sha, "head_branch": "main",
-               "event": "push", "run_number": number, "run_attempt": attempt,
+        run = {"id": identifier, "head_sha": sha, "head_branch": branch,
+               "event": event, "run_number": number, "run_attempt": attempt,
                "status": status, "conclusion": conclusion}
         self.records[workflow].append(run)
+        names = NIGHTLY_EXPECTED if branch == "nightly" else EXPECTED
         jobs = [{"name": name, "status": "completed", "conclusion": "success"}
-                for name in EXPECTED[workflow]]
+                for name in names[workflow]]
         self.job_records[identifier, attempt] = jobs
         return run, jobs
 
@@ -757,6 +764,15 @@ def test_actual_nightly_tests_and_docs_job_names_match_the_source_gate():
     assert docs["build"]["name"].replace(
         "${{ needs.resolve.outputs.branch }}", "main") == "Build main documentation"
     assert docs["deploy-pages"]["name"] == "Publish main documentation to GitHub Pages"
+    assert docs["build"]["name"].replace(
+        "${{ needs.resolve.outputs.branch }}", "nightly") == "Build nightly documentation"
+    assert docs["deploy-space"]["name"] == (
+        "Publish nightly documentation to the Hugging Face Space")
+    for workflow in CI.WORKFLOWS:
+        assert CI.expected_jobs(workflow, "main", COMPATIBILITY) == {
+            name: blocking for name, blocking in EXPECTED[workflow].items()
+            if name != "Pin the documentation branch"}
+        assert CI.expected_jobs(workflow, "nightly", COMPATIBILITY) == NIGHTLY_EXPECTED[workflow]
 
 
 @pytest.mark.parametrize("matrix,policy,error", [
@@ -852,3 +868,150 @@ def test_pypi_and_tagged_installer_publication_recheck_the_exact_main_head():
             }
         assert jobs[job]["permissions"]["contents"] in ("read", "write")
         assert steps[0]["with"]["ref"] == "${{ needs.bump.outputs.commit_sha }}"
+
+
+@pytest.fixture
+def nightly():
+    """Green nightly runs of the release SHA while main's own runs are still going."""
+    api = GitHub()
+    for workflow in CI.WORKFLOWS:
+        api.add(workflow, branch="nightly")
+        _, jobs = api.add(workflow, status="in_progress", conclusion=None)
+        for job in jobs:
+            job.update(status="in_progress", conclusion=None)
+    return api
+
+
+@pytest.mark.parametrize("event", ["push", "workflow_dispatch"])
+def test_green_nightly_runs_of_the_same_sha_are_reused_while_main_runs(nightly, event, capsys):
+    for workflow in CI.WORKFLOWS:
+        nightly.records[workflow][0]["event"] = event
+    clock = Clock()
+    require(nightly, clock)
+    assert clock.now == 0 and nightly.dispatches == []
+    output = capsys.readouterr().out
+    for workflow in CI.WORKFLOWS:
+        run = nightly.records[workflow][0]
+        assert (f"Accepted {workflow} run {run['id']} attempt 1 for {SHA} from nightly"
+                in output)
+
+
+def test_green_nightly_runs_are_reused_when_main_has_no_run_yet():
+    api = GitHub()
+    for workflow in CI.WORKFLOWS:
+        api.add(workflow, branch="nightly")
+    require(api)
+    assert api.dispatches == []
+
+
+def test_a_finished_green_main_run_is_preferred_over_nightly(nightly, capsys):
+    for workflow in CI.WORKFLOWS:
+        run = nightly.records[workflow][1]
+        run.update(status="completed", conclusion="success")
+        for job in nightly.jobs(run):
+            job.update(status="completed", conclusion="success")
+    require(nightly)
+    output = capsys.readouterr().out
+    assert "from nightly" not in output
+    for workflow in CI.WORKFLOWS:
+        assert (f"Accepted {workflow} run {nightly.records[workflow][1]['id']} attempt 1 "
+                f"for {SHA}\n") in output
+
+
+@pytest.mark.parametrize("conclusion", ["failure", "cancelled", "timed_out"])
+def test_a_finished_red_main_run_is_not_hidden_by_a_green_nightly_run(nightly, conclusion):
+    nightly.records["tests.yml"][1].update(status="completed", conclusion=conclusion)
+    with pytest.raises(RuntimeError, match=f"tests.yml.*finished with {conclusion}"):
+        require(nightly)
+    assert nightly.dispatches == []
+
+
+@pytest.mark.parametrize("change", ["failure", "cancelled", "in_progress", "red job",
+                                    "missing job", "skipped job", "unfinished job",
+                                    "skipped pin", "pull_request", "schedule"])
+def test_a_nightly_run_that_is_not_fully_green_is_never_reused(nightly, change):
+    workflow = "docs.yml" if change == "skipped pin" else "tests.yml"
+    run = nightly.records[workflow][0]
+    jobs = nightly.jobs(run)
+    target = jobs[0]
+    if change in ("failure", "cancelled"):
+        run["conclusion"] = change
+    elif change == "in_progress":
+        run.update(status="in_progress", conclusion=None)
+    elif change == "red job":
+        target["conclusion"] = "failure"
+    elif change == "missing job":
+        jobs.remove(target)
+    elif change in ("skipped job", "skipped pin"):
+        target["conclusion"] = "skipped"
+    elif change == "unfinished job":
+        target["status"] = "in_progress"
+    else:
+        run["event"] = change
+    clock = Clock()
+    with pytest.raises(TimeoutError):
+        require(nightly, clock, timeout=120)
+    assert clock.now == 120 and nightly.dispatches == []
+
+
+def test_a_nightly_compatibility_cell_must_be_green_to_reuse_its_run(nightly):
+    run = nightly.records["compat-matrix.yml"][0]
+    blocking = next(job for job in nightly.jobs(run) if job["name"] == "Linux ARM64 / py3.11")
+    blocking["conclusion"] = "failure"
+    with pytest.raises(TimeoutError):
+        require(nightly, timeout=120)
+    blocking["conclusion"] = "success"
+    optional = next(name for name, required in COMPATIBILITY.items() if not required)
+    next(job for job in nightly.jobs(run) if job["name"] == optional)["conclusion"] = "failure"
+    require(nightly)
+
+
+def test_a_newer_red_nightly_run_blocks_reuse_of_an_older_green_one(nightly):
+    _, jobs = nightly.add("tests.yml", branch="nightly", conclusion="failure")
+    jobs[0]["conclusion"] = "failure"
+    with pytest.raises(TimeoutError):
+        require(nightly, timeout=120)
+
+
+def test_a_rerun_nightly_run_counts_only_with_its_latest_attempt_green(nightly):
+    run = nightly.records["tests.yml"][0]
+    latest = [dict(job) for job in nightly.jobs(run)]
+    latest[0]["conclusion"] = "failure"
+    run["run_attempt"] = 2
+    nightly.job_records[run["id"], 2] = latest
+    with pytest.raises(TimeoutError):
+        require(nightly, timeout=120)
+    latest[0]["conclusion"] = "success"
+    require(nightly)
+    assert nightly.dispatches == []
+
+
+def test_a_green_nightly_run_of_another_sha_is_never_reused():
+    api = GitHub()
+    for workflow in CI.WORKFLOWS:
+        api.add(workflow, branch="nightly", sha="b" * 40)
+    api.on_dispatch = lambda workflow: api.add(workflow)
+    require(api)
+    assert api.dispatches == [(workflow, "main") for workflow in CI.WORKFLOWS]
+
+
+def test_main_moving_refuses_a_green_nightly_run(nightly):
+    nightly.head = "b" * 40
+    with pytest.raises(RuntimeError, match="branch moved"):
+        require(nightly)
+    assert nightly.dispatches == []
+
+
+def test_main_moving_while_the_last_nightly_run_is_read_refuses_it(nightly):
+    original = nightly.jobs
+
+    def jobs(run):
+        result = original(run)
+        if run is nightly.records["compat-matrix.yml"][0]:
+            nightly.head = "b" * 40
+        return result
+
+    nightly.jobs = jobs
+    with pytest.raises(RuntimeError, match="branch moved"):
+        require(nightly)
+    assert nightly.dispatches == []

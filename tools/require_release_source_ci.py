@@ -139,7 +139,34 @@ def compatibility_jobs(path):
     return expected
 
 
-def select_run(api, workflow, sha, branch):
+REUSABLE_BRANCH = "nightly"
+
+
+def expected_jobs(workflow, branch, compatibility):
+    """Name every job a run of ``workflow`` on ``branch`` must complete."""
+    if workflow == "tests.yml":
+        return {"Release gate / zero unexpected failures": True,
+                "Coverage / every module at 90% and none loses coverage": True}
+    if workflow == "compat-matrix.yml":
+        return compatibility
+    if branch == "main":
+        return {"Build main documentation": True,
+                "Publish main documentation to GitHub Pages": True}
+    return {"Pin the documentation branch": True,
+            "Build nightly documentation": True,
+            "Publish nightly documentation to the Hugging Face Space": True}
+
+
+def unaccepted_jobs(jobs, expected):
+    """Return the expected jobs whose latest attempt is missing or not green."""
+    by_name = {job["name"]: job for job in jobs}
+    return [name for name, blocking in expected.items()
+            if (job := by_name.get(name)) is None or job["status"] != "completed"
+            or blocking and job["conclusion"] != "success"]
+
+
+def newest_run(api, workflow, sha, branch):
+    """Return the newest publish-mode push or dispatch run of ``sha`` on ``branch``."""
     runs = [run for run in api.runs(workflow, sha)
             if run["head_sha"] == sha and run["head_branch"] == branch
             and run["event"] in ("push", "workflow_dispatch")]
@@ -152,6 +179,26 @@ def select_run(api, workflow, sha, branch):
             continue
         return run, jobs
     return None
+
+
+def select_run(api, workflow, sha, branch, compatibility):
+    """Prefer the release branch's run; reuse a fully green nightly run of the same SHA.
+
+    A finished main run always decides. While main has no run or its run is
+    still going, the newest nightly run of the exact commit is reused only when
+    it finished successfully and the latest attempt of every required job is green.
+    """
+    candidate = newest_run(api, workflow, sha, branch)
+    if candidate is not None and candidate[0]["status"] == "completed":
+        return candidate
+    reused = newest_run(api, workflow, sha, REUSABLE_BRANCH)
+    if reused is not None:
+        run, jobs = reused
+        if (run["status"] == "completed" and run["conclusion"] == "success"
+                and not unaccepted_jobs(
+                    jobs, expected_jobs(workflow, REUSABLE_BRANCH, compatibility))):
+            return reused
+    return candidate
 
 
 def require_current_head(api, sha, branch):
@@ -171,18 +218,11 @@ def require_source_ci(api, sha, branch, compatibility, *, timeout=19800,
     deadline = clock() + timeout
     dispatched = {}
     reported = set()
-    expected = {
-        "tests.yml": {"Release gate / zero unexpected failures": True,
-                      "Coverage / every module at 90% and none loses coverage": True},
-        "docs.yml": {"Build main documentation": True,
-                     "Publish main documentation to GitHub Pages": True},
-        "compat-matrix.yml": compatibility,
-    }
     while clock() < deadline:
         require_current_head(api, sha, branch)
         accepted = set()
         for workflow in WORKFLOWS:
-            candidate = select_run(api, workflow, sha, branch)
+            candidate = select_run(api, workflow, sha, branch, compatibility)
             if candidate is None:
                 if workflow in dispatched:
                     if clock() - dispatched[workflow] >= 300:
@@ -190,31 +230,31 @@ def require_source_ci(api, sha, branch, compatibility, *, timeout=19800,
                     continue
                 if api.branch_sha(branch) != sha:
                     raise RuntimeError("Release branch moved; refusing to dispatch another source")
-                candidate = select_run(api, workflow, sha, branch)
+                candidate = select_run(api, workflow, sha, branch, compatibility)
                 if candidate is None:
                     api.dispatch(workflow, branch)
                     dispatched[workflow] = clock()
                     print(f"Dispatched {workflow} for {sha}", flush=True)
                     continue
             run, jobs = candidate
-            by_name = {job["name"]: job for job in jobs}
             if run["status"] != "completed":
                 continue
             if run["conclusion"] != "success":
                 raise RuntimeError(f"{workflow} exact-source run {run['id']} "
                                    f"finished with {run['conclusion']}")
-            for name, blocking in expected[workflow].items():
-                job = by_name.get(name)
-                if (job is None or job["status"] != "completed"
-                        or blocking and job["conclusion"] != "success"):
-                    raise RuntimeError(f"{workflow} run {run['id']} lacks completed "
-                                       f"{'successful ' if blocking else ''}job {name}")
+            expected = expected_jobs(workflow, run["head_branch"], compatibility)
+            missing = unaccepted_jobs(jobs, expected)
+            if missing:
+                blocking = expected[missing[0]]
+                raise RuntimeError(f"{workflow} run {run['id']} lacks completed "
+                                   f"{'successful ' if blocking else ''}job {missing[0]}")
             accepted.add(workflow)
             identity = (workflow, run['id'], run['run_attempt'])
             if identity not in reported:
                 reported.add(identity)
+                source = "" if run["head_branch"] == branch else f" from {run['head_branch']}"
                 print(f"Accepted {workflow} run {run['id']} attempt {run['run_attempt']} "
-                      f"for {sha}", flush=True)
+                      f"for {sha}{source}", flush=True)
         if len(accepted) == len(WORKFLOWS):
             require_current_head(api, sha, branch)
             return
