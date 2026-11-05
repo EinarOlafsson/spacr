@@ -376,6 +376,21 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # Moved 2026-11-05 (was 417e53d9...) by the four item 770 constants
     # counted above; no dunder changed.
     ) == "8f1a22e2a2303297096e05796e85052c4dc4405f2472deba7e02ca29be66d0cf"
+    # The item 770 constants (2026-11-05) are named and taken out here, so
+    # every older fingerprint below still describes the surface before them.
+    tvn_constants = {
+        "spacr.batch_correction.EMBEDDING_METHODS",
+        "spacr.batch_correction.HARMONY_MISSING_MESSAGE",
+        "spacr.batch_correction.TVN_SCOPES",
+        "spacr.batch_correction.TVN_WHITENINGS",
+    }
+    assert tvn_constants <= assignments
+    assignments = assignments - tvn_constants
+    new_assignments = new_assignments - tvn_constants
+    assert _sha256_lines(
+        [*(f"new_dunder\0{key}" for key in dunders - {psf_validator}),
+         *(f"new_constant_attribute\0{key}" for key in assignments)]
+    ) == "417e53d93cd6259149951890b9ea9a00b163952790abdfbaff605f2f01785d3d"
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders - {psf_validator}),
          *(f"new_constant_attribute\0{key}" for key in assignments
