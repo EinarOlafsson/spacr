@@ -694,16 +694,15 @@ def record_preferences_live(app, window, capture, settle):
         capture.end()
         toggle_section(capture, sections['theme'], False)
 
-        # 13e: Modules tab, scrolled to Session and Update channel; Show alpha
+        # 13e: Modules tab, scrolled to Update channel; Show alpha
         # features (off) must stay out of view. At its default size the whole
         # Modules page fits, so the dialog is first made shorter by dragging
         # its bottom edge (a user resizing the window). If the app does not
         # allow that, 13e is not recorded and the run fails at the end.
-        session = dialog.findChild(QWidget, 'RestoreLastSession')
         channel = dialog.findChild(QWidget, 'UpdateChannel')
         toggle = dialog.findChild(QWidget, 'ShowAlphaFeatures')
         _, modules = show_tab(capture, dialog, 'PreferencesTabModules')
-        mscroll = scroll_area_of(session)
+        mscroll = scroll_area_of(channel)
 
         def alpha_in_view():
             viewport = mscroll.viewport()
@@ -711,27 +710,25 @@ def record_preferences_live(app, window, capture, settle):
             return toggle.isVisible() and -toggle.height() < y < viewport.height()
 
         if alpha_in_view():
-            needed = toggle.mapTo(mscroll.viewport(), QPoint(0, 0)).y() - session.mapTo(
+            needed = toggle.mapTo(mscroll.viewport(), QPoint(0, 0)).y() - channel.mapTo(
                 mscroll.viewport(), QPoint(0, 0)).y()
             shrink = mscroll.viewport().height() - needed + 30
             before_h = dialog.height()
             drag(capture, dialog, QPoint(dialog.width() // 2, dialog.height() - 3), (0, -shrink), duration=1.0)
             settle(0.5)
             proof['modules_resize'] = {'before_h': before_h, 'after_h': dialog.height(), 'asked': shrink}
-            scroll_into_view(capture, mscroll, session, margin=4)
+            scroll_into_view(capture, mscroll, channel, margin=4)
         # Show the Modules tab back on top before the clip, so the clip never shows the toggle.
         if alpha_in_view():
             deferred.append('13e_session_updates not recorded: Show alpha features cannot be kept out of '
                             f'view on the Modules tab of the real dialog ({proof.get("modules_resize")})')
         else:
             capture.begin('13e_session_updates')
-            focus['13e_session_updates'] = union(handoff(capture, session), handoff(capture, channel))
-            for control in (session, channel):
-                hover(control)
-                pause(capture, 1.5)
+            focus['13e_session_updates'] = handoff(capture, channel)
+            hover(channel)
+            pause(capture, 1.5)
             if alpha_in_view():
                 raise RuntimeError('Show alpha features came into view during 13e')
-            proof['restore_last_session'] = session.isChecked()
             proof['update_channel'] = channel.currentText()
             capture.end()
         if proof.get('modules_resize'):

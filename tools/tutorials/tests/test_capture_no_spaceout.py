@@ -66,7 +66,7 @@ def test_normal_preferences_retains_recorded_controls_without_hidden_effects(nor
     qtbot.addWidget(dialog)
     required = ['PerformanceLevel', 'PreferencesTabGeneral', 'PreferencesTabAppearance',
                 'PreferencesTabModules', 'PreferencesTabStorage', 'PaneOpacity',
-                'RestoreLastSession', 'UpdateChannel', 'ShowAlphaFeatures', 'StoragePruneButton']
+                'UpdateChannel', 'ShowAlphaFeatures', 'StoragePruneButton']
     assert dialog.findChild(QTabWidget, 'PreferencesTabs') is not None
     assert all(dialog.findChild(QWidget, name) is not None for name in required)
     for name in ('AmbientTheme', 'PopupBackdrop'):

@@ -464,10 +464,10 @@ def _open_preferences_tab(window, settle, object_name, height=1200):
 
 
 def record_session_and_updates(window, capture, settle, name="13e_session_updates"):
-    """Show Session restore and the update channel without the alpha toggle in view.
+    """Show the update channel without the alpha toggle in view.
 
-    Both rows live on the Modules tab, whose last row holds Show alpha
-    features. The page is scrolled to the Session row and the dialog is made
+    The row lives on the Modules tab, whose last row holds Show alpha
+    features. The page is scrolled to the Update channel row and the dialog is made
     short enough that the toggle stays below the visible part of the page.
     """
     from PySide6.QtCore import QPoint
@@ -475,20 +475,19 @@ def record_session_and_updates(window, capture, settle, name="13e_session_update
 
     dialog, page = _open_preferences_tab(window, settle, "PreferencesTabModules", 1200)
     try:
-        session = dialog.findChild(QWidget, "RestoreLastSession")
         channel = dialog.findChild(QWidget, "UpdateChannel")
         # Module visibility holds the maturity toggles and Show alpha
         # features; keep its whole row out of view.
         toggle = dialog.findChild(QWidget, "ShowAlphaFeatures")
-        if session is None or channel is None or toggle is None:
-            raise RuntimeError("Preferences has no Session, Update channel or alpha row")
+        if channel is None or toggle is None:
+            raise RuntimeError("Preferences has no Update channel or alpha row")
         scroll = page.parentWidget()
         while scroll is not None and not isinstance(scroll, QScrollArea):
             scroll = scroll.parentWidget()
         info = {}
         for _ in range(8):
             settle(0.5)
-            top = session.mapTo(scroll.widget(), QPoint(0, 0)).y()
+            top = channel.mapTo(scroll.widget(), QPoint(0, 0)).y()
             scroll.verticalScrollBar().setValue(max(0, top - 60))
             settle(0.5)
             viewport = scroll.viewport()
@@ -498,14 +497,13 @@ def record_session_and_updates(window, capture, settle, name="13e_session_update
                     "channel_bottom": channel_bottom, "dialog_h": dialog.height()}
             if toggle_y >= viewport.height() and channel_bottom <= viewport.height():
                 capture(name)
-                info["restore_last_session"] = session.isChecked()
                 info["update_channel"] = channel.currentText()
                 return info
             shrink = viewport.height() - toggle_y + 40
             if shrink <= 0 or dialog.height() - shrink < channel_bottom + 200:
                 break
             dialog.resize(dialog.width(), dialog.height() - shrink)
-        raise RuntimeError(f"Cannot show Session and Update channel without the alpha toggle: {info}")
+        raise RuntimeError(f"Cannot show Update channel without the alpha toggle: {info}")
     finally:
         dialog.close()
         dialog.deleteLater()

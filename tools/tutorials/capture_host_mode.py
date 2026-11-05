@@ -169,7 +169,7 @@ def prepare_profile(font_scale: float) -> dict:
     prefs.set_preload_policy('on_demand')
     prefs.set_ai_on_by_default(False)
     # Theme, field, its shipped density and default palette, alpha features
-    # and species off, --fresh (no remembered session, no crash drafts).
+    # and species off, --fresh (no crash drafts).
     configure_appearance(CAPTURE_PROFILE['theme'], CAPTURE_PROFILE['field'], default_field=True)
     prefs.set_show_alpha(CAPTURE_PROFILE['show_alpha'])          # Feature maturity -> Show alpha
     # Alpha SPECIES (Plasmodium, Candida, ... item 634) and alpha FEATURES have their own preferences, separate from

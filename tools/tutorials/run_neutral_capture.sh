@@ -60,9 +60,9 @@ awk -F: -v home_path="$capture_mount/profile" '
 # with Preferences -> Show alpha features off; capture_refresh.py forces it off
 # again in the recording's own store and refuses a frame while it is on (only
 # its --preferences-alpha-toggle-scene opt-in may record the toggle itself).
-# The same call drops any remembered session and crash drafts (647/648),
-# leaving Preferences -> Session at its default (on); capture_refresh.py then starts the app
-# as `spacr --fresh` and refuses to record a window that reopened a session.
+# The same call drops any crash drafts (648) and the session keys older
+# releases read; capture_refresh.py then starts the app as `spacr --fresh`
+# and refuses to record a window that offers crash drafts.
 capture_profiles=("$capture_stage/profile/.config")
 for capture_config in "$capture_stage"/config/*/; do
     [[ -d $capture_config ]] && capture_profiles+=("${capture_config%/}")

@@ -1,12 +1,11 @@
-"""Every tutorial recording starts fresh (647/648 session restore).
+"""Every tutorial recording starts fresh (648 crash drafts).
 
-spaCR reopens the last module, settings and folder on an ordinary start
-(Preferences -> Session, default on) and offers autosaved settings back after
-a crash. A recording must show what a viewer gets on a fresh start, so every
-capture path starts the app as ``spacr --fresh`` with no remembered session
-and no crash drafts, and capture refuses a window that started in restore
-mode. The switch stays at its default (on) so Preferences scenes show the
-default truthfully.
+spaCR offers autosaved settings back after a crash. A recording must show
+what a viewer gets on a fresh start, so every capture path starts the app as
+``spacr --fresh`` with no crash drafts, and capture refuses a window that did
+not start fresh. spaCR 1.5.1.8 removed "restore last session"; profiles still
+drop the session keys older releases read, so an older installed spaCR starts
+fresh too.
 """
 from __future__ import annotations
 
@@ -55,8 +54,9 @@ def _private_store(tmp_path, monkeypatch):
 
 
 def _restore_mode(store):
-    """A profile that would reopen Regression and offer crash drafts."""
-    restart_state._save_session("regression", {"fdr_alpha": 0.01})
+    """A profile with an older release's session record and crash drafts."""
+    store.setValue(SESSION_KEY, '{"module": "regression", "settings": {}}')
+    store.setValue(RESTORE_SESSION_KEY, True)
     restart_state._save_drafts({"regression": {"fdr_alpha": 0.04}})
     assert store.contains(SESSION_KEY) and store.contains(DRAFTS_KEY)
 
@@ -70,15 +70,12 @@ def _window(qtbot):
     return window
 
 
-def test_force_fresh_start_sets_the_flag_keeps_the_default_and_drops_drafts(_private_store):
+def test_force_fresh_start_sets_the_flag_and_drops_drafts_and_session_keys(_private_store):
     from spacr.qt import app as gui
-    from spacr.qt.preferences import _get_restore_session, _set_restore_session
 
     _restore_mode(_private_store)
-    _set_restore_session(False)              # an earlier profile turned it off
     assert force_fresh_start() is True
     assert gui._OPEN_FRESH[0] is True
-    assert _get_restore_session() is True    # the default, shown truthfully
     assert not _private_store.contains(RESTORE_SESSION_KEY)
     assert not _private_store.contains(SESSION_KEY)
     assert not _private_store.contains(DRAFTS_KEY)
@@ -87,19 +84,13 @@ def test_force_fresh_start_sets_the_flag_keeps_the_default_and_drops_drafts(_pri
 def test_configure_appearance_starts_every_recording_fresh(_private_store):
     from spacr.qt import app as gui
 
-    from spacr.qt.preferences import _get_restore_session
-
     capture_policy.configure_appearance()
     assert gui._OPEN_FRESH[0] is True
-    assert _get_restore_session() is True
 
 
 def test_a_fresh_recording_window_opens_home_with_no_drafts_offer(qtbot, _private_store):
-    from spacr.qt.preferences import _get_restore_session
-
     _restore_mode(_private_store)
     force_fresh_start()
-    assert _get_restore_session() is True    # restore on, yet nothing reopens
     window = _window(qtbot)
     assert "regression" not in window._screens
     assert window._stack.currentWidget() is window._startup
@@ -107,43 +98,28 @@ def test_a_fresh_recording_window_opens_home_with_no_drafts_offer(qtbot, _privat
     assert verify_fresh_start(window) is True
 
 
-def test_capture_refuses_a_window_that_started_in_restore_mode(qtbot, _private_store):
+def test_capture_refuses_a_window_that_did_not_start_fresh(qtbot, _private_store):
     _restore_mode(_private_store)
-    window = _window(qtbot)              # an ordinary start: reopens Regression
-    assert "regression" in window._screens
-    with pytest.raises(RuntimeError, match="restore mode"):
+    window = _window(qtbot)              # an ordinary start: Home, drafts offered
+    assert "regression" not in window._screens
+    assert window._stack.currentWidget() is window._startup
+    with pytest.raises(RuntimeError, match="did not start fresh"):
         verify_fresh_start(window)
 
 
-def test_fresh_wins_over_the_default_restore_switch_even_with_a_session(qtbot, _private_store):
-    """--fresh alone keeps a stored session from reopening (switch on)."""
-    from spacr.qt import app as gui
-
-    restart_state._save_session("regression", {"fdr_alpha": 0.01})
-    gui._OPEN_FRESH[0] = True
-    window = _window(qtbot)
-    assert "regression" not in window._screens
-    assert verify_fresh_start(window) is True
-
-
-def test_capture_refuses_a_start_without_fresh_even_with_nothing_to_reopen(_private_store):
-    with pytest.raises(RuntimeError, match="restore mode"):
+def test_capture_refuses_a_start_without_fresh_even_with_nothing_to_offer(_private_store):
+    with pytest.raises(RuntimeError, match="did not start fresh"):
         verify_fresh_start()
 
 
 class _Window:
-    _restored_session_settings = ("", {})
     _drafts_box = None
     _pending_drafts = {}
 
 
-def test_capture_refuses_a_reopened_session_or_a_crash_offer(_private_store):
+def test_capture_refuses_a_crash_offer(_private_store):
     force_fresh_start()
     assert verify_fresh_start(_Window()) is True
-    reopened = _Window()
-    reopened._restored_session_settings = ("measure", {"src": "x"})
-    with pytest.raises(RuntimeError, match="reopened the last session"):
-        verify_fresh_start(reopened)
     offered = _Window()
     offered._pending_drafts = {"measure": {"src": "x"}}
     with pytest.raises(RuntimeError, match="unsaved settings from a crash"):
@@ -158,7 +134,7 @@ def test_every_frame_check_includes_the_fresh_start_check():
     assert "force_fresh_start()" in body
 
 
-def test_profiles_are_written_with_the_default_switch_and_no_session(tmp_path):
+def test_profiles_are_written_with_no_session_keys_and_no_drafts(tmp_path):
     from PySide6.QtCore import QSettings
 
     home = tmp_path / "config"
@@ -172,23 +148,25 @@ def test_profiles_are_written_with_the_default_switch_and_no_session(tmp_path):
         verify_profile_starts_fresh(home)
     assert force_fresh_start_in_profiles([home]) == [home / "spacr" / "qt.conf"]
     store = QSettings(str(home / "spacr" / "qt.conf"), QSettings.IniFormat)
-    assert not store.contains(RESTORE_SESSION_KEY)          # default (on)
+    assert not store.contains(RESTORE_SESSION_KEY)
     assert not store.contains(SESSION_KEY) and not store.contains(DRAFTS_KEY)
     assert store.value("prefs/theme") == "dark"
     assert verify_profile_starts_fresh(home) == home / "spacr" / "qt.conf"
 
 
-def test_the_profile_check_reads_a_real_session_record(tmp_path, _private_store, monkeypatch):
-    from PySide6.QtCore import QSettings
+def test_the_profile_check_reads_an_older_release_session_record(tmp_path):
+    import json
 
-    from spacr.qt import preferences as prefs
+    from PySide6.QtCore import QSettings
 
     home = tmp_path / "profile"
     store = QSettings(str(home / "spacr" / "qt.conf"), QSettings.IniFormat)
-    monkeypatch.setattr(prefs, "_settings", lambda: store)
-    restart_state._save_session("", {})               # closed on Home
-    assert verify_profile_starts_fresh(home)
-    restart_state._save_session("measure", {"src": "/data/plate"})
+    store.setValue(SESSION_KEY, json.dumps({"module": "", "settings": {}}))
+    store.sync()
+    assert verify_profile_starts_fresh(home)          # closed on Home
+    store.setValue(SESSION_KEY, json.dumps({"module": "measure",
+                                            "settings": {"src": "/data/plate"}}))
+    store.sync()
     with pytest.raises(RuntimeError, match="reopen the last session"):
         verify_profile_starts_fresh(home)
     assert verify_profile_starts_fresh(tmp_path / "brand-new")
@@ -251,7 +229,7 @@ def test_the_openings_recorder_checks_the_fresh_start():
 
 def test_installed_app_recordings_start_fresh():
     pip = (TUTORIALS / "capture_pip_installation.py").read_text(encoding="utf-8")
-    assert "_set_restore_session" not in pip       # the default stays on
+    assert "_set_restore_session" not in pip
     assert "fresh_argv(" in pip and "launcher_accepts_fresh(" in pip
     assert "verify_profile_starts_fresh(" in pip
     terminal = (TUTORIALS / "capture_terminal_install.py").read_text(encoding="utf-8")

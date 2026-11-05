@@ -264,8 +264,8 @@ def record(stage, root, venv, prior, capture, route='pip'):
             # The older channel package does not implement --no-setup.
             launcher = root / 'bin/spacr' if route == 'linux_installer' else venv / 'bin/spacr'
             command = [str(launcher)] + ([] if route == 'conda' else ['--no-setup'])
-            # Session restore (647/648) stays at its default; the brand-new
-            # profile holds nothing to reopen and --fresh skips it anyway.
+            # The brand-new profile holds no crash drafts and nothing an
+            # older release would reopen; --fresh is passed when known.
             from capture_policy import fresh_argv, launcher_accepts_fresh, verify_profile_starts_fresh
             verify_profile_starts_fresh(os.environ['XDG_CONFIG_HOME'])
             package = Path(provenance['installed_identity']['package']).parent
