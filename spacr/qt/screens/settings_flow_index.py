@@ -404,6 +404,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'feather',
     'feature_importance',
     'feature_mask',
+    'feature_qc_drop',
     'fields',
     'figure.autolayout',
     'figure.figsize',
