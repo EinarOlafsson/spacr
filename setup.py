@@ -460,6 +460,11 @@ setup(
             'mypy>=1.11,<3',
             'xenon>=0.9,<1',
             'pingouin>=0.5.5,<2.0',
+            'nbformat>=5.9.2,<6',
+            'nbconvert>=7.10,<8',
+            'sphinx>=7.2.6,<10',
+            'coverage>=7.10.6,<8',
+            'pytest-cov>=7,<8',
         ],
         'headless': [
             'opencv-python-headless>=4.9.0.80,<6.0; sys_platform != "darwin" or platform_machine != "x86_64" or python_version >= "3.13"',

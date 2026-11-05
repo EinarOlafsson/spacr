@@ -145,5 +145,14 @@ pyarrow==14.0.2
 ruff==0.9.0
 mypy==1.11.0
 xenon==0.9.0
+# The `dev` extra's notebook, docs and coverage tooling, so the minimum job
+# runs the notebook, docstring, guide and coverage-runner tests instead of
+# skipping them. 7.2.6 is the newest Sphinx that accepts the packaging and
+# requests floors above.
+nbformat==5.9.2
+nbconvert==7.10.0
+sphinx==7.2.6
+coverage==7.10.6
+pytest-cov==7.0.0
 mahotas==1.4.13
 torchcam==0.4.0
