@@ -5446,6 +5446,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("733_navigator_ai_provider_api_arrival_2026-10-28.json", 1),
         ("441_indexed_scanr_import_api_arrivals_2026-10-28.json", 2),
         ("733_navigator_input_identity_api_arrival_2026-10-29.json", 1),
+        ("ops_phenotype_path_api_arrivals_2026-11-05.json", 14),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -6007,7 +6008,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "733_easy_mode_api_arrivals_2026_10_26.json",
                      "733_navigator_ai_provider_api_arrival_2026-10-28.json",
                      "441_indexed_scanr_import_api_arrivals_2026-10-28.json",
-                     "733_navigator_input_identity_api_arrival_2026-10-29.json"):
+                     "733_navigator_input_identity_api_arrival_2026-10-29.json",
+                     "ops_phenotype_path_api_arrivals_2026-11-05.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -6111,7 +6113,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "733_easy_mode_api_arrivals_2026_10_26.json",
                      "733_navigator_ai_provider_api_arrival_2026-10-28.json",
                      "441_indexed_scanr_import_api_arrivals_2026-10-28.json",
-                     "733_navigator_input_identity_api_arrival_2026-10-29.json"):
+                     "733_navigator_input_identity_api_arrival_2026-10-29.json",
+                     "ops_phenotype_path_api_arrivals_2026-11-05.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
