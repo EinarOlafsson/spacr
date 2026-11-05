@@ -4598,7 +4598,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # total and correct_batch_effects, whose parameters and accepted
     # documented parameters gained the eight optional tvn_* and harmony_*
     # keywords (its required parameters did not change).
-) == '76fb0596e896ac371203815c5c3886b4e9456369bd877216c53f254f44ace07b'
+    # Moved 2026-11-05 for the OPS decode yield (was 76fb0596...): the
+    # AlignedField constructor gained the optional spot_replaced= and
+    # align_field the optional channel_mode=; removing only those two
+    # parameters restores 76fb0596... byte for byte; no row added or removed.
+) == '9d861d40928630865642085f81b3287c8f848f1daa8cd963a50fd9454b5f0fae'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
