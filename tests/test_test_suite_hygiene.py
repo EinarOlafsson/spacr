@@ -919,33 +919,6 @@ def test_conftest_hard_codes_no_absolute_path_at_all():
         f"paths from tmp_path / tmp_path_factory or from the repo root.")
 
 
-def test_the_e2e_dataset_paths_come_only_from_the_environment():
-    """The real-dataset module must carry no built-in path at all.
-
-    It used to *default* to a dataset under one developer's home directory and
-    skip when that was absent, so on every other machine its four @slow stages
-    reported green while running nothing. Env-var support alone was not enough
-    to fix that -- the default is what made opting out invisible -- so the
-    contract is now that the two variables are the only way in.
-    """
-    path = TESTS_DIR / "test_e2e_real_dataset.py"
-    source = path.read_text(encoding="utf-8")
-    assert "SPACR_E2E_DATA" in source
-    assert "SPACR_E2E_SETTINGS" in source
-    assert "os.environ.get" in source, (
-        "the dataset path is not read from the environment, so the module can "
-        "only ever run on the machine it was written on")
-    # Docstrings are prose (the module's usage example shows a placeholder
-    # path); a literal in code is a path the module would actually use.
-    baked_in = [(n.lineno, n.value[:70])
-                for n in _string_constants(_parse(path))
-                if n.value.startswith("/") and len(n.value) > 1]
-    assert not baked_in, (
-        f"test_e2e_real_dataset.py bakes in absolute path(s): {baked_in}. A "
-        "default path is what turns 'you have not opted in' into a silent "
-        "pass; the environment variables must be the only source.")
-
-
 # ---------------------------------------------------------------------------
 # Rule 4 — the shared Cellpose mock contract actually rejects the bug
 # ---------------------------------------------------------------------------

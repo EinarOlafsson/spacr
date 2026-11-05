@@ -17,8 +17,7 @@ then in the sub-folders a screen has kept them in, because where a screen
 holds them is the screen's business and a single hard-coded folder turns a
 re-layout into thirteen silent skips rather than one loud failure.
 
-Set but not a directory is a FAILURE, not a skip -- the same rule
-`test_e2e_real_dataset` keeps, and for the same reason: a typo that skipped
+Set but not a directory is a FAILURE, not a skip: a typo that skipped
 would report green for nothing.
 
 WHAT THIS IS FOR. Instructions 172 and 173 each end in a list headed HOW TO
