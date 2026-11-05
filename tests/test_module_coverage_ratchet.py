@@ -456,6 +456,9 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         # and never entered it.
         'spacr/model_cards.py',
         'spacr/qt/widgets/model_card_viewer.py',
+        # 664 -> 665 on 2026-11-05, +1/-0, item 771: the division-aligned
+        # analysis of tracked cells (spacr/division_analysis.py).
+        'spacr/division_analysis.py',
     }
     assert added_since_608 <= shipped
     # 664 -> 662 on 2026-10-12, +0/-2: spacr-tutorial opens the online
@@ -480,7 +483,7 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     assert metal_transport_arrivals <= shipped
     assert not metal_transport_arrivals & (added_since_608 | retired_since_608)
     assert (len(shipped - metal_transport_arrivals) == 608 + len(added_since_608)
-            - len(retired_since_608) == 661)
+            - len(retired_since_608) == 662)
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
@@ -889,8 +892,10 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_required():
     # 664 -> 662 on 2026-10-15: the setup screen's provider marks and
     # install-and-sign-in panel left the package, the same -2 as `shipped`.
     # The three Metal transport modules join the 661-module inventory.
-    assert len(ratchet.discover_shipped_python_files(ROOT)) == 664
-    assert "--expected-file-count 664" in combine_script
+    # 664 -> 665 on 2026-11-05: spacr/division_analysis.py (item 771), the
+    # same +1 as `shipped`, moved with the workflow in one commit.
+    assert len(ratchet.discover_shipped_python_files(ROOT)) == 665
+    assert "--expected-file-count 665" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script
