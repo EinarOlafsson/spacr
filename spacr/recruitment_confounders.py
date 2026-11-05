@@ -63,7 +63,8 @@ __all__ = [
 #: Columns that identify one imaged field.
 FIELD_KEYS: Tuple[str, ...] = ("plateID", "rowID", "columnID", "fieldID")
 
-_MAD_SCALE = 1.4826  # MAD -> SD for normal data
+#: Scales a median absolute deviation to a standard deviation for normal data.
+_MAD_SCALE = 1.4826
 
 
 def _field_key_frame(frame: pd.DataFrame) -> pd.DataFrame:
@@ -142,6 +143,15 @@ def flag_crowded_fields(fields: pd.DataFrame, mad_threshold: Optional[float] = 3
     ``max_pathogens_per_cell``. The robust limit adapts to each plate's own
     infection level, so a plate infected at a higher MOI is not emptied.
 
+    :param fields: output of :func:`field_density`, one row per field.
+    :param mad_threshold: robust standard deviations above the median at which
+        a field fails; ``None`` skips the robust limit.
+    :param columns: field columns tested against the robust limit.
+    :param min_cells: fewest host cells a field may hold; ``None`` skips it.
+    :param max_pathogens_per_cell: absolute ceiling on parasites per host
+        cell; ``None`` sets no ceiling.
+    :param by: column whose groups get their own limit, normally the plate;
+        ``None`` uses one limit for all fields.
     :returns: ``fields`` plus ``field_qc_pass`` (bool), ``field_qc_reason``
         (``''`` when passing, ``;``-joined reasons otherwise) and one
         ``limit_<column>`` column per robust limit applied.
@@ -312,6 +322,16 @@ def adjust_for_covariates(df: pd.DataFrame, outcome: str, group: str, covariates
     Rows with a missing outcome or covariate keep ``NaN`` in the adjusted
     column.
 
+    :param df: object-level frame.
+    :param outcome: readout column to adjust, e.g. ``'recruitment'``.
+    :param group: condition column; the slopes are pooled within it.
+    :param covariates: columns to regress out; columns absent from ``df``
+        are skipped.
+    :param log_outcome: adjust ``log(outcome)`` and back-transform.
+    :param log_covariates: ``True`` (all), ``False`` (none) or a list of
+        covariates to ``log1p`` before standardising.
+    :param out_column: name of the adjusted column; ``None`` names it
+        ``f'{outcome}_adjusted'``.
     :returns: ``(frame, model)`` - a copy of ``df`` with ``out_column``
         (default ``f'{outcome}_adjusted'``) added, and a table of the fitted
         slopes (``covariate``, ``beta_per_sd``, ``se``, ``t``, ``mean``, ``sd``,

@@ -3787,6 +3787,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("733_navigator_ai_provider_api_arrival_2026-10-28.json", 1),
         ("441_indexed_scanr_import_api_arrivals_2026-10-28.json", 2),
         ("ops_phenotype_path_api_arrivals_2026-11-05.json", 14),
+        ("recruitment_confounders_api_arrivals_2026-11-05.json", 6),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))
