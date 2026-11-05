@@ -210,18 +210,20 @@ _BACKEND_SPOT_DETECTORS = ("spotnet", "spotiflow")
 #: string is then corrected to the library at one mismatch. ``mapped`` matches
 #: every read to the library FIRST and votes among the matched reads only.
 #:
-#: Measured on 112 sampled fields of plates A and B (2026-11-04, item 752
-#: decode-yield study): 83 % of nuclei carry at least one read, the same as
-#: Brieflow's 81.7 % "any barcode"; ``agree`` assigned 34 % of them because a
-#: nucleus with one read (a third of those with any) can never vote and two
-#: reads of one guide disagree on their raw string whenever either has one
-#: wrong base. ``mapped`` with exact matches and one read allowed assigned
-#: about two thirds, at an estimated false-assignment rate (a decoy library of
-#: shuffled prefixes matched alongside the real one) twenty times LOWER than
-#: ``agree``'s, because the one-mismatch correction ``agree`` applies is
-#: where most wrong guides come from on this library: its guides sit only two
-#: edits apart, so a read one error away from a guide is often an error from
-#: some other guide.
+#: Measured on subset_v1, 116 stratified fields of the Funk et al. 2022
+#: plates A-D (2026-11-04, item 752 decode-yield study): 83 % of nuclei carry
+#: at least one read, the same as brieflow's 81.7 % "any barcode". ``agree``
+#: assigned 28 % of nuclei, because a nucleus with one read can never vote and
+#: two reads of one guide split the vote whenever either has a wrong base.
+#: ``mapped`` with exact matches, one read allowed and the defaults below
+#: assigned 62.0 % (field-bootstrap 95 % CI 61.1-62.9) against 58.2 % for
+#: brieflow's own rule on the same reads, at 0.060 decoy matches per 100
+#: assigned nuclei (CI 0.035-0.095) against brieflow's 0.102 and ``agree``'s
+#: 0.43 -- the decoys being a second library of base-shuffled prefixes,
+#: matched alongside the real one. ``agree`` is the worst of the three
+#: because it corrects its winning string at one mismatch: this library's
+#: guides sit two edits apart, so a read one error from a guide is often an
+#: error from another guide.
 _CELL_RULES = ("agree", "mapped")
 _CELL_RULE = "mapped"
 
@@ -235,11 +237,11 @@ _READ_MISMATCHES = 0
 _MIN_FRACTION = 0.6
 
 #: The quality a nucleus resting on ONE matched read needs (``ops_single_read_
-#: quality``): that read's worst-cycle margin, after unmixing. 0.02 on the
-#: 116-field subset cut the decoy rate of one-read nuclei by half for 0.4 % of
-#: the nuclei, which put the whole rule's decoy rate, upper 95 % bound
-#: included, below brieflow's rule's on the same reads.
-_SINGLE_READ_QUALITY = 0.02
+#: quality``): that read's worst-cycle margin, after unmixing. The operating
+#: point chosen on subset_v1 as the largest yield whose decoy rate, upper 95 %
+#: bound included, stays below brieflow's rule's point estimate on the same
+#: reads: 0 gave 62.5 % at 0.118 per 100, 0.03 gives 62.0 % at 0.060.
+_SINGLE_READ_QUALITY = 0.03
 
 #: How many reads a nucleus needs, per rule, when ``ops_min_reads`` is empty.
 _MIN_READS = {"agree": 2, "mapped": 1}
@@ -247,9 +249,10 @@ _MIN_READS = {"agree": 2, "mapped": 1}
 #: How the base caller undoes dye bleed-through (``ops_crosstalk``), after
 #: each cycle's channels are divided by their median. ``none`` is the first
 #: validated caller; ``argmax_median`` is brieflow's median transform -- see
-#: :func:`spacr.ops_sbs.compensate_crosstalk`. On the 116-field subset it
-#: raised the library-exact read rate on every plate (pooled 0.558 to 0.574)
-#: and LOWERED the decoy match rate, so it is the default; ``percentile`` is
+#: :func:`spacr.ops_sbs.compensate_crosstalk`. On subset_v1 it raised the
+#: library-exact read rate on every plate and LOWERED the decoy match rate
+#: (0.156 to 0.118 per 100 nuclei before the single-read gate), so it is the
+#: default; ``percentile`` is
 #: the variant 372 PART 14-L measured lowering the match, kept for that
 #: comparison.
 _CROSSTALK_METHODS = ("none", "argmax_median", "median", "percentile")

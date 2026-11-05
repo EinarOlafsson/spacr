@@ -46,7 +46,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_read_mismatches": 0,
     "ops_min_reads": None,
     "ops_min_fraction": 0.6,
-    "ops_single_read_quality": 0.02,
+    "ops_single_read_quality": 0.03,
     "ops_ph_channels": "DAPI,GFP,A594,AF750",
     "ops_ph_cell_channel": "AF750",
     "ops_ph_nucleus_model": "cpsam",
@@ -261,7 +261,7 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "to two guides is never matched. 0 keeps exact matches only, which "
         "on a library whose guides differ at two positions is what keeps "
         "wrong guides rare: allowing 1 raised the decoy match rate about "
-        "thirty-fold for a few percent more nuclei. A cycle that was not "
+        "twelve-fold for a few percent more nuclei. A cycle that was not "
         "read is an unknown base, not a mismatch. Default 0.",
     "ops_min_reads":
         "(int or None) - How many reads a nucleus needs before it may be "
@@ -278,9 +278,9 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "needs when ONE library-matched read is all it has: that read's "
         "weakest cycle, as the margin between its brightest and second "
         "channel, 0 to 1. Nuclei with two or more agreeing reads are not "
-        "affected. 0.02 halved the decoy matches among one-read nuclei for "
-        "under half a percent of the nuclei; 0 admits every one-read "
-        "nucleus. Default 0.02.",
+        "affected. 0.03 halved the decoy matches on the Funk et al. 2022 "
+        "plates for under half a percent of the nuclei; 0 admits every "
+        "one-read nucleus. Default 0.03.",
     "ops_window_overlap":
         "(int) - How far the segmentation windows overlap each other, in "
         "pixels. A nucleus is only numbered once if at least one window saw "
