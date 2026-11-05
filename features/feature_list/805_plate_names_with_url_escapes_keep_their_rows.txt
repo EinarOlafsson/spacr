@@ -1,0 +1,42 @@
+BUG: PLATE NAMES WITH URL ESCAPES DROP ALL ROWS
+
+Lifecycle: new
+Status: open.
+Requested: maintainer, 2026-11-05.
+Owner: unassigned.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+spacr.io._read_and_merge_data drops every feature row when the stored prcf
+keeps the URL-escaped plate name (AssayPlate%5FPerkinElmer...) while plateID
+is decoded:
+
+- spacr.utils._split_data rebuilds prcf from the decoded plateID, but the
+  measurement-stamp grouping uses the stored prcf, so the inner join matches
+  nothing.
+- png_list prcfo is double-escaped (%255F) and fails the same way.
+
+Seen on PerkinElmer CellCarrier-384 plates measured on the cluster, where
+analyze_endodyogeny stopped with KeyError: cell_area.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+Canonicalise plateID, prcf and prcfo with urllib.parse.unquote in one place
+(_read_db), or in _split_data and the measurement-stamp grouping alike.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+A measurements.db whose plate name holds %5F (and a png_list with %255F)
+merges with every row kept, and analyze_endodyogeny finds cell_area on it.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Recorded only; not fixed yet.

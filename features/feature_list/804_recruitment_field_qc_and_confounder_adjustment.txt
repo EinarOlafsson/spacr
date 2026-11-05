@@ -1,0 +1,58 @@
+RECRUITMENT: FIELD QC AND CONFOUNDER ADJUSTMENT
+
+Lifecycle: new
+Status: DONE 2026-11-05 — analyze_recruitment drops crowded, sparse and over-infected fields, screens confounders and adjusts for chosen covariates.
+Requested: maintainer, 2026-11-05 ("(work) anu" session), for recruitment
+           comparisons where field density and infection load differ between
+           conditions.
+Owner: "(work) anu" session (implementation); integration and nine-language
+       setting captions in branch claude-integrate-1105.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE WAS
+--------------------------------------------------------------------------------
+
+analyze_recruitment grouped every object by well. A recruitment ratio also
+moves with how crowded the field was, how many parasites landed in it, the
+host cell size and the parasite marker brightness. When one of these differs
+between the conditions being compared and moves the ratio inside a
+condition, it confounds the comparison, and nothing in spaCR checked for it.
+
+--------------------------------------------------------------------------------
+WHAT WAS BUILT
+--------------------------------------------------------------------------------
+
+1. spacr/recruitment_confounders.py:
+   - field_density / flag_crowded_fields count host cells and parasites per
+     imaged field from measurements.db and flag fields beyond a robust
+     median + k*MAD limit, with too few host cells, or with too many
+     parasites per host cell;
+   - confounder_report gives each candidate covariate's within-condition
+     slope on the outcome and its spread across conditions (eta squared);
+   - adjust_for_covariates is an ANCOVA with a pooled within-condition slope
+     that moves every object to the grand mean of each covariate.
+2. Eight analyze_recruitment settings in the Measurements category:
+   field_qc, field_qc_mad, field_qc_min_cells,
+   field_qc_max_pathogens_per_cell, field_qc_columns,
+   confounder_covariates, adjust_covariates and adjust_log_outcome.
+3. Outputs results/field_qc.csv, results/confounder_report.csv and
+   results/covariate_model.csv, and a recruitment_adjusted column per object
+   and per well.
+4. Setting captions and descriptions in the nine runtime languages (AI
+   translation and review, no native-speaker sign-off).
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+tests/test_recruitment_confounders.py: a crowded field is flagged and dropped,
+a planted confounder is reported and an imbalanced covariate is adjusted
+away without absorbing a true condition effect.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+The screen cannot tell a confounder from a mediator. Only list variables the
+condition does not itself cause in adjust_covariates; the setting
+description says so.
