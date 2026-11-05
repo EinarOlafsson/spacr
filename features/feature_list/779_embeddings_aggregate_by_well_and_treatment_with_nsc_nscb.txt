@@ -1,0 +1,13 @@
+EMBEDDINGS AGGREGATE BY WELL AND TREATMENT, WITH NSC/NSCB EVALUATION
+====================================================================
+
+Lifecycle: new
+Status: open.
+Requested: maintainer via the BMC software-paper session, 2026-11-05.
+Source: BBBC021 computer-vision benchmark, /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cv/README.md.
+
+REQUIREMENTS
+There is no well/treatment aggregation of embeddings and no evaluation by
+not-same-compound (NSC) and not-same-compound-or-batch (NSCB) nearest-neighbour
+mechanism-of-action accuracy. Add both, with a control row (e.g. random or
+CellProfiler-feature baseline) in the reported table.

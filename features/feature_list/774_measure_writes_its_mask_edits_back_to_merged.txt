@@ -1,0 +1,13 @@
+MEASURE WRITES ITS IN-MEMORY MASK EDITS BACK TO MERGED
+======================================================
+
+Lifecycle: new
+Status: open.
+Requested: maintainer via the BMC software-paper session, 2026-11-05.
+Source: BBBC021 computer-vision benchmark, /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cv/README.md.
+
+REQUIREMENTS
+Measure edits masks in memory but does not write the edits back to merged/:
+2.6% of cells have a measured area larger than their label on disk. Write the
+edited labels back (or record them), so measurements and stored masks agree;
+add a test that measured area equals the on-disk label area.

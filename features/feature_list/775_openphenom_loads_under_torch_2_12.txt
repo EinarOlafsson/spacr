@@ -1,0 +1,12 @@
+OPENPHENOM LOADS UNDER TORCH 2.12 AND LATER
+===========================================
+
+Lifecycle: new
+Status: open.
+Requested: maintainer via the BMC software-paper session, 2026-11-05.
+Source: BBBC021 computer-vision benchmark, /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cv/README.md.
+
+REQUIREMENTS
+OpenPhenom fails to load under torch >= 2.12 because its .safetensors file is
+actually a torch zip archive. Detect the real format and load it accordingly
+(with the safe weights-only path), and pin the behaviour with a test.

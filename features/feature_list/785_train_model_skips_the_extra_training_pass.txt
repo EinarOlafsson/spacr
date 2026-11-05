@@ -1,0 +1,13 @@
+TRAIN_MODEL SKIPS THE EXTRA PASS OVER THE TRAINING SET
+======================================================
+
+Lifecycle: new
+Status: open.
+Requested: maintainer via the BMC software-paper session, 2026-11-05.
+Source: BBBC021 computer-vision benchmark, /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cv/README.md.
+
+REQUIREMENTS
+train_model re-evaluates the whole training loader every epoch in fp32 (about
+40% of run time) and counts classes by iterating the whole loader. Track
+training metrics during the training pass (mixed precision where training uses
+it) and count classes from the dataset labels.

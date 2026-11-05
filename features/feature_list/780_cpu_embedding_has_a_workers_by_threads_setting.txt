@@ -1,0 +1,12 @@
+CPU EMBEDDING HAS A WORKERS x THREADS SETTING
+=============================================
+
+Lifecycle: new
+Status: open.
+Requested: maintainer via the BMC software-paper session, 2026-11-05.
+Source: BBBC021 computer-vision benchmark, /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cv/README.md.
+
+REQUIREMENTS
+CPU embedding has no workers x threads setting; 4 workers x 2 threads ran
+2-8x faster than 1 x 8. Add the setting with a sensible default derived from
+the core count.

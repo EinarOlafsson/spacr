@@ -1,0 +1,11 @@
+TRAINING RESAMPLES PER EPOCH AND AUGMENTS ON THE GPU
+====================================================
+
+Lifecycle: new
+Status: open.
+Requested: maintainer via the BMC software-paper session, 2026-11-05.
+Source: BBBC021 computer-vision benchmark, /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cv/README.md.
+
+REQUIREMENTS
+There is no per-epoch class- or compound-balanced resampling and no on-GPU
+augmentation. Add both as training options.

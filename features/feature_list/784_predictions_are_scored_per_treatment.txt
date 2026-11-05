@@ -1,0 +1,11 @@
+PREDICTIONS ARE SCORED PER TREATMENT
+====================================
+
+Lifecycle: new
+Status: open.
+Requested: maintainer via the BMC software-paper session, 2026-11-05.
+Source: BBBC021 computer-vision benchmark, /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cv/README.md.
+
+REQUIREMENTS
+There is no per-treatment scoring of predictions. Add mean class probability
+(and counts) per treatment/well to the prediction outputs.

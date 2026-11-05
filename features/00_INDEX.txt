@@ -3,7 +3,7 @@ spaCR FEATURES -- NEW, AND FUTURE
 Canonical discovery: features/FEATURE_LIST.md
 ================================================================================
 
-Regenerated 2026-11-04 by `tools/build_instruction_index.py`, from the files in
+Regenerated 2026-11-05 by `tools/build_instruction_index.py`, from the files in
 these globs and nothing else:
 
   features/feature_list/*.txt
@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-672 Lifecycle: new, 76 Lifecycle: future in features/feature_list/.
+689 Lifecycle: new, 76 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -1622,3 +1622,37 @@ NEW FEATURES
        767_time_mode_relabel_objects_and_paint_label_while_scrolling.txt
   768  SYNCTHING: THE HOME-WORKSTATION CONNECTION KEEPS DROPPING
        768_syncthing_home_workstation_connection_keeps_dropping.txt
+  772  CROPS ARE EXPORTED RAW; NORMALISATION BELONGS TO THE TRANSFORM
+       772_crops_are_exported_raw_and_normalised_in_the_transform.txt
+  773  THE PER-PLATE ILLUMINATION MODEL APPLIES TO A CROP WINDOW
+       773_the_illumination_model_applies_to_a_crop_window.txt
+  774  MEASURE WRITES ITS IN-MEMORY MASK EDITS BACK TO MERGED
+       774_measure_writes_its_mask_edits_back_to_merged.txt
+  775  OPENPHENOM LOADS UNDER TORCH 2.12 AND LATER
+       775_openphenom_loads_under_torch_2_12.txt
+  776  CHADA-VIT TAKES THE REAL CHANNEL COUNT
+       776_chada_vit_takes_the_real_channel_count.txt
+  777  THE TIMM EMBEDDING ENCODER NORMALISES AND RESIZES LIKE IMAGENET
+       777_timm_encoder_normalises_and_resizes_like_imagenet.txt
+  778  EMBEDDING A SHARD OR DATABASE IS A PUBLIC STEP
+       778_embedding_a_store_is_a_public_step.txt
+  779  EMBEDDINGS AGGREGATE BY WELL AND TREATMENT, WITH NSC/NSCB EVALUATION
+       779_embeddings_aggregate_by_well_and_treatment_with_nsc_nscb.txt
+  780  CPU EMBEDDING HAS A WORKERS x THREADS SETTING
+       780_cpu_embedding_has_a_workers_by_threads_setting.txt
+  781  CROSS-VALIDATION GROUPS BY ANY METADATA COLUMN
+       781_cross_validation_groups_by_any_metadata_column.txt
+  782  TRAINING CAN EXCLUDE THE TEST BATCH (NSCB RULE)
+       782_training_can_exclude_the_test_batch.txt
+  783  TRAIN_TEST_MODEL READS CROP SHARDS AND MEMMAPS
+       783_train_test_model_reads_crop_shards_and_memmaps.txt
+  784  PREDICTIONS ARE SCORED PER TREATMENT
+       784_predictions_are_scored_per_treatment.txt
+  785  TRAIN_MODEL SKIPS THE EXTRA PASS OVER THE TRAINING SET
+       785_train_model_skips_the_extra_training_pass.txt
+  786  TRAIN_MODEL RELEASES HOST MEMORY BETWEEN CALLS
+       786_train_model_releases_host_memory.txt
+  787  TRAINING RESAMPLES PER EPOCH AND AUGMENTS ON THE GPU
+       787_training_resamples_per_epoch_and_augments_on_gpu.txt
+  788  MEASURE_GPU MATCHES THE CPU SKEW AND KURTOSIS
+       788_measure_gpu_matches_the_cpu_moments.txt

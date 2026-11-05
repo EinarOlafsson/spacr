@@ -1,0 +1,12 @@
+TRAIN_MODEL RELEASES HOST MEMORY BETWEEN CALLS
+==============================================
+
+Lifecycle: new
+Status: open.
+Requested: maintainer via the BMC software-paper session, 2026-11-05.
+Source: BBBC021 computer-vision benchmark, /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cv/README.md.
+
+REQUIREMENTS
+Host RAM grows by about 3 GB per train_model call. Find what is retained
+(loaders, workers, caches, model references) and release it; add a test that
+repeated calls keep RSS flat within a tolerance.

@@ -1,0 +1,13 @@
+EMBEDDING A SHARD OR DATABASE IS A PUBLIC STEP
+==============================================
+
+Lifecycle: new
+Status: open.
+Requested: maintainer via the BMC software-paper session, 2026-11-05.
+Source: BBBC021 computer-vision benchmark, /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cv/README.md.
+
+REQUIREMENTS
+Embedding a crop shard or database into per-cell embeddings plus well
+aggregates needs the private _embed_plate and _estimate_channel_scale today.
+Make it a documented public function and GUI step (catalogue + 9-locale
+records in the same commit).

@@ -1,0 +1,12 @@
+CHADA-VIT TAKES THE REAL CHANNEL COUNT
+======================================
+
+Lifecycle: new
+Status: open.
+Requested: maintainer via the BMC software-paper session, 2026-11-05.
+Source: BBBC021 computer-vision benchmark, /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cv/README.md.
+
+REQUIREMENTS
+ChAda-ViT pads every crop to 10 channel slots. Pass max_channels=k for the
+actual channel count; this makes embedding about 100x faster. Check the
+embeddings are unchanged for the padded vs unpadded path where they should be.

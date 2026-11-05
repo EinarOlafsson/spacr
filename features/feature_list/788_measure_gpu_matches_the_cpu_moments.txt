@@ -1,0 +1,12 @@
+MEASURE_GPU MATCHES THE CPU SKEW AND KURTOSIS
+=============================================
+
+Lifecycle: new
+Status: open.
+Requested: maintainer via the BMC software-paper session, 2026-11-05.
+Source: BBBC021 computer-vision benchmark, /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cv/README.md.
+
+REQUIREMENTS
+measure_gpu and the CPU path disagree on skew/kurtosis by up to about 1.1%
+(18 of 406 columns), likely from float32 moments. Compute the moments in
+float64 (or with a centred two-pass method) and tighten the parity test.

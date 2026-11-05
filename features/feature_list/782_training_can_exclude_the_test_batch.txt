@@ -1,0 +1,11 @@
+TRAINING CAN EXCLUDE THE TEST BATCH (NSCB RULE)
+===============================================
+
+Lifecycle: new
+Status: open.
+Requested: maintainer via the BMC software-paper session, 2026-11-05.
+Source: BBBC021 computer-vision benchmark, /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cv/README.md.
+
+REQUIREMENTS
+Add a batch-exclusion training rule (not-same-compound-or-batch, NSCB): when
+scoring a held-out group, training excludes samples from the same batch.

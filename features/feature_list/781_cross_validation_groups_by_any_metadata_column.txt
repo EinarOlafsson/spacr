@@ -1,0 +1,11 @@
+CROSS-VALIDATION GROUPS BY ANY METADATA COLUMN
+==============================================
+
+Lifecycle: new
+Status: open.
+Requested: maintainer via the BMC software-paper session, 2026-11-05.
+Source: BBBC021 computer-vision benchmark, /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cv/README.md.
+
+REQUIREMENTS
+cv_group_by stops at plate. Allow leave-one-group-out folds by any metadata
+column, such as compound.

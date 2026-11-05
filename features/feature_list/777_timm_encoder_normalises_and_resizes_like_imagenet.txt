@@ -1,0 +1,12 @@
+THE TIMM EMBEDDING ENCODER NORMALISES AND RESIZES LIKE IMAGENET
+===============================================================
+
+Lifecycle: new
+Status: open.
+Requested: maintainer via the BMC software-paper session, 2026-11-05.
+Source: BBBC021 computer-vision benchmark, /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cv/README.md.
+
+REQUIREMENTS
+The timm embedding encoder applies no ImageNet mean/std normalisation and has
+no resize option. Use the model's pretrained data config (mean, std, input
+size) by default, with settings to override or disable it.

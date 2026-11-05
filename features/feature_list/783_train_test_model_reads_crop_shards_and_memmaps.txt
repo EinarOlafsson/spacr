@@ -1,0 +1,11 @@
+TRAIN_TEST_MODEL READS CROP SHARDS AND MEMMAPS
+==============================================
+
+Lifecycle: new
+Status: open.
+Requested: maintainer via the BMC software-paper session, 2026-11-05.
+Source: BBBC021 computer-vision benchmark, /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cv/README.md.
+
+REQUIREMENTS
+train_test_model reads only PNG folder trees. Let it read crop shards and
+memmaps directly, honouring the crop-format marker (item 772).

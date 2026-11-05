@@ -1,0 +1,27 @@
+CROPS ARE EXPORTED RAW; NORMALISATION BELONGS TO THE TRANSFORM
+==============================================================
+
+Lifecycle: new
+Status: open.
+Requested: maintainer rule, 2026-11-05 (relayed by the BMC software-paper session): crops are not normalised on export; normalisation happens in the transform when crops enter a CNN or transformer.
+
+FINDINGS
+- spacr/crops.py _crop_from_field always stretches each crop: normalize=False
+  falls back to _normalize_to_dtype(crop, 0, 100).
+- The measure PNG path does the same through normalize_to_dtype.
+- A per-crop min-max stretch removes intensity phenotypes from the exported data.
+
+REQUIREMENTS
+1. The export default writes raw cell-masked uint16, as 16-bit PNG or shards.
+2. A normalisation transform (per-crop percentile, per-plate/FOV percentile, or
+   fixed scale) lives in the training/inference dataset path (train_test_model
+   and friends). Its default reproduces today's stretch, so existing models
+   keep the inputs they were trained on.
+3. The crop-format marker records the export mode (raw or stretched), and
+   readers honour it.
+4. The old stretched export stays available behind an explicit option.
+5. User-facing docs describe the change and the option.
+6. Tests: raw export round-trips intensities exactly; the transform's default
+   matches the old stretch bit for bit; the marker is written and read.
+
+RELATED: item 91 (crop dtype and scaling are the user's choice), item 93.
