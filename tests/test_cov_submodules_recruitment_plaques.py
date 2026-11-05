@@ -500,22 +500,33 @@ def test_analyze_recruitment_cells_per_well_threshold(tmp_path,
     assert len(cells) == 5
 
 
-def test_analyze_recruitment_plot_control_invoked(tmp_path, recruitment_env):
-    """``plot_control=True`` forwards the mask-channel list and the channel of
-    interest to ``_plot_controls``."""
+def test_analyze_recruitment_plot_control_writes_control_panels(tmp_path, recruitment_env):
+    """``plot_control=True`` writes control panels (intensity per compartment
+    and channel, objects per well, ratio variants) with data and statistics,
+    one figure per channel, and no longer calls the legacy ``_plot_controls``."""
     from spacr.submodules import analyze_recruitment
 
     src = tmp_path / "plate"
     src.mkdir()
     analyze_recruitment(_base_settings(src, plot_control=True))
 
-    controls = recruitment_env["plot_controls"]
-    assert len(controls.calls) == 1
-    args, kwargs = controls.calls[0]
-    # mask_chans = [nucleus_chann_dim, pathogen_chann_dim, cell_chann_dim]
-    assert args[1] == [0, 2, 3]
-    assert args[2] == 2
-    assert kwargs == {"figuresize": 5}
+    assert recruitment_env["plot_controls"].calls == []
+    controls = src / "results" / "panels" / "controls"
+    folders = sorted(p.name for p in controls.iterdir())
+    # 4 channels x 4 compartments, objects per well, 4 channels x 5 ratios.
+    assert len(folders) == 16 + 1 + 20
+    assert "C01_channel_0_cell_mean_intensity" in folders
+    first = controls / "C01_channel_0_cell_mean_intensity"
+    for name in ("C01_channel_0_cell_mean_intensity.pdf",
+                 "C01_channel_0_cell_mean_intensity.png", "data_replicates.csv",
+                 "stats_test.csv", "stats_assumptions.csv", "stats_posthoc.csv",
+                 "stats_descriptive.csv"):
+        assert (first / name).exists(), name
+    figures = src / "results" / "figures"
+    assert (figures / "controls_channel_3_intensity.pdf").exists()
+    assert (figures / "controls_objects_per_well.png").exists()
+    data = pd.read_csv(first / "data_replicates.csv")
+    assert len(data) == 2  # one well per condition is the unit
 
 
 # ===========================================================================

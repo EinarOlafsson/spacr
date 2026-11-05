@@ -5436,15 +5436,11 @@ def _plot_controls(df, mask_chans, channel_of_interest, figuresize=5):
     Returns:
         None
     """
-    mask_chans.append(channel_of_interest)
-    if len(mask_chans) == 4:
-        mask_chans = [0,1,2,3]
-    if len(mask_chans) == 3:
-        mask_chans = [0,1,2]
-    if len(mask_chans) == 2:
-        mask_chans = [0,1]
-    if len(mask_chans) == 1:
-        mask_chans = [0]
+    # The list passed in is left alone and the real channel numbers are kept
+    # (an earlier version appended to the caller list and renumbered the
+    # channels 0..n-1, so channels [0, 3] were plotted as channels 0 and 1).
+    mask_chans = list(dict.fromkeys(
+        [c for c in (mask_chans or []) if c is not None] + [channel_of_interest]))
     controls_cols = []
     for chan in mask_chans:
 
@@ -5470,8 +5466,8 @@ def _plot_controls(df, mask_chans, channel_of_interest, figuresize=5):
             panels=[{
                 "slot": condition_index * (len(mask_chans) + 1) + channel_index,
                 "x": "component", "y": "mean_intensity",
-                "title": f"Condition: {condition} - Channel {channel_index}",
-                "measurement": f"Condition: {condition} - Channel {channel_index}",
+                "title": f"Condition: {condition} - Channel {mask_chans[channel_index]}",
+                "measurement": f"Condition: {condition} - Channel {mask_chans[channel_index]}",
                 "xlabel": "Component", "ylabel": "Mean Intensity",
                 "where": {"condition": [condition]},
                 "melt": {
@@ -5508,7 +5504,7 @@ def _plot_controls(df, mask_chans, channel_of_interest, figuresize=5):
                 current_axis.set_xlabel('Component')
                 current_axis.set_ylabel('Mean Intensity')
                 descriptor(current_axis,
-                           f'Condition: {condition} - Channel {idx_channel}')
+                           f'Condition: {condition} - Channel {mask_chans[idx_channel]}')
         fig.tight_layout()
         _show_if_interactive()
 

@@ -190,15 +190,15 @@ def _controls_df(chans=(0, 1, 2, 3), conditions=("ctrl", "trt"), n=12, seed=1):
     ([0, 1], [0, 1, 2]),
     ([0, 1, 2], [0, 1, 2, 3]),
 ])
-def test_plot_controls_normalises_mask_chans_in_place(mask_chans, expected):
-    """channel_of_interest is appended, then the list is rewritten as 0..n-1."""
+def test_plot_controls_adds_the_channel_of_interest_without_mutating(mask_chans, expected):
+    """channel_of_interest is added to a copy; the list passed in is untouched."""
     n_chan = len(expected)
     df = _controls_df(chans=tuple(range(n_chan)))
+    original = list(mask_chans)
 
     P._plot_controls(df, mask_chans, channel_of_interest=n_chan - 1, figuresize=1)
 
-    # The caller's list is mutated by append() but the 0..n-1 rewrite is local.
-    assert mask_chans == expected[:-1] + [n_chan - 1]
+    assert mask_chans == original
     fig = _figs()[0]
     # subplots(len(conditions)=2, len(mask_chans)+1) -> one spare column.
     assert len(fig.axes) == 2 * (n_chan + 1)
@@ -207,6 +207,18 @@ def test_plot_controls_normalises_mask_chans_in_place(mask_chans, expected):
         f"Condition: {cond} - Channel {c}"
         for cond in ("ctrl", "trt") for c in range(n_chan)
     ]
+
+
+def test_plot_controls_keeps_the_real_channel_numbers():
+    """Channels [0, 3] are plotted as channels 0 and 3, not renumbered 0 and 1."""
+    df = _controls_df(chans=(0, 3))
+    P._plot_controls(df, [0], channel_of_interest=3, figuresize=1)
+    fig = _figs()[0]
+    titled = [ax.get_title() for ax in fig.axes if ax.get_title()]
+    assert titled[:2] == ["Condition: ctrl - Channel 0", "Condition: ctrl - Channel 3"]
+    heights = [p.get_height() for p in fig.axes[1].patches]
+    sub = df[df["condition"] == "ctrl"]
+    assert np.allclose(heights, [sub[f"{c}_channel_3_mean_intensity"].mean() for c in _COMPONENTS])
 
 
 def test_plot_controls_bar_heights_are_the_per_condition_means():

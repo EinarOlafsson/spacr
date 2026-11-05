@@ -2866,6 +2866,14 @@ def get_analyze_recruitment_default_settings(settings):
     settings.setdefault('confounder_covariates',None)
     settings.setdefault('adjust_covariates',None)
     settings.setdefault('adjust_log_outcome',True)
+    settings.setdefault('panels',None)
+    settings.setdefault('replicate_column',None)
+    settings.setdefault('condition_order',None)
+    settings.setdefault('condition_labels',None)
+    settings.setdefault('figures',None)
+    settings.setdefault('exclude_edge_objects',False)
+    settings.setdefault('max_vacuoles_per_cell',None)
+    settings.setdefault('confounder_filter',None)
     return settings
 
 def get_default_test_cellpose_model_settings(settings):
@@ -3974,6 +3982,15 @@ expected_types = {
     "confounder_covariates": list,
     "adjust_covariates": list,
     "adjust_log_outcome": bool,
+    "panels": (list, type(None)),
+    "condition_order": (list, type(None)),
+    "condition_labels": (dict, type(None)),
+    "figures": (dict, type(None)),
+    "exclude_edge_objects": bool,
+    "max_vacuoles_per_cell": (int, type(None)),
+    "confounder_filter": (dict, type(None)),
+    "max_area_quantile": (float, type(None)),
+    "field_qc_min_objects": (int, type(None)),
     "model_type": str,
     "base_model": str,
     "mask_src": str,
@@ -5128,7 +5145,7 @@ tooltips = {
     "concentration_column": "(str) - Drug-screen mode only: the column holding each well's concentration, a number in concentration_unit. Every non-vehicle well needs a positive concentration; the vehicle wells' value is not read. Default 'concentration'.",
     "concentration_unit": "(str or None) - Drug-screen mode only, required: the unit of concentration_column, for example uM or nM. It is kept as part of every drug-at-concentration level and on the figure axis; spaCR does not convert units. Default None.",
     "vehicle_control": "(str, list or None) - Drug-screen mode only, required: the drug_column value or values of the vehicle wells, for example DMSO. Every effect is the difference from these wells, plate-adjusted when there are several plates, and each plate with treated wells needs vehicle wells of its own. Default None.",
-    "replicate_column": "(str or None) - Drug-screen mode only, optional: a column naming the biological replicate of each well. It is counted per level in drug_effects.csv and not modelled. Default None.",
+    "replicate_column": "(str or None) - Optional column naming the biological replicate of each well. Drug-screen mode counts it per level in drug_effects.csv and does not model it. Recruitment and replication panels use it as the statistical unit: object values are averaged per well, then well means per replicate. Default None.",
     "inference": "(str) - How effects are tested; the readable front end for analysis_mode. Default 'nonparametric': each guide is a plate-blocked Freedman-Lane permutation with an empirical P, valid however many guides there are, but no P can be below 1/(guide_permutations + 1). 'parametric' fits every guide at once in the chosen regression_type, so it needs more wells than guides or no coefficient is identifiable. 'auto' counts guides and wells and takes the simultaneous fit only when the design supports it.",
     "analysis_unit": "(str) - What one row of the model is. 'well' collapses each well's objects into a single value with agg_type first, so the well is the independent unit and the number of cells behind it only affects precision. 'cell' regresses the individual objects instead, which keeps power but treats cells from one well as independent when they are not, so standard errors are optimistic unless the model accounts for the clustering (regression_type='mixed'). This is the explicit spelling of agg_type=None, which used to change the unit of analysis silently. Default 'well'.",
     "guide_min_wells": "(int or list) - Minimum numbers of independent wells containing a guide. A list such as [1, 2, 3, 4] writes one sensitivity-analysis table and volcano plot per threshold; P values are computed once and the multiple-testing correction is repeated within each eligible family. Default [1, 2, 3, 4].",
@@ -5382,13 +5399,22 @@ tooltips = {
     "target": "(str) - Free-text label for the protein or marker imaged in channel_of_interest, e.g. 'GRA1'. The recruitment run prints it in its banner ('channel:3 = protein') to record what the recruitment ratio is measuring; it feeds no computation, so changing it alters nothing but that log line. Default 'protein'.",
     "target_height": "(int) - Height in pixels that images are resized to before segmentation; masks are scaled back to the original dimensions afterwards. Only applied when both target_height and target_width are set (and, on the non-normalized path, when resize is True). Use it to match the field size the model was trained at. Default None, which disables resizing; 1120 for plaque analysis.",
     "target_intensity_min": "(float) - Recruitment-analysis cutoff on the 95th-percentile intensity of channel_of_interest inside each cell: cells at or below it are discarded before recruitment ratios are computed. Raise it to keep only strongly expressing cells; set 0 or None to disable the filter entirely. Raw intensity units, default 1.",
-    "field_qc": "(bool) - Recruitment analysis only (analyze_recruitment): count host cells and parasites per imaged field from measurements.db and drop every object in a field that is over-crowded, too sparse or over-infected, before the recruitment ratios are grouped by well. The per-field verdicts are written to results/field_qc.csv. Default False.",
-    "field_qc_mad": "(float) - Recruitment analysis with field_qc: a field fails when any column in field_qc_columns exceeds the plate median plus this many robust standard deviations (MAD scaled by 1.4826). Lower is stricter; None disables this test. Default 3.5.",
+    "field_qc": "(bool) - Recruitment analysis: count host cells and parasites per imaged field from measurements.db and drop every object in a field that is over-crowded, too sparse or over-infected, before the recruitment ratios are grouped by well; the per-field verdicts are written to results/field_qc.csv. Replication analysis: count vacuoles (or parasites) per field and drop fields above the robust limit or below field_qc_min_objects. Default False.",
+    "field_qc_mad": "(float) - Recruitment or replication analysis with field_qc: a field fails when any column in field_qc_columns exceeds the plate median plus this many robust standard deviations (MAD scaled by 1.4826). Lower is stricter; None disables this test. Default 3.5.",
     "field_qc_min_cells": "(int) - Recruitment analysis with field_qc: fields with fewer host cells than this are dropped as too sparse to be informative. None disables this test. Default 10.",
     "field_qc_max_pathogens_per_cell": "(float) - Recruitment analysis with field_qc: fields whose parasites per host cell exceed this absolute ceiling are dropped, in addition to the MAD limit. None means no absolute ceiling. Default None.",
     "field_qc_columns": "(list) - Recruitment analysis with field_qc: the per-field density columns tested against the MAD limit. Choose from n_cells_field, n_pathogens_field and pathogens_per_cell_field. Default ['n_pathogens_field', 'pathogens_per_cell_field'].",
     "confounder_covariates": "(list) - Recruitment analysis only: columns to screen as possible confounders of the recruitment ratio across conditions, for example n_cells_field, n_pathogens_field, pathogens_per_cell_field, cell_area or a pathogen intensity. Each is tested for a within-condition slope and for uneven spread across conditions; the table is written to results/confounder_report.csv. Field density columns are attached automatically. None skips the screen. Default None.",
     "adjust_covariates": "(list) - Recruitment analysis only: columns to regress out of the recruitment ratio (ANCOVA with a pooled within-condition slope), adding a recruitment_adjusted column per object and per well. Only list variables the condition does not itself cause; a mediator such as vacuole size would remove the true effect together with the artifact. The fitted slopes are written to results/covariate_model.csv. None disables adjustment. Default None.",
+    "panels": "(list) - Recruitment and replication analyses: publication panels, one dict per panel, e.g. {'name': 'strains_in_WT', 'where': {'host_cells': 'HeLa_WT'}, 'group': 'pathogen', 'order': [...], 'labels': {...}, 'annotations': {'GRA8': {'WT': '+', 'dGRA8': '-'}}, 'value': 'recruitment'}. group can be any annotated column. Recruitment writes one bar panel per entry; replication writes three (size or count bins with chi-square, the same with the Fisher-Freeman-Halton test, and a bar of the per-vacuole mean). Each panel folder under results holds PDF, PNG, the plotted data and statistics CSVs; the test is chosen from normality and equal-variance checks. None draws no panels. Default None.",
+    "condition_order": "(list) - Recruitment and replication panels: the x-axis order shared by every panel. Listed values come first in the given order, the rest follow in natural sort order, so a condition sits in the same place in every panel. The order set on a panel overrides it. Default None.",
+    "condition_labels": "(dict) - Recruitment and replication panels: display labels for raw values, e.g. {'HeLa_ALG2': 'HeLa ALG2 KO'}. Values without a label are shown with spaces in place of underscores. Labels set on a panel are merged on top. Default None.",
+    "figures": "(dict) - Recruitment and replication panels: figures assembled from saved panels, {figure_name: {'panels': ['P01', 'P02'], 'ncol': 2}}, written as PDF and PNG with bold panel IDs into results/figures (recruitment) or results/analyze_replication/figures. Recruitment control panels (C01, ...) can be used as well. None assembles nothing. Default None.",
+    "exclude_edge_objects": '(bool) - Recruitment and replication analyses: drop objects cut by the image edge, i.e. whose centre is closer to the field edge than their radius (distance_to_field_edge below half of equivalent_diameter_area). Recruitment tests the pathogen object of each host cell; replication drops a vacuole when any of its parasites is cut. Reported in filter_summary.csv. Default False.',
+    "max_vacuoles_per_cell": '(int) - Recruitment analysis: keep host cells with at most this many pathogen objects (pathogen_prcfo_count), applied after the merge, which already used pathogen_limit. The removed count is reported in results/filter_summary.csv. None keeps every host cell. Default None.',
+    "confounder_filter": "(dict) - Recruitment analysis: range filters on confounding variables, {column: [min, max]} at object level, or {column: {'quantiles': [0.05, 0.95], 'level': 'well'}} to drop whole wells outside per-plate quantile bounds ('range' gives absolute bounds). The well density columns n_cells_well, n_pathogens_well and pathogens_per_cell_well are computed from measurements.db when named. Each step is reported in results/filter_summary.csv. Default None.",
+    "max_area_quantile": '(float) - Replication analysis: drop vacuoles (direct count: summed parasite area; size proxy: object area) above this quantile of all vacuoles, which removes fused clumps. Reported in filter_summary.csv. None disables the filter. Default None.',
+    "field_qc_min_objects": '(int) - Replication analysis with field_qc: fields with fewer vacuoles or parasites than this are dropped as too sparse. None disables this test. Default 3.',
     "adjust_log_outcome": "(bool) - Recruitment analysis with adjust_covariates or confounder_covariates: model the log of the recruitment ratio, which suits multiplicative effects, and back-transform the adjusted value. False models the raw ratio. Default True.",
     "target_width": "(int) - Width in pixels that images are resized to before segmentation; masks are scaled back to the original dimensions afterwards. Only applied when both target_width and target_height are set (and, on the non-normalized path, when resize is True). Use it to match the field size the model was trained at. Default None, which disables resizing; 1120 for plaque analysis.",
     "tables": "(list) - Measurement tables read from each plate's database and merged into one analysis frame. Supported tables are registered object roles, including organelles, and png_list. For tabular Classify, choose a nonempty list of distinct supported tables with at least one object-role table. Default ['cell', 'nucleus', 'pathogen', 'cytoplasm'].",
@@ -5915,7 +5941,7 @@ categories = {
 
     "Timelapse": timelapse_settings,
 
-    "Measurements": ["save_measurements", "calculate_correlation", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "field_qc", "field_qc_mad", "field_qc_min_cells", "field_qc_max_pathogens_per_cell", "field_qc_columns", "confounder_covariates", "adjust_covariates", "adjust_log_outcome", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
+    "Measurements": ["save_measurements", "calculate_correlation", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "field_qc", "field_qc_mad", "field_qc_min_cells", "field_qc_min_objects", "max_vacuoles_per_cell", "exclude_edge_objects", "confounder_filter", "max_area_quantile", "field_qc_max_pathogens_per_cell", "field_qc_columns", "confounder_covariates", "adjust_covariates", "adjust_log_outcome", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
 
     "Illumination Correction": ["illumination_correction", "illumination_model", "illumination_estimator", "illumination_degree", "illumination_dark", "illumination_per_plate", "illumination_max_fields", "illumination_qc", "illumination_on_missing", "illumination_vendor_profile", "illumination_vendor_channel_map"],
 
@@ -5999,7 +6025,7 @@ categories = {
 
     "Sequencing": ["mode", "single_direction", "sequencer", "target_sequence", "regex", "offset_start", "window_length", "barcode_mismatches", "chunk_size", "fill_na", "save_h5", "comp_type", "comp_level"],
 
-    "Plot": ["cmap", "figuresize", "black_background", "save_figure", "log_x", "log_y", "x_lim", "y_lims", "examples_to_plot", "plot_control", "plot_nr", "nr_imgs", "um_per_pixel", "image_nr", "dot_size", "point_color", "point_alpha", "outline_width", "umap_canvas_width", "umap_sidebar_width", "img_zoom", "row_limit", "color_by", "plot_images", "remove_image_canvas", "plot_points", "plot_outlines", "smooth_lines", "plot_by_cluster", "plot_cluster_grids", "heatmap_feature", "grouping", "min_max"],
+    "Plot": ["cmap", "figuresize", "black_background", "save_figure", "log_x", "log_y", "x_lim", "y_lims", "examples_to_plot", "plot_control", "plot_nr", "nr_imgs", "um_per_pixel", "image_nr", "dot_size", "point_color", "point_alpha", "outline_width", "umap_canvas_width", "umap_sidebar_width", "img_zoom", "row_limit", "color_by", "plot_images", "remove_image_canvas", "plot_points", "plot_outlines", "smooth_lines", "plot_by_cluster", "plot_cluster_grids", "heatmap_feature", "grouping", "min_max", "panels", "condition_order", "condition_labels", "figures"],
     "Replication Assay": [
         'replication_method',
         "vacuole_key", "vacuole_link_distance", "vacuole_link_factor",
@@ -7364,6 +7390,16 @@ def set_analyze_replication_defaults(settings):
     settings.setdefault('require_host_cell', True)
     settings.setdefault('seed_wells_from_cells', True)
     settings.setdefault('non_power_of_two_warn', 0.2)
+    settings.setdefault('panels', None)
+    settings.setdefault('replicate_column', None)
+    settings.setdefault('condition_order', None)
+    settings.setdefault('condition_labels', None)
+    settings.setdefault('figures', None)
+    settings.setdefault('exclude_edge_objects', False)
+    settings.setdefault('max_area_quantile', None)
+    settings.setdefault('field_qc', False)
+    settings.setdefault('field_qc_mad', 3.5)
+    settings.setdefault('field_qc_min_objects', 3)
     settings.setdefault('cell_types', ['HeLa'])
     settings.setdefault('cell_plate_metadata', None)
     settings.setdefault('pathogen_types', ['pc'])

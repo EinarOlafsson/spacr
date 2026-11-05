@@ -349,6 +349,10 @@ KEYS_RETIRED = frozenset({
 
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # Recruitment and replication: publication panels and their filters.
+    "panels", "condition_order", "condition_labels", "figures",
+    "exclude_edge_objects", "max_vacuoles_per_cell", "confounder_filter",
+    "max_area_quantile", "field_qc_min_objects",
     # Recruitment: field QC and confounder adjustment.
     "field_qc", "field_qc_mad", "field_qc_min_cells",
     "field_qc_max_pathogens_per_cell", "field_qc_columns",

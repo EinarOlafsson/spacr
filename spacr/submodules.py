@@ -1009,6 +1009,494 @@ def analyze_percent_positive(settings):
     display(merged)
     return merged
 
+# ---------------------------------------------------------------------------
+# Publication panels, filters and control panels shared by analyze_recruitment
+# and analyze_replication. Statistics and drawing live in spacr.assay_panels.
+# ---------------------------------------------------------------------------
+
+_RATIO_SUFFIXES = ('_ratio',)
+
+
+def _is_ratio_column(value):
+    """True for recruitment-style ratio columns (drawn from y = 1 by default)."""
+    return value in ('recruitment', 'recruitment_adjusted') or str(value).endswith(_RATIO_SUFFIXES)
+
+
+def _panel_where(df, where):
+    """Rows of ``df`` matching ``where`` = {column: value or list of values}."""
+    for column, wanted in (where or {}).items():
+        if column not in df.columns:
+            raise KeyError(f"panel 'where' column '{column}' is not in the table. "
+                           f"Available columns: {', '.join(map(str, df.columns))}")
+        values = list(wanted) if isinstance(wanted, (list, tuple, set)) else [wanted]
+        text = {str(v) for v in values}
+        df = df[df[column].isin(values) | df[column].astype(str).isin(text)]
+    return df
+
+
+def _panel_order(values, panel, settings):
+    """Aligned x order: the panel order if given, else the global condition_order first."""
+    from .assay_panels import condition_order
+    values = list(pd.unique(pd.Series(list(values)).dropna()))
+    if panel.get('order'):
+        wanted = condition_order(values, preferred=panel['order'])
+        listed = {str(v) for v in panel['order']}
+        return [v for v in wanted if str(v) in listed]
+    return condition_order(values, preferred=settings.get('condition_order'))
+
+
+def _panel_labels(panel, settings):
+    labels = dict(settings.get('condition_labels') or {})
+    labels.update(panel.get('labels') or {})
+    return labels or None
+
+
+def _check_panels_setting(panels):
+    if panels is None:
+        return []
+    if isinstance(panels, dict):
+        panels = [panels]
+    out = []
+    for i, panel in enumerate(panels, start=1):
+        if not isinstance(panel, dict):
+            raise TypeError(f"panels[{i - 1}] must be a dict, got {type(panel).__name__}")
+        panel = dict(panel)
+        panel.setdefault('name', f'panel_{i}')
+        out.append(panel)
+    return out
+
+
+def _unit_frame(df, value, group, replicate_column):
+    """Aggregate object rows to the experimental unit for one bar panel."""
+    from .assay_panels import aggregate_to_unit
+    if replicate_column is not None:
+        if replicate_column not in df.columns:
+            raise KeyError(f"replicate_column '{replicate_column}' is not a column of the "
+                           f"table. Available columns: {', '.join(map(str, df.columns))}")
+        if replicate_column == group:
+            raise ValueError(f"replicate_column '{replicate_column}' cannot also be the panel "
+                             f"group column")
+    return aggregate_to_unit(df, value, [group], replicate_column=replicate_column)
+
+
+def _bar_panel_from_objects(df, panel, settings, value, group, title=None, ylabel=None,
+                            ymin='auto', refline='auto'):
+    """Build one bar-panel spec from object rows (subset, aligned order, unit, test)."""
+    from .assay_panels import bar_spec
+    sub = _panel_where(df, panel.get('where')).dropna(subset=[group])
+    if value not in sub.columns:
+        raise KeyError(f"panel '{panel.get('name')}': value column '{value}' is not in the table")
+    order = _panel_order(sub[group].unique(), panel, settings)
+    sub = sub[sub[group].isin(order)]
+    unit = _unit_frame(sub, value, group, settings.get('replicate_column'))
+    ratio = _is_ratio_column(value)
+    if ymin == 'auto':
+        ymin = panel.get('ymin', 'auto')
+    if ymin == 'auto':
+        finite = pd.to_numeric(unit[value], errors='coerce').replace([np.inf, -np.inf], np.nan).dropna()
+        ymin = 1 if ratio and len(finite) and finite.min() >= 1 else None
+    if refline == 'auto':
+        refline = 1 if ratio else None
+    return bar_spec(unit, value, group, order,
+                    title=panel.get('title', title if title is not None else str(panel['name']).replace('_', ' ')),
+                    ylabel=panel.get('ylabel', ylabel), labels=_panel_labels(panel, settings),
+                    annotations=panel.get('annotations'), ymin=ymin, refline=refline,
+                    palette=panel.get('palette'))
+
+
+def _write_panels_and_figures(specs, names, panels_dir, figures_dir, figures, dpi=300,
+                              verbose=True):
+    """Save every panel spec and assemble the requested figures.
+
+    :param specs: panel id -> spec. :param names: panel id -> name.
+    :param figures: {figure_name: {'panels': [ids], 'ncol': int}} or None.
+    :returns: dict panel id -> folder and figure name -> written files.
+    """
+    from .assay_panels import save_panel, assemble_figure
+    folders, written = {}, {}
+    os.makedirs(panels_dir, exist_ok=True)
+    for pid, spec in specs.items():
+        folders[pid] = save_panel(panels_dir, pid, names[pid], spec, dpi=dpi)
+    for fig_name, fig_spec in (figures or {}).items():
+        if isinstance(fig_spec, (list, tuple)):
+            fig_spec = {'panels': list(fig_spec)}
+        ids = list(fig_spec.get('panels') or [])
+        ids = [i for i in ids if i in specs] if fig_spec.get('skip_missing') else ids
+        if not ids:
+            continue
+        written[fig_name] = assemble_figure(
+            specs, ids, int(fig_spec.get('ncol', min(len(ids), 4))),
+            os.path.join(figures_dir, str(fig_name)), title=fig_spec.get('title'), dpi=dpi)
+    if verbose and specs:
+        print(f"Wrote {len(specs)} panel(s) to {panels_dir}"
+              + (f" and {len(written)} figure(s) to {figures_dir}" if written else ''))
+    return {'panels': folders, 'figures': written}
+
+
+class _FilterLog:
+    """Record objects remaining / removed by each filter step."""
+
+    def __init__(self, df, unit='objects', first_step='spaCR output'):
+        self.unit = unit
+        self.rows = [dict(step=first_step, **{f'{unit}_remaining': len(df),
+                                              f'{unit}_removed': 0})]
+        self.start = df
+
+    def add(self, step, before, after, note=''):
+        self.rows.append(dict(step=step, **{f'{self.unit}_remaining': len(after),
+                                            f'{self.unit}_removed': len(before) - len(after)},
+                              note=note))
+        print(f"{step}: {len(before) - len(after)} of {len(before)} {self.unit} removed"
+              + (f" ({note})" if note else ''))
+        return after
+
+    def frame(self):
+        out = pd.DataFrame(self.rows)
+        if 'note' in out.columns:
+            out['note'] = out['note'].fillna('')
+        return out
+
+    def kept_per_condition(self, end, group='condition'):
+        if group not in self.start.columns:
+            return pd.DataFrame()
+        a = self.start.groupby(group).size().rename(f'{self.unit}_before_filters')
+        b = end.groupby(group).size().rename(f'{self.unit}_after_filters') if group in end.columns \
+            else pd.Series(dtype=float, name=f'{self.unit}_after_filters')
+        out = pd.concat([a, b], axis=1).fillna(0)
+        out[f'{self.unit}_after_filters'] = out[f'{self.unit}_after_filters'].astype(int)
+        out['fraction_kept'] = out[f'{self.unit}_after_filters'] / out[f'{self.unit}_before_filters'].replace(0, np.nan)
+        return out.rename_axis(group).reset_index()
+
+
+def _edge_cut_mask(df, compartment):
+    """True for objects whose centre is closer to the field edge than their radius."""
+    dist, diam = (f'{compartment}_distance_to_field_edge',
+                  f'{compartment}_equivalent_diameter_area')
+    missing = [c for c in (dist, diam) if c not in df.columns]
+    if missing:
+        raise KeyError(f"exclude_edge_objects needs the columns {missing}; measure with "
+                       f"spaCR to get them, or turn exclude_edge_objects off")
+    d = pd.to_numeric(df[dist], errors='coerce')
+    r = pd.to_numeric(df[diam], errors='coerce') / 2
+    return (d < r).fillna(False).to_numpy()
+
+
+def _apply_confounder_filter(df, spec, log, well_keys=('plateID', 'rowID', 'columnID')):
+    """Apply ``confounder_filter`` = {column: [min, max] | {'quantiles'/'range', 'level'}}.
+
+    Object level keeps rows inside the bounds. Well level averages the column
+    per well and drops whole wells outside the bounds. Quantile bounds are
+    computed per plate (over all objects, or over all wells of the plate).
+    """
+    for column, rule in (spec or {}).items():
+        if column not in df.columns:
+            raise KeyError(f"confounder_filter column '{column}' is not in the table. "
+                           f"Available columns: {', '.join(map(str, df.columns))}")
+        if isinstance(rule, dict):
+            level = rule.get('level', 'object')
+            quantiles = rule.get('quantiles')
+            bounds = rule.get('range', [None, None])
+        else:
+            level, quantiles, bounds = 'object', None, list(rule)
+        if level not in ('object', 'well'):
+            raise ValueError(f"confounder_filter['{column}'] level must be 'object' or 'well'")
+        values = pd.to_numeric(df[column], errors='coerce')
+        before = df
+        if level == 'well':
+            keys = [k for k in well_keys if k in df.columns]
+            table = df[keys].assign(_v=values.to_numpy()).groupby(keys)['_v'].mean().reset_index()
+            target, frame = table['_v'], table
+        else:
+            target, frame = values, df
+        plate = frame['plateID'] if 'plateID' in frame.columns else pd.Series('all', index=frame.index)
+        lo = pd.Series(-np.inf, index=frame.index)
+        hi = pd.Series(np.inf, index=frame.index)
+        if quantiles is not None:
+            ql, qh = quantiles
+            for _, idx in frame.groupby(plate.to_numpy()).groups.items():
+                if ql is not None:
+                    lo.loc[idx] = target.loc[idx].quantile(ql)
+                if qh is not None:
+                    hi.loc[idx] = target.loc[idx].quantile(qh)
+            note = f"{level}-level quantiles {quantiles} per plate"
+        else:
+            if bounds[0] is not None:
+                lo[:] = float(bounds[0])
+            if len(bounds) > 1 and bounds[1] is not None:
+                hi[:] = float(bounds[1])
+            note = f"{level}-level range {list(bounds)}"
+        keep = (target >= lo) & (target <= hi)
+        if level == 'well':
+            kept_wells = frame.loc[keep, keys]
+            mask = pd.MultiIndex.from_frame(df[keys].astype(str)).isin(
+                pd.MultiIndex.from_frame(kept_wells.astype(str)))
+            note += f"; {int((~keep).sum())} of {len(frame)} wells dropped"
+            df = df[mask]
+        else:
+            df = df[keep.to_numpy()]
+        df = log.add(f'confounder_filter {column}', before, df, note)
+    return df
+
+
+def _well_density_columns_needed(settings):
+    names = ('n_cells_well', 'n_pathogens_well', 'pathogens_per_cell_well',
+             'n_pathogens_in_cells_well', 'n_fields_well')
+    wanted = list((settings.get('confounder_filter') or {}).keys())
+    wanted += list(settings.get('confounder_covariates') or [])
+    wanted += list(settings.get('adjust_covariates') or [])
+    wanted += [p.get('value') for p in (settings.get('panels') or []) if isinstance(p, dict)]
+    return any(w in names for w in wanted)
+
+
+def _recruitment_new_filters(df, settings, results_dir, field_qc_counts=None):
+    """Post-merge filters for analyze_recruitment; returns (df, log or None)."""
+    active = (settings.get('max_vacuoles_per_cell') is not None
+              or settings.get('exclude_edge_objects')
+              or settings.get('confounder_filter')
+              or settings.get('panels'))
+    if not active:
+        return df, None
+    log = _FilterLog(df if field_qc_counts is None else field_qc_counts[0],
+                     unit='objects', first_step='spaCR output (after object filters)')
+    if field_qc_counts is not None:
+        log.add('field_qc', field_qc_counts[0], field_qc_counts[1])
+    if settings.get('max_vacuoles_per_cell') is not None:
+        limit = int(settings['max_vacuoles_per_cell'])
+        if 'pathogen_prcfo_count' not in df.columns:
+            raise KeyError("max_vacuoles_per_cell needs the 'pathogen_prcfo_count' column "
+                           "written by the measurement merge")
+        before = df
+        df = df[pd.to_numeric(df['pathogen_prcfo_count'], errors='coerce') <= limit]
+        df = log.add(f'max_vacuoles_per_cell {limit}', before, df)
+    if settings.get('exclude_edge_objects'):
+        before = df
+        df = df[~_edge_cut_mask(df, 'pathogen')]
+        df = log.add('exclude_edge_objects (pathogen cut by the field edge)', before, df)
+    if settings.get('confounder_filter'):
+        df = _apply_confounder_filter(df, settings['confounder_filter'], log)
+    return df, log
+
+
+def _recruitment_control_specs(df, settings):
+    """Control panels: intensity per compartment and channel, objects per well, ratio variants.
+
+    :returns: (specs, names, figures) keyed by control panel id ``Cnn``.
+    """
+    from .assay_panels import bar_spec
+    group = 'condition'
+    panel = {'name': 'controls'}
+    labels = _panel_labels(panel, settings)
+    order = _panel_order(df[group].dropna().unique(), panel, settings)
+    sub = df[df[group].isin(order)]
+    rep = settings.get('replicate_column')
+    if rep is not None and rep in sub.columns and sub.groupby(group)[rep].nunique().max() <= 1:
+        # The replicate is part of the condition (e.g. annotated in the pathogen
+        # slot), so each condition holds one replicate: wells are the unit here.
+        rep = None
+    settings = dict(settings, replicate_column=rep)
+    specs, names, figures = {}, {}, {}
+    n = 0
+
+    def add(spec, name, fig):
+        nonlocal n
+        n += 1
+        pid = f'C{n:02d}'
+        specs[pid], names[pid] = spec, name
+        figures.setdefault(fig, {'panels': [], 'ncol': 2})['panels'].append(pid)
+
+    channels = list(dict.fromkeys([c for c in (settings.get('channel_dims') or []) if c is not None]
+                                  + [settings['channel_of_interest']]))
+    for chan in channels:
+        for comp in ('cell', 'nucleus', 'cytoplasm', 'pathogen'):
+            col = f'{comp}_channel_{chan}_mean_intensity'
+            if col not in sub.columns:
+                continue
+            unit = _unit_frame(sub, col, group, rep)
+            add(bar_spec(unit, col, group, order, title=f'channel {chan}: {comp}',
+                         ylabel=f'{comp} mean intensity (ch {chan})', labels=labels),
+                f'channel_{chan}_{comp}_mean_intensity', f'controls_channel_{chan}_intensity')
+    well_keys = ['plateID', 'rowID', 'columnID']
+    counts = (sub.groupby([group] + ([rep] if rep and rep != group else []) + well_keys, observed=True)
+              .size().rename('objects_per_well').reset_index())
+    if rep and rep != group:
+        counts = (counts.groupby([group, rep], observed=True)
+                  .agg(objects_per_well=('objects_per_well', 'mean'),
+                       n_wells=('objects_per_well', 'size')).reset_index())
+    add(bar_spec(counts, 'objects_per_well', group, order, title='objects per well',
+                 ylabel='host cells per well', labels=labels),
+        'objects_per_well', 'controls_objects_per_well')
+    for chan in channels:
+        for stat in ('mean', 'q75', 'periphery_mean', 'outside_mean', 'outside_q75'):
+            col = f'pathogen_channel_{chan}_cytoplasm_{stat}_ratio'
+            if col not in sub.columns:
+                continue
+            spec = _bar_panel_from_objects(sub, {'name': col}, settings, col, group,
+                                           title=f'channel {chan}: pathogen {stat} / cytoplasm mean',
+                                           ylabel=col.replace('_', ' '))
+            add(spec, col, f'controls_recruitment_ratios_channel_{chan}')
+    return specs, names, figures
+
+
+def _recruitment_panels(df, settings, results_dir):
+    """Write user panels (Pnn) and control panels (Cnn) for analyze_recruitment."""
+    out = {}
+    panels = _check_panels_setting(settings.get('panels'))
+    specs, names = {}, {}
+    for i, panel in enumerate(panels, start=1):
+        pid = f'P{i:02d}'
+        value = panel.get('value', 'recruitment')
+        group = panel.get('group', 'condition')
+        ylabel = 'recruitment (vacuole / cytoplasm)' if value == 'recruitment' else None
+        specs[pid] = _bar_panel_from_objects(df, panel, settings, value, group, ylabel=ylabel)
+        names[pid] = panel['name']
+    control_specs, control_names, control_figs = ({}, {}, {})
+    if settings.get('plot_control'):
+        control_specs, control_names, control_figs = _recruitment_control_specs(df, settings)
+    all_specs = {**specs, **control_specs}
+    figures_dir = os.path.join(results_dir, 'figures')
+    if specs:
+        user_figs = {k: v for k, v in (settings.get('figures') or {}).items()}
+        bad = [i for f in user_figs.values()
+               for i in (f.get('panels', []) if isinstance(f, dict) else f) if i not in all_specs]
+        if bad:
+            raise KeyError(f"figures refer to unknown panel id(s) {bad}; known: {sorted(all_specs)}")
+        out['panels'] = _write_panels_and_figures(
+            specs, names, os.path.join(results_dir, 'panels'), figures_dir, None)
+        if user_figs:
+            from .assay_panels import assemble_figure
+            out['figures'] = {
+                name: assemble_figure(all_specs, list(f.get('panels', []) if isinstance(f, dict) else f),
+                                      int(f.get('ncol', 4) if isinstance(f, dict) else 4),
+                                      os.path.join(figures_dir, str(name)),
+                                      title=f.get('title') if isinstance(f, dict) else None)
+                for name, f in user_figs.items()}
+    if control_specs:
+        out['controls'] = _write_panels_and_figures(
+            control_specs, control_names, os.path.join(results_dir, 'panels', 'controls'),
+            figures_dir, control_figs, dpi=200)
+    return out
+
+
+def _replication_filters_active(settings):
+    return bool(settings.get('field_qc') or settings.get('exclude_edge_objects')
+                or settings.get('max_area_quantile') is not None)
+
+
+def _replication_filters(frame, settings, area_column, edge_cut, db_tables, unit,
+                         first_step):
+    """Opt-in object filters shared by both replication methods.
+
+    Applied in this order: ``field_qc`` (fields with too many or too few
+    objects, from :func:`spacr.recruitment_confounders.field_density` run on
+    the object table, robust limit per plate), ``exclude_edge_objects`` (the
+    ``edge_cut`` boolean mask) and ``max_area_quantile`` (drop objects above
+    that quantile of ``area_column``, i.e. fused clumps).
+
+    :param db_tables: list of ``(measurements.db path, table, plate override)``.
+    :returns: ``(frame, log, field_flags)``; ``log`` is a :class:`_FilterLog`.
+    """
+    log = _FilterLog(frame, unit=unit, first_step=first_step)
+    flags = None
+    if settings.get('field_qc'):
+        from .recruitment_confounders import field_density, flag_crowded_fields, apply_field_qc
+        parts = []
+        for db, table, plate in db_tables:
+            f = field_density(db, cell_table=table, pathogen_table=None)
+            if plate is not None:
+                f['plateID'] = plate
+            parts.append(f)
+        fields = pd.concat(parts, ignore_index=True)
+        flags = flag_crowded_fields(fields, mad_threshold=settings.get('field_qc_mad', 3.5),
+                                    columns=['n_cells_field'],
+                                    min_cells=settings.get('field_qc_min_objects', 3),
+                                    by='plateID')
+        flags = flags.rename(columns={'n_cells_field': 'n_objects_field',
+                                      'limit_n_cells_field': 'limit_n_objects_field'})
+        flags['field_qc_reason'] = flags['field_qc_reason'].str.replace(
+            'n_cells_field', 'n_objects_field', regex=False)
+        before = frame
+        frame = apply_field_qc(frame, flags, keep_columns=['n_objects_field'], drop_failed=True)
+        frame = log.add('field_qc', before, frame,
+                        f"{int((~flags['field_qc_pass']).sum())} of {len(flags)} fields failed")
+    if settings.get('exclude_edge_objects'):
+        before = frame
+        frame = frame[~np.asarray(edge_cut(frame), dtype=bool)]
+        frame = log.add('exclude_edge_objects (cut by the field edge)', before, frame)
+    q = settings.get('max_area_quantile')
+    if q is not None:
+        if area_column not in frame.columns:
+            raise KeyError(f"max_area_quantile needs the column '{area_column}'")
+        limit = pd.to_numeric(frame[area_column], errors='coerce').quantile(float(q))
+        before = frame
+        frame = frame[pd.to_numeric(frame[area_column], errors='coerce') <= limit]
+        frame = log.add(f'max_area_quantile {q}', before, frame, f'{area_column} <= {limit:.4g}')
+    return frame, log, flags
+
+
+def _write_filter_outputs(output_dir, log, flags, end, group_column):
+    os.makedirs(output_dir, exist_ok=True)
+    log.frame().to_csv(os.path.join(output_dir, 'filter_summary.csv'), index=False)
+    log.kept_per_condition(end, group_column).to_csv(
+        os.path.join(output_dir, 'filter_kept_per_condition.csv'), index=False)
+    if flags is not None:
+        flags.to_csv(os.path.join(output_dir, 'field_qc.csv'), index=False)
+
+
+def _replication_panels(table, settings, bin_column, bins, value, value_label, legend_title,
+                        output_dir):
+    """Three panels per ``panels`` entry: stacked bins (chi-square), stacked bins
+    (Fisher-Freeman-Halton) and a bar of the replicate (or well) mean of ``value``.
+    """
+    from .assay_panels import stacked_spec, fractions_per_unit
+    panels = _check_panels_setting(settings.get('panels'))
+    rep = settings.get('replicate_column')
+    specs, names = {}, {}
+    n = 0
+    for panel in panels:
+        group = panel.get('group', settings.get('group_column', 'condition'))
+        if group not in table.columns:
+            raise KeyError(f"panel '{panel['name']}': group column '{group}' is not in the "
+                           f"table. Available columns: {', '.join(map(str, table.columns))}")
+        sub = _panel_where(table, panel.get('where')).dropna(subset=[group])
+        order = _panel_order(sub[group].unique(), panel, settings)
+        sub = sub[sub[group].isin(order)]
+        if rep is not None and rep not in sub.columns:
+            raise KeyError(f"replicate_column '{rep}' is not a column of the table")
+        reference = panel.get('reference', order[0] if order else None)
+        labels = _panel_labels(panel, settings)
+        sub_bins = sub[bin_column].astype(object)
+        used_bins = [b for b in bins if (sub_bins == b).any()]
+        counts = pd.crosstab(sub[group], sub_bins).reindex(index=order, columns=used_bins,
+                                                           fill_value=0)
+        fractions = fractions_per_unit(sub.assign(**{bin_column: sub_bins}), bin_column,
+                                       used_bins, [group], replicate_column=rep)
+        bin_labels = [str(b) for b in used_bins]
+        title = panel.get('title', str(panel['name']).replace('_', ' '))
+        for method, suffix in (('chi2', 'chi_square'), ('fisher', 'fisher')):
+            n += 1
+            pid = f'P{n:02d}'
+            specs[pid] = stacked_spec(fractions, counts, group, order, used_bins,
+                                      bin_labels=bin_labels, method=method, reference=reference,
+                                      title=title, labels=labels,
+                                      annotations=panel.get('annotations'),
+                                      legend_title=legend_title,
+                                      ylabel='fraction of vacuoles (mean ± SD)',
+                                      n_resamples=int(panel.get('n_resamples', 20000)))
+            names[pid] = f"{panel['name']}_bins_{suffix}"
+        n += 1
+        pid = f'P{n:02d}'
+        specs[pid] = _bar_panel_from_objects(sub, dict(panel, title=title), settings, value,
+                                             group, ylabel=value_label, ymin=None, refline=None)
+        names[pid] = f"{panel['name']}_{value_label.split(' (')[0].replace(' ', '_')}"
+    figures = settings.get('figures') or {}
+    bad = [i for f in figures.values()
+           for i in (f.get('panels', []) if isinstance(f, dict) else f) if i not in specs]
+    if bad:
+        raise KeyError(f"figures refer to unknown panel id(s) {bad}; known: {sorted(specs)}")
+    return _write_panels_and_figures(specs, names, os.path.join(output_dir, 'panels'),
+                                     os.path.join(output_dir, 'figures'), figures)
+
+
 def analyze_recruitment(settings):
     """Measure marker recruitment with host-cell and per-well summaries.
 
@@ -1070,7 +1558,63 @@ def analyze_recruitment(settings):
           cause: a mediator (for example vacuole size when the question is
           whether a mutant grows slower) is removed together with the true
           effect. ``adjust_log_outcome`` models the log ratio.
-        - ``plot``, ``plot_control``, ``plot_nr``, ``figuresize``.
+        - ``plot``, ``plot_nr``, ``figuresize``.
+        - ``plot_control`` — write control panels (Default True): for every
+          channel in ``channel_dims`` and every compartment (cell, nucleus,
+          cytoplasm, pathogen) the mean intensity per condition, objects per
+          well, and the ratio variants
+          ``pathogen_channel_<c>_cytoplasm_<stat>_ratio``. Each is a bar panel
+          of unit values (replicate or well means, aligned condition order,
+          SD bars, one dot per unit, test in the title) saved under
+          ``results/panels/controls/Cnn_<name>/`` with data and statistics
+          CSVs, plus one figure per channel in ``results/figures``.
+
+        Publication panels and extra filters (all opt-in; leaving them at
+        their defaults keeps the output above unchanged):
+
+        - ``panels`` — list of dicts, one bar panel each:
+          ``{'name', 'where': {column: value or list}, 'group': column,
+          'order': list, 'labels': dict, 'annotations': {row: {group value:
+          text}}, 'value': 'recruitment' or any numeric column, 'ymin',
+          'title', 'ylabel'}``. ``group`` may be any annotated column
+          (``host_cells``, ``pathogen``, ``treatment``, ``condition``, or a
+          column of your own). Ratio values are drawn from y = 1 when every
+          unit value is at least 1. Panel ``i`` is saved as
+          ``results/panels/Pnn_<name>/`` with ``<Pnn_name>.pdf/.png``,
+          ``data_replicates.csv``, ``stats_test.csv``,
+          ``stats_assumptions.csv``, ``stats_posthoc.csv`` and
+          ``stats_descriptive.csv``. The test is chosen per panel (one-way
+          ANOVA + Tukey HSD, Welch ANOVA + Games-Howell, or Kruskal-Wallis +
+          Dunn test); see :mod:`spacr.assay_panels`.
+        - ``replicate_column`` — column holding the biological replicate
+          (for example ``'pathogen'`` when replicates were annotated in that
+          slot). The statistical unit is then the replicate mean of well
+          means; otherwise it is the well mean. Default None.
+        - ``condition_order`` / ``condition_labels`` — global x order (listed
+          values first, the rest sorted naturally) and display labels, used
+          by every panel unless the panel sets its own.
+        - ``figures`` — ``{name: {'panels': ['P01', 'C03', ...], 'ncol': n}}``
+          assembled into ``results/figures/<name>.pdf/.png``.
+        - ``max_vacuoles_per_cell`` — keep host cells with at most this many
+          pathogen objects (``pathogen_prcfo_count``), after the merge.
+        - ``exclude_edge_objects`` — drop host cells whose pathogen object is
+          cut by the image edge (``pathogen_distance_to_field_edge`` below
+          half of ``pathogen_equivalent_diameter_area``; spaCR measures the
+          centre-to-edge distance).
+        - ``confounder_filter`` — ``{column: [min, max]}`` at object level,
+          or ``{column: {'quantiles': [lo, hi] | 'range': [min, max],
+          'level': 'object' | 'well'}}``. Well level drops whole wells whose
+          mean lies outside the bounds; quantile bounds are computed per
+          plate. The well density columns ``n_cells_well``,
+          ``n_pathogens_well`` and ``pathogens_per_cell_well`` are attached
+          from ``measurements.db`` when named.
+        - When any of these is set, ``results/filter_summary.csv`` lists every
+          filter step (objects remaining / removed, including ``field_qc``
+          and ``cells_per_well``) and ``results/filter_kept_per_condition.csv``
+          the fraction kept per condition.
+
+        The GUI path (Home > Toxoplasma > Recruitment) is unchanged; these
+        settings are set from the API or a settings file.
 
     :returns: List ``[cells, wells]`` — the host-cell and per-well
         recruitment DataFrames, also written to CSV under ``src/results``.
@@ -1095,7 +1639,7 @@ def analyze_recruitment(settings):
     """
     
     from .io import _read_and_merge_data, _results_to_csv
-    from .plot import plot_image_mask_overlay, _plot_controls, _plot_recruitment
+    from .plot import plot_image_mask_overlay, _plot_recruitment
     from .utils import _object_filter, annotate_conditions, _calculate_recruitment, _group_by_well, save_settings
     from .settings import get_analyze_recruitment_default_settings
 
@@ -1195,6 +1739,7 @@ def analyze_recruitment(settings):
     _screen = list(settings.get('confounder_covariates') or [])
     _adjust = list(settings.get('adjust_covariates') or [])
     _results_dir = os.path.join(settings['src'], 'results')
+    _fqc_counts = None
     if settings.get('field_qc') or any(c in _field_cols for c in _screen + _adjust):
         from .recruitment_confounders import field_density, flag_crowded_fields, apply_field_qc
         fields = field_density(os.path.join(settings['src'], 'measurements', 'measurements.db'))
@@ -1204,12 +1749,22 @@ def analyze_recruitment(settings):
                                      min_cells=settings['field_qc_min_cells'],
                                      max_pathogens_per_cell=settings['field_qc_max_pathogens_per_cell'])
         n_before = len(df)
+        _df_before_fqc = df
         df = apply_field_qc(df, fields, drop_failed=bool(settings.get('field_qc')))
+        if settings.get('field_qc'):
+            _fqc_counts = (_df_before_fqc, df)
         os.makedirs(_results_dir, exist_ok=True)
         if settings.get('field_qc'):
             fields.to_csv(os.path.join(_results_dir, 'field_qc.csv'), index=False)
             print(f"Field QC: {int((~fields['field_qc_pass']).sum())} of {len(fields)} fields failed, "
                   f"{n_before - len(df)} of {n_before} objects dropped")
+    if _well_density_columns_needed(settings):
+        from .recruitment_confounders import well_density, apply_well_density
+        df = apply_well_density(df, well_density(
+            os.path.join(settings['src'], 'measurements', 'measurements.db')))
+        print('Attached well density columns: n_cells_well, n_pathogens_well, '
+              'pathogens_per_cell_well')
+    df, _filter_log = _recruitment_new_filters(df, settings, _results_dir, _fqc_counts)
     if _screen:
         from .recruitment_confounders import confounder_report
         report = confounder_report(df, 'recruitment', 'condition', _screen,
@@ -1231,11 +1786,18 @@ def analyze_recruitment(settings):
     
     df_well = df_well[df_well['cells_per_well'] >= settings['cells_per_well']]
     prc_list = df_well['prc'].unique().tolist()
+    _before_cpw = df
     df = df[df['prc'].isin(prc_list)]
     print(f"After cells per well filter: {len(df)} cells in {len(df_well)} wells left wth threshold {settings['cells_per_well']}")
-    
-    if settings['plot_control']:
-        _plot_controls(df, mask_chans, settings['channel_of_interest'], figuresize=5)
+    if _filter_log is not None:
+        _filter_log.add(f"cells_per_well >= {settings['cells_per_well']}", _before_cpw, df)
+        os.makedirs(_results_dir, exist_ok=True)
+        _filter_log.frame().to_csv(os.path.join(_results_dir, 'filter_summary.csv'), index=False)
+        _filter_log.kept_per_condition(df).to_csv(
+            os.path.join(_results_dir, 'filter_kept_per_condition.csv'), index=False)
+
+    if settings['plot_control'] or settings.get('panels'):
+        _recruitment_panels(df, settings, _results_dir)
 
     print(f'PV level: {len(df)} rows')
     _plot_recruitment(df, 'by PV', settings['channel_of_interest'], columns=[], figuresize=settings['figuresize'])
@@ -3001,6 +3563,19 @@ def analyze_endodyogeny(settings):
 
     df = df.dropna(subset=[settings['group_column']])
 
+    if _replication_filters_active(settings):
+        compartment = settings['compartment']
+        db_tables = [(loc, compartment, f'plate{i + 1}' if settings['change_plate'] else None)
+                     for i, loc in enumerate(locs)]
+        df, filter_log, field_flags = _replication_filters(
+            df, settings, area_column, lambda f: _edge_cut_mask(f, compartment), db_tables,
+            unit='objects', first_step='spaCR output (after area and condition filters)')
+        output['filter_log'] = filter_log
+        output['field_qc'] = field_flags
+        if len(df) == 0:
+            raise ValueError('No objects left after field_qc / exclude_edge_objects / '
+                             'max_area_quantile.')
+
     df, ordered_bin_labels = _calculate_volume_bins(
         df,
         settings['compartment'],
@@ -3872,6 +4447,43 @@ def analyze_replication(settings):
         - ``save`` — write the CSVs and figures under
           ``<src>/results/analyze_replication``.
 
+        Publication panels and filters (opt-in, for both ``direct_count`` and
+        ``size_proxy``; defaults keep the output above unchanged):
+
+        - ``panels`` — list of dicts ``{'name', 'where': {column: value or
+          list}, 'group', 'order', 'labels', 'annotations', 'reference'
+          (default the first group in the order), 'title', 'n_resamples'}``.
+          Each entry gives three panels: the bins (parasites per vacuole, or
+          size-proxy volume bins) stacked as mean ± SD of replicate (or well)
+          fractions with a chi-square test, the same with the
+          Fisher-Freeman-Halton exact test (Monte Carlo, Fisher exact test
+          for 2 x 2), each with stars for every group against the reference
+          (Holm), and a bar panel of the replicate mean of the per-vacuole
+          value (mean parasites per vacuole, or mean vacuole area) with the
+          test chosen as in :mod:`spacr.assay_panels`. Written to
+          ``<src>/results/analyze_replication/panels/Pnn_<name>_.../`` with
+          PDF, PNG, ``data_replicates.csv``, ``stats_test.csv``,
+          ``contingency_table_counts.csv`` (stacked) or the assumption,
+          post hoc and descriptive tables (bar).
+        - ``replicate_column``, ``condition_order``, ``condition_labels`` and
+          ``figures`` — as in :func:`analyze_recruitment`; figures go to
+          ``.../analyze_replication/figures``.
+        - ``field_qc`` — count objects per field from the parasite table
+          (size proxy: the ``compartment`` table) and drop fields above the
+          per-plate median + ``field_qc_mad`` MAD or below
+          ``field_qc_min_objects``.
+        - ``exclude_edge_objects`` — drop vacuoles cut by the field edge
+          (direct count: any parasite whose ``distance_to_field_edge`` is below
+          half its ``equivalent_diameter_area``).
+        - ``max_area_quantile`` — drop vacuoles above this quantile of area
+          (fused clumps).
+        - With any filter on, ``filter_summary.csv``,
+          ``filter_kept_per_condition.csv`` and ``field_qc.csv`` are written
+          to ``.../analyze_replication``.
+
+        The GUI path is unchanged; these settings are hidden in the form and
+        set from the API or a settings file.
+
     :returns: dict with ``vacuoles`` (per-vacuole counts), ``wells`` (per-well
         distribution), ``summary`` (per-condition distribution),
         ``comparisons`` (pairwise ordered tests), ``chi_squared`` /
@@ -3909,6 +4521,22 @@ def analyze_replication(settings):
               'in one host cell are combined by this legacy method.')
         output = analyze_endodyogeny(dict(settings))
         output['replication_method'] = method
+        _src = settings['src'][0] if isinstance(settings['src'], list) else settings['src']
+        output_dir = os.path.join(_src, 'results', 'analyze_replication')
+        data = output['data']
+        group_column = 'new_condition' if settings.get('group_by_class') else settings.get('group_column', 'condition')
+        if output.get('filter_log') is not None:
+            _write_filter_outputs(output_dir, output['filter_log'], output.get('field_qc'),
+                                  data, group_column)
+        if settings.get('panels'):
+            compartment = settings.get('compartment', 'pathogen')
+            bin_column = f'{compartment}_volume_bin'
+            bins = list(data[bin_column].cat.categories)
+            unit = 'px' if settings.get('um_per_px', 0.1) is None else '\u00b5m\u00b2'
+            output['panels'] = _replication_panels(
+                data, dict(settings, group_column=group_column), bin_column, bins,
+                f'{compartment}_area', f'mean vacuole area ({unit})',
+                'vacuole size bin (volume proxy)', output_dir)
         return output
 
     from .utils import annotate_conditions, save_settings
@@ -4029,6 +4657,12 @@ def analyze_replication(settings):
                         'prcf', group_column]
     if 'cell_id' in df.columns:
         identity_columns.append('cell_id')
+    if settings.get('panels'):
+        extra = ['host_cells', 'pathogen', 'treatment', 'condition',
+                 settings.get('replicate_column')]
+        for panel in _check_panels_setting(settings['panels']):
+            extra += [panel.get('group')] + list((panel.get('where') or {}).keys())
+        identity_columns += [c for c in extra if c]
     identity_columns = [c for c in dict.fromkeys(identity_columns) if c in df.columns]
 
     vacuoles = df.groupby('vacuole_id', sort=False)[identity_columns].first()
@@ -4051,6 +4685,27 @@ def analyze_replication(settings):
         np.log2(vacuoles['n_parasites'].to_numpy(dtype=float)),
         np.nan
     )
+
+    filter_log = field_flags = None
+    if _replication_filters_active(settings):
+        if settings.get('exclude_edge_objects'):
+            cut = pd.Series(_edge_cut_mask(df, compartment), index=df.index)
+            vacuoles['cut_by_field_edge'] = (cut.groupby(df['vacuole_id']).any()
+                                             .reindex(vacuoles['vacuole_id']).fillna(False)
+                                             .to_numpy())
+        if 'total_parasite_area' not in vacuoles.columns and settings.get('max_area_quantile') is not None:
+            raise KeyError(f"max_area_quantile needs '{area_column}' in '{parasite_table}'")
+        db_tables = [(os.path.join(source, 'measurements', 'measurements.db'), parasite_table,
+                      f'plate{i + 1}' if settings['change_plate'] else None)
+                     for i, source in enumerate(settings['src'])]
+        vacuoles, filter_log, field_flags = _replication_filters(
+            vacuoles, settings, 'total_parasite_area',
+            lambda f: f['cut_by_field_edge'].to_numpy(dtype=bool), db_tables,
+            unit='vacuoles', first_step='vacuoles (after parasite filters)')
+        vacuoles = vacuoles.reset_index(drop=True)
+        if len(vacuoles) == 0:
+            raise ValueError('No vacuoles left after field_qc / exclude_edge_objects / '
+                             'max_area_quantile.')
 
     seed_wells = None
     if cell_frames:
@@ -4110,6 +4765,17 @@ def analyze_replication(settings):
         'vacuole_link_distance': link_distance,
         'figures': {'per_well': well_fig, 'by_condition': group_fig},
     }
+
+    output_dir = os.path.join(settings['src'][0], 'results', 'analyze_replication')
+    if filter_log is not None:
+        output['filter_summary'] = filter_log.frame()
+        _write_filter_outputs(output_dir, filter_log, field_flags, vacuoles, group_column)
+    if settings.get('panels'):
+        table = vacuoles.copy()
+        table['replication_bucket'] = table['replication_bucket'].astype(str)
+        output['panels'] = _replication_panels(
+            table, settings, 'replication_bucket', [str(b) for b in buckets], 'n_parasites',
+            'mean parasites per vacuole', 'parasites per vacuole', output_dir)
 
     if settings['save']:
         output_dir = os.path.join(settings['src'][0], 'results',

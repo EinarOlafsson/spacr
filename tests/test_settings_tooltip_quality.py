@@ -1245,8 +1245,10 @@ if app_key == "mask":
         "concentration_column": "concentration", "concentration_unit": None,
         "vehicle_control": None, "replicate_column": None}
     drug_screen_arrivals = {("regression", key) for key in drug_screen_defaults}
+    # replicate_column is also a panel setting of Recruitment and Replication
+    # (counted with the panel settings below), so only Regression is pinned here.
     assert {pair for pair in compared_pairs
-            if pair[1] in drug_screen_defaults} == drug_screen_arrivals
+            if pair[1] in drug_screen_defaults and pair[0] == "regression"} == drug_screen_arrivals
     assert not drug_screen_arrivals & (recognized_arrivals | variants.keys())
     for key, value in drug_screen_defaults.items():
         claims = list(DEFAULT_LITERAL.finditer(tooltips[key]))
@@ -1264,7 +1266,7 @@ if app_key == "mask":
     for app, key in feature_qc_arrivals:
         assert resolve_default_settings(app)[key] is False
     recognized_arrivals |= feature_qc_arrivals
-    assert comparisons - len(recognized_arrivals) == 939
+    assert comparisons - len(recognized_arrivals) == 957
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))
     assert census_508['comparisons_before'] == 716
@@ -1303,7 +1305,9 @@ if app_key == "mask":
     # + 3: item 685's export_vvvv in three apps, pinned above.
     # + 8: the recruitment field-QC and confounder-adjustment settings, one
     # parseable default claim each in the Recruitment app.
-    assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2 + 8
+    # + 18: the publication-panel settings and their filters, eight in the
+    # Recruitment app and ten in the Replication app, one claim each.
+    assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2 + 8 + 18
             + len(item_541) + len(item_548) + len(item_550)
             + len(item_535) + len(item_547) + len(item_536)
             + len(item_571) + len(item_538) + len(item_540)

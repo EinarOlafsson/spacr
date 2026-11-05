@@ -54,6 +54,8 @@ import pandas as pd
 __all__ = [
     "FIELD_KEYS",
     "field_density",
+    "well_density",
+    "apply_well_density",
     "flag_crowded_fields",
     "apply_field_qc",
     "confounder_report",
@@ -119,6 +121,54 @@ def field_density(db_path: str, cell_table: str = "cell",
     else:
         fields = cells
     return fields
+
+
+#: Columns that identify one well.
+WELL_KEYS: Tuple[str, ...] = ("plateID", "rowID", "columnID")
+
+
+def well_density(db_path: str, cell_table: str = "cell",
+                 pathogen_table: Optional[str] = "pathogen") -> pd.DataFrame:
+    """Count host cells and parasites in every well of a plate.
+
+    The well-level twin of :func:`field_density`, summed over the fields of
+    each well.
+
+    :returns: one row per well (:data:`WELL_KEYS`) with ``n_cells_well``,
+        ``n_pathogens_well`` (when ``pathogen_table`` exists),
+        ``n_pathogens_in_cells_well``, ``pathogens_per_cell_well`` and
+        ``n_fields_well``.
+    """
+    fields = field_density(db_path, cell_table=cell_table, pathogen_table=pathogen_table)
+    sums = {c: c.replace("_field", "_well") for c in
+            ("n_cells_field", "n_pathogens_field", "n_pathogens_in_cells_field")
+            if c in fields.columns}
+    wells = fields.groupby(list(WELL_KEYS))[list(sums)].sum().rename(columns=sums)
+    wells["n_fields_well"] = fields.groupby(list(WELL_KEYS)).size()
+    wells = wells.reset_index()
+    if "n_pathogens_well" in wells.columns:
+        wells["pathogens_per_cell_well"] = (
+            wells["n_pathogens_well"] / wells["n_cells_well"].replace(0, np.nan))
+    return wells
+
+
+def apply_well_density(df: pd.DataFrame, wells: pd.DataFrame) -> pd.DataFrame:
+    """Attach the :func:`well_density` columns to object rows (a new frame).
+
+    Plate ids are URL-decoded on both sides, as for :func:`apply_field_qc`.
+    Rows from wells absent from ``wells`` get ``NaN``.
+    """
+    decode = lambda frame: frame[list(WELL_KEYS)].astype(str).assign(
+        plateID=lambda k: k["plateID"].map(lambda v: unquote(unquote(v))))
+    cols = [c for c in wells.columns if c not in WELL_KEYS]
+    table = wells.copy()
+    table[list(WELL_KEYS)] = decode(table)
+    table = table.drop_duplicates(list(WELL_KEYS))
+    merged = decode(df).reset_index(drop=True).merge(table, on=list(WELL_KEYS), how="left")
+    out = df.drop(columns=[c for c in cols if c in df.columns]).copy()
+    for column in cols:
+        out[column] = merged[column].to_numpy()
+    return out
 
 
 def _robust_upper(values: pd.Series, k: float) -> float:
