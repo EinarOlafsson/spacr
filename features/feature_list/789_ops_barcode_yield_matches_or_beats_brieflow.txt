@@ -1,0 +1,41 @@
+OPS BARCODE YIELD MATCHES OR BEATS BRIEFLOW
+===========================================
+
+Lifecycle: new
+Status: open — plate A and the A–D subset meet the criteria; full plates B–D still to run.
+Requested: OPS decode-yield work for the BMC software paper, relayed 2026-11-05.
+Branch: ops-decode-yield, commits 36c96ed45d and 36032c8b25 (under alpha item 752), not pushed.
+Report: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/decode_yield_2026-11-04/
+
+RESULTS SO FAR
+- Plate A, full re-decode: nuclei mapped 31.3% -> 65.2%; per-guide Spearman
+  vs Funk 0.916 -> 0.962.
+- Plates A–D subset (116 fields): 62.0% assigned at 0.060 decoys per 100 cells;
+  Brieflow's rule on the same reads gives 58.8% at 0.076.
+
+NEW SETTINGS
+- ops_cell_rule='mapped': library-exact reads vote; a cell needs >=60% share.
+- ops_single_read_quality=0.03.
+- ops_channel_registration='spots': fixes the weak wells, where a cycle was
+  registered at the (0,0) camera peak.
+- ops_crosstalk='argmax_median'.
+
+ACCEPTANCE
+1. Plates A–D: >=57.5% of SBS nuclei assigned on every plate, and >= Brieflow's
+   rule on the same reads.
+2. Decoy rate <= Brieflow's, with the upper 95% CI <= 0.10 per 100 cells.
+3. Per-guide rho vs Funk on each full plate no lower than before.
+4. Shuffled-control |rho| < 0.03.
+
+FOLLOW-UP GAPS
+- A wrong-cell attribution control.
+- SBS cell masks for read ownership (14% of reads are refused as ties).
+- Decoy and per-cycle checks in every decode report.
+- An n_mapped column in ops_barcodes.
+- A per-cycle error model.
+- GPU decode.
+
+KNOWN FAILURES ON ops-phenotype-path (fix before landing)
+- Docstring inventory 10003 != 9988 and i18n callable count 13156 != 13138:
+  135eca4632 added callables without arrival records. Add the arrival
+  contracts and 9-locale records in the same change.
