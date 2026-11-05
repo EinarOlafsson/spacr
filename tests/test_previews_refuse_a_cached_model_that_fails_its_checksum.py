@@ -18,8 +18,14 @@ COMMUNITY = {
 
 @pytest.fixture
 def cache(tmp_path, monkeypatch):
-    """An empty model cache and an empty digest memory."""
+    """An empty model cache, an empty digest memory and a worker thread.
+
+    A QApplication left by an earlier test on the same worker would make the
+    main thread Qt's GUI thread, where nothing is hashed; the tests that mean
+    the GUI thread say so.
+    """
     monkeypatch.setenv("SPACR_MODEL_CACHE", str(tmp_path))
+    monkeypatch.setattr(mz, "_on_the_qt_gui_thread", lambda: False)
     monkeypatch.setattr(mz, "_VERIFIED_DIGESTS", {})
     monkeypatch.setattr(mz, "fetch", lambda *a, **k: pytest.fail("fetched"))
     return tmp_path
@@ -120,3 +126,23 @@ def test_a_matching_older_version_is_still_found(cache):
     versioned = cache / "community_vtest_e1_v2"
     versioned.write_bytes(PAYLOAD)
     assert mz._ensure_catalogue_model_file(entry, download=False) == versioned
+
+
+def test_the_gui_thread_returns_an_unhashed_older_version_not_a_missing_file(
+        cache, monkeypatch):
+    entry = mz._entry_from_mapping(COMMUNITY)
+    first = cache / "community_vtest_e1_v2"
+    second = cache / "community_vtest_e1_v3"
+    first.write_bytes(b"an older publication")
+    second.write_bytes(PAYLOAD)
+    (cache / "community_vtest_e1_v1").mkdir()
+    calls = _count_hashes(monkeypatch)
+    monkeypatch.setattr(mz, "_on_the_qt_gui_thread", lambda: True)
+    assert mz._ensure_catalogue_model_file(entry, download=False) == first
+    assert calls == []
+    monkeypatch.setattr(mz, "_on_the_qt_gui_thread", lambda: False)
+    assert mz._ensure_catalogue_model_file(entry, download=False) == second
+    assert len(calls) == 2
+    monkeypatch.setattr(mz, "_on_the_qt_gui_thread", lambda: True)
+    assert mz._ensure_catalogue_model_file(entry, download=False) == second
+    assert len(calls) == 2

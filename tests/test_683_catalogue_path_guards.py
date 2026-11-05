@@ -52,6 +52,7 @@ def test_versioned_cache_refuses_wrong_bytes_and_keeps_searching(
                    sha256=digest)
     monkeypatch.setattr(model_zoo, "_planning_model_entries", lambda: (entry,))
     monkeypatch.setattr(model_zoo, "_spacr_home", lambda: home)
+    monkeypatch.setattr(model_zoo, "_on_the_qt_gui_thread", lambda: False)
     assert model_zoo._ensure_model_file("classifier-key", download=False) == right
     right.write_bytes(b"changed after publication")
     assert model_zoo._ensure_model_file("classifier-key", download=False) == (

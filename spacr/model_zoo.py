@@ -4743,11 +4743,19 @@ def _ensure_catalogue_model_file(entry, *, download=True, setting=None, requeste
             found = _cached_sha256(cached, hash_now)
             if found is None or found == entry.sha256.lower():
                 return cached
+    unhashed = None
     if entry.sha256 and destination.is_dir():
         for version in sorted(destination.glob(
                 f"{cached.stem}_v*{cached.suffix}")):
-            if version.is_file() and _cached_sha256(version, hash_now) == entry.sha256.lower():
+            if not version.is_file():
+                continue
+            digest = _cached_sha256(version, hash_now)
+            if digest == entry.sha256.lower():
                 return version
+            if digest is None and unhashed is None:
+                unhashed = version
+    if unhashed is not None:
+        return unhashed
     if not download:
         if verify and found is not None:
             from .qt.i18n import tr
