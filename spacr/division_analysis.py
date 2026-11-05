@@ -70,24 +70,17 @@ def measure_label_stack(masks: Iterable[np.ndarray],
                         min_area: int = 1) -> pd.DataFrame:
     """Measure every labelled object in every frame of a tracked stack.
 
-    Parameters
-    ----------
-    masks
-        2D integer label planes; the label value is the track id.
-    images
-        Optional matching intensity planes (2D, or channel-first 3D of which
-        channel 0 is measured). Mean intensity is divided by the frame median
-        so slow illumination drift and bleaching cancel.
-    times
-        Frame time of each plane; defaults to ``0, 1, 2, ...``.
-    min_area
-        Objects smaller than this many pixels are dropped.
-
-    Returns
-    -------
-    pandas.DataFrame
-        One row per (t, track_id) with :data:`SHAPE_MEASURES` and the
-        centroid (``centroid_y``, ``centroid_x``) in pixels.
+    :param masks: 2D integer label planes; the label value is the track id.
+    :param images: optional matching intensity planes (2D, or channel-first
+        3D of which channel 0 is measured). Mean intensity is divided by the
+        frame median so slow illumination drift and bleaching cancel.
+    :param times: frame time of each plane; defaults to ``0, 1, 2, ...``.
+    :param min_area: objects smaller than this many pixels are dropped.
+    :returns: one row per (``t``, ``track_id``) with :data:`SHAPE_MEASURES`
+        and the centroid (``centroid_y``, ``centroid_x``) in pixels.
+    :raises ValueError: when ``images`` or ``times`` does not match the
+        number of masks, a mask is not 2D, or an image's shape differs from
+        its mask's.
     """
     from skimage.measure import regionprops
 
@@ -141,6 +134,12 @@ def add_motion_features(measures: pd.DataFrame, min_step: float = 0.5) -> pd.Dat
     radians between consecutive steps, left empty when either step is shorter
     than ``min_step`` pixels (a direction that small is pixel noise) or when a
     frame is missing between them.
+
+    :param measures: per-frame table with ``track_id``, ``t``,
+        ``centroid_y`` and ``centroid_x``, as from :func:`measure_label_stack`.
+    :param min_step: the shortest step, in pixels, that has a direction.
+    :returns: a copy sorted by track and frame with ``speed``,
+        ``displacement`` and ``turning`` added.
     """
     df = measures.sort_values(['track_id', 't']).reset_index(drop=True)
     g = df.groupby('track_id', sort=False)
@@ -162,7 +161,12 @@ def add_motion_features(measures: pd.DataFrame, min_step: float = 0.5) -> pd.Dat
 
 
 def read_lineage_table(path) -> pd.DataFrame:
-    """Read a lineage CSV (``label, t_start, t_end, parent``; CTC semantics)."""
+    """Read a lineage CSV (``label, t_start, t_end, parent``; CTC semantics).
+
+    :param path: CSV file with at least the :data:`LINEAGE_COLUMNS`.
+    :returns: those four columns as integers.
+    :raises ValueError: when a lineage column is missing.
+    """
     df = pd.read_csv(path)
     missing = [c for c in LINEAGE_COLUMNS if c not in df.columns]
     if missing:
@@ -178,6 +182,16 @@ def division_events(lineage: pd.DataFrame, mode: str = 'auto',
     frames after the parent's last frame; ``'budding'`` reads only daughters
     that start while the mother is alive (each bud is one event); ``'auto'``
     reads both. ``t_div`` is the last frame before the daughter(s) appear.
+
+    :param lineage: lineage table with ``label``, ``t_start``, ``t_end`` and
+        ``parent`` (0 for no parent).
+    :param mode: ``'auto'``, ``'fission'`` or ``'budding'``.
+    :param max_gap: the most frames a fission daughter may start after its
+        parent's last frame.
+    :returns: one row per division with ``parent``, ``t_div``, ``kind``,
+        ``n_daughters`` and ``daughters`` (a tuple of labels), sorted by
+        ``t_div``.
+    :raises ValueError: for an unknown ``mode``.
     """
     if mode not in ('auto', 'fission', 'budding'):
         raise ValueError(f'unknown mode {mode!r}')
@@ -208,6 +222,10 @@ def median_cycle_frames(lineage: pd.DataFrame, events: pd.DataFrame) -> float:
 
     Fission: tracks born at an observed division that themselves divide.
     Budding: frames between consecutive buds of the same mother.
+
+    :param lineage: lineage table with ``label``, ``t_start`` and ``t_end``.
+    :param events: division events from :func:`division_events`.
+    :returns: the median cycle length in frames, or NaN.
     """
     durations = []
     fis = events[events['kind'] == 'fission']
@@ -246,6 +264,18 @@ def control_slots(measures: pd.DataFrame, events: pd.DataFrame, window: int,
     ``tp - window .. tp``, and has no division event in
     ``tp - window .. tp + horizon``. ``base_size`` is the size at
     ``tp - window``.
+
+    :param measures: per-frame table with ``track_id``, ``t`` and
+        ``size_column``.
+    :param events: division events with ``parent`` and ``t_div``.
+    :param window: frames before the pseudo-division time that must be
+        observed.
+    :param horizon: frames after it over which the track must not divide.
+    :param min_coverage: the smallest share of the window the track must be
+        seen on.
+    :param size_column: the measurement used as the baseline size.
+    :returns: one row per slot with ``track_id``, ``tp`` and ``base_size``,
+        sorted by ``tp``.
     """
     ev_times = {p: np.asarray(g['t_div'].to_numpy()) for p, g in events.groupby('parent')}
     out = []
@@ -283,6 +313,15 @@ def match_controls(events: pd.DataFrame, slots: pd.DataFrame, window: int,
     daughter, and its base size is within a factor ``1 +/- size_tol`` of the
     parent's (on a log scale). One eligible slot is drawn at random; events
     with none are returned with ``matched=False``.
+
+    :param events: the division events to match.
+    :param slots: control slots from :func:`control_slots`.
+    :param window: the most frames a slot's pseudo time may lie from the
+        division.
+    :param size_tol: the relative base-size difference a control may have.
+    :param rng: seed or generator for the random draw.
+    :returns: one row per event with ``event_id``, ``track_id``, ``t0``,
+        ``size_ratio`` and ``matched``.
     """
     rng = np.random.default_rng(rng)
     tp = slots['tp'].to_numpy()
@@ -316,6 +355,12 @@ def shuffled_alignment(events: pd.DataFrame, slots: pd.DataFrame, rng=None) -> p
     ``horizon`` frames before any division of that track. An effect that
     survives this shuffle belongs to dividing tracks, not to the approach to
     division.
+
+    :param events: division events with ``event_id`` and ``parent``.
+    :param slots: control slots from :func:`control_slots`.
+    :param rng: seed or generator for the random draw.
+    :returns: one row per event with ``event_id``, ``track_id``, ``t0`` and
+        ``matched``.
     """
     rng = np.random.default_rng(rng)
     by_track = {t: g['tp'].to_numpy() for t, g in slots.groupby('track_id')}
@@ -338,6 +383,15 @@ def align_units(measures: pd.DataFrame, units: pd.DataFrame, window: int,
     ``rel_t = 1 .. after`` with ``role='daughter'``. The unit's own track is
     read for ``rel_t = -window .. after`` with ``role='self'`` (a fission
     parent simply has no rows after 0; a budding mother continues).
+
+    :param measures: per-frame table with ``track_id``, ``t`` and the
+        measurement columns.
+    :param units: the dividing or control units to align.
+    :param window: frames read before ``t0``.
+    :param after: frames read after ``t0``.
+    :param columns: the measurements to carry; absent ones are skipped.
+    :returns: one row per unit, track and frame with ``unit_id``,
+        ``track_id``, ``t0``, ``rel_t``, ``t``, ``role`` and the measurements.
     """
     cols = [c for c in columns if c in measures.columns]
     m = measures[['track_id', 't'] + cols]
@@ -372,6 +426,14 @@ def unit_changes(aligned: pd.DataFrame, window: int, k: int,
     over ``rel_t = -k + 1 .. 0`` (the unit's own track only). The change is
     ``log(late / baseline)`` for :data:`LOG_MEASURES` and ``late - baseline``
     otherwise. Needs ``2 * k <= window + 1`` so the windows do not overlap.
+
+    :param aligned: aligned measurements from :func:`align_units`.
+    :param window: the alignment window used for ``aligned``.
+    :param k: frames in each of the baseline and late windows.
+    :param columns: the measurements to compare; absent ones are skipped.
+    :returns: one row per unit with ``unit_id`` and one change per
+        measurement.
+    :raises ValueError: when the two windows would overlap.
     """
     if 2 * k > window + 1:
         raise ValueError('baseline and late windows overlap: need 2*k <= window+1')
@@ -405,10 +467,16 @@ def _hedges_g(x, y):
 def effect_size(treated, control, n_boot: int = 2000, rng=None) -> dict:
     """Hedges' g of ``treated`` vs ``control`` with a bootstrap 95% CI.
 
-    Returns ``g``, ``var_g`` (large-sample variance used for meta-analysis),
-    ``ci_low``/``ci_high`` (percentile bootstrap, each group resampled
-    independently), ``mean_diff`` and the group sizes. Non-finite values are
-    dropped first.
+    Non-finite values are dropped first.
+
+    :param treated: values of the treated group (dividing units).
+    :param control: values of the control group.
+    :param n_boot: bootstrap resamples; 0 skips the interval.
+    :param rng: seed or generator for the resampling.
+    :returns: ``g``, ``var_g`` (large-sample variance used for
+        meta-analysis), ``ci_low`` and ``ci_high`` (percentile bootstrap, each
+        group resampled independently), ``mean_diff``, ``n_treated`` and
+        ``n_control``.
     """
     rng = np.random.default_rng(rng)
     x = np.asarray(treated, float)
@@ -440,10 +508,14 @@ def effect_size(treated, control, n_boot: int = 2000, rng=None) -> dict:
 def random_effects_meta(effects, variances) -> dict:
     """DerSimonian-Laird random-effects pooling.
 
-    Returns the pooled effect ``mu`` with ``se``, a normal 95% CI, ``z``,
-    two-sided ``p``, between-study variance ``tau2``, Cochran's ``Q`` and
-    ``I2`` (percent), and ``k`` studies. Studies with a non-finite effect or
-    non-positive variance are skipped.
+    Studies with a non-finite effect or non-positive variance are skipped.
+
+    :param effects: one effect size per study.
+    :param variances: the matching variances.
+    :returns: the pooled effect ``mu`` with ``se``, a normal 95% CI
+        (``ci_low``, ``ci_high``), ``z``, two-sided ``p``, between-study
+        variance ``tau2``, Cochran's ``Q``, ``I2`` (percent) and ``k``
+        studies.
     """
     from scipy import stats
 
@@ -473,12 +545,18 @@ def random_effects_meta(effects, variances) -> dict:
 
 def cell_cycles(measures: pd.DataFrame, lineage: pd.DataFrame, events: pd.DataFrame,
                 size_columns: Sequence[str] = ('area', 'major_axis')) -> pd.DataFrame:
-    """Complete fission cycles: born at an observed two-daughter division and
-    seen to divide into two.
+    """Complete fission cycles: born at an observed two-daughter division and seen to divide into two.
 
     Birth size is the size on the first frame, division size on the last.
-    Returns ``track_id, t_birth, t_division, duration`` and, per size column,
-    ``<col>_birth``, ``<col>_division`` and ``<col>_added``.
+
+    :param measures: per-frame table with ``track_id``, ``t`` and the size
+        columns.
+    :param lineage: lineage table with ``label``, ``t_start`` and ``t_end``.
+    :param events: division events from :func:`division_events`.
+    :param size_columns: the measurements read at birth and division.
+    :returns: one row per cycle with ``track_id``, ``t_birth``,
+        ``t_division``, ``duration`` and, per size column, ``<col>_birth``,
+        ``<col>_division`` and ``<col>_added``.
     """
     fis = events[(events['kind'] == 'fission') & (events['n_daughters'] == 2)]
     born = {d for ds in fis['daughters'] for d in ds}
@@ -505,6 +583,14 @@ def size_control_fits(birth, division, n_boot: int = 2000, rng=None) -> dict:
 
     Reference slopes (division ~ birth / added ~ birth): sizer 0 / -1,
     adder 1 / 0, timer (exponential growth, fixed duration) 2 / 1.
+
+    :param birth: size at birth, one value per cycle.
+    :param division: size at division, matching ``birth``.
+    :param n_boot: bootstrap resamples; 0 skips the intervals.
+    :param rng: seed or generator for the resampling.
+    :returns: ``n``, ``slope_division`` and ``slope_added`` with their
+        ``_ci_low`` and ``_ci_high`` bounds, and ``pearson_r_added``; NaN
+        slopes with fewer than three cycles or constant birth size.
     """
     rng = np.random.default_rng(rng)
     b = np.asarray(birth, float)
