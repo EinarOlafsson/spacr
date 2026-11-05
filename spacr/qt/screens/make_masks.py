@@ -19560,19 +19560,19 @@ class MakeMasksScreen(QWidget):
 
         :returns: the callable the canvas runs after the mask update.
         """
-        def commit():
-            """Install the lineage and make every other frame's pixels follow it."""
-            movie = self._other_frames_differ(self._lineage, state)
-            self._lineage = state
-            if selected is not None and state is not None and selected in state["cells"]:
-                self._selected_cell = selected
-            self._lineage_dirty = True
-            self._label_time_edited = True
-            self._refresh_lineage_rows()
-            if movie:
-                self._rewrite_sequence_lineage(sync_pixels=True)
+        return partial(self._install_relabel, state, selected)
 
-        return commit
+    def _install_relabel(self, state, selected):
+        """Install the lineage and make every other frame's pixels follow it."""
+        movie = self._other_frames_differ(self._lineage, state)
+        self._lineage = state
+        if selected is not None and state is not None and selected in state["cells"]:
+            self._selected_cell = selected
+        self._lineage_dirty = True
+        self._label_time_edited = True
+        self._refresh_lineage_rows()
+        if movie:
+            self._rewrite_sequence_lineage(sync_pixels=True)
 
     def _other_frames_differ(self, before, after):
         """Whether two graphs map any frame other than the open one differently."""
