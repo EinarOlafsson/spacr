@@ -29,18 +29,14 @@ with no pathogen row and therefore no pathogen columns -- were reported as
 """
 from __future__ import annotations
 
-import os
 import sqlite3
 import threading
 import time
 
 import pandas as pd
-import pytest
 
 from spacr.gene_measurement_compare import object_identity
-
-
-PLATE1_DB = os.environ.get("SPACR_PLATE1_DB", "")
+from tests.real_schema_measurements_db import build_measurements_db
 
 
 # ---------------------------------------------------------------------------
@@ -132,22 +128,26 @@ def test_two_present_values_that_differ_still_disagree(caplog):
 
 
 # ---------------------------------------------------------------------------
-# the button, on real data
+# the button, on a database in spaCR's real schema
 # ---------------------------------------------------------------------------
 
-@pytest.mark.skipif(not PLATE1_DB or not os.path.exists(PLATE1_DB),
-                    reason="set SPACR_PLATE1_DB to a real measurements.db")
-def test_the_join_returns_at_once_and_fills_the_panel(qapp):
-    """The click must not block, and what arrives must be the measurements."""
+def test_the_join_returns_at_once_and_fills_the_panel(qapp, tmp_path):
+    """The click must not block, and what arrives must be the measurements.
+
+    The database carries the real column list of a current-release run, so
+    the crop table spells its objects ``cell_id = 'o2'`` and the object
+    tables hold hundreds of measurement columns, as on a real plate.
+    """
     from spacr.qt.widgets.measurement_compare_dialog import (
         MeasurementComparePanel)
 
-    with sqlite3.connect(PLATE1_DB) as db:
+    database = build_measurements_db(tmp_path)
+    with sqlite3.connect(database) as db:
         objects = pd.read_sql(
             "SELECT plateID, rowID, columnID, fieldID, cell_id, png_path "
             "FROM png_list", db)
 
-    panel = MeasurementComparePanel(objects, {}, databases=[PLATE1_DB])
+    panel = MeasurementComparePanel(objects, {}, databases=[database])
     try:
         before = panel._objects.shape[1]
 

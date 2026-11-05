@@ -39,10 +39,6 @@ import pytest
 from spacr.crops import object_label
 
 
-PLATE1_DB = os.environ.get("SPACR_PLATE1_DB", "")
-STREAM_ROOT = os.environ.get("SPACR_STREAM_ROOT", "")
-
-
 # ---------------------------------------------------------------------------
 # one parser
 # ---------------------------------------------------------------------------
@@ -103,30 +99,87 @@ def test_the_name_carries_the_object_number_not_the_prcfo_spelling():
 
 
 # ---------------------------------------------------------------------------
-# real data: same pixels, same names
+# a measured project: same pixels, same names
 # ---------------------------------------------------------------------------
 
-needs_project = pytest.mark.skipif(
-    not STREAM_ROOT or not os.path.isdir(STREAM_ROOT),
-    reason="set SPACR_STREAM_ROOT to a project with merged/, data/ and "
-           "measurements/")
+def _disks(shape, n, radius=11):
+    mask = np.zeros(shape, dtype=np.uint16)
+    yy, xx = np.mgrid[: shape[0], : shape[1]]
+    per_row = int(np.ceil(np.sqrt(n)))
+    step_y, step_x = shape[0] // per_row, shape[1] // per_row
+    for label in range(1, n + 1):
+        i, j = divmod(label - 1, per_row)
+        cy, cx = i * step_y + step_y // 2, j * step_x + step_x // 2
+        mask[(yy - cy) ** 2 + (xx - cx) ** 2 <= radius ** 2] = label
+    return mask
 
 
-@needs_project
-def test_all_three_methods_cut_the_same_pixels():
-    """The load-bearing claim, on a real plate."""
-    from spacr.crops import read_crop_png, resolve_crop_source
+@pytest.fixture(scope="module")
+def project(tmp_path_factory):
+    """merged/, measurements/ and data/ written by measure's own crop core.
 
-    database = os.path.join(STREAM_ROOT, "measurements", "measurements.db")
+    The run's settings go into the database as measure_crop leaves them, which
+    is how the merged source learns the crop size and normalisation used.
+    """
+    from spacr.io import _save_settings_to_db
+    from spacr.measure import _measure_crop_core
+    from spacr.settings import get_measure_crop_settings
+
+    root = str(tmp_path_factory.mktemp("one_crop"))
+    merged = os.path.join(root, "merged")
+    os.makedirs(merged)
+    os.makedirs(os.path.join(root, "measurements"))
+    rng = np.random.default_rng(0)
+    cell = _disks((120, 120), 9)
+    nucleus = np.where(_disks((120, 120), 9, radius=4) > 0, cell, 0)
+    channels = []
+    for c in range(4):
+        base = rng.integers(50, 200, size=cell.shape).astype(np.uint16)
+        base[cell > 0] += 900 * (c + 1)
+        channels.append(base)
+    name = "plate1_E01_17.npy"
+    np.save(os.path.join(merged, name),
+            np.stack(channels + [cell, nucleus, np.zeros_like(cell)],
+                     axis=-1).astype(np.uint16))
+
+    settings = get_measure_crop_settings(settings={})
+    settings.update({
+        "src": merged, "channels": [0, 1, 2, 3],
+        "cell_mask_dim": 4, "nucleus_mask_dim": 5, "pathogen_mask_dim": 6,
+        "png_dims": [0, 1, 2], "png_size": [40, 40],
+        "save_measurements": True, "save_png": True, "save_arrays": False,
+        "plot": False, "verbose": False, "timelapse": False,
+        "crop_mode": ["cell"], "normalize": [1, 99], "normalize_by": "png",
+        "experiment": "exp", "n_jobs": 1, "test_mode": False,
+        "cytoplasm": True, "cell_min_size": 1, "nucleus_min_size": 1,
+        "pathogen_min_size": 1, "cytoplasm_min_size": 1,
+    })
+    _measure_crop_core(0, [], name, settings)
+    _save_settings_to_db(settings)
+    return root
+
+
+def _crop_rows(project):
+    database = os.path.join(project, "measurements", "measurements.db")
     with sqlite3.connect(database) as db:
         rows = pd.read_sql("SELECT * FROM png_list LIMIT 6", db).to_dict("records")
     assert rows, "the crop table is empty, so this proves nothing"
+    return rows
 
-    source = resolve_crop_source(STREAM_ROOT, prefer="merged")
+
+def test_all_three_methods_cut_the_same_pixels(project):
+    """The load-bearing claim: export, array scan and bounding box agree."""
+    from spacr import crops
+    from spacr.crops import read_crop_png, resolve_crop_source
+
+    crops.clear_field_cache()
+    rows = _crop_rows(project)
+    assert all(str(row["cell_id"]).startswith("o") for row in rows), (
+        "png_list must spell its objects the prcfo way, 'o2'")
+
+    source = resolve_crop_source(project, prefer="merged")
     for row in rows:
-        exported_path = os.path.join(
-            STREAM_ROOT, "data", *row["png_path"].split("/data/")[1].split("/"))
-        exported = read_crop_png(exported_path)
+        exported = read_crop_png(row["png_path"])
 
         # ARRAY: no bbox on the row, so the label plane is scanned.
         by_array = source.get(dict(row))
@@ -150,15 +203,11 @@ def test_all_three_methods_cut_the_same_pixels():
             f"{row['cell_id']}")
 
 
-@needs_project
-def test_the_streamed_name_is_the_exported_name():
+def test_the_streamed_name_is_the_exported_name(project):
     from spacr.stream_dataset import crop_name
 
-    database = os.path.join(STREAM_ROOT, "measurements", "measurements.db")
-    with sqlite3.connect(database) as db:
-        rows = pd.read_sql("SELECT * FROM png_list LIMIT 6", db).to_dict("records")
-
-    for row in rows:
+    for row in _crop_rows(project):
         exported = os.path.basename(row["png_path"])
+        assert os.path.isfile(row["png_path"])
         stem = os.path.splitext(exported)[0].rsplit("_", 1)[0]
         assert crop_name(stem, object_label(row["cell_id"])) == exported

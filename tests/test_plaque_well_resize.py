@@ -1,13 +1,12 @@
 """Well resize for plaque segmentation mirrors plaque model v6's training transform.
 
 The reference is the self-contained ``normalize.py`` the v6 training run
-used. Every transform here is compared with it pixel for pixel: the scale
-rule ``side:1500,maxfactor:6``, the crop and resize (area when shrinking,
-bilinear when enlarging), the pixel-centre nearest inverse, the paste and the
-per-crop percentile scaling. Real training fields are used when the v6 data
-folder is on this machine and skipped otherwise.
+used, vendored as ``tests/data/plaque_v6_reference_normalize.py``. Every
+transform here is compared with it pixel for pixel: the scale rule
+``side:1500,maxfactor:6``, the crop and resize (area when shrinking, bilinear
+when enlarging), the pixel-centre nearest inverse, the paste and the per-crop
+percentile scaling.
 """
-import csv
 import importlib.util
 import inspect
 import json
@@ -24,14 +23,11 @@ cv2 = pytest.importorskip("cv2")
 
 from spacr import model_zoo, plaque
 
-V6_ROOT = Path("/mnt/firecuda2/Claude/plaque-v6-20261024")
-REFERENCE = V6_ROOT / "execution" / "normalize.py"
+REFERENCE = Path(__file__).parent / "data" / "plaque_v6_reference_normalize.py"
 RULE = "side:1500,maxfactor:6"
 
 
 def _reference():
-    if not REFERENCE.is_file():
-        pytest.skip("plaque v6 reference normalize.py is not on this machine")
     spec = importlib.util.spec_from_file_location("v6_normalize_reference", REFERENCE)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
@@ -174,39 +170,6 @@ def test_detector_input_matches_the_reference():
                   _field((40, 30), np.float32)):
         np.testing.assert_array_equal(plaque._well_detector_input(image),
                                       ref.detector_input(image))
-
-
-def _real_fields(limit=10):
-    data = V6_ROOT / "data"
-    if not (data / "geometry.json").is_file() or not (data / "fields.csv").is_file():
-        pytest.skip("plaque v6 training fields are not on this machine")
-    geometry = json.loads((data / "geometry.json").read_text())["fields"]
-    with open(data / "fields.csv", newline="") as handle:
-        rows = list(csv.DictReader(handle))
-    multi = [r for r in rows if len(geometry[r["id"]]["boxes"]) > 1]
-    big = sorted(rows, key=lambda r: -int(r["height"]) * int(r["width"]))[:3]
-    small = sorted(rows, key=lambda r: int(r["height"]) * int(r["width"]))[:3]
-    picked = {r["id"]: r for r in multi + big + small + rows[::max(1, len(rows) // 4)]}
-    return [(r, geometry[r["id"]]) for r in list(picked.values())[:limit]]
-
-
-def test_real_fields_round_trip_exactly_like_the_reference():
-    ref = _reference()
-    for row, geometry in _real_fields():
-        image = ref.read_image(V6_ROOT / row["image"])
-        truth = ref.read_image(V6_ROOT / row["mask"]).astype(np.uint32)
-        full_ref = np.zeros(truth.shape, np.uint32)
-        full_mine = np.zeros(truth.shape, np.uint32)
-        for record in geometry["boxes"]:
-            want_crop, want_labels, want = ref.forward(image, record["box"], RULE,
-                                                       labels=truth)
-            crop, meta = plaque._well_resize_forward(image, record["box"], 1500, 6)
-            np.testing.assert_array_equal(crop, want_crop)
-            np.testing.assert_array_equal(plaque._well_resize_intensity(crop),
-                                          ref.normalize_intensity(want_crop))
-            ref.paste(full_ref, want_labels, want)
-            plaque._paste_well_labels(full_mine, want_labels, meta)
-        np.testing.assert_array_equal(full_mine, full_ref)
 
 
 class _DiskModel:

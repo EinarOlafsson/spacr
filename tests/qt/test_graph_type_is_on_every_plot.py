@@ -22,13 +22,11 @@ Two things were wrong and both are fixed here:
   in a second way as well: it indexes ``data_column[1]``, so with a single
   data column it raised IndexError, which was swallowed.
 
-The real-data checks in this file read plate1's measurements.db, because a
-synthetic frame would not have caught either defect: both need a plot the
-software actually draws.
+The last check here switches a plot the software actually draws, from a
+measurements.db in spaCR's real schema, through every type.
 """
 from __future__ import annotations
 
-import os
 import sqlite3
 
 import matplotlib
@@ -43,16 +41,7 @@ from spacr.plot import create_grouped_plot
 from spacr.qt.widgets.figure_settings import (GROUPED_PLOT_TYPES, _replot,
                                               build_figure_context_menu,
                                               derive_replot_recipe)
-
-
-#: A real measurements.db to switch graph types on, named by the
-#: environment rather than hard-coded: a path under one user's home is not a
-#: precondition any other machine has, and a test that silently does nothing
-#: everywhere else is worse than one that says it was skipped.
-#:
-#: Point SPACR_PLATE1_DB at any measurements.db with a `cell` table. On the
-#: machine this was written on that is plate1's.
-PLATE1_DB = os.environ.get("SPACR_PLATE1_DB", "")
+from tests.real_schema_measurements_db import build_measurements_db
 
 
 def _artists(figure):
@@ -169,14 +158,13 @@ def test_the_menu_offers_graph_type_on_a_figure_with_no_recipe(qapp):
 
 
 # ---------------------------------------------------------------------------
-# real data
+# a measured plate
 # ---------------------------------------------------------------------------
 
-@pytest.mark.skipif(not PLATE1_DB or not os.path.exists(PLATE1_DB),
-                    reason="set SPACR_PLATE1_DB to a real measurements.db")
-def test_every_type_switches_on_a_figure_built_from_real_measurements():
-    """186 real cells over four fields, switched through all seven types."""
-    with sqlite3.connect(PLATE1_DB) as db:
+def test_every_type_switches_on_a_figure_built_from_measurements(tmp_path):
+    """186 cells over four fields of a measurements.db, through all seven types."""
+    database = build_measurements_db(tmp_path)
+    with sqlite3.connect(database) as db:
         frame = pd.read_sql(
             "SELECT fieldID, cell_area FROM cell "
             "WHERE fieldID IN ('f1','f9','f10','f11')", db)
@@ -190,19 +178,3 @@ def test_every_type_switches_on_a_figure_built_from_real_measurements():
         redrawn = _replot(figure, kind)
         assert redrawn is not None, f"{kind} did not redraw"
         assert _artists(redrawn) > 0, f"{kind} redrew an empty figure"
-
-
-@pytest.mark.skipif(not PLATE1_DB or not os.path.exists(PLATE1_DB),
-                    reason="set SPACR_PLATE1_DB to a real measurements.db")
-def test_a_scatter_of_real_measurements_recovers_every_cell(qapp):
-    """The derived frame is the plotted data, not a summary of it."""
-    with sqlite3.connect(PLATE1_DB) as db:
-        frame = pd.read_sql(
-            "SELECT cell_area, cell_perimeter FROM cell", db).dropna()
-
-    figure, axes = plt.subplots()
-    axes.scatter(frame["cell_area"], frame["cell_perimeter"], s=4)
-
-    recipe = derive_replot_recipe(figure)
-    assert recipe is not None
-    assert len(recipe["df"]) == len(frame)

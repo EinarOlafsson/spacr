@@ -25,16 +25,13 @@ between those two is a genuine mismatch and is still reported.
 from __future__ import annotations
 
 import logging
-import os
 import sqlite3
 
 import pandas as pd
 import pytest
 
 from spacr.merge_tables import SAME_LABEL_SPACE, reconcile_duplicates
-
-
-PLATE1_DB = os.environ.get("SPACR_PLATE1_DB", "")
+from tests.real_schema_measurements_db import build_measurements_db
 
 
 @pytest.fixture
@@ -103,14 +100,23 @@ def test_plate_identity_still_has_to_agree(warnings_from):
     assert "plateID" in warnings_from.text
 
 
-@pytest.mark.skipif(not PLATE1_DB or not os.path.exists(PLATE1_DB),
-                    reason="set SPACR_PLATE1_DB to a real measurements.db")
-def test_a_real_cell_pathogen_join_is_silent(warnings_from):
-    """The screen this was reported from is a correct one."""
+def test_a_correct_cell_pathogen_join_is_silent(warnings_from, tmp_path):
+    """A database in spaCR's real schema, where every pathogen carries its own
+    mask's label and a third of the cells have no pathogen at all, is a
+    correct screen and joins without a word about object_label."""
     from spacr.qt.widgets.measurement_scan_panel import merge_across_databases
 
-    merged = merge_across_databases([PLATE1_DB], ["cell", "pathogen"])
+    database = build_measurements_db(tmp_path)
+    with sqlite3.connect(database) as db:
+        labels = pd.read_sql(
+            "SELECT p.object_label AS pathogen, c.object_label AS cell "
+            "FROM pathogen p JOIN cell c ON p.prcf = c.prcf "
+            "AND p.cell_id = c.object_label", db)
+    assert len(labels) and (labels["pathogen"] != labels["cell"]).all(), (
+        "the fixture must give pathogens labels that differ from their cells")
+
+    merged = merge_across_databases([database], ["cell", "pathogen"])
     frame = merged[0] if isinstance(merged, tuple) else merged
 
-    assert len(frame) > 0, "the join returned nothing, so it proved nothing"
+    assert len(frame) == 186, "every cell, infected or not, is one row"
     assert "object_label" not in warnings_from.text
