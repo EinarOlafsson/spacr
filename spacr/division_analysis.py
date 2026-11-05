@@ -1,4 +1,4 @@
-"""What tracked cells do before they divide (alpha, feature item 755).
+"""What tracked cells do before they divide (alpha, feature item 771).
 
 A tracked label stack says, for every frame, which pixels belong to which
 cell, and a lineage table says which cell came from which. Together they hold

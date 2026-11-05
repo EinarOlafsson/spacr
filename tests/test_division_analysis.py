@@ -1,4 +1,4 @@
-"""Division-aligned analysis on small synthetic lineages (feature item 755)."""
+"""Division-aligned analysis on small synthetic lineages (feature item 771)."""
 import numpy as np
 import pandas as pd
 import pytest

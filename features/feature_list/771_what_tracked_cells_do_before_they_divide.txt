@@ -43,7 +43,7 @@ WHAT TO DO
    LINEAGE_COLUMNS.
 2. Read spaCR's own timelapse output (tracks CSV + label stacks from the timelapse/timeflows step) as
    input, so a user's tracking run feeds this directly; register the step's settings with
-   ALPHA_FEATURES[755].
+   ALPHA_FEATURES[771].
 3. A "Division analysis" results panel: aligned trajectories with control bands, the forest plot and the
    size-control plot, all from the tidy CSVs the module already produces.
 4. Proposed follow-ons found while building Fig 7 (each needs its own decision):

@@ -277,9 +277,6 @@ FUTURE FEATURES
   755  MEASURE EXTERNAL LABEL IMAGES (CELLPROFILER, CELLPOSE, ILASTIK)
        755_measure_external_label_images.txt
 
-  755  WHAT TRACKED CELLS DO BEFORE THEY DIVIDE: DIVISION-ALIGNED TRAJECTORIES WITH CONTROLS
-       755_what_tracked_cells_do_before_they_divide.txt
-
   756  FEATURE QC FLAGS DEGENERATE COLUMNS AT EXPORT
        756_feature_qc_flags_degenerate_columns_at_export.txt
 
@@ -324,6 +321,9 @@ FUTURE FEATURES
 
   770  MODERN BATCH CORRECTION: TVN (SPHERING) AND HARMONY, BENCHMARKED ON BBBC021
        770_modern_batch_correction_tvn_and_harmony.txt
+
+  771  WHAT TRACKED CELLS DO BEFORE THEY DIVIDE: DIVISION-ALIGNED TRAJECTORIES WITH CONTROLS
+       771_what_tracked_cells_do_before_they_divide.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES
