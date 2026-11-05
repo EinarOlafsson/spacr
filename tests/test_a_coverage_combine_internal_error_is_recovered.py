@@ -164,6 +164,29 @@ def _synthetic_half_written_file(path: Path) -> Path:
     return path
 
 
+def _combine_raises_on_unreadable_data(tmp_path: Path) -> bool:
+    """Whether this coverage.py's combine escapes on a half-written file.
+
+    Up to 7.17.1 reading the read-only shell raised ``sqlite3``'s
+    ``attempt to write a readonly database`` out of the combine, which is
+    the INTERNALERROR this file exists for. 7.17.2 reports it as a
+    ``DataError``, warns that the file isn't a coverage data file, leaves
+    it on disk and goes on, so pytest exits 0 and the file has to be found
+    afterwards instead.
+    """
+    coverage = pytest.importorskip("coverage")
+    folder = tmp_path / "combine-probe"
+    folder.mkdir()
+    _synthetic_half_written_file(folder / ".coverage.probe.pid1.Xprobe")
+    data = coverage.CoverageData(basename=str(folder / ".coverage"),
+                                 warn=lambda _message: None)
+    try:
+        coverage.data.combine_parallel_data(data)
+    except Exception:  # noqa: BLE001 - whatever escapes is what pytest-cov sees
+        return True
+    return False
+
+
 needs_a_read_only_file = pytest.mark.skipif(
     sys.platform == "win32" or (hasattr(os, "geteuid") and os.geteuid() == 0),
     reason="needs POSIX permissions that bind the current user",
@@ -270,30 +293,45 @@ def test_a_real_combine_internal_error_after_passing_tests_is_recovered(tmp_path
     runner = _load_coverage_runner()
     project = _toy(tmp_path / "toy")
 
+    raises = _combine_raises_on_unreadable_data(tmp_path)
+
     data_dir = tmp_path / "data"
     result = _run_toy(project, data_dir)
     output = result.stdout + result.stderr
-    assert "INTERNALERROR" in output and "coverage_schema" in output, output[-4000:]
     assert result.returncode == 0, output[-4000:]
     batch = _record(runner, data_dir)["batches"][0]
-    assert batch["exit_code"] == 3
-    assert batch["status_after_recovery"] == 0
+    if raises:
+        assert "INTERNALERROR" in output and "coverage_schema" in output, output[-4000:]
+        assert batch["exit_code"] == 3
+        assert batch["status_after_recovery"] == 0
+        ledger = json.loads((data_dir / batch["ledger"]).read_text(encoding="utf-8"))
+        assert ledger["internal_error"]["coverage_data"] is True
+        assert ledger["failed"] == [] and ledger["testsfailed"] == 0
+    else:
+        # The combine warned and went on; the shell it left behind is what
+        # the runner must find, discard and answer with the serial re-runs.
+        assert "INTERNALERROR" not in output, output[-4000:]
+        assert batch["exit_code"] == 0
+        assert batch["discarded_data_files"] == [
+            ".coverage.shard-00.batch-001.child.pid1.halfwritten"]
+        assert batch["unrecovered_files"] == []
     assert sorted(outcome["file"] for outcome in batch["recovered_files"]) == [
         "tests/test_0_half_written.py", "tests/test_1_beta.py",
     ]
-    ledger = json.loads((data_dir / batch["ledger"]).read_text(encoding="utf-8"))
-    assert ledger["internal_error"]["coverage_data"] is True
-    assert ledger["failed"] == [] and ledger["testsfailed"] == 0
     assert ratchet.check_shard_integrity(data_dir, 1)["status"] == "complete"
     assert {2, 3} <= _lines(data_dir, project, "alpha")
 
-    # NEGATIVE CONTROL: the same internal error with a real test failure.
+    # NEGATIVE CONTROL: the same half-written file with a real test failure.
     failing = tmp_path / "failing"
     result = _run_toy(project, failing, fail=True)
     output = result.stdout + result.stderr
-    assert "INTERNALERROR" in output, output[-4000:]
-    assert result.returncode == 3, output[-4000:]
     batch = _record(runner, failing)["batches"][0]
+    if raises:
+        assert "INTERNALERROR" in output, output[-4000:]
+        assert result.returncode == 3, output[-4000:]
+    else:
+        assert batch["exit_code"] == 1, output[-4000:]
+        assert result.returncode != 0, output[-4000:]
     assert "status_after_recovery" not in batch
     assert all(reason["exit_kind"] != "coverage-internal-error"
                for reason in batch["lost"])
@@ -563,9 +601,18 @@ def test_a_child_killed_while_saving_no_longer_fails_the_combine(tmp_path, worke
     assert len(lost) == 1 and lost[0].stat().st_size == 0
     assert {2, 3} <= _lines(data_dir, project, "alpha")
 
-    # NEGATIVE CONTROL: without the plugin the same file stops the combine.
-    result, _data_dir, _project, _runner = _run_killed_writer_toy(
+    # NEGATIVE CONTROL: without the plugin the same file stops the combine,
+    # or, where coverage.py only warns about it, stays beside the data.
+    raises = _combine_raises_on_unreadable_data(tmp_path)
+    result, data_dir, _project, _runner = _run_killed_writer_toy(
         tmp_path / "without", workers=workers, guard=False)
     output = result.stdout + result.stderr
-    assert result.returncode == 3, output[-4000:]
-    assert "INTERNALERROR" in output and "coverage_schema" in output, output[-4000:]
+    if raises:
+        assert result.returncode == 3, output[-4000:]
+        assert "INTERNALERROR" in output and "coverage_schema" in output, output[-4000:]
+    else:
+        assert result.returncode == 0, output[-4000:]
+        assert "isn't a coverage data file" in output, output[-4000:]
+        left = sorted(path.name for path in data_dir.iterdir()
+                      if path.name != ".coverage.toy")
+        assert len(left) == 1 and left[0].endswith(".XkilledAx"), left
