@@ -54,7 +54,7 @@ def test_actual_filter_loads_exact_acquired_file_without_rewriting_original_sett
     assert classifier._drop_unreal_objects(str(tmp_path), settings) == {}
     assert loaded == [str(effective)]
     assert acquired == [('real-object-v001', '001', True, {
-        'setting': 'real_object_classifier',
+        'setting': 'real_object_classifier', 'verify': False,
         'requested': settings['real_object_classifier'], 'publisher_version': '001'})]
     assert settings == before
 

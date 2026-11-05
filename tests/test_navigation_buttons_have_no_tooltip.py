@@ -28,6 +28,7 @@ QT_ROOT = Path(__file__).resolve().parents[1] / "spacr" / "qt"
 
 WORK_STOPPING_DISMISSALS = frozenset({
     ("screens/annotate.py", "self._btn_suggest_cancel"),
+    ("screens/make_masks.py", "self._btn_cancel_scan"),
     ("screens/map_barcodes.py", "self._button"),
     ("screens/measure_inputs.py", "self.close_button"),
     ("widgets/calibration_preview.py", "self.cancel"),
@@ -37,8 +38,8 @@ WORK_STOPPING_DISMISSALS = frozenset({
 
 Each pair is the module, relative to ``spacr/qt``, and the receiver the
 tooltip is set on. Every one of them stops or discards work already in
-progress (a suggestion run, a barcode search, a measurement, a calibration
-scan, a montage read), which a bare "Cancel" or "Close" does not tell.
+progress (a suggestion run, a lineage fold, a barcode search, a measurement,
+a calibration scan, a montage read), which a bare "Cancel" or "Close" does not tell.
 """
 
 
