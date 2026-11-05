@@ -7818,7 +7818,7 @@ ALPHA_FEATURES = {
     545: {
         'widgets': ('MakeMasksRoisButton',),
     },
-    756: {
+    791: {
         'settings': ('feature_qc_drop',),
     },
     547: {

@@ -1,4 +1,4 @@
-"""Feature QC at the end of Measure (item 756).
+"""Feature QC at the end of Measure (item 791).
 
 spacr.sp_stats.flag_degenerate_features flags per-object feature columns
 that carry no signal. The case that motivated it is the first Zernike moment
@@ -183,4 +183,4 @@ def test_feature_qc_never_fails_a_finished_run(tmp_path, capsys):
 def test_the_drop_setting_is_alpha_gated(key):
     from spacr.settings import ALPHA_FEATURES
 
-    assert key in ALPHA_FEATURES[756]["settings"]
+    assert key in ALPHA_FEATURES[791]["settings"]

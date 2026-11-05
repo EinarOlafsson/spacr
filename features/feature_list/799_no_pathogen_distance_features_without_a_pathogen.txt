@@ -1,44 +1,45 @@
-A VRAM BUDGET SETTING
+NO PATHOGEN DISTANCE FEATURES WITHOUT A PATHOGEN
 
 Lifecycle: future
 Status: not started
 Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
            (BMC spaCR paper) worked around must become a spaCR item.
-Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/spacr/README.md, "Gaps in spaCR worked around here", gap 10
+Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/spacr/README.md, "Gaps in spaCR worked around here", gap 6
 Owner: unassigned. Ships as an ALPHA feature (features/README.md, item 569).
 
 --------------------------------------------------------------------------------
 WHAT THE STATE IS
 --------------------------------------------------------------------------------
 
-There is no VRAM budget; the driver caps each segment process with
-torch.cuda.set_per_process_memory_fraction. Item 282 is the host memory
-budget only.
+With no pathogen object Measure still writes *_pathogen_* distance
+features, all +inf (the distance transform of an empty mask). The
+reanalysis dropped them in its export. Feature QC (item 791) now reports
+them as all_missing.
 
 --------------------------------------------------------------------------------
 WHY IT MATTERS
 --------------------------------------------------------------------------------
 
-Shared GPUs (one workstation, several jobs) need a hard per-job cap.
++inf columns break every downstream mean, scaling and distance.
 
 --------------------------------------------------------------------------------
 WHAT TO DO
 --------------------------------------------------------------------------------
 
-1. A vram_budget setting (GB or fraction) applied per process and split
-   across workers, with batch size reduced to fit.
-2. Retry a batch that runs out of memory at half size before failing.
-3. Register it in ALPHA_FEATURES under 768.
+1. Skip the pathogen distance features when no pathogen mask exists, or
+   write NaN with a documented meaning.
+2. A test measuring a field without pathogen_mask_dim.
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED
 --------------------------------------------------------------------------------
 
-A BBBC021 plate segments inside a 5 GB budget, verified with nvidia-smi
-per process.
+A BBBC021 measurements.db has no +inf column.
 
 --------------------------------------------------------------------------------
 DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
 
 Nothing yet.
+
+2026-11-05: renumbered from 764 to 799; nightly already used 755-768 for other items.

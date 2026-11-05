@@ -27,7 +27,7 @@ def test_the_published_alpha_page_covers_the_current_registry():
     # 685 (2026-10-10): the Make Masks vvvv export makes 62.
     # 691 (2026-10-11): MitoNet for mitochondria in TEM makes 63.
     # 372 (2026-10-25): the OPS page in Mask Generation makes 64.
-    # 756 (2026-11-03): feature QC at the end of Measure makes 65.
+    # 791 (2026-11-03): feature QC at the end of Measure makes 65.
     assert deck._check_registry(ROOT / "spacr/settings.py") == 65
     # 710: the published PDF is fetched from the pinned dataset revision.
     media_spec = importlib.util.spec_from_file_location("fetch_docs_media", ROOT / "tools/fetch_docs_media.py")

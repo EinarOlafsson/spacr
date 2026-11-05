@@ -35,7 +35,7 @@ WHAT TO DO
 2. Write the merged stacks and the plane layout through spaCR's own writer,
    never by hand, and record the mask source in the run provenance.
 3. Settings with types, tooltips and categories; tr() for every string.
-4. Register everything in ALPHA_FEATURES under 755.
+4. Register everything in ALPHA_FEATURES under 790.
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED
@@ -50,3 +50,5 @@ DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
 
 Nothing yet.
+
+2026-11-05: renumbered from 755 to 790; nightly already used 755-768 for other items.

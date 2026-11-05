@@ -1,47 +1,51 @@
-XGBOOST RUNS ON CPU-ONLY MACHINES
+MEASURE_CROP FROM THE PYTHON API FILLS DEFAULTS FIRST
 
 Lifecycle: future
 Status: not started
 Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
            (BMC spaCR paper) worked around must become a spaCR item.
-Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cellprofiler_baseline/REPORT.md, "spaCR gaps", gap 5
+Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/spacr/README.md, "Gaps in spaCR worked around here", gaps 1 and 2
 Owner: unassigned. Ships as an ALPHA feature (features/README.md, item 569).
 
 --------------------------------------------------------------------------------
 WHAT THE STATE IS
 --------------------------------------------------------------------------------
 
-The spacr conda env's xgboost 3.4.1 is a CUDA build: with
-CUDA_VISIBLE_DEVICES='' it raises cudaErrorNoDevice at fit time even with
-device='cpu'. The reanalysis worked around it with xgboost-cpu in a separate
-venv (/mnt/wd4tb/bmc_reanalysis/venv_moa).
+measure_crop reads settings['timelapse'] (spacr/measure.py, measure_crop)
+before get_measure_crop_settings fills the defaults, so a Python caller gets
+a KeyError unless it fills them first. After that pre-fill the default mask
+dims count as explicit and conflict with merged/.spacr_plane_layout.json
+(PlaneLayoutConflict; item 614 fixed the GUI path), so the caller must
+restate the manifest's dims.
 
 --------------------------------------------------------------------------------
 WHY IT MATTERS
 --------------------------------------------------------------------------------
 
-Every spaCR classifier that uses xgboost would crash on CPU-only machines,
-laptops and CPU-only CI.
+The documented API call fails on the first try, and the work-around turns
+defaults into explicit choices.
 
 --------------------------------------------------------------------------------
 WHAT TO DO
 --------------------------------------------------------------------------------
 
-1. Probe for a usable GPU before choosing the xgboost device, and fall back
-   to a CPU fit (or a clear error naming xgboost-cpu) when none exists.
-2. Pin the install profile (spacr/install_profile.py) to a CPU-capable
-   xgboost where no CUDA device is present.
-3. A CPU-only test of the xgboost path under CUDA_VISIBLE_DEVICES=''.
+1. Fill defaults before any read in measure_crop.
+2. Treat values equal to the defaults from get_measure_crop_settings as not
+   explicit when reconciling with the plane layout.
+3. A test calling measure_crop({'src': ...}) on a merged folder with a
+   non-default layout.
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED
 --------------------------------------------------------------------------------
 
-The regression/classify xgboost path fits under CUDA_VISIBLE_DEVICES=''
-in the spacr env.
+measure_crop({'src': folder}) runs on the BBBC021 merged folder with no
+pre-fill and no restated mask dims.
 
 --------------------------------------------------------------------------------
 DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
 
 Nothing yet.
+
+2026-11-05: renumbered from 761 to 796; nightly already used 755-768 for other items.

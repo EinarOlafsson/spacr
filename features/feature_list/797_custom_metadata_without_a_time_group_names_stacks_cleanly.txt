@@ -42,3 +42,5 @@ DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
 
 Nothing yet.
+
+2026-11-05: renumbered from 762 to 797; nightly already used 755-768 for other items.

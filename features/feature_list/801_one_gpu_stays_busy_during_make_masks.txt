@@ -1,45 +1,48 @@
-ONE NUCLEUS IN TWO CELLS DOES NOT DROP THE FIELD
+ONE GPU STAYS BUSY DURING MAKE MASKS
 
 Lifecycle: future
 Status: not started
 Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
            (BMC spaCR paper) worked around must become a spaCR item.
-Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/spacr/README.md, "Gaps in spaCR worked around here", gap 5
+Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/spacr/README.md, "Gaps in spaCR worked around here", gap 8
 Owner: unassigned. Ships as an ALPHA feature (features/README.md, item 569).
 
 --------------------------------------------------------------------------------
 WHAT THE STATE IS
 --------------------------------------------------------------------------------
 
-Measure drops a whole field (MergeError) when one nucleus overlaps two
-cells; taxol and other mitotic fields are hit most. The lost fields appear
-only as failed: lines in the logs.
+Preprocessing and the CPU parts of mask generation run in the same
+process as Cellpose, and mask_parallel (item 493) is multi-GPU only. The
+driver split prep (preprocess=True, masks=False) from segment
+(preprocess=False, masks=True) and ran 2 plates at once.
 
 --------------------------------------------------------------------------------
 WHY IT MATTERS
 --------------------------------------------------------------------------------
 
-Dropping fields biases exactly the treatments with the strongest
-phenotypes.
+A single-GPU workstation idles the GPU for most of a screen.
 
 --------------------------------------------------------------------------------
 WHAT TO DO
 --------------------------------------------------------------------------------
 
-1. Resolve the ambiguous nucleus (assign it to the cell with the larger
-   overlap, or drop that one object) and keep the field.
-2. Count resolved and dropped objects per field in the run log and a table.
-3. Register any new setting in ALPHA_FEATURES under 763.
+1. Pipeline preparation and CPU post-processing beside Cellpose on one
+   GPU (a prefetch queue, or several workers per GPU under a VRAM budget,
+   see 803).
+2. Report GPU utilisation per plate.
+3. Register any new setting in ALPHA_FEATURES under 801.
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED
 --------------------------------------------------------------------------------
 
-No BBBC021 field is refused for this reason, and the per-field count of
-resolved objects is reported.
+One BBBC021 plate keeps the GPU above 80% busy during segmentation,
+without the driver's split.
 
 --------------------------------------------------------------------------------
 DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
 
 Nothing yet.
+
+2026-11-05: renumbered from 766 to 801; nightly already used 755-768 for other items.

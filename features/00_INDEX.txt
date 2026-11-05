@@ -274,48 +274,6 @@ FUTURE FEATURES
   711  TIMEPOSE v1 IN TIMELAPSE, ON HUGGING FACE (PRIVATE), WITH A SCORECARD
        711_timepose_v1_in_timelapse_with_scorecard.txt
 
-  755  MEASURE EXTERNAL LABEL IMAGES (CELLPROFILER, CELLPOSE, ILASTIK)
-       755_measure_external_label_images.txt
-
-  756  FEATURE QC FLAGS DEGENERATE COLUMNS AT EXPORT
-       756_feature_qc_flags_degenerate_columns_at_export.txt
-
-  757  TEXTURE FEATURES ARE DEFINED FOR SMALL OBJECTS
-       757_texture_features_are_defined_for_small_objects.txt
-
-  758  ILLUMINATION CORRECTION IN FLOAT WITHOUT CLIPPING
-       758_illumination_correction_in_float_without_clipping.txt
-
-  759  XGBOOST RUNS ON CPU-ONLY MACHINES
-       759_xgboost_runs_on_cpu_only_machines.txt
-
-  760  MECHANISM-OF-ACTION PROFILING BENCHMARK MODULE
-       760_moa_profiling_benchmark_module.txt
-
-  761  MEASURE_CROP FROM THE PYTHON API FILLS DEFAULTS FIRST
-       761_measure_crop_from_the_python_api_fills_defaults_first.txt
-
-  762  CUSTOM METADATA WITHOUT A TIME GROUP NAMES STACKS CLEANLY
-       762_custom_metadata_without_a_time_group_names_stacks_cleanly.txt
-
-  763  ONE NUCLEUS IN TWO CELLS DOES NOT DROP THE FIELD
-       763_one_nucleus_in_two_cells_does_not_drop_the_field.txt
-
-  764  NO PATHOGEN DISTANCE FEATURES WITHOUT A PATHOGEN
-       764_no_pathogen_distance_features_without_a_pathogen.txt
-
-  765  MEASURE SIZE FILTERS FOLLOW MAGNIFICATION
-       765_measure_size_filters_follow_magnification.txt
-
-  766  ONE GPU STAYS BUSY DURING MAKE MASKS
-       766_one_gpu_stays_busy_during_make_masks.txt
-
-  767  SEGMENTATION ILLUMINATION WITH SEPARATE PREPROCESSING
-       767_segmentation_illumination_with_separate_preprocessing.txt
-
-  768  A VRAM BUDGET SETTING
-       768_a_vram_budget_setting.txt
-
   769  A PER-CELL EXPORT JOINING CELL, NUCLEUS AND CYTOPLASM
        769_a_per_cell_export_joining_cell_nucleus_and_cytoplasm.txt
 
@@ -324,6 +282,48 @@ FUTURE FEATURES
 
   771  WHAT TRACKED CELLS DO BEFORE THEY DIVIDE: DIVISION-ALIGNED TRAJECTORIES WITH CONTROLS
        771_what_tracked_cells_do_before_they_divide.txt
+
+  790  MEASURE EXTERNAL LABEL IMAGES (CELLPROFILER, CELLPOSE, ILASTIK)
+       790_measure_external_label_images.txt
+
+  791  FEATURE QC FLAGS DEGENERATE COLUMNS AT EXPORT
+       791_feature_qc_flags_degenerate_columns_at_export.txt
+
+  792  TEXTURE FEATURES ARE DEFINED FOR SMALL OBJECTS
+       792_texture_features_are_defined_for_small_objects.txt
+
+  793  ILLUMINATION CORRECTION IN FLOAT WITHOUT CLIPPING
+       793_illumination_correction_in_float_without_clipping.txt
+
+  794  XGBOOST RUNS ON CPU-ONLY MACHINES
+       794_xgboost_runs_on_cpu_only_machines.txt
+
+  795  MECHANISM-OF-ACTION PROFILING BENCHMARK MODULE
+       795_moa_profiling_benchmark_module.txt
+
+  796  MEASURE_CROP FROM THE PYTHON API FILLS DEFAULTS FIRST
+       796_measure_crop_from_the_python_api_fills_defaults_first.txt
+
+  797  CUSTOM METADATA WITHOUT A TIME GROUP NAMES STACKS CLEANLY
+       797_custom_metadata_without_a_time_group_names_stacks_cleanly.txt
+
+  798  ONE NUCLEUS IN TWO CELLS DOES NOT DROP THE FIELD
+       798_one_nucleus_in_two_cells_does_not_drop_the_field.txt
+
+  799  NO PATHOGEN DISTANCE FEATURES WITHOUT A PATHOGEN
+       799_no_pathogen_distance_features_without_a_pathogen.txt
+
+  800  MEASURE SIZE FILTERS FOLLOW MAGNIFICATION
+       800_measure_size_filters_follow_magnification.txt
+
+  801  ONE GPU STAYS BUSY DURING MAKE MASKS
+       801_one_gpu_stays_busy_during_make_masks.txt
+
+  802  SEGMENTATION ILLUMINATION WITH SEPARATE PREPROCESSING
+       802_segmentation_illumination_with_separate_preprocessing.txt
+
+  803  A VRAM BUDGET SETTING
+       803_a_vram_budget_setting.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES

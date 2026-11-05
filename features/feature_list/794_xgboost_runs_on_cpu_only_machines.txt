@@ -1,46 +1,49 @@
-ONE GPU STAYS BUSY DURING MAKE MASKS
+XGBOOST RUNS ON CPU-ONLY MACHINES
 
 Lifecycle: future
 Status: not started
 Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
            (BMC spaCR paper) worked around must become a spaCR item.
-Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/spacr/README.md, "Gaps in spaCR worked around here", gap 8
+Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cellprofiler_baseline/REPORT.md, "spaCR gaps", gap 5
 Owner: unassigned. Ships as an ALPHA feature (features/README.md, item 569).
 
 --------------------------------------------------------------------------------
 WHAT THE STATE IS
 --------------------------------------------------------------------------------
 
-Preprocessing and the CPU parts of mask generation run in the same
-process as Cellpose, and mask_parallel (item 493) is multi-GPU only. The
-driver split prep (preprocess=True, masks=False) from segment
-(preprocess=False, masks=True) and ran 2 plates at once.
+The spacr conda env's xgboost 3.4.1 is a CUDA build: with
+CUDA_VISIBLE_DEVICES='' it raises cudaErrorNoDevice at fit time even with
+device='cpu'. The reanalysis worked around it with xgboost-cpu in a separate
+venv (/mnt/wd4tb/bmc_reanalysis/venv_moa).
 
 --------------------------------------------------------------------------------
 WHY IT MATTERS
 --------------------------------------------------------------------------------
 
-A single-GPU workstation idles the GPU for most of a screen.
+Every spaCR classifier that uses xgboost would crash on CPU-only machines,
+laptops and CPU-only CI.
 
 --------------------------------------------------------------------------------
 WHAT TO DO
 --------------------------------------------------------------------------------
 
-1. Pipeline preparation and CPU post-processing beside Cellpose on one
-   GPU (a prefetch queue, or several workers per GPU under a VRAM budget,
-   see 768).
-2. Report GPU utilisation per plate.
-3. Register any new setting in ALPHA_FEATURES under 766.
+1. Probe for a usable GPU before choosing the xgboost device, and fall back
+   to a CPU fit (or a clear error naming xgboost-cpu) when none exists.
+2. Pin the install profile (spacr/install_profile.py) to a CPU-capable
+   xgboost where no CUDA device is present.
+3. A CPU-only test of the xgboost path under CUDA_VISIBLE_DEVICES=''.
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED
 --------------------------------------------------------------------------------
 
-One BBBC021 plate keeps the GPU above 80% busy during segmentation,
-without the driver's split.
+The regression/classify xgboost path fits under CUDA_VISIBLE_DEVICES=''
+in the spacr env.
 
 --------------------------------------------------------------------------------
 DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
 
 Nothing yet.
+
+2026-11-05: renumbered from 759 to 794; nightly already used 755-768 for other items.

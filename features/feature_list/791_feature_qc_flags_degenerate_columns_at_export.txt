@@ -36,7 +36,7 @@ WHAT TO DO
    measurements.db; leave measurements.db byte-identical by default.
 3. A setting feature_qc_drop (alpha) removes the flagged columns from the
    object tables before profiling reads them.
-4. Register feature_qc_drop in ALPHA_FEATURES under 756.
+4. Register feature_qc_drop in ALPHA_FEATURES under 791.
 5. Later: fix the source (drop Zernike moments that are identically zero for
    a centred disk, or clamp below a tolerance to exactly zero).
 
@@ -68,11 +68,13 @@ and at most 5% of values deviating; needs 10 values). measure_crop calls
 _emit_feature_qc after every complete run: measurements.db is opened
 read-only and stays byte-identical; feature_qc.csv and feature_qc.json are
 written beside it and the first twenty flagged columns are logged.
-feature_qc_drop (alpha, ALPHA_FEATURES[756], under "Profiling α") drops the
+feature_qc_drop (alpha, ALPHA_FEATURES[791], under "Profiling α") drops the
 flagged columns with ALTER TABLE ... DROP COLUMN before profiling.
 Tests: tests/test_feature_qc.py (Zernike pattern flagged; areas,
 intensities, sparse counts and partly missing texture not flagged).
 Still needed (generator lock): arrival contract and 9-locale API records for
 spacr.sp_stats.flag_degenerate_features; 9-locale label and tooltip for
 feature_qc_drop; tools/settings_flow.py --rst; the alpha deck PDF re-render
-for the 756 row. Not yet run on the BBBC021 plates.
+for the 791 row. Not yet run on the BBBC021 plates.
+
+2026-11-05: renumbered from 756 to 791; nightly already used 755-768 for other items.

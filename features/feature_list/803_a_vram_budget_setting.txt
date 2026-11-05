@@ -1,45 +1,46 @@
-MEASURE SIZE FILTERS FOLLOW MAGNIFICATION
+A VRAM BUDGET SETTING
 
 Lifecycle: future
 Status: not started
 Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
            (BMC spaCR paper) worked around must become a spaCR item.
-Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/spacr/README.md, "Gaps in spaCR worked around here", gap 7
+Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/spacr/README.md, "Gaps in spaCR worked around here", gap 10
 Owner: unassigned. Ships as an ALPHA feature (features/README.md, item 569).
 
 --------------------------------------------------------------------------------
 WHAT THE STATE IS
 --------------------------------------------------------------------------------
 
-cell_min_size (8000 px) and nucleus_min_size (2000 px) are fixed pixel
-counts for 40-60x (spacr/settings.py get_measure_crop_settings); Mask's
-diameters follow magnification but these do not. At 20x they remove nearly
-every BBBC021 cell, so the driver set 177 px by hand.
+There is no VRAM budget; the driver caps each segment process with
+torch.cuda.set_per_process_memory_fraction. Item 282 is the host memory
+budget only.
 
 --------------------------------------------------------------------------------
 WHY IT MATTERS
 --------------------------------------------------------------------------------
 
-A default that silently removes every object is worse than no filter.
+Shared GPUs (one workstation, several jobs) need a hard per-job cap.
 
 --------------------------------------------------------------------------------
 WHAT TO DO
 --------------------------------------------------------------------------------
 
-1. Derive the defaults from magnification (or pixel size), as Mask's
-   diameters are, or express object_filters area rows in um^2.
-2. Warn when a filter removes most objects of a field.
-3. Register any new setting in ALPHA_FEATURES under 765.
+1. A vram_budget setting (GB or fraction) applied per process and split
+   across workers, with batch size reduced to fit.
+2. Retry a batch that runs out of memory at half size before failing.
+3. Register it in ALPHA_FEATURES under 803.
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED
 --------------------------------------------------------------------------------
 
-With magnification=20 and no size settings, BBBC021 keeps the cells
-CellProfiler keeps (median area ~2,800 px).
+A BBBC021 plate segments inside a 5 GB budget, verified with nvidia-smi
+per process.
 
 --------------------------------------------------------------------------------
 DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
 
 Nothing yet.
+
+2026-11-05: renumbered from 768 to 803; nightly already used 755-768 for other items.

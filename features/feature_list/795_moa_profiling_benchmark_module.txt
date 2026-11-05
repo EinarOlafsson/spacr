@@ -31,10 +31,10 @@ WHAT TO DO
 1. Leave-one-compound-out 1-NN MoA accuracy under NSC (not same compound)
    and NSCB (not same compound or batch), on per-treatment profiles from
    spacr.sp_stats.
-2. Supervised arms (logistic regression, XGBoost on CPU, see 759) under the
+2. Supervised arms (logistic regression, XGBoost on CPU, see 794) under the
    same splits.
 3. Shuffled-label controls, a table via spacr.tabular with a control row and
-   a glossary; register in ALPHA_FEATURES under 760.
+   a glossary; register in ALPHA_FEATURES under 795.
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED
@@ -48,3 +48,5 @@ DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
 
 Nothing yet.
+
+2026-11-05: renumbered from 760 to 795; nightly already used 755-768 for other items.

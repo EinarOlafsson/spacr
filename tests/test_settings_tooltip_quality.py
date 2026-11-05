@@ -1249,7 +1249,7 @@ if app_key == "mask":
         assert ast.literal_eval(claims[0].group("value")) == value
         assert resolve_default_settings("regression")[key] == value
     recognized_arrivals |= drug_screen_arrivals
-    # Item 756 adds feature_qc_drop, one parseable claim (False) resolved by
+    # Item 791 adds feature_qc_drop, one parseable claim (False) resolved by
     # Measure and by External Masks, which measures with Measure's defaults.
     feature_qc_arrivals = {(app, "feature_qc_drop")
                            for app in ("measure", "external_masks")}

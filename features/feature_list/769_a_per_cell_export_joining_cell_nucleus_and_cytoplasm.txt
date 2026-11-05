@@ -30,7 +30,7 @@ WHAT TO DO
 1. An export with one row per cell: cell, cytoplasm and a chosen nucleus
    (largest, or aggregated), Metadata_n_nuclei, NaN nucleus features for
    cells without one; Parquet and CSV through spacr.tabular.
-2. Feature QC (item 756) runs on the exported table.
+2. Feature QC (item 791) runs on the exported table.
 3. Register any new setting in ALPHA_FEATURES under 769.
 
 --------------------------------------------------------------------------------
