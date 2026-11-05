@@ -33,7 +33,6 @@ from PySide6.QtWidgets import (
     QMainWindow,
     QMenu,
     QMessageBox,
-    QPushButton,
     QPlainTextEdit,
     QScrollArea,
     QStackedWidget,
@@ -10271,7 +10270,6 @@ class MainWindow(QMainWindow):
         return key
 
     _SETTINGS_AUTOSAVE_MS = 30000
-    _OPEN_FRESH_SHOWN_MS = 20000
 
     def _open_app_screens(self) -> dict:
         """Return module key to screen for every built application screen."""
@@ -10303,7 +10301,7 @@ class MainWindow(QMainWindow):
         return _restart_location(self._stack.currentWidget())
 
     def _start_settings_autosave(self) -> None:
-        """Start the timer that keeps the session and drafts current.
+        """Start the timer that keeps the settings drafts current.
 
         A draft left from a run that did not close normally is offered back
         once the window is up.
@@ -10319,7 +10317,7 @@ class MainWindow(QMainWindow):
         QTimer.singleShot(0, self._offer_settings_drafts)
 
     def _autosave_settings(self) -> bool:
-        """Store the session and every open module's settings as drafts.
+        """Store every open module's settings as drafts.
 
         Nothing is written when nothing changed since the last autosave. The
         settings are copied here and stored by the settings writer thread
@@ -10338,24 +10336,20 @@ class MainWindow(QMainWindow):
         try:
             drafts = {key: self._collect_screen(screen, strict=True)
                       for key, screen in self._open_app_screens().items()}
-            module, settings = self._current_session()
         except Exception:
             LOG.debug("could not collect settings for autosave", exc_info=True)
             return False
-        fingerprint = json.dumps([module, settings, drafts], sort_keys=True,
-                                 default=str)
+        fingerprint = json.dumps(drafts, sort_keys=True, default=str)
         if fingerprint in (getattr(self, "_last_autosave", ""),
                            getattr(self, "_autosave_queued", "")):
             return False
-        settings = restart_state._jsonable(settings)
         drafts = restart_state._jsonable(drafts)
         self._autosave_queued = fingerprint
         restart_state._write_later(functools.partial(
-            MainWindow._store_autosave, self, fingerprint, module, settings,
-            drafts))
+            MainWindow._store_autosave, self, fingerprint, drafts))
         return True
 
-    def _store_autosave(self, fingerprint, module, settings, drafts) -> None:
+    def _store_autosave(self, fingerprint, drafts) -> None:
         """Store one autosave snapshot on the settings writer thread.
 
         A failure leaves :attr:`_last_autosave` unchanged, so the next tick
@@ -10364,118 +10358,30 @@ class MainWindow(QMainWindow):
         from .. import restart_state
 
         try:
-            session_saved = restart_state._save_session(module, settings)
-            drafts_saved = restart_state._save_drafts(drafts)
-            if session_saved and drafts_saved:
+            if restart_state._save_drafts(drafts):
                 self._last_autosave = fingerprint
         finally:
             if getattr(self, "_autosave_queued", "") == fingerprint:
                 self._autosave_queued = ""
 
     def _end_session_cleanly(self) -> None:
-        """Record where the user left off and drop the crash drafts."""
+        """Stop the autosave and drop the crash drafts on a clean exit."""
         from .. import restart_state
 
         timer = getattr(self, "_settings_autosave_timer", None)
         if timer is not None:
             timer.stop()
         restart_state._flush_writes()
-        try:
-            module, settings = self._current_session()
-            if restart_state._save_session(module, settings) or not module:
-                restart_state._clear_drafts()
-        except Exception:                                    # noqa: BLE001
-            LOG.debug("could not record the session on close", exc_info=True)
-
-    def _resume_last_session(self) -> str:
-        """Reopen the module, settings and folder of the last session.
-
-        Skipped when the Preferences switch is off or this start was asked
-        to open fresh. The settings are applied; no run is started.
-
-        :returns: the module key reopened, or ``""``.
-        """
-        from .. import restart_state
-        from .preferences import _get_restore_session
-
-        if _OPEN_FRESH[0] or not _get_restore_session():
-            return ""
-        state = restart_state._last_session()
-        if not state:
-            return ""
-        requested = str(state.get("module") or "")
-        try:
-            key = self.open_module(requested)
-            screen = _opened_module_screen(self, requested, key)
-            settings = state.get("settings") or {}
-            if screen is not None and settings:
-                self._fresh_settings = (key, self._collect_screen(screen))
-                screen.apply_settings_dict(settings)
-                self._restored_session_settings = (key, dict(settings))
-        except Exception:                                    # noqa: BLE001
-            LOG.exception("could not reopen the last session (%s)", requested)
-            return ""
-        self._offer_open_fresh(key, str(state.get("folder") or ""))
-        return key
-
-    def _offer_open_fresh(self, key: str, folder: str = "") -> None:
-        """Say what was reopened and offer an Open fresh button for a while."""
-        from PySide6.QtCore import QTimer
-
-        bar = self.statusBar()
-        message = (tr("Reopened {module} from {folder}.", module=key,
-                      folder=folder) if folder
-                   else tr("Reopened {module} as you left it.", module=key))
-        bar.showMessage(message, self._OPEN_FRESH_SHOWN_MS)
-        button = QPushButton(tr("Open fresh"), bar)
-        button.setObjectName("OpenFreshButton")
-        button.setToolTip(tr(
-            "Put back this module's default settings and go to Home. "
-            "Preferences can turn reopening off for good."))
-        button.clicked.connect(self._open_fresh)
-        bar.addPermanentWidget(button)
-        self._open_fresh_button = button
-        QTimer.singleShot(self._OPEN_FRESH_SHOWN_MS, self._drop_open_fresh)
-
-    def _drop_open_fresh(self) -> None:
-        """Remove the Open fresh button from the status bar."""
-        button = getattr(self, "_open_fresh_button", None)
-        self._open_fresh_button = None
-        if button is None:
-            return
-        try:
-            self.statusBar().removeWidget(button)
-            button.deleteLater()
-        except RuntimeError:
-            pass
-
-    def _open_fresh(self) -> None:
-        """Undo the reopened session: default settings, then Home."""
-        key, defaults = getattr(self, "_fresh_settings", ("", {}))
-        screen = self._open_app_screens().get(key)
-        if screen is not None and defaults:
-            try:
-                screen.apply_settings_dict(defaults)
-            except Exception:                                # noqa: BLE001
-                LOG.debug("could not put the defaults back", exc_info=True)
-        self._restored_session_settings = ("", {})
-        self._drop_open_fresh()
-        self.statusBar().clearMessage()
-        self._on_nav_selected("__home__")
+        restart_state._clear_drafts()
 
     def _offer_settings_drafts(self) -> None:
         """Offer the drafts a run that did not close normally left behind.
 
-        Drafts identical to the settings already reopened are not offered.
         The question is opened, not executed, so start-up is never held.
         """
         from .. import restart_state
 
-        drafts = restart_state._take_drafts()
-        restored_key, restored = getattr(
-            self, "_restored_session_settings", ("", {}))
-        drafts = {k: v for k, v in drafts.items()
-                  if v and not (k == restored_key and v == restored)}
+        drafts = {k: v for k, v in restart_state._take_drafts().items() if v}
         if not drafts:
             return
         self._pending_drafts = drafts

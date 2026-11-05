@@ -9,12 +9,11 @@ Only the interface configuration is restored. Active computations do not
 resume after a forced restart; output written before the restart remains in
 the recorded run folders.
 
-Two further records live in the preference store rather than in a file. The
-last session (module, its settings and its folder) is written while spaCR runs
-and when it closes as a local recovery snapshot. Ordinary launches open Home;
-only an explicit restart restores the saved interface. Settings drafts hold the unsaved settings of every
-open module; they are cleared on a clean exit, so a draft found at start-up
-means the previous run ended without closing.
+Ordinary launches open Home; only an explicit restart restores the saved
+interface. Settings drafts live in the preference store rather than in a
+file. They hold the unsaved settings of every open module and are cleared on
+a clean exit, so a draft found at start-up means the previous run ended
+without closing.
 """
 from __future__ import annotations
 
@@ -276,27 +275,14 @@ def discard() -> bool:
         return False
 
 
-_SESSION_KEY = "session/last"
 _DRAFTS_KEY = "session/drafts"
-_FOLDER_KEYS = ("src", "source_folder", "folder", "input_folder")
 
 
 def _store():
-    """Return the preference store that holds the session and the drafts."""
+    """Return the preference store that holds the drafts."""
     from .qt.preferences import _settings
 
     return _settings()
-
-
-def _folder_of(settings: Mapping[str, Any]) -> str:
-    """Return the input folder named in ``settings``, or an empty string."""
-    for key in _FOLDER_KEYS:
-        value = settings.get(key) if isinstance(settings, Mapping) else None
-        if isinstance(value, (list, tuple)):
-            value = value[0] if value else ""
-        if value:
-            return str(value)
-    return ""
 
 
 def _write_json(key: str, document: Mapping[str, Any]) -> bool:
@@ -328,37 +314,6 @@ def _read_json(key: str) -> Optional[Dict[str, Any]]:
     return document if isinstance(document, dict) else None
 
 
-def _save_session(module: str,
-                  settings: Optional[Mapping[str, Any]] = None) -> bool:
-    """Record the visible module, its settings and its folder.
-
-    :param module: key of the module on screen, or ``""`` for Home.
-    :param settings: the module's current settings.
-    :returns: whether the record was stored.
-    """
-    settings = dict(settings or {})
-    return _write_json(_SESSION_KEY, {
-        "version": SCHEMA_VERSION,
-        "saved": datetime.now(timezone.utc).isoformat(timespec="seconds"),
-        "module": str(module or ""),
-        "settings": settings,
-        "folder": _folder_of(settings),
-    })
-
-
-def _last_session() -> Optional[Dict[str, Any]]:
-    """Return the last recorded session, or ``None`` when there is none.
-
-    The record is read, not consumed: every ordinary start may reopen it.
-    """
-    document = _read_json(_SESSION_KEY)
-    if document is None or not str(document.get("module") or ""):
-        return None
-    if not isinstance(document.get("settings"), dict):
-        document["settings"] = {}
-    return document
-
-
 def _save_drafts(drafts: Mapping[str, Mapping[str, Any]]) -> bool:
     """Store the unsaved settings of every open module.
 
@@ -383,7 +338,7 @@ _WRITE_STATE: Dict[str, Any] = {"pending": None, "busy": False, "thread": None}
 def _write_later(job) -> None:
     """Run ``job`` on the settings writer thread instead of the caller's.
 
-    Storing the session and the drafts ends in ``QSettings.sync``, which
+    Storing the drafts ends in ``QSettings.sync``, which
     rewrites the preference file; on a busy disk that held the GUI thread
     for 1.2 to 4.4 seconds in lesson 13. Only the newest snapshot matters,
     so a job still waiting when another arrives is replaced, not queued.

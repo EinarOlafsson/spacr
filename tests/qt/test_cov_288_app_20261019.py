@@ -438,47 +438,6 @@ def test_autosave_writes_nothing_while_the_window_closes():
     assert collected == []
 
 
-def test_a_last_session_that_fails_to_reopen_is_not_offered(monkeypatch):
-    monkeypatch.setattr(app_mod, "_OPEN_FRESH", [False])
-    monkeypatch.setattr(preferences_mod, "_get_restore_session", lambda: True)
-    monkeypatch.setattr(restart_state, "_last_session",
-                        lambda: {"module": "probe", "settings": {"a": 1}})
-    offered = []
-    window = _fake(open_module=_boom,
-                   _offer_open_fresh=lambda *a: offered.append(a))
-    assert MainWindow._resume_last_session(window) == ""
-    assert offered == []
-
-
-def test_dropping_open_fresh_with_no_button_or_a_dead_one():
-    status = _Status()
-    window = _fake(_open_fresh_button=None, statusBar=lambda: status)
-    MainWindow._drop_open_fresh(window)
-    assert status.removed == []
-
-    def dead_status():
-        raise RuntimeError("deleted")
-
-    window = _fake(_open_fresh_button=object(), statusBar=dead_status)
-    MainWindow._drop_open_fresh(window)
-    assert window._open_fresh_button is None
-
-
-def test_open_fresh_still_goes_home_when_the_defaults_will_not_apply():
-    status = _Status()
-    went = []
-    screen = _fake(apply_settings_dict=_boom)
-    window = _fake(_fresh_settings=("probe", {"a": 1}),
-                   _open_app_screens=lambda: {"probe": screen},
-                   _drop_open_fresh=lambda: None,
-                   statusBar=lambda: status,
-                   _on_nav_selected=went.append)
-    MainWindow._open_fresh(window)
-    assert went == ["__home__"]
-    assert window._restored_session_settings == ("", {})
-    assert status.messages == [""]
-
-
 def test_declining_the_drafts_forgets_them():
     restored = []
     window = _fake(_drafts_restore_button=object(),

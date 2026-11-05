@@ -269,7 +269,6 @@ def main_window(qtbot, qt_theme_applied, monkeypatch, tmp_path):
     monkeypatch.setattr(prefs, "_settings", lambda: settings)
     prefs.set_ambient_animation("none")
     prefs.set_preload_policy("on_demand")
-    prefs._set_restore_session(False)
     settings.setValue("onboarding/first_run_tour_seen", True)
     window = MainWindow()
     qtbot.addWidget(window, before_close_func=_retire_graphics_menus)

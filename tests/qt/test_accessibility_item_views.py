@@ -69,7 +69,6 @@ def test_home_and_every_preferences_tab_name_visible_non_header_controls(
     monkeypatch.setattr(preferences, "_SAFE_MODE", False)
     preferences.set_ambient_animation("none")
     preferences.set_preload_policy("on_demand")
-    preferences._set_restore_session(False)
     QSettings(*preferences._store_args("spacr", "qt")).setValue(
         "onboarding/first_run_tour_seen", True)
     main = MainWindow()

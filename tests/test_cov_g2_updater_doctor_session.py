@@ -72,15 +72,16 @@ def test_a_proxy_keeps_an_existing_no_proxy_and_survives_urllib(monkeypatch,
         updater._undo_network_exports()
 
 
-def test_a_stored_session_that_is_not_json_or_lacks_settings(monkeypatch):
+def test_stored_drafts_that_are_not_json_or_lack_modules(monkeypatch):
     store = {}
     monkeypatch.setattr(restart_state, "_store", lambda: types.SimpleNamespace(
         value=lambda key, default="": store.get(key, default)))
-    store[restart_state._SESSION_KEY] = "{not json"
-    assert restart_state._last_session() is None
-    store[restart_state._SESSION_KEY] = json.dumps({"module": "mask",
-                                                    "settings": "odd"})
-    assert restart_state._last_session()["settings"] == {}
+    store[restart_state._DRAFTS_KEY] = "{not json"
+    assert restart_state._take_drafts() == {}
+    store[restart_state._DRAFTS_KEY] = json.dumps(["not", "a", "mapping"])
+    assert restart_state._take_drafts() == {}
+    store[restart_state._DRAFTS_KEY] = json.dumps({"modules": "odd"})
+    assert restart_state._take_drafts() == {}
 
 
 def test_an_http_error_still_means_the_server_answered(monkeypatch):

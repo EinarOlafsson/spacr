@@ -52,10 +52,9 @@ def test_a_fresh_module_open_selects_its_new_screen(window, qapp, key):
 
 def test_a_benchmark_window_does_not_resume_another_modules_saved_session(qapp, qtbot, monkeypatch):
     from spacr import restart_state
-    from spacr.qt import app, preferences
+    from spacr.qt import app
     from spacr.qt.app import MainWindow
 
-    monkeypatch.setattr(preferences, "_get_restore_session", lambda: True)
     monkeypatch.setattr(app, "_RESUME_RESTART", [True])
     taken = []
 
@@ -64,7 +63,6 @@ def test_a_benchmark_window_does_not_resume_another_modules_saved_session(qapp, 
         return {"module": "replication", "settings": {}}
 
     monkeypatch.setattr(restart_state, "take", take_saved_restart)
-    monkeypatch.setattr(restart_state, "_save_session", lambda *_a, **_kw: None)
 
     restoring = MainWindow()
     qtbot.addWidget(restoring)

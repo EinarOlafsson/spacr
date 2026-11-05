@@ -615,7 +615,7 @@ def _mac_preference_domains() -> list:
 #: Run detached by :func:`_set_mac_preferences_aside`: wait for the pytest
 #: process to be gone, then do what :func:`_restore_mac_preferences` does.
 #: Outside the process because spaCR's own exit-time writes (the main window
-#: saving ``session/last`` as it closes) land after any atexit handler here.
+#: clearing ``session/drafts`` as it closes) land after any atexit handler here.
 _RESTORE_WHEN_DONE = r"""
 import os, subprocess, sys, time
 from pathlib import Path

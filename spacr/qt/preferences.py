@@ -6407,27 +6407,6 @@ def _set_show_alpha_features(on: bool) -> None:
     settings.sync()
 
 
-DEFAULT_RESTORE_SESSION = True
-_KEY_RESTORE_SESSION = "prefs/restore_last_session"
-
-
-def _get_restore_session() -> bool:
-    """Read the legacy launch preference retained for compatibility."""
-    return _as_bool(
-        _settings().value(_KEY_RESTORE_SESSION, DEFAULT_RESTORE_SESSION),
-        DEFAULT_RESTORE_SESSION)
-
-
-def _set_restore_session(on: bool) -> None:
-    """Store the legacy preference without changing the current launch policy.
-
-    :param on: the legacy value retained for older callers.
-    """
-    settings = _settings()
-    settings.setValue(_KEY_RESTORE_SESSION, bool(on))
-    settings.sync()
-
-
 DEFAULT_SHOW_ALPHA_SPECIES = False
 
 

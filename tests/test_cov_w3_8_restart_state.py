@@ -29,7 +29,7 @@ def test_the_record_lands_under_spacr_home(spacr_home):
     assert path.name == restart_state.FILE_NAME
 
 
-def test_a_failed_preference_write_does_not_claim_the_session_was_saved(
+def test_a_failed_preference_write_does_not_claim_the_drafts_were_saved(
         monkeypatch, caplog):
     """A refused preference write must let the caller keep its unsaved state."""
     from spacr import restart_state
@@ -40,13 +40,12 @@ def test_a_failed_preference_write_does_not_claim_the_session_was_saved(
 
     monkeypatch.setattr(restart_state, "_store", RefusingStore)
     with caplog.at_level("WARNING", logger="spacr.restart_state"):
-        assert restart_state._save_session("measure", {"src": "/data"}) is False
-    assert "could not store session/last" in caplog.text
+        assert restart_state._save_drafts({"measure": {"src": "/data"}}) is False
+    assert "could not store session/drafts" in caplog.text
 
 
-def test_an_unreadable_preference_store_has_no_last_session(monkeypatch,
-                                                              caplog):
-    """A broken store yields no stale session instead of blocking startup."""
+def test_an_unreadable_preference_store_has_no_drafts(monkeypatch, caplog):
+    """A broken store yields no stale drafts instead of blocking startup."""
     from spacr import restart_state
 
     class RefusingStore:
@@ -55,8 +54,8 @@ def test_an_unreadable_preference_store_has_no_last_session(monkeypatch,
 
     monkeypatch.setattr(restart_state, "_store", RefusingStore)
     with caplog.at_level("WARNING", logger="spacr.restart_state"):
-        assert restart_state._last_session() is None
-    assert "could not read session/last" in caplog.text
+        assert restart_state._take_drafts() == {}
+    assert "could not read session/drafts" in caplog.text
 
 
 def test_a_corrupt_preference_record_does_not_block_startup(monkeypatch):
@@ -65,31 +64,33 @@ def test_a_corrupt_preference_record_does_not_block_startup(monkeypatch):
 
     class Store:
         def value(self, key, default):
-            return '{"module": "measure", "settings":'
+            return '{"modules": {"measure":'
 
     monkeypatch.setattr(restart_state, "_store", Store)
-    assert restart_state._last_session() is None
+    assert restart_state._take_drafts() == {}
 
 
-def test_a_last_session_with_invalid_settings_restores_an_empty_form(
+def test_drafts_with_a_broken_module_entry_keep_only_the_good_ones(
         monkeypatch):
-    """A module remains reopenable if its settings were corrupted."""
+    """A draft whose settings were corrupted is dropped, the others kept."""
     from spacr import restart_state
 
     class Store:
         def value(self, key, default):
-            return json.dumps({"module": "measure", "settings": ["bad"]})
+            return json.dumps({"modules": {"measure": ["bad"],
+                                           "mask": {"src": "/data"}}})
+
+        def remove(self, key):
+            pass
+
+        def sync(self):
+            pass
+
+        def status(self):
+            return 0
 
     monkeypatch.setattr(restart_state, "_store", Store)
-    assert restart_state._last_session() == {"module": "measure", "settings": {}}
-
-
-def test_a_list_valued_source_restores_its_first_folder():
-    """A restored module opens the same first folder named by its settings."""
-    from spacr import restart_state
-
-    assert restart_state._folder_of({"src": ["/first", "/second"]}) == "/first"
-    assert restart_state._folder_of({"src": [], "source_folder": "/fallback"}) == "/fallback"
+    assert restart_state._take_drafts() == {"mask": {"src": "/data"}}
 
 
 def test_saving_no_drafts_clears_an_earlier_unsaved_form(monkeypatch):

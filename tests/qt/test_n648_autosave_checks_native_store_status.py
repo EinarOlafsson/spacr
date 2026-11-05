@@ -14,7 +14,7 @@ def _writer(real, safe_mode):
 
 
 @pytest.mark.parametrize("safe_mode", [False, True])
-@pytest.mark.parametrize("operation", ["session", "drafts", "clear"])
+@pytest.mark.parametrize("operation", ["drafts", "clear"])
 def test_native_ini_errors_are_reported_by_every_draft_writer(
         tmp_path, monkeypatch, safe_mode, operation):
     blocked = tmp_path / "blocked"
@@ -23,9 +23,7 @@ def test_native_ini_errors_are_reported_by_every_draft_writer(
     real = QSettings(str(ini), QSettings.IniFormat)
     real.setValue("sentinel", "keep")
     monkeypatch.setattr(restart_state, "_store", lambda: _writer(real, safe_mode))
-    if operation == "session":
-        result = restart_state._save_session("regression", {"fdr_alpha": 0.08})
-    elif operation == "drafts":
+    if operation == "drafts":
         result = restart_state._save_drafts({"regression": {"fdr_alpha": 0.08}})
     else:
         result = restart_state._clear_drafts()
@@ -63,8 +61,7 @@ def test_autosave_recovers_when_the_same_native_ini_path_becomes_writable(
     assert ini.is_file()
     durable = QSettings(str(ini), QSettings.IniFormat)
     durable.sync()
-    session = json.loads(durable.value(restart_state._SESSION_KEY))
     drafts = json.loads(durable.value(restart_state._DRAFTS_KEY))
-    assert session["settings"]["fdr_alpha"] == 0.08
+    assert not durable.contains("session/last")
     assert drafts["modules"]["regression"]["fdr_alpha"] == 0.08
     assert window._autosave_settings() is False

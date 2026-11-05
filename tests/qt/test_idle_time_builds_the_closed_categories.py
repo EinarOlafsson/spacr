@@ -198,22 +198,6 @@ def test_a_category_built_in_idle_time_equals_one_built_by_a_click(qtbot):
                 assert window.close()
 
 
-@pytest.mark.parametrize('saved_module', ('classify_merged', 'regression'))
-def test_the_eager_comparison_is_fresh_after_a_saved_session(qtbot, saved_module):
-    from spacr import restart_state
-    from spacr.qt import preferences
-
-    preferences._set_restore_session(True)
-    assert restart_state._save_session(saved_module, {})
-    window, screen, saved = _window(qtbot, saved_module, eager=True, idle=False)
-    try:
-        assert not _waiting(screen)
-        assert not screen._settings_model._widgets.keys_to_come()
-        assert not getattr(window, '_restored_session_settings', None)
-    finally:
-        _restore_idle(saved)
-
-
 def test_opening_a_prebuilt_category_builds_nothing(qtbot, monkeypatch):
     from spacr.qt.screens import app_screen as aps
 
