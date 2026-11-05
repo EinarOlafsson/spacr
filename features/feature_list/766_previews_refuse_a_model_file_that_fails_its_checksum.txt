@@ -2,7 +2,7 @@ PREVIEWS REFUSE A CACHED MODEL FILE THAT FAILS ITS CHECKSUM
 ===========================================================
 
 Lifecycle: new
-Status: open — for the release after 1.5.1.7.
+Status: DONE 2026-11-05 — shipped in 1.5.1.7.
 Requested: Home, 2026-11-03, from the v7 plaque model fix (9d41718eae).
 
 REQUEST

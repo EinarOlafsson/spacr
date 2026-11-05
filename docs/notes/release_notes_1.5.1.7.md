@@ -31,6 +31,7 @@ Desktop installers are listed under **Assets** below.
 - **Gate Editor and Graph Builder annotations.** Both modules annotate selected points the same way, through the plot's right-click menu: select points in Graph Builder, or use a gate in Gate Editor, then give them a label or category. Both have a slider that limits how many points are drawn, choosing them at random, so large tables stay usable on slower computers. The limit only affects drawing; no rows or annotations are removed.
 - spaCR AI answers end with links that take you to the relevant module or documentation page. The hosted assistant now runs on Gemma.
 - An Overview guide in the documentation covers plate navigation and exports, in all nine documentation languages.
+- Model Zoo has a new candidate plaque model, `toxoplasma_plaque_v7`, with its score card. On the held-out test images it reaches an object F1 of 0.668 (95% CI 0.576–0.756), against 0.200 for stock Cellpose-SAM. It is a candidate only: `toxoplasma_plaque_v6` stays the default.
 - Model Zoo: models downloaded from the community catalogue are now found by the previews, by a new spaCR process and by runs with downloads off or the catalogue host down.
 
 ### Improved

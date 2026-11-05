@@ -2,7 +2,7 @@ A BUSY UNIPROT IS NOT AN EMPTY ANSWER
 =====================================
 
 Lifecycle: new
-Status: in progress (agent uniprotbusy), 2026-11-04.
+Status: DONE 2026-11-05 — shipped in 1.5.1.7.
 Requested: Home, 2026-11-04, from CI run 41820109829 (Coverage shard 5).
 
 REQUEST

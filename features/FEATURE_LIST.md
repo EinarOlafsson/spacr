@@ -12,7 +12,7 @@ Repeated IDs retain their separate full filenames and histories; none were merge
 
 This is a declaration-based navigation list, not a verified unfinished count. Headers can be stale. Conversely, recorded-Done items 641 and 673 contain later Mac follow-ups; item 729 separates native checks from deferred implementation. Read their linked notes before assigning work.
 
-50 records have no recorded complete declaration; 716 have a recorded complete declaration. Neither is a verification result.
+45 records have no recorded complete declaration; 721 have a recorded complete declaration. Neither is a verification result.
 
 | ID | Lifecycle | Item (full filename) | Recorded status |
 |---|---|---|---|
@@ -41,12 +41,7 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 759 | New | [CLEAN UP THE CODE BASE: UNNECESSARY COMMENTS AND UNUSED FUNCTIONS — 759_clean_up_comments_and_unused_functions.txt](feature_list/759_clean_up_comments_and_unused_functions.txt) | open — for the release after 1.5.1.7. |
 | 760 | New | [REMOVE TESTS THAT NO LONGER MAKE SENSE OR DO NOT TEST HOW spaCR WORKS — 760_remove_tests_that_no_longer_make_sense.txt](feature_list/760_remove_tests_that_no_longer_make_sense.txt) | open — for the release after 1.5.1.7. |
 | 761 | New | [THE RELEASE REUSES GREEN NIGHTLY CI FOR THE EXACT SAME COMMIT — 761_release_reuses_green_nightly_ci_for_the_same_commit.txt](feature_list/761_release_reuses_green_nightly_ci_for_the_same_commit.txt) | open — for the release after 1.5.1.7. |
-| 762 | New | [A BUSY UNIPROT IS NOT AN EMPTY ANSWER — 762_uniprot_busy_is_not_an_empty_answer.txt](feature_list/762_uniprot_busy_is_not_an_empty_answer.txt) | in progress (agent uniprotbusy), 2026-11-04. |
 | 763 | New | [TIME MODE SWAPS TWO CELL IDENTITIES DIRECTLY — 763_time_mode_swaps_two_cell_ids.txt](feature_list/763_time_mode_swaps_two_cell_ids.txt) | open — for the release after 1.5.1.7. |
-| 764 | New | [TIME MODE NAMES DAUGHTERS BY DIVISION TYPE AND CAN REMOVE A DIVISION — 764_time_mode_division_types_and_undo.txt](feature_list/764_time_mode_division_types_and_undo.txt) | open — for the release after 1.5.1.7. |
-| 765 | New | [TIME MODE SHOWS PROGRESS WHILE A LARGE MOVIE'S LINEAGE LOADS — 765_time_mode_shows_lineage_loading_progress.txt](feature_list/765_time_mode_shows_lineage_loading_progress.txt) | open — for the release after 1.5.1.7. |
-| 766 | New | [PREVIEWS REFUSE A CACHED MODEL FILE THAT FAILS ITS CHECKSUM — 766_previews_refuse_a_model_file_that_fails_its_checksum.txt](feature_list/766_previews_refuse_a_model_file_that_fails_its_checksum.txt) | open — for the release after 1.5.1.7. |
-| 767 | New | [TIME MODE: CHANGE AN OBJECT'S LABEL, AND PAINT A LABEL WHILE SCROLLING — 767_time_mode_relabel_objects_and_paint_label_while_scrolling.txt](feature_list/767_time_mode_relabel_objects_and_paint_label_while_scrolling.txt) | open — bug plus feature; next after 1.5.1.7. |
 | 768 | New | [SYNCTHING: THE HOME-WORKSTATION CONNECTION KEEPS DROPPING — 768_syncthing_home_workstation_connection_keeps_dropping.txt](feature_list/768_syncthing_home_workstation_connection_keeps_dropping.txt) | open — workaround in place (training-projects paused on Home, 2026-11-04 16:40). |
 | 772 | New | [CROPS ARE EXPORTED RAW; NORMALISATION BELONGS TO THE TRANSFORM — 772_crops_are_exported_raw_and_normalised_in_the_transform.txt](feature_list/772_crops_are_exported_raw_and_normalised_in_the_transform.txt) | open. |
 | 773 | New | [THE PER-PLATE ILLUMINATION MODEL APPLIES TO A CROP WINDOW — 773_the_illumination_model_applies_to_a_crop_window.txt](feature_list/773_the_illumination_model_applies_to_a_crop_window.txt) | open. |
@@ -812,12 +807,12 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 759 | New | [CLEAN UP THE CODE BASE: UNNECESSARY COMMENTS AND UNUSED FUNCTIONS — 759_clean_up_comments_and_unused_functions.txt](feature_list/759_clean_up_comments_and_unused_functions.txt) | open — for the release after 1.5.1.7. |
 | 760 | New | [REMOVE TESTS THAT NO LONGER MAKE SENSE OR DO NOT TEST HOW spaCR WORKS — 760_remove_tests_that_no_longer_make_sense.txt](feature_list/760_remove_tests_that_no_longer_make_sense.txt) | open — for the release after 1.5.1.7. |
 | 761 | New | [THE RELEASE REUSES GREEN NIGHTLY CI FOR THE EXACT SAME COMMIT — 761_release_reuses_green_nightly_ci_for_the_same_commit.txt](feature_list/761_release_reuses_green_nightly_ci_for_the_same_commit.txt) | open — for the release after 1.5.1.7. |
-| 762 | New | [A BUSY UNIPROT IS NOT AN EMPTY ANSWER — 762_uniprot_busy_is_not_an_empty_answer.txt](feature_list/762_uniprot_busy_is_not_an_empty_answer.txt) | in progress (agent uniprotbusy), 2026-11-04. |
+| 762 | New | [A BUSY UNIPROT IS NOT AN EMPTY ANSWER — 762_uniprot_busy_is_not_an_empty_answer.txt](feature_list/762_uniprot_busy_is_not_an_empty_answer.txt) | DONE 2026-11-05 — shipped in 1.5.1.7. |
 | 763 | New | [TIME MODE SWAPS TWO CELL IDENTITIES DIRECTLY — 763_time_mode_swaps_two_cell_ids.txt](feature_list/763_time_mode_swaps_two_cell_ids.txt) | open — for the release after 1.5.1.7. |
-| 764 | New | [TIME MODE NAMES DAUGHTERS BY DIVISION TYPE AND CAN REMOVE A DIVISION — 764_time_mode_division_types_and_undo.txt](feature_list/764_time_mode_division_types_and_undo.txt) | open — for the release after 1.5.1.7. |
-| 765 | New | [TIME MODE SHOWS PROGRESS WHILE A LARGE MOVIE'S LINEAGE LOADS — 765_time_mode_shows_lineage_loading_progress.txt](feature_list/765_time_mode_shows_lineage_loading_progress.txt) | open — for the release after 1.5.1.7. |
-| 766 | New | [PREVIEWS REFUSE A CACHED MODEL FILE THAT FAILS ITS CHECKSUM — 766_previews_refuse_a_model_file_that_fails_its_checksum.txt](feature_list/766_previews_refuse_a_model_file_that_fails_its_checksum.txt) | open — for the release after 1.5.1.7. |
-| 767 | New | [TIME MODE: CHANGE AN OBJECT'S LABEL, AND PAINT A LABEL WHILE SCROLLING — 767_time_mode_relabel_objects_and_paint_label_while_scrolling.txt](feature_list/767_time_mode_relabel_objects_and_paint_label_while_scrolling.txt) | open — bug plus feature; next after 1.5.1.7. |
+| 764 | New | [TIME MODE NAMES DAUGHTERS BY DIVISION TYPE AND CAN REMOVE A DIVISION — 764_time_mode_division_types_and_undo.txt](feature_list/764_time_mode_division_types_and_undo.txt) | DONE 2026-11-05 — shipped in 1.5.1.7. |
+| 765 | New | [TIME MODE SHOWS PROGRESS WHILE A LARGE MOVIE'S LINEAGE LOADS — 765_time_mode_shows_lineage_loading_progress.txt](feature_list/765_time_mode_shows_lineage_loading_progress.txt) | DONE 2026-11-05 — shipped in 1.5.1.7. |
+| 766 | New | [PREVIEWS REFUSE A CACHED MODEL FILE THAT FAILS ITS CHECKSUM — 766_previews_refuse_a_model_file_that_fails_its_checksum.txt](feature_list/766_previews_refuse_a_model_file_that_fails_its_checksum.txt) | DONE 2026-11-05 — shipped in 1.5.1.7. |
+| 767 | New | [TIME MODE: CHANGE AN OBJECT'S LABEL, AND PAINT A LABEL WHILE SCROLLING — 767_time_mode_relabel_objects_and_paint_label_while_scrolling.txt](feature_list/767_time_mode_relabel_objects_and_paint_label_while_scrolling.txt) | DONE 2026-11-05 — shipped in 1.5.1.7. |
 | 768 | New | [SYNCTHING: THE HOME-WORKSTATION CONNECTION KEEPS DROPPING — 768_syncthing_home_workstation_connection_keeps_dropping.txt](feature_list/768_syncthing_home_workstation_connection_keeps_dropping.txt) | open — workaround in place (training-projects paused on Home, 2026-11-04 16:40). |
 | 772 | New | [CROPS ARE EXPORTED RAW; NORMALISATION BELONGS TO THE TRANSFORM — 772_crops_are_exported_raw_and_normalised_in_the_transform.txt](feature_list/772_crops_are_exported_raw_and_normalised_in_the_transform.txt) | open. |
 | 773 | New | [THE PER-PLATE ILLUMINATION MODEL APPLIES TO A CROP WINDOW — 773_the_illumination_model_applies_to_a_crop_window.txt](feature_list/773_the_illumination_model_applies_to_a_crop_window.txt) | open. |

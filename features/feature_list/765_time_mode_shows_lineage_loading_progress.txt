@@ -2,7 +2,7 @@ TIME MODE SHOWS PROGRESS WHILE A LARGE MOVIE'S LINEAGE LOADS
 ============================================================
 
 Lifecycle: new
-Status: open — for the release after 1.5.1.7.
+Status: DONE 2026-11-05 — shipped in 1.5.1.7.
 Requested: Timepose session, 2026-11-03 (after 0cf0f20db0).
 
 REQUEST
