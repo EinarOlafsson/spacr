@@ -2781,6 +2781,34 @@ def test_boundary_ast_hash_preserves_semantics_across_empty_generic_schemas():
     assert _portable_boundary_ast_dump(parameterized) != expected
 
 
+def _validated_ops_phenotype_path_callables(callables):
+    """Check the twelve public OPS phenotype path functions against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "ops_phenotype_path_api_arrivals_2026-11-05.json").read_text(encoding="utf-8"))
+    # The two nested path helpers of ops_engine._ph_fields are not public callables.
+    symbols = {key for key in entries if not key.startswith("spacr.ops_engine.")}
+    assert len(symbols) == 12 and len(entries) == 14
+    found = {item.symbol: item for item in callables if item.symbol in symbols}
+    assert found.keys() == symbols
+    for symbol, item in found.items():
+        module, _, name = symbol.rpartition(".")
+        tree = ast.parse((root / (module.replace(".", "/") + ".py")).read_text(encoding="utf-8"))
+        declarations = [node for node in tree.body
+                        if isinstance(node, ast.FunctionDef) and node.name == name]
+        assert len(declarations) == 1
+        arguments = declarations[0].args
+        names = {arg.arg for arg in arguments.posonlyargs + arguments.args + arguments.kwonlyargs}
+        assert item.category == "function" and item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters == names
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert not item.accepts_arbitrary_keywords
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in symbols]
+
+
 def _validated_733_easy_mode_callables(callables):
     """Check the exact four executable Easy mode boundaries before historical replay."""
     import json
@@ -2852,6 +2880,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_calibrated_batch_inventory(callables)
     callables = _validated_signed_cell_measurement_arrival(callables)
     callables = _validated_733_easy_mode_callables(callables)
+    callables = _validated_ops_phenotype_path_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
