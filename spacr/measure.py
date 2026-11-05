@@ -568,11 +568,16 @@ def get_components(cell_mask, nucleus_mask, pathogen_mask):
     cell_to_nucleus = defaultdict(list)
     cell_to_pathogen = defaultdict(list)
     cell_labels = np.unique(cell_mask)
+    boxes = _label_bounding_boxes(cell_mask)
     for cell_id in cell_labels:
         if cell_id == 0:
             continue
-        nucleus_ids = np.unique(nucleus_mask[cell_mask == cell_id])
-        pathogen_ids = np.unique(pathogen_mask[cell_mask == cell_id])
+        box = _box_for(boxes, cell_id)
+        if box is None:
+            box = tuple(slice(None) for _ in np.shape(cell_mask))
+        region = cell_mask[box] == cell_id
+        nucleus_ids = np.unique(nucleus_mask[box][region])
+        pathogen_ids = np.unique(pathogen_mask[box][region])
         cell_to_nucleus[cell_id] = nucleus_ids[nucleus_ids != 0].tolist()
         cell_to_pathogen[cell_id] = pathogen_ids[pathogen_ids != 0].tolist()
     nucleus_df = pd.DataFrame(list(cell_to_nucleus.items()), columns=['cell_id', 'nucleus'])
@@ -1584,9 +1589,13 @@ def _map_child_to_parent(child_mask, parent_mask, child_name='organelle', parent
     child_labels = child_labels[child_labels != 0]
     
     mapping = []
+    boxes = _label_bounding_boxes(child_mask)
     for child_id in child_labels:
-        region = child_mask == child_id
-        parent_ids = parent_mask[region]
+        box = _box_for(boxes, child_id)
+        if box is None:
+            box = tuple(slice(None) for _ in np.shape(child_mask))
+        region = child_mask[box] == child_id
+        parent_ids = parent_mask[box][region]
         parent_ids = parent_ids[parent_ids != 0]
         if len(parent_ids) > 0:
             parent_id = np.bincount(parent_ids).argmax()
@@ -2987,20 +2996,28 @@ def _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_
     nucleus_dt = distance_transform_edt(nucleus_mask == 0, sampling=spacing)
     pathogen_dt = distance_transform_edt(pathogen_mask == 0, sampling=spacing)
 
+    # One bounding box per cell, found once: the tight box of a label is what
+    # the per-label argwhere over the whole field gave, at O(field) instead of
+    # O(cells x field) per channel.
+    boxes = _label_bounding_boxes(cell_mask)
+
     for ch in range(channel_arrays.shape[-1]):
         channel_img = channel_arrays[..., ch]
         blurred_img = gaussian_filter(channel_img, sigma=filter_sigma)
 
         data = []
         for label in cell_labels:
-            cell_coords = np.argwhere(cell_mask == label)
-            if cell_coords.size == 0:
-                data.append([label, np.nan, np.nan])
-                continue
-
-            lower = np.min(cell_coords, axis=0)
-            upper = np.max(cell_coords, axis=0) + 1
-            box = tuple(slice(int(a), int(b)) for a, b in zip(lower, upper))
+            box = _box_for(boxes, label)
+            if box is None:
+                cell_coords = np.argwhere(cell_mask == label)
+                if cell_coords.size == 0:
+                    data.append([label, np.nan, np.nan])
+                    continue
+                lower = np.min(cell_coords, axis=0)
+                upper = np.max(cell_coords, axis=0) + 1
+                box = tuple(slice(int(a), int(b)) for a, b in zip(lower, upper))
+            else:
+                lower = np.array([int(part.start) for part in box])
 
             cell_submask = (cell_mask[box] == label)
             blurred_subimg = blurred_img[box]

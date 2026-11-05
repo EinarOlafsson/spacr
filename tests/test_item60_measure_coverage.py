@@ -224,6 +224,9 @@ def test_measure_intensity_distance_defensive_geometry(monkeypatch, branch):
     mask = np.ones((3, 3), dtype=int)
     channels = np.ones((3, 3, 1), dtype=float)
     if branch == "coords":
+        # the per-label argwhere is now only the fallback for a mask without
+        # bounding boxes, so take the boxes away to reach it
+        monkeypatch.setattr(M, "_label_bounding_boxes", lambda _mask: {})
         monkeypatch.setattr(M.np, "argwhere", lambda _value: np.empty((0, 2), int))
     elif branch == "submask":
         real_sum = np.sum
