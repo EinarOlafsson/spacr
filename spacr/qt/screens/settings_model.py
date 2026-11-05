@@ -336,7 +336,7 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
     # defaults (off) so the GUI run is unchanged.
     "recruitment": {
         "panels", "replicate_column", "condition_order", "condition_labels",
-        "figures", "exclude_edge_objects", "max_vacuoles_per_cell",
+        "figures", "exclude_edge_objects", "max_vacuoles_per_cell", "control_color_by",
         "confounder_filter",
     },
     "replication": {

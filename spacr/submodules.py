@@ -1277,6 +1277,40 @@ def _recruitment_new_filters(df, settings, results_dir, field_qc_counts=None):
     return df, log
 
 
+def _plate_map_condition_order(df, group, settings):
+    """Order conditions as the plate map lists them: cell type, then treatment, then pathogen.
+
+    Conditions are built from the ``cell_types`` / ``treatments`` / ``pathogen_types``
+    slots, so sorting on each value's position in those lists keeps related
+    conditions side by side (all replicates of one strain in one host, ...)
+    instead of the alphabetical order of the joined condition string.
+    """
+    values = list(df[group].dropna().unique())
+    slots = [('host_cells', settings.get('cell_types')), ('treatment', settings.get('treatments')),
+             ('pathogen', settings.get('pathogen_types'))]
+    first = df.dropna(subset=[group]).groupby(group, observed=True).first()
+
+    def key(value):
+        out = []
+        for column, listed in slots:
+            listed = [listed] if isinstance(listed, str) else list(listed or [])
+            item = first.at[value, column] if column in first.columns else None
+            out.append(listed.index(item) if item in listed else len(listed))
+        return tuple(out) + (str(value),)
+    return sorted(values, key=key)
+
+
+def _control_palette(df, group, order, color_by):
+    """Colour each condition by one metadata column (``control_color_by``), or None."""
+    if not color_by or color_by not in df.columns:
+        return None
+    from .assay_panels import _DEFAULT_COLORS
+    first = df.dropna(subset=[group]).groupby(group, observed=True)[color_by].first()
+    levels = list(dict.fromkeys(first.reindex(order).tolist()))
+    colors = {lv: _DEFAULT_COLORS[i % len(_DEFAULT_COLORS)] for i, lv in enumerate(levels)}
+    return {g: colors[first.get(g)] for g in order}
+
+
 def _recruitment_control_specs(df, settings):
     """Control panels: intensity per compartment and channel, objects per well, ratio variants.
 
@@ -1286,8 +1320,12 @@ def _recruitment_control_specs(df, settings):
     group = 'condition'
     panel = {'name': 'controls'}
     labels = _panel_labels(panel, settings)
-    order = _panel_order(df[group].dropna().unique(), panel, settings)
+    if settings.get('condition_order'):
+        order = _panel_order(df[group].dropna().unique(), panel, settings)
+    else:
+        order = _plate_map_condition_order(df, group, settings)
     sub = df[df[group].isin(order)]
+    palette = _control_palette(sub, group, order, settings.get('control_color_by'))
     rep = settings.get('replicate_column')
     if rep is not None and rep in sub.columns and sub.groupby(group)[rep].nunique().max() <= 1:
         # The replicate is part of the condition (e.g. annotated in the pathogen
@@ -1313,7 +1351,7 @@ def _recruitment_control_specs(df, settings):
                 continue
             unit = _unit_frame(sub, col, group, rep)
             add(bar_spec(unit, col, group, order, title=f'channel {chan}: {comp}',
-                         ylabel=f'{comp} mean intensity (ch {chan})', labels=labels),
+                         ylabel=f'{comp} mean intensity (ch {chan})', labels=labels, palette=palette),
                 f'channel_{chan}_{comp}_mean_intensity', f'controls_channel_{chan}_intensity')
     well_keys = ['plateID', 'rowID', 'columnID']
     counts = (sub.groupby([group] + ([rep] if rep and rep != group else []) + well_keys, observed=True)
@@ -1323,14 +1361,14 @@ def _recruitment_control_specs(df, settings):
                   .agg(objects_per_well=('objects_per_well', 'mean'),
                        n_wells=('objects_per_well', 'size')).reset_index())
     add(bar_spec(counts, 'objects_per_well', group, order, title='objects per well',
-                 ylabel='host cells per well', labels=labels),
+                 ylabel='host cells per well', labels=labels, palette=palette),
         'objects_per_well', 'controls_objects_per_well')
     for chan in channels:
         for stat in ('mean', 'q75', 'periphery_mean', 'outside_mean', 'outside_q75'):
             col = f'pathogen_channel_{chan}_cytoplasm_{stat}_ratio'
             if col not in sub.columns:
                 continue
-            spec = _bar_panel_from_objects(sub, {'name': col}, settings, col, group,
+            spec = _bar_panel_from_objects(sub, {'name': col, 'order': order, 'palette': palette}, settings, col, group,
                                            title=f'channel {chan}: pathogen {stat} / cytoplasm mean',
                                            ylabel=col.replace('_', ' '))
             add(spec, col, f'controls_recruitment_ratios_channel_{chan}')

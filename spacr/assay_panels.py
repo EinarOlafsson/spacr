@@ -515,7 +515,9 @@ def _set_xticks(ax, order, labels, annotations, rotation=None):
     n_rows = _draw_annotations(ax, order, annotations)
     text = [display_label(g, labels) for g in order]
     if rotation is None:
-        rotation = 0 if max((len(t) for t in text), default=0) * len(order) < 40 else 35
+        longest = max((len(t) for t in text), default=0)
+        # rotate as soon as labels would touch: ~2.6 characters fit per category at panel width
+        rotation = 0 if longest * len(order) <= 24 and longest <= 10 else 35
     ax.set_xticks(range(len(order)))
     ax.set_xticklabels(text, rotation=rotation, ha="right" if rotation else "center",
                        fontsize=8)
