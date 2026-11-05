@@ -2709,6 +2709,14 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "How much of the machine the run may use: whether the graphics card "
         "is used, and how many fields are decoded at once. Nothing here "
         "changes the result, only what it costs.",
+    "OPS PHENOTYPE":
+        "How the phenotype acquisition is measured and joined to the "
+        "sequencing calls: which channels are measured, which channel and "
+        "models segment the cells and nuclei and at what size, how far a "
+        "phenotype nucleus may lie from a sequencing nucleus and still be "
+        "the same cell, and how the guide design, the non-targeting "
+        "controls and the bootstrap turn cells into per-guide and per-gene "
+        "results.",
     "SPATIAL INPUT":
         "Which spatial transcriptomics run is read and where its results "
         "go: the Xenium or Visium HD output folder, the platform that wrote "

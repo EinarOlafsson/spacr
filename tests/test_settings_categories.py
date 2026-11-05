@@ -480,6 +480,17 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_footprint", "ops_store_reads",
     # `ops_spot_detector`, native or the opt-in SpotNet (475, 2026-09-25).
     "ops_spot_detector",
+    # The alpha OPS phenotype path and decode settings (items 752 and 789,
+    # 2026-11-05): read assignment, channel registration, unmixing, the
+    # phenotype segmentation and measurement, and per-gene statistics.
+    "ops_bootstrap", "ops_cell_rule", "ops_channel_registration",
+    "ops_control_prefix", "ops_crosstalk", "ops_design",
+    "ops_merge_threshold", "ops_min_fraction", "ops_min_reads",
+    "ops_mitotic_dna_z", "ops_ph_batch_size", "ops_ph_cell_channel",
+    "ops_ph_cell_diameter", "ops_ph_cell_model", "ops_ph_channels",
+    "ops_ph_downsample", "ops_ph_nucleus_diameter", "ops_ph_nucleus_model",
+    "ops_ph_sites", "ops_ph_texture", "ops_read_mismatches",
+    "ops_single_read_quality",
     # `window_length`, the new name for `expected_end` (364, 2026-09-09).
     "window_length",
     # and `min_observations_per_hit`, the new name for `min_n`.
