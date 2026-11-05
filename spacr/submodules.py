@@ -1018,6 +1018,10 @@ def analyze_recruitment(settings):
     size and intensity, computes the pathogen-to-cytoplasm mean-intensity
     ratio for ``channel_of_interest``, groups by well and writes both
     ``results/cells.csv`` and ``results/wells.csv`` alongside recruitment plots.
+    With ``field_qc`` it also writes ``results/field_qc.csv`` (every field with
+    its pass / fail reason); with ``confounder_covariates`` it writes
+    ``results/confounder_report.csv``; with ``adjust_covariates`` it writes
+    ``results/covariate_model.csv``.
 
     Each cell row combines the pathogen measurements assigned to that host
     cell. Pathogen mean intensities are averaged across its associated objects;
@@ -1051,6 +1055,21 @@ def analyze_recruitment(settings):
           ``pathogen_size_range`` — ``[min, max]`` px area filters.
         - ``*_intensity_range``, ``target_intensity_min``.
         - ``cells_per_well`` — minimum well count to keep.
+        - ``field_qc`` — when True, count cells and pathogens per field,
+          flag crowded / sparse / over-infected fields and drop their objects
+          before the per-well grouping. Tuned by ``field_qc_mad``,
+          ``field_qc_min_cells``, ``field_qc_max_pathogens_per_cell`` and
+          ``field_qc_columns``. Default False.
+        - ``confounder_covariates`` — columns screened as confounders of
+          ``recruitment`` across ``condition``. The field density columns
+          ``n_cells_field``, ``n_pathogens_field`` and
+          ``pathogens_per_cell_field`` are attached when requested.
+        - ``adjust_covariates`` — columns regressed out of ``recruitment``
+          (pooled within-condition ANCOVA), adding ``recruitment_adjusted``
+          per object and per well. Only list variables the condition does not
+          cause: a mediator (for example vacuole size when the question is
+          whether a mutant grows slower) is removed together with the true
+          effect. ``adjust_log_outcome`` models the log ratio.
         - ``plot``, ``plot_control``, ``plot_nr``, ``figuresize``.
 
     :returns: List ``[cells, wells]`` — the host-cell and per-well
@@ -1172,6 +1191,41 @@ def analyze_recruitment(settings):
         df = _calculate_recruitment(df, channel=chan)
     print(f'calculated recruitment for: {len(df)} rows')
     
+    _field_cols = ['n_cells_field', 'n_pathogens_field', 'pathogens_per_cell_field']
+    _screen = list(settings.get('confounder_covariates') or [])
+    _adjust = list(settings.get('adjust_covariates') or [])
+    _results_dir = os.path.join(settings['src'], 'results')
+    if settings.get('field_qc') or any(c in _field_cols for c in _screen + _adjust):
+        from .recruitment_confounders import field_density, flag_crowded_fields, apply_field_qc
+        fields = field_density(os.path.join(settings['src'], 'measurements', 'measurements.db'))
+        fields = flag_crowded_fields(fields,
+                                     mad_threshold=settings['field_qc_mad'],
+                                     columns=settings['field_qc_columns'],
+                                     min_cells=settings['field_qc_min_cells'],
+                                     max_pathogens_per_cell=settings['field_qc_max_pathogens_per_cell'])
+        n_before = len(df)
+        df = apply_field_qc(df, fields, drop_failed=bool(settings.get('field_qc')))
+        os.makedirs(_results_dir, exist_ok=True)
+        if settings.get('field_qc'):
+            fields.to_csv(os.path.join(_results_dir, 'field_qc.csv'), index=False)
+            print(f"Field QC: {int((~fields['field_qc_pass']).sum())} of {len(fields)} fields failed, "
+                  f"{n_before - len(df)} of {n_before} objects dropped")
+    if _screen:
+        from .recruitment_confounders import confounder_report
+        report = confounder_report(df, 'recruitment', 'condition', _screen,
+                                   log_outcome=settings['adjust_log_outcome'])
+        os.makedirs(_results_dir, exist_ok=True)
+        report.to_csv(os.path.join(_results_dir, 'confounder_report.csv'), index=False)
+        flagged = report.loc[report['likely_confounder'], 'covariate'].tolist() if len(report) else []
+        print(f"Confounder screen: {len(report)} covariates tested, likely confounders: {flagged}")
+    if _adjust:
+        from .recruitment_confounders import adjust_for_covariates
+        df, model = adjust_for_covariates(df, 'recruitment', 'condition', _adjust,
+                                          log_outcome=settings['adjust_log_outcome'])
+        os.makedirs(_results_dir, exist_ok=True)
+        model.to_csv(os.path.join(_results_dir, 'covariate_model.csv'), index=False)
+        print(f"Adjusted recruitment for {_adjust}; added column recruitment_adjusted")
+
     df_well = _group_by_well(df)
     print(f'found: {len(df_well)} wells')
     

@@ -1249,7 +1249,7 @@ if app_key == "mask":
         assert ast.literal_eval(claims[0].group("value")) == value
         assert resolve_default_settings("regression")[key] == value
     recognized_arrivals |= drug_screen_arrivals
-    assert comparisons - len(recognized_arrivals) == 931
+    assert comparisons - len(recognized_arrivals) == 939
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))
     assert census_508['comparisons_before'] == 716
@@ -1286,7 +1286,9 @@ if app_key == "mask":
     # + 3: item 583's vendor channel map in three apps, pinned above.
     # + 2: item 537's minimum division interval in two apps, pinned above.
     # + 3: item 685's export_vvvv in three apps, pinned above.
-    assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2
+    # + 8: the recruitment field-QC and confounder-adjustment settings, one
+    # parseable default claim each in the Recruitment app.
+    assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2 + 8
             + len(item_541) + len(item_548) + len(item_550)
             + len(item_535) + len(item_547) + len(item_536)
             + len(item_571) + len(item_538) + len(item_540)
