@@ -8136,8 +8136,6 @@ ALPHA_FEATURES = {
                     'InvestigateHitTestDataButton'),
     },
     770: {
-        # 'harmony' (also item 770) is API-only: it returns an embedding,
-        # not the features, so it is no dropdown entry and has nothing to gate.
         'choices': {'batch_correction': ('tvn',)},
     },
 }

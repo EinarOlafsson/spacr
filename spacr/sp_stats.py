@@ -2262,7 +2262,6 @@ _FEATURE_QC_FILES = ("feature_qc.csv", "feature_qc.json")
 _FEATURE_QC_COLUMNS = ("table", "feature", "reason", "n", "n_finite",
                        "missing_fraction", "median", "mad", "max_abs",
                        "max_deviation", "spike_fraction")
-# Columns read from SQLite at a time, so a large plate is never held whole.
 _FEATURE_QC_CHUNK = 32
 
 
@@ -2400,8 +2399,6 @@ def _feature_qc_database(db_path: str, *,
                 f"SELECT * FROM {quoted} LIMIT 1000", connection)
             if sample.empty:
                 continue
-            # A column that is NULL in every sampled row has no numeric
-            # dtype yet, but an all-missing column is exactly what QC is for.
             empty = [c for c in sample.columns if sample[c].isna().all()]
             sample[empty] = sample[empty].astype(float)
             names = _profile_features(sample)

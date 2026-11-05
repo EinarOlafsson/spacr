@@ -11766,7 +11766,6 @@ def _emit_feature_qc(settings, db_path):
         print(console_safe(f"Feature QC: no degenerate feature columns "
                            f"({written['csv']})"))
         return
-    # The CSV has every column; the log names the first twenty.
     shown = flagged.loc[:, ['table', 'feature', 'reason']].head(20)
     names = ', '.join(f"{table}.{feature} ({reason})" for table, feature, reason
                       in shown.itertuples(index=False))

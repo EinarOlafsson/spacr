@@ -64,9 +64,6 @@ LOG_MEASURES = frozenset(('area', 'major_axis', 'minor_axis', 'aspect_ratio',
 LINEAGE_COLUMNS = ('label', 't_start', 't_end', 'parent')
 
 
-# --------------------------------------------------------------------------- #
-# 1. measurements
-# --------------------------------------------------------------------------- #
 def measure_label_stack(masks: Iterable[np.ndarray],
                         images: Optional[Iterable[np.ndarray]] = None,
                         times: Optional[Sequence[int]] = None,
@@ -164,9 +161,6 @@ def add_motion_features(measures: pd.DataFrame, min_step: float = 0.5) -> pd.Dat
     return df
 
 
-# --------------------------------------------------------------------------- #
-# 2. lineage and division events
-# --------------------------------------------------------------------------- #
 def read_lineage_table(path) -> pd.DataFrame:
     """Read a lineage CSV (``label, t_start, t_end, parent``; CTC semantics)."""
     df = pd.read_csv(path)
@@ -231,9 +225,6 @@ def median_cycle_frames(lineage: pd.DataFrame, events: pd.DataFrame) -> float:
     return float(np.median(durations)) if durations else float('nan')
 
 
-# --------------------------------------------------------------------------- #
-# 3. controls
-# --------------------------------------------------------------------------- #
 def _track_arrays(g: pd.DataFrame, column: str):
     ts = g['t'].to_numpy(dtype=np.int64)
     t_min, t_max = int(ts.min()), int(ts.max())
@@ -338,9 +329,6 @@ def shuffled_alignment(events: pd.DataFrame, slots: pd.DataFrame, rng=None) -> p
     return pd.DataFrame(rows, columns=['event_id', 'track_id', 't0', 'matched'])
 
 
-# --------------------------------------------------------------------------- #
-# 4. alignment and per-unit change
-# --------------------------------------------------------------------------- #
 def align_units(measures: pd.DataFrame, units: pd.DataFrame, window: int,
                 after: int = 0, columns: Sequence[str] = COMPARED_MEASURES) -> pd.DataFrame:
     """Measurements of each unit's track on ``rel_t = t - t0``.
@@ -403,9 +391,6 @@ def unit_changes(aligned: pd.DataFrame, window: int, k: int,
     return out.reset_index()
 
 
-# --------------------------------------------------------------------------- #
-# 5. effect sizes and 6. meta-analysis
-# --------------------------------------------------------------------------- #
 def _hedges_g(x, y):
     n1, n2 = len(x), len(y)
     if n1 < 2 or n2 < 2:
@@ -486,9 +471,6 @@ def random_effects_meta(effects, variances) -> dict:
             'I2': i2, 'k': k}
 
 
-# --------------------------------------------------------------------------- #
-# 7. cell-size control
-# --------------------------------------------------------------------------- #
 def cell_cycles(measures: pd.DataFrame, lineage: pd.DataFrame, events: pd.DataFrame,
                 size_columns: Sequence[str] = ('area', 'major_axis')) -> pd.DataFrame:
     """Complete fission cycles: born at an observed two-daughter division and
