@@ -4296,7 +4296,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # harmony_* keywords (tvn_method, tvn_scope, tvn_epsilon,
     # tvn_n_components, tvn_center_batches, harmony_n_components,
     # harmony_theta, harmony_seed).
-    assert sum(len(item.parameters) for item in callables) == 19988
+    # 2026-11-05 OPS decode yield: 19,988 -> 19,990, +2: AlignedField.spot_replaced
+    # and the channel_mode keyword of align_field.
+    assert sum(len(item.parameters) for item in callables) == 19990
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
