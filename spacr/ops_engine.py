@@ -1731,6 +1731,11 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
             library: Sequence[str]) -> Dict[str, Any]:
     """Decode every field of the well and store ``ops_barcodes``.
 
+    A stored ``barcode`` is what was read, not the guide it matched: the
+    commonest raw string among the reads behind the guide, so an N from a
+    lost cycle still shows. ``n_reads`` counts every read the nucleus owns,
+    matched to the library or not.
+
     :param db: the measurements database.
     :param plate: the plate name.
     :param well: the well name.
@@ -1867,9 +1872,6 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         assigned = assign_reads_to_objects(
             np.where(matched, all_ids, 0), guides, quality=all_quality,
             min_reads=min_reads, min_fraction=min_fraction)
-        # ``barcode`` stays what was READ: the commonest raw string among
-        # the reads behind the guide, so an N from a lost cycle still shows,
-        # and ``n_reads`` counts every read the nucleus owns, matched or not.
         totals = Counter(all_ids.tolist())
         raw: Dict[int, Counter] = {}
         for index in np.flatnonzero(matched):
