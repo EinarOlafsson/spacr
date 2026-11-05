@@ -2858,6 +2858,14 @@ def get_analyze_recruitment_default_settings(settings):
     settings.setdefault('nucleus_intensity_range',[0,100000])
     settings.setdefault('cell_intensity_range',None)
     settings.setdefault('target_intensity_min',1)
+    settings.setdefault('field_qc',False)
+    settings.setdefault('field_qc_mad',3.5)
+    settings.setdefault('field_qc_min_cells',10)
+    settings.setdefault('field_qc_max_pathogens_per_cell',None)
+    settings.setdefault('field_qc_columns',['n_pathogens_field','pathogens_per_cell_field'])
+    settings.setdefault('confounder_covariates',None)
+    settings.setdefault('adjust_covariates',None)
+    settings.setdefault('adjust_log_outcome',True)
     return settings
 
 def get_default_test_cellpose_model_settings(settings):
@@ -3958,6 +3966,14 @@ expected_types = {
     "nucleus_intensity_range": list,
     "cell_intensity_range": list,
     "target_intensity_min": int,
+    "field_qc": bool,
+    "field_qc_mad": float,
+    "field_qc_min_cells": int,
+    "field_qc_max_pathogens_per_cell": float,
+    "field_qc_columns": list,
+    "confounder_covariates": list,
+    "adjust_covariates": list,
+    "adjust_log_outcome": bool,
     "model_type": str,
     "base_model": str,
     "mask_src": str,
@@ -5366,6 +5382,14 @@ tooltips = {
     "target": "(str) - Free-text label for the protein or marker imaged in channel_of_interest, e.g. 'GRA1'. The recruitment run prints it in its banner ('channel:3 = protein') to record what the recruitment ratio is measuring; it feeds no computation, so changing it alters nothing but that log line. Default 'protein'.",
     "target_height": "(int) - Height in pixels that images are resized to before segmentation; masks are scaled back to the original dimensions afterwards. Only applied when both target_height and target_width are set (and, on the non-normalized path, when resize is True). Use it to match the field size the model was trained at. Default None, which disables resizing; 1120 for plaque analysis.",
     "target_intensity_min": "(float) - Recruitment-analysis cutoff on the 95th-percentile intensity of channel_of_interest inside each cell: cells at or below it are discarded before recruitment ratios are computed. Raise it to keep only strongly expressing cells; set 0 or None to disable the filter entirely. Raw intensity units, default 1.",
+    "field_qc": "(bool) - Recruitment analysis only (analyze_recruitment): count host cells and parasites per imaged field from measurements.db and drop every object in a field that is over-crowded, too sparse or over-infected, before the recruitment ratios are grouped by well. The per-field verdicts are written to results/field_qc.csv. Default False.",
+    "field_qc_mad": "(float) - Recruitment analysis with field_qc: a field fails when any column in field_qc_columns exceeds the plate median plus this many robust standard deviations (MAD scaled by 1.4826). Lower is stricter; None disables this test. Default 3.5.",
+    "field_qc_min_cells": "(int) - Recruitment analysis with field_qc: fields with fewer host cells than this are dropped as too sparse to be informative. None disables this test. Default 10.",
+    "field_qc_max_pathogens_per_cell": "(float) - Recruitment analysis with field_qc: fields whose parasites per host cell exceed this absolute ceiling are dropped, in addition to the MAD limit. None means no absolute ceiling. Default None.",
+    "field_qc_columns": "(list) - Recruitment analysis with field_qc: the per-field density columns tested against the MAD limit. Choose from n_cells_field, n_pathogens_field and pathogens_per_cell_field. Default ['n_pathogens_field', 'pathogens_per_cell_field'].",
+    "confounder_covariates": "(list) - Recruitment analysis only: columns to screen as possible confounders of the recruitment ratio across conditions, for example n_cells_field, n_pathogens_field, pathogens_per_cell_field, cell_area or a pathogen intensity. Each is tested for a within-condition slope and for uneven spread across conditions; the table is written to results/confounder_report.csv. Field density columns are attached automatically. None skips the screen. Default None.",
+    "adjust_covariates": "(list) - Recruitment analysis only: columns to regress out of the recruitment ratio (ANCOVA with a pooled within-condition slope), adding a recruitment_adjusted column per object and per well. Only list variables the condition does not itself cause; a mediator such as vacuole size would remove the true effect together with the artifact. The fitted slopes are written to results/covariate_model.csv. None disables adjustment. Default None.",
+    "adjust_log_outcome": "(bool) - Recruitment analysis with adjust_covariates or confounder_covariates: model the log of the recruitment ratio, which suits multiplicative effects, and back-transform the adjusted value. False models the raw ratio. Default True.",
     "target_width": "(int) - Width in pixels that images are resized to before segmentation; masks are scaled back to the original dimensions afterwards. Only applied when both target_width and target_height are set (and, on the non-normalized path, when resize is True). Use it to match the field size the model was trained at. Default None, which disables resizing; 1120 for plaque analysis.",
     "tables": "(list) - Measurement tables read from each plate's database and merged into one analysis frame. Supported tables are registered object roles, including organelles, and png_list. For tabular Classify, choose a nonempty list of distinct supported tables with at least one object-role table. Default ['cell', 'nucleus', 'pathogen', 'cytoplasm'].",
     "test": "(bool) - In classifier training, run the held-out evaluation pass, either with train or alone to score an existing model. In the sequencing barcode mapper, process only the first read chunk and print a preview so the regex and barcode CSVs can be validated quickly. Default False.",
@@ -5891,7 +5915,7 @@ categories = {
 
     "Timelapse": timelapse_settings,
 
-    "Measurements": ["save_measurements", "calculate_correlation", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
+    "Measurements": ["save_measurements", "calculate_correlation", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "field_qc", "field_qc_mad", "field_qc_min_cells", "field_qc_max_pathogens_per_cell", "field_qc_columns", "confounder_covariates", "adjust_covariates", "adjust_log_outcome", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
 
     "Illumination Correction": ["illumination_correction", "illumination_model", "illumination_estimator", "illumination_degree", "illumination_dark", "illumination_per_plate", "illumination_max_fields", "illumination_qc", "illumination_on_missing", "illumination_vendor_profile", "illumination_vendor_channel_map"],
 

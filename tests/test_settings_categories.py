@@ -349,6 +349,10 @@ KEYS_RETIRED = frozenset({
 
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # Recruitment: field QC and confounder adjustment.
+    "field_qc", "field_qc_mad", "field_qc_min_cells",
+    "field_qc_max_pathogens_per_cell", "field_qc_columns",
+    "confounder_covariates", "adjust_covariates", "adjust_log_outcome",
     # Map Barcodes: the sequencer the reads came from, checked against headers.
     "sequencer",
     # Regression drug-screen mode: response source, plate map and treatment columns.
