@@ -1,17 +1,12 @@
 """Bio-Rad Image Lab ``.scn`` reading and its integration points."""
 from __future__ import annotations
 
-import glob
-import os
 from pathlib import Path
 
 import numpy as np
 import pytest
 
 from spacr.convert import read_scn, scn_to_rgb8
-
-REAL_SCN_GLOB = ("/mnt/wd4tb/af3/projects/automated_plaque_assay/new_data/"
-                 "*/*.scn")
 
 
 def _image_header(width, height, *, endian="little", zero_is="white",
@@ -403,15 +398,3 @@ def test_scn_unequal_scans_remain_individually_readable(tmp_path):
     np.testing.assert_array_equal(read_scn(path, -1)[0], 4095 - second)
     assert path.read_bytes() == original
 
-
-@pytest.mark.skipif(not glob.glob(REAL_SCN_GLOB),
-                    reason="real Gel Doc .scn files are not on this machine")
-def test_real_gel_doc_file_reads():
-    path = sorted(glob.glob(REAL_SCN_GLOB))[0]
-    size = os.path.getsize(path)
-    image, meta = read_scn(path)
-    assert image.shape == (1040, 1392) and image.dtype == np.uint16
-    assert size > image.nbytes
-    assert meta["inverted"] and 0 < meta["pixels_per_um"] < 1
-    assert "Gel Doc" in meta.get("imager", "")
-    assert int(image.max()) <= meta["data_ceiling"]

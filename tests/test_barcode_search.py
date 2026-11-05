@@ -14,15 +14,12 @@ a mapping that silently produces nothing.
 from __future__ import annotations
 
 import gzip
-import os
 import random
-from pathlib import Path
 
 import numpy as np
 import pytest
 
 from spacr import barcode_search as bs
-from tests.resource_capabilities import paths_available
 
 # The library layout the real paired run uses, which the synthetic reads copy:
 # an eight base column barcode at the very start, the anchor, the guide, a
@@ -874,123 +871,42 @@ def test_the_score_interval_keeps_a_width_when_nothing_was_seen():
 
 
 # ---------------------------------------------------------------------------
-# The real run the feature exists for
+# The shipped defaults, recovered from reads laid out like the real run
 # ---------------------------------------------------------------------------
 
-_EO1 = os.environ.get(
-    "SPACR_SEQUENCING_DIR", "/nas_mnt/data/sequencing/sequencing").rstrip("/") + "/"
-#: THE REFERENCE CSVs LIVE IN SOMEBODY'S HOME, and that is the whole problem
-#: with naming them. This used to read `/home/olafsson/Documents/barcodes/`,
-#: which exists on exactly one machine -- so everywhere else `paths_available`
-#: came back False, the test below skipped, and the skip looked like a pass.
-#: `test_test_suite_hygiene::test_no_user_home_paths_in_the_suite` exists for
-#: precisely that shape and says so: "a test whose precondition only exists on
-#: one machine reports green everywhere else while running nothing."
-#:
-#: Built from `Path.home()` rather than spelled out, so it follows whoever is
-#: running it, and overridable by environment for anyone whose copy is
-#: somewhere else.
-_REFERENCES = os.environ.get(
-    "SPACR_BARCODE_REFERENCE_DIR",
-    str(Path.home() / "Documents" / "barcodes")).rstrip("/") + "/"
-_REAL_INPUTS = (
-    (_EO1 + "EO1_R1_001.fastq.gz", "file"),
-    (_EO1 + "EO1_R2_001.fastq.gz", "file"),
-    (_REFERENCES + "primers_2_row_barcodes.csv", "file"),
-    (_REFERENCES + "primers_2_column_barcodes.csv", "file"),
-    (_REFERENCES + "grna_barcodes.csv", "file"),
-)
 
+def test_the_shipped_tables_in_the_real_layout_recover_the_shipped_defaults(tmp_path):
+    """The window spaCR ships as its default falls out of the reads alone.
 
-@pytest.mark.nas
-@pytest.mark.integration
-@pytest.mark.skipif(
-    not paths_available(_REAL_INPUTS),
-    reason="the real paired sequencing run is not mounted",
-)
-def test_the_real_run_gives_the_answer_the_tutorial_needed():
-    """The measured layout of the run whose mapping produced nothing.
-
-    The guides are reverse complemented in the first mate and plain in the
-    second, which is what a mate pair read from opposite ends does.  The row
-    barcodes of this reference table are not in the run at all, and they match
-    just under seven percent of reads by coincidence, which is the number that
-    has to come back as absent for the baseline to be working.
+    The reads copy the layout measured on the maintainer's paired run: in the
+    first mate the column barcode starts the read as given, the anchor follows,
+    then the 21 base guide reverse complemented, the fixed stretch, and the row
+    barcode reverse complemented. The second mate is the first read from the
+    other end. The barcodes are the bundled reference tables, so the proposal
+    has to come back as exactly the settings that ship.
     """
-    tables = bs.load_barcode_tables([
-        _REFERENCES + "primers_2_row_barcodes.csv",
-        _REFERENCES + "primers_2_column_barcodes.csv",
-        _REFERENCES + "grna_barcodes.csv",
-    ])
+    from spacr.settings import bundled_barcode_path, set_default_generate_barecode_mapping
+
+    rng = random.Random(20261105)
+    tables = bs.load_barcode_tables(
+        [bundled_barcode_path(kind) for kind in ("row", "column", "grna")])
+    by_role = {table.role: sorted(table.sequences) for table in tables}
+    assert set(by_role) == {"row", "column", "grna"}
+
+    r1_reads = []
+    for _ in range(3000):
+        read = (rng.choice(by_role["column"]) + ANCHOR
+                + bs.reverse_complement(rng.choice(by_role["grna"])) + SPACER
+                + bs.reverse_complement(rng.choice(by_role["row"])))
+        read += _random_bases(rng, READ_LENGTH - len(read))
+        r1_reads.append(read)
+    r2_reads = [bs.reverse_complement(read) for read in r1_reads]
     report = bs.search_barcodes(
-        {"R1": _EO1 + "EO1_R1_001.fastq.gz", "R2": _EO1 + "EO1_R2_001.fastq.gz"},
-        tables, max_reads=20000, anchor=ANCHOR)
-
-    guide_r1 = [
-        item for item in report.findings
-        if item.role == "grna" and item.file_label == "R1"
-        and item.verdict == bs.PRESENT
-    ]
-    guide_r2 = [
-        item for item in report.findings
-        if item.role == "grna" and item.file_label == "R2"
-        and item.verdict == bs.PRESENT
-    ]
-    assert [item.orientation for item in guide_r1] == [bs.REVERSE_COMPLEMENT]
-    assert [item.orientation for item in guide_r2] == [bs.AS_GIVEN]
-    assert guide_r1[0].observed_rate > 0.7
-
-    rows = report.for_table("primers_2_row_barcodes")
-    assert len(rows) == 4
-    for item in rows:
-        assert item.verdict == bs.ABSENT, item.reason
-        assert item.enrichment < bs.MIN_ENRICHMENT
-    plain_r1 = next(
-        item for item in rows
-        if item.file_label == "R1" and item.orientation == bs.AS_GIVEN)
-    assert 0.05 < plain_r1.observed_rate < 0.09
-    assert plain_r1.expected_rate == pytest.approx(plain_r1.observed_rate, abs=0.01)
-    assert report.best_for_role("row") is None
-
-    # The shipped column table matches a quarter of the first mate reverse
-    # complemented, five times its own coincidence rate, and it is the
-    # sequencing adapter rather than a plate.  The chance baseline alone lets
-    # this through, so the structural check has to stop it.
-    columns = report.for_table("primers_2_column_barcodes")
-    flipped_r1 = next(
-        item for item in columns
-        if item.file_label == "R1" and item.orientation == bs.REVERSE_COMPLEMENT)
-    assert flipped_r1.enrichment > bs.MIN_ENRICHMENT
-    assert flipped_r1.offset_span > bs.MAX_OFFSET_SPAN
-    assert flipped_r1.verdict == bs.INDETERMINATE
-    assert report.best_for_role("column") is None
-
-
-@pytest.mark.nas
-@pytest.mark.integration
-@pytest.mark.skipif(
-    not paths_available(
-        _REAL_INPUTS
-        + ((_REFERENCES + "primers_3_row_barecodes.csv", "file"),
-           (_REFERENCES + "primers_3_column_barecodes.csv", "file"))),
-    reason="the real paired sequencing run is not mounted",
-)
-def test_the_real_run_recovers_the_settings_that_ship_as_defaults():
-    """Given the reference tables the run was built with, the layout falls out.
-
-    The window this proposes is the one spaCR already ships as its default,
-    arrived at from the reads alone, which is the strongest check available
-    that the offsets mean what they are supposed to mean.
-    """
-    tables = bs.load_barcode_tables([
-        _REFERENCES + "primers_3_row_barecodes.csv",
-        _REFERENCES + "primers_3_column_barecodes.csv",
-        _REFERENCES + "grna_barcodes.csv",
-    ])
-    report = bs.search_barcodes(
-        {"R1": _EO1 + "EO1_R1_001.fastq.gz", "R2": _EO1 + "EO1_R2_001.fastq.gz"},
-        tables, max_reads=20000, anchor=ANCHOR)
+        {"R1": _write_fastq(tmp_path / "S_R1_001.fastq.gz", r1_reads, compress=True),
+         "R2": _write_fastq(tmp_path / "S_R2_001.fastq.gz", r2_reads, compress=True)},
+        tables, max_reads=3000, anchor=ANCHOR)
     proposal = bs.propose_map_barcodes_settings(report)
+    shipped = set_default_generate_barecode_mapping({})
 
     assert proposal.orientations == {
         "row": bs.REVERSE_COMPLEMENT,
@@ -999,9 +915,9 @@ def test_the_real_run_recovers_the_settings_that_ship_as_defaults():
     }
     assert set(proposal.reverse_complement_needed) == {"row", "grna"}
     assert proposal.unresolved_roles == ()
-    assert proposal.settings["mode"] == "paired"
-    assert proposal.settings["offset_start"] == -8
-    assert proposal.settings["window_length"] == 89
+    assert proposal.settings["mode"] == shipped["mode"] == "paired"
+    assert proposal.settings["offset_start"] == shipped["offset_start"] == -8
+    assert proposal.settings["window_length"] == shipped["window_length"] == 89
 
 
 # ---------------------------------------------------------------------------

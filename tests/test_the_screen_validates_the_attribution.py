@@ -28,6 +28,14 @@ to half after `fraction_threshold`; the permutation is only a test if the
 guides really are as thin in the tail as the instruction says. These are
 those checks, run against the screen they were written about.
 
+LOCAL ACCEPTANCE ONLY. Every check left here asserts a number measured on
+the real screen. The code-level properties these checks once also carried
+(raw fractions summing to one, a share capped at one, never more cells than
+the well holds, equal effects leaving the posterior at the prior, a ceiling
+the posterior never exceeds) are asserted on synthetic data in
+`test_more_helpers_8`, `test_how_many_cells_and_which_ones` and
+`test_a_guide_and_a_probability_for_every_cell`, which run everywhere.
+
 MEASURED ON THE MAINTAINER'S FOUR PLATES, 2026-08-20. Every number the
 assertions below use came from that run and is quoted where it is used, so a
 later reader can tell a threshold that was measured from one that was picked.
@@ -52,7 +60,10 @@ VARIABLE = "SPACR_SCREEN"
 def _root() -> Path:
     raw = os.environ.get(VARIABLE)
     if not raw:
-        pytest.skip(f"set {VARIABLE} to a pooled-screen folder to run this")
+        pytest.skip(
+            "local acceptance: reproduces the numbers measured on the "
+            "maintainer's four-plate tsg101 screen and quoted in instructions "
+            f"172 and 173; needs {VARIABLE}=<pooled-screen folder>")
     root = Path(raw)
     if not root.is_dir():
         raise AssertionError(
@@ -106,21 +117,6 @@ def counts(root):
 
 
 @pytest.fixture(scope="module")
-def raw_counts(root):
-    """The same tables with no threshold at all."""
-    from spacr.ml import process_reads
-
-    frames = []
-    for n in PLATES:
-        path = _count_table(root, n)
-        if path is None:
-            pytest.skip(f"no plate_{n}_unique_combinations.csv under {root} "
-                        f"in any of {COUNT_FOLDERS}")
-        frames.append(process_reads(path, None, f"plate{n}"))
-    return pd.concat(frames, ignore_index=True)
-
-
-@pytest.fixture(scope="module")
 def cells(root):
     """Per-cell classification scores, with `pathogen_area` joined on.
 
@@ -164,12 +160,6 @@ def cells(root):
 class TestTheNormalisationIsReal:
     """The premise instruction 172 rests on, re-measured on the screen."""
 
-    def test_the_raw_tables_sum_to_exactly_one(self, raw_counts):
-        summed = raw_counts.groupby("prc")["fraction"].sum()
-        assert np.allclose(summed, 1.0, atol=1e-9), (
-            "a raw count table whose fractions do not sum to 1 means the well "
-            "key and the read counts did not line up")
-
     def test_the_threshold_halves_them(self, counts):
         """Measured: median 0.5526, minimum 0.1515 across 1,536 wells."""
         summed = counts.groupby("prc")["fraction"].sum()
@@ -183,16 +173,6 @@ class TestTheNormalisationIsReal:
         """Measured: up to 6.60x, so an un-normalised share is far too small."""
         summed = counts.groupby("prc")["fraction"].sum()
         assert (1.0 / summed).max() > 3.0
-
-    def test_no_well_is_normalised_above_one(self, counts):
-        from spacr.cell_montage import normalised_share
-
-        summed = counts.groupby("prc")["fraction"].sum()
-        for _, row in counts.sample(2000, random_state=0).iterrows():
-            share, factor = normalised_share(
-                [summed[row["prc"]]], float(row["fraction"]))
-            assert 0.0 <= share <= 1.0
-            assert factor >= 1.0 - 1e-9
 
 
 @pytest.fixture(scope="module")
@@ -217,9 +197,6 @@ def shares(counts, cells):
 
 class TestTheCountRule:
     """HOW MANY -- x, driven through the shipped arithmetic."""
-
-    def test_a_well_never_promises_more_cells_than_it_has(self, shares):
-        assert not (shares.x > shares.n).any()
 
     def test_the_normalisation_shows_substantially_more_cells(self, shares):
         """Measured: 226,444 cells against 155,919 -- 45% more."""
@@ -318,19 +295,6 @@ class TestThePermutation:
             moved.append(float(np.abs(r - flat).sum(axis=1).mean()))
         return float(np.mean(moved))
 
-    def test_equal_effects_collapse_the_posterior_onto_the_prior(
-            self, counts, cells, effects):
-        """By construction, and it came back EXACTLY zero on the screen.
-
-        Not approximately: if a guide cannot be told from any other guide,
-        the evidence term is identical for every one of them and the
-        posterior is the prior. A solver that moved it at all would be
-        inventing a distinction the likelihood does not contain.
-        """
-        flat = pd.Series(0.0, index=effects.index)
-        assert self._movement(counts, cells, flat) == pytest.approx(0.0,
-                                                                    abs=1e-12)
-
     def test_shuffling_the_guide_labels_collapses_it_too(
             self, counts, cells, effects):
         """Measured: 0.0824 real against 0.0065..0.0089 shuffled -- 10x."""
@@ -385,24 +349,6 @@ class TestWhichGuidesCanBeAttributedAtAll:
         moves it.
         """
         assert 0.0 < ceiling.can.mean() < 0.5
-
-    def test_the_ceiling_predicts_what_the_run_actually_does(
-            self, counts, cells, effects, ceiling):
-        """The pre-flight said 0 controls callable; 0 controls were called.
-
-        Measured on the maintainer's screen, where the whole non-targeting
-        series -- 30 guides, `TGGT1_000000_*` -- tops out at a best possible
-        posterior of 0.5449 against a threshold of 0.55. It misses by 0.005,
-        and it SHOULD: a non-targeting control has no effect to attribute on,
-        so a method that confidently attributed cells to one would be
-        inventing the structure this whole module exists to avoid.
-        """
-        callable_now = set(ceiling.loc[ceiling.can, "grna"])
-        assigned = _attribute(counts, cells, effects)
-        actually = set(assigned.loc[assigned.grna != "ambiguous", "grna"])
-        assert actually <= callable_now, (
-            "a guide was attributed that the pre-flight said could never be: "
-            f"{sorted(actually - callable_now)[:5]}")
 
 
 class TestTheIndependentMeasurement:

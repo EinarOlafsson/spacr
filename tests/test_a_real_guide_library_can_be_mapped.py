@@ -22,15 +22,11 @@ mis-columned file -- and still raises.
 """
 from __future__ import annotations
 
-import os
-
+import numpy as np
 import pandas as pd
 import pytest
 
 from spacr.sequencing import map_sequences_to_names, reverse_complement
-
-
-LIBRARY = os.environ.get("SPACR_GRNA_LIBRARY", "")
 
 
 def _library(tmp_path, rows, name="lib.csv"):
@@ -109,19 +105,39 @@ def test_the_reverse_complement_orientation_still_maps(tmp_path):
 
 
 # ---------------------------------------------------------------------------
-# the real library
+# a library the size and shape of the real one
 # ---------------------------------------------------------------------------
 
-@pytest.mark.skipif(not LIBRARY or not os.path.exists(LIBRARY),
-                    reason="set SPACR_GRNA_LIBRARY to a real gRNA barcode CSV")
-def test_the_real_library_maps():
-    frame = pd.read_csv(LIBRARY)
-    assert len(frame) > 100, "that is not a screen library"
+def test_a_screen_sized_library_with_a_few_shared_sequences_maps(tmp_path):
+    """The tsg101 library's shape: 1,385 rows, three sequences under more
+    than one name, eight rows in all. Every other row maps to its own name.
 
+    Built rather than read, so it runs everywhere; the proportions are the
+    real library's, which is what the refusal used to trip over.
+    """
+    rng = np.random.default_rng(1385)
+    sequences = set()
+    while len(sequences) < 1385 - 5:
+        sequences.add("".join(rng.choice(list("ACGT"), 21)))
+    unique = sorted(sequences)
+    rows = [(f"TGGT1_{i // 4:06d}_{i % 4 + 1}", seq)
+            for i, seq in enumerate(unique)]
+    shared = unique[:3]
+    rows += [("TGGT1_411210_1", shared[0]), ("TGGT1_411710_1", shared[0]),
+             ("TGGT1_411210_2", shared[1]), ("TGGT1_411710_2", shared[1]),
+             ("TGGT1_411710_3", shared[2])]
+    assert len(rows) == 1385
+    path = _library(tmp_path, rows)
+
+    frame = pd.read_csv(path)
     mapped = pd.Series(map_sequences_to_names(
-        LIBRARY, pd.Series(frame["sequence"].astype(str)), rc=False))
+        path, pd.Series(frame["sequence"].astype(str)), rc=False))
 
-    named = int(mapped.notna().sum())
-    assert named > 0.98 * len(frame), (
-        f"only {named} of {len(frame)} guides mapped; a handful of shared "
-        f"sequences must not cost the library")
+    ambiguous = frame["sequence"].isin(shared)
+    assert int(ambiguous.sum()) == 8
+    assert mapped[ambiguous.to_numpy()].isna().all(), (
+        "a read carrying a shared sequence was attributed to one guide")
+    assert (mapped[~ambiguous.to_numpy()].to_numpy()
+            == frame.loc[~ambiguous, "name"].to_numpy()).all(), (
+        "an unambiguous guide lost or changed its name")
+    assert int(mapped.notna().sum()) == 1385 - 8
