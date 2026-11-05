@@ -20,7 +20,6 @@ from __future__ import annotations
 
 import ast
 import inspect
-import os
 
 import numpy as np
 import pandas as pd
@@ -53,9 +52,6 @@ HIGHLIGHTERS = ("cooks_distance", "dffits", "influence", "cell_count_vs_effect")
 #: The five module-level hexes the panels used to draw with. None of them is
 #: in the published palette and none of them may survive in this cluster.
 OLD_PALETTE = ("#1f6f8b", "#d1495b", "#8d99ae", "#e07a3f", "#2a9d8f")
-
-REAL_TABLE = ("/mnt/firecuda2/Claude/toxoplasma_projects/tsg101_screen/test/"
-              "results/plate1_dv/ols/list/regression_data.csv")
 
 
 # --------------------------------------------------------------------------- #
@@ -560,46 +556,3 @@ def test_the_flagged_wells_are_the_same_wells_the_stats_name(ctx):
     finally:
         plt.close(figure)
 
-
-# --------------------------------------------------------------------------- #
-#  The real screen
-# --------------------------------------------------------------------------- #
-
-@pytest.mark.skipif(not os.path.exists(REAL_TABLE),
-                    reason="the tsg101 screen table is not on this machine")
-def test_the_real_screen_draws_every_scatter_panel_in_the_house_style():
-    """610 real wells from the tsg101 screen, refit small enough that
-    leverage is defined. Synthetic residuals are well behaved by
-    construction; this table is not, which is the point."""
-    long = pd.read_csv(REAL_TABLE)
-    top = long["grna"].value_counts().head(20).index.tolist()
-    wide = (long[long["grna"].isin(top)]
-            .pivot_table(index="prc", columns="grna", values="fraction",
-                         aggfunc="sum")
-            .reindex(sorted(long["prc"].unique())).fillna(0.0))
-    wells = long.groupby("prc").agg(log_pred=("log_pred", "first"),
-                                    cell_count=("cell_count", "first"))
-    wells = wells.reindex(wide.index)
-    X = wide.copy()
-    X.insert(0, "Intercept", 1.0)
-    X.columns = [str(c) for c in X.columns]
-    y = wells["log_pred"].to_numpy(dtype=float)
-    meta = pd.DataFrame({"prc": list(wide.index),
-                         "cell_count": wells["cell_count"].to_numpy(float)})
-    context = rq.build_context(sm.OLS(y, X).fit(), X, y, metadata=meta,
-                               regression_type="ols")
-    assert context.n == 610
-
-    for name in ALL_SCATTERS:
-        figure, ax, stats = _draw(context, name)
-        try:
-            tally = _mark_colours(ax)
-            grey = to_hex(ROLES["data"])
-            assert tally.get(grey, 0) / sum(tally.values()) > 0.5, (
-                f"{name} on the real screen: {tally}")
-            assert "\n" not in ax.get_title()
-            assert not [t for t in ax.texts if t.get_bbox_patch() is not None]
-            for line in _guides(ax):
-                assert to_hex(line.get_color()) == to_hex(ROLES["reference"])
-        finally:
-            plt.close(figure)

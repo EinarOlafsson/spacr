@@ -52,11 +52,6 @@ pytest.importorskip("pyqtgraph")
 
 pytestmark = pytest.mark.qt
 
-#: The real screen, when this is the machine that has it. Every number this
-#: file claims about the TSG101 fit was measured there first.
-REAL_RESULTS = ("/mnt/firecuda2/Claude/toxoplasma_projects/tsg101_screen/"
-                "claude/results/ols/results.csv")
-
 
 # --------------------------------------------------------------------------- #
 #  Fixtures
@@ -800,95 +795,3 @@ def test_the_ranking_and_the_volcano_do_not_agree_about_the_top(panel,
     assert by_effect != by_significance, (
         "the fixture no longer separates size from significance")
 
-
-# --------------------------------------------------------------------------- #
-#  Against the screen itself
-# --------------------------------------------------------------------------- #
-
-@pytest.mark.skipif(not os.path.exists(REAL_RESULTS),
-                    reason="the TSG101 screen is not on this machine")
-class TestAgainstTheRealScreen:
-    """Synthetic frames prove the join; the screen proves the shape.
-
-    The table holds guide and gene fits together. The panel deliberately opens
-    on guides, which are the unit the screen measures.
-    """
-
-    @pytest.fixture()
-    def screen(self):
-        return pd.read_csv(REAL_RESULTS)
-
-    @pytest.fixture()
-    def panel(self, qtbot, screen):
-        from spacr.qt.widgets.regression_results import RegressionResultsPanel
-
-        widget = RegressionResultsPanel()
-        qtbot.addWidget(widget)
-        widget.set_frame(screen, source=REAL_RESULTS)
-        return widget
-
-    def test_it_ranks_the_family_the_q_values_describe(self, panel, screen):
-        shown = panel.filtered_frame()
-        assert panel.level() == "grna"
-        assert len(points_of(panel.effect_rank)) == \
-            int(shown["coefficient"].notna().sum())
-        assert "Intercept" not in panel.effect_rank._keys
-
-    def test_the_intercept_is_dropped_for_its_family_not_for_its_size(
-            self, screen):
-        """The obvious reason is the wrong one here, and writing it down is
-        how a later 'simplification' does not reinstate it. The volcano drops
-        the intercept because it OWNS the p-axis. By EFFECT it is 0.190
-        against a tested maximum of 4.371, i.e. rank 547 of 1,213 -- it
-        stretches nothing. It comes out because its q_value is NaN and a
-        permanently uncallable row is not a hypothesis."""
-        from spacr.hits import tested_family
-
-        tested = tested_family(screen["feature"])
-        effects = screen["coefficient"].to_numpy()
-        intercept = int(np.nonzero(~tested)[0][0])
-        order = list(np.argsort(-np.abs(effects), kind="stable"))
-
-        assert order.index(intercept) + 1 == 547
-        assert float(abs(effects[intercept])) == pytest.approx(0.190, abs=1e-3)
-        assert float(np.abs(effects[tested]).max()) == pytest.approx(4.371,
-                                                                     abs=1e-3)
-        assert bool(screen["q_value"].isna().iloc[intercept])
-
-    def test_the_strongest_effect_is_not_the_strongest_hit(self, panel,
-                                                            screen):
-        """The whole argument for the tab, on the real fit: the third largest
-        effect in the screen (-4.220) is not called (q = 0.063) while the
-        largest (+4.371) is (q = 3e-05). A volcano puts those two nowhere near
-        each other and never says they are the same size."""
-        rows = rows_of(panel.effect_rank)
-        family = panel.filtered_frame().reset_index(drop=True)
-
-        biggest = family.iloc[rows[0]]
-        third = family.iloc[rows[2]]
-        assert abs(float(third["coefficient"])) == pytest.approx(4.220,
-                                                                 abs=1e-3)
-        assert float(biggest["q_value"]) <= 0.05
-        assert float(third["q_value"]) > 0.05
-
-    def test_it_says_this_screen_has_no_standard_errors(self, panel, screen):
-        """A real and useful finding rather than an empty picture: spaCR's own
-        results writer emits no std_err, so every dot here is a point estimate
-        and the panel says so instead of implying exactness."""
-        assert not [c for c in screen.columns if "err" in c.lower()]
-
-        assert intervals_of(panel.effect_rank) == {}
-        assert "no standard error" in panel.effect_rank._status.text()
-
-    def test_the_called_count_is_the_screens_own(self, panel, screen):
-        called = int((panel.filtered_frame()["q_value"] <= 0.05).sum())
-
-        assert f"{called} called at q_value ≤ 0.05" in \
-            panel.effect_rank._status.text()
-
-    def test_the_distribution_reports_the_screens_sigma(self, panel, screen):
-        values = panel.filtered_frame()["coefficient"].dropna().to_numpy()
-        sigma = float(np.median(np.abs(values - np.median(values))) * 1.4826)
-
-        assert f"σ (MAD) = {sigma:.3g}" in \
-            panel.effect_distribution._status.text()

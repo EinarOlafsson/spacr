@@ -21,10 +21,9 @@ keeping:
   two-guide well splits near 1/2 and a fifteen-guide well near 1/15. Pooling
   them measures how many guides landed per well.
 
-The numbers in the real-data tests at the bottom come from
-``tsg101_screen/test/results/plate1_dv/ols/list/regression_data.csv`` and are
-pinned, so a change to how a share or a moment is computed has to be argued
-for rather than absorbed.
+The numbers the in-panel notes state are recomputed by hand at the bottom,
+so a change to how a share or a moment is computed has to be argued for rather
+than absorbed.
 """
 from __future__ import annotations
 
@@ -39,10 +38,6 @@ from matplotlib.colors import to_hex, to_rgba  # noqa: E402
 
 from spacr.figures import distributions as D  # noqa: E402
 from spacr.figures.style import ROLES, WEIGHTS  # noqa: E402
-
-#: The real screen. Every pinned number below was measured from it.
-REAL = ("/mnt/firecuda2/Claude/toxoplasma_projects/tsg101_screen/test/results"
-        "/plate1_dv/ols/list/regression_data.csv")
 
 
 def _wells(n_wells=40, seed=0):
@@ -730,63 +725,49 @@ def test_these_panels_are_not_in_the_coefficient_registry():
 
 
 # --------------------------------------------------------------------------- #
-#  The real screen
+#  The numbers the notes state, recomputed by hand from a pipeline-shaped frame
 # --------------------------------------------------------------------------- #
 
-@pytest.fixture(scope="module")
-def real_frame():
-    import os
+def test_the_guide_panel_states_the_shares_of_the_multi_guide_wells_only():
+    """Each share is recomputed here as fraction / well total x guides in the
+    well, over the wells holding more than one guide; the note's n and Gini
+    and the caption's excluded-well count must be those numbers."""
+    frame = _wells()
+    sizes = frame.groupby("prc")["fraction"].transform("size")
+    totals = frame.groupby("prc")["fraction"].transform("sum")
+    kept = sizes > 1
+    shares = (frame["fraction"] / totals * sizes)[kept].to_numpy()
+    single_wells = int((frame.groupby("prc").size() == 1).sum())
+    assert 0 < single_wells < frame["prc"].nunique()
+    assert shares.size == len(frame) - single_wells
 
-    if not os.path.exists(REAL):
-        pytest.skip(f"the real screen is not on this machine: {REAL}")
-    return pd.read_csv(REAL)
-
-
-def test_the_real_screen_draws_both_panels_with_the_numbers_pinned(real_frame):
-    """1,945 guide-in-well rows over 610 wells, 93 of them single-guide."""
-    assert len(real_frame) == 1945
-    assert real_frame["prc"].nunique() == 610
-
-    figure, ax, panel = _draw("guide_fraction", real_frame)
+    figure, ax, panel = _draw("guide_fraction", frame)
     try:
         note = [t.get_text() for t in ax.texts if "n = " in t.get_text()][0]
-        assert "n = 1,852 guides" in note          # 1945 - 93 single-guide
-        assert "Gini = 0.32" in note
-        assert "93" in panel.caption               # the excluded wells
+        assert f"n = {shares.size:,} guides" in note, note
+        assert f"Gini = {D.gini(shares):.2f}" in note, note
+        assert f"({single_wells})" in panel.caption, panel.caption
     finally:
         plt.close(figure)
 
 
-def test_the_real_screens_response_is_610_wells_not_1945_rows(real_frame):
-    """The number the old figure got wrong, on the data it got it wrong on."""
-    figure, ax, panel = _draw("response", real_frame, column="log_pred")
+def test_the_response_skews_are_measured_on_one_value_per_well():
+    """Both stated skews -- after and before the log -- are those of the
+    per-well values, not of the guide-level rows that repeat them."""
+    from scipy import stats
+
+    frame = _wells()
+    per_well = frame.groupby("prc")[["pred", "log_pred"]].first()
+    logged = float(stats.skew(per_well["log_pred"]))
+    raw = float(stats.skew(per_well["pred"]))
+
+    figure, ax, panel = _draw("response", frame, column="log_pred")
     try:
         note = [t.get_text() for t in ax.texts if "n = " in t.get_text()][0]
-        assert "n = 610 wells" in note
-        assert "skew = +1.83" in note
-        assert "strongly skewed right" in note
-        assert "1,945 guide-level rows collapse to 610" in panel.caption
-    finally:
-        plt.close(figure)
-
-
-def test_the_real_screens_log_transform_reduced_the_skew_but_did_not_fix_it(
-        real_frame):
-    """The one number that says whether the transform was worth having.
-
-    log1p took the response from 2.43 to 1.83, so it helped and did not
-    deliver symmetry — the panel says both, which is what decides whether the
-    q-q and residual panels need reading before the hits are believed.
-    """
-    raw = D.shape_of(real_frame.groupby("prc")["pred"].first())
-    logged = D.shape_of(real_frame.groupby("prc")["log_pred"].first())
-    assert raw["skew"] == pytest.approx(2.43, abs=0.01)
-    assert logged["skew"] == pytest.approx(1.83, abs=0.01)
-    assert logged["verdict"] == "strongly skewed right"
-
-    figure, ax, _panel = _draw("response", real_frame, column="log_pred")
-    try:
-        note = [t.get_text() for t in ax.texts if "n = " in t.get_text()][0]
-        assert "skew before log: +2.43" in note
+        assert f"n = {len(per_well)} wells" in note, note
+        assert f"skew = {logged:+.2f}" in note, note
+        assert f"skew before log: {raw:+.2f}" in note, note
+        assert (f"{len(frame):,} guide-level rows collapse to "
+                f"{len(per_well)}") in panel.caption
     finally:
         plt.close(figure)

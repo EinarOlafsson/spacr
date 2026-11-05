@@ -43,11 +43,6 @@ pytest.importorskip("pyqtgraph")
 
 pytestmark = pytest.mark.qt
 
-#: The real screen, when this is the machine that has it. Every number the
-#: fixtures below claim about shape was measured here first.
-REAL_RESULTS = ("/mnt/firecuda2/Claude/toxoplasma_projects/tsg101_screen/"
-                "claude/results/ols/results.csv")
-
 
 # --------------------------------------------------------------------------- #
 #  Fixtures
@@ -811,65 +806,30 @@ class TestTheLinkSurvivesTheThingsThatBreakIt:
 
 
 # --------------------------------------------------------------------------- #
-#  Against the screen itself
+#  One click, every plot
 # --------------------------------------------------------------------------- #
 
-@pytest.mark.skipif(not os.path.exists(REAL_RESULTS),
-                    reason="the TSG101 screen is not on this machine")
-class TestAgainstTheRealScreen:
-    """Synthetic frames prove the join; the screen proves the shape.
-
-    1,213 coefficients, 1,213 distinct features, 389 genes of which 102 rest
-    on a single guide, and one Intercept whose p of 3.15e-46 makes it the
-    first point on the Q-Q.
-    """
-
-    @pytest.fixture()
-    def screen(self):
-        return pd.read_csv(REAL_RESULTS)
-
-    @pytest.fixture()
-    def panel(self, qtbot, screen):
-        from spacr.qt.widgets.regression_results import RegressionResultsPanel
-
-        widget = RegressionResultsPanel()
-        qtbot.addWidget(widget)
-        widget.set_frame(screen, source=REAL_RESULTS)
-        # The whole fit, for the reason the other fixture gives.
-        widget.set_level(None)
-        return widget
+class TestOneSelectionReachesEveryPlot:
+    """The fixture's Intercept carries the smallest p in the fit, as it does
+    on a real screen, and every gene carries a gene-level term."""
 
     def test_the_first_qq_point_is_the_intercept_and_it_says_so(self, panel):
-        """The strongest p in the screen belongs to a nuisance term that the
-        volcano refuses to plot. Clicking it must name it and admit the
-        volcano has no point for it -- not ring the nearest thing it has."""
-        first = points_of(panel.qq)[0]     # smallest p, top right of the plot
+        """The strongest p belongs to a nuisance term that the volcano
+        refuses to plot. Clicking it must name it and admit the volcano has
+        no point for it -- not ring the nearest thing it has."""
+        first = points_of(panel.qq)[0]
         assert panel.qq.key_for_row(int(first.data())) == "Intercept"
 
         panel.qq._on_points_clicked(None, [first])
 
         assert "not on this plot" in panel.volcano._status.text()
 
-    def test_every_qq_point_names_the_guide_its_p_value_came_from(self,
-                                                                 panel,
-                                                                 screen):
-        """The join, checked on all 1,213 of them rather than on a sample."""
-        rows = rows_of(panel.qq)
-        drawn = [item for item in panel.qq.plot.listDataItems()
-                 if hasattr(item, "points")][0]
-        observed = np.asarray([point.pos().y() for point in drawn.points()])
-        expected = -np.log10(screen["p_value"].to_numpy()[rows])
-        assert np.allclose(observed, expected, atol=1e-9)
-
-        keys = [panel.qq.key_for_row(row) for row in rows]
-        assert keys == list(screen["feature"].to_numpy()[rows])
-
-    def test_the_hardest_hit_in_the_screen_round_trips(self, panel, screen):
-        """244480: gene p 2.9e-13, one surviving guide, top of the list. It is
-        the gene the guide-support panel was built to catch, so it is the one
-        worth being able to click on every plot that draws it."""
-        term = "gene_fraction:gene[244480]"
-        assert term in set(screen["feature"])
+    def test_a_selected_gene_is_ringed_on_every_plot_that_draws_it(
+            self, panel, results):
+        """A gene-level term is drawn on the Q-Q, the agreement plot and the
+        volcano; selecting its row must ring it on all three."""
+        term = "gene_fraction:gene[200010]"
+        assert term in set(results["feature"])
 
         assert panel.table.select_key(term)
 
@@ -877,40 +837,3 @@ class TestAgainstTheRealScreen:
         assert panel.qq._highlight is not None
         assert panel.agreement._highlight is not None
         assert panel.volcano._highlight is not None
-
-    def test_the_controls_are_clickable_and_are_where_the_table_says(
-            self, panel, screen):
-        """24 control guides, 3 positive controls, 1,186 screen guides."""
-        rows = rows_of(panel.controls)
-        assert len(rows) == int(screen["condition"].isin(
-            ["nc", "pc", "control", "other"]).sum())
-        # The first three dots are the positive controls, which sit at rows
-        # 277, 278 and 951 of the table -- scattered through it, and nowhere
-        # near the front. The panel's own ordering is not the table's.
-        positives = screen.loc[screen["condition"] == "pc", "feature"]
-        assert list(positives.index) != list(range(len(positives)))
-        for offset, feature in enumerate(positives.astype(str)):
-            key = panel.controls.key_for_row(rows[offset])
-            assert key == feature
-            _, y = panel.controls._row_xy[rows[offset]]
-            row = int(screen.index[screen["feature"] == feature][0])
-            assert y == pytest.approx(float(screen["coefficient"].iloc[row]))
-
-    def test_the_agreement_plot_finds_the_102_single_guide_genes(self, panel,
-                                                                 screen):
-        from spacr.guide_concordance import guide_support
-
-        support = guide_support(screen)
-        assert len(support) == 389
-        alone = int(support["single_guide"].sum())
-        assert alone == 102
-        assert f"{alone} rest on a single guide" in \
-            panel.agreement._status.text()
-
-    def test_the_first_histogram_bar_hands_back_its_whole_bin(self, panel,
-                                                              screen):
-        keys = panel.p_values.select_bin(0)
-        edges = panel.p_values._edges
-        expected = screen.loc[screen["p_value"] <= edges[1], "feature"]
-        assert len(keys) == len(expected)
-        assert set(keys) == set(expected.astype(str))

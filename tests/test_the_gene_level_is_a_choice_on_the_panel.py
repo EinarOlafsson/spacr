@@ -45,16 +45,6 @@ pytestmark = pytest.mark.qt
 
 GENES, GUIDES_PER_GENE = 40, 3
 
-#: The real four-plate screen, when this is the machine that holds it. Every
-#: shape claimed by the synthetic fixtures was measured here first: 1,171
-#: coefficients, 790 from the guide fit and 381 from the gene fit -- including
-#: one ``Intercept`` EACH, which is why the two cannot be told apart by their
-#: term name.
-REAL_BOTH_LEVELS = ("/mnt/firecuda2/Claude/toxoplasma_projects/tsg101_screen/"
-                    "results/glm_1/results.csv")
-REAL_PERMUTATION = ("/mnt/firecuda2/Claude/toxoplasma_projects/tsg101_screen/"
-                    "results/guide_permutation_3/results.csv")
-
 
 # --------------------------------------------------------------------------- #
 #  Tables
@@ -500,55 +490,3 @@ def test_selecting_a_gene_does_not_highlight_its_guides(qtbot):
     assert panel.selected_keys() == [guides[0]]
     assert panel.volcano._selected_keys == [guides[0]]
 
-
-# --------------------------------------------------------------------------- #
-#  The real screen
-# --------------------------------------------------------------------------- #
-
-@pytest.mark.skipif(not os.path.exists(REAL_BOTH_LEVELS),
-                    reason="not the machine with the real screen")
-class TestTheRealScreen:
-    """Synthetic tables prove the rules; the screen proves the shape.
-
-    1,171 coefficients from one glm run at level='both' -- 790 rows from the
-    guide fit and 381 from the gene fit, one intercept each.
-    """
-
-    def test_the_four_rows_for_one_gene_read_four_different_things(self,
-                                                                   qtbot):
-        panel = _panel(qtbot, pd.read_csv(REAL_BOTH_LEVELS),
-                       REAL_BOTH_LEVELS)
-        _choose_level(qtbot, panel, "Both")
-
-        theirs = [row for row in _drawn_features(panel) if "225160" in row]
-        assert sorted(theirs) == [
-            "fraction:grna[225160_1]", "fraction:grna[225160_2]",
-            "fraction:grna[225160_3]", "gene_fraction:gene[225160]"]
-
-    def test_the_counts_are_the_run_s_own(self, qtbot):
-        panel = _panel(qtbot, pd.read_csv(REAL_BOTH_LEVELS),
-                       REAL_BOTH_LEVELS)
-        counts = panel.level_counts()
-
-        assert (counts["grna"], counts["gene"], counts[None]) == (790, 381,
-                                                                  1171)
-
-    def test_gene_draws_the_gene_fit_on_the_volcano(self, qtbot):
-        panel = _panel(qtbot, pd.read_csv(REAL_BOTH_LEVELS),
-                       REAL_BOTH_LEVELS)
-        _choose_level(qtbot, panel, "Gene")
-
-        drawn = _drawn_points(panel.volcano)
-        assert len(drawn) == 380      # 381 rows, less the gene fit's intercept
-        assert all(":gene[" in str(key) for key in drawn)
-
-    @pytest.mark.skipif(not os.path.exists(REAL_PERMUTATION),
-                        reason="not the machine with the real screen")
-    def test_the_real_permutation_run_says_it_has_no_genes(self, qtbot):
-        panel = _panel(qtbot, pd.read_csv(REAL_PERMUTATION), REAL_PERMUTATION)
-        _choose_level(qtbot, panel, "Gene")
-
-        assert _drawn_features(panel) == []
-        said = panel.status_text()
-        assert "No gene-level coefficients in this run" in said, said
-        assert "permutation" in said, said

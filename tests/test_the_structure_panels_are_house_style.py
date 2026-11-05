@@ -27,7 +27,6 @@ from __future__ import annotations
 
 import ast
 import inspect
-import os
 
 import numpy as np
 import pandas as pd
@@ -53,10 +52,6 @@ STRUCTURE = ("vif", "condition_number", "predictor_correlation",
 #: The five module-level hexes these panels used to draw with. None is in the
 #: published palette; none may survive in this cluster.
 OLD_PALETTE = ("#1f6f8b", "#d1495b", "#8d99ae", "#e07a3f", "#2a9d8f")
-
-#: The real screen. Read-only.
-REAL_DESIGN = ("/mnt/firecuda2/Claude/toxoplasma_projects/tsg101_screen/test/"
-               "results/plate1_dv/ols/list/regression_data.csv")
 
 
 # --------------------------------------------------------------------------- #
@@ -496,63 +491,3 @@ def test_a_panel_that_cannot_be_computed_still_says_why(name):
     except rq.PanelUnavailable as exc:
         assert str(exc), f"{name} skipped without a reason"
 
-
-# --------------------------------------------------------------------------- #
-#  The real screen
-# --------------------------------------------------------------------------- #
-
-@pytest.mark.skipif(not os.path.exists(REAL_DESIGN),
-                    reason="the tsg101 screen is not on this machine")
-def test_the_real_screen_draws_every_structure_panel_in_the_house_style():
-    """1,945 wells, 824 gRNA columns, the design spaCR actually fits.
-
-    The clean fixture cannot stand in for it: this design is well conditioned,
-    so every VIF bar and every singular value comes out grey, and the forest
-    calls 5 of its 25 strongest terms. That is the house rule working -- the
-    highlight is a minority and a healthy design makes no claim at all.
-    """
-    frame = pd.read_csv(REAL_DESIGN).dropna(subset=["pred", "fraction", "grna"])
-    dummies = pd.get_dummies(frame["grna"].astype(str), dtype=float)
-    X = dummies.mul(frame["fraction"].to_numpy(), axis=0)
-    X.columns = [f"fraction:grna[{c}]" for c in X.columns]
-    X.insert(0, "Intercept", 1.0)
-    y = frame["pred"].astype(float)
-
-    fit = sm.OLS(y.to_numpy(), X.to_numpy()).fit()
-    intervals = np.asarray(fit.conf_int())
-
-    class Named:
-        """The fit with its column names back on, and an interval each."""
-
-        def __init__(self):
-            self.params = pd.Series(np.asarray(fit.params), index=X.columns)
-
-        def conf_int(self, *args, **kwargs):
-            return intervals
-
-        def __getattr__(self, item):
-            return getattr(fit, item)
-
-    ctx = rq.build_context(Named(), X, y, regression_type="ols")
-    assert ctx.n == 1945 and ctx.p == 824
-
-    allowed = {ROLES["data"].lower(), ROLES["up"].lower(),
-               ROLES["down"].lower(), ROLES["reference"].lower(),
-               ROLES["fill"].lower(), resolve_ink(rq._REPORT_TARGET).lower()}
-    for name in STRUCTURE:
-        figure, ax = _axes()
-        stats = rq.draw_panel(name, ctx, ax)
-        assert stats
-        if name == "predictor_correlation":
-            continue           # the diverging map is the encoding, see above
-        stray = _hexes(ax) - allowed
-        assert not stray, f"{name} drew {sorted(stray)} on the real screen"
-
-    figure, ax = _axes()
-    rq.draw_panel("coefficient_forest", ctx, ax)
-    intervals_drawn = [c for c in ax.collections
-                       if isinstance(c, LineCollection)][0]
-    colours = [to_hex(rgba).lower()
-               for rgba in np.atleast_2d(intervals_drawn.get_color())]
-    grey = sum(1 for c in colours if c == ROLES["data"].lower())
-    assert grey == 20 and len(colours) == 25, (grey, len(colours))

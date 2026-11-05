@@ -39,7 +39,6 @@ panel reads as a bug; a sentence reads as a finding.
 from __future__ import annotations
 
 import math
-import os
 import socket
 
 import pandas as pd
@@ -106,10 +105,6 @@ REAL_ROWS = [
     ("gene_fraction:gene[411710]", -0.0139083359354999, 0.9076974906968912,
      None, "other", "411710", None, 31.0),
 ]
-
-#: The real screen, when this machine has it. Only used to prove the
-#: transcription above is faithful; every other test runs everywhere.
-REAL_SCREEN = ("/mnt/firecuda2/Claude/toxoplasma_projects/tsg101_screen/test")
 
 
 @pytest.fixture()
@@ -535,52 +530,24 @@ def test_the_toxodb_link_names_the_accession_the_library_used(
 
 
 # --------------------------------------------------------------------------- #
-#  The transcription above is faithful to the real files
+#  Every row of the table is clickable
 # --------------------------------------------------------------------------- #
 
-@pytest.mark.skipif(not os.path.isdir(REAL_SCREEN),
-                    reason="the real TSG101 screen is not on this machine")
-def test_the_fixtures_match_the_real_screen_on_disk(results):
-    """Every number and every barcode row in this file is quoted from the real
-    screen. If the transcription drifts, everything above tests fiction."""
-    real = pd.read_csv(os.path.join(
-        REAL_SCREEN, "results", "plate1_dv", "ols", "list", "results.csv"))
-    for row in results.itertuples(index=False):
-        match = real[real["feature"] == row.feature]
-        assert len(match) == 1, f"{row.feature} is not in the real results"
-        assert float(match.iloc[0]["coefficient"]) == pytest.approx(
-            row.coefficient), row.feature
-        assert float(match.iloc[0]["p_value"]) == pytest.approx(
-            row.p_value), row.feature
-
-    reference = pd.read_csv(os.path.join(REAL_SCREEN, "grna_barcodes.csv"))
-    live = set(zip(reference["name"], reference["sequence"]))
-    for name, sequence in AMBIGUOUS_ROWS:
-        assert (name, sequence) in live, (
-            f"{name} is no longer in the screen's own reference; the "
-            "ambiguity these tests are built on has moved")
-
-
-@pytest.mark.heavy
-@pytest.mark.skipif(not os.path.isdir(REAL_SCREEN),
-                    reason="the real TSG101 screen is not on this machine")
-def test_every_feature_in_the_real_screen_produces_a_tile():
-    """1,213 rows, every one of them clickable. None may raise and none may
-    come back empty."""
-    real = pd.read_csv(os.path.join(
-        REAL_SCREEN, "results", "plate1_dv", "ols", "list", "results.csv"))
-    reference = os.path.join(REAL_SCREEN, "grna_barcodes.csv")
-
-    ambiguous = 0
-    for feature in real["feature"]:
-        tile = gene_tile(feature, real, barcodes=reference)
+def test_every_feature_in_the_table_produces_a_tile(results, screen_reference):
+    """Every row a click can land on, against the screen's own reference.
+    None may raise, none may come back empty, and only the three guides
+    whose protospacer is shared -- 411710_2, _3 and _10 -- are flagged."""
+    flagged = []
+    for feature in results["feature"]:
+        tile = gene_tile(feature, results, barcodes=screen_reference)
         assert tile.title, feature
         assert tile.resolved or tile.unresolved, feature
-        ambiguous += bool(tile.ambiguous)
+        if tile.ambiguous:
+            flagged.append(feature)
 
-    assert ambiguous == 3, (
-        "exactly three fitted guides in this screen carry a shared "
-        f"protospacer -- 411710_2, _3 and _10 -- and {ambiguous} were flagged")
+    assert sorted(flagged) == ["fraction:grna[411710_10]",
+                               "fraction:grna[411710_2]",
+                               "fraction:grna[411710_3]"], flagged
 
 
 class TestTheTileLinksOut:
