@@ -118,6 +118,9 @@ jobs:
               raise SystemExit("The info deck does not match the release version")
           PY
           python packaging/release.py verify >/dev/null
+          if [ "$release_required" = "true" ]; then
+            python tools/require_release_notes.py "$version"
+          fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "tag=v$version" >> "$GITHUB_OUTPUT"
           echo "release_required=$release_required" >> "$GITHUB_OUTPUT"
@@ -520,18 +523,19 @@ jobs:
           VERSION: ${{ needs.bump.outputs.version }}
           ALLOW_UNFINISHED_CI: ${{ github.event_name == 'workflow_dispatch' && inputs.allow_unfinished_ci == true }}
         run: |
-          release_note_args=()
+          notes="$RUNNER_TEMP/release-notes.md"
+          : > "$notes"
           if [ "$ALLOW_UNFINISHED_CI" = "true" ]; then
-            release_note_args=(--notes "Published now at the maintainer's explicit request. Remaining CI, coverage, wound-segmentation accuracy and other unfinished work are deferred to spaCR 1.5.1.7. This release does not claim green CI.")
+            printf '%s\n\n' "Published now at the maintainer's explicit request. This release does not claim green CI." >> "$notes"
           fi
+          cat "docs/notes/release_notes_${VERSION}.md" >> "$notes"
           if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
             gh release upload "$RELEASE_TAG" release-assets/* --clobber
           else
             gh release create "$RELEASE_TAG" release-assets/* \
               --target "$RELEASE_SHA" \
               --title "spaCR $VERSION" \
-              "${release_note_args[@]}" \
-              --generate-notes \
+              --notes-file "$notes" \
               --verify-tag
           fi
 
@@ -579,7 +583,7 @@ jobs:
         with:
           python-version: "3.12"
       # Refresh AGAIN after `gh release create`: preparation could only
-      # bundle earlier published releases. `--generate-notes` writes this
+      # bundle earlier published releases. `--notes-file` writes this
       # resource carries, so before that step this release has no note to
       # bundle: the tool would rewrite the file with the previous release
       # at the top and call it current. Running here means the resource

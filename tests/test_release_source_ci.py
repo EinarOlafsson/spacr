@@ -530,8 +530,8 @@ def test_authorized_immediate_release_discloses_deferred_work_in_public_notes():
     script = publish['run']
     assert 'if [ "$ALLOW_UNFINISHED_CI" = "true" ]' in script
     assert 'does not claim green CI' in script
-    assert 'deferred to spaCR 1.5.1.7' in script
-    assert '"${release_note_args[@]}"' in script and '--generate-notes' in script
+    assert '--notes-file "$notes"' in script and '--generate-notes' not in script
+    assert 'cat "docs/notes/release_notes_${VERSION}.md" >> "$notes"' in script
 
 
 def test_every_release_payload_and_tag_uses_the_ci_accepted_bump_commit():
