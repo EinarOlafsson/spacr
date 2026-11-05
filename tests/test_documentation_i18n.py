@@ -30,7 +30,8 @@ TOOLS = ROOT / "tools"
 # 2026-11-01 items 748/749: +4, spacr.layers.LabelsLayer.{color,contour}, spacr.qt.widgets.gate_editor.GateEditorPanel.run_cluster_in_background and spacr.qt.screens.gate_editor.GateEditorScreen.save_graph_in_background.
 # 2026-11-01 item 749: +1, spacr.qt.screens.organism_screen.OrganismScreen.refresh_maturity_visibility.
 # 2026-11-03 item 749: +3, spacr.qt.widgets.dock.SectionHeader.set_open, .event and .paintEvent.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_221
+# 2026-11-05 items 791, 770, 771: +22, sp_stats.flag_degenerate_features, batch_correction.spherize_features and .harmony_embedding, the spacr.division_analysis module and its fourteen functions, and batch_correction's EMBEDDING_METHODS, TVN_WHITENINGS, TVN_SCOPES and HARMONY_MISSING_MESSAGE.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 13_243
 SOURCE_REVIEWED_SYMBOLS_2026_10_07 = frozenset({
     "spacr.qt.preferences.PreferencesDialog._build_the_dialog._pick_ambient_background",
     "spacr.convert.read_scn",

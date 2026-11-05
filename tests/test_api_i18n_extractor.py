@@ -363,7 +363,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assignments = (assignments - spatial_arrivals.keys()
                    - _LAUNCHER_ASSIGNMENTS - _N696_ASSIGNMENT_ARRIVALS.keys()
                    - _N673_WGPU_ASSIGNMENTS)
-    assert len(assignments) == 35
+    # 35 -> 39 on 2026-11-05 (item 770): batch_correction's EMBEDDING_METHODS,
+    # TVN_WHITENINGS, TVN_SCOPES and HARMONY_MISSING_MESSAGE.
+    assert len(assignments) == 39
     assert _ASSIGNMENTS_ADDED_2026_09_25 <= assignments
     new_assignments = assignments
     assignments = assignments - _ASSIGNMENTS_ADDED_2026_09_25
@@ -371,7 +373,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders - {psf_validator}),
          *(f"new_constant_attribute\0{key}" for key in assignments)]
-    ) == "417e53d93cd6259149951890b9ea9a00b163952790abdfbaff605f2f01785d3d"
+    # Moved 2026-11-05 (was 417e53d9...) by the four item 770 constants
+    # counted above; no dunder changed.
+    ) == "8f1a22e2a2303297096e05796e85052c4dc4405f2472deba7e02ca29be66d0cf"
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders - {psf_validator}),
          *(f"new_constant_attribute\0{key}" for key in assignments
@@ -1512,7 +1516,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # (reviewed in spacr-translations d8ad7b09); measured again in the item 754/678 closure.
     # 2026-11-03 item 749: +3/-0, spacr.qt.widgets.dock.SectionHeader.set_open, .event and .paintEvent
     # (reviewed in spacr-translations 26599a10).
-    expected = 13_193
+    # 2026-11-05 items 791, 770, 771: +22/-0, sp_stats.flag_degenerate_features, batch_correction.spherize_features and .harmony_embedding, the spacr.division_analysis module and its fourteen functions, and batch_correction's EMBEDDING_METHODS, TVN_WHITENINGS, TVN_SCOPES and HARMONY_MISSING_MESSAGE.
+    expected = 13_215
     worker_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts/664_665_worker_api_arrivals_2026-10-08.json").read_text(encoding="utf-8"))
     assert len(worker_arrivals) == 8
@@ -2097,7 +2102,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # Item 662: +4 public mask_engine YOLO helpers, no removals.
     # All 13,177 prior English records preserved; 662_yolo_support receipt.
     # 2026-11-03 item 749: 13,190 -> 13,193 with `expected` above.
-    assert len((historical_docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_home.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_193
+    # 2026-11-05 items 791, 770, 771: 13,193 -> 13,215 with `expected` above.
+    assert len((historical_docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_home.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_215
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -2569,7 +2575,9 @@ def test_assignment_docs_are_ast_source_text_without_show_value_artifact():
     assert wgpu_assignments == assignment_keys & wgpu_arrivals.keys()
     assert {key: docs[key] for key in wgpu_assignments} == {
         key: wgpu_arrivals[key] for key in wgpu_assignments}
-    assert len(assignment_keys - _N696_ASSIGNMENT_ARRIVALS.keys()) == 46
+    # 50 with batch_correction's EMBEDDING_METHODS, TVN_WHITENINGS, TVN_SCOPES
+    # and HARMONY_MISSING_MESSAGE (item 770, 2026-11-05).
+    assert len(assignment_keys - _N696_ASSIGNMENT_ARRIVALS.keys()) == 50
     assert assignment_keys <= docs.keys()
     assert all("Show Value" not in docs[key] for key in assignment_keys)
     assert docs["spacr.batch_correction.METHODS"] == (

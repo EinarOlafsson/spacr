@@ -3679,7 +3679,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # OrganismScreen.refresh_maturity_visibility.
     # 2026-11-03 item 749: +3 callables, all documented: dock.SectionHeader's
     # set_open, event and paintEvent (the Dock heading fold glyph).
-    assert len(callables) == len(by_symbol) == 10002
+    # 2026-11-05 items 791, 770, 771: +17 module-level functions, all
+    # documented: sp_stats.flag_degenerate_features, batch_correction's
+    # spherize_features and harmony_embedding, and the fourteen public
+    # functions of the new spacr.division_analysis module.
+    assert len(callables) == len(by_symbol) == 10019
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -3766,7 +3770,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # gemini_path, github_path, gpt_path and mark_for).
         # 2026-10-31: +4 function (theme.stack_when_narrow, flow.labelled,
         # flow.keep_wrapped_height, model_zoo_picker.drawing_in_steps).
-        "function": 4470,
+        # 2026-11-05 items 791, 770, 771: +17 function, the module-level
+        # functions named in the total.
+        "function": 4487,
         # -9 on 2026-09-15: the seven spacrStitcher methods,
         # StitchedMultiAligner.align and FOVAlignAndCropper.run.
         # Items 591-592: +2 method (the object grid's filter rows and the
@@ -3867,7 +3873,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # background routes named in the total.
         # 2026-11-01 item 749: +1 autoapi, OrganismScreen.refresh_maturity_visibility.
         # 2026-11-03 item 749: +3 autoapi, dock.SectionHeader.set_open, .event and .paintEvent.
-        "autoapi": 9997,
+        # 2026-11-05 items 791, 770, 771: +17 autoapi, the functions named in the total.
+        "autoapi": 10014,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -3931,7 +3938,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-11-01 items 748/749: +2, one per Gate Editor background route.
     # 2026-11-01 item 749: +1, OrganismScreen.refresh_maturity_visibility.
     # 2026-11-03 item 749: +3, dock.SectionHeader.set_open, .event and .paintEvent.
-    assert sum(item.variant_count for item in callables) == 10009
+    # 2026-11-05 items 791, 770, 771: +17, one variant each: sp_stats.flag_degenerate_features, batch_correction.spherize_features and .harmony_embedding, and the fourteen spacr.division_analysis functions.
+    assert sum(item.variant_count for item in callables) == 10026
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
@@ -3959,7 +3967,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 2026-11-01 items 748/749: +2, the two Gate Editor background routes.
         # 2026-11-01 item 749: +1, OrganismScreen.refresh_maturity_visibility.
         # 2026-11-03 item 749: +3, dock.SectionHeader.set_open, .event and .paintEvent.
-        1: 9995,
+        # 2026-11-05 items 791, 770, 771: +17, the seventeen new module-level functions.
+        1: 10012,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -4251,7 +4260,14 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # the new run_cluster_in_background(ask=) and save_graph_in_background(*_checked).
     # 2026-11-03 item 749: 19,908 -> 19,911, +3: SectionHeader.set_open(is_open),
     # SectionHeader.event(event) and SectionHeader.paintEvent(event).
-    assert sum(len(item.parameters) for item in callables) == 19911
+    # 2026-11-05 items 791, 770, 771: 19,911 -> 19,988, +77: the 69 parameters
+    # of sp_stats.flag_degenerate_features, batch_correction.spherize_features
+    # and .harmony_embedding and the fourteen spacr.division_analysis
+    # functions, and correct_batch_effects' eight new optional tvn_* and
+    # harmony_* keywords (tvn_method, tvn_scope, tvn_epsilon,
+    # tvn_n_components, tvn_center_batches, harmony_n_components,
+    # harmony_theta, harmony_seed).
+    assert sum(len(item.parameters) for item in callables) == 19988
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -4308,7 +4324,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # RegexWindow's retired callables.
     # 2026-11-03 item 749: +3 required, the one parameter of each new
     # SectionHeader callable (is_open, event, event); none has a default.
-    assert sum(len(item.required_parameters) for item in callables) == 10248
+    # 2026-11-05 items 791, 770, 771: +34 required, the parameters without a default of the
+    # same seventeen functions.
+    assert sum(len(item.required_parameters) for item in callables) == 10282
     # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
     # subtraction on the full inventory: without that one parameter the digest
     # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
@@ -4543,7 +4561,13 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Moved 2026-11-03 for item 749 (was 01241b81...): the three new rows are
     # dock.SectionHeader.set_open, .event and .paintEvent; the digest over the
     # inventory without them is 01241b81... again, so no other row changed.
-) == '09ec3f6df62e0c736da4e34efc88d648a8e90db156bb9d5896acfb4d524067fe'
+    # Moved 2026-11-05 for items 791, 770, 771 (was 09ec3f6d...), checked by
+    # diffing the source-derived inventory against nightly 2c5b66b955: the
+    # only rows that differ are the seventeen new functions named at the
+    # total and correct_batch_effects, whose parameters and accepted
+    # documented parameters gained the eight optional tvn_* and harmony_*
+    # keywords (its required parameters did not change).
+) == '76fb0596e896ac371203815c5c3886b4e9456369bd877216c53f254f44ace07b'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -5557,12 +5581,15 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 2026-11-01 item 749: 13153 -> 13154 for
     # OrganismScreen.refresh_maturity_visibility.
     # 2026-11-03 item 749: 13154 -> 13157 for dock.SectionHeader.set_open, .event and .paintEvent.
+    # 2026-11-05 items 791, 770, 771: 13157 -> 13179, +22: the seventeen functions, the
+    # spacr.division_analysis module docstring and batch_correction's
+    # EMBEDDING_METHODS, TVN_WHITENINGS, TVN_SCOPES and HARMONY_MISSING_MESSAGE.
     assert len((historical_docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()
                - animation_arrivals.keys()
                - volume_additions.keys()
-               - zoo_additions.keys()) | retired_home.keys()) == 13157
+               - zoo_additions.keys()) | retired_home.keys()) == 13179
     # 2026-10-31: 13,138 -> 13,149, +11 documented symbols: the eight public
     # callables above plus the nested helpers _CrampedScroll._fit_content.tallest
     # and MakeMasksScreen._hold_the_title_bar_to_its_text.measure and
@@ -6010,7 +6037,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # and GateEditorScreen.save_graph_in_background.
     # 2026-11-01 item 749: +1, OrganismScreen.refresh_maturity_visibility.
     # 2026-11-03 item 749: +3, dock.SectionHeader.set_open, .event and .paintEvent.
-    assert len(prior - pipeline_callables) == 9651
+    # 2026-11-05 items 791, 770, 771: +17, the seventeen new module-level functions.
+    assert len(prior - pipeline_callables) == 9668
     # Item 600, 2026-09-29: +11 callables (drop_classification, organize_for_measure).
     # Item 690: +10, as above.
     # Item 700: -23, as above.
@@ -6019,7 +6047,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 2026-11-01 items 748/749: +2, the two Gate Editor background routes.
     # 2026-11-01 item 749: +1, OrganismScreen.refresh_maturity_visibility.
     # 2026-11-03 item 749: +3, dock.SectionHeader.set_open, .event and .paintEvent.
-    assert len(prior - pipeline_callables - validation_functions) == 9645
+    # 2026-11-05 items 791, 770, 771: +17, the seventeen new module-level functions.
+    assert len(prior - pipeline_callables - validation_functions) == 9662
     # 9,522 -> 9,630 on 2026-09-25: +109 session_callables, -1 render_cellprob;
     # 9,640 with the ten rebase_callables; 9,687 with merged_callables.
     # 9,727 with item 528's eleven; 9,784 on 2026-09-26, +59 / -2.
@@ -6102,8 +6131,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # and GateEditorScreen.save_graph_in_background.
     # 2026-11-01 item 749: +1, OrganismScreen.refresh_maturity_visibility.
     # 2026-11-03 item 749: +3, dock.SectionHeader.set_open, .event and .paintEvent.
+    # 2026-11-05 items 791, 770, 771: +17, the seventeen new module-level functions.
     assert len(rendered_documented_callables.keys() - yolo_callables
-               - volume_callables - arrival_callables) == 9974
+               - volume_callables - arrival_callables) == 9991
     # Item 700, 2026-10-15: 9,998 -> 9,975, the 23 retired setup callables.
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
