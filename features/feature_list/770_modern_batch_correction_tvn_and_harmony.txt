@@ -67,3 +67,20 @@ NOT DONE / NEEDS THE GENERATOR LOCK
 BENCHMARK
     /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/batch_benchmark/
     (REPORT.md, scripts, CSVs).
+
+2026-11-04 -- BENCHMARK RESULT (BBBC021, CPU)
+    3 feature sets (CellProfiler; spaCR end to end; spaCR on CP masks), well
+    means and medians, batch = week, controls = DMSO; 1-NN and leave-one-
+    compound-out logistic/XGBoost under NSC and NSCB, JUMP activity and
+    consistency mAP with permutation nulls, paired McNemar tests.
+    * No correction closes the NSC-NSCB gap: it stays 15-33 points wherever
+      NSC stays above 75 %; smaller gaps only come from NSC falling.
+    * Global DMSO z-score + tvn is the most consistent arm: never lowers
+      1-NN NSCB by more than 1 point; CellProfiler 52.9 -> 62.7 % (p 0.053),
+      NSC 81.6 -> 89.3 %; spaCR end to end 62.7 -> 68.6 %; best NSCB
+      consistency mAP on both spaCR sets.
+    * tvn after a per-plate z-score (6 DMSO wells per plate) and
+      pycytominer's keep-every-direction whitening both collapse NSC; hence
+      the n_components='auto' default.
+    * harmony never beats raw or raw + tvn on 1-NN NSCB.
+    Report: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/batch_benchmark/REPORT.md
