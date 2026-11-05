@@ -262,9 +262,9 @@ Picking up where you left off
 - **Settings autosave**: every 30 seconds the unsaved settings of every open
   module are kept as a draft in the preference store; nothing is written when
   nothing changed. A clean exit drops the drafts. If spaCR ended without
-  closing, the next start asks once whether to restore them (drafts already
-  restored are not offered again). The same behaviour applies on Linux,
-  macOS and Windows, because the store is Qt's own settings store.
+  closing, the next start asks once whether to restore them. The same
+  behaviour applies on Linux, macOS and Windows, because the store is Qt's
+  own settings store.
 
 Settings files
 --------------

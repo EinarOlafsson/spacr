@@ -53543,15 +53543,6 @@
     "qualname": "_app_unit_bytes"
    },
    {
-    "form": "get-dynamic",
-    "function_depth": 1,
-    "key": "src",
-    "line": 294,
-    "module": "spacr.restart_state",
-    "nested": false,
-    "qualname": "_folder_of"
-   },
-   {
     "form": "get",
     "function_depth": 1,
     "key": "src",
