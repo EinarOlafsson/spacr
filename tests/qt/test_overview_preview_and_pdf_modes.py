@@ -3,7 +3,7 @@
 The settings panel offers these values; each is set on the Overview tab's
 setting row, reaches the browser's control, and is checked for its effect: a
 preview resolution of '256' or '512' loads a stacked image with exactly that
-longest edge, a PDF quality of '3200' bounds each exported field's edge, and a
+longest edge, a PDF quality of '1600' or '3200' bounds each exported field's edge, and a
 PDF DPI of '150' bounds the pixel density of the bounded-quality images
 embedded on the page; full source resolution keeps every pixel.
 """
@@ -153,6 +153,20 @@ def test_pdf_quality_3200_bounds_each_exported_field_edge(mask, qtbot, source):
     width, height, _inches = images[0]
     assert max(width, height) <= 3200
     assert (width, height) == (WIDTH // 2, HEIGHT // 2)
+
+
+def test_pdf_quality_1600_bounds_each_exported_field_edge(mask, qtbot, source):
+    tab, view = _open(mask, qtbot, source)
+    tab._settings_model.set_value_for_key("overview_pdf_quality", "1600")
+    tab._settings_model.set_value_for_key("overview_pdf_dpi", 600)
+    assert view.pdf_quality.currentData() == 1600 and view.pdf_dpi.currentData() == 600
+    pdfs, metadata = _export_one_field(tab, view, qtbot, source)
+    assert metadata["quality_edge"] == 1600 and metadata["written_field_count"] == 1
+    images = [image for pdf in pdfs for image in _embedded_images(pdf)]
+    assert len(images) == 1
+    width, height, _inches = images[0]
+    assert max(width, height) <= 1600
+    assert width < WIDTH // 2 and width * HEIGHT == pytest.approx(height * WIDTH, rel=0.01)
 
 
 def test_pdf_dpi_150_bounds_the_embedded_pixel_density(mask, qtbot, source):
