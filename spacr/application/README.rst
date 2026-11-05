@@ -1,12 +1,33 @@
 spaCR lightweight installers
 ============================
 
-Current version: ``1.5.1.6``
+Current version: ``1.5.1.7``
 
 New releases are added here without removing earlier versions.
 These small online installers download a private Python runtime and
 dependencies during installation. Every installer pins the spaCR
 version in its filename.
+
+spaCR 1.5.1.7 — 64-bit Linux
+----------------------------
+
+* File: ``spaCR-1.5.1.7-Linux-x86_64-Online.run``
+* Size: ``696794`` bytes
+* SHA-256: ``b61dacd99dc671da1355f1912165c33240bf748777fc7db6029bad9d69b9b959``
+
+spaCR 1.5.1.7 — macOS 11+ (Intel and Apple silicon)
+---------------------------------------------------
+
+* File: ``spaCR-1.5.1.7-macOS-Universal-Online.pkg``
+* Size: ``732561`` bytes
+* SHA-256: ``b982a624fa02c8603217f0f7c7d7941297b9032f346dea6b682470d7f7c713b0``
+
+spaCR 1.5.1.7 — Windows 10/11
+-----------------------------
+
+* File: ``spaCR-1.5.1.7-Windows-Online-Setup.exe``
+* Size: ``339271`` bytes
+* SHA-256: ``b4d9cdc9afa86ff726ed4247e36ddaa2226186bf021bd4669387e99deb758e81``
 
 spaCR 1.5.1.6 — 64-bit Linux
 ----------------------------
