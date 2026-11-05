@@ -2996,9 +2996,6 @@ def _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_
     nucleus_dt = distance_transform_edt(nucleus_mask == 0, sampling=spacing)
     pathogen_dt = distance_transform_edt(pathogen_mask == 0, sampling=spacing)
 
-    # One bounding box per cell, found once: the tight box of a label is what
-    # the per-label argwhere over the whole field gave, at O(field) instead of
-    # O(cells x field) per channel.
     boxes = _label_bounding_boxes(cell_mask)
 
     for ch in range(channel_arrays.shape[-1]):

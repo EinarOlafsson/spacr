@@ -2984,12 +2984,6 @@ def _insert_frame(conn, table, frame):
                 )
             )
     rows = zip(*values_by_column)
-    # ONE TRANSACTION FOR THE FRAME. spaCR's connections are opened in
-    # autocommit mode (isolation_level=None), where executemany commits --
-    # and syncs -- every row on its own: 47 rows/s on a spinning disk, so a
-    # 900-cell field took 18 s per table. An explicit BEGIN makes it one
-    # commit, and keeps the all-or-error contract. A connection already in a
-    # transaction (a queued write packet) is left to its owner.
     try:
         if getattr(conn, 'isolation_level', '') is None and not getattr(
                 conn, 'in_transaction', True):
