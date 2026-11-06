@@ -1,7 +1,7 @@
-A VRAM BUDGET SETTING
+A VRAM BUDGET AND GPU MEMORY GOVERNOR
 
-Lifecycle: future
-Status: not started
+Lifecycle: new
+Status: open. Building now (maintainer, 2026-11-06).
 Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
            (BMC spaCR paper) worked around must become a spaCR item.
 Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/spacr/README.md, "Gaps in spaCR worked around here", gap 10
@@ -25,17 +25,42 @@ Shared GPUs (one workstation, several jobs) need a hard per-job cap.
 WHAT TO DO
 --------------------------------------------------------------------------------
 
-1. A vram_budget setting (GB or fraction) applied per process and split
-   across workers, with batch size reduced to fit.
-2. Retry a batch that runs out of memory at half size before failing.
-3. Register it in ALPHA_FEATURES under 803.
+Widened 2026-11-06 (maintainer: "can't the GPU VRAM usage be dynamically
+regulated so neither process crashes?"), merging the paper session's GPU
+memory governor request. spaCR GPU work never crashes on a shared card.
+
+Where: the Cellpose wrapper(s); measure_gpu (torch and cupy/cucim); the OPS
+phenotype and SBS paths; CNN inference and training loops.
+
+1. Before each batch, read torch.cuda.mem_get_info(). If free VRAM is under
+   the estimated need plus a margin, shrink the batch or wait.
+2. OOM guard: on a torch or cupy OutOfMemoryError, call empty_cache() /
+   free_all_blocks(), halve the batch and retry the same item. After N
+   retries at batch 1, fall back to the CPU for that item. Never drop data,
+   never exit.
+3. Release cached memory after each item.
+4. Ramp the batch back up after K clean items.
+5. Optional hard ceiling: gpu_memory_fraction, applied with
+   set_per_process_memory_fraction.
+6. Machine-wide ledger: each spaCR GPU process records its current use and
+   ceiling in a shared file (stale entries from dead PIDs ignored), so a new
+   job takes only what is free and running jobs shrink when room is needed.
+7. Log adapt, retry and fallback counts to the run report.
+
+Settings:
+- gpu_memory_fraction (float or None);
+- gpu_memory_margin_gb (default 1.5);
+- gpu_adaptive_batch (bool, default True).
+Register the feature in ALPHA_FEATURES under 803.
 
 --------------------------------------------------------------------------------
 HOW TO KNOW IT WORKED
 --------------------------------------------------------------------------------
 
-A BBBC021 plate segments inside a 5 GB budget, verified with nvidia-smi
-per process.
+- A BBBC021 plate segments inside a 5 GB budget, verified with nvidia-smi
+  per process.
+- Tests (CPU only): simulated OOM; batch halving with retry; CPU fallback;
+  ramp-up; the ledger with a dead PID.
 
 --------------------------------------------------------------------------------
 DELIBERATELY NOT DONE
