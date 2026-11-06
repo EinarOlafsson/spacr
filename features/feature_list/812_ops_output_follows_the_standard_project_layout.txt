@@ -1,0 +1,40 @@
+OPS OUTPUT FOLLOWS SPACR'S STANDARD PROJECT LAYOUT
+
+Lifecycle: new
+Status: open. Build after the OPS decode and stitching strategy work settles, so it absorbs the new Boolean settings.
+Requested: maintainer, 2026-11-06 (BMC paper OPS reanalysis).
+Owner: unassigned.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The OPS module (ops_engine) writes its own outputs: an SBS genotype
+measurements.db in the run folder and ops_phenotype_cells_<well>.parquet.
+Phenotype masks are per-field npz. There is no merged/ folder and no
+measurements/measurements.db with cell, nucleus, cytoplasm and png_list, so
+the standard spaCR tools (classifier and CNN training, annotation, UMAP,
+galleries) cannot open OPS results directly.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Write <src>/measurements/measurements.db with:
+   - the standard cell, nucleus and cytoplasm tables, with spaCR names and
+     keys (prcfo / plate_row_column_field / object label);
+   - png_list;
+   - a genotype table keyed to the same objects: object_id, mapped_guide,
+     gene, quality, n_reads, fraction, link distance and the decode-rule
+     flags.
+2. Write crops to <src>/data/... in the _generate_names layout: raw uint16,
+   no per-crop stretch (item 772), sharded per item 809, with one PNG per
+   cell as an option.
+3. Make merged/*.npy per-field stacks (images plus masks) an optional
+   setting, ops_write_merged, default off. A well has about 1,281 phenotype
+   fields, and the stacks are large.
+4. Keep masks saved per field.
+5. Test: open an OPS result with the standard measurement and annotation
+   readers.
+
+The paper run's frozen source copy is not changed.
