@@ -96,6 +96,11 @@ def fmt_p(p) -> str:
 
 
 def _natural_key(value):
+    """Sort key that orders embedded numbers by value, so ``c2`` precedes ``c10``.
+
+    :param value: any condition value; it is compared as text.
+    :returns: the text split into lower-cased words and integers.
+    """
     text = str(value)
     return [int(t) if t.isdigit() else t.lower() for t in re.split(r"(\d+)", text)]
 
@@ -144,6 +149,13 @@ def panel_folder_name(panel_id: str, name: str) -> str:
 
 # --------------------------------------------------------------------------- bar-panel tests
 def _empty_test(test, n_groups, reason):
+    """One ``test`` row for a comparison that was not run.
+
+    :param test: the value of the ``test`` column, e.g. ``"not tested"``.
+    :param n_groups: how many groups had data.
+    :param reason: why no test was run, written to ``note``.
+    :returns: the row as a dict, every statistic NaN.
+    """
     return dict(test=test, statistic=np.nan, df1=np.nan, df2=np.nan, p_value=np.nan,
                 effect_size_name="", effect_size=np.nan, all_groups_normal=np.nan,
                 equal_variance=np.nan, significance="n/a", n_groups=n_groups, note=reason)
@@ -331,6 +343,11 @@ def select_and_run_test(df: pd.DataFrame, value: str, group: str, order: Sequenc
 
 # --------------------------------------------------------------------------- proportion tests
 def _cramers_v(table):
+    """Cramér's V of a contingency table, from its uncorrected chi-square.
+
+    :param table: counts, conditions by bins.
+    :returns: V between 0 and 1, or NaN for an empty or one-row/one-column table.
+    """
     from scipy import stats
     n = table.sum()
     k = min(table.shape) - 1
@@ -341,6 +358,11 @@ def _cramers_v(table):
 
 
 def _clean_table(table):
+    """Drop the all-zero columns and rows of a contingency table.
+
+    :param table: counts, conditions by bins.
+    :returns: the remaining counts as a float array.
+    """
     table = np.asarray(table, dtype=float)
     table = table[:, table.sum(axis=0) > 0]
     table = table[table.sum(axis=1) > 0, :]
@@ -348,11 +370,23 @@ def _clean_table(table):
 
 
 def _nan_result(test, table):
+    """A proportion-test result for a table too small to test.
+
+    :param test: the name of the test that could not run.
+    :param table: the cleaned counts, used only for ``n``.
+    :returns: the result dict with NaN statistics.
+    """
     return dict(test=test, statistic=np.nan, dof=np.nan, p_value=np.nan, cramers_v=np.nan,
                 n=int(np.nansum(table)) if np.size(table) else 0, n_resamples=0)
 
 
 def _chi2_test(table, **_):
+    """Chi-square test of independence without continuity correction.
+
+    :param table: counts, conditions by bins; empty rows and columns are dropped.
+    :returns: test name, statistic, degrees of freedom, p value, Cramér's V and
+        ``n``, or a NaN result when fewer than two rows or columns remain.
+    """
     from scipy import stats
     table = _clean_table(table)
     if table.shape[0] < 2 or table.shape[1] < 2:
@@ -364,6 +398,17 @@ def _chi2_test(table, **_):
 
 
 def _fisher_test(table, n_resamples=20000, seed=0):
+    """Fisher's exact test, or its Freeman-Halton extension beyond 2 x 2.
+
+    A 2 x 2 table uses :func:`scipy.stats.fisher_exact`. A larger one draws
+    ``n_resamples`` tables with the observed margins and reports the share at
+    least as improbable as the observed one (Monte Carlo p value).
+
+    :param table: counts, conditions by bins; empty rows and columns are dropped.
+    :param n_resamples: Monte Carlo tables drawn for a table larger than 2 x 2.
+    :param seed: seed for those draws, so the p value is reproducible.
+    :returns: the result dict, as :func:`_chi2_test` returns it.
+    """
     from scipy import stats
     table = _clean_table(table).astype(int)
     if table.shape[0] < 2 or table.shape[1] < 2:
@@ -531,6 +576,7 @@ def stacked_spec(fractions: pd.DataFrame, counts: pd.DataFrame, group: str, orde
 
 # --------------------------------------------------------------------------- drawing
 def _despine(ax):
+    """Hide the top and right spines of ``ax``."""
     for side in ("top", "right"):
         ax.spines[side].set_visible(False)
 
@@ -555,6 +601,15 @@ def _draw_annotations(ax, order, annotations, fontsize=7):
 
 
 def _set_xticks(ax, order, labels, annotations, rotation=None):
+    """Label the categories along the x axis, with annotation rows beneath.
+
+    :param ax: the panel's axes.
+    :param order: the categories, in plotting order.
+    :param labels: display names for the categories, or None.
+    :param annotations: rows of per-category text drawn under the axis, or None.
+    :param rotation: tick label rotation in degrees; when None the labels are
+        rotated by 35 degrees only when they would otherwise touch.
+    """
     n_rows = _draw_annotations(ax, order, annotations)
     text = [display_label(g, labels) for g in order]
     if rotation is None:
@@ -648,6 +703,12 @@ def draw_bar_panel(ax, data: pd.DataFrame, value: str, group: str, order: Sequen
 
 
 def _bin_colors(n, colors=None):
+    """Colours for ``n`` stacked bins.
+
+    :param n: number of bins.
+    :param colors: colours given by the caller, returned as a list when set.
+    :returns: the given colours, or ``n`` evenly spaced viridis colours.
+    """
     if colors is not None:
         return list(colors)
     import matplotlib
@@ -721,6 +782,13 @@ def draw_panel(ax, spec: dict, legend: bool = True):
 
 
 def _panel_size(spec):
+    """Figure size of one panel, in inches.
+
+    :param spec: the panel spec; its ``order``, ``kind`` and ``annotations`` set
+        the size.
+    :returns: ``(width, height)``, wider for more categories and for a stacked
+        panel's legend, taller for each annotation row.
+    """
     n = max(len(spec["order"]), 1)
     width = 1.6 + 0.55 * n + (1.8 if spec["kind"] == "stacked" else 0)
     n_rows = len(spec.get("annotations") or {})

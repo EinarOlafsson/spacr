@@ -1046,12 +1046,25 @@ def _panel_order(values, panel, settings):
 
 
 def _panel_labels(panel, settings):
+    """Condition display names for one panel.
+
+    :param panel: the panel's settings; its ``labels`` override the run's.
+    :param settings: the analysis settings, with ``condition_labels``.
+    :returns: the merged mapping, or None when neither sets any.
+    """
     labels = dict(settings.get('condition_labels') or {})
     labels.update(panel.get('labels') or {})
     return labels or None
 
 
 def _check_panels_setting(panels):
+    """Normalise the ``panels`` setting to a list of panel dicts.
+
+    :param panels: None, one panel dict, or a list of them.
+    :returns: copies of the panels, each with a ``name`` (``panel_<i>`` when
+        none was given).
+    :raises TypeError: when an entry is not a dict.
+    """
     if panels is None:
         return []
     if isinstance(panels, dict):
@@ -1137,12 +1150,26 @@ class _FilterLog:
     """Record objects remaining / removed by each filter step."""
 
     def __init__(self, df, unit='objects', first_step='spaCR output'):
+        """Start the log with the unfiltered table.
+
+        :param df: the table before any filter.
+        :param unit: what a row is, used in the column names.
+        :param first_step: name of the first row of the log.
+        """
         self.unit = unit
         self.rows = [dict(step=first_step, **{f'{unit}_remaining': len(df),
                                               f'{unit}_removed': 0})]
         self.start = df
 
     def add(self, step, before, after, note=''):
+        """Record one filter step and print how much it removed.
+
+        :param step: name of the step.
+        :param before: the table before the step.
+        :param after: the table after the step.
+        :param note: optional detail written to the ``note`` column.
+        :returns: ``after``, so a call can wrap the filter.
+        """
         self.rows.append(dict(step=step, **{f'{self.unit}_remaining': len(after),
                                             f'{self.unit}_removed': len(before) - len(after)},
                               note=note))
@@ -1151,12 +1178,20 @@ class _FilterLog:
         return after
 
     def frame(self):
+        """The log as a table, one row per step, with empty notes as ``''``."""
         out = pd.DataFrame(self.rows)
         if 'note' in out.columns:
             out['note'] = out['note'].fillna('')
         return out
 
     def kept_per_condition(self, end, group='condition'):
+        """Rows per condition before the first and after the last filter.
+
+        :param end: the table after every filter.
+        :param group: the condition column.
+        :returns: one row per condition with the counts before and after and
+            ``fraction_kept``; empty when the unfiltered table has no ``group``.
+        """
         if group not in self.start.columns:
             return pd.DataFrame()
         a = self.start.groupby(group).size().rename(f'{self.unit}_before_filters')
@@ -1239,6 +1274,13 @@ def _apply_confounder_filter(df, spec, log, well_keys=('plateID', 'rowID', 'colu
 
 
 def _well_density_columns_needed(settings):
+    """Whether any setting names a per-well density column.
+
+    :param settings: the recruitment settings; ``confounder_filter``,
+        ``confounder_covariates``, ``adjust_covariates`` and the panels'
+        ``value`` are checked.
+    :returns: True when the well density columns must be attached.
+    """
     names = ('n_cells_well', 'n_pathogens_well', 'pathogens_per_cell_well',
              'n_pathogens_in_cells_well', 'n_fields_well')
     wanted = list((settings.get('confounder_filter') or {}).keys())
@@ -1291,6 +1333,7 @@ def _plate_map_condition_order(df, group, settings):
     first = df.dropna(subset=[group]).groupby(group, observed=True).first()
 
     def key(value):
+        """Position of a condition in the listed host cells, treatments and pathogens, then its name."""
         out = []
         for column, listed in slots:
             listed = [listed] if isinstance(listed, str) else list(listed or [])
@@ -1336,6 +1379,7 @@ def _recruitment_control_specs(df, settings):
     n = 0
 
     def add(spec, name, fig):
+        """Number a control panel ``C01``, ``C02``, ... and file it under figure ``fig``."""
         nonlocal n
         n += 1
         pid = f'C{n:02d}'
@@ -1416,6 +1460,11 @@ def _recruitment_panels(df, settings, results_dir):
 
 
 def _replication_filters_active(settings):
+    """Whether field QC, edge-object exclusion or the area quantile filter is on.
+
+    :param settings: the replication settings.
+    :returns: True when the filter log and its tables should be written.
+    """
     return bool(settings.get('field_qc') or settings.get('exclude_edge_objects')
                 or settings.get('max_area_quantile') is not None)
 
@@ -1472,6 +1521,14 @@ def _replication_filters(frame, settings, area_column, edge_cut, db_tables, unit
 
 
 def _write_filter_outputs(output_dir, log, flags, end, group_column):
+    """Write the filter log, the kept-per-condition table and the field QC flags.
+
+    :param output_dir: folder the CSVs go to; created when missing.
+    :param log: the run's filter log.
+    :param flags: the per-field QC table, or None when field QC is off.
+    :param end: the table after every filter.
+    :param group_column: the condition column.
+    """
     os.makedirs(output_dir, exist_ok=True)
     write_table(log.frame(), os.path.join(output_dir, 'filter_summary.csv'))
     write_table(log.kept_per_condition(end, group_column),
