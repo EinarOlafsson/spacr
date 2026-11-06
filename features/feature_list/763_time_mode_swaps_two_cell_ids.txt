@@ -2,7 +2,7 @@ TIME MODE SWAPS TWO CELL IDENTITIES DIRECTLY
 ============================================
 
 Lifecycle: new
-Status: open — for the release after 1.5.1.7.
+Status: DONE 2026-11-06 — a wheel step in Time mode over another cell's object, while the selected cell already marks a different object in the frame, now exchanges the two cells' identities for that frame (pixels untouched, one undoable step) instead of refusing; the lineage follows.
 Requested: Timepose session (time-lapse curation), 2026-11-03, issue 2.
 
 REQUEST

@@ -36,6 +36,7 @@ calling and the AnnData export already consume.
 """
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import logging
 import os
@@ -1096,6 +1097,42 @@ def _cell_dino_model(spec: EmbeddingSpec, torch: Any):
     return model, forward
 
 
+@contextlib.contextmanager
+def _zip_safetensors_loadable(torch: Any):
+    """Let a ``*.safetensors`` path that holds a torch zip archive load through ``torch.load``.
+
+    OpenPhenom's remote code hands its ``model.safetensors`` to ``torch.load``,
+    but the file is a torch zip archive. Recent torch sends every
+    ``*.safetensors`` path to the safetensors reader, which rejects it. For the
+    duration of the model build, such a path is opened as a file and read
+    through the weights-only path of the original ``torch.load``; a genuine
+    safetensors file is read by the safetensors reader and every other call is
+    passed through untouched.
+    """
+    original = torch.load
+
+    def load(f, *args, **kwargs):
+        """Read ``f`` by its real format rather than by its extension."""
+        if not (isinstance(f, (str, os.PathLike))
+                and os.fspath(f).endswith(".safetensors")):
+            return original(f, *args, **kwargs)
+        with open(f, "rb") as handle:
+            magic = handle.read(4)
+            if magic == b"PK\x03\x04":
+                handle.seek(0)
+                kwargs["weights_only"] = True
+                return original(handle, *args, **kwargs)
+        from safetensors.torch import load_file
+
+        return load_file(os.fspath(f))
+
+    torch.load = load
+    try:
+        yield
+    finally:
+        torch.load = original
+
+
 def _hub_model(name: str, info: Mapping[str, Any], torch: Any):
     """A Hugging Face remote-code model and its forward pass.
 
@@ -1108,8 +1145,9 @@ def _hub_model(name: str, info: Mapping[str, Any], torch: Any):
         raise EmbeddingError(
             f"{name} needs the transformers package; pip install "
             "transformers") from exc
-    model = AutoModel.from_pretrained(info["repo"], revision=info["revision"],
-                                      trust_remote_code=True)
+    with _zip_safetensors_loadable(torch):
+        model = AutoModel.from_pretrained(info["repo"], revision=info["revision"],
+                                          trust_remote_code=True)
     if name == "openphenom":
         model.return_channelwise_embeddings = False
 

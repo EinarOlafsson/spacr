@@ -12,7 +12,7 @@ Repeated IDs retain their separate full filenames and histories; none were merge
 
 This is a declaration-based navigation list, not a verified unfinished count. Headers can be stale. Conversely, recorded-Done items 641 and 673 contain later Mac follow-ups; item 729 separates native checks from deferred implementation. Read their linked notes before assigning work.
 
-87 records have no recorded complete declaration; 729 have a recorded complete declaration. Neither is a verification result.
+85 records have no recorded complete declaration; 731 have a recorded complete declaration. Neither is a verification result.
 
 | ID | Lifecycle | Item (full filename) | Recorded status |
 |---|---|---|---|
@@ -44,14 +44,12 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 758 | New | [REMOVE CLAUDE FROM EVERY COMMIT IT APPEARS ON — 758_remove_claude_from_commit_history.txt](feature_list/758_remove_claude_from_commit_history.txt) | open — for the release after 1.5.1.7. Needs the maintainer's explicit |
 | 759 | New | [CLEAN UP THE CODE BASE: UNNECESSARY COMMENTS AND UNUSED FUNCTIONS — 759_clean_up_comments_and_unused_functions.txt](feature_list/759_clean_up_comments_and_unused_functions.txt) | open — for the release after 1.5.1.7. |
 | 760 | New | [REMOVE TESTS THAT NO LONGER MAKE SENSE OR DO NOT TEST HOW spaCR WORKS — 760_remove_tests_that_no_longer_make_sense.txt](feature_list/760_remove_tests_that_no_longer_make_sense.txt) | open — for the release after 1.5.1.7. |
-| 763 | New | [TIME MODE SWAPS TWO CELL IDENTITIES DIRECTLY — 763_time_mode_swaps_two_cell_ids.txt](feature_list/763_time_mode_swaps_two_cell_ids.txt) | open — for the release after 1.5.1.7. |
 | 768 | New | [SYNCTHING: THE HOME-WORKSTATION CONNECTION KEEPS DROPPING — 768_syncthing_home_workstation_connection_keeps_dropping.txt](feature_list/768_syncthing_home_workstation_connection_keeps_dropping.txt) | open — workaround in place (training-projects paused on Home, 2026-11-04 16:40). |
 | 769 | Future | [A PER-CELL EXPORT JOINING CELL, NUCLEUS AND CYTOPLASM — 769_a_per_cell_export_joining_cell_nucleus_and_cytoplasm.txt](feature_list/769_a_per_cell_export_joining_cell_nucleus_and_cytoplasm.txt) | not started |
 | 771 | Future | [WHAT TRACKED CELLS DO BEFORE THEY DIVIDE: DIVISION-ALIGNED TRAJECTORIES WITH CONTROLS — 771_what_tracked_cells_do_before_they_divide.txt](feature_list/771_what_tracked_cells_do_before_they_divide.txt) | IN PROGRESS (alpha) 2026-11-04 — library module spacr/division_analysis.py and its tests are on branch division-analysis; no GUI surface, setting or screen yet, so nothing is registered with the alpha gate. |
 | 772 | New | [CROPS ARE EXPORTED RAW; NORMALISATION BELONGS TO THE TRANSFORM — 772_crops_are_exported_raw_and_normalised_in_the_transform.txt](feature_list/772_crops_are_exported_raw_and_normalised_in_the_transform.txt) | open. |
 | 773 | New | [THE PER-PLATE ILLUMINATION MODEL APPLIES TO A CROP WINDOW — 773_the_illumination_model_applies_to_a_crop_window.txt](feature_list/773_the_illumination_model_applies_to_a_crop_window.txt) | open. |
 | 774 | New | [MEASURE WRITES ITS IN-MEMORY MASK EDITS BACK TO MERGED — 774_measure_writes_its_mask_edits_back_to_merged.txt](feature_list/774_measure_writes_its_mask_edits_back_to_merged.txt) | open. |
-| 775 | New | [OPENPHENOM LOADS UNDER TORCH 2.12 AND LATER — 775_openphenom_loads_under_torch_2_12.txt](feature_list/775_openphenom_loads_under_torch_2_12.txt) | open. |
 | 776 | New | [CHADA-VIT TAKES THE REAL CHANNEL COUNT — 776_chada_vit_takes_the_real_channel_count.txt](feature_list/776_chada_vit_takes_the_real_channel_count.txt) | open. |
 | 777 | New | [THE TIMM EMBEDDING ENCODER NORMALISES AND RESIZES LIKE IMAGENET — 777_timm_encoder_normalises_and_resizes_like_imagenet.txt](feature_list/777_timm_encoder_normalises_and_resizes_like_imagenet.txt) | open. |
 | 778 | New | [EMBEDDING A SHARD OR DATABASE IS A PUBLIC STEP — 778_embedding_a_store_is_a_public_step.txt](feature_list/778_embedding_a_store_is_a_public_step.txt) | open. |
@@ -854,7 +852,7 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 760 | New | [REMOVE TESTS THAT NO LONGER MAKE SENSE OR DO NOT TEST HOW spaCR WORKS — 760_remove_tests_that_no_longer_make_sense.txt](feature_list/760_remove_tests_that_no_longer_make_sense.txt) | open — for the release after 1.5.1.7. |
 | 761 | New | [THE RELEASE REUSES GREEN NIGHTLY CI FOR THE EXACT SAME COMMIT — 761_release_reuses_green_nightly_ci_for_the_same_commit.txt](feature_list/761_release_reuses_green_nightly_ci_for_the_same_commit.txt) | DONE 2026-11-06 — select_run() reuses a green nightly run of the exact SHA; tests/test_release_source_ci.py passes (100 tests) on nightly. |
 | 762 | New | [A BUSY UNIPROT IS NOT AN EMPTY ANSWER — 762_uniprot_busy_is_not_an_empty_answer.txt](feature_list/762_uniprot_busy_is_not_an_empty_answer.txt) | DONE 2026-11-05 — shipped in 1.5.1.7. |
-| 763 | New | [TIME MODE SWAPS TWO CELL IDENTITIES DIRECTLY — 763_time_mode_swaps_two_cell_ids.txt](feature_list/763_time_mode_swaps_two_cell_ids.txt) | open — for the release after 1.5.1.7. |
+| 763 | New | [TIME MODE SWAPS TWO CELL IDENTITIES DIRECTLY — 763_time_mode_swaps_two_cell_ids.txt](feature_list/763_time_mode_swaps_two_cell_ids.txt) | DONE 2026-11-06 — a wheel step in Time mode over another cell's object, while the selected cell already marks a different object in the frame, now exchanges the two cells' identities for that frame (pixels untouched, one undoable step) instead of refusing; the lineage follows. |
 | 764 | New | [TIME MODE NAMES DAUGHTERS BY DIVISION TYPE AND CAN REMOVE A DIVISION — 764_time_mode_division_types_and_undo.txt](feature_list/764_time_mode_division_types_and_undo.txt) | DONE 2026-11-05 — shipped in 1.5.1.7. |
 | 765 | New | [TIME MODE SHOWS PROGRESS WHILE A LARGE MOVIE'S LINEAGE LOADS — 765_time_mode_shows_lineage_loading_progress.txt](feature_list/765_time_mode_shows_lineage_loading_progress.txt) | DONE 2026-11-05 — shipped in 1.5.1.7. |
 | 766 | New | [PREVIEWS REFUSE A CACHED MODEL FILE THAT FAILS ITS CHECKSUM — 766_previews_refuse_a_model_file_that_fails_its_checksum.txt](feature_list/766_previews_refuse_a_model_file_that_fails_its_checksum.txt) | DONE 2026-11-05 — shipped in 1.5.1.7. |
@@ -866,7 +864,7 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 772 | New | [CROPS ARE EXPORTED RAW; NORMALISATION BELONGS TO THE TRANSFORM — 772_crops_are_exported_raw_and_normalised_in_the_transform.txt](feature_list/772_crops_are_exported_raw_and_normalised_in_the_transform.txt) | open. |
 | 773 | New | [THE PER-PLATE ILLUMINATION MODEL APPLIES TO A CROP WINDOW — 773_the_illumination_model_applies_to_a_crop_window.txt](feature_list/773_the_illumination_model_applies_to_a_crop_window.txt) | open. |
 | 774 | New | [MEASURE WRITES ITS IN-MEMORY MASK EDITS BACK TO MERGED — 774_measure_writes_its_mask_edits_back_to_merged.txt](feature_list/774_measure_writes_its_mask_edits_back_to_merged.txt) | open. |
-| 775 | New | [OPENPHENOM LOADS UNDER TORCH 2.12 AND LATER — 775_openphenom_loads_under_torch_2_12.txt](feature_list/775_openphenom_loads_under_torch_2_12.txt) | open. |
+| 775 | New | [OPENPHENOM LOADS UNDER TORCH 2.12 AND LATER — 775_openphenom_loads_under_torch_2_12.txt](feature_list/775_openphenom_loads_under_torch_2_12.txt) | DONE 2026-11-06 — while OpenPhenom's remote code builds the model, a *.safetensors path is read by its real format: a torch zip archive goes through torch.load as an open file with weights_only=True, a genuine safetensors file through the safetensors reader. |
 | 776 | New | [CHADA-VIT TAKES THE REAL CHANNEL COUNT — 776_chada_vit_takes_the_real_channel_count.txt](feature_list/776_chada_vit_takes_the_real_channel_count.txt) | open. |
 | 777 | New | [THE TIMM EMBEDDING ENCODER NORMALISES AND RESIZES LIKE IMAGENET — 777_timm_encoder_normalises_and_resizes_like_imagenet.txt](feature_list/777_timm_encoder_normalises_and_resizes_like_imagenet.txt) | open. |
 | 778 | New | [EMBEDDING A SHARD OR DATABASE IS A PUBLIC STEP — 778_embedding_a_store_is_a_public_step.txt](feature_list/778_embedding_a_store_is_a_public_step.txt) | open. |

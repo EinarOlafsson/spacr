@@ -2,7 +2,7 @@ OPENPHENOM LOADS UNDER TORCH 2.12 AND LATER
 ===========================================
 
 Lifecycle: new
-Status: open.
+Status: DONE 2026-11-06 — while OpenPhenom's remote code builds the model, a *.safetensors path is read by its real format: a torch zip archive goes through torch.load as an open file with weights_only=True, a genuine safetensors file through the safetensors reader.
 Requested: maintainer via the BMC software-paper session, 2026-11-05.
 Source: BBBC021 computer-vision benchmark, /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cv/README.md.
 

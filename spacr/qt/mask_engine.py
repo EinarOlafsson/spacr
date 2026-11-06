@@ -241,6 +241,26 @@ def assign_lineage_label(state: dict, frame: str, label: int,
     return validate_lineage(result)
 
 
+def _swap_frame_identities(state: dict, frame: str, first: int, second: int) -> dict:
+    """Exchange the cells the objects ``first`` and ``second`` of one frame stand for.
+
+    Pixels are untouched: only the frame's mapping from pixel label to cell
+    changes, so each object now continues the other's cell from this frame on.
+    """
+    from .i18n import tr
+
+    result = validate_lineage(state)
+    frame = os.path.abspath(os.fspath(frame))
+    mapping = dict(result["frames"].get(frame, {}))
+    keys = (str(int(first)), str(int(second)))
+    if keys[0] == keys[1] or not all(key in mapping for key in keys):
+        raise ValueError(tr("Both objects need a lineage cell before they can swap."))
+    mapping[keys[0]], mapping[keys[1]] = mapping[keys[1]], mapping[keys[0]]
+    result["frames"][frame] = mapping
+    result["frame_revisions"][frame] = _next_lineage_revision(result)
+    return validate_lineage(result)
+
+
 def new_lineage_cell(state: Optional[dict], name: str, label: int,
                      frame: str) -> Tuple[dict, str]:
     """Create an unplaced founder without claiming any existing mask pixels.

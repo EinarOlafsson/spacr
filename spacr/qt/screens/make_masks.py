@@ -19326,6 +19326,14 @@ class MakeMasksScreen(QWidget):
                     state, self._label_name.text().strip() or str(label), reserved, frame)
             before, chosen = (state or {}).get("cells", {}), selected
             replaced = mapping.get(str(previous))
+            held = [int(local) for local, value in mapping.items()
+                    if value == selected and int(local) != previous
+                    and np.any(self._canvas.mask == int(local))]
+            if held and replaced not in (None, selected) \
+                    and not self._related_cells(state, selected, replaced):
+                state = engine._swap_frame_identities(state, frame, held[0], previous)
+                mapping = state["frames"][frame]
+                replaced = selected
             if self._continues(state, selected, replaced):
                 state = engine._merge_continuation(state, selected, replaced)
             changed, state, previous, assigned = engine.assign_tracked_object(
@@ -19355,6 +19363,13 @@ class MakeMasksScreen(QWidget):
                 self._status_label.setText(notice)
 
         return changed, previous, assigned, commit
+
+    @staticmethod
+    def _related_cells(state, first, second):
+        """Whether one of the two cells is the other's mother or daughter."""
+        cells = state["cells"]
+        return cells[first].get("parent_uuid") == second \
+            or cells[second].get("parent_uuid") == first
 
     def _continues(self, state, mother, daughter):
         """Whether ``daughter`` is a founder starting the frame after ``mother`` ends.

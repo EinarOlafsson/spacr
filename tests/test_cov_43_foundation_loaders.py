@@ -11,6 +11,7 @@ gets.
 """
 from __future__ import annotations
 
+import os
 import sys
 import types
 
@@ -348,3 +349,32 @@ def test_foundation_models_without_torch_name_the_extra(monkeypatch):
     monkeypatch.setitem(sys.modules, "torch", None)
     with pytest.raises(emb.EmbeddingError, match=r"spacr\[embeddings\]"):
         emb._foundation_encoder(_spec("openphenom"))
+
+
+def test_openphenom_zip_archive_named_safetensors_loads_where_torch_routes_by_extension(
+        monkeypatch, tmp_path):
+    """Recent torch sends every ``*.safetensors`` path to the safetensors reader."""
+    weights = tmp_path / "model.safetensors"
+    torch.save({"state_dict": {"w": torch.ones(2)}}, weights)
+    real_load = torch.load
+
+    def routed(f, *args, **kwargs):
+        if isinstance(f, (str, os.PathLike)) and os.fspath(f).endswith(".safetensors"):
+            raise RuntimeError("header too large")
+        return real_load(f, *args, **kwargs)
+
+    seen = {}
+
+    class AutoModel:
+        @staticmethod
+        def from_pretrained(repo, revision, trust_remote_code):
+            seen["state"] = torch.load(str(weights), map_location="cpu")
+            return _OpenPhenom()
+
+    module = types.ModuleType("transformers")
+    module.AutoModel = AutoModel
+    monkeypatch.setitem(sys.modules, "transformers", module)
+    monkeypatch.setattr(torch, "load", routed)
+    emb._foundation_encoder(_spec("openphenom"))
+    assert torch.equal(seen["state"]["state_dict"]["w"], torch.ones(2))
+    assert torch.load is routed
