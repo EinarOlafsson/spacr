@@ -1117,7 +1117,8 @@ def _write_panels_and_figures(specs, names, panels_dir, figures_dir, figures, dp
                               verbose=True):
     """Save every panel spec and assemble the requested figures.
 
-    :param specs: panel id -> spec. :param names: panel id -> name.
+    :param specs: panel id -> spec.
+    :param names: panel id -> name.
     :param figures: {figure_name: {'panels': [ids], 'ncol': int}} or None.
     :returns: dict panel id -> folder and figure name -> written files.
     """
