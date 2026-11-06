@@ -2389,7 +2389,7 @@ def _feature_qc_database(db_path: str, *,
 
     uri = Path(db_path).resolve().as_uri() + "?mode=ro"
     frames = []
-    with sqlite3.connect(uri, uri=True) as connection:
+    with sqlite3.connect(uri, uri=True, timeout=30.0) as connection:
         present = {row[0] for row in connection.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")}
         for table in tables:
@@ -2433,7 +2433,7 @@ def _drop_feature_columns(db_path: str, flagged: pd.DataFrame) -> List[str]:
     import sqlite3
 
     dropped = []
-    with sqlite3.connect(db_path) as connection:
+    with sqlite3.connect(db_path, timeout=30.0) as connection:
         for table, feature in flagged.loc[:, ["table", "feature"]].itertuples(
                 index=False):
             quoted = '"' + str(table).replace('"', '""') + '"'
