@@ -1266,7 +1266,7 @@ if app_key == "mask":
     for app, key in feature_qc_arrivals:
         assert resolve_default_settings(app)[key] is False
     recognized_arrivals |= feature_qc_arrivals
-    assert comparisons - len(recognized_arrivals) == 958
+    assert comparisons - len(recognized_arrivals) == 959
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))
     assert census_508['comparisons_before'] == 716
@@ -1308,7 +1308,8 @@ if app_key == "mask":
     # + 18: the publication-panel settings and their filters, eight in the
     # Recruitment app and ten in the Replication app, one claim each.
     # + 1: control_color_by, the colour column of the recruitment control graphs.
-    assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2 + 8 + 18 + 1
+    # + 1: bin_labels, the legend text of the replication stacked panels.
+    assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2 + 8 + 18 + 1 + 1
             + len(item_541) + len(item_548) + len(item_550)
             + len(item_535) + len(item_547) + len(item_536)
             + len(item_571) + len(item_538) + len(item_540)

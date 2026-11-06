@@ -434,3 +434,13 @@ def test_analyze_replication_size_proxy_panels(tmp_path):
     desc = pd.read_csv(os.path.join(res, "panels", names[2], "stats_descriptive.csv"))
     assert list(desc["condition"]) == ["Hela_nc", "Hela_pc"]
     assert out["replication_method"] == "size_proxy"
+
+
+def test_replication_bin_labels_prefer_user_then_area_default():
+    from spacr.submodules import _replication_bin_labels, _volume_bin_as_area
+    bins = ['11180.34-22360.68', '>357770.88']
+    default = {b: _volume_bin_as_area(b) for b in bins}
+    assert default == {'11180.34-22360.68': '500-794', '>357770.88': '>5040'}
+    assert _replication_bin_labels(bins, None, default) == ['500-794', '>5040']
+    assert _replication_bin_labels(bins, ['~1', '>=8'], default) == ['~1', '>=8']
+    assert _replication_bin_labels(bins, {'>357770.88': 'big'}, default) == ['500-794', 'big']

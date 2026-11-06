@@ -341,7 +341,7 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
     },
     "replication": {
         "panels", "replicate_column", "condition_order", "condition_labels",
-        "figures", "exclude_edge_objects", "max_area_quantile", "field_qc",
+        "figures", "exclude_edge_objects", "max_area_quantile", "bin_labels", "field_qc",
         "field_qc_mad", "field_qc_min_objects",
     },
 }

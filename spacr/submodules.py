@@ -1480,8 +1480,37 @@ def _write_filter_outputs(output_dir, log, flags, end, group_column):
         flags.to_csv(os.path.join(output_dir, 'field_qc.csv'), index=False)
 
 
+def _volume_bin_as_area(label):
+    """'11180.34-22360.68' (volume = area ** 1.5) -> '500-794' (area); '>x' -> '>x ** (2/3)'."""
+    text = str(label)
+    try:
+        if text.startswith('>'):
+            return f">{float(text[1:]) ** (2 / 3):.0f}"
+        lo, hi = text.split('-')
+        return f"{float(lo) ** (2 / 3):.0f}-{float(hi) ** (2 / 3):.0f}"
+    except ValueError:
+        return text
+
+
+def _replication_bin_labels(bins, user_labels, default_labels=None):
+    """Legend text per bin: ``bin_labels`` (dict bin -> text, or list in bin order) wins,
+    then ``default_labels`` (dict), then the bin itself."""
+    from collections.abc import Mapping
+    out = []
+    for i, b in enumerate(bins):
+        text = None
+        if isinstance(user_labels, Mapping):
+            text = user_labels.get(b, user_labels.get(str(b)))
+        elif isinstance(user_labels, (list, tuple)) and i < len(user_labels):
+            text = user_labels[i]
+        if text is None and default_labels:
+            text = default_labels.get(str(b))
+        out.append(str(text) if text is not None else str(b))
+    return out
+
+
 def _replication_panels(table, settings, bin_column, bins, value, value_label, legend_title,
-                        output_dir):
+                        output_dir, default_bin_labels=None):
     """Three panels per ``panels`` entry: stacked bins (chi-square), stacked bins
     (Fisher-Freeman-Halton) and a bar of the replicate (or well) mean of ``value``.
     """
@@ -1508,7 +1537,8 @@ def _replication_panels(table, settings, bin_column, bins, value, value_label, l
                                                            fill_value=0)
         fractions = fractions_per_unit(sub.assign(**{bin_column: sub_bins}), bin_column,
                                        used_bins, [group], replicate_column=rep)
-        bin_labels = [str(b) for b in used_bins]
+        bin_labels = _replication_bin_labels(used_bins, panel.get('bin_labels', settings.get('bin_labels')),
+                                             default_bin_labels)
         title = panel.get('title', str(panel['name']).replace('_', ' '))
         for method, suffix in (('chi2', 'chi_square'), ('fisher', 'fisher')):
             n += 1
@@ -4571,10 +4601,12 @@ def analyze_replication(settings):
             bin_column = f'{compartment}_volume_bin'
             bins = list(data[bin_column].cat.categories)
             unit = 'px' if settings.get('um_per_px', 0.1) is None else '\u00b5m\u00b2'
+            # size-proxy bins are volume (area ** 1.5) ranges; label them by the area they cover
             output['panels'] = _replication_panels(
                 data, dict(settings, group_column=group_column), bin_column, bins,
                 f'{compartment}_area', f'mean vacuole area ({unit})',
-                'vacuole size bin (volume proxy)', output_dir)
+                f'vacuole area ({unit})', output_dir,
+                default_bin_labels={str(b): _volume_bin_as_area(b) for b in bins})
         return output
 
     from .utils import annotate_conditions, save_settings

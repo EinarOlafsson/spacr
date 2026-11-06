@@ -3992,6 +3992,7 @@ expected_types = {
     "control_color_by": (str, type(None)),
     "confounder_filter": (dict, type(None)),
     "max_area_quantile": (float, type(None)),
+    "bin_labels": (dict, list, type(None)),
     "field_qc_min_objects": (int, type(None)),
     "model_type": str,
     "base_model": str,
@@ -5416,6 +5417,7 @@ tooltips = {
     "control_color_by": '(str) - Recruitment control graphs: colour every condition bar by the value of this annotated column (for example treatment, so all wells of one host share a colour). Conditions are always ordered as the plate map lists them unless condition_order is set. None colours each condition separately. Default None.',
     "max_vacuoles_per_cell": '(int) - Recruitment analysis: keep host cells with at most this many pathogen objects (pathogen_prcfo_count), applied after the merge, which already used pathogen_limit. The removed count is reported in results/filter_summary.csv. None keeps every host cell. Default None.',
     "confounder_filter": "(dict) - Recruitment analysis: range filters on confounding variables, {column: [min, max]} at object level, or {column: {'quantiles': [0.05, 0.95], 'level': 'well'}} to drop whole wells outside per-plate quantile bounds ('range' gives absolute bounds). The well density columns n_cells_well, n_pathogens_well and pathogens_per_cell_well are computed from measurements.db when named. Each step is reported in results/filter_summary.csv. Default None.",
+    "bin_labels": '(dict) - Replication panels: legend text for the stacked bins, as a dict bin -> text or a list in bin order (for example approximate parasites per vacuole for size-proxy area bins). A panel entry may set its own bin_labels. None labels size-proxy bins by the vacuole area they cover and parasite-count bins by the count. Default None.',
     "max_area_quantile": '(float) - Replication analysis: drop vacuoles (direct count: summed parasite area; size proxy: object area) above this quantile of all vacuoles, which removes fused clumps. Reported in filter_summary.csv. None disables the filter. Default None.',
     "field_qc_min_objects": '(int) - Replication analysis with field_qc: fields with fewer vacuoles or parasites than this are dropped as too sparse. None disables this test. Default 3.',
     "adjust_log_outcome": "(bool) - Recruitment analysis with adjust_covariates or confounder_covariates: model the log of the recruitment ratio, which suits multiplicative effects, and back-transform the adjusted value. False models the raw ratio. Default True.",
@@ -5944,7 +5946,7 @@ categories = {
 
     "Timelapse": timelapse_settings,
 
-    "Measurements": ["save_measurements", "calculate_correlation", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "field_qc", "field_qc_mad", "field_qc_min_cells", "field_qc_min_objects", "max_vacuoles_per_cell", "control_color_by", "exclude_edge_objects", "confounder_filter", "max_area_quantile", "field_qc_max_pathogens_per_cell", "field_qc_columns", "confounder_covariates", "adjust_covariates", "adjust_log_outcome", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
+    "Measurements": ["save_measurements", "calculate_correlation", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "field_qc", "field_qc_mad", "field_qc_min_cells", "field_qc_min_objects", "max_vacuoles_per_cell", "control_color_by", "exclude_edge_objects", "confounder_filter", "max_area_quantile", "bin_labels", "field_qc_max_pathogens_per_cell", "field_qc_columns", "confounder_covariates", "adjust_covariates", "adjust_log_outcome", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
 
     "Illumination Correction": ["illumination_correction", "illumination_model", "illumination_estimator", "illumination_degree", "illumination_dark", "illumination_per_plate", "illumination_max_fields", "illumination_qc", "illumination_on_missing", "illumination_vendor_profile", "illumination_vendor_channel_map"],
 
@@ -7400,6 +7402,7 @@ def set_analyze_replication_defaults(settings):
     settings.setdefault('figures', None)
     settings.setdefault('exclude_edge_objects', False)
     settings.setdefault('max_area_quantile', None)
+    settings.setdefault('bin_labels', None)
     settings.setdefault('field_qc', False)
     settings.setdefault('field_qc_mad', 3.5)
     settings.setdefault('field_qc_min_objects', 3)
