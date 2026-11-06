@@ -2,7 +2,7 @@ TRAIN_MODEL RELEASES HOST MEMORY BETWEEN CALLS
 ==============================================
 
 Lifecycle: new
-Status: open.
+Status: DONE 2026-11-06 — the per-epoch progress plots written by _save_progress (six 20x10 inch figures per epoch, each holding its data frames) were saved but never closed, so every epoch and every train_model call kept them in pyplot; read_plot_model_stats now closes each figure after saving. Regression test: tests/test_train_model_releases_host_memory.py.
 Requested: maintainer via the BMC software-paper session, 2026-11-05.
 Source: BBBC021 computer-vision benchmark, /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cv/README.md.
 
