@@ -256,15 +256,47 @@ def screen_fields(root, settings, paths=None, channel_ids=None):
     _write_gallery(destination, fields, paths, channel_ids)
     _atomic_text(destination.with_suffix('.csv'), stream.getvalue())
     _atomic_text(destination, json.dumps(report, indent=2, allow_nan=False) + '\n')
+    _record_image_table(root, fields, settings)
     print(f'Image quality: {len(fields)} fields screened; {len(excluded)} excluded. Report: {destination}')
     return excluded
+
+
+def _record_image_table(root, fields, settings):
+    """Copy each screened field's verdict and metrics into the ``image`` table.
+
+    Columns: ``image_qc_status`` and ``image_qc_reasons`` per field, and per
+    screened acquisition channel ``c`` the ``channel_<c>_qc_focus_variance``,
+    ``_qc_saturation_level``, ``_qc_saturation_fraction``,
+    ``_qc_nonfinite_fraction`` and, with the classifier, ``_qc_p_<class>``.
+
+    :param root: project folder holding ``measurements/measurements.db``.
+    :param fields: the report's field records.
+    :param settings: Mask settings; reads ``timelapse``.
+    :returns: the number of rows written.
+    """
+    from .measure import _write_image_rows
+
+    rows = []
+    for field in fields:
+        row = {'file_name': field['field'], 'image_qc_status': field['status'],
+               'image_qc_reasons': '; '.join(field['reasons'])}
+        for record in field['channels']:
+            prefix = f"channel_{record['channel']}_qc_"
+            for name, value in record.items():
+                if name not in ('channel', 'reasons'):
+                    row[prefix + name] = value
+        rows.append(row)
+    return _write_image_rows(
+        Path(root) / 'measurements' / 'measurements.db', rows,
+        timelapse=bool((settings or {}).get('timelapse', False)))
 
 
 def ensure_no_retained_measurements(root, rejected):
     """Refuse exclusions that would leave previously measured fields in reports.
 
     Existing results are never deleted. Re-screening an analyzed project needs
-    a fresh project if excluded fields already have measurement rows.
+    a fresh project if excluded fields already have measurement rows. The
+    ``image`` table is skipped: screening writes its own verdicts there.
 
     :param root: project folder containing measurements/measurements.db.
     :param rejected: rejected field filenames, also matched without extensions.
@@ -281,6 +313,8 @@ def ensure_no_retained_measurements(root, rejected):
     with closing(connect(database, readonly=True)) as connection:
         tables = [row[0] for row in connection.execute("SELECT name FROM sqlite_master WHERE type='table'")]
         for table in tables:
+            if table == 'image':
+                continue
             quoted = '"' + table.replace('"', '""') + '"'
             columns = {row[1] for row in connection.execute(f'PRAGMA table_info({quoted})')}
             if 'file_name' not in columns:

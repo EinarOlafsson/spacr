@@ -1937,10 +1937,15 @@ MEASUREMENT_TABLES: Tuple[str, ...] = (
 #:   somewhere else. Meanwhile :func:`spacr.errors.read_run_status` reads
 #:   that same file happily and can name the stage that failed. The one case
 #:   where the diagnosis mattered most was the one case it refused to make.
+#:
+#: ``image`` holds one row per imaged field, shared by the mask stage, image
+#: screening and Measure. It carries the field keys, but its key is
+#: ``file_name``: screening and the mask stage write rows for names that need
+#: not parse into a field identity.
 BOOKKEEPING_TABLES: Tuple[str, ...] = (
     'settings', 'object_counts', 'settings_history', 'run_status',
     'image_annotations_history', 'image_annotations_meta',
-    'image_comparison_groups')
+    'image_comparison_groups', 'image')
 
 #: Key columns for the bookkeeping tables, which do not carry a field
 #: identity. Both journals are append-only, so their keys are what makes one
@@ -1953,6 +1958,7 @@ BOOKKEEPING_KEY_COLUMNS = {
     'image_annotations_history': ('seq',),
     'image_annotations_meta': ('key',),
     'image_comparison_groups': ('set_name', 'position'),
+    'image': ('file_name',),
 }
 
 #: Every table spaCR creates in a measurements database. A table not in here

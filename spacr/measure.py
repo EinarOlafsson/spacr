@@ -4248,6 +4248,30 @@ def _monolayer_ok(confluency, qc_threshold):
     return bool(float(confluency) >= float(qc_threshold))
 
 
+def _confluency_values(settings, result):
+    """The per-field confluency columns shared by ``confluency`` and ``image``.
+
+    :param settings: Measure settings; reads ``confluency_qc_threshold``.
+    :param result: the field's :class:`_ConfluencyResult`.
+    :returns: column name to value, without the field keys.
+    """
+    qc_threshold = settings.get('confluency_qc_threshold')
+    return {
+        'confluency_source': result.source,
+        'confluency_channel': (None if result.source == 'masks'
+                               else result.channel),
+        'confluency': float(result.confluency),
+        'covered_px': result.covered_px,
+        'field_px': result.field_px,
+        'confluency_threshold': result.threshold,
+        'confluency_separation': result.separation,
+        'confluency_uniform': int(bool(result.uniform)),
+        'confluency_qc_threshold': (None if qc_threshold is None
+                                    else float(qc_threshold)),
+        'monolayer_ok': int(_monolayer_ok(result.confluency, qc_threshold)),
+    }
+
+
 def _write_confluency_record(source_folder, file_name, settings, result):
     """Upsert one field's confluency into ``measurements.db:confluency``.
 
@@ -4261,25 +4285,13 @@ def _write_confluency_record(source_folder, file_name, settings, result):
 
     if _capture_write_operation('confluency', (source_folder, file_name, settings, result)):
         return
-    qc_threshold = settings.get('confluency_qc_threshold')
     field = schema.parse_field_stem(
         file_name, timelapse=bool(settings.get('timelapse', False)))
     values = {
         **field.to_dict(include_prcf=True),
         'timeID': field.timeID,
         'file_name': file_name,
-        'confluency_source': result.source,
-        'confluency_channel': (None if result.source == 'masks'
-                               else result.channel),
-        'confluency': float(result.confluency),
-        'covered_px': result.covered_px,
-        'field_px': result.field_px,
-        'confluency_threshold': result.threshold,
-        'confluency_separation': result.separation,
-        'confluency_uniform': int(bool(result.uniform)),
-        'confluency_qc_threshold': (None if qc_threshold is None
-                                    else float(qc_threshold)),
-        'monolayer_ok': int(_monolayer_ok(result.confluency, qc_threshold)),
+        **_confluency_values(settings, result),
     }
     columns = tuple(values)
     db_path = os.path.join(source_folder, 'measurements', 'measurements.db')
@@ -4343,6 +4355,312 @@ def _read_confluency(db_path):
                            canonicalise=False)
     finally:
         conn.close()
+
+
+_IMAGE_TABLE = 'image'
+_IMAGE_KEY_COLUMNS = ('file_name', 'plateID', 'rowID', 'columnID', 'fieldID',
+                      'timeID', 'prc', 'prcf')
+_IMAGE_RESCALE_COLUMNS = ('original_dtype', 'original_intensity_max',
+                          'rescale_factor', 'rescale_scope',
+                          'plate_intensity_max', 'comparable_within_plate')
+_IMAGE_BINCOUNT_LIMIT = 1 << 24
+
+
+def _image_table_keys(file_name, timelapse=False):
+    """The key columns of one ``image`` row.
+
+    ``file_name`` is the merged array's name without ``.npy``. The plate in
+    ``plateID``, ``prc`` and ``prcf`` is canonical and URL-decoded
+    (:func:`spacr.schema.canonical_plate_id`), so the row joins the object
+    tables. A name that is not ``plate_well_field[_time]`` keeps its
+    ``file_name`` and leaves the other keys empty.
+
+    :param file_name: a merged field's file name, path or stem.
+    :param timelapse: parse a trailing timepoint into ``timeID`` and ``prcf``.
+    :returns: dict over :data:`_IMAGE_KEY_COLUMNS`.
+    """
+    from . import schema
+    stem = os.path.basename(str(file_name))
+    if stem.endswith('.npy'):
+        stem = stem[:-len('.npy')]
+    keys = dict.fromkeys(_IMAGE_KEY_COLUMNS)
+    keys['file_name'] = stem
+    try:
+        field = schema.parse_field_stem(stem, timelapse=bool(timelapse))
+    except (schema.KeyParseError, schema.WellParseError):
+        return keys
+    keys.update(plateID=schema.canonical_plate_id(field.plateID),
+                rowID=field.rowID, columnID=field.columnID,
+                fieldID=field.fieldID, timeID=field.timeID,
+                prc=schema.canonical_plate_id(field.prc),
+                prcf=schema.canonical_plate_id(field.prcf))
+    return keys
+
+
+def _image_sql_value(value):
+    """One value as SQLite stores it in ``image``: NaN as NULL, bools as 0/1."""
+    if isinstance(value, np.generic):
+        value = value.item()
+    if isinstance(value, bool):
+        return int(value)
+    if isinstance(value, float) and not np.isfinite(value):
+        return None
+    if isinstance(value, (list, tuple, dict)):
+        return json.dumps(value, sort_keys=True, default=str)
+    return value
+
+
+def _image_sql_type(values):
+    """The declared SQLite type for a new ``image`` column."""
+    for value in values:
+        if value is None:
+            continue
+        if isinstance(value, int):
+            return 'INTEGER'
+        if isinstance(value, float):
+            return 'REAL'
+        return 'TEXT'
+    return ''
+
+
+def _write_image_rows(db_path, rows, *, timelapse=False):
+    """Upsert image-level results into ``measurements.db:image``.
+
+    One row per imaged field, keyed by ``file_name``. Each call writes only
+    the columns it is given, so the mask stage, image screening and Measure
+    each fill their own columns of the same row. A column seen for the first
+    time is added to the table.
+
+    :param db_path: the ``measurements.db`` path.
+    :param rows: iterable of dicts, each with ``file_name`` and value columns.
+    :param timelapse: parse a trailing timepoint into the keys.
+    :returns: the number of rows written.
+    """
+    from contextlib import closing
+    from .database_concurrency import connect, transaction
+
+    prepared = []
+    for row in rows:
+        keys = _image_table_keys(row['file_name'], timelapse)
+        values = {str(name): _image_sql_value(value) for name, value in row.items()
+                  if name not in _IMAGE_KEY_COLUMNS}
+        prepared.append({**keys, **values})
+    if not prepared:
+        return 0
+    quote = _measure_archive_quote
+    columns = list(dict.fromkeys(name for row in prepared for name in row))
+    os.makedirs(os.path.dirname(os.path.abspath(db_path)), exist_ok=True)
+    with closing(connect(db_path, timeout=30.0)) as conn:
+        with transaction(conn, attempts=8, busy_timeout=30):
+            conn.execute(
+                f'CREATE TABLE IF NOT EXISTS {_IMAGE_TABLE} ('
+                'file_name TEXT PRIMARY KEY, plateID TEXT, rowID TEXT, '
+                'columnID TEXT, fieldID TEXT, timeID TEXT, prc TEXT, prcf TEXT)')
+            existing = {row[1].casefold() for row in conn.execute(
+                f'PRAGMA table_info({_IMAGE_TABLE})')}
+            for name in columns:
+                if name.casefold() not in existing:
+                    declared = _image_sql_type(row.get(name) for row in prepared)
+                    conn.execute(f'ALTER TABLE {_IMAGE_TABLE} ADD COLUMN '
+                                 f'{quote(name)} {declared}'.rstrip())
+                    existing.add(name.casefold())
+            for row in prepared:
+                names = list(row)
+                updates = ', '.join(
+                    (f'{quote(name)} = COALESCE(excluded.{quote(name)}, '
+                     f'{_IMAGE_TABLE}.{quote(name)})')
+                    if name in _IMAGE_KEY_COLUMNS
+                    else f'{quote(name)} = excluded.{quote(name)}'
+                    for name in names if name != 'file_name')
+                conn.execute(
+                    f'INSERT INTO {_IMAGE_TABLE} '
+                    f'({", ".join(quote(name) for name in names)}) '
+                    f'VALUES ({", ".join("?" for _ in names)}) '
+                    f'ON CONFLICT(file_name) DO UPDATE SET {updates}',
+                    tuple(row[name] for name in names))
+    return len(prepared)
+
+
+def _write_image_record(source_folder, file_name, settings, values):
+    """Upsert one measured field's image-level results into ``image``.
+
+    :param source_folder: the run folder holding ``measurements/``.
+    :param file_name: the merged field's stem.
+    :param settings: Measure settings; reads ``timelapse``.
+    :param values: column name to value, without the field keys.
+    """
+    from .database_concurrency import _capture_write_operation
+
+    if _capture_write_operation('image', (source_folder, file_name, settings, values)):
+        return
+    _write_image_rows(
+        os.path.join(source_folder, 'measurements', 'measurements.db'),
+        [{'file_name': file_name, **values}],
+        timelapse=bool(settings.get('timelapse', False)))
+
+
+def _image_percentiles(values, quantiles):
+    """Percentiles of a pixel set, NaN for an empty one.
+
+    :param values: pixel values.
+    :param quantiles: percentiles, 0 to 100.
+    :returns: list of floats.
+    """
+    values = np.asarray(values).ravel()
+    if values.size == 0:
+        return [float('nan')] * len(quantiles)
+    return [float(value) for value in np.percentile(values, quantiles)]
+
+
+def _image_focus_variance(plane):
+    """Variance of the 2-D Laplacian, equal to ``np.var(scipy.ndimage.laplace)``.
+
+    The five-point stencil uses the same reflected border as
+    :func:`scipy.ndimage.laplace`; integer pixels are summed exactly in
+    integers, which is about three times faster than the float64 filter.
+
+    :param plane: one 2-D plane with finite values.
+    :returns: the Laplacian variance in intensity units squared.
+    """
+    plane = np.asarray(plane)
+    work = (np.int32 if plane.dtype.kind in 'uib' and plane.dtype.itemsize <= 2
+            else np.float64)
+    padded = np.pad(plane, 1, mode='symmetric').astype(work)
+    stencil = padded[:-2, 1:-1] + padded[2:, 1:-1]
+    stencil += padded[1:-1, :-2]
+    stencil += padded[1:-1, 2:]
+    stencil -= 4 * padded[1:-1, 1:-1]
+    flat = stencil.astype(np.float64).ravel()
+    mean = flat.mean()
+    return float(max(np.dot(flat, flat) / flat.size - mean * mean, 0.0))
+
+
+def _image_object_count(mask):
+    """Distinct nonzero labels in a label mask."""
+    flat = np.asarray(mask).ravel()
+    if flat.size == 0:
+        return 0
+    if flat.dtype.kind in 'ub' and int(flat.max()) < _IMAGE_BINCOUNT_LIMIT:
+        return int(np.count_nonzero(np.bincount(flat)[1:]))
+    return int(np.count_nonzero(np.unique(flat)))
+
+
+def _image_field_values(channel_arrays, masks, occupied=None):
+    """Per-channel background and QC values and per-mask counts for one field.
+
+    Background pixels lie outside every object mask: ``occupied`` when it is
+    given, otherwise the union of ``masks``. Focus is the best plane's
+    Laplacian variance, as in :func:`spacr.image_quality.assess_image`.
+    Saturation is the share of pixels at the integer dtype's ceiling, NULL
+    for floating images.
+
+    :param channel_arrays: ``(Y, X, C)`` or ``(Z, Y, X, C)`` measured channels.
+    :param masks: object name to label mask of the spatial shape.
+    :param occupied: optional boolean mask of every segmented pixel.
+    :returns: ``channel_<c>_*``, ``<object>_count`` and
+        ``<object>_area_fraction`` columns.
+    """
+    channels = np.asarray(channel_arrays)
+    spatial = channels.shape[:-1]
+    masks = {name: np.asarray(mask) for name, mask in dict(masks).items()
+             if mask is not None}
+    if occupied is None:
+        occupied = np.zeros(spatial, dtype=bool)
+        for mask in masks.values():
+            occupied |= mask != 0
+    background = ~np.asarray(occupied, dtype=bool)
+    values = {}
+    for index in range(channels.shape[-1]):
+        plane = channels[..., index]
+        prefix = f'channel_{index}_'
+        integer = np.issubdtype(plane.dtype, np.integer)
+        if integer:
+            pixels, outside = plane.ravel(), plane[background]
+        else:
+            finite = np.isfinite(plane)
+            pixels, outside = plane[finite], plane[background & finite]
+        p25, median = _image_percentiles(outside, (25, 50))
+        p1, p99 = _image_percentiles(pixels, (1, 99))
+        values[prefix + 'background_median'] = median
+        values[prefix + 'background_p25'] = p25
+        values[prefix + 'mean'] = float(pixels.mean()) if pixels.size else None
+        values[prefix + 'p1'] = p1
+        values[prefix + 'p99'] = p99
+        values[prefix + 'saturated_fraction'] = (
+            float(np.count_nonzero(plane >= np.iinfo(plane.dtype).max)) / plane.size
+            if integer and plane.size else None)
+        numeric = (plane if integer else np.where(np.isfinite(plane), plane, 0))
+        layers = numeric.reshape((-1, *plane.shape[-2:]))
+        values[prefix + 'focus'] = max(
+            _image_focus_variance(layer) for layer in layers)
+    for name, mask in masks.items():
+        values[f'{name}_count'] = _image_object_count(mask)
+        values[f'{name}_area_fraction'] = (
+            float(np.count_nonzero(mask)) / max(mask.size, 1))
+    return values
+
+
+def _image_rescale_values(record, psf_record=None):
+    """The ``intensity_rescale`` columns one ``image`` row carries.
+
+    :param record: the field's rescaling provenance.
+    :param psf_record: optional PSF processing provenance.
+    :returns: column name to value.
+    """
+    values = {name: record.get(name) for name in _IMAGE_RESCALE_COLUMNS}
+    values['rescale_factor'] = float(record['rescale_factor'])
+    values['comparable_within_plate'] = int(
+        bool(record.get('comparable_within_plate', False)))
+    values['psf_measurement_source'] = (psf_record or {}).get('source', 'original')
+    return values
+
+
+def _read_image_table(db_path, columns=None):
+    """The ``image`` table, or an empty frame when there is none.
+
+    :param db_path: a ``measurements.db``.
+    :param columns: optional column names to read; absent ones are skipped.
+    :returns: one row per field.
+    """
+    from contextlib import closing
+    from .database_concurrency import connect
+    from .tabular import _read_query
+
+    if not os.path.isfile(db_path):
+        return pd.DataFrame()
+    with closing(connect(db_path, readonly=True, timeout=30.0)) as conn:
+        present = {row[1] for row in conn.execute(f'PRAGMA table_info({_IMAGE_TABLE})')}
+        if not present:
+            return pd.DataFrame()
+        wanted = [name for name in (columns or present) if name in present]
+        selected = ', '.join(_measure_archive_quote(name) for name in wanted)
+        return _read_query(conn, f'SELECT {selected} FROM {_IMAGE_TABLE}',
+                           canonicalise=False)
+
+
+def _image_table_background(db, file_names, channels):
+    """Each field's background median per channel, read from ``image``.
+
+    :param db: a ``measurements.db`` path.
+    :param file_names: merged field names, with or without ``.npy``.
+    :param channels: channel indices ``c`` of ``channel_<c>_background_median``.
+    :returns: frame indexed by ``file_name`` in the order asked, with one
+        ``channel_<c>_background_median`` column per channel; NaN where a
+        field or channel was not measured.
+    """
+    names = [_image_table_keys(name)['file_name'] for name in file_names]
+    columns = [f'channel_{int(channel)}_background_median' for channel in channels]
+    table = _read_image_table(db, ['file_name', *columns])
+    out = pd.DataFrame(index=pd.Index(names, name='file_name'), columns=columns,
+                       dtype=float)
+    if table.empty:
+        return out
+    table = table.drop_duplicates('file_name').set_index('file_name')
+    for column in columns:
+        if column in table.columns:
+            out[column] = pd.to_numeric(
+                table[column].reindex(names), errors='coerce').to_numpy(dtype=float)
+    return out
 
 
 def _confluency_by_well(fields, qc_threshold=None):
@@ -8700,6 +9018,14 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                     raise ValueError('PSF sampling conflicts with Measure voxel calibration')
             channel_arrays = psf_plan.apply(channel_arrays, cancel=psf_cancel)
 
+        image_occupied = np.zeros(data.shape[:-1], dtype=bool)
+        for _mask_dim in (
+                settings.get('cell_mask_dim'), settings.get('nucleus_mask_dim'),
+                settings.get('pathogen_mask_dim'),
+                *(settings.get(f'{role}_mask_dim') for role in ORGANELLE_ROLES)):
+            if _mask_dim is not None:
+                image_occupied |= data[..., _mask_dim] != 0
+
         confluency_cells = (
             np.array(data[..., settings['cell_mask_dim']], copy=True)
             if settings.get('confluency')
@@ -8986,18 +9312,33 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
 
         _write_intensity_rescale_record(
             source_folder, file_name, settings, rescale_record, psf_record)
+        image_masks = {
+            name: mask for name, mask, dim in (
+                ('cell', cell_mask, settings['cell_mask_dim']),
+                ('nucleus', nucleus_mask, settings['nucleus_mask_dim']),
+                ('pathogen', pathogen_mask, settings['pathogen_mask_dim']),
+                *((role, organelle_masks.get(role),
+                   settings.get(f'{role}_mask_dim')) for role in ORGANELLE_ROLES),
+                ('cytoplasm', cytoplasm_mask,
+                 0 if settings['cytoplasm'] else None))
+            if dim is not None and mask is not None}
+        image_values = {
+            **_image_field_values(channel_arrays, image_masks, image_occupied),
+            **_image_rescale_values(rescale_record, psf_record)}
 
         if settings.get('confluency'):
             confluency_result, confluency_plane = _measure_field_confluency(
                 data, settings, channel_arrays, cell_mask=confluency_cells)
             _write_confluency_record(
                 source_folder, file_name, settings, confluency_result)
+            image_values.update(_confluency_values(settings, confluency_result))
             if settings['verbose']:
                 print(f"{file_name}: {confluency_result.confluency:.1%} "
                       f"covered ({confluency_result.source})")
             if settings['plot']:
                 figs[f'{file_name}__confluency'] = _confluency_figure(
                     confluency_plane, confluency_result, file_name)
+        _write_image_record(source_folder, file_name, settings, image_values)
 
         if volumetric and (settings['save_png'] or settings['save_arrays'] or settings['plot']):
             print(f"3-D field {file_name}: measurements written, but no PNG "
@@ -9260,6 +9601,7 @@ def _commit_measure_packet(db_path, packet):
         'merge': _merge_and_save_to_database,
         'rescale': _write_intensity_rescale_record,
         'confluency': _write_confluency_record,
+        'image': _write_image_record,
     }
 
     def dispatch(operation):
@@ -9801,7 +10143,7 @@ def _measurement_archive_tables(connection, settings):
         "SELECT name, type FROM sqlite_master WHERE type IN ('table', 'view')")}
     protected = {
         'conversion_map', 'align_coordinates', 'object_counts', 'pivoted_counts',
-        'settings_history', 'spacr_watch_fields', 'fov', 'image_annotations', 'image_annotations_history',
+        'settings_history', 'spacr_watch_fields', 'fov', _IMAGE_TABLE, 'image_annotations', 'image_annotations_history',
         'image_annotations_meta', 'image_comparison_groups',
     }
     if '_spacr_condition_annotations' in objects:

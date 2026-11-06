@@ -7349,6 +7349,7 @@ def _compute_velocities_and_well_summary(
 RESERVED_DB_TABLE_NAMES = (
     'cell',
     'cytoplasm',
+    'image',
     'nucleus',
     'object_counts',
     'organelle',

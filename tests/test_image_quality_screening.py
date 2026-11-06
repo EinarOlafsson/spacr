@@ -134,7 +134,9 @@ def test_exclusion_cannot_silently_leave_old_measured_fields(tmp_path):
     fields(tmp_path)
     screen_fields(tmp_path, {'image_qc_mode': 'report'})
     original = (tmp_path / 'qc/image_quality.json').read_bytes()
-    (tmp_path / 'measurements').mkdir()
+    with sqlite3.connect(tmp_path / 'measurements/measurements.db', timeout=30.0) as connection:
+        assert connection.execute('SELECT image_qc_status FROM image WHERE file_name = ?',
+                                  ('blurred',)).fetchone() == ('accepted',)
     with sqlite3.connect(tmp_path / 'measurements/measurements.db') as connection:
         connection.execute('CREATE TABLE cell (file_name TEXT, area REAL)')
         connection.execute('INSERT INTO cell VALUES (?, ?)', ('blurred', 42))

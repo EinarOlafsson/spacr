@@ -5369,6 +5369,9 @@ def _save_object_counts_to_database(arrays, object_type, file_names, db_path, ad
     """
     Save the counts of unique objects in masks to a SQLite database.
 
+    The counts go to ``object_counts`` and, as ``mask_<count type>_count``,
+    to the field's row of the ``image`` table.
+
     Args:
         arrays (List[np.ndarray]): List of masks.
         object_type (str): Type of object.
@@ -5419,6 +5422,12 @@ def _save_object_counts_to_database(arrays, object_type, file_names, db_path, ad
         conn.commit()
     finally:
         conn.close()
+    from .measure import _write_image_rows
+    _write_image_rows(
+        db_path,
+        [{'file_name': file_name, f'mask_{count_type}_count': object_count}
+         for file_name, count_type, object_count in records],
+        timelapse='timelapse' in str(added_string))
 
 def _create_database(db_path):
     """Create a SQLite database at the current spaCR schema version.

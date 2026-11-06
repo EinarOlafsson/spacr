@@ -1,7 +1,7 @@
 ONE IMAGE-LEVEL TABLE NAMED IMAGE
 
 Lifecycle: new
-Status: open. Build after the 2026-11-06 batch lands on nightly; the column contract below is what Anu's WS reader already uses.
+Status: DONE 2026-11-06 — measure writes measurements.db:image (one row per merged field keyed by file_name, canonical plateID/rowID/columnID/fieldID/timeID/prc/prcf) with channel_<c>_background_median/_p25/_mean/_p1/_p99/_saturated_fraction/_focus, <object>_count/_area_fraction, the intensity_rescale and confluency columns; the mask stage adds mask_<count_type>_count and image screening adds image_qc_status/_reasons and channel_<c>_qc_* columns; confluency, intensity_rescale, object_counts and qc/ CSVs are still written; measure._image_table_background reads it by file_name; tests/test_one_image_level_table.py.
 Requested: maintainer, 2026-11-06 (via Anu).
 Owner: unassigned.
 

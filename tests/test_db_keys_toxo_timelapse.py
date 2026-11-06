@@ -630,6 +630,6 @@ def test_reserved_db_table_names_are_the_spacr_owned_tables():
     from spacr.timelapse import RESERVED_DB_TABLE_NAMES
 
     assert set(RESERVED_DB_TABLE_NAMES) == {
-        "cell", "cytoplasm", "nucleus", "object_counts", "organelle",
+        "cell", "cytoplasm", "image", "nucleus", "object_counts", "organelle",
         "pathogen", "png_list", "run_status", "settings"}
     assert list(RESERVED_DB_TABLE_NAMES) == sorted(RESERVED_DB_TABLE_NAMES)

@@ -71,7 +71,7 @@ def _capture_write_operation(name, arguments, keywords=None):
     operations = _WRITE_PACKET_OPERATIONS.get()
     if operations is None:
         return False
-    if name not in {'merge', 'append', 'rescale', 'confluency', 'simulation'}:
+    if name not in {'merge', 'append', 'rescale', 'confluency', 'image', 'simulation'}:
         raise ValueError('Unsupported queued database operation')
     if name in {'merge', 'append'} and arguments[-1] is not None:
         raise ValueError('An atomic SQLite packet cannot contain external-store writes')
