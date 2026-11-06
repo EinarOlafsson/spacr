@@ -167,7 +167,8 @@ def read_lineage_table(path) -> pd.DataFrame:
     :returns: those four columns as integers.
     :raises ValueError: when a lineage column is missing.
     """
-    df = pd.read_csv(path)
+    from .tabular import read_table
+    df = read_table(path, canonicalise=False, report=None)
     missing = [c for c in LINEAGE_COLUMNS if c not in df.columns]
     if missing:
         raise ValueError(f'{path}: lineage table lacks columns {missing}')

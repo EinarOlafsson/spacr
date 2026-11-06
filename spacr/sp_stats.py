@@ -2384,6 +2384,7 @@ def _feature_qc_database(db_path: str, *,
     :returns: the flagged columns with their ``table``, in table order.
     """
     import sqlite3
+    from .tabular import _read_query
     from pathlib import Path
 
     uri = Path(db_path).resolve().as_uri() + "?mode=ro"
@@ -2395,8 +2396,9 @@ def _feature_qc_database(db_path: str, *,
             if table not in present:
                 continue
             quoted = '"' + table.replace('"', '""') + '"'
-            sample = pd.read_sql_query(
-                f"SELECT * FROM {quoted} LIMIT 1000", connection)
+            sample = _read_query(
+                connection, f"SELECT * FROM {quoted} LIMIT 1000",
+                canonicalise=False, report=None)
             if sample.empty:
                 continue
             empty = [c for c in sample.columns if sample[c].isna().all()]
@@ -2406,8 +2408,9 @@ def _feature_qc_database(db_path: str, *,
                 chunk = names[start:start + _FEATURE_QC_CHUNK]
                 columns = ", ".join(
                     '"' + str(c).replace('"', '""') + '"' for c in chunk)
-                values = pd.read_sql_query(
-                    f"SELECT {columns} FROM {quoted}", connection)
+                values = _read_query(
+                    connection, f"SELECT {columns} FROM {quoted}",
+                    canonicalise=False, report=None)
                 flagged = flag_degenerate_features(values, chunk, **options)
                 if not flagged.empty:
                     flagged.insert(0, "table", table)

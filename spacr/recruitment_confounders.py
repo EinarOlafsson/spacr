@@ -99,15 +99,18 @@ def field_density(db_path: str, cell_table: str = "cell",
         tables = {r[0] for r in con.execute(
             "select name from sqlite_master where type='table'")}
         keys = ", ".join(FIELD_KEYS)
-        cells = pd.read_sql(
-            f'select {keys}, count(*) as n_cells_field from "{cell_table}" group by {keys}', con)
+        from .tabular import _read_query
+        cells = _read_query(
+            con, f'select {keys}, count(*) as n_cells_field from "{cell_table}" group by {keys}',
+            canonicalise=False, report=None)
         if pathogen_table and pathogen_table in tables:
             cols = {r[1] for r in con.execute(f'pragma table_info("{pathogen_table}")')}
             in_cell = ("sum(case when cell_id > 0 then 1 else 0 end)"
                        if "cell_id" in cols else "count(*)")
-            path = pd.read_sql(
-                f'select {keys}, count(*) as n_pathogens_field, {in_cell} as n_pathogens_in_cells_field '
-                f'from "{pathogen_table}" group by {keys}', con)
+            path = _read_query(
+                con, f'select {keys}, count(*) as n_pathogens_field, {in_cell} as n_pathogens_in_cells_field '
+                f'from "{pathogen_table}" group by {keys}',
+                canonicalise=False, report=None)
         else:
             path = None
     cells[list(FIELD_KEYS)] = _field_key_frame(cells)
