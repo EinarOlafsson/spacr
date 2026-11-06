@@ -2,7 +2,7 @@ REMOVE UNNECESSARY FILES FROM THE spaCR ROOT FOLDER (WHERE setup.py IS)
 =======================================================================
 
 Lifecycle: new
-Status: open — for the release after 1.5.1.7.
+Status: open — root tidy done; one maintainer decision left (.stfolder on main).
 Requested: maintainer, 2026-11-04.
 Related: 755 (redundant and unused files).
 
@@ -23,3 +23,6 @@ REQUIREMENTS
 2026-11-04 -- Proposed for approval: remove data/, measurements/, settings/ (output of a run with src = the repo root) and fonts/ (an HTML page saved as a .ttf), with their .dockerignore and source-install exclusion lines.
 2026-11-04 -- Proposed: move proposals/ to docs/notes/proposals/ once the docstring freeze lifts (two spacr docstrings cite proposals/SIM_PORT_PLAN.md). Nothing removed yet.
 2026-11-04 -- Coordinator approved; removed root data/, measurements/, settings/ (run output) and fonts/ (HTML saved as .ttf), with their .dockerignore lines, the source-install `!/data/` exclusion (file and embedded copy) and the stale MANIFEST includes. Remaining: move proposals/ after the docstring freeze.
+2026-11-06 -- Root re-listed: every tracked entry has a reader (packaging, licence, CI/tool config, ledgers, source folders; _spacr_catalog_build.py is imported by setup.py and the PyInstaller hook; spaCR_settings/ and spacr_drivers/ are read by tests and the installers).
+2026-11-06 -- proposals/ is not moved: tools/promote_to_main.py lists it with features/ as a working folder that never reaches main, so main's root already lacks it; moving it to docs/notes/ would publish it.
+2026-11-06 -- Decision for the maintainer: .stfolder/syncthing-folder-32384b.txt is the Syncthing marker of the spacr-claude folder and reaches main. Deleting it from git would delete the marker in the synced checkout and stop Syncthing. Option: add .stfolder to WORKING_FOLDERS in promote_to_main.py so only main drops it.
