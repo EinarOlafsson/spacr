@@ -503,6 +503,7 @@ setup(
         'papers': ['ultralytics>=8.4,<9', 'rapidocr-onnxruntime>=1.3,<2',
                    'pdfplumber>=0.11,<1'],
         'umap': ['umap-learn>=0.5.11,<1.0'],
+        'harmony': ['harmonypy>=0.0.10,<3'],
         'anndata': ['anndata>=0.10,<0.14'],
         'databases': ['duckdb>=1.1,<3', 'psycopg[binary]>=3.1,<4'],
         'dinocell': ['dinocell>=0.74,<1.0'],
