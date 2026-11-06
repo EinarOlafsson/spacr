@@ -324,3 +324,24 @@ def test_translated_backend_failure_keeps_worker_context_and_the_mask(screen, mo
 
     assert notices == [(i18n.tr('Object detection failed'), 'worker: ' + translated)]
     np.testing.assert_array_equal(session.mask, request['mask'])
+
+
+@pytest.mark.parametrize("kind", ["threshold", "cellpose"])
+def test_an_active_enhancement_chain_refuses_volume_detection(screen, monkeypatch, kind):
+    from spacr.qt import detect_chain
+
+    calls = []
+    monkeypatch.setattr(make_masks, "_detect_volume_snapshot",
+                        lambda request, models: calls.append(request))
+    screen._detect_3d.setChecked(True)
+    session = screen._mask_stage.session
+    before = session.mask.copy()
+    monkeypatch.setattr(screen, "_detect_chain",
+                        lambda: detect_chain.NO_CHAIN._replace(denoise="median"))
+    assert screen._start_volume_detection(kind) is False
+    assert screen._detection_request is None and not calls
+    assert "enhancement-chain" in screen._status_label.text()
+    np.testing.assert_array_equal(session.mask, before)
+    monkeypatch.setattr(screen, "_detect_chain",
+                        lambda: detect_chain.NO_CHAIN._replace(split=True))
+    assert screen._start_volume_detection(kind) is False and not calls

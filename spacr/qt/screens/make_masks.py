@@ -21003,6 +21003,12 @@ class MakeMasksScreen(QWidget):
         if self._detection_request is not None or stage.busy:
             self._status_label.setText(tr("Wait for the current 3D operation to finish."))
             return False
+        chain = self._detect_chain()
+        if detect_chain.pre_active(chain) or detect_chain.post_active(chain):
+            self._status_label.setText(tr(
+                "Turn off the enhancement-chain steps before 3D detection; "
+                "they work on 2D fields only."))
+            return False
         model = None
         if kind == "threshold":
             method = canonical_magnifier_mode(getattr(self._magnifier, "mode", None))
