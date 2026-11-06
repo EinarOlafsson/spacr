@@ -1124,6 +1124,7 @@ def _apply_axis(spec, frame, group, order, panel, settings):
     else:
         spec['labels'] = axis['labels']
     spec['axis_constant'] = axis['constant']
+    spec['context'] = ' \u00b7 '.join(axis['constant'])
     return spec
 
 

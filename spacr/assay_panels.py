@@ -956,7 +956,7 @@ def _draw_annotations(ax, order, annotations, fontsize=None, line_pt=None, row_n
     return len(rows)
 
 
-def _set_xticks(ax, order, labels, annotations, rotation=None, matrix=False):
+def _set_xticks(ax, order, labels, annotations, rotation=None, matrix=False, context=""):
     """Label the categories along the x axis, with annotation rows beneath.
 
     :param ax: the panel's axes.
@@ -967,8 +967,18 @@ def _set_xticks(ax, order, labels, annotations, rotation=None, matrix=False):
         rotated by 35 degrees only when they would otherwise touch.
     :param matrix: draw only the annotation rows (the +/- matrix) and no
         tick labels.
+    :param context: the factors shared by every category of the panel (for
+        example "HeLa WT · Me49"), written as one line under the labels or
+        the matrix.
     """
     n_rows = _draw_annotations(ax, order, annotations)
+    if context and matrix and n_rows:
+        ax.annotate(str(context), xy=(0.5, 0), xycoords="axes fraction",
+                    xytext=(0, -(n_rows + 0.4) * STYLE["annot_line_pt"] - 2), textcoords="offset points",
+                    ha="center", va="top", fontsize=STYLE["annot_pt"], annotation_clip=False,
+                    gid="context")
+    elif context:
+        ax.set_xlabel(str(context), fontsize=STYLE["annot_pt"])
     text = ["" for g in order] if matrix else [display_label(g, labels) for g in order]
     if rotation is None:
         longest = max((len(t) for t in text), default=0)
@@ -1061,7 +1071,7 @@ def draw_bar_panel(ax, data: pd.DataFrame, value: str, group: str, order: Sequen
                    annotations: Optional[Mapping] = None, ymin=None, refline=None,
                    palette=None, show_pairs: str = "significant", max_brackets: int = 12,
                    seed: int = 0, show_test=None, matrix=False, parts: Optional[Mapping] = None,
-                   bracket_pairs="one_factor"):
+                   bracket_pairs="one_factor", context: str = ""):
     """Bar of the mean of unit values, SD error bar, one dot per unit, post hoc brackets.
 
     :param ax: matplotlib axes to draw on.
@@ -1161,7 +1171,7 @@ def draw_bar_panel(ax, data: pd.DataFrame, value: str, group: str, order: Sequen
     ax.set_xlabel("")
     ax.set_ylabel(ylabel or value.replace("_", " "), fontsize=8)
     ax.tick_params(axis="y", labelsize=8)
-    _set_xticks(ax, order, labels, annotations, matrix=matrix)
+    _set_xticks(ax, order, labels, annotations, matrix=matrix, context=context)
     style_axes(ax)
     return ax
 
@@ -1187,7 +1197,7 @@ def draw_stacked_panel(ax, fractions: pd.DataFrame, group: str, order: Sequence,
                        labels: Optional[Mapping] = None, annotations: Optional[Mapping] = None,
                        colors=None, ylabel: str = "fraction of objects (mean ± SD)",
                        legend: bool = True, legend_title: str = "", show_test=None,
-                       matrix=False):
+                       matrix=False, context: str = ""):
     """Stacked mean fractions over units, SD bar at the top of each segment, stars vs reference.
 
     :param ax: matplotlib axes to draw on.
@@ -1241,7 +1251,7 @@ def draw_stacked_panel(ax, fractions: pd.DataFrame, group: str, order: Sequence,
         head = f"{head}\n{line}" if head else line
     if head:
         ax.set_title(head, fontsize=9)
-    _set_xticks(ax, order, labels, annotations, matrix=matrix)
+    _set_xticks(ax, order, labels, annotations, matrix=matrix, context=context)
     if legend:
         ax.legend(title=legend_title or None, fontsize=7, title_fontsize=7, frameon=False,
                   bbox_to_anchor=(1.0, 1.0), loc="upper left")
@@ -1264,7 +1274,8 @@ def draw_panel(ax, spec: dict, legend: bool = True):
                               annotations=spec.get("annotations"), ymin=spec.get("ymin"),
                               refline=spec.get("refline"), palette=spec.get("palette"),
                               matrix=bool(spec.get("matrix")), parts=spec.get("parts"),
-                              bracket_pairs=spec.get("bracket_pairs", "one_factor"))
+                              bracket_pairs=spec.get("bracket_pairs", "one_factor"),
+                              context=spec.get("context", ""))
     return draw_stacked_panel(ax, spec["data"], spec["group"], spec["order"], spec["bins"],
                               bin_labels=spec.get("bin_labels"), omnibus=spec["omnibus"],
                               pairwise=spec["pairwise"], method_label=spec.get("method_label", ""),
@@ -1272,7 +1283,7 @@ def draw_panel(ax, spec: dict, legend: bool = True):
                               annotations=spec.get("annotations"), colors=spec.get("colors"),
                               ylabel=spec.get("ylabel", "fraction of objects (mean ± SD)"),
                               legend=legend, legend_title=spec.get("legend_title", ""),
-                              matrix=bool(spec.get("matrix")))
+                              matrix=bool(spec.get("matrix")), context=spec.get("context", ""))
 
 
 def _panel_size(spec):

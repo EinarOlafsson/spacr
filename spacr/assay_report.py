@@ -1077,7 +1077,8 @@ def draw_grouped_panel(ax, spec, order=None, seed=0, compact=False):
     title = spec["title"] + (" (log)" if log else "")
     ax.set_ylabel(spec["ylabel"], fontsize=8)
     ax.tick_params(axis="y", labelsize=7)
-    _set_xticks(ax, order, spec.get("labels"), spec.get("annotations"), matrix=bool(spec.get("matrix")))
+    _set_xticks(ax, order, spec.get("labels"), spec.get("annotations"), matrix=bool(spec.get("matrix")),
+                context=spec.get("context", ""))
     if compact:
         ncol = min(k, 2)
         leg = ax.legend(fontsize=COMPACT.text_pt, frameon=False, loc="lower left",
@@ -1243,7 +1244,8 @@ def _draw_spec_inner(ax, spec, order=None, layout=SPACIOUS):
                        labels=labels, annotations=ann, matrix=matrix,
                        ymin=spec.get("ymin"), refline=spec.get("refline"),
                        palette=spec.get("palette"), max_brackets=MAX_BRACKETS, show_test=False,
-                       parts=spec.get("parts"), bracket_pairs=spec.get("bracket_pairs", "one_factor"))
+                       parts=spec.get("parts"), bracket_pairs=spec.get("bracket_pairs", "one_factor"),
+                       context=spec.get("context", ""))
     if layout.compact:
         compact_style(ax, layout)
     return ax
@@ -1291,6 +1293,8 @@ def _panel_item_height(spec, order, layout=SPACIOUS, plot_mm=None):
         xlab = len(ann) * line_pt / 72 * 25.4 + 2.0
     else:
         xlab = _xlabel_mm(texts, layout.text_pt if layout.compact else 8, compact=layout.compact)
+    if spec.get("context"):
+        xlab += (COMPACT_ANNOT[1] if layout.compact else STYLE["annot_line_pt"]) / 72 * 25.4 * 1.4
     if layout.compact:
         legend_rows = int(math.ceil(len(spec.get("objects", [])) / 2)) if spec["kind"] == "grouped" else 0
         brackets = 0 if spec.get("no_stats") or spec["kind"] == "grouped" else 3.0
@@ -1956,6 +1960,7 @@ def _draw_vector_outlines(ax, contours, chunk, n, size, gap, lw=0.7, alpha=0.6):
 
 def crop_drawer(result, chunk, n, size, layout=SPACIOUS, axis=None, labels=None,
                 versions=IMAGE_VERSIONS, width_mm=None, min_tile_mm=6.0, max_tile_mm=None):
+    context = " \u00b7 ".join((axis or {}).get("constant") or [])
     """Draw callback, height and minimum height (mm) of a crop figure.
 
     The three image versions (merged, channel of interest, channel of interest
@@ -1988,7 +1993,7 @@ def crop_drawer(result, chunk, n, size, layout=SPACIOUS, axis=None, labels=None,
         tile_mm = min(tile_mm, max_tile_mm)
     rows, is_matrix = _axis_text_rows(axis, chunk, labels, pt, tile_mm)
     n_lines = (len(rows) if is_matrix else max((t.count("\n") + 1 for t in rows[0][1]), default=1))
-    text_mm = n_lines * line_mm + 1.0
+    text_mm = (n_lines + (1.2 if context else 0)) * line_mm + 1.0
     name_mm = (max((len(r[0]) for r in rows), default=0) * _pt_mm(pt) * 0.6 + 1.5) if is_matrix else 0.0
     if side and is_matrix:
         per_w = (width_mm - name_mm - vgap * (len(versions) - 1)) / len(versions)
@@ -2042,6 +2047,9 @@ def crop_drawer(result, chunk, n, size, layout=SPACIOUS, axis=None, labels=None,
                 for j, txt in enumerate(texts):
                     cx = left + (j + 0.5) * (iw / ncol)
                     fig.text(cx / fw, yy / fh, txt, fontsize=pt, ha="center", va="top", linespacing=1.0)
+            if context:
+                yy = bottom - 0.6 - (len(rows) if is_matrix else n_lines) * line_mm - 0.3 * line_mm
+                fig.text((left + iw / 2) / fw, yy / fh, context, fontsize=pt, ha="center", va="top")
     return draw, height, min_height
 
 
@@ -2550,6 +2558,7 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
     value_label = value_label or value.replace("_", " ")
     parts = dict(parts or {g: string_parts(g) for g in order})
     axis = axis_layout(order, parts, x_axis_style, factor_order, labels)
+    context = " \u00b7 ".join(axis["constant"])
     counter, folders, figure_blocks, legends = [0], {}, {}, {}
     heat = {}
     db_tables = None
@@ -2658,7 +2667,7 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
             ymin = 1 if ratio and len(fin) and fin.min() >= 1 else None
             spec = bar_spec(unit, value, group, order, title="", ylabel=value_label, labels=labels,
                             ymin=ymin, refline=1 if ratio else None, palette=palette)
-            spec.update(axis=axis, plot_mm=46.0, parts=parts, bracket_pairs=bracket_pairs)
+            spec.update(axis=axis, plot_mm=46.0, parts=parts, bracket_pairs=bracket_pairs, context=context)
             if level == "well":
                 hv(value, value_label, version, unit, value)
             pid = next_id()
@@ -2702,7 +2711,7 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
                    data[data["object_type"] == obj], "mean_intensity")
             spec = grouped_spec(data, group, order, objs, title="",
                                 ylabel=f"mean intensity ch {chan}", labels=labels)
-            spec.update(axis=axis, no_stats=True)
+            spec.update(axis=axis, no_stats=True, context=context)
             pid = next_id()
             folders[pid] = save_spec_panel(panels_dir, pid, f"channel_{chan}_all_objects_{version}",
                                            spec, dpi=dpi)
@@ -2761,7 +2770,7 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
                           f"Infection load: mean number of pathogen objects per analysed host cell "
                           f"(pathogen_prcfo_count) per well, {version} objects."))
         for k, (pname, spec, text) in enumerate(row_b):
-            spec.update(axis=axis, no_stats=True)
+            spec.update(axis=axis, no_stats=True, context=context)
             pid = next_id()
             folders[pid] = save_spec_panel(panels_dir, pid, pname, spec, dpi=dpi)
             items += spec_items(pid, spec, max_conditions_per_row, layout, group_size=len(row_b),

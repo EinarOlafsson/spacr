@@ -501,3 +501,40 @@ def test_grouped_object_colours_distinct_and_no_yellow():
     for c in cols.values():
         r, g, b = to_rgb(c)
         assert not (r > 0.7 and g > 0.6 and b < 0.4)               # no yellow
+
+
+def test_constant_factors_are_printed_on_the_panel(tmp_path):
+    from spacr.submodules import _apply_axis
+    from spacr.assay_panels import bar_spec, draw_panel
+    strains = ["Me49WT", "Me49dGRA8", "Me49GRA8comp"]
+    frame = pd.DataFrame(dict(host_cells=strains * 4, treatment="HeLa_WT", pathogen="rep_1",
+                              v=np.arange(12.0), plateID="p", rowID="r1",
+                              columnID=[f"c{i}" for i in range(12)]))
+    settings = {"condition_factors": {"Me49WT": ["Me49", "WT"], "Me49dGRA8": ["Me49", "dGRA8"],
+                                      "Me49GRA8comp": ["Me49", "Comp"]},
+                "condition_labels": {"HeLa_WT": "HeLa WT"}, "x_axis_style": "auto"}
+    spec = bar_spec(frame, "v", "host_cells", strains)
+    spec = _apply_axis(spec, frame, "host_cells", strains, {}, settings)
+    assert spec["labels"] == {"Me49WT": "WT", "Me49dGRA8": "dGRA8", "Me49GRA8comp": "Comp"}
+    assert spec["context"] == "Me49"
+    fig, ax = plt.subplots()
+    draw_panel(ax, spec)
+    assert ax.get_xlabel() == "Me49"
+    # condition column: the host is constant too and is named on the panel
+    frame["condition"] = frame["host_cells"] + "_" + frame["treatment"]
+    conds = [f"{s}_HeLa_WT" for s in strains]
+    spec = _apply_axis(bar_spec(frame, "v", "condition", conds), frame, "condition", conds, {}, settings)
+    assert {"Me49", "HeLa WT"} <= set(spec["context"].split(" · "))
+
+
+def test_crop_grid_names_the_constant_factors(tmp_path):
+    from spacr.assay_panels import axis_layout, condition_parts
+    df, order, labels, tiles = _report_inputs(tmp_path, 3)
+    parts = {g: condition_parts({"strain": g, "host": "HeLa_WT"}) for g in order}
+    axis = axis_layout(order, parts, "auto", labels={"HeLa_WT": "HeLa WT"})
+    tr = ar.build_tiles(df, "condition", order, tiles["merged_dir"], tiles["mask_dims"], tiles["colour_map"],
+                        str(tmp_path / "t"), n=1, size=48, mono_channel=2)
+    draw, h, _ = ar.crop_drawer(tr, order, 1, 48, ar.COMPACT, axis, None, width_mm=180)
+    fig = ar._new_figure(190, h + 10)
+    draw(fig, (0.02, 0.02, 0.96, 0.96))
+    assert "HeLa WT" in [t.get_text() for t in fig.texts]
