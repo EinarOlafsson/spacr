@@ -1502,6 +1502,8 @@ def _recruitment_panels_impl(df, settings, results_dir):
             raise KeyError(f"figures refer to unknown panel id(s) {bad}; known: {sorted(all_specs)}")
         out['panels'] = _write_panels_and_figures(
             specs, names, os.path.join(results_dir, 'panels'), figures_dir, None)
+        out['crops'] = _panel_crop_grids(df, specs, names, panels, os.path.join(results_dir, 'panels'),
+                                         settings)
         if user_figs:
             from .assay_panels import assemble_figure
             out['figures'] = {
@@ -1569,6 +1571,57 @@ def _recruitment_report(*args, **kwargs):
         return _recruitment_report_impl(*args, **kwargs)
 
 
+def _recruitment_tile_config(df, settings, channels=None):
+    """Merged-array crop settings for report tiles and representative crops, or None."""
+    from .assay_report import resolve_mask_dims
+    coi = settings['channel_of_interest']
+    channels = channels or [int(c) for c in (settings.get('channel_dims') or []) if c is not None]
+    merged_dir = settings.get('merged_dir') or os.path.join(settings['src'], 'merged')
+    if not (os.path.isdir(merged_dir) and settings.get('cell_chann_dim') is not None and len(df)):
+        return None
+    names = [n for n, c in (('cell', settings.get('cell_chann_dim')),
+                            ('nucleus', settings.get('nucleus_chann_dim')),
+                            ('pathogen', settings.get('pathogen_chann_dim'))) if c is not None]
+    probe = os.path.join(merged_dir, f"{df['file_name'].iloc[0]}.npy")
+    n_planes = np.load(probe, mmap_mode='r').shape[-1] if os.path.exists(probe) else len(channels) + len(names)
+    colour_map = {}
+    pairs = (list(settings['report_tile_channels'].items()) if settings.get('report_tile_channels')
+             else [(coi, 'red'), (settings.get('pathogen_chann_dim'), 'green'),
+                   (settings.get('nucleus_chann_dim'), 'blue')])
+    for chan, colour in pairs:
+        if chan is not None:
+            colour_map.setdefault(int(chan), colour)
+    return dict(merged_dir=merged_dir, mask_dims=resolve_mask_dims(merged_dir, names, n_planes),
+                colour_map=colour_map, n=int(settings['report_tiles_per_condition']),
+                size=int(settings['report_tile_size']), seed=int(settings['report_tile_seed']))
+
+
+def _panel_crop_grids(df, specs, names, panels, panels_dir, settings):
+    """Representative crops next to every user panel (``representative_crops``)."""
+    from .assay_report import build_tiles, panel_folder_name
+    if not settings.get('representative_crops'):
+        return {}
+    cfg = _recruitment_tile_config(df, settings)
+    if cfg is None:
+        return {}
+    out = {}
+    for (pid, spec), panel in zip(specs.items(), panels):
+        group = spec['group']
+        sub = _panel_where(df, panel.get('where')).dropna(subset=[group])
+        value = spec['value'] if spec['value'] in sub.columns else 'recruitment'
+        folder = os.path.join(panels_dir, panel_folder_name(pid, names[pid]) + '_crops')
+        try:
+            out[pid] = build_tiles(sub, group, spec['order'], cfg['merged_dir'], cfg['mask_dims'],
+                                   cfg['colour_map'], folder, n=int(settings['representative_crops_n']),
+                                   size=cfg['size'], percentiles=(1, 99), value_column=value,
+                                   selection='median', range_source='crops', subdir='crops',
+                                   montage_name='montage16')
+            out[pid]['table'].to_csv(os.path.join(folder, 'data.csv'), index=False)
+        except Exception as exc:  # crops must never stop the analysis
+            print(f"representative crops for {pid} failed: {exc}")
+    return out
+
+
 def _recruitment_report_impl(df_unfiltered, df, settings, results_dir, filter_log, well_qc=None):
     """Write the standard recruitment report into ``results/report`` (``report`` setting)."""
     import datetime
@@ -1581,27 +1634,11 @@ def _recruitment_report_impl(df_unfiltered, df, settings, results_dir, filter_lo
     channels = list(dict.fromkeys([int(c) for c in (settings.get('channel_dims') or []) if c is not None]
                                   + [int(coi)]))
     palette = _control_palette(frames['unfiltered'], group, order, settings.get('control_color_by'))
-    tiles = None
-    merged_dir = settings.get('merged_dir') or os.path.join(settings['src'], 'merged')
     intro = []
-    if os.path.isdir(merged_dir) and settings.get('cell_chann_dim') is not None and len(df):
-        names = [n for n, c in (('cell', settings.get('cell_chann_dim')),
-                                ('nucleus', settings.get('nucleus_chann_dim')),
-                                ('pathogen', settings.get('pathogen_chann_dim'))) if c is not None]
-        probe = os.path.join(merged_dir, f"{df['file_name'].iloc[0]}.npy")
-        n_planes = np.load(probe, mmap_mode='r').shape[-1] if os.path.exists(probe) else len(channels) + len(names)
-        colour_map = {}
-        pairs = (list(settings['report_tile_channels'].items()) if settings.get('report_tile_channels')
-                 else [(coi, 'red'), (settings.get('pathogen_chann_dim'), 'green'),
-                       (settings.get('nucleus_chann_dim'), 'blue')])
-        for chan, colour in pairs:
-            if chan is not None:
-                colour_map.setdefault(int(chan), colour)
-        tiles = dict(merged_dir=merged_dir, mask_dims=resolve_mask_dims(merged_dir, names, n_planes),
-                     colour_map=colour_map, n=int(settings['report_tiles_per_condition']),
-                     size=int(settings['report_tile_size']), seed=int(settings['report_tile_seed']))
-    else:
-        intro.append(f"No representative tiles: merged arrays not found in {merged_dir} "
+    tiles = _recruitment_tile_config(df, settings, channels)
+    if tiles is None:
+        intro.append(f"No representative tiles or crops: merged arrays not found in "
+                     f"{settings.get('merged_dir') or os.path.join(settings['src'], 'merged')} "
                      f"(set merged_dir) or no cell mask (cell_chann_dim).")
     shown = '; '.join(f"{i}. {labels.get(g, g)}" for i, g in enumerate(order, start=1))
     intro.insert(0, f"Recruitment report for {settings['src']} ({datetime.date.today().isoformat()}). "
@@ -1621,7 +1658,8 @@ def _recruitment_report_impl(df_unfiltered, df, settings, results_dir, filter_lo
         title=f"spaCR recruitment report: {os.path.basename(os.path.normpath(settings['src']))}",
         intro=intro, name='recruitment_report', layout=settings.get('report_layout') or 'compact',
         db_path=os.path.join(settings['src'], 'measurements', 'measurements.db'),
-        well_qc=well_qc)
+        well_qc=well_qc,
+        crops=dict(n=int(settings['representative_crops_n'])) if settings.get('representative_crops') else None)
     print(f"Recruitment report: {res['pdf']} ({res['n_pages']} pages), legend {res['legend']}")
     return res
 

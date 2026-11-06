@@ -1016,6 +1016,17 @@ def spec_items(pid, spec, max_per_row, layout=SPACIOUS, group_size=None, new_row
     return items
 
 
+def _save_drawing(folder, stem, draw, size_mm, dpi=300):
+    """Draw into a figure of ``size_mm`` and save ``<folder>/<stem>.pdf/.png``."""
+    os.makedirs(folder, exist_ok=True)
+    w, h = size_mm
+    fig = _new_figure(w, h)
+    pad = 2.0
+    draw(fig, (pad / w, pad / h, 1 - 2 * pad / w, 1 - 2 * pad / h))
+    for ext in ("pdf", "png"):
+        fig.savefig(os.path.join(folder, f"{stem}.{ext}"), dpi=dpi)
+
+
 def write_panel_folder(out_dir, pid, name, draw, size_mm, data=None, stats=None, dpi=300):
     """One panel folder: ``<Rnn_name>.pdf/.png``, ``data.csv`` and ``stats.csv``.
 
@@ -1094,6 +1105,21 @@ def select_tiles(df, group, order, n, seed=0, tile_size=128,
             inside = pd.to_numeric(perm[edge_column], errors="coerce") >= tile_size / 2
             perm = pd.concat([perm[inside.to_numpy()], perm[~inside.to_numpy()]])
         out[g] = perm
+    return out
+
+
+def select_median(df, group, order, value):
+    """Candidates per group ordered by distance to the group median of ``value`` (typical first)."""
+    out = {}
+    for g in order:
+        sub = df[df[group] == g]
+        v = pd.to_numeric(sub[value], errors="coerce").replace([np.inf, -np.inf], np.nan)
+        sub = sub[v.notna().to_numpy()]
+        v = v.dropna()
+        med = float(v.median()) if len(v) else np.nan
+        sub = sub.iloc[np.argsort((v - med).abs().to_numpy(), kind="stable")] if len(v) else sub
+        sub.attrs["median"] = med
+        out[g] = sub
     return out
 
 
@@ -1214,7 +1240,9 @@ def build_tiles(df, group, order, merged_dir, mask_dims, colour_map, out_folder,
                 size=128, seed=0, percentiles=(0.5, 99.9), max_range_fields=24,
                 object_column="object_label", file_column="file_name",
                 edge_column="pathogen_distance_to_field_edge", outline_objects=("pathogen", "cell"),
-                value_column=None, center_object="pathogen", max_attempts=400):
+                value_column=None, center_object="pathogen", max_attempts=400,
+                selection="random", range_source="fields", subdir="tiles",
+                montage_name="montage_rgb16"):
     """Pick, crop, render and write the representative tiles of every group.
 
     :param mask_dims: {'cell': plane, 'pathogen': plane, ...}; ``object_column``
@@ -1222,12 +1250,23 @@ def build_tiles(df, group, order, merged_dir, mask_dims, colour_map, out_folder,
         objects of the host cell (pathogen; see :func:`extract_tile`), or on the
         host cell when that mask is absent. At most ``max_attempts`` candidates
         are tried per group.
+    :param selection: ``'random'`` (seeded, objects away from the edge first)
+        or ``'median'`` (objects closest to the median of ``value_column`` in
+        their group first: typical objects).
+    :param range_source: ``'fields'`` (display range from the pixels of the
+        fields the tiles come from) or ``'crops'`` (from the pixels of the
+        crops themselves, so every crop of the figure is comparable).
+    :param subdir: folder for the per-crop files; ``montage_name`` the stem of
+        the 16-bit montage.
     :returns: dict with ``tiles`` {group: [rgb16]}, ``table`` (one row per
         tile), ``ranges``, ``montage`` (uint16 RGB, rows = tiles, columns =
         groups), ``files`` and ``notes``.
     """
-    os.makedirs(os.path.join(out_folder, "tiles"), exist_ok=True)
-    candidates = select_tiles(df, group, order, n, seed, size, edge_column)
+    os.makedirs(os.path.join(out_folder, subdir), exist_ok=True)
+    if selection == "median":
+        candidates = select_median(df, group, order, value_column)
+    else:
+        candidates = select_tiles(df, group, order, n, seed, size, edge_column)
     cell_plane = mask_dims["cell"]
     cache: Dict[str, np.ndarray] = {}
 
@@ -1260,7 +1299,11 @@ def build_tiles(df, group, order, merged_dir, mask_dims, colour_map, out_folder,
     if len(used_files) > max_range_fields:
         used_files = list(rng.choice(used_files, max_range_fields, replace=False))
     arrays = [load(f) for f in used_files]
-    ranges = display_ranges(arrays, list(colour_map), percentiles) if arrays else {}
+    if range_source == "crops":
+        crops = [res[2] for ch in picks.values() for (_, _, _, res) in ch]
+        ranges = display_ranges(crops, list(colour_map), percentiles, stride=1) if crops else {}
+    else:
+        ranges = display_ranges(arrays, list(colour_map), percentiles) if arrays else {}
 
     outline_cols = {"pathogen": (1.0, 1.0, 1.0), "cell": (0.55, 0.55, 0.55),
                     "nucleus": (0.3, 0.6, 1.0)}
@@ -1282,7 +1325,7 @@ def build_tiles(df, group, order, merged_dir, mask_dims, colour_map, out_folder,
                     outlines.append((np.isin(plane, inside), outline_cols.get(obj, (1, 1, 0))))
             rgb = render_tile(padded, colour_map, ranges, outlines)
             tiles[g].append(rgb)
-            stem = os.path.join(out_folder, "tiles", f"{_safe(g)}_{k:02d}")
+            stem = os.path.join(out_folder, subdir, f"{_safe(g)}_{k:02d}")
             import tifffile
             tifffile.imwrite(f"{stem}_raw.tif", np.ascontiguousarray(np.moveaxis(raw, -1, 0)),
                              photometric="minisblack", metadata={"axes": "CYX"})
@@ -1295,9 +1338,11 @@ def build_tiles(df, group, order, merged_dir, mask_dims, colour_map, out_folder,
                    "rgb16_png": os.path.basename(f"{stem}_rgb16.png")}
             if value_column and value_column in row.index:
                 rec[value_column] = row[value_column]
+                if selection == "median":
+                    rec["group_median"] = candidates[g].attrs.get("median", np.nan)
             rows.append(rec)
     montage = montage16(tiles, order, n, size)
-    files += write_rgb16(os.path.join(out_folder, "montage_rgb16"), montage)
+    files += write_rgb16(os.path.join(out_folder, montage_name), montage)
     dtype = str(arrays[0].dtype) if arrays else "unknown"
     return dict(tiles=tiles, table=pd.DataFrame(rows), ranges=ranges, montage=montage,
                 files=files, notes=notes, n_range_fields=len(arrays), dtype=dtype,
@@ -1317,7 +1362,8 @@ def montage16(tiles, order, n, size, gap=4):
     return out
 
 
-def tile_drawer(tiles_result, chunk, labels, n, size, colour_text, layout=SPACIOUS, tile_mm=None):
+def tile_drawer(tiles_result, chunk, labels, n, size, colour_text, layout=SPACIOUS, tile_mm=None,
+                show_labels=True):
     """Draw callback, height and minimum height (mm) of one tile row of ``chunk`` conditions.
 
     One image column per condition (``n`` tiles stacked), its label above it,
@@ -1331,10 +1377,10 @@ def tile_drawer(tiles_result, chunk, labels, n, size, colour_text, layout=SPACIO
     line_mm = _pt_mm(pt) * 1.25
     per_line = max(8, int(max(tile_mm, 14.0) / char_mm))
     texts = ["\n".join(textwrap.wrap(t, per_line, break_long_words=False))
-             for t in _label_texts(chunk, labels)]
+             for t in _label_texts(chunk, labels)] if show_labels else [""] * len(chunk)
     n_lines = max((t.count("\n") + 1 for t in texts), default=1)
     label_w = max((len(line) for t in texts for line in t.split("\n")), default=1) * char_mm
-    lab_mm = 1.0 + n_lines * line_mm
+    lab_mm = 1.0 + n_lines * line_mm if show_labels else 0.5
     key_pt = max(MIN_FONT_PT, layout.text_pt if layout.compact else 6.5)
     key_mm = 1.5 + _pt_mm(key_pt) * 1.3
     gap_px = 4
@@ -1619,7 +1665,8 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
                        tiles: Optional[dict] = None, max_conditions_per_row: int = 12,
                        row_object="cell", title="spaCR assay report", intro: Sequence[str] = (),
                        name="report", count_objects=None, db_path=None, layout="compact",
-                       well_qc: Optional[pd.DataFrame] = None, heatmaps=True, dpi=200) -> dict:
+                       well_qc: Optional[pd.DataFrame] = None, heatmaps=True, crops=None,
+                       dpi=200) -> dict:
     """Build the standard report: tiles, value panels, control panels, legend.
 
     :param frames: ``{'unfiltered': df, 'filtered': df}``, one row per
@@ -1631,6 +1678,11 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
         counted from its object tables (:func:`db_well_counts`), after
         filtering from the analysed frame (:func:`well_counts`).
     :param layout: ``'compact'`` (one A4 page when it fits) or ``'spacious'``.
+    :param crops: None, or ``{'n': k}``: a representative crop per condition
+        (closest to the condition median of ``value``) and, under every value
+        graph, a grid of the ``k`` crops nearest each condition median, drawn
+        from the same data version, scaled to the 1st-99th percentile of the
+        crops of that figure (needs ``tiles`` for the merged arrays).
     :param well_qc: the :func:`well_qc_table`; failed wells are marked in the
         plate heatmaps (``heatmaps``: one per plotted variable, before and
         after filtering, as an appendix after the main figure).
@@ -1715,8 +1767,46 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
                 f"montage_rgb16.png/.tif (16-bit). The figure PDF/PNG is 8-bit, drawn without "
                 f"interpolation." + (" " + "; ".join(tr["notes"]) + "." if tr["notes"] else ""))
 
+    crop_cfg = None
+    if crops and tiles:
+        crop_cfg = dict(merged_dir=tiles["merged_dir"], mask_dims=tiles["mask_dims"],
+                        colour_map=tiles["colour_map"], size=tiles.get("size", 128),
+                        percentiles=(1, 99), selection="median", range_source="crops",
+                        subdir="crops", montage_name="montage16")
+        ckey = ", ".join(f"{_colour_name(c)}: channel {ch}" for ch, c in tiles["colour_map"].items())
+        pid = next_id()
+        folder = os.path.join(panels_dir, panel_folder_name(pid, "representative_per_condition"))
+        try:
+            rp = build_tiles(filt, group, order, out_folder=folder, value_column=value, n=1, **crop_cfg)
+        except Exception as exc:
+            rp = None
+            legend.append(f"{pid}. Representative crops could not be made: {exc}.")
+        if rp is not None and len(rp["table"]):
+            size = crop_cfg["size"]
+            tile_mm = min(16.0 if layout.compact else 24.0, layout.content / max(len(order), 1) - 2)
+            draw, h, hmin = tile_drawer(rp, order, labels, 1, size, ckey, layout, tile_mm)
+            item = ReportItem(pid=pid, label=pid, draw=draw, width=1.0, height_mm=h,
+                              min_height_mm=tile_drawer(rp, order, labels, 1, size, ckey, layout,
+                                                        tile_mm * 0.7)[1])
+            blocks.append(ReportBlock(f"Representative {value_label} per condition (filtered objects)",
+                                      [item]))
+            fd, fh, _ = tile_drawer(rp, order, labels, 1, size, ckey, SPACIOUS, 26.0)
+            write_panel_folder(panels_dir, pid, "representative_per_condition", fd,
+                               (max(_content_width(), 28.0 * len(order) + 4), fh - ID_STRIP_MM + 4),
+                               data=rp["table"], dpi=dpi)
+            folders[pid] = folder
+            legend.append(
+                f"{pid}. One representative object per condition: the filtered host cell whose "
+                f"{value_label} lies closest to the median of its condition, among cells whose pathogen "
+                f"objects lie fully inside the {size} x {size} px crop and away from the field edge. "
+                f"Composite: {ckey}; each channel scaled linearly between its 1st and 99th percentile "
+                f"over the pixels of these crops. crops/*_raw.tif hold the raw uint16 planes, "
+                f"crops/*_rgb16.png/.tif and montage16.png/.tif the 16-bit composites; data.csv names "
+                f"the object of each condition, its value and the condition median.")
+
     # ---- value panels
     items, sub_legend = [], []
+    grid_items = []
     levels = [("unfiltered", "well"), ("unfiltered", "replicate"),
               ("filtered", "well"), ("filtered", "replicate")]
     if not replicate_column:
@@ -1737,11 +1827,35 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
         pid = next_id()
         folders[pid] = save_spec_panel(panels_dir, pid, f"{value}_{version}_{level}", spec, dpi=dpi)
         items += add_items(pid, spec, len(levels), k == 0)
+        if crop_cfg is not None:
+            gfolder = folders[pid] + "_crops"
+            try:
+                gr = build_tiles(df, group, order, out_folder=gfolder, value_column=value,
+                                 n=int(crops.get("n", 5)), **crop_cfg)
+                gr["table"].to_csv(os.path.join(gfolder, "data.csv"), index=False)
+                frac = items[-1].frac
+                gw = layout.width_mm(frac)
+                tmm = min(layout.tile_mm * 1.2, (gw - 2) / max(len(order), 1) - 0.8)
+                gdraw, gh, _ = tile_drawer(gr, order, labels, int(crops.get("n", 5)), crop_cfg["size"],
+                                           "", layout, tmm, show_labels=False)
+                gdraw_s, gh_s, _ = tile_drawer(gr, order, labels, int(crops.get("n", 5)), crop_cfg["size"],
+                                               "", SPACIOUS, 20.0)
+                _save_drawing(gfolder, os.path.basename(gfolder), gdraw_s,
+                              (max(80.0, 24.0 * len(order)), gh_s), dpi=dpi)
+                grid_items.append(ReportItem(pid=f"{pid} crops", label=f"{pid} crops", draw=gdraw,
+                                             width=frac, height_mm=gh, min_height_mm=gh,
+                                             new_row=not grid_items))
+                sub_legend.append(f"{pid} crops. Under {pid}: the {int(crops.get('n', 5))} {version} objects "
+                                  f"closest to the condition median of {value_label}, one column per "
+                                  f"condition in the x-axis order of {pid}; scaled to the 1st-99th "
+                                  f"percentile of these crops; files in {os.path.basename(gfolder)}/.")
+            except Exception as exc:
+                sub_legend.append(f"{pid} crops could not be made: {exc}.")
         unit_text = (f"replicates (column '{replicate_column}'; each the mean of its well means)"
                      if level == "replicate" else "wells (each the mean of its objects)")
         sub_legend.append(_spec_legend(pid, spec, f"{value_label} per condition, {version} objects, "
                                                   f"{level} level.", unit_text))
-    blocks.append(ReportBlock(f"{value_label} per condition", items))
+    blocks.append(ReportBlock(f"{value_label} per condition", items + grid_items))
     if not replicate_column:
         sub_legend.append("Replicate-level panels are not drawn because replicate_column is not set.")
     legend += sub_legend

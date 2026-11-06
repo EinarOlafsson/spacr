@@ -355,7 +355,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "report", "report_tiles_per_condition", "report_tile_size", "report_tile_seed",
     "report_tile_channels", "report_max_conditions_per_row", "report_layout",
     "well_qc", "well_qc_mad", "well_qc_measures", "object_qc", "object_qc_mad", "object_qc_measures", "outlier_points",
-    "outlier_points_method",
+    "outlier_points_method", "representative_crops", "representative_crops_n",
     "max_area_quantile", "bin_labels", "field_qc_min_objects",
     # Recruitment: field QC and confounder adjustment.
     "field_qc", "field_qc_mad", "field_qc_min_cells",

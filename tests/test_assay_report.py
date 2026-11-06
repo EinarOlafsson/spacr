@@ -200,13 +200,17 @@ def test_analyze_recruitment_report_end_to_end(tmp_path):
     assert "max_vacuoles_per_cell 2" in legend and "exclude_edge_objects" in legend
     assert any(t in legend for t in ("one-way ANOVA", "Welch ANOVA", "Kruskal-Wallis"))
     assert "replicate" in legend and "seed 0" in legend
-    panels = sorted(p for p in os.listdir(rep / "panels") if p.startswith("R"))
+    allp = sorted(os.listdir(rep / "panels"))
+    assert "R02_representative_per_condition" in allp
+    assert "R03_recruitment_unfiltered_well_crops" in allp
+    panels = sorted(p for p in allp if p.startswith("R") and not p.endswith("_crops")
+                    and p != "R02_representative_per_condition")
     heat = sorted(p for p in os.listdir(rep / "panels") if p.startswith("H"))
     assert "H01_heatmap_recruitment_unfiltered" in heat and len(heat) % 2 == 0
     assert set(os.listdir(rep / "panels" / heat[0])) == {f"{heat[0]}.pdf", f"{heat[0]}.png", "data.csv"}
     assert panels[0] == "R01_representative_tiles"
-    assert panels[1:5] == ["R02_recruitment_unfiltered_well", "R03_recruitment_unfiltered_replicate",
-                           "R04_recruitment_filtered_well", "R05_recruitment_filtered_replicate"]
+    assert panels[1:5] == ["R03_recruitment_unfiltered_well", "R04_recruitment_unfiltered_replicate",
+                           "R05_recruitment_filtered_well", "R06_recruitment_filtered_replicate"]
     for p in panels:
         files = set(os.listdir(rep / "panels" / p))
         assert {f"{p}.pdf", f"{p}.png", "data.csv", "stats.csv"} <= files
@@ -307,3 +311,54 @@ def test_compact_layout_paginates_many_conditions(tmp_path):
                                "recruitment", "condition", order[:6], [0, 1, 2, 3], labels=labels,
                                replicate_column="replicate", ratio=True, layout="spacious")
     assert sp["n_main_pages"] > 1                             # spacious keeps the roomy pages
+
+
+def _crop_inputs(tmp_path):
+    df, order, labels, tiles = _report_inputs(tmp_path, 3)
+    return df, order, labels, tiles
+
+
+def test_representative_crops_off_writes_nothing(tmp_path):
+    df, order, labels, tiles = _crop_inputs(tmp_path)
+    res = ar.build_assay_report({"unfiltered": df, "filtered": df}, str(tmp_path / "rep"), "recruitment",
+                                "condition", order, [0, 1], labels=labels, tiles=tiles, crops=None,
+                                heatmaps=False)
+    names = os.listdir(tmp_path / "rep" / "panels")
+    assert not any(n.endswith("_crops") or "representative_per_condition" in n for n in names)
+    assert res["n_pages"] >= 1
+
+
+def test_representative_crops_grid_and_figure(tmp_path):
+    import cv2
+    import tifffile
+    df, order, labels, tiles = _crop_inputs(tmp_path)
+    ar.build_assay_report({"unfiltered": df, "filtered": df}, str(tmp_path / "rep"), "recruitment",
+                          "condition", order, [0, 1], labels=labels, tiles=tiles, crops={"n": 3},
+                          heatmaps=False)
+    panels = tmp_path / "rep" / "panels"
+    rep = panels / "R02_representative_per_condition"
+    table = pd.read_csv(rep / "data.csv")
+    assert len(table) == len(order) and {"recruitment", "group_median"} <= set(table.columns)
+    # the chosen object is the one nearest its condition median among those that can be cropped
+    for _, r in table.iterrows():
+        sub = df[df["condition"] == r["condition"]]
+        assert abs(r["group_median"] - sub["recruitment"].median()) < 1e-9
+    grid = panels / "R03_recruitment_unfiltered_well_crops"
+    g = pd.read_csv(grid / "data.csv")
+    assert g.groupby("condition").size().tolist() == [3] * len(order)
+    assert (grid / "R03_recruitment_unfiltered_well_crops.pdf").exists()
+    mont = cv2.imread(str(grid / "montage16.png"), cv2.IMREAD_UNCHANGED)
+    assert mont.dtype == np.uint16
+    raw = tifffile.imread(grid / "crops" / g["raw_tiff"].iloc[0])
+    assert raw.dtype == np.uint16
+    # 1st-99th percentile scaling over the crops of the figure: about 1 % of the
+    # pixels of a channel sit at or above full scale
+    crops = [np.moveaxis(tifffile.imread(grid / "crops" / f), 0, -1) for f in g["raw_tiff"]]
+    px = np.concatenate([c[..., 2].ravel() for c in crops]).astype(float)
+    lo, hi = np.percentile(px, [1, 99])
+    rgb = [cv2.imread(str(grid / "crops" / f), cv2.IMREAD_UNCHANGED)[..., ::-1] for f in g["rgb16_png"]]
+    red = np.concatenate([x[..., 0].ravel() for x in rgb]).astype(float)
+    expect = np.clip((px - lo) / (hi - lo), 0, 1) * 65535
+    inside = np.concatenate([np.ones(c.shape[:2], bool).ravel() for c in crops])
+    # every pixel off the drawn outlines (about 8 % here) matches the 1-99 % scaling
+    assert np.mean(np.abs(red[inside] - expect[inside]) <= 2) > 0.9
