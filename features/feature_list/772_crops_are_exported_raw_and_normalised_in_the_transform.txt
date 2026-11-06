@@ -25,3 +25,18 @@ REQUIREMENTS
    matches the old stretch bit for bit; the marker is written and read.
 
 RELATED: item 91 (crop dtype and scaling are the user's choice), item 93.
+
+ADDED 2026-11-06 (maintainer, via Anu): crops keep the input bit depth
+Vacuole crops look poor because they go from 16 to 8 bits. The measure step
+writes its object crops (png_list, <object>_png) as 8-bit RGB PNG, scaled by
+the crop or png percentiles.
+7. Optionally save crops with the input dtype and raw values: a multichannel
+   TIFF that includes the mask channel, and/or a 16-bit RGB PNG for display.
+8. Find every place a crop or montage is reduced to 8 bits, and make each one
+   a visible, opt-in display step, not a silent conversion.
+9. Montages, example grids and annotation views render crops at native pixel
+   size, or with smooth interpolation, never nearest-neighbour upscaling,
+   which shows as blocky pixels.
+10. Tests: the TIFF round-trips dtype, values and the mask channel; no export
+    path reduces bit depth unless that option is set; montage rendering does
+    not use nearest-neighbour upscaling.
