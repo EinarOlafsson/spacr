@@ -679,19 +679,43 @@ def qc_object_types(df):
     return types + extra
 
 
+def _reference_keys(plate, group, min_size):
+    """Reference set of each row: (plate, group) when the group is large enough, else (plate,)."""
+    if group is None:
+        return plate.astype(str), pd.Series(["plate"] * len(plate), index=plate.index, dtype=object)
+    g = group.astype(str).where(group.notna(), "")
+    size = pd.Series(1, index=plate.index).groupby([plate.astype(str), g]).transform("size")
+    ok = (size >= min_size) & (g != "")
+    ref = plate.astype(str).where(~ok, plate.astype(str) + "\x1f" + g)
+    label = pd.Series(np.where(ok, "group " + g, "plate (group too small: " + size.astype(str) + ")"),
+                      index=plate.index, dtype=object)
+    return ref, label
+
+
+def _robust_z(v, ref):
+    med = v.groupby(ref).transform("median")
+    dev = (v - med).abs().groupby(ref).transform("median")
+    return (v - med) / (_MAD_K * dev.replace(0, np.nan))
+
+
 def well_qc_table(df, channels=None, measures=None, mad=3.5, row_object="cell",
-                  well_keys=WELL_KEYS):
-    """Well-level QC: every well against the other wells of its plate.
+                  well_keys=WELL_KEYS, group=None, min_wells=8):
+    """Well-level QC: every well against the other wells of its condition group on its plate.
 
     Per well, for every object type: object count (rows for ``row_object``,
     else the sum of ``<obj>_prcfo_count``), median ``<obj>_area`` and median
     ``<obj>_channel_<c>_mean_intensity`` per channel. A well fails when any
-    measure lies more than ``mad`` x 1.4826 x MAD from the plate median of
-    the wells (measures with MAD 0 flag nothing).
+    measure lies more than ``mad`` x 1.4826 x MAD from the median of the
+    reference wells (measures with MAD 0 flag nothing). The reference is the
+    wells of the same plate and the same ``group`` value (so real differences
+    between conditions are not flagged), or the whole plate when ``group`` is
+    None or its group has fewer than ``min_wells`` wells on that plate.
 
+    :param group: column of ``df`` with the condition group, or None (per plate).
     :param measures: subset of ``('count', 'area', 'intensity')``; None = all.
-    :returns: one row per well: well keys, ``<measure>`` and ``<measure>_z``
-        columns, ``well_qc_pass`` and ``well_qc_reason`` (measures that failed).
+    :returns: one row per well: well keys, ``qc_group``, ``qc_reference``,
+        ``<measure>`` and ``<measure>_z`` columns, ``well_qc_pass`` and
+        ``well_qc_reason`` (measures that failed).
     """
     measures = set(measures or QC_MEASURES)
     keys = [k for k in well_keys if k in df.columns]
@@ -717,20 +741,24 @@ def well_qc_table(df, channels=None, measures=None, mad=3.5, row_object="cell",
                         pd.to_numeric(df[col], errors="coerce").groupby(groups).median())
     if not cols:
         t = df[keys].drop_duplicates().reset_index(drop=True)
+        t["qc_group"], t["qc_reference"] = "", "no measures"
         t["well_qc_pass"], t["well_qc_reason"] = True, ""
         return t
     table = pd.DataFrame(cols).reset_index()
-    if "plateID" in keys:
-        plate = table["plateID"]
+    if group is not None and group in df.columns:
+        first = df.groupby(keys, observed=True)[group].first().rename("qc_group").reset_index()
+        table = first.merge(table, on=keys, how="right")
+        gser = table["qc_group"]
     else:
-        plate = pd.Series("plate", index=table.index)
+        table.insert(len(keys), "qc_group", "")
+        gser = None
+    plate = table["plateID"] if "plateID" in keys else pd.Series("plate", index=table.index)
+    ref, label = _reference_keys(plate, gser, min_wells)
+    table.insert(len(keys) + 1, "qc_reference", label.to_numpy())
     failed = pd.Series(False, index=table.index)
     reason = pd.Series([""] * len(table), index=table.index, dtype=object)
     for m in list(cols):
-        v = pd.to_numeric(table[m], errors="coerce")
-        med = v.groupby(plate).transform("median")
-        dev = (v - med).abs().groupby(plate).transform("median")
-        z = (v - med) / (_MAD_K * dev.replace(0, np.nan))
+        z = _robust_z(pd.to_numeric(table[m], errors="coerce"), ref)
         table[f"{m}_z"] = z
         hit = (z.abs() > mad).fillna(False)
         failed |= hit
@@ -740,17 +768,24 @@ def well_qc_table(df, channels=None, measures=None, mad=3.5, row_object="cell",
     return table
 
 
-def object_qc_mask(df, channels=None, measures=None, mad=3.5, plate_column="plateID"):
-    """Object-level QC: per plate and object type, objects beyond the robust fence.
+def object_qc_mask(df, channels=None, measures=None, mad=3.5, plate_column="plateID", group=None,
+                   min_objects=30):
+    """Object-level QC: per plate, condition group and object type, objects beyond the robust fence.
 
     Area and channel mean intensities are compared on log scale (values <= 0
-    are never flagged).
+    are never flagged) with the objects of the same plate and ``group``
+    value, or of the whole plate when ``group`` is None or holds fewer than
+    ``min_objects`` objects there.
 
-    :returns: (keep mask, summary with ``measure``, ``column``,
-        ``objects_removed`` per measure - an object can fail several).
+    :returns: (keep mask, summary with ``object_type``, ``measure``,
+        ``column``, ``objects_removed``, ``objects``, ``qc_group`` and
+        ``groups_on_plate_fallback`` - an object can fail several measures).
     """
     measures = set(measures or QC_MEASURES)
     plate = df[plate_column] if plate_column in df.columns else pd.Series("plate", index=df.index)
+    gser = df[group] if group is not None and group in df.columns else None
+    ref, label = _reference_keys(plate, gser, min_objects)
+    n_fallback = int(label.str.startswith("plate (").sum()) if gser is not None else 0
     keep = np.ones(len(df), bool)
     rows = []
     for obj in qc_object_types(df):
@@ -765,16 +800,14 @@ def object_qc_mask(df, channels=None, measures=None, mad=3.5, plate_column="plat
                      for c in chans if f"{obj}_channel_{int(c)}_mean_intensity" in df.columns]
         for measure, col in cols:
             v = pd.to_numeric(df[col], errors="coerce")
-            lv = np.log(v.where(v > 0))
-            med = lv.groupby(plate).transform("median")
-            dev = (lv - med).abs().groupby(plate).transform("median")
-            z = (lv - med) / (_MAD_K * dev.replace(0, np.nan))
+            z = _robust_z(np.log(v.where(v > 0)), ref)
             hit = (z.abs() > mad).fillna(False).to_numpy()
             rows.append(dict(object_type=obj, measure=measure, column=col,
-                             objects_removed=int(hit.sum()), objects=int(len(df))))
+                             objects_removed=int(hit.sum()), objects=int(len(df)),
+                             qc_group=group or "plate", objects_with_plate_fallback=n_fallback))
             keep &= ~hit
     return keep, pd.DataFrame(rows, columns=["object_type", "measure", "column", "objects_removed",
-                                             "objects"])
+                                             "objects", "qc_group", "objects_with_plate_fallback"])
 
 
 # =========================================================================== grouped panel

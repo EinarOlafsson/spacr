@@ -2895,6 +2895,7 @@ def get_analyze_recruitment_default_settings(settings):
     settings.setdefault('object_qc',True)
     settings.setdefault('object_qc_mad',3.5)
     settings.setdefault('object_qc_measures',None)
+    settings.setdefault('qc_group','condition')
     settings.setdefault('outlier_points',True)
     settings.setdefault('outlier_points_method','mad')
     settings.setdefault('representative_crops',True)
@@ -4035,6 +4036,7 @@ expected_types = {
     "object_qc": bool,
     "object_qc_mad": float,
     "object_qc_measures": (list, type(None)),
+    "qc_group": (str, type(None)),
     "outlier_points": bool,
     "outlier_points_method": str,
     "representative_crops": bool,
@@ -5481,6 +5483,7 @@ tooltips = {
     "object_qc": '(bool) - Recruitment and replication: drop objects whose area or mean intensity in any channel lies beyond the robust fence of the objects of the same type on the same plate (log scale). Counts removed per measure are written to results/object_qc_summary.csv. Default True.',
     "object_qc_mad": '(float) - Recruitment and replication object_qc: robust standard deviations of the log values beyond which an object is dropped. Default 3.5.',
     "object_qc_measures": "(list) - Recruitment and replication object_qc: measures checked per object, any of 'area' and 'intensity'. None uses both. Default None.",
+    "qc_group": "(str) - Recruitment and replication well_qc and object_qc: column whose groups are compared separately, so wells and objects are judged against those of the same condition and real differences between conditions are kept. 'condition' uses the condition without the replicate when the replicate is part of the condition name. A group with fewer than 8 wells (well_qc) or 30 objects (object_qc) on a plate is compared with the whole plate. None compares every well and object with its whole plate. Default 'condition'.",
     "outlier_points": '(bool) - Recruitment and replication panels: leave points beyond a robust fence of their group out of every bar panel and its test; they stay in the data CSV marked outlier = True and are counted per group in the statistics. Default True.',
     "outlier_points_method": "(str) - Recruitment and replication panels: fence used by outlier_points, 'mad' (median +- 3.5 x 1.4826 x MAD) or 'iqr' (1.5 x IQR beyond the quartiles); 'mad:3' or 'iqr:2' set another fence. Default 'mad'.",
     "representative_crops": '(bool) - Recruitment and replication: write representative crops from the merged arrays: one crop per condition closest to the condition median of the main readout, and under every main graph a grid of the objects nearest each condition median, from the same data version as the graph. Saved as raw uint16 TIFF and as 16-bit PNG scaled to the 1st and 99th percentile of the crops of each figure. Default True.',
@@ -6018,7 +6021,7 @@ categories = {
 
     "Timelapse": timelapse_settings,
 
-    "Measurements": ["save_measurements", "calculate_correlation", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "field_qc", "field_qc_mad", "field_qc_min_cells", "field_qc_min_objects", "max_vacuoles_per_cell", "control_color_by", "background_mask_channel", "merged_dir", "min_solidity", "background_filters", "exclude_edge_objects", "confounder_filter", "report", "report_tiles_per_condition", "report_tile_size", "report_tile_seed", "report_tile_channels", "report_max_conditions_per_row", "report_layout", "well_qc", "well_qc_mad", "well_qc_measures", "object_qc", "object_qc_mad", "object_qc_measures", "outlier_points", "outlier_points_method", "representative_crops", "representative_crops_n", "max_area_quantile", "bin_labels", "field_qc_max_pathogens_per_cell", "field_qc_columns", "confounder_covariates", "adjust_covariates", "adjust_log_outcome", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
+    "Measurements": ["save_measurements", "calculate_correlation", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "field_qc", "field_qc_mad", "field_qc_min_cells", "field_qc_min_objects", "max_vacuoles_per_cell", "control_color_by", "background_mask_channel", "merged_dir", "min_solidity", "background_filters", "exclude_edge_objects", "confounder_filter", "report", "report_tiles_per_condition", "report_tile_size", "report_tile_seed", "report_tile_channels", "report_max_conditions_per_row", "report_layout", "well_qc", "well_qc_mad", "well_qc_measures", "object_qc", "object_qc_mad", "object_qc_measures", "qc_group", "outlier_points", "outlier_points_method", "representative_crops", "representative_crops_n", "max_area_quantile", "bin_labels", "field_qc_max_pathogens_per_cell", "field_qc_columns", "confounder_covariates", "adjust_covariates", "adjust_log_outcome", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
 
     "Illumination Correction": ["illumination_correction", "illumination_model", "illumination_estimator", "illumination_degree", "illumination_dark", "illumination_per_plate", "illumination_max_fields", "illumination_qc", "illumination_on_missing", "illumination_vendor_profile", "illumination_vendor_channel_map"],
 
@@ -7487,6 +7490,7 @@ def set_analyze_replication_defaults(settings):
     settings.setdefault('object_qc', True)
     settings.setdefault('object_qc_mad', 3.5)
     settings.setdefault('object_qc_measures', None)
+    settings.setdefault('qc_group', 'condition')
     settings.setdefault('outlier_points', True)
     settings.setdefault('outlier_points_method', 'mad')
     settings.setdefault('representative_crops', True)

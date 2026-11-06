@@ -1294,6 +1294,31 @@ def _outlier_points_method(settings):
     return settings.get('outlier_points_method') or 'mad'
 
 
+def _qc_group_column(df, settings):
+    """(group column or None, frame holding it) for well_qc / object_qc (``qc_group``).
+
+    ``qc_group`` 'condition' (default) uses the condition, or the condition
+    without the replicate slot when the replicate is part of the condition
+    name (as in the report), so every group holds the wells of all replicates.
+    None compares per plate.
+    """
+    want = settings.get('qc_group', 'condition')
+    if not want:
+        return None, df
+    if want == 'condition' and 'condition' in df.columns:
+        rep = settings.get('replicate_column')
+        if rep and rep in df.columns and rep != 'condition' and \
+                df.dropna(subset=['condition']).groupby('condition')[rep].nunique().max() <= 1:
+            slots = [c for c in ('host_cells', 'pathogen', 'treatment') if c in df.columns and c != rep]
+            frame = df.copy()
+            frame['_qc_group'] = frame[slots].astype(str).agg('_'.join, axis=1)
+            return '_qc_group', frame
+        return 'condition', df
+    if want in df.columns:
+        return want, df
+    return None, df
+
+
 def _qc_filters(df, settings, row_object='cell'):
     """well_qc then object_qc (both on by default); returns (df, steps, tables).
 
@@ -1303,9 +1328,12 @@ def _qc_filters(df, settings, row_object='cell'):
     from .assay_report import well_qc_table, object_qc_mask
     channels = [int(c) for c in (settings.get('channel_dims') or []) if c is not None] or None
     steps, tables = [], {}
+    group, frame = _qc_group_column(df, settings)
+    where = f"within each {group} group" if group else "per plate"
     if settings.get('well_qc'):
         mad = float(settings.get('well_qc_mad') or 3.5)
-        table = well_qc_table(df, channels, settings.get('well_qc_measures'), mad, row_object)
+        table = well_qc_table(frame, channels, settings.get('well_qc_measures'), mad, row_object,
+                              group=group, min_wells=8)
         tables['well_qc'] = table
         keys = [k for k in ('plateID', 'rowID', 'columnID') if k in df.columns]
         bad = table.loc[~table['well_qc_pass'], keys]
@@ -1315,17 +1343,22 @@ def _qc_filters(df, settings, row_object='cell'):
                 pd.MultiIndex.from_frame(bad.astype(str)))
             df = df[~np.asarray(mask)]
         names = [f"{r['rowID']}{r['columnID']}" for _, r in table[~table['well_qc_pass']].iterrows()]
-        note = (f"MAD fence {mad:g}; {len(bad)} of {len(table)} wells failed"
+        n_fb = int(table['qc_reference'].astype(str).str.startswith('plate (').sum()) if group else 0
+        note = (f"MAD fence {mad:g} {where}"
+                + (f" ({n_fb} wells of small groups compared per plate)" if n_fb else '')
+                + f"; {len(bad)} of {len(table)} wells failed"
                 + (f": {', '.join(names[:40])}" + (' ...' if len(names) > 40 else '') if names else ''))
         steps.append((f'well_qc (MAD {mad:g})', before, df, note))
     if settings.get('object_qc'):
         mad = float(settings.get('object_qc_mad') or 3.5)
-        keep, summary = object_qc_mask(df, channels, settings.get('object_qc_measures'), mad)
+        frame = _qc_group_column(df, settings)[1]
+        keep, summary = object_qc_mask(frame, channels, settings.get('object_qc_measures'), mad,
+                                       group=group, min_objects=30)
         tables['object_qc_summary'] = summary
         before = df
         df = df[keep]
         top = summary.sort_values('objects_removed', ascending=False).head(3)
-        note = f"MAD fence {mad:g} on log scale per plate; most removed by " + ', '.join(
+        note = f"MAD fence {mad:g} on log scale {where}; most removed by " + ', '.join(
             f"{r['column']} ({r['objects_removed']})" for _, r in top.iterrows())
         steps.append((f'object_qc (MAD {mad:g})', before, df, note))
     return df, steps, tables

@@ -587,3 +587,52 @@ def test_size_proxy_replication_gets_the_qc_defaults(monkeypatch):
     with pytest.raises(RuntimeError):
         sm.analyze_replication({'src': '/nonexistent', 'replication_method': 'size_proxy', 'well_qc': False})
     assert seen['well_qc'] is False
+
+
+def _qc_plate(seed=0):
+    """16 x 24 plate: condition B (columns 13-24) is genuinely 3x brighter and larger;
+    row r1 is a 5x acquisition artifact across both conditions."""
+    rng = np.random.default_rng(seed)
+    rows = []
+    for r in range(1, 17):
+        for c in range(1, 25):
+            cond = "A" if c <= 12 else "B"
+            for i in range(10):
+                bright = (3.0 if cond == "B" else 1.0) * (5.0 if r == 1 else 1.0)
+                rows.append(dict(plateID="p1", rowID=f"r{r}", columnID=f"c{c}", condition=cond,
+                                 cell_channel_0_mean_intensity=100 * bright * rng.lognormal(0, 0.1),
+                                 cell_area=(2000 if cond == "B" else 1000) * rng.lognormal(0, 0.1),
+                                 cell_perimeter=100.0))
+    return pd.DataFrame(rows)
+
+
+def test_well_qc_within_condition_flags_only_the_artifact_row():
+    from spacr.assay_report import well_qc_table
+    df = _qc_plate()
+    t = well_qc_table(df, channels=[0], group="condition")
+    bad = t[~t["well_qc_pass"]]
+    assert set(bad["rowID"]) == {"r1"} and len(bad) == 24     # every r1 well, nothing else
+    assert set(t["qc_reference"]) == {"group A", "group B"}
+    # a group with fewer than 8 wells on the plate falls back to the plate reference
+    small = df[(df["condition"] == "A") | (df["columnID"].isin(["c13"]) & df["rowID"].isin(["r2", "r3"]))]
+    t2 = well_qc_table(small, channels=[0], group="condition")
+    assert t2.loc[t2["qc_group"] == "B", "qc_reference"].str.startswith("plate (").all()
+
+
+def test_object_qc_within_condition_keeps_the_brighter_condition():
+    from spacr.assay_report import object_qc_mask
+    df = _qc_plate()
+    df = df[df["rowID"] != "r1"]
+    keep, summary = object_qc_mask(df, channels=[0], group="condition")
+    lost_b = 1 - keep[df["condition"].to_numpy() == "B"].mean()
+    assert lost_b < 0.01 and set(summary["qc_group"]) == {"condition"}
+
+
+def test_qc_group_uses_the_condition_without_the_replicate():
+    from spacr.submodules import _qc_group_column
+    df = pd.DataFrame(dict(host_cells=["H"] * 4, pathogen=["rep_1", "rep_2"] * 2,
+                           treatment=["WT", "WT", "KO", "KO"]))
+    df["condition"] = df["host_cells"] + "_" + df["pathogen"] + "_" + df["treatment"]
+    group, frame = _qc_group_column(df, {"qc_group": "condition", "replicate_column": "pathogen"})
+    assert sorted(frame[group].unique()) == ["H_KO", "H_WT"]
+    assert _qc_group_column(df, {"qc_group": None})[0] is None

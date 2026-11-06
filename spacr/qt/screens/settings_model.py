@@ -336,14 +336,14 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
         "figures", "exclude_edge_objects", "max_vacuoles_per_cell", "control_color_by", "background_filters", "min_solidity", "merged_dir", "background_mask_channel",
         "confounder_filter", "report", "report_tiles_per_condition", "report_tile_size",
         "report_tile_seed", "report_tile_channels", "report_max_conditions_per_row",
-        "report_layout", "well_qc", "well_qc_mad", "well_qc_measures", "object_qc", "object_qc_mad", "object_qc_measures",
+        "report_layout", "well_qc", "well_qc_mad", "well_qc_measures", "object_qc", "object_qc_mad", "object_qc_measures", "qc_group",
         "outlier_points", "outlier_points_method", "representative_crops", "representative_crops_n",
     },
     "replication": {
         "panels", "replicate_column", "condition_order", "condition_labels",
         "figures", "exclude_edge_objects", "max_area_quantile", "bin_labels", "background_filters", "min_solidity", "merged_dir", "background_mask_channel", "field_qc",
         "field_qc_mad", "field_qc_min_objects", "well_qc", "well_qc_mad",
-        "well_qc_measures", "object_qc", "object_qc_mad", "object_qc_measures", "outlier_points", "outlier_points_method", "representative_crops", "representative_crops_n",
+        "well_qc_measures", "object_qc", "object_qc_mad", "object_qc_measures", "qc_group", "outlier_points", "outlier_points_method", "representative_crops", "representative_crops_n",
     },
 }
 
