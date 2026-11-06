@@ -1166,7 +1166,12 @@ def test_method_selector_dispatches_size_proxy_without_reinterpreting_counts(mon
     assert output['data'] is sentinel
     assert output['replication_method'] == 'size_proxy'
     assert 'vacuoles' not in output
-    assert seen == [settings] and seen[0] is not settings
+    # the user settings arrive unchanged; only the replication QC defaults are added
+    assert len(seen) == 1 and seen[0] is not settings
+    assert {k: seen[0][k] for k in settings} == settings
+    assert set(seen[0]) - set(settings) <= {'well_qc', 'well_qc_mad', 'well_qc_measures', 'object_qc',
+                                            'object_qc_mad', 'object_qc_measures', 'outlier_points',
+                                            'outlier_points_method'}
 
 
 def test_forthcoming_replication_model_refuses_to_run_before_io(tmp_path):

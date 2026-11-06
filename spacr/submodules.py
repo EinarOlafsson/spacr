@@ -5053,6 +5053,14 @@ def analyze_replication(settings):
         print('Replication size proxy: host-cell aggregated pathogen area, '
               'not direct parasite counts or measured volume. Multiple vacuoles '
               'in one host cell are combined by this legacy method.')
+        # The replication defaults (well_qc / object_qc / outlier_points on) must reach the
+        # size-proxy path too; analyze_endodyogeny only fills its own defaults.
+        from . import settings as _settings_module
+        _proxy_defaults = {k: v for k, v in _settings_module.set_analyze_replication_defaults({}).items()
+                           if k in ('well_qc', 'well_qc_mad', 'well_qc_measures', 'object_qc',
+                                    'object_qc_mad', 'object_qc_measures', 'outlier_points',
+                                    'outlier_points_method')}
+        settings = dict(_proxy_defaults, **settings)
         output = analyze_endodyogeny(dict(settings))
         output['replication_method'] = method
         _src = settings['src'][0] if isinstance(settings['src'], list) else settings['src']

@@ -571,3 +571,19 @@ def test_object_quality_filters_prefer_the_image_table(tmp_path):
     out = _object_quality_filters(frame, {'background_filters': {'channel': 0, 'min_ratio': 1.5}},
                                   'pathogen', str(tmp_path), _FilterLog(frame), 'x')
     assert out['pathogen_channel_0_mean_intensity'].tolist() == [400.0]   # no merged arrays needed
+
+
+def test_size_proxy_replication_gets_the_qc_defaults(monkeypatch):
+    import spacr.submodules as sm
+    seen = {}
+
+    def fake_endodyogeny(settings):
+        seen.update(settings)
+        raise RuntimeError('stop')
+    monkeypatch.setattr(sm, 'analyze_endodyogeny', fake_endodyogeny)
+    with pytest.raises(RuntimeError):
+        sm.analyze_replication({'src': '/nonexistent', 'replication_method': 'size_proxy'})
+    assert seen['well_qc'] is True and seen['object_qc'] is True and seen['outlier_points'] is True
+    with pytest.raises(RuntimeError):
+        sm.analyze_replication({'src': '/nonexistent', 'replication_method': 'size_proxy', 'well_qc': False})
+    assert seen['well_qc'] is False
