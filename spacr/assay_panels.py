@@ -62,14 +62,15 @@ __all__ = [
     "fractions_per_unit", "bar_spec", "stacked_spec", "draw_bar_panel",
     "draw_stacked_panel", "draw_panel", "save_panel", "assemble_figure",
     "panel_folder_name", "STYLE", "shade", "style_axes", "outlier_policy", "mark_outliers",
-    "parse_outlier_method", "OUTLIER_FENCES",
+    "parse_outlier_method", "OUTLIER_FENCES", "condition_parts", "string_parts", "axis_layout",
 ]
 
 ALPHA = 0.05
 WELL_KEYS: Tuple[str, ...] = ("plateID", "rowID", "columnID")
-# Okabe-Ito colour-blind-safe palette (black left out: it hides the error bars and dots).
-_DEFAULT_COLORS = ["#0072B2", "#E69F00", "#009E73", "#CC79A7", "#56B4E9", "#D55E00",
-                   "#F0E442", "#999999"]
+# Muted blue / teal / grey palette, no yellow; neighbours differ in lightness so
+# the colours stay distinct under colour-vision deficiency.
+_DEFAULT_COLORS = ["#4C72B0", "#2A9D8F", "#8C8C8C", "#264653", "#7FA7C9", "#A8DADC",
+                   "#5E548E", "#B5838D"]
 # One place for the look of every bar / stacked panel (assay_panels and assay_report).
 STYLE = dict(
     palette=_DEFAULT_COLORS,
@@ -92,6 +93,10 @@ STYLE = dict(
     stacked_cmap="viridis",
     stacked_edge="white",
     stacked_lw=0.5,
+    show_test=False,        # test name / p value written on the graph (always in the stats CSVs)
+    show_title=False,       # graph titles (the information goes into the figure legend)
+    annot_pt=7.0,           # +/- matrix and annotation rows under the x axis
+    annot_line_pt=9.0,
 )
 
 
@@ -299,6 +304,84 @@ def panel_folder_name(panel_id: str, name: str) -> str:
     return f"{panel_id}_{safe}" if safe else str(panel_id)
 
 
+# --------------------------------------------------------------------------- x axis: labels or +/- matrix
+MINUS = "−"
+
+
+def condition_parts(values: Mapping, factors: Optional[Mapping] = None) -> List[Tuple[str, str]]:
+    """Split a condition into (variable, factor) parts.
+
+    :param values: {variable (slot or column): value} of the condition.
+    :param factors: ``condition_factors`` - {value: [factor, ...]}; a value
+        listed there contributes one part per factor (variable ``<var>#<i>``
+        for the i-th factor, so backgrounds and genotypes form separate
+        variables), any other value is one part of its own variable.
+    """
+    out = []
+    for var, v in values.items():
+        if v is None or (isinstance(v, float) and np.isnan(v)):
+            continue
+        fs = (factors or {}).get(v, (factors or {}).get(str(v)))
+        if fs:
+            fs = [fs] if isinstance(fs, str) else list(fs)
+            out += [(f"{var}#{i}", str(f)) for i, f in enumerate(fs)]
+        else:
+            out.append((str(var), str(v)))
+    return out
+
+
+def string_parts(condition, sep="_") -> List[Tuple[str, str]]:
+    """Fallback decomposition: the tokens of the condition string, by position."""
+    return [(f"token{i}", t) for i, t in enumerate(str(condition).split(sep))]
+
+
+def axis_layout(order: Sequence, parts: Mapping, style: str = "auto",
+                factor_order: Optional[Sequence] = None, labels: Optional[Mapping] = None) -> dict:
+    """How to label the x axis of one graph.
+
+    :param parts: {condition: [(variable, factor), ...]} (see :func:`condition_parts`).
+    :param style: ``'auto'`` (labels when at most one variable varies along
+        this axis, else the matrix), ``'matrix'`` or ``'labels'``.
+    :param factor_order: matrix rows in display order (raw or display names);
+        other rows follow by variable, then first appearance.
+    :returns: ``{'matrix': bool, 'annotations': {row: {condition: '+'/'-'}},
+        'labels': {condition: text}, 'constant': [display texts shared by every
+        condition], 'varying': [variables]}``.
+    """
+    order = list(order)
+    show = lambda f: display_label(f, labels)
+    variables = list(dict.fromkeys(v for g in order for v, _ in parts.get(g, [])))
+    per_var = {v: [dict(parts.get(g, [])).get(v) for g in order] for v in variables}
+    varying = [v for v in variables if len(set(per_var[v])) > 1]
+    constant = [show(per_var[v][0]) for v in variables if v not in varying and per_var[v][0] is not None]
+    use_matrix = style == "matrix" or (style == "auto" and len(varying) > 1)
+    if style == "labels":
+        use_matrix = False
+    out = dict(matrix=use_matrix, annotations={}, labels={}, constant=constant, varying=varying)
+    if not use_matrix:
+        for g in order:
+            d = dict(parts.get(g, []))
+            txt = [show(d[v]) for v in (varying or variables) if d.get(v) is not None]
+            out["labels"][g] = " ".join(txt) if (varying and txt) else display_label(g, labels)
+        if style == "labels":
+            out["labels"] = {g: display_label(g, labels) for g in order}
+        return out
+    rows = []
+    for v in varying:
+        for f in dict.fromkeys(x for x in per_var[v] if x is not None):
+            rows.append((v, f))
+    if factor_order:
+        rank = {str(x): i for i, x in enumerate(factor_order)}
+        key = lambda r: (rank.get(r[1], rank.get(show(r[1]), len(rank) + varying.index(r[0]))),
+                         rows.index(r))
+        rows = sorted(rows, key=key)
+    for v, f in rows:
+        out["annotations"][f"{show(f)}:"] = {g: "+" if dict(parts.get(g, [])).get(v) == f else MINUS
+                                             for g in order}
+    return out
+
+
+# --------------------------------------------------------------------------- bar-panel tests
 def _empty_test(test, n_groups, reason):
     """One ``test`` row for a comparison that was not run.
 
@@ -798,16 +881,19 @@ def _despine(ax):
         ax.spines[side].set_visible(False)
 
 
-def _draw_annotations(ax, order, annotations, fontsize=7):
+def _draw_annotations(ax, order, annotations, fontsize=None, line_pt=None, row_names=True):
     """Draw aligned text rows under the x axis; return the number of rows drawn."""
     if not annotations:
         return 0
+    fontsize = STYLE["annot_pt"] if fontsize is None else fontsize
+    line_pt = STYLE["annot_line_pt"] if line_pt is None else line_pt
     rows = list(annotations.items())
     for k, (row_name, mapping) in enumerate(rows):
-        dy = -(k + 1) * _ANNOT_LINE_PT
-        ax.annotate(str(row_name), xy=(0, 0), xycoords="axes fraction", xytext=(-6, dy),
-                    textcoords="offset points", ha="right", va="top", fontsize=fontsize,
-                    annotation_clip=False)
+        dy = -(k + 1) * line_pt
+        if row_names:
+            ax.annotate(str(row_name), xy=(0, 0), xycoords="axes fraction", xytext=(-6, dy),
+                        textcoords="offset points", ha="right", va="top", fontsize=fontsize,
+                        annotation_clip=False)
         mapping = mapping or {}
         for i, g in enumerate(order):
             text = mapping.get(g, mapping.get(str(g), ""))
@@ -817,7 +903,7 @@ def _draw_annotations(ax, order, annotations, fontsize=7):
     return len(rows)
 
 
-def _set_xticks(ax, order, labels, annotations, rotation=None):
+def _set_xticks(ax, order, labels, annotations, rotation=None, matrix=False):
     """Label the categories along the x axis, with annotation rows beneath.
 
     :param ax: the panel's axes.
@@ -826,17 +912,19 @@ def _set_xticks(ax, order, labels, annotations, rotation=None):
     :param annotations: rows of per-category text drawn under the axis, or None.
     :param rotation: tick label rotation in degrees; when None the labels are
         rotated by 35 degrees only when they would otherwise touch.
+    :param matrix: draw only the annotation rows (the +/- matrix) and no
+        tick labels.
     """
     n_rows = _draw_annotations(ax, order, annotations)
-    text = [display_label(g, labels) for g in order]
+    text = ["" for g in order] if matrix else [display_label(g, labels) for g in order]
     if rotation is None:
         longest = max((len(t) for t in text), default=0)
         rotation = 0 if longest * len(order) <= 24 and longest <= 10 else 35
     ax.set_xticks(range(len(order)))
     ax.set_xticklabels(text, rotation=rotation, ha="right" if rotation else "center",
                        fontsize=8)
-    if n_rows:
-        ax.tick_params(axis="x", pad=n_rows * _ANNOT_LINE_PT + 4)
+    if n_rows and not matrix:
+        ax.tick_params(axis="x", pad=n_rows * STYLE["annot_line_pt"] + 4)
     ax.set_xlim(-0.6, len(order) - 0.4)
 
 
@@ -845,7 +933,7 @@ def draw_bar_panel(ax, data: pd.DataFrame, value: str, group: str, order: Sequen
                    ylabel: Optional[str] = None, labels: Optional[Mapping] = None,
                    annotations: Optional[Mapping] = None, ymin=None, refline=None,
                    palette=None, show_pairs: str = "significant", max_brackets: int = 12,
-                   seed: int = 0):
+                   seed: int = 0, show_test=None, matrix=False):
     """Bar of the mean of unit values, SD error bar, one dot per unit, post hoc brackets.
 
     :param ax: matplotlib axes to draw on.
@@ -925,18 +1013,20 @@ def draw_bar_panel(ax, data: pd.DataFrame, value: str, group: str, order: Sequen
                             va="bottom", fontsize=8)
                     level += step * 1.05
     ax.set_ylim(ymin, level + step * 0.6)
-    head = title
-    if summary is not None:
+    show_test = STYLE["show_test"] if show_test is None else show_test
+    head = title if STYLE["show_title"] else ""
+    if summary is not None and show_test:
         if summary['test'] == "not tested":
             line = f"not tested ({summary.get('note') or 'too few units'})"
         else:
             line = f"{summary['test']}: {fmt_p(summary['p_value'])} ({summary['significance']})"
-        head = f"{title}\n{line}" if title else line
-    ax.set_title(head, fontsize=9)
+        head = f"{head}\n{line}" if head else line
+    if head:
+        ax.set_title(head, fontsize=9)
     ax.set_xlabel("")
     ax.set_ylabel(ylabel or value.replace("_", " "), fontsize=8)
     ax.tick_params(axis="y", labelsize=8)
-    _set_xticks(ax, order, labels, annotations)
+    _set_xticks(ax, order, labels, annotations, matrix=matrix)
     style_axes(ax)
     return ax
 
@@ -961,7 +1051,8 @@ def draw_stacked_panel(ax, fractions: pd.DataFrame, group: str, order: Sequence,
                        method_label: str = "", title: str = "",
                        labels: Optional[Mapping] = None, annotations: Optional[Mapping] = None,
                        colors=None, ylabel: str = "fraction of objects (mean ± SD)",
-                       legend: bool = True, legend_title: str = ""):
+                       legend: bool = True, legend_title: str = "", show_test=None,
+                       matrix=False):
     """Stacked mean fractions over units, SD bar at the top of each segment, stars vs reference.
 
     :param ax: matplotlib axes to draw on.
@@ -1006,14 +1097,16 @@ def draw_stacked_panel(ax, fractions: pd.DataFrame, group: str, order: Sequence,
     ax.set_ylim(0, 1.15)
     ax.set_ylabel(ylabel, fontsize=8)
     ax.tick_params(axis="y", labelsize=8)
-    head = title
-    if omnibus is not None:
+    show_test = STYLE["show_test"] if show_test is None else show_test
+    head = title if STYLE["show_title"] else ""
+    if omnibus is not None and show_test:
         cv = omnibus.get("cramers_v", np.nan)
         cv_txt = f", Cramér V = {cv:.2f}" if np.isfinite(cv) else ""
         line = f"{method_label} omnibus: {fmt_p(omnibus.get('p_value'))}{cv_txt}"
-        head = f"{title}\n{line}" if title else line
-    ax.set_title(head, fontsize=9)
-    _set_xticks(ax, order, labels, annotations)
+        head = f"{head}\n{line}" if head else line
+    if head:
+        ax.set_title(head, fontsize=9)
+    _set_xticks(ax, order, labels, annotations, matrix=matrix)
     if legend:
         ax.legend(title=legend_title or None, fontsize=7, title_fontsize=7, frameon=False,
                   bbox_to_anchor=(1.0, 1.0), loc="upper left")
@@ -1034,14 +1127,16 @@ def draw_panel(ax, spec: dict, legend: bool = True):
                               stats=spec["stats"], title=spec.get("title", ""),
                               ylabel=spec.get("ylabel"), labels=spec.get("labels"),
                               annotations=spec.get("annotations"), ymin=spec.get("ymin"),
-                              refline=spec.get("refline"), palette=spec.get("palette"))
+                              refline=spec.get("refline"), palette=spec.get("palette"),
+                              matrix=bool(spec.get("matrix")))
     return draw_stacked_panel(ax, spec["data"], spec["group"], spec["order"], spec["bins"],
                               bin_labels=spec.get("bin_labels"), omnibus=spec["omnibus"],
                               pairwise=spec["pairwise"], method_label=spec.get("method_label", ""),
                               title=spec.get("title", ""), labels=spec.get("labels"),
                               annotations=spec.get("annotations"), colors=spec.get("colors"),
                               ylabel=spec.get("ylabel", "fraction of objects (mean ± SD)"),
-                              legend=legend, legend_title=spec.get("legend_title", ""))
+                              legend=legend, legend_title=spec.get("legend_title", ""),
+                              matrix=bool(spec.get("matrix")))
 
 
 def _panel_size(spec):
