@@ -88,7 +88,7 @@ STYLE = dict(
     bracket_lw=0.7,
     grid_alpha=0.3,
     grid_lw=0.5,
-    stacked_cmap="viridis",
+    stacked_cmap="mako",
     stacked_edge="white",
     stacked_lw=0.5,
     show_test=False,
@@ -910,7 +910,7 @@ def stacked_spec(fractions: pd.DataFrame, counts: pd.DataFrame, group: str, orde
     :param ylabel: y-axis label.
     :param n_resamples: Monte Carlo tables for the Fisher-Freeman-Halton test.
     :param seed: random seed of the Monte Carlo tables.
-    :param colors: one colour per bin; ``None`` uses viridis.
+    :param colors: one colour per bin; ``None`` uses ``STYLE['stacked_cmap']``.
     :param extra_tables: file stem -> table, written as more CSVs by :func:`save_panel`.
     :returns: a dict spec with ``kind`` ``'stacked'``, the ``omnibus`` and
         ``pairwise`` results and the reindexed ``counts``.
@@ -1181,13 +1181,14 @@ def _bin_colors(n, colors=None):
 
     :param n: number of bins.
     :param colors: colours given by the caller, returned as a list when set.
-    :returns: the given colours, or ``n`` evenly spaced viridis colours.
+    :returns: the given colours, or ``n`` evenly spaced colours of ``STYLE['stacked_cmap']``
+        (seaborn mako: dark blue to pale teal, no yellow).
     """
     if colors is not None:
         return list(colors)
-    import matplotlib
-    cmap = matplotlib.colormaps.get_cmap(STYLE["stacked_cmap"])
-    return [cmap(v) for v in np.linspace(0.05, 0.95, max(n, 1))]
+    import seaborn as sns
+    cmap = sns.color_palette(STYLE["stacked_cmap"], as_cmap=True)
+    return [cmap(v) for v in np.linspace(0.15, 0.9, max(n, 1))]
 
 
 def draw_stacked_panel(ax, fractions: pd.DataFrame, group: str, order: Sequence,
@@ -1212,7 +1213,7 @@ def draw_stacked_panel(ax, fractions: pd.DataFrame, group: str, order: Sequence,
     :param title: panel title.
     :param labels: raw group value -> x tick label.
     :param annotations: row name -> {group: text}, aligned text rows under the x axis.
-    :param colors: one colour per bin; ``None`` uses viridis.
+    :param colors: one colour per bin; ``None`` uses ``STYLE['stacked_cmap']``.
     :param ylabel: y-axis label.
     :param legend: draw the bin legend beside the axes.
     :param legend_title: title of the bin legend.

@@ -2150,10 +2150,12 @@ def _replication_tile_config(df, settings):
     chans = [int(c) for c in (settings.get('channel_dims') or [0, 1, 2]) if c is not None]
     if settings.get('report_tile_channels'):
         colour_map = {int(k): v for k, v in settings['report_tile_channels'].items()}
+    elif len(chans) >= 3:
+        colour_map = {chans[2]: 'red', chans[1]: 'green', chans[0]: 'blue'}
     else:
-        colour_map = dict(zip(chans[:3], ('red', 'green', 'blue')))
+        colour_map = dict(zip(chans, ('green', 'blue')))
     mono = int(settings.get('channel_of_interest') if settings.get('channel_of_interest') is not None
-               else next(iter(colour_map)))
+               else (chans[1] if len(chans) > 1 else chans[0]))
     return dict(merged_dir=merged_dir, mask_dims=mask_dims, colour_map=colour_map, mono_channel=mono,
                 n=int(settings.get('report_tiles_per_condition', 5)),
                 size=int(settings.get('report_tile_size', 192)),

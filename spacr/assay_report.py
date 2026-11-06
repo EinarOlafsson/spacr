@@ -2233,7 +2233,8 @@ def draw_heatmap(fig, rect, spec, plate, layout=SPACIOUS):
     cbar_w = (2.0 if layout.compact else 3.0) / fw
     pad = (5.5 if layout.compact else 9.0) / fw
     ax = fig.add_axes([x0, y0, w - cbar_w - pad, h])
-    cmap = matplotlib.colormaps.get_cmap("viridis").copy()
+    import seaborn as sns
+    cmap = sns.color_palette("mako", as_cmap=True).copy()
     cmap.set_bad("#e6e6e6")
     lo, hi = spec["vrange"]
     im = ax.imshow(np.ma.masked_invalid(m), cmap=cmap, vmin=lo, vmax=hi if hi > lo else lo + 1,
@@ -2643,13 +2644,15 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
     if tiles:
         ckey = ", ".join(f"{_colour_name(c)}: channel {ch}" for ch, c in tiles["colour_map"].items())
         okey = ", ".join(f"{o}: {_rgb_name(OUTLINE_COLOURS.get(o))}" for o in tiles["mask_dims"])
+        centre = tiles.get("center_object") or tiles.get("host_object") or "object"
+        host = tiles.get("host_object") or "object"
         image_text = (f"Each image set is shown three times: merged colour ({ckey}); channel {mono} in "
-                      f"grey; channel {mono} in grey with the outline of every object of the host "
-                      f"cell at 60% opacity ({okey}). Every channel is scaled linearly between its "
+                      f"grey; channel {mono} in grey with the outline of every object of the {host} "
+                      f"at 60% opacity ({okey}). Every channel is scaled linearly between its "
                       f"2nd and 98th percentile over all crops of that panel. Crops are "
-                      f"{tiles.get('size', 192)} x {tiles.get('size', 192)} px centred on the pathogen "
-                      f"objects of the host cell; only cells whose pathogen objects lie inside the "
-                      f"crop and away from the field edge are used. Images are written as 16-bit "
+                      f"{tiles.get('size', 192)} x {tiles.get('size', 192)} px centred on the {centre} "
+                      f"object(s); only objects that lie inside the crop and away from the field edge "
+                      f"are used. Images are written as 16-bit "
                       f"PNG/TIFF at native resolution (raw/ holds the unchanged uint16 planes) and "
                       f"embedded at native resolution in the PDF.")
 
