@@ -149,11 +149,51 @@ def _empty_test(test, n_groups, reason):
                 equal_variance=np.nan, significance="n/a", n_groups=n_groups, note=reason)
 
 
-def _col(frame, *names):
-    for n in names:
-        if n in frame.columns:
-            return frame[n]
-    return pd.Series(np.nan, index=frame.index)
+def _eta_squared(groups):
+    """Share of the total sum of squares that lies between the groups.
+
+    :param groups: one array of values per group.
+    :returns: eta squared, or NaN when every value is the same.
+    """
+    values = np.concatenate(groups)
+    grand = values.mean()
+    total = float(((values - grand) ** 2).sum())
+    between = float(sum(len(x) * (x.mean() - grand) ** 2 for x in groups))
+    return between / total if total > 0 else np.nan
+
+
+def _studentized_pairs(labels, groups, *, pooled):
+    """Every pair's t statistic and studentized-range p value.
+
+    ``pooled`` gives Tukey HSD (the ANOVA's pooled error on ``N - k``
+    degrees of freedom); otherwise Games-Howell (each pair's own variances
+    and Welch-Satterthwaite degrees of freedom).
+
+    :param labels: group labels, in the order pairs are formed.
+    :param groups: one array of values per label.
+    :param pooled: True for Tukey HSD, False for Games-Howell.
+    :returns: one ``(label_1, label_2, mean_1, mean_2, t, p)`` per pair.
+    """
+    from scipy.stats import studentized_range
+
+    k = len(groups)
+    n = np.array([len(x) for x in groups], dtype=float)
+    means = np.array([x.mean() for x in groups])
+    if pooled:
+        dof = float(n.sum() - k)
+        mse = float(sum(((x - x.mean()) ** 2).sum() for x in groups)) / dof
+        var_n = mse / n
+    else:
+        var_n = np.array([x.var(ddof=1) for x in groups]) / n
+    rows = []
+    for i, j in itertools.combinations(range(k), 2):
+        pair_var = var_n[i] + var_n[j]
+        t = (means[i] - means[j]) / np.sqrt(pair_var)
+        pair_dof = dof if pooled else pair_var ** 2 / (
+            var_n[i] ** 2 / (n[i] - 1) + var_n[j] ** 2 / (n[j] - 1))
+        p = float(np.clip(studentized_range.sf(np.sqrt(2) * abs(t), k, pair_dof), 0, 1))
+        rows.append((labels[i], labels[j], float(means[i]), float(means[j]), float(t), p))
+    return rows
 
 
 def select_and_run_test(df: pd.DataFrame, value: str, group: str, order: Sequence,
@@ -231,31 +271,32 @@ def select_and_run_test(df: pd.DataFrame, value: str, group: str, order: Sequenc
         # Welch weights are 1 / variance: undefined for a constant group.
         choice = "kruskal"
         note = "Welch ANOVA undefined (a group has no variance); Kruskal-Wallis used"
+    # Pairs in label order, the order the omnibus tables have always used.
+    labelled = sorted(zip((str(g) for g in used), groups))
     try:
-        if choice == "anova":
-            import pingouin as pg
-            test = "one-way ANOVA"
-            a = pg.anova(data=sub, dv=value, between=group, detailed=False)
-            stat, p = float(a["F"].iloc[0]), float(_col(a, "p-unc", "p_unc").iloc[0])
-            df1, df2 = float(a["ddof1"].iloc[0]), float(a["ddof2"].iloc[0])
-            eff_name, eff = "eta_squared", float(_col(a, "np2").iloc[0])
-            ph = pg.pairwise_tukey(data=sub, dv=value, between=group)
-            post = pd.DataFrame(dict(group_1=ph["A"].map(key), group_2=ph["B"].map(key),
-                                     mean_1=ph["mean(A)"], mean_2=ph["mean(B)"],
-                                     statistic=ph["T"], p_adj=_col(ph, "p-tukey", "p_tukey"),
-                                     posthoc="Tukey HSD"))
-        elif choice == "welch":
-            import pingouin as pg
-            test = "Welch ANOVA"
-            a = pg.welch_anova(data=sub, dv=value, between=group)
-            stat, p = float(a["F"].iloc[0]), float(_col(a, "p-unc", "p_unc").iloc[0])
-            df1, df2 = float(a["ddof1"].iloc[0]), float(a["ddof2"].iloc[0])
-            eff_name, eff = "eta_squared", float(_col(a, "np2").iloc[0])
-            ph = pg.pairwise_gameshowell(data=sub, dv=value, between=group)
-            post = pd.DataFrame(dict(group_1=ph["A"].map(key), group_2=ph["B"].map(key),
-                                     mean_1=ph["mean(A)"], mean_2=ph["mean(B)"],
-                                     statistic=ph["T"], p_adj=_col(ph, "pval", "p-val"),
-                                     posthoc="Games-Howell"))
+        if choice in ("anova", "welch"):
+            if choice == "anova":
+                test, posthoc_name = "one-way ANOVA", "Tukey HSD"
+                stat, p = stats.f_oneway(*groups)
+                df1, df2 = float(len(used) - 1), float(len(data) - len(used))
+            else:
+                from .figures.stats import _welch_anova
+                test, posthoc_name = "Welch ANOVA", "Games-Howell"
+                stat, p = _welch_anova(groups)
+                k = len(groups)
+                n_g = np.array([len(x) for x in groups], dtype=float)
+                w = n_g / np.array([x.var(ddof=1) for x in groups])
+                lam = float((((1 - w / w.sum()) ** 2) / (n_g - 1)).sum())
+                df1, df2 = float(k - 1), float((k ** 2 - 1) / (3 * lam))
+            stat, p = float(stat), float(p)
+            eff_name, eff = "eta_squared", _eta_squared(groups)
+            pairs = _studentized_pairs([lab for lab, _ in labelled],
+                                       [x for _, x in labelled],
+                                       pooled=choice == "anova")
+            post = pd.DataFrame(
+                [dict(group_1=key[a_], group_2=key[b_], mean_1=m1, mean_2=m2,
+                      statistic=t, p_adj=pp, posthoc=posthoc_name)
+                 for a_, b_, m1, m2, t, pp in pairs])
         else:
             import scikit_posthocs as sp
             test = "Kruskal-Wallis"

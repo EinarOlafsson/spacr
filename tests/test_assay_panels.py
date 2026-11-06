@@ -58,6 +58,41 @@ def test_normal_unequal_variance_selects_welch_and_games_howell():
     assert set(out["posthoc"]["posthoc"]) == {"Games-Howell"}
 
 
+@pytest.mark.parametrize("sds, expected", [
+    ((1.0, 1.0, 1.1), ("one-way ANOVA", "p-tukey")),
+    ((0.1, 5.0, 0.1), ("Welch ANOVA", "pval")),
+])
+def test_the_parametric_tests_match_pingouin(sds, expected):
+    """spaCR's own ANOVA, Welch ANOVA, Tukey HSD and Games-Howell agree with
+    pingouin's, which is only a development dependency, to rounding error."""
+    pg = pytest.importorskip("pingouin")
+    df = _groups({"b10": _normal(10, sds[0], 9), "a2": _normal(12, sds[1], 7),
+                  "c": _normal(10.5, sds[2], 11)})
+    out = ap.select_and_run_test(df, "value", "group", ["c", "b10", "a2"])
+    test, post = out["test"].iloc[0], out["posthoc"]
+    name, p_column = expected
+    assert test["test"] == name
+    if name == "one-way ANOVA":
+        ref = pg.anova(data=df, dv="value", between="group")
+        ref_post = pg.pairwise_tukey(data=df, dv="value", between="group")
+    else:
+        ref = pg.welch_anova(data=df, dv="value", between="group")
+        ref_post = pg.pairwise_gameshowell(data=df, dv="value", between="group")
+    for ours, theirs in (("statistic", "F"), ("df2", "ddof2"),
+                         ("effect_size", "np2")):
+        assert test[ours] == pytest.approx(float(ref[theirs].iloc[0]), rel=1e-9)
+    p_ref = ref["p-unc"] if "p-unc" in ref else ref["p_unc"]
+    assert test["p_value"] == pytest.approx(float(p_ref.iloc[0]), rel=1e-9)
+    assert list(zip(post["group_1"], post["group_2"])) == list(
+        zip(ref_post["A"], ref_post["B"]))
+    np.testing.assert_allclose(post["statistic"].to_numpy(float),
+                               ref_post["T"].to_numpy(float), rtol=1e-9)
+    ref_p = ref_post[p_column] if p_column in ref_post else ref_post[
+        p_column.replace("-", "_")]
+    np.testing.assert_allclose(post["p_adj"].to_numpy(float),
+                               ref_p.to_numpy(float), rtol=1e-7, atol=1e-12)
+
+
 def test_a_constant_group_falls_back_from_welch_to_kruskal_wallis():
     df = _groups({"a": _normal(10, 3, 12), "b": [5.0] * 12})
     out = ap.select_and_run_test(df, "value", "group", ["a", "b"])
