@@ -540,6 +540,34 @@ def test_a_framed_choice_opens_framed(qtbot, qt_theme_applied):
     window.close()
 
 
+@pytest.mark.parametrize("state", [Qt.WindowMaximized, Qt.WindowFullScreen])
+def test_frame_switch_preserves_the_window_and_its_restore_geometry(window, qtbot, state):
+    """Native remapping must retain the live view and its ordinary size."""
+    work = window.screen().availableGeometry()
+    window.setMinimumSize(1, 1)
+    window.resize(min(1300, work.width() - 140), min(800, work.height() - 140))
+    window.move(work.x() + 70, work.y() + 70)
+    window.show()
+    qtbot.waitExposed(window)
+    normal = window.normalGeometry()
+    central = window.centralWidget()
+    screen = window._stack.currentWidget()
+    window.setWindowState(state)
+    action = window.findChild(QAction, "BorderlessWindowAction")
+
+    for on in (False, True):
+        action.setChecked(on)
+        qtbot.waitExposed(window)
+        assert window.isVisible()
+        assert window.windowState() & state
+        assert window.normalGeometry() == normal
+        assert window.centralWidget() is central
+        assert window._stack.currentWidget() is screen
+
+    window.showNormal()
+    assert window.geometry() == normal
+
+
 def test_a_minimum_larger_than_the_screen_is_lowered_to_fit(window):
     from PySide6.QtCore import QSize
 
