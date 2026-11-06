@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-692 Lifecycle: new, 97 Lifecycle: future in features/feature_list/.
+695 Lifecycle: new, 97 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -1725,3 +1725,9 @@ NEW FEATURES
        804_recruitment_field_qc_and_confounder_adjustment.txt
   805  BUG: PLATE NAMES WITH URL ESCAPES DROP ALL ROWS
        805_plate_names_with_url_escapes_keep_their_rows.txt
+  806  BUG: ZERNIKE MOMENTS THAT ARE NUMERICALLY ZERO DOMINATE SCALED PROFILES
+       806_zernike_moments_that_are_numerically_zero.txt
+  807  LABEL-FREE FEATURE QC ON PROFILE EXPORT
+       807_label_free_feature_qc_on_profile_export.txt
+  808  A REGULARISED DEFAULT IN THE CLASSIFIER MODULE
+       808_regularised_default_classifier.txt

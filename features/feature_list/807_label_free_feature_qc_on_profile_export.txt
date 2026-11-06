@@ -1,0 +1,32 @@
+LABEL-FREE FEATURE QC ON PROFILE EXPORT
+
+Lifecycle: new
+Status: open.
+Requested: maintainer, 2026-11-05 (BMC paper CPA baseline).
+Owner: unassigned.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Well profiles are exported with every measured feature. Broken features
+(non-finite, near-constant, or exploding after DMSO normalisation, see item
+806) reach the downstream distance and classifier steps unchanged.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+On profile export, drop a feature that is:
+
+- non-finite in more than 5% of wells;
+- above 500 in largest |DMSO-normalised value|;
+- near-constant.
+
+These are the pycytominer feature_select defaults. The step uses no labels
+(no treatment or MoA information). Write the drop list with the reason for
+each feature next to the profiles. Make the thresholds settings, with these
+defaults.
+
+Reference implementation: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cellprofiler_baseline/feature_qc.py
+Evidence: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cellprofiler_baseline/REPORT.md

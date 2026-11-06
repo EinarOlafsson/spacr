@@ -1,0 +1,27 @@
+A REGULARISED DEFAULT IN THE CLASSIFIER MODULE
+
+Lifecycle: new
+Status: open.
+Requested: maintainer, 2026-11-05 (BMC paper CPA baseline).
+Owner: unassigned.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+Unregularised LDA (linear discriminant analysis) fails when the feature
+count is about equal to the number of training wells. On spaCR features it
+reaches 38-42% NSCB accuracy, against 79% with shrinkage LDA.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+- Make a regularised model the default in the classifier module: either
+  standardised logistic regression or shrinkage LDA (solver='lsqr',
+  shrinkage='auto').
+- Keep the old model available as an explicit choice.
+- Test: with more features than training wells, the default model fits and
+  scores above chance on a synthetic set.
+
+Evidence: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cellprofiler_baseline/REPORT.md

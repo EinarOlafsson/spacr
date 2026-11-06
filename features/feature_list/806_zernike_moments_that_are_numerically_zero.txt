@@ -1,0 +1,31 @@
+BUG: ZERNIKE MOMENTS THAT ARE NUMERICALLY ZERO DOMINATE SCALED PROFILES
+
+Lifecycle: new
+Status: open. Build first of 806-808.
+Requested: maintainer, 2026-11-05 (BMC paper CPA baseline).
+Owner: unassigned.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+nucleus_zernike_1 and cell_zernike_1 are about 1e-15 in almost every cell,
+with rare spikes of about 3e-3. After DMSO-based scaling, single wells reach
+about 1e10, and these two columns carry about 96% of each well's squared
+norm. 1-NN cosine and unscaled logistic regression fall to chance: BBBC021
+NSCB (not-same-compound-or-batch) accuracy went from 64.7% to 6.9%.
+
+The moments come from spacr.measure._calculate_zernike (mahotas on CPU,
+_torch_zernike on GPU).
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+- Set moments whose magnitude is below a tolerance to exactly 0, or drop the
+  always-zero *_zernike_1 and the constant *_zernike_0 features from the
+  measure output. The CPU and GPU paths must give the same columns.
+- Test: a disk-shaped and an ellipse mask give zernike_1 == 0 exactly (or no
+  such column), on both paths.
+
+Evidence: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cellprofiler_baseline/REPORT.md
