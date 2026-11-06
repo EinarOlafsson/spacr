@@ -1,0 +1,48 @@
+ONE IMAGE-LEVEL TABLE NAMED IMAGE
+
+Lifecycle: new
+Status: open. Build after the 2026-11-06 batch lands on nightly; the column contract below is what Anu's WS reader already uses.
+Requested: maintainer, 2026-11-06 (via Anu).
+Owner: unassigned.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+Maintainer: "call the new table image, add it to the measurements module,
+with some other measurements because the other measurements likely don't
+cost much time and can be used in qc ... all image level measurements should
+be in one table named image. make sure this is consistent across modules."
+
+The measure module writes a table named image to measurements.db, and every
+module writes its image-level measurements there.
+
+Rows and keys:
+- One row per imaged field, and per timepoint and z when present.
+- Keys: plateID, rowID, columnID, fieldID, prcf (canonical, decoded plate
+  name; item 805) and file_name (the merged array name without .npy).
+
+Per image channel c:
+- channel_<c>_background_median: the median of pixels outside every object
+  mask. The recruitment and replication quality filters need this.
+- Cheap QC extras: channel_<c>_background_p25, channel_<c>_mean,
+  channel_<c>_p1, channel_<c>_p99, channel_<c>_saturated_fraction,
+  channel_<c>_focus (Laplacian variance, as in image_qc).
+
+Per mask:
+- <object>_count and <object>_area_fraction.
+
+Image-level results that now live elsewhere also go into image:
+- per-field confluency (the confluency table);
+- image_qc rule metrics and classifier verdicts from mask generation (now in
+  qc/ CSVs);
+- intensity_rescale per field;
+- object_counts per field.
+Keep the old tables, or views of them, for compatibility.
+
+Tests:
+- One row per field.
+- Background excludes every mask.
+- Each module that writes image-level results writes them to image.
+- The old tables or views still read.
+- Anu's _image_table_background reads it.
