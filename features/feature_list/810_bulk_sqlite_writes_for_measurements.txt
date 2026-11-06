@@ -1,0 +1,25 @@
+BULK SQLITE WRITES FOR THE MEASUREMENT STORE
+
+Lifecycle: new
+Status: open. Build after 809 and after the OPS plate A run has finished.
+Requested: maintainer, 2026-11-06 (BMC paper OPS plate A stress test).
+Owner: unassigned.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+On Funk well A1, 4.76 M rows (cell, nucleus and cytoplasm) went into the
+measurement database at 2,800-4,250 rows/s: 19-28 min for 5.6 GB.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+- Insert with batched executemany (or COPY-style bulk loads) inside one
+  transaction per batch, with suitable pragmas (journal_mode, synchronous,
+  cache_size) set for the load and restored after.
+- Keep the busy timeout that every connection must set.
+- Report rows/s before and after on a synthetic million-row table.
+
+Evidence: /mnt/wd4tb/bmc_reanalysis/funk_phenotype/stress_test.csv

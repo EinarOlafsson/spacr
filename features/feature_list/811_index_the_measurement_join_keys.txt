@@ -1,0 +1,24 @@
+INDEX THE MEASUREMENT JOIN KEYS
+
+Lifecycle: new
+Status: open. Build with 810, after the OPS plate A run has finished.
+Requested: maintainer, 2026-11-06 (BMC paper OPS plate A stress test).
+Owner: unassigned.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+On Funk well A1 (1.59 M cells), the cell/nucleus/cytoplasm three-table join
+takes 68-102 s, and reading the whole well takes 113-163 s.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+- Index the plate/well/field/object keys used by the joins.
+- Build the indexes after the bulk load (item 810), not before.
+- Existing databases get the indexes on first open.
+- Target: the join and the whole-well read take seconds.
+
+Evidence: /mnt/wd4tb/bmc_reanalysis/funk_phenotype/stress_test.csv

@@ -1,0 +1,34 @@
+A SHARDED CROP STORE
+
+Lifecycle: new
+Status: open. Build first of 809-811, after the OPS plate A run has finished.
+Requested: maintainer, 2026-11-06 (BMC paper OPS plate A stress test).
+Owner: unassigned.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+spaCR writes one PNG per cell into one directory. On Funk well A1 (1.59 M
+cells, all crops stored), measured on the NAS:
+
+- writes: about 49 files/s (0.9 MB/s), the same with 24 or 48 streams, so it
+  is the NAS small-file limit;
+- directory listing: 151-604 s;
+- renames: about 270 ms per file in a 650 k-entry directory;
+- random reads for training: 2.4-5 PNG/s (0.04-0.09 MB/s), so one epoch over a
+  plate takes days.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+- Write crops as shards (WebDataset-style tar or similar, about 1-4 GB each)
+  with an index from object key to shard and offset.
+- Keep one PNG per cell as an export option.
+- Make the dataset loaders read shards, with shuffling across shards.
+- Crops stay raw: no per-crop stretch (item 772).
+- Test: a small synthetic plate round-trips through shards, and the loader
+  returns the same arrays as the PNG path.
+
+Evidence: /mnt/wd4tb/bmc_reanalysis/funk_phenotype/stress_test.csv
