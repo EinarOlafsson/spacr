@@ -333,12 +333,12 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
     },
     "recruitment": {
         "panels", "replicate_column", "condition_order", "condition_labels",
-        "figures", "exclude_edge_objects", "max_vacuoles_per_cell", "control_color_by",
+        "figures", "exclude_edge_objects", "max_vacuoles_per_cell", "control_color_by", "background_filters", "min_solidity", "merged_dir", "background_mask_channel",
         "confounder_filter",
     },
     "replication": {
         "panels", "replicate_column", "condition_order", "condition_labels",
-        "figures", "exclude_edge_objects", "max_area_quantile", "bin_labels", "field_qc",
+        "figures", "exclude_edge_objects", "max_area_quantile", "bin_labels", "background_filters", "min_solidity", "merged_dir", "background_mask_channel", "field_qc",
         "field_qc_mad", "field_qc_min_objects",
     },
 }

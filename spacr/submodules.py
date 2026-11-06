@@ -1292,6 +1292,8 @@ def _recruitment_new_filters(df, settings, results_dir, field_qc_counts=None):
     active = (settings.get('max_vacuoles_per_cell') is not None
               or settings.get('exclude_edge_objects')
               or settings.get('confounder_filter')
+              or settings.get('background_filters')
+              or settings.get('min_solidity') is not None
               or settings.get('panels'))
     if not active:
         return df, None
@@ -1311,6 +1313,9 @@ def _recruitment_new_filters(df, settings, results_dir, field_qc_counts=None):
         before = df
         df = df[~_edge_cut_mask(df, 'pathogen')]
         df = log.add('exclude_edge_objects (pathogen cut by the field edge)', before, df)
+    if settings.get('background_filters') or settings.get('min_solidity') is not None:
+        # vacuole (pathogen) quality: signal relative to its own field background, and shape
+        df = _object_quality_filters(df, settings, 'pathogen', settings['src'], log, '')
     if settings.get('confounder_filter'):
         df = _apply_confounder_filter(df, settings['confounder_filter'], log)
     return df, log
@@ -1461,7 +1466,152 @@ def _replication_filters_active(settings):
     :returns: True when the filter log and its tables should be written.
     """
     return bool(settings.get('field_qc') or settings.get('exclude_edge_objects')
-                or settings.get('max_area_quantile') is not None)
+                or settings.get('max_area_quantile') is not None
+                or settings.get('background_filters') or settings.get('min_solidity') is not None)
+
+
+def _image_table_background(db_path, file_names, channels):
+    """Field backgrounds from the ``image`` table of measurements.db, or None.
+
+    The ``image`` table holds one row per imaged field (all image-level
+    measurements). This reads ``channel_<c>_background_median`` for the given
+    fields and returns it under the ``ch<c>_field_background`` names used by
+    the filters; None when the table, a column or any field is missing.
+    """
+    import sqlite3
+    if not os.path.exists(db_path):
+        return None
+    with sqlite3.connect(f'file:{db_path}?mode=ro', uri=True) as con:
+        if not con.execute("select 1 from sqlite_master where type='table' and name='image'").fetchone():
+            return None
+        cols = {r[1] for r in con.execute('pragma table_info("image")')}
+        need = [f'channel_{int(c)}_background_median' for c in channels]
+        if 'file_name' not in cols or not set(need) <= cols:
+            return None
+        table = pd.read_sql(f'select file_name, {", ".join(need)} from image', con)
+    table['file_name'] = table['file_name'].astype(str).str.replace(r'\.npy$', '', regex=True)
+    table = table.drop_duplicates('file_name', keep='last')
+    if not set(map(str, file_names)) <= set(table['file_name']):
+        return None
+    return table.rename(columns={f'channel_{int(c)}_background_median': f'ch{int(c)}_field_background'
+                                 for c in channels})
+
+
+def _field_background(merged_dir, file_names, channels, mask_channel=-1, stride=4,
+                      cache_path=None, n_threads=8):
+    """Median of the mask-free pixels of every field, per channel.
+
+    Reads ``<merged_dir>/<file_name>.npy`` (spaCR merged arrays: image channels
+    followed by the mask channels) memory-mapped, every ``stride``-th row and
+    column. A pixel counts as background when ``mask_channel`` is 0 there.
+    Results are cached in ``cache_path`` (CSV) and only missing fields are read
+    on a later call.
+
+    :returns: DataFrame ``file_name`` + ``ch{c}_field_background`` per channel.
+    """
+    from concurrent.futures import ThreadPoolExecutor
+    channels = [int(c) for c in channels]
+    cols = [f'ch{c}_field_background' for c in channels]
+    cached = None
+    if cache_path and os.path.exists(cache_path):
+        cached = pd.read_csv(cache_path)
+        if not set(cols) <= set(cached.columns):
+            cached = None
+    wanted = sorted(set(map(str, file_names)))
+    todo = [f for f in wanted if cached is None or f not in set(cached['file_name'])]
+
+    def one(fname):
+        path = os.path.join(merged_dir, fname if fname.endswith('.npy') else fname + '.npy')
+        arr = np.load(path, mmap_mode='r')
+        free = np.asarray(arr[::stride, ::stride, mask_channel]) == 0
+        row = {'file_name': fname}
+        for c, col in zip(channels, cols):
+            vals = np.asarray(arr[::stride, ::stride, c])[free]
+            row[col] = float(np.median(vals)) if vals.size else np.nan
+        return row
+
+    fresh = pd.DataFrame(columns=['file_name'] + cols)
+    if todo:
+        with ThreadPoolExecutor(max(1, int(n_threads))) as ex:
+            fresh = pd.DataFrame(list(ex.map(one, todo)))
+    out = fresh if cached is None else pd.concat([cached[['file_name'] + cols], fresh], ignore_index=True)
+    out = out.drop_duplicates('file_name', keep='last')
+    if cache_path and todo:
+        os.makedirs(os.path.dirname(cache_path), exist_ok=True)
+        out.to_csv(cache_path, index=False)
+    return out[out['file_name'].isin(wanted)].reset_index(drop=True)
+
+
+def _object_quality_filters(frame, settings, compartment, project_dir, log, results_subdir):
+    """User-set object quality filters shared by recruitment and replication.
+
+    ``background_filters`` - list of rules ``{'channel', 'statistic'
+    ('mean_intensity' default, or e.g. 'percentile_25'), 'min_ratio',
+    'max_ratio', 'max_quantile'}``. Each compares
+    ``<compartment>_channel_<c>_<statistic>`` with the median of the mask-free
+    pixels of the object's own field (so the threshold follows each plate,
+    well and strain). ``min_ratio`` drops objects without signal (no vacuole
+    under the mask), ``max_ratio`` drops saturated uniform blobs, and
+    ``max_quantile`` drops the top fraction per plate (e.g. Hoechst
+    ``percentile_25`` for masks filled by a host nucleus).
+    ``min_solidity`` - drop ``<compartment>_solidity`` below this value
+    (over-extended masks, fragments).
+    Field backgrounds come from the ``image`` table of ``measurements.db``
+    (``channel_<c>_background_median``, one row per field) when the measure
+    step wrote it; otherwise they are read from ``merged_dir`` (default
+    ``<project>/merged``) and cached in
+    ``<project>/results/<results_subdir>/field_background.csv``.
+    """
+    from collections.abc import Mapping
+    rules = settings.get('background_filters') or []
+    if isinstance(rules, Mapping):
+        rules = [rules]
+    if rules:
+        if 'file_name' not in frame.columns:
+            raise KeyError("background_filters need a 'file_name' column (spaCR object rows)")
+        channels = sorted({int(r['channel']) for r in rules})
+        merged_dir = settings.get('merged_dir') or os.path.join(project_dir, 'merged')
+        from_db = _image_table_background(os.path.join(project_dir, 'measurements', 'measurements.db'),
+                                          frame['file_name'].unique(), channels)
+        bg = from_db if from_db is not None else _field_background(
+            merged_dir, frame['file_name'].unique(), channels,
+            mask_channel=settings.get('background_mask_channel', -1),
+            cache_path=os.path.join(project_dir, 'results', results_subdir, 'field_background.csv'))
+        frame = frame.copy()
+        bg = bg.set_index('file_name')
+        for col in bg.columns:          # map, not merge: keep the object index (prcfo)
+            frame[col] = frame['file_name'].astype(str).map(bg[col])
+        for rule in rules:
+            c = int(rule['channel'])
+            stat = rule.get('statistic', 'mean_intensity')
+            column = f"{compartment}_channel_{c}_{stat}"
+            if column not in frame.columns:
+                raise KeyError(f"background_filters: column '{column}' is not in the table")
+            ratio = pd.to_numeric(frame[column], errors='coerce') / frame[f'ch{c}_field_background']
+            keep = ratio.notna()
+            parts = []
+            if rule.get('min_ratio') is not None:
+                keep &= ratio >= float(rule['min_ratio']); parts.append(f">= {rule['min_ratio']}x")
+            if rule.get('max_ratio') is not None:
+                keep &= ratio <= float(rule['max_ratio']); parts.append(f"<= {rule['max_ratio']}x")
+            if rule.get('max_quantile') is not None:
+                limit = ratio.groupby(frame['plateID']).transform(
+                    lambda x: x.quantile(float(rule['max_quantile']))) if 'plateID' in frame.columns \
+                    else ratio.quantile(float(rule['max_quantile']))
+                keep &= ratio <= limit; parts.append(f"<= plate quantile {rule['max_quantile']}")
+            before = frame
+            frame = frame[keep.to_numpy()]
+            frame = log.add(f"background_filter {column} / field background",
+                            before, frame, ', '.join(parts))
+    min_sol = settings.get('min_solidity')
+    if min_sol is not None:
+        column = f"{compartment}_solidity"
+        if column not in frame.columns:
+            raise KeyError(f"min_solidity needs the column '{column}'")
+        before = frame
+        frame = frame[pd.to_numeric(frame[column], errors='coerce') >= float(min_sol)]
+        frame = log.add(f'min_solidity {min_sol}', before, frame, f'{column} >= {min_sol}')
+    return frame
 
 
 def _replication_filters(frame, settings, area_column, edge_cut, db_tables, unit,
@@ -1504,6 +1654,10 @@ def _replication_filters(frame, settings, area_column, edge_cut, db_tables, unit
         before = frame
         frame = frame[~np.asarray(edge_cut(frame), dtype=bool)]
         frame = log.add('exclude_edge_objects (cut by the field edge)', before, frame)
+    if settings.get('background_filters') or settings.get('min_solidity') is not None:
+        project = os.path.dirname(os.path.dirname(db_tables[0][0]))
+        frame = _object_quality_filters(frame, settings, settings.get('compartment', 'pathogen'),
+                                        project, log, 'analyze_replication')
     q = settings.get('max_area_quantile')
     if q is not None:
         if area_column not in frame.columns:

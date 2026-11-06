@@ -479,3 +479,60 @@ def test_replication_bin_labels_prefer_user_then_area_default():
     assert _replication_bin_labels(bins, None, default) == ['500-794', '>5040']
     assert _replication_bin_labels(bins, ['~1', '>=8'], default) == ['~1', '>=8']
     assert _replication_bin_labels(bins, {'>357770.88': 'big'}, default) == ['500-794', 'big']
+
+
+def _write_field(path, background, objects):
+    """Merged array: one image channel + one mask channel; objects = [(label, value, slice)]."""
+    img = np.full((40, 40), background, dtype=np.uint16)
+    mask = np.zeros((40, 40), dtype=np.uint16)
+    for label, value, (ys, xs) in objects:
+        img[ys, xs] = value
+        mask[ys, xs] = label
+    np.save(path, np.stack([img, img // 2, mask], axis=-1))
+
+
+def test_object_quality_filters_use_each_field_background(tmp_path):
+    from spacr.submodules import _object_quality_filters, _FilterLog
+    merged = tmp_path / 'merged'
+    merged.mkdir()
+    # field A background 100, field B background 300: the same raw 400 passes in A, fails in B
+    _write_field(merged / 'A.npy', 100, [(1, 400, (slice(0, 8), slice(0, 8)))])
+    _write_field(merged / 'B.npy', 300, [(1, 400, (slice(0, 8), slice(0, 8)))])
+    frame = pd.DataFrame({'file_name': ['A', 'B', 'A'], 'plateID': ['p'] * 3,
+                          'pathogen_channel_0_mean_intensity': [400.0, 400.0, 5000.0],
+                          'pathogen_solidity': [0.97, 0.97, 0.80]},
+                         index=['A_o1', 'B_o1', 'A_o2'])
+    settings = {'background_filters': [{'channel': 0, 'min_ratio': 1.5, 'max_ratio': 20}],
+                'min_solidity': 0.9}
+    log = _FilterLog(frame)
+    out = _object_quality_filters(frame, settings, 'pathogen', str(tmp_path), log, 'x')
+    assert list(out.index) == ['A_o1']                 # B_o1: 400/300 < 1.5; A_o2: 50x and low solidity
+    assert out['ch0_field_background'].iloc[0] == 100
+    assert (tmp_path / 'results' / 'x' / 'field_background.csv').exists()
+    steps = log.frame()['step'].tolist()
+    assert any('background_filter' in s for s in steps) and any('min_solidity' in s for s in steps)
+
+
+def test_object_quality_filters_max_quantile_per_plate(tmp_path):
+    from spacr.submodules import _object_quality_filters, _FilterLog
+    merged = tmp_path / 'merged'
+    merged.mkdir()
+    _write_field(merged / 'A.npy', 100, [(1, 200, (slice(0, 8), slice(0, 8)))])
+    frame = pd.DataFrame({'file_name': ['A'] * 10, 'plateID': ['p'] * 10,
+                          'pathogen_channel_0_percentile_25': np.arange(1, 11) * 100.0})
+    settings = {'background_filters': {'channel': 0, 'statistic': 'percentile_25', 'max_quantile': 0.8}}
+    out = _object_quality_filters(frame, settings, 'pathogen', str(tmp_path), _FilterLog(frame), 'x')
+    assert len(out) == 8
+
+
+def test_object_quality_filters_prefer_the_image_table(tmp_path):
+    import sqlite3
+    from spacr.submodules import _object_quality_filters, _FilterLog
+    (tmp_path / 'measurements').mkdir()
+    with sqlite3.connect(tmp_path / 'measurements' / 'measurements.db') as con:
+        pd.DataFrame({'file_name': ['A'], 'plateID': ['p'], 'rowID': ['r1'], 'columnID': ['c1'],
+                      'fieldID': ['f1'], 'channel_0_background_median': [100.0]}).to_sql('image', con)
+    frame = pd.DataFrame({'file_name': ['A', 'A'], 'pathogen_channel_0_mean_intensity': [120.0, 400.0]})
+    out = _object_quality_filters(frame, {'background_filters': {'channel': 0, 'min_ratio': 1.5}},
+                                  'pathogen', str(tmp_path), _FilterLog(frame), 'x')
+    assert out['pathogen_channel_0_mean_intensity'].tolist() == [400.0]   # no merged arrays needed
