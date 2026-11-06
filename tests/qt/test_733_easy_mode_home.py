@@ -1778,3 +1778,53 @@ def test_native_navigator_revisit_keeps_source_anchor_and_explicit_receiver(
         assert image.read_bytes() == before and set(isolated_input_root.iterdir()) == entries
     finally:
         window.close()
+
+
+def test_workflow_anchor_contract_uses_the_free_viewport_above_a_lower_card(
+        qtbot, private_ai_profile, isolated_input_root):
+    """Exercise the private anchored layout, not the default Home row placement."""
+    from spacr.qt.widgets.home import _EasyHomePage, _EasyWorkflowPage
+
+    preferences, _, _ = private_ai_profile
+    preferences.set_reduce_motion(True)
+    path = isolated_input_root / 'objects.csv'
+    path.write_text('label,area\n1,12\n')
+    page = _EasyHomePage()
+    qtbot.addWidget(page)
+    page.resize(340, 1100)
+    page.show()
+    try:
+        page.accept_paths([str(path)])
+        qtbot.waitUntil(lambda: page._last_result is not None and not page._runner.is_busy(), timeout=5000)
+        source = next(card for card in page.field.cards if card._key == 'graph_builder')
+        source.click()
+        data = page._workflow.data
+        actions = list(page._last_result['actions'])
+        page._show_suggestions()
+        field = page.field
+        lower = QRect(source.geometry())
+        lower.moveTop(field.panel.geometry().bottom() + 16)
+        lower.moveLeft(lower.left() - source.mapTo(page, QPoint()).x()
+                       + (page.width() - lower.width()) // 2)
+        assert lower.bottom() < field.details.geometry().top() - 16
+        source.setGeometry(lower)
+        rectangle = QRect(source.mapToGlobal(QPoint()), source.size())
+        anchor = QRect(source.mapTo(page, QPoint()), source.size())
+        source.activated.disconnect(page._select_suggestion)
+        workflow = _EasyWorkflowPage(data, actions, source._key, source, anchor, page)
+        page._workflow = workflow
+        workflow.setGeometry(page.rect())
+        workflow._arrange()
+        assert workflow.central is source and workflow.view._node_side == 144
+        assert workflow.view._root_y == workflow.view.height()
+        assert workflow.view.geometry().bottom() == source.geometry().top() - 1
+        assert workflow.view.width() > 0 and workflow.view.height() > 0
+        assert page.rect().contains(workflow.view.geometry())
+        assert not workflow.view.geometry().intersects(source.geometry())
+        assert QRect(source.mapToGlobal(QPoint()), source.size()) == rectangle
+        page._show_suggestions()
+        assert page._workflow is None and source.parentWidget() is field
+        assert source.geometry() == source._final_rect
+        assert source.geometry() != lower and page.path_edit.text() == str(path)
+    finally:
+        page.close()
