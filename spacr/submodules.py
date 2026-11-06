@@ -1757,33 +1757,6 @@ def _replication_filters_active(settings):
                 or settings.get('background_filters') or settings.get('min_solidity') is not None)
 
 
-def _image_table_background(db_path, file_names, channels):
-    """Field backgrounds from the ``image`` table of measurements.db, or None.
-
-    The ``image`` table holds one row per imaged field (all image-level
-    measurements). This reads ``channel_<c>_background_median`` for the given
-    fields and returns it under the ``ch<c>_field_background`` names used by
-    the filters; None when the table, a column or any field is missing.
-    """
-    import sqlite3
-    if not os.path.exists(db_path):
-        return None
-    with sqlite3.connect(f'file:{db_path}?mode=ro', uri=True) as con:
-        if not con.execute("select 1 from sqlite_master where type='table' and name='image'").fetchone():
-            return None
-        cols = {r[1] for r in con.execute('pragma table_info("image")')}
-        need = [f'channel_{int(c)}_background_median' for c in channels]
-        if 'file_name' not in cols or not set(need) <= cols:
-            return None
-        table = pd.read_sql(f'select file_name, {", ".join(need)} from image', con)
-    table['file_name'] = table['file_name'].astype(str).str.replace(r'\.npy$', '', regex=True)
-    table = table.drop_duplicates('file_name', keep='last')
-    if not set(map(str, file_names)) <= set(table['file_name']):
-        return None
-    return table.rename(columns={f'channel_{int(c)}_background_median': f'ch{int(c)}_field_background'
-                                 for c in channels})
-
-
 def _field_background(merged_dir, file_names, channels, mask_channel=-1, stride=4,
                       cache_path=None, n_threads=8):
     """Median of the mask-free pixels of every field, per channel.
@@ -1844,8 +1817,9 @@ def _object_quality_filters(frame, settings, compartment, project_dir, log, resu
     ``min_solidity`` - drop ``<compartment>_solidity`` below this value
     (over-extended masks, fragments).
     Field backgrounds come from the ``image`` table of ``measurements.db``
-    (``channel_<c>_background_median``, one row per field) when the measure
-    step wrote it; otherwise they are read from ``merged_dir`` (default
+    (``channel_<c>_background_median``, one row per field, read by
+    ``spacr.measure._image_table_background``). A field or channel the
+    table does not hold is read from ``merged_dir`` (default
     ``<project>/merged``) and cached in
     ``<project>/results/<results_subdir>/field_background.csv``.
     """
@@ -1858,14 +1832,21 @@ def _object_quality_filters(frame, settings, compartment, project_dir, log, resu
             raise KeyError("background_filters need a 'file_name' column (spaCR object rows)")
         channels = sorted({int(r['channel']) for r in rules})
         merged_dir = settings.get('merged_dir') or os.path.join(project_dir, 'merged')
-        from_db = _image_table_background(os.path.join(project_dir, 'measurements', 'measurements.db'),
-                                          frame['file_name'].unique(), channels)
-        bg = from_db if from_db is not None else _field_background(
-            merged_dir, frame['file_name'].unique(), channels,
-            mask_channel=settings.get('background_mask_channel', -1),
-            cache_path=os.path.join(project_dir, 'results', results_subdir, 'field_background.csv'))
+        from .measure import _image_table_background
+        names = [str(name) for name in frame['file_name'].unique()]
+        bg = _image_table_background(os.path.join(project_dir, 'measurements', 'measurements.db'),
+                                     names, channels)
+        bg = bg.rename(columns={f'channel_{c}_background_median': f'ch{c}_field_background'
+                                for c in channels})
+        bg.index = pd.Index(names, name='file_name')
+        missing = [name for name, gap in zip(names, bg.isna().any(axis=1)) if gap]
+        if missing:
+            merged = _field_background(
+                merged_dir, missing, channels,
+                mask_channel=settings.get('background_mask_channel', -1),
+                cache_path=os.path.join(project_dir, 'results', results_subdir, 'field_background.csv'))
+            bg = bg.combine_first(merged.set_index('file_name'))
         frame = frame.copy()
-        bg = bg.set_index('file_name')
         for col in bg.columns:
             frame[col] = frame['file_name'].astype(str).map(bg[col])
         for rule in rules:

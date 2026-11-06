@@ -573,6 +573,28 @@ def test_object_quality_filters_prefer_the_image_table(tmp_path):
     assert out['pathogen_channel_0_mean_intensity'].tolist() == [400.0]   # no merged arrays needed
 
 
+def test_object_quality_filters_read_missing_fields_from_the_merged_arrays(tmp_path):
+    import sqlite3
+    from spacr.submodules import _object_quality_filters, _FilterLog
+    import spacr.submodules as sm
+    assert not hasattr(sm, '_image_table_background')   # one reader: spacr.measure's
+    (tmp_path / 'measurements').mkdir()
+    with sqlite3.connect(tmp_path / 'measurements' / 'measurements.db') as con:
+        pd.DataFrame({'file_name': ['A'], 'channel_0_background_median': [100.0]}).to_sql('image', con)
+    merged = tmp_path / 'merged'
+    merged.mkdir()
+    # B is not in the image table, so its background (300) comes from its merged array
+    _write_field(merged / 'B.npy', 300, [(1, 400, (slice(0, 8), slice(0, 8)))])
+    frame = pd.DataFrame({'file_name': ['A', 'B'],
+                          'pathogen_channel_0_mean_intensity': [400.0, 400.0]})
+    out = _object_quality_filters(frame, {'background_filters': {'channel': 0, 'min_ratio': 1.5}},
+                                  'pathogen', str(tmp_path), _FilterLog(frame), 'x')
+    assert out['file_name'].tolist() == ['A']
+    assert out['ch0_field_background'].tolist() == [100.0]
+    cached = pd.read_csv(tmp_path / 'results' / 'x' / 'field_background.csv')
+    assert cached['file_name'].tolist() == ['B']        # only the missing field was read
+
+
 def test_size_proxy_replication_gets_the_qc_defaults(monkeypatch):
     import spacr.submodules as sm
     seen = {}
