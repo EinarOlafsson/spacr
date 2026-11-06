@@ -4348,6 +4348,8 @@ class AppScreen(QWidget):
         widgets.build([widget.key for _label, widget in spec[1] or ()
                        if isinstance(widget, _ControlToCome)])
 
+        again: list = []
+
         def swap(node):
             """``node`` rebuilt with its stand-ins replaced by controls."""
             own = getattr(node, "own_rows", None)
@@ -4359,13 +4361,17 @@ class AppScreen(QWidget):
                     if widget is None:
                         continue
                 rows.append((label, widget))
-            children = [swap(child)
+            children = [again[0](child)
                         for child in getattr(node, "children", ()) or ()]
             title = getattr(node, "title", None)
             return SettingsSection(node[0] if title is None else title,
                                    rows, children)
 
-        return swap(spec)
+        again.append(swap)
+        try:
+            return swap(spec)
+        finally:
+            again.clear()
 
     def _build_a_waiting_heading(self, spec):
         """A category's heading, with its rows left until it is opened.

@@ -3244,6 +3244,8 @@ class HomePage(QWidget):
             except RuntimeError:
                 continue
 
+        again: list = []
+
         def _next():
             """Set one owed rule, then wait for the next pass."""
             while owed:
@@ -3253,10 +3255,13 @@ class HomePage(QWidget):
                 except RuntimeError:
                     continue
                 break
-            if owed:
-                QTimer.singleShot(0, _next)
+            if owed and again:
+                QTimer.singleShot(0, again[0])
+            else:
+                again.clear()
 
         if owed:
+            again.append(_next)
             QTimer.singleShot(0, _next)
         return len(owed)
 

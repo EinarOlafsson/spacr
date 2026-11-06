@@ -269,14 +269,18 @@ class BenchmarkController(QObject):
         """Do not let checkpoint/prewarm work contaminate the next click."""
         checkpoint_ended = timing.elapsed()
 
+        again: list = []
+
         def _after_beat() -> None:
             """Continue once the GUI thread has answered again."""
             latest = timing.last_gui_beat_at()
-            if latest is not None and latest <= checkpoint_ended:
-                QTimer.singleShot(SETTLE_MS, _after_beat)
+            if latest is not None and latest <= checkpoint_ended and again:
+                QTimer.singleShot(SETTLE_MS, again[0])
                 return
+            again.clear()
             self._advance()
 
+        again.append(_after_beat)
         QTimer.singleShot(SETTLE_MS, _after_beat)
 
     def _advance(self) -> None:

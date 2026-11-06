@@ -2488,14 +2488,18 @@ class ConsolePanel(QWidget):
         fetcher = threading.Thread(target=_fetch,
                                    name="spacr-hosted-allowance", daemon=True)
 
+        again: list = []
+
         def _collect() -> None:
             """On the GUI thread: show the allowance once it has arrived."""
-            if "allowance" not in box and fetcher.is_alive():
-                _after(100, self, _collect)
+            if "allowance" not in box and fetcher.is_alive() and again:
+                _after(100, self, again[0])
                 return
+            again.clear()
             if self._current_provider_name == name:
                 self._show_ai_usage(box.get("allowance"))
 
+        again.append(_collect)
         fetcher.start()
         _after(100, self, _collect)
 

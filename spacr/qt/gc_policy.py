@@ -382,6 +382,73 @@ def _automatic_collection_paused():
                 gc.enable()
 
 
+_MID_EVENT_LIMIT_SECONDS = 30.0
+_mid_event_since: list = [None]
+
+
+def _pointer_pressed() -> bool:
+    """Whether a pointer button is held in the running application."""
+    widgets = sys.modules.get("PySide6.QtWidgets")
+    app = widgets.QApplication.instance() if widgets is not None else None
+    if app is None:
+        return False
+    Qt = _loaded("PySide6.QtCore").Qt
+    return app.mouseButtons() != Qt.NoButton
+
+
+def _mid_event() -> bool:
+    """Whether a collection now could free Qt objects an event still uses.
+
+    While a pointer button is down, a nested event loop runs, or a counted
+    pause (:func:`_automatic_collection_paused`) is open, the GUI thread is
+    inside a handler: the press of a drag, a modal dialog opened from a
+    click, an application restyle. A collection there runs the finaliser of
+    a Python-built QObject that the handler's Qt frames may still be
+    using, which is how lesson 81 crashed inside the collector on a press.
+    """
+    with _PAUSE_LOCK:
+        if _PAUSE["depth"] > 0:
+            return True
+    try:
+        if _pointer_pressed():
+            return True
+        widgets = sys.modules.get("PySide6.QtWidgets")
+        if widgets is None or widgets.QApplication.instance() is None:
+            return False
+        QThread = _loaded("PySide6.QtCore").QThread
+        return QThread.currentThread().loopLevel() > 1
+    except Exception:                                        # noqa: BLE001
+        return False
+
+
+def _collect_on_tick() -> int:
+    """The timer's sweep: :func:`collect_once`, unless an event is mid-way.
+
+    A sweep that waits for the event to finish runs on a later tick. One
+    held longer than :data:`_MID_EVENT_LIMIT_SECONDS` by a nested loop
+    still runs, so a long modal dialog cannot grow memory without bound;
+    a held pointer button or an open pause is always waited out.
+
+    :returns: what :func:`collect_once` returned, or ``-1`` when the sweep
+        waited.
+    """
+    if _mid_event():
+        now = time.monotonic()
+        if _mid_event_since[0] is None:
+            _mid_event_since[0] = now
+        held = now - _mid_event_since[0] < _MID_EVENT_LIMIT_SECONDS
+        try:
+            pressed = _pointer_pressed()
+        except Exception:                                    # noqa: BLE001
+            pressed = False
+        with _PAUSE_LOCK:
+            paused = _PAUSE["depth"] > 0
+        if held or pressed or paused:
+            return -1
+    _mid_event_since[0] = None
+    return collect_once()
+
+
 def collect_once() -> int:
     """Collect the oldest due generation, or service an explicit full-cleanup
     request.
@@ -422,7 +489,7 @@ def collect_once() -> int:
             QTimer = _loaded("PySide6.QtCore").QTimer
             _INPUT["retry_armed"] = True
             QTimer.singleShot(int(_INPUT_QUIET_S * 1000),
-                              lambda: (_INPUT.update(retry_armed=False), collect_once()))
+                              lambda: (_INPUT.update(retry_armed=False), _collect_on_tick()))
         thresholds = _saved_thresholds or gc.get_threshold()
         counts = gc.get_count()
         for generation in (1, 0):
@@ -484,7 +551,7 @@ def install(parent=None) -> bool:
             gc.disable()
         timer = QTimer(parent)
         timer.setInterval(INTERVAL_MS)
-        timer.timeout.connect(collect_once)
+        timer.timeout.connect(_collect_on_tick)
         timer.start()
         _timer = timer
         _watch_window_shows(QCoreApplication.instance())

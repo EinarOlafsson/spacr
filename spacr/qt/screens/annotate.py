@@ -5508,24 +5508,30 @@ class AnnotateScreen(QWidget):
             except RuntimeError:
                 pass
 
+        again: list = []
+
         def _next(result=True, error=""):
             """Start the next missing half, or open the plate after the last."""
             if self._closing:
+                again.clear()
                 return
             if result is None:
+                again.clear()
                 _restore()
                 LOG.info("test data not downloaded: %s", error)
                 self._console.append_notice(
                     "Test data was not downloaded: {detail}\n",
                     detail=error or "cancelled")
                 return
-            if missing:
+            if missing and again:
                 download = missing.pop(0)
-                download(self, destination, _next)
+                download(self, destination, again[0])
                 return
+            again.clear()
             _restore()
             self._use_the_test_data(destination, route)
 
+        again.append(_next)
         _next()
         return ""
 
