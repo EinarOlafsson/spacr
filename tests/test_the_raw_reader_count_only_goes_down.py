@@ -86,7 +86,13 @@ RAW_CALL = re.compile(r"pd\.read_csv\(|pd\.read_sql\w*\(|\.to_csv\(|\.to_sql\(")
 #: ratchet was always describing. The seven inside it are excluded by
 #: name rather than by a lower ceiling, so the next legitimate reader
 #: added to tabular.py does not read as a regression.
-CEILING = 246
+#:
+#: 246 -> 241 on 2026-11-06: the recruitment and replication publication
+#: panels, the field QC and confounder outputs of analyze_recruitment and the
+#: feature QC report had added eighteen raw writes, which took the count to
+#: 259. All eighteen now go through `tabular.write_table`, and the ceiling
+#: comes down to the count.
+CEILING = 241
 
 #: Files allowed to hold raw calls without argument, and why.
 EXPECTED_HOMES = {

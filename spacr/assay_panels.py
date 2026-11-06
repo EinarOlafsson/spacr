@@ -54,6 +54,8 @@ from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
+from .tabular import write_table
+
 __all__ = [
     "ALPHA", "stars", "fmt_p", "condition_order", "display_label",
     "select_and_run_test", "proportion_tests", "aggregate_to_unit",
@@ -703,27 +705,28 @@ def save_panel(out_dir: str, panel_id: str, name: str, spec: dict, dpi: int = 30
             fig.savefig(os.path.join(folder, f"{stem}.{ext}"), dpi=dpi, bbox_inches="tight")
     finally:
         plt.close(fig)
-    spec["data"].to_csv(os.path.join(folder, "data_replicates.csv"), index=False)
+    write_table(spec["data"], os.path.join(folder, "data_replicates.csv"))
     if spec["kind"] == "bar":
         st = spec["stats"]
-        st["test"].to_csv(os.path.join(folder, "stats_test.csv"), index=False)
-        st["assumptions"].to_csv(os.path.join(folder, "stats_assumptions.csv"), index=False)
-        st["posthoc"].to_csv(os.path.join(folder, "stats_posthoc.csv"), index=False)
-        st["descriptive"].to_csv(os.path.join(folder, "stats_descriptive.csv"), index=False)
+        write_table(st["test"], os.path.join(folder, "stats_test.csv"))
+        write_table(st["assumptions"], os.path.join(folder, "stats_assumptions.csv"))
+        write_table(st["posthoc"], os.path.join(folder, "stats_posthoc.csv"))
+        write_table(st["descriptive"], os.path.join(folder, "stats_descriptive.csv"))
     else:
         bins, bin_labels = spec["bins"], spec["bin_labels"]
         rename = dict(zip(bins, bin_labels))
-        spec["counts"].rename(columns=rename).rename_axis(spec["group"]).to_csv(
-            os.path.join(folder, "contingency_table_counts.csv"))
-        pd.concat([pd.DataFrame([spec["omnibus"]]), spec["pairwise"]], ignore_index=True).to_csv(
-            os.path.join(folder, "stats_test.csv"), index=False)
+        write_table(spec["counts"].rename(columns=rename).rename_axis(spec["group"]),
+                    os.path.join(folder, "contingency_table_counts.csv"), index=True)
+        write_table(pd.concat([pd.DataFrame([spec["omnibus"]]), spec["pairwise"]], ignore_index=True),
+                    os.path.join(folder, "stats_test.csv"))
         frac = spec["data"]
         agg = frac.groupby(spec["group"])[bins].agg(["mean", "std"]).reindex(spec["order"])
         agg.columns = [f"{rename[b]} {s}" for b, s in agg.columns]
         agg.insert(0, "n_units", frac.groupby(spec["group"]).size().reindex(spec["order"]))
-        agg.rename_axis(spec["group"]).to_csv(os.path.join(folder, "stats_descriptive.csv"))
+        write_table(agg.rename_axis(spec["group"]), os.path.join(folder, "stats_descriptive.csv"),
+                    index=True)
     for tname, table in (spec.get("extra_tables") or {}).items():
-        table.to_csv(os.path.join(folder, f"{tname}.csv"), index=False)
+        write_table(table, os.path.join(folder, f"{tname}.csv"))
     spec["folder"] = folder
     return folder
 

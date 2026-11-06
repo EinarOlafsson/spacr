@@ -2466,13 +2466,16 @@ def _feature_qc_report(db_path: str, *, drop: bool = False,
     import json
     import os
 
+    from .tabular import write_table
+
     flagged = _feature_qc_database(db_path, **options)
     dropped = _drop_feature_columns(db_path, flagged) if (
         drop and not flagged.empty) else []
     folder = os.path.dirname(os.path.abspath(db_path))
     csv_path, json_path = (os.path.join(folder, name)
                            for name in _FEATURE_QC_FILES)
-    flagged.to_csv(csv_path, index=False)
+    # ``column`` here names a feature, not a plate column, so it is kept verbatim.
+    write_table(flagged, csv_path, canonicalise=False)
     counts = flagged["reason"].value_counts() if not flagged.empty else {}
     summary = {
         "database": os.path.abspath(db_path),

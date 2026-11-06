@@ -69,7 +69,7 @@ import pandas as pd
 import numpy as np
 import torch
 
-from .tabular import read_table, write_database
+from .tabular import read_table, write_database, write_table
 
 from skimage.measure import regionprops, label
 from skimage.transform import resize as sk_resize, rotate
@@ -1473,11 +1473,11 @@ def _replication_filters(frame, settings, area_column, edge_cut, db_tables, unit
 
 def _write_filter_outputs(output_dir, log, flags, end, group_column):
     os.makedirs(output_dir, exist_ok=True)
-    log.frame().to_csv(os.path.join(output_dir, 'filter_summary.csv'), index=False)
-    log.kept_per_condition(end, group_column).to_csv(
-        os.path.join(output_dir, 'filter_kept_per_condition.csv'), index=False)
+    write_table(log.frame(), os.path.join(output_dir, 'filter_summary.csv'))
+    write_table(log.kept_per_condition(end, group_column),
+                os.path.join(output_dir, 'filter_kept_per_condition.csv'))
     if flags is not None:
-        flags.to_csv(os.path.join(output_dir, 'field_qc.csv'), index=False)
+        write_table(flags, os.path.join(output_dir, 'field_qc.csv'))
 
 
 def _volume_bin_as_area(label):
@@ -1823,7 +1823,7 @@ def analyze_recruitment(settings):
             _fqc_counts = (_df_before_fqc, df)
         os.makedirs(_results_dir, exist_ok=True)
         if settings.get('field_qc'):
-            fields.to_csv(os.path.join(_results_dir, 'field_qc.csv'), index=False)
+            write_table(fields, os.path.join(_results_dir, 'field_qc.csv'))
             print(f"Field QC: {int((~fields['field_qc_pass']).sum())} of {len(fields)} fields failed, "
                   f"{n_before - len(df)} of {n_before} objects dropped")
     if _well_density_columns_needed(settings):
@@ -1838,7 +1838,7 @@ def analyze_recruitment(settings):
         report = confounder_report(df, 'recruitment', 'condition', _screen,
                                    log_outcome=settings['adjust_log_outcome'])
         os.makedirs(_results_dir, exist_ok=True)
-        report.to_csv(os.path.join(_results_dir, 'confounder_report.csv'), index=False)
+        write_table(report, os.path.join(_results_dir, 'confounder_report.csv'))
         flagged = report.loc[report['likely_confounder'], 'covariate'].tolist() if len(report) else []
         print(f"Confounder screen: {len(report)} covariates tested, likely confounders: {flagged}")
     if _adjust:
@@ -1846,7 +1846,7 @@ def analyze_recruitment(settings):
         df, model = adjust_for_covariates(df, 'recruitment', 'condition', _adjust,
                                           log_outcome=settings['adjust_log_outcome'])
         os.makedirs(_results_dir, exist_ok=True)
-        model.to_csv(os.path.join(_results_dir, 'covariate_model.csv'), index=False)
+        write_table(model, os.path.join(_results_dir, 'covariate_model.csv'))
         print(f"Adjusted recruitment for {_adjust}; added column recruitment_adjusted")
 
     df_well = _group_by_well(df)
@@ -1860,9 +1860,9 @@ def analyze_recruitment(settings):
     if _filter_log is not None:
         _filter_log.add(f"cells_per_well >= {settings['cells_per_well']}", _before_cpw, df)
         os.makedirs(_results_dir, exist_ok=True)
-        _filter_log.frame().to_csv(os.path.join(_results_dir, 'filter_summary.csv'), index=False)
-        _filter_log.kept_per_condition(df).to_csv(
-            os.path.join(_results_dir, 'filter_kept_per_condition.csv'), index=False)
+        write_table(_filter_log.frame(), os.path.join(_results_dir, 'filter_summary.csv'))
+        write_table(_filter_log.kept_per_condition(df),
+                    os.path.join(_results_dir, 'filter_kept_per_condition.csv'))
 
     if settings['plot_control'] or settings.get('panels'):
         _recruitment_panels(df, settings, _results_dir)
