@@ -138,6 +138,10 @@ def well_density(db_path: str, cell_table: str = "cell",
     The well-level twin of :func:`field_density`, summed over the fields of
     each well.
 
+    :param db_path: path to a spacr ``measurements.db``.
+    :param cell_table: table holding one row per host cell.
+    :param pathogen_table: table holding one row per parasite / vacuole, or
+        ``None`` to count only ``cell_table``.
     :returns: one row per well (:data:`WELL_KEYS`) with ``n_cells_well``,
         ``n_pathogens_well`` (when ``pathogen_table`` exists),
         ``n_pathogens_in_cells_well``, ``pathogens_per_cell_well`` and
@@ -161,6 +165,10 @@ def apply_well_density(df: pd.DataFrame, wells: pd.DataFrame) -> pd.DataFrame:
 
     Plate ids are URL-decoded on both sides, as for :func:`apply_field_qc`.
     Rows from wells absent from ``wells`` get ``NaN``.
+
+    :param df: object-level frame with the :data:`WELL_KEYS` columns.
+    :param wells: output of :func:`well_density`.
+    :returns: a copy of ``df`` with the well columns added.
     """
     decode = lambda frame: frame[list(WELL_KEYS)].astype(str).assign(
         plateID=lambda k: k["plateID"].map(lambda v: unquote(unquote(v))))

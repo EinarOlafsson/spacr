@@ -462,6 +462,9 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         # 665 -> 666 on 2026-11-05, +1/-0, item 804: field QC and confounder
         # adjustment for analyze_recruitment (spacr/recruitment_confounders.py).
         'spacr/recruitment_confounders.py',
+        # 666 -> 667 on 2026-11-06, +1/-0: publication panels for the
+        # recruitment and replication assays (spacr/assay_panels.py).
+        'spacr/assay_panels.py',
     }
     assert added_since_608 <= shipped
     # 664 -> 662 on 2026-10-12, +0/-2: spacr-tutorial opens the online
@@ -486,7 +489,7 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     assert metal_transport_arrivals <= shipped
     assert not metal_transport_arrivals & (added_since_608 | retired_since_608)
     assert (len(shipped - metal_transport_arrivals) == 608 + len(added_since_608)
-            - len(retired_since_608) == 663)
+            - len(retired_since_608) == 664)
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
@@ -899,8 +902,10 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_required():
     # same +1 as `shipped`, moved with the workflow in one commit.
     # 665 -> 666 on 2026-11-05: spacr/recruitment_confounders.py (item 804),
     # the same +1 as `shipped`, moved with the workflow in one commit.
-    assert len(ratchet.discover_shipped_python_files(ROOT)) == 666
-    assert "--expected-file-count 666" in combine_script
+    # 666 -> 667 on 2026-11-06: spacr/assay_panels.py, the same +1 as
+    # `shipped`, moved with the workflow in one commit.
+    assert len(ratchet.discover_shipped_python_files(ROOT)) == 667
+    assert "--expected-file-count 667" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script

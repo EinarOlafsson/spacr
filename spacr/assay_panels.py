@@ -73,7 +73,11 @@ _ANNOT_LINE_PT = 11.0
 
 # --------------------------------------------------------------------------- helpers
 def stars(p) -> str:
-    """Significance stars for a p value ('ns' at or above 0.05, 'n/a' if missing)."""
+    """Significance stars for a p value ('ns' at or above 0.05, 'n/a' if missing).
+
+    :param p: the p value; anything that is not a finite number gives ``'n/a'``.
+    :returns: ``'****'`` (p < 1e-4), ``'***'``, ``'**'``, ``'*'`` (p < 0.05) or ``'ns'``.
+    """
     try:
         p = float(p)
     except (TypeError, ValueError):
@@ -85,7 +89,11 @@ def stars(p) -> str:
 
 
 def fmt_p(p) -> str:
-    """Format a p value for a panel title."""
+    """Format a p value for a panel title.
+
+    :param p: the p value; anything that is not a finite number gives ``'p = n/a'``.
+    :returns: ``'p < 1e-4'`` or ``'p = '`` followed by three significant digits.
+    """
     try:
         p = float(p)
     except (TypeError, ValueError):
@@ -112,6 +120,11 @@ def condition_order(values: Iterable, preferred: Optional[Sequence] = None) -> L
     present in ``values`` are skipped); the remaining values follow, sorted
     naturally (``r2`` before ``r10``). Missing values are dropped. Using the
     same ``preferred`` list for every panel keeps the conditions aligned.
+
+    :param values: condition values, for example a column; duplicates are kept once.
+    :param preferred: values to place first, in this order; matched as given or
+        by their text. ``None`` sorts every value naturally.
+    :returns: the ordered list of distinct values.
     """
     present = []
     seen = set()
@@ -132,7 +145,13 @@ def condition_order(values: Iterable, preferred: Optional[Sequence] = None) -> L
 
 
 def display_label(value, labels: Optional[Mapping] = None) -> str:
-    """Display text of a raw value: ``labels[value]`` or the value with spaces for underscores."""
+    """Display text of a raw value: ``labels[value]`` or the value with spaces for underscores.
+
+    :param value: the raw condition value.
+    :param labels: raw value -> display label; a value is looked up as given and
+        then by its text. ``None`` uses no labels.
+    :returns: the text to show.
+    """
     if labels:
         if value in labels:
             return str(labels[value])
@@ -142,7 +161,13 @@ def display_label(value, labels: Optional[Mapping] = None) -> str:
 
 
 def panel_folder_name(panel_id: str, name: str) -> str:
-    """Folder / file stem of a panel, ``<panel_id>_<name>`` with unsafe characters replaced."""
+    """Folder / file stem of a panel, ``<panel_id>_<name>`` with unsafe characters replaced.
+
+    :param panel_id: panel id, for example ``'P01'`` or ``'C03'``.
+    :param name: panel name; runs of characters other than letters, digits and
+        ``._+-`` become one underscore.
+    :returns: the stem, or ``panel_id`` alone when nothing of ``name`` is left.
+    """
     safe = re.sub(r"[^A-Za-z0-9._+-]+", "_", str(name)).strip("_")
     return f"{panel_id}_{safe}" if safe else str(panel_id)
 
@@ -217,6 +242,8 @@ def select_and_run_test(df: pd.DataFrame, value: str, group: str, order: Sequenc
     :param group: column naming the group of each row.
     :param order: groups to compare, in plotting order. Groups without data
         are reported with ``n = 0`` and left out of the test.
+    :param alpha: significance level of the Shapiro-Wilk and Levene checks
+        that choose the test.
     :returns: dict of DataFrames - ``test`` (one row: test, statistic, df1,
         df2, p_value, effect_size_name, effect_size, all_groups_normal,
         equal_variance, significance), ``assumptions`` (Shapiro-Wilk per group
@@ -441,6 +468,8 @@ def proportion_tests(counts: pd.DataFrame, order: Sequence, reference=None,
     :param method: ``'chi2'`` (chi-square test of independence) or
         ``'fisher'`` (Fisher-Freeman-Halton exact test by Monte Carlo with
         ``n_resamples`` tables and ``seed``; the Fisher exact test for 2 x 2).
+    :param n_resamples: Monte Carlo tables drawn for the Fisher-Freeman-Halton test.
+    :param seed: random seed of the Monte Carlo tables.
     :returns: ``(omnibus, pairwise)`` - a dict for the test over every group
         in ``order`` (test, statistic, dof, p_value, cramers_v, n,
         significance) and a DataFrame with one row per group against the
@@ -492,8 +521,12 @@ def aggregate_to_unit(df: pd.DataFrame, value, keys: Sequence[str],
     well means (per ``keys`` + ``replicate_column``) when ``replicate_column``
     is given; otherwise the unit is the well.
 
+    :param df: object-level table, one row per object.
     :param value: column name or list of column names to average.
     :param keys: grouping columns kept in the output (e.g. the panel group).
+    :param well_keys: columns that identify one well.
+    :param replicate_column: column naming the biological replicate; ``None``
+        makes the well the unit.
     :returns: one row per unit with ``keys``, the unit columns, the averaged
         ``value`` column(s), ``n_objects`` and (replicate unit) ``n_wells``.
     """
@@ -526,6 +559,13 @@ def fractions_per_unit(df: pd.DataFrame, bin_column: str, bins: Sequence, keys: 
                        replicate_column: Optional[str] = None) -> pd.DataFrame:
     """Fraction of objects in each bin per unit (replicate if given, else well).
 
+    :param df: object-level table, one row per object.
+    :param bin_column: column holding the bin of each object.
+    :param bins: bins to report, in legend order; bins without objects get 0.
+    :param keys: grouping columns kept in the output (e.g. the panel group).
+    :param well_keys: columns that identify one well; the unit when
+        ``replicate_column`` is ``None``.
+    :param replicate_column: column naming the biological replicate, or ``None``.
     :returns: one row per unit with ``keys``, unit columns, ``n_objects`` and one
         column per bin (fractions summing to 1).
     """
@@ -545,7 +585,24 @@ def bar_spec(data: pd.DataFrame, value: str, group: str, order: Sequence, title:
              ylabel: Optional[str] = None, labels: Optional[Mapping] = None,
              annotations: Optional[Mapping] = None, ymin=None, refline=None,
              palette=None, extra_tables: Optional[Mapping[str, pd.DataFrame]] = None) -> dict:
-    """Run the bar-panel test on unit data and return a panel spec for drawing/saving."""
+    """Run the bar-panel test on unit data and return a panel spec for drawing/saving.
+
+    :param data: one row per experimental unit, from :func:`aggregate_to_unit`.
+    :param value: numeric column drawn as bars.
+    :param group: column naming the group of each row.
+    :param order: groups on the x axis, in order.
+    :param title: panel title; the test result is added below it.
+    :param ylabel: y-axis label; ``None`` uses ``value`` with spaces for underscores.
+    :param labels: raw group value -> x tick label.
+    :param annotations: row name -> {group: text}, aligned text rows under the x axis.
+    :param ymin: lower y limit; ``None`` chooses it from the data.
+    :param refline: y value of a dashed reference line, or ``None``.
+    :param palette: group -> colour, or a list of colours in ``order``; ``None``
+        uses the default colours.
+    :param extra_tables: file stem -> table, written as more CSVs by :func:`save_panel`.
+    :returns: a dict spec with ``kind`` ``'bar'`` and the :func:`select_and_run_test`
+        result under ``stats``.
+    """
     stats = select_and_run_test(data, value, group, order)
     return dict(kind="bar", data=data, value=value, group=group, order=list(order),
                 title=title, ylabel=ylabel or value.replace("_", " "), labels=labels,
@@ -560,7 +617,29 @@ def stacked_spec(fractions: pd.DataFrame, counts: pd.DataFrame, group: str, orde
                  legend_title: str = "", ylabel: str = "fraction of objects (mean ± SD)",
                  n_resamples: int = 20000, seed: int = 0, colors=None,
                  extra_tables: Optional[Mapping[str, pd.DataFrame]] = None) -> dict:
-    """Run the proportion test and return a stacked-panel spec for drawing/saving."""
+    """Run the proportion test and return a stacked-panel spec for drawing/saving.
+
+    :param fractions: one row per unit with one column per bin, from
+        :func:`fractions_per_unit`.
+    :param counts: object counts, one row per group and one column per bin.
+    :param group: column naming the group of each row of ``fractions``.
+    :param order: groups on the x axis, in order.
+    :param bins: bins stacked from the bottom, in order.
+    :param bin_labels: legend text per bin, in ``bins`` order; ``None`` uses the bins.
+    :param method: ``'chi2'`` or ``'fisher'``, as in :func:`proportion_tests`.
+    :param reference: group every other group is compared with; default ``order[0]``.
+    :param title: panel title; the omnibus result is added below it.
+    :param labels: raw group value -> x tick label.
+    :param annotations: row name -> {group: text}, aligned text rows under the x axis.
+    :param legend_title: title of the bin legend.
+    :param ylabel: y-axis label.
+    :param n_resamples: Monte Carlo tables for the Fisher-Freeman-Halton test.
+    :param seed: random seed of the Monte Carlo tables.
+    :param colors: one colour per bin; ``None`` uses viridis.
+    :param extra_tables: file stem -> table, written as more CSVs by :func:`save_panel`.
+    :returns: a dict spec with ``kind`` ``'stacked'``, the ``omnibus`` and
+        ``pairwise`` results and the reindexed ``counts``.
+    """
     order = [g for g in order]
     counts = counts.reindex(index=order, columns=list(bins), fill_value=0)
     omni, pair = proportion_tests(counts, order, reference=reference, method=method,
@@ -632,12 +711,26 @@ def draw_bar_panel(ax, data: pd.DataFrame, value: str, group: str, order: Sequen
                    seed: int = 0):
     """Bar of the mean of unit values, SD error bar, one dot per unit, post hoc brackets.
 
+    :param ax: matplotlib axes to draw on.
+    :param data: one row per experimental unit.
+    :param value: numeric column drawn as bars.
+    :param group: column naming the group of each row.
+    :param order: groups on the x axis, in order.
     :param stats: output of :func:`select_and_run_test`; the omnibus test goes
         in the title and post hoc results become brackets.
     :param show_pairs: ``'significant'`` (default), ``'all'`` or ``'none'``.
         Brackets are left out when more than ``max_brackets`` pairs qualify
         (every pair stays in ``stats_posthoc.csv``).
     :param ymin: lower y limit (``None``: 0, or the data minimum if negative).
+    :param title: panel title; the test result is added below it.
+    :param ylabel: y-axis label; ``None`` uses ``value`` with spaces for underscores.
+    :param labels: raw group value -> x tick label.
+    :param annotations: row name -> {group: text}, aligned text rows under the x axis.
+    :param refline: y value of a dashed reference line, or ``None``.
+    :param palette: group -> colour, or a list of colours in ``order``.
+    :param max_brackets: most post hoc brackets drawn.
+    :param seed: random seed of the horizontal jitter of the dots.
+    :returns: ``ax``.
     """
     order = list(order)
     rng = np.random.default_rng(seed)
@@ -725,7 +818,23 @@ def draw_stacked_panel(ax, fractions: pd.DataFrame, group: str, order: Sequence,
                        legend: bool = True, legend_title: str = ""):
     """Stacked mean fractions over units, SD bar at the top of each segment, stars vs reference.
 
+    :param ax: matplotlib axes to draw on.
     :param fractions: output of :func:`fractions_per_unit` (one row per unit).
+    :param group: column naming the group of each row.
+    :param order: groups on the x axis, in order.
+    :param bins: bins stacked from the bottom, in order.
+    :param bin_labels: legend text per bin; ``None`` uses the bins.
+    :param omnibus: omnibus result of :func:`proportion_tests`, shown in the title.
+    :param pairwise: pairwise results of :func:`proportion_tests`, drawn as stars.
+    :param method_label: test name shown in the title.
+    :param title: panel title.
+    :param labels: raw group value -> x tick label.
+    :param annotations: row name -> {group: text}, aligned text rows under the x axis.
+    :param colors: one colour per bin; ``None`` uses viridis.
+    :param ylabel: y-axis label.
+    :param legend: draw the bin legend beside the axes.
+    :param legend_title: title of the bin legend.
+    :returns: ``ax``.
     """
     order = list(order)
     bins = list(bins)
@@ -765,7 +874,13 @@ def draw_stacked_panel(ax, fractions: pd.DataFrame, group: str, order: Sequence,
 
 
 def draw_panel(ax, spec: dict, legend: bool = True):
-    """Draw a spec made by :func:`bar_spec` or :func:`stacked_spec` on ``ax``."""
+    """Draw a spec made by :func:`bar_spec` or :func:`stacked_spec` on ``ax``.
+
+    :param ax: matplotlib axes to draw on.
+    :param spec: the panel spec.
+    :param legend: draw the bin legend of a stacked panel.
+    :returns: ``ax``.
+    """
     if spec["kind"] == "bar":
         return draw_bar_panel(ax, spec["data"], spec["value"], spec["group"], spec["order"],
                               stats=spec["stats"], title=spec.get("title", ""),
@@ -799,6 +914,12 @@ def _panel_size(spec):
 def save_panel(out_dir: str, panel_id: str, name: str, spec: dict, dpi: int = 300) -> str:
     """Write one panel folder: graph (PDF + PNG), plotted data and statistics CSVs.
 
+    :param out_dir: folder that receives the panel folder.
+    :param panel_id: panel id, for example ``'P01'``.
+    :param name: panel name, made safe by :func:`panel_folder_name`.
+    :param spec: the panel spec from :func:`bar_spec` or :func:`stacked_spec`;
+        its ``folder`` key is set to the folder written.
+    :param dpi: resolution of the PNG.
     :returns: the panel folder path ``<out_dir>/<panel_id>_<name>``.
     """
     import matplotlib.pyplot as plt
@@ -848,6 +969,8 @@ def assemble_figure(specs: Mapping[str, dict], panel_ids: Sequence[str], ncol: i
     :param panel_ids: ids to place, row by row.
     :param ncol: panels per row.
     :param path: output path without extension (an extension is stripped).
+    :param title: figure title, or ``None``.
+    :param dpi: resolution of the PNG.
     :returns: list of written file paths. Unknown ids raise ``KeyError``.
     """
     import matplotlib.pyplot as plt
