@@ -69,7 +69,11 @@ _EXTRA_OBJECT_COLOURS = ["#8C8C8C", "#7FA7C9", "#5E548E", "#B5838D"]
 
 
 def object_colours(objects):
-    """Colour per object type: fixed for cell/nucleus/cytoplasm/pathogen, others in name order."""
+    """Colour per object type: fixed for cell/nucleus/cytoplasm/pathogen, others in name order.
+
+    :param objects: object type names.
+    :returns: ``{object type: hex colour}``.
+    """
     extra = sorted(o for o in objects if o not in OBJECT_COLOURS)
     out = {}
     for o in objects:
@@ -110,6 +114,7 @@ class Layout:
 
     @property
     def content(self):
+        """Content width in mm: page width minus both side margins."""
         return self.page[0] - 2 * self.margin
 
     def width_mm(self, frac):
@@ -125,6 +130,7 @@ class Layout:
 
     @property
     def usable(self):
+        """Usable height in mm: page height minus top and bottom margins."""
         return self.page[1] - 2 * self.margin
 
 
@@ -181,6 +187,7 @@ class ReportItem:
 
     @property
     def frac(self):
+        """``width`` as a fraction of the content width (names such as ``'half'`` resolved)."""
         return _WIDTH_NAMES.get(self.width, self.width) if isinstance(self.width, str) else float(self.width)
 
 
@@ -359,7 +366,12 @@ def paginate(blocks: Sequence[ReportBlock], layout=SPACIOUS, page=None, margin=N
 
 
 def fit_axes(fig, ax, rect, iterations=3, min_frac=0.15):
-    """Shrink ``ax`` until its tight bounding box (labels, title, legend) fits ``rect``."""
+    """Shrink ``ax`` until its tight bounding box (labels, title, legend) fits ``rect``.
+
+    :param fig: matplotlib ``Figure`` holding ``ax``.
+    :param ax: matplotlib ``Axes`` repositioned in place.
+    :param rect: ``(x0, y0, w, h)`` target box in figure fractions.
+    """
     x0, y0, w, h = rect
     ax.set_position([x0, y0, w, h])
     renderer = fig.canvas.get_renderer()
@@ -586,7 +598,15 @@ def well_intensity_long(df, group, channel, objects=None, well_keys=WELL_KEYS):
 
 
 def well_column_long(df, group, columns: Mapping[str, str], value_name, well_keys=WELL_KEYS):
-    """Well means of one column per object type in long format ({object type: column})."""
+    """Well means of one column per object type in long format ({object type: column}).
+
+    :param df: object-level measurement table with well key columns.
+    :param group: column of ``df`` with the condition of each row.
+    :param columns: ``{object type: column of df}``; missing columns are skipped.
+    :param value_name: name of the output value column.
+    :returns: columns ``group``, well keys, ``object_type``, ``column``,
+        ``value_name``, ``n_objects``.
+    """
     frames = []
     for obj, col in columns.items():
         if col not in df.columns:
@@ -601,7 +621,13 @@ def well_column_long(df, group, columns: Mapping[str, str], value_name, well_key
 
 
 def count_source(df, obj, row_object="cell"):
-    """How objects of type ``obj`` are counted per well (see :func:`well_counts`)."""
+    """How objects of type ``obj`` are counted per well (see :func:`well_counts`).
+
+    :param df: analysed frame, one row per ``row_object``.
+    :param obj: object type to count.
+    :returns: ``'rows'``, ``'<obj>_prcfo_count'``, ``'<obj>_area'``, or None
+        when ``obj`` cannot be counted.
+    """
     if obj == row_object:
         return "rows"
     if f"{obj}_prcfo_count" in df.columns:
@@ -727,7 +753,12 @@ def _object_count_column(df, obj, row_object):
 
 
 def qc_object_types(df):
-    """Object types with an area or a channel mean-intensity column."""
+    """Object types with an area or a channel mean-intensity column.
+
+    :param df: object-level measurement table.
+    :returns: object types from :func:`object_types`, then other prefixes that
+        have ``<obj>_area`` and ``<obj>_perimeter`` columns.
+    """
     types = object_types(df)
     extra = sorted({str(c)[:-5] for c in df.columns if str(c).endswith("_area")
                     and f"{str(c)[:-5]}_perimeter" in df.columns} - set(types))
@@ -1156,6 +1187,10 @@ def _per_category(spec, layout=SPACIOUS):
 def spec_items(pid, spec, max_per_row, layout=SPACIOUS, group_size=None, new_row=False):
     """Report items for a bar / grouped spec, split into condition chunks if needed.
 
+    :param pid: panel ID; chunks after the first are labelled
+        ``'<pid> (continued)'``.
+    :param spec: bar or :func:`grouped_spec` panel spec.
+    :param max_per_row: largest number of conditions in one chunk.
     :param group_size: number of panels drawn side by side as one group (the
         recruitment panels, the channel panels ...); in the compact layout a
         group of up to four shares one row in equal widths.
@@ -1228,6 +1263,15 @@ def _spec_full_size(spec):
 
 
 def save_spec_panel(out_dir, pid, name, spec, dpi=300):
+    """Save a bar / grouped spec as its own panel folder at full size.
+
+    :param out_dir: parent folder of the panel folder.
+    :param pid: panel ID, the first part of the folder name.
+    :param name: panel name, the second part of the folder name.
+    :param spec: bar or :func:`grouped_spec` panel spec; its ``data`` and
+        :func:`stats_long` tables are written as ``data.csv`` and ``stats.csv``.
+    :returns: folder path (see :func:`write_panel_folder`).
+    """
     def draw(fig, rect):
         ax = fig.add_axes(rect)
         _draw_spec(ax, spec)
@@ -1293,7 +1337,16 @@ def select_tiles(df, group, order, n, seed=0, tile_size=128,
 
 
 def select_median(df, group, order, value):
-    """Candidates per group ordered by distance to the group median of ``value`` (typical first)."""
+    """Candidates per group ordered by distance to the group median of ``value`` (typical first).
+
+    :param df: object table with the ``group`` and ``value`` columns.
+    :param group: column of ``df`` with the condition.
+    :param order: conditions to pick from.
+    :param value: numeric column whose group median is used; rows without a
+        finite value are dropped.
+    :returns: {group value: DataFrame of candidates in pick order}, each with
+        the median in ``attrs['median']``.
+    """
     out = {}
     for g in order:
         sub = df[df[group] == g]
@@ -1415,7 +1468,12 @@ def render_tile(crop, colour_map, ranges, outlines=(), alpha=1.0):
 
 
 def write_rgb16(stem, rgb):
-    """Write an RGB uint16 array as ``<stem>.png`` (OpenCV, BGR order) and ``<stem>.tif``."""
+    """Write an RGB uint16 array as ``<stem>.png`` (OpenCV, BGR order) and ``<stem>.tif``.
+
+    :param stem: output path without extension.
+    :param rgb: image array of shape ``(h, w, 3)`` in RGB order, cast to uint16.
+    :returns: the two file paths.
+    """
     import cv2
     import tifffile
     rgb = np.ascontiguousarray(rgb.astype(np.uint16))
@@ -1625,7 +1683,14 @@ def build_tiles(df, group, order, merged_dir, mask_dims, colour_map, out_folder,
 
 
 def montage16(tiles, order, n, size, gap=4):
-    """Rows = tile rank, columns = groups; white 16-bit gaps; missing tiles stay black."""
+    """Rows = tile rank, columns = groups; white 16-bit gaps; missing tiles stay black.
+
+    :param tiles: {group: [uint16 RGB tile of shape (size, size, 3)]}.
+    :param order: groups in column order.
+    :param n: number of rows (tiles per group).
+    :param size: tile edge length in pixels.
+    :returns: uint16 RGB montage array.
+    """
     h = n * size + (n - 1) * gap
     w = len(order) * size + max(len(order) - 1, 0) * gap
     out = np.full((max(h, 1), max(w, 1), 3), 65535, dtype=np.uint16)
@@ -1661,6 +1726,14 @@ def crop_drawer(result, chunk, n, size, layout=SPACIOUS, axis=None, labels=None,
     hairlines), one column per condition, with the condition labels - or the
     +/- matrix of ``axis`` - under the columns. Images are drawn at native
     resolution (interpolation 'none').
+
+    :param result: :func:`build_tiles` result (``tiles`` per version and
+        ``gap``).
+    :param chunk: conditions drawn, in column order.
+    :param n: crops per condition (montage rows).
+    :param size: crop edge length in pixels.
+    :returns: ``(draw, height_mm, min_height_mm)`` with ``draw(fig, rect)``
+        as for :class:`ReportItem`.
     """
     layout = get_layout(layout)
     width_mm = layout.content if width_mm is None else width_mm
@@ -1726,7 +1799,17 @@ def crop_drawer(result, chunk, n, size, layout=SPACIOUS, axis=None, labels=None,
 
 def crop_items(pid, result, order, n, size, layout, axis=None, labels=None, max_per_row=12,
                width=1.0, min_tile_mm=6.0, max_tile_mm=None, new_row=False):
-    """Report items of a crop figure, split into condition chunks when wide."""
+    """Report items of a crop figure, split into condition chunks when wide.
+
+    :param pid: panel ID; chunks after the first are labelled
+        ``'<pid> (continued)'``.
+    :param result: :func:`build_tiles` result.
+    :param order: conditions in display order.
+    :param n: crops per condition.
+    :param size: crop edge length in pixels.
+    :param layout: ``'compact'``, ``'spacious'`` or a :class:`Layout`.
+    :returns: list of :class:`ReportItem`.
+    """
     layout = get_layout(layout)
     chunks = [list(order)]
     if len(order) > max_per_row:
@@ -1745,7 +1828,15 @@ def crop_items(pid, result, order, n, size, layout, axis=None, labels=None, max_
 
 
 def save_crop_panel(folder, stem, result, order, n, size, axis=None, labels=None, dpi=300):
-    """PDF/PNG of every version (``<version>/<stem>_<version>``) and of all three (``<stem>``)."""
+    """PDF/PNG of every version (``<version>/<stem>_<version>``) and of all three (``<stem>``).
+
+    :param folder: output folder; one subfolder per image version is created.
+    :param stem: file stem of the saved figures.
+    :param result: :func:`build_tiles` result.
+    :param order: conditions in column order.
+    :param n: crops per condition.
+    :param size: crop edge length in pixels.
+    """
     for v in IMAGE_VERSIONS + (None,):
         versions = IMAGE_VERSIONS if v is None else (v,)
         width = max(60.0, min(28.0, 160.0 / max(len(order), 1)) * len(order) * len(versions) + 20)
@@ -1757,7 +1848,12 @@ def save_crop_panel(folder, stem, result, order, n, size, axis=None, labels=None
 
 
 def text_items(paragraphs, layout, pt=6.0, width=1.0):
-    """One report item per legend paragraph (flows over pages with the panels)."""
+    """One report item per legend paragraph (flows over pages with the panels).
+
+    :param paragraphs: legend paragraphs; empty ones are skipped.
+    :param layout: ``'compact'``, ``'spacious'`` or a :class:`Layout`.
+    :returns: list of :class:`ReportItem` without ID strips.
+    """
     layout = get_layout(layout)
     w = layout.width_mm(width)
     chars = max(40, int(w / (_pt_mm(pt) * 0.55)))
@@ -1785,7 +1881,13 @@ def _well_index(value):
 
 
 def plate_shape(rows, cols):
-    """Standard plate layout holding the given row / column numbers."""
+    """Standard plate layout holding the given row / column numbers.
+
+    :param rows: 1-based row numbers of the wells.
+    :param cols: 1-based column numbers of the wells.
+    :returns: ``(n_rows, n_cols)`` of the smallest 96-, 384- or 1536-well
+        plate that holds them, else the largest numbers themselves.
+    """
     r, c = max(rows, default=1), max(cols, default=1)
     for nr, nc in ((8, 12), (16, 24), (32, 48)):
         if r <= nr and c <= nc:
@@ -1794,7 +1896,12 @@ def plate_shape(rows, cols):
 
 
 def plate_matrices(data, value, well_keys=WELL_KEYS):
-    """{plate: (matrix rows x columns, nan where no data)} of well values."""
+    """{plate: (matrix rows x columns, nan where no data)} of well values.
+
+    :param data: one row per well with the well key columns and ``value``.
+    :param value: column with the well value.
+    :returns: ``{plate: 2-D float array}``.
+    """
     d = data.copy()
     d["_r"] = d[well_keys[1]].map(_well_index)
     d["_c"] = d[well_keys[2]].map(_well_index)
@@ -1810,7 +1917,15 @@ def plate_matrices(data, value, well_keys=WELL_KEYS):
 
 
 def heatmap_spec(data, value, title, failed=None, vrange=None, well_keys=WELL_KEYS):
-    """Plate heatmap of well values; ``failed`` = {(plate, row, column)} drawn with a red x."""
+    """Plate heatmap of well values; ``failed`` = {(plate, row, column)} drawn with a red x.
+
+    :param data: well-level table with the well key columns and ``value``;
+        duplicate wells are averaged.
+    :param value: column with the well value.
+    :param title: heatmap title.
+    :returns: heatmap spec dict (``kind='heatmap'``) with ``matrices``,
+        ``vrange`` and ``failed``.
+    """
     keys = list(well_keys)
     d = data[keys + [value]].copy()
     d = d.groupby(keys, observed=True)[value].mean().reset_index()
@@ -1825,7 +1940,14 @@ def heatmap_spec(data, value, title, failed=None, vrange=None, well_keys=WELL_KE
 
 
 def draw_heatmap(fig, rect, spec, plate, layout=SPACIOUS):
-    """Plate heatmap with a colour bar inside ``rect``; failed QC wells marked with a red x."""
+    """Plate heatmap with a colour bar inside ``rect``; failed QC wells marked with a red x.
+
+    :param fig: matplotlib ``Figure`` to draw into.
+    :param rect: ``(x0, y0, w, h)`` in figure fractions.
+    :param spec: heatmap spec from :func:`heatmap_spec`.
+    :param plate: plate key of ``spec['matrices']`` drawn.
+    :returns: the heatmap ``Axes``.
+    """
     import matplotlib
     m = spec["matrices"][plate]
     nr, nc = m.shape
@@ -1895,6 +2017,15 @@ def plate_heatmap_items(pid, spec, layout=SPACIOUS, new_row=False):
 
 
 def save_heatmap_panel(out_dir, pid, name, spec, dpi=300):
+    """Save a heatmap spec as its own panel folder, plates stacked top to bottom.
+
+    :param out_dir: parent folder of the panel folder.
+    :param pid: panel ID, the first part of the folder name.
+    :param name: panel name, the second part of the folder name.
+    :param spec: heatmap spec from :func:`heatmap_spec`; its ``data`` is
+        written as ``data.csv``.
+    :returns: folder path (see :func:`write_panel_folder`).
+    """
     plates = list(spec["matrices"])
     nr, nc = spec["matrices"][plates[0]].shape if plates else (16, 24)
 

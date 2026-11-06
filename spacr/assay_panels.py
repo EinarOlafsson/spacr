@@ -217,7 +217,18 @@ def mark_outliers(data: pd.DataFrame, value: str, group, method) -> pd.Series:
 
 
 def outlier_table(data, group, order, method, by=None):
-    """Points and removed outliers per group (and per ``by`` level)."""
+    """Points and removed outliers per group (and per ``by`` level).
+
+    :param data: table with the ``group`` column and a boolean ``outlier``
+        column (see :func:`mark_outliers`).
+    :param group: column of ``data`` with the condition.
+    :param order: conditions of the panel; not used to filter or sort the rows.
+    :param method: outlier method used, in any form accepted by
+        :func:`parse_outlier_method`; recorded in the ``method`` and ``fence``
+        columns.
+    :returns: one row per group with ``n_points``, ``n_removed``, ``method``
+        and ``fence``.
+    """
     parsed = parse_outlier_method(method)
     keys = ([by] if by else []) + [group]
     t = data.groupby(keys, observed=True).agg(n_points=("outlier", "size"),
