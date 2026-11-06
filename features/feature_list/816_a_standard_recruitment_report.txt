@@ -1,0 +1,48 @@
+A STANDARD RECRUITMENT REPORT (ANALYZE_RECRUITMENT)
+
+Lifecycle: new
+Status: open. In progress on WS; lands with Anu's filter commit (4901962e29, background_filters and min_solidity) after the 2026-11-06 batch.
+Requested: maintainer, 2026-11-06 (via Anu).
+Owner: Anu (WS).
+
+--------------------------------------------------------------------------------
+THE A4 MAIN FIGURE, TOP TO BOTTOM
+--------------------------------------------------------------------------------
+
+1. Representative tiles
+   - One column of 5 crops per condition, in the aligned condition order,
+     drawn from filtered objects with a seed.
+   - 16-bit: a raw uint16 TIFF per tile with all channels and masks, a
+     16-bit RGB display PNG/TIFF, and a native-resolution 16-bit montage.
+     Only the PDF is 8-bit (item 772, points 7-10).
+2. Recruitment per condition, in four graphs:
+   - unfiltered, well level;
+   - unfiltered, replicate level;
+   - filtered, well level;
+   - filtered, replicate level.
+   One test per graph, with an assumptions table.
+3. Well-level control graphs, before and after filtering
+   - For every channel, the mean intensity in every object type, grouped by
+     object.
+   - Objects per well for cell, nucleus, pathogen and any other object type.
+
+--------------------------------------------------------------------------------
+REQUIREMENTS
+--------------------------------------------------------------------------------
+
+- Works for any number of object types and channels.
+- Paginates automatically over several A4 pages when the content does not
+  fit.
+- One folder per panel under results/report/panels/Rnn_name, each with the
+  PDF, PNG, data.csv and stats.csv.
+- recruitment_report.pdf, plus figure_legend.txt, also appended to the PDF.
+- The reusable parts (layout, tiles, legend) go in a new
+  spacr/assay_report.py, shared with item 815.
+- New settings, each with an English tooltip:
+  - report
+  - report_tiles_per_condition
+  - report_tile_size
+  - report_tile_seed
+  - report_tile_channels
+  - report_max_conditions_per_row
+- No pingouin.
