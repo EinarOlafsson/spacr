@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import ast
 import logging
-from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Sequence
+from typing import TYPE_CHECKING, Any, Dict, List, Mapping, Optional
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (

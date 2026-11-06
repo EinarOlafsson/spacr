@@ -41,7 +41,7 @@ set.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, Mapping, Optional, Sequence, Tuple
+from typing import Dict, Mapping, Optional, Tuple
 
 #: The value that reproduces today's behaviour exactly. It is the default so
 #: that no existing settings CSV changes meaning on load: a file written

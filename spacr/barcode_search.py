@@ -67,7 +67,7 @@ import os
 from collections import Counter
 from dataclasses import dataclass, field
 from itertools import islice
-from typing import Dict, Iterable, Iterator, Mapping, Optional, Sequence, Tuple
+from typing import Dict, Mapping, Optional, Tuple
 
 import numpy as np
 from .logging_util import _legacy_text_encoding

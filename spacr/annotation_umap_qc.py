@@ -12,7 +12,7 @@ agreement is not presented as independent validation.
 """
 from __future__ import annotations
 
-from typing import Dict, List, Mapping, Optional, Sequence, Tuple
+from typing import Dict, List, Mapping, Optional, Sequence
 
 import numpy as np
 

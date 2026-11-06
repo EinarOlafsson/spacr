@@ -31,7 +31,7 @@ Each field declares how this panel applies its changes.
 from __future__ import annotations
 
 import logging
-from typing import Any, Callable, Dict, List, NamedTuple, Optional, Tuple
+from typing import Any, Dict, NamedTuple, Optional, Tuple
 
 from PySide6.QtCore import QTimer, Signal
 from PySide6.QtWidgets import (

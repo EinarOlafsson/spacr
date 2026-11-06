@@ -55,7 +55,7 @@ import os
 import textwrap
 from collections import OrderedDict
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Mapping, Optional, Tuple
 
 import numpy as np
 import pandas as pd

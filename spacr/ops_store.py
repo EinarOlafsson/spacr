@@ -29,7 +29,7 @@ import logging
 import os
 import sqlite3
 from dataclasses import dataclass
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import Any, Iterable, Optional, Sequence, Tuple
 
 LOG = logging.getLogger("spacr.ops_store")
 

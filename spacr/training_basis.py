@@ -31,7 +31,7 @@ one, and a run from an old CSV does exactly what it did before.
 """
 from __future__ import annotations
 
-from typing import Any, Dict, Mapping, Optional, Tuple
+from typing import Any, Dict, Mapping, Tuple
 
 #: The two ways a training class can be defined, in the order the settings
 #: panel offers them.

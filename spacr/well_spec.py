@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import re
 import string
-from typing import Iterable, Optional, Sequence, Set, Tuple
+from typing import Iterable, Set, Tuple
 
 #: Settings whose documented values may contain plate rows, columns, or wells.
 #: The list is derived from setting descriptions rather than key-name patterns,

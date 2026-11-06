@@ -12,7 +12,7 @@ import json
 import os
 import sqlite3
 from pathlib import Path
-from typing import Any, Dict, Mapping, Sequence
+from typing import Any, Dict, Mapping
 
 import numpy as np
 import pandas as pd

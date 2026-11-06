@@ -44,7 +44,7 @@ ever come apart again.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Dict, List, Mapping, Optional, Sequence
+from typing import List, Mapping, Optional, Sequence
 
 import numpy as np
 

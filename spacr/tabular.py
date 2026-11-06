@@ -60,7 +60,7 @@ import os
 import re
 import sqlite3
 from contextlib import contextmanager
-from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import pandas as pd
 

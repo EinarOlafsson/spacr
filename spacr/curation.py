@@ -40,7 +40,9 @@ import json
 import os
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
+from typing import (
+    TYPE_CHECKING, Any, Dict, List, Mapping, Optional, Sequence, Tuple,
+)
 
 import numpy as np
 

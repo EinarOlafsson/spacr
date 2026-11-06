@@ -19,7 +19,7 @@ same guide count. Depletion and enrichment are evaluated separately.
 
 from __future__ import annotations
 
-from typing import Dict, Optional, Sequence, Tuple
+from typing import Dict
 
 import numpy as np
 

@@ -21,7 +21,7 @@ from __future__ import annotations
 import logging
 import sys
 import threading
-from typing import Any, Dict, FrozenSet, Mapping, Optional
+from typing import Any, Dict, FrozenSet
 
 from PySide6.QtCore import QObject, QTimer
 

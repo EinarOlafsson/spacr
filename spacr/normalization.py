@@ -37,7 +37,7 @@ from __future__ import annotations
 
 import logging
 from itertools import islice
-from typing import Any, Dict, Optional, Sequence, Tuple
+from typing import Any, Optional, Sequence, Tuple
 
 import numpy as np
 

@@ -35,7 +35,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, Optional, Tuple
 
 LOG = logging.getLogger(__name__)
 

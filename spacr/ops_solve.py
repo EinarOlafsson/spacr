@@ -9,7 +9,7 @@ and one shift at a time.
 """
 from __future__ import annotations
 
-from typing import Dict, List, Mapping, Sequence, Tuple
+from typing import Dict, List, Tuple
 
 
 def _displacement(value) -> Tuple[float, float]:

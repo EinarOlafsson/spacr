@@ -19,7 +19,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from typing import List, Optional, Tuple
 
 LOG = logging.getLogger("spacr.screen_data")
 

@@ -65,7 +65,7 @@ import pandas as pd
 import numpy as np
 from scipy import stats
 from scipy.stats import shapiro
-from math import fsum, pi
+from math import fsum
 
 from sklearn.linear_model import (Lasso, Ridge, LassoCV, RidgeCV,
                                   ElasticNet, ElasticNetCV)

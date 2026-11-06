@@ -39,7 +39,7 @@ from __future__ import annotations
 import copy
 import logging
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (

@@ -66,7 +66,7 @@ import time
 import wave
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, NamedTuple, Optional, Sequence, Tuple
+from typing import Dict, NamedTuple, Optional, Tuple
 
 import numpy as np
 

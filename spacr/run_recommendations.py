@@ -9,7 +9,7 @@ current run.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Mapping, Optional
+from typing import Any, List, Mapping, Optional
 
 __all__ = ["Recommendation", "recommend", "format_recommendations"]
 

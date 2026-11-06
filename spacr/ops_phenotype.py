@@ -47,7 +47,7 @@ enough nuclei agree (:data:`MIN_INLIERS`, :data:`MIN_CHANCE_RATIO`).
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Mapping, Optional, Tuple, Union
+from typing import Dict, Mapping, Optional, Tuple, Union
 
 import numpy as np
 

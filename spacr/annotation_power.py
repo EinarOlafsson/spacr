@@ -14,7 +14,7 @@ assignment confidence as separate quantities.
 """
 from __future__ import annotations
 
-from typing import Dict, Iterable, List, Mapping, Optional, Sequence
+from typing import Dict, List, Mapping, Optional
 
 import numpy as np
 

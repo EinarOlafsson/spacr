@@ -38,7 +38,7 @@ each mode shows straight out of it rather than restating it here.
 """
 from __future__ import annotations
 
-from typing import Dict, NamedTuple, Optional, Tuple
+from typing import Dict, NamedTuple, Tuple
 
 import numpy as np
 

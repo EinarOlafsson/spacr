@@ -21,7 +21,7 @@ from dataclasses import asdict, dataclass, field, fields
 from .style_base import FONT_FAMILY as _FONT_FAMILY
 from .style_base import SCALES as _SCALES
 from .style_base import SHARED_CHOICES, FigureStyle, font_rc
-from typing import Any, Sequence
+from typing import Any
 
 import numpy as np
 import pandas as pd

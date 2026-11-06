@@ -32,7 +32,7 @@ from __future__ import annotations
 import os
 import re
 from functools import lru_cache
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import List, Optional, Sequence, Tuple
 
 #: The first run of four or more digits in a name. Four, not six: ToxoDB gene
 #: numbers are six digits today, but the rule has to reject the ``_2`` of a

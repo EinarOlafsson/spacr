@@ -17,7 +17,7 @@ from __future__ import annotations
 import logging
 from collections import namedtuple
 from contextlib import contextmanager
-from typing import Any, Callable, List, Optional, Sequence
+from typing import Any, List, Optional, Sequence
 
 import numpy as np
 

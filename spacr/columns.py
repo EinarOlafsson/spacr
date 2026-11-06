@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import difflib
 import os
-from typing import Dict, Iterable, List, Optional, Sequence, Union
+from typing import Dict, Iterable, List, Sequence
 
 #: Near-misses offered before the full list. Three: enough for the plural
 #: typo, the singular typo and the case slip, few enough that the sentence

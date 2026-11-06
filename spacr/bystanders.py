@@ -23,7 +23,7 @@ micron value would suit one dataset and not the next.
 """
 from __future__ import annotations
 
-from typing import Dict, Iterable, Optional, Sequence
+from typing import Dict, Iterable, Sequence
 
 import numpy as np
 import pandas as pd

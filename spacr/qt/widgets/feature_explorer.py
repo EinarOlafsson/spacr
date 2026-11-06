@@ -30,7 +30,7 @@ histograms drawn on separate bin edges cannot be compared bin by bin.
 from __future__ import annotations
 
 import logging
-from typing import Dict, List, Optional
+from typing import Optional
 
 import numpy as np
 import pandas as pd

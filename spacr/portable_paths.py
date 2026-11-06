@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
-from typing import Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import Iterable, List, Optional, Sequence, Tuple
 
 #: The folder exported crops live under. Only used to PREFER a suffix that
 #: starts at it, never to require one.

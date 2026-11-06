@@ -43,7 +43,7 @@ are different, and changing the intensity scale can change Sauvola's result.
 """
 from __future__ import annotations
 
-from typing import Dict, NamedTuple, Optional, Tuple
+from typing import Dict, NamedTuple, Tuple
 
 import numpy as np
 
