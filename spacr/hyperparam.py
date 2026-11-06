@@ -3492,8 +3492,13 @@ def build_sklearn_model(model_type: str, params: Mapping[str, Any],
                                     random_state=seed, n_jobs=n_jobs)
     if mt == "logistic_regression":
         from sklearn.linear_model import LogisticRegression
-        return LogisticRegression(max_iter=1000, C=1.0 / max(reg_lambda, 1e-9),
-                                  random_state=seed)
+        from sklearn.pipeline import make_pipeline
+        from sklearn.preprocessing import StandardScaler
+        return make_pipeline(StandardScaler(), LogisticRegression(
+            max_iter=1000, C=1.0 / max(reg_lambda, 1e-9), random_state=seed))
+    if mt == "shrinkage_lda":
+        from .ml import regularised_linear_model
+        return regularised_linear_model("shrinkage_lda", random_state=seed)
     if mt == "gradient_boosting":
         from sklearn.ensemble import HistGradientBoostingClassifier
         return HistGradientBoostingClassifier(
@@ -3833,7 +3838,7 @@ def run_search_for_app(app_key: str,
 
     fit = sklearn_cv_fit_fn(
         data.features, data.labels,
-        model_type=settings.get("model_type_ml", "xgboost"),
+        model_type=settings.get("model_type_ml", "logistic_regression"),
         criterion=criterion, seed=seed,
         n_jobs=_guard_workers(
             "regression", int(settings.get("n_jobs", -1) or -1),

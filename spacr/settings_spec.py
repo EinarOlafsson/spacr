@@ -301,7 +301,7 @@ def convert_settings_dict_for_gui(settings):
         'model_type': ('combo', torchvision_models, 'resnet50'),
         'cam_type': ('combo', _cam_type_choices(), 'gradcam'),
         'compression': ('combo', ['lzw', 'zlib', 'none'], 'lzw'),
-        'model_type_ml': ('combo', ['xgboost', 'lightgbm', 'catboost', 'random_forest', 'extra_trees', 'gradient_boosting', 'logistic_regression', 'svm', 'mlp'], 'xgboost'),
+        'model_type_ml': ('combo', ['logistic_regression', 'shrinkage_lda', 'xgboost', 'lightgbm', 'catboost', 'random_forest', 'extra_trees', 'gradient_boosting', 'svm', 'mlp'], 'logistic_regression'),
         'optimizer_type': ('combo', ['adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta', 'asgd'], 'adamw'),
         'schedule': ('combo', ['cosine', 'cosine_warm_restarts', 'reduce_lr_on_plateau', 'step_lr', 'exponential', 'linear', 'none'], 'cosine'),
         'loss_type': ('combo', ['auto', 'cross_entropy', 'label_smoothing', 'focal_loss', 'ce_weighted', 'logit_adjust_ce', 'asl', 'binary_cross_entropy_with_logits'], 'auto'),

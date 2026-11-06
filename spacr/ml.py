@@ -132,6 +132,35 @@ from .plot import save_figure
 LOG = logging.getLogger("spacr.ml")
 
 
+def regularised_linear_model(kind='logistic_regression', random_state=0):
+    """Return a regularised linear classifier that is safe on wide feature tables.
+
+    Unregularised discriminant analysis collapses when the feature count
+    approaches the number of training wells (38-42% accuracy against 79% with
+    shrinkage on ~513 features in the BBBC021 reanalysis), and logistic
+    regression on raw columns is dominated by the large-scale ones. Both
+    models returned here avoid that.
+
+    :param kind: ``'logistic_regression'`` for a ``StandardScaler`` plus
+        L2-penalised ``LogisticRegression``, or ``'shrinkage_lda'`` for a
+        ``StandardScaler`` plus ``LinearDiscriminantAnalysis`` with
+        ``solver='lsqr'`` and ``shrinkage='auto'``.
+    :param random_state: seed for the logistic regression solver.
+    :returns: an unfitted scikit-learn pipeline.
+    :raises ValueError: for any other ``kind``.
+    """
+    from sklearn.pipeline import make_pipeline
+    from sklearn.preprocessing import StandardScaler
+    if kind == 'logistic_regression':
+        return make_pipeline(StandardScaler(), LogisticRegression(
+            max_iter=1000, random_state=random_state))
+    if kind == 'shrinkage_lda':
+        from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+        return make_pipeline(StandardScaler(), LinearDiscriminantAnalysis(
+            solver='lsqr', shrinkage='auto'))
+    raise ValueError(f"Unsupported regularised model: {kind!r}")
+
+
 def _xgboost_classifier():
     """Import ``XGBClassifier`` when the XGBoost model is chosen, not with this module.
 
@@ -9336,8 +9365,8 @@ def generate_ml_scores(settings):
           reader's existing joins and nucleus/pathogen limits.
         - ``channel_of_interest`` — 0-based channel for the recruitment
           ratio feature.
-        - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``,
-          ``'random_forest'``.
+        - ``model_type_ml`` — ``'logistic_regression'`` (default, standardised),
+          ``'shrinkage_lda'``, ``'xgboost'``, ``'random_forest'``.
         - ``positive_control`` / ``negative_control`` — well IDs (e.g.
           ``'c2'`` / ``'c1'``) used as training labels.
         - ``annotation_column`` — override controls with a PNG-level
@@ -9370,7 +9399,7 @@ def generate_ml_scores(settings):
                 'src': '/data/plate01',
                 'channel_of_interest': 3,
                 'positive_control_id': 'c2', 'negative_control_id': 'c1',
-                'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',
+                'model_type_ml': 'logistic_regression', 'heatmap_feature': 'recruitment',
             }
             generate_ml_scores(settings)
 
@@ -9662,7 +9691,7 @@ def ml_analysis(
     learning_rate=0.00001,
     n_estimators=1000,
     test_size=0.2,
-    model_type='xgboost',
+    model_type='logistic_regression',
     n_jobs=-1,
     remove_low_variance_features=True,
     remove_highly_correlated_features=True,
@@ -9708,8 +9737,11 @@ def ml_analysis(
     :param learning_rate: XGBoost learning rate.
     :param n_estimators: Tree count for tree-based models.
     :param test_size: Test-split fraction. Default ``0.2``.
-    :param model_type: ``'random_forest'``, ``'logistic_regression'``,
-        ``'gradient_boosting'`` or ``'xgboost'``.
+    :param model_type: ``'logistic_regression'`` (default: standardised
+        and L2-penalised, so it holds when features approach the number of
+        training wells), ``'shrinkage_lda'`` (Ledoit-Wolf shrinkage LDA),
+        ``'random_forest'``, ``'gradient_boosting'`` or ``'xgboost'``, plus
+        the other choices of ``model_type_ml``.
     :param n_jobs: Parallel job count where applicable. Default ``-1``.
     :param remove_low_variance_features: Drop low-variance features.
     :param remove_highly_correlated_features: Drop highly correlated features.
@@ -10023,7 +10055,9 @@ def ml_analysis(
         from sklearn.ensemble import ExtraTreesClassifier
         model = ExtraTreesClassifier(n_estimators=n_estimators, random_state=random_state, n_jobs=n_jobs)
     elif model_type == 'logistic_regression':
-        model = LogisticRegression(max_iter=1000, random_state=random_state)
+        model = regularised_linear_model('logistic_regression', random_state=random_state)
+    elif model_type == 'shrinkage_lda':
+        model = regularised_linear_model('shrinkage_lda', random_state=random_state)
     elif model_type == 'gradient_boosting':
         model = HistGradientBoostingClassifier(max_iter=n_estimators, random_state=random_state)
     elif model_type == 'xgboost':

@@ -56,7 +56,7 @@ CLASSIFIER_FAMILIES: Tuple[str, ...] = ("cv", "ml")
 
 ML_MODEL_TYPES: Tuple[str, ...] = (
     "xgboost", "lightgbm", "catboost", "random_forest", "extra_trees",
-    "gradient_boosting", "logistic_regression", "svm", "mlp",
+    "gradient_boosting", "logistic_regression", "shrinkage_lda", "svm", "mlp",
 )
 
 #: family -> the app key whose settings and pipeline it uses. The merged
@@ -194,7 +194,7 @@ def resolve_ml_model_type(settings: Mapping[str, Any]) -> str:
     """
     selected = settings.get("model_type_ml")
     if selected in (None, ""):
-        selected = settings.get("model_type", "xgboost")
+        selected = settings.get("model_type", "logistic_regression")
     model_type = str(selected).strip().lower()
     if model_type not in ML_MODEL_TYPES:
         raise ValueError(
