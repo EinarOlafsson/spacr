@@ -555,3 +555,73 @@ def test_crop_grid_names_the_constant_factors(tmp_path):
     fig = ar._new_figure(190, h + 10)
     draw(fig, (0.02, 0.02, 0.96, 0.96))
     assert "HeLa WT" in [t.get_text() for t in fig.texts]
+
+
+def test_replication_report_size_proxy(tmp_path):
+    import sqlite3
+    from tests.test_cov_submodules_endodyogeny import _write_endodyogeny_db, AREAS_C1, AREAS_C2, _settings
+    from spacr.submodules import analyze_replication
+    root = tmp_path / "plate1"
+    db = _write_endodyogeny_db(root, {"c1": AREAS_C1, "c2": AREAS_C2})
+    with sqlite3.connect(db) as con:
+        p = pd.read_sql("select * from pathogen", con)
+        p["pathogen_equivalent_diameter_area"] = 2 * np.sqrt(p["pathogen_area"] / np.pi)
+        p["pathogen_distance_to_field_edge"] = 500.0
+        p.to_sql("pathogen", con, index=False, if_exists="replace")
+    out = analyze_replication(_settings(str(root), replication_method="size_proxy",
+                                        panels=[{"name": "nc_vs_pc"}], exclude_edge_objects=True,
+                                        report=True))
+    rep = root / "results" / "analyze_replication" / "report"
+    assert (rep / "replication_report.pdf").exists()
+    assert (rep / "replication_report_figure_filtered.pdf").exists()
+    names = sorted(os.listdir(rep / "panels"))
+    assert any(n.endswith("nc_vs_pc_bins_chi_square_filtered") for n in names)
+    assert any(n.endswith("nc_vs_pc_bins_fisher_unfiltered") for n in names)
+    assert any(n.endswith("filtration_steps") for n in names)
+    assert any(n.startswith("H") and "bin_" in n for n in names)          # bin-fraction heatmaps
+    legend = (rep / "figure_legend.txt").read_text()
+    assert "size_proxy" in legend and "Fisher" in legend
+    assert "No images per area bin" in legend                           # no merged arrays here
+    assert out["report"]["n_pages"] >= 2
+
+
+def test_replication_report_direct_count(tmp_path):
+    from tests.test_assay_panels import _replication_src
+    from tests.test_replication_assay import settings_for
+    from spacr.submodules import analyze_replication
+    src = _replication_src(tmp_path)
+    analyze_replication(settings_for(
+        src, treatments=["rep1", "rep2"], treatment_plate_metadata=[["r1"], ["r2"]],
+        replicate_column="treatment", panels=[{"name": "drug_vs_dmso", "group": "pathogen",
+                                               "order": ["dmso", "drug"], "n_resamples": 200}],
+        exclude_edge_objects=True, report=True))
+    rep = os.path.join(src, "results", "analyze_replication", "report")
+    names = sorted(os.listdir(os.path.join(rep, "panels")))
+    assert any(n.endswith("drug_vs_dmso_bins_chi_square_filtered") for n in names)
+    assert any("n_parasites_filtered_well" in n for n in names)
+    legend = open(os.path.join(rep, "figure_legend.txt")).read()
+    assert "No images per replication bucket" in legend and "object_label" in legend
+
+
+def test_replication_tiles_centre_on_the_object_itself(tmp_path):
+    import json
+    from spacr.submodules import _replication_tile_config
+    merged = tmp_path / "merged"
+    merged.mkdir()
+    src = _field(merged / "f1.npy")
+    (merged / ".spacr_plane_layout.json").write_text(json.dumps({"mask_dims": {"cell": 4, "nucleus": 5,
+                                                                                 "pathogen": 6}}))
+    df = pd.DataFrame(dict(bin=["a", "a", "b", "b"], file_name="f1", object_label=[1, 2, 3, 4],
+                           pathogen_area=[10.0, 20.0, 30.0, 40.0], pathogen_distance_to_field_edge=50.0))
+    cfg, why = _replication_tile_config(df, {"src": str(tmp_path), "merged_dir": str(merged),
+                                             "compartment": "pathogen", "channel_dims": [0, 1, 2]})
+    assert cfg is not None and cfg["host_object"] == "pathogen" and cfg["center_object"] is None
+    tr = ar.build_tiles(df, "bin", ["a", "b"], str(merged), cfg["mask_dims"], cfg["colour_map"],
+                        str(tmp_path / "t"), n=1, size=32, value_column="pathogen_area", selection="median",
+                        host_object="pathogen", center_object=None, mono_channel=2)
+    r = tr["table"].iloc[0]
+    ys, xs = np.nonzero(src[..., 6] == int(r["mask_label"]))
+    assert abs((r.y0 + r.y1) / 2 - ys.mean()) <= 1 and abs((r.x0 + r.x1) / 2 - xs.mean()) <= 1
+    none_cfg, why = _replication_tile_config(df.drop(columns="object_label"), {"src": str(tmp_path),
+                                                                                 "merged_dir": str(merged)})
+    assert none_cfg is None and "object_label" in why

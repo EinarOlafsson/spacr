@@ -2059,13 +2059,16 @@ def _replication_panels(*args, **kwargs):
         return _replication_panels_impl(*args, **kwargs)
 
 
-def _replication_panels_impl(table, settings, bin_column, bins, value, value_label, legend_title,
-                        output_dir, default_bin_labels=None):
-    """Three panels per ``panels`` entry: stacked bins (chi-square), stacked bins
-    (Fisher-Freeman-Halton) and a bar of the replicate (or well) mean of ``value``.
+def _replication_panel_specs(table, settings, bin_column, bins, value, value_label, legend_title,
+                             default_bin_labels=None, panels=None):
+    """Specs of the replication panels: per ``panels`` entry, stacked bins
+    (chi-square), stacked bins (Fisher-Freeman-Halton) and a bar of the
+    replicate (or well) mean of ``value``.
+
+    :returns: ``(specs, names, kinds)`` keyed by panel id ``Pnn``.
     """
     from .assay_panels import stacked_spec, fractions_per_unit
-    panels = _check_panels_setting(settings.get('panels'))
+    panels = _check_panels_setting(settings.get('panels') if panels is None else panels)
     rep = settings.get('replicate_column')
     specs, names = {}, {}
     n = 0
@@ -2077,7 +2080,8 @@ def _replication_panels_impl(table, settings, bin_column, bins, value, value_lab
         sub = _panel_where(table, panel.get('where')).dropna(subset=[group])
         order = _panel_order(sub[group].unique(), panel, settings)
         sub = sub[sub[group].isin(order)]
-        if rep is not None and rep not in sub.columns:
+        panel_rep = rep if rep != group else None
+        if panel_rep is not None and panel_rep not in sub.columns:
             raise KeyError(f"replicate_column '{rep}' is not a column of the table")
         reference = panel.get('reference', order[0] if order else None)
         labels = _panel_labels(panel, settings)
@@ -2086,7 +2090,7 @@ def _replication_panels_impl(table, settings, bin_column, bins, value, value_lab
         counts = pd.crosstab(sub[group], sub_bins).reindex(index=order, columns=used_bins,
                                                            fill_value=0)
         fractions = fractions_per_unit(sub.assign(**{bin_column: sub_bins}), bin_column,
-                                       used_bins, [group], replicate_column=rep)
+                                       used_bins, [group], replicate_column=panel_rep)
         bin_labels = _replication_bin_labels(used_bins, panel.get('bin_labels', settings.get('bin_labels')),
                                              default_bin_labels)
         title = panel.get('title', str(panel['name']).replace('_', ' '))
@@ -2104,9 +2108,19 @@ def _replication_panels_impl(table, settings, bin_column, bins, value, value_lab
             names[pid] = f"{panel['name']}_bins_{suffix}"
         n += 1
         pid = f'P{n:02d}'
-        specs[pid] = _bar_panel_from_objects(sub, dict(panel, title=title), settings, value,
-                                             group, ylabel=value_label, ymin=None, refline=None)
+        specs[pid] = _bar_panel_from_objects(sub, dict(panel, title=title), dict(settings, replicate_column=panel_rep),
+                                             value, group, ylabel=value_label, ymin=None, refline=None)
         names[pid] = f"{panel['name']}_{value_label.split(' (')[0].replace(' ', '_')}"
+    return specs, names
+
+
+def _replication_panels_impl(table, settings, bin_column, bins, value, value_label, legend_title,
+                             output_dir, default_bin_labels=None):
+    """Three panels per ``panels`` entry: stacked bins (chi-square), stacked bins
+    (Fisher-Freeman-Halton) and a bar of the replicate (or well) mean of ``value``.
+    """
+    specs, names = _replication_panel_specs(table, settings, bin_column, bins, value, value_label,
+                                            legend_title, default_bin_labels)
     figures = settings.get('figures') or {}
     bad = [i for f in figures.values()
            for i in (f.get('panels', []) if isinstance(f, dict) else f) if i not in specs]
@@ -2114,6 +2128,109 @@ def _replication_panels_impl(table, settings, bin_column, bins, value, value_lab
         raise KeyError(f"figures refer to unknown panel id(s) {bad}; known: {sorted(specs)}")
     return _write_panels_and_figures(specs, names, os.path.join(output_dir, 'panels'),
                                      os.path.join(output_dir, 'figures'), figures)
+
+
+def _replication_tile_config(df, settings):
+    """Crop settings for replication images: the object is the compartment mask, or None."""
+    import json
+    from .crops import MERGED_LAYOUT_SIDECAR
+    src = settings['src'][0] if isinstance(settings['src'], (list, tuple)) else settings['src']
+    merged_dir = settings.get('merged_dir') or os.path.join(src, 'merged')
+    compartment = settings.get('compartment', 'pathogen')
+    if not ({'file_name', 'object_label'} <= set(df.columns)) or not os.path.isdir(merged_dir) or not len(df):
+        return None, ("the rows are not single mask objects (no object_label)"
+                      if 'object_label' not in df.columns else f"merged arrays not found in {merged_dir}")
+    try:
+        with open(os.path.join(merged_dir, MERGED_LAYOUT_SIDECAR), encoding='utf-8') as fh:
+            mask_dims = {k: int(v) for k, v in json.load(fh).get('mask_dims', {}).items()}
+    except (OSError, ValueError):
+        mask_dims = {}
+    if compartment not in mask_dims:
+        return None, f"no '{compartment}' mask plane in the merged-array layout"
+    chans = [int(c) for c in (settings.get('channel_dims') or [0, 1, 2]) if c is not None]
+    if settings.get('report_tile_channels'):
+        colour_map = {int(k): v for k, v in settings['report_tile_channels'].items()}
+    else:
+        colour_map = dict(zip(chans[:3], ('red', 'green', 'blue')))
+    mono = int(settings.get('channel_of_interest') if settings.get('channel_of_interest') is not None
+               else next(iter(colour_map)))
+    return dict(merged_dir=merged_dir, mask_dims=mask_dims, colour_map=colour_map, mono_channel=mono,
+                n=int(settings.get('report_tiles_per_condition', 5)),
+                size=int(settings.get('report_tile_size', 192)),
+                seed=int(settings.get('report_tile_seed', 0)), host_object=compartment,
+                center_object=None, edge_column=f'{compartment}_distance_to_field_edge'), ''
+
+
+def _replication_report_impl(settings, unfiltered, filtered, group_column, bin_column, bins, value,
+                             value_label, legend_title, output_dir, filter_log,
+                             default_bin_labels=None, method='', bin_name='bin'):
+    """Write the standard replication report into ``<output_dir>/report`` (``report`` setting)."""
+    import datetime
+    from .assay_report import build_assay_report, stacked_legend
+    from .assay_panels import condition_order
+    if group_column == 'condition' and 'condition' in unfiltered.columns:
+        group, order, labels, add_group, rep = _report_grouping(unfiltered, settings)
+    else:
+        group, add_group = group_column, (lambda f: f)
+        order = condition_order(unfiltered[group].dropna().unique(), preferred=settings.get('condition_order'))
+        labels = dict(settings.get('condition_labels') or {})
+        rep = settings.get('replicate_column')
+        rep = None if rep == group or rep not in unfiltered.columns else rep
+    frames = {'unfiltered': add_group(unfiltered), 'filtered': add_group(filtered)}
+    order = [g for g in order if g in set(frames['unfiltered'][group]) | set(frames['filtered'][group])]
+    parts = _condition_axis_parts(frames['unfiltered'], group, order, settings,
+                                  exclude=rep if group == 'report_condition' else None)
+    axis_labels = dict(settings.get('condition_labels') or {})
+    axis_labels.update(labels or {})
+    tiles, why = _replication_tile_config(filtered, settings)
+    bin_labels = _replication_bin_labels(list(bins), settings.get('bin_labels'), default_bin_labels)
+    rep_settings = dict(settings, group_column=group, replicate_column=rep)
+
+    def extra(version, df):
+        out = []
+        panels = _check_panels_setting(settings.get('panels')) or [{'name': 'all_conditions', 'group': group}]
+        specs, names = _replication_panel_specs(df, rep_settings, bin_column, list(bins), value, value_label,
+                                                legend_title, default_bin_labels, panels=panels)
+        for pid, spec in specs.items():
+            if spec['kind'] == 'stacked':
+                text = stacked_legend(spec, f"{names[pid].replace('_', ' ')}, {version} objects.")
+            else:
+                text = (f"{names[pid].replace('_', ' ')}, {version} objects: replicate (or well) mean of "
+                        f"{value_label}; test and brackets as in the main graphs.")
+            out.append((names[pid], spec, text))
+        return out
+
+    channels = [int(c) for c in (settings.get('channel_dims') or []) if c is not None]
+    src = settings['src'][0] if isinstance(settings['src'], (list, tuple)) else settings['src']
+    well_qc = getattr(filter_log, 'tables', {}).get('well_qc') if filter_log is not None else None
+    intro = [f"Replication report for {src} ({datetime.date.today().isoformat()}), method {method}: "
+             f"{value_label} per condition, and the distribution of objects over {bin_name}s."]
+    res = build_assay_report(
+        frames, os.path.join(output_dir, 'report'), value, group, order, channels, labels=axis_labels,
+        replicate_column=rep, value_label=value_label, ratio=False,
+        filter_summary=filter_log.frame() if filter_log is not None else None,
+        palette=_control_palette(frames['unfiltered'], group, order, settings.get('control_color_by')),
+        tiles=tiles, max_conditions_per_row=int(settings.get('report_max_conditions_per_row', 12)),
+        title=f"spaCR replication report: {os.path.basename(os.path.normpath(src))}", intro=intro,
+        name='replication_report', layout=settings.get('report_layout') or 'compact',
+        db_path=os.path.join(src, 'measurements', 'measurements.db'), well_qc=well_qc,
+        crops=dict(n=int(settings.get('representative_crops_n', 5))) if settings.get('representative_crops') else None,
+        parts=parts, x_axis_style=settings.get('x_axis_style') or 'auto',
+        factor_order=settings.get('factor_order'), bracket_pairs=settings.get('bracket_pairs') or 'one_factor',
+        filter_steps=_report_filter_steps(filter_log, frames['unfiltered'], group), extra_specs=extra,
+        bins=dict(column=bin_column, order=[str(b) for b in bins],
+                  labels=dict(zip([str(b) for b in bins], bin_labels)), name=bin_name,
+                  no_images_reason=why))
+    print(f"Replication report: {res['pdf']} ({res['n_pages']} pages)")
+    return res
+
+
+def _replication_report(*args, **kwargs):
+    """Run :func:`_replication_report_impl` under the outlier-point policy of the settings."""
+    from .assay_panels import outlier_policy
+    settings = args[0] if args else kwargs['settings']
+    with outlier_policy(_outlier_points_method(settings)):
+        return _replication_report_impl(*args, **kwargs)
 
 
 def analyze_recruitment(settings):
@@ -4219,6 +4336,7 @@ def analyze_endodyogeny(settings):
         )
 
     df = df.dropna(subset=[settings['group_column']])
+    _unfiltered = df if settings.get('report') else None
 
     if _replication_filters_active(settings):
         compartment = settings['compartment']
@@ -4242,6 +4360,10 @@ def analyze_endodyogeny(settings):
     )
 
     output['data'] = df
+    if _unfiltered is not None:
+        _unfiltered, _ = _calculate_volume_bins(_unfiltered.copy(), settings['compartment'], min_area_bin,
+                                                settings['max_bins'], False)
+        output['unfiltered_data'] = _unfiltered
 
     prc_column = 'plate' if settings['level'] == 'plate' else 'prc'
 
@@ -5201,6 +5323,21 @@ def analyze_replication(settings):
                 f'{compartment}_area', f'mean vacuole area ({unit})',
                 f'vacuole area ({unit})', output_dir,
                 default_bin_labels={str(b): _volume_bin_as_area(b) for b in bins})
+        if settings.get('report'):
+            compartment = settings.get('compartment', 'pathogen')
+            bin_column = f'{compartment}_volume_bin'
+            bins = list(data[bin_column].cat.categories)
+            unit = 'px' if settings.get('um_per_px', 0.1) is None else '\u00b5m\u00b2'
+            unf = output.get('unfiltered_data', data).copy()
+            table = data.copy()
+            for frame in (table, unf):
+                frame[bin_column] = frame[bin_column].astype(str)
+            output['report'] = _replication_report(
+                dict(settings, group_column=group_column), unf, table, group_column, bin_column,
+                [str(b) for b in bins], f'{compartment}_area', f'mean vacuole area ({unit})',
+                f'vacuole area ({unit})', output_dir, output.get('filter_log'),
+                default_bin_labels={str(b): _volume_bin_as_area(b) for b in bins},
+                method='size_proxy (vacuole area bins)', bin_name='area bin')
         return output
 
     from .utils import annotate_conditions, save_settings
@@ -5351,6 +5488,7 @@ def analyze_replication(settings):
     )
 
     filter_log = field_flags = None
+    _unfiltered_vacuoles = vacuoles.copy() if settings.get('report') else None
     if _replication_filters_active(settings):
         if settings.get('exclude_edge_objects'):
             cut = pd.Series(_edge_cut_mask(df, compartment), index=df.index)
@@ -5440,6 +5578,15 @@ def analyze_replication(settings):
         output['panels'] = _replication_panels(
             table, settings, 'replication_bucket', [str(b) for b in buckets], 'n_parasites',
             'mean parasites per vacuole', 'parasites per vacuole', output_dir)
+    if settings.get('report'):
+        table = vacuoles.copy()
+        unf = _unfiltered_vacuoles if _unfiltered_vacuoles is not None else vacuoles.copy()
+        for frame in (table, unf):
+            frame['replication_bucket'] = frame['replication_bucket'].astype(str)
+        output['report'] = _replication_report(
+            settings, unf, table, group_column, 'replication_bucket', [str(b) for b in buckets],
+            'n_parasites', 'mean parasites per vacuole', 'parasites per vacuole', output_dir, filter_log,
+            method='direct_count (parasites per vacuole)', bin_name='replication bucket')
 
     if settings['save']:
         output_dir = os.path.join(settings['src'][0], 'results',

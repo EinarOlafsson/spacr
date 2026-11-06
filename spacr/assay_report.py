@@ -40,7 +40,7 @@ from typing import Callable, Dict, List, Mapping, Optional, Sequence
 import numpy as np
 import pandas as pd
 
-from .assay_panels import (ALPHA, STYLE, axis_layout, WELL_KEYS, _DEFAULT_COLORS, _despine, _set_xticks, shade,
+from .assay_panels import (ALPHA, STYLE, axis_layout, draw_stacked_panel, save_panel, WELL_KEYS, _DEFAULT_COLORS, _despine, _set_xticks, shade,
                            style_axes,
                            aggregate_to_unit, bar_spec, display_label, draw_bar_panel, fmt_p,
                            panel_folder_name, select_and_run_test, stars)
@@ -1128,6 +1128,7 @@ def compact_style(ax, layout=COMPACT, wrap=_COMPACT_WRAP):
     if leg is not None:
         for t in leg.get_texts():
             t.set_fontsize(txt)
+        leg.get_title().set_fontsize(txt)
     for c in ax.collections:
         if isinstance(c, PathCollection):
             size = COMPACT_DOT_SIZE * (0.45 if c.get_gid() == "grouped_dots" else 1.0)
@@ -1237,6 +1238,14 @@ def _draw_spec_inner(ax, spec, order=None, layout=SPACIOUS):
     if spec["kind"] == "grouped":
         draw_grouped_panel(ax, dict(spec, labels=labels, annotations=ann, matrix=matrix), order,
                            compact=layout.compact)
+    elif spec["kind"] == "stacked":
+        draw_stacked_panel(ax, spec["data"], spec["group"], order, spec["bins"],
+                           bin_labels=spec.get("bin_labels"), omnibus=spec["omnibus"],
+                           pairwise=spec["pairwise"], method_label=spec.get("method_label", ""),
+                           title="", labels=labels, annotations=ann, matrix=matrix,
+                           colors=spec.get("colors"), ylabel=spec.get("ylabel", "fraction"),
+                           legend=True, legend_title=spec.get("legend_title", ""), show_test=False,
+                           context=spec.get("context", ""))
     else:
         draw_bar_panel(ax, spec["data"], spec["value"], spec["group"], order,
                        stats=None if spec.get("no_stats") else spec["stats"], title="",
@@ -1307,10 +1316,12 @@ def _panel_item_height(spec, order, layout=SPACIOUS, plot_mm=None):
 def _per_category(spec, layout=SPACIOUS):
     """Width in mm per condition and fixed width in mm of a spec panel.
 
-    :param spec: bar or grouped panel spec.
+    :param spec: bar, grouped or stacked panel spec.
     :param layout: :class:`Layout`.
     :returns: ``(per_category_mm, fixed_mm)``.
     """
+    if spec["kind"] == "stacked":
+        return (4.5, 40) if layout.compact else (6.0, 60)
     if layout.compact:
         if spec["kind"] == "grouped":
             return 0.75 * len(spec["objects"]) + 1.4, 10
@@ -1422,10 +1433,13 @@ def save_spec_panel(out_dir, pid, name, spec, dpi=300):
     :param out_dir: parent folder of the panel folder.
     :param pid: panel ID, the first part of the folder name.
     :param name: panel name, the second part of the folder name.
-    :param spec: bar or :func:`grouped_spec` panel spec; its ``data`` and
+    :param spec: bar, :func:`grouped_spec` or stacked panel spec (stacked specs are saved by :func:`spacr.assay_panels.save_panel`); its ``data`` and
         :func:`stats_long` tables are written as ``data.csv`` and ``stats.csv``.
     :returns: folder path (see :func:`write_panel_folder`).
     """
+    if spec["kind"] == "stacked":
+        return save_panel(out_dir, pid, name, spec, dpi=dpi)
+
     def draw(fig, rect):
         """Draw the spec into ``rect`` and fit its axes.
 
@@ -1712,7 +1726,8 @@ def build_tiles(df, group, order, merged_dir, mask_dims, colour_map, out_folder,
                 edge_column="pathogen_distance_to_field_edge", outline_objects=("pathogen", "cell"),
                 value_column=None, center_object="pathogen", max_attempts=400,
                 selection="random", range_source="crops", subdir="crops",
-                montage_name="montage16", mono_channel=None, outline_alpha=0.6, gap=1, upsample=4):
+                montage_name="montage16", mono_channel=None, outline_alpha=0.6, gap=1, upsample=4,
+                host_object="cell"):
     """Pick, crop, render and write the representative tiles of every group.
 
     :param df: object table, one row per host cell, with the ``group``,
@@ -1787,7 +1802,7 @@ def build_tiles(df, group, order, merged_dir, mask_dims, colour_map, out_folder,
         candidates = select_median(df, group, order, value_column)
     else:
         candidates = select_tiles(df, group, order, n, seed, size, edge_column)
-    cell_plane = mask_dims["cell"]
+    cell_plane = mask_dims[host_object]
     cache: Dict[str, np.ndarray] = {}
 
     def load(name):
@@ -1853,7 +1868,7 @@ def build_tiles(df, group, order, merged_dir, mask_dims, colour_map, out_folder,
             outlines = []
             for obj, plane_i in mask_dims.items():
                 col = OUTLINE_COLOURS.get(obj, _EXTRA_OUTLINES[sorted(mask_dims).index(obj) % len(_EXTRA_OUTLINES)])
-                if obj == "cell":
+                if obj == host_object:
                     outlines.append((cell, col))
                     continue
                 plane = padded[..., plane_i]
@@ -2409,6 +2424,20 @@ def _outlier_text(spec):
             f"test (kept in data.csv with outlier = True); removed per condition: {removed}.")
 
 
+def stacked_legend(spec, what):
+    """Legend text of a stacked-bin panel: unit, bins, omnibus test and reference comparisons."""
+    om = spec.get("omnibus") or {}
+    n_units = spec["data"].groupby(spec["group"]).size().reindex(spec["order"])
+    n_txt = "; ".join(f"{display_label(g, spec.get('labels'))}: {int(n) if pd.notna(n) else 0}"
+                      for g, n in n_units.items())
+    return (f"{what} Bars: mean fraction of objects per bin over the units (replicates, or wells), "
+            f"SD at the top of each segment; n units per condition: {n_txt}. Object counts pooled over "
+            f"the units are compared with the {spec.get('method_label', '')} test across all conditions: "
+            f"{fmt_p(om.get('p_value'))} ({stars(om.get('p_value'))}); stars above a bar compare that "
+            f"condition with the reference (Holm). These tests treat objects as independent; the "
+            f"replicate-mean bar is the conservative test.")
+
+
 def _spec_legend(pid, spec, what, unit_text):
     """Legend paragraph of a value panel, outlier sentence included.
 
@@ -2480,7 +2509,7 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
                        well_qc: Optional[pd.DataFrame] = None, heatmaps=True, crops=None,
                        parts: Optional[Mapping] = None, x_axis_style="auto", factor_order=None,
                        bracket_pairs="one_factor", variants=None, filter_steps=None,
-                       dpi=200) -> dict:
+                       extra_specs=None, bins=None, dpi=200) -> dict:
     """Build the standard report: one figure per data version, plate heatmaps, legends.
 
     Two figures, FILTERED then UNFILTERED, each on its own A4 pages: tiles of
@@ -2545,6 +2574,11 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
     :param filter_steps: long table ``step_index``, ``step``, ``group``,
         ``remaining`` (objects per group after each filter step); drawn as the
         filtration-steps panel of the filtered figure.
+    :param extra_specs: callable ``(version, frame) -> [(name, spec, legend text)]``
+        of further graphs (e.g. stacked bins) placed after the main graphs.
+    :param bins: ``{'column', 'order', 'labels', 'name'}``: images of the
+        objects nearest the median per bin and plate heatmaps of the fraction
+        of objects in every bin.
     :param x_axis_style: ``'auto'`` (+/- matrix when two or more variables
         vary on a graph, else labels of the varying part), ``'matrix'``,
         ``'labels'``.
@@ -2648,7 +2682,7 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
                 tr = build_tiles(df, group, order, out_folder=folder, value_column=value,
                                  **{k: v for k, v in tiles.items() if k in
                                     ("merged_dir", "mask_dims", "colour_map", "n", "size", "seed",
-                                     "edge_column", "mono_channel")})
+                                     "edge_column", "mono_channel", "host_object", "center_object")})
             except Exception as exc:
                 tr = None
                 legend.append(f"{pid}. Tiles could not be made: {exc}.")
@@ -2690,7 +2724,8 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
                     gr = build_tiles(df, group, order, out_folder=gfolder, value_column=value,
                                      n=int(crops.get("n", 5)), selection="median",
                                      **{kk: v for kk, v in tiles.items() if kk in
-                                        ("merged_dir", "mask_dims", "colour_map", "size", "mono_channel")})
+                                        ("merged_dir", "mask_dims", "colour_map", "size", "mono_channel",
+                                         "host_object", "center_object", "edge_column")})
                     gr["table"].to_csv(os.path.join(gfolder, "data.csv"), index=False)
                     save_crop_panel(gfolder, os.path.basename(gfolder), gr, order, int(crops.get("n", 5)),
                                     tiles.get("size", 192), axis, labels, dpi=dpi)
@@ -2707,6 +2742,58 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
         if not replicate_column:
             legend.append("Replicate-level graphs are not drawn because replicate_column is not set.")
         add_block(items + grids)
+        if extra_specs is not None:
+            ex_items = []
+            for k, (pname, spec, text) in enumerate(extra_specs(version, df)):
+                if not spec.get("context"):
+                    spec["context"] = context
+                pid = next_id()
+                folders[pid] = save_spec_panel(panels_dir, pid, f"{pname}_{version}", spec, dpi=dpi)
+                ex_items += spec_items(pid, spec, max_conditions_per_row, layout, group_size=3,
+                                       new_row=k % 3 == 0)
+                legend.append(f"{pid}. {text}")
+            add_block(ex_items)
+        if bins:
+            bcol, border = bins["column"], list(bins["order"])
+            blabels = dict(bins.get("labels") or {})
+            sub = df[df[bcol].astype(str).isin([str(b) for b in border])].copy()
+            sub[bcol] = sub[bcol].astype(str)
+            border = [str(b) for b in border if (sub[bcol] == str(b)).any()]
+            wells = sub.groupby(list(WELL_KEYS) + [bcol], observed=True).size().unstack(fill_value=0)
+            fr = wells.div(wells.sum(axis=1), axis=0).reset_index()
+            for b in border:
+                if b in fr.columns:
+                    hv(f"bin_{b}_fraction", f"fraction {blabels.get(b, b)}", version,
+                       fr[list(WELL_KEYS) + [b]].rename(columns={b: "fraction"}), "fraction")
+            if tiles and len(sub):
+                bin_axis = dict(matrix=False, labels={b: blabels.get(b, b) for b in border}, constant=[])
+                for nn, tag in ((1, "representative_per_bin"), (int((crops or {}).get("n", 5)), "crops_per_bin")):
+                    pid = next_id()
+                    folder = os.path.join(panels_dir, panel_folder_name(pid, f"{tag}_{version}"))
+                    try:
+                        br = build_tiles(sub, bcol, border, out_folder=folder, value_column=value, n=nn,
+                                         selection="median", **{kk: v for kk, v in tiles.items() if kk in
+                                                                ("merged_dir", "mask_dims", "colour_map", "size",
+                                                                 "mono_channel", "host_object", "center_object",
+                                                                 "edge_column")})
+                    except Exception as exc:
+                        legend.append(f"{pid}. Images per bin could not be made: {exc}.")
+                        continue
+                    if not len(br["table"]):
+                        continue
+                    br["table"].to_csv(os.path.join(folder, "data.csv"), index=False)
+                    save_crop_panel(folder, panel_folder_name(pid, f"{tag}_{version}"), br, border, nn,
+                                    tiles.get("size", 192), bin_axis, blabels, dpi=dpi)
+                    folders[pid] = folder
+                    add_block(crop_items(pid, br, border, nn, tiles.get("size", 192), layout, bin_axis,
+                                         blabels, max_conditions_per_row, max_tile_mm=14.0))
+                    legend.append(f"{pid}. {'One object' if nn == 1 else f'The {nn} objects'} per "
+                                  f"{bins.get('name', 'bin')} closest to the median {value_label} of that "
+                                  f"bin ({version} objects), one column per bin; left to right: merged, "
+                                  f"channel {mono}, channel {mono} with outlines.")
+            elif len(sub):
+                legend.append(f"No images per {bins.get('name', 'bin')}: "
+                              + (bins.get("no_images_reason") or "no object masks for these rows") + ".")
 
         items = []
         chans = [c for c in channels if object_types(df, [c])]
@@ -2814,16 +2901,18 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
         if well_qc is not None and "well_qc_pass" in well_qc.columns:
             failed = {tuple(map(str, r)) for r in
                       well_qc.loc[~well_qc["well_qc_pass"].astype(bool), keys].itertuples(index=False)}
-        families = [("main", value_label), ("count", "objects per well"), ("area", "object area"),
-                    ("intensity", "mean intensity"), ("load", "pathogens per host cell")]
+        families = [("main", value_label), ("bins", "bin fractions"), ("count", "objects per well"),
+                    ("area", "object area"), ("intensity", "mean intensity"),
+                    ("load", "pathogens per host cell")]
 
         def family(key):
-            """Heatmap family of a variable key (main, count, area, load or intensity).
+            """Heatmap family of a variable key (main, bins, count, area, load or intensity).
 
             :param key: heatmap variable key.
             :returns: family name.
             """
-            return ("main" if key == value else "count" if key.endswith("_count") else
+            return ("main" if key == value else "bins" if key.startswith("bin_") else
+                    "count" if key.endswith("_count") else
                     "area" if key.endswith("_area") else "load" if key == "pathogens_per_host_cell"
                     else "intensity")
         hcount, shared_scale, first_h, last_h = [0], {}, None, None

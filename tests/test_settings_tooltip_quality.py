@@ -1387,10 +1387,10 @@ if app_key == "mask":
     # Recruitment app and ten in the Replication app, one claim each.
     # + 1: control_color_by, the colour column of the recruitment control graphs.
     # + 1: bin_labels, the legend text of the replication stacked panels.
-    # + 45: the object quality filters, QC, report, crop, axis and bracket
+    # + 46: the object quality filters, QC, report, crop, axis and bracket
     # settings of the recruitment and replication panels (items 816, 815), one
-    # claim each per app that declares them.
-    assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2 + 8 + 18 + 1 + 1 + 45
+    # claim each per app that declares them (report in both apps).
+    assert (census_508['comparisons_after'] + len(item_503) + 1 - 8 + 2 + 8 + 18 + 1 + 1 + 46
             + len(item_541) + len(item_548) + len(item_550)
             + len(item_535) + len(item_547) + len(item_536)
             + len(item_571) + len(item_538) + len(item_540)
