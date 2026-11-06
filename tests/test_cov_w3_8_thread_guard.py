@@ -187,6 +187,34 @@ def test_an_object_with_no_thread_at_all_is_left_alone(guard, qapp):
     timer.stop()
 
 
+@pytest.mark.parametrize('state', ['absent', 'lookup-failed', 'thread-wrapper-deleted'])
+def test_application_teardown_cannot_interrupt_a_valid_timer_start(
+        guard, qapp, monkeypatch, state):
+    from PySide6.QtCore import QCoreApplication, QTimer
+
+    module, wrappers = guard
+    timer = QTimer()
+    timer.setSingleShot(True)
+
+    def deleted_wrapper():
+        raise RuntimeError('Internal C++ object already deleted')
+
+    class RetiredApplication:
+        thread = staticmethod(deleted_wrapper)
+
+    instance = (lambda: None) if state == 'absent' else (
+        deleted_wrapper if state == 'lookup-failed' else lambda: RetiredApplication())
+    try:
+        with monkeypatch.context() as patch:
+            patch.setattr(QCoreApplication, 'instance', staticmethod(instance))
+            wrappers['timer_start'](timer, 10000)
+
+        assert timer.isActive(), 'a diagnostic failure swallowed the original timer start'
+        assert module.offences() == []
+    finally:
+        timer.stop()
+
+
 def test_start_timer_is_guarded_the_same_way(guard, qapp, caplog):
     """``QObject.startTimer`` is the other entry point Qt refuses."""
     import logging

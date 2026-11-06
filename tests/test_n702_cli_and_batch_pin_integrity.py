@@ -114,6 +114,35 @@ def test_one_to_one_model_setting_rename_moves_its_pin_with_the_value(inputs, mo
     assert supplied == original
 
 
+def test_truncated_csv_metadata_is_rejected_without_changing_the_file(tmp_path):
+    path = tmp_path / 'truncated-settings.csv'
+    original = b'Key,Value\ncell_model_name,/models/cell7\nmodel_metadata\n'
+    path.write_bytes(original)
+
+    with pytest.raises(cli.SettingsError, match='model_metadata'):
+        cli.load_settings_file(str(path))
+
+    assert path.read_bytes() == original
+
+
+def test_a_renamed_pin_cannot_certify_a_different_current_setting(inputs, monkeypatch):
+    from spacr import settings as registry
+
+    _module, supplied = inputs
+    supplied['old_cell_model'] = '/models/retired-cell'
+    record = supplied['model_metadata']['settings'].pop('cell_model_name')
+    record['requested_value'] = supplied['old_cell_model']
+    supplied['model_metadata']['settings']['old_cell_model'] = record
+    original = deepcopy(supplied)
+    monkeypatch.setitem(registry.RENAMED_SETTINGS, 'old_cell_model', 'cell_model_name')
+
+    with pytest.raises(cli.SettingsError) as error:
+        batch.resolve_job_settings(batch.Job(module='mask', settings=supplied))
+
+    assert "model_metadata.settings['cell_model_name'].requested_value" in str(error.value)
+    assert supplied == original
+
+
 def test_conflicting_old_and_new_pins_are_not_resolved_by_first_wins(inputs, monkeypatch):
     from spacr import settings as registry
     _module, supplied = inputs

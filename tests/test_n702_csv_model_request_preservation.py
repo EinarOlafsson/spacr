@@ -213,3 +213,26 @@ def test_utils_reader_checks_pins_of_a_source_without_a_file_identity(settings, 
     restored = read('utils', path)
     assert restored['base_model'] == 'origin-model'
     assert restored['model_metadata'] == settings['model_metadata']
+
+
+def test_utils_reader_preserves_pins_from_a_cached_cloud_table(settings, tmp_path, monkeypatch):
+    from spacr import tabular
+    from spacr.utils import load_settings
+
+    path = write_csv(tmp_path / 'cached.csv', settings.items())
+    original = path.read_bytes()
+    source = 'https://example.invalid/settings.csv'
+    fetches = []
+
+    def cached_table(requested):
+        assert requested == source
+        fetches.append(requested)
+        return str(path)
+
+    monkeypatch.setattr(tabular, '_fetched', cached_table)
+
+    restored = load_settings(source)
+
+    assert restored == settings
+    assert fetches == [source, source]
+    assert path.read_bytes() == original

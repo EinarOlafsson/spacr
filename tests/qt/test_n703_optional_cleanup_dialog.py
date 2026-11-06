@@ -67,6 +67,44 @@ def test_dialog_freezes_the_displayed_operation_and_rows(qtbot, preview):
     assert dialog.choices() == {"operation_id": expected["operation_id"], "snapshot_id": None, "keys": ["news"]}
 
 
+@pytest.mark.parametrize('path,value', [
+    ((), None),
+    (('operation_id',), '   '),
+    (('folders',), {}),
+    (('folders', 0), 'missing inventory row'),
+    (('folders', 0, 'size_bytes'), -1),
+    (('folders', 1, 'key'), 'news'),
+    (('folders', 0, 'contents', 0), {'name': 17}),
+    (('folders', 0, 'contents', 0, 'size_bytes'), True),
+], ids=['not-a-preview', 'no-operation', 'not-a-folder-list', 'not-a-row',
+        'negative-folder-size', 'duplicate-key', 'invalid-filename', 'boolean-file-size'])
+def test_invalid_cleanup_inventory_never_constructs_a_dialog_or_changes_files(
+        monkeypatch, preview, path, value):
+    from pathlib import Path
+
+    original = copy.deepcopy(preview)
+    files = {Path(row['path']) / entry['name']: (Path(row['path']) / entry['name']).read_bytes()
+             for row in preview['folders'] for entry in row['contents']}
+    invalid = copy.deepcopy(preview)
+    if path:
+        parent = invalid
+        for key in path[:-1]:
+            parent = parent[key]
+        parent[path[-1]] = value
+    else:
+        invalid = value
+    before_invalid = copy.deepcopy(invalid)
+    monkeypatch.setattr(consent.QDialog, '__init__',
+                        lambda *args, **kwargs: pytest.fail('invalid cleanup opened a dialog'))
+
+    with pytest.raises(ValueError, match='cleanup preview is invalid'):
+        consent._InstallerCleanupDialog(invalid)
+
+    assert preview == original
+    assert invalid == before_invalid
+    assert {path: path.read_bytes() for path in files} == files
+
+
 def test_protected_category_cannot_become_selectable_from_a_preview_flag(qtbot, preview):
     preview["folders"][2]["selectable"] = True
     dialog = consent._InstallerCleanupDialog(preview)

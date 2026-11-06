@@ -164,6 +164,30 @@ def _scene(size=40):
 
 class TestTaperingACutOntoAnIntensityEdge:
 
+    def test_an_empty_flood_preserves_an_independent_empty_region(self):
+        from spacr.qt.wand_rescue import taper_region_to_intensity
+
+        image = np.zeros((8, 12), dtype=np.float32)
+        flooded = np.zeros(image.shape, dtype=bool)
+        provisional = np.ones(image.shape, dtype=bool)
+        out = taper_region_to_intensity(image, flooded, provisional, seed_yx=(4, 6))
+
+        assert out.shape == flooded.shape and out.dtype == bool
+        assert not out.any()
+        assert not np.shares_memory(out, flooded)
+        assert not np.shares_memory(out, provisional)
+        assert provisional.all(), 'tapering changed the supplied provisional mask'
+
+    def test_a_volume_is_not_mistaken_for_a_two_dimensional_crop_window(self):
+        from spacr.qt.wand_rescue import _taper_window
+
+        volume = np.zeros((3, 20, 30), dtype=bool)
+        volume[1, 8:12, 10:15] = True
+        original = volume.copy()
+
+        assert _taper_window(volume, sigma=1.0) is None
+        assert np.array_equal(volume, original)
+
     def test_the_boundary_moves_and_stays_inside_the_flood(self):
         from spacr.qt.wand_rescue import taper_region_to_intensity
 
