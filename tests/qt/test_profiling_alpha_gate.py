@@ -44,7 +44,11 @@ def test_every_profiling_setting_is_registered_under_its_item():
     entry = ALPHA_FEATURES[547]
     assert set(entry) == {"settings"}
     assert set(entry["settings"]) == set(PROFILING_SETTINGS)
-    assert tuple(categories["Profiling α"]) == PROFILING_SETTINGS
+    # Feature QC's feature_qc_drop shares the heading, since it cleans the
+    # columns profiling reads, but it is registered under its own item.
+    assert tuple(categories["Profiling α"]) == PROFILING_SETTINGS + (
+        "feature_qc_drop",)
+    assert _is_alpha("settings", "feature_qc_drop")
     for key in PROFILING_SETTINGS:
         assert _is_alpha("settings", key)
 
