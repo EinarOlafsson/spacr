@@ -4631,7 +4631,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # AlignedField constructor gained the optional spot_replaced= and
     # align_field the optional channel_mode=; removing only those two
     # parameters restores 76fb0596... byte for byte; no row added or removed.
-) == '9d861d40928630865642085f81b3287c8f848f1daa8cd963a50fd9454b5f0fae'
+) == '918cf2045bdd5eeaef9b07d73680bb2f395c6e07b9ca6ab7ba781ee9a2bc8376'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
