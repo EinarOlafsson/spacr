@@ -1,0 +1,17 @@
+BUG: UPPER-CASE .TIF FILES ARE DROPPED
+
+Lifecycle: new
+Status: open. Build first of 827-832.
+Requested: maintainer, 2026-11-06 (BMC paper HRMAn reanalysis).
+Owner: unassigned.
+
+WHAT THE STATE IS
+io._raw_image_names matches the file extension case-sensitively. Upper-case
+.TIF files (the Cellomics HCS default) are counted and then dropped, and the
+run ends with "No image stacks were produced".
+
+WHAT TO DO
+- Match extensions case-insensitively everywhere raw files are discovered.
+- Test with .TIF and .Tif files.
+
+Evidence: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/hrman/REPORT.md ("spaCR gaps found")

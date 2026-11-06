@@ -1,0 +1,17 @@
+OBJECT DIAMETERS FROM PIXEL SIZE
+
+Lifecycle: new
+Status: open.
+Requested: maintainer, 2026-11-06 (BMC paper HRMAn reanalysis).
+Owner: unassigned.
+
+WHAT THE STATE IS
+The magnification-derived diameters at 20x (cell 120 px, nucleus 60 px) are
+about 2x the real A549 sizes (about 55 and 30 px).
+
+WHAT TO DO
+- Derive the defaults from pixel size.
+- When they are not set, estimate them per image (Cellpose diameter
+  estimation).
+
+Evidence: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/hrman/REPORT.md

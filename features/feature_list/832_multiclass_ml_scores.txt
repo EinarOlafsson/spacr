@@ -1,0 +1,16 @@
+MULTICLASS ML SCORES
+
+Lifecycle: new
+Status: open.
+Requested: maintainer, 2026-11-06 (BMC paper HRMAn reanalysis).
+Owner: unassigned.
+
+WHAT THE STATE IS
+ml.generate_ml_scores handles only 2 classes.
+
+WHAT TO DO
+- Support multiclass, for example 3 classes: recruitment, no recruitment,
+  artefact.
+- Report precision and recall per class.
+
+Evidence: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/hrman/REPORT.md

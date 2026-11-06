@@ -1,0 +1,21 @@
+RIM RECRUITMENT WITH A NULL-BASED THRESHOLD
+
+Lifecycle: new
+Status: open.
+Requested: maintainer, 2026-11-06 (BMC paper HRMAn reanalysis).
+Owner: unassigned.
+
+WHAT THE STATE IS
+The host_pathogen and analyze_recruitment ratios compare the vacuole interior
+with the cytoplasm. measure_crop's 5 px ring has no reference and no
+threshold.
+
+WHAT TO DO
+- Rim signal: the median signal in a 1-3 px ring outside the vacuole,
+  background-subtracted, divided by the host cytoplasm. The cytoplasm
+  excludes the nucleus and anything within 15 px of any parasite.
+- Null: the same footprint placed in far cytoplasm of the same host, 5 per
+  vacuole.
+- Threshold: the null's 99th percentile. Report the false-positive rate.
+
+Evidence: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/hrman/REPORT.md

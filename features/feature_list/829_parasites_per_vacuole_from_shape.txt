@@ -1,0 +1,19 @@
+PARASITES PER VACUOLE FROM VACUOLE SHAPE
+
+Lifecycle: new
+Status: open.
+Requested: maintainer, 2026-11-06 (BMC paper HRMAn reanalysis).
+Owner: unassigned.
+
+WHAT THE STATE IS
+host_pathogen.summarize_tables needs a count column or a parasite table. At
+20x, the parasites in a vacuole cannot be resolved.
+
+WHAT TO DO
+- An optional shape-based count classifier using area, circularity,
+  convexity, extent and diameter.
+- A model trained on HRMAn's 34,876 labelled vacuoles reaches 0.965 4-class
+  and 0.974 ">1 parasite" accuracy in 5-fold CV, against a 0.519
+  majority-class control.
+
+Evidence: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/hrman/REPORT.md

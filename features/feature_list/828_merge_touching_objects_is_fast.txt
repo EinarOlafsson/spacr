@@ -1,0 +1,18 @@
+MERGE_TOUCHING_OBJECTS IS FAST
+
+Lifecycle: new
+Status: open.
+Requested: maintainer, 2026-11-06 (BMC paper HRMAn reanalysis).
+Owner: unassigned.
+
+WHAT THE STATE IS
+utils.merge_touching_objects (used by merge_pathogens=True) erodes the full
+image once per object. It took over 1 h of CPU for 5 fields.
+
+WHAT TO DO
+- Use per-object bounding-box crops, or one labelled-boundary pass (for
+  example skimage find_boundaries or a regionprops adjacency).
+- Test: the same merges as the current function on synthetic touching
+  objects, and a runtime bound on a field with many objects.
+
+Evidence: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/hrman/REPORT.md
