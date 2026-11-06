@@ -363,7 +363,8 @@ def test_the_pareto_front_is_printed_when_objectives_are_declared():
 @pytest.mark.parametrize("model_type, expected", [
     ("random_forest", "RandomForestClassifier"),
     ("extra_trees", "ExtraTreesClassifier"),
-    ("logistic_regression", "LogisticRegression"),
+    ("logistic_regression", "Pipeline"),
+    ("shrinkage_lda", "Pipeline"),
     ("gradient_boosting", "HistGradientBoostingClassifier"),
     ("xgboost", "XGBClassifier"),
     ("lightgbm", "LGBMClassifier"),
@@ -395,7 +396,7 @@ def test_the_regularisation_strength_is_the_inverse_of_reg_lambda():
     """`C` and `reg_lambda` pull in opposite directions; the mapping is fixed."""
     model = hp.build_sklearn_model("logistic_regression", {"reg_lambda": 4.0})
 
-    assert model.C == pytest.approx(0.25)
+    assert model[-1].C == pytest.approx(0.25)
 
 
 def test_a_zero_reg_lambda_does_not_divide_by_zero():
@@ -403,7 +404,7 @@ def test_a_zero_reg_lambda_does_not_divide_by_zero():
     model = hp.build_sklearn_model(
         "logistic_regression", {"reg_lambda": 0.0})
 
-    assert model.C > 1e8
+    assert model[-1].C > 1e8
 
 
 # ---------------------------------------------------------------------------

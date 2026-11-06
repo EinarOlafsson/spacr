@@ -1469,7 +1469,8 @@ class TestSklearnBackend:
     @pytest.mark.parametrize("model_type,expected", [
         ("random_forest", "RandomForestClassifier"),
         ("extra_trees", "ExtraTreesClassifier"),
-        ("logistic_regression", "LogisticRegression"),
+        ("logistic_regression", "Pipeline"),
+        ("shrinkage_lda", "Pipeline"),
         ("gradient_boosting", "HistGradientBoostingClassifier"),
         ("svm", "CalibratedClassifierCV"),
         ("mlp", "MLPClassifier"),
