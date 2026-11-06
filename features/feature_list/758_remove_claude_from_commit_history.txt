@@ -2,8 +2,7 @@ REMOVE CLAUDE FROM EVERY COMMIT IT APPEARS ON
 =============================================
 
 Lifecycle: new
-Status: open — for the release after 1.5.1.7. Needs the maintainer's explicit
-approval at execution time: it rewrites published history.
+Status: open — postponed by the maintainer (2026-11-06) to the release after 1.5.1.8.
 Requested: maintainer, 2026-11-04.
 Related: 710 (its history rewrite step).
 
