@@ -247,3 +247,102 @@ def test_wide_integer_label_dtype_retains_object_identity(tmp_path):
     assert schema.parse_prcf(frame.prcf.iloc[0]).fieldID == frame.fieldID.iloc[0]
     np.testing.assert_allclose(frame.cell_nearest_neighbor_distance, [10., 10.])
     assert row['snapshot']['mask'].dtype == np.dtype(np.uint64)
+
+
+@pytest.mark.parametrize('problem, message', [
+    ('axes', 'exactly three spatial axes'),
+    ('unit', 'Unsupported volume measurement unit'),
+    ('source', 'volume image does not exist'),
+    ('channels', 'up to 16 channels'),
+])
+def test_volume_input_guards_refuse_before_creating_database(tmp_path, problem, message):
+    row = _row(tmp_path)
+    if problem == 'axes':
+        row['snapshot']['axes'] = 'ZZX'
+    elif problem == 'unit':
+        row['snapshot']['unit'] = 'unsupported-unit'
+    elif problem == 'source':
+        row['source_path'] = str(tmp_path / 'missing.tif')
+    else:
+        row['snapshot']['channels'] *= 17
+    with pytest.raises(ValueError, match=message):
+        measure.measure_volume_rows([row])
+    assert not (tmp_path / 'measurements.db').exists()
+
+
+def test_added_image_set_uses_its_saved_mask_without_an_explicit_mask_path(tmp_path):
+    row = _row(tmp_path)
+    masks = tmp_path / 'masks'
+    masks.mkdir()
+    mask_path = masks / 'image.tif'
+    _write(mask_path, row.pop('snapshot')['mask'])
+    before = mask_path.read_bytes()
+
+    result = measure.measure_volume_rows([row])
+
+    frame = _read(result['db_paths'][0])
+    assert frame.object_label.tolist() == [4, 19]
+    np.testing.assert_allclose(frame.cell_volume_um3, [9., 9.])
+    assert mask_path.read_bytes() == before
+
+
+def test_explicit_multichannel_mask_is_refused_without_a_database(tmp_path):
+    row = _row(tmp_path)
+    labels = row.pop('snapshot')['mask']
+    row['mask_path'] = _write(tmp_path / 'multichannel-labels.tif',
+                              np.stack((labels, labels)), axes='CZYX')
+    with pytest.raises(ValueError, match='single 3D label volume'):
+        measure.measure_volume_rows([row])
+    assert not (tmp_path / 'measurements.db').exists()
+
+
+@pytest.mark.parametrize('missing, message', [
+    (['prcf'], 'no field identity'),
+    (['measurement_source', 'measurement_image_key'], 'belongs to other measurements'),
+])
+def test_legacy_volume_table_without_identity_or_ownership_is_preserved(
+        tmp_path, missing, message):
+    row = _row(tmp_path)
+    db, frame = measure._volume_measure_frame(row, 'cell')
+    original = frame.drop(columns=missing)
+    tabular.write_database(original, db, 'cell')
+    before = _read(db)
+    with sqlite3.connect(db) as connection:
+        tables = connection.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall()
+
+    with pytest.raises(ValueError, match=message):
+        measure.measure_volume_rows([row])
+
+    pd.testing.assert_frame_equal(_read(db), before)
+    with sqlite3.connect(db) as connection:
+        assert connection.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name").fetchall() == tables
+
+
+@pytest.mark.parametrize('rows, object_type, message', [
+    ([], 'cell', 'Add an image set'),
+    ([], 'unsupported-object', 'supported object type'),
+])
+def test_empty_requests_and_unknown_object_types_do_not_create_a_database(
+        tmp_path, monkeypatch, rows, object_type, message):
+    monkeypatch.chdir(tmp_path)
+    with pytest.raises(ValueError, match=message):
+        measure.measure_volume_rows(rows, object_type=object_type)
+    assert not list(tmp_path.iterdir())
+
+
+def test_closed_progress_display_does_not_interrupt_the_database_result(tmp_path):
+    row = _row(tmp_path)
+    messages = []
+
+    def closed_display(message):
+        messages.append(message)
+        raise RuntimeError('progress display was closed')
+
+    result = measure.measure_volume_rows([row], progress=closed_display)
+
+    assert result['images'] == 1 and result['objects'] == 2
+    assert _read(result['db_paths'][0]).object_label.tolist() == [4, 19]
+    assert messages == ['Measuring 3D image set 1 of 1...',
+                        f'Measurements saved: {result["db_paths"][0]}']
