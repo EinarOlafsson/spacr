@@ -2882,6 +2882,12 @@ def get_analyze_recruitment_default_settings(settings):
     settings.setdefault('min_solidity',None)
     settings.setdefault('background_filters',None)
     settings.setdefault('confounder_filter',None)
+    settings.setdefault('report',False)
+    settings.setdefault('report_tiles_per_condition',5)
+    settings.setdefault('report_tile_size',128)
+    settings.setdefault('report_tile_seed',0)
+    settings.setdefault('report_tile_channels',None)
+    settings.setdefault('report_max_conditions_per_row',12)
     return settings
 
 def get_default_test_cellpose_model_settings(settings):
@@ -4005,6 +4011,12 @@ expected_types = {
     "min_solidity": (float, type(None)),
     "background_filters": (list, dict, type(None)),
     "confounder_filter": (dict, type(None)),
+    "report": bool,
+    "report_tiles_per_condition": int,
+    "report_tile_size": int,
+    "report_tile_seed": int,
+    "report_tile_channels": (dict, type(None)),
+    "report_max_conditions_per_row": int,
     "max_area_quantile": (float, type(None)),
     "bin_labels": (dict, list, type(None)),
     "field_qc_min_objects": (int, type(None)),
@@ -5435,6 +5447,12 @@ tooltips = {
     "min_solidity": '(float) - Recruitment and replication: drop vacuole (pathogen or replication compartment) masks whose solidity, area divided by convex hull area, is below this value; removes masks that reach beyond the vacuole and fragments of rosettes (for example 0.90). Default None.',
     "merged_dir": '(str) - Recruitment and replication: folder with the spaCR merged arrays (<file_name>.npy) used to measure field backgrounds for background_filters. None uses the merged folder of the project. Default None.',
     "background_mask_channel": '(int) - Recruitment and replication: index of the mask channel in the merged arrays that marks objects; pixels where it is 0 count as field background for background_filters. Default -1.',
+    "report": '(bool) - Recruitment analysis: write the standard recruitment report into results/report: representative tiles per condition, recruitment per condition before and after the opt-in filters at well and replicate level, and well-level control graphs (every channel in every object type, objects per well) before and after filtering, as A4 pages in recruitment_report.pdf with one folder per panel (PDF, PNG, data.csv, stats.csv) and an automatic figure legend (figure_legend.txt). Default False.',
+    "report_tiles_per_condition": '(int) - Recruitment report: number of representative host-cell tiles per condition, chosen at random from the filtered objects. Default 5.',
+    "report_tile_size": '(int) - Recruitment report: side of each representative tile in pixels, centred on the host cell mask centroid. Default 128.',
+    "report_tile_seed": '(int) - Recruitment report: random seed for choosing the representative tiles, so the same tiles are chosen on every run. Default 0.',
+    "report_tile_channels": "(dict) - Recruitment report: composite colours of the tiles, {channel: colour} with colours red, green, blue, magenta, cyan, yellow or grey, e.g. {2: 'red', 1: 'green', 0: 'blue'}. None shows channel_of_interest in red, the pathogen channel in green and the nucleus channel in blue. Default None.",
+    "report_max_conditions_per_row": '(int) - Recruitment report: most conditions drawn side by side in one graph or tile row; longer condition axes continue on the next row or page. Default 12.',
     "control_color_by": '(str) - Recruitment control graphs: colour every condition bar by the value of this annotated column (for example treatment, so all wells of one host share a colour). Conditions are always ordered as the plate map lists them unless condition_order is set. None colours each condition separately. Default None.',
     "max_vacuoles_per_cell": '(int) - Recruitment analysis: keep host cells with at most this many pathogen objects (pathogen_prcfo_count), applied after the merge, which already used pathogen_limit. The removed count is reported in results/filter_summary.csv. None keeps every host cell. Default None.',
     "confounder_filter": "(dict) - Recruitment analysis: range filters on confounding variables, {column: [min, max]} at object level, or {column: {'quantiles': [0.05, 0.95], 'level': 'well'}} to drop whole wells outside per-plate quantile bounds ('range' gives absolute bounds). The well density columns n_cells_well, n_pathogens_well and pathogens_per_cell_well are computed from measurements.db when named. Each step is reported in results/filter_summary.csv. Default None.",
@@ -5967,7 +5985,7 @@ categories = {
 
     "Timelapse": timelapse_settings,
 
-    "Measurements": ["save_measurements", "calculate_correlation", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "field_qc", "field_qc_mad", "field_qc_min_cells", "field_qc_min_objects", "max_vacuoles_per_cell", "control_color_by", "background_mask_channel", "merged_dir", "min_solidity", "background_filters", "exclude_edge_objects", "confounder_filter", "max_area_quantile", "bin_labels", "field_qc_max_pathogens_per_cell", "field_qc_columns", "confounder_covariates", "adjust_covariates", "adjust_log_outcome", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
+    "Measurements": ["save_measurements", "calculate_correlation", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "field_qc", "field_qc_mad", "field_qc_min_cells", "field_qc_min_objects", "max_vacuoles_per_cell", "control_color_by", "background_mask_channel", "merged_dir", "min_solidity", "background_filters", "exclude_edge_objects", "confounder_filter", "report", "report_tiles_per_condition", "report_tile_size", "report_tile_seed", "report_tile_channels", "report_max_conditions_per_row", "max_area_quantile", "bin_labels", "field_qc_max_pathogens_per_cell", "field_qc_columns", "confounder_covariates", "adjust_covariates", "adjust_log_outcome", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
 
     "Illumination Correction": ["illumination_correction", "illumination_model", "illumination_estimator", "illumination_degree", "illumination_dark", "illumination_per_plate", "illumination_max_fields", "illumination_qc", "illumination_on_missing", "illumination_vendor_profile", "illumination_vendor_channel_map"],
 

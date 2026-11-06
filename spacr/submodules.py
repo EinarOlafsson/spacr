@@ -1459,6 +1459,105 @@ def _recruitment_panels(df, settings, results_dir):
     return out
 
 
+def _report_grouping(df, settings):
+    """Report x-axis column, order and labels for analyze_recruitment.
+
+    When the replicate is part of the condition (each condition holds one
+    replicate value, for example replicates annotated in the pathogen slot),
+    the report groups by the condition without the replicate slot
+    (``report_condition``), so replicates are units, not separate conditions.
+    """
+    from .assay_panels import condition_order
+    rep = settings.get('replicate_column')
+    if rep is not None and rep not in df.columns:
+        rep = None
+    group = 'condition'
+    if rep is not None and rep != 'condition' and \
+            df.dropna(subset=['condition']).groupby('condition')[rep].nunique().max() <= 1:
+        slots = [c for c in ('host_cells', 'pathogen', 'treatment') if c in df.columns and c != rep]
+        group = 'report_condition'
+    labels = dict(settings.get('condition_labels') or {})
+
+    def add_group(frame):
+        if group == 'condition':
+            return frame
+        frame = frame.copy()
+        frame[group] = frame[slots].apply(
+            lambda r: '_'.join(str(v) for v in r if pd.notna(v)), axis=1)
+        return frame
+    df = add_group(df)
+    if settings.get('condition_order'):
+        order = condition_order(df[group].dropna().unique(), preferred=settings['condition_order'])
+    else:
+        order = _plate_map_condition_order(df, group, settings)
+    first = df.dropna(subset=[group]).groupby(group, observed=True).first()
+    parts = [c for c in ('host_cells', 'pathogen', 'treatment') if c in first.columns
+             and (group == 'condition' or c != rep)]
+    shown = {}
+    for g in order:
+        if g in labels:
+            shown[g] = labels[g]
+        elif parts:
+            vals = [first.at[g, c] for c in parts if pd.notna(first.at[g, c])]
+            shown[g] = ', '.join(str(labels.get(v, str(v).replace('_', ' '))) for v in vals)
+    return group, order, shown, add_group, (None if rep == 'condition' else rep)
+
+
+def _recruitment_report(df_unfiltered, df, settings, results_dir, filter_log):
+    """Write the standard recruitment report into ``results/report`` (``report`` setting)."""
+    import datetime
+    from .assay_report import build_assay_report, resolve_mask_dims
+    out_dir = os.path.join(results_dir, 'report')
+    group, order, labels, add_group, rep = _report_grouping(df_unfiltered, settings)
+    frames = {'unfiltered': add_group(df_unfiltered), 'filtered': add_group(df)}
+    order = [g for g in order if g in set(frames['unfiltered'][group]) | set(frames['filtered'][group])]
+    coi = settings['channel_of_interest']
+    channels = list(dict.fromkeys([int(c) for c in (settings.get('channel_dims') or []) if c is not None]
+                                  + [int(coi)]))
+    palette = _control_palette(frames['unfiltered'], group, order, settings.get('control_color_by'))
+    tiles = None
+    merged_dir = settings.get('merged_dir') or os.path.join(settings['src'], 'merged')
+    intro = []
+    if os.path.isdir(merged_dir) and settings.get('cell_chann_dim') is not None and len(df):
+        names = [n for n, c in (('cell', settings.get('cell_chann_dim')),
+                                ('nucleus', settings.get('nucleus_chann_dim')),
+                                ('pathogen', settings.get('pathogen_chann_dim'))) if c is not None]
+        probe = os.path.join(merged_dir, f"{df['file_name'].iloc[0]}.npy")
+        n_planes = np.load(probe, mmap_mode='r').shape[-1] if os.path.exists(probe) else len(channels) + len(names)
+        colour_map = {}
+        pairs = (list(settings['report_tile_channels'].items()) if settings.get('report_tile_channels')
+                 else [(coi, 'red'), (settings.get('pathogen_chann_dim'), 'green'),
+                       (settings.get('nucleus_chann_dim'), 'blue')])
+        for chan, colour in pairs:
+            if chan is not None:
+                colour_map.setdefault(int(chan), colour)
+        tiles = dict(merged_dir=merged_dir, mask_dims=resolve_mask_dims(merged_dir, names, n_planes),
+                     colour_map=colour_map, n=int(settings['report_tiles_per_condition']),
+                     size=int(settings['report_tile_size']), seed=int(settings['report_tile_seed']))
+    else:
+        intro.append(f"No representative tiles: merged arrays not found in {merged_dir} "
+                     f"(set merged_dir) or no cell mask (cell_chann_dim).")
+    shown = '; '.join(f"{i}. {labels.get(g, g)}" for i, g in enumerate(order, start=1))
+    intro.insert(0, f"Recruitment report for {settings['src']} ({datetime.date.today().isoformat()}). "
+                    f"Recruitment = mean intensity of channel {coi} ({settings.get('target')}) inside "
+                    f"the pathogen (vacuole) mask divided by its mean intensity in the host cytoplasm, "
+                    f"one value per host cell (several vacuoles of one cell are averaged). Ratios are drawn "
+                    f"from y = 1 when every unit value is at least 1; the dashed line marks 1. "
+                    f"Conditions (x axis, plate-map order unless condition_order is set): {shown}."
+                    + (f" Replicates (column '{rep}') are part of the condition names, so they are "
+                       f"merged into one condition per combination of {' and '.join(c for c in ('host_cells', 'pathogen', 'treatment') if c != rep)} "
+                       f"and used as the replicate unit." if group == 'report_condition' else ''))
+    res = build_assay_report(
+        frames, out_dir, 'recruitment', group, order, channels, labels=labels,
+        replicate_column=rep, value_label=f'recruitment (channel {coi})', ratio=True,
+        filter_summary=filter_log.frame() if filter_log is not None else None, palette=palette,
+        tiles=tiles, max_conditions_per_row=int(settings['report_max_conditions_per_row']),
+        title=f"spaCR recruitment report: {os.path.basename(os.path.normpath(settings['src']))}",
+        intro=intro, name='recruitment_report')
+    print(f"Recruitment report: {res['pdf']} ({res['n_pages']} pages), legend {res['legend']}")
+    return res
+
+
 def _replication_filters_active(settings):
     """Whether field QC, edge-object exclusion or the area quantile filter is on.
 
@@ -1887,6 +1986,24 @@ def analyze_recruitment(settings):
           and ``cells_per_well``) and ``results/filter_kept_per_condition.csv``
           the fraction kept per condition.
 
+        - ``report`` — write the standard report (Default False) into
+          ``results/report``: ``recruitment_report.pdf`` (A4 portrait pages,
+          panels R01, R02 ...: representative tiles per condition; recruitment
+          unfiltered / filtered at well and replicate level; well-level
+          control graphs before and after the opt-in filters - every channel
+          in every object type, and objects per well per object type), PNG
+          pages, ``figure_legend.txt`` (also the last PDF pages) and
+          ``panels/Rnn_<name>/`` with PDF, PNG, ``data.csv`` and ``stats.csv``
+          (plus 16-bit tiles for R01). Unfiltered means the frame before
+          field_qc, max_vacuoles_per_cell, exclude_edge_objects,
+          background_filters, min_solidity and confounder_filter (the
+          cells_per_well rule applies to both). Tiles are read from
+          ``merged_dir`` (default ``<src>/merged``) and tuned by
+          ``report_tiles_per_condition``, ``report_tile_size``,
+          ``report_tile_seed`` and ``report_tile_channels``;
+          ``report_max_conditions_per_row`` splits long condition axes. See
+          :mod:`spacr.assay_report`.
+
         The GUI path (Home > Toxoplasma > Recruitment) is unchanged; these
         settings are set from the API or a settings file.
 
@@ -2009,6 +2126,7 @@ def analyze_recruitment(settings):
         df = _calculate_recruitment(df, channel=chan)
     print(f'calculated recruitment for: {len(df)} rows')
     
+    _df_unfiltered = df if settings.get('report') else None
     _field_cols = ['n_cells_field', 'n_pathogens_field', 'pathogens_per_cell_field']
     _screen = list(settings.get('confounder_covariates') or [])
     _adjust = list(settings.get('adjust_covariates') or [])
@@ -2072,6 +2190,13 @@ def analyze_recruitment(settings):
 
     if settings['plot_control'] or settings.get('panels'):
         _recruitment_panels(df, settings, _results_dir)
+    if settings.get('report'):
+        # unfiltered = spaCR output before the opt-in filters, with the same cells_per_well rule
+        if 'cells_per_well' in _df_unfiltered.columns:
+            _cpw = pd.to_numeric(_df_unfiltered['cells_per_well'], errors='coerce')
+            _df_unfiltered = _df_unfiltered[
+                _cpw.groupby(_df_unfiltered['prc']).transform('mean') >= settings['cells_per_well']]
+        _recruitment_report(_df_unfiltered, df, settings, _results_dir, _filter_log)
 
     print(f'PV level: {len(df)} rows')
     _plot_recruitment(df, 'by PV', settings['channel_of_interest'], columns=[], figuresize=settings['figuresize'])

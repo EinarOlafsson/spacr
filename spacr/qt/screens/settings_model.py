@@ -334,7 +334,8 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
     "recruitment": {
         "panels", "replicate_column", "condition_order", "condition_labels",
         "figures", "exclude_edge_objects", "max_vacuoles_per_cell", "control_color_by", "background_filters", "min_solidity", "merged_dir", "background_mask_channel",
-        "confounder_filter",
+        "confounder_filter", "report", "report_tiles_per_condition", "report_tile_size",
+        "report_tile_seed", "report_tile_channels", "report_max_conditions_per_row",
     },
     "replication": {
         "panels", "replicate_column", "condition_order", "condition_labels",
