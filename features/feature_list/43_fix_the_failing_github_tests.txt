@@ -556,6 +556,11 @@ Status:    OPEN 2026-10-21 — corrected-source run39561748445 completes all12
            coverage shards above90%; its aggregate leaves make_masks.py with29
            uncovered branches against the unchanged28 ceiling. release_ci_takeover
            owns the focused behavior test; root owns integration and hosted acceptance.
+           2026-11-06 — Codex n43 coverage-family ports landed (widget, small-module,
+           measure, app and home-priorities lines; the layers and make-masks lines
+           are covered by them): renderer-protocol, model-zoo identity, remote
+           connection, run-journal, crash-diagnostics, volume-input, cache-review
+           and pin-request tests. Superseded duplicates and stale tests dropped.
 
 Previous status (superseded 2026-10-20):    OPEN 2026-10-08 — fresh protected53ab run37807749125 has a
            real guide Chrome60s timeout;21jobs currentlyPASS,5active.
