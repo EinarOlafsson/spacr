@@ -5973,9 +5973,6 @@ def read_plot_model_stats(train_file_path, val_file_path ,save=False):
                 try:
                     pdf_path = save_figure(fig, pdf_path, dpi=dpi)
                 finally:
-                    # Close the figure and drop its artists and data: a plotting
-                    # library can keep the empty shell alive, but not the 20x10
-                    # inch artist tree six times per epoch.
                     fig.clf()
                     plt.close(fig)
             else:
