@@ -2,7 +2,7 @@ MEASURE WRITES ITS IN-MEMORY MASK EDITS BACK TO MERGED
 ======================================================
 
 Lifecycle: new
-Status: open.
+Status: DONE 2026-11-06 — Measure records every label plane it changed (merged, size-filtered or excluded objects) in merged/.spacr_measured_masks/<field>.npz and MergedField serves those planes, so measured area equals the label area crops are cut from; merged/ keeps its bytes.
 Requested: maintainer via the BMC software-paper session, 2026-11-05.
 Source: BBBC021 computer-vision benchmark, /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cv/README.md.
 

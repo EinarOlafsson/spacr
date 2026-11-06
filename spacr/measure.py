@@ -8523,6 +8523,55 @@ def _export_vvvv_measured_field(source_folder, file, settings, volumetric,
         pixel_size=(float(size), float(size)) if size else None)
 
 
+def _record_measured_masks(merged_path, settings, masks, cytoplasm_mask=None):
+    """Record the label planes one field was measured with beside its merged file.
+
+    Measure edits the masks in memory -- it merges cells that share a
+    nucleus or pathogen, drops objects outside the size limits and applies
+    the uninfected rule -- so a measured object can be larger or smaller
+    than the same label in ``merged/``. Each plane that differs from the
+    field's own is written to the field's measured-mask record, which
+    :class:`spacr.crops.MergedField` reads in place of the field's plane, so
+    crops cut by label are the measured objects. A field whose planes were
+    not changed has its record removed. A record that cannot be written is
+    reported and does not fail the field.
+
+    :param merged_path: the ``merged/<field>.npy`` that was measured.
+    :param settings: the run's settings, for each role's ``*_mask_dim``.
+    :param masks: role -> the label plane that was measured.
+    :param cytoplasm_mask: the measured cytoplasm, or ``None`` when the run
+        measured none. Recorded only when it differs from the cytoplasm
+        derived from the measured planes.
+    :returns: the record's path, or ``None``.
+    """
+    from .crops import _write_measured_masks
+
+    planes = {}
+    for role, mask in masks.items():
+        dim = settings.get(f'{role}_mask_dim')
+        if dim is not None and mask is not None:
+            planes[int(dim)] = np.asarray(mask)
+    if not planes:
+        return None
+    cytoplasm = None
+    cell_dim = settings.get('cell_mask_dim')
+    if cytoplasm_mask is not None and cell_dim is not None:
+        interior = np.zeros(np.shape(cytoplasm_mask), dtype=bool)
+        for dim, plane in planes.items():
+            if dim != int(cell_dim):
+                interior |= plane != 0
+        derived = np.where(interior, 0, planes[int(cell_dim)])
+        if not np.array_equal(derived, cytoplasm_mask):
+            cytoplasm = np.asarray(cytoplasm_mask)
+    try:
+        return _write_measured_masks(merged_path, planes, cytoplasm)
+    except (OSError, ValueError) as error:
+        print(f"WARNING: could not record the measured masks of "
+              f"{os.path.basename(merged_path)} ({error}); crops cut from "
+              f"merged/ may differ from the measured objects.")
+        return None
+
+
 def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel=None):
 
     """Measure one field using selected standard or PSF-processed intensities.
@@ -8811,8 +8860,9 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
             extra_organelle_masks = {
                 role: organelle_masks[role]
                 for role in ORGANELLE_ROLES[1:] if role in organelle_masks}
-            data[..., settings['cell_mask_dim']] = cell_mask.astype(data_type)
 
+        if settings['cell_mask_dim'] is not None:
+            data[..., settings['cell_mask_dim']] = cell_mask.astype(data_type)
         if settings['nucleus_mask_dim'] is not None:
             data[..., settings['nucleus_mask_dim']] = nucleus_mask.astype(data_type)
         if settings['pathogen_mask_dim'] is not None:
@@ -8821,6 +8871,11 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
             dim = settings.get(f'{organelle_role}_mask_dim')
             if dim is not None:
                 data[..., dim] = current_mask.astype(data_type)
+        _record_measured_masks(
+            os.path.join(settings['src'], file), settings,
+            {'cell': cell_mask, 'nucleus': nucleus_mask,
+             'pathogen': pathogen_mask, **organelle_masks},
+            cytoplasm_mask if settings['cytoplasm'] else None)
         if settings['cytoplasm']:
             data = np.concatenate((data, cytoplasm_mask[..., np.newaxis]), axis=-1)
 

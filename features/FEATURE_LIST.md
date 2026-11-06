@@ -12,7 +12,7 @@ Repeated IDs retain their separate full filenames and histories; none were merge
 
 This is a declaration-based navigation list, not a verified unfinished count. Headers can be stale. Conversely, recorded-Done items 641 and 673 contain later Mac follow-ups; item 729 separates native checks from deferred implementation. Read their linked notes before assigning work.
 
-84 records have no recorded complete declaration; 732 have a recorded complete declaration. Neither is a verification result.
+83 records have no recorded complete declaration; 733 have a recorded complete declaration. Neither is a verification result.
 
 | ID | Lifecycle | Item (full filename) | Recorded status |
 |---|---|---|---|
@@ -49,7 +49,6 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 771 | Future | [WHAT TRACKED CELLS DO BEFORE THEY DIVIDE: DIVISION-ALIGNED TRAJECTORIES WITH CONTROLS — 771_what_tracked_cells_do_before_they_divide.txt](feature_list/771_what_tracked_cells_do_before_they_divide.txt) | IN PROGRESS (alpha) 2026-11-04 — library module spacr/division_analysis.py and its tests are on branch division-analysis; no GUI surface, setting or screen yet, so nothing is registered with the alpha gate. |
 | 772 | New | [CROPS ARE EXPORTED RAW; NORMALISATION BELONGS TO THE TRANSFORM — 772_crops_are_exported_raw_and_normalised_in_the_transform.txt](feature_list/772_crops_are_exported_raw_and_normalised_in_the_transform.txt) | open. |
 | 773 | New | [THE PER-PLATE ILLUMINATION MODEL APPLIES TO A CROP WINDOW — 773_the_illumination_model_applies_to_a_crop_window.txt](feature_list/773_the_illumination_model_applies_to_a_crop_window.txt) | open. |
-| 774 | New | [MEASURE WRITES ITS IN-MEMORY MASK EDITS BACK TO MERGED — 774_measure_writes_its_mask_edits_back_to_merged.txt](feature_list/774_measure_writes_its_mask_edits_back_to_merged.txt) | open. |
 | 776 | New | [CHADA-VIT TAKES THE REAL CHANNEL COUNT — 776_chada_vit_takes_the_real_channel_count.txt](feature_list/776_chada_vit_takes_the_real_channel_count.txt) | open. |
 | 777 | New | [THE TIMM EMBEDDING ENCODER NORMALISES AND RESIZES LIKE IMAGENET — 777_timm_encoder_normalises_and_resizes_like_imagenet.txt](feature_list/777_timm_encoder_normalises_and_resizes_like_imagenet.txt) | open. |
 | 778 | New | [EMBEDDING A SHARD OR DATABASE IS A PUBLIC STEP — 778_embedding_a_store_is_a_public_step.txt](feature_list/778_embedding_a_store_is_a_public_step.txt) | open. |
@@ -861,7 +860,7 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 771 | Future | [WHAT TRACKED CELLS DO BEFORE THEY DIVIDE: DIVISION-ALIGNED TRAJECTORIES WITH CONTROLS — 771_what_tracked_cells_do_before_they_divide.txt](feature_list/771_what_tracked_cells_do_before_they_divide.txt) | IN PROGRESS (alpha) 2026-11-04 — library module spacr/division_analysis.py and its tests are on branch division-analysis; no GUI surface, setting or screen yet, so nothing is registered with the alpha gate. |
 | 772 | New | [CROPS ARE EXPORTED RAW; NORMALISATION BELONGS TO THE TRANSFORM — 772_crops_are_exported_raw_and_normalised_in_the_transform.txt](feature_list/772_crops_are_exported_raw_and_normalised_in_the_transform.txt) | open. |
 | 773 | New | [THE PER-PLATE ILLUMINATION MODEL APPLIES TO A CROP WINDOW — 773_the_illumination_model_applies_to_a_crop_window.txt](feature_list/773_the_illumination_model_applies_to_a_crop_window.txt) | open. |
-| 774 | New | [MEASURE WRITES ITS IN-MEMORY MASK EDITS BACK TO MERGED — 774_measure_writes_its_mask_edits_back_to_merged.txt](feature_list/774_measure_writes_its_mask_edits_back_to_merged.txt) | open. |
+| 774 | New | [MEASURE WRITES ITS IN-MEMORY MASK EDITS BACK TO MERGED — 774_measure_writes_its_mask_edits_back_to_merged.txt](feature_list/774_measure_writes_its_mask_edits_back_to_merged.txt) | DONE 2026-11-06 — Measure records every label plane it changed (merged, size-filtered or excluded objects) in merged/.spacr_measured_masks/<field>.npz and MergedField serves those planes, so measured area equals the label area crops are cut from; merged/ keeps its bytes. |
 | 775 | New | [OPENPHENOM LOADS UNDER TORCH 2.12 AND LATER — 775_openphenom_loads_under_torch_2_12.txt](feature_list/775_openphenom_loads_under_torch_2_12.txt) | DONE 2026-11-06 — while OpenPhenom's remote code builds the model, a *.safetensors path is read by its real format: a torch zip archive goes through torch.load as an open file with weights_only=True, a genuine safetensors file through the safetensors reader. |
 | 776 | New | [CHADA-VIT TAKES THE REAL CHANNEL COUNT — 776_chada_vit_takes_the_real_channel_count.txt](feature_list/776_chada_vit_takes_the_real_channel_count.txt) | open. |
 | 777 | New | [THE TIMM EMBEDDING ENCODER NORMALISES AND RESIZES LIKE IMAGENET — 777_timm_encoder_normalises_and_resizes_like_imagenet.txt](feature_list/777_timm_encoder_normalises_and_resizes_like_imagenet.txt) | open. |

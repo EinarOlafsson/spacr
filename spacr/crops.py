@@ -33,6 +33,13 @@ There is **no cytoplasm plane on disk**: ``measure_crop`` derives cytoplasm as
 "cell minus nucleus/pathogen/organelle" in memory and never saves it back. This
 module derives it the same way (see :func:`MergedField.mask_plane`).
 
+Measure also edits the label planes in memory (it merges cells that share a
+nucleus or pathogen, applies the size limits and the uninfected rule). Where
+that changed a plane, it records the measured plane in
+``merged/.spacr_measured_masks/<fov>.npz`` and :class:`MergedField` serves it
+in place of the field's own, so a crop cut by label is the measured object.
+The merged file itself is never rewritten.
+
 Fidelity
 --------
 :func:`extract_crop` reproduces the PNG path in ``spacr.measure._measure_crop_core``
@@ -200,6 +207,118 @@ class LabelMissing(CropError):
 
 class PlaneLayoutConflict(CropError):
     """A requested mask plane disagrees with the merged-folder manifest."""
+
+
+#: Folder beside ``merged/*.npy`` holding, per field, the label planes Measure
+#: measured where they differ from the planes in the field. Measure merges
+#: objects that share a nucleus or a pathogen, drops objects outside the size
+#: limits and excludes objects by the uninfected rule, all in memory; the
+#: record lets every crop cut from the field use the objects that were
+#: measured. The field itself is left untouched, so its bytes (and every
+#: digest taken of them, such as the intensity-calibration references) do not
+#: change and a later Measure run with other limits starts from the
+#: segmentation again.
+_MEASURED_MASKS_DIR = ".spacr_measured_masks"
+
+
+def _measured_masks_path(merged_path: str) -> str:
+    """The measured-mask record for the field at ``merged_path``."""
+    folder, name = os.path.split(os.fspath(merged_path))
+    return os.path.join(folder, _MEASURED_MASKS_DIR,
+                        os.path.splitext(name)[0] + ".npz")
+
+
+def _label_planes_digest(array, dims: Sequence[int]) -> str:
+    """Digest of the label planes ``dims`` of ``array`` (last axis), in order."""
+    digest = hashlib.blake2b(digest_size=16)
+    for dim in dims:
+        plane = np.ascontiguousarray(np.asarray(array[..., int(dim)]))
+        digest.update(f"{int(dim)}:{plane.dtype.str}:{plane.shape}".encode())
+        digest.update(plane.tobytes())
+    return digest.hexdigest()
+
+
+def _write_measured_masks(merged_path: str, planes: Mapping[int, np.ndarray],
+                          cytoplasm: Optional[np.ndarray] = None) -> Optional[str]:
+    """Record the measured label planes of one field, or clear the record.
+
+    :param merged_path: the ``merged/<field>.npy`` the planes were read from.
+    :param planes: plane index -> the label plane Measure measured for it.
+    :param cytoplasm: the cytoplasm plane Measure measured, when it differs
+        from the one derived from the recorded planes.
+    :returns: the record's path, or ``None`` when every plane equals the
+        field's own; any earlier record is then removed.
+    """
+    path = _measured_masks_path(merged_path)
+    on_disk = np.load(merged_path, mmap_mode="r", allow_pickle=False)
+    if on_disk.ndim == 4 and on_disk.shape[0] == 1:
+        on_disk = on_disk[0]
+    dims = sorted(int(dim) for dim in planes)
+    changed = [dim for dim in dims
+               if not np.array_equal(np.asarray(on_disk[..., dim]), planes[dim])]
+    if not changed and cytoplasm is None:
+        if os.path.exists(path):
+            os.remove(path)
+        return None
+    arrays = {f"plane_{dim}": np.asarray(planes[dim]) for dim in changed}
+    if cytoplasm is not None:
+        arrays["cytoplasm"] = np.asarray(cytoplasm)
+    arrays["source_dims"] = np.asarray(dims, dtype=np.int64)
+    arrays["source_digest"] = np.asarray(_label_planes_digest(on_disk, dims))
+    del on_disk
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    fd, tmp = tempfile.mkstemp(dir=os.path.dirname(path), suffix=".npz.tmp")
+    try:
+        with os.fdopen(fd, "wb") as handle:
+            np.savez_compressed(handle, **arrays)
+        os.replace(tmp, path)
+    except BaseException:
+        if os.path.exists(tmp):
+            os.remove(tmp)
+        raise
+    return path
+
+
+def _measured_masks_stamp(merged_path: str) -> Optional[Tuple[int, int]]:
+    """``(mtime_ns, size)`` of a field's measured-mask record, or ``None``."""
+    try:
+        st = os.stat(_measured_masks_path(merged_path))
+    except OSError:
+        return None
+    return (int(st.st_mtime_ns), int(st.st_size))
+
+
+def _read_measured_masks(merged_path: str, array) -> Dict[Any, np.ndarray]:
+    """The measured planes recorded for a field, keyed by plane index.
+
+    A ``'cytoplasm'`` key holds the measured cytoplasm when one was recorded.
+    A record whose source digest no longer matches the field's label planes
+    (the field was segmented again since) is ignored, so a stale record never
+    replaces a newer segmentation.
+
+    :param merged_path: the ``merged/<field>.npy``.
+    :param array: the opened field.
+    :raises CorruptMergedFile: when the record exists but cannot be read.
+    """
+    path = _measured_masks_path(merged_path)
+    if not os.path.isfile(path):
+        return {}
+    try:
+        with np.load(path, allow_pickle=False) as record:
+            dims = [int(dim) for dim in record["source_dims"]]
+            if any(not 0 <= dim < int(array.shape[-1]) for dim in dims):
+                return {}
+            if str(record["source_digest"]) != _label_planes_digest(array, dims):
+                return {}
+            out: Dict[Any, np.ndarray] = {
+                int(key[len("plane_"):]): record[key]
+                for key in record.files if key.startswith("plane_")}
+            if "cytoplasm" in record.files:
+                out["cytoplasm"] = record["cytoplasm"]
+    except (OSError, KeyError, ValueError) as exc:
+        raise CorruptMergedFile(
+            f"cannot read measured-mask record {path}: {exc}") from exc
+    return out
 
 
 def read_merged_plane_layout(path: str) -> Optional[Dict[str, Any]]:
@@ -677,6 +796,25 @@ class MergedField:
         self.array = array
         self._indices: Dict[int, _LabelIndex] = {}
         self._derived: Dict[str, np.ndarray] = {}
+        self._measured: Optional[Dict[Any, np.ndarray]] = None
+        self._measured_stamp: Optional[Tuple[int, int]] = None
+
+    def _measured_planes(self) -> Dict[Any, np.ndarray]:
+        """The label planes Measure measured for this field, read once.
+
+        Measure records a plane only where it changed the objects (merged,
+        filtered or excluded them); those planes replace the field's own, so
+        a crop cut by label is the object that was measured.
+        """
+        if self._measured is None:
+            self._measured_stamp = _measured_masks_stamp(self.path)
+            self._measured = _read_measured_masks(self.path, self.array)
+        return self._measured
+
+    def _measured_record_is_current(self) -> bool:
+        """Whether the measured-mask record read earlier is still the one on disk."""
+        return (self._measured is None
+                or self._measured_stamp == _measured_masks_stamp(self.path))
 
     @property
     def shape(self) -> Tuple[int, int, int]:
@@ -734,6 +872,12 @@ class MergedField:
         the cell mask with every nucleus / pathogen / organelle pixel zeroed and
         never writes it back to the merged file.
 
+        Where Measure recorded the planes it measured (it changed the objects
+        by merging, size filtering or exclusion), the recorded plane is
+        returned instead of the field's own, so every crop is cut from the
+        objects the measurements describe. The record is ignored once the
+        field's label planes no longer match the ones it was made from.
+
         :param object_type: ``'cell'`` | ``'nucleus'`` | ``'pathogen'`` |
             ``'organelle'`` come back as a view on the memory-mapped array, so
             nothing is read off disk until pixels are touched.
@@ -742,19 +886,27 @@ class MergedField:
             call is free.
         """
         if object_type != "cytoplasm":
-            return np.asarray(self.array[:, :, self.mask_dim(object_type)])
+            dim = self.mask_dim(object_type)
+            measured = self._measured_planes().get(dim)
+            if measured is not None:
+                return measured.astype(self.array.dtype, copy=False)
+            return np.asarray(self.array[:, :, dim])
         if "cytoplasm" in self._derived:
             return self._derived["cytoplasm"]
-        cell = np.asarray(self.array[:, :, self.mask_dim("cell")])
+        measured = self._measured_planes().get("cytoplasm")
+        if measured is not None:
+            self._derived["cytoplasm"] = measured
+            return measured
+        cell = self.mask_plane("cell")
         interior = np.zeros(cell.shape, dtype=bool)
         for other in ("nucleus", "pathogen", *ORGANELLE_ROLES):
             if self.mask_dims.get(other) is None:
                 continue
             try:
-                dim = self.mask_dim(other)
+                self.mask_dim(other)
             except MaskPlaneMissing:
                 continue
-            interior |= np.asarray(self.array[:, :, dim]) != 0
+            interior |= self.mask_plane(other) != 0
         cyto = np.where(interior, 0, cell)
         self._derived["cytoplasm"] = cyto
         return cyto
@@ -843,8 +995,9 @@ class MergedField:
         :param x1: one past the last column, over-wide allowed as for ``y1``.
         """
         H, W, _ = self.shape
-        if object_type == "cytoplasm":
-            plane = self.mask_plane("cytoplasm")
+        if (object_type == "cytoplasm"
+                or self.mask_dim(object_type) in self._measured_planes()):
+            plane = self.mask_plane(object_type)
             out = np.zeros((int(y1 - y0), int(x1 - x0)), dtype=plane.dtype)
             sy0, sy1 = max(0, int(y0)), min(H, int(y1))
             sx0, sx1 = max(0, int(x0)), min(W, int(x1))
@@ -1061,10 +1214,14 @@ def open_merged_field(path: str, mask_dims: Optional[Mapping[str, int]] = None,
             if other[:3] == key[:3]:
                 cached, key = field, other
                 break
-    if cached is not None and cached.mask_dims == dims:
+    if (cached is not None and cached.mask_dims == dims
+            and cached._measured_record_is_current()):
         _FIELD_CACHE.move_to_end(key)
         _FIELD_CACHE_USED[key] = time.time()
         return cached
+    if cached is not None and not cached._measured_record_is_current():
+        _FIELD_CACHE.pop(key, None)
+        _FIELD_CACHE_USED.pop(key, None)
     fld = MergedField(path, mask_dims=dims)
     if len(_FIELD_CACHE) >= _FIELD_CACHE_MAX:
         oldest, _ = _FIELD_CACHE.popitem(last=False)
