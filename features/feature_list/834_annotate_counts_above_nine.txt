@@ -1,0 +1,18 @@
+ANNOTATE COUNTS ABOVE 9
+=======================
+
+Lifecycle: new
+Status: open
+Requested: maintainer rule (every workaround becomes an item), 2026-11-06.
+Owner: unassigned.
+Related: 470
+
+WHAT THE STATE IS
+Number keys in Annotate stop at 9, so a count of 9 or more cannot be entered.
+The labelling pack falls back to count_9plus.csv for those objects.
+
+WHAT TO DO
+- Accept counts of 9 or more: a typed entry or a +/- counter beside the number
+  keys, stored in the same annotation column as the key counts.
+
+Evidence: /nas_mnt/data/sync/labelling_pack_20261106/INDEX.md (the 2026-11-06 labelling pack, where the workaround was needed).

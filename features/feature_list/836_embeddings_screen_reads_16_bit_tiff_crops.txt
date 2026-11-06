@@ -1,0 +1,18 @@
+THE EMBEDDINGS SCREEN READS 16-BIT TIFF CROPS
+=============================================
+
+Lifecycle: new
+Status: open
+Requested: maintainer rule (every workaround becomes an item), 2026-11-06.
+Owner: unassigned.
+Related: 560
+
+WHAT THE STATE IS
+The Embeddings screen reads 8-bit PNG crops only. The labelling pack's 560 check
+embeds the raw 16-bit TIFF crops through the API instead.
+
+WHAT TO DO
+- Read 16-bit TIFF crops on the Embeddings screen without converting them to
+  8-bit first, with the same normalisation the API path uses.
+
+Evidence: /nas_mnt/data/sync/labelling_pack_20261106/INDEX.md (the 2026-11-06 labelling pack, where the workaround was needed).

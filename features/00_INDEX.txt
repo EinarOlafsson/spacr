@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-720 Lifecycle: new, 96 Lifecycle: future in features/feature_list/.
+724 Lifecycle: new, 96 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -1778,3 +1778,11 @@ NEW FEATURES
        831_object_diameters_from_pixel_size.txt
   832  MULTICLASS ML SCORES
        832_multiclass_ml_scores.txt
+  833  A PAIR/MERGE REVIEW SCREEN IN ANNOTATE
+       833_a_pair_merge_review_screen_in_annotate.txt
+  834  ANNOTATE COUNTS ABOVE 9
+       834_annotate_counts_above_nine.txt
+  835  THE MAKE MASKS QUEUE EDITOR CAN MARK A FIELD SKIP
+       835_make_masks_queue_editor_can_skip_a_field.txt
+  836  THE EMBEDDINGS SCREEN READS 16-BIT TIFF CROPS
+       836_embeddings_screen_reads_16_bit_tiff_crops.txt

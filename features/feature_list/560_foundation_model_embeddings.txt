@@ -444,3 +444,5 @@ Remaining: only the BLOCKED ON MAINTAINER steps at the top (Meta form; human-lab
 Built: Checkpoint and channels… lists every installed file with its detected model; the choice is a preference. Default: 5 channels → CP ViT-S/8; 4 → HPA, hpa_sc first; any other count → Channel-Adaptive DINO (official bag-of-channels, every crop channel, no mapping); otherwise the first readable. Planes are self-normalised as in Meta's evaluation transform.
 CPU functional run (kNN / mAP, chance mAP 0.56 on 53 PNG and 0.54 on 25 merged 4-ch cells): DINOv2 control 0.91/0.76 and 0.84/0.77; Channel-Adaptive 1.00/0.87 and 0.84/0.72; HPA sc 0.84/0.76, fov 0.80/0.74, fov highres 0.84/0.73; CP ViT-S/8 runs (finite 384-d) but the example has no 5 planes. Functional only, not a scientific comparison.
 Remaining: BLOCKED ON MAINTAINER only for the human-label comparison (step 4 at the top).
+
+2026-11-06 — labelling pack: see /nas_mnt/data/sync/labelling_pack_20261106/.

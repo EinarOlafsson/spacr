@@ -418,3 +418,5 @@ not registered.
 2026-10-21 — ON HOLD by maintainer: do not pursue the curated PV holdout, scorecard or remaining platform acceptance until the maintainer explicitly resumes DINOCell work.
 
 2026-10-24 — Maintainer decision: DinoCell resumes after the 1.5.1.6 release; the 2026-10-21 hold ends then.
+
+2026-11-06 — labelling pack: see /nas_mnt/data/sync/labelling_pack_20261106/.

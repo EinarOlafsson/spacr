@@ -616,3 +616,5 @@ asking for duplicate annotation. Whole validation/published-weight acceptance
 remains open. No inference, training or GPU execution.
 
 2026-10-24 — Maintainer decision: labelling packets are not wanted now; deferred by the maintainer.
+
+2026-11-06 — the maintainer asked for a labelling pack (supersedes the 2026-10-24 'not wanted now' note); see /nas_mnt/data/sync/labelling_pack_20261106/.

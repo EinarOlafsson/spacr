@@ -1,0 +1,18 @@
+THE MAKE MASKS QUEUE EDITOR CAN MARK A FIELD SKIP
+=================================================
+
+Lifecycle: new
+Status: open
+Requested: maintainer rule (every workaround becomes an item), 2026-11-06.
+Owner: unassigned.
+Related: Make Masks curation queues
+
+WHAT THE STATE IS
+Only the queue's own skip_field.py can mark a field "skip"; the Make Masks queue
+editor cannot.
+
+WHAT TO DO
+- Add a "skip" mark per field in the Make Masks queue editor, written where
+  skip_field.py writes it, so a skipped field leaves the queue the same way.
+
+Evidence: /nas_mnt/data/sync/labelling_pack_20261106/INDEX.md (the 2026-11-06 labelling pack, where the workaround was needed).

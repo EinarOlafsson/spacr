@@ -1,0 +1,20 @@
+A PAIR/MERGE REVIEW SCREEN IN ANNOTATE
+======================================
+
+Lifecycle: new
+Status: open
+Requested: maintainer rule (every workaround becomes an item), 2026-11-06.
+Owner: unassigned.
+Related: 470, 828 (merge_touching_objects)
+
+WHAT THE STATE IS
+Annotate has no screen for judging whether two touching objects are one object.
+The labelling pack pre-renders each pair as one image with object A outlined in
+white and object B in yellow, as a stopgap.
+
+WHAT TO DO
+- Show two touching objects with label A and label B outlined in two colours.
+- Keys record merge or keep for the pair, stored per pair (both labels and the
+  field) so the decisions can train or check merging.
+
+Evidence: /nas_mnt/data/sync/labelling_pack_20261106/INDEX.md (the 2026-11-06 labelling pack, where the workaround was needed).
