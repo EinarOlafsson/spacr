@@ -61,6 +61,24 @@ def test_failed_state_save_leaves_the_application_open(messages, monkeypatch):
     assert "could not be saved" in messages[-1][1]
 
 
+def test_unreadable_current_form_refuses_shutdown_before_saving(messages, monkeypatch):
+    window = Window()
+
+    def unavailable():
+        raise RuntimeError('current settings form has been deleted')
+
+    window._stack.currentWidget()._settings_model.collect = unavailable
+    monkeypatch.setattr(restart_state, 'save',
+                        lambda **_kwargs: pytest.fail('incomplete settings were saved'))
+
+    assert qt_app.MainWindow._save_pip_update_restart(window) is False
+    assert not window.closed
+    assert not getattr(window, '_frozen_update_restart_saved', False)
+    assert restart_state.peek() is None
+    assert messages == [(qt_app.tr('Updates'), qt_app.tr(
+        'The current settings could not be saved. The update was cancelled and this window will stay open.'))]
+
+
 @pytest.mark.parametrize('handoff', ['installed', 'pip_approval'])
 def test_altered_same_module_settings_prevent_shutdown_approval(messages, monkeypatch, handoff):
     import json

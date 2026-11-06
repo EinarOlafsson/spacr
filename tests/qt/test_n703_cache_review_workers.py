@@ -1,4 +1,5 @@
 """Real cache-review QThreads use actual app handlers without a full app launch."""
+import sys
 import threading
 
 import pytest
@@ -47,6 +48,9 @@ def review(qtbot, monkeypatch, tmp_path):
              "original_updater": original_updater}
     def preview(operation, *, system=None, guard=None):
         assert QThread.currentThread() is not QApplication.instance().thread()
+        gettrace = getattr(threading, 'gettrace', None)
+        if gettrace is not None and gettrace() is not None:
+            assert sys.gettrace() is not None
         if guard is None:
             return actual_preview(operation, system=machine)
         state["threads"].append(QThread.currentThread())
@@ -58,6 +62,9 @@ def review(qtbot, monkeypatch, tmp_path):
         return actual_preview(operation, system=machine, guard=guard)
     def apply(prepared, choices, *, guard):
         assert QThread.currentThread() is not QApplication.instance().thread()
+        gettrace = getattr(threading, 'gettrace', None)
+        if gettrace is not None and gettrace() is not None:
+            assert sys.gettrace() is not None
         assert guard is state["previews"][-1][1]
         state["applies"].append((prepared, choices))
         gate = state.get("apply_gate")
@@ -225,3 +232,120 @@ def test_partial_result_uses_plain_text_removed_count_and_literal_retained_path(
     text, formatting = review["notices"][0]
     assert "2" in text and path in text and formatting == Qt.PlainText
     assert not review["window"]._cache_cleanup_busy
+
+
+@pytest.mark.parametrize('closing', [False, True])
+def test_repeated_or_closing_review_cannot_start_another_worker(review, closing):
+    window = review['window']
+    guard = object()
+    window._cache_cleanup_guard = guard
+    window._cache_cleanup_busy = True
+    window._closing = closing
+
+    window._review_installation_caches()
+
+    assert getattr(window, '_cache_cleanup_worker', None) is None
+    assert window._cache_cleanup_guard is guard
+    assert not review['previews'] and not review['applies']
+    assert window.statusBar().currentMessage() == (
+        '' if closing else qt_app.tr('A cache review is already running.'))
+
+
+@pytest.mark.parametrize('closing', [False, True])
+def test_choices_dialog_failure_releases_review_without_applying_or_marking(
+        review, monkeypatch, closing):
+    window = review['window']
+    continued = []
+    window._cache_cleanup_busy = True
+    window._cache_cleanup_guard = object()
+    window._cache_cleanup_after = lambda: continued.append(True)
+    window._cache_cleanup_install_token = 'disposable-install-token'
+    monkeypatch.setattr(consent, '_settings',
+                        lambda: pytest.fail('failed dialog marked installation reviewed'))
+
+    def fail_dialog(preview, parent):
+        assert parent is window and preview == {'operation': 'disposable-preview'}
+        window._closing = closing
+        raise RuntimeError('dialog cannot be displayed')
+
+    monkeypatch.setattr(consent, '_choose_optional_cleanup', fail_dialog)
+    window._on_cache_cleanup_preview_ready({'operation': 'disposable-preview'})
+
+    assert not window._cache_cleanup_busy
+    assert window._cache_cleanup_guard is None
+    assert window._cache_cleanup_after is None
+    assert window._cache_cleanup_install_token is None
+    assert continued == ([] if closing else [True])
+    assert len(review['warnings']) == (0 if closing else 1)
+    assert not review['applies'] and not review['notices']
+    assert (review['base'] / 'news' / 'releases.json').read_bytes() == b'original-news'
+
+
+def test_choices_arriving_during_close_are_ignored(review, monkeypatch):
+    window = review['window']
+    window._cache_cleanup_busy = True
+    window._cache_cleanup_guard = object()
+    continued = []
+    window._cache_cleanup_after = lambda: continued.append(True)
+
+    def choose(_preview, _parent):
+        window._closing = True
+        return {'news': True}
+
+    monkeypatch.setattr(consent, '_choose_optional_cleanup', choose)
+    window._on_cache_cleanup_preview_ready({'operation': 'disposable-preview'})
+
+    assert not window._cache_cleanup_busy and window._cache_cleanup_guard is None
+    assert not continued and not review['applies'] and not review['notices']
+    assert (review['base'] / 'news' / 'releases.json').read_bytes() == b'original-news'
+
+
+@pytest.mark.parametrize('reason,explanation', [
+    ('active', 'A run is in progress. Try again when it has finished.'),
+    ('changed', 'Cleanup did not complete. Review the folders again before trying cleanup.'),
+])
+def test_refused_cleanup_reports_the_reason_without_claiming_files_removed(
+        review, reason, explanation):
+    window = review['window']
+    window._cache_cleanup_busy = True
+    window._on_cache_cleanup_applied({'ok': False, 'removed': 0, 'reason': reason})
+
+    assert review['notices'] == [(
+        qt_app.tr('Cached files removed: {count}.', count=0) + '\n\n'
+        + qt_app.tr(explanation), Qt.PlainText)]
+    assert not window._cache_cleanup_busy
+    assert not review['applies']
+    assert (review['base'] / 'news' / 'releases.json').read_bytes() == b'original-news'
+
+
+def test_late_apply_notification_during_close_does_not_open_a_dialog(review):
+    window = review['window']
+    window._cache_cleanup_busy = True
+    window._closing = True
+    window._on_cache_cleanup_applied({'ok': True, 'removed': 2})
+
+    assert not window._cache_cleanup_busy
+    assert not review['notices'] and not review['warnings']
+
+
+def test_retired_worker_signals_cannot_overwrite_or_retire_a_new_review(review):
+    window = review['window']
+    current = qt_app._UpdateWorker('preview', lambda: None, window)
+    retired = qt_app._UpdateWorker('preview', lambda: None, window)
+    window._cache_cleanup_worker = current
+    window._cache_cleanup_busy = True
+    result = {'operation': 'current-preview'}
+    window._cache_cleanup_result = result
+    window._cache_cleanup_error = None
+    retired.succeeded.connect(window._on_cache_cleanup_succeeded)
+    retired.failed.connect(window._on_cache_cleanup_failed)
+    retired.finished.connect(window._on_cache_cleanup_finished)
+
+    retired.succeeded.emit({'operation': 'stale-preview'})
+    retired.failed.emit('preview', 'stale error')
+    retired.finished.emit()
+
+    assert window._cache_cleanup_worker is current
+    assert window._cache_cleanup_result is result
+    assert window._cache_cleanup_error is None and window._cache_cleanup_busy
+    assert not review['applies'] and not review['warnings'] and not review['notices']
