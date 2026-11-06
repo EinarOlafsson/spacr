@@ -1,0 +1,49 @@
+A STANDARD REPORT FOR ANALYZE_REPLICATION
+
+Lifecycle: new
+Status: open. Builds on spacr/assay_report.py (A4 layout and pagination, 16-bit tile extraction, legend builder), which reaches nightly with Anu's recruitment report push after the 2026-11-06 batch.
+Requested: maintainer, 2026-11-06 (via Anu).
+Owner: Anu.
+
+--------------------------------------------------------------------------------
+WHAT THE REPORT CONTAINS
+--------------------------------------------------------------------------------
+
+The standard output of analyze_replication, the counterpart of the
+recruitment report:
+- representative images for each bin;
+- the graphs;
+- control graphs with statistics;
+- one folder per panel with the data CSV, stats CSV, PNG and PDF;
+- a main figure on A4 with automatic pagination;
+- a generated figure legend as a .txt file, also appended to the PDF.
+
+--------------------------------------------------------------------------------
+SPEC
+--------------------------------------------------------------------------------
+
+1. Representative tiles per bin
+   - One representative vacuole per bin: within +/-10% of the bin's median
+     area, solidity in the bin's top quarter, parasite-channel mean between
+     the 25th and 90th percentile, no other object within 12 px; of those,
+     the one closest to the median area.
+   - A 5 x 5 random grid per bin (seeded), drawn from the filtered objects.
+   - One fixed crop size and one display scaling for all crops.
+   - 16-bit throughout (item 772, points 7-10): a raw uint16 multichannel
+     TIFF per crop including the mask, plus a 16-bit RGB display PNG/TIFF at
+     native resolution. Only the labelled PDF/PNG are 8-bit (interpolation
+     'none').
+2. Graphs, each unfiltered and filtered, at well and replicate level
+   - Stacked bins, with chi-square and with Fisher-Freeman-Halton, showing
+     mean +/- SD of the replicate fractions.
+   - A replicate-mean bar (area, or parasites per vacuole) with one test per
+     graph and an assumptions table.
+3. Well-level control graphs, before and after filtering
+   - Per image channel, the mean intensity in every object type.
+   - Objects per well, per object type.
+   - filter_summary.
+4. Works for any number of object types and channels.
+
+Tests: a synthetic plate gives one folder per panel with all four files; the
+legend .txt matches the text appended to the PDF; the tiles follow the
+selection rules; pagination keeps every page A4.
