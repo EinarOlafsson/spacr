@@ -2,7 +2,7 @@ REMOVE REDUNDANT AND UNUSED OLD FILES FROM THE REPOSITORY
 =========================================================
 
 Lifecycle: new
-Status: open — for the release after 1.5.1.7.
+Status: open — removals proven safe are done; clone size waits for the 710 history rewrite.
 Requested: maintainer, 2026-11-04.
 Related: 710 (slim the repository), 757 (the folder that holds setup.py).
 
@@ -27,3 +27,5 @@ REQUIREMENTS
 2026-11-04 -- Kept: old online installers (historical-upgrade workflow), spacr/resources (710), readme_images (generated), tests/data glob sets, tutorial media (item 756). Clone size waits for the 710 history rewrite.
 2026-11-04 -- Coordinator approved; removed docs/tutorial/ and docs/resources/ (legacy 2024 tutorial pages, duplicate Open Sans, icon copies; 26,804,981 bytes) and their MANIFEST prunes; tools/build_score_cards.py now reads the byte-identical spacr/resources Open Sans (--check clean).
 2026-11-04 -- Tracked tree 811,991,627 -> 784,960,831 bytes (27,030,796 removed, measured with git ls-tree -l on nightly). Packaging, installer, source-install, container, score-card, checkout-size and tracked-file scan tests pass. Clone size waits for the 710 history rewrite; proposals/ move deferred to a generator closure pass.
+2026-11-06 -- Re-inventory on 68d6a4bf2f: tracked tree 788,060,646 bytes / 14,757 files. Stray-pattern scan (logs, backups, caches, editor files) still finds nothing tracked.
+2026-11-06 -- Nothing further removed. The largest duplicates (tutorial example zips, ~70 MB, held both in docs/source/_extra/tutorials/examples and tools/tutorials/release_candidate/web/examples) are the published-player checkpoint the tutorial publish tools and tests read (item 756); git stores each blob once, so they cost working-tree space only. spacr/resources/icons/backup_icons (2.2 MB) is read by the icon generators, MANIFEST, workflows and tests.
