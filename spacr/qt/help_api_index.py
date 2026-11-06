@@ -1320,7 +1320,7 @@ API_ENTRIES = (
     ('spacr.diameter.estimate_diameters', 'Propose a Cellpose ``diameter`` per object type from blob statistics.'),
     ('spacr.diameter.format_estimates', 'Render :func:`estimate_diameters` output as a printable block.'),
     ('spacr.diameter.format_estimates._line', 'Pad one report row to the captured column widths.'),
-    ('spacr.division_analysis', 'What tracked cells do before they divide (alpha, feature item 771).'),
+    ('spacr.division_analysis', 'What tracked cells do before they divide (alpha).'),
     ('spacr.division_analysis.add_motion_features', 'Add speed, displacement and turning angle to a per-frame table.'),
     ('spacr.division_analysis.align_units', "Measurements of each unit's track on ``rel_t = t - t0``."),
     ('spacr.division_analysis.cell_cycles', 'Complete fission cycles: born at an observed two-daughter division and seen to divide into two.'),

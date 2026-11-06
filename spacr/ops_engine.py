@@ -211,7 +211,7 @@ _BACKEND_SPOT_DETECTORS = ("spotnet", "spotiflow")
 #: every read to the library FIRST and votes among the matched reads only.
 #:
 #: Measured on subset_v1, 116 stratified fields of the Funk et al. 2022
-#: plates A-D (2026-11-04, item 752 decode-yield study): 83 % of nuclei carry
+#: plates A-D (2026-11-04, decode-yield study): 83 % of nuclei carry
 #: at least one read, the same as brieflow's 81.7 % "any barcode". ``agree``
 #: assigned 28 % of nuclei, because a nucleus with one read can never vote and
 #: two reads of one guide split the vote whenever either has a wrong base.
@@ -276,10 +276,11 @@ _DECODE_WORKERS_CAP = 8
 #: else, so a run that only wants the placement stops after two phases.
 _PHASES = ("stitch", "phenotype", "objects", "decode")
 
-#: The phenotype path (item 752, alpha): segment and measure every placed
-#: phenotype field, merge its cells onto the sequencing nuclei, and reduce
-#: cells to guides and genes. Not in the default run, because each needs the
-#: four above and a design table; asked for by name.
+#: The phenotype path (alpha): segment and measure every placed phenotype
+#: field, merge its cells onto the sequencing nuclei, and reduce cells to
+#: guides and genes. Not in the default run, because each needs the four
+#: above and a design table; a run includes them only when ``phases`` names
+#: them.
 _PH_PHASES = ("ph_segment", "ph_measure", "merge", "aggregate")
 
 #: Every phase :func:`run_ops` accepts, in the order they run.
@@ -2753,9 +2754,9 @@ def run_ops(settings: Mapping[str, Any], *,
     :param phases: any of ``"stitch"``, ``"phenotype"``, ``"objects"`` and
         ``"decode"``, run in that order. A phase left out reads what it needs
         from the database, so a well can be stitched once and decoded again.
-        The alpha phenotype path (item 752) adds ``"ph_segment"``,
-        ``"ph_measure"``, ``"merge"`` and ``"aggregate"``, asked for by name
-        and run after those four; a run of only these needs ``dst_root``
+        The alpha phenotype path adds ``"ph_segment"``,
+        ``"ph_measure"``, ``"merge"`` and ``"aggregate"``, run only when
+        named here and after those four; a run of only these needs ``dst_root``
         and ``plate`` but no ``genotype_source``, takes its wells from
         ``ops_phenotype``, and adds to each well's ``ops_report.json``
         rather than replacing it. ``aggregate`` pools the wells run and
