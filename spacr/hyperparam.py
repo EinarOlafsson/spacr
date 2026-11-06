@@ -3497,8 +3497,8 @@ def build_sklearn_model(model_type: str, params: Mapping[str, Any],
         return make_pipeline(StandardScaler(), LogisticRegression(
             max_iter=1000, C=1.0 / max(reg_lambda, 1e-9), random_state=seed))
     if mt == "shrinkage_lda":
-        from .ml import regularised_linear_model
-        return regularised_linear_model("shrinkage_lda", random_state=seed)
+        from .ml import _regularised_linear_model
+        return _regularised_linear_model("shrinkage_lda", random_state=seed)
     if mt == "gradient_boosting":
         from sklearn.ensemble import HistGradientBoostingClassifier
         return HistGradientBoostingClassifier(

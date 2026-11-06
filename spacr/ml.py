@@ -132,7 +132,7 @@ from .plot import save_figure
 LOG = logging.getLogger("spacr.ml")
 
 
-def regularised_linear_model(kind='logistic_regression', random_state=0):
+def _regularised_linear_model(kind='logistic_regression', random_state=0):
     """Return a regularised linear classifier that is safe on wide feature tables.
 
     Unregularised discriminant analysis collapses when the feature count
@@ -10055,9 +10055,9 @@ def ml_analysis(
         from sklearn.ensemble import ExtraTreesClassifier
         model = ExtraTreesClassifier(n_estimators=n_estimators, random_state=random_state, n_jobs=n_jobs)
     elif model_type == 'logistic_regression':
-        model = regularised_linear_model('logistic_regression', random_state=random_state)
+        model = _regularised_linear_model('logistic_regression', random_state=random_state)
     elif model_type == 'shrinkage_lda':
-        model = regularised_linear_model('shrinkage_lda', random_state=random_state)
+        model = _regularised_linear_model('shrinkage_lda', random_state=random_state)
     elif model_type == 'gradient_boosting':
         model = HistGradientBoostingClassifier(max_iter=n_estimators, random_state=random_state)
     elif model_type == 'xgboost':
