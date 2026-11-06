@@ -2928,7 +2928,7 @@ def get_analyze_recruitment_default_settings(settings):
     settings.setdefault('confounder_filter',None)
     settings.setdefault('report',False)
     settings.setdefault('report_tiles_per_condition',5)
-    settings.setdefault('report_tile_size',128)
+    settings.setdefault('report_tile_size',192)
     settings.setdefault('report_tile_seed',0)
     settings.setdefault('report_tile_channels',None)
     settings.setdefault('report_max_conditions_per_row',12)
@@ -5545,7 +5545,7 @@ tooltips = {
     "background_mask_channel": '(int) - Recruitment and replication: index of the mask channel in the merged arrays that marks objects; pixels where it is 0 count as field background for background_filters. Default -1.',
     "report": '(bool) - Recruitment analysis: write the standard recruitment report into results/report: representative tiles per condition, recruitment per condition before and after the opt-in filters at well and replicate level, and well-level control graphs (every channel in every object type, objects per well) before and after filtering, as A4 pages in recruitment_report.pdf with one folder per panel (PDF, PNG, data.csv, stats.csv) and an automatic figure legend (figure_legend.txt). Default False.',
     "report_tiles_per_condition": '(int) - Recruitment report: number of representative host-cell tiles per condition, chosen at random from the filtered objects. Default 5.',
-    "report_tile_size": '(int) - Recruitment report: side of each representative tile in pixels, centred on the host cell mask centroid. Default 128.',
+    "report_tile_size": '(int) - Recruitment report: side of each tile and crop in pixels, centred on the pathogen objects of the host cell. Default 192.',
     "report_tile_seed": '(int) - Recruitment report: random seed for choosing the representative tiles, so the same tiles are chosen on every run. Default 0.',
     "report_tile_channels": "(dict) - Recruitment report: composite colours of the tiles, {channel: colour} with colours red, green, blue, magenta, cyan, yellow or grey, e.g. {2: 'red', 1: 'green', 0: 'blue'}. None shows channel_of_interest in red, the pathogen channel in green and the nucleus channel in blue. Default None.",
     "report_max_conditions_per_row": '(int) - Recruitment report: most conditions drawn side by side in one graph or tile row; longer condition axes continue on the next row or page. Default 12.',

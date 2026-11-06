@@ -63,9 +63,9 @@ MIN_FONT_PT = 5.0
 MAX_BRACKETS = 12
 MM = 1 / 25.4
 _CORE_OBJECTS = ("cell", "nucleus", "cytoplasm", "pathogen")
-OBJECT_COLOURS = {"cell": "#4C72B0", "nucleus": "#264653", "cytoplasm": "#A8DADC",
+OBJECT_COLOURS = {"cell": "#4C72B0", "nucleus": "#8C8C8C", "cytoplasm": "#A8DADC",
                   "pathogen": "#2A9D8F"}
-_EXTRA_OBJECT_COLOURS = ["#8C8C8C", "#7FA7C9", "#5E548E", "#B5838D"]
+_EXTRA_OBJECT_COLOURS = ["#264653", "#7FA7C9", "#5E548E", "#B5838D"]
 
 
 def object_colours(objects):
@@ -1039,7 +1039,7 @@ def draw_grouped_panel(ax, spec, order=None, seed=0, compact=False):
         data = data[~data["outlier"].astype(bool)]
     rng = np.random.default_rng(seed)
     k = max(len(objects), 1)
-    width = 0.8 / k
+    width = 0.86 / k
     vals = pd.to_numeric(data[value], errors="coerce") if len(data) else pd.Series(dtype=float)
     d = data.assign(_v=vals).replace([np.inf, -np.inf], np.nan).dropna(subset=["_v"])
     means_all = d.groupby("object_type")["_v"].mean()
@@ -1057,7 +1057,7 @@ def draw_grouped_panel(ax, spec, order=None, seed=0, compact=False):
             ("n/a" if compact else "not tested") if st["test"] == "not tested" else st["significance"])
         from matplotlib.colors import to_rgba
         col = spec["colors"][obj]
-        ax.bar(x + off, m.to_numpy(float), width=width * 0.92, color=to_rgba(col, STYLE["bar_alpha"]),
+        ax.bar(x + off, m.to_numpy(float), width=width * 0.97, color=to_rgba(col, STYLE["bar_alpha"]),
                edgecolor=shade(col, STYLE["edge_shade"]), linewidth=STYLE["edge_lw"] * 0.6,
                label=obj if tag is None else f"{obj} ({tag})")
         ax.errorbar(x + off, m.to_numpy(float), yerr=s.to_numpy(float), fmt="none",
@@ -1066,10 +1066,10 @@ def draw_grouped_panel(ax, spec, order=None, seed=0, compact=False):
         for i, g in enumerate(order):
             y = sub.loc[sub[group] == g, "_v"].to_numpy(float)
             if len(y):
-                ax.scatter(i + off + rng.uniform(-width * 0.22, width * 0.22, len(y)), y,
-                           s=STYLE["dot_size"] * 0.5, color=shade(col, STYLE["dot_shade"]),
+                ax.scatter(i + off + rng.uniform(-width * 0.12, width * 0.12, len(y)), y,
+                           s=STYLE["dot_size"] * 0.35, color=shade(col, STYLE["dot_shade"]),
                            alpha=STYLE["dot_alpha"], edgecolors=STYLE["dot_edge"],
-                           linewidths=STYLE["dot_edge_lw"], zorder=3)
+                           linewidths=STYLE["dot_edge_lw"], zorder=3, gid="grouped_dots")
     if log:
         ax.set_yscale("log")
     else:
@@ -1110,6 +1110,7 @@ def compact_style(ax, layout=COMPACT, wrap=_COMPACT_WRAP):
     """
     from matplotlib.collections import PathCollection, LineCollection
     from matplotlib.patches import Rectangle
+    grouped = any(c.get_gid() == "grouped_dots" for c in ax.collections)
     txt = max(MIN_FONT_PT, layout.text_pt)
     ax.title.set_fontsize(max(MIN_FONT_PT, layout.title_pt))
     ax.title.set_text("\n".join("not tested" if line.startswith("not tested") else line
@@ -1128,7 +1129,8 @@ def compact_style(ax, layout=COMPACT, wrap=_COMPACT_WRAP):
             t.set_fontsize(txt)
     for c in ax.collections:
         if isinstance(c, PathCollection):
-            c.set_sizes(np.full(max(len(c.get_offsets()), 1), COMPACT_DOT_SIZE))
+            size = COMPACT_DOT_SIZE * (0.45 if c.get_gid() == "grouped_dots" else 1.0)
+            c.set_sizes(np.full(max(len(c.get_offsets()), 1), size))
             c.set_linewidths(0.25)
         elif isinstance(c, LineCollection):
             c.set_linewidth(0.45)
@@ -1141,8 +1143,9 @@ def compact_style(ax, layout=COMPACT, wrap=_COMPACT_WRAP):
     for p in ax.patches:
         if isinstance(p, Rectangle):
             w = p.get_width()
-            p.set_x(p.get_x() + w * 0.15)
-            p.set_width(w * 0.7)
+            keep = 0.9 if grouped else 0.7
+            p.set_x(p.get_x() + w * (1 - keep) / 2)
+            p.set_width(w * keep)
             p.set_linewidth(0.45)
     for sp in ax.spines.values():
         sp.set_linewidth(0.5)
@@ -1461,7 +1464,7 @@ def _label_number(value):
     return int(m.group(1)) if m else None
 
 
-def select_tiles(df, group, order, n, seed=0, tile_size=128,
+def select_tiles(df, group, order, n, seed=0, tile_size=192,
                  edge_column="pathogen_distance_to_field_edge"):
     """Random objects per group, objects away from the field edge first.
 
@@ -1630,6 +1633,35 @@ def render_tile(crop, colour_map, ranges, outlines=(), alpha=1.0):
     return np.ascontiguousarray((rgb * 65535).round().astype(np.uint16))
 
 
+def contour_paths(mask):
+    """Sub-pixel contour lines of a binary mask, as (row, col) arrays in pixel coordinates."""
+    from skimage.measure import find_contours
+    padded = np.pad(np.asarray(mask, dtype=float), 1)
+    return [c - 1.0 for c in find_contours(padded, 0.5) if len(c) > 2]
+
+
+def render_outlines_upsampled(crop, channel, ranges, tile_contours, factor=4, alpha=0.6, width=2):
+    """Grey ``channel`` image upsampled ``factor`` times (Lanczos) with anti-aliased outlines.
+
+    :param tile_contours: [(colour, [contour (row, col) arrays])] from :func:`contour_paths`.
+    :returns: uint16 RGB array.
+    """
+    import cv2
+    lo, hi = ranges[int(channel)]
+    grey = np.clip((crop[..., int(channel)].astype(np.float64) - lo) / max(hi - lo, 1e-9), 0, 1)
+    h, w = grey.shape
+    big = cv2.resize(grey.astype(np.float32), (w * factor, h * factor), interpolation=cv2.INTER_LANCZOS4)
+    rgb = np.repeat(np.clip(big, 0, 1)[..., None], 3, axis=2).astype(np.float64)
+    for col, paths in tile_contours:
+        canvas = np.zeros((h * factor, w * factor), np.uint8)
+        for c in paths:
+            pts = np.round((c[:, ::-1] + 0.5) * factor * 16).astype(np.int32)
+            cv2.polylines(canvas, [pts.reshape(-1, 1, 2)], True, 255, width, lineType=cv2.LINE_AA, shift=4)
+        a = alpha * canvas.astype(np.float64)[..., None] / 255
+        rgb = (1 - a) * rgb + a * np.asarray(col, float)[None, None, :]
+    return np.ascontiguousarray((np.clip(rgb, 0, 1) * 65535).round().astype(np.uint16))
+
+
 def write_rgb16(stem, rgb):
     """Write an RGB uint16 array as ``<stem>.png`` (OpenCV, BGR order) and ``<stem>.tif``.
 
@@ -1671,12 +1703,12 @@ def _safe(text):
 
 
 def build_tiles(df, group, order, merged_dir, mask_dims, colour_map, out_folder, n=5,
-                size=128, seed=0, percentiles=(2, 98), max_range_fields=24,
+                size=192, seed=0, percentiles=(2, 98), max_range_fields=24,
                 object_column="object_label", file_column="file_name",
                 edge_column="pathogen_distance_to_field_edge", outline_objects=("pathogen", "cell"),
                 value_column=None, center_object="pathogen", max_attempts=400,
                 selection="random", range_source="crops", subdir="crops",
-                montage_name="montage16", mono_channel=None, outline_alpha=0.6, gap=1):
+                montage_name="montage16", mono_channel=None, outline_alpha=0.6, gap=1, upsample=4):
     """Pick, crop, render and write the representative tiles of every group.
 
     :param df: object table, one row per host cell, with the ``group``,
@@ -1726,6 +1758,7 @@ def build_tiles(df, group, order, merged_dir, mask_dims, colour_map, out_folder,
         channel of interest; default the first channel of ``colour_map``).
     :param outline_alpha: opacity of the outlines (0-1).
     :param gap: width in pixels of the white lines between montage tiles.
+    :param upsample: scale of the extra outline image files (``*_x4``).
 
     Three versions of every crop are written, each a 16-bit set of its own:
     ``merged/`` (colour composite, no outlines), ``mono/`` (``mono_channel``
@@ -1736,7 +1769,10 @@ def build_tiles(df, group, order, merged_dir, mask_dims, colour_map, out_folder,
     (rows = crops, columns = groups, ``gap`` px white hairlines). ``raw/``
     holds the unchanged multichannel crop (all image and mask planes, input
     dtype). Display ranges: per channel the ``percentiles`` of the pixels of
-    every crop of the figure (``range_source='crops'``).
+    every crop of the figure (``range_source='crops'``). The outline version is
+    also written ``upsample`` times larger (``*_x4``): the grey image Lanczos
+    upsampled with the outlines drawn anti-aliased at that scale. The figure
+    PDFs draw outlines as vector paths (``contours`` in the result).
 
     :returns: dict with ``tiles`` {version: {group: [rgb16]}}, ``table`` (one row per
         tile), ``ranges``, ``montage`` (uint16 RGB, rows = tiles, columns =
@@ -1801,6 +1837,7 @@ def build_tiles(df, group, order, merged_dir, mask_dims, colour_map, out_folder,
                 "outlines": ({mono: "grey"}, True)}
     rows, files = [], []
     tiles = {v: {} for v in versions}
+    contours, tiles_x4 = {}, {}
     for v in versions:
         os.makedirs(os.path.join(out_folder, v, subdir), exist_ok=True)
     os.makedirs(os.path.join(out_folder, "raw"), exist_ok=True)
@@ -1829,6 +1866,11 @@ def build_tiles(df, group, order, merged_dir, mask_dims, colour_map, out_folder,
                                   alpha=outline_alpha)
                 tiles[v][g].append(rgb)
                 files += write_rgb16(os.path.join(out_folder, v, subdir, name), rgb)
+            tile_contours = [(col, contour_paths(mask)) for mask, col in outlines]
+            contours.setdefault(g, []).append(tile_contours)
+            x4 = render_outlines_upsampled(padded, mono, ranges, tile_contours, upsample, outline_alpha)
+            tiles_x4.setdefault(g, []).append(x4)
+            files += write_rgb16(os.path.join(out_folder, "outlines", subdir, f"{name}_x{upsample}"), x4)
             rec = {group: g, "tile": k, "file_name": row.get(file_column),
                    "object_label": row.get(object_column), "mask_label": label,
                    "y0": box[0], "y1": box[1], "x0": box[2], "x1": box[3],
@@ -1846,12 +1888,15 @@ def build_tiles(df, group, order, merged_dir, mask_dims, colour_map, out_folder,
     for v in versions:
         montages[v] = montage16(tiles[v], order, n, size, gap=gap)
         files += write_rgb16(os.path.join(out_folder, v, montage_name), montages[v])
+    files += write_rgb16(os.path.join(out_folder, "outlines", f"{montage_name}_x{upsample}"),
+                         montage16(tiles_x4, order, n, size * upsample, gap=gap * upsample))
     montage = montages["merged"]
     dtype = str(arrays[0].dtype) if arrays else "unknown"
     return dict(tiles=tiles, table=pd.DataFrame(rows), ranges=ranges, montage=montage,
                 montages=montages, files=files, notes=notes, n_range_fields=len(arrays), dtype=dtype,
                 centred_on=center_object if center_object in mask_dims else "cell", mono_channel=mono,
-                percentiles=tuple(percentiles), gap=gap, outline_colours={
+                percentiles=tuple(percentiles), gap=gap, contours=contours, upsample=upsample,
+                outline_colours={
                     o: OUTLINE_COLOURS.get(o, _EXTRA_OUTLINES[sorted(mask_dims).index(o) % len(_EXTRA_OUTLINES)])
                     for o in mask_dims})
 
@@ -1888,6 +1933,25 @@ def _axis_text_rows(axis, chunk, labels, pt, col_mm):
     per_line = max(6, int(col_mm / (_pt_mm(pt) * 0.6)))
     wrapped = ["\n".join(textwrap.wrap(t, per_line, break_long_words=False)) for t in texts]
     return [("", wrapped)], False
+
+
+def _draw_vector_outlines(ax, contours, chunk, n, size, gap, lw=0.7, alpha=0.6):
+    """Outline contours as vector lines over a montage (pixel coordinates), crisp at any zoom."""
+    from matplotlib.collections import LineCollection
+    segs, cols = [], []
+    for j, g in enumerate(chunk):
+        for i, tile in enumerate((contours.get(g) or [])[:n]):
+            y_off, x_off = i * (size + gap), j * (size + gap)
+            for col, paths in tile:
+                for c in paths:
+                    segs.append(np.column_stack([c[:, 1] + x_off, c[:, 0] + y_off]))
+                    cols.append(col)
+    if segs:
+        lim_x, lim_y = ax.get_xlim(), ax.get_ylim()
+        ax.add_collection(LineCollection(segs, colors=cols, linewidths=lw, alpha=alpha,
+                                         capstyle="round", joinstyle="round"))
+        ax.set_xlim(lim_x)
+        ax.set_ylim(lim_y)
 
 
 def crop_drawer(result, chunk, n, size, layout=SPACIOUS, axis=None, labels=None,
@@ -1937,7 +2001,9 @@ def crop_drawer(result, chunk, n, size, layout=SPACIOUS, axis=None, labels=None,
     height = layout.id_strip + n_blocks * img_h(tile_mm) + text_mm + (n_blocks - 1) * vgap
     min_t = min(tile_mm, min_tile_mm)
     min_height = layout.id_strip + n_blocks * img_h(min_t) + text_mm + (n_blocks - 1) * vgap
-    monts = {v: montage16(result["tiles"][v], chunk, n, size, gap=gap) for v in versions}
+    vector = "outlines" in versions and result.get("contours") is not None
+    monts = {v: montage16(result["tiles"]["mono" if (v == "outlines" and vector) else v], chunk, n, size,
+                          gap=gap) for v in versions}
 
     def draw(fig, rect):
         """Draw the image versions and the condition labels or matrix into ``rect``.
@@ -1962,8 +2028,11 @@ def crop_drawer(result, chunk, n, size, layout=SPACIOUS, axis=None, labels=None,
                 bottom = top - k * (ih + vgap) - ih
             ax = fig.add_axes([left / fw, bottom / fh, iw / fw, ih / fh])
             ax.imshow((m.astype(np.float64) / 257).round().astype(np.uint8), interpolation="none",
-                      aspect="auto", extent=(-0.5, ncol - 0.5, ih, 0))
+                      aspect="auto")
             ax.set_axis_off()
+            if v == "outlines" and vector:
+                _draw_vector_outlines(ax, result["contours"], chunk, n, size, gap,
+                                      lw=0.7 if layout.compact else 0.9)
             if (side and k != 0) or (not side and k != len(versions) - 1):
                 continue
             for r, (name, texts) in enumerate(rows):
@@ -2406,15 +2475,15 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
     """Build the standard report: one figure per data version, plate heatmaps, legends.
 
     Two figures, FILTERED then UNFILTERED, each on its own A4 pages: tiles of
-    that version (``tiles``), the representative object per condition and,
-    under every value graph, its crop grid (``crops``), the value per
+    that version (``tiles``), under every value graph its crop grid of the
+    objects nearest each condition median (``crops``), the value per
     condition at well and replicate level (half page width), the well-level
     controls (no statistics), and the figure legend printed under the panels
     (following pages when needed). Plate heatmaps follow as an appendix.
     Graphs carry no titles or test names: significant post hoc pairs are
     brackets with stars; tests are in stats.csv and the legend.
 
-    Images (tiles, representative crops, crop grids) come in three versions -
+    Images (tiles and crop grids) come in three versions -
     merged colour, channel of interest in grey, and the same with the outline
     of every object type - scaled per channel to the 2nd-98th percentile of all
     crops of that figure, written as 16-bit PNG/TIFF (``build_tiles``).
@@ -2528,7 +2597,7 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
                       f"grey; channel {mono} in grey with the outline of every object of the host "
                       f"cell at 60% opacity ({okey}). Every channel is scaled linearly between its "
                       f"2nd and 98th percentile over all crops of that panel. Crops are "
-                      f"{tiles.get('size', 128)} x {tiles.get('size', 128)} px centred on the pathogen "
+                      f"{tiles.get('size', 192)} x {tiles.get('size', 192)} px centred on the pathogen "
                       f"objects of the host cell; only cells whose pathogen objects lie inside the "
                       f"crop and away from the field edge are used. Images are written as 16-bit "
                       f"PNG/TIFF at native resolution (raw/ holds the unchanged uint16 planes) and "
@@ -2571,36 +2640,14 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
                 n = tiles.get("n", 5)
                 tr["table"].to_csv(os.path.join(folder, "data.csv"), index=False)
                 save_crop_panel(folder, panel_folder_name(pid, f"tiles_{version}"), tr, order, n,
-                                tiles.get("size", 128), axis, labels, dpi=dpi)
+                                tiles.get("size", 192), axis, labels, dpi=dpi)
                 folders[pid] = folder
-                add_block(crop_items(pid, tr, order, n, tiles.get("size", 128), layout, axis, labels,
+                add_block(crop_items(pid, tr, order, n, tiles.get("size", 192), layout, axis, labels,
                                      max_conditions_per_row, max_tile_mm=12.0))
                 legend.append(f"{pid}. {n} host cells per condition chosen at random (seed "
                               f"{tiles.get('seed', 0)}) from the {version} objects, one column per "
                               f"condition; left to right: merged, channel {mono}, channel {mono} with "
                               f"outlines." + (" " + "; ".join(tr["notes"]) + "." if tr["notes"] else ""))
-            if crops:
-                pid = next_id()
-                folder = os.path.join(panels_dir, panel_folder_name(pid, f"representative_per_condition_{version}"))
-                try:
-                    rp = build_tiles(df, group, order, out_folder=folder, value_column=value, n=1,
-                                     selection="median", **{k: v for k, v in tiles.items() if k in
-                                                            ("merged_dir", "mask_dims", "colour_map",
-                                                             "size", "mono_channel")})
-                except Exception as exc:
-                    rp = None
-                    legend.append(f"{pid}. Representative crops could not be made: {exc}.")
-                if rp is not None and len(rp["table"]):
-                    rp["table"].to_csv(os.path.join(folder, "data.csv"), index=False)
-                    save_crop_panel(folder, panel_folder_name(pid, f"representative_per_condition_{version}"),
-                                    rp, order, 1, tiles.get("size", 128), axis, labels, dpi=dpi)
-                    folders[pid] = folder
-                    add_block(crop_items(pid, rp, order, 1, tiles.get("size", 128), layout, axis, labels,
-                                         max_conditions_per_row, max_tile_mm=16.0))
-                    legend.append(f"{pid}. One representative object per condition: the {version} host "
-                                  f"cell whose {value_label} lies closest to the median of its condition "
-                                  f"(data.csv: object, value, condition median); left to right: merged, "
-                                  f"channel {mono}, channel {mono} with outlines.")
 
         items, grids = [], []
         levels = ["well"] + (["replicate"] if replicate_column else [])
@@ -2630,9 +2677,9 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
                                         ("merged_dir", "mask_dims", "colour_map", "size", "mono_channel")})
                     gr["table"].to_csv(os.path.join(gfolder, "data.csv"), index=False)
                     save_crop_panel(gfolder, os.path.basename(gfolder), gr, order, int(crops.get("n", 5)),
-                                    tiles.get("size", 128), axis, labels, dpi=dpi)
+                                    tiles.get("size", 192), axis, labels, dpi=dpi)
                     grids += crop_items(f"{pid} crops", gr, order, int(crops.get("n", 5)),
-                                        tiles.get("size", 128), layout, axis, labels,
+                                        tiles.get("size", 192), layout, axis, labels,
                                         max_conditions_per_row, width=items[-1].frac, min_tile_mm=3.0,
                                         new_row=not grids)
                     legend.append(f"{pid} crops. Under {pid}: the {int(crops.get('n', 5))} {version} objects "

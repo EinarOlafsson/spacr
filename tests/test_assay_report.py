@@ -216,25 +216,26 @@ def test_analyze_recruitment_report_end_to_end(tmp_path):
     assert allp[:2] == ["H01_heatmap_recruitment_unfiltered", "H02_heatmap_recruitment_filtered"]
     names = [p for p in allp if p.startswith("R")]
     # filtered figure first: tiles, representative, well + replicate graphs (with crops), controls
-    assert names[:6] == ["R01_tiles_filtered", "R02_representative_per_condition_filtered",
-                         "R03_recruitment_filtered_well", "R03_recruitment_filtered_well_crops",
-                         "R04_recruitment_filtered_replicate", "R04_recruitment_filtered_replicate_crops"]
-    assert "R05_channel_0_all_objects_filtered" in names
+    assert names[:5] == ["R01_tiles_filtered",
+                         "R02_recruitment_filtered_well", "R02_recruitment_filtered_well_crops",
+                         "R03_recruitment_filtered_replicate", "R03_recruitment_filtered_replicate_crops"]
+    assert "R04_channel_0_all_objects_filtered" in names
+    assert not any("representative_per_condition" in p for p in names)
     tiles = rep / "panels" / "R01_tiles_filtered"
     for v in ("merged", "mono", "outlines"):
         assert (tiles / v / "montage16.png").exists() and (tiles / v / f"R01_tiles_filtered_{v}.pdf").exists()
     t = pd.read_csv(tiles / "data.csv")
     # the replicate (pathogen) is part of the condition: two report conditions (cm, lovastatin)
     assert t["report_condition"].nunique() == 2 and len(t) == 6
-    graphs = [p for p in names if p.startswith(("R03", "R04")) and not p.endswith("_crops")]
+    graphs = [p for p in names if p.startswith(("R02", "R03")) and not p.endswith("_crops")]
     for p in graphs:
         st = pd.read_csv(rep / "panels" / p / "stats.csv")
         assert "test" in set(st["table"])                        # main graphs keep their tests
     unf = [p for p in names if p.endswith("recruitment_unfiltered_well")][0]
-    filt = "R03_recruitment_filtered_well"
+    filt = "R02_recruitment_filtered_well"
     assert pd.read_csv(rep / "panels" / unf / "data.csv")["n_objects"].sum() == len(df)
     assert pd.read_csv(rep / "panels" / filt / "data.csv")["n_objects"].sum() == len(cells)
-    reps = pd.read_csv(rep / "panels" / "R04_recruitment_filtered_replicate" / "data.csv")
+    reps = pd.read_csv(rep / "panels" / "R03_recruitment_filtered_replicate" / "data.csv")
     assert len(reps) == 4 and "n_wells" in reps.columns
     ctrl = [p for p in names if "objects" in p or "area" in p or "per_host" in p]
     assert sum("all_objects_unfiltered" in p for p in ctrl) == 4
@@ -339,20 +340,19 @@ def test_representative_crops_grid_and_figure(tmp_path):
                           "condition", order, [0, 1], labels=labels, tiles=tiles, crops={"n": 3},
                           heatmaps=False)
     panels = tmp_path / "rep" / "panels"
-    rep = panels / "R02_representative_per_condition_filtered"
-    table = pd.read_csv(rep / "data.csv")
-    assert len(table) == len(order) and {"recruitment", "group_median"} <= set(table.columns)
-    for _, r in table.iterrows():
-        sub = df[df["condition"] == r["condition"]]
-        assert abs(r["group_median"] - sub["recruitment"].median()) < 1e-9
-    grid = panels / "R03_recruitment_filtered_well_crops"
+    assert not any("representative_per_condition" in p.name for p in panels.iterdir())
+    grid = panels / "R02_recruitment_filtered_well_crops"
     g = pd.read_csv(grid / "data.csv")
     assert g.groupby("condition").size().tolist() == [3] * len(order)
-    assert (grid / "R03_recruitment_filtered_well_crops.pdf").exists()
+    assert (grid / "R02_recruitment_filtered_well_crops.pdf").exists()
+    assert {"recruitment", "group_median"} <= set(g.columns)
+    for _, r in g.drop_duplicates("condition").iterrows():
+        sub = df[df["condition"] == r["condition"]]
+        assert abs(r["group_median"] - sub["recruitment"].median()) < 1e-9
     for v in ("merged", "mono", "outlines"):
         mont = cv2.imread(str(grid / v / "montage16.png"), cv2.IMREAD_UNCHANGED)
         assert mont.dtype == np.uint16
-        assert (grid / v / "R03_recruitment_filtered_well_crops_{}.png".format(v)).exists()
+        assert (grid / v / "R02_recruitment_filtered_well_crops_{}.png".format(v)).exists()
     raw = tifffile.imread(grid / g["raw_tiff"].iloc[0])
     assert raw.dtype == np.uint16
     # mono version: channel 2 scaled to its 2nd-98th percentile over the crops of this grid
@@ -470,3 +470,34 @@ def test_matrix_drawn_once_under_image_versions(tmp_path):
         assert sorted(names) == sorted(axis["annotations"])       # each row name once
         plus = [t for t in fig.texts if t.get_text() in ("+", "−")]
         assert len(plus) == len(axis["annotations"]) * len(order)   # one matrix, not three
+
+
+def test_outlines_are_vector_in_figures_and_upsampled_in_files(tmp_path):
+    import cv2
+    from matplotlib.collections import LineCollection
+    df, order, labels, tiles = _report_inputs(tmp_path, 3)
+    out = tmp_path / "t"
+    tr = ar.build_tiles(df, "condition", order, tiles["merged_dir"], tiles["mask_dims"], tiles["colour_map"],
+                        str(out), n=2, size=48, mono_channel=2)
+    name = tr["table"]["outlines_png"].iloc[0]
+    native = cv2.imread(str(out / name), cv2.IMREAD_UNCHANGED)
+    x4 = cv2.imread(str(out / name.replace(".png", "_x4.png")), cv2.IMREAD_UNCHANGED)
+    assert native.shape == (48, 48, 3) and x4.shape == (192, 192, 3) and x4.dtype == np.uint16
+    assert (out / name.replace(".png", "_x4.tif")).exists() and (out / "outlines" / "montage16_x4.png").exists()
+    assert len(np.unique(x4)) > len(np.unique(native))           # anti-aliased, smooth at 4x
+    draw, h, _ = ar.crop_drawer(tr, order, 2, 48, ar.COMPACT, None, labels, width_mm=180)
+    fig = ar._new_figure(190, h + 10)
+    draw(fig, (0.02, 0.02, 0.96, 0.96))
+    lines = [c for ax in fig.axes for c in ax.collections if isinstance(c, LineCollection)]
+    assert len(lines) == 1 and len(lines[0].get_segments()) >= 3 * 2
+    assert lines[0].get_alpha() == pytest.approx(0.6)
+    assert len(fig.axes[2].images) == 1                            # grey image under the vector lines
+
+
+def test_grouped_object_colours_distinct_and_no_yellow():
+    from matplotlib.colors import to_rgb
+    cols = ar.object_colours(["cell", "nucleus", "cytoplasm", "pathogen", "organelle_a"])
+    assert len(set(cols.values())) == 5
+    for c in cols.values():
+        r, g, b = to_rgb(c)
+        assert not (r > 0.7 and g > 0.6 and b < 0.4)               # no yellow
