@@ -1931,6 +1931,9 @@ def get_measure_crop_settings(settings=None):
         'variance_threshold', 'frequency_threshold', 'correlation_threshold',
         'drop_na_columns', 'drop_outliers'])
     settings.setdefault('profiling_correlation_threshold', 0.9)
+    settings.setdefault('profiling_na_cutoff', 0.05)
+    settings.setdefault('profiling_outlier_cutoff', 500)
+    settings.setdefault('profiling_min_variance', 1e-6)
     settings.setdefault('profiling_phenotype_column', '')
     settings.setdefault('profiling_databases', [])
     settings.setdefault('cell_cycle', False)
@@ -3906,6 +3909,9 @@ expected_types = {
     "profiling_normalization": str,
     "profiling_feature_selection": list,
     "profiling_correlation_threshold": (float, int),
+    "profiling_na_cutoff": (float, int),
+    "profiling_outlier_cutoff": (float, int),
+    "profiling_min_variance": (float, int),
     "profiling_phenotype_column": str,
     "profiling_databases": list,
     "cell_cycle": bool,
@@ -5304,8 +5310,11 @@ tooltips = {
     "profiling_treatment_column": "(str or list) - The annotation column, or columns, naming what each well received. Wells that share them are replicates and are collapsed into one consensus profile. Use a plate-map column such as treatment, treatment and dose together, or columnID when each plate column holds one condition. Default columnID.",
     "profiling_negative_control": "(str or list) - Value or values of the first profiling_treatment_column that mark negative-control wells, for example DMSO or c1. Each plate is normalised against its own controls, and every treatment is scored for phenotypic activity, how well its replicates find each other among the controls. Blank normalises against all wells of a plate and skips the activity score. Default blank.",
     "profiling_normalization": "(str) - How each feature is put on a common scale, plate by plate. mad_robustize subtracts the reference median and divides by 1.4826 times the reference MAD, which tolerates outlier wells; standardize uses the mean and standard deviation; robustize uses the median and interquartile range; none keeps the aggregated values. The reference is the negative control, or every well when none is named. Default mad_robustize.",
-    "profiling_feature_selection": "(list) - Feature-selection steps, run in order after normalisation: variance_threshold drops near-zero variance, frequency_threshold near-constant values, correlation_threshold the more redundant of each pair correlated above profiling_correlation_threshold, drop_na_columns features missing in over 5 % of wells, and drop_outliers any feature with an absolute value above 500. An empty list keeps every feature. Default all five.",
+    "profiling_feature_selection": "(list) - Feature-selection steps, run in order after normalisation: variance_threshold drops near-zero variance, frequency_threshold near-constant values, correlation_threshold the more redundant of each pair correlated above profiling_correlation_threshold, drop_na_columns features missing in over 5 % of wells, and drop_outliers any feature with an absolute value above 500. An empty list keeps every feature. Every dropped feature is listed with its reason in feature_qc_dropped.csv beside the profiles. Default all five.",
     "profiling_correlation_threshold": "(float) - Pearson correlation above which two features count as redundant in the correlation_threshold selection step. Of each such pair the feature more correlated with all others is removed. Lower values keep fewer, less redundant features. Default 0.9.",
+    "profiling_na_cutoff": "(float) - Feature quality control after normalisation: a feature that is missing or infinite in more than this fraction of wells is dropped (drop_na_columns). 0.05 is 5 %. Needs drop_na_columns in profiling_feature_selection. Default 0.05.",
+    "profiling_outlier_cutoff": "(float) - Feature quality control after normalisation: a feature whose largest absolute normalised value in any well exceeds this is dropped (drop_outliers); such values come from dividing by a near-zero control spread rather than from biology. Needs drop_outliers in profiling_feature_selection. Default 500.",
+    "profiling_min_variance": "(float) - Feature quality control after normalisation: a feature whose variance over the wells is not above this is dropped as near-constant (variance_threshold). Needs variance_threshold in profiling_feature_selection. Default 0.000001.",
     "profiling_phenotype_column": "(str) - Optional plate-map column holding a phenotype label that different treatments share, such as a mechanism of action, pathway or target gene. When set, consensus profiles are also scored for phenotypic consistency: how well treatments with the same label retrieve each other, as mAP per label. Default blank.",
     "feature_qc_drop": "(bool) - Remove the columns Feature QC flags from the cell, cytoplasm, nucleus and pathogen tables of measurements.db at the end of the run, before profiling reads them. Every complete run lists all-missing, mostly-missing, numerically zero, constant and spike-dominated columns in feature_qc.csv and feature_qc.json beside measurements.db; this only decides whether they are also dropped. Removal cannot be undone. Default False.",
     "profiling_databases": "(list) - Further measurements.db files to profile together with this run's, one per plate, so replicates on different plates are compared while each plate is still normalised on its own. Every plate needs a distinct plateID. Default [].",
@@ -6095,6 +6104,8 @@ categories = {
         "profiling", "profiling_metadata", "profiling_treatment_column",
         "profiling_negative_control", "profiling_normalization",
         "profiling_feature_selection", "profiling_correlation_threshold",
+        "profiling_na_cutoff", "profiling_outlier_cutoff",
+        "profiling_min_variance",
         "profiling_phenotype_column", "profiling_databases",
         "feature_qc_drop",
     ],
@@ -7905,6 +7916,8 @@ ALPHA_FEATURES = {
                      'profiling_negative_control', 'profiling_normalization',
                      'profiling_feature_selection',
                      'profiling_correlation_threshold',
+                     'profiling_na_cutoff', 'profiling_outlier_cutoff',
+                     'profiling_min_variance',
                      'profiling_phenotype_column', 'profiling_databases'),
     },
     548: {

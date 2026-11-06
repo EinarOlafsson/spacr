@@ -1266,6 +1266,19 @@ if app_key == "mask":
     for app, key in feature_qc_arrivals:
         assert resolve_default_settings(app)[key] is False
     recognized_arrivals |= feature_qc_arrivals
+    # Item 807: the three label-free feature-QC thresholds of profiling,
+    # each with one default claim equal to the value Measure resolves.
+    profiling_qc_defaults = {"profiling_na_cutoff": 0.05,
+                           "profiling_outlier_cutoff": 500,
+                           "profiling_min_variance": 1e-6}
+    profiling_qc_arrivals = {(app, key) for app in ("measure", "external_masks")
+                           for key in profiling_qc_defaults}
+    assert {pair for pair in compared_pairs
+            if pair[1] in profiling_qc_defaults} == profiling_qc_arrivals
+    assert not profiling_qc_arrivals & (recognized_arrivals | variants.keys())
+    for app, key in profiling_qc_arrivals:
+        assert resolve_default_settings(app)[key] == profiling_qc_defaults[key]
+    recognized_arrivals |= profiling_qc_arrivals
     assert comparisons - len(recognized_arrivals) == 959
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))

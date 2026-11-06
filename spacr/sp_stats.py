@@ -2673,7 +2673,9 @@ def _normalize_profiles(frame: pd.DataFrame, features: Sequence[str], *,
     ``None``) and applied to all wells of that plate:
 
     * ``mad_robustize``: ``(x - median) / (1.4826 MAD + epsilon)``, as
-      pycytominer's RobustMAD;
+      pycytominer's RobustMAD; a feature with no variation at all in the
+      reference wells keeps a scale of 1, so a single stray value cannot
+      become infinite or astronomically large;
     * ``standardize``: ``(x - mean) / SD``, population SD, a zero SD left
       at 1, as scikit-learn's StandardScaler;
     * ``robustize``: ``(x - median) / IQR``, a zero IQR left at 1, as
@@ -2731,7 +2733,15 @@ def _normalize_profiles(frame: pd.DataFrame, features: Sequence[str], *,
             if method == "mad_robustize":
                 centre = np.nanmedian(fit, axis=0)
                 spread = np.nanmedian(np.abs(fit - centre), axis=0) * MAD_SCALE
-                result[rows] = (values[rows] - centre) / (spread + epsilon)
+                # A feature that does not vary at all in the reference (a
+                # moment written as exact zeros, say) has no spread to
+                # divide by; epsilon alone would turn one stray value into
+                # 1e10 or more. Leave its scale at 1 -- the feature is
+                # dropped as constant in the controls anyway.
+                flat = (spread < tiny) & (np.nan_to_num(
+                    np.nanstd(fit, axis=0), nan=0.0) < tiny)
+                spread = np.where(flat, 1.0, spread + epsilon)
+                result[rows] = (values[rows] - centre) / spread
             elif method == "standardize":
                 centre = np.nanmean(fit, axis=0)
                 spread = np.nanstd(fit, axis=0)
@@ -2787,13 +2797,16 @@ def _low_frequency(values: pd.DataFrame, freq_cut: float,
 
 
 def _too_many_missing(values: pd.DataFrame, cutoff: float) -> List[str]:
-    """Features missing in more than ``cutoff`` of the rows.
+    """Features missing or infinite in more than ``cutoff`` of the rows.
 
     :param values: the rows the selection is fitted on, features only.
     :param cutoff: the largest missing fraction a kept feature may have.
     :returns: the excluded names.
     """
-    fraction = values.isna().mean()
+    array = values.to_numpy(dtype=float)
+    fraction = pd.Series((~np.isfinite(array)).mean(axis=0)
+                         if len(array) else np.zeros(array.shape[1]),
+                         index=values.columns)
     return fraction[fraction > cutoff].index.tolist()
 
 
@@ -2856,9 +2869,97 @@ def _extreme(values: pd.DataFrame, cutoff: float) -> List[str]:
     :param cutoff: the largest absolute value a kept feature may reach.
     :returns: the excluded names.
     """
-    high = values.max().abs()
-    low = values.min().abs()
-    return high[(high > cutoff) | (low > cutoff)].index.tolist()
+    array = values.to_numpy(dtype=float)
+    with _warnings.catch_warnings():
+        _warnings.simplefilter("ignore", RuntimeWarning)
+        biggest = pd.Series(np.nanmax(np.abs(array), axis=0)
+                            if len(array) else np.zeros(array.shape[1]),
+                            index=values.columns)
+    return biggest[biggest > cutoff].index.tolist()
+
+
+def _constant_in_reference(frame: pd.DataFrame, features: Sequence[str],
+                           reference: Optional[pd.Series] = None,
+                           by: Optional[str] = "plateID") -> List[str]:
+    """Features that do not vary in the reference wells of some plate.
+
+    A feature with no spread among the controls (every value identical, or
+    nothing finite) has no scale to normalise by. The test needs no labels:
+    only which wells are the controls.
+
+    :param frame: one row per well, before normalisation.
+    :param features: the candidate feature columns.
+    :param reference: boolean mask of the reference wells, or ``None`` for
+        every well.
+    :param by: the column that names a plate.
+    :returns: the names that are constant on at least one plate.
+    """
+    features = list(features)
+    if not features:
+        return []
+    values = frame.loc[:, features].to_numpy(dtype=float)
+    mask = (np.ones(len(frame), dtype=bool) if reference is None else
+            np.asarray(pd.Series(reference).reindex(frame.index)
+                       .fillna(False), dtype=bool))
+    plates = (np.zeros(len(frame), dtype=int)
+              if by is None or by not in frame.columns
+              else pd.factorize(frame[by].astype(str), sort=True)[0])
+    flat = np.zeros(len(features), dtype=bool)
+    tiny = 10 * np.finfo(float).eps
+    with _warnings.catch_warnings():
+        _warnings.simplefilter("ignore", RuntimeWarning)
+        for code in np.unique(plates):
+            fit = values[(plates == code) & mask]
+            fit = np.where(np.isfinite(fit), fit, np.nan)
+            spread = np.nanmax(fit, axis=0) - np.nanmin(fit, axis=0) if len(
+                fit) else np.full(len(features), np.nan)
+            scale = np.maximum(np.nanmax(np.abs(fit), axis=0), 1.0) if len(
+                fit) else np.ones(len(features))
+            flat |= ~(spread > tiny * scale)
+    return [name for name, hit in zip(features, flat) if hit]
+
+
+def _feature_drop_list(result: "_ProfilingResult") -> pd.DataFrame:
+    """Every feature a profiling run dropped, with the rule and the reason.
+
+    One row per dropped feature (the first rule that removed it), with the
+    figures the rule looked at, so the list can be audited without the
+    labels or the treatments.
+
+    :param result: a finished profiling run.
+    :returns: columns ``feature``, ``rule`` and ``reason``.
+    """
+    options = result.options
+    normalized = result.normalized
+    rows = []
+    for rule, names in result.excluded.items():
+        for name in names:
+            column = (normalized[name].to_numpy(dtype=float)
+                      if name in normalized.columns else np.array([]))
+            finite = np.isfinite(column)
+            if rule == "constant_in_controls":
+                reason = "no variation among the negative-control wells"
+            elif rule == "drop_na_columns":
+                reason = (f"non-finite in {100 * (1 - finite.mean()):.1f}% of "
+                          f"wells (limit {100 * options.get('na_cutoff', 0.05):g}%)"
+                          if len(column) else "non-finite")
+            elif rule == "drop_outliers":
+                biggest = (np.abs(column[finite]).max() if finite.any()
+                           else float("nan"))
+                reason = (f"largest |normalised value| {biggest:.3g} exceeds "
+                          f"{options.get('outlier_cutoff', 500.0):g}")
+            elif rule == "variance_threshold":
+                reason = (f"variance {np.nanvar(column):.3g} not above "
+                          f"{options.get('min_variance', 1e-6):g}"
+                          if finite.any() else "variance undefined")
+            elif rule == "frequency_threshold":
+                reason = "near-constant: one value dominates the wells"
+            else:
+                reason = (f"correlated above "
+                          f"{options.get('correlation_threshold', 0.9):g} "
+                          "with a feature that was kept")
+            rows.append({"feature": name, "rule": rule, "reason": reason})
+    return pd.DataFrame(rows, columns=["feature", "rule", "reason"])
 
 
 def _select_profile_features(
@@ -3558,7 +3659,8 @@ def _write_profiles(result: _ProfilingResult, out_dir: str, *,
     as CSV and Parquet with pycytominer-style ``Metadata_`` columns (so
     pycytominer, copairs and pandas read them as they are), the consensus
     also as GCT for Morpheus, the average-precision and mAP tables and
-    percent replicating as CSV, and ``profiling_summary.json``. Tables are
+    percent replicating as CSV, ``feature_qc_dropped.csv`` (every dropped
+    feature with the rule and the reason) and ``profiling_summary.json``. Tables are
     written through :func:`spacr.tabular.write_table` and figures through
     :func:`spacr.plot.save_figure`; the similarity map's pale middle is
     zero similarity and is meant to recede, so its low-contrast colour
@@ -3613,6 +3715,9 @@ def _write_profiles(result: _ProfilingResult, out_dir: str, *,
             continue
         written[name] = write_table(table, os.path.join(out_dir, name + ".csv"),
                                     canonicalise=False)
+    written["feature_qc_dropped"] = write_table(
+        _feature_drop_list(result), os.path.join(out_dir, "feature_qc_dropped.csv"),
+        canonicalise=False)
     path = os.path.join(out_dir, "profiling_summary.json")
     with open(path, "w", encoding="utf-8") as handle:
         json.dump(result.summary(), handle, indent=2, default=str)
@@ -3674,6 +3779,9 @@ def _profile_wells(wells: pd.DataFrame, features: Sequence[str], *,
                    normalization: str = "mad_robustize",
                    feature_selection: Sequence[str] = _PROFILE_DEFAULT_SELECTIONS,
                    correlation_threshold: float = 0.9,
+                   na_cutoff: float = 0.05,
+                   outlier_cutoff: float = 500.0,
+                   min_variance: float = 1e-6,
                    consensus: str = "median",
                    phenotype_column: Optional[str] = None,
                    similarity: str = "cosine",
@@ -3698,6 +3806,11 @@ def _profile_wells(wells: pd.DataFrame, features: Sequence[str], *,
     :param normalization: see :func:`_normalize_profiles`.
     :param feature_selection: see :func:`_select_profile_features`.
     :param correlation_threshold: see :func:`_select_profile_features`.
+    :param na_cutoff: the largest fraction of wells a feature may be
+        non-finite in.
+    :param outlier_cutoff: the largest absolute normalised value a feature
+        may reach.
+    :param min_variance: the variance a feature must exceed.
     :param consensus: see :func:`_consensus_profiles`.
     :param phenotype_column: annotation column with a phenotype label, or
         None to skip the consistency score.
@@ -3733,9 +3846,15 @@ def _profile_wells(wells: pd.DataFrame, features: Sequence[str], *,
                      "against all of its wells and activity is not scored.")
     normalized = _normalize_profiles(wells, features, method=normalization,
                                      reference=reference)
+    flat = (_constant_in_reference(wells, features, reference)
+            if len(feature_selection) else [])
+    candidates = [name for name in features if name not in set(flat)]
     kept, excluded = _select_profile_features(
-        normalized, features, feature_selection,
-        corr_threshold=correlation_threshold)
+        normalized, candidates, feature_selection,
+        corr_threshold=correlation_threshold, na_cutoff=na_cutoff,
+        outlier_cutoff=outlier_cutoff, min_variance=min_variance)
+    if flat:
+        excluded = {"constant_in_controls": flat, **excluded}
     if len(kept) < 2:
         raise _ProfilingError(
             f"feature selection kept {len(kept)} of {len(features)} "
@@ -3801,7 +3920,8 @@ def _profile_wells(wells: pd.DataFrame, features: Sequence[str], *,
                      normalization=normalization,
                      feature_selection=list(feature_selection),
                      correlation_threshold=correlation_threshold,
-                     consensus=consensus, phenotype_column=phenotype_column,
+                     na_cutoff=na_cutoff, outlier_cutoff=outlier_cutoff,
+                     min_variance=min_variance, consensus=consensus, phenotype_column=phenotype_column,
                      similarity=similarity, null_size=null_size,
                      threshold=threshold, seed=seed),
         notes=notes)
@@ -3850,6 +3970,9 @@ def _profile_measurements(settings: Dict[str, Any], db_path: str, *,
             else _as_list(settings.get("profiling_feature_selection"))),
         correlation_threshold=float(
             settings.get("profiling_correlation_threshold", 0.9)),
+        na_cutoff=float(settings.get("profiling_na_cutoff", 0.05)),
+        outlier_cutoff=float(settings.get("profiling_outlier_cutoff", 500.0)),
+        min_variance=float(settings.get("profiling_min_variance", 1e-6)),
         phenotype_column=phenotype or None, report=report)
     out_dir = os.path.join(os.path.dirname(os.path.abspath(db_path)),
                            "profiles")

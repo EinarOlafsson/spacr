@@ -22,6 +22,7 @@ PROFILING_SETTINGS = (
     "profiling", "profiling_metadata", "profiling_treatment_column",
     "profiling_negative_control", "profiling_normalization",
     "profiling_feature_selection", "profiling_correlation_threshold",
+    "profiling_na_cutoff", "profiling_outlier_cutoff", "profiling_min_variance",
     "profiling_phenotype_column", "profiling_databases",
 )
 

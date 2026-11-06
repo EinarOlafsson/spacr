@@ -847,6 +847,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "profiling", "profiling_metadata", "profiling_treatment_column",
     "profiling_negative_control", "profiling_normalization",
     "profiling_feature_selection", "profiling_correlation_threshold",
+    "profiling_na_cutoff", "profiling_outlier_cutoff", "profiling_min_variance",
     "profiling_phenotype_column", "profiling_databases",
     # NEW SETTINGS, not a regrouping (item 535, 2026-09-26): Measure's
     # cell-cycle phase call -- the switch, the method, the DNA channel, the
