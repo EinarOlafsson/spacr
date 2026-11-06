@@ -130,3 +130,14 @@ def test_the_launch_path_clears_an_old_store(qapp):
     P.apply_preferences_to_app(qapp)
 
     assert not set(RETIRED) & set(_stored())
+
+
+@pytest.mark.parametrize("key", ("session/last", "prefs/restore_last_session"))
+def test_an_old_store_loses_the_restore_last_session_keys(key):
+    """Restore last session was removed on 2026-11-05; its keys go too."""
+    _write_old_store({key: "x", "prefs/theme": "light"})
+
+    assert P.get_theme() == "light"
+
+    after = _stored()
+    assert key not in after and after.get("prefs/theme") == "light"

@@ -2,7 +2,7 @@ THE RELEASE REUSES GREEN NIGHTLY CI FOR THE EXACT SAME COMMIT
 =============================================================
 
 Lifecycle: new
-Status: open — for the release after 1.5.1.7.
+Status: DONE 2026-11-06 — select_run() reuses a green nightly run of the exact SHA; tests/test_release_source_ci.py passes (100 tests) on nightly.
 Requested: maintainer, 2026-11-04 (agreed during the 1.5.1.7 release).
 
 REQUEST

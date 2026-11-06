@@ -600,7 +600,12 @@ DEFAULT_THEME = "dark"
 #: `theme_background_path`.
 _KEY_SPACE_VARIANT = "prefs/space_variant"
 _KEY_SPACE_SEED    = "prefs/space_seed"
-#: Store files already cleared of the two keys above in this process.
+#: RETIRED 2026-11-05 with "restore last session": nothing records or reads
+#: either key, and `_forget_the_space_theme_keys` removes them from an old
+#: store along with the Space keys above.
+_KEY_SESSION_LAST = "session/last"
+_KEY_RESTORE_LAST_SESSION = "prefs/restore_last_session"
+#: Store files already cleared of the retired keys above in this process.
 _SPACE_KEYS_CLEARED: set = set()
 _KEY_CELL_VARIANT  = "prefs/cell_variant"
 
@@ -2052,7 +2057,11 @@ def set_figure_text_size(size: int) -> None:
 
 
 def _forget_the_space_theme_keys(store) -> None:
-    """Remove the retired Space theme's two keys from ``store``, once.
+    """Remove the retired Space theme's two keys, and the two "restore last
+    session" keys, from ``store``, once.
+
+    ``session/last`` and ``prefs/restore_last_session`` went with the
+    restore-last-session feature (2026-11-05); no release reads them.
 
     ``prefs/space_variant`` and ``prefs/space_seed`` chose between skies for
     a theme :data:`VALID_THEMES` does not offer, and nothing has read either
@@ -2074,14 +2083,16 @@ def _forget_the_space_theme_keys(store) -> None:
         name = str(store.fileName())
         if name in _SPACE_KEYS_CLEARED:
             return
-        gone = [key for key in (_KEY_SPACE_VARIANT, _KEY_SPACE_SEED)
+        gone = [key for key in (_KEY_SPACE_VARIANT, _KEY_SPACE_SEED,
+                                _KEY_SESSION_LAST,
+                                _KEY_RESTORE_LAST_SESSION)
                 if store.contains(key)]
         for key in gone:
             store.remove(key)
         if gone:
             store.sync()
-            LOG.info("removed %s from the preferences: they belonged to the "
-                     "retired Space theme and nothing reads them.",
+            LOG.info("removed %s from the preferences: they belonged to a "
+                     "retired feature and nothing reads them.",
                      " and ".join(gone))
         _SPACE_KEYS_CLEARED.add(name)
     except Exception:                                        # noqa: BLE001

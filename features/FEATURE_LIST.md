@@ -12,7 +12,7 @@ Repeated IDs retain their separate full filenames and histories; none were merge
 
 This is a declaration-based navigation list, not a verified unfinished count. Headers can be stale. Conversely, recorded-Done items 641 and 673 contain later Mac follow-ups; item 729 separates native checks from deferred implementation. Read their linked notes before assigning work.
 
-67 records have no recorded complete declaration; 725 have a recorded complete declaration. Neither is a verification result.
+66 records have no recorded complete declaration; 726 have a recorded complete declaration. Neither is a verification result.
 
 | ID | Lifecycle | Item (full filename) | Recorded status |
 |---|---|---|---|
@@ -44,7 +44,6 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 758 | New | [REMOVE CLAUDE FROM EVERY COMMIT IT APPEARS ON — 758_remove_claude_from_commit_history.txt](feature_list/758_remove_claude_from_commit_history.txt) | open — for the release after 1.5.1.7. Needs the maintainer's explicit |
 | 759 | New | [CLEAN UP THE CODE BASE: UNNECESSARY COMMENTS AND UNUSED FUNCTIONS — 759_clean_up_comments_and_unused_functions.txt](feature_list/759_clean_up_comments_and_unused_functions.txt) | open — for the release after 1.5.1.7. |
 | 760 | New | [REMOVE TESTS THAT NO LONGER MAKE SENSE OR DO NOT TEST HOW spaCR WORKS — 760_remove_tests_that_no_longer_make_sense.txt](feature_list/760_remove_tests_that_no_longer_make_sense.txt) | open — for the release after 1.5.1.7. |
-| 761 | New | [THE RELEASE REUSES GREEN NIGHTLY CI FOR THE EXACT SAME COMMIT — 761_release_reuses_green_nightly_ci_for_the_same_commit.txt](feature_list/761_release_reuses_green_nightly_ci_for_the_same_commit.txt) | open — for the release after 1.5.1.7. |
 | 763 | New | [TIME MODE SWAPS TWO CELL IDENTITIES DIRECTLY — 763_time_mode_swaps_two_cell_ids.txt](feature_list/763_time_mode_swaps_two_cell_ids.txt) | open — for the release after 1.5.1.7. |
 | 768 | New | [SYNCTHING: THE HOME-WORKSTATION CONNECTION KEEPS DROPPING — 768_syncthing_home_workstation_connection_keeps_dropping.txt](feature_list/768_syncthing_home_workstation_connection_keeps_dropping.txt) | open — workaround in place (training-projects paused on Home, 2026-11-04 16:40). |
 | 769 | Future | [A PER-CELL EXPORT JOINING CELL, NUCLEUS AND CYTOPLASM — 769_a_per_cell_export_joining_cell_nucleus_and_cytoplasm.txt](feature_list/769_a_per_cell_export_joining_cell_nucleus_and_cytoplasm.txt) | not started |
@@ -832,7 +831,7 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 758 | New | [REMOVE CLAUDE FROM EVERY COMMIT IT APPEARS ON — 758_remove_claude_from_commit_history.txt](feature_list/758_remove_claude_from_commit_history.txt) | open — for the release after 1.5.1.7. Needs the maintainer's explicit |
 | 759 | New | [CLEAN UP THE CODE BASE: UNNECESSARY COMMENTS AND UNUSED FUNCTIONS — 759_clean_up_comments_and_unused_functions.txt](feature_list/759_clean_up_comments_and_unused_functions.txt) | open — for the release after 1.5.1.7. |
 | 760 | New | [REMOVE TESTS THAT NO LONGER MAKE SENSE OR DO NOT TEST HOW spaCR WORKS — 760_remove_tests_that_no_longer_make_sense.txt](feature_list/760_remove_tests_that_no_longer_make_sense.txt) | open — for the release after 1.5.1.7. |
-| 761 | New | [THE RELEASE REUSES GREEN NIGHTLY CI FOR THE EXACT SAME COMMIT — 761_release_reuses_green_nightly_ci_for_the_same_commit.txt](feature_list/761_release_reuses_green_nightly_ci_for_the_same_commit.txt) | open — for the release after 1.5.1.7. |
+| 761 | New | [THE RELEASE REUSES GREEN NIGHTLY CI FOR THE EXACT SAME COMMIT — 761_release_reuses_green_nightly_ci_for_the_same_commit.txt](feature_list/761_release_reuses_green_nightly_ci_for_the_same_commit.txt) | DONE 2026-11-06 — select_run() reuses a green nightly run of the exact SHA; tests/test_release_source_ci.py passes (100 tests) on nightly. |
 | 762 | New | [A BUSY UNIPROT IS NOT AN EMPTY ANSWER — 762_uniprot_busy_is_not_an_empty_answer.txt](feature_list/762_uniprot_busy_is_not_an_empty_answer.txt) | DONE 2026-11-05 — shipped in 1.5.1.7. |
 | 763 | New | [TIME MODE SWAPS TWO CELL IDENTITIES DIRECTLY — 763_time_mode_swaps_two_cell_ids.txt](feature_list/763_time_mode_swaps_two_cell_ids.txt) | open — for the release after 1.5.1.7. |
 | 764 | New | [TIME MODE NAMES DAUGHTERS BY DIVISION TYPE AND CAN REMOVE A DIVISION — 764_time_mode_division_types_and_undo.txt](feature_list/764_time_mode_division_types_and_undo.txt) | DONE 2026-11-05 — shipped in 1.5.1.7. |
