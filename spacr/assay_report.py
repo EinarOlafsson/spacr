@@ -2479,7 +2479,8 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
                        name="report", count_objects=None, db_path=None, layout="compact",
                        well_qc: Optional[pd.DataFrame] = None, heatmaps=True, crops=None,
                        parts: Optional[Mapping] = None, x_axis_style="auto", factor_order=None,
-                       bracket_pairs="one_factor", dpi=200) -> dict:
+                       bracket_pairs="one_factor", variants=None, filter_steps=None,
+                       dpi=200) -> dict:
     """Build the standard report: one figure per data version, plate heatmaps, legends.
 
     Two figures, FILTERED then UNFILTERED, each on its own A4 pages: tiles of
@@ -2538,6 +2539,12 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
     :param parts: {condition: [(variable, factor), ...]} for the x axis
         (:func:`spacr.assay_panels.condition_parts`); None splits the
         condition names on '_'.
+    :param variants: [(column, label, description)] of alternative forms of
+        the readout; each gets well and replicate graphs in a variant figure
+        per data version.
+    :param filter_steps: long table ``step_index``, ``step``, ``group``,
+        ``remaining`` (objects per group after each filter step); drawn as the
+        filtration-steps panel of the filtered figure.
     :param x_axis_style: ``'auto'`` (+/- matrix when two or more variables
         vary on a graph, else labels of the varying part), ``'matrix'``,
         ``'labels'``.
@@ -2767,6 +2774,23 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
         for k, (pname, unit, col, ylabel, text) in enumerate(count_row):
             items += control(pname, unit, col, ylabel, text, len(count_row), k == 0)
         add_block(items, grp="controls")
+        if version == "filtered" and filter_steps is not None and len(filter_steps):
+            pid = next_id()
+            folder = os.path.join(panels_dir, panel_folder_name(pid, "filtration_steps"))
+            fs = filter_steps_table(filter_steps, order)
+            draw = filter_steps_drawer(fs, order, labels, palette, layout)
+            os.makedirs(folder, exist_ok=True)
+            fs.to_csv(os.path.join(folder, "data.csv"), index=False)
+            _save_drawing(folder, panel_folder_name(pid, "filtration_steps"), draw, (180.0, 90.0), dpi=dpi)
+            folders[pid] = folder
+            add_block([ReportItem(pid=pid, label=pid, draw=draw, width=1.0, height_mm=78.0,
+                                  min_height_mm=60.0, new_row=True)])
+            last = fs[fs["group"] == "all"].sort_values("step_index")
+            legend.append(f"{pid}. Filtration steps: objects remaining after each filter step as a percentage "
+                          f"of the spaCR output, for all objects (black) and per condition (coloured); "
+                          f"numbers above the black line give the percentage of objects removed by that "
+                          f"step. Overall {int(last['remaining'].iloc[0])} objects before and "
+                          f"{int(last['remaining'].iloc[-1])} after filtering. data.csv lists the counts.")
 
         legend.append("Filters. Unfiltered: spaCR output after the standard object filters. Filtered: "
                       "after the opt-in filters. " + filter_sentences(filter_summary))
@@ -2843,13 +2867,44 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
                 f"well_qc ({len(failed)} wells). Each map is in its own panel folder (PDF, PNG, data.csv).")
             heat_blocks.append(ReportBlock("", text_items(heat_legend, layout)))
 
+    variant_blocks, variant_legends = {}, {}
+    for version in ("filtered", "unfiltered") if variants else ():
+        df = frames[version]
+        df = df[df[group].isin(order)]
+        items, legend = [], [f"{title}: forms of {value_label}, {version} objects. " + axis_text]
+        levels = ["well"] + (["replicate"] if replicate_column else [])
+        for col, short, desc in variants:
+            for level in levels:
+                unit = aggregate_to_unit(df, col, [group],
+                                         replicate_column=replicate_column if level == "replicate" else None)
+                fin = pd.to_numeric(unit[col], errors="coerce").replace([np.inf, -np.inf], np.nan).dropna()
+                spec = bar_spec(unit, col, group, order, title="", ylabel=short, labels=labels,
+                                ymin=1 if ratio and len(fin) and fin.min() >= 1 else None,
+                                refline=1 if ratio else None, palette=palette)
+                spec.update(axis=axis, plot_mm=34.0, parts=parts, bracket_pairs=bracket_pairs, context=context)
+                pid = next_id()
+                folders[pid] = save_spec_panel(panels_dir, pid, f"variant_{col}_{version}_{level}", spec, dpi=dpi)
+                items += spec_items(pid, spec, max_conditions_per_row, layout, group_size=2,
+                                    new_row=level == "well")
+                unit_text = (f"replicates (column '{replicate_column}'; each the mean of its well means)"
+                             if level == "replicate" else "wells (each the mean of its objects)")
+                legend.append(_spec_legend(pid, spec, f"{short}: {desc}; {version} objects, {level} level.",
+                                           unit_text))
+        variant_blocks[version] = [ReportBlock(f"Figure: forms of {value_label}, {version} data", items,
+                                               new_page=True),
+                                   ReportBlock("", text_items([f"Figure legend (forms of {value_label}, "
+                                                               f"{version} data)."] + legend, layout))]
+        variant_legends[version] = legend
     legend_path = os.path.join(out_dir, "figure_legend.txt")
     paras = []
     for version in ("filtered", "unfiltered"):
         paras += [f"FIGURE: {version.upper()} DATA"] + legends[version]
+    for version, vl in variant_legends.items():
+        paras += [f"FIGURE: FORMS OF {value_label.upper()}, {version.upper()} DATA"] + vl
     paras += (["APPENDIX: PLATE HEATMAPS"] + heat_legend) if heat_legend else []
     write_legend(legend_path, [f"Figure legend: {title}"] + paras)
-    all_blocks = figure_blocks["filtered"] + figure_blocks["unfiltered"] + heat_blocks
+    all_blocks = (figure_blocks["filtered"] + figure_blocks["unfiltered"]
+                  + variant_blocks.get("filtered", []) + variant_blocks.get("unfiltered", []) + heat_blocks)
     pages = paginate(all_blocks, layout)
     res = render_report(pages, os.path.join(out_dir, f"{name}.pdf"), "", title=title, layout=layout, dpi=dpi)
     figs = {}
@@ -2857,12 +2912,63 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
         fp = paginate(figure_blocks[version], layout)
         figs[version] = render_report(fp, os.path.join(out_dir, f"{name}_figure_{version}.pdf"), "",
                                       title=f"{title}: {version} data", layout=layout, dpi=dpi)
+        if version in variant_blocks:
+            vp = paginate(variant_blocks[version], layout)
+            figs[f"variants_{version}"] = render_report(
+                vp, os.path.join(out_dir, f"{name}_figure_variants_{version}.pdf"), "",
+                title=f"{title}: forms of {value_label}, {version} data", layout=layout, dpi=dpi)
     n_main = sum(1 for pg in pages if any(pl["kind"] == "item" and str(pl["item"].pid).startswith("R")
                                           for pl in pg))
     res.update(legend=legend_path, panels=folders, layout=layout.name, n_main_pages=n_main,
                figures={v: f["pdf"] for v, f in figs.items()},
                figure_pages={v: f["n_pages"] for v, f in figs.items()}, axis=axis)
     return res
+
+
+def filter_steps_table(steps, order):
+    """Per group and overall ('all') remaining objects, % of the start and % removed per step."""
+    steps = steps[steps["group"].isin(order)].copy()
+    total = steps.groupby(["step_index", "step"], sort=False)["remaining"].sum().reset_index()
+    total["group"] = "all"
+    out = pd.concat([steps, total], ignore_index=True).sort_values(["group", "step_index"])
+    first = out.groupby("group")["remaining"].transform("first")
+    prev = out.groupby("group")["remaining"].shift(1)
+    out["percent_of_start"] = 100.0 * out["remaining"] / first.replace(0, np.nan)
+    out["percent_removed_by_step"] = 100.0 * (prev - out["remaining"]) / prev.replace(0, np.nan)
+    return out.reset_index(drop=True)
+
+
+def filter_steps_drawer(table, order, labels=None, palette=None, layout=SPACIOUS):
+    """Draw callback of the filtration-steps panel (% of objects left after each step)."""
+    layout = get_layout(layout)
+    steps = (table[["step_index", "step"]].drop_duplicates().sort_values("step_index"))
+    names = ["\n".join(textwrap.wrap(str(x).replace("_", " "), 18, break_long_words=False))
+             for x in steps["step"]]
+    pal = palette or {g: _DEFAULT_COLORS[i % len(_DEFAULT_COLORS)] for i, g in enumerate(order)}
+
+    def draw(fig, rect):
+        ax = fig.add_axes(rect)
+        for g in order:
+            t = table[table["group"] == g].sort_values("step_index")
+            if len(t):
+                ax.plot(t["step_index"], t["percent_of_start"], color=pal.get(g, "#8C8C8C"), lw=0.8,
+                        marker="o", ms=2, alpha=0.8, label=display_label(g, labels))
+        t = table[table["group"] == "all"].sort_values("step_index")
+        ax.plot(t["step_index"], t["percent_of_start"], color="black", lw=1.4, marker="o", ms=2.5, label="all")
+        for _, r in t.iloc[1:].iterrows():
+            pct = r["percent_removed_by_step"]
+            txt = "0%" if not np.isfinite(pct) or pct == 0 else f"\u2212{pct:.1f}%"
+            ax.annotate(txt, (r["step_index"], r["percent_of_start"]),
+                        xytext=(0, 4), textcoords="offset points", ha="center", fontsize=5.5)
+        ax.set_xticks(list(steps["step_index"]))
+        ax.set_xticklabels(names, rotation=35, ha="right", fontsize=5.5)
+        ax.set_ylabel("objects left (% of spaCR output)", fontsize=6)
+        ax.set_ylim(0, 108)
+        ax.tick_params(axis="y", labelsize=6)
+        ax.legend(fontsize=5, frameon=False, loc="upper left", bbox_to_anchor=(1.0, 1.0))
+        style_axes(ax)
+        fit_axes(fig, ax, rect)
+    return draw
 
 
 def _control_legend(pid, spec, what):

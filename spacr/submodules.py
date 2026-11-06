@@ -1198,6 +1198,21 @@ class _FilterLog:
         self.rows = [dict(step=first_step, **{f'{unit}_remaining': len(df),
                                               f'{unit}_removed': 0})]
         self.start = df
+        self.group_counts = [(first_step, self._counts(df))]
+
+    @staticmethod
+    def _counts(df, group='condition'):
+        if group not in getattr(df, 'columns', []):
+            return pd.Series(dtype=float)
+        return df.groupby(group, observed=True).size()
+
+    def steps_by_group(self):
+        """Long table: step, step_index, condition, remaining (objects per condition after each step)."""
+        rows = []
+        for k, (step, counts) in enumerate(self.group_counts):
+            for g, n in counts.items():
+                rows.append(dict(step=step, step_index=k, condition=g, remaining=int(n)))
+        return pd.DataFrame(rows, columns=['step', 'step_index', 'condition', 'remaining'])
 
     def add(self, step, before, after, note=''):
         """Record one filter step and print how much it removed.
@@ -1213,6 +1228,7 @@ class _FilterLog:
                               note=note))
         print(f"{step}: {len(before) - len(after)} of {len(before)} {self.unit} removed"
               + (f" ({note})" if note else ''))
+        self.group_counts.append((step, self._counts(after)))
         return after
 
     def frame(self):
@@ -1698,6 +1714,46 @@ def _panel_crop_grids(df, specs, names, panels, panels_dir, settings):
     return out
 
 
+def _recruitment_variants(df, coi):
+    """(column, short label, description) of every recruitment form present in the table."""
+    c = int(coi)
+    forms = [
+        ('recruitment', 'recruitment',
+         f'the main readout: mean intensity of channel {c} inside the pathogen mask divided by the mean '
+         f'intensity of channel {c} in the host cytoplasm'),
+        (f'pathogen_channel_{c}_cytoplasm_mean_ratio', 'pathogen mean / cytoplasm',
+         f'the same ratio as written by the measurement (pathogen mean intensity / cytoplasm mean)'),
+        (f'pathogen_channel_{c}_cytoplasm_q75_ratio', 'pathogen q75 / cytoplasm',
+         f'75th percentile of channel {c} inside the pathogen mask / cytoplasm mean: recruitment '
+         f'concentrated in part of the vacuole'),
+        (f'pathogen_channel_{c}_cytoplasm_periphery_mean_ratio', 'periphery / cytoplasm',
+         f'mean of channel {c} in the periphery band of the pathogen mask (the vacuole membrane region) '
+         f'/ cytoplasm mean'),
+        (f'pathogen_channel_{c}_cytoplasm_outside_mean_ratio', 'outside ring / cytoplasm',
+         f'mean of channel {c} in a ring just outside the pathogen mask / cytoplasm mean: signal around '
+         f'the vacuole'),
+        (f'pathogen_channel_{c}_cytoplasm_outside_q75_ratio', 'outside ring q75 / cytoplasm',
+         f'75th percentile of channel {c} in that outside ring / cytoplasm mean'),
+    ]
+    return [f for f in forms if f[0] in df.columns]
+
+
+def _report_filter_steps(filter_log, frame, group):
+    """Objects per report group after each filter step, or None without a filter log."""
+    if filter_log is None or not hasattr(filter_log, 'steps_by_group'):
+        return None
+    steps = filter_log.steps_by_group()
+    if not len(steps) or 'condition' not in frame.columns:
+        return None
+    if group != 'condition':
+        mapping = frame.dropna(subset=['condition']).groupby('condition', observed=True)[group].first()
+        steps['condition'] = steps['condition'].map(mapping)
+        steps = steps.dropna(subset=['condition'])
+        steps = (steps.groupby(['step_index', 'step', 'condition'], observed=True, sort=False)['remaining']
+                 .sum().reset_index())
+    return steps.rename(columns={'condition': 'group'})
+
+
 def _recruitment_report_impl(df_unfiltered, df, settings, results_dir, filter_log, well_qc=None):
     """Write the standard recruitment report into ``results/report`` (``report`` setting)."""
     import datetime
@@ -1742,7 +1798,9 @@ def _recruitment_report_impl(df_unfiltered, df, settings, results_dir, filter_lo
         crops=dict(n=int(settings['representative_crops_n'])) if settings.get('representative_crops') else None,
         parts=parts, x_axis_style=settings.get('x_axis_style') or 'auto',
         factor_order=settings.get('factor_order'),
-        bracket_pairs=settings.get('bracket_pairs') or 'one_factor')
+        bracket_pairs=settings.get('bracket_pairs') or 'one_factor',
+        variants=_recruitment_variants(df, coi),
+        filter_steps=_report_filter_steps(filter_log, frames['unfiltered'], group))
     print(f"Recruitment report: {res['pdf']} ({res['n_pages']} pages), legend {res['legend']}")
     return res
 

@@ -253,6 +253,21 @@ def test_analyze_recruitment_report_end_to_end(tmp_path):
         st = pd.read_csv(rep / "panels" / p / "stats.csv")
         assert "test" in set(st["table"])
     assert "Control graphs are tested the same way" in legend
+    # forms of recruitment: well and replicate graphs per variant, both versions
+    variants = [p for p in names if "_variant_" in p]
+    assert any(p.endswith("variant_recruitment_filtered_well") for p in variants)
+    assert any(p.endswith("variant_pathogen_channel_2_cytoplasm_outside_mean_ratio_unfiltered_replicate")
+               for p in variants)
+    assert (rep / "recruitment_report_figure_variants_filtered.pdf").exists()
+    assert "outside ring" in legend and "FORMS OF" in legend
+    # filtration steps: overall and per condition, % removed per step
+    fsteps = [p for p in names if p.endswith("filtration_steps")]
+    assert len(fsteps) == 1
+    fs = pd.read_csv(rep / "panels" / fsteps[0] / "data.csv")
+    allrows = fs[fs["group"] == "all"].sort_values("step_index")
+    assert allrows["remaining"].iloc[0] == len(df) and allrows["remaining"].iloc[-1] == len(cells)
+    assert {"percent_of_start", "percent_removed_by_step"} <= set(fs.columns)
+    assert set(fs["group"]) - {"all"} == set(t["report_condition"])
 
 
 def test_tiles_skip_cells_without_a_vacuole_or_with_one_at_the_field_edge():
