@@ -111,7 +111,7 @@ def _field(path, n_cells=4, size=200, seed=0):
     return arr
 
 
-def test_tiles_are_16_bit_and_raw_tiles_equal_the_source(tmp_path):
+def test_tiles_three_versions_16_bit_and_raw_equal_the_source(tmp_path):
     import tifffile
     import cv2
     merged = tmp_path / "merged"
@@ -121,25 +121,34 @@ def test_tiles_are_16_bit_and_raw_tiles_equal_the_source(tmp_path):
                            pathogen_distance_to_field_edge=[50.0] * 4))
     out = tmp_path / "tiles"
     res = ar.build_tiles(df, "condition", ["a"], str(merged), {"cell": 4, "nucleus": 5, "pathogen": 6},
-                         {2: "red", 1: "green", 0: "blue"}, str(out), n=3, size=64, seed=1)
+                         {2: "red", 1: "green", 0: "blue"}, str(out), n=3, size=64, seed=1, mono_channel=2)
     table = res["table"]
     assert len(table) == 3
     for _, r in table.iterrows():
-        raw = tifffile.imread(out / "tiles" / r["raw_tiff"])
+        raw = tifffile.imread(out / r["raw_tiff"])
         assert raw.dtype == np.uint16
         np.testing.assert_array_equal(np.moveaxis(raw, 0, -1), src[r.y0:r.y1, r.x0:r.x1, :])
-        png = cv2.imread(str(out / "tiles" / r["rgb16_png"]), cv2.IMREAD_UNCHANGED)
-        assert png.dtype == np.uint16 and png.shape == (64, 64, 3)
-        tif = tifffile.imread(str(out / "tiles" / r["rgb16_png"]).replace(".png", ".tif"))
-        np.testing.assert_array_equal(tif, png[..., ::-1])   # PNG is BGR, TIFF is RGB
+        for v in ("merged", "mono", "outlines"):
+            png = cv2.imread(str(out / r[f"{v}_png"]), cv2.IMREAD_UNCHANGED)
+            assert png.dtype == np.uint16 and png.shape == (64, 64, 3)
+            tif = tifffile.imread(str(out / r[f"{v}_png"]).replace(".png", ".tif"))
+            np.testing.assert_array_equal(tif, png[..., ::-1])   # PNG is BGR, TIFF is RGB
+        mono = cv2.imread(str(out / r["mono_png"]), cv2.IMREAD_UNCHANGED)
+        assert (mono[..., 0] == mono[..., 1]).all() and (mono[..., 1] == mono[..., 2]).all()  # grey
+        outl = cv2.imread(str(out / r["outlines_png"]), cv2.IMREAD_UNCHANGED)
+        assert (outl != mono).any() and not (outl[..., 0] == outl[..., 2]).all()  # coloured outlines
         # centred on the pathogen object of the host cell, which lies fully inside the crop
         pat = src[..., 6] == int(r["mask_label"])
         ys, xs = np.nonzero(pat)
         assert abs((r.y0 + r.y1) / 2 - ys.mean()) <= 1 and abs((r.x0 + r.x1) / 2 - xs.mean()) <= 1
         assert ys.min() >= r.y0 and ys.max() < r.y1 and xs.min() >= r.x0 and xs.max() < r.x1
-    mont = cv2.imread(str(out / "montage_rgb16.png"), cv2.IMREAD_UNCHANGED)
-    assert mont.dtype == np.uint16 and mont.shape == (3 * 64 + 2 * 4, 64, 3)
-    assert set(res["ranges"]) == {0, 1, 2}
+    for v in ("merged", "mono", "outlines"):
+        mont = cv2.imread(str(out / v / "montage16.png"), cv2.IMREAD_UNCHANGED)
+        assert mont.dtype == np.uint16 and mont.shape == (3 * 64 + 2 * 1, 64, 3)   # 1 px hairlines
+    # 2nd-98th percentile of the crops of the figure, per channel
+    crops = [np.moveaxis(tifffile.imread(out / f), 0, -1) for f in table["raw_tiff"]]
+    px = np.concatenate([c[..., 2].ravel() for c in crops]).astype(float)
+    assert res["ranges"][2] == pytest.approx(tuple(np.percentile(px, [2, 98])))
 
 
 def test_same_seed_same_tiles():
@@ -196,49 +205,51 @@ def test_analyze_recruitment_report_end_to_end(tmp_path):
         mp.undo()
     rep = src / "results" / "report"
     assert (rep / "recruitment_report.pdf").exists() and (rep / "recruitment_report.png").exists()
+    assert (rep / "recruitment_report_figure_filtered.pdf").exists()
+    assert (rep / "recruitment_report_figure_unfiltered.pdf").exists()
     legend = (rep / "figure_legend.txt").read_text()
+    assert "FIGURE: FILTERED DATA" in legend and "FIGURE: UNFILTERED DATA" in legend
     assert "max_vacuoles_per_cell 2" in legend and "exclude_edge_objects" in legend
     assert any(t in legend for t in ("one-way ANOVA", "Welch ANOVA", "Kruskal-Wallis"))
-    assert "replicate" in legend and "seed 0" in legend
+    assert "2nd and 98th percentile" in legend and "seed 0" in legend
     allp = sorted(os.listdir(rep / "panels"))
-    assert "R02_representative_per_condition" in allp
-    assert "R03_recruitment_unfiltered_well_crops" in allp
-    panels = sorted(p for p in allp if p.startswith("R") and not p.endswith("_crops")
-                    and p != "R02_representative_per_condition")
-    heat = sorted(p for p in os.listdir(rep / "panels") if p.startswith("H"))
-    assert "H01_heatmap_recruitment_unfiltered" in heat and len(heat) % 2 == 0
-    assert set(os.listdir(rep / "panels" / heat[0])) == {f"{heat[0]}.pdf", f"{heat[0]}.png", "data.csv"}
-    assert panels[0] == "R01_representative_tiles"
-    assert panels[1:5] == ["R03_recruitment_unfiltered_well", "R04_recruitment_unfiltered_replicate",
-                           "R05_recruitment_filtered_well", "R06_recruitment_filtered_replicate"]
-    for p in panels:
-        files = set(os.listdir(rep / "panels" / p))
-        assert {f"{p}.pdf", f"{p}.png", "data.csv", "stats.csv"} <= files
-    tiles = pd.read_csv(rep / "panels" / panels[0] / "data.csv")
+    assert allp[:2] == ["H01_heatmap_recruitment_unfiltered", "H02_heatmap_recruitment_filtered"]
+    names = [p for p in allp if p.startswith("R")]
+    # filtered figure first: tiles, representative, well + replicate graphs (with crops), controls
+    assert names[:6] == ["R01_tiles_filtered", "R02_representative_per_condition_filtered",
+                         "R03_recruitment_filtered_well", "R03_recruitment_filtered_well_crops",
+                         "R04_recruitment_filtered_replicate", "R04_recruitment_filtered_replicate_crops"]
+    assert "R05_channel_0_all_objects_filtered" in names
+    tiles = rep / "panels" / "R01_tiles_filtered"
+    for v in ("merged", "mono", "outlines"):
+        assert (tiles / v / "montage16.png").exists() and (tiles / v / f"R01_tiles_filtered_{v}.pdf").exists()
+    t = pd.read_csv(tiles / "data.csv")
     # the replicate (pathogen) is part of the condition: two report conditions (cm, lovastatin)
-    assert tiles["report_condition"].nunique() == 2 and len(tiles) == 6
-    assert set(tiles["prcfo"] if "prcfo" in tiles else tiles["object_label"]) <= set(cells["object_label"])
-    unf = pd.read_csv(rep / "panels" / panels[1] / "data.csv")
-    filt = pd.read_csv(rep / "panels" / panels[3] / "data.csv")
-    assert unf["n_objects"].sum() == len(df) and filt["n_objects"].sum() == len(cells)
-    reps = pd.read_csv(rep / "panels" / panels[2] / "data.csv")
+    assert t["report_condition"].nunique() == 2 and len(t) == 6
+    graphs = [p for p in names if p.startswith(("R03", "R04")) and not p.endswith("_crops")]
+    for p in graphs:
+        st = pd.read_csv(rep / "panels" / p / "stats.csv")
+        assert "test" in set(st["table"])                        # main graphs keep their tests
+    unf = [p for p in names if p.endswith("recruitment_unfiltered_well")][0]
+    filt = "R03_recruitment_filtered_well"
+    assert pd.read_csv(rep / "panels" / unf / "data.csv")["n_objects"].sum() == len(df)
+    assert pd.read_csv(rep / "panels" / filt / "data.csv")["n_objects"].sum() == len(cells)
+    reps = pd.read_csv(rep / "panels" / "R04_recruitment_filtered_replicate" / "data.csv")
     assert len(reps) == 4 and "n_wells" in reps.columns
-    # controls: channels 0, 1, 3 and 2, one grouped panel each, and counts per object type, twice
-    ctrl = [p for p in panels[5:]]
+    ctrl = [p for p in names if "objects" in p or "area" in p or "per_host" in p]
     assert sum("all_objects_unfiltered" in p for p in ctrl) == 4
     assert sum("all_objects_filtered" in p for p in ctrl) == 4
-    assert any("pathogen_objects_per_well_filtered" in p for p in ctrl)
     before = pd.read_csv(rep / "panels" / [p for p in ctrl if "cell_objects_per_well_unfiltered" in p][0]
                          / "data.csv")
     assert set(before["count_source"]) == {"measurements.db table cell"}
     after = pd.read_csv(rep / "panels" / [p for p in ctrl if "pathogen_objects_per_well_filtered" in p][0]
                         / "data.csv")
     assert set(after["count_source"]) == {"pathogen_prcfo_count"}
-    assert "measurements.db" in legend
-    stats = pd.read_csv(rep / "panels" / [p for p in ctrl if "channel_2_all_objects_filtered" in p][0]
-                        / "stats.csv")
-    assert set(stats.loc[stats["table"] == "test", "object_type"]) == {"cell", "nucleus",
-                                                                        "cytoplasm", "pathogen"}
+    # controls carry no statistics: descriptive (and outlier) tables only
+    for p in ctrl:
+        st = pd.read_csv(rep / "panels" / p / "stats.csv")
+        assert set(st["table"]) <= {"descriptive", "outliers"}
+    assert "No statistical test (control)" in legend
 
 
 def test_tiles_skip_cells_without_a_vacuole_or_with_one_at_the_field_edge():
@@ -288,29 +299,23 @@ def _report_inputs(tmp_path, n_cond, channels=(0, 1, 2, 3)):
     return df, order, labels, tiles
 
 
-def test_compact_layout_fits_the_standard_figure_on_one_page(tmp_path):
-    # 6 conditions, 4 channels, 3 counted object types (cell, nucleus, pathogen), tiles
+def test_two_figures_each_with_its_legend_on_the_figure(tmp_path):
     df, order, labels, tiles = _report_inputs(tmp_path, 6)
     res = ar.build_assay_report({"unfiltered": df, "filtered": df}, str(tmp_path / "report"),
                                 "recruitment", "condition", order, [0, 1, 2, 3], labels=labels,
-                                replicate_column="replicate", ratio=True, tiles=tiles, layout="compact")
-    assert res["n_main_pages"] == 1 and res["n_legend_pages"] >= 1
-    assert res["n_pages"] == res["n_figure_pages"] + res["n_legend_pages"]
-    assert res["n_figure_pages"] > 1                          # plate heatmaps follow as an appendix
-    counts = [p for p in res["panels"].values() if "objects_per_well" in p]
-    assert len(counts) == 6                                   # 3 types, before and after
+                                replicate_column="replicate", ratio=True, tiles=tiles, crops={"n": 3},
+                                heatmaps=False)
+    assert set(res["figures"]) == {"filtered", "unfiltered"}
+    assert res["n_legend_pages"] == 0                     # the legend is printed on each figure
+    assert res["n_pages"] == res["figure_pages"]["filtered"] + res["figure_pages"]["unfiltered"]
 
 
-def test_compact_layout_paginates_many_conditions(tmp_path):
+def test_many_conditions_paginate(tmp_path):
     df, order, labels, tiles = _report_inputs(tmp_path, 30)
     res = ar.build_assay_report({"unfiltered": df, "filtered": df}, str(tmp_path / "report"),
                                 "recruitment", "condition", order, [0, 1, 2, 3], labels=labels,
-                                replicate_column="replicate", ratio=True, tiles=None, layout="compact")
-    assert res["n_main_pages"] > 1
-    sp = ar.build_assay_report({"unfiltered": df, "filtered": df}, str(tmp_path / "report2"),
-                               "recruitment", "condition", order[:6], [0, 1, 2, 3], labels=labels,
-                               replicate_column="replicate", ratio=True, layout="spacious")
-    assert sp["n_main_pages"] > 1                             # spacious keeps the roomy pages
+                                replicate_column="replicate", ratio=True, tiles=None, heatmaps=False)
+    assert res["figure_pages"]["filtered"] > 1
 
 
 def _crop_inputs(tmp_path):
@@ -320,12 +325,10 @@ def _crop_inputs(tmp_path):
 
 def test_representative_crops_off_writes_nothing(tmp_path):
     df, order, labels, tiles = _crop_inputs(tmp_path)
-    res = ar.build_assay_report({"unfiltered": df, "filtered": df}, str(tmp_path / "rep"), "recruitment",
-                                "condition", order, [0, 1], labels=labels, tiles=tiles, crops=None,
-                                heatmaps=False)
+    ar.build_assay_report({"unfiltered": df, "filtered": df}, str(tmp_path / "rep"), "recruitment",
+                          "condition", order, [0, 1], labels=labels, tiles=tiles, crops=None, heatmaps=False)
     names = os.listdir(tmp_path / "rep" / "panels")
     assert not any(n.endswith("_crops") or "representative_per_condition" in n for n in names)
-    assert res["n_pages"] >= 1
 
 
 def test_representative_crops_grid_and_figure(tmp_path):
@@ -336,29 +339,72 @@ def test_representative_crops_grid_and_figure(tmp_path):
                           "condition", order, [0, 1], labels=labels, tiles=tiles, crops={"n": 3},
                           heatmaps=False)
     panels = tmp_path / "rep" / "panels"
-    rep = panels / "R02_representative_per_condition"
+    rep = panels / "R02_representative_per_condition_filtered"
     table = pd.read_csv(rep / "data.csv")
     assert len(table) == len(order) and {"recruitment", "group_median"} <= set(table.columns)
-    # the chosen object is the one nearest its condition median among those that can be cropped
     for _, r in table.iterrows():
         sub = df[df["condition"] == r["condition"]]
         assert abs(r["group_median"] - sub["recruitment"].median()) < 1e-9
-    grid = panels / "R03_recruitment_unfiltered_well_crops"
+    grid = panels / "R03_recruitment_filtered_well_crops"
     g = pd.read_csv(grid / "data.csv")
     assert g.groupby("condition").size().tolist() == [3] * len(order)
-    assert (grid / "R03_recruitment_unfiltered_well_crops.pdf").exists()
-    mont = cv2.imread(str(grid / "montage16.png"), cv2.IMREAD_UNCHANGED)
-    assert mont.dtype == np.uint16
-    raw = tifffile.imread(grid / "crops" / g["raw_tiff"].iloc[0])
+    assert (grid / "R03_recruitment_filtered_well_crops.pdf").exists()
+    for v in ("merged", "mono", "outlines"):
+        mont = cv2.imread(str(grid / v / "montage16.png"), cv2.IMREAD_UNCHANGED)
+        assert mont.dtype == np.uint16
+        assert (grid / v / "R03_recruitment_filtered_well_crops_{}.png".format(v)).exists()
+    raw = tifffile.imread(grid / g["raw_tiff"].iloc[0])
     assert raw.dtype == np.uint16
-    # 1st-99th percentile scaling over the crops of the figure: about 1 % of the
-    # pixels of a channel sit at or above full scale
-    crops = [np.moveaxis(tifffile.imread(grid / "crops" / f), 0, -1) for f in g["raw_tiff"]]
+    # mono version: channel 2 scaled to its 2nd-98th percentile over the crops of this grid
+    crops = [np.moveaxis(tifffile.imread(grid / f), 0, -1) for f in g["raw_tiff"]]
     px = np.concatenate([c[..., 2].ravel() for c in crops]).astype(float)
-    lo, hi = np.percentile(px, [1, 99])
-    rgb = [cv2.imread(str(grid / "crops" / f), cv2.IMREAD_UNCHANGED)[..., ::-1] for f in g["rgb16_png"]]
-    red = np.concatenate([x[..., 0].ravel() for x in rgb]).astype(float)
+    lo, hi = np.percentile(px, [2, 98])
+    mono = np.concatenate([cv2.imread(str(grid / f), cv2.IMREAD_UNCHANGED)[..., 0].ravel()
+                           for f in g["mono_png"]]).astype(float)
     expect = np.clip((px - lo) / (hi - lo), 0, 1) * 65535
-    inside = np.concatenate([np.ones(c.shape[:2], bool).ravel() for c in crops])
-    # every pixel off the drawn outlines (about 8 % here) matches the 1-99 % scaling
-    assert np.mean(np.abs(red[inside] - expect[inside]) <= 2) > 0.9
+    assert np.max(np.abs(mono - expect)) <= 1.0
+
+
+def test_axis_labels_or_matrix():
+    from spacr.assay_panels import axis_layout, condition_parts, string_parts, MINUS
+    strains = ["Me49WT", "Me49dGRA8", "Me49GRA8comp"]
+    # three strains in one host: one variable varies -> labels
+    parts = {s: condition_parts({"host_cells": s, "treatment": "HeLa_WT"}) for s in strains}
+    a = axis_layout(strains, parts, "auto", labels={"HeLa_WT": "HeLa WT"})
+    assert not a["matrix"] and a["labels"]["Me49dGRA8"] == "Me49dGRA8" and a["constant"] == ["HeLa WT"]
+    # strains x hosts: matrix with one row per value
+    conds = [(s, h) for s in strains for h in ("HeLa_WT", "HeLa_ALG2")]
+    order = [f"{s}_{h}" for s, h in conds]
+    parts = {f"{s}_{h}": condition_parts({"host_cells": s, "treatment": h}) for s, h in conds}
+    a = axis_layout(order, parts, "auto", labels={"HeLa_WT": "HeLa WT", "HeLa_ALG2": "HeLa ALG2"})
+    assert a["matrix"] and list(a["annotations"]) == ["Me49WT:", "Me49dGRA8:", "Me49GRA8comp:",
+                                                      "HeLa WT:", "HeLa ALG2:"]
+    assert a["annotations"]["HeLa WT:"][order[0]] == "+" and a["annotations"]["HeLa WT:"][order[1]] == MINUS
+    # string-only conditions: two tokens vary -> matrix
+    a = axis_layout(["A_x", "A_y", "B_x"], {g: string_parts(g) for g in ["A_x", "A_y", "B_x"]}, "auto")
+    assert a["matrix"] and set(a["annotations"]) == {"A:", "B:", "x:", "y:"}
+    # explicit styles
+    assert not axis_layout(order, parts, "labels")["matrix"]
+    assert axis_layout(strains, {s: condition_parts({"host_cells": s}) for s in strains}, "matrix")["matrix"]
+
+
+def test_condition_factors_split_background_and_genotype():
+    from spacr.assay_panels import axis_layout, condition_parts
+    factors = {"Me49WT": ["Me49", "WT"], "Me49dGRA8": ["Me49", "dGRA8"], "Me49GRA8comp": ["Me49", "Comp"],
+               "RHWT": ["RH", "WT"], "RHdGRA8": ["RH", "dGRA8"], "RHGRA8comp": ["RH", "Comp"]}
+    strains = list(factors)
+    order = [f"{s}_{h}" for s in strains for h in ("HeLa_WT", "HeLa_ALG2")]
+    parts = {f"{s}_{h}": condition_parts({"host_cells": s, "treatment": h}, factors)
+             for s in strains for h in ("HeLa_WT", "HeLa_ALG2")}
+    labels = {"HeLa_WT": "HeLa WT", "HeLa_ALG2": "HeLa ALG2"}
+    a = axis_layout(order, parts, "auto", factor_order=["HeLa WT", "HeLa ALG2", "RH", "Me49", "WT", "dGRA8",
+                                                         "Comp"], labels=labels)
+    assert list(a["annotations"]) == ["HeLa WT:", "HeLa ALG2:", "RH:", "Me49:", "WT:", "dGRA8:", "Comp:"]
+    assert a["annotations"]["Comp:"]["Me49GRA8comp_HeLa_WT"] == "+"
+    assert a["annotations"]["Me49:"]["RHWT_HeLa_WT"] != "+"
+    # Me49 only, one host: only the genotype varies -> labels; Me49 and the host go to the legend
+    me49 = [s for s in strains if s.startswith("Me49")]
+    p2 = {s: condition_parts({"host_cells": s, "treatment": "HeLa_WT"}, factors) for s in me49}
+    a = axis_layout(me49, p2, "auto", labels=labels)
+    assert not a["matrix"] and [a["labels"][s] for s in me49] == ["WT", "dGRA8", "Comp"]
+    assert set(a["constant"]) == {"Me49", "HeLa WT"}

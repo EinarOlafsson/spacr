@@ -40,7 +40,7 @@ from typing import Callable, Dict, List, Mapping, Optional, Sequence
 import numpy as np
 import pandas as pd
 
-from .assay_panels import (ALPHA, STYLE, WELL_KEYS, _DEFAULT_COLORS, _despine, _set_xticks, shade,
+from .assay_panels import (ALPHA, STYLE, axis_layout, WELL_KEYS, _DEFAULT_COLORS, _despine, _set_xticks, shade,
                            style_axes,
                            aggregate_to_unit, bar_spec, display_label, draw_bar_panel, fmt_p,
                            panel_folder_name, select_and_run_test, stars)
@@ -64,9 +64,9 @@ MAX_BRACKETS = 4  # more significant pairs: brackets left out, all pairs in stat
 MM = 1 / 25.4
 _CORE_OBJECTS = ("cell", "nucleus", "cytoplasm", "pathogen")
 # fixed object-type colours (Okabe-Ito), so a type has the same colour in every panel
-OBJECT_COLOURS = {"cell": "#0072B2", "nucleus": "#CC79A7", "cytoplasm": "#009E73",
-                  "pathogen": "#E69F00"}
-_EXTRA_OBJECT_COLOURS = ["#D55E00", "#56B4E9", "#F0E442", "#999999"]
+OBJECT_COLOURS = {"cell": "#4C72B0", "nucleus": "#264653", "cytoplasm": "#A8DADC",
+                  "pathogen": "#2A9D8F"}
+_EXTRA_OBJECT_COLOURS = ["#8C8C8C", "#7FA7C9", "#5E548E", "#B5838D"]
 
 
 def object_colours(objects):
@@ -124,7 +124,7 @@ class Layout:
 
 SPACIOUS = Layout()
 COMPACT = Layout(name="compact", margin=8.0, gap=2.5, heading=4.2, heading_pt=7.0, id_strip=3.0,
-                 id_pt=6.5, compact=True, fit_one_page=True, title_pt=6.0, text_pt=5.0,
+                 id_pt=6.5, compact=True, fit_one_page=False, title_pt=6.0, text_pt=5.0,
                  plot_mm=24.0, min_plot_mm=11.0, tile_mm=9.0, min_tile_mm=6.5, tile_label_pt=5.5,
                  widths=(0.2, 0.25, 1 / 3, 0.5, 1.0))
 LAYOUTS = {"compact": COMPACT, "spacious": SPACIOUS}
@@ -160,6 +160,7 @@ class ReportItem:
     height_mm: float = 60.0
     min_height_mm: Optional[float] = None
     new_row: bool = False
+    show_id: bool = True
 
     @property
     def frac(self):
@@ -173,6 +174,7 @@ class ReportBlock:
     title: str
     items: List[ReportItem] = field(default_factory=list)
     group: Optional[str] = None
+    new_page: bool = False
 
 
 def _content_width(page=A4_MM, margin=MARGIN_MM):
@@ -243,22 +245,27 @@ def _place(block_rows, layout, flow):
 
     for block, rows in block_rows:
         heights = [max(it.height_mm for it in r) for r in rows]
-        total = heading + sum(heights) + gap * (len(rows) - 1)
+        head_h = heading if block.title else 0.0
+        total = head_h + sum(heights) + gap * (len(rows) - 1)
         remaining = usable - y
-        if flow and total > remaining and y > 0 and (
-                remaining < heading + heights[0] or (total <= usable and remaining < 0.6 * total)):
+        if getattr(block, "new_page", False) and y > 0:
             new_page()
-        pages[-1].append(dict(kind="heading", text=block.title,
-                              rect_mm=(margin, margin + y, full, heading)))
-        y += heading
+        elif flow and total > remaining and y > 0 and (
+                remaining < head_h + heights[0] or (total <= usable and remaining < 0.6 * total)):
+            new_page()
+        if block.title:
+            pages[-1].append(dict(kind="heading", text=block.title,
+                                  rect_mm=(margin, margin + y, full, heading)))
+        y += head_h
         on_page = 0
         for row, h in zip(rows, heights):
-            if flow and y + h > usable + 1e-6 and (on_page or y > heading + 1e-9):
+            if flow and y + h > usable + 1e-6 and (on_page or y > head_h + 1e-9):
                 new_page()
                 on_page = 0
-                pages[-1].append(dict(kind="heading", text=f"{block.title} (continued)",
-                                      rect_mm=(margin, margin + y, full, heading)))
-                y += heading
+                if block.title:
+                    pages[-1].append(dict(kind="heading", text=f"{block.title} (continued)",
+                                          rect_mm=(margin, margin + y, full, heading)))
+                    y += heading
             x = margin
             for it in row:
                 w = layout.width_mm(it.frac)
@@ -363,9 +370,11 @@ def _draw_item(fig, item, rect_mm, layout):
     x, y_top, w, h = rect_mm
     fx, fw = x / page_w, w / page_w
     fy = (page_h - y_top - h) / page_h
-    fh = (h - layout.id_strip) / page_h
-    fig.text(fx, (page_h - y_top) / page_h, item.label, fontsize=layout.id_pt,
-             fontweight="bold", va="top", ha="left")
+    strip = layout.id_strip if item.show_id else 0.0
+    fh = (h - strip) / page_h
+    if item.show_id and item.label:
+        fig.text(fx, (page_h - y_top) / page_h, item.label, fontsize=layout.id_pt,
+                 fontweight="bold", va="top", ha="left")
     item.draw(fig, (fx, fy, fw, fh))
 
 
@@ -860,12 +869,13 @@ def draw_grouped_panel(ax, spec, order=None, seed=0, compact=False):
         s = sub.groupby(group)["_v"].std().reindex(order).fillna(0)
         off = (j - (k - 1) / 2) * width
         st = spec["stats"][obj]["test"].iloc[0]
-        tag = ("n/a" if compact else "not tested") if st["test"] == "not tested" else st["significance"]
+        tag = None if spec.get("no_stats") else (
+            ("n/a" if compact else "not tested") if st["test"] == "not tested" else st["significance"])
         from matplotlib.colors import to_rgba
         col = spec["colors"][obj]
         ax.bar(x + off, m.to_numpy(float), width=width * 0.92, color=to_rgba(col, STYLE["bar_alpha"]),
                edgecolor=shade(col, STYLE["edge_shade"]), linewidth=STYLE["edge_lw"] * 0.6,
-               label=f"{obj} ({tag})")
+               label=obj if tag is None else f"{obj} ({tag})")
         ax.errorbar(x + off, m.to_numpy(float), yerr=s.to_numpy(float), fmt="none",
                     ecolor=STYLE["err_color"], elinewidth=STYLE["err_lw"] * 0.75,
                     capsize=STYLE["capsize"] * 0.75, zorder=4)
@@ -883,7 +893,7 @@ def draw_grouped_panel(ax, spec, order=None, seed=0, compact=False):
     title = spec["title"] + (" (log)" if log else "")
     ax.set_ylabel(spec["ylabel"], fontsize=8)
     ax.tick_params(axis="y", labelsize=7)
-    _set_xticks(ax, order, spec.get("labels"), None)
+    _set_xticks(ax, order, spec.get("labels"), spec.get("annotations"), matrix=bool(spec.get("matrix")))
     if compact:
         ncol = min(k, 2)
         leg = ax.legend(fontsize=COMPACT.text_pt, frameon=False, loc="lower left",
@@ -892,7 +902,10 @@ def draw_grouped_panel(ax, spec, order=None, seed=0, compact=False):
                         labelspacing=0.15)
         leg.set_in_layout(False)   # a wide legend must not squeeze the bars
         rows = int(math.ceil(k / ncol))
-        ax.set_title(title, fontsize=COMPACT.title_pt, pad=2 + rows * COMPACT.text_pt * 1.25)
+        if "log" in title:
+            ax.set_title("log axis", fontsize=COMPACT.text_pt, pad=2 + rows * COMPACT.text_pt * 1.25)
+        else:
+            ax.set_title(" ", fontsize=COMPACT.text_pt, pad=rows * COMPACT.text_pt * 1.25)
     else:
         ax.set_title(title, fontsize=9)
         ax.legend(fontsize=6, frameon=False, loc="upper left", bbox_to_anchor=(1.0, 1.0),
@@ -919,8 +932,10 @@ def compact_style(ax, layout=COMPACT, wrap=_COMPACT_WRAP):
     ax.yaxis.label.set_fontsize(txt)
     ax.yaxis.labelpad = 1.5
     ax.tick_params(labelsize=txt, length=1.5, width=0.4, pad=1)
+    from matplotlib.text import Annotation
     for t in ax.texts:
-        t.set_fontsize(max(MIN_FONT_PT, min(t.get_fontsize(), layout.title_pt)))
+        size = COMPACT_ANNOT[0] if isinstance(t, Annotation) else min(t.get_fontsize(), layout.title_pt)
+        t.set_fontsize(max(MIN_FONT_PT, size))
     leg = ax.get_legend()
     if leg is not None:
         for t in leg.get_texts():
@@ -962,18 +977,55 @@ def compact_style(ax, layout=COMPACT, wrap=_COMPACT_WRAP):
                            fontsize=txt, linespacing=1.0)
 
 
+def _axis_for(spec, order):
+    """(labels, annotations, matrix) for drawing ``order`` with the spec axis layout."""
+    axis = spec.get("axis")
+    if not axis:
+        return spec.get("labels"), spec.get("annotations"), False
+    if axis["matrix"]:
+        ann = {row: {g: m.get(g, "") for g in order} for row, m in axis["annotations"].items()}
+        return None, ann, True
+    return axis["labels"], None, False
+
+
+class _annot_style:
+    """Smaller +/- matrix rows while drawing a compact panel."""
+
+    def __init__(self, layout):
+        self.layout = layout
+
+    def __enter__(self):
+        self.saved = (STYLE["annot_pt"], STYLE["annot_line_pt"])
+        if self.layout.compact:
+            STYLE["annot_pt"], STYLE["annot_line_pt"] = COMPACT_ANNOT
+        return self
+
+    def __exit__(self, *exc):
+        STYLE["annot_pt"], STYLE["annot_line_pt"] = self.saved
+        return False
+
+
+COMPACT_ANNOT = (5.0, 6.2)   # pt: matrix text and row spacing in the compact layout
+
+
 def _draw_spec(ax, spec, order=None, layout=SPACIOUS):
+    with _annot_style(layout):
+        return _draw_spec_inner(ax, spec, order, layout)
+
+
+def _draw_spec_inner(ax, spec, order=None, layout=SPACIOUS):
+    order = list(order if order is not None else spec["order"])
+    labels, ann, matrix = _axis_for(spec, order)
     if spec["kind"] == "grouped":
-        draw_grouped_panel(ax, spec, order, compact=layout.compact)
+        draw_grouped_panel(ax, dict(spec, labels=labels, annotations=ann, matrix=matrix), order,
+                           compact=layout.compact)
     else:
-        title = spec.get("short_title") if layout.compact and spec.get("short_title") else spec.get("title", "")
-        draw_bar_panel(ax, spec["data"], spec["value"], spec["group"],
-                       list(order if order is not None else spec["order"]),
-                       stats=spec["stats"], title=title,
+        draw_bar_panel(ax, spec["data"], spec["value"], spec["group"], order,
+                       stats=None if spec.get("no_stats") else spec["stats"], title="",
                        ylabel=spec.get("short_ylabel") if layout.compact and spec.get("short_ylabel") else spec.get("ylabel"),
-                       labels=spec.get("labels"),
+                       labels=labels, annotations=ann, matrix=matrix,
                        ymin=spec.get("ymin"), refline=spec.get("refline"),
-                       palette=spec.get("palette"), max_brackets=MAX_BRACKETS)
+                       palette=spec.get("palette"), max_brackets=MAX_BRACKETS, show_test=False)
     if layout.compact:
         compact_style(ax, layout)
     return ax
@@ -982,9 +1034,11 @@ def _draw_spec(ax, spec, order=None, layout=SPACIOUS):
 def stats_long(spec) -> pd.DataFrame:
     """Test, assumptions, post hoc and descriptive tables of a spec in one long table."""
     per = spec["stats"] if spec["kind"] == "grouped" else {None: spec["stats"]}
+    names = (("descriptive", "outliers") if spec.get("no_stats") else
+             ("test", "assumptions", "posthoc", "descriptive", "outliers"))
     frames = []
     for obj, st in per.items():
-        for name in ("test", "assumptions", "posthoc", "descriptive", "outliers"):
+        for name in names:
             t = st.get(name)
             if t is None or not len(t):
                 continue
@@ -999,15 +1053,20 @@ def stats_long(spec) -> pd.DataFrame:
 
 
 def _panel_item_height(spec, order, layout=SPACIOUS, plot_mm=None):
-    texts = _label_texts(order, spec.get("labels"))
+    labels, ann, matrix = _axis_for(spec, order)
+    texts = _label_texts(order, labels)
+    if matrix:
+        line_pt = COMPACT_ANNOT[1] if layout.compact else STYLE["annot_line_pt"]
+        xlab = len(ann) * line_pt / 72 * 25.4 + 2.0
+    else:
+        xlab = _xlabel_mm(texts, layout.text_pt if layout.compact else 8, compact=layout.compact)
     if layout.compact:
-        title_lines = 2 if spec["kind"] == "bar" else 1
         legend_rows = int(math.ceil(len(spec.get("objects", [])) / 2)) if spec["kind"] == "grouped" else 0
-        head = title_lines * _pt_mm(layout.title_pt) * 1.25 + legend_rows * _pt_mm(layout.text_pt) * 1.25 + 1.5
-        plot = layout.plot_mm if plot_mm is None else plot_mm
-        return layout.id_strip + head + plot + _xlabel_mm(texts, layout.text_pt, compact=True)
-    title_lines = 2 if spec["kind"] == "bar" else 1
-    return 40 + 4.2 * title_lines + _xlabel_mm(texts) + ID_STRIP_MM
+        brackets = 0 if spec.get("no_stats") or spec["kind"] == "grouped" else 3.0
+        head = legend_rows * _pt_mm(layout.text_pt) * 1.25 + 1.5 + brackets
+        plot = (spec.get("plot_mm") or layout.plot_mm) if plot_mm is None else plot_mm
+        return layout.id_strip + head + plot + xlab
+    return 44 + xlab + ID_STRIP_MM
 
 
 def _per_category(spec, layout=SPACIOUS):
@@ -1213,6 +1272,12 @@ def extract_tile(arr, mask_plane, label, size, center_plane=None, require_inside
     return raw, (cy0, cy1, cx0, cx1), padded
 
 
+# outline colours on the grey channel-of-interest images, one per object type
+OUTLINE_COLOURS = {"cell": (0.0, 0.75, 1.0), "nucleus": (1.0, 0.0, 1.0), "pathogen": (1.0, 0.35, 0.0),
+                   "cytoplasm": (0.0, 1.0, 0.5)}
+_EXTRA_OUTLINES = [(0.5, 1.0, 0.0), (1.0, 0.0, 0.3), (0.6, 0.4, 1.0)]
+
+
 def _colour(c):
     if isinstance(c, str):
         if c.lower() not in COLOURS:
@@ -1221,7 +1286,7 @@ def _colour(c):
     return tuple(float(v) for v in c)
 
 
-def render_tile(crop, colour_map, ranges, outlines=()):
+def render_tile(crop, colour_map, ranges, outlines=(), alpha=1.0):
     """16-bit RGB composite of an image crop.
 
     :param colour_map: {channel index: colour name or (r, g, b) in 0-1}.
@@ -1237,12 +1302,15 @@ def render_tile(crop, colour_map, ranges, outlines=()):
         lo, hi = ranges[int(chan)]
         x = (crop[..., int(chan)].astype(np.float64) - lo) / max(hi - lo, 1e-9)
         rgb += np.clip(x, 0, 1)[..., None] * np.asarray(_colour(col))[None, None, :]
-    out = np.ascontiguousarray((np.clip(rgb, 0, 1) * 65535).round().astype(np.uint16))
+    rgb = np.clip(rgb, 0, 1)
     for mask, col in outlines:
         contours, _ = cv2.findContours(np.ascontiguousarray(mask.astype(np.uint8)),
                                        cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-        cv2.drawContours(out, contours, -1, tuple(int(v * 65535) for v in col), 1)
-    return out
+        line = np.zeros(mask.shape, np.uint8)
+        cv2.drawContours(line, contours, -1, 1, 1)
+        on = line.astype(bool)
+        rgb[on] = (1 - alpha) * rgb[on] + alpha * np.asarray(col, float)[None, :]
+    return np.ascontiguousarray((rgb * 65535).round().astype(np.uint16))
 
 
 def write_rgb16(stem, rgb):
@@ -1270,12 +1338,12 @@ def _safe(text):
 
 
 def build_tiles(df, group, order, merged_dir, mask_dims, colour_map, out_folder, n=5,
-                size=128, seed=0, percentiles=(0.5, 99.9), max_range_fields=24,
+                size=128, seed=0, percentiles=(2, 98), max_range_fields=24,
                 object_column="object_label", file_column="file_name",
                 edge_column="pathogen_distance_to_field_edge", outline_objects=("pathogen", "cell"),
                 value_column=None, center_object="pathogen", max_attempts=400,
-                selection="random", range_source="fields", subdir="tiles",
-                montage_name="montage_rgb16"):
+                selection="random", range_source="crops", subdir="crops",
+                montage_name="montage16", mono_channel=None, outline_alpha=0.6, gap=1):
     """Pick, crop, render and write the representative tiles of every group.
 
     :param mask_dims: {'cell': plane, 'pathogen': plane, ...}; ``object_column``
@@ -1291,7 +1359,20 @@ def build_tiles(df, group, order, merged_dir, mask_dims, colour_map, out_folder,
         crops themselves, so every crop of the figure is comparable).
     :param subdir: folder for the per-crop files; ``montage_name`` the stem of
         the 16-bit montage.
-    :returns: dict with ``tiles`` {group: [rgb16]}, ``table`` (one row per
+    :param mono_channel: channel shown in the two monochrome versions (the
+        channel of interest; default the first channel of ``colour_map``).
+
+    Three versions of every crop are written, each a 16-bit set of its own:
+    ``merged/`` (colour composite, no outlines), ``mono/`` (``mono_channel``
+    in grey, no outlines) and ``outlines/`` (the same grey with the outline of
+    every object type of the host cell - the cell itself and every other mask
+    object overlapping it - in its own colour at ``outline_alpha`` opacity).
+    Each holds ``<subdir>/<group>_<k>.png/.tif`` and ``<montage_name>.png/.tif``
+    (rows = crops, columns = groups, ``gap`` px white hairlines). ``raw/``
+    holds the unchanged multichannel crop (all image and mask planes, input
+    dtype). Display ranges: per channel the ``percentiles`` of the pixels of
+    every crop of the figure (``range_source='crops'``).
+    :returns: dict with ``tiles`` {version: {group: [rgb16]}}, ``table`` (one row per
         tile), ``ranges``, ``montage`` (uint16 RGB, rows = tiles, columns =
         groups), ``files`` and ``notes``.
     """
@@ -1338,48 +1419,70 @@ def build_tiles(df, group, order, merged_dir, mask_dims, colour_map, out_folder,
     else:
         ranges = display_ranges(arrays, list(colour_map), percentiles) if arrays else {}
 
-    outline_cols = {"pathogen": (1.0, 1.0, 1.0), "cell": (0.55, 0.55, 0.55),
-                    "nucleus": (0.3, 0.6, 1.0)}
-    rows, tiles, files = [], {}, []
+    import tifffile
+    mono = int(mono_channel if mono_channel is not None else next(iter(colour_map)))
+    if mono not in ranges:
+        src = ([res[2] for ch in picks.values() for (_, _, _, res) in ch] if range_source == "crops"
+               else arrays)
+        if src:
+            ranges.update(display_ranges(src, [mono], percentiles, stride=1 if range_source == "crops" else 4))
+    versions = {"merged": (dict(colour_map), False), "mono": ({mono: "grey"}, False),
+                "outlines": ({mono: "grey"}, True)}
+    rows, files = [], []
+    tiles = {v: {} for v in versions}
+    for v in versions:
+        os.makedirs(os.path.join(out_folder, v, subdir), exist_ok=True)
+    os.makedirs(os.path.join(out_folder, "raw"), exist_ok=True)
     for g in order:
-        tiles[g] = []
+        for v in versions:
+            tiles[v][g] = []
         for k, (idx, row, label, (raw, box, padded)) in enumerate(picks[g], start=1):
             cell = padded[..., cell_plane] == label
             outlines = []
-            for obj in outline_objects:
-                if obj not in mask_dims:
-                    continue
+            for obj, plane_i in mask_dims.items():
+                col = OUTLINE_COLOURS.get(obj, _EXTRA_OUTLINES[sorted(mask_dims).index(obj) % len(_EXTRA_OUTLINES)])
                 if obj == "cell":
-                    outlines.append((cell, outline_cols["cell"]))
+                    outlines.append((cell, col))
                     continue
-                plane = padded[..., mask_dims[obj]]
+                plane = padded[..., plane_i]
                 inside = np.unique(plane[cell & (plane > 0)])
                 if len(inside):
-                    outlines.append((np.isin(plane, inside), outline_cols.get(obj, (1, 1, 0))))
-            rgb = render_tile(padded, colour_map, ranges, outlines)
-            tiles[g].append(rgb)
-            stem = os.path.join(out_folder, subdir, f"{_safe(g)}_{k:02d}")
-            import tifffile
-            tifffile.imwrite(f"{stem}_raw.tif", np.ascontiguousarray(np.moveaxis(raw, -1, 0)),
+                    outlines.append((np.isin(plane, inside), col))
+            name = f"{_safe(g)}_{k:02d}"
+            tifffile.imwrite(os.path.join(out_folder, "raw", f"{name}.tif"),
+                             np.ascontiguousarray(np.moveaxis(raw, -1, 0)),
                              photometric="minisblack", metadata={"axes": "CYX"})
-            files += [f"{stem}_raw.tif"] + write_rgb16(f"{stem}_rgb16", rgb)
+            files.append(os.path.join(out_folder, "raw", f"{name}.tif"))
+            for v, (cmap_v, with_outlines) in versions.items():
+                rgb = render_tile(padded, cmap_v, ranges, outlines if with_outlines else (),
+                                  alpha=outline_alpha)
+                tiles[v][g].append(rgb)
+                files += write_rgb16(os.path.join(out_folder, v, subdir, name), rgb)
             rec = {group: g, "tile": k, "file_name": row.get(file_column),
                    "object_label": row.get(object_column), "mask_label": label,
                    "y0": box[0], "y1": box[1], "x0": box[2], "x1": box[3],
                    "padded": raw.shape[:2] != (size, size),
-                   "raw_tiff": os.path.basename(f"{stem}_raw.tif"),
-                   "rgb16_png": os.path.basename(f"{stem}_rgb16.png")}
+                   "raw_tiff": f"raw/{name}.tif",
+                   "merged_png": f"merged/{subdir}/{name}.png",
+                   "mono_png": f"mono/{subdir}/{name}.png",
+                   "outlines_png": f"outlines/{subdir}/{name}.png"}
             if value_column and value_column in row.index:
                 rec[value_column] = row[value_column]
                 if selection == "median":
                     rec["group_median"] = candidates[g].attrs.get("median", np.nan)
             rows.append(rec)
-    montage = montage16(tiles, order, n, size)
-    files += write_rgb16(os.path.join(out_folder, montage_name), montage)
+    montages = {}
+    for v in versions:
+        montages[v] = montage16(tiles[v], order, n, size, gap=gap)
+        files += write_rgb16(os.path.join(out_folder, v, montage_name), montages[v])
+    montage = montages["merged"]
     dtype = str(arrays[0].dtype) if arrays else "unknown"
     return dict(tiles=tiles, table=pd.DataFrame(rows), ranges=ranges, montage=montage,
-                files=files, notes=notes, n_range_fields=len(arrays), dtype=dtype,
-                centred_on=center_object if center_object in mask_dims else "cell")
+                montages=montages, files=files, notes=notes, n_range_fields=len(arrays), dtype=dtype,
+                centred_on=center_object if center_object in mask_dims else "cell", mono_channel=mono,
+                percentiles=tuple(percentiles), gap=gap, outline_colours={
+                    o: OUTLINE_COLOURS.get(o, _EXTRA_OUTLINES[sorted(mask_dims).index(o) % len(_EXTRA_OUTLINES)])
+                    for o in mask_dims})
 
 
 def montage16(tiles, order, n, size, gap=4):
@@ -1395,80 +1498,139 @@ def montage16(tiles, order, n, size, gap=4):
     return out
 
 
-def tile_drawer(tiles_result, chunk, labels, n, size, colour_text, layout=SPACIOUS, tile_mm=None,
-                show_labels=True):
-    """Draw callback, height and minimum height (mm) of one tile row of ``chunk`` conditions.
+IMAGE_VERSIONS = ("merged", "mono", "outlines")
 
-    One image column per condition (``n`` tiles stacked), its label above it,
-    the colour key under the row. Columns are spaced by the wider of the tile
-    and its wrapped label.
+
+def _axis_text_rows(axis, chunk, labels, pt, col_mm):
+    """Text rows under image columns: matrix rows, or wrapped condition labels."""
+    if axis and axis.get("matrix"):
+        rows = [(name, [m.get(g, "") for g in chunk]) for name, m in axis["annotations"].items()]
+        return rows, True
+    texts = [(axis or {}).get("labels", {}).get(g) or display_label(g, labels) for g in chunk]
+    per_line = max(6, int(col_mm / (_pt_mm(pt) * 0.6)))
+    wrapped = ["\n".join(textwrap.wrap(t, per_line, break_long_words=False)) for t in texts]
+    return [("", wrapped)], False
+
+
+def crop_drawer(result, chunk, n, size, layout=SPACIOUS, axis=None, labels=None,
+                versions=IMAGE_VERSIONS, width_mm=None, min_tile_mm=6.0, max_tile_mm=None):
+    """Draw callback, height and minimum height (mm) of a crop figure.
+
+    The three image versions (merged, channel of interest, channel of interest
+    with outlines) are drawn side by side when the tiles stay at least
+    ``min_tile_mm`` wide, else stacked. Each version is one tight montage (1 px
+    hairlines), one column per condition, with the condition labels - or the
+    +/- matrix of ``axis`` - under the columns. Images are drawn at native
+    resolution (interpolation 'none').
     """
     layout = get_layout(layout)
-    tile_mm = layout.tile_mm if tile_mm is None else tile_mm
+    width_mm = layout.content if width_mm is None else width_mm
+    ncol = max(len(chunk), 1)
+    gap = result.get("gap", 1)
     pt = layout.tile_label_pt
-    char_mm = _pt_mm(pt) * 0.7
     line_mm = _pt_mm(pt) * 1.25
-    per_line = max(8, int(max(tile_mm, 14.0) / char_mm))
-    texts = ["\n".join(textwrap.wrap(t, per_line, break_long_words=False))
-             for t in _label_texts(chunk, labels)] if show_labels else [""] * len(chunk)
-    n_lines = max((t.count("\n") + 1 for t in texts), default=1)
-    label_w = max((len(line) for t in texts for line in t.split("\n")), default=1) * char_mm
-    lab_mm = 1.0 + n_lines * line_mm if show_labels else 0.5
-    key_pt = max(MIN_FONT_PT, layout.text_pt if layout.compact else 6.5)
-    key_mm = 1.5 + _pt_mm(key_pt) * 1.3
-    gap_px = 4
-
-    def col_height(t_mm):
-        return n * t_mm + (n - 1) * t_mm * gap_px / size
-
-    height = layout.id_strip + lab_mm + col_height(tile_mm) + key_mm
-    min_height = layout.id_strip + lab_mm + col_height(min(tile_mm, layout.min_tile_mm)) + key_mm
-    cols = [montage16(tiles_result["tiles"], [g], n, size, gap=gap_px) for g in chunk]
+    vgap = 2.0
+    side = (width_mm - vgap * (len(versions) - 1)) / len(versions) / ncol >= min_tile_mm
+    per_w = (width_mm - vgap * (len(versions) - 1)) / len(versions) if side else width_mm
+    cols_w = ncol + (ncol - 1) * gap / size          # montage width in tile units (hairlines included)
+    tile_mm = per_w / cols_w
+    if max_tile_mm:
+        tile_mm = min(tile_mm, max_tile_mm)
+    rows, is_matrix = _axis_text_rows(axis, chunk, labels, pt, tile_mm)
+    n_lines = (len(rows) if is_matrix else max((t.count("\n") + 1 for t in rows[0][1]), default=1))
+    text_mm = n_lines * line_mm + 1.0
+    name_mm = (max((len(r[0]) for r in rows), default=0) * _pt_mm(pt) * 0.6 + 1.5) if is_matrix else 0.0
+    if side and is_matrix:
+        per_w = (width_mm - name_mm - vgap * (len(versions) - 1)) / len(versions)
+        tile_mm = min(tile_mm, per_w / cols_w)
+    elif is_matrix:
+        tile_mm = min(tile_mm, (width_mm - name_mm) / cols_w)
+    img_h = lambda t: n * t + (n - 1) * t * gap / size
+    block = lambda t: img_h(t) + text_mm
+    n_blocks = 1 if side else len(versions)
+    height = layout.id_strip + n_blocks * block(tile_mm) + (n_blocks - 1) * vgap
+    min_t = min(tile_mm, min_tile_mm)
+    min_height = layout.id_strip + n_blocks * block(min_t) + (n_blocks - 1) * vgap
+    monts = {v: montage16(result["tiles"][v], chunk, n, size, gap=gap) for v in versions}
 
     def draw(fig, rect):
-        fw_mm, fh_mm = fig.get_size_inches() * 25.4
-        x0, y0, w, h = rect
-        x0m, y0m, wm, hm = x0 * fw_mm, y0 * fh_mm, w * fw_mm, h * fh_mm
-        col_h = max(hm - lab_mm - key_mm, 1.0)
-        t_mm = col_h / (n + (n - 1) * gap_px / size)
-        col_w = t_mm * cols[0].shape[1] / size if cols else t_mm
-        pitch = max(col_w + 1.0, label_w + 1.0)
-        if pitch * len(chunk) > wm:          # narrower than needed: shrink the tiles
-            pitch = wm / max(len(chunk), 1)
-            col_w = min(col_w, pitch - 1.0)
-            col_h = col_w * cols[0].shape[0] / cols[0].shape[1]
-        top = y0m + hm - lab_mm
-        for j, (g, img, text) in enumerate(zip(chunk, cols, texts)):
-            cx = x0m + j * pitch + pitch / 2
-            ax = fig.add_axes([(cx - col_w / 2) / fw_mm, (top - col_h) / fh_mm, col_w / fw_mm,
-                               col_h / fh_mm])
-            ax.imshow((img.astype(np.float64) / 257).round().astype(np.uint8),
-                      interpolation="none", aspect="auto")
+        fw, fh = fig.get_size_inches() * 25.4
+        x0, y0, w, h = rect[0] * fw, rect[1] * fh, rect[2] * fw, rect[3] * fh
+        avail = h - n_blocks * text_mm - (n_blocks - 1) * vgap
+        t = max(min(tile_mm, avail / (n_blocks * (n + (n - 1) * gap / size))), 1.0)
+        top = y0 + h
+        for k, v in enumerate(versions):
+            m = monts[v]
+            iw = ncol * t + (ncol - 1) * t * gap / size
+            ih = img_h(t)
+            if side:
+                left = x0 + name_mm + k * (iw + vgap)
+                bottom = top - ih
+            else:
+                left = x0 + name_mm
+                bottom = top - k * (ih + text_mm + vgap) - ih
+            ax = fig.add_axes([left / fw, bottom / fh, iw / fw, ih / fh])
+            ax.imshow((m.astype(np.float64) / 257).round().astype(np.uint8), interpolation="none",
+                      aspect="auto", extent=(-0.5, ncol - 0.5, ih, 0))
             ax.set_axis_off()
-            fig.text(cx / fw_mm, (top + 0.6) / fh_mm, text, fontsize=pt, ha="center", va="bottom",
-                     linespacing=1.0)
-        wrap = max(40, int(wm / (_pt_mm(key_pt) * 0.55)))
-        fig.text(x0m / fw_mm, (top - col_h - 0.8) / fh_mm, "\n".join(textwrap.wrap(colour_text, wrap)),
-                 fontsize=key_pt, va="top", ha="left")
+            for r, (name, texts) in enumerate(rows):
+                yy = bottom - 0.6 - r * line_mm
+                if is_matrix and (k == 0 or not side) and name:
+                    fig.text((left - 1.0) / fw, yy / fh, name, fontsize=pt, ha="right", va="top")
+                for j, txt in enumerate(texts):
+                    cx = left + (j + 0.5) * (iw / ncol)
+                    fig.text(cx / fw, yy / fh, txt, fontsize=pt, ha="center", va="top", linespacing=1.0)
     return draw, height, min_height
 
 
-def _tile_mm(n_cols, width_mm, layout=SPACIOUS):
-    return min(layout.tile_mm, (width_mm - 2) / max(n_cols, 1) - 1)
-
-
-def tile_items(pid, tiles_result, order, labels, n, size, max_per_row, colour_text, layout=SPACIOUS):
-    """Report items for the tile montage, split into condition chunks."""
+def crop_items(pid, result, order, n, size, layout, axis=None, labels=None, max_per_row=12,
+               width=1.0, min_tile_mm=6.0, max_tile_mm=None, new_row=False):
+    """Report items of a crop figure, split into condition chunks when wide."""
     layout = get_layout(layout)
-    _, chunks = condition_chunks(order, 13.0 if not layout.compact else 15.0, 0, max_per_row,
-                                 page=layout.page)
+    chunks = [list(order)]
+    if len(order) > max_per_row:
+        k = int(math.ceil(len(order) / max_per_row))
+        size_c = int(math.ceil(len(order) / k))
+        chunks = [list(order)[i:i + size_c] for i in range(0, len(order), size_c)]
     items = []
     for i, chunk in enumerate(chunks):
-        draw, height, min_height = tile_drawer(tiles_result, chunk, labels, n, size, colour_text,
-                                               layout, _tile_mm(len(chunk), layout.content, layout))
-        label = pid if i == 0 else f"{pid} (continued)"
-        items.append(ReportItem(pid=pid, label=label, draw=draw, width=1.0, height_mm=height,
-                                min_height_mm=min_height))
+        draw, h, hmin = crop_drawer(result, chunk, n, size, layout, axis, labels,
+                                    width_mm=layout.width_mm(width), min_tile_mm=min_tile_mm,
+                                    max_tile_mm=max_tile_mm)
+        items.append(ReportItem(pid=pid, label=pid if i == 0 else f"{pid} (continued)", draw=draw,
+                                width=width, height_mm=h, min_height_mm=hmin,
+                                new_row=new_row and i == 0))
+    return items
+
+
+def save_crop_panel(folder, stem, result, order, n, size, axis=None, labels=None, dpi=300):
+    """PDF/PNG of every version (``<version>/<stem>_<version>``) and of all three (``<stem>``)."""
+    for v in IMAGE_VERSIONS + (None,):
+        versions = IMAGE_VERSIONS if v is None else (v,)
+        width = max(60.0, min(28.0, 160.0 / max(len(order), 1)) * len(order) * len(versions) + 20)
+        draw, h, _ = crop_drawer(result, list(order), n, size, SPACIOUS, axis, labels,
+                                 versions=versions, width_mm=width - 4, min_tile_mm=4.0, max_tile_mm=28.0)
+        target = folder if v is None else os.path.join(folder, v)
+        _save_drawing(target, stem if v is None else f"{stem}_{v}", draw, (width, h - ID_STRIP_MM + 4),
+                      dpi=dpi)
+
+
+def text_items(paragraphs, layout, pt=6.0, width=1.0):
+    """One report item per legend paragraph (flows over pages with the panels)."""
+    layout = get_layout(layout)
+    w = layout.width_mm(width)
+    chars = max(40, int(w / (_pt_mm(pt) * 0.55)))
+    line_mm = _pt_mm(pt) * 1.3
+    items = []
+    for i, para in enumerate(p for p in paragraphs if p and p.strip()):
+        lines = textwrap.wrap(para.strip(), chars)
+        h = len(lines) * line_mm + 1.0
+
+        def draw(fig, rect, lines=lines):
+            fig.text(rect[0], rect[1] + rect[3], "\n".join(lines), fontsize=pt, va="top", ha="left",
+                     linespacing=1.3)
+        items.append(ReportItem(pid="", label="", draw=draw, width=width, height_mm=h,
+                                min_height_mm=h, new_row=True, show_id=False))
     return items
 
 
@@ -1699,212 +1861,197 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
                        row_object="cell", title="spaCR assay report", intro: Sequence[str] = (),
                        name="report", count_objects=None, db_path=None, layout="compact",
                        well_qc: Optional[pd.DataFrame] = None, heatmaps=True, crops=None,
+                       parts: Optional[Mapping] = None, x_axis_style="auto", factor_order=None,
                        dpi=200) -> dict:
-    """Build the standard report: tiles, value panels, control panels, legend.
+    """Build the standard report: one figure per data version, plate heatmaps, legends.
 
-    :param frames: ``{'unfiltered': df, 'filtered': df}``, one row per
-        ``row_object``.
-    :param tiles: None to skip, else keyword arguments of :func:`build_tiles`
-        (``merged_dir``, ``mask_dims``, ``colour_map``, ``n``, ``size``,
-        ``seed``) - tiles come from ``frames['filtered']``.
-    :param db_path: measurements.db; objects per well before filtering are
-        counted from its object tables (:func:`db_well_counts`), after
-        filtering from the analysed frame (:func:`well_counts`).
-    :param layout: ``'compact'`` (one A4 page when it fits) or ``'spacious'``.
-    :param crops: None, or ``{'n': k}``: a representative crop per condition
-        (closest to the condition median of ``value``) and, under every value
-        graph, a grid of the ``k`` crops nearest each condition median, drawn
-        from the same data version, scaled to the 1st-99th percentile of the
-        crops of that figure (needs ``tiles`` for the merged arrays).
-    :param well_qc: the :func:`well_qc_table`; failed wells are marked in the
-        plate heatmaps (``heatmaps``: one per plotted variable, before and
-        after filtering, as an appendix after the main figure).
-    :returns: dict with ``pdf``, ``png``, ``legend``, ``panels`` (id -> folder),
-        ``n_pages``, ``n_figure_pages`` and ``n_legend_pages``.
+    Two figures, FILTERED then UNFILTERED, each on its own A4 pages: tiles of
+    that version (``tiles``), the representative object per condition and,
+    under every value graph, its crop grid (``crops``), the value per
+    condition at well and replicate level (half page width), the well-level
+    controls (no statistics), and the figure legend printed under the panels
+    (following pages when needed). Plate heatmaps follow as an appendix.
+    Graphs carry no titles or test names: significant post hoc pairs are
+    brackets with stars; tests are in stats.csv and the legend.
+
+    Images (tiles, representative crops, crop grids) come in three versions -
+    merged colour, channel of interest in grey, and the same with the outline
+    of every object type - scaled per channel to the 2nd-98th percentile of all
+    crops of that figure, written as 16-bit PNG/TIFF (``build_tiles``).
+
+    :param frames: ``{'unfiltered': df, 'filtered': df}``, one row per ``row_object``.
+    :param tiles: None to skip images, else ``merged_dir``, ``mask_dims``,
+        ``colour_map``, ``n``, ``size``, ``seed`` and ``mono_channel``.
+    :param crops: None, or ``{'n': k}`` for representative crops.
+    :param parts: {condition: [(variable, factor), ...]} for the x axis
+        (:func:`spacr.assay_panels.condition_parts`); None splits the
+        condition names on '_'.
+    :param x_axis_style: ``'auto'`` (+/- matrix when two or more variables
+        vary on a graph, else labels of the varying part), ``'matrix'``,
+        ``'labels'``.
+    :returns: dict with ``pdf`` (combined), ``figures`` {version: pdf},
+        ``png``, ``legend``, ``panels``, ``n_pages``, ``n_figure_pages``,
+        ``n_main_pages`` and ``n_legend_pages`` (0: legends are on the figures).
     """
+    from .assay_panels import string_parts
     layout = get_layout(layout)
     panels_dir = os.path.join(out_dir, "panels")
     os.makedirs(panels_dir, exist_ok=True)
     order = list(order)
-    filt = frames["filtered"]
-    blocks, legend, folders = [], list(intro), {}
-    counter = [0]
-
-    def next_id():
-        counter[0] += 1
-        return f"R{counter[0]:02d}"
-
-    heat = {}   # key -> {'title', 'value', 'unfiltered' / 'filtered': well frame}
-
-    def hv(key, title, version, frame, col):
-        if frame is None or not len(frame) or col not in frame.columns:
-            return
-        heat.setdefault(key, dict(title=title, value=col))[version] = frame
-
-    def add_items(pid, spec, size, first):
-        return spec_items(pid, spec, max_conditions_per_row, layout, group_size=size, new_row=first)
-
     value_label = value_label or value.replace("_", " ")
-    # ---- tiles
-    if tiles:
-        pid = next_id()
-        folder = os.path.join(panels_dir, panel_folder_name(pid, "representative_tiles"))
-        try:
-            tr = build_tiles(filt, group, order, out_folder=folder, value_column=value,
-                             object_column=tiles.get("object_column", "object_label"),
-                             **{k: v for k, v in tiles.items() if k in
-                                ("merged_dir", "mask_dims", "colour_map", "n", "size", "seed",
-                                 "percentiles", "edge_column")})
-        except Exception as exc:  # missing arrays must not stop the report
-            tr = None
-            legend.append(f"{pid}. Representative tiles could not be made: {exc}.")
-        if tr is not None and len(tr["table"]):
-            cmap = tiles["colour_map"]
-            colour_text = (", ".join(f"{_colour_name(c)}: channel {ch}" for ch, c in cmap.items())
-                           + "; white outline: pathogen mask, grey: host cell mask")
-            n, size = tiles.get("n", 5), tiles.get("size", 128)
-            items = tile_items(pid, tr, order, labels, n, size, max_conditions_per_row, colour_text,
-                               layout)
-            blocks.append(ReportBlock("Representative cells (filtered objects)", items))
-            ranges = pd.DataFrame([dict(table="display_range", channel=c, colour=_colour_name(cmap[c]),
-                                        low=lo, high=hi, percentiles=str(tiles.get("percentiles", (0.5, 99.9))),
-                                        n_fields=tr["n_range_fields"]) for c, (lo, hi) in tr["ranges"].items()])
-            cand = pd.DataFrame([dict(table="candidates", group=g,
-                                      n_filtered_objects=int((filt[group] == g).sum()),
-                                      n_tiles=len(tr["tiles"].get(g, []))) for g in order])
-            full_w = max(_content_width(), 26.0 * len(order) + 4)
-            draw_all, h_all, _ = tile_drawer(tr, order, labels, n, size, colour_text, SPACIOUS,
-                                             _tile_mm(len(order), full_w))
-            write_panel_folder(panels_dir, pid, "representative_tiles", draw_all,
-                               (full_w, h_all - ID_STRIP_MM + 4),
-                               data=tr["table"], stats=pd.concat([ranges, cand], ignore_index=True),
-                               dpi=dpi)
-            folders[pid] = folder
-            pct = tiles.get("percentiles", (0.5, 99.9))
-            rng_txt = "; ".join(f"channel {c}: {lo:.0f}-{hi:.0f}" for c, (lo, hi) in tr["ranges"].items())
-            centre = ("centred on the centroid of the pathogen (vacuole) objects of the host cell; only "
-                      "host cells whose pathogen objects lie fully inside the crop and away from the "
-                      "field edge, with the crop inside the field, are used"
-                      if tr.get("centred_on") == "pathogen" else
-                      "centred on the centroid of the host cell mask (zero padded at the field edge)")
-            legend.append(
-                f"{pid}. Representative host cells, {n} per condition (columns, in the condition order "
-                f"of the graphs), chosen at random (seed {tiles.get('seed', 0)}) from the filtered "
-                f"objects, trying first those whose pathogen centre lies at least half a tile "
-                f"({size // 2} px) from the field edge. Each crop is {size} x {size} px, {centre}. "
-                f"Composite: {colour_text}. Every channel is scaled linearly between its {pct[0]}th and "
-                f"{pct[1]}th percentile over the pixels of {tr['n_range_fields']} fields ({rng_txt}); "
-                f"the same range is used for every tile. Raw crops (every image channel and mask plane, "
-                f"input dtype {tr.get('dtype', 'uint16')}, values unchanged) are in tiles/*_raw.tif; "
-                f"16-bit RGB composites in tiles/*_rgb16.png/.tif; the montage at native resolution in "
-                f"montage_rgb16.png/.tif (16-bit). The figure PDF/PNG is 8-bit, drawn without "
-                f"interpolation." + (" " + "; ".join(tr["notes"]) + "." if tr["notes"] else ""))
-
-    crop_cfg = None
-    if crops and tiles:
-        crop_cfg = dict(merged_dir=tiles["merged_dir"], mask_dims=tiles["mask_dims"],
-                        colour_map=tiles["colour_map"], size=tiles.get("size", 128),
-                        percentiles=(1, 99), selection="median", range_source="crops",
-                        subdir="crops", montage_name="montage16")
-        ckey = ", ".join(f"{_colour_name(c)}: channel {ch}" for ch, c in tiles["colour_map"].items())
-        pid = next_id()
-        folder = os.path.join(panels_dir, panel_folder_name(pid, "representative_per_condition"))
-        try:
-            rp = build_tiles(filt, group, order, out_folder=folder, value_column=value, n=1, **crop_cfg)
-        except Exception as exc:
-            rp = None
-            legend.append(f"{pid}. Representative crops could not be made: {exc}.")
-        if rp is not None and len(rp["table"]):
-            size = crop_cfg["size"]
-            tile_mm = min(16.0 if layout.compact else 24.0, layout.content / max(len(order), 1) - 2)
-            draw, h, hmin = tile_drawer(rp, order, labels, 1, size, ckey, layout, tile_mm)
-            item = ReportItem(pid=pid, label=pid, draw=draw, width=1.0, height_mm=h,
-                              min_height_mm=tile_drawer(rp, order, labels, 1, size, ckey, layout,
-                                                        tile_mm * 0.7)[1])
-            blocks.append(ReportBlock(f"Representative {value_label} per condition (filtered objects)",
-                                      [item]))
-            fd, fh, _ = tile_drawer(rp, order, labels, 1, size, ckey, SPACIOUS, 26.0)
-            write_panel_folder(panels_dir, pid, "representative_per_condition", fd,
-                               (max(_content_width(), 28.0 * len(order) + 4), fh - ID_STRIP_MM + 4),
-                               data=rp["table"], dpi=dpi)
-            folders[pid] = folder
-            legend.append(
-                f"{pid}. One representative object per condition: the filtered host cell whose "
-                f"{value_label} lies closest to the median of its condition, among cells whose pathogen "
-                f"objects lie fully inside the {size} x {size} px crop and away from the field edge. "
-                f"Composite: {ckey}; each channel scaled linearly between its 1st and 99th percentile "
-                f"over the pixels of these crops. crops/*_raw.tif hold the raw uint16 planes, "
-                f"crops/*_rgb16.png/.tif and montage16.png/.tif the 16-bit composites; data.csv names "
-                f"the object of each condition, its value and the condition median.")
-
-    # ---- value panels
-    items, sub_legend = [], []
-    grid_items = []
-    levels = [("unfiltered", "well"), ("unfiltered", "replicate"),
-              ("filtered", "well"), ("filtered", "replicate")]
-    if not replicate_column:
-        levels = [lv for lv in levels if lv[1] == "well"]
-    for k, (version, level) in enumerate(levels):
-        df = frames[version]
-        df = df[df[group].isin(order)]
-        unit = aggregate_to_unit(df, value, [group],
-                                 replicate_column=replicate_column if level == "replicate" else None)
-        fin = pd.to_numeric(unit[value], errors="coerce").replace([np.inf, -np.inf], np.nan).dropna()
-        ymin = 1 if ratio and len(fin) and fin.min() >= 1 else None
-        spec = bar_spec(unit, value, group, order, title=f"{value_label}: {version}, {level} level",
-                        ylabel=value_label, labels=labels, ymin=ymin, refline=1 if ratio else None,
-                        palette=palette)
-        spec["short_title"] = f"{version}, {level} level"
-        if level == "well":
-            hv(value, value_label, version, unit, value)
-        pid = next_id()
-        folders[pid] = save_spec_panel(panels_dir, pid, f"{value}_{version}_{level}", spec, dpi=dpi)
-        items += add_items(pid, spec, len(levels), k == 0)
-        if crop_cfg is not None:
-            gfolder = folders[pid] + "_crops"
-            try:
-                gr = build_tiles(df, group, order, out_folder=gfolder, value_column=value,
-                                 n=int(crops.get("n", 5)), **crop_cfg)
-                gr["table"].to_csv(os.path.join(gfolder, "data.csv"), index=False)
-                frac = items[-1].frac
-                gw = layout.width_mm(frac)
-                tmm = min(layout.tile_mm * 1.2, (gw - 2) / max(len(order), 1) - 0.8)
-                gdraw, gh, _ = tile_drawer(gr, order, labels, int(crops.get("n", 5)), crop_cfg["size"],
-                                           "", layout, tmm, show_labels=False)
-                gdraw_s, gh_s, _ = tile_drawer(gr, order, labels, int(crops.get("n", 5)), crop_cfg["size"],
-                                               "", SPACIOUS, 20.0)
-                _save_drawing(gfolder, os.path.basename(gfolder), gdraw_s,
-                              (max(80.0, 24.0 * len(order)), gh_s), dpi=dpi)
-                grid_items.append(ReportItem(pid=f"{pid} crops", label=f"{pid} crops", draw=gdraw,
-                                             width=frac, height_mm=gh, min_height_mm=gh,
-                                             new_row=not grid_items))
-                sub_legend.append(f"{pid} crops. Under {pid}: the {int(crops.get('n', 5))} {version} objects "
-                                  f"closest to the condition median of {value_label}, one column per "
-                                  f"condition in the x-axis order of {pid}; scaled to the 1st-99th "
-                                  f"percentile of these crops; files in {os.path.basename(gfolder)}/.")
-            except Exception as exc:
-                sub_legend.append(f"{pid} crops could not be made: {exc}.")
-        unit_text = (f"replicates (column '{replicate_column}'; each the mean of its well means)"
-                     if level == "replicate" else "wells (each the mean of its objects)")
-        sub_legend.append(_spec_legend(pid, spec, f"{value_label} per condition, {version} objects, "
-                                                  f"{level} level.", unit_text))
-    blocks.append(ReportBlock(f"{value_label} per condition", items + grid_items))
-    if not replicate_column:
-        sub_legend.append("Replicate-level panels are not drawn because replicate_column is not set.")
-    legend += sub_legend
-
-    # ---- control panels, before and after filtering
+    parts = dict(parts or {g: string_parts(g) for g in order})
+    axis = axis_layout(order, parts, x_axis_style, factor_order, labels)
+    counter, folders, figure_blocks, legends = [0], {}, {}, {}
+    heat = {}
     db_tables = None
     if db_path and os.path.exists(db_path):
         try:
             db_tables = db_object_tables(db_path) or None
         except Exception:  # an unreadable database falls back to counting the frame
             db_tables = None
-    for version in ("unfiltered", "filtered"):
+
+    def next_id():
+        counter[0] += 1
+        return f"R{counter[0]:02d}"
+
+    def hv(key, htitle, version, frame, col):
+        if frame is None or not len(frame) or col not in frame.columns:
+            return
+        heat.setdefault(key, dict(title=htitle, value=col))[version] = frame
+
+    axis_note = ""
+    if axis["constant"]:
+        axis_note = f" Every condition shown: {', '.join(axis['constant'])}."
+    axis_text = ("The x axis is a +/- matrix: each row is one factor, + marks the conditions that "
+                 "carry it." if axis["matrix"] else "The x axis names the factor that differs "
+                 "between the conditions.") + axis_note
+    mono = None
+    if tiles:
+        mono = tiles.get("mono_channel", next(iter(tiles["colour_map"])))
+    image_text = ""
+    if tiles:
+        ckey = ", ".join(f"{_colour_name(c)}: channel {ch}" for ch, c in tiles["colour_map"].items())
+        okey = ", ".join(f"{o}: {_rgb_name(OUTLINE_COLOURS.get(o))}" for o in tiles["mask_dims"])
+        image_text = (f"Each image set is shown three times: merged colour ({ckey}); channel {mono} in "
+                      f"grey; channel {mono} in grey with the outline of every object of the host "
+                      f"cell at 60% opacity ({okey}). Every channel is scaled linearly between its "
+                      f"2nd and 98th percentile over all crops of that panel. Crops are "
+                      f"{tiles.get('size', 128)} x {tiles.get('size', 128)} px centred on the pathogen "
+                      f"objects of the host cell; only cells whose pathogen objects lie inside the "
+                      f"crop and away from the field edge are used. Images are written as 16-bit "
+                      f"PNG/TIFF at native resolution (raw/ holds the unchanged uint16 planes) and "
+                      f"embedded at native resolution in the PDF.")
+
+    for version in ("filtered", "unfiltered"):
         df = frames[version]
         df = df[df[group].isin(order)]
+        blocks, legend = [], []
+        fig_title = f"Figure: {version} data"
+        legend.append(f"{title}, {version} objects. " + " ".join(intro) + " " + axis_text)
+        if image_text:
+            legend.append(image_text)
+        first_block = [True]
+
+        def add_block(items, grp=None):
+            if not items:
+                return
+            blocks.append(ReportBlock(fig_title if first_block[0] else "", items, group=grp,
+                                      new_page=first_block[0]))
+            first_block[0] = False
+
+        # ---- tiles and representative crops of this version
+        if tiles:
+            pid = next_id()
+            folder = os.path.join(panels_dir, panel_folder_name(pid, f"tiles_{version}"))
+            try:
+                tr = build_tiles(df, group, order, out_folder=folder, value_column=value,
+                                 **{k: v for k, v in tiles.items() if k in
+                                    ("merged_dir", "mask_dims", "colour_map", "n", "size", "seed",
+                                     "edge_column", "mono_channel")})
+            except Exception as exc:  # missing arrays must not stop the report
+                tr = None
+                legend.append(f"{pid}. Tiles could not be made: {exc}.")
+            if tr is not None and len(tr["table"]):
+                n = tiles.get("n", 5)
+                tr["table"].to_csv(os.path.join(folder, "data.csv"), index=False)
+                save_crop_panel(folder, panel_folder_name(pid, f"tiles_{version}"), tr, order, n,
+                                tiles.get("size", 128), axis, labels, dpi=dpi)
+                folders[pid] = folder
+                add_block(crop_items(pid, tr, order, n, tiles.get("size", 128), layout, axis, labels,
+                                     max_conditions_per_row, max_tile_mm=12.0))
+                legend.append(f"{pid}. {n} host cells per condition chosen at random (seed "
+                              f"{tiles.get('seed', 0)}) from the {version} objects, one column per "
+                              f"condition; left to right: merged, channel {mono}, channel {mono} with "
+                              f"outlines." + (" " + "; ".join(tr["notes"]) + "." if tr["notes"] else ""))
+            if crops:
+                pid = next_id()
+                folder = os.path.join(panels_dir, panel_folder_name(pid, f"representative_per_condition_{version}"))
+                try:
+                    rp = build_tiles(df, group, order, out_folder=folder, value_column=value, n=1,
+                                     selection="median", **{k: v for k, v in tiles.items() if k in
+                                                            ("merged_dir", "mask_dims", "colour_map",
+                                                             "size", "mono_channel")})
+                except Exception as exc:
+                    rp = None
+                    legend.append(f"{pid}. Representative crops could not be made: {exc}.")
+                if rp is not None and len(rp["table"]):
+                    rp["table"].to_csv(os.path.join(folder, "data.csv"), index=False)
+                    save_crop_panel(folder, panel_folder_name(pid, f"representative_per_condition_{version}"),
+                                    rp, order, 1, tiles.get("size", 128), axis, labels, dpi=dpi)
+                    folders[pid] = folder
+                    add_block(crop_items(pid, rp, order, 1, tiles.get("size", 128), layout, axis, labels,
+                                         max_conditions_per_row, max_tile_mm=16.0))
+                    legend.append(f"{pid}. One representative object per condition: the {version} host "
+                                  f"cell whose {value_label} lies closest to the median of its condition "
+                                  f"(data.csv: object, value, condition median); left to right: merged, "
+                                  f"channel {mono}, channel {mono} with outlines.")
+
+        # ---- value graphs (half page width) with their crop grids
+        items, grids = [], []
+        levels = ["well"] + (["replicate"] if replicate_column else [])
+        for k, level in enumerate(levels):
+            unit = aggregate_to_unit(df, value, [group],
+                                     replicate_column=replicate_column if level == "replicate" else None)
+            fin = pd.to_numeric(unit[value], errors="coerce").replace([np.inf, -np.inf], np.nan).dropna()
+            ymin = 1 if ratio and len(fin) and fin.min() >= 1 else None
+            spec = bar_spec(unit, value, group, order, title="", ylabel=value_label, labels=labels,
+                            ymin=ymin, refline=1 if ratio else None, palette=palette)
+            spec.update(axis=axis, plot_mm=46.0)
+            if level == "well":
+                hv(value, value_label, version, unit, value)
+            pid = next_id()
+            folders[pid] = save_spec_panel(panels_dir, pid, f"{value}_{version}_{level}", spec, dpi=dpi)
+            items += spec_items(pid, spec, max_conditions_per_row, layout, group_size=2, new_row=k == 0)
+            unit_text = (f"replicates (column '{replicate_column}'; each the mean of its well means)"
+                         if level == "replicate" else "wells (each the mean of its objects)")
+            legend.append(_spec_legend(pid, spec, f"{value_label} per condition, {version} objects, "
+                                                  f"{level} level.", unit_text))
+            if crops and tiles:
+                gfolder = folders[pid] + "_crops"
+                try:
+                    gr = build_tiles(df, group, order, out_folder=gfolder, value_column=value,
+                                     n=int(crops.get("n", 5)), selection="median",
+                                     **{kk: v for kk, v in tiles.items() if kk in
+                                        ("merged_dir", "mask_dims", "colour_map", "size", "mono_channel")})
+                    gr["table"].to_csv(os.path.join(gfolder, "data.csv"), index=False)
+                    save_crop_panel(gfolder, os.path.basename(gfolder), gr, order, int(crops.get("n", 5)),
+                                    tiles.get("size", 128), axis, labels, dpi=dpi)
+                    grids += crop_items(f"{pid} crops", gr, order, int(crops.get("n", 5)),
+                                        tiles.get("size", 128), layout, axis, labels,
+                                        max_conditions_per_row, width=items[-1].frac, min_tile_mm=3.0,
+                                        new_row=not grids)
+                    legend.append(f"{pid} crops. Under {pid}: the {int(crops.get('n', 5))} {version} objects "
+                                  f"closest to the condition median of {value_label}, one column per "
+                                  f"condition in the x-axis order of {pid}; merged, channel {mono}, "
+                                  f"channel {mono} with outlines.")
+                except Exception as exc:
+                    legend.append(f"{pid} crops could not be made: {exc}.")
+        if not replicate_column:
+            legend.append("Replicate-level graphs are not drawn because replicate_column is not set.")
+        add_block(items + grids)
+
+        # ---- controls (no statistics)
         items = []
-        objs_all = object_types(df, channels)
         chans = [c for c in channels if object_types(df, [c])]
         for k, chan in enumerate(chans):
             objs = object_types(df, [chan])
@@ -1912,37 +2059,34 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
             for obj in objs:
                 hv(f"{obj}_ch{chan}_intensity", f"{obj} ch{chan} intensity", version,
                    data[data["object_type"] == obj], "mean_intensity")
-            spec = grouped_spec(data, group, order, objs,
-                                title=(f"channel {chan}" if layout.compact else
-                                       f"channel {chan} in all objects ({version})"),
-                                ylabel=(f"mean intensity ch {chan}" if layout.compact else
-                                        f"mean intensity, channel {chan}"), labels=labels)
+            spec = grouped_spec(data, group, order, objs, title="",
+                                ylabel=f"mean intensity ch {chan}", labels=labels)
+            spec.update(axis=axis, no_stats=True)
             pid = next_id()
             folders[pid] = save_spec_panel(panels_dir, pid, f"channel_{chan}_all_objects_{version}",
                                            spec, dpi=dpi)
-            items += add_items(pid, spec, len(chans), k == 0)
-            legend.append(_spec_legend(pid, spec, f"Mean intensity of channel {chan} per well in every "
-                                                  f"object type ({', '.join(objs)}), {version} objects; "
-                                                  f"a log axis is used when object means differ more "
-                                                  f"than 30-fold.", "wells"))
+            items += spec_items(pid, spec, max_conditions_per_row, layout, group_size=len(chans),
+                                new_row=k == 0)
+            legend.append(_control_legend(pid, spec, f"Mean intensity of channel {chan} per well in every "
+                                                     f"object type ({', '.join(objs)}), {version} objects; "
+                                                     f"a log axis is used when object means differ more "
+                                                     f"than 30-fold."))
         if count_objects is not None:
             count_types = [o for o in count_objects if o != "cytoplasm"]
         elif db_tables:
             count_types = list(db_tables)
         else:
-            count_types = [o for o in objs_all if o != "cytoplasm"]
+            count_types = [o for o in object_types(df, channels) if o != "cytoplasm"]
         db_counts = None
         if version == "unfiltered" and db_tables:
             db_counts = db_well_counts(db_path, df, group, [t for t in count_types if t in db_tables])
-        row_b = []   # (kind, name, spec, legend text)
-        # object areas: one grouped panel, one colour per object type
+        row_b = []
         area_objs = [o for o in object_types(df) if f"{o}_area" in df.columns]
         if area_objs:
             data = well_column_long(df, group, {o: f"{o}_area" for o in area_objs}, "mean_area")
             for obj in area_objs:
                 hv(f"{obj}_area", f"{obj} area", version, data[data["object_type"] == obj], "mean_area")
-            spec = grouped_spec(data, group, order, area_objs, value="mean_area",
-                                title="object area" if layout.compact else f"object area per well ({version})",
+            spec = grouped_spec(data, group, order, area_objs, value="mean_area", title="",
                                 ylabel="mean area (px)", labels=labels, log_ratio=10.0)
             row_b.append((f"object_area_{version}", spec,
                           f"Mean area (px) of every object type ({', '.join(area_objs)}) per well, "
@@ -1956,10 +2100,8 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
             if not len(data):
                 continue
             hv(f"{obj}_count", f"{obj} per well", version, data, "objects_per_well")
-            spec = bar_spec(data, "objects_per_well", group, order,
-                            title=f"{obj} objects per well ({version})",
-                            ylabel=f"{obj} objects per well", labels=labels, palette=palette)
-            spec["short_title"] = f"{obj} per well"
+            spec = bar_spec(data, "objects_per_well", group, order, title="",
+                            ylabel=f"{obj} per well", labels=labels, palette=palette)
             src = str(data["count_source"].iloc[0])
             how = (f"rows per well in the {src.split()[-1]} table of measurements.db (every "
                    f"segmented object, before any filter)" if src.startswith("measurements.db") else
@@ -1970,44 +2112,54 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
                           f"{obj} objects per well, {version}, counted as {how}."))
         load_col = "pathogen_prcfo_count"
         if load_col in df.columns:
-            unit = aggregate_to_unit(df, load_col, [group])
-            unit = unit.rename(columns={load_col: "pathogens_per_host_cell"})
-            hv("pathogens_per_host_cell", "pathogens per host cell", version, unit,
-               "pathogens_per_host_cell")
-            spec = bar_spec(unit, "pathogens_per_host_cell", group, order,
-                            title=f"pathogens per host cell ({version})",
+            unit = aggregate_to_unit(df, load_col, [group]).rename(columns={load_col: "pathogens_per_host_cell"})
+            hv("pathogens_per_host_cell", "pathogens per host cell", version, unit, "pathogens_per_host_cell")
+            spec = bar_spec(unit, "pathogens_per_host_cell", group, order, title="",
                             ylabel="pathogens per host cell", labels=labels, palette=palette)
-            spec["short_title"] = "pathogens per cell"
             row_b.append((f"pathogens_per_host_cell_{version}", spec,
                           f"Infection load: mean number of pathogen objects per analysed host cell "
                           f"(pathogen_prcfo_count) per well, {version} objects."))
         for k, (pname, spec, text) in enumerate(row_b):
+            spec.update(axis=axis, no_stats=True)
             pid = next_id()
             folders[pid] = save_spec_panel(panels_dir, pid, pname, spec, dpi=dpi)
-            items += add_items(pid, spec, len(row_b), k == 0)
-            legend.append(_spec_legend(pid, spec, text, "wells"))
-        title_v = "before filtering (unfiltered)" if version == "unfiltered" else "after filtering"
-        blocks.append(ReportBlock(f"Well-level controls {title_v}", items, group="controls"))
+            items += spec_items(pid, spec, max_conditions_per_row, layout, group_size=len(row_b),
+                                new_row=k == 0)
+            legend.append(_control_legend(pid, spec, text))
+        add_block(items, grp="controls")
+
+        legend.append("Filters. Unfiltered: spaCR output after the standard object filters. Filtered: "
+                      "after the opt-in filters. " + filter_sentences(filter_summary))
+        legend.append("Statistics. Main graphs: bars are the mean ± SD of the units, dots are the units "
+                      "(wells, the mean of their objects, or replicates, the mean of their well means); "
+                      "tests never treat single cells as independent. Per graph: Shapiro-Wilk normality "
+                      "per group and Levene equal variance (median centred); all normal and equal "
+                      "variance: one-way ANOVA + Tukey HSD; normal with unequal variance: Welch ANOVA + "
+                      "Games-Howell; otherwise Kruskal-Wallis + Dunn test (Holm). Brackets mark "
+                      "significant post hoc pairs (* p < 0.05, ** p < 0.01, *** p < 0.001, **** "
+                      "p < 0.0001). Control graphs show means ± SD of wells without tests. Each panel "
+                      "folder holds data.csv (exactly the plotted values) and stats.csv.")
+        add_block(text_items([f"Figure legend ({version} data)."] + legend, layout))
+        figure_blocks[version] = blocks
+        legends[version] = legend
 
     # ---- plate heatmaps (appendix)
+    heat_blocks, heat_legend = [], []
     if heatmaps and heat:
         keys = list(WELL_KEYS)
         failed = set()
         if well_qc is not None and "well_qc_pass" in well_qc.columns:
             failed = {tuple(map(str, r)) for r in
                       well_qc.loc[~well_qc["well_qc_pass"].astype(bool), keys].itertuples(index=False)}
-        families = [("main", f"Plate heatmaps: {value_label}"), ("count", "Plate heatmaps: objects per well"),
-                    ("area", "Plate heatmaps: object area"), ("intensity", "Plate heatmaps: mean intensity"),
-                    ("load", "Plate heatmaps: pathogens per host cell")]
+        families = [("main", value_label), ("count", "objects per well"), ("area", "object area"),
+                    ("intensity", "mean intensity"), ("load", "pathogens per host cell")]
 
         def family(key):
             return ("main" if key == value else "count" if key.endswith("_count") else
                     "area" if key.endswith("_area") else "load" if key == "pathogens_per_host_cell"
                     else "intensity")
-        first_h, last_h = None, None
-        hcount = [0]
-        shared_scale = {}
-        for fam, heading in families:
+        hcount, shared_scale, first_h, last_h = [0], {}, None, None
+        for fam, _ in families:
             items = []
             for key, hvd in heat.items():
                 if family(key) != fam:
@@ -2019,7 +2171,7 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
                 meds = [pd.to_numeric(hvd[v][hvd["value"]], errors="coerce").median()
                         for v in ("unfiltered", "filtered") if v in hvd]
                 if len(meds) == 2 and min(meds) > 0 and max(meds) / min(meds) > 2:
-                    vrange = None      # different quantities before / after (e.g. counts): own scales
+                    vrange = None
                 shared_scale[key] = vrange is not None
                 for version in ("unfiltered", "filtered"):
                     if version not in hvd:
@@ -2033,36 +2185,55 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
                     first_h = first_h or hid
                     last_h = hid
             if items:
-                blocks.append(ReportBlock(heading, items, group="heatmaps"))
+                heat_blocks.append(ReportBlock("Plate heatmaps" if not heat_blocks else "", items,
+                                               group="heatmaps", new_page=not heat_blocks))
         if first_h:
-            legend.append(f"{first_h}-{last_h}. Plate heatmaps of every plotted well-level variable, before "
-                          f"(unfiltered) and after filtering, side by side; one cell per well in the plate "
-                          f"layout (rows lettered, columns numbered). The colour scale spans the 1st to 99th "
-                          f"percentile of the well values; it is shared by the two maps of a variable unless "
-                          f"their medians differ more than 2-fold (own scales for "
-                          f"{', '.join(k for k, v in shared_scale.items() if not v) or 'none'}); grey wells have no data (not annotated, or removed by the "
-                          f"filters); a red x marks wells that failed well_qc"
-                          f" ({len(failed)} wells). Each map is in its own panel folder (PDF, PNG, data.csv).")
+            heat_legend.append(
+                f"{first_h}-{last_h}. Plate heatmaps of every plotted well-level variable, before "
+                f"(unfiltered) and after filtering, side by side; one cell per well in the plate layout "
+                f"(rows lettered, columns numbered). The colour scale spans the 1st to 99th percentile of "
+                f"the well values; it is shared by the two maps of a variable unless their medians differ "
+                f"more than 2-fold (own scales for "
+                f"{', '.join(k for k, v in shared_scale.items() if not v) or 'none'}); grey wells have no "
+                f"data (not annotated, or removed by the filters); a red x marks wells that failed "
+                f"well_qc ({len(failed)} wells). Each map is in its own panel folder (PDF, PNG, data.csv).")
+            heat_blocks.append(ReportBlock("", text_items(heat_legend, layout)))
 
-    legend.append("Filters. Unfiltered: spaCR output after the standard object filters. Filtered: "
-                  "after the opt-in filters. " + filter_sentences(filter_summary))
-    legend.append("Statistics. The experimental unit is the well (mean of its objects) or the "
-                  "replicate (mean of its well means); tests never treat single cells as independent. "
-                  "Per panel: Shapiro-Wilk normality per group and Levene equal variance (median "
-                  "centred); all normal and equal variance: one-way ANOVA + Tukey HSD; normal with "
-                  "unequal variance: Welch ANOVA + Games-Howell; otherwise Kruskal-Wallis + Dunn test "
-                  "(Holm). Each panel folder holds data.csv (exactly the plotted values; count panels "
-                  "name their source in count_source) and stats.csv (test, assumptions, post hoc and "
-                  "descriptive tables in long format).")
     legend_path = os.path.join(out_dir, "figure_legend.txt")
-    legend_text = write_legend(legend_path, [f"Figure legend: {title}"] + legend)
-    pages = paginate(blocks, layout)
-    n_main = sum(1 for pg in pages if any(pl["kind"] == "item" and not str(pl["item"].pid).startswith("H")
+    paras = []
+    for version in ("filtered", "unfiltered"):
+        paras += [f"FIGURE: {version.upper()} DATA"] + legends[version]
+    paras += (["APPENDIX: PLATE HEATMAPS"] + heat_legend) if heat_legend else []
+    write_legend(legend_path, [f"Figure legend: {title}"] + paras)
+    all_blocks = figure_blocks["filtered"] + figure_blocks["unfiltered"] + heat_blocks
+    pages = paginate(all_blocks, layout)
+    res = render_report(pages, os.path.join(out_dir, f"{name}.pdf"), "", title=title, layout=layout, dpi=dpi)
+    figs = {}
+    for version in ("filtered", "unfiltered"):
+        fp = paginate(figure_blocks[version], layout)
+        figs[version] = render_report(fp, os.path.join(out_dir, f"{name}_figure_{version}.pdf"), "",
+                                      title=f"{title}: {version} data", layout=layout, dpi=dpi)
+    n_main = sum(1 for pg in pages if any(pl["kind"] == "item" and str(pl["item"].pid).startswith("R")
                                           for pl in pg))
-    res = render_report(pages, os.path.join(out_dir, f"{name}.pdf"), legend_text, title=title,
-                        layout=layout, dpi=dpi)
-    res.update(legend=legend_path, panels=folders, layout=layout.name, n_main_pages=n_main)
+    res.update(legend=legend_path, panels=folders, layout=layout.name, n_main_pages=n_main,
+               figures={v: f["pdf"] for v, f in figs.items()},
+               figure_pages={v: f["n_pages"] for v, f in figs.items()}, axis=axis)
     return res
+
+
+def _control_legend(pid, spec, what):
+    group, labels = spec["group"], spec.get("labels")
+    st = spec["stats"] if spec["kind"] == "bar" else next(iter(spec["stats"].values()))
+    n = _n_text(st["descriptive"], group, labels)
+    return (f"{pid}. {what} Bars: mean ± SD over wells; dots: wells. n wells per condition: {n}. "
+            f"No statistical test (control)." + _outlier_text(spec))
+
+
+def _rgb_name(rgb):
+    names = {(0.0, 0.75, 1.0): "sky blue", (1.0, 0.0, 1.0): "magenta", (1.0, 0.35, 0.0): "orange",
+             (0.0, 1.0, 0.5): "spring green", (0.5, 1.0, 0.0): "lime", (1.0, 0.0, 0.3): "red",
+             (0.6, 0.4, 1.0): "violet"}
+    return names.get(tuple(rgb) if rgb is not None else None, "light grey")
 
 
 def _colour_name(c):

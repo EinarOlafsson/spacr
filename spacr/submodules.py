@@ -1088,6 +1088,43 @@ def _unit_frame(df, value, group, replicate_column):
     return aggregate_to_unit(df, value, [group], replicate_column=replicate_column)
 
 
+def _condition_axis_parts(frame, group, order, settings, exclude=None):
+    """{condition: [(variable, factor)]} for the x axis: slot values, split by condition_factors.
+
+    A condition column built from the metadata slots (``condition``,
+    ``report_condition``) is decomposed into host_cells, treatment and
+    pathogen (plate-map order, ``exclude`` left out); any other column is one
+    variable. Values listed in ``condition_factors`` are split into factors.
+    """
+    from .assay_panels import condition_parts
+    factors = settings.get('condition_factors') or None
+    slots = [c for c in ('host_cells', 'treatment', 'pathogen') if c in frame.columns and c != exclude]
+    if group in ('condition', 'report_condition') and slots:
+        first = frame.dropna(subset=[group]).groupby(group, observed=True)[slots].first()
+        return {g: condition_parts({c: first.at[g, c] for c in slots}, factors)
+                for g in order if g in first.index}
+    return {g: condition_parts({group: g}, factors) for g in order}
+
+
+def _apply_axis(spec, frame, group, order, panel, settings):
+    """Set the x-axis labels or +/- matrix of a panel spec (``x_axis_style``)."""
+    from .assay_panels import axis_layout
+    style = settings.get('x_axis_style') or 'auto'
+    if panel.get('annotations') or style == 'labels':
+        return spec
+    labels = dict(settings.get('condition_labels') or {})
+    labels.update(panel.get('labels') or {})
+    axis = axis_layout(order, _condition_axis_parts(frame, group, order, settings,
+                                                    exclude=settings.get('replicate_column')),
+                       style, settings.get('factor_order'), labels)
+    if axis['matrix']:
+        spec.update(annotations=axis['annotations'], matrix=True)
+    else:
+        spec['labels'] = axis['labels']
+    spec['axis_constant'] = axis['constant']
+    return spec
+
+
 def _bar_panel_from_objects(df, panel, settings, value, group, title=None, ylabel=None,
                             ymin='auto', refline='auto'):
     """Build one bar-panel spec from object rows (subset, aligned order, unit, test)."""
@@ -1106,11 +1143,12 @@ def _bar_panel_from_objects(df, panel, settings, value, group, title=None, ylabe
         ymin = 1 if ratio and len(finite) and finite.min() >= 1 else None
     if refline == 'auto':
         refline = 1 if ratio else None
-    return bar_spec(unit, value, group, order,
+    spec = bar_spec(unit, value, group, order,
                     title=panel.get('title', title if title is not None else str(panel['name']).replace('_', ' ')),
                     ylabel=panel.get('ylabel', ylabel), labels=_panel_labels(panel, settings),
                     annotations=panel.get('annotations'), ymin=ymin, refline=refline,
                     palette=panel.get('palette'))
+    return _apply_axis(spec, sub, group, order, panel, settings)
 
 
 def _write_panels_and_figures(specs, names, panels_dir, figures_dir, figures, dpi=300,
@@ -1329,11 +1367,13 @@ def _qc_filters(df, settings, row_object='cell'):
     channels = [int(c) for c in (settings.get('channel_dims') or []) if c is not None] or None
     steps, tables = [], {}
     group, frame = _qc_group_column(df, settings)
-    where = f"within each {group} group" if group else "per plate"
+    shown = ('condition (replicate pooled)' if group == '_qc_group' else group)
+    where = f"within each {shown}" if group else "per plate"
     if settings.get('well_qc'):
         mad = float(settings.get('well_qc_mad') or 3.5)
         table = well_qc_table(frame, channels, settings.get('well_qc_measures'), mad, row_object,
                               group=group, min_wells=8)
+        table = table.rename(columns={'qc_group': f"qc_group ({shown})" if group else 'qc_group'})
         tables['well_qc'] = table
         keys = [k for k in ('plateID', 'rowID', 'columnID') if k in df.columns]
         bad = table.loc[~table['well_qc_pass'], keys]
@@ -1354,6 +1394,7 @@ def _qc_filters(df, settings, row_object='cell'):
         frame = _qc_group_column(df, settings)[1]
         keep, summary = object_qc_mask(frame, channels, settings.get('object_qc_measures'), mad,
                                        group=group, min_objects=30)
+        summary['qc_group'] = shown if group else 'plate'
         tables['object_qc_summary'] = summary
         before = df
         df = df[keep]
@@ -1625,7 +1666,7 @@ def _recruitment_tile_config(df, settings, channels=None):
         if chan is not None:
             colour_map.setdefault(int(chan), colour)
     return dict(merged_dir=merged_dir, mask_dims=resolve_mask_dims(merged_dir, names, n_planes),
-                colour_map=colour_map, n=int(settings['report_tiles_per_condition']),
+                colour_map=colour_map, mono_channel=int(coi), n=int(settings['report_tiles_per_condition']),
                 size=int(settings['report_tile_size']), seed=int(settings['report_tile_seed']))
 
 
@@ -1646,9 +1687,8 @@ def _panel_crop_grids(df, specs, names, panels, panels_dir, settings):
         try:
             out[pid] = build_tiles(sub, group, spec['order'], cfg['merged_dir'], cfg['mask_dims'],
                                    cfg['colour_map'], folder, n=int(settings['representative_crops_n']),
-                                   size=cfg['size'], percentiles=(1, 99), value_column=value,
-                                   selection='median', range_source='crops', subdir='crops',
-                                   montage_name='montage16')
+                                   size=cfg['size'], value_column=value, selection='median',
+                                   mono_channel=cfg.get('mono_channel'))
             out[pid]['table'].to_csv(os.path.join(folder, 'data.csv'), index=False)
         except Exception as exc:  # crops must never stop the analysis
             print(f"representative crops for {pid} failed: {exc}")
@@ -1669,6 +1709,10 @@ def _recruitment_report_impl(df_unfiltered, df, settings, results_dir, filter_lo
     palette = _control_palette(frames['unfiltered'], group, order, settings.get('control_color_by'))
     intro = []
     tiles = _recruitment_tile_config(df, settings, channels)
+    parts = _condition_axis_parts(frames['unfiltered'], group, order, settings,
+                                  exclude=rep if group == 'report_condition' else None)
+    axis_labels = dict(settings.get('condition_labels') or {})
+    axis_labels.update(labels or {})
     if tiles is None:
         intro.append(f"No representative tiles or crops: merged arrays not found in "
                      f"{settings.get('merged_dir') or os.path.join(settings['src'], 'merged')} "
@@ -1684,7 +1728,7 @@ def _recruitment_report_impl(df_unfiltered, df, settings, results_dir, filter_lo
                        f"merged into one condition per combination of {' and '.join(c for c in ('host_cells', 'pathogen', 'treatment') if c != rep)} "
                        f"and used as the replicate unit." if group == 'report_condition' else ''))
     res = build_assay_report(
-        frames, out_dir, 'recruitment', group, order, channels, labels=labels,
+        frames, out_dir, 'recruitment', group, order, channels, labels=axis_labels,
         replicate_column=rep, value_label=f'recruitment (channel {coi})', ratio=True,
         filter_summary=filter_log.frame() if filter_log is not None else None, palette=palette,
         tiles=tiles, max_conditions_per_row=int(settings['report_max_conditions_per_row']),
@@ -1692,7 +1736,9 @@ def _recruitment_report_impl(df_unfiltered, df, settings, results_dir, filter_lo
         intro=intro, name='recruitment_report', layout=settings.get('report_layout') or 'compact',
         db_path=os.path.join(settings['src'], 'measurements', 'measurements.db'),
         well_qc=well_qc,
-        crops=dict(n=int(settings['representative_crops_n'])) if settings.get('representative_crops') else None)
+        crops=dict(n=int(settings['representative_crops_n'])) if settings.get('representative_crops') else None,
+        parts=parts, x_axis_style=settings.get('x_axis_style') or 'auto',
+        factor_order=settings.get('factor_order'))
     print(f"Recruitment report: {res['pdf']} ({res['n_pages']} pages), legend {res['legend']}")
     return res
 
@@ -2010,6 +2056,7 @@ def _replication_panels_impl(table, settings, bin_column, bins, value, value_lab
                                       legend_title=legend_title,
                                       ylabel='fraction of vacuoles (mean ± SD)',
                                       n_resamples=int(panel.get('n_resamples', 20000)))
+            _apply_axis(specs[pid], sub, group, order, panel, settings)
             names[pid] = f"{panel['name']}_bins_{suffix}"
         n += 1
         pid = f'P{n:02d}'
