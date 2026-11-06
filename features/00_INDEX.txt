@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-699 Lifecycle: new, 97 Lifecycle: future in features/feature_list/.
+700 Lifecycle: new, 97 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -1739,3 +1739,5 @@ NEW FEATURES
        811_index_the_measurement_join_keys.txt
   812  OPS OUTPUT FOLLOWS spaCR'S STANDARD PROJECT LAYOUT
        812_ops_output_follows_the_standard_project_layout.txt
+  813  OPS MODULE V2
+       813_ops_module_v2.txt

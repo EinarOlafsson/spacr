@@ -1,0 +1,75 @@
+OPS MODULE V2
+
+Lifecycle: new
+Status: open. Umbrella for 809 (sharded crops), 810 (bulk SQLite), 811 (join indexes) and 812 (standard layout); supersedes 812's layout details where they differ. Build after the running decode-strategy (decode_yield_2026-11-04) and stitching studies settle.
+Requested: maintainer, 2026-11-06 (BMC paper OPS reanalysis).
+Owner: home spacr software paper.
+
+--------------------------------------------------------------------------------
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+The OPS submodule of the mask module produces:
+
+1. orig/
+   The original files move into orig/ with their folder structure
+   unchanged, as in other spaCR modules.
+
+2. Every cell, once, efficiently
+   - Core-ownership stitching: each field owns its core.
+   - Linked cells are owned where the SBS centroid is deepest (A1b).
+   - Margin copies are tagged and excluded.
+   - Stitched-patch rescue covers cells cut in every field.
+   - Well-boundary cells are flagged.
+   - Evidence: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/ops_overlap/REPORT.md
+     (+1.9% unique whole cells, 99.7% whole, no extra GPU). Settings spec in
+     section 9 of that report.
+   - Full-mosaic segmentation stays optional and alpha.
+
+3. Guide detection
+   - False discovery rate (FDR) at most 2x Brieflow's, estimated with decoys,
+     calibrated, on the upper 95% CI; preferably below Brieflow.
+   - Detection at least 70%, preferably at least 75%.
+   - Each decode strategy is its own Boolean setting, with defaults chosen
+     from the strategy study.
+
+4. merged/
+   - merged/phenotype/<plate>/<well>/<field>.npz: compressed; phenotype
+     channels first, then masks, for the field's expanded view (the core
+     extended just enough to contain every object it owns). Overlap pixels
+     may repeat across files; each object belongs to exactly one field, and
+     only owned objects are analysed.
+   - merged/sbs/<plate>/<well>/<field>.npz: optional, setting
+     ops_merged_save_sbs (default on). All SBS cycles x channels at native
+     SBS resolution, cropped to the field, plus the SBS-to-phenotype affine
+     transform. A helper upsamples onto the phenotype grid on demand; nothing
+     upsampled is stored.
+   - One file per field, about 1,281 per well folder.
+   - Measure and every module that reads merged/ support this layout: they
+     load phenotype by default and join SBS on request.
+   - A layout manifest/version file lets readers detect the layout.
+
+5. measurements/
+   - measurements.db (SQLite) holds the cell index, genotype, metadata and
+     png_list, so the standard spaCR tools work. Items 810 and 811 cover the
+     SQLite parts.
+   - The wide feature tables (cell, nucleus, cytoplasm) are per-well Parquet,
+     read through DuckDB by a spaCR reader that exposes them as the usual
+     tables.
+   - Sized for about 100 M rows; earlier spaCR databases held 1-2 M.
+
+6. data/ crops (optional, as in generate masks)
+   - spaCR categories, then plate/well, then field.
+   - No folder holds more than ops_max_files_per_folder (default 10,000)
+     files.
+   - Raw crops, no per-crop stretch (item 772); sharded store per item 809.
+
+--------------------------------------------------------------------------------
+TESTS
+--------------------------------------------------------------------------------
+
+- The layout and its manifest.
+- The readers: measure and the other merged/ consumers.
+- The 100 M-row reader on synthetic data.
+- No duplicate ownership.
+- Folder caps.
