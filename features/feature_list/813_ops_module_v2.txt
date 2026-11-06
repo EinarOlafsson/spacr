@@ -73,3 +73,24 @@ TESTS
 - The 100 M-row reader on synthetic data.
 - No duplicate ownership.
 - Folder caps.
+
+--------------------------------------------------------------------------------
+SPOTIFLOW SPOT DETECTOR (maintainer, 2026-11-06)
+--------------------------------------------------------------------------------
+
+- Setting ops_spot_detector, with three choices:
+  - log: the current default, LoG filter plus local maxima;
+  - spotiflow;
+  - union: both detectors' calls merged, deduplicated within 1-2 px.
+- Companion settings:
+  - ops_spotiflow_model: a pretrained model name, or a path to a fine-tuned
+    model;
+  - ops_spotiflow_threshold: a probability; the default comes from the model.
+  - GPU use follows the module's GPU setting.
+- Spotiflow is an optional dependency, imported lazily. When it is missing,
+  a clear message says how to install it, and nothing else breaks.
+- The default stays log until the decode-strategy study (N7, detector union)
+  shows whether Spotiflow improves detection at FDR at most 2x Brieflow's.
+  The study result decides the default.
+- Tests: the setting is declared; the missing-dependency message; union
+  deduplication on synthetic spots; a stub detector path.
