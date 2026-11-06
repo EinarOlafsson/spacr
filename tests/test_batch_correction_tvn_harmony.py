@@ -61,12 +61,14 @@ def _ctrl_spread(values, meta):
 
 def _cross_batch_nn(values, meta):
     """1-NN accuracy (cosine, treatments only), neighbour must be in another batch."""
-    keep = (meta.treatment != "DMSO").values
-    x = values.values[keep]
-    x = x - values.values[(meta.treatment == "DMSO").values].mean(axis=0)
+    # ``to_numpy``, not ``.values``: under pandas 3 a string column's
+    # ``.values`` is an Arrow array, which takes no ``[:, None]``.
+    keep = (meta.treatment != "DMSO").to_numpy()
+    x = values.to_numpy()[keep]
+    x = x - values.to_numpy()[(meta.treatment == "DMSO").to_numpy()].mean(axis=0)
     x = x / np.linalg.norm(x, axis=1, keepdims=True)
-    y = meta.treatment.values[keep]
-    b = meta.plate.values[keep]
+    y = meta.treatment.to_numpy(dtype=object)[keep]
+    b = meta.plate.to_numpy(dtype=object)[keep]
     sim = x @ x.T
     sim[b[:, None] == b[None, :]] = -np.inf
     return float((y[sim.argmax(1)] == y).mean())
