@@ -6,6 +6,8 @@ Lifecycle: future
 Status:    open — deferred beyond 1.5.1.6 by the maintainer (2026-10-28).
            The Timepose v2 checkpoint is not ready and is excluded from 1.5.1.6.
            Retain one network, a final-epoch checkpoint and end-to-end scoring.
+           2026-11-06: queued on the workstation GPU after plaque v8 (about
+           9 Nov 18:00); 711 needs the (home) timepose session's go-ahead.
 Requested: maintainer, 2026-10-18: "make sure trackstera and timepose v1 are
            included in timelapse and timepose needs to be uploaded to
            huggingface and it needs a scorecard". Visibility (maintainer,

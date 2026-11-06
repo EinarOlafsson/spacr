@@ -3,7 +3,8 @@ THE MAC AND APPLE SILICON CHECKS STILL TO RUN ON A REAL MACOS DISPLAY
 ================================================================================
 
 Lifecycle: new
-Status:    IN PROGRESS — Apple Silicon Mac required for remaining checks
+Status:    deferred by the maintainer (2026-11-06) until an Apple Silicon Mac
+           session is available.
 Requested: maintainer, 2026-10-26: "please send a message to main with
            whatever mac or apple silicon or osx related tests are left. and
            write a new features list item and push it"

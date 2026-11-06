@@ -7,6 +7,8 @@ Lifecycle: future
 Status:    BUILT 2026-10-15; the maintainer signed off the published score
            cards 2026-10-15. Only WS re-scoring of the 5 recorded models and
            the detectors remains.
+           2026-11-06: queued on the workstation GPU after plaque v8 (about
+           9 Nov 18:00); 711 needs the (home) timepose session's go-ahead.
 Previous status (superseded 2026-10-15):    PARTIAL 2026-10-14 — nine approved curated cards are published;
            catalogue/tooltips, matched-stock exports, API consistency and
            remaining published-model acceptance still need completion.
