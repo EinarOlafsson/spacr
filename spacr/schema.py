@@ -2640,11 +2640,23 @@ def canonical_plate_id(plate: Any) -> str:
     :mod:`spacr.multi_database` (scalars and database reads) both call it.
     :mod:`spacr.multi_database` re-exports the name, so no caller moved.
 
+    A plate name that a cluster export stored URL-escaped
+    (``AssayPlate%5FPerkinElmer``, or ``%255F`` after a second escaping) is
+    decoded to one spelling, so the stored ``prcf`` and a decoded ``plateID``
+    still join.
+
     :param plate: a plate id, from anywhere.
-    :returns: the id with a doubled ``p`` prefix collapsed; everything else
-        unchanged.
+    :returns: the id with URL escapes decoded and a doubled ``p`` prefix
+        collapsed; everything else unchanged.
     """
+    from urllib.parse import unquote
+
     text = str(plate)
+    for _ in range(4):
+        decoded = unquote(text)
+        if decoded == text:
+            break
+        text = decoded
     return 'p' + text[2:] if text.startswith('pp') else text
 
 

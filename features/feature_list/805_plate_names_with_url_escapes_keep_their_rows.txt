@@ -1,7 +1,7 @@
 BUG: PLATE NAMES WITH URL ESCAPES DROP ALL ROWS
 
 Lifecycle: new
-Status: open.
+Status: DONE 2026-11-06 — schema.canonical_plate_id now URL-decodes (repeatedly, so %255F too) and _split_data applies it, so prcf, prcfo and plateID join; regression test tests/test_805_plate_names_with_url_escapes_keep_their_rows.py.
 Requested: maintainer, 2026-11-05.
 Owner: unassigned.
 
