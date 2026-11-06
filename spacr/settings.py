@@ -2903,6 +2903,7 @@ def get_analyze_recruitment_default_settings(settings):
     settings.setdefault('x_axis_style','auto')
     settings.setdefault('condition_factors',None)
     settings.setdefault('factor_order',None)
+    settings.setdefault('bracket_pairs','one_factor')
     return settings
 
 def get_default_test_cellpose_model_settings(settings):
@@ -4047,6 +4048,7 @@ expected_types = {
     "x_axis_style": str,
     "condition_factors": (dict, type(None)),
     "factor_order": (list, type(None)),
+    "bracket_pairs": (str, list),
     "max_area_quantile": (float, type(None)),
     "bin_labels": (dict, list, type(None)),
     "field_qc_min_objects": (int, type(None)),
@@ -5497,6 +5499,7 @@ tooltips = {
     "x_axis_style": "(str) - Recruitment and replication graphs: how conditions are named under the x axis. 'auto' writes plain labels of the one variable that differs between the conditions of a graph, and a +/- matrix (one row per factor, + under the conditions that carry it) when two or more variables differ; 'matrix' always uses the matrix, 'labels' the full condition names. Factors shared by every condition of a graph are named in the figure legend instead. Default 'auto'.",
     "condition_factors": "(dict) - Recruitment and replication graphs: split annotated values into the factors they carry, so the +/- matrix gets one row per factor, e.g. {'Me49WT': ['Me49', 'WT'], 'Me49dGRA8': ['Me49', 'dGRA8'], 'Me49GRA8comp': ['Me49', 'Comp']}. Factors at the same position form one variable (background, genotype). Values without an entry are a factor of their own. Default None.",
     "factor_order": "(list) - Recruitment and replication graphs: order of the +/- matrix rows, as factor or display names, e.g. ['HeLa WT', 'HeLa ALG2', 'RH', 'Me49', 'WT', 'dGRA8', 'Comp']. None groups the rows by variable in plate-map order. Default None.",
+    "bracket_pairs": "(str) - Recruitment and replication graphs: which significant post hoc pairs get a bracket. 'one_factor' marks pairs that differ in one factor of the x axis (same host with another strain, same strain in another host; every significant pair when the conditions vary in one variable only), 'all' marks every significant pair, and a list such as [['Me49WT_HeLa_WT', 'Me49dGRA8_HeLa_WT']] marks the listed pairs. Brackets stack with the shortest spans lowest; beyond 12 the smallest p values are drawn and the rest stay in stats.csv. Default 'one_factor'.",
     "report_layout": "(str) - Recruitment report: page layout of recruitment_report.pdf. compact uses 5-6 pt text, small tiles and four panels per row, and fits the whole figure on one A4 page when it can (the legend follows on its own page); spacious uses larger text and paginates freely. More conditions, channels or object types continue on further pages in both. Default 'compact'.",
     "control_color_by": '(str) - Recruitment control graphs: colour every condition bar by the value of this annotated column (for example treatment, so all wells of one host share a colour). Conditions are always ordered as the plate map lists them unless condition_order is set. None colours each condition separately. Default None.',
     "max_vacuoles_per_cell": '(int) - Recruitment analysis: keep host cells with at most this many pathogen objects (pathogen_prcfo_count), applied after the merge, which already used pathogen_limit. The removed count is reported in results/filter_summary.csv. None keeps every host cell. Default None.',
@@ -6030,7 +6033,7 @@ categories = {
 
     "Timelapse": timelapse_settings,
 
-    "Measurements": ["save_measurements", "calculate_correlation", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "field_qc", "field_qc_mad", "field_qc_min_cells", "field_qc_min_objects", "max_vacuoles_per_cell", "control_color_by", "background_mask_channel", "merged_dir", "min_solidity", "background_filters", "exclude_edge_objects", "confounder_filter", "report", "report_tiles_per_condition", "report_tile_size", "report_tile_seed", "report_tile_channels", "report_max_conditions_per_row", "report_layout", "well_qc", "well_qc_mad", "well_qc_measures", "object_qc", "object_qc_mad", "object_qc_measures", "qc_group", "outlier_points", "outlier_points_method", "representative_crops", "representative_crops_n", "x_axis_style", "condition_factors", "factor_order", "max_area_quantile", "bin_labels", "field_qc_max_pathogens_per_cell", "field_qc_columns", "confounder_covariates", "adjust_covariates", "adjust_log_outcome", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
+    "Measurements": ["save_measurements", "calculate_correlation", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "field_qc", "field_qc_mad", "field_qc_min_cells", "field_qc_min_objects", "max_vacuoles_per_cell", "control_color_by", "background_mask_channel", "merged_dir", "min_solidity", "background_filters", "exclude_edge_objects", "confounder_filter", "report", "report_tiles_per_condition", "report_tile_size", "report_tile_seed", "report_tile_channels", "report_max_conditions_per_row", "report_layout", "well_qc", "well_qc_mad", "well_qc_measures", "object_qc", "object_qc_mad", "object_qc_measures", "qc_group", "outlier_points", "outlier_points_method", "representative_crops", "representative_crops_n", "x_axis_style", "condition_factors", "factor_order", "bracket_pairs", "max_area_quantile", "bin_labels", "field_qc_max_pathogens_per_cell", "field_qc_columns", "confounder_covariates", "adjust_covariates", "adjust_log_outcome", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
 
     "Illumination Correction": ["illumination_correction", "illumination_model", "illumination_estimator", "illumination_degree", "illumination_dark", "illumination_per_plate", "illumination_max_fields", "illumination_qc", "illumination_on_missing", "illumination_vendor_profile", "illumination_vendor_channel_map"],
 
@@ -7507,6 +7510,7 @@ def set_analyze_replication_defaults(settings):
     settings.setdefault('x_axis_style', 'auto')
     settings.setdefault('condition_factors', None)
     settings.setdefault('factor_order', None)
+    settings.setdefault('bracket_pairs', 'one_factor')
     settings.setdefault('field_qc', False)
     settings.setdefault('field_qc_mad', 3.5)
     settings.setdefault('field_qc_min_objects', 3)

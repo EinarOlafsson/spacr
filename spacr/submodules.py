@@ -1117,6 +1117,8 @@ def _apply_axis(spec, frame, group, order, panel, settings):
     axis = axis_layout(order, _condition_axis_parts(frame, group, order, settings,
                                                     exclude=settings.get('replicate_column')),
                        style, settings.get('factor_order'), labels)
+    parts = _condition_axis_parts(frame, group, order, settings, exclude=settings.get('replicate_column'))
+    spec.update(parts=parts, bracket_pairs=settings.get('bracket_pairs') or 'one_factor')
     if axis['matrix']:
         spec.update(annotations=axis['annotations'], matrix=True)
     else:
@@ -1738,7 +1740,8 @@ def _recruitment_report_impl(df_unfiltered, df, settings, results_dir, filter_lo
         well_qc=well_qc,
         crops=dict(n=int(settings['representative_crops_n'])) if settings.get('representative_crops') else None,
         parts=parts, x_axis_style=settings.get('x_axis_style') or 'auto',
-        factor_order=settings.get('factor_order'))
+        factor_order=settings.get('factor_order'),
+        bracket_pairs=settings.get('bracket_pairs') or 'one_factor')
     print(f"Recruitment report: {res['pdf']} ({res['n_pages']} pages), legend {res['legend']}")
     return res
 

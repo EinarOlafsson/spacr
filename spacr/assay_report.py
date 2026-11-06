@@ -60,7 +60,7 @@ MARGIN_MM = 12.0
 GAP_MM = 5.0
 HEADING_MM = 7.0
 MIN_FONT_PT = 5.0
-MAX_BRACKETS = 4  # more significant pairs: brackets left out, all pairs in stats.csv
+MAX_BRACKETS = 12  # more qualifying pairs: the smallest p values are drawn, all pairs in stats.csv
 MM = 1 / 25.4
 _CORE_OBJECTS = ("cell", "nucleus", "cytoplasm", "pathogen")
 # fixed object-type colours (Okabe-Ito), so a type has the same colour in every panel
@@ -1025,7 +1025,8 @@ def _draw_spec_inner(ax, spec, order=None, layout=SPACIOUS):
                        ylabel=spec.get("short_ylabel") if layout.compact and spec.get("short_ylabel") else spec.get("ylabel"),
                        labels=labels, annotations=ann, matrix=matrix,
                        ymin=spec.get("ymin"), refline=spec.get("refline"),
-                       palette=spec.get("palette"), max_brackets=MAX_BRACKETS, show_test=False)
+                       palette=spec.get("palette"), max_brackets=MAX_BRACKETS, show_test=False,
+                       parts=spec.get("parts"), bracket_pairs=spec.get("bracket_pairs", "one_factor"))
     if layout.compact:
         compact_style(ax, layout)
     return ax
@@ -1548,15 +1549,15 @@ def crop_drawer(result, chunk, n, size, layout=SPACIOUS, axis=None, labels=None,
     img_h = lambda t: n * t + (n - 1) * t * gap / size
     block = lambda t: img_h(t) + text_mm
     n_blocks = 1 if side else len(versions)
-    height = layout.id_strip + n_blocks * block(tile_mm) + (n_blocks - 1) * vgap
+    height = layout.id_strip + n_blocks * img_h(tile_mm) + text_mm + (n_blocks - 1) * vgap
     min_t = min(tile_mm, min_tile_mm)
-    min_height = layout.id_strip + n_blocks * block(min_t) + (n_blocks - 1) * vgap
+    min_height = layout.id_strip + n_blocks * img_h(min_t) + text_mm + (n_blocks - 1) * vgap
     monts = {v: montage16(result["tiles"][v], chunk, n, size, gap=gap) for v in versions}
 
     def draw(fig, rect):
         fw, fh = fig.get_size_inches() * 25.4
         x0, y0, w, h = rect[0] * fw, rect[1] * fh, rect[2] * fw, rect[3] * fh
-        avail = h - n_blocks * text_mm - (n_blocks - 1) * vgap
+        avail = h - text_mm - (n_blocks - 1) * vgap
         t = max(min(tile_mm, avail / (n_blocks * (n + (n - 1) * gap / size))), 1.0)
         top = y0 + h
         for k, v in enumerate(versions):
@@ -1568,14 +1569,18 @@ def crop_drawer(result, chunk, n, size, layout=SPACIOUS, axis=None, labels=None,
                 bottom = top - ih
             else:
                 left = x0 + name_mm
-                bottom = top - k * (ih + text_mm + vgap) - ih
+                bottom = top - k * (ih + vgap) - ih
             ax = fig.add_axes([left / fw, bottom / fh, iw / fw, ih / fh])
             ax.imshow((m.astype(np.float64) / 257).round().astype(np.uint8), interpolation="none",
                       aspect="auto", extent=(-0.5, ncol - 0.5, ih, 0))
             ax.set_axis_off()
+            # labels / matrix once: under the first (merged) version when side by side,
+            # under the last when stacked (the columns line up)
+            if (side and k != 0) or (not side and k != len(versions) - 1):
+                continue
             for r, (name, texts) in enumerate(rows):
                 yy = bottom - 0.6 - r * line_mm
-                if is_matrix and (k == 0 or not side) and name:
+                if is_matrix and name:
                     fig.text((left - 1.0) / fw, yy / fh, name, fontsize=pt, ha="right", va="top")
                 for j, txt in enumerate(texts):
                     cx = left + (j + 0.5) * (iw / ncol)
@@ -1848,8 +1853,28 @@ def _spec_legend_base(pid, spec, what, unit_text):
     st = spec["stats"]
     return (f"{pid}. {what} Bars: mean ± SD over {unit_text}; dots: one per unit. n per condition: "
             f"{_n_text(st['descriptive'], group, labels)}. " + describe_test(st["test"].iloc[0].to_dict())
-            + f" Significant post hoc pairs are drawn as brackets when there are at most {MAX_BRACKETS} "
-              "(* p < 0.05, ** p < 0.01, *** p < 0.001, **** p < 0.0001); every pair is in stats.csv.")
+            + _bracket_text(spec))
+
+
+def _bracket_text(spec):
+    """Legend sentence on which significant pairs carry a bracket."""
+    from .assay_panels import select_bracket_pairs
+    mode = spec.get("bracket_pairs", "one_factor")
+    parts = spec.get("parts")
+    chosen, hidden = select_bracket_pairs(spec["stats"].get("posthoc"), spec["order"], parts, mode,
+                                          MAX_BRACKETS)
+    n_vars = len({v for g in spec["order"] for v, _ in (parts or {}).get(g, [])})
+    if isinstance(mode, (list, tuple)):
+        rule = "Brackets mark the requested pairs"
+    elif mode == "one_factor" and parts and n_vars > 1:
+        rule = ("Brackets mark significant post hoc pairs that differ in one factor (same host, "
+                "another strain; same strain, another host)")
+    else:
+        rule = "Brackets mark every significant post hoc pair"
+    extra = (f"; {hidden} further qualifying pairs are not drawn (the {MAX_BRACKETS} smallest p values "
+             f"are shown)" if hidden else "")
+    return (f" {rule} (* p < 0.05, ** p < 0.01, *** p < 0.001, **** p < 0.0001){extra}; every pair "
+            f"is in stats.csv.")
 
 
 # =========================================================================== report builder
@@ -1862,7 +1887,7 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
                        name="report", count_objects=None, db_path=None, layout="compact",
                        well_qc: Optional[pd.DataFrame] = None, heatmaps=True, crops=None,
                        parts: Optional[Mapping] = None, x_axis_style="auto", factor_order=None,
-                       dpi=200) -> dict:
+                       bracket_pairs="one_factor", dpi=200) -> dict:
     """Build the standard report: one figure per data version, plate heatmaps, legends.
 
     Two figures, FILTERED then UNFILTERED, each on its own A4 pages: tiles of
@@ -1886,6 +1911,8 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
     :param parts: {condition: [(variable, factor), ...]} for the x axis
         (:func:`spacr.assay_panels.condition_parts`); None splits the
         condition names on '_'.
+    :param bracket_pairs: ``'one_factor'``, ``'all'`` or a list of pairs
+        (:func:`spacr.assay_panels.select_bracket_pairs`).
     :param x_axis_style: ``'auto'`` (+/- matrix when two or more variables
         vary on a graph, else labels of the varying part), ``'matrix'``,
         ``'labels'``.
@@ -2016,7 +2043,7 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
             ymin = 1 if ratio and len(fin) and fin.min() >= 1 else None
             spec = bar_spec(unit, value, group, order, title="", ylabel=value_label, labels=labels,
                             ymin=ymin, refline=1 if ratio else None, palette=palette)
-            spec.update(axis=axis, plot_mm=46.0)
+            spec.update(axis=axis, plot_mm=46.0, parts=parts, bracket_pairs=bracket_pairs)
             if level == "well":
                 hv(value, value_label, version, unit, value)
             pid = next_id()

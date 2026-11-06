@@ -63,6 +63,7 @@ __all__ = [
     "draw_stacked_panel", "draw_panel", "save_panel", "assemble_figure",
     "panel_folder_name", "STYLE", "shade", "style_axes", "outlier_policy", "mark_outliers",
     "parse_outlier_method", "OUTLIER_FENCES", "condition_parts", "string_parts", "axis_layout",
+    "select_bracket_pairs", "pack_brackets",
 ]
 
 ALPHA = 0.05
@@ -928,12 +929,70 @@ def _set_xticks(ax, order, labels, annotations, rotation=None, matrix=False):
     ax.set_xlim(-0.6, len(order) - 0.4)
 
 
+def _differing(parts, a, b):
+    da, db = dict(parts.get(a, [])), dict(parts.get(b, []))
+    return sum(da.get(v) != db.get(v) for v in set(da) | set(db))
+
+
+def select_bracket_pairs(posthoc: pd.DataFrame, order: Sequence, parts: Optional[Mapping] = None,
+                         mode="one_factor", max_n: int = 12):
+    """Post hoc pairs that get a bracket, and how many qualifying pairs were left out.
+
+    ``'one_factor'``: significant pairs that differ in exactly one factor of
+    ``parts`` (same host with another strain, same strain in another host);
+    every significant pair when the conditions have no factor structure (at
+    most one variable). ``'all'``: every significant pair. A list of pairs:
+    those pairs, significant or not. Beyond ``max_n`` the pairs with the
+    smallest p values are kept.
+
+    :returns: (DataFrame of chosen pairs, number of qualifying pairs not drawn).
+    """
+    order = list(order)
+    if posthoc is None or not len(posthoc):
+        return pd.DataFrame(columns=["group_1", "group_2", "p_adj", "significance"]), 0
+    post = posthoc[posthoc["group_1"].isin(order) & posthoc["group_2"].isin(order)]
+    if isinstance(mode, (list, tuple)):
+        wanted = {frozenset(map(str, p)) for p in mode}
+        chosen = post[np.array([frozenset((str(a), str(b))) in wanted
+                                for a, b in zip(post["group_1"], post["group_2"])], dtype=bool)]
+    else:
+        chosen = post[post["p_adj"] < ALPHA]
+        n_vars = len({v for g in order for v, _ in (parts or {}).get(g, [])})
+        if mode == "one_factor" and parts and n_vars > 1:
+            chosen = chosen[np.array([_differing(parts, a, b) == 1
+                                      for a, b in zip(chosen["group_1"], chosen["group_2"])], dtype=bool)]
+    hidden = max(len(chosen) - int(max_n), 0)
+    if hidden:
+        chosen = chosen.nsmallest(int(max_n), "p_adj")
+    return chosen, hidden
+
+
+def pack_brackets(pairs: pd.DataFrame, order: Sequence) -> List[int]:
+    """Stack level of every bracket: shortest spans lowest, brackets on one level never overlap."""
+    order = list(order)
+    spans = [(min(order.index(a), order.index(b)), max(order.index(a), order.index(b)))
+             for a, b in zip(pairs["group_1"], pairs["group_2"])]
+    levels = [0] * len(spans)
+    taken: List[List[Tuple[int, int]]] = []
+    for k in sorted(range(len(spans)), key=lambda q: (spans[q][1] - spans[q][0], spans[q][0])):
+        lo, hi = spans[k]
+        lv = 0
+        while lv < len(taken) and any(not (hi < a or lo > b) for a, b in taken[lv]):
+            lv += 1
+        if lv == len(taken):
+            taken.append([])
+        taken[lv].append((lo, hi))
+        levels[k] = lv
+    return levels
+
+
 def draw_bar_panel(ax, data: pd.DataFrame, value: str, group: str, order: Sequence,
                    stats: Optional[Dict[str, pd.DataFrame]] = None, title: str = "",
                    ylabel: Optional[str] = None, labels: Optional[Mapping] = None,
                    annotations: Optional[Mapping] = None, ymin=None, refline=None,
                    palette=None, show_pairs: str = "significant", max_brackets: int = 12,
-                   seed: int = 0, show_test=None, matrix=False):
+                   seed: int = 0, show_test=None, matrix=False, parts: Optional[Mapping] = None,
+                   bracket_pairs="one_factor"):
     """Bar of the mean of unit values, SD error bar, one dot per unit, post hoc brackets.
 
     :param ax: matplotlib axes to draw on.
@@ -944,8 +1003,11 @@ def draw_bar_panel(ax, data: pd.DataFrame, value: str, group: str, order: Sequen
     :param stats: output of :func:`select_and_run_test`; the omnibus test goes
         in the title and post hoc results become brackets.
     :param show_pairs: ``'significant'`` (default), ``'all'`` or ``'none'``.
-        Brackets are left out when more than ``max_brackets`` pairs qualify
-        (every pair stays in ``stats_posthoc.csv``).
+    :param bracket_pairs: which pairs get a bracket (:func:`select_bracket_pairs`):
+        ``'one_factor'`` (significant pairs that differ in one factor of
+        ``parts``; all significant pairs without factor structure), ``'all'``
+        or an explicit list of pairs. At most ``max_brackets`` are drawn (the
+        smallest p values); every pair stays in ``stats_posthoc.csv``.
     :param ymin: lower y limit (``None``: 0, or the data minimum if negative).
     :param title: panel title; the test result is added below it.
     :param ylabel: y-axis label; ``None`` uses ``value`` with spaces for underscores.
@@ -1002,16 +1064,18 @@ def draw_bar_panel(ax, data: pd.DataFrame, value: str, group: str, order: Sequen
         summary = stats["test"].iloc[0].to_dict()
         post = stats["posthoc"]
         if show_pairs != "none" and len(post):
-            pairs = post if show_pairs == "all" else post[post["p_adj"] < ALPHA]
-            pairs = pairs[pairs["group_1"].isin(order) & pairs["group_2"].isin(order)]
-            if 0 < len(pairs) <= max_brackets:
-                for _, r in pairs.iterrows():
-                    i, j = order.index(r["group_1"]), order.index(r["group_2"])
-                    ax.plot([i, i, j, j], [level, level + step * 0.25, level + step * 0.25, level],
-                            lw=STYLE["bracket_lw"], color="black")
-                    ax.text((i + j) / 2, level + step * 0.3, r["significance"], ha="center",
-                            va="bottom", fontsize=8)
-                    level += step * 1.05
+            mode = "all" if show_pairs == "all" and bracket_pairs == "one_factor" else bracket_pairs
+            chosen, _ = select_bracket_pairs(post, order, parts, mode, max_brackets)
+            levels = pack_brackets(chosen, order)
+            for (_, r), k in zip(chosen.iterrows(), levels):
+                i, j = order.index(r["group_1"]), order.index(r["group_2"])
+                y = level + k * step * 1.1
+                ax.plot([i, i, j, j], [y, y + step * 0.25, y + step * 0.25, y],
+                        lw=STYLE["bracket_lw"], color="black")
+                ax.text((i + j) / 2, y + step * 0.3, r["significance"], ha="center",
+                        va="bottom", fontsize=8)
+            if levels:
+                level += (max(levels) + 1) * step * 1.1
     ax.set_ylim(ymin, level + step * 0.6)
     show_test = STYLE["show_test"] if show_test is None else show_test
     head = title if STYLE["show_title"] else ""
@@ -1128,7 +1192,8 @@ def draw_panel(ax, spec: dict, legend: bool = True):
                               ylabel=spec.get("ylabel"), labels=spec.get("labels"),
                               annotations=spec.get("annotations"), ymin=spec.get("ymin"),
                               refline=spec.get("refline"), palette=spec.get("palette"),
-                              matrix=bool(spec.get("matrix")))
+                              matrix=bool(spec.get("matrix")), parts=spec.get("parts"),
+                              bracket_pairs=spec.get("bracket_pairs", "one_factor"))
     return draw_stacked_panel(ax, spec["data"], spec["group"], spec["order"], spec["bins"],
                               bin_labels=spec.get("bin_labels"), omnibus=spec["omnibus"],
                               pairwise=spec["pairwise"], method_label=spec.get("method_label", ""),

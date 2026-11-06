@@ -408,3 +408,65 @@ def test_condition_factors_split_background_and_genotype():
     a = axis_layout(me49, p2, "auto", labels=labels)
     assert not a["matrix"] and [a["labels"][s] for s in me49] == ["WT", "dGRA8", "Comp"]
     assert set(a["constant"]) == {"Me49", "HeLa WT"}
+
+
+def _post(pairs):
+    return pd.DataFrame([dict(group_1=a, group_2=b, p_adj=p, significance="*") for a, b, p in pairs])
+
+
+def test_brackets_one_factor_pairs_packed_and_capped():
+    from spacr.assay_panels import condition_parts, select_bracket_pairs, pack_brackets
+    strains, hosts = ["S1", "S2", "S3"], ["H1", "H2"]
+    order = [f"{s}_{h}" for s in strains for h in hosts]
+    parts = {f"{s}_{h}": condition_parts({"host_cells": s, "treatment": h}) for s in strains for h in hosts}
+    import itertools
+    post = _post([(a, b, 1e-6) for a, b in itertools.combinations(order, 2)])   # all 15 significant
+    chosen, hidden = select_bracket_pairs(post, order, parts, "one_factor", 12)
+    # one factor: same strain other host (3) + same host other strain (2 x 3) = 9
+    assert len(chosen) == 9 and hidden == 0
+    assert all(sum(dict(parts[a])[v] != dict(parts[b])[v] for v in ("host_cells", "treatment")) == 1
+               for a, b in zip(chosen["group_1"], chosen["group_2"]))
+    assert len(select_bracket_pairs(post, order, parts, "all", 12)[0]) == 12
+    assert select_bracket_pairs(post, order, parts, "all", 12)[1] == 3
+    # no factor structure -> every significant pair
+    one_var = {g: [("x", g)] for g in order}
+    assert len(select_bracket_pairs(post, order, one_var, "one_factor", 20)[0]) == 15
+    explicit = select_bracket_pairs(post, order, parts, [[order[0], order[5]]], 12)[0]
+    assert len(explicit) == 1
+    # packing: neighbours share level 0, a span covering them sits higher
+    lv = pack_brackets(_post([(order[0], order[1], .01), (order[2], order[3], .01),
+                              (order[0], order[3], .01)]), order)
+    assert lv == [0, 0, 1]
+
+
+def test_bar_panel_draws_one_factor_brackets_beyond_four(tmp_path):
+    import itertools
+    from spacr.assay_panels import bar_spec, condition_parts, draw_bar_panel
+    strains, hosts = ["S1", "S2", "S3"], ["H1", "H2"]
+    order = [f"{s}_{h}" for s in strains for h in hosts]
+    rows = [dict(c=g, v=10.0 * (k + 1) + d) for k, g in enumerate(order) for d in (-.1, 0, .1, .05)]
+    spec = bar_spec(pd.DataFrame(rows), "v", "c", order)
+    spec["stats"]["posthoc"] = _post([(a, b, 1e-6) for a, b in itertools.combinations(order, 2)])
+    parts = {f"{s}_{h}": condition_parts({"s": s, "h": h}) for s in strains for h in hosts}
+    fig, ax = plt.subplots()
+    draw_bar_panel(ax, spec["data"], "v", "c", order, stats=spec["stats"], parts=parts)
+    stars = [t for t in ax.texts if t.get_text() == "*"]
+    assert len(stars) == 9                                   # more than 4: all one-factor pairs drawn
+    assert ax.get_ylim()[1] > max(t.get_position()[1] for t in stars)
+
+
+def test_matrix_drawn_once_under_image_versions(tmp_path):
+    df, order, labels, tiles = _report_inputs(tmp_path, 3)
+    from spacr.assay_panels import axis_layout, condition_parts
+    parts = {g: condition_parts({"a": g.split("_")[0], "b": "x" if i % 2 else "y"}) for i, g in enumerate(order)}
+    axis = axis_layout(order, parts, "matrix")
+    tr = ar.build_tiles(df, "condition", order, tiles["merged_dir"], tiles["mask_dims"], tiles["colour_map"],
+                        str(tmp_path / "t"), n=2, size=48, mono_channel=2)
+    for side_width in (190.0, 40.0):                       # side by side, and stacked
+        draw, h, _ = ar.crop_drawer(tr, order, 2, 48, ar.COMPACT, axis, None, width_mm=side_width)
+        fig = ar._new_figure(side_width + 10, h + 10)
+        draw(fig, (0.02, 0.02, 0.96, 0.96))
+        names = [t.get_text() for t in fig.texts if t.get_text().endswith(":")]
+        assert sorted(names) == sorted(axis["annotations"])       # each row name once
+        plus = [t for t in fig.texts if t.get_text() in ("+", "−")]
+        assert len(plus) == len(axis["annotations"]) * len(order)   # one matrix, not three
