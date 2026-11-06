@@ -705,6 +705,12 @@ def test_manual_identity_hashes_keep_every_legacy_byte_in_bounded_chunks(monkeyp
         values = np.asarray(values)
         expected = hashlib.sha256(str(values.shape).encode()
                                   + np.asarray(values, dtype='<i8').tobytes()).hexdigest()
+        assert mm.MakeMasksScreen._wide_manual_mask_key(values) == expected
+        narrow = (values.dtype.kind in 'biu' and values.size > 0
+                  and int(values.min()) >= 0 and int(values.max()) <= 0xFFFF)
+        if narrow:
+            expected = hashlib.sha256(f"{values.shape}<u2".encode()
+                                      + np.asarray(values, dtype='<u2').tobytes()).hexdigest()
         assert mm.MakeMasksScreen._manual_mask_key(values) == expected
     assert len(cases) == 138 and max(converted) == 65536 * 8
 
@@ -846,3 +852,57 @@ def test_divide_boxes_cover_disconnected_parts_with_dense_or_sparse_ids(label):
     assert (splits, cut) == (old_splits, old_cut)
     assert len(splits) == 3 and cut == []
     np.testing.assert_array_equal(labels, before)
+
+
+def test_the_manual_id_key_follows_the_labels_not_their_width():
+    """One key per set of labels, whatever array holds them, and cheaper."""
+    _, labels = _field(2000)
+    key = mm.MakeMasksScreen._manual_mask_key
+    same = [labels, labels.astype(np.int32), labels.astype(np.int64),
+            labels.astype(np.uint32), labels.astype('>u2'), np.asfortranarray(labels)]
+    assert len({key(a) for a in same}) == 1
+    wide = labels.astype(np.int32)
+    wide[0, 0] = 70000
+    assert key(wide) == key(wide.astype(np.int64)) != key(labels)
+    assert key(wide) == mm.MakeMasksScreen._wide_manual_mask_key(wide)
+    other = labels.copy()
+    other[5, 5] += 1
+    assert key(other) != key(labels)
+    assert key(labels.reshape(4000, 1000)) != key(labels)
+    assert key(np.zeros((0, 3), np.uint16)) == key(np.zeros((0, 3), np.int32))
+    assert key(np.array([-1, 0], np.int64)) != key(np.array([65535, 0], np.int64))
+    wide_key = mm.MakeMasksScreen._wide_manual_mask_key
+    assert _best(lambda: key(labels)) <= 0.7 * _best(lambda: wide_key(labels))
+
+
+@pytest.mark.parametrize('stored, manual', [('narrow', True), ('wide', True), ('other', False)])
+def test_a_ledger_key_of_either_width_reopens_its_manual_ids(
+        qtbot, qt_theme_applied, tmp_path, stored, manual):
+    """A ledger holding the 16-bit or the 64-bit key restores the manual policy."""
+    import imageio.v2 as imageio
+
+    from spacr.curation import CurationLog
+
+    folder = tmp_path / 'field'
+    (folder / 'masks').mkdir(parents=True)
+    image = np.arange(48 * 48, dtype=np.uint16).reshape(48, 48)
+    labels = np.zeros(image.shape, np.uint16)
+    labels[4:12, 4:12], labels[20:30, 30:40] = 3, 9
+    imageio.imwrite(folder / 'f.tif', image)
+    imageio.imwrite(folder / 'masks' / 'f.tif', labels)
+    keys = {'narrow': mm.MakeMasksScreen._manual_mask_key(labels),
+            'wide': mm.MakeMasksScreen._wide_manual_mask_key(labels),
+            'other': mm.MakeMasksScreen._manual_mask_key(labels + 1)}
+    assert keys['narrow'] != keys['wide']
+    log = CurationLog(str(folder / 'masks' / 'f.tif'))
+    log.append('paint', 3, n_changed=1, manual_ids=True,
+               manual_mask_sha256=keys[stored])
+    log.write_beside(engine.mask_save_path(str(folder), 'f.tif'))
+    screen = mm.MakeMasksScreen()
+    qtbot.addWidget(screen)
+    assert screen._open_folder(str(folder))
+    qtbot.waitUntil(lambda: not screen._loading and screen._reader_worker is None
+                    and screen._load_worker is None)
+    np.testing.assert_array_equal(screen._canvas.mask, labels)
+    assert screen._canvas.manual_ids is manual
+    screen.close()

@@ -3,7 +3,7 @@ MAKE MASKS: EACH NEW DISCONNECTED BRUSH STROKE IS A NEW OBJECT LABEL
 ================================================================================
 
 Lifecycle: new
-Status: DONE — disconnected brush strokes receive new labels; implementation and translations are published.
+Status: DONE 2026-11-06 — disconnected brush strokes receive new labels; the manual-ID key hashes 16-bit labels at a quarter of the bytes and old ledger keys still reopen
 Requested: maintainer, 2026-10-13: "in make mask when using the brush tool,
            each new disconnected brush stroke should be a new object label."
 Owner:     Mac Codex session (native Mac acceptance/fixes); root (general CI/release); WS/Work (lesson14)
@@ -242,3 +242,4 @@ Record actual build/runtime and per-case results here; prior automation/history 
 2026-10-25 — Mac (Apple M-series MacBook, macOS 27.0 (Darwin 27.0.0), arm64 CPython 3.12.15 venv, PySide6 6.11.2, Cocoa, Retina DPR 2, work area 1710x1074): every 697 brush test errored in setup on Cocoa because canvas fixtures assumed a 1x pixmap (800 device px at 2x). The canvas itself maps clicks through hidpi.logical_size correctly. Fixtures and click helpers in 14 Make Masks test files now measure logical pixels (866eb0cb8); 697, magnifier, wand, sweep and ledger cohorts pass on Cocoa and offscreen (229 + 586). Physical trackpad strokes are not claimed.
 
 2026-10-28 — Retain the recorded 30+1 behavioral checks, 235 integration controls and Cocoa results. Remaining manual physical-stroke checks are not delivery gates; tutorial/global release work remains separately tracked.
+2026-11-06 — The manual-ID key asked at the start and end of every stroke now hashes labels that fit in 16 bits as 16-bit (about 8 ms instead of 18 ms on a 2,000 px field); wider labels keep the 64-bit key, and a ledger holding the 64-bit key for a 16-bit field still restores its manual IDs on reopen.
