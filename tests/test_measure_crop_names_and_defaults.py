@@ -81,3 +81,15 @@ def test_unparsable_field_name_fails_once_and_names_the_file(tmp_path):
     with pytest.raises(ConfigurationError, match=r'plate01_A01_1_x_y_z\.npy'):
         _run(_docstring_settings(root))
     assert not (root / 'measurements' / 'measurements.db').exists() or True
+
+
+def test_measure_crop_fills_its_own_defaults(tmp_path):
+    root = _plate(tmp_path, 'plate01_A01_1.npy')
+    _run(_docstring_settings(root))
+    assert (root / 'measurements' / 'measurements.db').is_file()
+
+
+def test_old_none_named_stack_still_measures(tmp_path):
+    root = _plate(tmp_path, 'plate01_A01_1_None.npy')
+    _run(_docstring_settings(root))
+    assert (root / 'measurements' / 'measurements.db').is_file()

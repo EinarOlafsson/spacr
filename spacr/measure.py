@@ -9996,6 +9996,27 @@ def _validate_measurement_coordinate_source(merged_folder):
                 path=str(path)))
 
 
+def _measure_settings_with_defaults(settings):
+    """Fill the settings ``measure_crop`` reads, leaving the mask dimensions the caller did not name.
+
+    The mask-dimension keys stay absent when the caller omitted them, so
+    :func:`spacr.crops.reconcile_merged_mask_dims` can still tell a dimension
+    the caller chose from one it should read off the merged arrays.
+
+    :param settings: the settings as passed in.
+    :returns: a new dict with every other default applied.
+    """
+    from .settings import get_measure_crop_settings
+
+    given = set(settings)
+    filled = get_measure_crop_settings(dict(settings))
+    for role in SEGMENTED_ROLES:
+        key = f'{role}_mask_dim'
+        if key not in given:
+            filled.pop(key, None)
+    return filled
+
+
 def _check_measure_field_names(files, settings):
     """Refuse a merged folder holding a field name measure cannot parse, naming the file.
 
@@ -10432,8 +10453,8 @@ def measure_crop(settings):
     :func:`spacr.deep_spacr.deep_spacr`.
 
     :param settings: Settings dict, canonicalized via
-        :func:`spacr.settings.get_measure_crop_settings`. Key entries the
-        function reads:
+        :func:`spacr.settings.get_measure_crop_settings`, so any key left out
+        takes its default. Key entries the function reads:
 
         - ``src`` (str or list) — one or more plate or ``…/merged``
           folders, each measured in turn into its own ``measurements``
@@ -10506,6 +10527,7 @@ def measure_crop(settings):
     from .psf_pipeline import (_validate_unmix_plate_scope,
                                _validate_unmix_matrix_scope)
 
+    settings = _measure_settings_with_defaults(settings)
     _validate_unmix_plate_scope(settings)
     _validate_unmix_matrix_scope(settings)
     if settings.get('dry_run', False):
