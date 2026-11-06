@@ -93,3 +93,12 @@ def test_old_none_named_stack_still_measures(tmp_path):
     root = _plate(tmp_path, 'plate01_A01_1_None.npy')
     _run(_docstring_settings(root))
     assert (root / 'measurements' / 'measurements.db').is_file()
+
+
+@pytest.mark.parametrize('suffix', ['/merged', '/merged/'])
+def test_merged_src_is_read_as_its_plate_folder(tmp_path, capsys, suffix):
+    root = _plate(tmp_path, 'plate01_A01_1.npy')
+    _run(_docstring_settings(str(root) + suffix))
+    assert 'using the plate folder' in capsys.readouterr().out
+    assert (root / 'measurements' / 'measurements.db').is_file()
+    assert not (root / 'merged' / 'measurements').exists()

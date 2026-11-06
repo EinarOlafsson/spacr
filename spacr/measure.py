@@ -10045,6 +10045,24 @@ def _check_measure_field_names(files, settings):
             f'measured.')
 
 
+def _plate_folder_of_merged(src):
+    """Return the plate folder when ``src`` names its ``merged`` folder of arrays.
+
+    :param src: one ``src`` path.
+    :returns: the parent folder, after printing a one-line notice, when ``src``
+        ends in ``merged`` and holds ``.npy`` arrays; otherwise ``src`` as given.
+    """
+    from .validate import _holds_npy
+
+    path = os.path.normpath(os.fspath(src))
+    if os.path.basename(path) == 'merged' and _holds_npy(path):
+        parent = os.path.dirname(path)
+        print(f"[measure] src is the merged folder; using the plate folder "
+              f"{parent}.")
+        return parent
+    return src
+
+
 def _measure_merged_folder(src):
     """Resolve one ``src`` to the merged folder measure reads, or say why not.
 
@@ -10456,9 +10474,10 @@ def measure_crop(settings):
         :func:`spacr.settings.get_measure_crop_settings`, so any key left out
         takes its default. Key entries the function reads:
 
-        - ``src`` (str or list) — one or more plate or ``…/merged``
-          folders, each measured in turn into its own ``measurements``
-          folder. Text naming several plates (a pasted list, curly quotes,
+        - ``src`` (str or list) — one or more plate folders (the ones
+          holding ``merged/``), each measured in turn into its own
+          ``measurements`` folder. A ``…/merged`` folder holding arrays is
+          accepted too and read as its parent plate folder. Text naming several plates (a pasted list, curly quotes,
           one path per line) is split into its plate folders. A
           cloud address Make Masks has analysed is measured from the local
           folder Make Masks staged it in; a cloud folder of merged stacks is
@@ -10511,7 +10530,7 @@ def measure_crop(settings):
 
             from spacr.measure import measure_crop
             settings = {
-                'src': '/data/plate01/merged',
+                'src': '/data/plate01',
                 'cell_mask_dim': 4, 'nucleus_mask_dim': 5, 'pathogen_mask_dim': 6,
                 'channels': [0, 1, 2, 3],
                 'crop_mode': ['cell'], 'save_png': True,
@@ -10581,7 +10600,8 @@ def measure_crop(settings):
                 cancellation_checkpoint()
                 print(console_safe(f'Processing folder: {source_folder}'))
                 settings = dict(base_settings)
-                source_folder = format_path_for_system(source_folder)
+                source_folder = _plate_folder_of_merged(
+                    format_path_for_system(source_folder))
                 settings['src'] = source_folder
 
                 src_fldr = _measure_merged_folder(settings['src'])
