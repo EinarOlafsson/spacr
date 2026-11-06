@@ -1,0 +1,24 @@
+AN OBJECT FILTER EXPLORER
+
+Lifecycle: new
+Status: open.
+Requested: maintainer rule, 2026-11-06 (via Anu): everything done for the Anu plates must be possible in spaCR, through generated notebooks and preferably the GUI.
+Owner: Anu (WS); the GUI tool may go to Home.
+
+WHAT THE STATE IS
+Notebook 06 chose the object filters by showing, for each candidate metric:
+- the worst 2% tail as a 5 x 5 crop grid;
+- the share flagged per condition;
+- overlap between metrics;
+- grids around a threshold (for example 1.4-1.8x background);
+- the removed and kept grids for the combined rule.
+
+WHAT TO DO
+- A spaCR function and a GUI tool (threshold sliders plus live grids) that
+  writes the chosen rules into the background_filters, min_solidity and
+  confounder_filter settings.
+- Candidate metrics:
+  - intensity over field background;
+  - inner contrast (p10 vs p95);
+  - Hoechst p25 over background;
+  - solidity, extent, form factor, axis ratio and Euler number.

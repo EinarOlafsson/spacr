@@ -1,0 +1,17 @@
+SIZE-PROXY CALIBRATION FROM ANNOTATIONS
+
+Lifecycle: new
+Status: open.
+Requested: maintainer rule, 2026-11-06 (via Anu): everything done for the Anu plates must be possible in spaCR, through generated notebooks and preferably the GUI.
+Owner: Anu (WS).
+
+WHAT THE STATE IS
+Notebook 02 checked vacuole area against 270 hand-counted vacuoles
+(png_list.replication; Spearman rho, median area per count). The approximate
+parasites per bin were then typed into bin_labels by hand.
+
+WHAT TO DO
+analyze_replication:
+- reads an annotation column;
+- reports the calibration table and figure;
+- derives bin_labels, and optionally the bin edges, from it.

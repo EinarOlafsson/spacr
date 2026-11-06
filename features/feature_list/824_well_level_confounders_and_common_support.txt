@@ -1,0 +1,19 @@
+WELL-LEVEL CONFOUNDERS AND COMMON SUPPORT
+
+Lifecycle: new
+Status: open.
+Requested: maintainer rule, 2026-11-06 (via Anu): everything done for the Anu plates must be possible in spaCR, through generated notebooks and preferably the GUI.
+Owner: Anu (WS).
+
+WHAT THE STATE IS
+confounder_report works per object. Two checks were done by hand at well
+level:
+- density (cells, parasites, parasites per cell per well) against well
+  recruitment;
+- whether compared groups overlap. They did not: HeLa WT vs ALG2 parasites
+  per cell.
+
+WHAT TO DO
+- A well-level confounder_report.
+- A common-support (overlap) diagnostic for each compared pair that says
+  whether matching is possible, before a filter is chosen.

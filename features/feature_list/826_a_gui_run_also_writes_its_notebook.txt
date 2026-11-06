@@ -1,0 +1,16 @@
+A GUI RUN ALSO WRITES ITS NOTEBOOK
+
+Lifecycle: new
+Status: open.
+Requested: maintainer rule, 2026-11-06 (via Anu): everything done for the Anu plates must be possible in spaCR, through generated notebooks and preferably the GUI.
+Owner: Home (GUI).
+
+WHAT THE STATE IS
+Every WS analysis is an annotated notebook that calls spaCR. A GUI run
+leaves no notebook behind.
+
+WHAT TO DO
+- The GUI "Run" also writes a reproducible notebook (settings plus calls)
+  into the project, so a GUI run and a notebook run are the same thing.
+- Test: the written notebook, executed, reproduces the GUI run's outputs on
+  a small synthetic project.

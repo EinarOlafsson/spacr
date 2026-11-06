@@ -1,0 +1,16 @@
+READ-ONLY SOURCES AND A RESULTS_DIR SETTING
+
+Lifecycle: new
+Status: open.
+Requested: maintainer rule, 2026-11-06 (via Anu): everything done for the Anu plates must be possible in spaCR, through generated notebooks and preferably the GUI.
+Owner: Anu (WS).
+
+WHAT THE STATE IS
+Modules write into <src>/results, so every measurements.db was copied to
+keep the originals untouched.
+
+WHAT TO DO
+- A results_dir setting for where analysis modules write.
+- Analysis modules open measurements.db read-only.
+- Tests: an analysis run on a read-only source writes only under
+  results_dir and leaves the database byte-identical.

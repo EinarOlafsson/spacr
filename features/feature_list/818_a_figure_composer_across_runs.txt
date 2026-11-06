@@ -1,0 +1,19 @@
+A FIGURE COMPOSER ACROSS RUNS AND MODULES
+
+Lifecycle: new
+Status: open.
+Requested: maintainer rule, 2026-11-06 (via Anu): everything done for the Anu plates must be possible in spaCR, through generated notebooks and preferably the GUI.
+Owner: Anu (WS).
+
+WHAT THE STATE IS
+The cross-plate figures (recruitment Me49 + RH + replication) needed a
+monkeypatch of _write_panels_and_figures to capture the panel specs, then
+renumbering and assemble_figure.
+
+WHAT TO DO
+- Save each panel's spec with the panel (json, or pickle).
+- A function and a GUI page that pick panels from several result folders,
+  renumber them, lay them out (A4 aware, through assay_report) and write
+  PDF/PNG plus the legend.
+
+RELATED: 815, 816.

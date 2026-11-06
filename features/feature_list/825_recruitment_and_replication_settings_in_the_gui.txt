@@ -1,0 +1,20 @@
+THE RECRUITMENT AND REPLICATION SETTINGS IN THE GUI
+
+Lifecycle: new
+Status: open.
+Requested: maintainer rule, 2026-11-06 (via Anu): everything done for the Anu plates must be possible in spaCR, through generated notebooks and preferably the GUI.
+Owner: Home (GUI).
+
+WHAT THE STATE IS
+The new settings are hidden in the Recruitment and Replication forms:
+- from assay-panels: panels, figures, condition_order and condition_labels,
+  replicate_column, filters;
+- background_filters and min_solidity;
+- the report settings (item 816).
+
+WHAT TO DO
+GUI controls, so the GUI alone can reproduce the notebooks:
+- a panel builder;
+- a filter section;
+- a report section.
+Respect the alpha gate where the settings are alpha.

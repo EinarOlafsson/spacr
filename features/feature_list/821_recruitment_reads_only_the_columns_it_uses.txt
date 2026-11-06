@@ -1,0 +1,17 @@
+ANALYZE_RECRUITMENT READS ONLY THE COLUMNS IT USES
+
+Lifecycle: new
+Status: open.
+Requested: maintainer rule, 2026-11-06 (via Anu): everything done for the Anu plates must be possible in spaCR, through generated notebooks and preferably the GUI.
+Owner: Anu (WS).
+
+WHAT THE STATE IS
+The RH recruitment merge (5.4 GB database, 326k cells, 1,118 columns) peaks
+at about 25-30 GB, and the RAM guard froze it twice.
+
+WHAT TO DO
+- analyze_recruitment reads only the columns it needs, plus those that
+  panels or filters ask for, or loads in chunks.
+- Test: peak memory on a synthetic wide database scales with the columns
+  used, not all columns (assert the selected column set; avoid flaky RSS
+  thresholds).

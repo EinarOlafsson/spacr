@@ -1,0 +1,23 @@
+NAMED PLATE-MAP VARIABLES
+
+Lifecycle: new
+Status: open.
+Requested: maintainer rule, 2026-11-06 (via Anu): everything done for the Anu plates must be possible in spaCR, through generated notebooks and preferably the GUI.
+Owner: Anu (WS).
+
+WHAT THE STATE IS
+annotate_conditions has three fixed slots (host_cells / pathogen /
+treatment) joined in a fixed order. To get names like Me49WT_rep_1_HeLa_WT
+the strain went into cell_types, the replicate into pathogen_types and the
+host into treatments.
+
+WHAT TO DO
+- Any number of user-named metadata variables (parasite, host, replicate,
+  drug, ...), each with its well map (columns and/or rows).
+- A user-set condition-name order.
+- A column per variable in every output.
+- A "replicate" role that sets the statistics unit.
+- Import a plate-map table (CSV, or the platemaps.txt style).
+- A GUI editor.
+
+RELATED: 185, 194 (plate-map well picking).

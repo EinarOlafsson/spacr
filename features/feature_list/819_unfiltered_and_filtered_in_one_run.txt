@@ -1,0 +1,14 @@
+UNFILTERED AND FILTERED IN ONE RUN
+
+Lifecycle: new
+Status: open.
+Requested: maintainer rule, 2026-11-06 (via Anu): everything done for the Anu plates must be possible in spaCR, through generated notebooks and preferably the GUI.
+Owner: Anu (WS).
+
+WHAT THE STATE IS
+Getting both versions needed two project folders (with symlinked
+measurements) and two runs of each module.
+
+WHAT TO DO
+One call produces the unfiltered and filtered versions side by side: panels,
+stats and figures. The reports in items 815 and 816 assume this.
