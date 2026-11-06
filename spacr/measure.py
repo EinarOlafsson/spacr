@@ -9351,6 +9351,8 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
         image_values = {
             **_image_field_values(channel_arrays, image_masks, image_occupied),
             **_image_rescale_values(rescale_record, psf_record)}
+        if settings['save_measurements'] and 'compute_path' in field_stamp:
+            image_values['compute_path'] = field_stamp['compute_path']
 
         if settings.get('confluency'):
             confluency_result, confluency_plane = _measure_field_confluency(

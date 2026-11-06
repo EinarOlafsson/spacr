@@ -298,3 +298,22 @@ def test_image_screening_writes_its_verdicts_to_image(tmp_path):
     assert (tmp_path / 'qc' / 'image_quality.csv').is_file()
     ensure_no_retained_measurements(tmp_path, ['plate1_A01_2.npy'])
     assert screen_fields(tmp_path, policy) == ['plate1_A01_2.npy']
+
+
+def test_a_gpu_measure_run_writes_the_compute_path_to_the_image_row(tmp_path):
+    """With measure_gpu on, each image row carries its object rows' compute_path."""
+    merged, names = _write_plate(tmp_path)
+    measure.measure_crop(_settings(merged, measure_gpu=True, confluency=False))
+    db = tmp_path / 'measurements' / 'measurements.db'
+    image = _table(db, 'image').set_index('prcf')
+    cells = _table(db, 'cell')
+    assert len(image) == len(names)
+    by_field = cells.groupby('prcf')['compute_path'].unique()
+    assert set(by_field.index) == set(image.index)
+    for prcf, paths in by_field.items():
+        assert list(paths) == [image.loc[prcf, 'compute_path']]
+        assert paths[0] in {'gpu', 'cpu', 'mixed', 'none'}
+
+
+def test_a_cpu_measure_run_writes_no_compute_path(measured):
+    assert 'compute_path' not in _table(measured['db'], 'image').columns
