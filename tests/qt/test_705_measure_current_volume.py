@@ -5,7 +5,7 @@ import threading
 import numpy as np
 import pytest
 import tifffile
-from PySide6.QtCore import QMimeData, QPointF, Qt, QTimer, QUrl
+from PySide6.QtCore import QMimeData, QPoint, QPointF, Qt, QTimer, QUrl
 from PySide6.QtGui import QDropEvent
 from PySide6.QtWidgets import QApplication, QDialog, QDialogButtonBox, QLabel, QMessageBox
 
@@ -75,6 +75,47 @@ def test_dialog_accepts_dropped_channels_and_pasted_image_sets(qtbot, tmp_path):
     dialog.table.setCurrentCell(0, 0)
     dialog.remove_row_button.click()
     assert dialog.table.cellWidget(0, 0).text() == current
+
+
+def test_volume_input_headers_preserve_current_labels_and_image_set_identity(
+        qtbot, tmp_path):
+    current = _volume(tmp_path / "z-current.tif")
+    added = _volume(tmp_path / "a-added.tif")
+    channel = _volume(tmp_path / "extra.tif")
+    mask = _volume(tmp_path / "saved-mask.tif")
+    dialog = MeasureVolumeDialog(current)
+    qtbot.addWidget(dialog)
+    dialog.table.cellWidget(0, 2).setText(channel)
+    dialog.add_row_button.click()
+    dialog.table.cellWidget(1, 0).setText(added)
+    dialog.table.cellWidget(1, 1).setText(mask)
+    expected = [
+        {"source_path": current, "mask_path": None, "channel_paths": (channel,)},
+        {"source_path": added, "mask_path": mask, "channel_paths": ()},
+    ]
+    cells = [[dialog.table.cellWidget(row, column)
+              for column in range(dialog.table.columnCount())]
+             for row in range(dialog.table.rowCount())]
+    dialog.show()
+    qtbot.waitUntil(dialog.isVisible)
+    header = dialog.table.horizontalHeader()
+    assert not dialog.table.isSortingEnabled()
+    for column in range(dialog.table.columnCount()):
+        x = header.sectionViewportPosition(column) + header.sectionSize(column) // 2
+        point = QPoint(x, header.viewport().height() // 2)
+        assert header.viewport().rect().contains(point)
+        for _ in range(2):
+            qtbot.mouseClick(header.viewport(), Qt.LeftButton, pos=point)
+            assert not dialog.table.isSortingEnabled()
+            assert dialog.requests() == expected
+            assert all(dialog.table.cellWidget(row, col) is cell
+                       for row, row_cells in enumerate(cells)
+                       for col, cell in enumerate(row_cells))
+    assert cells[0][0].isReadOnly() and cells[0][1].isReadOnly()
+    dialog.table.setCurrentCell(0, 0)
+    dialog.remove_row_button.click()
+    assert dialog.table.rowCount() == 2
+    assert dialog.requests() == expected
 
 
 @pytest.mark.parametrize("problem", ["missing", "gap", "source"])

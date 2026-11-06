@@ -66,3 +66,20 @@ def test_unsubscribing_a_listener_that_was_never_there_says_so():
 
     link.pan(1.0, 1.0)
     assert seen == [], "a removed listener hears nothing"
+
+
+def test_volume_budget_handles_singletons_empty_shapes_and_the_longest_axis():
+    from spacr.layers import downsample_volume, volume_steps
+
+    assert volume_steps((2, 8, 4), 32) == (1, 2, 1)
+    assert volume_steps((2, 3, 4), 1) == (2, 3, 4)
+    assert volume_steps((2, 3, 4), 0) == (2, 3, 4)
+    assert volume_steps((1, 1, 1), 1) == (1, 1, 1)
+    assert volume_steps((), 1) == ()
+    assert volume_steps((0, -4, 2), 1) == (1, 1, 2)
+    source = np.arange(64).reshape(2, 8, 4)
+    smaller, steps = downsample_volume(source, 32)
+    np.testing.assert_array_equal(smaller, source[:, ::2, :])
+    assert steps == (1, 2, 1) and smaller.flags.c_contiguous
+    original, steps = downsample_volume(source, None)
+    assert original is source and steps == (1, 1, 1)
