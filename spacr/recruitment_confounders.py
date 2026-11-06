@@ -45,6 +45,7 @@ All functions are pure pandas/numpy and do not modify their input.
 from __future__ import annotations
 
 import sqlite3
+from contextlib import closing
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 from urllib.parse import unquote
 
@@ -95,7 +96,7 @@ def field_density(db_path: str, cell_table: str = "cell",
         ``pathogens_per_cell_field``.
     """
     uri = f"file:{db_path}?mode=ro"
-    with sqlite3.connect(uri, uri=True, timeout=30.0) as con:
+    with closing(sqlite3.connect(uri, uri=True, timeout=30.0)) as con:
         tables = {r[0] for r in con.execute(
             "select name from sqlite_master where type='table'")}
         keys = ", ".join(FIELD_KEYS)

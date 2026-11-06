@@ -2384,12 +2384,15 @@ def _feature_qc_database(db_path: str, *,
     :returns: the flagged columns with their ``table``, in table order.
     """
     import sqlite3
+    from contextlib import closing
     from .tabular import _read_query
     from pathlib import Path
 
     uri = Path(db_path).resolve().as_uri() + "?mode=ro"
     frames = []
-    with sqlite3.connect(uri, uri=True, timeout=30.0) as connection:
+    # ``closing``: a sqlite3 connection used as a context manager only ends
+    # the transaction, and one left open keeps the WAL from checkpointing.
+    with closing(sqlite3.connect(uri, uri=True, timeout=30.0)) as connection:
         present = {row[0] for row in connection.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")}
         for table in tables:
@@ -2431,9 +2434,11 @@ def _drop_feature_columns(db_path: str, flagged: pd.DataFrame) -> List[str]:
     :returns: ``table.feature`` for every column that was removed.
     """
     import sqlite3
+    from contextlib import closing
 
     dropped = []
-    with sqlite3.connect(db_path, timeout=30.0) as connection:
+    with closing(sqlite3.connect(db_path, timeout=30.0)) as connection, \
+            connection:
         for table, feature in flagged.loc[:, ["table", "feature"]].itertuples(
                 index=False):
             quoted = '"' + str(table).replace('"', '""') + '"'
