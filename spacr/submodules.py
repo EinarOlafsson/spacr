@@ -1614,6 +1614,7 @@ def _report_grouping(df, settings):
     labels = dict(settings.get('condition_labels') or {})
 
     def add_group(frame):
+        """Add the report grouping column to ``frame`` (a copy); unchanged when it is ``condition``."""
         if group == 'condition':
             return frame
         frame = frame.copy()
@@ -1781,6 +1782,7 @@ def _field_background(merged_dir, file_names, channels, mask_channel=-1, stride=
     todo = [f for f in wanted if cached is None or f not in set(cached['file_name'])]
 
     def one(fname):
+        """Background median per channel of one field, read from its merged array."""
         path = os.path.join(merged_dir, fname if fname.endswith('.npy') else fname + '.npy')
         arr = np.load(path, mmap_mode='r')
         free = np.asarray(arr[::stride, ::stride, mask_channel]) == 0
