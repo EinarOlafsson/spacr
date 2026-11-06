@@ -2,7 +2,7 @@ REMOVE UNNECESSARY FILES FROM THE spaCR ROOT FOLDER (WHERE setup.py IS)
 =======================================================================
 
 Lifecycle: new
-Status: open — root tidy done; one maintainer decision left (.stfolder on main).
+Status: DONE 2026-11-06 — root tidy done; maintainer decided .stfolder is a working folder: tools/promote_to_main.py drops it from main, nightly and the synced checkout keep .stfolder/syncthing-folder-32384b.txt.
 Requested: maintainer, 2026-11-04.
 Related: 755 (redundant and unused files).
 
@@ -26,3 +26,4 @@ REQUIREMENTS
 2026-11-06 -- Root re-listed: every tracked entry has a reader (packaging, licence, CI/tool config, ledgers, source folders; _spacr_catalog_build.py is imported by setup.py and the PyInstaller hook; spaCR_settings/ and spacr_drivers/ are read by tests and the installers).
 2026-11-06 -- proposals/ is not moved: tools/promote_to_main.py lists it with features/ as a working folder that never reaches main, so main's root already lacks it; moving it to docs/notes/ would publish it.
 2026-11-06 -- Decision for the maintainer: .stfolder/syncthing-folder-32384b.txt is the Syncthing marker of the spacr-claude folder and reaches main. Deleting it from git would delete the marker in the synced checkout and stop Syncthing. Option: add .stfolder to WORKING_FOLDERS in promote_to_main.py so only main drops it.
+2026-11-06 -- Maintainer decision: add .stfolder to WORKING_FOLDERS in tools/promote_to_main.py, so main releases drop the Syncthing marker while nightly and the synced checkout keep it. Done; tests/test_the_working_folders_do_not_reach_main.py checks main drops it and nightly keeps it.

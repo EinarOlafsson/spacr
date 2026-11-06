@@ -78,6 +78,7 @@ def repo(tmp_path: Path) -> Path:
     write(root / "skill" / "engineer.md", "a skill\n")
     write(root / "proposals" / "a_proposal.md", "a proposal\n")
     write(root / ".claude" / "settings.json", "{}\n")
+    write(root / ".stfolder" / "syncthing-folder-32384b.txt", "")
     write(root / "spacr" / "feature.py", "def feature():\n    return 1\n")
     git(root, "add", "-A")
     git(root, "commit", "--quiet", "-m", "the work, and how it is driven")
@@ -89,6 +90,7 @@ WORKING_PATHS = {
     "skill/engineer.md",
     "proposals/a_proposal.md",
     ".claude/settings.json",
+    ".stfolder/syncthing-folder-32384b.txt",
 }
 
 
@@ -112,7 +114,7 @@ class TestTheDryRunIsTheDefault:
         printed = capsys.readouterr().out
 
         assert "DRY RUN" in printed
-        for folder in ("features", "skill", "proposals", ".claude"):
+        for folder in ("features", "skill", "proposals", ".claude", ".stfolder"):
             assert f"{folder}/" in printed, f"{folder} was not named"
         assert "git merge --no-ff" in printed
         assert "git rm -r --cached" in printed
@@ -170,10 +172,21 @@ class TestEveryPromotionDropsThemAgain:
         on_main = tracked(repo, "main")
         assert "spacr/later.py" in on_main, "the second promotion carried nothing"
         leaked = {p for p in on_main if p.split("/")[0] in
-                  {"features", "skill", "proposals", ".claude"}}
+                  {"features", "skill", "proposals", ".claude", ".stfolder"}}
         assert not leaked, (
             "the second promotion published the working folders the merge "
             f"brought back: {sorted(leaked)}")
+
+
+class TestTheSyncthingMarker:
+    def test_main_drops_it_and_nightly_keeps_it(self, repo):
+        """Item 757: main releases lose .stfolder; nightly and the synced checkout keep it."""
+        marker = ".stfolder/syncthing-folder-32384b.txt"
+        assert ".stfolder" in promote_to_main.WORKING_FOLDERS
+        assert promote_to_main.main(["--repo", str(repo), "--execute"]) == 0
+        assert marker not in tracked(repo, "main")
+        assert marker in tracked(repo, "nightly")
+        assert (repo / marker).exists(), "the marker left the working copy"
 
 
 class TestItRefusesRatherThanGuess:
