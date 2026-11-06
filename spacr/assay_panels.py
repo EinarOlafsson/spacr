@@ -61,16 +61,144 @@ __all__ = [
     "select_and_run_test", "proportion_tests", "aggregate_to_unit",
     "fractions_per_unit", "bar_spec", "stacked_spec", "draw_bar_panel",
     "draw_stacked_panel", "draw_panel", "save_panel", "assemble_figure",
-    "panel_folder_name",
+    "panel_folder_name", "STYLE", "shade", "style_axes", "outlier_policy", "mark_outliers",
+    "parse_outlier_method", "OUTLIER_FENCES",
 ]
 
 ALPHA = 0.05
 WELL_KEYS: Tuple[str, ...] = ("plateID", "rowID", "columnID")
-_DEFAULT_COLORS = ["#4C72B0", "#DD8452", "#55A868", "#C44E52", "#8172B3",
-                   "#937860", "#DA8BC3", "#8C8C8C", "#CCB974", "#64B5CD"]
+# Okabe-Ito colour-blind-safe palette (black left out: it hides the error bars and dots).
+_DEFAULT_COLORS = ["#0072B2", "#E69F00", "#009E73", "#CC79A7", "#56B4E9", "#D55E00",
+                   "#F0E442", "#999999"]
+# One place for the look of every bar / stacked panel (assay_panels and assay_report).
+STYLE = dict(
+    palette=_DEFAULT_COLORS,
+    bar_alpha=0.6,          # bar fill
+    edge_shade=0.6,         # bar edge = fill colour darkened to this fraction
+    edge_lw=0.8,
+    bar_width=0.7,
+    dot_size=22.0,          # scatter area in pt^2 (about 4.7 pt across)
+    dot_alpha=0.65,
+    dot_shade=0.55,         # dot colour = fill colour darkened to this fraction
+    dot_edge="white",
+    dot_edge_lw=0.35,
+    jitter=0.12,            # half width of the dot jitter, in bar units (bar half width 0.35)
+    err_color="#333333",
+    err_lw=0.8,
+    capsize=2.0,
+    bracket_lw=0.7,
+    grid_alpha=0.3,
+    grid_lw=0.5,
+    stacked_cmap="viridis",
+    stacked_edge="white",
+    stacked_lw=0.5,
+)
+
+
+def shade(color, factor):
+    """``color`` darkened to ``factor`` (0 black, 1 unchanged), as an RGB tuple."""
+    from matplotlib.colors import to_rgb
+    return tuple(max(0.0, min(1.0, c * factor)) for c in to_rgb(color))
+
+
+def style_axes(ax):
+    """Light horizontal grid behind the data, top and right spines removed."""
+    ax.set_axisbelow(True)
+    ax.yaxis.grid(True, alpha=STYLE["grid_alpha"], linewidth=STYLE["grid_lw"])
+    ax.xaxis.grid(False)
+    _despine(ax)
+
+
 _ANNOT_LINE_PT = 11.0
 
 
+# --------------------------------------------------------------------------- outlier points
+OUTLIER_FENCES = {"mad": 3.5, "iqr": 1.5}
+_OUTLIER_POLICY = {"method": None}
+
+
+def parse_outlier_method(method):
+    """``'mad'`` / ``'iqr'`` (default fences 3.5 and 1.5) or ``'mad:3'`` -> (name, fence); None -> None."""
+    if method in (None, False, "none", ""):
+        return None
+    if method is True:
+        method = "mad"
+    name, _, fence = str(method).partition(":")
+    name = name.strip().lower()
+    if name not in OUTLIER_FENCES:
+        raise ValueError(f"outlier method must be 'mad' or 'iqr' (optionally 'mad:3.0'), got {method!r}")
+    return name, float(fence) if fence else OUTLIER_FENCES[name]
+
+
+class outlier_policy:
+    """Context manager: default outlier method of :func:`bar_spec` inside the block.
+
+    ``with outlier_policy('mad'): ...`` makes every bar panel built inside
+    mark and leave out points beyond the robust fence of their group.
+    """
+
+    def __init__(self, method):
+        self.method = method
+
+    def __enter__(self):
+        self.previous = _OUTLIER_POLICY["method"]
+        _OUTLIER_POLICY["method"] = self.method
+        return self
+
+    def __exit__(self, *exc):
+        _OUTLIER_POLICY["method"] = self.previous
+        return False
+
+
+def mark_outliers(data: pd.DataFrame, value: str, group, method) -> pd.Series:
+    """True for points beyond the robust fence of their group.
+
+    ``mad``: ``|x - median| > fence * 1.4826 * MAD``; ``iqr``: outside
+    ``[Q1 - fence * IQR, Q3 + fence * IQR]``. Groups with fewer than 4 points
+    or no spread (MAD or IQR 0) keep every point.
+
+    :param group: column or list of columns defining the groups.
+    """
+    parsed = parse_outlier_method(method)
+    out = pd.Series(False, index=data.index)
+    if parsed is None or not len(data):
+        return out
+    name, fence = parsed
+    v = pd.to_numeric(data[value], errors="coerce").replace([np.inf, -np.inf], np.nan)
+    keys = [group] if isinstance(group, str) else list(group)
+    for _, idx in data.groupby(keys, observed=True, dropna=False).groups.items():
+        x = v.loc[idx].dropna()
+        if len(x) < 4:
+            continue
+        if name == "mad":
+            med = x.median()
+            mad = (x - med).abs().median()
+            if not mad > 0:
+                continue
+            flag = (x - med).abs() > fence * 1.4826 * mad
+        else:
+            q1, q3 = x.quantile(0.25), x.quantile(0.75)
+            iqr = q3 - q1
+            if not iqr > 0:
+                continue
+            flag = (x < q1 - fence * iqr) | (x > q3 + fence * iqr)
+        out.loc[flag.index[flag.to_numpy()]] = True
+    return out
+
+
+def outlier_table(data, group, order, method, by=None):
+    """Points and removed outliers per group (and per ``by`` level)."""
+    parsed = parse_outlier_method(method)
+    keys = ([by] if by else []) + [group]
+    t = data.groupby(keys, observed=True).agg(n_points=("outlier", "size"),
+                                             n_removed=("outlier", "sum")).reset_index()
+    t["n_removed"] = t["n_removed"].astype(int)
+    t["method"] = parsed[0] if parsed else ""
+    t["fence"] = parsed[1] if parsed else np.nan
+    return t
+
+
+# --------------------------------------------------------------------------- helpers
 def stars(p) -> str:
     """Significance stars for a p value ('ns' at or above 0.05, 'n/a' if missing).
 
@@ -290,6 +418,10 @@ def select_and_run_test(df: pd.DataFrame, value: str, group: str, order: Sequenc
 
     if len(groups) < 2:
         summary = _empty_test("not tested", len(used), "fewer than two groups with data")
+        return dict(test=pd.DataFrame([summary]), assumptions=assum, posthoc=empty_post,
+                    descriptive=desc)
+    if all(np.ptp(x) == 0 for x in groups) and len({float(x[0]) for x in groups}) == 1:
+        summary = _empty_test("not tested", len(used), "no variation (every value equal)")
         return dict(test=pd.DataFrame([summary]), assumptions=assum, posthoc=empty_post,
                     descriptive=desc)
     if all(len(x) < 2 for x in groups):
@@ -577,7 +709,8 @@ def fractions_per_unit(df: pd.DataFrame, bin_column: str, bins: Sequence, keys: 
 def bar_spec(data: pd.DataFrame, value: str, group: str, order: Sequence, title: str = "",
              ylabel: Optional[str] = None, labels: Optional[Mapping] = None,
              annotations: Optional[Mapping] = None, ymin=None, refline=None,
-             palette=None, extra_tables: Optional[Mapping[str, pd.DataFrame]] = None) -> dict:
+             palette=None, extra_tables: Optional[Mapping[str, pd.DataFrame]] = None,
+             outliers="policy") -> dict:
     """Run the bar-panel test on unit data and return a panel spec for drawing/saving.
 
     :param data: one row per experimental unit, from :func:`aggregate_to_unit`.
@@ -593,14 +726,27 @@ def bar_spec(data: pd.DataFrame, value: str, group: str, order: Sequence, title:
     :param palette: group -> colour, or a list of colours in ``order``; ``None``
         uses the default colours.
     :param extra_tables: file stem -> table, written as more CSVs by :func:`save_panel`.
+    :param outliers: ``'mad'``, ``'iqr'`` (see :func:`mark_outliers`), None,
+        or ``'policy'`` (default) to use the active :class:`outlier_policy`.
+        Outliers stay in ``data`` with ``outlier = True`` and are left out of
+        the drawing and the test; ``stats['outliers']`` counts them per group.
     :returns: a dict spec with ``kind`` ``'bar'`` and the :func:`select_and_run_test`
         result under ``stats``.
     """
-    stats = select_and_run_test(data, value, group, order)
+    method = _OUTLIER_POLICY["method"] if outliers == "policy" else outliers
+    used = data
+    if parse_outlier_method(method) is not None:
+        data = data.copy()
+        data["outlier"] = mark_outliers(data, value, group, method).to_numpy()
+        used = data[~data["outlier"]]
+    stats = select_and_run_test(used, value, group, order)
+    if "outlier" in data.columns:
+        stats["outliers"] = outlier_table(data, group, order, method)
     return dict(kind="bar", data=data, value=value, group=group, order=list(order),
                 title=title, ylabel=ylabel or value.replace("_", " "), labels=labels,
                 annotations=annotations, ymin=ymin, refline=refline, palette=palette,
-                stats=stats, extra_tables=dict(extra_tables or {}))
+                stats=stats, extra_tables=dict(extra_tables or {}),
+                outlier_method=method if "outlier" in data.columns else None)
 
 
 def stacked_spec(fractions: pd.DataFrame, counts: pd.DataFrame, group: str, order: Sequence,
@@ -725,6 +871,8 @@ def draw_bar_panel(ax, data: pd.DataFrame, value: str, group: str, order: Sequen
     """
     order = list(order)
     rng = np.random.default_rng(seed)
+    if "outlier" in data.columns:
+        data = data[~data["outlier"].astype(bool)]
     vals = pd.to_numeric(data[value], errors="coerce") if len(data) else pd.Series(dtype=float)
     d = data.assign(_v=vals).replace([np.inf, -np.inf], np.nan).dropna(subset=["_v"])
     means = d.groupby(group)["_v"].mean().reindex(order)
@@ -740,14 +888,21 @@ def draw_bar_panel(ax, data: pd.DataFrame, value: str, group: str, order: Sequen
         ymin = 0.0 if lo >= 0 else lo - 0.05 * max(hi - lo, abs(lo), 1e-9)
     base = ymin if ymin > 0 else 0.0
     heights = means.fillna(base).to_numpy(float) - base
-    ax.bar(x, heights, bottom=base, width=0.7, alpha=0.8,
-           color=[palette.get(g, "#888888") for g in order], edgecolor="black", linewidth=0.6)
-    ax.errorbar(x, means.to_numpy(float), yerr=sds.to_numpy(float), fmt="none", ecolor="black",
-                elinewidth=1.0, capsize=3)
+    from matplotlib.colors import to_rgba
+    fills = [palette.get(g, "#888888") for g in order]
+    ax.bar(x, heights, bottom=base, width=STYLE["bar_width"],
+           color=[to_rgba(c, STYLE["bar_alpha"]) for c in fills],
+           edgecolor=[shade(c, STYLE["edge_shade"]) for c in fills], linewidth=STYLE["edge_lw"])
+    ax.errorbar(x, means.to_numpy(float), yerr=sds.to_numpy(float), fmt="none",
+                ecolor=STYLE["err_color"], elinewidth=STYLE["err_lw"], capsize=STYLE["capsize"],
+                zorder=4)
     for i, g in enumerate(order):
         y = d.loc[d[group] == g, "_v"].to_numpy(float)
         if len(y):
-            ax.scatter(i + rng.uniform(-0.12, 0.12, len(y)), y, s=12, color="black", zorder=3)
+            ax.scatter(i + rng.uniform(-STYLE["jitter"], STYLE["jitter"], len(y)), y,
+                       s=STYLE["dot_size"], color=shade(fills[i], STYLE["dot_shade"]),
+                       alpha=STYLE["dot_alpha"], edgecolors=STYLE["dot_edge"],
+                       linewidths=STYLE["dot_edge_lw"], zorder=3)
     if refline is not None:
         ax.axhline(refline, ls="--", lw=0.8, color="grey")
     top = np.nanmax(np.r_[(means + sds).to_numpy(float), d["_v"].to_numpy(float), ymin + 1e-9])
@@ -765,7 +920,7 @@ def draw_bar_panel(ax, data: pd.DataFrame, value: str, group: str, order: Sequen
                 for _, r in pairs.iterrows():
                     i, j = order.index(r["group_1"]), order.index(r["group_2"])
                     ax.plot([i, i, j, j], [level, level + step * 0.25, level + step * 0.25, level],
-                            lw=0.9, color="black")
+                            lw=STYLE["bracket_lw"], color="black")
                     ax.text((i + j) / 2, level + step * 0.3, r["significance"], ha="center",
                             va="bottom", fontsize=8)
                     level += step * 1.05
@@ -782,7 +937,7 @@ def draw_bar_panel(ax, data: pd.DataFrame, value: str, group: str, order: Sequen
     ax.set_ylabel(ylabel or value.replace("_", " "), fontsize=8)
     ax.tick_params(axis="y", labelsize=8)
     _set_xticks(ax, order, labels, annotations)
-    _despine(ax)
+    style_axes(ax)
     return ax
 
 
@@ -796,7 +951,7 @@ def _bin_colors(n, colors=None):
     if colors is not None:
         return list(colors)
     import matplotlib
-    cmap = matplotlib.colormaps.get_cmap("viridis")
+    cmap = matplotlib.colormaps.get_cmap(STYLE["stacked_cmap"])
     return [cmap(v) for v in np.linspace(0.05, 0.95, max(n, 1))]
 
 
@@ -837,9 +992,11 @@ def draw_stacked_panel(ax, fractions: pd.DataFrame, group: str, order: Sequence,
     bottom = np.zeros(len(order))
     for i, b in enumerate(bins):
         ax.bar(x, means[b].to_numpy(float), bottom=bottom, color=colors[i % len(colors)],
-               width=0.7, label=bin_labels[i], edgecolor="white", linewidth=0.4)
+               width=STYLE["bar_width"], label=bin_labels[i], edgecolor=STYLE["stacked_edge"],
+               linewidth=STYLE["stacked_lw"])
         ax.errorbar(x, bottom + means[b].to_numpy(float), yerr=sds[b].to_numpy(float),
-                    fmt="none", ecolor="black", elinewidth=0.7, capsize=2)
+                    fmt="none", ecolor=STYLE["err_color"], elinewidth=STYLE["err_lw"],
+                    capsize=STYLE["capsize"])
         bottom += means[b].to_numpy(float)
     if pairwise is not None and len(pairwise):
         for _, r in pairwise.iterrows():
@@ -860,7 +1017,7 @@ def draw_stacked_panel(ax, fractions: pd.DataFrame, group: str, order: Sequence,
     if legend:
         ax.legend(title=legend_title or None, fontsize=7, title_fontsize=7, frameon=False,
                   bbox_to_anchor=(1.0, 1.0), loc="upper left")
-    _despine(ax)
+    style_axes(ax)
     return ax
 
 
@@ -932,6 +1089,8 @@ def save_panel(out_dir: str, panel_id: str, name: str, spec: dict, dpi: int = 30
         write_table(st["assumptions"], os.path.join(folder, "stats_assumptions.csv"))
         write_table(st["posthoc"], os.path.join(folder, "stats_posthoc.csv"))
         write_table(st["descriptive"], os.path.join(folder, "stats_descriptive.csv"))
+        if "outliers" in st:
+            write_table(st["outliers"], os.path.join(folder, "stats_outliers.csv"))
     else:
         bins, bin_labels = spec["bins"], spec["bin_labels"]
         rename = dict(zip(bins, bin_labels))
