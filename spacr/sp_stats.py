@@ -2390,8 +2390,6 @@ def _feature_qc_database(db_path: str, *,
 
     uri = Path(db_path).resolve().as_uri() + "?mode=ro"
     frames = []
-    # ``closing``: a sqlite3 connection used as a context manager only ends
-    # the transaction, and one left open keeps the WAL from checkpointing.
     with closing(sqlite3.connect(uri, uri=True, timeout=30.0)) as connection:
         present = {row[0] for row in connection.execute(
             "SELECT name FROM sqlite_master WHERE type='table'")}
@@ -2479,7 +2477,6 @@ def _feature_qc_report(db_path: str, *, drop: bool = False,
     folder = os.path.dirname(os.path.abspath(db_path))
     csv_path, json_path = (os.path.join(folder, name)
                            for name in _FEATURE_QC_FILES)
-    # ``column`` here names a feature, not a plate column, so it is kept verbatim.
     write_table(flagged, csv_path, canonicalise=False)
     counts = flagged["reason"].value_counts() if not flagged.empty else {}
     summary = {
@@ -2741,11 +2738,6 @@ def _normalize_profiles(frame: pd.DataFrame, features: Sequence[str], *,
             if method == "mad_robustize":
                 centre = np.nanmedian(fit, axis=0)
                 spread = np.nanmedian(np.abs(fit - centre), axis=0) * MAD_SCALE
-                # A feature that does not vary at all in the reference (a
-                # moment written as exact zeros, say) has no spread to
-                # divide by; epsilon alone would turn one stray value into
-                # 1e10 or more. Leave its scale at 1 -- the feature is
-                # dropped as constant in the controls anyway.
                 flat = (spread < tiny) & (np.nan_to_num(
                     np.nanstd(fit, axis=0), nan=0.0) < tiny)
                 spread = np.where(flat, 1.0, spread + epsilon)

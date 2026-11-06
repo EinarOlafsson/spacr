@@ -1009,10 +1009,6 @@ def analyze_percent_positive(settings):
     display(merged)
     return merged
 
-# ---------------------------------------------------------------------------
-# Publication panels, filters and control panels shared by analyze_recruitment
-# and analyze_replication. Statistics and drawing live in spacr.assay_panels.
-# ---------------------------------------------------------------------------
 
 _RATIO_SUFFIXES = ('_ratio',)
 
@@ -1371,8 +1367,6 @@ def _recruitment_control_specs(df, settings):
     palette = _control_palette(sub, group, order, settings.get('control_color_by'))
     rep = settings.get('replicate_column')
     if rep is not None and rep in sub.columns and sub.groupby(group)[rep].nunique().max() <= 1:
-        # The replicate is part of the condition (e.g. annotated in the pathogen
-        # slot), so each condition holds one replicate: wells are the unit here.
         rep = None
     settings = dict(settings, replicate_column=rep)
     specs, names, figures = {}, {}, {}
@@ -4658,7 +4652,6 @@ def analyze_replication(settings):
             bin_column = f'{compartment}_volume_bin'
             bins = list(data[bin_column].cat.categories)
             unit = 'px' if settings.get('um_per_px', 0.1) is None else '\u00b5m\u00b2'
-            # size-proxy bins are volume (area ** 1.5) ranges; label them by the area they cover
             output['panels'] = _replication_panels(
                 data, dict(settings, group_column=group_column), bin_column, bins,
                 f'{compartment}_area', f'mean vacuole area ({unit})',

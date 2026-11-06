@@ -71,7 +71,6 @@ _DEFAULT_COLORS = ["#4C72B0", "#DD8452", "#55A868", "#C44E52", "#8172B3",
 _ANNOT_LINE_PT = 11.0
 
 
-# --------------------------------------------------------------------------- helpers
 def stars(p) -> str:
     """Significance stars for a p value ('ns' at or above 0.05, 'n/a' if missing).
 
@@ -172,7 +171,6 @@ def panel_folder_name(panel_id: str, name: str) -> str:
     return f"{panel_id}_{safe}" if safe else str(panel_id)
 
 
-# --------------------------------------------------------------------------- bar-panel tests
 def _empty_test(test, n_groups, reason):
     """One ``test`` row for a comparison that was not run.
 
@@ -307,10 +305,8 @@ def select_and_run_test(df: pd.DataFrame, value: str, group: str, order: Sequenc
     key = {str(g): g for g in used}
     choice = ("anova" if normal_all and equal_var else "welch" if normal_all else "kruskal")
     if choice == "welch" and any(len(x) < 2 or np.ptp(x) == 0 for x in groups):
-        # Welch weights are 1 / variance: undefined for a constant group.
         choice = "kruskal"
         note = "Welch ANOVA undefined (a group has no variance); Kruskal-Wallis used"
-    # Pairs in label order, the order the omnibus tables have always used.
     labelled = sorted(zip((str(g) for g in used), groups))
     try:
         if choice in ("anova", "welch"):
@@ -352,7 +348,7 @@ def select_and_run_test(df: pd.DataFrame, value: str, group: str, order: Sequenc
                                  statistic=np.nan, p_adj=float(dunn.loc[str(a_), str(b_)]),
                                  posthoc="Dunn test (Holm)"))
             post = pd.DataFrame(rows, columns=post_cols[:-1])
-    except Exception as exc:  # degenerate data (identical values, n = 1 groups ...)
+    except Exception as exc:
         summary = _empty_test("not tested", len(used), f"test failed: {exc}")
         summary.update(all_groups_normal=normal_all, equal_variance=equal_var)
         return dict(test=pd.DataFrame([summary]), assumptions=assum, posthoc=empty_post,
@@ -368,7 +364,6 @@ def select_and_run_test(df: pd.DataFrame, value: str, group: str, order: Sequenc
                 descriptive=desc)
 
 
-# --------------------------------------------------------------------------- proportion tests
 def _cramers_v(table):
     """Cramér's V of a contingency table, from its uncorrected chi-square.
 
@@ -511,7 +506,6 @@ def proportion_tests(counts: pd.DataFrame, order: Sequence, reference=None,
     return omni, pair
 
 
-# --------------------------------------------------------------------------- aggregation
 def aggregate_to_unit(df: pd.DataFrame, value, keys: Sequence[str],
                       well_keys: Sequence[str] = WELL_KEYS,
                       replicate_column: Optional[str] = None) -> pd.DataFrame:
@@ -580,7 +574,6 @@ def fractions_per_unit(df: pd.DataFrame, bin_column: str, bins: Sequence, keys: 
     return frac.reset_index()
 
 
-# --------------------------------------------------------------------------- specs
 def bar_spec(data: pd.DataFrame, value: str, group: str, order: Sequence, title: str = "",
              ylabel: Optional[str] = None, labels: Optional[Mapping] = None,
              annotations: Optional[Mapping] = None, ymin=None, refline=None,
@@ -653,7 +646,6 @@ def stacked_spec(fractions: pd.DataFrame, counts: pd.DataFrame, group: str, orde
                 ylabel=ylabel, colors=colors, extra_tables=dict(extra_tables or {}))
 
 
-# --------------------------------------------------------------------------- drawing
 def _despine(ax):
     """Hide the top and right spines of ``ax``."""
     for side in ("top", "right"):
@@ -693,7 +685,6 @@ def _set_xticks(ax, order, labels, annotations, rotation=None):
     text = [display_label(g, labels) for g in order]
     if rotation is None:
         longest = max((len(t) for t in text), default=0)
-        # rotate as soon as labels would touch: ~2.6 characters fit per category at panel width
         rotation = 0 if longest * len(order) <= 24 and longest <= 10 else 35
     ax.set_xticks(range(len(order)))
     ax.set_xticklabels(text, rotation=rotation, ha="right" if rotation else "center",
@@ -910,7 +901,6 @@ def _panel_size(spec):
     return max(width, 3.0), 4.0 + 0.16 * n_rows
 
 
-# --------------------------------------------------------------------------- saving
 def save_panel(out_dir: str, panel_id: str, name: str, spec: dict, dpi: int = 300) -> str:
     """Write one panel folder: graph (PDF + PNG), plotted data and statistics CSVs.
 

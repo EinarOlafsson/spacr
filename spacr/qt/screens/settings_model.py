@@ -331,9 +331,6 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
         "cell_area_outlier_mads", "nucleus_area_outlier_mads",
         "cell_intensity_outlier_mads", "nucleus_intensity_outlier_mads",
     },
-    # Publication panels and their filters are API / settings-file options:
-    # nested lists and dicts that the form does not edit. Kept at their
-    # defaults (off) so the GUI run is unchanged.
     "recruitment": {
         "panels", "replicate_column", "condition_order", "condition_labels",
         "figures", "exclude_edge_objects", "max_vacuoles_per_cell", "control_color_by",

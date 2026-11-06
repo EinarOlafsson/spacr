@@ -5436,9 +5436,6 @@ def _plot_controls(df, mask_chans, channel_of_interest, figuresize=5):
     Returns:
         None
     """
-    # The list passed in is left alone and the real channel numbers are kept
-    # (an earlier version appended to the caller list and renumbered the
-    # channels 0..n-1, so channels [0, 3] were plotted as channels 0 and 1).
     mask_chans = list(dict.fromkeys(
         [c for c in (mask_chans or []) if c is not None] + [channel_of_interest]))
     controls_cols = []

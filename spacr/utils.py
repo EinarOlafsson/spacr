@@ -3620,7 +3620,6 @@ def _split_data(df, group_by, object_type):
 
     df = df.copy()
 
-    # A plate name stored URL-escaped must key the same as its decoded spelling.
     from .schema import normalise_plate_columns
     normalise_plate_columns(df)
 
