@@ -12,7 +12,7 @@ Repeated IDs retain their separate full filenames and histories; none were merge
 
 This is a declaration-based navigation list, not a verified unfinished count. Headers can be stale. Conversely, recorded-Done items 641 and 673 contain later Mac follow-ups; item 729 separates native checks from deferred implementation. Read their linked notes before assigning work.
 
-68 records have no recorded complete declaration; 727 have a recorded complete declaration. Neither is a verification result.
+67 records have no recorded complete declaration; 728 have a recorded complete declaration. Neither is a verification result.
 
 | ID | Lifecycle | Item (full filename) | Recorded status |
 |---|---|---|---|
@@ -80,7 +80,6 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 801 | Future | [ONE GPU STAYS BUSY DURING MAKE MASKS — 801_one_gpu_stays_busy_during_make_masks.txt](feature_list/801_one_gpu_stays_busy_during_make_masks.txt) | not started |
 | 802 | Future | [SEGMENTATION ILLUMINATION WITH SEPARATE PREPROCESSING — 802_segmentation_illumination_with_separate_preprocessing.txt](feature_list/802_segmentation_illumination_with_separate_preprocessing.txt) | not started |
 | 803 | Future | [A VRAM BUDGET SETTING — 803_a_vram_budget_setting.txt](feature_list/803_a_vram_budget_setting.txt) | not started |
-| 807 | New | [LABEL-FREE FEATURE QC ON PROFILE EXPORT — 807_label_free_feature_qc_on_profile_export.txt](feature_list/807_label_free_feature_qc_on_profile_export.txt) | open. |
 | 809 | New | [A SHARDED CROP STORE — 809_sharded_crop_store.txt](feature_list/809_sharded_crop_store.txt) | open. Build first of 809-811, after the OPS plate A run has finished. |
 | 810 | New | [BULK SQLITE WRITES FOR THE MEASUREMENT STORE — 810_bulk_sqlite_writes_for_measurements.txt](feature_list/810_bulk_sqlite_writes_for_measurements.txt) | open. Build after 809 and after the OPS plate A run has finished. |
 | 811 | New | [INDEX THE MEASUREMENT JOIN KEYS — 811_index_the_measurement_join_keys.txt](feature_list/811_index_the_measurement_join_keys.txt) | open. Build with 810, after the OPS plate A run has finished. |
@@ -879,7 +878,7 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 804 | New | [RECRUITMENT: FIELD QC AND CONFOUNDER ADJUSTMENT — 804_recruitment_field_qc_and_confounder_adjustment.txt](feature_list/804_recruitment_field_qc_and_confounder_adjustment.txt) | DONE 2026-11-05 — analyze_recruitment drops crowded, sparse and over-infected fields, screens confounders and adjusts for chosen covariates. |
 | 805 | New | [BUG: PLATE NAMES WITH URL ESCAPES DROP ALL ROWS — 805_plate_names_with_url_escapes_keep_their_rows.txt](feature_list/805_plate_names_with_url_escapes_keep_their_rows.txt) | DONE 2026-11-06 — schema.canonical_plate_id now URL-decodes (repeatedly, so %255F too) and _split_data applies it, so prcf, prcfo and plateID join; regression test tests/test_805_plate_names_with_url_escapes_keep_their_rows.py. |
 | 806 | New | [BUG: ZERNIKE MOMENTS THAT ARE NUMERICALLY ZERO DOMINATE SCALED PROFILES — 806_zernike_moments_that_are_numerically_zero.txt](feature_list/806_zernike_moments_that_are_numerically_zero.txt) | DONE 2026-11-05 — moments below 1e-10 are written as exactly 0.0 on the CPU and GPU paths (spacr.measure._ZERNIKE_ZERO_TOL); columns unchanged. Built by the paper session, commit 75dbbc55e2. |
-| 807 | New | [LABEL-FREE FEATURE QC ON PROFILE EXPORT — 807_label_free_feature_qc_on_profile_export.txt](feature_list/807_label_free_feature_qc_on_profile_export.txt) | open. |
+| 807 | New | [LABEL-FREE FEATURE QC ON PROFILE EXPORT — 807_label_free_feature_qc_on_profile_export.txt](feature_list/807_label_free_feature_qc_on_profile_export.txt) | DONE 2026-11-06 — profile export drops features that are non-finite in >5% of wells, exceed 500 after control normalisation or are near-constant (also constant in controls), and writes feature_qc_dropped.csv; thresholds are settings profiling_na_cutoff, profiling_outlier_cutoff, profiling_min_variance. Built by the paper session (6d96cc3f4f). |
 | 808 | New | [A REGULARISED DEFAULT IN THE CLASSIFIER MODULE — 808_regularised_default_classifier.txt](feature_list/808_regularised_default_classifier.txt) | DONE 2026-11-05 — model_type_ml defaults to logistic_regression (StandardScaler + L2); shrinkage_lda added; xgboost and the others stay selectable. Maintainer approved the default switch from xgboost 2026-11-05. Built by the paper session (019d8a7846). |
 | 809 | New | [A SHARDED CROP STORE — 809_sharded_crop_store.txt](feature_list/809_sharded_crop_store.txt) | open. Build first of 809-811, after the OPS plate A run has finished. |
 | 810 | New | [BULK SQLITE WRITES FOR THE MEASUREMENT STORE — 810_bulk_sqlite_writes_for_measurements.txt](feature_list/810_bulk_sqlite_writes_for_measurements.txt) | open. Build after 809 and after the OPS plate A run has finished. |

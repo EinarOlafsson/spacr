@@ -1,9 +1,9 @@
 LABEL-FREE FEATURE QC ON PROFILE EXPORT
 
 Lifecycle: new
-Status: open.
+Status: DONE 2026-11-06 — profile export drops features that are non-finite in >5% of wells, exceed 500 after control normalisation or are near-constant (also constant in controls), and writes feature_qc_dropped.csv; thresholds are settings profiling_na_cutoff, profiling_outlier_cutoff, profiling_min_variance. Built by the paper session (6d96cc3f4f).
 Requested: maintainer, 2026-11-05 (BMC paper CPA baseline).
-Owner: unassigned.
+Owner: home spacr software paper.
 
 --------------------------------------------------------------------------------
 WHAT THE STATE IS
