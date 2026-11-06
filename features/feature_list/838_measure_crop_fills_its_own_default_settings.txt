@@ -1,0 +1,18 @@
+BUG: MEASURE_CROP DOES NOT FILL ITS OWN DEFAULT SETTINGS
+========================================================
+
+Lifecycle: new
+Status: open
+Requested: maintainer, 2026-11-06 (BMC paper HRMAn reanalysis).
+Owner: unassigned.
+
+WHAT THE STATE IS
+Called as in its docstring example, measure_crop raises KeyError 'timelapse',
+because it does not fill its own default settings.
+
+WHAT TO DO
+- Call get_measure_crop_settings inside measure_crop, as the other entry
+  points do.
+- Test the docstring example call.
+
+Evidence: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/hrman/REPORT.md

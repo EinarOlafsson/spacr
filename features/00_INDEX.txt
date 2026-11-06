@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-724 Lifecycle: new, 96 Lifecycle: future in features/feature_list/.
+727 Lifecycle: new, 96 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -1786,3 +1786,9 @@ NEW FEATURES
        835_make_masks_queue_editor_can_skip_a_field.txt
   836  THE EMBEDDINGS SCREEN READS 16-BIT TIFF CROPS
        836_embeddings_screen_reads_16_bit_tiff_crops.txt
+  837  BUG: A FILE-NAMING REGEX WITHOUT A TIME GROUP NAMES STACKS ..._NONE.NPY
+       837_a_regex_without_a_time_group_names_stacks_none.txt
+  838  BUG: MEASURE_CROP DOES NOT FILL ITS OWN DEFAULT SETTINGS
+       838_measure_crop_fills_its_own_default_settings.txt
+  839  DOCS: MEASURE_CROP'S DOCSTRING EXAMPLE PASSES SRC=<PLATE>/MERGED
+       839_measure_crop_docstring_example_src.txt

@@ -1,0 +1,20 @@
+BUG: A FILE-NAMING REGEX WITHOUT A TIME GROUP NAMES STACKS ..._NONE.NPY
+=======================================================================
+
+Lifecycle: new
+Status: open
+Requested: maintainer, 2026-11-06 (BMC paper HRMAn reanalysis).
+Owner: unassigned.
+
+WHAT THE STATE IS
+With a file-naming regex that has no time group (ArrayScan/Cellomics), the mask
+writer names stacks plate_well_field_None.npy. measure_crop's field parser then
+rejects that name and retries without end.
+
+WHAT TO DO
+- Omit the time component from the stack name when it is absent (or parse
+  None as no time).
+- Make the field parser fail with a clear error instead of looping.
+- Test with ArrayScan-style names.
+
+Evidence: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/hrman/REPORT.md

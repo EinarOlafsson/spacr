@@ -1,0 +1,17 @@
+DOCS: MEASURE_CROP'S DOCSTRING EXAMPLE PASSES SRC=<PLATE>/MERGED
+================================================================
+
+Lifecycle: new
+Status: open
+Requested: maintainer, 2026-11-06 (BMC paper HRMAn reanalysis).
+Owner: unassigned.
+
+WHAT THE STATE IS
+measure_crop's docstring example passes src=<plate>/merged, but the code needs
+the plate folder.
+
+WHAT TO DO
+- Fix the docstring example and its translated API records, or accept both
+  the plate folder and its merged/ folder.
+
+Evidence: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/hrman/REPORT.md
