@@ -465,6 +465,9 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         # 666 -> 667 on 2026-11-06, +1/-0: publication panels for the
         # recruitment and replication assays (spacr/assay_panels.py).
         'spacr/assay_panels.py',
+        # 667 -> 668 on 2026-11-06, +1/-0, item 816: the standard
+        # recruitment report (spacr/assay_report.py).
+        'spacr/assay_report.py',
     }
     assert added_since_608 <= shipped
     # 664 -> 662 on 2026-10-12, +0/-2: spacr-tutorial opens the online
@@ -913,8 +916,10 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_required():
     # the same +1 as `shipped`, moved with the workflow in one commit.
     # 666 -> 667 on 2026-11-06: spacr/assay_panels.py, the same +1 as
     # `shipped`, moved with the workflow in one commit.
-    assert len(ratchet.discover_shipped_python_files(ROOT)) == 667
-    assert "--expected-file-count 667" in combine_script
+    # 667 -> 668 on 2026-11-06: spacr/assay_report.py (item 816), the same
+    # +1 as `shipped`, moved with the workflow in one commit.
+    assert len(ratchet.discover_shipped_python_files(ROOT)) == 668
+    assert "--expected-file-count 668" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script
