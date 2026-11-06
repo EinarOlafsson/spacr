@@ -1145,8 +1145,22 @@ def collect_installers(
     setup_path: Path,
     branch: str,
     localized_readme_dir: Path | None = None,
+    release_version: str | None = None,
 ) -> list[Path]:
-    version = read_version(setup_path)
+    """Copy one version's installers into the repository and relink the READMEs.
+
+    :param source: folder searched recursively for the three installers.
+    :param destination: the committed installer folder.
+    :param readme: the root README whose download block is rewritten.
+    :param setup_path: ``setup.py``, read for the version when
+        ``release_version`` is not given.
+    :param branch: branch the links are written for.
+    :param localized_readme_dir: folder of the translated READMEs.
+    :param release_version: the version the installers belong to, for a
+        checkout whose own version is ahead of the last published release.
+    :returns: the copied installer paths.
+    """
+    version = release_version or read_version(setup_path)
     installers = _installer_paths(source, version)
     readmes = (readme, *_localized_readmes(readme, localized_readme_dir))
     # Validate every translated block before copying or deleting anything.
@@ -1603,6 +1617,13 @@ def main() -> int:
     )
     collect_parser.add_argument("--setup", type=Path, default=Path("setup.py"))
     collect_parser.add_argument("--branch", default="main")
+    collect_parser.add_argument(
+        "--release-version",
+        help="version of the installers, instead of the one in --setup")
+
+    subparsers.add_parser(
+        "published-version",
+        help="print the latest published release that has every installer")
 
     frozen_parser = subparsers.add_parser("collect-frozen")
     frozen_parser.add_argument("--source", type=Path, required=True)
@@ -1656,6 +1677,8 @@ def main() -> int:
     args = parser.parse_args()
     if args.command == "version":
         print(read_version(args.setup))
+    elif args.command == "published-version":
+        print(published_installer_version(fetch_releases())[0])
     elif args.command == "collect-frozen":
         for path in collect_frozen_installers(
                 args.source, args.destination, args.release_version, args.source_commit):
@@ -1729,7 +1752,8 @@ def main() -> int:
     else:
         for path in collect_installers(
                 args.source, args.destination, args.readme, args.setup,
-                args.branch, args.localized_readme_dir):
+                args.branch, args.localized_readme_dir,
+                release_version=args.release_version):
             print(path)
     return 0
 

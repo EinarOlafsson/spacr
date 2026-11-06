@@ -1283,3 +1283,67 @@ def test_collect_only_reuses_artifacts_without_rebuilding_or_hiding_failures(
 
     assert [accepts(jobs[name]["if"]) for name in ("linux", "windows", "macos")] == [builds] * 3
     assert accepts(jobs["collect"]["if"]) is collects
+
+
+def _synced_readme(helper, tmp_path, setup_version, installers_version):
+    setup = tmp_path / "setup.py"
+    setup.write_text(f'VERSION = "{setup_version}"\n', encoding="utf-8")
+    links = [helper.README_BEGIN, ""]
+    for label, suffix in helper.PLATFORMS:
+        old = f"spaCR-1.0.0-{suffix}"
+        links.append(
+            f"* `{label}: spaCR 1.0.0 <{helper.RELEASE_DOWNLOAD_ROOT}/v1.0.0/{old}>`_")
+    links.extend(["", helper.README_END])
+    readme = tmp_path / "README.rst"
+    readme.write_text("Before\n\n" + "\n".join(links) + "\n\nAfter\n", encoding="utf-8")
+    localized = tmp_path / "docs" / "i18n" / "readme"
+    localized.mkdir(parents=True)
+    for code in helper.LOCALIZED_README_CODES:
+        (localized / f"README.{code}.rst").write_text(
+            readme.read_text(encoding="utf-8"), encoding="utf-8")
+    source = tmp_path / "artifacts"
+    source.mkdir()
+    names = [f"spaCR-{installers_version}-{suffix}" for _label, suffix in helper.PLATFORMS]
+    for name in names:
+        (source / name).write_bytes(name.encode())
+    destination = tmp_path / "application"
+    destination.mkdir()
+    return setup, readme, localized, source, destination, names
+
+
+@pytest.mark.parametrize("setup_version, published", [
+    ("1.5.1.7", "1.5.1.7"),
+    ("1.5.1.8", "1.5.1.7"),
+])
+def test_sync_collects_the_published_release_whatever_the_tree_version(
+        tmp_path, setup_version, published):
+    helper = _release_module()
+    setup, readme, localized, source, destination, names = _synced_readme(
+        helper, tmp_path, setup_version, published)
+
+    copied = helper.collect_installers(
+        source, destination, readme, setup, branch="main",
+        localized_readme_dir=localized, release_version=published)
+
+    assert {path.name for path in copied} == set(names)
+    text = readme.read_text(encoding="utf-8")
+    assert f"/v{published}/" in text
+    assert setup_version == published or setup_version not in text
+
+
+def test_collect_without_a_release_version_still_follows_the_tree(tmp_path):
+    helper = _release_module()
+    setup, readme, localized, source, destination, _names = _synced_readme(
+        helper, tmp_path, "1.5.1.8", "1.5.1.7")
+    with pytest.raises(ValueError, match="1.5.1.8"):
+        helper.collect_installers(
+            source, destination, readme, setup, branch="main",
+            localized_readme_dir=localized)
+
+
+def test_the_sync_workflow_names_the_published_version():
+    text = (Path(__file__).resolve().parents[1] / ".github" / "workflows"
+            / "sync-installers-to-nightly.yml").read_text(encoding="utf-8")
+    assert "release.py published-version" in text
+    assert '--release-version "$VERSION"' in text
+    assert "--current-installers" not in text

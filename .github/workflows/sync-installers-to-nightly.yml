@@ -4,7 +4,8 @@ name: sync-installers-to-nightly
 # "chore(release): add spaCR <version> installers"), nightly kept linking the
 # previous release's installers until someone copied them over by hand, and
 # test_installer_archive_page failed on nightly in the meantime. This job
-# copies main's current installers onto nightly and rewrites the same README
+# copies the installers of the latest published release (not the version in
+# the checked-out tree, which may be ahead of it) onto nightly and rewrites the same README
 # and archive-page links the release job writes, with the same tools
 # (packaging/release.py collect + index). It does nothing when nightly
 # already carries byte-identical files. The daily run is a safety net for a
@@ -38,14 +39,19 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.12"
-      - name: Find main's current installers
+      - name: Find the latest published release's installers
         id: find
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git fetch origin main
-          git show origin/main:setup.py > "$RUNNER_TEMP/setup_main.py"
           python -m pip install "packaging>=24"
-          version=$(python packaging/release.py version --setup "$RUNNER_TEMP/setup_main.py")
+          version=$(python packaging/release.py published-version)
+          tree_version=$(python packaging/release.py version)
           echo "version=$version" >> "$GITHUB_OUTPUT"
+          if [ "$version" != "$tree_version" ]; then
+            echo "::notice::Nightly is at $tree_version; syncing the installers of the latest published release, $version."
+          fi
           mkdir -p "$RUNNER_TEMP/installers"
           missing=0
           found=0
@@ -58,7 +64,7 @@ jobs:
           done
           echo "main $version: $found installer(s), $missing missing or different on nightly"
           if [ "$found" -eq 0 ]; then
-            echo "Main has no installers for $version yet; nothing to sync."
+            echo "Main has no installers for the published $version yet; nothing to sync."
             echo "sync=false" >> "$GITHUB_OUTPUT"
           elif [ "$missing" -eq 0 ]; then
             echo "Nightly already carries main's $version installers."
@@ -70,16 +76,17 @@ jobs:
         if: steps.find.outputs.sync == 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.find.outputs.version }}
         run: |
           python packaging/release.py collect \
             --source "$RUNNER_TEMP/installers" \
             --destination spacr/application \
             --readme README.rst \
             --localized-readme-dir docs/i18n/readme \
-            --branch main
+            --branch main \
+            --release-version "$VERSION"
           python packaging/release.py index \
-            --output docs/source/installers.rst \
-            --current-installers spacr/application
+            --output docs/source/installers.rst
       - name: Commit and push to nightly
         if: steps.find.outputs.sync == 'true'
         env:
