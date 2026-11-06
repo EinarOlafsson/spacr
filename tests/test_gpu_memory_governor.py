@@ -35,6 +35,8 @@ class _Card:
         self.free, self.total = free, total
         self.allocated = 0
         self.peak = 0
+        self.reserved = 0
+        self.peak_reserved = 0
         self.emptied = 0
         self.fractions = []
 
@@ -48,6 +50,11 @@ class _Card:
                             lambda index=0: self.allocated)
         monkeypatch.setattr(cuda, "max_memory_allocated",
                             lambda index=0: self.peak)
+        monkeypatch.setattr(cuda, "memory_reserved",
+                            lambda index=0: self.reserved)
+        monkeypatch.setattr(cuda, "max_memory_reserved",
+                            lambda index=0: self.peak_reserved)
+        monkeypatch.setattr(cuda, "is_initialized", lambda: True)
         monkeypatch.setattr(cuda, "empty_cache", self._empty)
         monkeypatch.setattr(cuda, "set_per_process_memory_fraction",
                             lambda fraction, index=0:
@@ -57,9 +64,15 @@ class _Card:
     def _empty(self):
         self.emptied += 1
 
-    def use(self, nbytes):
-        """Record a call that peaked at ``nbytes`` above the allocation."""
+    def use(self, nbytes, reserved=None):
+        """Record a call that peaked at ``nbytes`` above the allocation.
+
+        ``reserved`` is what the caching allocator reserved for it, the
+        allocation itself when omitted.
+        """
         self.peak = max(self.peak, self.allocated + int(nbytes))
+        grown = int(nbytes if reserved is None else reserved)
+        self.peak_reserved = max(self.peak_reserved, self.reserved + grown)
 
 
 def _oom():
@@ -168,9 +181,9 @@ def test_a_batch_that_would_not_fit_the_free_memory_is_shrunk(card):
 
     controller = G._controller("seg")
     assert controller.run(work, 8) == 8
-    assert controller.per_unit == pytest.approx(unit)
+    assert controller.per_unit == pytest.approx(1.5 * unit)
 
-    card.free = int(1.5 * GIB) + 3 * unit
+    card.free = int(1.5 * GIB) + int(3 * 1.5 * unit)
     assert controller.run(work, 8) == 3
     assert G._counters()["shrinks"] == 1
 
@@ -264,7 +277,7 @@ def test_another_jobs_pending_claim_shrinks_this_batch(card):
         json.dump({"entries": {f"{live}:0": {
             "pid": live, "device": 0, "used": 0, "want": 4 * GIB,
             "ceiling": 0}}}, handle)
-    card.free = int(1.5 * GIB) + 6 * GIB
+    card.free = int(1.5 * GIB) + 6 * GIB + G._CONTEXT_BYTES
     controller = G._controller("seg")
     controller.per_unit = float(GIB)
     assert controller.run(lambda size: size, 8) == 2
@@ -298,13 +311,14 @@ def test_the_summary_is_empty_when_nothing_adapted():
 def test_the_settings_are_declared_and_alpha_gated():
     from spacr import settings as S
 
-    keys = ("gpu_memory_fraction", "gpu_memory_margin_gb", "gpu_adaptive_batch")
+    keys = ("gpu_memory_fraction", "gpu_memory_margin_gb",
+            "gpu_adaptive_batch", "gpu_fallback_policy")
     assert S.ALPHA_FEATURES[803] == {"settings": keys}
     for key in keys:
         assert S._is_alpha("settings", key)
         assert key in S.expected_types
         assert S.tooltips[key].rstrip(".").split("Default ")[-1] in (
-            "None", "1.5", "True")
+            "None", "1.5", "True", "per_item")
     for build in (S.set_default_settings_preprocess_generate_masks,
                   S.get_measure_crop_settings, S.set_default_train_test_model,
                   S.deep_spacr_defaults):
@@ -312,6 +326,7 @@ def test_the_settings_are_declared_and_alpha_gated():
         assert resolved["gpu_memory_fraction"] is None
         assert resolved["gpu_memory_margin_gb"] == 1.5
         assert resolved["gpu_adaptive_batch"] is True
+        assert resolved["gpu_fallback_policy"] == "per_item"
 
 
 class _Variadic:
@@ -552,3 +567,223 @@ def test_each_gpu_path_goes_through_the_governor(path, function, helper):
     names, raw_eval = _calls_in(path, function)
     assert helper in names
     assert not raw_eval
+
+
+def test_the_need_is_sized_from_reserved_memory(card):
+    def work(size):
+        card.use(size * GIB, reserved=size * 3 * GIB)
+        return size
+
+    controller = G._controller("seg")
+    controller.run(work, 2)
+    assert controller.per_unit == pytest.approx(3 * GIB)
+
+
+def test_the_need_keeps_one_and_a_half_times_the_allocated_growth(card):
+    def work(size):
+        card.use(size * GIB, reserved=size * GIB)
+        return size
+
+    controller = G._controller("seg")
+    controller.run(work, 2)
+    assert controller.per_unit == pytest.approx(1.5 * GIB)
+
+
+def test_a_fraction_below_the_reserved_peak_is_raised(card, capsys):
+    config = G._config({"gpu_memory_fraction": 0.05})
+
+    def work(size):
+        card.use(GIB, reserved=int(2.4 * GIB))
+        return size
+
+    G._controller("seg").run(work, 1, config=config)
+    first, raised = card.fractions[0][0], card.fractions[-1][0]
+    assert first == pytest.approx(0.05)
+    assert raised * card.total >= 2.4 * GIB
+    assert "is below what this work needs" in capsys.readouterr().out
+    assert G._controller("seg")._budget(0, config) > 0
+
+
+def test_the_ceiling_budget_counts_reserved_not_allocated(card):
+    config = G._config({"gpu_memory_fraction": 0.25})
+    card.allocated = GIB
+    card.reserved = 5 * GIB
+    budget = G._controller("seg")._budget(0, config)
+    assert budget == pytest.approx(0.25 * card.total - 5 * GIB)
+
+
+def test_another_process_without_a_context_is_counted_with_one():
+    others = {"1:0": {"used": 0, "want": GIB}}
+    assert G._pending_elsewhere(others) == GIB + G._CONTEXT_BYTES
+
+
+def test_the_expandable_allocator_is_preferred_before_cuda_starts(monkeypatch):
+    monkeypatch.delenv(G._ALLOC_ENV, raising=False)
+    monkeypatch.delenv("PYTORCH_ALLOC_CONF", raising=False)
+    monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
+    monkeypatch.setattr(torch.cuda, "is_initialized", lambda: False)
+    assert G._prefer_expandable_segments() is True
+    assert os.environ[G._ALLOC_ENV] == "expandable_segments:True"
+
+
+def test_an_existing_allocator_setting_or_a_started_cuda_is_left_alone(monkeypatch):
+    monkeypatch.setenv(G._ALLOC_ENV, "max_split_size_mb:128")
+    assert G._prefer_expandable_segments() is False
+    assert os.environ[G._ALLOC_ENV] == "max_split_size_mb:128"
+    monkeypatch.delenv(G._ALLOC_ENV)
+    monkeypatch.delenv("PYTORCH_ALLOC_CONF", raising=False)
+    monkeypatch.setattr(torch.cuda, "is_available", lambda: True)
+    monkeypatch.setattr(torch.cuda, "is_initialized", lambda: True)
+    assert G._prefer_expandable_segments() is False
+    assert G._ALLOC_ENV not in os.environ
+
+
+def test_an_adapting_site_logs_a_live_line(card, capsys, monkeypatch):
+    monkeypatch.setattr(G, "_REPORT_EVERY", 3)
+    fail = {"left": 1}
+
+    def work(size):
+        if fail["left"] and size > 1:
+            fail["left"] -= 1
+            raise _oom()
+        return size
+
+    controller = G._controller("seg")
+    for _ in range(4):
+        controller.run(work, 2)
+    out = capsys.readouterr().out
+    assert ("[gpu] site=seg items=3 shrinks=0 oom_retries=1 "
+            "cpu_fallbacks=0 (0.0%)") in out
+
+
+def test_a_quiet_site_logs_no_live_line(card, capsys, monkeypatch):
+    monkeypatch.setattr(G, "_REPORT_EVERY", 1)
+    controller = G._controller("seg")
+    for _ in range(3):
+        controller.run(lambda size: size, 2)
+    assert "site=seg" not in capsys.readouterr().out
+
+
+def test_the_live_line_also_comes_after_a_minute(card, capsys, monkeypatch):
+    clock = {"now": 0.0}
+    monkeypatch.setattr(G, "_monotonic", lambda: clock["now"])
+    controller = G._controller("seg")
+    controller.stats["shrinks"] = 1
+    controller.run(lambda size: size, 1)
+    assert "site=seg" not in capsys.readouterr().out
+    clock["now"] = 61.0
+    controller.run(lambda size: size, 1)
+    assert "[gpu] site=seg items=2 shrinks=1" in capsys.readouterr().out
+
+
+def _fallback_run(controller, fail):
+    def work(size):
+        if fail:
+            raise _oom()
+        return "gpu"
+
+    return controller.run(work, 1, cpu_fn=lambda size: "cpu")
+
+
+def test_falling_back_on_more_than_three_percent_warns_once(card, capsys):
+    controller = G._controller("seg")
+    for _ in range(49):
+        _fallback_run(controller, False)
+    assert _fallback_run(controller, True) == "cpu"
+    assert "WARNING" not in capsys.readouterr().out
+    _fallback_run(controller, True)
+    out = capsys.readouterr().out
+    assert "WARNING site=seg: 3.9% of items (2 of 51) ran on the CPU" in out
+    assert "slowing down" in out and "gpu_fallback_policy" in out
+    _fallback_run(controller, True)
+    assert "WARNING" not in capsys.readouterr().out
+
+
+def test_the_pause_policy_waits_instead_of_falling_back(card):
+    calls = []
+
+    def work(size):
+        calls.append(size)
+        if len(calls) < 8:
+            raise _oom()
+        return "gpu"
+
+    cpu = []
+    config = G._config({"gpu_fallback_policy": "pause"})
+    result = G._controller("seg").run(work, 1, config=config,
+                                      cpu_fn=lambda size: cpu.append(size))
+    assert result == "gpu"
+    assert cpu == []
+    counts = G._counters()
+    assert counts["cpu_fallbacks"] == 0 and counts["waits"] >= 5
+    assert counts["gpu_items"] == 1 and counts["cpu_items"] == 0
+
+
+def test_an_unknown_policy_reads_as_per_item():
+    assert G._config({"gpu_fallback_policy": "drop"})["gpu_fallback_policy"] == "per_item"
+
+
+def test_the_compute_path_of_each_item_is_recorded(card):
+    controller = G._controller("seg")
+    with G._path_scope() as clean:
+        _fallback_run(controller, False)
+    with G._path_scope() as mixed:
+        _fallback_run(controller, False)
+        _fallback_run(controller, True)
+    with G._path_scope() as fell:
+        _fallback_run(controller, True)
+    with G._path_scope() as untouched:
+        pass
+    assert (clean.path, mixed.path, fell.path, untouched.path) == (
+        "gpu", "mixed", "cpu", "cpu")
+
+
+def test_the_run_report_names_the_compute_path(card):
+    from spacr.runctx import run_context
+
+    controller = G._controller("seg")
+    with run_context("measure", {}, log=False) as run:
+        _fallback_run(controller, False)
+        _fallback_run(controller, True)
+    assert run.compute_path == "mixed"
+    assert run.to_dict()["compute_path"] == "mixed"
+    assert run.gpu_memory["gpu_items"] == 1 and run.gpu_memory["cpu_items"] == 1
+    with run_context("measure", {}, log=False) as steady:
+        _fallback_run(controller, False)
+    assert steady.compute_path == "gpu"
+
+
+def test_measure_rows_carry_the_compute_path(tmp_path):
+    import sqlite3
+    import pandas as pd
+    from spacr.utils import _merge_and_save_to_database
+
+    root = str(tmp_path)
+    os.makedirs(os.path.join(root, "measurements"), exist_ok=True)
+    stamp = {"measurement_ndim": 2, "measurement_units": "px", "n_z": 1,
+             "voxel_size_z_um": None, "voxel_size_xy_um": None,
+             "compute_path": "gpu"}
+    morph = pd.DataFrame({"label": [1, 2], "cell_area": [10.0, 20.0]})
+    inten = pd.DataFrame({"label": [1, 2],
+                          "cell_channel_1_mean_intensity": [1.0, 2.0]})
+    _merge_and_save_to_database(morph, inten, "cell", root, "plate1_A01_1",
+                                "exp", stamp=stamp)
+    con = sqlite3.connect(os.path.join(root, "measurements",
+                                       "measurements.db"), timeout=30)
+    try:
+        values = [row[0] for row in con.execute("SELECT compute_path FROM cell")]
+    finally:
+        con.close()
+    assert values == ["gpu", "gpu"]
+
+
+def test_measure_stamps_the_field_compute_path_when_measuring_on_the_gpu():
+    source = (ROOT / "spacr" / "measure.py").read_text(encoding="utf-8")
+    tree = ast.parse(source)
+    core = next(node for node in ast.walk(tree)
+                if isinstance(node, ast.FunctionDef)
+                and node.name == "_measure_crop_core")
+    text = ast.get_source_segment(source, core)
+    assert "with _path_scope() as compute:" in text
+    assert "'compute_path': compute.path" in text
+    assert "stamp=field_stamp" in text

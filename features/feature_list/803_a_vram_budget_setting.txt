@@ -85,3 +85,18 @@ DELIBERATELY NOT DONE
   (~/.cache/spacr/gpu_ledger.json, flock + atomic rename, dead PIDs dropped)
   and run counters logged at the end of every run_context run and kept in
   RunContext.gpu_memory. Settings alpha under 803.
+2026-11-06 (after the first real OPS GPU run): set_per_process_memory_fraction
+  caps RESERVED memory, so a cap just above the allocated peak (1.04 -> 1.2 GB)
+  sent every larger field through 4 retries to the CPU (115 -> 390 s/field).
+  Needs and caps are now sized from max_memory_reserved, never below 1.5x the
+  allocated growth; a fraction below that is raised with a message; each
+  process counts 0.4 GB of CUDA context in the ledger and budget;
+  PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True is set at run start when
+  unset and CUDA is not initialised. A live "[gpu] site=... items=...
+  shrinks=... oom_retries=... cpu_fallbacks=... (x%)" line prints every 50
+  items or 60 s while a site adapts, with a warning above 3 % CPU fallbacks.
+  Each item's compute path is recorded: Measure writes a compute_path column
+  on object rows when measure_gpu is on, and the run report carries
+  gpu_items/cpu_items and compute_path (gpu, cpu or mixed). New alpha setting
+  gpu_fallback_policy: per_item (default) or pause (wait for the GPU, never
+  fall back).

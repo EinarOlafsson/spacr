@@ -463,6 +463,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'genotype_source',
     'gpu',
     'gpu_adaptive_batch',
+    'gpu_fallback_policy',
     'gpu_memory_fraction',
     'gpu_memory_margin_gb',
     'gradient_accumulation_steps',

@@ -876,6 +876,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # ceiling, margin and adaptive-batch switch on Mask, Measure, Timelapse
     # and Classify, under their own "GPU Memory α" heading.
     "gpu_memory_fraction", "gpu_memory_margin_gb", "gpu_adaptive_batch",
+    "gpu_fallback_policy",
     # A NEW SETTING, not a regrouping (item 685, 2026-10-10): the alpha vvvv
     # export of Mask Generation and Measure, filed with the object crops
     # and shown under Visualization & Diagnostics on Mask and Crop Output

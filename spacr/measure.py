@@ -97,7 +97,7 @@ from . import measurement_schema as _measurement_schema
 MEASUREMENT_STAMP_COLUMNS = _measurement_schema.MEASUREMENT_STAMP_COLUMNS
 from .errors import RunLedger, ConfigurationError, raise_if_strict
 from .runctx import run_context, _DeferredOverloadRetries, _is_overload_failure
-from ._gpu_governor import _guarded
+from ._gpu_governor import _guarded, _path_scope
 from .resource_log import (_max_safe_workers, _ram_plan, _ram_reserve_bytes,
                            _ram_snapshot, _parallel_pool)
 from .resume import plan_measure_resume
@@ -9237,20 +9237,24 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
             role_order = [
                 'cell', 'nucleus', 'pathogen',
                 'organelle', *extra_organelle_masks, 'cytoplasm']
-            morphology = dict(zip(
-                role_order,
-                _morphological_measurements(
-                    cell_mask, nucleus_mask, pathogen_mask, organelle_mask,
-                    cytoplasm_mask, settings,
-                    extra_organelle_masks=extra_organelle_masks,
-                    channel_arrays=channel_arrays)))
-            intensities = dict(zip(
-                role_order,
-                _intensity_measurements(
-                    cell_mask, nucleus_mask, pathogen_mask, organelle_mask,
-                    cytoplasm_mask, channel_arrays, settings,
-                    sizes=[1, 2, 3, 4, 5], periphery=True, outside=True,
-                    extra_organelle_masks=extra_organelle_masks)))
+            with _path_scope() as compute:
+                morphology = dict(zip(
+                    role_order,
+                    _morphological_measurements(
+                        cell_mask, nucleus_mask, pathogen_mask, organelle_mask,
+                        cytoplasm_mask, settings,
+                        extra_organelle_masks=extra_organelle_masks,
+                        channel_arrays=channel_arrays)))
+                intensities = dict(zip(
+                    role_order,
+                    _intensity_measurements(
+                        cell_mask, nucleus_mask, pathogen_mask, organelle_mask,
+                        cytoplasm_mask, channel_arrays, settings,
+                        sizes=[1, 2, 3, 4, 5], periphery=True, outside=True,
+                        extra_organelle_masks=extra_organelle_masks)))
+            field_stamp = units_stamp
+            if settings.get('measure_gpu', False):
+                field_stamp = {**units_stamp, 'compute_path': compute.path}
 
             enabled = {
                 'cell': settings['cell_mask_dim'] is not None,
@@ -9265,7 +9269,7 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                     _merge_and_save_to_database(
                         morphology[role], intensities[role], role,
                         source_folder, file_name, settings['experiment'],
-                        settings['timelapse'], stamp=units_stamp,
+                        settings['timelapse'], stamp=field_stamp,
                         store=_measurement_store_for(
                             os.path.join(source_folder, 'measurements',
                                          'measurements.db'), settings))

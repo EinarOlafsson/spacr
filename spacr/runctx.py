@@ -1365,7 +1365,11 @@ class RunContext:
     :param gpu_memory: what the GPU memory governor did during the run: how
         many GPU items ran, how many batches were shrunk to fit, waited for,
         retried after an out-of-memory error, halved, sent to the CPU or
-        ramped back up. Filled when the run ends.
+        ramped back up, and how many items ran on the GPU and on the CPU.
+        Filled when the run ends.
+    :param compute_path: ``"gpu"`` or ``"cpu"`` when every governed GPU item
+        of the run took that path, ``"mixed"`` when some fell back to the
+        CPU, ``""`` when the run had none.
     """
 
     run_id: str
@@ -1381,6 +1385,7 @@ class RunContext:
     resource_artifact_id: str = ""
     _resource_sampler: Any = field(default=None, repr=False)
     gpu_memory: Dict[str, int] = field(default_factory=dict)
+    compute_path: str = ""
 
     @property
     def log(self) -> logging.Logger:
@@ -1505,6 +1510,7 @@ class RunContext:
             "resource_log_path": self.resource_log_path,
             "resource_artifact_id": self.resource_artifact_id,
             "gpu_memory": dict(self.gpu_memory),
+            "compute_path": self.compute_path,
             "skipped": [record.to_dict() for record in self.policy.skips],
             "seed_report": (self.seed_report.to_dict()
                             if self.seed_report else None),
@@ -1718,6 +1724,7 @@ def run_context(module: str = "",
                          identifier, time.time() - started, policy.n_skipped)
     finally:
         context.gpu_memory = _gpu_governor._counters_since(governor_start)
+        context.compute_path = _gpu_governor._compute_path(context.gpu_memory)
         governor_line = _gpu_governor._summary(context.gpu_memory)
         if governor_line:
             context.log.info("run %s: %s", identifier, governor_line)

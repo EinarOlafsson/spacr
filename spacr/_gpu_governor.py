@@ -17,11 +17,34 @@ that decides how much a spaCR GPU call may take:
 * after a run of clean items it doubles the batch again, up to the size the
   caller asked for;
 * ``gpu_memory_fraction`` sets a hard ceiling through
-  ``torch.cuda.set_per_process_memory_fraction``;
+  ``torch.cuda.set_per_process_memory_fraction``. That call caps the memory
+  PyTorch's caching allocator RESERVES, which is more than it has allocated
+  by the allocator's fragmentation, so every need and cap here is sized from
+  ``torch.cuda.max_memory_reserved`` and never below 1.5 times the allocated
+  peak; a ceiling set lower than what the work needs is raised, with a
+  message, rather than turning every larger item into an out-of-memory retry;
+* when CUDA has not been initialised yet and ``PYTORCH_CUDA_ALLOC_CONF`` is
+  unset, :func:`_configure` sets it to ``expandable_segments:True``, which
+  lets the allocator grow segments in place instead of reserving new ones,
+  so reserved memory stays close to allocated memory. An existing value is
+  never changed, and a process that already holds a CUDA context keeps the
+  allocator it has;
+* every process is counted with about 0.4 GB of CUDA context on top of what
+  its allocator reserves, in the ledger and in the budget;
 * a ledger file under the user cache directory records what every spaCR GPU
   process on the machine is using and about to claim, so a new job counts
   what the others are about to take and a running job shrinks while room is
   needed. Entries of processes that no longer exist are ignored;
+* while a site is adapting, a line such as ``[gpu] site=measure_intensity
+  items=200 shrinks=0 oom_retries=6 cpu_fallbacks=2 (1.0%)`` is printed
+  every 50 items or 60 seconds, and a warning when more than 3 % of a site's
+  items ran on the CPU;
+* every item's compute path (``gpu`` or ``cpu``) is recorded. Measure writes
+  it as a ``compute_path`` column on its object rows when ``measure_gpu`` is
+  on, and the run report says whether the run stayed on one path.
+  ``gpu_fallback_policy='pause'`` never falls back: an item that does not
+  fit even at batch size 1 waits for the GPU instead, so a run stays on one
+  path;
 * the shrink, wait, retry, fallback and ramp-up counts are summarised in the
   run log at the end of a run.
 
@@ -33,6 +56,8 @@ from __future__ import annotations
 
 import contextlib
 import json
+import logging
+import math
 import os
 import sys
 import tempfile
@@ -47,7 +72,10 @@ _DEFAULTS = {
     'gpu_memory_fraction': None,
     'gpu_memory_margin_gb': 1.5,
     'gpu_adaptive_batch': True,
+    'gpu_fallback_policy': 'per_item',
 }
+
+_FALLBACK_POLICIES = ('per_item', 'pause')
 
 _RETRIES_AT_ONE = 2
 _RAMP_AFTER = 8
@@ -56,9 +84,19 @@ _POLL_SECONDS = 2.0
 _LEDGER_FILE = 'gpu_ledger.json'
 _LEDGER_INTERVAL = 1.0
 _LEDGER_SLACK = 64 << 20
+_CONTEXT_BYTES = int(0.4 * (1 << 30))
+_HEADROOM = 1.5
+_REPORT_EVERY = 50
+_REPORT_SECONDS = 60.0
+_FALLBACK_WARN_RATE = 0.03
+_PAUSE_NOTICE_POLLS = 30
+_ALLOC_ENV = 'PYTORCH_CUDA_ALLOC_CONF'
+_ALLOC_VALUE = 'expandable_segments:True'
 
-_COUNTER_NAMES = ('items', 'shrinks', 'waits', 'oom_retries', 'halvings',
-                  'cpu_fallbacks', 'ramp_ups')
+_COUNTER_NAMES = ('items', 'gpu_items', 'cpu_items', 'shrinks', 'waits',
+                  'oom_retries', 'halvings', 'cpu_fallbacks', 'ramp_ups')
+
+_LOG = logging.getLogger('spacr.gpu')
 
 _sleep = time.sleep
 _monotonic = time.monotonic
@@ -67,6 +105,7 @@ _LOCK = threading.RLock()
 _STATE: Dict[str, Any] = {
     'config': dict(_DEFAULTS),
     'fractions': {},
+    'floors': {},
     'controllers': {},
 }
 _COUNTS: Counter = Counter()
@@ -75,9 +114,9 @@ _COUNTS: Counter = Counter()
 def _config(settings: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
     """Return the governor settings in force.
 
-    :param settings: run settings; any of the three governor keys they hold
+    :param settings: run settings; any of the four governor keys they hold
         override the process-wide values set by :func:`_configure`.
-    :returns: a dict with the three governor keys.
+    :returns: a dict with the four governor keys.
     """
     merged = dict(_STATE['config'])
     if isinstance(settings, Mapping):
@@ -88,11 +127,12 @@ def _config(settings: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
 
 
 def _normalised(values: Mapping[str, Any]) -> Dict[str, Any]:
-    """Coerce the three governor values, falling back to the defaults.
+    """Coerce the four governor values, falling back to the defaults.
 
     :param values: raw values, possibly from a settings file.
     :returns: the fraction as a float in (0, 1] or None, the margin as a
-        non-negative float and the switch as a bool.
+        non-negative float, the switch as a bool and the fallback policy as
+        ``'per_item'`` or ``'pause'``.
     """
     fraction = values.get('gpu_memory_fraction')
     try:
@@ -106,16 +146,23 @@ def _normalised(values: Mapping[str, Any]) -> Dict[str, Any]:
     except (TypeError, ValueError):
         margin = float(_DEFAULTS['gpu_memory_margin_gb'])
     adaptive = values.get('gpu_adaptive_batch', True) is not False
+    policy = str(values.get('gpu_fallback_policy') or 'per_item').strip()
+    if policy not in _FALLBACK_POLICIES:
+        policy = 'per_item'
     return {'gpu_memory_fraction': fraction, 'gpu_memory_margin_gb': margin,
-            'gpu_adaptive_batch': adaptive}
+            'gpu_adaptive_batch': adaptive, 'gpu_fallback_policy': policy}
 
 
 def _configure(settings: Optional[Mapping[str, Any]]) -> Dict[str, Any]:
     """Set the process-wide governor values from a run's settings.
 
+    Also prefers the expandable-segments allocator, see
+    :func:`_prefer_expandable_segments`.
+
     :param settings: the run settings; keys it lacks keep their defaults.
     :returns: the previous process-wide values, for :func:`_restore`.
     """
+    _prefer_expandable_segments()
     previous = dict(_STATE['config'])
     merged = dict(_DEFAULTS)
     if isinstance(settings, Mapping):
@@ -123,6 +170,42 @@ def _configure(settings: Optional[Mapping[str, Any]]) -> Dict[str, Any]:
                        if key in settings})
     _STATE['config'] = _normalised(merged)
     return previous
+
+
+def _nvidia_present() -> bool:
+    """Whether an NVIDIA driver is visible, asked without importing PyTorch."""
+    if os.environ.get('CUDA_VISIBLE_DEVICES', None) in ('', '-1'):
+        return False
+    if sys.platform == 'win32':
+        root = os.environ.get('SystemRoot', r'C:\Windows')
+        return os.path.exists(os.path.join(root, 'System32', 'nvcuda.dll'))
+    return os.path.exists('/proc/driver/nvidia/version')
+
+
+def _prefer_expandable_segments() -> bool:
+    """Set ``PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`` while it can work.
+
+    The allocator reads the variable once, when CUDA initialises, so it is
+    only set when no value is set already and CUDA has not been initialised
+    in this process. Child processes inherit it. On a machine without an
+    NVIDIA GPU nothing is set.
+
+    :returns: True when this call set the variable.
+    """
+    if (os.environ.get(_ALLOC_ENV, '').strip()
+            or os.environ.get('PYTORCH_ALLOC_CONF', '').strip()):
+        return False
+    torch = _torch()
+    if torch is not None:
+        try:
+            if not torch.cuda.is_available() or torch.cuda.is_initialized():
+                return False
+        except Exception:                                   # noqa: BLE001
+            return False
+    elif not _nvidia_present():
+        return False
+    os.environ[_ALLOC_ENV] = _ALLOC_VALUE
+    return True
 
 
 def _restore(previous: Mapping[str, Any]) -> None:
@@ -165,14 +248,85 @@ def _summary(counts: Mapping[str, int]) -> str:
     :param counts: counter gains, as :func:`_counters_since` returns them.
     """
     adapted = {name: int(counts.get(name, 0)) for name in _COUNTER_NAMES
-               if name != 'items'}
+               if name not in ('items', 'gpu_items', 'cpu_items')}
     if not any(adapted.values()):
         return ''
-    return ('GPU memory: {items} GPU items, {shrinks} batches shrunk to fit, '
-            '{waits} waits for free memory, {oom_retries} out-of-memory '
+    return ('GPU memory: {items} items ({gpu_items} on the GPU, {cpu_items} '
+            'on the CPU; compute path {path}), {shrinks} batches shrunk to '
+            'fit, {waits} waits for free memory, {oom_retries} out-of-memory '
             'retries ({halvings} halvings), {cpu_fallbacks} CPU fallbacks, '
             '{ramp_ups} ramp-ups').format(
-                items=int(counts.get('items', 0)), **adapted)
+                items=int(counts.get('items', 0)),
+                gpu_items=int(counts.get('gpu_items', 0)),
+                cpu_items=int(counts.get('cpu_items', 0)),
+                path=_compute_path(counts) or 'none', **adapted)
+
+
+def _compute_path(counts: Mapping[str, int]) -> str:
+    """``'gpu'``, ``'cpu'`` or ``'mixed'`` for a run's governed items, ``''`` for none.
+
+    :param counts: counter gains, as :func:`_counters_since` returns them.
+    """
+    on_gpu = int(counts.get('gpu_items', 0))
+    on_cpu = int(counts.get('cpu_items', 0))
+    if on_gpu and on_cpu:
+        return 'mixed'
+    if on_gpu:
+        return 'gpu'
+    if on_cpu:
+        return 'cpu'
+    return ''
+
+
+_PATHS = threading.local()
+
+
+class _PathRecord:
+    """The compute paths the governed calls inside one block took."""
+
+    def __init__(self):
+        """Start with no call recorded."""
+        self.paths = set()
+
+    @property
+    def path(self) -> str:
+        """``'gpu'`` or ``'cpu'`` when every call took one path, else ``'mixed'``.
+
+        A block with no governed call ran on the CPU.
+        """
+        if not self.paths:
+            return 'cpu'
+        if len(self.paths) == 1:
+            return next(iter(self.paths))
+        return 'mixed'
+
+
+@contextlib.contextmanager
+def _path_scope():
+    """Record the compute path of every governed call made inside the block.
+
+    Scopes nest; a call is recorded in every open scope of its thread.
+
+    :yields: a :class:`_PathRecord`.
+    """
+    record = _PathRecord()
+    stack = getattr(_PATHS, 'stack', None)
+    if stack is None:
+        stack = _PATHS.stack = []
+    stack.append(record)
+    try:
+        yield record
+    finally:
+        stack.remove(record)
+
+
+def _record_path(path: str) -> None:
+    """Note one governed call's compute path in the open scopes.
+
+    :param path: ``'gpu'`` or ``'cpu'``.
+    """
+    for record in getattr(_PATHS, 'stack', None) or ():
+        record.paths.add(path)
 
 
 def _is_oom(error: BaseException) -> bool:
@@ -266,6 +420,28 @@ def _allocated(index: int) -> tuple:
         return 0, 0
 
 
+def _reserved(index: int) -> tuple:
+    """``(reserved, peak reserved)`` bytes of this process's allocator on one device.
+
+    :param index: the CUDA device index.
+    :returns: two ints, zeros when PyTorch cannot say.
+    """
+    torch = _torch()
+    try:
+        return (int(torch.cuda.memory_reserved(index)),
+                int(torch.cuda.max_memory_reserved(index)))
+    except Exception:                                       # noqa: BLE001
+        return 0, 0
+
+
+def _held(index: int) -> int:
+    """Bytes this process holds on one device: reserved plus its CUDA context.
+
+    :param index: the CUDA device index.
+    """
+    return _reserved(index)[0] + _CONTEXT_BYTES
+
+
 def _release() -> None:
     """Return cached GPU blocks to the driver, for PyTorch and CuPy.
 
@@ -296,6 +472,7 @@ def _apply_fraction(index: Optional[int], config: Mapping[str, Any]) -> None:
     fraction = config.get('gpu_memory_fraction')
     if index is None or fraction is None:
         return
+    fraction = max(fraction, _STATE['floors'].get(index, 0.0))
     if _STATE['fractions'].get(index) == fraction:
         return
     torch = _torch()
@@ -306,6 +483,41 @@ def _apply_fraction(index: Optional[int], config: Mapping[str, Any]) -> None:
         print(f"[gpu] could not cap this process at {fraction:.2f} of "
               f"cuda:{index}: {error}")
         _STATE['fractions'][index] = fraction
+
+
+def _keep_headroom(index: Optional[int], config: Mapping[str, Any]) -> None:
+    """Raise a fraction ceiling that is below what the work has needed.
+
+    The work needs its reserved peak, and at least 1.5 times its allocated
+    peak; a ceiling under that makes every larger item fail and fall back.
+    The raised fraction is rounded up to the next hundredth.
+
+    :param index: the CUDA device index.
+    :param config: the governor values in force.
+    """
+    fraction = config.get('gpu_memory_fraction')
+    if index is None or fraction is None:
+        return
+    info = _memory(index)
+    if info is None or info[1] <= 0:
+        return
+    _now, peak_allocated = _allocated(index)
+    _held_now, peak_reserved = _reserved(index)
+    need = max(peak_reserved, _HEADROOM * peak_allocated)
+    current = max(fraction, _STATE['floors'].get(index, 0.0))
+    if need <= current * info[1]:
+        return
+    raised = min(1.0, math.ceil(need / float(info[1]) * 100.0) / 100.0)
+    if raised <= current:
+        return
+    _STATE['floors'][index] = raised
+    message = (f"[gpu] gpu_memory_fraction {fraction:.2f} is below what this "
+               f"work needs on cuda:{index} ({need / _GIB:.2f} GB: the "
+               f"reserved peak, and 1.5 times the allocated peak); raised to "
+               f"{raised:.2f} so larger items do not run out of memory")
+    print(message)
+    _LOG.warning(message)
+    _apply_fraction(index, config)
 
 
 def _cache_dir() -> str:
@@ -471,12 +683,18 @@ def _ledger_update(index: int, used: int = 0, want: int = 0,
 def _pending_elsewhere(others: Mapping[str, Any]) -> int:
     """Bytes other spaCR processes are about to allocate on top of what they hold.
 
+    A process whose entry holds less than a CUDA context is still to create
+    one, so the difference is counted too.
+
     :param others: entries from :func:`_ledger_update`.
     """
     pending = 0
     for entry in others.values():
         try:
-            pending += max(0, int(entry.get('want', 0)) - int(entry.get('used', 0)))
+            used = int(entry.get('used', 0))
+            pending += max(0, int(entry.get('want', 0)) - used)
+            if used < _CONTEXT_BYTES:
+                pending += _CONTEXT_BYTES - used
         except (TypeError, ValueError):
             continue
     return pending
@@ -596,6 +814,19 @@ class _BatchController:
         self.clean = 0
         self.per_unit = 0.0
         self._last_post = None
+        self.stats: Counter = Counter()
+        self._reported_items = 0
+        self._reported_at = _monotonic()
+        self._warned = False
+
+    def _note(self, name: str, amount: int = 1) -> None:
+        """Count an event for this site and for the run report.
+
+        :param name: one of the counter names.
+        :param amount: how much to add.
+        """
+        self.stats[name] += amount
+        _count(name, amount)
 
     def run(self, fn: Callable[[int], Any], requested: int, *,
             device: Any = None, cpu_fn: Optional[Callable[[int], Any]] = None,
@@ -608,7 +839,8 @@ class _BatchController:
         :param requested: the batch size the caller asked for.
         :param device: the CUDA device the work runs on; None for current.
         :param cpu_fn: does the same work on the CPU at a given batch size,
-            after the GPU failed at batch size 1.
+            after the GPU failed at batch size 1. Never called under
+            ``gpu_fallback_policy='pause'``.
         :param config: the governor values; :func:`_config` when omitted.
         :param on_retry: undoes what a failed attempt left behind, such as
             accumulated gradients, before the next attempt.
@@ -618,30 +850,39 @@ class _BatchController:
         requested = max(1, int(requested or 1))
         index = _device_index(device)
         _apply_fraction(index, config)
-        if index is None or not config['gpu_adaptive_batch']:
-            return fn(requested)
+        if index is None:
+            result = fn(requested)
+            _record_path('cpu')
+            return result
+        if not config['gpu_adaptive_batch']:
+            result = fn(requested)
+            _record_path('gpu')
+            return result
+        pause = config.get('gpu_fallback_policy') == 'pause'
         size = min(requested, self.cap or requested)
         size = self._fit(size, index, config)
         at_one = 0
         waited = 0.0
+        path = 'gpu'
         while True:
-            before, peak_before = _allocated(index)
-            self._post(index, want=int(self.per_unit * size) + before,
-                       used=before, config=config)
+            before = _allocated(index)
+            reserved_before = _reserved(index)
+            self._post(index, want=int(self.per_unit * size) + _held(index),
+                       used=_held(index), config=config)
             try:
                 result = fn(size)
             except BaseException as error:
                 if not _is_oom(error):
                     raise
                 _release()
-                _count('oom_retries')
+                self._note('oom_retries')
                 self.clean = 0
                 if on_retry is not None:
                     on_retry()
                 if size > 1:
                     size = max(1, size // 2)
                     self.cap = size
-                    _count('halvings')
+                    self._note('halvings')
                     print(f"[gpu] {self.site}: out of GPU memory; retrying "
                           f"the same item at batch size {size}")
                     continue
@@ -649,52 +890,117 @@ class _BatchController:
                 if at_one <= _RETRIES_AT_ONE:
                     _sleep(_POLL_SECONDS)
                     continue
+                if pause:
+                    self._note('waits')
+                    if at_one % _PAUSE_NOTICE_POLLS == _RETRIES_AT_ONE + 1:
+                        print(f"[gpu] {self.site}: out of GPU memory at batch "
+                              f"size 1; gpu_fallback_policy is 'pause', so "
+                              f"this item waits for the GPU instead of "
+                              f"running on the CPU")
+                    _sleep(_POLL_SECONDS)
+                    continue
                 if cpu_fn is not None:
-                    _count('cpu_fallbacks')
+                    self._note('cpu_fallbacks')
                     print(f"[gpu] {self.site}: out of GPU memory at batch "
                           f"size 1; running this item on the CPU")
                     result = cpu_fn(size)
+                    path = 'cpu'
                     break
                 if waited < _WAIT_SECONDS:
-                    _count('waits')
+                    self._note('waits')
                     _sleep(_POLL_SECONDS)
                     waited += _POLL_SECONDS
                     continue
                 raise
             else:
-                self._learn(index, size, before, peak_before)
-                _count('items')
+                self._learn(index, size, before, reserved_before)
                 self.clean += 1
                 if (self.cap is not None and self.cap < requested
                         and self.clean >= _RAMP_AFTER):
                     self.cap = min(requested, self.cap * 2)
                     self.clean = 0
-                    _count('ramp_ups')
+                    self._note('ramp_ups')
                     if self.cap >= requested:
                         self.cap = None
                 break
+        self._note('items')
+        self._note(f'{path}_items')
+        _record_path(path)
+        _keep_headroom(index, config)
         _release()
-        self._post(index, want=0, used=_allocated(index)[0], config=config)
+        self._post(index, want=0, used=_held(index), config=config)
+        self._report()
         return result
 
-    def _learn(self, index: int, size: int, before: int,
-               peak_before: int) -> None:
+    def _adapted(self) -> bool:
+        """Whether this site has shrunk, waited, retried or fallen back."""
+        return any(self.stats.get(name, 0) for name in
+                   ('shrinks', 'waits', 'oom_retries', 'cpu_fallbacks'))
+
+    def _report(self) -> None:
+        """Print the site's live line and the fallback warning when due.
+
+        The line comes every :data:`_REPORT_EVERY` items or
+        :data:`_REPORT_SECONDS` seconds while the site is adapting; the
+        warning once, when more than :data:`_FALLBACK_WARN_RATE` of the
+        site's items ran on the CPU.
+        """
+        items = int(self.stats.get('items', 0))
+        fallbacks = int(self.stats.get('cpu_fallbacks', 0))
+        rate = fallbacks / float(items) if items else 0.0
+        if (not self._warned and fallbacks
+                and rate > _FALLBACK_WARN_RATE):
+            self._warned = True
+            message = (
+                f"[gpu] WARNING site={self.site}: {rate:.1%} of items "
+                f"({fallbacks} of {items}) ran on the CPU because the GPU "
+                f"ran out of memory even at batch size 1. Measurements are "
+                f"slowing down, and this run now mixes GPU and CPU results "
+                f"(each item's compute_path is recorded). Free memory on the "
+                f"card, raise or clear gpu_memory_fraction, or set "
+                f"gpu_fallback_policy to 'pause' to wait for the GPU instead.")
+            print(message)
+            _LOG.warning(message)
+        if not self._adapted():
+            return
+        now = _monotonic()
+        if (items - self._reported_items < _REPORT_EVERY
+                and now - self._reported_at < _REPORT_SECONDS):
+            return
+        self._reported_items = items
+        self._reported_at = now
+        line = (f"[gpu] site={self.site} items={items} "
+                f"shrinks={int(self.stats.get('shrinks', 0))} "
+                f"oom_retries={int(self.stats.get('oom_retries', 0))} "
+                f"cpu_fallbacks={fallbacks} ({rate:.1%})")
+        print(line)
+        _LOG.info(line)
+
+    def _learn(self, index: int, size: int, before: tuple,
+               reserved_before: tuple) -> None:
         """Estimate the memory one batch unit takes from the last call.
 
-        The peak counter is read, never reset, so other readers of it keep
-        their figure. A call that raised the peak measured its own need
-        exactly. One that did not only bounds it from above, so that bound
-        is used only while there is no estimate yet.
+        The need is what the caching allocator reserved for the call, not
+        what it allocated: the per-process cap applies to reserved memory,
+        which includes the allocator's fragmentation. It is never taken
+        below 1.5 times the allocated growth. Peak counters are read, never
+        reset, so other readers of them keep their figure. A call that
+        raised a peak measured its own need; one that did not only bounds it
+        from above, so that bound is used only while there is no estimate.
 
         :param index: the CUDA device index.
         :param size: the batch size that ran.
-        :param before: bytes allocated before the call.
-        :param peak_before: the peak allocation before the call.
+        :param before: ``(allocated, peak allocated)`` before the call.
+        :param reserved_before: ``(reserved, peak reserved)`` before the call.
         """
         _now, peak = _allocated(index)
-        if peak <= peak_before and self.per_unit > 0:
+        _held_now, peak_reserved = _reserved(index)
+        raised = peak > before[1] or peak_reserved > reserved_before[1]
+        if not raised and self.per_unit > 0:
             return
-        used = max(peak, peak_before) - before
+        allocated = max(peak, before[1]) - before[0]
+        reserved = max(peak_reserved, reserved_before[1]) - reserved_before[0]
+        used = max(reserved, _HEADROOM * allocated)
         if used > 0:
             self.per_unit = used / float(max(1, size))
 
@@ -702,7 +1008,9 @@ class _BatchController:
         """Bytes this site may still allocate on one device, or None if unknown.
 
         Free memory, less the margin, less what other spaCR processes have
-        said they are about to take, and no more than the fraction ceiling.
+        said they are about to take (with a CUDA context for any that has
+        none yet), and no more than the fraction ceiling less what this
+        process's allocator has reserved.
 
         :param index: the CUDA device index.
         :param config: the governor values.
@@ -711,13 +1019,13 @@ class _BatchController:
         if info is None:
             return None
         free, total = info
-        others = self._post(index, want=0, used=_allocated(index)[0],
-                            config=config)
+        others = self._post(index, want=0, used=_held(index), config=config)
         budget = (free - config['gpu_memory_margin_gb'] * _GIB
                   - _pending_elsewhere(others))
         fraction = config.get('gpu_memory_fraction')
         if fraction is not None:
-            budget = min(budget, fraction * total - _allocated(index)[0])
+            fraction = max(fraction, _STATE['floors'].get(index, 0.0))
+            budget = min(budget, fraction * total - _reserved(index)[0])
         return float(budget)
 
     def _fit(self, size: int, index: int, config: Mapping[str, Any]) -> int:
@@ -944,5 +1252,6 @@ def _reset() -> None:
     with _LOCK:
         _STATE['controllers'].clear()
         _STATE['fractions'].clear()
+        _STATE['floors'].clear()
         _STATE['config'] = dict(_DEFAULTS)
         _COUNTS.clear()

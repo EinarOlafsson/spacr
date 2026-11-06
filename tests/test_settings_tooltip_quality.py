@@ -1293,11 +1293,12 @@ if app_key == "mask":
     for app, key in diameter_and_class_arrivals:
         assert resolve_default_settings(app)[key] == diameter_and_class_defaults[key]
     recognized_arrivals |= diameter_and_class_arrivals
-    # Item 803: the GPU memory governor's ceiling, margin and switch, each
-    # with one default claim equal to the value every module resolves.
+    # Item 803: the GPU memory governor's ceiling, margin, switch and
+    # fallback policy, each claim equal to the value every module resolves.
     governor_defaults = {"gpu_memory_fraction": None,
                          "gpu_memory_margin_gb": 1.5,
-                         "gpu_adaptive_batch": True}
+                         "gpu_adaptive_batch": True,
+                         "gpu_fallback_policy": "per_item"}
     governor_arrivals = {pair for pair in compared_pairs
                          if pair[1] in governor_defaults}
     assert {app for app, _key in governor_arrivals} >= {"mask", "measure"}

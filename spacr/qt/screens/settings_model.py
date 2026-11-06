@@ -2624,7 +2624,7 @@ def _categories_for_app_uncached(app_key, categories, plugin_app):
 
             "GPU Memory α": [
                 "gpu_memory_fraction", "gpu_memory_margin_gb",
-                "gpu_adaptive_batch"],
+                "gpu_adaptive_batch", "gpu_fallback_policy"],
         }
         if app_key == "classify_merged":
             ordered["Model & Regularization"] = [
@@ -3084,7 +3084,8 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "How much of a shared GPU this run may take: an optional hard "
         "ceiling, the memory kept free for other jobs, and batches that "
         "shrink, retry at half size or move to the CPU instead of stopping "
-        "the run when the card is full.",
+        "the run when the card is full, or wait for the GPU so the run "
+        "stays on one compute path.",
     "PROFILING Α":
         "Image-based profiling after Measure: one profile per well from the "
         "object tables, annotated from a plate map, normalised per plate "

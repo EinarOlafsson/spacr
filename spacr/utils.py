@@ -2793,6 +2793,8 @@ def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folde
             without guessing. ``None`` writes no stamp columns, which keeps a
             direct caller's schema exactly as it was, and is treated as 2-D/px
             by the compatibility check.
+            A ``compute_path`` key (``gpu``, ``cpu`` or ``mixed``, from a GPU
+            measurement run) is written as a ``compute_path`` column as well.
         :raises MeasurementUnitsMismatch: when ``table_type`` already holds
             rows measured in other units.
         :raises spacr.schema.ObjectTableSchemaError: when a cell, cytoplasm,
@@ -2837,6 +2839,8 @@ def _merge_and_save_to_database(morph_df, intensity_df, table_type, source_folde
         if stamp:
             for col in MEASUREMENT_STAMP_COLUMNS:
                 merged_df[col] = stamp.get(col)
+            if 'compute_path' in stamp:
+                merged_df['compute_path'] = stamp['compute_path']
         if timelapse:
             merged_df[['plateID', 'rowID', 'columnID', 'fieldID', 'timeID', 'prcf']] = merged_df['file_name'].apply(lambda x: pd.Series(_map_wells(x, timelapse)))
         else:
