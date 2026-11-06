@@ -2703,45 +2703,43 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
 
         items = []
         chans = [c for c in channels if object_types(df, [c])]
-        for k, chan in enumerate(chans):
-            objs = object_types(df, [chan])
-            data = well_intensity_long(df, group, chan, objs)
-            for obj in objs:
-                hv(f"{obj}_ch{chan}_intensity", f"{obj} ch{chan} intensity", version,
-                   data[data["object_type"] == obj], "mean_intensity")
-            spec = grouped_spec(data, group, order, objs, title="",
-                                ylabel=f"mean intensity ch {chan}", labels=labels)
-            spec.update(axis=axis, no_stats=True, context=context)
+        objs_all = object_types(df, chans)
+
+        def control(pname, unit, col, ylabel, text, size, first):
+            spec = bar_spec(unit, col, group, order, title="", ylabel=ylabel, labels=labels, palette=palette)
+            spec.update(axis=axis, parts=parts, bracket_pairs=bracket_pairs, context=context)
             pid = next_id()
-            folders[pid] = save_spec_panel(panels_dir, pid, f"channel_{chan}_all_objects_{version}",
-                                           spec, dpi=dpi)
-            items += spec_items(pid, spec, max_conditions_per_row, layout, group_size=len(chans),
-                                new_row=k == 0)
-            legend.append(_control_legend(pid, spec, f"Mean intensity of channel {chan} per well in every "
-                                                     f"object type ({', '.join(objs)}), {version} objects; "
-                                                     f"a log axis is used when object means differ more "
-                                                     f"than 30-fold."))
+            folders[pid] = save_spec_panel(panels_dir, pid, pname, spec, dpi=dpi)
+            got = spec_items(pid, spec, max_conditions_per_row, layout, group_size=size, new_row=first)
+            legend.append(_spec_legend(pid, spec, text, "wells (each the mean of its objects)"))
+            return got
+
+        for obj in objs_all:
+            row_ch = [c for c in chans if f"{obj}_channel_{c}_mean_intensity" in df.columns]
+            for k, chan in enumerate(row_ch):
+                col = f"{obj}_channel_{chan}_mean_intensity"
+                unit = aggregate_to_unit(df, col, [group])
+                hv(f"{obj}_ch{chan}_intensity", f"{obj} ch{chan} intensity", version, unit, col)
+                items += control(f"{obj}_channel_{chan}_intensity_{version}", unit, col,
+                                 f"{obj} ch{chan} intensity",
+                                 f"Mean intensity of channel {chan} in the {obj} per well, {version} objects.",
+                                 len(chans), k == 0)
+        area_objs = [o for o in object_types(df) if f"{o}_area" in df.columns]
+        for k, obj in enumerate(area_objs):
+            unit = aggregate_to_unit(df, f"{obj}_area", [group])
+            hv(f"{obj}_area", f"{obj} area", version, unit, f"{obj}_area")
+            items += control(f"{obj}_area_{version}", unit, f"{obj}_area", f"{obj} area (px)",
+                             f"Mean {obj} area (px) per well, {version} objects.", len(area_objs), k == 0)
         if count_objects is not None:
             count_types = [o for o in count_objects if o != "cytoplasm"]
         elif db_tables:
             count_types = list(db_tables)
         else:
-            count_types = [o for o in object_types(df, channels) if o != "cytoplasm"]
+            count_types = [o for o in objs_all if o != "cytoplasm"]
         db_counts = None
         if version == "unfiltered" and db_tables:
             db_counts = db_well_counts(db_path, df, group, [t for t in count_types if t in db_tables])
-        row_b = []
-        area_objs = [o for o in object_types(df) if f"{o}_area" in df.columns]
-        if area_objs:
-            data = well_column_long(df, group, {o: f"{o}_area" for o in area_objs}, "mean_area")
-            for obj in area_objs:
-                hv(f"{obj}_area", f"{obj} area", version, data[data["object_type"] == obj], "mean_area")
-            spec = grouped_spec(data, group, order, area_objs, value="mean_area", title="",
-                                ylabel="mean area (px)", labels=labels, log_ratio=10.0)
-            row_b.append((f"object_area_{version}", spec,
-                          f"Mean area (px) of every object type ({', '.join(area_objs)}) per well, "
-                          f"{version} objects; a log axis is used when object means differ more than "
-                          f"10-fold."))
+        count_row = []
         for obj in count_types:
             if db_counts is not None and obj in set(db_counts["object_type"]):
                 data = db_counts[db_counts["object_type"] == obj].drop(columns=["object_type"])
@@ -2750,32 +2748,24 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
             if not len(data):
                 continue
             hv(f"{obj}_count", f"{obj} per well", version, data, "objects_per_well")
-            spec = bar_spec(data, "objects_per_well", group, order, title="",
-                            ylabel=f"{obj} per well", labels=labels, palette=palette)
             src = str(data["count_source"].iloc[0])
             how = (f"rows per well in the {src.split()[-1]} table of measurements.db (every "
                    f"segmented object, before any filter)" if src.startswith("measurements.db") else
                    "rows of the analysed table (one per host cell)" if src == "rows" else
                    f"the sum of {src} (objects of this type merged into each analysed host cell)"
                    if src.endswith("_prcfo_count") else f"analysed host cells with a {src} value")
-            row_b.append((f"{obj}_objects_per_well_{version}", spec,
-                          f"{obj} objects per well, {version}, counted as {how}."))
+            count_row.append((f"{obj}_objects_per_well_{version}", data, "objects_per_well",
+                              f"{obj} per well", f"{obj} objects per well, {version}, counted as {how}."))
         load_col = "pathogen_prcfo_count"
         if load_col in df.columns:
             unit = aggregate_to_unit(df, load_col, [group]).rename(columns={load_col: "pathogens_per_host_cell"})
             hv("pathogens_per_host_cell", "pathogens per host cell", version, unit, "pathogens_per_host_cell")
-            spec = bar_spec(unit, "pathogens_per_host_cell", group, order, title="",
-                            ylabel="pathogens per host cell", labels=labels, palette=palette)
-            row_b.append((f"pathogens_per_host_cell_{version}", spec,
-                          f"Infection load: mean number of pathogen objects per analysed host cell "
-                          f"(pathogen_prcfo_count) per well, {version} objects."))
-        for k, (pname, spec, text) in enumerate(row_b):
-            spec.update(axis=axis, no_stats=True, context=context)
-            pid = next_id()
-            folders[pid] = save_spec_panel(panels_dir, pid, pname, spec, dpi=dpi)
-            items += spec_items(pid, spec, max_conditions_per_row, layout, group_size=len(row_b),
-                                new_row=k == 0)
-            legend.append(_control_legend(pid, spec, text))
+            count_row.append((f"pathogens_per_host_cell_{version}", unit, "pathogens_per_host_cell",
+                              "pathogens per host cell",
+                              f"Infection load: mean number of pathogen objects per analysed host cell "
+                              f"(pathogen_prcfo_count) per well, {version} objects."))
+        for k, (pname, unit, col, ylabel, text) in enumerate(count_row):
+            items += control(pname, unit, col, ylabel, text, len(count_row), k == 0)
         add_block(items, grp="controls")
 
         legend.append("Filters. Unfiltered: spaCR output after the standard object filters. Filtered: "
@@ -2787,7 +2777,7 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
                       "variance: one-way ANOVA + Tukey HSD; normal with unequal variance: Welch ANOVA + "
                       "Games-Howell; otherwise Kruskal-Wallis + Dunn test (Holm). Brackets mark "
                       "significant post hoc pairs (* p < 0.05, ** p < 0.01, *** p < 0.001, **** "
-                      "p < 0.0001). Control graphs show means ± SD of wells without tests. Each panel "
+                      "p < 0.0001). Control graphs are tested the same way, one test per graph. Each panel "
                       "folder holds data.csv (exactly the plotted values) and stats.csv.")
         add_block(text_items([f"Figure legend ({version} data)."] + legend, layout))
         figure_blocks[version] = blocks

@@ -219,7 +219,7 @@ def test_analyze_recruitment_report_end_to_end(tmp_path):
     assert names[:5] == ["R01_tiles_filtered",
                          "R02_recruitment_filtered_well", "R02_recruitment_filtered_well_crops",
                          "R03_recruitment_filtered_replicate", "R03_recruitment_filtered_replicate_crops"]
-    assert "R04_channel_0_all_objects_filtered" in names
+    assert "R04_cell_channel_0_intensity_filtered" in names
     assert not any("representative_per_condition" in p for p in names)
     tiles = rep / "panels" / "R01_tiles_filtered"
     for v in ("merged", "mono", "outlines"):
@@ -237,20 +237,22 @@ def test_analyze_recruitment_report_end_to_end(tmp_path):
     assert pd.read_csv(rep / "panels" / filt / "data.csv")["n_objects"].sum() == len(cells)
     reps = pd.read_csv(rep / "panels" / "R03_recruitment_filtered_replicate" / "data.csv")
     assert len(reps) == 4 and "n_wells" in reps.columns
-    ctrl = [p for p in names if "objects" in p or "area" in p or "per_host" in p]
-    assert sum("all_objects_unfiltered" in p for p in ctrl) == 4
-    assert sum("all_objects_filtered" in p for p in ctrl) == 4
+    ctrl = [p for p in names if "intensity" in p or "objects" in p or "area" in p or "per_host" in p]
+    # one panel per object type x channel: 4 object types x channels 0, 1, 3 and 2
+    assert sum(p.endswith("_intensity_unfiltered") for p in ctrl) == 16
+    assert sum(p.endswith("_intensity_filtered") for p in ctrl) == 16
+    assert sum(p.endswith("_area_filtered") for p in ctrl) == 4
     before = pd.read_csv(rep / "panels" / [p for p in ctrl if "cell_objects_per_well_unfiltered" in p][0]
                          / "data.csv")
     assert set(before["count_source"]) == {"measurements.db table cell"}
     after = pd.read_csv(rep / "panels" / [p for p in ctrl if "pathogen_objects_per_well_filtered" in p][0]
                         / "data.csv")
     assert set(after["count_source"]) == {"pathogen_prcfo_count"}
-    # controls carry no statistics: descriptive (and outlier) tables only
+    # controls are tested again, one test per panel
     for p in ctrl:
         st = pd.read_csv(rep / "panels" / p / "stats.csv")
-        assert set(st["table"]) <= {"descriptive", "outliers"}
-    assert "No statistical test (control)" in legend
+        assert "test" in set(st["table"])
+    assert "Control graphs are tested the same way" in legend
 
 
 def test_tiles_skip_cells_without_a_vacuole_or_with_one_at_the_field_edge():
