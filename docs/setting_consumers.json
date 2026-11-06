@@ -348,7 +348,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "adjust_covariates",
-    "line": 1246,
+    "line": 1288,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_well_density_columns_needed"
@@ -357,7 +357,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "adjust_covariates",
-    "line": 1808,
+    "line": 1865,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -377,7 +377,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "adjust_log_outcome",
-    "line": 1838,
+    "line": 1895,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -386,7 +386,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "adjust_log_outcome",
-    "line": 1839,
+    "line": 1896,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -395,7 +395,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "adjust_log_outcome",
-    "line": 1846,
+    "line": 1903,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -404,7 +404,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "adjust_log_outcome",
-    "line": 1847,
+    "line": 1904,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -900,7 +900,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "analysis_mode",
-    "line": 9835,
+    "line": 9841,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._it_will_permute"
@@ -1679,7 +1679,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "annotation_column",
-    "line": 2802,
+    "line": 2859,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "count_phenotypes"
@@ -1688,7 +1688,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "annotation_column",
-    "line": 2803,
+    "line": 2860,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "count_phenotypes"
@@ -1697,7 +1697,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "annotation_column",
-    "line": 2805,
+    "line": 2862,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "count_phenotypes"
@@ -2053,7 +2053,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "background_correction",
-    "line": 4902,
+    "line": 4959,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -2062,7 +2062,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "background_correction",
-    "line": 6203,
+    "line": 6260,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -3268,7 +3268,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "bimodality_cutoff",
-    "line": 4910,
+    "line": 4967,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -3277,7 +3277,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "bimodality_cutoff",
-    "line": 5336,
+    "line": 5393,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_invasion_field_thresholds"
@@ -3286,7 +3286,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "bimodality_cutoff",
-    "line": 5558,
+    "line": 5615,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_invasion_well_table"
@@ -3306,7 +3306,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "bin_labels",
-    "line": 1540,
+    "line": 1597,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_replication_panels"
@@ -4036,25 +4036,25 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_chann_dim",
-    "line": 1733,
-    "module": "spacr.submodules",
-    "nested": false,
-    "qualname": "analyze_recruitment"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "cell_chann_dim",
-    "line": 1778,
-    "module": "spacr.submodules",
-    "nested": false,
-    "qualname": "analyze_recruitment"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "cell_chann_dim",
     "line": 1790,
+    "module": "spacr.submodules",
+    "nested": false,
+    "qualname": "analyze_recruitment"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "cell_chann_dim",
+    "line": 1835,
+    "module": "spacr.submodules",
+    "nested": false,
+    "qualname": "analyze_recruitment"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "cell_chann_dim",
+    "line": 1847,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -4991,7 +4991,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_intensity_range",
-    "line": 1791,
+    "line": 1848,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -5770,7 +5770,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_plate_metadata",
-    "line": 1729,
+    "line": 1786,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -5779,7 +5779,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cell_plate_metadata",
-    "line": 1744,
+    "line": 1801,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -5788,7 +5788,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_plate_metadata",
-    "line": 1746,
+    "line": 1803,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -5797,7 +5797,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cell_plate_metadata",
-    "line": 3609,
+    "line": 3666,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -5806,7 +5806,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_plate_metadata",
-    "line": 3612,
+    "line": 3669,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -5815,7 +5815,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_plate_metadata",
-    "line": 3869,
+    "line": 3926,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_replication_defaults"
@@ -5824,7 +5824,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cell_plate_metadata",
-    "line": 4682,
+    "line": 4739,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -5833,7 +5833,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_plate_metadata",
-    "line": 4685,
+    "line": 4742,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -5842,7 +5842,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cell_plate_metadata",
-    "line": 4786,
+    "line": 4843,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -5851,7 +5851,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_plate_metadata",
-    "line": 4789,
+    "line": 4846,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -5860,7 +5860,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_plate_metadata",
-    "line": 4921,
+    "line": 4978,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -5869,7 +5869,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cell_plate_metadata",
-    "line": 6274,
+    "line": 6331,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -5878,7 +5878,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_plate_metadata",
-    "line": 6277,
+    "line": 6334,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -5887,7 +5887,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cell_plate_metadata",
-    "line": 6326,
+    "line": 6383,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -5896,7 +5896,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_plate_metadata",
-    "line": 6329,
+    "line": 6386,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -5905,7 +5905,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cell_plate_metadata",
-    "line": 6471,
+    "line": 6528,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -5914,7 +5914,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_plate_metadata",
-    "line": 6474,
+    "line": 6531,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -6010,7 +6010,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_size_range",
-    "line": 1762,
+    "line": 1819,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -6019,7 +6019,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_size_range",
-    "line": 1763,
+    "line": 1820,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -6028,7 +6028,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_size_range",
-    "line": 1791,
+    "line": 1848,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -6111,7 +6111,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_types",
-    "line": 1289,
+    "line": 1331,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_plate_map_condition_order"
@@ -6120,7 +6120,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_types",
-    "line": 1729,
+    "line": 1786,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -6129,7 +6129,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cell_types",
-    "line": 1744,
+    "line": 1801,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -6138,7 +6138,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_types",
-    "line": 1745,
+    "line": 1802,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -6147,7 +6147,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cell_types",
-    "line": 3609,
+    "line": 3666,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -6156,7 +6156,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_types",
-    "line": 3611,
+    "line": 3668,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -6165,7 +6165,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_types",
-    "line": 3868,
+    "line": 3925,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_replication_defaults"
@@ -6174,7 +6174,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cell_types",
-    "line": 4682,
+    "line": 4739,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -6183,7 +6183,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_types",
-    "line": 4684,
+    "line": 4741,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -6192,7 +6192,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cell_types",
-    "line": 4786,
+    "line": 4843,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -6201,7 +6201,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_types",
-    "line": 4788,
+    "line": 4845,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -6210,7 +6210,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cell_types",
-    "line": 4920,
+    "line": 4977,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -6219,7 +6219,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cell_types",
-    "line": 6274,
+    "line": 6331,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -6228,7 +6228,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_types",
-    "line": 6276,
+    "line": 6333,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -6237,7 +6237,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cell_types",
-    "line": 6326,
+    "line": 6383,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -6246,7 +6246,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_types",
-    "line": 6328,
+    "line": 6385,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -6255,7 +6255,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cell_types",
-    "line": 6471,
+    "line": 6528,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -6264,7 +6264,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_types",
-    "line": 6473,
+    "line": 6530,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -6694,7 +6694,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cellpose_diameter",
-    "line": 1189,
+    "line": 1190,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_objects"
@@ -6992,7 +6992,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cells_per_well",
-    "line": 1855,
+    "line": 1912,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -7001,7 +7001,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cells_per_well",
-    "line": 1859,
+    "line": 1916,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -7010,7 +7010,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cells_per_well",
-    "line": 1861,
+    "line": 1918,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -7048,7 +7048,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "change_plate",
-    "line": 3589,
+    "line": 3646,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -7057,7 +7057,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "change_plate",
-    "line": 3595,
+    "line": 3652,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -7066,7 +7066,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "change_plate",
-    "line": 3636,
+    "line": 3693,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -7075,7 +7075,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "change_plate",
-    "line": 3876,
+    "line": 3933,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_replication_defaults"
@@ -7084,7 +7084,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "change_plate",
-    "line": 4634,
+    "line": 4691,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -7093,7 +7093,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "change_plate",
-    "line": 4644,
+    "line": 4701,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -7102,7 +7102,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "change_plate",
-    "line": 4769,
+    "line": 4826,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -7111,7 +7111,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "change_plate",
-    "line": 4928,
+    "line": 4985,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -7120,7 +7120,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "change_plate",
-    "line": 6146,
+    "line": 6203,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -7129,7 +7129,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "change_plate",
-    "line": 6156,
+    "line": 6213,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -7207,7 +7207,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "channel_dims",
-    "line": 1345,
+    "line": 1389,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_recruitment_control_specs"
@@ -7216,7 +7216,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channel_dims",
-    "line": 1777,
+    "line": 1834,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -7225,7 +7225,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channel_dims",
-    "line": 1802,
+    "line": 1859,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -7326,19 +7326,10 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channel_of_interest",
-    "line": 1346,
+    "line": 1390,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_recruitment_control_specs"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "channel_of_interest",
-    "line": 1736,
-    "module": "spacr.submodules",
-    "nested": false,
-    "qualname": "analyze_recruitment"
    },
    {
     "form": "subscript",
@@ -7353,7 +7344,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channel_of_interest",
-    "line": 1794,
+    "line": 1850,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -7362,7 +7353,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channel_of_interest",
-    "line": 1800,
+    "line": 1851,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -7371,7 +7362,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channel_of_interest",
-    "line": 1800,
+    "line": 1857,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -7380,7 +7371,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channel_of_interest",
-    "line": 1802,
+    "line": 1857,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -7389,7 +7380,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channel_of_interest",
-    "line": 1871,
+    "line": 1859,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -7398,7 +7389,16 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channel_of_interest",
-    "line": 1873,
+    "line": 1928,
+    "module": "spacr.submodules",
+    "nested": false,
+    "qualname": "analyze_recruitment"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "channel_of_interest",
+    "line": 1930,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -8048,7 +8048,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "channels",
-    "line": 3387,
+    "line": 3444,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -8057,7 +8057,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 3387,
+    "line": 3444,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -8292,7 +8292,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "class_column",
-    "line": 3621,
+    "line": 3678,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -8301,7 +8301,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "class_column",
-    "line": 6486,
+    "line": 6543,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -8310,7 +8310,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "class_column",
-    "line": 6489,
+    "line": 6546,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -8319,7 +8319,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "class_column",
-    "line": 6493,
+    "line": 6550,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -8328,7 +8328,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "class_column",
-    "line": 6493,
+    "line": 6550,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -8337,7 +8337,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "class_column",
-    "line": 6496,
+    "line": 6553,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -8346,7 +8346,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "class_column",
-    "line": 6496,
+    "line": 6553,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -8355,7 +8355,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "class_column",
-    "line": 6517,
+    "line": 6574,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -8364,7 +8364,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "class_column",
-    "line": 6517,
+    "line": 6574,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -8373,7 +8373,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "class_column",
-    "line": 6525,
+    "line": 6582,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -8382,7 +8382,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "class_column",
-    "line": 6526,
+    "line": 6583,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -8391,7 +8391,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "class_column",
-    "line": 6535,
+    "line": 6592,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -8400,7 +8400,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "class_column",
-    "line": 6537,
+    "line": 6594,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -8658,7 +8658,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "classes",
-    "line": 13864,
+    "line": 13870,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._migrate_control_wells"
@@ -8667,7 +8667,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "classes",
-    "line": 13875,
+    "line": 13881,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._migrate_control_wells"
@@ -9276,7 +9276,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cmap",
-    "line": 3664,
+    "line": 3721,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -9285,7 +9285,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cmap",
-    "line": 3667,
+    "line": 3724,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -9294,7 +9294,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cmap",
-    "line": 3877,
+    "line": 3934,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_replication_defaults"
@@ -9303,7 +9303,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cmap",
-    "line": 4815,
+    "line": 4872,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -9312,7 +9312,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cmap",
-    "line": 4817,
+    "line": 4874,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -9321,7 +9321,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cmap",
-    "line": 4820,
+    "line": 4877,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -9330,7 +9330,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cmap",
-    "line": 4822,
+    "line": 4879,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -9339,7 +9339,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cmap",
-    "line": 4930,
+    "line": 4987,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -9348,7 +9348,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cmap",
-    "line": 6354,
+    "line": 6411,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -9357,7 +9357,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cmap",
-    "line": 6356,
+    "line": 6413,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -9366,7 +9366,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cmap",
-    "line": 6359,
+    "line": 6416,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -9375,7 +9375,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cmap",
-    "line": 6361,
+    "line": 6418,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -9384,7 +9384,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "cmap",
-    "line": 6364,
+    "line": 6421,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -9393,7 +9393,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cmap",
-    "line": 6366,
+    "line": 6423,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -9402,7 +9402,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cmap",
-    "line": 6760,
+    "line": 6817,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "generate_score_heatmap"
@@ -9606,7 +9606,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "colony_counting",
-    "line": 11091,
+    "line": 11097,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_plaque_model_download"
@@ -9642,7 +9642,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "colony_counting",
-    "line": 2329,
+    "line": 2386,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_plaques"
@@ -9680,7 +9680,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "colony_detector",
-    "line": 2619,
+    "line": 2676,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_analyze_colony_plates"
@@ -9689,7 +9689,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "colony_detector",
-    "line": 2620,
+    "line": 2677,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_analyze_colony_plates"
@@ -9698,7 +9698,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "colony_detector",
-    "line": 2621,
+    "line": 2678,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_analyze_colony_plates"
@@ -9707,7 +9707,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "colony_detector",
-    "line": 2627,
+    "line": 2684,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_analyze_colony_plates"
@@ -9754,7 +9754,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "colony_dilution",
-    "line": 2614,
+    "line": 2671,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_analyze_colony_plates"
@@ -9763,7 +9763,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "colony_dilution",
-    "line": 2614,
+    "line": 2671,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_analyze_colony_plates"
@@ -9959,7 +9959,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "columnID",
-    "line": 6751,
+    "line": 6808,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "generate_score_heatmap"
@@ -9968,7 +9968,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "columnID",
-    "line": 6752,
+    "line": 6809,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "generate_score_heatmap"
@@ -9977,7 +9977,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "columnID",
-    "line": 6756,
+    "line": 6813,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "generate_score_heatmap"
@@ -9986,7 +9986,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "columnID",
-    "line": 6760,
+    "line": 6817,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "generate_score_heatmap"
@@ -10174,7 +10174,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "compartment",
-    "line": 3598,
+    "line": 3655,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -10183,7 +10183,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "compartment",
-    "line": 3635,
+    "line": 3692,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -10192,7 +10192,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "compartment",
-    "line": 3649,
+    "line": 3706,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -10201,7 +10201,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "compartment",
-    "line": 3659,
+    "line": 3716,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -10210,7 +10210,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "compartment",
-    "line": 3857,
+    "line": 3914,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_replication_defaults"
@@ -10219,7 +10219,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "compartment",
-    "line": 4600,
+    "line": 4657,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -10228,7 +10228,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "compartment",
-    "line": 4626,
+    "line": 4683,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -10237,7 +10237,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "compartment",
-    "line": 4898,
+    "line": 4955,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -10246,7 +10246,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "compartment",
-    "line": 6131,
+    "line": 6188,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -10324,7 +10324,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "condition_labels",
-    "line": 1049,
+    "line": 1055,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_panel_labels"
@@ -10371,7 +10371,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "condition_order",
-    "line": 1323,
+    "line": 1366,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_recruitment_control_specs"
@@ -10400,7 +10400,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "confirm_annotations",
-    "line": 2754,
+    "line": 2811,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_analyze_plaque_figures"
@@ -10718,7 +10718,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "confounder_covariates",
-    "line": 1245,
+    "line": 1287,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_well_density_columns_needed"
@@ -10727,7 +10727,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "confounder_covariates",
-    "line": 1807,
+    "line": 1864,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -10747,7 +10747,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "confounder_filter",
-    "line": 1244,
+    "line": 1286,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_well_density_columns_needed"
@@ -10756,7 +10756,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "confounder_filter",
-    "line": 1255,
+    "line": 1297,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_recruitment_new_filters"
@@ -10765,7 +10765,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "confounder_filter",
-    "line": 1275,
+    "line": 1317,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_recruitment_new_filters"
@@ -10774,7 +10774,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "confounder_filter",
-    "line": 1276,
+    "line": 1318,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_recruitment_new_filters"
@@ -10814,7 +10814,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "control_color_by",
-    "line": 1328,
+    "line": 1371,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_recruitment_control_specs"
@@ -10834,7 +10834,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "control_quantile",
-    "line": 4906,
+    "line": 4963,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -10843,7 +10843,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "control_quantile",
-    "line": 6234,
+    "line": 6291,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -10852,7 +10852,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "control_quantile",
-    "line": 6245,
+    "line": 6302,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -10863,7 +10863,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "control_sgrnas",
-    "line": 6752,
+    "line": 6809,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "generate_score_heatmap"
@@ -10995,7 +10995,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "count_data",
-    "line": 14187,
+    "line": 14193,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "_first_count_file"
@@ -11894,7 +11894,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "csv",
-    "line": 6752,
+    "line": 6809,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "generate_score_heatmap"
@@ -11905,7 +11905,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "csv_name",
-    "line": 6751,
+    "line": 6808,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "generate_score_heatmap"
@@ -11934,7 +11934,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "custom_model",
-    "line": 2336,
+    "line": 2393,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_plaques"
@@ -11943,7 +11943,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "custom_model",
-    "line": 2337,
+    "line": 2394,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_plaques"
@@ -12300,7 +12300,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cv_csv",
-    "line": 6756,
+    "line": 6813,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "generate_score_heatmap"
@@ -12965,7 +12965,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "data_column",
-    "line": 6751,
+    "line": 6808,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "generate_score_heatmap"
@@ -12976,7 +12976,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "data_column_cv",
-    "line": 6756,
+    "line": 6813,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "generate_score_heatmap"
@@ -12985,7 +12985,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "data_column_cv",
-    "line": 6757,
+    "line": 6814,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "generate_score_heatmap"
@@ -13234,7 +13234,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "db_path",
-    "line": 10145,
+    "line": 10149,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "add_column_to_database"
@@ -14355,7 +14355,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "dst",
-    "line": 2348,
+    "line": 2405,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_plaques"
@@ -14364,7 +14364,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "dst",
-    "line": 2352,
+    "line": 2409,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_plaques"
@@ -14373,7 +14373,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "dst",
-    "line": 2354,
+    "line": 2411,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_plaques"
@@ -14382,7 +14382,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "dst",
-    "line": 2555,
+    "line": 2612,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_segment_plaque_folder"
@@ -14391,7 +14391,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "dst",
-    "line": 6765,
+    "line": 6822,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "generate_score_heatmap"
@@ -14400,7 +14400,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "dst",
-    "line": 6766,
+    "line": 6823,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "generate_score_heatmap"
@@ -14409,7 +14409,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "dst",
-    "line": 6767,
+    "line": 6824,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "generate_score_heatmap"
@@ -14418,7 +14418,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "dst",
-    "line": 6768,
+    "line": 6825,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "generate_score_heatmap"
@@ -14447,7 +14447,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "dst_root",
-    "line": 2783,
+    "line": 2784,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -15575,7 +15575,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "exclude_edge_objects",
-    "line": 1254,
+    "line": 1296,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_recruitment_new_filters"
@@ -15584,7 +15584,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "exclude_edge_objects",
-    "line": 1271,
+    "line": 1313,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_recruitment_new_filters"
@@ -15593,7 +15593,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "exclude_edge_objects",
-    "line": 1419,
+    "line": 1468,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_replication_filters_active"
@@ -15602,7 +15602,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "exclude_edge_objects",
-    "line": 1459,
+    "line": 1508,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_replication_filters"
@@ -15611,7 +15611,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "exclude_edge_objects",
-    "line": 4761,
+    "line": 4818,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -15837,7 +15837,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "export_vvvv",
-    "line": 9632,
+    "line": 9638,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -15875,7 +15875,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "extracellular_class",
-    "line": 4918,
+    "line": 4975,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -15884,7 +15884,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "extracellular_class",
-    "line": 6135,
+    "line": 6192,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -15893,7 +15893,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "extracellular_class",
-    "line": 6139,
+    "line": 6196,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -15902,7 +15902,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "extracellular_class",
-    "line": 6266,
+    "line": 6323,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -15911,7 +15911,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "extracellular_class",
-    "line": 6299,
+    "line": 6356,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -16140,7 +16140,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "feature_importance",
-    "line": 3360,
+    "line": 3417,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -16149,7 +16149,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "feature_importance",
-    "line": 3368,
+    "line": 3425,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -16198,7 +16198,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "field_qc",
-    "line": 1419,
+    "line": 1468,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_replication_filters_active"
@@ -16207,7 +16207,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "field_qc",
-    "line": 1438,
+    "line": 1487,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_replication_filters"
@@ -16216,7 +16216,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "field_qc",
-    "line": 1811,
+    "line": 1868,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -16225,7 +16225,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "field_qc",
-    "line": 1821,
+    "line": 1878,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -16234,7 +16234,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "field_qc",
-    "line": 1822,
+    "line": 1879,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -16243,7 +16243,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "field_qc",
-    "line": 1825,
+    "line": 1882,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -16263,7 +16263,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "field_qc_columns",
-    "line": 1814,
+    "line": 1871,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -16272,7 +16272,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "field_qc_columns",
-    "line": 1816,
+    "line": 1873,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -16301,7 +16301,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "field_qc_mad",
-    "line": 1447,
+    "line": 1496,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_replication_filters"
@@ -16310,7 +16310,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "field_qc_mad",
-    "line": 1447,
+    "line": 1496,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_replication_filters"
@@ -16319,7 +16319,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "field_qc_mad",
-    "line": 1814,
+    "line": 1871,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -16328,7 +16328,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "field_qc_mad",
-    "line": 1815,
+    "line": 1872,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -16348,7 +16348,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "field_qc_max_pathogens_per_cell",
-    "line": 1814,
+    "line": 1871,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -16357,7 +16357,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "field_qc_max_pathogens_per_cell",
-    "line": 1818,
+    "line": 1875,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -16377,7 +16377,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "field_qc_min_cells",
-    "line": 1814,
+    "line": 1871,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -16386,7 +16386,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "field_qc_min_cells",
-    "line": 1817,
+    "line": 1874,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -16406,7 +16406,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "field_qc_min_objects",
-    "line": 1447,
+    "line": 1496,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_replication_filters"
@@ -16415,7 +16415,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "field_qc_min_objects",
-    "line": 1449,
+    "line": 1498,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_replication_filters"
@@ -16473,7 +16473,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "figure_confidence",
-    "line": 2753,
+    "line": 2810,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_analyze_plaque_figures"
@@ -16520,7 +16520,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "figure_detector",
-    "line": 2733,
+    "line": 2790,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_analyze_plaque_figures"
@@ -16567,7 +16567,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "figure_imgsz",
-    "line": 2736,
+    "line": 2793,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_analyze_plaque_figures"
@@ -16605,7 +16605,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "figure_read_text",
-    "line": 2738,
+    "line": 2795,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_analyze_plaque_figures"
@@ -16634,7 +16634,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "figures",
-    "line": 1396,
+    "line": 1440,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_recruitment_panels"
@@ -16643,7 +16643,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "figures",
-    "line": 1559,
+    "line": 1616,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_replication_panels"
@@ -16780,7 +16780,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "figuresize",
-    "line": 1871,
+    "line": 1928,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -16789,7 +16789,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "figuresize",
-    "line": 1871,
+    "line": 1928,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -16798,7 +16798,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "figuresize",
-    "line": 1873,
+    "line": 1930,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -16807,7 +16807,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "figuresize",
-    "line": 1873,
+    "line": 1930,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -17546,7 +17546,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "folders",
-    "line": 6751,
+    "line": 6808,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "generate_score_heatmap"
@@ -17604,7 +17604,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "fraction_grna",
-    "line": 6753,
+    "line": 6810,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "generate_score_heatmap"
@@ -17859,7 +17859,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "genotype_source",
-    "line": 2777,
+    "line": 2778,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -17924,7 +17924,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "gpu",
-    "line": 6723,
+    "line": 6727,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "_choose_model"
@@ -18312,7 +18312,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "grna_statistic",
-    "line": 9870,
+    "line": 9876,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._say_what_the_permutation_will_do"
@@ -18350,7 +18350,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "group_by_class",
-    "line": 3619,
+    "line": 3676,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -18359,7 +18359,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "group_by_class",
-    "line": 4595,
+    "line": 4652,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -18406,7 +18406,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "group_column",
-    "line": 1523,
+    "line": 1580,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_replication_panels"
@@ -18415,7 +18415,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "group_column",
-    "line": 3623,
+    "line": 3680,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -18424,7 +18424,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "group_column",
-    "line": 3625,
+    "line": 3682,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -18433,7 +18433,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "group_column",
-    "line": 3628,
+    "line": 3685,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -18442,7 +18442,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "group_column",
-    "line": 3632,
+    "line": 3689,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -18451,7 +18451,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "group_column",
-    "line": 3665,
+    "line": 3722,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -18460,7 +18460,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "group_column",
-    "line": 3874,
+    "line": 3931,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_replication_defaults"
@@ -18469,7 +18469,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "group_column",
-    "line": 4595,
+    "line": 4652,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -18478,7 +18478,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "group_column",
-    "line": 4692,
+    "line": 4749,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -18487,7 +18487,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "group_column",
-    "line": 4926,
+    "line": 4983,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -18496,7 +18496,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "group_column",
-    "line": 6133,
+    "line": 6190,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -18505,7 +18505,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "group_column",
-    "line": 6481,
+    "line": 6538,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -18514,7 +18514,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "group_column",
-    "line": 6482,
+    "line": 6539,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -18523,7 +18523,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "group_column",
-    "line": 6496,
+    "line": 6553,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -18532,7 +18532,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "group_column",
-    "line": 6525,
+    "line": 6582,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -18541,7 +18541,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "group_column",
-    "line": 6526,
+    "line": 6583,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -18550,7 +18550,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "group_column",
-    "line": 6535,
+    "line": 6592,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -18559,7 +18559,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "group_column",
-    "line": 6537,
+    "line": 6594,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -18870,7 +18870,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "guide_permutation_block",
-    "line": 9871,
+    "line": 9877,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._say_what_the_permutation_will_do"
@@ -18964,7 +18964,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "guide_permutations",
-    "line": 9853,
+    "line": 9859,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._say_what_the_permutation_will_do"
@@ -21063,7 +21063,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "include_all",
-    "line": 3386,
+    "line": 3443,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -21072,7 +21072,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "include_all",
-    "line": 3386,
+    "line": 3443,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -21081,7 +21081,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "include_all",
-    "line": 3387,
+    "line": 3444,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -21090,7 +21090,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "include_all",
-    "line": 3387,
+    "line": 3444,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -22108,7 +22108,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "inference",
-    "line": 9834,
+    "line": 9840,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._it_will_permute"
@@ -22317,7 +22317,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "inflation_warn",
-    "line": 4913,
+    "line": 4970,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -22326,7 +22326,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "inflation_warn",
-    "line": 5561,
+    "line": 5618,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_invasion_well_table"
@@ -22824,7 +22824,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "intensity_statistic",
-    "line": 4901,
+    "line": 4958,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -22833,7 +22833,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "intensity_statistic",
-    "line": 6200,
+    "line": 6257,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -23717,7 +23717,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "learning_rate",
-    "line": 7550,
+    "line": 7554,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "reduction_and_clustering"
@@ -23773,7 +23773,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "level",
-    "line": 9869,
+    "line": 9875,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._say_what_the_permutation_will_do"
@@ -23782,7 +23782,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "level",
-    "line": 9922,
+    "line": 9928,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._announce_the_fit"
@@ -23917,7 +23917,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "level",
-    "line": 3657,
+    "line": 3714,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -23926,7 +23926,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "level",
-    "line": 3664,
+    "line": 3721,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -23935,7 +23935,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "level",
-    "line": 3667,
+    "line": 3724,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -23944,7 +23944,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "level",
-    "line": 3875,
+    "line": 3932,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_replication_defaults"
@@ -23953,7 +23953,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "level",
-    "line": 4813,
+    "line": 4870,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -23962,7 +23962,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "level",
-    "line": 4820,
+    "line": 4877,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -23971,7 +23971,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "level",
-    "line": 4822,
+    "line": 4879,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -23980,7 +23980,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "level",
-    "line": 4927,
+    "line": 4984,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -23989,7 +23989,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "level",
-    "line": 6346,
+    "line": 6403,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -23998,7 +23998,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "level",
-    "line": 6359,
+    "line": 6416,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -24007,7 +24007,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "level",
-    "line": 6361,
+    "line": 6418,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -24016,7 +24016,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "level",
-    "line": 6496,
+    "line": 6553,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -24025,7 +24025,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "level",
-    "line": 6496,
+    "line": 6553,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -24735,7 +24735,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "masks",
-    "line": 2350,
+    "line": 2407,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_plaques"
@@ -24755,7 +24755,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "max_area",
-    "line": 3607,
+    "line": 3664,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -24775,7 +24775,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "max_area_quantile",
-    "line": 1420,
+    "line": 1469,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_replication_filters_active"
@@ -24784,7 +24784,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "max_area_quantile",
-    "line": 1463,
+    "line": 1512,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_replication_filters"
@@ -24793,7 +24793,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "max_area_quantile",
-    "line": 4766,
+    "line": 4823,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -24813,7 +24813,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "max_bins",
-    "line": 3651,
+    "line": 3708,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -24927,7 +24927,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "max_parasite_area",
-    "line": 3863,
+    "line": 3920,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_replication_defaults"
@@ -24936,7 +24936,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "max_parasite_area",
-    "line": 4665,
+    "line": 4722,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -24945,7 +24945,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "max_parasite_area",
-    "line": 4666,
+    "line": 4723,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -24954,7 +24954,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "max_parasite_area",
-    "line": 4916,
+    "line": 4973,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -24963,7 +24963,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "max_parasite_area",
-    "line": 6177,
+    "line": 6234,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -24972,7 +24972,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "max_parasite_area",
-    "line": 6178,
+    "line": 6235,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -25001,7 +25001,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "max_parasites_per_vacuole",
-    "line": 3864,
+    "line": 3921,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_replication_defaults"
@@ -25010,7 +25010,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "max_parasites_per_vacuole",
-    "line": 4628,
+    "line": 4685,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -25019,7 +25019,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "max_parasites_per_vacuole",
-    "line": 4746,
+    "line": 4803,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -25059,7 +25059,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "max_vacuoles_per_cell",
-    "line": 1253,
+    "line": 1295,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_recruitment_new_filters"
@@ -25068,7 +25068,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "max_vacuoles_per_cell",
-    "line": 1263,
+    "line": 1305,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_recruitment_new_filters"
@@ -25077,7 +25077,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "max_vacuoles_per_cell",
-    "line": 1264,
+    "line": 1306,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_recruitment_new_filters"
@@ -26146,7 +26146,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "min_area_bin",
-    "line": 3599,
+    "line": 3656,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -26285,7 +26285,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "min_control_objects",
-    "line": 4907,
+    "line": 4964,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -26294,7 +26294,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "min_control_objects",
-    "line": 6232,
+    "line": 6289,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -26303,7 +26303,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "min_control_objects",
-    "line": 6239,
+    "line": 6296,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -26408,7 +26408,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "min_objects_for_bimodality",
-    "line": 4909,
+    "line": 4966,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -26417,7 +26417,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "min_objects_for_bimodality",
-    "line": 5337,
+    "line": 5394,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_invasion_field_thresholds"
@@ -26426,7 +26426,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "min_objects_for_bimodality",
-    "line": 5559,
+    "line": 5616,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_invasion_well_table"
@@ -26446,7 +26446,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "min_objects_for_threshold",
-    "line": 4908,
+    "line": 4965,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -26455,7 +26455,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "min_objects_for_threshold",
-    "line": 5334,
+    "line": 5391,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_invasion_field_thresholds"
@@ -26504,7 +26504,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "min_parasite_area",
-    "line": 3862,
+    "line": 3919,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_replication_defaults"
@@ -26513,7 +26513,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "min_parasite_area",
-    "line": 4663,
+    "line": 4720,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -26522,7 +26522,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "min_parasite_area",
-    "line": 4664,
+    "line": 4721,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -26531,7 +26531,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "min_parasite_area",
-    "line": 4915,
+    "line": 4972,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -26540,7 +26540,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "min_parasite_area",
-    "line": 6175,
+    "line": 6232,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -26549,7 +26549,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "min_parasite_area",
-    "line": 6176,
+    "line": 6233,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -26578,7 +26578,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "min_parasites_per_well",
-    "line": 4914,
+    "line": 4971,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -26587,7 +26587,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "min_parasites_per_well",
-    "line": 5562,
+    "line": 5619,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_invasion_well_table"
@@ -26683,7 +26683,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "min_total_intensity",
-    "line": 4917,
+    "line": 4974,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -26692,7 +26692,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "min_total_intensity",
-    "line": 6180,
+    "line": 6237,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -26701,7 +26701,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "min_total_intensity",
-    "line": 6189,
+    "line": 6246,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -26768,7 +26768,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "minimum_object_size",
-    "line": 2709,
+    "line": 2766,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_segment_figure_crop"
@@ -26777,7 +26777,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "minimum_object_size",
-    "line": 2751,
+    "line": 2808,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_analyze_plaque_figures"
@@ -27804,7 +27804,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "multiple_testing_method",
-    "line": 12783,
+    "line": 12789,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_refit"
@@ -28437,7 +28437,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 11235,
+    "line": 11241,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -28446,7 +28446,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 11238,
+    "line": 11244,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -28455,7 +28455,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 11251,
+    "line": 11257,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -28581,7 +28581,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 3361,
+    "line": 3418,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -28590,7 +28590,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 3361,
+    "line": 3418,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -28599,7 +28599,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 3394,
+    "line": 3451,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -28608,7 +28608,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 3394,
+    "line": 3451,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -28617,7 +28617,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 3422,
+    "line": 3479,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -28626,7 +28626,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 3422,
+    "line": 3479,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -28644,7 +28644,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_jobs",
-    "line": 7555,
+    "line": 7559,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "reduction_and_clustering"
@@ -28754,7 +28754,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_neighbors",
-    "line": 7570,
+    "line": 7574,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "reduction_and_clustering"
@@ -28763,7 +28763,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_neighbors",
-    "line": 7586,
+    "line": 7590,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "reduction_and_clustering"
@@ -28772,7 +28772,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_neighbors",
-    "line": 7587,
+    "line": 7591,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "reduction_and_clustering"
@@ -28823,7 +28823,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_workers",
-    "line": 1823,
+    "line": 1824,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_decode"
@@ -28832,7 +28832,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_workers",
-    "line": 2375,
+    "line": 2376,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -29202,7 +29202,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "non_power_of_two_warn",
-    "line": 3867,
+    "line": 3924,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_replication_defaults"
@@ -29211,7 +29211,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "non_power_of_two_warn",
-    "line": 4800,
+    "line": 4857,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -29220,7 +29220,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "non_power_of_two_warn",
-    "line": 4802,
+    "line": 4859,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -29229,7 +29229,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "non_power_of_two_warn",
-    "line": 4805,
+    "line": 4862,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -29238,7 +29238,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "non_power_of_two_warn",
-    "line": 4807,
+    "line": 4864,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -29247,7 +29247,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "non_power_of_two_warn",
-    "line": 4873,
+    "line": 4930,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -29741,7 +29741,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "normalize",
-    "line": 11058,
+    "line": 11064,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._crop_choice_warnings"
@@ -30372,7 +30372,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "nuclei_limit",
-    "line": 1738,
+    "line": 1795,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -30381,7 +30381,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nuclei_limit",
-    "line": 1741,
+    "line": 1798,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -30390,7 +30390,7 @@
     "form": "keyword",
     "function_depth": 2,
     "key": "nuclei_limit",
-    "line": 3283,
+    "line": 3340,
     "module": "spacr.submodules",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -30399,7 +30399,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "nuclei_limit",
-    "line": 3287,
+    "line": 3344,
     "module": "spacr.submodules",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -30408,7 +30408,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "nuclei_limit",
-    "line": 3589,
+    "line": 3646,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -30417,7 +30417,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nuclei_limit",
-    "line": 3593,
+    "line": 3650,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -30426,7 +30426,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "nuclei_limit",
-    "line": 6463,
+    "line": 6520,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -30435,7 +30435,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nuclei_limit",
-    "line": 6467,
+    "line": 6524,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -30614,7 +30614,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_chann_dim",
-    "line": 1733,
+    "line": 1790,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -30623,7 +30623,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_chann_dim",
-    "line": 1779,
+    "line": 1836,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -30632,7 +30632,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_chann_dim",
-    "line": 1795,
+    "line": 1852,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -31245,7 +31245,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_intensity_range",
-    "line": 1796,
+    "line": 1853,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -31837,7 +31837,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_size_range",
-    "line": 1764,
+    "line": 1821,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -31846,7 +31846,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_size_range",
-    "line": 1765,
+    "line": 1822,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -31855,7 +31855,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "nucleus_size_range",
-    "line": 1796,
+    "line": 1853,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -32317,7 +32317,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_base_channels",
-    "line": 713,
+    "line": 714,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_base_channels"
@@ -32337,7 +32337,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_bootstrap",
-    "line": 2669,
+    "line": 2670,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_aggregate"
@@ -32357,7 +32357,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cell_rule",
-    "line": 1705,
+    "line": 1706,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_cell_rule"
@@ -32377,7 +32377,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_channel_registration",
-    "line": 1797,
+    "line": 1798,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_decode"
@@ -32397,7 +32397,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_control_prefix",
-    "line": 2622,
+    "line": 2623,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_aggregate"
@@ -32417,7 +32417,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_crosstalk",
-    "line": 1793,
+    "line": 1794,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_decode"
@@ -32437,7 +32437,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_design",
-    "line": 2617,
+    "line": 2618,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_aggregate"
@@ -32457,7 +32457,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_footprint",
-    "line": 1789,
+    "line": 1790,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_decode"
@@ -32477,7 +32477,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_gpu",
-    "line": 2794,
+    "line": 2795,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -32497,7 +32497,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_library",
-    "line": 2798,
+    "line": 2799,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -32515,7 +32515,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ops_library",
-    "line": 4271,
+    "line": 4276,
     "module": "spacr.qt.widgets.home",
     "nested": false,
     "qualname": "_easy_specialized_inputs"
@@ -32526,7 +32526,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_merge_threshold",
-    "line": 2464,
+    "line": 2465,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_merge"
@@ -32546,7 +32546,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_min_fraction",
-    "line": 1718,
+    "line": 1719,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_cell_rule"
@@ -32566,7 +32566,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_min_reads",
-    "line": 1715,
+    "line": 1716,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_cell_rule"
@@ -32586,7 +32586,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_mitotic_dna_z",
-    "line": 2656,
+    "line": 2657,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_aggregate"
@@ -32606,7 +32606,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_batch_size",
-    "line": 2203,
+    "line": 2204,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_segment_field"
@@ -32734,7 +32734,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_cell_channel",
-    "line": 2205,
+    "line": 2206,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_segment_field"
@@ -32954,7 +32954,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_cell_model",
-    "line": 2342,
+    "line": 2343,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -32963,7 +32963,7 @@
     "form": "helper-key",
     "function_depth": 1,
     "key": "ops_ph_cell_model",
-    "line": 2345,
+    "line": 2346,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -32983,7 +32983,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_channels",
-    "line": 2108,
+    "line": 2109,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_channels"
@@ -33003,7 +33003,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_downsample",
-    "line": 2201,
+    "line": 2202,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_segment_field"
@@ -33178,7 +33178,7 @@
     "form": "helper-key",
     "function_depth": 1,
     "key": "ops_ph_nucleus_model",
-    "line": 2340,
+    "line": 2341,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -33187,7 +33187,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_nucleus_model",
-    "line": 2343,
+    "line": 2344,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -33207,7 +33207,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_sites",
-    "line": 2307,
+    "line": 2308,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -33227,7 +33227,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_ph_texture",
-    "line": 2372,
+    "line": 2373,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_ph_fields"
@@ -33247,7 +33247,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_raster_overlap",
-    "line": 612,
+    "line": 613,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_stitch"
@@ -33267,7 +33267,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_read_mismatches",
-    "line": 1713,
+    "line": 1714,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_cell_rule"
@@ -33287,7 +33287,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_read_threshold",
-    "line": 1786,
+    "line": 1787,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_decode"
@@ -33307,7 +33307,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_single_read_quality",
-    "line": 1884,
+    "line": 1885,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_decode"
@@ -33327,7 +33327,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_spot_detector",
-    "line": 1358,
+    "line": 1359,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_spot_detector"
@@ -33347,7 +33347,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_store_reads",
-    "line": 1791,
+    "line": 1792,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_decode"
@@ -33367,7 +33367,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_window_overlap",
-    "line": 1192,
+    "line": 1193,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_objects"
@@ -38725,7 +38725,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "outline_palette",
-    "line": 1776,
+    "line": 1833,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -38734,7 +38734,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "outline_palette",
-    "line": 1785,
+    "line": 1842,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -38978,7 +38978,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "outside_channel",
-    "line": 4899,
+    "line": 4956,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -38987,7 +38987,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "outside_channel",
-    "line": 6199,
+    "line": 6256,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -38996,7 +38996,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "outside_channel",
-    "line": 6202,
+    "line": 6259,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -39034,7 +39034,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "outside_threshold",
-    "line": 4904,
+    "line": 4961,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -39043,7 +39043,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "outside_threshold",
-    "line": 5335,
+    "line": 5392,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_invasion_field_thresholds"
@@ -39052,7 +39052,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "outside_threshold",
-    "line": 6250,
+    "line": 6307,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -39072,7 +39072,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "outside_threshold_method",
-    "line": 4903,
+    "line": 4960,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -39081,7 +39081,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "outside_threshold_method",
-    "line": 5333,
+    "line": 5390,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_invasion_field_thresholds"
@@ -40618,7 +40618,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 14182,
+    "line": 14188,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "_first_count_file"
@@ -40701,7 +40701,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "panels",
-    "line": 1247,
+    "line": 1289,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_well_density_columns_needed"
@@ -40710,7 +40710,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "panels",
-    "line": 1256,
+    "line": 1298,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_recruitment_new_filters"
@@ -40719,7 +40719,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "panels",
-    "line": 1381,
+    "line": 1425,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_recruitment_panels"
@@ -40728,7 +40728,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "panels",
-    "line": 1518,
+    "line": 1575,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_replication_panels"
@@ -40737,7 +40737,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "panels",
-    "line": 1867,
+    "line": 1924,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -40746,7 +40746,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "panels",
-    "line": 4599,
+    "line": 4656,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -40755,7 +40755,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "panels",
-    "line": 4730,
+    "line": 4787,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -40764,7 +40764,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "panels",
-    "line": 4733,
+    "line": 4790,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -40773,7 +40773,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "panels",
-    "line": 4843,
+    "line": 4900,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -40793,7 +40793,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "parasite_count_column",
-    "line": 3861,
+    "line": 3918,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_replication_defaults"
@@ -40802,7 +40802,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "parasite_count_column",
-    "line": 4715,
+    "line": 4772,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -40811,7 +40811,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "parasite_count_column",
-    "line": 4716,
+    "line": 4773,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -40840,7 +40840,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "parasite_table",
-    "line": 3856,
+    "line": 3913,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_replication_defaults"
@@ -40849,7 +40849,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "parasite_table",
-    "line": 4627,
+    "line": 4684,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -40858,7 +40858,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "parasite_table",
-    "line": 4897,
+    "line": 4954,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -40867,7 +40867,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "parasite_table",
-    "line": 6132,
+    "line": 6189,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -41093,7 +41093,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_chann_dim",
-    "line": 1733,
+    "line": 1790,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -41102,7 +41102,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_chann_dim",
-    "line": 1780,
+    "line": 1837,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -41111,7 +41111,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_chann_dim",
-    "line": 1797,
+    "line": 1854,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -41695,7 +41695,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_intensity_range",
-    "line": 1798,
+    "line": 1855,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -41895,7 +41895,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "pathogen_limit",
-    "line": 1738,
+    "line": 1795,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -41904,7 +41904,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_limit",
-    "line": 1742,
+    "line": 1799,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -41913,7 +41913,7 @@
     "form": "keyword",
     "function_depth": 2,
     "key": "pathogen_limit",
-    "line": 3283,
+    "line": 3340,
     "module": "spacr.submodules",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -41922,7 +41922,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "pathogen_limit",
-    "line": 3288,
+    "line": 3345,
     "module": "spacr.submodules",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -41931,7 +41931,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "pathogen_limit",
-    "line": 3589,
+    "line": 3646,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -41940,7 +41940,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_limit",
-    "line": 3594,
+    "line": 3651,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -41949,7 +41949,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "pathogen_limit",
-    "line": 6463,
+    "line": 6520,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -41958,7 +41958,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_limit",
-    "line": 6468,
+    "line": 6525,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -42685,7 +42685,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_plate_metadata",
-    "line": 1730,
+    "line": 1787,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -42694,7 +42694,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "pathogen_plate_metadata",
-    "line": 1744,
+    "line": 1801,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -42703,7 +42703,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_plate_metadata",
-    "line": 1748,
+    "line": 1805,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -42712,7 +42712,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "pathogen_plate_metadata",
-    "line": 3609,
+    "line": 3666,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -42721,7 +42721,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_plate_metadata",
-    "line": 3614,
+    "line": 3671,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -42730,7 +42730,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_plate_metadata",
-    "line": 3871,
+    "line": 3928,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_replication_defaults"
@@ -42739,7 +42739,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "pathogen_plate_metadata",
-    "line": 4682,
+    "line": 4739,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -42748,7 +42748,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_plate_metadata",
-    "line": 4687,
+    "line": 4744,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -42757,7 +42757,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "pathogen_plate_metadata",
-    "line": 4786,
+    "line": 4843,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -42766,7 +42766,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_plate_metadata",
-    "line": 4791,
+    "line": 4848,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -42775,7 +42775,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_plate_metadata",
-    "line": 4923,
+    "line": 4980,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -42784,43 +42784,43 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "pathogen_plate_metadata",
-    "line": 6274,
-    "module": "spacr.submodules",
-    "nested": false,
-    "qualname": "analyze_invasion"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "pathogen_plate_metadata",
-    "line": 6279,
-    "module": "spacr.submodules",
-    "nested": false,
-    "qualname": "analyze_invasion"
-   },
-   {
-    "form": "keyword",
-    "function_depth": 1,
-    "key": "pathogen_plate_metadata",
-    "line": 6326,
-    "module": "spacr.submodules",
-    "nested": false,
-    "qualname": "analyze_invasion"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "pathogen_plate_metadata",
     "line": 6331,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
    },
    {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "pathogen_plate_metadata",
+    "line": 6336,
+    "module": "spacr.submodules",
+    "nested": false,
+    "qualname": "analyze_invasion"
+   },
+   {
     "form": "keyword",
     "function_depth": 1,
     "key": "pathogen_plate_metadata",
-    "line": 6471,
+    "line": 6383,
+    "module": "spacr.submodules",
+    "nested": false,
+    "qualname": "analyze_invasion"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "pathogen_plate_metadata",
+    "line": 6388,
+    "module": "spacr.submodules",
+    "nested": false,
+    "qualname": "analyze_invasion"
+   },
+   {
+    "form": "keyword",
+    "function_depth": 1,
+    "key": "pathogen_plate_metadata",
+    "line": 6528,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -42829,7 +42829,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_plate_metadata",
-    "line": 6476,
+    "line": 6533,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -42925,7 +42925,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_size_range",
-    "line": 1766,
+    "line": 1823,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -42934,7 +42934,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_size_range",
-    "line": 1767,
+    "line": 1824,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -42943,7 +42943,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_size_range",
-    "line": 1798,
+    "line": 1855,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -43026,7 +43026,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_types",
-    "line": 1290,
+    "line": 1332,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_plate_map_condition_order"
@@ -43035,7 +43035,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_types",
-    "line": 1730,
+    "line": 1787,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -43044,7 +43044,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "pathogen_types",
-    "line": 1744,
+    "line": 1801,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -43053,7 +43053,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_types",
-    "line": 1747,
+    "line": 1804,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -43062,7 +43062,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "pathogen_types",
-    "line": 3609,
+    "line": 3666,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -43071,7 +43071,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_types",
-    "line": 3613,
+    "line": 3670,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -43080,7 +43080,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_types",
-    "line": 3870,
+    "line": 3927,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_replication_defaults"
@@ -43089,7 +43089,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "pathogen_types",
-    "line": 4682,
+    "line": 4739,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -43098,7 +43098,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_types",
-    "line": 4686,
+    "line": 4743,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -43107,7 +43107,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "pathogen_types",
-    "line": 4786,
+    "line": 4843,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -43116,7 +43116,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_types",
-    "line": 4790,
+    "line": 4847,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -43125,7 +43125,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pathogen_types",
-    "line": 4922,
+    "line": 4979,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -43134,7 +43134,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "pathogen_types",
-    "line": 6274,
+    "line": 6331,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -43143,7 +43143,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_types",
-    "line": 6278,
+    "line": 6335,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -43152,7 +43152,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "pathogen_types",
-    "line": 6326,
+    "line": 6383,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -43161,7 +43161,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_types",
-    "line": 6330,
+    "line": 6387,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -43170,7 +43170,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "pathogen_types",
-    "line": 6471,
+    "line": 6528,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -43179,7 +43179,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "pathogen_types",
-    "line": 6475,
+    "line": 6532,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -43459,7 +43459,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "permutation_importance",
-    "line": 3360,
+    "line": 3417,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -43468,7 +43468,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "permutation_importance",
-    "line": 3392,
+    "line": 3449,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -43479,7 +43479,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "phenotype_source",
-    "line": 2824,
+    "line": 2825,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -43497,7 +43497,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "phenotype_source",
-    "line": 4262,
+    "line": 4267,
     "module": "spacr.qt.widgets.home",
     "nested": false,
     "qualname": "_easy_specialized_inputs"
@@ -43739,7 +43739,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plaque_estimate_growth",
-    "line": 2454,
+    "line": 2511,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_plaques"
@@ -43768,7 +43768,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plaque_formation_hours",
-    "line": 2399,
+    "line": 2456,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_plaques"
@@ -43777,7 +43777,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "plaque_formation_hours",
-    "line": 2746,
+    "line": 2803,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_analyze_plaque_figures"
@@ -43786,7 +43786,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plaque_formation_hours",
-    "line": 2757,
+    "line": 2814,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_analyze_plaque_figures"
@@ -43855,7 +43855,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plaque_mode",
-    "line": 11091,
+    "line": 11097,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_plaque_model_download"
@@ -43873,7 +43873,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plaque_mode",
-    "line": 2330,
+    "line": 2387,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_plaques"
@@ -43882,7 +43882,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plaque_mode",
-    "line": 2342,
+    "line": 2399,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_plaques"
@@ -43938,7 +43938,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plaque_model",
-    "line": 2206,
+    "line": 2263,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_requested_plaque_model"
@@ -43947,7 +43947,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plaque_model",
-    "line": 2435,
+    "line": 2492,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_plaques"
@@ -43976,7 +43976,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plaque_pixels_per_um",
-    "line": 1908,
+    "line": 1965,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_plaque_scale_for"
@@ -43985,7 +43985,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "plaque_pixels_per_um",
-    "line": 2746,
+    "line": 2803,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_analyze_plaque_figures"
@@ -43994,7 +43994,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plaque_pixels_per_um",
-    "line": 2756,
+    "line": 2813,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_analyze_plaque_figures"
@@ -44065,7 +44065,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plate",
-    "line": 2792,
+    "line": 2793,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -44094,7 +44094,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plateID",
-    "line": 6751,
+    "line": 6808,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "generate_score_heatmap"
@@ -44103,7 +44103,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plateID",
-    "line": 6752,
+    "line": 6809,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "generate_score_heatmap"
@@ -44112,7 +44112,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plateID",
-    "line": 6756,
+    "line": 6813,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "generate_score_heatmap"
@@ -44121,7 +44121,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plateID",
-    "line": 6766,
+    "line": 6823,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "generate_score_heatmap"
@@ -44130,7 +44130,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plateID",
-    "line": 6767,
+    "line": 6824,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "generate_score_heatmap"
@@ -44139,7 +44139,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plateID",
-    "line": 6768,
+    "line": 6825,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "generate_score_heatmap"
@@ -44293,7 +44293,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "plate_format",
-    "line": 1920,
+    "line": 1977,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_plaque_scale_for"
@@ -44302,7 +44302,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plate_format",
-    "line": 1922,
+    "line": 1979,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_plaque_scale_for"
@@ -44311,7 +44311,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plate_format",
-    "line": 1927,
+    "line": 1984,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_plaque_scale_for"
@@ -44320,7 +44320,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "plate_format",
-    "line": 2746,
+    "line": 2803,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_analyze_plaque_figures"
@@ -44329,7 +44329,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plate_format",
-    "line": 2755,
+    "line": 2812,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_analyze_plaque_figures"
@@ -45062,7 +45062,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot",
-    "line": 1769,
+    "line": 1826,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -45149,7 +45149,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plot_control",
-    "line": 1391,
+    "line": 1435,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_recruitment_panels"
@@ -45158,7 +45158,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot_control",
-    "line": 1867,
+    "line": 1924,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -45243,7 +45243,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "plot_nr",
-    "line": 1775,
+    "line": 1832,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -46299,7 +46299,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_correlation_threshold",
-    "line": 3969,
+    "line": 3980,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -46319,7 +46319,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_databases",
-    "line": 3949,
+    "line": 3960,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -46339,7 +46339,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_feature_selection",
-    "line": 3966,
+    "line": 3977,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -46348,7 +46348,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_feature_selection",
-    "line": 3967,
+    "line": 3978,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -46386,7 +46386,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_metadata",
-    "line": 3952,
+    "line": 3963,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -46406,7 +46406,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_min_variance",
-    "line": 3972,
+    "line": 3983,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -46426,7 +46426,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_na_cutoff",
-    "line": 3970,
+    "line": 3981,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -46446,7 +46446,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_negative_control",
-    "line": 3961,
+    "line": 3972,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -46466,7 +46466,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_normalization",
-    "line": 3962,
+    "line": 3973,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -46486,7 +46486,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_outlier_cutoff",
-    "line": 3971,
+    "line": 3982,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -46506,7 +46506,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_phenotype_column",
-    "line": 3958,
+    "line": 3969,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -46526,7 +46526,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_treatment_column",
-    "line": 3956,
+    "line": 3967,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -46910,7 +46910,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "qc_plot_max_panels",
-    "line": 4929,
+    "line": 4986,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -46919,7 +46919,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "qc_plot_max_panels",
-    "line": 6364,
+    "line": 6421,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -46928,7 +46928,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "qc_plot_max_panels",
-    "line": 6365,
+    "line": 6422,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -47068,7 +47068,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ram_guard",
-    "line": 11219,
+    "line": 11225,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -47077,7 +47077,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ram_guard",
-    "line": 11254,
+    "line": 11260,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -48030,7 +48030,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_backend",
-    "line": 9923,
+    "line": 9929,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._announce_the_fit"
@@ -48315,7 +48315,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_type",
-    "line": 9913,
+    "line": 9919,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._announce_the_fit"
@@ -48324,7 +48324,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "regression_type",
-    "line": 12782,
+    "line": 12788,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_refit"
@@ -49081,7 +49081,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "replicate_column",
-    "line": 1091,
+    "line": 1104,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_bar_panel_from_objects"
@@ -49090,7 +49090,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "replicate_column",
-    "line": 1329,
+    "line": 1372,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_recruitment_control_specs"
@@ -49099,7 +49099,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "replicate_column",
-    "line": 1519,
+    "line": 1576,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_replication_panels"
@@ -49108,7 +49108,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "replicate_column",
-    "line": 4732,
+    "line": 4789,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -49128,7 +49128,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "replication_method",
-    "line": 4578,
+    "line": 4635,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -49157,7 +49157,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "require_host_cell",
-    "line": 3865,
+    "line": 3922,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_replication_defaults"
@@ -49166,7 +49166,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "require_host_cell",
-    "line": 4670,
+    "line": 4727,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -50787,7 +50787,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "save",
-    "line": 2632,
+    "line": 2689,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_analyze_colony_plates"
@@ -50796,7 +50796,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 3445,
+    "line": 3502,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -50805,7 +50805,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 3685,
+    "line": 3742,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -50814,7 +50814,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "save",
-    "line": 3878,
+    "line": 3935,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_replication_defaults"
@@ -50823,7 +50823,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 4850,
+    "line": 4907,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -50832,7 +50832,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "save",
-    "line": 4931,
+    "line": 4988,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -50841,7 +50841,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 6384,
+    "line": 6441,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -50850,7 +50850,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 6500,
+    "line": 6557,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -50859,7 +50859,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 6518,
+    "line": 6575,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -50868,7 +50868,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 6540,
+    "line": 6597,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -51322,7 +51322,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "score_column",
-    "line": 3322,
+    "line": 3379,
     "module": "spacr.submodules",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -51331,7 +51331,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "score_column",
-    "line": 3350,
+    "line": 3407,
     "module": "spacr.submodules",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -51340,7 +51340,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "score_column",
-    "line": 3352,
+    "line": 3409,
     "module": "spacr.submodules",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -51517,7 +51517,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "scores",
-    "line": 3293,
+    "line": 3350,
     "module": "spacr.submodules",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -51526,7 +51526,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "scores",
-    "line": 3332,
+    "line": 3389,
     "module": "spacr.submodules",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -51676,7 +51676,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "seed_wells_from_cells",
-    "line": 3866,
+    "line": 3923,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_replication_defaults"
@@ -51685,7 +51685,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "seed_wells_from_cells",
-    "line": 4638,
+    "line": 4695,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -51694,7 +51694,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "seed_wells_from_cells",
-    "line": 4919,
+    "line": 4976,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -51703,7 +51703,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "seed_wells_from_cells",
-    "line": 6150,
+    "line": 6207,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -52257,7 +52257,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "shap",
-    "line": 3360,
+    "line": 3417,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -52266,7 +52266,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "shap",
-    "line": 3414,
+    "line": 3471,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -52295,7 +52295,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "shap_sample",
-    "line": 3425,
+    "line": 3482,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -52570,7 +52570,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_anndata",
-    "line": 5278,
+    "line": 5279,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -52590,7 +52590,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_bin_um",
-    "line": 5158,
+    "line": 5159,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -52599,7 +52599,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_bin_um",
-    "line": 5218,
+    "line": 5219,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -52617,7 +52617,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "spatial_bin_um",
-    "line": 4336,
+    "line": 4341,
     "module": "spacr.qt.widgets.home",
     "nested": false,
     "qualname": "_easy_specialized_inputs"
@@ -52626,7 +52626,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "spatial_bin_um",
-    "line": 4344,
+    "line": 4349,
     "module": "spacr.qt.widgets.home",
     "nested": false,
     "qualname": "_easy_specialized_inputs"
@@ -52637,7 +52637,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_cell_expansion_um",
-    "line": 4857,
+    "line": 4858,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -52657,7 +52657,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_cellpose_model",
-    "line": 4902,
+    "line": 4903,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -52731,7 +52731,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_diameter",
-    "line": 4855,
+    "line": 4856,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -52841,7 +52841,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_dst",
-    "line": 4835,
+    "line": 4836,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -52861,7 +52861,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_gene",
-    "line": 5311,
+    "line": 5312,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -52881,7 +52881,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_gpu",
-    "line": 4903,
+    "line": 4904,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -52901,7 +52901,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_level",
-    "line": 4816,
+    "line": 4817,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -52921,7 +52921,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_masks_dir",
-    "line": 5117,
+    "line": 5118,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -52970,7 +52970,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_min_pathogen_transcripts",
-    "line": 5276,
+    "line": 5277,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -52990,7 +52990,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_min_qv",
-    "line": 5159,
+    "line": 5160,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -52999,7 +52999,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_min_qv",
-    "line": 5160,
+    "line": 5161,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -53039,7 +53039,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_objects",
-    "line": 5149,
+    "line": 5150,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -53059,7 +53059,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_pathogen_genes",
-    "line": 5275,
+    "line": 5276,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -53079,7 +53079,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_platform",
-    "line": 4813,
+    "line": 4814,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -53088,7 +53088,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_platform",
-    "line": 5157,
+    "line": 5158,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -53117,7 +53117,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_sample",
-    "line": 4837,
+    "line": 4838,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -53137,7 +53137,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_segmenter",
-    "line": 4851,
+    "line": 4852,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -53157,7 +53157,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_source",
-    "line": 4808,
+    "line": 4809,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -53166,7 +53166,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_source",
-    "line": 5116,
+    "line": 5117,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_map"
@@ -53195,7 +53195,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_stain",
-    "line": 4850,
+    "line": 4851,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -53215,7 +53215,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_tile_overlap",
-    "line": 4828,
+    "line": 4829,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -53235,7 +53235,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_tile_size",
-    "line": 4827,
+    "line": 4828,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -53255,7 +53255,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_window",
-    "line": 4820,
+    "line": 4821,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -53275,7 +53275,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "spatial_window_unit",
-    "line": 4821,
+    "line": 4822,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_spatial_masks"
@@ -55085,7 +55085,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 9522,
+    "line": 9528,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._claim_the_project"
@@ -55094,7 +55094,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 9647,
+    "line": 9653,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -55103,7 +55103,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 9661,
+    "line": 9667,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -55112,7 +55112,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 9673,
+    "line": 9679,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -55121,7 +55121,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 11150,
+    "line": 11156,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_measure_plane_layout"
@@ -55130,7 +55130,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 11243,
+    "line": 11249,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._confirm_ram_guard"
@@ -55139,7 +55139,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 11945,
+    "line": 11951,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._measurements_destination"
@@ -55148,7 +55148,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 12856,
+    "line": 12862,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._load_regression_results"
@@ -55157,7 +55157,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 13233,
+    "line": 13239,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._lock_analysis_now"
@@ -56030,7 +56030,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1716,
+    "line": 1773,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -56039,7 +56039,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1717,
+    "line": 1774,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -56048,7 +56048,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1718,
+    "line": 1775,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -56057,7 +56057,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1718,
+    "line": 1775,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -56066,7 +56066,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1719,
+    "line": 1776,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -56075,7 +56075,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1720,
+    "line": 1777,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -56084,7 +56084,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1720,
+    "line": 1777,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -56093,7 +56093,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1722,
+    "line": 1779,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -56102,7 +56102,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1738,
+    "line": 1795,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -56111,7 +56111,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1770,
+    "line": 1827,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -56120,7 +56120,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1809,
+    "line": 1866,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -56129,7 +56129,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1813,
+    "line": 1870,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -56138,7 +56138,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1832,
+    "line": 1889,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -56147,7 +56147,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1874,
+    "line": 1931,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -56156,7 +56156,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1962,
+    "line": 2019,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "split_wells"
@@ -56165,7 +56165,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 2346,
+    "line": 2403,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_plaques"
@@ -56174,7 +56174,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 2348,
+    "line": 2405,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_plaques"
@@ -56183,7 +56183,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 2555,
+    "line": 2612,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_segment_plaque_folder"
@@ -56192,7 +56192,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 2615,
+    "line": 2672,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_analyze_colony_plates"
@@ -56201,7 +56201,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 2745,
+    "line": 2802,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_analyze_plaque_figures"
@@ -56210,7 +56210,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 2747,
+    "line": 2804,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_analyze_plaque_figures"
@@ -56219,7 +56219,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 2797,
+    "line": 2854,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "count_phenotypes"
@@ -56228,7 +56228,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 2798,
+    "line": 2855,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "count_phenotypes"
@@ -56237,7 +56237,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 2798,
+    "line": 2855,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "count_phenotypes"
@@ -56246,7 +56246,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 2800,
+    "line": 2857,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "count_phenotypes"
@@ -56255,7 +56255,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 2816,
+    "line": 2873,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "count_phenotypes"
@@ -56264,7 +56264,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "src",
-    "line": 3284,
+    "line": 3341,
     "module": "spacr.submodules",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -56273,7 +56273,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 3446,
+    "line": 3503,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -56282,7 +56282,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 3581,
+    "line": 3638,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -56291,7 +56291,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 3582,
+    "line": 3639,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -56300,7 +56300,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 3582,
+    "line": 3639,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -56309,7 +56309,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 3584,
+    "line": 3641,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -56318,7 +56318,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 3686,
+    "line": 3743,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -56327,7 +56327,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 3855,
+    "line": 3912,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_replication_defaults"
@@ -56336,7 +56336,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 4592,
+    "line": 4649,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -56345,7 +56345,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 4592,
+    "line": 4649,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -56354,7 +56354,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 4592,
+    "line": 4649,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -56363,7 +56363,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 4623,
+    "line": 4680,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -56372,7 +56372,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 4624,
+    "line": 4681,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -56381,7 +56381,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 4624,
+    "line": 4681,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -56390,7 +56390,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 4631,
+    "line": 4688,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -56399,7 +56399,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 4770,
+    "line": 4827,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -56408,7 +56408,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 4839,
+    "line": 4896,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -56417,7 +56417,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 4851,
+    "line": 4908,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -56426,7 +56426,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 4896,
+    "line": 4953,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -56435,7 +56435,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 6128,
+    "line": 6185,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -56444,7 +56444,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 6129,
+    "line": 6186,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -56453,7 +56453,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 6129,
+    "line": 6186,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -56462,7 +56462,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 6143,
+    "line": 6200,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -56471,7 +56471,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 6385,
+    "line": 6442,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -56480,7 +56480,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 6452,
+    "line": 6509,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -56489,7 +56489,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 6453,
+    "line": 6510,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -56498,7 +56498,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 6453,
+    "line": 6510,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -56507,7 +56507,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 6456,
+    "line": 6513,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -56516,7 +56516,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 6501,
+    "line": 6558,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -56570,7 +56570,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8335,
+    "line": 8339,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -56579,7 +56579,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8336,
+    "line": 8340,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -56588,16 +56588,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8338,
-    "module": "spacr.utils",
-    "nested": false,
-    "qualname": "measure_test_mode"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "src",
-    "line": 8343,
+    "line": 8342,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -56615,7 +56606,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8352,
+    "line": 8351,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -56624,7 +56615,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8358,
+    "line": 8356,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -56633,7 +56624,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8361,
+    "line": 8362,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -56651,7 +56642,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 8368,
+    "line": 8369,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -56660,37 +56651,10 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10510,
+    "line": 8372,
     "module": "spacr.utils",
     "nested": false,
-    "qualname": "delete_intermedeate_files"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "src",
-    "line": 10511,
-    "module": "spacr.utils",
-    "nested": false,
-    "qualname": "delete_intermedeate_files"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "src",
-    "line": 10512,
-    "module": "spacr.utils",
-    "nested": false,
-    "qualname": "delete_intermedeate_files"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "src",
-    "line": 10513,
-    "module": "spacr.utils",
-    "nested": false,
-    "qualname": "delete_intermedeate_files"
+    "qualname": "measure_test_mode"
    },
    {
     "form": "subscript",
@@ -56786,7 +56750,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10530,
+    "line": 10524,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "delete_intermedeate_files"
@@ -56795,7 +56759,43 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 10531,
+    "line": 10525,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "delete_intermedeate_files"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 10526,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "delete_intermedeate_files"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 10527,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "delete_intermedeate_files"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 10534,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "delete_intermedeate_files"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "src",
+    "line": 10535,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "delete_intermedeate_files"
@@ -56833,7 +56833,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "stain_baseline_wells",
-    "line": 4905,
+    "line": 4962,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -56842,7 +56842,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "stain_baseline_wells",
-    "line": 6217,
+    "line": 6274,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -56851,7 +56851,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "stain_baseline_wells",
-    "line": 6325,
+    "line": 6382,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -57845,7 +57845,7 @@
     "form": "keyword",
     "function_depth": 2,
     "key": "tables",
-    "line": 3283,
+    "line": 3340,
     "module": "spacr.submodules",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -57854,7 +57854,7 @@
     "form": "subscript",
     "function_depth": 2,
     "key": "tables",
-    "line": 3285,
+    "line": 3342,
     "module": "spacr.submodules",
     "nested": true,
     "qualname": "interpret_vision_model.read_and_preprocess_data"
@@ -57863,7 +57863,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "tables",
-    "line": 3386,
+    "line": 3443,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -57872,7 +57872,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "tables",
-    "line": 3386,
+    "line": 3443,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -57881,7 +57881,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "tables",
-    "line": 3586,
+    "line": 3643,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -57890,7 +57890,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "tables",
-    "line": 3587,
+    "line": 3644,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -57899,7 +57899,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "tables",
-    "line": 3587,
+    "line": 3644,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -57908,7 +57908,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "tables",
-    "line": 3589,
+    "line": 3646,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -57917,7 +57917,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "tables",
-    "line": 3591,
+    "line": 3648,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -57926,7 +57926,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "tables",
-    "line": 6460,
+    "line": 6517,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -57935,7 +57935,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "tables",
-    "line": 6461,
+    "line": 6518,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -57944,7 +57944,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "tables",
-    "line": 6461,
+    "line": 6518,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -57953,7 +57953,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "tables",
-    "line": 6463,
+    "line": 6520,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -57962,7 +57962,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "tables",
-    "line": 6465,
+    "line": 6522,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -58029,7 +58029,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "target",
-    "line": 1736,
+    "line": 1793,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -58219,7 +58219,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "target_intensity_min",
-    "line": 1792,
+    "line": 1849,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -58228,7 +58228,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "target_intensity_min",
-    "line": 1792,
+    "line": 1849,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -58237,7 +58237,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "target_intensity_min",
-    "line": 1793,
+    "line": 1850,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -58943,7 +58943,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "test_mode",
-    "line": 8334,
+    "line": 8338,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -58981,25 +58981,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "test_nr",
-    "line": 8339,
-    "module": "spacr.utils",
-    "nested": false,
-    "qualname": "measure_test_mode"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "test_nr",
-    "line": 8344,
-    "module": "spacr.utils",
-    "nested": false,
-    "qualname": "measure_test_mode"
-   },
-   {
-    "form": "subscript",
-    "function_depth": 1,
-    "key": "test_nr",
-    "line": 8346,
+    "line": 8343,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -59009,6 +58991,24 @@
     "function_depth": 1,
     "key": "test_nr",
     "line": 8348,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "measure_test_mode"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "test_nr",
+    "line": 8350,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "measure_test_mode"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "test_nr",
+    "line": 8352,
     "module": "spacr.utils",
     "nested": false,
     "qualname": "measure_test_mode"
@@ -59285,7 +59285,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "threshold",
-    "line": 3724,
+    "line": 3735,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_write_profiles"
@@ -59294,7 +59294,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "threshold",
-    "line": 3729,
+    "line": 3740,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_write_profiles"
@@ -59323,7 +59323,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "threshold_agreement_tolerance",
-    "line": 4911,
+    "line": 4968,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -59332,7 +59332,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "threshold_agreement_tolerance",
-    "line": 5338,
+    "line": 5395,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_invasion_field_thresholds"
@@ -59341,7 +59341,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "threshold_agreement_tolerance",
-    "line": 5560,
+    "line": 5617,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_invasion_well_table"
@@ -59475,7 +59475,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "threshold_sensitivity",
-    "line": 4912,
+    "line": 4969,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -59484,7 +59484,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "threshold_sensitivity",
-    "line": 5382,
+    "line": 5439,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_invasion_field_thresholds"
@@ -61600,7 +61600,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "top_features",
-    "line": 3370,
+    "line": 3427,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -61609,7 +61609,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "top_features",
-    "line": 3380,
+    "line": 3437,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -61618,7 +61618,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "top_features",
-    "line": 3397,
+    "line": 3454,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -61627,7 +61627,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "top_features",
-    "line": 3407,
+    "line": 3464,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -61636,7 +61636,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "top_features",
-    "line": 3419,
+    "line": 3476,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -61645,7 +61645,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "top_features",
-    "line": 3434,
+    "line": 3491,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -61654,7 +61654,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "top_features",
-    "line": 3434,
+    "line": 3491,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "interpret_vision_model"
@@ -61809,7 +61809,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "total_channel",
-    "line": 4900,
+    "line": 4957,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -61818,7 +61818,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "total_channel",
-    "line": 6181,
+    "line": 6238,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -62468,7 +62468,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "treatment_plate_metadata",
-    "line": 1731,
+    "line": 1788,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -62477,7 +62477,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "treatment_plate_metadata",
-    "line": 1744,
+    "line": 1801,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -62486,7 +62486,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "treatment_plate_metadata",
-    "line": 1750,
+    "line": 1807,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -62495,7 +62495,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "treatment_plate_metadata",
-    "line": 3609,
+    "line": 3666,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -62504,7 +62504,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "treatment_plate_metadata",
-    "line": 3616,
+    "line": 3673,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -62513,7 +62513,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "treatment_plate_metadata",
-    "line": 3873,
+    "line": 3930,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_replication_defaults"
@@ -62522,7 +62522,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "treatment_plate_metadata",
-    "line": 4682,
+    "line": 4739,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -62531,7 +62531,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "treatment_plate_metadata",
-    "line": 4689,
+    "line": 4746,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -62540,7 +62540,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "treatment_plate_metadata",
-    "line": 4786,
+    "line": 4843,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -62549,7 +62549,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "treatment_plate_metadata",
-    "line": 4793,
+    "line": 4850,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -62558,7 +62558,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "treatment_plate_metadata",
-    "line": 4925,
+    "line": 4982,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -62567,7 +62567,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "treatment_plate_metadata",
-    "line": 6274,
+    "line": 6331,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -62576,7 +62576,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "treatment_plate_metadata",
-    "line": 6281,
+    "line": 6338,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -62585,7 +62585,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "treatment_plate_metadata",
-    "line": 6326,
+    "line": 6383,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -62594,7 +62594,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "treatment_plate_metadata",
-    "line": 6333,
+    "line": 6390,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -62603,7 +62603,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "treatment_plate_metadata",
-    "line": 6471,
+    "line": 6528,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -62612,7 +62612,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "treatment_plate_metadata",
-    "line": 6478,
+    "line": 6535,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -62713,7 +62713,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "treatments",
-    "line": 1289,
+    "line": 1331,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_plate_map_condition_order"
@@ -62722,7 +62722,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "treatments",
-    "line": 1731,
+    "line": 1788,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -62731,7 +62731,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "treatments",
-    "line": 1744,
+    "line": 1801,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -62740,7 +62740,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "treatments",
-    "line": 1749,
+    "line": 1806,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_recruitment"
@@ -62749,7 +62749,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "treatments",
-    "line": 3609,
+    "line": 3666,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -62758,7 +62758,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "treatments",
-    "line": 3615,
+    "line": 3672,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -62767,7 +62767,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "treatments",
-    "line": 3872,
+    "line": 3929,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_replication_defaults"
@@ -62776,7 +62776,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "treatments",
-    "line": 4682,
+    "line": 4739,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -62785,7 +62785,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "treatments",
-    "line": 4688,
+    "line": 4745,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -62794,7 +62794,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "treatments",
-    "line": 4786,
+    "line": 4843,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -62803,7 +62803,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "treatments",
-    "line": 4792,
+    "line": 4849,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -62812,7 +62812,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "treatments",
-    "line": 4924,
+    "line": 4981,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -62821,7 +62821,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "treatments",
-    "line": 6274,
+    "line": 6331,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -62830,7 +62830,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "treatments",
-    "line": 6280,
+    "line": 6337,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -62839,7 +62839,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "treatments",
-    "line": 6326,
+    "line": 6383,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -62848,7 +62848,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "treatments",
-    "line": 6332,
+    "line": 6389,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -62857,7 +62857,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "treatments",
-    "line": 6471,
+    "line": 6528,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -62866,7 +62866,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "treatments",
-    "line": 6477,
+    "line": 6534,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -63191,7 +63191,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "um_per_px",
-    "line": 3601,
+    "line": 3658,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -63200,7 +63200,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "um_per_px",
-    "line": 3602,
+    "line": 3659,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -63209,7 +63209,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "um_per_px",
-    "line": 3603,
+    "line": 3660,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -63218,7 +63218,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "um_per_px",
-    "line": 3674,
+    "line": 3731,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -63227,7 +63227,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "um_per_px",
-    "line": 4603,
+    "line": 4660,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -63820,7 +63820,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "use_bounding_box",
-    "line": 11069,
+    "line": 11075,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._crop_choice_warnings"
@@ -63923,7 +63923,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "vacuole_key",
-    "line": 3858,
+    "line": 3915,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_replication_defaults"
@@ -63932,7 +63932,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "vacuole_key",
-    "line": 4706,
+    "line": 4763,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -63941,7 +63941,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "vacuole_key",
-    "line": 4709,
+    "line": 4766,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -63961,7 +63961,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "vacuole_link_distance",
-    "line": 3859,
+    "line": 3916,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_replication_defaults"
@@ -63970,7 +63970,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "vacuole_link_distance",
-    "line": 4706,
+    "line": 4763,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -63979,7 +63979,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "vacuole_link_distance",
-    "line": 4710,
+    "line": 4767,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -64008,7 +64008,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "vacuole_link_factor",
-    "line": 3860,
+    "line": 3917,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_replication_defaults"
@@ -64017,7 +64017,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "vacuole_link_factor",
-    "line": 4706,
+    "line": 4763,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -64026,7 +64026,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "vacuole_link_factor",
-    "line": 4711,
+    "line": 4768,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -65078,7 +65078,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "verbose",
-    "line": 3589,
+    "line": 3646,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -65087,7 +65087,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 3592,
+    "line": 3649,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -65096,7 +65096,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 3652,
+    "line": 3709,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_endodyogeny"
@@ -65105,7 +65105,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "verbose",
-    "line": 3879,
+    "line": 3936,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_replication_defaults"
@@ -65114,7 +65114,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "verbose",
-    "line": 4621,
+    "line": 4678,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -65123,7 +65123,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 4621,
+    "line": 4678,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -65132,7 +65132,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "verbose",
-    "line": 4656,
+    "line": 4713,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -65141,7 +65141,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 4657,
+    "line": 4714,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -65150,7 +65150,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "verbose",
-    "line": 4706,
+    "line": 4763,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -65159,7 +65159,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 4712,
+    "line": 4769,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -65168,7 +65168,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "verbose",
-    "line": 4809,
+    "line": 4866,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -65177,7 +65177,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 4810,
+    "line": 4867,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -65186,7 +65186,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 4869,
+    "line": 4926,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_replication"
@@ -65195,7 +65195,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "verbose",
-    "line": 4932,
+    "line": 4989,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_set_analyze_invasion_defaults"
@@ -65204,7 +65204,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "verbose",
-    "line": 6126,
+    "line": 6183,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -65213,7 +65213,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 6126,
+    "line": 6183,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -65222,7 +65222,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "verbose",
-    "line": 6168,
+    "line": 6225,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -65231,7 +65231,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 6169,
+    "line": 6226,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -65240,7 +65240,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "verbose",
-    "line": 6198,
+    "line": 6255,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -65249,7 +65249,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 6200,
+    "line": 6257,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -65258,7 +65258,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "verbose",
-    "line": 6343,
+    "line": 6400,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -65267,7 +65267,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 6344,
+    "line": 6401,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -65276,7 +65276,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 6412,
+    "line": 6469,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_invasion"
@@ -65285,7 +65285,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "verbose",
-    "line": 6463,
+    "line": 6520,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -65294,7 +65294,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "verbose",
-    "line": 6466,
+    "line": 6523,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_class_proportion"
@@ -66045,7 +66045,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "watch_folder",
-    "line": 9672,
+    "line": 9678,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -66170,7 +66170,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "watch_pipeline",
-    "line": 9678,
+    "line": 9684,
     "module": "spacr.qt.screens.app_screen",
     "nested": false,
     "qualname": "AppScreen._on_run"
@@ -66331,7 +66331,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "well_confidence",
-    "line": 1979,
+    "line": 2036,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "split_wells"
@@ -66340,7 +66340,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "well_confidence",
-    "line": 2639,
+    "line": 2696,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_analyze_colony_plates"
@@ -66360,7 +66360,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "well_detection",
-    "line": 2038,
+    "line": 2095,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_resolve_well_detector"
@@ -66369,7 +66369,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "well_detection",
-    "line": 2345,
+    "line": 2402,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "analyze_plaques"
@@ -66398,7 +66398,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "well_diameter_mm",
-    "line": 1920,
+    "line": 1977,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_plaque_scale_for"
@@ -66407,7 +66407,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "well_diameter_mm",
-    "line": 1923,
+    "line": 1980,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_plaque_scale_for"
@@ -66427,7 +66427,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "well_pad",
-    "line": 1991,
+    "line": 2048,
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "split_wells"
