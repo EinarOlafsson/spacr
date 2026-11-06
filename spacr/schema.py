@@ -1811,8 +1811,9 @@ def parse_field_stem(name: Any, *, timelapse: bool = False,
     Notes
     -----
     A non-time-lapse call accepts one extra numeric timepoint emitted by the
-    merged-stack writer, but omits it from the returned identity. Other extra
-    components are rejected.
+    merged-stack writer, or the literal ``None`` that earlier releases wrote
+    when the file naming had no time group, but omits it from the returned
+    identity. Other extra components are rejected.
 
     Examples
     --------
@@ -1824,7 +1825,8 @@ def parse_field_stem(name: Any, *, timelapse: bool = False,
     needed = 4 if timelapse else 3
     surplus_is_a_timepoint = (
         not timelapse and len(parts) == needed + 1
-        and parse_int_token(parts[needed]) is not None)
+        and (parse_int_token(parts[needed]) is not None
+             or parts[needed] == 'None'))
     if len(parts) != needed and not surplus_is_a_timepoint:
         shape = 'plate_well_field_time' if timelapse else 'plate_well_field'
         allowance = '' if timelapse else (

@@ -99,15 +99,17 @@ def _escaped_field_stem(plate, well, field, time):
     :param plate: free-text plate id. ``None`` keeps its historical spelling,
         the literal ``'None'``, rather than silently becoming an empty
         identity.
-    :param time: the timepoint, or ``''`` for the channel-folder layout, which
-        has always written a trailing empty component.
+    :param time: the timepoint; ``''`` for the channel-folder layout, which
+        has always written a trailing empty component; ``None`` when the file
+        naming has no time group, which leaves the component out (``plate_well_field``).
     :returns: the stem, without an extension.
     :raises spacr.schema.KeyParseError: when the plate is empty. An empty plate
         is not an identity, and every field written under one would merge with
         every other.
     """
     from .schema import escape_filename_component
-    return f'{escape_filename_component(str(plate))}_{well}_{field}_{time}'
+    head = f'{escape_filename_component(str(plate))}_{well}_{field}'
+    return head if time is None else f'{head}_{time}'
 
 
 #: Subfolders of a plate source folder whose file stems are field ids written

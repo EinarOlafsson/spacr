@@ -9996,6 +9996,34 @@ def _validate_measurement_coordinate_source(merged_folder):
                 path=str(path)))
 
 
+def _check_measure_field_names(files, settings):
+    """Refuse a merged folder holding a field name measure cannot parse, naming the file.
+
+    :param files: the ``.npy`` names measure is about to read.
+    :param settings: the measure settings; ``timelapse`` picks the grammar.
+    :raises ConfigurationError: naming each unparsable file and the expected
+        ``plate_well_field`` grammar, before any field is started.
+    """
+    from . import schema
+
+    timelapse = bool(settings.get('timelapse', False))
+    bad = []
+    for name in sorted(files):
+        try:
+            schema.parse_field_stem(name, timelapse=timelapse)
+        except ValueError as error:
+            bad.append((name, str(error)))
+    if bad:
+        shape = 'plate_well_field_time' if timelapse else 'plate_well_field'
+        listed = '; '.join(f'{name} ({why})' for name, why in bad[:3])
+        more = f' and {len(bad) - 3} more' if len(bad) > 3 else ''
+        raise ConfigurationError(
+            f'Measure cannot read the field name of {len(bad)} file(s) in '
+            f'{settings["src"]}: {listed}{more}. Field files must be named '
+            f'{shape}.npy; rename them or run Make Masks again. Nothing was '
+            f'measured.')
+
+
 def _measure_merged_folder(src):
     """Resolve one ``src`` to the merged folder measure reads, or say why not.
 
@@ -10448,7 +10476,10 @@ def measure_crop(settings):
         returned by :func:`spacr.validate.run_preflight`, and nothing is
         written.
     :raises ValueError: if ``src`` is not a string or a list of strings.
-    :raises spacr.errors.ConfigurationError: only in strict mode
+    :raises spacr.errors.ConfigurationError: when a ``.npy`` in the merged
+        folder is not named ``plate_well_field.npy`` (or
+        ``plate_well_field_time.npy`` for a time lapse); the message names the
+        file and nothing is measured. Also, only in strict mode
         (``settings['strict_errors']``, or the ``SPACR_STRICT_ERRORS``
         environment variable). The ``normalize``, ``normalize_by``,
         mask-dimension/min-size and ``channels`` type checks otherwise print
@@ -10554,6 +10585,7 @@ def measure_crop(settings):
                 rejected_quality = excluded_fields(os.path.dirname(settings['src']))
                 ensure_no_retained_measurements(os.path.dirname(settings['src']), rejected_quality)
                 files = [name for name in files if name not in rejected_quality]
+                _check_measure_field_names(files, settings)
                 _full_rescale_plan, calibration = _prepare_measurement_calibration(settings, files)
                 _fresh_archive = _measurement_run_archive_plan(settings)
                 _prepare_measurement_crop_output(settings, _fresh_archive)
