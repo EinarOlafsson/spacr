@@ -452,8 +452,9 @@ class ObjectSettingsModel(QAbstractTableModel):
                 from ..i18n import tr
 
                 head += "\n\n" + tr(
-                    "Pixels. Blank uses the magnification default "
-                    "(shown greyed); 0 or auto lets Cellpose estimate "
+                    "Pixels. Blank uses the default (shown greyed): from "
+                    "the pixel size when pixel_size_um is set, else from "
+                    "the magnification; 0 or auto lets Cellpose estimate "
                     "the diameter.")
                 if pinned:
                     head += "\n\n" + tr(
