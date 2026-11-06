@@ -588,6 +588,11 @@ def get_components(cell_mask, nucleus_mask, pathogen_mask):
         subset=['pathogen']).reset_index(drop=True)
     return nucleus_df, pathogen_df
 
+#: Zernike moments with a magnitude below this are floating-point noise (about
+#: 1e-15 for the moments that are zero by symmetry) and are written as 0.0.
+_ZERNIKE_ZERO_TOL = 1e-10
+
+
 def _calculate_zernike(mask, df, degree=8, device=None):
     """Append per-region Zernike-moment columns to ``df``.
 
@@ -612,6 +617,14 @@ def _calculate_zernike(mask, df, degree=8, device=None):
        whole morphology pass. A 3-D mask therefore gets no ``zernike_*``
        columns at all: absent, rather than a 2-D descriptor of one arbitrary
        plane presented as a description of the object.
+
+    .. note::
+
+       Moments with a magnitude below ``1e-10`` are set to exactly ``0.0`` on
+       both the Mahotas and the GPU path. Those values are floating-point
+       noise (for example ``zernike_1`` of a near-symmetric object), and after
+       per-plate scaling they would otherwise grow to dominate distance-based
+       classifiers. The column set is unchanged.
     """
     if _ndim_of(mask) != 2:
         return df
@@ -620,7 +633,8 @@ def _calculate_zernike(mask, df, degree=8, device=None):
     if not regions:
         return df
     if device is not None and _gpu_measurable(mask):
-        features = _torch_zernike(mask, degree, device)
+        features = np.asarray(_torch_zernike(mask, degree, device), dtype=float)
+        features = np.where(np.abs(features) < _ZERNIKE_ZERO_TOL, 0.0, features)
         zernike_df = pd.DataFrame(
             features, columns=[f'zernike_{i}' for i in range(features.shape[1])])
         return pd.concat([df.reset_index(drop=True), zernike_df], axis=1)
@@ -642,7 +656,9 @@ def _calculate_zernike(mask, df, degree=8, device=None):
         if len(feature) != feature_length:
             raise ValueError("All Zernike moments must be of the same length")
 
-    zernike_df = pd.DataFrame(zernike_features, columns=[f'zernike_{i}' for i in range(feature_length)])
+    zernike_array = np.asarray(zernike_features, dtype=float)
+    zernike_array = np.where(np.abs(zernike_array) < _ZERNIKE_ZERO_TOL, 0.0, zernike_array)
+    zernike_df = pd.DataFrame(zernike_array, columns=[f'zernike_{i}' for i in range(feature_length)])
     return pd.concat([df.reset_index(drop=True), zernike_df], axis=1)
 
 
