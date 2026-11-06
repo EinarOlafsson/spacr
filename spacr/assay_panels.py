@@ -68,23 +68,20 @@ __all__ = [
 
 ALPHA = 0.05
 WELL_KEYS: Tuple[str, ...] = ("plateID", "rowID", "columnID")
-# Muted blue / teal / grey palette, no yellow; neighbours differ in lightness so
-# the colours stay distinct under colour-vision deficiency.
 _DEFAULT_COLORS = ["#4C72B0", "#2A9D8F", "#8C8C8C", "#264653", "#7FA7C9", "#A8DADC",
                    "#5E548E", "#B5838D"]
-# One place for the look of every bar / stacked panel (assay_panels and assay_report).
 STYLE = dict(
     palette=_DEFAULT_COLORS,
-    bar_alpha=0.6,          # bar fill
-    edge_shade=0.6,         # bar edge = fill colour darkened to this fraction
+    bar_alpha=0.6,
+    edge_shade=0.6,
     edge_lw=0.8,
     bar_width=0.7,
-    dot_size=22.0,          # scatter area in pt^2 (about 4.7 pt across)
+    dot_size=22.0,
     dot_alpha=0.65,
-    dot_shade=0.55,         # dot colour = fill colour darkened to this fraction
+    dot_shade=0.55,
     dot_edge="white",
     dot_edge_lw=0.35,
-    jitter=0.12,            # half width of the dot jitter, in bar units (bar half width 0.35)
+    jitter=0.12,
     err_color="#333333",
     err_lw=0.8,
     capsize=2.0,
@@ -94,9 +91,9 @@ STYLE = dict(
     stacked_cmap="viridis",
     stacked_edge="white",
     stacked_lw=0.5,
-    show_test=False,        # test name / p value written on the graph (always in the stats CSVs)
-    show_title=False,       # graph titles (the information goes into the figure legend)
-    annot_pt=7.0,           # +/- matrix and annotation rows under the x axis
+    show_test=False,
+    show_title=False,
+    annot_pt=7.0,
     annot_line_pt=9.0,
 )
 
@@ -118,7 +115,6 @@ def style_axes(ax):
 _ANNOT_LINE_PT = 11.0
 
 
-# --------------------------------------------------------------------------- outlier points
 OUTLIER_FENCES = {"mad": 3.5, "iqr": 1.5}
 _OUTLIER_POLICY = {"method": None}
 
@@ -204,7 +200,6 @@ def outlier_table(data, group, order, method, by=None):
     return t
 
 
-# --------------------------------------------------------------------------- helpers
 def stars(p) -> str:
     """Significance stars for a p value ('ns' at or above 0.05, 'n/a' if missing).
 
@@ -305,7 +300,6 @@ def panel_folder_name(panel_id: str, name: str) -> str:
     return f"{panel_id}_{safe}" if safe else str(panel_id)
 
 
-# --------------------------------------------------------------------------- x axis: labels or +/- matrix
 MINUS = "−"
 
 
@@ -382,7 +376,6 @@ def axis_layout(order: Sequence, parts: Mapping, style: str = "auto",
     return out
 
 
-# --------------------------------------------------------------------------- bar-panel tests
 def _empty_test(test, n_groups, reason):
     """One ``test`` row for a comparison that was not run.
 

@@ -1440,7 +1440,6 @@ def _recruitment_new_filters(df, settings, results_dir, field_qc_counts=None, pr
         df = df[~_edge_cut_mask(df, 'pathogen')]
         df = log.add('exclude_edge_objects (pathogen cut by the field edge)', before, df)
     if settings.get('background_filters') or settings.get('min_solidity') is not None:
-        # vacuole (pathogen) quality: signal relative to its own field background, and shape
         df = _object_quality_filters(df, settings, 'pathogen', settings['src'], log, '')
     if settings.get('confounder_filter'):
         df = _apply_confounder_filter(df, settings['confounder_filter'], log)
@@ -1692,7 +1691,7 @@ def _panel_crop_grids(df, specs, names, panels, panels_dir, settings):
                                    size=cfg['size'], value_column=value, selection='median',
                                    mono_channel=cfg.get('mono_channel'))
             out[pid]['table'].to_csv(os.path.join(folder, 'data.csv'), index=False)
-        except Exception as exc:  # crops must never stop the analysis
+        except Exception as exc:
             print(f"representative crops for {pid} failed: {exc}")
     return out
 
@@ -1867,7 +1866,7 @@ def _object_quality_filters(frame, settings, compartment, project_dir, log, resu
             cache_path=os.path.join(project_dir, 'results', results_subdir, 'field_background.csv'))
         frame = frame.copy()
         bg = bg.set_index('file_name')
-        for col in bg.columns:          # map, not merge: keep the object index (prcfo)
+        for col in bg.columns:
             frame[col] = frame['file_name'].astype(str).map(bg[col])
         for rule in rules:
             c = int(rule['channel'])
@@ -2409,7 +2408,6 @@ def analyze_recruitment(settings):
     if settings['plot_control'] or settings.get('panels'):
         _recruitment_panels(df, settings, _results_dir)
     if settings.get('report'):
-        # unfiltered = spaCR output before the opt-in filters, with the same cells_per_well rule
         if 'cells_per_well' in _df_unfiltered.columns:
             _cpw = pd.to_numeric(_df_unfiltered['cells_per_well'], errors='coerce')
             _df_unfiltered = _df_unfiltered[
@@ -5136,8 +5134,6 @@ def analyze_replication(settings):
         print('Replication size proxy: host-cell aggregated pathogen area, '
               'not direct parasite counts or measured volume. Multiple vacuoles '
               'in one host cell are combined by this legacy method.')
-        # The replication defaults (well_qc / object_qc / outlier_points on) must reach the
-        # size-proxy path too; analyze_endodyogeny only fills its own defaults.
         from . import settings as _settings_module
         _proxy_defaults = {k: v for k, v in _settings_module.set_analyze_replication_defaults({}).items()
                            if k in ('well_qc', 'well_qc_mad', 'well_qc_measures', 'object_qc',

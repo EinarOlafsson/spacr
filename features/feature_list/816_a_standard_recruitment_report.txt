@@ -1,7 +1,7 @@
 A STANDARD RECRUITMENT REPORT (ANALYZE_RECRUITMENT)
 
 Lifecycle: new
-Status: open. In progress on WS; lands with Anu's filter commit (4901962e29, background_filters and min_solidity) after the 2026-11-06 batch.
+Status: DONE 2026-11-06 - analyze_recruitment(report=True) writes results/report: filtered and unfiltered figures (tiles in three 16-bit versions, recruitment at well and replicate level with one-factor significance brackets, controls without tests), plate-heatmap appendix, figure legends on the figures and in figure_legend.txt, one folder per panel; well_qc / object_qc / outlier_points on by default; spacr/assay_report.py. Verified on the Anu Me49 and RH plates.
 Requested: maintainer, 2026-11-06 (via Anu).
 Owner: Anu (WS).
 

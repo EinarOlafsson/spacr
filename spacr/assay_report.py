@@ -60,10 +60,9 @@ MARGIN_MM = 12.0
 GAP_MM = 5.0
 HEADING_MM = 7.0
 MIN_FONT_PT = 5.0
-MAX_BRACKETS = 12  # more qualifying pairs: the smallest p values are drawn, all pairs in stats.csv
+MAX_BRACKETS = 12
 MM = 1 / 25.4
 _CORE_OBJECTS = ("cell", "nucleus", "cytoplasm", "pathogen")
-# fixed object-type colours (Okabe-Ito), so a type has the same colour in every panel
 OBJECT_COLOURS = {"cell": "#4C72B0", "nucleus": "#264653", "cytoplasm": "#A8DADC",
                   "pathogen": "#2A9D8F"}
 _EXTRA_OBJECT_COLOURS = ["#8C8C8C", "#7FA7C9", "#5E548E", "#B5838D"]
@@ -82,7 +81,6 @@ COLOURS = {"red": (1, 0, 0), "green": (0, 1, 0), "blue": (0, 0, 1), "magenta": (
            "white": (1, 1, 1)}
 
 
-# =========================================================================== layout
 @dataclass
 class Layout:
     """Page geometry and type sizes of a report layout (all lengths in mm, fonts in pt).
@@ -448,7 +446,6 @@ def _legend_pages(text, page=A4_MM):
     return [lines[i:i + per_page] for i in range(0, len(lines), per_page)]
 
 
-# =========================================================================== sizing helpers
 def _pt_mm(pt):
     return pt / 72 * 25.4
 
@@ -508,11 +505,10 @@ def condition_chunks(order, per_category_mm, fixed_mm, max_per_row, page=A4_MM, 
     if n <= size:
         return full, [order]
     k = int(math.ceil(n / size))
-    size = int(math.ceil(n / k))  # balance the chunks
+    size = int(math.ceil(n / k))
     return full, [order[i:i + size] for i in range(0, n, size)]
 
 
-# =========================================================================== object discovery
 def object_types(df: pd.DataFrame, channels: Optional[Sequence[int]] = None) -> List[str]:
     """Object prefixes with ``<obj>_channel_<c>_mean_intensity`` columns.
 
@@ -666,7 +662,6 @@ def db_well_counts(db_path, frame, group, tables=None, well_keys=WELL_KEYS):
     return pd.concat(frames, ignore_index=True)
 
 
-# =========================================================================== QC filters
 QC_MEASURES = ("count", "area", "intensity")
 _MAD_K = 1.4826
 
@@ -819,7 +814,6 @@ def object_qc_mask(df, channels=None, measures=None, mad=3.5, plate_column="plat
                                              "objects", "qc_group", "objects_with_plate_fallback"])
 
 
-# =========================================================================== grouped panel
 def grouped_spec(data, group, order, objects, value="mean_intensity", title="", ylabel=None,
                  labels=None, colors=None, log_ratio=30.0) -> dict:
     """Grouped bars (one colour per object type) with one test per object type.
@@ -900,7 +894,7 @@ def draw_grouped_panel(ax, spec, order=None, seed=0, compact=False):
                         bbox_to_anchor=(0.0, 1.0), ncol=ncol, handlelength=0.8, handleheight=0.6,
                         handletextpad=0.3, columnspacing=0.8, borderaxespad=0.1, borderpad=0.1,
                         labelspacing=0.15)
-        leg.set_in_layout(False)   # a wide legend must not squeeze the bars
+        leg.set_in_layout(False)
         rows = int(math.ceil(k / ncol))
         if "log" in title:
             ax.set_title("log axis", fontsize=COMPACT.text_pt, pad=2 + rows * COMPACT.text_pt * 1.25)
@@ -914,7 +908,7 @@ def draw_grouped_panel(ax, spec, order=None, seed=0, compact=False):
     return ax
 
 
-COMPACT_DOT_SIZE = 13.0   # pt^2
+COMPACT_DOT_SIZE = 13.0
 
 
 def compact_style(ax, layout=COMPACT, wrap=_COMPACT_WRAP):
@@ -941,7 +935,7 @@ def compact_style(ax, layout=COMPACT, wrap=_COMPACT_WRAP):
         for t in leg.get_texts():
             t.set_fontsize(txt)
     for c in ax.collections:
-        if isinstance(c, PathCollection):     # jitter dots: about 3.6 pt across
+        if isinstance(c, PathCollection):
             c.set_sizes(np.full(max(len(c.get_offsets()), 1), COMPACT_DOT_SIZE))
             c.set_linewidths(0.25)
         elif isinstance(c, LineCollection):
@@ -965,7 +959,6 @@ def compact_style(ax, layout=COMPACT, wrap=_COMPACT_WRAP):
     if len(texts) == len(ticks) and any(texts):
         wrapped = ["\n".join(textwrap.wrap(t, wrap, break_long_words=False)) for t in texts]
         n_lines = max(t.count("\n") + 1 for t in wrapped)
-        # 45 degrees while the labels clear each other, else vertical
         fig = ax.figure
         width_mm = ax.get_position().width * fig.get_size_inches()[0] * 25.4
         per_cat = width_mm / max(len(ticks), 1)
@@ -1005,7 +998,7 @@ class _annot_style:
         return False
 
 
-COMPACT_ANNOT = (5.0, 6.2)   # pt: matrix text and row spacing in the compact layout
+COMPACT_ANNOT = (5.0, 6.2)
 
 
 def _draw_spec(ax, spec, order=None, layout=SPACIOUS):
@@ -1157,7 +1150,6 @@ def save_spec_panel(out_dir, pid, name, spec, dpi=300):
                               data=spec["data"], stats=stats_long(spec), dpi=dpi)
 
 
-# =========================================================================== tiles
 def resolve_mask_dims(merged_dir, names, n_planes, overrides=None):
     """Plane index of each object mask: ``overrides``, else the plane layout
     sidecar of the merged folder, else the last ``len(names)`` planes in order."""
@@ -1273,7 +1265,6 @@ def extract_tile(arr, mask_plane, label, size, center_plane=None, require_inside
     return raw, (cy0, cy1, cx0, cx1), padded
 
 
-# outline colours on the grey channel-of-interest images, one per object type
 OUTLINE_COLOURS = {"cell": (0.0, 0.75, 1.0), "nucleus": (1.0, 0.0, 1.0), "pathogen": (1.0, 0.35, 0.0),
                    "cytoplasm": (0.0, 1.0, 0.5)}
 _EXTRA_OUTLINES = [(0.5, 1.0, 0.0), (1.0, 0.0, 0.3), (0.6, 0.4, 1.0)]
@@ -1533,7 +1524,7 @@ def crop_drawer(result, chunk, n, size, layout=SPACIOUS, axis=None, labels=None,
     vgap = 2.0
     side = (width_mm - vgap * (len(versions) - 1)) / len(versions) / ncol >= min_tile_mm
     per_w = (width_mm - vgap * (len(versions) - 1)) / len(versions) if side else width_mm
-    cols_w = ncol + (ncol - 1) * gap / size          # montage width in tile units (hairlines included)
+    cols_w = ncol + (ncol - 1) * gap / size
     tile_mm = per_w / cols_w
     if max_tile_mm:
         tile_mm = min(tile_mm, max_tile_mm)
@@ -1574,8 +1565,6 @@ def crop_drawer(result, chunk, n, size, layout=SPACIOUS, axis=None, labels=None,
             ax.imshow((m.astype(np.float64) / 257).round().astype(np.uint8), interpolation="none",
                       aspect="auto", extent=(-0.5, ncol - 0.5, ih, 0))
             ax.set_axis_off()
-            # labels / matrix once: under the first (merged) version when side by side,
-            # under the last when stacked (the columns line up)
             if (side and k != 0) or (not side and k != len(versions) - 1):
                 continue
             for r, (name, texts) in enumerate(rows):
@@ -1639,7 +1628,6 @@ def text_items(paragraphs, layout, pt=6.0, width=1.0):
     return items
 
 
-# =========================================================================== plate heatmaps
 def _well_index(value):
     """'r12' / 'c3' / '12' -> 12; a plate row letter ('B') -> 2."""
     m = re.search(r"(\d+)$", str(value))
@@ -1767,7 +1755,6 @@ def save_heatmap_panel(out_dir, pid, name, spec, dpi=300):
                               data=spec["data"], dpi=dpi)
 
 
-# =========================================================================== legend
 def describe_test(test_row: Mapping) -> str:
     """One sentence: the omnibus test, its result and why it was chosen."""
     t = test_row.get("test")
@@ -1877,7 +1864,6 @@ def _bracket_text(spec):
             f"is in stats.csv.")
 
 
-# =========================================================================== report builder
 def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: str, group: str,
                        order: Sequence, channels: Sequence[int], labels=None,
                        replicate_column=None, value_label=None, ratio=False,
@@ -1934,7 +1920,7 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
     if db_path and os.path.exists(db_path):
         try:
             db_tables = db_object_tables(db_path) or None
-        except Exception:  # an unreadable database falls back to counting the frame
+        except Exception:
             db_tables = None
 
     def next_id():
@@ -1986,7 +1972,6 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
                                       new_page=first_block[0]))
             first_block[0] = False
 
-        # ---- tiles and representative crops of this version
         if tiles:
             pid = next_id()
             folder = os.path.join(panels_dir, panel_folder_name(pid, f"tiles_{version}"))
@@ -1995,7 +1980,7 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
                                  **{k: v for k, v in tiles.items() if k in
                                     ("merged_dir", "mask_dims", "colour_map", "n", "size", "seed",
                                      "edge_column", "mono_channel")})
-            except Exception as exc:  # missing arrays must not stop the report
+            except Exception as exc:
                 tr = None
                 legend.append(f"{pid}. Tiles could not be made: {exc}.")
             if tr is not None and len(tr["table"]):
@@ -2033,7 +2018,6 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
                                   f"(data.csv: object, value, condition median); left to right: merged, "
                                   f"channel {mono}, channel {mono} with outlines.")
 
-        # ---- value graphs (half page width) with their crop grids
         items, grids = [], []
         levels = ["well"] + (["replicate"] if replicate_column else [])
         for k, level in enumerate(levels):
@@ -2077,7 +2061,6 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
             legend.append("Replicate-level graphs are not drawn because replicate_column is not set.")
         add_block(items + grids)
 
-        # ---- controls (no statistics)
         items = []
         chans = [c for c in channels if object_types(df, [c])]
         for k, chan in enumerate(chans):
@@ -2170,7 +2153,6 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
         figure_blocks[version] = blocks
         legends[version] = legend
 
-    # ---- plate heatmaps (appendix)
     heat_blocks, heat_legend = [], []
     if heatmaps and heat:
         keys = list(WELL_KEYS)

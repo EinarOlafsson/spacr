@@ -12,7 +12,7 @@ Repeated IDs retain their separate full filenames and histories; none were merge
 
 This is a declaration-based navigation list, not a verified unfinished count. Headers can be stale. Conversely, recorded-Done items 641 and 673 contain later Mac follow-ups; item 729 separates native checks from deferred implementation. Read their linked notes before assigning work.
 
-88 records have no recorded complete declaration; 728 have a recorded complete declaration. Neither is a verification result.
+87 records have no recorded complete declaration; 729 have a recorded complete declaration. Neither is a verification result.
 
 | ID | Lifecycle | Item (full filename) | Recorded status |
 |---|---|---|---|
@@ -87,7 +87,6 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 813 | New | [OPS MODULE V2 — 813_ops_module_v2.txt](feature_list/813_ops_module_v2.txt) | open. Umbrella for 809 (sharded crops), 810 (bulk SQLite), 811 (join indexes) and 812 (standard layout); supersedes 812's layout details where they differ. Build after the running decode-strategy (decode_yield_2026-11-04) and stitching studies settle. |
 | 814 | New | [ONE IMAGE-LEVEL TABLE NAMED IMAGE — 814_one_image_level_table.txt](feature_list/814_one_image_level_table.txt) | open. Build after the 2026-11-06 batch lands on nightly; the column contract below is what Anu's WS reader already uses. |
 | 815 | New | [A STANDARD REPORT FOR ANALYZE_REPLICATION — 815_a_standard_replication_report.txt](feature_list/815_a_standard_replication_report.txt) | open. Builds on spacr/assay_report.py (A4 layout and pagination, 16-bit tile extraction, legend builder), which reaches nightly with Anu's recruitment report push after the 2026-11-06 batch. |
-| 816 | New | [A STANDARD RECRUITMENT REPORT (ANALYZE_RECRUITMENT) — 816_a_standard_recruitment_report.txt](feature_list/816_a_standard_recruitment_report.txt) | open. In progress on WS; lands with Anu's filter commit (4901962e29, background_filters and min_solidity) after the 2026-11-06 batch. |
 | 817 | New | [NAMED PLATE-MAP VARIABLES — 817_named_plate_map_variables.txt](feature_list/817_named_plate_map_variables.txt) | open. |
 | 818 | New | [A FIGURE COMPOSER ACROSS RUNS AND MODULES — 818_a_figure_composer_across_runs.txt](feature_list/818_a_figure_composer_across_runs.txt) | open. |
 | 819 | New | [UNFILTERED AND FILTERED IN ONE RUN — 819_unfiltered_and_filtered_in_one_run.txt](feature_list/819_unfiltered_and_filtered_in_one_run.txt) | open. |
@@ -908,7 +907,7 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 813 | New | [OPS MODULE V2 — 813_ops_module_v2.txt](feature_list/813_ops_module_v2.txt) | open. Umbrella for 809 (sharded crops), 810 (bulk SQLite), 811 (join indexes) and 812 (standard layout); supersedes 812's layout details where they differ. Build after the running decode-strategy (decode_yield_2026-11-04) and stitching studies settle. |
 | 814 | New | [ONE IMAGE-LEVEL TABLE NAMED IMAGE — 814_one_image_level_table.txt](feature_list/814_one_image_level_table.txt) | open. Build after the 2026-11-06 batch lands on nightly; the column contract below is what Anu's WS reader already uses. |
 | 815 | New | [A STANDARD REPORT FOR ANALYZE_REPLICATION — 815_a_standard_replication_report.txt](feature_list/815_a_standard_replication_report.txt) | open. Builds on spacr/assay_report.py (A4 layout and pagination, 16-bit tile extraction, legend builder), which reaches nightly with Anu's recruitment report push after the 2026-11-06 batch. |
-| 816 | New | [A STANDARD RECRUITMENT REPORT (ANALYZE_RECRUITMENT) — 816_a_standard_recruitment_report.txt](feature_list/816_a_standard_recruitment_report.txt) | open. In progress on WS; lands with Anu's filter commit (4901962e29, background_filters and min_solidity) after the 2026-11-06 batch. |
+| 816 | New | [A STANDARD RECRUITMENT REPORT (ANALYZE_RECRUITMENT) — 816_a_standard_recruitment_report.txt](feature_list/816_a_standard_recruitment_report.txt) | DONE 2026-11-06 - analyze_recruitment(report=True) writes results/report: filtered and unfiltered figures (tiles in three 16-bit versions, recruitment at well and replicate level with one-factor significance brackets, controls without tests), plate-heatmap appendix, figure legends on the figures and in figure_legend.txt, one folder per panel; well_qc / object_qc / outlier_points on by default; spacr/assay_report.py. Verified on the Anu Me49 and RH plates. |
 | 817 | New | [NAMED PLATE-MAP VARIABLES — 817_named_plate_map_variables.txt](feature_list/817_named_plate_map_variables.txt) | open. |
 | 818 | New | [A FIGURE COMPOSER ACROSS RUNS AND MODULES — 818_a_figure_composer_across_runs.txt](feature_list/818_a_figure_composer_across_runs.txt) | open. |
 | 819 | New | [UNFILTERED AND FILTERED IN ONE RUN — 819_unfiltered_and_filtered_in_one_run.txt](feature_list/819_unfiltered_and_filtered_in_one_run.txt) | open. |
