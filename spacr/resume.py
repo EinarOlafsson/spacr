@@ -309,6 +309,7 @@ NON_FIELD_TABLES = frozenset({
 #: of these is reported as drift and does **not** block a resume.
 COSMETIC_SETTINGS = frozenset({
     'src', 'resume', 'n_jobs', 'mask_parallel', 'mask_gpu_indices',
+    'gpu_memory_fraction', 'gpu_memory_margin_gb', 'gpu_adaptive_batch',
     'watch_folder', 'watch_pipeline', 'watch_measure_settings',
     'watch_settle_seconds', 'watch_poll_seconds', 'watch_idle_minutes',
     'microscope_feedback', 'microscope_driver', 'microscope_simulated_folder',

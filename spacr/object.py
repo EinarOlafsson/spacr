@@ -2106,7 +2106,10 @@ def generate_cellpose_masks(src, settings, object_type):
                 save_path = os.path.join(movie_path, f'timelapse_{object_type}_{name}.mp4')
                 _npz_to_movie(batch, batch_filenames, save_path, fps=2)
                         
-            output = model.eval(x=batch_list,
+            from ._gpu_governor import _governed_eval
+
+            output = _governed_eval(model, batch_list,
+                                site='mask', settings=settings,
                                 batch_size=batch_size,
                                 normalize=False,
                                 channel_axis=-1,

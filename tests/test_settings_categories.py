@@ -872,6 +872,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # measurement on a CUDA GPU, under its own "GPU Measurement α"
     # heading.
     "measure_gpu",
+    # NEW SETTINGS, not a regrouping (item 803): the GPU memory governor's
+    # ceiling, margin and adaptive-batch switch on Mask, Measure, Timelapse
+    # and Classify, under their own "GPU Memory α" heading.
+    "gpu_memory_fraction", "gpu_memory_margin_gb", "gpu_adaptive_batch",
     # A NEW SETTING, not a regrouping (item 685, 2026-10-10): the alpha vvvv
     # export of Mask Generation and Measure, filed with the object crops
     # and shown under Visualization & Diagnostics on Mask and Crop Output
@@ -1695,6 +1699,7 @@ def _rendered_sections(app_key):
             # Item 578, 2026-09-27: the robustness report re-segments after
             # the masks and their QC exist.
             "Segmentation Robustness α",
+            "GPU Memory α",
             "Volumetric Processing (Beta)",
             # Item 592, 2026-09-28: Output & Storage and Runtime &
             # Reliability merged into Quality Control, which also holds the
@@ -1727,7 +1732,7 @@ def _rendered_sections(app_key):
             "CellProfiler α", "GPU Measurement α",
             "Time To Event α", "Lineage Trees α",
             "Object Filtering", "Crop Output", "3D Calibration (Beta)",
-            "Runtime & Reliability", "Profiling α",
+            "Runtime & Reliability", "GPU Memory α", "Profiling α",
             "Measurement Backend α",
         ]),
             ("timelapse", [
@@ -1761,7 +1766,7 @@ def _rendered_sections(app_key):
             # Item 567, 2026-09-27: events are detected on the same tracks.
             "Event Detection α",
             "Visualization & Diagnostics", "Output & Storage",
-            "Runtime & Reliability",
+            "Runtime & Reliability", "GPU Memory α",
         ]),
         ("motility", [
             "Objects & Channels", "Spatial & Temporal Calibration",

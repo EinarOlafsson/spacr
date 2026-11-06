@@ -21,6 +21,7 @@ import re
 import time
 from collections import Counter
 from .resource_log import _parallel_thread_executor as ThreadPoolExecutor
+from ._gpu_governor import _governed_eval
 from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
@@ -1211,7 +1212,8 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
         fill = image.copy()
         fill[~covered] = float(np.median(image[covered]))
         tick = time.perf_counter()
-        masks = np.asarray(model.eval(fill, batch_size=16, **extra)[0], np.int32)
+        masks = np.asarray(_governed_eval(model, fill, site='ops_stitched',
+                                          settings=settings, batch_size=16, **extra)[0], np.int32)
         seconds["segment"] += time.perf_counter() - tick
         masks[~covered] = 0
         tick = time.perf_counter()
@@ -2217,9 +2219,13 @@ def _ph_segment_field(stack: np.ndarray, channels: Sequence[str], models,
         value = settings.get(key)
         extra[name] = {"diameter": float(value) / factor} if value else {}
     nucleus_model, cell_model = models
-    nuclei = nucleus_model.eval(dna, batch_size=batch, **extra["nucleus"])[0]
-    cells = cell_model.eval(np.stack([body, dna], axis=-1), batch_size=batch,
-                            channel_axis=-1, **extra["cell"])[0]
+    nuclei = _governed_eval(nucleus_model, dna, site='ops_phenotype',
+                            settings=settings, batch_size=batch,
+                            **extra["nucleus"])[0]
+    cells = _governed_eval(cell_model, np.stack([body, dna], axis=-1),
+                           site='ops_phenotype', settings=settings,
+                           batch_size=batch, channel_axis=-1,
+                           **extra["cell"])[0]
     shape = stack.shape[:2]
     return pair_nuclei_with_cells(_ph_upscale(nuclei, factor, shape),
                                   _ph_upscale(cells, factor, shape))
@@ -4907,7 +4913,10 @@ def run_spatial_masks(settings: Mapping[str, Any], *,
                 extra["diameter"] = float(diameter)
             if image.ndim == 3:
                 extra["channel_axis"] = -1
-            nuclei = np.asarray(model.eval(image, batch_size=16, **extra)[0],
+            nuclei = np.asarray(_governed_eval(model, image,
+                                               site='ops_spatial',
+                                               settings=settings,
+                                               batch_size=16, **extra)[0],
                                 dtype=np.int32)
         seconds["segment"] += time.perf_counter() - tick
         cells = (expand_labels(nuclei, distance=expansion_px).astype(np.int32)

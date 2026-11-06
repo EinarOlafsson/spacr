@@ -1337,6 +1337,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Segmentation Robustness α",
          ("@Segmentation Robustness α",)),
+        ("GPU Memory α", ("@GPU Memory α",)),
         ("Volumetric Processing (Beta)", ("@3D Settings (Beta)",)),
         ("Time Axes & Tracking (Beta)", ("timelapse", "@4D Settings (Beta)",)),
         ("Visualization & Diagnostics", (
@@ -1421,6 +1422,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "on_error_attempts", "on_error_backoff", "random_seed", "dry_run",
             "verbose", "n_jobs", "ram_guard",
         )),
+        ("GPU Memory α", ("@GPU Memory α",)),
         ("Profiling α", ("@Profiling α",)),
         ("Measurement Backend α", ("@Measurement Backend α",)),
     ),
@@ -1512,6 +1514,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "n_jobs", "ram_guard", "batch_size", "pipeline_style",
             "diameter_estimate_n_fields",
         )),
+        ("GPU Memory α", ("@GPU Memory α",)),
     ),
     "motility": (
         ("Objects & Channels", (
@@ -2153,7 +2156,8 @@ _APP_CATEGORY_PARENTS["measure"] = {
         "Confluency α", "Cell Cycle α", "Wound Closure α", "Viability α",
         "CellProfiler α", "GPU Measurement α", "Time To Event α")},
     **{title: "Postprocessing" for title in (
-        "Runtime & Reliability", "Profiling α", "Measurement Backend α")},
+        "Runtime & Reliability", "GPU Memory α", "Profiling α",
+        "Measurement Backend α")},
 }
 for _cellpose_app in ('cellpose_masks', 'cellpose_all'):
     _APP_CATEGORY_PARENTS[_cellpose_app] = {
@@ -2617,6 +2621,10 @@ def _categories_for_app_uncached(app_key, categories, plugin_app):
             "Runtime & Reliability": [
                 "random_seed", "n_jobs", "ram_guard", "pin_memory", "verbose",
                 "strict_errors", "max_failure_rate"],
+
+            "GPU Memory α": [
+                "gpu_memory_fraction", "gpu_memory_margin_gb",
+                "gpu_adaptive_batch"],
         }
         if app_key == "classify_merged":
             ordered["Model & Regularization"] = [
@@ -2651,7 +2659,7 @@ def _categories_for_app_uncached(app_key, categories, plugin_app):
             ml_groups = ("Model & Features", "Plate & Batch Correction")
             shared_first = ("Plate Sources & Workflow", "Labels & Classes")
             shared_last = ("Evaluation", "Results & figures",
-                           "Runtime & Reliability")
+                           "Runtime & Reliability", "GPU Memory α")
 
             for shared_key in ("channel_of_interest", "tables"):
                 ordered["Images & Cropping"].remove(shared_key)
@@ -3072,6 +3080,11 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "moments computed for all objects of a field at once on a CUDA GPU, "
         "matching the CPU values within float tolerance. Without a GPU the "
         "CPU path runs.",
+    "GPU MEMORY Α":
+        "How much of a shared GPU this run may take: an optional hard "
+        "ceiling, the memory kept free for other jobs, and batches that "
+        "shrink, retry at half size or move to the CPU instead of stopping "
+        "the run when the card is full.",
     "PROFILING Α":
         "Image-based profiling after Measure: one profile per well from the "
         "object tables, annotated from a plate map, normalised per plate "

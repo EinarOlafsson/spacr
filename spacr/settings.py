@@ -1331,6 +1331,9 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('adjust_cells', True)
     settings.setdefault('mask_parallel', False)
     settings.setdefault('mask_gpu_indices', '')
+    settings.setdefault('gpu_memory_fraction', None)
+    settings.setdefault('gpu_memory_margin_gb', 1.5)
+    settings.setdefault('gpu_adaptive_batch', True)
     settings.setdefault('export_vvvv', False)
     settings.setdefault('watch_folder', False)
     settings.setdefault('watch_pipeline', 'mask')
@@ -1920,6 +1923,9 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('confluency_qc_threshold', 0.8)
     settings.setdefault('bleach_correction', 'none')
     settings.setdefault('measure_gpu', False)
+    settings.setdefault('gpu_memory_fraction', None)
+    settings.setdefault('gpu_memory_margin_gb', 1.5)
+    settings.setdefault('gpu_adaptive_batch', True)
     settings.setdefault('export_vvvv', False)
     settings.setdefault('ram_guard', True)
     settings.setdefault('measurement_backend', 'sqlite')
@@ -2633,6 +2639,9 @@ def set_default_train_test_model(settings):
     settings.setdefault('n_jobs',cores)
     settings.setdefault('ram_guard', True)
     settings.setdefault('train_channels',['r','g','b'])
+    settings.setdefault('gpu_memory_fraction', None)
+    settings.setdefault('gpu_memory_margin_gb', 1.5)
+    settings.setdefault('gpu_adaptive_batch', True)
     settings.setdefault('augment',False)
     settings.setdefault('verbose',False)
     settings.setdefault('class_balance','none')
@@ -2734,6 +2743,9 @@ def deep_spacr_defaults(settings):
     settings.setdefault('n_jobs',cores)
     settings.setdefault('ram_guard', True)
     settings.setdefault('train_channels',['r','g','b'])
+    settings.setdefault('gpu_memory_fraction', None)
+    settings.setdefault('gpu_memory_margin_gb', 1.5)
+    settings.setdefault('gpu_adaptive_batch', True)
     settings.setdefault('augment',False)
     settings.setdefault('verbose',True)
     settings.setdefault('apply_model_to_dataset',True)
@@ -3759,6 +3771,9 @@ expected_types = {
     "keep_original_images": bool,
     "mask_parallel": bool,
     "mask_gpu_indices": str,
+    "gpu_memory_fraction": (float, int, type(None)),
+    "gpu_memory_margin_gb": (float, int),
+    "gpu_adaptive_batch": bool,
     "export_vvvv": bool,
     "watch_folder": bool,
     "watch_pipeline": str,
@@ -5143,6 +5158,9 @@ tooltips = {
     "keep_intermediate": "(bool) - Keep the intermediate stack/ and masks/ folders after the merged/ arrays are built. Off by default: only merged/ is kept (masks are embedded in merged and recorded in the database).",
     "mask_parallel": "(bool) - Segment the prepared cell, nucleus and pathogen batches on several GPUs at once, one model process per GPU. Each batch goes to exactly one GPU, finished batches are kept and a rerun with the same settings resumes the rest. Masks match the single-GPU run. Needs two or more CUDA or ROCm GPUs and the Cellpose backend; not for timelapse or t_stack runs. With adjust_cells, adjusted cells are written to masks/adjusted_cell_mask_stack and the raw cell masks are kept. Default False.",
     "mask_gpu_indices": "(str) - GPUs used when mask_parallel is on, as comma-separated numbers such as 0,1. Blank uses every GPU the process can see, which on a cluster means the GPUs allocated to the job; with fewer than two the run uses one device. Default blank.",
+    "gpu_memory_fraction": "(float or None) - Hard ceiling on the share of each GPU's memory this run may use, from 0 to 1, applied with PyTorch's per-process memory fraction. 0.25 lets the run take at most a quarter of the card, so several jobs can share it. Blank sets no ceiling and the run sizes its batches to the memory that is free. Default None.",
+    "gpu_memory_margin_gb": "(float) - GPU memory, in GB, kept free for other jobs on the card. Before each batch spaCR reads the free GPU memory and, when the batch is estimated not to fit with this much to spare, shrinks the batch or waits for memory to be freed. Default 1.5.",
+    "gpu_adaptive_batch": "(bool) - Size GPU batches to the memory that is free on a shared card. Segmentation, measurement, OPS and classifier training and inference shrink a batch that would not fit, halve it and retry the same item after an out-of-memory error, run the item on the CPU when even batch size 1 does not fit, and grow the batch again after a run of clean items; no item is dropped. Every spaCR process on the machine records its GPU use in a shared file in the user cache folder, so a new job counts what running jobs are about to take. The counts appear in the run log. Off runs every batch at the requested size. Default True.",
     "watch_folder": "(bool) - Watch src and analyse each field as its images arrive. A file must stop changing for watch_settle_seconds and read whole. A fixed conversion_map.csv requires every declared companion. Without a map, known numeric filename conventions require every channel from the documented first ID through the highest selected position; custom or named channels need a fixed map. Each field runs alone, like batch_size 1, and results collect in src/spacr_watch; its ledger skips completed fields on restart. Not for timelapse, z_stack or t_stack. Default False.",
     "watch_pipeline": "(str) - What watch_folder runs on each arriving field. 'mask' runs Make Masks; 'mask_measure' adds Measure; 'mask_measure_classify' also applies a saved CV model to measured objects. Results gather in src/spacr_watch/measurements/measurements.db. Default 'mask'.",
     "watch_normalization_pool": "(str) - 'per_field' analyses arriving fields independently. 'fixed_map' waits for every image declared in conversion_map.csv, then runs the ordinary static projected v1 Mask or Mask/Measure batch pipeline with shared legacy percentile normalization and padding. Requires randomize False and batch_size greater than 1. Incomplete cohorts remain waiting; timeouts never release partial pools. Membership, recipes and original input hashes bind one restart-safe checkpoint. Default 'per_field'.",
@@ -6182,6 +6200,9 @@ categories = {
 
     "GPU Measurement α": [
         "measure_gpu",
+    ],
+    "GPU Memory α": [
+        "gpu_memory_fraction", "gpu_memory_margin_gb", "gpu_adaptive_batch",
     ],
 
     "Measurement Backend α": [
@@ -8335,6 +8356,10 @@ ALPHA_FEATURES = {
     },
     770: {
         'choices': {'batch_correction': ('tvn',)},
+    },
+    803: {
+        'settings': ('gpu_memory_fraction', 'gpu_memory_margin_gb',
+                     'gpu_adaptive_batch'),
     },
 }
 

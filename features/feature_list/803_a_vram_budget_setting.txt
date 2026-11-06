@@ -1,7 +1,10 @@
 A VRAM BUDGET AND GPU MEMORY GOVERNOR
 
 Lifecycle: new
-Status: open. Building now (maintainer, 2026-11-06).
+Status: DONE 2026-11-06 — GPU memory governor in spacr/_gpu_governor.py, wired into the
+        Cellpose wrappers, measure_gpu, the OPS phenotype and SBS paths and the CNN
+        loops; CPU-only tests in tests/test_gpu_memory_governor.py. The BBBC021
+        5 GB nvidia-smi check waits for a free GPU.
 Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
            (BMC spaCR paper) worked around must become a spaCR item.
 Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/spacr/README.md, "Gaps in spaCR worked around here", gap 10
@@ -66,6 +69,19 @@ HOW TO KNOW IT WORKED
 DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
 
-Nothing yet.
+- The BBBC021 5 GB per-process verification with nvidia-smi: the GPU was
+  busy with other long jobs on 2026-11-06, so it was not run.
+- A weighted loss (class-weighted CE) split into parts by the governor is
+  weighted by row share, which is exact for a plain mean loss and close
+  for a weighted one; the split only happens under memory pressure.
+- Translations of the three tooltips.
 
 2026-11-05: renumbered from 768 to 803; nightly already used 755-768 for other items.
+2026-11-06: built. spacr/_gpu_governor.py holds the batch controller (free
+  memory check with gpu_memory_margin_gb, shrink or wait, halve and retry the
+  same item on OOM, CPU fallback after 2 retries at batch 1, double after 8
+  clean items), torch and cupy cache release, the optional
+  gpu_memory_fraction, the machine-wide ledger
+  (~/.cache/spacr/gpu_ledger.json, flock + atomic rename, dead PIDs dropped)
+  and run counters logged at the end of every run_context run and kept in
+  RunContext.gpu_memory. Settings alpha under 803.

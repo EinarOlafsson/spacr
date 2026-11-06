@@ -63,7 +63,7 @@ def test_features_keeps_its_rows_and_nests_the_assays(qtbot):
 
 def test_postprocessing_nests_runtime_and_profiling(qtbot):
     assert _children(_tree(qtbot)["Postprocessing"]) == [
-        "Runtime & Reliability", "Profiling α",
+        "Runtime & Reliability", "GPU Memory α", "Profiling α",
         "Measurement Backend α"]
 
 

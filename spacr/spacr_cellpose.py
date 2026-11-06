@@ -15,6 +15,7 @@ except Exception:
 from skimage.transform import resize as resizescikit
 
 from .tiff_io import write_tiff
+from ._gpu_governor import _governed_eval
 
 def cellpose_rescale(value):
     """The ``rescale=`` Cellpose should actually receive. Falsy becomes None.
@@ -260,7 +261,8 @@ def identify_masks_finetune(settings):
 
         for file_index, stack in enumerate(images):
             start = time.time()
-            output = model.eval(x=stack,
+            output = _governed_eval(model, stack,
+                         site='cellpose_finetune', settings=settings,
                          normalize=model_normalises,
                          channel_axis=cellpose_channel_axis(stack),
                          diameter=settings['diameter'],
@@ -367,7 +369,8 @@ def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellp
 
         for file_index, stack in enumerate(images):
             start = time.time()
-            output = model.eval(x=stack,
+            output = _governed_eval(model, stack,
+                         site='cellpose_images',
                          normalize=False,
                          channel_axis=cellpose_channel_axis(stack),
                          diameter=diameter,

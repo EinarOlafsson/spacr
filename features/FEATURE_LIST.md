@@ -12,7 +12,7 @@ Repeated IDs retain their separate full filenames and histories; none were merge
 
 This is a declaration-based navigation list, not a verified unfinished count. Headers can be stale. Conversely, recorded-Done items 641 and 673 contain later Mac follow-ups; item 729 separates native checks from deferred implementation. Read their linked notes before assigning work.
 
-76 records have no recorded complete declaration; 740 have a recorded complete declaration. Neither is a verification result.
+74 records have no recorded complete declaration; 742 have a recorded complete declaration. Neither is a verification result.
 
 | ID | Lifecycle | Item (full filename) | Recorded status |
 |---|---|---|---|
@@ -72,7 +72,6 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 800 | Future | [MEASURE SIZE FILTERS FOLLOW MAGNIFICATION — 800_measure_size_filters_follow_magnification.txt](feature_list/800_measure_size_filters_follow_magnification.txt) | not started |
 | 801 | Future | [ONE GPU STAYS BUSY DURING MAKE MASKS — 801_one_gpu_stays_busy_during_make_masks.txt](feature_list/801_one_gpu_stays_busy_during_make_masks.txt) | not started |
 | 802 | Future | [SEGMENTATION ILLUMINATION WITH SEPARATE PREPROCESSING — 802_segmentation_illumination_with_separate_preprocessing.txt](feature_list/802_segmentation_illumination_with_separate_preprocessing.txt) | not started |
-| 803 | New | [A VRAM BUDGET AND GPU MEMORY GOVERNOR — 803_a_vram_budget_setting.txt](feature_list/803_a_vram_budget_setting.txt) | open. Building now (maintainer, 2026-11-06). |
 | 809 | New | [A SHARDED CROP STORE — 809_sharded_crop_store.txt](feature_list/809_sharded_crop_store.txt) | open. Build first of 809-811, after the OPS plate A run has finished. |
 | 810 | New | [BULK SQLITE WRITES FOR THE MEASUREMENT STORE — 810_bulk_sqlite_writes_for_measurements.txt](feature_list/810_bulk_sqlite_writes_for_measurements.txt) | open. Build after 809 and after the OPS plate A run has finished. |
 | 811 | New | [INDEX THE MEASUREMENT JOIN KEYS — 811_index_the_measurement_join_keys.txt](feature_list/811_index_the_measurement_join_keys.txt) | open. Build with 810, after the OPS plate A run has finished. |
@@ -882,7 +881,7 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 800 | Future | [MEASURE SIZE FILTERS FOLLOW MAGNIFICATION — 800_measure_size_filters_follow_magnification.txt](feature_list/800_measure_size_filters_follow_magnification.txt) | not started |
 | 801 | Future | [ONE GPU STAYS BUSY DURING MAKE MASKS — 801_one_gpu_stays_busy_during_make_masks.txt](feature_list/801_one_gpu_stays_busy_during_make_masks.txt) | not started |
 | 802 | Future | [SEGMENTATION ILLUMINATION WITH SEPARATE PREPROCESSING — 802_segmentation_illumination_with_separate_preprocessing.txt](feature_list/802_segmentation_illumination_with_separate_preprocessing.txt) | not started |
-| 803 | New | [A VRAM BUDGET AND GPU MEMORY GOVERNOR — 803_a_vram_budget_setting.txt](feature_list/803_a_vram_budget_setting.txt) | open. Building now (maintainer, 2026-11-06). |
+| 803 | New | [A VRAM BUDGET AND GPU MEMORY GOVERNOR — 803_a_vram_budget_setting.txt](feature_list/803_a_vram_budget_setting.txt) | DONE 2026-11-06 — GPU memory governor in spacr/_gpu_governor.py, wired into the |
 | 804 | New | [RECRUITMENT: FIELD QC AND CONFOUNDER ADJUSTMENT — 804_recruitment_field_qc_and_confounder_adjustment.txt](feature_list/804_recruitment_field_qc_and_confounder_adjustment.txt) | DONE 2026-11-05 — analyze_recruitment drops crowded, sparse and over-infected fields, screens confounders and adjusts for chosen covariates. |
 | 805 | New | [BUG: PLATE NAMES WITH URL ESCAPES DROP ALL ROWS — 805_plate_names_with_url_escapes_keep_their_rows.txt](feature_list/805_plate_names_with_url_escapes_keep_their_rows.txt) | DONE 2026-11-06 — schema.canonical_plate_id now URL-decodes (repeatedly, so %255F too) and _split_data applies it, so prcf, prcfo and plateID join; regression test tests/test_805_plate_names_with_url_escapes_keep_their_rows.py. |
 | 806 | New | [BUG: ZERNIKE MOMENTS THAT ARE NUMERICALLY ZERO DOMINATE SCALED PROFILES — 806_zernike_moments_that_are_numerically_zero.txt](feature_list/806_zernike_moments_that_are_numerically_zero.txt) | DONE 2026-11-05 — moments below 1e-10 are written as exactly 0.0 on the CPU and GPU paths (spacr.measure._ZERNIKE_ZERO_TOL); columns unchanged. Built by the paper session, commit 75dbbc55e2. |

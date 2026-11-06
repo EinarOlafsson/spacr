@@ -109,11 +109,21 @@ def _try(order, run, name_of_forced: Optional[str] = None):
         raised rather than swallowed -- falling through silently would
         answer a question nobody asked.
     :returns: ``(result, backend name)``.
+
+    A GPU backend runs under the GPU memory governor: an out-of-memory
+    error releases the cached blocks and retries the call before the NumPy
+    backend takes it over.
     """
+    from ._gpu_governor import _guarded
+
     last = None
     for name in order:
         try:
-            return run(name), name
+            if name == "numpy":
+                return run(name), name
+            on_cpu = None if name_of_forced else (lambda: run("numpy"))
+            return _guarded(lambda: run(name), on_cpu,
+                            site=f"ops_{name}"), name
         except Exception as error:                       # noqa: BLE001
             if name_of_forced:
                 raise

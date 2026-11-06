@@ -97,6 +97,7 @@ from . import measurement_schema as _measurement_schema
 MEASUREMENT_STAMP_COLUMNS = _measurement_schema.MEASUREMENT_STAMP_COLUMNS
 from .errors import RunLedger, ConfigurationError, raise_if_strict
 from .runctx import run_context, _DeferredOverloadRetries, _is_overload_failure
+from ._gpu_governor import _guarded
 from .resource_log import (_max_safe_workers, _ram_plan, _ram_reserve_bytes,
                            _ram_snapshot, _parallel_pool)
 from .resume import plan_measure_resume
@@ -632,8 +633,12 @@ def _calculate_zernike(mask, df, degree=8, device=None):
     regions = list(regionprops(mask))
     if not regions:
         return df
+    features = None
     if device is not None and _gpu_measurable(mask):
-        features = np.asarray(_torch_zernike(mask, degree, device), dtype=float)
+        features = _guarded(
+            lambda: np.asarray(_torch_zernike(mask, degree, device), dtype=float),
+            lambda: None, site='measure_zernike', device=device)
+    if features is not None:
         features = np.where(np.abs(features) < _ZERNIKE_ZERO_TOL, 0.0, features)
         zernike_df = pd.DataFrame(
             features, columns=[f'zernike_{i}' for i in range(features.shape[1])])
@@ -958,9 +963,15 @@ def _cucim_morphology_table(mask, properties):
         on_gpu = ['label'] + [name for name in requested
                               if name != 'label' and name not in on_cpu]
         sequential, _forward, inverse = relabel_sequential(np.asarray(mask))
-        table = gpu_table(cupy.asarray(sequential), properties=on_gpu)
-        columns = {name: cupy.asnumpy(cupy.asarray(values))
-                   for name, values in table.items()}
+        def _gpu_columns():
+            """The cuCIM table, copied back to host arrays."""
+            table = gpu_table(cupy.asarray(sequential), properties=on_gpu)
+            return {name: cupy.asnumpy(cupy.asarray(values))
+                    for name, values in table.items()}
+
+        columns = _guarded(_gpu_columns, lambda: None, site='measure_cucim')
+        if columns is None:
+            return None
         columns['label'] = np.asarray(inverse)[
             columns['label'].astype(np.int64)]
         if on_cpu:
@@ -1793,8 +1804,14 @@ def _intensity_measurements(
                       and _gpu_measurable(label, channel, spacing))
             if (on_gpu and tuple(intensity_props) == _GPU_INTENSITY_PROPS
                     and np.min(channel) >= 0):
-                mask_intensity_df = _torch_intensity_table(
-                    label, channel, channel_percentiles, device)
+                mask_intensity_df = _guarded(
+                    lambda: _torch_intensity_table(
+                        label, channel, channel_percentiles, device),
+                    lambda: _extended_regionprops_table(
+                        label, channel, intensity_props, spacing=spacing,
+                        field_percentiles=channel_percentiles),
+                    site='measure_intensity', device=device,
+                    settings=settings)
             else:
                 mask_intensity_df = _extended_regionprops_table(
                     label, channel, intensity_props, spacing=spacing,
@@ -1802,8 +1819,13 @@ def _intensity_measurements(
 
             if homogeneity:
                 if on_gpu:
-                    homogeneity_df = _torch_homogeneity(
-                        label, channel, distances, device)
+                    homogeneity_df = _guarded(
+                        lambda: _torch_homogeneity(
+                            label, channel, distances, device),
+                        lambda: _calculate_homogeneity(
+                            label, channel, distances),
+                        site='measure_homogeneity', device=device,
+                        settings=settings)
                 else:
                     homogeneity_df = _calculate_homogeneity(
                         label, channel, distances)

@@ -6235,6 +6235,7 @@ deterministic
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
 |         :py:func:`~spacr.runctx.run_context` **-- reads it**
+|             ``_configure(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.deep_spacr.deep_spacr`
 |     :py:func:`~spacr.deep_spacr.train_test_model` **-- reads it**
@@ -6247,10 +6248,12 @@ deterministic
 |         ``trainer(...)  [UNRESOLVED]``
 | :py:func:`~spacr.measure.measure_crop`
 |     :py:func:`~spacr.runctx.run_context` **-- reads it**
+|         ``_configure(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 | :py:func:`~spacr.sequencing.generate_barecode_mapping`
 |     :py:func:`~spacr.runctx.run_context` **-- reads it**
+|         ``_configure(...)  [UNRESOLVED]``
 
 Read by ``train_test_model``, ``run_context``.
 
@@ -9635,6 +9638,177 @@ gpu
 | ``_choose_model`` **-- reads it**
 
 Read by ``generate_image_umap``, ``load_cellpose_model``, ``preview_cellpose_model``, ``_choose_model``.
+
+.. _setting-flow-gpu_adaptive_batch:
+
+gpu_adaptive_batch
+------------------
+
+(bool) - Size GPU batches to the memory that is free on a shared card. Segmentation, measurement, OPS and classifier training and inference shrink a batch that would not fit, halve it and retry the same item after an out-of-memory error, run the item on the CPU when even batch size 1 does not fit, and grow the batch again after a run of clean items; no item is dropped. Every spaCR process on the machine records its GPU use in a shared file in the user cache folder, so a new job counts what running jobs are about to take. The counts appear in the run log. Off runs every batch at the requested size. Default True.
+
+| ``run`` **-- reads it**
+|     ``_fit(...)  [UNRESOLVED]``
+|     ``_post(...)  [UNRESOLVED]``
+| :py:func:`~spacr.deep_spacr.deep_spacr`
+|     :py:func:`~spacr.deep_spacr.apply_model_to_tar`
+|         ``_governed_predictions``
+|             ``_chunked``
+|                 ``_config`` **-- reads it**
+|                     ``isinstance(...)  [UNRESOLVED]``
+| ``_measure_crop_queued``
+|     ``_measure_crop_core``
+|         ``_intensity_measurements``
+|             ``_guarded``
+|                 ``_config`` **-- reads it**
+|                     ``isinstance(...)  [UNRESOLVED]``
+|         ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
+| :py:func:`~spacr.object.generate_cellpose_masks`
+|     ``_governed_eval``
+|         ``_config`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|     ``_run_lineage_step(...)  [UNRESOLVED]``
+| :py:func:`~spacr.ops_engine.run_ops`
+|     ``_objects``
+|         ``_governed_eval``
+|             ``_config`` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|     ``_ph_fields``
+|         ``_ph_segment_field``
+|             ``_governed_eval``
+|                 ``_config`` **-- reads it**
+|                     ``isinstance(...)  [UNRESOLVED]``
+| :py:func:`~spacr.ops_engine.run_spatial_masks`
+|     ``_governed_eval``
+|         ``_config`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+| ``_plan_gains``
+|     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
+|     ``deepcopy(...)  [UNRESOLVED]``
+| :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`
+|     ``_governed_eval``
+|         ``_config`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+
+Read by ``_config``, ``run``, ``get_measure_crop_settings``.
+
+.. _setting-flow-gpu_memory_fraction:
+
+gpu_memory_fraction
+-------------------
+
+(float or None) - Hard ceiling on the share of each GPU's memory this run may use, from 0 to 1, applied with PyTorch's per-process memory fraction. 0.25 lets the run take at most a quarter of the card, so several jobs can share it. Blank sets no ceiling and the run sizes its batches to the memory that is free. Default None.
+
+| ``_budget`` **-- reads it**
+|     ``_post(...)  [UNRESOLVED]``
+| ``_post`` **-- reads it**
+| ``run``
+|     ``_apply_fraction`` **-- reads it**
+|     ``_fit(...)  [UNRESOLVED]``
+|     ``_post(...)  [UNRESOLVED]``
+| :py:func:`~spacr.deep_spacr.deep_spacr`
+|     :py:func:`~spacr.deep_spacr.apply_model_to_tar`
+|         ``_governed_predictions``
+|             ``_chunked``
+|                 ``_config`` **-- reads it**
+|                     ``isinstance(...)  [UNRESOLVED]``
+| ``_measure_crop_queued``
+|     ``_measure_crop_core``
+|         ``_intensity_measurements``
+|             ``_guarded``
+|                 ``_config`` **-- reads it**
+|                     ``isinstance(...)  [UNRESOLVED]``
+|         ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
+| :py:func:`~spacr.object.generate_cellpose_masks`
+|     ``_governed_eval``
+|         ``_config`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|     ``_run_lineage_step(...)  [UNRESOLVED]``
+| :py:func:`~spacr.ops_engine.run_ops`
+|     ``_objects``
+|         ``_governed_eval``
+|             ``_config`` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|     ``_ph_fields``
+|         ``_ph_segment_field``
+|             ``_governed_eval``
+|                 ``_config`` **-- reads it**
+|                     ``isinstance(...)  [UNRESOLVED]``
+| :py:func:`~spacr.ops_engine.run_spatial_masks`
+|     ``_governed_eval``
+|         ``_config`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+| ``_plan_gains``
+|     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
+|     ``deepcopy(...)  [UNRESOLVED]``
+| :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`
+|     ``_governed_eval``
+|         ``_config`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+
+Read by ``_apply_fraction``, ``_budget``, ``_config``, ``_post``, ``get_measure_crop_settings``.
+
+.. _setting-flow-gpu_memory_margin_gb:
+
+gpu_memory_margin_gb
+--------------------
+
+(float) - GPU memory, in GB, kept free for other jobs on the card. Before each batch spaCR reads the free GPU memory and, when the batch is estimated not to fit with this much to spare, shrinks the batch or waits for memory to be freed. Default 1.5.
+
+| ``_budget`` **-- reads it**
+|     ``_post(...)  [UNRESOLVED]``
+| :py:func:`~spacr.deep_spacr.deep_spacr`
+|     :py:func:`~spacr.deep_spacr.apply_model_to_tar`
+|         ``_governed_predictions``
+|             ``_chunked``
+|                 ``_config`` **-- reads it**
+|                     ``isinstance(...)  [UNRESOLVED]``
+| ``_measure_crop_queued``
+|     ``_measure_crop_core``
+|         ``_intensity_measurements``
+|             ``_guarded``
+|                 ``_config`` **-- reads it**
+|                     ``isinstance(...)  [UNRESOLVED]``
+|         ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
+| :py:func:`~spacr.object.generate_cellpose_masks`
+|     ``_governed_eval``
+|         ``_config`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+|     ``_run_lineage_step(...)  [UNRESOLVED]``
+| :py:func:`~spacr.ops_engine.run_ops`
+|     ``_objects``
+|         ``_governed_eval``
+|             ``_config`` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
+|     ``_ph_fields``
+|         ``_ph_segment_field``
+|             ``_governed_eval``
+|                 ``_config`` **-- reads it**
+|                     ``isinstance(...)  [UNRESOLVED]``
+| :py:func:`~spacr.ops_engine.run_spatial_masks`
+|     ``_governed_eval``
+|         ``_config`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+| ``_plan_gains``
+|     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
+|     ``deepcopy(...)  [UNRESOLVED]``
+| :py:func:`~spacr.spacr_cellpose.identify_masks_finetune`
+|     ``_governed_eval``
+|         ``_config`` **-- reads it**
+|             ``isinstance(...)  [UNRESOLVED]``
+
+Read by ``_budget``, ``_config``, ``get_measure_crop_settings``.
 
 .. _setting-flow-gradient_accumulation_steps:
 
@@ -22718,6 +22892,7 @@ random_seed
 |             ``_robustness_sample`` **-- reads it**
 |         :py:func:`~spacr.runctx.run_context`
 |             :py:func:`~spacr.runctx.resolve_seed` **-- reads it**
+|             ``_configure(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.deep_spacr.deep_spacr`
 |     :py:func:`~spacr.deep_spacr.train_test_model` **-- reads it**
@@ -22741,12 +22916,14 @@ random_seed
 |             ``_phases_by_torch`` **-- reads it**
 |     :py:func:`~spacr.runctx.run_context`
 |         :py:func:`~spacr.runctx.resolve_seed` **-- reads it**
+|         ``_configure(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 | ``_defaults`` **-- reads it**
 | :py:func:`~spacr.sequencing.generate_barecode_mapping`
 |     :py:func:`~spacr.runctx.run_context`
 |         :py:func:`~spacr.runctx.resolve_seed` **-- reads it**
+|         ``_configure(...)  [UNRESOLVED]``
 | :py:func:`~spacr.sim.run_and_save` **-- reads it**
 | :py:func:`~spacr.stream_dataset.stream_dataset` **-- reads it**
 
@@ -24187,6 +24364,7 @@ seed
 |     :py:func:`~spacr.core.preprocess_generate_masks`
 |         :py:func:`~spacr.runctx.run_context`
 |             :py:func:`~spacr.runctx.resolve_seed` **-- reads it**
+|             ``_configure(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.deep_spacr.deep_spacr`
 |     :py:func:`~spacr.deep_spacr.train_test_model`
@@ -24204,6 +24382,7 @@ seed
 | :py:func:`~spacr.measure.measure_crop`
 |     :py:func:`~spacr.runctx.run_context`
 |         :py:func:`~spacr.runctx.resolve_seed` **-- reads it**
+|         ``_configure(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 | ``_call_simulator`` **-- reads it**
@@ -24212,6 +24391,7 @@ seed
 | :py:func:`~spacr.sequencing.generate_barecode_mapping`
 |     :py:func:`~spacr.runctx.run_context`
 |         :py:func:`~spacr.runctx.resolve_seed` **-- reads it**
+|         ``_configure(...)  [UNRESOLVED]``
 
 Read by ``generate_activation_map``, ``_call_simulator``, ``resolve_seed``.
 
@@ -28491,8 +28671,9 @@ tta_aggregation
 
 | :py:func:`~spacr.deep_spacr.deep_spacr`
 |     :py:func:`~spacr.deep_spacr.apply_model_to_tar`
-|         ``_inference_predictions``
-|             :py:func:`~spacr.inference_augmentation.predict_augmented` **-- reads it**
+|         ``_governed_predictions``
+|             ``_inference_predictions``
+|                 :py:func:`~spacr.inference_augmentation.predict_augmented` **-- reads it**
 
 Read by ``predict_augmented``.
 
@@ -28505,7 +28686,8 @@ tta_enabled
 
 | :py:func:`~spacr.deep_spacr.deep_spacr`
 |     :py:func:`~spacr.deep_spacr.apply_model_to_tar`
-|         ``_inference_predictions`` **-- reads it**
+|         ``_governed_predictions``
+|             ``_inference_predictions`` **-- reads it**
 
 Read by ``_inference_predictions``.
 
@@ -28518,9 +28700,10 @@ tta_horizontal_flip
 
 | :py:func:`~spacr.deep_spacr.deep_spacr`
 |     :py:func:`~spacr.deep_spacr.apply_model_to_tar`
-|         ``_inference_predictions``
-|             :py:func:`~spacr.inference_augmentation.predict_augmented`
-|                 :py:func:`~spacr.inference_augmentation.transforms_for` **-- reads it**
+|         ``_governed_predictions``
+|             ``_inference_predictions``
+|                 :py:func:`~spacr.inference_augmentation.predict_augmented`
+|                     :py:func:`~spacr.inference_augmentation.transforms_for` **-- reads it**
 
 Read by ``transforms_for``.
 
@@ -28533,9 +28716,10 @@ tta_rotations
 
 | :py:func:`~spacr.deep_spacr.deep_spacr`
 |     :py:func:`~spacr.deep_spacr.apply_model_to_tar`
-|         ``_inference_predictions``
-|             :py:func:`~spacr.inference_augmentation.predict_augmented`
-|                 :py:func:`~spacr.inference_augmentation.transforms_for` **-- reads it**
+|         ``_governed_predictions``
+|             ``_inference_predictions``
+|                 :py:func:`~spacr.inference_augmentation.predict_augmented`
+|                     :py:func:`~spacr.inference_augmentation.transforms_for` **-- reads it**
 
 Read by ``transforms_for``.
 
@@ -28548,9 +28732,10 @@ tta_vertical_flip
 
 | :py:func:`~spacr.deep_spacr.deep_spacr`
 |     :py:func:`~spacr.deep_spacr.apply_model_to_tar`
-|         ``_inference_predictions``
-|             :py:func:`~spacr.inference_augmentation.predict_augmented`
-|                 :py:func:`~spacr.inference_augmentation.transforms_for` **-- reads it**
+|         ``_governed_predictions``
+|             ``_inference_predictions``
+|                 :py:func:`~spacr.inference_augmentation.predict_augmented`
+|                     :py:func:`~spacr.inference_augmentation.transforms_for` **-- reads it**
 
 Read by ``transforms_for``.
 

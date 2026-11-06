@@ -371,6 +371,133 @@ def _inference_predictions(model, images, settings=None):
     return _probability_columns(model(images))
 
 
+def _governed_predictions(model, images, settings=None, device=None):
+    """Score a batch through :func:`_inference_predictions` in parts that fit.
+
+    On a CUDA device the GPU memory governor splits the batch when the card
+    has less memory free than it needs, halves the part on an out-of-memory
+    error and, as a last resort, scores the batch on the CPU. Every image is
+    scored exactly once; elsewhere this is :func:`_inference_predictions`.
+
+    :param model: evaluation-mode classification model.
+    :param images: a batch of normalized image tensors on ``device``.
+    :param settings: optional tta_* settings, binary score_threshold and the
+        GPU memory settings.
+    :param device: the device the model runs on.
+    :returns: scores, labels and optional probability/diagnostic columns.
+    """
+    from ._gpu_governor import _chunked, _on_cpu
+
+    def on_cpu(part):
+        """Score one part with the model moved to the CPU."""
+        with _on_cpu(model):
+            return _inference_predictions(model, part.cpu(), settings)
+
+    return _chunked(lambda part: _inference_predictions(model, part, settings),
+                    images, site='cnn_inference', cpu_fn=on_cpu,
+                    device=device, settings=settings)
+
+
+def _governed_logits(model, data, device=None):
+    """``model(data)`` in parts that fit the free GPU memory.
+
+    A part that ran on the CPU fallback is moved back to ``device``, so the
+    caller's targets and the logits stay on one device.
+
+    :param model: evaluation-mode classification model.
+    :param data: a batch of input tensors on ``device``.
+    :param device: the device the model runs on.
+    :returns: the logits of every row, in order.
+    """
+    from ._gpu_governor import _chunked, _on_cpu
+
+    def on_cpu(part):
+        """Logits of one part with the model moved to the CPU."""
+        with _on_cpu(model):
+            logits = model(part.cpu())
+        return logits.to(device) if device is not None else logits
+
+    return _chunked(model, data, site='cnn_evaluation', cpu_fn=on_cpu,
+                    device=device)
+
+
+def _train_batch(model, data, target, *, loss_fn, scaler, mixed_precision,
+                 device, head_dim, divisor=1):
+    """Forward and backward one training batch, in parts the GPU has room for.
+
+    Without memory pressure the batch runs whole, as before. When the GPU
+    memory governor splits it, each part's loss is weighted by its share of
+    the rows, so the accumulated gradient is that of the whole batch. On an
+    out-of-memory error the gradients are put back to what they were before
+    this batch and the batch is retried in smaller parts; as a last resort
+    the batch is computed on the CPU and its gradients moved back.
+
+    :param model: the classifier in training mode.
+    :param data: the batch's input tensors.
+    :param target: the batch's labels.
+    :param loss_fn: ``(logits, target) -> loss``.
+    :param scaler: the gradient scaler.
+    :param mixed_precision: whether autocasting is on.
+    :param device: the training device.
+    :param head_dim: the number of logits per row.
+    :param divisor: gradient-accumulation steps the loss is divided by.
+    """
+    from ._gpu_governor import _chunked, _device_index, _on_cpu
+
+    total = len(data)
+    parameters = list(model.parameters())
+    saved = None
+    if _device_index(device) is not None:
+        saved = [None if p.grad is None else p.grad.detach().clone()
+                 for p in parameters]
+
+    def restore():
+        """Put the gradients back to what they were before this batch."""
+        if saved is None:
+            return
+        for parameter, grad in zip(parameters, saved):
+            parameter.grad = None if grad is None else grad.clone()
+
+    def step(rows, on_device, autocast_on):
+        """Forward and backward ``rows`` of the batch on ``on_device``."""
+        part = data[rows.start:rows.stop].to(on_device)
+        labels = target[rows.start:rows.stop]
+        with autocasting(autocast_on, on_device):
+            logits = model(part)
+            is_multiclass = (logits.ndim == 2 and logits.size(1) >= 2)
+            if is_multiclass:
+                if labels.ndim == 2:
+                    labels = labels.argmax(dim=1)
+                labels = labels.to(on_device).long()
+                if not (logits.ndim == 2 and logits.size(1) == head_dim):
+                    raise RuntimeError(
+                        f"Expected logits (N,{head_dim}) for CE, got {tuple(logits.shape)}")
+            else:
+                labels = labels.to(on_device).float()
+            loss = loss_fn(logits, labels)
+        share = len(rows) / float(total)
+        if share != 1.0:
+            loss = loss * share
+        if divisor != 1:
+            loss = loss / divisor
+        return loss
+
+    def on_gpu(rows):
+        """One part on the training device."""
+        scaler.scale(step(rows, device, mixed_precision)).backward()
+
+    def on_cpu(rows):
+        """One part with the model moved to the CPU."""
+        with _on_cpu(model):
+            loss = step(rows, torch.device('cpu'), False)
+            if scaler.is_enabled():
+                loss = loss * float(scaler.get_scale())
+            loss.backward()
+
+    _chunked(on_gpu, range(total), site='cnn_training', cpu_fn=on_cpu,
+             device=device, on_retry=restore)
+
+
 def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True,
                 n_jobs=10, input_statistics='symmetric', *, tta_enabled=False,
                 tta_rotations=False, tta_horizontal_flip=False, tta_vertical_flip=False,
@@ -485,7 +612,8 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True,
             start = time.time()
             images = batch_images.to(device=device, dtype=torch.float,
                                      non_blocking=(device.type == "cuda"))
-            scores, labels, extra = _inference_predictions(model, images, inference_settings)
+            scores, labels, extra = _governed_predictions(
+                model, images, inference_settings, device)
             prediction_pos_probs.extend(scores.cpu().tolist())
             predicted_labels.extend(labels.cpu().tolist())
             for name, values in extra.items():
@@ -630,7 +758,8 @@ def apply_model_to_tar(settings=None):
             start = time.time()
             images = batch_images.to(device=device, dtype=torch.float,
                                      non_blocking=(device.type == "cuda"))
-            scores, labels, extra = _inference_predictions(model, images, settings)
+            scores, labels, extra = _governed_predictions(
+                model, images, settings, device)
             prediction_pos_probs.extend(scores.cpu().tolist())
             predicted_labels.extend(labels.cpu().tolist())
             for name, values in extra.items():
@@ -905,7 +1034,7 @@ def evaluate_model_performance(model, loader, epoch, loss_type='auto',
     with torch.no_grad():
         for data, target, _ in loader:
             data = data.to(device)
-            logits = model(data)
+            logits = _governed_logits(model, data, device)
 
             if head_dim is None:
                 head_dim = logits.size(1) if (logits.ndim == 2) else 1
@@ -1017,7 +1146,7 @@ def test_model_core(model, loader, loader_name, epoch, loss_type):
             data = data.to(device)
             target = target.to(device)
 
-            logits = model(data)
+            logits = _governed_logits(model, data, device)
             batch_size = data.size(0)
             loss = calculate_loss(logits, target, prefer_focal=True)
             total_loss += float(loss.item()) * batch_size
@@ -2840,28 +2969,11 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
         n_batches = len(train_loaders)
 
         for batch_idx, (data, target, filenames) in enumerate(train_loaders, start=1):
-            data = data.to(device)
-            with autocasting(mixed_precision, device):
-                logits = model(data)
-
-                is_multiclass = (logits.ndim == 2 and logits.size(1) >= 2)
-
-                if is_multiclass:
-                    if target.ndim == 2:
-                        target = target.argmax(dim=1)
-                    target = target.to(device).long()
-                    if not (logits.ndim == 2 and logits.size(1) == head_dim):
-                        raise RuntimeError(
-                            f"Expected logits (N,{head_dim}) for CE, got {tuple(logits.shape)}")
-                else:
-                    target = target.to(device).float()
-
-                loss = loss_fn(logits, target)
-
-            if gradient_accumulation:
-                loss = loss / gradient_accumulation_steps
-
-            scaler.scale(loss).backward()
+            _train_batch(model, data, target, loss_fn=loss_fn, scaler=scaler,
+                         mixed_precision=mixed_precision, device=device,
+                         head_dim=head_dim,
+                         divisor=(gradient_accumulation_steps
+                                  if gradient_accumulation else 1))
 
             if (not gradient_accumulation) or (batch_idx % gradient_accumulation_steps == 0):
                 scaler.step(optimizer)

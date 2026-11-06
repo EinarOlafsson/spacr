@@ -1293,6 +1293,18 @@ if app_key == "mask":
     for app, key in diameter_and_class_arrivals:
         assert resolve_default_settings(app)[key] == diameter_and_class_defaults[key]
     recognized_arrivals |= diameter_and_class_arrivals
+    # Item 803: the GPU memory governor's ceiling, margin and switch, each
+    # with one default claim equal to the value every module resolves.
+    governor_defaults = {"gpu_memory_fraction": None,
+                         "gpu_memory_margin_gb": 1.5,
+                         "gpu_adaptive_batch": True}
+    governor_arrivals = {pair for pair in compared_pairs
+                         if pair[1] in governor_defaults}
+    assert {app for app, _key in governor_arrivals} >= {"mask", "measure"}
+    assert not governor_arrivals & (recognized_arrivals | variants.keys())
+    for app, key in governor_arrivals:
+        assert resolve_default_settings(app)[key] == governor_defaults[key]
+    recognized_arrivals |= governor_arrivals
     assert comparisons - len(recognized_arrivals) == 1004
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))
