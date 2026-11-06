@@ -1,9 +1,9 @@
 A REGULARISED DEFAULT IN THE CLASSIFIER MODULE
 
 Lifecycle: new
-Status: open.
+Status: DONE 2026-11-05 — model_type_ml defaults to logistic_regression (StandardScaler + L2); shrinkage_lda added; xgboost and the others stay selectable. Maintainer approved the default switch from xgboost 2026-11-05. Built by the paper session (019d8a7846).
 Requested: maintainer, 2026-11-05 (BMC paper CPA baseline).
-Owner: unassigned.
+Owner: home spacr software paper.
 
 --------------------------------------------------------------------------------
 WHAT THE STATE IS

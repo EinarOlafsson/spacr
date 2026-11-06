@@ -12,7 +12,7 @@ Repeated IDs retain their separate full filenames and histories; none were merge
 
 This is a declaration-based navigation list, not a verified unfinished count. Headers can be stale. Conversely, recorded-Done items 641 and 673 contain later Mac follow-ups; item 729 separates native checks from deferred implementation. Read their linked notes before assigning work.
 
-68 records have no recorded complete declaration; 724 have a recorded complete declaration. Neither is a verification result.
+67 records have no recorded complete declaration; 725 have a recorded complete declaration. Neither is a verification result.
 
 | ID | Lifecycle | Item (full filename) | Recorded status |
 |---|---|---|---|
@@ -83,7 +83,6 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 803 | Future | [A VRAM BUDGET SETTING — 803_a_vram_budget_setting.txt](feature_list/803_a_vram_budget_setting.txt) | not started |
 | 805 | New | [BUG: PLATE NAMES WITH URL ESCAPES DROP ALL ROWS — 805_plate_names_with_url_escapes_keep_their_rows.txt](feature_list/805_plate_names_with_url_escapes_keep_their_rows.txt) | open. |
 | 807 | New | [LABEL-FREE FEATURE QC ON PROFILE EXPORT — 807_label_free_feature_qc_on_profile_export.txt](feature_list/807_label_free_feature_qc_on_profile_export.txt) | open. |
-| 808 | New | [A REGULARISED DEFAULT IN THE CLASSIFIER MODULE — 808_regularised_default_classifier.txt](feature_list/808_regularised_default_classifier.txt) | open. |
 
 ## All feature items
 
@@ -880,7 +879,7 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 805 | New | [BUG: PLATE NAMES WITH URL ESCAPES DROP ALL ROWS — 805_plate_names_with_url_escapes_keep_their_rows.txt](feature_list/805_plate_names_with_url_escapes_keep_their_rows.txt) | open. |
 | 806 | New | [BUG: ZERNIKE MOMENTS THAT ARE NUMERICALLY ZERO DOMINATE SCALED PROFILES — 806_zernike_moments_that_are_numerically_zero.txt](feature_list/806_zernike_moments_that_are_numerically_zero.txt) | DONE 2026-11-05 — moments below 1e-10 are written as exactly 0.0 on the CPU and GPU paths (spacr.measure._ZERNIKE_ZERO_TOL); columns unchanged. Built by the paper session, commit 75dbbc55e2. |
 | 807 | New | [LABEL-FREE FEATURE QC ON PROFILE EXPORT — 807_label_free_feature_qc_on_profile_export.txt](feature_list/807_label_free_feature_qc_on_profile_export.txt) | open. |
-| 808 | New | [A REGULARISED DEFAULT IN THE CLASSIFIER MODULE — 808_regularised_default_classifier.txt](feature_list/808_regularised_default_classifier.txt) | open. |
+| 808 | New | [A REGULARISED DEFAULT IN THE CLASSIFIER MODULE — 808_regularised_default_classifier.txt](feature_list/808_regularised_default_classifier.txt) | DONE 2026-11-05 — model_type_ml defaults to logistic_regression (StandardScaler + L2); shrinkage_lda added; xgboost and the others stay selectable. Maintainer approved the default switch from xgboost 2026-11-05. Built by the paper session (019d8a7846). |
 
 ## Unnumbered feature documents
 
