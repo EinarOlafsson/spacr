@@ -2,7 +2,7 @@ CLEAN UP THE CODE BASE: UNNECESSARY COMMENTS AND UNUSED FUNCTIONS
 =================================================================
 
 Lifecycle: new
-Status: open — for the release after 1.5.1.7.
+Status: DONE 2026-11-06 — comment guard clean and unused stdlib imports dropped; remaining candidates listed for the maintainer.
 Requested: maintainer, 2026-11-04.
 Related: 259 (delete the dead code).
 
@@ -32,3 +32,6 @@ REQUIREMENTS
 2026-11-04 Each module group: the related tests ran before and after under branch coverage, and no live line or branch lost coverage. Two lines only the Thore test reached (AmbientEngine.background, set_colors) got a replacement test.
 2026-11-04 Kept 107 of the 131 candidates (list: /mnt/wd4tb/scratch/claude-deadcode-20261104/kept.md): a docs, docstring or API index reference (51), removing it with its tests would drop live coverage (26), a test hook or deliberate shim (14), recent feature code (16).
 2026-11-04 Possible lost wiring, not dead code: MainWindow._resume_last_session (items 647/648); nothing calls it or restart_state._last_session. Stale 'spaCR Thore' rows remain in the nine i18n catalogs (generator closure).
+2026-11-06 -- strip_comments.py spacr --check had found 33 removable plain comments in six modules (assay_panels, plot, settings_model, sp_stats, submodules, utils); removed, the package comment guard passes again.
+2026-11-06 -- Dropped 80 module-level typing, dataclasses and math imports in 56 modules that pyflakes reports unused and that no name, string or __all__ in the module mentions; every edited module still imports. The other ~270 unused-import reports are spacr re-exports, optional-dependency probes or names tests may patch, and are kept.
+2026-11-06 -- Kept: vulture 100%-confidence hits are unused parameters in signatures (public API or Qt overrides). Earlier lists stay: 107 kept candidates, MainWindow._resume_last_session (lost wiring) and the stale spaCR Thore i18n rows.
