@@ -2,7 +2,7 @@ DOCS: MEASURE_CROP'S DOCSTRING EXAMPLE PASSES SRC=<PLATE>/MERGED
 ================================================================
 
 Lifecycle: new
-Status: open
+Status: DONE 2026-11-06 — a merged folder given as src is measured through its plate folder, and the measure_crop example shows the plate folder; tests/test_measure_crop_names_and_defaults.py.
 Requested: maintainer, 2026-11-06 (BMC paper HRMAn reanalysis).
 Owner: unassigned.
 

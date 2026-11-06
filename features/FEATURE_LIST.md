@@ -12,7 +12,7 @@ Repeated IDs retain their separate full filenames and histories; none were merge
 
 This is a declaration-based navigation list, not a verified unfinished count. Headers can be stale. Conversely, recorded-Done items 641 and 673 contain later Mac follow-ups; item 729 separates native checks from deferred implementation. Read their linked notes before assigning work.
 
-80 records have no recorded complete declaration; 743 have a recorded complete declaration. Neither is a verification result.
+77 records have no recorded complete declaration; 746 have a recorded complete declaration. Neither is a verification result.
 
 | ID | Lifecycle | Item (full filename) | Recorded status |
 |---|---|---|---|
@@ -93,9 +93,6 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 834 | New | [ANNOTATE COUNTS ABOVE 9 — 834_annotate_counts_above_nine.txt](feature_list/834_annotate_counts_above_nine.txt) | open |
 | 835 | New | [THE MAKE MASKS QUEUE EDITOR CAN MARK A FIELD SKIP — 835_make_masks_queue_editor_can_skip_a_field.txt](feature_list/835_make_masks_queue_editor_can_skip_a_field.txt) | open |
 | 836 | New | [THE EMBEDDINGS SCREEN READS 16-BIT TIFF CROPS — 836_embeddings_screen_reads_16_bit_tiff_crops.txt](feature_list/836_embeddings_screen_reads_16_bit_tiff_crops.txt) | open |
-| 837 | New | [BUG: A FILE-NAMING REGEX WITHOUT A TIME GROUP NAMES STACKS ..._NONE.NPY — 837_a_regex_without_a_time_group_names_stacks_none.txt](feature_list/837_a_regex_without_a_time_group_names_stacks_none.txt) | open |
-| 838 | New | [BUG: MEASURE_CROP DOES NOT FILL ITS OWN DEFAULT SETTINGS — 838_measure_crop_fills_its_own_default_settings.txt](feature_list/838_measure_crop_fills_its_own_default_settings.txt) | open |
-| 839 | New | [DOCS: MEASURE_CROP'S DOCSTRING EXAMPLE PASSES SRC=<PLATE>/MERGED — 839_measure_crop_docstring_example_src.txt](feature_list/839_measure_crop_docstring_example_src.txt) | open |
 
 ## All feature items
 
@@ -921,9 +918,9 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 834 | New | [ANNOTATE COUNTS ABOVE 9 — 834_annotate_counts_above_nine.txt](feature_list/834_annotate_counts_above_nine.txt) | open |
 | 835 | New | [THE MAKE MASKS QUEUE EDITOR CAN MARK A FIELD SKIP — 835_make_masks_queue_editor_can_skip_a_field.txt](feature_list/835_make_masks_queue_editor_can_skip_a_field.txt) | open |
 | 836 | New | [THE EMBEDDINGS SCREEN READS 16-BIT TIFF CROPS — 836_embeddings_screen_reads_16_bit_tiff_crops.txt](feature_list/836_embeddings_screen_reads_16_bit_tiff_crops.txt) | open |
-| 837 | New | [BUG: A FILE-NAMING REGEX WITHOUT A TIME GROUP NAMES STACKS ..._NONE.NPY — 837_a_regex_without_a_time_group_names_stacks_none.txt](feature_list/837_a_regex_without_a_time_group_names_stacks_none.txt) | open |
-| 838 | New | [BUG: MEASURE_CROP DOES NOT FILL ITS OWN DEFAULT SETTINGS — 838_measure_crop_fills_its_own_default_settings.txt](feature_list/838_measure_crop_fills_its_own_default_settings.txt) | open |
-| 839 | New | [DOCS: MEASURE_CROP'S DOCSTRING EXAMPLE PASSES SRC=<PLATE>/MERGED — 839_measure_crop_docstring_example_src.txt](feature_list/839_measure_crop_docstring_example_src.txt) | open |
+| 837 | New | [BUG: A FILE-NAMING REGEX WITHOUT A TIME GROUP NAMES STACKS ..._NONE.NPY — 837_a_regex_without_a_time_group_names_stacks_none.txt](feature_list/837_a_regex_without_a_time_group_names_stacks_none.txt) | DONE 2026-11-06 — a naming regex without a time group leaves the time out of field names, existing _None names are accepted, and an unreadable field file is named before measuring; tests/test_measure_crop_names_and_defaults.py. |
+| 838 | New | [BUG: MEASURE_CROP DOES NOT FILL ITS OWN DEFAULT SETTINGS — 838_measure_crop_fills_its_own_default_settings.txt](feature_list/838_measure_crop_fills_its_own_default_settings.txt) | DONE 2026-11-06 — measure_crop fills its own default settings, so the minimal docstring example runs; tests/test_measure_crop_names_and_defaults.py. |
+| 839 | New | [DOCS: MEASURE_CROP'S DOCSTRING EXAMPLE PASSES SRC=<PLATE>/MERGED — 839_measure_crop_docstring_example_src.txt](feature_list/839_measure_crop_docstring_example_src.txt) | DONE 2026-11-06 — a merged folder given as src is measured through its plate folder, and the measure_crop example shows the plate folder; tests/test_measure_crop_names_and_defaults.py. |
 
 ## Unnumbered feature documents
 

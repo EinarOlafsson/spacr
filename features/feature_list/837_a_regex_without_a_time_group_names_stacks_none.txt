@@ -2,7 +2,7 @@ BUG: A FILE-NAMING REGEX WITHOUT A TIME GROUP NAMES STACKS ..._NONE.NPY
 =======================================================================
 
 Lifecycle: new
-Status: open
+Status: DONE 2026-11-06 — a naming regex without a time group leaves the time out of field names, existing _None names are accepted, and an unreadable field file is named before measuring; tests/test_measure_crop_names_and_defaults.py.
 Requested: maintainer, 2026-11-06 (BMC paper HRMAn reanalysis).
 Owner: unassigned.
 

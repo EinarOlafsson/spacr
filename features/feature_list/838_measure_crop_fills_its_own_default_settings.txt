@@ -2,7 +2,7 @@ BUG: MEASURE_CROP DOES NOT FILL ITS OWN DEFAULT SETTINGS
 ========================================================
 
 Lifecycle: new
-Status: open
+Status: DONE 2026-11-06 — measure_crop fills its own default settings, so the minimal docstring example runs; tests/test_measure_crop_names_and_defaults.py.
 Requested: maintainer, 2026-11-06 (BMC paper HRMAn reanalysis).
 Owner: unassigned.
 
