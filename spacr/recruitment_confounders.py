@@ -175,6 +175,13 @@ def apply_well_density(df: pd.DataFrame, wells: pd.DataFrame) -> pd.DataFrame:
 
 
 def _robust_upper(values: pd.Series, k: float) -> float:
+    """The median plus ``k`` scaled MADs of ``values``, ignoring missing ones.
+
+    :param values: one count or ratio per field.
+    :param k: how many scaled median absolute deviations above the median.
+    :returns: the upper limit, or ``inf`` when there are no values or their
+        MAD is zero, so that nothing is flagged.
+    """
     values = values.dropna()
     if values.empty:
         return np.inf

@@ -245,6 +245,14 @@ def median_cycle_frames(lineage: pd.DataFrame, events: pd.DataFrame) -> float:
 
 
 def _track_arrays(g: pd.DataFrame, column: str):
+    """Lay one track's rows out on a dense frame axis.
+
+    :param g: the rows of one track, with a frame column ``t``.
+    :param column: the measurement to lay out.
+    :returns: ``(t_min, t_max, present, values)``, where ``present`` marks the
+        frames the track was seen in and ``values`` holds ``column`` on those
+        frames and NaN on the others, both indexed from ``t_min``.
+    """
     ts = g['t'].to_numpy(dtype=np.int64)
     t_min, t_max = int(ts.min()), int(ts.max())
     pres = np.zeros(t_max - t_min + 1, dtype=bool)
@@ -455,6 +463,13 @@ def unit_changes(aligned: pd.DataFrame, window: int, k: int,
 
 
 def _hedges_g(x, y):
+    """Hedges' g of ``x`` against ``y`` with the small-sample correction.
+
+    :param x: the first group's values.
+    :param y: the second group's values.
+    :returns: the corrected standardised mean difference, or NaN when either
+        group has fewer than two values or the pooled deviation is zero.
+    """
     n1, n2 = len(x), len(y)
     if n1 < 2 or n2 < 2:
         return np.nan
@@ -607,6 +622,7 @@ def size_control_fits(birth, division, n_boot: int = 2000, rng=None) -> dict:
         return out
 
     def slope(x, y):
+        """Least-squares slope of ``y`` on ``x`` along the last axis."""
         x = x - x.mean(axis=-1, keepdims=True)
         y = y - y.mean(axis=-1, keepdims=True)
         with np.errstate(divide='ignore', invalid='ignore'):
