@@ -144,6 +144,25 @@ This linked reference contains the full generated setting descriptions. Return t
 
 </details>
 
+<details>
+<summary>Additional settings (11 settings)</summary>
+
+#### Additional settings
+
+- **`bin_labels`** *(optional)* — (dict) - Replication panels: legend text for the stacked bins, as a dict bin -&gt; text or a list in bin order (for example approximate parasites per vacuole for size-proxy area bins). A panel entry may set its own bin_labels. None labels size-proxy bins by the vacuole area they cover and parasite-count bins by the count. Default None. Default: `None`.
+- **`condition_labels`** *(optional)* — (dict) - Recruitment and replication panels: display labels for raw values, e.g. {'HeLa_ALG2': 'HeLa ALG2 KO'}. Values without a label are shown with spaces in place of underscores. Labels set on a panel are merged on top. Default None. Default: `None`.
+- **`condition_order`** *(optional)* — (list) - Recruitment and replication panels: the x-axis order shared by every panel. Listed values come first in the given order, the rest follow in natural sort order, so a condition sits in the same place in every panel. The order set on a panel overrides it. Default None. Default: `None`.
+- **`exclude_edge_objects`** *(optional)* — (bool) - Recruitment and replication analyses: drop objects cut by the image edge, i.e. whose centre is closer to the field edge than their radius (distance_to_field_edge below half of equivalent_diameter_area). Recruitment tests the pathogen object of each host cell; replication drops a vacuole when any of its parasites is cut. Reported in filter_summary.csv. Default False. Default: `False`.
+- **`field_qc`** *(optional)* — (bool) - Recruitment analysis: count host cells and parasites per imaged field from measurements.db and drop every object in a field that is over-crowded, too sparse or over-infected, before the recruitment ratios are grouped by well; the per-field verdicts are written to results/field_qc.csv. Replication analysis: count vacuoles (or parasites) per field and drop fields above the robust limit or below field_qc_min_objects. Default False. Default: `False`.
+- **`field_qc_mad`** *(optional)* — (float) - Recruitment or replication analysis with field_qc: a field fails when any column in field_qc_columns exceeds the plate median plus this many robust standard deviations (MAD scaled by 1.4826). Lower is stricter; None disables this test. Default 3.5. Default: `3.5`.
+- **`field_qc_min_objects`** *(optional)* — (int) - Replication analysis with field_qc: fields with fewer vacuoles or parasites than this are dropped as too sparse. None disables this test. Default 3. Default: `3`.
+- **`figures`** *(optional)* — (dict) - Recruitment and replication panels: figures assembled from saved panels, {figure_name: {'panels': ['P01', 'P02'], 'ncol': 2}}, written as PDF and PNG with bold panel IDs into results/figures (recruitment) or results/analyze_replication/figures. Recruitment control panels (C01, ...) can be used as well. None assembles nothing. Default None. Default: `None`.
+- **`max_area_quantile`** *(optional)* — (float) - Replication analysis: drop vacuoles (direct count: summed parasite area; size proxy: object area) above this quantile of all vacuoles, which removes fused clumps. Reported in filter_summary.csv. None disables the filter. Default None. Default: `None`.
+- **`panels`** *(optional)* — (list) - Recruitment and replication analyses: publication panels, one dict per panel, e.g. {'name': 'strains_in_WT', 'where': {'host_cells': 'HeLa_WT'}, 'group': 'pathogen', 'order': [...], 'labels': {...}, 'annotations': {'GRA8': {'WT': '+', 'dGRA8': '-'}}, 'value': 'recruitment'}. group can be any annotated column. Recruitment writes one bar panel per entry; replication writes three (size or count bins with chi-square, the same with the Fisher-Freeman-Halton test, and a bar of the per-vacuole mean). Each panel folder under results holds PDF, PNG, the plotted data and statistics CSVs; the test is chosen from normality and equal-variance checks. None draws no panels. Default None. Default: `None`.
+- **`replicate_column`** *(optional)* — (str or None) - Optional column naming the biological replicate of each well. Drug-screen mode counts it per level in drug_effects.csv and does not model it. Recruitment and replication panels use it as the statistical unit: object values are averaged per well, then well means per replicate. Default None. Default: `None`.
+
+</details>
+
 </details>
 
 ## 4. Run

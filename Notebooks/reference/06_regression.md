@@ -60,7 +60,7 @@ This linked reference contains the full generated setting descriptions. Return t
 - **`concentration_column`** *(optional)* — (str) - Drug-screen mode only: the column holding each well's concentration, a number in concentration_unit. Every non-vehicle well needs a positive concentration; the vehicle wells' value is not read. Default 'concentration'. Default: `'concentration'`.
 - **`concentration_unit`** *(optional)* — (str or None) - Drug-screen mode only, required: the unit of concentration_column, for example uM or nM. It is kept as part of every drug-at-concentration level and on the figure axis; spaCR does not convert units. Default None. Default: `None`.
 - **`vehicle_control`** *(optional)* — (str, list or None) - Drug-screen mode only, required: the drug_column value or values of the vehicle wells, for example DMSO. Every effect is the difference from these wells, plate-adjusted when there are several plates, and each plate with treated wells needs vehicle wells of its own. Default None. Default: `None`.
-- **`replicate_column`** *(optional)* — (str or None) - Drug-screen mode only, optional: a column naming the biological replicate of each well. It is counted per level in drug_effects.csv and not modelled. Default None. Default: `None`.
+- **`replicate_column`** *(optional)* — (str or None) - Optional column naming the biological replicate of each well. Drug-screen mode counts it per level in drug_effects.csv and does not model it. Recruitment and replication panels use it as the statistical unit: object values are averaged per well, then well means per replicate. Default None. Default: `None`.
 
 </details>
 
