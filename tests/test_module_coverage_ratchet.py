@@ -803,6 +803,15 @@ def test_sigterm_during_the_exit_save_leaves_a_final_named_unreadable_file(
     row: "isn't a coverage data file: " with an empty reason.
     """
     pytest.importorskip("coverage")
+    import inspect
+
+    import coverage.sqldata
+    if ".H{" not in inspect.getsource(coverage.sqldata):
+        pytest.skip(
+            "coverage releases before the hash-named final file (7.10.6, the "
+            "minimum pin, among them) name a data file once, so a SIGTERM in "
+            "the exit save cannot leave a final-named unreadable one"
+        )
     coverage_runner = _load_coverage_runner()
     data_dir = tmp_path / "data"
     data_dir.mkdir()

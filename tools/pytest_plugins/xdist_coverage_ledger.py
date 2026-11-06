@@ -72,7 +72,7 @@ LOST_WRITERS_DIR = "killed-coverage-writers"
 KILLED_WRITERS_KEY = "spacr_killed_coverage_writers"
 WRITER_WAIT_SECONDS = 60.0
 _PROCESS_SUFFIX = re.compile(
-    r"^\.(?P<host>[^.]+)\.pid(?P<pid>\d+)\.X\w+x(?P<hash>\.H\w+h)?$"
+    r"^\.(?P<host>[^.]+)\.(?:pid)?(?P<pid>\d+)\.X\w+x(?P<hash>\.H\w+h)?$"
 )
 
 

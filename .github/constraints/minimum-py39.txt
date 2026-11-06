@@ -151,6 +151,10 @@ xenon==0.9.0
 # requests floors above.
 nbformat==5.9.2
 nbconvert==7.10.0
+# nbconvert 7.10.0 subclasses mistune's block parser by the name
+# parse_axt_heading, which mistune 3.1 renamed to parse_atx_heading, so any
+# newer mistune fails markdown rendering with AttributeError.
+mistune==3.0.2
 sphinx==7.2.6
 coverage==7.10.6
 pytest-cov==7.0.0

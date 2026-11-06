@@ -18,6 +18,7 @@ recovery is what restores them.
 
 from __future__ import annotations
 
+import re
 import json
 import os
 import signal
@@ -708,7 +709,8 @@ def test_exit_zero_with_a_permanently_invalid_final_database_still_fails(tmp_pat
     attempt = result['attempts'][0]
     assert attempt['exit_code'] == 0 and attempt['data_saved'] is False
     assert attempt['unreadable_data'] == [final.name]
-    assert "isn't a coverage data file" in attempt['unreadable_data_errors'][final.name]
+    assert re.search(r"(?:isn.t|doesn.t seem to be) a coverage data file",
+                     attempt["unreadable_data_errors"][final.name])
     retained = tmp_path / 'runner-temp' / 'spacr-scientific-diagnostics' / 'rejected-coverage' / ('rejected-' + final.name)
     assert retained.read_bytes() == raw[0]
     assert str(retained) in capsys.readouterr().out

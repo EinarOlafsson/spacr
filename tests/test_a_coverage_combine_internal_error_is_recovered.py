@@ -16,6 +16,7 @@ coverage data reading still fails it.
 
 from __future__ import annotations
 
+import re
 import importlib.util
 import json
 import os
@@ -433,7 +434,7 @@ def test_the_resource_tracker_saves_its_coverage_before_the_combine(
         tmp_path / "without", workers=workers, plugin=False)
     _wait_for_exit(pid)
     left = sorted(path.name for path in data_dir.iterdir())
-    assert [name for name in left if f".pid{pid}." in name], left
+    assert [name for name in left if re.search(rf"\.(?:pid)?{pid}\.", name)], left
 # 2026-11-03, CI run 41748127439 shard 8 batch 12: the serial re-run of
 # tests/test_parallel_queue_lifecycle_boundaries.py ALONE stopped the same
 # way.  Reproduced locally under coverage 7.17.1 with debug=process,dataio:

@@ -446,7 +446,7 @@ def _active_coverage_writers(data_file: Path, paths: Sequence[Path]) -> list[int
     import psutil
 
     pids = {int(match[1]) for path in paths
-            if (match := re.search(r"\.pid(\d+)\.", path.name))}
+            if (match := re.search(r"\.(?:pid)?(\d+)\.", path.name))}
     writers = []
     parent = data_file.parent.resolve()
     for pid in sorted(pids):
