@@ -6128,19 +6128,18 @@ def merge_touching_objects(mask, threshold=0.25):
     boxes = {int(index) + 1: box
              for index, box in enumerate(ndi.find_objects(original.astype(np.int64, copy=False)))
              if box is not None}
-    rows, cols = original.shape
-
-    def _padded(box, pad):
-        return tuple(slice(max(axis.start - pad, 0), min(axis.stop + pad, size))
-                     for axis, size in zip(box, (rows, cols)))
-
+    shape = original.shape
+    padded = {pad: {label: tuple(slice(max(axis.start - pad, 0), min(axis.stop + pad, size))
+                                 for axis, size in zip(box, shape))
+                    for label, box in boxes.items()}
+              for pad in (1, 2)}
     perimeters = {}
     for label in labels:
-        inside = original[_padded(boxes[label], 1)] == label
+        inside = original[padded[1][label]] == label
         perimeters[label] = np.sum(morphology.erosion(inside) ^ inside)
     shared_perimeters = {}
     for label in labels:
-        window = original[_padded(boxes[label], 2)]
+        window = original[padded[2][label]]
         dilated_label = morphology.dilation(window == label)
         touching_labels = np.unique(window[dilated_label & (window != 0)])
         for touching_label in touching_labels:
