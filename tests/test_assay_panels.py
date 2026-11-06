@@ -379,11 +379,43 @@ def test_analyze_recruitment_defaults_write_no_new_files(tmp_path):
         mp.setattr(SIO, "_read_and_merge_data", lambda locs, tables, **k: (df.copy(), []))
         for name in ("plot_image_mask_overlay", "_plot_recruitment"):
             mp.setattr(SPLT, name, _Recorder())
-        cells, _ = analyze_recruitment(_base_settings(src))
+        cells, _ = analyze_recruitment(_base_settings(src, well_qc=False, object_qc=False))
     finally:
         mp.undo()
     assert len(cells) == len(df)
     assert sorted(os.listdir(src / "results")) == ["cells.csv", "wells.csv"]
+
+
+def test_analyze_recruitment_qc_defaults_write_qc_tables(tmp_path):
+    from tests.test_cov_submodules_recruitment_plaques import _base_settings, _Recorder
+    import spacr.io as SIO
+    import spacr.plot as SPLT
+    from spacr.submodules import analyze_recruitment
+
+    df = _recruitment_frame()
+    bright = df["rowID"] == "r1"
+    df.loc[bright & (df["columnID"] == "c1"), "cell_channel_0_mean_intensity"] = 5000.0
+    rng = np.random.default_rng(1)
+    df["cell_channel_0_mean_intensity"] = df["cell_channel_0_mean_intensity"] + rng.normal(0, 2, len(df))
+    src = tmp_path / "plate"
+    src.mkdir()
+    mp = pytest.MonkeyPatch()
+    try:
+        mp.setattr(SIO, "_read_and_merge_data", lambda locs, tables, **k: (df.copy(), []))
+        for name in ("plot_image_mask_overlay", "_plot_recruitment"):
+            mp.setattr(SPLT, name, _Recorder())
+        cells, _ = analyze_recruitment(_base_settings(src, channel_dims=[0]))
+    finally:
+        mp.undo()
+    res = src / "results"
+    assert {"well_qc.csv", "object_qc_summary.csv", "filter_summary.csv"} <= set(os.listdir(res))
+    qc = pd.read_csv(res / "well_qc.csv")
+    bad = qc[~qc["well_qc_pass"]]
+    assert list(zip(bad["rowID"], bad["columnID"])) == [("r1", "c1")]
+    assert "cell_ch0_intensity_median" in bad["well_qc_reason"].iloc[0]
+    assert not ((cells["rowID"] == "r1") & (cells["columnID"] == "c1")).any()
+    steps = list(pd.read_csv(res / "filter_summary.csv")["step"])
+    assert steps[1].startswith("well_qc") and steps[2].startswith("object_qc")
 
 
 # --------------------------------------------------------------------------- analyze_replication
@@ -420,8 +452,11 @@ def test_analyze_replication_direct_count_panels_and_filters(tmp_path):
         field_qc_min_objects=1))
     res = os.path.join(src, "results", "analyze_replication")
     summary = pd.read_csv(os.path.join(res, "filter_summary.csv"))
-    assert list(summary["step"])[:3] == ["vacuoles (after parasite filters)", "field_qc",
-                                         "exclude_edge_objects (cut by the field edge)"]
+    steps = list(summary["step"])
+    assert steps[1].startswith("well_qc") and steps[2].startswith("object_qc")   # QC runs first
+    assert [s for s in steps if not s.startswith(("well_qc", "object_qc"))][:3] == [
+        "vacuoles (after parasite filters)", "field_qc", "exclude_edge_objects (cut by the field edge)"]
+    assert os.path.exists(os.path.join(res, "well_qc.csv"))
     assert summary.set_index("step").loc[
         "exclude_edge_objects (cut by the field edge)", "vacuoles_removed"] == 1
     assert os.path.exists(os.path.join(res, "field_qc.csv"))

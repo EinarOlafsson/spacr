@@ -2888,6 +2888,15 @@ def get_analyze_recruitment_default_settings(settings):
     settings.setdefault('report_tile_seed',0)
     settings.setdefault('report_tile_channels',None)
     settings.setdefault('report_max_conditions_per_row',12)
+    settings.setdefault('report_layout','compact')
+    settings.setdefault('well_qc',True)
+    settings.setdefault('well_qc_mad',3.5)
+    settings.setdefault('well_qc_measures',None)
+    settings.setdefault('object_qc',True)
+    settings.setdefault('object_qc_mad',3.5)
+    settings.setdefault('object_qc_measures',None)
+    settings.setdefault('outlier_points',True)
+    settings.setdefault('outlier_points_method','mad')
     return settings
 
 def get_default_test_cellpose_model_settings(settings):
@@ -4017,6 +4026,15 @@ expected_types = {
     "report_tile_seed": int,
     "report_tile_channels": (dict, type(None)),
     "report_max_conditions_per_row": int,
+    "report_layout": str,
+    "well_qc": bool,
+    "well_qc_mad": float,
+    "well_qc_measures": (list, type(None)),
+    "object_qc": bool,
+    "object_qc_mad": float,
+    "object_qc_measures": (list, type(None)),
+    "outlier_points": bool,
+    "outlier_points_method": str,
     "max_area_quantile": (float, type(None)),
     "bin_labels": (dict, list, type(None)),
     "field_qc_min_objects": (int, type(None)),
@@ -5453,6 +5471,15 @@ tooltips = {
     "report_tile_seed": '(int) - Recruitment report: random seed for choosing the representative tiles, so the same tiles are chosen on every run. Default 0.',
     "report_tile_channels": "(dict) - Recruitment report: composite colours of the tiles, {channel: colour} with colours red, green, blue, magenta, cyan, yellow or grey, e.g. {2: 'red', 1: 'green', 0: 'blue'}. None shows channel_of_interest in red, the pathogen channel in green and the nucleus channel in blue. Default None.",
     "report_max_conditions_per_row": '(int) - Recruitment report: most conditions drawn side by side in one graph or tile row; longer condition axes continue on the next row or page. Default 12.',
+    "well_qc": '(bool) - Recruitment and replication: drop wells that differ from the other wells of their plate, e.g. a row imaged far brighter or dimmer. Per well and object type the object count, median area and median mean intensity of every channel are compared with the plate median of the wells; a well more than well_qc_mad robust standard deviations away in any measure is dropped before the other filters. Every well, its measures, robust z and the failing measures are written to results/well_qc.csv. Default True.',
+    "well_qc_mad": '(float) - Recruitment and replication well_qc: robust standard deviations (1.4826 x median absolute deviation over the wells of the plate) beyond which a well fails. Default 3.5.',
+    "well_qc_measures": "(list) - Recruitment and replication well_qc: measures compared between wells, any of 'count', 'area' and 'intensity'. None uses all three. Default None.",
+    "object_qc": '(bool) - Recruitment and replication: drop objects whose area or mean intensity in any channel lies beyond the robust fence of the objects of the same type on the same plate (log scale). Counts removed per measure are written to results/object_qc_summary.csv. Default True.',
+    "object_qc_mad": '(float) - Recruitment and replication object_qc: robust standard deviations of the log values beyond which an object is dropped. Default 3.5.',
+    "object_qc_measures": "(list) - Recruitment and replication object_qc: measures checked per object, any of 'area' and 'intensity'. None uses both. Default None.",
+    "outlier_points": '(bool) - Recruitment and replication panels: leave points beyond a robust fence of their group out of every bar panel and its test; they stay in the data CSV marked outlier = True and are counted per group in the statistics. Default True.',
+    "outlier_points_method": "(str) - Recruitment and replication panels: fence used by outlier_points, 'mad' (median +- 3.5 x 1.4826 x MAD) or 'iqr' (1.5 x IQR beyond the quartiles); 'mad:3' or 'iqr:2' set another fence. Default 'mad'.",
+    "report_layout": "(str) - Recruitment report: page layout of recruitment_report.pdf. compact uses 5-6 pt text, small tiles and four panels per row, and fits the whole figure on one A4 page when it can (the legend follows on its own page); spacious uses larger text and paginates freely. More conditions, channels or object types continue on further pages in both. Default 'compact'.",
     "control_color_by": '(str) - Recruitment control graphs: colour every condition bar by the value of this annotated column (for example treatment, so all wells of one host share a colour). Conditions are always ordered as the plate map lists them unless condition_order is set. None colours each condition separately. Default None.',
     "max_vacuoles_per_cell": '(int) - Recruitment analysis: keep host cells with at most this many pathogen objects (pathogen_prcfo_count), applied after the merge, which already used pathogen_limit. The removed count is reported in results/filter_summary.csv. None keeps every host cell. Default None.',
     "confounder_filter": "(dict) - Recruitment analysis: range filters on confounding variables, {column: [min, max]} at object level, or {column: {'quantiles': [0.05, 0.95], 'level': 'well'}} to drop whole wells outside per-plate quantile bounds ('range' gives absolute bounds). The well density columns n_cells_well, n_pathogens_well and pathogens_per_cell_well are computed from measurements.db when named. Each step is reported in results/filter_summary.csv. Default None.",
@@ -5985,7 +6012,7 @@ categories = {
 
     "Timelapse": timelapse_settings,
 
-    "Measurements": ["save_measurements", "calculate_correlation", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "field_qc", "field_qc_mad", "field_qc_min_cells", "field_qc_min_objects", "max_vacuoles_per_cell", "control_color_by", "background_mask_channel", "merged_dir", "min_solidity", "background_filters", "exclude_edge_objects", "confounder_filter", "report", "report_tiles_per_condition", "report_tile_size", "report_tile_seed", "report_tile_channels", "report_max_conditions_per_row", "max_area_quantile", "bin_labels", "field_qc_max_pathogens_per_cell", "field_qc_columns", "confounder_covariates", "adjust_covariates", "adjust_log_outcome", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
+    "Measurements": ["save_measurements", "calculate_correlation", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "field_qc", "field_qc_mad", "field_qc_min_cells", "field_qc_min_objects", "max_vacuoles_per_cell", "control_color_by", "background_mask_channel", "merged_dir", "min_solidity", "background_filters", "exclude_edge_objects", "confounder_filter", "report", "report_tiles_per_condition", "report_tile_size", "report_tile_seed", "report_tile_channels", "report_max_conditions_per_row", "report_layout", "well_qc", "well_qc_mad", "well_qc_measures", "object_qc", "object_qc_mad", "object_qc_measures", "outlier_points", "outlier_points_method", "max_area_quantile", "bin_labels", "field_qc_max_pathogens_per_cell", "field_qc_columns", "confounder_covariates", "adjust_covariates", "adjust_log_outcome", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
 
     "Illumination Correction": ["illumination_correction", "illumination_model", "illumination_estimator", "illumination_degree", "illumination_dark", "illumination_per_plate", "illumination_max_fields", "illumination_qc", "illumination_on_missing", "illumination_vendor_profile", "illumination_vendor_channel_map"],
 
@@ -7448,6 +7475,14 @@ def set_analyze_replication_defaults(settings):
     settings.setdefault('merged_dir', None)
     settings.setdefault('min_solidity', None)
     settings.setdefault('background_filters', None)
+    settings.setdefault('well_qc', True)
+    settings.setdefault('well_qc_mad', 3.5)
+    settings.setdefault('well_qc_measures', None)
+    settings.setdefault('object_qc', True)
+    settings.setdefault('object_qc_mad', 3.5)
+    settings.setdefault('object_qc_measures', None)
+    settings.setdefault('outlier_points', True)
+    settings.setdefault('outlier_points_method', 'mad')
     settings.setdefault('field_qc', False)
     settings.setdefault('field_qc_mad', 3.5)
     settings.setdefault('field_qc_min_objects', 3)

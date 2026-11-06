@@ -1287,9 +1287,57 @@ def _well_density_columns_needed(settings):
     return any(w in names for w in wanted)
 
 
-def _recruitment_new_filters(df, settings, results_dir, field_qc_counts=None):
-    """Post-merge filters for analyze_recruitment; returns (df, log or None)."""
-    active = (settings.get('max_vacuoles_per_cell') is not None
+def _outlier_points_method(settings):
+    """The outlier-point method of the panels: None when outlier_points is off."""
+    if not settings.get('outlier_points'):
+        return None
+    return settings.get('outlier_points_method') or 'mad'
+
+
+def _qc_filters(df, settings, row_object='cell'):
+    """well_qc then object_qc (both on by default); returns (df, steps, tables).
+
+    ``steps`` are ``(step, before, after, note)`` for the filter log and
+    ``tables`` ``{'well_qc': ..., 'object_qc_summary': ...}`` for results/.
+    """
+    from .assay_report import well_qc_table, object_qc_mask
+    channels = [int(c) for c in (settings.get('channel_dims') or []) if c is not None] or None
+    steps, tables = [], {}
+    if settings.get('well_qc'):
+        mad = float(settings.get('well_qc_mad') or 3.5)
+        table = well_qc_table(df, channels, settings.get('well_qc_measures'), mad, row_object)
+        tables['well_qc'] = table
+        keys = [k for k in ('plateID', 'rowID', 'columnID') if k in df.columns]
+        bad = table.loc[~table['well_qc_pass'], keys]
+        before = df
+        if len(bad):
+            mask = pd.MultiIndex.from_frame(df[keys].astype(str)).isin(
+                pd.MultiIndex.from_frame(bad.astype(str)))
+            df = df[~np.asarray(mask)]
+        names = [f"{r['rowID']}{r['columnID']}" for _, r in table[~table['well_qc_pass']].iterrows()]
+        note = (f"MAD fence {mad:g}; {len(bad)} of {len(table)} wells failed"
+                + (f": {', '.join(names[:40])}" + (' ...' if len(names) > 40 else '') if names else ''))
+        steps.append((f'well_qc (MAD {mad:g})', before, df, note))
+    if settings.get('object_qc'):
+        mad = float(settings.get('object_qc_mad') or 3.5)
+        keep, summary = object_qc_mask(df, channels, settings.get('object_qc_measures'), mad)
+        tables['object_qc_summary'] = summary
+        before = df
+        df = df[keep]
+        top = summary.sort_values('objects_removed', ascending=False).head(3)
+        note = f"MAD fence {mad:g} on log scale per plate; most removed by " + ', '.join(
+            f"{r['column']} ({r['objects_removed']})" for _, r in top.iterrows())
+        steps.append((f'object_qc (MAD {mad:g})', before, df, note))
+    return df, steps, tables
+
+
+def _recruitment_new_filters(df, settings, results_dir, field_qc_counts=None, pre_steps=()):
+    """Post-merge filters for analyze_recruitment; returns (df, log or None).
+
+    :param pre_steps: ``(step, before, after, note)`` filters already applied
+        (well_qc, object_qc), logged first.
+    """
+    active = (bool(pre_steps) or settings.get('max_vacuoles_per_cell') is not None
               or settings.get('exclude_edge_objects')
               or settings.get('confounder_filter')
               or settings.get('background_filters')
@@ -1297,8 +1345,10 @@ def _recruitment_new_filters(df, settings, results_dir, field_qc_counts=None):
               or settings.get('panels'))
     if not active:
         return df, None
-    log = _FilterLog(df if field_qc_counts is None else field_qc_counts[0],
-                     unit='objects', first_step='spaCR output (after object filters)')
+    start = pre_steps[0][1] if pre_steps else (df if field_qc_counts is None else field_qc_counts[0])
+    log = _FilterLog(start, unit='objects', first_step='spaCR output (after object filters)')
+    for step, before, after, note in pre_steps:
+        log.add(step, before, after, note)
     if field_qc_counts is not None:
         log.add('field_qc', field_qc_counts[0], field_qc_counts[1])
     if settings.get('max_vacuoles_per_cell') is not None:
@@ -1419,7 +1469,15 @@ def _recruitment_control_specs(df, settings):
     return specs, names, figures
 
 
-def _recruitment_panels(df, settings, results_dir):
+def _recruitment_panels(*args, **kwargs):
+    """Run :func:`_recruitment_panels_impl` under the outlier-point policy of the settings."""
+    from .assay_panels import outlier_policy
+    settings = args[1] if len(args) > 1 else kwargs['settings']
+    with outlier_policy(_outlier_points_method(settings)):
+        return _recruitment_panels_impl(*args, **kwargs)
+
+
+def _recruitment_panels_impl(df, settings, results_dir):
     """Write user panels (Pnn) and control panels (Cnn) for analyze_recruitment."""
     out = {}
     panels = _check_panels_setting(settings.get('panels'))
@@ -1503,7 +1561,15 @@ def _report_grouping(df, settings):
     return group, order, shown, add_group, (None if rep == 'condition' else rep)
 
 
-def _recruitment_report(df_unfiltered, df, settings, results_dir, filter_log):
+def _recruitment_report(*args, **kwargs):
+    """Run :func:`_recruitment_report_impl` under the outlier-point policy of the settings."""
+    from .assay_panels import outlier_policy
+    settings = args[2] if len(args) > 2 else kwargs['settings']
+    with outlier_policy(_outlier_points_method(settings)):
+        return _recruitment_report_impl(*args, **kwargs)
+
+
+def _recruitment_report_impl(df_unfiltered, df, settings, results_dir, filter_log, well_qc=None):
     """Write the standard recruitment report into ``results/report`` (``report`` setting)."""
     import datetime
     from .assay_report import build_assay_report, resolve_mask_dims
@@ -1553,7 +1619,9 @@ def _recruitment_report(df_unfiltered, df, settings, results_dir, filter_log):
         filter_summary=filter_log.frame() if filter_log is not None else None, palette=palette,
         tiles=tiles, max_conditions_per_row=int(settings['report_max_conditions_per_row']),
         title=f"spaCR recruitment report: {os.path.basename(os.path.normpath(settings['src']))}",
-        intro=intro, name='recruitment_report')
+        intro=intro, name='recruitment_report', layout=settings.get('report_layout') or 'compact',
+        db_path=os.path.join(settings['src'], 'measurements', 'measurements.db'),
+        well_qc=well_qc)
     print(f"Recruitment report: {res['pdf']} ({res['n_pages']} pages), legend {res['legend']}")
     return res
 
@@ -1565,6 +1633,7 @@ def _replication_filters_active(settings):
     :returns: True when the filter log and its tables should be written.
     """
     return bool(settings.get('field_qc') or settings.get('exclude_edge_objects')
+                or settings.get('well_qc') or settings.get('object_qc')
                 or settings.get('max_area_quantile') is not None
                 or settings.get('background_filters') or settings.get('min_solidity') is not None)
 
@@ -1728,6 +1797,11 @@ def _replication_filters(frame, settings, area_column, edge_cut, db_tables, unit
     """
     log = _FilterLog(frame, unit=unit, first_step=first_step)
     flags = None
+    if settings.get('well_qc') or settings.get('object_qc'):
+        frame, steps, tables = _qc_filters(frame, settings, row_object=None)
+        log.tables = dict(getattr(log, 'tables', {}), **tables)
+        for step, before, after, note in steps:
+            log.add(step, before, after, note)
     if settings.get('field_qc'):
         from .recruitment_confounders import field_density, flag_crowded_fields, apply_field_qc
         parts = []
@@ -1779,6 +1853,8 @@ def _write_filter_outputs(output_dir, log, flags, end, group_column):
     """
     os.makedirs(output_dir, exist_ok=True)
     write_table(log.frame(), os.path.join(output_dir, 'filter_summary.csv'))
+    for name, table in (getattr(log, 'tables', None) or {}).items():
+        write_table(table, os.path.join(output_dir, f'{name}.csv'))
     write_table(log.kept_per_condition(end, group_column),
                 os.path.join(output_dir, 'filter_kept_per_condition.csv'))
     if flags is not None:
@@ -1814,7 +1890,15 @@ def _replication_bin_labels(bins, user_labels, default_labels=None):
     return out
 
 
-def _replication_panels(table, settings, bin_column, bins, value, value_label, legend_title,
+def _replication_panels(*args, **kwargs):
+    """Run :func:`_replication_panels_impl` under the outlier-point policy of the settings."""
+    from .assay_panels import outlier_policy
+    settings = args[1] if len(args) > 1 else kwargs['settings']
+    with outlier_policy(_outlier_points_method(settings)):
+        return _replication_panels_impl(*args, **kwargs)
+
+
+def _replication_panels_impl(table, settings, bin_column, bins, value, value_label, legend_title,
                         output_dir, default_bin_labels=None):
     """Three panels per ``panels`` entry: stacked bins (chi-square), stacked bins
     (Fisher-Freeman-Halton) and a bar of the replicate (or well) mean of ``value``.
@@ -2001,7 +2085,11 @@ def analyze_recruitment(settings):
           ``merged_dir`` (default ``<src>/merged``) and tuned by
           ``report_tiles_per_condition``, ``report_tile_size``,
           ``report_tile_seed`` and ``report_tile_channels``;
-          ``report_max_conditions_per_row`` splits long condition axes. See
+          ``report_max_conditions_per_row`` splits long condition axes;
+          ``report_layout`` 'compact' (default) fits the figure on one A4 page
+          when it can, 'spacious' uses larger type over more pages. Objects
+          per well are counted from the object tables of measurements.db
+          before filtering and from the analysed table after it. See
           :mod:`spacr.assay_report`.
 
         The GUI path (Home > Toxoplasma > Recruitment) is unchanged; these
@@ -2127,6 +2215,15 @@ def analyze_recruitment(settings):
     print(f'calculated recruitment for: {len(df)} rows')
     
     _df_unfiltered = df if settings.get('report') else None
+    _pre_steps = []
+    _results_dir = os.path.join(settings['src'], 'results')
+    _well_qc = None
+    if settings.get('well_qc') or settings.get('object_qc'):
+        df, _pre_steps, _qc_tables = _qc_filters(df, settings, 'cell')
+        os.makedirs(_results_dir, exist_ok=True)
+        for _name, _table in _qc_tables.items():
+            _table.to_csv(os.path.join(_results_dir, f'{_name}.csv'), index=False)
+        _well_qc = _qc_tables.get('well_qc')
     _field_cols = ['n_cells_field', 'n_pathogens_field', 'pathogens_per_cell_field']
     _screen = list(settings.get('confounder_covariates') or [])
     _adjust = list(settings.get('adjust_covariates') or [])
@@ -2156,7 +2253,7 @@ def analyze_recruitment(settings):
             os.path.join(settings['src'], 'measurements', 'measurements.db')))
         print('Attached well density columns: n_cells_well, n_pathogens_well, '
               'pathogens_per_cell_well')
-    df, _filter_log = _recruitment_new_filters(df, settings, _results_dir, _fqc_counts)
+    df, _filter_log = _recruitment_new_filters(df, settings, _results_dir, _fqc_counts, _pre_steps)
     if _screen:
         from .recruitment_confounders import confounder_report
         report = confounder_report(df, 'recruitment', 'condition', _screen,
@@ -2196,7 +2293,7 @@ def analyze_recruitment(settings):
             _cpw = pd.to_numeric(_df_unfiltered['cells_per_well'], errors='coerce')
             _df_unfiltered = _df_unfiltered[
                 _cpw.groupby(_df_unfiltered['prc']).transform('mean') >= settings['cells_per_well']]
-        _recruitment_report(_df_unfiltered, df, settings, _results_dir, _filter_log)
+        _recruitment_report(_df_unfiltered, df, settings, _results_dir, _filter_log, _well_qc)
 
     print(f'PV level: {len(df)} rows')
     _plot_recruitment(df, 'by PV', settings['channel_of_interest'], columns=[], figuresize=settings['figuresize'])

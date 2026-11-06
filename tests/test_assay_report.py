@@ -118,7 +118,7 @@ def test_tiles_are_16_bit_and_raw_tiles_equal_the_source(tmp_path):
     merged.mkdir()
     src = _field(merged / "f1.npy")
     df = pd.DataFrame(dict(condition=["a"] * 4, file_name="f1", object_label=[f"o{i}" for i in range(1, 5)],
-                           cell_distance_to_field_edge=[50.0] * 4))
+                           pathogen_distance_to_field_edge=[50.0] * 4))
     out = tmp_path / "tiles"
     res = ar.build_tiles(df, "condition", ["a"], str(merged), {"cell": 4, "nucleus": 5, "pathogen": 6},
                          {2: "red", 1: "green", 0: "blue"}, str(out), n=3, size=64, seed=1)
@@ -132,6 +132,11 @@ def test_tiles_are_16_bit_and_raw_tiles_equal_the_source(tmp_path):
         assert png.dtype == np.uint16 and png.shape == (64, 64, 3)
         tif = tifffile.imread(str(out / "tiles" / r["rgb16_png"]).replace(".png", ".tif"))
         np.testing.assert_array_equal(tif, png[..., ::-1])   # PNG is BGR, TIFF is RGB
+        # centred on the pathogen object of the host cell, which lies fully inside the crop
+        pat = src[..., 6] == int(r["mask_label"])
+        ys, xs = np.nonzero(pat)
+        assert abs((r.y0 + r.y1) / 2 - ys.mean()) <= 1 and abs((r.x0 + r.x1) / 2 - xs.mean()) <= 1
+        assert ys.min() >= r.y0 and ys.max() < r.y1 and xs.min() >= r.x0 and xs.max() < r.x1
     mont = cv2.imread(str(out / "montage_rgb16.png"), cv2.IMREAD_UNCHANGED)
     assert mont.dtype == np.uint16 and mont.shape == (3 * 64 + 2 * 4, 64, 3)
     assert set(res["ranges"]) == {0, 1, 2}
@@ -166,7 +171,7 @@ def test_analyze_recruitment_report_end_to_end(tmp_path):
     from spacr.submodules import analyze_recruitment
 
     df = _recruitment_frame()
-    df["cell_distance_to_field_edge"] = 60.0
+    df["pathogen_distance_to_field_edge"] = 60.0
     src = tmp_path / "plate"
     (src / "measurements").mkdir(parents=True)
     merged = src / "merged"
@@ -195,7 +200,10 @@ def test_analyze_recruitment_report_end_to_end(tmp_path):
     assert "max_vacuoles_per_cell 2" in legend and "exclude_edge_objects" in legend
     assert any(t in legend for t in ("one-way ANOVA", "Welch ANOVA", "Kruskal-Wallis"))
     assert "replicate" in legend and "seed 0" in legend
-    panels = sorted(os.listdir(rep / "panels"))
+    panels = sorted(p for p in os.listdir(rep / "panels") if p.startswith("R"))
+    heat = sorted(p for p in os.listdir(rep / "panels") if p.startswith("H"))
+    assert "H01_heatmap_recruitment_unfiltered" in heat and len(heat) % 2 == 0
+    assert set(os.listdir(rep / "panels" / heat[0])) == {f"{heat[0]}.pdf", f"{heat[0]}.png", "data.csv"}
     assert panels[0] == "R01_representative_tiles"
     assert panels[1:5] == ["R02_recruitment_unfiltered_well", "R03_recruitment_unfiltered_replicate",
                            "R04_recruitment_filtered_well", "R05_recruitment_filtered_replicate"]
@@ -216,7 +224,86 @@ def test_analyze_recruitment_report_end_to_end(tmp_path):
     assert sum("all_objects_unfiltered" in p for p in ctrl) == 4
     assert sum("all_objects_filtered" in p for p in ctrl) == 4
     assert any("pathogen_objects_per_well_filtered" in p for p in ctrl)
+    before = pd.read_csv(rep / "panels" / [p for p in ctrl if "cell_objects_per_well_unfiltered" in p][0]
+                         / "data.csv")
+    assert set(before["count_source"]) == {"measurements.db table cell"}
+    after = pd.read_csv(rep / "panels" / [p for p in ctrl if "pathogen_objects_per_well_filtered" in p][0]
+                        / "data.csv")
+    assert set(after["count_source"]) == {"pathogen_prcfo_count"}
+    assert "measurements.db" in legend
     stats = pd.read_csv(rep / "panels" / [p for p in ctrl if "channel_2_all_objects_filtered" in p][0]
                         / "stats.csv")
     assert set(stats.loc[stats["table"] == "test", "object_type"]) == {"cell", "nucleus",
                                                                         "cytoplasm", "pathogen"}
+
+
+def test_tiles_skip_cells_without_a_vacuole_or_with_one_at_the_field_edge():
+    arr = np.zeros((100, 100, 3), np.uint16)
+    arr[10:40, 10:40, 1] = 1          # cell 1: no pathogen
+    arr[50:90, 0:40, 1] = 2           # cell 2: pathogen touching the field edge
+    arr[60:70, 0:8, 2] = 5
+    arr[50:90, 50:90, 1] = 3          # cell 3: pathogen well inside
+    arr[65:75, 65:75, 2] = 7
+    assert ar.extract_tile(arr, 1, 1, 32, center_plane=2) is None
+    assert ar.extract_tile(arr, 1, 2, 32, center_plane=2) is None
+    raw, box, _ = ar.extract_tile(arr, 1, 3, 32, center_plane=2)
+    assert box == (54, 86, 54, 86)
+
+
+def test_db_counts_use_every_object_table(tmp_path):
+    import sqlite3
+    db = tmp_path / "measurements.db"
+    with sqlite3.connect(db) as con:
+        for t, n in (("cell", 3), ("cell_1", 9), ("nucleus", 5), ("cytoplasm", 3),
+                     ("organelle_a", 2), ("png_list", 1)):
+            con.execute(f"create table {t} (plateID, rowID, columnID, fieldID, object_label)")
+            for i in range(n):
+                con.execute(f"insert into {t} values ('p%5F1', 'r1', 'c1', '1', {i})")
+    assert ar.db_object_tables(str(db)) == ["cell", "nucleus", "organelle_a"]
+    frame = pd.DataFrame(dict(plateID=["p_1", "p_1"], rowID="r1", columnID=["c1", "c2"], condition=["a", "b"]))
+    counts = ar.db_well_counts(str(db), frame, "condition")
+    got = counts.set_index(["object_type", "columnID"])["objects_per_well"]
+    assert got[("cell", "c1")] == 3 and got[("nucleus", "c1")] == 5 and got[("nucleus", "c2")] == 0
+    assert set(counts["count_source"]) == {"measurements.db table cell", "measurements.db table nucleus",
+                                          "measurements.db table organelle_a"}
+
+
+def _report_inputs(tmp_path, n_cond, channels=(0, 1, 2, 3)):
+    df = _frame(n_cond=n_cond, channels=channels, wells_per_cond=4, cells=4)
+    df["file_name"] = "f_" + df["rowID"] + "_" + df["columnID"]
+    df["object_label"] = [f"o{i % 4 + 1}" for i in range(len(df))]
+    df["pathogen_distance_to_field_edge"] = 60.0
+    merged = tmp_path / "merged"
+    merged.mkdir(exist_ok=True)
+    for k, name in enumerate(df["file_name"].unique()):
+        _field(merged / f"{name}.npy", n_cells=4, seed=k)
+    order = sorted(df["condition"].unique())
+    labels = {g: f"Me49GRA8comp{i}, HeLa ALG2" for i, g in enumerate(order)}
+    tiles = dict(merged_dir=str(merged), mask_dims={"cell": 4, "nucleus": 5, "pathogen": 6},
+                 colour_map={2: "red", 1: "green", 0: "blue"}, n=5, size=48, seed=0)
+    return df, order, labels, tiles
+
+
+def test_compact_layout_fits_the_standard_figure_on_one_page(tmp_path):
+    # 6 conditions, 4 channels, 3 counted object types (cell, nucleus, pathogen), tiles
+    df, order, labels, tiles = _report_inputs(tmp_path, 6)
+    res = ar.build_assay_report({"unfiltered": df, "filtered": df}, str(tmp_path / "report"),
+                                "recruitment", "condition", order, [0, 1, 2, 3], labels=labels,
+                                replicate_column="replicate", ratio=True, tiles=tiles, layout="compact")
+    assert res["n_main_pages"] == 1 and res["n_legend_pages"] >= 1
+    assert res["n_pages"] == res["n_figure_pages"] + res["n_legend_pages"]
+    assert res["n_figure_pages"] > 1                          # plate heatmaps follow as an appendix
+    counts = [p for p in res["panels"].values() if "objects_per_well" in p]
+    assert len(counts) == 6                                   # 3 types, before and after
+
+
+def test_compact_layout_paginates_many_conditions(tmp_path):
+    df, order, labels, tiles = _report_inputs(tmp_path, 30)
+    res = ar.build_assay_report({"unfiltered": df, "filtered": df}, str(tmp_path / "report"),
+                                "recruitment", "condition", order, [0, 1, 2, 3], labels=labels,
+                                replicate_column="replicate", ratio=True, tiles=None, layout="compact")
+    assert res["n_main_pages"] > 1
+    sp = ar.build_assay_report({"unfiltered": df, "filtered": df}, str(tmp_path / "report2"),
+                               "recruitment", "condition", order[:6], [0, 1, 2, 3], labels=labels,
+                               replicate_column="replicate", ratio=True, layout="spacious")
+    assert sp["n_main_pages"] > 1                             # spacious keeps the roomy pages
