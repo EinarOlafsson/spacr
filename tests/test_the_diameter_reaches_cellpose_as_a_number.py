@@ -57,12 +57,12 @@ def test_an_unparseable_value_is_reported_and_treated_as_blank(capsys):
 
 #: Every function in spacr/object.py that reads the user's diameter setting
 #: for a Cellpose model, and how many times. The 2-D and z-stack eval calls
-#: in the Cellpose-SAM generator, the Cellpose-DINO route (item 525) and the
+#: in the Cellpose-SAM generator plus its per-image estimate's fallback, the Cellpose-DINO route (item 525) and the
 #: Cellpose 3 route (item 503), whose eval keywords are built in
 #: ``_cellpose3_eval_settings``. A new route fails here until it is listed,
 #: and a listed one fails if any of its reads skips the coercion.
 _DIAMETER_ROUTES = {
-    "generate_cellpose_masks_sam": 2,
+    "generate_cellpose_masks_sam": 3,
     "_cellpose_dino_masks": 1,
     "_cellpose3_eval_settings": 1,
 }

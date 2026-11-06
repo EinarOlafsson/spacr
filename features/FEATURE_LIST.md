@@ -12,7 +12,7 @@ Repeated IDs retain their separate full filenames and histories; none were merge
 
 This is a declaration-based navigation list, not a verified unfinished count. Headers can be stale. Conversely, recorded-Done items 641 and 673 contain later Mac follow-ups; item 729 separates native checks from deferred implementation. Read their linked notes before assigning work.
 
-79 records have no recorded complete declaration; 737 have a recorded complete declaration. Neither is a verification result.
+77 records have no recorded complete declaration; 739 have a recorded complete declaration. Neither is a verification result.
 
 | ID | Lifecycle | Item (full filename) | Recorded status |
 |---|---|---|---|
@@ -92,8 +92,6 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 826 | New | [A GUI RUN ALSO WRITES ITS NOTEBOOK — 826_a_gui_run_also_writes_its_notebook.txt](feature_list/826_a_gui_run_also_writes_its_notebook.txt) | open. |
 | 829 | New | [PARASITES PER VACUOLE FROM VACUOLE SHAPE — 829_parasites_per_vacuole_from_shape.txt](feature_list/829_parasites_per_vacuole_from_shape.txt) | open. |
 | 830 | New | [RIM RECRUITMENT WITH A NULL-BASED THRESHOLD — 830_rim_recruitment_with_a_null_threshold.txt](feature_list/830_rim_recruitment_with_a_null_threshold.txt) | open. |
-| 831 | New | [OBJECT DIAMETERS FROM PIXEL SIZE — 831_object_diameters_from_pixel_size.txt](feature_list/831_object_diameters_from_pixel_size.txt) | open. |
-| 832 | New | [MULTICLASS ML SCORES — 832_multiclass_ml_scores.txt](feature_list/832_multiclass_ml_scores.txt) | open. |
 
 ## All feature items
 
@@ -913,8 +911,8 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 828 | New | [MERGE_TOUCHING_OBJECTS IS FAST — 828_merge_touching_objects_is_fast.txt](feature_list/828_merge_touching_objects_is_fast.txt) | DONE 2026-11-06 — objects are measured inside their own padded bounding boxes; the merge result is unchanged. |
 | 829 | New | [PARASITES PER VACUOLE FROM VACUOLE SHAPE — 829_parasites_per_vacuole_from_shape.txt](feature_list/829_parasites_per_vacuole_from_shape.txt) | open. |
 | 830 | New | [RIM RECRUITMENT WITH A NULL-BASED THRESHOLD — 830_rim_recruitment_with_a_null_threshold.txt](feature_list/830_rim_recruitment_with_a_null_threshold.txt) | open. |
-| 831 | New | [OBJECT DIAMETERS FROM PIXEL SIZE — 831_object_diameters_from_pixel_size.txt](feature_list/831_object_diameters_from_pixel_size.txt) | open. |
-| 832 | New | [MULTICLASS ML SCORES — 832_multiclass_ml_scores.txt](feature_list/832_multiclass_ml_scores.txt) | open. |
+| 831 | New | [OBJECT DIAMETERS FROM PIXEL SIZE — 831_object_diameters_from_pixel_size.txt](feature_list/831_object_diameters_from_pixel_size.txt) | DONE 2026-11-06 — new setting pixel_size_um: a blank cell, nucleus or pathogen diameter is 18, 10 or 6.5 um over the pixel size (55, 31, 20 px at 0.325 um/px) instead of the magnification formula; new setting estimate_diameters_per_image: a blank, 0 or auto diameter is estimated per 2-D image (Cellpose 3 size model; Cellpose-SAM segments at native scale, measures the median mask diameter with cellpose.utils.diameters and segments again). Typed diameters are untouched. Tests tests/test_diameters_from_pixel_size.py. |
+| 832 | New | [MULTICLASS ML SCORES — 832_multiclass_ml_scores.txt](feature_list/832_multiclass_ml_scores.txt) | DONE 2026-11-06 — new setting ml_classes: three or more classes train one class each (logistic regression, shrinkage LDA and the other models), with prediction_probability_class_i per class, predicted_class, per-class precision/recall rows with class_label, and <model>_model_confusion_matrix.csv. None or two entries give the binary output unchanged. Tests tests/test_multiclass_ml_scores.py against tests/data/ml_two_class_reference. |
 
 ## Unnumbered feature documents
 

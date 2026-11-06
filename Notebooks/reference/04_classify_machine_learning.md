@@ -44,12 +44,13 @@ This linked reference contains the full generated setting descriptions. Return t
 
 
 <details>
-<summary>Labels &amp; Classes (2 settings)</summary>
+<summary>Labels &amp; Classes (3 settings)</summary>
 
 #### Labels & Classes
 
 - **`dataset_mode`** *(optional)* — (str) - How training classes are defined: 'metadata' splits crops by well metadata, 'annotation' by the values in one or more annotation columns of png_list. Either way the classes themselves are set in the Classes editor, which names a column and a value per class. A settings file written before the 'measurement' basis was removed still loads: it is read as 'annotation', which is what its threshold rules resolved to after writing their label column. Any other value aborts and returns no dataset. Default 'metadata'. Default: `'metadata'`.
 - **`location_column`** *(optional)* — (str) - Metadata column searched for positive_control_id and negative_control_id values when labelling rows for machine-learning training, normally 'columnID' or 'rowID'. Set 'rowID' when controls are arranged along plate rows instead of columns. annotation_column overrides this setting when specified. Default 'columnID'. Default: `'columnID'`.
+- **`ml_classes`** *(optional)* — (list or None) - Classes for a multiclass classifier, e.g. ['no recruitment', 'recruitment', 'artefact']. Each entry is a value of location_column (annotation_column in annotation mode) or a list of values pooled into one class. Class i is entry i: scored in prediction_probability_class_i and named in predicted_class; the metrics give precision and recall per class and &lt;model&gt;_model_confusion_matrix.csv the test confusion matrix. Two entries are [negative, positive]. None trains the binary fit on negative_control_id and positive_control_id. Default None. Default: `None`.
 
 </details>
 

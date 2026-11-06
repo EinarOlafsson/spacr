@@ -566,7 +566,11 @@ def _backend_mask_settings(settings: Optional[Dict[str, Any]],
     if diameter is not None:
         merged[f"{object_type}_diameter"] = diameter
     default = 30.0
-    if merged.get("magnification") is not None:
+    from .object_settings_table import _diameter_from_pixel_size
+    from_pixels = _diameter_from_pixel_size(merged.get("pixel_size_um"), object_type)
+    if from_pixels is not None:
+        default = float(from_pixels)
+    elif merged.get("magnification") is not None:
         from .utils import _get_diam
         default = _get_diam(merged["magnification"], obj=object_type)
     elif diameter:

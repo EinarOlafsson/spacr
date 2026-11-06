@@ -2655,7 +2655,8 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
 
         self._diameter_default_seeded = None
         resolved = _resolved_diameter(settings.get(f"{obj}_diameter"),
-                                      settings.get("magnification"), obj)
+                                      settings.get("magnification"), obj,
+                                      settings.get("pixel_size_um"))
         if resolved is None:
             return
         if resolved != _AUTO_DIAMETER:

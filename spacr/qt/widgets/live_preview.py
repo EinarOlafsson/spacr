@@ -3846,7 +3846,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         else:
             resolved = _resolved_diameter(
                 settings.get(f"{primary}_diameter"),
-                settings.get("magnification"), primary)
+                settings.get("magnification"), primary,
+                settings.get("pixel_size_um"))
             if resolved == _AUTO_DIAMETER:
                 resolved = 0.0
         if resolved is None:

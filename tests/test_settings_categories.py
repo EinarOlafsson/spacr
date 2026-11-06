@@ -349,6 +349,9 @@ KEYS_RETIRED = frozenset({
 
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # NEW SETTINGS, not a regrouping: Mask's pixel-size diameter default and
+    # per-image diameter estimate, and the ML classifier's class list.
+    "pixel_size_um", "estimate_diameters_per_image", "ml_classes",
     # Recruitment and replication: publication panels and their filters.
     "panels", "condition_order", "condition_labels", "figures",
     "exclude_edge_objects", "max_vacuoles_per_cell", "control_color_by", "background_filters", "min_solidity", "merged_dir", "background_mask_channel", "confounder_filter",

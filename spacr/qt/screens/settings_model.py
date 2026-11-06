@@ -1246,7 +1246,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Labels & Classes", (
             "src", "dataset_mode",
             "location_column", "positive_control_id", "negative_control_id",
-            "annotation_column",
+            "ml_classes", "annotation_column",
         )),
         ("Feature Preparation", (
             "channel_of_interest", "exclude", "nuclei_limit",
@@ -1279,6 +1279,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             *(f"{role}_channel" for role in ALL_ORGANELLE_ROLES[1:]),
             "segmentation_backend",
             "channels", "magnification", "calculate_diameters",
+            "pixel_size_um", "estimate_diameters_per_image",
             "metadata_type", "metadata_well_map", "custom_regex",
         )),
         ("Cloud α", (
@@ -1431,6 +1432,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             *(f"{role}_channel" for role in ALL_ORGANELLE_ROLES[1:]),
             "segmentation_backend",
             "channels", "magnification", "calculate_diameters",
+            "pixel_size_um", "estimate_diameters_per_image",
             "metadata_type", "metadata_well_map", "custom_regex",
         )),
         ("Acquisition & Axes", (

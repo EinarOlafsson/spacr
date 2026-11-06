@@ -289,6 +289,7 @@ class ObjectSettingsModel(QAbstractTableModel):
         self._questions: Tuple[str, ...] = ()
         self._objects: Tuple[str, ...] = ()
         self._magnification: Any = None
+        self._pixel_size: Any = None
         self._calculating: bool = True
 
 
@@ -402,7 +403,8 @@ class ObjectSettingsModel(QAbstractTableModel):
         value = self.value_at(question, obj)
         unset = _unset_text(question)
         if _is_magnification_diameter(question, obj) and value is None:
-            default = _magnification_default(self._magnification, obj)
+            default = _magnification_default(
+                self._magnification, obj, self._pixel_size)
             if default is not None:
                 unset = f"{default:g}"
                 if role == Qt.ForegroundRole:
@@ -1169,6 +1171,7 @@ class ObjectSettingsGrid(QWidget):
         """
         self._base = dict(settings or {})
         self._model._magnification = self._base.get("magnification")
+        self._model._pixel_size = self._base.get("pixel_size_um")
         self._model._calculating = _calculates_diameters(self._base)
         self._model.set_table(self._visible_table())
         self._announce()
@@ -1191,6 +1194,32 @@ class ObjectSettingsGrid(QWidget):
         if self._model._magnification == magnification:
             return False
         self._model._magnification = magnification
+        rows = self.questions()
+        if _DIAMETER_QUESTION not in rows:
+            return False
+        row = rows.index(_DIAMETER_QUESTION)
+        columns = self._model.columnCount()
+        if columns:
+            self._model.dataChanged.emit(
+                self._model.index(row, 0),
+                self._model.index(row, columns - 1),
+                [Qt.DisplayRole, Qt.ForegroundRole, Qt.ToolTipRole])
+        return True
+
+    def _follow_pixel_size(self, pixel_size_um) -> bool:
+        """Show the diameter defaults of a new pixel size.
+
+        A blank object diameter shows the pixel-size default greyed when a
+        pixel size is set, so it moves when the pixel size does; the stored
+        value stays blank.
+
+        :param pixel_size_um: the form's pixel size now.
+        :returns: whether anything was redrawn.
+        """
+        self._base["pixel_size_um"] = pixel_size_um
+        if self._model._pixel_size == pixel_size_um:
+            return False
+        self._model._pixel_size = pixel_size_um
         rows = self.questions()
         if _DIAMETER_QUESTION not in rows:
             return False

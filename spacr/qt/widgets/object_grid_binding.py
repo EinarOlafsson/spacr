@@ -275,6 +275,9 @@ class ObjectGridBinding(QObject):
         follow = getattr(self._grid, "_follow_magnification", None)
         if callable(follow) and "magnification" in current:
             follow(current["magnification"])
+        follow_pixels = getattr(self._grid, "_follow_pixel_size", None)
+        if callable(follow_pixels) and "pixel_size_um" in current:
+            follow_pixels(current["pixel_size_um"])
         shown = self._grid.settings()
         moved = 0
         for key in self.owned_keys():

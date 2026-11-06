@@ -2182,7 +2182,8 @@ def _describe_objects(settings: Dict[str, Any], app: str) -> List[str]:
             diameter = settings.get(f"{name}_diameter")
             if name in _DIAMETER_OBJECTS:
                 detail += ", diameter " + _diameter_used_text(
-                    diameter, settings.get('magnification', 40), name)
+                    diameter, settings.get('magnification', 40), name,
+                    pixel_size_um=settings.get('pixel_size_um'))
             elif diameter is not None:
                 detail += f", diameter {diameter} px"
             else:

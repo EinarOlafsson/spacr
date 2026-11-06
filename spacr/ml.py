@@ -9369,6 +9369,10 @@ def generate_ml_scores(settings):
           ``'shrinkage_lda'``, ``'xgboost'``, ``'random_forest'``.
         - ``positive_control`` / ``negative_control`` — well IDs (e.g.
           ``'c2'`` / ``'c1'``) used as training labels.
+        - ``ml_classes`` — ``None`` for the binary fit, or a list of three
+          or more class values (each a value or a list pooled into one
+          class) for a multiclass fit; the results then hold one probability
+          column per class and ``<model>_model_confusion_matrix.csv``.
         - ``annotation_column`` — override controls with a PNG-level
           annotation column.
         - ``location_column`` — ``'columnID'`` or ``'rowID'``.
@@ -9520,7 +9524,8 @@ def generate_ml_scores(settings):
                 f"Unannotated objects will be scored after training; spaCR "
                 f"will not assign them a training label.")
             
-        if settings['positive_control_id'] is None and settings['negative_control_id'] is None:
+        if (settings['positive_control_id'] is None and settings['negative_control_id'] is None
+                and _class_arms(settings.get('ml_classes')) is None):
             settings['positive_control_id'] = str(unique_values[0])
             settings['negative_control_id'] = str(unique_values[1])
             print(f"Automatically set positive control to {settings['positive_control_id']} and negative control to {settings['negative_control_id']} based on unique values in annotation column.")
@@ -9570,6 +9575,7 @@ def generate_ml_scores(settings):
                                settings['verbose'],
                                split_by=settings.get('cv_group_by', 'well'),
                                holdout_plate=settings.get('holdout_plate'),
+                               classes=settings.get('ml_classes'),
                                **batch_kwargs)
     
     shap_fig = shap_analysis(output[3], output[4], output[5])
@@ -9599,6 +9605,12 @@ def generate_ml_scores(settings):
     feature_importance_df.to_csv(feature_importance_path, mode='w', encoding='utf-8')
     train_features_df.to_csv(ml_features, mode='w', encoding='utf-8')
     metrics_df.to_csv(model_metricks_path, mode='w', encoding='utf-8')
+    confusion = getattr(output[3], 'spacr_confusion_matrix_', None)
+    if confusion is not None:
+        tabular.write_table(
+            confusion,
+            os.path.splitext(model_metricks_path)[0] + '_confusion_matrix.csv',
+            canonicalise=False, index=True)
 
     from .figure_sink import publish
 
@@ -9630,6 +9642,120 @@ def generate_ml_scores(settings):
     _flowview_metric("databases", len(measurement_stores))
 
     return [output, plate_heatmap]
+
+def _class_arms(classes):
+    """The classes a multiclass fit trains, one entry per class, or ``None``.
+
+    :param classes: ``None``, an empty value, a list, or text holding a
+        Python list literal or comma-separated values, as a settings file or
+        the GUI stores it.
+    :returns: ``None`` for an empty value, otherwise the list of entries;
+        each entry is a value of the label column or a list of values pooled
+        into one class.
+    :raises ValueError: for fewer than two entries or a repeated entry.
+    """
+    if classes is None:
+        return None
+    if isinstance(classes, str):
+        text = classes.strip()
+        if not text or text.lower() == 'none':
+            return None
+        try:
+            import ast
+            parsed = ast.literal_eval(text)
+        except (ValueError, SyntaxError):
+            parsed = [part.strip() for part in text.split(',') if part.strip()]
+        classes = parsed
+    if isinstance(classes, (tuple, set, np.ndarray, pd.Series)):
+        classes = list(classes)
+    if not isinstance(classes, list):
+        raise ValueError(f"classes must be a list of class values, got {classes!r}")
+    if not classes:
+        return None
+    arms = [list(entry) if isinstance(entry, (tuple, set)) else entry
+            for entry in classes]
+    if len(arms) < 2:
+        raise ValueError(
+            f"classes={classes!r} names {len(arms)} class; a classifier needs "
+            f"at least two.")
+    keys = [repr(entry) for entry in arms]
+    if len(set(keys)) != len(keys):
+        raise ValueError(f"classes={classes!r} names a class twice.")
+    return arms
+
+
+def _class_labels(arms):
+    """One text label per class entry: the value, or pooled values joined by ``+``."""
+    return ['+'.join(str(value) for value in entry)
+            if isinstance(entry, list) else str(entry) for entry in arms]
+
+
+def _multiclass_frames(df, location_column, arms, matches, verbose=False):
+    """The training rows of each class, with ``target`` set to its index.
+
+    :param df: the scored frame.
+    :param location_column: the column holding the class values.
+    :param arms: the class entries from :func:`_class_arms`.
+    :param matches: ``(series, value) -> boolean mask``.
+    :param verbose: print each class's row count.
+    :returns: one frame per class, in class order.
+    :raises ValueError: when a class matches no rows, or one row matches two
+        classes.
+    """
+    labels = _class_labels(arms)
+    column = df[location_column]
+    if isinstance(column, pd.DataFrame):
+        raise ValueError(
+            f"the measurement table has {column.shape[1]} columns named "
+            f"{location_column!r}, so the classes cannot be matched against "
+            f"it. Drop or rename the duplicate before running the analysis.")
+    masks = [matches(column, entry) for entry in arms]
+    claimed = sum(mask.astype(int) for mask in masks)
+    if (claimed > 1).any():
+        raise ValueError(
+            f"{int((claimed > 1).sum())} row(s) of {location_column!r} match "
+            f"more than one entry of classes={labels!r}; each value may "
+            f"belong to one class only.")
+    frames = []
+    empty = []
+    for index, (label, mask) in enumerate(zip(labels, masks)):
+        frame = df[mask].copy()
+        frame['target'] = index
+        frames.append(frame)
+        if frame.empty:
+            empty.append(label)
+        if verbose:
+            print(f'Class {index} ({label}): {len(frame)} samples')
+    if empty:
+        present = column.astype(str).str.strip().unique().tolist()
+        shown = ", ".join(repr(v) for v in sorted(present)[:15])
+        if len(present) > 15:
+            shown += f", ... ({len(present)} distinct values)"
+        raise ValueError(
+            f"no rows matched class(es) {empty!r} in column "
+            f"{location_column!r}, so they cannot be trained.\n"
+            f"  {location_column!r} contains: {shown}")
+    return frames
+
+
+def _class_confusion(y_true, y_pred, arms):
+    """The confusion matrix of one test set, labelled by class.
+
+    :param y_true: true class indices.
+    :param y_pred: predicted class indices.
+    :param arms: the class entries, which fix the order and labels.
+    :returns: a frame with one ``true_<label>`` row and one
+        ``predicted_<label>`` column per class, holding object counts.
+    """
+    from sklearn.metrics import confusion_matrix
+    labels = _class_labels(arms)
+    matrix = confusion_matrix(np.asarray(y_true).astype(int),
+                              np.asarray(y_pred).astype(int),
+                              labels=list(range(len(arms))))
+    return pd.DataFrame(matrix,
+                        index=[f'true_{label}' for label in labels],
+                        columns=[f'predicted_{label}' for label in labels])
+
 
 def _resolve_controls(df, location_column, negative_control,
                       positive_control, matches):
@@ -9709,6 +9835,7 @@ def ml_analysis(
     batch_combat_mean_only=False,
     batch_min_samples=3,
     batch_missing_control='error',
+    classes=None,
 ):
     """Train a per-object classifier on positive/negative control wells and score every row of the input DataFrame.
 
@@ -9769,13 +9896,27 @@ def ml_analysis(
         stable variance estimates. Default ``False`` adjusts both means and
         variances.
     :param batch_missing_control: ``error`` or ``skip`` for missing controls.
+    :param classes: ``None`` (default) trains the binary negative/positive
+        model. A list of three or more entries trains one class per entry:
+        each entry is a value of ``location_column``, or a list of values
+        pooled into that class, and class ``i`` is the ``i``-th entry. The
+        scored frame then has one ``prediction_probability_class_i`` column
+        per class and a ``predicted_class`` column holding the entry's label,
+        the metrics have one precision/recall row per class with its
+        ``class_label``, and the model carries the test confusion matrix as
+        ``spacr_confusion_matrix_`` (rows true class, columns predicted
+        class; summed over folds under cross-validation). A list of two
+        entries is ``[negative_control, positive_control]`` and gives exactly
+        the binary output.
     :returns: Tuple ``(output, figs)`` where ``output`` is a positional
         tuple of ``(scored_df, permutation_df, feature_importance_df,
         model, X_train, X_test, y_train, y_test, metrics_df,
         train_features)`` and ``figs`` is
         ``(permutation_fig, feature_importance_fig)``.
-    :raises ValueError: on unsupported ``model_type`` or when positive /
-        negative control rows cannot be located in ``location_column``.
+    :raises ValueError: on unsupported ``model_type``, when positive /
+        negative control rows cannot be located in ``location_column``, when
+        ``classes`` has fewer than two entries, or when a class matches no
+        rows.
 
     Example:
         .. code-block:: python
@@ -9793,6 +9934,12 @@ def ml_analysis(
     """
     from .resource_log import _guard_workers, _table_nbytes
     n_jobs = _guard_workers('ml_analyze', n_jobs, _table_nbytes(df))
+    arms = _class_arms(classes)
+    if arms is not None and len(arms) == 2:
+        negative_control, positive_control = arms
+        arms = None
+    elif arms is not None:
+        negative_control, positive_control = arms[0], arms[1]
     
     _flowview_advance("dataset")
 
@@ -9926,22 +10073,28 @@ def ml_analysis(
         
         
         
-    negative_control, positive_control, _derived_classes = _resolve_controls(
-        df, location_column, negative_control, positive_control,
-        _match_control_values)
+    if arms is None:
+        negative_control, positive_control, _derived_classes = _resolve_controls(
+            df, location_column, negative_control, positive_control,
+            _match_control_values)
 
-    df1 = df[_match_control_values(df[location_column], negative_control)].copy()
-    if verbose:
-        print(f'Negative control: {negative_control}, samples: {len(df1)}')
+        df1 = df[_match_control_values(df[location_column], negative_control)].copy()
+        if verbose:
+            print(f'Negative control: {negative_control}, samples: {len(df1)}')
 
-    df2 = df[_match_control_values(df[location_column], positive_control)].copy()
-    if verbose:
-        print(f'Positive control: {positive_control}, samples: {len(df2)}')
-        
-    df1['target'] = 0
-    df2['target'] = 1
+        df2 = df[_match_control_values(df[location_column], positive_control)].copy()
+        if verbose:
+            print(f'Positive control: {positive_control}, samples: {len(df2)}')
 
-    combined_df = pd.concat([df1, df2])
+        df1['target'] = 0
+        df2['target'] = 1
+        arm_frames = [df1, df2]
+    else:
+        arm_frames = _multiclass_frames(df, location_column, arms,
+                                        _match_control_values, verbose)
+        df1, df2 = arm_frames[0], arm_frames[1]
+
+    combined_df = pd.concat(arm_frames)
     combined_df = combined_df.drop(columns=[location_column])
     
     if verbose:
@@ -9951,14 +10104,22 @@ def ml_analysis(
     try:
         column = df[location_column] if location_column in df.columns else None
         if isinstance(column, pd.Series):
-            trained_on = set(df1[location_column].unique()) | set(
-                df2[location_column].unique())
+            trained_on = set()
+            for frame in arm_frames:
+                trained_on |= set(frame[location_column].unique())
             present = set(column.dropna().unique())
             untrained = sorted(str(value) for value in present - trained_on)
     except Exception:                                        # noqa: BLE001
         LOG.debug("could not list the classes outside the training set",
                   exc_info=True)
-    if untrained:
+    if untrained and arms is not None:
+        print(f"{len(untrained)} class(es) of {location_column!r} are not in "
+              f"the training set and are SCORED by a model that never saw "
+              f"them: {untrained[:10]}"
+              f"{'...' if len(untrained) > 10 else ''}. This fit has "
+              f"{len(arms)} classes, one per entry of classes; name several "
+              f"values in one entry to pool them into that class.")
+    elif untrained:
         print(f"{len(untrained)} class(es) of {location_column!r} are not in "
               f"the training set and are SCORED by a model that never saw "
               f"them: {untrained[:10]}"
@@ -10068,7 +10229,7 @@ def ml_analysis(
             n_estimators=n_estimators,
             random_state=random_state,
             nthread=n_jobs,
-            eval_metric='logloss',
+            eval_metric='logloss' if arms is None else 'mlogloss',
         )
     elif model_type == 'lightgbm':
         try:
@@ -10117,6 +10278,7 @@ def ml_analysis(
             seed=random_state)
         expected_classes = set(np.unique(y))
         fold_metrics = []
+        confusion = None
 
         for fold_idx, (train_index, test_index) in enumerate(folds, start=1):
             if (set(np.unique(y.iloc[train_index])) != expected_classes or
@@ -10135,9 +10297,14 @@ def ml_analysis(
 
             prediction_probabilities_test = model.predict_proba(X_test)
 
-            optimal_threshold = find_optimal_threshold(y_test, prediction_probabilities_test[:, 1])
-            if verbose:
-                print(f'Fold {fold_idx} - Optimal threshold: {optimal_threshold}')
+            if arms is None:
+                optimal_threshold = find_optimal_threshold(y_test, prediction_probabilities_test[:, 1])
+                if verbose:
+                    print(f'Fold {fold_idx} - Optimal threshold: {optimal_threshold}')
+            else:
+                fold_confusion = _class_confusion(y_test, predictions_test, arms)
+                confusion = (fold_confusion if confusion is None
+                             else confusion + fold_confusion)
 
             df.loc[X_test.index, 'predictions'] = predictions_test
             for i in range(prediction_probabilities_test.shape[1]):
@@ -10171,9 +10338,12 @@ def ml_analysis(
 
         prediction_probabilities_test = model.predict_proba(X_test)
 
-        optimal_threshold = find_optimal_threshold(y_test, prediction_probabilities_test[:, 1])
-        if verbose:
-            print(f'Optimal threshold: {optimal_threshold}')
+        if arms is None:
+            optimal_threshold = find_optimal_threshold(y_test, prediction_probabilities_test[:, 1])
+            if verbose:
+                print(f'Optimal threshold: {optimal_threshold}')
+        else:
+            confusion = _class_confusion(y_test, predictions_test, arms)
 
         X_all = df[features]
         all_predictions = model.predict(X_all)
@@ -10200,7 +10370,18 @@ def ml_analysis(
     metrics_df['split_requested_fraction'] = split_report.requested_fraction
     metrics_df['split_group_fraction'] = split_report.group_fraction
     metrics_df['split_cell_fraction'] = split_report.cell_fraction
-        
+    if arms is not None:
+        labels = _class_labels(arms)
+        metrics_df['class_label'] = [
+            labels[int(name)] if str(name).isdigit() and int(name) < len(labels)
+            else '' for name in metrics_df.index]
+        df['predicted_class'] = [labels[int(value)] for value in df['predictions']]
+        model.spacr_class_labels_ = labels
+        model.spacr_confusion_matrix_ = confusion
+        if verbose:
+            print("Confusion matrix (rows true class, columns predicted):")
+            print(confusion)
+
     perm_importance = permutation_importance(model, X_train, y_train, n_repeats=n_repeats, random_state=random_state, n_jobs=guarded_n_jobs(n_jobs, 'permutation importance'))
 
     permutation_df = pd.DataFrame({

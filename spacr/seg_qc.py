@@ -2459,7 +2459,8 @@ def _robustness_grid(settings: Mapping[str, Any], object_type: str) -> List[Dict
     from .object_settings_table import _AUTO_DIAMETER, _resolved_diameter
 
     diameter = _resolved_diameter(settings.get(f"{object_type}_diameter"),
-                                  settings.get("magnification"), object_type)
+                                  settings.get("magnification"), object_type,
+                                  settings.get("pixel_size_um"))
     if diameter == _AUTO_DIAMETER:
         diameter = None
     flow = _as_number(settings.get(f"{object_type}_flow_threshold"))

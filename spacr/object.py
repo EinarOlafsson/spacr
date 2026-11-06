@@ -82,6 +82,59 @@ def _eval_diameter(raw, object_type="", default=None, *, estimates=False):
     return _diameter_for_eval(value, estimates=estimates)
 
 
+def _estimates_per_image(settings, object_type):
+    """Whether ``object_type``'s diameter is estimated on each image.
+
+    :func:`spacr.object_settings_table._estimates_diameter_per_image`
+    answers; it lives there beside the other diameter rules.
+    """
+    from .object_settings_table import _estimates_diameter_per_image
+
+    return _estimates_diameter_per_image(settings, object_type)
+
+
+def _first_mask(masks):
+    """The one label image of a one-image ``eval`` answer."""
+    if isinstance(masks, np.ndarray) and masks.ndim == 2:
+        return masks
+    return np.asarray(masks[0])
+
+
+def _per_image_diameter_masks(model, images, eval_kwargs, fallback):
+    """Segment each image at the object diameter Cellpose finds in it.
+
+    Cellpose-SAM has no size model, so each image is first segmented at
+    native scale (``diameter=None``) and the median object diameter of
+    those masks is measured with :func:`cellpose.utils.diameters`, Cellpose's
+    own measure (the diameter of the circle with the median object area).
+    The image is then segmented again at that diameter. An image whose
+    first pass finds no object is segmented at ``fallback``.
+
+    :param model: a model with Cellpose's ``eval``.
+    :param images: the ``(H, W, C)`` images of one batch.
+    :param eval_kwargs: the keywords the batch would be segmented with.
+    :param fallback: the diameter for an image with no first-pass object,
+        or ``None`` for native scale.
+    :returns: ``(masks, flows, diameters)``, one entry per image.
+    """
+    from cellpose.utils import diameters as cellpose_diameters
+    from .spacr_cellpose import parse_cellpose4_output
+
+    keywords = {**eval_kwargs, 'batch_size': 1}
+    masks, flows, used = [], [], []
+    for image in images:
+        first = parse_cellpose4_output(
+            model.eval(x=[image], **{**keywords, 'diameter': None}))[0]
+        estimate = float(cellpose_diameters(_first_mask(first))[0])
+        diameter = estimate if estimate > 0 else fallback
+        found, found_flows = parse_cellpose4_output(
+            model.eval(x=[image], **{**keywords, 'diameter': diameter}))[:2]
+        masks.append(_first_mask(found))
+        flows.append(found_flows[0])
+        used.append(diameter)
+    return masks, flows, used
+
+
 def _note_the_diameter(settings, object_type, estimate=None):
     """Tell the run journal which diameter ``object_type`` was segmented with.
 
@@ -134,7 +187,8 @@ def _cellpose3_eval_settings(settings, object_type, default_diameter):
         raise ValueError(
             f"cellpose3_percentile_low={low} and cellpose3_percentile_high="
             f"{high} must satisfy 0 <= low < high <= 100")
-    if settings.get('cellpose3_size_model', False):
+    if (settings.get('cellpose3_size_model', False)
+            or _estimates_per_image(settings, object_type)):
         diameter = 0.0
     else:
         diameter = _eval_diameter(settings.get(f'{object_type}_diameter'),
@@ -1590,6 +1644,24 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                             min_size=object_settings['min_size'],
                             default_diameter=object_settings['diameter'],
                             batch_size=max(8, len(batch_list)))
+                    elif z_plan is None and t_plan is None and _estimates_per_image(
+                            settings, object_type):
+                        masks, flows, estimates = _per_image_diameter_masks(
+                            model, batch_list,
+                            dict(normalize=False, channel_axis=-1,
+                                 min_size=object_settings['min_size'],
+                                 progress=True,
+                                 flow_threshold=flow_threshold,
+                                 cellprob_threshold=cellprob_threshold,
+                                 resample=object_settings['resample']),
+                            _eval_diameter(
+                                settings.get(f'{object_type}_diameter'),
+                                object_type, object_settings['diameter']))
+                        measured = [value for value in estimates if value]
+                        if measured:
+                            _note_the_diameter(
+                                {**settings, f'{object_type}_diameter': 'auto'},
+                                object_type, float(np.median(measured)))
                     elif z_plan is None and t_plan is None:
                         output = model.eval(
                             x=batch_list,

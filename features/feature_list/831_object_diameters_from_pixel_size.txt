@@ -1,7 +1,7 @@
 OBJECT DIAMETERS FROM PIXEL SIZE
 
 Lifecycle: new
-Status: open.
+Status: DONE 2026-11-06 — new setting pixel_size_um: a blank cell, nucleus or pathogen diameter is 18, 10 or 6.5 um over the pixel size (55, 31, 20 px at 0.325 um/px) instead of the magnification formula; new setting estimate_diameters_per_image: a blank, 0 or auto diameter is estimated per 2-D image (Cellpose 3 size model; Cellpose-SAM segments at native scale, measures the median mask diameter with cellpose.utils.diameters and segments again). Typed diameters are untouched. Tests tests/test_diameters_from_pixel_size.py.
 Requested: maintainer, 2026-11-06 (BMC paper HRMAn reanalysis).
 Owner: unassigned.
 

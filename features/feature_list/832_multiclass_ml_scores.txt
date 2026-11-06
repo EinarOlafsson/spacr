@@ -1,7 +1,7 @@
 MULTICLASS ML SCORES
 
 Lifecycle: new
-Status: open.
+Status: DONE 2026-11-06 — new setting ml_classes: three or more classes train one class each (logistic regression, shrinkage LDA and the other models), with prediction_probability_class_i per class, predicted_class, per-class precision/recall rows with class_label, and <model>_model_confusion_matrix.csv. None or two entries give the binary output unchanged. Tests tests/test_multiclass_ml_scores.py against tests/data/ml_two_class_reference.
 Requested: maintainer, 2026-11-06 (BMC paper HRMAn reanalysis).
 Owner: unassigned.
 

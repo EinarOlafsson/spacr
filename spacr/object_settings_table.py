@@ -379,6 +379,58 @@ def _diameter_from_magnification(mag, obj: str) -> int:
     return int(diameter)
 
 
+_TYPICAL_DIAMETER_UM: Dict[str, float] = {
+    "cell": 18.0,
+    "nucleus": 10.0,
+    "pathogen": 6.5,
+}
+"""Typical object diameters in micrometres for the pixel-size default.
+
+A549, HeLa and fibroblast-sized cultured cells are about 18 um across with
+10 um nuclei; a small Toxoplasma vacuole is about 6.5 um. At 0.325 um/px (a
+6.5 um camera pixel behind a 20x objective) they give 55, 31 and 20 px, the
+sizes measured on A549 masks, where the magnification formula gives 120 and
+60 px.
+"""
+
+_PIXEL_SIZE_KEY = "pixel_size_um"
+"""The setting that holds the image pixel size in micrometres."""
+
+
+def _pixel_size_um(value):
+    """``value`` as a usable pixel size in micrometres, or ``None``.
+
+    :param value: what the setting holds: a number, numeric text, or blank.
+    :returns: a positive finite float, or ``None`` for blank, zero, negative,
+        non-finite or unreadable values.
+    """
+    if value is None or isinstance(value, bool):
+        return None
+    try:
+        number = float(str(value).strip()) if isinstance(value, str) else float(value)
+    except (TypeError, ValueError):
+        return None
+    if number != number or number in (float("inf"), float("-inf")) or number <= 0:
+        return None
+    return number
+
+
+def _diameter_from_pixel_size(pixel_size_um, obj: str):
+    """The expected diameter of ``obj`` in pixels at ``pixel_size_um``.
+
+    :param pixel_size_um: micrometres per pixel.
+    :param obj: ``'cell'``, ``'nucleus'`` or ``'pathogen'``.
+    :returns: the typical diameter in micrometres divided by the pixel size,
+        rounded to an int of at least 1, or ``None`` without a usable pixel
+        size or for an object with no typical size.
+    """
+    pixel = _pixel_size_um(pixel_size_um)
+    typical = _TYPICAL_DIAMETER_UM.get(obj)
+    if pixel is None or typical is None:
+        return None
+    return max(1, int(round(typical / pixel)))
+
+
 def _diameter_setting(raw):
     """A diameter setting in its one stored form.
 
@@ -444,12 +496,19 @@ def _canonical_diameters(settings):
     return settings
 
 
-def _magnification_default(magnification, obj: str):
-    """The magnification default for ``obj``, or ``None`` when there is none.
+def _magnification_default(magnification, obj: str, pixel_size_um=None):
+    """The default diameter for ``obj``, or ``None`` when there is none.
+
+    A usable pixel size wins: the typical object size in micrometres over
+    the pixel size. Without one, the magnification formula answers.
 
     :param magnification: the objective magnification, or ``None``.
     :param obj: the object.
+    :param pixel_size_um: micrometres per pixel, or ``None``.
     """
+    from_pixels = _diameter_from_pixel_size(pixel_size_um, obj)
+    if from_pixels is not None:
+        return float(from_pixels)
     if magnification is None or isinstance(magnification, bool):
         return None
     try:
@@ -458,12 +517,14 @@ def _magnification_default(magnification, obj: str):
         return None
 
 
-def _resolved_diameter(raw, magnification, obj: str):
+def _resolved_diameter(raw, magnification, obj: str, pixel_size_um=None):
     """The diameter a run segments ``obj`` with: one rule for run and preview.
 
     :param raw: the object's diameter setting.
     :param magnification: the run's magnification.
     :param obj: the object.
+    :param pixel_size_um: the run's pixel size; when usable, a blank
+        diameter is the pixel-size default instead of the magnification one.
     :returns: ``"auto"``; the user's number as a float; or, for blank or
         unreadable text, the magnification default -- ``None`` (native
         scale) only when there is no magnification or the object has no
@@ -474,7 +535,7 @@ def _resolved_diameter(raw, magnification, obj: str):
     except ValueError:
         value = None
     if value is None:
-        return _magnification_default(magnification, obj)
+        return _magnification_default(magnification, obj, pixel_size_um)
     if value == _AUTO_DIAMETER:
         return _AUTO_DIAMETER
     return float(value)
@@ -495,17 +556,20 @@ def _diameter_for_eval(resolved, *, estimates: bool = False):
     return float(resolved)
 
 
-def _diameter_used_text(raw, magnification, obj: str, estimate=None) -> str:
+def _diameter_used_text(raw, magnification, obj: str, estimate=None,
+                        pixel_size_um=None) -> str:
     """How the run journal says which diameter ``obj`` was segmented with.
 
     :param raw: the object's diameter setting.
     :param magnification: the run's magnification.
     :param obj: the object.
     :param estimate: Cellpose's own estimate in pixels, when it gave one.
-    :returns: e.g. ``"120 px (magnification 20x default)"``, ``"60 px"``,
+    :param pixel_size_um: the run's pixel size in micrometres, or ``None``.
+    :returns: e.g. ``"120 px (magnification 20x default)"``,
+        ``"55 px (pixel size 0.325 um default)"``, ``"60 px"``,
         ``"auto (Cellpose estimated 57.3 px)"`` or ``"auto"``.
     """
-    resolved = _resolved_diameter(raw, magnification, obj)
+    resolved = _resolved_diameter(raw, magnification, obj, pixel_size_um)
     if resolved == _AUTO_DIAMETER:
         if estimate is not None:
             return f"auto (Cellpose estimated {float(estimate):.4g} px)"
@@ -516,6 +580,9 @@ def _diameter_used_text(raw, magnification, obj: str, estimate=None) -> str:
         user = _diameter_setting(raw)
     except ValueError:
         user = None
+    if user is None and _diameter_from_pixel_size(pixel_size_um, obj) is not None:
+        return (f"{resolved:g} px (pixel size "
+                f"{_pixel_size_um(pixel_size_um):g} um default)")
     if user is None:
         return f"{resolved:g} px (magnification {float(magnification):g}x default)"
     return f"{resolved:g} px"
@@ -529,17 +596,42 @@ def _diameter_used_by(settings, obj: str, estimate=None) -> str:
     :param estimate: Cellpose's own estimate in pixels, when it gave one.
     """
     return _diameter_used_text(settings.get(f"{obj}_diameter"),
-                               settings.get("magnification"), obj, estimate)
+                               settings.get("magnification"), obj, estimate,
+                               settings.get(_PIXEL_SIZE_KEY))
 
 
 def _default_diameter_of(settings, obj: str):
-    """The magnification default a blank ``obj`` diameter segments at.
+    """The default a blank ``obj`` diameter segments at.
 
     :param settings: the run settings.
     :param obj: the object.
-    :returns: the diameter in pixels, or ``None`` without a magnification.
+    :returns: the diameter in pixels from the pixel size when it is set,
+        else from the magnification, or ``None`` without either.
     """
-    return _magnification_default(settings.get("magnification"), obj)
+    return _magnification_default(settings.get("magnification"), obj,
+                                  settings.get(_PIXEL_SIZE_KEY))
+
+
+def _estimates_diameter_per_image(settings, obj: str) -> bool:
+    """Whether ``obj``'s diameter is estimated on each image.
+
+    True only when ``estimate_diameters_per_image`` is on and the object's
+    diameter is blank, 0 or "auto"; a number the user typed is always used
+    as it is.
+
+    :param settings: the run settings.
+    :param obj: ``'cell'``, ``'nucleus'`` or ``'pathogen'``.
+    """
+    switch = settings.get('estimate_diameters_per_image', False)
+    if isinstance(switch, str):
+        switch = switch.strip().lower() in ('true', '1', 'yes', 'on')
+    if not switch:
+        return False
+    try:
+        value = _diameter_setting(settings.get(f'{obj}_diameter'))
+    except ValueError:
+        value = None
+    return value is None or value == _AUTO_DIAMETER
 
 
 _CALCULATE_DIAMETERS = "calculate_diameters"
@@ -568,19 +660,21 @@ def _calculates_diameters(settings) -> bool:
     return bool(value)
 
 
-def _calculated_diameters(magnification) -> "Dict[str, object]":
+def _calculated_diameters(magnification, pixel_size_um=None) -> "Dict[str, object]":
     """Each object diameter key at its magnification default.
 
     What turning "Calculate diameters" off writes into the blank diameters,
     so the values the run uses stop depending on the magnification.
 
     :param magnification: the objective magnification.
+    :param pixel_size_um: the pixel size in micrometres, which wins over
+        the magnification when it is usable.
     :returns: ``{"cell_diameter": 120, ...}``; empty without a usable
-        magnification.
+        magnification or pixel size.
     """
     calculated = {}
     for obj in _DIAMETER_OBJECTS:
-        default = _magnification_default(magnification, obj)
+        default = _magnification_default(magnification, obj, pixel_size_um)
         if default is not None:
             calculated[f"{obj}_diameter"] = (
                 int(default) if float(default).is_integer() else default)
@@ -600,7 +694,8 @@ def _blank_diameters_held_still(settings, magnification=None) -> "Dict[str, obje
         return {}
     if magnification is None:
         magnification = settings.get("magnification")
-    calculated = _calculated_diameters(magnification)
+    calculated = _calculated_diameters(magnification,
+                                       settings.get(_PIXEL_SIZE_KEY))
     held = {}
     for key, number in calculated.items():
         if key not in settings:

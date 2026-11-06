@@ -1279,6 +1279,20 @@ if app_key == "mask":
     for app, key in profiling_qc_arrivals:
         assert resolve_default_settings(app)[key] == profiling_qc_defaults[key]
     recognized_arrivals |= profiling_qc_arrivals
+    # The pixel-size diameter default, the per-image diameter estimate and
+    # the ML class list: one default claim each, equal to what every app
+    # that resolves them resolves.
+    diameter_and_class_defaults = {"pixel_size_um": None,
+                                   "estimate_diameters_per_image": False,
+                                   "ml_classes": None}
+    diameter_and_class_arrivals = {pair for pair in compared_pairs
+                                   if pair[1] in diameter_and_class_defaults}
+    assert {key for _app, key in diameter_and_class_arrivals} == set(
+        diameter_and_class_defaults)
+    assert not diameter_and_class_arrivals & (recognized_arrivals | variants.keys())
+    for app, key in diameter_and_class_arrivals:
+        assert resolve_default_settings(app)[key] == diameter_and_class_defaults[key]
+    recognized_arrivals |= diameter_and_class_arrivals
     assert comparisons - len(recognized_arrivals) == 1004
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))

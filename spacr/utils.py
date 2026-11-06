@@ -3378,25 +3378,34 @@ def _masks_to_masks_stack(masks):
         mask_stack.append(mask)
     return mask_stack
 
-def _get_diam(mag, obj):
+def _get_diam(mag, obj, pixel_size_um=None):
 
-    """Return an object type's expected diameter at a magnification.
+    """Return an object type's expected diameter at a magnification or pixel size.
 
     The default every Cellpose route segments with when the object's
-    diameter is left blank (item 696), Cellpose-SAM included. The formula
-    lives in :func:`spacr.object_settings_table._diameter_from_magnification`
-    so the settings grid can show it without importing this module.
+    diameter is left blank, Cellpose-SAM included. With a usable pixel size
+    it is the object's typical size in micrometres over the pixel size
+    (:func:`spacr.object_settings_table._diameter_from_pixel_size`);
+    otherwise the magnification formula in
+    :func:`spacr.object_settings_table._diameter_from_magnification`. Both
+    live there so the settings grid can show them without importing this
+    module.
 
     :param mag: the objective magnification.
     :param obj: the object type.
+    :param pixel_size_um: micrometres per pixel, or ``None``.
     :returns: the diameter in pixels.
     :raises ValueError: naming the supported types, for anything else --
         this used to fall through to an unbound variable and raise
         ``UnboundLocalError``, which names an implementation detail rather
         than the setting the user got wrong.
     """
-    from .object_settings_table import _diameter_from_magnification
+    from .object_settings_table import (_diameter_from_magnification,
+                                        _diameter_from_pixel_size)
 
+    from_pixels = _diameter_from_pixel_size(pixel_size_um, obj)
+    if from_pixels is not None:
+        return from_pixels
     return _diameter_from_magnification(mag, obj)
 
 def _get_object_settings(object_type, settings):
@@ -3413,7 +3422,8 @@ def _get_object_settings(object_type, settings):
     """
     object_settings = {}
 
-    object_settings['diameter'] = _get_diam(settings['magnification'], obj=object_type)
+    object_settings['diameter'] = _get_diam(settings['magnification'], obj=object_type,
+                                            pixel_size_um=settings.get('pixel_size_um'))
     object_settings['minimum_size'] = (object_settings['diameter']**2)/4
     object_settings['maximum_size'] = (object_settings['diameter']**2)*10
     object_settings['merge'] = False
