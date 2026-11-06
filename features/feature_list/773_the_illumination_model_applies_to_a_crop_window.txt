@@ -2,7 +2,7 @@ THE PER-PLATE ILLUMINATION MODEL APPLIES TO A CROP WINDOW
 =========================================================
 
 Lifecycle: new
-Status: open.
+Status: DONE 2026-11-06 — IlluminationField.correct_window(window, channels, y0, x0) corrects a crop window with the gain and offset maps sliced to its place in the field; every pixel equals the whole-field correction, padding past the edge stays 0.
 Requested: maintainer via the BMC software-paper session, 2026-11-05.
 Source: BBBC021 computer-vision benchmark, /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cv/README.md.
 

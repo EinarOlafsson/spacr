@@ -3772,7 +3772,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # documented: sp_stats.flag_degenerate_features, batch_correction's
     # spherize_features and harmony_embedding, and the fourteen public
     # functions of the new spacr.division_analysis module.
-    assert len(callables) == len(by_symbol) == 10019
+    # 2026-11-06 item 773: +1 callable, documented:
+    # illumination.IlluminationField.correct_window.
+    assert len(callables) == len(by_symbol) == 10020
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -3885,7 +3887,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 2026-11-01 item 749: +1 method
         # (OrganismScreen.refresh_maturity_visibility).
         # 2026-11-03 item 749: +3 method (dock.SectionHeader.set_open, .event and .paintEvent).
-        "method": 4316,
+        # 2026-11-06 item 773: +1 method (IlluminationField.correct_window).
+        "method": 4317,
         # -3 on 2026-09-15: spacrStitcher, StitchedMultiAligner and
         # FOVAlignAndCropper.
         # Item 600: +1 constructor (OrganizeForMeasureDialog).
@@ -3963,7 +3966,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 2026-11-01 item 749: +1 autoapi, OrganismScreen.refresh_maturity_visibility.
         # 2026-11-03 item 749: +3 autoapi, dock.SectionHeader.set_open, .event and .paintEvent.
         # 2026-11-05 items 791, 770, 771: +17 autoapi, the functions named in the total.
-        "autoapi": 10014,
+        # 2026-11-06 item 773: +1 autoapi, IlluminationField.correct_window.
+        "autoapi": 10015,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -4028,7 +4032,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-11-01 item 749: +1, OrganismScreen.refresh_maturity_visibility.
     # 2026-11-03 item 749: +3, dock.SectionHeader.set_open, .event and .paintEvent.
     # 2026-11-05 items 791, 770, 771: +17, one variant each: sp_stats.flag_degenerate_features, batch_correction.spherize_features and .harmony_embedding, and the fourteen spacr.division_analysis functions.
-    assert sum(item.variant_count for item in callables) == 10026
+    # 2026-11-06 item 773: +1, IlluminationField.correct_window.
+    assert sum(item.variant_count for item in callables) == 10027
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
@@ -4057,7 +4062,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 2026-11-01 item 749: +1, OrganismScreen.refresh_maturity_visibility.
         # 2026-11-03 item 749: +3, dock.SectionHeader.set_open, .event and .paintEvent.
         # 2026-11-05 items 791, 770, 771: +17, the seventeen new module-level functions.
-        1: 10012,
+        # 2026-11-06 item 773: +1, IlluminationField.correct_window.
+        1: 10013,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -4358,7 +4364,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # harmony_theta, harmony_seed).
     # 2026-11-05 OPS decode yield: 19,988 -> 19,990, +2: AlignedField.spot_replaced
     # and the channel_mode keyword of align_field.
-    assert sum(len(item.parameters) for item in callables) == 19990
+    # 2026-11-06 item 773: 19,990 -> 19,994, +4: IlluminationField.correct_window's
+    # window, channels, y0 and x0.
+    assert sum(len(item.parameters) for item in callables) == 19994
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -4417,7 +4425,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # SectionHeader callable (is_open, event, event); none has a default.
     # 2026-11-05 items 791, 770, 771: +34 required, the parameters without a default of the
     # same seventeen functions.
-    assert sum(len(item.required_parameters) for item in callables) == 10282
+    # 2026-11-06 item 773: +2 required, IlluminationField.correct_window's window and channels.
+    assert sum(len(item.required_parameters) for item in callables) == 10284
     # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
     # subtraction on the full inventory: without that one parameter the digest
     # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
@@ -4662,7 +4671,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # AlignedField constructor gained the optional spot_replaced= and
     # align_field the optional channel_mode=; removing only those two
     # parameters restores 76fb0596... byte for byte; no row added or removed.
-) == '918cf2045bdd5eeaef9b07d73680bb2f395c6e07b9ca6ab7ba781ee9a2bc8376'
+    # Moved 2026-11-06 for item 773 (was 918cf204...): the one new row is
+    # IlluminationField.correct_window (window, channels, y0, x0); no other
+    # row changed.
+) == '08aefcc2921eaa7c60f7ce7eb95dcd66bdde25a7a83772ce389c307a631ffab4'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing

@@ -106,6 +106,13 @@ or explicitly::
     illumination_qc(model, src, save_dir='/data/plate1/illumination')
     enable_illumination_correction('/data/plate1/illumination/illumination_model.npz')
 
+A crop window cut from a field is corrected on its own, with the gains of
+its place in the field::
+
+    item = load_illumination_model(path).field_for(plate_of_field(name))
+    window = field.read_window(y0, y1, x0, x1, channels)
+    corrected = item.correct_window(window, channels, y0=y0, x0=x0)
+
 Nothing in this module runs unless one of those calls is made, and
 :func:`disable_illumination_correction` returns the process to a state where
 ``measure_crop`` measures exactly what it measured before.
@@ -325,6 +332,67 @@ class IlluminationField:
         planes = [self.darkfield[self.index_of(c)] for c in channels]
         return (np.stack(planes, axis=-1).astype(np.float32, copy=False)
                 + scalars)
+
+    def correct_window(self, window, channels: Sequence[int],
+                       y0: int = 0, x0: int = 0) -> np.ndarray:
+        """Correct a crop window cut from a field, without the rest of the field.
+
+        The gain and offset maps are sliced to the window's place in the
+        field, so every pixel gets exactly the value the whole-field
+        correction gives it: ``(observed - dark) * (1 / flatfield)`` in
+        float32.
+
+        :param window: ``(h, w, C)`` intensities, or ``(h, w)`` for one
+            channel, cut from a field of this plate at rows ``y0:y0 + h`` and
+            columns ``x0:x0 + w``.
+        :param channels: the merged-stack channel of each plane of
+            ``window``, in order.
+        :param y0: the field row of the window's first row. It may be
+            negative, as for a window zero-padded past the field's edge
+            (:meth:`spacr.crops.MergedField.read_window`).
+        :param x0: the field column of the window's first column; negative
+            allowed as for ``y0``.
+        :returns: the corrected window as float32, in ``window``'s shape.
+            Pixels that lie outside the field are padding and come back as
+            0.
+        :raises IlluminationError: when the window has no pixel inside the
+            field, its channel count differs from ``channels``, or the model
+            does not cover one of the channels.
+        """
+        array = np.asarray(window)
+        single = array.ndim == 2
+        if single:
+            array = array[..., np.newaxis]
+        channels = [int(c) for c in channels]
+        if array.ndim != 3 or array.shape[-1] != len(channels):
+            raise IlluminationError(
+                f"a crop window of shape {np.shape(window)} does not match "
+                f"channels {channels}; pass (h, w, C) with one channel per "
+                f"plane, or (h, w) with one channel.")
+        height, width = self.shape
+        rows, cols = int(array.shape[0]), int(array.shape[1])
+        y0, x0 = int(y0), int(x0)
+        top, bottom = max(0, y0), min(height, y0 + rows)
+        left, right = max(0, x0), min(width, x0 + cols)
+        if bottom <= top or right <= left:
+            raise IlluminationError(
+                f"the crop window at row {y0}, column {x0} ({rows}x{cols}) "
+                f"lies outside the {height}x{width} field of plate "
+                f"{self.plate!r}.")
+        positions = [self.index_of(c) for c in channels]
+        gains = np.stack(
+            [1.0 / self.flatfield[p, top:bottom, left:right]
+             for p in positions], axis=-1).astype(np.float32, copy=False)
+        offsets = self.dark_stack(channels)
+        if self.darkfield is not None:
+            offsets = (np.stack(
+                [self.darkfield[p, top:bottom, left:right] for p in positions],
+                axis=-1).astype(np.float32, copy=False) + offsets)
+        inside = array[top - y0:bottom - y0, left - x0:right - x0]
+        out = np.zeros(array.shape, dtype=np.float32)
+        out[top - y0:bottom - y0, left - x0:right - x0] = (
+            (inside.astype(np.float32) - offsets) * gains)
+        return out[..., 0] if single else out
 
     def nonuniformity(self) -> Dict[int, float]:
         """Per channel, ``(p98 - p2) / mean`` of the field, as a fraction.
