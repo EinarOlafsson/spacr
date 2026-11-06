@@ -77,3 +77,39 @@ def test_actual_validate_accepts_recorded_missing_classifier_as_planned_not_miss
     problems = validate.validate_settings(settings, 'classify')
     assert not [p for p in problems if p.setting in ('model_metadata', 'model_path') and p.is_error]
     assert settings == original
+
+
+def test_invalid_recorded_pin_cannot_claim_a_planned_model(pinned):
+    make_settings, _raw, _payload = pinned
+    settings = make_settings()
+    settings['model_metadata']['schema_version'] = True
+    original = deepcopy(settings)
+
+    assert not validate._has_planned_model_pin(settings, 'model_path', ('classifier',))
+
+    assert settings == original
+    assert not Path(settings['model_path']).exists()
+
+
+def test_unreadable_pinned_checkpoint_cannot_claim_availability(pinned, monkeypatch):
+    make_settings, _raw, payload = pinned
+    settings = make_settings()
+    checkpoint = Path(settings['model_path'])
+    checkpoint.write_bytes(payload)
+    original = deepcopy(settings)
+    actual_open = Path.open
+    attempts = []
+
+    def unreadable(path, *args, **kwargs):
+        if path == checkpoint:
+            attempts.append(path)
+            raise PermissionError('checkpoint became unreadable')
+        return actual_open(path, *args, **kwargs)
+
+    with monkeypatch.context() as scoped:
+        scoped.setattr(Path, 'open', unreadable)
+        assert not validate._has_planned_model_pin(settings, 'model_path', ('classifier',))
+
+    assert attempts == [checkpoint]
+    assert settings == original
+    assert checkpoint.read_bytes() == payload

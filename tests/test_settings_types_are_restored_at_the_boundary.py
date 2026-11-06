@@ -111,3 +111,29 @@ def test_the_bridge_hands_the_pipeline_the_coerced_dict():
 
     source = Path(bridge.__file__).read_text(encoding="utf-8")
     assert "settings = coerce_expected_types(settings, app_key)" in source
+
+
+@pytest.mark.parametrize('key, written', [('normalize', 'maybe'), ('png_size', '224')])
+def test_nonconvertible_boolean_and_list_text_is_preserved_for_validation(key, written):
+    supplied = {key: written}
+
+    converted = coerce_expected_types(supplied, 'mask')
+    problems = validate_settings(converted, 'mask')
+
+    assert converted == supplied == {key: written}
+    assert converted is not supplied
+    assert any(problem.setting == key and problem.is_error for problem in problems)
+
+
+def test_dry_plan_reports_explicit_organelle_diameter_without_writing(tmp_path):
+    from spacr.validate import describe_plan
+
+    supplied = {'src': str(tmp_path), 'organelle_channel': 2,
+                'organelle_diameter': 13, 'organelle_method': 'otsu'}
+    original = dict(supplied)
+
+    plan = describe_plan(supplied, 'mask')
+
+    assert 'organelle: channel 2, diameter 13 px, method otsu' in plan
+    assert supplied == original
+    assert list(tmp_path.iterdir()) == []

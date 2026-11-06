@@ -3,7 +3,7 @@
 import pytest
 from PySide6.QtCore import QCoreApplication, QEvent, Qt
 from PySide6.QtGui import QAccessible, QAccessibleActionInterface
-from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QLabel, QLineEdit, QVBoxLayout, QWidget
 
 from spacr.qt import i18n
 from spacr.qt.widgets.ai_toggle_label import AiToggleLabel
@@ -92,6 +92,30 @@ def test_accessible_name_follows_language_and_preserves_explicit_name(toggle):
     assert interface.text(QAccessible.Name) == "Caller supplied context"
     toggle.setAccessibleName("")
     assert interface.text(QAccessible.Name) == toggle.text()
+
+
+def test_accessible_description_keeps_the_callers_context(toggle):
+    toggle.setAccessibleDescription("Enable assistance for the selected image")
+    interface = QAccessible.queryAccessibleInterface(toggle)
+    assert interface.text(QAccessible.Description) == toggle.accessibleDescription()
+
+
+def test_inherited_accessibility_focus_action_does_not_toggle(toggle, qtbot):
+    host = toggle.parentWidget()
+    other = QLineEdit(host)
+    host.layout().addWidget(other)
+    host.activateWindow()
+    other.setFocus()
+    qtbot.waitUntil(other.hasFocus)
+    changed = []
+    toggle.toggled.connect(changed.append)
+    action = QAccessible.queryAccessibleInterface(toggle).actionInterface()
+    focus = QAccessibleActionInterface.setFocusAction()
+    assert focus in action.actionNames()
+    action.doAction(focus)
+    qtbot.waitUntil(toggle.hasFocus)
+    assert not toggle.isChecked()
+    assert changed == []
 
 
 def test_adapter_preserves_parent_and_releases_cached_interface(toggle):

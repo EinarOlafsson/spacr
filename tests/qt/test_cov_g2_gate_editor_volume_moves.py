@@ -59,6 +59,22 @@ def test_side_handles_move_one_face_or_radius(canvas):
     assert _pull(canvas, _view(), "x_high") == _view()
 
 
+def test_invalid_anchor_deformation_reports_why_and_keeps_the_gate(canvas, monkeypatch):
+    gate = _box()
+    canvas._gates = GateSet([gate])
+    before = canvas._gates.to_dict()
+    messages, edited = [], []
+    canvas.depth_requested.connect(messages.append)
+    canvas.gate_edited.connect(edited.append)
+    monkeypatch.setattr(canvas, "_volume_edit_delta",
+                        lambda ax, point, drag: np.array([-1.0, 1.0, -0.5]))
+    assert _pull(canvas, gate, "anchor:5:1") is None
+    assert len(messages) == 1 and messages[0].strip()
+    assert edited == []
+    assert canvas._gates.to_dict() == before
+    assert canvas._gates.get(gate.name) is gate
+
+
 def test_moving_whole_gates_through_the_volume(canvas):
     moved = canvas._moved_gate(_box(), {"a": 1.0, "b": 2.0, "c": 3.0},
                                np.zeros(3), np.zeros(3))
