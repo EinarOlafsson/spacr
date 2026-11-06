@@ -78,6 +78,9 @@ CAPTURE_PROFILE = {
     'show_alpha': os.environ.get('SPACR_TUTORIAL_SHOW_ALPHA') == '1',
     'show_alpha_features': os.environ.get('SPACR_TUTORIAL_SHOW_ALPHA_FEATURES') == '1',   # only the alpha-features lessons (76 OPS, 87)
     'show_alpha_species': False,
+    # Navigator (Easy mode) is the app's default Home since 2026-10-27; every lesson but the Navigator lesson
+    # records the tiled Home, so the profile turns it off unless the capture's module is 'navigator'.
+    'easy_mode': os.environ.get('SPACR_TUTORIAL_EASY_MODE') == '1',
 }
 
 _RUNTIME = None
@@ -178,6 +181,7 @@ def prepare_profile(font_scale: float) -> dict:
         getattr(prefs, setter, lambda _on: None)(CAPTURE_PROFILE[key])
     CAPTURE_PROFILE['field_density'] = float(_default_density_for(CAPTURE_PROFILE['field']))
     CAPTURE_PROFILE['popup_backdrop'] = prefs.DEFAULT_POPUP_BACKDROP
+    prefs.set_easy_mode(CAPTURE_PROFILE['easy_mode'])
     prefs.set_pane_opacity(CAPTURE_PROFILE['pane_opacity_pct'] / 100.0)
     prefs.set_font_scale(font_scale)
     prefs._note_running_version(_installed_version())
@@ -197,6 +201,7 @@ def prepare_profile(font_scale: float) -> dict:
         'show_alpha': prefs.get_show_alpha(),
         'show_alpha_features': prefs._get_show_alpha_features(),
         'show_alpha_species': prefs._get_show_alpha_species(),
+        'easy_mode': prefs.get_easy_mode(),
         'font_scale': font_scale,
         'requested_field_held_fps': CAPTURE_PROFILE['field_held_fps'],
         'store': prefs._settings().fileName(),
@@ -724,7 +729,8 @@ def run_child(stage: Path, capture_args: list[str]) -> int:
         capture_args += ['--font-scale', str(default_font_scale(width))]
     args = capture_refresh.build_parser().parse_args(['--stage', str(stage), *capture_args])
     os.environ.update(capture_refresh.capture_environment(args, stage))
-    os.environ.update(SPACR_TUTORIAL_CACHE_ISOLATED='1', SPACR_CAPTURE_HOST_MODE='gnome')
+    os.environ.update(SPACR_TUTORIAL_CACHE_ISOLATED='1', SPACR_CAPTURE_HOST_MODE='gnome',
+                      SPACR_TUTORIAL_EASY_MODE='1' if args.module == 'navigator' else '0')
     os.environ.pop('SPACR_CHAINING_PINS', None)
     logs = Path(os.environ['SPACR_LOG_DIR'])
     logs.mkdir(parents=True, exist_ok=True)

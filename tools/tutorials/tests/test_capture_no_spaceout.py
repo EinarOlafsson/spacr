@@ -53,6 +53,9 @@ def normal_store(tmp_path, monkeypatch):
     preferences.set_show_alpha(False)
     preferences._set_show_alpha_features(False)
     preferences._set_show_alpha_species(False)
+    # The capture profile records the tiled Home; Navigator is the app's default.
+    from capture_host_mode import CAPTURE_PROFILE
+    preferences.set_easy_mode(CAPTURE_PROFILE['easy_mode'])
     yield preferences
     theme.enable_spaceout() if previous else theme.disable_spaceout()
 
@@ -89,9 +92,13 @@ def test_all_selected_home_module_tiles_exist_under_normal_maturity(normal_store
     register_self_registering_modules()
     home = app.make_home_page()
     qtbot.addWidget(home)
+    from published_native_mix import CARDS
+
     canonical = json.loads((ROOT / 'tools/tutorials/lessons/05_home.json').read_text())
+    # Alpha-stage modules are hidden under normal maturity; their scenes are
+    # authored reference cards, not live tiles.
     keys = {s['visual'].removeprefix('home_module_') for s in canonical['scenes']
-            if s['visual'].startswith('home_module_')}
+            if s['visual'].startswith('home_module_') and s['visual'] not in CARDS}
     tiles = {str(tile.property('moduleAppKey')) for tile in home.findChildren(AppTile)}
     assert keys <= tiles, sorted(keys - tiles)
     assert keys <= {row[0] for row in app.tiled_apps(app.visible_apps())}
