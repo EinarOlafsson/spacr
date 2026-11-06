@@ -2062,6 +2062,12 @@ def _extended_regionprops_table(labels, image, intensity_props, spacing=None,
                                 field_percentiles=None):
     """Return a regionprops table extended with distributional intensity features (mean/std/skew/kurtosis/mode/CV/Gini/entropy/percentiles).
 
+    Skew and kurtosis are computed in float64 whatever the image dtype. On a
+    float32 image SciPy would otherwise accumulate the third and fourth
+    central moments in float32, which on a bright, low-contrast object moves
+    them by up to about 1 %; in float64 they agree with the GPU kernels of
+    :func:`_torch_intensity_table` to within about 1e-12 relative.
+
     :param labels: label mask, 2-D or 3-D.
     :param image: co-aligned intensity image.
     :param intensity_props: regionprops property names.
@@ -2136,10 +2142,11 @@ def _extended_regionprops_table(labels, image, intensity_props, spacing=None,
             integrated_intensity.append(np.sum(intens))
             std_intensity.append(np.std(intens))
             median_intensity.append(np.median(intens))
+            wide = intens.astype(np.float64, copy=False)
             skew_intensity.append(
-                skew(intens) if intens.size > 2 and has_variation else np.nan)
+                skew(wide) if intens.size > 2 and has_variation else np.nan)
             kurtosis_intensity.append(
-                kurtosis(intens) if intens.size > 3 and has_variation else np.nan)
+                kurtosis(wide) if intens.size > 3 and has_variation else np.nan)
             mode_val = np.atleast_1d(np.asarray(mode(intens, nan_policy='omit').mode))
             mode_intensity.append(float(mode_val[0]) if mode_val.size else np.nan)
             range_intensity.append(np.ptp(intens))

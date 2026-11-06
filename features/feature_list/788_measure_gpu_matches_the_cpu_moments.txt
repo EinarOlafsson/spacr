@@ -2,7 +2,7 @@ MEASURE_GPU MATCHES THE CPU SKEW AND KURTOSIS
 =============================================
 
 Lifecycle: new
-Status: open.
+Status: DONE 2026-11-06 — the CPU path now computes skew and kurtosis in float64 (it accumulated them in the image dtype); GPU and CPU agree to 1e-9 relative, pinned by tests.
 Requested: maintainer via the BMC software-paper session, 2026-11-05.
 Source: BBBC021 computer-vision benchmark, /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cv/README.md.
 

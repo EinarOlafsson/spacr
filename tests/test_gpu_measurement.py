@@ -55,6 +55,10 @@ def test_the_intensity_table_matches_regionprops(dtype):
             gpu[column].astype(float), cpu[column].astype(float),
             rtol=1e-5, atol=1e-5 * scale if dtype == np.float32 else 1e-9 * scale,
             err_msg=column)
+    for column in ("skew_intensity", "kurtosis_intensity"):
+        np.testing.assert_allclose(
+            gpu[column].astype(float), cpu[column].astype(float),
+            rtol=1e-9, atol=0, err_msg=column)
 
 
 @pytest.mark.parametrize("dtype", [np.uint16, np.float32])

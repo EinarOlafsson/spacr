@@ -12,7 +12,7 @@ Repeated IDs retain their separate full filenames and histories; none were merge
 
 This is a declaration-based navigation list, not a verified unfinished count. Headers can be stale. Conversely, recorded-Done items 641 and 673 contain later Mac follow-ups; item 729 separates native checks from deferred implementation. Read their linked notes before assigning work.
 
-85 records have no recorded complete declaration; 731 have a recorded complete declaration. Neither is a verification result.
+84 records have no recorded complete declaration; 732 have a recorded complete declaration. Neither is a verification result.
 
 | ID | Lifecycle | Item (full filename) | Recorded status |
 |---|---|---|---|
@@ -61,7 +61,6 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 784 | New | [PREDICTIONS ARE SCORED PER TREATMENT — 784_predictions_are_scored_per_treatment.txt](feature_list/784_predictions_are_scored_per_treatment.txt) | open. |
 | 785 | New | [TRAIN_MODEL SKIPS THE EXTRA PASS OVER THE TRAINING SET — 785_train_model_skips_the_extra_training_pass.txt](feature_list/785_train_model_skips_the_extra_training_pass.txt) | open. |
 | 787 | New | [TRAINING RESAMPLES PER EPOCH AND AUGMENTS ON THE GPU — 787_training_resamples_per_epoch_and_augments_on_gpu.txt](feature_list/787_training_resamples_per_epoch_and_augments_on_gpu.txt) | open. |
-| 788 | New | [MEASURE_GPU MATCHES THE CPU SKEW AND KURTOSIS — 788_measure_gpu_matches_the_cpu_moments.txt](feature_list/788_measure_gpu_matches_the_cpu_moments.txt) | open. |
 | 789 | New | [OPS BARCODE YIELD MATCHES OR BEATS BRIEFLOW — 789_ops_barcode_yield_matches_or_beats_brieflow.txt](feature_list/789_ops_barcode_yield_matches_or_beats_brieflow.txt) | open — plate A and the A–D subset meet the criteria; full plates B–D still to run. |
 | 790 | Future | [MEASURE EXTERNAL LABEL IMAGES (CELLPROFILER, CELLPOSE, ILASTIK) — 790_measure_external_label_images.txt](feature_list/790_measure_external_label_images.txt) | not started |
 | 791 | Future | [FEATURE QC FLAGS DEGENERATE COLUMNS AT EXPORT — 791_feature_qc_flags_degenerate_columns_at_export.txt](feature_list/791_feature_qc_flags_degenerate_columns_at_export.txt) | in progress — branch bmc-feature-qc (report by default, drop behind feature_qc_drop). |
@@ -876,7 +875,7 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 785 | New | [TRAIN_MODEL SKIPS THE EXTRA PASS OVER THE TRAINING SET — 785_train_model_skips_the_extra_training_pass.txt](feature_list/785_train_model_skips_the_extra_training_pass.txt) | open. |
 | 786 | New | [TRAIN_MODEL RELEASES HOST MEMORY BETWEEN CALLS — 786_train_model_releases_host_memory.txt](feature_list/786_train_model_releases_host_memory.txt) | DONE 2026-11-06 — the per-epoch progress plots written by _save_progress (six 20x10 inch figures per epoch, each holding its data frames) were saved but never closed, so every epoch and every train_model call kept them in pyplot; read_plot_model_stats now closes each figure after saving. Regression test: tests/test_train_model_releases_host_memory.py. |
 | 787 | New | [TRAINING RESAMPLES PER EPOCH AND AUGMENTS ON THE GPU — 787_training_resamples_per_epoch_and_augments_on_gpu.txt](feature_list/787_training_resamples_per_epoch_and_augments_on_gpu.txt) | open. |
-| 788 | New | [MEASURE_GPU MATCHES THE CPU SKEW AND KURTOSIS — 788_measure_gpu_matches_the_cpu_moments.txt](feature_list/788_measure_gpu_matches_the_cpu_moments.txt) | open. |
+| 788 | New | [MEASURE_GPU MATCHES THE CPU SKEW AND KURTOSIS — 788_measure_gpu_matches_the_cpu_moments.txt](feature_list/788_measure_gpu_matches_the_cpu_moments.txt) | DONE 2026-11-06 — the CPU path now computes skew and kurtosis in float64 (it accumulated them in the image dtype); GPU and CPU agree to 1e-9 relative, pinned by tests. |
 | 789 | New | [OPS BARCODE YIELD MATCHES OR BEATS BRIEFLOW — 789_ops_barcode_yield_matches_or_beats_brieflow.txt](feature_list/789_ops_barcode_yield_matches_or_beats_brieflow.txt) | open — plate A and the A–D subset meet the criteria; full plates B–D still to run. |
 | 790 | Future | [MEASURE EXTERNAL LABEL IMAGES (CELLPROFILER, CELLPOSE, ILASTIK) — 790_measure_external_label_images.txt](feature_list/790_measure_external_label_images.txt) | not started |
 | 791 | Future | [FEATURE QC FLAGS DEGENERATE COLUMNS AT EXPORT — 791_feature_qc_flags_degenerate_columns_at_export.txt](feature_list/791_feature_qc_flags_degenerate_columns_at_export.txt) | in progress — branch bmc-feature-qc (report by default, drop behind feature_qc_drop). |
