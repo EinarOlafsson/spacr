@@ -113,6 +113,14 @@ class Layout:
         return self.page[0] - 2 * self.margin
 
     def width_mm(self, frac):
+        """Width in mm of a panel spanning ``frac`` of the content width.
+
+        The inter-panel gap is shared, so panels whose fractions add up to 1
+        fill one row exactly with ``gap`` between them.
+
+        :param frac: fraction of the content width (e.g. ``0.5`` for half).
+        :returns: panel width in mm.
+        """
         return frac * (self.content + self.gap) - self.gap
 
     @property
@@ -129,6 +137,13 @@ LAYOUTS = {"compact": COMPACT, "spacious": SPACIOUS}
 
 
 def get_layout(layout) -> Layout:
+    """Resolve a report layout given by name or as a :class:`Layout`.
+
+    :param layout: a :class:`Layout` (returned unchanged) or a layout name,
+        ``'compact'`` or ``'spacious'``.
+    :returns: the matching :class:`Layout`.
+    :raises ValueError: if ``layout`` is not a :class:`Layout` or a known name.
+    """
     if isinstance(layout, Layout):
         return layout
     if layout not in LAYOUTS:
@@ -143,6 +158,9 @@ _WIDTH_NAMES = {"full": 1.0, "half": 0.5, "third": 1 / 3, "quarter": 0.25}
 class ReportItem:
     """One panel (or one chunk of a panel) on a page.
 
+    :param pid: panel ID (e.g. ``'R1'``); IDs starting with ``'R'`` count as
+        main-figure panels.
+    :param label: text printed in bold in the panel ID strip; empty for none.
     :param draw: ``draw(fig, rect)`` with ``rect = (x0, y0, w, h)`` in figure
         fractions; it adds its own axes inside the rect.
     :param width: fraction of the content width (or ``'half'``, ``'full'``,
@@ -150,6 +168,7 @@ class ReportItem:
     :param height_mm: height reserved on the page, panel ID strip included.
     :param min_height_mm: smallest height the one-page fit may shrink it to.
     :param new_row: start a new row with this item.
+    :param show_id: reserve the panel ID strip and print ``label`` in it.
     """
     pid: str
     label: str
@@ -168,7 +187,10 @@ class ReportItem:
 @dataclass
 class ReportBlock:
     """A heading plus panel items. Consecutive blocks with the same ``group``
-    are kept on one page when the compact layout has to paginate."""
+    are kept on one page when the compact layout has to paginate.
+
+    :param title: heading text drawn above the block's items.
+    """
     title: str
     items: List[ReportItem] = field(default_factory=list)
     group: Optional[str] = None
@@ -295,6 +317,8 @@ def paginate(blocks: Sequence[ReportBlock], layout=SPACIOUS, page=None, margin=N
     shrunk to fit; a group that cannot fit one page on its own flows row by
     row as in the spacious layout.
 
+    :param blocks: :class:`ReportBlock` objects in page order; blocks without
+        items are skipped.
     :returns: one list per page of placements, each a dict with ``kind``
         (``'heading'`` or ``'item'``), ``text`` / ``item`` and ``rect_mm``
         ``(x0, y_top, w, h)`` measured from the top-left page corner.
@@ -380,6 +404,9 @@ def render_report(pages: List[List[dict]], pdf_path: str, legend_text: str = "",
                   title: str = "", layout=SPACIOUS, dpi: int = 200, png=True, page=None) -> dict:
     """Draw paginated placements, then the legend on pages of its own, into one PDF.
 
+    :param pages: page placements as returned by :func:`paginate`.
+    :param pdf_path: output PDF file; its folder is created if needed and the
+        PNG pages are written next to it.
     :returns: ``{'pdf', 'png': [paths], 'n_pages', 'n_figure_pages', 'n_legend_pages'}``.
         PNG files are ``<stem>.png`` for page 1 and ``<stem>_page_NN.png``
         for the next pages.
@@ -481,6 +508,11 @@ def condition_chunks(order, per_category_mm, fixed_mm, max_per_row, page=A4_MM, 
                      min_frac=0.0):
     """Split the condition order into chunks that fit one page width.
 
+    :param order: conditions in display order.
+    :param per_category_mm: width in mm taken by each condition.
+    :param fixed_mm: width in mm the panel needs regardless of the number of
+        conditions (axis, tick labels, margins).
+    :param max_per_row: largest number of conditions in one chunk.
     :returns: (width, chunks). Without ``layout`` width is ``'half'`` or
         ``'full'`` (spacious); with a layout it is the smallest width fraction
         of ``layout.widths`` (at least ``min_frac``) that holds the panel.
@@ -514,6 +546,8 @@ def object_types(df: pd.DataFrame, channels: Optional[Sequence[int]] = None) -> 
 
     cell, nucleus, cytoplasm and pathogen come first, any other prefix
     (organelles ...) after them in alphabetical order.
+
+    :param df: object-level measurement table.
     """
     found = set()
     for col in df.columns:
@@ -527,6 +561,10 @@ def object_types(df: pd.DataFrame, channels: Optional[Sequence[int]] = None) -> 
 def well_intensity_long(df, group, channel, objects=None, well_keys=WELL_KEYS):
     """Mean intensity of ``channel`` per well for every object type (long format).
 
+    :param df: object-level measurement table with well key columns.
+    :param group: column of ``df`` with the condition of each row.
+    :param channel: channel number ``c`` of the
+        ``<obj>_channel_<c>_mean_intensity`` columns.
     :returns: columns ``group``, well keys, ``object_type``, ``column``,
         ``mean_intensity``, ``n_objects``.
     """
@@ -581,6 +619,12 @@ def well_counts(df, group, obj, row_object="cell", well_keys=WELL_KEYS):
     (objects of that type merged into each row) when present, else count rows
     with a ``<obj>_area`` value. Counting from the frame, not the database
     tables, means the count follows every filter applied to the frame.
+
+    :param df: analysed frame, one row per ``row_object``, with well key columns.
+    :param group: column of ``df`` with the condition of each row.
+    :param obj: object type to count (e.g. ``'cell'``, ``'pathogen'``).
+    :returns: one row per (``group``, well) with ``objects_per_well`` and
+        ``count_source``; empty when ``obj`` cannot be counted.
     """
     src = count_source(df, obj, row_object)
     keys = [group, *well_keys]
@@ -609,6 +653,9 @@ def db_object_tables(db_path, skip=("cytoplasm",)):
     Bookkeeping tables (png_list, intensity_rescale, ...), versioned copies
     (``cell_1`` when ``cell`` exists) and ``skip`` (cytoplasm, one per cell)
     are left out. cell, nucleus and pathogen come first.
+
+    :param db_path: path to the ``measurements.db`` SQLite file (opened read-only).
+    :returns: list of table names.
     """
     import sqlite3
     uri = f"file:{db_path}?mode=ro"
@@ -631,6 +678,10 @@ def db_object_tables(db_path, skip=("cytoplasm",)):
 def db_well_counts(db_path, frame, group, tables=None, well_keys=WELL_KEYS):
     """Rows per well in every object table of measurements.db, for the wells of ``frame``.
 
+    :param db_path: path to the ``measurements.db`` SQLite file (opened read-only).
+    :param frame: analysed table whose wells (``plateID``, ``rowID``,
+        ``columnID``) are counted; wells missing from a table count 0.
+    :param group: column of ``frame`` with the condition of each well.
     :returns: long table with ``group``, well keys, ``object_type``,
         ``objects_per_well`` and ``count_source`` (``measurements.db table <t>``).
     """
@@ -715,8 +766,16 @@ def well_qc_table(df, channels=None, measures=None, mad=3.5, row_object="cell",
     between conditions are not flagged), or the whole plate when ``group`` is
     None or its group has fewer than ``min_wells`` wells on that plate.
 
-    :param group: column of ``df`` with the condition group, or None (per plate).
+    :param df: object-level measurement table with well key columns.
+    :param channels: channel numbers checked for intensity; None = every
+        channel with a mean-intensity column for the object type.
     :param measures: subset of ``('count', 'area', 'intensity')``; None = all.
+    :param mad: fence in robust z units (multiples of 1.4826 x MAD).
+    :param row_object: object type with one row per object in ``df``.
+    :param well_keys: columns identifying a well.
+    :param group: column of ``df`` with the condition group, or None (per plate).
+    :param min_wells: smallest number of wells of a group on a plate used as
+        its own reference.
     :returns: one row per well: well keys, ``qc_group``, ``qc_reference``,
         ``<measure>`` and ``<measure>_z`` columns, ``well_qc_pass`` and
         ``well_qc_reason`` (measures that failed).
@@ -781,6 +840,7 @@ def object_qc_mask(df, channels=None, measures=None, mad=3.5, plate_column="plat
     value, or of the whole plate when ``group`` is None or holds fewer than
     ``min_objects`` objects there.
 
+    :param df: object-level measurement table, one row per object.
     :returns: (keep mask, summary with ``object_type``, ``measure``,
         ``column``, ``objects_removed``, ``objects``, ``qc_group`` and
         ``groups_on_plate_fallback`` - an object can fail several measures).
@@ -821,6 +881,14 @@ def grouped_spec(data, group, order, objects, value="mean_intensity", title="", 
     Outlier points are marked per object type and group with the active
     :class:`spacr.assay_panels.outlier_policy` (``outlier`` column) and left
     out of the drawing and the tests.
+
+    :param data: long table with ``group``, ``object_type`` and ``value``
+        columns, one row per unit (e.g. from :func:`well_intensity_long`).
+    :param group: column of ``data`` with the condition.
+    :param order: conditions in display order.
+    :param objects: object types drawn, one bar colour each.
+    :returns: panel spec dict (``kind='grouped'``) with the data, styling and
+        per-object-type ``stats``.
     """
     from .assay_panels import _OUTLIER_POLICY, mark_outliers, outlier_table, parse_outlier_method
     method = _OUTLIER_POLICY["method"]
@@ -841,7 +909,12 @@ def grouped_spec(data, group, order, objects, value="mean_intensity", title="", 
 
 
 def draw_grouped_panel(ax, spec, order=None, seed=0, compact=False):
-    """Draw a :func:`grouped_spec`: mean ± SD of unit values per object type, dots per unit."""
+    """Draw a :func:`grouped_spec`: mean ± SD of unit values per object type, dots per unit.
+
+    :param ax: matplotlib ``Axes`` to draw into.
+    :param spec: panel spec returned by :func:`grouped_spec`.
+    :returns: ``ax``.
+    """
     order = list(order if order is not None else spec["order"])
     objects, group, value = spec["objects"], spec["group"], spec["value"]
     data = spec["data"]
@@ -915,6 +988,8 @@ def compact_style(ax, layout=COMPACT, wrap=_COMPACT_WRAP):
     """Restyle a drawn panel for the compact layout: 5-6 pt text, slim bars, small dots.
 
     x tick labels are wrapped at word boundaries and drawn at 45 degrees.
+
+    :param ax: matplotlib ``Axes`` of a drawn panel, restyled in place.
     """
     from matplotlib.collections import PathCollection, LineCollection
     from matplotlib.patches import Rectangle
@@ -1026,7 +1101,12 @@ def _draw_spec_inner(ax, spec, order=None, layout=SPACIOUS):
 
 
 def stats_long(spec) -> pd.DataFrame:
-    """Test, assumptions, post hoc and descriptive tables of a spec in one long table."""
+    """Test, assumptions, post hoc and descriptive tables of a spec in one long table.
+
+    :param spec: panel spec (bar or :func:`grouped_spec`) with ``stats``.
+    :returns: tables stacked with a ``table`` column naming the source table
+        (and ``object_type`` for grouped specs).
+    """
     per = spec["stats"] if spec["kind"] == "grouped" else {None: spec["stats"]}
     names = (("descriptive", "outliers") if spec.get("no_stats") else
              ("test", "assumptions", "posthoc", "descriptive", "outliers"))
@@ -1116,7 +1196,13 @@ def _save_drawing(folder, stem, draw, size_mm, dpi=300):
 def write_panel_folder(out_dir, pid, name, draw, size_mm, data=None, stats=None, dpi=300):
     """One panel folder: ``<Rnn_name>.pdf/.png``, ``data.csv`` and ``stats.csv``.
 
+    :param out_dir: parent folder; the panel folder is created inside it.
+    :param pid: panel ID (e.g. ``'R01'``), the first part of the folder and
+        file stem.
+    :param name: panel name, the second part of the stem (see
+        :func:`spacr.assay_panels.panel_folder_name`).
     :param draw: ``draw(fig, rect)`` as for :class:`ReportItem`.
+    :param size_mm: ``(width, height)`` of the saved figure in mm.
     :returns: folder path.
     """
     stem = panel_folder_name(pid, name)
@@ -1152,7 +1238,15 @@ def save_spec_panel(out_dir, pid, name, spec, dpi=300):
 
 def resolve_mask_dims(merged_dir, names, n_planes, overrides=None):
     """Plane index of each object mask: ``overrides``, else the plane layout
-    sidecar of the merged folder, else the last ``len(names)`` planes in order."""
+    sidecar of the merged folder, else the last ``len(names)`` planes in order.
+
+    :param merged_dir: folder of the merged ``.npy`` stacks whose plane layout
+        sidecar is read.
+    :param names: object roles (e.g. ``'cell'``, ``'pathogen'``) in mask-plane
+        order.
+    :param n_planes: number of planes in each merged stack.
+    :returns: ``{role: plane index}``.
+    """
     from .plot import _overlay_mask_dims
     dims = _overlay_mask_dims(os.path.join(merged_dir, "x.npy"), list(names), n_planes)
     for k, v in (overrides or {}).items():
@@ -1176,6 +1270,11 @@ def select_tiles(df, group, order, n, seed=0, tile_size=128,
     ``seed``; the caller takes the first ``n`` that pass
     :func:`extract_tile`.
 
+    :param df: object table with the ``group`` column.
+    :param group: column of ``df`` with the condition.
+    :param order: conditions to pick from, in display order.
+    :param n: number of tiles wanted per condition; not used for the
+        ordering itself (every candidate is returned).
     :returns: {group value: DataFrame of candidates in pick order}.
     """
     rng = np.random.default_rng(seed)
@@ -1218,6 +1317,13 @@ def extract_tile(arr, mask_plane, label, size, center_plane=None, require_inside
     objects do not lie fully inside the crop. Without it the window is
     centred on the host cell mask centroid.
 
+    :param arr: merged image stack of shape ``(height, width, planes)``
+        holding the channels and the object masks.
+    :param mask_plane: plane index of the host cell mask in ``arr``.
+    :param label: mask label of the host cell.
+    :param size: tile edge length in pixels.
+    :param center_plane: plane index of the pathogen mask, or None to centre
+        on the host cell.
     :param require_inside: reject crops that reach beyond the field (default:
         True when centring on the pathogen, else False - the crop is then
         zero padded).
@@ -1281,10 +1387,13 @@ def _colour(c):
 def render_tile(crop, colour_map, ranges, outlines=(), alpha=1.0):
     """16-bit RGB composite of an image crop.
 
+    :param crop: image crop of shape ``(h, w, planes)``; channels are indexed
+        by plane.
     :param colour_map: {channel index: colour name or (r, g, b) in 0-1}.
     :param ranges: {channel index: (low, high)} display range, the same for
         every tile.
     :param outlines: [(binary mask, (r, g, b) in 0-1)], drawn 1 px wide.
+    :param alpha: opacity of the outlines over the image (0-1).
     :returns: uint16 array (h, w, 3), RGB order.
     """
     import cv2
@@ -1316,7 +1425,13 @@ def write_rgb16(stem, rgb):
 
 
 def display_ranges(arrays, channels, percentiles=(0.5, 99.9), stride=4):
-    """Per channel (low, high) percentiles over pixels of several fields."""
+    """Per channel (low, high) percentiles over pixels of several fields.
+
+    :param arrays: image stacks of shape ``(height, width, planes)``, one per
+        field; every ``stride``-th pixel is sampled.
+    :param channels: channel (plane) indices to compute ranges for.
+    :returns: ``{channel: (low, high)}`` with ``high > low``.
+    """
     out = {}
     for c in channels:
         px = np.concatenate([np.asarray(a[::stride, ::stride, int(c)]).ravel() for a in arrays])
@@ -1338,11 +1453,40 @@ def build_tiles(df, group, order, merged_dir, mask_dims, colour_map, out_folder,
                 montage_name="montage16", mono_channel=None, outline_alpha=0.6, gap=1):
     """Pick, crop, render and write the representative tiles of every group.
 
+    :param df: object table, one row per host cell, with the ``group``,
+        ``object_column`` and ``file_column`` columns.
+    :param group: column of ``df`` with the condition.
+    :param order: conditions in display order (montage columns).
+    :param merged_dir: folder of the merged ``<file_name>.npy`` stacks
+        ``(height, width, planes)``.
     :param mask_dims: {'cell': plane, 'pathogen': plane, ...}; ``object_column``
         holds the host cell label. Crops are centred on the ``center_object``
         objects of the host cell (pathogen; see :func:`extract_tile`), or on the
         host cell when that mask is absent. At most ``max_attempts`` candidates
         are tried per group.
+    :param colour_map: {channel index: colour name or (r, g, b) in 0-1} of the
+        colour composite (see :func:`render_tile`).
+    :param out_folder: output folder; ``merged/``, ``mono/``, ``outlines/``
+        and ``raw/`` are created inside it.
+    :param n: tiles per group (montage rows).
+    :param size: tile edge length in pixels.
+    :param seed: random seed for the candidate order and the choice of range
+        fields.
+    :param percentiles: (low, high) percentiles of the display range.
+    :param max_range_fields: largest number of fields sampled for the display
+        range when ``range_source='fields'``.
+    :param object_column: column of ``df`` with the host cell label.
+    :param file_column: column of ``df`` with the merged stack name (without
+        ``.npy``).
+    :param edge_column: column with the distance of the pathogen object to the
+        field edge, used by :func:`select_tiles`.
+    :param outline_objects: object types to outline; currently every object
+        type of ``mask_dims`` is outlined.
+    :param value_column: column whose group median ``selection='median'``
+        uses; also copied into the tile table.
+    :param center_object: mask role the crops are centred on, or None for the
+        host cell.
+    :param max_attempts: most candidates tried per group.
     :param selection: ``'random'`` (seeded, objects away from the edge first)
         or ``'median'`` (objects closest to the median of ``value_column`` in
         their group first: typical objects).
@@ -1351,8 +1495,11 @@ def build_tiles(df, group, order, merged_dir, mask_dims, colour_map, out_folder,
         crops themselves, so every crop of the figure is comparable).
     :param subdir: folder for the per-crop files; ``montage_name`` the stem of
         the 16-bit montage.
+    :param montage_name: stem of the 16-bit montage files.
     :param mono_channel: channel shown in the two monochrome versions (the
         channel of interest; default the first channel of ``colour_map``).
+    :param outline_alpha: opacity of the outlines (0-1).
+    :param gap: width in pixels of the white lines between montage tiles.
 
     Three versions of every crop are written, each a 16-bit set of its own:
     ``merged/`` (colour composite, no outlines), ``mono/`` (``mono_channel``
@@ -1722,7 +1869,14 @@ def draw_heatmap(fig, rect, spec, plate, layout=SPACIOUS):
 
 
 def plate_heatmap_items(pid, spec, layout=SPACIOUS, new_row=False):
-    """One report item per plate of a heatmap spec."""
+    """One report item per plate of a heatmap spec.
+
+    :param pid: panel ID of the heatmap; plates after the first are labelled
+        ``'<pid> (<plate>)'``.
+    :param spec: heatmap spec from :func:`heatmap_spec` (``matrices`` holds one
+        rows x columns array per plate).
+    :returns: list of :class:`ReportItem`, one per plate.
+    """
     layout = get_layout(layout)
     frac = 0.25 if layout.compact else 0.5
     w = layout.width_mm(frac)
@@ -1756,7 +1910,12 @@ def save_heatmap_panel(out_dir, pid, name, spec, dpi=300):
 
 
 def describe_test(test_row: Mapping) -> str:
-    """One sentence: the omnibus test, its result and why it was chosen."""
+    """One sentence: the omnibus test, its result and why it was chosen.
+
+    :param test_row: one row of a ``test`` table as a mapping, with ``test``,
+        ``p_value``, ``significance`` and optional ``note``.
+    :returns: the sentence.
+    """
     t = test_row.get("test")
     if t == "not tested":
         return f"Not tested ({test_row.get('note') or 'too few units'})."
@@ -1779,7 +1938,13 @@ def _n_text(desc, group, labels):
 
 
 def filter_sentences(summary: Optional[pd.DataFrame]) -> str:
-    """Text of the filter steps in ``filter_summary`` (objects removed / remaining)."""
+    """Text of the filter steps in ``filter_summary`` (objects removed / remaining).
+
+    :param summary: filter summary table, one row per step with ``step``,
+        ``<...>_removed``, ``<...>_remaining`` and optional ``note`` columns; the
+        first row is the starting count. None or empty means no filters.
+    :returns: the sentences joined by spaces.
+    """
     if summary is None or not len(summary):
         return "No opt-in filters were set, so the filtered and unfiltered panels are identical."
     rem = [c for c in summary.columns if c.endswith("_remaining")][0]
@@ -1793,6 +1958,15 @@ def filter_sentences(summary: Optional[pd.DataFrame]) -> str:
 
 
 def write_legend(path, paragraphs: Sequence[str]) -> str:
+    """Write the figure legend as a UTF-8 text file, one blank line between paragraphs.
+
+    Empty paragraphs are dropped and the others stripped of surrounding
+    whitespace; the folder of ``path`` is created if needed.
+
+    :param path: output text file.
+    :param paragraphs: legend paragraphs in order.
+    :returns: the text written (without the final newline).
+    """
     text = "\n\n".join(p.strip() for p in paragraphs if p and p.strip())
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     with open(path, "w", encoding="utf-8") as fh:
@@ -1891,17 +2065,55 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
     crops of that figure, written as 16-bit PNG/TIFF (``build_tiles``).
 
     :param frames: ``{'unfiltered': df, 'filtered': df}``, one row per ``row_object``.
+    :param out_dir: output folder for the PDFs, PNGs, ``figure_legend.txt``
+        and the ``panels/`` folders.
+    :param value: column of the frames with the main value per object.
+    :param group: column of the frames with the condition.
+    :param order: conditions shown, in display order; rows of other
+        conditions are left out.
+    :param channels: channel numbers that get a mean-intensity panel.
+    :param labels: raw condition value -> display label (see
+        :func:`spacr.assay_panels.display_label`).
+    :param replicate_column: column with the biological replicate; None
+        skips the replicate-level graphs.
+    :param value_label: axis and legend text of ``value``; default ``value``
+        with spaces for underscores.
+    :param ratio: ``value`` is a ratio: draw a reference line at 1 (and start
+        the axis at 1 when every value is at least 1).
+    :param filter_summary: table of the filter steps (see
+        :func:`filter_sentences`), or None.
+    :param palette: bar colours passed to the bar panels.
     :param tiles: None to skip images, else ``merged_dir``, ``mask_dims``,
         ``colour_map``, ``n``, ``size``, ``seed`` and ``mono_channel``.
+    :param max_conditions_per_row: most conditions in one panel chunk before
+        a graph is split over rows.
+    :param row_object: object type with one row per object in the frames
+        (counted by rows in :func:`well_counts`).
+    :param title: report title, printed in the page headers and the legend.
+    :param intro: sentences added at the start of each figure legend.
+    :param name: file stem of the PDFs (``<name>.pdf``,
+        ``<name>_figure_<version>.pdf``).
+    :param count_objects: object types that get an objects-per-well panel;
+        None uses the measurements.db object tables, else every object type
+        with intensity columns (cytoplasm is always left out).
+    :param db_path: path to ``measurements.db`` for per-well object counts
+        of the unfiltered data; None or a missing file skips them.
+    :param layout: ``'compact'``, ``'spacious'`` or a :class:`Layout`.
+    :param well_qc: table from :func:`well_qc_table`; wells failing it get a
+        red x on the plate heatmaps.
+    :param heatmaps: add the plate heatmap appendix.
     :param crops: None, or ``{'n': k}`` for representative crops.
     :param parts: {condition: [(variable, factor), ...]} for the x axis
         (:func:`spacr.assay_panels.condition_parts`); None splits the
         condition names on '_'.
-    :param bracket_pairs: ``'one_factor'``, ``'all'`` or a list of pairs
-        (:func:`spacr.assay_panels.select_bracket_pairs`).
     :param x_axis_style: ``'auto'`` (+/- matrix when two or more variables
         vary on a graph, else labels of the varying part), ``'matrix'``,
         ``'labels'``.
+    :param factor_order: +/- matrix rows in display order (see
+        :func:`spacr.assay_panels.axis_layout`).
+    :param bracket_pairs: ``'one_factor'``, ``'all'`` or a list of pairs
+        (:func:`spacr.assay_panels.select_bracket_pairs`).
+    :param dpi: resolution of the PNG pages and panel images.
     :returns: dict with ``pdf`` (combined), ``figures`` {version: pdf},
         ``png``, ``legend``, ``panels``, ``n_pages``, ``n_figure_pages``,
         ``n_main_pages`` and ``n_legend_pages`` (0: legends are on the figures).

@@ -99,13 +99,23 @@ STYLE = dict(
 
 
 def shade(color, factor):
-    """``color`` darkened to ``factor`` (0 black, 1 unchanged), as an RGB tuple."""
+    """``color`` darkened to ``factor`` (0 black, 1 unchanged), as an RGB tuple.
+
+    :param color: any matplotlib colour specification (name, hex string or
+        RGB(A) tuple).
+    :param factor: brightness multiplier applied to each RGB channel; results
+        are clipped to [0, 1].
+    :returns: ``(r, g, b)`` tuple of floats in [0, 1].
+    """
     from matplotlib.colors import to_rgb
     return tuple(max(0.0, min(1.0, c * factor)) for c in to_rgb(color))
 
 
 def style_axes(ax):
-    """Light horizontal grid behind the data, top and right spines removed."""
+    """Light horizontal grid behind the data, top and right spines removed.
+
+    :param ax: matplotlib ``Axes`` styled in place.
+    """
     ax.set_axisbelow(True)
     ax.yaxis.grid(True, alpha=STYLE["grid_alpha"], linewidth=STYLE["grid_lw"])
     ax.xaxis.grid(False)
@@ -120,7 +130,14 @@ _OUTLIER_POLICY = {"method": None}
 
 
 def parse_outlier_method(method):
-    """``'mad'`` / ``'iqr'`` (default fences 3.5 and 1.5) or ``'mad:3'`` -> (name, fence); None -> None."""
+    """``'mad'`` / ``'iqr'`` (default fences 3.5 and 1.5) or ``'mad:3'`` -> (name, fence); None -> None.
+
+    :param method: ``'mad'``, ``'iqr'``, ``'<name>:<fence>'``, ``True``
+        (same as ``'mad'``), or ``None`` / ``False`` / ``'none'`` / ``''`` for
+        no outlier marking.
+    :returns: ``(name, fence)`` with ``fence`` a float, or ``None``.
+    :raises ValueError: if the method name is not ``'mad'`` or ``'iqr'``.
+    """
     if method in (None, False, "none", ""):
         return None
     if method is True:
@@ -137,6 +154,10 @@ class outlier_policy:
 
     ``with outlier_policy('mad'): ...`` makes every bar panel built inside
     mark and leave out points beyond the robust fence of their group.
+
+    :param method: outlier method made the default inside the block, in any
+        form accepted by :func:`parse_outlier_method` (``None`` turns marking
+        off); the previous default is restored on exit.
     """
 
     def __init__(self, method):
@@ -159,7 +180,14 @@ def mark_outliers(data: pd.DataFrame, value: str, group, method) -> pd.Series:
     ``[Q1 - fence * IQR, Q3 + fence * IQR]``. Groups with fewer than 4 points
     or no spread (MAD or IQR 0) keep every point.
 
+    :param data: table with one row per point.
+    :param value: name of the numeric column tested; non-numeric and
+        infinite values are ignored.
     :param group: column or list of columns defining the groups.
+    :param method: outlier method in any form accepted by
+        :func:`parse_outlier_method`; ``None`` marks nothing.
+    :returns: boolean Series aligned to ``data.index``.
+    :raises ValueError: if ``method`` names an unknown outlier method.
     """
     parsed = parse_outlier_method(method)
     out = pd.Series(False, index=data.index)
@@ -326,7 +354,11 @@ def condition_parts(values: Mapping, factors: Optional[Mapping] = None) -> List[
 
 
 def string_parts(condition, sep="_") -> List[Tuple[str, str]]:
-    """Fallback decomposition: the tokens of the condition string, by position."""
+    """Fallback decomposition: the tokens of the condition string, by position.
+
+    :param condition: condition name; converted to text and split on ``sep``.
+    :returns: ``[('token0', first token), ('token1', second token), ...]``.
+    """
     return [(f"token{i}", t) for i, t in enumerate(str(condition).split(sep))]
 
 
@@ -334,11 +366,14 @@ def axis_layout(order: Sequence, parts: Mapping, style: str = "auto",
                 factor_order: Optional[Sequence] = None, labels: Optional[Mapping] = None) -> dict:
     """How to label the x axis of one graph.
 
+    :param order: conditions in x-axis order.
     :param parts: {condition: [(variable, factor), ...]} (see :func:`condition_parts`).
     :param style: ``'auto'`` (labels when at most one variable varies along
         this axis, else the matrix), ``'matrix'`` or ``'labels'``.
     :param factor_order: matrix rows in display order (raw or display names);
         other rows follow by variable, then first appearance.
+    :param labels: raw value -> display label, as in :func:`display_label`;
+        ``None`` uses no labels.
     :returns: ``{'matrix': bool, 'annotations': {row: {condition: '+'/'-'}},
         'labels': {condition: text}, 'constant': [display texts shared by every
         condition], 'varying': [variables]}``.
@@ -938,6 +973,10 @@ def select_bracket_pairs(posthoc: pd.DataFrame, order: Sequence, parts: Optional
     those pairs, significant or not. Beyond ``max_n`` the pairs with the
     smallest p values are kept.
 
+    :param posthoc: post hoc table with ``group_1``, ``group_2``, ``p_adj``
+        and ``significance`` columns; ``None`` or empty gives no pairs.
+    :param order: conditions shown on the axis; pairs with a group outside it
+        are dropped.
     :returns: (DataFrame of chosen pairs, number of qualifying pairs not drawn).
     """
     order = list(order)
@@ -961,7 +1000,13 @@ def select_bracket_pairs(posthoc: pd.DataFrame, order: Sequence, parts: Optional
 
 
 def pack_brackets(pairs: pd.DataFrame, order: Sequence) -> List[int]:
-    """Stack level of every bracket: shortest spans lowest, brackets on one level never overlap."""
+    """Stack level of every bracket: shortest spans lowest, brackets on one level never overlap.
+
+    :param pairs: chosen pairs with ``group_1`` and ``group_2`` columns, as
+        returned by :func:`select_bracket_pairs`.
+    :param order: conditions in x-axis order; every pair's groups must be in it.
+    :returns: stack level (0 = lowest) of each row of ``pairs``, in row order.
+    """
     order = list(order)
     spans = [(min(order.index(a), order.index(b)), max(order.index(a), order.index(b)))
              for a, b in zip(pairs["group_1"], pairs["group_2"])]
