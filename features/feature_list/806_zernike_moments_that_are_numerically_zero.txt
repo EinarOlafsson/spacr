@@ -1,9 +1,9 @@
 BUG: ZERNIKE MOMENTS THAT ARE NUMERICALLY ZERO DOMINATE SCALED PROFILES
 
 Lifecycle: new
-Status: open. Build first of 806-808.
+Status: DONE 2026-11-05 — moments below 1e-10 are written as exactly 0.0 on the CPU and GPU paths (spacr.measure._ZERNIKE_ZERO_TOL); columns unchanged. Built by the paper session, commit 75dbbc55e2.
 Requested: maintainer, 2026-11-05 (BMC paper CPA baseline).
-Owner: unassigned.
+Owner: home spacr software paper.
 
 --------------------------------------------------------------------------------
 WHAT THE STATE IS
