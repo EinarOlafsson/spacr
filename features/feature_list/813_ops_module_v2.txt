@@ -94,3 +94,33 @@ SPOTIFLOW SPOT DETECTOR (maintainer, 2026-11-06)
   The study result decides the default.
 - Tests: the setting is declared; the missing-dependency message; union
   deduplication on synthetic spots; a stub detector path.
+
+--------------------------------------------------------------------------------
+PHENOTYPE ILLUMINATION (FLAT-FIELD) CORRECTION (maintainer, 2026-11-06)
+--------------------------------------------------------------------------------
+
+Evidence: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/funk_phenotype/seg_qc/REPORT.md
+- Without correction (spaCR currently only max-projects), the corner-to-
+  centre intensity ratio is 0.42-0.53 across DAPI, GFP, A594 and AF750.
+  GFP also has a left-right gradient of 0.78.
+- Nuclei detection is unaffected (0.08% missed), but intensity features are
+  biased about 2x in the corners.
+
+Settings:
+- ops_ph_illumination_correction (bool), default True on the OPS phenotype
+  path.
+- ops_ph_flatfield_fields (int, default 200): fields per plate used for the
+  estimate.
+- ops_ph_flatfield_smoothing (sigma; heavier for nuclear channels).
+- ops_ph_flatfield_apply_to: measure, or segment+measure (default).
+
+How:
+- Estimate per plate x channel: a robust per-pixel median over fields,
+  smoothed and normalised to mean 1.
+- Save to <src>/illumination/<plate>_<channel>.npy and reuse it.
+- Apply after max-projection, before segmentation and measurement, as
+  ops_ph_flatfield_apply_to says.
+- QC output: corner/centre ratios before and after.
+
+Tests: synthetic vignetted fields are corrected; the estimate is
+reproducible; the settings are declared.
