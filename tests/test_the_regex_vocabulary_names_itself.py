@@ -31,14 +31,14 @@ def test_a_custom_layout_wraps_the_users_own_expression():
                        custom_regex=r"(?P<wellID>[A-H]\d\d)")
 
     assert "wellID" in regex
-    assert regex.endswith(".tif")
+    assert regex.endswith(".(?i:tif)")
 
 
 def test_a_missing_image_format_defaults_to_tif():
     """The guard above the vocabulary, so the tests here are reached cleanly."""
     from spacr.utils import _get_regex
 
-    assert _get_regex("cq1", None).endswith(".tif")
+    assert _get_regex("cq1", None).endswith(".(?i:tif)")
 
 
 def test_an_unknown_layout_is_refused_by_name():

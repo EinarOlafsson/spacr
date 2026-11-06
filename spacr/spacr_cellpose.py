@@ -219,7 +219,7 @@ def identify_masks_finetune(settings):
                "Cellpose per image, as the preview" if model_normalises else "none")
         print(f"Cellpose settings: Model: {pretrained}, channels: {channels}, normalisation: {how}, diameter:{settings['diameter']}, flow_threshold:{settings['flow_threshold']}, cellprob_threshold:{settings['CP_prob']}")
 
-    image_files = [os.path.join(settings['src'], f) for f in os.listdir(settings['src']) if f.endswith('.tif')]
+    image_files = [os.path.join(settings['src'], f) for f in os.listdir(settings['src']) if f.lower().endswith('.tif')]
     mask_files = set(os.listdir(os.path.join(settings['src'], 'masks')))
     all_image_files = [f for f in image_files if os.path.basename(f) not in mask_files]
     random.shuffle(all_image_files)
@@ -345,7 +345,7 @@ def generate_masks_from_imgs(src, model, model_name, batch_size, diameter, cellp
         print("grayscale=True has no effect under Cellpose 4: the channel "
               "pair (eval channels=) is deprecated and ignored.")
 
-    all_image_files = [os.path.join(src, f) for f in os.listdir(src) if f.endswith('.tif')]
+    all_image_files = [os.path.join(src, f) for f in os.listdir(src) if f.lower().endswith('.tif')]
     random.shuffle(all_image_files)
         
     if verbose == True:

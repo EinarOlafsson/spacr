@@ -4580,9 +4580,9 @@ def plot_images_and_arrays(folders, lower_percentile=1, upper_percentile=99, thr
             mask_data = None
 
             for folder, path in folder_paths.items():
-                if path.endswith('.npy'):
+                if path.lower().endswith('.npy'):
                     data = np.load(path)
-                elif path.endswith('.tif') or path.endswith('.tiff'):
+                elif path.lower().endswith(('.tif', '.tiff')):
                     data = imageio.imread(path)
                 else:
                     continue

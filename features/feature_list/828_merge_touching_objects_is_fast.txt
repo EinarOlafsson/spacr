@@ -1,7 +1,7 @@
 MERGE_TOUCHING_OBJECTS IS FAST
 
 Lifecycle: new
-Status: open.
+Status: DONE 2026-11-06 — objects are measured inside their own padded bounding boxes; the merge result is unchanged.
 Requested: maintainer, 2026-11-06 (BMC paper HRMAn reanalysis).
 Owner: unassigned.
 

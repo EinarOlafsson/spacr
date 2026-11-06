@@ -6105,31 +6105,43 @@ def _remove_multiobject_cells(stack, mask_dim, cell_dim, nucleus_dim, pathogen_d
 def merge_touching_objects(mask, threshold=0.25):
     """Merge touching labeled objects whose shared boundary exceeds ``threshold`` of the smaller perimeter.
 
+    Each object is measured inside its own bounding box, padded by the
+    reach of the neighbourhood operations, so the cost follows the object
+    sizes rather than the image size times the object count.
+
     :param mask: labeled mask.
     :param threshold: fraction of the smaller perimeter required to merge.
     :returns: merged label mask.
     """
+    original = mask.copy()
+    labels = [int(label) for label in np.unique(original) if label != 0]
+    boxes = {int(index) + 1: box
+             for index, box in enumerate(ndi.find_objects(original.astype(np.int64, copy=False)))
+             if box is not None}
+    rows, cols = original.shape
+
+    def _padded(box, pad):
+        return tuple(slice(max(axis.start - pad, 0), min(axis.stop + pad, size))
+                     for axis, size in zip(box, (rows, cols)))
+
     perimeters = {}
-    labels = np.unique(mask)
     for label in labels:
-        if label != 0:
-            edges = morphology.erosion(mask == label) ^ (mask == label)
-            perimeters[label] = np.sum(edges)
+        inside = original[_padded(boxes[label], 1)] == label
+        perimeters[label] = np.sum(morphology.erosion(inside) ^ inside)
     shared_perimeters = {}
-    dilated = morphology.dilation(mask > 0)
     for label in labels:
-        if label != 0:
-            dilated_label = morphology.dilation(mask == label)
-            touching_labels = np.unique(mask[dilated & (dilated_label != 0) & (mask != 0)])
-            for touching_label in touching_labels:
-                if touching_label != label:
-                    shared_boundary = dilated_label & morphology.dilation(mask == touching_label)
-                    shared_perimeters[(label, touching_label)] = np.sum(shared_boundary)
+        window = original[_padded(boxes[label], 2)]
+        dilated_label = morphology.dilation(window == label)
+        touching_labels = np.unique(window[dilated_label & (window != 0)])
+        for touching_label in touching_labels:
+            if touching_label != label:
+                shared_boundary = dilated_label & morphology.dilation(window == touching_label)
+                shared_perimeters[(label, int(touching_label))] = np.sum(shared_boundary)
     for (label1, label2), shared_perimeter in shared_perimeters.items():
         if shared_perimeter > threshold * min(perimeters[label1], perimeters[label2]):
             mask[mask == label2] = label1
     return mask
-    
+
 def remove_intensity_objects(image, mask, intensity_threshold, mode):
     """Drop labeled objects whose mean intensity is on the wrong side of ``intensity_threshold``.
 

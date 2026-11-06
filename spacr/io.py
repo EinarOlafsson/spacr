@@ -1181,8 +1181,8 @@ def _raw_image_names(folder, img_format=_RAW_IMAGE_SUFFIXES):
 
     :param folder: the folder to list. One that is missing or unreadable
         holds none.
-    :param img_format: accepted endings, matched case-sensitively, which is
-        how :func:`_rename_and_organize_image_files` has always matched them.
+    :param img_format: accepted endings, matched without regard to case, so
+        ``.TIF`` and ``.Tif`` count as ``.tif``.
     :returns: the file names, sorted.
     """
     if isinstance(img_format, str):
@@ -1191,8 +1191,8 @@ def _raw_image_names(folder, img_format=_RAW_IMAGE_SUFFIXES):
         names = _listdir_visible(folder)
     except OSError:
         return []
-    return sorted(name for name in names
-                  if any(name.endswith(ext) for ext in img_format))
+    endings = tuple(str(ext).lower() for ext in img_format)
+    return sorted(name for name in names if name.lower().endswith(endings))
 
 
 def _stack_field_stems(stack_path):
@@ -1509,7 +1509,7 @@ def _move_to_chan_folder(src, regex, timelapse=False, metadata_type=''):
         for file in src.iterdir():
             if file.is_file():
                 name, ext = file.stem, file.suffix
-                if ext in valid_exts:
+                if ext.lower() in valid_exts:
                     metadata = re.match(regex, file.name)
                     with ledger.item(
                             file.name, stage='parse_filename',
@@ -1554,7 +1554,7 @@ def _move_to_chan_folder(src, regex, timelapse=False, metadata_type=''):
         newpath = os.path.join(src_path, 'orig')
         os.makedirs(newpath, exist_ok=True)
         for filename in os.listdir(src_path):
-            if os.path.splitext(filename)[1] in valid_exts:
+            if os.path.splitext(filename)[1].lower() in valid_exts:
                 move = os.path.join(newpath, filename)
                 if os.path.exists(move):
                     print(f'WARNING: A file with the same name already exists at location {move}')
@@ -5575,7 +5575,7 @@ def _load_array_any(path):
     a ``.npy`` holding pickled objects is refused with numpy's
     :class:`ValueError` rather than run.
     """
-    if path.endswith(('.tif', '.tiff')):
+    if path.lower().endswith(('.tif', '.tiff')):
         import tifffile
         return tifffile.imread(_long_path(path))
     return np.load(_long_path(path), allow_pickle=False)
@@ -6684,8 +6684,9 @@ def generate_cellpose_train_test(src, test_split=0.1):
     :returns: None
     """
     mask_src = os.path.join(src, 'masks')
-    img_paths = glob.glob(os.path.join(src, '*.tif'))
-    img_filenames = [os.path.basename(file) for file in img_paths]
+    img_filenames = [name for name in os.listdir(src)
+                     if name.lower().endswith('.tif')
+                     and os.path.isfile(os.path.join(src, name))]
     img_filenames = [file for file in img_filenames if os.path.exists(os.path.join(mask_src, file))]
     print(f'Found {len(img_filenames)} images with masks')
     

@@ -656,7 +656,7 @@ _METADATA_CONVENTIONS = (
         "pattern": (
             "(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)"
             "L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*)"
-            ".{ext}"),
+            ".(?i:{ext})"),
         "ext": "verbatim",
         "examples": (
             "AssayPlate_Greiner_#655090_B02_T0001F004L01A01Z01C01.tif",
@@ -693,7 +693,7 @@ _METADATA_CONVENTIONS = (
         "instrument": "CQ1",
         "pattern": (
             "W(?P<wellID>.*)F(?P<fieldID>.*)T(?P<timeID>.*)"
-            "Z(?P<sliceID>.*)C(?P<chanID>.*).{ext}"),
+            "Z(?P<sliceID>.*)C(?P<chanID>.*).(?i:{ext})"),
         "ext": "verbatim",
         "examples": (
             "W0262F0001T0001Z000C2.tif",
@@ -728,7 +728,7 @@ _METADATA_CONVENTIONS = (
         "instrument": "any -- detected from the folder",
         "pattern": (
             "(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)"
-            "L(?P<laserID>.*)C(?P<chanID>.*).tif"),
+            "L(?P<laserID>.*)C(?P<chanID>.*).(?i:tif)"),
         "ext": "verbatim",
         "examples": (
             "plate1_A01_T0001F001L01C01.tif",
@@ -760,7 +760,7 @@ _METADATA_CONVENTIONS = (
         "label": "Custom -- my own regular expression",
         "vendor": "spaCR",
         "instrument": "whatever custom_regex describes",
-        "pattern": "({custom_regex}).{ext}",
+        "pattern": "({custom_regex}).(?i:{ext})",
         "ext": "verbatim",
         "examples": (),
         "groups": {

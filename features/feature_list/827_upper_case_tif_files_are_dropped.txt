@@ -1,7 +1,7 @@
 BUG: UPPER-CASE .TIF FILES ARE DROPPED
 
 Lifecycle: new
-Status: open. Build first of 827-832.
+Status: DONE 2026-11-06 — extensions are matched without regard to case in the raw-image listing, the filename patterns and the Cellpose training-folder listings.
 Requested: maintainer, 2026-11-06 (BMC paper HRMAn reanalysis).
 Owner: unassigned.
 
