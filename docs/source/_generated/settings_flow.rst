@@ -14548,7 +14548,7 @@ Read by ``resolve_ml_model_type``, ``_cross_validate_model``, ``_fit_one``, ``ge
 model_type_ml
 -------------
 
-(str) - Classifier fitted by ml_analysis to separate positive- from negative-control wells and rank per-object features by permutation importance. Options are xgboost (default), lightgbm, catboost, random_forest, extra_trees, gradient_boosting, logistic_regression, svm and mlp; lightgbm and catboost require their optional packages. reg_alpha, reg_lambda and learning_rate affect only boosted models; logistic_regression provides a linear reference model.
+(str) - Classifier fitted by ml_analysis to separate positive- from negative-control wells and rank per-object features by permutation importance. Options are logistic_regression (default: features standardised, then an L2-penalised fit, so it stays stable when features approach the number of training wells), shrinkage_lda (standardised linear discriminant analysis with automatic covariance shrinkage), xgboost, lightgbm, catboost, random_forest, extra_trees, gradient_boosting, svm and mlp; lightgbm and catboost require their optional packages. Unregularised discriminant analysis is deliberately not offered: it collapses when features roughly equal training wells. reg_alpha, reg_lambda and learning_rate affect only boosted models.
 
 | :py:func:`~spacr.classify.classify`
 |     ``_begin_flowview_run``
