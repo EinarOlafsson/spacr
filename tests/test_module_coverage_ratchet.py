@@ -468,6 +468,9 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         # 667 -> 668 on 2026-11-06, +1/-0, item 816: the standard
         # recruitment report (spacr/assay_report.py).
         'spacr/assay_report.py',
+        # 668 -> 669 on 2026-11-06, +1/-0, item 803: the GPU memory
+        # governor (spacr/_gpu_governor.py); private modules ship and count.
+        'spacr/_gpu_governor.py',
     }
     assert added_since_608 <= shipped
     # 664 -> 662 on 2026-10-12, +0/-2: spacr-tutorial opens the online
@@ -918,8 +921,10 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_required():
     # `shipped`, moved with the workflow in one commit.
     # 667 -> 668 on 2026-11-06: spacr/assay_report.py (item 816), the same
     # +1 as `shipped`, moved with the workflow in one commit.
-    assert len(ratchet.discover_shipped_python_files(ROOT)) == 668
-    assert "--expected-file-count 668" in combine_script
+    # 668 -> 669 on 2026-11-06: spacr/_gpu_governor.py (item 803), the same
+    # +1 as `shipped`, moved with the workflow in one commit.
+    assert len(ratchet.discover_shipped_python_files(ROOT)) == 669
+    assert "--expected-file-count 669" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script
