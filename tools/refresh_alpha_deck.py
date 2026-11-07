@@ -56,6 +56,8 @@ GROUPS = (
         (536, "Scratch / wound-closure assay"),
         (542, "Colony / CFU counting"),
         (547, "Image-based profiling: normalise, select, mAP"),
+        (800, "Size filters from pixel size or magnification"),
+        (790, "Measure label images from CellProfiler, Cellpose, ilastik"),
         (791, "Feature QC: flag degenerate columns"),
         (769, "Per-cell export: cell, cytoplasm and nucleus"),
         (770, "Batch correction: typical variation normalisation"),
@@ -77,6 +79,7 @@ GROUPS = (
         (544, "Blind scoring"),
         (564, "Counterfactuals: morph a control cell toward a hit"),
         (561, "Self-supervised DINO pretraining"),
+        (772, "Fixed crop scaling and a shuffled-label control"),
         (470, "Judge every label from cross-channel ground truth"),
     )),
     ("Screens and statistics", (
@@ -212,7 +215,10 @@ def _draw_pdf(target, count, page_size):
         painter.setBrush(QColor("#222932"))
         painter.drawRoundedRect(QRectF(2850, 118, 230, 76), 38, 38)
         label("ALPHA", 2910, 123, 160, 64, 32, "#d63fa1", True)
-        row_height = 36
+        # Rows shrink from 36 px so the longer column ends above the species strip.
+        longest = max(sum(len(rows) for _, rows in column)
+                      for column in (GROUPS[:3], GROUPS[3:]))
+        row_height = min(36, int((1545 - 375) // longest))
         for x, groups in ((120, GROUPS[:3]), (1640, GROUPS[3:])):
             painter.fillRect(QRectF(x, 310, 1440, 65), QColor("#222932"))
             label("Category", x + 14, 310, 345, 65, 34, bold=True)
