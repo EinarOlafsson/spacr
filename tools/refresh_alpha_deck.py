@@ -57,6 +57,7 @@ GROUPS = (
         (542, "Colony / CFU counting"),
         (547, "Image-based profiling: normalise, select, mAP"),
         (791, "Feature QC: flag degenerate columns"),
+        (769, "Per-cell export: cell, cytoplasm and nucleus"),
         (770, "Batch correction: typical variation normalisation"),
         (566, "GPU measurement (cuCIM, CuPy)"),
         (501, "Estimate plaque scale and growth time"),

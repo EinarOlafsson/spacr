@@ -2493,6 +2493,304 @@ def _feature_qc_report(db_path: str, *, drop: bool = False,
     return flagged, {"csv": csv_path, "json": json_path}, dropped
 
 
+_PER_CELL_NUCLEUS = ("largest", "mean", "median")
+_PER_CELL_TABLES = ("cell", "cytoplasm", "nucleus")
+_PER_CELL_LOCATION = re.compile(
+    r"(?:centroid(?:_weighted)?-[01]|bbox-[0-3]|distance_to_field_edge)$")
+_PER_CELL_FORMATS = ("parquet", "csv")
+
+
+def _per_cell_features(frame: pd.DataFrame, table: str) -> List[str]:
+    """The measured columns of one object table that go into the export.
+
+    Numeric, not boolean, not identity or provenance
+    (:func:`spacr.schema.is_provenance_column`) and not ``Metadata_``.
+    Positions are kept here and renamed ``Location_*`` later.
+
+    :param frame: the object table as read.
+    :param table: its name, used to refuse a column without its prefix.
+    :returns: the column names, in table order.
+    :raises ValueError: when a measured column does not start with the
+        table's name, so the joined table would hold it twice.
+    """
+    from .schema import is_provenance_column
+
+    names = []
+    for name in frame.columns:
+        text = str(name)
+        if text.startswith("Metadata_") or is_provenance_column(text):
+            continue
+        if (not pd.api.types.is_numeric_dtype(frame[name])
+                or pd.api.types.is_bool_dtype(frame[name])):
+            continue
+        if not text.startswith(f"{table}_"):
+            raise ValueError(
+                f"the {table} table has a measured column {text!r} without "
+                f"the {table}_ prefix, so the per-cell table cannot tell it "
+                "apart from the other objects' columns")
+        names.append(text)
+    return names
+
+
+def _per_cell_values(frame: pd.DataFrame, table: str,
+                     dtype: Optional[str]) -> pd.DataFrame:
+    """The measured columns of one object table, renumbered from 0.
+
+    :param frame: the object table as read.
+    :param table: its name (:func:`_per_cell_features`).
+    :param dtype: the type to cast to, or ``None`` to keep it.
+    :returns: the columns :func:`_per_cell_features` names.
+    """
+    measured = frame.loc[:, _per_cell_features(frame, table)]
+    if dtype is not None:
+        measured = measured.astype(dtype)
+    return measured.reset_index(drop=True)
+
+def _per_cell_site(fields: pd.Series) -> pd.Series:
+    """The field number of each row, as an integer when every id has one.
+
+    :param fields: ``fieldID`` values such as ``'f3'``.
+    :returns: the numbers, or the ids unchanged when one does not parse.
+    """
+    numbers = pd.to_numeric(fields.astype(str).str.lstrip("f"),
+                            errors="coerce")
+    if numbers.isna().any() or (numbers % 1 != 0).any():
+        return fields.reset_index(drop=True)
+    return numbers.astype("int32").reset_index(drop=True)
+
+
+def _per_cell_wells(rows: pd.Series, columns: pd.Series) -> pd.Series:
+    """Plate-map well names (``'B02'``) for row and column ids.
+
+    :param rows: ``rowID`` values.
+    :param columns: ``columnID`` values.
+    :returns: the names; a pair with no well name gets a missing value.
+    """
+    from .schema import KeyParseError, well_id
+
+    names: Dict[Tuple[str, str], Any] = {}
+    pairs = list(zip(rows.astype(str), columns.astype(str)))
+    for pair in set(pairs):
+        try:
+            names[pair] = well_id(*pair)
+        except (KeyParseError, ValueError, TypeError):
+            names[pair] = None
+    return pd.Series([names[pair] for pair in pairs], dtype=object)
+
+
+def per_cell_table(db_path: str, *, nucleus: str = "largest",
+                   dtype: Optional[str] = "float32") -> pd.DataFrame:
+    """Join cell, cytoplasm and nucleus into one row per cell.
+
+    Every cell of the ``cell`` table gives one row, in table order. Its
+    cytoplasm (same field and ``object_label``) is joined one to one. Its
+    nuclei are the ``nucleus`` rows whose ``cell_id`` names it: with
+    ``nucleus="largest"`` the nucleus with the largest ``nucleus_area``
+    supplies the nucleus columns (ties go to the lower label), with
+    ``"mean"`` or ``"median"`` each nucleus column is that statistic over
+    the cell's nuclei. ``Metadata_n_nuclei`` counts them; a cell without a
+    nucleus has 0 and missing (NaN) nucleus columns. Nuclei outside every
+    cell are left out and counted in ``attrs``.
+
+    Metadata columns come first: ``Metadata_Plate``, ``Metadata_Well``,
+    ``Metadata_Site``, ``Metadata_timeID`` (timelapse only),
+    ``Metadata_cell_id`` and ``Metadata_n_nuclei``, as pycytominer expects
+    them. Then come the ``cell_*``, ``cytoplasm_*`` and ``nucleus_*``
+    measurements. Absolute positions (centroids, bounding boxes and the
+    distance to the field edge) are kept as ``Location_*``, which says where
+    a cell was rather than what it looked like, so profiling tools that skip
+    CellProfiler's ``Location_*`` skip them too. Identity and provenance
+    columns are dropped.
+
+    :param db_path: a ``measurements.db`` with a ``cell`` table, read
+        read-only through :func:`spacr.tabular.read_database`.
+    :param nucleus: ``"largest"``, ``"mean"`` or ``"median"``, how a cell
+        with several nuclei gets its nucleus columns.
+    :param dtype: the type of the measurement columns, ``"float32"`` to
+        halve the file size, or ``None`` to keep them as stored.
+    :returns: one row per cell. ``attrs["per_cell"]`` holds ``n_cells``,
+        ``n_nuclei``, ``nuclei_without_cell``, ``cells_without_nucleus``,
+        ``cells_multi_nucleus``, ``nucleus`` and ``tables``.
+    :raises ValueError: for an unknown ``nucleus``, a database without a
+        cell table, missing key columns, duplicate cell or cytoplasm rows,
+        or a measured column without its object's prefix.
+    """
+    from .tabular import database_tables, read_database
+
+    if nucleus not in _PER_CELL_NUCLEUS:
+        raise ValueError(f"unknown nucleus choice {nucleus!r}; choose "
+                         f"{', '.join(_PER_CELL_NUCLEUS)}")
+    present = set(database_tables(db_path))
+    if "cell" not in present:
+        raise ValueError(f"{db_path} has no cell table, so there is no cell "
+                         "to give a row; measure with a cell mask first")
+    names = [table for table in _PER_CELL_TABLES if table in present]
+    frames = dict(zip(names, read_database(
+        db_path, names, report=None, read_only=True, migrate=False)))
+    cell = frames["cell"]
+    keys = ["prcf"] + (["timeID"] if all(
+        "timeID" in frame.columns for frame in frames.values()) else [])
+    for table, frame in frames.items():
+        needed = keys + ["object_label"] + (
+            ["cell_id"] if table == "nucleus" else [])
+        missing = [name for name in needed if name not in frame.columns]
+        if missing:
+            raise ValueError(f"the {table} table has no "
+                             f"{', '.join(missing)} column to join on")
+    label = keys + ["object_label"]
+    if cell.duplicated(label).any():
+        raise ValueError("the cell table has two rows for one cell "
+                         "(same field and object_label)")
+
+    joined = pd.concat([cell.loc[:, label].reset_index(drop=True),
+                        _per_cell_values(cell, "cell", dtype)], axis=1)
+    if "cytoplasm" in frames:
+        cytoplasm = frames["cytoplasm"]
+        if cytoplasm.duplicated(label).any():
+            raise ValueError("the cytoplasm table has two rows for one cell "
+                             "(same field and object_label)")
+        joined = joined.merge(
+            pd.concat([cytoplasm.loc[:, label].reset_index(drop=True),
+                       _per_cell_values(cytoplasm, "cytoplasm", dtype)], axis=1),
+            on=label, how="left", validate="one_to_one")
+    summary: Dict[str, Any] = {"n_cells": int(len(cell)), "nucleus": nucleus,
+                               "tables": names}
+    if "nucleus" in frames:
+        nuclei = frames["nucleus"]
+        linked = nuclei.loc[nuclei["cell_id"].notna()].copy()
+        linked["object_label"] = pd.to_numeric(linked["cell_id"]).astype(
+            cell["object_label"].dtype)
+        measured = _per_cell_values(linked, "nucleus", dtype)
+        if nucleus == "largest" and "nucleus_area" not in measured.columns:
+            raise ValueError("the nucleus table has no nucleus_area, so the "
+                             "largest nucleus cannot be chosen; use mean or "
+                             "median")
+        nucleus_rows = pd.concat([
+            linked.loc[:, label].reset_index(drop=True),
+            pd.Series(np.arange(len(linked)), name="_order"), measured],
+            axis=1)
+        grouped = nucleus_rows.groupby(label, dropna=False, sort=False)
+        counts = grouped.size().rename("Metadata_n_nuclei").reset_index()
+        features = list(measured.columns)
+        if nucleus == "largest":
+            area = pd.to_numeric(nucleus_rows["nucleus_area"]).fillna(-np.inf)
+            chosen = (nucleus_rows.assign(_area=-area)
+                      .sort_values(label + ["_area", "_order"], kind="mergesort")
+                      .drop_duplicates(label, keep="first"))
+            chosen = chosen.loc[:, label + features]
+        else:
+            chosen = getattr(grouped[features], nucleus)().reset_index()
+            if dtype is not None:
+                chosen[features] = chosen[features].astype(dtype)
+        chosen = chosen.merge(counts, on=label, validate="one_to_one")
+        joined = joined.merge(chosen, on=label, how="left",
+                              validate="one_to_one")
+        joined["Metadata_n_nuclei"] = (joined["Metadata_n_nuclei"]
+                                       .fillna(0).astype("int32"))
+        summary.update(
+            n_nuclei=int(len(nuclei)),
+            nuclei_without_cell=int(nuclei["cell_id"].isna().sum()),
+            cells_without_nucleus=int((joined["Metadata_n_nuclei"] == 0).sum()),
+            cells_multi_nucleus=int((joined["Metadata_n_nuclei"] > 1).sum()))
+    metadata = pd.DataFrame(index=pd.RangeIndex(len(joined)))
+    if "plateID" in cell.columns:
+        metadata["Metadata_Plate"] = cell["plateID"].to_numpy()
+    if {"rowID", "columnID"} <= set(cell.columns):
+        metadata["Metadata_Well"] = _per_cell_wells(
+            cell["rowID"], cell["columnID"]).to_numpy()
+    if "fieldID" in cell.columns:
+        metadata["Metadata_Site"] = _per_cell_site(cell["fieldID"]).to_numpy()
+    if "timeID" in keys:
+        metadata["Metadata_timeID"] = joined["timeID"].to_numpy()
+    metadata["Metadata_cell_id"] = joined["object_label"].to_numpy()
+    if "Metadata_n_nuclei" in joined.columns:
+        metadata["Metadata_n_nuclei"] = joined.pop(
+            "Metadata_n_nuclei").to_numpy()
+    measured = joined.drop(columns=label)
+    measured = measured.rename(columns={
+        name: f"Location_{name}" for name in measured.columns
+        if _PER_CELL_LOCATION.search(name)})
+    out = pd.concat([metadata, measured.reset_index(drop=True)], axis=1)
+    out.attrs["per_cell"] = summary
+    return out
+
+
+def export_per_cell(db_path: str, out_dir: Optional[str] = None, *,
+                    name: str = "per_cell", nucleus: str = "largest",
+                    formats: Sequence[str] = _PER_CELL_FORMATS,
+                    drop_flagged: bool = False,
+                    dtype: Optional[str] = "float32") -> Dict[str, str]:
+    """Write the one-row-per-cell table of a run as Parquet and CSV.
+
+    Builds the table with :func:`per_cell_table`, runs Feature QC
+    (:func:`flag_degenerate_features`) on its measurement columns and
+    writes ``<name>_feature_qc.csv``, then the table itself through
+    :func:`spacr.tabular.write_table`, and ``<name>.json`` with the counts
+    (cells, nuclei, cells without or with several nuclei, nuclei outside
+    every cell), the options and the flagged and dropped columns. A Parquet
+    file is skipped, and said so in the JSON, when pyarrow is missing.
+
+    :param db_path: the run's ``measurements.db``.
+    :param out_dir: the folder to write into; ``None`` writes beside
+        ``measurements.db``.
+    :param name: the file name stem.
+    :param nucleus: ``"largest"``, ``"mean"`` or ``"median"``, see
+        :func:`per_cell_table`.
+    :param formats: any of ``"parquet"`` and ``"csv"``.
+    :param drop_flagged: leave the columns Feature QC flags out of the
+        written table.
+    :param dtype: the type of the measurement columns, see
+        :func:`per_cell_table`.
+    :returns: ``{kind: path}`` of everything written: ``parquet``, ``csv``,
+        ``feature_qc`` and ``summary``.
+    :raises ValueError: for an unknown format, or anything
+        :func:`per_cell_table` refuses.
+    """
+    import json
+    import os
+
+    from .tabular import write_table
+
+    unknown = [kind for kind in formats if kind not in _PER_CELL_FORMATS]
+    if unknown:
+        raise ValueError(f"unknown format {', '.join(map(str, unknown))}; "
+                         f"choose from {', '.join(_PER_CELL_FORMATS)}")
+    table = per_cell_table(db_path, nucleus=nucleus, dtype=dtype)
+    summary = dict(table.attrs.get("per_cell", {}))
+    folder = out_dir or os.path.dirname(os.path.abspath(db_path))
+    features = [column for column in table.columns
+                if not str(column).startswith(("Metadata_", "Location_"))]
+    flagged = flag_degenerate_features(table, features)
+    written: Dict[str, str] = {}
+    written["feature_qc"] = write_table(
+        flagged, os.path.join(folder, f"{name}_feature_qc.csv"),
+        canonicalise=False)
+    dropped = list(flagged["feature"]) if drop_flagged else []
+    if dropped:
+        table = table.drop(columns=dropped)
+    skipped = []
+    for kind in formats:
+        try:
+            written[kind] = write_table(
+                table, os.path.join(folder, f"{name}.{kind}"),
+                canonicalise=False)
+        except ImportError as exc:
+            skipped.append(f"{kind}: {exc}")
+    summary.update(
+        database=os.path.abspath(db_path), n_rows=int(len(table)),
+        n_features=int(sum(1 for column in table.columns if not str(
+            column).startswith(("Metadata_", "Location_")))),
+        flagged=int(len(flagged)), dropped=dropped, skipped=skipped,
+        options={"nucleus": nucleus, "formats": list(formats),
+                 "drop_flagged": bool(drop_flagged), "dtype": dtype},
+        files={kind: path for kind, path in written.items()})
+    path = os.path.join(folder, f"{name}.json")
+    with open(path, "w", encoding="utf-8") as handle:
+        json.dump(summary, handle, indent=2)
+    written["summary"] = path
+    return written
+
+
 def _read_well_profiles(databases: Sequence[Any], *,
                         tables: Optional[Sequence[str]] = None,
                         operation: str = "median",

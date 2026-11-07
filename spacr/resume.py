@@ -320,7 +320,7 @@ COSMETIC_SETTINGS = frozenset({
     'microscope_interval_seconds', 'plot', 'verbose', 'progress', 'update_gui',
     'cloud_anonymous', 'cloud_profile', 'cloud_endpoint', 'cloud_cache',
     'cloud_results',
-    'feature_qc_drop',
+    'feature_qc_drop', 'per_cell_export', 'per_cell_nucleus',
     'profiling', 'profiling_metadata', 'profiling_treatment_column',
     'profiling_negative_control', 'profiling_normalization',
     'profiling_feature_selection', 'profiling_correlation_threshold',

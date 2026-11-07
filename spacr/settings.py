@@ -2008,6 +2008,8 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('measurement_backend', 'sqlite')
     settings.setdefault('measurement_backend_target', '')
     settings.setdefault('feature_qc_drop', False)
+    settings.setdefault('per_cell_export', False)
+    settings.setdefault('per_cell_nucleus', 'largest')
     settings.setdefault('profiling', False)
     settings.setdefault('profiling_metadata', '')
     settings.setdefault('profiling_treatment_column', 'columnID')
@@ -4035,6 +4037,8 @@ expected_types = {
     "measurement_backend": str,
     "measurement_backend_target": str,
     "feature_qc_drop": bool,
+    "per_cell_export": bool,
+    "per_cell_nucleus": str,
     "profiling": bool,
     "profiling_metadata": str,
     "profiling_treatment_column": (str, list),
@@ -5490,6 +5494,8 @@ tooltips = {
     "profiling_min_variance": "(float) - Feature quality control after normalisation: a feature whose variance over the wells is not above this is dropped as near-constant (variance_threshold). Needs variance_threshold in profiling_feature_selection. Default 0.000001.",
     "profiling_phenotype_column": "(str) - Optional plate-map column holding a phenotype label that different treatments share, such as a mechanism of action, pathway or target gene. When set, consensus profiles are also scored for phenotypic consistency: how well treatments with the same label retrieve each other, as mAP per label. Default blank.",
     "feature_qc_drop": "(bool) - Remove the columns Feature QC flags from the cell, cytoplasm, nucleus and pathogen tables of measurements.db at the end of the run, before profiling reads them. Every complete run lists all-missing, mostly-missing, numerically zero, constant and spike-dominated columns in feature_qc.csv and feature_qc.json beside measurements.db; this only decides whether they are also dropped. Removal cannot be undone. Default False.",
+    "per_cell_export": "(bool) - At the end of a complete run, write one row per cell to per_cell.parquet and per_cell.csv beside measurements.db: the cell, its cytoplasm and its nucleus columns side by side, with Metadata_n_nuclei counting the cell's nuclei. A cell without a nucleus keeps its row with empty (NaN) nucleus columns; nuclei outside every cell are left out. Feature QC runs on the joined table and writes per_cell_feature_qc.csv; with feature_qc_drop on, the flagged columns are also left out of the export. Positions are renamed Location_*. per_cell.json records the counts. Default False.",
+    "per_cell_nucleus": "(str) - Which nucleus columns a cell with several nuclei gets in the per-cell export. largest takes the nucleus with the largest nucleus_area; mean and median average each nucleus column over all of the cell's nuclei. Cells with one nucleus are the same under all three. Only used when per_cell_export is on. Default largest.",
     "profiling_databases": "(list) - Further measurements.db files to profile together with this run's, one per plate, so replicates on different plates are compared while each plate is still normalised on its own. Every plate needs a distinct plateID. Default [].",
     "cell_cycle": "(bool) - Call the cell-cycle phase of every nucleus after measuring, from the DNA stain: G1, S, G2 or M, plus subG1 and >4N outside the peaks. Writes one row per nucleus to measurements.db:cell_cycle with the call in cell_cycle_phase, the phase fractions per well, overall and in infected and uninfected cells, to cell_cycle_well, and with plot on each plate's fitted DNA histogram. Needs measured nuclei. Default False.",
     "cell_cycle_method": "(str) - How phases are called. measurements gates each plate's DNA-content histogram, fitted as G1 and G2 peaks with S between, and calls condensed 4N nuclei M. xgboost trains a boosted classifier on nucleus features, torch trains an image classifier on nucleus crops with Classify's training; both learn from cell_cycle_labels. all runs the three and keeps their majority. Default measurements.",
@@ -6319,7 +6325,7 @@ categories = {
         "profiling_na_cutoff", "profiling_outlier_cutoff",
         "profiling_min_variance",
         "profiling_phenotype_column", "profiling_databases",
-        "feature_qc_drop",
+        "feature_qc_drop", "per_cell_export", "per_cell_nucleus",
     ],
 
     "Cell Cycle α": [
@@ -8146,6 +8152,9 @@ ALPHA_FEATURES = {
     },
     791: {
         'settings': ('feature_qc_drop',),
+    },
+    769: {
+        'settings': ('per_cell_export', 'per_cell_nucleus'),
     },
     547: {
         'settings': ('profiling', 'profiling_metadata',

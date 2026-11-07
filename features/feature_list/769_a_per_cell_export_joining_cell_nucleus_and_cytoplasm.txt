@@ -1,7 +1,7 @@
 A PER-CELL EXPORT JOINING CELL, NUCLEUS AND CYTOPLASM
 
 Lifecycle: future
-Status: not started
+Status: DONE 2026-11-07 (alpha) — spacr.sp_stats.per_cell_table(db) joins cell, cytoplasm (1:1) and nucleus into one row per cell: the largest nucleus by nucleus_area, or the mean or median over the cell's nuclei (new Measure setting per_cell_nucleus), Metadata_n_nuclei, NaN nucleus columns for cells without one, nuclei outside every cell left out and counted; positions renamed Location_*. spacr.sp_stats.export_per_cell writes per_cell.parquet and per_cell.csv through spacr.tabular.write_table, runs Feature QC (item 791) on the joined table (per_cell_feature_qc.csv; flagged columns left out with drop_flagged) and per_cell.json with the counts. Measure writes it at the end of a complete run when per_cell_export is on (alpha: ALPHA_FEATURES[769] settings per_cell_export, per_cell_nucleus, under Profiling α); feature_qc_drop also drops the flagged columns from the export. Check: on BBBC021 plates Week1_22123 (pilot, 1,192 cells) and Week9_39301 (16,898 cells) the table equals the driver's parquet row for row in all 571 shared columns; the only extra columns are the 23 all-+inf *_pathogen_* distances of these pre-item-799 databases, which Feature QC flags. spacr/sp_stats.py, spacr/measure.py, spacr/settings.py, tests/test_per_cell_export.py.
 Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
            (BMC spaCR paper) worked around must become a spaCR item.
 Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/spacr/README.md, "Gaps in spaCR worked around here", gap 11
@@ -44,4 +44,10 @@ row.
 DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
 
-Nothing yet.
+- No button on a screen: the export runs from Measure (per_cell_export) and
+  from the Python API.
+- Pathogen and organelle tables are not joined; the item names cell,
+  nucleus and cytoplasm, and a cell can hold many pathogens.
+- The driver's own key columns (plate, well, site) are named
+  Metadata_Plate, Metadata_Well and Metadata_Site here, as pycytominer
+  expects; the BBBC021 scoring scripts read the driver's names.

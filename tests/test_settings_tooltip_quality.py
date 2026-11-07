@@ -1266,6 +1266,18 @@ if app_key == "mask":
     for app, key in feature_qc_arrivals:
         assert resolve_default_settings(app)[key] is False
     recognized_arrivals |= feature_qc_arrivals
+    # Item 769 adds per_cell_export, one parseable claim (False) resolved by
+    # Measure and External Masks; per_cell_nucleus says "Default largest.",
+    # a bare word the claim parser does not compare.
+    per_cell_arrivals = {(app, "per_cell_export")
+                         for app in ("measure", "external_masks")}
+    assert {pair for pair in compared_pairs if pair[1] in {
+        "per_cell_export", "per_cell_nucleus"}} == per_cell_arrivals
+    assert not per_cell_arrivals & (recognized_arrivals | variants.keys())
+    for app in ("measure", "external_masks"):
+        assert resolve_default_settings(app)["per_cell_export"] is False
+        assert resolve_default_settings(app)["per_cell_nucleus"] == "largest"
+    recognized_arrivals |= per_cell_arrivals
     # Item 807: the three label-free feature-QC thresholds of profiling,
     # each with one default claim equal to the value Measure resolves.
     profiling_qc_defaults = {"profiling_na_cutoff": 0.05,
