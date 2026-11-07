@@ -118,7 +118,7 @@ def test_the_unit_is_in_the_row_label_not_the_cell(grid):
     row = grid.questions().index("diameter")
     assert model.headerData(row, Qt.Vertical, Qt.DisplayRole) == "Diameter (px)"
     tip = _shown(grid, "cell", Qt.ToolTipRole)
-    assert "magnification default" in tip and "auto" in tip
+    assert "magnification" in tip and "pixel_size_um" in tip and "auto" in tip
 
 
 def test_a_loaded_auto_survives_the_round_trip(qtbot, qt_theme_applied):
