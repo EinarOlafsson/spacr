@@ -1,0 +1,19 @@
+MEASURE KEEPS A FIELD WHEN ONE NUCLEUS OVERLAPS TWO CELLS
+=========================================================
+
+Lifecycle: new
+Status: open
+Requested: maintainer, 2026-11-06 (BMC paper HRMAn reanalysis, gap G10).
+Owner: unassigned.
+
+WHAT THE STATE IS
+BUG: measure_crop drops a whole field when one nucleus overlaps two cells; it
+lost 21 of 900 titration fields.
+
+WHAT TO DO
+- Assign the nucleus to the cell with the largest overlap and flag it
+  nucleus_shared=True.
+- Report the count of shared nuclei in the run report.
+- Test: a synthetic field with one nucleus straddling two cells.
+
+Evidence: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/hrman/REPORT.md
