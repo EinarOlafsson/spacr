@@ -518,6 +518,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_ownership", "ops_flatfield", "ops_flatfield_maps",
     "ops_flatfield_fields", "ops_flatfield_field_list",
     "ops_ph_funk_features",
+    # TVN profiles for the OPS aggregate phase (item 854, 2026-11-07).
+    "ops_profile_normalisation", "ops_tvn_mode", "ops_tvn_pca_sample",
+    "ops_tvn_seed", "ops_tvn_components", "ops_tvn_whiten_epsilon",
     # `window_length`, the new name for `expected_end` (364, 2026-09-09).
     "window_length",
     # and `min_observations_per_hit`, the new name for `min_n`.

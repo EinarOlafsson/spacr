@@ -74,6 +74,12 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_flatfield_fields": 204,
     "ops_flatfield_field_list": None,
     "ops_ph_funk_features": False,
+    "ops_profile_normalisation": "robust_z",
+    "ops_tvn_mode": "streamed",
+    "ops_tvn_pca_sample": 100000,
+    "ops_tvn_seed": 0,
+    "ops_tvn_components": None,
+    "ops_tvn_whiten_epsilon": 0.0,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -131,6 +137,12 @@ OPS_TYPES: Dict[str, object] = {
     "ops_flatfield_fields": int,
     "ops_flatfield_field_list": (str, type(None)),
     "ops_ph_funk_features": bool,
+    "ops_profile_normalisation": str,
+    "ops_tvn_mode": str,
+    "ops_tvn_pca_sample": int,
+    "ops_tvn_seed": int,
+    "ops_tvn_components": (float, int, type(None)),
+    "ops_tvn_whiten_epsilon": (float, int),
 }
 
 #: Which panel section each setting appears under.
@@ -170,7 +182,9 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_design", "ops_control_prefix", "ops_bootstrap",
         "ops_pvalue_null", "ops_test_features", "ops_mitotic_dna_z",
         "ops_genotype_table", "ops_pool_wells", "ops_pool_interphase",
-        "ops_feature_qc",
+        "ops_feature_qc", "ops_profile_normalisation", "ops_tvn_mode",
+        "ops_tvn_pca_sample", "ops_tvn_seed", "ops_tvn_components",
+        "ops_tvn_whiten_epsilon",
     ],
 }
 
@@ -468,6 +482,44 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "every well, because their control cells have no spread. Such a "
         "column would be empty in both tables. Each one is listed with its "
         "reason in ops_feature_qc_<plate>.csv. Default True. Alpha.",
+    "ops_profile_normalisation":
+        "(str) - How guide and gene profiles are normalised. 'robust_z' "
+        "scales every feature against its well's non-targeting cells. "
+        "'tvn' also writes typical variation normalisation profiles, as "
+        "Brieflow makes them: components in which the non-targeting cells "
+        "of every well have the same spread in every direction. TVN "
+        "profiles cluster better, but their components have no feature "
+        "names, so the gene test still uses the robust z tables. "
+        "Default 'robust_z'. Alpha.",
+    "ops_tvn_mode":
+        "(str) - 'streamed' fits TVN one well at a time and keeps only the "
+        "control cells and a sample in memory, so it suits whole plates "
+        "and pools of plates. 'in_memory' holds every cell at once, as "
+        "Brieflow does, and needs about four times the size of the cell "
+        "table in memory. The two differ only in the PCA sample. "
+        "Default 'streamed'. Alpha.",
+    "ops_tvn_pca_sample":
+        "(int) - The number of cells, drawn at random, that the PCA of TVN "
+        "is fitted on. The whitening gives weak PCA directions full "
+        "weight, so a different sample changes those directions and the "
+        "gene similarities they carry. A larger sample makes them steadier "
+        "and costs memory. Default 100000. Alpha.",
+    "ops_tvn_seed":
+        "(int) - The seed of the TVN PCA sample. Change it to see how much "
+        "the profiles depend on the sample. Default 0. Alpha.",
+    "ops_tvn_components":
+        "(float, int or None) - Keep only the leading control directions "
+        "of TVN: a whole number keeps that many, a fraction below 1 keeps "
+        "the directions holding that share of the control variance. The "
+        "dropped directions are the weak ones that the whitening would "
+        "blow up. Empty keeps all of them, as Brieflow does. "
+        "Default None. Alpha.",
+    "ops_tvn_whiten_epsilon":
+        "(float) - Added to the control variance of every TVN direction "
+        "before it is scaled to 1, so weak directions are shrunk instead of "
+        "blown up. 0 is Brieflow's whitening; 0.1 shrinks directions that "
+        "hold less than a tenth of a feature's control variance. "
+        "Default 0. Alpha.",
     "ops_mitotic_dna_z":
         "(float) - A cell is called mitotic when its nuclear mean DAPI "
         "intensity is this many robust standard deviations above its well's "

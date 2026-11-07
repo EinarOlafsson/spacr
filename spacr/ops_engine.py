@@ -3186,7 +3186,8 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         ``ops_bootstrap``, ``ops_pvalue_null``, ``ops_test_features``,
         ``ops_mitotic_dna_z``, ``ops_genotype_table``, ``ops_pool_wells``,
         ``ops_pool_interphase``, ``ops_feature_qc``, ``ops_ownership``,
-        ``ops_flatfield`` and ``ops_flatfield_maps``.
+        ``ops_flatfield``, ``ops_flatfield_maps``,
+        ``ops_profile_normalisation`` and the ``ops_tvn_*`` options.
     :param destination: where ``ops_guides_<plate>`` and
         ``ops_genes_<plate>`` (CSV and Parquet) are written. A run that pools
         only interphase cells or only some wells adds ``_interphase`` or
@@ -3227,7 +3228,11 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     for the field's illumination from the mask pass's gains
     (:func:`spacr.ops_flatfield.correct_features`) before anything else,
     the mitotic call included; with ``'exact'`` the measurement already
-    corrected the pixels and nothing more is done here.
+    corrected the pixels and nothing more is done here. With ``ops_profile_normalisation``
+    set to ``'tvn'`` the run also writes TVN profiles
+    (:mod:`spacr.ops_tvn`) as ``ops_guides_<plate>[tag]_tvn`` and
+    ``ops_genes_<plate>[tag]_tvn``; the robust z tables are still written,
+    because the per-gene test needs named features.
     """
     import pandas as pd
     import pyarrow.parquet as pq
@@ -3386,6 +3391,12 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         raise ValueError(tr(
             "ops_pvalue_null must be calibrated or cell_bootstrap; got "
             "{value}", value=null))
+    normalisation = str(settings.get("ops_profile_normalisation")
+                        or "robust_z").strip().lower()
+    if normalisation not in ("robust_z", "tvn"):
+        raise ValueError(tr(
+            "ops_profile_normalisation must be robust_z or tvn; got {value}",
+            value=normalisation))
     named = _ph_names(settings.get("ops_test_features"))
     absent = [c for c in named if c not in features]
     if absent:
@@ -3468,6 +3479,21 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
                                   f"ops_{name}_{plate}{tag}.{suffix}")
             write_table(table, target, canonicalise=False)
             outputs[f"{name}_{suffix}"] = target
+    tvn_report = None
+    if normalisation == "tvn":
+        from .ops_tvn import _aggregate_tvn
+        tvn_settings = {key: settings.get(key) for key in (
+            "ops_tvn_mode", "ops_tvn_pca_sample", "ops_tvn_seed",
+            "ops_tvn_components", "ops_tvn_whiten_epsilon")}
+        tvn_guides, tvn_genes, tvn_report = _aggregate_tvn(
+            sources, rows, cells[["well", "sgRNA", "gene"]], keep,
+            control.to_numpy(), features, tvn_settings, _ph_read_columns)
+        for name, table in (("guides", tvn_guides), ("genes", tvn_genes)):
+            for suffix in ("csv", "parquet"):
+                target = os.path.join(destination,
+                                      f"ops_{name}_{plate}{tag}_tvn.{suffix}")
+                write_table(table, target, canonicalise=False)
+                outputs[f"{name}_tvn_{suffix}"] = target
     if feature_qc:
         target = os.path.join(destination,
                               f"ops_feature_qc_{plate}{tag}.csv")
@@ -3504,6 +3530,8 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         "bootstrap": boot, "bootstrap_features": tested,
         "pvalue_null": null if tested else None,
         "null_parameters": null_parameters,
+        "profile_normalisation": normalisation,
+        "tvn": tvn_report,
         "outputs": outputs,
         "seconds": round(time.perf_counter() - started, 1),
     }
