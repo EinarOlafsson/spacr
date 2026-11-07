@@ -2885,6 +2885,7 @@ API_ENTRIES = (
     ('spacr.measure._pin_cupy_cudart_headers._pinned', "The pinned runtime header directory for ``cudart``, else the finder's answer."),
     ('spacr.measure._save_viability_figures._keep', 'Save one figure under the viability results folder.'),
     ('spacr.measure._stain_cut._share', "Share of the plate's objects above ``threshold``."),
+    ('spacr.measure._torch_homogeneity.at', 'Homogeneity of every object at horizontal offset ``d``.'),
     ('spacr.measure._torch_intensity_table.host', 'Copy a tensor to a NumPy array.'),
     ('spacr.measure._two_population_fit._mixture', 'The fitted two-population density at ``v``.'),
     ('spacr.measure._two_population_fit._near', 'How many values lie within ``reach`` of ``v``.'),
