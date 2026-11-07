@@ -1,7 +1,7 @@
 SEGMENTATION ILLUMINATION WITH SEPARATE PREPROCESSING
 
 Lifecycle: future
-Status: not started
+Status: DONE 2026-11-07 (alpha) — illumination_for_later_masks (new on Make Masks, alpha: ALPHA_FEATURES[802], default False): with illumination_correction on, preprocess=True, masks=False prepares the segmentation flat field, applies it to the normalised mask inputs and writes illumination/segmentation_application.json, exactly as a combined run does; the later preprocess=False, masks=True run reads that record back through the existing load_segmentation_illumination_resume check and segments the same corrected inputs. spacr/io.py (_segmentation_inputs_wanted), spacr/settings.py; tests/test_segmentation_illumination_with_separate_preprocessing.py: split and combined runs give identical normalised inputs and identical masks on a known vignette, and without the setting the preprocess-only run stays uncorrected and the illuminated masks-only run refuses.
 Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
            (BMC spaCR paper) worked around must become a spaCR item.
 Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/spacr/README.md, "Gaps in spaCR worked around here", gap 9
@@ -40,6 +40,11 @@ gives masks identical to one combined call with illumination on.
 DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
 
-Nothing yet.
+- Off by default while alpha, so a preprocess-only run keeps its previous
+  uncorrected inputs unless the setting is on. Promoting it, or making it
+  the behaviour whenever illumination_correction is on, is the
+  maintainer's call.
+- The pipeline_style='v2' path always preprocesses and segments in one
+  call and is unchanged.
 
 2026-11-05: renumbered from 767 to 802; nightly already used 755-768 for other items.

@@ -4386,7 +4386,7 @@ def preprocess_img_data(settings):
                                             metadata_well_map=metadata_well_map)):
             print('Found existing masks folder. Skipping preprocessing')
             if (settings.get('illumination_correction', False) and
-                    settings.get('masks', True)):
+                    _segmentation_inputs_wanted(settings)):
                 from .illumination import (
                     load_segmentation_illumination_resume,
                 )
@@ -4500,7 +4500,7 @@ def preprocess_img_data(settings):
 
     illumination_session = None
     if (settings.get('illumination_correction', False) and
-            settings.get('masks', True)):
+            _segmentation_inputs_wanted(settings)):
         from .illumination import prepare_segmentation_illumination
         illumination_session = prepare_segmentation_illumination(
             settings,
@@ -4531,6 +4531,18 @@ def preprocess_img_data(settings):
         settings[f"cellpose_{key}"] = seen[ch]
             
     return settings, src
+
+def _segmentation_inputs_wanted(settings):
+    """Whether this run's mask inputs are for segmentation, now or later.
+
+    True when the run segments (``masks``), and, with
+    ``illumination_for_later_masks`` (item 802), for a preprocess-only run
+    whose inputs a later masks-only run segments: their segmentation
+    illumination correction is then applied and recorded here, as one
+    combined run would.
+    """
+    return bool(settings.get('masks', True) or
+                settings.get('illumination_for_later_masks', False))
 
 def _check_masks(batch, batch_filenames, output_folder, resume=False):
     """

@@ -1212,6 +1212,18 @@ def _assigned_mask_archives(src, batch_paths):
     return selected
 
 
+def _shares_a_gpu(settings):
+    """Whether this mask worker shares its GPU with others (item 801).
+
+    Workers sharing a card run Cellpose under the GPU memory governor, so
+    one that does not fit shrinks its batch or waits instead of failing.
+    """
+    try:
+        return int(settings.get('mask_workers_per_gpu') or 1) > 1
+    except (TypeError, ValueError):
+        return False
+
+
 def _segmentation_input_channels(channels, extracted_count, model):
     """Give InstanSeg every selected intensity channel, object channel first.
 
@@ -1663,9 +1675,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                                 {**settings, f'{object_type}_diameter': 'auto'},
                                 object_type, float(np.median(measured)))
                     elif z_plan is None and t_plan is None:
-                        output = model.eval(
-                            x=batch_list,
-                            batch_size=len(batch_list),
+                        eval_kwargs = dict(
                             normalize=False,
                             channel_axis=-1,
                             min_size=object_settings['min_size'],
@@ -1675,8 +1685,17 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                                 object_type, object_settings['diameter']),
                             flow_threshold=flow_threshold,
                             cellprob_threshold=cellprob_threshold,
-                            resample=object_settings['resample']
-                            )
+                            resample=object_settings['resample'])
+                        if _shares_a_gpu(settings):
+                            from ._gpu_governor import _governed_eval
+                            output = _governed_eval(
+                                model, batch_list, site='mask_shared_gpu',
+                                settings=settings, batch_size=len(batch_list),
+                                **eval_kwargs)
+                        else:
+                            output = model.eval(
+                                x=batch_list, batch_size=len(batch_list),
+                                **eval_kwargs)
 
                         masks, flows = parse_cellpose4_output(output)[:2]
                         del output

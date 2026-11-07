@@ -999,18 +999,88 @@ def _selected_gpu_indices(value):
     return indices
 
 
+#: Device memory one Cellpose-SAM mask worker is budgeted, for capping
+#: ``mask_workers_per_gpu`` before any worker starts: the 5 GB the BBBC021
+#: segment processes held at batch size 8 (item 803). The governor sizes
+#: each worker's batches to what is free once they run.
+_MASK_WORKER_BYTES = 5 << 30
+
+
+def _workers_per_gpu(settings):
+    """Parse ``mask_workers_per_gpu``: how many mask workers share each GPU.
+
+    :returns: an int of at least 1; blank or None is 1.
+    :raises ValueError: for a value that is not a positive whole number.
+    """
+    value = settings.get('mask_workers_per_gpu', 1)
+    if value is None or (isinstance(value, str) and not value.strip()):
+        return 1
+    try:
+        if isinstance(value, bool):
+            raise ValueError
+        count = int(str(value).strip())
+    except ValueError:
+        raise ValueError(f'mask_workers_per_gpu must be a whole number of 1 or more, '
+                         f'not {value!r}') from None
+    if count < 1:
+        raise ValueError(f'mask_workers_per_gpu must be 1 or more, not {count}')
+    return count
+
+
+def _worker_slots(device, wanted, settings):
+    """How many of ``wanted`` workers one GPU can hold under the VRAM budget.
+
+    Each worker is budgeted :data:`_MASK_WORKER_BYTES` against the card's
+    memory less ``gpu_memory_margin_gb``, and with ``gpu_memory_fraction``
+    set no more workers start than that fraction fits into the card.
+
+    :param device: a record from ``accelerator._mask_devices``.
+    :param wanted: the requested workers per GPU.
+    :param settings: run settings carrying the governor keys.
+    :returns: the number of workers to start on this GPU, at least 1.
+    """
+    from ._gpu_governor import _config
+
+    config = _config(settings)
+    slots = wanted
+    fraction = config['gpu_memory_fraction']
+    if fraction:
+        slots = min(slots, max(1, int(1.0 / float(fraction) + 1e-9)))
+    total = int(device.get('memory_bytes') or 0)
+    if total > 0:
+        usable = total - float(config['gpu_memory_margin_gb']) * (1 << 30)
+        slots = min(slots, max(1, int(usable // _MASK_WORKER_BYTES)))
+    if slots < wanted:
+        print(f"mask_workers_per_gpu: GPU {device['index']} ({device.get('name', '?')}) "
+              f"has room for {slots} of {wanted} workers under the GPU memory budget; "
+              f'starting {slots}.')
+    return slots
+
+
 def _parallel_mask_plan(settings, devices=None):
     """Choose worker GPUs for this run, or return ``None`` for the ordinary path.
 
-    ``mask_parallel`` off returns ``None`` before any device query. A blank
-    ``mask_gpu_indices`` uses every GPU this process was allocated, so a
-    cluster job uses the devices its scheduler exposed; fewer than two falls
-    back to the ordinary single-device path with a printed note. Explicit
-    indices must name at least two visible devices and are never widened.
+    ``mask_parallel`` off and ``mask_workers_per_gpu`` 1 return ``None``
+    before any device query. A blank ``mask_gpu_indices`` uses every GPU this
+    process was allocated, so a cluster job uses the devices its scheduler
+    exposed; fewer than two falls back to the ordinary single-device path
+    with a printed note. Explicit indices must name at least two visible
+    devices and are never widened.
 
-    :param settings: run settings carrying ``mask_parallel``/``mask_gpu_indices``.
+    ``mask_workers_per_gpu`` above 1 starts that many workers on each chosen
+    GPU, capped by :func:`_worker_slots`, so one worker's preparation and
+    CPU post-processing overlap another's Cellpose call. With
+    ``mask_parallel`` off it uses the first GPU alone, so a single-GPU
+    workstation runs it too. Workers sharing a GPU are named ``<gpu>.<n>``.
+
+    :param settings: run settings carrying ``mask_parallel``,
+        ``mask_gpu_indices`` and ``mask_workers_per_gpu``.
     :param devices: optional device records in ``accelerator._mask_devices`` form.
-    :returns: ``{'devices', 'environments', 'names'}`` or ``None``.
+    :returns: ``{'devices', 'environments', 'names', 'gpus', 'uuids'}`` or
+        ``None``. ``devices`` lists the worker names, ``gpus`` maps each to
+        its GPU and ``uuids`` maps each GPU whose utilisation is sampled to
+        its UUID (``''`` to look it up by index). Stand-in ``devices``
+        without a ``uuid`` are not sampled.
     :raises ValueError: for timelapse/t_stack runs or an invalid selection.
     """
     from .resume import _TRUTHY
@@ -1018,31 +1088,67 @@ def _parallel_mask_plan(settings, devices=None):
     enabled = settings.get('mask_parallel', False)
     if isinstance(enabled, str):
         enabled = enabled.strip().lower() in _TRUTHY
-    if not enabled:
+    per_gpu = _workers_per_gpu(settings)
+    if not enabled and per_gpu == 1:
         return None
     if settings.get('timelapse') or settings.get('t_stack'):
         raise ValueError('Parallel GPU mask batches do not support timelapse or t_stack runs; '
                          'turn mask_parallel off.')
     found = list(_compatible_mask_gpus() if devices is None else devices)
     visible = {device['index']: device for device in found}
-    wanted = _selected_gpu_indices(settings.get('mask_gpu_indices'))
-    if wanted is None:
-        if len(found) < 2:
-            print(f'mask_parallel: {len(found)} compatible GPU visible; '
-                  'using the ordinary single-device mask path.')
-            return None
-        wanted = sorted(visible)
-    missing = [index for index in wanted if index not in visible]
-    if missing or len(wanted) < 2:
-        raise ValueError(f'mask_gpu_indices {wanted} must name two or more of the '
-                         f'visible GPUs {sorted(visible)}.')
+    if enabled:
+        wanted = _selected_gpu_indices(settings.get('mask_gpu_indices'))
+        if wanted is None:
+            if len(found) < 2 and per_gpu == 1:
+                print(f'mask_parallel: {len(found)} compatible GPU visible; '
+                      'using the ordinary single-device mask path.')
+                return None
+            wanted = sorted(visible)
+        else:
+            missing = [index for index in wanted if index not in visible]
+            if missing or len(wanted) < 2:
+                raise ValueError(f'mask_gpu_indices {wanted} must name two or more of the '
+                                 f'visible GPUs {sorted(visible)}.')
+    else:
+        wanted = sorted(visible)[:1]
+    slots = {index: _worker_slots(visible[index], per_gpu, settings) for index in wanted}
+    if not wanted or (not enabled and sum(slots.values()) < 2):
+        print(f'mask_workers_per_gpu: {len(found)} compatible GPU visible and room for '
+              f'{sum(slots.values())} worker; using the ordinary single-device mask path.')
+        return None
     from . import accelerator
 
     backend = found[0]['backend']
     environments = {index: accelerator._mask_worker_environment(
         index, backend=backend, count=len(found)) for index in wanted}
-    return {'devices': list(wanted), 'environments': environments,
-            'names': {index: visible[index]['name'] for index in wanted}}
+    shared = any(count > 1 for count in slots.values())
+    gpus = {}
+    for index in wanted:
+        for slot in range(1, slots[index] + 1):
+            gpus[f'{index}.{slot}' if shared else index] = index
+    uuids = {}
+    for index in wanted:
+        uuid = visible[index].get('uuid') or (_device_uuid(index) if devices is None else None)
+        if uuid is not None:
+            uuids[index] = uuid
+    return {'devices': list(gpus),
+            'environments': {worker: environments[index] for worker, index in gpus.items()},
+            'names': {worker: visible[index]['name'] for worker, index in gpus.items()},
+            'gpus': gpus, 'uuids': uuids}
+
+
+def _device_uuid(index):
+    """The NVML UUID (``GPU-...``) of one logical CUDA device, or ``''``.
+
+    Read from the PyTorch already imported for device discovery; NVML
+    numbers GPUs in bus order, which need not be CUDA's order.
+    """
+    torch = sys.modules.get('torch')
+    try:
+        uuid = str(torch.cuda.get_device_properties(index).uuid)
+    except Exception:                                       # noqa: BLE001
+        return ''
+    return uuid if uuid.startswith('GPU-') else f'GPU-{uuid}'
 
 
 def _failed_archives(state):
@@ -1064,15 +1170,183 @@ def _progress_line(object_type, state):
             f'{state["total_batches"]} archives, failed {_failed_archives(state)}{parts}')
 
 
+_BUSY_PERCENT = 80
+_SAMPLE_SECONDS = 1.0
+_UTILISATION_FILE = 'gpu_utilisation.json'
+
+
+def _nvml_reader(gpus):
+    """A function reading ``{gpu: (busy percent, used bytes)}`` through NVML.
+
+    :param gpus: ``{gpu index: UUID}``; a GPU with no UUID is looked up by
+        index, which matches CUDA's numbering when CUDA_DEVICE_ORDER is
+        PCI_BUS_ID.
+    :returns: the reader, or None when NVML (``nvidia-ml-py``) or a GPU in
+        ``gpus`` cannot be opened.
+    """
+    import warnings
+
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore', FutureWarning)
+            warnings.simplefilter('ignore', DeprecationWarning)
+            import pynvml
+        pynvml.nvmlInit()
+        handles = {}
+        for index, uuid in gpus.items():
+            handles[index] = (pynvml.nvmlDeviceGetHandleByUUID(uuid) if uuid
+                              else pynvml.nvmlDeviceGetHandleByIndex(int(index)))
+    except Exception:                                       # noqa: BLE001
+        return None
+    import functools
+
+    return functools.partial(_nvml_sample, pynvml, handles)
+
+
+def _nvml_sample(pynvml, handles):
+    """One NVML sample of every GPU: ``{gpu: (busy percent, used bytes)}``."""
+    return {index: (float(pynvml.nvmlDeviceGetUtilizationRates(handle).gpu),
+                    int(pynvml.nvmlDeviceGetMemoryInfo(handle).used))
+            for index, handle in handles.items()}
+
+
+class _GpuUtilisation:
+    """Sample how busy each GPU is while one role's workers run.
+
+    A thread reads every GPU each :data:`_SAMPLE_SECONDS`; :meth:`stop`
+    returns, per GPU, the mean busy percentage, the share of samples at or
+    above :data:`_BUSY_PERCENT` and the peak memory in use.
+
+    :param gpus: ``{gpu index: UUID}`` from the worker plan.
+    :param read: optional reader in :func:`_nvml_reader` form, for tests.
+    :param interval: seconds between samples; :data:`_SAMPLE_SECONDS` when
+        None.
+    """
+
+    def __init__(self, gpus, read=None, interval=None):
+        """Open the reader; nothing is sampled until :meth:`start`."""
+        self.read = read if read is not None else _nvml_reader(gpus)
+        self.interval = _SAMPLE_SECONDS if interval is None else interval
+        self.samples = {index: [] for index in gpus}
+        self._stop = threading.Event()
+        self._thread = None
+        self._started = None
+
+    def _sample(self):
+        """Append one reading of every GPU; a failed reading is skipped."""
+        try:
+            values = self.read()
+        except Exception:                                   # noqa: BLE001
+            return
+        for index, value in values.items():
+            if index in self.samples:
+                self.samples[index].append(value)
+
+    def _loop(self):
+        """Sample every interval until stopped."""
+        while not self._stop.wait(self.interval):
+            self._sample()
+
+    def start(self):
+        """Start sampling in a daemon thread, when a reader is available."""
+        self._started = time.monotonic()
+        if self.read is None:
+            return self
+        self._thread = threading.Thread(target=self._loop, name='spacr-gpu-utilisation',
+                                        daemon=True)
+        self._thread.start()
+        return self
+
+    def stop(self):
+        """Stop sampling and summarise.
+
+        :returns: ``{gpu index: {'samples', 'seconds', 'mean_busy_percent',
+            'busy_share', 'peak_memory_gb'}}``; empty when no reader was
+            available.
+        """
+        self._stop.set()
+        if self._thread is not None:
+            self._thread.join(timeout=5.0)
+        if self.read is None:
+            return {}
+        seconds = time.monotonic() - (self._started or time.monotonic())
+        summary = {}
+        for index, values in self.samples.items():
+            busy = [value[0] for value in values]
+            summary[index] = {
+                'samples': len(values),
+                'seconds': round(seconds, 1),
+                'mean_busy_percent': round(sum(busy) / len(busy), 1) if busy else None,
+                'busy_share': (round(sum(1 for value in busy if value >= _BUSY_PERCENT)
+                                     / len(busy), 3) if busy else None),
+                'peak_memory_gb': (round(max(value[1] for value in values) / (1 << 30), 2)
+                                   if values else None),
+            }
+        return summary
+
+
+def _report_gpu_utilisation(mask_src, object_type, plan, summary):
+    """Print one line per GPU and add the role to the plate's utilisation file.
+
+    The file is ``gpu_utilisation.json`` in the plate folder, the parent of
+    ``mask_src``, keyed by role, so each plate keeps its own record.
+
+    :param mask_src: the plate's ``masks`` folder.
+    :param object_type: the role that was segmented.
+    :param plan: the worker plan.
+    :param summary: :meth:`_GpuUtilisation.stop`'s result.
+    """
+    from collections import Counter
+
+    plate_dir = os.path.dirname(os.path.abspath(mask_src))
+    plate = os.path.basename(plate_dir)
+    if not summary:
+        print(f'[gpu] plate {plate} {object_type} masks: GPU utilisation not '
+              'reported; NVML (nvidia-ml-py) cannot read these GPUs.')
+        return
+    workers = Counter((plan.get('gpus') or {}).values())
+    for index, row in sorted(summary.items()):
+        if not row['samples']:
+            continue
+        print(f'[gpu] plate {plate} {object_type} masks: GPU {index} with '
+              f'{workers[index]} workers busy {row["mean_busy_percent"]:.0f}% on average, '
+              f'at least {_BUSY_PERCENT}% in {100 * row["busy_share"]:.0f}% of '
+              f'{row["samples"]} samples over {row["seconds"]:.0f} s; '
+              f'memory up to {row["peak_memory_gb"]:.1f} GB')
+    path = os.path.join(plate_dir, _UTILISATION_FILE)
+    try:
+        with open(path, encoding='utf-8') as handle:
+            record = json.load(handle)
+        if not isinstance(record, dict):
+            record = {}
+    except (OSError, ValueError):
+        record = {}
+    record[object_type] = {str(index): dict(row, workers=workers[index])
+                           for index, row in summary.items()}
+    descriptor, temporary = tempfile.mkstemp(prefix='.gpu_utilisation_', suffix='.json',
+                                             dir=plate_dir)
+    try:
+        with os.fdopen(descriptor, 'w', encoding='utf-8') as handle:
+            json.dump(record, handle, indent=2, sort_keys=True)
+        os.replace(temporary, path)
+    except OSError:
+        try:
+            os.remove(temporary)
+        except OSError:
+            pass
+
+
 def _generate_masks_in_parallel(mask_src, settings, object_type, plan, *,
                                 context=None, segmenter=None):
-    """Segment one role's prepared archives with one model process per GPU.
+    """Segment one role's prepared archives with one model process per worker.
 
     Inputs are inventoried once, partitioned by bytes and signed with the
     resolved model before dispatch. Verified archives from an interrupted run
     are skipped, shared QC runs once in this process, and ``settings`` gains
     the same entries the ordinary generator records. Failures and cancellation
     print completed/failed/unfinished counts and keep every prepared input.
+    While the workers run, each GPU's utilisation is sampled and reported per
+    plate by :func:`_report_gpu_utilisation`.
 
     :param mask_src: the run's ``masks`` folder of prepared NPZ archives.
     :param settings: run settings; updated as the ordinary generator does.
@@ -1103,6 +1377,8 @@ def _generate_masks_in_parallel(mask_src, settings, object_type, plan, *,
         last.update(state)
         print(_progress_line(object_type, state))
 
+    gpus = plan.get('uuids') or {}
+    utilisation = _GpuUtilisation(gpus).start() if gpus else None
     try:
         _run_checkpointed_mask_workers(mask_src, prepared, object_type, assignments,
             plan['environments'], ledger, on_progress=report, context=context,
@@ -1115,6 +1391,9 @@ def _generate_masks_in_parallel(mask_src, settings, object_type, plan, *,
               'Completed masks and every prepared input are kept; '
               'rerun with the same settings to resume.')
         raise
+    finally:
+        if utilisation is not None:
+            _report_gpu_utilisation(mask_src, object_type, plan, utilisation.stop())
     settings['src'] = mask_src
     set_default_settings_preprocess_generate_masks(settings)
     _fill_cellpose_channel_positions(settings)

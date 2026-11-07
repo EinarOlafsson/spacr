@@ -846,6 +846,11 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # by `mask_gpu_indices` (blank means every visible one). Both sit in Mask's
     # Runtime & Reliability group beside `n_jobs` and `batch_size`.
     "mask_parallel", "mask_gpu_indices",
+    # NEW SETTINGS, not a regrouping (items 801 and 802, 2026-11-07): how
+    # many mask workers share each GPU, beside mask_parallel, and the
+    # preprocess-only switch that prepares segmentation illumination for a
+    # later masks-only run, under Mask's "Illumination Correction α".
+    "mask_workers_per_gpu", "illumination_for_later_masks",
     # NEW SETTINGS, not a regrouping (item 541, 2026-09-26): Measure's
     # confluency switch, its source, channel, texture window and monolayer
     # QC cut, under their own "Confluency α" heading.
