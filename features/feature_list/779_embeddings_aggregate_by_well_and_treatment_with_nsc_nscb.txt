@@ -2,7 +2,18 @@ EMBEDDINGS AGGREGATE BY WELL AND TREATMENT, WITH NSC/NSCB EVALUATION
 ====================================================================
 
 Lifecycle: new
-Status: open.
+Status: DONE 2026-11-06 — public spacr.embeddings.aggregate_profiles(table, by=...) turns
+per-cell or per-well embeddings (or any numeric profiles) into one profile per
+treatment: cells to wells by mean or median, optional normalisation to control wells
+(center, zscore, robust_zscore, or tvn through batch_correction.spherize_features),
+per plate when plate_column is given, then wells to treatments by mean or median, with
+each treatment's batches kept for NSCB. Public spacr.embeddings.evaluate_moa(profiles,
+...) scores cosine 1-NN MoA accuracy under NSC and NSCB with Wilson 95% CIs, solvable
+counts, per-treatment neighbours, optional reference feature sets (e.g. CellProfiler),
+and control rows (shuffled MoA labels between compounds; majority class) plus a glossary
+of the abbreviations. Library API only, no new GUI settings. Arrival contract
+tests/data/release_contracts/moa_profiles_api_arrivals_2026-11-06.json; tests in
+tests/test_embeddings_moa_profiles.py.
 Requested: maintainer via the BMC software-paper session, 2026-11-05.
 Source: BBBC021 computer-vision benchmark, /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cv/README.md.
 

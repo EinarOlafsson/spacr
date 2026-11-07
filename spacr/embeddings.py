@@ -56,7 +56,7 @@ __all__ = [
     "EmbeddingSpec", "EmbeddingResult",
     "embedding_column_names", "embed_array", "channel_of_column",
     "ENCODER_KEY_PREFIX", "encoder_key", "encoder_entry",
-    "embed_store",
+    "embed_store", "aggregate_profiles", "evaluate_moa",
 ]
 
 LOG = logging.getLogger("spacr.embeddings")
@@ -983,6 +983,453 @@ def embed_store(source: Any, spec: Optional[EmbeddingSpec] = None, *,
             json.dump(record, handle, indent=2, sort_keys=True, default=str)
     return {"cells": cells, "wells_mean": wells_mean,
             "wells_median": wells_median, "record": record, "files": files}
+
+
+_PROFILE_METHODS = ("mean", "median")
+_PROFILE_NORMALISATIONS = ("center", "zscore", "robust_zscore", "tvn")
+_BATCH_SEPARATOR = "|"
+_MOA_GLOSSARY = {
+    "MoA": "mechanism of action",
+    "1-NN": "one nearest neighbour",
+    "NSC": "not same compound: a treatment's neighbour may not be the "
+           "same compound at another concentration",
+    "NSCB": "not same compound or batch: as NSC, and the neighbour may not "
+            "share a batch with the treatment",
+    "CI": "confidence interval",
+    "TVN": "typical variation normalisation (sphering on control profiles)",
+}
+
+
+def _profile_table(table: Any) -> Any:
+    """Return a frame for a frame, or read a table path through spacr.tabular."""
+    import pandas as pd
+
+    from . import tabular
+
+    if isinstance(table, pd.DataFrame):
+        return table.reset_index(drop=True)
+    if isinstance(table, (str, os.PathLike)):
+        return tabular.read_table(table, report=None).reset_index(drop=True)
+    raise EmbeddingError(
+        f"expected a frame or a table path, not {type(table).__name__}")
+
+
+def _profile_features(frame: Any, features: Optional[Sequence[str]],
+                      keys: Sequence[str]) -> List[str]:
+    """Choose the numeric columns that make up a profile."""
+    from pandas.api.types import is_numeric_dtype
+
+    if features is not None:
+        chosen = [str(column) for column in features]
+        missing = [column for column in chosen if column not in frame.columns]
+        if missing:
+            raise EmbeddingError(f"feature columns not in the table: {missing[:10]}")
+        return chosen
+    embedded = [column for column in frame.columns
+                if str(column).startswith(EMBEDDING_PREFIX)]
+    if embedded:
+        return embedded
+    skip = set(keys) | {"n_cells", "n_wells"}
+    chosen = [column for column in frame.columns
+              if column not in skip and is_numeric_dtype(frame[column])]
+    if not chosen:
+        raise EmbeddingError("the table has no numeric feature columns")
+    return chosen
+
+
+def _check_method(method: str, name: str) -> str:
+    """Return a lower-case aggregation method or raise for an unknown one."""
+    value = str(method).strip().lower()
+    if value not in _PROFILE_METHODS:
+        raise EmbeddingError(f"{name} must be one of {_PROFILE_METHODS}, not {method!r}")
+    return value
+
+
+def _normalise_to_controls(frame: Any, features: List[str], controls: Any,
+                           how: str, plate_column: Optional[str],
+                           whitening: str) -> Tuple[Any, List[str]]:
+    """Normalise profile rows to the control rows, per plate when one is named."""
+    import pandas as pd
+
+    from .batch_correction import spherize_features
+
+    values = frame[features].astype(float)
+    groups = (frame[plate_column] if plate_column
+              else pd.Series(0, index=frame.index))
+    dropped: set = set()
+    out = values.copy()
+    for _, index in groups.groupby(groups, sort=False, dropna=False).groups.items():
+        block = values.loc[index]
+        reference = block[controls.loc[index].to_numpy()]
+        if reference.empty:
+            raise EmbeddingError(
+                "a plate has no control rows to normalise to"
+                if plate_column else "the table has no control rows")
+        if how == "robust_zscore":
+            centre = reference.median()
+            spread = (reference - centre).abs().median() * 1.4826
+        else:
+            centre = reference.mean()
+            spread = reference.std(ddof=1)
+        if how in ("center", "tvn"):
+            out.loc[index] = block - centre
+            continue
+        flat = ~(spread > 0)
+        dropped.update(spread.index[flat])
+        out.loc[index] = (block - centre) / spread.where(~flat, 1.0)
+    kept = [column for column in features if column not in dropped]
+    if how == "tvn":
+        whitened, _ = spherize_features(out[kept], controls, method=whitening,
+                                        n_components="auto")
+        return whitened, list(whitened.columns)
+    return out[kept], kept
+
+
+def _joined_batches(values: Any) -> str:
+    """Join the distinct batches of one treatment into a single label."""
+    seen = sorted({str(value) for value in values if value == value})
+    return _BATCH_SEPARATOR.join(seen)
+
+
+def aggregate_profiles(table: Any, *,
+                       by: Sequence[str] = ("compound", "concentration"),
+                       features: Optional[Sequence[str]] = None,
+                       method: str = "median",
+                       well_columns: Optional[Sequence[str]] = None,
+                       well_method: str = "mean",
+                       normalise: Optional[str] = None,
+                       control_column: Optional[str] = None,
+                       control: Any = "DMSO",
+                       plate_column: Optional[str] = None,
+                       batch_column: Optional[str] = None,
+                       whitening: str = "ZCA",
+                       drop_controls: bool = True) -> Any:
+    """Aggregate per-cell or per-well embeddings into one profile per treatment.
+
+    With ``well_columns``, rows (normally cells) are first averaged per well
+    by ``well_method``; without, each input row is taken as a well, as in
+    the well tables :func:`embed_store` writes. The wells are then
+    optionally normalised to the control wells and combined per treatment
+    (the distinct values of ``by``) by ``method``. This is the
+    well-then-treatment profile used for mechanism-of-action benchmarks
+    such as BBBC021: the mean of the cells in a well, normalised to the
+    plate's DMSO wells, and the median of the replicate wells.
+
+    Normalisation subtracts the control centre and, for the two z-scores,
+    divides by the control spread, on each plate when ``plate_column`` is
+    given and over the whole table otherwise. ``"robust_zscore"`` uses the
+    median and the scaled median absolute deviation. Features that do not
+    vary in the controls are dropped by the z-scores. ``"tvn"`` (typical
+    variation normalisation) centres on the controls in the same way and
+    then spheres every well with a whitening fitted on all control wells
+    (:func:`spacr.batch_correction.spherize_features`, keeping only the
+    directions the controls span).
+
+    :param table: a frame or a table path (read through
+        :func:`spacr.tabular.read_table`), such as ``cell_embeddings`` or
+        ``well_embeddings_mean`` from :func:`embed_store` joined to a plate
+        map.
+    :param by: columns that name a treatment, for example compound and
+        concentration; any plate-map columns can be used.
+    :param features: profile columns; ``None`` takes every embedding column,
+        or every numeric column outside the key columns when there are none.
+    :param method: ``"mean"`` or ``"median"``, how wells combine into a
+        treatment.
+    :param well_columns: columns that name one well, for per-cell input;
+        ``None`` treats each row as a well.
+    :param well_method: ``"mean"`` or ``"median"``, how cells combine into
+        a well.
+    :param normalise: ``None``, ``"center"``, ``"zscore"``,
+        ``"robust_zscore"`` or ``"tvn"``.
+    :param control_column: the column that marks control wells; ``None``
+        uses the first ``by`` column.
+    :param control: the control value in ``control_column``, or a list of
+        values.
+    :param plate_column: column that names a plate, to normalise each plate
+        to its own controls.
+    :param batch_column: column that names a batch. Each treatment keeps the
+        batches its wells came from, joined by ``|``, for
+        :func:`evaluate_moa`.
+    :param whitening: the whitening used by ``"tvn"``, one of
+        :data:`spacr.batch_correction.TVN_WHITENINGS`.
+    :param drop_controls: leave the control treatments out of the result.
+    :returns: one row per treatment: the ``by`` columns, the batch column
+        when given, ``n_wells``, ``n_cells`` when known, then the profile
+        columns. ``attrs["dropped_features"]`` lists features removed
+        because they did not vary in the controls.
+    :raises EmbeddingError: for a missing column, an unknown method or
+        normalisation, or normalisation without control rows.
+    """
+    import pandas as pd
+
+    frame = _profile_table(table)
+    by = [str(column) for column in by]
+    if not by:
+        raise EmbeddingError("by must name at least one treatment column")
+    method = _check_method(method, "method")
+    well_method = _check_method(well_method, "well_method")
+    how = None if normalise in (None, "", "none") else str(normalise).strip().lower()
+    if how is not None and how not in _PROFILE_NORMALISATIONS:
+        raise EmbeddingError(
+            f"normalise must be None or one of {_PROFILE_NORMALISATIONS}, "
+            f"not {normalise!r}")
+    wells = [str(column) for column in (well_columns or ())]
+    extras = [column for column in (plate_column, batch_column) if column]
+    keys = list(dict.fromkeys(by + wells + extras))
+    missing = [column for column in keys if column not in frame.columns]
+    if missing:
+        raise EmbeddingError(f"columns not in the table: {missing}")
+    chosen = _profile_features(frame, features, keys)
+    if wells:
+        grouped = frame.groupby(keys, sort=True, dropna=False)
+        profiles = getattr(grouped[chosen], well_method)()
+        sizes = grouped.size().rename("n_cells")
+        frame = pd.concat([sizes, profiles], axis=1).reset_index()
+    control_column = control_column or by[0]
+    if control_column not in frame.columns:
+        raise EmbeddingError(f"control column {control_column!r} not in the table")
+    values = control if isinstance(control, (list, tuple, set)) else [control]
+    controls = frame[control_column].isin(list(values))
+    dropped: List[str] = []
+    if how is not None:
+        normalised, kept = _normalise_to_controls(
+            frame, chosen, controls, how, plate_column, whitening)
+        dropped = [column for column in chosen if column not in kept
+                   and how != "tvn"]
+        frame = pd.concat([frame.drop(columns=chosen), normalised], axis=1)
+        chosen = kept
+    if drop_controls:
+        frame = frame[~controls].reset_index(drop=True)
+    if frame.empty:
+        raise EmbeddingError("no treatment rows remain after removing controls")
+    grouped = frame.groupby(by, sort=True, dropna=False)
+    parts = [grouped.size().rename("n_wells")]
+    if "n_cells" in frame.columns:
+        parts.append(grouped["n_cells"].sum())
+    if batch_column:
+        parts.insert(0, grouped[batch_column].agg(_joined_batches))
+    parts.append(getattr(grouped[chosen], method)())
+    result = pd.concat(parts, axis=1).reset_index()
+    result.attrs["dropped_features"] = dropped
+    return result
+
+
+def _wilson(correct: float, total: int, z: float) -> Tuple[float, float]:
+    """Return the Wilson score interval of a proportion."""
+    if total <= 0:
+        return float("nan"), float("nan")
+    share = correct / total
+    denominator = 1.0 + z * z / total
+    centre = (share + z * z / (2.0 * total)) / denominator
+    spread = z * np.sqrt(share * (1.0 - share) / total
+                         + z * z / (4.0 * total * total)) / denominator
+    return float(max(0.0, centre - spread)), float(min(1.0, centre + spread))
+
+
+def _batch_sets(values: Any) -> List[frozenset]:
+    """Split each treatment's batch label into the set of its batches."""
+    sets = []
+    for value in values:
+        if value != value or value is None or value == "":
+            sets.append(frozenset())
+        else:
+            sets.append(frozenset(str(value).split(_BATCH_SEPARATOR)))
+    return sets
+
+
+def _neighbours(matrix: np.ndarray, compounds: np.ndarray,
+                batches: Optional[List[frozenset]]) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Find each row's cosine nearest neighbour under the exclusion rule.
+
+    :returns: the neighbour index (``-1`` when no candidate is left), its
+        cosine similarity and the boolean candidate mask.
+    """
+    norms = np.linalg.norm(matrix, axis=1, keepdims=True)
+    if not (norms > 0).all():
+        raise EmbeddingError("a profile has zero length, so its cosine is undefined")
+    unit = matrix / norms
+    similarity = unit @ unit.T
+    allowed = compounds[:, None] != compounds[None, :]
+    if batches is not None:
+        names = sorted(set().union(*batches)) if batches else []
+        column = {name: index for index, name in enumerate(names)}
+        member = np.zeros((len(batches), len(names)))
+        for row, found in enumerate(batches):
+            member[row, [column[name] for name in found]] = 1.0
+        allowed &= ~((member @ member.T) > 0)
+    masked = np.where(allowed, similarity, -np.inf)
+    best = masked.argmax(axis=1) if len(masked) else np.zeros(0, dtype=int)
+    has = allowed.any(axis=1)
+    best = np.where(has, best, -1)
+    score = np.where(has, masked[np.arange(len(masked)), np.maximum(best, 0)], np.nan)
+    return best, score, allowed
+
+
+def evaluate_moa(profiles: Any, *, moa_column: str = "moa",
+                 compound_column: str = "compound",
+                 batch_column: Optional[str] = None,
+                 features: Optional[Sequence[str]] = None,
+                 treatment_columns: Sequence[str] = ("compound", "concentration"),
+                 labels: Any = None,
+                 references: Optional[Mapping[str, Any]] = None,
+                 n_permutations: int = 100, seed: int = 0,
+                 confidence: float = 0.95) -> Dict[str, Any]:
+    """Score treatment profiles by nearest-neighbour mechanism-of-action accuracy.
+
+    Each labelled treatment is matched to its nearest other treatment by
+    cosine similarity (one nearest neighbour, 1-NN) and counts as correct
+    when the two share a mechanism of action (MoA). Under NSC (not same
+    compound) the neighbour may not be the same compound at another
+    concentration; under NSCB (not same compound or batch) it may also not
+    share a batch, which removes the batch effects that NSC rewards.
+    Treatments left with no candidate are not scored. Accuracy is reported
+    with a Wilson score confidence interval (CI), together with the share of
+    treatments that are solvable (a candidate with the same MoA exists).
+
+    Every table carries control rows: the same rule with MoA labels
+    shuffled between compounds (mean and standard deviation over
+    ``n_permutations``, interval from the permutation percentiles), and the
+    majority class, the accuracy of always guessing the commonest MoA.
+    Profiles from another feature set, for example CellProfiler features,
+    can be scored beside them as reference rows.
+
+    :param profiles: treatment profiles, a frame or a table path, such as
+        :func:`aggregate_profiles` returns.
+    :param moa_column: column with the MoA label; rows without one are not
+        scored.
+    :param compound_column: column that names the compound.
+    :param batch_column: column that names each treatment's batches, joined
+        by ``|`` when there are several; ``None`` reports NSC only.
+    :param features: profile columns; ``None`` takes every embedding column,
+        or every numeric column outside the key and treatment columns.
+    :param treatment_columns: columns that name a treatment and are never
+        profile values, such as a numeric concentration.
+    :param labels: a frame or table path with MoA labels, joined to the
+        profiles on the columns they share, when the profiles carry none.
+    :param references: name to profiles of another feature set, scored with
+        the same rules and labels.
+    :param n_permutations: label shuffles for the shuffled-label control;
+        ``0`` leaves that row out.
+    :param seed: seed of the shuffles.
+    :param confidence: the CI level.
+    :returns: ``{"table", "predictions", "glossary"}``: the accuracy table
+        (one row per profile set and rule, then the control rows; columns
+        ``profiles``, ``evaluation``, ``n_treatments``, ``correct``,
+        ``accuracy``, ``ci_low``, ``ci_high``, ``sd``, ``n_solvable``,
+        ``accuracy_solvable``), the per-treatment neighbours and predictions
+        of the first profile set, and the abbreviations spelled out.
+    :raises EmbeddingError: for missing columns, missing or infinite
+        profile values, or fewer than two labelled treatments.
+    """
+    import pandas as pd
+    from statistics import NormalDist
+
+    if not 0.0 < float(confidence) < 1.0:
+        raise EmbeddingError(f"confidence must be between 0 and 1, not {confidence!r}")
+    z = NormalDist().inv_cdf(0.5 + float(confidence) / 2.0)
+    label_frame = None if labels is None else _profile_table(labels)
+    sets = {"profiles": profiles}
+    for name, frame in (references or {}).items():
+        sets[f"reference: {name}"] = frame
+    rules = ["NSC"] + (["NSCB"] if batch_column else [])
+    rows: List[Dict[str, Any]] = []
+    predictions = None
+    first_scored = None
+    for set_name, source in sets.items():
+        frame = _profile_table(source)
+        if label_frame is not None and moa_column not in frame.columns:
+            shared = [column for column in label_frame.columns
+                      if column in frame.columns and column != moa_column]
+            if not shared:
+                raise EmbeddingError("labels share no column with the profiles")
+            frame = frame.merge(label_frame[shared + [moa_column]].drop_duplicates(shared),
+                                on=shared, how="left")
+        keys = [moa_column, compound_column] + ([batch_column] if batch_column else [])
+        missing = [column for column in keys if column not in frame.columns]
+        keys = keys + [str(column) for column in treatment_columns]
+        if missing:
+            raise EmbeddingError(f"columns not in the profiles: {missing}")
+        frame = frame[frame[moa_column].notna()].reset_index(drop=True)
+        if len(frame) < 2:
+            raise EmbeddingError("fewer than two treatments carry a MoA label")
+        chosen = _profile_features(frame, features, keys)
+        matrix = frame[chosen].to_numpy(dtype=float)
+        if not np.isfinite(matrix).all():
+            raise EmbeddingError("profiles hold missing or infinite values")
+        moa = frame[moa_column].astype(str).to_numpy()
+        compounds = frame[compound_column].astype(str).to_numpy()
+        batches = _batch_sets(frame[batch_column]) if batch_column else None
+        scored = {}
+        for rule in rules:
+            best, score, allowed = _neighbours(
+                matrix, compounds, batches if rule == "NSCB" else None)
+            has = best >= 0
+            hit = has & (moa[np.maximum(best, 0)] == moa)
+            solvable = (allowed & (moa[:, None] == moa[None, :])).any(axis=1)
+            total, correct = int(has.sum()), int(hit.sum())
+            low, high = _wilson(correct, total, z)
+            n_solvable = int((solvable & has).sum())
+            rows.append(dict(
+                profiles=set_name, evaluation=rule, n_treatments=total,
+                correct=correct, accuracy=correct / total if total else np.nan,
+                ci_low=low, ci_high=high, sd=np.nan, n_solvable=n_solvable,
+                accuracy_solvable=correct / n_solvable if n_solvable else np.nan))
+            scored[rule] = (best, score, has, hit)
+        if predictions is None:
+            predictions = frame[[column for column in frame.columns
+                                 if column not in chosen]].copy()
+            for rule, (best, score, has, hit) in scored.items():
+                predictions[f"{rule}_neighbour"] = np.where(has, best, -1)
+                predictions[f"{rule}_neighbour_compound"] = np.where(
+                    has, compounds[np.maximum(best, 0)], None)
+                predictions[f"{rule}_predicted_moa"] = np.where(
+                    has, moa[np.maximum(best, 0)], None)
+                predictions[f"{rule}_similarity"] = score
+                predictions[f"{rule}_correct"] = hit
+            first_scored = (moa, compounds, scored)
+    moa, compounds, scored = first_scored
+    rng = np.random.default_rng(seed)
+    grouped = pd.Series(moa).groupby(compounds)
+    per_compound = bool((grouped.nunique() == 1).all())
+    compound_moa = grouped.first()
+    for rule in rules:
+        best, _, has, _ = scored[rule]
+        total = int(has.sum())
+        if n_permutations > 0 and total:
+            shares = np.empty(int(n_permutations))
+            for index in range(int(n_permutations)):
+                if per_compound:
+                    shuffled = dict(zip(compound_moa.index, rng.permutation(
+                        compound_moa.to_numpy())))
+                    label = np.array([shuffled[name] for name in compounds])
+                else:
+                    label = rng.permutation(moa)
+                shares[index] = np.mean(label[has] == label[best[has]])
+            tail = (1.0 - float(confidence)) / 2.0
+            rows.append(dict(
+                profiles="control: shuffled MoA labels", evaluation=rule,
+                n_treatments=total, correct=np.nan,
+                accuracy=float(shares.mean()),
+                ci_low=float(np.quantile(shares, tail)),
+                ci_high=float(np.quantile(shares, 1.0 - tail)),
+                sd=float(shares.std(ddof=1)) if len(shares) > 1 else 0.0,
+                n_solvable=np.nan, accuracy_solvable=np.nan))
+        counts = pd.Series(moa[has]).value_counts()
+        majority = str(counts.index[0]) if len(counts) else ""
+        correct = int(counts.iloc[0]) if len(counts) else 0
+        low, high = _wilson(correct, total, z)
+        rows.append(dict(
+            profiles=f"control: majority class ({majority})", evaluation=rule,
+            n_treatments=total, correct=correct,
+            accuracy=correct / total if total else np.nan,
+            ci_low=low, ci_high=high, sd=np.nan, n_solvable=np.nan,
+            accuracy_solvable=np.nan))
+    table = pd.DataFrame(rows)
+    glossary = dict(_MOA_GLOSSARY)
+    if not batch_column:
+        glossary.pop("NSCB")
+    table.attrs["glossary"] = glossary
+    return {"table": table, "predictions": predictions, "glossary": glossary}
 
 
 def embed_array(crops: np.ndarray, spec: Optional[EmbeddingSpec] = None, *,
