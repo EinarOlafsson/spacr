@@ -200,10 +200,10 @@ def test_the_names_offered_are_names_that_work():
     assert "resnet18" in names
 
 
-def test_choose_model_custom_raises_not_implemented():
-    """'custom' is an accepted name but has no wired implementation."""
-    with pytest.raises(NotImplementedError, match="CustomCellClassifier"):
-        U.choose_model("custom", torch.device("cpu"))
+def test_choose_model_custom_builds_the_custom_classifier():
+    """'custom' builds CustomCellClassifier instead of raising."""
+    model = U.choose_model("custom", torch.device("cpu"), height=32, width=32)
+    assert isinstance(model, U.CustomCellClassifier)
 
 
 def test_choose_model_refuses_a_backbone_that_yields_a_dict(monkeypatch):
