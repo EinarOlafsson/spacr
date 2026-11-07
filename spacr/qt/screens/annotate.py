@@ -2413,6 +2413,318 @@ class _FieldQCDialog(QDialog):
         return self.labels_path()
 
 
+class _PairReviewDialog(QDialog):
+    """Call touching label pairs one object or two, one pair at a time.
+
+    Builds a review set from a folder of label images -- every touching pair
+    :func:`spacr.object_classifier.split_candidates` finds, drawn with label
+    A outlined white and label B yellow -- or opens a set built before. Keys
+    1, 2 and 3 record merge, keep apart and cannot tell into the ``merge``
+    column of the set's ``png_list``, so the set is also an ordinary Annotate
+    source. 0 clears a verdict; the arrow keys move between pairs.
+    """
+
+    def __init__(self, parent: Optional[QWidget] = None):
+        """Build the form and an empty review view.
+
+        :param parent: owning widget.
+        """
+        super().__init__(parent)
+        self.setObjectName("AnnotatePairReviewDialog")
+        self.setWindowFlag(Qt.Window, True)
+        self.setWindowTitle(tr("Review touching pairs"))
+        self.resize(620, 760)
+        self._folder = ""
+        self._pairs: List[Dict[str, Any]] = []
+        self._index = 0
+        layout = QVBoxLayout(self)
+        form = QFormLayout()
+        self._masks = self._folder_row(form, tr("Masks folder"), tr(
+            "Folder of label images (.npy, .tif or .png), one per field. "
+            "Default empty."))
+        self._mask_plane = QSpinBox(self)
+        self._mask_plane.setRange(-16, 16)
+        self._mask_plane.setToolTip(tr(
+            "Which plane of a multi-plane file holds the labels; -1 is the "
+            "last. Default 0."))
+        form.addRow(tr("Mask plane"), self._mask_plane)
+        self._images = self._folder_row(form, tr("Images folder"), tr(
+            "Folder of images with the same names as the masks, shown under "
+            "the outlines. It may be the masks folder when the labels are one "
+            "plane of the same stack. Empty draws the objects alone. Default "
+            "empty."))
+        self._image_planes = QLineEdit("0,1,2", self)
+        self._image_planes.setToolTip(tr(
+            "Up to three image planes, comma-separated, shown as red, green "
+            "and blue; one plane is shown grey. Default 0,1,2."))
+        form.addRow(tr("Image planes"), self._image_planes)
+        self._object = QLineEdit("cell", self)
+        self._object.setToolTip(tr(
+            "What the labels are. It goes into every pair's file name. "
+            "Default cell."))
+        form.addRow(tr("Object name"), self._object)
+        self._least = QDoubleSpinBox(self)
+        self._least.setRange(0.0, 1.0)
+        self._least.setSingleStep(0.05)
+        self._least.setDecimals(2)
+        self._least.setValue(0.05)
+        self._least.setToolTip(tr(
+            "The least share of the smaller object's edge two labels must "
+            "have in common to be reviewed. Default 0.05."))
+        form.addRow(tr("Least shared edge"), self._least)
+        self._limit = QSpinBox(self)
+        self._limit.setRange(0, 100_000)
+        self._limit.setSpecialValueText(tr("all"))
+        self._limit.setToolTip(tr(
+            "The most pairs to put in the set, in file and label order; 0 "
+            "takes every pair. Default 0."))
+        form.addRow(tr("At most"), self._limit)
+        self._target = self._folder_row(form, tr("Set folder"), tr(
+            "Where the set is written: pair images under data/merge_pairs and "
+            "verdicts in measurements/measurements.db. Default empty."))
+        layout.addLayout(form)
+        row = QHBoxLayout()
+        self._build = QPushButton(tr("Build set"), self)
+        self._build.setObjectName("AnnotatePairReviewBuild")
+        self._build.clicked.connect(self.build_set)
+        self._open = QPushButton(tr("Open set…"), self)
+        self._open.setObjectName("AnnotatePairReviewOpen")
+        self._open.clicked.connect(self._on_open)
+        row.addWidget(self._build)
+        row.addWidget(self._open)
+        row.addStretch(1)
+        layout.addLayout(row)
+        self._image = QLabel(self)
+        self._image.setAlignment(Qt.AlignCenter)
+        self._image.setMinimumSize(360, 360)
+        self._image.setSizePolicy(QSizePolicy.Ignored, QSizePolicy.Ignored)
+        self._image.setFocusPolicy(Qt.StrongFocus)
+        self._picture = QPixmap()
+        self._image.installEventFilter(self)
+        layout.addWidget(self._image, 1)
+        self._legend = QLabel(tr(
+            "Label A is outlined white and label B yellow. 1 merge (one "
+            "object cut in two), 2 keep apart (two objects), 3 cannot tell, "
+            "0 clear, arrow keys move."), self)
+        self._legend.setWordWrap(True)
+        layout.addWidget(self._legend)
+        self._caption = QLabel(self)
+        self._caption.setProperty("i18nSkipText", True)
+        layout.addWidget(self._caption)
+        verdicts = QHBoxLayout()
+        self._verdict_buttons: Dict[int, QPushButton] = {}
+        for value, text in ((1, tr("Merge (1)")), (2, tr("Keep apart (2)")),
+                            (3, tr("Cannot tell (3)"))):
+            button = QPushButton(text, self)
+            button.setCheckable(True)
+            button.setFocusPolicy(Qt.NoFocus)
+            button.clicked.connect(partial(self.record, value))
+            self._verdict_buttons[value] = button
+            verdicts.addWidget(button)
+        self._back = QPushButton(tr("Back"), self)
+        self._back.setFocusPolicy(Qt.NoFocus)
+        self._back.clicked.connect(lambda: self.show_pair(self._index - 1))
+        self._next = QPushButton(tr("Next"), self)
+        self._next.setFocusPolicy(Qt.NoFocus)
+        self._next.clicked.connect(lambda: self.show_pair(self._index + 1))
+        verdicts.addWidget(self._back)
+        verdicts.addWidget(self._next)
+        layout.addLayout(verdicts)
+        self._status = QLabel(self)
+        self._status.setProperty("i18nSkipText", True)
+        self._status.setWordWrap(True)
+        layout.addWidget(self._status)
+        self._sync_controls()
+
+    def _folder_row(self, form: QFormLayout, label: str, tip: str) -> QLineEdit:
+        """A path box with a Browse button, added to ``form``."""
+        edit = QLineEdit(self)
+        edit.setToolTip(tip)
+        browse = QPushButton(tr("Browse…"), self)
+        browse.clicked.connect(lambda: self._browse_into(edit, label))
+        box = QWidget(self)
+        line = QHBoxLayout(box)
+        line.setContentsMargins(0, 0, 0, 0)
+        line.addWidget(edit, 1)
+        line.addWidget(browse)
+        form.addRow(label, box)
+        return edit
+
+    def _browse_into(self, edit: QLineEdit, title: str) -> None:
+        """Ask for a folder and put it in ``edit``."""
+        folder = QFileDialog.getExistingDirectory(self, title, edit.text())
+        if folder:
+            edit.setText(folder)
+
+    def _on_open(self) -> None:
+        """Ask for a set folder and open it."""
+        folder = QFileDialog.getExistingDirectory(
+            self, tr("Open a pair set"), self._target.text())
+        if folder:
+            self.open_set(folder)
+
+    def _planes(self) -> List[int]:
+        """The image planes typed in the form."""
+        out = []
+        for part in self._image_planes.text().split(","):
+            part = part.strip()
+            if part:
+                out.append(int(part))
+        return out or [0]
+
+    def build_set(self) -> int:
+        """Build a set from the form, then open it.
+
+        :returns: how many pairs the set holds; 0 when nothing was built.
+        """
+        from ... import _merge_pairs as pairs
+
+        masks = self._masks.text().strip()
+        target = self._target.text().strip() or os.path.join(
+            os.path.dirname(os.path.abspath(masks)), "merge_pairs")
+        self._target.setText(target)
+        if pairs._has_set(target):
+            self._status.setText(tr(
+                "{folder} already holds a pair set, so it was opened instead "
+                "of rebuilt.", folder=target))
+            return self.open_set(target)
+        try:
+            planes = self._planes()
+            self._status.setText(tr("Finding touching pairs…"))
+            from PySide6.QtWidgets import QApplication
+            QApplication.processEvents()
+            report = pairs._build_set(
+                masks, target, object_name=self._object.text().strip() or "cell",
+                mask_plane=int(self._mask_plane.value()),
+                image_folder=self._images.text().strip(), image_planes=planes,
+                least_share=float(self._least.value()),
+                limit=int(self._limit.value()))
+        except (OSError, ValueError) as exc:
+            self._status.setText(tr("No set was built: {reason}",
+                                    reason=str(exc)))
+            return 0
+        found = self.open_set(target)
+        self._status.setText(tr(
+            "{n} pairs from {fields} fields written to {folder}.",
+            n=report["pairs"], fields=report["fields"], folder=target))
+        return found
+
+    def open_set(self, folder: str) -> int:
+        """Open the set in ``folder`` at its first pair without a verdict.
+
+        :param folder: a set folder.
+        :returns: how many pairs it holds.
+        """
+        from ... import _merge_pairs as pairs
+
+        try:
+            self._pairs = pairs._read_set(folder)
+        except Exception as exc:                              # noqa: BLE001
+            self._pairs = []
+            self._status.setText(tr("The set could not be read: {reason}",
+                                    reason=str(exc)))
+            self._sync_controls()
+            return 0
+        self._folder = str(folder)
+        self._target.setText(self._folder)
+        first = next((i for i, row in enumerate(self._pairs)
+                      if row.get(pairs.MERGE_COLUMN) is None), 0)
+        self.show_pair(first)
+        self._image.setFocus()
+        return len(self._pairs)
+
+    def _sync_controls(self) -> None:
+        """Enable the review buttons only with a pair on screen."""
+        some = bool(self._pairs)
+        for button in (*self._verdict_buttons.values(), self._back, self._next):
+            button.setEnabled(some)
+
+    def show_pair(self, index: int) -> None:
+        """Show pair ``index``, clamped to the set.
+
+        :param index: position in the set's table order.
+        """
+        from ... import _merge_pairs as pairs
+
+        self._sync_controls()
+        if not self._pairs:
+            self._picture = QPixmap()
+            self._image.clear()
+            self._caption.setText(tr("No pairs to review."))
+            return
+        self._index = max(0, min(int(index), len(self._pairs) - 1))
+        row = self._pairs[self._index]
+        self._picture = QPixmap(_reanchor_png_path(
+            str(row["png_path"]),
+            pairs._set_paths(self._folder)[1]))
+        self._fit_picture()
+        value = row.get(pairs.MERGE_COLUMN)
+        for key, button in self._verdict_buttons.items():
+            button.setChecked(key == value)
+        judged = sum(1 for r in self._pairs if r.get(pairs.MERGE_COLUMN) is not None)
+        self._caption.setText(
+            f"{self._index + 1}/{len(self._pairs)}  {row.get('file_name', '')}"
+            f"  A {row.get('label_a')}  B {row.get('label_b')}"
+            f"  ({judged}/{len(self._pairs)})")
+
+    def _fit_picture(self) -> None:
+        """Scale the pair picture into the room the image area has, pixels kept sharp."""
+        if self._picture.isNull():
+            self._image.setPixmap(self._picture)
+            return
+        self._image.setPixmap(self._picture.scaled(
+            self._image.contentsRect().size(), Qt.KeepAspectRatio,
+            Qt.FastTransformation))
+
+    def eventFilter(self, obj, event):      # noqa: N802  (Qt naming)
+        """Refit the picture whenever the image area changes size."""
+        if obj is self._image and event.type() == QEvent.Resize:
+            self._fit_picture()
+        return super().eventFilter(obj, event)
+
+    def current_pair(self) -> Optional[Dict[str, Any]]:
+        """The row of the pair on screen, or None."""
+        return self._pairs[self._index] if self._pairs else None
+
+    def record(self, value: Optional[int], *_args) -> bool:
+        """Store ``value`` for the pair on screen and move to the next one.
+
+        :param value: 1 merge, 2 keep apart, 3 cannot tell; None clears and
+            stays.
+        :returns: whether a verdict was written.
+        """
+        from ... import _merge_pairs as pairs
+
+        row = self.current_pair()
+        if row is None:
+            return False
+        try:
+            pairs._write_verdict(self._folder, str(row["png_path"]), value)
+        except Exception as exc:                              # noqa: BLE001
+            self._status.setText(tr("The verdict was not saved: {reason}",
+                                    reason=str(exc)))
+            self.show_pair(self._index)
+            return False
+        row[pairs.MERGE_COLUMN] = value
+        self._status.setText("")
+        self.show_pair(self._index + (0 if value is None else 1))
+        return True
+
+    def keyPressEvent(self, event):         # noqa: N802  (Qt naming)
+        """1-3 record, 0 clears, Left and Right move; anything else is Qt's."""
+        key = event.key()
+        if key in (Qt.Key_1, Qt.Key_2, Qt.Key_3):
+            self.record(int(key) - int(Qt.Key_0))
+        elif key == Qt.Key_0:
+            self.record(None)
+        elif key in (Qt.Key_Right, Qt.Key_Space):
+            self.show_pair(self._index + 1)
+        elif key == Qt.Key_Left:
+            self.show_pair(self._index - 1)
+        else:
+            super().keyPressEvent(event)
+
+
 class _Thumbnail(QLabel):
     """One crop in the grid: a rounded square wearing up to two rings.
 
@@ -6300,6 +6612,19 @@ class AnnotateScreen(QWidget):
         dialog.show()
         self._field_qc_dialog = dialog
 
+    def _on_pair_review(self, *_args) -> "_PairReviewDialog":
+        """Open the touching-pair review, on the open source when it is a set."""
+        from ... import _merge_pairs as pairs
+
+        dialog = _PairReviewDialog(self)
+        src = str(self._settings.src or "")
+        if src and pairs._has_set(src) and os.path.isdir(
+                pairs._set_paths(src)[0]):
+            dialog.open_set(src)
+        dialog.show()
+        self._pair_review_dialog = dialog
+        return dialog
+
     def _build_similar_button(self) -> QPushButton:
         """The Like this button: show the crops most like the current one.
 
@@ -6766,13 +7091,15 @@ class AnnotateScreen(QWidget):
 
         Train hands the source path to Classify or ML Analyze, and Generate
         writes a table named after the source and reports its folder, so both
-        would carry the source onto a screen while it is hidden here.
+        would carry the source onto a screen while it is hidden here. The pair
+        review names every pair's field, so it is parked for the same reason.
         """
         self._set_blind_checked(on)
         for button in (self._btn_coverage, self._btn_auto,
                        self._btn_browse_db, self._btn_settings,
                        self._console_switch, self._ai_switch,
-                       self._btn_train, self._btn_generate):
+                       self._btn_train, self._btn_generate,
+                       self._btn_pair_review):
             if on:
                 button.setProperty("_spacr_blind_was", button.isEnabled())
                 button.setEnabled(False)
@@ -8015,6 +8342,14 @@ class AnnotateScreen(QWidget):
             "without measuring the plate again. The result is registered as "
             "a new png_list table."))
         self._btn_generate.triggered.connect(self._on_generate_annotation_db)
+        self._btn_pair_review = menu.addAction(tr("Review touching pairs…"))
+        self._btn_pair_review.setObjectName("AnnotatePairReview")
+        self._btn_pair_review.setToolTip(tr(
+            "Show touching objects two at a time, label A outlined white and "
+            "label B yellow, and record whether they are one object cut in "
+            "two or two objects. Verdicts go to the merge column of the set's "
+            "png_list."))
+        self._btn_pair_review.triggered.connect(self._on_pair_review)
         button.setMenu(menu)
         self._setup_menu = menu
         self._btn_setup = button

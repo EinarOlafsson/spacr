@@ -139,13 +139,15 @@ def test_the_setup_commands_are_on_the_setup_menu(qtbot, monkeypatch):
     assert button.accessibleName() == "Setup"
     menu = button.menu()
     assert isinstance(menu, QMenu) and menu is screen._setup_menu
-    assert menu.actions() == [screen._btn_test_data, screen._btn_generate]
+    assert menu.actions() == [screen._btn_test_data, screen._btn_generate,
+                              screen._btn_pair_review]
     assert screen._btn_test_data.text() == "Load test data"
     assert screen._btn_generate.text() == "Generate annotation database…"
     toolbar_widgets = [w for g in screen._toolbar_groups.values()
                        for w in g.members]
     assert screen._btn_test_data not in toolbar_widgets
     assert screen._btn_generate not in toolbar_widgets
+    assert screen._btn_pair_review.text() == "Review touching pairs…"
     screen._btn_test_data.trigger()
     screen._btn_generate.trigger()
     assert calls == ["test data", "generate"]
