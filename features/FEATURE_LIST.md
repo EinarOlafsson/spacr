@@ -12,7 +12,7 @@ Repeated IDs retain their separate full filenames and histories; none were merge
 
 This is a declaration-based navigation list, not a verified unfinished count. Headers can be stale. Conversely, recorded-Done items 641 and 673 contain later Mac follow-ups; item 729 separates native checks from deferred implementation. Read their linked notes before assigning work.
 
-67 records have no recorded complete declaration; 767 have a recorded complete declaration. Neither is a verification result.
+66 records have no recorded complete declaration; 768 have a recorded complete declaration. Neither is a verification result.
 
 | ID | Lifecycle | Item (full filename) | Recorded status |
 |---|---|---|---|
@@ -53,7 +53,6 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 793 | Future | [ILLUMINATION CORRECTION IN FLOAT WITHOUT CLIPPING — 793_illumination_correction_in_float_without_clipping.txt](feature_list/793_illumination_correction_in_float_without_clipping.txt) | not started |
 | 794 | Future | [XGBOOST RUNS ON CPU-ONLY MACHINES — 794_xgboost_runs_on_cpu_only_machines.txt](feature_list/794_xgboost_runs_on_cpu_only_machines.txt) | not started |
 | 795 | Future | [MECHANISM-OF-ACTION PROFILING BENCHMARK MODULE — 795_moa_profiling_benchmark_module.txt](feature_list/795_moa_profiling_benchmark_module.txt) | not started |
-| 799 | Future | [NO PATHOGEN DISTANCE FEATURES WITHOUT A PATHOGEN — 799_no_pathogen_distance_features_without_a_pathogen.txt](feature_list/799_no_pathogen_distance_features_without_a_pathogen.txt) | not started |
 | 800 | Future | [MEASURE SIZE FILTERS FOLLOW MAGNIFICATION — 800_measure_size_filters_follow_magnification.txt](feature_list/800_measure_size_filters_follow_magnification.txt) | not started |
 | 801 | Future | [ONE GPU STAYS BUSY DURING MAKE MASKS — 801_one_gpu_stays_busy_during_make_masks.txt](feature_list/801_one_gpu_stays_busy_during_make_masks.txt) | not started |
 | 802 | Future | [SEGMENTATION ILLUMINATION WITH SEPARATE PREPROCESSING — 802_segmentation_illumination_with_separate_preprocessing.txt](feature_list/802_segmentation_illumination_with_separate_preprocessing.txt) | not started |
@@ -870,7 +869,7 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 796 | Future | [MEASURE_CROP FROM THE PYTHON API FILLS DEFAULTS FIRST — 796_measure_crop_from_the_python_api_fills_defaults_first.txt](feature_list/796_measure_crop_from_the_python_api_fills_defaults_first.txt) | DONE 2026-11-07 — fixed as item 838. |
 | 797 | Future | [CUSTOM METADATA WITHOUT A TIME GROUP NAMES STACKS CLEANLY — 797_custom_metadata_without_a_time_group_names_stacks_cleanly.txt](feature_list/797_custom_metadata_without_a_time_group_names_stacks_cleanly.txt) | DONE 2026-11-07 — fixed as item 837. |
 | 798 | Future | [ONE NUCLEUS IN TWO CELLS DOES NOT DROP THE FIELD — 798_one_nucleus_in_two_cells_does_not_drop_the_field.txt](feature_list/798_one_nucleus_in_two_cells_does_not_drop_the_field.txt) | DONE 2026-11-07 — fixed as item 840. |
-| 799 | Future | [NO PATHOGEN DISTANCE FEATURES WITHOUT A PATHOGEN — 799_no_pathogen_distance_features_without_a_pathogen.txt](feature_list/799_no_pathogen_distance_features_without_a_pathogen.txt) | not started |
+| 799 | Future | [NO PATHOGEN DISTANCE FEATURES WITHOUT A PATHOGEN — 799_no_pathogen_distance_features_without_a_pathogen.txt](feature_list/799_no_pathogen_distance_features_without_a_pathogen.txt) | DONE 2026-11-07 — Measure no longer writes +inf distance columns for a mask that was never segmented: with pathogen_mask_dim (or nucleus_mask_dim) None, cell_channel_<n>_distance_to_pathogen and the object-distance partner columns (centre_to_pathogen_surface, surface_to_pathogen_surface, centre_to_nearest_pathogen_centre, pathogen_overlap_fraction) are left out; a segmented mask with no object in this field gives NaN. spacr/measure.py _measure_intensity_distance and _all_masks; tests/test_measure_no_pathogen_distances.py. |
 | 800 | Future | [MEASURE SIZE FILTERS FOLLOW MAGNIFICATION — 800_measure_size_filters_follow_magnification.txt](feature_list/800_measure_size_filters_follow_magnification.txt) | not started |
 | 801 | Future | [ONE GPU STAYS BUSY DURING MAKE MASKS — 801_one_gpu_stays_busy_during_make_masks.txt](feature_list/801_one_gpu_stays_busy_during_make_masks.txt) | not started |
 | 802 | Future | [SEGMENTATION ILLUMINATION WITH SEPARATE PREPROCESSING — 802_segmentation_illumination_with_separate_preprocessing.txt](feature_list/802_segmentation_illumination_with_separate_preprocessing.txt) | not started |

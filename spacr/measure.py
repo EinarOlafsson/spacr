@@ -1392,10 +1392,17 @@ def _morphological_measurements(
         bystander_reach = 0.0
 
     def _all_masks():
-        """Object type -> label image, for the masks this run actually has."""
+        """Object type -> label image, for the masks this run actually has.
+
+        A role whose mask dim is set to None stands in as an all-zero array;
+        it is left out, so no partner column of +inf is written for it.
+        """
         found = {}
         for name, mask in (('cell', cell_mask), ('nucleus', nucleus_mask),
                            ('pathogen', pathogen_mask)):
+            key = f'{name}_mask_dim'
+            if key in settings and settings[key] is None:
+                continue
             if mask is not None and getattr(mask, 'size', 0):
                 found[name] = mask
         return found
@@ -3023,6 +3030,11 @@ def _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_
       on an anisotropic stack blurs far further in z in physical terms than in
       xy. The sigma is given per axis, scaled so it means the same physical
       distance on each.
+
+    A role whose mask dim is None was never segmented, so its
+    ``distance_to_<role>`` column is left out. A segmented mask with no
+    object in this field is written as NaN: the transform of an all-zero mask
+    is +inf everywhere, which broke every downstream mean and scaling.
     """
 
     sigma = settings.get('distance_gaussian_sigma', 1.0)
@@ -3038,8 +3050,16 @@ def _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_
     cell_labels = cell_labels[cell_labels > 0]
 
     dfs = []
-    nucleus_dt = distance_transform_edt(nucleus_mask == 0, sampling=spacing)
-    pathogen_dt = distance_transform_edt(pathogen_mask == 0, sampling=spacing)
+    targets = [(role, target) for role, target in
+               (('nucleus', nucleus_mask), ('pathogen', pathogen_mask))
+               if not (f'{role}_mask_dim' in settings
+                       and settings[f'{role}_mask_dim'] is None)]
+    transforms = {
+        role: (distance_transform_edt(target == 0, sampling=spacing)
+               if target is not None and np.any(target) else None)
+        for role, target in targets}
+    roles = [role for role, _target in targets]
+    missing = [np.nan] * len(roles)
 
     boxes = _label_bounding_boxes(cell_mask)
 
@@ -3053,7 +3073,7 @@ def _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_
             if box is None:
                 cell_coords = np.argwhere(cell_mask == label)
                 if cell_coords.size == 0:
-                    data.append([label, np.nan, np.nan])
+                    data.append([label, *missing])
                     continue
                 lower = np.min(cell_coords, axis=0)
                 upper = np.max(cell_coords, axis=0) + 1
@@ -3065,30 +3085,28 @@ def _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_
             blurred_subimg = blurred_img[box]
 
             if np.sum(cell_submask) == 0:
-                data.append([label, np.nan, np.nan])
+                data.append([label, *missing])
                 continue
 
             masked_intensity = blurred_subimg * cell_submask
             com_local = center_of_mass(masked_intensity)
             if np.isnan(com_local[0]):
-                data.append([label, np.nan, np.nan])
+                data.append([label, *missing])
                 continue
 
             com_global = tuple(c + int(o) for c, o in zip(com_local, lower))
             index = tuple(int(v) for v in np.round(com_global).astype(int))
 
             if not all(0 <= v < s for v, s in zip(index, cell_mask.shape)):
-                data.append([label, np.nan, np.nan])
+                data.append([label, *missing])
                 continue
 
-            nucleus_dist = nucleus_dt[index]
-            pathogen_dist = pathogen_dt[index]
+            data.append([label, *(
+                np.nan if transforms[role] is None
+                else transforms[role][index] for role in roles)])
 
-            data.append([label, nucleus_dist, pathogen_dist])
-
-        df = pd.DataFrame(data, columns=['label',
-                                         f'cell_channel_{ch}_distance_to_nucleus',
-                                         f'cell_channel_{ch}_distance_to_pathogen'])
+        df = pd.DataFrame(data, columns=['label', *(
+            f'cell_channel_{ch}_distance_to_{role}' for role in roles)])
         dfs.append(df)
 
     merged_df = dfs[0]

@@ -1356,9 +1356,10 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "distance_gaussian_sigma setting is a non-zero int. 0 when the centre "
         "of mass lands inside a nucleus. The distance transform is global, so "
         "the nearest nucleus may belong to a neighbouring cell. NaN when the "
-        "centre of mass is undefined or falls outside the image. In 3-D the "
-        "transform is sampled with the voxel spacing, so a step in z counts as "
-        "dz and not as one pixel.",
+        "centre of mass is undefined or falls outside the image, or when the "
+        "field holds no nucleus. Not written when nucleus_mask_dim is None. In "
+        "3-D the transform is sampled with the voxel spacing, so a step in z "
+        "counts as dz and not as one pixel.",
     ),
     "distance_to_pathogen": PropertyInfo(
         "morphology",
@@ -1371,8 +1372,9 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "Only emitted for the cell object, and only when the "
         "distance_gaussian_sigma setting is a non-zero int. 0 when the centre "
         "of mass lands inside a pathogen. The distance transform is global, so "
-        "the nearest pathogen may belong to a neighbouring cell. Sampled with "
-        "the voxel spacing in 3-D.",
+        "the nearest pathogen may belong to a neighbouring cell. NaN when the "
+        "field holds no pathogen; not written when pathogen_mask_dim is None. "
+        "Sampled with the voxel spacing in 3-D.",
     ),
     "organelle_summary_organelle_count": PropertyInfo(
         "morphology",
@@ -2315,7 +2317,8 @@ _set_scope(
     ("distance_to_nucleus", "distance_to_pathogen"),
     _scope(_CELL_ONLY, CHANNEL_SINGLE,
            when="distance_gaussian_sigma is a non-zero int, a cell mask "
-                "exists and at least one of the nucleus/pathogen masks does. "
+                "exists and at least one of the nucleus/pathogen masks does; "
+                "each column needs its own mask dim set. "
                 "Cell table only: _measure_intensity_distance's frame is "
                 "appended to cell_dfs and to nothing else."))
 _set_scope(
