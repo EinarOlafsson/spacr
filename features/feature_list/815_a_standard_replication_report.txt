@@ -1,7 +1,7 @@
 A STANDARD REPORT FOR ANALYZE_REPLICATION
 
 Lifecycle: new
-Status: open. Builds on spacr/assay_report.py (A4 layout and pagination, 16-bit tile extraction, legend builder), which reaches nightly with Anu's recruitment report push after the 2026-11-06 batch.
+Status: DONE 2026-11-07 - analyze_replication(report=True) writes results/analyze_replication/report for size_proxy and direct_count: filtered and unfiltered figures with images per size bin (merged, channel-of-interest grey, grey with vector outlines; 16-bit, 2-98 % scaling), well and replicate readout graphs, stacked bins with chi-square and Fisher-Freeman-Halton plus the replicate-mean bar per panel, split control graphs with tests, a filtration-steps panel, plate heatmaps including bin fractions, legend on the figure and figure_legend.txt. Verified on the Anu HFF replication plate.
 Requested: maintainer, 2026-11-06 (via Anu).
 Owner: Anu.
 
