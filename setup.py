@@ -461,7 +461,8 @@ setup(
             'xenon>=0.9,<1',
             'pingouin>=0.5.5,<2.0',
             'nbformat>=5.9.2,<6',
-            'nbconvert>=7.10,<8',
+            # 7.16.5 is the first nbconvert that renders markdown with mistune 3.1.
+            'nbconvert>=7.16.5,<8',
             'sphinx>=7.2.6,<10',
             'coverage>=7.10.6,<8',
             'pytest-cov>=7,<8',
