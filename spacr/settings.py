@@ -2074,6 +2074,16 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('viability_positive_wells', None)
     settings.setdefault('viability_plate_map', '')
     settings.setdefault('cellprofiler_pipeline', '')
+    settings.setdefault('label_import', False)
+    settings.setdefault('label_import_images', '')
+    settings.setdefault('label_import_image_regex', '')
+    settings.setdefault('label_import_channels', None)
+    settings.setdefault('cell_label_folder', '')
+    settings.setdefault('cell_label_regex', '')
+    settings.setdefault('nucleus_label_folder', '')
+    settings.setdefault('nucleus_label_regex', '')
+    settings.setdefault('pathogen_label_folder', '')
+    settings.setdefault('pathogen_label_regex', '')
     settings.setdefault('object_distances', True)
     settings.setdefault('object_distance_maxima', True)
     settings.setdefault('object_distance_intensity', True)
@@ -4101,6 +4111,16 @@ expected_types = {
     "viability_positive_wells": (list, str, type(None)),
     "viability_plate_map": str,
     "cellprofiler_pipeline": str,
+    "label_import": bool,
+    "label_import_images": str,
+    "label_import_image_regex": str,
+    "label_import_channels": (list, type(None)),
+    "cell_label_folder": str,
+    "nucleus_label_folder": str,
+    "pathogen_label_folder": str,
+    "cell_label_regex": str,
+    "nucleus_label_regex": str,
+    "pathogen_label_regex": str,
     "spatial_measurements": bool,
     "spatial_neighbor_radius": int,
     "calculate_correlation": bool,
@@ -5540,6 +5560,16 @@ tooltips = {
     "viability_positive_wells": "(list or str) - Wells given a cytotoxic control (for example digitonin, saponin or staurosporine), e.g. ['c12'], in the same notation as viability_negative_wells. They read 100 on the cytotoxicity index and, with the negative wells, give each plate's Z' in viability_qc; a Z' of 0.5 or more is a working assay. Blank scales the index to the negative wells alone. Default None.",
     "viability_plate_map": "(str) - A table (CSV or Excel) of each well's compound and concentration: a well column (well such as A01, rowID and columnID, or prc), compound or treatment, concentration or dose, and optionally plateID. With it, viability, the cytotoxicity index and the infection of live cells are fitted against concentration per compound, and the host CC50 over the parasite EC50 is written as a selectivity index. Blank skips dose-response. Default blank.",
     "cellprofiler_pipeline": "(str) - A CellProfiler pipeline (.cppipe) to run headless after measuring, in CellProfiler's own environment from the Model Zoo. Each field's channels are handed to it as <field>_ch<N>.tif, N from 0, and its masks as <field>_<object>_mask.tif; load the masks in NamesAndTypes as objects, and measure each object's Location. Its per-object measurements go to measurements.db:cellprofiler_<object>, matched to spaCR objects by prcfo. Blank skips it. Default blank.",
+    "label_import": "(bool) - Measure label images made by another tool (CellProfiler, Cellpose, ilastik) instead of spaCR's own masks. Before measuring, the raw channel images in label_import_images and the label images in cell_label_folder, nucleus_label_folder and pathogen_label_folder are paired by file name, checked (integer labels, same size as the images, IDs up to 65535) and written into src as spaCR's stack/, masks/ and merged/ folders; label_import.json records every source file. src must be an empty plate folder or one an earlier import wrote. Default False.",
+    "label_import_images": "(str) - Folder with the raw channel images, one image file per channel per field, read when label_import is on. Its subfolders are not searched, and the folder name is the plate name unless label_import_image_regex has a plateID group. Blank uses src. Default blank.",
+    "label_import_image_regex": "(str) - Regular expression searched in each raw image file name, with named groups wellID, fieldID and chanID, and optionally plateID and timeID, for example (?P<wellID>[A-P]\\d{2})_s(?P<fieldID>\\d+)_w(?P<chanID>\\d). Files it does not match are left out. Blank infers a pattern from the file names and stops if none fits every file. Default blank.",
+    "label_import_channels": "(list or None) - chanID values to import, in the order they become stack channels 0, 1, 2 and so on, for example [1, 2, 4]. None imports every channel found, numeric IDs in increasing order. Default None.",
+    "cell_label_folder": "(str) - Folder with cell label images (TIFF, PNG or NPY; one integer ID per cell, 0 = background), searched with its subfolders when label_import is on. Blank imports no cell masks. Default blank.",
+    "nucleus_label_folder": "(str) - Folder with nucleus label images (TIFF, PNG or NPY; one integer ID per nucleus, 0 = background), searched with its subfolders when label_import is on. It may be the same folder as cell_label_folder when nucleus_label_regex tells the files apart. Blank imports no nucleus masks. Default blank.",
+    "pathogen_label_folder": "(str) - Folder with pathogen label images (TIFF, PNG or NPY; one integer ID per pathogen, 0 = background), searched with its subfolders when label_import is on. Blank imports no pathogen masks. Default blank.",
+    "cell_label_regex": "(str) - Regular expression searched in each file name in cell_label_folder, with named groups wellID and fieldID, and optionally plateID and timeID; a file is paired with the image field that has the same values. Only matching files are read, so a suffix such as _Cell\\.tiff$ keeps other objects' labels in the same folder out. Blank infers a pattern from the file names. Default blank.",
+    "nucleus_label_regex": "(str) - Regular expression searched in each file name in nucleus_label_folder, with named groups wellID and fieldID, and optionally plateID and timeID; a file is paired with the image field that has the same values. Only matching files are read, for example a pattern ending in _Nuclei\\.tiff$. Blank infers a pattern from the file names. Default blank.",
+    "pathogen_label_regex": "(str) - Regular expression searched in each file name in pathogen_label_folder, with named groups wellID and fieldID, and optionally plateID and timeID; a file is paired with the image field that has the same values. Only matching files are read. Blank infers a pattern from the file names. Default blank.",
     "bystander_measurements": "(bool) - Split uninfected cells into bystanders and distal cells. A bystander is an uninfected cell within the reach set by bystander_reach_in_diameters of an infected one; everything else uninfected is distal. Without this the two are the same row, so a bystander phenotype cannot be found and the uninfected control is a mixture of two populations whose variance hides the effect being looked for. Adds three columns per cell and costs one distance transform and one KD-tree per field. Default False.",
     "bystander_reach_in_diameters": "(float) - How close an uninfected cell must be to an infected one to count as a bystander, expressed in measured cell diameters rather than pixels or micrometres, so it means the same thing at 20x and 63x. The diameter is the median of the cells in the field, ignoring those clipped by its edge. Zero or less makes every uninfected cell distal, which turns the split off without a second setting. Ignored unless bystander_measurements is enabled. Default 1.0.",
     "spatial_measurements": "(bool) - Measure each object's neighbourhood: the number of neighbours within a radius, first and second nearest-neighbour distances, and the fraction of its border contacting another object. These measurements can be used to model density-associated variation in morphology and intensity. They are not produced for cytoplasm, which is defined as one object per cell. Computation requires one KD-tree and one boundary pass per field. Default True.",
@@ -6369,6 +6399,13 @@ categories = {
 
     "CellProfiler α": [
         "cellprofiler_pipeline",
+    ],
+
+    "Label Image Import α": [
+        "label_import", "label_import_images", "label_import_image_regex",
+        "label_import_channels", "cell_label_folder", "cell_label_regex",
+        "nucleus_label_folder", "nucleus_label_regex",
+        "pathogen_label_folder", "pathogen_label_regex",
     ],
 
     "Motility (beta)": motility_settings,
@@ -8079,6 +8116,13 @@ ALPHA_FEATURES = {
     800: {
         'module_settings': {app_key: ('pixel_size_um',)
                             for app_key in ('measure', 'external_masks')},
+    },
+    790: {
+        'settings': ('label_import', 'label_import_images',
+                     'label_import_image_regex', 'label_import_channels',
+                     'cell_label_folder', 'nucleus_label_folder',
+                     'pathogen_label_folder', 'cell_label_regex',
+                     'nucleus_label_regex', 'pathogen_label_regex'),
     },
     752: {
         'settings': ('ops_ph_channels', 'ops_ph_cell_channel',

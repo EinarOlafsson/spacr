@@ -1368,6 +1368,20 @@ if app_key == "mask":
         assert resolve_default_settings(app)[key] == {
             "nucleus_min_size": 2000, "pathogen_min_size": 500}[key]
     recognized_arrivals |= size_floor_arrivals
+    # Item 790: Measure's label-image import, ten parseable claims (False,
+    # blank, None) resolved by the Measure screen only.
+    label_import_defaults = {
+        "label_import": False, "label_import_images": "",
+        "label_import_image_regex": "", "label_import_channels": None,
+        **{f"{role}_label_{kind}": "" for role in ("cell", "nucleus", "pathogen")
+           for kind in ("folder", "regex")}}
+    label_import_arrivals = {("measure", key) for key in label_import_defaults}
+    assert {pair for pair in compared_pairs
+            if pair[1] in label_import_defaults} == label_import_arrivals
+    assert not label_import_arrivals & (recognized_arrivals | variants.keys())
+    for app, key in label_import_arrivals:
+        assert resolve_default_settings(app)[key] == label_import_defaults[key]
+    recognized_arrivals |= label_import_arrivals
     assert comparisons - len(recognized_arrivals) == 1005
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))

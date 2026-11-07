@@ -1033,6 +1033,12 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # NEW SETTING, not a regrouping (item 696, 2026-10-26): "Calculate
     # diameters", directly under magnification in General.
     "calculate_diameters",
+    # NEW SETTINGS, not a regrouping (item 790, 2026-11-07, alpha): Measure's
+    # import of another tool's label images.
+    "label_import", "label_import_images", "label_import_image_regex",
+    "label_import_channels", "cell_label_folder", "nucleus_label_folder",
+    "pathogen_label_folder", "cell_label_regex", "nucleus_label_regex",
+    "pathogen_label_regex",
 })
 
 #: Categorised keys with no default and no ``expected_types`` entry. All six
@@ -1737,7 +1743,8 @@ def _rendered_sections(app_key):
         # (_APP_CATEGORY_PARENTS). This is the flat order they are drawn
         # in; Image Enhancement offers no measure key, so it is not drawn.
         ("measure", [
-            "Input & Experiment", "Cloud α", "Mask & Channel Mapping",
+            "Input & Experiment", "Cloud α", "Label Image Import α",
+            "Mask & Channel Mapping",
             "Bleach Correction α", "Spectral Unmixing α",
             "Image Deconvolution (PSF)", "Illumination Correction",
             "Intensity Calibration α", "Plate Barcode Linkage α",
