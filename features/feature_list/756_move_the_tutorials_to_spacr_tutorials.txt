@@ -2,7 +2,7 @@ MOVE THE TUTORIALS OUT OF THE MAIN REPOSITORY INTO spacr-tutorials
 ==================================================================
 
 Lifecycle: new
-Status: open — for the release after 1.5.1.7. Approved 2026-11-06 for the next wave; ask the maintainer before the first spacr-translations/spacr-tutorials push and before deleting anything from the main repo.
+Status: media moved 2026-11-07 (Hugging Face pin, public GitHub repo for scripts and sources); remaining: move the scripts out of spaCR together with ~20 tests and 6 tools.
 Requested: maintainer, 2026-11-04.
 Related: 710 (slim the repository; its remaining step is moving ~311 MB of
 tutorial media to einarolafsson/spacr-tutorials behind a pin).
