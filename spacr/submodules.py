@@ -1594,8 +1594,10 @@ def _recruitment_panels_impl(df, settings, results_dir):
             raise KeyError(f"figures refer to unknown panel id(s) {bad}; known: {sorted(all_specs)}")
         out['panels'] = _write_panels_and_figures(
             specs, names, os.path.join(results_dir, 'panels'), figures_dir, None)
-        out['crops'] = _panel_crop_grids(df, specs, names, panels, os.path.join(results_dir, 'panels'),
-                                         settings)
+        crops = _panel_crop_grids(df, specs, names, panels, os.path.join(results_dir, 'panels'),
+                                  settings)
+        if crops:
+            out['crops'] = crops
         if user_figs:
             from .assay_panels import assemble_figure
             out['figures'] = {
@@ -1708,7 +1710,7 @@ def _panel_crop_grids(df, specs, names, panels, panels_dir, settings):
                                    cfg['colour_map'], folder, n=int(settings['representative_crops_n']),
                                    size=cfg['size'], value_column=value, selection='median',
                                    mono_channel=cfg.get('mono_channel'))
-            out[pid]['table'].to_csv(os.path.join(folder, 'data.csv'), index=False)
+            write_table(out[pid]['table'], os.path.join(folder, 'data.csv'))
         except Exception as exc:
             print(f"representative crops for {pid} failed: {exc}")
     return out
@@ -1834,7 +1836,7 @@ def _field_background(merged_dir, file_names, channels, mask_channel=-1, stride=
     cols = [f'ch{c}_field_background' for c in channels]
     cached = None
     if cache_path and os.path.exists(cache_path):
-        cached = pd.read_csv(cache_path)
+        cached = read_table(cache_path, report=None)
         if not set(cols) <= set(cached.columns):
             cached = None
     wanted = sorted(set(map(str, file_names)))
@@ -1859,7 +1861,7 @@ def _field_background(merged_dir, file_names, channels, mask_channel=-1, stride=
     out = out.drop_duplicates('file_name', keep='last')
     if cache_path and todo:
         os.makedirs(os.path.dirname(cache_path), exist_ok=True)
-        out.to_csv(cache_path, index=False)
+        write_table(out, cache_path)
     return out[out['file_name'].isin(wanted)].reset_index(drop=True)
 
 
@@ -2503,7 +2505,7 @@ def analyze_recruitment(settings):
         df, _pre_steps, _qc_tables = _qc_filters(df, settings, 'cell')
         os.makedirs(_results_dir, exist_ok=True)
         for _name, _table in _qc_tables.items():
-            _table.to_csv(os.path.join(_results_dir, f'{_name}.csv'), index=False)
+            write_table(_table, os.path.join(_results_dir, f'{_name}.csv'))
         _well_qc = _qc_tables.get('well_qc')
     _field_cols = ['n_cells_field', 'n_pathogens_field', 'pathogens_per_cell_field']
     _screen = list(settings.get('confounder_covariates') or [])
