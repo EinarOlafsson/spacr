@@ -419,14 +419,16 @@ def test_an_empty_table_is_told_apart_from_an_unmatched_query(tmp_path):
 
 def test_a_folder_of_the_wrong_files_says_which_files(tmp_path):
     """The commonest folder miss is pointing at the images, not the crops."""
+    # Raw microscope files rather than crops. A .tif is no longer the example:
+    # item 836 reads a folder of .tif crops as crops.
     folder = tmp_path / "raw"
     folder.mkdir()
-    (folder / "field.tif").write_bytes(b"")
+    (folder / "field.nd2").write_bytes(b"")
 
     reason = plan_crops(CropQuery(source="folder", path=str(folder)
                                   )).empty_reason
 
-    assert ".tif" in reason
+    assert ".nd2" in reason
     assert "*_png" in reason
 
 
