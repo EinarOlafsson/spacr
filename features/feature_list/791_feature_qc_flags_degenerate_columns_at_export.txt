@@ -1,7 +1,7 @@
 FEATURE QC FLAGS DEGENERATE COLUMNS AT EXPORT
 
 Lifecycle: future
-Status: in progress — branch bmc-feature-qc (report by default, drop behind feature_qc_drop).
+Status: DONE 2026-11-07 — steps 1-4 are on nightly: Measure writes feature_qc.csv/feature_qc.json after every complete run and feature_qc_drop (alpha, ALPHA_FEATURES[791]) removes the flagged columns; item 807's export QC adds feature_qc_dropped.csv at profile export. Step 5 (fixing the Zernike source) stays deliberately not done.
 Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
            (BMC spaCR paper) worked around must become a spaCR item.
 Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cellprofiler_baseline/REPORT.md, "spaCR gaps", gap 2
@@ -78,3 +78,5 @@ feature_qc_drop; tools/settings_flow.py --rst; the alpha deck PDF re-render
 for the 791 row. Not yet run on the BBBC021 plates.
 
 2026-11-05: renumbered from 756 to 791; nightly already used 755-768 for other items.
+
+2026-11-07: checked against nightly. flag_degenerate_features, _feature_qc_report and Measure's _emit_feature_qc are merged, feature_qc_drop is registered under ALPHA_FEATURES[791] with label, tooltip and 9-locale records, and item 807's profile-export QC (feature_qc_dropped.csv, profiling_na_cutoff / profiling_outlier_cutoff / profiling_min_variance) drops broken features again at export. Together they cover the degenerate-column gap. Not recorded here: a rescore of the BBBC021 plates with feature_qc_drop on. Step 5 stays in DELIBERATELY NOT DONE.

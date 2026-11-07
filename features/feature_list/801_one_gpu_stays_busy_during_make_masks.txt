@@ -46,3 +46,5 @@ DELIBERATELY NOT DONE
 Nothing yet.
 
 2026-11-05: renumbered from 766 to 801; nightly already used 755-768 for other items.
+
+2026-11-07: item 803's GPU memory governor (spacr/_gpu_governor.py: free-VRAM batch sizing, a machine-wide ledger and the gpu_* settings) is the VRAM budget step 1 points to; running several workers on one GPU under it is still to be built.

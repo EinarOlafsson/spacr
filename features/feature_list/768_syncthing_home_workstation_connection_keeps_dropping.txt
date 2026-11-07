@@ -2,7 +2,7 @@ SYNCTHING: THE HOME-WORKSTATION CONNECTION KEEPS DROPPING
 =========================================================
 
 Lifecycle: new
-Status: open — workaround in place (training-projects paused on Home, 2026-11-04 16:40).
+Status: DONE 2026-11-07 — Home runs Syncthing v2.1.6 with its database on local SSD (/mnt/firecuda2/syncthing_state/home/index-v2); 0 'folder is not running' drops since; the workstation restart cleared the secondary-ClusterConfig stall and data flows. spacr-claude stays paused on the workstation for good (code moves through nightly); af3 stays paused on Home by maintainer choice.
 Requested: maintainer, 2026-11-04 ("for some reason the synkling synk is not working").
 
 FINDINGS (Home, 2026-11-04)
@@ -26,3 +26,5 @@ REQUIREMENTS
    rescan interval with the watcher on, or send it on its own connection/device.
 3. Unpause training-projects and verify zero "folder is not running" drops over
    a full rescan, and af3/nas-sync/spacr-claude staying in sync.
+
+2026-11-07: closed. Home moved to Syncthing v2.1.6 with its database on local SSD (/mnt/firecuda2/syncthing_state/home/index-v2), and no 'folder is not running' drop has been logged since. Restarting the workstation cleared the secondary-ClusterConfig stall and data flows again. spacr-claude stays paused on the workstation for good, because code moves through nightly; af3 stays paused on Home by maintainer choice.

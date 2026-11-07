@@ -1,7 +1,7 @@
 MEASURE_CROP FROM THE PYTHON API FILLS DEFAULTS FIRST
 
 Lifecycle: future
-Status: not started
+Status: DONE 2026-11-07 — fixed as item 838.
 Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
            (BMC spaCR paper) worked around must become a spaCR item.
 Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/spacr/README.md, "Gaps in spaCR worked around here", gaps 1 and 2
@@ -49,3 +49,5 @@ DELIBERATELY NOT DONE
 Nothing yet.
 
 2026-11-05: renumbered from 761 to 796; nightly already used 755-768 for other items.
+
+2026-11-07: the same bug as item 838 (measure_crop fills its own default settings), fixed there on 2026-11-06; closed as that fix.

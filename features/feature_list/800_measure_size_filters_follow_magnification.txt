@@ -45,3 +45,5 @@ DELIBERATELY NOT DONE
 Nothing yet.
 
 2026-11-05: renumbered from 765 to 800; nightly already used 755-768 for other items.
+
+2026-11-07: checked against item 831. Mask's size limits now follow pixel size: _get_object_settings takes the diameter from pixel_size_um (or magnification) and derives minimum_size and maximum_size from it. Measure's filters do not: get_measure_crop_settings still defaults cell_min_size to 8000 px, nucleus_min_size to 2000 px and pathogen_min_size to 500 px whatever the pixel size (the nucleus and pathogen tooltips say the default is 0, which disagrees with the code). Left: (1) derive those Measure defaults from pixel size or magnification, or express object_filters area rows in um^2; (2) warn when a filter removes most objects of a field; (3) register any new setting under ALPHA_FEATURES[800]; (4) the BBBC021 check at magnification 20 with no size settings.

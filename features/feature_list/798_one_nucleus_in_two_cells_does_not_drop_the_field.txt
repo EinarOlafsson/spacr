@@ -1,7 +1,7 @@
 ONE NUCLEUS IN TWO CELLS DOES NOT DROP THE FIELD
 
 Lifecycle: future
-Status: not started
+Status: DONE 2026-11-07 — fixed as item 840.
 Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
            (BMC spaCR paper) worked around must become a spaCR item.
 Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/spacr/README.md, "Gaps in spaCR worked around here", gap 5
@@ -45,3 +45,5 @@ DELIBERATELY NOT DONE
 Nothing yet.
 
 2026-11-05: renumbered from 763 to 798; nightly already used 755-768 for other items.
+
+2026-11-07: the same bug as item 840 (a nucleus overlapping two cells goes to the cell it overlaps most, flagged nucleus_shared), fixed there on 2026-11-06; closed as that fix.
