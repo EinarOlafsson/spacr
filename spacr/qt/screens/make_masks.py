@@ -26336,6 +26336,33 @@ class MakeMasksScreen(QWidget):
                 n=len(fields), k=len(spans)))
         return True
 
+    def _open_as_curation_queue(self, folder: str) -> bool:
+        """Open a folder that keeps a curation record as that queue.
+
+        A folder with a ``curate_status.csv`` (or the external tool's
+        record beside it) is a curation queue however it was opened, so the
+        file dialog and a drop open it the way ``spacr-make-masks --folder``
+        does: Save records done and Skip records skip in that record. Every
+        field is offered, reviewed ones too, in name order, because a folder
+        opened by hand is expected to show all of its images.
+
+        :param folder: the folder being opened.
+        :returns: whether it was opened as a queue; False leaves it to the
+            plain folder route.
+        """
+        from ...curation_queue import build_queue, status_path
+
+        try:
+            if not status_path(folder).is_file():
+                return False
+            queue = build_queue(folder, order="name", include_reviewed=True,
+                                cache_counts=False)
+        except Exception:                                    # noqa: BLE001
+            LOG.info("%s keeps a curation record that could not be read; "
+                     "opening it as a plain folder", folder, exc_info=True)
+            return False
+        return self.open_queue(queue)
+
     def _open_folder(self, folder: str,
                      files: Optional[List[str]] = None,
                      masks_dir: Optional[str] = None,
@@ -26357,6 +26384,9 @@ class MakeMasksScreen(QWidget):
         :returns: whether a folder was opened. ``False`` means there was
             nothing in it to edit, which the user has been told about.
         """
+        if (files is None and masks_dir is None and field_folders is None
+                and self._open_as_curation_queue(folder)):
+            return True
         if files is None and any((name.lower().endswith('.npy')
                                   and os.path.abspath(os.path.join(folder, name)) not in self._npy_queue_targets)
                                  or (engine._requires_container_review(os.path.join(folder, name))
