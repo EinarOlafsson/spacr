@@ -175,9 +175,14 @@ class TestTheLoopUsesIt:
 
         source = inspect.getsource(deep_spacr.train_model)
         scaler_source = inspect.getsource(deep_spacr._gradient_scaler)
+        # The forward and backward of one batch moved into _train_batch with
+        # the GPU memory governor (732965ef2f); train_model hands it the scaler.
+        batch_source = inspect.getsource(deep_spacr._train_batch)
         assert "_gradient_scaler" in source
         assert "GradScaler" in scaler_source
-        assert "scaler.scale(loss).backward()" in source
+        assert "_train_batch(" in source and "scaler=scaler" in source
+        assert "scaler.scale(step(rows, device, mixed_precision)).backward()" \
+            in batch_source
         assert "scaler.step(optimizer)" in source
 
     def test_the_forward_and_the_loss_are_inside_the_context(self):
@@ -188,12 +193,13 @@ class TestTheLoopUsesIt:
 
         from spacr import deep_spacr
 
-        source = inspect.getsource(deep_spacr.train_model)
+        source = inspect.getsource(deep_spacr._train_batch)
         block = source[source.index("with autocasting("):]
-        block = block[:block.index("scaler.scale(loss).backward()")]
-        assert "model(data)" in block
+        block = block[:block.index("scaler.scale(")]
+        assert "model(part)" in block
         assert "loss_fn(" in block
         assert "optimizer.step" not in block
+        assert "optimizer.step" not in source
 
     def test_the_accumulation_flush_scales_too(self):
         """The leftover-gradient flush at the end of an epoch is a second
