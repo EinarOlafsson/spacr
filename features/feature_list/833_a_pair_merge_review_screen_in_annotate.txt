@@ -2,7 +2,7 @@ A PAIR/MERGE REVIEW SCREEN IN ANNOTATE
 ======================================
 
 Lifecycle: new
-Status: open
+Status: DONE 2026-11-06 — Annotate has a Review touching pairs dialog: two touching objects outlined as A and B with keys to record merge or keep per pair (spacr/_merge_pairs.py); tests/qt/test_annotate_pair_review.py.
 Requested: maintainer rule (every workaround becomes an item), 2026-11-06.
 Owner: unassigned.
 Related: 470, 828 (merge_touching_objects)

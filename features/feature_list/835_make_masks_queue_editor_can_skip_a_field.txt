@@ -2,7 +2,7 @@ THE MAKE MASKS QUEUE EDITOR CAN MARK A FIELD SKIP
 =================================================
 
 Lifecycle: new
-Status: open
+Status: DONE 2026-11-06 — a fix to the existing Skip button: a queue folder opened from the Make Masks dialog now opens as its curation queue, so Skip marks the field as skip_field.py does; tests/qt/test_make_masks_skips_a_queue_opened_from_the_dialog.py.
 Requested: maintainer rule (every workaround becomes an item), 2026-11-06.
 Owner: unassigned.
 Related: Make Masks curation queues

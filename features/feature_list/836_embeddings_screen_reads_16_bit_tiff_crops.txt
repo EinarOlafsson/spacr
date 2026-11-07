@@ -2,7 +2,7 @@ THE EMBEDDINGS SCREEN READS 16-BIT TIFF CROPS
 =============================================
 
 Lifecycle: new
-Status: open
+Status: DONE 2026-11-06 — the Embeddings screen reads raw 16-bit TIFF crops (spacr.crop_loader) with the API path's normalisation; tests/qt/test_embeddings_reads_raw_tiff_crops.py.
 Requested: maintainer rule (every workaround becomes an item), 2026-11-06.
 Owner: unassigned.
 Related: 560

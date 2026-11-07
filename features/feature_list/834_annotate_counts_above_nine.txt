@@ -2,7 +2,7 @@ ANNOTATE COUNTS ABOVE 9
 =======================
 
 Lifecycle: new
-Status: open
+Status: DONE 2026-11-06 — Annotate takes counts of 9 or more (annotation_counts), entered beside the number keys and stored in the same annotation column; tests/qt/test_annotate_counts_above_nine.py.
 Requested: maintainer rule (every workaround becomes an item), 2026-11-06.
 Owner: unassigned.
 Related: 470
