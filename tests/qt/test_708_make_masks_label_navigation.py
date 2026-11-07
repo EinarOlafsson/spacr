@@ -238,17 +238,21 @@ def test_time_click_can_remove_a_track_without_deleting_its_lineage(screen):
     assert screen._lineage["frames"][frame]["1"] == identity
 
 
-def test_conflicting_track_stops_the_wheel_queue_without_saving(screen):
+def test_conflicting_track_on_a_wheel_step_swaps_the_two_identities(qtbot, screen):
+    """Item 763: a wheel step onto another cell's object swaps, not refuses."""
     enable_time(screen)
     click_pixel(screen, (10, 10))
+    first = screen._selected_cell
     screen._add_lineage_cell()
     click_pixel(screen, (30, 30))
-    before = _edit_snapshot(screen)
-    wheel(screen, 2, point=(10, 10))
-    assert not screen._label_time_queue
-    assert screen._load_worker is None
-    assert "already labels another object in this frame" in screen._status_label.text()
-    assert _edit_snapshot(screen) == before
+    second, frame = screen._selected_cell, screen._lineage_frame()
+    on_first, on_second = int(screen._canvas.mask[10, 10]), int(screen._canvas.mask[30, 30])
+    wheel(screen, 1, point=(10, 10))
+    wait_idle(qtbot, screen)
+    assert "already labels another object in this frame" not in screen._status_label.text()
+    mapping = screen._lineage["frames"][frame]
+    assert mapping[str(on_first)] == second
+    assert mapping[str(on_second)] == first
 
 
 def test_time_only_navigation_and_dialogs_are_inert_in_ordinary_mode(screen, monkeypatch):

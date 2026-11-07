@@ -13916,6 +13916,7 @@ class MakeMasksScreen(QWidget):
         self._pending_curation_status = None
         self._loading = False
         self._label_time_queue = deque()
+        self._label_time_wheel_step = False
         self._label_time_pending = None
         self._label_time_edited = False
         self._detection_worker = None
@@ -19329,7 +19330,8 @@ class MakeMasksScreen(QWidget):
             held = [int(local) for local, value in mapping.items()
                     if value == selected and int(local) != previous
                     and np.any(self._canvas.mask == int(local))]
-            if held and replaced not in (None, selected) \
+            if held and self._label_time_wheel_step \
+                    and replaced not in (None, selected) \
                     and not self._related_cells(state, selected, replaced):
                 state = engine._swap_frame_identities(state, frame, held[0], previous)
                 mapping = state["frames"][frame]
@@ -19632,6 +19634,18 @@ class MakeMasksScreen(QWidget):
         self._label_time_pending = None
         self._canvas.label_time_busy = False
 
+    def _assign_wheel_step(self, point, label):
+        """Assign ``label`` at ``point`` as a wheel step, where a conflict swaps.
+
+        Only a wheel step exchanges two cells' identities (item 763); a click
+        on another cell's object is still refused.
+        """
+        self._label_time_wheel_step = True
+        try:
+            return self._canvas.assign_label_at(point, label)
+        finally:
+            self._label_time_wheel_step = False
+
     def _drain_label_time_queue(self):
         """Label and save one frame, then decode exactly its adjacent frame."""
         from ..i18n import tr
@@ -19641,7 +19655,7 @@ class MakeMasksScreen(QWidget):
                 or self._canvas.mode != MODE_LABEL_TIME):
             return
         step, point, label = self._label_time_queue.popleft()
-        if not self._canvas.assign_label_at(point, label):
+        if not self._assign_wheel_step(point, label):
             self._label_time_queue.clear()
             return
         if not self._save_label_time_if_needed() or not self._save_boxes_if_needed():
@@ -19734,7 +19748,7 @@ class MakeMasksScreen(QWidget):
         self._apply_loaded_pair(worker.filename, worker.token, *worker.result,
                                 metadata=worker.metadata, lineage_state=state,
                                 channels=getattr(worker, "channels", None))
-        if not self._canvas.assign_label_at(pending["point"], pending["label"]):
+        if not self._assign_wheel_step(pending["point"], pending["label"]):
             self._label_time_queue.clear()
         self._sync_queue_tally()
         QTimer.singleShot(0, self._drain_label_time_queue)
