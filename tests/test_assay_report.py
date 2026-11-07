@@ -625,3 +625,12 @@ def test_replication_tiles_centre_on_the_object_itself(tmp_path):
     none_cfg, why = _replication_tile_config(df.drop(columns="object_label"), {"src": str(tmp_path),
                                                                                  "merged_dir": str(merged)})
     assert none_cfg is None and "object_label" in why
+
+
+def test_both_report_layouts_resolve_by_name_and_others_are_refused():
+    """``report_layout`` offers 'compact' and 'spacious'; each resolves to its layout."""
+    assert ar.get_layout("compact") is ar.COMPACT
+    assert ar.get_layout("spacious") is ar.SPACIOUS
+    assert ar.get_layout(ar.SPACIOUS) is ar.SPACIOUS
+    with pytest.raises(ValueError, match="report_layout must be one of"):
+        ar.get_layout("roomy")
