@@ -3101,6 +3101,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
 
     cell_dino_fields = {
         "cell_dino_factory", "checkpoint_path", "checkpoint_sha256",
+        "input_transform", "input_mean", "input_std", "input_size",
     }
     spec_symbol = "spacr.embeddings.EmbeddingSpec"
     spec = by_symbol[spec_symbol]

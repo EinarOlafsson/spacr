@@ -2,7 +2,13 @@ THE TIMM EMBEDDING ENCODER NORMALISES AND RESIZES LIKE IMAGENET
 ===============================================================
 
 Lifecycle: new
-Status: open.
+Status: DONE 2026-11-06 — the timm encoder resizes each crop to the model's pretrained
+input size and standardises it by the pretrained mean/std (timm data config) by
+default. EmbeddingSpec gains input_transform ('pretrained'/'none'), input_mean,
+input_std and input_size (0 keeps the crop size); Overview settings
+overview_embedding_transform/_mean/_std/_input_size. Fingerprint moves for timm
+backbones unless input_transform='none'
+(tests/test_timm_encoder_normalises_and_resizes_like_imagenet.py).
 Requested: maintainer via the BMC software-paper session, 2026-11-05.
 Source: BBBC021 computer-vision benchmark, /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cv/README.md.
 

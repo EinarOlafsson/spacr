@@ -336,6 +336,7 @@ def convert_settings_dict_for_gui(settings):
         'enhance_denoise': ('combo', ['none', 'gaussian', 'median', 'bilateral', 'nlm', 'tv'], 'none'),
         'image_qc_mode': ('combo', ['off', 'report', 'exclude'], 'off'),
         'overview_embedding_backbone': ('combo', ['resnet18', 'openphenom', 'chada_vit'], 'resnet18'),
+        'overview_embedding_transform': ('combo', ['pretrained', 'none'], 'pretrained'),
         'overview_measure_export_format': ('combo', ['csv', 'xlsx', 'both', 'none'], 'csv'),
         'overview_objects_unit': ('combo', ['image', 'well'], 'image'),
         'tta_aggregation': ('combo', ['probability_mean', 'majority_vote'], 'probability_mean'),

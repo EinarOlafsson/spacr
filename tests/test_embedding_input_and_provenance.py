@@ -89,7 +89,8 @@ def test_cpu_adapter_batches_real_tensors_in_eval_mode_without_gradients(monkeyp
     monkeypatch.setitem(sys.modules, 'timm', SimpleNamespace(create_model=create))
     monkeypatch.setattr(torch.cuda, 'is_available', lambda: False)
     crops = np.arange(5*2*3*3, dtype=np.float32).reshape(5, 2, 3, 3)/100
-    run = emb._timm_encoder(emb.EmbeddingSpec(backbone='test-encoder', batch_size=2, device='cpu'))
+    run = emb._timm_encoder(emb.EmbeddingSpec(backbone='test-encoder', batch_size=2, device='cpu',
+                                              input_transform='none'))
     values = run(crops)
     np.testing.assert_allclose(values, crops.mean(axis=(1, 2)), rtol=1e-6)
     assert batches == [((2, 3, 2, 3), False, False, 'cpu'),
@@ -119,7 +120,7 @@ def test_default_embedding_device_routes_a_real_encoder_to_shared_cpu(monkeypatc
     choose_device = Mock(return_value=torch.device('cpu'))
     monkeypatch.setattr(accelerator, 'torch_device', choose_device)
     monkeypatch.setitem(sys.modules, 'timm', SimpleNamespace(create_model=create))
-    spec = emb.EmbeddingSpec(backbone='recorded-tiny-encoder')
+    spec = emb.EmbeddingSpec(backbone='recorded-tiny-encoder', input_transform='none')
     assert spec.device is None
     crops = np.arange(12, dtype=np.float32).reshape(1, 2, 2, 3) / 10
 
@@ -156,7 +157,8 @@ def test_strict_timm_patch_embed_resizes_rectangular_crops_before_each_batch(mon
         model.patch_embed(torch.from_numpy(crops[:1].transpose(0, 3, 1, 2)))
 
     run = emb._timm_encoder(emb.EmbeddingSpec(
-        backbone='strict-patch', batch_size=2, device='cpu'))
+        backbone='strict-patch', batch_size=2, device='cpu',
+        input_transform='none'))
     values = run(crops)
     expected = torch.nn.functional.interpolate(
         torch.from_numpy(crops.transpose(0, 3, 1, 2).copy()),
@@ -192,7 +194,8 @@ def test_dynamic_timm_patch_embed_keeps_the_original_crop_shape(monkeypatch):
         create_model=Mock(return_value=DynamicPatchEncoder())))
     crops = np.linspace(0, 1, 3 * 7 * 11 * 3, dtype=np.float32).reshape(3, 7, 11, 3)
     run = emb._timm_encoder(emb.EmbeddingSpec(
-        backbone='dynamic-patch', batch_size=2, device='cpu'))
+        backbone='dynamic-patch', batch_size=2, device='cpu',
+        input_transform='none'))
     values = run(crops)
     assert [tuple(tensor.shape) for tensor in seen] == [
         (2, 3, 7, 11), (1, 3, 7, 11)]

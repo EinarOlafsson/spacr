@@ -964,6 +964,10 @@ _OVERVIEW_MEASUREMENT_DEFAULTS = {
     'overview_measure_embeddings': False,
     'overview_embedding_backbone': 'resnet18',
     'overview_embedding_size': 224,
+    'overview_embedding_transform': 'pretrained',
+    'overview_embedding_mean': '',
+    'overview_embedding_std': '',
+    'overview_embedding_input_size': None,
     'overview_measure_deep_qc': False,
     'overview_measure_filter_bank': False,
 }
@@ -993,6 +997,10 @@ _OVERVIEW_MEASUREMENT_TYPES = {
     'overview_measure_embeddings': bool,
     'overview_embedding_backbone': str,
     'overview_embedding_size': int,
+    'overview_embedding_transform': str,
+    'overview_embedding_mean': str,
+    'overview_embedding_std': str,
+    'overview_embedding_input_size': (int, type(None)),
     'overview_measure_deep_qc': bool,
     'overview_measure_filter_bank': bool,
 }
@@ -1022,6 +1030,10 @@ _OVERVIEW_MEASUREMENT_TOOLTIPS = {
     'overview_measure_embeddings': '(bool) - Put each image through a pretrained network and store its feature vector (compact float16) with summary columns and principal components for comparisons. Needs torch; downloads the chosen model once into spaCR\'s model cache. Runs on the CPU, roughly 0.2-2 s per image and about 1 GB of RAM per worker. Default False.',
     'overview_embedding_backbone': '(str) - The network for image embeddings: resnet18 (ImageNet, about 45 MB, needs timm), openphenom (Recursion channel-agnostic ViT, non-commercial licence) or chada_vit (channel-adaptive ViT). Each channel is encoded separately. Default resnet18.',
     'overview_embedding_size': '(int) - Long side, in pixels, each image is reduced to by block averaging before it is embedded. Larger keeps more detail and costs more time. Default 224.',
+    'overview_embedding_transform': "(str) - How each image is prepared for a timm network such as resnet18: 'pretrained' resizes it to the network's training size and standardises it by the network's pretrained mean and standard deviation (ImageNet's for ImageNet weights); 'none' feeds the [0, 1] image at its own size. OpenPhenom and ChAda-ViT prepare their own input. Default pretrained.",
+    'overview_embedding_mean': "(str) - Three comma-separated channel means that replace the network's pretrained mean, for example 0.5, 0.5, 0.5. Blank uses the network's own. Used only with the pretrained transform. Default blank.",
+    'overview_embedding_std': "(str) - Three comma-separated positive standard deviations that replace the network's pretrained ones. Blank uses the network's own. Used only with the pretrained transform. Default blank.",
+    'overview_embedding_input_size': "(int or None) - Side, in pixels, each image is resized to for a timm network instead of the network's training size; 0 keeps the size Embedding size gives. A network with a fixed patch grid is always resized to that grid. Default None.",
     'overview_measure_deep_qc': '(bool) - Score each channel with spaCR\'s image-quality network (out of focus, saturated, debris, bubble, empty), as in Mask generation\'s image screening. Needs torch; downloads a 0.3 MB model once. Fast on the CPU. Default False.',
     'overview_measure_filter_bank': '(bool) - Texture filter bank per channel: Gabor magnitude at two frequencies over four orientations and Laplacian-of-Gaussian energy at three scales, on a copy reduced to at most 512 pixels. No download; moderate cost. Default False.',
 }
@@ -1040,7 +1052,9 @@ _OVERVIEW_MEASUREMENT_CATEGORIES = {
                 'overview_objects_unit'],
     'Advanced Measurements': [
         'overview_measure_homogeneity', 'overview_measure_fibres', 'overview_measure_embeddings',
-        'overview_embedding_backbone', 'overview_embedding_size', 'overview_measure_deep_qc',
+        'overview_embedding_backbone', 'overview_embedding_size',
+        'overview_embedding_transform', 'overview_embedding_mean', 'overview_embedding_std',
+        'overview_embedding_input_size', 'overview_measure_deep_qc',
         'overview_measure_filter_bank'],
 }
 

@@ -269,11 +269,14 @@ def test_a_scale_that_does_not_fit_the_crops_is_refused_before_encoding():
 
 
 def test_the_fingerprint_moves_with_the_scale_and_not_without_one():
-    """Unscaled specs keep 386's recorded fingerprint, so cached matrices
-    named by it stay addressable; a scale is part of the numbers."""
-    base = EmbeddingSpec()
+    """Unscaled specs fed without the input transform keep 386's recorded
+    fingerprint, so cached matrices named by it stay addressable; a scale is
+    part of the numbers."""
+    base = EmbeddingSpec(input_transform="none")
     assert base.fingerprint() == "ee13fbde21d1062c"
-    scaled = EmbeddingSpec(channel_scale=(85.0, 79.0, 198.0))
+    scaled = EmbeddingSpec(channel_scale=(85.0, 79.0, 198.0),
+                           input_transform="none")
     assert scaled.fingerprint() != base.fingerprint()
     assert scaled.fingerprint() != EmbeddingSpec(
-        channel_scale=(85.0, 79.0, 199.0)).fingerprint()
+        channel_scale=(85.0, 79.0, 199.0),
+        input_transform="none").fingerprint()

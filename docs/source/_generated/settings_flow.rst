@@ -19579,6 +19579,26 @@ The network for image embeddings: resnet18 (ImageNet, about 45 MB, needs timm), 
 
 Read by ``_image_advanced_options``.
 
+.. _setting-flow-overview_embedding_input_size:
+
+overview_embedding_input_size
+-----------------------------
+
+| ``_image_advanced_options``
+|     ``_image_embedding_transform`` **-- reads it**
+
+Read by ``_image_embedding_transform``.
+
+.. _setting-flow-overview_embedding_mean:
+
+overview_embedding_mean
+-----------------------
+
+| ``_image_advanced_options``
+|     ``_image_embedding_transform`` **-- reads it**
+
+Read by ``_image_embedding_transform``.
+
 .. _setting-flow-overview_embedding_size:
 
 overview_embedding_size
@@ -19589,6 +19609,26 @@ Long side, in pixels, each image is reduced to by block averaging before it is e
 | ``_image_advanced_options`` **-- reads it**
 
 Read by ``_image_advanced_options``.
+
+.. _setting-flow-overview_embedding_std:
+
+overview_embedding_std
+----------------------
+
+| ``_image_advanced_options``
+|     ``_image_embedding_transform`` **-- reads it**
+
+Read by ``_image_embedding_transform``.
+
+.. _setting-flow-overview_embedding_transform:
+
+overview_embedding_transform
+----------------------------
+
+| ``_image_advanced_options``
+|     ``_image_embedding_transform`` **-- reads it**
+
+Read by ``_image_embedding_transform``.
 
 .. _setting-flow-overview_measure_export_format:
 

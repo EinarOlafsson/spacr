@@ -16,9 +16,10 @@ def test_cell_dino_spec_fields_are_only_three_optional_additions():
     assert names == [
         "backbone", "channel_policy", "channels", "batch_size", "device",
         "normalize", "channel_scale", "cell_dino_factory",
-        "checkpoint_path", "checkpoint_sha256",
+        "checkpoint_path", "checkpoint_sha256", "input_transform",
+        "input_mean", "input_std", "input_size",
     ]
-    assert all(field.default is None for field in fields(emb.EmbeddingSpec)[-3:])
+    assert all(field.default is None for field in fields(emb.EmbeddingSpec)[7:10])
 
 
 def _checkpoint(tmp_path, torch, width):

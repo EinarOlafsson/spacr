@@ -15485,12 +15485,19 @@ def _image_deep_qc(planes, model, saturation_levels=None):
     return record
 
 
-def _image_encoder(backbone):
-    """Build a CPU embedding encoder once per worker process."""
-    key = ('embedding', str(backbone))
+def _image_encoder(backbone, transform=None):
+    """Build a CPU embedding encoder once per worker process.
+
+    :param backbone: the encoder name.
+    :param transform: ``EmbeddingSpec`` input-transform fields, or ``None``
+        for the defaults.
+    """
+    transform = dict(transform or {})
+    key = ('embedding', str(backbone), tuple(sorted(transform.items())))
     if key not in _IMAGE_ADVANCED_CACHE:
         from .embeddings import EmbeddingSpec, _backbone_encoder
-        _IMAGE_ADVANCED_CACHE[key] = _backbone_encoder(EmbeddingSpec(backbone=backbone, device='cpu', batch_size=1))
+        _IMAGE_ADVANCED_CACHE[key] = _backbone_encoder(EmbeddingSpec(backbone=backbone, device='cpu', batch_size=1,
+                                                                     **transform))
     return _IMAGE_ADVANCED_CACHE[key]
 
 
@@ -15508,7 +15515,7 @@ def _image_embedding_vector(text):
     return np.frombuffer(base64.b64decode(text[4:]), dtype='<f2').astype(np.float32)
 
 
-def _image_embedding(planes, backbone='resnet18', size=224, encoder=None):
+def _image_embedding(planes, backbone='resnet18', size=224, encoder=None, transform=None):
     """Embed one whole image with one of spaCR's embedding encoders.
 
     Each channel is block-averaged so its long side is at most ``size``
@@ -15517,6 +15524,9 @@ def _image_embedding(planes, backbone='resnet18', size=224, encoder=None):
 
     :param encoder: optional injected encoder, as for
         ``spacr.embeddings.embed_array``; the default loads ``backbone``.
+    :param transform: ``EmbeddingSpec`` input-transform fields for a timm
+        backbone, from ``_image_advanced_options``; ``None`` uses the
+        network's pretrained mean, standard deviation and size.
     :returns: ``embedding_vector`` (base64 float16 text), its
         ``embedding_dims``, ``embedding_backbone``, ``embedding_fingerprint``
         and the summary columns ``embedding_norm``, ``embedding_mean`` and
@@ -15533,8 +15543,8 @@ def _image_embedding(planes, backbone='resnet18', size=224, encoder=None):
     crops = np.stack(stack, axis=-1)[None]
     spec = EmbeddingSpec(backbone=backbone, channel_policy=CHANNEL_PER_CHANNEL,
                          channels=tuple(range(len(stack))), batch_size=1, device='cpu',
-                         normalize=True, channel_scale=tuple(scales))
-    result = embed_array(crops, spec, encoder=encoder if encoder is not None else _image_encoder(backbone))
+                         normalize=True, channel_scale=tuple(scales), **dict(transform or {}))
+    result = embed_array(crops, spec, encoder=encoder if encoder is not None else _image_encoder(backbone, transform))
     vector = result.values[0].astype(np.float32)
     return dict(embedding_vector=_image_embedding_text(vector), embedding_dims=int(vector.size),
                 embedding_backbone=str(backbone), embedding_fingerprint=result.spec.fingerprint(),
@@ -15546,7 +15556,9 @@ def _image_advanced_options(settings=None):
     """Resolve the Advanced measurement switches from overview settings.
 
     :returns: ``{'embedding': bool, 'deep_qc': bool, 'filter_bank': bool,
-        'embedding_backbone': str, 'embedding_size': int}``.
+        'embedding_backbone': str, 'embedding_size': int,
+        'embedding_transform': dict}``; the last holds the
+        ``EmbeddingSpec`` input-transform fields the settings ask for.
     """
     settings = dict(settings or {})
     on = lambda key: settings.get(key, False) not in (False, 0, None, '', 'False', 'false')
@@ -15554,7 +15566,31 @@ def _image_advanced_options(settings=None):
                 deep_qc=on('overview_measure_deep_qc'),
                 filter_bank=on('overview_measure_filter_bank'),
                 embedding_backbone=str(settings.get('overview_embedding_backbone') or 'resnet18'),
-                embedding_size=int(settings.get('overview_embedding_size') or 224))
+                embedding_size=int(settings.get('overview_embedding_size') or 224),
+                embedding_transform=_image_embedding_transform(settings))
+
+
+def _image_embedding_transform(settings):
+    """The ``EmbeddingSpec`` input-transform fields the Overview settings ask for.
+
+    :param settings: overview settings; blank values keep the network's own.
+    :returns: ``dict`` of ``input_transform`` and any of ``input_mean``,
+        ``input_std`` and ``input_size``.
+    """
+    mode = str(settings.get('overview_embedding_transform') or 'pretrained').strip().lower()
+    out = {'input_transform': mode}
+    if mode != 'pretrained':
+        return out
+    for field, value in (('input_mean', settings.get('overview_embedding_mean')),
+                         ('input_std', settings.get('overview_embedding_std'))):
+        if isinstance(value, str):
+            value = [part for part in value.replace(';', ',').split(',') if part.strip()]
+        if value not in (None, '', []):
+            out[field] = tuple(float(part) for part in value)
+    size = settings.get('overview_embedding_input_size')
+    if size not in (None, ''):
+        out['input_size'] = int(size)
+    return out
 
 
 def _image_advanced_prepare(options, *, download=True):
@@ -15603,7 +15639,7 @@ def _image_advanced_prepare(options, *, download=True):
             if not _weights_on_disk(backbone)[0]:
                 if not allowed:
                     raise FileNotFoundError(f'{backbone} weights are not downloaded')
-                _image_encoder(backbone)
+                _image_encoder(backbone, options.get('embedding_transform'))
         except Exception as error:
             options['unavailable']['embedding'] = str(error) or type(error).__name__
     return options
@@ -15648,7 +15684,8 @@ def _image_advanced_features(planes, options, *, saturation_levels=None, encoder
         else:
             try:
                 record.update(_image_embedding(planes, options.get('embedding_backbone', 'resnet18'),
-                                               options.get('embedding_size', 224), encoder=encoder))
+                                               options.get('embedding_size', 224), encoder=encoder,
+                                               transform=options.get('embedding_transform')))
                 record['embedding_status'] = 'ok'
             except Exception as error:
                 record['embedding_status'] = f'error: {error}'

@@ -87,6 +87,10 @@ DEFAULT_BACKBONE = "resnet18"
 #: Global average pooling over the final feature map.
 DEFAULT_POOL = "avg"
 
+_INPUT_PRETRAINED = "pretrained"
+_INPUT_NONE = "none"
+_INPUT_TRANSFORMS = (_INPUT_PRETRAINED, _INPUT_NONE)
+
 
 @dataclass(frozen=True)
 class EmbeddingSpec:
@@ -118,6 +122,18 @@ class EmbeddingSpec:
     :param cell_dino_factory: pinned official Cell-DINO hub factory.
     :param checkpoint_path: local official Cell-DINO weights file.
     :param checkpoint_sha256: expected SHA-256 of those weights.
+    :param input_transform: how a timm backbone's input is prepared.
+        ``"pretrained"`` resizes each crop to the model's pretrained input
+        size and standardises it by the model's pretrained mean and standard
+        deviation (ImageNet's for ImageNet weights), as the model was
+        trained. ``"none"`` feeds the [0, 1] crops at their own size.
+        Foundation and DINO encoders prepare their own input and ignore it.
+    :param input_mean: three channel means replacing the pretrained ones.
+    :param input_std: three positive standard deviations replacing the
+        pretrained ones.
+    :param input_size: side, in pixels, each crop is resized to instead of
+        the pretrained input size; ``0`` keeps the crop size. A backbone
+        with a fixed patch grid is always resized to that grid.
     """
 
     backbone: str = DEFAULT_BACKBONE
@@ -130,6 +146,10 @@ class EmbeddingSpec:
     cell_dino_factory: Optional[str] = None
     checkpoint_path: Optional[str] = None
     checkpoint_sha256: Optional[str] = None
+    input_transform: str = _INPUT_PRETRAINED
+    input_mean: Optional[Tuple[float, ...]] = None
+    input_std: Optional[Tuple[float, ...]] = None
+    input_size: Optional[int] = None
 
     def __post_init__(self) -> None:
         """Reject a specification that could not produce a matrix.
@@ -143,7 +163,10 @@ class EmbeddingSpec:
             :data:`CHANNEL_POLICIES`, ``batch_size`` is below one, or
             ``channel_scale`` is set without ``normalize``, holds a negative
             or non-finite value, or does not give one value per channel in
-            ``channels``.
+            ``channels``; or when the input transform is unknown, a mean or
+            standard deviation is not three finite numbers (the deviations
+            positive), ``input_size`` is negative, or an override is given
+            with the transform switched off.
         """
         if self.channel_policy not in CHANNEL_POLICIES:
             raise EmbeddingError(
@@ -153,6 +176,7 @@ class EmbeddingSpec:
             raise EmbeddingError("batch_size must be at least 1")
         if self.channel_scale is not None:
             _check_channel_scale(self)
+        _check_input_transform(self)
 
     def fingerprint(self) -> str:
         """Return a 16-character digest of the fields that affect the values.
@@ -167,6 +191,15 @@ class EmbeddingSpec:
             str(self.normalize)]
         if self.channel_scale is not None:
             fields.append(",".join(repr(v) for v in self.channel_scale))
+        if (self.input_transform != _INPUT_NONE
+                and _is_timm_backbone(self.backbone)):
+            fields.append("input=" + ";".join((
+                self.input_transform,
+                "" if self.input_mean is None else ",".join(
+                    repr(v) for v in self.input_mean),
+                "" if self.input_std is None else ",".join(
+                    repr(v) for v in self.input_std),
+                "" if self.input_size is None else str(self.input_size))))
         if self.backbone == "cell_dino":
             fields.extend((self.cell_dino_factory or "",
                            os.path.realpath(os.path.expanduser(
@@ -175,6 +208,39 @@ class EmbeddingSpec:
                            _CELL_DINO_REVISION))
         payload = "|".join(fields)
         return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
+
+
+def _check_input_transform(spec: "EmbeddingSpec") -> None:
+    """Coerce the timm input overrides to tuples and refuse impossible ones."""
+    if spec.input_transform not in _INPUT_TRANSFORMS:
+        raise EmbeddingError(
+            f"unknown input_transform {spec.input_transform!r}; expected one "
+            f"of {', '.join(_INPUT_TRANSFORMS)}")
+    overridden = [name for name in ("input_mean", "input_std", "input_size")
+                  if getattr(spec, name) is not None]
+    if spec.input_transform == _INPUT_NONE and overridden:
+        raise EmbeddingError(
+            f"{', '.join(overridden)} cannot be set with input_transform "
+            "'none'; use 'pretrained' to override the pretrained values")
+    for name in ("input_mean", "input_std"):
+        value = getattr(spec, name)
+        if value is None:
+            continue
+        try:
+            numbers = tuple(float(v) for v in value)
+        except (TypeError, ValueError):
+            raise EmbeddingError(f"{name} must be three numbers") from None
+        if len(numbers) != 3 or not all(np.isfinite(numbers)):
+            raise EmbeddingError(f"{name} must be three finite numbers")
+        if name == "input_std" and min(numbers) <= 0:
+            raise EmbeddingError("input_std must be three positive numbers")
+        object.__setattr__(spec, name, numbers)
+    if spec.input_size is not None:
+        size = int(spec.input_size)
+        if size < 0 or size != spec.input_size:
+            raise EmbeddingError("input_size must be a whole number of at "
+                                 "least 0")
+        object.__setattr__(spec, "input_size", size)
 
 
 def _check_channel_scale(spec: "EmbeddingSpec") -> None:
@@ -844,6 +910,12 @@ def _timm_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
     patch_embed = getattr(model, "patch_embed", None)
     strict_size = (getattr(patch_embed, "img_size", None)
                    if getattr(patch_embed, "strict_img_size", False) else None)
+    size, mean, std, mode = _timm_input(spec, timm, model, strict_size)
+    if mean is not None:
+        mean = torch.tensor(mean, dtype=torch.float32,
+                            device=device).view(1, 3, 1, 1)
+        std = torch.tensor(std, dtype=torch.float32,
+                           device=device).view(1, 3, 1, 1)
 
     def run(stack: np.ndarray) -> np.ndarray:
         """Encode one three-channel stack, in batches, under no_grad.
@@ -862,16 +934,74 @@ def _timm_encoder(spec: EmbeddingSpec) -> Callable[[np.ndarray], np.ndarray]:
                 tensor = torch.from_numpy(
                     np.ascontiguousarray(chunk.transpose(0, 3, 1, 2))
                 ).to(device)
-                if (strict_size is not None
-                        and tuple(tensor.shape[-2:]) != tuple(strict_size)):
+                if size is not None and tuple(tensor.shape[-2:]) != size:
+                    shrink = (size[0] < tensor.shape[-2]
+                              or size[1] < tensor.shape[-1])
                     tensor = torch.nn.functional.interpolate(
-                        tensor, size=strict_size, mode="bilinear",
-                        align_corners=False)
+                        tensor, size=size, mode=mode, align_corners=False,
+                        antialias=shrink and mean is not None)
+                    if spec.normalize and mean is not None:
+                        tensor = tensor.clamp(0.0, 1.0)
+                if mean is not None:
+                    tensor = (tensor - mean) / std
                 out.append(model(tensor).detach().cpu().numpy())
         return np.concatenate(out, axis=0)
 
     return run
 
+
+
+_IMAGENET_MEAN = (0.485, 0.456, 0.406)
+_IMAGENET_STD = (0.229, 0.224, 0.225)
+
+
+def _timm_input(spec: EmbeddingSpec, timm: Any, model: Any,
+                strict_size: Any) -> Tuple[Optional[Tuple[int, int]],
+                                           Optional[Tuple[float, ...]],
+                                           Optional[Tuple[float, ...]], str]:
+    """The size, mean, standard deviation and resize mode a timm model gets.
+
+    The defaults are the model's pretrained data configuration, read with
+    ``timm.data.resolve_model_data_config``; a model without one gets
+    ImageNet's statistics at 224 pixels. The spec's overrides replace them,
+    and a fixed patch grid always sets the size.
+
+    :returns: ``(size, mean, std, mode)``; ``size`` is ``None`` to keep the
+        crop size and ``mean``/``std`` are ``None`` when the transform is
+        off.
+    """
+    strict = None if strict_size is None else tuple(int(v) for v in strict_size)
+    if spec.input_transform == _INPUT_NONE:
+        return strict, None, None, "bilinear"
+    pretrained: Dict[str, Any] = {}
+    try:
+        pretrained = dict(timm.data.resolve_model_data_config(model))
+    except Exception:
+        pretrained = dict(getattr(model, "pretrained_cfg", None) or {})
+    mean = tuple(spec.input_mean or pretrained.get("mean") or _IMAGENET_MEAN)
+    std = tuple(spec.input_std or pretrained.get("std") or _IMAGENET_STD)
+    if len(mean) != 3 or len(std) != 3:
+        raise EmbeddingError(
+            f"{spec.backbone} declares a {len(mean)}-channel mean; spaCR "
+            "feeds timm backbones three planes")
+    if spec.input_size is None:
+        shape = tuple(pretrained.get("input_size") or (3, 224, 224))
+        size: Optional[Tuple[int, int]] = (int(shape[-2]), int(shape[-1]))
+    elif spec.input_size == 0:
+        size = None
+    else:
+        size = (spec.input_size, spec.input_size)
+    if strict is not None:
+        size = strict
+    mode = ("bicubic" if str(pretrained.get("interpolation", "")) == "bicubic"
+            else "bilinear")
+    return size, mean, std, mode
+
+
+def _is_timm_backbone(backbone: str) -> bool:
+    """Whether ``backbone`` is loaded through timm rather than another loader."""
+    return not (backbone.startswith(_DINO_PREFIX)
+                or backbone in _FOUNDATION_MODELS)
 
 
 _FOUNDATION_MODELS: Dict[str, Dict[str, Any]] = {
