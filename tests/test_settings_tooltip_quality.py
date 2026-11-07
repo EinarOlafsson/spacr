@@ -1344,7 +1344,7 @@ if app_key == "mask":
     assert resolve_default_settings("classify_merged")[
         "prediction_treatment_column"] == ""
     recognized_arrivals |= treatment_arrivals
-    assert comparisons - len(recognized_arrivals) == 1004
+    assert comparisons - len(recognized_arrivals) == 1005
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))
     assert census_508['comparisons_before'] == 716

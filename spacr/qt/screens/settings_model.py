@@ -1864,7 +1864,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "bin_labels", "x_axis_style", "bracket_pairs", "figures",
         )),
         ("Panel QC", (
-            "well_qc", "well_qc_mad", "well_qc_measures", "object_qc",
+            "report", "well_qc", "well_qc_mad", "well_qc_measures", "object_qc",
             "object_qc_mad", "object_qc_measures", "qc_group",
             "outlier_points", "outlier_points_method",
             "representative_crops", "representative_crops_n",
