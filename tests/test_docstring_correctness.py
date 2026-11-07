@@ -4790,7 +4790,13 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # rows whose parameters gained the outlier and axis keywords, and the
     # rows of the training, cross-validation and crop-loading callables that
     # gained optional keywords (items 781-785 and 836).
-) == '76c655f4c853e65e3f613122df246552cb699df3f7e47309084206c0ee805398'
+    # Moved 2026-11-07 for the integrate-1107 merge (was 76c655f4...): the
+    # per_cell_table and export_per_cell rows (item 769); generate_loaders,
+    # save_and_add_image_to_grid, CropSpec, stamp_crop_folder, TorchModel and
+    # CustomCellClassifier, whose parameters gained optional keywords and
+    # whose five classifier parameters gained defaults (item 772); and
+    # bootstrap_gene_pvalues' null and control_guides (item 851).
+) == '4b9f4f7cb10dbb84dd0f49ba8772f61161e238bb490fa40b51c1b4a4e12f336a'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
