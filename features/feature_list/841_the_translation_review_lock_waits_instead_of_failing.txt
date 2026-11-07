@@ -1,0 +1,23 @@
+THE TRANSLATION-REVIEW LOCK WAITS INSTEAD OF FAILING
+====================================================
+
+Lifecycle: new
+Status: open
+Requested: maintainer rule (every workaround becomes an item), 2026-11-06.
+Owner: unassigned.
+
+WHAT THE STATE IS
+- tools/build_documentation_i18n.py --assemble fails with BrokenProcessPool on a
+  32-core machine: each worker takes .translation-reviews.lock without waiting.
+- Tests that bootstrap translations (for example
+  test_check_translatable_prose::test_the_registry_is_matched_after_the_expansion_erased_a_token)
+  fail with "Translation bootstrap lock is busy" under pytest-xdist in a fresh
+  worktree.
+- Every agent has worked around it with jobs=1 and -p no:xdist.
+
+WHAT TO DO
+- The lock waits with a timeout and backoff, or the parent does the read-only
+  fetch once and shares it.
+- Workers that only read do not take the write lock.
+- Tests: the parallel assemble with jobs>1 succeeds; two concurrent bootstraps
+  both succeed.
