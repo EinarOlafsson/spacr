@@ -119,8 +119,14 @@ def test_set_xticks_uses_a_rotation_given_by_the_caller():
     assert ax.get_xlim() == pytest.approx((-0.6, 1.6))
 
 
-def test_bar_panel_without_stats_with_a_palette_list_and_an_empty_group():
+def test_bar_panel_without_stats_with_a_palette_list_and_an_empty_group(monkeypatch):
     df = _groups({"a": [1.0, 2.0, 3.0], "b": [4.0, 5.0]})
+    fig, ax = plt.subplots()
+    ap.draw_bar_panel(ax, df, "value", "group", ["a", "b", "c"], title="plain",
+                      palette=["#111111", "#222222"])
+    # graphs carry no title by default; the information goes into the legend
+    assert ax.get_title() == ""
+    monkeypatch.setitem(ap.STYLE, "show_title", True)
     fig, ax = plt.subplots()
     ap.draw_bar_panel(ax, df, "value", "group", ["a", "b", "c"], title="plain",
                       palette=["#111111", "#222222"])
@@ -133,7 +139,8 @@ def test_bar_panel_without_stats_with_a_palette_list_and_an_empty_group():
     assert [t.get_text() for t in ax.get_xticklabels()] == ["a", "b", "c"]
 
 
-def test_stacked_panel_with_given_colours_and_no_statistics():
+def test_stacked_panel_with_given_colours_and_no_statistics(monkeypatch):
+    monkeypatch.setitem(ap.STYLE, "show_title", True)
     frac = pd.DataFrame({"g": ["a", "a", "b"], "x": [0.5, 0.7, 0.2], "y": [0.5, 0.3, 0.8]})
     fig, ax = plt.subplots()
     ap.draw_stacked_panel(ax, frac, "g", ["a", "b"], ["x", "y"], title="T",
@@ -145,7 +152,8 @@ def test_stacked_panel_with_given_colours_and_no_statistics():
     assert not [t for t in ax.texts if "*" in t.get_text() or t.get_text() == "ns"]
 
 
-def test_stacked_panel_skips_pairwise_rows_for_groups_not_drawn():
+def test_stacked_panel_skips_pairwise_rows_for_groups_not_drawn(monkeypatch):
+    monkeypatch.setitem(ap.STYLE, "show_test", True)
     frac = pd.DataFrame({"g": ["a", "b"], "x": [0.5, 0.2], "y": [0.5, 0.8]})
     pairwise = pd.DataFrame({"group_2": ["b", "gone"], "significance": ["**", "ns"]})
     fig, ax = plt.subplots()
