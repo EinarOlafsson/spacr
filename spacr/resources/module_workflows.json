@@ -2982,7 +2982,7 @@
       "path": "spacr/spacr_cellpose.py",
       "literals": [
         "def identify_masks_finetune(settings):",
-        "f.endswith('.tif')",
+        "f.lower().endswith('.tif')",
         "dst = os.path.join(settings['src'], 'masks')",
         "write_tiff(output_filename, mask)"
       ]
