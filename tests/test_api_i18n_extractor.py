@@ -327,7 +327,12 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # follow-up), the validator that refuses a magnifier cube with no size
     # or a zoom below 1.
     assert "spacr.layers.VolumeLens.__post_init__" in dunders
-    assert len(dunders) == 217
+    # 217 -> 219 on 2026-11-06: assay_panels.outlier_policy.__enter__ and
+    # __exit__ (item 816), the context manager that sets the outlier rule
+    # for every panel drawn inside it.
+    assert {"spacr.assay_panels.outlier_policy.__enter__",
+            "spacr.assay_panels.outlier_policy.__exit__"} <= dunders
+    assert len(dunders) == 219
     # It is counted here and left out of the historical fingerprints below,
     # which it would otherwise move.
     dunders = dunders - {"spacr.layers.VolumeLens.__post_init__"}
