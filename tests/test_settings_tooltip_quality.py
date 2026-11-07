@@ -1398,7 +1398,8 @@ if app_key == "mask":
         "crop_scaling": "legacy", "input_statistics": "auto",
         "crop_scale_clip": 1.5, "crop_scale_file": None,
         "preprocessing_mismatch": "refuse", "control_shuffled_labels": False}
-    classify_input_arrivals = {("classify", key) for key in classify_input_defaults}
+    classify_input_arrivals = {("classify_merged", key)
+                               for key in classify_input_defaults}
     assert classify_input_arrivals <= compared_pairs
     assert not classify_input_arrivals & (recognized_arrivals | variants.keys())
     for app, key in classify_input_arrivals:
