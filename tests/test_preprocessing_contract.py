@@ -198,3 +198,22 @@ def test_shuffled_label_control_permutes_training_labels_only(tmp_path):
     assert dataset_labels(plain_v.dataset) == dataset_labels(ctrl_v.dataset)
     assert sorted(dataset_labels(plain_t.dataset)) == sorted(dataset_labels(ctrl_t.dataset))
     assert dataset_labels(plain_t.dataset) != dataset_labels(ctrl_t.dataset)
+
+
+@pytest.mark.parametrize("model_type, expected", [
+    ("resnet18", "imagenet"), ("custom", "dataset"), (None, "dataset")])
+def test_auto_statistics_follow_the_model(tmp_path, model_type, expected):
+    from spacr.io import _fixed_scale_contract
+    from spacr.normalization import IMAGENET_MEAN
+
+    root = _raw_dataset(tmp_path / "ds", per_well=1)
+    files = sorted(str(p) for p in (root / "train").rglob("*.png"))
+    contract = _fixed_scale_contract(
+        files, src=str(root), image_size=32, channels=[1, 2, 3], augment=False,
+        input_statistics="auto", model_type=model_type)
+    assert contract["input_statistics"] == expected
+    if expected == "imagenet":
+        assert contract["mean"] == pytest.approx(list(IMAGENET_MEAN))
+    else:
+        assert contract["mean"] != pytest.approx(list(IMAGENET_MEAN))
+        assert all(0 < m < 1.5 for m in contract["mean"])

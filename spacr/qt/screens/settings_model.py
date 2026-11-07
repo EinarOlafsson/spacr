@@ -2619,7 +2619,8 @@ def _categories_for_app_uncached(app_key, categories, plugin_app):
                 "channel_of_interest", "stream_method", "object_array",
                 "channel_arrays", "bounding_box",
                 "crop_shape", "train_channels", "image_size", "augment",
-                "crop_scaling", "crop_scale_clip", "crop_scale_file"],
+                "crop_scaling", "crop_scale_clip", "crop_scale_file",
+                "input_statistics"],
 
             "Model & Regularization": [
                 "classifier_family",

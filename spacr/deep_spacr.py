@@ -2307,8 +2307,9 @@ def train_test_model(settings):
             group_by=settings.get('cv_group_by', 'well'),
             crop_loading_policy=crop_loading_policy,
             crop_scaling=settings.get('crop_scaling', 'legacy'),
-            input_statistics=settings.get('input_statistics', 'symmetric'),
-            model_type=settings['model_type'],
+            input_statistics=settings.get('input_statistics', 'auto'),
+            model_type=(settings['model_type']
+                        if settings.get('init_weights', True) else None),
             crop_scale_clip=float(settings.get('crop_scale_clip', 1.5)),
             crop_scale_file=settings.get('crop_scale_file') or None,
             shuffle_labels=bool(settings.get('control_shuffled_labels', False)),

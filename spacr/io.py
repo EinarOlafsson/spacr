@@ -8345,11 +8345,16 @@ def _fixed_scale_contract(filenames, *, src, image_size, channels, augment,
     :param image_size: the model input size.
     :param channels: 1-based channel indices the model sees.
     :param augment: whether training augments.
-    :param input_statistics: one of ``spacr.normalization.NORMALIZATIONS``.
-        ``'imagenet'`` takes mean, std and interpolation from the model's
-        torchvision weights when it has them. ``'dataset'`` standardises with
-        the mean and std of the scaled training sample.
-    :param model_type: the classifier, for its weights' statistics.
+    :param input_statistics: ``'auto'`` or one of
+        ``spacr.normalization.NORMALIZATIONS``. ``'auto'`` picks
+        ``'imagenet'`` for a pretrained backbone and ``'dataset'`` for a
+        model trained from scratch. ``'imagenet'`` takes mean, std and
+        interpolation from the model's torchvision weights when it has them.
+        ``'dataset'`` standardises with the mean and std of the scaled
+        training sample.
+    :param model_type: the pretrained classifier whose weights supply the
+        statistics. None, or a name without torchvision weights such as
+        ``'custom'``, means the model is trained from scratch.
     :param clip: the upper clip after scaling.
     :param scale_file: an existing scales file, or where to write one.
     :param input_mean: per-channel means for ``'custom'``.
@@ -8371,6 +8376,11 @@ def _fixed_scale_contract(filenames, *, src, image_size, channels, augment,
     name = str(input_statistics or 'symmetric').strip().lower()
     interpolation = 'bilinear'
     mean = std = None
+    if name == 'auto':
+        pretrained = bool(model_type) and _weights_input_statistics(model_type) is not None
+        name = 'imagenet' if pretrained else 'dataset'
+        print(f"input_statistics 'auto' uses {name!r}: the model is "
+              f"{'a pretrained backbone' if pretrained else 'trained from scratch'}.")
     if name == 'imagenet' and model_type:
         found = _weights_input_statistics(model_type)
         if found is not None:
@@ -8773,9 +8783,10 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
         such as a checkpoint's. Its scales, clip, size and statistics are
         applied unchanged.
     :param input_statistics: the mean and std convention of a fixed-scale
-        run.
-    :param model_type: the classifier, whose weights may supply the
-        statistics.
+        run. ``'auto'`` uses the pretrained weights' statistics, or
+        dataset-level statistics for a model trained from scratch.
+    :param model_type: the pretrained classifier, whose weights may supply
+        the statistics. None means the model is trained from scratch.
     :param crop_scale_clip: the clip after the fixed scale.
     :param crop_scale_file: an existing scales file, or where to write one.
     :param shuffle_labels: permute the labels of the training split, with
