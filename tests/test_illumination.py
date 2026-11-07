@@ -489,13 +489,13 @@ def test_the_correction_returns_the_input_dtype_and_rounds_to_nearest():
     assert corrector.stats['clipped_pixels'] == 0
 
 
-def test_clipping_real_signal_is_counted_and_reported(capsys):
-    """Silently clipping is a lie about the data, so it is counted and said.
+def test_an_integer_overflow_is_rescaled_not_clipped(capsys):
+    """Clipping would remove real signal from exactly the brightest objects.
 
     A gain above 1 at the edge of the field can push a bright-but-unsaturated
-    pixel past the top of a uint16. Clipping is the only way to honour the
-    hook contract's "same dtype", so the pixels it costs are reported rather
-    than swallowed.
+    pixel past the top of a uint16. The integer path keeps the dtype the
+    caller asked for by scaling the whole field down (item 793), so relative
+    intensities survive and the factor is recorded per field.
     """
     model = hand_model([np.full((1, 3), 0.5, np.float32)])   # gain 2.0
     corrector = ill.IlluminationCorrector(model)
@@ -503,23 +503,39 @@ def test_clipping_real_signal_is_counted_and_reported(capsys):
 
     result = corrector(array, context(channels=[0]))
 
-    assert result[..., 0].tolist() == [[65535, 65535, 200]]
-    # 40000 was real signal and is now clipped: counted. 65535 was already
-    # saturated when the microscope wrote it -- that pixel was destroyed by
-    # the acquisition, not by this correction, so it is not counted.
+    # 2x then x(65535 / 131070) = the input itself: nothing hit the ceiling.
+    assert result[..., 0].tolist() == [[40000, 65535, 100]]
+    assert corrector.stats['clipped_pixels'] == 0
+    assert corrector.stats['rescaled_fields'] == 1
+    assert corrector.stats['scales'] == {'plate1_A01_F000': pytest.approx(0.5)}
+    printed = capsys.readouterr().out
+    assert 'rescaled plate1_A01_F000 by x0.5' in printed
+    assert 'rescaled' in corrector.report()
+
+
+def test_clipping_below_zero_is_counted_and_reported(capsys):
+    """A dark offset above a pixel leaves a negative an unsigned dtype cannot hold."""
+    model = hand_model([np.full((1, 3), 1.0, np.float32)], dark=100.0)
+    corrector = ill.IlluminationCorrector(model)
+    array = np.array([[40, 0, 300]], dtype=np.uint16)[..., None]
+
+    result = corrector(array, context(channels=[0]))
+
+    assert result[..., 0].tolist() == [[0, 0, 200]]
+    # 40 was signal and is now zero: counted. 0 was already zero: not.
     assert corrector.stats['clipped_pixels'] == 1
     assert corrector.stats['clipped_fields'] == 1
     printed = capsys.readouterr().out
     assert 'clipped 1 pixel(s)' in printed
-    assert 'real signal was lost' in printed
+    assert 'dark offset' in printed
     assert 'clipped' in corrector.report()
 
 
 def test_clipping_warnings_are_rate_limited_but_the_total_is_not(capsys):
     """One line per field over 384 wells is noise; a wrong total is a lie."""
-    model = hand_model([np.full((1, 1), 0.5, np.float32)])
+    model = hand_model([np.full((1, 1), 1.0, np.float32)], dark=100.0)
     corrector = ill.IlluminationCorrector(model)
-    array = np.array([[40000]], dtype=np.uint16)[..., None]
+    array = np.array([[40]], dtype=np.uint16)[..., None]
     for index in range(12):
         corrector(array, context(name=f'plate1_A01_F{index:03d}'))
 

@@ -1,7 +1,7 @@
 ILLUMINATION CORRECTION IN FLOAT WITHOUT CLIPPING
 
 Lifecycle: future
-Status: not started
+Status: DONE 2026-11-07 — measure_crop promotes the intensity channels to float32 before any preprocessing hook that sets measures_in_float (IlluminationCorrector does), so the flat field is divided out in float and every feature is measured on the float image: no rounding and no clipping at 65535. The image table's channel_<c>_saturated_fraction is read from the acquired integer pixels. The integer path that remains (direct callers, segmentation inputs) rescales the field by dtype max / field max instead of clipping and keeps the factor per field in IlluminationCorrector.stats['scales'] and in the segmentation run-journal stage (integer_rescale_by_field); only negative values after a dark offset are still clipped, counted and reported. No setting, so nothing in ALPHA_FEATURES (exempted in tests/qt/test_alpha_features_gate.py). Tests tests/test_illumination_float_measure_793.py and tests/test_illumination.py. The BBBC021 plate rerun needs the maintainer's data.
 Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
            (BMC spaCR paper) worked around must become a spaCR item.
 Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cellprofiler_baseline/REPORT.md, "spaCR gaps", gap 4
@@ -42,6 +42,9 @@ unclipped pixels are unchanged within float precision.
 DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
 
-Nothing yet.
+- Segmentation inputs keep their dtype (rescaled, not float): they are
+  normalised before the model sees them, so the scale does not reach a
+  measured number.
+- Crops still come from the uncorrected source image, as before.
 
 2026-11-05: renumbered from 758 to 793; nightly already used 755-768 for other items.

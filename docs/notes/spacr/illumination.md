@@ -51,10 +51,10 @@ stack = np.stack(stack, axis=0)
 ### lines 958-959
 
 ```python
-lost = int(np.count_nonzero((rounded > info.max) &
+lost = int(np.count_nonzero((rounded < info.min) &
 ```
 
-Only signal this correction pushed out of range counts: a pixel the microscope had already saturated was never recoverable.
+Only signal this correction pushed out of range counts: a pixel already at zero was never recoverable. Since item 793 the top of the range is never clipped; an integer field that would overflow is rescaled by `dtype max / field max` and the factor is kept in `.stats['scales']`.
 
 ## SegmentationIlluminationSession.__init__
 

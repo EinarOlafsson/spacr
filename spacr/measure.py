@@ -4681,6 +4681,26 @@ def _image_field_values(channel_arrays, masks, occupied=None):
     return values
 
 
+def _raw_saturated_fractions(channel_arrays):
+    """``channel_<c>_saturated_fraction`` from the channels before a float hook.
+
+    A hook that asks for float input (illumination correction) leaves the
+    measured image without a dtype ceiling, so saturation is read from the
+    acquired integer pixels instead: those are what the camera clipped.
+
+    :param channel_arrays: ``(..., C)`` intensities before preprocessing hooks.
+    :returns: column name to fraction; empty for a non-integer input.
+    """
+    channels = np.asarray(channel_arrays)
+    if not np.issubdtype(channels.dtype, np.integer) or not channels.size:
+        return {}
+    top = np.iinfo(channels.dtype).max
+    return {f'channel_{index}_saturated_fraction':
+            float(np.count_nonzero(channels[..., index] >= top))
+            / channels[..., index].size
+            for index in range(channels.shape[-1])}
+
+
 def _image_rescale_values(record, psf_record=None):
     """The ``intensity_rescale`` columns one ``image`` row carries.
 
@@ -9100,7 +9120,12 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
         if settings.get(_UNMIX_RECORD_KEY):
             channel_arrays = _apply_recorded_unmixing(channel_arrays, settings)
 
+        raw_channel_arrays = None
         if preprocessing_hooks():
+            if any(getattr(entry.func, 'measures_in_float', False)
+                   for entry in preprocessing_hooks()):
+                raw_channel_arrays = channel_arrays
+                channel_arrays = channel_arrays.astype(np.float32)
             channel_arrays = apply_preprocessing_hooks(
                 channel_arrays,
                 PreprocessingContext(
@@ -9455,6 +9480,8 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
         image_values = {
             **_image_field_values(channel_arrays, image_masks, image_occupied),
             **_image_rescale_values(rescale_record, psf_record)}
+        if raw_channel_arrays is not None:
+            image_values.update(_raw_saturated_fractions(raw_channel_arrays))
         if settings['save_measurements'] and 'compute_path' in field_stamp:
             image_values['compute_path'] = field_stamp['compute_path']
 

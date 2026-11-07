@@ -1342,32 +1342,39 @@ class IlluminationCorrector:
     ``settings['channels']``, selected out of the merged stack, before a
     single feature is computed.
 
-    This class, not the hook machinery, handles the dtype round trip (see
-    :func:`spacr.measure_hooks.apply_preprocessing_hooks`). Integer input is
-    corrected in float32 and returned by *rounding to nearest* and then
-    clipping to the dtype's range:
+    Measure hands this hook a float32 copy of the channels (it reads
+    :attr:`measures_in_float`), so the division happens in float and the
+    measured image is the float result: nothing is rounded and nothing is
+    clipped at the top of the acquisition dtype. Float input is returned in
+    its own float dtype with no rounding and no clipping at all.
+
+    Integer input -- a direct caller, or a segmentation input that has to keep
+    its dtype -- is corrected in float32 and cast back by *rounding to
+    nearest*:
 
     * **round, not truncate.** Truncation would shave a mean of 0.5 counts off
       every corrected pixel. Averaged over a 500-pixel object that does not
       wash out -- it is a systematic, one-directional shift of exactly the
       kind this feature exists to remove. Rounding is unbiased.
-    * **clip, and count.** A gain above 1 at the edge of the field can push a
-      near-full-scale pixel past the top of a uint16. Clipping is the only
-      option that keeps the dtype the hook contract requires, and it removes
-      real signal, so every pixel that was *below* full scale before the
-      correction and lands *at* full scale after it is counted and reported.
-      Pixels that were already saturated are not counted: they were saturated
-      at acquisition, not by the correction.
-
-    Float input is returned in its own float dtype with no rounding and no
-    clipping at all -- there is nothing to round to and no range to leave.
+    * **rescale, not clip, at the top.** A gain above 1 at the edge of the
+      field can push a near-full-scale pixel past the top of a uint16.
+      Clipping would remove real signal from exactly the brightest objects,
+      so the whole field is instead multiplied by ``dtype max / field max``.
+      That factor is printed and kept per field in ``.stats['scales']``.
+    * **clip, and count, at the bottom.** A dark offset larger than a pixel
+      gives a negative value, which an unsigned dtype cannot hold; those
+      pixels are clipped to zero, counted and reported.
 
     :param model: the estimated :class:`IlluminationModel`.
     :param on_missing: ``'error'`` (default) or ``'skip'`` for a field whose
         plate the model does not cover. The default fails the field, so a
         results table never mixes corrected and uncorrected fields.
-    :param verbose: print the clipping reports.
+    :param verbose: print the clipping and rescaling reports.
     """
+
+    #: Read by ``measure_crop``: promote the channels to float32 before this
+    #: hook runs, so the measured image is the float division (item 793).
+    measures_in_float = True
 
     def __init__(self, model: IlluminationModel, *, on_missing: str = 'error',
                  verbose: bool = True) -> None:
@@ -1387,9 +1394,11 @@ class IlluminationCorrector:
         self.model = model
         self.on_missing = on_missing
         self.verbose = bool(verbose)
-        #: fields corrected, fields skipped, pixels clipped, fields that clipped.
+        #: fields corrected, fields skipped, pixels clipped, fields that
+        #: clipped, integer fields rescaled and each one's scale by file name.
         self.stats = {'corrected': 0, 'skipped': 0,
-                      'clipped_pixels': 0, 'clipped_fields': 0}
+                      'clipped_pixels': 0, 'clipped_fields': 0,
+                      'rescaled_fields': 0, 'scales': {}}
         self._warned = 0
         self._cache: Dict[Tuple[str, Tuple[int, ...]], Tuple] = {}
 
@@ -1444,17 +1453,35 @@ class IlluminationCorrector:
             return corrected.astype(dtype, copy=False)
         info = np.iinfo(dtype)
         rounded = np.rint(corrected)
+        scale = 1.0
+        if rounded.size and float(rounded.max()) > info.max:
+            scale = float(info.max) / float(corrected.max())
+            rounded = np.rint(corrected * np.float32(scale))
         result = np.clip(rounded, info.min, info.max).astype(dtype)
-        lost = int(np.count_nonzero((rounded > info.max) &
-                                    (original < info.max)))
-        lost += int(np.count_nonzero((rounded < info.min) &
-                                     (original > info.min)))
+        lost = int(np.count_nonzero((rounded < info.min) &
+                                    (original > info.min)))
         self.stats['corrected'] += 1
+        if scale != 1.0:
+            self.stats['rescaled_fields'] += 1
+            self.stats['scales'][str(context.file_name)] = scale
+            self._report_rescale(scale, context)
         if lost:
             self.stats['clipped_pixels'] += lost
             self.stats['clipped_fields'] += 1
             self._report_clipping(lost, corrected.size, context)
         return result
+
+    def _report_rescale(self, scale: float, context) -> None:
+        """Say that an integer field was scaled down to fit its dtype."""
+        if not self.verbose:
+            return
+        self._warned += 1
+        if self._warned > _MAX_CLIP_WARNINGS:
+            return
+        print(f"illumination correction rescaled {context.file_name} by "
+              f"x{scale:.6g} to fit its integer dtype instead of clipping the "
+              f"brightest pixels. The factor is kept per field on the "
+              f"corrector's .stats['scales'].")
 
     def _report_clipping(self, lost: int, total: int, context) -> None:
         """Say that real signal was clipped, without printing it 384 times."""
@@ -1468,17 +1495,17 @@ class IlluminationCorrector:
                 'is on the corrector\'s .stats.')
         print(f"WARNING: illumination correction clipped {lost} pixel(s) "
               f"({100.0 * lost / max(total, 1):.4f}% of "
-              f"{context.file_name}) at the top of its dtype. Those pixels "
-              f"were not saturated before the correction, so real signal was "
-              f"lost. Re-acquire with more headroom, or measure on a wider "
-              f"dtype.{tail}")
+              f"{context.file_name}) at zero: the dark offset is larger than "
+              f"those pixels, and an unsigned dtype cannot hold the negative "
+              f"remainder. Check illumination_dark against a dark frame.{tail}")
 
     def report(self) -> str:
         """One line summarising what this corrector has done so far."""
         return (f"illumination correction: {self.stats['corrected']} field(s) "
                 f"corrected, {self.stats['skipped']} skipped, "
                 f"{self.stats['clipped_pixels']} pixel(s) clipped across "
-                f"{self.stats['clipped_fields']} field(s)")
+                f"{self.stats['clipped_fields']} field(s), "
+                f"{self.stats['rescaled_fields']} integer field(s) rescaled")
 
 
 @dataclass(frozen=True)
@@ -2115,6 +2142,8 @@ class SegmentationIlluminationSession:
                     'raw_persisted_intensities_modified': False,
                     'fields_corrected_once': len(self._completed_fields),
                     'duplicate_attempts': self._duplicate_attempts,
+                    'integer_rescale_by_field': dict(getattr(
+                        self.prepared.corrector, 'stats', {}).get('scales', {})),
                     'qc_artifacts': list(self.prepared.qc_artifacts),
                 },
             )
