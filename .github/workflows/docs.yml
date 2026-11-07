@@ -181,6 +181,12 @@ jobs:
             tools/run_capped.sh 2G python tools/fetch_docs_media.py fetch
             tools/run_capped.sh 2G python tools/fetch_docs_media.py check
           fi
+      - name: Fetch the tutorial library's pinned posters and example downloads
+        run: |
+          if grep -q '"tutorials"' docs/media_revision.json 2>/dev/null; then
+            tools/run_capped.sh 2G python tools/fetch_docs_media.py fetch --group tutorials
+            tools/run_capped.sh 2G python tools/fetch_docs_media.py check --group tutorials
+          fi
       - name: Generate Make Masks parameter reference from the pinned branch
         run: |
           if [ -f tools/build_make_masks_reference.py ]; then

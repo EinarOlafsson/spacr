@@ -31,8 +31,20 @@ from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
 from tests.cellpose_api_contract import (
     assert_declares_installed_eval_signature, eval_arguments)
 
-ZIP = os.path.join(os.path.dirname(__file__), os.pardir, "docs", "source", "_extra",
-                   "tutorials", "examples", "Cellpose_training_images_masks.zip")
+ZIP_TREE_PATH = "docs/source/_extra/tutorials/examples/Cellpose_training_images_masks.zip"
+
+
+def _tutorial_zip():
+    """The pinned example archive, from the tree or the dataset; None offline."""
+    import importlib.util
+
+    root = os.path.join(os.path.dirname(__file__), os.pardir)
+    spec = importlib.util.spec_from_file_location(
+        "fetch_docs_media_examples", os.path.join(root, "tools", "fetch_docs_media.py"))
+    media = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(media)
+    found = media.available(ZIP_TREE_PATH, "tutorials")
+    return None if found is None else str(found)
 
 
 def _touching_ringed_cells():
@@ -112,9 +124,10 @@ def test_filling_a_large_field_of_touching_objects_is_fast():
 
 
 def _tutorial_masks():
-    if not os.path.exists(ZIP):
-        pytest.skip("the Train Cellpose tutorial ZIP is not in this checkout")
-    with zipfile.ZipFile(ZIP) as archive:
+    archive_path = _tutorial_zip()
+    if archive_path is None:
+        pytest.skip("the Train Cellpose tutorial ZIP is not downloaded")
+    with zipfile.ZipFile(archive_path) as archive:
         return {name: tifffile.imread(io.BytesIO(archive.read(name)))
                 for name in sorted(archive.namelist())
                 if name.startswith("training/masks/") and name.endswith(".tif")}
@@ -229,9 +242,10 @@ def test_apply_with_defaults_finds_the_preview_count_on_a_real_field(tmp_path, m
     """Stock cpsam on CPU, one real tutorial field cropped to 256 x 256."""
     monkeypatch.setenv("CUDA_VISIBLE_DEVICES", "")
     monkeypatch.setattr("spacr.accelerator.cellpose_gpu", lambda: False)
-    if not os.path.exists(ZIP):
-        pytest.skip("the Train Cellpose tutorial ZIP is not in this checkout")
-    with zipfile.ZipFile(ZIP) as archive:
+    archive_path = _tutorial_zip()
+    if archive_path is None:
+        pytest.skip("the Train Cellpose tutorial ZIP is not downloaded")
+    with zipfile.ZipFile(archive_path) as archive:
         field = tifffile.imread(io.BytesIO(archive.read("apply/cell_field_01.tif")))
     crop = np.ascontiguousarray(field[128:384, 128:384])
     tifffile.imwrite(str(tmp_path / "cell_field_01.tif"), crop)

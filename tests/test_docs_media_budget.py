@@ -159,6 +159,9 @@ def test_only_narration_is_ever_dropped(real_plan):
 def test_every_lesson_keeps_its_video_and_its_poster(real_plan):
     published, _dropped, _keep = real_plan
     kept = {p.relative_to(_LIBRARY) for p in published}
+    pin = json.loads((REPO_ROOT / "docs" / "media_revision.json").read_text(encoding="utf-8"))
+    kept |= {Path(path).relative_to("docs/source/_extra")
+             for path in pin["groups"]["tutorials"]["files"]}
     lessons = sorted({p.parts[2] for p in kept
                       if len(p.parts) > 2 and p.parts[1] == "production"})
     catalog = json.loads(

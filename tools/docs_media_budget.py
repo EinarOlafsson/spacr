@@ -278,7 +278,65 @@ def stage(dest: Path, extra: Path | None = None,
             # Different filesystem, or a filesystem with no hardlinks. Correct
             # output matters more than the copy this was meant to avoid.
             shutil.copy2(path, target)
+    if extra == extra_root():
+        missing = missing_tutorial_media(extra)
+        if missing:
+            mark_media_missing(dest, len(missing))
     return dest
+
+
+#: The notice a staged library shows when its media was not fetched.
+MEDIA_MISSING_NOTICE = (
+    '<div class="tutorial-media-missing" role="status" style="margin:0;padding:12px 16px;'
+    'background:#1f3a5f;color:#ffffff;font:15px/1.4 system-ui,sans-serif;">'
+    '<strong>Tutorial media not downloaded.</strong> {count} lesson posters and example '
+    'downloads are not in this build. Run <code>python tools/fetch_docs_media.py fetch '
+    '--group tutorials</code> and build the documentation again.</div>')
+
+
+def missing_tutorial_media(extra: Path | None = None) -> List[str]:
+    """The pinned tutorial media that is not in the library.
+
+    :param extra: the ``_extra`` folder; the checkout's when omitted.
+    :returns: the missing files' repository paths, from the ``tutorials``
+        group of ``docs/media_revision.json``; empty when there is no such
+        group.
+    """
+    import json
+
+    extra = extra or extra_root()
+    pin = repo_root() / "docs" / "media_revision.json"
+    try:
+        files = json.loads(pin.read_text(encoding="utf-8"))["groups"]["tutorials"]["files"]
+    except (OSError, KeyError, ValueError):
+        return []
+    prefix = "docs/source/_extra/"
+    return sorted(path for path in files
+                  if path.startswith(prefix) and not (extra / path[len(prefix):]).is_file())
+
+
+def mark_media_missing(dest: Path, count: int) -> bool:
+    """Put the media-not-downloaded notice at the top of the staged player.
+
+    The staged ``index.html`` is a hardlink to the source, so it is replaced
+    rather than written through.
+
+    :param dest: the staged ``_extra`` copy.
+    :param count: how many files are missing.
+    :returns: whether the notice was added.
+    """
+    index = dest / "tutorials" / "index.html"
+    if not index.is_file():
+        return False
+    text = index.read_text(encoding="utf-8")
+    match = re.search(r"<body[^>]*>", text)
+    if match is None or "tutorial-media-missing" in text:
+        return False
+    marked = text[:match.end()] + MEDIA_MISSING_NOTICE.format(count=count) + text[match.end():]
+    index.unlink()
+    index.write_text(marked, encoding="utf-8")
+    print(f"tutorial media not downloaded: {count} files missing; the staged player says so")
+    return True
 
 
 def _total(paths: Sequence[Path]) -> int:

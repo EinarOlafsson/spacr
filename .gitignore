@@ -296,6 +296,16 @@ docs/objects.inv
 # docs/media_revision.json pins (tools/fetch_docs_media.py, item 710).
 /docs/source/_static/deck/spacr_deck.pdf
 /docs/source/_static/deck/anim/
+# Tutorial media (posters, narration, example downloads, the release
+# candidate's media) is pinned in the same file and fetched with
+# python tools/fetch_docs_media.py fetch --group tutorials; the tutorial
+# tools write new media to the staging folder (tools/tutorials/tutorial_media.py).
+/docs/source/_extra/tutorials/production/
+/docs/source/_extra/tutorials/examples/
+/tools/tutorials/release_candidate/web/production/
+/tools/tutorials/release_candidate/web/examples/
+/tools/tutorials/archive/production/**/*.jpg
+/tools/tutorials/audio_repairs/**/*.m4a
 # The API catalogs are assembled from the pinned translation memory and the
 # reviewed records (python tools/build_documentation_i18n.py --assemble).
 /docs/source/_static/i18n/

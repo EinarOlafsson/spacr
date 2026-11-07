@@ -7,6 +7,7 @@ module tree, and renders reST docstrings without visual noise.
 from __future__ import annotations
 
 import hashlib
+import json
 import os
 import sys
 from pathlib import Path
@@ -53,7 +54,14 @@ try:
         for name in os.listdir(_tutorial_root)
     )
 except OSError:
-    lesson_count = 73
+    try:
+        with open(os.path.join(os.path.dirname(__file__), '..', 'media_revision.json'),
+                  encoding='utf-8') as _pin:
+            _posters = json.load(_pin)['groups']['tutorials']['files']
+        lesson_count = sum(path.startswith('docs/source/_extra/tutorials/production/')
+                           and path.endswith('/poster.jpg') for path in _posters)
+    except (OSError, KeyError, ValueError):
+        lesson_count = 0
 rst_epilog = (
     f'\n.. |spacr-version| replace:: {release}\n'
     f'.. |docs-channel| replace:: {docs_channel}\n'

@@ -74,6 +74,2560 @@
      "size": 17367099
     }
    }
+  },
+  "tutorials": {
+   "repo": "einarolafsson/spacr-tutorials",
+   "repo_type": "dataset",
+   "revision": "",
+   "files": {
+    "docs/source/_extra/tutorials/examples/Agreement_artificial_labels_real_crops.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/Agreement_artificial_labels_real_crops.zip",
+     "sha256": "47bb5556de177f3fd5beb97b55564eb0890d0e5d3739da0aba2f1902ab4d360c",
+     "size": 2143021
+    },
+    "docs/source/_extra/tutorials/examples/Align_Stitch_nine_tiles.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/Align_Stitch_nine_tiles.zip",
+     "sha256": "bd606bb0652b7473299349455aebaecc05aa7c10699ed98a7604375e3fded94f",
+     "size": 33292958
+    },
+    "docs/source/_extra/tutorials/examples/AnnData_API_workaround.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/AnnData_API_workaround.zip",
+     "sha256": "5a26c0553b9763b5eccf2de0ab6e5a36b5accc9683d6b6ff03ed28ec71b05f9d",
+     "size": 3788
+    },
+    "docs/source/_extra/tutorials/examples/AnnData_API_workaround_README.txt": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/AnnData_API_workaround_README.txt",
+     "sha256": "0f7552186032db74356e521d18f214f6fe40825046054bf8c74fe5e949525c6f",
+     "size": 3056
+    },
+    "docs/source/_extra/tutorials/examples/Apply_Cellpose_stock_example.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/Apply_Cellpose_stock_example.zip",
+     "sha256": "191ed86c5bd41cf548d69c23354ddc6286256e62280764813acba8b29e1824db",
+     "size": 1056789
+    },
+    "docs/source/_extra/tutorials/examples/Cellpose_training_images_masks.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/Cellpose_training_images_masks.zip",
+     "sha256": "53cbc54809c073a86e170ae63f60e3678aa44bc81fdeba6ee4bf5b5167d365a6",
+     "size": 3437727
+    },
+    "docs/source/_extra/tutorials/examples/Classify_existing_split_example.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/Classify_existing_split_example.zip",
+     "sha256": "869da240b9ddf831784cdc7d4ee04f524b4d583a3972f3c4a9d4a48fac9bac86",
+     "size": 5324
+    },
+    "docs/source/_extra/tutorials/examples/Control_Charts_SYNTHETIC_campaign.csv": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/Control_Charts_SYNTHETIC_campaign.csv",
+     "sha256": "b1f4f2789f953bf4340b720cdd1eed0861733594822e27b3c0d9a5c706a8fe1f",
+     "size": 10394
+    },
+    "docs/source/_extra/tutorials/examples/Curate_SYNTHETIC_practice.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/Curate_SYNTHETIC_practice.zip",
+     "sha256": "784511f7de8059f16cd068ca1f429d8f1ffaf64061edcd327ced721c0964d931",
+     "size": 8260
+    },
+    "docs/source/_extra/tutorials/examples/Embeddings_API_example.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/Embeddings_API_example.zip",
+     "sha256": "7b396acb50a7072f55a6477fe2487862597a2d0eda80ee0992667047b4d56e11",
+     "size": 4746
+    },
+    "docs/source/_extra/tutorials/examples/Graph_Builder_real_measurements.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/Graph_Builder_real_measurements.zip",
+     "sha256": "f018566da4f53ce00e367f6c7dcf432be94c5dd0beda3fdd4569d0ab2281a3f8",
+     "size": 15079923
+    },
+    "docs/source/_extra/tutorials/examples/Hit_List_real_results_companion.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/Hit_List_real_results_companion.zip",
+     "sha256": "ab1c68e0f2293e5a6a90df180d8ec65b3dc5ba165b72265bf8e5fb54846d6dbb",
+     "size": 59303
+    },
+    "docs/source/_extra/tutorials/examples/Investigate_Hit_real_screen_example.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/Investigate_Hit_real_screen_example.zip",
+     "sha256": "6383a0da41e0bf7f2691cf259fe12c6cc7a22f4c63ef9f6299ff82d3ebb22464",
+     "size": 1995731
+    },
+    "docs/source/_extra/tutorials/examples/Layer_Viewer_real_image_mask.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/Layer_Viewer_real_image_mask.zip",
+     "sha256": "77b7c269616f2491b1a8c37003023699ba9648d3a8e282193d79fabc35a40e81",
+     "size": 5493647
+    },
+    "docs/source/_extra/tutorials/examples/Lineage_real_containment_review.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/Lineage_real_containment_review.zip",
+     "sha256": "ed24d5e54635c00573ea7b2a1fb3139b5b8094128f98959407d00e6e92fc3828",
+     "size": 51192
+    },
+    "docs/source/_extra/tutorials/examples/Mask_overlay_API_workaround.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/Mask_overlay_API_workaround.zip",
+     "sha256": "f10f7f40daecef4b4813f18986efc08c0f3ed5f3891e874d40226c093e1e6eff",
+     "size": 4724
+    },
+    "docs/source/_extra/tutorials/examples/Model_Compare_saved_masks_example.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/Model_Compare_saved_masks_example.zip",
+     "sha256": "ee5906497c667eb3b6b8a2930f337c4b6015f92aa53a07c124a46f8abf632277",
+     "size": 452803
+    },
+    "docs/source/_extra/tutorials/examples/Power_recorded_simulation_review.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/Power_recorded_simulation_review.zip",
+     "sha256": "ec23021f83c1c782e10629089e52c00b7d4292ba2adc3d19f8b0936c0c2c9ef0",
+     "size": 5112
+    },
+    "docs/source/_extra/tutorials/examples/REAL_evaluation_known_overlap.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/REAL_evaluation_known_overlap.zip",
+     "sha256": "a5b7b039f7c072bfad610ac73ebb15272878bba1b2067a436a07bda17ea045e4",
+     "size": 199726
+    },
+    "docs/source/_extra/tutorials/examples/Run_Compare_real_snapshots.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/Run_Compare_real_snapshots.zip",
+     "sha256": "5a0523d3e8b7228ce44d192b274500083f5e89b83f4723023ba75cffdd60f453",
+     "size": 5783785
+    },
+    "docs/source/_extra/tutorials/examples/SRR33531217_barcode_references.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/SRR33531217_barcode_references.zip",
+     "sha256": "54a939e7a89d7fc7dcb607517c49e3a49e61bd6d769f53be1d02f2777a4764cf",
+     "size": 30824
+    },
+    "docs/source/_extra/tutorials/examples/SYNTHETIC_dose_response_examples.csv": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/SYNTHETIC_dose_response_examples.csv",
+     "sha256": "ecf1527399e55a8a4efdde53ee1c7b536259209173bc4aec7d422bd6b543838d",
+     "size": 4730
+    },
+    "docs/source/_extra/tutorials/examples/SYNTHETIC_invasion_example.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/SYNTHETIC_invasion_example.zip",
+     "sha256": "2306fd51da42108f46e2c5192509415c322ff1e66641d57339466074d36c7014",
+     "size": 60593
+    },
+    "docs/source/_extra/tutorials/examples/SYNTHETIC_motility_tracks.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/SYNTHETIC_motility_tracks.zip",
+     "sha256": "c8bbbb2a137d8b0e98458ddf731038671983b1ed8b20cd16f8d27d1fceb474a7",
+     "size": 2345013
+    },
+    "docs/source/_extra/tutorials/examples/SYNTHETIC_napari_example.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/SYNTHETIC_napari_example.zip",
+     "sha256": "22bcb651b1836a8df3430926970e279ba2f65d1dea8018a4f2ab265ed245cb6c",
+     "size": 132405
+    },
+    "docs/source/_extra/tutorials/examples/SYNTHETIC_plaque_example.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/SYNTHETIC_plaque_example.zip",
+     "sha256": "7355b6d79e4afd03bdfa79118e0a76c03db514d8549c69702ad0c4e60b3d1619",
+     "size": 1549864
+    },
+    "docs/source/_extra/tutorials/examples/SYNTHETIC_profiler_example.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/SYNTHETIC_profiler_example.zip",
+     "sha256": "165ccd6a1bfd09f29b411c001c2722e82435fffeb9d40e930d3eb299551eec83",
+     "size": 6231
+    },
+    "docs/source/_extra/tutorials/examples/SYNTHETIC_replication_example.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/SYNTHETIC_replication_example.zip",
+     "sha256": "03e4e725e60bd1dbeaddc3f68e97f90e57001dce9b671d0716c32ce8b5402fe7",
+     "size": 35013
+    },
+    "docs/source/_extra/tutorials/examples/SYNTHETIC_timelapse_preview.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/SYNTHETIC_timelapse_preview.zip",
+     "sha256": "a94da333f55c10470737855c74b6add9e55c0dbf955474126429df49c0027868",
+     "size": 1050432
+    },
+    "docs/source/_extra/tutorials/examples/SYNTHETIC_training_runs.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/SYNTHETIC_training_runs.zip",
+     "sha256": "945e7b422bcb2cd3454b4af10a3cbed498b96b14a602d47fdc0aadfa9f7382d0",
+     "size": 13438
+    },
+    "docs/source/_extra/tutorials/examples/Train_Cellpose_API_example.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/Train_Cellpose_API_example.zip",
+     "sha256": "0b1fe69c5d5c569afb9eb4fbc53e78a43b01e03c469825b2c4f547c97fcee469",
+     "size": 2264580
+    },
+    "docs/source/_extra/tutorials/examples/Volcano_real_guide_family.zip": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/Volcano_real_guide_family.zip",
+     "sha256": "9656373d2b8844e62e59c679e0197b2b83c0538a0de4e7c63f2496b13621b077",
+     "size": 63894
+    },
+    "docs/source/_extra/tutorials/examples/anndata_missing_metadata_example.py": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/examples/anndata_missing_metadata_example.py",
+     "sha256": "47b3281847726548ac7617023bf756f5e3d94cf35417e68e0edf9de30625e919",
+     "size": 6314
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/poster.jpg",
+     "sha256": "91273091330708921fab98856cbf3371f475b8c6518dca25e07ac7ef0e95f7df",
+     "size": 479071
+    },
+    "docs/source/_extra/tutorials/production/02_install_spacr/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/02_install_spacr/poster.jpg",
+     "sha256": "a9518b96648c62ff078cd5042f83b49f5385b356343a13ecf935bb34641f7c8c",
+     "size": 263387
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/poster.jpg",
+     "sha256": "daad5d930e759e196b34f4bfe495b714c883566c5f1357b5c94d520f2304f382",
+     "size": 256849
+    },
+    "docs/source/_extra/tutorials/production/05_home/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/poster.jpg",
+     "sha256": "e335d94a6941f5c4cb451e72bfd4ed810351bee2a4dd3ed56ca0c2300b291bc2",
+     "size": 776216
+    },
+    "docs/source/_extra/tutorials/production/06_api/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/06_api/poster.jpg",
+     "sha256": "9ea3aafc75c493152f64dd1ee958bc7d46586f91121195cb594d41b13e7f917d",
+     "size": 179658
+    },
+    "docs/source/_extra/tutorials/production/07_mask/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/07_mask/poster.jpg",
+     "sha256": "ed5e02bab4b5014df70126836b2025721847a473ca8596e9801333e33f14812f",
+     "size": 774717
+    },
+    "docs/source/_extra/tutorials/production/08_measure/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/08_measure/poster.jpg",
+     "sha256": "60d289dbcc176d982b6b730376009e8f6a8e213669c73134e0007aae09152b59",
+     "size": 708307
+    },
+    "docs/source/_extra/tutorials/production/09_annotate/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/09_annotate/poster.jpg",
+     "sha256": "eb46a568ca514c3b10f3d084a2b83517e8eb7202b8df87fe080e36a2145ceaf1",
+     "size": 776341
+    },
+    "docs/source/_extra/tutorials/production/10_classify_cv/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/10_classify_cv/poster.jpg",
+     "sha256": "b0217d385159970082afc16539752929ee15a0b1e6ee93f104620632de7a7bcd",
+     "size": 477685
+    },
+    "docs/source/_extra/tutorials/production/11_classify_ml/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/11_classify_ml/poster.jpg",
+     "sha256": "03f46a175c883a8f229876c777b8b15367c1c1a90da321ed12eac91928d8358a",
+     "size": 806159
+    },
+    "docs/source/_extra/tutorials/production/12_map_barcodes/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/12_map_barcodes/poster.jpg",
+     "sha256": "03100e91a744c4ac53228cb85c4fcc06f8ad38bf3d77ba798ce5289864c6a76f",
+     "size": 438248
+    },
+    "docs/source/_extra/tutorials/production/13_regression/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/13_regression/poster.jpg",
+     "sha256": "01432094e9138a3a37cf7f5de522c0d760015ac95dad3d0f55707a781610965e",
+     "size": 437825
+    },
+    "docs/source/_extra/tutorials/production/14_make_masks/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/14_make_masks/poster.jpg",
+     "sha256": "ceebf5b4a4906342322414faa81b6fe947edd51d5d874f37b2b71d841d88cb77",
+     "size": 1076097
+    },
+    "docs/source/_extra/tutorials/production/15_image_umap/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/15_image_umap/poster.jpg",
+     "sha256": "5791dce4c39e5e16d5823102057620f9b75dbf9e66ef521fbe5aa33adc7f7399",
+     "size": 771334
+    },
+    "docs/source/_extra/tutorials/production/16_activation/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/16_activation/poster.jpg",
+     "sha256": "7f4675ab191f705de952761bffeeb3b5af71ed9c104507b2af6eecd32c96f738",
+     "size": 516413
+    },
+    "docs/source/_extra/tutorials/production/17_timelapse/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/17_timelapse/poster.jpg",
+     "sha256": "0acceb351aa75f1dd2e652716351eec87a4274ae2cc63a61d9ec6772ae358060",
+     "size": 726769
+    },
+    "docs/source/_extra/tutorials/production/19_train_cellpose/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/19_train_cellpose/poster.jpg",
+     "sha256": "7fa4dfba73bd37cd818f822553a7b2d156a09e4704c1088c9fa9612a37a98097",
+     "size": 214034
+    },
+    "docs/source/_extra/tutorials/production/20_cellpose_masks/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/20_cellpose_masks/poster.jpg",
+     "sha256": "353407601ba39687627305fff2f6bc039b6b3f009f0d00a4caf4924267fcf7e3",
+     "size": 768921
+    },
+    "docs/source/_extra/tutorials/production/21_model_compare/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/21_model_compare/poster.jpg",
+     "sha256": "7c89dec193ae6a7e0f01ac477a126c261424ab480d57b7abea9ab54108504afb",
+     "size": 771933
+    },
+    "docs/source/_extra/tutorials/production/22_model_zoo/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/22_model_zoo/poster.jpg",
+     "sha256": "5c40968cb880faaaf6edeaf4f424d6a53b8b037124f36975b19e99333ff0cbdf",
+     "size": 400455
+    },
+    "docs/source/_extra/tutorials/production/23_agreement/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/23_agreement/poster.jpg",
+     "sha256": "e236067b9a3eea6968d53cfa4a491db9576cfe05fbb4acfa4c59e986db9f76c4",
+     "size": 790168
+    },
+    "docs/source/_extra/tutorials/production/26_invasion/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/26_invasion/poster.jpg",
+     "sha256": "d4d88f70d942f1f21b330217060fb81f37c58357f960ca9cf7d5bf3ce6554bc0",
+     "size": 436135
+    },
+    "docs/source/_extra/tutorials/production/27_replication/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/27_replication/poster.jpg",
+     "sha256": "921c550b940716f0d0faa22119cda6424e7a8414b13217c7fc6b3301f56fa324",
+     "size": 769219
+    },
+    "docs/source/_extra/tutorials/production/28_training_runs/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/28_training_runs/poster.jpg",
+     "sha256": "dda2fcf595b50ce306ff6c2976837ef20d27115ba40f78bbc6334a2b2f505306",
+     "size": 775097
+    },
+    "docs/source/_extra/tutorials/production/31_external_masks/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/31_external_masks/poster.jpg",
+     "sha256": "e964e94875403e27d04f8817376c8bb81db7b1687c222923fa30ff92d06e6fb9",
+     "size": 481044
+    },
+    "docs/source/_extra/tutorials/production/32_align_stitch/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/32_align_stitch/poster.jpg",
+     "sha256": "51bfb6c637ce34b5025afe93261ad9c13609dec0e8c117673a98770617e63922",
+     "size": 779199
+    },
+    "docs/source/_extra/tutorials/production/33_plate_viewer/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/33_plate_viewer/poster.jpg",
+     "sha256": "33ba9df115313aafa7a60294aedcc7d73095bfde0f9304cbc0cb205d778b2a6e",
+     "size": 587622
+    },
+    "docs/source/_extra/tutorials/production/35_converter/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/35_converter/poster.jpg",
+     "sha256": "4d8c87a82f0c3aed42a35338f7c547e45207b0fbad9afbd441fced58fdcee71f",
+     "size": 772627
+    },
+    "docs/source/_extra/tutorials/production/36_import/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/36_import/poster.jpg",
+     "sha256": "45134ceb6c6db3f3e2e34bc7ca6b93321e5c73adf7ce193549a1d04cd32207c8",
+     "size": 436120
+    },
+    "docs/source/_extra/tutorials/production/37_batch/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/37_batch/poster.jpg",
+     "sha256": "7f084c8627e5426eef1f965882c11c8bc1a88ad85799e38bb2d1fe858d26bee6",
+     "size": 784343
+    },
+    "docs/source/_extra/tutorials/production/38_distributed_jobs/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/38_distributed_jobs/poster.jpg",
+     "sha256": "37e740b88e6e130a5ec219f88003d7f46ce0ad08259fbade886013562c300668",
+     "size": 771954
+    },
+    "docs/source/_extra/tutorials/production/39_classifier_evaluation/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/39_classifier_evaluation/poster.jpg",
+     "sha256": "470cf6d4919244975c263e05556a271c4a2e6a3f6be99dfe7aea3c8ce895fb94",
+     "size": 771849
+    },
+    "docs/source/_extra/tutorials/production/40_run_history/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/40_run_history/poster.jpg",
+     "sha256": "a18e1989cd4db69c85cc1149ec12f25b215b9f2e93b74474376bdb49bba0cd76",
+     "size": 781226
+    },
+    "docs/source/_extra/tutorials/production/41_classify/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/41_classify/poster.jpg",
+     "sha256": "445b2083c7a16d9b9cbc3db76dcf9453dfcb2c9482cef8cbd8c9cb5cbb91c4ca",
+     "size": 439582
+    },
+    "docs/source/_extra/tutorials/production/42_curate/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/42_curate/poster.jpg",
+     "sha256": "4ccc7067e35f3d28c12664d86409209d98c41a63d3f6bd3bf4026caec5aec126",
+     "size": 792754
+    },
+    "docs/source/_extra/tutorials/production/43_illumination/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/43_illumination/poster.jpg",
+     "sha256": "af76a6d16921d12e1e95bc198b84a758a4202430f81631b0e254ea9ffddfcfcc",
+     "size": 773451
+    },
+    "docs/source/_extra/tutorials/production/44_data_manager/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/44_data_manager/poster.jpg",
+     "sha256": "890679be85c1fa1291915d8c2e18577bd15e3162a0eb435a89e060a4b53a2748",
+     "size": 776068
+    },
+    "docs/source/_extra/tutorials/production/45_project_browser/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/45_project_browser/poster.jpg",
+     "sha256": "0469ba00fdccc860b66bb463a918d0105db6f54dbfe6990d0842aeeefd8eef5a",
+     "size": 771990
+    },
+    "docs/source/_extra/tutorials/production/48_hit_list/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/48_hit_list/poster.jpg",
+     "sha256": "5cfb52cf4293796f98c5188219dedd6c990ffd14d0e6f4479fd6f71491091fd7",
+     "size": 190425
+    },
+    "docs/source/_extra/tutorials/production/49_methods_results/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/49_methods_results/poster.jpg",
+     "sha256": "74688acb82099d6ef7927dfac1fbb1789d1b17226a9ddb271270a78b57acfb91",
+     "size": 776669
+    },
+    "docs/source/_extra/tutorials/production/50_run_compare/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/50_run_compare/poster.jpg",
+     "sha256": "67093454d9fde408fe9eee946998edbff1b1329f4bfa0fa3d13315be687edaab",
+     "size": 410092
+    },
+    "docs/source/_extra/tutorials/production/51_control_charts/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/51_control_charts/poster.jpg",
+     "sha256": "3ebe912dae640c6969c98ed07d60b5342ffb3ebfb90efd2994c0ad6e69a6f09a",
+     "size": 584278
+    },
+    "docs/source/_extra/tutorials/production/52_pipeline_graph/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/52_pipeline_graph/poster.jpg",
+     "sha256": "635c7b445ef51372aa531bfd04015ac0a0affcad8c3da12454b5c2efdf92fe74",
+     "size": 788436
+    },
+    "docs/source/_extra/tutorials/production/53_prediction_profiler/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/53_prediction_profiler/poster.jpg",
+     "sha256": "0f71d276cfaac8b0d1fbf86956663683dfd90cb8c6c61d3267c12e0e979704c2",
+     "size": 782460
+    },
+    "docs/source/_extra/tutorials/production/54_qc_dashboard/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/54_qc_dashboard/poster.jpg",
+     "sha256": "28bbfd85bf689b8cf26f0aed4719dcab20e3a06d334d9ca74bfccff92a89dd89",
+     "size": 782772
+    },
+    "docs/source/_extra/tutorials/production/55_image_scatter/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/55_image_scatter/poster.jpg",
+     "sha256": "40528ce8e6788895dcde6adf5b0f54e961f42c81f9b79e62b7dd8c8adb40a736",
+     "size": 763209
+    },
+    "docs/source/_extra/tutorials/production/56_lineage/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/56_lineage/poster.jpg",
+     "sha256": "a011335ee1b2dd140aa0969dc6729ff9f9c31e368ce2c7ac17a7975b8275913e",
+     "size": 476033
+    },
+    "docs/source/_extra/tutorials/production/58_graph_builder/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/58_graph_builder/poster.jpg",
+     "sha256": "020028c33d473e03d016a82529a0377ae93436ae4dec40698be40298183491ac",
+     "size": 366185
+    },
+    "docs/source/_extra/tutorials/production/62_feature_dictionary/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/62_feature_dictionary/poster.jpg",
+     "sha256": "87e9df0e8261568e09d44a34658fcd0f90678fd3da455dc8210ac4eddf89ee89",
+     "size": 768339
+    },
+    "docs/source/_extra/tutorials/production/63_small_multiples/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/63_small_multiples/poster.jpg",
+     "sha256": "3aec0247b14911f95dac950c093e6f68b92d3dea97f7dfe55146da9d1c61db2e",
+     "size": 401040
+    },
+    "docs/source/_extra/tutorials/production/64_gate_editor/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/64_gate_editor/poster.jpg",
+     "sha256": "c44715f362b9b1861018e1ef83660ff72d60878df3ebc44ff3ce476eb9820c68",
+     "size": 151054
+    },
+    "docs/source/_extra/tutorials/production/67_experiment_design/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/67_experiment_design/poster.jpg",
+     "sha256": "f73d066eafaa847bc7845ea4432b2d37c8f189f3bcb2845e174243403ed277af",
+     "size": 781507
+    },
+    "docs/source/_extra/tutorials/production/70_explain_cv/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/70_explain_cv/poster.jpg",
+     "sha256": "1e5330b260f746a1c4985f37155123b804e64729870aaac509e17be5e2a15a38",
+     "size": 411116
+    },
+    "docs/source/_extra/tutorials/production/74_import_images/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/74_import_images/poster.jpg",
+     "sha256": "8b019bf8fa342623e05541e17e55992a638115ae20513e0d5a915879fa6f06ab",
+     "size": 475759
+    },
+    "docs/source/_extra/tutorials/production/78_spacr_screens/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/78_spacr_screens/poster.jpg",
+     "sha256": "b653f0d0ea6b68e3d6f75a9f97441e1c94b1ec29389a7453fe402b4fe9321061",
+     "size": 399704
+    },
+    "docs/source/_extra/tutorials/production/80_image_analysis_pathways/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/80_image_analysis_pathways/poster.jpg",
+     "sha256": "5e3b42fc3fa4dbf3e018980937a3225b3de03b6ce170b404139e5db96872550d",
+     "size": 1178102
+    },
+    "docs/source/_extra/tutorials/production/81_sequencing_pathways/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/81_sequencing_pathways/poster.jpg",
+     "sha256": "3b4133be106fb73969b2f6b653f2a76168476757d51b8fb9845b578c09a2f696",
+     "size": 404254
+    },
+    "docs/source/_extra/tutorials/production/82_toxoplasma/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/82_toxoplasma/poster.jpg",
+     "sha256": "0cee7fe8d47da4b67c41dd62d658ed00b72f079a817a398bc7d8073e36f54105",
+     "size": 775558
+    },
+    "docs/source/_extra/tutorials/production/85_host_pathogen/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/85_host_pathogen/poster.jpg",
+     "sha256": "e1aa49793d395021027960a241f8be7f0b5639bbfaa6ad22368534347ffbd13c",
+     "size": 439902
+    },
+    "docs/source/_extra/tutorials/production/88_navigator/poster.jpg": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/88_navigator/poster.jpg",
+     "sha256": "f96f4403c1236da8b8a851ff688503d44ff05b608659c43723ceb69dd2b26736",
+     "size": 359014
+    }
+   }
+  },
+  "tutorial_archive": {
+   "repo": "einarolafsson/spacr-tutorials",
+   "repo_type": "dataset",
+   "revision": "",
+   "files": {
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/en/af_heart.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/en/af_heart.json",
+     "sha256": "59fa862c0c3d0862417b62c443d64fb601ff497968db92c3cd5954143ce4442c",
+     "size": 6006
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/en/af_heart.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/en/af_heart.m4a",
+     "sha256": "00f5c34265a2d06c2bcf7ab8ec794815a2781dc970c9c832bcc3ee7962c5fd79",
+     "size": 512710
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/es/ef_dora.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/es/ef_dora.json",
+     "sha256": "67a50320f68fe1b89ab1abfbb6ef6209657b18abdcfbfb0c2a0f8e015713433c",
+     "size": 6667
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/es/ef_dora.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/es/ef_dora.m4a",
+     "sha256": "66e5a202deb496f4a2976b01780e625e182c701c82008a498729a4201743e6a6",
+     "size": 528074
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/es/em_alex.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/es/em_alex.json",
+     "sha256": "1a1bd7487916a73893ebc4a5cc44c63d0d3241011fb810a703dda1a144c48219",
+     "size": 6500
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/es/em_alex.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/es/em_alex.m4a",
+     "sha256": "7284f8e365d154a633391236a0c76eec851f231c52fc0a1f59c35ec38eb02dbf",
+     "size": 533205
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/es/em_santa.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/es/em_santa.json",
+     "sha256": "5a843e5ff881ccdc4691a8ec76ae85a33d5ddb80a47c346a404c02a3a0d8c962",
+     "size": 6622
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/es/em_santa.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/es/em_santa.m4a",
+     "sha256": "713bd840113c50dc2071f5c38faa05778b88ed1cdc3c206bc225e83b1cfe9845",
+     "size": 532477
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/fr/ff_siwis.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/fr/ff_siwis.json",
+     "sha256": "3ac20204e5f67d2c11649b027e3350a8efa368f6b2d81a716864ab389b3fe61d",
+     "size": 6552
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/fr/ff_siwis.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/fr/ff_siwis.m4a",
+     "sha256": "4ecbf9d7a78d771ff340666e5c166622d1241bbb2471072eb2f5d86cf879ae7d",
+     "size": 540532
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/hi/hf_alpha.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/hi/hf_alpha.json",
+     "sha256": "5df2e1cb5d4e9628ccf0e63493fb0ab4faafaa302a205eb336b52463f1d3398e",
+     "size": 10426
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/hi/hf_alpha.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/hi/hf_alpha.m4a",
+     "sha256": "970373e84c45c44b39e32ba3a7c7a0176b3e0b66fd860574336f0e152d376a28",
+     "size": 634101
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/hi/hf_beta.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/hi/hf_beta.json",
+     "sha256": "9631b5f3400ae4920de06e8599234ed81ea5a0fc7af38ea7b9ac4aab35426a0b",
+     "size": 10191
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/hi/hf_beta.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/hi/hf_beta.m4a",
+     "sha256": "b55f47d70a89dbb408f9f25d391fd7637f607f5824ef7d42c2cc920b68465150",
+     "size": 562431
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/hi/hm_omega.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/hi/hm_omega.json",
+     "sha256": "db7790a1cfa3ef14380af1a3050dd51971a9b9693dbc536f81dea44e1b13043d",
+     "size": 10378
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/hi/hm_omega.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/hi/hm_omega.m4a",
+     "sha256": "8588e886fd3339d35efc5a215b633a7881627e47e44ae47363d66eed1e164c44",
+     "size": 663157
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/hi/hm_psi.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/hi/hm_psi.json",
+     "sha256": "6ac60ed4588cfd0886afa0597d1f8ebf2d9ad012de19aeecb8a178661857454d",
+     "size": 10205
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/hi/hm_psi.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/hi/hm_psi.m4a",
+     "sha256": "bf905d473b79d6ce51834d4b1d83b06cbf8b393b698d93c3a2f6142695835ba6",
+     "size": 670758
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/it/if_sara.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/it/if_sara.json",
+     "sha256": "066fcc059b8d9d87f6ab63dbbb125acf54147530b6365d7a1536d98a42164f94",
+     "size": 6338
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/it/if_sara.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/it/if_sara.m4a",
+     "sha256": "c8d1f64a66690d8170a1b447fb174a547ca1c74f475eefc18c0e04779a20edc5",
+     "size": 541564
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/it/im_nicola.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/it/im_nicola.json",
+     "sha256": "47d68f2b745ae45ff3a82da0b56ff2a58422b22b7666f725dbc91b48a51848db",
+     "size": 6410
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/it/im_nicola.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/it/im_nicola.m4a",
+     "sha256": "1fe410c86f8648db80d1980298e310161ce18d2224bf29cc60212d9878d4f907",
+     "size": 583629
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/ja/jf_alpha.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/ja/jf_alpha.json",
+     "sha256": "09e745c674233630a08aaff6bde5027b1aaea74f890580663e75168aa499e9bb",
+     "size": 7070
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/ja/jf_alpha.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/ja/jf_alpha.m4a",
+     "sha256": "4eadbdaff1acdf959eb46dcac4d8b194bc1fe1f13f9e02e2050af22bc425e569",
+     "size": 643656
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/ja/jf_gongitsune.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/ja/jf_gongitsune.json",
+     "sha256": "123caf9fd403784642d9a8e9d16a8d2246e97276b93089785dc814144091451a",
+     "size": 7028
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/ja/jf_gongitsune.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/ja/jf_gongitsune.m4a",
+     "sha256": "9a07178ef675849467d3eb3b26b3e793138935df36eef48c20e1625e4935f8ef",
+     "size": 786293
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/ja/jf_nezumi.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/ja/jf_nezumi.json",
+     "sha256": "d8c1ae0f413d9630a3021bfd2c946cf7f77fda95b4377d99d0e653e8fb688e31",
+     "size": 7131
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/ja/jf_nezumi.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/ja/jf_nezumi.m4a",
+     "sha256": "7403bb1b44b561e3aa4bfd82b620ed5afa98764d79802c0fd7569ec7b8578b73",
+     "size": 839309
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/ja/jf_tebukuro.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/ja/jf_tebukuro.json",
+     "sha256": "0f094f385ff4821899c2e3969e54164ebec1cf09057e38d436446c510ddb2b5a",
+     "size": 7107
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/ja/jf_tebukuro.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/ja/jf_tebukuro.m4a",
+     "sha256": "f20276dca41d1549ab5267a92abe0aa816f3a766b0a26bdb46cc6c822b90051b",
+     "size": 776354
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/ja/jm_kumo.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/ja/jm_kumo.json",
+     "sha256": "915dcd3a3b813b2d52d0feaeb17e7a08c0530177abb11ddff7197748a9eea662",
+     "size": 7151
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/ja/jm_kumo.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/ja/jm_kumo.m4a",
+     "sha256": "70f5950659f98bb400582ffb48e833bd441f9881bfdc67d472f7a61e690a8124",
+     "size": 692271
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/pt-BR/pf_dora.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/pt-BR/pf_dora.json",
+     "sha256": "dc6aeaa1344b13f168a1c202d0183c07a505e6e577ce4eac06ce01c2b3bd96e8",
+     "size": 6833
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/pt-BR/pf_dora.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/pt-BR/pf_dora.m4a",
+     "sha256": "8da349b8b850817fb1224514b5f5787bea52b4058ef0e53be18d6a7d4f40d3f1",
+     "size": 515179
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/pt-BR/pm_alex.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/pt-BR/pm_alex.json",
+     "sha256": "c937b3465548807db7b479c3ca6f932b2fb141c0559da85fbc1a4d62f373bd67",
+     "size": 6691
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/pt-BR/pm_alex.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/pt-BR/pm_alex.m4a",
+     "sha256": "63db0cd96bbfe67d344f98d91d5c3011e83c7e463068a85388ab908e1ce15e4b",
+     "size": 516500
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/pt-BR/pm_santa.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/pt-BR/pm_santa.json",
+     "sha256": "686f4bb8cd6e43cbe9823b0e6f22a64be454d2a14f5b51bfe242d6d51b611cab",
+     "size": 6843
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/pt-BR/pm_santa.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/pt-BR/pm_santa.m4a",
+     "sha256": "d5ad31082a9113e1c79eea8b4a09cd87fcadc62a9b950f9d0c4692c27ce5d459",
+     "size": 526383
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zf_xiaobei.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zf_xiaobei.json",
+     "sha256": "f34fd075bd4106756d1ea9f7d8855a4357fe4c4898b6e03b4d93a11167cf7884",
+     "size": 6237
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zf_xiaobei.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zf_xiaobei.m4a",
+     "sha256": "c1a5115eb2d3ec3517a2d8e75fa8a1c2b6056029c940ce3201f8922e73389219",
+     "size": 531379
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zf_xiaoni.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zf_xiaoni.json",
+     "sha256": "f4d91ba978641dbd14c4c607727512fb7ae1d9590fd61bfd310d7d819fe39fd4",
+     "size": 6238
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zf_xiaoni.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zf_xiaoni.m4a",
+     "sha256": "93135e5c2fbb85e51544805c99816fe6bd371969ec622e93b04169d22570bb9c",
+     "size": 474697
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zf_xiaoxiao.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zf_xiaoxiao.json",
+     "sha256": "8afafab2ddd7fc19887708ed185c8a01916afb9ae79eede53d5766e532805971",
+     "size": 6089
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zf_xiaoxiao.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zf_xiaoxiao.m4a",
+     "sha256": "477bacd93b997e249a10ebc0aee5a9d23e9c9c438026818396aa31a4ad5d146c",
+     "size": 465436
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zf_xiaoyi.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zf_xiaoyi.json",
+     "sha256": "3922bb05283c431e1012f3e6795c7e1e0e9dc765ef37f023778511a4301ab42d",
+     "size": 6115
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zf_xiaoyi.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zf_xiaoyi.m4a",
+     "sha256": "23311f328fa19870c05a61f279c6791ed4155f519a205e1182a01fa51441eadb",
+     "size": 450495
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zm_yunjian.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zm_yunjian.json",
+     "sha256": "c7696f7302eb1e8255f70b7768f90a5433afbfd367e210248cd3a2b01df2e8bd",
+     "size": 6235
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zm_yunjian.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zm_yunjian.m4a",
+     "sha256": "d3f91034a2ced7583e3039a1462aa946fe5126aae6ccbe14a83aeb977a8a46f6",
+     "size": 455244
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zm_yunxi.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zm_yunxi.json",
+     "sha256": "635f03a98555a76acf295cbb48290b8da3b1c4bd42fb5d249ddaef952679d005",
+     "size": 6225
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zm_yunxi.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zm_yunxi.m4a",
+     "sha256": "075b664499bb76b20c60213aefbdb2f2ca9cb9a5dd67998d7e87da2cfc3a75ed",
+     "size": 429081
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zm_yunxia.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zm_yunxia.json",
+     "sha256": "54d10d332005bfb661485dd9fb535f3e77ba7a455f75865a2d772634e2ff0fa5",
+     "size": 6282
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zm_yunxia.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zm_yunxia.m4a",
+     "sha256": "fa5b61b84f3cafbd534e18da8a1e278129fa977cc1b8eff8d4ddf2e19d4c7b73",
+     "size": 480251
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zm_yunyang.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zm_yunyang.json",
+     "sha256": "77e0b141903a723bdb5194161d209923b5afacab1f86373a7b0465764c578792",
+     "size": 6111
+    },
+    "docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zm_yunyang.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/zh-CN/zm_yunyang.m4a",
+     "sha256": "3dde17ef189042f77a32a93fb1350c92511b2fde199fa9dbfbc0972b3c228e56",
+     "size": 421822
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_alloy.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_alloy.json",
+     "sha256": "9f3d7a01c9c6c3f2e5dcb1b8c49880f696bfc639bbb3b79d5c4160769c593b63",
+     "size": 6600
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_alloy.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_alloy.m4a",
+     "sha256": "5495d3fd11d4190106cd5a6b31563ee24d4e667b80b3d3d268fcc21d2e317ef3",
+     "size": 531726
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_aoede.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_aoede.json",
+     "sha256": "ab959cc2e247d2d09c2072c7dec0e0b9baf63192a76915af5918031483a4db2e",
+     "size": 6607
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_aoede.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_aoede.m4a",
+     "sha256": "7827b9fd1a281931f79ab0687e2f71d4b245cddbee22f6aec30999a310a7cbc4",
+     "size": 567190
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_bella.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_bella.json",
+     "sha256": "7e883c2be253f1a78db0ed6facc215e0f3484326dad976346dbe3b295bcfb3f6",
+     "size": 6554
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_bella.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_bella.m4a",
+     "sha256": "1e33fd087bbbd24d3b25481bbae8ddd54067ba9cf641d5eec8077064f9efef2a",
+     "size": 590682
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_heart.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_heart.json",
+     "sha256": "63b5993b50a4c1e52de581c8decec1793d0dad7548e628d3ea3b6182c1750b34",
+     "size": 6600
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_heart.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_heart.m4a",
+     "sha256": "e8302d1d0f56f29ddcbabd29f76042be7056d5f3b3d184c266d4cfb17ef54dab",
+     "size": 566086
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_jessica.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_jessica.json",
+     "sha256": "4eb7ad4d4a466befa8dad6fe96e1f8619736ac47af9ace11dfd3cc900992836f",
+     "size": 6629
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_jessica.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_jessica.m4a",
+     "sha256": "84864c80e0296ae5d793bfddc943947c72a624600c82e3ba130c01060db02efe",
+     "size": 500474
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_kore.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_kore.json",
+     "sha256": "9fb9d6fffff394d9a40eca3108086d2d47be880f70bca8ef716569dffe03f9c9",
+     "size": 6499
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_kore.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_kore.m4a",
+     "sha256": "14735cefc672bcf6b1c75c85620385db79910b62d0ad1221289bdab0980e4c1f",
+     "size": 584553
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_nicole.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_nicole.json",
+     "sha256": "9642e5a5b20dd5ba1c36ff87bcda66383eecf44f03e86530af45ed9cb795f58a",
+     "size": 6651
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_nicole.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_nicole.m4a",
+     "sha256": "0485e49d86463eae404ea07f8e24ad1f26df6345f85ee175794758bc361f20b5",
+     "size": 847925
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_nova.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_nova.json",
+     "sha256": "a5d09810a40dcc31bb25f63d46fe92fbcd11260197d9378d62575cd2a5dc3361",
+     "size": 6604
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_nova.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_nova.m4a",
+     "sha256": "174dbc02a6f1b80bf440e7272f3e8224ac7ade008020435f37e51133f7eba4c0",
+     "size": 518399
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_river.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_river.json",
+     "sha256": "ef589611f0dcf7802b281295b192a91ffaeb512f4fc2691b6f25a50d5f52df25",
+     "size": 6520
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_river.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_river.m4a",
+     "sha256": "4e2eb98b38262ab393743d45763046eb4449b3f68f1fd78720dc84a99d30c3c9",
+     "size": 488809
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_sarah.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_sarah.json",
+     "sha256": "99a1c20cd230f176a1d09eba41846be245b534f6248e679fe51c3b2be44c7dd9",
+     "size": 6628
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_sarah.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_sarah.m4a",
+     "sha256": "8fed7755617b5f109cccee223cc03efcbe48e6fc032eee2b7101a7d865d8a389",
+     "size": 570727
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_sky.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_sky.json",
+     "sha256": "a14a1f4b49cf0cf9d26f416bffbd6c0e1207bb817a92ecf16b3787e6e1d8d018",
+     "size": 6624
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_sky.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/af_sky.m4a",
+     "sha256": "3e86dfad9509a63f0031c2d9661e1a1b68ded760192771763fcb0396d4cd3a49",
+     "size": 549731
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_adam.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_adam.json",
+     "sha256": "9f6b69dfa2f73a82695f2d298673efaac974f8fa904f4ed9e5b69336eba991fe",
+     "size": 6653
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_adam.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_adam.m4a",
+     "sha256": "69e191986cb7aef0d4676e3759d87638a85aa5d683b1ceb32e4140686f86bd4b",
+     "size": 553897
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_echo.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_echo.json",
+     "sha256": "29bed35d12f84e868d37a36772302b7646485bcde89b371d11f216ae54028cd2",
+     "size": 6597
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_echo.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_echo.m4a",
+     "sha256": "55ce232bae04d7055c8a598dcbcf246040cbe472ef01262fb814482604f5551b",
+     "size": 528500
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_eric.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_eric.json",
+     "sha256": "592060d9bb38f1468c14ec78e0d82176a913286594395159872968d89ef9b379",
+     "size": 6652
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_eric.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_eric.m4a",
+     "sha256": "79fee49c996d7af8e1981aa01c5fc6a1a11417261620bad20a8db755c6b49d2e",
+     "size": 491350
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_fenrir.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_fenrir.json",
+     "sha256": "659717f1268332ff88df0af6f297c5c3ed62de9aae55b4a5112e0046a1a5c7c4",
+     "size": 6646
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_fenrir.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_fenrir.m4a",
+     "sha256": "0ba13622357ea027a6d6da83fcdf619e53add38e0a42ef339b688fec0851c5cd",
+     "size": 572808
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_liam.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_liam.json",
+     "sha256": "828e02141d8114bace7880ba142dbd47fae1595f7b8be5654e483a50b0fd0390",
+     "size": 6651
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_liam.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_liam.m4a",
+     "sha256": "0e70c3536e7f4eb45530c78a0a9c4e6b09ee17d8137cfd48ba118f361a2dec5d",
+     "size": 512973
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_michael.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_michael.json",
+     "sha256": "ebfcc7420acc95b6b3b9552a9b35a9033b8f1779702392ea755f56c9062b706a",
+     "size": 6604
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_michael.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_michael.m4a",
+     "sha256": "33506ea508920d300d6f7f7cc75ef5ca07b797c6b4577929b00212da53fcca6b",
+     "size": 624059
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_onyx.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_onyx.json",
+     "sha256": "20c8bb824a09aeba3db0f90df0baec7e19103cefc83bc484c540cf57b8533a40",
+     "size": 6612
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_onyx.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_onyx.m4a",
+     "sha256": "311a4518ed1b6e3612a7ab1a7e83fbdcef926cbded281ec2b7c39b517e8f2056",
+     "size": 530693
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_puck.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_puck.json",
+     "sha256": "edd17ec92dff0177dbeff92fd3ab0544eec36df0192c801c036cd26666b2f71f",
+     "size": 6607
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_puck.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_puck.m4a",
+     "sha256": "96be984cb2b797b52f4756dd66fa5a62f30e74cb185be848f0f458d6030a8164",
+     "size": 565665
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_santa.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_santa.json",
+     "sha256": "6dc6d7de6fae39dbd099d428f5bb34026ce99db9da91fe4a3bffa5976d51bc3f",
+     "size": 6510
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_santa.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/am_santa.m4a",
+     "sha256": "97bd1da9431cdc40473646317bb3de8f07992ffc455fd7eeb3fb6b2500fe97f2",
+     "size": 579185
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bf_alice.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bf_alice.json",
+     "sha256": "7ec6c63b4228e497feeb0ae2bee6562e05d6b1dec34b40d4e157f0e81c950b26",
+     "size": 6533
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bf_alice.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bf_alice.m4a",
+     "sha256": "2f8d092df7c41fd56247e77eda4bffa1e7d9ec5288ffce249a1b2ebab72cfd75",
+     "size": 549101
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bf_emma.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bf_emma.json",
+     "sha256": "252e693f5f8d4907f1b464cde8b78a9aa81a70762d912043df150c78414a6714",
+     "size": 6577
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bf_emma.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bf_emma.m4a",
+     "sha256": "7195da0df571078674cc2c375187af52c3235bcad8d0a1fe8f0843458e7b8029",
+     "size": 549802
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bf_isabella.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bf_isabella.json",
+     "sha256": "cdd8f57185de5621503c1b5aebfda94b29bf174091e47223c89e856a61a86f87",
+     "size": 6618
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bf_isabella.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bf_isabella.m4a",
+     "sha256": "605831883333442fee6222d5e39859e420bc43417e581990c785cdc90a05b873",
+     "size": 547202
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bf_lily.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bf_lily.json",
+     "sha256": "9e6b2a7555a0ec7e810d207bdf9c8622aeefd03e37c1df0c8de226e2e52b3493",
+     "size": 6493
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bf_lily.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bf_lily.m4a",
+     "sha256": "5ca2558cec5d4a7544e3486b31ab3ab520a8bf51ae8aded00532b4926fe60df5",
+     "size": 541409
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bm_daniel.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bm_daniel.json",
+     "sha256": "c46c9c298456a3a018da30fd2662c659713dd95ed746f193a562245710fa7713",
+     "size": 6530
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bm_daniel.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bm_daniel.m4a",
+     "sha256": "75568279b1cae79662f65099aff9ad3591fa17b3d116120314de7221f7c71a63",
+     "size": 540201
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bm_fable.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bm_fable.json",
+     "sha256": "3ba3360d48f4e442be1d325906112df5c0fab10cb902551890b450b13579e0c0",
+     "size": 6655
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bm_fable.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bm_fable.m4a",
+     "sha256": "b75166b1b9e7043d4d5427dce838a57fa390d8b64c4a079d25c360a69f8b2164",
+     "size": 524781
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bm_george.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bm_george.json",
+     "sha256": "033194340b930560d97760f694bad67585737f2ca79dfefd8efac46855a292a5",
+     "size": 6637
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bm_george.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bm_george.m4a",
+     "sha256": "5fa907a05f829679fcfe6e5265ea15c6ea6faae9d679110c082ce43a1d4557eb",
+     "size": 602121
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bm_lewis.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bm_lewis.json",
+     "sha256": "782c70029443550ae30977f6b49b15a8f450dbd88a2898dc7af6e77f8d4073f3",
+     "size": 6510
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bm_lewis.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/en/bm_lewis.m4a",
+     "sha256": "aea7d83fae309e20a529a8397b1b8d76bd46c41d03edebd9f2a2d356b0b7c0c9",
+     "size": 604863
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/es/ef_dora.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/es/ef_dora.json",
+     "sha256": "891285a759d2ece256d2bf215e6f0bffdcf7b0c141cb824179831850b10c0855",
+     "size": 7070
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/es/ef_dora.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/es/ef_dora.m4a",
+     "sha256": "d526b85d4d2b96ff63f1f305869f6fc60a4df7eabbd36f8b4fa0a2976a023a49",
+     "size": 556590
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/es/em_alex.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/es/em_alex.json",
+     "sha256": "1c4c958cf45fd5f6b357c1a014c04129bf7a390d4e2e0cc6405d108e663034e1",
+     "size": 7031
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/es/em_alex.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/es/em_alex.m4a",
+     "sha256": "e465edcc17b131e17691b45d3d04cd549926f755f5bb475cfe0aa35ee657e3ac",
+     "size": 558164
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/es/em_santa.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/es/em_santa.json",
+     "sha256": "1fe8c4c75f80cbe173faa8467b152bd2a8e44ef508e5b650741b47d807755d8e",
+     "size": 6959
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/es/em_santa.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/es/em_santa.m4a",
+     "sha256": "f0161502339389625a59c82724ea9cdf9e8cfdffccbf5523bdc8cb57e2286fd9",
+     "size": 554567
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/fr/ff_siwis.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/fr/ff_siwis.json",
+     "sha256": "509f2a63d2e36ccb21de738cc8d0750561182f0639aa324b9fbeb6f1c27fa3a0",
+     "size": 7133
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/fr/ff_siwis.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/fr/ff_siwis.m4a",
+     "sha256": "d3f500aef8c1e5e054e66da5b19d961ce11d40581dd8d6ad71186972ee15934a",
+     "size": 589803
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/hi/hf_alpha.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/hi/hf_alpha.json",
+     "sha256": "adc971ee9ac17c88b7a7e8533b37a15611b9707ff2adb5637e2f5c189fa11803",
+     "size": 10796
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/hi/hf_alpha.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/hi/hf_alpha.m4a",
+     "sha256": "311ab189a905b53187111339a274f46575e08f57db172e67f88ada74d612e18b",
+     "size": 639269
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/hi/hf_beta.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/hi/hf_beta.json",
+     "sha256": "93c7b469f052035382ef84f286ba244e5516ba41fb340f4e334c835dd1fcb364",
+     "size": 10771
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/hi/hf_beta.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/hi/hf_beta.m4a",
+     "sha256": "28fb4150ca4a3524c8e42d122f048901ea43901bdf64fed829b65f2bedebb938",
+     "size": 577855
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/hi/hm_omega.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/hi/hm_omega.json",
+     "sha256": "9e76efaf5d36cb2a9729c12c1fd03017c46ba75e1b73c4d87874383b9fee0230",
+     "size": 10776
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/hi/hm_omega.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/hi/hm_omega.m4a",
+     "sha256": "4a8676d65b249530c8b1fd0278e080a5e2ece70c283cad3fe1ec0517c5a449da",
+     "size": 673326
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/hi/hm_psi.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/hi/hm_psi.json",
+     "sha256": "be20bb31f492c795ca15733ed3dbb4abf931deecef2ce9744256f22c3c92fde7",
+     "size": 10752
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/hi/hm_psi.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/hi/hm_psi.m4a",
+     "sha256": "dfa081919a0a1fd1884b9565b1a365eed1ed0828b63e83929ac16edfed0dc5c1",
+     "size": 673763
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/it/if_sara.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/it/if_sara.json",
+     "sha256": "fad16904cd290a400401f61fb4f8d9dac3582fdf9161773d066ba5b34d01e986",
+     "size": 6689
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/it/if_sara.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/it/if_sara.m4a",
+     "sha256": "185e009706cc9840d259d1079797d29e1794856f8179a9ebb07e70fc2d6d2164",
+     "size": 565151
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/it/im_nicola.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/it/im_nicola.json",
+     "sha256": "a054f2f98594f58b488dc2d78499f84c32647e0de49adb9b62e1f69882936631",
+     "size": 6883
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/it/im_nicola.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/it/im_nicola.m4a",
+     "sha256": "8649eabd53442a90986352b089d27e19c8189e0c19ecccc84046598a2423ab48",
+     "size": 626366
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/ja/jf_alpha.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/ja/jf_alpha.json",
+     "sha256": "827c5178917d0abd67afb3231a88a820752f2e5a15fd2610aa8582fd38933b9b",
+     "size": 7150
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/ja/jf_alpha.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/ja/jf_alpha.m4a",
+     "sha256": "6b7763e15c61b930fa8b17ce36bdb364728f046bc3df1863b74712f68f91464a",
+     "size": 596113
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/ja/jf_gongitsune.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/ja/jf_gongitsune.json",
+     "sha256": "79b71cd6c58004113ec5c6445b99cad1fc90b3977945fd6c74fec35404fb73f5",
+     "size": 7124
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/ja/jf_gongitsune.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/ja/jf_gongitsune.m4a",
+     "sha256": "e5db8fcfe135578d06bf30d294b28d8a275dc7bdbae02b417444e27adff33ddd",
+     "size": 750169
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/ja/jf_nezumi.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/ja/jf_nezumi.json",
+     "sha256": "1c12facf71213178508105cc54e62bf115aee1420db5290fbffe0c7d5366372f",
+     "size": 7132
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/ja/jf_nezumi.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/ja/jf_nezumi.m4a",
+     "sha256": "da3a4929436a7a7f5ecc388f4c8f4467160b057332d64da3da77e17301ba8f25",
+     "size": 785087
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/ja/jf_tebukuro.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/ja/jf_tebukuro.json",
+     "sha256": "c7c7d1b29451e0326863447a5e5b0c3b2094146d499b5f4f228c9264e15607eb",
+     "size": 7089
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/ja/jf_tebukuro.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/ja/jf_tebukuro.m4a",
+     "sha256": "29ce2630623d936706b5c140f3acfa4f9e4ef6b16485c3fd1ae8d5129bfb4b0d",
+     "size": 730069
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/ja/jm_kumo.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/ja/jm_kumo.json",
+     "sha256": "a5bdd45a826abfb30628a3a6ebc76ebd0fcc500c3d07aa672dfeab2794de1a83",
+     "size": 7132
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/ja/jm_kumo.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/ja/jm_kumo.m4a",
+     "sha256": "06745ebb3ef2ee0fff44ba4032d4667981a5c7aac3cd1eff2955da3039e29303",
+     "size": 663252
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/pt-BR/pf_dora.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/pt-BR/pf_dora.json",
+     "sha256": "acde99c866012c41c5429a3a27cc9450ee7bbaac3fd108bdf286e03da289db8f",
+     "size": 7086
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/pt-BR/pf_dora.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/pt-BR/pf_dora.m4a",
+     "sha256": "66fe5ce57cc75b20053900889b0bad1645187a12dff5505c5e7e12cf052eb275",
+     "size": 532697
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/pt-BR/pm_alex.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/pt-BR/pm_alex.json",
+     "sha256": "7b588f932be702e2aaa16be52178a29ef86b64d176ee8ad80622421f26f09988",
+     "size": 7054
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/pt-BR/pm_alex.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/pt-BR/pm_alex.m4a",
+     "sha256": "5c5c99d9b72e53efda4a0624fc538d0a878b5c31fb7a4df0f299f928580eebde",
+     "size": 532967
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/pt-BR/pm_santa.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/pt-BR/pm_santa.json",
+     "sha256": "b605bb8f95b89dce0f401b7dd13398ef5ccfae75c2f05cb044adcff423b3ae1d",
+     "size": 7103
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/pt-BR/pm_santa.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/pt-BR/pm_santa.m4a",
+     "sha256": "50f59bd3c5deaead121581b824dfab87b44bc7e477e9cd3615957d4ea60d0645",
+     "size": 550541
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zf_xiaobei.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zf_xiaobei.json",
+     "sha256": "6a7b398e256a46466d48e9c6f8efc5f24a9b2a039fbc0d0e476f5a2aab4fbc76",
+     "size": 6513
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zf_xiaobei.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zf_xiaobei.m4a",
+     "sha256": "9f8cebed1f1e263af4dc901ca9935cf44eb1a700a42e649e9b7598ed34a4d5f7",
+     "size": 554376
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zf_xiaoni.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zf_xiaoni.json",
+     "sha256": "1dda57fa7889e9fbd4441e0d8c942437318055950be8c0b3806b86c58dd2e730",
+     "size": 6549
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zf_xiaoni.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zf_xiaoni.m4a",
+     "sha256": "5283cec4f57401fe08ee3fcf775332e50fa515e50fe6000e906ba0c67d981eab",
+     "size": 483321
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zf_xiaoxiao.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zf_xiaoxiao.json",
+     "sha256": "a445dc76bcef8e01331126e993fe9b7870222ed70f1dad47a859900de648f97e",
+     "size": 6565
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zf_xiaoxiao.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zf_xiaoxiao.m4a",
+     "sha256": "042078151e659a5987d24074cd630938fd9833a732ef27674ad5c9b0bb8a9ef2",
+     "size": 474260
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zf_xiaoyi.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zf_xiaoyi.json",
+     "sha256": "c5aeb6b55835963d4f9e510c54e60d337f08735c05b8a3bd5bacd6e92a690f69",
+     "size": 6543
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zf_xiaoyi.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zf_xiaoyi.m4a",
+     "sha256": "ed46c2720de22df8550b2ba6e45e6e53e9a89c0ad604e66f6c75c2663822ac4b",
+     "size": 473787
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zm_yunjian.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zm_yunjian.json",
+     "sha256": "26024f8bbf1ce3add247da529d3c92a9b300873c312e66d58c5bd63dd89f3cd8",
+     "size": 6511
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zm_yunjian.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zm_yunjian.m4a",
+     "sha256": "53ff2bbb30e618210378e70af4f9bcef62474d00e817abd300fbc14d77966825",
+     "size": 472093
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zm_yunxi.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zm_yunxi.json",
+     "sha256": "e90e88bb7830b4620221400387b061ab6be0d89178eccdfde4cc2878e8c2d5b7",
+     "size": 6443
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zm_yunxi.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zm_yunxi.m4a",
+     "sha256": "e0da7dd4b14cf673d9320216f839a4143b54e4bfd52e137b2e2a9ccafcde534b",
+     "size": 449116
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zm_yunxia.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zm_yunxia.json",
+     "sha256": "b0ac2e0c3b0a26d77024dddb3bdda8c771c05d3222f4a08bf5091b3e8db2bfd9",
+     "size": 6605
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zm_yunxia.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zm_yunxia.m4a",
+     "sha256": "abd96e17cf0cc9dd471e0bc8f08fae17ce5b6e116077f7f5a8b8d3349e2fae7c",
+     "size": 498991
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zm_yunyang.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zm_yunyang.json",
+     "sha256": "d90deccba9e0a8da2f6bf47afc892cfc30c7a188cddf45982d62c3682a1374ee",
+     "size": 6590
+    },
+    "docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zm_yunyang.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/04_platform_installers/audio/zh-CN/zm_yunyang.m4a",
+     "sha256": "3947af9811cfaf7103c96ca27e5a574cc13a1f309b6657debb8d7c868cb58cde",
+     "size": 436059
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/af_alloy.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/af_alloy.json",
+     "sha256": "8b3ca8347bc3145a9d2141e806c4159f411303977d3cc38f73382fbba9e19014",
+     "size": 1741
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/af_alloy.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/af_alloy.m4a",
+     "sha256": "b160e555d5ad22585db738b90662689168ce987fc83c07d5c543c2e3dd3ff748",
+     "size": 275381
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/af_aoede.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/af_aoede.json",
+     "sha256": "58ce291c452cc00dc3c313799dea6d8cb55b7dace67b6b41d26187a4eebf6325",
+     "size": 1762
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/af_aoede.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/af_aoede.m4a",
+     "sha256": "d76341bae8a2cf676c45e003e4ef927e3e283e42f5073d193a43a9b47bb5b2e6",
+     "size": 291352
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/af_bella.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/af_bella.json",
+     "sha256": "0cc19c7417e2cd819f637875095df82a35bd8868eeb4bf89f52e455f53b2a38e",
+     "size": 1704
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/af_bella.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/af_bella.m4a",
+     "sha256": "8b5aafd3e8a0367b490c9b844a4efbf156b223841d534bcee8fe48a7ea977723",
+     "size": 303504
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/af_heart.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/af_heart.json",
+     "sha256": "d18a8d8e185e6886093a9962dc14154d1657b3182af9ef30f5bbf5469280f383",
+     "size": 1713
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/af_heart.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/af_heart.m4a",
+     "sha256": "b723afb58f06efc1048bf9cbfad3ad1e7b9dcb08d21be540a565bd65b5da4cb4",
+     "size": 381852
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/af_jessica.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/af_jessica.json",
+     "sha256": "bbb17cb6d822314b664be27cf8b41fe0ab57b95c94c9f8ed9276c5bc2fa3e5a3",
+     "size": 1824
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/af_jessica.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/af_jessica.m4a",
+     "sha256": "29bf5b49db7b03d5ed20a14bd68a2ad57e5ad6841685e24701b829f9c4a3af5b",
+     "size": 255342
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/af_kore.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/af_kore.json",
+     "sha256": "3b26acd8bb8a0c4ac7fa170d7bdc2f2015ed128f00f1a740063602ea3d3b1db8",
+     "size": 1691
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/af_kore.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/af_kore.m4a",
+     "sha256": "1a38f643b8773583b4dea7a8e1b0d463e3300ecc03e4b1d7619db9c731e3c107",
+     "size": 296240
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/af_nicole.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/af_nicole.json",
+     "sha256": "3e65294f68e626865650124a1efaf74071188e6a99435db8ecfa1421962592cc",
+     "size": 1649
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/af_nicole.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/af_nicole.m4a",
+     "sha256": "dd0ce9233c45d7e92718ee9f75b03cce6866df7caf3f4df8de8529295e5c328e",
+     "size": 434528
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/af_nova.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/af_nova.json",
+     "sha256": "7153eff3b382c468429fee2a591281fe5a18f35a0ce88edd9728db1dd32450ac",
+     "size": 1786
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/af_nova.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/af_nova.m4a",
+     "sha256": "978ab0c0e5376fda606e8beb4ee0f209bfa567b822803e3af2f366bca3b3afe4",
+     "size": 353834
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/af_river.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/af_river.json",
+     "sha256": "1c8a071ddd6d78b3642fcb744cd985ce58c699f2257d92cd46874d03b01e7bdf",
+     "size": 1696
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/af_river.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/af_river.m4a",
+     "sha256": "6c87f74589c65cd9676fb5973ea77718535d6aac4b42217f38427bc00f27e991",
+     "size": 253162
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/af_sarah.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/af_sarah.json",
+     "sha256": "943326581733e1f3dcd0663507a606e149856e76b483f25c6f378dde7a631897",
+     "size": 1620
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/af_sarah.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/af_sarah.m4a",
+     "sha256": "2e9bf4aa31507bf0b570b46e1c645daad96ca2f83886726df4af7e5e0d4228c6",
+     "size": 293859
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/af_sky.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/af_sky.json",
+     "sha256": "1ed4446d8ab3781f965d1c471a3565db07cefd6b78c3863551b09808a2f85eee",
+     "size": 1806
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/af_sky.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/af_sky.m4a",
+     "sha256": "d672f9d04e2cc5dbef4c7a9ffdfd6cc89fe5c5877b7416d03986bb5b88ebc635",
+     "size": 285538
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/am_adam.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/am_adam.json",
+     "sha256": "b110877141b07fe7afdffc5aeecf4916ed50caa509a44ac06b04c2d9b8afe9df",
+     "size": 1815
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/am_adam.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/am_adam.m4a",
+     "sha256": "926e1cf272653aa184ab62a505ba39ac4996c009c75eaaff1d92072555c403c1",
+     "size": 281833
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/am_echo.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/am_echo.json",
+     "sha256": "e7b936dba87aba661e860ab695fdd2c37f21a4bc9ef25f3155ff541f0420dfd6",
+     "size": 1737
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/am_echo.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/am_echo.m4a",
+     "sha256": "e6b7b4dde4dc985d0db2aefa10a9e1f6376bf405f13e25336e71dab229161d9e",
+     "size": 276961
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/am_eric.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/am_eric.json",
+     "sha256": "0308e33b9cec5fa61fd5bcab7598ce12e1e4c7c8dd97f9a5dcbb7723704e0dc4",
+     "size": 1738
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/am_eric.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/am_eric.m4a",
+     "sha256": "dcb010b6440989f7615c25c900583006393953727b001d74b675ac6f590e1ab5",
+     "size": 255476
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/am_fenrir.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/am_fenrir.json",
+     "sha256": "57599bd946c905815893337358e99ecb45bd1feb3ca06062ef02a0d66c0ac52b",
+     "size": 1645
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/am_fenrir.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/am_fenrir.m4a",
+     "sha256": "0480acfc18df599f1d24ca85f92eec720779812ec8e95b22f0b6d92b6053822b",
+     "size": 382153
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/am_liam.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/am_liam.json",
+     "sha256": "07b6bac6fcfe38a7e6637c598ffff963569237c3e59f7f032e4daf10525ae254",
+     "size": 1774
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/am_liam.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/am_liam.m4a",
+     "sha256": "90aa7591e9c6c6d029aa1cd6ebebf1df9cdcbba876e249890aacaf950bf752bf",
+     "size": 267050
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/am_michael.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/am_michael.json",
+     "sha256": "372f9fd925e2b83c12af14866c151eb2c81fecc4d425d3e89c2f7222bd5ee7c7",
+     "size": 1739
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/am_michael.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/am_michael.m4a",
+     "sha256": "cb22615fd445b1ca1e77b680505c171890d3d0d87a10e434c079a0b6898aa439",
+     "size": 315897
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/am_onyx.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/am_onyx.json",
+     "sha256": "d5825a3e80cd5648b6c821f3c455e28e9fee5636ab70083e6f28931e3323eeb2",
+     "size": 1769
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/am_onyx.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/am_onyx.m4a",
+     "sha256": "198ebcea8226b5040d14272f67ab00d978d1fa31de0127ca52b3b14146dd3abc",
+     "size": 274922
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/am_puck.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/am_puck.json",
+     "sha256": "340711c334ec2e0da3004e0eb50cdfdf5084963091160d276cf4d59be1258992",
+     "size": 1650
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/am_puck.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/am_puck.m4a",
+     "sha256": "0e12c4f4fc42f4d40e6a573a07be7f420580e215e30bffb69150e9aee1931a0c",
+     "size": 288439
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/am_santa.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/am_santa.json",
+     "sha256": "5781406f205de699dbe3ddbf9283313809e429fd7ffe47b76a6b45207c7fe155",
+     "size": 1681
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/am_santa.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/am_santa.m4a",
+     "sha256": "3abd9b28284a791c42782a6b2ca361ae9c8c533e584023f78549f876bd5ec821",
+     "size": 300999
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/bf_alice.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/bf_alice.json",
+     "sha256": "3d4fdec70f7f358001b424331d25df3ca37948dbeea18fe8f55cb11b13202af2",
+     "size": 1701
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/bf_alice.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/bf_alice.m4a",
+     "sha256": "e950906b819fcd857ad0b3a157ff616059e05b61c9cddf19c82e18f70fc8bce9",
+     "size": 279277
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/bf_emma.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/bf_emma.json",
+     "sha256": "ea8f62f3b17e4c478615057245d0695f112194a6092558ef11992719406eabe1",
+     "size": 1806
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/bf_emma.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/bf_emma.m4a",
+     "sha256": "34f4b286f5621cebb39f37f09ff00ce8797c82178660b558c283e5118900c95d",
+     "size": 275991
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/bf_isabella.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/bf_isabella.json",
+     "sha256": "76d4a3f340fc5c7bda267e2affd2ff15936f8698f0f72eb5ef8b7c9bb9e29fac",
+     "size": 1811
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/bf_isabella.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/bf_isabella.m4a",
+     "sha256": "14f09000575cf74774bafd27c9ed28cd239733731a4a082c8306d792335bd7d1",
+     "size": 278297
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/bf_lily.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/bf_lily.json",
+     "sha256": "6b8b7c194a20fb0891376b4e6b6d806a845f9d4acdc9f114d070a1b9dac7030a",
+     "size": 1690
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/bf_lily.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/bf_lily.m4a",
+     "sha256": "a040ec007ad3f133d9951487ede15f16ac5ac4f4f8b26558abfc44793fb67834",
+     "size": 282491
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/bm_daniel.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/bm_daniel.json",
+     "sha256": "3e5c8438ac91bb819a5adcee4575230bf86a55ab4940f732f74d5dc4e333fc8b",
+     "size": 1688
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/bm_daniel.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/bm_daniel.m4a",
+     "sha256": "ad9be01374c8fc4deb4b1e8f403652639ece180ccb39a5b95257dd80324eb4fc",
+     "size": 272412
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/bm_fable.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/bm_fable.json",
+     "sha256": "baae45d39f1ae88d2fa99c9e08eadb2bbca949c1f25b1f993edda95fa7148005",
+     "size": 1759
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/bm_fable.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/bm_fable.m4a",
+     "sha256": "60b12e92cca4d1d01dd2eca452d4ab387ccd1131a7d4e4f04c0a1a3b7dc313d8",
+     "size": 273776
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/bm_george.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/bm_george.json",
+     "sha256": "14ea00632fa5104ea5b327c6ff1a91c4378f83ee57a8c1688ee72050c2e2b10a",
+     "size": 1676
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/bm_george.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/bm_george.m4a",
+     "sha256": "ddaa365b732097362b636ac429ea5c66f7ea10fb06a42c1b6a74daf6ddb7e57c",
+     "size": 323140
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/bm_lewis.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/bm_lewis.json",
+     "sha256": "828f34dfb719636a35a45c2d145f8e84f7dc3c440df8b6ed966c075d08dc7eca",
+     "size": 1755
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/en/bm_lewis.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/en/bm_lewis.m4a",
+     "sha256": "3c57f80e00fb47a91c5f326a1a1f5220b014817d92481b7d5bf46c73ed8bd493",
+     "size": 318251
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/es/ef_dora.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/es/ef_dora.json",
+     "sha256": "0396516d884767ad2fb25130fb83835e3c2f8ab70c6c1ad257ff0c5e1e6c4e6c",
+     "size": 1800
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/es/ef_dora.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/es/ef_dora.m4a",
+     "sha256": "4bdf8902d45ed248b4eb14e1c0bff8f2bf50cf35b795e7b7323f66311f03bf83",
+     "size": 299051
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/es/em_alex.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/es/em_alex.json",
+     "sha256": "a7ddb59c3caba5dd5264929ade15cbaabcfb3869c471402900784e6a5003055f",
+     "size": 1816
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/es/em_alex.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/es/em_alex.m4a",
+     "sha256": "a0a35dafe885efe2471d6a83766d3642fc9d065e41f64484f9b5e3acfc34a1f3",
+     "size": 294625
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/es/em_santa.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/es/em_santa.json",
+     "sha256": "d48ce368d7479633ea79d59208a1ca4203b38d467b32d588016c0004b41f9029",
+     "size": 1852
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/es/em_santa.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/es/em_santa.m4a",
+     "sha256": "0df2c7c37120cb7765035d2a4b1bc945121c760264b2cd28e2962faa9b79b85d",
+     "size": 298426
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/fr/ff_siwis.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/fr/ff_siwis.json",
+     "sha256": "5146d5c0443d5383abf5387eea521760262c970bbb27c25fe2d5ded81a040b6e",
+     "size": 1619
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/fr/ff_siwis.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/fr/ff_siwis.m4a",
+     "sha256": "dae3fc7a643577b831e6ce815113984b07ce189177860d73f52d6dea24fcc816",
+     "size": 244719
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/hi/hf_alpha.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/hi/hf_alpha.json",
+     "sha256": "b13132007763943c2bce8ef3223820382c8ef53d9ac876a9072a55b82d01adbb",
+     "size": 2853
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/hi/hf_alpha.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/hi/hf_alpha.m4a",
+     "sha256": "cf9e3b23df258a99c11cd69147360d531b812755a849f79363281f1973535392",
+     "size": 381691
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/hi/hf_beta.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/hi/hf_beta.json",
+     "sha256": "2950cd81a5c23c05d052bfc4f470412d5a530f8ac50e23fd1f2808d276a0a27c",
+     "size": 2910
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/hi/hf_beta.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/hi/hf_beta.m4a",
+     "sha256": "9cad3f4c9dd7d55b8f6ab3bf053c5b989c663c588fbebd116e48da69be15a3e9",
+     "size": 341447
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/hi/hm_omega.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/hi/hm_omega.json",
+     "sha256": "a080b66863f07f0748d97079b498d9b1649b91cac783ae33813ed0248f27a1ee",
+     "size": 2977
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/hi/hm_omega.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/hi/hm_omega.m4a",
+     "sha256": "b8b5e9443ae9e368f96f37844944e80e4200c3caab52783627151033c7f7b3d2",
+     "size": 393088
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/hi/hm_psi.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/hi/hm_psi.json",
+     "sha256": "24f88f936d20311fd5deae0f037d811b10d04cb4f5046bf252748c75f82de555",
+     "size": 2951
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/hi/hm_psi.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/hi/hm_psi.m4a",
+     "sha256": "de23e5cba3c29a1e94bc44f74e16c903b2d7a4ecd055444e4ef29c3ae2ee5264",
+     "size": 398565
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/it/if_sara.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/it/if_sara.json",
+     "sha256": "0bc7d978edb0284abf3541404d97eae6c602b21c74d0d6746246a6828bfa690e",
+     "size": 1875
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/it/if_sara.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/it/if_sara.m4a",
+     "sha256": "e2d3884f543c68ab931b946e018c4fab1b7f072f4abba0451571c6168e0508b8",
+     "size": 321080
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/it/im_nicola.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/it/im_nicola.json",
+     "sha256": "04c0e042ec180c17f1a1b51a32beb99c6b83046128ecdccecc05b328dbd3d1c7",
+     "size": 1797
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/it/im_nicola.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/it/im_nicola.m4a",
+     "sha256": "78ddface3a52d28239cc50b33dce1e3faabd24b4df1ff107388bff10225f50e3",
+     "size": 340130
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/ja/jf_alpha.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/ja/jf_alpha.json",
+     "sha256": "f8b085e103fb468c3274d9435ff6bd83f779fdb0be56aa7487fee76938ff4cbf",
+     "size": 2013
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/ja/jf_alpha.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/ja/jf_alpha.m4a",
+     "sha256": "aa0a40efbc779b234c43273bb17e1929a05afa43723f9422299ae395aad20ab2",
+     "size": 355408
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/ja/jf_gongitsune.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/ja/jf_gongitsune.json",
+     "sha256": "ad8e79581d6983c7896fe5af1be99800838a18cc290ed86c85fc65e65eb6bde0",
+     "size": 2046
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/ja/jf_gongitsune.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/ja/jf_gongitsune.m4a",
+     "sha256": "d6fb56f872df29e705eb59bf599a39cbd806bad51d9e119205cbb6f7f72d2018",
+     "size": 431936
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/ja/jf_nezumi.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/ja/jf_nezumi.json",
+     "sha256": "1656cbe72d445de153c69e64bad37e8bdbd01747ce7baccfc2046a3fea14c3bf",
+     "size": 2034
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/ja/jf_nezumi.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/ja/jf_nezumi.m4a",
+     "sha256": "51e235c201f6751fc1a5aa26c4116c1116dafa44e82e672cd5c491811b641d6f",
+     "size": 462177
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/ja/jf_tebukuro.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/ja/jf_tebukuro.json",
+     "sha256": "4d170727237069b1cc1e640ae1090ed16333942225efe62081cadb320f341952",
+     "size": 1972
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/ja/jf_tebukuro.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/ja/jf_tebukuro.m4a",
+     "sha256": "c8d933def8334b661525233474ade7dae387a0dc16ec9ebffb64d5c58c6a3c89",
+     "size": 433183
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/ja/jm_kumo.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/ja/jm_kumo.json",
+     "sha256": "9f88adbf996d6aec943b595230ab08aa84450456e61a9eed8d9baa468f24dd62",
+     "size": 2090
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/ja/jm_kumo.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/ja/jm_kumo.m4a",
+     "sha256": "17c8c913082fef6087c67415690a00d8961f22cf4c3d0e7d6b10ae609ffb5868",
+     "size": 382882
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/pt-BR/pf_dora.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/pt-BR/pf_dora.json",
+     "sha256": "06bdee7daea26d53c0392339c2048b59991f6b8f034ca9aa73ee2b36e5b34721",
+     "size": 1820
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/pt-BR/pf_dora.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/pt-BR/pf_dora.m4a",
+     "sha256": "98d2ebef4cc8fee7ab297ffe0f04265e55db0513824be66342406b229c1d271f",
+     "size": 276572
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/pt-BR/pm_alex.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/pt-BR/pm_alex.json",
+     "sha256": "4292fcb02565909917f49a308e099d1ce9c603ed0c626ab7f988fe49fed0c68c",
+     "size": 1818
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/pt-BR/pm_alex.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/pt-BR/pm_alex.m4a",
+     "sha256": "420a6285f5ad3843e332c706950b51d499bdf15f0711e158636e2425f0dd1598",
+     "size": 285829
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/pt-BR/pm_santa.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/pt-BR/pm_santa.json",
+     "sha256": "4009d14a9b0ae01d35a8e0a580a6b22d9824bb24e17e82518fef2f95481aca51",
+     "size": 1730
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/pt-BR/pm_santa.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/pt-BR/pm_santa.m4a",
+     "sha256": "c703095fae3eeed5ac5dc910bfc1426ccdb47a46f0ea7e82f68e98b40efbdb3f",
+     "size": 286057
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zf_xiaobei.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zf_xiaobei.json",
+     "sha256": "04022828b8b5c9332d313c32356a0bbd2dc8bcf7b4c6941fcb8316f30c171a86",
+     "size": 1602
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zf_xiaobei.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zf_xiaobei.m4a",
+     "sha256": "c867ca1723825d4c8575be00b34a4750eaff93c255e64617d4fbe195936e1b5c",
+     "size": 310054
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zf_xiaoni.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zf_xiaoni.json",
+     "sha256": "c9465d58b02c0b456d24394fdc2f546132972328f3a4147671f376c33d7e8ebf",
+     "size": 1565
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zf_xiaoni.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zf_xiaoni.m4a",
+     "sha256": "c71b27a831f942b6a7b79b04b32cd5def5ecea4e51dca791651d085c92f49e81",
+     "size": 270897
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zf_xiaoxiao.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zf_xiaoxiao.json",
+     "sha256": "64d86a5e53a2fad35692738c208133581d56ca42dabdf7902108678503e54cf7",
+     "size": 1604
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zf_xiaoxiao.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zf_xiaoxiao.m4a",
+     "sha256": "2971f661494ec5597ea47e628b053f6441f302f35c8c3209193e1af87da66d9f",
+     "size": 273386
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zf_xiaoyi.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zf_xiaoyi.json",
+     "sha256": "cd84b5edf6ff508c44177dbc674c73bc96c7f50ebe0b484f0873f721d68a394c",
+     "size": 1555
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zf_xiaoyi.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zf_xiaoyi.m4a",
+     "sha256": "738930c63785b1b4dcd30c98c338e01513247ede15b882c6933e2865f3085ce7",
+     "size": 267651
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zm_yunjian.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zm_yunjian.json",
+     "sha256": "92d3e9feeb7bf6fa0811ecd888fa96274fd8d7d29656abf354e46c0e8f2c0c8c",
+     "size": 1533
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zm_yunjian.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zm_yunjian.m4a",
+     "sha256": "b447f18bffa834303c2081930a15ab5ec6afc1129fb404fbe690210befe763a3",
+     "size": 264312
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zm_yunxi.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zm_yunxi.json",
+     "sha256": "82954d888c89546417d6cf4cdad2f5f3818b053878e377a078387af9ec8520df",
+     "size": 1594
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zm_yunxi.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zm_yunxi.m4a",
+     "sha256": "a8ff841df18b5d1e919e1e1d338f8a045a2d395bb87bdda4456e9a70117ef109",
+     "size": 251870
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zm_yunxia.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zm_yunxia.json",
+     "sha256": "4075e221dc588e493411de8e23552db35704b02361140d010d19cc57edee7ece",
+     "size": 1584
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zm_yunxia.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zm_yunxia.m4a",
+     "sha256": "fbf00817a2ecbbd803352cb46ad60ab5ea103838c180778f3c0df7e9e39c0436",
+     "size": 281904
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zm_yunyang.json": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zm_yunyang.json",
+     "sha256": "49da65c081f51c0be92a20f2051fce938e6538e54ffcb194e8bd2cead6140ad4",
+     "size": 1657
+    },
+    "docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zm_yunyang.m4a": {
+     "path_in_repo": "tree/docs/source/_extra/tutorials/production/05_home/audio/zh-CN/zm_yunyang.m4a",
+     "sha256": "ef383e764a02238749af9d39cbf2850d22f87fa8abd2fe3d16129077a6edcf58",
+     "size": 247019
+    },
+    "tools/tutorials/archive/production/docs/18_motility/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/archive/production/docs/18_motility/poster.jpg",
+     "sha256": "da03a3d1836d74b60eb43c9b741a61aea2896d86aee4eed9995f480b32f25ca3",
+     "size": 149472
+    },
+    "tools/tutorials/archive/production/docs/24_plaque/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/archive/production/docs/24_plaque/poster.jpg",
+     "sha256": "fe91f2a818e8a02710bb35f9a0ccc442ba694a47a3ee9a9218ac38d6789d4971",
+     "size": 129592
+    },
+    "tools/tutorials/archive/production/docs/25_recruitment/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/archive/production/docs/25_recruitment/poster.jpg",
+     "sha256": "70890f743ba3a43393429879f094d26cc1710ed18da2cf20239248f5b23b1d40",
+     "size": 185095
+    },
+    "tools/tutorials/archive/production/docs/29_report/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/archive/production/docs/29_report/poster.jpg",
+     "sha256": "28d2ac09fbb0a1e5cd68b753849c5f4ef199a387ad168b4c1420af27e23ff790",
+     "size": 192061
+    },
+    "tools/tutorials/archive/production/docs/30_plate_queue/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/archive/production/docs/30_plate_queue/poster.jpg",
+     "sha256": "f275d7b4d91948bc991ca1c1d9cf5364100d0d37bc65b69ce783268d4220be36",
+     "size": 207099
+    },
+    "tools/tutorials/archive/production/docs/34_database/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/archive/production/docs/34_database/poster.jpg",
+     "sha256": "817456b8dfccbc6a0e28f07a7fc2f4a670e41e04c2d8f00ec90e62c48426b049",
+     "size": 157682
+    },
+    "tools/tutorials/archive/production/docs/46_napari_bridge/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/archive/production/docs/46_napari_bridge/poster.jpg",
+     "sha256": "f6f7225b0e72fb9d5c5bfb62887451cfc61f1af0db60854353c4303374ae8665",
+     "size": 137212
+    },
+    "tools/tutorials/archive/production/docs/47_barcode_qc/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/archive/production/docs/47_barcode_qc/poster.jpg",
+     "sha256": "b26617e27c3c28386b996bb7b29fa0ced9b1a2a63fce592fffbeaec352ec7481",
+     "size": 172929
+    },
+    "tools/tutorials/archive/production/docs/57_layer_viewer/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/archive/production/docs/57_layer_viewer/poster.jpg",
+     "sha256": "977f37f2c7302039938abbfdb45725366c09101eaa6b5be356623c889fcad62f",
+     "size": 113750
+    },
+    "tools/tutorials/archive/production/docs/59_anndata_export/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/archive/production/docs/59_anndata_export/poster.jpg",
+     "sha256": "266488d0d670c6a7474f2cce2c8fdec99bfd2d819891794f47aa88030f014b76",
+     "size": 150006
+    },
+    "tools/tutorials/archive/production/docs/60_pca/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/archive/production/docs/60_pca/poster.jpg",
+     "sha256": "e498aa7029dc783530ecca0b9f43b60dba725a2c9b8533fc10cb5b5a51b4d3ec",
+     "size": 189822
+    },
+    "tools/tutorials/archive/production/docs/61_tabulate/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/archive/production/docs/61_tabulate/poster.jpg",
+     "sha256": "470f80bbda4ecfa6b165d6d02aeb03954f224cdd2170158e5756a5528a27ddca",
+     "size": 134955
+    },
+    "tools/tutorials/archive/production/docs/65_feature_explorer/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/archive/production/docs/65_feature_explorer/poster.jpg",
+     "sha256": "c8331b094072c0b94cf7122130630ba1ce883b57eae0c2af294893538e232bf6",
+     "size": 182823
+    },
+    "tools/tutorials/archive/production/docs/66_outliers/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/archive/production/docs/66_outliers/poster.jpg",
+     "sha256": "a2d7edc16f2990c719684aa8383ec566bcabeba64f2780f25168d8e293d5ccea",
+     "size": 115728
+    },
+    "tools/tutorials/archive/production/docs/68_power_design/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/archive/production/docs/68_power_design/poster.jpg",
+     "sha256": "b4fd4f4086f0eb386252ee287b886775d2f923ee74b115aa500f830077508f8b",
+     "size": 262034
+    },
+    "tools/tutorials/archive/production/docs/69_dose_response/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/archive/production/docs/69_dose_response/poster.jpg",
+     "sha256": "18dad3accf934b7f9adf6a549493c1acdd567d8e60ad30e5fafa15add8ef553c",
+     "size": 133378
+    },
+    "tools/tutorials/archive/production/docs/71_investigate_hit/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/archive/production/docs/71_investigate_hit/poster.jpg",
+     "sha256": "5934274c8c6dbb7099be076376cf9a2f211c2135ecbf5d71e5e11fa27f87fad6",
+     "size": 183048
+    },
+    "tools/tutorials/archive/production/docs/72_volcano_explorer/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/archive/production/docs/72_volcano_explorer/poster.jpg",
+     "sha256": "4733058879b0dc4794195fff98ba26d8b59951d2a7b88355fd38b045ce7ff3dd",
+     "size": 237311
+    },
+    "tools/tutorials/archive/production/docs/73_parameter_sweep/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/archive/production/docs/73_parameter_sweep/poster.jpg",
+     "sha256": "6af58cf103b65c157520899107c3762452cdf9a77d041f2157173dd360c4b84f",
+     "size": 186096
+    },
+    "tools/tutorials/archive/production/docs/75_regression_diagnostics/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/archive/production/docs/75_regression_diagnostics/poster.jpg",
+     "sha256": "e8a10cf4883d3fe47acecc86d957c3054b583272fd83c80a6c99255233679126",
+     "size": 197967
+    },
+    "tools/tutorials/archive/production/docs/76_ops/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/archive/production/docs/76_ops/poster.jpg",
+     "sha256": "a02aa503b0fb24aaff2154798ec54fa0a18dd9e08be06d19aeb1dbefc273a9bc",
+     "size": 173421
+    },
+    "tools/tutorials/archive/production/docs/77_embeddings/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/archive/production/docs/77_embeddings/poster.jpg",
+     "sha256": "64e935afa6a63883a3da8e5bb356afaa775b81a0f382e7f8cc47d44f59a3518e",
+     "size": 134187
+    },
+    "tools/tutorials/archive/production/docs/79_module_inputs_outputs/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/archive/production/docs/79_module_inputs_outputs/poster.jpg",
+     "sha256": "fa4d060389e4105196e5ad9865f7d6de363a5de251e742a16d6d98cb9d3fd07a",
+     "size": 175849
+    },
+    "tools/tutorials/archive/production/docs/86_alpha_organism_modules/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/archive/production/docs/86_alpha_organism_modules/poster.jpg",
+     "sha256": "9e726caa32c7defe69c352103230c3d5d655cbebc6ad1d4eeff8a222e9da7702",
+     "size": 137977
+    },
+    "tools/tutorials/archive/production/docs/87_alpha_features/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/archive/production/docs/87_alpha_features/poster.jpg",
+     "sha256": "6989bd907cd3fb3f0b4560a820d5724ad14d29c79849d0b7dbb4776b5d9a8ecb",
+     "size": 448580
+    },
+    "tools/tutorials/audio_repairs/platform-heart-cuda-20260911/af_heart.m4a": {
+     "path_in_repo": "tree/tools/tutorials/audio_repairs/platform-heart-cuda-20260911/af_heart.m4a",
+     "sha256": "f0c39395bc855eeeb7bc79b901679f46bfa3a001da10ed1ee3df111d3c0c2cf5",
+     "size": 610061
+    },
+    "tools/tutorials/audio_repairs/platform-heart-refreshed-20260912/af_heart.m4a": {
+     "path_in_repo": "tree/tools/tutorials/audio_repairs/platform-heart-refreshed-20260912/af_heart.m4a",
+     "sha256": "c682ac3262a2e473083209949f17b66335cc6a8d770b8646938e6b0bfc35dfa2",
+     "size": 1337539
+    },
+    "tools/tutorials/release_candidate/web/examples/Agreement_artificial_labels_real_crops.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/Agreement_artificial_labels_real_crops.zip",
+     "sha256": "47bb5556de177f3fd5beb97b55564eb0890d0e5d3739da0aba2f1902ab4d360c",
+     "size": 2143021
+    },
+    "tools/tutorials/release_candidate/web/examples/Align_Stitch_nine_tiles.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/Align_Stitch_nine_tiles.zip",
+     "sha256": "bd606bb0652b7473299349455aebaecc05aa7c10699ed98a7604375e3fded94f",
+     "size": 33292958
+    },
+    "tools/tutorials/release_candidate/web/examples/AnnData_API_workaround.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/AnnData_API_workaround.zip",
+     "sha256": "5a26c0553b9763b5eccf2de0ab6e5a36b5accc9683d6b6ff03ed28ec71b05f9d",
+     "size": 3788
+    },
+    "tools/tutorials/release_candidate/web/examples/AnnData_API_workaround_README.txt": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/AnnData_API_workaround_README.txt",
+     "sha256": "0f7552186032db74356e521d18f214f6fe40825046054bf8c74fe5e949525c6f",
+     "size": 3056
+    },
+    "tools/tutorials/release_candidate/web/examples/Apply_Cellpose_stock_example.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/Apply_Cellpose_stock_example.zip",
+     "sha256": "191ed86c5bd41cf548d69c23354ddc6286256e62280764813acba8b29e1824db",
+     "size": 1056789
+    },
+    "tools/tutorials/release_candidate/web/examples/Cellpose_training_images_masks.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/Cellpose_training_images_masks.zip",
+     "sha256": "53cbc54809c073a86e170ae63f60e3678aa44bc81fdeba6ee4bf5b5167d365a6",
+     "size": 3437727
+    },
+    "tools/tutorials/release_candidate/web/examples/Classify_existing_split_example.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/Classify_existing_split_example.zip",
+     "sha256": "869da240b9ddf831784cdc7d4ee04f524b4d583a3972f3c4a9d4a48fac9bac86",
+     "size": 5324
+    },
+    "tools/tutorials/release_candidate/web/examples/Control_Charts_SYNTHETIC_campaign.csv": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/Control_Charts_SYNTHETIC_campaign.csv",
+     "sha256": "b1f4f2789f953bf4340b720cdd1eed0861733594822e27b3c0d9a5c706a8fe1f",
+     "size": 10394
+    },
+    "tools/tutorials/release_candidate/web/examples/Curate_SYNTHETIC_practice.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/Curate_SYNTHETIC_practice.zip",
+     "sha256": "784511f7de8059f16cd068ca1f429d8f1ffaf64061edcd327ced721c0964d931",
+     "size": 8260
+    },
+    "tools/tutorials/release_candidate/web/examples/Embeddings_API_example.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/Embeddings_API_example.zip",
+     "sha256": "7b396acb50a7072f55a6477fe2487862597a2d0eda80ee0992667047b4d56e11",
+     "size": 4746
+    },
+    "tools/tutorials/release_candidate/web/examples/Graph_Builder_real_measurements.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/Graph_Builder_real_measurements.zip",
+     "sha256": "f018566da4f53ce00e367f6c7dcf432be94c5dd0beda3fdd4569d0ab2281a3f8",
+     "size": 15079923
+    },
+    "tools/tutorials/release_candidate/web/examples/Hit_List_real_results_companion.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/Hit_List_real_results_companion.zip",
+     "sha256": "ab1c68e0f2293e5a6a90df180d8ec65b3dc5ba165b72265bf8e5fb54846d6dbb",
+     "size": 59303
+    },
+    "tools/tutorials/release_candidate/web/examples/Investigate_Hit_real_screen_example.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/Investigate_Hit_real_screen_example.zip",
+     "sha256": "6383a0da41e0bf7f2691cf259fe12c6cc7a22f4c63ef9f6299ff82d3ebb22464",
+     "size": 1995731
+    },
+    "tools/tutorials/release_candidate/web/examples/Layer_Viewer_real_image_mask.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/Layer_Viewer_real_image_mask.zip",
+     "sha256": "77b7c269616f2491b1a8c37003023699ba9648d3a8e282193d79fabc35a40e81",
+     "size": 5493647
+    },
+    "tools/tutorials/release_candidate/web/examples/Lineage_real_containment_review.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/Lineage_real_containment_review.zip",
+     "sha256": "ed24d5e54635c00573ea7b2a1fb3139b5b8094128f98959407d00e6e92fc3828",
+     "size": 51192
+    },
+    "tools/tutorials/release_candidate/web/examples/Mask_overlay_API_workaround.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/Mask_overlay_API_workaround.zip",
+     "sha256": "f10f7f40daecef4b4813f18986efc08c0f3ed5f3891e874d40226c093e1e6eff",
+     "size": 4724
+    },
+    "tools/tutorials/release_candidate/web/examples/Model_Compare_saved_masks_example.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/Model_Compare_saved_masks_example.zip",
+     "sha256": "ee5906497c667eb3b6b8a2930f337c4b6015f92aa53a07c124a46f8abf632277",
+     "size": 452803
+    },
+    "tools/tutorials/release_candidate/web/examples/Power_recorded_simulation_review.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/Power_recorded_simulation_review.zip",
+     "sha256": "ec23021f83c1c782e10629089e52c00b7d4292ba2adc3d19f8b0936c0c2c9ef0",
+     "size": 5112
+    },
+    "tools/tutorials/release_candidate/web/examples/REAL_evaluation_known_overlap.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/REAL_evaluation_known_overlap.zip",
+     "sha256": "a5b7b039f7c072bfad610ac73ebb15272878bba1b2067a436a07bda17ea045e4",
+     "size": 199726
+    },
+    "tools/tutorials/release_candidate/web/examples/Run_Compare_real_snapshots.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/Run_Compare_real_snapshots.zip",
+     "sha256": "5a0523d3e8b7228ce44d192b274500083f5e89b83f4723023ba75cffdd60f453",
+     "size": 5783785
+    },
+    "tools/tutorials/release_candidate/web/examples/SRR33531217_barcode_references.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/SRR33531217_barcode_references.zip",
+     "sha256": "54a939e7a89d7fc7dcb607517c49e3a49e61bd6d769f53be1d02f2777a4764cf",
+     "size": 30824
+    },
+    "tools/tutorials/release_candidate/web/examples/SYNTHETIC_dose_response_examples.csv": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/SYNTHETIC_dose_response_examples.csv",
+     "sha256": "ecf1527399e55a8a4efdde53ee1c7b536259209173bc4aec7d422bd6b543838d",
+     "size": 4730
+    },
+    "tools/tutorials/release_candidate/web/examples/SYNTHETIC_invasion_example.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/SYNTHETIC_invasion_example.zip",
+     "sha256": "2306fd51da42108f46e2c5192509415c322ff1e66641d57339466074d36c7014",
+     "size": 60593
+    },
+    "tools/tutorials/release_candidate/web/examples/SYNTHETIC_motility_tracks.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/SYNTHETIC_motility_tracks.zip",
+     "sha256": "c8bbbb2a137d8b0e98458ddf731038671983b1ed8b20cd16f8d27d1fceb474a7",
+     "size": 2345013
+    },
+    "tools/tutorials/release_candidate/web/examples/SYNTHETIC_napari_example.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/SYNTHETIC_napari_example.zip",
+     "sha256": "22bcb651b1836a8df3430926970e279ba2f65d1dea8018a4f2ab265ed245cb6c",
+     "size": 132405
+    },
+    "tools/tutorials/release_candidate/web/examples/SYNTHETIC_plaque_example.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/SYNTHETIC_plaque_example.zip",
+     "sha256": "7355b6d79e4afd03bdfa79118e0a76c03db514d8549c69702ad0c4e60b3d1619",
+     "size": 1549864
+    },
+    "tools/tutorials/release_candidate/web/examples/SYNTHETIC_profiler_example.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/SYNTHETIC_profiler_example.zip",
+     "sha256": "165ccd6a1bfd09f29b411c001c2722e82435fffeb9d40e930d3eb299551eec83",
+     "size": 6231
+    },
+    "tools/tutorials/release_candidate/web/examples/SYNTHETIC_replication_example.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/SYNTHETIC_replication_example.zip",
+     "sha256": "03e4e725e60bd1dbeaddc3f68e97f90e57001dce9b671d0716c32ce8b5402fe7",
+     "size": 35013
+    },
+    "tools/tutorials/release_candidate/web/examples/SYNTHETIC_timelapse_preview.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/SYNTHETIC_timelapse_preview.zip",
+     "sha256": "a94da333f55c10470737855c74b6add9e55c0dbf955474126429df49c0027868",
+     "size": 1050432
+    },
+    "tools/tutorials/release_candidate/web/examples/SYNTHETIC_training_runs.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/SYNTHETIC_training_runs.zip",
+     "sha256": "945e7b422bcb2cd3454b4af10a3cbed498b96b14a602d47fdc0aadfa9f7382d0",
+     "size": 13438
+    },
+    "tools/tutorials/release_candidate/web/examples/Train_Cellpose_API_example.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/Train_Cellpose_API_example.zip",
+     "sha256": "0b1fe69c5d5c569afb9eb4fbc53e78a43b01e03c469825b2c4f547c97fcee469",
+     "size": 2264580
+    },
+    "tools/tutorials/release_candidate/web/examples/Volcano_real_guide_family.zip": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/Volcano_real_guide_family.zip",
+     "sha256": "9656373d2b8844e62e59c679e0197b2b83c0538a0de4e7c63f2496b13621b077",
+     "size": 63894
+    },
+    "tools/tutorials/release_candidate/web/examples/anndata_missing_metadata_example.py": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/examples/anndata_missing_metadata_example.py",
+     "sha256": "47b3281847726548ac7617023bf756f5e3d94cf35417e68e0edf9de30625e919",
+     "size": 6314
+    },
+    "tools/tutorials/release_candidate/web/production/01_pypi_github/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/01_pypi_github/poster.jpg",
+     "sha256": "91273091330708921fab98856cbf3371f475b8c6518dca25e07ac7ef0e95f7df",
+     "size": 479071
+    },
+    "tools/tutorials/release_candidate/web/production/02_install_spacr/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/02_install_spacr/poster.jpg",
+     "sha256": "a9518b96648c62ff078cd5042f83b49f5385b356343a13ecf935bb34641f7c8c",
+     "size": 263387
+    },
+    "tools/tutorials/release_candidate/web/production/04_platform_installers/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/04_platform_installers/poster.jpg",
+     "sha256": "daad5d930e759e196b34f4bfe495b714c883566c5f1357b5c94d520f2304f382",
+     "size": 256849
+    },
+    "tools/tutorials/release_candidate/web/production/05_home/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/05_home/poster.jpg",
+     "sha256": "e335d94a6941f5c4cb451e72bfd4ed810351bee2a4dd3ed56ca0c2300b291bc2",
+     "size": 776216
+    },
+    "tools/tutorials/release_candidate/web/production/06_api/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/06_api/poster.jpg",
+     "sha256": "9ea3aafc75c493152f64dd1ee958bc7d46586f91121195cb594d41b13e7f917d",
+     "size": 179658
+    },
+    "tools/tutorials/release_candidate/web/production/07_mask/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/07_mask/poster.jpg",
+     "sha256": "ed5e02bab4b5014df70126836b2025721847a473ca8596e9801333e33f14812f",
+     "size": 774717
+    },
+    "tools/tutorials/release_candidate/web/production/08_measure/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/08_measure/poster.jpg",
+     "sha256": "60d289dbcc176d982b6b730376009e8f6a8e213669c73134e0007aae09152b59",
+     "size": 708307
+    },
+    "tools/tutorials/release_candidate/web/production/09_annotate/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/09_annotate/poster.jpg",
+     "sha256": "eb46a568ca514c3b10f3d084a2b83517e8eb7202b8df87fe080e36a2145ceaf1",
+     "size": 776341
+    },
+    "tools/tutorials/release_candidate/web/production/10_classify_cv/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/10_classify_cv/poster.jpg",
+     "sha256": "b0217d385159970082afc16539752929ee15a0b1e6ee93f104620632de7a7bcd",
+     "size": 477685
+    },
+    "tools/tutorials/release_candidate/web/production/11_classify_ml/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/11_classify_ml/poster.jpg",
+     "sha256": "03f46a175c883a8f229876c777b8b15367c1c1a90da321ed12eac91928d8358a",
+     "size": 806159
+    },
+    "tools/tutorials/release_candidate/web/production/12_map_barcodes/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/12_map_barcodes/poster.jpg",
+     "sha256": "03100e91a744c4ac53228cb85c4fcc06f8ad38bf3d77ba798ce5289864c6a76f",
+     "size": 438248
+    },
+    "tools/tutorials/release_candidate/web/production/13_regression/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/13_regression/poster.jpg",
+     "sha256": "01432094e9138a3a37cf7f5de522c0d760015ac95dad3d0f55707a781610965e",
+     "size": 437825
+    },
+    "tools/tutorials/release_candidate/web/production/14_make_masks/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/14_make_masks/poster.jpg",
+     "sha256": "ceebf5b4a4906342322414faa81b6fe947edd51d5d874f37b2b71d841d88cb77",
+     "size": 1076097
+    },
+    "tools/tutorials/release_candidate/web/production/15_image_umap/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/15_image_umap/poster.jpg",
+     "sha256": "5791dce4c39e5e16d5823102057620f9b75dbf9e66ef521fbe5aa33adc7f7399",
+     "size": 771334
+    },
+    "tools/tutorials/release_candidate/web/production/16_activation/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/16_activation/poster.jpg",
+     "sha256": "7f4675ab191f705de952761bffeeb3b5af71ed9c104507b2af6eecd32c96f738",
+     "size": 516413
+    },
+    "tools/tutorials/release_candidate/web/production/17_timelapse/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/17_timelapse/poster.jpg",
+     "sha256": "0acceb351aa75f1dd2e652716351eec87a4274ae2cc63a61d9ec6772ae358060",
+     "size": 726769
+    },
+    "tools/tutorials/release_candidate/web/production/18_motility/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/18_motility/poster.jpg",
+     "sha256": "da03a3d1836d74b60eb43c9b741a61aea2896d86aee4eed9995f480b32f25ca3",
+     "size": 149472
+    },
+    "tools/tutorials/release_candidate/web/production/19_train_cellpose/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/19_train_cellpose/poster.jpg",
+     "sha256": "7fa4dfba73bd37cd818f822553a7b2d156a09e4704c1088c9fa9612a37a98097",
+     "size": 214034
+    },
+    "tools/tutorials/release_candidate/web/production/20_cellpose_masks/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/20_cellpose_masks/poster.jpg",
+     "sha256": "353407601ba39687627305fff2f6bc039b6b3f009f0d00a4caf4924267fcf7e3",
+     "size": 768921
+    },
+    "tools/tutorials/release_candidate/web/production/21_model_compare/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/21_model_compare/poster.jpg",
+     "sha256": "7c89dec193ae6a7e0f01ac477a126c261424ab480d57b7abea9ab54108504afb",
+     "size": 771933
+    },
+    "tools/tutorials/release_candidate/web/production/22_model_zoo/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/22_model_zoo/poster.jpg",
+     "sha256": "5c40968cb880faaaf6edeaf4f424d6a53b8b037124f36975b19e99333ff0cbdf",
+     "size": 400455
+    },
+    "tools/tutorials/release_candidate/web/production/23_agreement/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/23_agreement/poster.jpg",
+     "sha256": "e236067b9a3eea6968d53cfa4a491db9576cfe05fbb4acfa4c59e986db9f76c4",
+     "size": 790168
+    },
+    "tools/tutorials/release_candidate/web/production/24_plaque/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/24_plaque/poster.jpg",
+     "sha256": "fe91f2a818e8a02710bb35f9a0ccc442ba694a47a3ee9a9218ac38d6789d4971",
+     "size": 129592
+    },
+    "tools/tutorials/release_candidate/web/production/25_recruitment/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/25_recruitment/poster.jpg",
+     "sha256": "70890f743ba3a43393429879f094d26cc1710ed18da2cf20239248f5b23b1d40",
+     "size": 185095
+    },
+    "tools/tutorials/release_candidate/web/production/26_invasion/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/26_invasion/poster.jpg",
+     "sha256": "d4d88f70d942f1f21b330217060fb81f37c58357f960ca9cf7d5bf3ce6554bc0",
+     "size": 436135
+    },
+    "tools/tutorials/release_candidate/web/production/27_replication/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/27_replication/poster.jpg",
+     "sha256": "921c550b940716f0d0faa22119cda6424e7a8414b13217c7fc6b3301f56fa324",
+     "size": 769219
+    },
+    "tools/tutorials/release_candidate/web/production/28_training_runs/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/28_training_runs/poster.jpg",
+     "sha256": "dda2fcf595b50ce306ff6c2976837ef20d27115ba40f78bbc6334a2b2f505306",
+     "size": 775097
+    },
+    "tools/tutorials/release_candidate/web/production/29_report/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/29_report/poster.jpg",
+     "sha256": "28d2ac09fbb0a1e5cd68b753849c5f4ef199a387ad168b4c1420af27e23ff790",
+     "size": 192061
+    },
+    "tools/tutorials/release_candidate/web/production/30_plate_queue/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/30_plate_queue/poster.jpg",
+     "sha256": "f275d7b4d91948bc991ca1c1d9cf5364100d0d37bc65b69ce783268d4220be36",
+     "size": 207099
+    },
+    "tools/tutorials/release_candidate/web/production/31_external_masks/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/31_external_masks/poster.jpg",
+     "sha256": "e964e94875403e27d04f8817376c8bb81db7b1687c222923fa30ff92d06e6fb9",
+     "size": 481044
+    },
+    "tools/tutorials/release_candidate/web/production/32_align_stitch/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/32_align_stitch/poster.jpg",
+     "sha256": "51bfb6c637ce34b5025afe93261ad9c13609dec0e8c117673a98770617e63922",
+     "size": 779199
+    },
+    "tools/tutorials/release_candidate/web/production/33_plate_viewer/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/33_plate_viewer/poster.jpg",
+     "sha256": "33ba9df115313aafa7a60294aedcc7d73095bfde0f9304cbc0cb205d778b2a6e",
+     "size": 587622
+    },
+    "tools/tutorials/release_candidate/web/production/34_database/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/34_database/poster.jpg",
+     "sha256": "817456b8dfccbc6a0e28f07a7fc2f4a670e41e04c2d8f00ec90e62c48426b049",
+     "size": 157682
+    },
+    "tools/tutorials/release_candidate/web/production/35_converter/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/35_converter/poster.jpg",
+     "sha256": "4d8c87a82f0c3aed42a35338f7c547e45207b0fbad9afbd441fced58fdcee71f",
+     "size": 772627
+    },
+    "tools/tutorials/release_candidate/web/production/36_import/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/36_import/poster.jpg",
+     "sha256": "45134ceb6c6db3f3e2e34bc7ca6b93321e5c73adf7ce193549a1d04cd32207c8",
+     "size": 436120
+    },
+    "tools/tutorials/release_candidate/web/production/37_batch/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/37_batch/poster.jpg",
+     "sha256": "7f084c8627e5426eef1f965882c11c8bc1a88ad85799e38bb2d1fe858d26bee6",
+     "size": 784343
+    },
+    "tools/tutorials/release_candidate/web/production/38_distributed_jobs/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/38_distributed_jobs/poster.jpg",
+     "sha256": "37e740b88e6e130a5ec219f88003d7f46ce0ad08259fbade886013562c300668",
+     "size": 771954
+    },
+    "tools/tutorials/release_candidate/web/production/39_classifier_evaluation/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/39_classifier_evaluation/poster.jpg",
+     "sha256": "470cf6d4919244975c263e05556a271c4a2e6a3f6be99dfe7aea3c8ce895fb94",
+     "size": 771849
+    },
+    "tools/tutorials/release_candidate/web/production/40_run_history/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/40_run_history/poster.jpg",
+     "sha256": "a18e1989cd4db69c85cc1149ec12f25b215b9f2e93b74474376bdb49bba0cd76",
+     "size": 781226
+    },
+    "tools/tutorials/release_candidate/web/production/41_classify/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/41_classify/poster.jpg",
+     "sha256": "445b2083c7a16d9b9cbc3db76dcf9453dfcb2c9482cef8cbd8c9cb5cbb91c4ca",
+     "size": 439582
+    },
+    "tools/tutorials/release_candidate/web/production/42_curate/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/42_curate/poster.jpg",
+     "sha256": "4ccc7067e35f3d28c12664d86409209d98c41a63d3f6bd3bf4026caec5aec126",
+     "size": 792754
+    },
+    "tools/tutorials/release_candidate/web/production/43_illumination/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/43_illumination/poster.jpg",
+     "sha256": "af76a6d16921d12e1e95bc198b84a758a4202430f81631b0e254ea9ffddfcfcc",
+     "size": 773451
+    },
+    "tools/tutorials/release_candidate/web/production/44_data_manager/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/44_data_manager/poster.jpg",
+     "sha256": "890679be85c1fa1291915d8c2e18577bd15e3162a0eb435a89e060a4b53a2748",
+     "size": 776068
+    },
+    "tools/tutorials/release_candidate/web/production/45_project_browser/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/45_project_browser/poster.jpg",
+     "sha256": "0469ba00fdccc860b66bb463a918d0105db6f54dbfe6990d0842aeeefd8eef5a",
+     "size": 771990
+    },
+    "tools/tutorials/release_candidate/web/production/46_napari_bridge/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/46_napari_bridge/poster.jpg",
+     "sha256": "f6f7225b0e72fb9d5c5bfb62887451cfc61f1af0db60854353c4303374ae8665",
+     "size": 137212
+    },
+    "tools/tutorials/release_candidate/web/production/47_barcode_qc/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/47_barcode_qc/poster.jpg",
+     "sha256": "b26617e27c3c28386b996bb7b29fa0ced9b1a2a63fce592fffbeaec352ec7481",
+     "size": 172929
+    },
+    "tools/tutorials/release_candidate/web/production/48_hit_list/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/48_hit_list/poster.jpg",
+     "sha256": "5cfb52cf4293796f98c5188219dedd6c990ffd14d0e6f4479fd6f71491091fd7",
+     "size": 190425
+    },
+    "tools/tutorials/release_candidate/web/production/49_methods_results/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/49_methods_results/poster.jpg",
+     "sha256": "74688acb82099d6ef7927dfac1fbb1789d1b17226a9ddb271270a78b57acfb91",
+     "size": 776669
+    },
+    "tools/tutorials/release_candidate/web/production/50_run_compare/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/50_run_compare/poster.jpg",
+     "sha256": "67093454d9fde408fe9eee946998edbff1b1329f4bfa0fa3d13315be687edaab",
+     "size": 410092
+    },
+    "tools/tutorials/release_candidate/web/production/51_control_charts/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/51_control_charts/poster.jpg",
+     "sha256": "3ebe912dae640c6969c98ed07d60b5342ffb3ebfb90efd2994c0ad6e69a6f09a",
+     "size": 584278
+    },
+    "tools/tutorials/release_candidate/web/production/52_pipeline_graph/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/52_pipeline_graph/poster.jpg",
+     "sha256": "635c7b445ef51372aa531bfd04015ac0a0affcad8c3da12454b5c2efdf92fe74",
+     "size": 788436
+    },
+    "tools/tutorials/release_candidate/web/production/53_prediction_profiler/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/53_prediction_profiler/poster.jpg",
+     "sha256": "0f71d276cfaac8b0d1fbf86956663683dfd90cb8c6c61d3267c12e0e979704c2",
+     "size": 782460
+    },
+    "tools/tutorials/release_candidate/web/production/54_qc_dashboard/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/54_qc_dashboard/poster.jpg",
+     "sha256": "28bbfd85bf689b8cf26f0aed4719dcab20e3a06d334d9ca74bfccff92a89dd89",
+     "size": 782772
+    },
+    "tools/tutorials/release_candidate/web/production/55_image_scatter/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/55_image_scatter/poster.jpg",
+     "sha256": "40528ce8e6788895dcde6adf5b0f54e961f42c81f9b79e62b7dd8c8adb40a736",
+     "size": 763209
+    },
+    "tools/tutorials/release_candidate/web/production/56_lineage/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/56_lineage/poster.jpg",
+     "sha256": "a011335ee1b2dd140aa0969dc6729ff9f9c31e368ce2c7ac17a7975b8275913e",
+     "size": 476033
+    },
+    "tools/tutorials/release_candidate/web/production/57_layer_viewer/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/57_layer_viewer/poster.jpg",
+     "sha256": "977f37f2c7302039938abbfdb45725366c09101eaa6b5be356623c889fcad62f",
+     "size": 113750
+    },
+    "tools/tutorials/release_candidate/web/production/58_graph_builder/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/58_graph_builder/poster.jpg",
+     "sha256": "020028c33d473e03d016a82529a0377ae93436ae4dec40698be40298183491ac",
+     "size": 366185
+    },
+    "tools/tutorials/release_candidate/web/production/59_anndata_export/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/59_anndata_export/poster.jpg",
+     "sha256": "266488d0d670c6a7474f2cce2c8fdec99bfd2d819891794f47aa88030f014b76",
+     "size": 150006
+    },
+    "tools/tutorials/release_candidate/web/production/60_pca/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/60_pca/poster.jpg",
+     "sha256": "e498aa7029dc783530ecca0b9f43b60dba725a2c9b8533fc10cb5b5a51b4d3ec",
+     "size": 189822
+    },
+    "tools/tutorials/release_candidate/web/production/61_tabulate/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/61_tabulate/poster.jpg",
+     "sha256": "470f80bbda4ecfa6b165d6d02aeb03954f224cdd2170158e5756a5528a27ddca",
+     "size": 134955
+    },
+    "tools/tutorials/release_candidate/web/production/62_feature_dictionary/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/62_feature_dictionary/poster.jpg",
+     "sha256": "87e9df0e8261568e09d44a34658fcd0f90678fd3da455dc8210ac4eddf89ee89",
+     "size": 768339
+    },
+    "tools/tutorials/release_candidate/web/production/63_small_multiples/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/63_small_multiples/poster.jpg",
+     "sha256": "3aec0247b14911f95dac950c093e6f68b92d3dea97f7dfe55146da9d1c61db2e",
+     "size": 401040
+    },
+    "tools/tutorials/release_candidate/web/production/64_gate_editor/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/64_gate_editor/poster.jpg",
+     "sha256": "c44715f362b9b1861018e1ef83660ff72d60878df3ebc44ff3ce476eb9820c68",
+     "size": 151054
+    },
+    "tools/tutorials/release_candidate/web/production/65_feature_explorer/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/65_feature_explorer/poster.jpg",
+     "sha256": "c8331b094072c0b94cf7122130630ba1ce883b57eae0c2af294893538e232bf6",
+     "size": 182823
+    },
+    "tools/tutorials/release_candidate/web/production/66_outliers/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/66_outliers/poster.jpg",
+     "sha256": "a2d7edc16f2990c719684aa8383ec566bcabeba64f2780f25168d8e293d5ccea",
+     "size": 115728
+    },
+    "tools/tutorials/release_candidate/web/production/67_experiment_design/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/67_experiment_design/poster.jpg",
+     "sha256": "f73d066eafaa847bc7845ea4432b2d37c8f189f3bcb2845e174243403ed277af",
+     "size": 781507
+    },
+    "tools/tutorials/release_candidate/web/production/68_power_design/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/68_power_design/poster.jpg",
+     "sha256": "b4fd4f4086f0eb386252ee287b886775d2f923ee74b115aa500f830077508f8b",
+     "size": 262034
+    },
+    "tools/tutorials/release_candidate/web/production/69_dose_response/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/69_dose_response/poster.jpg",
+     "sha256": "18dad3accf934b7f9adf6a549493c1acdd567d8e60ad30e5fafa15add8ef553c",
+     "size": 133378
+    },
+    "tools/tutorials/release_candidate/web/production/70_explain_cv/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/70_explain_cv/poster.jpg",
+     "sha256": "1e5330b260f746a1c4985f37155123b804e64729870aaac509e17be5e2a15a38",
+     "size": 411116
+    },
+    "tools/tutorials/release_candidate/web/production/71_investigate_hit/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/71_investigate_hit/poster.jpg",
+     "sha256": "5934274c8c6dbb7099be076376cf9a2f211c2135ecbf5d71e5e11fa27f87fad6",
+     "size": 183048
+    },
+    "tools/tutorials/release_candidate/web/production/72_volcano_explorer/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/72_volcano_explorer/poster.jpg",
+     "sha256": "4733058879b0dc4794195fff98ba26d8b59951d2a7b88355fd38b045ce7ff3dd",
+     "size": 237311
+    },
+    "tools/tutorials/release_candidate/web/production/73_parameter_sweep/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/73_parameter_sweep/poster.jpg",
+     "sha256": "6af58cf103b65c157520899107c3762452cdf9a77d041f2157173dd360c4b84f",
+     "size": 186096
+    },
+    "tools/tutorials/release_candidate/web/production/74_import_images/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/74_import_images/poster.jpg",
+     "sha256": "8b019bf8fa342623e05541e17e55992a638115ae20513e0d5a915879fa6f06ab",
+     "size": 475759
+    },
+    "tools/tutorials/release_candidate/web/production/75_regression_diagnostics/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/75_regression_diagnostics/poster.jpg",
+     "sha256": "e8a10cf4883d3fe47acecc86d957c3054b583272fd83c80a6c99255233679126",
+     "size": 197967
+    },
+    "tools/tutorials/release_candidate/web/production/76_ops/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/76_ops/poster.jpg",
+     "sha256": "a02aa503b0fb24aaff2154798ec54fa0a18dd9e08be06d19aeb1dbefc273a9bc",
+     "size": 173421
+    },
+    "tools/tutorials/release_candidate/web/production/77_embeddings/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/77_embeddings/poster.jpg",
+     "sha256": "64e935afa6a63883a3da8e5bb356afaa775b81a0f382e7f8cc47d44f59a3518e",
+     "size": 134187
+    },
+    "tools/tutorials/release_candidate/web/production/78_spacr_screens/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/78_spacr_screens/poster.jpg",
+     "sha256": "b653f0d0ea6b68e3d6f75a9f97441e1c94b1ec29389a7453fe402b4fe9321061",
+     "size": 399704
+    },
+    "tools/tutorials/release_candidate/web/production/79_module_inputs_outputs/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/79_module_inputs_outputs/poster.jpg",
+     "sha256": "fa4d060389e4105196e5ad9865f7d6de363a5de251e742a16d6d98cb9d3fd07a",
+     "size": 175849
+    },
+    "tools/tutorials/release_candidate/web/production/80_image_analysis_pathways/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/80_image_analysis_pathways/poster.jpg",
+     "sha256": "5e3b42fc3fa4dbf3e018980937a3225b3de03b6ce170b404139e5db96872550d",
+     "size": 1178102
+    },
+    "tools/tutorials/release_candidate/web/production/81_sequencing_pathways/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/81_sequencing_pathways/poster.jpg",
+     "sha256": "3b4133be106fb73969b2f6b653f2a76168476757d51b8fb9845b578c09a2f696",
+     "size": 404254
+    },
+    "tools/tutorials/release_candidate/web/production/82_toxoplasma/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/82_toxoplasma/poster.jpg",
+     "sha256": "0cee7fe8d47da4b67c41dd62d658ed00b72f079a817a398bc7d8073e36f54105",
+     "size": 775558
+    },
+    "tools/tutorials/release_candidate/web/production/85_host_pathogen/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/85_host_pathogen/poster.jpg",
+     "sha256": "e1aa49793d395021027960a241f8be7f0b5639bbfaa6ad22368534347ffbd13c",
+     "size": 439902
+    },
+    "tools/tutorials/release_candidate/web/production/86_alpha_organism_modules/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/86_alpha_organism_modules/poster.jpg",
+     "sha256": "9e726caa32c7defe69c352103230c3d5d655cbebc6ad1d4eeff8a222e9da7702",
+     "size": 137977
+    },
+    "tools/tutorials/release_candidate/web/production/87_alpha_features/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/87_alpha_features/poster.jpg",
+     "sha256": "6989bd907cd3fb3f0b4560a820d5724ad14d29c79849d0b7dbb4776b5d9a8ecb",
+     "size": 448580
+    },
+    "tools/tutorials/release_candidate/web/production/88_navigator/poster.jpg": {
+     "path_in_repo": "tree/tools/tutorials/release_candidate/web/production/88_navigator/poster.jpg",
+     "sha256": "f96f4403c1236da8b8a851ff688503d44ff05b608659c43723ceb69dd2b26736",
+     "size": 359014
+    }
+   }
   }
  }
 }
