@@ -1,0 +1,25 @@
+PLAQUE WELL DETECTOR FINDS RECTANGULAR PLAQUE TILES
+===================================================
+
+Lifecycle: new
+Status: open, alpha; needs one GPU training run, on the workstation after plaque v8.
+Requested: maintainer, 2026-11-07.
+Owner: home spacr software paper.
+Related: 845, 848.
+
+WHAT THE STATE IS
+The zoo's toxoplasma_well_detector_v3 (YOLO11) finds round wells only. In
+407 held-out literature figures it boxed about 443 plaque images and missed
+about 1,182, almost all of them rectangular plaque-monolayer tiles or
+uncropped panels. Multi-scale and tiled re-detection recovered only about
+0.5%, with 92-95% false boxes.
+
+Evidence: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/plaque_meta/:
+heldout/redetect_recovery_by_figure.csv and review/redetect/.
+
+WHAT TO DO
+- Add a "plaque tile" class to the detector.
+- Train on the meta-analysis tile boxes (agent rough boxes, edge-snapped,
+  then reviewed) plus the existing well training set.
+- Figure mode measures tiles the same way as wells and adds a box_kind
+  column (well/tile).
