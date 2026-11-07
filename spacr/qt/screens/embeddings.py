@@ -484,8 +484,6 @@ class EmbeddingsScreen(QWidget):
             "Like this search. Load crops from a database first."))
         self._save_similar.setEnabled(False)
         self._save_similar.clicked.connect(self._save_for_similarity)
-        # One row for both alpha actions, so they cost one line of height
-        # and the wrapped controls above keep room on a 760 px desktop.
         actions = QHBoxLayout()
         actions.setSpacing(SPACING["sm"])
         actions.addWidget(self._save_similar)
