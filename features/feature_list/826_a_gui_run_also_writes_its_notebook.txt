@@ -1,7 +1,7 @@
 A GUI RUN ALSO WRITES ITS NOTEBOOK
 
 Lifecycle: new
-Status: open.
+Status: DONE 2026-11-06 - Run writes <project>/settings/<module>_run_<stamp>.ipynb before the pipeline starts: the settings handed to the pipeline and the same entry point call after the same type coercion. spacr/notebook_export.py, tests/qt/test_a_gui_run_writes_its_notebook.py (the notebook, executed by nbclient and exec'd, writes the same tables as the GUI path).
 Requested: maintainer rule, 2026-11-06 (via Anu): everything done for the Anu plates must be possible in spaCR, through generated notebooks and preferably the GUI.
 Owner: Home (GUI).
 

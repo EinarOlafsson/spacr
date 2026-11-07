@@ -23,10 +23,15 @@ Jupyter dependency; no extra install needed).
 """
 from __future__ import annotations
 
+import ast
 import json
 import logging
+import os
+import pprint
+import time
+import uuid
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Mapping, Optional
 
 LOG = logging.getLogger("spacr.notebook_export")
 
@@ -34,6 +39,7 @@ LOG = logging.getLogger("spacr.notebook_export")
 def _make_cell(cell_type: str, source: str) -> Dict[str, Any]:
     """Return a minimal nbformat v4 cell dict."""
     base: Dict[str, Any] = {
+        "id":              uuid.uuid4().hex[:8],
         "cell_type":       cell_type,
         "metadata":        {},
         "source":          source.splitlines(keepends=True),
@@ -219,21 +225,7 @@ def export_run(run_dir: Any,
     ))
     cells.append(_make_cell("code", _output_cell_for(app_key, run_dir)))
 
-    nb: Dict[str, Any] = {
-        "nbformat":       4,
-        "nbformat_minor": 5,
-        "metadata": {
-            "kernelspec": {
-                "display_name": "Python 3",
-                "language":     "python",
-                "name":         "python3",
-            },
-            "language_info": {
-                "name":    "python",
-            },
-        },
-        "cells": cells,
-    }
+    nb = _notebook_document(cells)
 
     if out_path is None:
         out_path = run_dir / "notebook.ipynb"
@@ -242,3 +234,122 @@ def export_run(run_dir: Any,
     out_path.write_text(json.dumps(nb, indent=2), encoding="utf-8")
     LOG.info("exported run notebook → %s", out_path)
     return out_path
+
+
+#: The folder, under a project, that a GUI run's notebook is written to.
+#: ``spacr.utils.save_settings`` writes each run's settings CSV there too.
+LAUNCH_NOTEBOOK_FOLDER = "settings"
+
+
+def _notebook_document(cells: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """An nbformat v4 notebook holding ``cells``."""
+    return {
+        "nbformat":       4,
+        "nbformat_minor": 5,
+        "metadata": {
+            "kernelspec": {
+                "display_name": "Python 3",
+                "language":     "python",
+                "name":         "python3",
+            },
+            "language_info": {"name": "python"},
+        },
+        "cells": cells,
+    }
+
+
+def _settings_literal(settings: Mapping[str, Any]) -> Optional[str]:
+    """``settings`` as Python source that evaluates back to an equal dict.
+
+    :returns: the source, or ``None`` when a value has no literal form (an
+        object, a NaN), since a notebook built from it would run with
+        different settings.
+    """
+    text = pprint.pformat(dict(settings), indent=1, width=88, sort_dicts=False)
+    try:
+        if ast.literal_eval(text) != dict(settings):
+            return None
+    except (ValueError, SyntaxError, TypeError, MemoryError, RecursionError):
+        return None
+    return text
+
+
+def _launch_notebook_cells(app_key: str, settings: Mapping[str, Any],
+                           entry_module: str, entry_func: str,
+                           settings_text: str) -> List[Dict[str, Any]]:
+    """The cells of the notebook a GUI run writes when it starts.
+
+    The run cell calls the function the GUI's Run button calls, after the
+    same type coercion :func:`spacr.qt.bridge.resolve_pipeline_entry`
+    applies, so running the notebook is running the GUI run again.
+    """
+    from .macro import _version
+
+    started = time.strftime("%Y-%m-%d %H:%M:%S")
+    summary = "\n".join([
+        f"# spaCR {app_key} run",
+        "",
+        f"Written by the spaCR GUI when Run was pressed, {started}, with "
+        f"spaCR {_version()}.",
+        "",
+        f"Running every cell repeats that run: `{entry_module}.{entry_func}` "
+        "is called with the settings below, exactly as the GUI called it. "
+        "Edit a value to run the analysis again with that change.",
+    ])
+    run = "\n".join([
+        "from spacr.validate import coerce_expected_types",
+        f"from {entry_module} import {entry_func}",
+        "",
+        f"settings = coerce_expected_types(dict(SETTINGS), {app_key!r})",
+        f"result = {entry_func}(settings)",
+    ])
+    return [
+        _make_cell("markdown", summary),
+        _make_cell("markdown", "## Settings"),
+        _make_cell("code", f"SETTINGS = {settings_text}"),
+        _make_cell("markdown", "## Run"),
+        _make_cell("code", run),
+    ]
+
+
+def _write_launch_notebook(app_key: str, settings: Mapping[str, Any],
+                           folder: Any = None) -> Optional[Path]:
+    """Write the notebook that repeats a GUI run, into its project.
+
+    :param app_key: the module the run is for.
+    :param settings: the settings the run is started with.
+    :param folder: where to write; by default the ``settings`` folder of
+        the run's project.
+    :returns: the notebook path, or ``None`` when the module has no
+        importable entry point, the run has no project folder on disk, or a
+        setting has no literal form.
+    """
+    from .macro import _project_root, entry_for
+
+    entry_module, entry_func = entry_for(app_key)
+    if not entry_module or not entry_func:
+        return None
+    settings_text = _settings_literal(settings)
+    if settings_text is None:
+        LOG.info("no notebook for this %s run: a setting has no literal form",
+                 app_key)
+        return None
+    if folder is None:
+        root = _project_root(app_key, settings)
+        if not root or not os.path.isdir(root):
+            return None
+        folder = os.path.join(root, LAUNCH_NOTEBOOK_FOLDER)
+    cells = _launch_notebook_cells(app_key, settings, entry_module,
+                                   entry_func, settings_text)
+    stamp = time.strftime("%Y%m%d_%H%M%S")
+    path = Path(folder) / f"{app_key}_run_{stamp}.ipynb"
+    number = 1
+    while path.exists():
+        number += 1
+        path = Path(folder) / f"{app_key}_run_{stamp}_{number}.ipynb"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(_notebook_document(cells), indent=1),
+                    encoding="utf-8")
+    LOG.info("wrote the notebook of this %s run: %s", app_key, path)
+    return path
+

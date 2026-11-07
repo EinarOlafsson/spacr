@@ -12,7 +12,7 @@ Repeated IDs retain their separate full filenames and histories; none were merge
 
 This is a declaration-based navigation list, not a verified unfinished count. Headers can be stale. Conversely, recorded-Done items 641 and 673 contain later Mac follow-ups; item 729 separates native checks from deferred implementation. Read their linked notes before assigning work.
 
-77 records have no recorded complete declaration; 747 have a recorded complete declaration. Neither is a verification result.
+75 records have no recorded complete declaration; 749 have a recorded complete declaration. Neither is a verification result.
 
 | ID | Lifecycle | Item (full filename) | Recorded status |
 |---|---|---|---|
@@ -85,8 +85,6 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 822 | New | [AN OBJECT FILTER EXPLORER — 822_an_object_filter_explorer.txt](feature_list/822_an_object_filter_explorer.txt) | open. |
 | 823 | New | [SIZE-PROXY CALIBRATION FROM ANNOTATIONS — 823_size_proxy_calibration_from_annotations.txt](feature_list/823_size_proxy_calibration_from_annotations.txt) | open. |
 | 824 | New | [WELL-LEVEL CONFOUNDERS AND COMMON SUPPORT — 824_well_level_confounders_and_common_support.txt](feature_list/824_well_level_confounders_and_common_support.txt) | open. |
-| 825 | New | [THE RECRUITMENT AND REPLICATION SETTINGS IN THE GUI — 825_recruitment_and_replication_settings_in_the_gui.txt](feature_list/825_recruitment_and_replication_settings_in_the_gui.txt) | open. |
-| 826 | New | [A GUI RUN ALSO WRITES ITS NOTEBOOK — 826_a_gui_run_also_writes_its_notebook.txt](feature_list/826_a_gui_run_also_writes_its_notebook.txt) | open. |
 | 829 | New | [PARASITES PER VACUOLE FROM VACUOLE SHAPE — 829_parasites_per_vacuole_from_shape.txt](feature_list/829_parasites_per_vacuole_from_shape.txt) | open. |
 | 830 | New | [RIM RECRUITMENT WITH A NULL-BASED THRESHOLD — 830_rim_recruitment_with_a_null_threshold.txt](feature_list/830_rim_recruitment_with_a_null_threshold.txt) | open. |
 | 833 | New | [A PAIR/MERGE REVIEW SCREEN IN ANNOTATE — 833_a_pair_merge_review_screen_in_annotate.txt](feature_list/833_a_pair_merge_review_screen_in_annotate.txt) | open |
@@ -906,8 +904,8 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 822 | New | [AN OBJECT FILTER EXPLORER — 822_an_object_filter_explorer.txt](feature_list/822_an_object_filter_explorer.txt) | open. |
 | 823 | New | [SIZE-PROXY CALIBRATION FROM ANNOTATIONS — 823_size_proxy_calibration_from_annotations.txt](feature_list/823_size_proxy_calibration_from_annotations.txt) | open. |
 | 824 | New | [WELL-LEVEL CONFOUNDERS AND COMMON SUPPORT — 824_well_level_confounders_and_common_support.txt](feature_list/824_well_level_confounders_and_common_support.txt) | open. |
-| 825 | New | [THE RECRUITMENT AND REPLICATION SETTINGS IN THE GUI — 825_recruitment_and_replication_settings_in_the_gui.txt](feature_list/825_recruitment_and_replication_settings_in_the_gui.txt) | open. |
-| 826 | New | [A GUI RUN ALSO WRITES ITS NOTEBOOK — 826_a_gui_run_also_writes_its_notebook.txt](feature_list/826_a_gui_run_also_writes_its_notebook.txt) | open. |
+| 825 | New | [THE RECRUITMENT AND REPLICATION SETTINGS IN THE GUI — 825_recruitment_and_replication_settings_in_the_gui.txt](feature_list/825_recruitment_and_replication_settings_in_the_gui.txt) | DONE 2026-11-06 - the Recruitment and Replication forms show every panel, filter, report and QC setting: Quality Filters (background filters as a table), Panels & Figures (a panel builder table, figures as a table, checked literal fields for labels, factors and bracket pairs) and Report & QC (recruitment) or Panel QC (replication); none of them is alpha. spacr/qt/screens/settings_model.py, tests/qt/test_assay_settings_in_the_gui.py. |
+| 826 | New | [A GUI RUN ALSO WRITES ITS NOTEBOOK — 826_a_gui_run_also_writes_its_notebook.txt](feature_list/826_a_gui_run_also_writes_its_notebook.txt) | DONE 2026-11-06 - Run writes <project>/settings/<module>_run_<stamp>.ipynb before the pipeline starts: the settings handed to the pipeline and the same entry point call after the same type coercion. spacr/notebook_export.py, tests/qt/test_a_gui_run_writes_its_notebook.py (the notebook, executed by nbclient and exec'd, writes the same tables as the GUI path). |
 | 827 | New | [BUG: UPPER-CASE .TIF FILES ARE DROPPED — 827_upper_case_tif_files_are_dropped.txt](feature_list/827_upper_case_tif_files_are_dropped.txt) | DONE 2026-11-06 — extensions are matched without regard to case in the raw-image listing, the filename patterns and the Cellpose training-folder listings. |
 | 828 | New | [MERGE_TOUCHING_OBJECTS IS FAST — 828_merge_touching_objects_is_fast.txt](feature_list/828_merge_touching_objects_is_fast.txt) | DONE 2026-11-06 — objects are measured inside their own padded bounding boxes; the merge result is unchanged. |
 | 829 | New | [PARASITES PER VACUOLE FROM VACUOLE SHAPE — 829_parasites_per_vacuole_from_shape.txt](feature_list/829_parasites_per_vacuole_from_shape.txt) | open. |

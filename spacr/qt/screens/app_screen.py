@@ -9707,6 +9707,7 @@ class AppScreen(QWidget):
             LOG.debug("could not read the hashing preference", exc_info=True)
 
         self._announce_the_fit(settings)
+        self._write_the_run_notebook(settings)
 
         self._watch_for_refusals()
         self._thread, worker = make_thread(entry, settings)
@@ -9722,6 +9723,28 @@ class AppScreen(QWidget):
         self._thread.finished.connect(self._clear_thread_refs)
         self._thread.start()
 
+
+    def _write_the_run_notebook(self, settings) -> None:
+        """Write the notebook that repeats this run into its project.
+
+        The notebook holds the settings handed to the pipeline and the call
+        the Run button makes, so a GUI run and a notebook run are the same
+        run. A run without a project folder on disk gets none; a notebook
+        that cannot be written costs a log line, never the run.
+
+        :param settings: the settings the run is started with.
+        """
+        try:
+            from ...notebook_export import _write_launch_notebook
+            path = _write_launch_notebook(self.app_key, settings)
+        except Exception:                                    # noqa: BLE001
+            LOG.warning("could not write the notebook of this run",
+                        exc_info=True)
+            return
+        self._run_notebook_path = path
+        if path is not None:
+            self._console.append_notice(
+                "Notebook that repeats this run: {path}\n", path=str(path))
 
     #: How often a Run waiting on its entry module's import checks the
     #: importing thread, in milliseconds. The first tick starts the import,
