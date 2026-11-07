@@ -40,6 +40,7 @@ from typing import Callable, Dict, List, Mapping, Optional, Sequence
 import numpy as np
 import pandas as pd
 
+from .tabular import _read_query, write_table
 from .assay_panels import (ALPHA, STYLE, axis_layout, draw_stacked_panel, save_panel, WELL_KEYS, _DEFAULT_COLORS, _despine, _set_xticks, shade,
                            style_axes,
                            aggregate_to_unit, bar_spec, display_label, draw_bar_panel, fmt_p,
@@ -757,7 +758,7 @@ def db_object_tables(db_path, skip=("cytoplasm",)):
     """
     import sqlite3
     uri = f"file:{db_path}?mode=ro"
-    with sqlite3.connect(uri, uri=True) as con:
+    with sqlite3.connect(uri, uri=True, timeout=30.0) as con:
         names = [r[0] for r in con.execute("select name from sqlite_master where type='table'")]
         out = []
         for t in names:
@@ -792,11 +793,11 @@ def db_well_counts(db_path, frame, group, tables=None, well_keys=WELL_KEYS):
     for k in keys[1:]:
         wells[k] = wells[k].astype(str)
     frames = []
-    with sqlite3.connect(f"file:{db_path}?mode=ro", uri=True) as con:
+    with sqlite3.connect(f"file:{db_path}?mode=ro", uri=True, timeout=30.0) as con:
         for t in tables:
             q = (f'select plateID, rowID, columnID, count(*) as n from "{t}" '
                  f'group by plateID, rowID, columnID')
-            c = pd.read_sql_query(q, con)
+            c = _read_query(con, q, canonicalise=False)
             c["_plate"] = c["plateID"].astype(str).map(lambda v: unquote(unquote(v)))
             for k in keys[1:]:
                 c[k] = c[k].astype(str)
@@ -1410,9 +1411,9 @@ def write_panel_folder(out_dir, pid, name, draw, size_mm, data=None, stats=None,
     for ext in ("pdf", "png"):
         save_figure(fig, os.path.join(folder, f"{stem}.{ext}"), fmt=ext, dpi=dpi)
     if data is not None:
-        data.to_csv(os.path.join(folder, "data.csv"), index=False)
+        write_table(data, os.path.join(folder, "data.csv"))
     if stats is not None:
-        stats.to_csv(os.path.join(folder, "stats.csv"), index=False)
+        write_table(stats, os.path.join(folder, "stats.csv"))
     return folder
 
 
@@ -1688,10 +1689,10 @@ def write_rgb16(stem, rgb):
     :returns: the two file paths.
     """
     import cv2
-    import tifffile
+    from .tiff_io import write_tiff
     rgb = np.ascontiguousarray(rgb.astype(np.uint16))
     cv2.imwrite(f"{stem}.png", rgb[..., ::-1])
-    tifffile.imwrite(f"{stem}.tif", rgb, photometric="rgb")
+    write_tiff(f"{stem}.tif", rgb, photometric="rgb")
     return [f"{stem}.png", f"{stem}.tif"]
 
 
@@ -1845,7 +1846,7 @@ def build_tiles(df, group, order, merged_dir, mask_dims, colour_map, out_folder,
     else:
         ranges = display_ranges(arrays, list(colour_map), percentiles) if arrays else {}
 
-    import tifffile
+    from .tiff_io import write_tiff
     mono = int(mono_channel if mono_channel is not None else next(iter(colour_map)))
     if mono not in ranges:
         src = ([res[2] for ch in picks.values() for (_, _, _, res) in ch] if range_source == "crops"
@@ -1876,9 +1877,9 @@ def build_tiles(df, group, order, merged_dir, mask_dims, colour_map, out_folder,
                 if len(inside):
                     outlines.append((np.isin(plane, inside), col))
             name = f"{_safe(g)}_{k:02d}"
-            tifffile.imwrite(os.path.join(out_folder, "raw", f"{name}.tif"),
-                             np.ascontiguousarray(np.moveaxis(raw, -1, 0)),
-                             photometric="minisblack", metadata={"axes": "CYX"})
+            write_tiff(os.path.join(out_folder, "raw", f"{name}.tif"),
+                       np.ascontiguousarray(np.moveaxis(raw, -1, 0)),
+                       photometric="minisblack", metadata={"axes": "CYX"})
             files.append(os.path.join(out_folder, "raw", f"{name}.tif"))
             for v, (cmap_v, with_outlines) in versions.items():
                 rgb = render_tile(padded, cmap_v, ranges, outlines if with_outlines else (),
@@ -2691,7 +2692,7 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
                 legend.append(f"{pid}. Tiles could not be made: {exc}.")
             if tr is not None and len(tr["table"]):
                 n = tiles.get("n", 5)
-                tr["table"].to_csv(os.path.join(folder, "data.csv"), index=False)
+                write_table(tr["table"], os.path.join(folder, "data.csv"))
                 save_crop_panel(folder, panel_folder_name(pid, f"tiles_{version}"), tr, order, n,
                                 tiles.get("size", 192), axis, labels, dpi=dpi)
                 folders[pid] = folder
@@ -2729,7 +2730,7 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
                                      **{kk: v for kk, v in tiles.items() if kk in
                                         ("merged_dir", "mask_dims", "colour_map", "size", "mono_channel",
                                          "host_object", "center_object", "edge_column")})
-                    gr["table"].to_csv(os.path.join(gfolder, "data.csv"), index=False)
+                    write_table(gr["table"], os.path.join(gfolder, "data.csv"))
                     save_crop_panel(gfolder, os.path.basename(gfolder), gr, order, int(crops.get("n", 5)),
                                     tiles.get("size", 192), axis, labels, dpi=dpi)
                     grids += crop_items(f"{pid} crops", gr, order, int(crops.get("n", 5)),
@@ -2784,7 +2785,7 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
                         continue
                     if not len(br["table"]):
                         continue
-                    br["table"].to_csv(os.path.join(folder, "data.csv"), index=False)
+                    write_table(br["table"], os.path.join(folder, "data.csv"))
                     save_crop_panel(folder, panel_folder_name(pid, f"{tag}_{version}"), br, border, nn,
                                     tiles.get("size", 192), bin_axis, blabels, dpi=dpi)
                     folders[pid] = folder
@@ -2870,7 +2871,7 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
             fs = filter_steps_table(filter_steps, order)
             draw = filter_steps_drawer(fs, order, labels, palette, layout)
             os.makedirs(folder, exist_ok=True)
-            fs.to_csv(os.path.join(folder, "data.csv"), index=False)
+            write_table(fs, os.path.join(folder, "data.csv"))
             _save_drawing(folder, panel_folder_name(pid, "filtration_steps"), draw, (180.0, 90.0), dpi=dpi)
             folders[pid] = folder
             add_block([ReportItem(pid=pid, label=pid, draw=draw, width=1.0, height_mm=78.0,
