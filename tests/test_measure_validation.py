@@ -17,7 +17,7 @@ matplotlib.use("Agg", force=True)
 from spacr.settings import get_measure_crop_settings
 
 
-def _merged(tmp_path, rng, n_chan=4):
+def _merged(tmp_path, rng, n_chan=4, name="plate1_A01_F001.npy"):
     """A minimal merged/ folder with one stack (image channels + 3 masks)."""
     merged = tmp_path / "merged"
     merged.mkdir(parents=True, exist_ok=True)
@@ -28,7 +28,7 @@ def _merged(tmp_path, rng, n_chan=4):
     nuc = np.zeros((H, W), np.uint16); nuc[8:14, 8:14] = 1
     pat = np.zeros((H, W), np.uint16); pat[10:12, 10:12] = 1
     data = np.stack(layers + [cell, nuc, pat], axis=-1).astype(np.uint16)
-    np.save(merged / "plate1_A01_F001.npy", data)
+    np.save(merged / name, data)
     return merged
 
 
@@ -84,14 +84,26 @@ def test_timelapse_nucleus_announces_relabel(tmp_path, rng, capsys):
     assert "cells will be relabeled" in capsys.readouterr().out
 
 
-def test_timelapse_disables_save_png(tmp_path, rng):
+def test_timelapse_disables_save_png(tmp_path, rng, monkeypatch):
     """timelapse=True forces save_png off before anything else runs."""
+    from spacr import measure as M
     from spacr.measure import measure_crop
-    merged = _merged(tmp_path, rng)
+    seen = []
+    prepare = M._prepare_measurement_crop_output
+
+    def spy(settings, *args, **kwargs):
+        seen.append(settings["save_png"])
+        return prepare(settings, *args, **kwargs)
+
+    monkeypatch.setattr(M, "_prepare_measurement_crop_output", spy)
+    # A time-lapse stack carries its timepoint; item 837 refuses one without.
+    merged = _merged(tmp_path, rng, name="plate1_A01_F001_1.npy")
     s = _settings(merged, timelapse=True, save_png=True,
                   timelapse_objects="cell")
     measure_crop(s)
-    assert s["save_png"] is False
+    # measure_crop works on its own copy of the settings since 5cd65688e7,
+    # so the forced-off save_png is read where the run uses it.
+    assert seen == [False]
 
 
 def test_src_must_be_str_or_list(tmp_path, rng):

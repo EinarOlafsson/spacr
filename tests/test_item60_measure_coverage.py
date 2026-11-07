@@ -555,7 +555,8 @@ def test_measure_crop_reraises_pipeline_cancellation(tmp_path, monkeypatch):
 def test_measure_crop_timelapse_nucleus_emits_gif(tmp_path, monkeypatch):
     merged = tmp_path / "merged"
     merged.mkdir()
-    np.save(merged / "plate_A01_f1.npy", np.zeros((2, 2, 2), np.uint16))
+    # A time-lapse stack carries its timepoint; item 837 refuses one without.
+    np.save(merged / "plate_A01_f1_1.npy", np.zeros((2, 2, 2), np.uint16))
     success = (0, .1, np.array([0]), {})
     _patch_item60_orchestrator(monkeypatch, [_Item60Result(value=success)])
     from spacr import timelapse
