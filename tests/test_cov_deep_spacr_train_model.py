@@ -743,7 +743,7 @@ def test_train_model_resumes_after_saved_epoch_with_optimizer_state(
     _use_model(monkeypatch, fresh)
     calls = []
     _stub_eval(monkeypatch, acc=0.5, calls=calls)
-    _stub_progress(monkeypatch, [])
+    saved = _stub_progress(monkeypatch, [])
     dst = tmp_path / "model"
     dst.mkdir()
 
@@ -753,7 +753,8 @@ def test_train_model_resumes_after_saved_epoch_with_optimizer_state(
         schedule=None, resume_checkpoint=catalogue_key or str(resume),
         intermedeate_save=False)
 
-    assert {epoch for epoch, _ in calls} == {2}
+    assert calls == []
+    assert [int(e) for _d, train_df, _v in saved for e in train_df["epoch"]] == [2]
     assert resolved == ([(catalogue_key, ("classifier",), "resume_checkpoint")]
                         if catalogue_key is not None else [])
     assert selected == str(resume)

@@ -1306,6 +1306,15 @@ if app_key == "mask":
     for app, key in governor_arrivals:
         assert resolve_default_settings(app)[key] == governor_defaults[key]
     recognized_arrivals |= governor_arrivals
+    # train_metrics_full_pass, one parseable claim (False) resolved by the
+    # merged Classify screen.
+    training_pass_arrivals = {("classify_merged", "train_metrics_full_pass")}
+    assert {pair for pair in compared_pairs
+            if pair[1] == "train_metrics_full_pass"} == training_pass_arrivals
+    assert not training_pass_arrivals & (recognized_arrivals | variants.keys())
+    assert resolve_default_settings("classify_merged")[
+        "train_metrics_full_pass"] is False
+    recognized_arrivals |= training_pass_arrivals
     assert comparisons - len(recognized_arrivals) == 1004
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))

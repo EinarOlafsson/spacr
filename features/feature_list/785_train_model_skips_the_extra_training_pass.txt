@@ -2,7 +2,7 @@ TRAIN_MODEL SKIPS THE EXTRA PASS OVER THE TRAINING SET
 ======================================================
 
 Lifecycle: new
-Status: open.
+Status: DONE 2026-11-06 — train_model records loss, accuracy and per-class metrics from the training batches (in training mode and precision) instead of a second fp32 pass over the training loader; the old pass stays behind train_metrics_full_pass (default False). Without a train/ folder, class counts for the loss come from the dataset labels attribute (Subset-aware) instead of zeros or a loader walk. Validation metrics unchanged.
 Requested: maintainer via the BMC software-paper session, 2026-11-05.
 Source: BBBC021 computer-vision benchmark, /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cv/README.md.
 

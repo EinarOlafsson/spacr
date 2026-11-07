@@ -422,7 +422,7 @@ def _governed_logits(model, data, device=None):
 
 
 def _train_batch(model, data, target, *, loss_fn, scaler, mixed_precision,
-                 device, head_dim, divisor=1):
+                 device, head_dim, divisor=1, metrics=None):
     """Forward and backward one training batch, in parts the GPU has room for.
 
     Without memory pressure the batch runs whole, as before. When the GPU
@@ -441,6 +441,8 @@ def _train_batch(model, data, target, *, loss_fn, scaler, mixed_precision,
     :param device: the training device.
     :param head_dim: the number of logits per row.
     :param divisor: gradient-accumulation steps the loss is divided by.
+    :param metrics: optional :class:`_TrainingPassMetrics` that records each
+        part's logits, labels and unscaled loss once the batch has succeeded.
     """
     from ._gpu_governor import _chunked, _device_index, _on_cpu
 
@@ -451,8 +453,11 @@ def _train_batch(model, data, target, *, loss_fn, scaler, mixed_precision,
         saved = [None if p.grad is None else p.grad.detach().clone()
                  for p in parameters]
 
+    recorded = []
+
     def restore():
         """Put the gradients back to what they were before this batch."""
+        recorded.clear()
         if saved is None:
             return
         for parameter, grad in zip(parameters, saved):
@@ -475,6 +480,8 @@ def _train_batch(model, data, target, *, loss_fn, scaler, mixed_precision,
             else:
                 labels = labels.to(on_device).float()
             loss = loss_fn(logits, labels)
+        if metrics is not None:
+            recorded.append((logits.detach(), labels.detach(), loss.detach()))
         share = len(rows) / float(total)
         if share != 1.0:
             loss = loss * share
@@ -496,6 +503,9 @@ def _train_batch(model, data, target, *, loss_fn, scaler, mixed_precision,
 
     _chunked(on_gpu, range(total), site='cnn_training', cpu_fn=on_cpu,
              device=device, on_retry=restore)
+    if metrics is not None:
+        for logits, labels, loss in recorded:
+            metrics.add(logits.to(device), labels.to(device), loss.to(device))
 
 
 def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True,
@@ -1073,6 +1083,24 @@ def evaluate_model_performance(model, loader, epoch, loss_type='auto',
                 probs = torch.softmax(logits, dim=1)
                 prob_bucket.append(probs.detach().cpu().numpy())
 
+    return _epoch_metrics(prob_bucket, all_labels, total_loss, total_samples,
+                          epoch, num_classes, head_dim)
+
+
+def _epoch_metrics(prob_bucket, all_labels, total_loss, total_samples, epoch,
+                   num_classes=None, head_dim=None):
+    """Turn one pass's collected outputs into the metrics dict and raw payload.
+
+    :param prob_bucket: per-batch probability arrays, ``(n,)`` for a binary
+        head or ``(n, C)`` for a multiclass head.
+    :param all_labels: integer labels in the same order.
+    :param total_loss: summed ``loss * batch_size`` over the pass.
+    :param total_samples: number of samples seen.
+    :param epoch: epoch recorded in the dict.
+    :param num_classes: class count used when the pass saw no batch.
+    :param head_dim: head width seen in the first batch, if any.
+    :returns: ``(metrics_dict, [probs, labels])``.
+    """
     mean_loss = total_loss / max(1, total_samples)
     y_true = np.asarray(all_labels, dtype=int)
 
@@ -1094,6 +1122,98 @@ def evaluate_model_performance(model, loader, epoch, loss_type='auto',
     metrics["epoch"] = int(epoch)
     metrics["Accuracy"] = metrics["accuracy"]
     return metrics, [probs_np, y_true.tolist()]
+
+
+class _TrainingPassMetrics:
+    """Collect loss, probabilities and labels from one epoch's training batches.
+
+    The outputs stay on the training device until :meth:`metrics` is called,
+    so recording a batch adds no host synchronisation to the training loop.
+    The recorded loss is the batch loss before gradient-accumulation scaling,
+    the same per-sample mean an evaluation pass reports.
+    """
+
+    def __init__(self):
+        """Start an empty record."""
+        self._loss = []
+        self._sizes = []
+        self._probs = []
+        self._labels = []
+        self._binary = None
+
+    def add(self, logits, target, loss):
+        """Record one training batch.
+
+        :param logits: the model output for the batch.
+        :param target: the batch targets as passed to the loss.
+        :param loss: the batch loss before any accumulation scaling.
+        """
+        with torch.no_grad():
+            logits = logits.detach().float()
+            if self._binary is None:
+                self._binary = not (logits.ndim == 2 and logits.size(1) >= 2)
+            size = int(logits.size(0))
+            self._loss.append(loss.detach().float() * size)
+            self._sizes.append(size)
+            target = target.detach()
+            if self._binary:
+                self._probs.append(torch.sigmoid(logits.reshape(-1)))
+                self._labels.append((target.reshape(-1) > 0.5).long())
+            else:
+                if target.ndim == 2:
+                    target = target.argmax(dim=1)
+                self._probs.append(torch.softmax(logits, dim=1))
+                self._labels.append(target.reshape(-1).long())
+
+    def metrics(self, epoch, num_classes=None):
+        """Return ``(metrics_dict, [probs, labels])`` for the recorded batches.
+
+        :param epoch: epoch recorded in the dict.
+        :param num_classes: class count used when no batch was recorded.
+        """
+        total_loss = (float(torch.stack(self._loss).sum().item())
+                      if self._loss else 0.0)
+        probs = [torch.cat(self._probs).cpu().numpy()] if self._probs else []
+        labels = (torch.cat(self._labels).cpu().numpy().tolist()
+                  if self._labels else [])
+        head_dim = 1 if self._binary else None
+        return _epoch_metrics(probs, labels, total_loss, sum(self._sizes),
+                              epoch, num_classes, head_dim)
+
+
+def _labelled_class_counts(loader, num_classes):
+    """Count training classes from the labels a loader's dataset already holds.
+
+    Reads a ``labels`` or ``targets`` attribute, through any chain of
+    ``Subset`` wrappers, so no image is decoded and no batch is drawn.
+
+    :param loader: training DataLoader.
+    :param num_classes: number of output classes.
+    :returns: ``LongTensor`` of per-class counts, or ``None`` when the dataset
+        carries no label attribute.
+    """
+    dataset = getattr(loader, 'dataset', None)
+    indices = None
+    while isinstance(dataset, Subset):
+        positions = list(dataset.indices)
+        indices = positions if indices is None else [positions[i] for i in indices]
+        dataset = dataset.dataset
+    labels = getattr(dataset, 'labels', None)
+    if labels is None:
+        labels = getattr(dataset, 'targets', None)
+    if labels is None:
+        return None
+    labels = np.asarray(
+        labels.detach().cpu().numpy() if torch.is_tensor(labels) else labels)
+    if labels.ndim == 2:
+        labels = labels.argmax(axis=1)
+    labels = labels.reshape(-1).astype(int)
+    if indices is not None:
+        labels = labels[np.asarray(indices, dtype=int)]
+    counts = np.bincount(labels[(labels >= 0) & (labels < num_classes)],
+                         minlength=num_classes)[:num_classes]
+    return torch.as_tensor(counts, dtype=torch.long)
+
 
 def test_model_core(model, loader, loader_name, epoch, loss_type):
     """
@@ -2761,6 +2881,16 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     :param logit_adjust_tau: Strength of the logit adjustment; ``0`` disables
         it. Default ``1.0``.
     :param settings: the run's settings dict, recorded (hashed) in the model card.
+        Its ``mixed_precision`` key turns on autocast for training, and its
+        ``train_metrics_full_pass`` key chooses how the per-epoch training
+        metrics are measured: off (the default), they are accumulated from
+        the training batches themselves, in the mode and precision training
+        uses, while the weights change through the epoch; on, the model is
+        re-evaluated over the whole training loader after each epoch in eval
+        mode and full precision, which costs one more pass over the data.
+        Validation metrics are the same either way. When ``<src>/train`` does
+        not exist, class counts for the loss come from the ``labels`` or
+        ``targets`` attribute of the training dataset.
     :param split_rule: how the held-out set was drawn, in words, for the card.
     :param write_card: write ``<model>.card.json`` beside the weights and
         register it as an artifact. On by default, so each checkpoint has a
@@ -2804,7 +2934,15 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     elif not classes:
         classes = None
 
-    counts = estimate_class_counts(train_loaders, head_dim, src=train_data_dir, classes=classes) if (head_dim >= 2 and classes) else None
+    counts = None
+    if head_dim >= 2 and classes:
+        if not os.path.isdir(train_data_dir):
+            counts = _labelled_class_counts(train_loaders, head_dim)
+            if counts is not None:
+                print(f"Class counts (from the training labels): "
+                      f"{dict(zip(classes, counts.tolist()))}")
+        if counts is None:
+            counts = estimate_class_counts(train_loaders, head_dim, src=train_data_dir, classes=classes)
 
     loss_fn = build_loss(
         loss_type=loss_type,
@@ -2952,6 +3090,8 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
     if amp_note:
         print(amp_note)
     scaler = _gradient_scaler(device, enabled=mixed_precision)
+    full_train_pass = bool(settings.get('train_metrics_full_pass', False)
+                           if isinstance(settings, dict) else False)
 
     _flowview_metric("classes", head_dim)
     train_objects = _loader_object_count(train_loaders)
@@ -2967,11 +3107,12 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
             optimizer.zero_grad(set_to_none=True)
 
         n_batches = len(train_loaders)
+        pass_metrics = None if full_train_pass else _TrainingPassMetrics()
 
         for batch_idx, (data, target, filenames) in enumerate(train_loaders, start=1):
             _train_batch(model, data, target, loss_fn=loss_fn, scaler=scaler,
                          mixed_precision=mixed_precision, device=device,
-                         head_dim=head_dim,
+                         head_dim=head_dim, metrics=pass_metrics,
                          divisor=(gradient_accumulation_steps
                                   if gradient_accumulation else 1))
 
@@ -2987,12 +3128,15 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
 
         train_time = time.time() - start_time
         loop_loss_type = 'ce' if head_dim >= 2 else 'bce'
-        train_dict, _ = evaluate_model_performance(
-            model, train_loaders, epoch,
-            loss_type=loop_loss_type,
-            loss_fn=loss_fn,
-            num_classes=head_dim
-        )
+        if pass_metrics is not None:
+            train_dict, _ = pass_metrics.metrics(epoch, num_classes=head_dim)
+        else:
+            train_dict, _ = evaluate_model_performance(
+                model, train_loaders, epoch,
+                loss_type=loop_loss_type,
+                loss_fn=loss_fn,
+                num_classes=head_dim
+            )
         train_dict['train_time'] = train_time
         train_dict['lr'] = float(optimizer.param_groups[0]['lr'])
         attach_per_class_columns(train_dict, classes)

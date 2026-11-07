@@ -2632,6 +2632,7 @@ def set_default_train_test_model(settings):
     settings.setdefault('amsgrad',True)
     settings.setdefault('use_checkpoint',True)
     settings.setdefault('mixed_precision', False)
+    settings.setdefault('train_metrics_full_pass', False)
     settings.setdefault('gradient_accumulation_steps',4)
     _fold_gradient_accumulation(settings)
     settings.setdefault('intermedeate_save',True)
@@ -2733,6 +2734,7 @@ def deep_spacr_defaults(settings):
     settings.setdefault('amsgrad',True)
     settings.setdefault('use_checkpoint',True)
     settings.setdefault('mixed_precision', False)
+    settings.setdefault('train_metrics_full_pass', False)
     settings.setdefault('gradient_accumulation_steps',4)
     _fold_gradient_accumulation(settings)
     settings.setdefault('label_smoothing',0.1)
@@ -2825,6 +2827,7 @@ def get_train_test_model_settings(settings):
      settings.setdefault('amsgrad', True)
      settings.setdefault('use_checkpoint', True)
      settings.setdefault('mixed_precision', False)
+     settings.setdefault('train_metrics_full_pass', False)
      settings.setdefault('gradient_accumulation_steps', 4)
      _fold_gradient_accumulation(settings)
      settings.setdefault('intermedeate_save',True)
@@ -4116,6 +4119,7 @@ expected_types = {
     "amsgrad": bool,
     "use_checkpoint": bool,
     "mixed_precision": bool,
+    "train_metrics_full_pass": bool,
     "gradient_accumulation_steps": int,
     "intermedeate_save": (bool, list, tuple, type(None)),
     "pin_memory": bool,
@@ -5294,6 +5298,7 @@ tooltips = {
     "fraction_threshold": "(float or None) - Minimum relative abundance, 0-1, that a gRNA must reach within a well's total read count to be retained. Increasing it removes low-abundance and bleed-through gRNAs and reduces the mean number of gRNAs per well; if set too high, every row is removed and the run raises an error. Use None to select automatically the cutoff that yields target_unique_count gRNAs per well. Default None. Regression starts at the reproducible fixed cutoff 0.02; enter None only when the automatic sweep is intended.",
     "normalise_fraction": "(bool) - Divide a gRNA's fraction by the sum of the fractions that remain in its well after fraction_threshold, before deciding how many cells it is given. On, a gRNA's share is measured against what survived the threshold; off, it is measured against every read the well produced, including those the threshold removed. The two differ whenever the threshold removes anything: normalising raises every surviving share, and by more the more was removed. Default True.",
     "from_scratch": "(bool) - Start from randomly initialised weights instead of fine-tuning the pretrained model. Keep this disabled unless the training set contains enough images to fit a model without pretrained weights; fine-tuning may require tens of images, whereas training from scratch commonly requires thousands. Default False.",
+    "train_metrics_full_pass": "(bool) - How each epoch's training loss and accuracy are measured. Off, they are accumulated from the training batches as the model learns, in the same mode and precision, so no extra pass over the data is needed; the weights change during the epoch and dropout and augmentation are on. On, the whole training set is evaluated again after every epoch in evaluation mode and full precision, as earlier versions did, at the cost of one more pass. Validation metrics, best-checkpoint choice and early stopping do not depend on it. Default False.",
     "mixed_precision": "(bool) - Enable automatic mixed precision for supported accelerator operations during training. On a modern graphics card it can make training roughly twice as fast while using less memory, although the gain depends on the model and hardware. Floating-point differences can affect exact reproducibility, so compare runs only when they use the same precision mode. Unsupported hardware disables this mode with an explicit message. Default False.",
     "gradient_accumulation": "(bool) - Sum gradients over several batches before each optimizer step, producing an effective batch size of batch_size x gradient_accumulation_steps without additional GPU memory. Enable when batch_size must be reduced to fit available VRAM and the resulting training trajectory is unstable. Remaining gradients are applied at the end of each epoch. Default True.",
     "gradient_accumulation_steps": "(int) - How many batches are summed per optimizer step when gradient_accumulation is on; the loss is divided by this value so gradient magnitude stays comparable. Effective batch size = batch_size x this. Raise it (4-16) to emulate a larger batch on limited VRAM, at the cost of fewer weight updates per epoch. Ignored when gradient_accumulation is False. Default 4.",
@@ -6084,7 +6089,7 @@ categories = {
 
     "Computer Vision Model": ["model_type", "model_name", "init_weights", ],
 
-    "Computer Vision Training": ["train", "test", "epochs", "learning_rate", "optimizer_type", "schedule", "loss_type", "label_smoothing", "focal_gamma", "focal_alpha", "logit_adjust_tau", "class_balance", "amsgrad", "mixed_precision", "gradient_accumulation_steps", "early_stopping_patience", "pin_memory", "intermedeate_save", "tensorboard", "random_seed",
+    "Computer Vision Training": ["train", "test", "epochs", "learning_rate", "optimizer_type", "schedule", "loss_type", "label_smoothing", "focal_gamma", "focal_alpha", "logit_adjust_tau", "class_balance", "amsgrad", "mixed_precision", "train_metrics_full_pass", "gradient_accumulation_steps", "early_stopping_patience", "pin_memory", "intermedeate_save", "tensorboard", "random_seed",
         "n_top_examples"],
 
     "Computer Vision Optimization and Regularization": ["use_checkpoint", "dropout_rate", "weight_decay"],

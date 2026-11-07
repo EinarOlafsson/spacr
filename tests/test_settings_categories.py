@@ -592,6 +592,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # effective batch into the same VRAM and the thing a user weighs it
     # against.
     "mixed_precision",
+    # The training metrics of each epoch can come from the training
+    # batches or from a second full pass, beside mixed_precision.
+    "train_metrics_full_pass",
     # ---- added 2026-08-21 -------------------------------------------
     # 227/224: the control wells the mixed-ratio calibration is anchored on,
     # the contaminant exclusion, the permutation statistic, and the

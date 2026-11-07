@@ -1480,6 +1480,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'tracked_object',
     'train',
     'train_channels',
+    'train_metrics_full_pass',
     'train_test_leakage_audit_path',
     'train_validation_leakage_audit_path',
     'transform',

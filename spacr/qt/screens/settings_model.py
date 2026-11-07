@@ -2631,7 +2631,7 @@ def _categories_for_app_uncached(app_key, categories, plugin_app):
                 "epochs", "optimizer_type", "learning_rate", "schedule",
                 "amsgrad", "loss_type", "class_balance", "label_smoothing",
                 "focal_gamma", "focal_alpha", "logit_adjust_tau",
-                "batch_size", "mixed_precision",
+                "batch_size", "mixed_precision", "train_metrics_full_pass",
                 "gradient_accumulation_steps", "early_stopping_patience"],
 
             "Test-time augmentation": ['tta_enabled', 'tta_rotations', 'tta_horizontal_flip',
