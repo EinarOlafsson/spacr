@@ -8,6 +8,7 @@ media not being downloaded.
 """
 from __future__ import annotations
 
+import os
 import importlib.util
 import json
 import subprocess
@@ -222,7 +223,7 @@ def test_staged_player_says_when_the_media_is_not_downloaded(tmp_path):
     source.write_text('<!doctype html><html><body class="x"><main></main></body></html>', encoding="utf-8")
     staged = tmp_path / "staged" / "tutorials" / "index.html"
     staged.parent.mkdir(parents=True)
-    staged.hardlink_to(source)
+    os.link(source, staged)  # Path.hardlink_to needs Python 3.10
     assert budget.mark_media_missing(tmp_path / "staged", 93)
     text = staged.read_text(encoding="utf-8")
     assert text.index('<body class="x">') < text.index("Tutorial media not downloaded.") < text.index("<main>")
