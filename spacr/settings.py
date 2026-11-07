@@ -968,6 +968,7 @@ _OVERVIEW_MEASUREMENT_DEFAULTS = {
     'overview_embedding_mean': '',
     'overview_embedding_std': '',
     'overview_embedding_input_size': None,
+    'overview_embedding_threads': None,
     'overview_measure_deep_qc': False,
     'overview_measure_filter_bank': False,
 }
@@ -1001,6 +1002,7 @@ _OVERVIEW_MEASUREMENT_TYPES = {
     'overview_embedding_mean': str,
     'overview_embedding_std': str,
     'overview_embedding_input_size': (int, type(None)),
+    'overview_embedding_threads': (int, type(None)),
     'overview_measure_deep_qc': bool,
     'overview_measure_filter_bank': bool,
 }
@@ -1034,6 +1036,7 @@ _OVERVIEW_MEASUREMENT_TOOLTIPS = {
     'overview_embedding_mean': "(str) - Three comma-separated channel means that replace the network's pretrained mean, for example 0.5, 0.5, 0.5. Blank uses the network's own. Used only with the pretrained transform. Default blank.",
     'overview_embedding_std': "(str) - Three comma-separated positive standard deviations that replace the network's pretrained ones. Blank uses the network's own. Used only with the pretrained transform. Default blank.",
     'overview_embedding_input_size': "(int or None) - Side, in pixels, each image is resized to for a timm network instead of the network's training size; 0 keeps the size Embedding size gives. A network with a fixed patch grid is always resized to that grid. Default None.",
+    'overview_embedding_threads': "(int or None) - Torch threads each worker uses to embed an image on the CPU; the workers are Parallel worker processes. Several workers with two threads each usually run faster than one worker with many. Blank uses 2 on a machine with at least 4 cores, otherwise 1. Default None.",
     'overview_measure_deep_qc': '(bool) - Score each channel with spaCR\'s image-quality network (out of focus, saturated, debris, bubble, empty), as in Mask generation\'s image screening. Needs torch; downloads a 0.3 MB model once. Fast on the CPU. Default False.',
     'overview_measure_filter_bank': '(bool) - Texture filter bank per channel: Gabor magnitude at two frequencies over four orientations and Laplacian-of-Gaussian energy at three scales, on a copy reduced to at most 512 pixels. No download; moderate cost. Default False.',
 }
@@ -1054,7 +1057,7 @@ _OVERVIEW_MEASUREMENT_CATEGORIES = {
         'overview_measure_homogeneity', 'overview_measure_fibres', 'overview_measure_embeddings',
         'overview_embedding_backbone', 'overview_embedding_size',
         'overview_embedding_transform', 'overview_embedding_mean', 'overview_embedding_std',
-        'overview_embedding_input_size', 'overview_measure_deep_qc',
+        'overview_embedding_input_size', 'overview_embedding_threads', 'overview_measure_deep_qc',
         'overview_measure_filter_bank'],
 }
 

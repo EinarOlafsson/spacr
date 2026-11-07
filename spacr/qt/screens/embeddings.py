@@ -439,6 +439,32 @@ class EmbeddingsScreen(QWidget):
             "memory; it changes speed and nothing else.")
         controls.addWidget(self._batch)
 
+        from ...embeddings import _cpu_parallelism
+
+        workers, threads = _cpu_parallelism()
+        controls.addWidget(QLabel(tr("CPU workers:"), self))
+        self._workers = QSpinBox(self)
+        self._workers.setObjectName("EmbeddingsCpuWorkers")
+        self._workers.setRange(0, 64)
+        self._workers.setValue(0)
+        self._workers.setSpecialValueText(tr("Auto"))
+        self._workers.setToolTip(tr(
+            "Processes that embed on the CPU at the same time, each with "
+            "its own copy of the model. Auto uses {workers} on this "
+            "machine. A GPU always runs one.").format(workers=workers))
+        controls.addWidget(self._workers)
+        controls.addWidget(QLabel(tr("Threads:"), self))
+        self._threads = QSpinBox(self)
+        self._threads.setObjectName("EmbeddingsCpuThreads")
+        self._threads.setRange(0, 256)
+        self._threads.setValue(0)
+        self._threads.setSpecialValueText(tr("Auto"))
+        self._threads.setToolTip(tr(
+            "Torch threads per CPU worker. Auto uses {threads} on this "
+            "machine; several small workers usually beat one large one on "
+            "a busy machine.").format(threads=threads))
+        controls.addWidget(self._threads)
+
         self._run = QPushButton("Embed", self)
         self._run.setObjectName("PrimaryButton")
         self._run.setEnabled(False)
@@ -2819,6 +2845,17 @@ class EmbeddingsScreen(QWidget):
             device=device,
         )
 
+    def _cpu_choice(self) -> tuple:
+        """The CPU workers and threads per worker the controls ask for.
+
+        :returns: ``(workers, threads)``, with Auto resolved from the core
+            count.
+        """
+        from ...embeddings import _cpu_parallelism
+
+        return _cpu_parallelism(workers=int(self._workers.value()),
+                                threads=int(self._threads.value()))
+
     def embed(self) -> None:
         """Runs the encoder in the background and shows the result."""
         crops = getattr(self, "_crops", None)
@@ -2849,6 +2886,7 @@ class EmbeddingsScreen(QWidget):
         record = self._scale_record
         generation = self._crop_generation
         identity = self._crop_identity
+        workers, threads = self._cpu_choice()
         self._status.setText(f"Embedding {crops.shape[0]} objects…")
         choose = self._dino_note
 
@@ -2863,7 +2901,8 @@ class EmbeddingsScreen(QWidget):
 
             try:
                 run = choose() if auto else (spec, None)
-                result = _embed_plate(crops, run[0], record=record)
+                result = _embed_plate(crops, run[0], record=record,
+                                      workers=workers, threads=threads)
                 entry = encoder_entry(getattr(result, "spec", None) or run[0])
                 return result, entry, run
             except Exception as exc:

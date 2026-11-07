@@ -147,7 +147,7 @@ def test_an_auto_embedding_says_which_dino_ran_on_the_line_and_the_status(
         name=spec.backbone, sha256=""))
     ran = []
 
-    def encode(crops, spec, *, record):
+    def encode(crops, spec, *, record, **_parallel):
         ran.append(spec.backbone)
         values = crops.mean(axis=(1, 2)).astype(np.float32)
         return embeddings.EmbeddingResult(values, ("emb_0", "emb_1", "emb_2"), spec, 3, 3)

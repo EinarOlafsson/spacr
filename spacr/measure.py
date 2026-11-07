@@ -15515,7 +15515,7 @@ def _image_embedding_vector(text):
     return np.frombuffer(base64.b64decode(text[4:]), dtype='<f2').astype(np.float32)
 
 
-def _image_embedding(planes, backbone='resnet18', size=224, encoder=None, transform=None):
+def _image_embedding(planes, backbone='resnet18', size=224, encoder=None, transform=None, threads=None):
     """Embed one whole image with one of spaCR's embedding encoders.
 
     Each channel is block-averaged so its long side is at most ``size``
@@ -15527,12 +15527,14 @@ def _image_embedding(planes, backbone='resnet18', size=224, encoder=None, transf
     :param transform: ``EmbeddingSpec`` input-transform fields for a timm
         backbone, from ``_image_advanced_options``; ``None`` uses the
         network's pretrained mean, standard deviation and size.
+    :param threads: torch threads to encode with; ``None`` leaves the
+        process's count alone.
     :returns: ``embedding_vector`` (base64 float16 text), its
         ``embedding_dims``, ``embedding_backbone``, ``embedding_fingerprint``
         and the summary columns ``embedding_norm``, ``embedding_mean`` and
         ``embedding_std``.
     """
-    from .embeddings import CHANNEL_PER_CHANNEL, EmbeddingSpec, embed_array
+    from .embeddings import CHANNEL_PER_CHANNEL, EmbeddingSpec, _torch_threads, embed_array
     stack, scales = [], []
     for plane in planes.values():
         values, finite = _image_plane_for_features(plane)
@@ -15544,7 +15546,8 @@ def _image_embedding(planes, backbone='resnet18', size=224, encoder=None, transf
     spec = EmbeddingSpec(backbone=backbone, channel_policy=CHANNEL_PER_CHANNEL,
                          channels=tuple(range(len(stack))), batch_size=1, device='cpu',
                          normalize=True, channel_scale=tuple(scales), **dict(transform or {}))
-    result = embed_array(crops, spec, encoder=encoder if encoder is not None else _image_encoder(backbone, transform))
+    with _torch_threads(threads):
+        result = embed_array(crops, spec, encoder=encoder if encoder is not None else _image_encoder(backbone, transform))
     vector = result.values[0].astype(np.float32)
     return dict(embedding_vector=_image_embedding_text(vector), embedding_dims=int(vector.size),
                 embedding_backbone=str(backbone), embedding_fingerprint=result.spec.fingerprint(),
@@ -15557,8 +15560,10 @@ def _image_advanced_options(settings=None):
 
     :returns: ``{'embedding': bool, 'deep_qc': bool, 'filter_bank': bool,
         'embedding_backbone': str, 'embedding_size': int,
-        'embedding_transform': dict}``; the last holds the
-        ``EmbeddingSpec`` input-transform fields the settings ask for.
+        'embedding_transform': dict, 'embedding_threads': int}``;
+        ``embedding_transform`` holds the ``EmbeddingSpec`` input-transform
+        fields the settings ask for, and ``embedding_threads`` the torch
+        threads per worker (derived from the core count when blank).
     """
     settings = dict(settings or {})
     on = lambda key: settings.get(key, False) not in (False, 0, None, '', 'False', 'false')
@@ -15567,7 +15572,20 @@ def _image_advanced_options(settings=None):
                 filter_bank=on('overview_measure_filter_bank'),
                 embedding_backbone=str(settings.get('overview_embedding_backbone') or 'resnet18'),
                 embedding_size=int(settings.get('overview_embedding_size') or 224),
-                embedding_transform=_image_embedding_transform(settings))
+                embedding_transform=_image_embedding_transform(settings),
+                embedding_threads=_image_embedding_threads(settings))
+
+
+def _image_embedding_threads(settings):
+    """Torch threads per worker for Overview embeddings.
+
+    :param settings: overview settings; a blank value derives the count from
+        the cores.
+    :returns: a positive ``int``.
+    """
+    from .embeddings import _cpu_parallelism
+    value = settings.get('overview_embedding_threads')
+    return _cpu_parallelism(threads=None if value in (None, '') else int(value))[1]
 
 
 def _image_embedding_transform(settings):
@@ -15685,7 +15703,8 @@ def _image_advanced_features(planes, options, *, saturation_levels=None, encoder
             try:
                 record.update(_image_embedding(planes, options.get('embedding_backbone', 'resnet18'),
                                                options.get('embedding_size', 224), encoder=encoder,
-                                               transform=options.get('embedding_transform')))
+                                               transform=options.get('embedding_transform'),
+                                               threads=options.get('embedding_threads')))
                 record['embedding_status'] = 'ok'
             except Exception as error:
                 record['embedding_status'] = f'error: {error}'

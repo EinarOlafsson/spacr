@@ -19620,6 +19620,16 @@ overview_embedding_std
 
 Read by ``_image_embedding_transform``.
 
+.. _setting-flow-overview_embedding_threads:
+
+overview_embedding_threads
+--------------------------
+
+| ``_image_advanced_options``
+|     ``_image_embedding_threads`` **-- reads it**
+
+Read by ``_image_embedding_threads``.
+
 .. _setting-flow-overview_embedding_transform:
 
 overview_embedding_transform

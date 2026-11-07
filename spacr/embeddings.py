@@ -42,6 +42,7 @@ import logging
 import os
 import re
 import stat
+from contextlib import contextmanager
 from dataclasses import dataclass, replace
 from typing import (Any, Callable, Dict, List, Mapping, MutableMapping,
                     Optional, Sequence, Tuple)
@@ -744,7 +745,9 @@ def _embed_plate(crops: Any, spec: Optional[EmbeddingSpec] = None, *,
                  record: Optional[MutableMapping[str, Any]] = None,
                  sample_size: int = _SCALE_SAMPLE_SIZE,
                  seed: int = _SCALE_SEED,
-                 read_batch: int = _SCALE_READ_BATCH) -> EmbeddingResult:
+                 read_batch: int = _SCALE_READ_BATCH,
+                 workers: Optional[int] = 1,
+                 threads: Optional[int] = None) -> EmbeddingResult:
     """Embed one plate's crops under one fixed scale per channel (410).
 
     The scale is estimated ONCE per run, from a random sample of the plate and
@@ -762,7 +765,24 @@ def _embed_plate(crops: Any, spec: Optional[EmbeddingSpec] = None, *,
 
     A spec that already carries ``channel_scale``, or does not normalise, is
     passed through untouched and ``record`` is not written.
+
+    ``workers`` and ``threads`` split CPU encoding across worker processes
+    with that many torch threads each; ``0`` or ``None`` derives either from
+    the core count. One worker and no thread count encodes here, as before.
     """
+    spec = _plate_spec(crops, spec, record=record, sample_size=sample_size,
+                       seed=seed, read_batch=read_batch)
+    if workers == 1 and not threads:
+        return embed_array(crops, spec, encoder=encoder)
+    return _embed_parallel(crops, spec, workers=workers, threads=threads,
+                           encoder=encoder)
+
+
+def _plate_spec(crops: Any, spec: Optional[EmbeddingSpec], *,
+                record: Optional[MutableMapping[str, Any]],
+                sample_size: int, seed: int,
+                read_batch: int) -> EmbeddingSpec:
+    """The spec with the plate's fixed channel scale filled in."""
     spec = spec or EmbeddingSpec()
     if spec.normalize and spec.channel_scale is None:
         shape = tuple(getattr(crops, "shape", ()))
@@ -797,7 +817,7 @@ def _embed_plate(crops: Any, spec: Optional[EmbeddingSpec] = None, *,
                 f"{missing}; that record was made for a different plate")
         spec = replace(spec, channel_scale=tuple(
             recorded[str(c)] for c in channels))
-    return embed_array(crops, spec, encoder=encoder)
+    return spec
 
 
 def embed_array(crops: np.ndarray, spec: Optional[EmbeddingSpec] = None, *,
@@ -879,6 +899,153 @@ def embed_array(crops: np.ndarray, spec: Optional[EmbeddingSpec] = None, *,
     return EmbeddingResult(values=values, columns=columns, spec=spec,
                            n_channels=len(channels),
                            per_channel_dims=per_channel)
+
+
+def _available_cores() -> int:
+    """CPU cores this process may run on."""
+    try:
+        return max(1, len(os.sched_getaffinity(0)))
+    except (AttributeError, OSError):
+        return max(1, int(os.cpu_count() or 1))
+
+
+def _cpu_parallelism(cores: Optional[int] = None, *,
+                     workers: Optional[int] = None,
+                     threads: Optional[int] = None) -> Tuple[int, int]:
+    """Worker processes and torch threads per worker for CPU embedding.
+
+    A busy machine runs several small torch processes faster than one large
+    one: two threads per worker, workers enough for half the cores, at most
+    four (each worker holds its own copy of the model). ``0`` or ``None``
+    asks for that default; any other value is kept.
+
+    :param cores: cores to plan for; ``None`` counts the ones available.
+    :param workers: worker processes, or ``0``/``None`` for the default.
+    :param threads: torch threads per worker, or ``0``/``None`` for the
+        default.
+    :returns: ``(workers, threads)``.
+    :raises EmbeddingError: on a negative count.
+    """
+    for name, value in (("workers", workers), ("threads", threads)):
+        if value is not None and int(value) < 0:
+            raise EmbeddingError(f"{name} must be 0 (automatic) or more")
+    cores = max(1, int(cores or _available_cores()))
+    default_threads = 2 if cores >= 4 else 1
+    default_workers = max(1, min(4, (cores // 2) // default_threads))
+    return (int(workers) if workers else default_workers,
+            int(threads) if threads else default_threads)
+
+
+@contextmanager
+def _torch_threads(threads: Optional[int]):
+    """Run the body with ``threads`` torch threads, then restore the count."""
+    if not threads:
+        yield
+        return
+    import torch
+
+    before = torch.get_num_threads()
+    torch.set_num_threads(int(threads))
+    try:
+        yield
+    finally:
+        torch.set_num_threads(before)
+
+
+_WORKER_ENCODERS: Dict[str, Callable[[np.ndarray], np.ndarray]] = {}
+
+
+def _embedding_worker_start(threads: int) -> None:
+    """Pin a fresh worker process to ``threads`` threads before torch runs."""
+    for name in ("OMP_NUM_THREADS", "MKL_NUM_THREADS",
+                 "OPENBLAS_NUM_THREADS"):
+        os.environ[name] = str(int(threads))
+    import torch
+
+    torch.set_num_threads(int(threads))
+
+
+def _embedding_worker_chunk(chunk: np.ndarray, spec: EmbeddingSpec,
+                            encoder: Optional[Callable[[np.ndarray],
+                                                       np.ndarray]]):
+    """Embed one chunk in a worker; the backbone is loaded once per worker."""
+    if encoder is None:
+        key = spec.fingerprint() + "|" + str(spec.device)
+        if key not in _WORKER_ENCODERS:
+            _WORKER_ENCODERS[key] = _backbone_encoder(spec)
+        encoder = _WORKER_ENCODERS[key]
+    result = embed_array(chunk, spec, encoder=encoder)
+    return result.values, result.columns, result.per_channel_dims
+
+
+def _embed_parallel(crops: Any, spec: EmbeddingSpec, *,
+                    workers: Optional[int] = None,
+                    threads: Optional[int] = None,
+                    encoder: Optional[Callable[[np.ndarray], np.ndarray]] = None,
+                    chunk_size: int = 512) -> EmbeddingResult:
+    """Embed ``crops`` in chunks across CPU worker processes.
+
+    ``crops`` is anything shaped ``(n, height, width, channels)`` that can be
+    sliced -- an ndarray, a memmap, an HDF5 dataset -- and is read
+    ``chunk_size`` crops at a time. The spec must already carry its
+    ``channel_scale`` (or not normalise), so every chunk is scaled alike and
+    the matrix does not depend on how it was split. A device other than the
+    CPU runs here in one process. An injected ``encoder`` must be picklable
+    when more than one worker runs.
+
+    :raises EmbeddingError: when the spec normalises without a scale.
+    """
+    if spec.normalize and spec.channel_scale is None:
+        raise EmbeddingError(
+            "estimate the plate's channel_scale before splitting it across "
+            "workers, so every chunk is scaled alike")
+    shape = tuple(getattr(crops, "shape", ()))
+    if len(shape) != 4 or shape[0] == 0:
+        raise EmbeddingError(
+            f"crops must be a non-empty (n, height, width, channels); got "
+            f"shape {shape}")
+    _encoded_channels(int(shape[3]), spec)
+    if chunk_size < 1:
+        raise EmbeddingError("chunk_size must be at least 1")
+    workers, threads = _cpu_parallelism(workers=workers, threads=threads)
+    if str(_embedding_device(spec.device)).split(":")[0] == "cpu":
+        spec = replace(spec, device="cpu")
+    else:
+        workers, threads = 1, None
+    n = int(shape[0])
+    starts = list(range(0, n, int(chunk_size)))
+    workers = min(workers, len(starts))
+    parts: List[Any] = []
+    if workers <= 1:
+        with _torch_threads(threads):
+            run = encoder if encoder is not None else _backbone_encoder(spec)
+            for start in starts:
+                chunk = np.asarray(crops[start:start + chunk_size])
+                parts.append(_embedding_worker_chunk(chunk, spec, run))
+    else:
+        import multiprocessing
+        from concurrent.futures import ProcessPoolExecutor
+
+        context = multiprocessing.get_context("spawn")
+        with ProcessPoolExecutor(max_workers=workers, mp_context=context,
+                                 initializer=_embedding_worker_start,
+                                 initargs=(threads,)) as pool:
+            pending: List[Any] = []
+            for start in starts:
+                chunk = np.asarray(crops[start:start + chunk_size])
+                pending.append(pool.submit(_embedding_worker_chunk, chunk,
+                                           spec, encoder))
+                while len(pending) - len(parts) > 2 * workers:
+                    parts.append(pending[len(parts)].result())
+            for future in pending[len(parts):]:
+                parts.append(future.result())
+    columns = parts[0][1]
+    if any(part[1] != columns for part in parts):
+        raise EmbeddingError("the chunks were embedded with different columns")
+    values = np.concatenate([part[0] for part in parts], axis=0)
+    return EmbeddingResult(values=values, columns=columns, spec=spec,
+                           n_channels=len(_encoded_channels(int(shape[3]), spec)),
+                           per_channel_dims=parts[0][2])
 
 
 def _embedding_device(requested=None):

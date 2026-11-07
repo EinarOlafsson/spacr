@@ -1005,6 +1005,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'overview_embedding_mean',
     'overview_embedding_size',
     'overview_embedding_std',
+    'overview_embedding_threads',
     'overview_embedding_transform',
     'overview_measure_export_format',
     'overview_normalization_method',

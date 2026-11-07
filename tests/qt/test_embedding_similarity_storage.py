@@ -39,7 +39,7 @@ def screen(qtbot, monkeypatch):
     monkeypatch.setattr(emb, "encoder_entry", lambda spec: SimpleNamespace(
         name=spec.backbone, sha256=""))
 
-    def encode(crops, spec, *, record):
+    def encode(crops, spec, *, record, **_parallel):
         values = crops.mean(axis=(1, 2)).astype(np.float32)
         return emb.EmbeddingResult(values, ("emb_0", "emb_1", "emb_2"),
                                    spec, 3, 3)
