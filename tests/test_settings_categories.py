@@ -360,6 +360,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "well_qc", "well_qc_mad", "well_qc_measures", "object_qc", "object_qc_mad", "object_qc_measures", "qc_group", "outlier_points",
     "outlier_points_method", "representative_crops", "representative_crops_n", "x_axis_style", "condition_factors", "factor_order", "bracket_pairs",
     "max_area_quantile", "bin_labels", "field_qc_min_objects",
+    # Measure: raw or stretched crop intensities (2026-11-07).
+    "crop_intensity",
     # Recruitment: field QC and confounder adjustment.
     "field_qc", "field_qc_mad", "field_qc_min_cells",
     "field_qc_max_pathogens_per_cell", "field_qc_columns",

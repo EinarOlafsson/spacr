@@ -1407,7 +1407,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "save_png", "save_arrays", "crop_mode", "png_size",
             "png_channel_mapping",
             "dialate_pngs", "dialate_png_ratios", "use_bounding_box",
-            "normalize", "normalize_by",
+            "normalize", "normalize_by", "crop_intensity",
         )),
         ("3D Calibration (Beta)", (
             "anisotropy", "voxel_size_z_um", "voxel_size_xy_um",

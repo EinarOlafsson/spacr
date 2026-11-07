@@ -2032,6 +2032,7 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('png_channel_mapping', {'r': 2, 'g': 1, 'b': 0})
     settings.setdefault('normalize',False)
     settings.setdefault('normalize_by','png')
+    settings.setdefault('crop_intensity','auto')
     settings.setdefault('crop_mode',['cell'])
     settings.setdefault('dialate_pngs', False)
     settings.setdefault('dialate_png_ratios', [0.2])
@@ -3849,6 +3850,7 @@ expected_types = {
     "png_channel_mapping": dict,
     "classifier_family": str,
     "normalize_by": str,
+    "crop_intensity": str,
     "save_measurements": bool,
     "uninfected": bool,
     "dialate_pngs": bool,
@@ -5150,6 +5152,7 @@ tooltips = {
     "metadata_type": "(str) - Raw-image filename convention, grouped by microscope vendor. Default 'cellvoyager' (Yokogawa CV7000/CV8000). 'custom' uses custom_regex; 'auto' first renames files to Yokogawa naming, using custom_regex when supplied or automatic detection. Provisional conventions come from public-dataset filenames, not vendor documentation. A wrong choice can misassign plate, well, field or channel IDs and channel folders. Use Test on my folder before running.",
     "n_jobs": "(int) - CPU workers for parallel stages: measurement, mask adjustment, DataLoader loading, and the sklearn/UMAP calls where -1 means every core. Raise it to shorten CPU-bound steps until RAM or disk I/O saturates. Note the measure-and-crop pipeline overrides your value with cpu_count()-4. Defaults vary by pipeline: cpu_count()-4, -1, or None.",
     "ram_guard": "(bool) - Keep worker pools from filling RAM. Before any module starts its workers, spaCR estimates each worker's memory from one input (a field, mask, crop batch or table) and lowers n_jobs to the count that leaves 12.5% of RAM free, printing a warning; the GUI asks first. Off keeps your n_jobs, and Measure fields still wait while free RAM is below that reserve. Default True.",
+    "crop_intensity": "(str) - Intensities written into the crop PNGs. 'raw' keeps the stored values and bit depth, usually uint16, and sets only the pixels outside the object to 0. 'stretch' rescales each crop to its own percentiles, which is what spaCR did before November 2026. 'auto' writes raw crops unless normalize is a [low, high] percentile pair. spaCR's own readers show raw crops with the old stretch, so Annotate, Classify and existing models see the same pixels. Other programs see the raw values, which keep intensity differences between cells. Default 'auto'.",
     "normalize_by": "(str) - Percentile source used to rescale cropped PNGs, and only active when 'normalize' is a [low, high] percentile pair: 'png' stretches each crop to its own percentiles, maximising per-object contrast; 'fov' uses percentiles from the whole field, keeping brightness comparable between objects. Choose 'fov' if crop intensities will be compared. Default 'png'.",
     "nuclei_limit": '(int, bool, or None) - Cap on nuclei per cell, applied when the per-object tables are merged. None disables the filter, True keeps only single-nucleus cells, and an integer N keeps cells with N or fewer. Cells over the cap are dropped from the merged table entirely. Do not pass False: it is interpreted as 0 and removes every cell, leaving an empty analysis rather than raising an error. Default None. Merged Classifier starts at True and Recruitment starts at 1, so both initially retain only single-nucleus cells. Replication starts at 10.',
     "pathogen_limit": "(int, bool, or None) - Maximum pathogens per cell. True or 1 = single pathogen only; None or False = no limit; int = custom limit. Default varies by module (1, 3, 10 or 1000 depending on the factory that fills it), so check the module's own settings rather than assuming one value.",
@@ -6107,7 +6110,7 @@ categories = {
 
     "Illumination Correction": ["illumination_correction", "illumination_model", "illumination_estimator", "illumination_degree", "illumination_dark", "illumination_per_plate", "illumination_max_fields", "illumination_qc", "illumination_on_missing", "illumination_vendor_profile", "illumination_vendor_channel_map"],
 
-    "Object Crops": ["save_png", "crop_mode", "png_size", "png_channel_mapping", "png_dims", "dialate_pngs", "dialate_png_ratios", "use_bounding_box", "normalize_by", "save_arrays", "export_vvvv"],
+    "Object Crops": ["save_png", "crop_mode", "png_size", "png_channel_mapping", "png_dims", "dialate_pngs", "dialate_png_ratios", "use_bounding_box", "normalize_by", "crop_intensity", "save_arrays", "export_vvvv"],
 
     "Plate Layout & Controls": ["plaque_mode", "plaque_well_resize", "plaque_well_resize_side", "plaque_well_resize_max_factor", "figure_detector", "figure_imgsz", "figure_confidence", "figure_read_text", "confirm_annotations", "text_reach_above", "text_reach_left", "text_reach_below", "text_use_above", "text_use_left", "text_use_below", "text_panel_reach", "text_min_confidence", "text_ignore", "text_order", "text_separator", "text_reread", "text_reread_scale", "well_detection", "well_confidence", "well_pad", "plate_format", "well_diameter_mm", "plaque_pixels_per_um", "plaque_formation_hours", "plaque_estimate_growth", "plaque_growth_reference_um", "plaque_growth_reference_hours", "plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control_id", "negative_control_id", "exclude_grnas", "positive_control_wells", "negative_control_wells", "mixed_control_wells", "nontargeting_control_grnas", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "batch_correction", "batch_column", "batch_control_column", "batch_control_values", "batch_covariate_column", "batch_combat_mean_only", "batch_min_samples", "batch_missing_control"],
 

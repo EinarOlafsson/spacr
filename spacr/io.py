@@ -1118,8 +1118,7 @@ class TarImageDataset(Dataset):
         with tarfile.open(self.tar_path, 'r') as f:
             m = self.members[idx]
             img_file = f.extractfile(m)
-            fmt = (self._member_crop_format(m.name)
-                   if self.crop_loading_policy == DECLARED_UINT8 else 1)
+            fmt = self._member_crop_format(m.name)
             img = read_classification_image(BytesIO(img_file.read()),
                                              self.crop_loading_policy, fmt=fmt)
 

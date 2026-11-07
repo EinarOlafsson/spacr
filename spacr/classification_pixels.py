@@ -9,6 +9,8 @@ from PIL import Image, ImageOps
 DECLARED_UINT8 = "declared_uint8_v1"
 STORED_PIL = "stored_pil_v1"
 
+_RAW_FORMAT = 4
+
 
 def validate_policy(policy):
     """Accept only implemented crop decoding policies; never guess a new one.
@@ -65,9 +67,20 @@ def read_classification_image(source, policy=DECLARED_UINT8, *, fmt=None,
         Archive callers must supply a format (1 when unmarked).
     :param legacy_orient: retain the labelled loader's historical EXIF handling.
     :returns: independently owned PIL RGB image with its file handle closed.
+        A raw crop, format 4, is returned with the old per-crop stretch under
+        both policies, so a model sees the pixels it was trained on.
     """
     validate_policy(policy)
     if policy == STORED_PIL:
+        if fmt is None and not hasattr(source, "read"):
+            from .crops import crop_format_for_png
+
+            if crop_format_for_png(source) == _RAW_FORMAT:
+                fmt = _RAW_FORMAT
+        if fmt is not None and int(fmt) == _RAW_FORMAT:
+            from .crops import _read_crop_array, _stretched_view
+
+            return Image.fromarray(_stretched_view(_read_crop_array(source)))
         with Image.open(source) as image:
             if legacy_orient:
                 image = ImageOps.exif_transpose(image)
@@ -84,6 +97,10 @@ def read_classification_image(source, policy=DECLARED_UINT8, *, fmt=None,
             marker = read_crop_folder_marker(parent.parent.parent)
             if marker is not None and marker.get('split') == 'train/test':
                 fmt = marker['spacr_crop_format']
+    if int(fmt) == _RAW_FORMAT:
+        from .crops import _read_crop_array, _stretched_view
+
+        return Image.fromarray(_stretched_view(_read_crop_array(source)))
     with Image.open(source) as image:
         return Image.fromarray(decode_crop_image(image, fmt=fmt, orient=True))
 

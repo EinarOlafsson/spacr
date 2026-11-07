@@ -80,6 +80,9 @@ from .figure_sink import _show_if_interactive
 from math import ceil, sqrt
 
 from .crops import (
+    _CROP_FORMAT_DECLARED_RAW,
+    _resolve_crop_intensity,
+    _stretched_view,
     DEFAULT_MASK_DIMS,
     MASK_PLANE_ORDER,
     build_png_channels,
@@ -3098,7 +3101,24 @@ def _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_
 
     return merged_df
 
-def save_and_add_image_to_grid(png_channels, img_path, grid, plot=False):
+def _crop_marker_extra(settings, flat_fielded):
+    """Marker keys describing how a crop folder was cut.
+
+    :param settings: the Measure settings.
+    :param flat_fielded: whether the crops come from a flat-field corrected field.
+    :returns: ``mask_mode`` and, for corrected crops, ``flat_field_sha256``.
+    """
+    extra = {'mask_mode': 'bounding_box' if settings.get('use_bounding_box') else 'masked'}
+    if flat_fielded:
+        from .illumination import MODEL_ENV_VAR, _file_sha256
+        path = os.environ.get(MODEL_ENV_VAR) or str(settings.get('illumination_model') or '')
+        if path and os.path.isfile(path):
+            extra['flat_field_sha256'] = _file_sha256(path)
+    return extra
+
+
+def save_and_add_image_to_grid(png_channels, img_path, grid, plot=False,
+                               crop_format=None, marker=None):
     """
     Add an image to a grid and save it as PNG.
 
@@ -3127,6 +3147,12 @@ def save_and_add_image_to_grid(png_channels, img_path, grid, plot=False):
             every other dtype is appended unchanged, and a ``uint8`` crop is
             appended by reference, so a caller that reuses its buffer mutates
             what is already in the grid.
+        crop_format (int or None): The crop format recorded in the folder's
+            marker. None records the current stretched format. Format 4 marks
+            a raw crop. Its grid copy is shown with the old per-crop stretch,
+            because the raw values are usually too dim to see.
+        marker (dict or None): Extra keys for the folder's marker, such as
+            ``mask_mode`` and ``flat_field_sha256``.
 
     Returns:
         grid (list): The same object that was passed in, with the crop
@@ -3177,12 +3203,21 @@ def save_and_add_image_to_grid(png_channels, img_path, grid, plot=False):
        returned solid white for any crop brighter than that).
     """
 
-    stamp_crop_folder(os.path.dirname(img_path))
+    if crop_format is None and not marker:
+        stamp_crop_folder(os.path.dirname(img_path))
+    else:
+        from .crops import CROP_FORMAT_CURRENT
+        stamp_crop_folder(
+            os.path.dirname(img_path),
+            int(crop_format) if crop_format is not None else CROP_FORMAT_CURRENT,
+            **(marker or {}))
     cv2.imwrite(img_path, to_cv2_bgr(png_channels))
 
     if plot:
 
-        if png_channels.dtype == np.uint16:
+        if crop_format is not None and int(crop_format) == _CROP_FORMAT_DECLARED_RAW:
+            png_channels = _stretched_view(png_channels)
+        elif png_channels.dtype == np.uint16:
             png_channels = (png_channels / 256).astype(np.uint8)
         
         grid.append(png_channels)
@@ -9020,6 +9055,24 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                     volumetric=volumetric,
                     spacing=spacing))
 
+        crop_source = data
+        if (settings.get('illumination_correction', False)
+                and preprocessing_hooks() and settings.get('save_png')
+                and not volumetric):
+            corrected = channel_arrays
+            if settings.get(_UNMIX_RECORD_KEY):
+                corrected = apply_preprocessing_hooks(
+                    data[..., settings['channels']].astype(data_type),
+                    PreprocessingContext(
+                        file_name=file_name,
+                        channels=settings['channels'],
+                        settings=settings,
+                        volumetric=volumetric,
+                        spacing=spacing))
+            crop_source = np.array(data, copy=True)
+            crop_source[..., settings['channels']] = np.asarray(
+                corrected).astype(crop_source.dtype, copy=False)
+
         if settings.get('psf_measurement_source', 'original') == 'original':
             psf_plan = None
         if psf_plan is None:
@@ -9386,6 +9439,7 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                 f"{file_name}, but spaCR crops 2-D fields only. Measurements "
                 f"were written; no crops were.", settings=settings)
         elif settings['save_png'] or settings['save_arrays'] or settings['plot']:
+            crop_intensity = _resolve_crop_intensity(settings)
             crop_ls = settings['crop_mode']
             if isinstance(crop_ls, str):
                 crop_ls = [crop_ls]
@@ -9473,15 +9527,17 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                         img_paths.append(img_path)
 
                         png_channels = build_png_channels(
-                            data, resolve_png_channel_mapping(settings),
+                            crop_source, resolve_png_channel_mapping(settings),
                             dtype=data_type)
 
-                        if settings['normalize_by'] == 'fov':
+                        if crop_intensity == 'stretch' and settings['normalize_by'] == 'fov':
                             if not settings['normalize'] is False:
                                 percentile_list = _get_percentiles(png_channels, settings['normalize'][0], settings['normalize'][1])
 
                         png_channels = _crop_center(png_channels, region, new_width=width, new_height=height)
-                        if isinstance(settings['normalize'], list):
+                        if crop_intensity == 'raw':
+                            pass
+                        elif isinstance(settings['normalize'], list):
                             if settings['normalize_by'] == 'png':
                                 png_channels = normalize_to_dtype(png_channels, settings['normalize'][0], settings['normalize'][1])
 
@@ -9492,7 +9548,10 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                         os.makedirs(png_folder, exist_ok=True)
 
                         grid = save_and_add_image_to_grid(
-                            png_channels, img_path, grid, settings['plot'])
+                            png_channels, img_path, grid, settings['plot'],
+                            crop_format=(_CROP_FORMAT_DECLARED_RAW
+                                         if crop_intensity == 'raw' else None),
+                            marker=_crop_marker_extra(settings, crop_source is not data))
 
                         if len(img_paths) == len(objects_in_image):
                             filepaths_to_database(img_paths, settings, source_folder, crop_mode)
