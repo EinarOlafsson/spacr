@@ -5568,7 +5568,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("ops_phenotype_path_api_arrivals_2026-11-05.json", 14),
         ("recruitment_confounders_api_arrivals_2026-11-05.json", 6),
         ("assay_panels_api_arrivals_2026-11-06.json", 21),
-        ("assay_report_api_arrivals_2026-11-06.json", 67),
+        ("assay_report_api_arrivals_2026-11-06.json", 69),
         ("crop_window_gpu_governor_api_arrivals_2026-11-06.json", 10),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent

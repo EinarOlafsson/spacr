@@ -2079,7 +2079,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     zoo_arrivals = {**zoo_arrivals, **assay_panels_arrivals}
     assay_report_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "assay_report_api_arrivals_2026-11-06.json").read_text(encoding="utf-8"))
-    assert len(assay_report_arrivals) == 67
+    assert len(assay_report_arrivals) == 69
     assert {key: docs[key] for key in assay_report_arrivals} == assay_report_arrivals
     assert not assay_report_arrivals.keys() & (
         zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
