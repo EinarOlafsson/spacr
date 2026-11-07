@@ -1,7 +1,7 @@
 ONE GPU STAYS BUSY DURING MAKE MASKS
 
 Lifecycle: future
-Status: not started
+Status: DONE 2026-11-07 (alpha) — mask_workers_per_gpu (new on Make Masks, alpha: ALPHA_FEATURES[801], default 1) starts that many mask worker processes per GPU on the item-493 worker path, so one worker loads, normalises, filters and saves while another runs Cellpose; with mask_parallel off it uses the first GPU, so a single-GPU workstation runs it. Workers are named <gpu>.<n> (GPU 0.1, 0.2 in the progress line). Fewer start when the card's memory less gpu_memory_margin_gb cannot hold 5 GB per worker, or gpu_memory_fraction leaves too little; workers sharing a GPU run Cellpose-SAM under the item-803 governor (site mask_shared_gpu). Each GPU's utilisation is sampled through NVML each second while a role segments and reported per plate: a '[gpu] plate <name> <role> masks: GPU 0 with 2 workers busy N% on average, at least 80% in M% of samples' line and gpu_utilisation.json in the plate folder. spacr/_mask_workers.py, spacr/object.py, spacr/settings.py; tests/test_one_gpu_stays_busy_during_make_masks.py (CPU stand-ins, no GPU). The BBBC021 one-plate >80% check waits for a free GPU.
 Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
            (BMC spaCR paper) worked around must become a spaCR item.
 Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/spacr/README.md, "Gaps in spaCR worked around here", gap 8
@@ -43,7 +43,18 @@ without the driver's split.
 DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
 
-Nothing yet.
+- No prefetch queue inside one process: several workers per GPU give the
+  same overlap with the existing worker isolation, resume ledger and
+  progress line, and the generator loop stays as it is.
+- Preprocessing still runs before segmentation within a plate; the workers
+  overlap preparation and post-processing of the mask batches, which is
+  the segmentation stage the acceptance check measures.
+- Timelapse and t_stack runs are refused on the worker path, as for
+  mask_parallel.
+- The 5 GB per-worker budget is the BBBC021 figure for Cellpose-SAM at
+  batch size 8; other backends are budgeted the same.
+- The one-plate BBBC021 GPU-utilisation check has not been run: this
+  machine had no GPU to spare on 2026-11-07.
 
 2026-11-05: renumbered from 766 to 801; nightly already used 755-768 for other items.
 

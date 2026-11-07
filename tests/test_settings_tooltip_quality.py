@@ -1356,6 +1356,17 @@ if app_key == "mask":
         assert resolve_default_settings(app)[key] == {
             "nucleus_min_size": 2000, "pathogen_min_size": 500}[key]
     recognized_arrivals |= size_floor_arrivals
+    # Items 801 and 802: mask_workers_per_gpu ("Default 1.") and
+    # illumination_for_later_masks ("Default False."), resolved by Mask only
+    # (Timelapse hides the first and is not in APPS).
+    shared_gpu_arrivals = {("mask", "mask_workers_per_gpu"),
+                           ("mask", "illumination_for_later_masks")}
+    assert {pair for pair in compared_pairs
+            if pair[1] in {key for _app, key in shared_gpu_arrivals}} == shared_gpu_arrivals
+    assert not shared_gpu_arrivals & (recognized_arrivals | variants.keys())
+    assert resolve_default_settings("mask")["mask_workers_per_gpu"] == 1
+    assert resolve_default_settings("mask")["illumination_for_later_masks"] is False
+    recognized_arrivals |= shared_gpu_arrivals
     assert comparisons - len(recognized_arrivals) == 1004
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))

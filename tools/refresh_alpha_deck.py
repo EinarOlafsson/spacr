@@ -37,6 +37,7 @@ GROUPS = (
         (545, "Masks and ROIs in and out: QuPath, ImageJ, COCO"),
         (558, "Virtual staining from brightfield"),
         (493, "Mask batches across several GPUs"),
+        (801, "Several mask workers keep one GPU busy"),
         (508, "Use Make Masks settings in Mask Generation"),
         (691, "MitoNet: mitochondria in TEM images"),
     )),
@@ -48,6 +49,7 @@ GROUPS = (
         (559, "Deep-learning image QC: focus, debris, empty fields"),
         (557, "Self-supervised denoising (Noise2Void), low-light benchmark"),
         (591, "Illumination, enhancement and PSF settings"),
+        (802, "Segmentation flat field kept for a later masks-only run"),
     )),
     ("Measurements and\nassays", (
         (535, "Cell-cycle phase classification"),
@@ -59,6 +61,7 @@ GROUPS = (
         (791, "Feature QC: flag degenerate columns"),
         (770, "Batch correction: typical variation normalisation"),
         (566, "GPU measurement (cuCIM, CuPy)"),
+        (800, "Measure size filters follow pixel size"),
         (501, "Estimate plaque scale and growth time"),
     )),
     ("Time-lapse", (
@@ -98,6 +101,7 @@ GROUPS = (
         (576, "Postgres or DuckDB / Parquet measurement store"),
         (633, "Test data on seven more modules"),
         (685, "Export masks and objects for vvvv"),
+        (803, "GPU memory governor for shared cards"),
     )),
     ("Reproducibility", (
         (572, "Figure-integrity check"),

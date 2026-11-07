@@ -1348,6 +1348,8 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('adjust_cells', True)
     settings.setdefault('mask_parallel', False)
     settings.setdefault('mask_gpu_indices', '')
+    settings.setdefault('mask_workers_per_gpu', 1)
+    settings.setdefault('illumination_for_later_masks', False)
     settings.setdefault('gpu_memory_fraction', None)
     settings.setdefault('gpu_memory_margin_gb', 1.5)
     settings.setdefault('gpu_adaptive_batch', True)
@@ -3856,6 +3858,8 @@ expected_types = {
     "keep_original_images": bool,
     "mask_parallel": bool,
     "mask_gpu_indices": str,
+    "mask_workers_per_gpu": int,
+    "illumination_for_later_masks": bool,
     "gpu_memory_fraction": (float, int, type(None)),
     "gpu_memory_margin_gb": (float, int),
     "gpu_adaptive_batch": bool,
@@ -5250,6 +5254,8 @@ tooltips = {
     "keep_intermediate": "(bool) - Keep the intermediate stack/ and masks/ folders after the merged/ arrays are built. Off by default: only merged/ is kept (masks are embedded in merged and recorded in the database).",
     "mask_parallel": "(bool) - Segment the prepared cell, nucleus and pathogen batches on several GPUs at once, one model process per GPU. Each batch goes to exactly one GPU, finished batches are kept and a rerun with the same settings resumes the rest. Masks match the single-GPU run. Needs two or more CUDA or ROCm GPUs and the Cellpose backend; not for timelapse or t_stack runs. With adjust_cells, adjusted cells are written to masks/adjusted_cell_mask_stack and the raw cell masks are kept. Default False.",
     "mask_gpu_indices": "(str) - GPUs used when mask_parallel is on, as comma-separated numbers such as 0,1. Blank uses every GPU the process can see, which on a cluster means the GPUs allocated to the job; with fewer than two the run uses one device. Default blank.",
+    "mask_workers_per_gpu": "(int) - How many mask workers share each GPU. Above 1, Make Masks segments the prepared batches in that many processes per GPU, so one worker loads, normalises, filters and saves while another runs Cellpose, and a single GPU stays busy. With mask_parallel off the first GPU is used; with it on, every GPU mask_parallel selects. The workers share the card under the GPU memory governor, and fewer start when the card's memory, less gpu_memory_margin_gb, cannot hold about 5 GB per worker or gpu_memory_fraction leaves too little. The GPU utilisation of each plate is printed and written to gpu_utilisation.json in the plate folder. Not for timelapse or t_stack runs. Default 1.",
+    "illumination_for_later_masks": "(bool) - With illumination_correction on, preprocess on and masks off, still apply the segmentation illumination correction to the prepared mask inputs and save its record in illumination/segmentation_application.json. A later run with preprocess off and masks on (illumination_correction on) then segments the same corrected inputs, so the masks equal those of one combined run. Off, a preprocess-only run leaves the mask inputs uncorrected. Default False.",
     "gpu_memory_fraction": "(float or None) - Hard ceiling on the share of each GPU's memory this run may use, from 0 to 1, applied with PyTorch's per-process memory fraction. 0.25 lets the run take at most a quarter of the card, so several jobs can share it. Blank sets no ceiling and the run sizes its batches to the memory that is free. Default None.",
     "gpu_memory_margin_gb": "(float) - GPU memory, in GB, kept free for other jobs on the card. Before each batch spaCR reads the free GPU memory and, when the batch is estimated not to fit with this much to spare, shrinks the batch or waits for memory to be freed. Default 1.5.",
     "gpu_adaptive_batch": "(bool) - Size GPU batches to the memory that is free on a shared card. Segmentation, measurement, OPS and classifier runs shrink a batch that would not fit, halve it and retry the same item after an out-of-memory error, fall back to the CPU when batch size 1 does not fit, and grow the batch again after clean items; no item is dropped. spaCR processes share a GPU ledger in the user cache folder, so a new job counts what running jobs will take. Counts appear in the run log. Off runs every batch at the requested size. Default True.",
@@ -6272,7 +6278,7 @@ categories = {
         "qc_plot_max_panels",
     ],
 
-    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "annotation_counts", "dry_run", "watch_folder", "watch_pipeline", "watch_normalization_pool", "watch_measure_settings", "watch_classify_settings", "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes", "microscope_feedback", "microscope_driver", "microscope_simulated_folder", "microscope_positions", "microscope_stage_transform", "microscope_event_table", "microscope_event_query", "microscope_max_events", "microscope_timepoints", "microscope_interval_seconds", "cloud_anonymous", "cloud_profile", "cloud_endpoint", "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level", "cloud_results", "verbose", "n_jobs", "ram_guard", "gpu", "mask_parallel", "mask_gpu_indices", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", ],
+    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "annotation_counts", "dry_run", "watch_folder", "watch_pipeline", "watch_normalization_pool", "watch_measure_settings", "watch_classify_settings", "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes", "microscope_feedback", "microscope_driver", "microscope_simulated_folder", "microscope_positions", "microscope_stage_transform", "microscope_event_table", "microscope_event_query", "microscope_max_events", "microscope_timepoints", "microscope_interval_seconds", "cloud_anonymous", "cloud_profile", "cloud_endpoint", "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level", "cloud_results", "verbose", "n_jobs", "ram_guard", "gpu", "mask_parallel", "mask_gpu_indices", "mask_workers_per_gpu", "illumination_for_later_masks", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", ],
 
     "3D Settings (Beta)": [
         "z_stack", "z_segmentation_mode", "z_axis", "z_projection",
@@ -8072,6 +8078,12 @@ ALPHA_FEATURES = {
     800: {
         'module_settings': {app_key: ('pixel_size_um',)
                             for app_key in ('measure', 'external_masks')},
+    },
+    801: {
+        'settings': ('mask_workers_per_gpu',),
+    },
+    802: {
+        'settings': ('illumination_for_later_masks',),
     },
     752: {
         'settings': ('ops_ph_channels', 'ops_ph_cell_channel',
