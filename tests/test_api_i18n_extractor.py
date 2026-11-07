@@ -2088,7 +2088,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     zoo_arrivals = {**zoo_arrivals, **assay_report_arrivals}
     crop_window_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "crop_window_gpu_governor_api_arrivals_2026-11-06.json").read_text(encoding="utf-8"))
-    assert len(crop_window_arrivals) == 11
+    assert len(crop_window_arrivals) == 12
     assert {key: docs[key] for key in crop_window_arrivals} == crop_window_arrivals
     assert not crop_window_arrivals.keys() & (
         zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
