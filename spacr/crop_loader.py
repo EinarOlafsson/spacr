@@ -698,8 +698,40 @@ def _plate_root(db_path: str) -> str:
     return source_root_for_database(db_path) or os.path.dirname(db_path)
 
 
+class _TiffCropSource:
+    """Reads raw TIFF crops as they are stored: any bit depth, any channels.
+
+    A planes-first stack of up to eight planes, ``(C, H, W)``, is turned
+    channels-last; a single plane gains a channel axis. Nothing is
+    stretched or narrowed, so a 16-bit crop reaches the encoder with its own
+    values and is scaled there by the plate's fixed per-channel scale.
+    """
+
+    kind = "tiff"
+
+    def __init__(self, reason: str = ""):
+        """Remember why this source was chosen, for :meth:`describe`."""
+        self.reason = reason
+
+    def get_many(self, rows: Sequence[Any]) -> List[np.ndarray]:
+        """Read one crop per path in ``rows``, in order."""
+        import tifffile
+
+        from ._merge_pairs import _channels_last
+
+        return [_channels_last(tifffile.imread(str(row))) for row in rows]
+
+    def describe(self) -> str:
+        """One line for the status bar."""
+        return f"tiff crop source ({self.reason})" if self.reason else "tiff crop source"
+
+
 def plan_from_folder(query: CropQuery) -> CropPlan:
-    """Choose crops out of a folder of ``*.png``, reading no pixels.
+    """Choose crops out of a folder of ``*.png`` or ``*.tif``, reading no pixels.
+
+    PNGs are read as the 8-bit display crops they are. A folder with no PNG
+    and with ``.tif`` or ``.tiff`` files is read raw: 16-bit and
+    multichannel crops keep their values and every plane.
 
     :param query: what to select. Only ``path`` and ``limit`` apply: a folder
         records no class and no plate, and saying so in
@@ -716,17 +748,23 @@ def plan_from_folder(query: CropQuery) -> CropPlan:
         raise CropLoadError(f"crop folder not found: {folder}")
     query = _replace_path(query, folder)
 
-    names = sorted(entry.name for entry in os.scandir(folder)
-                   if entry.is_file() and not entry.name.startswith(".")
-                   and entry.name.lower().endswith(".png"))
-    if not names:
+    files = [entry.name for entry in os.scandir(folder)
+             if entry.is_file() and not entry.name.startswith(".")]
+    names = sorted(n for n in files if n.lower().endswith(".png"))
+    tiffs = sorted(n for n in files if n.lower().endswith((".tif", ".tiff")))
+    if not names and not tiffs:
         return CropPlan(query=query, empty_reason=_empty_folder_reason(folder))
+    if names:
+        from .crops import PngCropSource
+
+        source = PngCropSource(root=None,
+                               reason=f"the {len(names):,} PNGs in {folder}")
+    else:
+        names = tiffs
+        source = _TiffCropSource(
+            reason=f"the {len(names):,} TIFFs in {folder}, read raw")
     limit = int(query.limit or 0)
     taken = names[:limit] if limit > 0 else names
-    from .crops import PngCropSource
-
-    source = PngCropSource(root=None,
-                           reason=f"the {len(names):,} PNGs in {folder}")
     return CropPlan(query=query,
                     rows=tuple(os.path.join(folder, n) for n in taken),
                     matched=len(names), source_label=source.describe(),
@@ -736,7 +774,7 @@ def plan_from_folder(query: CropQuery) -> CropPlan:
 def _empty_folder_reason(folder: str) -> str:
     """Say whether the folder is empty, or holds something that is not a crop.
 
-    A folder of ``.tif`` is the common miss -- a user points this at the
+    A folder of whole images is the common miss -- a user points this at the
     images rather than at the crops cut from them -- and "no crops here" does
     not tell them that.
     """
@@ -748,13 +786,13 @@ def _empty_folder_reason(folder: str) -> str:
     except OSError as exc:
         raise CropLoadError(f"cannot list crop folder {folder}: {exc}") from exc
     if others:
-        return (f"No crops in {folder}: it holds no .png, only "
+        return (f"No crops in {folder}: it holds no .png or .tif, only "
                 f"{', '.join(others)}. A crop folder is the '*_png' folder "
                 f"under data/, not the images the crops were cut from.")
     subfolders = sorted(entry.name for entry in os.scandir(folder)
                         if entry.is_dir() and not entry.name.startswith("."))
     if subfolders:
-        return (f"No crops in {folder}: it holds no .png, only the folders "
+        return (f"No crops in {folder}: it holds no .png or .tif, only the folders "
                 f"{', '.join(subfolders[:6])}. Choose one of those.")
     return f"No crops in {folder}: the folder is empty."
 

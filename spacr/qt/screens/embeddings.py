@@ -305,9 +305,10 @@ class EmbeddingsScreen(QWidget):
         self._where.setObjectName("EmbeddingsCropSourcePicker")
         for value, label in CROP_SOURCES:
             self._where.addItem(label, value)
-        self._where.setToolTip(
+        self._where.setToolTip(tr(
             "A measurements database lets you choose which objects to embed. "
-            "A crop folder takes every PNG in it.")
+            "A crop folder takes every PNG in it, or, with no PNG, every TIFF, "
+            "read raw: 16-bit values and every channel are kept."))
         self._where.currentIndexChanged.connect(self._on_source_changed)
         picker.addWidget(self._where)
 
@@ -2378,7 +2379,7 @@ class EmbeddingsScreen(QWidget):
             widget.setEnabled(database)
         self._path.setPlaceholderText(
             "path to measurements.db" if database
-            else "path to a folder of crop PNGs")
+            else tr("path to a folder of crop PNGs or TIFFs"))
         self._on_path_changed()
 
     def _on_path_changed(self, *_args) -> None:
@@ -2452,7 +2453,8 @@ class EmbeddingsScreen(QWidget):
                 "SQLite databases (*.db *.sqlite);;Every file (*)")
         else:
             path = QFileDialog.getExistingDirectory(
-                self, "Choose a folder of crop PNGs", self._path.text())
+                self, tr("Choose a folder of crop PNGs or TIFFs"),
+                self._path.text())
         if path:
             self._path.setText(str(path))
             self._on_path_changed()
