@@ -89,6 +89,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_cluster_resolutions": "5,10,12,15,16,17,18,20,22",
     "ops_cluster_seed": 42,
     "ops_consensus_runs": 0,
+    "ops_mitotic_model": None,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -161,6 +162,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_cluster_resolutions": str,
     "ops_cluster_seed": int,
     "ops_consensus_runs": int,
+    "ops_mitotic_model": (str, type(None)),
 }
 
 #: Which panel section each setting appears under.
@@ -206,6 +208,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_benchmark_corum", "ops_benchmark_kegg", "ops_benchmark_string",
         "ops_reference_clusters", "ops_cluster_target",
         "ops_cluster_resolutions", "ops_cluster_seed", "ops_consensus_runs",
+        "ops_mitotic_model",
     ],
 }
 
@@ -590,6 +593,12 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "and a resolution from a sweep. The runs give how often two genes "
         "share a cluster. 0 skips it; 100 takes about half an hour per "
         "plate. Default 0. Alpha.",
+    "ops_mitotic_model":
+        "(str or None) - A mitotic-cell classifier trained on labelled cells "
+        "with spacr.ops_mitotic.train_mitotic_classifier. When set it calls "
+        "mitotic cells instead of the DNA rule of ops_mitotic_dna_z. The "
+        "file can run code when it is opened, so use only models you "
+        "trained or trust. Default None. Alpha.",
     "ops_mitotic_dna_z":
         "(float) - A cell is called mitotic when its nuclear mean DAPI "
         "intensity is this many robust standard deviations above its well's "

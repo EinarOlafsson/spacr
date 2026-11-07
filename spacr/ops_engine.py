@@ -3234,7 +3234,9 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     ``ops_genes_<plate>[tag]_tvn``; the robust z tables are still written,
     because the per-gene test needs named features. ``ops_cluster_benchmark``
     clusters the TVN profiles (or the robust z ones without TVN) and scores
-    them (:mod:`spacr.ops_clusters`).
+    them (:mod:`spacr.ops_clusters`), and ``ops_mitotic_model`` calls
+    mitotic cells with a trained classifier (:mod:`spacr.ops_mitotic`)
+    instead of the DNA rule.
     """
     import pandas as pd
     import pyarrow.parquet as pq
@@ -3306,6 +3308,19 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
                            and c.endswith("mean_intensity")), "")
     mitotic_inputs = [c for c in (dna_column, "nucleus_area")
                       if c and c in columns]
+    mitotic_model = None
+    if settings.get("ops_mitotic_model"):
+        from .ops_mitotic import load_mitotic_classifier
+        mitotic_model = load_mitotic_classifier(str(settings["ops_mitotic_model"]))
+        needed = [*mitotic_model["features"], mitotic_model.get("normalise_by")]
+        absent_model = [c for c in needed if c and c not in columns]
+        if absent_model:
+            raise ValueError(tr(
+                "ops_mitotic_model needs columns {absent} that the cell tables "
+                "do not have", absent=absent_model))
+        extra = [c for c in needed
+                 if c and c not in ("well", "site", "label")]
+        mitotic_inputs = list(dict.fromkeys([*mitotic_inputs, *extra]))
     cells = _ph_read_columns(sources, ["well", "site", "label",
                                        *mitotic_inputs])
     cells["_row"] = np.arange(len(cells))
@@ -3378,7 +3393,28 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
 
         cells[dna_column] = correct_features(
             cells, cells, [dna_column], flat_offsets)[dna_column].to_numpy()
-    if dna_column and "nucleus_area" in cells:
+    if mitotic_model is not None:
+        from .ops_mitotic import predict_mitotic
+        model_cells = cells
+        if gain_columns:
+            # the classifier sees flat-field-corrected features, as the
+            # rule and the pooled tables do
+            from .ops_flatfield import correct_features, correction_inputs
+            model_features = list(mitotic_model["features"])
+            needed = [c for c in correction_inputs(model_features,
+                                                   list(flat_offsets))
+                      if c not in cells]
+            model_cells = cells.reset_index(drop=True)
+            if needed:
+                extra_inputs = _ph_read_columns(sources, needed).iloc[
+                    cells["_row"].to_numpy()].reset_index(drop=True)
+                model_cells = pd.concat([model_cells, extra_inputs], axis=1)
+            corrected = correct_features(model_cells, model_cells,
+                                         model_features, flat_offsets)
+            model_cells = model_cells.copy()
+            model_cells[model_features] = corrected.to_numpy()
+        cells["mitotic"] = predict_mitotic(mitotic_model, model_cells).to_numpy()
+    elif dna_column and "nucleus_area" in cells:
         cells["mitotic"] = mitotic_calls(cells, dna=dna_column,
                                          area="nucleus_area", dna_z=mitotic_z)
     else:
@@ -3540,7 +3576,11 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         "ambiguous_prefixes": ambiguous, "features": len(features),
         "features_dropped": degenerate,
         "mitotic_rule": {"dna": dna_column, "dna_z": mitotic_z,
-                         "area": "nucleus_area", "area_z": 0.0},
+                         "area": "nucleus_area", "area_z": 0.0}
+        if mitotic_model is None else {
+            "classifier": str(settings["ops_mitotic_model"]),
+            "features": len(mitotic_model["features"]),
+            "validation": mitotic_model.get("summary")},
         "ownership": ownership_counts or {"rule": ownership},
         "flatfield": flat_record or {"mode": flatfield},
         "flatfield_flagged_features": flagged,

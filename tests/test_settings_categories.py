@@ -525,6 +525,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_cluster_benchmark", "ops_benchmark_corum", "ops_benchmark_kegg",
     "ops_benchmark_string", "ops_reference_clusters", "ops_cluster_target",
     "ops_cluster_resolutions", "ops_cluster_seed", "ops_consensus_runs",
+    # A trained mitotic classifier (item 856, 2026-11-07).
+    "ops_mitotic_model",
     # `window_length`, the new name for `expected_end` (364, 2026-09-09).
     "window_length",
     # and `min_observations_per_hit`, the new name for `min_n`.

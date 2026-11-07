@@ -8197,7 +8197,7 @@ ALPHA_FEATURES = {
                      'ops_benchmark_kegg', 'ops_benchmark_string',
                      'ops_reference_clusters', 'ops_cluster_target',
                      'ops_cluster_resolutions', 'ops_cluster_seed',
-                     'ops_consensus_runs',
+                     'ops_consensus_runs', 'ops_mitotic_model',
                      'ops_mitotic_dna_z', 'ops_cell_rule', 'ops_crosstalk',
                      'ops_channel_registration', 'ops_single_read_quality',
                      'ops_read_mismatches', 'ops_min_reads',

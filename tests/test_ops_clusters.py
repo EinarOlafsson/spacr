@@ -18,7 +18,6 @@ from statsmodels.stats.multitest import multipletests
 
 from spacr import ops_clusters as oc
 
-
 # --- the pilot's code, verbatim -------------------------------------------
 
 def _ref_group_enrichment(groups, genes, clusters, restrict=True, ctrl="nontargeting"):

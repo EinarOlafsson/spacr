@@ -1,0 +1,405 @@
+"""A trained mitotic-cell classifier for optical pooled screens.
+
+:func:`spacr.gene_measurement_compare.mitotic_calls` calls a cell mitotic
+with a fixed rule on nuclear DNA intensity and area. On plate A of Funk et
+al. 2022 the per-gene mitotic index from that rule correlates with Funk et
+al.'s at Spearman rho = 0.32 only. Funk et al. trained a classifier on DNA and
+tubulin features instead; this module does the same with labelled cells.
+
+* :func:`read_mitotic_labels` reads a labelled-cell table (optionally
+  through a separate crop-to-cell mapping, so labellers stay blind to well
+  and gene) and turns its stages into mitotic calls.
+* :func:`mitotic_features` picks the DNA (nuclear) and tubulin (cell and
+  cytoplasm) features from a cell table.
+* :func:`train_mitotic_classifier` fits a gradient-boosting classifier on
+  labelled cells and reports grouped cross-validation, with folds split by
+  well or field so that cells of one image never sit on both sides, and a
+  shuffled-label control that shows what chance scores.
+* :func:`predict_mitotic` calls new cells; :func:`save_mitotic_classifier`
+  and :func:`load_mitotic_classifier` keep a trained model on disk, and the
+  OPS aggregate phase uses it through ``ops_mitotic_model``.
+* :func:`mitotic_index_agreement` compares per-gene mitotic indices with a
+  reference, such as Funk et al.'s published table, with a shuffled control.
+
+Everything runs on the CPU. The labels must come from the user: a set of
+cells annotated mitotic or not. spaCR does not ship labels or a trained
+model, and it does not make labels from the rule, because a classifier
+trained on the rule's calls can only learn the rule.
+"""
+from __future__ import annotations
+
+from typing import Any, Dict, List, Mapping, Optional, Sequence
+
+import numpy as np
+import pandas as pd
+
+#: The metrics every fold reports.
+FOLD_METRICS = ("accuracy", "balanced_accuracy", "precision", "recall", "f1",
+                "roc_auc", "average_precision")
+
+#: Label classes that count as mitotic, after :func:`_normalise_class`.
+MITOTIC_CLASSES = ("prophase-prometaphase", "prophase", "prometaphase", "metaphase",
+                   "anaphase-telophase", "anaphase", "telophase", "mitotic", "mitosis")
+
+#: Label classes that count as not mitotic.
+INTERPHASE_CLASSES = ("interphase", "not mitotic", "non-mitotic", "nonmitotic")
+
+#: Label classes left out of training: crops that show no usable cell.
+EXCLUDED_CLASSES = ("artefact", "artifact", "unclear", "skip")
+
+#: The cell key a label table is joined on.
+CELL_KEY = ("plate", "well", "site", "label")
+
+#: The format marker of a saved classifier.
+MODEL_FORMAT = "spacr-ops-mitotic-classifier-1"
+
+
+def _normalise_class(value: Any) -> str:
+    """A label class in lower case, with ``_`` and ``/`` read as ``-``."""
+    text = str(value).strip().lower().replace("_", "-").replace("/", "-")
+    return " ".join(text.split())
+
+
+def read_mitotic_labels(labels: Any, mapping: Any = None, *, class_column: Optional[str] = None,
+                        id_column: Optional[str] = None) -> pd.DataFrame:
+    """Read a table of labelled cells and turn the classes into mitotic calls.
+
+    :param labels: a CSV path or a frame with one row per labelled cell and
+        a class column: ``interphase``, ``prophase-prometaphase``,
+        ``metaphase``, ``anaphase-telophase`` or ``artefact`` (case, ``_``
+        and ``/`` do not matter).
+    :param mapping: when ``labels`` names crops rather than cells, a CSV path
+        or frame that maps each crop to its cell: the shared id column plus
+        ``plate, well, site, label``. Keeping it separate lets the labellers
+        work blind to well and gene.
+    :param class_column: the class column; found among ``class``,
+        ``stage``, ``phase``, ``annotation``, ``call`` and ``label_class``
+        when None, or ``label`` when the table has no cell key.
+    :param id_column: the column shared by ``labels`` and ``mapping``; the
+        one column both have, other than the class, when None.
+    :returns: ``plate, well, site, label, stage, mitotic``: one row per
+        labelled cell, artefacts left out, ``stage`` the normalised class
+        and ``mitotic`` True for the three mitotic stages.
+    :raises ValueError: for a class that is none of the known ones, a cell
+        labelled twice with different classes, or a missing column.
+    """
+    table = pd.read_csv(labels) if isinstance(labels, (str, bytes)) or hasattr(
+        labels, "__fspath__") else pd.DataFrame(labels).copy()
+    has_key = all(c in table for c in CELL_KEY)
+    if class_column is None:
+        options = ["class", "stage", "phase", "annotation", "call", "label_class"]
+        if not has_key:
+            options.append("label")
+        class_column = next((c for c in options if c in table), None)
+        if class_column is None:
+            raise ValueError(f"no class column in the label table; looked for {options}")
+    table = table.rename(columns={class_column: "_class"})
+    if mapping is not None:
+        cells = pd.read_csv(mapping) if isinstance(mapping, (str, bytes)) or hasattr(
+            mapping, "__fspath__") else pd.DataFrame(mapping).copy()
+        missing = [c for c in CELL_KEY if c not in cells]
+        if missing:
+            raise ValueError(f"the mapping lacks the cell key columns {missing}")
+        if id_column is None:
+            shared = [c for c in table.columns if c in cells.columns and c not in CELL_KEY]
+            if len(shared) != 1:
+                raise ValueError(f"cannot tell the id column shared by labels and mapping; "
+                                 f"candidates {shared}; pass id_column")
+            id_column = shared[0]
+        table = table[[id_column, "_class"]].merge(
+            cells[[id_column, *CELL_KEY]], on=id_column, how="left", validate="many_to_one")
+        unmapped = int(table["plate"].isna().sum())
+        if unmapped:
+            raise ValueError(f"{unmapped} labelled crops have no row in the mapping")
+    elif not has_key:
+        raise ValueError(f"the label table needs {list(CELL_KEY)} or a mapping")
+    table["stage"] = table["_class"].map(_normalise_class)
+    known = set(MITOTIC_CLASSES) | set(INTERPHASE_CLASSES) | set(EXCLUDED_CLASSES)
+    unknown = sorted(set(table["stage"]) - known)
+    if unknown:
+        raise ValueError(f"unknown label classes {unknown}")
+    table = table[~table["stage"].isin(EXCLUDED_CLASSES)]
+    table["mitotic"] = table["stage"].isin(MITOTIC_CLASSES)
+    keyed = table[[*CELL_KEY, "stage", "mitotic"]].drop_duplicates()
+    clash = keyed.duplicated(list(CELL_KEY), keep=False)
+    if clash.any():
+        raise ValueError(f"{int(clash.sum())} rows label the same cell with different classes")
+    return keyed.reset_index(drop=True)
+
+
+def mitotic_features(columns: Sequence[str], *, dna: str = "dapi",
+                     tubulin: Optional[str] = "gfp") -> List[str]:
+    """The DNA and tubulin features a mitotic classifier is trained on.
+
+    :param columns: the cell table's columns.
+    :param dna: the DNA channel name in the column names.
+    :param tubulin: the tubulin channel name, or None to use DNA only.
+    :returns: in table order, every nuclear shape feature, every
+        ``nucleus_<dna>_*`` and ``cell_<dna>_*`` feature and, with a tubulin
+        channel, every ``cell_<tubulin>_*`` and ``cytoplasm_<tubulin>_*``
+        feature.
+    """
+    import re
+
+    dna = dna.lower()
+    prefixes = [f"nucleus_{dna}_", f"cell_{dna}_"]
+    if tubulin:
+        prefixes += [f"cell_{tubulin.lower()}_", f"cytoplasm_{tubulin.lower()}_"]
+    names = [str(c).lower() for c in columns]
+    channels = {m.group(1) for m in (re.match(r"^(?:cell|nucleus|cytoplasm)_([a-z0-9]+)_"
+                                              r"mean_intensity$", n) for n in names) if m}
+    out = []
+    for column, name in zip(columns, names):
+        if name.startswith(tuple(prefixes)):
+            out.append(column)
+        elif name.startswith("nucleus_") and name.split("_")[1] not in channels:
+            out.append(column)
+    return out
+
+
+def _well_robust_z(cells: pd.DataFrame, features: Sequence[str],
+                   group: Optional[str]) -> np.ndarray:
+    """Every feature as a robust z against all cells of its group."""
+    x = cells[list(features)].to_numpy(np.float64)
+    if group is None:
+        groups = np.zeros(len(cells), int)
+    else:
+        groups = pd.factorize(cells[group])[0]
+    out = np.full_like(x, np.nan)
+    for g in np.unique(groups):
+        rows = groups == g
+        block = x[rows]
+        median = np.nanmedian(block, axis=0)
+        mad = 1.4826 * np.nanmedian(np.abs(block - median), axis=0)
+        mad = np.where(mad > 0, mad, np.nan)
+        out[rows] = (block - median) / mad
+    return out
+
+
+def _model(kind: str, seed: int):
+    """The classifier named ``kind``."""
+    if kind == "hist_gradient_boosting":
+        from sklearn.ensemble import HistGradientBoostingClassifier
+
+        return HistGradientBoostingClassifier(max_iter=300, learning_rate=0.1,
+                                              class_weight="balanced", random_state=seed)
+    if kind == "logistic":
+        from sklearn.impute import SimpleImputer
+        from sklearn.linear_model import LogisticRegression
+        from sklearn.pipeline import make_pipeline
+        from sklearn.preprocessing import StandardScaler
+
+        return make_pipeline(SimpleImputer(strategy="median"), StandardScaler(),
+                             LogisticRegression(max_iter=2000, class_weight="balanced"))
+    raise ValueError(f"model must be 'hist_gradient_boosting' or 'logistic'; got {kind!r}")
+
+
+def _fold_scores(truth: np.ndarray, probability: np.ndarray, threshold: float) -> Dict[str, float]:
+    """The :data:`FOLD_METRICS` of one fold."""
+    from sklearn import metrics
+
+    called = probability >= threshold
+    two = len(np.unique(truth)) == 2
+    return {
+        "accuracy": float(metrics.accuracy_score(truth, called)),
+        "balanced_accuracy": float(metrics.balanced_accuracy_score(truth, called)),
+        "precision": float(metrics.precision_score(truth, called, zero_division=0)),
+        "recall": float(metrics.recall_score(truth, called, zero_division=0)),
+        "f1": float(metrics.f1_score(truth, called, zero_division=0)),
+        "roc_auc": float(metrics.roc_auc_score(truth, probability)) if two else float("nan"),
+        "average_precision": float(metrics.average_precision_score(truth, probability))
+        if two else float("nan"),
+    }
+
+
+def _cross_validate(x, y, groups, kind, n_splits, seed, threshold):
+    """Grouped cross-validation: per-fold scores and out-of-fold probabilities."""
+    from sklearn.model_selection import GroupKFold
+
+    folds = GroupKFold(n_splits=n_splits)
+    probability = np.full(len(y), np.nan)
+    rows = []
+    for k, (train, test) in enumerate(folds.split(x, y, groups)):
+        if len(np.unique(y[train])) < 2:
+            raise ValueError(f"fold {k} has only one class in its training cells; "
+                             "label more cells or use fewer folds")
+        model = _model(kind, seed).fit(x[train], y[train])
+        probability[test] = model.predict_proba(x[test])[:, 1]
+        rows.append({"fold": k, "test_cells": int(len(test)),
+                     "test_mitotic": int(y[test].sum()),
+                     "test_groups": int(len(np.unique(groups[test]))),
+                     **_fold_scores(y[test], probability[test], threshold)})
+    return pd.DataFrame(rows), probability
+
+
+def train_mitotic_classifier(cells: pd.DataFrame, labels: Sequence[bool],
+                             features: Optional[Sequence[str]] = None, *,
+                             groups: Optional[Sequence[Any]] = None,
+                             normalise_by: Optional[str] = "well",
+                             model: str = "hist_gradient_boosting", n_splits: int = 5,
+                             seed: int = 0, threshold: float = 0.5,
+                             shuffled_control: bool = True) -> Dict[str, Any]:
+    """Train a mitotic classifier and validate it with grouped cross-validation.
+
+    :param cells: one row per labelled cell, with the feature columns and the
+        ``normalise_by`` column.
+    :param labels: True for a mitotic cell, one per row of ``cells``.
+    :param features: the columns to learn from; :func:`mitotic_features`
+        of the table's columns when None.
+    :param groups: the cross-validation groups, one per cell: the well, or
+        the field (well and site). Cells of one group are always in the same
+        fold. Required: a random split puts neighbours from the same image
+        on both sides and overstates the accuracy.
+    :param normalise_by: every feature is first made a robust z against all
+        cells of this column's groups (the well), so the model travels
+        between wells and plates; None uses the raw values.
+    :param model: ``'hist_gradient_boosting'`` (the default) or
+        ``'logistic'``, a simpler baseline.
+    :param n_splits: the number of folds; at most the number of groups.
+    :param seed: the model seed and the label-shuffle seed.
+    :param threshold: the probability above which a cell is called mitotic.
+    :param shuffled_control: also cross-validate on labels shuffled within
+        each group, which keeps every group's mitotic share. Its scores are
+        what a model that learnt nothing achieves.
+    :returns: the trained bundle: ``model`` (fitted on every labelled cell),
+        ``features``, ``normalise_by``, ``threshold``, ``folds`` (one row
+        per fold), ``summary`` (mean and spread of every metric, the control
+        and the label counts) and ``out_of_fold`` (each cell's held-out
+        probability). Save it with :func:`save_mitotic_classifier`.
+    :raises ValueError: for mismatched lengths, missing groups, one class
+        only, or fewer groups than folds.
+    """
+    y = np.asarray(labels, bool)
+    if len(y) != len(cells):
+        raise ValueError(f"labels has {len(y)} entries for {len(cells)} cells")
+    if groups is None:
+        raise ValueError("groups is required: pass the well or field of every cell, so "
+                         "cross-validation never splits one image between folds")
+    groups = np.asarray(groups)
+    if len(groups) != len(cells):
+        raise ValueError(f"groups has {len(groups)} entries for {len(cells)} cells")
+    if len(np.unique(y)) < 2:
+        raise ValueError("labels must contain both mitotic and non-mitotic cells")
+    if len(np.unique(groups)) < n_splits:
+        raise ValueError(f"{len(np.unique(groups))} groups cannot make {n_splits} folds")
+    features = list(features) if features is not None else mitotic_features(cells.columns)
+    if not features:
+        raise ValueError("no features to learn from; pass features explicitly")
+    if normalise_by is not None and normalise_by not in cells:
+        raise ValueError(f"normalise_by column {normalise_by!r} is not in the cell table")
+    x = _well_robust_z(cells, features, normalise_by)
+    folds, probability = _cross_validate(x, y, groups, model, n_splits, seed, threshold)
+    summary: Dict[str, Any] = {"cells": int(len(y)), "mitotic": int(y.sum()),
+                               "groups": int(len(np.unique(groups))), "folds": int(n_splits),
+                               "model": model, "features": len(features)}
+    for metric in FOLD_METRICS:
+        summary[metric] = float(folds[metric].mean())
+        summary[f"{metric}_sd"] = float(folds[metric].std(ddof=1)) if len(folds) > 1 else 0.0
+    summary["majority_class_accuracy"] = float(max(y.mean(), 1 - y.mean()))
+    if shuffled_control:
+        rng = np.random.default_rng(seed)
+        shuffled = y.copy()
+        for g in np.unique(groups):
+            rows = np.flatnonzero(groups == g)
+            shuffled[rows] = rng.permutation(shuffled[rows])
+        control, _ = _cross_validate(x, shuffled, groups, model, n_splits, seed, threshold)
+        for metric in FOLD_METRICS:
+            summary[f"shuffled_{metric}"] = float(control[metric].mean())
+    fitted = _model(model, seed).fit(x, y)
+    return {"format": MODEL_FORMAT, "model": fitted, "features": features,
+            "normalise_by": normalise_by, "threshold": float(threshold), "folds": folds,
+            "summary": summary, "out_of_fold": probability}
+
+
+def predict_mitotic(bundle: Mapping[str, Any], cells: pd.DataFrame, *,
+                    probability: bool = False) -> pd.Series:
+    """Call cells mitotic with a trained classifier.
+
+    :param bundle: :func:`train_mitotic_classifier` or
+        :func:`load_mitotic_classifier` output.
+    :param cells: one row per cell with the model's features and its
+        ``normalise_by`` column.
+    :param probability: return the probability instead of the call.
+    :returns: a Series over ``cells``: booleans, or probabilities.
+    :raises ValueError: when the table lacks a feature the model needs.
+    """
+    missing = [c for c in bundle["features"] if c not in cells]
+    group = bundle.get("normalise_by")
+    if group is not None and group not in cells:
+        missing.append(group)
+    if missing:
+        raise ValueError(f"the cell table lacks columns the mitotic model needs: {missing}")
+    x = _well_robust_z(cells, bundle["features"], group)
+    p = bundle["model"].predict_proba(x)[:, 1] if len(x) else np.zeros(0)
+    if probability:
+        return pd.Series(p, index=cells.index, name="mitotic_probability")
+    return pd.Series(p >= float(bundle["threshold"]), index=cells.index, name="mitotic")
+
+
+def save_mitotic_classifier(bundle: Mapping[str, Any], path: str) -> str:
+    """Write a trained classifier to ``path`` (joblib).
+
+    :param bundle: :func:`train_mitotic_classifier` output.
+    :param path: the file to write.
+    :returns: ``path``.
+    """
+    import joblib
+
+    keep = {k: bundle[k] for k in ("format", "model", "features", "normalise_by",
+                                   "threshold", "summary")}
+    keep["folds"] = bundle["folds"].to_dict("records")
+    joblib.dump(keep, path)
+    return path
+
+
+def load_mitotic_classifier(path: str) -> Dict[str, Any]:
+    """Read a classifier written by :func:`save_mitotic_classifier`.
+
+    :param path: the file.
+    :returns: the bundle :func:`predict_mitotic` takes.
+    :raises ValueError: when the file is not a spaCR mitotic classifier.
+
+    A joblib file can run code when it is loaded, like any pickle; load only
+    classifiers you trained or trust.
+    """
+    import joblib
+
+    bundle = joblib.load(path)
+    if not isinstance(bundle, dict) or bundle.get("format") != MODEL_FORMAT:
+        raise ValueError(f"{path} is not a spaCR mitotic classifier")
+    return bundle
+
+
+def mitotic_index_agreement(genes: pd.DataFrame, reference: pd.DataFrame, *,
+                            min_cells: Sequence[int] = (50, 100, 200, 500),
+                            shuffles: int = 200, seed: int = 2) -> pd.DataFrame:
+    """Spearman correlation of per-gene mitotic indices with a reference.
+
+    :param genes: ``gene, n_cells, mitotic_index`` (the all-cell gene table).
+    :param reference: ``gene, mitotic_index`` rows, such as Funk et al.'s;
+        indices above 1 are dropped as damaged rows.
+    :param min_cells: the cell-count floors to report.
+    :param shuffles: the shuffled-index draws of the control.
+    :param seed: the shuffle seed.
+    :returns: one row per floor: ``min_cells, genes, spearman,
+        shuffled_mean, shuffled_p95_abs``.
+    """
+    from scipy.stats import spearmanr
+
+    ref = reference[reference["mitotic_index"].notna() & (reference["mitotic_index"] <= 1)]
+    merged = genes.merge(ref[["gene", "mitotic_index"]], on="gene", suffixes=("", "_reference"))
+    rows = []
+    for floor in min_cells:
+        sub = merged[merged["n_cells"] >= floor]
+        if len(sub) < 10:
+            continue
+        rho = spearmanr(sub["mitotic_index"], sub["mitotic_index_reference"]).correlation
+        rng = np.random.default_rng(seed)
+        null = [spearmanr(rng.permutation(sub["mitotic_index"].to_numpy()),
+                          sub["mitotic_index_reference"]).correlation for _ in range(shuffles)]
+        rows.append({"min_cells": int(floor), "genes": int(len(sub)), "spearman": float(rho),
+                     "shuffled_mean": float(np.mean(null)) if null else float("nan"),
+                     "shuffled_p95_abs": float(np.percentile(np.abs(null), 95))
+                     if null else float("nan")})
+    return pd.DataFrame(rows, columns=["min_cells", "genes", "spearman", "shuffled_mean",
+                                       "shuffled_p95_abs"])
