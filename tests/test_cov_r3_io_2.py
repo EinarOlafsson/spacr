@@ -704,12 +704,12 @@ def test_an_empty_stack_says_which_of_two_mistakes_was_made(tmp_path,
     assert 'plate1' in message and 'plate2' in message
     assert 'point src at one of them' in message
 
-    # An UPPERCASE extension: the organiser matches extensions case
-    # sensitively, so the image is still sitting in src when this is raised.
+    # A name the CellVoyager pattern does not match: the organiser leaves it,
+    # so the image is still sitting in src when this is raised. (An upper-case
+    # .TIF used to stand in here; item 827 now matches extensions in any case.)
     plate = tmp_path / 'plate1'
     plate.mkdir()
-    tifffile.imwrite(str(plate / 'PLATE1_A01_T0001F001L01A01Z01C01.TIF'),
-                     np.ones((8, 8), np.uint16))
+    tifffile.imwrite(str(plate / 'scan_0001.tif'), np.ones((8, 8), np.uint16))
     with pytest.raises(FileNotFoundError) as unmatched:
         preprocess_img_data(_pre_settings(plate))
     message = str(unmatched.value)
