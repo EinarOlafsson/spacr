@@ -1337,7 +1337,6 @@ def aggregate_genes(guides: pd.DataFrame, features: Sequence[str]
     return out.reset_index()
 
 
-# The nulls bootstrap_gene_pvalues can test against.
 _GENE_PVALUE_NULLS: Tuple[str, ...] = ("calibrated", "cell_bootstrap")
 
 

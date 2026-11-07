@@ -2595,8 +2595,6 @@ def _ph_feature_columns(columns) -> List[str]:
 #: took 46 GB at once and about 8 GB in blocks of 48.
 _PH_POOL_BLOCK = 48
 
-# Why a feature's control cells have no spread, by feature family. These
-# reasons are written into the feature QC table the aggregate phase writes.
 _PH_DEGENERATE_CAUSES = (
     ("distance_to_nucleus",
      "the intensity centre of mass of most cells lies inside the nucleus, "
@@ -2836,10 +2834,6 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
             if name not in columns and not name.startswith("__index_level_"):
                 columns.append(name)
     features = _ph_feature_columns(columns)
-    # A frame whose columns are all float32 has float32 control medians,
-    # and a frame with any other column has float64 ones. A block of
-    # float32 columns from a mixed table therefore carries one float64
-    # column, so its z scores are the ones the whole table gives.
     single = all(str(schema.field(name).type) == "float"
                  for schema in schemas for name in features
                  if name in schema.names)
