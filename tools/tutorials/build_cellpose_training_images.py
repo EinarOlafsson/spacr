@@ -20,6 +20,8 @@ import zipfile
 
 import numpy as np
 
+from tutorial_media import media_source
+
 REPO = Path(__file__).resolve().parents[2]
 TARGET = REPO / 'docs/source/_extra/tutorials/examples/Cellpose_training_images_masks.zip'
 SOURCE = Path('/mnt/firecuda2/Claude/toxoplasma_projects/test_datasets/spacr/tutorials/merged')
@@ -76,9 +78,10 @@ def tiff_bytes(image):
     return buffer.getvalue()
 
 
-def build(output, source=TARGET):
+def build(output, source=None):
     """Write the extended example to ``output``; ``source`` is only read."""
     import tifffile
+    source = media_source(TARGET) if source is None else source
     output = Path(output)
     if output.exists():
         raise FileExistsError('Choose a new output path for the extended example')

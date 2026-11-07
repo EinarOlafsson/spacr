@@ -10,6 +10,7 @@ from build_evaluation_example import sha
 from compose_report_capture import _frame, _read
 from power_evidence import check_curves
 from power_review import review_baselines
+from tutorial_media import media_target
 from stage_lesson import DEFAULT_STAGE, REPO, write
 
 APPLICATION_FILES = ('spacr/qt/screens/power.py', 'spacr/qt/widgets/power_design.py',
@@ -69,7 +70,7 @@ def prepare():
     contents={'README.txt':(Path(__file__).parent/'power_README.txt').read_bytes(),
               'recorded_simulation_result.json':(source/'simulation_result.json').read_bytes()}
     contents['review.json']=(json.dumps(review,indent=2)+'\n').encode()
-    target=REPO/'docs/source/_extra/tutorials/examples/Power_recorded_simulation_review.zip'
+    target=media_target(REPO/'docs/source/_extra/tutorials/examples/Power_recorded_simulation_review.zip')
     if target.exists():raise FileExistsError('Preserve existing download')
     with zipfile.ZipFile(target,'w',compression=zipfile.ZIP_DEFLATED) as archive:
         for name,data in contents.items():

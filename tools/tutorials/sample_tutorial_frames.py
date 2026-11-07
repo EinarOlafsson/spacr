@@ -27,6 +27,8 @@ from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from tutorial_media import media_source  # noqa: E402
 PUBLISHED = REPO / 'docs/source/_extra/tutorials'
 
 # Matched against OCR text with whitespace removed and lower-cased. The second
@@ -111,6 +113,18 @@ def lifted(image):
     return np.stack([lift] * 3, axis=-1)
 
 
+def _served(path):
+    """The local copy of ``path`` to read; tutorial media may be staged or pinned.
+
+    :param path: a file in the repository tree.
+    :returns: the file to read, or ``path`` itself when it is not downloaded.
+    """
+    try:
+        return media_source(path)
+    except FileNotFoundError:
+        return Path(path)
+
+
 def catalog_items(published=PUBLISHED):
     """(lesson, poster, streamed video) for every playable published lesson."""
     source = (published / 'lesson_catalog.js').read_text(encoding='utf-8')
@@ -125,8 +139,8 @@ def catalog_items(published=PUBLISHED):
         if web_root and lesson.get('web'):
             video, source_kind = f"{web_root}/{lesson['web']}", 'hosted_web_copy'
         else:
-            video, source_kind = str(published / 'production' / lesson['silent']), 'pages_video'
-        items.append({'lesson': lesson['id'], 'poster': str(published / 'production' / lesson['poster']),
+            video, source_kind = str(_served(published / 'production' / lesson['silent'])), 'pages_video'
+        items.append({'lesson': lesson['id'], 'poster': str(_served(published / 'production' / lesson['poster'])),
                       'video': video, 'video_source': source_kind})
     return items
 

@@ -27,8 +27,21 @@ sys.path[:0] = [str(_ROOT), str(_ROOT / 'tools'), str(Path(__file__).resolve().p
 
 from playwright.sync_api import sync_playwright
 from stage_lesson import DEFAULT_STAGE, REPO, read, write
+from tutorial_media import media_source
 
 WORKSPACE = DEFAULT_STAGE.parent
+
+
+def _served(path):
+    """The local copy of ``path`` to read; tutorial media may be staged or pinned.
+
+    :param path: a file in the repository tree.
+    :returns: the file to read, or ``path`` itself when it is not downloaded.
+    """
+    try:
+        return media_source(path)
+    except FileNotFoundError:
+        return Path(path)
 
 
 def staged_idle_binding(lesson, master, timing_path, policy, *, required=False):
@@ -366,7 +379,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         if candidate.is_relative_to(player):
             if candidate == player / 'app_v2.js' and self.player_source is not None:
                 return str(self.player_source)
-            return str(REPO / 'docs/source/_extra/tutorials' / candidate.relative_to(player))
+            return str(_served(REPO / 'docs/source/_extra/tutorials' / candidate.relative_to(player)))
         staged_media = DEFAULT_STAGE / 'production'
         if self.web_lesson:
             relative = Path(self.web_lesson) / 'video' / f'{self.web_lesson}_silent.mp4'
@@ -374,7 +387,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                 return str(DEFAULT_STAGE / 'web-renditions' / relative)
         if candidate.is_relative_to(staged_media) and not candidate.is_file():
             return str(WORKSPACE / 'production' / candidate.relative_to(staged_media))
-        return str(candidate)
+        return str(_served(candidate))
 
     def send_head(self):
         # Match the production host's byte-range contract. Without it Chrome
@@ -603,7 +616,7 @@ def main(argv=None):
                 response = context.request.get(base + '/web/' + link.get_attribute('href'))
                 assert response.ok
                 digest = hashlib.sha256(response.body()).hexdigest()
-                expected = REPO / 'docs/source/_extra/tutorials/examples' / name
+                expected = media_source(REPO / 'docs/source/_extra/tutorials/examples' / name)
                 assert digest == hashlib.sha256(expected.read_bytes()).hexdigest()
                 evidence['example_files'].append({'name': name, 'sha256': digest})
             try:

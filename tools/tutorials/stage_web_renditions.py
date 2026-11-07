@@ -18,6 +18,7 @@ import time
 
 from check_completed_matrix import digest
 from stage_lesson import DEFAULT_STAGE, REPO, read, write
+from tutorial_media import media_source
 
 WEB_DIMENSIONS = (2560, 1440)
 # The long pathway overviews are Home/module navigation tours. Their 1080p web
@@ -94,7 +95,7 @@ def stage_one(stage, item, publisher):
     encoder_hash = digest(Path(publisher.__file__))
     arguments = publisher.ENCODE_ARGS if retained else encoder_arguments(publisher, lesson)
     published_source = REPO / 'docs/source/_extra/tutorials/production' / lesson / 'video' / master.name
-    retained_hash = digest(published_source) if retained else None
+    retained_hash = digest(media_source(published_source)) if retained else None
     if receipt.exists() and target.exists():
         old = read(receipt)
         if (old.get('accepted') is True and old.get('master_sha256') == expected

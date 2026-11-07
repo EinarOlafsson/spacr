@@ -4,6 +4,7 @@ from pathlib import Path
 import zipfile
 
 from build_evaluation_example import sha
+from tutorial_media import media_target
 from stage_lesson import DEFAULT_STAGE, REPO, read
 
 
@@ -24,7 +25,7 @@ def build():
         manifest['images'].append(dict(file=source.name,sha256=value))
     if len(manifest['images'])!=3:raise ValueError('Expected exactly three actual images')
     contents['source_manifest.json']=(json.dumps(manifest,indent=2)+'\n').encode()
-    target=REPO/'docs/source/_extra/tutorials/examples/Apply_Cellpose_stock_example.zip'
+    target=media_target(REPO/'docs/source/_extra/tutorials/examples/Apply_Cellpose_stock_example.zip')
     if target.exists():raise FileExistsError('Preserve the previous bundle')
     with zipfile.ZipFile(target,'w',compression=zipfile.ZIP_DEFLATED) as archive:
         for name,data in contents.items():

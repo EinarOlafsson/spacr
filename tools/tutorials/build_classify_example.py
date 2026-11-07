@@ -3,6 +3,7 @@ import hashlib
 from pathlib import Path
 import zipfile
 
+from tutorial_media import media_target
 from stage_lesson import REPO, read
 
 
@@ -12,7 +13,7 @@ def build():
     helper = root / 'prepare_classify_split.py'
     if hashlib.sha256(helper.read_bytes()).hexdigest() != receipt['tools']['tools/tutorials/prepare_classify_split.py']:
         raise ValueError('The downloadable helper must be the exact recorded source')
-    target = REPO / 'docs/source/_extra/tutorials/examples/Classify_existing_split_example.zip'
+    target = media_target(REPO / 'docs/source/_extra/tutorials/examples/Classify_existing_split_example.zip')
     contents = {'prepare_classify_split.py': helper.read_bytes(),
                 'README.txt': (root / 'classify_existing_split_README.txt').read_bytes()}
     target.parent.mkdir(parents=True, exist_ok=True)

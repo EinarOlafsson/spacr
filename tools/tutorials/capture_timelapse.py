@@ -24,6 +24,7 @@ import numpy as np
 
 from capture_acceptance import assess_pipeline
 from timelapse_evidence import verify_tracks, verify_worker_passes
+from tutorial_media import media_source
 
 REPO = Path(__file__).resolve().parents[2]
 ARCHIVE = REPO / 'docs/source/_extra/tutorials/examples/SYNTHETIC_timelapse_preview.zip'
@@ -39,13 +40,14 @@ def extract_example(stage):
     if root.exists():
         raise FileExistsError('Use a fresh stage for the Timelapse example')
     root.mkdir(parents=True)
-    with zipfile.ZipFile(ARCHIVE) as archive:
+    archive_path = media_source(ARCHIVE)
+    with zipfile.ZipFile(archive_path) as archive:
         for name in archive.namelist():
             if name.startswith('/') or '..' in Path(name).parts:
                 raise ValueError('Unsafe archive member')
         archive.extractall(root)
     folder = root / 'SYNTHETIC_timelapse_preview'
-    return folder, {'archive_sha256': digest(ARCHIVE), 'archive_bytes': ARCHIVE.stat().st_size,
+    return folder, {'archive_sha256': digest(archive_path), 'archive_bytes': archive_path.stat().st_size,
                     'members': sorted(str(p.relative_to(folder)) for p in folder.rglob('*') if p.is_file())}
 
 

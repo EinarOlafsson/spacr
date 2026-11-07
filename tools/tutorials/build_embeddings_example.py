@@ -4,6 +4,7 @@ import argparse
 import zipfile
 
 from embeddings_example import digest
+from tutorial_media import media_target
 from stage_lesson import DEFAULT_STAGE, REPO, read
 
 
@@ -23,7 +24,7 @@ def build(proof_path=None):
     helper = root / 'embeddings_example.py'
     if proof.get('accepted') is not True or proof.get('helper_sha256') != digest(helper):
         raise ValueError('Only the exact successfully recorded helper can be packaged')
-    target = REPO / 'docs/source/_extra/tutorials/examples/Embeddings_API_example.zip'
+    target = media_target(REPO / 'docs/source/_extra/tutorials/examples/Embeddings_API_example.zip')
     sources = {'embeddings_example.py': helper, 'README.txt': root / 'embeddings_README.txt'}
     with zipfile.ZipFile(target, 'w', compression=zipfile.ZIP_DEFLATED) as archive:
         for name, path in sources.items():

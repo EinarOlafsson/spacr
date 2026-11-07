@@ -3,6 +3,7 @@ import hashlib
 from pathlib import Path
 import zipfile
 
+from tutorial_media import media_target
 from stage_lesson import DEFAULT_STAGE, REPO, read
 
 
@@ -24,7 +25,7 @@ def build():
         contents['data/'+path.relative_to(source).as_posix()]=data
     if len(contents)!=16:
         raise ValueError('Expected twelve TIFFs, manifest, recorded settings, helper and README')
-    target=REPO/'docs/source/_extra/tutorials/examples/Train_Cellpose_API_example.zip'
+    target=media_target(REPO/'docs/source/_extra/tutorials/examples/Train_Cellpose_API_example.zip')
     if target.exists():raise FileExistsError('Preserve the existing training bundle')
     with zipfile.ZipFile(target,'w',compression=zipfile.ZIP_DEFLATED) as archive:
         for name,data in contents.items():

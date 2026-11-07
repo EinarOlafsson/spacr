@@ -20,6 +20,7 @@ from build_navigation import build as navigation
 from check_completed_matrix import digest, voice_matrix
 from coming_soon import EMBEDDINGS, OPS, HELD, release_catalog
 from stage_lesson import DEFAULT_STAGE, REPO, read, write
+from tutorial_media import media_source, staging_tree
 from native_live_timing import checked_native_timing
 from verify_library_checkpoint import verify
 
@@ -33,6 +34,35 @@ def require_web_receipt(identity, receipt, browser, actual_hash):
             or browser.get('lesson') != identity or browser.get('passed') is not True
             or browser.get('checked_web_rendition', {}).get('sha256') != actual_hash):
         raise ValueError(f'Stale or failed web-copy evidence: {identity}')
+
+
+def _published_files(published, name):
+    """Every file of a published folder, wherever it is kept.
+
+    Tutorial media folders are listed from the repository, the staging
+    mirror and the media pin together, so an example that is only pinned
+    is still copied.
+
+    :param published: the published tutorial library folder.
+    :param name: the folder inside it, such as ``examples``.
+    :returns: the files' paths relative to ``published``, sorted.
+    """
+    folder = published / name
+    found = {path.relative_to(folder) for path in folder.rglob('*') if path.is_file()}
+    try:
+        prefix = folder.resolve().relative_to(REPO).as_posix() + '/'
+    except ValueError:
+        prefix = None
+    if prefix is not None:
+        mirror = staging_tree() / prefix
+        found |= {path.relative_to(mirror) for path in mirror.rglob('*') if path.is_file()}
+        pin = REPO / 'docs' / 'media_revision.json'
+        if pin.is_file():
+            groups = json.loads(pin.read_text(encoding='utf-8')).get('groups', {})
+            for group in groups.values():
+                found |= {Path(path[len(prefix):]) for path in group.get('files', {})
+                          if path.startswith(prefix)}
+    return [Path(name) / relative for relative in sorted(found)]
 
 
 def copy_checked(source, target, records, root, expected=None):
@@ -195,9 +225,8 @@ def build(stage=DEFAULT_STAGE, *, baseline=None, model_promotions=(), barcode_pr
     for name in ('voice_catalog.js', 'logo_spacr.png', 'favicon.svg', 'TUTORIAL_MEDIA_NOTICE.md'):
         copy_checked(published / name, web / name, records, root)
     for name in ('fonts', 'examples'):
-        for source in sorted((published / name).rglob('*')):
-            if source.is_file():
-                copy_checked(source, web / source.relative_to(published), records, root)
+        for relative in _published_files(published, name):
+            copy_checked(media_source(published / relative), web / relative, records, root)
     # Relative roots make this an offline preview. Deployment must explicitly
     # replace them with an immutable uploaded media revision after the hold.
     index = (web / 'index.html').read_text(encoding="utf-8")

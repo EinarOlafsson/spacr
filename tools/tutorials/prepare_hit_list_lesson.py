@@ -5,6 +5,7 @@ import zipfile
 from build_evaluation_example import sha
 from hit_list_evidence import expected_hits, filtered, check_rows, read_rows
 from hit_list_exports import check_markdown, check_html
+from tutorial_media import media_target
 from stage_lesson import DEFAULT_STAGE, REPO, read, write
 
 
@@ -44,7 +45,7 @@ def prepare():
     contents['source_manifest.json'] = (json.dumps(dict(original_sha256=proof['private_input_hashes'],
         original_results=True, companion_launcher_sha256=companion['launcher_sha256'],
         recorded_export_filters=proof['export_filters'], native_shortcut_fixed=False), indent=2)+'\n').encode()
-    target = REPO / 'docs/source/_extra/tutorials/examples/Hit_List_real_results_companion.zip'
+    target = media_target(REPO / 'docs/source/_extra/tutorials/examples/Hit_List_real_results_companion.zip')
     if target.exists(): raise FileExistsError('Preserve existing tutorial bundle')
     with zipfile.ZipFile(target, 'w', compression=zipfile.ZIP_DEFLATED) as archive:
         for name, data_bytes in contents.items():

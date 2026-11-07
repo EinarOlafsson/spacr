@@ -13,6 +13,7 @@ from pathlib import Path
 from build_release_candidate import copy_checked
 from check_completed_matrix import digest
 from stage_lesson import REPO, read, write
+from tutorial_media import is_media, media_target, staging_tree
 from validate_candidate import validate
 
 
@@ -25,6 +26,7 @@ def checkpoint(root, *, include_web_media=False):
     # existence alone is not evidence that all current routes were exercised.
     validate(root, include_hosted_media=True, require_browser=True)
     target = REPO / 'tools/tutorials/release_candidate'
+    staged = staging_tree() / target.relative_to(REPO)
     previous = target / 'checkpoint.json'
     previous_records = read(previous)['files'] if previous.exists() else []
     include_web_media = include_web_media or (previous.exists() and read(previous).get('web_media_in_git', False))
@@ -36,7 +38,10 @@ def checkpoint(root, *, include_web_media=False):
         if relative.parts[0] != 'web':
             continue
         if include_web_media or relative.parts[1] == 'catalog' or relative.name in selected:
-            copy_checked(root / relative, target / relative, copied, target, record['sha256'])
+            if is_media(target / relative):
+                copy_checked(root / relative, media_target(target / relative), copied, staged, record['sha256'])
+            else:
+                copy_checked(root / relative, target / relative, copied, target, record['sha256'])
     copy_checked(root / 'release-manifest.json', target / 'release-manifest.json', copied, target)
     checks = root / 'checks/candidate-browser-checks.json'
     if checks.exists():
@@ -67,7 +72,7 @@ def checkpoint(root, *, include_web_media=False):
         if (relative.parts and relative.parts[0] == 'web'
                 and not relative.is_absolute() and '..' not in relative.parts
                 and record['path'] not in selected_paths):
-            stale = target / relative
+            stale = media_target(target / relative) if is_media(target / relative) else target / relative
             if stale.is_file() and digest(stale) == record['sha256']:
                 stale.unlink()
     write(target / 'checkpoint.json', {'private_candidate': str(root),

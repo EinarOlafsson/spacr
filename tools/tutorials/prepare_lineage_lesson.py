@@ -8,6 +8,7 @@ import zipfile
 from build_evaluation_example import sha
 from compose_report_capture import _read, _frame
 from lineage_evidence import read_expected, verify_forest
+from tutorial_media import media_target
 from stage_lesson import DEFAULT_STAGE, REPO, write
 
 
@@ -64,7 +65,7 @@ def prepare():
         child_crop_fallback_fixed=False,biological_validation=False,published=False)
     write(target/'scientific_acceptance.json',receipt)
     write(REPO/'tools/tutorials/evidence/2026-09-11_lineage_critical_review_verification.json',receipt)
-    destination=REPO/'docs/source/_extra/tutorials/examples/Lineage_real_containment_review.zip'
+    destination=media_target(REPO/'docs/source/_extra/tutorials/examples/Lineage_real_containment_review.zip')
     if destination.exists():raise FileExistsError('Preserve existing evidence archive')
     entries={'README.txt':Path(__file__).with_name('lineage_README.txt').read_bytes(),
              'lineage_api_export.csv':export.read_bytes(),

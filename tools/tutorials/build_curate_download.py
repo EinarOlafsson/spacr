@@ -6,6 +6,7 @@ import zipfile
 import numpy as np
 import tifffile
 from build_evaluation_example import sha
+from tutorial_media import media_target
 from stage_lesson import DEFAULT_STAGE,REPO,read
 
 
@@ -25,7 +26,7 @@ def build():
     contents.update({'README.txt':(root/'curate_README.txt').read_bytes(),
         'curate_checkpoint.py':(root/'curate_checkpoint.py').read_bytes(),
         'source_manifest.json':(json.dumps(dict(synthetic=True,original_sha256=sources,label_plane=2),indent=2)+'\n').encode()})
-    target=REPO/'docs/source/_extra/tutorials/examples/Curate_SYNTHETIC_practice.zip'
+    target=media_target(REPO/'docs/source/_extra/tutorials/examples/Curate_SYNTHETIC_practice.zip')
     if target.exists():raise FileExistsError('Preserve previous bundle')
     with zipfile.ZipFile(target,'w',compression=zipfile.ZIP_DEFLATED) as archive:
         for name,data in contents.items():

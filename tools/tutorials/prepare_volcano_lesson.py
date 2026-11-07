@@ -7,6 +7,7 @@ import subprocess
 import zipfile
 from build_evaluation_example import sha
 from compose_report_capture import _frame,_read
+from tutorial_media import media_target
 from stage_lesson import DEFAULT_STAGE,REPO,read,write
 from volcano_evidence import read_family
 
@@ -61,7 +62,7 @@ def prepare(stage=DEFAULT_STAGE):
     for name in proof['private_input_hashes']:contents['results/'+name]=(data/name).read_bytes()
     for name in ('baseline_style.json','volcano_style.json'):contents[name]=(work/name).read_bytes()
     contents['source_manifest.json']=(json.dumps(dict(source_sha256=proof['private_input_hashes'],family=family),indent=2)+'\n').encode()
-    target=REPO/'docs/source/_extra/tutorials/examples/Volcano_real_guide_family.zip'
+    target=media_target(REPO/'docs/source/_extra/tutorials/examples/Volcano_real_guide_family.zip')
     if target.exists():raise FileExistsError('Preserve previous download bundle')
     with zipfile.ZipFile(target,'w',compression=zipfile.ZIP_DEFLATED) as archive:
         for name,value in contents.items():

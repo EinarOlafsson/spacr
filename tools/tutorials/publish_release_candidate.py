@@ -43,6 +43,7 @@ import time
 
 from check_completed_matrix import digest
 from build_release_candidate import copy_checked
+from tutorial_media import media_target
 from append_staged_lessons import parse_javascript
 from stage_lesson import REPO, read, write
 from validate_candidate import validate
@@ -362,8 +363,8 @@ def drop_superseded_web_copies(pages_root, manifest):
         parts = Path(record['path']).parts
         if len(parts) == 4 and parts[0] == 'media_host' and parts[2] == 'web':
             relative = Path('production') / parts[1] / 'video' / parts[3]
-            if (pages_root / relative).is_file():
-                (pages_root / relative).unlink()
+            if media_target(pages_root / relative).is_file():
+                media_target(pages_root / relative).unlink()
                 removed.append(relative.as_posix())
     return removed
 
@@ -384,7 +385,7 @@ def retire_withdrawn_pages(root, pages_root, manifest):
     if archive.is_symlink():
         raise ValueError('Refusing to archive redirected lessons through a symlink')
     for identity in withdrawn:
-        source = pages_root / 'production' / identity
+        source = media_target(pages_root / 'production' / identity)
         backup = archive / identity
         if source.is_symlink() or backup.is_symlink():
             raise ValueError('Refusing to archive a redirected lesson through a symlink')
@@ -433,10 +434,10 @@ def pages(root, key):
             continue
         if relative.startswith('production/') and relative.split('/')[1] in ARCHIVED_IDS:
             continue
-        source, target = root / 'web' / relative, PAGES / relative
+        source, target = root / 'web' / relative, media_target(PAGES / relative)
         if digest(source) != record['sha256']:
             raise SystemExit(f'Candidate file changed: {relative}')
-        copy_checked(source, target, [], PAGES, record['sha256'])
+        copy_checked(source, target, [], target.parent, record['sha256'])
         if digest(target) != record['sha256']:
             raise SystemExit(f'Copy differs: {relative}')
         written.append(relative)

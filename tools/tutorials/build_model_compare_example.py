@@ -5,6 +5,7 @@ import zipfile
 
 from model_compare_example import EXPECTED
 from ops_geometry_example import digest
+from tutorial_media import media_target
 from stage_lesson import DEFAULT_STAGE, REPO, read
 
 
@@ -16,7 +17,7 @@ def build():
         raise ValueError('Require the exact successful recorded API helper')
     if capture['run']['sources'] != EXPECTED or capture['run']['accuracy_validated'] is not False:
         raise ValueError('Require real saved-mask provenance without an accuracy claim')
-    target = REPO / 'docs/source/_extra/tutorials/examples/Model_Compare_saved_masks_example.zip'
+    target = media_target(REPO / 'docs/source/_extra/tutorials/examples/Model_Compare_saved_masks_example.zip')
     if target.exists():
         raise FileExistsError('Preserve the existing example bundle')
     content = {'model_compare_example.py': helper.read_bytes(),

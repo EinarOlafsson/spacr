@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import zipfile
 from build_evaluation_example import sha
+from tutorial_media import media_target
 from stage_lesson import DEFAULT_STAGE,REPO,read
 
 
@@ -21,7 +22,7 @@ def build():
         note=json.loads(transported['extra_json'])['tutorial_relocation']
         records.append(dict(original=original,original_registry_sha256=note['original_registry_sha256']))
     contents['source_records.json']=(json.dumps(dict(records=records),indent=2)+'\n').encode()
-    target=REPO/'docs/source/_extra/tutorials/examples/Run_Compare_real_snapshots.zip'
+    target=media_target(REPO/'docs/source/_extra/tutorials/examples/Run_Compare_real_snapshots.zip')
     if target.exists():raise FileExistsError('Preserve the previous bundle')
     with zipfile.ZipFile(target,'w',compression=zipfile.ZIP_DEFLATED) as archive:
         for name,data in contents.items():

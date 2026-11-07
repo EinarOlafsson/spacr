@@ -3,6 +3,7 @@ import json
 from pathlib import Path
 import zipfile
 from build_evaluation_example import sha
+from tutorial_media import media_target
 from stage_lesson import DEFAULT_STAGE, REPO, read, write
 
 
@@ -20,7 +21,7 @@ def package(capture_name='graph_native_review_v2'):
     manifest = dict(database_sha256=sha(database), database_bytes=database.stat().st_size,
                     native_verification=proof, provenance=provenance,
                     native_chart_export=False, synthetic_data=False, published=False)
-    target = REPO/'docs/source/_extra/tutorials/examples/Graph_Builder_real_measurements.zip'
+    target = media_target(REPO/'docs/source/_extra/tutorials/examples/Graph_Builder_real_measurements.zip')
     if target.exists():
         raise FileExistsError('Preserve existing downloadable evidence')
     entries = {'measurements.db':database.read_bytes(),

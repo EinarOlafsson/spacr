@@ -39,6 +39,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+from tutorial_media import media_target  # noqa: E402
+
 ROOT = Path(__file__).resolve().parents[1]
 WEB = ROOT / "web"
 PRODUCTION = ROOT / "production"
@@ -298,11 +301,10 @@ def main() -> int:
         if not master.is_file():
             print(f"  skip {lesson.name}: no master")
             continue
-        target = DESTINATION / "production" / lesson.name / "video" / master.name
+        target = media_target(DESTINATION / "production" / lesson.name / "video" / master.name)
         poster = lesson / "poster.jpg"
         if poster.is_file():
-            target.parent.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(poster, target.parent.parent / "poster.jpg")
+            shutil.copy2(poster, media_target(DESTINATION / "production" / lesson.name / "poster.jpg"))
 
         fingerprint = _fingerprint(master)
         if (manifest.get(lesson.name) == fingerprint and target.is_file()

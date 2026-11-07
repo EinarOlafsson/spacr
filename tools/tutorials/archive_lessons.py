@@ -40,6 +40,7 @@ HERE = Path(__file__).resolve().parent
 REPO = HERE.parents[1]
 sys.path.insert(0, str(HERE))
 import archived  # noqa: E402
+from tutorial_media import staging_tree  # noqa: E402
 
 #: The deployed library. ``tools/tutorials/release_candidate/web`` is a
 #: recorded publication checkpoint whose manifest hashes its files, so it
@@ -398,20 +399,16 @@ def _git(*args) -> str:
 def _move_posters(identity: str, forward: bool, apply: bool) -> list[str]:
     moved = []
     for key, tree in TREES.items():
-        live = tree / 'production' / identity
-        kept = archived.ARCHIVE_DIR / 'production' / key / identity
+        staged = staging_tree()
+        live = staged / (tree / 'production' / identity).relative_to(REPO)
+        kept = staged / (archived.ARCHIVE_DIR / 'production' / key / identity).relative_to(REPO)
         source, target = (live, kept) if forward else (kept, live)
         if not source.is_dir():
             continue
-        moved.append(f'{source.relative_to(REPO)} -> {target.relative_to(REPO)}')
+        moved.append(f'{source.relative_to(staged)} -> {target.relative_to(staged)}')
         if apply:
             target.parent.mkdir(parents=True, exist_ok=True)
-            tracked = subprocess.run(['git', 'ls-files', '--error-unmatch', str(source)],
-                                     cwd=REPO, capture_output=True).returncode == 0
-            if tracked:
-                subprocess.check_call(['git', 'mv', str(source), str(target)], cwd=REPO)
-            else:
-                source.rename(target)
+            source.rename(target)
     return moved
 
 

@@ -3,6 +3,7 @@ import hashlib
 from pathlib import Path
 import zipfile
 
+from tutorial_media import media_target
 from stage_lesson import REPO, read
 
 
@@ -12,7 +13,7 @@ def build():
     helper = root / 'export_mask_overlays.py'
     if hashlib.sha256(helper.read_bytes()).hexdigest() != receipt['helper_sha256']:
         raise ValueError('Download source must exactly match the recorded command')
-    target = REPO / 'docs/source/_extra/tutorials/examples/Mask_overlay_API_workaround.zip'
+    target = media_target(REPO / 'docs/source/_extra/tutorials/examples/Mask_overlay_API_workaround.zip')
     contents = {'export_mask_overlays.py': helper.read_bytes(),
                 'README.txt': (root / 'mask_overlay_README.txt').read_bytes()}
     target.parent.mkdir(parents=True, exist_ok=True)
