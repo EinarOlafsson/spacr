@@ -49,16 +49,19 @@ from spacr.regex_infer import (_METADATA_CONVENTIONS, _metadata_autodetect,
 
 #: The four arms `_get_regex` shipped before instruction 441, exactly as they
 #: were, for `img_format='tif'`. Copied from the source at 03cfdbf02.
+#: Item 827 (2026-11-06) is the one deliberate change: the extension is
+#: matched without regard to case, ``.(?i:tif)``, so upper-case .TIF files
+#: are no longer dropped. Everything else is as it was.
 ORIGINAL_PATTERNS = {
     "cellvoyager": (
         "(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)"
-        "L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*).tif"),
+        "L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*).(?i:tif)"),
     "cq1": (
         "W(?P<wellID>.*)F(?P<fieldID>.*)T(?P<timeID>.*)Z(?P<sliceID>.*)"
-        "C(?P<chanID>.*).tif"),
+        "C(?P<chanID>.*).(?i:tif)"),
     "auto": (
         "(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)"
-        "L(?P<laserID>.*)C(?P<chanID>.*).tif"),
+        "L(?P<laserID>.*)C(?P<chanID>.*).(?i:tif)"),
 }
 
 #: The only pair of conventions allowed to claim the same filename, and the
@@ -97,8 +100,8 @@ def test_the_custom_arm_still_wraps_the_users_expression_the_same_way():
     from spacr.utils import _get_regex
 
     assert _get_regex("custom", "tif", r"(?P<wellID>[A-H]\d\d)") == (
-        r"((?P<wellID>[A-H]\d\d)).tif")
-    assert _get_regex("custom", "tif") == "(None).tif"
+        r"((?P<wellID>[A-H]\d\d)).(?i:tif)")
+    assert _get_regex("custom", "tif") == "(None).(?i:tif)"
 
 
 def test_the_image_format_is_interpolated_exactly_as_it_always_was():
@@ -111,10 +114,10 @@ def test_the_image_format_is_interpolated_exactly_as_it_always_was():
     """
     from spacr.utils import _get_regex
 
-    assert _get_regex("cq1", None).endswith(".tif")
-    assert _get_regex("cq1", ".tif").endswith("C(?P<chanID>.*)..tif")
-    assert _get_regex("cellvoyager", "png").endswith(".png")
-    assert _get_regex("auto", "png").endswith(".tif")
+    assert _get_regex("cq1", None).endswith(".(?i:tif)")
+    assert _get_regex("cq1", ".tif").endswith("C(?P<chanID>.*).(?i:.tif)")
+    assert _get_regex("cellvoyager", "png").endswith(".(?i:png)")
+    assert _get_regex("auto", "png").endswith(".(?i:tif)")
 
 
 def test_an_unknown_convention_is_refused_with_the_whole_vocabulary():

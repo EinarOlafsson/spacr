@@ -512,7 +512,7 @@ def test_get_regex_builtin_patterns_match_real_filenames(metadata_type, filename
 
 def test_get_regex_custom_wraps_the_user_pattern():
     rx = U._get_regex("custom", "tif", custom_regex=r"(?P<wellID>[A-H]\d{2})")
-    assert rx == r"((?P<wellID>[A-H]\d{2})).tif"
+    assert rx == r"((?P<wellID>[A-H]\d{2})).(?i:tif)"
     assert re.compile(rx).match("A01.tif") is not None
 
 
