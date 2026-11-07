@@ -1,4 +1,4 @@
-"""Standard assay report: A4 pages with pagination, 16-bit tiles and a figure legend.
+"""Standard assay report on A4 pages, with pagination, 16-bit tiles and a figure legend.
 
 Used by :func:`spacr.submodules.analyze_recruitment` (``report`` setting) and
 written to be reused by other plate assays. Three building blocks:
