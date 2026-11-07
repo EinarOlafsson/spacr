@@ -161,10 +161,11 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
-<summary>Panel QC (11 settings)</summary>
+<summary>Panel QC (12 settings)</summary>
 
 #### Panel QC
 
+- **`report`** *(optional)* — (bool) - Recruitment and replication: write the standard report: filtered and unfiltered A4 figures with images, the main graphs at well and replicate level, split control graphs, filtration steps and plate heatmaps, one folder per panel (PDF, PNG, data.csv, stats.csv) and an automatic figure legend. Recruitment writes results/report, replication results/analyze_replication/report (with images and stacked bins per size bin or replication bucket). Default False. Default: `False`.
 - **`well_qc`** *(optional)* — (bool) - Recruitment and replication: drop wells that differ from the other wells of their plate, e.g. a row imaged far brighter or dimmer. Per well and object type the object count, median area and median mean intensity of every channel are compared with the plate median of the wells; a well more than well_qc_mad robust standard deviations away in any measure is dropped before the other filters. Every well, its measures, robust z and the failing measures are written to results/well_qc.csv. Default True. Default: `True`.
 - **`well_qc_mad`** *(optional)* — (float) - Recruitment and replication well_qc: robust standard deviations (1.4826 x median absolute deviation over the wells of the plate) beyond which a well fails. Default 3.5. Default: `3.5`.
 - **`well_qc_measures`** *(optional)* — (list) - Recruitment and replication well_qc: measures compared between wells, any of 'count', 'area' and 'intensity'. None uses all three. Default None. Default: `None`.
