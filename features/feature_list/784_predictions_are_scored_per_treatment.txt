@@ -2,7 +2,7 @@ PREDICTIONS ARE SCORED PER TREATMENT
 ====================================
 
 Lifecycle: new
-Status: open.
+Status: DONE 2026-11-06 — apply_model_to_tar and Classify (CV) out-of-fold predictions now write <stem>_per_well.csv (objects, predicted-class counts, mean class probabilities, predicted class) and, with the new setting prediction_treatment_column (one or more plate-map columns read via well_metadata_path), <stem>_per_treatment.csv (mean of well means, counts, predicted class; CV adds true label, correct and prints treatment accuracy).
 Requested: maintainer via the BMC software-paper session, 2026-11-05.
 Source: BBBC021 computer-vision benchmark, /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cv/README.md.
 

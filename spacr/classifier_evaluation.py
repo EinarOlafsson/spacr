@@ -385,6 +385,153 @@ def _crop_metadata_values(paths: Sequence[Any], column: str,
     return np.asarray(values, dtype=object)
 
 
+def _prediction_score_tables(probabilities: Any, predicted: Sequence[Any],
+                             wells: Sequence[str], *,
+                             classes: Optional[Sequence[str]] = None,
+                             treatments: Optional[Sequence[Any]] = None,
+                             treatment_columns: Sequence[str] = (),
+                             labels: Optional[Sequence[Any]] = None
+                             ) -> Tuple[pd.DataFrame, Optional[pd.DataFrame]]:
+    """Summarise object predictions per well and, optionally, per treatment.
+
+    A well's probability for each class is the mean over its objects. A
+    treatment's is the mean over its wells, so every well counts once however
+    many objects it holds, and its predicted class is the most probable one.
+    The counts are how many objects were predicted as each class.
+
+    :param probabilities: ``(n, C)`` class probabilities per object.
+    :param predicted: predicted class index per object.
+    :param wells: ``prc`` well key per object.
+    :param classes: class names for the column names; ``class_<i>`` without.
+    :param treatments: one tuple of treatment values per object, aligned with
+        ``treatment_columns``; omitted, no treatment table is built.
+    :param treatment_columns: names of the treatment columns.
+    :param labels: true class index per object; adds ``true_label`` (the most
+        common label) and ``correct`` to both tables.
+    :returns: ``(per_well, per_treatment)``; ``per_treatment`` is ``None``
+        without ``treatments``.
+    """
+    probs = np.asarray(probabilities, dtype=float)
+    n_classes = probs.shape[1]
+    names = [str(name) for name in (classes or [])]
+    if len(names) != n_classes:
+        names = [f"class_{index}" for index in range(n_classes)]
+    mean_cols = [f"mean_prob_{name}" for name in names]
+    count_cols = [f"n_pred_{name}" for name in names]
+    treatment_columns = [str(column) for column in treatment_columns]
+    frame = pd.DataFrame(probs, columns=mean_cols)
+    predicted = np.asarray(predicted, dtype=int)
+    for index, column in enumerate(count_cols):
+        frame[column] = (predicted == index).astype(int)
+    frame.insert(0, "prc", [str(well) for well in wells])
+    if treatments is not None:
+        for position, column in enumerate(treatment_columns):
+            frame.insert(1 + position, column,
+                         [values[position] for values in treatments])
+    if labels is not None:
+        frame["true_label"] = np.asarray(labels, dtype=int)
+
+    def _mode(values):
+        """Most common value, the smallest on a tie."""
+        return int(pd.Series(values).value_counts().sort_index()
+                   .idxmax())
+
+    keys = ["prc"] + (treatment_columns if treatments is not None else [])
+    grouped = frame.groupby(keys, sort=True, dropna=False)
+    per_well = grouped[mean_cols].mean()
+    per_well[count_cols] = grouped[count_cols].sum()
+    per_well.insert(0, "n_objects", grouped.size())
+    if labels is not None:
+        per_well["true_label"] = grouped["true_label"].agg(_mode)
+    per_well = per_well.reset_index()
+    per_well["predicted_label"] = per_well[mean_cols].to_numpy().argmax(axis=1)
+    if labels is not None:
+        per_well["correct"] = per_well["predicted_label"] == per_well["true_label"]
+    if treatments is None:
+        return per_well, None
+
+    by_treatment = per_well.groupby(treatment_columns, sort=True, dropna=False)
+    per_treatment = by_treatment[mean_cols].mean()
+    per_treatment[count_cols] = by_treatment[count_cols].sum()
+    per_treatment.insert(0, "n_objects", by_treatment["n_objects"].sum())
+    per_treatment.insert(0, "n_wells", by_treatment.size())
+    if labels is not None:
+        per_treatment["true_label"] = by_treatment["true_label"].agg(_mode)
+    per_treatment = per_treatment.reset_index()
+    per_treatment["predicted_label"] = (
+        per_treatment[mean_cols].to_numpy().argmax(axis=1))
+    if labels is not None:
+        per_treatment["correct"] = (per_treatment["predicted_label"]
+                                    == per_treatment["true_label"])
+    return per_well, per_treatment
+
+
+def _treatment_columns(setting: Any) -> List[str]:
+    """Return the treatment column names a setting holds, blank entries dropped."""
+    if setting is None:
+        return []
+    if isinstance(setting, str):
+        setting = [part for part in setting.split(",")]
+    return [str(part).strip() for part in setting if str(part).strip()]
+
+
+def _write_prediction_scores(stem: Any, probabilities: Any,
+                             predicted: Sequence[Any], wells: Sequence[str], *,
+                             classes: Optional[Sequence[str]] = None,
+                             treatment_setting: Any = None,
+                             metadata_path: Any = None,
+                             labels: Optional[Sequence[Any]] = None
+                             ) -> Dict[str, Any]:
+    """Write the per-well and, with treatments, per-treatment score tables.
+
+    Treatment values come from ``metadata_path`` by well. A well missing from
+    that table is left out of the treatment table, and the number of such
+    objects is printed.
+
+    :param stem: path prefix; ``<stem>_per_well.csv`` and
+        ``<stem>_per_treatment.csv`` are written.
+    :param treatment_setting: treatment column name, comma-separated names or
+        a list of names; blank writes only the per-well table.
+    :returns: ``{'per_well': path, 'per_treatment': path or None,
+        'treatment_accuracy': float or None}``.
+    """
+    from .tabular import write_table
+
+    per_well, _none = _prediction_score_tables(
+        probabilities, predicted, wells, classes=classes, labels=labels)
+    result: Dict[str, Any] = {
+        "per_well": write_table(per_well, f"{stem}_per_well.csv"),
+        "per_treatment": None,
+        "treatment_accuracy": None,
+    }
+    columns = _treatment_columns(treatment_setting)
+    if not columns:
+        return result
+    lookup = _well_metadata_lookup(metadata_path, columns)
+    values = [lookup.get(str(well)) for well in wells]
+    keep = np.asarray([value is not None and all(v is not None for v in value)
+                       for value in values], dtype=bool)
+    if not keep.all():
+        print(f"{int((~keep).sum())} of {len(keep)} objects have no "
+              f"{', '.join(columns)} in {metadata_path} and are left out of "
+              "the per-treatment scores.")
+    if not keep.any():
+        return result
+    _wells, per_treatment = _prediction_score_tables(
+        np.asarray(probabilities, dtype=float)[keep],
+        np.asarray(predicted)[keep],
+        [well for well, kept in zip(wells, keep) if kept],
+        classes=classes,
+        treatments=[value for value, kept in zip(values, keep) if kept],
+        treatment_columns=columns,
+        labels=None if labels is None else np.asarray(labels)[keep])
+    result["per_treatment"] = write_table(per_treatment,
+                                          f"{stem}_per_treatment.csv")
+    if "correct" in per_treatment:
+        result["treatment_accuracy"] = float(per_treatment["correct"].mean())
+    return result
+
+
 class _GroupedSplitImpossible(ValueError):
     """Raised when the labelled groups cannot give a grouped holdout.
 

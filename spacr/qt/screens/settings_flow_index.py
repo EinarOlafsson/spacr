@@ -1133,6 +1133,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'power_seed',
     'power_wells_per_plate',
     'prediction_column',
+    'prediction_treatment_column',
     'predictions_file',
     'preprocess',
     'preview_only',

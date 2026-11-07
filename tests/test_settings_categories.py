@@ -767,6 +767,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "cv_group_column", "well_metadata_path",
     # Training without the held-out samples' batches.
     "cv_exclude_batch_column",
+    # Per-well and per-treatment scores of the predictions.
+    "prediction_treatment_column",
     "evaluation_calibration", "evaluation_bins",
     "evaluation_fail_on_leakage",
     # Shared correction before UMAP, ML screen analysis, and regression.

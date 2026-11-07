@@ -677,6 +677,12 @@ def apply_model_to_tar(settings=None):
     diagnostics for every head type. ``cv_predictions`` follows the selected
     aggregation method; with majority voting it can differ from thresholding
     the mean probability stored in ``pred``.
+
+    Beside the CSV, ``<stem>_per_well.csv`` lists every well's object count,
+    predicted-class counts and mean class probabilities. With
+    ``prediction_treatment_column`` and ``well_metadata_path`` set,
+    ``<stem>_per_treatment.csv`` gives the same per treatment, each well
+    counting once in the mean, and the most probable class.
     """
     if settings is None:
         settings = {}
@@ -796,8 +802,57 @@ def apply_model_to_tar(settings=None):
 
     df.to_csv(result_loc, index=True, header=True, mode='w')
     print(f"Saved results to {result_loc}")
+    _score_tar_predictions(df, result_loc, settings)
     _empty_device_cache()
     return df
+
+
+def _score_tar_predictions(df, result_loc, settings):
+    """Write per-well and per-treatment scores beside a tar prediction CSV.
+
+    :param df: the frame :func:`apply_model_to_tar` returns, with ``prc``,
+        ``pred``, ``cv_predictions`` and, for more than two classes,
+        ``predicted_label`` and ``prob_class_<i>``.
+    :param result_loc: the prediction CSV; the tables are written as
+        ``<stem>_per_well.csv`` and ``<stem>_per_treatment.csv``.
+    :param settings: reads ``prediction_treatment_column``,
+        ``well_metadata_path`` and ``class_folder_names``.
+    :returns: the dict of written paths, or ``None`` when no object carries
+        a well identity.
+    """
+    import re
+    from .classifier_evaluation import _write_prediction_scores
+
+    if not {'plateID', 'prc'} <= set(df.columns):
+        print("The predictions carry no plate and well columns, so no "
+              "per-well scores were written.")
+        return None
+    rows = (df['plateID'].astype(str) != 'error').to_numpy()
+    if not rows.any():
+        print("No prediction carries a plate and well, so no per-well "
+              "scores were written.")
+        return None
+    columns = sorted((c for c in df.columns
+                      if re.fullmatch(r'prob_class_\d+', str(c))),
+                     key=lambda c: int(str(c).rsplit('_', 1)[1]))
+    if columns:
+        probabilities = df.loc[rows, columns].to_numpy(dtype=float)
+        predicted = df.loc[rows, 'predicted_label'].to_numpy(dtype=int)
+    else:
+        positive = df.loc[rows, 'pred'].to_numpy(dtype=float)
+        probabilities = np.column_stack([1.0 - positive, positive])
+        predicted = df.loc[rows, 'cv_predictions'].to_numpy(dtype=int)
+    classes = list(_class_folder_names(settings) or [])
+    scores = _write_prediction_scores(
+        os.path.splitext(result_loc)[0], probabilities, predicted,
+        df.loc[rows, 'prc'].astype(str).tolist(),
+        classes=classes if len(classes) == probabilities.shape[1] else None,
+        treatment_setting=settings.get('prediction_treatment_column'),
+        metadata_path=settings.get('well_metadata_path'))
+    print(f"Per-well scores: {scores['per_well']}")
+    if scores['per_treatment']:
+        print(f"Per-treatment scores: {scores['per_treatment']}")
+    return scores
 
 def _to_numpy_labels(target: torch.Tensor) -> np.ndarray:
     """
@@ -1474,7 +1529,8 @@ def _cross_validate_model(settings, num_classes):
     column instead (leave one compound out, for example), read from the crop
     names or, by well, from ``well_metadata_path``. ``cv_exclude_batch_column``
     removes from each fold's training data every batch (plate, imaging week)
-    that its held-out data comes from.
+    that its held-out data comes from. The out-of-fold predictions are also
+    scored per well and, with ``prediction_treatment_column``, per treatment.
 
     :param settings: the canonicalised train/test settings dict.
     :param num_classes: size of the classifier head.
@@ -1841,6 +1897,9 @@ def _cross_validate_model(settings, num_classes):
     fold_df.to_csv(folds_loc, index=False)
     summary_df.to_csv(summary_loc, index=False)
     info['fold_table'].to_csv(split_loc, index=False)
+    _score_oof_predictions(settings, os.path.join(dst, stem),
+                           oof_probabilities, oof_labels, oof_paths,
+                           num_classes)
     if settings.get('classifier_evaluation', True):
         probabilities = np.concatenate(oof_probabilities, axis=0)
         calibration_method = settings.get(
@@ -1890,6 +1949,50 @@ def _cross_validate_model(settings, num_classes):
     print(f"Fold composition: {split_loc}")
     ledger.finalize(artifact=folds_loc, threshold=0.5)
     return folds_loc
+
+
+def _score_oof_predictions(settings, stem, probabilities, labels, paths,
+                           num_classes):
+    """Write per-well and per-treatment scores of the out-of-fold predictions.
+
+    Each well's class probabilities are the mean over its held-out crops and
+    each treatment's the mean over its wells; the predicted class is the most
+    probable one and ``correct`` compares it with the most common true label.
+
+    :param settings: reads ``prediction_treatment_column``,
+        ``well_metadata_path`` and the class folder names.
+    :param stem: path prefix for ``<stem>_per_well.csv`` and
+        ``<stem>_per_treatment.csv``.
+    :param probabilities: per-fold probability arrays, in fold order.
+    :param labels: true labels, aligned with the concatenated arrays.
+    :param paths: crop paths, aligned likewise.
+    :param num_classes: head size.
+    :returns: the dict of written paths, or ``None`` when the crop names
+        carry no well.
+    """
+    from .classifier_evaluation import (
+        _crop_well_keys, _write_prediction_scores, normalize_probabilities,
+    )
+
+    try:
+        wells = _crop_well_keys(paths, 'out-of-fold predictions')
+    except ValueError as exc:
+        print(f"Per-well scores skipped: {exc}")
+        return None
+    matrix = normalize_probabilities(np.concatenate(probabilities, axis=0),
+                                     n_classes=max(2, int(num_classes)))
+    classes = list(_class_folder_names(settings) or [])
+    scores = _write_prediction_scores(
+        stem, matrix, matrix.argmax(axis=1), wells,
+        classes=classes if len(classes) == matrix.shape[1] else None,
+        treatment_setting=settings.get('prediction_treatment_column'),
+        metadata_path=settings.get('well_metadata_path'),
+        labels=labels)
+    print(f"Per-well scores:  {scores['per_well']}")
+    if scores['per_treatment']:
+        print(f"Per-treatment scores: {scores['per_treatment']} "
+              f"(accuracy {scores['treatment_accuracy']:.3f})")
+    return scores
 
 
 def train_test_model(settings):

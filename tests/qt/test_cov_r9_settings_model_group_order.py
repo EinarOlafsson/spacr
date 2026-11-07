@@ -196,7 +196,8 @@ EVALUATION_KEYS = {
     "classifier_evaluation", "evaluation_calibration", "evaluation_bins",
     "evaluation_fail_on_leakage", "leakage_audit_train_test",
     "leakage_hash_content", "leakage_require_identity",
-    "cv_group_column", "well_metadata_path", "cv_exclude_batch_column"}
+    "cv_group_column", "well_metadata_path", "cv_exclude_batch_column",
+    "prediction_treatment_column"}
 
 RESULT_KEYS = {"n_top_examples", "plot", "tensorboard", "intermedeate_save"}
 

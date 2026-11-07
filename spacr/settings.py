@@ -2157,6 +2157,7 @@ def _set_classifier_evaluation_defaults(settings):
     settings.setdefault('cv_group_column', '')
     settings.setdefault('cv_exclude_batch_column', '')
     settings.setdefault('well_metadata_path', '')
+    settings.setdefault('prediction_treatment_column', '')
     settings.setdefault('evaluation_calibration', 'temperature')
     settings.setdefault('evaluation_bins', 10)
     settings.setdefault('evaluation_fail_on_leakage', True)
@@ -4516,6 +4517,7 @@ expected_types = {
     'cv_group_column':str,
     'cv_exclude_batch_column':str,
     'well_metadata_path':str,
+    'prediction_treatment_column':(str, list),
     'evaluation_calibration':str,
     'evaluation_bins':int,
     'evaluation_fail_on_leakage':bool,
@@ -5848,7 +5850,8 @@ tooltips = {
     'classifier_evaluation': "(bool) - Build the Classifier Evaluation workbench bundle from out-of-fold predictions after Classify (CV): sample-level predictions, confusion matrices, reliability curves, calibrated probabilities, per-plate metrics, leakage reports and a manifest. It requires cross_validation_folds >= 2; a single train/validation split cannot produce unbiased out-of-fold diagnostics. Default True. API: spacr.classifier_evaluation.evaluate_predictions.",
     'cv_group_column': '(str) - Leave-one-group-out cross-validation by a metadata column, for example compound: with cross-validation on, every distinct value of the column is held out once, so there is one fold per value and cross_validation_folds is not used. plate, well and field are read from the crop names; any other column is looked up by well in well_metadata_path. cv_group_by still names the identity that may never cross a fold, so keep it at well or field unless every plate holds one group. Cannot be combined with nested_cv_inner_folds. Blank keeps the stratified folds. Default blank.',
     'cv_exclude_batch_column': "(str) - Not-same-compound-or-batch rule for cross-validation: the column naming each crop's batch, such as plate or an imaging week. Each fold then trains without every crop from a batch among its held-out crops, so a held-out compound is never scored by a model that saw its plate or week. plate, well and field come from the crop names, other columns from well_metadata_path. The fold-composition table lists the excluded batches and any class left without training crops. Not combinable with nested_cv_inner_folds. Default blank.",
-    'well_metadata_path': '(str) - Plate-map table (CSV, Excel or Parquet) with one row per well: plateID, the well (wellID such as A01, or rowID and columnID) and metadata columns such as compound, concentration or imaging batch. Classify reads the columns named in cv_group_column and cv_exclude_batch_column from it, joined to each crop by plate and well. A crop whose well is missing is refused for fold building. Default blank.',
+    'prediction_treatment_column': "(str or list) - Plate-map column, or columns, naming each well's treatment, for example compound, or compound and concentration, read by well from well_metadata_path. Classify always writes <stem>_per_well.csv (objects, predicted-class counts, mean class probabilities); with this set it also writes <stem>_per_treatment.csv, where each class probability is the mean over the treatment's wells and the predicted class is the most probable. Cross-validation adds the true label and prints treatment accuracy. Default blank.",
+    'well_metadata_path': '(str) - Plate-map table (CSV, Excel or Parquet) with one row per well: plateID, the well (wellID such as A01, or rowID and columnID) and metadata columns such as compound, concentration or imaging batch. Classify reads the columns named in cv_group_column, cv_exclude_batch_column and prediction_treatment_column from it, joined to each crop by plate and well. A crop whose well is missing is refused for fold building. Default blank.',
     'nested_cv_inner_folds': "(int) - Number of inner grouped folds used inside every outer CV fold. 0 (default) keeps the faster ordinary grouped CV; 2 or more trains one inner model per fold, uses inner validation for early stopping/model selection, ensembles those models, and evaluates only once on the untouched outer fold. Runtime is approximately outer_folds x inner_folds training runs, but the outer score is not reused for tuning. API: spacr.classifier_evaluation.nested_group_folds.",
     'evaluation_calibration': "(str) - Probability calibration written to the evaluation bundle. 'temperature' cross-fits one scalar temperature per held-out fold using all other out-of-fold predictions, so a sample never fits its own calibrator; 'none' retains raw softmax probabilities. Calibration changes reported probabilities, not the saved model weights. Default 'temperature'. API: spacr.classifier_evaluation.cross_calibrate_probabilities.",
     'evaluation_bins': "(int) - Number of equal-width probability bins in reliability curves and expected calibration error. Values around 10 balance resolution against noise; use fewer bins for small validation sets and more only when every class has many hundreds of out-of-fold samples. Minimum 2, default 10. API: spacr.classifier_evaluation.calibration_table.",
@@ -6112,7 +6115,8 @@ categories = {
 
     "Evaluation Reports": ["classifier_evaluation", "evaluation_calibration",
                            "evaluation_bins", "score_threshold",
-                           "score_column"],
+                           "score_column",
+                           "prediction_treatment_column"],
 
     "Leakage Audit": ["evaluation_fail_on_leakage", "leakage_audit_train_test",
                       "leakage_hash_content", "leakage_require_identity"],

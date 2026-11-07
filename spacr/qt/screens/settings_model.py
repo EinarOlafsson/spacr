@@ -2640,7 +2640,7 @@ def _categories_for_app_uncached(app_key, categories, plugin_app):
             "Evaluation": [
                 "cross_validation_enabled", "cross_validation_folds",
                 "cv_group_by", "cv_group_column", "cv_exclude_batch_column",
-                "well_metadata_path",
+                "well_metadata_path", "prediction_treatment_column",
                 "holdout_plate", "nested_cv_inner_folds",
                 "score_threshold",
                 "classifier_evaluation", "evaluation_calibration",
