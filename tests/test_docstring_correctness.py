@@ -4375,7 +4375,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-11-06 item 816: 19,994 -> 20,227, +233: the parameters of the 42
     # new spacr.assay_report and spacr.assay_panels callables and the new
     # keywords of the assay panel functions they extend.
-    assert sum(len(item.parameters) for item in callables) == 20227
+    # 2026-11-06 items 781-785 and 836: 20,227 -> 20,231, +4 optional keywords
+    # of the classifier training, cross-validation and crop loading callables.
+    assert sum(len(item.parameters) for item in callables) == 20231
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -4687,8 +4689,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # row changed.
     # Moved 2026-11-06 for item 816 (was 08aefcc2...): the 42 new rows of the
     # spacr.assay_report and spacr.assay_panels callables, and the assay panel
-    # rows whose parameters gained the outlier and axis keywords.
-) == 'e1d683fff7f9b8d127bd7ee554f91df851a7ca23dd5f66977f93cd8569f3901a'
+    # rows whose parameters gained the outlier and axis keywords, and the
+    # rows of the training, cross-validation and crop-loading callables that
+    # gained optional keywords (items 781-785 and 836).
+) == '76c655f4c853e65e3f613122df246552cb699df3f7e47309084206c0ee805398'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
