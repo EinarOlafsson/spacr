@@ -29,6 +29,22 @@ class ReviewWindow(QMainWindow):
 
 @pytest.fixture
 def review(qtbot, monkeypatch, tmp_path):
+    original_run = qt_app._UpdateWorker.run
+
+    def traced_run(worker):
+        """Let the native worker inherit the public thread trace, as coverage needs."""
+        previous = sys.gettrace()
+        inherited = threading.gettrace()
+        installed = previous is None and inherited is not None
+        if installed:
+            sys.settrace(inherited)
+        try:
+            return original_run(worker)
+        finally:
+            if installed:
+                sys.settrace(previous)
+
+    monkeypatch.setattr(qt_app._UpdateWorker, "run", traced_run)
     window = ReviewWindow()
     window._closing = False
     qtbot.addWidget(window)
