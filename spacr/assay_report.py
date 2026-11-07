@@ -205,10 +205,23 @@ class ReportBlock:
 
 
 def _content_width(page=A4_MM, margin=MARGIN_MM):
+    """Content width in mm of ``page`` with ``margin`` on both sides.
+
+    :param page: ``(width, height)`` in mm.
+    :param margin: side margin in mm.
+    :returns: width in mm.
+    """
     return page[0] - 2 * margin
 
 
 def _half_width(page=A4_MM, margin=MARGIN_MM, gap=GAP_MM):
+    """Width in mm of a half-width panel (content width minus one gap, halved).
+
+    :param page: ``(width, height)`` in mm.
+    :param margin: side margin in mm.
+    :param gap: gap between panels in mm.
+    :returns: width in mm.
+    """
     return (_content_width(page, margin) - gap) / 2
 
 
@@ -227,6 +240,12 @@ def _rows(items):
 
 
 def _one_page_height(block_rows, layout):
+    """Total height in mm of all blocks stacked on one page (headings, rows, gaps).
+
+    :param block_rows: rows of items per block (lists of item rows).
+    :param layout: :class:`Layout` giving heading and gap heights.
+    :returns: height in mm.
+    """
     total = 0.0
     for rows in block_rows:
         total += layout.heading + sum(max(it.height_mm for it in r) + layout.gap for r in rows) + layout.gap
@@ -266,6 +285,7 @@ def _place(block_rows, layout, flow):
     y = 0.0
 
     def new_page():
+        """Start a new empty page and reset the vertical position."""
         nonlocal y
         pages.append([])
         y = 0.0
@@ -305,6 +325,12 @@ def _place(block_rows, layout, flow):
 
 
 def _shrunk(block_rows, layout):
+    """The (block, rows) pairs with heights shrunk to fit one page, or None.
+
+    :param block_rows: (block, rows) pairs.
+    :param layout: :class:`Layout` of the page.
+    :returns: list of (block, fitted rows), or None if they do not fit.
+    """
     fitted = _fit_one_page([r for _, r in block_rows], layout)
     return None if fitted is None else [(b, r) for (b, _), r in zip(block_rows, fitted)]
 
@@ -389,6 +415,12 @@ def fit_axes(fig, ax, rect, iterations=3, min_frac=0.15):
 
 
 def _new_figure(width_mm, height_mm):
+    """Matplotlib figure of the given size in mm with an Agg canvas.
+
+    :param width_mm: figure width in mm.
+    :param height_mm: figure height in mm.
+    :returns: the ``Figure``.
+    """
     from matplotlib.figure import Figure
     from matplotlib.backends.backend_agg import FigureCanvasAgg
     fig = Figure(figsize=(width_mm * MM, height_mm * MM))
@@ -400,6 +432,13 @@ ID_STRIP_MM = 4.5
 
 
 def _draw_item(fig, item, rect_mm, layout):
+    """Draw one placed :class:`ReportItem`: its ID strip label, then its panel.
+
+    :param fig: page ``Figure``.
+    :param item: the :class:`ReportItem`.
+    :param rect_mm: ``(x0, y_top, w, h)`` in mm from the top-left page corner.
+    :param layout: :class:`Layout` of the page.
+    """
     page_w, page_h = layout.page
     x, y_top, w, h = rect_mm
     fx, fw = x / page_w, w / page_w
@@ -465,6 +504,15 @@ def render_report(pages: List[List[dict]], pdf_path: str, legend_text: str = "",
 
 
 def _page_header(fig, title, k, n, page, layout=SPACIOUS):
+    """Write the report title (left) and ``page k of n`` (right) at the page top.
+
+    :param fig: page ``Figure``.
+    :param title: report title.
+    :param k: page number.
+    :param n: total number of pages.
+    :param page: ``(width, height)`` in mm.
+    :param layout: :class:`Layout` giving margin and font size.
+    """
     y = 1 - min(5.0, layout.margin * 0.45) / page[1]
     size = max(MIN_FONT_PT, min(7.0, layout.heading_pt))
     fig.text(layout.margin / page[0], y, title, fontsize=size, va="top", ha="left", color="#555555")
@@ -476,6 +524,12 @@ _LEGEND_PT = 7.5
 
 
 def _legend_pages(text, page=A4_MM):
+    """Wrap legend text into lines and split them into pages.
+
+    :param text: legend text, paragraphs separated by newlines.
+    :param page: ``(width, height)`` in mm.
+    :returns: one list of lines per page.
+    """
     width_chars = int(_content_width(page) / (_LEGEND_PT * 0.6 / 72 * 25.4))
     line_mm = _LEGEND_PT * 1.3 / 72 * 25.4
     per_page = int((page[1] - 2 * MARGIN_MM - 4) / line_mm)
@@ -486,14 +540,30 @@ def _legend_pages(text, page=A4_MM):
 
 
 def _pt_mm(pt):
+    """Convert a size in points to mm.
+
+    :param pt: size in points.
+    :returns: size in mm.
+    """
     return pt / 72 * 25.4
 
 
 def _label_texts(order, labels):
+    """Display labels of the conditions in order.
+
+    :param order: conditions.
+    :param labels: raw value -> display label, or None.
+    :returns: list of label texts.
+    """
     return [display_label(g, labels) for g in order]
 
 
 def _rotation(texts):
+    """Tick label rotation: 0 degrees for few short labels, else 35.
+
+    :param texts: tick label texts.
+    :returns: rotation in degrees.
+    """
     longest = max((len(t) for t in texts), default=0)
     return 0 if longest * len(texts) <= 24 and longest <= 10 else 35
 
@@ -744,6 +814,14 @@ _MAD_K = 1.4826
 
 
 def _object_count_column(df, obj, row_object):
+    """Column used to count ``obj`` per well for QC.
+
+    :param df: object-level measurement table.
+    :param obj: object type.
+    :param row_object: object type with one row per object.
+    :returns: None for ``row_object`` (count rows), the ``_prcfo_count`` or
+        ``_area`` column name, or False when neither exists.
+    """
     if obj == row_object:
         return None
     for c in (f"{obj}_prcfo_count", f"{obj}_area"):
@@ -779,6 +857,12 @@ def _reference_keys(plate, group, min_size):
 
 
 def _robust_z(v, ref):
+    """Robust z score of each value against the median and MAD of its reference set.
+
+    :param v: numeric Series.
+    :param ref: reference-set key of each value, aligned to ``v``.
+    :returns: Series of z scores; NaN where the MAD is 0.
+    """
     med = v.groupby(ref).transform("median")
     dev = (v - med).abs().groupby(ref).transform("median")
     return (v - med) / (_MAD_K * dev.replace(0, np.nan))
@@ -1091,15 +1175,28 @@ class _annot_style:
     """Smaller +/- matrix rows while drawing a compact panel."""
 
     def __init__(self, layout):
+        """Remember the layout to style for.
+
+        :param layout: :class:`Layout`; only a compact layout changes the style.
+        """
         self.layout = layout
 
     def __enter__(self):
+        """Save the matrix row sizes and switch to the compact ones for a compact layout.
+
+        :returns: this context manager.
+        """
         self.saved = (STYLE["annot_pt"], STYLE["annot_line_pt"])
         if self.layout.compact:
             STYLE["annot_pt"], STYLE["annot_line_pt"] = COMPACT_ANNOT
         return self
 
     def __exit__(self, *exc):
+        """Restore the saved matrix row sizes.
+
+        :param exc: exception details (ignored).
+        :returns: False, so exceptions propagate.
+        """
         STYLE["annot_pt"], STYLE["annot_line_pt"] = self.saved
         return False
 
@@ -1108,11 +1205,27 @@ COMPACT_ANNOT = (5.0, 6.2)
 
 
 def _draw_spec(ax, spec, order=None, layout=SPACIOUS):
+    """Draw a spec with the matrix row style of ``layout``.
+
+    :param ax: matplotlib ``Axes``.
+    :param spec: bar or grouped panel spec.
+    :param order: conditions drawn; default the spec order.
+    :param layout: :class:`Layout`.
+    :returns: ``ax``.
+    """
     with _annot_style(layout):
         return _draw_spec_inner(ax, spec, order, layout)
 
 
 def _draw_spec_inner(ax, spec, order=None, layout=SPACIOUS):
+    """Draw a bar or grouped spec, restyled for a compact layout.
+
+    :param ax: matplotlib ``Axes``.
+    :param spec: bar or grouped panel spec.
+    :param order: conditions drawn; default the spec order.
+    :param layout: :class:`Layout`.
+    :returns: ``ax``.
+    """
     order = list(order if order is not None else spec["order"])
     labels, ann, matrix = _axis_for(spec, order)
     if spec["kind"] == "grouped":
@@ -1158,6 +1271,14 @@ def stats_long(spec) -> pd.DataFrame:
 
 
 def _panel_item_height(spec, order, layout=SPACIOUS, plot_mm=None):
+    """Height in mm of a report item for ``spec`` drawn with ``order``.
+
+    :param spec: bar or grouped panel spec.
+    :param order: conditions drawn.
+    :param layout: :class:`Layout`.
+    :param plot_mm: plot area height in mm; default from the spec or layout.
+    :returns: height in mm, ID strip and x labels included.
+    """
     labels, ann, matrix = _axis_for(spec, order)
     texts = _label_texts(order, labels)
     if matrix:
@@ -1175,6 +1296,12 @@ def _panel_item_height(spec, order, layout=SPACIOUS, plot_mm=None):
 
 
 def _per_category(spec, layout=SPACIOUS):
+    """Width in mm per condition and fixed width in mm of a spec panel.
+
+    :param spec: bar or grouped panel spec.
+    :param layout: :class:`Layout`.
+    :returns: ``(per_category_mm, fixed_mm)``.
+    """
     if layout.compact:
         if spec["kind"] == "grouped":
             return 0.75 * len(spec["objects"]) + 1.4, 10
@@ -1206,6 +1333,12 @@ def spec_items(pid, spec, max_per_row, layout=SPACIOUS, group_size=None, new_row
     items = []
     for i, chunk in enumerate(chunks):
         def draw(fig, rect, chunk=chunk):
+            """Draw this condition chunk of the spec into ``rect``.
+
+            :param fig: page ``Figure``.
+            :param rect: ``(x0, y0, w, h)`` in figure fractions.
+            :param chunk: conditions of this chunk.
+            """
             ax = fig.add_axes(rect)
             _draw_spec(ax, spec, chunk, layout)
             fit_axes(fig, ax, rect)
@@ -1257,6 +1390,11 @@ def write_panel_folder(out_dir, pid, name, draw, size_mm, data=None, stats=None,
 
 
 def _spec_full_size(spec):
+    """Figure size in mm of a spec saved as its own panel.
+
+    :param spec: bar or grouped panel spec.
+    :returns: ``(width, height)`` in mm.
+    """
     per_cat, fixed = _per_category(spec)
     w = max(80.0, fixed + per_cat * len(spec["order"]))
     return w, _panel_item_height(spec, spec["order"]) - ID_STRIP_MM + 4
@@ -1273,6 +1411,11 @@ def save_spec_panel(out_dir, pid, name, spec, dpi=300):
     :returns: folder path (see :func:`write_panel_folder`).
     """
     def draw(fig, rect):
+        """Draw the spec into ``rect`` and fit its axes.
+
+        :param fig: ``Figure``.
+        :param rect: ``(x0, y0, w, h)`` in figure fractions.
+        """
         ax = fig.add_axes(rect)
         _draw_spec(ax, spec)
         fit_axes(fig, ax, rect)
@@ -1300,6 +1443,11 @@ def resolve_mask_dims(merged_dir, names, n_planes, overrides=None):
 
 
 def _label_number(value):
+    """Trailing integer of a label value (e.g. ``'cell_12'`` -> 12), or None.
+
+    :param value: label value.
+    :returns: the integer, or None.
+    """
     m = re.search(r"(\d+)$", str(value))
     return int(m.group(1)) if m else None
 
@@ -1430,6 +1578,12 @@ _EXTRA_OUTLINES = [(0.5, 1.0, 0.0), (1.0, 0.0, 0.3), (0.6, 0.4, 1.0)]
 
 
 def _colour(c):
+    """RGB tuple in 0-1 of a colour name or tuple.
+
+    :param c: colour name from ``COLOURS`` or an (r, g, b) sequence.
+    :returns: ``(r, g, b)`` floats.
+    :raises ValueError: if ``c`` is an unknown colour name.
+    """
     if isinstance(c, str):
         if c.lower() not in COLOURS:
             raise ValueError(f"unknown tile colour '{c}'; use one of {sorted(COLOURS)} or an (r, g, b) tuple")
@@ -1499,6 +1653,11 @@ def display_ranges(arrays, channels, percentiles=(0.5, 99.9), stride=4):
 
 
 def _safe(text):
+    """File-name-safe text: runs of other characters than ``A-Za-z0-9._+-`` become ``_``.
+
+    :param text: text to clean.
+    :returns: the cleaned text.
+    """
     return re.sub(r"[^A-Za-z0-9._+-]+", "_", str(text)).strip("_")
 
 
@@ -1582,6 +1741,11 @@ def build_tiles(df, group, order, merged_dir, mask_dims, colour_map, out_folder,
     cache: Dict[str, np.ndarray] = {}
 
     def load(name):
+        """Memory-mapped merged stack ``<name>.npy`` (cached), or None if missing.
+
+        :param name: stack name without extension.
+        :returns: array or None.
+        """
         if name not in cache:
             path = os.path.join(merged_dir, f"{name}.npy")
             cache[name] = np.load(path, mmap_mode="r", allow_pickle=False) if os.path.exists(path) else None
@@ -1766,6 +1930,11 @@ def crop_drawer(result, chunk, n, size, layout=SPACIOUS, axis=None, labels=None,
     monts = {v: montage16(result["tiles"][v], chunk, n, size, gap=gap) for v in versions}
 
     def draw(fig, rect):
+        """Draw the image versions and the condition labels or matrix into ``rect``.
+
+        :param fig: ``Figure``.
+        :param rect: ``(x0, y0, w, h)`` in figure fractions.
+        """
         fw, fh = fig.get_size_inches() * 25.4
         x0, y0, w, h = rect[0] * fw, rect[1] * fh, rect[2] * fw, rect[3] * fh
         avail = h - text_mm - (n_blocks - 1) * vgap
@@ -1864,6 +2033,12 @@ def text_items(paragraphs, layout, pt=6.0, width=1.0):
         h = len(lines) * line_mm + 1.0
 
         def draw(fig, rect, lines=lines):
+            """Write this paragraph's wrapped lines at the top-left of ``rect``.
+
+            :param fig: ``Figure``.
+            :param rect: ``(x0, y0, w, h)`` in figure fractions.
+            :param lines: wrapped text lines.
+            """
             fig.text(rect[0], rect[1] + rect[3], "\n".join(lines), fontsize=pt, va="top", ha="left",
                      linespacing=1.3)
         items.append(ReportItem(pid="", label="", draw=draw, width=width, height_mm=h,
@@ -2009,6 +2184,12 @@ def plate_heatmap_items(pid, spec, layout=SPACIOUS, new_row=False):
         height = layout.id_strip + map_w * nr / nc + (7.0 if layout.compact else 11.0)
 
         def draw(fig, rect, plate=plate):
+            """Draw the heatmap of this plate into ``rect``.
+
+            :param fig: ``Figure``.
+            :param rect: ``(x0, y0, w, h)`` in figure fractions.
+            :param plate: plate key.
+            """
             draw_heatmap(fig, rect, spec, plate, layout)
         items.append(ReportItem(pid=pid, label=pid if i == 0 else f"{pid} ({plate})", draw=draw,
                                 width=frac, height_mm=height, min_height_mm=height,
@@ -2030,6 +2211,11 @@ def save_heatmap_panel(out_dir, pid, name, spec, dpi=300):
     nr, nc = spec["matrices"][plates[0]].shape if plates else (16, 24)
 
     def draw(fig, rect):
+        """Draw the heatmaps of every plate stacked in ``rect``.
+
+        :param fig: ``Figure``.
+        :param rect: ``(x0, y0, w, h)`` in figure fractions.
+        """
         n = max(len(plates), 1)
         x0, y0, w, h = rect
         for k, plate in enumerate(plates):
@@ -2064,6 +2250,13 @@ def describe_test(test_row: Mapping) -> str:
 
 
 def _n_text(desc, group, labels):
+    """``'label: n; ...'`` text of the unit counts per condition.
+
+    :param desc: descriptive table with ``group`` and ``n`` columns.
+    :param group: condition column of ``desc``.
+    :param labels: raw value -> display label, or None.
+    :returns: the text.
+    """
     parts = [f"{display_label(r[group], labels)}: {int(r['n'])}" for _, r in desc.iterrows()]
     return "; ".join(parts)
 
@@ -2106,6 +2299,11 @@ def write_legend(path, paragraphs: Sequence[str]) -> str:
 
 
 def _outlier_text(spec):
+    """Legend sentence on outlier points removed per condition, or ``''``.
+
+    :param spec: bar or grouped panel spec with ``stats``.
+    :returns: the sentence (with a leading space), or ``''``.
+    """
     per = spec["stats"] if spec["kind"] == "grouped" else {None: spec["stats"]}
     tables = [(o, st["outliers"]) for o, st in per.items() if "outliers" in st]
     if not tables:
@@ -2125,10 +2323,26 @@ def _outlier_text(spec):
 
 
 def _spec_legend(pid, spec, what, unit_text):
+    """Legend paragraph of a value panel, outlier sentence included.
+
+    :param pid: panel ID.
+    :param spec: bar or grouped panel spec.
+    :param what: sentence naming what is shown.
+    :param unit_text: what one unit (bar dot) is.
+    :returns: the paragraph.
+    """
     return _spec_legend_base(pid, spec, what, unit_text) + _outlier_text(spec)
 
 
 def _spec_legend_base(pid, spec, what, unit_text):
+    """Legend paragraph of a value panel: bars, n per condition, tests and brackets.
+
+    :param pid: panel ID.
+    :param spec: bar or grouped panel spec.
+    :param what: sentence naming what is shown.
+    :param unit_text: what one unit (bar dot) is.
+    :returns: the paragraph.
+    """
     group, labels = spec["group"], spec.get("labels")
     if spec["kind"] == "grouped":
         parts = []
@@ -2267,10 +2481,22 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
             db_tables = None
 
     def next_id():
+        """Next main panel ID (``R01``, ``R02``, ...).
+
+        :returns: the ID.
+        """
         counter[0] += 1
         return f"R{counter[0]:02d}"
 
     def hv(key, htitle, version, frame, col):
+        """Register a well-level table for the plate heatmaps.
+
+        :param key: heatmap variable key.
+        :param htitle: heatmap title.
+        :param version: ``'filtered'`` or ``'unfiltered'``.
+        :param frame: well-level table; skipped if None, empty or without ``col``.
+        :param col: value column.
+        """
         if frame is None or not len(frame) or col not in frame.columns:
             return
         heat.setdefault(key, dict(title=htitle, value=col))[version] = frame
@@ -2309,6 +2535,11 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
         first_block = [True]
 
         def add_block(items, grp=None):
+            """Append a block of items to the figure; the first block gets the title and a new page.
+
+            :param items: :class:`ReportItem` list; nothing is added when empty.
+            :param grp: block group kept on one page, or None.
+            """
             if not items:
                 return
             blocks.append(ReportBlock(fig_title if first_block[0] else "", items, group=grp,
@@ -2507,6 +2738,11 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
                     ("intensity", "mean intensity"), ("load", "pathogens per host cell")]
 
         def family(key):
+            """Heatmap family of a variable key (main, count, area, load or intensity).
+
+            :param key: heatmap variable key.
+            :returns: family name.
+            """
             return ("main" if key == value else "count" if key.endswith("_count") else
                     "area" if key.endswith("_area") else "load" if key == "pathogens_per_host_cell"
                     else "intensity")
@@ -2574,6 +2810,13 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
 
 
 def _control_legend(pid, spec, what):
+    """Legend paragraph of a control panel (no statistical test).
+
+    :param pid: panel ID.
+    :param spec: bar or grouped panel spec.
+    :param what: sentence naming what is shown.
+    :returns: the paragraph.
+    """
     group, labels = spec["group"], spec.get("labels")
     st = spec["stats"] if spec["kind"] == "bar" else next(iter(spec["stats"].values()))
     n = _n_text(st["descriptive"], group, labels)
@@ -2582,6 +2825,11 @@ def _control_legend(pid, spec, what):
 
 
 def _rgb_name(rgb):
+    """Colour name of an outline RGB tuple, ``'light grey'`` if unknown.
+
+    :param rgb: ``(r, g, b)`` in 0-1, or None.
+    :returns: colour name.
+    """
     names = {(0.0, 0.75, 1.0): "sky blue", (1.0, 0.0, 1.0): "magenta", (1.0, 0.35, 0.0): "orange",
              (0.0, 1.0, 0.5): "spring green", (0.5, 1.0, 0.0): "lime", (1.0, 0.0, 0.3): "red",
              (0.6, 0.4, 1.0): "violet"}
@@ -2589,6 +2837,11 @@ def _rgb_name(rgb):
 
 
 def _colour_name(c):
+    """Name of a tile colour: the name itself, the ``COLOURS`` key or the tuple text.
+
+    :param c: colour name or (r, g, b) sequence.
+    :returns: colour name.
+    """
     if isinstance(c, str):
         return c
     for k, v in COLOURS.items():

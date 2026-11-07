@@ -161,14 +161,27 @@ class outlier_policy:
     """
 
     def __init__(self, method):
+        """Remember the outlier method to make the default.
+
+        :param method: outlier method (see :func:`parse_outlier_method`).
+        """
         self.method = method
 
     def __enter__(self):
+        """Save the current default outlier method and set this one.
+
+        :returns: this context manager.
+        """
         self.previous = _OUTLIER_POLICY["method"]
         _OUTLIER_POLICY["method"] = self.method
         return self
 
     def __exit__(self, *exc):
+        """Restore the previous default outlier method.
+
+        :param exc: exception details (ignored).
+        :returns: False, so exceptions propagate.
+        """
         _OUTLIER_POLICY["method"] = self.previous
         return False
 
@@ -969,6 +982,13 @@ def _set_xticks(ax, order, labels, annotations, rotation=None, matrix=False):
 
 
 def _differing(parts, a, b):
+    """Number of variables whose factor differs between conditions ``a`` and ``b``.
+
+    :param parts: {condition: [(variable, factor), ...]}.
+    :param a: first condition.
+    :param b: second condition.
+    :returns: count of differing variables.
+    """
     da, db = dict(parts.get(a, [])), dict(parts.get(b, []))
     return sum(da.get(v) != db.get(v) for v in set(da) | set(db))
 
