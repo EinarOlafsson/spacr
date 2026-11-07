@@ -56,6 +56,7 @@ __all__ = [
     "EmbeddingSpec", "EmbeddingResult",
     "embedding_column_names", "embed_array", "channel_of_column",
     "ENCODER_KEY_PREFIX", "encoder_key", "encoder_entry",
+    "embed_store",
 ]
 
 LOG = logging.getLogger("spacr.embeddings")
@@ -818,6 +819,170 @@ def _plate_spec(crops: Any, spec: Optional[EmbeddingSpec], *,
         spec = replace(spec, channel_scale=tuple(
             recorded[str(c)] for c in channels))
     return spec
+
+
+_WELL_COLUMNS = ("plateID", "rowID", "columnID")
+
+
+def _store_crops(source: Any, objects: Any, object_type: str, plate: str,
+                 where: str) -> Tuple[Any, Any, str]:
+    """The crops, one metadata row per crop, and a description of both."""
+    import pandas as pd
+
+    from . import crop_loader, tabular
+
+    query = source if isinstance(source, crop_loader.CropQuery) else None
+    path = os.fspath(source) if isinstance(source, (str, os.PathLike)) else ""
+    if query is None and path.lower().endswith(tabular.DATABASE_SUFFIXES):
+        query = crop_loader.CropQuery(
+            source=crop_loader.CROP_SOURCE_DATABASE, path=path,
+            object_type=object_type, plate=plate, where=where, limit=0)
+    if query is not None:
+        plan = crop_loader.plan_crops(query)
+        crops = crop_loader.load_crops(plan)
+        if objects is None:
+            objects = pd.DataFrame([
+                {key: value for key, value in row.items()
+                 if isinstance(value, (str, int, float, np.integer,
+                                       np.floating))}
+                if isinstance(row, Mapping) else {"png_path": str(row)}
+                for row in plan.rows[:len(crops)]])
+        label = plan.describe()
+    elif path:
+        if not path.lower().endswith(".npy"):
+            raise EmbeddingError(
+                f"{path} is neither a measurements database nor a .npy crop "
+                "array")
+        crops = np.load(path, mmap_mode="r")
+        label = path
+    else:
+        crops = source
+        label = "an array of crops"
+    shape = tuple(getattr(crops, "shape", ()))
+    if len(shape) != 4 or shape[0] == 0:
+        raise EmbeddingError(
+            f"crops must be a non-empty (n, height, width, channels); got "
+            f"shape {shape}")
+    if objects is None:
+        objects = pd.DataFrame({"object": np.arange(shape[0])})
+    elif isinstance(objects, (str, os.PathLike)):
+        objects = tabular.read_table(os.fspath(objects), report=None)
+    else:
+        objects = pd.DataFrame(objects)
+    if len(objects) != shape[0]:
+        raise EmbeddingError(
+            f"{len(objects)} object rows for {shape[0]} crops; give one row "
+            "per crop, in crop order")
+    return crops, objects.reset_index(drop=True), label
+
+
+def embed_store(source: Any, spec: Optional[EmbeddingSpec] = None, *,
+                objects: Any = None, output_dir: Optional[str] = None,
+                object_type: str = "cell", plate: str = "", where: str = "",
+                well_columns: Sequence[str] = _WELL_COLUMNS,
+                record: Optional[MutableMapping[str, Any]] = None,
+                workers: Optional[int] = None,
+                threads: Optional[int] = None,
+                encoder: Optional[Callable[[np.ndarray], np.ndarray]] = None
+                ) -> Dict[str, Any]:
+    """Embed a crop store into per-cell embeddings and per-well aggregates.
+
+    One fixed scale per channel is estimated from a random sample of the
+    whole store (the 99th percentile of 2,048 crops) and every crop is
+    divided by it, so a cell's embedding does not depend on which crops
+    share its batch. The crops are encoded in chunks on CPU worker
+    processes, then averaged per well: the mean and the median of every
+    dimension, with the number of cells.
+
+    :param source: a ``measurements.db`` (crops chosen by ``object_type``,
+        ``plate`` and ``where``, read as the Embeddings screen reads them), a
+        :class:`spacr.crop_loader.CropQuery`, a ``.npy`` crop array (opened
+        memory-mapped), or any ``(n, height, width, channels)`` array that
+        can be sliced, such as an HDF5 dataset.
+    :param spec: how to embed; the default is per-channel resnet18. A spec
+        that carries ``channel_scale`` is used as it stands.
+    :param objects: one metadata row per crop, in crop order: a frame or a
+        table path. A database source supplies its own crop-table rows;
+        without either, rows are numbered ``object``.
+    :param output_dir: folder to write ``cell_embeddings.parquet``,
+        ``well_embeddings_mean.parquet``, ``well_embeddings_median.parquet``
+        and ``embedding_record.json`` into; ``None`` writes nothing.
+    :param object_type: object class for a database source.
+    :param plate: one plate for a database source, ``''`` for every plate.
+    :param where: SQL condition over the crop table for a database source.
+    :param well_columns: metadata columns that name one well. When any is
+        missing, no well tables are made.
+    :param record: the run's record; a ``channel_scale`` already in it is
+        reused, otherwise the estimate is written into it.
+    :param workers: CPU worker processes; ``0`` or ``None`` derives them
+        from the core count.
+    :param threads: torch threads per worker; ``0`` or ``None`` derives
+        them from the core count.
+    :param encoder: a stand-in encoder, as for :func:`embed_array`; it must
+        be picklable when more than one worker runs.
+    :returns: ``{"cells", "wells_mean", "wells_median", "record",
+        "files"}``: the per-cell frame (metadata then embedding columns),
+        the two well frames (``None`` without well columns), the run record
+        and the paths written.
+    :raises EmbeddingError: when the source cannot be read as crops, the
+        object rows do not match the crops, or the spec does not fit them.
+    """
+    import json
+
+    import pandas as pd
+
+    from . import tabular
+
+    crops, objects, label = _store_crops(source, objects, object_type,
+                                         plate, where)
+    record = {} if record is None else record
+    spec = _plate_spec(crops, spec, record=record,
+                       sample_size=_SCALE_SAMPLE_SIZE, seed=_SCALE_SEED,
+                       read_batch=_SCALE_READ_BATCH)
+    plan_workers, plan_threads = _cpu_parallelism(workers=workers,
+                                                  threads=threads)
+    result = _embed_parallel(crops, spec, workers=plan_workers,
+                             threads=plan_threads, encoder=encoder)
+    embedded = pd.DataFrame(result.values, columns=list(result.columns))
+    cells = pd.concat([objects, embedded], axis=1)
+    wells = [column for column in well_columns if column in objects.columns]
+    wells_mean = wells_median = None
+    if wells and len(wells) == len(tuple(well_columns)):
+        grouped = cells.groupby(wells, sort=True, dropna=False)
+        counts = grouped.size().rename("n_cells")
+        wells_mean = pd.concat(
+            [counts, grouped[list(result.columns)].mean()], axis=1).reset_index()
+        wells_median = pd.concat(
+            [counts, grouped[list(result.columns)].median()],
+            axis=1).reset_index()
+    record.update(
+        source=label, n_cells=int(len(cells)),
+        n_wells=0 if wells_mean is None else int(len(wells_mean)),
+        well_columns=list(wells) if wells_mean is not None else [],
+        fingerprint=result.spec.fingerprint(),
+        backbone=result.spec.backbone,
+        channel_policy=result.spec.channel_policy,
+        workers=int(plan_workers), threads=int(plan_threads))
+    if encoder is None:
+        entry = encoder_entry(result.spec)
+        record["encoder"] = {"name": entry.name, "sha256": entry.sha256}
+    files: Dict[str, str] = {}
+    if output_dir:
+        folder = os.path.abspath(os.path.expanduser(os.fspath(output_dir)))
+        os.makedirs(folder, exist_ok=True)
+        files["cells"] = tabular.write_table(
+            cells, os.path.join(folder, "cell_embeddings.parquet"))
+        if wells_mean is not None:
+            files["wells_mean"] = tabular.write_table(
+                wells_mean, os.path.join(folder, "well_embeddings_mean.parquet"))
+            files["wells_median"] = tabular.write_table(
+                wells_median,
+                os.path.join(folder, "well_embeddings_median.parquet"))
+        files["record"] = os.path.join(folder, "embedding_record.json")
+        with open(files["record"], "w", encoding="utf-8") as handle:
+            json.dump(record, handle, indent=2, sort_keys=True, default=str)
+    return {"cells": cells, "wells_mean": wells_mean,
+            "wells_median": wells_median, "record": record, "files": files}
 
 
 def embed_array(crops: np.ndarray, spec: Optional[EmbeddingSpec] = None, *,

@@ -1,7 +1,9 @@
-"""The Embeddings screen's CPU workers x threads controls.
+"""The Embeddings screen's CPU workers x threads controls and its export step.
 
-The controls default to Auto, which resolves from the core count. The
-encoder is a stand-in, the run is unthreaded and on the CPU.
+The controls default to Auto, which resolves from the core count; the
+export step embeds the whole selection through
+``spacr.embeddings.embed_store`` and writes cells and wells to a folder.
+The encoder is a stand-in, the run is unthreaded and on the CPU.
 """
 
 import os
@@ -93,3 +95,32 @@ def test_embed_passes_the_workers_and_threads_to_the_plate(qtbot, monkeypatch):
     screen._threads.setValue(1)
     screen.embed()
     assert asked == [(2, 1)]
+def test_embed_and_export_writes_cells_and_wells(qtbot, monkeypatch, tmp_path):
+    import spacr.embeddings as emb
+
+    monkeypatch.setattr(emb, "_backbone_encoder", lambda spec: _Mean())
+    screen = _screen(qtbot)
+    screen._where.setCurrentIndex(0)
+    screen._path.setText(_database(tmp_path))
+    screen._on_path_changed()
+    screen._limit.setValue(2)
+    screen._workers.setValue(1)
+    screen._threads.setValue(1)
+    folder = str(tmp_path / "out")
+    assert screen._embed_and_export(folder) == folder
+    from spacr.tabular import read_table
+
+    cells = read_table(os.path.join(folder, "cell_embeddings.parquet"),
+                       report=None)
+    wells = read_table(os.path.join(folder, "well_embeddings_mean.parquet"),
+                       report=None)
+    assert len(cells) == 6 and wells["n_cells"].tolist() == [3, 3]
+    assert os.path.isfile(os.path.join(folder, "embedding_record.json"))
+    assert "6 cell embeddings and 2 wells" in screen._status.text()
+    assert screen._export_store.isEnabled()
+
+
+def test_embed_and_export_needs_a_source_first(qtbot, tmp_path):
+    screen = _screen(qtbot)
+    assert screen._embed_and_export(str(tmp_path)) == ""
+    assert "Choose a database" in screen._status.text()

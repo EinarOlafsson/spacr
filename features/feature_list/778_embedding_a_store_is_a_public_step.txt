@@ -2,7 +2,14 @@ EMBEDDING A SHARD OR DATABASE IS A PUBLIC STEP
 ==============================================
 
 Lifecycle: new
-Status: open.
+Status: DONE 2026-11-06 — public spacr.embeddings.embed_store(source, spec, ...) embeds a
+measurements.db, a CropQuery, a .npy shard (memory-mapped) or any sliceable crop
+array under one fixed per-plate channel scale, on CPU workers x threads, and returns
+and writes per-cell embeddings plus per-well mean/median tables and the run record
+(cell_embeddings.parquet, well_embeddings_mean/median.parquet, embedding_record.json).
+GUI step: alpha 'Embed and export…' button on the Embeddings screen. Arrival
+contract tests/data/release_contracts/embed_store_api_arrivals_2026-11-06.json;
+9-locale records still to be written (tests/test_embed_store_is_a_public_step.py).
 Requested: maintainer via the BMC software-paper session, 2026-11-05.
 Source: BBBC021 computer-vision benchmark, /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cv/README.md.
 

@@ -489,6 +489,16 @@ class EmbeddingsScreen(QWidget):
 
         _apply_alpha_widgets(self._save_similar)
 
+        self._export_store = QPushButton(tr("Embed and export…"), self)
+        self._export_store.setObjectName("EmbeddingsEmbedAndExport")
+        self._export_store.setToolTip(tr(
+            "Embed every crop the selection matches, ignoring At most, and "
+            "write per-cell embeddings, well means and medians and the run "
+            "record to a folder."))
+        self._export_store.clicked.connect(self._embed_and_export)
+        outer.addWidget(self._export_store)
+        _apply_alpha_widgets(self._export_store)
+
         self._table = install_sorting(QTableWidget(0, 0, self))
         self._table.setObjectName("EmbeddingsPreviewTable")
         self._table.setAlternatingRowColors(True)
@@ -2952,6 +2962,65 @@ class EmbeddingsScreen(QWidget):
             f"Encoder {entry.name}, weights {digest}.")
         if self._labels and len(self._labels) == len(frame):
             self._show_scorecard()
+
+    def _embed_and_export(self, folder: str = "") -> str:
+        """Embed the whole crop selection and write cells and wells to a folder.
+
+        :param folder: the output folder; empty asks for one.
+        :returns: the folder chosen, or ``""`` when nothing was started.
+        """
+        from dataclasses import replace
+
+        query = self.crop_query()
+        if not query.path:
+            self._status.setText(tr("Choose a database or a folder first."))
+            return ""
+        if not folder:
+            from PySide6.QtWidgets import QFileDialog
+
+            folder = QFileDialog.getExistingDirectory(
+                self, tr("Folder for the embeddings"))
+        if not folder:
+            return ""
+        try:
+            spec = None if self._foundation.currentData() == "dino_auto" \
+                else self.spec()
+        except Exception as exc:
+            self._status.setText(str(exc))
+            return ""
+        workers, threads = self._cpu_choice()
+        query = replace(query, limit=0)
+        self._export_store.setEnabled(False)
+        self._status.setText(tr("Embedding and exporting {query}…").format(
+            query=query.describe()))
+
+        def work():
+            """Embed and write off the GUI thread."""
+            from ...embeddings import embed_store
+
+            try:
+                run = spec if spec is not None else self._dino_note()[0]
+                out = embed_store(query, run, output_dir=folder,
+                                  workers=workers, threads=threads)
+                return out, ""
+            except Exception as exc:
+                return None, f"{type(exc).__name__}: {exc}"
+
+        def finished(answer):
+            """Report what was written, or why nothing was."""
+            out, error = answer
+            self._export_store.setEnabled(True)
+            if error:
+                self._status.setText(error)
+                return
+            record = out["record"]
+            self._status.setText(tr(
+                "Wrote {cells} cell embeddings and {wells} wells to "
+                "{folder}.").format(cells=record["n_cells"],
+                                    wells=record["n_wells"], folder=folder))
+
+        self._jobs.submit(work, finished)
+        return folder
 
     def _save_for_similarity(self) -> None:
         """Write the actual result against its frozen source object keys."""

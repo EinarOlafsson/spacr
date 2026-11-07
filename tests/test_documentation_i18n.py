@@ -3791,6 +3791,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("assay_panels_api_arrivals_2026-11-06.json", 21),
         ("assay_report_api_arrivals_2026-11-06.json", 69),
         ("crop_window_gpu_governor_api_arrivals_2026-11-06.json", 12),
+        ("embed_store_api_arrivals_2026-11-06.json", 3),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))

@@ -2867,6 +2867,33 @@ def _validated_assay_panels_callables(callables):
     return [item for item in callables if item.symbol not in symbols]
 
 
+def _validated_embed_store_callables(callables):
+    """Check the public crop-store embedding step against its source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "embed_store_api_arrivals_2026-11-06.json").read_text(encoding="utf-8"))
+    # The two nested job callbacks of the screen's export step are not public callables.
+    symbols = {key for key in entries if ".EmbeddingsScreen." not in key}
+    assert symbols == {"spacr.embeddings.embed_store"} and len(entries) == 3
+    found = {item.symbol: item for item in callables if item.symbol in symbols}
+    assert found.keys() == symbols
+    tree = ast.parse((root / "spacr/embeddings.py").read_text(encoding="utf-8"))
+    declarations = [node for node in tree.body
+                    if isinstance(node, ast.FunctionDef) and node.name == "embed_store"]
+    assert len(declarations) == 1
+    arguments = declarations[0].args
+    names = {arg.arg for arg in arguments.posonlyargs + arguments.args + arguments.kwonlyargs}
+    item = found["spacr.embeddings.embed_store"]
+    assert item.category == "function" and item.exposure == "autoapi"
+    assert item.parameters == item.accepted_documented_parameters == names
+    assert item.variant_count == 1 and item.docless_variant_count == 0
+    assert not item.accepts_arbitrary_keywords
+    assert item.docstring == entries["spacr.embeddings.embed_store"]
+    return [item for item in callables if item.symbol not in symbols]
+
+
 def _validated_733_easy_mode_callables(callables):
     """Check the exact four executable Easy mode boundaries before historical replay."""
     import json
@@ -2941,6 +2968,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_ops_phenotype_path_callables(callables)
     callables = _validated_recruitment_confounders_callables(callables)
     callables = _validated_assay_panels_callables(callables)
+    callables = _validated_embed_store_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
@@ -5577,6 +5605,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("assay_panels_api_arrivals_2026-11-06.json", 21),
         ("assay_report_api_arrivals_2026-11-06.json", 69),
         ("crop_window_gpu_governor_api_arrivals_2026-11-06.json", 12),
+        ("embed_store_api_arrivals_2026-11-06.json", 3),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -6143,7 +6172,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "recruitment_confounders_api_arrivals_2026-11-05.json",
                      "assay_panels_api_arrivals_2026-11-06.json",
                      "assay_report_api_arrivals_2026-11-06.json",
-                     "crop_window_gpu_governor_api_arrivals_2026-11-06.json"):
+                     "crop_window_gpu_governor_api_arrivals_2026-11-06.json",
+                     "embed_store_api_arrivals_2026-11-06.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -6252,7 +6282,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "recruitment_confounders_api_arrivals_2026-11-05.json",
                      "assay_panels_api_arrivals_2026-11-06.json",
                      "assay_report_api_arrivals_2026-11-06.json",
-                     "crop_window_gpu_governor_api_arrivals_2026-11-06.json"):
+                     "crop_window_gpu_governor_api_arrivals_2026-11-06.json",
+                     "embed_store_api_arrivals_2026-11-06.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
