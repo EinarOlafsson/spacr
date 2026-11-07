@@ -1396,7 +1396,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "timelapse_lineage_bud_guard", "timelapse_lineage_bud_threshold",
         )),
         ("Object Filtering", (
-            "uninfected", "cell_min_size", "cell_max_size",
+            "uninfected", "pixel_size_um", "cell_min_size", "cell_max_size",
             "cytoplasm_min_size",
             "nucleus_min_size", "nucleus_max_size",
             "pathogen_min_size", "pathogen_max_size", "organelle_min_area",

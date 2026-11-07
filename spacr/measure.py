@@ -8930,6 +8930,36 @@ def _record_measured_masks(merged_path, settings, masks, cytoplasm_mask=None):
         return None
 
 
+#: Share of a field's objects a size filter may remove before Measure warns.
+_SIZE_FILTER_WARN_FRACTION = 0.5
+
+
+def _warn_when_a_size_filter_removes_most(file, obj, before, after, settings):
+    """Print a warning when ``{obj}_min_size``/``_max_size`` removed most objects.
+
+    A fixed pixel floor made for 40-60x silently removed nearly every cell of
+    a 20x field (item 800), so a field that loses more than
+    :data:`_SIZE_FILTER_WARN_FRACTION` of its objects says so and names the
+    settings that fix it.
+
+    :param file: the field's file name.
+    :param obj: ``'cell'``, ``'nucleus'`` or ``'pathogen'``.
+    :param before: objects in the mask before filtering.
+    :param after: objects left after filtering.
+    :param settings: the Measure settings, for the limits in the message.
+    :returns: True when the warning was printed.
+    """
+    if before <= 0 or before - after <= _SIZE_FILTER_WARN_FRACTION * before:
+        return False
+    low = settings.get(f'{obj}_min_size')
+    high = settings.get(f'{obj}_max_size')
+    print(f'Warning: {file}: the {obj} size filter [{low}, {high}] px removed '
+          f'{before - after} of {before} {obj} objects. Set pixel_size_um '
+          f'(or magnification) so the default follows the image scale, or '
+          f'change {obj}_min_size / {obj}_max_size.')
+    return True
+
+
 def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel=None):
 
     """Measure one field using selected standard or PSF-processed intensities.
@@ -9082,6 +9112,8 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                     cell_mask, settings['cell_min_size'],
                     max_value=cell_max)
                 dropped = before - int(len(np.unique(cell_mask)) - 1)
+                _warn_when_a_size_filter_removes_most(
+                    file, 'cell', before, before - dropped, settings)
                 if dropped and cell_max:
                     print(f'cell: {dropped} object(s) outside '
                           f'[{settings["cell_min_size"]}, {cell_max}] px')
@@ -9109,6 +9141,8 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                     nucleus_mask, settings['nucleus_min_size'],
                     max_value=nucleus_max)
                 dropped = before - int(len(np.unique(nucleus_mask)) - 1)
+                _warn_when_a_size_filter_removes_most(
+                    file, 'nucleus', before, before - dropped, settings)
                 if dropped and nucleus_max:
                     print(f'nucleus: {dropped} object(s) outside '
                           f'[{settings["nucleus_min_size"]}, {nucleus_max}] px')
@@ -9135,6 +9169,8 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                     pathogen_mask, settings['pathogen_min_size'],
                     max_value=pathogen_max)
                 dropped = before - int(len(np.unique(pathogen_mask)) - 1)
+                _warn_when_a_size_filter_removes_most(
+                    file, 'pathogen', before, before - dropped, settings)
                 if dropped and pathogen_max:
                     print(f'pathogen: {dropped} object(s) outside '
                           f'[{settings["pathogen_min_size"]}, {pathogen_max}] px')

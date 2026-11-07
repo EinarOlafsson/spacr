@@ -1886,6 +1886,64 @@ def set_default_umap_image_settings(settings=None):
     settings.setdefault('crop_source', 'auto')
     return settings
 
+#: Measure's size floors in pixels before item 800, fixed for 40-60x.
+_LEGACY_MEASURE_MIN_SIZE = {'cell': 8000, 'nucleus': 2000, 'pathogen': 500}
+
+#: A derived floor is the area of a disc this fraction of Mask's expected
+#: diameter: 4 % of the expected area. On ten BBBC021 plates at 20x it keeps
+#: 99.1 % of CellProfiler's cells and every nucleus (2026-11-07).
+_MEASURE_MIN_DIAMETER_FRACTION = 0.2
+
+
+def _derived_measure_min_size(obj, settings):
+    """Measure's size floor for ``obj`` from pixel size or magnification.
+
+    :param obj: ``'cell'``, ``'nucleus'`` or ``'pathogen'``.
+    :param settings: the Measure settings; ``pixel_size_um`` wins over
+        ``magnification``, as for Mask's diameters.
+    :returns: the floor in pixels, or ``None`` when neither is usable.
+    """
+    import math
+
+    from .object_settings_table import (_diameter_from_magnification,
+                                        _diameter_from_pixel_size)
+
+    diameter = _diameter_from_pixel_size(settings.get('pixel_size_um'), obj)
+    magnification = settings.get('magnification')
+    if diameter is None and magnification not in (None, ''):
+        try:
+            diameter = _diameter_from_magnification(magnification, obj)
+        except (TypeError, ValueError):
+            diameter = None
+    if not diameter or diameter <= 0:
+        return None
+    radius = diameter * _MEASURE_MIN_DIAMETER_FRACTION / 2
+    return max(1, int(round(math.pi * radius ** 2)))
+
+
+def _set_measure_min_size_defaults(settings):
+    """Fill ``{cell,nucleus,pathogen}_min_size``, following the pixel size.
+
+    Without ``pixel_size_um`` or ``magnification`` the floors stay the fixed
+    8000, 2000 and 500 px. With either, an absent floor, or one still at that
+    fixed default (which is what a form holds until it is edited), becomes
+    :func:`_derived_measure_min_size`. Any other number, 0 and None are kept.
+    """
+    for obj, legacy in _LEGACY_MEASURE_MIN_SIZE.items():
+        key = f'{obj}_min_size'
+        derived = _derived_measure_min_size(obj, settings)
+        current = settings.get(key, legacy)
+        try:
+            at_default = (current is not None and not isinstance(current, bool)
+                          and float(current) == legacy)
+        except (TypeError, ValueError):
+            at_default = False
+        if derived is not None and at_default:
+            settings[key] = derived
+        else:
+            settings.setdefault(key, legacy)
+
+
 def get_measure_crop_settings(settings=None):
     """Return the default settings for the measure-and-crop pipeline.
 
@@ -2056,12 +2114,11 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('organelle_mask_dim',None)
     settings.setdefault('cytoplasm',True)
     settings.setdefault('uninfected',True)
-    settings.setdefault('cell_min_size',8000)
+    settings.setdefault('pixel_size_um', None)
+    _set_measure_min_size_defaults(settings)
     settings.setdefault('cell_max_size',None)
     settings.setdefault('nucleus_max_size',None)
     settings.setdefault('pathogen_max_size',None)
-    settings.setdefault('nucleus_min_size',2000)
-    settings.setdefault('pathogen_min_size',500)
     settings.setdefault('organelle_min_area', 0)
     settings.setdefault('organelle_type', DEFAULT_ORGANELLE_TYPE)
     settings.setdefault(NUMBER_OF_ORGANELLES, _requested_organelle_count)
@@ -5100,7 +5157,7 @@ tooltips = {
     "diameter": "(float) - Expected object diameter in pixels. Plaque Assay starts at 0, which uses the model's own scale; positive values are measured in original input-image pixels and adjusted when wells are resized. Legacy mask-finetune and check_cellpose_models pass it to model.eval(diameter=...). Prefer per-object diameter settings in other modules. Default 30 for mask-finetune; check_cellpose_models starts at 40.",
     "filter": "(bool) - Legacy switch for the old post-Cellpose cleanup pass, which re-ran size/intensity/border filtering and logged '_after_filtration' object counts to the database. The current Cellpose-SAM segmentation path never reads it, so toggling it changes nothing; use the per-object <object>_min_area, <object>_max_area and <object>_perimeter_fraction settings instead. Default False.",
     "magnification": "(int) - Objective magnification, used only to derive expected object sizes: pixel diameter is 2*mag+80 for cells, 0.75*mag+45 for nuclei and mag for pathogens, with min/max area limits of diameter^2/4 and diameter^2*10. A blank cell_diameter, nucleus_diameter or pathogen_diameter is segmented at that default diameter with every model, Cellpose-SAM included; an explicit number or 'auto' overrides it. When pixel_size_um is set, the blank diameters come from the pixel size instead. Set this to the acquisition objective magnification (10, 20, 40 or 60). Default 40.",
-    "pixel_size_um": "(float or None) - Image pixel size in micrometres per pixel, for example 0.325 for a 6.5 um camera pixel behind a 20x objective. When set, a blank cell_diameter, nucleus_diameter or pathogen_diameter is the typical object size over the pixel size: 18 um cells, 10 um nuclei and 6.5 um pathogens, so 55, 31 and 20 px at 0.325 um/px, with min/max area limits of diameter^2/4 and diameter^2*10. It replaces the magnification default, which assumes larger cells (120 and 60 px at 20x). A diameter you type is always used as it is. None uses the magnification default. Default None.",
+    "pixel_size_um": "(float or None) - Image pixel size in micrometres per pixel, for example 0.325 for a 6.5 um camera pixel behind a 20x objective. When set, a blank cell_diameter, nucleus_diameter or pathogen_diameter is the typical object size over the pixel size: 18 um cells, 10 um nuclei and 6.5 um pathogens, so 55, 31 and 20 px at 0.325 um/px, with min/max area limits of diameter^2/4 and diameter^2*10. It replaces the magnification default, which assumes larger cells (120 and 60 px at 20x). A diameter you type is always used as it is. None uses the magnification default. In Measure it also scales the default cell_min_size, nucleus_min_size and pathogen_min_size. Default None.",
     "estimate_diameters_per_image": "(bool) - When True, a cell, nucleus or pathogen diameter left blank, 0 or auto is estimated on each 2-D image. A Cellpose 3 model uses its size model. Cellpose-SAM has none, so each image is segmented first at native scale, the median object diameter of those masks is measured with cellpose.utils.diameters, and the image is segmented again at that diameter; an image with no object is segmented at the blank default. Each image is segmented twice, so the run is slower. A diameter you type is always used as it is. Z-stack and timelapse runs keep the single diameter. Default False.",
     "calculate_diameters": "(bool) - When True, the cell, nucleus and pathogen diameters are calculated from magnification: a blank diameter is its magnification default (2*magnification+80 px for cells, 0.75*magnification+45 px for nuclei, magnification px for pathogens), greyed in Per-object settings, and follows every magnification change. A diameter you type, or auto, is pinned (bold) and kept until you clear its cell or turn this off and on again, which recalculates all three. When False, magnification changes no longer touch any diameter. Default True.",
     "plaque_model": "(str) - Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v6' was trained on resized wells and turns plaque well resize on; 'toxoplasma_plaque_v5', the previous default, segments images as they are; 'toxoplasma_plaque_v3' scores higher on Gel Doc wells), a filesystem path selects a custom checkpoint, and 'bundled' is a Cellpose 3 checkpoint that needs Cellpose 3. Changing it changes plaque counts, so recorded runs should keep their value. Default 'toxoplasma_plaque_v6'.",
@@ -5238,7 +5295,7 @@ tooltips = {
     "cell_intensity_range": "(list) - Legacy [min, max] bounds used during recruitment analysis when cell_chann_dim is set. Despite the setting name, the current _object_filter call uses index 0 from [nucleus, pathogen, cell] and therefore filters the nucleus-channel mean intensity. Review the filtered object counts when using this setting. Default None.",
     "cell_loc": "(list) - One list of well identifiers per entry in cells, specifying the plate locations of each host cell line, for example [['c1','c2'],['c3']]. Identifiers must start with 'r' for a row or 'c' for a column; other values are ignored and the corresponding wells remain unannotated. None labels every row with the first entry of cells. No default is set: annotate_filter_vision accesses settings['cell_loc'] directly, so the key must be present in the dictionary and explicitly set to None when location mapping is not required.",
     "cell_mask_dim": "(int) - Position along the last axis of each merged/*.npy array where the cell label mask sits. Merged arrays are ordered [image channels..., cell, nucleus, pathogen, organelle], so the default 4 assumes the four channels 0-3 were kept; keep fewer channels and every mask dim shifts down. None makes measure_crop skip all cell measurements and cell crops. Default 4.",
-    "cell_min_size": "(int) - (Deprecated) Pixel-area floor applied to cell labels during measurement: any cell smaller than this is erased from the mask before features are extracted. Superseded by an 'area' row for cell in object_filters, which filters at segmentation time, but this one still runs if you set it. 0 or None disables it. Default 8000.",
+    "cell_min_size": "(int) - (Deprecated) Pixel-area floor applied to cell labels during measurement: any cell smaller than this is erased from the mask before features are extracted. Superseded by an 'area' row for cell in object_filters, which filters at segmentation time, but this one still runs if you set it. 0 or None disables it. Default 8000, which suits 40-60x; when pixel_size_um or magnification is set, the 8000 default becomes the area of a disc one fifth of Mask's expected cell diameter (452 px at 20x, 95 px at 0.325 um/px). A field that loses more than half its cells to the filter prints a warning.",
     "cell_plate_metadata": "(list of lists) - Wells occupied by each entry of cell_types, with one inner list per cell type in the same order, for example [['c2','c3'],['c4']]. Each identifier must start with 'c' (column) or 'r' (row); invalid identifiers are skipped without an exception and those wells receive no host_cells label. Because 'condition' combines the labels that are present, a typographical error changes the comparison without raising an error. Default None.",
     "cell_signal_to_noise": "(int) - Multiplied by cell_background to define the minimum intensity for the normalisation ceiling. spaCR evaluates the 98th through 99.5th percentiles of the cell channel and uses the first value at or above that product as the upper anchor. Increase it to raise the ceiling and reduce normalised intensity; decrease it to increase the visibility of faint cells. Default 10.",
     "cell_size_range": "(list) - [min, max] bounds in pixels^2 on cell_area, used to drop rows from the measurement table during recruitment analysis; only cells strictly between the two values are kept. Both entries must be integers or that bound is silently skipped. Setting it to None widens it to [0, 1e100]. Default [0, 100000].",
@@ -5257,7 +5314,7 @@ tooltips = {
     "CP_prob": "(float) - Cellpose cellprob_threshold: the cell-probability cut-off applied to the network output when deciding which pixels belong to an object. Lower it (typically toward -6) to recover dim or partly detected objects and grow existing masks; raise it (toward 6) to drop faint false positives and shrink masks. Default 0.",
     "custom_model": '(str) - Path to a saved Cellpose model, loaded as pretrained_model by the mask-finetune tool. When set, model_type is passed as None and diameter as diam_mean (which Cellpose 4.x ignores with a warning). model_name remains active and selects the channel pair sent to model.eval; an incompatible value therefore segments the wrong channels. Default None.',
     "cytoplasm_min_size": "(int) - (Deprecated) Pixel-area floor for the cytoplasm mask, which is the cell mask with nucleus, pathogen and organelle pixels removed. Cytoplasm regions below this are erased before measurement, so their host cell yields no cytoplasm features and any recruitment ratio built on them is lost. 0 or None disables. Default 0.",
-    "nucleus_min_size": "(int) - (Deprecated) Minimum nucleus size in pixels^2 applied during measure_crop: labels covering fewer pixels than this are erased from the nucleus mask before any feature is measured, so those nuclei never reach the database. 0 (default) disables it. Prefer an 'area' row for nucleus in object_filters, which filters at segmentation time.",
+    "nucleus_min_size": "(int) - (Deprecated) Minimum nucleus size in pixels^2 applied during measure_crop: labels covering fewer pixels than this are erased from the nucleus mask before any feature is measured, so those nuclei never reach the database. 0 or None disables it. Default 2000, which suits 40-60x; when pixel_size_um or magnification is set, the 2000 default becomes the area of a disc one fifth of Mask's expected nucleus diameter (113 px at 20x, 30 px at 0.325 um/px). A field that loses more than half its nuclei prints a warning. Prefer an 'area' row for nucleus in object_filters, which filters at segmentation time.",
     "dependent_variable": "(str) - Name of the column in score_data that is modelled as the response, e.g. 'pred'/'predictions' from the ML scoring step or a measured feature such as 'pathogen_nucleus_shortest_distance'. It is aggregated per well by agg_type and then optionally transformed. The run aborts if the column is absent from the score CSV. Default 'pred'.",
     "score_column": "(str) - Which column of the prediction CSV holds the CNN score that Explain CV and the hit-investigation montages read. The regression module no longer has this setting: it fits dependent_variable and simulates the minimum cell count on that same column, so one measurement cannot be named two ways there. Default 'cv_predictions'. Investigate Hit starts blank because no score field can be inferred universally; select the prediction column before building its montages.",
     "analysis_mode": "(str) - 'regression' fits the selected simultaneous model. 'guide_permutation' tests each guide as a plate-adjusted marginal association using blocked Freedman--Lane permutations and then corrects the requested support family. This setting is normally derived from inference; set it directly only to override that choice. Default 'regression'. The Regression module starts with inference='nonparametric', so its resolved initial mode is 'guide_permutation'.",
@@ -5648,7 +5705,7 @@ tooltips = {
     "timelapse_events_video_device": "(str) - auto selects CUDA, then Metal, then CPU inside VideoMAE's separate worker; cpu forces CPU feature extraction. The frozen encoder processes one clip at a time and the small event classifier trains on CPU. Default auto.",
     "timelapse_remove_transient": "(bool) - After linking, drop every track not present in all frames (trackpy filter_stubs over the full stack length), keeping only objects tracked from first frame to last. Enable for clean per-object time courses; expect to lose cells that divide, enter or leave the field, so object counts fall. Default False.",
     "timelapse": "(bool) - Treat each well/field as a time series instead of independent images: files are grouped into time stacks, randomization is switched off, per-channel movies are written, objects in timelapse_objects are tracked across frames, a timeID column is added to the measurement tables, and measure_crop stops writing single-object PNGs. Only enable when filenames carry a time index. Default False.",
-    "pathogen_min_size": "(int) - (Deprecated) Minimum pathogen object area in pixels squared, applied during measurement: any label with fewer pixels than this is erased from the pathogen mask before features are extracted. 0, the default, disables it. Superseded by an 'area' row for pathogen in object_filters, which filters at segmentation time instead.",
+    "pathogen_min_size": "(int) - (Deprecated) Minimum pathogen object area in pixels squared, applied during measurement: any label with fewer pixels than this is erased from the pathogen mask before features are extracted. 0 or None disables it. Default 500, which suits 40-60x; when pixel_size_um or magnification is set, the 500 default becomes the area of a disc one fifth of Mask's expected pathogen diameter (13 px at 20x or at 0.325 um/px). A field that loses more than half its pathogens prints a warning. Superseded by an 'area' row for pathogen in object_filters, which filters at segmentation time instead.",
     "pathogen_mask_dim": "(int) - Position along the last axis of each merged/*.npy array where the pathogen label mask sits, one plane after the nucleus mask. With the default four image channels (0-3) that is 6; shift it if you keep a different number of channels. None makes measure_crop skip pathogen measurements, so infection status cannot be scored. Default 6.",
     "use_bounding_box": "(bool) - Crop the object's rectangular bounding box padded by 10 px instead of its mask, so neighbouring cells and background inside the box are kept rather than zeroed out. Enable when the classifier should see local context; leave off to isolate a single object on a black background. Default False.",
     "plot_points": "(bool) - Show the scatter marker for each object in the embedding. When False the markers are still drawn but at alpha 0, so cluster colors and the legend survive while only the outlines and overlaid thumbnails stay visible - handy for image-only UMAP figures. Marker size comes from dot_size. Default True.",
@@ -8011,6 +8068,10 @@ ALPHA_KINDS = ('settings', 'choices', 'widgets', 'apps', 'models',
 ALPHA_FEATURES = {
     372: {
         'widgets': ('MaskOpsSwitch',),
+    },
+    800: {
+        'module_settings': {app_key: ('pixel_size_um',)
+                            for app_key in ('measure', 'external_masks')},
     },
     752: {
         'settings': ('ops_ph_channels', 'ops_ph_cell_channel',
