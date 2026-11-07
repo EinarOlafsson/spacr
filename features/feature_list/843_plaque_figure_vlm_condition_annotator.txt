@@ -1,0 +1,22 @@
+PLAQUE FIGURE MODE: A VLM CONDITION ANNOTATOR
+=============================================
+
+Lifecycle: new
+Status: open, alpha (register under ALPHA_FEATURES when built).
+Requested: maintainer, 2026-11-06 (BMC paper plaque meta-analysis).
+Owner: home spacr software paper.
+Target: spacr.plaque_papers.measure_figure_folder.
+
+WHAT TO DO
+- Draw numbered well boxes on the figure and send it with the legend and the
+  Methods paragraph.
+- Per box: whether it is a plaque image, strain, treatment, replicate and
+  reference well; also report missed images.
+- The provider is injected as a callable, so it is testable offline.
+- Validate the answer against a JSON schema and flag conflicts with the OCR
+  reading.
+- Default provider: the Claude API (Batch), with the key from the environment
+  or the profile, never logged.
+
+Evidence: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/plaque_meta/DESIGN.md (20-figure prototype:
+OCR read the conditions right for 34% of wells, a VLM for 86/86).

@@ -1,0 +1,17 @@
+PLAQUE FIGURE MODE: DEFAULT MODELS
+==================================
+
+Lifecycle: new
+Status: open, alpha (register under ALPHA_FEATURES when built).
+Requested: maintainer, 2026-11-06 (BMC paper plaque meta-analysis).
+Owner: home spacr software paper.
+Target: spacr.plaque_papers.measure_figure_folder.
+
+WHAT TO DO
+- The Figure mode defaults (spacr/plaque_papers.py:124-125, now well detector
+  v2 and plaque v6) switch to the zoo's toxoplasma_well_detector_v3 and the
+  final plaque v8 once its e100 checkpoint is published (about 9 Nov).
+- Plaque v8 e50 is already registered on both main and nightly.
+
+Evidence: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/plaque_meta/DESIGN.md (20-figure prototype:
+OCR read the conditions right for 34% of wells, a VLM for 86/86).

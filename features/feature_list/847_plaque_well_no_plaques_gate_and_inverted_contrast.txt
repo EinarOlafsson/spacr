@@ -1,0 +1,16 @@
+PLAQUE FIGURE MODE: A NO-PLAQUES GATE AND INVERTED-CONTRAST WELLS
+=================================================================
+
+Lifecycle: new
+Status: open, alpha (register under ALPHA_FEATURES when built).
+Requested: maintainer, 2026-11-06 (BMC paper plaque meta-analysis).
+Owner: home spacr software paper.
+Target: spacr.plaque_papers.measure_figure_folder.
+
+WHAT TO DO
+- Well measurement gets a "no plaques" gate (a mean area that comes from
+  spurious objects).
+- Handle inverted-contrast (dark-background) wells.
+
+Evidence: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/plaque_meta/DESIGN.md (20-figure prototype:
+OCR read the conditions right for 34% of wells, a VLM for 86/86).

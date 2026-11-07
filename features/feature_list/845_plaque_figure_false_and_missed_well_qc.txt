@@ -1,0 +1,16 @@
+PLAQUE FIGURE MODE: QC FOR FALSE AND MISSED WELLS
+=================================================
+
+Lifecycle: new
+Status: open, alpha (register under ALPHA_FEATURES when built).
+Requested: maintainer, 2026-11-06 (BMC paper plaque meta-analysis).
+Owner: home spacr software paper.
+Target: spacr.plaque_papers.measure_figure_folder.
+
+WHAT TO DO
+- Drop boxes that are not plaque images.
+- Re-detect at more scales.
+- Allow manual boxes.
+
+Evidence: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/plaque_meta/DESIGN.md (20-figure prototype:
+OCR read the conditions right for 34% of wells, a VLM for 86/86).
