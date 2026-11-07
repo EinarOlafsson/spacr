@@ -2618,7 +2618,8 @@ def _categories_for_app_uncached(app_key, categories, plugin_app):
                 "image_source", "tables",
                 "channel_of_interest", "stream_method", "object_array",
                 "channel_arrays", "bounding_box",
-                "crop_shape", "train_channels", "image_size", "augment"],
+                "crop_shape", "train_channels", "image_size", "augment",
+                "crop_scaling", "crop_scale_clip", "crop_scale_file"],
 
             "Model & Regularization": [
                 "classifier_family",
@@ -2646,7 +2647,8 @@ def _categories_for_app_uncached(app_key, categories, plugin_app):
                 "classifier_evaluation", "evaluation_calibration",
                 "evaluation_bins", "evaluation_fail_on_leakage",
                 "leakage_audit_train_test", "leakage_hash_content",
-                "leakage_require_identity"],
+                "leakage_require_identity", "preprocessing_mismatch",
+                "control_shuffled_labels"],
 
             "Results & figures": [
                 "n_top_examples", "plot", "tensorboard",

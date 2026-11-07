@@ -2,7 +2,7 @@ CROPS ARE EXPORTED RAW; NORMALISATION BELONGS TO THE TRANSFORM
 ==============================================================
 
 Lifecycle: new
-Status: open.
+Status: in progress (branch best-practice-1107, 2026-11-07; not merged).
 Requested: maintainer rule, 2026-11-05 (relayed by the BMC software-paper session): crops are not normalised on export; normalisation happens in the transform when crops enter a CNN or transformer.
 
 FINDINGS
@@ -40,3 +40,32 @@ the crop or png percentiles.
 10. Tests: the TIFF round-trips dtype, values and the mask channel; no export
     path reduces bit depth unless that option is set; montage rendering does
     not use nearest-neighbour upscaling.
+
+PROGRESS 2026-11-07 (branch best-practice-1107; audit in
+/nas_mnt/data/sync/papers/BMCspacr/reanalysis/spacr_best_practice_audit.md)
+Done:
+- Requirement 1: Measure setting crop_intensity ('auto' default, 'raw',
+  'stretch'). 'auto' writes raw masked crops (source dtype) unless normalize
+  is a percentile pair. DEFAULT CHANGE: normalize False now writes raw files.
+- Requirement 2, differently: the default 8-bit readers re-apply the old
+  per-crop 0-100 stretch to raw crops on read, bit for bit, so existing
+  models and the default training path see unchanged pixels.
+- Requirement 3: raw crops are crop format 4 in the folder marker, in tars
+  and in training copies. Readers honour it. The marker also records
+  mask_mode and, with flat-field correction, the illumination model sha256.
+- Requirement 4: crop_intensity='stretch' gives the old files.
+- Requirement 6: tests/test_raw_crop_export.py.
+- Flat-field correction (when on) is applied to the field in memory before
+  cropping.
+- Fixed per-plate x channel scaling in the classifier transform:
+  crop_scaling='fixed' (ALPHA, registered under 772), crop_scale_clip,
+  crop_scale_file. The contract (scales + md5, clip, size, interpolation,
+  mean/std, channels, mask mode) is saved in every new checkpoint and
+  checked at test/inference (preprocessing_mismatch).
+- Controls: control_shuffled_labels (ALPHA) and majority_class_accuracy.
+Open:
+- Requirement 5 (user docs beyond tooltips) and requirements 7-10 (TIFF with
+  a mask channel, 8-bit narrowing audit of every export, montage
+  interpolation).
+- Fixed scaling under cross-validation, in apply_model and apply_model_to_tar,
+  for more than 3 channels and in the attribution paths.

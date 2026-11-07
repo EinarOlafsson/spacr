@@ -2859,6 +2859,11 @@ def get_train_test_model_settings(settings):
      settings.setdefault('n_jobs', 30)
      settings.setdefault('ram_guard', True)
      settings.setdefault('augment', True)
+     settings.setdefault('crop_scaling', 'legacy')
+     settings.setdefault('crop_scale_clip', 1.5)
+     settings.setdefault('crop_scale_file', None)
+     settings.setdefault('preprocessing_mismatch', 'refuse')
+     settings.setdefault('control_shuffled_labels', False)
      settings.setdefault('verbose', True)
      settings.setdefault('label_smoothing', 0.1)
      settings.setdefault('focal_gamma', 2.0)
@@ -4149,6 +4154,11 @@ expected_types = {
     "n_jobs": int,
     "ram_guard": bool,
     "augment": bool,
+    "crop_scaling": str,
+    "crop_scale_clip": float,
+    "crop_scale_file": (str, type(None)),
+    "preprocessing_mismatch": str,
+    "control_shuffled_labels": bool,
     "cell_types": list,
     "cell_plate_metadata": (list, list),
     "pathogen_types": list,
@@ -5229,6 +5239,11 @@ tooltips = {
     "keep_original_images": "(bool) - Keep the original raw input images in orig/ after the run. On by default, so the raw files are never lost. Set False only to save disk space: orig/ is then deleted once merged/ is built, which is not reversible, and merged/ holds the projected pixel data, not the raw files.",
     "amsgrad": "(bool) - Use the AMSGrad variant of Adam/AdamW, which keeps a running maximum of past squared gradients instead of their decaying average so the effective step size never grows back. Enable when training loss oscillates or stops converging with plain Adam; it costs a little speed and memory. Only honoured by optimizer_type 'adam' and 'adamw' - ignored by sgd, rmsprop, nadam, radam and adagrad. Default True.",
     "analyze_clusters": "(bool) - After clustering the embedding, rank every measured feature by cluster separation using random-forest importance and a per-feature ANOVA or Kruskal-Wallis test, then write results/cluster_results.csv. Enable this setting to identify morphology or intensity features associated with each cluster. It adds a full model fit over the feature table. Default False.",
+    "crop_scaling": "(str) - How raw crops become model input. 'legacy' decodes each crop to 8 bits with the per-crop stretch, which is what spaCR has always trained on. 'fixed' reads raw crops at their stored values. Each plate and channel is divided by one fixed scale, the 99th percentile of the object pixels of up to 2,048 training crops. The result is clipped at crop_scale_clip, resized to image_size and normalised with input_statistics on the GPU, batch by batch. A fixed scale keeps intensity differences between cells, which a per-crop stretch removes. 'fixed' needs raw crops (Measure crop_intensity 'raw'). With augment, training uses flips, 90-degree rotations, shifts of up to 4 pixels and a per-channel gain within 10%. The scales and every other step are saved in the checkpoint. Default 'legacy'.",
+    "crop_scale_clip": "(float) - Upper clip after the fixed crop scale, so a value of 1.5 keeps signal up to 1.5 times the 99th percentile. Used only when crop_scaling is 'fixed'. Default 1.5.",
+    "crop_scale_file": "(str or None) - Scales file for crop_scaling 'fixed'. An existing file is reused, so several models can share one scale. None writes crop_scales.json in the dataset folder. Its md5 is saved in the checkpoint. Default None.",
+    "control_shuffled_labels": "(bool) - Train a shuffled-label control. The labels of the training split are permuted with random_seed, while validation and test labels stay true. A model that learns real phenotype should beat this control clearly. The run is saved in a separate folder whose name ends in _shuffled_labels. Test reports also list majority_class_accuracy, the accuracy of always predicting the largest class. Default False.",
+    "preprocessing_mismatch": "(str) - What testing a model does when the crops would be prepared differently from training, for example another image_size, channel selection, mask mode or scales file. 'refuse' stops with a message that lists the differences. 'warn' prints them and continues. Models saved before November 2026 have no full record, so they are tested with the current settings and a warning. Default 'refuse'.",
     "augment": "(bool) - Expand the training split eightfold by adding four 90-degree rotations of each crop and their horizontal reflections; validation and test splits are not augmented. Enable this setting when few annotated objects are available and validation accuracy is below training accuracy. The expanded set is materialised in RAM, requiring approximately eight times the memory and epoch duration. Default False.",
     "background": "(float) - Per-channel background level in raw intensity units. Pixels below it are zeroed when remove_background is on, and it is multiplied by Signal_to_noise to set the upper anchor for normalization. Raise it if faint haze survives; set it too high and dim real objects vanish. Default 100 (200 for Cellpose training and plaque analysis).",
     "backgrounds": "(list of float) - Legacy compatibility field retained in settings snapshots. Current mask preprocessing ignores this list and reads cell_background, nucleus_background, pathogen_background and each organelle background setting instead, so changing it does not alter segmentation. Default [100, 100, 100, 100].",
@@ -6118,7 +6133,7 @@ categories = {
 
     "Training Classes": ["dataset_mode", "classes", "ml_classes", "class_folder_names", "class_metadata", "metadata_item_1_name", "metadata_item_1_value", "metadata_item_2_name", "metadata_item_2_value", "annotation_column", "annotated_classes", "write_random_annotation_column"],
 
-    "Computer Vision Data Source": ["image_source", "image_size", "size", "train_channels", "stream_method", "object_array", "channel_arrays", "bounding_box", "crop_shape", "sample", "test_split", "val_split", "balance_to_smallest", "augment",
+    "Computer Vision Data Source": ["image_source", "image_size", "size", "train_channels", "stream_method", "object_array", "channel_arrays", "bounding_box", "crop_shape", "sample", "test_split", "val_split", "balance_to_smallest", "augment", "crop_scaling", "crop_scale_clip", "crop_scale_file",
         "crop_source", "file_metadata", "file_type", "coordinate_columns",
         "well_metadata_path", "cv_group_column",
         "cv_exclude_batch_column"],
@@ -6141,7 +6156,8 @@ categories = {
                            "prediction_treatment_column"],
 
     "Leakage Audit": ["evaluation_fail_on_leakage", "leakage_audit_train_test",
-                      "leakage_hash_content", "leakage_require_identity"],
+                      "leakage_hash_content", "leakage_require_identity",
+                      "preprocessing_mismatch", "control_shuffled_labels"],
 
     "Machine Learning Model and Features": ["model_type_ml", "n_estimators", "test_size", "cross_validation", "reg_lambda", "reg_alpha", "prune_features", "top_features", "n_repeats", ],
 
@@ -8015,6 +8031,10 @@ ALPHA_KINDS = ('settings', 'choices', 'widgets', 'apps', 'models',
 ALPHA_FEATURES = {
     372: {
         'widgets': ('MaskOpsSwitch',),
+    },
+    772: {
+        'settings': ('crop_scaling', 'crop_scale_clip', 'crop_scale_file',
+                     'control_shuffled_labels'),
     },
     752: {
         'settings': ('ops_ph_channels', 'ops_ph_cell_channel',
