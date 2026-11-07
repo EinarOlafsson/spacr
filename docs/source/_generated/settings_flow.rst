@@ -1491,9 +1491,15 @@ bin_labels
 
 (dict) - Replication panels: legend text for the stacked bins, as a dict bin -> text or a list in bin order (for example approximate parasites per vacuole for size-proxy area bins). A panel entry may set its own bin_labels. None labels size-proxy bins by the vacuole area they cover and parasite-count bins by the count. Default None.
 
-| ``_replication_panels_impl`` **-- reads it**
+| ``_replication_panels_impl``
+|     ``_replication_panel_specs`` **-- reads it**
+|         ``dict(...)  [UNRESOLVED]``
+| ``_replication_report_impl`` **-- reads it**
+|     ``_replication_panel_specs`` **-- reads it**
+|         ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_replication_panels_impl``.
+Read by ``_replication_panel_specs``, ``_replication_report_impl``.
 
 .. _setting-flow-black:
 
@@ -1575,11 +1581,16 @@ bracket_pairs
 |         ``dict(...)  [UNRESOLVED]``
 | ``_recruitment_report_impl`` **-- reads it**
 | ``_replication_panels_impl``
-|     ``_apply_axis`` **-- reads it**
-|     ``_bar_panel_from_objects``
+|     ``_replication_panel_specs``
 |         ``_apply_axis`` **-- reads it**
+|         ``dict(...)  [UNRESOLVED]``
+| ``_replication_report_impl`` **-- reads it**
+|     ``_replication_panel_specs``
+|         ``_apply_axis`` **-- reads it**
+|         ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_apply_axis``, ``_recruitment_report_impl``.
+Read by ``_apply_axis``, ``_recruitment_report_impl``, ``_replication_report_impl``.
 
 .. _setting-flow-brightness:
 
@@ -2678,6 +2689,10 @@ cell_types
 | ``_recruitment_report_impl``
 |     ``_report_grouping``
 |         ``_plate_map_condition_order`` **-- reads it**
+| ``_replication_report_impl``
+|     ``_report_grouping``
+|         ``_plate_map_condition_order`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.submodules.analyze_class_proportion` **-- reads it**
 | :py:func:`~spacr.submodules.analyze_endodyogeny` **-- reads it**
 | :py:func:`~spacr.submodules.analyze_invasion` **-- reads it**
@@ -3096,6 +3111,9 @@ channel_dims
 |         ``dict(...)  [UNRESOLVED]``
 | ``_recruitment_report_impl`` **-- reads it**
 |     ``_recruitment_tile_config`` **-- reads it**
+| ``_replication_report_impl`` **-- reads it**
+|     ``_replication_tile_config`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.submodules.analyze_endodyogeny`
 |     ``_replication_filters``
 |         ``_qc_filters`` **-- reads it**
@@ -3107,7 +3125,7 @@ channel_dims
 |     ``dict(...)  [UNRESOLVED]``
 |     ``apply_defaults(...)  [UNRESOLVED]``
 
-Read by ``_qc_filters``, ``_recruitment_control_specs``, ``_recruitment_report_impl``, ``_recruitment_tile_config``, ``analyze_recruitment``.
+Read by ``_qc_filters``, ``_recruitment_control_specs``, ``_recruitment_report_impl``, ``_recruitment_tile_config``, ``_replication_report_impl``, ``_replication_tile_config``, ``analyze_recruitment``.
 
 .. _setting-flow-channel_enhancement:
 
@@ -3145,9 +3163,12 @@ channel_of_interest
 |         ``dict(...)  [UNRESOLVED]``
 | ``_recruitment_report_impl`` **-- reads it**
 |     ``_recruitment_tile_config`` **-- reads it**
+| ``_replication_report_impl``
+|     ``_replication_tile_config`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.submodules.analyze_recruitment` **-- reads it**
 
-Read by ``generate_ml_scores``, ``plot_data_from_db``, ``_recruitment_control_specs``, ``_recruitment_report_impl``, ``_recruitment_tile_config``, ``analyze_recruitment``.
+Read by ``generate_ml_scores``, ``plot_data_from_db``, ``_recruitment_control_specs``, ``_recruitment_report_impl``, ``_recruitment_tile_config``, ``_replication_tile_config``, ``analyze_recruitment``.
 
 .. _setting-flow-channel_percentiles:
 
@@ -4258,6 +4279,9 @@ compartment
 (str) - Prefix used by per-object measurement columns, so 'pathogen' selects pathogen_area and pathogen_channel_1_percentile_95. It must match the object type contained in the table; otherwise the run stops and reports the unresolved area and intensity columns. Default 'pathogen'.
 
 | :py:func:`~spacr.figures.sheet.build_panel` **-- reads it**
+| ``_replication_report_impl``
+|     ``_replication_tile_config`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.submodules.analyze_endodyogeny` **-- reads it**
 |     ``_replication_filters`` **-- reads it**
 | :py:func:`~spacr.submodules.analyze_invasion` **-- reads it**
@@ -4269,7 +4293,7 @@ compartment
 |     ``dict(...)  [UNRESOLVED]``
 |     ``apply_defaults(...)  [UNRESOLVED]``
 
-Read by ``build_panel``, ``_replication_filters``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_replication``.
+Read by ``build_panel``, ``_replication_filters``, ``_replication_tile_config``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_replication``.
 
 .. _setting-flow-concentration_column:
 
@@ -4324,11 +4348,17 @@ condition_factors
 | ``_recruitment_report_impl``
 |     ``_condition_axis_parts`` **-- reads it**
 | ``_replication_panels_impl``
-|     ``_apply_axis``
-|         ``_condition_axis_parts`` **-- reads it**
-|     ``_bar_panel_from_objects``
+|     ``_replication_panel_specs``
 |         ``_apply_axis``
 |             ``_condition_axis_parts`` **-- reads it**
+|         ``dict(...)  [UNRESOLVED]``
+| ``_replication_report_impl``
+|     ``_condition_axis_parts`` **-- reads it**
+|     ``_replication_panel_specs``
+|         ``_apply_axis``
+|             ``_condition_axis_parts`` **-- reads it**
+|         ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
 
 Read by ``_condition_axis_parts``.
 
@@ -4352,13 +4382,19 @@ condition_labels
 | ``_recruitment_report_impl`` **-- reads it**
 |     ``_report_grouping`` **-- reads it**
 | ``_replication_panels_impl``
-|     ``_apply_axis`` **-- reads it**
-|     ``_bar_panel_from_objects``
+|     ``_replication_panel_specs``
 |         ``_apply_axis`` **-- reads it**
 |         ``_panel_labels`` **-- reads it**
-|     ``_panel_labels`` **-- reads it**
+|         ``dict(...)  [UNRESOLVED]``
+| ``_replication_report_impl`` **-- reads it**
+|     ``_replication_panel_specs``
+|         ``_apply_axis`` **-- reads it**
+|         ``_panel_labels`` **-- reads it**
+|         ``dict(...)  [UNRESOLVED]``
+|     ``_report_grouping`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_apply_axis``, ``_panel_labels``, ``_recruitment_report_impl``, ``_report_grouping``.
+Read by ``_apply_axis``, ``_panel_labels``, ``_recruitment_report_impl``, ``_replication_report_impl``, ``_report_grouping``.
 
 .. _setting-flow-condition_order:
 
@@ -4378,11 +4414,17 @@ condition_order
 | ``_recruitment_report_impl``
 |     ``_report_grouping`` **-- reads it**
 | ``_replication_panels_impl``
-|     ``_bar_panel_from_objects``
+|     ``_replication_panel_specs``
 |         ``_panel_order`` **-- reads it**
-|     ``_panel_order`` **-- reads it**
+|         ``dict(...)  [UNRESOLVED]``
+| ``_replication_report_impl`` **-- reads it**
+|     ``_replication_panel_specs``
+|         ``_panel_order`` **-- reads it**
+|         ``dict(...)  [UNRESOLVED]``
+|     ``_report_grouping`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_panel_order``, ``_recruitment_control_specs``, ``_report_grouping``.
+Read by ``_panel_order``, ``_recruitment_control_specs``, ``_replication_report_impl``, ``_report_grouping``.
 
 .. _setting-flow-conditions:
 
@@ -4606,8 +4648,10 @@ control_color_by
 |     ``_recruitment_control_specs`` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 | ``_recruitment_report_impl`` **-- reads it**
+| ``_replication_report_impl`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_recruitment_control_specs``, ``_recruitment_report_impl``.
+Read by ``_recruitment_control_specs``, ``_recruitment_report_impl``, ``_replication_report_impl``.
 
 .. _setting-flow-control_column:
 
@@ -9195,11 +9239,16 @@ factor_order
 |         ``dict(...)  [UNRESOLVED]``
 | ``_recruitment_report_impl`` **-- reads it**
 | ``_replication_panels_impl``
-|     ``_apply_axis`` **-- reads it**
-|     ``_bar_panel_from_objects``
+|     ``_replication_panel_specs``
 |         ``_apply_axis`` **-- reads it**
+|         ``dict(...)  [UNRESOLVED]``
+| ``_replication_report_impl`` **-- reads it**
+|     ``_replication_panel_specs``
+|         ``_apply_axis`` **-- reads it**
+|         ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_apply_axis``, ``_recruitment_report_impl``.
+Read by ``_apply_axis``, ``_recruitment_report_impl``, ``_replication_report_impl``.
 
 .. _setting-flow-factory:
 
@@ -10393,7 +10442,13 @@ group_column
 
 (str) - Column whose values become the experimental conditions compared against each other; 'condition' is the combined host-cell / pathogen / treatment label built from the plate-metadata maps. Point it at 'pathogen' or 'treatment' to compare on one factor alone. Rows with no value here are dropped before anything is counted. Default 'condition'.
 
-| ``_replication_panels_impl`` **-- reads it**
+| ``_replication_panels_impl``
+|     ``_replication_panel_specs`` **-- reads it**
+|         ``dict(...)  [UNRESOLVED]``
+| ``_replication_report_impl``
+|     ``_replication_panel_specs`` **-- reads it**
+|         ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.submodules.analyze_class_proportion` **-- reads it**
 | :py:func:`~spacr.submodules.analyze_endodyogeny` **-- reads it**
 | :py:func:`~spacr.submodules.analyze_invasion` **-- reads it**
@@ -10404,7 +10459,7 @@ group_column
 |     ``dict(...)  [UNRESOLVED]``
 |     ``apply_defaults(...)  [UNRESOLVED]``
 
-Read by ``_replication_panels_impl``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_replication``.
+Read by ``_replication_panel_specs``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_replication``.
 
 .. _setting-flow-group_lasso_lambda:
 
@@ -14202,6 +14257,9 @@ merged_dir
 |         ``_recruitment_tile_config`` **-- reads it**
 | ``_recruitment_report_impl`` **-- reads it**
 |     ``_recruitment_tile_config`` **-- reads it**
+| ``_replication_report_impl``
+|     ``_replication_tile_config`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.submodules.analyze_endodyogeny`
 |     ``_replication_filters``
 |         ``_object_quality_filters`` **-- reads it**
@@ -14214,7 +14272,7 @@ merged_dir
 |     ``dict(...)  [UNRESOLVED]``
 |     ``apply_defaults(...)  [UNRESOLVED]``
 
-Read by ``_object_quality_filters``, ``_panel_crop_grids``, ``_recruitment_report_impl``, ``_recruitment_tile_config``.
+Read by ``_object_quality_filters``, ``_panel_crop_grids``, ``_recruitment_report_impl``, ``_recruitment_tile_config``, ``_replication_tile_config``.
 
 .. _setting-flow-merged_folder:
 
@@ -20137,15 +20195,22 @@ panels
 (list) - Recruitment and replication: publication panels, one dict each, e.g. {'name': 'strains_in_WT', 'where': {'host_cells': 'HeLa_WT'}, 'group': 'pathogen', 'order': [...], 'labels': {...}, 'value': 'recruitment'}; group is any annotated column. Recruitment draws one bar panel per entry; replication three (bins with chi-square, bins with Fisher-Freeman-Halton, and a bar of the per-vacuole mean). Each panel folder under results holds PDF, PNG, the plotted data and statistics CSVs; the test follows normality and equal-variance checks. None draws no panels. Default None.
 
 | ``_recruitment_panels_impl`` **-- reads it**
-| ``_replication_panels_impl`` **-- reads it**
+| ``_replication_panels_impl``
+|     ``_replication_panel_specs`` **-- reads it**
+|         ``dict(...)  [UNRESOLVED]``
+| ``_replication_report_impl`` **-- reads it**
+|     ``_replication_panel_specs`` **-- reads it**
+|         ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.submodules.analyze_recruitment` **-- reads it**
 |     ``_recruitment_new_filters`` **-- reads it**
 |     ``_well_density_columns_needed`` **-- reads it**
 | :py:func:`~spacr.submodules.analyze_replication` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 |     ``apply_defaults(...)  [UNRESOLVED]``
+| :py:func:`~spacr.submodules.extra` **-- reads it**
 
-Read by ``_recruitment_new_filters``, ``_recruitment_panels_impl``, ``_replication_panels_impl``, ``_well_density_columns_needed``, ``analyze_recruitment``, ``analyze_replication``.
+Read by ``_recruitment_new_filters``, ``_recruitment_panels_impl``, ``_replication_panel_specs``, ``_replication_report_impl``, ``_well_density_columns_needed``, ``analyze_recruitment``, ``analyze_replication``, ``extra``.
 
 .. _setting-flow-parasite_count_column:
 
@@ -21066,6 +21131,10 @@ pathogen_types
 | ``_recruitment_report_impl``
 |     ``_report_grouping``
 |         ``_plate_map_condition_order`` **-- reads it**
+| ``_replication_report_impl``
+|     ``_report_grouping``
+|         ``_plate_map_condition_order`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.submodules.analyze_class_proportion` **-- reads it**
 | :py:func:`~spacr.submodules.analyze_endodyogeny` **-- reads it**
 | :py:func:`~spacr.submodules.analyze_invasion` **-- reads it**
@@ -24213,10 +24282,16 @@ replicate_column
 |         ``dict(...)  [UNRESOLVED]``
 | ``_recruitment_report_impl``
 |     ``_report_grouping`` **-- reads it**
-| ``_replication_panels_impl`` **-- reads it**
-|     ``_apply_axis`` **-- reads it**
-|     ``_bar_panel_from_objects`` **-- reads it**
+| ``_replication_panels_impl``
+|     ``_replication_panel_specs`` **-- reads it**
 |         ``_apply_axis`` **-- reads it**
+|         ``dict(...)  [UNRESOLVED]``
+| ``_replication_report_impl`` **-- reads it**
+|     ``_replication_panel_specs`` **-- reads it**
+|         ``_apply_axis`` **-- reads it**
+|         ``dict(...)  [UNRESOLVED]``
+|     ``_report_grouping`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.submodules.analyze_endodyogeny`
 |     ``_replication_filters``
 |         ``_qc_filters``
@@ -24231,7 +24306,7 @@ replicate_column
 |     ``dict(...)  [UNRESOLVED]``
 |     ``apply_defaults(...)  [UNRESOLVED]``
 
-Read by ``_drug_screen_wells``, ``_apply_axis``, ``_bar_panel_from_objects``, ``_qc_group_column``, ``_recruitment_control_specs``, ``_replication_panels_impl``, ``_report_grouping``, ``analyze_replication``.
+Read by ``_drug_screen_wells``, ``_apply_axis``, ``_bar_panel_from_objects``, ``_qc_group_column``, ``_recruitment_control_specs``, ``_replication_panel_specs``, ``_replication_report_impl``, ``_report_grouping``, ``analyze_replication``.
 
 .. _setting-flow-replicate_estimator:
 
@@ -24272,11 +24347,15 @@ Read by ``analyze_replication``.
 report
 ------
 
-(bool) - Recruitment analysis: write the standard recruitment report into results/report: representative tiles per condition, recruitment per condition before and after the opt-in filters at well and replicate level, and well-level control graphs (every channel in every object type, objects per well) before and after filtering, as A4 pages in recruitment_report.pdf with one folder per panel (PDF, PNG, data.csv, stats.csv) and an automatic figure legend (figure_legend.txt). Default False.
+(bool) - Recruitment and replication: write the standard report: filtered and unfiltered A4 figures with images, the main graphs at well and replicate level, split control graphs, filtration steps and plate heatmaps, one folder per panel (PDF, PNG, data.csv, stats.csv) and an automatic figure legend. Recruitment writes results/report, replication results/analyze_replication/report (with images and stacked bins per size bin or replication bucket). Default False.
 
+| :py:func:`~spacr.submodules.analyze_endodyogeny` **-- reads it**
 | :py:func:`~spacr.submodules.analyze_recruitment` **-- reads it**
+| :py:func:`~spacr.submodules.analyze_replication` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
+|     ``apply_defaults(...)  [UNRESOLVED]``
 
-Read by ``analyze_recruitment``.
+Read by ``analyze_endodyogeny``, ``analyze_recruitment``, ``analyze_replication``.
 
 .. _setting-flow-report_layout:
 
@@ -24286,8 +24365,10 @@ report_layout
 (str) - Recruitment report: page layout of recruitment_report.pdf. compact uses 5-6 pt text, small tiles and four panels per row, and fits the whole figure on one A4 page when it can (the legend follows on its own page); spacious uses larger text and paginates freely. More conditions, channels or object types continue on further pages in both. Default 'compact'.
 
 | ``_recruitment_report_impl`` **-- reads it**
+| ``_replication_report_impl`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_recruitment_report_impl``.
+Read by ``_recruitment_report_impl``, ``_replication_report_impl``.
 
 .. _setting-flow-report_max_conditions_per_row:
 
@@ -24297,8 +24378,10 @@ report_max_conditions_per_row
 (int) - Recruitment report: most conditions drawn side by side in one graph or tile row; longer condition axes continue on the next row or page. Default 12.
 
 | ``_recruitment_report_impl`` **-- reads it**
+| ``_replication_report_impl`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_recruitment_report_impl``.
+Read by ``_recruitment_report_impl``, ``_replication_report_impl``.
 
 .. _setting-flow-report_tile_channels:
 
@@ -24312,8 +24395,11 @@ report_tile_channels
 |         ``_recruitment_tile_config`` **-- reads it**
 | ``_recruitment_report_impl``
 |     ``_recruitment_tile_config`` **-- reads it**
+| ``_replication_report_impl``
+|     ``_replication_tile_config`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_recruitment_tile_config``.
+Read by ``_recruitment_tile_config``, ``_replication_tile_config``.
 
 .. _setting-flow-report_tile_seed:
 
@@ -24327,23 +24413,29 @@ report_tile_seed
 |         ``_recruitment_tile_config`` **-- reads it**
 | ``_recruitment_report_impl``
 |     ``_recruitment_tile_config`` **-- reads it**
+| ``_replication_report_impl``
+|     ``_replication_tile_config`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_recruitment_tile_config``.
+Read by ``_recruitment_tile_config``, ``_replication_tile_config``.
 
 .. _setting-flow-report_tile_size:
 
 report_tile_size
 ----------------
 
-(int) - Recruitment report: side of each representative tile in pixels, centred on the host cell mask centroid. Default 128.
+(int) - Recruitment report: side of each tile and crop in pixels, centred on the pathogen objects of the host cell. Default 192.
 
 | ``_recruitment_panels_impl``
 |     ``_panel_crop_grids``
 |         ``_recruitment_tile_config`` **-- reads it**
 | ``_recruitment_report_impl``
 |     ``_recruitment_tile_config`` **-- reads it**
+| ``_replication_report_impl``
+|     ``_replication_tile_config`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_recruitment_tile_config``.
+Read by ``_recruitment_tile_config``, ``_replication_tile_config``.
 
 .. _setting-flow-report_tiles_per_condition:
 
@@ -24357,8 +24449,11 @@ report_tiles_per_condition
 |         ``_recruitment_tile_config`` **-- reads it**
 | ``_recruitment_report_impl``
 |     ``_recruitment_tile_config`` **-- reads it**
+| ``_replication_report_impl``
+|     ``_replication_tile_config`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_recruitment_tile_config``.
+Read by ``_recruitment_tile_config``, ``_replication_tile_config``.
 
 .. _setting-flow-representation:
 
@@ -24381,8 +24476,10 @@ representative_crops
 | ``_recruitment_panels_impl``
 |     ``_panel_crop_grids`` **-- reads it**
 | ``_recruitment_report_impl`` **-- reads it**
+| ``_replication_report_impl`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_panel_crop_grids``, ``_recruitment_report_impl``.
+Read by ``_panel_crop_grids``, ``_recruitment_report_impl``, ``_replication_report_impl``.
 
 .. _setting-flow-representative_crops_n:
 
@@ -24394,8 +24491,10 @@ representative_crops_n
 | ``_recruitment_panels_impl``
 |     ``_panel_crop_grids`` **-- reads it**
 | ``_recruitment_report_impl`` **-- reads it**
+| ``_replication_report_impl`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_panel_crop_grids``, ``_recruitment_report_impl``.
+Read by ``_panel_crop_grids``, ``_recruitment_report_impl``, ``_replication_report_impl``.
 
 .. _setting-flow-require_host_cell:
 
@@ -25898,10 +25997,11 @@ settings
 |     ``_recruitment_report`` **-- reads it**
 | :py:func:`~spacr.submodules.analyze_replication`
 |     ``_replication_panels`` **-- reads it**
+|     ``_replication_report`` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 |     ``apply_defaults(...)  [UNRESOLVED]``
 
-Read by ``_flowview_pipeline``, ``decorate``, ``observed``, ``_flowview_pipeline``, ``decorate``, ``observed``, ``_recruitment_panels``, ``_recruitment_report``, ``_replication_panels``.
+Read by ``_flowview_pipeline``, ``decorate``, ``observed``, ``_flowview_pipeline``, ``decorate``, ``observed``, ``_recruitment_panels``, ``_recruitment_report``, ``_replication_panels``, ``_replication_report``.
 
 .. _setting-flow-sha256:
 
@@ -26798,6 +26898,9 @@ src
 |         ``_recruitment_tile_config`` **-- reads it**
 | ``_recruitment_report_impl`` **-- reads it**
 |     ``_recruitment_tile_config`` **-- reads it**
+| ``_replication_report_impl`` **-- reads it**
+|     ``_replication_tile_config`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.submodules.analyze_class_proportion` **-- reads it**
 |     :py:func:`~spacr.utils.save_settings` **-- reads it**
 | :py:func:`~spacr.submodules.analyze_endodyogeny` **-- reads it**
@@ -26844,7 +26947,7 @@ src
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 | :py:func:`~spacr.utils.delete_intermedeate_files` **-- reads it**
 
-Read by ``_generate_masks_in_parallel``, ``align_folder``, ``anndata_export_settings``, ``run_anndata_export``, ``generate_annotation_dataset``, ``_src_values``, ``default_label``, ``_call_entry``, ``_workflow_plates``, ``convert_folder``, ``_watch_check_settings``, ``_watch_closed_pool_spec``, ``_watch_vendor_recipe``, ``generate_image_umap``, ``generate_screen_graphs``, ``preprocess_generate_masks``, ``reducer_hyperparameter_search``, ``resolve_crop_source``, ``_cross_validate_model``, ``annotate_filter_vision``, ``deep_spacr``, ``generate_activation_map``, ``train_test_model``, ``_source_value``, ``run_import``, ``analyze_host_pathogen``, ``preview_fields``, ``load_activation_data``, ``load_search_data``, ``umap_checkpoint_path``, ``illumination_settings``, ``prepare_illumination_model``, ``prepare_segmentation_illumination``, ``validate_measurement_illumination_inputs``, ``_preprocess_mapped_volume_series``, ``_preprocess_volume_tiffs``, ``_save_settings_to_db``, ``generate_dataset``, ``generate_training_dataset``, ``open_crop_source``, ``preprocess_img_data``, ``_project_root``, ``_calibration_reference_hashes``, ``_check_measure_field_names``, ``_export_vvvv_measured_field``, ``_measure_crop_core``, ``_measured_fields``, ``_measurement_run_archive_plan``, ``_prepare_measurement_calibration``, ``_prepare_measurement_crop_output``, ``_run_cellprofiler_step``, ``_run_plate_barcode_step``, ``_write_intensity_rescale_record``, ``measure_crop``, ``process_measure_crop_results``, ``_annotation_cache``, ``_perform_drug_screen_regression``, ``_perform_regression_set_paths``, ``_show_response_distribution``, ``create_extended_radar_plot``, ``generate_ml_scores``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``_describe_cellpose_training``, ``_describe_classifier_training``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``_needs_cloud_run``, ``_run_with_cloud_sources``, ``_trial_settings``, ``rerun_trial``, ``run_trial_contained``, ``settings_for_trial``, ``graph_importance``, ``plot_data_from_csv``, ``plot_data_from_db``, ``plot_region``, ``fill_psf_settings``, ``_prepare_measure_unmixing``, ``_open_easy_suggestion``, ``apply``, ``build``, ``import_plates_from_csv``, ``_claim_the_project``, ``_confirm_measure_plane_layout``, ``_confirm_ram_guard``, ``_load_regression_results``, ``_lock_analysis_now``, ``_measurements_destination``, ``_on_run``, ``_search_figure_dir``, ``plan_barcode_search``, ``_make_screen``, ``_trial_figures_ready``, ``apply_settings``, ``_on_click``, ``wire_add_current``, ``resolve_default_settings``, ``settings_from_pack``, ``_plan_gains``, ``apply_settings``, ``load_source_async``, ``run_preview``, ``apply_settings``, ``_dose_runs``, ``_journal_dose_runs``, ``_colony_preview_pass``, ``detect_figure``, ``figure_pass``, ``seed_well_boxes``, ``__init__``, ``_open_field_overview``, ``_open_overview_module``, ``run``, ``_protocol_handoff``, ``destination``, ``_settings_point_at``, ``_app_unit_bytes``, ``measurements_db_path``, ``plan_measure_resume``, ``plates_of``, ``_check_lock_for_run``, ``_observe_settings_changes``, ``_recorded_models``, ``check_analysis_lock``, ``generate_barecode_mapping``, ``default_settings_analyze_percent_positive``, ``get_analyze_plaque_settings``, ``get_default_apply_cellpose_model_settings``, ``get_default_test_cellpose_model_settings``, ``get_measure_crop_settings``, ``get_train_test_model_settings``, ``set_annotate_default_settings``, ``_run_and_save_queued``, ``run_and_save``, ``run_multiple_simulations``, ``check_cellpose_models``, ``identify_masks_finetune``, ``stream_dataset``, ``_analyze_colony_plates``, ``_analyze_plaque_figures``, ``_recruitment_new_filters``, ``_recruitment_report_impl``, ``_recruitment_tile_config``, ``_segment_plaque_folder``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_percent_positive``, ``analyze_plaques``, ``analyze_recruitment``, ``analyze_replication``, ``apply_cellpose_model``, ``count_phenotypes``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``split_wells``, ``test_cellpose_model``, ``train_cellpose``, ``main``, ``automated_motility_assay``, ``delete_intermedeate_files``, ``measure_test_mode``, ``save_settings``, ``_describe_outputs``, ``_describe_regression_plan``.
+Read by ``_generate_masks_in_parallel``, ``align_folder``, ``anndata_export_settings``, ``run_anndata_export``, ``generate_annotation_dataset``, ``_src_values``, ``default_label``, ``_call_entry``, ``_workflow_plates``, ``convert_folder``, ``_watch_check_settings``, ``_watch_closed_pool_spec``, ``_watch_vendor_recipe``, ``generate_image_umap``, ``generate_screen_graphs``, ``preprocess_generate_masks``, ``reducer_hyperparameter_search``, ``resolve_crop_source``, ``_cross_validate_model``, ``annotate_filter_vision``, ``deep_spacr``, ``generate_activation_map``, ``train_test_model``, ``_source_value``, ``run_import``, ``analyze_host_pathogen``, ``preview_fields``, ``load_activation_data``, ``load_search_data``, ``umap_checkpoint_path``, ``illumination_settings``, ``prepare_illumination_model``, ``prepare_segmentation_illumination``, ``validate_measurement_illumination_inputs``, ``_preprocess_mapped_volume_series``, ``_preprocess_volume_tiffs``, ``_save_settings_to_db``, ``generate_dataset``, ``generate_training_dataset``, ``open_crop_source``, ``preprocess_img_data``, ``_project_root``, ``_calibration_reference_hashes``, ``_check_measure_field_names``, ``_export_vvvv_measured_field``, ``_measure_crop_core``, ``_measured_fields``, ``_measurement_run_archive_plan``, ``_prepare_measurement_calibration``, ``_prepare_measurement_crop_output``, ``_run_cellprofiler_step``, ``_run_plate_barcode_step``, ``_write_intensity_rescale_record``, ``measure_crop``, ``process_measure_crop_results``, ``_annotation_cache``, ``_perform_drug_screen_regression``, ``_perform_regression_set_paths``, ``_show_response_distribution``, ``create_extended_radar_plot``, ``generate_ml_scores``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``_describe_cellpose_training``, ``_describe_classifier_training``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``_needs_cloud_run``, ``_run_with_cloud_sources``, ``_trial_settings``, ``rerun_trial``, ``run_trial_contained``, ``settings_for_trial``, ``graph_importance``, ``plot_data_from_csv``, ``plot_data_from_db``, ``plot_region``, ``fill_psf_settings``, ``_prepare_measure_unmixing``, ``_open_easy_suggestion``, ``apply``, ``build``, ``import_plates_from_csv``, ``_claim_the_project``, ``_confirm_measure_plane_layout``, ``_confirm_ram_guard``, ``_load_regression_results``, ``_lock_analysis_now``, ``_measurements_destination``, ``_on_run``, ``_search_figure_dir``, ``plan_barcode_search``, ``_make_screen``, ``_trial_figures_ready``, ``apply_settings``, ``_on_click``, ``wire_add_current``, ``resolve_default_settings``, ``settings_from_pack``, ``_plan_gains``, ``apply_settings``, ``load_source_async``, ``run_preview``, ``apply_settings``, ``_dose_runs``, ``_journal_dose_runs``, ``_colony_preview_pass``, ``detect_figure``, ``figure_pass``, ``seed_well_boxes``, ``__init__``, ``_open_field_overview``, ``_open_overview_module``, ``run``, ``_protocol_handoff``, ``destination``, ``_settings_point_at``, ``_app_unit_bytes``, ``measurements_db_path``, ``plan_measure_resume``, ``plates_of``, ``_check_lock_for_run``, ``_observe_settings_changes``, ``_recorded_models``, ``check_analysis_lock``, ``generate_barecode_mapping``, ``default_settings_analyze_percent_positive``, ``get_analyze_plaque_settings``, ``get_default_apply_cellpose_model_settings``, ``get_default_test_cellpose_model_settings``, ``get_measure_crop_settings``, ``get_train_test_model_settings``, ``set_annotate_default_settings``, ``_run_and_save_queued``, ``run_and_save``, ``run_multiple_simulations``, ``check_cellpose_models``, ``identify_masks_finetune``, ``stream_dataset``, ``_analyze_colony_plates``, ``_analyze_plaque_figures``, ``_recruitment_new_filters``, ``_recruitment_report_impl``, ``_recruitment_tile_config``, ``_replication_report_impl``, ``_replication_tile_config``, ``_segment_plaque_folder``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_percent_positive``, ``analyze_plaques``, ``analyze_recruitment``, ``analyze_replication``, ``apply_cellpose_model``, ``count_phenotypes``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``split_wells``, ``test_cellpose_model``, ``train_cellpose``, ``main``, ``automated_motility_assay``, ``delete_intermedeate_files``, ``measure_test_mode``, ``save_settings``, ``_describe_outputs``, ``_describe_regression_plan``.
 
 .. _setting-flow-ssmd_estimator:
 
@@ -29549,6 +29652,10 @@ treatments
 | ``_recruitment_report_impl``
 |     ``_report_grouping``
 |         ``_plate_map_condition_order`` **-- reads it**
+| ``_replication_report_impl``
+|     ``_report_grouping``
+|         ``_plate_map_condition_order`` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.submodules.analyze_class_proportion` **-- reads it**
 | :py:func:`~spacr.submodules.analyze_endodyogeny` **-- reads it**
 | :py:func:`~spacr.submodules.analyze_invasion` **-- reads it**
@@ -31695,11 +31802,16 @@ x_axis_style
 |         ``dict(...)  [UNRESOLVED]``
 | ``_recruitment_report_impl`` **-- reads it**
 | ``_replication_panels_impl``
-|     ``_apply_axis`` **-- reads it**
-|     ``_bar_panel_from_objects``
+|     ``_replication_panel_specs``
 |         ``_apply_axis`` **-- reads it**
+|         ``dict(...)  [UNRESOLVED]``
+| ``_replication_report_impl`` **-- reads it**
+|     ``_replication_panel_specs``
+|         ``_apply_axis`` **-- reads it**
+|         ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_apply_axis``, ``_recruitment_report_impl``.
+Read by ``_apply_axis``, ``_recruitment_report_impl``, ``_replication_report_impl``.
 
 .. _setting-flow-x_lim:
 
