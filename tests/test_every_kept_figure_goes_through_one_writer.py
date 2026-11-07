@@ -38,6 +38,9 @@ ALLOWED = {
                    "sweep, the same figure-integrity check"),
     "report.py": (2, "PdfPages.savefig: pages of a multi-page book, not a "
                      "file a format preference can name"),
+    "assay_report.py": (2, "PdfPages.savefig: pages of the A4 assay report, "
+                           "a multi-page book, not a file a format "
+                           "preference can name"),
     "qt/widgets/save_figure_dialog.py": (
         1, "the user chose the format, the DPI and the page in this dialog "
            "and is looking at the preview; overriding them would write "

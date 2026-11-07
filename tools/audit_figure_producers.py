@@ -71,6 +71,9 @@ EXEMPT = {
         "a scratch figure the scale-location statistics are read from",
     ("report.py", "write_pdf"):
         "PDF report pages assembled from images already saved, never shown",
+    ("assay_report.py", "_new_figure"):
+        "returns an empty A4 report page or panel canvas to the caller, "
+        "which draws; the pages are assembled into the report PDF",
     ("timelapse.py", "create_results_figure"):
         "returns an empty figure and axes to the caller, which draws",
     ("qt/widgets/picture_export.py", "save_picture"):

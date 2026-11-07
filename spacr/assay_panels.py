@@ -1088,6 +1088,8 @@ def draw_bar_panel(ax, data: pd.DataFrame, value: str, group: str, order: Sequen
     :param seed: random seed of the horizontal jitter of the dots.
     :returns: ``ax``.
     """
+    import matplotlib
+
     order = list(order)
     rng = np.random.default_rng(seed)
     if "outlier" in data.columns:
@@ -1140,7 +1142,7 @@ def draw_bar_panel(ax, data: pd.DataFrame, value: str, group: str, order: Sequen
                 i, j = order.index(r["group_1"]), order.index(r["group_2"])
                 y = level + k * step * 1.1
                 ax.plot([i, i, j, j], [y, y + step * 0.25, y + step * 0.25, y],
-                        lw=STYLE["bracket_lw"], color="black")
+                        lw=STYLE["bracket_lw"], color=matplotlib.rcParams["text.color"])
                 ax.text((i + j) / 2, y + step * 0.3, r["significance"], ha="center",
                         va="bottom", fontsize=8)
             if levels:
@@ -1300,17 +1302,23 @@ def save_panel(out_dir: str, panel_id: str, name: str, spec: dict, dpi: int = 30
     """
     import matplotlib.pyplot as plt
 
+    from .figures.bundle import _register_figure_data
+    from .figures.style import _figure_axes
+    from .plot import save_figure
+
     stem = panel_folder_name(panel_id, name)
     folder = os.path.join(out_dir, stem)
     os.makedirs(folder, exist_ok=True)
-    fig, ax = plt.subplots(figsize=_panel_size(spec))
-    try:
-        draw_panel(ax, spec)
-        fig.tight_layout()
-        for ext in ("pdf", "png"):
-            fig.savefig(os.path.join(folder, f"{stem}.{ext}"), dpi=dpi, bbox_inches="tight")
-    finally:
-        plt.close(fig)
+    with _figure_axes(figsize=_panel_size(spec)) as (fig, ax):
+        try:
+            draw_panel(ax, spec)
+            _register_figure_data(fig, lambda: _panel_tidy(spec), **_panel_recipe(spec))
+            fig.tight_layout()
+            for ext in ("pdf", "png"):
+                save_figure(fig, os.path.join(folder, f"{stem}.{ext}"), fmt=ext, dpi=dpi,
+                            bbox_inches="tight")
+        finally:
+            plt.close(fig)
     write_table(spec["data"], os.path.join(folder, "data_replicates.csv"))
     if spec["kind"] == "bar":
         st = spec["stats"]
@@ -1353,6 +1361,10 @@ def assemble_figure(specs: Mapping[str, dict], panel_ids: Sequence[str], ncol: i
     """
     import matplotlib.pyplot as plt
 
+    from .figures.bundle import _register_figure_data
+    from .figures.style import _figure_axes
+    from .plot import save_figure
+
     missing = [p for p in panel_ids if p not in specs]
     if missing:
         raise KeyError(f"assemble_figure: unknown panel id(s) {missing}; known: {sorted(specs)}")
@@ -1362,35 +1374,79 @@ def assemble_figure(specs: Mapping[str, dict], panel_ids: Sequence[str], ncol: i
     sizes = [_panel_size(specs[i]) for i in ids]
     col_w = [max((sizes[k][0] for k in range(c, len(ids), ncol)), default=3.0) for c in range(ncol)]
     row_h = max((s[1] for s in sizes), default=4.0)
-    fig, axes = plt.subplots(nrow, ncol, figsize=(sum(col_w), nrow * (row_h + 0.6)),
-                             gridspec_kw={"width_ratios": col_w}, squeeze=False)
-    try:
-        stacked_ax = None
-        for ax, pid in zip(axes.flat, ids):
-            spec = specs[pid]
-            draw_panel(ax, spec, legend=False)
-            if spec["kind"] == "stacked" and stacked_ax is None:
-                stacked_ax = ax
-            ax.text(-0.18, 1.12, pid, transform=ax.transAxes, fontsize=12,
-                    fontweight="bold", va="bottom")
-        for ax in list(axes.flat)[len(ids):]:
-            ax.axis("off")
-        if stacked_ax is not None:
-            h, l = stacked_ax.get_legend_handles_labels()
-            spec = next(specs[i] for i in ids if specs[i]["kind"] == "stacked")
-        if title:
-            fig.suptitle(title, fontsize=12, y=1.01)
-        fig.tight_layout()
-        if stacked_ax is not None:
-            fig.legend(h, l, title=spec.get("legend_title") or None, loc="upper center",
-                       ncol=min(len(l), 8), fontsize=8, title_fontsize=8, frameon=False,
-                       bbox_to_anchor=(0.5, 0.0))
-        base = os.path.splitext(path)[0] if path.lower().endswith((".pdf", ".png")) else path
-        os.makedirs(os.path.dirname(base) or ".", exist_ok=True)
-        written = []
-        for ext in ("pdf", "png"):
-            fig.savefig(f"{base}.{ext}", dpi=dpi, bbox_inches="tight")
-            written.append(f"{base}.{ext}")
-    finally:
-        plt.close(fig)
-    return written
+    with _figure_axes(nrow, ncol, figsize=(sum(col_w), nrow * (row_h + 0.6)),
+                      gridspec_kw={"width_ratios": col_w}, squeeze=False) as (fig, axes):
+        try:
+            stacked_ax = None
+            for ax, pid in zip(axes.flat, ids):
+                spec = specs[pid]
+                draw_panel(ax, spec, legend=False)
+                if spec["kind"] == "stacked" and stacked_ax is None:
+                    stacked_ax = ax
+                ax.text(-0.18, 1.12, pid, transform=ax.transAxes, fontsize=12,
+                        fontweight="bold", va="bottom")
+            for ax in list(axes.flat)[len(ids):]:
+                ax.axis("off")
+            if stacked_ax is not None:
+                h, l = stacked_ax.get_legend_handles_labels()
+                spec = next(specs[i] for i in ids if specs[i]["kind"] == "stacked")
+            if title:
+                fig.suptitle(title, fontsize=12, y=1.01)
+            fig.tight_layout()
+            if stacked_ax is not None:
+                fig.legend(h, l, title=spec.get("legend_title") or None, loc="upper center",
+                           ncol=min(len(l), 8), fontsize=8, title_fontsize=8, frameon=False,
+                           bbox_to_anchor=(0.5, 0.0))
+            base = os.path.splitext(path)[0] if path.lower().endswith((".pdf", ".png")) else path
+            os.makedirs(os.path.dirname(base) or ".", exist_ok=True)
+            _register_figure_data(fig, lambda: _assembled_tidy(specs, ids),
+                                  grid=(nrow, ncol), kind="bar",
+                                  panels=[dict(_panel_recipe(specs[pid]), slot=k,
+                                               where={"panel": [pid]})
+                                          for k, pid in enumerate(ids)])
+            written = []
+            for ext in ("pdf", "png"):
+                save_figure(fig, f"{base}.{ext}", fmt=ext, dpi=dpi, bbox_inches="tight")
+                written.append(f"{base}.{ext}")
+        finally:
+            plt.close(fig)
+        return written
+
+
+def _panel_tidy(spec: dict) -> pd.DataFrame:
+    """The plotted values of one panel spec as a long table, one row per value.
+
+    :param spec: a spec from :func:`bar_spec` or :func:`stacked_spec`.
+    :returns: for a bar panel its group and value columns; for a stacked
+        panel one row per unit and bin, with ``bin`` and ``fraction`` columns.
+    """
+    group = spec["group"]
+    if spec["kind"] == "bar":
+        return spec["data"][[group, spec["value"]]].copy()
+    rename = dict(zip(spec["bins"], spec["bin_labels"]))
+    long = spec["data"].melt(id_vars=[group], value_vars=spec["bins"], var_name="bin",
+                             value_name="fraction")
+    long["bin"] = long["bin"].map(rename)
+    return long
+
+
+def _panel_recipe(spec: dict) -> dict:
+    """The plot recipe registered for one panel spec.
+
+    :param spec: a spec from :func:`bar_spec` or :func:`stacked_spec`.
+    :returns: ``x``, ``y``, ``kind``, ``order`` and, for a stacked panel, ``hue``.
+    """
+    if spec["kind"] == "bar":
+        return dict(x=spec["group"], y=spec["value"], kind="bar_strip", order=list(spec["order"]))
+    return dict(x=spec["group"], y="fraction", hue="bin", kind="bar", order=list(spec["order"]))
+
+
+def _assembled_tidy(specs: Mapping[str, dict], ids: Sequence[str]) -> pd.DataFrame:
+    """The long tables of the assembled panels, stacked with a ``panel`` column.
+
+    :param specs: panel id -> spec.
+    :param ids: the panel ids placed.
+    :returns: one table; each row's ``panel`` names the panel it is drawn in.
+    """
+    return pd.concat([_panel_tidy(specs[pid]).assign(panel=pid) for pid in ids],
+                     ignore_index=True)

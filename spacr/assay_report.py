@@ -464,6 +464,8 @@ def render_report(pages: List[List[dict]], pdf_path: str, legend_text: str = "",
     """
     from matplotlib.backends.backend_pdf import PdfPages
 
+    from .plot import _checked_savefig
+
     layout = get_layout(layout)
     page = layout.page if page is None else page
     stem = os.path.splitext(pdf_path)[0]
@@ -486,7 +488,7 @@ def render_report(pages: List[List[dict]], pdf_path: str, legend_text: str = "",
             pdf.savefig(fig)
             if png:
                 path = f"{stem}.png" if k == 1 else f"{stem}_page_{k:02d}.png"
-                fig.savefig(path, dpi=dpi)
+                _checked_savefig(fig, path, dpi=dpi)
                 pngs.append(path)
         for j, lines in enumerate(legend_pages, start=len(pages) + 1):
             fig = _new_figure(*page)
@@ -497,7 +499,7 @@ def render_report(pages: List[List[dict]], pdf_path: str, legend_text: str = "",
             pdf.savefig(fig)
             if png:
                 path = f"{stem}_page_{j:02d}.png"
-                fig.savefig(path, dpi=dpi)
+                _checked_savefig(fig, path, dpi=dpi)
                 pngs.append(path)
     return dict(pdf=pdf_path, png=pngs, n_pages=n_total, n_figure_pages=len(pages),
                 n_legend_pages=len(legend_pages))
@@ -1352,13 +1354,15 @@ def spec_items(pid, spec, max_per_row, layout=SPACIOUS, group_size=None, new_row
 
 def _save_drawing(folder, stem, draw, size_mm, dpi=300):
     """Draw into a figure of ``size_mm`` and save ``<folder>/<stem>.pdf/.png``."""
+    from .plot import save_figure
+
     os.makedirs(folder, exist_ok=True)
     w, h = size_mm
     fig = _new_figure(w, h)
     pad = 2.0
     draw(fig, (pad / w, pad / h, 1 - 2 * pad / w, 1 - 2 * pad / h))
     for ext in ("pdf", "png"):
-        fig.savefig(os.path.join(folder, f"{stem}.{ext}"), dpi=dpi)
+        save_figure(fig, os.path.join(folder, f"{stem}.{ext}"), fmt=ext, dpi=dpi)
 
 
 def write_panel_folder(out_dir, pid, name, draw, size_mm, data=None, stats=None, dpi=300):
@@ -1373,6 +1377,9 @@ def write_panel_folder(out_dir, pid, name, draw, size_mm, data=None, stats=None,
     :param size_mm: ``(width, height)`` of the saved figure in mm.
     :returns: folder path.
     """
+    from .figures.bundle import _register_figure_data
+    from .plot import save_figure
+
     stem = panel_folder_name(pid, name)
     folder = os.path.join(out_dir, stem)
     os.makedirs(folder, exist_ok=True)
@@ -1380,8 +1387,10 @@ def write_panel_folder(out_dir, pid, name, draw, size_mm, data=None, stats=None,
     fig = _new_figure(w, h)
     pad = 2.0
     draw(fig, (pad / w, pad / h, 1 - 2 * pad / w, 1 - 2 * pad / h))
+    if data is not None:
+        _register_figure_data(fig, data)
     for ext in ("pdf", "png"):
-        fig.savefig(os.path.join(folder, f"{stem}.{ext}"), dpi=dpi)
+        save_figure(fig, os.path.join(folder, f"{stem}.{ext}"), fmt=ext, dpi=dpi)
     if data is not None:
         data.to_csv(os.path.join(folder, "data.csv"), index=False)
     if stats is not None:
