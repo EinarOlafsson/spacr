@@ -627,6 +627,7 @@ _TEXT_TOKENS = {
     "?": "help", "help": "help",
     "escape": "escape", "esc": "escape",
     "y": "confirm", "n": "reject",
+    "+": "increment", "=": "increment", "-": "decrement", "#": "type_count",
 }
 
 _QT_NAME_TOKENS = (
@@ -634,7 +635,9 @@ _QT_NAME_TOKENS = (
     ("Key_Down", "down"), ("Key_Space", "space"),
     ("Key_Backspace", "backspace"), ("Key_Return", "enter"),
     ("Key_Enter", "enter"), ("Key_Question", "help"),
-    ("Key_Escape", "escape"),
+    ("Key_Escape", "escape"), ("Key_Plus", "increment"),
+    ("Key_Equal", "increment"), ("Key_Minus", "decrement"),
+    ("Key_NumberSign", "type_count"),
 )
 
 
@@ -2780,6 +2783,7 @@ class _Thumbnail(QLabel):
         self._suggested = False
         self._badge: Optional[str] = None
         self._badge_colors: Tuple[str, str] = ("", "")
+        self._count_text = ""
         self.setAlignment(Qt.AlignCenter)
         self.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         self.setStyleSheet("background: transparent;")
@@ -2884,6 +2888,37 @@ class _Thumbnail(QLabel):
         self.update()
         return True
 
+    def count_text(self) -> str:
+        """The count this cell shows in its top left corner, or ``""``."""
+        return self._count_text
+
+    def set_count_text(self, text: str) -> bool:
+        """Show ``text`` as the cell's count, ``""`` for none; True when it changed."""
+        text = str(text or "")
+        if text == self._count_text:
+            return False
+        self._count_text = text
+        self.update()
+        return True
+
+    def _paint_count(self, painter: QPainter) -> None:
+        """Draw the count on a dark rounded tag over the crop's top left corner."""
+        if not self._count_text:
+            return
+        font = QFont(self.font())
+        font.setBold(True)
+        painter.setFont(font)
+        metrics = painter.fontMetrics()
+        inset = float(TILE_INSET) + 2.0
+        box = QRectF(inset, inset,
+                     metrics.horizontalAdvance(self._count_text) + 8.0,
+                     metrics.height() + 2.0)
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(QColor(0, 0, 0, 190))
+        painter.drawRoundedRect(box, 4.0, 4.0)
+        painter.setPen(QColor(255, 255, 255))
+        painter.drawText(box, Qt.AlignCenter, self._count_text)
+
     def badge_rect(self) -> QRectF:
         """Where the badge is drawn: the crop's top right corner, inside it."""
         w = float(self.width())
@@ -2976,6 +3011,7 @@ class _Thumbnail(QLabel):
                 self._stroke(painter, self._ring_color, HOVER_RING_WIDTH,
                              HOVER_RING_WIDTH / 2.0, w, h)
             self._paint_badge(painter)
+            self._paint_count(painter)
         finally:
             painter.end()
 
@@ -4118,6 +4154,16 @@ class _SettingsDialog(QDialog):
         self._queue_limit.setSpecialValueText("all unlabelled")
         form.addRow("Queue length", self._queue_limit)
 
+        self._counts = Toggle(tr("Annotation column holds counts"))
+        self._counts.setObjectName("AnnotateCountsToggle")
+        self._counts.setChecked(bool(getattr(settings, "annotation_counts", False)))
+        self._counts.setToolTip(tr(
+            "Store the annotation column as counts: + and - change the "
+            "focused crop's count, # types any number, and counts of 10 and "
+            "more are kept as entered. Suggest is off for a count column. "
+            "Default off."))
+        form.addRow(tr("Counts"), self._counts)
+
         form_widget = QWidget()
         form_widget.setLayout(form)
         self._form_scroll = QScrollArea()
@@ -4166,6 +4212,7 @@ class _SettingsDialog(QDialog):
             self._queue_measure: "queue_measure",
             self._queue_diversity: "queue_diversity",
             self._queue_limit: "queue_limit",
+            self._counts: "annotation_counts",
         })
 
 
@@ -4476,6 +4523,7 @@ class _SettingsDialog(QDialog):
         s.queue_measure = self._queue_measure.currentText()
         s.queue_diversity = self._queue_diversity.currentText()
         s.queue_limit = int(self._queue_limit.value())
+        s.annotation_counts = bool(self._counts.isChecked())
         return s
 
 
@@ -7775,6 +7823,12 @@ class AnnotateScreen(QWidget):
             self._status_label.setText("A suggestion run is already going.")
             self._suggest_status_text = self._status_label.text()
             return
+        if self._counting():
+            self._status_label.setText(tr(
+                "Suggest is off for a count column: a suggested class would "
+                "be stored as a number that reads as a count."))
+            self._suggest_status_text = self._status_label.text()
+            return
         self._suggest_status_text = None
         self._flush_pending()
         if self._worker is not None:
@@ -9184,12 +9238,17 @@ class AnnotateScreen(QWidget):
             value = int(value)
         except (TypeError, ValueError):
             return value
-        if value > SUGGESTION_OFFSET:
+        if value > SUGGESTION_OFFSET and not self._counting():
             return value - SUGGESTION_OFFSET
         return value
 
     def _is_suggested_slot(self, slot: int) -> bool:
-        """True when ``slot`` carries a proposal rather than an answer."""
+        """True when ``slot`` carries a proposal rather than an answer.
+
+        Never on a count column, where 11 is eleven and not a suggested 1.
+        """
+        if self._counting():
+            return False
         value = self._current_value(slot)
         try:
             return value is not None and int(value) > SUGGESTION_OFFSET
@@ -9215,7 +9274,22 @@ class AnnotateScreen(QWidget):
             thumb.setToolTip(tip)
         state = self._judgement_of(slot)
         thumb.set_badge(state, badge_colors(state) if state else None)
+        thumb.set_count_text(self._count_text(slot))
         thumb.set_current(slot == self._focus_slot)
+
+    def _counting(self) -> bool:
+        """Whether the annotation column holds counts rather than classes."""
+        return bool(getattr(self._settings, "annotation_counts", False))
+
+    def _count_text(self, slot: int) -> str:
+        """The number a count tile shows, or ``""`` off a count column."""
+        if not self._counting():
+            return ""
+        value = self._current_value(slot)
+        try:
+            return str(int(value)) if value is not None and int(value) > 0 else ""
+        except (TypeError, ValueError):
+            return ""
 
     def _toggle_annotation(self, slot: int, new_value: int):
         """Mouse semantics: same class again clears, otherwise assign."""
@@ -9673,6 +9747,12 @@ class AnnotateScreen(QWidget):
             return self._kbd_judge(confirm=True)
         if token == "reject":
             return self._kbd_judge(confirm=False)
+        if token in ("increment", "decrement", "type_count"):
+            if not self._counting():
+                return False
+            if token == "type_count":
+                return self._kbd_type_count()
+            return self._kbd_step_count(+1 if token == "increment" else -1)
         if token == "help":
             return self._toggle_legend()
         if token == "escape":
@@ -9692,6 +9772,55 @@ class AnnotateScreen(QWidget):
         self._set_annotation(slot, value)
         self._push_undo(slot, path, previous)
         self._advance_after_assign()
+        return True
+
+    def _kbd_step_count(self, delta: int) -> bool:
+        """Add ``delta`` to the focused crop's count and stay on it.
+
+        A count stepped down to zero is cleared, as the 0 key clears.
+        """
+        slot = self._focus_slot
+        if not self._slot_is_valid(slot):
+            self._set_kbd_hint(tr("Nothing to annotate — open a source first."))
+            return True
+        path = self._page_paths[slot][0]
+        previous = self._current_value(slot)
+        try:
+            base = int(previous) if previous is not None else 0
+        except (TypeError, ValueError):
+            base = 0
+        value = base + int(delta)
+        self._set_annotation(slot, value if value > 0 else None)
+        self._push_undo(slot, path, previous)
+        self._set_kbd_hint(tr("Count {n}", n=max(value, 0)))
+        return True
+
+    def _ask_count(self, current: int) -> Optional[int]:
+        """Ask for a count; None when the question was dismissed."""
+        value, ok = QInputDialog.getInt(
+            self, tr("Count"), tr("How many in this crop? 0 clears."),
+            int(current), 0, 1_000_000, 1)
+        return int(value) if ok else None
+
+    def _kbd_type_count(self) -> bool:
+        """Type the focused crop's count, any size, then advance."""
+        slot = self._focus_slot
+        if not self._slot_is_valid(slot):
+            self._set_kbd_hint(tr("Nothing to annotate — open a source first."))
+            return True
+        path = self._page_paths[slot][0]
+        previous = self._current_value(slot)
+        try:
+            current = int(previous) if previous is not None else 0
+        except (TypeError, ValueError):
+            current = 0
+        value = self._ask_count(current)
+        if value is None:
+            return True
+        self._set_annotation(slot, value if value > 0 else None)
+        self._push_undo(slot, path, previous)
+        if value > 0:
+            self._advance_after_assign()
         return True
 
     def _kbd_clear(self) -> bool:

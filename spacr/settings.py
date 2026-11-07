@@ -4510,6 +4510,7 @@ expected_types = {
     'queue_measure':str,
     'queue_diversity':str,
     'queue_limit':int,
+    'annotation_counts':bool,
     'cross_validation_folds':int,
     'cross_validation_enabled':bool,
     'classifier_evaluation':bool,
@@ -5842,6 +5843,7 @@ tooltips = {
     'queue_measure': "(str) - Method used to score uncertainty for the annotation queue. 'entropy' incorporates all classes and is the preferred default for three or more classes; 'least_confidence' ranks samples by the highest class score; 'margin' ranks them by the difference between the two highest scores. With exactly two classes, margin and least_confidence produce identical rankings, including ties, and diverge only with three or more classes. These values are uncertainty scores rather than calibrated probabilities. Default 'entropy'.",
     'queue_diversity': "(str) - Metadata level across which the annotation queue is distributed. Ranking solely by uncertainty can concentrate the highest-ranked crops in one or two wells, repeatedly sampling the same source of ambiguity. Distribution across wells or plates increases experimental coverage at a modest cost in per-item uncertainty. Default 'well'.",
     'queue_limit': "(int) - Maximum number of crops in the annotation queue. 0 queues the complete unlabelled pool. When the limit is smaller than the number of wells, queue_diversity selects approximately one crop from each represented well rather than the globally highest-uncertainty crops. Default 0.",
+    'annotation_counts': "(bool) - Treat the Annotate column as counts rather than classes. The + and - keys change the focused crop's count, # types any number, and counts of 10 and more are stored as entered instead of being read as model suggestions. Suggest is off while it is on. Default False.",
     'class_balance': "(str) - Correction for imbalance among training classes. 'none' preserves sampling and reports class counts, their ratio and a recommendation. 'weighted_sampler' samples classes approximately equally using 1/n. 'sqrt_weighted_sampler' uses 1/sqrt(n), reducing the risk that repeated sampling of a very small class causes memorization. 'weighted_loss' preserves sampling and weights the loss. Use one of the latter three when the reported ratio exceeds approximately 3:1. Default 'none'.",
     'cross_validation': "(bool) - Score the feature-based classifier (Classify, 'ml' family) with class-stratified cross-validation instead of a single train/test split: up to 5 folds, whole cv_group_by groups per fold, so every control object receives an out-of-fold prediction. Each fold's optimal probability threshold is computed and printed when verbose is on; predictions are not re-thresholded. Gives a less variable accuracy estimate on small control sets, at roughly 5x the training time. Default True.",
     'cross_validation_folds': "(int) - Number of k-fold splits used to train the vision classifier instead of one val_split holdout. 0 (the default) or 1 uses one random split; 2 or more trains a separate model per fold, evaluates each model on its held-out fold, and reports the mean, fold-to-fold standard deviation, and range. These statistics quantify sensitivity to the data partition. Runtime is approximately proportional to k. Distinct from 'cross_validation', which controls the feature-based (ml) classifier.",
@@ -6196,7 +6198,7 @@ categories = {
         "qc_plot_max_panels",
     ],
 
-    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "dry_run", "watch_folder", "watch_pipeline", "watch_normalization_pool", "watch_measure_settings", "watch_classify_settings", "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes", "microscope_feedback", "microscope_driver", "microscope_simulated_folder", "microscope_positions", "microscope_stage_transform", "microscope_event_table", "microscope_event_query", "microscope_max_events", "microscope_timepoints", "microscope_interval_seconds", "cloud_anonymous", "cloud_profile", "cloud_endpoint", "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level", "cloud_results", "verbose", "n_jobs", "ram_guard", "gpu", "mask_parallel", "mask_gpu_indices", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", ],
+    "Advanced": ["resume", "strict_errors", "max_failure_rate", "queue_by_uncertainty", "queue_measure", "queue_diversity", "queue_limit", "annotation_counts", "dry_run", "watch_folder", "watch_pipeline", "watch_normalization_pool", "watch_measure_settings", "watch_classify_settings", "watch_settle_seconds", "watch_poll_seconds", "watch_idle_minutes", "microscope_feedback", "microscope_driver", "microscope_simulated_folder", "microscope_positions", "microscope_stage_transform", "microscope_event_table", "microscope_event_query", "microscope_max_events", "microscope_timepoints", "microscope_interval_seconds", "cloud_anonymous", "cloud_profile", "cloud_endpoint", "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level", "cloud_results", "verbose", "n_jobs", "ram_guard", "gpu", "mask_parallel", "mask_gpu_indices", "batch_size", "test_images", "random_test", "test_nr", "preprocess", "masks", "remove_background", "background", "backgrounds", "lower_percentile", "randomize", "batch_fields", "pipeline_style", "keep_intermediate", "keep_original_images", "save_original_images", "keep_npz", "diameter_estimate_n_fields", "shuffle", "save", "filter", "merge_pathogens", "consolidate", ],
 
     "3D Settings (Beta)": [
         "z_stack", "z_segmentation_mode", "z_axis", "z_projection",
@@ -7272,6 +7274,7 @@ def set_annotate_default_settings(settings):
     settings.setdefault('queue_measure', 'entropy')
     settings.setdefault('queue_diversity', 'well')
     settings.setdefault('queue_limit', 0)
+    settings.setdefault('annotation_counts', False)
     settings.setdefault('cv_group_by', 'well')
     return settings
 

@@ -716,7 +716,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "exclude_rows",
     # and the active-learning queue (spacr.active_learning).
     "queue_by_uncertainty", "queue_measure", "queue_diversity",
-    "queue_limit",
+    "queue_limit", "annotation_counts",
     # and opt-in resume (spacr.resume).
     "resume", "resume_checkpoint",
     # and the attribution methods + their analyses (spacr.attribution).

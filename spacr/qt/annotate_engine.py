@@ -853,6 +853,10 @@ class AnnotateSettings:
     queue_diversity: str = "well"
     queue_limit: int = 0
     crop_source: str = "png"
+    #: The annotation column holds counts rather than classes. Values are
+    #: stored as entered, 10 and above included, and none of them is read as
+    #: a model suggestion.
+    annotation_counts: bool = False
 
     @property
     def page_size(self) -> int:
