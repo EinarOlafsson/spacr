@@ -104,6 +104,7 @@ GROUPS = (
         (573, "Pre-registered analysis lock"),
         (574, "Metadata and archive packages (REMBI, IDR)"),
         (579, "One-click Zenodo archive with a DOI"),
+        (803, "GPU memory budget on a shared card"),
     )),
 )
 # Alpha organism pages (ALPHA_SPECIES), drawn as a strip with their Home icons.
