@@ -1628,7 +1628,7 @@ def _ssh_lookup(host, directives, *, home=None, default_port="22"):
                 active = True
             elif values == "include_start":
                 include_active.append(active)
-            else:
+            elif values == "include_end":
                 active = include_active.pop()
         elif keyword == "host":
             active = all(include_active) and _ssh_host_matches(host, values)
