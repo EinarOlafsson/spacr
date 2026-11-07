@@ -71,28 +71,6 @@ def test_openphenom_is_asked_for_by_revision_and_fed_its_own_size(monkeypatch):
     assert net.seen == [(2, 2, 256, 256), (1, 2, 256, 256)]
 
 
-class _ChAda(torch.nn.Module):
-    def __init__(self):
-        super().__init__()
-        self.calls = []
-
-    def forward(self, flat, index, list_num_channels):
-        self.calls.append((tuple(flat.shape), index, list_num_channels))
-        return flat.reshape(len(list_num_channels[0]), -1).mean(
-            dim=1, keepdim=True)
-
-
-def test_chada_vit_sees_each_channel_as_one_token_sequence(monkeypatch):
-    net = _ChAda()
-    _transformers(monkeypatch, net)
-    encode = emb._foundation_encoder(_spec("chada_vit", batch_size=4))
-    assert net.return_all_tokens is False
-    stack = np.random.default_rng(0).random((2, 224, 224, 3)).astype(np.float32)
-    features = encode(stack)
-    assert features.shape == (2, 1)
-    assert net.calls == [((6, 1, 224, 224), 0, [[3, 3]])]
-
-
 class _ViT(torch.nn.Module):
     """A token encoder without weights: 4 tokens of the crop's mean."""
 

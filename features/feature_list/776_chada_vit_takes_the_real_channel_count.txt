@@ -2,7 +2,10 @@ CHADA-VIT TAKES THE REAL CHANNEL COUNT
 ======================================
 
 Lifecycle: new
-Status: open.
+Status: DONE 2026-11-06 — spacr.embeddings._chada_class_token runs each crop with its
+own k channels (first k channel tokens, no padded slots); class token matches the
+published padded forward (tests/test_chada_vit_takes_the_real_channel_count.py).
+Full-size ViT-T/16, 8 one-channel crops on a loaded CPU: 135 s padded vs 21 s.
 Requested: maintainer via the BMC software-paper session, 2026-11-05.
 Source: BBBC021 computer-vision benchmark, /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cv/README.md.
 

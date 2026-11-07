@@ -1160,11 +1160,50 @@ def _hub_model(name: str, info: Mapping[str, Any], torch: Any):
 
     def forward(net, x):
         """ChAda-ViT's class token, each crop's channels as one sequence."""
-        n, k, h, w = x.shape
-        flat = torch.nn.functional.instance_norm(x).reshape(n * k, 1, h, w)
-        return net(flat, index=0, list_num_channels=[[k] * n])
+        return _chada_class_token(net, x, torch)
 
     return model, forward
+
+
+def _chada_class_token(net: Any, x: Any, torch: Any):
+    """ChAda-ViT's class token for crops with their real channel count.
+
+    The published forward pads every crop's token sequence to the model's
+    channel slots (ten) and masks the padding out of attention. Masked
+    padding cannot change the class token, but each layer still runs over
+    every slot, so a one-channel crop pays for ten. Here each crop keeps
+    only its own ``k`` channels: the same patch tokens, the same position
+    embedding and the first ``k`` channel tokens the padded path adds, and
+    no padding.
+
+    :param net: a loaded ChAda-ViT model.
+    :param x: ``(n, k, height, width)`` crops in [0, 1].
+    :param torch: the imported torch module.
+    :returns: ``(n, dims)`` class tokens.
+    :raises EmbeddingError: when ``k`` is more channels than the model has
+        slots for.
+    """
+    n, k, h, w = x.shape
+    slots = int(getattr(net, "max_channels", k))
+    if k > slots:
+        raise EmbeddingError(
+            f"ChAda-ViT takes at most {slots} channels per crop; got {k}")
+    flat = torch.nn.functional.instance_norm(x).reshape(n * k, 1, h, w)
+    tokens = net.token_learner(flat)
+    count, dims = int(tokens.shape[1]), int(tokens.shape[2])
+    tokens = tokens.reshape(n, k, count, dims)
+    tokens = tokens + net.add_pos_encoding_per_channel(
+        tokens, w, h, class_pos_embed=False)
+    tokens = tokens + net.channel_token[:, :k].expand(n, -1, count, -1)
+    sequence = tokens.reshape(n, k * count, dims)
+    head = net.cls_token.expand(n, -1, -1) + net.add_pos_encoding_per_channel(
+        sequence, w, h, class_pos_embed=True)
+    sequence = net.pos_drop(torch.cat([head, sequence], dim=1))
+    keep = torch.zeros(sequence.shape[:2], dtype=torch.bool,
+                       device=sequence.device)
+    for block in net.blocks:
+        sequence = block(sequence, src_key_padding_mask=keep)
+    return net.norm(sequence)[:, 0]
 
 
 def _subcell_model(info: Mapping[str, Any], torch: Any):
