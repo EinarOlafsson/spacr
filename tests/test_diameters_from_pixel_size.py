@@ -12,6 +12,7 @@ import numpy as np
 import pytest
 
 from spacr import object_settings_table as table
+from tests.cellpose_api_contract import MISSING_CHANNEL_AXIS
 
 
 @pytest.mark.parametrize('pixel_size, cell, nucleus, pathogen', [
@@ -101,7 +102,12 @@ class _StubModel:
         self.true = list(true_diameters)
         self.calls = []
 
-    def eval(self, x, diameter=None, **kwargs):
+    def eval(self, x, batch_size=8, resample=True, channels=None,
+             channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+             rescale=None, diameter=None, flow_threshold=0.4, cellprob_threshold=0.0,
+             do_3D=False, anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+             min_size=15, max_size_fraction=0.4, niter=None, augment=False,
+             tile_overlap=0.1, bsize=None, compute_masks=True, progress=None):
         image = x[0]
         self.calls.append(diameter)
         index = sum(1 for call in self.calls if call is None) - 1
