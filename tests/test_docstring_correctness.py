@@ -4119,12 +4119,14 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 464 on 2026-10-11 with item 690's spacr.io.MissingTEMReader.
     # 462 on 2026-10-15: item 700 retires CliSetupPanel and ProviderMark.
     # 460 on 2026-10-19: item 600 retires ChannelSortDialog and RegexWindow.
+    # 461 on 2026-11-06: item 816's assay_panels.outlier_policy documents
+    # its __init__, the one new constructor.
     assert sum(
         item.constructor_prose_variant_count for item in callables
-    ) == 460
+    ) == 461
     assert sum(
         item.constructor_prose_variant_count > 0 for item in callables
-    ) == 460
+    ) == 461
     # RE-RECORDED 2026-09-07, and the direction check still holds: every
     # figure moved UP with the nine new callables and not one fell.
     # 16,654 -> 16,681 parameters and 8,436 -> 8,452 required. The
@@ -4686,7 +4688,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Moved 2026-11-06 for item 816 (was 08aefcc2...): the 42 new rows of the
     # spacr.assay_report and spacr.assay_panels callables, and the assay panel
     # rows whose parameters gained the outlier and axis keywords.
-) == '748f7408b969fd56833d13dec7639159556c2ca87548150677c5b32b3f5f027d'
+) == 'e1d683fff7f9b8d127bd7ee554f91df851a7ca23dd5f66977f93cd8569f3901a'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
