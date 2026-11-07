@@ -46,8 +46,31 @@ def _git(repository, *args, check=True):
     return result
 
 
+#: Seconds a writer waits for the bootstrap lock before giving up. A cold
+#: restore of every pinned review takes minutes on a slow disk, and a parallel
+#: assemble or an xdist run starts many processes at once, so the wait is long;
+#: ``SPACR_TRANSLATIONS_LOCK_TIMEOUT`` overrides it.
+LOCK_TIMEOUT = 900.0
+_LOCK_FIRST_SLEEP = 0.05
+_LOCK_LONGEST_SLEEP = 2.0
+
+
+def _lock_timeout():
+    try:
+        return float(os.environ.get("SPACR_TRANSLATIONS_LOCK_TIMEOUT", LOCK_TIMEOUT))
+    except ValueError:
+        return LOCK_TIMEOUT
+
+
 @contextmanager
-def _lock(path, timeout=30):
+def _lock(path, timeout=None):
+    """Hold an exclusive kernel lock on ``path``, waiting for it with backoff.
+
+    The wait starts at 50 ms and doubles up to 2 s per try until ``timeout``
+    seconds (default :func:`_lock_timeout`) have passed.
+    """
+    timeout = _lock_timeout() if timeout is None else timeout
+    pause = _LOCK_FIRST_SLEEP
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("a+b") as stream:
         stream.seek(0, os.SEEK_END)
@@ -66,9 +89,13 @@ def _lock(path, timeout=30):
                     fcntl.flock(stream.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
                 break
             except OSError:
-                if time.monotonic() >= deadline:
-                    raise ReviewInputsError(f"Translation bootstrap lock is busy: {path}")
-                time.sleep(0.05)
+                left = deadline - time.monotonic()
+                if left <= 0:
+                    raise ReviewInputsError(
+                        f"Translation bootstrap lock is busy: {path} (waited {timeout:g} s; "
+                        "set SPACR_TRANSLATIONS_LOCK_TIMEOUT to wait longer)")
+                time.sleep(min(pause, left))
+                pause = min(pause * 2, _LOCK_LONGEST_SLEEP)
         try:
             yield
         finally:
@@ -282,6 +309,26 @@ def _restore(root, pin, files, missing, cache, offline):
         raise ReviewInputsError("Translation archive did not provide every missing input")
 
 
+def _already_complete(root, pin, cache):
+    """Whether every pinned input is already in place, checked without the lock.
+
+    A reader only hashes files, so it does not take the write lock; that lock
+    serialised every process of a parallel assemble and every xdist worker
+    behind each other's full verification. Only a cached manifest is read
+    here, so no Git runs. Anything else, including a file that a writer is
+    replacing at that moment, returns False and the caller verifies again
+    under the lock.
+    """
+    if not (cache / "manifests" / (pin["manifest_sha256"] + ".json")).is_file():
+        return False
+    try:
+        files = _manifest(pin, cache, True)
+        present, superseded = _existing(root, files, _published(cache))
+    except (ReviewInputsError, OSError):
+        return False
+    return not superseded and present == set(files)
+
+
 def ensure_review_inputs(root=ROOT, *, cache=None, offline=False, check=False):
     """Validate once per process/pin; restore missing files without overwriting edits."""
     root = Path(root).resolve()
@@ -290,6 +337,9 @@ def ensure_review_inputs(root=ROOT, *, cache=None, offline=False, check=False):
     if key in _READY and not check:
         return
     cache = _cache_root(cache)
+    if _already_complete(root, pin, cache):
+        _READY.add(key)
+        return
     with _lock(root / ".translation-reviews.lock"):
         files = _manifest(pin, cache, offline)
         present, superseded = _existing(root, files, _published(cache))

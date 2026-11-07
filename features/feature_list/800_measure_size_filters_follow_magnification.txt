@@ -1,7 +1,7 @@
 MEASURE SIZE FILTERS FOLLOW MAGNIFICATION
 
 Lifecycle: future
-Status: not started
+Status: DONE 2026-11-07 — get_measure_crop_settings derives cell_min_size, nucleus_min_size and pathogen_min_size from pixel_size_um (new on Measure, alpha: ALPHA_FEATURES[800] module_settings measure) or a given magnification: the area of a disc one fifth of Mask's expected diameter (452/113/13 px at 20x, 804/177/50 at 40x, 95/30/13 at 0.325 um/px). Without either the fixed 8000/2000/500 stay; a typed value other than those defaults, 0 or None is kept. A field whose size filter removes more than half of its objects prints a warning naming pixel_size_um and the filter. The three min-size tooltips now state the real defaults. BBBC021 check on CellProfiler's own areas (10 of 55 plates, 451,240 cells): the 20x floors keep 99.1 % of cells and 100 % of nuclei; the old 8000/2000 px floors removed 98.9 % and 99.1 % on one plate. spacr/settings.py, spacr/measure.py, tests/test_measure_size_filters_follow_magnification.py.
 Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
            (BMC spaCR paper) worked around must become a spaCR item.
 Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/spacr/README.md, "Gaps in spaCR worked around here", gap 7
@@ -42,7 +42,14 @@ CellProfiler keeps (median area ~2,800 px).
 DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
 
-Nothing yet.
+- object_filters area rows stay in pixels; the Measure floors follow the
+  scale instead (option 1 of WHAT TO DO).
+- magnification is read when a caller passes it (the Python API, as the
+  BBBC021 driver does) but is not added to Measure's form: Mask's
+  magnification defaults to 40, and a 40 on every Measure form would change
+  every run's floors. pixel_size_um is the form setting.
+- The full BBBC021 rerun through measure_crop is left to the paper lane; the
+  check above uses the per-cell areas CellProfiler measured.
 
 2026-11-05: renumbered from 765 to 800; nightly already used 755-768 for other items.
 

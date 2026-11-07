@@ -74,6 +74,10 @@ RELEASED_BEFORE_THE_ALPHA_RULE = {
     796: "bug fix only, no setting (done as 838)",
     797: "bug fix only, no setting (done as 837)",
     798: "bug fix only, no setting (done as 840)",
+    794: "bug fix only (xgboost fits on machines without a GPU): no setting, nothing in the app to hide",
+    792: "bug fix only (GLCM homogeneity finite for objects narrower than the offset): no setting, nothing in the app to hide",
+    793: "bug fix only (Measure divides by the flat field in float32, no clipping): no setting, nothing in the app to hide",
+    799: "bug fix only (no +inf distance columns without a pathogen mask): no setting, nothing in the app to hide",
 }
 
 BUILT = re.compile(r"\b(built|implemented|done)\b", re.IGNORECASE)

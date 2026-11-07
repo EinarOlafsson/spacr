@@ -3999,12 +3999,13 @@ def _build_round_model(model_type: str, seed: int, n_classes: int,
                 "model_type='gradient_boosting', which is scikit-learn's "
                 "HistGradientBoostingClassifier and needs nothing extra."
             ) from exc
-        return XGBClassifier(
+        from .ml import _xgboost_cpu_safe
+        return XGBClassifier(**_xgboost_cpu_safe(dict(
             random_state=seed,
             objective=("binary:logistic" if n_classes <= 2
                        else "multi:softprob"),
             eval_metric="logloss",
-        )
+        )))
     raise ValueError(
         f"Unknown model_type {model_type!r}; use 'logistic_regression', "
         f"'random_forest', 'gradient_boosting' or 'xgboost'.")

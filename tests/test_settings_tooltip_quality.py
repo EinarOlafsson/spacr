@@ -1344,6 +1344,18 @@ if app_key == "mask":
     assert resolve_default_settings("classify_merged")[
         "prediction_treatment_column"] == ""
     recognized_arrivals |= treatment_arrivals
+    # Item 800: nucleus_min_size and pathogen_min_size now state their real
+    # defaults (2000 and 500, not "0"); pixel_size_um reaching Measure is
+    # counted with the pixel-size arrivals above.
+    size_floor_arrivals = {
+        (app, key) for app in ("measure", "external_masks")
+        for key in ("nucleus_min_size", "pathogen_min_size")}
+    assert size_floor_arrivals <= compared_pairs
+    assert not size_floor_arrivals & (recognized_arrivals | variants.keys())
+    for app, key in size_floor_arrivals:
+        assert resolve_default_settings(app)[key] == {
+            "nucleus_min_size": 2000, "pathogen_min_size": 500}[key]
+    recognized_arrivals |= size_floor_arrivals
     assert comparisons - len(recognized_arrivals) == 1005
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))

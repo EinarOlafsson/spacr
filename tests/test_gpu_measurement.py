@@ -74,7 +74,8 @@ def test_homogeneity_matches_the_co_occurrence_matrix(dtype):
     assert list(gpu.columns) == list(cpu.columns)
     np.testing.assert_array_equal(np.isnan(gpu.values), np.isnan(cpu.values))
     np.testing.assert_allclose(gpu.values, cpu.values, rtol=0, atol=1e-12)
-    assert np.isnan(gpu["homogeneity_distance_200"]).all()
+    # Item 792: an offset wider than every object is capped, never NaN.
+    assert np.isfinite(gpu["homogeneity_distance_200"]).all()
 
 
 def test_zernike_matches_mahotas():

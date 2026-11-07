@@ -1,7 +1,7 @@
 NO PATHOGEN DISTANCE FEATURES WITHOUT A PATHOGEN
 
 Lifecycle: future
-Status: not started
+Status: DONE 2026-11-07 — Measure no longer writes +inf distance columns for a mask that was never segmented: with pathogen_mask_dim (or nucleus_mask_dim) None, cell_channel_<n>_distance_to_pathogen and the object-distance partner columns (centre_to_pathogen_surface, surface_to_pathogen_surface, centre_to_nearest_pathogen_centre, pathogen_overlap_fraction) are left out; a segmented mask with no object in this field gives NaN. spacr/measure.py _measure_intensity_distance and _all_masks; tests/test_measure_no_pathogen_distances.py.
 Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
            (BMC spaCR paper) worked around must become a spaCR item.
 Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/spacr/README.md, "Gaps in spaCR worked around here", gap 6
@@ -40,6 +40,11 @@ A BBBC021 measurements.db has no +inf column.
 DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
 
-Nothing yet.
+- No new setting, so nothing is registered under ALPHA_FEATURES: the change
+  only removes columns that were all +inf.
+- object_distances keeps +inf for a segmented partner type that has no object
+  in the field (its documented "no partner" value); only never-segmented
+  roles are skipped.
+- The BBBC021 measurements.db rerun is left to the paper lane.
 
 2026-11-05: renumbered from 764 to 799; nightly already used 755-768 for other items.

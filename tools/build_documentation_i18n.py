@@ -90,7 +90,12 @@ if __name__ == "__main__" and not _REVIEW_HELP_ONLY:
     ensure_review_inputs(ROOT)
 
 
+_REVIEW_INPUTS_VERIFIED_BY_PARENT = False
+
+
 def _ensure_review_inputs(directory):
+    if _REVIEW_INPUTS_VERIFIED_BY_PARENT:
+        return
     if directory in _DEFAULT_REVIEW_DIRECTORIES and not _REVIEW_HELP_ONLY:
         from bootstrap_translation_reviews import ensure_review_inputs
         ensure_review_inputs(ROOT, offline=True)
@@ -6088,10 +6093,16 @@ def assemble_api_catalog(docs: Mapping[str, str], language: str) -> dict[str, ob
 
 
 def _initialize_api_assembly(api_dir: str, reviewed_api_dir: str) -> None:
-    """Give spawned assembly workers the caller's explicit catalog paths."""
-    global API_DIR, REVIEWED_API_DIR
+    """Give spawned assembly workers the caller's explicit catalog paths.
+
+    The parent verified the pinned review inputs before it started the pool
+    (:func:`_assembly_inputs`), so the workers only read them and do not
+    verify them again under the bootstrap lock.
+    """
+    global API_DIR, REVIEWED_API_DIR, _REVIEW_INPUTS_VERIFIED_BY_PARENT
     API_DIR = Path(api_dir)
     REVIEWED_API_DIR = Path(reviewed_api_dir)
+    _REVIEW_INPUTS_VERIFIED_BY_PARENT = True
 
 
 def _assemble_one(item: tuple[Mapping[str, str], str]) -> str:

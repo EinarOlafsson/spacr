@@ -1392,10 +1392,17 @@ def _morphological_measurements(
         bystander_reach = 0.0
 
     def _all_masks():
-        """Object type -> label image, for the masks this run actually has."""
+        """Object type -> label image, for the masks this run actually has.
+
+        A role whose mask dim is set to None stands in as an all-zero array;
+        it is left out, so no partner column of +inf is written for it.
+        """
         found = {}
         for name, mask in (('cell', cell_mask), ('nucleus', nucleus_mask),
                            ('pathogen', pathogen_mask)):
+            key = f'{name}_mask_dim'
+            if key in settings and settings[key] is None:
+                continue
             if mask is not None and getattr(mask, 'size', 0):
                 found[name] = mask
         return found
@@ -2201,6 +2208,23 @@ def _extended_regionprops_table(labels, image, intensity_props, spacing=None,
         df[f'percentile_{p}'] = [values[position] for values in per_region]
     return df
 
+def _homogeneity_offset(distance, width):
+    """The GLCM offset actually used for ``distance`` on a box ``width`` wide.
+
+    A horizontal offset at or past the bounding-box width pairs no pixels,
+    which left ``homogeneity_distance_<d>`` NaN for every object narrower
+    than ``d`` (item 792). The offset is capped at ``width - 1``, the
+    longest that still fits, so the column stays finite; objects wide enough
+    for ``d`` are unchanged. A one-pixel-wide box has no horizontal pair at
+    all and returns 0, which the callers report as homogeneity 1.
+
+    :param distance: requested offset in pixels.
+    :param width: bounding-box width in pixels.
+    :returns: the offset in pixels, ``0 <= offset <= distance``.
+    """
+    return max(0, min(int(distance), int(width) - 1))
+
+
 def _calculate_homogeneity(label, channel, distances=None):
         """Return per-region GLCM homogeneity across the requested co-occurrence distances.
 
@@ -2229,7 +2253,11 @@ def _calculate_homogeneity(label, channel, distances=None):
                 region_image, out_range=(0, 255)).astype('uint8')
             homogeneity_per_distance = []
             for d in distances:
-                glcm = graycomatrix(rescaled_image, [d], [0], symmetric=True, normed=True)
+                offset = _homogeneity_offset(d, rescaled_image.shape[1])
+                if offset == 0:
+                    homogeneity_per_distance.append(1.0)
+                    continue
+                glcm = graycomatrix(rescaled_image, [offset], [0], symmetric=True, normed=True)
                 if not np.any(glcm):
                     homogeneity_per_distance.append(np.nan)
                 else:
@@ -2482,7 +2510,8 @@ def _torch_homogeneity(labels, image, distances, device):
     the mean over the box's horizontal pixel pairs of ``1 / (1 + (a - b)^2)``,
     so no matrix is needed: pairs with no object pixel sit on the diagonal and
     add 1 each, and pairs touching the object are enumerated for all objects
-    at once over the whole field.
+    at once over the whole field. An object narrower than an offset is read
+    at the capped offset :func:`_homogeneity_offset` gives, as on the CPU.
     """
     import torch
     if distances is None:
@@ -2515,13 +2544,13 @@ def _torch_homogeneity(labels, image, distances, device):
     lab = torch.as_tensor(labels.astype(np.int64, copy=False), device=device)
     val = torch.as_tensor(image.astype(np.float64, copy=False), device=device)
     field_width = labels.shape[1]
-    results = []
-    for d in distances:
+
+    def at(d):
+        """Homogeneity of every object at horizontal offset ``d``."""
         pairs = height * (width - d)
         if d >= field_width:
-            results.append(torch.full((n_obj,), float('nan'), dtype=torch.float64,
-                                      device=device))
-            continue
+            return torch.full((n_obj,), float('nan'), dtype=torch.float64,
+                              device=device)
         left, right = lab[:, :-d].reshape(-1), lab[:, d:].reshape(-1)
         v_left, v_right = val[:, :-d].reshape(-1), val[:, d:].reshape(-1)
         col_left = torch.arange(field_width - d, device=device).repeat(labels.shape[0])
@@ -2548,8 +2577,27 @@ def _torch_homogeneity(labels, image, distances, device):
 
         pairs_f = pairs.to(torch.float64)
         value = (sums + pairs_f - touched) / pairs_f
-        results.append(torch.where(pairs > 0, value,
-                                   torch.full_like(value, float('nan'))))
+        return torch.where(pairs > 0, value,
+                           torch.full_like(value, float('nan')))
+
+    computed = {}
+    results = []
+    for d in distances:
+        d = int(d)
+        if d not in computed:
+            computed[d] = at(d)
+        value = computed[d].clone()
+        capped = width <= d
+        for offset in torch.unique(width[capped] - 1).tolist():
+            offset = _homogeneity_offset(d, offset + 1)
+            chosen = capped & (width - 1 == offset)
+            if offset == 0:
+                value[chosen] = 1.0
+                continue
+            if offset not in computed:
+                computed[offset] = at(offset)
+            value[chosen] = computed[offset][chosen]
+        results.append(value)
     stacked = torch.stack(results, dim=1).detach().cpu().numpy()
     return pd.DataFrame(stacked, columns=columns)
 
@@ -3023,6 +3071,11 @@ def _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_
       on an anisotropic stack blurs far further in z in physical terms than in
       xy. The sigma is given per axis, scaled so it means the same physical
       distance on each.
+
+    A role whose mask dim is None was never segmented, so its
+    ``distance_to_<role>`` column is left out. A segmented mask with no
+    object in this field is written as NaN: the transform of an all-zero mask
+    is +inf everywhere, which broke every downstream mean and scaling.
     """
 
     sigma = settings.get('distance_gaussian_sigma', 1.0)
@@ -3038,8 +3091,16 @@ def _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_
     cell_labels = cell_labels[cell_labels > 0]
 
     dfs = []
-    nucleus_dt = distance_transform_edt(nucleus_mask == 0, sampling=spacing)
-    pathogen_dt = distance_transform_edt(pathogen_mask == 0, sampling=spacing)
+    targets = [(role, target) for role, target in
+               (('nucleus', nucleus_mask), ('pathogen', pathogen_mask))
+               if not (f'{role}_mask_dim' in settings
+                       and settings[f'{role}_mask_dim'] is None)]
+    transforms = {
+        role: (distance_transform_edt(target == 0, sampling=spacing)
+               if target is not None and np.any(target) else None)
+        for role, target in targets}
+    roles = [role for role, _target in targets]
+    missing = [np.nan] * len(roles)
 
     boxes = _label_bounding_boxes(cell_mask)
 
@@ -3053,7 +3114,7 @@ def _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_
             if box is None:
                 cell_coords = np.argwhere(cell_mask == label)
                 if cell_coords.size == 0:
-                    data.append([label, np.nan, np.nan])
+                    data.append([label, *missing])
                     continue
                 lower = np.min(cell_coords, axis=0)
                 upper = np.max(cell_coords, axis=0) + 1
@@ -3065,30 +3126,28 @@ def _measure_intensity_distance(cell_mask, nucleus_mask, pathogen_mask, channel_
             blurred_subimg = blurred_img[box]
 
             if np.sum(cell_submask) == 0:
-                data.append([label, np.nan, np.nan])
+                data.append([label, *missing])
                 continue
 
             masked_intensity = blurred_subimg * cell_submask
             com_local = center_of_mass(masked_intensity)
             if np.isnan(com_local[0]):
-                data.append([label, np.nan, np.nan])
+                data.append([label, *missing])
                 continue
 
             com_global = tuple(c + int(o) for c, o in zip(com_local, lower))
             index = tuple(int(v) for v in np.round(com_global).astype(int))
 
             if not all(0 <= v < s for v, s in zip(index, cell_mask.shape)):
-                data.append([label, np.nan, np.nan])
+                data.append([label, *missing])
                 continue
 
-            nucleus_dist = nucleus_dt[index]
-            pathogen_dist = pathogen_dt[index]
+            data.append([label, *(
+                np.nan if transforms[role] is None
+                else transforms[role][index] for role in roles)])
 
-            data.append([label, nucleus_dist, pathogen_dist])
-
-        df = pd.DataFrame(data, columns=['label',
-                                         f'cell_channel_{ch}_distance_to_nucleus',
-                                         f'cell_channel_{ch}_distance_to_pathogen'])
+        df = pd.DataFrame(data, columns=['label', *(
+            f'cell_channel_{ch}_distance_to_{role}' for role in roles)])
         dfs.append(df)
 
     merged_df = dfs[0]
@@ -4622,6 +4681,26 @@ def _image_field_values(channel_arrays, masks, occupied=None):
     return values
 
 
+def _raw_saturated_fractions(channel_arrays):
+    """``channel_<c>_saturated_fraction`` from the channels before a float hook.
+
+    A hook that asks for float input (illumination correction) leaves the
+    measured image without a dtype ceiling, so saturation is read from the
+    acquired integer pixels instead: those are what the camera clipped.
+
+    :param channel_arrays: ``(..., C)`` intensities before preprocessing hooks.
+    :returns: column name to fraction; empty for a non-integer input.
+    """
+    channels = np.asarray(channel_arrays)
+    if not np.issubdtype(channels.dtype, np.integer) or not channels.size:
+        return {}
+    top = np.iinfo(channels.dtype).max
+    return {f'channel_{index}_saturated_fraction':
+            float(np.count_nonzero(channels[..., index] >= top))
+            / channels[..., index].size
+            for index in range(channels.shape[-1])}
+
+
 def _image_rescale_values(record, psf_record=None):
     """The ``intensity_rescale`` columns one ``image`` row carries.
 
@@ -5532,6 +5611,7 @@ def _phases_by_xgboost(features, labels, groups, *, seed=0, n_jobs=1,
     """
     from xgboost import XGBClassifier
 
+    from .ml import _xgboost_cpu_safe
     from .openmp_guard import single_threaded_openmp
     from .classifier_evaluation import grouped_split, normalize_split_level
 
@@ -5549,11 +5629,11 @@ def _phases_by_xgboost(features, labels, groups, *, seed=0, n_jobs=1,
 
     def _model():
         """A fresh classifier with the fixed phase-calling parameters."""
-        return XGBClassifier(
+        return XGBClassifier(**_xgboost_cpu_safe(dict(
             n_estimators=300, max_depth=4, learning_rate=0.1,
             subsample=0.9, colsample_bytree=0.8, tree_method='hist',
             random_state=seed, n_jobs=n_jobs, device='cpu',
-            disable_default_eval_metric=True)
+            disable_default_eval_metric=True)))
 
     report = {'classes': classes,
               'counts': {p: int((labels == p).sum()) for p in classes},
@@ -8912,6 +8992,36 @@ def _record_measured_masks(merged_path, settings, masks, cytoplasm_mask=None):
         return None
 
 
+#: Share of a field's objects a size filter may remove before Measure warns.
+_SIZE_FILTER_WARN_FRACTION = 0.5
+
+
+def _warn_when_a_size_filter_removes_most(file, obj, before, after, settings):
+    """Print a warning when ``{obj}_min_size``/``_max_size`` removed most objects.
+
+    A fixed pixel floor made for 40-60x silently removed nearly every cell of
+    a 20x field (item 800), so a field that loses more than
+    :data:`_SIZE_FILTER_WARN_FRACTION` of its objects says so and names the
+    settings that fix it.
+
+    :param file: the field's file name.
+    :param obj: ``'cell'``, ``'nucleus'`` or ``'pathogen'``.
+    :param before: objects in the mask before filtering.
+    :param after: objects left after filtering.
+    :param settings: the Measure settings, for the limits in the message.
+    :returns: True when the warning was printed.
+    """
+    if before <= 0 or before - after <= _SIZE_FILTER_WARN_FRACTION * before:
+        return False
+    low = settings.get(f'{obj}_min_size')
+    high = settings.get(f'{obj}_max_size')
+    print(f'Warning: {file}: the {obj} size filter [{low}, {high}] px removed '
+          f'{before - after} of {before} {obj} objects. Set pixel_size_um '
+          f'(or magnification) so the default follows the image scale, or '
+          f'change {obj}_min_size / {obj}_max_size.')
+    return True
+
+
 def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel=None):
 
     """Measure one field using selected standard or PSF-processed intensities.
@@ -9010,7 +9120,12 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
         if settings.get(_UNMIX_RECORD_KEY):
             channel_arrays = _apply_recorded_unmixing(channel_arrays, settings)
 
+        raw_channel_arrays = None
         if preprocessing_hooks():
+            if any(getattr(entry.func, 'measures_in_float', False)
+                   for entry in preprocessing_hooks()):
+                raw_channel_arrays = channel_arrays
+                channel_arrays = channel_arrays.astype(np.float32)
             channel_arrays = apply_preprocessing_hooks(
                 channel_arrays,
                 PreprocessingContext(
@@ -9064,6 +9179,8 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                     cell_mask, settings['cell_min_size'],
                     max_value=cell_max)
                 dropped = before - int(len(np.unique(cell_mask)) - 1)
+                _warn_when_a_size_filter_removes_most(
+                    file, 'cell', before, before - dropped, settings)
                 if dropped and cell_max:
                     print(f'cell: {dropped} object(s) outside '
                           f'[{settings["cell_min_size"]}, {cell_max}] px')
@@ -9091,6 +9208,8 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                     nucleus_mask, settings['nucleus_min_size'],
                     max_value=nucleus_max)
                 dropped = before - int(len(np.unique(nucleus_mask)) - 1)
+                _warn_when_a_size_filter_removes_most(
+                    file, 'nucleus', before, before - dropped, settings)
                 if dropped and nucleus_max:
                     print(f'nucleus: {dropped} object(s) outside '
                           f'[{settings["nucleus_min_size"]}, {nucleus_max}] px')
@@ -9117,6 +9236,8 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                     pathogen_mask, settings['pathogen_min_size'],
                     max_value=pathogen_max)
                 dropped = before - int(len(np.unique(pathogen_mask)) - 1)
+                _warn_when_a_size_filter_removes_most(
+                    file, 'pathogen', before, before - dropped, settings)
                 if dropped and pathogen_max:
                     print(f'pathogen: {dropped} object(s) outside '
                           f'[{settings["pathogen_min_size"]}, {pathogen_max}] px')
@@ -9359,6 +9480,8 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
         image_values = {
             **_image_field_values(channel_arrays, image_masks, image_occupied),
             **_image_rescale_values(rescale_record, psf_record)}
+        if raw_channel_arrays is not None:
+            image_values.update(_raw_saturated_fractions(raw_channel_arrays))
         if settings['save_measurements'] and 'compute_path' in field_stamp:
             image_values['compute_path'] = field_stamp['compute_path']
 

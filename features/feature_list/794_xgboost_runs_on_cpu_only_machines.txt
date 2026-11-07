@@ -1,7 +1,7 @@
 XGBOOST RUNS ON CPU-ONLY MACHINES
 
 Lifecycle: future
-Status: not started
+Status: DONE 2026-11-07 — every xgboost fit (Regression/ml_analysis, cell-cycle phases, active learning, hyperparameter search, surrogate, cell annotation, timelapse infection QC) builds its parameters through spacr.ml._xgboost_cpu_safe, which probes for a usable CUDA device (CUDA_VISIBLE_DEVICES, then torch) and, on a CUDA build of xgboost without one, fits on the CPU with the device-bound mlogloss/merror metrics dropped. Cause found: only multiclass fits failed; the CUDA build's mlogloss/merror metric set-up needs a device even with device='cpu'. Tests tests/test_xgboost_cpu_only.py pass in the spacr env (xgboost 3.4.1 CUDA build) under CUDA_VISIBLE_DEVICES=''.
 Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
            (BMC spaCR paper) worked around must become a spaCR item.
 Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cellprofiler_baseline/REPORT.md, "spaCR gaps", gap 5
@@ -44,6 +44,13 @@ in the spacr env.
 DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
 
-Nothing yet.
+- Step 2 (pin the install profile to xgboost-cpu): not needed once the CUDA
+  build fits on the CPU, and xgboost-cpu installs the same import name as
+  xgboost, so swapping wheels per machine in the installers would add a
+  conflict path for no gain.
+- A GPU is used only when a caller asks for device='cuda' and one is
+  usable; every spaCR caller still asks for the CPU, so results and the GPU
+  turn rules are unchanged.
+- No new setting, so nothing is registered under ALPHA_FEATURES.
 
 2026-11-05: renumbered from 759 to 794; nightly already used 755-768 for other items.
