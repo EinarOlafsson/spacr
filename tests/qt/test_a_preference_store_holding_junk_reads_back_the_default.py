@@ -212,6 +212,9 @@ class _Store(QSettings):
     def contains(self, _key):
         raise RuntimeError("the store file went away")
 
+    def allKeys(self):
+        raise RuntimeError("the store file went away")
+
 
 def test_a_store_that_fails_while_the_space_keys_are_removed_is_left(
         tmp_path):
