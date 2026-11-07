@@ -155,8 +155,11 @@ def test_evaluation_comes_last_and_is_not_prefixed():
     settings that decide what is being trained."""
     source = _rebuild_source()
 
+    # Item 803 adds the alpha GPU Memory group after Runtime & Reliability;
+    # like them it applies to both families and is not prefixed.
     assert _literal_names("shared_last") == [
-        "Evaluation", "Results & figures", "Runtime & Reliability"]
+        "Evaluation", "Results & figures", "Runtime & Reliability",
+        "GPU Memory α"]
 
     last = source.index("for name in shared_last:")
     for earlier in ("for name in shared_first:", "for name in cv_groups:",
