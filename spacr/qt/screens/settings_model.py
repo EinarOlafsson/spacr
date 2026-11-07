@@ -10115,6 +10115,7 @@ class _RecordTable(QWidget):
         from PySide6.QtWidgets import (QAbstractItemView, QAbstractScrollArea,
                                        QHeaderView, QTableWidget)
         from ..i18n import tr
+        from ..widgets.sortable_table import install_sorting
 
         self._columns = tuple(columns)
         self._mapping_key = mapping_key
@@ -10135,6 +10136,7 @@ class _RecordTable(QWidget):
         self.table.horizontalHeader().setStretchLastSection(True)
         self.table.verticalHeader().setVisible(False)
         self.table.itemChanged.connect(self._on_item_changed)
+        install_sorting(self.table)
         layout.addWidget(self.table)
         buttons = QHBoxLayout()
         buttons.setContentsMargins(0, 0, 0, 0)
@@ -10202,7 +10204,7 @@ class _RecordTable(QWidget):
 
     def set_value(self, value: Any) -> None:
         """Show ``value``: a list of records, one record, or a mapping."""
-        from PySide6.QtWidgets import QTableWidgetItem
+        from ..widgets.sortable_table import table_item
 
         records, notes = self._as_records(value)
         self._loading = True
@@ -10213,7 +10215,7 @@ class _RecordTable(QWidget):
                 self.table.insertRow(row)
                 shown = {column.key for column in self._columns}
                 for col, column in enumerate(self._columns):
-                    item = QTableWidgetItem(
+                    item = table_item(
                         _record_cell_text(column.kind, record.get(column.key)))
                     self.table.setItem(row, col, item)
                 extras = {k: v for k, v in record.items() if k not in shown}
@@ -10291,14 +10293,14 @@ class _RecordTable(QWidget):
 
     def _on_add(self, _checked=False) -> None:
         """Append an empty row and start editing its first cell."""
-        from PySide6.QtWidgets import QTableWidgetItem
+        from ..widgets.sortable_table import table_item
 
         row = self.table.rowCount()
         self._loading = True
         try:
             self.table.insertRow(row)
             for col in range(len(self._columns)):
-                self.table.setItem(row, col, QTableWidgetItem(""))
+                self.table.setItem(row, col, table_item(""))
             self.table.item(row, 0).setData(self._EXTRAS_ROLE, {})
         finally:
             self._loading = False
