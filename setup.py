@@ -471,7 +471,7 @@ setup(
             'opencv-python-headless>=4.9.0.80,<6.0; sys_platform != "darwin" or platform_machine != "x86_64" or python_version >= "3.13"',
             'opencv-python-headless>=4.9.0.80,<4.12; sys_platform == "darwin" and platform_machine == "x86_64" and python_version < "3.13"',
         ],
-        'embeddings': ['timm>=0.9,<2.0'],
+        'embeddings': ['timm>=0.9,<2.0', 'safetensors>=0.4,<1'],
         'trackastra': [
             'trackastra>=0.5,<1.0; python_version >= "3.10" and '
             '(sys_platform != "darwin" or platform_machine != "x86_64" '
