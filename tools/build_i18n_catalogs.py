@@ -4606,6 +4606,15 @@ def _indirect_runtime_ui_sources() -> set[str]:
             drift_direction_label(name),
             drift_direction_note(name),
         ))
+    # The record-table editors (item 825) translate each column header with
+    # tr(column.header); the header strings live in _RecordColumn tuples.
+    from spacr.qt.screens import settings_model as _settings_model
+    for value in vars(_settings_model).values():
+        columns = value.values() if isinstance(value, dict) else (value,)
+        for group in columns:
+            if isinstance(group, tuple) and group and all(
+                    isinstance(column, _settings_model._RecordColumn) for column in group):
+                found.update(str(column.header) for column in group)
     # These registry values are known presentation prose. A filename, URL or
     # example regex inside an explanation must not make the AST heuristic
     # discard the whole paragraph.
