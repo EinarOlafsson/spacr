@@ -61,6 +61,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_design": None,
     "ops_control_prefix": "nontargeting",
     "ops_bootstrap": 0,
+    "ops_pvalue_null": "calibrated",
     "ops_mitotic_dna_z": 3.0,
 }
 
@@ -106,6 +107,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_design": (str, type(None)),
     "ops_control_prefix": str,
     "ops_bootstrap": int,
+    "ops_pvalue_null": str,
     "ops_mitotic_dna_z": (float, int),
 }
 
@@ -142,7 +144,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ph_cell_diameter", "ops_ph_downsample", "ops_ph_batch_size",
         "ops_ph_sites", "ops_ph_texture", "ops_merge_threshold",
         "ops_design", "ops_control_prefix", "ops_bootstrap",
-        "ops_mitotic_dna_z",
+        "ops_pvalue_null", "ops_mitotic_dna_z",
     ],
 }
 
@@ -364,10 +366,19 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "controls every feature is normalised against, well by well. "
         "Default 'nontargeting'. Alpha.",
     "ops_bootstrap":
-        "(int) - Bootstrap replicates for each gene's P value against "
+        "(int) - Replicates for each gene's P value against "
         "non-targeting guides of the same sizes, with Benjamini-Hochberg "
         "FDR. 0 skips the test; 1000 resolves P values to about 0.001 and "
         "costs minutes per plate. Default 0. Alpha.",
+    "ops_pvalue_null":
+        "(str) - The null each gene is tested against. 'calibrated' adds "
+        "the variance that non-targeting guide medians show beyond cell "
+        "sampling, so non-targeting guides tested as genes are called hits "
+        "about 5 percent of the time. 'cell_bootstrap' draws non-targeting "
+        "cells only. It ignores that variance and calls too many hits: on "
+        "one Funk et al. 2022 plate it called 4,053 of 5,049 genes. It is "
+        "kept to rerun analyses made before spaCR 1.5.1.8. "
+        "Default 'calibrated'. Alpha.",
     "ops_mitotic_dna_z":
         "(float) - A cell is called mitotic when its nuclear mean DAPI "
         "intensity is this many robust standard deviations above its well's "

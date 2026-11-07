@@ -170,9 +170,10 @@ def test_aggregation_reports_a_planted_gene_effect_per_well():
     assert genes.loc["GENE1", "nucleus_area"] == pytest.approx(2.0, abs=0.35)
     assert abs(genes.loc["GENE2", "nucleus_area"]) < 0.5
     assert genes.loc["GENE1", "n_guides"] == 2
+    is_control = guides["gene"].str.startswith("nontargeting")
     pvalues = bootstrap_gene_pvalues(
-        z[control.to_numpy()], guides[~guides["gene"].str.startswith(
-            "nontargeting")], ["nucleus_area"], n_boot=500).set_index("gene")
+        z[control.to_numpy()], guides[~is_control], ["nucleus_area"],
+        n_boot=500, control_guides=guides[is_control]).set_index("gene")
     assert pvalues.loc["GENE1", "nucleus_area_pvalue"] < 0.01
     assert pvalues.loc["GENE2", "nucleus_area_pvalue"] > 0.01
     assert "nucleus_area_fdr" in pvalues

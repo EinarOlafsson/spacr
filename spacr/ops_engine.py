@@ -2598,7 +2598,7 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     :param plate: the plate name.
     :param wells: the wells to pool.
     :param settings: read for ``ops_design``, ``ops_control_prefix``,
-        ``ops_bootstrap`` and ``ops_mitotic_dna_z``.
+        ``ops_bootstrap``, ``ops_pvalue_null`` and ``ops_mitotic_dna_z``.
     :param destination: where ``ops_guides_<plate>`` and
         ``ops_genes_<plate>`` (CSV and Parquet) are written.
     :returns: the aggregate report.
@@ -2608,9 +2608,10 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     (:func:`spacr.gene_measurement_compare.robust_z_to_controls`); a guide
     is the median of its cells; a gene is the median of its guides; and,
     when ``ops_bootstrap`` is above zero, each gene is tested against a null
-    of non-targeting guides of the same sizes. The mitotic index is the
-    share of a gene's cells :func:`~spacr.gene_measurement_compare.
-    mitotic_calls` calls mitotic.
+    of non-targeting guides of the same sizes
+    (:func:`spacr.gene_measurement_compare.bootstrap_gene_pvalues`). The
+    mitotic index is the share of a gene's cells
+    :func:`~spacr.gene_measurement_compare.mitotic_calls` calls mitotic.
     """
     import pandas as pd
 
@@ -2675,6 +2676,11 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     genes = aggregate_genes(guides, features)
     boot = int(_setting_number(settings.get("ops_bootstrap"),
                                "ops_bootstrap", 0))
+    null = str(settings.get("ops_pvalue_null") or "calibrated").strip().lower()
+    if null not in ("calibrated", "cell_bootstrap"):
+        raise ValueError(tr(
+            "ops_pvalue_null must be calibrated or cell_bootstrap; got "
+            "{value}", value=null))
     tested: List[str] = []
     if boot > 0 and control.any():
         tested = [c for c in (
@@ -2682,10 +2688,11 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
             f"nucleus_{channels[0]}_integrated_intensity" if channels else "",
             *(f"cell_{c}_mean_intensity" for c in channels[1:]))
             if c in features]
-        targeting = guides[~guides["gene"].str.lower().str.startswith(
-            control_prefix.lower())]
-        pvalues = bootstrap_gene_pvalues(normalised.loc[control.to_numpy()],
-                                         targeting, tested, n_boot=boot)
+        is_control = guides["gene"].str.lower().str.startswith(
+            control_prefix.lower())
+        pvalues = bootstrap_gene_pvalues(
+            normalised.loc[control.to_numpy()], guides[~is_control], tested,
+            n_boot=boot, null=null, control_guides=guides[is_control])
         genes = genes.merge(pvalues, on="gene", how="left")
     outputs = {}
     for name, table in (("guides", guides), ("genes", genes)):
@@ -2707,6 +2714,7 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         "mitotic_fraction_controls": round(float(
             cells.loc[control, "mitotic"].mean()), 4) if control.any() else None,
         "bootstrap": boot, "bootstrap_features": tested,
+        "pvalue_null": null if tested else None,
         "outputs": outputs,
         "seconds": round(time.perf_counter() - started, 1),
     }

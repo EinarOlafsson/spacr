@@ -1337,40 +1337,149 @@ def aggregate_genes(guides: pd.DataFrame, features: Sequence[str]
     return out.reset_index()
 
 
+# The nulls bootstrap_gene_pvalues can test against.
+_GENE_PVALUE_NULLS: Tuple[str, ...] = ("calibrated", "cell_bootstrap")
+
+
+def _calibrated_null(control_values: pd.Series, control_guides: pd.DataFrame,
+                     feature: str) -> Optional[Dict[str, float]]:
+    """The normal null of one feature from non-targeting cells and guides.
+
+    :param control_values: the feature over the non-targeting cells.
+    :param control_guides: one row per non-targeting guide, with
+        ``n_cells`` and the feature's guide median.
+    :param feature: the feature column of ``control_guides``.
+    :returns: ``centre``, ``cell_variance`` and ``between_variance``, or
+        None when the null cannot be estimated.
+
+    The cell variance is the squared robust standard deviation of the
+    control cells (1.4826 times their MAD). A median of ``n`` cells then
+    varies by ``pi / 2 * cell_variance / n``. The between-guide variance is
+    what the non-targeting guide medians vary by beyond that, floored at
+    zero.
+    """
+    cells = pd.to_numeric(control_values, errors="coerce").to_numpy(float)
+    cells = cells[np.isfinite(cells)]
+    medians = pd.to_numeric(control_guides[feature],
+                            errors="coerce").to_numpy(float)
+    sizes = control_guides["n_cells"].to_numpy(float)
+    finite = np.isfinite(medians) & (sizes > 0)
+    medians, sizes = medians[finite], sizes[finite]
+    if cells.size == 0 or medians.size < 2:
+        return None
+    cell_variance = float(
+        (MAD_TO_SD * np.median(np.abs(cells - np.median(cells)))) ** 2)
+    sampling = np.pi / 2 * cell_variance / sizes
+    between = max(0.0, float(np.var(medians, ddof=1) - sampling.mean()))
+    if cell_variance + between <= 0:
+        return None
+    return {"centre": float(np.median(medians)),
+            "cell_variance": cell_variance,
+            "between_variance": between}
+
+
 def bootstrap_gene_pvalues(control_values: pd.DataFrame,
                            guides: pd.DataFrame, features: Sequence[str], *,
                            n_boot: int = 1000, seed: int = 0,
-                           max_cells: int = 2000) -> pd.DataFrame:
-    """Two-sided bootstrap P values per gene against non-targeting cells.
+                           max_cells: int = 2000,
+                           null: str = "calibrated",
+                           control_guides: Optional[pd.DataFrame] = None
+                           ) -> pd.DataFrame:
+    """Two-sided P values per gene against non-targeting controls.
 
     :param control_values: one row per non-targeting cell, ``features``
         columns, on the same scale as the guide medians.
-    :param guides: :func:`aggregate_guides` output.
+    :param guides: :func:`aggregate_guides` output for the genes to test.
     :param features: the features to test.
-    :param n_boot: bootstrap replicates; P values resolve to
+    :param n_boot: simulated or bootstrap replicates; P values resolve to
         ``1 / (n_boot + 1)``.
     :param seed: the random seed, so a rerun gives the same table.
-    :param max_cells: a guide's draw is capped at this many cells; the
-        median of a larger draw barely moves and the cost is linear in it.
+    :param max_cells: the cell bootstrap caps a guide's draw at this many
+        cells. The median of a larger draw barely moves, and the cost is
+        linear in it. The calibrated null does not use it.
+    :param null: ``'calibrated'`` or ``'cell_bootstrap'``.
+    :param control_guides: :func:`aggregate_guides` output for the
+        non-targeting guides. The calibrated null needs it.
     :returns: ``gene`` plus ``<feature>_pvalue`` and ``<feature>_fdr``
-        (Benjamini-Hochberg across genes) per feature.
+        (Benjamini-Hochberg across genes) per feature. With the calibrated
+        null, ``attrs["null"]`` holds each feature's centre, cell variance
+        and between-guide variance.
+    :raises ValueError: for an unknown ``null``, or for the calibrated null
+        without ``control_guides``.
 
-    THE NULL REPEATS THE GENE'S OWN SAMPLING, which is Funk et al.'s
-    construction: for each of the gene's guides, as many non-targeting cells
-    as that guide has are drawn and their median taken; the gene statistic
-    is the median of those guide medians. A gene with two thin guides is
-    therefore compared with what two thin non-targeting guides do, not with
-    a null that assumes thousands of cells.
+    BOTH NULLS REPEAT THE GENE'S OWN SAMPLING. The gene statistic is the
+    median of its guide medians. Each null draws one value per guide of the
+    gene, sized like that guide, and takes their median.
+
+    THE CALIBRATED NULL IS THE DEFAULT. Each simulated guide median is drawn
+    from a normal distribution centred on the median of the non-targeting
+    guides. Its variance is ``between + pi / 2 * cell / n``. Here ``n`` is
+    the guide's cell count and ``cell`` is the squared robust standard
+    deviation of the control cells. The ``between`` term is the variance
+    the non-targeting guide medians show beyond cell sampling. Cells of one
+    guide share wells, fields and clonal patches, so in an optical pooled
+    screen that term is large.
+
+    THE CELL BOOTSTRAP IGNORES THE BETWEEN-GUIDE VARIANCE. It draws as many
+    non-targeting cells as each guide has and takes their median, which is
+    the construction of Funk et al. 2022. Its null therefore holds only
+    cell-sampling noise, and its P values are too small. On one plate of the
+    Funk et al. 2022 screen it called 4,053 of 5,049 genes and a third of
+    the non-targeting guides hits. It is kept only to rerun analyses made
+    before spaCR 1.5.1.8.
     """
     from .multiple_testing import _multipletests
 
+    null = str(null or "calibrated").strip().lower()
+    if null not in _GENE_PVALUE_NULLS:
+        raise ValueError(f"null must be one of {list(_GENE_PVALUE_NULLS)}; "
+                         f"got {null!r}")
+    if null == "calibrated" and control_guides is None:
+        raise ValueError(
+            "the calibrated null needs control_guides, the guide medians of "
+            "the non-targeting guides; pass null='cell_bootstrap' for the "
+            "earlier test")
     rng = np.random.default_rng(int(seed))
-    pool = {feature: pd.to_numeric(control_values[feature], errors="coerce")
-            .dropna().to_numpy() for feature in features}
+    replicates = int(n_boot)
+    params: Dict[str, Optional[Dict[str, float]]] = {}
+    pool: Dict[str, np.ndarray] = {}
+    if null == "calibrated":
+        params = {feature: _calibrated_null(control_values[feature],
+                                            control_guides, feature)
+                  for feature in features}
+    else:
+        pool = {feature: pd.to_numeric(control_values[feature],
+                                       errors="coerce").dropna().to_numpy()
+                for feature in features}
     rows = []
     for gene, members in guides.groupby("gene", sort=True):
-        sizes = np.minimum(members["n_cells"].to_numpy(int), int(max_cells))
         row: Dict[str, Any] = {"gene": gene}
+        if null == "calibrated":
+            for feature in features:
+                column = members[feature]
+                values = (column.to_numpy()
+                          if pd.api.types.is_float_dtype(column)
+                          else pd.to_numeric(column, errors="coerce")
+                          .to_numpy(float))
+                sizes = members["n_cells"].to_numpy(float)
+                keep = np.isfinite(values)
+                fit = params[feature]
+                if fit is None or not keep.any():
+                    row[f"{feature}_pvalue"] = np.nan
+                    continue
+                centre = fit["centre"]
+                observed = float(np.median(values[keep]))
+                spread = np.sqrt(fit["between_variance"] + np.pi / 2
+                                 * fit["cell_variance"] / sizes[keep])
+                simulated = np.median(
+                    centre + rng.standard_normal((replicates, spread.size))
+                    * spread, axis=1)
+                extreme = np.abs(simulated - centre) >= abs(observed - centre)
+                row[f"{feature}_pvalue"] = float(
+                    (extreme.sum() + 1) / (replicates + 1))
+            rows.append(row)
+            continue
+        sizes = np.minimum(members["n_cells"].to_numpy(int), int(max_cells))
         for feature in features:
             values = pool[feature]
             observed = float(np.nanmedian(members[feature]))
@@ -1378,15 +1487,15 @@ def bootstrap_gene_pvalues(control_values: pd.DataFrame,
                 row[f"{feature}_pvalue"] = np.nan
                 continue
             centre = float(np.median(values))
-            null = np.empty(int(n_boot))
-            per_guide = np.empty((int(n_boot), sizes.size))
+            null_medians = np.empty(replicates)
+            per_guide = np.empty((replicates, sizes.size))
             for index, size in enumerate(sizes):
-                draws = rng.choice(values, size=(int(n_boot), max(1, size)))
+                draws = rng.choice(values, size=(replicates, max(1, size)))
                 per_guide[:, index] = np.median(draws, axis=1)
-            null[:] = np.median(per_guide, axis=1)
-            extreme = np.abs(null - centre) >= abs(observed - centre)
+            null_medians[:] = np.median(per_guide, axis=1)
+            extreme = np.abs(null_medians - centre) >= abs(observed - centre)
             row[f"{feature}_pvalue"] = float(
-                (extreme.sum() + 1) / (int(n_boot) + 1))
+                (extreme.sum() + 1) / (replicates + 1))
         rows.append(row)
     out = pd.DataFrame(rows)
     for feature in features:
@@ -1399,4 +1508,6 @@ def bootstrap_gene_pvalues(control_values: pd.DataFrame,
             fdr[finite] = _multipletests(out.loc[finite, column].to_numpy(),
                                          "fdr_bh")[1]
         out[f"{feature}_fdr"] = fdr
+    if null == "calibrated":
+        out.attrs["null"] = params
     return out
