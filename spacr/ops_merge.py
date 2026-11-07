@@ -370,3 +370,82 @@ def deduplicate_matches(frame, *, key: str = "object_id",
     ordered = frame.sort_values([by], kind="mergesort")
     kept = ordered.drop_duplicates(subset=[key], keep="first")
     return kept.sort_index(), int(len(frame) - len(kept))
+
+
+def field_footprint(transform, field_shape) -> Tuple[np.ndarray, np.ndarray]:
+    """The well-frame box a phenotype field covers.
+
+    :param transform: the field's ``(scale, rotation, translation)``.
+    :param field_shape: ``(height, width)`` of the field in its own pixels.
+    :returns: ``(low, high)``, each ``(y, x)`` in well pixels: the smallest
+        and largest coordinates of the field's four corners.
+    """
+    height, width = float(field_shape[0]), float(field_shape[1])
+    corners = field_to_well(np.array([[0.0, 0.0], [0.0, width],
+                                      [height, 0.0], [height, width]]),
+                            transform)
+    return corners.min(axis=0), corners.max(axis=0)
+
+
+def footprint_depth(points, low, high) -> np.ndarray:
+    """How far each well-frame point lies inside a field's footprint.
+
+    :param points: ``(N, 2)`` well-frame ``(y, x)``.
+    :param low: the footprint's smallest ``(y, x)``.
+    :param high: its largest ``(y, x)``.
+    :returns: ``(N,)`` distances in well pixels to the nearest footprint
+        edge, negative outside.
+
+    THE DEPTH DECIDES WHICH FIELD OWNS A CELL. Where fields overlap, the
+    field in which a cell lies deepest images it furthest from any edge, so
+    that copy is the one least likely to be cut by the field's border.
+    """
+    p = np.asarray(points, float).reshape(-1, 2)
+    return np.minimum(np.minimum(p[:, 0] - low[0], high[0] - p[:, 0]),
+                      np.minimum(p[:, 1] - low[1], high[1] - p[:, 1]))
+
+
+def overlapping_fields(footprints) -> dict:
+    """The fields whose footprints overlap each field's.
+
+    :param footprints: ``{site: (low, high)}`` from :func:`field_footprint`.
+    :returns: ``{site: [other sites]}``, in the order of ``footprints``.
+    """
+    sites = list(footprints)
+    out = {}
+    for site in sites:
+        low, high = footprints[site]
+        out[site] = [other for other in sites if other != site and np.all(
+            np.minimum(high, footprints[other][1])
+            > np.maximum(low, footprints[other][0]))]
+    return out
+
+
+def deepest_field_matches(frame, *, key: str = "object_id",
+                          depth: str = "sbs_depth_px",
+                          by: str = "distance"):
+    """One observation per sequencing nucleus: the copy deepest in its field.
+
+    :param frame: merge rows with ``key``, ``depth`` and ``by`` columns.
+    :param key: the column that must be unique afterwards.
+    :param depth: how deep the sequencing nucleus lies in the row's field,
+        from :func:`footprint_depth`; the largest wins.
+    :param by: breaks ties in ``depth``; the smallest wins.
+    :returns: ``(kept, dropped)`` -- the frame with one row per ``key``, in
+        the order the winning rows had, and how many rows were dropped.
+
+    CORE OWNERSHIP BY THE SEQUENCING CENTROID (A1b). A nucleus imaged in two
+    overlapping phenotype fields is kept from the field in which its
+    sequencing centroid lies deepest, not from the closer match
+    (:func:`deduplicate_matches`). The closer match is often the margin
+    copy, and a margin copy is more often cut by the field's edge: on plate
+    A of Funk et al. 2022 the closer match kept a different copy for 14.4
+    percent of linked cells. Equal depths go to the closer match, then to
+    the first row.
+    """
+    if frame is None or len(frame) == 0:
+        return frame, 0
+    ordered = frame.sort_values([depth, by], ascending=[False, True],
+                                kind="mergesort")
+    kept = ordered.drop_duplicates(subset=[key], keep="first")
+    return kept, int(len(frame) - len(kept))
