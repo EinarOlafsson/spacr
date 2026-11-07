@@ -295,6 +295,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'custom_regex',
     'cv_best_model_path',
     'cv_csv',
+    'cv_exclude_batch_column',
     'cv_group_by',
     'cv_group_column',
     'cv_results_path',

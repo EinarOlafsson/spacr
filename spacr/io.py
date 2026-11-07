@@ -8389,12 +8389,51 @@ def _leave_one_group_out_folds(values, column):
     return held_out, folds
 
 
+def _exclude_held_out_batches(folds, batches, labels, classes, column):
+    """Drop from each fold's training side every batch its validation side has.
+
+    :param folds: ``(train_idx, val_idx)`` pairs.
+    :param batches: one batch value per sample.
+    :param labels: integer class label per sample.
+    :param classes: class names in label order.
+    :param column: the batch column, for messages.
+    :returns: ``(folds, report)``: the reduced folds and a dict of per-fold
+        lists ``held_out_batches`` (``|``-joined), ``n_train_excluded`` and
+        ``train_classes_missing`` (comma-joined names).
+    :raises ValueError: when a fold has no training sample left.
+    """
+    batches = np.asarray([str(value) for value in batches], dtype=object)
+    labels = np.asarray([int(value) for value in labels])
+    reduced = []
+    report = {'held_out_batches': [], 'n_train_excluded': [],
+              'train_classes_missing': []}
+    for fold, (train_idx, val_idx) in enumerate(folds, start=1):
+        train_idx = np.asarray(train_idx, dtype=int)
+        held = sorted(set(batches[np.asarray(val_idx, dtype=int)].tolist()))
+        keep = ~np.isin(batches[train_idx], held)
+        if not keep.any():
+            raise ValueError(
+                f"fold {fold}: every training sample shares a {column} with "
+                f"the held-out samples ({', '.join(held)}), so excluding "
+                f"those {column}s leaves nothing to train on")
+        kept = train_idx[keep]
+        present = set(labels[kept].tolist())
+        missing = [str(name) for index, name in enumerate(classes)
+                   if index not in present]
+        reduced.append((kept, np.asarray(val_idx, dtype=int)))
+        report['held_out_batches'].append('|'.join(held))
+        report['n_train_excluded'].append(int((~keep).sum()))
+        report['train_classes_missing'].append(','.join(missing))
+    return reduced, report
+
+
 def generate_cv_loaders(src, n_splits, mode='train', image_size=224, batch_size=32,
                         classes=None, n_jobs=None, pin_memory=False, normalize=False,
                         channels=None, augment=False, verbose=False,
                         group_by='well', class_balance='none', seed=0,
                         crop_loading_policy=DECLARED_UINT8,
-                        group_column=None, metadata_path=None):
+                        group_column=None, metadata_path=None,
+                        batch_column=None):
     """Build one ``(train_loader, val_loader)`` pair per cross-validation fold.
 
     The dataset under ``src/<mode>`` is read once and then re-split k ways, so
@@ -8427,13 +8466,23 @@ def generate_cv_loaders(src, n_splits, mode='train', image_size=224, batch_size=
         well in ``metadata_path``. ``group_by`` still names the identity that
         may not cross a fold, and the fold table gains a ``held_out`` column.
     :param metadata_path: plate-map table (one row per well: ``plateID``, the
-        well, and the metadata columns) for ``group_column``.
+        well, and the metadata columns) for ``group_column`` and
+        ``batch_column``.
+    :param batch_column: metadata column naming each sample's batch, such as
+        a plate or an imaging week. Each fold's training side then drops every
+        sample from a batch present in its validation side, so a held-out
+        sample is never scored by a model that saw its batch (the
+        not-same-compound-or-batch rule when ``group_column`` is a compound).
+        The fold table gains ``held_out_batches``, ``n_train_excluded`` and
+        ``train_classes_missing``.
     :returns: ``(fold_loaders, info)`` where ``fold_loaders`` is a list of
         ``(train_loader, val_loader)`` and ``info`` holds ``fold_table``,
         ``warnings``, ``imbalance``, ``groups`` and, with ``group_column``,
         ``held_out`` (the value held out in each fold).
-    :raises ValueError: if ``n_splits`` < 2 or a setting value is unknown, or
-        if ``group_column`` has fewer than two values or a crop has none.
+    :raises ValueError: if ``n_splits`` < 2 or a setting value is unknown, if
+        ``group_column`` has fewer than two values, if a crop has no
+        ``group_column`` or ``batch_column`` value, or if excluding batches
+        leaves a fold with nothing to train on.
     """
     from .utils import augment_dataset
 
@@ -8467,11 +8516,29 @@ def generate_cv_loaders(src, n_splits, mode='train', image_size=224, batch_size=
               f"{group_column} value (cross_validation_folds is not used)")
     else:
         folds = make_cv_folds(labels, int(n_splits), groups=groups, seed=seed)
+    batch_report = None
+    if batch_column:
+        from .classifier_evaluation import _crop_metadata_values
+        batches = _crop_metadata_values(
+            filenames, batch_column, metadata_path,
+            table='classification dataset')
+        folds, batch_report = _exclude_held_out_batches(
+            folds, batches, labels, classes, batch_column)
     fold_table, fold_warnings = report_cv_folds(
         labels, folds, classes=classes, groups=groups, group_by=group_by,
         verbose=True)
     if held_out is not None:
         fold_table.insert(1, 'held_out', held_out)
+    if batch_report is not None:
+        for name, values in batch_report.items():
+            fold_table[name] = values
+        for fold, missing in enumerate(batch_report['train_classes_missing'], 1):
+            if missing:
+                note = (f"fold {fold}: no training samples of class(es) "
+                        f"{missing} remain outside the held-out "
+                        f"{batch_column}(s), so this fold cannot predict them")
+                fold_warnings.append(note)
+                print(f"  WARNING: {note}")
 
     imbalance = report_class_balance(labels, classes=classes,
                                      class_balance=class_balance,
@@ -8515,6 +8582,7 @@ def generate_cv_loaders(src, n_splits, mode='train', image_size=224, batch_size=
         'group_by': group_by,
         'group_column': group_column or None,
         'held_out': held_out,
+        'batch_column': batch_column or None,
         'labels': labels,
         'folds': folds,
         'classes': list(classes),

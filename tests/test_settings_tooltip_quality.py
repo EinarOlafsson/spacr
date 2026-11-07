@@ -1326,6 +1326,15 @@ if app_key == "mask":
     for app, key in group_column_arrivals:
         assert resolve_default_settings(app)[key] == ""
     recognized_arrivals |= group_column_arrivals
+    # cv_exclude_batch_column, one parseable claim (blank) resolved by the
+    # merged Classify screen.
+    batch_arrivals = {("classify_merged", "cv_exclude_batch_column")}
+    assert {pair for pair in compared_pairs
+            if pair[1] == "cv_exclude_batch_column"} == batch_arrivals
+    assert not batch_arrivals & (recognized_arrivals | variants.keys())
+    assert resolve_default_settings("classify_merged")[
+        "cv_exclude_batch_column"] == ""
+    recognized_arrivals |= batch_arrivals
     assert comparisons - len(recognized_arrivals) == 1004
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))

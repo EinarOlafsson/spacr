@@ -13757,6 +13757,7 @@ SETTING_CONSUMERS = {
     'custom_regex': (('spacr.core', 'preprocess_generate_masks'), ('spacr.foreign', 'import_project'), ('spacr.io', 'preprocess_img_data'), ('spacr.settings', 'get_overview_default_settings'), ('spacr.settings', 'set_default_settings_preprocess_generate_masks'), ('spacr.settings', 'set_default_settings_preprocess_img_data'),),
     'cv_csv': (('spacr.settings', 'barcode_set_from_settings'), ('spacr.submodules', 'generate_score_heatmap'),),
     'cv_group_by': (('spacr.deep_spacr', 'train_model'), ('spacr.deep_spacr', 'train_test_model'), ('spacr.hyperparam', 'run_search_for_app'), ('spacr.io', 'generate_training_dataset'), ('spacr.ml', 'generate_ml_scores'), ('spacr.settings', 'deep_spacr_defaults'), ('spacr.settings', 'get_train_test_model_settings'), ('spacr.settings', 'set_annotate_default_settings'), ('spacr.settings', 'set_default_train_test_model'), ('spacr.settings', 'set_generate_training_dataset_defaults'),),
+    'cv_exclude_batch_column': (('spacr.deep_spacr', '_cross_validate_model'), ('spacr.settings', '_set_classifier_evaluation_defaults'),),
     'cv_group_column': (('spacr.deep_spacr', '_cross_validate_model'), ('spacr.settings', '_set_classifier_evaluation_defaults'),),
     'well_metadata_path': (('spacr.deep_spacr', '_cross_validate_model'), ('spacr.settings', '_set_classifier_evaluation_defaults'),),
     'cytoplasm': (('spacr.measure', 'field_table_settings'), ('spacr.measure', 'measure_crop'), ('spacr.settings', 'get_measure_crop_settings'),),

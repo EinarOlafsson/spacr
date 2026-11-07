@@ -12,7 +12,7 @@ Repeated IDs retain their separate full filenames and histories; none were merge
 
 This is a declaration-based navigation list, not a verified unfinished count. Headers can be stale. Conversely, recorded-Done items 641 and 673 contain later Mac follow-ups; item 729 separates native checks from deferred implementation. Read their linked notes before assigning work.
 
-75 records have no recorded complete declaration; 751 have a recorded complete declaration. Neither is a verification result.
+74 records have no recorded complete declaration; 752 have a recorded complete declaration. Neither is a verification result.
 
 | ID | Lifecycle | Item (full filename) | Recorded status |
 |---|---|---|---|
@@ -51,7 +51,6 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 778 | New | [EMBEDDING A SHARD OR DATABASE IS A PUBLIC STEP — 778_embedding_a_store_is_a_public_step.txt](feature_list/778_embedding_a_store_is_a_public_step.txt) | open. |
 | 779 | New | [EMBEDDINGS AGGREGATE BY WELL AND TREATMENT, WITH NSC/NSCB EVALUATION — 779_embeddings_aggregate_by_well_and_treatment_with_nsc_nscb.txt](feature_list/779_embeddings_aggregate_by_well_and_treatment_with_nsc_nscb.txt) | open. |
 | 780 | New | [CPU EMBEDDING HAS A WORKERS x THREADS SETTING — 780_cpu_embedding_has_a_workers_by_threads_setting.txt](feature_list/780_cpu_embedding_has_a_workers_by_threads_setting.txt) | open. |
-| 782 | New | [TRAINING CAN EXCLUDE THE TEST BATCH (NSCB RULE) — 782_training_can_exclude_the_test_batch.txt](feature_list/782_training_can_exclude_the_test_batch.txt) | open. |
 | 783 | New | [TRAIN_TEST_MODEL READS CROP SHARDS AND MEMMAPS — 783_train_test_model_reads_crop_shards_and_memmaps.txt](feature_list/783_train_test_model_reads_crop_shards_and_memmaps.txt) | open. |
 | 784 | New | [PREDICTIONS ARE SCORED PER TREATMENT — 784_predictions_are_scored_per_treatment.txt](feature_list/784_predictions_are_scored_per_treatment.txt) | open. |
 | 787 | New | [TRAINING RESAMPLES PER EPOCH AND AUGMENTS ON THE GPU — 787_training_resamples_per_epoch_and_augments_on_gpu.txt](feature_list/787_training_resamples_per_epoch_and_augments_on_gpu.txt) | open. |
@@ -861,7 +860,7 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 779 | New | [EMBEDDINGS AGGREGATE BY WELL AND TREATMENT, WITH NSC/NSCB EVALUATION — 779_embeddings_aggregate_by_well_and_treatment_with_nsc_nscb.txt](feature_list/779_embeddings_aggregate_by_well_and_treatment_with_nsc_nscb.txt) | open. |
 | 780 | New | [CPU EMBEDDING HAS A WORKERS x THREADS SETTING — 780_cpu_embedding_has_a_workers_by_threads_setting.txt](feature_list/780_cpu_embedding_has_a_workers_by_threads_setting.txt) | open. |
 | 781 | New | [CROSS-VALIDATION GROUPS BY ANY METADATA COLUMN — 781_cross_validation_groups_by_any_metadata_column.txt](feature_list/781_cross_validation_groups_by_any_metadata_column.txt) | DONE 2026-11-06 — new setting cv_group_column gives leave-one-group-out folds (one per value) in Classify (CV) cross-validation; plate, well and field come from the crop names, any other column (e.g. compound) by well from the new well_metadata_path plate-map table. Missing wells are refused; the fold-composition CSV gains a held_out column. Combining with nested_cv_inner_folds is refused. |
-| 782 | New | [TRAINING CAN EXCLUDE THE TEST BATCH (NSCB RULE) — 782_training_can_exclude_the_test_batch.txt](feature_list/782_training_can_exclude_the_test_batch.txt) | open. |
+| 782 | New | [TRAINING CAN EXCLUDE THE TEST BATCH (NSCB RULE) — 782_training_can_exclude_the_test_batch.txt](feature_list/782_training_can_exclude_the_test_batch.txt) | DONE 2026-11-06 — new setting cv_exclude_batch_column: in Classify (CV) cross-validation each fold trains without every crop from a batch (plate, imaging week, any plate-map column via well_metadata_path) present in its held-out crops; with cv_group_column=compound this is NSCB. The fold-composition CSV gains held_out_batches, n_train_excluded and train_classes_missing; a fold left with no training data is refused. |
 | 783 | New | [TRAIN_TEST_MODEL READS CROP SHARDS AND MEMMAPS — 783_train_test_model_reads_crop_shards_and_memmaps.txt](feature_list/783_train_test_model_reads_crop_shards_and_memmaps.txt) | open. |
 | 784 | New | [PREDICTIONS ARE SCORED PER TREATMENT — 784_predictions_are_scored_per_treatment.txt](feature_list/784_predictions_are_scored_per_treatment.txt) | open. |
 | 785 | New | [TRAIN_MODEL SKIPS THE EXTRA PASS OVER THE TRAINING SET — 785_train_model_skips_the_extra_training_pass.txt](feature_list/785_train_model_skips_the_extra_training_pass.txt) | DONE 2026-11-06 — train_model records loss, accuracy and per-class metrics from the training batches (in training mode and precision) instead of a second fp32 pass over the training loader; the old pass stays behind train_metrics_full_pass (default False). Without a train/ folder, class counts for the loss come from the dataset labels attribute (Subset-aware) instead of zeros or a loader walk. Validation metrics unchanged. |

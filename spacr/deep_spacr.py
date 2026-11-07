@@ -1472,7 +1472,9 @@ def _cross_validate_model(settings, num_classes):
     (see ``cv_group_by``), so crops from one well cannot appear on both sides.
     With ``cv_group_column`` set, there is one fold per value of that metadata
     column instead (leave one compound out, for example), read from the crop
-    names or, by well, from ``well_metadata_path``.
+    names or, by well, from ``well_metadata_path``. ``cv_exclude_batch_column``
+    removes from each fold's training data every batch (plate, imaging week)
+    that its held-out data comes from.
 
     :param settings: the canonicalised train/test settings dict.
     :param num_classes: size of the classifier head.
@@ -1525,6 +1527,7 @@ def _cross_validate_model(settings, num_classes):
         crop_loading_policy=crop_loading_policy,
         group_column=settings.get('cv_group_column') or None,
         metadata_path=settings.get('well_metadata_path') or None,
+        batch_column=settings.get('cv_exclude_batch_column') or None,
     )
     if info.get('group_column'):
         k = len(fold_loaders)
@@ -1549,11 +1552,13 @@ def _cross_validate_model(settings, num_classes):
             f"nested_cv_inner_folds={nested_inner} is not valid; use 0 for "
             "ordinary grouped CV or at least 2 inner folds.")
     nested_layout = None
-    if nested_inner >= 2 and info.get('group_column'):
+    if nested_inner >= 2 and (info.get('group_column')
+                              or info.get('batch_column')):
         raise ValueError(
-            "nested_cv_inner_folds cannot be combined with cv_group_column: "
-            "the inner folds are drawn from cross_validation_folds, not from "
-            "the leave-one-group-out folds. Set nested_cv_inner_folds to 0.")
+            "nested_cv_inner_folds cannot be combined with cv_group_column or "
+            "cv_exclude_batch_column: the inner folds are drawn from "
+            "cross_validation_folds over the whole dataset, not from the "
+            "folds those settings build. Set nested_cv_inner_folds to 0.")
     if nested_inner >= 2:
         nested_layout = nested_group_folds(
             info['labels'],
@@ -1921,6 +1926,10 @@ def train_test_model(settings):
           fold (one compound, say) instead of ``cross_validation_folds``
           stratified folds; columns other than plate, well and field are
           read by well from the plate-map table.
+        - ``cv_exclude_batch_column`` — with cross-validation on, train each
+          fold without the batches (plates, imaging weeks) of its held-out
+          samples; with a compound ``cv_group_column`` this is the
+          not-same-compound-or-batch rule.
         - ``augment``, ``dropout_rate``, ``optimizer_type``,
           ``early_stopping_patience``, ``n_jobs``, ``pin_memory``.
 
