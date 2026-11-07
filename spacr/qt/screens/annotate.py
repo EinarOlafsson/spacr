@@ -2538,6 +2538,8 @@ class _PairReviewDialog(QDialog):
         self._status.setWordWrap(True)
         layout.addWidget(self._status)
         self._sync_controls()
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
     def _folder_row(self, form: QFormLayout, label: str, tip: str) -> QLineEdit:
         """A path box with a Browse button, added to ``form``."""
@@ -2675,9 +2677,10 @@ class _PairReviewDialog(QDialog):
         if self._picture.isNull():
             self._image.setPixmap(self._picture)
             return
-        self._image.setPixmap(self._picture.scaled(
-            self._image.contentsRect().size(), Qt.KeepAspectRatio,
-            Qt.FastTransformation))
+        from ..hidpi import scaled_for
+        self._image.setPixmap(scaled_for(
+            self._picture, self._image, self._image.contentsRect().size(),
+            mode=Qt.FastTransformation))
 
     def eventFilter(self, obj, event):      # noqa: N802  (Qt naming)
         """Refit the picture whenever the image area changes size."""
