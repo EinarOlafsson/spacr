@@ -15,8 +15,10 @@ WHAT TO DO
 - The provider is injected as a callable, so it is testable offline.
 - Validate the answer against a JSON schema and flag conflicts with the OCR
   reading.
-- Default provider: the Claude API (Batch), with the key from the environment
-  or the profile, never logged.
+- The provider is an injected callable with no default and no anthropic SDK
+  dependency. With no provider given, the annotator falls back to the OCR +
+  legend path and flags rows for review. Never use the Claude API (maintainer
+  rule, 2026-11-07).
 
 Evidence: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/plaque_meta/DESIGN.md (20-figure prototype:
 OCR read the conditions right for 34% of wells, a VLM for 86/86).
