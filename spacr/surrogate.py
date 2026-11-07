@@ -483,7 +483,8 @@ def _make_estimator(model_family: str, *, n_estimators: int,
         "verbosity": 0,
     }
     params.update(options)
-    model = XGBClassifier(**params)
+    from .ml import _xgboost_cpu_safe
+    model = XGBClassifier(**_xgboost_cpu_safe(params))
     model._spacr_label_encoder = encoder
     return model, encoded, encoder.inverse_transform, (
         "xgboost.XGBClassifier", _package_version("xgboost"), params)

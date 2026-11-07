@@ -5550,6 +5550,7 @@ def _phases_by_xgboost(features, labels, groups, *, seed=0, n_jobs=1,
     """
     from xgboost import XGBClassifier
 
+    from .ml import _xgboost_cpu_safe
     from .openmp_guard import single_threaded_openmp
     from .classifier_evaluation import grouped_split, normalize_split_level
 
@@ -5567,11 +5568,11 @@ def _phases_by_xgboost(features, labels, groups, *, seed=0, n_jobs=1,
 
     def _model():
         """A fresh classifier with the fixed phase-calling parameters."""
-        return XGBClassifier(
+        return XGBClassifier(**_xgboost_cpu_safe(dict(
             n_estimators=300, max_depth=4, learning_rate=0.1,
             subsample=0.9, colsample_bytree=0.8, tree_method='hist',
             random_state=seed, n_jobs=n_jobs, device='cpu',
-            disable_default_eval_metric=True)
+            disable_default_eval_metric=True)))
 
     report = {'classes': classes,
               'counts': {p: int((labels == p).sum()) for p in classes},

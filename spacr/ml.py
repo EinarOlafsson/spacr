@@ -188,6 +188,72 @@ def _xgboost_classifier():
         ) from error
     return XGBClassifier
 
+
+#: XGBoost metrics whose CUDA-build implementation needs a CUDA device to
+#: initialise, even on a ``device='cpu'`` fit (xgboost 3.4.1, 2026-11-07).
+_XGBOOST_DEVICE_BOUND_METRICS = ("mlogloss", "merror")
+
+
+def _xgboost_cuda_build():
+    """Whether the installed xgboost was compiled with CUDA support."""
+    try:
+        import xgboost
+
+        return bool(xgboost.build_info().get("USE_CUDA"))
+    except Exception:                                        # noqa: BLE001
+        return False
+
+
+def _cuda_device_usable():
+    """Whether this process can see a CUDA device, probed before xgboost.
+
+    ``CUDA_VISIBLE_DEVICES`` set to empty (or ``-1``) hides every GPU; torch
+    then answers for the rest. A failed probe counts as no device.
+    """
+    hidden = os.environ.get("CUDA_VISIBLE_DEVICES")
+    if hidden is not None and hidden.strip() in ("", "-1"):
+        return False
+    try:
+        import torch
+
+        return bool(torch.cuda.is_available())
+    except Exception:                                        # noqa: BLE001
+        return False
+
+
+def _xgboost_cpu_safe(params):
+    """XGBoost parameters that fit on this machine, GPU or not.
+
+    The CUDA build of xgboost (the default Linux wheel) raises
+    ``cudaErrorNoDevice`` on a machine without a GPU as soon as a multiclass
+    model sets up its default ``mlogloss``/``merror`` metric, even with
+    ``device='cpu'``. Binary fits are unaffected. Without a usable device the
+    device is forced to ``'cpu'``, those metrics are dropped and the default
+    metric is switched off; spaCR fits pass no evaluation set, so the trees
+    are the same. A ``'cuda'`` device asked for on a machine with a GPU is
+    kept; every other request fits on the CPU.
+
+    :param params: keyword arguments for ``XGBClassifier`` or the parameter
+        dict for ``xgboost.train``.
+    :returns: a new dict; ``params`` is not modified.
+    """
+    safe = dict(params)
+    wanted = str(safe.get("device") or "cpu").strip().lower()
+    on_gpu = wanted.startswith(("cuda", "gpu")) and _cuda_device_usable()
+    safe["device"] = wanted if on_gpu else "cpu"
+    if on_gpu or not _xgboost_cuda_build() or _cuda_device_usable():
+        return safe
+    metric = safe.get("eval_metric")
+    names = [metric] if isinstance(metric, str) else list(metric or ())
+    kept = [name for name in names if str(name).split("@")[0]
+            not in _XGBOOST_DEVICE_BOUND_METRICS]
+    if kept:
+        safe["eval_metric"] = kept[0] if isinstance(metric, str) else kept
+    else:
+        safe.pop("eval_metric", None)
+    safe["disable_default_eval_metric"] = True
+    return safe
+
 _FLOWVIEW_TRUE_VALUES = frozenset({"1", "on", "true", "yes"})
 
 
@@ -10222,7 +10288,7 @@ def ml_analysis(
     elif model_type == 'gradient_boosting':
         model = HistGradientBoostingClassifier(max_iter=n_estimators, random_state=random_state)
     elif model_type == 'xgboost':
-        model = _xgboost_classifier()(
+        model = _xgboost_classifier()(**_xgboost_cpu_safe(dict(
             reg_alpha=reg_alpha,
             reg_lambda=reg_lambda,
             learning_rate=learning_rate,
@@ -10230,7 +10296,7 @@ def ml_analysis(
             random_state=random_state,
             nthread=n_jobs,
             eval_metric='logloss' if arms is None else 'mlogloss',
-        )
+        )))
     elif model_type == 'lightgbm':
         try:
             from lightgbm import LGBMClassifier

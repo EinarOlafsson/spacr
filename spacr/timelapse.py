@@ -8907,7 +8907,8 @@ def _infection_qc_xgboost(all_df, settings, infection_col, pathogen_chan, motili
         "nthread": int(settings.get("infection_xgb_n_jobs", -1)),
     }
     num_round = int(settings.get("infection_xgb_n_estimators", 200))
-    bst = xgb.train(params, dtrain, num_boost_round=num_round)
+    from .ml import _xgboost_cpu_safe
+    bst = xgb.train(_xgboost_cpu_safe(params), dtrain, num_boost_round=num_round)
 
     dall = xgb.DMatrix(X_all, feature_names=used_feature_cols)
     probs = bst.predict(dall)

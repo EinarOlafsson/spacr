@@ -3511,10 +3511,11 @@ def build_sklearn_model(model_type: str, params: Mapping[str, Any],
             raise ImportError(
                 "model_type_ml='xgboost' needs the 'xgboost' package: "
                 "pip install xgboost") from exc
-        return XGBClassifier(reg_alpha=reg_alpha, reg_lambda=reg_lambda,
-                             learning_rate=learning_rate,
-                             n_estimators=n_estimators, random_state=seed,
-                             nthread=n_jobs, eval_metric="logloss")
+        from .ml import _xgboost_cpu_safe
+        return XGBClassifier(**_xgboost_cpu_safe(dict(
+            reg_alpha=reg_alpha, reg_lambda=reg_lambda,
+            learning_rate=learning_rate, n_estimators=n_estimators,
+            random_state=seed, nthread=n_jobs, eval_metric="logloss")))
     if mt == "lightgbm":
         try:
             from lightgbm import LGBMClassifier

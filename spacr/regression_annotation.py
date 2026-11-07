@@ -1045,11 +1045,13 @@ def _estimator(model: str, seed: int) -> Tuple[Any, str]:
     if kind in ("auto", "xgboost") and xgboost_available():
         from xgboost import XGBClassifier
 
-        return XGBClassifier(
+        from .ml import _xgboost_cpu_safe
+
+        return XGBClassifier(**_xgboost_cpu_safe(dict(
             n_estimators=200, max_depth=4, learning_rate=0.1,
             subsample=0.9, colsample_bytree=0.9, reg_lambda=1.0,
             tree_method="hist", eval_metric="logloss", n_jobs=1,
-            random_state=int(seed)), "xgboost"
+            random_state=int(seed)))), "xgboost"
     if kind == "xgboost":
         raise AnnotationStrategyError(
             "model='xgboost' was asked for and the xgboost package is not "
