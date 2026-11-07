@@ -2595,6 +2595,23 @@ def _ph_feature_columns(columns) -> List[str]:
 #: took 46 GB at once and about 8 GB in blocks of 48.
 _PH_POOL_BLOCK = 48
 
+# Why a feature's control cells have no spread, by feature family. These
+# reasons are written into the feature QC table the aggregate phase writes.
+_PH_DEGENERATE_CAUSES = (
+    ("distance_to_nucleus",
+     "the intensity centre of mass of most cells lies inside the nucleus, "
+     "where this distance is 0 by definition"),
+    ("euler_number",
+     "almost every object has the same topology: 1 for a cell or nucleus "
+     "without holes and 0 for a cytoplasm ring"),
+    ("frac_low10",
+     "most objects have no pixel below the 10th percentile of their field, "
+     "which lies in the background"),
+    ("frac_high90",
+     "most objects have no pixel above the 90th percentile of their field"),
+)
+
+
 def _ph_names(value) -> List[str]:
     """A comma-separated setting, or a list, as stripped names."""
     if value is None:
@@ -2677,6 +2694,45 @@ def _ph_read_columns(sources, columns: Sequence[str]):
     return stacked.loc[:, [c for c in columns if c in stacked.columns]]
 
 
+def _ph_degenerate_feature(feature: str, values, control, wells
+                           ) -> Dict[str, Any]:
+    """Why one feature's robust z is undefined in every well.
+
+    :param feature: the feature column.
+    :param values: the feature over the pooled cells.
+    :param control: True for each control cell.
+    :param wells: each cell's well.
+    :returns: the feature QC row: the reason and the control statistics
+        behind it.
+    """
+    import pandas as pd
+
+    reference = pd.to_numeric(values[control], errors="coerce")
+    finite = reference.dropna()
+    row: Dict[str, Any] = {
+        "feature": feature, "control_cells": int(control.sum()),
+        "control_finite": int(finite.size),
+        "control_median": float(finite.median()) if finite.size else None,
+        "control_share_at_median": (
+            round(float((finite == finite.median()).mean()), 4)
+            if finite.size else None)}
+    if not finite.size:
+        row["reason"] = "no control cell has a finite value"
+        return row
+    groups = wells[control].loc[finite.index]
+    spread = (finite - finite.groupby(groups).transform("median")).abs(
+    ).groupby(groups).median()
+    row["wells_with_zero_control_mad"] = int((spread == 0).sum())
+    reason = ("the median absolute deviation of the control cells is zero "
+              "in every well, so the robust z is undefined")
+    for family, cause in _PH_DEGENERATE_CAUSES:
+        if feature.endswith(family):
+            reason = f"{reason}: {cause}"
+            break
+    row["reason"] = reason
+    return row
+
+
 def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
                   settings: Mapping[str, Any], destination: str
                   ) -> Dict[str, Any]:
@@ -2687,8 +2743,8 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     :param wells: the wells run.
     :param settings: read for ``ops_design``, ``ops_control_prefix``,
         ``ops_bootstrap``, ``ops_pvalue_null``, ``ops_test_features``,
-        ``ops_mitotic_dna_z``, ``ops_genotype_table``, ``ops_pool_wells``
-        and ``ops_pool_interphase``.
+        ``ops_mitotic_dna_z``, ``ops_genotype_table``, ``ops_pool_wells``,
+        ``ops_pool_interphase`` and ``ops_feature_qc``.
     :param destination: where ``ops_guides_<plate>`` and
         ``ops_genes_<plate>`` (CSV and Parquet) are written. A run that pools
         only interphase cells or only some wells adds ``_interphase`` or
@@ -2716,7 +2772,10 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     decode, joined on ``well`` and ``object_id``. ``ops_pool_wells`` pools a
     subset of the wells; each cell is still normalised against its own
     well. With ``ops_pool_interphase`` the guides and genes summarise the
-    interphase cells only, and so do the control cells of the test.
+    interphase cells only, and so do the control cells of the test. With
+    ``ops_feature_qc`` on, a feature whose robust z is undefined in every
+    well is left out of both tables. It is listed with its reason in
+    ``ops_feature_qc_<plate>.csv``.
     """
     import pandas as pd
     import pyarrow.parquet as pq
@@ -2834,10 +2893,11 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
             f"nucleus_{channels[0]}_integrated_intensity" if channels else "",
             *(f"cell_{c}_mean_intensity" for c in channels[1:]))
             if c in features]
+    feature_qc = bool(settings.get("ops_feature_qc", True))
     meta = cells.loc[:, ["well", "sgRNA", "gene", "mitotic"]]
     pool_rows = (control.to_numpy() & keep)
     control_values = pd.DataFrame(index=pd.RangeIndex(int(pool_rows.sum())))
-    guide_parts, gene_parts = [], []
+    guide_parts, gene_parts, degenerate = [], [], []
     for start in range(0, len(features), _PH_POOL_BLOCK):
         block = features[start:start + _PH_POOL_BLOCK]
         values = _ph_read_columns(sources, block).iloc[rows].reset_index(
@@ -2848,6 +2908,11 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         normalised = robust_z_to_controls(frame, [*block, *anchor],
                                           control=control)[block]
         del frame
+        if feature_qc and control.any():
+            for feature in block:
+                if not normalised[feature].notna().any():
+                    degenerate.append(_ph_degenerate_feature(
+                        feature, values[feature], control, cells["well"]))
         for feature in block:
             if feature in tested:
                 control_values[feature] = normalised.loc[
@@ -2861,6 +2926,11 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         del values, normalised, scored
     guides = pd.concat(guide_parts, axis=1)
     genes = pd.concat(gene_parts, axis=1)
+    dropped = [row["feature"] for row in degenerate]
+    if dropped:
+        guides = guides.drop(columns=dropped)
+        genes = genes.drop(columns=dropped)
+    tested = [c for c in tested if c not in dropped]
     is_control = guides["gene"].str.lower().str.startswith(
         control_prefix.lower())
     null_parameters = None
@@ -2881,6 +2951,14 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
                                   f"ops_{name}_{plate}{tag}.{suffix}")
             write_table(table, target, canonicalise=False)
             outputs[f"{name}_{suffix}"] = target
+    if feature_qc:
+        target = os.path.join(destination,
+                              f"ops_feature_qc_{plate}{tag}.csv")
+        write_table(pd.DataFrame(degenerate, columns=[
+            "feature", "reason", "control_cells", "control_finite",
+            "control_median", "control_share_at_median",
+            "wells_with_zero_control_mad"]), target, canonicalise=False)
+        outputs["feature_qc_csv"] = target
     report = {
         "wells": pooled, "cells_merged": int(len(with_guide)),
         "cells_with_guide": int(with_guide.sum()),
@@ -2891,6 +2969,7 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         "control_cells": int(control.sum()),
         "guides": int(len(guides)), "genes": int(len(genes)),
         "ambiguous_prefixes": ambiguous, "features": len(features),
+        "features_dropped": degenerate,
         "mitotic_rule": {"dna": dna_column, "dna_z": mitotic_z,
                          "area": "nucleus_area", "area_z": 0.0},
         "mitotic_fraction_all": round(float(cells["mitotic"].mean()), 4)

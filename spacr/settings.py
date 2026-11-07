@@ -8022,7 +8022,7 @@ ALPHA_FEATURES = {
                      'ops_design', 'ops_control_prefix', 'ops_bootstrap',
                      'ops_pvalue_null', 'ops_test_features',
                      'ops_genotype_table', 'ops_pool_wells',
-                     'ops_pool_interphase',
+                     'ops_pool_interphase', 'ops_feature_qc',
                      'ops_mitotic_dna_z', 'ops_cell_rule', 'ops_crosstalk',
                      'ops_channel_registration', 'ops_single_read_quality',
                      'ops_read_mismatches', 'ops_min_reads',

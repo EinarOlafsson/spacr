@@ -163,6 +163,35 @@ def test_block_wise_pooling_gives_the_whole_frame_tables_exactly(
     pd.testing.assert_frame_equal(guides, old_guides, check_exact=True)
     pd.testing.assert_frame_equal(genes, old_genes, check_exact=True)
     assert "nucleus_area_pvalue" in genes
+    assert report["features_dropped"] == []
+
+
+def test_feature_qc_leaves_out_only_columns_the_old_tables_had_as_nan(
+        tmp_path):
+    db, wells, _ = _plate(tmp_path)
+    old_guides, old_genes = _old_aggregate(
+        db, PLATE, wells, _settings(tmp_path), str(tmp_path))
+    report = ops_engine._ph_aggregate(
+        db, PLATE, wells, _settings(tmp_path, ops_feature_qc=True),
+        str(tmp_path))
+    guides, genes = _tables(report)
+    dropped = {row["feature"]: row for row in report["features_dropped"]}
+    assert set(dropped) == {"cell_euler_number",
+                            "cell_gfp_distance_to_nucleus"}
+    assert old_guides[list(dropped)].isna().all().all()
+    assert old_genes[list(dropped)].isna().all().all()
+    pd.testing.assert_frame_equal(
+        guides, old_guides.drop(columns=list(dropped)), check_exact=True)
+    pd.testing.assert_frame_equal(
+        genes, old_genes.drop(columns=list(dropped)), check_exact=True)
+    reason = dropped["cell_gfp_distance_to_nucleus"]["reason"]
+    assert "median absolute deviation" in reason
+    assert "centre of mass" in reason
+    assert "topology" in dropped["cell_euler_number"]["reason"]
+    assert dropped["cell_euler_number"]["control_share_at_median"] == 1.0
+    assert dropped["cell_euler_number"]["wells_with_zero_control_mad"] == 3
+    table = pd.read_csv(report["outputs"]["feature_qc_csv"])
+    assert sorted(table["feature"]) == sorted(dropped)
 
 
 def test_a_genotype_table_replaces_the_stored_calls(tmp_path):

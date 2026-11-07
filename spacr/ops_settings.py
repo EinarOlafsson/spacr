@@ -67,6 +67,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_genotype_table": None,
     "ops_pool_wells": None,
     "ops_pool_interphase": False,
+    "ops_feature_qc": True,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -117,6 +118,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_genotype_table": (str, type(None)),
     "ops_pool_wells": (str, type(None)),
     "ops_pool_interphase": bool,
+    "ops_feature_qc": bool,
 }
 
 #: Which panel section each setting appears under.
@@ -154,6 +156,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_design", "ops_control_prefix", "ops_bootstrap",
         "ops_pvalue_null", "ops_test_features", "ops_mitotic_dna_z",
         "ops_genotype_table", "ops_pool_wells", "ops_pool_interphase",
+        "ops_feature_qc",
     ],
 }
 
@@ -411,6 +414,11 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "Every cell is still normalised against its well's controls first, "
         "and the gene test then uses interphase control cells. The tables "
         "get an interphase suffix. Default False. Alpha.",
+    "ops_feature_qc":
+        "(bool) - Leave out the features whose robust z is undefined in "
+        "every well, because their control cells have no spread. Such a "
+        "column would be empty in both tables. Each one is listed with its "
+        "reason in ops_feature_qc_<plate>.csv. Default True. Alpha.",
     "ops_mitotic_dna_z":
         "(float) - A cell is called mitotic when its nuclear mean DAPI "
         "intensity is this many robust standard deviations above its well's "
