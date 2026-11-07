@@ -2684,6 +2684,8 @@ def _categories_for_app_uncached(app_key, categories, plugin_app):
             ordered["Results & figures"] = (
                 ordered["Results & figures"]
                 + ["cmap", "heatmap_feature", "grouping", "min_max"])
+            ordered["Labels & Classes"] = (
+                ordered["Labels & Classes"] + ["ml_classes"])
 
         if app_key == "classify_merged":
             cv_family = "Computer Vision"
