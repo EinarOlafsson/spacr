@@ -62,7 +62,11 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_control_prefix": "nontargeting",
     "ops_bootstrap": 0,
     "ops_pvalue_null": "calibrated",
+    "ops_test_features": None,
     "ops_mitotic_dna_z": 3.0,
+    "ops_genotype_table": None,
+    "ops_pool_wells": None,
+    "ops_pool_interphase": False,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -108,7 +112,11 @@ OPS_TYPES: Dict[str, object] = {
     "ops_control_prefix": str,
     "ops_bootstrap": int,
     "ops_pvalue_null": str,
+    "ops_test_features": (str, type(None)),
     "ops_mitotic_dna_z": (float, int),
+    "ops_genotype_table": (str, type(None)),
+    "ops_pool_wells": (str, type(None)),
+    "ops_pool_interphase": bool,
 }
 
 #: Which panel section each setting appears under.
@@ -144,7 +152,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ph_cell_diameter", "ops_ph_downsample", "ops_ph_batch_size",
         "ops_ph_sites", "ops_ph_texture", "ops_merge_threshold",
         "ops_design", "ops_control_prefix", "ops_bootstrap",
-        "ops_pvalue_null", "ops_mitotic_dna_z",
+        "ops_pvalue_null", "ops_test_features", "ops_mitotic_dna_z",
+        "ops_genotype_table", "ops_pool_wells", "ops_pool_interphase",
     ],
 }
 
@@ -379,6 +388,29 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "one Funk et al. 2022 plate it called 4,053 of 5,049 genes. It is "
         "kept to rerun analyses made before spaCR 1.5.1.8. "
         "Default 'calibrated'. Alpha.",
+    "ops_test_features":
+        "(str or None) - The features each gene is tested on, as a "
+        "comma-separated list of cell table columns. Empty tests the "
+        "nuclear area, the nuclear DNA mean and integrated intensity, and "
+        "the cell mean intensity of every other channel. Default None. "
+        "Alpha.",
+    "ops_genotype_table":
+        "(str or None) - A table of guide calls that replaces the decode "
+        "phase's calls, such as the calls of a later decode rule. It needs "
+        "well, object_id and mapped_guide columns; a plate column, when "
+        "present, keeps this plate's rows. Each sequencing nucleus may "
+        "appear once. Empty uses the calls in measurements.db. "
+        "Default None. Alpha.",
+    "ops_pool_wells":
+        "(str or None) - Pool only these wells, as 'A1,A2'. Each cell is "
+        "still normalised against its own well, and the tables get a "
+        "wells suffix so they do not replace the full ones. Empty pools "
+        "every well run. Default None. Alpha.",
+    "ops_pool_interphase":
+        "(bool) - Summarise guides and genes from interphase cells only. "
+        "Every cell is still normalised against its well's controls first, "
+        "and the gene test then uses interphase control cells. The tables "
+        "get an interphase suffix. Default False. Alpha.",
     "ops_mitotic_dna_z":
         "(float) - A cell is called mitotic when its nuclear mean DAPI "
         "intensity is this many robust standard deviations above its well's "

@@ -502,9 +502,11 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_ph_downsample", "ops_ph_nucleus_diameter", "ops_ph_nucleus_model",
     "ops_ph_sites", "ops_ph_texture", "ops_read_mismatches",
     "ops_single_read_quality",
-    # The calibrated gene null of the OPS aggregate phase (item 851,
-    # 2026-11-07), with the earlier cell bootstrap kept as a choice.
-    "ops_pvalue_null",
+    # The OPS aggregate options (items 851 and 858, 2026-11-07): the
+    # calibrated gene null, the tested features, a swappable genotype
+    # table, and well-subset and interphase pooling.
+    "ops_pvalue_null", "ops_test_features", "ops_genotype_table",
+    "ops_pool_wells", "ops_pool_interphase",
     # `window_length`, the new name for `expected_end` (364, 2026-09-09).
     "window_length",
     # and `min_observations_per_hit`, the new name for `min_n`.
