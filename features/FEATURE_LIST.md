@@ -12,7 +12,7 @@ Repeated IDs retain their separate full filenames and histories; none were merge
 
 This is a declaration-based navigation list, not a verified unfinished count. Headers can be stale. Conversely, recorded-Done items 641 and 673 contain later Mac follow-ups; item 729 separates native checks from deferred implementation. Read their linked notes before assigning work.
 
-67 records have no recorded complete declaration; 776 have a recorded complete declaration. Neither is a verification result.
+64 records have no recorded complete declaration; 779 have a recorded complete declaration. Neither is a verification result.
 
 | ID | Lifecycle | Item (full filename) | Recorded status |
 |---|---|---|---|
@@ -74,15 +74,12 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 848 | New | [PLAQUE FIGURE MODE: DEFAULT MODELS — 848_plaque_figure_mode_default_models.txt](feature_list/848_plaque_figure_mode_default_models.txt) | open, alpha (register under ALPHA_FEATURES when built). |
 | 849 | New | [PLAQUE FIGURE MODE: A SUPPLEMENTARY SOURCE-DATA READER — 849_plaque_figure_supplementary_source_data_reader.txt](feature_list/849_plaque_figure_supplementary_source_data_reader.txt) | open, alpha (register under ALPHA_FEATURES when built). |
 | 850 | New | [PLAQUE WELL DETECTOR FINDS RECTANGULAR PLAQUE TILES — 850_plaque_well_detector_finds_rectangular_plaque_tiles.txt](feature_list/850_plaque_well_detector_finds_rectangular_plaque_tiles.txt) | open, alpha; needs one GPU training run, on the workstation after plaque v8. |
-| 851 | Future | [BOOTSTRAP GENE P-VALUES USE A CALIBRATED NULL — 851_bootstrap_gene_pvalues_uses_a_calibrated_null.txt](feature_list/851_bootstrap_gene_pvalues_uses_a_calibrated_null.txt) | open, bug fix (not alpha). |
 | 852 | Future | [OPS CORE OWNERSHIP KEEPS THE DEEPEST FIELD — 852_ops_core_ownership_keeps_the_deepest_field.txt](feature_list/852_ops_core_ownership_keeps_the_deepest_field.txt) | open, alpha. Part of 813. |
 | 853 | Future | [OPS ANALYTIC FLAT-FIELD CORRECTION OF FEATURES — 853_ops_analytic_flat_field_correction_of_features.txt](feature_list/853_ops_analytic_flat_field_correction_of_features.txt) | open, alpha. Part of 813. |
 | 854 | Future | [OPS TVN NORMALISATION PER WELL — 854_ops_tvn_normalisation_per_well.txt](feature_list/854_ops_tvn_normalisation_per_well.txt) | open, alpha. |
 | 855 | Future | [OPS PHATE + LEIDEN CLUSTER BENCHMARK — 855_ops_phate_leiden_cluster_benchmark.txt](feature_list/855_ops_phate_leiden_cluster_benchmark.txt) | open, alpha. |
 | 856 | Future | [OPS TRAINED MITOTIC CLASSIFIER — 856_ops_trained_mitotic_classifier.txt](feature_list/856_ops_trained_mitotic_classifier.txt) | open, alpha. |
 | 857 | Future | [OPS FUNK-STYLE FEATURES — 857_ops_funk_style_features.txt](feature_list/857_ops_funk_style_features.txt) | open, alpha. |
-| 858 | Future | [PH AGGREGATE: SWAPPABLE GENOTYPES AND BLOCK-WISE POOLING — 858_ph_aggregate_swappable_genotypes_and_blockwise_pooling.txt](feature_list/858_ph_aggregate_swappable_genotypes_and_blockwise_pooling.txt) | open, bug fix for the out-of-memory failure (not alpha). |
-| 859 | Future | [CHECK THAT CELL DISTANCE_TO_NUCLEUS IS NOT DEGENERATE — 859_check_cell_distance_to_nucleus_is_not_degenerate.txt](feature_list/859_check_cell_distance_to_nucleus_is_not_degenerate.txt) | open, bug check (not alpha). |
 
 ## All feature items
 
@@ -922,15 +919,15 @@ This is a declaration-based navigation list, not a verified unfinished count. He
 | 848 | New | [PLAQUE FIGURE MODE: DEFAULT MODELS — 848_plaque_figure_mode_default_models.txt](feature_list/848_plaque_figure_mode_default_models.txt) | open, alpha (register under ALPHA_FEATURES when built). |
 | 849 | New | [PLAQUE FIGURE MODE: A SUPPLEMENTARY SOURCE-DATA READER — 849_plaque_figure_supplementary_source_data_reader.txt](feature_list/849_plaque_figure_supplementary_source_data_reader.txt) | open, alpha (register under ALPHA_FEATURES when built). |
 | 850 | New | [PLAQUE WELL DETECTOR FINDS RECTANGULAR PLAQUE TILES — 850_plaque_well_detector_finds_rectangular_plaque_tiles.txt](feature_list/850_plaque_well_detector_finds_rectangular_plaque_tiles.txt) | open, alpha; needs one GPU training run, on the workstation after plaque v8. |
-| 851 | Future | [BOOTSTRAP GENE P-VALUES USE A CALIBRATED NULL — 851_bootstrap_gene_pvalues_uses_a_calibrated_null.txt](feature_list/851_bootstrap_gene_pvalues_uses_a_calibrated_null.txt) | open, bug fix (not alpha). |
+| 851 | Future | [BOOTSTRAP GENE P-VALUES USE A CALIBRATED NULL — 851_bootstrap_gene_pvalues_uses_a_calibrated_null.txt](feature_list/851_bootstrap_gene_pvalues_uses_a_calibrated_null.txt) | DONE 2026-11-07 (bug fix, not alpha; ops-bugs-851-1107 89b033a9ec, merged on claude-integrate-1107). bootstrap_gene_pvalues defaults to a calibrated null that adds the non-targeting between-guide variance (ops_pvalue_null='calibrated'); 'cell_bootstrap' keeps the old test. On plate A, NT guides tested as genes give P < 0.05 in 3.2-6.0% (target 5%). |
 | 852 | Future | [OPS CORE OWNERSHIP KEEPS THE DEEPEST FIELD — 852_ops_core_ownership_keeps_the_deepest_field.txt](feature_list/852_ops_core_ownership_keeps_the_deepest_field.txt) | open, alpha. Part of 813. |
 | 853 | Future | [OPS ANALYTIC FLAT-FIELD CORRECTION OF FEATURES — 853_ops_analytic_flat_field_correction_of_features.txt](feature_list/853_ops_analytic_flat_field_correction_of_features.txt) | open, alpha. Part of 813. |
 | 854 | Future | [OPS TVN NORMALISATION PER WELL — 854_ops_tvn_normalisation_per_well.txt](feature_list/854_ops_tvn_normalisation_per_well.txt) | open, alpha. |
 | 855 | Future | [OPS PHATE + LEIDEN CLUSTER BENCHMARK — 855_ops_phate_leiden_cluster_benchmark.txt](feature_list/855_ops_phate_leiden_cluster_benchmark.txt) | open, alpha. |
 | 856 | Future | [OPS TRAINED MITOTIC CLASSIFIER — 856_ops_trained_mitotic_classifier.txt](feature_list/856_ops_trained_mitotic_classifier.txt) | open, alpha. |
 | 857 | Future | [OPS FUNK-STYLE FEATURES — 857_ops_funk_style_features.txt](feature_list/857_ops_funk_style_features.txt) | open, alpha. |
-| 858 | Future | [PH AGGREGATE: SWAPPABLE GENOTYPES AND BLOCK-WISE POOLING — 858_ph_aggregate_swappable_genotypes_and_blockwise_pooling.txt](feature_list/858_ph_aggregate_swappable_genotypes_and_blockwise_pooling.txt) | open, bug fix for the out-of-memory failure (not alpha). |
-| 859 | Future | [CHECK THAT CELL DISTANCE_TO_NUCLEUS IS NOT DEGENERATE — 859_check_cell_distance_to_nucleus_is_not_degenerate.txt](feature_list/859_check_cell_distance_to_nucleus_is_not_degenerate.txt) | open, bug check (not alpha). |
+| 858 | Future | [PH AGGREGATE: SWAPPABLE GENOTYPES AND BLOCK-WISE POOLING — 858_ph_aggregate_swappable_genotypes_and_blockwise_pooling.txt](feature_list/858_ph_aggregate_swappable_genotypes_and_blockwise_pooling.txt) | DONE 2026-11-07 (bug fix for the out-of-memory failure; ops-bugs-851-1107 a05ad26701, merged on claude-integrate-1107). _ph_aggregate pools by feature block of 48 columns (a plate peaks at about 10 GB instead of 46 GB) with a swappable genotype table (ops_genotype_table) and well-subset and interphase pooling (ops_pool_wells, ops_pool_interphase, alpha settings); tables are value-for-value identical. |
+| 859 | Future | [CHECK THAT CELL DISTANCE_TO_NUCLEUS IS NOT DEGENERATE — 859_check_cell_distance_to_nucleus_is_not_degenerate.txt](feature_list/859_check_cell_distance_to_nucleus_is_not_degenerate.txt) | DONE 2026-11-07 (bug check; ops-bugs-851-1107 d080b632cb, merged on claude-integrate-1107). distance_to_nucleus is degenerate by construction (0 in 96-99% of cells: the centre of mass lies inside the nucleus), not a measurement bug; the OPS aggregate phase drops features whose control cells have zero spread and lists them with the reason in ops_feature_qc_<plate>.csv (ops_feature_qc). |
 
 ## Unnumbered feature documents
 

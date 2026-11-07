@@ -2,7 +2,7 @@ BOOTSTRAP GENE P-VALUES USE A CALIBRATED NULL
 =============================================
 
 Lifecycle: future
-Status: open, bug fix (not alpha).
+Status: DONE 2026-11-07 (bug fix, not alpha; ops-bugs-851-1107 89b033a9ec, merged on claude-integrate-1107). bootstrap_gene_pvalues defaults to a calibrated null that adds the non-targeting between-guide variance (ops_pvalue_null='calibrated'); 'cell_bootstrap' keeps the old test. On plate A, NT guides tested as genes give P < 0.05 in 3.2-6.0% (target 5%).
 Requested: maintainer via paper session, 2026-11-07.
 Owner: paper session.
 Source: plate A OPS pilot.

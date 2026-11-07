@@ -2,7 +2,7 @@ CHECK THAT CELL DISTANCE_TO_NUCLEUS IS NOT DEGENERATE
 =====================================================
 
 Lifecycle: future
-Status: open, bug check (not alpha).
+Status: DONE 2026-11-07 (bug check; ops-bugs-851-1107 d080b632cb, merged on claude-integrate-1107). distance_to_nucleus is degenerate by construction (0 in 96-99% of cells: the centre of mass lies inside the nucleus), not a measurement bug; the OPS aggregate phase drops features whose control cells have zero spread and lists them with the reason in ops_feature_qc_<plate>.csv (ops_feature_qc).
 Requested: maintainer via paper session, 2026-11-07.
 Owner: paper session.
 Source: plate A OPS pilot.

@@ -2,7 +2,7 @@ PH AGGREGATE: SWAPPABLE GENOTYPES AND BLOCK-WISE POOLING
 ========================================================
 
 Lifecycle: future
-Status: open, bug fix for the out-of-memory failure (not alpha).
+Status: DONE 2026-11-07 (bug fix for the out-of-memory failure; ops-bugs-851-1107 a05ad26701, merged on claude-integrate-1107). _ph_aggregate pools by feature block of 48 columns (a plate peaks at about 10 GB instead of 46 GB) with a swappable genotype table (ops_genotype_table) and well-subset and interphase pooling (ops_pool_wells, ops_pool_interphase, alpha settings); tables are value-for-value identical.
 Requested: maintainer via paper session, 2026-11-07.
 Owner: paper session.
 Source: plate A OPS pilot.
