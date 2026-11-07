@@ -71,6 +71,9 @@ RELEASED_BEFORE_THE_ALPHA_RULE = {
     586: "packaging only (Apptainer definition and recipes): nothing in the app to hide",
     587: "packaging only (offline installer bundle): nothing in the app to hide",
     411: "API documentation only (nested-helper pages and translations): nothing in the app to hide",
+    796: "bug fix only, no setting (done as 838)",
+    797: "bug fix only, no setting (done as 837)",
+    798: "bug fix only, no setting (done as 840)",
 }
 
 BUILT = re.compile(r"\b(built|implemented|done)\b", re.IGNORECASE)
