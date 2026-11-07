@@ -123,12 +123,12 @@ def _per_image_diameter_masks(model, images, eval_kwargs, fallback):
     keywords = {**eval_kwargs, 'batch_size': 1}
     masks, flows, used = [], [], []
     for image in images:
-        first = parse_cellpose4_output(
-            model.eval(x=[image], **{**keywords, 'diameter': None}))[0]
+        first = parse_cellpose4_output(_mask_eval(
+            model, [image], site='mask_sam', **{**keywords, 'diameter': None}))[0]
         estimate = float(cellpose_diameters(_first_mask(first))[0])
         diameter = estimate if estimate > 0 else fallback
-        found, found_flows = parse_cellpose4_output(
-            model.eval(x=[image], **{**keywords, 'diameter': diameter}))[:2]
+        found, found_flows = parse_cellpose4_output(_mask_eval(
+            model, [image], site='mask_sam', **{**keywords, 'diameter': diameter}))[:2]
         masks.append(_first_mask(found))
         flows.append(found_flows[0])
         used.append(diameter)
@@ -257,8 +257,9 @@ def _cellpose3_masks(model, images, settings, object_type, *, min_size,
             shaped.append(image[..., 0])
         else:
             shaped.append(image)
-    output = model.eval(x=shaped, batch_size=int(batch_size),
-                        channel_axis=-1, min_size=min_size, **keywords)
+    output = _mask_eval(model, shaped, site='mask_cellpose3', settings=settings,
+                        batch_size=int(batch_size), channel_axis=-1,
+                        min_size=min_size, **keywords)
     estimated = list(getattr(model, 'estimated_diameters', None) or ())
     if keywords['diameter'] == 0.0 and estimated:
         _note_the_diameter({**settings, f'{object_type}_diameter': 'auto'},
@@ -305,8 +306,8 @@ def _cellpose_dino_masks(model, images, settings, object_type, *, min_size,
     for image in images:
         image = np.asarray(image)
         shaped.append(image[..., np.newaxis] if image.ndim == 2 else image)
-    output = model.eval(
-        x=shaped,
+    output = _mask_eval(
+        model, shaped, site='mask_cellpose_dino', settings=settings,
         batch_size=len(shaped),
         normalize=False,
         channel_axis=-1,
@@ -720,9 +721,9 @@ def _robustness_segment(model, object_settings, object_type, image, point):
         clahe = Chain(clahe=True)
         image = np.stack([prepare(image[..., c], clahe) for c in range(image.shape[-1])],
                          axis=-1).astype(np.float32)
-    output = model.eval(
-        x=[image], batch_size=1, normalize=False, channel_axis=-1,
-        min_size=object_settings['min_size'], progress=False,
+    output = _mask_eval(
+        model, [image], site='mask_robustness', batch_size=1, normalize=False,
+        channel_axis=-1, min_size=object_settings['min_size'], progress=False,
         diameter=_eval_diameter(point.get('diameter'), object_type),
         flow_threshold=point['flow_threshold'],
         cellprob_threshold=point['cellprob_threshold'],
@@ -867,16 +868,16 @@ def _cellpose_z_segment_fn(model, eval_kwargs, stitch_threshold):
                 z_axis=0 if z_axis is None else int(z_axis),
                 channel_axis=-1,
             )
-            output = model.eval(x=array, **kwargs)
+            output = _mask_eval(model, array, site='mask_z', **kwargs)
             return np.asarray(output[0])
 
         if stitch:
             planes = [array[z] for z in range(array.shape[0])]
             kwargs['batch_size'] = len(planes)
-            output = model.eval(x=planes, **kwargs)
+            output = _mask_eval(model, planes, site='mask_z', **kwargs)
             return np.asarray(output[0])
 
-        output = model.eval(x=[array], **kwargs)
+        output = _mask_eval(model, [array], site='mask_z', **kwargs)
         return np.asarray(output[0][0])
 
     return _segment
@@ -1212,11 +1213,38 @@ def _assigned_mask_archives(src, batch_paths):
     return selected
 
 
+def _mask_eval(model, x, *, site, settings=None, **kwargs):
+    """Call ``model.eval(x, **kwargs)`` under the GPU memory governor.
+
+    A model that runs in this process (Cellpose-SAM and the in-process
+    backends) is governed: on a shared card a batch that would not fit is
+    shrunk, retried at half size after an out-of-memory error or moved to the
+    CPU, instead of stopping the run. With memory to spare, or without a
+    CUDA device, the call is made exactly as asked, so the masks are the same.
+    A model with no device of its own, such as a backend served from its
+    own environment, is called directly.
+
+    :param model: a model with Cellpose's ``eval``.
+    :param x: the image or images.
+    :param site: the governor's name for this call site.
+    :param settings: run settings holding the governor keys, if any.
+    :param kwargs: passed to ``eval``; ``batch_size`` is the size asked for.
+    :returns: what ``eval`` returned.
+    """
+    from ._gpu_governor import _governed_eval, _model_device
+
+    if _model_device(model) is None:
+        return model.eval(x, **kwargs)
+    batch_size = kwargs.pop('batch_size', 8)
+    return _governed_eval(model, x, site=site, settings=settings,
+                          batch_size=batch_size, **kwargs)
+
+
 def _shares_a_gpu(settings):
     """Whether this mask worker shares its GPU with others (item 801).
 
-    Workers sharing a card run Cellpose under the GPU memory governor, so
-    one that does not fit shrinks its batch or waits instead of failing.
+    Its Cellpose calls are governed under their own site name,
+    ``mask_shared_gpu``, so the run log tells the two apart.
     """
     try:
         return int(settings.get('mask_workers_per_gpu') or 1) > 1
@@ -1686,16 +1714,12 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                             flow_threshold=flow_threshold,
                             cellprob_threshold=cellprob_threshold,
                             resample=object_settings['resample'])
-                        if _shares_a_gpu(settings):
-                            from ._gpu_governor import _governed_eval
-                            output = _governed_eval(
-                                model, batch_list, site='mask_shared_gpu',
-                                settings=settings, batch_size=len(batch_list),
-                                **eval_kwargs)
-                        else:
-                            output = model.eval(
-                                x=batch_list, batch_size=len(batch_list),
-                                **eval_kwargs)
+                        output = _mask_eval(
+                            model, batch_list,
+                            site=('mask_shared_gpu' if _shares_a_gpu(settings)
+                                  else 'mask_sam'),
+                            settings=settings, batch_size=len(batch_list),
+                            **eval_kwargs)
 
                         masks, flows = parse_cellpose4_output(output)[:2]
                         del output
@@ -2679,8 +2703,8 @@ def _segment_cellpose(batch, batch_filenames, model, settings, object_type, outp
     cp_batch = prepare_batch_for_segmentation(cp_batch)
     batch_list = [cp_batch[j] for j in range(cp_batch.shape[0])]
 
-    output = model.eval(
-        x=batch_list,
+    output = _mask_eval(
+        model, batch_list, site='mask_organelle', settings=settings,
         batch_size=settings['batch_size'],
         normalize=False,
         channel_axis=-1,
@@ -2744,8 +2768,8 @@ def _segment_cellpose_sam(batch, batch_filenames, model, settings, object_type, 
     cp_batch = prepare_batch_for_segmentation(cp_batch)
     batch_list = [cp_batch[j] for j in range(cp_batch.shape[0])]
 
-    output = model.eval(
-        x=batch_list,
+    output = _mask_eval(
+        model, batch_list, site='mask_organelle', settings=settings,
         batch_size=len(batch_list),
         normalize=False,
         channel_axis=-1,

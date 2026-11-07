@@ -13,6 +13,7 @@ import numpy as np
 import pytest
 
 from spacr import _mask_workers as mw
+from tests.test_gpu_memory_governor import card  # noqa: F401
 from tests.test_mask_parallel_pipeline import (
     _calls, _plate, _segment, _settings, cpu_workers,  # noqa: F401
 )
@@ -170,24 +171,26 @@ def test_two_workers_on_one_gpu_match_the_serial_run_and_report_the_plate(
     assert record['cell']['0']['samples'] >= 1
 
 
-def test_a_shared_gpu_runs_cellpose_under_the_governor(tmp_path, monkeypatch):
-    """Same masks either way; only a shared GPU goes through the governor."""
+def test_a_shared_gpu_runs_cellpose_under_its_own_governor_site(tmp_path, monkeypatch, card):
+    """Same masks either way; a shared GPU's calls are named mask_shared_gpu."""
     import spacr._gpu_governor as governor
     import spacr.object as O
+    from tests.test_make_masks_cellpose_is_governed import _models
     from tests.test_segmentation_illumination_with_separate_preprocessing import (
-        _prepared_inputs, _threshold_model,
+        _prepared_inputs,
     )
 
-    _threshold_model(monkeypatch)
+    _models(monkeypatch, on_gpu=True)
     governed = []
     original = governor._governed_eval
     monkeypatch.setattr(governor, '_governed_eval', lambda *args, **kwargs: (
         governed.append(kwargs['site']), original(*args, **kwargs))[1])
     found = []
-    for workers in (1, 2):
+    for workers, site in ((1, 'mask_sam'), (2, 'mask_shared_gpu')):
+        governed.clear()
         settings, src = _prepared_inputs(tmp_path / f'w{workers}', illumination=False)
         settings['mask_workers_per_gpu'] = workers
         O.generate_cellpose_masks_sam(str(Path(src) / 'masks'), settings, 'cell')
         found.append(np.load(Path(src) / 'masks' / 'cell_mask_stack' / 'plate1_A01_F001.npy'))
-        assert governed == ([] if workers == 1 else ['mask_shared_gpu'])
+        assert governed == [site]
     np.testing.assert_array_equal(*found)
