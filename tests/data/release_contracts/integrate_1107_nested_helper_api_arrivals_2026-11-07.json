@@ -1,0 +1,4 @@
+{
+  "spacr.measure._torch_homogeneity.at": "Homogeneity of every object at horizontal offset ``d``.",
+  "spacr.submodules._replication_report_impl.extra": "Replication panel specs and legend text for one object version."
+}

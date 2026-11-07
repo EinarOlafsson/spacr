@@ -5674,6 +5674,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("embed_store_api_arrivals_2026-11-06.json", 3),
         ("moa_profiles_api_arrivals_2026-11-06.json", 2),
         ("per_cell_export_api_arrivals_2026-11-07.json", 2),
+        ("integrate_1107_nested_helper_api_arrivals_2026-11-07.json", 2),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -6243,7 +6244,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "crop_window_gpu_governor_api_arrivals_2026-11-06.json",
                      "embed_store_api_arrivals_2026-11-06.json",
                      "moa_profiles_api_arrivals_2026-11-06.json",
-                     "per_cell_export_api_arrivals_2026-11-07.json"):
+                     "per_cell_export_api_arrivals_2026-11-07.json",
+                     "integrate_1107_nested_helper_api_arrivals_2026-11-07.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -6355,7 +6357,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "crop_window_gpu_governor_api_arrivals_2026-11-06.json",
                      "embed_store_api_arrivals_2026-11-06.json",
                      "moa_profiles_api_arrivals_2026-11-06.json",
-                     "per_cell_export_api_arrivals_2026-11-07.json"):
+                     "per_cell_export_api_arrivals_2026-11-07.json",
+                     "integrate_1107_nested_helper_api_arrivals_2026-11-07.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
