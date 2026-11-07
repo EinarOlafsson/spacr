@@ -8369,11 +8369,32 @@ def _cv_group_ids(filenames, group_by, verbose=True):
     return ids, 0
 
 
+def _leave_one_group_out_folds(values, column):
+    """One fold per distinct value: that value's samples against all others.
+
+    :param values: one group value per sample.
+    :param column: the column the values come from, for the error message.
+    :returns: ``(held_out, folds)``: the sorted distinct values and one
+        ``(train_idx, val_idx)`` pair of numpy integer arrays per value.
+    :raises ValueError: when there are fewer than two distinct values.
+    """
+    values = np.asarray([str(value) for value in values], dtype=object)
+    held_out = sorted(set(values.tolist()))
+    if len(held_out) < 2:
+        raise ValueError(
+            f"leave-one-{column}-out needs at least two {column} values; the "
+            f"dataset has {held_out}")
+    folds = [(np.flatnonzero(values != value), np.flatnonzero(values == value))
+             for value in held_out]
+    return held_out, folds
+
+
 def generate_cv_loaders(src, n_splits, mode='train', image_size=224, batch_size=32,
                         classes=None, n_jobs=None, pin_memory=False, normalize=False,
                         channels=None, augment=False, verbose=False,
                         group_by='well', class_balance='none', seed=0,
-                        crop_loading_policy=DECLARED_UINT8):
+                        crop_loading_policy=DECLARED_UINT8,
+                        group_column=None, metadata_path=None):
     """Build one ``(train_loader, val_loader)`` pair per cross-validation fold.
 
     The dataset under ``src/<mode>`` is read once and then re-split k ways, so
@@ -8399,14 +8420,24 @@ def generate_cv_loaders(src, n_splits, mode='train', image_size=224, batch_size=
     :param seed: seed for the deterministic fold assignment.
     :param crop_loading_policy: crop decoding policy recorded on each loader;
         defaults to declared channel order and high-byte uint8 narrowing.
+    :param group_column: metadata column for leave-one-group-out folds, such
+        as a compound. Each distinct value is held out once, so there is one
+        fold per value and ``n_splits`` is not used. ``plate``, ``well`` and
+        ``field`` come from the crop names; any other column is looked up by
+        well in ``metadata_path``. ``group_by`` still names the identity that
+        may not cross a fold, and the fold table gains a ``held_out`` column.
+    :param metadata_path: plate-map table (one row per well: ``plateID``, the
+        well, and the metadata columns) for ``group_column``.
     :returns: ``(fold_loaders, info)`` where ``fold_loaders`` is a list of
         ``(train_loader, val_loader)`` and ``info`` holds ``fold_table``,
-        ``warnings``, ``imbalance`` and ``groups``.
-    :raises ValueError: if ``n_splits`` < 2 or a setting value is unknown.
+        ``warnings``, ``imbalance``, ``groups`` and, with ``group_column``,
+        ``held_out`` (the value held out in each fold).
+    :raises ValueError: if ``n_splits`` < 2 or a setting value is unknown, or
+        if ``group_column`` has fewer than two values or a crop has none.
     """
     from .utils import augment_dataset
 
-    if int(n_splits) < 2:
+    if int(n_splits) < 2 and not group_column:
         raise ValueError(
             f"cross_validation_folds must be >= 2 to build folds, got {n_splits!r}; "
             f"0 or 1 means the single train/validation split")
@@ -8424,10 +8455,23 @@ def generate_cv_loaders(src, n_splits, mode='train', image_size=224, batch_size=
     filenames = dataset_filenames(data)
     groups, _ = _cv_group_ids(filenames, group_by, verbose=True)
 
-    folds = make_cv_folds(labels, int(n_splits), groups=groups, seed=seed)
+    held_out = None
+    if group_column:
+        from .classifier_evaluation import _crop_metadata_values
+        held_values = _crop_metadata_values(
+            filenames, group_column, metadata_path,
+            table='classification dataset')
+        held_out, folds = _leave_one_group_out_folds(held_values,
+                                                     group_column)
+        print(f"Leave-one-{group_column}-out: {len(folds)} folds, one per "
+              f"{group_column} value (cross_validation_folds is not used)")
+    else:
+        folds = make_cv_folds(labels, int(n_splits), groups=groups, seed=seed)
     fold_table, fold_warnings = report_cv_folds(
         labels, folds, classes=classes, groups=groups, group_by=group_by,
         verbose=True)
+    if held_out is not None:
+        fold_table.insert(1, 'held_out', held_out)
 
     imbalance = report_class_balance(labels, classes=classes,
                                      class_balance=class_balance,
@@ -8469,6 +8513,8 @@ def generate_cv_loaders(src, n_splits, mode='train', image_size=224, batch_size=
         'imbalance': imbalance,
         'groups': groups,
         'group_by': group_by,
+        'group_column': group_column or None,
+        'held_out': held_out,
         'labels': labels,
         'folds': folds,
         'classes': list(classes),

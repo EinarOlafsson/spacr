@@ -251,6 +251,140 @@ def split_group_values(*, group_by: Any = "well",
     )
 
 
+_CROP_IDENTITY_LEVELS: Tuple[str, ...] = ("plate", "well", "field")
+
+
+def _frame_well_keys(frame: pd.DataFrame, source: str) -> List[str]:
+    """Return the ``prc`` well key of every row of a plate-map table.
+
+    :param frame: a canonicalised table with ``plateID`` and either
+        ``rowID`` + ``columnID`` or ``wellID``.
+    :param source: where the table came from, for the error message.
+    :raises ValueError: when the table names no complete well identity.
+    """
+    from . import schema
+
+    columns = set(frame.columns)
+    if "plateID" in columns and {"rowID", "columnID"} <= columns:
+        rows = zip(frame["plateID"], frame["rowID"], frame["columnID"])
+    elif "plateID" in columns and "wellID" in columns:
+        rows = ((plate, *schema.parse_well(well))
+                for plate, well in zip(frame["plateID"], frame["wellID"]))
+    else:
+        raise ValueError(
+            f"{source} has no well identity: it needs a plateID column and "
+            "either rowID and columnID or wellID (for example plate1, A01). "
+            f"Its columns are {sorted(map(str, frame.columns))}.")
+    return [schema.compose_prc(plate, row, column)
+            for plate, row, column in rows]
+
+
+def _well_metadata_lookup(metadata_path: Any, columns: Sequence[str]
+                          ) -> Dict[str, Tuple[Optional[str], ...]]:
+    """Map every well of a plate-map table to its values in ``columns``.
+
+    :param metadata_path: CSV, Excel, Parquet or another table
+        :func:`spacr.tabular.read_table` reads, one row per well (several rows
+        for one well must agree).
+    :param columns: the metadata columns wanted, by their name in the table
+        or its canonical spaCR name.
+    :returns: ``{prc: (value, ...)}``, values as text, ``None`` when blank.
+    :raises ValueError: when no table is named, a column is missing, or two
+        rows of one well disagree.
+    """
+    from . import schema
+    from .tabular import read_table
+
+    if not metadata_path or not str(metadata_path).strip():
+        raise ValueError(
+            f"metadata column(s) {list(columns)} can only be read from a "
+            "plate-map table: set well_metadata_path to a table with plateID, "
+            "the well (wellID, or rowID and columnID) and those columns.")
+    frame = read_table(str(metadata_path), report=None)
+    names = []
+    for column in columns:
+        name = str(column).strip()
+        if name not in frame.columns:
+            name = schema.canonical_column_name(name)
+        if name not in frame.columns:
+            raise ValueError(
+                f"well_metadata_path {metadata_path} has no column "
+                f"{column!r}; it has {sorted(map(str, frame.columns))}.")
+        names.append(name)
+    keys = _frame_well_keys(frame, f"well_metadata_path {metadata_path}")
+    lookup: Dict[str, Tuple[Optional[str], ...]] = {}
+    for key, row in zip(keys, frame[names].itertuples(index=False)):
+        values = tuple(
+            None if pd.isna(value) or not str(value).strip() else str(value)
+            for value in row)
+        previous = lookup.get(key)
+        if previous is not None and previous != values:
+            raise ValueError(
+                f"well_metadata_path {metadata_path} gives well {key} two "
+                f"different values for {list(columns)}: {previous} and "
+                f"{values}.")
+        lookup[key] = values
+    return lookup
+
+
+def _crop_well_keys(paths: Sequence[Any], table: str) -> List[str]:
+    """Return the ``prc`` well key encoded in each crop file name.
+
+    :raises ValueError: when a name carries no plate, row and column.
+    """
+    from . import schema
+
+    keys = []
+    for position, path in enumerate(paths):
+        try:
+            identity = schema.parse_object_stem(os.path.basename(str(path)))
+            keys.append(schema.compose_prc(
+                identity.plateID, identity.rowID, identity.columnID))
+        except (TypeError, ValueError) as exc:
+            raise ValueError(
+                f"Cannot look up {table} row {position} ({path!r}) by well: "
+                f"the name does not encode plate_well_field_object ({exc})."
+            ) from exc
+    return keys
+
+
+def _crop_metadata_values(paths: Sequence[Any], column: str,
+                          metadata_path: Any = None, *,
+                          table: str = "crops") -> np.ndarray:
+    """Return one value of a metadata column per crop.
+
+    ``plate``, ``well`` and ``field`` are read from the crop names. Any other
+    column, such as a compound or an imaging batch, is looked up by well in
+    the plate-map table at ``metadata_path``. A crop with no value is refused
+    rather than placed in a group of its own.
+
+    :param paths: crop paths named ``plate_well_field_object``.
+    :param column: metadata column name.
+    :param metadata_path: plate-map table for columns the names do not carry.
+    :param table: what the crops are, for error messages.
+    :returns: object array of text values, aligned with ``paths``.
+    :raises ValueError: when a crop's value cannot be found.
+    """
+    name = str(column).strip()
+    if name in _CROP_IDENTITY_LEVELS:
+        _level, values = split_group_values(group_by=name, paths=paths,
+                                            table=table)
+        return np.asarray(values, dtype=object)
+    lookup = _well_metadata_lookup(metadata_path, [name])
+    keys = _crop_well_keys(paths, table)
+    values = [lookup.get(key, (None,))[0] for key in keys]
+    missing = [position for position, value in enumerate(values)
+               if value is None]
+    if missing:
+        first = missing[0]
+        raise ValueError(
+            f"{len(missing)} of {len(values)} {table} crops have no {name!r} "
+            f"value in well_metadata_path {metadata_path}; the first is "
+            f"{paths[first]!r} (well {keys[first]}). Every crop needs a value, "
+            "or its fold would be invented.")
+    return np.asarray(values, dtype=object)
+
+
 class _GroupedSplitImpossible(ValueError):
     """Raised when the labelled groups cannot give a grouped holdout.
 

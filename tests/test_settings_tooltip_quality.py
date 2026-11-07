@@ -1315,6 +1315,17 @@ if app_key == "mask":
     assert resolve_default_settings("classify_merged")[
         "train_metrics_full_pass"] is False
     recognized_arrivals |= training_pass_arrivals
+    # cv_group_column and well_metadata_path, each one parseable claim
+    # (blank) resolved by the merged Classify screen.
+    group_column_arrivals = {("classify_merged", key)
+                             for key in ("cv_group_column", "well_metadata_path")}
+    assert {pair for pair in compared_pairs
+            if pair[1] in ("cv_group_column", "well_metadata_path")
+            } == group_column_arrivals
+    assert not group_column_arrivals & (recognized_arrivals | variants.keys())
+    for app, key in group_column_arrivals:
+        assert resolve_default_settings(app)[key] == ""
+    recognized_arrivals |= group_column_arrivals
     assert comparisons - len(recognized_arrivals) == 1004
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))

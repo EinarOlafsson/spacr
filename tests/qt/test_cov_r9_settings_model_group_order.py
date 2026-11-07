@@ -195,7 +195,8 @@ EVALUATION_KEYS = {
     "holdout_plate", "nested_cv_inner_folds", "score_threshold",
     "classifier_evaluation", "evaluation_calibration", "evaluation_bins",
     "evaluation_fail_on_leakage", "leakage_audit_train_test",
-    "leakage_hash_content", "leakage_require_identity"}
+    "leakage_hash_content", "leakage_require_identity",
+    "cv_group_column", "well_metadata_path"}
 
 RESULT_KEYS = {"n_top_examples", "plot", "tensorboard", "intermedeate_save"}
 

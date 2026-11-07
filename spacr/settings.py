@@ -2154,6 +2154,8 @@ def _set_classifier_evaluation_defaults(settings):
     """Populate shared Classify evaluation and nested-CV defaults."""
     settings.setdefault('classifier_evaluation', True)
     settings.setdefault('nested_cv_inner_folds', 0)
+    settings.setdefault('cv_group_column', '')
+    settings.setdefault('well_metadata_path', '')
     settings.setdefault('evaluation_calibration', 'temperature')
     settings.setdefault('evaluation_bins', 10)
     settings.setdefault('evaluation_fail_on_leakage', True)
@@ -4510,6 +4512,8 @@ expected_types = {
     'cross_validation_enabled':bool,
     'classifier_evaluation':bool,
     'nested_cv_inner_folds':int,
+    'cv_group_column':str,
+    'well_metadata_path':str,
     'evaluation_calibration':str,
     'evaluation_bins':int,
     'evaluation_fail_on_leakage':bool,
@@ -5840,6 +5844,8 @@ tooltips = {
     'cross_validation_enabled': "(bool) - Enable k-fold validation for Classify. If cross_validation_folds is 0 or 1, enabling this uses 5 folds. Use cv_group_by='plate' to hold out whole plates, or 'well'/'field' for within-plate validation without leaking related crops between training and validation. Default False.",
     'cv_group_by': "(str) - Train/test independence: 'cell', 'field', 'well' (default), or 'plate'. Cell can place sibling crops from one well on both sides; field narrows but does not close that leak; well matches the usual experimental assignment unit; plate holds out a complete batch. Whole groups make the requested fraction approximate, so runs report held-out groups and cells. Legacy 'none'/'off' alias 'cell'. Crop identities come from spaCR's plate_well_field_object.png names; unverifiable grouped designs are refused rather than silently randomized.",
     'classifier_evaluation': "(bool) - Build the Classifier Evaluation workbench bundle from out-of-fold predictions after Classify (CV): sample-level predictions, confusion matrices, reliability curves, calibrated probabilities, per-plate metrics, leakage reports and a manifest. It requires cross_validation_folds >= 2; a single train/validation split cannot produce unbiased out-of-fold diagnostics. Default True. API: spacr.classifier_evaluation.evaluate_predictions.",
+    'cv_group_column': '(str) - Leave-one-group-out cross-validation by a metadata column, for example compound: with cross-validation on, every distinct value of the column is held out once, so there is one fold per value and cross_validation_folds is not used. plate, well and field are read from the crop names; any other column is looked up by well in well_metadata_path. cv_group_by still names the identity that may never cross a fold, so keep it at well or field unless every plate holds one group. Cannot be combined with nested_cv_inner_folds. Blank keeps the stratified folds. Default blank.',
+    'well_metadata_path': '(str) - Plate-map table (CSV, Excel or Parquet) with one row per well: plateID, the well (wellID such as A01, or rowID and columnID) and metadata columns such as compound, concentration or imaging batch. Classify reads the column named in cv_group_column from it, joined to each crop by plate and well. A crop whose well is missing is refused for fold building. Default blank.',
     'nested_cv_inner_folds': "(int) - Number of inner grouped folds used inside every outer CV fold. 0 (default) keeps the faster ordinary grouped CV; 2 or more trains one inner model per fold, uses inner validation for early stopping/model selection, ensembles those models, and evaluates only once on the untouched outer fold. Runtime is approximately outer_folds x inner_folds training runs, but the outer score is not reused for tuning. API: spacr.classifier_evaluation.nested_group_folds.",
     'evaluation_calibration': "(str) - Probability calibration written to the evaluation bundle. 'temperature' cross-fits one scalar temperature per held-out fold using all other out-of-fold predictions, so a sample never fits its own calibrator; 'none' retains raw softmax probabilities. Calibration changes reported probabilities, not the saved model weights. Default 'temperature'. API: spacr.classifier_evaluation.cross_calibrate_probabilities.",
     'evaluation_bins': "(int) - Number of equal-width probability bins in reliability curves and expected calibration error. Values around 10 balance resolution against noise; use fewer bins for small validation sets and more only when every class has many hundreds of out-of-fold samples. Minimum 2, default 10. API: spacr.classifier_evaluation.calibration_table.",
@@ -6085,7 +6091,8 @@ categories = {
     "Training Classes": ["dataset_mode", "classes", "ml_classes", "class_folder_names", "class_metadata", "metadata_item_1_name", "metadata_item_1_value", "metadata_item_2_name", "metadata_item_2_value", "annotation_column", "annotated_classes", "write_random_annotation_column"],
 
     "Computer Vision Data Source": ["image_source", "image_size", "size", "train_channels", "stream_method", "object_array", "channel_arrays", "bounding_box", "crop_shape", "sample", "test_split", "val_split", "balance_to_smallest", "augment",
-        "crop_source", "file_metadata", "file_type", "coordinate_columns"],
+        "crop_source", "file_metadata", "file_type", "coordinate_columns",
+        "well_metadata_path", "cv_group_column"],
 
     "Computer Vision Model": ["model_type", "model_name", "init_weights", ],
 

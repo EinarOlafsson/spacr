@@ -1470,6 +1470,9 @@ def _cross_validate_model(settings, num_classes):
     Each fold trains a fresh model on its own train split and is scored on the
     held-out fold, which is never resampled. Folds are group-aware by default
     (see ``cv_group_by``), so crops from one well cannot appear on both sides.
+    With ``cv_group_column`` set, there is one fold per value of that metadata
+    column instead (leave one compound out, for example), read from the crop
+    names or, by well, from ``well_metadata_path``.
 
     :param settings: the canonicalised train/test settings dict.
     :param num_classes: size of the classifier head.
@@ -1520,7 +1523,11 @@ def _cross_validate_model(settings, num_classes):
         class_balance=settings.get('class_balance', 'none'),
         seed=settings.get('random_seed', 42),
         crop_loading_policy=crop_loading_policy,
+        group_column=settings.get('cv_group_column') or None,
+        metadata_path=settings.get('well_metadata_path') or None,
     )
+    if info.get('group_column'):
+        k = len(fold_loaders)
     cv_partition_audit = audit_cv_folds(
         dataset_filenames(info['dataset']),
         info['folds'],
@@ -1542,6 +1549,11 @@ def _cross_validate_model(settings, num_classes):
             f"nested_cv_inner_folds={nested_inner} is not valid; use 0 for "
             "ordinary grouped CV or at least 2 inner folds.")
     nested_layout = None
+    if nested_inner >= 2 and info.get('group_column'):
+        raise ValueError(
+            "nested_cv_inner_folds cannot be combined with cv_group_column: "
+            "the inner folds are drawn from cross_validation_folds, not from "
+            "the leave-one-group-out folds. Set nested_cv_inner_folds to 0.")
     if nested_inner >= 2:
         nested_layout = nested_group_folds(
             info['labels'],
@@ -1904,6 +1916,11 @@ def train_test_model(settings):
           validation split (enabling it with fewer than 2 folds uses 5, and
           1 fold falls back to the single split); ``cv_group_by`` names the
           grouping level used for the folds and the leakage audits.
+        - ``cv_group_column`` / ``well_metadata_path`` — with
+          cross-validation on, hold out one value of a metadata column per
+          fold (one compound, say) instead of ``cross_validation_folds``
+          stratified folds; columns other than plate, well and field are
+          read by well from the plate-map table.
         - ``augment``, ``dropout_rate``, ``optimizer_type``,
           ``early_stopping_patience``, ``n_jobs``, ``pin_memory``.
 

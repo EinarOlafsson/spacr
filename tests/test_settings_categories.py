@@ -763,6 +763,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "umap_canvas_width", "umap_sidebar_width",
     # Classify out-of-fold evaluation, nested validation and calibration.
     "classifier_evaluation", "nested_cv_inner_folds",
+    # Leave-one-group-out folds by a plate-map column, and the plate map.
+    "cv_group_column", "well_metadata_path",
     "evaluation_calibration", "evaluation_bins",
     "evaluation_fail_on_leakage",
     # Shared correction before UMAP, ML screen analysis, and regression.

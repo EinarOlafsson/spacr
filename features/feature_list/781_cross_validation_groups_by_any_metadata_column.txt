@@ -2,7 +2,7 @@ CROSS-VALIDATION GROUPS BY ANY METADATA COLUMN
 ==============================================
 
 Lifecycle: new
-Status: open.
+Status: DONE 2026-11-06 — new setting cv_group_column gives leave-one-group-out folds (one per value) in Classify (CV) cross-validation; plate, well and field come from the crop names, any other column (e.g. compound) by well from the new well_metadata_path plate-map table. Missing wells are refused; the fold-composition CSV gains a held_out column. Combining with nested_cv_inner_folds is refused.
 Requested: maintainer via the BMC software-paper session, 2026-11-05.
 Source: BBBC021 computer-vision benchmark, /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cv/README.md.
 
