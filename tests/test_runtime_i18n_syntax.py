@@ -1193,7 +1193,9 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     cohort_retired = base_retired | refresh_retired
     # 2026-10-31 (746/N678): the Otsu fill-holes caption left the refresh file, retired in place (4 -> 5).
     # 2026-11-01: Make Masks Keep now saves; its old Keep tooltip retired in place (5 -> 6).
-    assert len(base_retired) == 4 and len(refresh_retired) == 6
+    # 2026-11-06 (item 836): the three Embeddings crop-folder captions that
+    # named PNG only were retired in place (6 -> 9).
+    assert len(base_retired) == 4 and len(refresh_retired) == 9
     assert not cohort_retired & reviewed.keys()
     # +269 distinct UI/category sources, with three OPS descriptions shared
     # between both tables (272 records). The detection-panel consolidation
@@ -1469,7 +1471,9 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     refresh_retired = _theme_cohort_retirements("fr", "2026-09-21-runtime-third-slice.json")
     refresh_retired |= _theme_cohort_retirements("fr", "2026-09-21-runtime-fourth-slice.json")
     cohort_retired = base_retired | refresh_retired
-    assert len(base_retired) == 4 and len(refresh_retired) == 4
+    # 2026-11-06 (item 836): the PNG-only crop-folder placeholder was retired
+    # in place in the fourth slice (4 -> 5).
+    assert len(base_retired) == 4 and len(refresh_retired) == 5
     assert not cohort_retired & all_reviewed.keys()
     refresh = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                           "2026-09-21-runtime-first-slice.json").read_text(encoding="utf-8"))
@@ -1482,10 +1486,12 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # 2026-10-17: -5, the item 678 Home app-text pass retired five more.
     # 2026-10-31: -1, the item 746/N678 factual caption pass retired the
     # "Read cluster first" caption (archived with its original record).
-    assert len(refresh["records"]) == len(refresh_sources) == 64
+    # 2026-11-06: -2, item 836 retired the two PNG-only Embeddings crop-folder
+    # captions in place (the screen now also reads raw TIFF crops).
+    assert len(refresh["records"]) == len(refresh_sources) == 62
     assert not refresh_sources & _compact_tooltip_sources("fr")
     refresh_sources |= _compact_tooltip_sources("fr")
-    assert len(refresh_sources) == 66  # 72 -> 67 on 2026-10-17 (item 678 Home app-text retirements); 66 on 2026-10-31 (746/N678)
+    assert len(refresh_sources) == 64  # 72 -> 67 on 2026-10-17 (item 678 Home app-text retirements); 66 on 2026-10-31 (746/N678); 64 on 2026-11-06 (item 836: two PNG-only crop-folder captions retired in place)
     assert refresh_sources <= all_reviewed.keys()
     second = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                          "2026-09-21-runtime-second-slice.json").read_text(encoding="utf-8"))
@@ -1523,7 +1529,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # 2026-10-25 (76dcb4533): "Version" became an exact compact row, archived.
     compact_retired = _compact_install_consent_retirements("fr", "2026-09-21-runtime-fourth-slice.json")
     assert len(compact_retired) == 1 and not compact_retired & refresh_sources
-    assert len(refresh_sources) + len(refresh_retired) + len(published_retired) + len(compact_retired) == 263  # 2026-11-01: -1, the old Make Masks Keep tooltip retired (Keep now saves).  # 2026-10-31 (746/N678): -1, a rewritten caption retired.  # 707 (2026-10-16): -1, Prev image retired.  # 600b (2026-09-29): -1, the Features tooltip retired.  # Three superseded threshold/histogram sources.  # 273 -> 265 on 2026-10-17 (item 678 Home app-text retirements)
+    assert len(refresh_sources) + len(refresh_retired) + len(published_retired) + len(compact_retired) == 261  # 2026-11-06: -2, item 836 retired the two PNG-only crop-folder captions of the first slice in place.  # 2026-11-01: -1, the old Make Masks Keep tooltip retired (Keep now saves).  # 2026-10-31 (746/N678): -1, a rewritten caption retired.  # 707 (2026-10-16): -1, Prev image retired.  # 600b (2026-09-29): -1, the Features tooltip retired.  # Three superseded threshold/histogram sources.  # 273 -> 265 on 2026-10-17 (item 678 Home app-text retirements)
     actions = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                           "2026-09-21-action-labels.json").read_text(encoding="utf-8"))
     action_sources = {record["source"] for record in actions["records"]}
@@ -1729,8 +1735,8 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # Item463 retired the one superseded download tooltip, proven above.
     assert len(all_reviewed.keys() - refresh_sources - subsequent_sources - debt_sources - inherited_sources) + len(base_retired) == 330  # 334 -> 330 on 2026-10-31 (746/N678: rewritten captions archived).  # 335 -> 334 on 2026-10-17 (N703: a retired per-adapter update prompt was archived).  # 338 -> 335 on 2026-10-11 (N678 retirements)
     # 316 (71071b6c6) retired 17 setup and sign-in captions from the four slices to _ROWS.
-    assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) + len(cohort_retired) + len(published_retired) + len(compact_retired) == 597  # 598 -> 597 on 2026-11-01 (the old Make Masks Keep tooltip retired; Keep now saves).  # 603 -> 598 on 2026-10-31 (746/N678: rewritten captions archived).  # 612 -> 611 on 2026-10-17 (N703: a retired per-adapter update prompt was archived).  # 600b (2026-09-29): -1, the Features tooltip retired.  # 619 -> 613 on 2026-10-11 (N678 retirements)  # 611 -> 603 on 2026-10-17 (item 678 Home app-text retirements)
-    assert len((all_reviewed.keys() | _superseded_enhancement_sources("fr", all_reviewed)) - debt_sources - inherited_sources) + len(cohort_retired) + len(published_retired) + len(_requested_detection_retirements('fr', '2026-09-22-detection-panel.json')) + len(_later_cohort_retirements('fr', all_reviewed)) + len(compact_retired) == 1641  # 1642 -> 1641 on 2026-11-01 (the old Make Masks Keep tooltip retired; Keep now saves).  # 1644 -> 1642 on 2026-11-01 (the protocol copies took the corrected Align & Stitch and Measure guidance; both old guidance records retired in place).  # 1649 -> 1644 on 2026-10-31 (N678 code check: five rewritten or removed workflow-map phrases retired in place).  # 1654 -> 1649 on 2026-10-31 (746/N678: rewritten captions archived).  # 2026-10-24: -1, the old Timelapse workflow-map guidance retired when Timelapse moved under Mask's Time control.  # 1664 -> 1663 on 2026-10-17 (N703: a retired per-adapter update prompt was archived).  # 2026-10-10: -1, the plaque_model tooltip retired when toxoplasma_plaque_v3 became the default.  # 2026-10-04: -2, the withdrawn Plasmodium/Candida guide notes.  # 2026-10-02 (item 43): -2, 603423d0a retired the two later-cohort workflow phrases (778 -> 776 above).  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.  # 1671 -> 1665 on 2026-10-11 (N678 retirements)  # 707 (2026-10-16): 1665 -> 1664, Make Masks layout captions retired and added.  # 1663 -> 1655 on 2026-10-17 (item 678 Home app-text retirements)
+    assert len(all_reviewed.keys() - subsequent_sources - debt_sources - inherited_sources) + len(cohort_retired) + len(published_retired) + len(compact_retired) == 595  # 597 -> 595 on 2026-11-06 (item 836: two PNG-only crop-folder captions retired in place).  # 598 -> 597 on 2026-11-01 (the old Make Masks Keep tooltip retired; Keep now saves).  # 603 -> 598 on 2026-10-31 (746/N678: rewritten captions archived).  # 612 -> 611 on 2026-10-17 (N703: a retired per-adapter update prompt was archived).  # 600b (2026-09-29): -1, the Features tooltip retired.  # 619 -> 613 on 2026-10-11 (N678 retirements)  # 611 -> 603 on 2026-10-17 (item 678 Home app-text retirements)
+    assert len((all_reviewed.keys() | _superseded_enhancement_sources("fr", all_reviewed)) - debt_sources - inherited_sources) + len(cohort_retired) + len(published_retired) + len(_requested_detection_retirements('fr', '2026-09-22-detection-panel.json')) + len(_later_cohort_retirements('fr', all_reviewed)) + len(compact_retired) == 1639  # 1641 -> 1639 on 2026-11-06 (item 836: two PNG-only crop-folder captions retired in place).  # 1642 -> 1641 on 2026-11-01 (the old Make Masks Keep tooltip retired; Keep now saves).  # 1644 -> 1642 on 2026-11-01 (the protocol copies took the corrected Align & Stitch and Measure guidance; both old guidance records retired in place).  # 1649 -> 1644 on 2026-10-31 (N678 code check: five rewritten or removed workflow-map phrases retired in place).  # 1654 -> 1649 on 2026-10-31 (746/N678: rewritten captions archived).  # 2026-10-24: -1, the old Timelapse workflow-map guidance retired when Timelapse moved under Mask's Time control.  # 1664 -> 1663 on 2026-10-17 (N703: a retired per-adapter update prompt was archived).  # 2026-10-10: -1, the plaque_model tooltip retired when toxoplasma_plaque_v3 became the default.  # 2026-10-04: -2, the withdrawn Plasmodium/Candida guide notes.  # 2026-10-02 (item 43): -2, 603423d0a retired the two later-cohort workflow phrases (778 -> 776 above).  # 2026-10-01: -2, the two FEATURES workflow-map phrases retired.  # 591-597 (2026-09-29): -1, the renamed "Cloud" category caption.  # 600b (2026-09-29): -1, the Features tooltip retired.  # 1671 -> 1665 on 2026-10-11 (N678 retirements)  # 707 (2026-10-16): 1665 -> 1664, Make Masks layout captions retired and added.  # 1663 -> 1655 on 2026-10-17 (item 678 Home app-text retirements)
     assert published_retired & current_values == returned
     for source, translated in all_reviewed.items():
         assert source in current_values

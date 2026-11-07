@@ -380,7 +380,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
          *(f"new_constant_attribute\0{key}" for key in assignments)]
     # Moved 2026-11-05 (was 417e53d9...) by the four item 770 constants
     # counted above; no dunder changed.
-    ) == "8f1a22e2a2303297096e05796e85052c4dc4405f2472deba7e02ca29be66d0cf"
+    # Moved 2026-11-06 (was 8f1a22e2...) by the two outlier_policy
+    # context-manager dunders counted above; no assignment changed.
+    ) == "f44e3eae5a0c5f3ec7d04750df34d1bb20c80bab3fdc2ca90ed3071077dab55e"
     # The item 770 constants (2026-11-05) are named and taken out here, so
     # every older fingerprint below still describes the surface before them.
     tvn_constants = {
@@ -392,6 +394,11 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     assert tvn_constants <= assignments
     assignments = assignments - tvn_constants
     new_assignments = new_assignments - tvn_constants
+    # Likewise the two outlier_policy dunders (2026-11-06, item 816).
+    outlier_dunders = {"spacr.assay_panels.outlier_policy.__enter__",
+                       "spacr.assay_panels.outlier_policy.__exit__"}
+    assert outlier_dunders <= dunders
+    dunders = dunders - outlier_dunders
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders - {psf_validator}),
          *(f"new_constant_attribute\0{key}" for key in assignments)]
