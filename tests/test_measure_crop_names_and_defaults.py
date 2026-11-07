@@ -102,3 +102,27 @@ def test_merged_src_is_read_as_its_plate_folder(tmp_path, capsys, suffix):
     assert 'using the plate folder' in capsys.readouterr().out
     assert (root / 'measurements' / 'measurements.db').is_file()
     assert not (root / 'merged' / 'measurements').exists()
+
+
+def test_an_unreadable_name_is_reported_once_per_field_with_the_none_hint(capsys):
+    from spacr import utils
+
+    utils._REPORTED_BAD_NAMES.clear()
+    for _ in range(200):
+        assert utils._map_wells('plate103_A01_3_x_None.npy', timelapse=True)[0] == 'error'
+    for _ in range(50):
+        utils._map_wells('plate103_A02_3_x_None.npy', timelapse=True)
+    out = capsys.readouterr().out
+    assert out.count('Error processing filename: plate103_A01_3_x_None.npy') == 1
+    assert out.count('Error processing filename: plate103_A02_3_x_None.npy') == 1
+    assert out.count('the _None suffix comes from a file-naming convention '
+                     'with no time group; re-run Make Masks with this version, '
+                     'or rename to plate_well_field.npy') == 2
+
+
+def test_other_unreadable_names_get_no_none_hint(capsys):
+    from spacr import utils
+
+    utils._REPORTED_BAD_NAMES.clear()
+    utils._map_wells('a_b.npy')
+    assert '_None suffix' not in capsys.readouterr().out

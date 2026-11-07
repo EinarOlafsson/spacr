@@ -3213,6 +3213,35 @@ def _int_or_token(value):
     return str(value) if parsed is None else str(parsed)
 
 
+_REPORTED_BAD_NAMES = set()
+
+_NONE_SUFFIX_HINT = (
+    "the _None suffix comes from a file-naming convention with no time group; "
+    "re-run Make Masks with this version, or rename to plate_well_field.npy")
+
+
+def _report_unreadable_name(file_name, error, per_object=False):
+    """Print an unreadable field or crop name once per field, with a hint for ``_None``.
+
+    The name parsers run once per object, so a field with 200 objects used to
+    print the same two lines 200 times.
+
+    :param file_name: the name that did not parse.
+    :param error: the parse error.
+    :param per_object: ``True`` for crop names, which end in an object id; the
+        field is the name without it.
+    """
+    stem = os.path.splitext(os.path.basename(str(file_name)))[0]
+    field = stem.rsplit('_', 1)[0] if per_object else stem
+    if field in _REPORTED_BAD_NAMES:
+        return
+    _REPORTED_BAD_NAMES.add(field)
+    print(f"Error processing filename: {file_name}")
+    print(f"Error: {error}")
+    if field.endswith('_None') or stem.endswith('_None'):
+        print(f"Hint: {_NONE_SUFFIX_HINT}")
+
+
 def _map_wells(file_name, timelapse=False):
     """Parse a stack file name into ``(plate, row, column, field[, timeid], prcf)``.
 
@@ -3243,8 +3272,7 @@ def _map_wells(file_name, timelapse=False):
     try:
         field = schema.parse_field_stem(file_name, timelapse=timelapse)
     except schema.SchemaError as e:
-        print(f"Error processing filename: {file_name}")
-        print(f"Error: {e}")
+        _report_unreadable_name(file_name, e)
         return ('error',) * (6 if timelapse else 5)
     if timelapse:
         return (field.plateID, field.rowID, field.columnID, field.fieldID,
@@ -3280,8 +3308,7 @@ def _map_wells_png(file_name, timelapse=False):
     try:
         obj = schema.parse_object_stem(file_name, timelapse=timelapse)
     except schema.SchemaError as e:
-        print(f"Error processing filename: {file_name}")
-        print(f"Error: {e}")
+        _report_unreadable_name(file_name, e, per_object=True)
         return ('error',) * (7 if timelapse else 6)
     if timelapse:
         return (obj.plateID, obj.rowID, obj.columnID, obj.fieldID, obj.timeID,
