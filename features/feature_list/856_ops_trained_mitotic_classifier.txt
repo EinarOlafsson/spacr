@@ -1,0 +1,23 @@
+OPS TRAINED MITOTIC CLASSIFIER
+==============================
+
+Lifecycle: future
+Status: open, alpha.
+Requested: maintainer via paper session, 2026-11-07.
+Owner: paper session.
+Source: plate A OPS pilot.
+Related: 752.
+
+WHAT THE STATE IS
+The current mitotic rule (ops_mitotic_dna_z) agrees poorly with Funk et al.
+2022 (Spearman rho 0.32 on the pilot).
+
+WHAT TO DO
+- Train a mitotic classifier on labelled pilot cells and offer it beside
+  the rule.
+- Report agreement with the Funk calls for both, with a control row.
+- Tests: the classifier loads and scores a small labelled set.
+
+RULE
+The paper session builds this under the identical-output rule: with the new
+option off, outputs stay identical to today's.

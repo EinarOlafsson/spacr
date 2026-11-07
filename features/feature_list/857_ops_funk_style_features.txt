@@ -1,0 +1,21 @@
+OPS FUNK-STYLE FEATURES
+=======================
+
+Lifecycle: future
+Status: open, alpha.
+Requested: maintainer via paper session, 2026-11-07.
+Owner: paper session.
+Source: plate A OPS pilot.
+Related: 752.
+
+WHAT THE STATE IS
+Funk et al. 2022 use features spaCR does not compute.
+
+WHAT TO DO
+- Add mass displacement, form factor and per-object channel correlations
+  to the OPS phenotype features.
+- Tests: each feature matches a hand-computed value on a synthetic object.
+
+RULE
+The paper session builds this under the identical-output rule: with the new
+option off, outputs stay identical to today's.

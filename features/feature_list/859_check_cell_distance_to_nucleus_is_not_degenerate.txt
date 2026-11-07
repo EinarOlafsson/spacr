@@ -1,0 +1,24 @@
+CHECK THAT CELL DISTANCE_TO_NUCLEUS IS NOT DEGENERATE
+=====================================================
+
+Lifecycle: future
+Status: open, bug check (not alpha).
+Requested: maintainer via paper session, 2026-11-07.
+Owner: paper session.
+Source: plate A OPS pilot.
+Related: 799, 791.
+
+WHAT THE STATE IS
+On the plate A pilot the cell distance_to_nucleus feature has zero median
+absolute deviation (MAD) in non-targeting cells.
+
+WHAT TO DO
+- Find out whether the column is degenerate (constant by construction) or
+  correct for this data.
+- If it is degenerate, fix the computation or leave the column out, and say
+  so in the measurement docs.
+- Tests: the column varies on a synthetic field with offset nuclei.
+
+RULE
+The paper session builds this under the identical-output rule: with the new
+option off, outputs stay identical to today's.

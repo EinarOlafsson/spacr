@@ -1,0 +1,22 @@
+OPS TVN NORMALISATION PER WELL
+==============================
+
+Lifecycle: future
+Status: open, alpha.
+Requested: maintainer via paper session, 2026-11-07.
+Owner: paper session.
+Source: plate A OPS pilot.
+Related: 770, 813.
+
+WHAT THE STATE IS
+Typical variation normalisation (TVN) for OPS profiles: PCA, then
+whitening on the non-targeting (NT) cells, then CORAL alignment per well.
+
+WHAT TO DO
+- Add per-well TVN (PCA -> NT whitening -> CORAL) to the OPS per-gene
+  profile path, reusing item 770's TVN where it fits.
+- Tests: NT profiles have identity covariance per well after TVN.
+
+RULE
+The paper session builds this under the identical-output rule: with the new
+option off, outputs stay identical to today's.

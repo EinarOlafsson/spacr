@@ -1,0 +1,23 @@
+OPS CORE OWNERSHIP KEEPS THE DEEPEST FIELD
+==========================================
+
+Lifecycle: future
+Status: open, alpha. Part of 813.
+Requested: maintainer via paper session, 2026-11-07.
+Owner: paper session.
+Source: plate A OPS pilot.
+Related: 813.
+
+WHAT THE STATE IS
+Overlapping fields give an SBS nucleus several copies. The pilot's A1b
+ownership rule keeps, per SBS nucleus, the copy from the field where the
+nucleus lies deepest (furthest from the field edge).
+
+WHAT TO DO
+- Add the deepest-field ownership rule to the OPS merge.
+- Record which field owns each nucleus.
+- Tests: a nucleus seen in two fields keeps the deeper copy only.
+
+RULE
+The paper session builds this under the identical-output rule: with the new
+option off, outputs stay identical to today's.

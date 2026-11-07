@@ -1,0 +1,23 @@
+PH AGGREGATE: SWAPPABLE GENOTYPES AND BLOCK-WISE POOLING
+========================================================
+
+Lifecycle: future
+Status: open, bug fix for the out-of-memory failure (not alpha).
+Requested: maintainer via paper session, 2026-11-07.
+Owner: paper session.
+Source: plate A OPS pilot.
+Related: 813.
+
+WHAT THE STATE IS
+_ph_aggregate runs out of memory at 46 GB on the plate A pilot because it
+pools every cell at once, and its genotype table is fixed.
+
+WHAT TO DO
+- Let _ph_aggregate take a swappable genotype table.
+- Pool a subset of wells, and pool block-wise so memory stays bounded.
+- Tests: block-wise pooling gives the same aggregates as pooling all at
+  once on a small plate; peak memory stays below a set bound.
+
+RULE
+The paper session builds this under the identical-output rule: with the new
+option off, outputs stay identical to today's.

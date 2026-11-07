@@ -1,0 +1,25 @@
+BOOTSTRAP GENE P-VALUES USE A CALIBRATED NULL
+=============================================
+
+Lifecycle: future
+Status: open, bug fix (not alpha).
+Requested: maintainer via paper session, 2026-11-07.
+Owner: paper session.
+Source: plate A OPS pilot.
+Related: 813.
+
+WHAT THE STATE IS
+spacr bootstrap_gene_pvalues is anti-conservative. On the plate A OPS pilot
+33% of non-targeting (NT) guides come out as hits, because the null ignores
+the variance between guides of the same gene.
+
+WHAT TO DO
+- Build the null so it carries the between-guide variance measured on the
+  NT guides (the pilot's hits2.py does this).
+- Keep the per-gene statistic; only the null changes.
+- Tests: on NT-only data the false-positive rate is close to the nominal
+  alpha; a planted strong gene is still found.
+
+RULE
+The paper session builds this under the identical-output rule: with the new
+option off, outputs stay identical to today's.

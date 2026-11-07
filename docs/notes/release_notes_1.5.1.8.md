@@ -1,19 +1,88 @@
 ## spaCR 1.5.1.8
 
+This release writes raw crops and records how every classifier's inputs were prepared, fixes a set of measurement problems (infinite distance columns, NaN texture values, clipped flat-field correction, dropped fields and files), adds one image-level table and a GPU memory governor, and brings several new alpha features: a per-cell export, label images from other tools, size filters that follow the image scale, and fixed crop scaling.
+
 ### Upgrading
+
+Upgrade an existing Python environment with:
+
+```bash
+python -m pip install --upgrade "spacr==1.5.1.8"
+```
+
+Desktop installers are listed under **Assets** below.
 
 - **Measure now writes raw crops.** Crop PNGs keep the intensities and bit depth of your images, usually 16-bit. Only the pixels outside the object are set to 0. Earlier versions stretched every crop to its own brightest and darkest pixels, which hid intensity differences between cells. The new setting `crop_intensity` controls this. `'auto'`, the default, writes raw crops unless `normalize` is set to a percentile pair such as `[1, 99]`. `'stretch'` writes the old stretched crops. Inside spaCR nothing looks different: Annotate, the montages, Classify and models you have already trained show raw crops with the old stretch, pixel for pixel. Only other programs see the raw values.
 - **Viewing raw crops in Fiji.** A raw crop opened in Fiji (ImageJ) can look black, because its values use only a small part of the 16-bit range. Choose Image > Adjust > Brightness/Contrast and press Auto, or use Process > Enhance Contrast for display only. These change the view, not the file. To compare cells, set the same display range for every crop with Set in the Brightness/Contrast window, and do not apply it to the pixels.
 - **Crops are flat-field corrected when illumination correction is on.** With `illumination_correction` enabled, Measure now cuts crops from the corrected field, so the crops match the measured intensities. Your raw images on disk are not changed. Crop folders record which illumination model was used.
 - **Classifier checkpoints record their input transform.** Every new model stores how its crops were prepared: crop size, resize, channels, mean and standard deviation, mask mode and, where used, the crop scales and flat-field model. Testing a model refuses to run when the crops would be prepared differently. The message lists the differences. Set `preprocessing_mismatch` to `'warn'` to continue anyway. Models saved before this release load and run as before, with a warning that they carry no full record.
+- **Texture and corrected intensities can change.** Small objects now get a texture value instead of NaN (item 792), and flat-field corrected intensities are no longer clipped or rounded (item 793). See Bug fixes below.
 
-### New
+### Bug fixes
 
-- `model_type='custom'` builds spaCR's small CustomCellClassifier, trained from scratch, for any number of channels. Its outputs are now plain logits.
-- Classify shows `input_statistics`. `'auto'` uses a pretrained backbone's own mean and standard deviation, and dataset-level statistics for a model trained from scratch.
-- Test reports list `majority_class_accuracy`, the accuracy of always predicting the largest class, as a control.
+- Measure no longer writes columns full of infinity for a pathogen or nucleus mask that was never made. A field with no such object gets a blank (NaN) value (799).
+- XGBoost models, including multi-class ones such as the cell-cycle phase classifier, now train on computers without a GPU (794).
+- Texture (homogeneity) values are always a number now. Objects narrower than the requested distance (small, mitotic or apoptotic nuclei) are measured at the widest distance that fits instead of reporting NaN. These values are not directly comparable to a large object's value at the full distance; wide objects give exactly the same values as before (792).
+- Illumination correction in Measure divides by the flat field in floating point and measures that result, so bright pixels are no longer clipped at the image's bit depth. Intensities on corrected runs change slightly: there is no 0.5-count rounding, and the brightest edge pixels keep their true value, which can be above 65535. When a corrected image must stay integer (as segmentation input), it is scaled down to fit and the factor is recorded (793).
+- Building documentation translations in parallel, and test runs on many cores, no longer fail when another process holds the translation-review lock. The lock now waits (SPACR_TRANSLATIONS_LOCK_TIMEOUT, default 900 s) (841).
+- Zernike shape moments that are only floating-point noise (about 1e-15) are now written as exactly 0, so they no longer dominate control-scaled profiles (806).
+- Plates whose names contain URL escapes such as %5F (for example PerkinElmer CellCarrier-384 exports) no longer lose all their rows in the merge, so analyze_endodyogeny finds cell_area on them (805).
+- In Time mode, scrolling the wheel over another cell's object while a cell is selected now swaps the two cells' identities from that frame on, as one undoable step, instead of refusing (763).
+- OpenPhenom loads under torch 2.12 and later. Its weights file is read by its real format (a torch zip archive, through the safe weights-only path) instead of by its .safetensors extension (775).
+- Training a classifier no longer builds up memory. The six accuracy, loss and threshold plots saved after every epoch are closed once written (786).
+- Measure with GPU acceleration gives the same skew and kurtosis as the CPU path (within 1e-9). On float32 images the CPU values are now computed at full precision and may shift slightly (788).
+- Crops cut from merged fields now match the measured objects. When Measure merges cells that share a nucleus, drops objects outside the size limits or applies the uninfected rule, it saves the changed masks next to the field (merged/.spacr_measured_masks) and every spaCR crop uses them. The merged files are unchanged, so a rerun with different limits starts from the original segmentation. With only cell and nucleus masks, PNG crops now use the merged cells that were measured (774).
+- Make Masks: with 3D on, object detection stops and asks you to turn off the enhancement-chain steps instead of quietly running without them; they work on 2D fields only (706).
+- Raw images with upper-case or mixed-case extensions (.TIF, .Tif, .TIFF, the Cellomics default) are found and stacked. Before, they were counted and then dropped, and the run ended with "No image stacks were produced" (827).
+- Plates whose file naming has no time group (ArrayScan, Cellomics) are written as plate_well_field.npy instead of plate_well_field_None.npy (existing _None files still measure), and Measure stops before the first field and names any merged .npy whose name it cannot read (837).
+- measure_crop fills in its own default settings, so a minimal settings dictionary no longer raises KeyError: 'timelapse' (838).
+- Measure no longer drops a field because one nucleus lies in two cells. A nucleus still spanning several cells after the usual merge goes to the cell it overlaps most, the cell and nucleus tables gain a nucleus_shared column, and the console and run log report how many nuclei were shared. An unreadable field name is reported once per field, with a hint for names ending in _None (840).
+- Make Masks: a folder with a curate_status.csv opened from the folder dialog opens as its curation queue, so Skip and Save record skip and done there too (835).
+- An existing install's settings file no longer carries the leftover session/last and prefs/restore_last_session entries from the removed restore-last-session feature. They are deleted automatically the first time spaCR reads the theme.
+- The app no longer clears memory while you are pressing a mouse button, a dialog is open or a style change is in progress. This prevents a crash when dragging a splitter right after closing a panel. Settings panels, the AI usage check, test-data downloads and Home layout updates no longer leave leftover objects in memory.
+- Parametric bar-panel statistics (one-way and Welch ANOVA, Tukey HSD, Games-Howell) no longer need the optional pingouin package. They run on scipy and give identical results.
+- Feature QC and field-density reads close their database connections, so later copies of the database include every change.
+- New database connections wait up to 30 s for a busy database instead of failing after 5 s.
+- An SSH config with an unknown internal include marker no longer drops out of the current host block.
 
-### Alpha
+### New features
 
-- `crop_scaling='fixed'` trains on raw crops. Each plate and channel is divided by one fixed scale taken from the training crops, then clipped, resized and normalised on the GPU. Augmentation uses flips, rotations, small shifts and a small per-channel gain. It needs raw crops.
-- `control_shuffled_labels` trains a shuffled-label control model.
+- Every image-level result lives in one table, `image`, in measurements.db: one row per imaged field, keyed by file name and plate/row/column/field. Measure records each channel's background (median and 25th percentile outside every object mask), mean, 1st/99th percentiles, saturated fraction and focus, plus each mask's object count and area fraction. The same row carries intensity rescaling, confluency, the mask stage's object counts and the image-quality screening verdicts. The older confluency, intensity_rescale and object_counts tables and the qc/ reports are still written (814).
+- `model_type='custom'` builds spaCR's small CustomCellClassifier, trained from scratch, for any number of channels. Its outputs are now plain logits (772).
+- Classify shows `input_statistics`. `'auto'` uses a pretrained backbone's own mean and standard deviation, and dataset-level statistics for a model trained from scratch (772).
+- Test reports list `majority_class_accuracy`, the accuracy of always predicting the largest class, as a control (772).
+- The stored per-plate illumination model can correct a crop on its own: IlluminationField.correct_window(window, channels, y0, x0) applies the gains for the crop's position in the field (773).
+- ML scoring: list three or more classes in ml_classes (for example recruitment, no recruitment, artefact). Results get one probability column per class, and the report gives per-class precision and recall plus a confusion matrix. Two-class runs are unchanged (832).
+- The Recruitment and Replication forms show every setting, in new Quality Filters, Panels & Figures and Report & QC (Panel QC for replication) sections, with table editors for panels, background filters and figures, and checked fields with examples for the dictionary settings (825).
+- Pressing Run also writes a notebook to <project>/settings/<module>_run_<time>.ipynb that repeats the run with exactly the same settings and entry point (826).
+- Cross-validation can hold out one value of any plate-map column per fold, for example leave-one-compound-out (cv_group_column, with the plate map in well_metadata_path) (781).
+- Cross-validation can train each fold without the plates or batches of its held-out crops (cv_exclude_batch_column). With a compound grouping this is the NSCB rule (782).
+- Predictions are summarised per well and, with prediction_treatment_column, per treatment (mean class probabilities, counts, predicted class). Cross-validation also reports per-treatment accuracy (784).
+- Annotate can review touching objects two at a time (Setup -> Review touching pairs...): label A is outlined white and label B yellow, and keys 1/2/3 record merge, keep apart or cannot tell (833).
+- Annotate count columns: with "Annotation column holds counts" on, + and - step a crop's count, # types any number, and counts of 10 and more are stored as entered (834).
+- spacr.embeddings.embed_store turns a measurements database or crop array into per-cell embeddings plus per-well mean and median tables, with one fixed scale per channel. On the Embeddings screen it is the alpha "Embed and export..." action (778).
+- Embeddings can be combined into one profile per treatment (cells into wells, wells into treatments, by mean or median), normalised to DMSO or another control per plate (centring, z-score, robust z-score or TVN sphering), and scored for mechanism of action by one-nearest-neighbour cosine matching under NSC and NSCB, with a 95% confidence interval and shuffled-label and majority-class control rows (spacr.embeddings.aggregate_profiles, evaluate_moa) (779).
+- **Alpha:** Per-cell export. Measure can write one table with one row per cell, joining cell, cytoplasm and nucleus measurements (per_cell.parquet / per_cell.csv). It counts each cell's nuclei (Metadata_n_nuclei), leaves nucleus columns empty for cells without one, and runs Feature QC on the result. Also available as spacr.sp_stats.per_cell_table / export_per_cell (769).
+- **Alpha:** Label image import. Measure can measure label images made by CellProfiler, Cellpose or ilastik: point it at the raw images and the label folders, and spaCR builds its own merged stacks first (label_import settings) (790).
+- **Alpha:** Size filters that follow the image scale. With pixel_size_um set (or magnification passed), Measure's cell, nucleus and pathogen minimum sizes scale with it instead of the fixed 8000/2000/500 px meant for 40-60x. A field that loses more than half its objects to a size filter prints a warning (800).
+- **Alpha:** `crop_scaling='fixed'` trains on raw crops. Each plate and channel is divided by one fixed scale taken from the training crops, then clipped, resized and normalised on the GPU. Augmentation uses flips, rotations, small shifts and a small per-channel gain. It needs raw crops (772).
+- **Alpha:** `control_shuffled_labels` trains a shuffled-label control model (772).
+- **Alpha:** A GPU memory governor for shared cards. Make Masks, GPU measurement, OPS phenotype and sequencing, and classifier training and inference check free GPU memory before each batch, shrink or wait when a batch would not fit, retry an out-of-memory batch at half size, and run an item on the CPU if even one does not fit; nothing is dropped and the run does not stop. New alpha settings gpu_memory_fraction, gpu_memory_margin_gb (1.5) and gpu_adaptive_batch (on). spaCR jobs on one machine share a GPU ledger, and the run log reports how often batches adapted. Memory caps and batch sizes are sized from what PyTorch reserves (with at least 1.5x headroom), a gpu_memory_fraction set too low is raised with a message, about 0.4 GB of CUDA context is counted per process, and PyTorch's expandable-segments allocator is turned on when you have not set PYTORCH_CUDA_ALLOC_CONF. A live [gpu] progress line appears while a GPU step adapts, a warning follows above 3% CPU fallback, GPU measurement rows record their compute_path, and gpu_fallback_policy = pause waits for GPU memory instead of using the CPU (803).
+
+### Other
+
+- Profile export drops features that are broken without looking at any labels (non-finite in more than 5% of wells, larger than 500 after control normalisation, or near-constant) and writes feature_qc_dropped.csv with the reason for each. The thresholds are the new settings profiling_na_cutoff, profiling_outlier_cutoff and profiling_min_variance (807).
+- The default classifier in Classify (ML) and ml_analysis is now standardised, L2-penalised logistic regression, and shrinkage LDA is a new choice. The old unscaled logistic regression is gone (its name now means the standardised pipeline); xgboost and the other models stay selectable (808).
+- Make Masks: set Pixel size (µm/px), and blank cell, nucleus and pathogen diameters use real object sizes instead of the magnification formula, which made A549 cells about twice too large at 20x. Typed diameters are unchanged. The new option Estimate diameters per image measures a blank or auto diameter on each 2-D image and segments at that size (about twice as slow) (831).
+- Make Masks: painting and editing on large fields is faster, because the check that remembers hand-set object IDs reads half as much data per stroke. Fields saved earlier keep their hand-set IDs when reopened (697).
+- Merging touching objects (merge_pathogens=True) measures each object in its own bounding box: a 2000x2000 field with 500 objects went from about 129 s to 2.5 s with identical output (828).
+- src may be a plate's merged folder as well as the plate folder. Measure uses the plate folder and says so, and the docs example shows the plate folder (839).
+- Training metrics are measured during each epoch's training pass instead of a second pass over the training data, saving about one evaluation pass per epoch (the old behaviour is train_metrics_full_pass). Validation metrics are unchanged. Runs from custom loaders without a train/ folder now get class weights from the dataset's labels instead of equal weights (785).
+- Embeddings: a crop folder of TIFFs is read raw, keeping 16-bit values and every channel (836).
+- ChAda-ViT embeddings run each crop with its real channel count instead of ten padded slots: the same embeddings, several times faster (776).
+- timm embedding backbones (resnet18 and others) receive crops resized and standardised the way the network was trained (its pretrained input size, mean and standard deviation). New Overview settings override them, or switch this off with 'none'. Embeddings from these backbones change and get a new fingerprint (777).
+- CPU embedding runs as several worker processes with a few threads each (4 x 2 on 32 cores by default), with CPU workers and Threads controls on the Embeddings screen (780).
+- Recruitment and replication panels are drawn in the spaCR house style, register their data and are saved through the shared figure writer. Graph titles and test names are off by default and can be switched on.
+- Harmony batch correction is an optional extra: pip install "spacr[harmony]".
+- The minimum supported nbconvert is now 7.16.5, the first release that works with mistune 3.1 and later.
+- The tutorial capture profile records the tiled Home for every lesson except the Navigator lesson, matching the new default where new users land on the Navigator.

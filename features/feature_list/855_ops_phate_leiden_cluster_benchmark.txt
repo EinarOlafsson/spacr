@@ -1,0 +1,22 @@
+OPS PHATE + LEIDEN CLUSTER BENCHMARK
+====================================
+
+Lifecycle: future
+Status: open, alpha.
+Requested: maintainer via paper session, 2026-11-07.
+Owner: paper session.
+Source: plate A OPS pilot.
+Related: 813.
+
+WHAT THE STATE IS
+Gene clusters from OPS profiles need a benchmark against known biology.
+
+WHAT TO DO
+- Embed per-gene profiles with PHATE and cluster with Leiden.
+- Benchmark the clusters against CORUM, KEGG and STRING (enrichment of
+  known complexes and pathways), with a shuffled-label control.
+- Tests: a planted complex is recovered as one cluster.
+
+RULE
+The paper session builds this under the identical-output rule: with the new
+option off, outputs stay identical to today's.

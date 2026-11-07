@@ -1,0 +1,24 @@
+OPS ANALYTIC FLAT-FIELD CORRECTION OF FEATURES
+==============================================
+
+Lifecycle: future
+Status: open, alpha. Part of 813.
+Requested: maintainer via paper session, 2026-11-07.
+Owner: paper session.
+Source: plate A OPS pilot.
+Related: 813, 772.
+
+WHAT THE STATE IS
+Intensity features in OPS phenotype tables carry the field's illumination
+profile. The crop part (flat-field before crop) already landed with item 772
+on best-practice-1107.
+
+WHAT TO DO
+- Correct intensity features analytically for the flat field, as an
+  option on the OPS phenotype path.
+- Flat-field before crop stays as delivered with 772.
+- Tests: a synthetic vignetted field gives flat features after correction.
+
+RULE
+The paper session builds this under the identical-output rule: with the new
+option off, outputs stay identical to today's.
