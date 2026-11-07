@@ -484,7 +484,12 @@ class EmbeddingsScreen(QWidget):
             "Like this search. Load crops from a database first."))
         self._save_similar.setEnabled(False)
         self._save_similar.clicked.connect(self._save_for_similarity)
-        outer.addWidget(self._save_similar)
+        # One row for both alpha actions, so they cost one line of height
+        # and the wrapped controls above keep room on a 760 px desktop.
+        actions = QHBoxLayout()
+        actions.setSpacing(SPACING["sm"])
+        actions.addWidget(self._save_similar)
+        outer.addLayout(actions)
         from ..preferences import _apply_alpha_widgets
 
         _apply_alpha_widgets(self._save_similar)
@@ -496,7 +501,8 @@ class EmbeddingsScreen(QWidget):
             "write per-cell embeddings, well means and medians and the run "
             "record to a folder."))
         self._export_store.clicked.connect(self._embed_and_export)
-        outer.addWidget(self._export_store)
+        actions.addWidget(self._export_store)
+        actions.addStretch(1)
         _apply_alpha_widgets(self._export_store)
 
         self._table = install_sorting(QTableWidget(0, 0, self))
