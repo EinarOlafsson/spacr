@@ -2083,10 +2083,11 @@ def _forget_the_space_theme_keys(store) -> None:
         name = str(store.fileName())
         if name in _SPACE_KEYS_CLEARED:
             return
+        present = set(store.allKeys())
         gone = [key for key in (_KEY_SPACE_VARIANT, _KEY_SPACE_SEED,
                                 _KEY_SESSION_LAST,
                                 _KEY_RESTORE_LAST_SESSION)
-                if store.contains(key)]
+                if key in present]
         for key in gone:
             store.remove(key)
         if gone:
