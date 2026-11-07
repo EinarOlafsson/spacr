@@ -78,7 +78,7 @@
   "tutorials": {
    "repo": "einarolafsson/spacr-tutorials",
    "repo_type": "dataset",
-   "revision": "",
+   "revision": "b2dc023a1d4c0265110b037c6c1fb575ac6b1a53",
    "files": {
     "docs/source/_extra/tutorials/examples/Agreement_artificial_labels_real_crops.zip": {
      "path_in_repo": "tree/docs/source/_extra/tutorials/examples/Agreement_artificial_labels_real_crops.zip",
@@ -550,7 +550,7 @@
   "tutorial_archive": {
    "repo": "einarolafsson/spacr-tutorials",
    "repo_type": "dataset",
-   "revision": "",
+   "revision": "63064576d490b00aa4274ed37b5b4da65af050dd",
    "files": {
     "docs/source/_extra/tutorials/production/01_pypi_github/audio/en/af_heart.json": {
      "path_in_repo": "tree/docs/source/_extra/tutorials/production/01_pypi_github/audio/en/af_heart.json",
