@@ -331,20 +331,6 @@ _APP_HIDDEN_KEYS: Dict[str, set] = {
         "cell_area_outlier_mads", "nucleus_area_outlier_mads",
         "cell_intensity_outlier_mads", "nucleus_intensity_outlier_mads",
     },
-    "recruitment": {
-        "panels", "replicate_column", "condition_order", "condition_labels",
-        "figures", "exclude_edge_objects", "max_vacuoles_per_cell", "control_color_by", "background_filters", "min_solidity", "merged_dir", "background_mask_channel",
-        "confounder_filter", "report", "report_tiles_per_condition", "report_tile_size",
-        "report_tile_seed", "report_tile_channels", "report_max_conditions_per_row",
-        "report_layout", "well_qc", "well_qc_mad", "well_qc_measures", "object_qc", "object_qc_mad", "object_qc_measures", "qc_group",
-        "outlier_points", "outlier_points_method", "representative_crops", "representative_crops_n", "x_axis_style", "condition_factors", "factor_order", "bracket_pairs",
-    },
-    "replication": {
-        "panels", "replicate_column", "condition_order", "condition_labels",
-        "figures", "exclude_edge_objects", "max_area_quantile", "bin_labels", "background_filters", "min_solidity", "merged_dir", "background_mask_channel", "field_qc",
-        "field_qc_mad", "field_qc_min_objects", "well_qc", "well_qc_mad",
-        "well_qc_measures", "object_qc", "object_qc_mad", "object_qc_measures", "qc_group", "outlier_points", "outlier_points_method", "representative_crops", "representative_crops_n", "x_axis_style", "condition_factors", "factor_order", "bracket_pairs",
-    },
 }
 
 _APP_HIDDEN_CATEGORIES: Dict[str, set] = {
@@ -992,6 +978,15 @@ _APP_COMBO_OPTIONS: Dict[str, Dict[str, List[Any]]] = {
         ],
         "batch_correction": _BATCH_CORRECTION_OPTIONS,
         "batch_missing_control": _BATCH_MISSING_CONTROL_OPTIONS,
+    },
+    "recruitment": {
+        "x_axis_style": ["auto", "matrix", "labels"],
+        "report_layout": ["compact", "spacious"],
+        "outlier_points_method": ["mad", "iqr"],
+    },
+    "replication": {
+        "x_axis_style": ["auto", "matrix", "labels"],
+        "outlier_points_method": ["mad", "iqr"],
     },
     "external_masks": {
         "layout": ["auto", "flat", "well", "plate_well"],
@@ -1661,7 +1656,28 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "pathogen_intensity_range", "cells_per_well",
             "target_intensity_min", "nuclei_limit", "pathogen_limit",
         )),
+        ("Quality Filters", (
+            "exclude_edge_objects", "max_vacuoles_per_cell", "min_solidity",
+            "background_filters", "merged_dir", "background_mask_channel",
+            "confounder_filter", "field_qc", "field_qc_mad",
+            "field_qc_min_cells", "field_qc_max_pathogens_per_cell",
+            "field_qc_columns",
+        )),
         ("Plate Layout & Controls", ("@Plate Layout & Controls",)),
+        ("Panels & Figures", (
+            "replicate_column", "panels", "condition_order",
+            "condition_labels", "condition_factors", "factor_order",
+            "x_axis_style", "bracket_pairs", "figures", "control_color_by",
+        )),
+        ("Report & QC", (
+            "report", "report_layout", "report_tiles_per_condition",
+            "report_tile_size", "report_tile_seed", "report_tile_channels",
+            "report_max_conditions_per_row", "well_qc", "well_qc_mad",
+            "well_qc_measures", "object_qc", "object_qc_mad",
+            "object_qc_measures", "qc_group", "outlier_points",
+            "outlier_points_method", "representative_crops",
+            "representative_crops_n",
+        )),
         ("Plots & Diagnostics", (
             "plot", "figuresize", "plot_control", "plot_nr",
         )),
@@ -1833,9 +1849,25 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Object Filtering", (
             "min_parasite_area", "max_parasite_area",
         )),
+        ("Quality Filters", (
+            "exclude_edge_objects", "max_area_quantile", "min_solidity",
+            "background_filters", "merged_dir", "background_mask_channel",
+            "field_qc", "field_qc_mad", "field_qc_min_objects",
+        )),
         ("Replication Scoring", (
             "max_parasites_per_vacuole", "non_power_of_two_warn",
             "seed_wells_from_cells",
+        )),
+        ("Panels & Figures", (
+            "replicate_column", "panels", "condition_order",
+            "condition_labels", "condition_factors", "factor_order",
+            "bin_labels", "x_axis_style", "bracket_pairs", "figures",
+        )),
+        ("Panel QC", (
+            "well_qc", "well_qc_mad", "well_qc_measures", "object_qc",
+            "object_qc_mad", "object_qc_measures", "qc_group",
+            "outlier_points", "outlier_points_method",
+            "representative_crops", "representative_crops_n",
         )),
         ("Assay Output", ("cmap", "save")),
         ("Runtime & Reliability", ("verbose",)),
@@ -3895,6 +3927,22 @@ CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
             "Which wells hold which cell line, strain and treatment, and "
             "which channel the recruitment is measured on. Filled in once "
             "per plate design.",
+        "QUALITY FILTERS":
+            "Opt-in rules that remove vacuoles, cells, wells or fields "
+            "before the recruitment is averaged: edge objects, extra "
+            "vacuoles per cell, irregular masks, signal relative to the "
+            "field background, confounder ranges and crowded or sparse "
+            "fields. Every step is counted in results/filter_summary.csv.",
+        "PANELS & FIGURES":
+            "The publication panels: one row per bar graph, with the rows "
+            "it uses, the column it groups by and the order and labels of "
+            "its conditions, plus the replicate column, the x axis style, "
+            "the brackets and the figures assembled from saved panels.",
+        "REPORT & QC":
+            "The standard recruitment report and the checks it runs: "
+            "representative tiles, the well and object outlier checks and "
+            "what they compare, the fence that leaves outlier points out of "
+            "the graphs, and the representative crops per condition.",
     },
     "invasion": {
         "ASSAY INPUTS":
@@ -3957,6 +4005,21 @@ CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
             "The area window a segmented object has to fall inside to count "
             "as a parasite. Debris below it and clumps above it are "
             "excluded.",
+        "QUALITY FILTERS":
+            "Opt-in rules that remove vacuoles or fields before counting: "
+            "edge objects, fused clumps above an area quantile, irregular "
+            "masks, signal relative to the field background and crowded or "
+            "sparse fields. Every step is counted in filter_summary.csv.",
+        "PANELS & FIGURES":
+            "The publication panels: one row per panel, with the rows it "
+            "uses, the column it groups by, its reference condition, the "
+            "order and labels of its conditions and its bin labels, plus "
+            "the replicate column, the x axis style, the brackets and the "
+            "figures assembled from saved panels.",
+        "PANEL QC":
+            "The well and object outlier checks behind the panels and what "
+            "they compare, the fence that leaves outlier points out of the "
+            "graphs, and the representative crops per condition.",
         "RUNTIME & RELIABILITY":
             "How much the assay prints as it runs. Turn it up when a well "
             "comes out empty and you need to see which step discarded its "
@@ -9974,6 +10037,439 @@ class _ListEditor(QWidget):
             return [parsed]
         return [value]
 
+class _RecordColumn(NamedTuple):
+    """One column of a :class:`_RecordTable`.
+
+    :param key: the dict key the column edits.
+    :param header: the English column header, translated when shown.
+    :param kind: how a cell is read back: ``"text"`` keeps the typed text,
+        ``"int"`` and ``"float"`` parse a number, ``"literal"`` parses a
+        Python literal such as a list or a dict.
+    """
+
+    key: str
+    header: str
+    kind: str = "text"
+
+
+def _parse_record_cell(kind: str, text: str) -> Tuple[Any, bool]:
+    """Read one cell of a record table.
+
+    :param kind: the column's :attr:`_RecordColumn.kind`.
+    :param text: the cell text, already stripped.
+    :returns: ``(value, ok)``; a cell that does not parse is returned as its
+        text with ``ok`` False, so nothing typed is lost.
+    """
+    if kind == "text":
+        return text, True
+    try:
+        if kind == "int":
+            return int(text), True
+        if kind == "float":
+            return float(text), True
+        return ast.literal_eval(text), True
+    except (ValueError, SyntaxError, TypeError):
+        return text, False
+
+
+def _record_cell_text(kind: str, value: Any) -> str:
+    """The text a record table shows for one stored value."""
+    if value is None:
+        return ""
+    if kind == "literal" or (kind == "text" and not isinstance(value, str)):
+        return repr(value)
+    return str(value)
+
+
+class _RecordTable(QWidget):
+    """A small table editor for a setting that holds a list of dicts.
+
+    Each row is one record and each column one of its keys. A record can
+    also be stored as a mapping, ``{name: {...}}``, when ``mapping_key``
+    names the column that holds the name. Keys a record has that no column
+    shows are kept with the row and written back unchanged, so a settings
+    file with extra panel options survives a round trip through the form.
+
+    Cells of a number or literal column that do not parse are marked and
+    listed under the table; their text is kept as typed.
+
+    :param columns: the :class:`_RecordColumn` of every column, in order.
+    :param default: the starting value.
+    :param mapping_key: the column whose text keys a mapping value, or
+        ``None`` for a list of records.
+    :param example: an example value shown under the table.
+    :param parent: parent widget.
+    """
+
+    value_changed = Signal()
+
+    _EXTRAS_ROLE = Qt.UserRole + 1
+
+    def __init__(self, columns: Sequence[_RecordColumn], default: Any = None,
+                 mapping_key: Optional[str] = None, example: str = "",
+                 parent=None):
+        """Build the table, its row buttons and its hint lines."""
+        super().__init__(parent)
+        from PySide6.QtWidgets import (QAbstractItemView, QAbstractScrollArea,
+                                       QHeaderView, QTableWidget)
+        from ..i18n import tr
+
+        self._columns = tuple(columns)
+        self._mapping_key = mapping_key
+        self._loading = False
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(4)
+        self.table = QTableWidget(0, len(self._columns), self)
+        self.table.setObjectName("SettingRecordTable")
+        self.table.setHorizontalHeaderLabels(
+            [tr(column.header) for column in self._columns])
+        self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table.setSizeAdjustPolicy(QAbstractScrollArea.AdjustToContents)
+        self.table.setMinimumHeight(96)
+        self.table.setMaximumHeight(320)
+        self.table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.Interactive)
+        self.table.horizontalHeader().setStretchLastSection(True)
+        self.table.verticalHeader().setVisible(False)
+        self.table.itemChanged.connect(self._on_item_changed)
+        layout.addWidget(self.table)
+        buttons = QHBoxLayout()
+        buttons.setContentsMargins(0, 0, 0, 0)
+        self.add_button = QPushButton(tr("Add row"), self)
+        self.add_button.setObjectName("SettingRecordAdd")
+        self.add_button.clicked.connect(self._on_add)
+        self.remove_button = QPushButton(tr("Remove selected rows"), self)
+        self.remove_button.setObjectName("SettingRecordRemove")
+        self.remove_button.clicked.connect(self._on_remove)
+        buttons.addWidget(self.add_button)
+        buttons.addWidget(self.remove_button)
+        buttons.addStretch(1)
+        layout.addLayout(buttons)
+        self.example = QLabel(self)
+        self.example.setObjectName("SettingRecordExample")
+        self.example.setWordWrap(True)
+        self.example.setProperty("role", "hint")
+        self.example.setTextInteractionFlags(Qt.TextSelectableByMouse)
+        self.example.setText(tr("Example: {example}", example=example)
+                             if example else "")
+        self.example.setVisible(bool(example))
+        layout.addWidget(self.example)
+        self.status = QLabel(self)
+        self.status.setObjectName("SettingRecordProblems")
+        self.status.setWordWrap(True)
+        self.status.setVisible(False)
+        layout.addWidget(self.status)
+        self.set_value(default)
+
+    def _as_records(self, value: Any) -> Tuple[List[dict], List[str]]:
+        """Turn a stored value into one dict per row.
+
+        :returns: the records and a note for every entry that is not a dict
+            and therefore has no row.
+        """
+        from ..i18n import tr
+
+        if isinstance(value, str):
+            text = value.strip()
+            if not text or text == "None":
+                return [], []
+            try:
+                value = ast.literal_eval(text)
+            except (ValueError, SyntaxError):
+                return [], [tr("The saved value is not a list of records: "
+                               "{value}", value=text)]
+        if value is None:
+            return [], []
+        if isinstance(value, dict):
+            if self._mapping_key is not None and all(
+                    isinstance(item, dict) for item in value.values()):
+                return [{self._mapping_key: name, **dict(item)}
+                        for name, item in value.items()], []
+            return [dict(value)], []
+        records, notes = [], []
+        for index, item in enumerate(value if isinstance(value, (list, tuple))
+                                     else [value], start=1):
+            if isinstance(item, dict):
+                records.append(dict(item))
+            else:
+                notes.append(tr("Entry {number} is not a record and was "
+                                "left out: {value}", number=index,
+                                value=repr(item)))
+        return records, notes
+
+    def set_value(self, value: Any) -> None:
+        """Show ``value``: a list of records, one record, or a mapping."""
+        from PySide6.QtWidgets import QTableWidgetItem
+
+        records, notes = self._as_records(value)
+        self._loading = True
+        try:
+            self.table.setRowCount(0)
+            for record in records:
+                row = self.table.rowCount()
+                self.table.insertRow(row)
+                shown = {column.key for column in self._columns}
+                for col, column in enumerate(self._columns):
+                    item = QTableWidgetItem(
+                        _record_cell_text(column.kind, record.get(column.key)))
+                    self.table.setItem(row, col, item)
+                extras = {k: v for k, v in record.items() if k not in shown}
+                self.table.item(row, 0).setData(self._EXTRAS_ROLE, extras)
+        finally:
+            self._loading = False
+        self.table.resizeColumnsToContents()
+        self._load_notes = notes
+        self._show_problems()
+
+    def _row_record(self, row: int, problems: List[str]) -> Optional[dict]:
+        """The record row ``row`` holds, noting every cell that does not parse."""
+        from ..i18n import tr
+
+        first = self.table.item(row, 0)
+        extras = first.data(self._EXTRAS_ROLE) if first is not None else None
+        record = {}
+        for col, column in enumerate(self._columns):
+            item = self.table.item(row, col)
+            text = item.text().strip() if item is not None else ""
+            if not text:
+                continue
+            value, ok = _parse_record_cell(column.kind, text)
+            if not ok:
+                problems.append(tr("Row {row}, {column}: '{text}' is not a "
+                                   "valid value", row=row + 1,
+                                   column=tr(column.header), text=text))
+            record[column.key] = value
+        for key, value in (extras or {}).items():
+            record.setdefault(key, value)
+        return record or None
+
+    def problems(self) -> List[str]:
+        """Every cell that does not parse, and every entry that has no row."""
+        problems = list(getattr(self, "_load_notes", []))
+        for row in range(self.table.rowCount()):
+            self._row_record(row, problems)
+        return problems
+
+    def get_value(self) -> Any:
+        """The records as the setting stores them, or ``None`` when empty."""
+        problems: List[str] = []
+        records = [record for record in
+                   (self._row_record(row, problems)
+                    for row in range(self.table.rowCount()))
+                   if record]
+        if not records:
+            return None
+        if self._mapping_key is None:
+            return records
+        mapping = {}
+        for record in records:
+            name = record.pop(self._mapping_key, None)
+            if name not in (None, ""):
+                mapping[str(name)] = record
+        return mapping or None
+
+    def _show_problems(self) -> None:
+        """List the problems under the table, in the theme's error colour."""
+        problems = self.problems()
+        if problems:
+            from ..theme import active_palette
+            self.status.setStyleSheet(
+                f"color: {active_palette().get('error', '#b81d1a')};")
+        self.status.setText("\n".join(problems))
+        self.status.setVisible(bool(problems))
+
+    def _on_item_changed(self, _item) -> None:
+        """Recheck the cells and announce the new value."""
+        if self._loading:
+            return
+        self._load_notes = []
+        self._show_problems()
+        self.value_changed.emit()
+
+    def _on_add(self, _checked=False) -> None:
+        """Append an empty row and start editing its first cell."""
+        from PySide6.QtWidgets import QTableWidgetItem
+
+        row = self.table.rowCount()
+        self._loading = True
+        try:
+            self.table.insertRow(row)
+            for col in range(len(self._columns)):
+                self.table.setItem(row, col, QTableWidgetItem(""))
+            self.table.item(row, 0).setData(self._EXTRAS_ROLE, {})
+        finally:
+            self._loading = False
+        self.table.setCurrentCell(row, 0)
+        self.value_changed.emit()
+
+    def _on_remove(self, _checked=False) -> None:
+        """Remove every selected row."""
+        rows = sorted({index.row() for index in
+                       self.table.selectionModel().selectedRows()},
+                      reverse=True)
+        if not rows and self.table.currentRow() >= 0:
+            rows = [self.table.currentRow()]
+        for row in rows:
+            self.table.removeRow(row)
+        if rows:
+            self._load_notes = []
+            self._show_problems()
+            self.value_changed.emit()
+
+
+class _LiteralEdit(QLineEdit):
+    """A text field for a setting that holds a Python literal.
+
+    The text is read as a literal (a dict, a list, a number) when it parses
+    and as plain text otherwise. A setting that only takes a literal marks
+    text that does not parse, and says why in the tooltip.
+
+    :param default: the starting value.
+    :param example: an example value, shown as the placeholder.
+    :param text_allowed: whether plain text is a legal answer.
+    :param parent: parent widget.
+    """
+
+    value_changed = Signal()
+
+    def __init__(self, default: Any = None, example: str = "",
+                 text_allowed: bool = False, parent=None):
+        """Build the field and mark its starting text."""
+        super().__init__(parent)
+        self._text_allowed = bool(text_allowed)
+        self._help = ""
+        self.setObjectName("SettingLiteralEdit")
+        if example:
+            self.setPlaceholderText(example)
+        self.textChanged.connect(self._mark)
+        self.editingFinished.connect(self.value_changed.emit)
+        self.set_value(default)
+
+    def _parsed(self) -> Tuple[Any, bool]:
+        """``(value, ok)`` for the current text."""
+        text = self.text().strip()
+        if not text or text == "None":
+            return None, True
+        try:
+            return ast.literal_eval(text), True
+        except (ValueError, SyntaxError, TypeError):
+            return text, self._text_allowed
+
+    def is_valid(self) -> bool:
+        """Whether the current text is a legal value."""
+        return self._parsed()[1]
+
+    def get_value(self) -> Any:
+        """The parsed value, the text when it does not parse, or ``None``."""
+        return self._parsed()[0]
+
+    def set_value(self, value: Any) -> None:
+        """Show ``value``; text is shown as it is, anything else as a literal."""
+        if value is None:
+            self.setText("")
+        elif isinstance(value, str):
+            self.setText(value)
+        else:
+            self.setText(repr(value))
+        self._mark()
+
+    def setToolTip(self, text: str) -> None:
+        """Keep the help text, so marking a bad value can add to it."""
+        self._help = str(text or "")
+        self._mark()
+
+    def _mark(self, _text: str = "") -> None:
+        """Colour text that does not parse and add the reason to the tooltip."""
+        from ..i18n import tr
+
+        ok = self.is_valid()
+        self.setProperty("invalid", not ok)
+        if ok:
+            self.setStyleSheet("")
+            QLineEdit.setToolTip(self, self._help)
+            return
+        from ..theme import active_palette
+        error = active_palette().get("error", "#b81d1a")
+        self.setStyleSheet(f"QLineEdit#SettingLiteralEdit {{ color: {error}; }}")
+        reason = tr("This is not a valid value. Use the form of the example.")
+        QLineEdit.setToolTip(self, f"{reason}\n\n{self._help}" if self._help
+                             else reason)
+
+
+#: Panel columns per module: the keys ``spacr.submodules`` reads from each
+#: entry of ``panels``. Recruitment draws one bar panel per entry from
+#: ``value``; replication draws its bins against ``reference``.
+_ASSAY_PANEL_COLUMNS: Dict[str, Tuple[_RecordColumn, ...]] = {
+    "recruitment": (
+        _RecordColumn("name", "Name"),
+        _RecordColumn("where", "Rows (where)", "literal"),
+        _RecordColumn("group", "Group by"),
+        _RecordColumn("value", "Value"),
+        _RecordColumn("order", "Order", "literal"),
+        _RecordColumn("labels", "Labels", "literal"),
+        _RecordColumn("annotations", "Annotations", "literal"),
+        _RecordColumn("title", "Title"),
+    ),
+    "replication": (
+        _RecordColumn("name", "Name"),
+        _RecordColumn("where", "Rows (where)", "literal"),
+        _RecordColumn("group", "Group by"),
+        _RecordColumn("reference", "Reference"),
+        _RecordColumn("order", "Order", "literal"),
+        _RecordColumn("labels", "Labels", "literal"),
+        _RecordColumn("annotations", "Annotations", "literal"),
+        _RecordColumn("bin_labels", "Bin labels", "literal"),
+        _RecordColumn("title", "Title"),
+    ),
+}
+
+#: The rule keys ``spacr.submodules`` reads from each ``background_filters``
+#: entry.
+_BACKGROUND_FILTER_COLUMNS: Tuple[_RecordColumn, ...] = (
+    _RecordColumn("channel", "Channel", "int"),
+    _RecordColumn("statistic", "Statistic"),
+    _RecordColumn("min_ratio", "Min ratio", "float"),
+    _RecordColumn("max_ratio", "Max ratio", "float"),
+    _RecordColumn("max_quantile", "Max quantile", "float"),
+)
+
+#: ``figures`` is a mapping, one figure name to its panels and columns.
+_FIGURE_COLUMNS: Tuple[_RecordColumn, ...] = (
+    _RecordColumn("name", "Figure"),
+    _RecordColumn("panels", "Panels", "literal"),
+    _RecordColumn("ncol", "Columns", "int"),
+)
+
+#: The modules whose structured settings get these editors.
+_ASSAY_EDITOR_APPS = frozenset({"recruitment", "replication"})
+
+#: Example values shown with the structured assay settings. Code, not
+#: prose: they are shown as typed and never translated.
+_ASSAY_EXAMPLES: Dict[str, str] = {
+    "panels": ("{'name': 'strains_in_WT', 'where': {'host_cells': 'HeLa_WT'}, "
+               "'group': 'pathogen', 'order': ['RH', 'Me49'], "
+               "'labels': {'RH': 'RH WT'}}"),
+    "background_filters": ("{'channel': 2, 'statistic': 'mean_intensity', "
+                           "'min_ratio': 1.5, 'max_ratio': 20}"),
+    "figures": "{'Figure_1': {'panels': ['P01', 'P02'], 'ncol': 2}}",
+    "condition_labels": "{'HeLa_ALG2': 'HeLa ALG2 KO'}",
+    "condition_factors": "{'Me49WT': ['Me49', 'WT'], 'Me49dGRA8': ['Me49', 'dGRA8']}",
+    "confounder_filter": ("{'n_cells_well': {'quantiles': [0.05, 0.95], "
+                          "'level': 'well'}}"),
+    "report_tile_channels": "{2: 'red', 1: 'green', 0: 'blue'}",
+    "bin_labels": "['1', '2', '3-4', '5-8', '>8']",
+    "bracket_pairs": "one_factor, all or [['Me49WT_HeLa_WT', 'Me49dGRA8_HeLa_WT']]",
+}
+
+#: Assay settings edited as one literal; those in the second set also
+#: take a plain word.
+_ASSAY_LITERAL_KEYS = frozenset({
+    "condition_labels", "condition_factors", "confounder_filter",
+    "report_tile_channels", "bin_labels", "bracket_pairs",
+})
+_ASSAY_TEXT_LITERAL_KEYS = frozenset({"bracket_pairs"})
+
 
 def list_shape_for(key: str, default: Any) -> Optional[Tuple[bool, bool, Any, Any]]:
     """Decide whether ``key`` is a list setting, and of what shape.
@@ -11520,6 +12016,10 @@ class SettingsWidgets:
                 value=self._defaults.get(key, default),
                 parent=parent,
             )
+        if self.app_key in _ASSAY_EDITOR_APPS:
+            assay_editor = self._assay_editor(key, default)
+            if assay_editor is not None:
+                return "special", assay_editor
         if key in FIXED_ALPHABETS:
             return "special", lambda: _AlphabetSelect(
                 key=key,
@@ -11599,6 +12099,31 @@ class SettingsWidgets:
                 return "plain", {"control": "list", "value": default}
             return "plain", {"control": "text", "value": default}
         return None, None
+
+    def _assay_editor(self, key: str, default: Any):
+        """The builder of a recruitment or replication structured editor.
+
+        :param key: the setting.
+        :param default: its declared default.
+        :returns: a callable building the editor, or ``None`` when ``key``
+            gets the ordinary control.
+        """
+        parent = self._parent
+        value = self._defaults.get(key, default)
+        example = _ASSAY_EXAMPLES.get(key, "")
+        if key == "panels":
+            return partial(_RecordTable, _ASSAY_PANEL_COLUMNS[self.app_key],
+                           value, None, example, parent)
+        if key == "background_filters":
+            return partial(_RecordTable, _BACKGROUND_FILTER_COLUMNS, value,
+                           None, example, parent)
+        if key == "figures":
+            return partial(_RecordTable, _FIGURE_COLUMNS, value, "name",
+                           example, parent)
+        if key in _ASSAY_LITERAL_KEYS:
+            return partial(_LiteralEdit, value, example,
+                           key in _ASSAY_TEXT_LITERAL_KEYS, parent)
+        return None
 
     @staticmethod
     def _coerce_to_expected_type(key: str, value: Any) -> Any:
@@ -12004,7 +12529,7 @@ class SettingsWidgets:
             elif isinstance(
                 w,
                 (
-                    _AlphabetSelect, _ListEditor, _ListEdit, _ScalarEdit,
+                    _AlphabetSelect, _RecordTable, _LiteralEdit, _ListEditor, _ListEdit, _ScalarEdit,
                     BarcodeRegexWidget, RowExclusionEditor,
                     ExternalMaskInputWidget, ChannelMappingWidget,
                     ClassEditorWidget, DatabaseSetWidget,
@@ -13433,7 +13958,7 @@ class SettingsWidgets:
         if isinstance(
             w,
             (
-                _AlphabetSelect, _ListEditor, _ListEdit, BarcodeRegexWidget,
+                _AlphabetSelect, _RecordTable, _LiteralEdit, _ListEditor, _ListEdit, BarcodeRegexWidget,
                 RowExclusionEditor, ExternalMaskInputWidget,
                 ChannelMappingWidget, ClassEditorWidget, DatabaseSetWidget,
                 FilePathListWidget,

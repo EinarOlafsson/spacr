@@ -1,7 +1,7 @@
 THE RECRUITMENT AND REPLICATION SETTINGS IN THE GUI
 
 Lifecycle: new
-Status: open.
+Status: DONE 2026-11-06 - the Recruitment and Replication forms show every panel, filter, report and QC setting: Quality Filters (background filters as a table), Panels & Figures (a panel builder table, figures as a table, checked literal fields for labels, factors and bracket pairs) and Report & QC (recruitment) or Panel QC (replication); none of them is alpha. spacr/qt/screens/settings_model.py, tests/qt/test_assay_settings_in_the_gui.py.
 Requested: maintainer rule, 2026-11-06 (via Anu): everything done for the Anu plates must be possible in spaCR, through generated notebooks and preferably the GUI.
 Owner: Home (GUI).
 

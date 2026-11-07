@@ -1816,7 +1816,8 @@ def _rendered_sections(app_key):
         ("replication", [
             "Replication Method", "Assay Inputs", "Size Proxy (Legacy)",
             "Vacuole Assignment", "Condition Metadata",
-            "Object Filtering", "Replication Scoring", "Assay Output",
+            "Object Filtering", "Quality Filters", "Replication Scoring",
+            "Panels & Figures", "Panel QC", "Assay Output",
             "Runtime & Reliability",
         ]),
     ],
