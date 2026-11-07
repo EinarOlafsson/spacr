@@ -11248,6 +11248,8 @@ def measure_crop(settings):
                     _emit_shared_nucleus_report(db_path, run)
                     _emit_infection_report(db_path)
                     _emit_feature_qc(settings, db_path)
+                    if settings.get('per_cell_export'):
+                        _emit_per_cell_export(settings, db_path)
                     if settings.get('profiling'):
                         _emit_profiles(settings, db_path)
                     if (str(settings.get('measurement_backend') or 'sqlite')
@@ -12518,6 +12520,48 @@ def _emit_feature_qc(settings, db_path):
         print(console_safe(f"Feature QC: removed {len(dropped)} column(s) "
                            f"from measurements.db (feature_qc_drop)"))
     print(console_safe(f"Feature QC report: {written['csv']}"))
+
+
+def _emit_per_cell_export(settings, db_path):
+    """Write the one-row-per-cell table of a finished run.
+
+    Runs :func:`spacr.sp_stats.export_per_cell` on the run's
+    ``measurements.db``: cell, cytoplasm and nucleus joined into
+    ``per_cell.parquet`` and ``per_cell.csv`` beside it, with the nucleus
+    chosen by ``per_cell_nucleus`` and the columns Feature QC flags left out
+    when ``feature_qc_drop`` is on. Like Feature QC, the export never turns
+    a finished run into a failure.
+
+    :param settings: the run's settings, with ``per_cell_nucleus`` and
+        ``feature_qc_drop``.
+    :param db_path: the ``measurements.db`` the run produced.
+    """
+    from .utils import console_safe
+
+    if not db_path or not os.path.isfile(db_path):
+        return
+    try:
+        from .sp_stats import export_per_cell
+
+        written = export_per_cell(
+            db_path, nucleus=str(settings.get('per_cell_nucleus') or 'largest'),
+            drop_flagged=bool(settings.get('feature_qc_drop')))
+    except Exception as exc:                                 # noqa: BLE001
+        print(console_safe(f"Per-cell export could not run: {exc}"))
+        return
+    with open(written['summary'], encoding='utf-8') as handle:
+        summary = json.load(handle)
+    counts = (f"{summary.get('n_rows', 0)} cells, "
+              f"{summary.get('n_features', 0)} features")
+    if 'cells_without_nucleus' in summary:
+        counts += (f", {summary['cells_without_nucleus']} without a nucleus, "
+                   f"{summary['cells_multi_nucleus']} with more than one")
+    print(console_safe(f"Per-cell export: {counts}"))
+    for kind in ('parquet', 'csv'):
+        if kind in written:
+            print(console_safe(f"Per-cell table: {written[kind]}"))
+    for note in summary.get('skipped', []):
+        print(console_safe(f"Per-cell export skipped {note}"))
 
 
 def _emit_profiles(settings, db_path):

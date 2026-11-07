@@ -855,6 +855,11 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # feature QC removes the columns it flags only when feature_qc_drop is
     # on. It joins the "Profiling α" heading, whose profiles it cleans.
     "feature_qc_drop",
+    # NEW SETTINGS, not a regrouping (item 769, 2026-11-07): Measure's
+    # one-row-per-cell export of cell, cytoplasm and nucleus, and which
+    # nucleus a multi-nucleus cell gets. They join "Profiling α" beside
+    # feature_qc_drop, which also cleans the export.
+    "per_cell_export", "per_cell_nucleus",
     # NEW SETTINGS, not a regrouping (item 547, 2026-09-26): image-based
     # profiling at the end of Measure -- the switch, plate map, treatment
     # and control, normalisation, feature selection and its correlation

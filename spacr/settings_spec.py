@@ -315,6 +315,7 @@ def convert_settings_dict_for_gui(settings):
         'gpu_fallback_policy': ('combo', ['per_item', 'pause'], 'per_item'),
         'measurement_backend': ('combo', ['sqlite', 'duckdb', 'parquet', 'postgres'], 'sqlite'),
         'profiling_normalization': ('combo', ['mad_robustize', 'standardize', 'robustize', 'none'], 'mad_robustize'),
+        'per_cell_nucleus': ('combo', ['largest', 'mean', 'median'], 'largest'),
         'cell_cycle_method': ('combo', ['measurements', 'xgboost', 'torch', 'all'], 'measurements'),
         'wound_source': ('combo', ['texture', 'intensity', 'masks'], 'texture'),
         'intensity_calibration_statistic': ('combo', ['foreground', 'median'], 'foreground'),
