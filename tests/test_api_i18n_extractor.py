@@ -2077,6 +2077,24 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **assay_panels_arrivals}
+    assay_report_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "assay_report_api_arrivals_2026-11-06.json").read_text(encoding="utf-8"))
+    assert len(assay_report_arrivals) == 67
+    assert {key: docs[key] for key in assay_report_arrivals} == assay_report_arrivals
+    assert not assay_report_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **assay_report_arrivals}
+    crop_window_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "crop_window_gpu_governor_api_arrivals_2026-11-06.json").read_text(encoding="utf-8"))
+    assert len(crop_window_arrivals) == 10
+    assert {key: docs[key] for key in crop_window_arrivals} == crop_window_arrivals
+    assert not crop_window_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **crop_window_arrivals}
     help_escape_arrivals = {
         'spacr.qt.help_search.HelpSearchField.event': 'Keep Escape in this field before window shortcuts handle it.\n\n:param event: the incoming Qt event.\n:returns: Whether the event was handled.',
     }

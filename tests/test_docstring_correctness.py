@@ -3774,7 +3774,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # functions of the new spacr.division_analysis module.
     # 2026-11-06 item 773: +1 callable, documented:
     # illumination.IlluminationField.correct_window.
-    assert len(callables) == len(by_symbol) == 10020
+    # 2026-11-06 item 816 (recruitment report): +42 callables, all
+    # documented: the public functions, dataclasses and Layout.width_mm of
+    # the new spacr.assay_report module and the outlier, bracket, axis and
+    # style helpers added to spacr.assay_panels.
+    assert len(callables) == len(by_symbol) == 10062
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -3863,7 +3867,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # flow.keep_wrapped_height, model_zoo_picker.drawing_in_steps).
         # 2026-11-05 items 791, 770, 771: +17 function, the module-level
         # functions named in the total.
-        "function": 4487,
+        "function": 4524,
         # -9 on 2026-09-15: the seven spacrStitcher methods,
         # StitchedMultiAligner.align and FOVAlignAndCropper.run.
         # Items 591-592: +2 method (the object grid's filter rows and the
@@ -3888,7 +3892,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # (OrganismScreen.refresh_maturity_visibility).
         # 2026-11-03 item 749: +3 method (dock.SectionHeader.set_open, .event and .paintEvent).
         # 2026-11-06 item 773: +1 method (IlluminationField.correct_window).
-        "method": 4317,
+        "method": 4318,
         # -3 on 2026-09-15: spacrStitcher, StitchedMultiAligner and
         # FOVAlignAndCropper.
         # Item 600: +1 constructor (OrganizeForMeasureDialog).
@@ -3896,14 +3900,14 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # Item 690: +1 constructor (spacr.io.MissingTEMReader).
         # Item 700: -2 constructor (CliSetupPanel, ProviderMark).
         # Item 600, 2026-10-19: -2 constructor (ChannelSortDialog, RegexWindow).
-        "constructor": 460,
+        "constructor": 461,
         # 473 -> 474 on 2026-09-15, +1: `SearchThresholds` is a frozen
         # dataclass, so it lands here and in no other category.
         # +2 on 2026-09-15: spacr.install_cleanup.InstallRecord and
         # RemovalReport. Subtracted, 474.
         # Item 600: +1 (DropClassification).
         # Item 672: +2 (EditableVolumeGate, VolumeAnchor).
-        "dataclass_constructor": 520,
+        "dataclass_constructor": 523,
         "namedtuple_constructor": 24,
         "exception_constructor": 150,
         "inherited_or_default_constructor": 62,
@@ -3967,7 +3971,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 2026-11-03 item 749: +3 autoapi, dock.SectionHeader.set_open, .event and .paintEvent.
         # 2026-11-05 items 791, 770, 771: +17 autoapi, the functions named in the total.
         # 2026-11-06 item 773: +1 autoapi, IlluminationField.correct_window.
-        "autoapi": 10015,
+        "autoapi": 10057,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -4033,7 +4037,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-11-03 item 749: +3, dock.SectionHeader.set_open, .event and .paintEvent.
     # 2026-11-05 items 791, 770, 771: +17, one variant each: sp_stats.flag_degenerate_features, batch_correction.spherize_features and .harmony_embedding, and the fourteen spacr.division_analysis functions.
     # 2026-11-06 item 773: +1, IlluminationField.correct_window.
-    assert sum(item.variant_count for item in callables) == 10027
+    assert sum(item.variant_count for item in callables) == 10069
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
@@ -4063,7 +4067,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 2026-11-03 item 749: +3, dock.SectionHeader.set_open, .event and .paintEvent.
         # 2026-11-05 items 791, 770, 771: +17, the seventeen new module-level functions.
         # 2026-11-06 item 773: +1, IlluminationField.correct_window.
-        1: 10013,
+        1: 10055,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -4366,7 +4370,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # and the channel_mode keyword of align_field.
     # 2026-11-06 item 773: 19,990 -> 19,994, +4: IlluminationField.correct_window's
     # window, channels, y0 and x0.
-    assert sum(len(item.parameters) for item in callables) == 19994
+    # 2026-11-06 item 816: 19,994 -> 20,227, +233: the parameters of the 42
+    # new spacr.assay_report and spacr.assay_panels callables and the new
+    # keywords of the assay panel functions they extend.
+    assert sum(len(item.parameters) for item in callables) == 20227
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -4426,7 +4433,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-11-05 items 791, 770, 771: +34 required, the parameters without a default of the
     # same seventeen functions.
     # 2026-11-06 item 773: +2 required, IlluminationField.correct_window's window and channels.
-    assert sum(len(item.required_parameters) for item in callables) == 10284
+    # 2026-11-06 item 816: 10,284 -> 10,377, +93 required, the parameters
+    # without a default of the 42 new recruitment-report callables.
+    assert sum(len(item.required_parameters) for item in callables) == 10377
     # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
     # subtraction on the full inventory: without that one parameter the digest
     # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
@@ -4674,7 +4683,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Moved 2026-11-06 for item 773 (was 918cf204...): the one new row is
     # IlluminationField.correct_window (window, channels, y0, x0); no other
     # row changed.
-) == '08aefcc2921eaa7c60f7ce7eb95dcd66bdde25a7a83772ce389c307a631ffab4'
+    # Moved 2026-11-06 for item 816 (was 08aefcc2...): the 42 new rows of the
+    # spacr.assay_report and spacr.assay_panels callables, and the assay panel
+    # rows whose parameters gained the outlier and axis keywords.
+) == '748f7408b969fd56833d13dec7639159556c2ca87548150677c5b32b3f5f027d'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -5556,6 +5568,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("ops_phenotype_path_api_arrivals_2026-11-05.json", 14),
         ("recruitment_confounders_api_arrivals_2026-11-05.json", 6),
         ("assay_panels_api_arrivals_2026-11-06.json", 21),
+        ("assay_report_api_arrivals_2026-11-06.json", 67),
+        ("crop_window_gpu_governor_api_arrivals_2026-11-06.json", 10),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -6120,7 +6134,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "733_navigator_input_identity_api_arrival_2026-10-29.json",
                      "ops_phenotype_path_api_arrivals_2026-11-05.json",
                      "recruitment_confounders_api_arrivals_2026-11-05.json",
-                     "assay_panels_api_arrivals_2026-11-06.json"):
+                     "assay_panels_api_arrivals_2026-11-06.json",
+                     "assay_report_api_arrivals_2026-11-06.json",
+                     "crop_window_gpu_governor_api_arrivals_2026-11-06.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -6227,7 +6243,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "733_navigator_input_identity_api_arrival_2026-10-29.json",
                      "ops_phenotype_path_api_arrivals_2026-11-05.json",
                      "recruitment_confounders_api_arrivals_2026-11-05.json",
-                     "assay_panels_api_arrivals_2026-11-06.json"):
+                     "assay_panels_api_arrivals_2026-11-06.json",
+                     "assay_report_api_arrivals_2026-11-06.json",
+                     "crop_window_gpu_governor_api_arrivals_2026-11-06.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

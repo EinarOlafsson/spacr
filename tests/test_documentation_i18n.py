@@ -3789,6 +3789,8 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("ops_phenotype_path_api_arrivals_2026-11-05.json", 14),
         ("recruitment_confounders_api_arrivals_2026-11-05.json", 6),
         ("assay_panels_api_arrivals_2026-11-06.json", 21),
+        ("assay_report_api_arrivals_2026-11-06.json", 67),
+        ("crop_window_gpu_governor_api_arrivals_2026-11-06.json", 10),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))
