@@ -286,7 +286,7 @@ API_ENTRIES = (
     ('spacr.assay_panels.stars', "Significance stars for a p value ('ns' at or above 0.05, 'n/a' if missing)."),
     ('spacr.assay_panels.string_parts', 'Fallback decomposition: the tokens of the condition string, by position.'),
     ('spacr.assay_panels.style_axes', 'Light horizontal grid behind the data, top and right spines removed.'),
-    ('spacr.assay_report', 'Standard assay report: A4 pages with pagination, 16-bit tiles and a figure legend.'),
+    ('spacr.assay_report', 'Standard assay report on A4 pages, with pagination, 16-bit tiles and a figure legend.'),
     ('spacr.assay_report.Layout', 'Page geometry and type sizes of a report layout (all lengths in mm, fonts in pt).'),
     ('spacr.assay_report.Layout.content', 'Content width in mm: page width minus both side margins.'),
     ('spacr.assay_report.Layout.usable', 'Usable height in mm: page height minus top and bottom margins.'),
