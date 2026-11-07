@@ -1090,8 +1090,12 @@ class TestRunStopStateMachine:
             assert scr._btn_stop.isEnabled()
             assert scr._progress.isVisibleTo(scr)
             assert scr._thread is not None and scr._worker is not None
+            # The worker reaches the entry point only after the run journal
+            # snapshots the environment (installed package metadata, git,
+            # fsynced manifest) and the torch libraries load; cold, on a
+            # loaded machine, that alone takes 9 s, so 5 s timed out.
             qtbot.waitUntil(lambda: "worker-alive" in _console_text(
-                scr._console), timeout=5000)
+                scr._console), timeout=30000)
             assert seen["src"] == "/data/state_machine"
 
             # Stop is advisory — it asks, it does not kill.
