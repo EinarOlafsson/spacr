@@ -80,6 +80,15 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_tvn_seed": 0,
     "ops_tvn_components": None,
     "ops_tvn_whiten_epsilon": 0.0,
+    "ops_cluster_benchmark": False,
+    "ops_benchmark_corum": None,
+    "ops_benchmark_kegg": None,
+    "ops_benchmark_string": None,
+    "ops_reference_clusters": None,
+    "ops_cluster_target": 251,
+    "ops_cluster_resolutions": "5,10,12,15,16,17,18,20,22",
+    "ops_cluster_seed": 42,
+    "ops_consensus_runs": 0,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -143,6 +152,15 @@ OPS_TYPES: Dict[str, object] = {
     "ops_tvn_seed": int,
     "ops_tvn_components": (float, int, type(None)),
     "ops_tvn_whiten_epsilon": (float, int),
+    "ops_cluster_benchmark": bool,
+    "ops_benchmark_corum": (str, type(None)),
+    "ops_benchmark_kegg": (str, type(None)),
+    "ops_benchmark_string": (str, type(None)),
+    "ops_reference_clusters": (str, type(None)),
+    "ops_cluster_target": int,
+    "ops_cluster_resolutions": str,
+    "ops_cluster_seed": int,
+    "ops_consensus_runs": int,
 }
 
 #: Which panel section each setting appears under.
@@ -184,7 +202,10 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_genotype_table", "ops_pool_wells", "ops_pool_interphase",
         "ops_feature_qc", "ops_profile_normalisation", "ops_tvn_mode",
         "ops_tvn_pca_sample", "ops_tvn_seed", "ops_tvn_components",
-        "ops_tvn_whiten_epsilon",
+        "ops_tvn_whiten_epsilon", "ops_cluster_benchmark",
+        "ops_benchmark_corum", "ops_benchmark_kegg", "ops_benchmark_string",
+        "ops_reference_clusters", "ops_cluster_target",
+        "ops_cluster_resolutions", "ops_cluster_seed", "ops_consensus_runs",
     ],
 }
 
@@ -520,6 +541,55 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "blown up. 0 is Brieflow's whitening; 0.1 shrinks directions that "
         "hold less than a tenth of a feature's control variance. "
         "Default 0. Alpha.",
+    "ops_cluster_benchmark":
+        "(bool) - Cluster the gene profiles and score the clusters, as "
+        "Funk et al. 2022 and Brieflow do: PHATE on the leading components, "
+        "then Leiden at the resolution whose cluster count is closest to "
+        "ops_cluster_target. Each clustering is scored by the share of "
+        "clusters enriched for a CORUM complex or a KEGG pathway, by STRING "
+        "precision and recall, and against shuffled-component and k-means "
+        "controls. TVN profiles are used when they are made. Needs the "
+        "three benchmark tables and the clustering extra: "
+        "pip install \"spacr[clustering]\". Default False. Alpha.",
+    "ops_benchmark_corum":
+        "(str or None) - The CORUM complex table for the cluster benchmark, "
+        "tab-separated with gene_name and group columns, as Brieflow ships "
+        "it. spaCR does not include it. Default None. Alpha.",
+    "ops_benchmark_kegg":
+        "(str or None) - The KEGG pathway table for the cluster benchmark, "
+        "tab-separated with gene_name and group columns. Default None. "
+        "Alpha.",
+    "ops_benchmark_string":
+        "(str or None) - The STRING gene pair table for the cluster "
+        "benchmark, tab-separated with gene_name and pair columns. It also "
+        "scores profile similarity directly, as the area under the "
+        "precision-recall curve of all gene pairs. Default None. Alpha.",
+    "ops_reference_clusters":
+        "(str or None) - A published clustering to compare with, such as "
+        "Funk et al.'s gene table: a CSV, TSV or Excel file with a gene "
+        "(or gene_symbol) column and a cluster (or interphase_cluster) "
+        "column. It is scored by the same code and gives the adjusted Rand "
+        "index. Default None. Alpha.",
+    "ops_cluster_target":
+        "(int) - The cluster count the Leiden resolution is chosen for. "
+        "The share of clusters enriched depends on cluster size, so compare "
+        "clusterings at the same count. Default 251, Brieflow's count. "
+        "Alpha.",
+    "ops_cluster_resolutions":
+        "(str) - The Leiden resolutions tried, as '5,10,12'. A higher "
+        "resolution splits the genes into more, smaller clusters; the one "
+        "whose cluster count is closest to ops_cluster_target is reported "
+        "first. Default '5,10,12,15,16,17,18,20,22'. Alpha.",
+    "ops_cluster_seed":
+        "(int) - The PHATE and Leiden seed. With the same seed and library "
+        "versions the clusters are the same on every run. Default 42. "
+        "Alpha.",
+    "ops_consensus_runs":
+        "(int) - Repeat the clustering this many times, each on 90 percent "
+        "of the genes, with each gene's guides drawn again, its own seed "
+        "and a resolution from a sweep. The runs give how often two genes "
+        "share a cluster. 0 skips it; 100 takes about half an hour per "
+        "plate. Default 0. Alpha.",
     "ops_mitotic_dna_z":
         "(float) - A cell is called mitotic when its nuclear mean DAPI "
         "intensity is this many robust standard deviations above its well's "

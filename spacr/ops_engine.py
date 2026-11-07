@@ -3232,7 +3232,9 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     set to ``'tvn'`` the run also writes TVN profiles
     (:mod:`spacr.ops_tvn`) as ``ops_guides_<plate>[tag]_tvn`` and
     ``ops_genes_<plate>[tag]_tvn``; the robust z tables are still written,
-    because the per-gene test needs named features.
+    because the per-gene test needs named features. ``ops_cluster_benchmark``
+    clusters the TVN profiles (or the robust z ones without TVN) and scores
+    them (:mod:`spacr.ops_clusters`).
     """
     import pandas as pd
     import pyarrow.parquet as pq
@@ -3494,6 +3496,25 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
                                       f"ops_{name}_{plate}{tag}_tvn.{suffix}")
                 write_table(table, target, canonicalise=False)
                 outputs[f"{name}_tvn_{suffix}"] = target
+    cluster_report = None
+    if settings.get("ops_cluster_benchmark"):
+        from .ops_clusters import _aggregate_benchmark
+        benchmark_settings = {key: settings.get(key) for key in (
+            "ops_benchmark_corum", "ops_benchmark_kegg", "ops_benchmark_string",
+            "ops_reference_clusters", "ops_cluster_target",
+            "ops_cluster_resolutions", "ops_cluster_seed",
+            "ops_consensus_runs")}
+        if tvn_report is not None:
+            profile = (tvn_guides, tvn_genes,
+                       [c for c in tvn_genes.columns if c.startswith("PC_")],
+                       f"{plate}{tag}_tvn")
+        else:
+            kept = [c for c in features if c not in dropped]
+            profile = (guides, genes, kept, f"{plate}{tag}")
+        cluster_report = _aggregate_benchmark(
+            *profile[:3], benchmark_settings, destination, profile[3],
+            control_prefix=control_prefix)
+        outputs.update(cluster_report["outputs"])
     if feature_qc:
         target = os.path.join(destination,
                               f"ops_feature_qc_{plate}{tag}.csv")
@@ -3532,6 +3553,7 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         "null_parameters": null_parameters,
         "profile_normalisation": normalisation,
         "tvn": tvn_report,
+        "clusters": cluster_report,
         "outputs": outputs,
         "seconds": round(time.perf_counter() - started, 1),
     }

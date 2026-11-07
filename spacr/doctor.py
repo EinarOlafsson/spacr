@@ -1305,6 +1305,7 @@ OPTIONAL_EXTRAS: Dict[str, Tuple[str, ...]] = {
     "qt": ("PySide6", "qtawesome"),
     "fractal": ("vispy",),
     "umap": ("umap-learn",),
+    "clustering": ("phate", "leidenalg", "igraph"),
     "boosting": ("catboost", "lightgbm"),
     "czi": ("pylibCZIrw", "czifile"),
     "nd2": ("nd2reader",),
