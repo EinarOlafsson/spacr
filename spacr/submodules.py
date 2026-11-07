@@ -1202,6 +1202,7 @@ class _FilterLog:
 
     @staticmethod
     def _counts(df, group='condition'):
+        """Objects per ``group`` value, or an empty series without that column."""
         if group not in getattr(df, 'columns', []):
             return pd.Series(dtype=float)
         return df.groupby(group, observed=True).size()
@@ -2191,6 +2192,7 @@ def _replication_report_impl(settings, unfiltered, filtered, group_column, bin_c
     rep_settings = dict(settings, group_column=group, replicate_column=rep)
 
     def extra(version, df):
+        """Replication panel specs and legend text for one object version."""
         out = []
         panels = _check_panels_setting(settings.get('panels')) or [{'name': 'all_conditions', 'group': group}]
         specs, names = _replication_panel_specs(df, rep_settings, bin_column, list(bins), value, value_label,

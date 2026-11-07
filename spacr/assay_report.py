@@ -1976,7 +1976,6 @@ def _draw_vector_outlines(ax, contours, chunk, n, size, gap, lw=0.7, alpha=0.6):
 
 def crop_drawer(result, chunk, n, size, layout=SPACIOUS, axis=None, labels=None,
                 versions=IMAGE_VERSIONS, width_mm=None, min_tile_mm=6.0, max_tile_mm=None):
-    context = " \u00b7 ".join((axis or {}).get("constant") or [])
     """Draw callback, height and minimum height (mm) of a crop figure.
 
     The three image versions (merged, channel of interest, channel of interest
@@ -1994,6 +1993,7 @@ def crop_drawer(result, chunk, n, size, layout=SPACIOUS, axis=None, labels=None,
     :returns: ``(draw, height_mm, min_height_mm)`` with ``draw(fig, rect)``
         as for :class:`ReportItem`.
     """
+    context = " \u00b7 ".join((axis or {}).get("constant") or [])
     layout = get_layout(layout)
     width_mm = layout.content if width_mm is None else width_mm
     ncol = max(len(chunk), 1)
@@ -2804,6 +2804,7 @@ def build_assay_report(frames: Mapping[str, pd.DataFrame], out_dir: str, value: 
         objs_all = object_types(df, chans)
 
         def control(pname, unit, col, ylabel, text, size, first):
+            """Save one per-well control bar panel and return its report items."""
             spec = bar_spec(unit, col, group, order, title="", ylabel=ylabel, labels=labels, palette=palette)
             spec.update(axis=axis, parts=parts, bracket_pairs=bracket_pairs, context=context)
             pid = next_id()
@@ -3040,6 +3041,7 @@ def filter_steps_drawer(table, order, labels=None, palette=None, layout=SPACIOUS
     pal = palette or {g: _DEFAULT_COLORS[i % len(_DEFAULT_COLORS)] for i, g in enumerate(order)}
 
     def draw(fig, rect):
+        """Draw the percent-left line per group and for all objects into ``rect``."""
         ax = fig.add_axes(rect)
         for g in order:
             t = table[table["group"] == g].sort_values("step_index")
