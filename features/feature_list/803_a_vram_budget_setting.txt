@@ -100,3 +100,17 @@ DELIBERATELY NOT DONE
   gpu_items/cpu_items and compute_path (gpu, cpu or mixed). New alpha setting
   gpu_fallback_policy: per_item (default) or pause (wait for the GPU, never
   fall back).
+
+2026-11-07 (bug fix, maintainer-approved after item 801): Make Masks' own
+Cellpose calls now go through the governor too. Before this,
+generate_cellpose_masks_sam's ordinary single-worker path and the other
+direct calls called model.eval themselves, so a full shared card stopped
+the run. spacr.object._mask_eval governs every in-process call: the
+Cellpose-SAM batch (site mask_sam, or mask_shared_gpu for item 801's shared
+workers), per-image diameter estimation, z-stack segmentation (mask_z),
+organelles (mask_organelle), the robustness report (mask_robustness), the
+Cellpose 3 and Cellpose-DINO routes (when their model has a device in this
+process) and the v2 pipeline (mask_v2). A model with no device of its own,
+such as a backend served from its own environment, is still called
+directly. With memory to spare the calls and masks are unchanged.
+tests/test_make_masks_cellpose_is_governed.py.

@@ -864,8 +864,10 @@ def stream_masks_from_stack(
                     batch_size=max(8, len(cellpose_images)))
                 out = (masks,)
             else:
-                out = model.eval(
-                    cellpose_images,
+                from .object import _mask_eval
+                out = _mask_eval(
+                    model, cellpose_images, site='mask_v2',
+                    settings=postprocess_settings,
                     batch_size=len(cellpose_images),
                     normalize=False,
                     channel_axis=-1,
