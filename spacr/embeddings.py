@@ -1627,6 +1627,11 @@ def _embed_parallel(crops: Any, spec: EmbeddingSpec, *,
     n = int(shape[0])
     starts = list(range(0, n, int(chunk_size)))
     workers = min(workers, len(starts))
+    if workers > 1:
+        from .resource_log import _guard_workers
+        chunk = np.asarray(crops[0:1])
+        workers = max(1, int(_guard_workers(
+            'embeddings', workers, int(chunk.nbytes) * min(int(chunk_size), n))))
     parts: List[Any] = []
     if workers <= 1:
         with _torch_threads(threads):

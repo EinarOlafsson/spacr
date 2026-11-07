@@ -140,6 +140,7 @@ GUARDED = [
     ('spacr.hyperparam', 'run_search_for_app', '"regression"'),
     ('spacr.parameter_sweep', 'run_sweep_parallel', '"sweep"'),
     ('spacr.ops_engine', '_decode', '"ops_decode"'),
+    ('spacr.embeddings', '_embed_parallel', "'embeddings'"),
 ]
 
 
