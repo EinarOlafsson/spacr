@@ -1,7 +1,7 @@
 TEXTURE FEATURES ARE DEFINED FOR SMALL OBJECTS
 
 Lifecycle: future
-Status: not started
+Status: DONE 2026-11-07 — spacr.measure._calculate_homogeneity and the vectorised _torch_homogeneity read each homogeneity_distance_<d> at offset min(d, bounding-box width - 1) (spacr.measure._homogeneity_offset), so an object narrower than d gets a finite value at its widest horizontal offset instead of NaN; a one-pixel-wide object reads 1. Objects wide enough for d are bit-identical to before. The rule is in the feature dictionary entry. No setting, so nothing in ALPHA_FEATURES (exempted in tests/qt/test_alpha_features_gate.py). Tests tests/test_texture_small_objects_792.py. The BBBC021 rerun that checks no well mean is non-finite needs the maintainer's data.
 Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
            (BMC spaCR paper) worked around must become a spaCR item.
 Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cellprofiler_baseline/REPORT.md, "spaCR gaps", gap 3
@@ -41,6 +41,10 @@ nuclei large enough for every offset are unchanged.
 DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
 
-Nothing yet.
+- No column recording the capped offset: it follows from the object's
+  bounding-box width, which is already written, and a new column would join
+  every feature set.
+- Small objects' values change from NaN to a number read at a shorter offset;
+  they are not comparable to a large object's value at the full offset.
 
 2026-11-05: renumbered from 757 to 792; nightly already used 755-768 for other items.

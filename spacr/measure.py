@@ -2208,6 +2208,23 @@ def _extended_regionprops_table(labels, image, intensity_props, spacing=None,
         df[f'percentile_{p}'] = [values[position] for values in per_region]
     return df
 
+def _homogeneity_offset(distance, width):
+    """The GLCM offset actually used for ``distance`` on a box ``width`` wide.
+
+    A horizontal offset at or past the bounding-box width pairs no pixels,
+    which left ``homogeneity_distance_<d>`` NaN for every object narrower
+    than ``d`` (item 792). The offset is capped at ``width - 1``, the
+    longest that still fits, so the column stays finite; objects wide enough
+    for ``d`` are unchanged. A one-pixel-wide box has no horizontal pair at
+    all and returns 0, which the callers report as homogeneity 1.
+
+    :param distance: requested offset in pixels.
+    :param width: bounding-box width in pixels.
+    :returns: the offset in pixels, ``0 <= offset <= distance``.
+    """
+    return max(0, min(int(distance), int(width) - 1))
+
+
 def _calculate_homogeneity(label, channel, distances=None):
         """Return per-region GLCM homogeneity across the requested co-occurrence distances.
 
@@ -2236,7 +2253,11 @@ def _calculate_homogeneity(label, channel, distances=None):
                 region_image, out_range=(0, 255)).astype('uint8')
             homogeneity_per_distance = []
             for d in distances:
-                glcm = graycomatrix(rescaled_image, [d], [0], symmetric=True, normed=True)
+                offset = _homogeneity_offset(d, rescaled_image.shape[1])
+                if offset == 0:
+                    homogeneity_per_distance.append(1.0)
+                    continue
+                glcm = graycomatrix(rescaled_image, [offset], [0], symmetric=True, normed=True)
                 if not np.any(glcm):
                     homogeneity_per_distance.append(np.nan)
                 else:
@@ -2489,7 +2510,8 @@ def _torch_homogeneity(labels, image, distances, device):
     the mean over the box's horizontal pixel pairs of ``1 / (1 + (a - b)^2)``,
     so no matrix is needed: pairs with no object pixel sit on the diagonal and
     add 1 each, and pairs touching the object are enumerated for all objects
-    at once over the whole field.
+    at once over the whole field. An object narrower than an offset is read
+    at the capped offset :func:`_homogeneity_offset` gives, as on the CPU.
     """
     import torch
     if distances is None:
@@ -2522,13 +2544,13 @@ def _torch_homogeneity(labels, image, distances, device):
     lab = torch.as_tensor(labels.astype(np.int64, copy=False), device=device)
     val = torch.as_tensor(image.astype(np.float64, copy=False), device=device)
     field_width = labels.shape[1]
-    results = []
-    for d in distances:
+
+    def at(d):
+        """Homogeneity of every object at horizontal offset ``d``."""
         pairs = height * (width - d)
         if d >= field_width:
-            results.append(torch.full((n_obj,), float('nan'), dtype=torch.float64,
-                                      device=device))
-            continue
+            return torch.full((n_obj,), float('nan'), dtype=torch.float64,
+                              device=device)
         left, right = lab[:, :-d].reshape(-1), lab[:, d:].reshape(-1)
         v_left, v_right = val[:, :-d].reshape(-1), val[:, d:].reshape(-1)
         col_left = torch.arange(field_width - d, device=device).repeat(labels.shape[0])
@@ -2555,8 +2577,27 @@ def _torch_homogeneity(labels, image, distances, device):
 
         pairs_f = pairs.to(torch.float64)
         value = (sums + pairs_f - touched) / pairs_f
-        results.append(torch.where(pairs > 0, value,
-                                   torch.full_like(value, float('nan'))))
+        return torch.where(pairs > 0, value,
+                           torch.full_like(value, float('nan')))
+
+    computed = {}
+    results = []
+    for d in distances:
+        d = int(d)
+        if d not in computed:
+            computed[d] = at(d)
+        value = computed[d].clone()
+        capped = width <= d
+        for offset in torch.unique(width[capped] - 1).tolist():
+            offset = _homogeneity_offset(d, offset + 1)
+            chosen = capped & (width - 1 == offset)
+            if offset == 0:
+                value[chosen] = 1.0
+                continue
+            if offset not in computed:
+                computed[offset] = at(offset)
+            value[chosen] = computed[offset][chosen]
+        results.append(value)
     stacked = torch.stack(results, dim=1).detach().cpu().numpy()
     return pd.DataFrame(stacked, columns=columns)
 
