@@ -2,7 +2,7 @@ MEASURE KEEPS A FIELD WHEN ONE NUCLEUS OVERLAPS TWO CELLS
 =========================================================
 
 Lifecycle: new
-Status: open
+Status: DONE 2026-11-06 — a nucleus that spans several cells is given to the cell it overlaps most, flagged nucleus_shared=True (new nucleus_shared column in schema.py and feature_dict.py), and the count is reported instead of dropping the field; tests/test_measure_crop_shared_nucleus.py.
 Requested: maintainer, 2026-11-06 (BMC paper HRMAn reanalysis, gap G10).
 Owner: unassigned.
 
