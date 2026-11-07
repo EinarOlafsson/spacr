@@ -2,6 +2,7 @@ OPS MODULE V2
 
 Lifecycle: new
 Status: open. Umbrella for 809 (sharded crops), 810 (bulk SQLite), 811 (join indexes) and 812 (standard layout); supersedes 812's layout details where they differ. Build after the running decode-strategy (decode_yield_2026-11-04) and stitching studies settle.
+Decode strategies as settings: item 842 (2026-11-06).
 Requested: maintainer, 2026-11-06 (BMC paper OPS reanalysis).
 Owner: home spacr software paper.
 

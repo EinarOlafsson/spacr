@@ -1,0 +1,133 @@
+OPS DECODE STRATEGIES ARE SETTINGS
+
+Lifecycle: new
+Status: open. Part of OPS module v2 (item 813); built by the paper session together with 813.
+Requested: maintainer, 2026-11-06 (BMC paper decode-yield study).
+Owner: home spacr software paper.
+
+--------------------------------------------------------------------------------
+WHAT AND WHY
+--------------------------------------------------------------------------------
+
+Every decode strategy from the decode-yield study becomes a spaCR setting.
+The defaults reproduce the final rule, "rule (a) + S2": 70.98% of cells
+assigned at FDR 0.099 / 0.122 on 176 fields. Brieflow's rule assigns 58.19%
+at FDR 0.130.
+
+Evidence:
+/nas_mnt/data/sync/papers/BMCspacr/reanalysis/decode_yield_2026-11-04/results_v3/final/master_table_decode_strategies.csv
+
+Defaults are the final rule unless stated.
+
+--------------------------------------------------------------------------------
+BASE CALLING (hook ops_engine._decode_field -> ops_sbs.called_bases)
+--------------------------------------------------------------------------------
+
+- ops_crosstalk: none | argmax_median | argmax_median_per_cycle | median |
+  percentile (default argmax_median).
+- ops_decode_library_calibration (True). Companions:
+  - ops_calibration_passes (2);
+  - ops_calibration_min_labels (30).
+- ops_base_caller: argmax | gbm | cnn_per_cycle | cnn_end_to_end (default
+  argmax). Companion: ops_base_caller_model (path).
+- ops_decode_preprocess (False). Companions:
+  - ops_flatfield_sigma (64);
+  - ops_tophat_size (7).
+
+--------------------------------------------------------------------------------
+REGISTRATION (hook ops_cycles.align_field)
+--------------------------------------------------------------------------------
+
+- ops_channel_registration: background | spots | spots_refine (default
+  spots_refine). Companions:
+  - ops_registration_refine_px (3);
+  - ops_spot_min_peak (20);
+  - ops_spot_overrule_share (0.5).
+
+--------------------------------------------------------------------------------
+SPOTS
+--------------------------------------------------------------------------------
+
+- ops_read_threshold (315).
+- ops_spot_detector: native | spotiflow | spotnet | native+spotiflow
+  (default native). Companion: ops_detector_union_px (2).
+  - The SpotNet licence warning stays.
+  - This merges with item 813's Spotiflow section: "native" is that
+    section's "log", and "native+spotiflow" is its "union".
+
+--------------------------------------------------------------------------------
+MATCHING
+--------------------------------------------------------------------------------
+
+- ops_read_mismatches (0).
+- ops_decode_runner_up (True). Companion: ops_runner_up_margin (0.1).
+- ops_decode_d2_quality_gated (False). Companions:
+  - ops_d2_margin (0.2);
+  - ops_d2_needs_second_read (True).
+- ops_decode_impute_missing_cycles (True).
+
+--------------------------------------------------------------------------------
+ATTRIBUTION (hook ops_sbs.attribute_reads)
+--------------------------------------------------------------------------------
+
+- ops_assign_by_cell_territory (True). Companions:
+  - ops_footprint (10);
+  - ops_tie (1.0).
+- ops_assign_by_phenotype_masks: off | ambiguous | all (default off).
+  Companion: ops_ph_mask_link_max_px (4).
+
+--------------------------------------------------------------------------------
+CELL RULE (hook ops_engine._decode)
+--------------------------------------------------------------------------------
+
+- ops_cell_rule: agree | mapped (default mapped).
+- ops_decode_quality_weighted (True). Companion: ops_vote_weight_floor (0.05).
+- ops_min_fraction (0.6).
+- ops_min_reads (None).
+- ops_single_read_quality: the default changes from 0.03 to 0.06.
+- ops_report_multi_guide (False). Companions:
+  - ops_multi_guide_min_reads (2);
+  - ops_multi_guide_fraction (0.8).
+  It writes a guide_2 column.
+
+--------------------------------------------------------------------------------
+FALLBACKS
+--------------------------------------------------------------------------------
+
+- ops_decode_pixel_fallback (True). Companions:
+  - ops_pixel_percentile (97);
+  - ops_pixel_radius (10);
+  - ops_pixel_min_pixels (2);
+  - ops_pixel_min_fraction (0.6);
+  - ops_pixel_quality (0.1).
+- ops_decode_probabilistic (False). Companions:
+  - ops_n1_tau (4);
+  - ops_n1_min_evidence (2);
+  - ops_n1_pi0 (0.02);
+  - ops_n1_classifier: lda | gbm | cnn.
+- ops_decode_pooled_fallback (False). Companion: ops_pooled_quality (0.1).
+- ops_decode_cycle_dropout (False). Companions:
+  - ops_dropout_mismatch_share (0.3);
+  - ops_dropout_uniqueness_margin (2).
+- ops_assign_clone_prior (False; flagged as risky). Companion:
+  ops_clone_radius_px (25).
+- ops_decode_fp_filter (False). Companions:
+  - ops_fp_filter_threshold (0.1);
+  - ops_fp_filter_model.
+
+--------------------------------------------------------------------------------
+SEGMENTATION AND STORAGE
+--------------------------------------------------------------------------------
+
+- ops_sbs_segmentation: nuclei | cells_cpsam | cells_cyto3 (default nuclei).
+- ops_store_reads, ops_store_pixels and ops_store_patches (all False).
+- ops_decoy_library_k (4) and ops_fdr_scale (1.268): every decode writes an
+  FDR report.
+
+--------------------------------------------------------------------------------
+TESTS (every arm, CPU only)
+--------------------------------------------------------------------------------
+
+- Settings ratchet: types, tooltips, categories and alpha gate.
+- A synthetic-field test where the arm changes the outcome.
+- A decoy-FDR report key.
