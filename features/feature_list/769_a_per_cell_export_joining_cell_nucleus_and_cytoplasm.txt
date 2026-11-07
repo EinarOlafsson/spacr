@@ -51,3 +51,10 @@ DELIBERATELY NOT DONE
 - The driver's own key columns (plate, well, site) are named
   Metadata_Plate, Metadata_Well and Metadata_Site here, as pycytominer
   expects; the BBBC021 scoring scripts read the driver's names.
+
+2026-11-07 DECISION (maintainer, recorded at integration on claude-integrate-1107)
+- The key columns keep the names Metadata_Plate, Metadata_Well and
+  Metadata_Site. The per_cell_export and per_cell_nucleus tooltips, labels and
+  the public per_cell_table / export_per_cell docstrings are translated in
+  nine languages (spacr-translations edae787e, Claude AI translation and
+  review, no native-speaker sign-off).

@@ -4464,7 +4464,15 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # keywords of the assay panel functions they extend.
     # 2026-11-06 items 781-785 and 836: 20,227 -> 20,231, +4 optional keywords
     # of the classifier training, cross-validation and crop loading callables.
-    assert sum(len(item.parameters) for item in callables) == 20231
+    # 2026-11-07 integration of items 769 and 772: 20,231 -> 20,251, +20 as
+    # counted here. The merged tree adds 24 source parameters: per_cell_table
+    # (3) and export_per_cell (7) for item 769; generate_loaders' seven
+    # crop-scaling, input-statistics and preprocessing-contract keywords,
+    # save_and_add_image_to_grid's crop_format and marker, CustomCellClassifier's
+    # image_size and in_channels, TorchModel's in_channels, CropSpec.raw and
+    # stamp_crop_folder's extra for item 772; the arrival validators above
+    # account for the rest separately.
+    assert sum(len(item.parameters) for item in callables) == 20251
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`

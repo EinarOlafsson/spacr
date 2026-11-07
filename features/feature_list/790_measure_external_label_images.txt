@@ -66,3 +66,11 @@ DELIBERATELY NOT DONE
   through the catalogs.
 
 2026-11-05: renumbered from 755 to 790; nightly already used 755-768 for other items.
+
+2026-11-07 DECISIONS (maintainer, recorded at integration on claude-integrate-1107)
+- Runtime messages of the import stay English (not wrapped in tr()); the ten
+  label_import* tooltips, their labels, the category "Label Image Import α"
+  and its section hint are translated in nine languages (spacr-translations
+  edae787e, Claude AI translation and review, no native-speaker sign-off).
+- No public function while the feature is alpha: the import is reached only
+  through the Measure settings and its helpers stay private.

@@ -1392,6 +1392,18 @@ if app_key == "mask":
     for app, key in crop_intensity_arrivals:
         assert resolve_default_settings(app)[key] == "auto"
     recognized_arrivals |= crop_intensity_arrivals
+    # Item 772 (2026-11-07): the Classify screen resolves the six classifier
+    # input settings it forwards to training, one claim each.
+    classify_input_defaults = {
+        "crop_scaling": "legacy", "input_statistics": "auto",
+        "crop_scale_clip": 1.5, "crop_scale_file": None,
+        "preprocessing_mismatch": "refuse", "control_shuffled_labels": False}
+    classify_input_arrivals = {("classify", key) for key in classify_input_defaults}
+    assert classify_input_arrivals <= compared_pairs
+    assert not classify_input_arrivals & (recognized_arrivals | variants.keys())
+    for app, key in classify_input_arrivals:
+        assert resolve_default_settings(app)[key] == classify_input_defaults[key]
+    recognized_arrivals |= classify_input_arrivals
     assert comparisons - len(recognized_arrivals) == 1005
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))
