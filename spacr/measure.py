@@ -9072,10 +9072,17 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
             settings['cytoplasm'] = False
             settings['uninfected'] = True
 
+        shared_labels = {'nucleus': set(), 'cell': set()}
         if settings['nucleus_mask_dim'] is not None:
             nucleus_mask = data[..., settings['nucleus_mask_dim']].astype(data_type)
             if settings['cell_mask_dim'] is not None:
                 nucleus_mask, cell_mask = _merge_overlapping_objects(mask1=nucleus_mask, mask2=cell_mask)
+                nucleus_mask, shared_nuclei, shared_cells = _assign_shared_nuclei(
+                    nucleus_mask, cell_mask)
+                shared_labels = {'nucleus': shared_nuclei, 'cell': shared_cells}
+                if shared_nuclei:
+                    print(f'{file}: {len(shared_nuclei)} nucleus label(s) shared '
+                          'by two cells were given to the cell they overlap most.')
             nucleus_max = settings.get('nucleus_max_size')
             if ((settings['nucleus_min_size'] is not None
                  and settings['nucleus_min_size'] != 0) or nucleus_max):
@@ -9245,6 +9252,7 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                         cytoplasm_mask, settings,
                         extra_organelle_masks=extra_organelle_masks,
                         channel_arrays=channel_arrays)))
+                _flag_shared_nuclei(morphology, shared_labels)
                 intensities = dict(zip(
                     role_order,
                     _intensity_measurements(
@@ -10061,6 +10069,93 @@ def _plate_folder_of_merged(src):
               f"{parent}.")
         return parent
     return src
+
+
+def _assign_shared_nuclei(nucleus_mask, cell_mask):
+    """Give each nucleus that spans several cells to the cell it overlaps most.
+
+    Runs after :func:`spacr.utils._merge_overlapping_objects`, which already
+    folds cells that share a nucleus into one or trims the nucleus back. What
+    it cannot repair is one nucleus label made of disconnected pieces lying in
+    different cells. Rather than let the join to the parent cell refuse the
+    whole field, the pieces outside the largest-overlap cell are removed.
+
+    :param nucleus_mask: nucleus label mask, changed in place.
+    :param cell_mask: cell label mask.
+    :returns: ``(nucleus_mask, nucleus_labels, cell_labels)``; the two sets hold
+        the labels of every nucleus that spanned several cells and of the cells
+        it touched.
+    """
+    from scipy import ndimage
+
+    nuclei, cells = set(), set()
+    for label_value, window in enumerate(ndimage.find_objects(nucleus_mask), start=1):
+        if window is None:
+            continue
+        region = nucleus_mask[window] == label_value
+        found, counts = np.unique(cell_mask[window][region], return_counts=True)
+        keep = found != 0
+        found, counts = found[keep], counts[keep]
+        if len(found) < 2:
+            continue
+        owner = found[int(np.argmax(counts))]
+        others = found[found != owner]
+        trim = region & np.isin(cell_mask[window], others)
+        view = nucleus_mask[window]
+        view[trim] = 0
+        nuclei.add(label_value)
+        cells.update(int(c) for c in found)
+    return nucleus_mask, nuclei, cells
+
+
+def _flag_shared_nuclei(morphology, shared):
+    """Add the ``nucleus_shared`` column to the cell and nucleus tables of a field.
+
+    :param morphology: ``{role: DataFrame}`` of the field's morphology tables.
+    :param shared: ``{'nucleus': labels, 'cell': labels}`` from
+        :func:`_assign_shared_nuclei`.
+    :returns: ``morphology``, with the column on the cell and nucleus tables
+        that exist.
+    """
+    for role in ('cell', 'nucleus'):
+        frame = morphology.get(role)
+        if frame is not None and 'label' in frame.columns:
+            frame['nucleus_shared'] = frame['label'].isin(shared[role]).astype(bool)
+    return morphology
+
+
+def _emit_shared_nucleus_report(db_path, run=None):
+    """Say how many nuclei were given to one of several cells, on the console and the run log.
+
+    :param db_path: the run's ``measurements.db``.
+    :param run: the :class:`spacr.runctx.RunContext`, or ``None``.
+    :returns: the count of flagged nuclei.
+    """
+    from .database_concurrency import connect
+    from .tabular import _read_query
+
+    if not db_path or not os.path.isfile(db_path):
+        return 0
+    conn = connect(db_path, readonly=True)
+    try:
+        present = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name='nucleus'"
+        ).fetchone()
+        if not present:
+            return 0
+        frame = _read_query(conn, 'SELECT * FROM nucleus', canonicalise=False)
+    finally:
+        conn.close()
+    if 'nucleus_shared' not in frame.columns:
+        return 0
+    count = int(frame['nucleus_shared'].astype(bool).sum())
+    if count:
+        message = (f"{count} nucleus label(s) shared by two cells were given "
+                   "to the cell they overlap most (nucleus_shared=True).")
+        print(message)
+        if run is not None:
+            run.log.info(message)
+    return count
 
 
 def _measure_merged_folder(src):
@@ -11027,6 +11122,7 @@ def measure_crop(settings):
                         _timelapse_masks_to_gif(folder_path, mask_channels, object_types)
 
                 if ledger.is_complete:
+                    _emit_shared_nucleus_report(db_path, run)
                     _emit_infection_report(db_path)
                     _emit_feature_qc(settings, db_path)
                     if settings.get('profiling'):

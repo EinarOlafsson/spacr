@@ -1640,6 +1640,16 @@ META_COLUMNS: dict[str, PropertyInfo] = {
         _META_UTILS + " (rename of label_list_y)",
         None,
     ),
+    "nucleus_shared": PropertyInfo(
+        "meta",
+        "True when this nucleus label lay in more than one cell and was given "
+        "to the cell it overlaps most; on a cell row, True when one of its "
+        "nuclei was shared that way.",
+        None,
+        "spacr.measure._flag_shared_nuclei",
+        "Present on the cell and nucleus tables of every measured field, "
+        "False where no nucleus was shared.",
+    ),
     "cell_id": PropertyInfo(
         "meta",
         "Label of the parent cell this row belongs to.",

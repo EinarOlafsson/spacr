@@ -1994,6 +1994,7 @@ OBJECT_TABLE_OPTIONAL_COLUMNS: Tuple[str, ...] = (
     'cell_id',
     'label_list_morphology',
     'label_list_intensity',
+    'nucleus_shared',
 )
 
 
