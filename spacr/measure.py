@@ -10701,6 +10701,14 @@ def measure_crop(settings):
           folder Make Masks staged it in; a cloud folder of merged stacks is
           mirrored under ``cloud_cache`` first. ``cloud_results`` copies the
           measurements folder back to cloud storage.
+        - ``label_import`` (alpha, item 790) — build ``src`` from another
+          tool's label images first: the raw channels in
+          ``label_import_images`` and the labels in ``cell_label_folder``,
+          ``nucleus_label_folder`` and ``pathogen_label_folder`` are paired by
+          ``label_import_image_regex`` and ``<object>_label_regex``, checked,
+          and written as ``stack/``, ``masks/`` and ``merged/`` with their
+          plane layout; ``label_import.json`` and the run log record the
+          sources. ``src`` must then name one plate folder.
         - ``psf_measurement_source`` — original (default) uses the normal
           rescaled/preprocessed intensities; processed adds an explicitly
           calibrated PSF before quantitative features. The immutable kernel
@@ -10768,6 +10776,9 @@ def measure_crop(settings):
     _validate_unmix_plate_scope(settings)
     _validate_unmix_matrix_scope(settings)
     if settings.get('dry_run', False):
+        if settings.get('label_import'):
+            from .external_masks import _label_import_dry_run
+            return _label_import_dry_run(settings)
         from .validate import run_preflight
         return run_preflight(settings, 'measure')
 
@@ -10794,6 +10805,11 @@ def measure_crop(settings):
     from .ome_zarr import _needs_cloud_run, _run_with_cloud_sources
     if _needs_cloud_run(settings):
         return _run_with_cloud_sources(measure_crop, settings, 'measure')
+
+    label_import = None
+    if settings.get('label_import'):
+        from .external_masks import _import_label_images_for_measure
+        settings, label_import = _import_label_images_for_measure(settings)
     
     if isinstance(settings['src'], str):
         settings['src'] = [settings['src']]
@@ -10814,6 +10830,12 @@ def measure_crop(settings):
         base_settings = dict(settings)
         
         with _measurement_run_locks(source_folders), run_context('measure', settings) as run:
+            if label_import is not None:
+                run.log.info(
+                    "[label import] masks from external label images: %s",
+                    json.dumps({key: label_import[key] for key in (
+                        'image_folder', 'image_pattern', 'channels',
+                        'label_patterns')}, sort_keys=True))
             for source_folder in source_folders:
                 cancellation_checkpoint()
                 print(console_safe(f'Processing folder: {source_folder}'))

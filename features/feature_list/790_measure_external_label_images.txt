@@ -1,7 +1,7 @@
 MEASURE EXTERNAL LABEL IMAGES (CELLPROFILER, CELLPOSE, ILASTIK)
 
 Lifecycle: future
-Status: not started
+Status: DONE 2026-11-07 (alpha) — Measure gains a label-image import (label_import, alpha: ALPHA_FEATURES[790] settings, category "Label Image Import α" under Input & Experiment). With it on, measure_crop pairs the raw channel images in label_import_images (label_import_image_regex: wellID, fieldID, chanID, optional plateID/timeID; label_import_channels sets the stack order) with label images in cell_label_folder / nucleus_label_folder / pathogen_label_folder (searched with subfolders; <object>_label_regex picks each object's files, so CellProfiler's _Cell/_Nuclei/_Cytoplasm in one folder work). A blank pattern is inferred with spacr.regex_infer.propose and accepted only when it parses every file. TIFF, PNG and NPY labels are read through spaCR's converter readers and refused when they are not integer, not one 2-D plane, not the image size, negative or above 65535. stack/ and masks/<object>_mask_stack/ are written with spacr.io._save_array_atomic and merged/ plus .spacr_plane_layout.json by spacr.io._load_and_concatenate_arrays (the merge Mask runs), with spaCR's escaped stems (Week1%5F22123_B02_1). label_import.json records every source file, pattern and the layout; the run log and the settings table record the mask source. An unchanged import is reused; a plate folder holding other arrays is refused. Fields missing a channel or a label are skipped with a warning, as the driver did. dry_run prints the plan and writes nothing. Check on 4 real BBBC021 fields (Week1_22123 B02/D04 s1-s2, CellProfiler's own labels, the driver's MEASURE_SETTINGS): merged arrays and plane layout byte-identical to swap_halfA.py's, and every numeric column of the cell, nucleus and cytoplasm tables identical (502/502/501 rows); only file_name/path_name differ, because the driver added a _1 timepoint. spacr/external_masks.py, spacr/measure.py, spacr/settings.py, spacr/qt/screens/settings_model.py, tests/test_measure_imports_external_label_images.py.
 Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
            (BMC spaCR paper) worked around must become a spaCR item.
 Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cellprofiler_baseline/REPORT.md, "spaCR gaps", gap 1
@@ -49,6 +49,20 @@ driver-built arrays, and gives the same per-cell features as the driver
 DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
 
-Nothing yet.
+- One image file per channel per field: a multi-channel TIFF, or a pattern
+  without chanID, is refused rather than split.
+- Organelle label slots are not importable here; the external-mask importer
+  (spacr.external_masks.prepare_external_masks) still covers them.
+- Cellpose *_seg.npy bundles are refused by the converter; export the masks
+  (TIFF/PNG or a plain label .npy) first.
+- One plate folder per run: src must name a single plate.
+- The full 55-plate BBBC021 half A rerun is left to the paper lane; the check
+  above uses 4 fields. The per-cell parquet export stays the driver's (item
+  769 is the spaCR export).
+- No public API function: the import is reached through the Measure
+  settings; the helpers are private.
+- Runtime messages are English and not wrapped in tr(), like the rest of
+  spacr.external_masks; the settings labels and tooltips are translated
+  through the catalogs.
 
 2026-11-05: renumbered from 755 to 790; nightly already used 755-768 for other items.

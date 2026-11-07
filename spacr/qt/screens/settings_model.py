@@ -1347,6 +1347,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "cloud_anonymous", "cloud_profile", "cloud_endpoint",
             "cloud_cache", "cloud_results",
         )),
+        ("Label Image Import α", ("@Label Image Import α",)),
         ("Mask & Channel Mapping", (
             "channels", "cell_mask_dim", "nucleus_mask_dim",
             "pathogen_mask_dim",
@@ -2179,6 +2180,7 @@ _APP_CATEGORY_PARENTS["mask"]["Segmentation Robustness α"] = "Quality Control"
 _APP_CATEGORY_PARENTS["mask"]["Cloud α"] = "Input & Metadata"
 _APP_CATEGORY_PARENTS["measure"] = {
     "Cloud α": "Input & Experiment",
+    "Label Image Import α": "Input & Experiment",
     **{title: "Image Preprocessing" for title in (
         "Bleach Correction α", "Spectral Unmixing α",
         "Image Deconvolution (PSF)", "Illumination Correction",
@@ -3177,6 +3179,12 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "channels is estimated from single-stain control wells, and every "
         "field is unmixed with that matrix before it is segmented or "
         "measured. The matrix is printed and recorded with the run.",
+    "LABEL IMAGE IMPORT Α":
+        "Measures label images made by another tool, such as CellProfiler, "
+        "Cellpose or ilastik, instead of spaCR's own masks. The raw channel "
+        "images and the label images are paired by file name, checked and "
+        "written into the plate folder as spaCR's merged arrays before "
+        "measuring.",
     "CELLPROFILER Α":
         "Runs a lab's own CellProfiler pipeline on this run's fields after "
         "measuring, headless in CellProfiler's own environment from the "

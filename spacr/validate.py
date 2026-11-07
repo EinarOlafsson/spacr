@@ -735,6 +735,8 @@ def _check_src(settings: Dict[str, Any], app: str, inventories: Sequence[_Invent
                 f"Point {key} at the folder that contains the images."))
             continue
 
+        if app == "measure" and settings.get("label_import"):
+            continue
         if app in MERGED_APPS:
             if inv.merged_note:
                 problems.append(Problem(

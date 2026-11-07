@@ -582,7 +582,8 @@ def default_settings(settings: Optional[Mapping[str, Any]] = None
     from .settings import get_measure_crop_settings
 
     resolved = get_measure_crop_settings({})
-    for key in ("src", *(f"{role}_mask_dim" for role in OBJECT_TYPES)):
+    for key in ("src", *(f"{role}_mask_dim" for role in OBJECT_TYPES),
+                *_LABEL_IMPORT_SETTINGS):
         resolved.pop(key, None)
     resolved.update({
         "inputs": [],
@@ -713,6 +714,74 @@ def _tables(path: str) -> List[str]:
     return [str(row[0]) for row in rows]
 
 
+def _label_plane_as_uint16(array: Any, path: str, object_type: str,
+                           shape: Tuple[int, ...], stem: str, *,
+                           integer_only: bool = False) -> np.ndarray:
+    """Check one label plane against the Measure array contract.
+
+    :param array: the label image as read.
+    :param path: the file it came from, named in every refusal.
+    :param object_type: the object the labels are imported as.
+    :param shape: the intensity shape of the field it belongs to.
+    :param stem: the field stem, for the messages.
+    :param integer_only: refuse a boolean or floating-point plane rather than
+        casting it. Measure's label-image import (item 790) sets it: a
+        probability map or a binary mask cast to integers is measured as one
+        object per image, or as nothing, without a word.
+    :returns: the labels as ``uint16``.
+    :raises ConfigurationError: on a refused dtype, a shape that differs from
+        the intensities, a negative ID or an ID above 65535.
+    """
+    array = np.asarray(array)
+    if integer_only and (array.dtype == np.bool_
+                         or not np.issubdtype(array.dtype, np.integer)):
+        raise ConfigurationError(
+            f"{path}: {object_type} labels are {array.dtype}, not an integer "
+            "label image. Export one integer ID per object with 0 as "
+            "background; a binary mask or a probability map has to be "
+            "labelled first.")
+    if array.shape != shape:
+        raise ConfigurationError(
+            f"{path}: {object_type} mask shape {array.shape} "
+            f"does not match intensity shape {shape} for {stem}.")
+    if np.any(array < 0):
+        raise ConfigurationError(
+            f"{path}: label masks cannot contain negative IDs.")
+    maximum = int(np.max(array, initial=0))
+    if maximum > np.iinfo(np.uint16).max:
+        raise ConfigurationError(
+            f"{path}: label ID {maximum} exceeds the maximum "
+            "65535 supported by the Measure array contract.")
+    return array.astype(np.uint16, copy=False)
+
+
+def _intensity_plane_as_uint16(plane: np.ndarray, stem: str) -> np.ndarray:
+    """Check one intensity plane against the Measure ``uint16`` contract.
+
+    :param plane: the intensity plane.
+    :param stem: the field stem, for the messages.
+    :returns: the plane as ``uint16``; integer values that fit are kept
+        exactly.
+    :raises ConfigurationError: on NaN, infinity, fractional floats or values
+        outside 0-65535.
+    """
+    if np.issubdtype(plane.dtype, np.floating):
+        if not np.all(np.isfinite(plane)):
+            raise ConfigurationError(
+                f"{stem}: intensity data contain NaN or infinity.")
+        if not np.all(plane == np.floor(plane)):
+            raise ConfigurationError(
+                f"{stem}: floating-point intensities would lose "
+                "precision in Measure's uint16 arrays. Rescale and "
+                "export them as 8- or 16-bit images first.")
+    if float(np.min(plane, initial=0)) < 0 or \
+            float(np.max(plane, initial=0)) > np.iinfo(np.uint16).max:
+        raise ConfigurationError(
+            f"{stem}: intensity values must fit the Measure uint16 "
+            "contract (0–65535). Rescale the source images first.")
+    return plane.astype(np.uint16, copy=False)
+
+
 def run_external_masks(plan: ExternalMaskPlan,
                        settings: Optional[Mapping[str, Any]] = None
                        ) -> ExternalMaskResult:
@@ -781,42 +850,16 @@ def run_external_masks(plan: ExternalMaskPlan,
         mask_planes = []
         for object_type in plan.object_types:
             match = plan.masks[object_type][stem]
-            array = np.asarray(_read_mask(match.path))
-            if array.shape != shape:
-                raise ConfigurationError(
-                    f"{match.path}: {object_type} mask shape {array.shape} "
-                    f"does not match intensity shape {shape} for {stem}.")
-            if np.any(array < 0):
-                raise ConfigurationError(
-                    f"{match.path}: label masks cannot contain negative IDs.")
-            maximum = int(np.max(array, initial=0))
-            if maximum > np.iinfo(np.uint16).max:
-                raise ConfigurationError(
-                    f"{match.path}: label ID {maximum} exceeds the maximum "
-                    "65535 supported by the Measure array contract.")
-            integer = array.astype(np.uint16, copy=False)
+            integer = _label_plane_as_uint16(
+                _read_mask(match.path), match.path, object_type, shape, stem)
             mask_planes.append(integer)
             _save_npy(os.path.join(
                 dst, "masks", f"{object_type}_mask_stack", f"{stem}.npy"),
                 integer)
 
-        for plane in image_planes:
-            if np.issubdtype(plane.dtype, np.floating):
-                if not np.all(np.isfinite(plane)):
-                    raise ConfigurationError(
-                        f"{stem}: intensity data contain NaN or infinity.")
-                if not np.all(plane == np.floor(plane)):
-                    raise ConfigurationError(
-                        f"{stem}: floating-point intensities would lose "
-                        "precision in Measure's uint16 arrays. Rescale and "
-                        "export them as 8- or 16-bit images first.")
-            if float(np.min(plane, initial=0)) < 0 or \
-                    float(np.max(plane, initial=0)) > np.iinfo(np.uint16).max:
-                raise ConfigurationError(
-                    f"{stem}: intensity values must fit the Measure uint16 "
-                    "contract (0–65535). Rescale the source images first.")
-        stack = np.stack([plane.astype(np.uint16, copy=False)
-                          for plane in image_planes], axis=-1)
+        image_planes = [_intensity_plane_as_uint16(plane, stem)
+                        for plane in image_planes]
+        stack = np.stack(image_planes, axis=-1)
         _save_npy(os.path.join(dst, "stack", f"{stem}.npy"), stack)
         merged = np.stack(
             [plane.astype(np.uint16, copy=False)
@@ -918,6 +961,555 @@ def prepare_external_masks(settings: Optional[Mapping[str, Any]] = None
     result = run_external_masks(plan, resolved)
     print(result.summary())
     return result
+
+
+#: Measure's label-image import settings (item 790). The external-mask
+#: importer has its own inputs, so its form and its Measure call leave them out.
+_LABEL_IMPORT_SETTINGS = (
+    "label_import", "label_import_images", "label_import_image_regex",
+    "label_import_channels", "cell_label_folder", "nucleus_label_folder",
+    "pathogen_label_folder", "cell_label_regex", "nucleus_label_regex",
+    "pathogen_label_regex",
+)
+
+#: Objects Measure's label-image import reads (item 790, alpha), in the
+#: order their planes follow the intensity channels in ``merged/``.
+_LABEL_IMPORT_OBJECTS = ("cell", "nucleus", "pathogen")
+
+#: The record a label-image import leaves in the plate folder: every source
+#: file of every field, the patterns, the plane layout and what was written.
+_LABEL_IMPORT_MANIFEST = "label_import.json"
+
+#: Folders spaCR itself writes into a plate folder. The label search never
+#: descends into them, so a label folder that is the plate folder does not
+#: read back its own output.
+_SPACR_OUTPUT_FOLDERS = frozenset({
+    "stack", "merged", "masks", "measurements", "data", "norm_channel_stack",
+    "orig", "vvvv",
+})
+
+#: Files the import reads: every format the converter opens, plus plain
+#: label arrays saved with :func:`numpy.save`.
+_LABEL_IMPORT_SUFFIXES = (*SUPPORTED_SUFFIXES, ".npy")
+
+#: Groups a raw-image pattern and a label pattern must name.
+_LABEL_IMPORT_IMAGE_GROUPS = ("wellID", "fieldID", "chanID")
+_LABEL_IMPORT_LABEL_GROUPS = ("wellID", "fieldID")
+
+
+def _label_import_files(folder: str, *, recursive: bool) -> List[str]:
+    """List the importable files in ``folder``, sorted, skipping dot-files.
+
+    :param folder: the folder to list.
+    :param recursive: descend into subfolders, except spaCR's own output
+        folders (:data:`_SPACR_OUTPUT_FOLDERS`).
+    :returns: absolute paths.
+    :raises ConfigurationError: when ``folder`` is not a folder.
+    """
+    root = os.path.abspath(os.path.expanduser(str(folder)))
+    if not os.path.isdir(root):
+        raise ConfigurationError(f"{folder} is not a folder.")
+    found = []
+    for base, dirs, files in os.walk(root):
+        dirs[:] = sorted(name for name in dirs if not name.startswith(".")
+                         and name not in _SPACR_OUTPUT_FOLDERS)
+        for name in sorted(files):
+            lower = name.lower()
+            if not name.startswith(".") and lower.endswith(
+                    _LABEL_IMPORT_SUFFIXES):
+                found.append(os.path.join(base, name))
+        if not recursive:
+            break
+    return found
+
+
+def _label_import_pattern(paths: Sequence[str], explicit: Any,
+                          required: Sequence[str], setting: str
+                          ) -> Tuple["re.Pattern[str]", str, bool]:
+    """The filename pattern for one folder: the user's, or an inferred one.
+
+    A blank setting is inferred with :func:`spacr.regex_infer.propose` from
+    the folder's own file names, and accepted only when one proposal names
+    every required group and parses every file.
+
+    :param paths: the folder's files.
+    :param explicit: the setting's value; blank means infer.
+    :param required: named groups the pattern must have.
+    :param setting: the setting's name, for the messages.
+    :returns: ``(compiled, pattern, inferred)``. The pattern is searched in
+        each file name, so it need not match the whole name.
+    :raises ConfigurationError: on a pattern that does not compile, lacks a
+        required group, or cannot be inferred.
+    """
+    text = str(explicit or "").strip()
+    if text:
+        try:
+            compiled = re.compile(text)
+        except re.error as exc:
+            raise ConfigurationError(
+                f"{setting}: {text!r} is not a regular expression ({exc}).")
+        missing = [name for name in required
+                   if name not in compiled.groupindex]
+        if missing:
+            raise ConfigurationError(
+                f"{setting}: the pattern has no "
+                f"{', '.join(f'(?P<{name}>...)' for name in missing)} group; "
+                f"it needs {', '.join(required)}.")
+        return compiled, text, False
+    from . import regex_infer
+
+    names = [os.path.basename(path) for path in paths]
+    for proposal in regex_infer.propose(names):
+        if proposal.coverage == 1.0 and all(
+                name in proposal.fields for name in required):
+            pattern = f"^(?:{proposal.pattern})$"
+            return re.compile(pattern), pattern, True
+    raise ConfigurationError(
+        f"{setting}: no filename pattern with {', '.join(required)} could be "
+        f"inferred from {len(names)} file(s)"
+        f"{' such as ' + names[0] if names else ''}. Type a regular "
+        "expression with those named groups, for example "
+        r"(?P<wellID>[A-P]\d{2})_s(?P<fieldID>\d+).")
+
+
+def _label_import_index(token: Any) -> str:
+    """A well-independent identity token: digits lose their leading zeros."""
+    text = str(token).strip()
+    return str(int(text)) if text.isdigit() else text
+
+
+def _label_import_key(found: "re.Match[str]", plate: Optional[str]
+                      ) -> Tuple[Optional[str], str, str, Optional[str]]:
+    """``(plate, well, field, time)`` from one filename match.
+
+    :param found: the match.
+    :param plate: the plate when the pattern names none; ``None`` leaves it
+        open, as for a label file matched to its field by well and field.
+    """
+    groups = found.groupdict()
+    time = groups.get("timeID")
+    return (groups.get("plateID") or plate,
+            str(groups["wellID"]).strip().upper(),
+            _label_import_index(groups["fieldID"]),
+            None if time is None else _label_import_index(time))
+
+
+def _label_import_channel_order(channel: str) -> Tuple[int, Any]:
+    """Sort numeric channel ids by value, then the rest by name."""
+    return (0, int(channel)) if channel.isdigit() else (1, channel)
+
+
+def _plan_label_import(settings: Mapping[str, Any]) -> Dict[str, Any]:
+    """Pair raw channel images with label images for Measure, reading no pixels.
+
+    :param settings: the Measure settings: ``src`` (the plate folder the
+        project is written to), ``label_import_images``,
+        ``label_import_image_regex``, ``label_import_channels`` and, per
+        object, ``<object>_label_folder`` and ``<object>_label_regex``.
+    :returns: the plan: ``src``, ``image_folder``, ``image_pattern``,
+        ``channels``, ``objects``, ``label_patterns``, ``fields`` (one
+        ``(stem, channel paths, {object: label path})`` per complete field),
+        ``skipped``, ``errors`` and ``warnings``.
+    """
+    from .io import _escaped_field_stem
+
+    src = settings.get("src")
+    if isinstance(src, (list, tuple)):
+        if len(src) != 1:
+            raise ConfigurationError(
+                "label_import builds one plate folder at a time; src names "
+                f"{len(src)}. Measure each plate in its own run.")
+        src = src[0]
+    if not str(src or "").strip():
+        raise ConfigurationError(
+            "label_import needs src: the plate folder the merged arrays and "
+            "measurements are written to.")
+    src = os.path.abspath(os.path.expanduser(str(src)))
+    if os.path.basename(src) == "merged":
+        src = os.path.dirname(src)
+    image_folder = os.path.abspath(os.path.expanduser(str(
+        settings.get("label_import_images") or src)))
+    errors: List[str] = []
+    warnings: List[str] = []
+
+    images = _label_import_files(image_folder, recursive=False)
+    image_re, image_pattern, image_inferred = _label_import_pattern(
+        images, settings.get("label_import_image_regex"),
+        _LABEL_IMPORT_IMAGE_GROUPS, "label_import_image_regex")
+    plate = os.path.basename(os.path.normpath(image_folder))
+    fields: Dict[Tuple[Any, ...], Dict[str, str]] = {}
+    ignored_images = 0
+    for path in images:
+        found = image_re.search(os.path.basename(path))
+        if found is None:
+            ignored_images += 1
+            continue
+        key = _label_import_key(found, plate)
+        channel = _label_import_index(found.group("chanID"))
+        per_channel = fields.setdefault(key, {})
+        if channel in per_channel:
+            errors.append(
+                f"{per_channel[channel]} and {path} are both channel "
+                f"{channel} of {'_'.join(str(part) for part in key if part)}.")
+            continue
+        per_channel[channel] = path
+    if not fields:
+        errors.append(
+            f"No file in {image_folder} matches label_import_image_regex "
+            f"{image_pattern!r}.")
+    if ignored_images:
+        warnings.append(
+            f"{ignored_images} file(s) in {image_folder} do not match the "
+            "image pattern and are not imported.")
+    found_channels = sorted({channel for per_channel in fields.values()
+                             for channel in per_channel},
+                            key=_label_import_channel_order)
+    wanted = settings.get("label_import_channels")
+    channels = ([_label_import_index(channel) for channel in wanted]
+                if wanted else found_channels)
+    unknown = [channel for channel in channels if channel not in found_channels]
+    if unknown:
+        errors.append(
+            f"label_import_channels names channel(s) {', '.join(unknown)}; "
+            f"the images carry {', '.join(found_channels) or 'none'}.")
+
+    label_folders = {
+        "cell": settings.get("cell_label_folder"),
+        "nucleus": settings.get("nucleus_label_folder"),
+        "pathogen": settings.get("pathogen_label_folder"),
+    }
+    label_regexes = {
+        "cell": settings.get("cell_label_regex"),
+        "nucleus": settings.get("nucleus_label_regex"),
+        "pathogen": settings.get("pathogen_label_regex"),
+    }
+    objects = [name for name in _LABEL_IMPORT_OBJECTS
+               if str(label_folders[name] or "").strip()]
+    if not objects:
+        errors.append(
+            "label_import is on but no label folder is set: fill "
+            "cell_label_folder, nucleus_label_folder or "
+            "pathogen_label_folder.")
+    by_well_field: Dict[Tuple[str, str], List[Tuple[Any, ...]]] = {}
+    for key in fields:
+        by_well_field.setdefault((key[1], key[2]), []).append(key)
+    labels: Dict[str, Dict[Tuple[Any, ...], str]] = {}
+    label_patterns: Dict[str, Dict[str, Any]] = {}
+    for name in objects:
+        folder = os.path.abspath(os.path.expanduser(
+            str(label_folders[name])))
+        files = _label_import_files(folder, recursive=True)
+        compiled, pattern, inferred = _label_import_pattern(
+            files, label_regexes[name],
+            _LABEL_IMPORT_LABEL_GROUPS, f"{name}_label_regex")
+        label_patterns[name] = {"folder": folder, "pattern": pattern,
+                                "inferred": inferred}
+        matched = labels.setdefault(name, {})
+        unpaired = 0
+        for path in files:
+            found = compiled.search(os.path.basename(path))
+            if found is None:
+                continue
+            want = _label_import_key(found, None)
+            targets = [key for key in by_well_field.get((want[1], want[2]), [])
+                       if (want[0] is None or key[0] == want[0])
+                       and (want[3] is None or key[3] == want[3])]
+            if len(targets) != 1:
+                if targets:
+                    errors.append(
+                        f"{path} fits {len(targets)} image fields; add "
+                        f"plateID or timeID to {name}_label_regex.")
+                else:
+                    unpaired += 1
+                continue
+            if targets[0] in matched:
+                errors.append(
+                    f"{matched[targets[0]]} and {path} are both {name} "
+                    "labels of one field; make "
+                    f"{name}_label_regex match only one of them.")
+                continue
+            matched[targets[0]] = path
+        if not matched:
+            errors.append(
+                f"No file in {folder} matches {name}_label_regex "
+                f"{pattern!r} and an image field.")
+        if unpaired:
+            warnings.append(
+                f"{unpaired} {name} label file(s) match the pattern but no "
+                "image field; they are not imported.")
+
+    ready, skipped = [], []
+    for key in sorted(fields, key=lambda item: tuple(str(part) for part in item)):
+        per_channel = fields[key]
+        absent = [channel for channel in channels
+                  if channel not in per_channel]
+        absent += [name for name in objects
+                   if key not in labels.get(name, {})]
+        stem = _escaped_field_stem(key[0], key[1], key[2], key[3])
+        if absent:
+            skipped.append(f"{stem}: no {', '.join(absent)}")
+            continue
+        ready.append((stem, [per_channel[channel] for channel in channels],
+                      {name: labels[name][key] for name in objects}))
+    if skipped:
+        warnings.append(
+            f"{len(skipped)} field(s) lack a channel or a label and are not "
+            f"imported, e.g. {skipped[0]}.")
+    if fields and objects and not ready and not errors:
+        errors.append("No field has every channel and every label.")
+    return {
+        "src": src, "image_folder": image_folder,
+        "image_pattern": image_pattern, "image_pattern_inferred": image_inferred,
+        "channels": channels, "objects": objects,
+        "label_patterns": label_patterns, "fields": ready,
+        "skipped": skipped, "errors": errors, "warnings": warnings,
+    }
+
+
+def _label_import_summary(plan: Mapping[str, Any]) -> str:
+    """The plan in a few lines, printed before anything is written."""
+    lines = [
+        f"Label-image import into {plan['src']}",
+        f"  images: {plan['image_folder']} "
+        f"(pattern {plan['image_pattern']}"
+        f"{', inferred' if plan['image_pattern_inferred'] else ''})",
+        f"  channels, in stack order: {', '.join(plan['channels'])}",
+    ]
+    for name, record in plan["label_patterns"].items():
+        lines.append(
+            f"  {name} labels: {record['folder']} (pattern "
+            f"{record['pattern']}{', inferred' if record['inferred'] else ''})")
+    lines.append(f"  fields ready: {len(plan['fields'])}")
+    lines.extend(f"  warning: {message}" for message in plan["warnings"])
+    lines.extend(f"  error: {message}" for message in plan["errors"])
+    return "\n".join(lines)
+
+
+def _label_import_plane(path: str, what: str) -> np.ndarray:
+    """Read one single-plane image through spaCR's converter readers.
+
+    :param path: the image or label file.
+    :param what: what it is, for the message.
+    :raises ConfigurationError: when the file holds more than one plane.
+    """
+    from .foreign import _source_for
+
+    raw = np.asarray(cv._read_source(_source_for(path)))
+    plane = np.squeeze(raw)
+    if plane.ndim != 2:
+        raise ConfigurationError(
+            f"{path}: a {what} file must hold one 2-D plane, got shape "
+            f"{raw.shape}. Export one plane per file.")
+    return plane
+
+
+def _label_import_stat(path: str) -> List[Any]:
+    """``[path, size, mtime_ns]``: enough to see a source file was replaced."""
+    info = os.stat(path)
+    return [path, int(info.st_size), int(info.st_mtime_ns)]
+
+
+def _label_import_signature(plan: Mapping[str, Any]) -> Dict[str, Any]:
+    """What a finished import was built from: patterns, channels and files."""
+    stat = _label_import_stat
+    return {
+        "image_pattern": plan["image_pattern"],
+        "channels": list(plan["channels"]),
+        "objects": list(plan["objects"]),
+        "label_patterns": {name: record["pattern"] for name, record
+                           in plan["label_patterns"].items()},
+        "fields": {stem: {"images": [stat(path) for path in images],
+                          "labels": {name: stat(path)
+                                     for name, path in found.items()}}
+                   for stem, images, found in plan["fields"]},
+    }
+
+
+def _label_import_existing_arrays(src: str) -> List[str]:
+    """Arrays already in the folders the import writes, which it must not mix."""
+    folders = [os.path.join(src, "stack"), os.path.join(src, "merged")]
+    masks = os.path.join(src, "masks")
+    if os.path.isdir(masks):
+        folders.extend(os.path.join(masks, name)
+                       for name in sorted(os.listdir(masks))
+                       if name.endswith("_mask_stack"))
+    found = []
+    for folder in folders:
+        if os.path.isdir(folder):
+            found.extend(os.path.join(folder, name)
+                         for name in sorted(os.listdir(folder))
+                         if not name.startswith(".")
+                         and name.lower().endswith((".npy", ".tif", ".tiff")))
+    return found
+
+
+def _write_label_import(plan: Mapping[str, Any]) -> Dict[str, Any]:
+    """Write ``stack/``, ``masks/`` and ``merged/`` for a checked plan.
+
+    The intensities go to ``stack/`` and each object's labels to
+    ``masks/<object>_mask_stack/``, both through spaCR's atomic array
+    writer; :func:`spacr.io._load_and_concatenate_arrays`, the merge Mask
+    runs, then writes ``merged/`` and its plane layout. A plate folder that
+    already holds arrays from anything other than an earlier import of the
+    same files is refused. An import whose files, patterns and channels are
+    unchanged is reused as it is.
+
+    :param plan: from :func:`_plan_label_import`, without errors.
+    :returns: the manifest written to ``label_import.json``.
+    :raises ConfigurationError: on foreign arrays in the plate folder, or a
+        file that fails the dtype, plane or size checks.
+    """
+    from .io import (_load_and_concatenate_arrays, _replace_atomically,
+                     _save_array_atomic)
+    from .crops import read_merged_plane_layout
+    from . import __version__
+
+    src = plan["src"]
+    manifest_path = os.path.join(src, _LABEL_IMPORT_MANIFEST)
+    signature = _label_import_signature(plan)
+    previous = None
+    if os.path.isfile(manifest_path):
+        with open(manifest_path, "r", encoding="utf-8") as handle:
+            previous = json.load(handle)
+    stems = [stem for stem, _images, _labels in plan["fields"]]
+    merged_dir = os.path.join(src, "merged")
+    if previous and previous.get("signature") == signature and all(
+            os.path.isfile(os.path.join(merged_dir, f"{stem}.npy"))
+            for stem in stems):
+        print(f"Label-image import: {len(stems)} field(s) already built "
+              f"from the same files; reusing {merged_dir}.")
+        return previous
+    if previous:
+        for path in previous.get("written", []):
+            target = os.path.join(src, path)
+            if os.path.isfile(target):
+                os.remove(target)
+    existing = _label_import_existing_arrays(src)
+    if existing:
+        raise ConfigurationError(
+            f"{src} already holds {len(existing)} array(s) that this import "
+            f"did not write, starting with {existing[0]}. The label-image "
+            "import writes stack/, masks/ and merged/ itself; choose an "
+            "empty plate folder for src, or turn label_import off to measure "
+            "the arrays that are there.")
+
+    objects = list(plan["objects"])
+    written: List[str] = []
+    n_channels = len(plan["channels"])
+    for stem, image_paths, label_paths in plan["fields"]:
+        planes = [_intensity_plane_as_uint16(
+            _label_import_plane(path, "raw image"), stem)
+            for path in image_paths]
+        shape = planes[0].shape
+        if any(plane.shape != shape for plane in planes):
+            raise ConfigurationError(
+                f"{stem}: intensity channels have inconsistent shapes "
+                f"({', '.join(str(plane.shape) for plane in planes)}).")
+        _save_array_atomic(os.path.join(src, "stack", f"{stem}.npy"),
+                           np.stack(planes, axis=-1))
+        written.append(os.path.join("stack", f"{stem}.npy"))
+        for name in objects:
+            path = label_paths[name]
+            labels = _label_plane_as_uint16(
+                _label_import_plane(path, f"{name} label"), path, name,
+                shape, stem, integer_only=True)
+            relative = os.path.join("masks", f"{name}_mask_stack",
+                                    f"{stem}.npy")
+            _save_array_atomic(os.path.join(src, relative), labels)
+            written.append(relative)
+    mask_dims = {name: n_channels + index
+                 for index, name in enumerate(objects)}
+    _load_and_concatenate_arrays(
+        src, None, mask_dims.get("cell"), mask_dims.get("nucleus"),
+        mask_dims.get("pathogen"), None)
+    missing = [stem for stem in stems
+               if not os.path.isfile(os.path.join(merged_dir, f"{stem}.npy"))]
+    if missing:
+        raise ConfigurationError(
+            f"The merge wrote no merged array for {len(missing)} field(s), "
+            f"starting with {missing[0]}.")
+    written.extend(os.path.join("merged", f"{stem}.npy") for stem in stems)
+    manifest = {
+        "module": "measure label-image import (item 790)",
+        "spacr_version": __version__,
+        "src": src,
+        "image_folder": plan["image_folder"],
+        "image_pattern": plan["image_pattern"],
+        "image_pattern_inferred": plan["image_pattern_inferred"],
+        "channels": list(plan["channels"]),
+        "label_patterns": plan["label_patterns"],
+        "plane_layout": read_merged_plane_layout(merged_dir),
+        "skipped": list(plan["skipped"]),
+        "signature": signature,
+        "written": written,
+    }
+    _replace_atomically(
+        manifest_path,
+        lambda handle: handle.write(json.dumps(
+            manifest, indent=2, sort_keys=True).encode("utf-8") + b"\n"))
+    return manifest
+
+
+def _label_import_dry_run(settings: Mapping[str, Any]) -> List[Any]:
+    """Print the label-image import plan for a Measure ``dry_run``.
+
+    :param settings: the Measure settings.
+    :returns: one :class:`spacr.validate.Problem` per blocking problem and
+        per warning; nothing is written.
+    """
+    from .validate import Problem
+
+    plan = _plan_label_import(settings)
+    print(_label_import_summary(plan))
+    fix = ("Check label_import_images, the label folders and their "
+           "patterns.")
+    return ([Problem("error", "label_import", message, fix)
+             for message in plan["errors"]]
+            + [Problem("warning", "label_import", message, fix)
+               for message in plan["warnings"]])
+
+
+def _import_label_images_for_measure(settings: Mapping[str, Any]
+                                     ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    """Build a Measure plate folder from raw images and label images (item 790).
+
+    Called by :func:`spacr.measure.measure_crop` when ``label_import`` is on:
+    the raw channel images and the label images of another tool
+    (CellProfiler, Cellpose, ilastik, ...) are paired by filename pattern,
+    checked and written as spaCR's own ``merged/`` stacks, so Measure then
+    runs on them exactly as on masks it made.
+
+    :param settings: the Measure settings.
+    :returns: ``(settings, manifest)``: the settings with ``src`` set to the
+        plate folder, the mask dimensions set from the import's plane layout
+        and ``channels`` limited to the imported channels; and the manifest
+        written to ``label_import.json``.
+    :raises ConfigurationError: when the plan has a blocking problem, or a
+        file fails its checks; nothing is measured.
+    """
+    plan = _plan_label_import(settings)
+    print(_label_import_summary(plan))
+    if plan["errors"]:
+        raise ConfigurationError(
+            "Label-image import refused; nothing was written:\n  "
+            + "\n  ".join(plan["errors"]))
+    manifest = _write_label_import(plan)
+    resolved = dict(settings)
+    resolved["src"] = plan["src"]
+    dims = manifest["plane_layout"]["mask_dims"]
+    for name in _LABEL_IMPORT_OBJECTS:
+        resolved[f"{name}_mask_dim"] = dims.get(name)
+    n_channels = len(plan["channels"])
+    requested = resolved.get("channels")
+    if isinstance(requested, list) and any(
+            isinstance(index, int) and index >= n_channels
+            for index in requested):
+        kept = [index for index in requested
+                if not isinstance(index, int) or index < n_channels]
+        resolved["channels"] = kept or list(range(n_channels))
+        print(f"Label-image import: {n_channels} channel(s) imported, so "
+              f"channels {requested} is measured as {resolved['channels']}.")
+    return resolved, manifest
 
 
 def register_settings(replace: bool = False) -> bool:
