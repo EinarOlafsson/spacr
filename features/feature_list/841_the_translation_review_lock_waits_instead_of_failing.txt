@@ -2,7 +2,7 @@ THE TRANSLATION-REVIEW LOCK WAITS INSTEAD OF FAILING
 ====================================================
 
 Lifecycle: new
-Status: open
+Status: DONE 2026-11-07 — tools/bootstrap_translation_reviews.py: a checkout whose pinned reviews are all in place is verified without the write lock (cached manifest only, no Git), so readers never queue; the write lock now waits up to 900 s with 50 ms to 2 s backoff (SPACR_TRANSLATIONS_LOCK_TIMEOUT overrides) and its error names the wait. tools/build_documentation_i18n.py: spawned --assemble workers trust the parent's verification and do not re-verify. Tests in tests/test_translation_review_bootstrap.py (backoff wait, busy-lock message, six readers while the lock is held, missing file still restored, four concurrent cold bootstraps) and tests/test_api_catalog_assembly_processes.py.
 Requested: maintainer rule (every workaround becomes an item), 2026-11-06.
 Owner: unassigned.
 

@@ -165,3 +165,23 @@ def test_reviewed_default_enabled_survives_fresh_and_cached_assembly(assembly):
     assert records[symbol]["source_sha256"] == builder._source_hash(current)
     assert records[other] == untouched
     assert len(fetched) == 2
+
+
+def test_assembly_workers_trust_the_parent_verification(monkeypatch):
+    """Item 841: each spawned worker re-verified every pinned review under the
+    bootstrap lock, so a 32-core assemble lost workers to a busy lock and the
+    pool broke. The parent verifies once before the pool starts."""
+    import bootstrap_translation_reviews as canonical_bootstrap
+
+    calls = []
+    monkeypatch.setattr(canonical_bootstrap, "ensure_review_inputs",
+                        lambda *args, **kwargs: calls.append(args))
+    monkeypatch.setattr(builder, "_REVIEW_INPUTS_VERIFIED_BY_PARENT", False)
+    monkeypatch.setattr(builder, "_REVIEW_HELP_ONLY", False)
+    monkeypatch.setattr(builder, "API_DIR", builder.API_DIR)
+    monkeypatch.setattr(builder, "REVIEWED_API_DIR", builder.REVIEWED_API_DIR)
+    builder._ensure_review_inputs(builder.REVIEWED_API_DIR)
+    assert len(calls) == 1
+    builder._initialize_api_assembly(str(builder.API_DIR), str(builder.REVIEWED_API_DIR))
+    builder._ensure_review_inputs(builder.REVIEWED_API_DIR)
+    assert len(calls) == 1

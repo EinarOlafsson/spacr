@@ -525,3 +525,98 @@ def test_review_writer_resolves_labels_from_the_live_public_docstrings(monkeypat
     entry = writer.record("pkg.symbol#0", "Premier paragraphe.")
     assert entry["source"] == blocks[0]
     assert entry["label"] == "pkg.symbol#0"
+
+
+def _hold_lock(lock, seconds):
+    """A child process that holds ``lock`` for ``seconds`` (forever when None)."""
+    import sys
+    body = ("with b._lock(Path(sys.argv[2])):\n print('locked',flush=True)\n"
+            + (" sys.stdin.read()\n" if seconds is None
+               else f" import time; time.sleep({seconds})\n"))
+    child = subprocess.Popen([sys.executable, "-c", _child_code(body),
+                              str(ROOT / "tools/bootstrap_translation_reviews.py"), str(lock)],
+                             stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    assert child.stdout.readline().splitlines() == [b"locked"]
+    return child
+
+
+def test_the_lock_waits_with_backoff_until_the_holder_lets_go(tmp_path):
+    lock = tmp_path / "lock"
+    child = _hold_lock(lock, 1.5)
+    try:
+        with bootstrap._lock(lock, timeout=30):
+            assert child.wait(timeout=5) == 0
+    finally:
+        if child.poll() is None:
+            child.kill()
+        child.wait(timeout=5)
+
+
+def test_a_lock_that_stays_busy_names_the_wait_and_the_override(tmp_path, monkeypatch):
+    lock = tmp_path / "lock"
+    child = _hold_lock(lock, None)
+    monkeypatch.setenv("SPACR_TRANSLATIONS_LOCK_TIMEOUT", "0.3")
+    try:
+        with pytest.raises(bootstrap.ReviewInputsError,
+                           match=r"waited 0\.3 s; set SPACR_TRANSLATIONS_LOCK_TIMEOUT"):
+            with bootstrap._lock(lock):
+                pass
+    finally:
+        child.kill()
+        child.wait(timeout=5)
+
+
+def test_readers_of_a_complete_checkout_do_not_take_the_write_lock(pinned_reviews, monkeypatch):
+    import sys
+    root, cache, _, payloads, _ = pinned_reviews
+    bootstrap.ensure_review_inputs(root, cache=cache)
+    bootstrap._READY.clear()
+    child = _hold_lock(root / ".translation-reviews.lock", None)
+    monkeypatch.setenv("SPACR_TRANSLATIONS_LOCK_TIMEOUT", "0.2")
+    code = _child_code("b.ensure_review_inputs(Path(sys.argv[2]),cache=Path(sys.argv[3]),offline=True)\nprint('verified',flush=True)\n")
+    try:
+        bootstrap.ensure_review_inputs(root, cache=cache, offline=True)
+        readers = [subprocess.Popen([sys.executable, "-c", code, str(ROOT / "tools/bootstrap_translation_reviews.py"),
+                                     str(root), str(cache)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                   for _ in range(6)]
+        for reader in readers:
+            output, errors = reader.communicate(timeout=20)
+            assert reader.returncode == 0, errors.decode()
+            assert output.splitlines() == [b"verified"]
+    finally:
+        child.kill()
+        child.wait(timeout=5)
+    for path, raw in payloads.items():
+        assert (root / path).read_bytes() == raw
+
+
+def test_a_missing_file_still_restores_under_the_lock(pinned_reviews):
+    root, cache, _, payloads, _ = pinned_reviews
+    bootstrap.ensure_review_inputs(root, cache=cache)
+    path = next(iter(payloads))
+    (root / path).unlink()
+    bootstrap._READY.clear()
+    assert not bootstrap._already_complete(root, bootstrap._read_pin(root)[0], cache)
+    bootstrap.ensure_review_inputs(root, cache=cache, offline=True)
+    assert (root / path).read_bytes() == payloads[path]
+
+
+def test_four_processes_bootstrap_the_same_cold_checkout(pinned_reviews):
+    import sys
+    root, cache, _, payloads, _ = pinned_reviews
+    code = _child_code("b.ensure_review_inputs(Path(sys.argv[2]),cache=Path(sys.argv[3]))\nprint('verified',flush=True)\n")
+    children = [subprocess.Popen([sys.executable, "-c", code, str(ROOT / "tools/bootstrap_translation_reviews.py"),
+                                  str(root), str(cache)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                for _ in range(4)]
+    try:
+        for child in children:
+            output, errors = child.communicate(timeout=30)
+            assert child.returncode == 0, errors.decode()
+            assert output.splitlines() == [b"verified"]
+    finally:
+        for child in children:
+            if child.poll() is None:
+                child.kill()
+                child.wait(timeout=5)
+    for path, raw in payloads.items():
+        assert (root / path).read_bytes() == raw
