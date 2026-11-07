@@ -1,0 +1,9 @@
+{
+  "spacr.assay_report.contour_paths": "Sub-pixel contour lines of a binary mask, as (row, col) arrays in pixel coordinates.",
+  "spacr.assay_report.filter_steps_drawer": "Draw callback of the filtration-steps panel (% of objects left after each step).",
+  "spacr.assay_report.filter_steps_table": "Per group and overall ('all') remaining objects, % of the start and % removed per step.",
+  "spacr.assay_report.render_outlines_upsampled": "Grey ``channel`` image upsampled ``factor`` times (Lanczos) with anti-aliased outlines.\n\n:param tile_contours: [(colour, [contour (row, col) arrays])] from :func:`contour_paths`.\n:returns: uint16 RGB array.",
+  "spacr.assay_report.stacked_legend": "Legend text of a stacked-bin panel: unit, bins, omnibus test and reference comparisons.",
+  "spacr.measure._torch_homogeneity.at": "Homogeneity of every object at horizontal offset ``d``.",
+  "spacr.submodules._replication_report_impl.extra": "Replication panel specs and legend text for one object version."
+}

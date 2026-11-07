@@ -4534,7 +4534,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-11-06 item 773: +2 required, IlluminationField.correct_window's window and channels.
     # 2026-11-06 item 816: 10,284 -> 10,377, +93 required, the parameters
     # without a default of the 42 new recruitment-report callables.
-    assert sum(len(item.required_parameters) for item in callables) == 10377
+    # 2026-11-07 item 772: 10,377 -> 10,372, -5 required: CustomCellClassifier's
+    # num_classes, pathogen_channel, use_attention, use_checkpoint and
+    # dropout_rate now have defaults (model_type='custom').
+    assert sum(len(item.required_parameters) for item in callables) == 10372
     # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
     # subtraction on the full inventory: without that one parameter the digest
     # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
@@ -5674,7 +5677,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("embed_store_api_arrivals_2026-11-06.json", 3),
         ("moa_profiles_api_arrivals_2026-11-06.json", 2),
         ("per_cell_export_api_arrivals_2026-11-07.json", 2),
-        ("integrate_1107_nested_helper_api_arrivals_2026-11-07.json", 2),
+        ("integrate_1107_api_arrivals_2026-11-07.json", 7),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -6245,7 +6248,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "embed_store_api_arrivals_2026-11-06.json",
                      "moa_profiles_api_arrivals_2026-11-06.json",
                      "per_cell_export_api_arrivals_2026-11-07.json",
-                     "integrate_1107_nested_helper_api_arrivals_2026-11-07.json"):
+                     "integrate_1107_api_arrivals_2026-11-07.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -6358,7 +6361,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "embed_store_api_arrivals_2026-11-06.json",
                      "moa_profiles_api_arrivals_2026-11-06.json",
                      "per_cell_export_api_arrivals_2026-11-07.json",
-                     "integrate_1107_nested_helper_api_arrivals_2026-11-07.json"):
+                     "integrate_1107_api_arrivals_2026-11-07.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

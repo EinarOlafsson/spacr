@@ -2135,8 +2135,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     )
     zoo_arrivals = {**zoo_arrivals, **per_cell_arrivals}
     nested_1107_arrivals = json.loads((Path(__file__).resolve().parent
-        / "data/release_contracts" / "integrate_1107_nested_helper_api_arrivals_2026-11-07.json").read_text(encoding="utf-8"))
-    assert len(nested_1107_arrivals) == 2
+        / "data/release_contracts" / "integrate_1107_api_arrivals_2026-11-07.json").read_text(encoding="utf-8"))
+    assert len(nested_1107_arrivals) == 7
     assert {key: docs[key] for key in nested_1107_arrivals} == nested_1107_arrivals
     assert not nested_1107_arrivals.keys() & (
         zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
