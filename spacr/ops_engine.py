@@ -277,12 +277,13 @@ _DECODE_WORKERS_CAP = 8
 #: else, so a run that only wants the placement stops after two phases.
 _PHASES = ("stitch", "phenotype", "objects", "decode")
 
-#: The phenotype path (alpha): segment and measure every placed phenotype
-#: field, merge its cells onto the sequencing nuclei, and reduce cells to
-#: guides and genes. Not in the default run, because each needs the four
-#: above and a design table; a run includes them only when ``phases`` names
-#: them.
-_PH_PHASES = ("ph_segment", "ph_measure", "merge", "aggregate")
+#: The phenotype path (alpha): build the plate's flat-field maps, segment
+#: and measure every placed phenotype field, pass over its masks, merge its
+#: cells onto the sequencing nuclei, and reduce cells to guides and genes.
+#: Not in the default run, because each needs the four above and a design
+#: table; a run includes them only when ``phases`` names them.
+_PH_PHASES = ("ph_flatfield", "ph_segment", "ph_measure", "ph_masks",
+              "merge", "aggregate")
 
 #: Every phase :func:`run_ops` accepts, in the order they run.
 _ALL_PHASES = _PHASES + _PH_PHASES
@@ -2236,16 +2237,333 @@ def _ph_cells_path(destination: str, well: str) -> str:
     return os.path.join(destination, f"ops_phenotype_cells_{well}.parquet")
 
 
+def _ph_ownership_path(destination: str, well: str) -> str:
+    """Where one well's per-cell ownership flags are written."""
+    return os.path.join(destination, f"ops_ownership_{well}.parquet")
+
+
+def _ph_maskpass_path(destination: str, well: str) -> str:
+    """Where one well's per-cell mask pass table is written."""
+    return os.path.join(destination, f"ops_maskpass_{well}.parquet")
+
+
+#: The rules ``ops_ownership`` may name, the first being the default.
+_PH_OWNERSHIP_RULES = ("closer_match", "a1", "a1b")
+
+
+def _ph_ownership_rule(settings: Mapping[str, Any]) -> str:
+    """The ``ops_ownership`` rule, checked against :data:`_PH_OWNERSHIP_RULES`."""
+    from .qt.i18n import tr
+
+    rule = str(settings.get("ops_ownership") or "closer_match").strip().lower()
+    if rule not in _PH_OWNERSHIP_RULES:
+        raise ValueError(tr(
+            "ops_ownership must be one of {rules}; got {value}",
+            rules=list(_PH_OWNERSHIP_RULES), value=rule))
+    return rule
+
+
+#: The modes ``ops_flatfield`` may name, the first being the default.
+_PH_FLATFIELD_MODES = ("none", "analytic", "exact")
+
+
+def _ph_flatfield_mode(settings: Mapping[str, Any]) -> str:
+    """The ``ops_flatfield`` mode, checked against :data:`_PH_FLATFIELD_MODES`."""
+    from .qt.i18n import tr
+
+    mode = str(settings.get("ops_flatfield") or "none").strip().lower()
+    if mode not in _PH_FLATFIELD_MODES:
+        raise ValueError(tr(
+            "ops_flatfield must be one of {modes}; got {value}",
+            modes=list(_PH_FLATFIELD_MODES), value=mode))
+    return mode
+
+
+def _ph_flat_folder(settings: Mapping[str, Any], destination: str) -> str:
+    """The folder of the plate's flat-field maps: ``ops_flatfield_maps``,
+    else ``<dst_root>/flatfield``."""
+    return str(settings.get("ops_flatfield_maps")
+               or os.path.join(destination, "flatfield"))
+
+
+def _ph_options_marker(folder: str, options: Mapping[str, Any]) -> None:
+    """Refuse to mix per-field parts made with different options.
+
+    :param folder: a folder of per-field parts.
+    :param options: what this run makes the parts with; every option's
+        default is None or False.
+    :raises ValueError: when parts made with other options are already
+        there. A field that is not redone keeps its part, so a well would
+        otherwise mix corrected and uncorrected fields without notice.
+
+    A folder with parts but no marker was made before the options existed,
+    so with every option at its default.
+    """
+    from .qt.i18n import tr
+
+    path = os.path.join(folder, "part_options.json")
+    now = json.loads(json.dumps(dict(options)))
+    earlier = None
+    if os.path.isfile(path):
+        with open(path, encoding="utf-8") as handle:
+            earlier = json.load(handle)
+    elif any(name.endswith((".parquet", ".npz")) for name in os.listdir(folder)):
+        earlier = {key: (False if isinstance(value, bool) else None)
+                   for key, value in now.items()}
+    if earlier is not None and earlier != now:
+        raise ValueError(tr(
+            "{folder} holds parts made with {earlier}; this run asks for "
+            "{now}. Move the folder away or rerun with the same options.",
+            folder=folder, earlier=earlier, now=now))
+    with open(path, "w", encoding="utf-8") as handle:
+        json.dump(now, handle, indent=1)
+
+
+#: Flat-field planes a worker process has loaded, by folder and field shape.
+_PH_FLAT_CACHE: Dict[Any, Any] = {}
+
+
+def _ph_flat_planes(folder: str, channels: Sequence[str], shape):
+    """The plate's flat planes at field resolution, loaded once per process.
+
+    :returns: ``(planes, offsets, inverse)``: float32 flats as the exact
+        correction divides by them, the offsets, and float64 ``1 / flat``
+        as the mask pass averages it.
+    """
+    from .ops_flatfield import flat_planes, load_flat_maps
+
+    key = (os.path.abspath(folder), tuple(channels), tuple(shape))
+    if key not in _PH_FLAT_CACHE:
+        maps, offsets, _info = load_flat_maps(folder, channels)
+        planes = flat_planes(maps, shape)
+        inverse = {c: 1.0 / planes[c].astype(np.float64) for c in planes}
+        _PH_FLAT_CACHE.clear()
+        _PH_FLAT_CACHE[key] = (planes, offsets, inverse)
+    return _PH_FLAT_CACHE[key]
+
+
+def _ph_flat_blocks(task: Mapping[str, Any]) -> Dict[str, Any]:
+    """Block means of one field; the ``ph_flatfield`` worker."""
+    from .ops_flatfield import field_blocks
+
+    unreadable: list = []
+    stack = _ph_read_field(task["files"], task["channels"], unreadable)
+    return {"well": task["well"], "site": task["site"],
+            "blocks": None if stack is None else field_blocks(stack),
+            "unreadable": unreadable}
+
+
+def _ph_flatfield(plate: str, wells: Sequence[str], phenotype_index,
+                  settings: Mapping[str, Any], destination: str,
+                  db: str) -> Dict[str, Any]:
+    """Build the plate's flat-field maps once; the ``ph_flatfield`` phase.
+
+    :param plate: the plate name.
+    :param wells: the wells whose fields may be drawn.
+    :param phenotype_index: the phenotype tiles, ``{well: {cycle: {site:
+        files}}}``.
+    :param settings: read for ``ops_flatfield_maps``, ``ops_flatfield_fields``,
+        ``ops_flatfield_field_list``, ``ops_ph_channels`` and ``n_workers``.
+    :param destination: the run folder.
+    :param db: the measurements database, for the placed sites.
+    :returns: the report, with the maps' md5 and the fields used.
+
+    Maps that exist are reused and never rebuilt: every analysis records the
+    md5 of the maps it used, so a folder's maps never change. The fields are
+    ``ops_flatfield_fields`` drawn at random (seed 0) from the placed fields
+    of the wells run, or exactly those ``ops_flatfield_field_list`` names,
+    as ``[[well, site], ...]`` -- the ``fields.json`` a build writes, so a
+    plate's maps can be rebuilt from the same fields.
+    """
+    import multiprocessing
+
+    from .ops_flatfield import (build_flat_maps, choose_flat_fields,
+                                load_flat_maps, write_flat_maps)
+    from .qt.i18n import tr
+    from .resource_log import _parallel_process_executor as ProcessPoolExecutor
+
+    started = time.perf_counter()
+    channels = _ph_channels(settings)
+    folder = _ph_flat_folder(settings, destination)
+    if os.path.isfile(os.path.join(folder, "flat_info.json")):
+        _maps, offsets, info = load_flat_maps(folder, channels)
+        return {"reused": folder, "md5": info.get("md5"),
+                "offsets": offsets, "n_fields": info.get("n_fields")}
+    files = {}
+    for well in wells:
+        index = phenotype_index.get(well) or {}
+        files[well] = index.get(min(index), {}) if index else {}
+    listed = settings.get("ops_flatfield_field_list")
+    if listed:
+        with open(str(listed), encoding="utf-8") as handle:
+            chosen = [(str(w), int(site)) for w, site in json.load(handle)]
+        missing = [f for f in chosen if f[1] not in files.get(f[0], {})]
+        if missing:
+            raise ValueError(tr(
+                "ops_flatfield_field_list names fields without phenotype "
+                "tiles: {missing}", missing=missing[:5]))
+    else:
+        pool = []
+        for well in wells:
+            placed = _well_rows(db, "ops_phenotype", plate, well)
+            sites = sorted(int(s) for s in placed["site"]) if placed is not \
+                None and len(placed) else sorted(files.get(well, {}))
+            pool.extend((well, s) for s in sites if s in files.get(well, {}))
+        count = int(_setting_number(settings.get("ops_flatfield_fields"),
+                                    "ops_flatfield_fields", 204))
+        chosen = choose_flat_fields(pool, count, seed=0)
+    if not chosen:
+        raise ValueError(tr("no phenotype field to build flat-field maps from"))
+    tasks = [{"well": w, "site": site, "files": files[w][site],
+              "channels": channels} for w, site in chosen]
+    workers = max(1, min(int(settings.get("n_workers") or 1), len(tasks)))
+    if workers == 1:
+        results = [_ph_flat_blocks(task) for task in tasks]
+    else:
+        context = multiprocessing.get_context("spawn")
+        with ProcessPoolExecutor(workers, mp_context=context) as pool_:
+            results = list(pool_.map(_ph_flat_blocks, tasks))
+    unreadable = [u for r in results for u in r["unreadable"]]
+    if unreadable:
+        raise ValueError(tr(
+            "{count} flat-field fields could not be read, first {first}",
+            count=len(unreadable), first=unreadable[0]))
+    blocks = np.stack([r["blocks"] for r in results])
+    maps, method = build_flat_maps(blocks, channels,
+                                   polynomial_channels=(_NUCLEAR,))
+    info = write_flat_maps(folder, plate, maps, method, chosen, extra={
+        "wells_available": list(wells),
+        "built": time.strftime("%Y-%m-%dT%H:%M:%S%z")})
+    _say(tr("{plate} flat-field maps from {fields} fields written to "
+            "{folder}", plate=plate, fields=len(chosen), folder=folder))
+    return {"built": folder, "md5": info["md5"], "n_fields": len(chosen),
+            "fields_by_well": info["fields_by_well"],
+            "offsets": {c: m["offset"] for c, m in method.items()},
+            "workers": workers,
+            "seconds": round(time.perf_counter() - started, 1)}
+
+
+def _ph_mask_field(task: Mapping[str, Any]) -> Dict[str, Any]:
+    """The mask pass of one field; the ``ph_masks`` worker."""
+    from .ops_flatfield import mask_pass
+
+    with np.load(task["mask_path"]) as saved:
+        nuclei = saved["nuclei"]
+        cells = saved["cells"]
+    inverse = None
+    if task.get("flat_folder"):
+        inverse = _ph_flat_planes(task["flat_folder"], task["channels"],
+                                  cells.shape)[2]
+    table = mask_pass(nuclei, cells, inverse)
+    table.insert(0, "site", int(task["site"]))
+    table.to_parquet(task["part_path"] + ".part", index=False)
+    os.replace(task["part_path"] + ".part", task["part_path"])
+    return {"site": task["site"], "cells": int(len(table))}
+
+
+def _ph_masks(plate: str, well: str, settings: Mapping[str, Any],
+              destination: str) -> Dict[str, Any]:
+    """Pass over one well's saved masks; the ``ph_masks`` phase.
+
+    :param plate: the plate name.
+    :param well: the well name.
+    :param settings: read for ``ops_flatfield``, ``ops_flatfield_maps``,
+        ``ops_ph_channels`` and ``n_workers``.
+    :param destination: the run folder.
+    :returns: the report.
+
+    Writes ``ops_maskpass_<well>.parquet``, one row per cell
+    (:func:`spacr.ops_flatfield.mask_pass`): whether the cell or its
+    nucleus touches the field's edge, its pixel counts and centroids and,
+    with ``ops_flatfield='analytic'``, the mean flat-field gain under each
+    compartment. Resumable per field, as the measurement is. Reads the
+    masks only, never the images, so a measured run gets its edge flags
+    and gains in minutes rather than the hours a re-measure takes.
+    """
+    import multiprocessing
+
+    import pandas as pd
+
+    from .qt.i18n import tr
+    from .resource_log import _parallel_process_executor as ProcessPoolExecutor
+    from .tabular import write_table
+
+    started = time.perf_counter()
+    channels = _ph_channels(settings)
+    mask_dir = os.path.join(destination, well, "phenotype_masks")
+    if not os.path.isdir(mask_dir):
+        raise ValueError(tr(
+            "well {well} has no masks in {folder}; run ph_segment first",
+            well=well, folder=mask_dir))
+    sites = sorted(int(name[5:-4]) for name in os.listdir(mask_dir)
+                   if name.startswith("site-") and name.endswith(".npz")
+                   and ".part" not in name)
+    wanted = _ph_sites(settings.get("ops_ph_sites"))
+    if wanted is not None:
+        sites = [s for s in sites if s in wanted]
+    flat_folder = None
+    options: Dict[str, Any] = {"flatfield": None}
+    if _ph_flatfield_mode(settings) == "analytic":
+        from .ops_flatfield import load_flat_maps
+
+        flat_folder = _ph_flat_folder(settings, destination)
+        options["flatfield"] = load_flat_maps(flat_folder, channels)[2]["md5"]
+    part_dir = os.path.join(destination, well, "phenotype_maskpass")
+    os.makedirs(part_dir, exist_ok=True)
+    _ph_options_marker(part_dir, options)
+
+    parts = {s: os.path.join(part_dir, f"site-{s}.parquet") for s in sites}
+
+    tasks = [{"site": s, "mask_path": os.path.join(mask_dir, f"site-{s}.npz"),
+              "part_path": parts[s], "flat_folder": flat_folder,
+              "channels": channels}
+             for s in sites if not os.path.isfile(parts[s])]
+    workers = max(1, min(int(settings.get("n_workers") or 1),
+                         len(tasks) or 1))
+    if workers == 1:
+        for task in tasks:
+            _ph_mask_field(task)
+    else:
+        context = multiprocessing.get_context("spawn")
+        with ProcessPoolExecutor(workers, mp_context=context) as pool:
+            for count, _result in enumerate(
+                    pool.map(_ph_mask_field, tasks, chunksize=2), start=1):
+                if count % 100 == 0:
+                    _say(tr("{well} ph_masks: {count} of {total} fields",
+                            well=well, count=count, total=len(tasks)))
+    frames = [f for f in (pd.read_parquet(parts[s]) for s in sites)
+              if len(f)]
+    table = (pd.concat(frames, ignore_index=True) if frames
+             else pd.DataFrame(columns=["site", "label"]))
+    table.insert(0, "well", well)
+    table.insert(0, "plate", plate)
+    write_table(table, _ph_maskpass_path(destination, well),
+                canonicalise=False)
+    report = {"fields": len(sites), "passed": len(tasks),
+              "resumed": len(sites) - len(tasks), "cells": int(len(table)),
+              "touch_field_edge": int(table["touches_field_edge"].sum())
+              if "touches_field_edge" in table else 0,
+              "flatfield_md5": options["flatfield"], "workers": workers,
+              "table": _ph_maskpass_path(destination, well),
+              "seconds": round(time.perf_counter() - started, 1)}
+    _say(tr("{well} ph_masks: {cells} cells in {fields} fields", well=well,
+            cells=report["cells"], fields=report["fields"]))
+    return report
+
+
 def _ph_measure_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     """Measure one segmented phenotype field; the ``ph_measure`` worker.
 
     :param task: ``site``, ``files``, ``channels``, ``mask_path``,
-        ``cell_path`` and ``texture``.
+        ``cell_path`` and ``texture``; optionally ``flat_folder``, whose
+        maps correct the field before it is measured
+        (:func:`spacr.ops_flatfield.correct_field`), and ``funk_features``.
     :returns: ``site``, ``cells``, ``seconds`` and ``unreadable``.
 
     Module level so a spawned process can run it. It reads its own field
     and masks and writes its own Parquet part, so nothing large crosses the
-    process boundary.
+    process boundary. The correction is applied to the copy in memory; the
+    raw files are never changed.
     """
     from .ops_sample import measure_phenotype_field
 
@@ -2258,8 +2576,16 @@ def _ph_measure_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     with np.load(task["mask_path"]) as saved:
         nuclei = saved["nuclei"].astype(np.int32)
         cells = saved["cells"].astype(np.int32)
-    table = measure_phenotype_field(nuclei, cells, stack, task["channels"],
-                                    texture=bool(task["texture"]))
+    if task.get("flat_folder"):
+        from .ops_flatfield import correct_field
+
+        planes, offsets, _inverse = _ph_flat_planes(
+            task["flat_folder"], task["channels"], stack.shape[:2])
+        stack = correct_field(stack, planes, offsets, task["channels"])
+    table = measure_phenotype_field(
+        nuclei, cells, stack, task["channels"],
+        texture=bool(task["texture"]),
+        funk_features=bool(task.get("funk_features", False)))
     table.insert(0, "site", int(task["site"]))
     table.to_parquet(task["cell_path"] + ".part", index=False)
     os.replace(task["cell_path"] + ".part", task["cell_path"])
@@ -2374,9 +2700,23 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
         }
     if measure:
         tick = time.perf_counter()
+        flat_folder = None
+        options: Dict[str, Any] = {
+            "flatfield": None,
+            "funk_features": bool(settings.get("ops_ph_funk_features",
+                                               False))}
+        if _ph_flatfield_mode(settings) == "exact":
+            from .ops_flatfield import load_flat_maps
+
+            flat_folder = _ph_flat_folder(settings, destination)
+            options["flatfield"] = load_flat_maps(flat_folder,
+                                                  channels)[2]["md5"]
+        _ph_options_marker(cell_dir, options)
         tasks = [{"site": s, "files": files[s], "channels": channels,
                   "mask_path": mask_path(s), "cell_path": cell_path(s),
-                  "texture": bool(settings.get("ops_ph_texture", True))}
+                  "texture": bool(settings.get("ops_ph_texture", True)),
+                  "flat_folder": flat_folder,
+                  "funk_features": options["funk_features"]}
                  for s in sites if os.path.isfile(mask_path(s))
                  and not os.path.isfile(cell_path(s))]
         workers = max(1, min(int(settings.get("n_workers") or 1),
@@ -2417,6 +2757,10 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                 if measured else None),
             "wall_seconds": round(time.perf_counter() - tick, 1),
             "table": _ph_cells_path(destination, well),
+            "flatfield": ({"mode": "exact", "folder": flat_folder,
+                           "md5": options["flatfield"]}
+                          if flat_folder else None),
+            "funk_features": options["funk_features"],
         }
     if field_shape is not None:
         _ph_transforms(db, plate, well, destination, tuple(field_shape))
@@ -2444,15 +2788,35 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
     against the sequencing nuclei under it
     (:func:`spacr.ops_merge.refine_field_transform`), and the cells are
     paired one to one (:func:`spacr.ops_merge.merge_field`). A sequencing
-    nucleus claimed by two fields -- an overlap -- keeps the closer match.
+    nucleus claimed by two fields -- an overlap -- keeps one copy, chosen by
+    ``ops_ownership``:
+
+    - ``'closer_match'`` (default) keeps the closer match
+      (:func:`spacr.ops_merge.deduplicate_matches`), as before 1.5.1.8;
+    - ``'a1b'`` keeps the copy from the field in which the sequencing
+      centroid lies deepest (:func:`spacr.ops_merge.deepest_field_matches`);
+    - ``'a1'`` keeps only cells whose phenotype nucleus centroid lies
+      deepest in their own field, then the closer match.
+
+    With ``'a1'`` or ``'a1b'`` every phenotype cell also gets ownership
+    flags in ``ops_ownership_<well>.parquet``: ``in_overlap_margin`` (a
+    field overlapping this one holds the nucleus centroid deeper),
+    ``any_match`` (the cell had a sequencing candidate), ``owned_link``
+    (its link was kept) and ``owned``. A cell with a candidate is owned
+    when its link was kept; a cell without one (A1) when it is not in the
+    margin. The aggregate phase then pools owned cells only, and leaves out
+    those cut by the field's edge (``ph_masks``).
     """
     import pandas as pd
 
-    from .ops_merge import (deduplicate_matches, field_to_well,
-                            merge_field, refine_field_transform)
+    from .ops_merge import (deduplicate_matches, deepest_field_matches,
+                            field_footprint, field_to_well, footprint_depth,
+                            merge_field, overlapping_fields,
+                            refine_field_transform)
     from .qt.i18n import tr
 
     started = time.perf_counter()
+    ownership = _ph_ownership_rule(settings)
     path = _ph_cells_path(destination, well)
     if not os.path.isfile(path):
         raise ValueError(tr(
@@ -2472,6 +2836,7 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
                                       "ops_merge_threshold", 4.0))
     rows = []
     refined_rows = []
+    fields = {}
     by_site = {int(r.site): r for r in placed.itertuples()}
     for site, group in cells.groupby("site", sort=True):
         record = by_site.get(int(site))
@@ -2517,9 +2882,86 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
             rows.append((plate, well, int(site), int(labels[int(i)]),
                          int(object_ids[near[int(j)]]), float(distance),
                          int(refined)))
+        if ownership != "closer_match":
+            fields[int(site)] = (transform, points, labels, pairs, near,
+                                 (float(record.field_height),
+                                  float(record.field_width)))
     frame = pd.DataFrame(rows, columns=["plate", "well", "site", "label",
                                         "object_id", "distance", "refined"])
-    frame, duplicates = deduplicate_matches(frame)
+    owner_report = None
+    if ownership == "closer_match":
+        frame, duplicates = deduplicate_matches(frame)
+    else:
+        # Footprints from the transform each field was merged with: the
+        # re-solved one, or the seed where re-solving failed.
+        prints = {s: field_footprint(f[0], f[5]) for s, f in fields.items()}
+        neighbours = overlapping_fields(prints)
+        depths, flags = [], []
+        for site, (transform, points, labels, pairs, near,
+                   _shape) in fields.items():
+            low, high = prints[site]
+            if len(pairs):
+                depths.append(footprint_depth(
+                    target[near[pairs[:, 1].astype(int)]], low, high))
+            moved = field_to_well(points, transform)
+            own = footprint_depth(moved, low, high)
+            other = np.full(len(moved), -np.inf)
+            for neighbour in neighbours[site]:
+                other = np.maximum(other, footprint_depth(
+                    moved, *prints[neighbour]))
+            flags.append(pd.DataFrame({
+                "site": site, "label": labels, "well_y": moved[:, 0],
+                "well_x": moved[:, 1], "own_depth": own,
+                "best_other_depth": other}))
+        frame["sbs_depth_px"] = (np.concatenate(depths) if depths
+                                 else np.empty(0, float))
+        candidates = frame
+        if ownership == "a1b":
+            frame, duplicates = deepest_field_matches(candidates)
+        else:
+            margin_rows = pd.concat(flags, ignore_index=True) if flags else \
+                pd.DataFrame(columns=["site", "label", "own_depth",
+                                      "best_other_depth"])
+            core = margin_rows.loc[margin_rows["own_depth"]
+                                   >= margin_rows["best_other_depth"],
+                                   ["site", "label"]]
+            frame = candidates.merge(core, on=["site", "label"], how="inner")
+            duplicates = int(len(candidates) - len(frame))
+        # The closer match stays as a safety net; on a1b it drops nothing.
+        frame, extra = deduplicate_matches(frame)
+        duplicates += extra
+        owner = (pd.concat(flags, ignore_index=True) if flags else
+                 pd.DataFrame(columns=["site", "label", "well_y", "well_x",
+                                       "own_depth", "best_other_depth"]))
+        owner["in_overlap_margin"] = owner["own_depth"] < owner[
+            "best_other_depth"]
+        key = pd.MultiIndex.from_frame(owner[["site", "label"]])
+        owner["any_match"] = key.isin(pd.MultiIndex.from_frame(
+            candidates[["site", "label"]]))
+        owner["owned_link"] = key.isin(pd.MultiIndex.from_frame(
+            frame[["site", "label"]]))
+        owner["owned"] = np.where(owner["any_match"], owner["owned_link"],
+                                  ~owner["in_overlap_margin"])
+        owner.insert(0, "well", well)
+        owner.insert(0, "plate", plate)
+        owner["ownership_rule"] = ownership
+        from .tabular import write_table
+
+        write_table(owner, _ph_ownership_path(destination, well),
+                    canonicalise=False)
+        closer, _ = deduplicate_matches(candidates)
+        owner_report = {
+            "rule": ownership, "candidates": int(len(candidates)),
+            "cells_with_candidate": int(owner["any_match"].sum()),
+            "margin_rows": int(owner["in_overlap_margin"].sum()),
+            "owned": int(owner["owned"].sum()),
+            "margin_copies_excluded": int((~owner["owned"]).sum()),
+            "switched_from_closer_match": int((~pd.MultiIndex.from_frame(
+                frame[["site", "label", "object_id"]]).isin(
+                pd.MultiIndex.from_frame(closer[["site", "label",
+                                                 "object_id"]]))).sum()),
+            "table": _ph_ownership_path(destination, well),
+        }
     _replace_well_rows(db, "ops_merge", frame, plate, well)
     refinements = pd.DataFrame(refined_rows)
     if len(refinements):
@@ -2541,6 +2983,7 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
         "distance_median_px": (round(float(frame["distance"].median()), 3)
                                if len(frame) else None),
         "threshold_px": threshold,
+        "ownership": owner_report or {"rule": ownership},
         "seconds": round(time.perf_counter() - started, 1),
     }
     _say(tr("{well} merge: {merged} of {cells} cells matched to a sequencing "
@@ -2742,7 +3185,8 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     :param settings: read for ``ops_design``, ``ops_control_prefix``,
         ``ops_bootstrap``, ``ops_pvalue_null``, ``ops_test_features``,
         ``ops_mitotic_dna_z``, ``ops_genotype_table``, ``ops_pool_wells``,
-        ``ops_pool_interphase`` and ``ops_feature_qc``.
+        ``ops_pool_interphase``, ``ops_feature_qc``, ``ops_ownership``,
+        ``ops_flatfield`` and ``ops_flatfield_maps``.
     :param destination: where ``ops_guides_<plate>`` and
         ``ops_genes_<plate>`` (CSV and Parquet) are written. A run that pools
         only interphase cells or only some wells adds ``_interphase`` or
@@ -2774,6 +3218,16 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     ``ops_feature_qc`` on, a feature whose robust z is undefined in every
     well is left out of both tables. It is listed with its reason in
     ``ops_feature_qc_<plate>.csv``.
+
+    With ``ops_ownership`` ``'a1'`` or ``'a1b'`` the merge kept owned links
+    only, and cells that touch their field's edge are left out too
+    (``ops_maskpass_<well>.parquet`` from ``ph_masks``): such a cell is cut,
+    and the whole copy is in the neighbouring field or not imaged at all.
+    With ``ops_flatfield='analytic'`` every intensity feature is corrected
+    for the field's illumination from the mask pass's gains
+    (:func:`spacr.ops_flatfield.correct_features`) before anything else,
+    the mitotic call included; with ``'exact'`` the measurement already
+    corrected the pixels and nothing more is done here.
     """
     import pandas as pd
     import pyarrow.parquet as pq
@@ -2848,6 +3302,59 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     cells = _ph_read_columns(sources, ["well", "site", "label",
                                        *mitotic_inputs])
     cells["_row"] = np.arange(len(cells))
+    ownership = _ph_ownership_rule(settings)
+    flatfield = _ph_flatfield_mode(settings)
+    flat_offsets: Dict[str, float] = {}
+    flat_record: Optional[Dict[str, Any]] = None
+    gain_columns: List[str] = []
+    if flatfield == "analytic":
+        from .ops_flatfield import load_flat_maps
+
+        flat_folder = _ph_flat_folder(settings, destination)
+        _maps, flat_offsets, info = load_flat_maps(
+            flat_folder, _ph_channels(settings))
+        flat_record = {"mode": "analytic", "folder": flat_folder,
+                       "md5": info.get("md5"), "offsets": flat_offsets}
+        gain_columns = [f"{comp}_{ch}_g" for comp in
+                        ("cell", "nucleus", "cytoplasm")
+                        for ch in flat_offsets] + [
+            f"{comp}_px" for comp in ("cell", "nucleus", "cytoplasm")]
+    ownership_counts: Optional[Dict[str, Any]] = None
+    if ownership != "closer_match" or gain_columns:
+        mask_rows = []
+        for well in pooled:
+            path = _ph_maskpass_path(destination, well)
+            if not os.path.isfile(path):
+                raise ValueError(tr(
+                    "ops_ownership {rule} and ops_flatfield {mode} need the "
+                    "mask pass of well {well} at {path}; run the ph_masks "
+                    "phase first", rule=ownership, mode=flatfield, well=well,
+                    path=path))
+            names = set(pq.ParquetFile(path).schema_arrow.names)
+            lacking = [c for c in gain_columns if c not in names]
+            if lacking:
+                raise ValueError(tr(
+                    "the mask pass of well {well} has no flat-field gains "
+                    "{lacking}; rerun ph_masks with ops_flatfield "
+                    "'analytic'", well=well, lacking=lacking[:3]))
+            mask_rows.append(pd.read_parquet(path, columns=[
+                "well", "site", "label", "touches_field_edge",
+                *gain_columns]))
+        masks = pd.concat(mask_rows, ignore_index=True)
+        cells = cells.merge(masks, on=["well", "site", "label"], how="left")
+        del masks, mask_rows
+    if ownership != "closer_match":
+        cut = cells["touches_field_edge"].fillna(True).astype(bool)
+        ownership_counts = {"rule": ownership,
+                            "cells_cut_by_field_edge": int(cut.sum())}
+        for well in pooled:
+            path = _ph_ownership_path(destination, well)
+            if os.path.isfile(path):
+                owned = pd.read_parquet(path, columns=["owned"])["owned"]
+                ownership_counts.setdefault("margin_copies_excluded", 0)
+                ownership_counts["margin_copies_excluded"] += int(
+                    (~owned.astype(bool)).sum())
+        cells = cells[~cut.to_numpy()].reset_index(drop=True)
     cells = cells.merge(merged_rows[["well", "site", "label", "object_id"]],
                         on=["well", "site", "label"], how="inner")
     cells = cells.merge(called, on=["well", "object_id"], how="left")
@@ -2859,6 +3366,11 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     control = cells["gene"].str.lower().str.startswith(control_prefix.lower())
     mitotic_z = float(_setting_number(settings.get("ops_mitotic_dna_z"),
                                       "ops_mitotic_dna_z", 3.0))
+    if gain_columns and dna_column:
+        from .ops_flatfield import correct_features
+
+        cells[dna_column] = correct_features(
+            cells, cells, [dna_column], flat_offsets)[dna_column].to_numpy()
     if dna_column and "nucleus_area" in cells:
         cells["mitotic"] = mitotic_calls(cells, dna=dna_column,
                                          area="nucleus_area", dna_z=mitotic_z)
@@ -2892,10 +3404,21 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     pool_rows = (control.to_numpy() & keep)
     control_values = pd.DataFrame(index=pd.RangeIndex(int(pool_rows.sum())))
     guide_parts, gene_parts, degenerate = [], [], []
+    gains = None
+    if gain_columns:
+        from .ops_flatfield import correct_features, correction_inputs
+
+        gains = cells[gain_columns].reset_index(drop=True)
     for start in range(0, len(features), _PH_POOL_BLOCK):
         block = features[start:start + _PH_POOL_BLOCK]
-        values = _ph_read_columns(sources, block).iloc[rows].reset_index(
-            drop=True)
+        if gains is None:
+            values = _ph_read_columns(sources, block).iloc[rows].reset_index(
+                drop=True)
+        else:
+            needed = correction_inputs(block, list(flat_offsets))
+            values = correct_features(
+                _ph_read_columns(sources, needed).iloc[rows].reset_index(
+                    drop=True), gains, block, flat_offsets)
         frame = pd.concat([meta[["well"]], values], axis=1)
         if anchor:
             frame[anchor[0]] = 0.0
@@ -2953,6 +3476,11 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
             "control_median", "control_share_at_median",
             "wells_with_zero_control_mad"]), target, canonicalise=False)
         outputs["feature_qc_csv"] = target
+    flagged: List[str] = []
+    if gain_columns:
+        from .ops_flatfield import flagged_features
+
+        flagged = flagged_features(features, list(flat_offsets))
     report = {
         "wells": pooled, "cells_merged": int(len(with_guide)),
         "cells_with_guide": int(with_guide.sum()),
@@ -2966,6 +3494,9 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         "features_dropped": degenerate,
         "mitotic_rule": {"dna": dna_column, "dna_z": mitotic_z,
                          "area": "nucleus_area", "area_z": 0.0},
+        "ownership": ownership_counts or {"rule": ownership},
+        "flatfield": flat_record or {"mode": flatfield},
+        "flatfield_flagged_features": flagged,
         "mitotic_fraction_all": round(float(cells["mitotic"].mean()), 4)
         if len(cells) else None,
         "mitotic_fraction_controls": round(float(
@@ -3026,9 +3557,12 @@ def run_ops(settings: Mapping[str, Any], *,
     :param phases: any of ``"stitch"``, ``"phenotype"``, ``"objects"`` and
         ``"decode"``, run in that order. A phase left out reads what it needs
         from the database, so a well can be stitched once and decoded again.
-        The alpha phenotype path adds ``"ph_segment"``,
-        ``"ph_measure"``, ``"merge"`` and ``"aggregate"``, run only when
-        named here and after those four; a run of only these needs ``dst_root``
+        The alpha phenotype path adds ``"ph_flatfield"``, ``"ph_segment"``,
+        ``"ph_measure"``, ``"ph_masks"``, ``"merge"`` and ``"aggregate"``,
+        run only when named here and after those four; ``ph_flatfield``
+        builds the plate's maps once, before the wells, and ``ph_masks``
+        writes each cell's field-edge flags and flat-field gains from the
+        saved masks. A run of only these needs ``dst_root``
         and ``plate`` but no ``genotype_source``, takes its wells from
         ``ops_phenotype``, and adds to each well's ``ops_report.json``
         rather than replacing it. ``aggregate`` pools the wells run and
@@ -3097,7 +3631,7 @@ def run_ops(settings: Mapping[str, Any], *,
     phenotype_root = settings.get("phenotype_source")
     phenotype_index: Dict[str, Any] = {}
     wants_tiles = any(p in phases for p in ("phenotype", "ph_segment",
-                                            "ph_measure"))
+                                            "ph_measure", "ph_flatfield"))
     if wants_tiles and phenotype_root:
         if not os.path.isdir(str(phenotype_root)):
             raise ValueError(
@@ -3115,6 +3649,12 @@ def run_ops(settings: Mapping[str, Any], *,
                          str(phenotype_root))
 
     out: Dict[str, Any] = {"db": db, "plate": plate, "wells": {}}
+    if "ph_flatfield" in phases:
+        out["ph_flatfield"] = _ph_flatfield(plate, chosen, phenotype_index,
+                                            settings, destination, db)
+        with open(os.path.join(destination, f"ops_flatfield_{plate}.json"),
+                  "w", encoding="utf-8") as handle:
+            json.dump(out["ph_flatfield"], handle, indent=1, default=str)
     for well in chosen:
         folder = os.path.join(destination, well)
         report_path = os.path.join(folder, "ops_report.json")
@@ -3171,6 +3711,8 @@ def run_ops(settings: Mapping[str, Any], *,
                 report["ph_fields"] = _ph_fields(
                     db, plate, well, phenotype_index[well], settings, gpu,
                     destination, segment=segment, measure=measure)
+        if "ph_masks" in phases:
+            report["ph_masks"] = _ph_masks(plate, well, settings, destination)
         if "merge" in phases:
             report["merge"] = _ph_merge(db, plate, well, settings,
                                         destination, gpu)
