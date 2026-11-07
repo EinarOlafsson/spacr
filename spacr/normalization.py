@@ -109,7 +109,9 @@ def normalization_stats(mode: Any, *,
         back to ``symmetric`` with a log line -- a typo must not silently
         train a model on statistics nobody chose, but it must not stop a run
         either, and ``symmetric`` is what the run would have used before this
-        setting existed.
+        setting existed. ``auto`` is the Classify default. Only fixed crop
+        scaling resolves it to the model's own statistics, so here it means
+        ``symmetric`` without a log line.
     :param mean: for ``custom`` and ``dataset``, the per-channel means. One
         value is broadcast to every channel, which is what a single-stain
         dataset wants.
@@ -121,6 +123,8 @@ def normalization_stats(mode: Any, *,
         broadcast a single supplied value.
     """
     name = str(mode or "symmetric").strip().lower()
+    if name == "auto":
+        name = "symmetric"
     if name not in NORMALIZATIONS:
         LOG.info("input_statistics %r is not one of %s; using symmetric, "
                  "which is what spaCR did before this setting existed",

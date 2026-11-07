@@ -27,7 +27,10 @@ from torch.utils.data import Subset
 from .resource_log import _parallel_data_loader as DataLoader
 
 from .errors import RunLedger
-from .classification_pixels import checkpoint_policy, initialization_policy, training_preprocessing
+from .classification_pixels import (
+    RAW_FIXED_SCALE, _CONTRACT_VERSION, _check_preprocessing, _prepare_batch,
+    checkpoint_policy, initialization_policy, training_preprocessing,
+)
 from .plot import save_figure
 from .runctx import resolve_seed, seed_everything, seed_worker, torch_generator
 from .torch_artifacts import (
@@ -508,6 +511,33 @@ def _train_batch(model, data, target, *, loss_fn, scaler, mixed_precision,
             metrics.add(logits.to(device), labels.to(device), loss.to(device))
 
 
+def _inference_contract_check(metadata, *, image_size, stats, on_mismatch):
+    """Compare an inference transform with the model's recorded preprocessing.
+
+    :param metadata: checkpoint metadata.
+    :param image_size: the centre-crop size this run applies.
+    :param stats: ``(mean, std)`` this run applies, or None.
+    :param on_mismatch: ``'refuse'`` or ``'warn'``.
+    :returns: the mismatches found.
+    :raises ValueError: the model was trained on fixed-scale raw crops,
+        which this scoring path does not reproduce, or a refused mismatch.
+    """
+    saved = (metadata or {}).get('preprocessing') or {}
+    if saved.get('crop_scaling') == 'fixed':
+        raise ValueError(
+            "This model was trained with crop_scaling='fixed' on raw crops. "
+            "This scoring path applies the 8-bit legacy transform, so it would "
+            "feed the model different inputs. Score it with train_test_model "
+            "(train=False, test=True), which rebuilds the recorded transform.")
+    observed = {'image_size': int(image_size), 'resize': 'center_crop',
+                'mean': list(stats[0]) if stats is not None else None,
+                'std': list(stats[1]) if stats is not None else None}
+    if stats is None and saved.get('mean') is not None:
+        observed['mean'] = 'none'
+        observed['std'] = 'none'
+    return _check_preprocessing(metadata, observed, on_mismatch=on_mismatch)
+
+
 def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True,
                 n_jobs=10, input_statistics='symmetric', *, tta_enabled=False,
                 tta_rotations=False, tta_horizontal_flip=False, tta_vertical_flip=False,
@@ -587,6 +617,10 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True,
             transforms.CenterCrop(size=(image_size, image_size))])
     
     model, metadata = _load_inference_model(model_path, device)
+    _inference_contract_check(
+        metadata, image_size=image_size,
+        stats=(normalization_stats(input_statistics) if normalize else None),
+        on_mismatch='warn')
 
     print(model)
     
@@ -724,6 +758,14 @@ def apply_model_to_tar(settings=None):
         print(f"Loading dataset from {tar_path}")
 
     model, metadata = _load_inference_model(_classifier_model_input(settings, 'model_path'), device)
+    _inference_contract_check(
+        metadata, image_size=settings['image_size'],
+        stats=(normalization_stats(
+            settings.get('input_statistics', 'symmetric'),
+            mean=settings.get('input_mean'), std=settings.get('input_std'),
+            channels=len(settings.get('channels') or (0, 1, 2)))
+            if settings.get('normalize', True) else None),
+        on_mismatch=settings.get('preprocessing_mismatch', 'refuse'))
 
     dataset = TarImageDataset(tar_path, transform=transform,
                               crop_loading_policy=checkpoint_policy(metadata, announce=True))
@@ -1097,8 +1139,8 @@ def evaluate_model_performance(model, loader, epoch, loss_type='auto',
     binary_mode = None
 
     with torch.no_grad():
-        for data, target, _ in loader:
-            data = data.to(device)
+        for data, target, batch_names in loader:
+            data = _prepare_batch(loader, data, batch_names, device)
             logits = _governed_logits(model, data, device)
 
             if head_dim is None:
@@ -1318,7 +1360,7 @@ def test_model_core(model, loader, loader_name, epoch, loss_type):
 
     with torch.no_grad():
         for data, target, batch_filenames in loader:
-            data = data.to(device)
+            data = _prepare_batch(loader, data, batch_filenames, device)
             target = target.to(device)
 
             logits = _governed_logits(model, data, device)
@@ -1350,6 +1392,9 @@ def test_model_core(model, loader, loader_name, epoch, loss_type):
     metrics["loss"] = float(mean_loss)
     metrics["epoch"] = int(epoch)
     metrics["Accuracy"] = metrics["accuracy"]
+    if y_true.size:
+        metrics["majority_class_accuracy"] = float(
+            np.bincount(y_true).max() / y_true.size)
 
     df_dict = {
         "filename": filenames,
@@ -1995,6 +2040,74 @@ def _score_oof_predictions(settings, stem, probabilities, labels, paths,
     return scores
 
 
+def _legacy_contract(settings, crop_loading_policy, loader=None):
+    """The full preprocessing record of a run, for its checkpoint.
+
+    A fixed-scale run takes its record from the loader. A legacy run decodes
+    8-bit crops, centre-crops them to ``image_size`` and, with ``normalize``,
+    maps [0, 1] to [-1, 1].
+
+    :param settings: the classifier settings.
+    :param crop_loading_policy: the decoding policy of the loaders.
+    :param loader: the training loader, read for its contract and crops.
+    :returns: the preprocessing mapping.
+    """
+    contract = getattr(loader, 'preprocessing_contract', None)
+    if contract:
+        return dict(contract)
+    from .io import _resolve_channel_indices
+
+    normalize = bool(settings.get('normalize', True))
+    channels = _resolve_channel_indices(settings.get('train_channels'), verbose=False)
+    record = {
+        'contract_version': _CONTRACT_VERSION,
+        'crop_loading_policy': crop_loading_policy,
+        'crop_scaling': 'legacy',
+        'image_size': int(settings.get('image_size', 224)),
+        'resize': 'center_crop',
+        'interpolation': None,
+        'normalize': normalize,
+        'mean': [0.5, 0.5, 0.5] if normalize else None,
+        'std': [0.5, 0.5, 0.5] if normalize else None,
+        'channels': settings.get('train_channels'),
+        'selected_channels': list(channels),
+        'augment': bool(settings.get('augment', False)),
+    }
+    record.update(_crop_folder_facts(loader))
+    return record
+
+
+def _crop_folder_facts(loader):
+    """Crop format, intensity, size and mask mode of a loader's first crop.
+
+    :param loader: a loader whose dataset lists its files, or None.
+    :returns: the facts found, possibly none.
+    """
+    if loader is None:
+        return {}
+    try:
+        from .io import dataset_filenames
+        from .crops import crop_format_for_png, read_crop_folder_marker
+        names = dataset_filenames(loader.dataset)
+        if not names:
+            return {}
+        first = names[0]
+        fmt = crop_format_for_png(first)
+        with Image.open(first) as image:
+            size = list(image.size)
+        facts = {'crop_format': int(fmt),
+                 'crop_intensity': 'raw' if int(fmt) == 4 else 'stretched',
+                 'crop_size': size}
+        marker = read_crop_folder_marker(os.path.dirname(os.path.abspath(first))) or {}
+        if marker.get('mask_mode'):
+            facts['mask_mode'] = marker['mask_mode']
+        if marker.get('flat_field_sha256'):
+            facts['flat_field_sha256'] = marker['flat_field_sha256']
+        return facts
+    except Exception:
+        return {}
+
+
 def train_test_model(settings):
     """Train a vision classifier on a spacr training dataset and/or evaluate it on the held-out ``test/`` split.
 
@@ -2079,6 +2192,8 @@ def train_test_model(settings):
     src = settings['src']
 
     channels_str = ''.join(settings['train_channels'])
+    if settings.get('control_shuffled_labels'):
+        channels_str += '_shuffled_labels'
     dst = os.path.join(src, 'model', settings['model_type'], channels_str,
                        str(f"epochs_{settings['epochs']}"))
     os.makedirs(dst, exist_ok=True)
@@ -2159,6 +2274,11 @@ def train_test_model(settings):
     if settings['train']:
         _flowview_advance("split")
 
+    if (settings['train'] and cv_folds >= 2
+            and str(settings.get('crop_scaling', 'legacy')).lower() == 'fixed'):
+        raise ValueError(
+            "crop_scaling='fixed' is not available with cross-validation yet. "
+            "Use the single validation split, or crop_scaling='legacy'.")
     if settings['train'] and cv_folds >= 2:
         cv_result_loc = _cross_validate_model(settings, num_classes)
 
@@ -2166,6 +2286,9 @@ def train_test_model(settings):
         crop_loading_policy = initialization_policy(
             _classifier_model_input(settings, 'resume_checkpoint')
             or _classifier_model_input(settings, 'custom_model_path'))
+        fixed_scaling = str(settings.get('crop_scaling', 'legacy')).lower() == 'fixed'
+        if fixed_scaling:
+            crop_loading_policy = RAW_FIXED_SCALE
         train, val, _ = generate_loaders(
             src,
             mode='train',
@@ -2183,6 +2306,13 @@ def train_test_model(settings):
             seed=settings.get('random_seed', 42),
             group_by=settings.get('cv_group_by', 'well'),
             crop_loading_policy=crop_loading_policy,
+            crop_scaling=settings.get('crop_scaling', 'legacy'),
+            input_statistics=settings.get('input_statistics', 'auto'),
+            model_type=(settings['model_type']
+                        if settings.get('init_weights', True) else None),
+            crop_scale_clip=float(settings.get('crop_scale_clip', 1.5)),
+            crop_scale_file=settings.get('crop_scale_file') or None,
+            shuffle_labels=bool(settings.get('control_shuffled_labels', False)),
         )
 
         train_objects = _loader_object_count(train)
@@ -2255,13 +2385,7 @@ def train_test_model(settings):
             early_stopping_patience=settings.get('early_stopping_patience', 0),
             custom_model_path=_classifier_model_input(settings, 'custom_model_path') or None,
             resume_checkpoint=_classifier_model_input(settings, 'resume_checkpoint') or None,
-            preprocessing={
-                'crop_loading_policy': crop_loading_policy,
-                'image_size': settings.get('image_size', 224),
-                'normalize': settings.get('normalize', True),
-                'channels': settings.get('train_channels'),
-                'augment': settings.get('augment', False),
-            },
+            preprocessing=_legacy_contract(settings, crop_loading_policy, train),
             classes=_class_folder_names(settings),
             settings=settings,
             split_rule=(
@@ -2289,6 +2413,8 @@ def train_test_model(settings):
             model, metadata = _load_inference_model(model_path, torch.device('cpu'))
         else:
             metadata = {'preprocessing': {'crop_loading_policy': crop_loading_policy}}
+        saved = metadata.get('preprocessing') or {}
+        test_contract = saved if saved.get('crop_scaling') == 'fixed' else None
         test, _, _ = generate_loaders(
             src,
             mode='test',
@@ -2303,7 +2429,12 @@ def train_test_model(settings):
             augment=False,
             verbose=settings['verbose'],
             crop_loading_policy=checkpoint_policy(metadata, announce=True),
+            preprocessing_contract=test_contract,
         )
+        if test_contract is None and saved.get('contract_version') is not None:
+            _check_preprocessing(
+                metadata, _legacy_contract(settings, checkpoint_policy(metadata), test),
+                on_mismatch=settings.get('preprocessing_mismatch', 'refuse'))
 
         model_fldr = dst
         time_now = datetime.date.today().strftime('%y%m%d')
@@ -3239,6 +3370,7 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
         pass_metrics = None if full_train_pass else _TrainingPassMetrics()
 
         for batch_idx, (data, target, filenames) in enumerate(train_loaders, start=1):
+            data = _prepare_batch(train_loaders, data, filenames, device, train=True)
             _train_batch(model, data, target, loss_fn=loss_fn, scaler=scaler,
                          mixed_precision=mixed_precision, device=device,
                          head_dim=head_dim, metrics=pass_metrics,

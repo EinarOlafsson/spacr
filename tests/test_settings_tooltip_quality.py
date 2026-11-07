@@ -1382,6 +1382,16 @@ if app_key == "mask":
     for app, key in label_import_arrivals:
         assert resolve_default_settings(app)[key] == label_import_defaults[key]
     recognized_arrivals |= label_import_arrivals
+    # Item 772 (2026-11-07): crop_intensity, one claim ('auto') resolved by
+    # Measure and by External Masks.
+    crop_intensity_arrivals = {(app, "crop_intensity")
+                               for app in ("measure", "external_masks")}
+    assert {pair for pair in compared_pairs
+            if pair[1] == "crop_intensity"} == crop_intensity_arrivals
+    assert not crop_intensity_arrivals & (recognized_arrivals | variants.keys())
+    for app, key in crop_intensity_arrivals:
+        assert resolve_default_settings(app)[key] == "auto"
+    recognized_arrivals |= crop_intensity_arrivals
     assert comparisons - len(recognized_arrivals) == 1005
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))

@@ -32,7 +32,7 @@ def model_configuration(model: nn.Module) -> dict[str, Any]:
         import copy
         return {"model_name": "own_dino",
                 "own_dino_config": copy.deepcopy(model._own_dino_config)}
-    return {
+    config = {
         "model_name": getattr(model, "model_name", model.__class__.__name__),
         "num_classes": int(getattr(model, "num_classes", 1)),
         "dropout_rate": getattr(model, "dropout_rate", None),
@@ -40,6 +40,9 @@ def model_configuration(model: nn.Module) -> dict[str, Any]:
         "image_size": int(getattr(model, "image_size", 224)),
         "multilabel": bool(getattr(model, "multilabel", False)),
     }
+    if int(getattr(model, "in_channels", 3) or 3) != 3:
+        config["in_channels"] = int(model.in_channels)
+    return config
 
 
 def dependency_versions() -> dict[str, str]:
@@ -229,8 +232,14 @@ def build_model_from_configuration(config: Mapping[str, Any]) -> nn.Module:
     if config.get("model_name") == "own_dino":
         from .embeddings import _dino_classifier_from_config
         return _dino_classifier_from_config(config["own_dino_config"])
-    from .utils import TorchModel
+    from .utils import CustomCellClassifier, TorchModel
 
+    if config.get("model_name") == "custom":
+        return CustomCellClassifier(
+            num_classes=int(config.get("num_classes", 2)),
+            use_checkpoint=bool(config.get("use_checkpoint", False)),
+            in_channels=int(config.get("in_channels", 3)),
+            image_size=int(config.get("image_size", 224)))
     return TorchModel(
         model_name=str(config["model_name"]),
         pretrained=False,
@@ -239,6 +248,7 @@ def build_model_from_configuration(config: Mapping[str, Any]) -> nn.Module:
         num_classes=int(config.get("num_classes", 2)),
         multilabel=bool(config.get("multilabel", False)),
         image_size=int(config.get("image_size", 224)),
+        in_channels=int(config.get("in_channels", 3)),
     )
 
 

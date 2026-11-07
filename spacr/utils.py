@@ -3918,44 +3918,101 @@ class MultiScaleBlockWithAttention(nn.Module):
 class CustomCellClassifier(nn.Module):
     """Small classifier stacking :class:`EarlyFusion` and a multi-scale attention block.
 
+    The model is trained from scratch, so it has no pretrained input
+    statistics to match. It returns raw logits. The loss applies the softmax
+    or sigmoid, so a negative logit is a valid output.
+
     :param num_classes: output class count.
-    :param pathogen_channel: reserved for downstream use; kept for API compatibility.
-    :param use_attention: reserved for downstream use; kept for API compatibility.
+    :param pathogen_channel: accepted for backward compatibility and ignored.
+    :param use_attention: accepted for backward compatibility and ignored.
     :param use_checkpoint: run the forward pass through ``torch.utils.checkpoint``.
-    :param dropout_rate: reserved for downstream use; kept for API compatibility.
+    :param dropout_rate: accepted for backward compatibility and ignored.
+    :param in_channels: number of input channels. Any positive count works,
+        because the 1x1 fusion convolution takes the real channel count.
+    :param image_size: square input size recorded with the model, so a saved
+        checkpoint can be rebuilt with the same contract.
     """
-    def __init__(self, num_classes, pathogen_channel, use_attention, use_checkpoint, dropout_rate):
+    def __init__(self, num_classes=2, pathogen_channel=None, use_attention=None,
+                 use_checkpoint=False, dropout_rate=None, *, in_channels=3,
+                 image_size=224):
         """Build the fusion, multi-scale, and linear classifier submodules."""
         super(CustomCellClassifier, self).__init__()
-        self.early_fusion = EarlyFusion(in_channels=3)
+        if int(in_channels) < 1:
+            raise ValueError(f"in_channels must be at least 1, got {in_channels}")
+        self.model_name = "custom"
+        self.num_classes = int(num_classes)
+        self.in_channels = int(in_channels)
+        self.image_size = int(image_size) if image_size else 224
+        self.dropout_rate = None
+        self.multilabel = False
+        self.early_fusion = EarlyFusion(in_channels=self.in_channels)
 
         self.multi_scale_block_1 = MultiScaleBlockWithAttention(in_channels=64, out_channels=64)
 
-        self.fc1 = nn.Linear(64, num_classes)
-        self.use_checkpoint = use_checkpoint
+        self.fc1 = nn.Linear(64, self.num_classes)
+        self.use_checkpoint = bool(use_checkpoint)
         for param in self.parameters():
             param.requires_grad = True
 
     def custom_forward(self, x):
-        """Return the class logits for a batch ``x`` of shape ``(B, 3, H, W)``.
+        """Return the class logits for a batch ``x`` of shape ``(B, C, H, W)``.
 
-        :param x: three-channel image batch to classify.
+        :param x: image batch with ``in_channels`` channels.
         """
         x = self.early_fusion(x)
         x = self.multi_scale_block_1(x)
         x = F.adaptive_avg_pool2d(x, (1, 1)).view(x.size(0), -1)
-        x = F.relu(self.fc1(x), inplace=True)
-        return x
+        return self.fc1(x)
 
     def forward(self, x):
         """Forward pass, optionally through activation checkpointing.
 
-        :param x: three-channel image batch to classify.
+        :param x: image batch with ``in_channels`` channels.
         """
         if self.use_checkpoint:
             return _checkpoint_module(self, self.custom_forward, x)
         else:
             return self.custom_forward(x)
+
+def _adapt_stem_channels(module: nn.Module, in_channels: int) -> nn.Module:
+    """Give a backbone's first 3-channel convolution ``in_channels`` inputs.
+
+    The first ``min(3, in_channels)`` input filters keep their pretrained
+    weights. Every extra input channel is initialised with the mean of the
+    RGB filters, so a fourth or fifth stain starts with a filter on the same
+    scale as the colour channels. With fewer than 3 channels the first
+    filters are kept and the rest are dropped.
+
+    :param module: the backbone, changed in place.
+    :param in_channels: the channel count the model will receive.
+    :returns: ``module``.
+    :raises ValueError: no convolution with 3 input channels was found.
+    """
+    n = int(in_channels)
+    for parent in module.modules():
+        for name, child in parent.named_children():
+            if isinstance(child, nn.Conv2d) and child.in_channels == 3:
+                if n == 3:
+                    return module
+                new = nn.Conv2d(
+                    n, child.out_channels, kernel_size=child.kernel_size,
+                    stride=child.stride, padding=child.padding,
+                    dilation=child.dilation, groups=child.groups,
+                    bias=child.bias is not None, padding_mode=child.padding_mode)
+                with torch.no_grad():
+                    weight = child.weight
+                    keep = min(3, n)
+                    new.weight[:, :keep] = weight[:, :keep]
+                    if n > 3:
+                        mean = weight.mean(dim=1, keepdim=True)
+                        new.weight[:, 3:] = mean.expand(-1, n - 3, -1, -1)
+                    if child.bias is not None:
+                        new.bias.copy_(child.bias)
+                setattr(parent, name, new)
+                return module
+    raise ValueError(
+        f"No 3-channel input convolution was found to adapt to {n} channels.")
+
 
 class TorchModel(nn.Module):
     """TorchVision classification backbone whose head is replaced by a spaCR linear classifier.
@@ -3977,6 +4034,7 @@ class TorchModel(nn.Module):
         num_classes: int = 2,
         multilabel: bool = False,
         image_size: int = 224,
+        in_channels: int = 3,
     ):
         """Build the backbone, strip its head, and attach the spaCR linear classifier.
 
@@ -3987,8 +4045,14 @@ class TorchModel(nn.Module):
         :param num_classes: output class count; ``1`` yields a BCE-style binary head.
         :param multilabel: informational flag consumed by external loss/metrics code.
         :param image_size: square input resolution used for the dummy forward
-            pass that infers the backbone's feature width.
-        :raises ValueError: if ``model_name`` is not a TorchVision model.
+            pass that infers the backbone's feature width. MaxViT needs a
+            multiple of 224, because its 7 x 7 window partition must divide
+            the feature map.
+        :param in_channels: input channel count. A value other than 3 adapts
+            the first convolution, and the extra channels start from the mean
+            of the pretrained RGB filters.
+        :raises ValueError: if ``model_name`` is not a TorchVision model, or
+            the input size does not fit the architecture.
         """
         super().__init__()
         self.model_name = str(model_name)
@@ -4000,9 +4064,18 @@ class TorchModel(nn.Module):
         self.num_classes = int(num_classes)
         self.multilabel = bool(multilabel)
         self.image_size = int(image_size) if image_size else 224
+        self.in_channels = int(in_channels) if in_channels else 3
         self.use_dropout = (dropout_rate is not None)
+        if self.model_name.startswith("maxvit") and self.image_size % 224:
+            raise ValueError(
+                f"{self.model_name} needs an input size that is a multiple of "
+                f"224, got {self.image_size}. Its 7 x 7 window partition must "
+                f"divide the feature map. Set image_size to 224 or 448; the "
+                f"crops are resized when loaded and stay unchanged on disk.")
 
         self.base_model = self._init_base_model(pretrained=bool(pretrained))
+        if self.in_channels != 3:
+            _adapt_stem_channels(self.base_model, self.in_channels)
 
         if self.model_name == "maxvit_t" and hasattr(self.base_model, "classifier"):
             seq = list(self.base_model.classifier.children())
@@ -4097,7 +4170,7 @@ class TorchModel(nn.Module):
         self.base_model.eval()
         s = int(getattr(self, "image_size", 224)) or 224
         with torch.no_grad():
-            x = torch.zeros(1, 3, s, s)
+            x = torch.zeros(1, int(getattr(self, "in_channels", 3)), s, s)
             out = self._run_backbone_raw(x)
         if isinstance(out, torch.Tensor) and out.ndim > 2:
             out = torch.flatten(out, 1)
@@ -4549,14 +4622,16 @@ def choose_model(model_type: str,
                  verbose: bool = False) -> Optional[nn.Module]:
     """Instantiate a classification model by name for binary or multiclass problems.
 
-    :param model_type: TorchVision model name (e.g. ``'resnet50'``, ``'vit_b_16'``).
-        ``'custom'`` passes the name check but then raises ``NotImplementedError``,
-        as no custom builder is wired up.
+    :param model_type: TorchVision model name (e.g. ``'resnet50'``, ``'vit_b_16'``),
+        or ``'custom'`` for the small :class:`CustomCellClassifier` trained
+        from scratch.
     :param device: unused; the model is built on the CPU and the caller moves it.
     :param init_weights: load pretrained weights when available.
     :param dropout_rate: dropout probability before the classifier head (``None``/``0`` disables).
     :param use_checkpoint: enable gradient checkpointing for the backbone.
-    :param channels: unused; the forward sanity check always feeds 3 channels.
+    :param channels: number of input channels the model receives. A
+        TorchVision backbone with a value other than 3 has its first
+        convolution adapted by :func:`_adapt_stem_channels`.
     :param height: square input resolution, forwarded as ``TorchModel(image_size=...)``;
         it therefore fixes the dummy-forward size used to infer the backbone feature
         dimension (and so the size of the classifier head) as well as both dimensions
@@ -4594,27 +4669,28 @@ def choose_model(model_type: str,
         f"use_checkpoint: {use_checkpoint}", flush=True
     )
 
-    if model_type == "custom":
-        raise NotImplementedError(
-            "Model type 'custom' selected but no CustomCellClassifier is wired. "
-            "Provide your implementation or use a TorchVision backbone."
-        )
-
     head_dim = max(1, int(num_classes))
     img_size = int(height) if height else 224
-    base_model = TorchModel(
-        model_name=model_type,
-        pretrained=bool(init_weights),
-        dropout_rate=(dropout_rate if (dropout_rate and dropout_rate > 0) else None),
-        use_checkpoint=use_checkpoint,
-        num_classes=head_dim,
-        image_size=img_size,
-    )
+    n_in = int(channels) if channels else 3
+    if model_type == "custom":
+        base_model = CustomCellClassifier(
+            num_classes=head_dim, use_checkpoint=use_checkpoint,
+            in_channels=n_in, image_size=img_size)
+    else:
+        base_model = TorchModel(
+            model_name=model_type,
+            pretrained=bool(init_weights),
+            dropout_rate=(dropout_rate if (dropout_rate and dropout_rate > 0) else None),
+            use_checkpoint=use_checkpoint,
+            num_classes=head_dim,
+            image_size=img_size,
+            in_channels=n_in,
+        )
 
     try:
         base_model.eval()
         with torch.no_grad():
-            dummy = torch.randn(1, 3, img_size, img_size)
+            dummy = torch.randn(1, n_in, img_size, img_size)
             z = base_model(dummy)
             if isinstance(z, dict):
                 raise RuntimeError("Selected model returned a dict, not logits.")

@@ -612,6 +612,10 @@ class CropSpec:
         reproduces the configured stretch.
     :param normalize_by: ``'png'`` (percentiles from the crop) or ``'fov'``
         (percentiles from the whole field before cropping).
+    :param raw: keep the intensities as stored, with no stretch. The crop
+        keeps the merged array's dtype and only the outside-object pixels are
+        set to 0. ``normalize`` and ``normalize_by`` are then ignored. The
+        default False reproduces the stretched PNG view.
     """
 
     merged_path: str
@@ -627,6 +631,7 @@ class CropSpec:
     dilate_ratio: float = 0.2
     normalize: Union[bool, Sequence[float], None] = False
     normalize_by: str = "png"
+    raw: bool = False
 
     def __post_init__(self):
         """Normalize integer fields and reject unsupported crop options.
@@ -1320,7 +1325,8 @@ def _crop_from_field(fld: MergedField, spec: CropSpec) -> np.ndarray:
     wx1 = wx0 + width
 
     percentile_list = None
-    if isinstance(spec.normalize, (list, tuple)) and spec.normalize_by == "fov":
+    if (not spec.raw and isinstance(spec.normalize, (list, tuple))
+            and spec.normalize_by == "fov"):
         fov = fld.read_window(0, fld.shape[0], 0, fld.shape[1], spec.channels, dtype)
         percentile_list = _get_percentiles(fov, spec.normalize[0], spec.normalize[1])
 
@@ -1333,7 +1339,9 @@ def _crop_from_field(fld: MergedField, spec: CropSpec) -> np.ndarray:
         region[oy0 - ry0:oy1 - ry0, ox0 - rx0:ox1 - rx0]
     crop = np.where(keep[:, :, None], crop, 0).astype(dtype, copy=False)
 
-    if isinstance(spec.normalize, (list, tuple)):
+    if spec.raw:
+        pass
+    elif isinstance(spec.normalize, (list, tuple)):
         crop = _normalize_to_dtype(crop, spec.normalize[0], spec.normalize[1],
                                    percentile_list=percentile_list)
     else:
@@ -1348,6 +1356,10 @@ def extract_crop(merged_path: str, object_type: str = "cell", label: int = 0,
                  *, spec: Optional[CropSpec] = None, field: Optional[MergedField] = None,
                  **kwargs) -> np.ndarray:
     """Cut one object out of a merged array, reproducing the PNG path exactly.
+
+    With ``raw=True`` the crop keeps the stored intensities and the merged
+    array's dtype, which is what a raw crop folder holds. Without it the crop
+    is stretched per channel, which is the view every spaCR reader shows.
 
     The returned array is the *pre-write* array: exactly what
     ``_measure_crop_core`` hands to the writer. Its dtype is the merged
@@ -1536,6 +1548,15 @@ CROP_FORMAT_DECLARED_RGB = 3
 #: The format new crops are written in.
 CROP_FORMAT_CURRENT = CROP_FORMAT_DECLARED_RGB
 
+#: Format 4: the channel order of format 3 with RAW intensities. The file
+#: keeps the merged array's dtype, usually uint16, and no stretch was applied.
+#: Every spaCR reader that returns 8-bit crops applies the old per-crop
+#: 0-100 stretch on read, so it sees exactly the pixels of a format 3 crop.
+_CROP_FORMAT_DECLARED_RAW = 4
+
+#: The two values ``crop_intensity`` resolves to.
+_CROP_INTENSITIES = ("raw", "stretch")
+
 #: Whether a format's file slots already hold the colours the user declared.
 #:
 #: This, not the format number, is what decides a reversal on read. Formats 1
@@ -1546,6 +1567,7 @@ _FORMAT_IS_DECLARED_ORDER = {
     CROP_FORMAT_LEGACY_BGR: True,
     CROP_FORMAT_RGB: False,
     CROP_FORMAT_DECLARED_RGB: True,
+    _CROP_FORMAT_DECLARED_RAW: True,
 }
 
 #: Sidecar file name, written into each crop folder.
@@ -1565,6 +1587,7 @@ _CHANNEL_ORDER_NAME = {
     CROP_FORMAT_LEGACY_BGR: "bgr",
     CROP_FORMAT_RGB: "rgb",
     CROP_FORMAT_DECLARED_RGB: "declared_rgb",
+    _CROP_FORMAT_DECLARED_RAW: "declared_rgb",
 }
 
 #: What the sidecar says about each format, in the words of someone reading it
@@ -1584,7 +1607,88 @@ _FORMAT_NOTE = {
         "The red, green and blue channels hold the source channels named by "
         "settings['png_channel_mapping']. No list-position convention is "
         "involved, so there is nothing here to read backwards."),
+    _CROP_FORMAT_DECLARED_RAW: (
+        "Channels as in format 3, with raw intensities: the stored values of "
+        "the merged array, outside-object pixels set to 0, no stretch. "
+        "Normalisation belongs to the model's input transform. "
+        "spacr.crops.read_crop_png shows the old per-crop stretch."),
 }
+
+
+def _resolve_crop_intensity(settings: Mapping[str, Any]) -> str:
+    """Return ``'raw'`` or ``'stretch'`` for a ``measure_crop`` settings dict.
+
+    ``crop_intensity`` may be ``'raw'``, ``'stretch'`` or ``'auto'``. The
+    ``'auto'`` default writes raw crops unless ``normalize`` names a
+    percentile pair, because such a pair is an explicit request for a stretch
+    that older settings files make.
+
+    :param settings: the Measure settings.
+    :returns: ``'raw'`` or ``'stretch'``.
+    :raises CropError: ``crop_intensity`` has another value.
+    """
+    value = str(settings.get("crop_intensity", "auto") or "auto").strip().lower()
+    if value in _CROP_INTENSITIES:
+        return value
+    if value != "auto":
+        raise CropError(
+            f"crop_intensity must be 'auto', 'raw' or 'stretch', got {value!r}")
+    normalize = settings.get("normalize", False)
+    if isinstance(normalize, str):
+        return "stretch" if normalize.strip() else "raw"
+    if isinstance(normalize, (list, tuple)) and len(normalize) == 2:
+        return "stretch"
+    return "raw"
+
+
+def _read_crop_array(source: Any) -> np.ndarray:
+    """Decode a crop PNG at its stored bit depth, in the file's slot order.
+
+    PIL narrows a 16-bit colour PNG to 8 bit when it opens it, so a raw crop
+    is decoded with OpenCV instead.
+
+    :param source: a path, or a binary stream positioned anywhere.
+    :returns: ``(H, W, C)`` array, red slot first, in the stored dtype.
+    :raises CropError: the bytes are not a readable image.
+    """
+    import cv2
+
+    if hasattr(source, "read"):
+        if hasattr(source, "seek"):
+            source.seek(0)
+        data = np.frombuffer(source.read(), dtype=np.uint8)
+    else:
+        with open(os.fspath(source), "rb") as handle:
+            data = np.frombuffer(handle.read(), dtype=np.uint8)
+    arr = cv2.imdecode(data, cv2.IMREAD_UNCHANGED)
+    if arr is None:
+        raise CropError("the crop bytes are not a readable image")
+    if arr.ndim == 2:
+        return arr[:, :, None]
+    if arr.shape[2] == 4:
+        arr = arr[:, :, :3]
+    return np.ascontiguousarray(arr[:, :, ::-1])
+
+
+def _stretched_view(arr: np.ndarray) -> np.ndarray:
+    """Return the 8-bit RGB view of a raw crop that a format 3 crop gives.
+
+    The stretch is the export's old default, a per-channel 0-100 percentile
+    rescale over the object's pixels. It is the same function the writer used,
+    so the result matches a format 3 crop of the same object bit for bit.
+
+    :param arr: ``(H, W, C)`` raw crop.
+    :returns: ``(H, W, 3)`` uint8 array.
+    """
+    a = np.asarray(arr)
+    if a.ndim == 2:
+        a = a[:, :, None]
+    if a.dtype not in (np.dtype(np.uint8), np.dtype(np.uint16)):
+        a = np.clip(a, 0, 65535).astype(np.uint16)
+    eight = narrow_to_uint8(_normalize_to_dtype(a, 0, 100))
+    if eight.shape[2] == 1:
+        eight = np.repeat(eight, 3, axis=2)
+    return np.ascontiguousarray(eight)
 
 
 class CropFormatConflict(CropError):
@@ -1974,7 +2078,8 @@ def write_crop_folder_marker(folder: str, fmt: int = CROP_FORMAT_CURRENT,
     return _sidecar_path(folder)
 
 
-def stamp_crop_folder(folder: str, fmt: int = CROP_FORMAT_CURRENT) -> Optional[str]:
+def stamp_crop_folder(folder: str, fmt: int = CROP_FORMAT_CURRENT,
+                      **extra: Any) -> Optional[str]:
     """Ensure that ``folder`` contains a crop-format marker.
 
     The crop writer calls this before writing the first PNG. An interrupted
@@ -1991,6 +2096,8 @@ def stamp_crop_folder(folder: str, fmt: int = CROP_FORMAT_CURRENT) -> Optional[s
 
     :param folder: the crop folder.
     :param fmt: format to record; defaults to :data:`CROP_FORMAT_CURRENT`.
+    :param extra: further keys recorded when the marker is written, such as
+        ``mask_mode`` or ``flat_field_sha256``.
     :returns: the sidecar path, or ``None`` if it could not be written.
     """
     key = os.path.abspath(os.fspath(folder))
@@ -2001,7 +2108,8 @@ def stamp_crop_folder(folder: str, fmt: int = CROP_FORMAT_CURRENT) -> Optional[s
         existing = read_crop_folder_marker(key)
         found = _coerce_format(existing.get("spacr_crop_format")) if existing else None
         if found != fmt:
-            if existing is None and fmt == CROP_FORMAT_CURRENT:
+            if existing is None and fmt in (CROP_FORMAT_CURRENT,
+                                            _CROP_FORMAT_DECLARED_RAW):
                 stale = _crop_pngs_in(key)
                 if stale and read_crop_folder_marker(key, use_cache=False) is None:
                     print(
@@ -2019,7 +2127,7 @@ def stamp_crop_folder(folder: str, fmt: int = CROP_FORMAT_CURRENT) -> Optional[s
                     f"format {fmt} ({_CHANNEL_ORDER_NAME[fmt]}). Re-marking "
                     f"it; any crop in here the run does not overwrite will be "
                     f"read in the wrong order.")
-            write_crop_folder_marker(key, fmt)
+            write_crop_folder_marker(key, fmt, **extra)
     except Exception as exc:
         print(f"spacr: could not write the crop-format marker in {key}: "
               f"{exc}. Crops written here will be read back with their "
@@ -2240,6 +2348,16 @@ def decode_crop_image(image, fmt: int = CROP_FORMAT_LEGACY_BGR,
 
     if _coerce_format(fmt) is None or _coerce_format(as_format) is None:
         raise CropError(f"unknown crop format {fmt!r} or {as_format!r}")
+    if int(fmt) == _CROP_FORMAT_DECLARED_RAW:
+        name = getattr(image, "filename", "") or ""
+        if name and os.path.isfile(name):
+            arr = _stretched_view(_read_crop_array(name))
+        else:
+            arr = _stretched_view(np.array(image))
+        if (_FORMAT_IS_DECLARED_ORDER[int(fmt)]
+                is not _FORMAT_IS_DECLARED_ORDER[int(as_format)]):
+            arr = arr[:, :, ::-1]
+        return np.ascontiguousarray(arr)
     if orient:
         image = ImageOps.exif_transpose(image)
     mode = image.mode
@@ -2295,6 +2413,14 @@ def read_crop_png(path: str, fmt: Optional[int] = None,
         raise CropError(f"unknown crop format {as_format!r}")
     if fmt is None:
         fmt = crop_format_for_png(path, db_path)
+    elif (_FORMAT_IS_DECLARED_ORDER.get(int(fmt))
+          and crop_format_for_png(path, db_path) == _CROP_FORMAT_DECLARED_RAW):
+        fmt = _CROP_FORMAT_DECLARED_RAW
+    if int(fmt) == _CROP_FORMAT_DECLARED_RAW:
+        arr = _stretched_view(_read_crop_array(path))
+        if not _FORMAT_IS_DECLARED_ORDER[int(as_format)]:
+            arr = arr[:, :, ::-1]
+        return np.ascontiguousarray(arr)
     with Image.open(path) as img:
         return decode_crop_image(img, fmt=fmt, as_format=as_format)
 

@@ -2102,6 +2102,7 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('png_channel_mapping', {'r': 2, 'g': 1, 'b': 0})
     settings.setdefault('normalize',False)
     settings.setdefault('normalize_by','png')
+    settings.setdefault('crop_intensity','auto')
     settings.setdefault('crop_mode',['cell'])
     settings.setdefault('dialate_pngs', False)
     settings.setdefault('dialate_png_ratios', [0.2])
@@ -2927,6 +2928,12 @@ def get_train_test_model_settings(settings):
      settings.setdefault('n_jobs', 30)
      settings.setdefault('ram_guard', True)
      settings.setdefault('augment', True)
+     settings.setdefault('crop_scaling', 'legacy')
+     settings.setdefault('input_statistics', 'auto')
+     settings.setdefault('crop_scale_clip', 1.5)
+     settings.setdefault('crop_scale_file', None)
+     settings.setdefault('preprocessing_mismatch', 'refuse')
+     settings.setdefault('control_shuffled_labels', False)
      settings.setdefault('verbose', True)
      settings.setdefault('label_smoothing', 0.1)
      settings.setdefault('focal_gamma', 2.0)
@@ -3918,6 +3925,7 @@ expected_types = {
     "png_channel_mapping": dict,
     "classifier_family": str,
     "normalize_by": str,
+    "crop_intensity": str,
     "save_measurements": bool,
     "uninfected": bool,
     "dialate_pngs": bool,
@@ -4228,6 +4236,11 @@ expected_types = {
     "n_jobs": int,
     "ram_guard": bool,
     "augment": bool,
+    "crop_scaling": str,
+    "crop_scale_clip": float,
+    "crop_scale_file": (str, type(None)),
+    "preprocessing_mismatch": str,
+    "control_shuffled_labels": bool,
     "cell_types": list,
     "cell_plate_metadata": (list, list),
     "pathogen_types": list,
@@ -5231,6 +5244,7 @@ tooltips = {
     "metadata_type": "(str) - Raw-image filename convention, grouped by microscope vendor. Default 'cellvoyager' (Yokogawa CV7000/CV8000). 'custom' uses custom_regex; 'auto' first renames files to Yokogawa naming, using custom_regex when supplied or automatic detection. Provisional conventions come from public-dataset filenames, not vendor documentation. A wrong choice can misassign plate, well, field or channel IDs and channel folders. Use Test on my folder before running.",
     "n_jobs": "(int) - CPU workers for parallel stages: measurement, mask adjustment, DataLoader loading, and the sklearn/UMAP calls where -1 means every core. Raise it to shorten CPU-bound steps until RAM or disk I/O saturates. Note the measure-and-crop pipeline overrides your value with cpu_count()-4. Defaults vary by pipeline: cpu_count()-4, -1, or None.",
     "ram_guard": "(bool) - Keep worker pools from filling RAM. Before any module starts its workers, spaCR estimates each worker's memory from one input (a field, mask, crop batch or table) and lowers n_jobs to the count that leaves 12.5% of RAM free, printing a warning; the GUI asks first. Off keeps your n_jobs, and Measure fields still wait while free RAM is below that reserve. Default True.",
+    "crop_intensity": "(str) - Intensities written into the crop PNGs. 'raw' keeps the stored values and bit depth, usually uint16, and sets only the pixels outside the object to 0. 'stretch' rescales each crop to its own percentiles, which is what spaCR did before November 2026. 'auto' writes raw crops unless normalize is a [low, high] percentile pair. spaCR's own readers show raw crops with the old stretch, so Annotate, Classify and existing models see the same pixels. Other programs see the raw values, which keep intensity differences between cells. Default 'auto'.",
     "normalize_by": "(str) - Percentile source used to rescale cropped PNGs, and only active when 'normalize' is a [low, high] percentile pair: 'png' stretches each crop to its own percentiles, maximising per-object contrast; 'fov' uses percentiles from the whole field, keeping brightness comparable between objects. Choose 'fov' if crop intensities will be compared. Default 'png'.",
     "nuclei_limit": '(int, bool, or None) - Cap on nuclei per cell, applied when the per-object tables are merged. None disables the filter, True keeps only single-nucleus cells, and an integer N keeps cells with N or fewer. Cells over the cap are dropped from the merged table entirely. Do not pass False: it is interpreted as 0 and removes every cell, leaving an empty analysis rather than raising an error. Default None. Merged Classifier starts at True and Recruitment starts at 1, so both initially retain only single-nucleus cells. Replication starts at 10.',
     "pathogen_limit": "(int, bool, or None) - Maximum pathogens per cell. True or 1 = single pathogen only; None or False = no limit; int = custom limit. Default varies by module (1, 3, 10 or 1000 depending on the factory that fills it), so check the module's own settings rather than assuming one value.",
@@ -5307,6 +5321,11 @@ tooltips = {
     "keep_original_images": "(bool) - Keep the original raw input images in orig/ after the run. On by default, so the raw files are never lost. Set False only to save disk space: orig/ is then deleted once merged/ is built, which is not reversible, and merged/ holds the projected pixel data, not the raw files.",
     "amsgrad": "(bool) - Use the AMSGrad variant of Adam/AdamW, which keeps a running maximum of past squared gradients instead of their decaying average so the effective step size never grows back. Enable when training loss oscillates or stops converging with plain Adam; it costs a little speed and memory. Only honoured by optimizer_type 'adam' and 'adamw' - ignored by sgd, rmsprop, nadam, radam and adagrad. Default True.",
     "analyze_clusters": "(bool) - After clustering the embedding, rank every measured feature by cluster separation using random-forest importance and a per-feature ANOVA or Kruskal-Wallis test, then write results/cluster_results.csv. Enable this setting to identify morphology or intensity features associated with each cluster. It adds a full model fit over the feature table. Default False.",
+    "crop_scaling": "(str) - How raw crops become model input. 'legacy' decodes each crop to 8 bits with the per-crop stretch, which is what spaCR has always trained on. 'fixed' reads raw crops at their stored values. Each plate and channel is divided by one fixed scale, the 99th percentile of the object pixels of up to 2,048 training crops. The result is clipped at crop_scale_clip, resized to image_size and normalised with input_statistics on the GPU, batch by batch. A fixed scale keeps intensity differences between cells, which a per-crop stretch removes. 'fixed' needs raw crops (Measure crop_intensity 'raw'). With augment, training uses flips, 90-degree rotations, shifts of up to 4 pixels and a per-channel gain within 10%. The scales and every other step are saved in the checkpoint. Default 'legacy'.",
+    "crop_scale_clip": "(float) - Upper clip after the fixed crop scale, so a value of 1.5 keeps signal up to 1.5 times the 99th percentile. Used only when crop_scaling is 'fixed'. Default 1.5.",
+    "crop_scale_file": "(str or None) - Scales file for crop_scaling 'fixed'. An existing file is reused, so several models can share one scale. None writes crop_scales.json in the dataset folder. Its md5 is saved in the checkpoint. Default None.",
+    "control_shuffled_labels": "(bool) - Train a shuffled-label control. The labels of the training split are permuted with random_seed, while validation and test labels stay true. A model that learns real phenotype should beat this control clearly. The run is saved in a separate folder whose name ends in _shuffled_labels. Test reports also list majority_class_accuracy, the accuracy of always predicting the largest class. Default False.",
+    "preprocessing_mismatch": "(str) - What testing a model does when the crops would be prepared differently from training, for example another image_size, channel selection, mask mode or scales file. 'refuse' stops with a message that lists the differences. 'warn' prints them and continues. Models saved before November 2026 have no full record, so they are tested with the current settings and a warning. Default 'refuse'.",
     "augment": "(bool) - Expand the training split eightfold by adding four 90-degree rotations of each crop and their horizontal reflections; validation and test splits are not augmented. Enable this setting when few annotated objects are available and validation accuracy is below training accuracy. The expanded set is materialised in RAM, requiring approximately eight times the memory and epoch duration. Default False.",
     "background": "(float) - Per-channel background level in raw intensity units. Pixels below it are zeroed when remove_background is on, and it is multiplied by Signal_to_noise to set the upper anchor for normalization. Raise it if faint haze survives; set it too high and dim real objects vanish. Default 100 (200 for Cellpose training and plaque analysis).",
     "backgrounds": "(list of float) - Legacy compatibility field retained in settings snapshots. Current mask preprocessing ignores this list and reads cell_background, nucleus_background, pathogen_background and each organelle background setting instead, so changing it does not alter segmentation. Default [100, 100, 100, 100].",
@@ -5460,7 +5479,7 @@ tooltips = {
     'save_every': '(int) - Checkpoint interval in epochs. Default 100. Cellpose always saves the final model even when the run is shorter than this interval.',
     'save_each': '(bool) - Keep separate epoch checkpoints instead of replacing the periodic checkpoint. Default False. Enable to compare intermediate models; it consumes additional disk space.',
     "base_model": "(str) - Train Cellpose: the weights training starts from. 'cpsam' is stock Cellpose-SAM; a model-zoo key (for example 'toxoplasma_plaque_v2') or a path to a checkpoint continues from that model, which is how a second fine-tuning stage builds on the first. The model that was started from is recorded with the run's settings. Default 'cpsam'.",
-    "model_type": "(str) - Backbone architecture for the single-object image classifier: any TorchVision classification model name (resnet50, maxvit_t, densenet121, ...). An unrecognized name does not fail during initial validation: choose_model reports 'Invalid model_type' and returns None, after which training fails. The special name 'custom' passes validation and then raises NotImplementedError. Larger backbones require more memory and generally need more labeled crops than smaller backbones. Default 'maxvit_t'.",
+    "model_type": "(str) - Backbone architecture for the single-object image classifier: any TorchVision classification model name (resnet50, maxvit_t, densenet121, ...). An unrecognized name does not fail during initial validation: choose_model reports 'Invalid model_type' and returns None, after which training fails. The special name 'custom' builds spaCR's small CustomCellClassifier, which is trained from scratch and accepts any channel count. Larger backbones require more memory and generally need more labeled crops than smaller backbones. Default 'maxvit_t'.",
     "model_type_ml": "(str) - Classifier ml_analysis fits to separate positive- from negative-control wells and rank features by permutation importance: logistic_regression (default; standardised and L2-penalised, so stable when features near the training-well count), shrinkage_lda (standardised LDA with automatic covariance shrinkage), xgboost, lightgbm, catboost, random_forest, extra_trees, gradient_boosting, svm or mlp; lightgbm and catboost are optional installs. Plain LDA is not offered: it collapses when features roughly equal training wells. reg_alpha, reg_lambda and learning_rate affect only boosted models.",
     "negative_control_id": "(str) - Identifier of the negative-control class. In ML screening it is the value in location_column (e.g. 'c1') whose objects are labelled class 0 for training; in gRNA regression it is a gene/gRNA ID substring (e.g. '233460') matched against coefficient names to tag them 'nc' in the results and volcano plot. Defaults 'c1' and '233460' respectively.",
     "n_estimators": "(int) - Number of trees or boosting rounds in the tabular ML classifier - n_estimators for RandomForest/ExtraTrees/XGBoost/LightGBM, iterations for CatBoost, max_iter for HistGradientBoosting. More rounds keep improving fit up to a plateau while training time grows linearly; boosted models can overfit past it. Default 1000.",
@@ -6017,7 +6036,7 @@ tooltips = {
     'crop_dtype': "(str) - Data type used for saved crop files. 'original' preserves the pipeline output, including uint16 data from a 16-bit camera. 'uint8' converts using the same high-byte rule as the PNG path. 'uint16' casts an 8-bit crop without rescaling because multiplication by 257 would change measured intensities without adding information. This setting controls storage size and compatibility with other software. Training precision is unchanged because ToTensor converts the input to floating point in [0,1]. Default 'original'.",
     'input_mean': "(list or None) - Per-channel means for input_statistics='custom' or 'dataset', on the 0-1 scale ToTensor produces. One value is broadcast to every channel, which is what a single-stain dataset wants. Compute the dataset ones with spacr.normalization.dataset_statistics rather than guessing. Ignored unless input_statistics asks for them. Default None.",
     'input_std': "(list or None) - Per-channel standard deviations paired with input_mean. Zero values are replaced with 1.0 to prevent division by zero and non-finite training losses; a zero standard deviation indicates a constant channel. Default None.",
-    'input_statistics': "(str) - Mean and standard deviation used by the loader when normalize_input is enabled. 'symmetric' uses spaCR's historical 0.5/0.5 convention (Inception and TF-Slim), mapping [0,1] to [-1,1]. 'imagenet' and 'clip' use the distinct statistics associated with those pretrained backbones. 'dataset' estimates per-channel statistics from the current data and may be appropriate for fluorescence images whose intensity distribution differs from photographs. 'custom' uses input_mean and input_std. Default 'symmetric'.",
+    'input_statistics': "(str) - Mean and standard deviation applied to the model input. 'symmetric' uses spaCR's historical 0.5/0.5 convention (Inception and TF-Slim), mapping [0,1] to [-1,1]. 'imagenet' and 'clip' use the distinct statistics associated with those pretrained backbones. With crop_scaling 'fixed', 'imagenet' takes the mean, standard deviation and interpolation of the model's own torchvision weights. 'dataset' uses per-channel statistics of the training data, which suits a model trained from scratch. 'custom' uses input_mean and input_std. 'auto' picks 'imagenet' for a pretrained backbone and 'dataset' for a model trained from scratch, such as model_type 'custom' or init_weights off. Legacy training always uses 'symmetric', and so does 'auto' on the scoring and activation-map paths. Default 'auto' in Classify, 'symmetric' elsewhere.",
     'outline_palette': "(str) - Colour palette used for object outlines in overlay figures. 'default' assigns red to cells, blue to nuclei, green to pathogens, and yellow to organelles. 'colourblind' uses vermillion, sky blue, bluish green, and yellow from the Okabe-Ito palette. Under deuteranope simulation, the minimum pairwise separation is 27 of 255 for 'default' and 142 for 'colourblind'. Default 'default' preserves the appearance of existing figures.",
     'outline_thickness': "(int) - Width in pixels of the mask outlines on the merged overlay; the contour is drawn at this thickness and then dilated by a square of the same size, so the visible line is roughly twice the value. Raise it for large fields where a 1-2 px outline disappears. Default 3.",
     'overlay_chans': "(list) - Exactly three channel indices from the stack, mapped in order onto the red, green and blue planes of the merged overlay. Default [1, 2, 3] puts channel 1 in red, 2 in green and 3 in blue; reorder or repeat indices to change which stain reads as which colour. Indices past the stack's channel count are ignored.",
@@ -6200,7 +6219,7 @@ categories = {
 
     "Illumination Correction": ["illumination_correction", "illumination_model", "illumination_estimator", "illumination_degree", "illumination_dark", "illumination_per_plate", "illumination_max_fields", "illumination_qc", "illumination_on_missing", "illumination_vendor_profile", "illumination_vendor_channel_map"],
 
-    "Object Crops": ["save_png", "crop_mode", "png_size", "png_channel_mapping", "png_dims", "dialate_pngs", "dialate_png_ratios", "use_bounding_box", "normalize_by", "save_arrays", "export_vvvv"],
+    "Object Crops": ["save_png", "crop_mode", "png_size", "png_channel_mapping", "png_dims", "dialate_pngs", "dialate_png_ratios", "use_bounding_box", "normalize_by", "crop_intensity", "save_arrays", "export_vvvv"],
 
     "Plate Layout & Controls": ["plaque_mode", "plaque_well_resize", "plaque_well_resize_side", "plaque_well_resize_max_factor", "figure_detector", "figure_imgsz", "figure_confidence", "figure_read_text", "confirm_annotations", "text_reach_above", "text_reach_left", "text_reach_below", "text_use_above", "text_use_left", "text_use_below", "text_panel_reach", "text_min_confidence", "text_ignore", "text_order", "text_separator", "text_reread", "text_reread_scale", "well_detection", "well_confidence", "well_pad", "plate_format", "well_diameter_mm", "plaque_pixels_per_um", "plaque_formation_hours", "plaque_estimate_growth", "plaque_growth_reference_um", "plaque_growth_reference_hours", "plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control_id", "negative_control_id", "exclude_grnas", "positive_control_wells", "negative_control_wells", "mixed_control_wells", "nontargeting_control_grnas", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "batch_correction", "batch_column", "batch_control_column", "batch_control_values", "batch_covariate_column", "batch_combat_mean_only", "batch_min_samples", "batch_missing_control"],
 
@@ -6208,7 +6227,7 @@ categories = {
 
     "Training Classes": ["dataset_mode", "classes", "ml_classes", "class_folder_names", "class_metadata", "metadata_item_1_name", "metadata_item_1_value", "metadata_item_2_name", "metadata_item_2_value", "annotation_column", "annotated_classes", "write_random_annotation_column"],
 
-    "Computer Vision Data Source": ["image_source", "image_size", "size", "train_channels", "stream_method", "object_array", "channel_arrays", "bounding_box", "crop_shape", "sample", "test_split", "val_split", "balance_to_smallest", "augment",
+    "Computer Vision Data Source": ["image_source", "image_size", "size", "train_channels", "stream_method", "object_array", "channel_arrays", "bounding_box", "crop_shape", "sample", "test_split", "val_split", "balance_to_smallest", "augment", "crop_scaling", "crop_scale_clip", "crop_scale_file", "input_statistics",
         "crop_source", "file_metadata", "file_type", "coordinate_columns",
         "well_metadata_path", "cv_group_column",
         "cv_exclude_batch_column"],
@@ -6231,7 +6250,8 @@ categories = {
                            "prediction_treatment_column"],
 
     "Leakage Audit": ["evaluation_fail_on_leakage", "leakage_audit_train_test",
-                      "leakage_hash_content", "leakage_require_identity"],
+                      "leakage_hash_content", "leakage_require_identity",
+                      "preprocessing_mismatch", "control_shuffled_labels"],
 
     "Machine Learning Model and Features": ["model_type_ml", "n_estimators", "test_size", "cross_validation", "reg_lambda", "reg_alpha", "prune_features", "top_features", "n_repeats", ],
 
@@ -8123,6 +8143,10 @@ ALPHA_FEATURES = {
                      'cell_label_folder', 'nucleus_label_folder',
                      'pathogen_label_folder', 'cell_label_regex',
                      'nucleus_label_regex', 'pathogen_label_regex'),
+    },
+    772: {
+        'settings': ('crop_scaling', 'crop_scale_clip', 'crop_scale_file',
+                     'control_shuffled_labels'),
     },
     752: {
         'settings': ('ops_ph_channels', 'ops_ph_cell_channel',

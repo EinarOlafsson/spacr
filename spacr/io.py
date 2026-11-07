@@ -1118,8 +1118,7 @@ class TarImageDataset(Dataset):
         with tarfile.open(self.tar_path, 'r') as f:
             m = self.members[idx]
             img_file = f.extractfile(m)
-            fmt = (self._member_crop_format(m.name)
-                   if self.crop_loading_policy == DECLARED_UINT8 else 1)
+            fmt = self._member_crop_format(m.name)
             img = read_classification_image(BytesIO(img_file.read()),
                                              self.crop_loading_policy, fmt=fmt)
 
@@ -8325,6 +8324,150 @@ def _classification_data_dir(src, mode, classes):
     return data_dir
 
 
+def _raw_sample_tensor(arr):
+    """Turn a raw float32 ``(H, W, C)`` crop into a ``(C, H, W)`` tensor, values unchanged."""
+    return torch.from_numpy(np.ascontiguousarray(np.asarray(arr, dtype=np.float32).transpose(2, 0, 1)))
+
+
+def _fixed_scale_contract(filenames, *, src, image_size, channels, augment,
+                          input_statistics='symmetric', model_type=None,
+                          clip=1.5, scale_file=None, input_mean=None,
+                          input_std=None):
+    """Build the preprocessing contract of a fixed-scale training run.
+
+    The scales are fixed per plate and channel and come from the training
+    crops only. They are written to ``scale_file``, by default
+    ``<src>/crop_scales.json``, and the md5 of that file is recorded. An
+    existing ``scale_file`` is read instead of estimated.
+
+    :param filenames: the training crops.
+    :param src: the dataset root.
+    :param image_size: the model input size.
+    :param channels: 1-based channel indices the model sees.
+    :param augment: whether training augments.
+    :param input_statistics: ``'auto'`` or one of
+        ``spacr.normalization.NORMALIZATIONS``. ``'auto'`` picks
+        ``'imagenet'`` for a pretrained backbone and ``'dataset'`` for a
+        model trained from scratch. ``'imagenet'`` takes mean, std and
+        interpolation from the model's torchvision weights when it has them.
+        ``'dataset'`` standardises with the mean and std of the scaled
+        training sample.
+    :param model_type: the pretrained classifier whose weights supply the
+        statistics. None, or a name without torchvision weights such as
+        ``'custom'``, means the model is trained from scratch.
+    :param clip: the upper clip after scaling.
+    :param scale_file: an existing scales file, or where to write one.
+    :param input_mean: per-channel means for ``'custom'``.
+    :param input_std: per-channel standard deviations for ``'custom'``.
+    :returns: the contract mapping.
+    """
+    from .classification_pixels import (
+        RAW_FIXED_SCALE, _CONTRACT_VERSION, _estimate_crop_scales,
+        _read_crop_scales, _weights_input_statistics, _write_crop_scales,
+        _read_raw_classification_array, _plate_of)
+    from .normalization import normalization_stats
+
+    path = scale_file or os.path.join(src, 'crop_scales.json')
+    if scale_file and os.path.isfile(scale_file):
+        scales, md5 = _read_crop_scales(scale_file)
+    else:
+        scales = _estimate_crop_scales(filenames)
+        md5 = _write_crop_scales(path, scales, clip=clip)
+    name = str(input_statistics or 'symmetric').strip().lower()
+    interpolation = 'bilinear'
+    mean = std = None
+    if name == 'auto':
+        pretrained = bool(model_type) and _weights_input_statistics(model_type) is not None
+        name = 'imagenet' if pretrained else 'dataset'
+        print(f"input_statistics 'auto' uses {name!r}: the model is "
+              f"{'a pretrained backbone' if pretrained else 'trained from scratch'}.")
+    if name == 'imagenet' and model_type:
+        found = _weights_input_statistics(model_type)
+        if found is not None:
+            mean, std, interpolation = found
+    if mean is None and name == 'dataset':
+        rng = np.random.default_rng(0)
+        pick = list(filenames)
+        if len(pick) > 512:
+            pick = [pick[i] for i in sorted(rng.choice(len(pick), 512, replace=False))]
+        total = sq = count = 0.0
+        for item in pick:
+            arr = _read_raw_classification_array(item)
+            scaled = np.clip(arr / np.asarray(scales[_plate_of(item)])[None, None, :arr.shape[2]], 0, clip)
+            total = total + scaled.sum(axis=(0, 1))
+            sq = sq + (scaled ** 2).sum(axis=(0, 1))
+            count += scaled.shape[0] * scaled.shape[1]
+        mean = tuple(float(v) for v in total / count)
+        std = tuple(float(max(np.sqrt(max(q / count - m * m, 0.0)), 1e-6))
+                    for q, m in zip(sq, mean))
+    elif mean is None:
+        stats = normalization_stats(name, mean=input_mean, std=input_std, channels=3)
+        if stats is not None:
+            mean, std = tuple(stats[0]), tuple(stats[1])
+    return {
+        'contract_version': _CONTRACT_VERSION,
+        'crop_loading_policy': RAW_FIXED_SCALE,
+        'crop_scaling': 'fixed',
+        'scales': scales,
+        'scales_file': os.path.abspath(path),
+        'scales_md5': md5,
+        'scale_percentile': 99.0,
+        'clip': float(clip),
+        'image_size': int(image_size),
+        'resize': 'resize',
+        'interpolation': interpolation,
+        'input_statistics': name,
+        'mean': list(mean) if mean is not None else None,
+        'std': list(std) if std is not None else None,
+        'selected_channels': list(channels),
+        'augment': bool(augment),
+        'augment_shift_px': 4,
+        'augment_gain': 0.1,
+    }
+
+
+def _shuffle_training_labels(data, indices, seed):
+    """Permute the labels at ``indices`` in place, for a shuffled-label control.
+
+    :param data: a dataset with a ``labels`` sequence.
+    :param indices: the training positions whose labels are permuted.
+    :param seed: the permutation seed.
+    """
+    labels = list(data.labels)
+    idx = np.asarray(list(indices), dtype=int)
+    rng = np.random.default_rng(int(seed))
+    labels_at = [labels[i] for i in idx]
+    for i, j in zip(idx, rng.permutation(len(idx))):
+        labels[i] = labels_at[j]
+    data.labels = labels
+    print(f"Shuffled-label control: the labels of {len(idx)} training crops "
+          f"were permuted (seed {seed}). Validation labels are unchanged.")
+
+
+def _attach_fixed_scale(loaders, train_files, all_files, contract, contract_args):
+    """Give loaders the batch transform of a fixed-scale contract.
+
+    :param loaders: the loaders to equip.
+    :param train_files: the crops a new contract's scales come from.
+    :param all_files: every crop the loaders read, so a plate without a
+        scale gets its own fixed one before any batch is scored.
+    :param contract: a recorded contract to reuse, or None to build one.
+    :param contract_args: keyword arguments for :func:`_fixed_scale_contract`.
+    :returns: the contract the loaders carry.
+    """
+    from .classification_pixels import _FixedScaleInput
+
+    contract = (dict(contract) if contract
+                else _fixed_scale_contract(train_files, **contract_args))
+    transform = _FixedScaleInput(contract)
+    transform.add_plates(list(all_files))
+    contract['scales'] = transform.scales
+    for loader in loaders:
+        loader.input_transform = transform
+        loader.preprocessing_contract = contract
+    return contract
+
+
 def _classification_transform(image_size, channel_idx, normalize):
     """Compose the resize / channel-select / normalise transform for crops."""
     from .utils import SelectChannels
@@ -8595,7 +8738,11 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
                      classes=None, n_jobs=None, validation_split=0.0,
                      pin_memory=False, normalize=False, channels=None,
                      augment=False, verbose=False, class_balance='none',
-                     seed=42, group_by='none', crop_loading_policy=DECLARED_UINT8):
+                     seed=42, group_by='none', crop_loading_policy=DECLARED_UINT8,
+                     crop_scaling='legacy', preprocessing_contract=None,
+                     input_statistics='symmetric', model_type=None,
+                     crop_scale_clip=1.5, crop_scale_file=None,
+                     shuffle_labels=False):
     """Build PyTorch data loaders for training, validation, or testing.
 
     Reads class subfolders under ``src/<mode>``, applies the requested
@@ -8627,6 +8774,24 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
         ``none`` retains the legacy per-object random split.
     :param crop_loading_policy: crop decoding policy recorded on each loader;
         defaults to declared channel order and high-byte uint8 narrowing.
+    :param crop_scaling: ``'legacy'`` decodes 8-bit crops as before.
+        ``'fixed'`` reads raw crops at their stored values. The loaders then
+        carry an ``input_transform`` that divides by a fixed per-plate,
+        per-channel scale, clips, augments, resizes and normalises each batch
+        on the model's device.
+    :param preprocessing_contract: a recorded fixed-scale contract to reuse,
+        such as a checkpoint's. Its scales, clip, size and statistics are
+        applied unchanged.
+    :param input_statistics: the mean and std convention of a fixed-scale
+        run. ``'auto'`` uses the pretrained weights' statistics, or
+        dataset-level statistics for a model trained from scratch.
+    :param model_type: the pretrained classifier, whose weights may supply
+        the statistics. None means the model is trained from scratch.
+    :param crop_scale_clip: the clip after the fixed scale.
+    :param crop_scale_file: an existing scales file, or where to write one.
+    :param shuffle_labels: permute the labels of the training split, with
+        ``seed``, for a shuffled-label control. Validation labels stay true,
+        so the control's validation accuracy shows the chance level.
     :returns: For ``mode='train'``, a tuple of loaders and a plot handle;
         for ``mode='test'``, the test loader (plus optional metadata).
     :raises ValueError: if ``class_balance`` is not a recognised mode.
@@ -8652,11 +8817,23 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
         return
 
     data_dir = _classification_data_dir(src, mode, classes)
-    transform = _classification_transform(image_size, channels, normalize)
+    fixed = (str(crop_scaling or 'legacy').lower() == 'fixed'
+             or (preprocessing_contract or {}).get('crop_scaling') == 'fixed')
+    if fixed:
+        from .classification_pixels import RAW_FIXED_SCALE
+        crop_loading_policy = RAW_FIXED_SCALE
+        transform = _raw_sample_tensor
+    else:
+        transform = _classification_transform(image_size, channels, normalize)
 
     data = spacrDataset(data_dir, classes, transform=transform,
                         shuffle=True, pin_memory=pin_memory,
                         crop_loading_policy=crop_loading_policy)
+
+    contract_args = dict(
+        src=src, image_size=image_size, channels=channels, augment=augment,
+        input_statistics=input_statistics, model_type=model_type,
+        clip=crop_scale_clip, scale_file=crop_scale_file)
 
     num_workers = max(0, int(n_jobs)) if n_jobs is not None else 0
     if num_workers > 0:
@@ -8677,6 +8854,8 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
             groups, dataset_labels(data), validation_split, seed=seed,
             group_by=level)
         print(split_report.summary())
+        if shuffle_labels and mode == 'train':
+            _shuffle_training_labels(data, train_idx, seed)
         train_dataset = Subset(data, list(train_idx))
         val_dataset = Subset(data, list(val_idx))
         train_size, val_size = len(train_idx), len(val_idx)
@@ -8684,7 +8863,7 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
             print(f'Train data:{train_size}, Validation data:{val_size}')
         generator = torch.Generator().manual_seed(int(seed))
 
-        if augment:
+        if augment and not fixed:
             print(f'Data before augmentation: Train: {len(train_dataset)}, Validation:{len(val_dataset)}')
             train_dataset = augment_dataset(train_dataset, is_grayscale=(len(channels) == 1))
             print(f'Data after augmentation: Train: {len(train_dataset)}')
@@ -8714,6 +8893,11 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
         train_fig = None
         train_loaders.crop_loading_policy = data.crop_loading_policy
         val_loaders.crop_loading_policy = data.crop_loading_policy
+        if fixed:
+            _attach_fixed_scale(
+                (train_loaders, val_loaders),
+                [dataset_filenames(data)[i] for i in train_idx],
+                dataset_filenames(data), preprocessing_contract, contract_args)
         return train_loaders, val_loaders, train_fig
 
     else:
@@ -8735,6 +8919,10 @@ def generate_loaders(src, mode='train', image_size=224, batch_size=32,
         val_loaders = []
         train_fig = None
         train_loaders.crop_loading_policy = data.crop_loading_policy
+        if fixed:
+            _attach_fixed_scale(
+                (train_loaders,), dataset_filenames(data),
+                dataset_filenames(data), preprocessing_contract, contract_args)
         return train_loaders, val_loaders, train_fig
 
 def _no_training_crops_error(src, db_path, object_type, png_type):
