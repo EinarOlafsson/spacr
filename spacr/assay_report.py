@@ -1728,6 +1728,7 @@ def build_tiles(df, group, order, merged_dir, mask_dims, colour_map, out_folder,
     holds the unchanged multichannel crop (all image and mask planes, input
     dtype). Display ranges: per channel the ``percentiles`` of the pixels of
     every crop of the figure (``range_source='crops'``).
+
     :returns: dict with ``tiles`` {version: {group: [rgb16]}}, ``table`` (one row per
         tile), ``ranges``, ``montage`` (uint16 RGB, rows = tiles, columns =
         groups), ``files`` and ``notes``.
