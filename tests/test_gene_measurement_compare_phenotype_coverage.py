@@ -42,7 +42,8 @@ def test_a_feature_with_no_control_values_has_no_pvalue_and_no_fdr():
     controls = pd.DataFrame({"area": [np.nan, np.nan],
                              "size": [0.0, 0.1]})
     out = bootstrap_gene_pvalues(controls, guides, ["area", "size"],
-                                 n_boot=20, seed=1).set_index("gene")
+                                 n_boot=20, seed=1,
+                                 null="cell_bootstrap").set_index("gene")
     assert out["area_pvalue"].isna().all()
     assert out["area_fdr"].isna().all()
     assert out["size_pvalue"].between(0, 1).all()
@@ -52,7 +53,10 @@ def test_a_feature_with_no_control_values_has_no_pvalue_and_no_fdr():
 def test_no_genes_gives_an_empty_table_without_feature_columns():
     guides = pd.DataFrame({"guide": [], "gene": [], "n_cells": [],
                            "area": []})
-    out = bootstrap_gene_pvalues(pd.DataFrame({"area": [1.0, 2.0]}), guides,
-                                 ["area"], n_boot=5)
-    assert out.empty
-    assert "area_pvalue" not in out and "area_fdr" not in out
+    for options in ({"null": "cell_bootstrap"},
+                    {"control_guides": pd.DataFrame({
+                        "n_cells": [5, 5], "area": [0.0, 1.0]})}):
+        out = bootstrap_gene_pvalues(pd.DataFrame({"area": [1.0, 2.0]}),
+                                     guides, ["area"], n_boot=5, **options)
+        assert out.empty
+        assert "area_pvalue" not in out and "area_fdr" not in out

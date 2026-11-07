@@ -2589,6 +2589,150 @@ def _ph_feature_columns(columns) -> List[str]:
             and not any(s in str(c) for s in skip)]
 
 
+#: How many feature columns the aggregate phase reads and reduces at once.
+#: Medians and robust z scores are per column, so the block size changes only
+#: the memory a plate needs: the whole cell table of Funk et al.'s plate A
+#: took 46 GB at once and about 8 GB in blocks of 48.
+_PH_POOL_BLOCK = 48
+
+# Why a feature's control cells have no spread, by feature family. These
+# reasons are written into the feature QC table the aggregate phase writes.
+_PH_DEGENERATE_CAUSES = (
+    ("distance_to_nucleus",
+     "the intensity centre of mass of most cells lies inside the nucleus, "
+     "where this distance is 0 by definition"),
+    ("euler_number",
+     "almost every object has the same topology: 1 for a cell or nucleus "
+     "without holes and 0 for a cytoplasm ring"),
+    ("frac_low10",
+     "most objects have no pixel below the 10th percentile of their field, "
+     "which lies in the background"),
+    ("frac_high90",
+     "most objects have no pixel above the 90th percentile of their field"),
+)
+
+
+def _ph_names(value) -> List[str]:
+    """A comma-separated setting, or a list, as stripped names."""
+    if value is None:
+        return []
+    items = value.split(",") if isinstance(value, str) else list(value)
+    return [str(item).strip() for item in items if str(item).strip()]
+
+
+def _ph_genotype_table(path: str, plate: str, wells: Sequence[str]):
+    """The called sequencing nuclei of ``wells`` from a genotype table.
+
+    :param path: a Parquet, CSV, TSV or Excel table with ``well``,
+        ``object_id`` and ``mapped_guide`` columns, and optionally ``plate``.
+    :param plate: rows of another plate are left out when ``plate`` is a
+        column.
+    :param wells: the wells to keep.
+    :returns: ``well, object_id, mapped_guide`` for every nucleus with a
+        guide.
+    :raises ValueError: when the file is missing, lacks a column, or calls
+        one nucleus twice.
+    """
+    import pandas as pd
+
+    from .qt.i18n import tr
+
+    if not path or not os.path.isfile(str(path)):
+        raise ValueError(tr(
+            "ops_genotype_table must be a table with well, object_id and "
+            "mapped_guide columns; got {path}", path=path))
+    wanted = ["plate", "well", "object_id", "mapped_guide"]
+    if str(path).lower().endswith(".parquet"):
+        import pyarrow.parquet as pq
+
+        names = pq.ParquetFile(str(path)).schema_arrow.names
+        table = pd.read_parquet(str(path),
+                                columns=[c for c in wanted if c in names])
+    else:
+        from .tabular import read_table
+
+        table = read_table(str(path), canonicalise=False, report=None)
+    missing = [c for c in wanted[1:] if c not in table.columns]
+    if missing:
+        raise ValueError(tr(
+            "the genotype table {path} needs well, object_id and "
+            "mapped_guide columns; it lacks {missing}", path=path,
+            missing=missing))
+    if "plate" in table.columns:
+        table = table[table["plate"].astype(str) == str(plate)]
+    table = table[table["well"].astype(str).isin([str(w) for w in wells])]
+    called = table.loc[table["mapped_guide"].fillna("").astype(str) != "",
+                       ["well", "object_id", "mapped_guide"]]
+    twice = int(called.duplicated(["well", "object_id"]).sum())
+    if twice:
+        raise ValueError(tr(
+            "the genotype table {path} calls {count} sequencing nuclei more "
+            "than once; give each well and object_id one row", path=path,
+            count=twice))
+    return called.reset_index(drop=True)
+
+
+def _ph_read_columns(sources, columns: Sequence[str]):
+    """Some columns of several cell tables, stacked in table order.
+
+    :param sources: ``(path, names, rows)`` per table: its file, its column
+        names and its row count.
+    :param columns: the columns to read; a table without one gives NaN.
+    :returns: one frame, as stacking the whole tables and selecting the
+        columns would.
+    """
+    import pandas as pd
+
+    frames = []
+    for path, names, rows in sources:
+        present = [c for c in columns if c in names]
+        frame = pd.read_parquet(path, columns=present)
+        if not present:
+            frame = pd.DataFrame(index=pd.RangeIndex(rows))
+        frames.append(frame)
+    stacked = pd.concat(frames, ignore_index=True)
+    return stacked.loc[:, [c for c in columns if c in stacked.columns]]
+
+
+def _ph_degenerate_feature(feature: str, values, control, wells
+                           ) -> Dict[str, Any]:
+    """Why one feature's robust z is undefined in every well.
+
+    :param feature: the feature column.
+    :param values: the feature over the pooled cells.
+    :param control: True for each control cell.
+    :param wells: each cell's well.
+    :returns: the feature QC row: the reason and the control statistics
+        behind it.
+    """
+    import pandas as pd
+
+    reference = pd.to_numeric(values[control], errors="coerce")
+    finite = reference.dropna()
+    row: Dict[str, Any] = {
+        "feature": feature, "control_cells": int(control.sum()),
+        "control_finite": int(finite.size),
+        "control_median": float(finite.median()) if finite.size else None,
+        "control_share_at_median": (
+            round(float((finite == finite.median()).mean()), 4)
+            if finite.size else None)}
+    if not finite.size:
+        row["reason"] = "no control cell has a finite value"
+        return row
+    groups = wells[control].loc[finite.index]
+    spread = (finite - finite.groupby(groups).transform("median")).abs(
+    ).groupby(groups).median()
+    row["wells_with_zero_control_mad"] = int((spread == 0).sum())
+    reason = ("the median absolute deviation of the control cells is zero "
+              "in every well, so the robust z is undefined")
+    for family, cause in _PH_DEGENERATE_CAUSES:
+        if feature.endswith(family):
+            reason = f"{reason}: {cause}"
+            break
+    row["reason"] = reason
+    return row
+
+
 def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
                   settings: Mapping[str, Any], destination: str
                   ) -> Dict[str, Any]:
@@ -2596,11 +2740,16 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
 
     :param db: the measurements database.
     :param plate: the plate name.
-    :param wells: the wells to pool.
+    :param wells: the wells run.
     :param settings: read for ``ops_design``, ``ops_control_prefix``,
-        ``ops_bootstrap`` and ``ops_mitotic_dna_z``.
+        ``ops_bootstrap``, ``ops_pvalue_null``, ``ops_test_features``,
+        ``ops_mitotic_dna_z``, ``ops_genotype_table``, ``ops_pool_wells``,
+        ``ops_pool_interphase`` and ``ops_feature_qc``.
     :param destination: where ``ops_guides_<plate>`` and
-        ``ops_genes_<plate>`` (CSV and Parquet) are written.
+        ``ops_genes_<plate>`` (CSV and Parquet) are written. A run that pools
+        only interphase cells or only some wells adds ``_interphase`` or
+        ``_wells-<wells>`` to both names, so it does not replace the full
+        tables.
     :returns: the aggregate report.
 
     FUNK ET AL. 2022's REDUCTION: every feature is a robust z against the
@@ -2608,11 +2757,28 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     (:func:`spacr.gene_measurement_compare.robust_z_to_controls`); a guide
     is the median of its cells; a gene is the median of its guides; and,
     when ``ops_bootstrap`` is above zero, each gene is tested against a null
-    of non-targeting guides of the same sizes. The mitotic index is the
-    share of a gene's cells :func:`~spacr.gene_measurement_compare.
-    mitotic_calls` calls mitotic.
+    of non-targeting guides of the same sizes
+    (:func:`spacr.gene_measurement_compare.bootstrap_gene_pvalues`). The
+    mitotic index is the share of a gene's cells
+    :func:`~spacr.gene_measurement_compare.mitotic_calls` calls mitotic.
+
+    THE FEATURES ARE REDUCED A BLOCK OF COLUMNS AT A TIME
+    (``_PH_POOL_BLOCK``). Only the keys and the two mitotic-call columns of
+    every cell are held at once. Each block is read from the per-well cell
+    tables, normalised and reduced, so the tables are the ones a whole-frame
+    reduction gives, value for value.
+
+    ``ops_genotype_table`` replaces the ``ops_barcodes`` calls with another
+    decode, joined on ``well`` and ``object_id``. ``ops_pool_wells`` pools a
+    subset of the wells; each cell is still normalised against its own
+    well. With ``ops_pool_interphase`` the guides and genes summarise the
+    interphase cells only, and so do the control cells of the test. With
+    ``ops_feature_qc`` on, a feature whose robust z is undefined in every
+    well is left out of both tables. It is listed with its reason in
+    ``ops_feature_qc_<plate>.csv``.
     """
     import pandas as pd
+    import pyarrow.parquet as pq
 
     from .gene_measurement_compare import (aggregate_genes, aggregate_guides,
                                            bootstrap_gene_pvalues,
@@ -2627,26 +2793,67 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
             "ops_design must be the guide design table with sgRNA and "
             "gene_symbol columns; got {path}", path=design_path))
     control_prefix = str(settings.get("ops_control_prefix") or "nontargeting")
-    merged_rows = _rows_for_wells(db, "ops_merge", plate, wells)
-    barcodes = _rows_for_wells(db, "ops_barcodes", plate, wells)
-    if merged_rows is None or barcodes is None:
+    run_wells = [str(w) for w in wells]
+    asked = [w.upper() for w in _ph_names(settings.get("ops_pool_wells"))]
+    unknown = [w for w in asked if w not in {r.upper() for r in run_wells}]
+    if unknown:
         raise ValueError(tr(
-            "aggregate needs ops_merge and ops_barcodes; run the merge and "
-            "decode phases first"))
-    called = barcodes.loc[barcodes["mapped_guide"].fillna("").astype(str) != "",
-                          ["well", "object_id", "mapped_guide"]]
+            "ops_pool_wells names wells {unknown} that this run does not "
+            "have; it has {wells}", unknown=unknown, wells=run_wells))
+    pooled = [w for w in run_wells if not asked or w.upper() in asked]
+    genotype_path = settings.get("ops_genotype_table") or None
+    merged_rows = _rows_for_wells(db, "ops_merge", plate, pooled)
+    if genotype_path:
+        if merged_rows is None:
+            raise ValueError(tr(
+                "aggregate needs ops_merge; run the merge phase first"))
+        called = _ph_genotype_table(str(genotype_path), plate, pooled)
+    else:
+        barcodes = _rows_for_wells(db, "ops_barcodes", plate, pooled)
+        if merged_rows is None or barcodes is None:
+            raise ValueError(tr(
+                "aggregate needs ops_merge and ops_barcodes; run the merge "
+                "and decode phases first"))
+        called = barcodes.loc[
+            barcodes["mapped_guide"].fillna("").astype(str) != "",
+            ["well", "object_id", "mapped_guide"]]
     length = int(called["mapped_guide"].str.len().mode().iloc[0]) if len(called) else 11
     design, ambiguous = _ph_design(str(design_path), length)
-    frames = []
-    for well in wells:
+    sources, schemas = [], []
+    for well in pooled:
         path = _ph_cells_path(destination, well)
         if os.path.isfile(path):
-            frames.append(pd.read_parquet(path))
-    if not frames:
+            meta = pq.ParquetFile(path)
+            schemas.append(meta.schema_arrow)
+            sources.append((path, set(meta.schema_arrow.names),
+                            int(meta.metadata.num_rows)))
+    if not sources:
         raise ValueError(tr("no phenotype cell table for wells {wells}",
-                            wells=list(wells)))
-    cells = pd.concat(frames, ignore_index=True)
-    features = _ph_feature_columns(cells.columns)
+                            wells=list(pooled)))
+    columns: List[str] = []
+    for schema in schemas:
+        for name in schema.names:
+            if name not in columns and not name.startswith("__index_level_"):
+                columns.append(name)
+    features = _ph_feature_columns(columns)
+    # A frame whose columns are all float32 has float32 control medians,
+    # and a frame with any other column has float64 ones. A block of
+    # float32 columns from a mixed table therefore carries one float64
+    # column, so its z scores are the ones the whole table gives.
+    single = all(str(schema.field(name).type) == "float"
+                 for schema in schemas for name in features
+                 if name in schema.names)
+    anchor = [] if single else ["_ph_float64_anchor"]
+    channels = [c.lower() for c in _ph_channels(settings)]
+    dna_column = f"nucleus_{channels[0]}_mean_intensity" if channels else ""
+    if dna_column not in columns or "nucleus_area" not in columns:
+        dna_column = next((c for c in features if c.startswith("nucleus_")
+                           and c.endswith("mean_intensity")), "")
+    mitotic_inputs = [c for c in (dna_column, "nucleus_area")
+                      if c and c in columns]
+    cells = _ph_read_columns(sources, ["well", "site", "label",
+                                       *mitotic_inputs])
+    cells["_row"] = np.arange(len(cells))
     cells = cells.merge(merged_rows[["well", "site", "label", "object_id"]],
                         on=["well", "site", "label"], how="inner")
     cells = cells.merge(called, on=["well", "object_id"], how="left")
@@ -2654,12 +2861,8 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     cells = cells[with_guide].merge(
         design.rename(columns={"prefix": "mapped_guide"}),
         on="mapped_guide", how="inner")
+    rows = cells["_row"].to_numpy()
     control = cells["gene"].str.lower().str.startswith(control_prefix.lower())
-    channels = [c.lower() for c in _ph_channels(settings)]
-    dna_column = f"nucleus_{channels[0]}_mean_intensity" if channels else ""
-    if dna_column not in cells or "nucleus_area" not in cells:
-        dna_column = next((c for c in features if c.startswith("nucleus_")
-                           and c.endswith("mean_intensity")), "")
     mitotic_z = float(_setting_number(settings.get("ops_mitotic_dna_z"),
                                       "ops_mitotic_dna_z", 3.0))
     if dna_column and "nucleus_area" in cells:
@@ -2667,39 +2870,106 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
                                          area="nucleus_area", dna_z=mitotic_z)
     else:
         cells["mitotic"] = False
-    normalised = robust_z_to_controls(cells, features, control=control)
-    scored = pd.concat([cells[["well", "sgRNA", "gene", "mitotic"]],
-                        normalised], axis=1)
-    guides = aggregate_guides(scored, features, guide="sgRNA", gene="gene",
-                              mitotic="mitotic")
-    genes = aggregate_genes(guides, features)
+    interphase = bool(settings.get("ops_pool_interphase", False))
+    keep = (~cells["mitotic"].astype(bool)).to_numpy() if interphase else \
+        np.ones(len(cells), bool)
     boot = int(_setting_number(settings.get("ops_bootstrap"),
                                "ops_bootstrap", 0))
+    null = str(settings.get("ops_pvalue_null") or "calibrated").strip().lower()
+    if null not in ("calibrated", "cell_bootstrap"):
+        raise ValueError(tr(
+            "ops_pvalue_null must be calibrated or cell_bootstrap; got "
+            "{value}", value=null))
+    named = _ph_names(settings.get("ops_test_features"))
+    absent = [c for c in named if c not in features]
+    if absent:
+        raise ValueError(tr(
+            "ops_test_features names columns {absent} that the cell tables "
+            "do not have", absent=absent))
     tested: List[str] = []
     if boot > 0 and control.any():
-        tested = [c for c in (
+        tested = named or [c for c in (
             "nucleus_area", dna_column,
             f"nucleus_{channels[0]}_integrated_intensity" if channels else "",
             *(f"cell_{c}_mean_intensity" for c in channels[1:]))
             if c in features]
-        targeting = guides[~guides["gene"].str.lower().str.startswith(
-            control_prefix.lower())]
-        pvalues = bootstrap_gene_pvalues(normalised.loc[control.to_numpy()],
-                                         targeting, tested, n_boot=boot)
-        genes = genes.merge(pvalues, on="gene", how="left")
+    feature_qc = bool(settings.get("ops_feature_qc", True))
+    meta = cells.loc[:, ["well", "sgRNA", "gene", "mitotic"]]
+    pool_rows = (control.to_numpy() & keep)
+    control_values = pd.DataFrame(index=pd.RangeIndex(int(pool_rows.sum())))
+    guide_parts, gene_parts, degenerate = [], [], []
+    for start in range(0, len(features), _PH_POOL_BLOCK):
+        block = features[start:start + _PH_POOL_BLOCK]
+        values = _ph_read_columns(sources, block).iloc[rows].reset_index(
+            drop=True)
+        frame = pd.concat([meta[["well"]], values], axis=1)
+        if anchor:
+            frame[anchor[0]] = 0.0
+        normalised = robust_z_to_controls(frame, [*block, *anchor],
+                                          control=control)[block]
+        del frame
+        if feature_qc and control.any():
+            for feature in block:
+                if not normalised[feature].notna().any():
+                    degenerate.append(_ph_degenerate_feature(
+                        feature, values[feature], control, cells["well"]))
+        for feature in block:
+            if feature in tested:
+                control_values[feature] = normalised.loc[
+                    pool_rows, feature].to_numpy()
+        scored = pd.concat([meta, normalised], axis=1)[keep]
+        guides = aggregate_guides(scored, block, guide="sgRNA", gene="gene",
+                                  mitotic=None if interphase else "mitotic")
+        genes = aggregate_genes(guides, block)
+        guide_parts.append(guides if not guide_parts else guides[block])
+        gene_parts.append(genes if not gene_parts else genes[block])
+        del values, normalised, scored
+    guides = pd.concat(guide_parts, axis=1)
+    genes = pd.concat(gene_parts, axis=1)
+    dropped = [row["feature"] for row in degenerate]
+    if dropped:
+        guides = guides.drop(columns=dropped)
+        genes = genes.drop(columns=dropped)
+    tested = [c for c in tested if c not in dropped]
+    is_control = guides["gene"].str.lower().str.startswith(
+        control_prefix.lower())
+    null_parameters = None
+    if tested:
+        pvalues = bootstrap_gene_pvalues(
+            control_values, guides[~is_control], tested, n_boot=boot,
+            null=null, control_guides=guides[is_control])
+        null_parameters = pvalues.attrs.get("null")
+        if "gene" in pvalues.columns:
+            genes = genes.merge(pvalues, on="gene", how="left")
+    tag = "_interphase" if interphase else ""
+    if len(pooled) < len(run_wells):
+        tag += "_wells-" + "-".join(pooled)
     outputs = {}
     for name, table in (("guides", guides), ("genes", genes)):
         for suffix in ("csv", "parquet"):
-            target = os.path.join(destination, f"ops_{name}_{plate}.{suffix}")
+            target = os.path.join(destination,
+                                  f"ops_{name}_{plate}{tag}.{suffix}")
             write_table(table, target, canonicalise=False)
             outputs[f"{name}_{suffix}"] = target
+    if feature_qc:
+        target = os.path.join(destination,
+                              f"ops_feature_qc_{plate}{tag}.csv")
+        write_table(pd.DataFrame(degenerate, columns=[
+            "feature", "reason", "control_cells", "control_finite",
+            "control_median", "control_share_at_median",
+            "wells_with_zero_control_mad"]), target, canonicalise=False)
+        outputs["feature_qc_csv"] = target
     report = {
-        "wells": list(wells), "cells_merged": int(len(with_guide)),
+        "wells": pooled, "cells_merged": int(len(with_guide)),
         "cells_with_guide": int(with_guide.sum()),
         "cells_in_design": int(len(cells)),
+        "cells_pooled": int(keep.sum()),
+        "pooled": "interphase" if interphase else "all",
+        "genotype_table": str(genotype_path) if genotype_path else None,
         "control_cells": int(control.sum()),
         "guides": int(len(guides)), "genes": int(len(genes)),
         "ambiguous_prefixes": ambiguous, "features": len(features),
+        "features_dropped": degenerate,
         "mitotic_rule": {"dna": dna_column, "dna_z": mitotic_z,
                          "area": "nucleus_area", "area_z": 0.0},
         "mitotic_fraction_all": round(float(cells["mitotic"].mean()), 4)
@@ -2707,6 +2977,8 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         "mitotic_fraction_controls": round(float(
             cells.loc[control, "mitotic"].mean()), 4) if control.any() else None,
         "bootstrap": boot, "bootstrap_features": tested,
+        "pvalue_null": null if tested else None,
+        "null_parameters": null_parameters,
         "outputs": outputs,
         "seconds": round(time.perf_counter() - started, 1),
     }

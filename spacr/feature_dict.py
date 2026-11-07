@@ -1363,7 +1363,12 @@ KNOWN_PROPERTIES: dict[str, PropertyInfo] = {
         "centre of mass is undefined or falls outside the image, or when the "
         "field holds no nucleus. Not written when nucleus_mask_dim is None. In "
         "3-D the transform is sampled with the voxel spacing, so a step in z "
-        "counts as dz and not as one pixel.",
+        "counts as dz and not as one pixel. In most cultured cells the centre "
+        "of mass lies inside the nucleus, so the value is 0 for most cells by "
+        "construction: on plate A of Funk et al. 2022 it was 0 in 96 to 99 "
+        "percent of cells in every channel. Its median absolute deviation is "
+        "then 0, so a robust z against control cells is undefined, and the "
+        "OPS aggregate phase leaves it out with that reason.",
     ),
     "distance_to_pathogen": PropertyInfo(
         "morphology",
