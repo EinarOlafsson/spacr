@@ -2573,10 +2573,9 @@ def analyze_recruitment(settings):
     if settings['plot_control'] or settings.get('panels'):
         _recruitment_panels(df, settings, _results_dir)
     if settings.get('report'):
-        if 'cells_per_well' in _df_unfiltered.columns:
-            _cpw = pd.to_numeric(_df_unfiltered['cells_per_well'], errors='coerce')
-            _df_unfiltered = _df_unfiltered[
-                _cpw.groupby(_df_unfiltered['prc']).transform('mean') >= settings['cells_per_well']]
+        _cpw = pd.to_numeric(_df_unfiltered['cells_per_well'], errors='coerce')
+        _df_unfiltered = _df_unfiltered[
+            _cpw.groupby(_df_unfiltered['prc']).transform('mean') >= settings['cells_per_well']]
         _recruitment_report(_df_unfiltered, df, settings, _results_dir, _filter_log, _well_qc)
 
     print(f'PV level: {len(df)} rows')
