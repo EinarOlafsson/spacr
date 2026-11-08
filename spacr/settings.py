@@ -8191,7 +8191,6 @@ ALPHA_FEATURES = {
                      'ops_flatfield_fields', 'ops_flatfield_field_list',
                      'ops_ph_funk_features', 'ops_ph_zernike',
                      'ops_drop_failed_fields', 'ops_drop_nonfinite_rows',
-                     'ops_ph_funk_features',
                      'ops_profile_normalisation', 'ops_tvn_mode',
                      'ops_tvn_pca_sample', 'ops_tvn_seed', 'ops_tvn_components',
                      'ops_tvn_whiten_epsilon',

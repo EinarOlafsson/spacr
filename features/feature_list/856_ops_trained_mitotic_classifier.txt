@@ -2,7 +2,7 @@ OPS TRAINED MITOTIC CLASSIFIER
 ==============================
 
 Lifecycle: future
-Status: open, alpha.
+Status: DONE 2026-11-08 (alpha, under ALPHA_FEATURES[752]) — spacr.ops_mitotic trains a gradient-boosting mitotic classifier on labelled cells (read_mitotic_labels, sampling_weights), validated with folds by well or field and a shuffled-label control; ops_mitotic_model makes the aggregate phase call mitotic cells with it instead of the DNA rule. spacr/ops_mitotic.py, spacr/ops_engine.py, tests/test_ops_mitotic.py.
 Requested: maintainer via paper session, 2026-11-07.
 Owner: paper session.
 Source: plate A OPS pilot.

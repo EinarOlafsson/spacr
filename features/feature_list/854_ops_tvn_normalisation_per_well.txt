@@ -2,7 +2,7 @@ OPS TVN NORMALISATION PER WELL
 ==============================
 
 Lifecycle: future
-Status: open, alpha.
+Status: DONE 2026-11-08 (alpha, under ALPHA_FEATURES[752]) — ops_profile_normalisation='tvn' writes TVN guide and gene profiles (ops_guides/genes_<plate>[tag]_tvn) next to the robust z tables: per-well centring and scaling, PCA to 99 percent of the variance, whitening on the non-targeting cells and CORAL across wells; ops_tvn_mode streamed or in_memory, ops_tvn_pca_sample, ops_tvn_seed, ops_tvn_components, ops_tvn_whiten_epsilon. spacr/ops_tvn.py, spacr/ops_engine.py, tests/test_ops_tvn.py.
 Requested: maintainer via paper session, 2026-11-07.
 Owner: paper session.
 Source: plate A OPS pilot.

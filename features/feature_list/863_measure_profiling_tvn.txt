@@ -1,0 +1,28 @@
+TVN FOR MEASURE PROFILES
+========================
+
+Lifecycle: future
+Status: DONE 2026-11-08 (alpha, under ALPHA_FEATURES[547]) — profiling_normalization='tvn': mad_robustize per plate against the negative-control wells, then, after feature selection, the kept features whitened on the negative-control wells of all plates (batch_correction.spherize_features, ZCA-cor, eigenbasis from ops_tvn._control_basis), so OPS, batch_correction and Measure share one TVN. It refuses to run without profiling_negative_control. spacr/sp_stats.py, spacr/batch_correction.py, spacr/ops_tvn.py, tests/test_profiling_tvn.py.
+Requested: maintainer via paper session, 2026-11-08.
+Owner: paper session.
+Source: JUMP Target-2 and BBBC021 reanalysis for the BMC paper.
+Related: 547, 770, 854.
+
+WHAT THE STATE IS
+Measure's image-based profiling (547) normalised well profiles with
+mad_robustize or standardize only; the TVN JUMP uses for its profiles was
+available for OPS (854) and as batch_correction='tvn' (770), each with its
+own whitening.
+
+WHAT TO DO
+- Add 'tvn' to profiling_normalization, alpha with the profiling module.
+- Take the whitening from the shared TVN core of spacr.ops_tvn.
+- Say in the docstrings that batch_correction's tvn_epsilon (1e-6) and
+  ops_tvn_whiten_epsilon (3) are different knobs.
+- Tests: 'tvn' at epsilon 0 equals the core applied to the mad_robustize
+  profiles; it refuses to run without named controls.
+
+RESULT
+On JUMP Target-2 source_4 (4 plates, 1,535 wells, 737 kept features) the
+mean phenotypic activity mAP rose from 0.47 to 0.52, and on three BBBC021
+plates from 0.74 to 0.80.

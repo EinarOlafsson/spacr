@@ -2,7 +2,7 @@ OPS PHATE + LEIDEN CLUSTER BENCHMARK
 ====================================
 
 Lifecycle: future
-Status: open, alpha.
+Status: DONE 2026-11-08 (alpha, under ALPHA_FEATURES[752]) — ops_cluster_benchmark clusters the gene profiles with PHATE and Leiden at the resolution closest to ops_cluster_target and scores them against CORUM, KEGG and STRING (ops_benchmark_*) and a published clustering (ops_reference_clusters), each with shuffled-component and k-means controls; ops_consensus_runs writes resampled runs for co_membership. PHATE and Leiden come with spacr[clustering]. spacr/ops_clusters.py, spacr/ops_engine.py, tests/test_ops_clusters.py.
 Requested: maintainer via paper session, 2026-11-07.
 Owner: paper session.
 Source: plate A OPS pilot.
