@@ -672,34 +672,25 @@ class TestStage2Measure:
         assert set(nuclei["nucleus_channel_1_periphery_mean"]) == {float(NUC1)}
 
     def test_only_unobservable_measurements_are_missing(self, tables):
-        """Only a texture distance wider than its object may be missing.
+        """No numeric measurement is missing for a well-formed object.
 
-        Every ordinary numeric measurement still has to hold a value for
-        every well-formed object.  The four eight-pixel-wide cells are the
-        deliberate exception: no horizontal pixel pair exists at distance
-        eight, so reporting homogeneity there as a number would invent an
-        observation.  Cytoplasm inherits the same bounding box.
+        The four eight-pixel-wide cells used to be the exception: no
+        horizontal pixel pair exists at distance eight, so their
+        ``homogeneity_distance_8`` was NaN. Item 792 reads such a distance at
+        the widest offset the object has (seven here), so it is a number now,
+        and so is the cytoplasm's, which shares the bounding box.
         """
-        expected = {
-            "cell": {
-                "cell_channel_0_homogeneity_distance_8",
-                "cell_channel_1_homogeneity_distance_8",
-            },
-            "cytoplasm": {
-                "cytoplasm_channel_0_homogeneity_distance_8",
-                "cytoplasm_channel_1_homogeneity_distance_8",
-            },
-        }
         for name in ("cell", "nucleus", "pathogen", "cytoplasm", "organelle",
                      "cell_organelle_summary"):
             frame = tables[name].select_dtypes(include=[np.number])
             missing = {column for column in frame.columns
                        if frame[column].isna().any()}
-            assert missing == expected.get(name, set()), (name, missing)
-            for column in missing:
-                labels = set(frame.loc[frame[column].isna(), "object_label"])
-                assert labels == {4}, (name, column, labels)
-                assert SIDE[4] == 8
+            assert missing == set(), (name, missing)
+        assert SIDE[4] == 8
+        for name in ("cell", "cytoplasm"):
+            for channel in (0, 1):
+                column = f"{name}_channel_{channel}_homogeneity_distance_8"
+                assert np.isfinite(tables[name][column]).all(), column
 
 
 class TestStage2OrganelleSummaries:
