@@ -2,7 +2,7 @@ OPS AGGREGATE DROPS FIELDS WHOSE REFINEMENT FAILED
 ==================================================
 
 Lifecycle: future
-Status: open, alpha (under ALPHA_FEATURES[752]).
+Status: DONE 2026-11-08 (alpha, under ALPHA_FEATURES[752]). — ops_drop_failed_fields (default False): the merge phase writes ops_fieldcheck_<well>.parquet with each field's link rate against chance (sequencing-nucleus density under the field's footprint times pi * threshold^2); the aggregate phase leaves out a field whose transform re-solve failed and which links under 3x chance, or any field under 2x chance, and writes dropped_fields_<plate>.csv with each field's reason. On plate A of Funk et al. 2022 it drops field 589 of well B1 and no other. spacr/ops_engine.py, tests/test_ops_field_drop_zernike.py.
 Requested: maintainer via paper session, 2026-11-07.
 Owner: paper session.
 Source: plate A OPS pilot.

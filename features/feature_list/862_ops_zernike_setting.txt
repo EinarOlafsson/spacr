@@ -2,7 +2,7 @@ OPS ZERNIKE SETTING
 ===================
 
 Lifecycle: future
-Status: open, alpha (under ALPHA_FEATURES[752]).
+Status: DONE 2026-11-08 (alpha, under ALPHA_FEATURES[752]). — ops_ph_zernike (default False): measure_phenotype_field(zernike=True) adds the degree-8 Zernike moments (zernike_0 to zernike_24) of the cell and the nucleus as _calculate_zernike computes them; the per-field part marker treats an option it lacks as its default, so earlier parts stay valid. spacr/ops_sample.py, spacr/ops_engine.py, tests/test_ops_field_drop_zernike.py.
 Requested: maintainer via paper session, 2026-11-07.
 Owner: paper session.
 Source: plate A OPS pilot.

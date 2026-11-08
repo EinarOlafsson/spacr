@@ -919,6 +919,8 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_control_prefix',
     'ops_crosstalk',
     'ops_design',
+    'ops_drop_failed_fields',
+    'ops_drop_nonfinite_rows',
     'ops_feature_qc',
     'ops_flatfield',
     'ops_flatfield_field_list',
@@ -944,6 +946,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_ph_nucleus_model',
     'ops_ph_sites',
     'ops_ph_texture',
+    'ops_ph_zernike',
     'ops_pool_interphase',
     'ops_pool_wells',
     'ops_pvalue_null',
@@ -1648,4 +1651,5 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'z_projection',
     'z_segmentation_mode',
     'z_stack',
+    'zernike',
 })

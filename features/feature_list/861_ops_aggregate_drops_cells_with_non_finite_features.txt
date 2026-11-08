@@ -2,7 +2,7 @@ OPS AGGREGATE DROPS CELLS WITH NON-FINITE FEATURES
 ==================================================
 
 Lifecycle: future
-Status: open, alpha (under ALPHA_FEATURES[752]).
+Status: DONE 2026-11-08 (alpha, under ALPHA_FEATURES[752]). — ops_drop_nonfinite_rows (default False): the aggregate phase leaves out cells with more than 1% of their measured features not finite (Brieflow's drop_rows_threshold) and reports dropped_nonfinite_rows. spacr/ops_engine.py, tests/test_ops_field_drop_zernike.py.
 Requested: maintainer via paper session, 2026-11-07.
 Owner: paper session.
 Source: plate A OPS pilot.
