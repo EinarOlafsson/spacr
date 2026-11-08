@@ -229,10 +229,12 @@ def test_torchmodel_falls_back_to_legacy_pretrained_kwarg(fake_models):
 
 
 def test_torchmodel_maxvit_keeps_all_but_last_classifier_layer(fake_models):
+    """224, not a small size: TorchModel refuses a MaxViT input size that is
+    not a multiple of 224 before it builds anything."""
     from spacr.utils import TorchModel
 
     m = TorchModel(model_name="maxvit_t", pretrained=False, num_classes=2,
-                   image_size=32)
+                   image_size=224)
     # last nn.Linear dropped, the rest of the Sequential survives
     assert isinstance(m.base_model.classifier, nn.Sequential)
     assert len(m.base_model.classifier) == 2
