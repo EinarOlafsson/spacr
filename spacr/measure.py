@@ -9170,7 +9170,11 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                     volumetric=volumetric,
                     spacing=spacing))
 
-        crop_source = data
+        # The flat-field corrected channel planes the crops are cut from. The
+        # crop source itself is built after the masks are filtered and the
+        # cytoplasm plane is appended, so a PNG mapping that names a mask or
+        # the cytoplasm plane finds it there exactly as it does in ``data``.
+        crop_corrected = None
         if (settings.get('illumination_correction', False)
                 and preprocessing_hooks() and settings.get('save_png')
                 and not volumetric):
@@ -9184,9 +9188,7 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                         settings=settings,
                         volumetric=volumetric,
                         spacing=spacing))
-            crop_source = np.array(data, copy=True)
-            crop_source[..., settings['channels']] = np.asarray(
-                corrected).astype(crop_source.dtype, copy=False)
+            crop_corrected = np.asarray(corrected)
 
         if settings.get('psf_measurement_source', 'original') == 'original':
             psf_plan = None
@@ -9407,6 +9409,11 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
             cytoplasm_mask if settings['cytoplasm'] else None)
         if settings['cytoplasm']:
             data = np.concatenate((data, cytoplasm_mask[..., np.newaxis]), axis=-1)
+        crop_source = data
+        if crop_corrected is not None:
+            crop_source = np.array(data, copy=True)
+            crop_source[..., settings['channels']] = crop_corrected.astype(
+                crop_source.dtype, copy=False)
 
         if settings['plot'] and not volumetric:
             from .plot import _plot_cropped_arrays
@@ -13848,6 +13855,13 @@ def field_table_settings(table, settings=None, dst=None):
         resolved[f'{role}_mask_dim'] = dims.get(role)
     if not resolved.get('png_dims'):
         resolved['png_dims'] = list(range(min(int(table.n_channels), 3)))
+    if not (settings or {}).get('png_channel_mapping'):
+        # The default mapping names channel 2 red; a table with fewer than
+        # three channels has a mask plane there. Take the colours from the
+        # table's own png_dims instead.
+        from .crops import png_dims_to_channel_mapping
+        resolved['png_channel_mapping'] = png_dims_to_channel_mapping(
+            resolved['png_dims'])
     supplied = list(table.ordered_roles())
     available = list(supplied)
     if 'cell' in supplied and resolved.get('cytoplasm'):
