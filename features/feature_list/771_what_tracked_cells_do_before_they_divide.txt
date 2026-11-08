@@ -1,7 +1,7 @@
 WHAT TRACKED CELLS DO BEFORE THEY DIVIDE: DIVISION-ALIGNED TRAJECTORIES WITH CONTROLS
 ===================================================================================
 Lifecycle: future
-Status: IN PROGRESS (alpha) 2026-11-04 — library module spacr/division_analysis.py and its tests are on branch division-analysis; no GUI surface, setting or screen yet, so nothing is registered with the alpha gate.
+Status: DONE 2026-11-07 (alpha) — Make Masks timelapse runs the analysis on spaCR's own tracks CSV and tracked label stack when timelapse_division_analysis is on, writes tidy CSVs, a JSON summary and three figures to tracks/division/<tracks file>/, and the Track preview card shows them in a Division analysis panel; the four settings and the panel are registered as ALPHA_FEATURES[771]. Follow-ons 4a-4d and the 9-locale catalogue records are not done.
 Requested: maintainer, 2026-11-04 (BMC Bioinformatics paper, Fig 7 "Timepose applied: what happens before cells divide"; analysis approved on gold tracks, no model).
 Owner: Home (division-analysis worktree).
 Related: 426 timeflows (the tracker whose output this reads), 535 cell-cycle phase, 539 bleach correction, lineage trees.
@@ -55,10 +55,35 @@ WHAT TO DO
       age-only controls) packaged as a spaCR step; today it lives in the Fig 7 driver;
    d. cluster (per-movie) bootstrap for effect-size CIs when a dataset has many movies.
 
+WHAT WAS BUILT (2026-11-07, alpha)
+- spacr.division_analysis.lineage_from_tracks: a spaCR tracks table (any tracker) to the lineage table,
+  using the tracker's parent_track_id links, else the lineage-tree inference within
+  timelapse_lineage_max_distance.
+- spacr.division_analysis.analyse_divisions: the Fig 7 pipeline in one call (QC of each division with a
+  status, window from the median cycle, matched controls, shuffled alignment with its own matched
+  controls, Hedges g per measurement, baseline-normalised trajectories, size-control fits).
+- write_division_results / read_division_results: events, effects, trajectories, cycles and size_control
+  CSVs through spacr.tabular, summary.json, and the figures through spacr.plot.save_figure.
+- division_figures: aligned trajectories with 95% bands (dividing, matched control, shuffled), forest
+  plot of Hedges g (dividing vs control, shuffled vs its control), size at division vs birth with
+  sizer/adder/timer lines.
+- Make Masks (timelapse): settings timelapse_division_analysis (off), timelapse_division_mode
+  (auto/fission/budding), timelapse_division_window (blank = 0.3 x median cycle, 4-30 frames) and
+  timelapse_division_size_tolerance (0.25), under "Division Analysis α"; the step runs after the lineage
+  step for each tracked field and a failure is printed, not raised.
+- spacr.qt.widgets.division_panel.DivisionAnalysisPanel in the Track preview card: open a results folder
+  (or tracks/division to list every field) and see the three figures in tabs.
+- ALPHA_FEATURES[771]: the four settings and the DivisionAnalysisPanel widget; alpha deck row added
+  (deck not re-rendered).
+- Arrival contract tests/data/release_contracts/division_analysis_api_arrivals_2026-11-07.json for the
+  new public callables. The fourteen older functions were counted into the API ratchets on 2026-11-05
+  without a contract; their 9-locale catalogue records are still owed (step 1).
+
 HOW TO KNOW IT WORKED
-CUDA_VISIBLE_DEVICES='' python -m pytest -q tests/test_division_analysis.py -> all pass.
+CUDA_VISIBLE_DEVICES='' python -m pytest -q tests/test_division_analysis.py
+tests/test_division_analysis_step.py tests/qt/test_division_analysis_alpha_gate.py -> all pass.
 
 DELIBERATELY NOT DONE
-- No GUI, settings or alpha registration yet: the maintainer asked for the analysis first.
+- Follow-ons 4a-4d each wait for their own decision.
 - No frame-interval guessing: units stay frames/pixels unless the caller converts.
 - Prediction is not in the module: it pulls xgboost/sklearn and belongs in a step with its own settings.

@@ -928,6 +928,11 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # vacuole-count and bud rules for inferred divisions, same heading.
     "timelapse_lineage_edge_entry", "timelapse_lineage_vacuole_count",
     "timelapse_lineage_bud_guard", "timelapse_lineage_bud_threshold",
+    # A NEW SETTING GROUP, not a regrouping (item 771, 2026-11-07): the
+    # division-aligned analysis of the tracks, appended to the Timelapse
+    # category and shown under "Division Analysis α" on the Timelapse app.
+    "timelapse_division_analysis", "timelapse_division_mode",
+    "timelapse_division_window", "timelapse_division_size_tolerance",
     # A NEW SETTING GROUP, not a regrouping (item 567, 2026-09-27): event
     # detection on tracks, appended to the Timelapse category and shown under
     # "Event Detection α" on the Timelapse app.
@@ -1801,6 +1806,9 @@ def _rendered_sections(app_key):
             # Item 537, 2026-09-27: lineage trees are built from the tracks
             # the backends above produce.
             "Lineage Trees α",
+            # Item 771, 2026-11-07: divisions in those tracks are aligned
+            # and compared with matched controls.
+            "Division Analysis α",
             # Item 567, 2026-09-27: events are detected on the same tracks.
             "Event Detection α",
             "Visualization & Diagnostics", "Output & Storage",

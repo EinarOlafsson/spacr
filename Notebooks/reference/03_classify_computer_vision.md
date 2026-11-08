@@ -84,7 +84,7 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
-<summary>Computer Vision — Images &amp; Cropping (9 settings)</summary>
+<summary>Computer Vision — Images &amp; Cropping (13 settings)</summary>
 
 #### Computer Vision — Images & Cropping
 
@@ -97,6 +97,10 @@ This linked reference contains the full generated setting descriptions. Return t
 - **`train_channels`** *(optional)* — (list) - Which colour planes of each object crop the classifier sees, chosen from 'r', 'g' and 'b'. Fewer channels means a smaller input tensor and a model that cannot use the dropped stain, so drop a channel only when it carries no signal for your phenotype. The joined letters also become part of the saved model's filename. Default ['r', 'g', 'b']. Default: `['r', 'g', 'b']`.
 - **`image_size`** *(optional)* — (int) - Side length in pixels of the center crop taken from each object PNG before model input. Images are cropped rather than rescaled, so larger values add zero padding and smaller values discard peripheral object pixels. This value also defines the backbone input resolution and must match the crop size used to generate the dataset. Default 224. Default: `224`.
 - **`augment`** *(optional)* — (bool) - Expand the training split eightfold by adding four 90-degree rotations of each crop and their horizontal reflections; validation and test splits are not augmented. Enable this setting when few annotated objects are available and validation accuracy is below training accuracy. The expanded set is materialised in RAM, requiring approximately eight times the memory and epoch duration. Default False. Default: `False`.
+- **`crop_scaling`** *(optional)* — (str) - How raw crops become model input. 'legacy' decodes each crop to 8 bits with the per-crop stretch, which is what spaCR has always trained on. 'fixed' reads raw crops at their stored values. Each plate and channel is divided by one fixed scale, the 99th percentile of the object pixels of up to 2,048 training crops. The result is clipped at crop_scale_clip, resized to image_size and normalised with input_statistics on the GPU, batch by batch. A fixed scale keeps intensity differences between cells, which a per-crop stretch removes. 'fixed' needs raw crops (Measure crop_intensity 'raw'). With augment, training uses flips, 90-degree rotations, shifts of up to 4 pixels and a per-channel gain within 10%. The scales and every other step are saved in the checkpoint. Default 'legacy'. Default: `'legacy'`.
+- **`crop_scale_clip`** *(optional)* — (float) - Upper clip after the fixed crop scale, so a value of 1.5 keeps signal up to 1.5 times the 99th percentile. Used only when crop_scaling is 'fixed'. Default 1.5. Default: `1.5`.
+- **`crop_scale_file`** *(optional)* — (str or None) - Scales file for crop_scaling 'fixed'. An existing file is reused, so several models can share one scale. None writes crop_scales.json in the dataset folder. Its md5 is saved in the checkpoint. Default None. Default: `None`.
+- **`input_statistics`** *(optional)* — (str) - Mean and standard deviation applied to the model input. 'symmetric' uses spaCR's historical 0.5/0.5 convention (Inception and TF-Slim), mapping [0,1] to [-1,1]. 'imagenet' and 'clip' use the distinct statistics associated with those pretrained backbones. With crop_scaling 'fixed', 'imagenet' takes the mean, standard deviation and interpolation of the model's own torchvision weights. 'dataset' uses per-channel statistics of the training data, which suits a model trained from scratch. 'custom' uses input_mean and input_std. 'auto' picks 'imagenet' for a pretrained backbone and 'dataset' for a model trained from scratch, such as model_type 'custom' or init_weights off. Legacy training always uses 'symmetric', and so does 'auto' on the scoring and activation-map paths. Default 'auto' in Classify, 'symmetric' elsewhere. Default: `'auto'`.
 
 </details>
 
@@ -105,7 +109,7 @@ This linked reference contains the full generated setting descriptions. Return t
 
 #### Computer Vision — Model & Regularization
 
-- **`model_type`** *(optional)* — (str) - Backbone architecture for the single-object image classifier: any TorchVision classification model name (resnet50, maxvit_t, densenet121, ...). An unrecognized name does not fail during initial validation: choose_model reports 'Invalid model_type' and returns None, after which training fails. The special name 'custom' passes validation and then raises NotImplementedError. Larger backbones require more memory and generally need more labeled crops than smaller backbones. Default 'maxvit_t'. Default: `'maxvit_t'`.
+- **`model_type`** *(optional)* — (str) - Backbone architecture for the single-object image classifier: any TorchVision classification model name (resnet50, maxvit_t, densenet121, ...). An unrecognized name does not fail during initial validation: choose_model reports 'Invalid model_type' and returns None, after which training fails. The special name 'custom' builds spaCR's small CustomCellClassifier, which is trained from scratch and accepts any channel count. Larger backbones require more memory and generally need more labeled crops than smaller backbones. Default 'maxvit_t'. Default: `'maxvit_t'`.
 - **`custom_model_path`** *(optional)* — (str) - Path to a trained classifier artifact whose model weights initialize a new fine-tuning run. The optimizer and epoch start fresh. Leave empty to initialize from ImageNet or random weights according to init_weights. Default ''. Default: `''`.
 - **`resume_checkpoint`** *(optional)* — (str) - Path to a spaCR training artifact to continue exactly: restores model, optimizer, scheduler, epoch, best score and random-generator state. Use custom_model_path instead when only the weights should be reused. Default ''. Default: `''`.
 - **`init_weights`** *(optional)* — (bool) - Start the backbone from ImageNet-pretrained weights instead of random initialisation; the spaCR classifier head added on top is randomly initialised either way. Leave it on - transfer learning converges in far fewer epochs on the small annotated sets typical here. Turn it off only to train from scratch on a very large dataset, or to measure how much pretraining contributes. Default True. Default: `True`.
@@ -155,7 +159,7 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
-<summary>Evaluation (17 settings)</summary>
+<summary>Evaluation (19 settings)</summary>
 
 #### Evaluation
 
@@ -176,6 +180,8 @@ This linked reference contains the full generated setting descriptions. Return t
 - **`leakage_audit_train_test`** *(optional)* — (bool) - Audit the permanent train/ and test/ boundary before any classifier fit. Checks plate/well/field/object lineage, exported augmentation families and (when enabled) byte-identical renamed copies. Default True. API: spacr.classifier_evaluation.audit_dataset_splits. Default: `True`.
 - **`leakage_hash_content`** *(optional)* — (bool) - SHA-256 hash classifier images during leakage audits so an identical crop copied or renamed across train/test or CV boundaries is still detected. Reads files in 1 MiB chunks and never decodes pixels. Default True. API: spacr.classifier_evaluation.audit_cv_folds. Default: `True`.
 - **`leakage_require_identity`** *(optional)* — (bool) - Treat filenames that do not encode the protected cv_group_by identity, and files that cannot be hashed, as a failed audit rather than an advisory warning. Default True because independence cannot be claimed when lineage is unknown. API: spacr.classifier_evaluation.audit_split_leakage. Default: `True`.
+- **`preprocessing_mismatch`** *(optional)* — (str) - What testing a model does when the crops would be prepared differently from training, for example another image_size, channel selection, mask mode or scales file. 'refuse' stops with a message that lists the differences. 'warn' prints them and continues. Models saved before November 2026 have no full record, so they are tested with the current settings and a warning. Default 'refuse'. Default: `'refuse'`.
+- **`control_shuffled_labels`** *(optional)* — (bool) - Train a shuffled-label control. The labels of the training split are permuted with random_seed, while validation and test labels stay true. A model that learns real phenotype should beat this control clearly. The run is saved in a separate folder whose name ends in _shuffled_labels. Test reports also list majority_class_accuracy, the accuracy of always predicting the largest class. Default False. Default: `False`.
 
 </details>
 

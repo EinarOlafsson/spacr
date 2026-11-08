@@ -69,6 +69,24 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
+<summary>Label Image Import α (10 settings)</summary>
+
+#### Label Image Import α
+
+- **`label_import`** *(optional)* — (bool) - Measure label images made by another tool (CellProfiler, Cellpose, ilastik) instead of spaCR's own masks. Before measuring, the raw channel images in label_import_images and the label images in cell_label_folder, nucleus_label_folder and pathogen_label_folder are paired by file name, checked (integer labels, same size as the images, IDs up to 65535) and written into src as spaCR's stack/, masks/ and merged/ folders; label_import.json records every source file. src must be an empty plate folder or one an earlier import wrote. Default False. Default: `False`.
+- **`label_import_images`** *(optional)* — (str) - Folder with the raw channel images, one image file per channel per field, read when label_import is on. Its subfolders are not searched, and the folder name is the plate name unless label_import_image_regex has a plateID group. Blank uses src. Default blank. Default: `''`.
+- **`label_import_image_regex`** *(optional)* — (str) - Regular expression searched in each raw image file name, with named groups wellID, fieldID and chanID, and optionally plateID and timeID, for example (?P&lt;wellID&gt;[A-P]\d{2})_s(?P&lt;fieldID&gt;\d+)_w(?P&lt;chanID&gt;\d). Files it does not match are left out. Blank infers a pattern from the file names and stops if none fits every file. Default blank. Default: `''`.
+- **`label_import_channels`** *(optional)* — (list or None) - chanID values to import, in the order they become stack channels 0, 1, 2 and so on, for example [1, 2, 4]. None imports every channel found, numeric IDs in increasing order. Default None. Default: `None`.
+- **`cell_label_folder`** *(optional)* — (str) - Folder with cell label images (TIFF, PNG or NPY; one integer ID per cell, 0 = background), searched with its subfolders when label_import is on. Blank imports no cell masks. Default blank. Default: `''`.
+- **`cell_label_regex`** *(optional)* — (str) - Regular expression searched in each file name in cell_label_folder, with named groups wellID and fieldID, and optionally plateID and timeID; a file is paired with the image field that has the same values. Only matching files are read, so a suffix such as _Cell\.tiff$ keeps other objects' labels in the same folder out. Blank infers a pattern from the file names. Default blank. Default: `''`.
+- **`nucleus_label_folder`** *(optional)* — (str) - Folder with nucleus label images (TIFF, PNG or NPY; one integer ID per nucleus, 0 = background), searched with its subfolders when label_import is on. It may be the same folder as cell_label_folder when nucleus_label_regex tells the files apart. Blank imports no nucleus masks. Default blank. Default: `''`.
+- **`nucleus_label_regex`** *(optional)* — (str) - Regular expression searched in each file name in nucleus_label_folder, with named groups wellID and fieldID, and optionally plateID and timeID; a file is paired with the image field that has the same values. Only matching files are read, for example a pattern ending in _Nuclei\.tiff$. Blank infers a pattern from the file names. Default blank. Default: `''`.
+- **`pathogen_label_folder`** *(optional)* — (str) - Folder with pathogen label images (TIFF, PNG or NPY; one integer ID per pathogen, 0 = background), searched with its subfolders when label_import is on. Blank imports no pathogen masks. Default blank. Default: `''`.
+- **`pathogen_label_regex`** *(optional)* — (str) - Regular expression searched in each file name in pathogen_label_folder, with named groups wellID and fieldID, and optionally plateID and timeID; a file is paired with the image field that has the same values. Only matching files are read. Blank infers a pattern from the file names. Default blank. Default: `''`.
+
+</details>
+
+<details>
 <summary>Mask &amp; Channel Mapping (6 settings)</summary>
 
 #### Mask & Channel Mapping
@@ -309,24 +327,25 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
-<summary>Object Filtering (9 settings)</summary>
+<summary>Object Filtering (10 settings)</summary>
 
 #### Object Filtering
 
 - **`uninfected`** *(optional)* — (bool) - Decides which cells survive the consistency filter in measure_crop. True keeps any cell that has both a nucleus and a cytoplasm; False also demands at least one pathogen, dropping uninfected cells from every table. Either way, nucleus/pathogen/cytoplasm labels outside the surviving cells are zeroed. Only applied when cell, nucleus and pathogen masks all exist; forced True otherwise. Default True. Default: `True`.
-- **`cell_min_size`** *(optional)* — (int) - (Deprecated) Pixel-area floor applied to cell labels during measurement: any cell smaller than this is erased from the mask before features are extracted. Superseded by an 'area' row for cell in object_filters, which filters at segmentation time, but this one still runs if you set it. 0 or None disables it. Default 8000. Default: `8000`.
+- **`pixel_size_um`** *(optional)* — (float or None) - Image pixel size in micrometres per pixel, for example 0.325 for a 6.5 um camera pixel behind a 20x objective. When set, a blank cell_diameter, nucleus_diameter or pathogen_diameter is the typical object size over the pixel size: 18 um cells, 10 um nuclei and 6.5 um pathogens, so 55, 31 and 20 px at 0.325 um/px, with min/max area limits of diameter^2/4 and diameter^2*10. It replaces the magnification default, which assumes larger cells (120 and 60 px at 20x). A diameter you type is always used as it is. None uses the magnification default. In Measure it also scales the default cell_min_size, nucleus_min_size and pathogen_min_size. Default None. Default: `None`.
+- **`cell_min_size`** *(optional)* — (int) - (Deprecated) Pixel-area floor applied to cell labels during measurement: any cell smaller than this is erased from the mask before features are extracted. Superseded by an 'area' row for cell in object_filters, which filters at segmentation time, but this one still runs if you set it. 0 or None disables it. Default 8000, which suits 40-60x; when pixel_size_um or magnification is set, the 8000 default becomes the area of a disc one fifth of Mask's expected cell diameter (452 px at 20x, 95 px at 0.325 um/px). A field that loses more than half its cells to the filter prints a warning. Default: `8000`.
 - **`cell_max_size`** *(optional)* — (int | None) - Drop cells larger than this many pixels. None, the default, disables the filter and preserves prior behavior. The minimum sizes remove debris; only a maximum removes a segmentation artifact, which passes every minimum and carries its area into the classifier and the regression. The run prints how many objects each bound dropped. Default: `None`.
 - **`cytoplasm_min_size`** *(optional)* — (int) - (Deprecated) Pixel-area floor for the cytoplasm mask, which is the cell mask with nucleus, pathogen and organelle pixels removed. Cytoplasm regions below this are erased before measurement, so their host cell yields no cytoplasm features and any recruitment ratio built on them is lost. 0 or None disables. Default 0. Default: `0`.
-- **`nucleus_min_size`** *(optional)* — (int) - (Deprecated) Minimum nucleus size in pixels^2 applied during measure_crop: labels covering fewer pixels than this are erased from the nucleus mask before any feature is measured, so those nuclei never reach the database. 0 (default) disables it. Prefer an 'area' row for nucleus in object_filters, which filters at segmentation time. Default: `2000`.
+- **`nucleus_min_size`** *(optional)* — (int) - (Deprecated) Minimum nucleus size in pixels^2 applied during measure_crop: labels covering fewer pixels than this are erased from the nucleus mask before any feature is measured, so those nuclei never reach the database. 0 or None disables it. Default 2000, which suits 40-60x; when pixel_size_um or magnification is set, the 2000 default becomes the area of a disc one fifth of Mask's expected nucleus diameter (113 px at 20x, 30 px at 0.325 um/px). A field that loses more than half its nuclei prints a warning. Prefer an 'area' row for nucleus in object_filters, which filters at segmentation time. Default: `2000`.
 - **`nucleus_max_size`** *(optional)* — (int | None) - Drop nuclei larger than this many pixels, counted the same way nucleus_min_size counts them. None -- the default -- disables it and preserves prior behavior. A minimum removes debris; only a maximum removes nuclei merged into a single mask, which pass every minimum and then bias downstream area and DNA-content measurements. The run prints how many objects each bound dropped. Default: `None`.
-- **`pathogen_min_size`** *(optional)* — (int) - (Deprecated) Minimum pathogen object area in pixels squared, applied during measurement: any label with fewer pixels than this is erased from the pathogen mask before features are extracted. 0, the default, disables it. Superseded by an 'area' row for pathogen in object_filters, which filters at segmentation time instead. Default: `500`.
+- **`pathogen_min_size`** *(optional)* — (int) - (Deprecated) Minimum pathogen object area in pixels squared, applied during measurement: any label with fewer pixels than this is erased from the pathogen mask before features are extracted. 0 or None disables it. Default 500, which suits 40-60x; when pixel_size_um or magnification is set, the 500 default becomes the area of a disc one fifth of Mask's expected pathogen diameter (13 px at 20x or at 0.325 um/px). A field that loses more than half its pathogens prints a warning. Superseded by an 'area' row for pathogen in object_filters, which filters at segmentation time instead. Default: `500`.
 - **`pathogen_max_size`** *(optional)* — (int | None) - Drop pathogens larger than this many pixels, counted the same way pathogen_min_size counts them. None -- the default -- disables it and preserves prior behavior. This bound removes a vacuole of tightly packed parasites segmented as one object: it passes every minimum size and inflates both the per-cell burden and the mean parasite area. The run prints how many objects each bound dropped. Default: `None`.
 - **`merge_edge_pathogen_cells`** *(optional)* — (bool) - During measurement, reconcile pathogens straddling two host-cell masks: if 90 percent or more of the pathogen lies in one cell, its pixels in the neighbours are erased; otherwise the overlapping cell labels are fused into a single cell. Switch off to keep the raw cell segmentation when parasites legitimately touch two cells. Default True. Default: `True`.
 
 </details>
 
 <details>
-<summary>Crop Output (8 settings)</summary>
+<summary>Crop Output (9 settings)</summary>
 
 #### Crop Output
 
@@ -338,6 +357,7 @@ This linked reference contains the full generated setting descriptions. Return t
 - **`dialate_png_ratios`** *(optional)* — (list of float) - Dilation amount as a fraction of object size: the mask is grown by ratio * sqrt(object area) pixels of binary dilation, so 0.2 expands a cell by roughly 20% of its diameter and pulls in surrounding background. Only used when dialate_pngs is True. A single value applies to every crop_mode entry; pass a list only when the modes need different ratios. Default [0.2]. Default: `[0.2]`.
 - **`use_bounding_box`** *(optional)* — (bool) - Crop the object's rectangular bounding box padded by 10 px instead of its mask, so neighbouring cells and background inside the box are kept rather than zeroed out. Enable when the classifier should see local context; leave off to isolate a single object on a black background. Default False. Default: `False`.
 - **`normalize_by`** *(optional)* — (str) - Percentile source used to rescale cropped PNGs, and only active when 'normalize' is a [low, high] percentile pair: 'png' stretches each crop to its own percentiles, maximising per-object contrast; 'fov' uses percentiles from the whole field, keeping brightness comparable between objects. Choose 'fov' if crop intensities will be compared. Default 'png'. Default: `'png'`.
+- **`crop_intensity`** *(optional)* — (str) - Intensities written into the crop PNGs. 'raw' keeps the stored values and bit depth, usually uint16, and sets only the pixels outside the object to 0. 'stretch' rescales each crop to its own percentiles, which is what spaCR did before November 2026. 'auto' writes raw crops unless normalize is a [low, high] percentile pair. spaCR's own readers show raw crops with the old stretch, so Annotate, Classify and existing models see the same pixels. Other programs see the raw values, which keep intensity differences between cells. Default 'auto'. Default: `'auto'`.
 
 </details>
 
@@ -380,7 +400,7 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
-<summary>Profiling α (13 settings)</summary>
+<summary>Profiling α (15 settings)</summary>
 
 #### Profiling α
 
@@ -397,6 +417,8 @@ This linked reference contains the full generated setting descriptions. Return t
 - **`profiling_phenotype_column`** *(optional)* — (str) - Optional plate-map column holding a phenotype label that different treatments share, such as a mechanism of action, pathway or target gene. When set, consensus profiles are also scored for phenotypic consistency: how well treatments with the same label retrieve each other, as mAP per label. Default blank. Default: `''`.
 - **`profiling_databases`** *(optional)* — (list) - Further measurements.db files to profile together with this run's, one per plate, so replicates on different plates are compared while each plate is still normalised on its own. Every plate needs a distinct plateID. Default []. Default: `[]`.
 - **`feature_qc_drop`** *(optional)* — (bool) - Remove the columns Feature QC flags from the cell, cytoplasm, nucleus and pathogen tables of measurements.db at the end of the run, before profiling reads them. Every complete run lists all-missing, mostly-missing, numerically zero, constant and spike-dominated columns in feature_qc.csv and feature_qc.json beside measurements.db; this only decides whether they are also dropped. Removal cannot be undone. Default False. Default: `False`.
+- **`per_cell_export`** *(optional)* — (bool) - At the end of a complete run, write one row per cell to per_cell.parquet and per_cell.csv beside measurements.db: the cell, its cytoplasm and its nucleus columns side by side, with Metadata_n_nuclei counting the cell's nuclei. A cell without a nucleus keeps its row with empty (NaN) nucleus columns; nuclei outside every cell are left out. Feature QC runs on the joined table and writes per_cell_feature_qc.csv; with feature_qc_drop on, the flagged columns are also left out of the export. Positions are renamed Location_*. per_cell.json records the counts. Default False. Default: `False`.
+- **`per_cell_nucleus`** *(optional)* — (str) - Which nucleus columns a cell with several nuclei gets in the per-cell export. largest takes the nucleus with the largest nucleus_area; mean and median average each nucleus column over all of the cell's nuclei. Cells with one nucleus are the same under all three. Only used when per_cell_export is on. Default largest. Default: `'largest'`.
 
 </details>
 

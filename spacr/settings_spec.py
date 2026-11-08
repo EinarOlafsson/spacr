@@ -288,6 +288,7 @@ def convert_settings_dict_for_gui(settings):
                          if role != 'cell'],
                       "['cell']"),
         'timelapse_mode': ('combo', ['trackastra', 'ultrack', 'trackpy', 'iou', 'btrack', 'timeflows', 'sam2'], 'trackastra'),
+        'timelapse_division_mode': ('combo', ['auto', 'fission', 'budding'], 'auto'),
         'timelapse_events_encoder': ('combo', ['small', 'videomae'], 'small'),
         'timelapse_events_video_device': ('combo', ['auto', 'cpu', 'cuda', 'mps'], 'auto'),
         'train_mode': ('combo', ['erm', 'irm'], 'erm'),
