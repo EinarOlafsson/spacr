@@ -609,6 +609,9 @@ setup(
             'python_version < "3.14" or "24" <= platform_release',
             'anndata>=0.10,<0.14',
             'mrcfile>=1.5,<2',
+            'phate>=1.0.11,<3',
+            'leidenalg>=0.10,<1',
+            'igraph>=0.11,<2',
         ],
     },
 )
