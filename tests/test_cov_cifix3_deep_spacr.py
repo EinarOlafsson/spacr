@@ -230,3 +230,42 @@ def test_train_model_prints_per_class_accuracy_without_validation(tmp_path, monk
                    val_loaders=None, num_classes=2, classes=["neg", "pos"],
                    schedule=None, learning_rate=1e-3)
     assert "Train per-class acc.: neg" in capsys.readouterr().out
+
+
+def test_train_model_without_validation_prints_no_per_class_line_when_metrics_have_none(
+        tmp_path, monkeypatch, capsys):
+    """A training-only epoch whose metrics carry no per-class breakdown.
+
+    With ``train_metrics_full_pass`` the epoch's training metrics come from
+    ``evaluate_model_performance``; when that dict has no
+    ``per_class_accuracy`` the progress line is still printed, no empty
+    per-class line follows it, and the epoch still counts as the best one.
+    """
+    monkeypatch.setattr("spacr.utils.choose_model",
+                        lambda *a, **k: nn.Sequential(nn.Linear(4, 2)))
+    seen = []
+
+    def evaluate(model, loader, epoch, **kw):
+        seen.append(epoch)
+        return {"accuracy": 0.75, "loss": 0.5, "f1_macro": 0.7,
+                "epoch": int(epoch)}, [None, None]
+
+    monkeypatch.setattr(ds, "evaluate_model_performance", evaluate)
+    g = torch.Generator().manual_seed(0)
+    loader = [(torch.rand(4, 4, generator=g), torch.tensor([0, 1, 0, 1]),
+               [f"f{i}.png" for i in range(4)]) for _ in range(2)]
+    src = tmp_path / "data"
+    src.mkdir()
+    dst = tmp_path / "model"
+    dst.mkdir()
+    ds.train_model(str(src), str(dst), "resnet18", loader, epochs=1,
+                   val_loaders=None, num_classes=2, classes=["neg", "pos"],
+                   schedule=None, learning_rate=1e-3,
+                   settings={"train_metrics_full_pass": True})
+    out = capsys.readouterr().out
+    assert seen == [1]
+    assert "Train acc.: 0.750" in out
+    assert "per-class acc." not in out
+    train = pd.read_csv(dst / "train.csv")
+    assert train["accuracy"].tolist() == [0.75]
+    assert list(dst.glob("*_best_*.pth"))
