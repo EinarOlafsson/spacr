@@ -16,6 +16,8 @@ import pytest
 torch = pytest.importorskip("torch")
 
 from spacr import _gpu_governor as G  # noqa: E402
+from tests.cellpose_api_contract import (  # noqa: E402
+    MISSING_CHANNEL_AXIS, eval_arguments)
 from tests.test_gpu_memory_governor import _oom, card  # noqa: E402,F401
 from tests.test_segmentation_illumination_with_separate_preprocessing import (  # noqa: E402
     FIELD, MISSING_CHANNEL_AXIS, _prepared_inputs, check_cellpose_eval_call,
@@ -119,11 +121,22 @@ def test_a_model_without_a_device_is_called_directly(monkeypatch):
     monkeypatch.setattr(G, '_governed_eval', lambda *a, **k: pytest.fail('governed'))
 
     class Remote:
-        def eval(self, x, **kwargs):
-            return x, kwargs
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+                 rescale=None, diameter=None, flow_threshold=0.4,
+                 cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+                 flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+                 max_size_fraction=0.4, niter=None, augment=False,
+                 tile_overlap=0.1, bsize=None, compute_masks=True,
+                 progress=None):
+            called = eval_arguments(locals())
+            assert channel_axis is MISSING_CHANNEL_AXIS
+            return x, called
 
-    assert _mask_eval(Remote(), [1], site='mask_sam', batch_size=3,
-                      normalize=False) == ([1], {'batch_size': 3, 'normalize': False})
+    x, called = _mask_eval(Remote(), [1], site='mask_sam', batch_size=3,
+                           normalize=False)
+    assert x == [1]
+    assert (called['batch_size'], called['normalize']) == (3, False)
 
 
 def test_a_model_with_a_device_reaches_the_governor_with_its_keywords(monkeypatch):
@@ -136,8 +149,15 @@ def test_a_model_with_a_device_reaches_the_governor_with_its_keywords(monkeypatc
     class Local:
         device = torch.device('cuda')
 
-        def eval(self, x, **kwargs):
-            pytest.fail('called directly')
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+                 rescale=None, diameter=None, flow_threshold=0.4,
+                 cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+                 flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+                 max_size_fraction=0.4, niter=None, augment=False,
+                 tile_overlap=0.1, bsize=None, compute_masks=True,
+                 progress=None):
+            pytest.fail(f'called directly with channel_axis={channel_axis!r}')
 
     assert _mask_eval(Local(), [1], site='mask_organelle', settings={'a': 1},
                       batch_size=4, diameter=None) == 'out'
