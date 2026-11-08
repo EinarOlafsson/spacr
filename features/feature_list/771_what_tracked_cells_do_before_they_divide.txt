@@ -54,6 +54,7 @@ WHAT TO DO
    c. a "will divide within N frames" predictor (xgboost, grouped CV by movie, shuffled-label and
       age-only controls) packaged as a spaCR step; today it lives in the Fig 7 driver;
    d. cluster (per-movie) bootstrap for effect-size CIs when a dataset has many movies.
+   2026-11-08: the maintainer filed all four as future items 864 (a), 865 (b), 866 (c) and 867 (d).
 
 WHAT WAS BUILT (2026-11-07, alpha)
 - spacr.division_analysis.lineage_from_tracks: a spaCR tracks table (any tracker) to the lineage table,

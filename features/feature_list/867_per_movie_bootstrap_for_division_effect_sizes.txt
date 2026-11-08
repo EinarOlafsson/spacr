@@ -1,0 +1,37 @@
+PER-MOVIE BOOTSTRAP FOR THE DIVISION EFFECT SIZES
+=================================================
+Lifecycle: future
+Status: open
+Requested: maintainer, 2026-11-08 (follow-on 4d of item 771).
+Owner: unassigned (alpha when built).
+Related: 771.
+
+WHAT THE STATE IS
+spacr/division_analysis.py (item 771) gives each Hedges g a bootstrap 95%
+CI that resamples cells. Cells from one movie share its conditions,
+imaging and segmentation, so they are not independent; when a dataset has
+many movies the cell bootstrap makes the CI too narrow.
+
+WHY IT MATTERS
+A CI that ignores the movie-level clustering overstates certainty, and the
+forest plot and the random-effects meta-analysis inherit the error.
+
+WHAT TO DO
+1. Add a cluster bootstrap to effect_size: resample movies with
+   replacement, keep all of a drawn movie's dividing and control cells, and
+   recompute g.
+2. Use it by default when a dataset has enough movies (threshold set and
+   documented), else keep the cell bootstrap; record which was used and the
+   number of movies in the effects CSV and summary.json.
+3. Pass the cluster-bootstrap variance to random_effects_meta when it is
+   used.
+4. Any new setting under ALPHA_FEATURES[867].
+
+HOW TO KNOW IT WORKED
+Synthetic data with a planted between-movie effect: the per-movie CI
+covers the true g at about the nominal rate while the cell CI does not;
+with one movie the cell bootstrap is used and the result is unchanged.
+
+DELIBERATELY NOT DONE
+No mixed model in this item; the bootstrap is the smaller change and keeps
+Hedges g as the reported effect.

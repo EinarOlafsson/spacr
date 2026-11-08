@@ -1,0 +1,41 @@
+PREDICT WHETHER A TRACKED CELL DIVIDES WITHIN N FRAMES
+======================================================
+Lifecycle: future
+Status: open
+Requested: maintainer, 2026-11-08 (follow-on 4c of item 771).
+Owner: unassigned (alpha when built).
+Related: 771.
+
+WHAT THE STATE IS
+The Fig 7 driver in
+/nas_mnt/data/sync/papers/BMCspacr/reanalysis/division_biology/code/ trains
+a "will divide within N frames" classifier (xgboost, grouped
+cross-validation by movie, shuffled-label and age-only controls). It is not
+part of spaCR: spacr/division_analysis.py (item 771) leaves prediction out
+because it pulls xgboost/sklearn and needs its own settings.
+
+WHY IT MATTERS
+Whether shape, size and motion predict an upcoming division is the
+forward-looking half of the item 771 question. Without grouped CV and the
+controls, a classifier learns movie identity or cell age and looks better
+than it is.
+
+WHAT TO DO
+1. Add a spaCR step that builds per-track, per-frame features from the
+   measurements analyse_divisions already makes, with the label "divides
+   within N frames".
+2. Train with cross-validation grouped by movie; report AUC (with CI)
+   beside the shuffled-label control and an age-only baseline.
+3. Write per-fold metrics, feature importances and the held-out
+   predictions as CSVs, plus one figure, next to the division results.
+4. Settings (N, model, folds) under ALPHA_FEATURES[866]; xgboost stays an
+   optional dependency with an sklearn fallback.
+
+HOW TO KNOW IT WORKED
+On synthetic lineages with a planted pre-division change the model beats
+both controls; with no planted change it does not beat the shuffled
+control; folds never share a movie.
+
+DELIBERATELY NOT DONE
+Not added to spacr/division_analysis.py itself, to keep that module free
+of model dependencies.

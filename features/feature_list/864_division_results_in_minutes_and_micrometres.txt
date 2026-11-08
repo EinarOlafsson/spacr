@@ -1,0 +1,43 @@
+DIVISION RESULTS IN MINUTES AND MICROMETRES: FRAME INTERVAL AND PIXEL SIZE PER MOVIE
+====================================================================================
+Lifecycle: future
+Status: open
+Requested: maintainer, 2026-11-08 (follow-on 4a of item 771).
+Owner: unassigned (alpha when built).
+Related: 771.
+
+WHAT THE STATE IS
+spacr/division_analysis.py (item 771) reports every result in frames and
+pixels: cycle length, the alignment window, rel_t on the trajectory plots,
+speed and displacement, area and axis lengths, birth and division size. The
+module deliberately does not guess a frame interval. The Fig 7 corpus
+manifest has the frame interval and pixel size for 6 of its 13 datasets;
+the rest are analysed in frames and pixels only.
+
+WHY IT MATTERS
+A cycle of "42 frames" or a speed of "1.3 px/frame" cannot be compared
+across movies taken at different intervals or magnifications, and a user
+cannot read it against the literature. Pooling movies with different
+intervals in the meta-analysis mixes units silently.
+
+WHAT TO DO
+1. Read the frame interval (minutes) and pixel size (um) per movie: from
+   the image metadata spaCR already reads when it is there (OME/ND2/CZI
+   physical size and time increment), else from new Make Masks timelapse
+   settings, else leave them unset.
+2. Carry both values through lineage_from_tracks and analyse_divisions as
+   per-movie metadata, and write them to summary.json.
+3. When both are known, add minute and um columns next to the frame and
+   pixel ones in the events, trajectories, cycles and size_control CSVs,
+   and label the figure axes in minutes and um (um^2 for area).
+4. When a value is missing, keep frames/pixels and say so in summary.json
+   and on the figure axes; never guess.
+5. Register the new settings under ALPHA_FEATURES[864].
+
+HOW TO KNOW IT WORKED
+A synthetic movie with a known interval and pixel size gives the same
+cycle length in minutes and size in um^2 as the hand calculation; a movie
+without metadata still runs and reports frames/pixels with the unit stated.
+
+DELIBERATELY NOT DONE
+No default interval or pixel size: a wrong unit is worse than no unit.

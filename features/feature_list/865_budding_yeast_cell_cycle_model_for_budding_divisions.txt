@@ -1,0 +1,42 @@
+A BUDDING-YEAST CELL-CYCLE MODEL FOR BUDDING DIVISIONS
+=====================================================
+Lifecycle: future
+Status: open
+Requested: maintainer, 2026-11-08 (follow-on 4b of item 771).
+Owner: unassigned (alpha when built).
+Related: 771.
+
+WHAT THE STATE IS
+spacr/division_analysis.py (item 771) detects budding events (the mother
+continues, each bud is one event) and aligns trajectories on them, but the
+size-control fits (cell_cycles, size_control_fits: birth vs division size,
+sizer/adder/timer slopes) assume fission. For budding yeast the division
+time is cytokinesis, which the mask/lineage pair does not carry: a bud is
+seen from emergence, and mother and bud stay one object or two touching
+objects until they separate.
+
+WHY IT MATTERS
+Size control is one of the main questions asked of budding-yeast movies,
+and today spaCR cannot answer it for them; fitting the fission model to
+bud emergence gives slopes that mean something else.
+
+WHAT TO DO
+1. Model the budding cycle as bud emergence -> cytokinesis (separation):
+   estimate cytokinesis per bud from the masks (mother-bud contact ending,
+   or the bud's own growth curve flattening) and record how it was found.
+2. Define birth size, division size and added size for mother and bud
+   under that model, and fit sizer/adder/timer slopes per branch.
+3. Use it from analyse_divisions when timelapse_division_mode is budding
+   (or auto finds budding); keep the fission fits for fission.
+4. Show the budding fits in the size-control figure of the Division
+   analysis panel, labelled as the budding model.
+5. Register any new settings under ALPHA_FEATURES[865].
+
+HOW TO KNOW IT WORKED
+Synthetic budding lineages with planted sizer, adder and timer behaviour
+give back the planted slope within its CI; a fission lineage is fitted as
+before.
+
+DELIBERATELY NOT DONE
+No cytokinesis times are invented when the masks cannot show separation;
+those buds are reported as not fitted, with the reason.
