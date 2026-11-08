@@ -3049,7 +3049,9 @@ def filter_steps_drawer(table, order, labels=None, palette=None, layout=SPACIOUS
                 ax.plot(t["step_index"], t["percent_of_start"], color=pal.get(g, "#8C8C8C"), lw=0.8,
                         marker="o", ms=2, alpha=0.8, label=display_label(g, labels))
         t = table[table["group"] == "all"].sort_values("step_index")
-        ax.plot(t["step_index"], t["percent_of_start"], color="black", lw=1.4, marker="o", ms=2.5, label="all")
+        from .figures.style import resolve_ink, theme_target
+        ax.plot(t["step_index"], t["percent_of_start"], color=resolve_ink(theme_target()), lw=1.4, marker="o",
+                ms=2.5, label="all")
         for _, r in t.iloc[1:].iterrows():
             pct = r["percent_removed_by_step"]
             txt = "0%" if not np.isfinite(pct) or pct == 0 else f"\u2212{pct:.1f}%"
