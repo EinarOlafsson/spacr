@@ -15,6 +15,9 @@ tubulin features instead; this module does the same with labelled cells.
   labelled cells and reports grouped cross-validation, with folds split by
   well or field so that cells of one image never sit on both sides, and a
   shuffled-label control that shows what chance scores.
+* :func:`sampling_weights` re-weights a label set that over-samples some
+  cells (such as the rule's mitotic calls) so that training and metrics
+  describe the whole screen.
 * :func:`predict_mitotic` calls new cells; :func:`save_mitotic_classifier`
   and :func:`load_mitotic_classifier` keep a trained model on disk, and the
   OPS aggregate phase uses it through ``ops_mitotic_model``.
@@ -191,13 +194,14 @@ def _well_robust_z(cells: pd.DataFrame, features: Sequence[str],
     return out
 
 
-def _model(kind: str, seed: int):
+def _model(kind: str, seed: int, balanced: bool = True):
     """The classifier named ``kind``."""
+    weight = "balanced" if balanced else None
     if kind == "hist_gradient_boosting":
         from sklearn.ensemble import HistGradientBoostingClassifier
 
         return HistGradientBoostingClassifier(max_iter=300, learning_rate=0.1,
-                                              class_weight="balanced", random_state=seed)
+                                              class_weight=weight, random_state=seed)
     if kind == "logistic":
         from sklearn.impute import SimpleImputer
         from sklearn.linear_model import LogisticRegression
@@ -205,29 +209,41 @@ def _model(kind: str, seed: int):
         from sklearn.preprocessing import StandardScaler
 
         return make_pipeline(SimpleImputer(strategy="median"), StandardScaler(),
-                             LogisticRegression(max_iter=2000, class_weight="balanced"))
+                             LogisticRegression(max_iter=2000, class_weight=weight))
     raise ValueError(f"model must be 'hist_gradient_boosting' or 'logistic'; got {kind!r}")
 
 
-def _fold_scores(truth: np.ndarray, probability: np.ndarray, threshold: float) -> Dict[str, float]:
-    """The :data:`FOLD_METRICS` of one fold."""
+def _fit(model, x, y, weight):
+    """Fit ``model``, with sample weights when given."""
+    if weight is None:
+        return model.fit(x, y)
+    if hasattr(model, "steps"):
+        return model.fit(x, y, **{f"{model.steps[-1][0]}__sample_weight": weight})
+    return model.fit(x, y, sample_weight=weight)
+
+
+def _fold_scores(truth: np.ndarray, probability: np.ndarray, threshold: float,
+                 weight: Optional[np.ndarray] = None) -> Dict[str, float]:
+    """The :data:`FOLD_METRICS` of one fold, weighted when ``weight`` is given."""
     from sklearn import metrics
 
     called = probability >= threshold
     two = len(np.unique(truth)) == 2
+    w = {"sample_weight": weight}
     return {
-        "accuracy": float(metrics.accuracy_score(truth, called)),
-        "balanced_accuracy": float(metrics.balanced_accuracy_score(truth, called)),
-        "precision": float(metrics.precision_score(truth, called, zero_division=0)),
-        "recall": float(metrics.recall_score(truth, called, zero_division=0)),
-        "f1": float(metrics.f1_score(truth, called, zero_division=0)),
-        "roc_auc": float(metrics.roc_auc_score(truth, probability)) if two else float("nan"),
-        "average_precision": float(metrics.average_precision_score(truth, probability))
+        "accuracy": float(metrics.accuracy_score(truth, called, **w)),
+        "balanced_accuracy": float(metrics.balanced_accuracy_score(truth, called, **w)),
+        "precision": float(metrics.precision_score(truth, called, zero_division=0, **w)),
+        "recall": float(metrics.recall_score(truth, called, zero_division=0, **w)),
+        "f1": float(metrics.f1_score(truth, called, zero_division=0, **w)),
+        "roc_auc": float(metrics.roc_auc_score(truth, probability, **w)) if two else float("nan"),
+        "average_precision": float(metrics.average_precision_score(truth, probability, **w))
         if two else float("nan"),
     }
 
 
-def _cross_validate(x, y, groups, kind, n_splits, seed, threshold):
+def _cross_validate(x, y, groups, kind, n_splits, seed, threshold, weight=None,
+                    balanced=True):
     """Grouped cross-validation: per-fold scores and out-of-fold probabilities."""
     from sklearn.model_selection import GroupKFold
 
@@ -238,13 +254,47 @@ def _cross_validate(x, y, groups, kind, n_splits, seed, threshold):
         if len(np.unique(y[train])) < 2:
             raise ValueError(f"fold {k} has only one class in its training cells; "
                              "label more cells or use fewer folds")
-        model = _model(kind, seed).fit(x[train], y[train])
+        model = _fit(_model(kind, seed, balanced), x[train], y[train],
+                     None if weight is None else weight[train])
         probability[test] = model.predict_proba(x[test])[:, 1]
         rows.append({"fold": k, "test_cells": int(len(test)),
                      "test_mitotic": int(y[test].sum()),
                      "test_groups": int(len(np.unique(groups[test]))),
-                     **_fold_scores(y[test], probability[test], threshold)})
+                     **_fold_scores(y[test], probability[test], threshold,
+                                    None if weight is None else weight[test])})
     return pd.DataFrame(rows), probability
+
+
+def sampling_weights(strata: Sequence[Any], population_shares: Mapping[Any, float],
+                     groups: Optional[Sequence[Any]] = None) -> np.ndarray:
+    """Post-stratification weights that make a stratified label set stand for the screen.
+
+    :param strata: the sampling stratum of every labelled cell, for example
+        the DNA rule's call (``True``/``False``), when the label set
+        over-samples rule-mitotic cells.
+    :param population_shares: each stratum's share of all cells, as
+        ``{stratum: share}``, or ``{(group, stratum): share}`` with
+        ``groups``.
+    :param groups: an optional group (the well) per labelled cell, when the
+        shares differ between groups. Every group then weighs as much as
+        its labelled cells.
+    :returns: one weight per labelled cell, averaging 1: a cell stands for
+        ``share / labelled cells of its stratum``.
+    :raises ValueError: when a stratum has no share.
+    """
+    strata = pd.Series(list(strata))
+    keys = strata if groups is None else pd.Series(list(zip(groups, strata)))
+    counts = keys.map(keys.value_counts())
+    missing = sorted({str(k) for k in keys if k not in population_shares})
+    if missing:
+        raise ValueError(f"no population share for strata {missing}")
+    w = keys.map(population_shares).to_numpy(float) / counts.to_numpy(float)
+    if groups is not None:
+        g = pd.Series(list(groups))
+        size = g.map(g.value_counts()).to_numpy(float)
+        total = pd.Series(w).groupby(g.to_numpy()).transform("sum").to_numpy()
+        w = w / total * size
+    return w * len(w) / w.sum()
 
 
 def train_mitotic_classifier(cells: pd.DataFrame, labels: Sequence[bool],
@@ -253,7 +303,9 @@ def train_mitotic_classifier(cells: pd.DataFrame, labels: Sequence[bool],
                              normalise_by: Optional[str] = "well",
                              model: str = "hist_gradient_boosting", n_splits: int = 5,
                              seed: int = 0, threshold: float = 0.5,
-                             shuffled_control: bool = True) -> Dict[str, Any]:
+                             shuffled_control: bool = True,
+                             sample_weight: Optional[Sequence[float]] = None,
+                             balanced: Optional[bool] = None) -> Dict[str, Any]:
     """Train a mitotic classifier and validate it with grouped cross-validation.
 
     :param cells: one row per labelled cell, with the feature columns and the
@@ -276,6 +328,14 @@ def train_mitotic_classifier(cells: pd.DataFrame, labels: Sequence[bool],
     :param shuffled_control: also cross-validate on labels shuffled within
         each group, which keeps every group's mitotic share. Its scores are
         what a model that learnt nothing achieves.
+    :param sample_weight: one weight per cell, used in training and in
+        every metric. Pass :func:`sampling_weights` when the labelled cells
+        were not drawn at random (for example half of them from the rule's
+        mitotic calls); the metrics then describe the whole screen and the
+        model learns the screen's mitotic share, not the label set's.
+    :param balanced: weigh the two classes equally in training. None (the
+        default) does so without ``sample_weight`` and not with it, since
+        the weights already carry the screen's class balance.
     :returns: the trained bundle: ``model`` (fitted on every labelled cell),
         ``features`` (without those that are empty in every labelled cell,
         such as a feature whose well spread is zero; they are listed in
@@ -311,7 +371,12 @@ def train_mitotic_classifier(cells: pd.DataFrame, labels: Sequence[bool],
         raise ValueError("every feature is empty after normalisation")
     features = [f for f, ok in zip(features, usable) if ok]
     x = x[:, usable]
-    folds, probability = _cross_validate(x, y, groups, model, n_splits, seed, threshold)
+    weight = None if sample_weight is None else np.asarray(sample_weight, float)
+    if weight is not None and len(weight) != len(y):
+        raise ValueError(f"sample_weight has {len(weight)} entries for {len(y)} cells")
+    balanced = (weight is None) if balanced is None else bool(balanced)
+    folds, probability = _cross_validate(x, y, groups, model, n_splits, seed, threshold,
+                                         weight, balanced)
     summary: Dict[str, Any] = {"cells": int(len(y)), "mitotic": int(y.sum()),
                                "groups": int(len(np.unique(groups))), "folds": int(n_splits),
                                "model": model, "features": len(features),
@@ -326,10 +391,13 @@ def train_mitotic_classifier(cells: pd.DataFrame, labels: Sequence[bool],
         for g in np.unique(groups):
             rows = np.flatnonzero(groups == g)
             shuffled[rows] = rng.permutation(shuffled[rows])
-        control, _ = _cross_validate(x, shuffled, groups, model, n_splits, seed, threshold)
+        control, _ = _cross_validate(x, shuffled, groups, model, n_splits, seed, threshold,
+                                     weight, balanced)
         for metric in FOLD_METRICS:
             summary[f"shuffled_{metric}"] = float(control[metric].mean())
-    fitted = _model(model, seed).fit(x, y)
+    summary["weighted"] = weight is not None
+    summary["balanced_classes"] = balanced
+    fitted = _fit(_model(model, seed, balanced), x, y, weight)
     return {"format": MODEL_FORMAT, "model": fitted, "features": features,
             "normalise_by": normalise_by, "threshold": float(threshold), "folds": folds,
             "summary": summary, "out_of_fold": probability}

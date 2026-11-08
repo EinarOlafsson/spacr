@@ -241,3 +241,36 @@ def test_features_empty_after_normalisation_are_dropped_and_listed():
                                       groups=cells.well, n_splits=3, shuffled_control=False)
     assert out["features"] == ["nucleus_area"]
     assert out["summary"]["features_dropped"] == ["nucleus_constant"]
+
+
+def test_sampling_weights_make_a_stratified_set_stand_for_the_screen():
+    strata = [True] * 50 + [False] * 50
+    w = om.sampling_weights(strata, {True: 0.05, False: 0.95})
+    assert w[:50].sum() / w.sum() == pytest.approx(0.05)
+    assert w.mean() == pytest.approx(1.0)
+    wells = ["A1"] * 60 + ["A2"] * 40
+    w2 = om.sampling_weights(strata, {("A1", True): 0.1, ("A1", False): 0.9,
+                                      ("A2", True): 0.1, ("A2", False): 0.9}, groups=wells)
+    assert w2[:60].sum() == pytest.approx(60)
+    with pytest.raises(ValueError, match="share"):
+        om.sampling_weights(strata, {True: 0.1})
+
+
+def test_weighted_training_learns_the_screens_mitotic_share():
+    rng = np.random.default_rng(3)
+    screen = _cells(n=400, rate=0.04, seed=3)
+    # a label set with every mitotic cell and an equal number of others
+    mitotic = screen[screen.label]
+    other = screen[~screen.label].sample(len(mitotic), random_state=0)
+    labelled = pd.concat([mitotic, other], ignore_index=True)
+    share = float(screen.label.mean())
+    w = om.sampling_weights(labelled.label, {True: share, False: 1 - share})
+    plain = om.train_mitotic_classifier(labelled, labelled.label, groups=labelled.well,
+                                        n_splits=3, shuffled_control=False)
+    weighted = om.train_mitotic_classifier(labelled, labelled.label, groups=labelled.well,
+                                           n_splits=3, shuffled_control=False, sample_weight=w)
+    assert weighted["summary"]["weighted"] and not weighted["summary"]["balanced_classes"]
+    called_plain = om.predict_mitotic(plain, screen).mean()
+    called_weighted = om.predict_mitotic(weighted, screen).mean()
+    assert abs(called_weighted - share) <= abs(called_plain - share)
+    del rng
