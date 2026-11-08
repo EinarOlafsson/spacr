@@ -277,7 +277,9 @@ def train_mitotic_classifier(cells: pd.DataFrame, labels: Sequence[bool],
         each group, which keeps every group's mitotic share. Its scores are
         what a model that learnt nothing achieves.
     :returns: the trained bundle: ``model`` (fitted on every labelled cell),
-        ``features``, ``normalise_by``, ``threshold``, ``folds`` (one row
+        ``features`` (without those that are empty in every labelled cell,
+        such as a feature whose well spread is zero; they are listed in
+        ``summary["features_dropped"]``), ``normalise_by``, ``threshold``, ``folds`` (one row
         per fold), ``summary`` (mean and spread of every metric, the control
         and the label counts) and ``out_of_fold`` (each cell's held-out
         probability). Save it with :func:`save_mitotic_classifier`.
@@ -303,10 +305,17 @@ def train_mitotic_classifier(cells: pd.DataFrame, labels: Sequence[bool],
     if normalise_by is not None and normalise_by not in cells:
         raise ValueError(f"normalise_by column {normalise_by!r} is not in the cell table")
     x = _well_robust_z(cells, features, normalise_by)
+    usable = np.isfinite(x).any(axis=0)
+    dropped = [f for f, ok in zip(features, usable) if not ok]
+    if not usable.any():
+        raise ValueError("every feature is empty after normalisation")
+    features = [f for f, ok in zip(features, usable) if ok]
+    x = x[:, usable]
     folds, probability = _cross_validate(x, y, groups, model, n_splits, seed, threshold)
     summary: Dict[str, Any] = {"cells": int(len(y)), "mitotic": int(y.sum()),
                                "groups": int(len(np.unique(groups))), "folds": int(n_splits),
-                               "model": model, "features": len(features)}
+                               "model": model, "features": len(features),
+                               "features_dropped": dropped}
     for metric in FOLD_METRICS:
         summary[metric] = float(folds[metric].mean())
         summary[f"{metric}_sd"] = float(folds[metric].std(ddof=1)) if len(folds) > 1 else 0.0

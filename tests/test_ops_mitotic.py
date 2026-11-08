@@ -232,3 +232,12 @@ def test_the_shared_label_format_reads_its_fine_classes_and_keeps_artefacts_on_r
     assert list(kept.mitotic) == [False, True, True, False]
     with pytest.raises(ValueError, match="artefacts"):
         om.read_mitotic_labels(table, artefacts="maybe")
+
+
+def test_features_empty_after_normalisation_are_dropped_and_listed():
+    cells = _cells(n=60)
+    cells["nucleus_constant"] = 1.0
+    out = om.train_mitotic_classifier(cells, cells.label, ["nucleus_area", "nucleus_constant"],
+                                      groups=cells.well, n_splits=3, shuffled_control=False)
+    assert out["features"] == ["nucleus_area"]
+    assert out["summary"]["features_dropped"] == ["nucleus_constant"]
