@@ -216,3 +216,19 @@ def test_the_aggregate_phase_calls_mitotic_cells_with_a_saved_model(tmp_path):
     bad["ops_mitotic_model"] = str(tmp_path / "bad.joblib")
     with pytest.raises(ValueError, match="nucleus_missing_column"):
         ops_engine._ph_aggregate(db, PLATE, wells, bad, str(tmp_path))
+
+
+def test_the_shared_label_format_reads_its_fine_classes_and_keeps_artefacts_on_request():
+    table = pd.DataFrame({"id": ["a", "b", "c", "d"], "plate": "P", "well": "A1",
+                          "site": [1, 1, 2, 2], "label": [1, 2, 3, 4],
+                          "cell_key": ["k1", "k2", "k3", "k4"],
+                          "class3": ["interphase", "mitotic", "mitotic", "artefact"],
+                          "class_fine": ["interphase", "telophase_daughter",
+                                         "mitotic_stage_disputed", "artefact"]})
+    dropped = om.read_mitotic_labels(table)
+    assert list(dropped.mitotic) == [False, True, True]
+    assert dropped.stage.iloc[1] == "telophase-daughter"
+    kept = om.read_mitotic_labels(table, artefacts="negative")
+    assert list(kept.mitotic) == [False, True, True, False]
+    with pytest.raises(ValueError, match="artefacts"):
+        om.read_mitotic_labels(table, artefacts="maybe")

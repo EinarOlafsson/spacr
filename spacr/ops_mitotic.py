@@ -39,7 +39,8 @@ FOLD_METRICS = ("accuracy", "balanced_accuracy", "precision", "recall", "f1",
 
 #: Label classes that count as mitotic, after :func:`_normalise_class`.
 MITOTIC_CLASSES = ("prophase-prometaphase", "prophase", "prometaphase", "metaphase",
-                   "anaphase-telophase", "anaphase", "telophase", "mitotic", "mitosis")
+                   "anaphase-telophase", "anaphase", "telophase", "telophase-daughter",
+                   "mitotic-stage-disputed", "mitotic", "mitosis")
 
 #: Label classes that count as not mitotic.
 INTERPHASE_CLASSES = ("interphase", "not mitotic", "non-mitotic", "nonmitotic")
@@ -61,25 +62,31 @@ def _normalise_class(value: Any) -> str:
 
 
 def read_mitotic_labels(labels: Any, mapping: Any = None, *, class_column: Optional[str] = None,
-                        id_column: Optional[str] = None) -> pd.DataFrame:
+                        id_column: Optional[str] = None, artefacts: str = "drop") -> pd.DataFrame:
     """Read a table of labelled cells and turn the classes into mitotic calls.
 
     :param labels: a CSV path or a frame with one row per labelled cell and
         a class column: ``interphase``, ``prophase-prometaphase``,
-        ``metaphase``, ``anaphase-telophase`` or ``artefact`` (case, ``_``
+        ``metaphase``, ``anaphase-telophase``, ``telophase-daughter`` (one
+        half of a telophase pair that segmentation split, counted as
+        mitotic), ``mitotic-stage-disputed`` or ``artefact`` (case, ``_``
         and ``/`` do not matter).
     :param mapping: when ``labels`` names crops rather than cells, a CSV path
         or frame that maps each crop to its cell: the shared id column plus
         ``plate, well, site, label``. Keeping it separate lets the labellers
         work blind to well and gene.
-    :param class_column: the class column; found among ``class``,
-        ``stage``, ``phase``, ``annotation``, ``call`` and ``label_class``
-        when None, or ``label`` when the table has no cell key.
+    :param class_column: the class column; found among ``class_fine``,
+        ``class``, ``stage``, ``phase``, ``annotation``, ``call``,
+        ``label_class`` and ``class3`` when None, or ``label`` when the
+        table has no cell key.
     :param id_column: the column shared by ``labels`` and ``mapping``; the
         one column both have, other than the class, when None.
+    :param artefacts: ``'drop'`` leaves artefact crops out; ``'negative'``
+        keeps them as not mitotic, so a classifier learns not to call them
+        and its precision counts them as false calls.
     :returns: ``plate, well, site, label, stage, mitotic``: one row per
-        labelled cell, artefacts left out, ``stage`` the normalised class
-        and ``mitotic`` True for the three mitotic stages.
+        labelled cell, ``stage`` the normalised class and ``mitotic`` True
+        for every mitotic stage.
     :raises ValueError: for a class that is none of the known ones, a cell
         labelled twice with different classes, or a missing column.
     """
@@ -87,7 +94,8 @@ def read_mitotic_labels(labels: Any, mapping: Any = None, *, class_column: Optio
         labels, "__fspath__") else pd.DataFrame(labels).copy()
     has_key = all(c in table for c in CELL_KEY)
     if class_column is None:
-        options = ["class", "stage", "phase", "annotation", "call", "label_class"]
+        options = ["class_fine", "class", "stage", "phase", "annotation", "call",
+                   "label_class", "class3"]
         if not has_key:
             options.append("label")
         class_column = next((c for c in options if c in table), None)
@@ -118,7 +126,10 @@ def read_mitotic_labels(labels: Any, mapping: Any = None, *, class_column: Optio
     unknown = sorted(set(table["stage"]) - known)
     if unknown:
         raise ValueError(f"unknown label classes {unknown}")
-    table = table[~table["stage"].isin(EXCLUDED_CLASSES)]
+    if artefacts not in ("drop", "negative"):
+        raise ValueError(f"artefacts must be 'drop' or 'negative'; got {artefacts!r}")
+    if artefacts == "drop":
+        table = table[~table["stage"].isin(EXCLUDED_CLASSES)]
     table["mitotic"] = table["stage"].isin(MITOTIC_CLASSES)
     keyed = table[[*CELL_KEY, "stage", "mitotic"]].drop_duplicates()
     clash = keyed.duplicated(list(CELL_KEY), keep=False)
@@ -159,20 +170,24 @@ def mitotic_features(columns: Sequence[str], *, dna: str = "dapi",
 
 def _well_robust_z(cells: pd.DataFrame, features: Sequence[str],
                    group: Optional[str]) -> np.ndarray:
-    """Every feature as a robust z against all cells of its group."""
-    x = cells[list(features)].to_numpy(np.float64)
+    """Every feature as a robust z against all cells of its group.
+
+    Computed one column and one group at a time, so a whole plate needs only
+    the float32 result in memory.
+    """
     if group is None:
         groups = np.zeros(len(cells), int)
     else:
         groups = pd.factorize(cells[group])[0]
-    out = np.full_like(x, np.nan)
-    for g in np.unique(groups):
-        rows = groups == g
-        block = x[rows]
-        median = np.nanmedian(block, axis=0)
-        mad = 1.4826 * np.nanmedian(np.abs(block - median), axis=0)
-        mad = np.where(mad > 0, mad, np.nan)
-        out[rows] = (block - median) / mad
+    rows_of = [np.flatnonzero(groups == g) for g in np.unique(groups)]
+    out = np.empty((len(cells), len(features)), np.float32)
+    for j, feature in enumerate(features):
+        column = cells[feature].to_numpy(np.float64)
+        for rows in rows_of:
+            block = column[rows]
+            median = np.nanmedian(block) if len(block) else np.nan
+            mad = 1.4826 * np.nanmedian(np.abs(block - median)) if len(block) else np.nan
+            out[rows, j] = (block - median) / mad if mad > 0 else np.nan
     return out
 
 
