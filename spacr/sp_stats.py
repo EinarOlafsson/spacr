@@ -4085,6 +4085,7 @@ def _profile_wells(wells: pd.DataFrame, features: Sequence[str], *,
                    similarity: str = "cosine",
                    null_size: int = _PROFILE_NULL_SIZE,
                    threshold: float = 0.05, seed: int = 0,
+                   tvn_epsilon: float = 1e-6,
                    report=print) -> _ProfilingResult:
     """Normalise, select, build consensus profiles and score them.
 
@@ -4101,7 +4102,15 @@ def _profile_wells(wells: pd.DataFrame, features: Sequence[str], *,
         wells that share them are replicates.
     :param negative_controls: values of the first group column that mark a
         negative-control well.
-    :param normalization: see :func:`_normalize_profiles`.
+    :param normalization: see :func:`_normalize_profiles`, or ``'tvn'``:
+        ``mad_robustize`` per plate, then, after feature selection, the kept
+        features are whitened on the negative-control wells of all plates
+        (typical variation normalisation, pycytominer's ZCA-cor sphering,
+        the order JUMP uses). The whitening is
+        :func:`spacr.batch_correction.spherize_features` with
+        ``n_components='auto'``, which takes its eigenbasis from spaCR's one
+        TVN core (:func:`spacr.ops_tvn._control_basis`). It needs named
+        negative controls.
     :param feature_selection: see :func:`_select_profile_features`.
     :param correlation_threshold: see :func:`_select_profile_features`.
     :param na_cutoff: the largest fraction of wells a feature may be
@@ -4116,10 +4125,13 @@ def _profile_wells(wells: pd.DataFrame, features: Sequence[str], *,
     :param null_size: see :func:`_profile_map`.
     :param threshold: the level mAP calls are made at.
     :param seed: the random seed for the nulls.
+    :param tvn_epsilon: the eigenvalue regularisation of the ``'tvn'``
+        whitening (pycytominer's 1e-6 by default; 0 is the exact sphering).
     :param report: called with progress lines; ``None`` is quiet.
     :returns: the :class:`_ProfilingResult`.
     :raises _ProfilingError: when a group column is missing, a named
-        control matches no well, or too few features survive.
+        control matches no well, too few features survive, or ``'tvn'`` is
+        asked for without negative controls.
     """
     group_columns = list(group_columns)
     missing = [c for c in group_columns if c not in wells.columns]
@@ -4139,11 +4151,17 @@ def _profile_wells(wells: pd.DataFrame, features: Sequence[str], *,
             f"column holds {', '.join(present[:12])}"
             + (" and more" if len(present) > 12 else ""))
     reference = negative if controls else None
+    tvn = str(normalization).strip().lower() == "tvn"
+    if tvn and not controls:
+        raise _ProfilingError(
+            "profiling_normalization 'tvn' whitens on the negative-control "
+            "wells; name them in profiling_negative_control")
     if not controls:
         notes.append("No negative control named: each plate is normalised "
                      "against all of its wells and activity is not scored.")
-    normalized = _normalize_profiles(wells, features, method=normalization,
-                                     reference=reference)
+    normalized = _normalize_profiles(
+        wells, features, method="mad_robustize" if tvn else normalization,
+        reference=reference)
     flat = (_constant_in_reference(wells, features, reference)
             if len(feature_selection) else [])
     candidates = [name for name in features if name not in set(flat)]
@@ -4167,6 +4185,10 @@ def _profile_wells(wells: pd.DataFrame, features: Sequence[str], *,
     if not finite.all():
         notes.append(f"{int((~finite).sum())} well(s) with a missing kept "
                      "feature were left out of the scores.")
+    if tvn:
+        selected = _whiten_profiles(selected, kept, finite,
+                                    negative.to_numpy(bool), tvn_epsilon,
+                                    notes)
     scoring = selected.loc[finite].reset_index(drop=True)
     grouped = scoring.dropna(subset=group_columns)
     consensus_frame = _consensus_profiles(grouped, kept, group_columns,
@@ -4221,8 +4243,50 @@ def _profile_wells(wells: pd.DataFrame, features: Sequence[str], *,
                      na_cutoff=na_cutoff, outlier_cutoff=outlier_cutoff,
                      min_variance=min_variance, consensus=consensus, phenotype_column=phenotype_column,
                      similarity=similarity, null_size=null_size,
-                     threshold=threshold, seed=seed),
+                     threshold=threshold, seed=seed,
+                     tvn_epsilon=tvn_epsilon if tvn else None),
         notes=notes)
+
+
+def _whiten_profiles(selected: pd.DataFrame, kept: Sequence[str],
+                     finite: np.ndarray, negative: np.ndarray,
+                     epsilon: float, notes: List[str]) -> pd.DataFrame:
+    """The ``'tvn'`` step of :func:`_profile_wells`: whiten the kept features
+    of the complete wells on the negative-control wells.
+
+    :param selected: the normalised wells, metadata and kept features.
+    :param kept: the kept feature columns.
+    :param finite: wells whose kept features are all finite; only these are
+        whitened (the others are left out of the scores anyway).
+    :param negative: the negative-control wells.
+    :param epsilon: the eigenvalue regularisation.
+    :param notes: receives a line on what was done.
+    :returns: a copy of ``selected`` with the kept features whitened.
+    :raises _ProfilingError: when fewer than two complete control wells
+        remain, or the whitening refuses the controls.
+    """
+    from .batch_correction import spherize_features
+
+    reference = negative & finite
+    if int(reference.sum()) < 2:
+        raise _ProfilingError(
+            f"tvn needs at least 2 negative-control wells with every kept "
+            f"feature; {int(reference.sum())} have them")
+    block = selected.loc[finite, list(kept)]
+    try:
+        whitened, info = spherize_features(
+            block, pd.Series(reference[finite], index=block.index),
+            method="ZCA-cor", epsilon=float(epsilon), n_components="auto")
+    except ValueError as exc:
+        raise _ProfilingError(str(exc)) from exc
+    out = selected.copy()
+    out.loc[finite, list(kept)] = whitened.to_numpy()
+    notes.append(
+        f"TVN: the {len(kept)} kept features were whitened (ZCA-cor) on "
+        f"{info['n_reference']} negative-control wells, keeping the "
+        f"{info['n_components']} directions they span, epsilon {epsilon:g}.")
+    notes.extend(info["warnings"])
+    return out
 
 
 def _profile_measurements(settings: Dict[str, Any], db_path: str, *,
@@ -4271,7 +4335,10 @@ def _profile_measurements(settings: Dict[str, Any], db_path: str, *,
         na_cutoff=float(settings.get("profiling_na_cutoff", 0.05)),
         outlier_cutoff=float(settings.get("profiling_outlier_cutoff", 500.0)),
         min_variance=float(settings.get("profiling_min_variance", 1e-6)),
-        phenotype_column=phenotype or None, report=report)
+        phenotype_column=phenotype or None,
+        tvn_epsilon=float(1e-6 if settings.get("profiling_tvn_epsilon") is None
+                          else settings["profiling_tvn_epsilon"]),
+        report=report)
     out_dir = os.path.join(os.path.dirname(os.path.abspath(db_path)),
                            "profiles")
     written = _write_profiles(result, out_dir, db_path=db_path,

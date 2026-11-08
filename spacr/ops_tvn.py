@@ -145,7 +145,11 @@ def tvn_on_controls(embedding: np.ndarray, control: np.ndarray,
         is divided out, both when the embedding is first scaled on the
         control cells and when each batch is whitened, so weak axes are
         shrunk rather than blown up. 0 is Brieflow's whitening; the default,
-        3, is the value that stabilised plate A of Funk et al. 2022.
+        3, is the value that stabilised plate A of Funk et al. 2022. It is
+        not the ``tvn_epsilon`` of
+        :func:`spacr.batch_correction.correct_batch_effects` (default 1e-6,
+        added to eigenvalues of a correlation matrix): a different knob on
+        a different scale.
     :param coral_ridge: the multiple of the identity added to every
         covariance before CORAL.
     :returns: ``(embedding, info)``. ``info`` lists the axes kept and the
