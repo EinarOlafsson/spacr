@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-738 Lifecycle: new, 108 Lifecycle: future in features/feature_list/.
+738 Lifecycle: new, 109 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -369,6 +369,9 @@ FUTURE FEATURES
 
   862  OPS ZERNIKE SETTING
        862_ops_zernike_setting.txt
+
+  863  TVN FOR MEASURE PROFILES
+       863_measure_profiling_tvn.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES

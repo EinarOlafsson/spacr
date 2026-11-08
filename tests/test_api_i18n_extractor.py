@@ -2161,6 +2161,33 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **ops_ownership_arrivals}
+    ops_tvn_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "854_ops_tvn_api_arrivals_2026-11-07.json").read_text(encoding="utf-8"))
+    assert len(ops_tvn_arrivals) == 10
+    assert {key: docs[key] for key in ops_tvn_arrivals} == ops_tvn_arrivals
+    assert not ops_tvn_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **ops_tvn_arrivals}
+    ops_clusters_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "855_ops_clusters_api_arrivals_2026-11-07.json").read_text(encoding="utf-8"))
+    assert len(ops_clusters_arrivals) == 19
+    assert {key: docs[key] for key in ops_clusters_arrivals} == ops_clusters_arrivals
+    assert not ops_clusters_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **ops_clusters_arrivals}
+    ops_mitotic_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "856_ops_mitotic_api_arrivals_2026-11-07.json").read_text(encoding="utf-8"))
+    assert len(ops_mitotic_arrivals) == 9
+    assert {key: docs[key] for key in ops_mitotic_arrivals} == ops_mitotic_arrivals
+    assert not ops_mitotic_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **ops_mitotic_arrivals}
     help_escape_arrivals = {
         'spacr.qt.help_search.HelpSearchField.event': 'Keep Escape in this field before window shortcuts handle it.\n\n:param event: the incoming Qt event.\n:returns: Whether the event was handled.',
     }

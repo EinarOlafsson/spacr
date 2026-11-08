@@ -486,8 +486,6 @@ def fit_tvn_streamed(batches: Sequence[Any],
         x = np.asarray(values, dtype=np.float32)
         counts, middle = np.zeros(x.shape[1], np.int64), np.full(x.shape[1], np.nan, np.float32)
         for j in range(x.shape[1]):
-            # one column at a time: the median of the finite values, which is
-            # what nanmedian gives, without a copy of the whole batch
             finite = np.isfinite(x[:, j])
             counts[j] = len(x) - int(finite.sum())
             if finite.any():

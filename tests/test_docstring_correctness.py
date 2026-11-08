@@ -3014,6 +3014,60 @@ def _validated_ops_ownership_flatfield_funk_callables(callables):
     return [item for item in callables if item.symbol not in symbols]
 
 
+def _validated_ops_tvn_clusters_mitotic_callables(callables):
+    """Check the OPS TVN, cluster benchmark and mitotic classifier callables against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    kinds = {}
+    entries = {}
+    for contract, module, count in (
+            ("854_ops_tvn_api_arrivals_2026-11-07.json", "spacr.ops_tvn", 10),
+            ("855_ops_clusters_api_arrivals_2026-11-07.json", "spacr.ops_clusters", 19),
+            ("856_ops_mitotic_api_arrivals_2026-11-07.json", "spacr.ops_mitotic", 9)):
+        contract_entries = json.loads((root / "tests/data/release_contracts" / contract)
+                                      .read_text(encoding="utf-8"))
+        assert len(contract_entries) == count and module in contract_entries
+        entries.update(contract_entries)
+        for symbol in contract_entries:
+            if symbol != module:
+                kinds[symbol] = "function"
+    tvn_model = "spacr.ops_tvn.TVNModel"
+    kinds[tvn_model] = "dataclass_constructor"
+    kinds[f"{tvn_model}.standardise"] = "method"
+    kinds[f"{tvn_model}.transform"] = "method"
+    assert len(entries) == 38 and len(kinds) == 35
+    found = {item.symbol: item for item in callables if item.symbol in kinds}
+    assert found.keys() == kinds.keys()
+    trees = {}
+    for symbol, kind in sorted(kinds.items()):
+        item = found[symbol]
+        assert item.category == kind and item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert not item.accepts_arbitrary_keywords
+        assert item.docstring == entries[symbol]
+        if kind == "dataclass_constructor":
+            continue
+        module = "spacr." + symbol.split(".")[1]
+        tree = trees.setdefault(module, ast.parse(
+            (root / (module.replace(".", "/") + ".py")).read_text(encoding="utf-8")))
+        body = tree.body
+        if kind == "method":
+            body = next(node for node in tree.body
+                        if isinstance(node, ast.ClassDef) and node.name == "TVNModel").body
+        declarations = [node for node in body if isinstance(node, ast.FunctionDef)
+                        and node.name == symbol.rsplit(".", 1)[1]]
+        assert len(declarations) == 1
+        arguments = declarations[0].args
+        names = {arg.arg for arg in arguments.posonlyargs + arguments.args + arguments.kwonlyargs}
+        if arguments.kwarg is not None:
+            names.add(arguments.kwarg.arg)
+        names.discard("self")
+        assert item.parameters == names
+    return [item for item in callables if item.symbol not in kinds]
+
+
 def _validated_733_easy_mode_callables(callables):
     """Check the exact four executable Easy mode boundaries before historical replay."""
     import json
@@ -3093,6 +3147,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_per_cell_export_callables(callables)
     callables = _validated_division_analysis_callables(callables)
     callables = _validated_ops_ownership_flatfield_funk_callables(callables)
+    callables = _validated_ops_tvn_clusters_mitotic_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
@@ -5752,6 +5807,9 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("integrate_1107_api_arrivals_2026-11-07.json", 7),
         ("division_analysis_api_arrivals_2026-11-07.json", 9),
         ("ops_ownership_flatfield_funk_api_arrivals_2026-11-07.json", 18),
+        ("854_ops_tvn_api_arrivals_2026-11-07.json", 10),
+        ("855_ops_clusters_api_arrivals_2026-11-07.json", 19),
+        ("856_ops_mitotic_api_arrivals_2026-11-07.json", 9),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -6324,7 +6382,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "per_cell_export_api_arrivals_2026-11-07.json",
                      "integrate_1107_api_arrivals_2026-11-07.json",
                      "division_analysis_api_arrivals_2026-11-07.json",
-                     "ops_ownership_flatfield_funk_api_arrivals_2026-11-07.json"):
+                     "ops_ownership_flatfield_funk_api_arrivals_2026-11-07.json",
+                     "854_ops_tvn_api_arrivals_2026-11-07.json",
+                     "855_ops_clusters_api_arrivals_2026-11-07.json",
+                     "856_ops_mitotic_api_arrivals_2026-11-07.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -6439,7 +6500,10 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "per_cell_export_api_arrivals_2026-11-07.json",
                      "integrate_1107_api_arrivals_2026-11-07.json",
                      "division_analysis_api_arrivals_2026-11-07.json",
-                     "ops_ownership_flatfield_funk_api_arrivals_2026-11-07.json"):
+                     "ops_ownership_flatfield_funk_api_arrivals_2026-11-07.json",
+                     "854_ops_tvn_api_arrivals_2026-11-07.json",
+                     "855_ops_clusters_api_arrivals_2026-11-07.json",
+                     "856_ops_mitotic_api_arrivals_2026-11-07.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

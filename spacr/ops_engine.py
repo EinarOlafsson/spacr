@@ -3543,8 +3543,6 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         from .ops_mitotic import predict_mitotic
         model_cells = cells
         if gain_columns:
-            # the classifier sees flat-field-corrected features, as the
-            # rule and the pooled tables do
             from .ops_flatfield import correct_features, correction_inputs
             model_features = list(mitotic_model["features"])
             needed = [c for c in correction_inputs(model_features,

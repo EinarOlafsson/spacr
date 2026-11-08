@@ -433,8 +433,6 @@ def benchmark_clusters(table: pd.DataFrame, features: Sequence[str], *,
     names = table["gene"].to_numpy()
     positives = string_positives(string)
     real = phate_leiden(components, resolutions, seed=seed, n_jobs=n_jobs)
-    # One generator for the column shuffle and then the ARI null, in that
-    # order, as the plate A pilot drew them.
     rng = np.random.default_rng(0)
     shuffled = shuffle_columns(components, seed=rng)
     control = phate_leiden(shuffled, resolutions, seed=seed, n_jobs=n_jobs)

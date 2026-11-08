@@ -693,8 +693,6 @@ def spherize_features(
                 f"are constant in the reference rows (e.g. {names[:10]}). "
                 "Remove them, or use method='ZCA'."
             )
-    # The eigenbasis is spaCR's one TVN core, shared with the OPS TVN
-    # (spacr.ops_tvn) and the Measure profiles.
     from .ops_tvn import _control_basis
 
     basis = _control_basis(fit, center=center, scale=normalized.endswith("-cor"))

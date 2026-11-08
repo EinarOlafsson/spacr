@@ -180,8 +180,6 @@ def _well_robust_z(cells: pd.DataFrame, features: Sequence[str],
     the float32 result in memory.
     """
     if group is None:
-        # no normalisation: the values as they are (the caller has already
-        # normalised them, or wants raw values)
         return cells[list(features)].to_numpy(np.float32)
     groups = pd.factorize(cells[group])[0]
     rows_of = [np.flatnonzero(groups == g) for g in np.unique(groups)]
