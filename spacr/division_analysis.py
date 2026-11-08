@@ -901,6 +901,7 @@ def _trajectory_figure(trajectories, measures):
     """Aligned trajectories: one panel per measure, a 95% band per series."""
     from matplotlib.figure import Figure
 
+    from .figures.bundle import _register_figure_data
     from .figures.style import ROLES
 
     n = max(1, len(measures))
@@ -908,6 +909,8 @@ def _trajectory_figure(trajectories, measures):
     nrows = int(math.ceil(n / ncols))
     fig = Figure(figsize=(2.4 * ncols + 0.6, 2.0 * nrows + 0.6), dpi=100)
     axes = np.atleast_1d(fig.subplots(nrows, ncols, squeeze=False)).ravel()
+    _register_figure_data(fig, trajectories, x='rel_t', y='mean', hue='series', kind='line',
+                          title='Division-aligned trajectories')
     for ax, measure in zip(axes, measures):
         part = trajectories[trajectories['measure'] == measure]
         for series, (role, style, label) in _SERIES_STYLE.items():
@@ -942,10 +945,13 @@ def _forest_figure(effects, measures):
     """Hedges' g with its 95% interval per measure, dividing and shuffled."""
     from matplotlib.figure import Figure
 
+    from .figures.bundle import _register_figure_data
     from .figures.style import ROLES
 
     fig = Figure(figsize=(5.0, 0.38 * max(1, len(measures)) + 1.2), dpi=100)
     ax = fig.subplots()
+    _register_figure_data(fig, effects, x='g', y='measure', hue='contrast', kind='point',
+                          title="Hedges' g per measure")
     marks = (('dividing_vs_control', 'highlight', 'o', 'dividing vs control', -0.15),
              ('shuffled_vs_its_control', 'control_positive', 's',
               'shuffled vs its control', 0.15))
@@ -982,11 +988,14 @@ def _size_control_figure(cycles, size_control, measure='area'):
     """Size at division against size at birth, with sizer, adder and timer lines."""
     from matplotlib.figure import Figure
 
+    from .figures.bundle import _register_figure_data
     from .figures.style import ROLES
 
     fig = Figure(figsize=(4.2, 3.6), dpi=100)
     ax = fig.subplots()
     birth_col, division_col = f'{measure}_birth', f'{measure}_division'
+    _register_figure_data(fig, cycles, x=birth_col, y=division_col, kind='scatter',
+                          title='Size at division against size at birth')
     if not len(cycles) or birth_col not in cycles:
         ax.text(0.5, 0.5, 'no complete cell cycles', ha='center', va='center',
                 transform=ax.transAxes)
