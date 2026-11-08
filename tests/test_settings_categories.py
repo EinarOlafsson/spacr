@@ -513,6 +513,11 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # table, well-subset and interphase pooling, and the feature QC.
     "ops_pvalue_null", "ops_test_features", "ops_genotype_table",
     "ops_pool_wells", "ops_pool_interphase", "ops_feature_qc",
+    # Core ownership, flat-field correction and Funk et al.'s features
+    # (items 852, 853 and 857, 2026-11-07).
+    "ops_ownership", "ops_flatfield", "ops_flatfield_maps",
+    "ops_flatfield_fields", "ops_flatfield_field_list",
+    "ops_ph_funk_features",
     # `window_length`, the new name for `expected_end` (364, 2026-09-09).
     "window_length",
     # and `min_observations_per_hit`, the new name for `min_n`.

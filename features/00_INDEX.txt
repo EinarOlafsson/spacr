@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-738 Lifecycle: new, 105 Lifecycle: future in features/feature_list/.
+738 Lifecycle: new, 108 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -360,6 +360,15 @@ FUTURE FEATURES
 
   859  CHECK THAT CELL DISTANCE_TO_NUCLEUS IS NOT DEGENERATE
        859_check_cell_distance_to_nucleus_is_not_degenerate.txt
+
+  860  OPS AGGREGATE DROPS FIELDS WHOSE REFINEMENT FAILED
+       860_ops_aggregate_drops_fields_whose_refinement_failed.txt
+
+  861  OPS AGGREGATE DROPS CELLS WITH NON-FINITE FEATURES
+       861_ops_aggregate_drops_cells_with_non_finite_features.txt
+
+  862  OPS ZERNIKE SETTING
+       862_ops_zernike_setting.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES

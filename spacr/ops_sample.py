@@ -43,6 +43,7 @@ __all__ = [
     "sample_objects", "decode_input", "average_over_cycles",
     "reads_rows", "barcode_rows",
     "pair_nuclei_with_cells", "measure_phenotype_field",
+    "funk_object_features",
 ]
 
 
@@ -346,9 +347,79 @@ def _measurement_settings(channels: int, texture: bool) -> Dict[str, object]:
     }
 
 
+def funk_object_features(labels: np.ndarray, image: np.ndarray,
+                         channel_names: Sequence[str], prefix: str):
+    """Funk et al. 2022's mass displacement and channel correlations.
+
+    :param labels: one compartment's label mask.
+    :param image: ``(H, W, C)`` intensities over it.
+    :param channel_names: one short name per channel.
+    :param prefix: the compartment, ``nucleus`` or ``cell``.
+    :returns: one row per label: ``label``,
+        ``<prefix>_<ch>_mass_displacement`` per channel and
+        ``<prefix>_correlation_<a>_<b>`` per channel pair, in the order of
+        :func:`itertools.combinations`.
+
+    These are the definitions of Funk et al.'s OpticalPooledScreens
+    ``ops/cp_emulator.py``, which their phenotype step
+    (``Snake._extract_phenotype_cp_multichannel``) applied to every nucleus
+    and cell:
+
+    - ``mass_displacement`` (``intensity_features_multichannel``): the
+      distance in pixels from the object's centroid to its
+      intensity-weighted centroid, ``sqrt(sum((local_centroid -
+      weighted_local_centroid) ** 2))``. A displaced DNA or tubulin mass
+      marks an asymmetric cell.
+    - ``correlation`` (``correlation_features_multichannel``, through
+      ``ops.features.correlate_channels_all_multichannel``): Pearson's r of
+      two channels over the object's pixels, ``np.corrcoef``.
+
+    Both are computed from per-label sums, centred on each label's mean, so
+    a field is one pass rather than one regionprops object per cell.
+    """
+    from itertools import combinations
+
+    import pandas as pd
+
+    labels = np.asarray(labels).astype(np.int64)
+    image = np.asarray(image, np.float64)
+    present = np.unique(labels[labels > 0])
+    out = {"label": present.astype(np.int64)}
+    if present.size == 0:
+        return pd.DataFrame(out)
+    size = int(labels.max()) + 1
+    flat = labels.ravel()
+    inside = flat > 0
+    flat = flat[inside]
+    count = np.bincount(flat, minlength=size).astype(np.float64)
+    rows, cols = np.indices(labels.shape, dtype=np.float64)
+    rows, cols = rows.ravel()[inside], cols.ravel()[inside]
+    with np.errstate(invalid="ignore", divide="ignore"):
+        centre_r = np.bincount(flat, rows, size) / count
+        centre_c = np.bincount(flat, cols, size) / count
+        names = [str(n).lower() for n in channel_names]
+        centred = []
+        for index, name in enumerate(names):
+            value = image[..., index].ravel()[inside]
+            total = np.bincount(flat, value, size)
+            weighted_r = np.bincount(flat, value * rows, size) / total
+            weighted_c = np.bincount(flat, value * cols, size) / total
+            out[f"{prefix}_{name}_mass_displacement"] = np.sqrt(
+                (centre_r - weighted_r) ** 2
+                + (centre_c - weighted_c) ** 2)[present]
+            centred.append(value - (total / count)[flat])
+        squares = [np.bincount(flat, v * v, size) for v in centred]
+        for first, second in combinations(range(len(names)), 2):
+            product = np.bincount(flat, centred[first] * centred[second], size)
+            out[f"{prefix}_correlation_{names[first]}_{names[second]}"] = (
+                product / np.sqrt(squares[first] * squares[second]))[present]
+    return pd.DataFrame(out)
+
+
 def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
                             image: np.ndarray, channel_names: Sequence[str],
-                            *, texture: bool = True):
+                            *, texture: bool = True,
+                            funk_features: bool = False):
     """Per-cell features of one phenotype field, with spaCR's own measurement.
 
     :param nuclei: nucleus labels, paired with ``cells`` by
@@ -358,6 +429,13 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
     :param channel_names: one short name per channel, used in the column
         names in place of spaCR's ``channel_<i>``.
     :param texture: include the GLCM homogeneity block.
+    :param funk_features: add Funk et al. 2022's features: the mass
+        displacement of every channel and the correlation of every channel
+        pair in the nucleus and the cell (:func:`funk_object_features`),
+        and ``nucleus_form_factor`` and ``cell_form_factor``,
+        ``4 * pi * area / perimeter ** 2`` (``shape_features['form_factor']``
+        of their ``ops/cp_emulator.py``) from spaCR's own area and
+        perimeter.
     :returns: one row per cell, keyed by ``label``, with ``nucleus_``,
         ``cell_`` and ``cytoplasm_`` columns and the nucleus centroid as
         ``centroid_row``/``centroid_col`` in field pixels.
@@ -426,5 +504,16 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
             frame = frame.assign(label=frame["label"].astype(np.int64))
             frame = frame.drop_duplicates(subset=["label"])
             out = out.merge(frame, on="label", how="left")
+    if funk_features:
+        for prefix, mask in (("nucleus", nuclei), ("cell", cells)):
+            out = out.merge(funk_object_features(mask, image, channel_names,
+                                                 prefix),
+                            on="label", how="left")
+            area, perimeter = f"{prefix}_area", f"{prefix}_perimeter"
+            if area in out and perimeter in out:
+                with np.errstate(invalid="ignore", divide="ignore"):
+                    out[f"{prefix}_form_factor"] = (
+                        4 * np.pi * out[area].to_numpy(np.float64)
+                        / out[perimeter].to_numpy(np.float64) ** 2)
     keep = [c for c in out.columns if pd.api.types.is_numeric_dtype(out[c])]
     return out.loc[:, keep].reset_index(drop=True)

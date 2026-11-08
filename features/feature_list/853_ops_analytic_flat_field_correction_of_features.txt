@@ -2,7 +2,7 @@ OPS ANALYTIC FLAT-FIELD CORRECTION OF FEATURES
 ==============================================
 
 Lifecycle: future
-Status: open, alpha. Part of 813.
+Status: DONE 2026-11-07 (alpha, under ALPHA_FEATURES[752]). Part of 813. — new module spacr/ops_flatfield.py with the pilot's flat-field method (16 px block means, per-block median over fields, Gaussian sigma 6 plus a 4th-order polynomial on the nuclear channel, offset at the 0.1th percentile, flat floored at 0.25). Phases ph_masks (mask pass) and ph_flatfield (maps from ops_flatfield_fields random fields or ops_flatfield_field_list, into ops_flatfield_maps); ops_flatfield 'analytic' corrects intensity features in the aggregate phase, 'exact' corrects the field before ph_measure. Mask pass and analytic correction are bit-identical to the pilot's mask_pass.py and flat_correct.py on plate A. tests/test_ops_ownership_flatfield_funk.py.
 Requested: maintainer via paper session, 2026-11-07.
 Owner: paper session.
 Source: plate A OPS pilot.

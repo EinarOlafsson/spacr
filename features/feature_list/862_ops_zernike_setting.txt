@@ -1,0 +1,24 @@
+OPS ZERNIKE SETTING
+===================
+
+Lifecycle: future
+Status: open, alpha (under ALPHA_FEATURES[752]).
+Requested: maintainer via paper session, 2026-11-07.
+Owner: paper session.
+Source: plate A OPS pilot.
+Related: 813.
+
+WHAT THE STATE IS
+Zernike moments have no settings key in the OPS path:
+measure_phenotype_field hard-codes zernike=False.
+
+WHAT TO DO
+- Add an OPS `zernike` setting next to `texture` and pass it to
+  measure_phenotype_field.
+- Tooltip and 9-locale catalogue records in the same commit.
+- Tests: zernike on adds the Zernike columns; off leaves outputs
+  unchanged.
+
+RULE
+The paper session builds this under the identical-output rule: with the new
+option off, outputs stay identical to today's.

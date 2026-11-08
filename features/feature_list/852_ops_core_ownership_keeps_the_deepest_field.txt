@@ -2,7 +2,7 @@ OPS CORE OWNERSHIP KEEPS THE DEEPEST FIELD
 ==========================================
 
 Lifecycle: future
-Status: open, alpha. Part of 813.
+Status: DONE 2026-11-07 (alpha, under ALPHA_FEATURES[752]). Part of 813. — ops_ownership ('closer_match' default, 'a1', 'a1b'): spacr.ops_merge.deepest_field_matches keeps, per sequencing nucleus, the copy from the field where its centroid lies deepest (A1b; ties to the closer match), writes per-cell flags (in_overlap_margin, any_match, owned_link, owned) to ops_ownership_<well>.parquet, and the aggregate phase leaves out cells touching their field's edge. On plate A of Funk et al. 2022 the A1b flags, links and owned cell set equal the pilot's merge_a1b.py / aggregate_final.py tables. spacr/ops_merge.py, spacr/ops_engine.py, tests/test_ops_ownership_flatfield_funk.py.
 Requested: maintainer via paper session, 2026-11-07.
 Owner: paper session.
 Source: plate A OPS pilot.

@@ -1,0 +1,25 @@
+OPS AGGREGATE DROPS FIELDS WHOSE REFINEMENT FAILED
+==================================================
+
+Lifecycle: future
+Status: open, alpha (under ALPHA_FEATURES[752]).
+Requested: maintainer via paper session, 2026-11-07.
+Owner: paper session.
+Source: plate A OPS pilot.
+Related: 813.
+
+WHAT THE STATE IS
+On plate A (B1, field 589) a field whose transform refinement failed
+(refined == 0) still reaches the aggregate phase, and its cells link at
+the rate expected by chance. Their genotype calls are noise.
+
+WHAT TO DO
+- In the OPS aggregate phase, drop fields whose refinement failed and
+  whose link rate is not above the local chance rate.
+- Report how many fields and cells were dropped and why.
+- Tests: a field with refined == 0 and a chance-level link rate is
+  dropped; a refined field is kept.
+
+RULE
+The paper session builds this under the identical-output rule: with the new
+option off, outputs stay identical to today's.

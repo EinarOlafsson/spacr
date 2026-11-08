@@ -2,7 +2,7 @@ OPS FUNK-STYLE FEATURES
 =======================
 
 Lifecycle: future
-Status: open, alpha.
+Status: DONE 2026-11-07 (alpha, under ALPHA_FEATURES[752]). — spacr.ops_sample.funk_object_features computes Funk et al.'s mass displacement and per-object channel correlations as their ops/cp_emulator.py defines them; measure_phenotype_field(funk_features=True) adds them and the form factor, switched on in the OPS path by ops_ph_funk_features. On a synthetic field run through Funk's own code the values agree to 1e-10 relative. tests/test_ops_ownership_flatfield_funk.py.
 Requested: maintainer via paper session, 2026-11-07.
 Owner: paper session.
 Source: plate A OPS pilot.

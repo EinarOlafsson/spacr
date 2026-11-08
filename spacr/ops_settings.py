@@ -68,6 +68,12 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_pool_wells": None,
     "ops_pool_interphase": False,
     "ops_feature_qc": True,
+    "ops_ownership": "closer_match",
+    "ops_flatfield": "none",
+    "ops_flatfield_maps": None,
+    "ops_flatfield_fields": 204,
+    "ops_flatfield_field_list": None,
+    "ops_ph_funk_features": False,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -119,6 +125,12 @@ OPS_TYPES: Dict[str, object] = {
     "ops_pool_wells": (str, type(None)),
     "ops_pool_interphase": bool,
     "ops_feature_qc": bool,
+    "ops_ownership": str,
+    "ops_flatfield": str,
+    "ops_flatfield_maps": (str, type(None)),
+    "ops_flatfield_fields": int,
+    "ops_flatfield_field_list": (str, type(None)),
+    "ops_ph_funk_features": bool,
 }
 
 #: Which panel section each setting appears under.
@@ -152,7 +164,9 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ph_channels", "ops_ph_cell_channel", "ops_ph_nucleus_model",
         "ops_ph_cell_model", "ops_ph_nucleus_diameter",
         "ops_ph_cell_diameter", "ops_ph_downsample", "ops_ph_batch_size",
-        "ops_ph_sites", "ops_ph_texture", "ops_merge_threshold",
+        "ops_ph_sites", "ops_ph_texture", "ops_ph_funk_features",
+        "ops_flatfield", "ops_flatfield_maps", "ops_flatfield_fields",
+        "ops_flatfield_field_list", "ops_merge_threshold", "ops_ownership",
         "ops_design", "ops_control_prefix", "ops_bootstrap",
         "ops_pvalue_null", "ops_test_features", "ops_mitotic_dna_z",
         "ops_genotype_table", "ops_pool_wells", "ops_pool_interphase",
@@ -362,6 +376,41 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(bool) - Add the GLCM homogeneity texture block to every channel of "
         "every compartment. It adds about ten percent to measurement time. "
         "Default True. Alpha.",
+    "ops_ph_funk_features":
+        "(bool) - Also measure Funk et al. 2022's features: the mass "
+        "displacement of every channel and the correlation of every channel "
+        "pair in the nucleus and the cell, and the form factor of both, as "
+        "their OpticalPooledScreens code defines them. Adds about 30 "
+        "columns. Default False. Alpha.",
+    "ops_flatfield":
+        "(str) - Correct the uneven illumination of the phenotype fields. "
+        "'none' measures the pixels as acquired. 'analytic' corrects the "
+        "measured intensity features from each cell's mean flat-field gain "
+        "(phase ph_masks), in about a minute per plate. 'exact' divides "
+        "every pixel before measuring, so it needs the raw images again. "
+        "Default 'none'. Alpha.",
+    "ops_flatfield_maps":
+        "(str or None) - The folder holding the plate's flat-field maps, "
+        "flat_info.json and one flat_*_<channel>.npy per channel. Empty "
+        "uses the flatfield folder in dst_root, which the ph_flatfield "
+        "phase fills. Maps are never overwritten. Default None. Alpha.",
+    "ops_flatfield_fields":
+        "(int) - How many random fields (seed 0) the ph_flatfield phase "
+        "builds the maps from. Fewer fields leave cells in the median; 204 "
+        "built the Funk et al. plate maps. Default 204. Alpha.",
+    "ops_flatfield_field_list":
+        "(str or None) - A JSON file of [well, site] pairs to build the "
+        "maps from instead of a random draw, such as the fields.json an "
+        "earlier build wrote, to rebuild the same maps. Default None. "
+        "Alpha.",
+    "ops_ownership":
+        "(str) - Which copy of a cell imaged in two overlapping fields is "
+        "kept. 'closer_match' keeps the closer sequencing match, as before "
+        "spaCR 1.5.1.8; it is often the copy cut by the field's edge. 'a1b' "
+        "keeps the copy from the field in which the sequencing nucleus "
+        "lies deepest, and 'a1' the one whose phenotype nucleus does. Both "
+        "also leave out cells that touch a field's edge, which needs the "
+        "ph_masks phase. Default 'closer_match'. Alpha.",
     "ops_merge_threshold":
         "(float) - How far, in sequencing pixels, a phenotype nucleus may "
         "land from a sequencing nucleus after alignment and still be called "

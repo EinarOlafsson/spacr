@@ -1,0 +1,24 @@
+OPS AGGREGATE DROPS CELLS WITH NON-FINITE FEATURES
+==================================================
+
+Lifecycle: future
+Status: open, alpha (under ALPHA_FEATURES[752]).
+Requested: maintainer via paper session, 2026-11-07.
+Owner: paper session.
+Source: plate A OPS pilot.
+Related: 813.
+
+WHAT THE STATE IS
+Cell rows with many NaN or infinite feature values reach the OPS
+aggregate phase and the per-guide statistics.
+
+WHAT TO DO
+- In the OPS aggregate phase, drop cell rows in which more than 1% of the
+  features are not finite.
+- Report how many cells were dropped.
+- Tests: a row with >1% non-finite features is dropped; a row at or below
+  1% is kept.
+
+RULE
+The paper session builds this under the identical-output rule: with the new
+option off, outputs stay identical to today's.
