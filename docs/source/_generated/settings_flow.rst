@@ -18394,21 +18394,27 @@ Read by ``_ph_aggregate``, ``ops_defaults``.
 ops_drop_failed_fields
 ----------------------
 
+Leave out the cells of fields that did not register. The merge phase compares each field's link rate with the rate an unrelated field would reach by chance; a field whose alignment re-solve failed and which links under three times chance, or which links under twice chance, is dropped from the aggregate and listed with its reason in dropped_fields\_<plate>.csv. Default False. Alpha.
+
 | :py:func:`~spacr.ops_engine.run_ops`
 |     ``_ph_aggregate`` **-- reads it**
 |     ``_ph_merge`` **-- reads it**
+| :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
-Read by ``_ph_aggregate``, ``_ph_merge``.
+Read by ``_ph_aggregate``, ``_ph_merge``, ``ops_defaults``.
 
 .. _setting-flow-ops_drop_nonfinite_rows:
 
 ops_drop_nonfinite_rows
 -----------------------
 
+Leave out cells with more than 1 % of their features missing or infinite, as Brieflow does. The aggregate report says how many cells this drops. Default False. Alpha.
+
 | :py:func:`~spacr.ops_engine.run_ops`
 |     ``_ph_aggregate`` **-- reads it**
+| :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
-Read by ``_ph_aggregate``.
+Read by ``_ph_aggregate``, ``ops_defaults``.
 
 .. _setting-flow-ops_feature_qc:
 
@@ -18764,10 +18770,13 @@ Read by ``_ph_fields``, ``ops_defaults``.
 ops_ph_zernike
 --------------
 
+Also measure the Zernike moments of degree 8 of the cell and the nucleus (zernike_0 to zernike_24, 50 columns), as spaCR's Measure does with mahotas. They describe the shape of each object and slow measurement. Needs spacr[zernike]. Default False. Alpha.
+
 | :py:func:`~spacr.ops_engine.run_ops`
 |     ``_ph_fields`` **-- reads it**
+| :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
-Read by ``_ph_fields``.
+Read by ``_ph_fields``, ``ops_defaults``.
 
 .. _setting-flow-ops_pool_interphase:
 
