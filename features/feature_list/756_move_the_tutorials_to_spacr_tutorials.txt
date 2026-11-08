@@ -2,7 +2,7 @@ MOVE THE TUTORIALS OUT OF THE MAIN REPOSITORY INTO spacr-tutorials
 ==================================================================
 
 Lifecycle: new
-Status: media moved 2026-11-07 (Hugging Face pin, public GitHub repo for scripts and sources); remaining: move the scripts out of spaCR together with ~20 tests and 6 tools.
+Status: media moved 2026-11-07 (Hugging Face pin, public GitHub repo for scripts and sources); remaining: move the scripts out of spaCR together with ~20 tests and 6 tools. Removal blocked 2026-11-08: the docs build, three tools and 20 tests still need the tree and are not in spacr-tutorials (see the 2026-11-08 check).
 Requested: maintainer, 2026-11-04.
 Related: 710 (slim the repository; its remaining step is moving ~311 MB of
 tutorial media to einarolafsson/spacr-tutorials behind a pin).
@@ -20,3 +20,11 @@ REQUIREMENTS
 3. The tutorial producers write to the new repository; nothing tutorial-sized
    is committed to the main repository again (add a guard test).
 4. Report the main repository's size before and after. Full CI green.
+
+2026-11-08 Pre-deletion check (maintainer approved the removal, conditional on the check): every one of the 2,617 files under tools/tutorials/ and docs/source/_extra/tutorials/ is byte-identical in github.com/EinarOlafsson/spacr-tutorials (e5f57e6, imported from spaCR 375558368f). The tutorials pin (docs/media_revision.json, revision b2dc023a1d) resolves on Hugging Face for all 93 files with matching size and sha256. The app reaches the tutorials only through the bundled spacr/resources/tutorial_index.json (read under exception guards) and the published URL, so an offline or missing tutorial source does not break it.
+2026-11-08 Removal NOT made: with tools/tutorials/ deleted, 20 spaCR test files fail (39 failures, 13 collection errors) and the docs build stops, and none of the files that need the tree are in spacr-tutorials:
+   - docs build: tools/build_module_workflows.py imports tools/tutorials/archived.py (_archived_lessons, used for the generated workflow pages), validates the authored lesson tools/tutorials/lessons/80_image_analysis_pathways.json, and prepare_jinja (docs/source/conf.py) requires tools/tutorials/workflows/*.json and lessons/*.json to be current;
+   - tools/build_tutorial_index.py (writes the shipped spacr/resources/tutorial_index.json) and tools/verify_tutorial_live.py import tools/tutorials/archived.py;
+   - tests: qt/test_601_preferences_tutorial_capture, qt/test_ambient_capture_profile_pacing, qt/test_make_masks_yolo_reload_after_navigation_20261013, qt/test_psf_tutorial_f490, qt/test_the_tutorial_capture_finds_the_performance_selector, qt/test_tutorial_capture_alpha_guard, qt/test_tutorial_capture_policy, test_an_archived_lesson_shows_coming_soon, test_docs_channels, test_docs_media_budget, test_module_workflow_map, test_the_chaining_pin_store_is_sandboxed, test_tutorial_catalog_i18n, test_tutorial_cli, test_tutorial_illumination_viewer, test_tutorial_live_checks, test_tutorial_media_stays_out_of_git, test_tutorial_plate_retention, test_tutorial_release_audit, test_tutorial_walkthrough_audit;
+   - not in spacr-tutorials at all: those tests and tools/verify_tutorial_live.py, tools/build_tutorial_index.py, tools/localize_tutorial_chrome.py, tools/tutorial-encode-manifest.json; tools/sample_tutorial_frames.py differs from the spacr-tutorials copy of the same name.
+   Needed before the removal: decide where the workflow-map lesson outputs and the archive index live (spaCR or a pinned spacr-tutorials checkout in CI), make the three tools and the docs build read them from there, and push the tests and tools that move to spacr-tutorials.
