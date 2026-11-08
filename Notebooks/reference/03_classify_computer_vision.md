@@ -84,7 +84,7 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
-<summary>Computer Vision — Images &amp; Cropping (13 settings)</summary>
+<summary>Computer Vision — Images &amp; Cropping (14 settings)</summary>
 
 #### Computer Vision — Images & Cropping
 
@@ -101,6 +101,7 @@ This linked reference contains the full generated setting descriptions. Return t
 - **`crop_scale_clip`** *(optional)* — (float) - Upper clip after the fixed crop scale, so a value of 1.5 keeps signal up to 1.5 times the 99th percentile. Used only when crop_scaling is 'fixed'. Default 1.5. Default: `1.5`.
 - **`crop_scale_file`** *(optional)* — (str or None) - Scales file for crop_scaling 'fixed'. An existing file is reused, so several models can share one scale. None writes crop_scales.json in the dataset folder. Its md5 is saved in the checkpoint. Default None. Default: `None`.
 - **`input_statistics`** *(optional)* — (str) - Mean and standard deviation applied to the model input. 'symmetric' is spaCR's historical 0.5/0.5, mapping [0,1] to [-1,1]. 'imagenet' and 'clip' use those backbones' statistics; with crop_scaling 'fixed', 'imagenet' takes the mean, std and interpolation of the model's torchvision weights. 'dataset' uses per-channel training statistics. 'custom' uses input_mean and input_std. 'auto' picks 'imagenet' for a pretrained backbone, else 'dataset'. Legacy training, and 'auto' when scoring or drawing activation maps, use 'symmetric'. Default 'auto' in Classify, 'symmetric' elsewhere. Default: `'auto'`.
+- **`preprocessing_mismatch`** *(optional)* — (str) - What testing a model does when the crops would be prepared differently from training, for example another image_size, channel selection, mask mode or scales file. 'refuse' stops with a message that lists the differences. 'warn' prints them and continues. Models saved before November 2026 have no full record, so they are tested with the current settings and a warning. Default 'refuse'. Default: `'refuse'`.
 
 </details>
 
@@ -121,7 +122,7 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
-<summary>Computer Vision — Training &amp; Loss (15 settings)</summary>
+<summary>Computer Vision — Training &amp; Loss (16 settings)</summary>
 
 #### Computer Vision — Training & Loss
 
@@ -140,6 +141,7 @@ This linked reference contains the full generated setting descriptions. Return t
 - **`train_metrics_full_pass`** *(optional)* — (bool) - How each epoch's training loss and accuracy are measured. Off, they are accumulated from the training batches as the model learns, in the same mode and precision, so no extra pass over the data is needed; the weights change during the epoch and dropout and augmentation are on. On, the whole training set is evaluated again after every epoch in evaluation mode and full precision, as earlier versions did, at the cost of one more pass. Validation metrics, best-checkpoint choice and early stopping do not depend on it. Default False. Default: `False`.
 - **`gradient_accumulation_steps`** *(optional)* — (int) - How many batches are summed per optimizer step when gradient_accumulation is on; the loss is divided by this value so gradient magnitude stays comparable. Effective batch size = batch_size x this. Raise it (4-16) to emulate a larger batch on limited VRAM, at the cost of fewer weight updates per epoch. Ignored when gradient_accumulation is False. Default 4. Default: `4`.
 - **`early_stopping_patience`** *(optional)* — (int) - Stop training after this many consecutive epochs in which validation accuracy fails to beat the best value so far; the best checkpoint is still kept. 0 (default) disables it and always runs the full 'epochs' budget. Set 10-20 on long runs to cut wasted epochs once the model plateaus. Default: `0`.
+- **`control_shuffled_labels`** *(optional)* — (bool) - Train a shuffled-label control. The labels of the training split are permuted with random_seed, while validation and test labels stay true. A model that learns real phenotype should beat this control clearly. The run is saved in a separate folder whose name ends in _shuffled_labels. Test reports also list majority_class_accuracy, the accuracy of always predicting the largest class. Default False. Default: `False`.
 
 </details>
 
@@ -159,7 +161,7 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
-<summary>Evaluation (19 settings)</summary>
+<summary>Evaluation (17 settings)</summary>
 
 #### Evaluation
 
@@ -180,8 +182,6 @@ This linked reference contains the full generated setting descriptions. Return t
 - **`leakage_audit_train_test`** *(optional)* — (bool) - Audit the permanent train/ and test/ boundary before any classifier fit. Checks plate/well/field/object lineage, exported augmentation families and (when enabled) byte-identical renamed copies. Default True. API: spacr.classifier_evaluation.audit_dataset_splits. Default: `True`.
 - **`leakage_hash_content`** *(optional)* — (bool) - SHA-256 hash classifier images during leakage audits so an identical crop copied or renamed across train/test or CV boundaries is still detected. Reads files in 1 MiB chunks and never decodes pixels. Default True. API: spacr.classifier_evaluation.audit_cv_folds. Default: `True`.
 - **`leakage_require_identity`** *(optional)* — (bool) - Treat filenames that do not encode the protected cv_group_by identity, and files that cannot be hashed, as a failed audit rather than an advisory warning. Default True because independence cannot be claimed when lineage is unknown. API: spacr.classifier_evaluation.audit_split_leakage. Default: `True`.
-- **`preprocessing_mismatch`** *(optional)* — (str) - What testing a model does when the crops would be prepared differently from training, for example another image_size, channel selection, mask mode or scales file. 'refuse' stops with a message that lists the differences. 'warn' prints them and continues. Models saved before November 2026 have no full record, so they are tested with the current settings and a warning. Default 'refuse'. Default: `'refuse'`.
-- **`control_shuffled_labels`** *(optional)* — (bool) - Train a shuffled-label control. The labels of the training split are permuted with random_seed, while validation and test labels stay true. A model that learns real phenotype should beat this control clearly. The run is saved in a separate folder whose name ends in _shuffled_labels. Test reports also list majority_class_accuracy, the accuracy of always predicting the largest class. Default False. Default: `False`.
 
 </details>
 

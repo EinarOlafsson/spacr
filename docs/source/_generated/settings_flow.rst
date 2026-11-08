@@ -5275,7 +5275,7 @@ Read by ``train_test_model``, ``get_train_test_model_settings``.
 crop_scaling
 ------------
 
-(str) - How raw crops become model input. 'legacy' decodes each crop to 8 bits with the per-crop stretch, which is what spaCR has always trained on. 'fixed' reads raw crops at their stored values. Each plate and channel is divided by one fixed scale, the 99th percentile of the object pixels of up to 2,048 training crops. The result is clipped at crop_scale_clip, resized to image_size and normalised with input_statistics on the GPU, batch by batch. A fixed scale keeps intensity differences between cells, which a per-crop stretch removes. 'fixed' needs raw crops (Measure crop_intensity 'raw'). With augment, training uses flips, 90-degree rotations, shifts of up to 4 pixels and a per-channel gain within 10%. The scales and every other step are saved in the checkpoint. Default 'legacy'.
+(str) - How raw crops become model input. 'legacy' decodes each crop to 8 bits with the per-crop stretch, as before. 'fixed' divides each plate and channel of the raw crops by one fixed scale (the 99th percentile of object pixels in up to 2,048 training crops), clips at crop_scale_clip, resizes to image_size and normalises with input_statistics on the GPU; it keeps intensity differences between cells and needs Measure crop_intensity 'raw'. With augment: flips, 90-degree rotations, shifts of up to 4 px and a per-channel gain within 10%. Every step is saved in the checkpoint. Default 'legacy'.
 
 | :py:func:`~spacr.deep_spacr.deep_spacr`
 |     :py:func:`~spacr.deep_spacr.train_test_model` **-- reads it**
@@ -12880,7 +12880,7 @@ Read by ``_perform_regression``, ``_perform_regression_read_data``.
 input_statistics
 ----------------
 
-(str) - Mean and standard deviation applied to the model input. 'symmetric' uses spaCR's historical 0.5/0.5 convention (Inception and TF-Slim), mapping [0,1] to [-1,1]. 'imagenet' and 'clip' use the distinct statistics associated with those pretrained backbones. With crop_scaling 'fixed', 'imagenet' takes the mean, standard deviation and interpolation of the model's own torchvision weights. 'dataset' uses per-channel statistics of the training data, which suits a model trained from scratch. 'custom' uses input_mean and input_std. 'auto' picks 'imagenet' for a pretrained backbone and 'dataset' for a model trained from scratch, such as model_type 'custom' or init_weights off. Legacy training always uses 'symmetric', and so does 'auto' on the scoring and activation-map paths. Default 'auto' in Classify, 'symmetric' elsewhere.
+(str) - Mean and standard deviation applied to the model input. 'symmetric' is spaCR's historical 0.5/0.5, mapping [0,1] to [-1,1]. 'imagenet' and 'clip' use those backbones' statistics; with crop_scaling 'fixed', 'imagenet' takes the mean, std and interpolation of the model's torchvision weights. 'dataset' uses per-channel training statistics. 'custom' uses input_mean and input_std. 'auto' picks 'imagenet' for a pretrained backbone, else 'dataset'. Legacy training, and 'auto' when scoring or drawing activation maps, use 'symmetric'. Default 'auto' in Classify, 'symmetric' elsewhere.
 
 | :py:func:`~spacr.deep_spacr.deep_spacr`
 |     :py:func:`~spacr.deep_spacr.apply_model_to_tar` **-- reads it**
@@ -14133,7 +14133,7 @@ Read by ``train_cellpose``.
 mask_workers_per_gpu
 --------------------
 
-(int) - How many mask workers share each GPU. Above 1, Make Masks segments the prepared batches in that many processes per GPU, so one worker loads, normalises, filters and saves while another runs Cellpose, and a single GPU stays busy. With mask_parallel off the first GPU is used; with it on, every GPU mask_parallel selects. The workers share the card under the GPU memory governor, and fewer start when the card's memory, less gpu_memory_margin_gb, cannot hold about 5 GB per worker or gpu_memory_fraction leaves too little. The GPU utilisation of each plate is printed and written to gpu_utilisation.json in the plate folder. Not for timelapse or t_stack runs. Default 1.
+(int) - How many mask workers share each GPU. Above 1, Make Masks segments in that many processes per GPU, so one worker loads, normalises, filters and saves while another runs Cellpose and a single GPU stays busy. Without mask_parallel the first GPU is used, with it every GPU it selects. Workers share the card under the GPU memory governor; fewer start when memory within gpu_memory_fraction, less gpu_memory_margin_gb, cannot hold about 5 GB per worker. Each plate's GPU use is printed and written to gpu_utilisation.json. Not for timelapse or t_stack runs. Default 1.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -17444,7 +17444,7 @@ Read by ``generate_cellpose_masks_sam``, ``merge_split_filter_masks``, ``_apply_
 nucleus_min_size
 ----------------
 
-(int) - (Deprecated) Minimum nucleus size in pixels^2 applied during measure_crop: labels covering fewer pixels than this are erased from the nucleus mask before any feature is measured, so those nuclei never reach the database. 0 or None disables it. Default 2000, which suits 40-60x; when pixel_size_um or magnification is set, the 2000 default becomes the area of a disc one fifth of Mask's expected nucleus diameter (113 px at 20x, 30 px at 0.325 um/px). A field that loses more than half its nuclei prints a warning. Prefer an 'area' row for nucleus in object_filters, which filters at segmentation time.
+(int) - (Deprecated) Minimum nucleus size in pixels^2 applied during measure_crop: smaller labels are erased from the nucleus mask before any feature is measured, so they never reach the database. 0 or None disables it. Default 2000, for 40-60x; with pixel_size_um or magnification set, the default is the area of a disc one fifth of Mask's expected nucleus diameter (113 px at 20x, 30 px at 0.325 um/px). A field that loses over half its nuclei prints a warning. Prefer an 'area' row for nucleus in object_filters, which filters at segmentation time.
 
 | :py:func:`~spacr.annotation_dataset.generate_annotation_dataset`
 |     :py:func:`~spacr.annotation_dataset.filter_selection` **-- reads it**
@@ -18407,6 +18407,8 @@ Read by ``_ph_aggregate``, ``ops_defaults``.
 ops_flatfield
 -------------
 
+Correct the uneven illumination of the phenotype fields. 'none' measures the pixels as acquired. 'analytic' corrects the measured intensity features from each cell's mean flat-field gain (phase ph_masks), in about a minute per plate. 'exact' divides every pixel before measuring, so it needs the raw images again. Default 'none'. Alpha.
+
 | :py:func:`~spacr.ops_engine.run_ops`
 |     ``_ph_aggregate``
 |         ``_ph_flatfield_mode`` **-- reads it**
@@ -18414,33 +18416,42 @@ ops_flatfield
 |         ``_ph_flatfield_mode`` **-- reads it**
 |     ``_ph_masks``
 |         ``_ph_flatfield_mode`` **-- reads it**
+| :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
-Read by ``_ph_flatfield_mode``.
+Read by ``_ph_flatfield_mode``, ``ops_defaults``.
 
 .. _setting-flow-ops_flatfield_field_list:
 
 ops_flatfield_field_list
 ------------------------
 
+A JSON file of [well, site] pairs to build the maps from instead of a random draw, such as the fields.json an earlier build wrote, to rebuild the same maps. Default None. Alpha.
+
 | :py:func:`~spacr.ops_engine.run_ops`
 |     ``_ph_flatfield`` **-- reads it**
+| :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
-Read by ``_ph_flatfield``.
+Read by ``_ph_flatfield``, ``ops_defaults``.
 
 .. _setting-flow-ops_flatfield_fields:
 
 ops_flatfield_fields
 --------------------
 
+How many random fields (seed 0) the ph_flatfield phase builds the maps from. Fewer fields leave cells in the median; 204 built the Funk et al. plate maps. Default 204. Alpha.
+
 | :py:func:`~spacr.ops_engine.run_ops`
 |     ``_ph_flatfield`` **-- reads it**
+| :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
-Read by ``_ph_flatfield``.
+Read by ``_ph_flatfield``, ``ops_defaults``.
 
 .. _setting-flow-ops_flatfield_maps:
 
 ops_flatfield_maps
 ------------------
+
+The folder holding the plate's flat-field maps, flat_info.json and one flat\_\*_<channel>.npy per channel. Empty uses the flatfield folder in dst_root, which the ph_flatfield phase fills. Maps are never overwritten. Default None. Alpha.
 
 | :py:func:`~spacr.ops_engine.run_ops`
 |     ``_ph_aggregate``
@@ -18451,8 +18462,9 @@ ops_flatfield_maps
 |         ``_ph_flat_folder`` **-- reads it**
 |     ``_ph_masks``
 |         ``_ph_flat_folder`` **-- reads it**
+| :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
-Read by ``_ph_flat_folder``.
+Read by ``_ph_flat_folder``, ``ops_defaults``.
 
 .. _setting-flow-ops_footprint:
 
@@ -18565,13 +18577,16 @@ Read by ``_ph_aggregate``, ``ops_defaults``.
 ops_ownership
 -------------
 
+Which copy of a cell imaged in two overlapping fields is kept. 'closer_match' keeps the closer sequencing match, as before spaCR 1.5.1.8; it is often the copy cut by the field's edge. 'a1b' keeps the copy from the field in which the sequencing nucleus lies deepest, and 'a1' the one whose phenotype nucleus does. Both also leave out cells that touch a field's edge, which needs the ph_masks phase. Default 'closer_match'. Alpha.
+
 | :py:func:`~spacr.ops_engine.run_ops`
 |     ``_ph_aggregate``
 |         ``_ph_ownership_rule`` **-- reads it**
 |     ``_ph_merge``
 |         ``_ph_ownership_rule`` **-- reads it**
+| :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
-Read by ``_ph_ownership_rule``.
+Read by ``_ph_ownership_rule``, ``ops_defaults``.
 
 .. _setting-flow-ops_ph_batch_size:
 
@@ -18664,10 +18679,13 @@ Read by ``_ph_segment_field``, ``ops_defaults``.
 ops_ph_funk_features
 --------------------
 
+Also measure Funk et al. 2022's features: the mass displacement of every channel and the correlation of every channel pair in the nucleus and the cell, and the form factor of both, as their OpticalPooledScreens code defines them. Adds about 30 columns. Default False. Alpha.
+
 | :py:func:`~spacr.ops_engine.run_ops`
 |     ``_ph_fields`` **-- reads it**
+| :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
-Read by ``_ph_fields``.
+Read by ``_ph_fields``, ``ops_defaults``.
 
 .. _setting-flow-ops_ph_nucleus_diameter:
 
@@ -22088,7 +22106,7 @@ Read by ``_watch_closed_pool_spec``, ``preprocess_generate_masks``, ``__init__``
 pixel_size_um
 -------------
 
-(float or None) - Image pixel size in micrometres per pixel, for example 0.325 for a 6.5 um camera pixel behind a 20x objective. When set, a blank cell_diameter, nucleus_diameter or pathogen_diameter is the typical object size over the pixel size: 18 um cells, 10 um nuclei and 6.5 um pathogens, so 55, 31 and 20 px at 0.325 um/px, with min/max area limits of diameter^2/4 and diameter^2\*10. It replaces the magnification default, which assumes larger cells (120 and 60 px at 20x). A diameter you type is always used as it is. None uses the magnification default. In Measure it also scales the default cell_min_size, nucleus_min_size and pathogen_min_size. Default None.
+(float or None) - Image pixel size in micrometres per pixel, for example 0.325 for a 6.5 um camera pixel behind a 20x objective. When set, a blank cell_diameter, nucleus_diameter or pathogen_diameter is the typical object size over the pixel size (18 um cells, 10 um nuclei, 6.5 um pathogens: 55, 31 and 20 px at 0.325 um/px), with area limits diameter^2/4 to diameter^2\*10, and Measure scales the default cell_min_size, nucleus_min_size and pathogen_min_size. A diameter you type is used as it is. None uses the magnification default (120 and 60 px at 20x). Default None.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -22798,11 +22816,13 @@ png_channel_mapping
 |     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
+| :py:func:`~spacr.measure.measure_from_field_table`
+|     :py:func:`~spacr.measure.field_table_settings` **-- reads it**
 | ``_plan_gains``
 |     :py:func:`~spacr.settings.get_measure_crop_settings` **-- reads it**
 |     ``deepcopy(...)  [UNRESOLVED]``
 
-Read by ``_under_todays_names``, ``get_measure_crop_settings``.
+Read by ``_under_todays_names``, ``field_table_settings``, ``get_measure_crop_settings``.
 
 .. _setting-flow-png_dims:
 
@@ -29593,7 +29613,7 @@ Read by ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``apply_se
 timelapse_division_analysis
 ---------------------------
 
-(bool) - After tracking, ask what tracked cells do before they divide. Every division the tracks hold is aligned on its last frame before the daughters appear, and each cell's shape, intensity and motion are compared with matched control cells from the same movie that are not about to divide: same time, a similar size at the start of the window, and no division in the window or the frames after it. The same dividing cells aligned on a random earlier time are a second control, which should show nothing. Writes effect sizes (Hedges' g with bootstrap 95% intervals), aligned trajectories, cell-cycle size control (sizer, adder or timer) and three figures to tracks/division/<tracks file>/. Units are frames and pixels. Uses the division links the tracker reports, else divisions inferred within timelapse_lineage_max_distance. Default False.
+(bool) - After tracking, ask what tracked cells do before they divide. Each division is aligned on its last frame before the daughters appear, and shape, intensity and motion are compared with control cells from the same movie that are not about to divide (same time, similar starting size, no division in or just after the window). The same cells aligned on a random earlier time are a second control that should show nothing. Writes effect sizes (Hedges' g, bootstrap 95% intervals), trajectories, size control and three figures to tracks/division/<tracks file>/. Default False.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
