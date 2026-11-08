@@ -429,7 +429,13 @@ def test_the_notices_outlast_a_first_field_that_loads_in_the_background(
 
 def test_a_folder_opened_before_the_notice_lands_does_not_inherit_it(
         qtbot, qt_theme_applied, no_handover, tmp_path, sibling):
-    """The notice belongs to the session; Browse ends the session."""
+    """The notice belongs to the session; Browse ends the session.
+
+    A TIFF folder opens only after its metadata is read off the GUI thread,
+    so the wait is for the sibling folder to be the one open, not only for
+    the big field's loader: that loader can finish first, while the old
+    session is still the screen's.
+    """
     folder = tmp_path / "big"
     folder.mkdir()
     _big_bundle(folder, "a_big")
@@ -443,9 +449,10 @@ def test_a_folder_opened_before_the_notice_lands_does_not_inherit_it(
     assert screen.open_queue(queue)
     assert screen._loading
 
-    assert screen._open_folder(str(sibling / "images"),
-                               masks_dir=str(sibling / "masks"))
-    qtbot.waitUntil(lambda: screen._load_worker is None, timeout=30000)
+    images = str(sibling / "images")
+    assert screen._open_folder(images, masks_dir=str(sibling / "masks"))
+    qtbot.waitUntil(lambda: screen._folder == images
+                    and screen._load_worker is None, timeout=30000)
 
     assert screen._queue is None
     assert UNSCORED not in screen._status_label.text()

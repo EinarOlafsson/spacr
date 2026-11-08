@@ -86,7 +86,7 @@ jobs:
   # declared floors instead. Both are blocking, and
   # tests/test_optimal_dependency_versions.py fails if either stops being so.
   fast:
-    name: Fast / Full suite control (ubuntu-24.04, py3.12) shard ${{ matrix.shard }} of 3
+    name: Fast / Full suite control (ubuntu-24.04, py3.12) shard ${{ matrix.shard }} of 4
     runs-on: ubuntu-24.04
     # THREE FILE SHARDS (item 43, 2026-09-30). One job had outgrown even
     # the 150-minute budget below: dispatch 36739819315 reached batch 94 of
@@ -94,10 +94,20 @@ jobs:
     # one ended the same way, so the blocking job never reported. Each shard
     # runs the same marker selection on a deterministic third of the files
     # (tests/conftest.py, SPACR_PYTEST_FILE_SHARD_*), as the Qt job does.
+    #
+    # THREE -> FOUR (2026-11-08), for the same reason and not for a hang.
+    # Push run 42498614383 (ce7f598306) lost shard 0 to this budget at batch
+    # 155 of 159 after 2:30. No test hung: the 24,696 tests it shared with
+    # the green run on 36cb494934 took 118 worker-minutes instead of 86, the
+    # tests new since then 1.5, and shard 1 of the same run went 1:29 ->
+    # 2:20 on the same tests. Runner speed alone swings a shard by 40%, and
+    # shard 2 of 36cb494934 had already finished at 2:28. About a third of
+    # a shard is pytest start-up (~30 s per batch of 32 files), which scales
+    # with files, so a fourth shard takes it off every shard.
     strategy:
       fail-fast: false
       matrix:
-        shard: [0, 1, 2]
+        shard: [0, 1, 2, 3]
     # 90 -> 150. THIS JOB WAS BEING KILLED BY ITS OWN BUDGET, not by a push:
     # 1:30:32 on dispatch 34639565357 and 1:30:17 on 34618149518 a day
     # earlier, both reported as "cancelled", which reads exactly like a
@@ -218,7 +228,7 @@ jobs:
       - name: Run fast tests
         env:
           SPACR_PYTEST_FILE_SHARD_INDEX: ${{ matrix.shard }}
-          SPACR_PYTEST_FILE_SHARD_COUNT: "3"
+          SPACR_PYTEST_FILE_SHARD_COUNT: "4"
           QT_QPA_PLATFORM: offscreen
           PYTHONPATH: ${{ github.workspace }}
           OMP_NUM_THREADS: "1"
@@ -1073,5 +1083,5 @@ jobs:
           git add docs/source/_static/test-counts.json
           if git diff --cached --quiet; then exit 0; fi
           git commit -m 'Update hosted test counts [skip ci]'
-          git pull --rebase origin nightly
+          git pull --rebase --autostash origin nightly
           git push origin HEAD:nightly
