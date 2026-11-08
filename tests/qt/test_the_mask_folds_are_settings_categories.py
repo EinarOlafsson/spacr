@@ -120,9 +120,9 @@ def test_the_categories_are_hidden_until_the_switch_is_pressed(host):
 
 def test_alpha_categories_follow_the_show_alpha_features_gate(
         host, monkeypatch):
-    """Lineage and event detection show with the gate open, not shut.
+    """Lineage, division analysis and event detection show with the gate open.
 
-    Both categories hold only alpha settings, so with Show alpha features
+    The three categories hold only alpha settings, so with Show alpha features
     off the switch reveals tracking alone; opening the gate and re-deciding
     brings them back without pressing the switch again.
     """
@@ -135,7 +135,8 @@ def test_alpha_categories_follow_the_show_alpha_features_gate(
     strip.setChecked(True)
     hidden = {card.title() for card in fold.sections
               if not card.isVisibleTo(screen)}
-    assert hidden == {"LINEAGE TREES \u0391", "EVENT DETECTION \u0391"}
+    assert hidden == {"LINEAGE TREES \u0391", "DIVISION ANALYSIS \u0391",
+                      "EVENT DETECTION \u0391"}
 
     monkeypatch.setattr(preferences, "_get_show_alpha_features",
                         lambda: True)
@@ -155,7 +156,8 @@ def test_the_tracking_categories_are_the_ones_mask_does_not_have(host):
     titles = {card.title() for card in _sections(screen, "timelapse")}
 
     assert titles == {"TRACKING SETUP", "TRACKING BACKENDS",
-                      "LINEAGE TREES Α", "EVENT DETECTION Α"}
+                      "LINEAGE TREES Α", "DIVISION ANALYSIS Α",
+                      "EVENT DETECTION Α"}
     assert "timelapse_mode" in screen._settings_model._widgets
     assert "IMAGE PREPROCESSING" not in titles
 
