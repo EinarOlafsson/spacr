@@ -2629,7 +2629,7 @@ def _categories_for_app_uncached(app_key, categories, plugin_app):
                 "channel_arrays", "bounding_box",
                 "crop_shape", "train_channels", "image_size", "augment",
                 "crop_scaling", "crop_scale_clip", "crop_scale_file",
-                "input_statistics"],
+                "input_statistics", "preprocessing_mismatch"],
 
             "Model & Regularization": [
                 "classifier_family",
@@ -2643,7 +2643,8 @@ def _categories_for_app_uncached(app_key, categories, plugin_app):
                 "amsgrad", "loss_type", "class_balance", "label_smoothing",
                 "focal_gamma", "focal_alpha", "logit_adjust_tau",
                 "batch_size", "mixed_precision", "train_metrics_full_pass",
-                "gradient_accumulation_steps", "early_stopping_patience"],
+                "gradient_accumulation_steps", "early_stopping_patience",
+                "control_shuffled_labels"],
 
             "Test-time augmentation": ['tta_enabled', 'tta_rotations', 'tta_horizontal_flip',
                                        'tta_vertical_flip', 'tta_aggregation', 'tta_min_agreement', 'tta_max_std'],
@@ -2657,8 +2658,7 @@ def _categories_for_app_uncached(app_key, categories, plugin_app):
                 "classifier_evaluation", "evaluation_calibration",
                 "evaluation_bins", "evaluation_fail_on_leakage",
                 "leakage_audit_train_test", "leakage_hash_content",
-                "leakage_require_identity", "preprocessing_mismatch",
-                "control_shuffled_labels"],
+                "leakage_require_identity"],
 
             "Results & figures": [
                 "n_top_examples", "plot", "tensorboard",

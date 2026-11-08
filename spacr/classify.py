@@ -81,7 +81,8 @@ FAMILY_SETTINGS: Dict[str, Tuple[str, ...]] = {
         "channel_arrays", "bounding_box", "normalize", "class_balance",
         "tta_enabled", "tta_rotations", "tta_horizontal_flip",
         "tta_vertical_flip", "tta_aggregation", "tta_min_agreement",
-        "tta_max_std",
+        "tta_max_std", "crop_scaling", "crop_scale_clip", "crop_scale_file",
+        "input_statistics", "preprocessing_mismatch", "control_shuffled_labels",
     ),
     "ml": (
         "model_type_ml", "n_estimators", "reg_alpha", "reg_lambda",

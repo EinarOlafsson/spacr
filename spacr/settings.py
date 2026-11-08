@@ -6252,14 +6252,14 @@ categories = {
     "Training Classes": ["dataset_mode", "classes", "ml_classes", "class_folder_names", "class_metadata", "metadata_item_1_name", "metadata_item_1_value", "metadata_item_2_name", "metadata_item_2_value", "annotation_column", "annotated_classes", "write_random_annotation_column"],
 
     "Computer Vision Data Source": ["image_source", "image_size", "size", "train_channels", "stream_method", "object_array", "channel_arrays", "bounding_box", "crop_shape", "sample", "test_split", "val_split", "balance_to_smallest", "augment", "crop_scaling", "crop_scale_clip", "crop_scale_file", "input_statistics",
-        "crop_source", "file_metadata", "file_type", "coordinate_columns",
+        "preprocessing_mismatch", "crop_source", "file_metadata", "file_type", "coordinate_columns",
         "well_metadata_path", "cv_group_column",
         "cv_exclude_batch_column"],
 
     "Computer Vision Model": ["model_type", "model_name", "init_weights", ],
 
     "Computer Vision Training": ["train", "test", "epochs", "learning_rate", "optimizer_type", "schedule", "loss_type", "label_smoothing", "focal_gamma", "focal_alpha", "logit_adjust_tau", "class_balance", "amsgrad", "mixed_precision", "train_metrics_full_pass", "gradient_accumulation_steps", "early_stopping_patience", "pin_memory", "intermedeate_save", "tensorboard", "random_seed",
-        "n_top_examples"],
+        "control_shuffled_labels", "n_top_examples"],
 
     "Computer Vision Optimization and Regularization": ["use_checkpoint", "dropout_rate", "weight_decay"],
     "Test-time augmentation": ['tta_enabled', 'tta_rotations', 'tta_horizontal_flip',
@@ -6274,8 +6274,7 @@ categories = {
                            "prediction_treatment_column"],
 
     "Leakage Audit": ["evaluation_fail_on_leakage", "leakage_audit_train_test",
-                      "leakage_hash_content", "leakage_require_identity",
-                      "preprocessing_mismatch", "control_shuffled_labels"],
+                      "leakage_hash_content", "leakage_require_identity"],
 
     "Machine Learning Model and Features": ["model_type_ml", "n_estimators", "test_size", "cross_validation", "reg_lambda", "reg_alpha", "prune_features", "top_features", "n_repeats", ],
 
