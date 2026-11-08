@@ -23796,7 +23796,7 @@ Read by ``get_measure_crop_settings``, ``_profile_measurements``.
 profiling_normalization
 -----------------------
 
-(str) - How each feature is put on a common scale, plate by plate. mad_robustize subtracts the reference median and divides by 1.4826 times the reference MAD, which tolerates outlier wells; standardize uses the mean and standard deviation; robustize uses the median and interquartile range; tvn applies mad_robustize and then, after feature selection, whitens the kept features on the negative-control wells of all plates (typical variation normalisation, as JUMP profiles are made), so the variation the controls share no longer dominates similarities, and it needs a negative control; none keeps the aggregated values. The reference is the negative control, or every well when none is named. Default mad_robustize.
+(str) - How each feature is put on a common scale, plate by plate. mad_robustize subtracts the reference median and divides by 1.4826 times the reference MAD, which tolerates outlier wells; standardize uses the mean and standard deviation; robustize uses the median and interquartile range; none keeps the aggregated values. tvn applies mad_robustize, then whitens the kept features on the negative-control wells of all plates, as JUMP profiles are made; it needs a negative control. The reference is the negative control, or every well when none is named. Default mad_robustize.
 
 | :py:func:`~spacr.measure.measure_crop`
 |     ``_emit_profiles``
