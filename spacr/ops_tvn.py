@@ -335,6 +335,10 @@ class TVNModel:
         :returns: float32 TVN components, one row per cell.
         """
         e = self.pca.transform(self.standardise(values)).astype(np.float32)
+        return self._from_embedding(e, batch)
+
+    def _from_embedding(self, e: np.ndarray, batch: Any) -> np.ndarray:
+        """Steps 4 and 5 applied to a batch's first-PCA embedding (float32)."""
         e = e.astype(np.float64)
         e = self.control_pca.transform((e - self.control_mean) / self.control_scale)
         key = str(batch)
@@ -428,6 +432,23 @@ def fit_tvn_streamed(batches: Sequence[Any],
     nt_batch = np.concatenate(control_batch)
     if not len(nt):
         raise ValueError("TVN needs control cells; none are marked")
+    skipped, d = _fit_control_stage(model, nt, nt_batch, components=components,
+                                    whiten_epsilon=whiten_epsilon, coral_ridge=coral_ridge)
+    model.info = {"mode": "streamed", "columns_kept": model.columns.tolist(),
+                  "pca_components": int(model.pca.n_components_),
+                  "pca_sample": int(sample_size),
+                  "seed": int(seed), "axes": int(d), "coral_skipped": skipped}
+    return model
+
+
+def _fit_control_stage(model: "TVNModel", nt: np.ndarray, nt_batch: np.ndarray, *,
+                       components: Components, whiten_epsilon: float,
+                       coral_ridge: float) -> Tuple[list, int]:
+    """Steps 4 and 5 of the streamed fit, from the control cells' first-PCA
+    embedding: fills ``model``'s control centre, control PCA, whitening and
+    CORAL, and returns the batches CORAL skipped and the axis count."""
+    from sklearn.decomposition import PCA
+
     model.control_mean, model.control_scale = nt.mean(0), nt.std(0)
     model.control_scale[model.control_scale == 0] = 1
     nt = (nt - model.control_mean) / model.control_scale
@@ -458,11 +479,7 @@ def fit_tvn_streamed(batches: Sequence[Any],
         else:
             model.coral[str(name)] = None
             skipped.append(str(name))
-    model.info = {"mode": "streamed", "columns_kept": model.columns.tolist(),
-                  "pca_components": int(model.pca.n_components_),
-                  "pca_sample": int(sample_size),
-                  "seed": int(seed), "axes": int(d), "coral_skipped": skipped}
-    return model
+    return skipped, d
 
 
 def tvn_profiles(cells: pd.DataFrame, embedding: np.ndarray, *, guide: str = "sgRNA",
