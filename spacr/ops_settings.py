@@ -77,6 +77,22 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_ph_zernike": False,
     "ops_drop_failed_fields": False,
     "ops_drop_nonfinite_rows": False,
+    "ops_profile_normalisation": "robust_z",
+    "ops_tvn_mode": "streamed",
+    "ops_tvn_pca_sample": 100000,
+    "ops_tvn_seed": 0,
+    "ops_tvn_components": None,
+    "ops_tvn_whiten_epsilon": 3.0,
+    "ops_cluster_benchmark": False,
+    "ops_benchmark_corum": None,
+    "ops_benchmark_kegg": None,
+    "ops_benchmark_string": None,
+    "ops_reference_clusters": None,
+    "ops_cluster_target": 251,
+    "ops_cluster_resolutions": "5,10,12,15,16,17,18,20,22",
+    "ops_cluster_seed": 42,
+    "ops_consensus_runs": 0,
+    "ops_mitotic_model": None,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -137,6 +153,22 @@ OPS_TYPES: Dict[str, object] = {
     "ops_ph_zernike": bool,
     "ops_drop_failed_fields": bool,
     "ops_drop_nonfinite_rows": bool,
+    "ops_profile_normalisation": str,
+    "ops_tvn_mode": str,
+    "ops_tvn_pca_sample": int,
+    "ops_tvn_seed": int,
+    "ops_tvn_components": (float, int, type(None)),
+    "ops_tvn_whiten_epsilon": (float, int),
+    "ops_cluster_benchmark": bool,
+    "ops_benchmark_corum": (str, type(None)),
+    "ops_benchmark_kegg": (str, type(None)),
+    "ops_benchmark_string": (str, type(None)),
+    "ops_reference_clusters": (str, type(None)),
+    "ops_cluster_target": int,
+    "ops_cluster_resolutions": str,
+    "ops_cluster_seed": int,
+    "ops_consensus_runs": int,
+    "ops_mitotic_model": (str, type(None)),
 }
 
 #: Which panel section each setting appears under.
@@ -177,7 +209,13 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_design", "ops_control_prefix", "ops_bootstrap",
         "ops_pvalue_null", "ops_test_features", "ops_mitotic_dna_z",
         "ops_genotype_table", "ops_pool_wells", "ops_pool_interphase",
-        "ops_feature_qc",
+        "ops_feature_qc", "ops_profile_normalisation", "ops_tvn_mode",
+        "ops_tvn_pca_sample", "ops_tvn_seed", "ops_tvn_components",
+        "ops_tvn_whiten_epsilon", "ops_cluster_benchmark",
+        "ops_benchmark_corum", "ops_benchmark_kegg", "ops_benchmark_string",
+        "ops_reference_clusters", "ops_cluster_target",
+        "ops_cluster_resolutions", "ops_cluster_seed", "ops_consensus_runs",
+        "ops_mitotic_model",
     ],
 }
 
@@ -492,6 +530,101 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "every well, because their control cells have no spread. Such a "
         "column would be empty in both tables. Each one is listed with its "
         "reason in ops_feature_qc_<plate>.csv. Default True. Alpha.",
+    "ops_profile_normalisation":
+        "(str) - How guide and gene profiles are normalised. 'robust_z' "
+        "scales every feature against its well's non-targeting cells. "
+        "'tvn' also writes typical variation normalisation profiles, as "
+        "Brieflow makes them: components in which the non-targeting cells "
+        "of every well have the same spread in every direction. TVN "
+        "profiles cluster better, but their components have no feature "
+        "names, so the gene test still uses the robust z tables. "
+        "Default 'robust_z'. Alpha.",
+    "ops_tvn_mode":
+        "(str) - 'streamed' fits TVN one well at a time and keeps only the "
+        "control cells and a sample in memory, so it suits whole plates "
+        "and pools of plates. 'in_memory' holds every cell at once, as "
+        "Brieflow does, and needs about four times the size of the cell "
+        "table in memory. The two differ only in the PCA sample. "
+        "Default 'streamed'. Alpha.",
+    "ops_tvn_pca_sample":
+        "(int) - The number of cells, drawn at random, that the PCA of TVN "
+        "is fitted on. The whitening gives weak PCA directions full "
+        "weight, so a different sample changes those directions and the "
+        "gene similarities they carry. A larger sample makes them steadier "
+        "and costs memory. Default 100000. Alpha.",
+    "ops_tvn_seed":
+        "(int) - The seed of the TVN PCA sample. Change it to see how much "
+        "the profiles depend on the sample. Default 0. Alpha.",
+    "ops_tvn_components":
+        "(float, int or None) - Keep only the leading control directions "
+        "of TVN: a whole number keeps that many, a fraction below 1 keeps "
+        "the directions holding that share of the control variance. The "
+        "dropped directions are the weak ones that the whitening would "
+        "blow up. Empty keeps all of them, as Brieflow does. "
+        "Default None. Alpha.",
+    "ops_tvn_whiten_epsilon":
+        "(float) - Added to the control variance of every TVN direction "
+        "before it is scaled to 1, so weak directions are shrunk instead of "
+        "blown up and the profiles depend less on which cells the PCA saw. "
+        "On one Funk et al. plate, 3 made the streamed and in-memory fits "
+        "agree much better (gene similarity correlation 0.93 instead of "
+        "0.81) with an unchanged STRING score. 0 is Brieflow's TVN exactly; "
+        "use it to reproduce Brieflow or the plate A pilot. Default 3. Alpha.",
+    "ops_cluster_benchmark":
+        "(bool) - Cluster the gene profiles and score the clusters, as "
+        "Funk et al. 2022 and Brieflow do: PHATE on the leading components, "
+        "then Leiden at the resolution whose cluster count is closest to "
+        "ops_cluster_target. Each clustering is scored by the share of "
+        "clusters enriched for a CORUM complex or a KEGG pathway, by STRING "
+        "precision and recall, and against shuffled-component and k-means "
+        "controls. TVN profiles are used when they are made. Needs the "
+        "three benchmark tables and the clustering extra: "
+        "pip install \"spacr[clustering]\". Default False. Alpha.",
+    "ops_benchmark_corum":
+        "(str or None) - The CORUM complex table for the cluster benchmark, "
+        "tab-separated with gene_name and group columns, as Brieflow ships "
+        "it. spaCR does not include it. Default None. Alpha.",
+    "ops_benchmark_kegg":
+        "(str or None) - The KEGG pathway table for the cluster benchmark, "
+        "tab-separated with gene_name and group columns. Default None. "
+        "Alpha.",
+    "ops_benchmark_string":
+        "(str or None) - The STRING gene pair table for the cluster "
+        "benchmark, tab-separated with gene_name and pair columns. It also "
+        "scores profile similarity directly, as the area under the "
+        "precision-recall curve of all gene pairs. Default None. Alpha.",
+    "ops_reference_clusters":
+        "(str or None) - A published clustering to compare with, such as "
+        "Funk et al.'s gene table: a CSV, TSV or Excel file with a gene "
+        "(or gene_symbol) column and a cluster (or interphase_cluster) "
+        "column. It is scored by the same code and gives the adjusted Rand "
+        "index. Default None. Alpha.",
+    "ops_cluster_target":
+        "(int) - The cluster count the Leiden resolution is chosen for. "
+        "The share of clusters enriched depends on cluster size, so compare "
+        "clusterings at the same count. Default 251, Brieflow's count. "
+        "Alpha.",
+    "ops_cluster_resolutions":
+        "(str) - The Leiden resolutions tried, as '5,10,12'. A higher "
+        "resolution splits the genes into more, smaller clusters; the one "
+        "whose cluster count is closest to ops_cluster_target is reported "
+        "first. Default '5,10,12,15,16,17,18,20,22'. Alpha.",
+    "ops_cluster_seed":
+        "(int) - The PHATE and Leiden seed. With the same seed and library "
+        "versions the clusters are the same on every run. Default 42. "
+        "Alpha.",
+    "ops_consensus_runs":
+        "(int) - Repeat the clustering this many times, each on 90 percent "
+        "of the genes, with each gene's guides drawn again, its own seed "
+        "and a resolution from a sweep. The runs give how often two genes "
+        "share a cluster. 0 skips it; 100 takes about half an hour per "
+        "plate. Default 0. Alpha.",
+    "ops_mitotic_model":
+        "(str or None) - A mitotic-cell classifier trained on labelled cells "
+        "with spacr.ops_mitotic.train_mitotic_classifier. When set it calls "
+        "mitotic cells instead of the DNA rule of ops_mitotic_dna_z. The "
+        "file can run code when it is opened, so use only models you "
+        "trained or trust. Default None. Alpha.",
     "ops_mitotic_dna_z":
         "(float) - A cell is called mitotic when its nuclear mean DAPI "
         "intensity is this many robust standard deviations above its well's "

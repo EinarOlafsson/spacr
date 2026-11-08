@@ -3285,8 +3285,9 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         ``ops_bootstrap``, ``ops_pvalue_null``, ``ops_test_features``,
         ``ops_mitotic_dna_z``, ``ops_genotype_table``, ``ops_pool_wells``,
         ``ops_pool_interphase``, ``ops_feature_qc``, ``ops_ownership``,
-        ``ops_flatfield``, ``ops_flatfield_maps``, ``ops_drop_failed_fields``
-        and ``ops_drop_nonfinite_rows``.
+        ``ops_flatfield``, ``ops_flatfield_maps``, ``ops_drop_failed_fields``,
+        ``ops_drop_nonfinite_rows``, ``ops_profile_normalisation`` and the
+        ``ops_tvn_*``, ``ops_cluster_*`` and ``ops_mitotic_model`` options.
     :param destination: where ``ops_guides_<plate>`` and
         ``ops_genes_<plate>`` (CSV and Parquet) are written. A run that pools
         only interphase cells or only some wells adds ``_interphase`` or
@@ -3336,6 +3337,16 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     ``dropped_fields_<plate>.csv``. With ``ops_drop_nonfinite_rows`` a cell
     with more than 1 % of its features not finite is left out; the report's
     ``dropped_nonfinite_rows`` counts them.
+
+    With ``ops_profile_normalisation``
+    set to ``'tvn'`` the run also writes TVN profiles
+    (:mod:`spacr.ops_tvn`) as ``ops_guides_<plate>[tag]_tvn`` and
+    ``ops_genes_<plate>[tag]_tvn``; the robust z tables are still written,
+    because the per-gene test needs named features. ``ops_cluster_benchmark``
+    clusters the TVN profiles (or the robust z ones without TVN) and scores
+    them (:mod:`spacr.ops_clusters`), and ``ops_mitotic_model`` calls
+    mitotic cells with a trained classifier (:mod:`spacr.ops_mitotic`)
+    instead of the DNA rule.
     """
     import pandas as pd
     import pyarrow.parquet as pq
@@ -3407,6 +3418,19 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
                            and c.endswith("mean_intensity")), "")
     mitotic_inputs = [c for c in (dna_column, "nucleus_area")
                       if c and c in columns]
+    mitotic_model = None
+    if settings.get("ops_mitotic_model"):
+        from .ops_mitotic import load_mitotic_classifier
+        mitotic_model = load_mitotic_classifier(str(settings["ops_mitotic_model"]))
+        needed = [*mitotic_model["features"], mitotic_model.get("normalise_by")]
+        absent_model = [c for c in needed if c and c not in columns]
+        if absent_model:
+            raise ValueError(tr(
+                "ops_mitotic_model needs columns {absent} that the cell tables "
+                "do not have", absent=absent_model))
+        extra = [c for c in needed
+                 if c and c not in ("well", "site", "label")]
+        mitotic_inputs = list(dict.fromkeys([*mitotic_inputs, *extra]))
     cells = _ph_read_columns(sources, ["well", "site", "label",
                                        *mitotic_inputs])
     cells["_row"] = np.arange(len(cells))
@@ -3515,7 +3539,28 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
 
         cells[dna_column] = correct_features(
             cells, cells, [dna_column], flat_offsets)[dna_column].to_numpy()
-    if dna_column and "nucleus_area" in cells:
+    if mitotic_model is not None:
+        from .ops_mitotic import predict_mitotic
+        model_cells = cells
+        if gain_columns:
+            # the classifier sees flat-field-corrected features, as the
+            # rule and the pooled tables do
+            from .ops_flatfield import correct_features, correction_inputs
+            model_features = list(mitotic_model["features"])
+            needed = [c for c in correction_inputs(model_features,
+                                                   list(flat_offsets))
+                      if c not in cells]
+            model_cells = cells.reset_index(drop=True)
+            if needed:
+                extra_inputs = _ph_read_columns(sources, needed).iloc[
+                    cells["_row"].to_numpy()].reset_index(drop=True)
+                model_cells = pd.concat([model_cells, extra_inputs], axis=1)
+            corrected = correct_features(model_cells, model_cells,
+                                         model_features, flat_offsets)
+            model_cells = model_cells.copy()
+            model_cells[model_features] = corrected.to_numpy()
+        cells["mitotic"] = predict_mitotic(mitotic_model, model_cells).to_numpy()
+    elif dna_column and "nucleus_area" in cells:
         cells["mitotic"] = mitotic_calls(cells, dna=dna_column,
                                          area="nucleus_area", dna_z=mitotic_z)
     else:
@@ -3530,6 +3575,12 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         raise ValueError(tr(
             "ops_pvalue_null must be calibrated or cell_bootstrap; got "
             "{value}", value=null))
+    normalisation = str(settings.get("ops_profile_normalisation")
+                        or "robust_z").strip().lower()
+    if normalisation not in ("robust_z", "tvn"):
+        raise ValueError(tr(
+            "ops_profile_normalisation must be robust_z or tvn; got {value}",
+            value=normalisation))
     named = _ph_names(settings.get("ops_test_features"))
     absent = [c for c in named if c not in features]
     if absent:
@@ -3612,6 +3663,40 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
                                   f"ops_{name}_{plate}{tag}.{suffix}")
             write_table(table, target, canonicalise=False)
             outputs[f"{name}_{suffix}"] = target
+    tvn_report = None
+    if normalisation == "tvn":
+        from .ops_tvn import _aggregate_tvn
+        tvn_settings = {key: settings.get(key) for key in (
+            "ops_tvn_mode", "ops_tvn_pca_sample", "ops_tvn_seed",
+            "ops_tvn_components", "ops_tvn_whiten_epsilon")}
+        tvn_guides, tvn_genes, tvn_report = _aggregate_tvn(
+            sources, rows, cells[["well", "sgRNA", "gene"]], keep,
+            control.to_numpy(), features, tvn_settings, _ph_read_columns)
+        for name, table in (("guides", tvn_guides), ("genes", tvn_genes)):
+            for suffix in ("csv", "parquet"):
+                target = os.path.join(destination,
+                                      f"ops_{name}_{plate}{tag}_tvn.{suffix}")
+                write_table(table, target, canonicalise=False)
+                outputs[f"{name}_tvn_{suffix}"] = target
+    cluster_report = None
+    if settings.get("ops_cluster_benchmark"):
+        from .ops_clusters import _aggregate_benchmark
+        benchmark_settings = {key: settings.get(key) for key in (
+            "ops_benchmark_corum", "ops_benchmark_kegg", "ops_benchmark_string",
+            "ops_reference_clusters", "ops_cluster_target",
+            "ops_cluster_resolutions", "ops_cluster_seed",
+            "ops_consensus_runs")}
+        if tvn_report is not None:
+            profile = (tvn_guides, tvn_genes,
+                       [c for c in tvn_genes.columns if c.startswith("PC_")],
+                       f"{plate}{tag}_tvn")
+        else:
+            kept = [c for c in features if c not in dropped]
+            profile = (guides, genes, kept, f"{plate}{tag}")
+        cluster_report = _aggregate_benchmark(
+            *profile[:3], benchmark_settings, destination, profile[3],
+            control_prefix=control_prefix)
+        outputs.update(cluster_report["outputs"])
     if feature_qc:
         target = os.path.join(destination,
                               f"ops_feature_qc_{plate}{tag}.csv")
@@ -3639,7 +3724,11 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         "ambiguous_prefixes": ambiguous, "features": len(features),
         "features_dropped": degenerate,
         "mitotic_rule": {"dna": dna_column, "dna_z": mitotic_z,
-                         "area": "nucleus_area", "area_z": 0.0},
+                         "area": "nucleus_area", "area_z": 0.0}
+        if mitotic_model is None else {
+            "classifier": str(settings["ops_mitotic_model"]),
+            "features": len(mitotic_model["features"]),
+            "validation": mitotic_model.get("summary")},
         "ownership": ownership_counts or {"rule": ownership},
         "flatfield": flat_record or {"mode": flatfield},
         "flatfield_flagged_features": flagged,
@@ -3650,6 +3739,9 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         "bootstrap": boot, "bootstrap_features": tested,
         "pvalue_null": null if tested else None,
         "null_parameters": null_parameters,
+        "profile_normalisation": normalisation,
+        "tvn": tvn_report,
+        "clusters": cluster_report,
         "outputs": outputs,
         "seconds": round(time.perf_counter() - started, 1),
     }

@@ -632,7 +632,13 @@ def spherize_features(
         the transform is fitted on (normally negative-control wells); ``None``
         fits on every row.
     :param method: one of :data:`TVN_WHITENINGS`.
-    :param epsilon: regularisation added to every eigenvalue.
+    :param epsilon: regularisation added to every eigenvalue of the
+        reference covariance (correlation, for the ``-cor`` variants).
+        Default 1e-6, pycytominer's value. It is a different knob, on a
+        different scale, from the OPS TVN's ``ops_tvn_whiten_epsilon``
+        (default 3, added to each axis's control variance at two steps of
+        :func:`spacr.ops_tvn.tvn_on_controls`); the two values are not
+        interchangeable.
     :param center: subtract the reference mean before transforming.
     :param n_components: ``None`` keeps every direction (pycytominer),
         ``"auto"`` keeps those with eigenvalue above ``1e-10`` of the largest,
@@ -676,11 +682,8 @@ def spherize_features(
     if not np.isfinite(epsilon) or epsilon < 0:
         raise ValueError(f"tvn epsilon must be >= 0, not {epsilon!r}.")
     warnings: List[str] = []
-    mean = fit.mean(axis=0) if center else np.zeros(fit.shape[1])
-    centered_fit = fit - mean
-    inv_sd = np.ones(fit.shape[1])
     if normalized.endswith("-cor"):
-        sd = centered_fit.std(axis=0, ddof=1)
+        sd = (fit - (fit.mean(axis=0) if center else 0.0)).std(axis=0, ddof=1)
         constant = ~(sd > 0)
         if constant.any():
             names = [str(c) for c, k in zip(features.columns, constant) if k]
@@ -690,13 +693,13 @@ def spherize_features(
                 f"are constant in the reference rows (e.g. {names[:10]}). "
                 "Remove them, or use method='ZCA'."
             )
-        inv_sd = 1.0 / sd
-        centered_fit = centered_fit * inv_sd
-    cov = np.atleast_2d(np.cov(centered_fit, rowvar=False))
-    eigvals, eigvecs = np.linalg.eigh(cov)
-    order = np.argsort(eigvals)[::-1]
-    eigvals = np.clip(eigvals[order], 0.0, None)
-    eigvecs = eigvecs[:, order]
+    # The eigenbasis is spaCR's one TVN core, shared with the OPS TVN
+    # (spacr.ops_tvn) and the Measure profiles.
+    from .ops_tvn import _control_basis
+
+    basis = _control_basis(fit, center=center, scale=normalized.endswith("-cor"))
+    mean, inv_sd = basis["mean"], basis["inv_sd"]
+    eigvals, eigvecs = basis["eigvals"], basis["eigvecs"]
     top = float(eigvals[0])
     rank = int((eigvals > _TVN_RANK_TOL * max(top, 1e-300)).sum())
     if n_components is None:
@@ -979,7 +982,9 @@ def correct_batch_effects(
         enough reference-control rows.
     :param tvn_method: ``tvn`` whitening, one of :data:`TVN_WHITENINGS`; the
         default ``"ZCA-cor"`` is pycytominer ``normalize``'s.
-    :param tvn_epsilon: ``tvn`` eigenvalue regularisation.
+    :param tvn_epsilon: ``tvn`` eigenvalue regularisation, default 1e-6
+        (pycytominer's value); see :func:`spherize_features`. Not the same
+        knob as the OPS TVN's ``ops_tvn_whiten_epsilon`` (default 3).
     :param tvn_scope: ``"global"`` or ``"batch"``, see :data:`TVN_SCOPES`.
     :param tvn_center_batches: centre each batch on its controls before
         whitening.

@@ -520,6 +520,15 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_ph_funk_features",
     # Zernike moments, failed-field and non-finite-row drops (860-862).
     "ops_ph_zernike", "ops_drop_failed_fields", "ops_drop_nonfinite_rows",
+    # TVN profiles for the OPS aggregate phase (item 854, 2026-11-07).
+    "ops_profile_normalisation", "ops_tvn_mode", "ops_tvn_pca_sample",
+    "ops_tvn_seed", "ops_tvn_components", "ops_tvn_whiten_epsilon",
+    # Cluster benchmarks and consensus clustering (item 855, 2026-11-07).
+    "ops_cluster_benchmark", "ops_benchmark_corum", "ops_benchmark_kegg",
+    "ops_benchmark_string", "ops_reference_clusters", "ops_cluster_target",
+    "ops_cluster_resolutions", "ops_cluster_seed", "ops_consensus_runs",
+    # A trained mitotic classifier (item 856, 2026-11-07).
+    "ops_mitotic_model",
     # `window_length`, the new name for `expected_end` (364, 2026-09-09).
     "window_length",
     # and `min_observations_per_hit`, the new name for `min_n`.
