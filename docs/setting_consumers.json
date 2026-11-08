@@ -34560,6 +34560,66 @@
     "qualname": "ops_defaults"
    }
   ],
+  "ops_benchmark_corum": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_benchmark_corum",
+    "line": 692,
+    "module": "spacr.ops_clusters",
+    "nested": false,
+    "qualname": "_aggregate_benchmark"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_benchmark_corum",
+    "line": 655,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_benchmark_kegg": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_benchmark_kegg",
+    "line": 692,
+    "module": "spacr.ops_clusters",
+    "nested": false,
+    "qualname": "_aggregate_benchmark"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_benchmark_kegg",
+    "line": 655,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_benchmark_string": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_benchmark_string",
+    "line": 692,
+    "module": "spacr.ops_clusters",
+    "nested": false,
+    "qualname": "_aggregate_benchmark"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_benchmark_string",
+    "line": 655,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
   "ops_bootstrap": [
    {
     "form": "get",
@@ -34614,6 +34674,115 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "ops_channel_registration",
+    "line": 655,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_cluster_benchmark": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_cluster_benchmark",
+    "line": 3680,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_aggregate"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_cluster_benchmark",
+    "line": 655,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_cluster_resolutions": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_cluster_resolutions",
+    "line": 704,
+    "module": "spacr.ops_clusters",
+    "nested": false,
+    "qualname": "_aggregate_benchmark"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_cluster_resolutions",
+    "line": 655,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_cluster_seed": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_cluster_seed",
+    "line": 706,
+    "module": "spacr.ops_clusters",
+    "nested": false,
+    "qualname": "_aggregate_benchmark"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "ops_cluster_seed",
+    "line": 706,
+    "module": "spacr.ops_clusters",
+    "nested": false,
+    "qualname": "_aggregate_benchmark"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_cluster_seed",
+    "line": 655,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_cluster_target": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_cluster_target",
+    "line": 705,
+    "module": "spacr.ops_clusters",
+    "nested": false,
+    "qualname": "_aggregate_benchmark"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_cluster_target",
+    "line": 655,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_consensus_runs": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_consensus_runs",
+    "line": 727,
+    "module": "spacr.ops_clusters",
+    "nested": false,
+    "qualname": "_aggregate_benchmark"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_consensus_runs",
     "line": 655,
     "module": "spacr.ops_settings",
     "nested": false,
@@ -34992,6 +35161,44 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "ops_mitotic_dna_z",
+    "line": 655,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_mitotic_model": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_mitotic_model",
+    "line": 3422,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_aggregate"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "ops_mitotic_model",
+    "line": 3424,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_aggregate"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "ops_mitotic_model",
+    "line": 3727,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_aggregate"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_mitotic_model",
     "line": 655,
     "module": "spacr.ops_settings",
     "nested": false,
@@ -35784,6 +35991,26 @@
     "qualname": "ops_defaults"
    }
   ],
+  "ops_profile_normalisation": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_profile_normalisation",
+    "line": 3576,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_aggregate"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_profile_normalisation",
+    "line": 655,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
   "ops_pvalue_null": [
    {
     "form": "get",
@@ -35864,6 +36091,26 @@
     "qualname": "ops_defaults"
    }
   ],
+  "ops_reference_clusters": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_reference_clusters",
+    "line": 698,
+    "module": "spacr.ops_clusters",
+    "nested": false,
+    "qualname": "_aggregate_benchmark"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_reference_clusters",
+    "line": 655,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
   "ops_single_read_quality": [
    {
     "form": "get",
@@ -35938,6 +36185,70 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "ops_test_features",
+    "line": 655,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_tvn_components": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_tvn_components",
+    "line": 655,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_tvn_mode": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_tvn_mode",
+    "line": 655,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_tvn_mode",
+    "line": 671,
+    "module": "spacr.ops_tvn",
+    "nested": false,
+    "qualname": "_aggregate_tvn"
+   }
+  ],
+  "ops_tvn_pca_sample": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_tvn_pca_sample",
+    "line": 655,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_tvn_seed": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_tvn_seed",
+    "line": 655,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_tvn_whiten_epsilon": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_tvn_whiten_epsilon",
     "line": 655,
     "module": "spacr.ops_settings",
     "nested": false,
@@ -72126,11 +72437,11 @@
    }
   ]
  },
- "exact_targets": 801,
+ "exact_targets": 817,
  "nested_consumers_only": 0,
  "no_consumer_found": 131,
- "setting_count": 1467,
- "target_count": 1181,
+ "setting_count": 1483,
+ "target_count": 1197,
  "targets": {
   "CP_prob": {
    "exact": true,
@@ -75002,6 +75313,21 @@
    "module": "spacr.ops_settings",
    "symbol": "ops_defaults"
   },
+  "ops_benchmark_corum": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_benchmark_kegg": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_benchmark_string": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
   "ops_bootstrap": {
    "exact": true,
    "module": "spacr.ops_settings",
@@ -75013,6 +75339,31 @@
    "symbol": "ops_defaults"
   },
   "ops_channel_registration": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_cluster_benchmark": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_cluster_resolutions": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_cluster_seed": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_cluster_target": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_consensus_runs": {
    "exact": true,
    "module": "spacr.ops_settings",
    "symbol": "ops_defaults"
@@ -75107,6 +75458,11 @@
    "module": "spacr.ops_settings",
    "symbol": "ops_defaults"
   },
+  "ops_mitotic_model": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
   "ops_ownership": {
    "exact": true,
    "module": "spacr.ops_settings",
@@ -75182,6 +75538,11 @@
    "module": "spacr.ops_settings",
    "symbol": "ops_defaults"
   },
+  "ops_profile_normalisation": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
   "ops_pvalue_null": {
    "exact": true,
    "module": "spacr.ops_settings",
@@ -75202,6 +75563,11 @@
    "module": "spacr.ops_settings",
    "symbol": "ops_defaults"
   },
+  "ops_reference_clusters": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
   "ops_single_read_quality": {
    "exact": true,
    "module": "spacr.ops_settings",
@@ -75218,6 +75584,31 @@
    "symbol": "ops_defaults"
   },
   "ops_test_features": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_tvn_components": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_tvn_mode": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_tvn_pca_sample": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_tvn_seed": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_tvn_whiten_epsilon": {
    "exact": true,
    "module": "spacr.ops_settings",
    "symbol": "ops_defaults"
@@ -78171,6 +78562,6 @@
   "umap_stability_repeats",
   "umap_stability_weight"
  ],
- "with_addressable_consumer": 1336,
- "with_any_consumer": 1336
+ "with_addressable_consumer": 1352,
+ "with_any_consumer": 1352
 }
