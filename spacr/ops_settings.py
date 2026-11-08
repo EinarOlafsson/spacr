@@ -541,9 +541,11 @@ OPS_TOOLTIPS: Dict[str, str] = {
     "ops_tvn_whiten_epsilon":
         "(float) - Added to the control variance of every TVN direction "
         "before it is scaled to 1, so weak directions are shrunk instead of "
-        "blown up. 0 is Brieflow's whitening; 0.1 shrinks directions that "
-        "hold less than a tenth of a feature's control variance. "
-        "Default 0. Alpha.",
+        "blown up and the profiles depend less on which cells the PCA saw. "
+        "0 is Brieflow's whitening. On one Funk et al. plate, 3 made the "
+        "streamed and in-memory fits agree much better (gene similarity "
+        "correlation 0.93 instead of 0.81) with an unchanged STRING score; "
+        "10 agreed more but scored slightly lower. Default 0. Alpha.",
     "ops_cluster_benchmark":
         "(bool) - Cluster the gene profiles and score the clusters, as "
         "Funk et al. 2022 and Brieflow do: PHATE on the leading components, "
