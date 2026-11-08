@@ -264,14 +264,16 @@ def test_whiten_epsilon_zero_is_brieflow_and_above_zero_shrinks_the_weak_axes():
     base, _ = ops_tvn.tvn_in_memory(x, meta.well, control)
     zero, _ = ops_tvn.tvn_in_memory(x, meta.well, control, whiten_epsilon=0.0)
     np.testing.assert_array_equal(base, zero)
-    # One batch, no CORAL: every control axis ends at variance
-    # var / (var + epsilon), so weak axes shrink and strong ones barely move.
+    # One batch, no CORAL, independent axes: epsilon enters both scalings, so
+    # an axis of control variance v ends at l / (l + eps) with l = v / (v + eps).
+    # Weak axes shrink and strong ones barely move.
     rng = np.random.default_rng(0)
     e = rng.normal(size=(2000, 4)) * np.array([3.0, 1.0, 0.1, 0.01])
     control = np.ones(len(e), bool)
     out, _ = ops_tvn.tvn_on_controls(e.copy(), control, whiten_epsilon=0.1)
-    pca_var = PCA().fit(StandardScaler().fit_transform(e)).explained_variance_ * (1999 / 2000)
-    np.testing.assert_allclose(out.var(0), pca_var / (pca_var + 0.1), rtol=1e-6)
+    v = np.sort(e.var(0))[::-1]
+    lam = v / (v + 0.1)
+    np.testing.assert_allclose(out.var(0), lam / (lam + 0.1), rtol=1e-2)
     plain, _ = ops_tvn.tvn_on_controls(e.copy(), control)
     np.testing.assert_allclose(plain.var(0), 1, rtol=1e-9)
 

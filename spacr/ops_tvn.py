@@ -137,8 +137,9 @@ def tvn_on_controls(embedding: np.ndarray, control: np.ndarray,
         axes holding this fraction of the control variance (a float below
         1). None keeps them all, as Brieflow does.
     :param whiten_epsilon: added to every axis's control variance before it
-        is divided out, so weak axes are shrunk rather than blown up. 0 is
-        Brieflow's whitening.
+        is divided out, both when the embedding is first scaled on the
+        control cells and when each batch is whitened, so weak axes are
+        shrunk rather than blown up. 0 is Brieflow's whitening.
     :param coral_ridge: the multiple of the identity added to every
         covariance before CORAL.
     :returns: ``(embedding, info)``. ``info`` lists the axes kept and the
@@ -155,7 +156,7 @@ def tvn_on_controls(embedding: np.ndarray, control: np.ndarray,
     control = np.asarray(control, bool)
     if not control.any():
         raise ValueError("TVN needs control cells; none are marked")
-    x = _scale_rows(embedding, embedding[control], 0.0)
+    x = _scale_rows(embedding, embedding[control], float(whiten_epsilon))
     pca = PCA(n_components=_component_arg(components)).fit(x[control])
     x = pca.transform(x)
     info: Dict[str, Any] = {"axes": int(x.shape[1]), "coral_skipped": []}
@@ -451,6 +452,8 @@ def _fit_control_stage(model: "TVNModel", nt: np.ndarray, nt_batch: np.ndarray, 
 
     model.control_mean, model.control_scale = nt.mean(0), nt.std(0)
     model.control_scale[model.control_scale == 0] = 1
+    if whiten_epsilon > 0:
+        model.control_scale = np.sqrt(model.control_scale ** 2 + float(whiten_epsilon))
     nt = (nt - model.control_mean) / model.control_scale
     model.control_pca = PCA(n_components=_component_arg(components)).fit(nt)
     nt = model.control_pca.transform(nt)
