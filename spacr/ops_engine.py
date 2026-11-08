@@ -2312,7 +2312,6 @@ def _ph_options_marker(folder: str, options: Mapping[str, Any]) -> None:
     if os.path.isfile(path):
         with open(path, encoding="utf-8") as handle:
             earlier = json.load(handle)
-        # An option added after the marker was written was at its default.
         earlier = {**{key: (False if isinstance(value, bool) else None)
                       for key, value in now.items()}, **earlier}
     elif any(name.endswith((".parquet", ".npz")) for name in os.listdir(folder)):
@@ -2990,8 +2989,6 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
     if ownership == "closer_match":
         frame, duplicates = deduplicate_matches(frame)
     else:
-        # Footprints from the transform each field was merged with: the
-        # re-solved one, or the seed where re-solving failed.
         prints = {s: field_footprint(f[0], f[5]) for s, f in fields.items()}
         neighbours = overlapping_fields(prints)
         depths, flags = [], []
@@ -3025,7 +3022,6 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
                                    ["site", "label"]]
             frame = candidates.merge(core, on=["site", "label"], how="inner")
             duplicates = int(len(candidates) - len(frame))
-        # The closer match stays as a safety net; on a1b it drops nothing.
         frame, extra = deduplicate_matches(frame)
         duplicates += extra
         owner = (pd.concat(flags, ignore_index=True) if flags else
@@ -3501,9 +3497,6 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         on="mapped_guide", how="inner")
     nonfinite_dropped: Optional[int] = None
     if bool(settings.get("ops_drop_nonfinite_rows", False)):
-        # Brieflow's drop_rows_threshold: a cell with more than 1 % of its
-        # features not finite is left out, counted on the values as measured
-        # (float32), before any flat-field correction.
         bad_count = np.zeros(len(cells), np.int64)
         for start in range(0, len(features), _PH_POOL_BLOCK):
             block = features[start:start + _PH_POOL_BLOCK]

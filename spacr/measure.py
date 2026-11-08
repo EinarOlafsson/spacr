@@ -9170,10 +9170,6 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                     volumetric=volumetric,
                     spacing=spacing))
 
-        # The flat-field corrected channel planes the crops are cut from. The
-        # crop source itself is built after the masks are filtered and the
-        # cytoplasm plane is appended, so a PNG mapping that names a mask or
-        # the cytoplasm plane finds it there exactly as it does in ``data``.
         crop_corrected = None
         if (settings.get('illumination_correction', False)
                 and preprocessing_hooks() and settings.get('save_png')
@@ -13856,9 +13852,6 @@ def field_table_settings(table, settings=None, dst=None):
     if not resolved.get('png_dims'):
         resolved['png_dims'] = list(range(min(int(table.n_channels), 3)))
     if not (settings or {}).get('png_channel_mapping'):
-        # The default mapping names channel 2 red; a table with fewer than
-        # three channels has a mask plane there. Take the colours from the
-        # table's own png_dims instead.
         from .crops import png_dims_to_channel_mapping
         resolved['png_channel_mapping'] = png_dims_to_channel_mapping(
             resolved['png_dims'])

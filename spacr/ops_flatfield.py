@@ -51,25 +51,17 @@ from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 
-# Block edge, in field pixels, of the block means the maps are built from.
 FLAT_BLOCK = 16
-# Gaussian sigma, in blocks, of the smoothing.
 FLAT_SIGMA = 6.0
-# Degree of the 2-D polynomial fitted to the nuclear channel's map.
 FLAT_POLYNOMIAL_DEGREE = 4
-# Percentile of all block means taken as the offset ``b``.
 FLAT_OFFSET_PERCENTILE = 0.1
-# The smallest flat value; 0.25 caps the gain at 4.
 FLAT_FLOOR = 0.25
-# Half the edge, in blocks, of the centre window the map is normalised to.
 FLAT_CENTRE_HALF = 9
 
-# Statistics that move like a location: ``(v - b) g + b``.
 LOCATION_STATISTICS = (
     "mean_intensity", "median_intensity", "mode_intensity", "min_intensity",
     "max_intensity", "percentile_5", "percentile_10", "percentile_25",
     "percentile_75", "percentile_85", "percentile_95")
-# Statistics that move like a spread: ``v g``.
 SPREAD_STATISTICS = ("std_intensity", "range_intensity", "iqr_intensity")
 
 
@@ -225,7 +217,6 @@ def write_flat_maps(folder: str, plate: str, maps: Mapping[str, np.ndarray],
     with open(os.path.join(folder, "fields.json"), "w",
               encoding="utf-8") as handle:
         json.dump([[str(w), int(s)] for w, s in fields], handle)
-    # Written last: its presence marks the maps complete.
     with open(os.path.join(folder, "flat_info.json"), "w",
               encoding="utf-8") as handle:
         json.dump(record, handle, indent=1)
