@@ -387,10 +387,17 @@ def fit_tvn_streamed(batches: Sequence[Any],
     for batch in batches:
         values, _control, _use = read(batch)
         x = np.asarray(values, dtype=np.float32)
-        finite = np.isfinite(x)
-        nonfinite = (~finite).sum(0) if nonfinite is None else nonfinite + (~finite).sum(0)
+        counts, middle = np.zeros(x.shape[1], np.int64), np.full(x.shape[1], np.nan, np.float32)
+        for j in range(x.shape[1]):
+            # one column at a time: the median of the finite values, which is
+            # what nanmedian gives, without a copy of the whole batch
+            finite = np.isfinite(x[:, j])
+            counts[j] = len(x) - int(finite.sum())
+            if finite.any():
+                middle[j] = np.median(x[finite, j])
+        nonfinite = counts if nonfinite is None else nonfinite + counts
         total += len(x)
-        medians.append(np.nanmedian(np.where(finite, x, np.nan), axis=0))
+        medians.append(middle)
     keep = nonfinite / max(total, 1) <= float(max_nonfinite)
     model = TVNModel(columns=np.flatnonzero(keep),
                      medians=np.nanmedian(np.vstack(medians), axis=0)[keep],
@@ -584,7 +591,9 @@ def _aggregate_tvn(sources, rows: np.ndarray, cells: pd.DataFrame, use: np.ndarr
             if well not in cache:
                 cache.clear()
                 frame = read_columns([sources[i]], list(features))
-                cache[well] = frame.to_numpy(np.float32)[rows[inside] - offsets[i]]
+                frame = frame.iloc[rows[inside] - offsets[i]]
+                cache[well] = frame.to_numpy(np.float32)
+                del frame
             return cache[well], control[inside], use[inside]
 
         model = fit_tvn_streamed(names, read, **options)
