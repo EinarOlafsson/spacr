@@ -218,7 +218,7 @@ def test_in_memory_tvn_is_brieflows_tvn_as_the_pilot_ran_it(sample):
     x, meta = _stack(_cells())
     reference = _pilot_in_memory(x.copy(), meta, sample=sample)
     ours, info = ops_tvn.tvn_in_memory(x, meta.well, meta.gene.str.startswith("nontargeting"),
-                                       pca_sample=sample)
+                                       pca_sample=sample, whiten_epsilon=0.0)
     assert ours.dtype == np.float32
     assert ours.shape == reference.shape
     np.testing.assert_allclose(ours, reference, rtol=0, atol=2e-5)
@@ -230,7 +230,8 @@ def test_in_memory_tvn_is_brieflows_tvn_as_the_pilot_ran_it(sample):
 def test_streamed_tvn_is_the_pilots_streamed_tvn(sample):
     rows = _cells(seed=1)
     reference = _pilot_streamed([(r[0], r[1], r[2], r[3]) for r in rows], sample=sample)
-    model = ops_tvn.fit_tvn_streamed([r[0] for r in rows], _reader(rows), pca_sample=sample)
+    model = ops_tvn.fit_tvn_streamed([r[0] for r in rows], _reader(rows), pca_sample=sample,
+                                     whiten_epsilon=0.0)
     for r, ref in zip(rows, reference):
         got = model.transform(r[1][~r[3]], r[0])
         np.testing.assert_array_equal(got, ref)
@@ -251,19 +252,20 @@ def test_streamed_and_in_memory_agree_when_the_pca_sees_every_cell():
 def test_tvn_whitens_the_controls_of_every_batch():
     x, meta = _stack(_cells(seed=3))
     control = meta.gene.str.startswith("nontargeting").to_numpy()
-    e, _ = ops_tvn.tvn_in_memory(x, meta.well, control)
+    e, _ = ops_tvn.tvn_in_memory(x, meta.well, control, whiten_epsilon=0.0)
     for well in meta.well.unique():
         rows = (meta.well == well).to_numpy() & control
         cov = np.cov(e[rows], rowvar=False)
         assert np.allclose(np.diag(cov), np.diag(cov).mean(), rtol=0.35)
 
 
-def test_whiten_epsilon_zero_is_brieflow_and_above_zero_shrinks_the_weak_axes():
+def test_the_default_epsilon_is_3_and_above_zero_shrinks_the_weak_axes():
     x, meta = _stack(_cells(seed=4))
     control = meta.gene.str.startswith("nontargeting").to_numpy()
     base, _ = ops_tvn.tvn_in_memory(x, meta.well, control)
-    zero, _ = ops_tvn.tvn_in_memory(x, meta.well, control, whiten_epsilon=0.0)
-    np.testing.assert_array_equal(base, zero)
+    three, _ = ops_tvn.tvn_in_memory(x, meta.well, control, whiten_epsilon=3.0)
+    np.testing.assert_array_equal(base, three)
+    assert ops_tvn.TVN_DEFAULTS["whiten_epsilon"] == 3.0
     # One batch, no CORAL, independent axes: epsilon enters both scalings, so
     # an axis of control variance v ends at l / (l + eps) with l = v / (v + eps).
     # Weak axes shrink and strong ones barely move.
@@ -274,7 +276,7 @@ def test_whiten_epsilon_zero_is_brieflow_and_above_zero_shrinks_the_weak_axes():
     v = np.sort(e.var(0))[::-1]
     lam = v / (v + 0.1)
     np.testing.assert_allclose(out.var(0), lam / (lam + 0.1), rtol=1e-2)
-    plain, _ = ops_tvn.tvn_on_controls(e.copy(), control)
+    plain, _ = ops_tvn.tvn_on_controls(e.copy(), control, whiten_epsilon=0.0)
     np.testing.assert_allclose(plain.var(0), 1, rtol=1e-9)
 
 
@@ -335,7 +337,8 @@ def test_profiles_are_medians_of_cells_then_of_guides():
 def test_settings_map_onto_the_options():
     opts = ops_tvn.tvn_options({"ops_tvn_pca_sample": "5000", "ops_tvn_seed": 3,
                                 "ops_tvn_components": 0.9, "ops_tvn_whiten_epsilon": ""})
-    assert opts == {"pca_sample": 5000, "seed": 3, "components": 0.9, "whiten_epsilon": 0.0}
+    assert opts == {"pca_sample": 5000, "seed": 3, "components": 0.9, "whiten_epsilon": 3.0}
+    assert ops_tvn.tvn_options({"ops_tvn_whiten_epsilon": 0})["whiten_epsilon"] == 0.0
     assert ops_tvn.tvn_options({"ops_tvn_components": 40.0})["components"] == 40
 
 

@@ -34,10 +34,14 @@ weak directions survive step 3 depends on the cells in the PCA sample, so two
 fits that differ only in that sample (or in the order the batches are read)
 agree on the strong axes but not on the tail. On plate A of Funk et al. 2022
 the in-memory and the streamed fits give gene-pair cosines that correlate at
-only r = 0.82, while their STRING AUPRC is the same. ``components`` keeps only
-the leading control axes and ``whiten_epsilon`` shrinks the weak ones
-(``x / sqrt(var + epsilon)`` instead of ``x / sqrt(var)``); both are off by
-default, which is Brieflow's TVN.
+only r = 0.82, while their STRING AUPRC is the same. ``whiten_epsilon`` is
+added to every axis's control variance at both scaling steps
+(``x / sqrt(var + epsilon)`` instead of ``x / sqrt(var)``), which shrinks the
+weak axes: at 3, the default, the two fits correlate at r = 0.93 and the
+STRING AUPRC is at or above Brieflow's. ``whiten_epsilon=0`` is Brieflow's TVN
+exactly, the setting that reproduces the plate A pilot. ``components`` keeps
+only the leading control axes; it did not help on plate A and is off by
+default.
 
 This is the cell-level TVN of an optical pooled screen.
 :func:`spacr.batch_correction.spherize_features` is the sphering of
@@ -51,13 +55,14 @@ from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Tuple, Unio
 import numpy as np
 import pandas as pd
 
-#: TVN settings and their defaults (Brieflow's values).
+#: TVN settings and their defaults. Brieflow's values, except
+#: ``whiten_epsilon``: 3 rather than Brieflow's 0 (see the module notes).
 TVN_DEFAULTS: Dict[str, Any] = {
     "pca_variance": 0.99,
     "pca_sample": 100000,
     "seed": 0,
     "components": None,
-    "whiten_epsilon": 0.0,
+    "whiten_epsilon": 3.0,
     "coral_ridge": 0.5,
     "max_nonfinite": 0.05,
 }
@@ -126,7 +131,7 @@ def _scale_rows(values: np.ndarray, reference: np.ndarray, epsilon: float) -> np
 
 def tvn_on_controls(embedding: np.ndarray, control: np.ndarray,
                     batches: Optional[np.ndarray] = None, *,
-                    components: Components = None, whiten_epsilon: float = 0.0,
+                    components: Components = None, whiten_epsilon: float = 3.0,
                     coral_ridge: float = 0.5) -> Tuple[np.ndarray, Dict[str, Any]]:
     """Whiten an embedding on its control cells and align batches with CORAL.
 
@@ -139,7 +144,8 @@ def tvn_on_controls(embedding: np.ndarray, control: np.ndarray,
     :param whiten_epsilon: added to every axis's control variance before it
         is divided out, both when the embedding is first scaled on the
         control cells and when each batch is whitened, so weak axes are
-        shrunk rather than blown up. 0 is Brieflow's whitening.
+        shrunk rather than blown up. 0 is Brieflow's whitening; the default,
+        3, is the value that stabilised plate A of Funk et al. 2022.
     :param coral_ridge: the multiple of the identity added to every
         covariance before CORAL.
     :returns: ``(embedding, info)``. ``info`` lists the axes kept and the
@@ -195,7 +201,7 @@ def _screen_columns(values: np.ndarray, max_nonfinite: float) -> np.ndarray:
 def tvn_in_memory(values: np.ndarray, batches: Sequence, control: Sequence, *,
                   pca_variance: float = 0.99, pca_sample: int = 100000,
                   seed: int = 0, components: Components = None,
-                  whiten_epsilon: float = 0.0, coral_ridge: float = 0.5,
+                  whiten_epsilon: float = 3.0, coral_ridge: float = 0.5,
                   max_nonfinite: float = 0.05, copy: bool = True
                   ) -> Tuple[np.ndarray, Dict[str, Any]]:
     """TVN with every cell in memory, as Brieflow's ``align.py`` computes it.
@@ -355,7 +361,7 @@ def fit_tvn_streamed(batches: Sequence[Any],
                      read: Callable[[Any], Tuple[np.ndarray, np.ndarray, np.ndarray]], *,
                      pca_variance: float = 0.99, pca_sample: int = 100000,
                      seed: int = 0, components: Components = None,
-                     whiten_epsilon: float = 0.0, coral_ridge: float = 0.5,
+                     whiten_epsilon: float = 3.0, coral_ridge: float = 0.5,
                      max_nonfinite: float = 0.05) -> TVNModel:
     """Fit TVN one batch at a time, so the cells never sit in memory together.
 

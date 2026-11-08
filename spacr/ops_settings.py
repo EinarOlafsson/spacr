@@ -79,7 +79,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_tvn_pca_sample": 100000,
     "ops_tvn_seed": 0,
     "ops_tvn_components": None,
-    "ops_tvn_whiten_epsilon": 0.0,
+    "ops_tvn_whiten_epsilon": 3.0,
     "ops_cluster_benchmark": False,
     "ops_benchmark_corum": None,
     "ops_benchmark_kegg": None,
@@ -542,10 +542,10 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(float) - Added to the control variance of every TVN direction "
         "before it is scaled to 1, so weak directions are shrunk instead of "
         "blown up and the profiles depend less on which cells the PCA saw. "
-        "0 is Brieflow's whitening. On one Funk et al. plate, 3 made the "
-        "streamed and in-memory fits agree much better (gene similarity "
-        "correlation 0.93 instead of 0.81) with an unchanged STRING score; "
-        "10 agreed more but scored slightly lower. Default 0. Alpha.",
+        "On one Funk et al. plate, 3 made the streamed and in-memory fits "
+        "agree much better (gene similarity correlation 0.93 instead of "
+        "0.81) with an unchanged STRING score. 0 is Brieflow's TVN exactly; "
+        "use it to reproduce Brieflow or the plate A pilot. Default 3. Alpha.",
     "ops_cluster_benchmark":
         "(bool) - Cluster the gene profiles and score the clusters, as "
         "Funk et al. 2022 and Brieflow do: PHATE on the leading components, "
