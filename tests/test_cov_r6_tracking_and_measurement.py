@@ -227,17 +227,19 @@ def test_an_absent_mask_is_not_a_distance_partner():
     out of the masks this run actually has. With no nucleus mask the
     pathogen frame keeps every distance it measures to the cell and gains
     no nucleus distance at all -- the same call with a nucleus mask adds
-    exactly those four columns.
+    exactly those four columns. As in measure_crop, the absent nucleus is an
+    all-zero array with its dim set to None, and the cell mask has a dim of
+    its own: item 799 leaves out every role whose dim is None.
     """
     cell, nucleus, pathogen, organelle, cytoplasm = _nested_masks()
     settings = {
-        "cell_mask_dim": None, "nucleus_mask_dim": None,
+        "cell_mask_dim": 2, "nucleus_mask_dim": None,
         "pathogen_mask_dim": 1, "organelle_mask_dim": None,
         "cytoplasm": False, "object_distances": True, "channels": [0],
         "object_distance_intensity": False,
     }
     without = M._morphological_measurements(
-        cell, None, pathogen, organelle, cytoplasm, settings,
+        cell, np.zeros_like(nucleus), pathogen, organelle, cytoplasm, settings,
         zernike=False)[2]
     with_nucleus = M._morphological_measurements(
         cell, nucleus, pathogen, organelle, cytoplasm,
