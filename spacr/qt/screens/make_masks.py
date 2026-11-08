@@ -26569,7 +26569,7 @@ class MakeMasksScreen(QWidget):
         if worker is None:
             return
         self._load_worker = None
-        self._loading = False
+        self._loading = getattr(self, '_reader_worker', None) is not None
         if worker.token == self._load_token:
             label_pending = self._label_time_pending
             if label_pending is not None and label_pending["token"] == worker.token:
