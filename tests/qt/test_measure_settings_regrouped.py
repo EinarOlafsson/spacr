@@ -42,7 +42,8 @@ def test_input_holds_preview_and_diagnostics_and_nests_cloud(qtbot):
     section = _tree(qtbot)["Input & Experiment"]
     assert {"src", "experiment", "plot", "test_mode", "test_nr"} <= (
         _own_keys(section))
-    assert _children(section) == ["Cloud α"]
+    # Item 790 nests its label-image import here, after Cloud.
+    assert _children(section) == ["Cloud α", "Label Image Import α"]
 
 
 def test_image_preprocessing_nests_the_corrections(qtbot):
