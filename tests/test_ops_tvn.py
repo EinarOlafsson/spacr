@@ -221,7 +221,9 @@ def test_in_memory_tvn_is_brieflows_tvn_as_the_pilot_ran_it(sample):
                                        pca_sample=sample, whiten_epsilon=0.0)
     assert ours.dtype == np.float32
     assert ours.shape == reference.shape
-    np.testing.assert_allclose(ours, reference, rtol=0, atol=2e-5)
+    # float32 as Brieflow, but the control PCA now comes from the shared
+    # float64 eigenbasis (_control_basis), not scikit-learn's float32 SVD
+    np.testing.assert_allclose(ours, reference, rtol=2e-5, atol=5e-5)
     assert info["pca_sample"] == min(sample, len(x))
     assert info["coral_skipped"] == []
 
@@ -401,3 +403,27 @@ def test_unknown_normalisation_choices_are_refused(tmp_path, key, value):
     settings[key] = value
     with pytest.raises(ValueError, match=key):
         ops_engine._ph_aggregate(db, PLATE, wells, settings, str(tmp_path))
+
+
+def test_every_tvn_in_spacr_takes_its_whitening_from_one_core(monkeypatch):
+    """The OPS TVN (both modes) and batch_correction's tvn (item 770) share
+    ops_tvn._control_basis; neither keeps a private copy of the eigenbasis."""
+    from spacr import batch_correction
+
+    calls = []
+    real = ops_tvn._control_basis
+
+    def spy(fit, **kwargs):
+        calls.append(kwargs.get("sign", "none"))
+        return real(fit, **kwargs)
+
+    monkeypatch.setattr(ops_tvn, "_control_basis", spy)
+    rows = _cells(seed=11, n=200)
+    x, meta = _stack(rows)
+    control = meta.gene.str.startswith("nontargeting").to_numpy()
+    ops_tvn.tvn_in_memory(x, meta.well, control)
+    ops_tvn.fit_tvn_streamed([r[0] for r in rows], _reader(rows))
+    assert calls == ["sklearn", "sklearn"]
+    frame = pd.DataFrame(np.nan_to_num(x[:, :4]), columns=list("abcd"))
+    batch_correction.spherize_features(frame, pd.Series(control, index=frame.index))
+    assert calls == ["sklearn", "sklearn", "none"]

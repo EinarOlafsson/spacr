@@ -157,14 +157,12 @@ def tvn_on_controls(embedding: np.ndarray, control: np.ndarray,
     control cells, rotate onto the principal axes of the control cells,
     centre and scale every axis on each batch's control cells, then CORAL.
     """
-    from sklearn.decomposition import PCA
 
     control = np.asarray(control, bool)
     if not control.any():
         raise ValueError("TVN needs control cells; none are marked")
     x = _scale_rows(embedding, embedding[control], float(whiten_epsilon))
-    pca = PCA(n_components=_component_arg(components)).fit(x[control])
-    x = pca.transform(x)
+    x = _control_rotation(x[control], components).transform(x)
     info: Dict[str, Any] = {"axes": int(x.shape[1]), "coral_skipped": []}
     if batches is None:
         return _scale_rows(x, x[control], float(whiten_epsilon)), info
@@ -191,6 +189,90 @@ def tvn_on_controls(embedding: np.ndarray, control: np.ndarray,
         x[rows] = np.matmul(x[rows], source)
         x[rows] = np.matmul(x[rows], target)
     return x, info
+
+
+def _control_basis(fit: np.ndarray, *, center: bool = True, scale: bool = False,
+                   sign: str = "none") -> Dict[str, np.ndarray]:
+    """The eigenbasis of the reference (control) rows: the core of every TVN in spaCR.
+
+    The OPS TVN (:func:`tvn_on_controls`, :func:`fit_tvn_streamed`), the
+    well-level sphering of :func:`spacr.batch_correction.spherize_features`
+    (``correct_batch_effects(method="tvn")``) and the Measure profiles all
+    take their whitening directions from here.
+
+    :param fit: the reference rows, float64.
+    :param center: subtract their mean first.
+    :param scale: divide by their standard deviation (``ddof=1``) first, the
+        correlation variant.
+    :param sign: ``"none"`` keeps ``numpy.linalg.eigh``'s signs;
+        ``"sklearn"`` flips every eigenvector so its largest-magnitude entry
+        is positive, scikit-learn's PCA convention, so a projection equals
+        ``PCA().fit(fit).transform`` up to rounding.
+    :returns: ``mean``, ``sd`` (the reference spread, NaN-free; only
+        computed with ``scale``), ``inv_sd``, ``eigvals`` (descending,
+        clipped at 0) and ``eigvecs`` (columns).
+    """
+    mean = fit.mean(axis=0) if center else np.zeros(fit.shape[1])
+    centered = fit - mean
+    inv_sd = np.ones(fit.shape[1])
+    sd = None
+    if scale:
+        sd = centered.std(axis=0, ddof=1)
+        with np.errstate(divide="ignore"):
+            inv_sd = 1.0 / sd
+        centered = centered * inv_sd
+    cov = np.atleast_2d(np.cov(centered, rowvar=False))
+    eigvals, eigvecs = np.linalg.eigh(cov)
+    order = np.argsort(eigvals)[::-1]
+    eigvals = np.clip(eigvals[order], 0.0, None)
+    eigvecs = eigvecs[:, order]
+    if sign == "sklearn":
+        pick = np.argmax(np.abs(eigvecs), axis=0)
+        flip = np.sign(eigvecs[pick, np.arange(eigvecs.shape[1])])
+        flip[flip == 0] = 1
+        eigvecs = eigvecs * flip
+    elif sign != "none":
+        raise ValueError(f"sign must be 'none' or 'sklearn'; got {sign!r}")
+    return {"mean": mean, "sd": sd, "inv_sd": inv_sd, "eigvals": eigvals, "eigvecs": eigvecs}
+
+
+@dataclass
+class _Rotation:
+    """A centring plus a projection onto leading eigenvectors (a PCA without sklearn)."""
+
+    mean_: np.ndarray
+    components_: np.ndarray
+
+    @property
+    def n_components_(self) -> int:
+        """The number of axes kept."""
+        return int(self.components_.shape[0])
+
+    def transform(self, x: np.ndarray) -> np.ndarray:
+        """Centre and project ``x``, in its own float precision."""
+        x = np.asarray(x)
+        out = (x.astype(np.float64) - self.mean_) @ self.components_.T
+        return out.astype(np.float32 if x.dtype == np.float32 else np.float64, copy=False)
+
+
+def _control_rotation(fit: np.ndarray, components: "Components") -> _Rotation:
+    """The control PCA of TVN, from :func:`_control_basis`.
+
+    ``components`` None keeps every axis (at most one fewer than the rows,
+    as scikit-learn's PCA), an int that many, a fraction below 1 the
+    fewest axes whose share of the variance reaches it.
+    """
+    basis = _control_basis(np.asarray(fit, np.float64), sign="sklearn")
+    eigvals, eigvecs = basis["eigvals"], basis["eigvecs"]
+    keep = min(len(eigvals), max(len(fit), 1))
+    value = _component_arg(components)
+    if isinstance(value, int):
+        keep = min(value, keep)
+    elif isinstance(value, float):
+        ratio = np.cumsum(eigvals) / max(eigvals.sum(), 1e-300)
+        keep = int(np.searchsorted(ratio, value, side="right")) + 1
+        keep = min(keep, len(eigvals))
+    return _Rotation(mean_=basis["mean"], components_=eigvecs[:, :keep].T)
 
 
 def _screen_columns(values: np.ndarray, max_nonfinite: float) -> np.ndarray:
@@ -454,14 +536,13 @@ def _fit_control_stage(model: "TVNModel", nt: np.ndarray, nt_batch: np.ndarray, 
     """Steps 4 and 5 of the streamed fit, from the control cells' first-PCA
     embedding: fills ``model``'s control centre, control PCA, whitening and
     CORAL, and returns the batches CORAL skipped and the axis count."""
-    from sklearn.decomposition import PCA
 
     model.control_mean, model.control_scale = nt.mean(0), nt.std(0)
     model.control_scale[model.control_scale == 0] = 1
     if whiten_epsilon > 0:
         model.control_scale = np.sqrt(model.control_scale ** 2 + float(whiten_epsilon))
     nt = (nt - model.control_mean) / model.control_scale
-    model.control_pca = PCA(n_components=_component_arg(components)).fit(nt)
+    model.control_pca = _control_rotation(nt, components)
     nt = model.control_pca.transform(nt)
     names = np.unique(nt_batch)
     for name in names:

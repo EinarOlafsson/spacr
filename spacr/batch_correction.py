@@ -676,11 +676,8 @@ def spherize_features(
     if not np.isfinite(epsilon) or epsilon < 0:
         raise ValueError(f"tvn epsilon must be >= 0, not {epsilon!r}.")
     warnings: List[str] = []
-    mean = fit.mean(axis=0) if center else np.zeros(fit.shape[1])
-    centered_fit = fit - mean
-    inv_sd = np.ones(fit.shape[1])
     if normalized.endswith("-cor"):
-        sd = centered_fit.std(axis=0, ddof=1)
+        sd = (fit - (fit.mean(axis=0) if center else 0.0)).std(axis=0, ddof=1)
         constant = ~(sd > 0)
         if constant.any():
             names = [str(c) for c, k in zip(features.columns, constant) if k]
@@ -690,13 +687,13 @@ def spherize_features(
                 f"are constant in the reference rows (e.g. {names[:10]}). "
                 "Remove them, or use method='ZCA'."
             )
-        inv_sd = 1.0 / sd
-        centered_fit = centered_fit * inv_sd
-    cov = np.atleast_2d(np.cov(centered_fit, rowvar=False))
-    eigvals, eigvecs = np.linalg.eigh(cov)
-    order = np.argsort(eigvals)[::-1]
-    eigvals = np.clip(eigvals[order], 0.0, None)
-    eigvecs = eigvecs[:, order]
+    # The eigenbasis is spaCR's one TVN core, shared with the OPS TVN
+    # (spacr.ops_tvn) and the Measure profiles.
+    from .ops_tvn import _control_basis
+
+    basis = _control_basis(fit, center=center, scale=normalized.endswith("-cor"))
+    mean, inv_sd = basis["mean"], basis["inv_sd"]
+    eigvals, eigvecs = basis["eigvals"], basis["eigvecs"]
     top = float(eigvals[0])
     rank = int((eigvals > _TVN_RANK_TOL * max(top, 1e-300)).sum())
     if n_components is None:
