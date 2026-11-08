@@ -274,3 +274,19 @@ def test_weighted_training_learns_the_screens_mitotic_share():
     called_weighted = om.predict_mitotic(weighted, screen).mean()
     assert abs(called_weighted - share) <= abs(called_plain - share)
     del rng
+
+
+def test_without_normalisation_the_model_sees_the_values_it_is_given():
+    cells = _cells(n=60)
+    z = om._well_robust_z(cells, ["nucleus_area"], None)
+    np.testing.assert_allclose(z[:, 0], cells.nucleus_area.to_numpy(np.float32))
+    # a model trained on pre-normalised cells and saved with normalise_by='well'
+    # calls the raw cells the same way
+    pre = cells.copy()
+    feats = om.mitotic_features(cells.columns)
+    pre[feats] = om._well_robust_z(cells, feats, "well")
+    out = om.train_mitotic_classifier(pre, pre.label, feats, groups=pre.well, n_splits=3,
+                                      normalise_by=None, shuffled_control=False)
+    a = om.predict_mitotic(out, pre)
+    b = om.predict_mitotic(dict(out, normalise_by="well"), cells)
+    assert (a == b).mean() > 0.99

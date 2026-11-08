@@ -175,13 +175,15 @@ def _well_robust_z(cells: pd.DataFrame, features: Sequence[str],
                    group: Optional[str]) -> np.ndarray:
     """Every feature as a robust z against all cells of its group.
 
+    With ``group`` None the values are returned unchanged, as float32.
     Computed one column and one group at a time, so a whole plate needs only
     the float32 result in memory.
     """
     if group is None:
-        groups = np.zeros(len(cells), int)
-    else:
-        groups = pd.factorize(cells[group])[0]
+        # no normalisation: the values as they are (the caller has already
+        # normalised them, or wants raw values)
+        return cells[list(features)].to_numpy(np.float32)
+    groups = pd.factorize(cells[group])[0]
     rows_of = [np.flatnonzero(groups == g) for g in np.unique(groups)]
     out = np.empty((len(cells), len(features)), np.float32)
     for j, feature in enumerate(features):
