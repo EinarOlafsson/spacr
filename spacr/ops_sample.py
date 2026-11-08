@@ -419,7 +419,8 @@ def funk_object_features(labels: np.ndarray, image: np.ndarray,
 def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
                             image: np.ndarray, channel_names: Sequence[str],
                             *, texture: bool = True,
-                            funk_features: bool = False):
+                            funk_features: bool = False,
+                            zernike: bool = False):
     """Per-cell features of one phenotype field, with spaCR's own measurement.
 
     :param nuclei: nucleus labels, paired with ``cells`` by
@@ -436,6 +437,10 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
         ``4 * pi * area / perimeter ** 2`` (``shape_features['form_factor']``
         of their ``ops/cp_emulator.py``) from spaCR's own area and
         perimeter.
+    :param zernike: add the Zernike moments of degree 8
+        (``zernike_0`` to ``zernike_24``) of the cell and the nucleus, as
+        :func:`spacr.measure._calculate_zernike` computes them with mahotas;
+        the cytoplasm gets none. Needs ``spacr[zernike]``. Default False.
     :returns: one row per cell, keyed by ``label``, with ``nucleus_``,
         ``cell_`` and ``cytoplasm_`` columns and the nucleus centroid as
         ``centroid_row``/``centroid_col`` in field pixels.
@@ -468,7 +473,8 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
     blank = np.zeros_like(cells)
     settings = _measurement_settings(image.shape[2], texture)
     morphology = _morphological_measurements(
-        cells, nuclei, blank, blank, cytoplasm, settings, zernike=False)
+        cells, nuclei, blank, blank, cytoplasm, settings,
+        zernike=bool(zernike))
     intensity = _intensity_measurements(
         cells, nuclei, blank, blank, cytoplasm, image, settings,
         sizes=[1, 2, 3, 4, 5], periphery=False, outside=False)

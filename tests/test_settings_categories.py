@@ -518,6 +518,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_ownership", "ops_flatfield", "ops_flatfield_maps",
     "ops_flatfield_fields", "ops_flatfield_field_list",
     "ops_ph_funk_features",
+    # Zernike moments, failed-field and non-finite-row drops (860-862).
+    "ops_ph_zernike", "ops_drop_failed_fields", "ops_drop_nonfinite_rows",
     # `window_length`, the new name for `expected_end` (364, 2026-09-09).
     "window_length",
     # and `min_observations_per_hit`, the new name for `min_n`.

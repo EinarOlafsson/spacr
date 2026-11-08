@@ -2242,6 +2242,11 @@ def _ph_ownership_path(destination: str, well: str) -> str:
     return os.path.join(destination, f"ops_ownership_{well}.parquet")
 
 
+def _ph_fieldcheck_path(destination: str, well: str) -> str:
+    """Where one well's per-field registration check is written."""
+    return os.path.join(destination, f"ops_fieldcheck_{well}.parquet")
+
+
 def _ph_maskpass_path(destination: str, well: str) -> str:
     """Where one well's per-cell mask pass table is written."""
     return os.path.join(destination, f"ops_maskpass_{well}.parquet")
@@ -2307,6 +2312,9 @@ def _ph_options_marker(folder: str, options: Mapping[str, Any]) -> None:
     if os.path.isfile(path):
         with open(path, encoding="utf-8") as handle:
             earlier = json.load(handle)
+        # An option added after the marker was written was at its default.
+        earlier = {**{key: (False if isinstance(value, bool) else None)
+                      for key, value in now.items()}, **earlier}
     elif any(name.endswith((".parquet", ".npz")) for name in os.listdir(folder)):
         earlier = {key: (False if isinstance(value, bool) else None)
                    for key, value in now.items()}
@@ -2557,7 +2565,8 @@ def _ph_measure_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     :param task: ``site``, ``files``, ``channels``, ``mask_path``,
         ``cell_path`` and ``texture``; optionally ``flat_folder``, whose
         maps correct the field before it is measured
-        (:func:`spacr.ops_flatfield.correct_field`), and ``funk_features``.
+        (:func:`spacr.ops_flatfield.correct_field`), ``funk_features`` and
+        ``zernike``.
     :returns: ``site``, ``cells``, ``seconds`` and ``unreadable``.
 
     Module level so a spawned process can run it. It reads its own field
@@ -2585,7 +2594,8 @@ def _ph_measure_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     table = measure_phenotype_field(
         nuclei, cells, stack, task["channels"],
         texture=bool(task["texture"]),
-        funk_features=bool(task.get("funk_features", False)))
+        funk_features=bool(task.get("funk_features", False)),
+        zernike=bool(task.get("zernike", False)))
     table.insert(0, "site", int(task["site"]))
     table.to_parquet(task["cell_path"] + ".part", index=False)
     os.replace(task["cell_path"] + ".part", task["cell_path"])
@@ -2704,7 +2714,8 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
         options: Dict[str, Any] = {
             "flatfield": None,
             "funk_features": bool(settings.get("ops_ph_funk_features",
-                                               False))}
+                                               False)),
+            "zernike": bool(settings.get("ops_ph_zernike", False))}
         if _ph_flatfield_mode(settings) == "exact":
             from .ops_flatfield import load_flat_maps
 
@@ -2716,7 +2727,8 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                   "mask_path": mask_path(s), "cell_path": cell_path(s),
                   "texture": bool(settings.get("ops_ph_texture", True)),
                   "flat_folder": flat_folder,
-                  "funk_features": options["funk_features"]}
+                  "funk_features": options["funk_features"],
+                  "zernike": options["zernike"]}
                  for s in sites if os.path.isfile(mask_path(s))
                  and not os.path.isfile(cell_path(s))]
         workers = max(1, min(int(settings.get("n_workers") or 1),
@@ -2761,6 +2773,7 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                            "md5": options["flatfield"]}
                           if flat_folder else None),
             "funk_features": options["funk_features"],
+            "zernike": options["zernike"],
         }
     if field_shape is not None:
         _ph_transforms(db, plate, well, destination, tuple(field_shape))
@@ -2769,6 +2782,79 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     _say(tr("{well} phenotype fields: {fields} in {seconds} s", well=well,
             fields=len(sites), seconds=report["total_seconds"]))
     return report
+
+
+def _ph_field_check(plate: str, well: str, cells, candidates, refined_rows,
+                    placed, target, by_site, threshold: float):
+    """Which fields of a well the aggregate phase must leave out.
+
+    :param plate: the plate name.
+    :param well: the well name.
+    :param cells: the well's phenotype cells (``site``, ``label``).
+    :param candidates: every candidate match before an overlap keeps one
+        copy, with its ``site``.
+    :param refined_rows: per field, whether the transform re-solve worked.
+    :param placed: the stored field placements.
+    :param target: the sequencing nuclei, ``(y, x)`` in well pixels.
+    :param by_site: the placement of each field.
+    :param threshold: the merge distance.
+    :returns: one row per field: ``cells``, ``matched``, ``link_rate``,
+        ``sbs_nuclei_under_field``, ``chance_rate``, ``link_over_chance``,
+        ``refined``, ``dropped`` and ``reason``.
+
+    THE RULE IS THE PLATE A PILOT'S. The chance rate is the share of cells
+    an unrelated field would link: the density of sequencing nuclei under
+    the field's footprint times the area of the merge circle, ``pi *
+    threshold ** 2``, as ``1 - exp(-density * area)``. A field is dropped
+    when its transform re-solve failed and it links under three times
+    chance, or when it links under twice chance.
+    """
+    import pandas as pd
+
+    from .ops_merge import field_footprint
+
+    refined = {int(r["site"]): r for r in refined_rows}
+    cell_counts = cells.groupby("site").size()
+    link_counts = candidates.groupby("site").size()
+    rows = []
+    for site in sorted(refined):
+        record = by_site[site]
+        r = refined[site]
+        transform = (r["refined_scale"], np.array(
+            [[np.cos(np.radians(r["refined_rotation_deg"])),
+              -np.sin(np.radians(r["refined_rotation_deg"]))],
+             [np.sin(np.radians(r["refined_rotation_deg"])),
+              np.cos(np.radians(r["refined_rotation_deg"]))]]),
+            np.array([r["refined_offset_y"], r["refined_offset_x"]]))
+        low, high = field_footprint(
+            transform, (float(record.field_height), float(record.field_width)))
+        inside = int(((target[:, 0] > low[0]) & (target[:, 0] < high[0])
+                      & (target[:, 1] > low[1])
+                      & (target[:, 1] < high[1])).sum())
+        area = float(np.prod(high - low))
+        chance = 1.0 - np.exp(-inside / area * np.pi * float(threshold) ** 2)
+        n = int(cell_counts.get(site, 0))
+        k = int(link_counts.get(site, 0))
+        rows.append({
+            "plate": plate, "well": well, "site": site, "cells": n,
+            "matched": k, "link_rate": k / max(n, 1),
+            "sbs_nuclei_under_field": inside, "chance_rate": chance,
+            "refined": int(r["refined"]),
+            "refined_inliers": int(r["refined_inliers"])})
+    check = pd.DataFrame(rows, columns=[
+        "plate", "well", "site", "cells", "matched", "link_rate",
+        "sbs_nuclei_under_field", "chance_rate", "refined",
+        "refined_inliers"])
+    check["link_over_chance"] = check["link_rate"] / check[
+        "chance_rate"].clip(lower=1e-6)
+    failed = (check["refined"] == 0) & (check["link_over_chance"] < 3.0)
+    chance_only = check["link_over_chance"] < 2.0
+    check["dropped"] = failed | chance_only
+    check["reason"] = np.select(
+        [failed, chance_only],
+        ["transform refinement failed and links under 3x chance",
+         "links under 2x chance"], default="")
+    return check
 
 
 def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
@@ -2888,6 +2974,18 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
                                   float(record.field_width)))
     frame = pd.DataFrame(rows, columns=["plate", "well", "site", "label",
                                         "object_id", "distance", "refined"])
+    check_report = None
+    if bool(settings.get("ops_drop_failed_fields", False)):
+        from .tabular import write_table
+
+        check = _ph_field_check(plate, well, cells, frame, refined_rows,
+                                placed, target, by_site, threshold)
+        write_table(check, _ph_fieldcheck_path(destination, well),
+                    canonicalise=False)
+        check_report = {
+            "fields": int(len(check)), "dropped": check.loc[
+                check["dropped"], "site"].astype(int).tolist(),
+            "table": _ph_fieldcheck_path(destination, well)}
     owner_report = None
     if ownership == "closer_match":
         frame, duplicates = deduplicate_matches(frame)
@@ -2984,6 +3082,7 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
                                if len(frame) else None),
         "threshold_px": threshold,
         "ownership": owner_report or {"rule": ownership},
+        "field_check": check_report,
         "seconds": round(time.perf_counter() - started, 1),
     }
     _say(tr("{well} merge: {merged} of {cells} cells matched to a sequencing "
@@ -3031,6 +3130,10 @@ def _ph_feature_columns(columns) -> List[str]:
             if str(c).startswith(("nucleus_", "cell_", "cytoplasm_"))
             and not any(s in str(c) for s in skip)]
 
+
+#: A cell with a larger share of non-finite features is left out when
+#: ``ops_drop_nonfinite_rows`` is on (Brieflow's ``drop_rows_threshold``).
+_PH_NONFINITE_SHARE = 0.01
 
 #: How many feature columns the aggregate phase reads and reduces at once.
 #: Medians and robust z scores are per column, so the block size changes only
@@ -3186,7 +3289,8 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         ``ops_bootstrap``, ``ops_pvalue_null``, ``ops_test_features``,
         ``ops_mitotic_dna_z``, ``ops_genotype_table``, ``ops_pool_wells``,
         ``ops_pool_interphase``, ``ops_feature_qc``, ``ops_ownership``,
-        ``ops_flatfield`` and ``ops_flatfield_maps``.
+        ``ops_flatfield``, ``ops_flatfield_maps``, ``ops_drop_failed_fields``
+        and ``ops_drop_nonfinite_rows``.
     :param destination: where ``ops_guides_<plate>`` and
         ``ops_genes_<plate>`` (CSV and Parquet) are written. A run that pools
         only interphase cells or only some wells adds ``_interphase`` or
@@ -3228,6 +3332,14 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     (:func:`spacr.ops_flatfield.correct_features`) before anything else,
     the mitotic call included; with ``'exact'`` the measurement already
     corrected the pixels and nothing more is done here.
+
+    With ``ops_drop_failed_fields`` the cells of a field whose transform
+    re-solve failed and which links under three times chance, or which links
+    under twice chance, are left out (the merge phase checked every field);
+    the dropped fields and why are written to
+    ``dropped_fields_<plate>.csv``. With ``ops_drop_nonfinite_rows`` a cell
+    with more than 1 % of its features not finite is left out; the report's
+    ``dropped_nonfinite_rows`` counts them.
     """
     import pandas as pd
     import pyarrow.parquet as pq
@@ -3355,6 +3467,31 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
                 ownership_counts["margin_copies_excluded"] += int(
                     (~owned.astype(bool)).sum())
         cells = cells[~cut.to_numpy()].reset_index(drop=True)
+    field_report: Optional[Dict[str, Any]] = None
+    if bool(settings.get("ops_drop_failed_fields", False)):
+        checks = []
+        for well in pooled:
+            path = _ph_fieldcheck_path(destination, well)
+            if not os.path.isfile(path):
+                raise ValueError(tr(
+                    "ops_drop_failed_fields needs the field check of well "
+                    "{well} at {path}; run the merge phase with it on",
+                    well=well, path=path))
+            checks.append(pd.read_parquet(path))
+        check = pd.concat(checks, ignore_index=True)
+        gone = check[check["dropped"].astype(bool)]
+        target = os.path.join(destination, f"dropped_fields_{plate}.csv")
+        write_table(gone[["plate", "well", "site", "cells", "matched",
+                          "link_rate", "chance_rate", "link_over_chance",
+                          "refined", "reason"]], target, canonicalise=False)
+        inside = pd.MultiIndex.from_frame(cells[["well", "site"]]).isin(
+            pd.MultiIndex.from_frame(gone[["well", "site"]]))
+        field_report = {
+            "fields_checked": int(len(check)),
+            "fields_dropped": [f"{w}/{int(x)}" for w, x in
+                               zip(gone["well"], gone["site"])],
+            "cells_dropped": int(inside.sum()), "table": target}
+        cells = cells[~inside].reset_index(drop=True)
     cells = cells.merge(merged_rows[["well", "site", "label", "object_id"]],
                         on=["well", "site", "label"], how="inner")
     cells = cells.merge(called, on=["well", "object_id"], how="left")
@@ -3362,6 +3499,20 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     cells = cells[with_guide].merge(
         design.rename(columns={"prefix": "mapped_guide"}),
         on="mapped_guide", how="inner")
+    nonfinite_dropped: Optional[int] = None
+    if bool(settings.get("ops_drop_nonfinite_rows", False)):
+        # Brieflow's drop_rows_threshold: a cell with more than 1 % of its
+        # features not finite is left out, counted on the values as measured
+        # (float32), before any flat-field correction.
+        bad_count = np.zeros(len(cells), np.int64)
+        for start in range(0, len(features), _PH_POOL_BLOCK):
+            block = features[start:start + _PH_POOL_BLOCK]
+            values = _ph_read_columns(sources, block).iloc[
+                cells["_row"].to_numpy()].to_numpy(np.float32)
+            bad_count += (~np.isfinite(values)).sum(axis=1)
+        broken = bad_count > _PH_NONFINITE_SHARE * len(features)
+        nonfinite_dropped = int(broken.sum())
+        cells = cells[~broken].reset_index(drop=True)
     rows = cells["_row"].to_numpy()
     control = cells["gene"].str.lower().str.startswith(control_prefix.lower())
     mitotic_z = float(_setting_number(settings.get("ops_mitotic_dna_z"),
@@ -3485,6 +3636,8 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         "wells": pooled, "cells_merged": int(len(with_guide)),
         "cells_with_guide": int(with_guide.sum()),
         "cells_in_design": int(len(cells)),
+        "dropped_fields": field_report,
+        "dropped_nonfinite_rows": nonfinite_dropped,
         "cells_pooled": int(keep.sum()),
         "pooled": "interphase" if interphase else "all",
         "genotype_table": str(genotype_path) if genotype_path else None,

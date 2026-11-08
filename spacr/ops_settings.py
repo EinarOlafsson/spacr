@@ -74,6 +74,9 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_flatfield_fields": 204,
     "ops_flatfield_field_list": None,
     "ops_ph_funk_features": False,
+    "ops_ph_zernike": False,
+    "ops_drop_failed_fields": False,
+    "ops_drop_nonfinite_rows": False,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -131,6 +134,9 @@ OPS_TYPES: Dict[str, object] = {
     "ops_flatfield_fields": int,
     "ops_flatfield_field_list": (str, type(None)),
     "ops_ph_funk_features": bool,
+    "ops_ph_zernike": bool,
+    "ops_drop_failed_fields": bool,
+    "ops_drop_nonfinite_rows": bool,
 }
 
 #: Which panel section each setting appears under.
@@ -164,9 +170,10 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ph_channels", "ops_ph_cell_channel", "ops_ph_nucleus_model",
         "ops_ph_cell_model", "ops_ph_nucleus_diameter",
         "ops_ph_cell_diameter", "ops_ph_downsample", "ops_ph_batch_size",
-        "ops_ph_sites", "ops_ph_texture", "ops_ph_funk_features",
+        "ops_ph_sites", "ops_ph_texture", "ops_ph_zernike", "ops_ph_funk_features",
         "ops_flatfield", "ops_flatfield_maps", "ops_flatfield_fields",
         "ops_flatfield_field_list", "ops_merge_threshold", "ops_ownership",
+        "ops_drop_failed_fields", "ops_drop_nonfinite_rows",
         "ops_design", "ops_control_prefix", "ops_bootstrap",
         "ops_pvalue_null", "ops_test_features", "ops_mitotic_dna_z",
         "ops_genotype_table", "ops_pool_wells", "ops_pool_interphase",
@@ -376,6 +383,23 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(bool) - Add the GLCM homogeneity texture block to every channel of "
         "every compartment. It adds about ten percent to measurement time. "
         "Default True. Alpha.",
+    "ops_ph_zernike":
+        "(bool) - Also measure the Zernike moments of degree 8 of the cell "
+        "and the nucleus (zernike_0 to zernike_24, 50 columns), as spaCR's "
+        "Measure does with mahotas. They describe the shape of each object "
+        "and slow measurement. Needs spacr[zernike]. Default False. Alpha.",
+    "ops_drop_failed_fields":
+        "(bool) - Leave out the cells of fields that did not register. The "
+        "merge phase compares each field's link rate with the rate an "
+        "unrelated field would reach by chance; a field whose alignment "
+        "re-solve failed and which links under three times chance, or which "
+        "links under twice chance, is dropped from the aggregate and listed "
+        "with its reason in dropped_fields_<plate>.csv. Default False. "
+        "Alpha.",
+    "ops_drop_nonfinite_rows":
+        "(bool) - Leave out cells with more than 1 % of their features "
+        "missing or infinite, as Brieflow does. The aggregate report says "
+        "how many cells this drops. Default False. Alpha.",
     "ops_ph_funk_features":
         "(bool) - Also measure Funk et al. 2022's features: the mass "
         "displacement of every channel and the correlation of every channel "
