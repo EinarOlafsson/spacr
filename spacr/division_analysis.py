@@ -640,3 +640,556 @@ def size_control_fits(birth, division, n_boot: int = 2000, rng=None) -> dict:
         out['slope_division_ci_low'], out['slope_division_ci_high'] = lo, hi
         out['slope_added_ci_low'], out['slope_added_ci_high'] = lo - 1.0, hi - 1.0
     return out
+
+
+_RESULT_TABLES = ('events', 'effects', 'trajectories', 'cycles', 'size_control')
+_SERIES = ('dividing', 'control', 'shuffled', 'shuffled_control')
+_CONTRASTS = (('dividing_vs_control', 'dividing', 'control'),
+              ('shuffled_vs_its_control', 'shuffled', 'shuffled_control'))
+
+
+def lineage_from_tracks(tracks: pd.DataFrame, max_distance: float = 30.0) -> pd.DataFrame:
+    """Lineage table of one field's spaCR tracks table.
+
+    Each track gives one row: its first and last frame and the track it was
+    born from. A ``parent_track_id`` column written by the tracker is used as
+    it is; without one, divisions are inferred from nearby track starts as
+    the lineage trees infer them. A daughter the tracker kept under its
+    mother's id is not a new track, so that mother continues and its division
+    reads as a bud.
+
+    :param tracks: a spaCR tracks table with ``frame``, ``track_id``, ``x``
+        and ``y`` for one field, as written to
+        ``<tracker>_tracks_<object>_<field>.csv``.
+    :param max_distance: largest mother-to-daughter distance in pixels for an
+        inferred division.
+    :returns: the :data:`LINEAGE_COLUMNS` as integers, ``parent`` 0 for a
+        track with no known mother.
+    """
+    from ._lineage_trees import _lineage_segments
+
+    segments = _lineage_segments(tracks, max_distance=float(max_distance))
+    if segments.empty:
+        return pd.DataFrame({c: pd.Series(dtype=np.int64) for c in LINEAGE_COLUMNS})
+    track_of = dict(zip(segments['segment_id'], segments['track_id']))
+    first = segments.sort_values('start_frame').groupby('track_id', sort=True).first()
+    spans = segments.groupby('track_id').agg(t_start=('start_frame', 'min'),
+                                             t_end=('end_frame', 'max'))
+    parent = first['parent_segment_id'].map(lambda s: track_of.get(int(s), 0) if s else 0)
+    parent = parent.where(parent != parent.index.to_series(), 0)
+    out = spans.assign(parent=parent).reset_index().rename(columns={'track_id': 'label'})
+    return out[list(LINEAGE_COLUMNS)].astype(np.int64)
+
+
+def _event_quality(events, measures, window):
+    """Why each division can or cannot be aligned.
+
+    A division is kept when its parent is seen at ``t_div``, its daughters
+    on the next frame, a fission has two daughters, and the parent is seen
+    on at least 80% of the ``window + 1`` frames up to ``t_div``, the first
+    of them included (its size there is the control matching size).
+
+    :returns: ``events`` with ``base_size``, ``coverage`` and ``status``
+        (``ok`` or the reason it was dropped).
+    """
+    present = set(zip(measures['track_id'].to_numpy(), measures['t'].to_numpy()))
+    frames = {tid: set(g) for tid, g in measures.groupby('track_id')['t']}
+    area = measures.set_index(['track_id', 't'])['area']
+    base, coverage, status = [], [], []
+    for e in events.itertuples(index=False):
+        seen = frames.get(e.parent, set())
+        coverage.append(sum((e.t_div - j) in seen for j in range(window + 1)) / (window + 1))
+        base.append(float(area.get((e.parent, e.t_div - window), np.nan)))
+        if e.kind == 'fission' and e.n_daughters != 2:
+            status.append('not_two_daughters')
+        elif (e.parent, e.t_div) not in present:
+            status.append('parent_unseen_at_division')
+        elif not all((d, e.t_div + 1) in present for d in e.daughters):
+            status.append('daughter_unseen_next_frame')
+        elif not np.isfinite(base[-1]) or coverage[-1] < 0.8:
+            status.append('short_prehistory')
+        else:
+            status.append('ok')
+    return events.assign(base_size=base, coverage=coverage, status=status)
+
+
+def _baseline_normalised(aligned, window, k, columns):
+    """Each unit's values relative to the mean of its own first ``k`` frames."""
+    own = aligned[aligned['role'] == 'self']
+    base = own[own['rel_t'] <= -window + k - 1].groupby('unit_id')[list(columns)].mean()
+    joined = aligned.join(base, on='unit_id', rsuffix='__base')
+    out = joined[['unit_id', 'role', 'track_id', 'rel_t']].copy()
+    for c in columns:
+        if c in LOG_MEASURES:
+            with np.errstate(divide='ignore', invalid='ignore'):
+                value = np.log(joined[c] / joined[c + '__base'])
+            out[c] = value.replace([np.inf, -np.inf], np.nan)
+        else:
+            out[c] = joined[c] - joined[c + '__base']
+    return out
+
+
+def _trajectory_summary(normalised, series, columns):
+    """Mean, standard error and normal 95% band per role, frame and measure."""
+    rows = []
+    if not len(normalised):
+        return rows
+    grouped = normalised.groupby(['role', 'rel_t'])[list(columns)]
+    mean, sd, n = grouped.mean(), grouped.std(), grouped.count()
+    for c in columns:
+        table = pd.DataFrame({'mean': mean[c], 'sd': sd[c], 'n': n[c]}).reset_index()
+        table['sem'] = table['sd'] / np.sqrt(table['n'])
+        table['ci_low'] = table['mean'] - 1.96 * table['sem']
+        table['ci_high'] = table['mean'] + 1.96 * table['sem']
+        table['measure'] = c
+        table['series'] = series
+        table['scale'] = ('log_ratio_to_baseline' if c in LOG_MEASURES
+                          else 'difference_from_baseline')
+        rows.append(table)
+    return rows
+
+
+def analyse_divisions(measures: pd.DataFrame, lineage: pd.DataFrame, mode: str = 'auto',
+                      window: Optional[int] = None, late_frames: Optional[int] = None,
+                      size_tol: float = 0.25, n_boot: int = 2000, rng=0,
+                      columns: Sequence[str] = COMPARED_MEASURES) -> dict:
+    """Align one movie's divisions and compare them with matched controls.
+
+    Runs the steps of this module in order. Divisions are read with
+    :func:`division_events`; ``mode='auto'`` keeps whichever kind, fission
+    or budding, the movie has more of. Each division is checked (parent seen
+    at ``t_div`` and on 80% of the window, daughters seen on the next frame,
+    two daughters for a fission). The kept divisions get size-matched
+    controls (:func:`match_controls`) and a shuffled alignment
+    (:func:`shuffled_alignment`) with its own size-matched controls, so the
+    null runs the same matching at a random time. The late-vs-baseline
+    change of every unit (:func:`unit_changes`) is compared as Hedges' g
+    (:func:`effect_size`), dividing against control and shuffled against
+    its control. Complete fission cycles give the size-control fits.
+
+    :param measures: per-frame table from :func:`measure_label_stack`,
+        usually with :func:`add_motion_features`; it needs ``area``.
+    :param lineage: lineage table with the :data:`LINEAGE_COLUMNS`.
+    :param mode: ``'auto'``, ``'fission'`` or ``'budding'``.
+    :param window: frames before division in the alignment window; None
+        takes 0.3 times the median cycle (:func:`median_cycle_frames`),
+        clipped to 4..30 frames, or 6 frames when no cycle is observed.
+    :param late_frames: frames in each of the baseline and late windows, and
+        the horizon a control must stay undivided after its pseudo-division
+        time; None takes a quarter of ``window`` (at least 2). A value too
+        large for ``window`` is lowered so the two windows do not overlap.
+    :param size_tol: the relative size difference a control may have at the
+        start of the window.
+    :param n_boot: bootstrap resamples for every confidence interval.
+    :param rng: seed or generator for the controls, the shuffle and the
+        bootstraps.
+    :param columns: the measurements compared; absent ones are skipped.
+    :returns: dict with the tables ``events`` (every division with its
+        ``status``), ``effects`` (one row per contrast and measure),
+        ``trajectories`` (baseline-normalised mean and 95% band per series,
+        role, ``rel_t`` and measure), ``cycles`` and ``size_control``, and
+        ``summary`` (the window, counts and drop reasons).
+    :raises ValueError: for an unknown ``mode``, a ``window`` below 2, or
+        ``measures`` without ``track_id``, ``t`` or ``area``.
+    """
+    if mode not in ('auto', 'fission', 'budding'):
+        raise ValueError(f'unknown mode {mode!r}')
+    missing = [c for c in ('track_id', 't', 'area') if c not in measures.columns]
+    if missing:
+        raise ValueError(f'measures lack columns {missing}')
+    rng = np.random.default_rng(rng)
+    columns = [c for c in columns if c in measures.columns]
+    every = division_events(lineage, mode='auto')
+    if mode == 'auto':
+        counts = every['kind'].value_counts()
+        mode = 'budding' if counts.get('budding', 0) > counts.get('fission', 0) else 'fission'
+    events = division_events(lineage, mode=mode)
+    cycle = median_cycle_frames(lineage, events)
+    if window is None:
+        window = int(np.clip(round(0.3 * cycle), 4, 30)) if np.isfinite(cycle) else 6
+    window = int(window)
+    if window < 2:
+        raise ValueError('window must be at least 2 frames')
+    k = int(late_frames) if late_frames else max(2, int(round(window / 4)))
+    k = max(1, min(k, (window + 1) // 2))
+    events = _event_quality(events, measures, window)
+    events['event_id'] = np.arange(len(events))
+    kept = events[events['status'] == 'ok'].reset_index(drop=True)
+    slots = control_slots(measures, every, window, k)
+    controls = match_controls(kept, slots, window, size_tol=size_tol, rng=rng)
+    shuffled = shuffled_alignment(kept, slots, rng=rng)
+    moved = shuffled[shuffled['matched']][['event_id', 't0']].merge(
+        kept[['event_id', 'parent', 'daughters']], on='event_id').rename(columns={'t0': 't_div'})
+    area = measures.set_index(['track_id', 't'])['area']
+    moved['base_size'] = [float(area.get((p, t - window), np.nan))
+                          for p, t in zip(moved['parent'], moved['t_div'])]
+    shuffled_controls = (match_controls(moved, slots, window, size_tol=size_tol, rng=rng)
+                         if len(moved) else controls.iloc[0:0])
+    units = {
+        'dividing': kept.assign(unit_id=kept['event_id'], track_id=kept['parent'],
+                                t0=kept['t_div']),
+        'control': controls[controls['matched'].astype(bool)].assign(
+            unit_id=lambda d: d['event_id']),
+        'shuffled': shuffled[shuffled['matched'].astype(bool)].assign(
+            unit_id=lambda d: d['event_id']),
+        'shuffled_control': shuffled_controls[shuffled_controls['matched'].astype(bool)].assign(
+            unit_id=lambda d: d['event_id']),
+    }
+    changes, trajectories = {}, []
+    for series in _SERIES:
+        unit = units[series]
+        if not len(unit):
+            changes[series] = pd.DataFrame(columns=['unit_id'] + columns)
+            continue
+        aligned = align_units(measures, unit, window,
+                              after=window if series == 'dividing' else 0, columns=columns)
+        changes[series] = unit_changes(aligned, window, k, columns=columns)
+        trajectories += _trajectory_summary(_baseline_normalised(aligned, window, k, columns),
+                                            series, columns)
+    effects = []
+    for contrast, treated, control in _CONTRASTS:
+        a, b = changes[treated], changes[control]
+        for c in columns:
+            result = effect_size(a[c], b[c], n_boot=n_boot, rng=rng)
+            effects.append({'contrast': contrast, 'measure': c,
+                            'change_scale': 'log_ratio' if c in LOG_MEASURES else 'difference',
+                            'mean_change_treated': _finite_mean(a[c]),
+                            'mean_change_control': _finite_mean(b[c]),
+                            **result})
+    sizes = [c for c in ('area', 'major_axis') if c in measures.columns]
+    cycles = (cell_cycles(measures, lineage, events, size_columns=sizes)
+              if mode == 'fission' else pd.DataFrame())
+    size_control = [{'size_measure': c,
+                     **size_control_fits(cycles[f'{c}_birth'], cycles[f'{c}_division'],
+                                         n_boot=n_boot, rng=rng)}
+                    for c in sizes if len(cycles)]
+    reasons = events['status'].value_counts().to_dict()
+    summary = {'mode': mode, 'window': window, 'late_frames': k, 'horizon': k,
+               'median_cycle_frames': cycle, 'size_tol': float(size_tol),
+               'n_tracks': int(measures['track_id'].nunique()),
+               'n_events': int(len(events)), 'n_events_kept': int(len(kept)),
+               'n_controls_matched': int(len(units['control'])),
+               'n_shuffled_matched': int(len(units['shuffled'])),
+               'n_cycles': int(len(cycles)),
+               'drop_reasons': {str(key): int(value) for key, value in reasons.items()
+                                if key != 'ok'}}
+    if trajectories:
+        trajectories = pd.concat(trajectories, ignore_index=True)
+    else:
+        trajectories = pd.DataFrame(columns=['role', 'rel_t', 'mean', 'sd', 'n', 'sem',
+                                             'ci_low', 'ci_high', 'measure', 'series', 'scale'])
+    return {'events': events, 'effects': pd.DataFrame(effects),
+            'trajectories': trajectories, 'cycles': cycles,
+            'size_control': pd.DataFrame(size_control), 'summary': summary}
+
+
+def _finite_mean(values):
+    """Mean of the finite values, NaN when there are none."""
+    values = np.asarray(values, dtype=float)
+    values = values[np.isfinite(values)]
+    return float(values.mean()) if len(values) else float('nan')
+
+
+_SERIES_STYLE = {
+    'dividing': ('highlight', '-', 'dividing'),
+    'control': ('control_negative', '-', 'matched control'),
+    'shuffled': ('control_positive', '--', 'shuffled alignment'),
+}
+
+
+def _trajectory_figure(trajectories, measures):
+    """Aligned trajectories: one panel per measure, a 95% band per series."""
+    from matplotlib.figure import Figure
+
+    from .figures.style import ROLES
+
+    n = max(1, len(measures))
+    ncols = min(4, n)
+    nrows = int(math.ceil(n / ncols))
+    fig = Figure(figsize=(2.4 * ncols + 0.6, 2.0 * nrows + 0.6), dpi=100)
+    axes = np.atleast_1d(fig.subplots(nrows, ncols, squeeze=False)).ravel()
+    for ax, measure in zip(axes, measures):
+        part = trajectories[trajectories['measure'] == measure]
+        for series, (role, style, label) in _SERIES_STYLE.items():
+            for who in ('self', 'daughter'):
+                line = part[(part['series'] == series) & (part['role'] == who)].sort_values('rel_t')
+                if not len(line):
+                    continue
+                colour = ROLES[role]
+                ax.fill_between(line['rel_t'], line['ci_low'], line['ci_high'],
+                                color=colour, alpha=0.2, linewidth=0)
+                ax.plot(line['rel_t'], line['mean'], style, color=colour, lw=1.2,
+                        alpha=0.6 if who == 'daughter' else 1.0,
+                        label=label if who == 'self' else None)
+        ax.axvline(0, color=ROLES['reference'], lw=0.6)
+        ax.axhline(0, color=ROLES['reference'], lw=0.6, ls=':')
+        scale = part['scale'].iloc[0] if len(part) else ''
+        ax.set_title(measure)
+        ax.set_xlabel('frames from division')
+        ax.set_ylabel('log ratio to baseline' if scale.startswith('log') else 'change from baseline')
+    for ax in axes[len(measures):]:
+        ax.set_visible(False)
+    if not len(trajectories):
+        axes[0].text(0.5, 0.5, 'no aligned divisions', ha='center', va='center',
+                     transform=axes[0].transAxes)
+    else:
+        axes[0].legend(frameon=False, fontsize='small')
+    fig.tight_layout()
+    return fig
+
+
+def _forest_figure(effects, measures):
+    """Hedges' g with its 95% interval per measure, dividing and shuffled."""
+    from matplotlib.figure import Figure
+
+    from .figures.style import ROLES
+
+    fig = Figure(figsize=(5.0, 0.38 * max(1, len(measures)) + 1.2), dpi=100)
+    ax = fig.subplots()
+    marks = (('dividing_vs_control', 'highlight', 'o', 'dividing vs control', -0.15),
+             ('shuffled_vs_its_control', 'control_positive', 's',
+              'shuffled vs its control', 0.15))
+    for contrast, role, marker, label, offset in marks if len(effects) else ():
+        part = effects[effects['contrast'] == contrast].set_index('measure')
+        ys, gs, lows, highs = [], [], [], []
+        for y, measure in enumerate(measures):
+            if measure in part.index and np.isfinite(part.at[measure, 'g']):
+                ys.append(y + offset)
+                gs.append(part.at[measure, 'g'])
+                lows.append(part.at[measure, 'ci_low'])
+                highs.append(part.at[measure, 'ci_high'])
+        if not ys:
+            continue
+        gs, lows, highs = np.asarray(gs), np.asarray(lows, float), np.asarray(highs, float)
+        err = np.vstack([np.where(np.isfinite(lows), gs - lows, 0.0),
+                         np.where(np.isfinite(highs), highs - gs, 0.0)])
+        ax.errorbar(gs, ys, xerr=err, fmt=marker, color=ROLES[role], ms=4, lw=1.0,
+                    capsize=2, label=label)
+    ax.axvline(0, color=ROLES['reference'], lw=0.6)
+    ax.set_yticks(range(len(measures)))
+    ax.set_yticklabels(measures)
+    ax.invert_yaxis()
+    ax.set_xlabel("Hedges' g of the late-vs-baseline change (95% CI)")
+    if len(effects):
+        ax.legend(frameon=False, fontsize='small')
+    else:
+        ax.text(0.5, 0.5, 'no effect sizes', ha='center', va='center', transform=ax.transAxes)
+    fig.tight_layout()
+    return fig
+
+
+def _size_control_figure(cycles, size_control, measure='area'):
+    """Size at division against size at birth, with sizer, adder and timer lines."""
+    from matplotlib.figure import Figure
+
+    from .figures.style import ROLES
+
+    fig = Figure(figsize=(4.2, 3.6), dpi=100)
+    ax = fig.subplots()
+    birth_col, division_col = f'{measure}_birth', f'{measure}_division'
+    if not len(cycles) or birth_col not in cycles:
+        ax.text(0.5, 0.5, 'no complete cell cycles', ha='center', va='center',
+                transform=ax.transAxes)
+        ax.set_xticks([])
+        ax.set_yticks([])
+        fig.tight_layout()
+        return fig
+    birth = cycles[birth_col].to_numpy(float)
+    division = cycles[division_col].to_numpy(float)
+    ax.scatter(birth, division, s=10, color=ROLES['highlight'], alpha=0.6, linewidths=0)
+    grid = np.linspace(np.nanmin(birth), np.nanmax(birth), 20)
+    mean_b, mean_d = np.nanmean(birth), np.nanmean(division)
+    for slope, style, label in ((0.0, ':', 'sizer'), (1.0, '--', 'adder'), (2.0, '-.', 'timer')):
+        ax.plot(grid, mean_d + slope * (grid - mean_b), style, color=ROLES['reference'],
+                lw=0.8, label=label)
+    fits = size_control[size_control['size_measure'] == measure] if len(size_control) else size_control
+    if len(fits) and np.isfinite(fits['slope_division'].iloc[0]):
+        row = fits.iloc[0]
+        ax.plot(grid, mean_d + row['slope_division'] * (grid - mean_b), color=ROLES['highlight'],
+                lw=1.4, label=f"fit, slope {row['slope_division']:.2f} "
+                              f"[{row.get('slope_division_ci_low', np.nan):.2f}, "
+                              f"{row.get('slope_division_ci_high', np.nan):.2f}]")
+    ax.set_xlabel(f'{measure} at birth')
+    ax.set_ylabel(f'{measure} at division')
+    ax.legend(frameon=False, fontsize='small')
+    fig.tight_layout()
+    return fig
+
+
+def division_figures(results: dict, measures: Optional[Sequence[str]] = None) -> dict:
+    """Draw the three figures of one division analysis.
+
+    :param results: the dict from :func:`analyse_divisions` or
+        :func:`read_division_results`.
+    :param measures: the measurements to draw, in order; None draws every
+        measurement that has effect sizes.
+    :returns: ``{'trajectories': figure, 'forest': figure, 'size_control':
+        figure}``, :class:`matplotlib.figure.Figure` objects: the aligned
+        baseline-normalised trajectories of dividing cells (with their
+        daughters after division), matched controls and the shuffled
+        alignment with 95% bands; Hedges' g per measurement with its
+        bootstrap interval; and area at division against area at birth with
+        the sizer, adder and timer slopes.
+    """
+    effects = results.get('effects', pd.DataFrame())
+    trajectories = results.get('trajectories', pd.DataFrame())
+    if measures is None:
+        measures = list(dict.fromkeys(effects['measure'])) if len(effects) else []
+    measures = list(measures)
+    return {'trajectories': _trajectory_figure(trajectories, measures),
+            'forest': _forest_figure(effects, measures),
+            'size_control': _size_control_figure(results.get('cycles', pd.DataFrame()),
+                                                 results.get('size_control', pd.DataFrame()))}
+
+
+def write_division_results(results: dict, out_dir, plot: bool = True) -> dict:
+    """Write one division analysis as CSV tables, a JSON summary and figures.
+
+    The tables are ``events.csv`` (daughters as ``;``-separated track ids),
+    ``effects.csv``, ``trajectories.csv``, ``cycles.csv`` and
+    ``size_control.csv``, written through :func:`spacr.tabular.write_table`;
+    the summary is ``summary.json``. With ``plot``, the figures of
+    :func:`division_figures` are saved through :func:`spacr.plot.save_figure`
+    as ``division_trajectories``, ``division_forest`` and
+    ``division_size_control`` in the figure format preference.
+
+    :param results: the dict from :func:`analyse_divisions`.
+    :param out_dir: the folder to write into; created when missing.
+    :param plot: save the figures too.
+    :returns: ``{name: path}`` of everything written.
+    """
+    import json
+    import os
+
+    from .tabular import write_table
+
+    os.makedirs(out_dir, exist_ok=True)
+    paths = {}
+    for name in _RESULT_TABLES:
+        table = results.get(name, pd.DataFrame())
+        if name == 'events' and 'daughters' in table:
+            table = table.assign(daughters=[';'.join(str(int(d)) for d in ds)
+                                            for ds in table['daughters']])
+        paths[name] = write_table(table, os.path.join(out_dir, f'{name}.csv'))
+    summary = os.path.join(out_dir, 'summary.json')
+    with open(summary, 'w', encoding='utf-8') as handle:
+        json.dump(results.get('summary', {}), handle, indent=2, default=float)
+    paths['summary'] = summary
+    if plot:
+        from .plot import save_figure
+
+        for name, fig in division_figures(results).items():
+            paths[f'figure_{name}'] = save_figure(
+                fig, os.path.join(out_dir, f'division_{name}.pdf'), close=True)
+    return paths
+
+
+def read_division_results(folder) -> dict:
+    """Read back a folder written by :func:`write_division_results`.
+
+    :param folder: the results folder.
+    :returns: the same dict :func:`analyse_divisions` returns, with
+        ``events`` daughters as tuples again; a missing or empty table is an
+        empty frame and a missing summary an empty dict.
+    :raises FileNotFoundError: when ``folder`` holds neither ``summary.json``
+        nor ``effects.csv``.
+    """
+    import json
+    import os
+
+    from .tabular import read_table
+
+    if not any(os.path.isfile(os.path.join(folder, f)) for f in ('summary.json', 'effects.csv')):
+        raise FileNotFoundError(f'no division analysis results in {folder}')
+    out = {}
+    for name in _RESULT_TABLES:
+        path = os.path.join(folder, f'{name}.csv')
+        try:
+            out[name] = read_table(path, canonicalise=False, report=None)
+        except (FileNotFoundError, pd.errors.EmptyDataError):
+            out[name] = pd.DataFrame()
+    events = out['events']
+    if 'daughters' in events:
+        out['events'] = events.assign(daughters=[
+            tuple(int(d) for d in str(ds).split(';') if d.strip()) if pd.notna(ds) else ()
+            for ds in events['daughters']])
+    summary = os.path.join(folder, 'summary.json')
+    out['summary'] = {}
+    if os.path.isfile(summary):
+        with open(summary, encoding='utf-8') as handle:
+            out['summary'] = json.load(handle)
+    return out
+
+
+def _division_settings(settings):
+    """The division-analysis keyword arguments from the run settings."""
+    mode = settings.get('timelapse_division_mode') or 'auto'
+    window = settings.get('timelapse_division_window')
+    tolerance = settings.get('timelapse_division_size_tolerance')
+    if window in ('', 0):
+        window = None
+    if tolerance is None or tolerance == '':
+        tolerance = 0.25
+    if isinstance(tolerance, bool) or not np.isfinite(float(tolerance)) or float(tolerance) <= 0:
+        raise ValueError('timelapse_division_size_tolerance must be a positive number')
+    return {'mode': str(mode), 'window': None if window is None else int(window),
+            'size_tol': float(tolerance)}
+
+
+def _run_division_step(src, name, object_type, tracker, settings, *,
+                       label_stack=None, images=None):
+    """Run the division analysis on the tracks one field just produced.
+
+    Reads ``<dirname(src)>/tracks/<tracker>_tracks_<object>_<name>.csv``,
+    turns it into a lineage table (:func:`lineage_from_tracks`, with
+    ``timelapse_lineage_max_distance``), measures ``label_stack`` (labels
+    are track ids) with the first channel of ``images`` as intensity, and
+    writes :func:`analyse_divisions` with ``timelapse_division_mode``,
+    ``timelapse_division_window`` and ``timelapse_division_size_tolerance``
+    to ``<tracks folder>/division/<tracks file stem>/`` with ``lineage.csv``
+    beside it. A failure is reported and does not stop the run.
+
+    :returns: the results dict, or None.
+    """
+    import os
+
+    from .tabular import read_table, write_table
+
+    prefix = 'trackpy' if tracker == 'iou' else tracker
+    tracks_path = os.path.join(os.path.dirname(src), 'tracks',
+                               f'{prefix}_tracks_{object_type}_{name}.csv')
+    if not os.path.isfile(tracks_path):
+        print(f'Division analysis skipped: no tracks table at {tracks_path}')
+        return None
+    if label_stack is None:
+        print('Division analysis skipped: no tracked label stack')
+        return None
+    try:
+        options = _division_settings(settings)
+        tracks = read_table(tracks_path, report=None)
+        distance = float(settings.get('timelapse_lineage_max_distance') or 30.0)
+        lineage = lineage_from_tracks(tracks, max_distance=distance)
+        planes = [np.asarray(plane) for plane in label_stack]
+        intensity = None
+        if images is not None:
+            stack = np.asarray(images)
+            stack = stack[..., 0] if stack.ndim == 4 else stack
+            if stack.shape[:1] == (len(planes),) and stack.shape[1:] == planes[0].shape:
+                intensity = list(stack)
+        measures = add_motion_features(measure_label_stack(planes, intensity))
+        results = analyse_divisions(measures, lineage, **options)
+        stem = os.path.splitext(os.path.basename(tracks_path))[0]
+        out_dir = os.path.join(os.path.dirname(tracks_path), 'division', stem)
+        paths = write_division_results(
+            results, out_dir, plot=bool(settings.get('save', True) or settings.get('plot', False)))
+        paths['lineage'] = write_table(lineage, os.path.join(out_dir, 'lineage.csv'))
+        results['paths'] = paths
+    except Exception as exc:
+        print(f'Division analysis could not run for {tracks_path}: {exc}')
+        return None
+    summary = results['summary']
+    print(f"Division analysis ({object_type}, {name}): {summary['n_events_kept']} of "
+          f"{summary['n_events']} {summary['mode']} divisions aligned, "
+          f"{summary['n_controls_matched']} matched controls, window {summary['window']} frames; "
+          f'written to {out_dir}')
+    return results

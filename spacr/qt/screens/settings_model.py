@@ -1490,6 +1490,10 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "timelapse_lineage_edge_entry", "timelapse_lineage_vacuole_count",
             "timelapse_lineage_bud_guard", "timelapse_lineage_bud_threshold",
         )),
+        ("Division Analysis α", (
+            "timelapse_division_analysis", "timelapse_division_mode",
+            "timelapse_division_window", "timelapse_division_size_tolerance",
+        )),
         ("Event Detection α", (
             "timelapse_events", "timelapse_events_annotations",
             "timelapse_events_model", "timelapse_events_window",

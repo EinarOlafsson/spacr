@@ -3514,4 +3514,6 @@ def _fill_timelapse_preview_card(host, card):
     movie = TimelapseMoviePanel(card)
     card.body_layout.addWidget(movie, 1)
     panel.attach_movie_panel(movie)
+    from .division_panel import _build_division_panel
+    _build_division_panel(card)
     return panel

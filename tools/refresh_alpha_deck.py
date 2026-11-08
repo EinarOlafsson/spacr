@@ -68,6 +68,7 @@ GROUPS = (
         (556, "SAM2 propagation: segment once, follow each object"),
         (426, "Timeflows: a temporal Cellpose"),
         (537, "Lineage trees from tracks"),
+        (771, "What tracked cells do before they divide"),
         (567, "Event detection: mitosis, egress, invasion, death"),
         (571, "Time-to-event: Kaplan-Meier and Cox"),
     )),

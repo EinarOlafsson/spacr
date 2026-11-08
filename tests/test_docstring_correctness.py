@@ -2922,6 +2922,44 @@ def _validated_moa_profiles_callables(callables):
     return [item for item in callables if item.symbol not in symbols]
 
 
+def _validated_division_analysis_callables(callables):
+    """Check the division analysis functions and its results panel against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "division_analysis_api_arrivals_2026-11-07.json").read_text(encoding="utf-8"))
+    panel = "spacr.qt.widgets.division_panel.DivisionAnalysisPanel"
+    functions = {f"spacr.division_analysis.{name}" for name in (
+        "lineage_from_tracks", "analyse_divisions", "division_figures",
+        "write_division_results", "read_division_results")}
+    kinds = {**{symbol: "function" for symbol in functions}, panel: "constructor",
+             f"{panel}.browse": "method", f"{panel}.load_folder": "method"}
+    assert set(entries) == set(kinds) | {"spacr.qt.widgets.division_panel"}
+    found = {item.symbol: item for item in callables if item.symbol in kinds}
+    assert found.keys() == kinds.keys()
+    module_tree = ast.parse((root / "spacr/division_analysis.py").read_text(encoding="utf-8"))
+    panel_tree = ast.parse((root / "spacr/qt/widgets/division_panel.py").read_text(encoding="utf-8"))
+    panel_class = next(node for node in panel_tree.body
+                       if isinstance(node, ast.ClassDef) and node.name == "DivisionAnalysisPanel")
+    for symbol, kind in sorted(kinds.items()):
+        name = "__init__" if kind == "constructor" else symbol.rsplit(".", 1)[1]
+        body = module_tree.body if kind == "function" else panel_class.body
+        declarations = [node for node in body
+                        if isinstance(node, ast.FunctionDef) and node.name == name]
+        assert len(declarations) == 1
+        arguments = declarations[0].args
+        names = {arg.arg for arg in arguments.posonlyargs + arguments.args + arguments.kwonlyargs}
+        names.discard("self")
+        item = found[symbol]
+        assert item.category == kind and item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters == names
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert not item.accepts_arbitrary_keywords
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in kinds]
+
+
 def _validated_733_easy_mode_callables(callables):
     """Check the exact four executable Easy mode boundaries before historical replay."""
     import json
@@ -2998,6 +3036,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_assay_panels_callables(callables)
     callables = _validated_embed_store_callables(callables)
     callables = _validated_moa_profiles_callables(callables)
+    callables = _validated_division_analysis_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
@@ -5636,6 +5675,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("crop_window_gpu_governor_api_arrivals_2026-11-06.json", 12),
         ("embed_store_api_arrivals_2026-11-06.json", 3),
         ("moa_profiles_api_arrivals_2026-11-06.json", 2),
+        ("division_analysis_api_arrivals_2026-11-07.json", 9),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -6204,7 +6244,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "assay_report_api_arrivals_2026-11-06.json",
                      "crop_window_gpu_governor_api_arrivals_2026-11-06.json",
                      "embed_store_api_arrivals_2026-11-06.json",
-                     "moa_profiles_api_arrivals_2026-11-06.json"):
+                     "moa_profiles_api_arrivals_2026-11-06.json",
+                     "division_analysis_api_arrivals_2026-11-07.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -6315,7 +6356,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "assay_report_api_arrivals_2026-11-06.json",
                      "crop_window_gpu_governor_api_arrivals_2026-11-06.json",
                      "embed_store_api_arrivals_2026-11-06.json",
-                     "moa_profiles_api_arrivals_2026-11-06.json"):
+                     "moa_profiles_api_arrivals_2026-11-06.json",
+                     "division_analysis_api_arrivals_2026-11-07.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
