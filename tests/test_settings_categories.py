@@ -550,6 +550,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_reference_counts_level",
     "ops_reference_shuffles",
     "ops_reference_seed",
+    # Fields missing from the source are recorded once (872, B18).
+    "ops_retry_missing",
     # TVN profiles for the OPS aggregate phase (item 854, 2026-11-07).
     "ops_profile_normalisation", "ops_tvn_mode", "ops_tvn_pca_sample",
     "ops_tvn_seed", "ops_tvn_components", "ops_tvn_whiten_epsilon",

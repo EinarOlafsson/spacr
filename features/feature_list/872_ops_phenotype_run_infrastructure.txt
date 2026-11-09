@@ -1,0 +1,27 @@
+OPS PHENOTYPE RUN INFRASTRUCTURE: THE TWO UNMERGED MEASUREMENT/SQLITE COMMITS AND THE ENGINEERING ITEMS OF THE LARGE RUN
+=======================================================================================================================
+
+Lifecycle: future
+Status: PARTIAL 2026-11-09 (alpha, under ALPHA_FEATURES[752]). — Part A: 8474a5fde8 cherry-picked (its bounding-box loops were already on nightly; measure_gpu of measure_phenotype_field / _ph_measure_field is new, default False); 8147e421e5 is already on nightly in substance (_insert_frame BEGINs once per frame), so it was not re-applied. Tests: bit-identity of get_components, _map_child_to_parent and _measure_intensity_distance against the whole-field loop; stored rows equal, atomic failure, no raise inside an open transaction. Part B built: B4 (ops_crop_all_nt, ops_crop_control_fraction, ops_crop_masks, in item 871's ph_crops), B5 (test: two genotype tables, two aggregates), B7 setting only (ops_ph_measure_gpu, 871), B8 (_well_rows queries one well), B9 NAS destination and resume (871's ops_merged_root, atomic writes, options marker), B16 offsets read back from the closed tar and _ph_read_crop (871), B17 bulk load per well and indexes (871), B18 (ops_missing_fields_<well>.parquet, ops_retry_missing). spacr/ops_engine.py, spacr/ops_sample.py, spacr/ops_settings.py, tests/test_ops_phenotype_run_infrastructure.py.
+Requested: maintainer via paper session (BMC paper item spec ITEM_ops_phenotype_run_infrastructure.md), 2026-11-09.
+Owner: paper session (lane A).
+Source: Funk et al. 2022 plate A phenotype run (funk_phenotype.py and helpers).
+Related: 752, 788, 809, 810, 811, 813, 871.
+
+NOT BUILT (open)
+- B1 pipelined segment/measure (ops_ph_pipeline, ops_ph_measure_workers).
+- B2 staging from network storage (ops_ph_stage_dir, _ahead, _threads).
+- B3 ops_ph_acquisitions and the duplicate-channel-token refusal in _index_tiles
+  (the second acquisition's channels can be named with 871's
+  ops_ph_secondary_channels, which reads them from their own files).
+- B6 ops_profile_cells / ops_nt_rows (ops_pool_interphase already pools
+  interphase cells only).
+- B7 GPU-vs-CPU self-check (ops_ph_measure_gpu_check) -- needs a GPU.
+- B9 archive copy with md5 verify and WELL_DONE / PLATE_DONE markers.
+- B10 cluster benchmark, B11/B19 GPU admission, B12 vectorised moments/GLCM,
+  B13 GPU skew/kurtosis test, B15 cuCIM cache, B16 streaming loader, B17 integer
+  join keys and wide layout, B20 stress phase.
+- Part A slow throughput tests (A1 test 4, A2 test 4).
+- A2's "nested call does not commit": _insert_frame still commits a transaction
+  it did not open (unchanged nightly behaviour; the write-queue wrapper owns its
+  own commit). The test asserts only that it does not raise.

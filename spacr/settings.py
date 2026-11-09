@@ -8250,7 +8250,7 @@ ALPHA_FEATURES = {
                      'ops_cross_field_metric', 'ops_cross_field_min_overlap',
                      'ops_cross_field_policy', 'ops_reference_counts',
                      'ops_reference_counts_level', 'ops_reference_shuffles',
-                     'ops_reference_seed'),
+                     'ops_reference_seed', 'ops_retry_missing'),
     },
     691: {
         'models': ('mitonet_mini_v1',),

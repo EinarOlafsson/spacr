@@ -120,6 +120,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_reference_counts_level": 'sbs',
     "ops_reference_shuffles": 1000,
     "ops_reference_seed": 0,
+    "ops_retry_missing": False,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -223,6 +224,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_reference_counts_level": str,
     "ops_reference_shuffles": int,
     "ops_reference_seed": int,
+    "ops_retry_missing": bool,
 }
 
 #: Which panel section each setting appears under.
@@ -281,7 +283,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_cross_field_ownership", "ops_cross_field_metric",
         "ops_cross_field_min_overlap", "ops_cross_field_policy",
         "ops_reference_counts", "ops_reference_counts_level",
-        "ops_reference_shuffles", "ops_reference_seed",
+        "ops_reference_shuffles", "ops_reference_seed", "ops_retry_missing",
     ],
 }
 
@@ -829,6 +831,12 @@ OPS_TOOLTIPS: Dict[str, str] = {
     "ops_reference_seed":
         "(int) - Seed of the shuffled-label control's permutations; the "
         "same seed gives the same control in every run. Default 0. Alpha.",
+    "ops_retry_missing":
+        "(bool) - Try again the phenotype fields an earlier run found missing "
+        "or unreadable in the source (recorded in "
+        "ops_missing_fields_<well>.parquet). Off, a resumed run skips them, "
+        "so a well with fields absent from a public download still "
+        "finishes. Default False. Alpha.",
 }
 
 #: The blurb the module shows above its settings.

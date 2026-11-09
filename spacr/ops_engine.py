@@ -568,11 +568,34 @@ def _well_rows(db: str, table: str, plate: str, well: str):
     :param plate: the plate name.
     :param well: the well name.
     :returns: the rows, or None when the table is absent.
+
+    A TABLE WITHOUT A PARQUET CACHE IS QUERIED FOR THE ONE WELL (item 872,
+    B8): reading Funk plate A's 8 M-row ``ops_objects`` whole for each well
+    took about 5 minutes and 6.6 GB, and the ``(plate, well, object_id)``
+    index answers the well's query in seconds. The rows come back in the
+    table's order, as the whole-table read filtered gave them. A well the
+    query does not find -- a plate or well stored as a number -- is looked
+    for in the whole table as before.
     """
-    from .ops_store import read_table, row_count
+    import sqlite3
+
+    from .ops_store import CACHED_TABLES, _resolved, read_table, row_count
+    from .tabular import _read_query
 
     if row_count(db, table) is None:
         return None
+    if table not in CACHED_TABLES:
+        with sqlite3.connect(_resolved(db), timeout=30) as conn:
+            names = {r[1] for r in conn.execute(
+                f"PRAGMA table_info({table})")}
+            if not {"plate", "well"} <= names:
+                return None
+            frame = _read_query(
+                conn, f"SELECT * FROM {table} WHERE plate = ? AND well = ? "
+                      "ORDER BY rowid", params=(str(plate), str(well)),
+                canonicalise=False, report=None)
+        if len(frame):
+            return frame.reset_index(drop=True)
     frame = read_table(db, table)
     if not {"plate", "well"} <= set(frame.columns):
         return None
@@ -2304,6 +2327,38 @@ def _ph_cells_path(destination: str, well: str) -> str:
     return os.path.join(destination, f"ops_phenotype_cells_{well}.parquet")
 
 
+def _ph_missing_path(destination: str, well: str) -> str:
+    """Where one well's fields missing from the source are recorded."""
+    return os.path.join(destination, f"ops_missing_fields_{well}.parquet")
+
+
+def _ph_missing_fields(destination: str, well: str) -> Dict[int, str]:
+    """``site -> reason`` for the fields a run found missing or unreadable."""
+    import pandas as pd
+
+    path = _ph_missing_path(destination, well)
+    if not os.path.isfile(path):
+        return {}
+    table = pd.read_parquet(path, columns=["site", "reason"])
+    return {int(s): str(r) for s, r in zip(table["site"], table["reason"])}
+
+
+def _ph_record_missing(plate: str, well: str, destination: str,
+                       found: Mapping[int, str]) -> None:
+    """Add ``found`` (``site -> reason``) to the well's missing-field record."""
+    import pandas as pd
+
+    if not found:
+        return
+    known = _ph_missing_fields(destination, well)
+    known.update({int(s): str(r) for s, r in found.items()})
+    table = pd.DataFrame([{"plate": plate, "well": well, "site": s,
+                           "reason": r} for s, r in sorted(known.items())])
+    path = _ph_missing_path(destination, well)
+    table.to_parquet(path + ".part", index=False)
+    os.replace(path + ".part", path)
+
+
 def _ph_ownership_path(destination: str, well: str) -> str:
     """Where one well's per-cell ownership flags are written."""
     return os.path.join(destination, f"ops_ownership_{well}.parquet")
@@ -2741,13 +2796,24 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
         models = None
         seconds = Counter()
         counts = Counter()
-        todo = [s for s in sites if not os.path.isfile(mask_path(s))]
+        missing = ({} if settings.get("ops_retry_missing")
+                   else _ph_missing_fields(destination, well))
+        todo = [s for s in sites if not os.path.isfile(mask_path(s))
+                and s not in missing]
+        found: Dict[int, str] = {
+            int(s): "no file for the site in phenotype_source"
+            for s in sorted(rows["site"])
+            if (wanted is None or int(s) in wanted) and int(s) not in files
+            and int(s) not in missing}
         for count, site in enumerate(todo, start=1):
             tick = time.perf_counter()
+            before = len(unreadable)
             stack = _ph_read_field(files[site], channels, unreadable,
                                    secondary.get(site))
             seconds["read"] += time.perf_counter() - tick
             if stack is None:
+                found[site] = "; ".join(str(r) for _p, r in
+                                        unreadable[before:]) or "unreadable"
                 continue
             field_shape = field_shape or stack.shape[:2]
             if models is None:
@@ -2770,7 +2836,12 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                     "{count} of {total}", well=well, site=site,
                     cells=paired["paired"], count=count, total=len(todo)))
         fresh = sum(1 for s in todo if os.path.isfile(mask_path(s)))
+        _ph_record_missing(plate, well, destination, found)
         report["ph_segment"] = {
+            "missing_recorded": sorted(found),
+            "missing_skipped": sorted(
+                s for s in missing if (wanted is None or s in wanted)
+                and not os.path.isfile(mask_path(s))),
             "segmented": fresh, "resumed": len(sites) - len(todo),
             "objects": dict(counts),
             "seconds": {k: round(v, 1) for k, v in seconds.items()},
