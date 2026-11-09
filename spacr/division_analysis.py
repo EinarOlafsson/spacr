@@ -62,6 +62,8 @@ COMPARED_MEASURES = SHAPE_MEASURES + ('speed', 'turning')
 LOG_MEASURES = frozenset(('area', 'major_axis', 'minor_axis', 'aspect_ratio',
                           'mean_intensity'))
 LINEAGE_COLUMNS = ('label', 't_start', 't_end', 'parent')
+_FRAME_EFFECT_COLUMNS = ['measure', 'rel_t', 'g', 'var_g', 'ci_low', 'ci_high', 'mean_diff',
+                         'n_treated', 'n_control']
 
 
 def measure_label_stack(masks: Iterable[np.ndarray],
@@ -672,6 +674,108 @@ def random_effects_meta(effects, variances) -> dict:
             'I2': i2, 'k': k}
 
 
+def frame_effects(dividing: pd.DataFrame, control: pd.DataFrame, window: int,
+                  columns: Sequence[str] = COMPARED_MEASURES, n_boot: int = 300,
+                  rng=None) -> pd.DataFrame:
+    """Hedges' g of dividing against control units at every frame before division.
+
+    Both tables are baseline-normalised aligned values (each unit relative to
+    its own first frames, as in the trajectories of :func:`analyse_divisions`).
+    At each ``rel_t`` from ``-window`` to 0 the dividing units' own values
+    (``role == 'self'``) are compared with the control units' own values with
+    :func:`effect_size`, measure by measure.
+
+    :param dividing: baseline-normalised values of the dividing units, with
+        ``role``, ``rel_t`` and one column per measure.
+    :param control: the same for the matched control units.
+    :param window: frames before division in the alignment window.
+    :param columns: the measures compared; absent ones are skipped.
+    :param n_boot: bootstrap resamples per frame and measure.
+    :param rng: seed or generator for the resampling.
+    :returns: one row per measure and ``rel_t`` with the :func:`effect_size`
+        columns (``g``, ``var_g``, ``ci_low``, ``ci_high``, ``mean_diff``,
+        ``n_treated``, ``n_control``).
+    """
+    rng = np.random.default_rng(rng)
+    rows = []
+    own_div = dividing[dividing['role'] == 'self']
+    own_ctrl = control[control['role'] == 'self']
+    for c in [c for c in columns if c in dividing.columns and c in control.columns]:
+        for rel in range(-int(window), 1):
+            x = own_div.loc[own_div['rel_t'] == rel, c]
+            y = own_ctrl.loc[own_ctrl['rel_t'] == rel, c]
+            rows.append({'measure': c, 'rel_t': rel,
+                         **effect_size(x, y, n_boot=n_boot, rng=rng)})
+    return pd.DataFrame(rows, columns=_FRAME_EFFECT_COLUMNS)
+
+
+def _onset_ci_columns(spec):
+    """The lower and upper interval columns named by ``'low/high'``.
+
+    :raises ValueError: when ``spec`` does not name two columns.
+    """
+    parts = [p.strip() for p in str(spec or 'ci_low/ci_high').split('/')]
+    if len(parts) != 2 or not all(parts):
+        raise ValueError(f"timelapse_division_onset_ci must be 'low/high', not {spec!r}")
+    return parts[0], parts[1]
+
+
+def _one_onset(table, low, high):
+    """The onset and direction of one measure's per-frame effects."""
+    t = table.sort_values('rel_t')
+    t = t[t['rel_t'] <= 0]
+    if not len(t) or not np.isfinite(t['g'].iloc[-1]):
+        return np.nan, np.nan
+    sign = np.sign(t['g'].iloc[-1])
+    significant = ((t[low] > 0) & (sign > 0)) | ((t[high] < 0) & (sign < 0))
+    if not significant.iloc[-1]:
+        return np.nan, sign
+    onset = 0
+    for rel, sig in zip(t['rel_t'].to_numpy()[::-1], significant.to_numpy()[::-1]):
+        if not sig:
+            break
+        onset = rel
+    return int(onset), sign
+
+
+def onset_times(effects: pd.DataFrame, settings: Optional[dict] = None,
+                measures: Optional[Sequence[str]] = None) -> pd.DataFrame:
+    """When each measure's pre-division change starts.
+
+    For one measure, the per-frame effects (:func:`frame_effects`) up to the
+    division (``rel_t <= 0``) are read from the division backwards. The
+    direction is the sign of ``g`` at the last frame before division. A frame
+    is significant when its interval excludes 0 in that direction. When the
+    last frame is not significant there is no onset (NaN, with the direction
+    still given); otherwise the onset is the earliest ``rel_t`` of the
+    unbroken significant run that ends at the division.
+
+    :param effects: per-frame effects with ``measure``, ``rel_t``, ``g`` and
+        the interval columns.
+    :param settings: run settings; ``timelapse_division_onset_ci`` names the
+        interval columns as ``'low/high'`` (default ``'ci_low/ci_high'``).
+    :param measures: the measures reported, in order; None takes those in
+        ``effects`` in the order they first appear. A measure without rows
+        gets NaN for both.
+    :returns: one row per measure with ``measure``, ``onset_rel_t`` (frames,
+        0 or negative, NaN without an onset) and ``direction`` (+1 rises, -1
+        falls before division).
+    :raises ValueError: for an interval setting that is not ``'low/high'`` or
+        names columns ``effects`` does not have.
+    """
+    low, high = _onset_ci_columns((settings or {}).get('timelapse_division_onset_ci'))
+    if len(effects) and not {low, high} <= set(effects.columns):
+        raise ValueError(f'effects lack the interval columns {low!r} and {high!r}')
+    if measures is None:
+        measures = list(pd.unique(effects['measure'])) if len(effects) else []
+    rows = []
+    for measure in measures:
+        table = effects[effects['measure'] == measure] if len(effects) else effects
+        onset, sign = _one_onset(table, low, high) if len(table) else (np.nan, np.nan)
+        rows.append({'measure': measure, 'onset_rel_t': onset, 'direction': sign})
+    return pd.DataFrame(rows, columns=['measure', 'onset_rel_t', 'direction'])
+
+
 def cell_cycles(measures: pd.DataFrame, lineage: pd.DataFrame, events: pd.DataFrame,
                 size_columns: Sequence[str] = ('area', 'major_axis')) -> pd.DataFrame:
     """Complete fission cycles: born at an observed two-daughter division and seen to divide into two.
@@ -1097,6 +1201,7 @@ def add_budding_cycles(results: dict, measures: pd.DataFrame, lineage: pd.DataFr
 
 
 _RESULT_TABLES = ('events', 'effects', 'trajectories', 'cycles', 'size_control', 'changes', 'buds')
+_ONSET_TABLES = ('frame_effects', 'onsets')
 _SERIES = ('dividing', 'control', 'shuffled', 'shuffled_control')
 _CONTRASTS = (('dividing_vs_control', 'dividing', 'control'),
               ('shuffled_vs_its_control', 'shuffled', 'shuffled_control'))
@@ -1296,6 +1401,10 @@ def _add_units(results, units):
             for column in _STATS:
                 trajectories[f'{column}_um_per_min'] = (
                     trajectories[column].astype(float).where(is_speed) * speed_scale)
+    onsets = results.get('onsets')
+    if onsets is not None and len(onsets):
+        onsets['onset_minutes'] = (onsets['onset_rel_t'] * interval if interval is not None
+                                   else np.nan)
     summary = results['summary']
     summary.update(units)
     for key in ('window', 'median_cycle_frames'):
@@ -1309,7 +1418,8 @@ def _add_units(results, units):
 def analyse_divisions(measures: pd.DataFrame, lineage: pd.DataFrame, mode: str = 'auto',
                       window: Optional[int] = None, late_frames: Optional[int] = None,
                       size_tol: float = 0.25, n_boot: int = 2000, rng=0,
-                      columns: Sequence[str] = COMPARED_MEASURES) -> dict:
+                      columns: Sequence[str] = COMPARED_MEASURES, onsets: bool = False,
+                      onset_ci: str = 'ci_low/ci_high', frame_boot: int = 300) -> dict:
     """Align one movie's divisions and compare them with matched controls.
 
     Runs the steps of this module in order. Divisions are read with
@@ -1341,11 +1451,20 @@ def analyse_divisions(measures: pd.DataFrame, lineage: pd.DataFrame, mode: str =
     :param rng: seed or generator for the controls, the shuffle and the
         bootstraps.
     :param columns: the measurements compared; absent ones are skipped.
+    :param onsets: also compare dividing and control units frame by frame
+        (:func:`frame_effects`) and find when each measure's change starts
+        (:func:`onset_times`). This runs after every other step, so the
+        other results are the same with or without it.
+    :param onset_ci: the interval columns :func:`onset_times` reads, as
+        ``'low/high'``.
+    :param frame_boot: bootstrap resamples per frame for the onsets.
     :returns: dict with the tables ``events`` (every division with its
         ``status``), ``effects`` (one row per contrast and measure),
         ``trajectories`` (baseline-normalised mean and 95% band per series,
         role, ``rel_t`` and measure), ``cycles`` and ``size_control``, and
-        ``summary`` (the window, counts and drop reasons).
+        ``summary`` (the window, counts and drop reasons). With ``onsets``
+        also ``frame_effects`` and ``onsets`` (``measure``, ``onset_rel_t``,
+        ``direction``, ``onset_cycle_fraction`` and ``onset_minutes``).
     :raises ValueError: for an unknown ``mode``, a ``window`` below 2, or
         ``measures`` without ``track_id``, ``t`` or ``area``.
     """
@@ -1392,7 +1511,7 @@ def analyse_divisions(measures: pd.DataFrame, lineage: pd.DataFrame, mode: str =
         'shuffled_control': shuffled_controls[shuffled_controls['matched'].astype(bool)].assign(
             unit_id=lambda d: d['event_id']),
     }
-    changes, trajectories = {}, []
+    changes, trajectories, normalised = {}, [], {}
     for series in _SERIES:
         unit = units[series]
         if not len(unit):
@@ -1401,8 +1520,8 @@ def analyse_divisions(measures: pd.DataFrame, lineage: pd.DataFrame, mode: str =
         aligned = align_units(measures, unit, window,
                               after=window if series == 'dividing' else 0, columns=columns)
         changes[series] = unit_changes(aligned, window, k, columns=columns)
-        trajectories += _trajectory_summary(_baseline_normalised(aligned, window, k, columns),
-                                            series, columns)
+        normalised[series] = _baseline_normalised(aligned, window, k, columns)
+        trajectories += _trajectory_summary(normalised[series], series, columns)
     effects = []
     for contrast, treated, control in _CONTRASTS:
         a, b = changes[treated], changes[control]
@@ -1444,7 +1563,28 @@ def analyse_divisions(measures: pd.DataFrame, lineage: pd.DataFrame, mode: str =
                'size_control': pd.DataFrame(size_control),
                'changes': unit_changes_table[['series', 'unit_id'] + columns],
                'summary': summary}
+    if onsets:
+        _add_onsets(results, normalised, window, columns, onset_ci, frame_boot, rng)
     return _add_units(results, _units(None, None))
+
+
+def _add_onsets(results, normalised, window, columns, onset_ci, frame_boot, rng):
+    """Put the per-frame effects and the onset of every measure into ``results``."""
+    _onset_ci_columns(onset_ci)
+    if 'dividing' in normalised and 'control' in normalised:
+        effects = frame_effects(normalised['dividing'], normalised['control'], window,
+                                columns=columns, n_boot=frame_boot, rng=rng)
+    else:
+        effects = pd.DataFrame(columns=_FRAME_EFFECT_COLUMNS)
+    onsets = onset_times(effects, {'timelapse_division_onset_ci': onset_ci}, measures=columns)
+    cycle = float(results['summary'].get('median_cycle_frames', np.nan))
+    onsets['onset_cycle_fraction'] = (onsets['onset_rel_t'] / cycle if np.isfinite(cycle)
+                                      else np.nan)
+    onsets['onset_minutes'] = np.nan
+    results['frame_effects'] = effects
+    results['onsets'] = onsets
+    results['summary']['onset_ci'] = onset_ci
+    results['summary']['n_onsets'] = int(onsets['onset_rel_t'].notna().sum())
 
 
 def calibrate_divisions(results: dict, frame_interval_min: Optional[float] = None,
@@ -1937,7 +2077,8 @@ def write_division_results(results: dict, out_dir, plot: bool = True) -> dict:
 
     The tables are ``events.csv`` (daughters as ``;``-separated track ids),
     ``effects.csv``, ``trajectories.csv``, ``cycles.csv`` and
-    ``size_control.csv``, written through :func:`spacr.tabular.write_table`;
+    ``size_control.csv``, plus ``frame_effects.csv`` and ``onsets.csv`` when
+    the results have onsets, written through :func:`spacr.tabular.write_table`;
     the summary is ``summary.json``. With ``plot``, the figures of
     :func:`division_figures` are saved through :func:`spacr.plot.save_figure`
     as ``division_trajectories``, ``division_forest`` and
@@ -1961,6 +2102,9 @@ def write_division_results(results: dict, out_dir, plot: bool = True) -> dict:
             table = table.assign(daughters=[';'.join(str(int(d)) for d in ds)
                                             for ds in table['daughters']])
         paths[name] = write_table(table, os.path.join(out_dir, f'{name}.csv'))
+    for name in _ONSET_TABLES:
+        if name in results:
+            paths[name] = write_table(results[name], os.path.join(out_dir, f'{name}.csv'))
     summary = os.path.join(out_dir, 'summary.json')
     with open(summary, 'w', encoding='utf-8') as handle:
         json.dump(results.get('summary', {}), handle, indent=2, default=float)
@@ -1979,7 +2123,8 @@ def read_division_results(folder) -> dict:
 
     :param folder: the results folder.
     :returns: the same dict :func:`analyse_divisions` returns, with
-        ``events`` daughters as tuples again; a missing or empty table is an
+        ``events`` daughters as tuples again and ``frame_effects`` and
+        ``onsets`` only when their files exist; a missing or empty table is an
         empty frame and a missing summary an empty dict.
     :raises FileNotFoundError: when ``folder`` holds neither ``summary.json``
         nor ``effects.csv``.
@@ -1998,6 +2143,10 @@ def read_division_results(folder) -> dict:
             out[name] = read_table(path, canonicalise=False, report=None)
         except (FileNotFoundError, pd.errors.EmptyDataError):
             out[name] = pd.DataFrame()
+    for name in _ONSET_TABLES:
+        path = os.path.join(folder, f'{name}.csv')
+        if os.path.isfile(path):
+            out[name] = read_table(path, canonicalise=False, report=None)
     events = out['events']
     if 'daughters' in events:
         out['events'] = events.assign(daughters=[
@@ -2022,8 +2171,13 @@ def _division_settings(settings):
         tolerance = 0.25
     if isinstance(tolerance, bool) or not np.isfinite(float(tolerance)) or float(tolerance) <= 0:
         raise ValueError('timelapse_division_size_tolerance must be a positive number')
-    return {'mode': str(mode), 'window': None if window is None else int(window),
-            'size_tol': float(tolerance)}
+    options = {'mode': str(mode), 'window': None if window is None else int(window),
+               'size_tol': float(tolerance)}
+    if settings.get('timelapse_division_onset'):
+        options['onsets'] = True
+        options['onset_ci'] = settings.get('timelapse_division_onset_ci') or 'ci_low/ci_high'
+        _onset_ci_columns(options['onset_ci'])
+    return options
 
 
 def _movie_calibration(tracks, settings):
@@ -2096,7 +2250,8 @@ def _run_division_step(src, name, object_type, tracker, settings, *,
     ``timelapse_lineage_max_distance``), measures ``label_stack`` (labels
     are track ids) with the first channel of ``images`` as intensity, and
     writes :func:`analyse_divisions` with ``timelapse_division_mode``,
-    ``timelapse_division_window`` and ``timelapse_division_size_tolerance``
+    ``timelapse_division_window``, ``timelapse_division_size_tolerance`` and,
+    with ``timelapse_division_onset``, the onsets (``onsets.csv``)
     to ``<tracks folder>/division/<tracks file stem>/`` with ``lineage.csv``
     beside it. The frame interval and pixel size come from
     :func:`_movie_calibration` and are applied with

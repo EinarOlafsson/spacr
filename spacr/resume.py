@@ -336,6 +336,7 @@ COSMETIC_SETTINGS = frozenset({
     'timelapse_division_window', 'timelapse_division_size_tolerance',
     'timelapse_division_prediction', 'timelapse_division_prediction_frames',
     'timelapse_division_prediction_model', 'timelapse_division_prediction_folds',
+    'timelapse_division_onset', 'timelapse_division_onset_ci',
     'timelapse_events', 'timelapse_events_annotations',
     'timelapse_events_model', 'timelapse_events_window',
     'timelapse_events_threshold', 'timelapse_events_conditions',

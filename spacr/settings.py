@@ -1339,6 +1339,8 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('timelapse_division_prediction_frames', 5)
     settings.setdefault('timelapse_division_prediction_model', 'auto')
     settings.setdefault('timelapse_division_prediction_folds', 5)
+    settings.setdefault('timelapse_division_onset', False)
+    settings.setdefault('timelapse_division_onset_ci', 'ci_low/ci_high')
     settings.setdefault('timelapse_events', False)
     settings.setdefault('timelapse_events_annotations', None)
     settings.setdefault('timelapse_events_model', None)
@@ -3864,6 +3866,8 @@ expected_types = {
     "timelapse_division_prediction_frames": int,
     "timelapse_division_prediction_model": str,
     "timelapse_division_prediction_folds": int,
+    "timelapse_division_onset": bool,
+    "timelapse_division_onset_ci": str,
     "timelapse_events": bool,
     "timelapse_events_annotations": (str, type(None)),
     "timelapse_events_model": (str, type(None)),
@@ -5784,6 +5788,8 @@ tooltips = {
     "timelapse_division_prediction_frames": "(int) - The horizon N: a frame counts as 'about to divide' when the cell divides within the next N frames. Frames whose next N frames the movie does not show are left out. Ignored unless timelapse_division_prediction. Default 5.",
     "timelapse_division_prediction_model": "(str) - The classifier. auto uses xgboost when it is installed and scikit-learn gradient boosting otherwise; xgboost falls back the same way; gradient_boosting is scikit-learn's histogram gradient boosting; logistic is a logistic regression on standardised features. Ignored unless timelapse_division_prediction. Default auto.",
     "timelapse_division_prediction_folds": "(int) - Cross-validation folds, grouped by field so no field is in both training and testing; never more than the number of fields. Ignored unless timelapse_division_prediction. Default 5.",
+    "timelapse_division_onset": "(bool) - With timelapse_division_analysis, also find when each measurement starts to change before division. Dividing and control cells are compared at every frame of the window (Hedges' g with a bootstrap 95% interval). Reading back from the division, the onset is the earliest frame of the unbroken run of frames whose interval excludes zero in the direction of the last frame; a measurement whose last frame is not significant has no onset. Writes onsets.csv (onset in frames, as a fraction of the median cycle and in minutes when the frame interval is known, and the direction) and frame_effects.csv next to the division results. Default False.",
+    "timelapse_division_onset_ci": "(str) - The two interval columns of the per-frame effect table that decide whether a frame is significant, written as low/high. Ignored unless timelapse_division_onset. Default ci_low/ci_high.",
     "timelapse_events": "(bool) - After the run, detect events on every tracked object with a small neural network that reads short windows of each track (shape, intensity, movement, tracks starting or ending nearby, and image crops): mitosis, egress, invasion, host death or whatever classes timelapse_events_annotations names. Writes time-stamped events, lineage trees re-linked from detected mitoses and Kaplan-Meier time to each event per condition to tracks/events. The small encoder runs on CPU; the optional videomae encoder uses its separately installed worker and declared video device. Default False.",
     "timelapse_events_annotations": "(str or None) - Table of hand-annotated events with columns field (the tracks file's field name), track_id, frame and event, plus an optional object column. Every event of an annotated field must be listed. The detector is scored on held-out annotated fields (precision, recall and timing error in frames, matched within 2 frames), trained on all of them and saved as tracks/events/event_model.pt. Blank uses timelapse_events_model. Default None.",
     "timelapse_events_model": "(str or None) - A trained event model (event_model.pt from an earlier run) to apply when timelapse_events_annotations is blank. It is read as tensors only. Default None.",
@@ -6144,7 +6150,7 @@ def _name_the_family_in_every_estimator_tooltip():
 
 _name_the_family_in_every_estimator_tooltip()
 
-timelapse_settings = ['fps', 'timelapse_mode', 'trackastra_model', 'trackastra_linking', 'ultrack_max_distance', 'ultrack_division_weight', 'ultrack_contour_sigma', 'ultrack_n_workers', 'timeflows_model', 'timelapse_displacement', 'timelapse_memory', 'timelapse_frame_limits', 'timelapse_remove_transient', 'timelapse_objects', 'timelapse_lineage', 'timelapse_lineage_color_by', 'timelapse_lineage_max_distance', 'timelapse_lineage_min_division_h', 'timelapse_lineage_edge_entry', 'timelapse_lineage_vacuole_count', 'timelapse_lineage_bud_guard', 'timelapse_lineage_bud_threshold', 'timelapse_division_analysis', 'timelapse_division_mode', 'timelapse_division_window', 'timelapse_division_size_tolerance', 'timelapse_division_prediction', 'timelapse_division_prediction_frames', 'timelapse_division_prediction_model', 'timelapse_division_prediction_folds', 'timelapse_events', 'timelapse_events_annotations', 'timelapse_events_model', 'timelapse_events_window', 'timelapse_events_threshold', 'timelapse_events_conditions', 'timelapse_events_encoder', 'timelapse_events_video_checkpoint', 'timelapse_events_video_channels', 'timelapse_events_video_device']
+timelapse_settings = ['fps', 'timelapse_mode', 'trackastra_model', 'trackastra_linking', 'ultrack_max_distance', 'ultrack_division_weight', 'ultrack_contour_sigma', 'ultrack_n_workers', 'timeflows_model', 'timelapse_displacement', 'timelapse_memory', 'timelapse_frame_limits', 'timelapse_remove_transient', 'timelapse_objects', 'timelapse_lineage', 'timelapse_lineage_color_by', 'timelapse_lineage_max_distance', 'timelapse_lineage_min_division_h', 'timelapse_lineage_edge_entry', 'timelapse_lineage_vacuole_count', 'timelapse_lineage_bud_guard', 'timelapse_lineage_bud_threshold', 'timelapse_division_analysis', 'timelapse_division_mode', 'timelapse_division_window', 'timelapse_division_size_tolerance', 'timelapse_division_prediction', 'timelapse_division_prediction_frames', 'timelapse_division_prediction_model', 'timelapse_division_prediction_folds', 'timelapse_division_onset', 'timelapse_division_onset_ci', 'timelapse_events', 'timelapse_events_annotations', 'timelapse_events_model', 'timelapse_events_window', 'timelapse_events_threshold', 'timelapse_events_conditions', 'timelapse_events_encoder', 'timelapse_events_video_checkpoint', 'timelapse_events_video_channels', 'timelapse_events_video_device']
 
 motility_settings = ['motility_analysis','tracked_object', 'infection_intensity_strategy', 'seconds_per_frame', 'pixels_per_um', 'motility_ylim', 'motility_xlim', 'infection_intensity_qc_scope']
 
@@ -8502,6 +8508,9 @@ ALPHA_FEATURES = {
         'settings': ('timelapse_division_prediction', 'timelapse_division_prediction_frames',
                      'timelapse_division_prediction_model',
                      'timelapse_division_prediction_folds'),
+    },
+    901: {
+        'settings': ('timelapse_division_onset', 'timelapse_division_onset_ci'),
     },
     567: {
         'models': ('videomae_v1',),

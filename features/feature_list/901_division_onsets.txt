@@ -1,0 +1,43 @@
+DIVISION ANALYSIS: ONSET OF PRE-DIVISION CHANGES
+================================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha) — spacr.division_analysis gains frame_effects (Hedges' g of dividing vs control units at every frame of the window, baseline-normalised own values, bootstrap CI) and onset_times (per measure: direction = sign of g at the last frame before division; a frame is significant when its interval excludes 0 in that direction; no onset when the last frame is not; otherwise the earliest rel_t of the unbroken significant run that ends at the division). analyse_divisions(onsets=True) adds frame_effects and onsets (onset_rel_t, direction, onset_cycle_fraction, onset_minutes once calibrated) after every other step, so the other results do not change; the Make Masks division step writes onsets.csv and frame_effects.csv. Settings timelapse_division_onset and timelapse_division_onset_ci under ALPHA_FEATURES[901]. On the 13 datasets of the BMC reanalysis, onset and direction per dataset x measure are identical to stage2_analyse.onset (130 rows, 100 onsets).
+Requested: maintainer, 2026-11-09 (BMC paper item spec ITEM_division_onsets.md, port P21).
+Owner: Home (claude-lane-e-1109 worktree).
+Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/division_biology/code/stage2_analyse.py::onset, traj_effects.
+Related: 771, 864, 865, 866, 867.
+
+WHAT THE STATE IS
+The onset of each measure's pre-division change came from onset() in a
+custom stage-2 script. spacr.division_analysis had no per-frame comparison
+and no onset.
+
+WHAT TO DO
+1. A public onset_times(effects, settings) that returns one row per measure
+   (onset, sign), with the interval columns as a setting.
+2. Run it inside the division analysis and write onsets.csv.
+3. Report onsets in minutes once the frame interval is known (864).
+
+HOW TO KNOW IT WORKED
+The onset and sign per dataset x measure equal stage2_analyse.onset on the
+reference per-frame effect tables of the 13 datasets.
+
+RESULT
+tests/data/division_onsets_901 holds the reference per-frame effects
+(panelA_per_frame_effects_dividing_vs_control.csv, columns trimmed) and the
+reference onsets (panelF_onset_before_division.csv). onset_times reproduces
+onset_rel_t and direction for all 130 dataset x measure rows (100 onsets, 30
+without), checked in tests/test_division_onsets_901.py.
+
+DELIBERATELY NOT DONE
+- Settings are named timelapse_division_onset / timelapse_division_onset_ci
+  (the spec wrote division_onset / division_onset_ci) to match the other
+  timelapse_division_* settings in the same GUI group.
+- Pooled results (pool_division_movies) carry no onsets.
+- The spaCR per-frame effects are computed by spaCR's own division pipeline
+  (its controls and bootstrap stream); an end-to-end rerun of the 13 datasets
+  through spaCR needs a spaCR movie reader for them (the spec leaves that
+  out), so the frame effects themselves were not compared with the script's.
+- Catalogue (9-locale) records and the arrival contract are left to the
+  master session.
