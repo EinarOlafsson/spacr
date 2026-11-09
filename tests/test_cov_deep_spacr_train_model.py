@@ -729,7 +729,7 @@ def test_train_model_resumes_after_saved_epoch_with_optimizer_state(
     optimizer.step()
     resume = tmp_path / "resume.pth"
     save_model_artifact(
-        original, resume, optimizer=optimizer, epoch=1, best_metric=0.9,
+        original, resume, optimizer=optimizer, epoch=1, best_metric=1.0,
         epochs_without_improvement=0, artifact_role="best")
     resolved = []
     if catalogue_key is not None:
