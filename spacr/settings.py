@@ -3780,6 +3780,17 @@ expected_types = {
     "figure_imgsz": str,
     "figure_confidence": float,
     "figure_read_text": bool,
+    "figure_condition_labels": str,
+    "figure_model_labels": str,
+    "figure_detections": str,
+    "figure_mode_folder": str,
+    "figure_segmentation_folder": str,
+    "figure_score_folder": str,
+    "figure_metric": str,
+    "compare_permutations": int,
+    "compare_seed": int,
+    "figure_low_confidence": (int, float),
+    "figure_second_look": str,
     "confirm_annotations": bool,
     "text_reach_above": float,
     "text_reach_left": float,
@@ -5228,7 +5239,7 @@ tooltips = {
     "estimate_diameters_per_image": "(bool) - When True, a cell, nucleus or pathogen diameter left blank, 0 or auto is estimated on each 2-D image. A Cellpose 3 model uses its size model. Cellpose-SAM has none, so each image is segmented first at native scale, the median object diameter of those masks is measured with cellpose.utils.diameters, and the image is segmented again at that diameter; an image with no object is segmented at the blank default. Each image is segmented twice, so the run is slower. A diameter you type is always used as it is. Z-stack and timelapse runs keep the single diameter. Default False.",
     "calculate_diameters": "(bool) - When True, the cell, nucleus and pathogen diameters are calculated from magnification: a blank diameter is its magnification default (2*magnification+80 px for cells, 0.75*magnification+45 px for nuclei, magnification px for pathogens), greyed in Per-object settings, and follows every magnification change. A diameter you type, or auto, is pinned (bold) and kept until you clear its cell or turn this off and on again, which recalculates all three. When False, magnification changes no longer touch any diameter. Default True.",
     "plaque_model": "(str) - Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v6' was trained on resized wells and turns plaque well resize on; 'toxoplasma_plaque_v5', the previous default, segments images as they are; 'toxoplasma_plaque_v3' scores higher on Gel Doc wells), a filesystem path selects a custom checkpoint, and 'bundled' is a Cellpose 3 checkpoint that needs Cellpose 3. Changing it changes plaque counts, so recorded runs should keep their value. Default 'toxoplasma_plaque_v6'.",
-    "plaque_mode": "(str) - What Plaque Assay reads. 'plaque' takes images that each show one plaque field (a well or a cropped plaque image), segments the plaques and writes per_image and per_plaque tables. 'figure' takes published figures: the YOLO detector finds the plaque images in each figure, the text around them is read (panel letter, column and row labels) and keyed to the figure legend, each image is annotated with its condition and its plaques are segmented, into plaque_figures/plaque_figures.db. Default 'plaque'.",
+    "plaque_mode": "(str) - What Plaque Assay reads. 'plaque' takes images that each show one plaque field (a well or a cropped plaque image), segments the plaques and writes per_image and per_plaque tables. 'figure' takes published figures: the YOLO detector finds the plaque images in each figure, the text around them is read (panel letter, column and row labels) and keyed to the figure legend, each image is annotated with its condition and its plaques are segmented, into plaque_figures/plaque_figures.db. 'figure_score' (alpha) scores Figure-mode wells against the effects the papers report (figure_condition_labels and the other figure scoring settings); 'figure_merge' (alpha) merges a figure reading's wells and reported effects into the meta-analysis tables under src. Default 'plaque'.",
     "figure_detector": "(str) - Figure mode: model-zoo key or checkpoint path of the YOLO detector that finds plaque images inside a figure. Default 'toxoplasma_well_detector_v2', which was measured to find cropped plaque panels in published figures.",
     "figure_imgsz": "(str) - Figure mode: comma-separated detector input sizes, all of which are asked and their boxes merged. 640 finds whole faint panels, 1280 finds small dilution spots; neither alone finds both. Default '640,1280'.",
     "figure_confidence": "(float) - Figure mode: minimum detector score, 0 to 1, for a box to count as a plaque image. Default 0.25.",
@@ -5788,6 +5799,17 @@ tooltips = {
     "timelapse_division_prediction_frames": "(int) - The horizon N: a frame counts as 'about to divide' when the cell divides within the next N frames. Frames whose next N frames the movie does not show are left out. Ignored unless timelapse_division_prediction. Default 5.",
     "timelapse_division_prediction_model": "(str) - The classifier. auto uses xgboost when it is installed and scikit-learn gradient boosting otherwise; xgboost falls back the same way; gradient_boosting is scikit-learn's histogram gradient boosting; logistic is a logistic regression on standardised features. Ignored unless timelapse_division_prediction. Default auto.",
     "timelapse_division_prediction_folds": "(int) - Cross-validation folds, grouped by field so no field is in both training and testing; never more than the number of fields. Ignored unless timelapse_division_prediction. Default 5.",
+    "figure_condition_labels": "(str) - Figure scoring: a JSON of figure -> boxes (strain and treatment per detector box) and quantification (the reported panels, each value with is_reference). It is the condition table the measured wells are labelled with (gold or model-read) and the source of the reported effects. Default .",
+    "figure_model_labels": "(str) - Figure scoring: stored model readings of the figure conditions (a JSON list of figure -> boxes with is_plaque_image, strain, treatment), scored beside figure_condition_labels as a second labelling. They are data: nothing is re-read. Blank scores the condition table only. Default .",
+    "figure_detections": "(str) - Figure scoring: the detector boxes per figure, a CSV with figure and boxes (a JSON list of [x0, y0, x1, y1, ...]). Default .",
+    "figure_mode_folder": "(str) - Figure scoring: the folder of Figure-mode runs, one <paper>/plaque_figures.db each. Default .",
+    "figure_segmentation_folder": "(str) - Figure scoring: the per-well plaque segmentations, one <figure>__b<box>.json each with areas and cleared_frac. Default .",
+    "figure_score_folder": "(str) - Figure scoring: where results_measured_vs_reported.csv and summary.json are written. Blank writes to results/figure_score under src. Default .",
+    "figure_metric": "(str) - Figure scoring: the measured value behind an area or relative-size panel. area is the mean plaque area of the well; cleared_fraction the fraction of the well cleared by plaques. Number panels always use plaques per well. Default area.",
+    "compare_permutations": "(int) - Figure scoring: how many times the measured effects are shuffled for the permutation control of each Spearman rho (its mean, 95th percentile and one-sided p go into summary.json). 0 skips the control. Default 1000.",
+    "compare_seed": "(int) - Figure scoring: the seed of the permutation control. Default 0.",
+    "figure_low_confidence": "(float) - Figure well merge: a well or reported panel read with confidence at or below this is flagged low_confidence (kept, marked for a second look). Default 0.7.",
+    "figure_second_look": "(str) - Figure well merge: reading task ids (space- or comma-separated) whose wells are flagged reader_second_look. Default .",
     "timelapse_division_onset": "(bool) - With timelapse_division_analysis, also find when each measurement starts to change before division. Dividing and control cells are compared at every frame of the window (Hedges' g with a bootstrap 95% interval). Reading back from the division, the onset is the earliest frame of the unbroken run of frames whose interval excludes zero in the direction of the last frame; a measurement whose last frame is not significant has no onset. Writes onsets.csv (onset in frames, as a fraction of the median cycle and in minutes when the frame interval is known, and the direction) and frame_effects.csv next to the division results. Default False.",
     "timelapse_division_onset_ci": "(str) - The two interval columns of the per-frame effect table that decide whether a frame is significant, written as low/high. Ignored unless timelapse_division_onset. Default ci_low/ci_high.",
     "timelapse_events": "(bool) - After the run, detect events on every tracked object with a small neural network that reads short windows of each track (shape, intensity, movement, tracks starting or ending nearby, and image crops): mitosis, egress, invasion, host death or whatever classes timelapse_events_annotations names. Writes time-stamped events, lineage trees re-linked from detected mitoses and Kaplan-Meier time to each event per condition to tracks/events. The small encoder runs on CPU; the optional videomae encoder uses its separately installed worker and declared video device. Default False.",
@@ -6263,7 +6285,7 @@ categories = {
 
     "Object Crops": ["save_png", "crop_mode", "png_size", "png_channel_mapping", "png_dims", "dialate_pngs", "dialate_png_ratios", "use_bounding_box", "normalize_by", "crop_intensity", "save_arrays", "export_vvvv"],
 
-    "Plate Layout & Controls": ["plaque_mode", "plaque_well_resize", "plaque_well_resize_side", "plaque_well_resize_max_factor", "figure_detector", "figure_imgsz", "figure_confidence", "figure_read_text", "confirm_annotations", "text_reach_above", "text_reach_left", "text_reach_below", "text_use_above", "text_use_left", "text_use_below", "text_panel_reach", "text_min_confidence", "text_ignore", "text_order", "text_separator", "text_reread", "text_reread_scale", "well_detection", "well_confidence", "well_pad", "plate_format", "well_diameter_mm", "plaque_pixels_per_um", "plaque_formation_hours", "plaque_estimate_growth", "plaque_growth_reference_um", "plaque_growth_reference_hours", "plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control_id", "negative_control_id", "exclude_grnas", "positive_control_wells", "negative_control_wells", "mixed_control_wells", "nontargeting_control_grnas", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "batch_correction", "batch_column", "batch_control_column", "batch_control_values", "batch_covariate_column", "batch_combat_mean_only", "batch_min_samples", "batch_missing_control"],
+    "Plate Layout & Controls": ["plaque_mode", "plaque_well_resize", "plaque_well_resize_side", "plaque_well_resize_max_factor", "figure_detector", "figure_imgsz", "figure_confidence", "figure_read_text", "figure_condition_labels", "figure_model_labels", "figure_detections", "figure_mode_folder", "figure_segmentation_folder", "figure_score_folder", "figure_metric", "compare_permutations", "compare_seed", "figure_low_confidence", "figure_second_look", "confirm_annotations", "text_reach_above", "text_reach_left", "text_reach_below", "text_use_above", "text_use_left", "text_use_below", "text_panel_reach", "text_min_confidence", "text_ignore", "text_order", "text_separator", "text_reread", "text_reread_scale", "well_detection", "well_confidence", "well_pad", "plate_format", "well_diameter_mm", "plaque_pixels_per_um", "plaque_formation_hours", "plaque_estimate_growth", "plaque_growth_reference_um", "plaque_growth_reference_hours", "plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control_id", "negative_control_id", "exclude_grnas", "positive_control_wells", "negative_control_wells", "mixed_control_wells", "nontargeting_control_grnas", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "batch_correction", "batch_column", "batch_control_column", "batch_control_values", "batch_covariate_column", "batch_combat_mean_only", "batch_min_samples", "batch_missing_control"],
 
 
 
@@ -7551,6 +7573,17 @@ def get_analyze_plaque_settings(settings):
     settings.setdefault('figure_imgsz', '640,1280')
     settings.setdefault('figure_confidence', 0.25)
     settings.setdefault('figure_read_text', True)
+    settings.setdefault('figure_condition_labels', '')
+    settings.setdefault('figure_model_labels', '')
+    settings.setdefault('figure_detections', '')
+    settings.setdefault('figure_mode_folder', '')
+    settings.setdefault('figure_segmentation_folder', '')
+    settings.setdefault('figure_score_folder', '')
+    settings.setdefault('figure_metric', 'area')
+    settings.setdefault('compare_permutations', 1000)
+    settings.setdefault('compare_seed', 0)
+    settings.setdefault('figure_low_confidence', 0.7)
+    settings.setdefault('figure_second_look', '')
     settings.setdefault('confirm_annotations', False)
     settings.setdefault('text_reach_above', 1.0)
     settings.setdefault('text_reach_left', 1.0)
@@ -8508,6 +8541,9 @@ ALPHA_FEATURES = {
         'settings': ('timelapse_division_prediction', 'timelapse_division_prediction_frames',
                      'timelapse_division_prediction_model',
                      'timelapse_division_prediction_folds'),
+    },
+    900: {
+        'module_settings': {'analyze_plaques': ('figure_condition_labels', 'figure_model_labels', 'figure_detections', 'figure_mode_folder', 'figure_segmentation_folder', 'figure_score_folder', 'figure_metric', 'compare_permutations', 'compare_seed', 'figure_low_confidence', 'figure_second_look')},
     },
     901: {
         'settings': ('timelapse_division_onset', 'timelapse_division_onset_ci'),

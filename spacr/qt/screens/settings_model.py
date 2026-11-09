@@ -1760,6 +1760,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Detection Thresholds", (
             "CP_prob", "flow_threshold", "minimum_object_size", "rescale", "resample", "fill_in",
         )),
+        ("Figure Scoring α", ("figure_condition_labels", "figure_model_labels", "figure_detections", "figure_mode_folder", "figure_segmentation_folder", "figure_score_folder", "figure_metric", "compare_permutations", "compare_seed", "figure_low_confidence", "figure_second_look")),
         ("Image Geometry", ("plaque_well_resize", "plaque_well_resize_side",
                             "plaque_well_resize_max_factor", "resize", "target_height",
                             "target_width")),
@@ -3904,6 +3905,11 @@ CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
             "time, or a known time to estimate scale: plaque size alone cannot "
             "determine both. Estimates are approximate and require validation "
             "for the parasite strain, host cells and imaging conditions.",
+        "FIGURE SCORING α":
+            "Score the wells Figure mode measured against the effects the "
+            "papers report, with a permutation control, or merge a figure "
+            "reading into the meta-analysis tables (plaque_mode figure_score "
+            "or figure_merge).",
         "MODEL":
             "Choose the plaque model and expected plaque diameter in original "
             "input-image or well-crop pixels. Use 0 for the model’s own scale. "
