@@ -3802,6 +3802,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("856_ops_mitotic_api_arrivals_2026-11-07.json", 9),
         ("864_867_division_units_bootstrap_api_arrivals_2026-11-08.json", 3),
         ("750_public_datasets_api_arrivals_2026-11-08.json", 11),
+        ("751_published_reference_api_arrivals_2026-11-09.json", 8),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))

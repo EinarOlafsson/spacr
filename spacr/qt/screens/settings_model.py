@@ -3807,6 +3807,14 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "How files are transferred and checked: parallel transfers, retries "
         "that resume from the last byte, checksum comparison, and a check "
         "without downloading.",
+    "PUBLISHED REFERENCE":
+        "Which screen table is compared with which published table: the two "
+        "files, whether guides or genes are matched and on which columns, "
+        "how many leading bases a guide is matched on, and the output folder.",
+    "PUBLISHED REFERENCE AGREEMENT":
+        "What is compared and how the agreement is measured: the count and "
+        "value columns, how shared or missing keys are treated, and the "
+        "bootstrap and shuffled-label control.",
 }
 
 

@@ -8167,6 +8167,14 @@ ALPHA_FEATURES = {
             'dataset_workers', 'dataset_retries', 'dataset_checksums',
             'dataset_check_only')},
     },
+    751: {
+        'module_settings': {'published_reference': (
+            'published_screen', 'published_reference', 'published_sheet',
+            'published_level', 'published_screen_key', 'published_reference_key',
+            'published_prefix_length', 'published_counts', 'published_values',
+            'published_duplicates', 'published_unmatched', 'published_bootstrap',
+            'published_shuffles', 'published_seed', 'published_dst')},
+    },
     790: {
         'settings': ('label_import', 'label_import_images',
                      'label_import_image_regex', 'label_import_channels',
