@@ -2171,11 +2171,4 @@ def _run_division_step(src, name, object_type, tracker, settings, *,
         print(f"Division analysis pooled {pooled['summary']['n_movies']} fields "
               f"({pooled['summary']['ci_method']} intervals); written to "
               f"{os.path.dirname(pooled['paths']['summary'])}")
-    if settings.get('timelapse_division_prediction'):
-        from .division_prediction import _run_prediction_step
-
-        predicted = _run_prediction_step(os.path.dirname(out_dir),
-                                         f'{prefix}_tracks_{object_type}_', settings)
-        if predicted is not None:
-            results['prediction'] = predicted
     return results

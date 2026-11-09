@@ -10034,12 +10034,12 @@ folds
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam`
-|             ``_run_division_step``
+|             ``_predict_after_run``
 |                 ``_run_prediction_step`` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.object.generate_cellpose_masks`
-|     ``_run_division_step``
+|     ``_predict_after_run``
 |         ``_run_prediction_step`` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 
@@ -15591,14 +15591,14 @@ model
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam`
-|             ``_run_division_step``
+|             ``_predict_after_run``
 |                 ``_run_prediction_step`` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.model_zoo.benchmark`
 |     :py:func:`~spacr.model_zoo.config_for` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks`
-|     ``_run_division_step``
+|     ``_predict_after_run``
 |         ``_run_prediction_step`` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 | ``_read_and_segment_sequence``
@@ -23054,6 +23054,7 @@ plot
 |                 ``_concatenate_and_normalize_impl`` **-- reads it**
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam` **-- reads it**
 |             ``_run_division_step`` **-- reads it**
+|             ``_predict_after_run``
 |                 ``_run_prediction_step`` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.object.generate_organelle_masks_sam` **-- reads it**
@@ -23110,6 +23111,7 @@ plot
 | ``_segment_cellpose`` **-- reads it**
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 |     ``_run_division_step`` **-- reads it**
+|     ``_predict_after_run``
 |         ``_run_prediction_step`` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 | :py:func:`~spacr.plot.graph_importance`
@@ -26057,6 +26059,7 @@ save
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam` **-- reads it**
 |             ``_run_division_step`` **-- reads it**
+|             ``_predict_after_run``
 |                 ``_run_prediction_step`` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.object.generate_organelle_masks_sam` **-- reads it**
@@ -26074,6 +26077,7 @@ save
 |     ``read_and_preprocess_data(...)  [UNRESOLVED]``
 | :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 |     ``_run_division_step`` **-- reads it**
+|     ``_predict_after_run``
 |         ``_run_prediction_step`` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 | :py:func:`~spacr.plot.graph_importance` **-- reads it**
@@ -30111,15 +30115,15 @@ timelapse_division_prediction
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         :py:func:`~spacr.object.generate_cellpose_masks_sam`
+|         :py:func:`~spacr.object.generate_cellpose_masks_sam` **-- reads it**
 |             ``_run_division_step`` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
-| :py:func:`~spacr.object.generate_cellpose_masks`
+| :py:func:`~spacr.object.generate_cellpose_masks` **-- reads it**
 |     ``_run_division_step`` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 
-Read by ``_run_division_step``.
+Read by ``_run_division_step``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``.
 
 .. _setting-flow-timelapse_division_prediction_folds:
 
@@ -30132,17 +30136,19 @@ timelapse_division_prediction_folds
 |     :py:func:`~spacr.core.preprocess_generate_masks`
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam`
 |             ``_run_division_step``
-|                 ``_run_prediction_step``
-|                     ``_prediction_options`` **-- reads it**
 |                 ``_write_field_features``
+|                     ``_prediction_options`` **-- reads it**
+|             ``_predict_after_run``
+|                 ``_run_prediction_step``
 |                     ``_prediction_options`` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.object.generate_cellpose_masks`
 |     ``_run_division_step``
-|         ``_run_prediction_step``
-|             ``_prediction_options`` **-- reads it**
 |         ``_write_field_features``
+|             ``_prediction_options`` **-- reads it**
+|     ``_predict_after_run``
+|         ``_run_prediction_step``
 |             ``_prediction_options`` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 
@@ -30159,17 +30165,19 @@ timelapse_division_prediction_frames
 |     :py:func:`~spacr.core.preprocess_generate_masks`
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam`
 |             ``_run_division_step``
-|                 ``_run_prediction_step``
-|                     ``_prediction_options`` **-- reads it**
 |                 ``_write_field_features``
+|                     ``_prediction_options`` **-- reads it**
+|             ``_predict_after_run``
+|                 ``_run_prediction_step``
 |                     ``_prediction_options`` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.object.generate_cellpose_masks`
 |     ``_run_division_step``
-|         ``_run_prediction_step``
-|             ``_prediction_options`` **-- reads it**
 |         ``_write_field_features``
+|             ``_prediction_options`` **-- reads it**
+|     ``_predict_after_run``
+|         ``_run_prediction_step``
 |             ``_prediction_options`` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 
@@ -30186,17 +30194,19 @@ timelapse_division_prediction_model
 |     :py:func:`~spacr.core.preprocess_generate_masks`
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam`
 |             ``_run_division_step``
-|                 ``_run_prediction_step``
-|                     ``_prediction_options`` **-- reads it**
 |                 ``_write_field_features``
+|                     ``_prediction_options`` **-- reads it**
+|             ``_predict_after_run``
+|                 ``_run_prediction_step``
 |                     ``_prediction_options`` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.object.generate_cellpose_masks`
 |     ``_run_division_step``
-|         ``_run_prediction_step``
-|             ``_prediction_options`` **-- reads it**
 |         ``_write_field_features``
+|             ``_prediction_options`` **-- reads it**
+|     ``_predict_after_run``
+|         ``_run_prediction_step``
 |             ``_prediction_options`` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 

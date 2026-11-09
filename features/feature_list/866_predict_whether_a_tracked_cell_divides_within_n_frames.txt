@@ -1,7 +1,7 @@
 PREDICT WHETHER A TRACKED CELL DIVIDES WITHIN N FRAMES
 ======================================================
 Lifecycle: future
-Status: DONE 2026-11-09 (alpha) — new module spacr.division_prediction (kept out of division_analysis, as the item asks): division_prediction_features (per track and frame: shape, intensity and motion measures, their change over 3 frames, age, and the label 'divides within N frames'; frames whose horizon the movie does not show are left out), predict_divisions (GroupKFold by movie; model beside age-only, shuffled-within-movie labels and majority-class controls; pooled held-out AUROC/AUPRC with per-movie bootstrap 95% CIs from 5 movies on, row bootstrap with a too-narrow note below; paired CIs of the model's margin over each control; permutation importances on held-out folds), write/read_division_prediction and division_prediction_figure (bars + jittered folds). The Make Masks step writes prediction_features.csv per field and, from 3 fields on, tracks/division/prediction_<tracker>_tracks_<object>/. Four settings under ALPHA_FEATURES[866]; xgboost when installed, scikit-learn otherwise.
+Status: DONE 2026-11-09 (alpha) — new module spacr.division_prediction (kept out of division_analysis, as the item asks): division_prediction_features (per track and frame: shape, intensity and motion measures, their change over 3 frames, age, and the label 'divides within N frames'; frames whose horizon the movie does not show are left out), predict_divisions (GroupKFold by movie; model beside age-only, shuffled-within-movie labels and majority-class controls; pooled held-out AUROC/AUPRC with per-movie bootstrap 95% CIs from 5 movies on, row bootstrap with a too-narrow note below; paired CIs of the model's margin over each control; permutation importances on held-out folds), write/read_division_prediction and division_prediction_figure (bars + jittered folds). Training and evaluation use one frame per track (fixed seed), so each track counts once. The Make Masks step writes prediction_features.csv per field, and the prediction runs once at the end of the timelapse run over every field with features (3 or more) into tracks/division/prediction_<tracker>_tracks_<object>/. Four settings under ALPHA_FEATURES[866]; xgboost when installed, scikit-learn otherwise.
 Requested: maintainer, 2026-11-08 (follow-on 4c of item 771).
 Owner: Home (claude-div2-1109 worktree).
 Related: 771.
@@ -64,11 +64,10 @@ WHAT WAS BUILT (2026-11-09, alpha)
 NOT DONE / NEEDS A DECISION
 - Not compared with the Fig 7 driver in the BMC reanalysis folder (that driver and its data were not
   read here); the paper numbers should be rerun through spacr.division_prediction before they cite it.
-- Every frame of a track is one row, so long-lived tracks weigh more; whether to subsample one frame
-  per track per horizon is a modelling choice for the maintainer.
 - With fewer than 5 fields the intervals resample rows and are too narrow (said in ci_note); the
   5-movie threshold follows item 867.
-- The prediction reruns after every field once 3 have features (like the pooling); a run with many
-  fields could instead predict once at the end.
+- Decided by the maintainer 2026-11-09 and built: one frame per track (predict_divisions
+  one_per_track=True, sample_seed=0; summary row_sampling says which) and one prediction at the end of
+  the Make Masks run (spacr.object calls division_prediction._predict_after_run after the field loop).
 - Its English strings (settings tooltips, docstrings, verdicts, figure labels) have no catalogue
   records.

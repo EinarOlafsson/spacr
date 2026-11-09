@@ -80,18 +80,18 @@ def test_budding_mothers_restart_their_age_at_each_bud():
 
 
 def test_the_planted_change_beats_every_control_on_held_out_movies():
-    results = dp.predict_divisions(_features(True), model='gradient_boosting', folds=3,
+    results = dp.predict_divisions(_features(True, movies=8), model='gradient_boosting', folds=4,
                                    n_boot=200, rng=0, min_movies=5, n_repeats=2)
     metrics = results['metrics'].set_index('arm')
     assert metrics.at['model', 'auroc'] > 0.75
-    assert abs(metrics.at['shuffled', 'auroc'] - 0.5) < 0.1
+    assert abs(metrics.at['shuffled', 'auroc'] - 0.5) < 0.15
     assert metrics.at['majority', 'auroc'] == 0.5
     assert metrics.at['majority', 'auprc'] == pytest.approx(results['summary']['prevalence'])
     assert metrics.at['shuffled', 'delta_auroc_ci_low'] > 0
     assert metrics.at['age_only', 'delta_auroc_ci_low'] > 0
     summary = results['summary']
     assert summary['beats_shuffled'] and summary['beats_age_only'] and summary['beats_majority']
-    assert summary['ci_method'] == 'movie' and summary['n_folds'] == 3
+    assert summary['ci_method'] == 'movie' and summary['n_folds'] == 4
     assert 'beats the shuffled-label and age-only' in summary['verdict']
     folds = results['folds']
     assert (folds['n_shared_movies'] == 0).all()
@@ -102,6 +102,18 @@ def test_the_planted_change_beats_every_control_on_held_out_movies():
     top = results['importances'].iloc[0]['feature']
     assert 'aspect_ratio' in top
     assert (results['predictions']['fold'] >= 0).all()
+    keys = results['predictions'][['movie', 'track_id']]
+    assert not keys.duplicated().any()
+    assert summary['n_rows'] == len(keys) == _features(True, movies=8)[
+        ['movie', 'track_id']].drop_duplicates().shape[0]
+    again = dp.predict_divisions(_features(True, movies=8), model='gradient_boosting', folds=4,
+                                 n_boot=0, rng=0, n_repeats=0)
+    pd.testing.assert_frame_equal(again['predictions'][['movie', 'track_id', 't']],
+                                  results['predictions'][['movie', 'track_id', 't']])
+    every = dp.predict_divisions(_features(True, movies=3), model='logistic', folds=3,
+                                 n_boot=0, n_repeats=0, one_per_track=False)
+    assert every['summary']['row_sampling'] == 'every labelled frame'
+    assert every['summary']['n_rows'] == len(_features(True, movies=3))
 
 
 def test_without_a_planted_change_the_model_does_not_beat_shuffled_labels():

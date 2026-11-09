@@ -253,10 +253,14 @@ def _shuffle_within(labels, movies, rng):
 def predict_divisions(features: pd.DataFrame, model: str = 'auto', folds: int = 5,
                       n_boot: int = 1000, rng=0, min_movies: int = 5,
                       feature_columns: Optional[Sequence[str]] = None,
-                      n_repeats: int = 5) -> dict:
+                      n_repeats: int = 5, one_per_track: bool = True,
+                      sample_seed: int = 0) -> dict:
     """Train and evaluate the "divides within N frames" classifier, movie by movie.
 
-    Folds are grouped by movie (scikit-learn ``GroupKFold`` with
+    Frames of one track are near copies of each other, so by default one
+    labelled frame is drawn per track (per ``movie`` and ``track_id``) with
+    the fixed ``sample_seed``, and every track counts once in training and
+    evaluation. Folds are grouped by movie (scikit-learn ``GroupKFold`` with
     ``min(folds, number of movies)`` folds), so every prediction is made by a
     model that never saw that movie. Beside the model, three controls are
     scored on the same held-out rows: ``age_only`` (the same learner on the
@@ -286,6 +290,10 @@ def predict_divisions(features: pd.DataFrame, model: str = 'auto', folds: int = 
         ``frames_to_division``.
     :param n_repeats: shuffles per feature for the permutation importance;
         0 skips it.
+    :param one_per_track: draw one labelled frame per track; False keeps
+        every frame.
+    :param sample_seed: seed of that draw, fixed so a rerun uses the same
+        frames.
     :returns: dict with ``metrics`` (one row per arm: ``auroc``,
         ``auprc`` with ``_ci_low``/``_ci_high``, ``fold_auroc_mean`` and,
         for the controls, ``delta_auroc``/``delta_auprc`` of the model over
@@ -306,6 +314,12 @@ def predict_divisions(features: pd.DataFrame, model: str = 'auto', folds: int = 
     if missing:
         raise ValueError(f'features lack columns {missing}')
     data = features[features['label'].notna()].reset_index(drop=True)
+    sampled = bool(one_per_track) and 'track_id' in data and len(data)
+    if sampled:
+        draw = np.random.default_rng(sample_seed).random(len(data))
+        data = (data.assign(_draw=draw).sort_values('_draw')
+                .drop_duplicates(['movie', 'track_id']).drop(columns='_draw')
+                .sort_values(['movie', 'track_id']).reset_index(drop=True))
     movies = data['movie'].astype(str).to_numpy()
     n_movies = len(set(movies))
     if n_movies < 2:
@@ -417,6 +431,8 @@ def predict_divisions(features: pd.DataFrame, model: str = 'auto', folds: int = 
             f'intervals resample rows (fewer than {int(min_movies)} movies): frames of one '
             'cell are not independent, so these intervals are too narrow')
     summary = {'n_movies': n_movies, 'movies': sorted(set(movies)), 'n_rows': int(len(data)),
+               'row_sampling': (f'one frame per track (seed {int(sample_seed)})' if sampled
+                                else 'every labelled frame'),
                'n_positive': int(y.sum()), 'prevalence': prevalence, 'n_folds': n_splits,
                'model': model, 'learner': learner_name or 'none (one class in training)',
                'features': feature_columns, 'n_boot': int(n_boot), 'min_movies': int(min_movies),
@@ -616,6 +632,21 @@ def _write_field_features(measures, lineage, results, out_dir, settings):
         return None
     results.setdefault('paths', {})['prediction_features'] = path
     return path
+
+
+def _predict_after_run(src, object_type, tracker, settings):
+    """Predict divisions once, after a timelapse Make Masks run, over every field it analysed.
+
+    :returns: the results of :func:`_run_prediction_step`, or None when the
+        run wrote no division results.
+    """
+    import os
+
+    prefix = 'trackpy' if tracker == 'iou' else tracker
+    division_dir = os.path.join(os.path.dirname(src), 'tracks', 'division')
+    if not os.path.isdir(division_dir):
+        return None
+    return _run_prediction_step(division_dir, f'{prefix}_tracks_{object_type}_', settings)
 
 
 def _run_prediction_step(division_dir, stem_prefix, settings):

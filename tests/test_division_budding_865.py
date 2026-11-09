@@ -283,7 +283,7 @@ def _budding_stack(tiles=8, frames=24, seed=0):
     return stack, pd.DataFrame(rows)
 
 
-def test_the_step_fits_budding_movies_and_predicts_over_three_fields(tmp_path, capsys):
+def test_the_step_fits_budding_movies_and_the_run_predicts_once_over_three_fields(tmp_path, capsys):
     import os
 
     from spacr.tabular import write_table
@@ -302,9 +302,26 @@ def test_the_step_fits_budding_movies_and_predicts_over_three_fields(tmp_path, c
         assert result is not None
         assert result['summary']['size_control_model'] == 'budding'
         assert result['summary']['cytokinesis_methods'].get('contact', 0) > 0
+        assert 'prediction' not in result
     out = tmp_path / 'plate' / 'tracks' / 'division'
     assert (out / 'trackpy_tracks_cell_F0' / 'buds.csv').is_file()
     assert (out / 'trackpy_tracks_cell_F0' / 'prediction_features.csv').is_file()
-    assert 'prediction' in result
+    assert not (out / 'prediction_trackpy_tracks_cell').exists()
+    assert 'Division prediction' not in capsys.readouterr().out
+    from spacr.division_prediction import _predict_after_run
+
+    predicted = _predict_after_run(str(src), 'cell', 'iou', settings)
+    assert predicted['summary']['n_movies'] == 3
+    assert predicted['summary']['row_sampling'].startswith('one frame per track')
     assert (out / 'prediction_trackpy_tracks_cell' / 'summary.json').is_file()
     assert 'Division prediction over 3 fields' in capsys.readouterr().out
+    assert _predict_after_run(str(tmp_path / 'other' / 'masks'), 'cell', 'iou', settings) is None
+
+
+def test_a_bud_that_emerges_before_the_last_one_separated_ends_no_cycle():
+    measures = pd.DataFrame({'track_id': [1] * 20, 't': range(20), 'area': 300.0})
+    buds = pd.DataFrame({'mother': [1, 1], 'bud': [2, 3], 't_emergence': [2, 6],
+                         't_cytokinesis': [8, 12], 'budded_frames': [7, 7],
+                         'method': ['contact', 'contact'], 'status': ['ok', 'ok']})
+    assert not len(da.budding_cycles(measures, buds))
+    assert not len(da._budding_size_control(pd.DataFrame(), 0, None))

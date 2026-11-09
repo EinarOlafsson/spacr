@@ -1983,6 +1983,11 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
         if on_batch_done is not None:
             on_batch_done(path)
 
+    if (timelapse and settings.get('timelapse_division_analysis')
+            and settings.get('timelapse_division_prediction')):
+        from .division_prediction import _predict_after_run
+
+        _predict_after_run(src, object_type, settings['timelapse_mode'], settings)
     torch.cuda.empty_cache()
     if run_qc:
         _run_seg_qc(src, settings, object_type)
@@ -2294,6 +2299,11 @@ def generate_cellpose_masks(src, settings, object_type):
                 batch_filenames = []
 
         gc.collect()
+    if (timelapse and settings.get('timelapse_division_analysis')
+            and settings.get('timelapse_division_prediction')):
+        from .division_prediction import _predict_after_run
+
+        _predict_after_run(src, object_type, settings['timelapse_mode'], settings)
     torch.cuda.empty_cache()
     _run_seg_qc(src, settings, object_type)
     return
