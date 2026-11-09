@@ -48204,7 +48204,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plot",
-    "line": 687,
+    "line": 688,
     "module": "spacr.division_prediction",
     "nested": false,
     "qualname": "_run_prediction_step"
@@ -54601,7 +54601,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "save",
-    "line": 687,
+    "line": 688,
     "module": "spacr.division_prediction",
     "nested": false,
     "qualname": "_run_prediction_step"
@@ -65318,7 +65318,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_division_prediction_folds",
-    "line": 603,
+    "line": 604,
     "module": "spacr.division_prediction",
     "nested": false,
     "qualname": "_prediction_options"
@@ -65338,7 +65338,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_division_prediction_frames",
-    "line": 601,
+    "line": 602,
     "module": "spacr.division_prediction",
     "nested": false,
     "qualname": "_prediction_options"
@@ -65358,7 +65358,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "timelapse_division_prediction_model",
-    "line": 605,
+    "line": 606,
     "module": "spacr.division_prediction",
     "nested": false,
     "qualname": "_prediction_options"
