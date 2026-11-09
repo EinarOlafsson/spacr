@@ -64,6 +64,21 @@ def _normalise_class(value: Any) -> str:
     return " ".join(text.split())
 
 
+def _read_or_copy(source: Any) -> pd.DataFrame:
+    """A table from a path, read through :func:`spacr.tabular.read_table`,
+    or a copy of a frame or anything :class:`pandas.DataFrame` accepts.
+
+    :param source: a path, or tabular data.
+    :returns: the table, its column names as written: the OPS cell key is
+        ``plate, well, site, label``, which canonicalising would rename.
+    """
+    if isinstance(source, (str, bytes)) or hasattr(source, "__fspath__"):
+        from .tabular import read_table
+        path = source.decode() if isinstance(source, bytes) else source
+        return read_table(path, canonicalise=False, report=None)
+    return pd.DataFrame(source).copy()
+
+
 def read_mitotic_labels(labels: Any, mapping: Any = None, *, class_column: Optional[str] = None,
                         id_column: Optional[str] = None, artefacts: str = "drop") -> pd.DataFrame:
     """Read a table of labelled cells and turn the classes into mitotic calls.
@@ -93,8 +108,7 @@ def read_mitotic_labels(labels: Any, mapping: Any = None, *, class_column: Optio
     :raises ValueError: for a class that is none of the known ones, a cell
         labelled twice with different classes, or a missing column.
     """
-    table = pd.read_csv(labels) if isinstance(labels, (str, bytes)) or hasattr(
-        labels, "__fspath__") else pd.DataFrame(labels).copy()
+    table = _read_or_copy(labels)
     has_key = all(c in table for c in CELL_KEY)
     if class_column is None:
         options = ["class_fine", "class", "stage", "phase", "annotation", "call",
@@ -106,8 +120,7 @@ def read_mitotic_labels(labels: Any, mapping: Any = None, *, class_column: Optio
             raise ValueError(f"no class column in the label table; looked for {options}")
     table = table.rename(columns={class_column: "_class"})
     if mapping is not None:
-        cells = pd.read_csv(mapping) if isinstance(mapping, (str, bytes)) or hasattr(
-            mapping, "__fspath__") else pd.DataFrame(mapping).copy()
+        cells = _read_or_copy(mapping)
         missing = [c for c in CELL_KEY if c not in cells]
         if missing:
             raise ValueError(f"the mapping lacks the cell key columns {missing}")

@@ -40,7 +40,7 @@ tables in Brieflow's format) are the user's own: spaCR does not ship them.
 """
 from __future__ import annotations
 
-from functools import lru_cache
+from functools import lru_cache, partial
 from importlib import import_module
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Set, Tuple
 
@@ -79,7 +79,9 @@ def read_benchmark(path: str) -> pd.DataFrame:
     :returns: the table.
     :raises ValueError: when neither ``group`` nor ``pair`` is present.
     """
-    table = pd.read_csv(path, sep="\t")
+    from .tabular import read_table
+
+    table = read_table(path, sep="\t", report=None)
     if "gene_name" not in table or not ({"group", "pair"} & set(table.columns)):
         raise ValueError(
             f"{path} is not a benchmark table: it needs gene_name and either "
@@ -193,6 +195,21 @@ def phate_leiden(components: np.ndarray, resolutions: Iterable[float], *,
     return out
 
 
+def _fisher_p(a: int, k: int, n: int, *, n_background: int) -> float:
+    """The Fisher exact p-value of one cluster against one group.
+
+    :param a: genes both in the cluster and in the group.
+    :param k: genes in the group.
+    :param n: genes in the cluster.
+    :param n_background: genes in the background.
+    :returns: the two-sided Fisher exact p-value of the 2x2 table.
+    """
+    from scipy.stats import fisher_exact
+
+    b, c = k - a, n - a
+    return fisher_exact([[a, b], [c, max(n_background - (a + b + c), 0)]])[1]
+
+
 def group_enrichment(groups: pd.DataFrame, genes: Sequence[str], clusters: np.ndarray, *,
                      restrict: bool = True, control_prefix: str = "nontargeting"
                      ) -> Tuple[float, pd.DataFrame]:
@@ -209,7 +226,6 @@ def group_enrichment(groups: pd.DataFrame, genes: Sequence[str], clusters: np.nd
     :returns: ``(share, table)``; the table has one row per cluster with
         its size, the number of enriched groups and up to ten of them.
     """
-    from scipy.stats import fisher_exact
     from statsmodels.stats.multitest import multipletests
 
     background = set(genes)
@@ -221,10 +237,7 @@ def group_enrichment(groups: pd.DataFrame, genes: Sequence[str], clusters: np.nd
     sizes = np.array([len(members[n]) for n in names])
     n_background = len(background)
 
-    @lru_cache(maxsize=None)
-    def fisher(a, k, n):
-        b, c = k - a, n - a
-        return fisher_exact([[a, b], [c, max(n_background - (a + b + c), 0)]])[1]
+    fisher = lru_cache(maxsize=None)(partial(_fisher_p, n_background=n_background))
 
     table = []
     frame = pd.DataFrame({"gene": np.asarray(genes)[keep], "cluster": np.asarray(clusters)[keep]})
@@ -618,6 +631,28 @@ def co_membership(labels: np.ndarray) -> np.ndarray:
         return np.where(both > 0, together / np.where(both > 0, both, 1), np.nan)
 
 
+def _pick_column(table: pd.DataFrame, path: str, given: Optional[str],
+                 options: Sequence[str], what: str) -> str:
+    """The column of a reference table to use for ``what``.
+
+    :param table: the reference table.
+    :param path: its file, named in the error.
+    :param given: the column the caller named, or None to search ``options``.
+    :param options: the column names tried in order when ``given`` is None.
+    :param what: what the column holds, ``gene`` or ``cluster``.
+    :returns: the column name.
+    :raises ValueError: when ``given`` is absent or no option is present.
+    """
+    if given:
+        if given not in table:
+            raise ValueError(f"{path} has no {what} column {given!r}")
+        return given
+    for option in options:
+        if option in table:
+            return option
+    raise ValueError(f"{path} has no {what} column; looked for {list(options)}")
+
+
 def reference_clusters(path: str, *, gene: Optional[str] = None,
                        cluster: Optional[str] = None) -> pd.DataFrame:
     """Read a reference clustering, such as Funk et al.'s published table.
@@ -630,24 +665,15 @@ def reference_clusters(path: str, *, gene: Optional[str] = None,
     :returns: ``gene, cluster`` rows with a cluster, the cluster as int.
     :raises ValueError: when a column cannot be found.
     """
-    lower = str(path).lower()
-    if lower.endswith((".xlsx", ".xls")):
-        table = pd.read_excel(path)
-    else:
-        table = pd.read_csv(path, sep="\t" if lower.endswith(".tsv") else ",", low_memory=False)
+    from .tabular import read_table, table_format
 
-    def pick(given, options, what):
-        if given:
-            if given not in table:
-                raise ValueError(f"{path} has no {what} column {given!r}")
-            return given
-        for option in options:
-            if option in table:
-                return option
-        raise ValueError(f"{path} has no {what} column; looked for {list(options)}")
+    # The C parser's low_memory switch; the sniffing reader of a .txt has none.
+    sniffed = table_format(path) != "csv" or str(path).lower().endswith(".txt")
+    options = {} if sniffed else {"low_memory": False}
+    table = read_table(path, report=None, **options)
 
-    g = pick(gene, ("gene", "gene_symbol", "gene_name"), "gene")
-    c = pick(cluster, ("cluster", "interphase_cluster"), "cluster")
+    g = _pick_column(table, path, gene, ("gene", "gene_symbol", "gene_name"), "gene")
+    c = _pick_column(table, path, cluster, ("cluster", "interphase_cluster"), "cluster")
     out = table[[g, c]].dropna().rename(columns={g: "gene", c: "cluster"})
     out["cluster"] = out["cluster"].astype(int)
     return out.reset_index(drop=True)
@@ -687,6 +713,8 @@ def _aggregate_benchmark(guides: pd.DataFrame, genes: pd.DataFrame, columns: Seq
     import json
     import os
 
+    from .tabular import write_table
+
     paths = {}
     for name in ("corum", "kegg", "string"):
         path = settings.get(f"ops_benchmark_{name}")
@@ -720,7 +748,7 @@ def _aggregate_benchmark(guides: pd.DataFrame, genes: pd.DataFrame, columns: Seq
                         ("cluster_assignments", out["assignments"]),
                         ("string_pr_curve", out["curve"])):
         target = os.path.join(destination, f"ops_{name}_{stem}.csv")
-        frame.to_csv(target, index=False)
+        write_table(frame, target)
         written[name] = target
     summary = {**out["summary"], "benchmark_files": paths, "reference_clusters": reference,
                "outputs": written}

@@ -13,6 +13,10 @@ import torch.nn as nn  # noqa: E402
 def _cpu_only(monkeypatch):
     import matplotlib
     matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    # Start from no open figures: a figure an earlier test in this worker
+    # left open is not one train_model failed to close.
+    plt.close("all")
     import spacr.accelerator as accelerator
     monkeypatch.setattr(accelerator, "_CACHED", None)
     monkeypatch.setattr(torch.cuda, "is_available", lambda: False)

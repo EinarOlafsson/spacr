@@ -49,10 +49,13 @@ def _public(name, url=None):
     path = cache / name
     if not path.exists():
         cache.mkdir(parents=True, exist_ok=True)
-        partial = path.with_name(path.name + '.part')
+        # One partial file per worker: two xdist workers fetching the same
+        # sample must not rename each other's download away.
+        partial = path.with_name(f'{path.name}.{os.getpid()}.part')
         try:
             urllib.request.urlretrieve(url or _PUBLIC[name], partial)
         except OSError as exc:
+            partial.unlink(missing_ok=True)
             pytest.skip(f'public sample {name} unavailable: {exc}')
         os.replace(partial, path)
     return path
