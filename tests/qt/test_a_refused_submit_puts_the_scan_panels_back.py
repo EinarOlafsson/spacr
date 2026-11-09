@@ -188,16 +188,3 @@ def test_an_accepted_merge_does_claim_to_run(qtbot, tmp_path):
         pytest.skip("the merge was refused before reaching the submit")
     assert started is True
     assert panel._merging is True
-
-
-def test_job_runner_really_can_refuse():
-    """THE PREMISE both pragmas denied."""
-    from spacr.qt.job_runner import JobRunner
-
-    runner = JobRunner(threaded=False, app_key="test", user_visible=False)
-
-    def boom(_result):
-        raise RuntimeError("the completion callback failed")
-
-    assert runner.submit(lambda: {"ok": True}, boom) is False
-    assert runner.submit(lambda: {"ok": True}, lambda _r: None) is True

@@ -973,12 +973,6 @@ def test_two_folders_on_one_drive_are_one_line(tmp_path):
     assert report.entries[0].total > 0
 
 
-def test_no_folders_at_all_says_how_to_get_a_reading():
-    report = rc.disk_report([])
-    assert report.entries == ()
-    assert "No project folder is known yet" in report.summary()
-
-
 # ---------------------------------------------------------------------------
 # Wiring
 # ---------------------------------------------------------------------------

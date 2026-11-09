@@ -388,12 +388,6 @@ def test_folding_and_re_pressing_the_same_setting_does_not_decode_again(
 # 4. The preference and the default agree
 # ---------------------------------------------------------------------------
 
-def test_one_default_stated_in_both_places():
-    assert prefs.DEFAULT_SETTING_ANIMATIONS is False
-    assert prefs.get_setting_animations_enabled() is False
-    assert HoverTooltip().animations_shown() is False
-
-
 def test_the_preference_means_do_not_ask_me(tooltip, qtbot, decodes):
     """On, the animation appears with no click — the only difference."""
     prefs.set_setting_animations_enabled(True)

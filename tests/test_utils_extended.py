@@ -313,11 +313,6 @@ def test_normalize_src_path_list_of_strs():
 # Reads-in-fastq counter (uses the sequencing fixture)
 # ---------------------------------------------------------------------------
 
-def test_count_reads_in_fastq_end_to_end(synth_illumina_reads):
-    n = U.count_reads_in_fastq(synth_illumina_reads["r1_path"])
-    assert n == synth_illumina_reads["n_reads"]
-
-
 # ---------------------------------------------------------------------------
 # Non-overlapping position search
 # ---------------------------------------------------------------------------

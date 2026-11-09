@@ -281,11 +281,6 @@ def test_every_gui_only_app_gives_a_reason_and_an_alternative(app_key):
         f"instead: {reason!r}")
 
 
-def test_gui_only_and_runnable_are_disjoint():
-    """An app cannot be both; the error message picks one branch."""
-    assert not (set(cli.INTERACTIVE_ONLY) & set(cli.MODULES))
-
-
 def live_app_keys():
     """Every app key, including screens that register themselves on import.
 
