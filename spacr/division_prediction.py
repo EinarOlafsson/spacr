@@ -472,7 +472,7 @@ def division_prediction_figure(results: dict):
     from matplotlib.figure import Figure
 
     from .figures.bundle import _register_figure_data
-    from .figures.style import ROLES
+    from .figures.style import ROLES, resolve_ink, theme_target
 
     metrics = results.get('metrics', pd.DataFrame())
     folds = results.get('folds', pd.DataFrame())
@@ -501,7 +501,8 @@ def division_prediction_figure(results: dict):
             lo, hi = float(row.get(f'{name}_ci_low', np.nan)), float(row.get(f'{name}_ci_high', np.nan))
             ax.bar(i, value, width=0.6, color=colors[arm], alpha=0.6)
             if np.isfinite(lo) and np.isfinite(hi):
-                ax.errorbar(i, value, yerr=[[value - lo], [hi - value]], color='black',
+                ax.errorbar(i, value, yerr=[[value - lo], [hi - value]],
+                            color=resolve_ink(theme_target()),
                             lw=0.8, capsize=3)
             if len(folds) and name in folds:
                 pts = folds.loc[folds['arm'] == arm, name].to_numpy(float)
