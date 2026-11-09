@@ -30090,7 +30090,7 @@ Read by ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``.
 timelapse_division_mode
 -----------------------
 
-(str) - Which divisions are analysed. fission: the mother's track ends and two daughters start on the next frame, as in bacteria, fission yeast and mammalian cells. budding: the mother goes on and each bud is a new track that starts while she is alive, as in budding yeast; a tracker that keeps one daughter under the mother's id also gives budding. auto takes whichever of the two the movie has more of. Size control is fitted for fission only. Ignored unless timelapse_division_analysis. Default auto.
+(str) - Which divisions are analysed. fission: the mother's track ends and two daughters start on the next frame, as in bacteria, fission yeast and mammalian cells. budding: the mother goes on and each bud is a new track that starts while she is alive, as in budding yeast; a tracker that keeps one daughter under the mother's id also gives budding. auto takes whichever of the two the movie has more of. Size control is fitted for both: fission from birth to division, budding from one bud separation to the next. Ignored unless timelapse_division_analysis. Default auto.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`

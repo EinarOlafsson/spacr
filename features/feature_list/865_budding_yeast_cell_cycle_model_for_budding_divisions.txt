@@ -68,6 +68,6 @@ WHAT WAS BUILT (2026-11-09, alpha)
 NOT DONE / NEEDS A DECISION
 - No real budding-yeast movie was run (synthetic data only); the 2-frame separation rule, the
   one-pixel seam and the 25% plateau are defaults chosen here, not calibrated on real data.
-- The timelapse_division_mode tooltip still says "Size control is fitted for fission only"; changing
-  it means a new English string and nine translations, so it was left for the translation lane.
+- 2026-11-09: the timelapse_division_mode tooltip now says size control is fitted for both fission
+  and budding (changed English string; its nine translations are stale until the translation lane).
 - Its English strings (docstrings, summary note, figure title and labels) have no catalogue records.
