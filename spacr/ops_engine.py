@@ -284,7 +284,7 @@ _PHASES = ("stitch", "phenotype", "objects", "decode")
 #: table; a run includes them only when ``phases`` names them.
 _PH_PHASES = ("ph_flatfield", "ph_segment", "ph_measure", "ph_masks",
               "ph_ownership", "merge", "ph_merged", "aggregate", "ph_tables",
-              "ph_crops")
+              "ph_crops", "report")
 
 #: Every phase :func:`run_ops` accepts, in the order they run.
 _ALL_PHASES = _PHASES + _PH_PHASES
@@ -3350,6 +3350,99 @@ def _ph_degenerate_feature(feature: str, values, control, wells
     return row
 
 
+class _PhFunnel:
+    """The per-well cell counts of the aggregate phase's filters, as it runs them.
+
+    Each count is taken from the frame the aggregate phase holds at that
+    step, so the funnel cannot disagree with the tables it pooled: a
+    reduction recomputed afterwards could. ``owned`` comes from
+    ``ops_ownership_<well>`` (A1/A1b); without one every cell is owned.
+    """
+
+    def __init__(self, cells, destination: str, wells: Sequence[str]):
+        """Count the segmented cells and read each well's ownership.
+
+        :param cells: every cell of the pooled wells (``well``, ``site``,
+            ``label``, and ``touches_field_edge`` when the mask pass was
+            read).
+        :param destination: the run folder.
+        :param wells: the pooled wells.
+        """
+        import pandas as pd
+
+        self.wells = [str(w) for w in wells]
+        self.counts: Dict[str, Dict[str, Any]] = {w: {} for w in self.wells}
+        self.count("cells_segmented", cells)
+        if "touches_field_edge" in cells:
+            self.count("cells_without_mask_row",
+                       cells[cells["touches_field_edge"].isna()])
+        owned = np.ones(len(cells), bool)
+        for well in self.wells:
+            path = _ph_ownership_path(destination, well)
+            if not os.path.isfile(path):
+                continue
+            table = pd.read_parquet(path, columns=["site", "label", "owned"])
+            flags = pd.Series(table["owned"].astype(bool).to_numpy(),
+                              index=pd.MultiIndex.from_arrays(
+                                  [table["site"].astype(int),
+                                   table["label"].astype(int)]))
+            mine = (cells["well"].astype(str) == well).to_numpy()
+            keys = pd.MultiIndex.from_arrays(
+                [cells.loc[mine, "site"].astype(int),
+                 cells.loc[mine, "label"].astype(int)])
+            owned[mine] = [False if pd.isna(v) else bool(v)
+                           for v in flags.reindex(keys)]
+        self.owned = pd.Series(owned, index=cells.index)
+        self.count("owned", cells[owned])
+        self.count("margin_copies_excluded", cells[~owned])
+
+    def count(self, name: str, frame) -> None:
+        """Record ``frame``'s rows per well under ``name``."""
+        sizes = frame.groupby(frame["well"].astype(str)).size() if len(
+            frame) else {}
+        for well in self.wells:
+            self.counts[well][name] = int(sizes.get(well, 0)) if len(
+                frame) else 0
+
+    def cut(self, cells, cut) -> None:
+        """Count the owned cells the field's edge cuts, and the whole ones."""
+        owned = self.owned.reindex(cells.index).to_numpy()
+        cut = cut.to_numpy()
+        self.count("owned_cut_excluded", cells[owned & cut])
+        self.count("owned_whole", cells[owned & ~cut])
+        self.owned = self.owned[~cut].reset_index(drop=True)
+
+    def failed_fields(self, cells, inside, gone) -> None:
+        """Count the owned, whole cells of the fields the field check dropped."""
+        owned = (self.owned.to_numpy(bool) if len(self.owned) == len(cells)
+                 else np.ones(len(cells), bool))
+        self.count("registration_failure_cells_excluded",
+                   cells[owned & np.asarray(inside, bool)])
+        for well in self.wells:
+            self.counts[well]["registration_failure_fields"] = sorted(
+                int(s) for w, s in zip(gone["well"], gone["site"])
+                if str(w) == well)
+
+    def calls(self, cells, control) -> None:
+        """Count the controls, mitotic and interphase cells, guides and genes."""
+        self.count("nontargeting", cells[control.to_numpy()])
+        mitotic = cells["mitotic"].astype(bool).to_numpy() if \
+            "mitotic" in cells else np.zeros(len(cells), bool)
+        self.count("mitotic", cells[mitotic])
+        self.count("interphase", cells[~mitotic])
+        for well in self.wells:
+            mine = cells[cells["well"].astype(str) == well]
+            self.counts[well]["guides"] = int(mine["sgRNA"].nunique())
+            self.counts[well]["genes"] = int(mine["gene"].nunique())
+
+    def frame(self, plate: str):
+        """One row per well: ``plate``, ``well`` and every count taken."""
+        import pandas as pd
+
+        return pd.DataFrame([{"plate": plate, "well": well, **counts}
+                             for well, counts in self.counts.items()])
+
+
 def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
                   settings: Mapping[str, Any], destination: str,
                   keep_cells: bool = False) -> Dict[str, Any]:
@@ -3561,8 +3654,10 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         masks = pd.concat(mask_rows, ignore_index=True)
         cells = cells.merge(masks, on=["well", "site", "label"], how="left")
         del masks, mask_rows
+    funnel = _PhFunnel(cells, destination, pooled)
     if ownership != "closer_match":
         cut = cells["touches_field_edge"].fillna(True).astype(bool)
+        funnel.cut(cells, cut)
         ownership_counts = {"rule": ownership,
                             "cells_cut_by_field_edge": int(cut.sum())}
         for well in pooled:
@@ -3597,18 +3692,23 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
             "fields_dropped": [f"{w}/{int(x)}" for w, x in
                                zip(gone["well"], gone["site"])],
             "cells_dropped": int(inside.sum()), "table": target}
+        funnel.failed_fields(cells, inside, gone)
         cells = cells[~inside].reset_index(drop=True)
     cells = cells.merge(merged_rows[["well", "site", "label", "object_id"]],
                         on=["well", "site", "label"], how="inner")
     cells = cells.merge(called, on=["well", "object_id"], how="left")
     with_guide = cells["mapped_guide"].notna()
+    funnel.count("linked", cells)
+    funnel.count("linked_no_genotype", cells[~with_guide])
     cells = cells[with_guide].merge(
         design.rename(columns={"prefix": "mapped_guide"}),
         on="mapped_guide", how="inner")
+    funnel.count("with_guide", cells)
     cross_field_report = None
     if bool(settings.get("ops_cross_field_ownership", False)):
         cells, cross_field_report = _ph_cross_field_filter(
             cells, destination, pooled, settings)
+        funnel.count("one_copy_per_cell", cells)
     nonfinite_dropped: Optional[int] = None
     if bool(settings.get("ops_drop_nonfinite_rows", False)):
         bad_count = np.zeros(len(cells), np.int64)
@@ -3619,6 +3719,7 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
             bad_count += (~np.isfinite(values)).sum(axis=1)
         broken = bad_count > _PH_NONFINITE_SHARE * len(features)
         nonfinite_dropped = int(broken.sum())
+        funnel.count("dropped_nonfinite_rows", cells[broken])
         cells = cells[~broken].reset_index(drop=True)
     rows = cells["_row"].to_numpy()
     control = cells["gene"].str.lower().str.startswith(control_prefix.lower())
@@ -3653,6 +3754,7 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
                                          area="nucleus_area", dna_z=mitotic_z)
     else:
         cells["mitotic"] = False
+    funnel.calls(cells, control)
     interphase = bool(settings.get("ops_pool_interphase", False))
     keep = (~cells["mitotic"].astype(bool)).to_numpy() if interphase else \
         np.ones(len(cells), bool)
@@ -3745,6 +3847,10 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     if len(pooled) < len(run_wells):
         tag += "_wells-" + "-".join(pooled)
     outputs = {}
+    funnel_path = os.path.join(destination, f"ops_funnel_{plate}{tag}.parquet")
+    funnel.frame(plate).to_parquet(funnel_path + ".part", index=False)
+    os.replace(funnel_path + ".part", funnel_path)
+    outputs["funnel_parquet"] = funnel_path
     if keep_cells:
         target = _ph_cells_table_path(destination, plate, tag)
         kept = cells[["well", "site", "label", "object_id", "mapped_guide",
@@ -5608,6 +5714,225 @@ def _ph_cross_field_filter(cells, destination: str, wells: Sequence[str],
              "dropped_extra_copies": int(len(joined) - len(kept))})
 
 
+
+#: The levels ``ops_reference_counts_level`` may name: decoded sequencing
+#: nuclei, or linked, owned phenotype cells. They are never pooled.
+_PH_REPORT_LEVELS = ("sbs", "phenotype")
+
+#: The funnel columns of ``funnel_per_well.csv``, each read from the
+#: aggregate phase's own count (:class:`_PhFunnel`).
+_PH_FUNNEL_COLUMNS = (
+    ("segmented", "cells_segmented"), ("whole_and_owned", "owned_whole"),
+    ("linked", "linked"), ("with_library_guide", "with_guide"),
+    ("interphase", "interphase"), ("decoy_assigned", None),
+    ("dropped_failed_fields", "registration_failure_cells_excluded"),
+    ("dropped_nonfinite", "dropped_nonfinite_rows"))
+
+
+def _ph_rho_with_null(spacr, reference, reps: int, rng) -> Dict[str, Any]:
+    """Spearman's rho of two count vectors and a shuffled-label control.
+
+    :param spacr: spaCR's counts.
+    :param reference: the reference counts, row-aligned.
+    :param reps: how many times spaCR's counts are permuted.
+    :param rng: the generator the permutations draw from.
+    :returns: ``n``, ``spearman``, ``shuffled_mean`` and
+        ``shuffled_p95_abs`` (the 95th percentile of abs(rho) under the
+        permutations), over the rows where both are finite.
+    """
+    from scipy.stats import spearmanr
+
+    spacr = np.asarray(spacr, float)
+    reference = np.asarray(reference, float)
+    finite = np.isfinite(spacr) & np.isfinite(reference)
+    spacr, reference = spacr[finite], reference[finite]
+    rho = float(spearmanr(spacr, reference)[0])
+    null = np.array([spearmanr(rng.permutation(spacr), reference)[0]
+                     for _ in range(int(reps))], float)
+    return {"n": int(finite.sum()), "spearman": rho,
+            "shuffled_mean": float(null.mean()) if null.size else None,
+            "shuffled_p95_abs": (float(np.percentile(np.abs(null), 95))
+                                 if null.size else None),
+            "shuffles": int(reps)}
+
+
+def _ph_reference_counts(path: str):
+    """A published per-guide count table: ``guide``, ``gene``, ``count``.
+
+    :raises ValueError: when a column is missing.
+    """
+    from .qt.i18n import tr
+    from .tabular import read_table
+
+    table = read_table(str(path), canonicalise=False, report=None)
+    missing = [c for c in ("guide", "gene", "count") if c not in table.columns]
+    if missing:
+        raise ValueError(tr(
+            "ops_reference_counts {path} needs guide, gene and count "
+            "columns; it lacks {missing}", path=path, missing=missing))
+    table = table[["guide", "gene", "count"]].copy()
+    table["count"] = table["count"].astype(float)
+    return table.reset_index(drop=True)
+
+
+def _ph_report(db: str, plate: str, wells: Sequence[str],
+               settings: Mapping[str, Any], destination: str,
+               aggregate: Optional[Mapping[str, Any]] = None
+               ) -> Dict[str, Any]:
+    """The run's yield funnel and its counts against a published table; the ``report`` phase.
+
+    :param db: the measurements database.
+    :param plate: the plate name.
+    :param wells: the wells run.
+    :param settings: read for ``ops_reference_counts``,
+        ``ops_reference_counts_level``, ``ops_reference_shuffles``,
+        ``ops_reference_seed``, ``ops_design`` and ``ops_genotype_table``.
+    :param destination: the run folder; the files go to
+        ``<dst_root>/results/ops_report/``.
+    :param aggregate: this run's aggregate report, whose ``outputs`` name
+        the funnel and guide tables; the untagged tables in
+        ``destination`` when None.
+    :returns: the report.
+
+    ``funnel_per_well.csv``: per well, ``segmented``, ``whole_and_owned``,
+    ``linked``, ``with_library_guide``, ``interphase``, ``decoy_assigned``
+    (linked cells whose call is no guide of the design), ``dropped_failed_fields``
+    and ``dropped_nonfinite``, then every count the aggregate phase took
+    (:class:`_PhFunnel`), so nothing is recounted another way.
+
+    ``counts_vs_reference.csv`` and ``.json``: spaCR's count of each guide
+    of ``ops_reference_counts`` and of each gene, beside the reference's,
+    and Spearman's rho with a shuffled-label control
+    (:func:`_ph_rho_with_null`; ``ops_reference_shuffles`` permutations
+    from ``ops_reference_seed``, guides first, then genes). Each level is
+    its own block, named in every row: ``sbs`` counts decoded sequencing
+    nuclei per guide (every reference guide, absent ones 0); ``phenotype``
+    counts the pooled cells of the guide and gene tables (the guides and
+    genes both have). ``spacr_scaled`` is spaCR's count scaled to the
+    reference's pooled total.
+    """
+    import pandas as pd
+
+    from .qt.i18n import tr
+    from .tabular import write_table
+
+    started = time.perf_counter()
+    folder = os.path.join(destination, "results", "ops_report")
+    os.makedirs(folder, exist_ok=True)
+    outputs = dict((aggregate or {}).get("outputs") or {})
+    funnel_path = outputs.get("funnel_parquet") or os.path.join(
+        destination, f"ops_funnel_{plate}.parquet")
+    report: Dict[str, Any] = {"folder": folder}
+    if os.path.isfile(funnel_path):
+        funnel = pd.read_parquet(funnel_path)
+        out = funnel[["plate", "well"]].copy()
+        for name, source in _PH_FUNNEL_COLUMNS:
+            if source is None:
+                out[name] = (funnel.get("linked", 0)
+                             - funnel.get("linked_no_genotype", 0)
+                             - funnel.get("with_guide", 0))
+            elif source in funnel:
+                out[name] = funnel[source]
+            elif name == "whole_and_owned" and "owned" in funnel:
+                out[name] = funnel["owned"]
+            else:
+                out[name] = 0
+        rest = [c for c in funnel.columns if c not in ("plate", "well")]
+        out = pd.concat([out, funnel[rest].add_prefix("aggregate_")], axis=1)
+        target = os.path.join(folder, "funnel_per_well.csv")
+        write_table(out, target, canonicalise=False)
+        report["funnel"] = target
+    else:
+        report["funnel"] = None
+    reference_path = settings.get("ops_reference_counts")
+    if not reference_path:
+        report["counts_vs_reference"] = {
+            "skipped": "no ops_reference_counts table"}
+        report["seconds"] = round(time.perf_counter() - started, 1)
+        return report
+    levels = [v.lower() for v in _ph_names(
+        settings.get("ops_reference_counts_level") or "sbs")]
+    unknown = [v for v in levels if v not in _PH_REPORT_LEVELS]
+    if unknown:
+        raise ValueError(tr(
+            "ops_reference_counts_level must name {levels}; got {value}",
+            levels=list(_PH_REPORT_LEVELS), value=unknown))
+    reps = int(_setting_number(settings.get("ops_reference_shuffles"),
+                               "ops_reference_shuffles", 1000))
+    seed = int(_setting_number(settings.get("ops_reference_seed"),
+                               "ops_reference_seed", 0))
+    reference = _ph_reference_counts(str(reference_path))
+    frames, summary = [], {"reference": str(reference_path), "seed": seed,
+                           "shuffles": reps, "levels": {}}
+    for level in levels:
+        rng = np.random.default_rng(seed)
+        if level == "sbs":
+            if settings.get("ops_genotype_table"):
+                called = _ph_genotype_table(str(settings["ops_genotype_table"]),
+                                            plate, wells)
+            else:
+                called = _rows_for_wells(db, "ops_barcodes", plate, wells)
+                if called is None:
+                    raise ValueError(tr(
+                        "the sbs level needs ops_barcodes; run the decode "
+                        "phase first"))
+                called = called[called["mapped_guide"].fillna("").astype(str)
+                                != ""]
+            counts = called.groupby("mapped_guide").size()
+            length = int(pd.Series(counts.index).str.len().mode().iloc[0]) \
+                if len(counts) else 11
+            guides = reference.assign(
+                spacr=reference["guide"].astype(str).str.upper().str[:length]
+                .map(counts).fillna(0).astype(float))
+            genes = guides.groupby("gene")[["count", "spacr"]].sum().reset_index()
+        else:
+            guide_path = outputs.get("guides_parquet") or os.path.join(
+                destination, f"ops_guides_{plate}.parquet")
+            gene_path = outputs.get("genes_parquet") or os.path.join(
+                destination, f"ops_genes_{plate}.parquet")
+            if not (os.path.isfile(guide_path) and os.path.isfile(gene_path)):
+                raise ValueError(tr(
+                    "the phenotype level needs the aggregate phase's guide "
+                    "and gene tables at {path}; run aggregate first",
+                    path=guide_path))
+            mine = pd.read_parquet(guide_path, columns=["guide", "n_cells"])
+            guides = mine.merge(reference, on="guide", how="inner").rename(
+                columns={"n_cells": "spacr"})
+            guides = guides[["guide", "gene", "count", "spacr"]]
+            pooled = reference.groupby("gene")["count"].sum()
+            genes = pd.read_parquet(gene_path, columns=["gene", "n_cells"]).merge(
+                pooled.rename("count"), left_on="gene", right_index=True,
+                how="inner").rename(columns={"n_cells": "spacr"})
+        block = {}
+        for unit, table in (("guide", guides), ("gene", genes)):
+            block[unit] = _ph_rho_with_null(table["spacr"].to_numpy(float),
+                                            table["count"].to_numpy(float),
+                                            reps, rng)
+            total = float(table["spacr"].sum())
+            frame = pd.DataFrame({
+                "level": level, "unit": unit,
+                "key": table[unit].astype(str).to_numpy(),
+                "gene": table["gene"].astype(str).to_numpy(),
+                "spacr_count": table["spacr"].to_numpy(float),
+                "spacr_scaled": (table["spacr"].to_numpy(float)
+                                 * float(table["count"].sum()) / total
+                                 if total else np.nan),
+                "reference_count": table["count"].to_numpy(float)})
+            frames.append(frame)
+        summary["levels"][level] = block
+    table = pd.concat(frames, ignore_index=True)
+    target = os.path.join(folder, "counts_vs_reference.csv")
+    write_table(table, target, canonicalise=False)
+    with open(os.path.join(folder, "counts_vs_reference.json"), "w",
+              encoding="utf-8") as handle:
+        json.dump(summary, handle, indent=1)
+    report["counts_vs_reference"] = {
+        "csv": target, "json": os.path.join(folder, "counts_vs_reference.json"),
+        **summary}
+    report["seconds"] = round(time.perf_counter() - started, 1)
+    return report
+
+
 def _rows_for_wells(db: str, table: str, plate: str, wells: Sequence[str]):
     """Rows of ``table`` for ``plate`` and any of ``wells``, or None."""
     from .ops_store import read_table, row_count
@@ -5668,7 +5993,9 @@ def run_ops(settings: Mapping[str, Any], *,
         tables (:func:`_ph_tables`); ``"ph_crops"`` cuts raw crops of owned
         cells into a sharded store (:func:`_ph_crops`). ``"ph_ownership"`` (per
         well, after ``ph_masks``) finds the copies of each cell across
-        overlapping fields (:func:`_ph_cross_field_ownership`). With
+        overlapping fields (:func:`_ph_cross_field_ownership`).
+        ``"report"``, last, writes the yield funnel and the counts against
+        a published table to ``results/ops_report/`` (:func:`_ph_report`). With
         ``ops_ph_secondary_registration`` set, each well's second phenotype
         acquisition is registered before its fields are read
         (:func:`_ph_secondary_shifts`).
@@ -5858,7 +6185,10 @@ def run_ops(settings: Mapping[str, Any], *,
     if "ph_crops" in phases:
         out["ph_crops"] = _ph_crops(db, plate, chosen, phenotype_index,
                                     settings, destination)
-    for phase in ("ph_tables", "ph_crops"):
+    if "report" in phases:
+        out["report"] = _ph_report(db, plate, chosen, settings, destination,
+                                   out.get("aggregate"))
+    for phase in ("ph_tables", "ph_crops", "report"):
         if phase in out:
             with open(os.path.join(destination, f"ops_{phase}_{plate}.json"),
                       "w", encoding="utf-8") as handle:

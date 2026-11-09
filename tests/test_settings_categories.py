@@ -545,6 +545,11 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_cross_field_metric",
     "ops_cross_field_min_overlap",
     "ops_cross_field_policy",
+    # OPS run report: counts against a published table (875).
+    "ops_reference_counts",
+    "ops_reference_counts_level",
+    "ops_reference_shuffles",
+    "ops_reference_seed",
     # TVN profiles for the OPS aggregate phase (item 854, 2026-11-07).
     "ops_profile_normalisation", "ops_tvn_mode", "ops_tvn_pca_sample",
     "ops_tvn_seed", "ops_tvn_components", "ops_tvn_whiten_epsilon",

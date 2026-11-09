@@ -116,6 +116,10 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_cross_field_metric": 'overlap_fraction',
     "ops_cross_field_min_overlap": 0.5,
     "ops_cross_field_policy": 'one_per_cell',
+    "ops_reference_counts": None,
+    "ops_reference_counts_level": 'sbs',
+    "ops_reference_shuffles": 1000,
+    "ops_reference_seed": 0,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -215,6 +219,10 @@ OPS_TYPES: Dict[str, object] = {
     "ops_cross_field_metric": str,
     "ops_cross_field_min_overlap": (float, int),
     "ops_cross_field_policy": str,
+    "ops_reference_counts": (str, type(None)),
+    "ops_reference_counts_level": str,
+    "ops_reference_shuffles": int,
+    "ops_reference_seed": int,
 }
 
 #: Which panel section each setting appears under.
@@ -272,6 +280,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ph_secondary_fallback", "ops_ph_measure_gpu",
         "ops_cross_field_ownership", "ops_cross_field_metric",
         "ops_cross_field_min_overlap", "ops_cross_field_policy",
+        "ops_reference_counts", "ops_reference_counts_level",
+        "ops_reference_shuffles", "ops_reference_seed",
     ],
 }
 
@@ -799,6 +809,26 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "plate A also drops many genotyped cells whose owner was never "
         "linked; 'flag_only' writes the ownership table and changes nothing "
         "else. Default 'one_per_cell'. Alpha.",
+    "ops_reference_counts":
+        "(str or None) - A published per-guide count table (columns guide, "
+        "gene, count; CSV, TSV or Excel), for example Funk et al. 2022's "
+        "supplementary counts. The report phase ranks spaCR's count of "
+        "every guide and gene against it (Spearman's rho with a shuffled "
+        "control). Empty skips the comparison. Default None. Alpha.",
+    "ops_reference_counts_level":
+        "(str) - Which spaCR counts the report compares with "
+        "ops_reference_counts: 'sbs' counts decoded sequencing nuclei per "
+        "guide, 'phenotype' the linked, owned cells the aggregate pooled; "
+        "'sbs,phenotype' writes both. Each result names its level, so the "
+        "two are never mixed. Default 'sbs'. Alpha.",
+    "ops_reference_shuffles":
+        "(int) - How many times the report permutes spaCR's counts across "
+        "guides for the shuffled-label control of the rank correlation; it "
+        "reports the 95th percentile of abs(rho). More is steadier and "
+        "slower. Default 1000. Alpha.",
+    "ops_reference_seed":
+        "(int) - Seed of the shuffled-label control's permutations; the "
+        "same seed gives the same control in every run. Default 0. Alpha.",
 }
 
 #: The blurb the module shows above its settings.

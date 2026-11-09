@@ -90,6 +90,7 @@ RELEASED_BEFORE_THE_ALPHA_RULE = {
     870: "alpha Measure profiling: the ljosa_percentile choice of profiling_normalization is hidden with the profiling settings of ALPHA_FEATURES[547]",
     871: "alpha OPS phenotype path: the ph_merged, ph_tables and ph_crops phases and their ops_merged_*, ops_tables_*, ops_crop_*, ops_ph_secondary_* and ops_ph_measure_gpu settings are registered in ALPHA_FEATURES[752] and hidden with its page",
     874: "alpha OPS phenotype path: the ph_ownership phase and the ops_cross_field_* settings are registered in ALPHA_FEATURES[752] and hidden with its page",
+    875: "alpha OPS phenotype path: the report phase and the ops_reference_* settings are registered in ALPHA_FEATURES[752] and hidden with its page",
     794: "bug fix only (xgboost fits on machines without a GPU): no setting, nothing in the app to hide",
     792: "bug fix only (GLCM homogeneity finite for objects narrower than the offset): no setting, nothing in the app to hide",
     793: "bug fix only (Measure divides by the flat field in float32, no clipping): no setting, nothing in the app to hide",
