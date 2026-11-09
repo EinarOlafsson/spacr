@@ -50,6 +50,7 @@ well-level profiles that pycytominer calls TVN; it is a different step.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from functools import partial
 from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Tuple, Union
 
 import numpy as np
@@ -615,6 +616,63 @@ def gene_pair_cosines(profiles: pd.DataFrame, columns: Sequence[str],
     return pd.Series((x @ x.T)[upper], index=index)
 
 
+def _tvn_setting(settings: Mapping[str, Any], key: str, name: str,
+                 cast: Callable[[Any], Any]) -> Any:
+    """One TVN option from its setting, or its default when unset.
+
+    :param settings: the run settings.
+    :param key: the setting, such as ``ops_tvn_seed``.
+    :param name: the option's key in :data:`TVN_DEFAULTS`.
+    :param cast: turns the setting's value into the option's type.
+    :returns: the cast value, or the default for a missing or blank setting.
+    """
+    value = settings.get(key)
+    if value is None or (isinstance(value, str) and not value.strip()):
+        return TVN_DEFAULTS[name]
+    return cast(value)
+
+
+def _tvn_components(value: Any) -> Union[int, float]:
+    """The ``components`` option from a setting value.
+
+    :param value: a number, or its text.
+    :returns: an int count of components when at least 1, else the float
+        share of variance to keep.
+    """
+    number = float(value)
+    return int(number) if number >= 1 else number
+
+
+def _read_well(well: Any, *, table_of: Mapping[Any, Tuple[int, np.ndarray]],
+               cache: Dict[Any, np.ndarray], sources, read_columns,
+               features: Sequence[str], rows: np.ndarray, offsets: np.ndarray,
+               control: np.ndarray, use: np.ndarray
+               ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """One well's feature values for the streamed TVN, keeping one well cached.
+
+    :param well: the well.
+    :param table_of: per well, its cell table's index in ``sources`` and the
+        mask of the design cells it holds.
+    :param cache: holds the last well read; cleared before another is read.
+    :param sources: ``(path, names, rows)`` per well's cell table.
+    :param read_columns: ``read_columns(sources, columns)`` reads columns.
+    :param features: the feature columns.
+    :param rows: every design cell's row in the stacked tables.
+    :param offsets: the first stacked row of each cell table, and the total.
+    :param control: the control cells.
+    :param use: the cells to profile.
+    :returns: ``(values, control, use)`` for the well's design cells.
+    """
+    i, inside = table_of[well]
+    if well not in cache:
+        cache.clear()
+        frame = read_columns([sources[i]], list(features))
+        frame = frame.iloc[rows[inside] - offsets[i]]
+        cache[well] = frame.to_numpy(np.float32)
+        del frame
+    return cache[well], control[inside], use[inside]
+
+
 def tvn_options(settings: Mapping[str, Any]) -> Dict[str, Any]:
     """TVN keyword arguments from ``ops_tvn_*`` settings.
 
@@ -624,20 +682,12 @@ def tvn_options(settings: Mapping[str, Any]) -> Dict[str, Any]:
         :func:`fit_tvn_streamed`; a missing or empty setting takes its
         default from :data:`TVN_DEFAULTS`.
     """
-    def pick(key, name, cast):
-        value = settings.get(key)
-        if value is None or (isinstance(value, str) and not value.strip()):
-            return TVN_DEFAULTS[name]
-        return cast(value)
-
-    def components(value):
-        number = float(value)
-        return int(number) if number >= 1 else number
-
-    return {"pca_sample": pick("ops_tvn_pca_sample", "pca_sample", int),
-            "seed": pick("ops_tvn_seed", "seed", int),
-            "components": pick("ops_tvn_components", "components", components),
-            "whiten_epsilon": pick("ops_tvn_whiten_epsilon", "whiten_epsilon", float)}
+    return {"pca_sample": _tvn_setting(settings, "ops_tvn_pca_sample", "pca_sample", int),
+            "seed": _tvn_setting(settings, "ops_tvn_seed", "seed", int),
+            "components": _tvn_setting(settings, "ops_tvn_components", "components",
+                                       _tvn_components),
+            "whiten_epsilon": _tvn_setting(settings, "ops_tvn_whiten_epsilon",
+                                           "whiten_epsilon", float)}
 
 
 
@@ -694,17 +744,9 @@ def _aggregate_tvn(sources, rows: np.ndarray, cells: pd.DataFrame, use: np.ndarr
                 table_of[wells[inside][0]] = (i, inside)
         names = [w for w in pd.unique(wells) if w in table_of]
         cache: Dict[str, np.ndarray] = {}
-
-        def read(well):
-            i, inside = table_of[well]
-            if well not in cache:
-                cache.clear()
-                frame = read_columns([sources[i]], list(features))
-                frame = frame.iloc[rows[inside] - offsets[i]]
-                cache[well] = frame.to_numpy(np.float32)
-                del frame
-            return cache[well], control[inside], use[inside]
-
+        read = partial(_read_well, table_of=table_of, cache=cache, sources=sources,
+                       read_columns=read_columns, features=features, rows=rows,
+                       offsets=offsets, control=control, use=use)
         model = fit_tvn_streamed(names, read, **options)
         parts = []
         for well in names:
