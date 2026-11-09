@@ -94,6 +94,28 @@ def test_a_measure_run_scales_against_its_control_cells(tmp_path):
         s._reference_object_percentiles([db], wells, pd.Series(False, index=wells.index))
 
 
+def test_an_empty_object_table_adds_no_percentiles(tmp_path):
+    """A pathogen table with no rows is skipped, not read as a plate."""
+    import sqlite3
+
+    rng = np.random.default_rng(14)
+    layout = ["neg"] * 4 + ["hit"] * 3
+    db = _measurement_db(str(tmp_path / "measurements.db"), "p1", rng, layout)
+    wells = pd.DataFrame({"plateID": ["p1"] * len(layout),
+                          "rowID": ["r1"] * len(layout),
+                          "columnID": [f"c{i + 1}" for i in range(len(layout))]})
+    negative = pd.Series([name == "neg" for name in layout], index=wells.index)
+    before_low, before_high = s._reference_object_percentiles([db], wells, negative)
+    with sqlite3.connect(db) as connection:
+        connection.execute(
+            "CREATE TABLE pathogen (plateID TEXT, rowID TEXT, columnID TEXT, "
+            "fieldID TEXT, prcf TEXT, object_label INTEGER, pathogen_area REAL)")
+    low, high = s._reference_object_percentiles([db], wells, negative)
+    assert not any(name.startswith("pathogen_") for name in low.columns)
+    pd.testing.assert_frame_equal(low, before_low)
+    pd.testing.assert_frame_equal(high, before_high)
+
+
 def test_ljosa_percentile_is_offered_in_the_measure_panel():
     from spacr.settings import tooltips
     from spacr.settings_spec import convert_settings_dict_for_gui
