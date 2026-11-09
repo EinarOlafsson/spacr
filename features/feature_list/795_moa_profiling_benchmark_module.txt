@@ -61,5 +61,8 @@ aggregations x NSC/NSCB) reproduced exactly, including accuracy_solvable, the 10
 mean and SD, and the majority-class rate. Supervised (not part of the acceptance criterion), Ljosa
 scaling, well means, against cellprofiler_supervised_accuracy.csv: logistic NSC 96/103 = 96/103 (per-well
 0.8244 both, float32 fits), NSCB 68/102 vs 67/102; XGBoost NSC 91/103 vs 88/103, NSCB 63/102 vs 64/102.
-Same folds and parameters; the remaining one-to-three-treatment differences are numerical (the reference
-ran 6 processes x 2 threads in the reanalysis environment, here threads of one process).
+Same folds and parameters; the remaining one-to-three-treatment differences are numerical, most likely
+library versions (scikit-learn, XGBoost, BLAS in the reanalysis environment) and threading (the reference
+ran 6 processes x 2 threads, here threads of one process).
+Maintainer decision 2026-11-09: do not chase an exact supervised match; the gap is documented here, in
+loco_supervised's docstring and in moa_summary.json (SUPERVISED_REPRODUCTION).

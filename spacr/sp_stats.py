@@ -2077,7 +2077,8 @@ def _write_hit_structures_svg(chemistry, out_dir):
 _PROFILE_KEYS = ("plateID", "rowID", "columnID")
 _PROFILE_TABLES = ("cell", "cytoplasm", "nucleus", "pathogen")
 _PROFILE_AGGREGATIONS = ("median", "mean")
-_PROFILE_NORMALIZATIONS = ("mad_robustize", "standardize", "robustize", "none")
+_PROFILE_NORMALIZATIONS = ("mad_robustize", "standardize", "robustize",
+                           "ljosa_percentile", "none")
 _PROFILE_SELECTIONS = ("variance_threshold", "frequency_threshold",
                        "correlation_threshold", "drop_na_columns",
                        "drop_outliers")
@@ -2968,7 +2969,9 @@ def _normalize_profiles(frame: pd.DataFrame, features: Sequence[str], *,
                         method: str = "mad_robustize",
                         by: Optional[str] = "plateID",
                         reference: Optional[pd.Series] = None,
-                        epsilon: float = 1e-18) -> pd.DataFrame:
+                        epsilon: float = 1e-18,
+                        percentiles: Optional[Tuple[pd.DataFrame, pd.DataFrame]] = None
+                        ) -> pd.DataFrame:
     """Normalise features within each plate against its reference wells.
 
     The centre and scale are fitted on the reference wells of a plate
@@ -2983,6 +2986,13 @@ def _normalize_profiles(frame: pd.DataFrame, features: Sequence[str], *,
       at 1, as scikit-learn's StandardScaler;
     * ``robustize``: ``(x - median) / IQR``, a zero IQR left at 1, as
       scikit-learn's RobustScaler;
+    * ``ljosa_percentile``: ``(x - p1) / (p99 - p1)``, Ljosa et al. 2013's
+      scaling, with p1 and p99 the 1st and 99th percentiles of the plate's
+      reference cells when ``percentiles`` gives them
+      (:func:`_control_percentiles`), else of its reference wells. A
+      feature whose range is zero or not finite on a plate keeps a scale of
+      1 and is listed in ``attrs['flat_features']``, so the caller can drop
+      it as the BBBC021 reanalysis does;
     * ``none``: unchanged.
 
     Missing values are skipped when fitting and stay missing.
@@ -2996,9 +3006,12 @@ def _normalize_profiles(frame: pd.DataFrame, features: Sequence[str], *,
         wells.
     :param epsilon: added to the MAD, so a constant feature does not divide
         by zero.
+    :param percentiles: ``(p1, p99)`` frames indexed by plate with one
+        column per feature, for ``ljosa_percentile``; ``None`` takes them
+        from the reference wells.
     :returns: a copy of ``frame`` with the features normalised.
-    :raises _ProfilingError: for an unknown method, or a plate with no
-        reference well.
+    :raises _ProfilingError: for an unknown method, a plate with no
+        reference well, or a plate or feature ``percentiles`` lacks.
     """
     if method not in _PROFILE_NORMALIZATIONS:
         raise _ProfilingError(
@@ -3023,11 +3036,17 @@ def _normalize_profiles(frame: pd.DataFrame, features: Sequence[str], *,
         codes, names = pd.factorize(frame[by].astype(str), sort=True)
         labels = codes
     tiny = 10 * np.finfo(float).eps
+    flat_features: set = set()
     with _warnings.catch_warnings():
         _warnings.simplefilter("ignore", RuntimeWarning)
         for code, name in enumerate(names):
             rows = labels == code
             fit = values[rows & reference_mask]
+            if method == "ljosa_percentile" and percentiles is not None:
+                low, high = _plate_percentiles(percentiles, name, features)
+                result[rows], flat = _ljosa_scale(values[rows], low, high, tiny)
+                flat_features.update(np.asarray(features)[flat])
+                continue
             if not len(fit):
                 raise _ProfilingError(
                     f"plate {name} has no reference well to normalise "
@@ -3040,6 +3059,10 @@ def _normalize_profiles(frame: pd.DataFrame, features: Sequence[str], *,
                     np.nanstd(fit, axis=0), nan=0.0) < tiny)
                 spread = np.where(flat, 1.0, spread + epsilon)
                 result[rows] = (values[rows] - centre) / spread
+            elif method == "ljosa_percentile":
+                low, high = np.nanpercentile(fit, [1, 99], axis=0)
+                result[rows], flat = _ljosa_scale(values[rows], low, high, tiny)
+                flat_features.update(np.asarray(features)[flat])
             elif method == "standardize":
                 centre = np.nanmean(fit, axis=0)
                 spread = np.nanstd(fit, axis=0)
@@ -3052,7 +3075,138 @@ def _normalize_profiles(frame: pd.DataFrame, features: Sequence[str], *,
                 spread = np.where(spread < tiny, 1.0, spread)
                 result[rows] = (values[rows] - centre) / spread
     out[features] = result
+    if method == "ljosa_percentile":
+        out.attrs["flat_features"] = [f for f in features if f in flat_features]
     return out
+
+
+def _ljosa_scale(values: np.ndarray, low: np.ndarray, high: np.ndarray,
+                 tiny: float) -> Tuple[np.ndarray, np.ndarray]:
+    """``(x - p1) / (p99 - p1)``, with a scale of 1 where the range is flat.
+
+    :param values: one plate's wells by features.
+    :param low: the 1st percentile per feature.
+    :param high: the 99th percentile per feature.
+    :param tiny: the smallest range that counts as a range.
+    :returns: the scaled values and the mask of flat features (a zero or
+        non-finite range, or a non-finite 1st percentile).
+    """
+    spread = high - low
+    flat = ~(np.isfinite(spread) & (spread > tiny) & np.isfinite(low))
+    centre = np.where(np.isfinite(low), low, 0.0)
+    return (values - centre) / np.where(flat, 1.0, spread), flat
+
+
+def _plate_percentiles(percentiles: Tuple[pd.DataFrame, pd.DataFrame],
+                       plate: Any, features: Sequence[str]
+                       ) -> Tuple[np.ndarray, np.ndarray]:
+    """One plate's 1st and 99th percentiles, in feature order.
+
+    :param percentiles: ``(p1, p99)`` frames indexed by plate.
+    :param plate: the plate name.
+    :param features: the feature columns.
+    :returns: the two percentile vectors.
+    :raises _ProfilingError: when the plate or a feature is missing.
+    """
+    low, high = percentiles
+    plate = str(plate)
+    index = [str(name) for name in low.index]
+    if plate not in index:
+        raise _ProfilingError(
+            f"no control percentiles for plate {plate}; every plate needs "
+            "control cells for ljosa_percentile")
+    missing = [f for f in features if f not in low.columns or f not in high.columns]
+    if missing:
+        raise _ProfilingError(
+            f"the control percentiles lack {len(missing)} feature(s), such "
+            f"as {missing[0]}")
+    row = index.index(plate)
+    return (low.iloc[row][list(features)].to_numpy(dtype=float),
+            high.iloc[row][list(features)].to_numpy(dtype=float))
+
+
+def _control_percentiles(objects: pd.DataFrame, features: Sequence[str],
+                         reference: Any, *, by: str = "plateID",
+                         quantiles: Tuple[float, float] = (0.01, 0.99)
+                         ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """The 1st and 99th percentile of every feature over a plate's control cells.
+
+    This is the reference of Ljosa et al. 2013's scaling: percentiles of the
+    control (DMSO) cells, not of the control wells, with missing values
+    skipped (pandas ``quantile``, linear interpolation).
+
+    :param objects: one row per cell (or other object), with ``by``.
+    :param features: the feature columns.
+    :param reference: boolean mask aligned to ``objects``, true for cells of
+        a control well.
+    :param by: the column that names a plate.
+    :param quantiles: the two quantiles.
+    :returns: ``(p1, p99)`` frames indexed by plate, one column per feature.
+    :raises _ProfilingError: when no object is a control.
+    """
+    mask = np.asarray(pd.Series(reference).fillna(False), dtype=bool)
+    controls = objects.loc[mask, [by] + list(features)]
+    if controls.empty:
+        raise _ProfilingError("no control cell to take percentiles from")
+    controls = controls.assign(**{by: controls[by].astype(str)})
+    grouped = controls.groupby(by, sort=True)[list(features)]
+    return grouped.quantile(quantiles[0]), grouped.quantile(quantiles[1])
+
+
+def _reference_object_percentiles(databases: Sequence[Any], wells: pd.DataFrame,
+                                  reference: pd.Series, *,
+                                  tables: Optional[Sequence[str]] = None
+                                  ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Control-cell percentiles of every object table, named as the well features.
+
+    Reads each object table again (as :func:`_read_well_profiles` does,
+    with the same table prefixes), keeps the objects of the reference
+    wells and takes :func:`_control_percentiles` per plate.
+
+    :param databases: the ``measurements.db`` paths.
+    :param wells: the well profiles, with plateID, rowID and columnID.
+    :param reference: boolean mask of the reference wells, aligned to
+        ``wells``.
+    :param tables: object tables to use; ``None`` uses the default four.
+    :returns: ``(p1, p99)`` frames indexed by plate.
+    :raises _ProfilingError: when no control cell is found.
+    """
+    from .tabular import database_tables, read_database
+
+    keys = list(_PROFILE_KEYS)
+    chosen = wells.loc[np.asarray(reference, dtype=bool), keys].astype(str)
+    wanted_wells = set(map(tuple, chosen.to_numpy()))
+    lows: List[pd.DataFrame] = []
+    highs: List[pd.DataFrame] = []
+    for db in databases:
+        present = set(database_tables(db))
+        parts_low, parts_high = [], []
+        for table in [t for t in (tables or _PROFILE_TABLES) if t in present]:
+            (objects,) = read_database(db, [table], report=None,
+                                       migrate=False, read_only=True)
+            if objects.empty:
+                continue
+            features = _profile_features(objects)
+            renamed = {name: (name if name.startswith(f"{table}_")
+                              else f"{table}_{name}") for name in features}
+            objects = objects.rename(columns=renamed)
+            inside = objects[keys].astype(str).to_numpy()
+            mask = np.fromiter((tuple(row) in wanted_wells for row in inside),
+                               bool, count=len(inside))
+            if not mask.any():
+                continue
+            low, high = _control_percentiles(
+                objects, [renamed[name] for name in features], mask)
+            parts_low.append(low)
+            parts_high.append(high)
+        if parts_low:
+            lows.append(pd.concat(parts_low, axis=1))
+            highs.append(pd.concat(parts_high, axis=1))
+    if not lows:
+        raise _ProfilingError(
+            "no object of a negative-control well was found; ljosa_percentile "
+            "scales against the control cells")
+    return pd.concat(lows), pd.concat(highs)
 
 
 def _low_variance(values: pd.DataFrame, min_variance: float) -> List[str]:
@@ -4086,6 +4240,7 @@ def _profile_wells(wells: pd.DataFrame, features: Sequence[str], *,
                    null_size: int = _PROFILE_NULL_SIZE,
                    threshold: float = 0.05, seed: int = 0,
                    tvn_epsilon: float = 1e-6,
+                   reference_percentiles: Optional[Tuple[pd.DataFrame, pd.DataFrame]] = None,
                    report=print) -> _ProfilingResult:
     """Normalise, select, build consensus profiles and score them.
 
@@ -4127,6 +4282,11 @@ def _profile_wells(wells: pd.DataFrame, features: Sequence[str], *,
     :param seed: the random seed for the nulls.
     :param tvn_epsilon: the eigenvalue regularisation of the ``'tvn'``
         whitening (pycytominer's 1e-6 by default; 0 is the exact sphering).
+    :param reference_percentiles: for ``'ljosa_percentile'``, the
+        ``(p1, p99)`` of the control cells per plate
+        (:func:`_control_percentiles`); ``None`` takes the percentiles of
+        the reference wells. Features with no range on some plate are
+        dropped as ``zero_percentile_range``.
     :param report: called with progress lines; ``None`` is quiet.
     :returns: the :class:`_ProfilingResult`.
     :raises _ProfilingError: when a group column is missing, a named
@@ -4161,16 +4321,20 @@ def _profile_wells(wells: pd.DataFrame, features: Sequence[str], *,
                      "against all of its wells and activity is not scored.")
     normalized = _normalize_profiles(
         wells, features, method="mad_robustize" if tvn else normalization,
-        reference=reference)
+        reference=reference, percentiles=reference_percentiles)
+    no_range = list(normalized.attrs.get("flat_features", ()))
     flat = (_constant_in_reference(wells, features, reference)
             if len(feature_selection) else [])
-    candidates = [name for name in features if name not in set(flat)]
+    candidates = [name for name in features
+                  if name not in set(flat) | set(no_range)]
     kept, excluded = _select_profile_features(
         normalized, candidates, feature_selection,
         corr_threshold=correlation_threshold, na_cutoff=na_cutoff,
         outlier_cutoff=outlier_cutoff, min_variance=min_variance)
     if flat:
         excluded = {"constant_in_controls": flat, **excluded}
+    if no_range:
+        excluded = {"zero_percentile_range": no_range, **excluded}
     if len(kept) < 2:
         raise _ProfilingError(
             f"feature selection kept {len(kept)} of {len(features)} "
@@ -4321,11 +4485,18 @@ def _profile_measurements(settings: Dict[str, Any], db_path: str, *,
     group_columns = _as_list(settings.get("profiling_treatment_column")
                              or "columnID")
     phenotype = str(settings.get("profiling_phenotype_column") or "").strip()
+    normalization = str(settings.get("profiling_normalization")
+                        or "mad_robustize")
+    controls = _as_list(settings.get("profiling_negative_control"))
+    percentiles = None
+    if (normalization.strip().lower() == "ljosa_percentile" and controls
+            and group_columns[0] in wells.columns):
+        percentiles = _reference_object_percentiles(
+            databases, wells,
+            wells[group_columns[0]].astype(str).isin(controls))
     result = _profile_wells(
         wells, features, group_columns=group_columns,
-        negative_controls=_as_list(settings.get("profiling_negative_control")),
-        normalization=str(settings.get("profiling_normalization")
-                          or "mad_robustize"),
+        negative_controls=controls, normalization=normalization,
         feature_selection=(
             _PROFILE_DEFAULT_SELECTIONS
             if settings.get("profiling_feature_selection") is None
@@ -4338,7 +4509,7 @@ def _profile_measurements(settings: Dict[str, Any], db_path: str, *,
         phenotype_column=phenotype or None,
         tvn_epsilon=float(1e-6 if settings.get("profiling_tvn_epsilon") is None
                           else settings["profiling_tvn_epsilon"]),
-        report=report)
+        reference_percentiles=percentiles, report=report)
     out_dir = os.path.join(os.path.dirname(os.path.abspath(db_path)),
                            "profiles")
     written = _write_profiles(result, out_dir, db_path=db_path,

@@ -1,0 +1,40 @@
+LJOSA PERCENTILE SCALING FOR MEASURE PROFILES
+=============================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha, under ALPHA_FEATURES[547]) — profiling_normalization='ljosa_percentile': on each plate every feature is scaled as (x - p1) / (p99 - p1), with p1 and p99 the 1st and 99th percentiles of the plate's negative-control cells (sp_stats._control_percentiles, read from the object tables by sp_stats._reference_object_percentiles in a Measure run), or of the reference wells when no cell percentiles are given; features with a zero or non-finite range on any plate are dropped as zero_percentile_range. Same rule as run_and_score.py's normalise(..., 'ljosa'). BBBC021 CellProfiler: all 8 Ljosa-scaled 1-NN rows of cellprofiler_moa_accuracy.csv reproduced exactly with the scaling done in spaCR. spacr/sp_stats.py, spacr/settings_spec.py, spacr/settings.py, tests/test_profiling_ljosa_percentile_870.py.
+Requested: maintainer, 2026-11-09 (follow-up to 795's acceptance).
+Owner: 795 session.
+Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cellprofiler_baseline/run_and_score.py (--norm ljosa), Ljosa et al. 2013.
+Related: 795, 863, 547.
+
+WHAT THE STATE IS
+Measure's image-based profiling (547) offered mad_robustize, standardize,
+robustize and tvn (863). The BBBC021 benchmark scales each plate to the 1st
+and 99th percentile of its DMSO cells (Ljosa et al. 2013); 795's acceptance
+had to take that scaling from the reanalysis script.
+
+WHAT TO DO
+- Add 'ljosa_percentile' to profiling_normalization, beside robustize and
+  tvn, alpha with the profiling module (no new registry entry or deck row).
+- Take the percentiles from the control cells, not the control wells, as
+  run_and_score.py does; drop features with no range on some plate.
+- Update the profiling_normalization tooltip (600 characters at most).
+
+RESULT
+Scratch script /mnt/firecuda2/codex/scratch-docs/795-accept/accept_870.py:
+DMSO-cell percentiles from the 55 per-cell parquet files through
+_control_percentiles agree with the reanalysis's dmso_percentiles.parquet to
+1.1e-8 (same NaN pattern); wells scaled by _normalize_profiles
+('ljosa_percentile') and scored by spacr.moa_benchmark give, exactly,
+well mean / replicates median 84/103 NSC and 62/102 NSCB, and the other
+three Ljosa rows (83/103 and 59/102; 83/103 and 61/102; 77/103 and 57/102),
+with the same 2,473 features and the same 100-permutation shuffled control.
+Outside spaCR were only the metadata join and run_and_score.py's NaN -> 0
+fill of well values.
+
+DELIBERATELY NOT DONE
+- No new setting for the percentiles (fixed at 1st and 99th).
+- Missing well values are not filled with 0 in the profiling run: the run's
+  feature selection and its finite-wells rule handle them, as for the other
+  normalisations.

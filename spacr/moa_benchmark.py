@@ -122,6 +122,17 @@ GLOSSARY: Dict[str, str] = {
     'n_permutations': 'shuffles of the compound-to-MoA mapping behind a shuffled control row',
 }
 
+#: How the supervised arms compare with the BBBC021 reanalysis; written to moa_summary.json.
+SUPERVISED_REPRODUCTION: Dict[str, Any] = {
+    'reference': 'supervised_moa.py, BBBC021 CellProfiler wells, Ljosa scaling, well means',
+    'logistic': {'NSC': '96/103 (reference 96/103)', 'NSCB': '68/102 (reference 67/102)'},
+    'xgboost': {'NSC': '91/103 (reference 88/103)', 'NSCB': '63/102 (reference 64/102)'},
+    'causes': 'same folds and parameters; numerical differences, most likely library versions '
+              '(scikit-learn, XGBoost, BLAS) and threading (the reference fitted 6 processes '
+              'of 2 threads)',
+    '1-NN': 'reproduces run_and_score.py exactly',
+}
+
 _TABLE_COLUMNS = ('arm', 'evaluation', 'n_treatments', 'correct', 'accuracy', 'ci_low',
                   'ci_high', 'sd', 'n_solvable', 'accuracy_solvable', 'well_accuracy',
                   'n_wells', 'n_permutations')
@@ -463,6 +474,15 @@ def loco_supervised(wells: Any, *, model: str = 'logistic', moa_column: str = 'm
 
         loco_supervised(wells, model="xgboost", batch_column="batch", workers=4)
 
+    The supervised arms are close to, not identical with, the BBBC021
+    reanalysis (``supervised_moa.py``, CellProfiler wells, Ljosa scaling,
+    well means): logistic regression gives 96/103 under NSC (96 in the
+    reference) and 68/102 under NSCB (67); XGBoost 91/103 under NSC (88)
+    and 63/102 under NSCB (64). The folds and parameters are the same; the
+    differences are numerical, most likely library versions (scikit-learn,
+    XGBoost, BLAS) and threading (the reference fitted 6 processes of 2
+    threads). The 1-NN arm reproduces ``run_and_score.py`` exactly.
+
     :param wells: one row per well (or per treatment), a frame or a table
         path. All-``float32`` features are fitted in ``float32``.
     :param model: ``'logistic'`` or ``'xgboost'``.
@@ -796,8 +816,8 @@ def write_moa_benchmark(result: Mapping[str, Any], dst: Any) -> List[str]:
 
     Writes ``moa_accuracy.csv`` (the table), ``moa_predictions.csv``,
     ``moa_glossary.csv`` (term and meaning, so a reader of the table needs
-    nothing else) and ``moa_summary.json`` (the table as records and the
-    number of features).
+    nothing else) and ``moa_summary.json`` (the table as records, the
+    number of features and :data:`SUPERVISED_REPRODUCTION`).
 
     :param result: what :func:`moa_benchmark` returns.
     :param dst: the folder; created if absent.
@@ -814,7 +834,8 @@ def write_moa_benchmark(result: Mapping[str, Any], dst: Any) -> List[str]:
                          canonicalise=False),
              write_table(terms, folder / 'moa_glossary.csv', canonicalise=False)]
     summary = {'n_features': len(result.get('features') or ()),
-               'table': json.loads(result['table'].to_json(orient='records'))}
+               'table': json.loads(result['table'].to_json(orient='records')),
+               'supervised_reproduction': SUPERVISED_REPRODUCTION}
     summary_path = folder / 'moa_summary.json'
     summary_path.write_text(json.dumps(summary, indent=2), encoding='utf-8')
     return [str(path) for path in paths] + [str(summary_path)]

@@ -254,6 +254,7 @@ def test_write_run_and_command_line(tmp_path, caplog):
     assert dict(zip(glossary['term'], glossary['meaning'])) == mb.GLOSSARY
     summary = json.loads((folder / 'moa_summary.json').read_text(encoding='utf-8'))
     assert summary['n_features'] == 12 and len(summary['table']) == len(result['table'])
+    assert summary['supervised_reproduction']['logistic']['NSCB'] == '68/102 (reference 67/102)'
     assert '1-NN cosine NSC' in caplog.text
     framed = mb.run_moa_benchmark({'moa_profiles': wells, 'moa_arms': '1-NN',
                                    'moa_shuffles': 0, 'moa_dst': str(tmp_path / 'f')})
