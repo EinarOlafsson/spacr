@@ -847,6 +847,13 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "published_prefix_length", "published_counts", "published_values",
     "published_duplicates", "published_unmatched", "published_bootstrap",
     "published_shuffles", "published_seed", "published_dst",
+    # 795, alpha: the leave-one-compound-out MoA benchmark
+    # (`spacr/moa_benchmark.py`), two headings of its own: the tables and
+    # columns, and the arms.
+    "moa_profiles", "moa_labels", "moa_label_column", "moa_compound_column",
+    "moa_treatment_columns", "moa_batch_column", "moa_controls", "moa_arms",
+    "moa_replicates", "moa_shuffles", "moa_supervised_shuffles", "moa_seed",
+    "moa_workers", "moa_dst",
     # 581, alpha: what the export writes (h5ad, Parquet tables, R loader)
     # and the folder the tables go to.
     "anndata_format", "anndata_tidy_dir",
@@ -1626,6 +1633,8 @@ def test_every_qt_section_hint_names_a_real_category():
     import spacr.public_datasets  # noqa: F401
     # 751: the published-reference comparison registers its two headings.
     import spacr.published_reference  # noqa: F401
+    # 795: the MoA benchmark registers its two headings.
+    import spacr.moa_benchmark  # noqa: F401
     known.update(c.upper().strip() for c in S.REGISTERED_CATEGORIES)
     # Qt may make app-scoped relocations without changing the category map
     # shared with the legacy UI (Measure's Filter settings is one).

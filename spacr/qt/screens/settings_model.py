@@ -3817,6 +3817,15 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "What is compared and how the agreement is measured: the count and "
         "value columns, how shared or missing keys are treated, and the "
         "bootstrap and shuffled-label control.",
+    "MOA BENCHMARK":
+        "Which profiles are scored by mechanism of action: the profiles and "
+        "label tables, the columns that name the MoA, the compound, a "
+        "treatment and a batch, the control wells left out, and the output "
+        "folder.",
+    "MOA BENCHMARK ARMS":
+        "How the profiles are scored: the nearest-neighbour, logistic "
+        "regression and XGBoost arms, how replicate wells combine, the "
+        "shuffled-label controls, the seed and the folds fitted at a time.",
 }
 
 

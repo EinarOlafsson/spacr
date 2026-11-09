@@ -499,6 +499,9 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         # 677 -> 678 on 2026-11-09, +1/-0, item 866: the "divides within N
         # frames" predictor (spacr/division_prediction.py).
         'spacr/division_prediction.py',
+        # 678 -> 679 on 2026-11-09, +1/-0, item 795: the leave-one-compound-out
+        # MoA benchmark (spacr/moa_benchmark.py).
+        'spacr/moa_benchmark.py',
     }
     assert added_since_608 <= shipped
     # 664 -> 662 on 2026-10-12, +0/-2: spacr-tutorial opens the online
@@ -523,7 +526,7 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     assert metal_transport_arrivals <= shipped
     assert not metal_transport_arrivals & (added_since_608 | retired_since_608)
     assert (len(shipped - metal_transport_arrivals) == 608 + len(added_since_608)
-            - len(retired_since_608) == 675)
+            - len(retired_since_608) == 676)
     # 664 -> 666 on 2026-11-06: spacr/assay_report.py (item 816) and
     # spacr/_gpu_governor.py (item 803), the same +2 as `added_since_608`.
     # 666 -> 667 on 2026-11-06: spacr/_merge_pairs.py (item 833).
@@ -535,6 +538,7 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     # 672 -> 673 on 2026-11-09: spacr/public_datasets.py (item 750).
     # 673 -> 674 on 2026-11-09: spacr/published_reference.py (item 751).
     # 674 -> 675 on 2026-11-09: spacr/division_prediction.py (item 866).
+    # 675 -> 676 on 2026-11-09: spacr/moa_benchmark.py (item 795).
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
@@ -980,8 +984,10 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_required():
     # the same +1 as `shipped`, moved with the workflow in one commit.
     # 677 -> 678 on 2026-11-09: spacr/division_prediction.py (item 866), the
     # same +1 as `shipped`, moved with the workflow in one commit.
-    assert len(ratchet.discover_shipped_python_files(ROOT)) == 678
-    assert "--expected-file-count 678" in combine_script
+    # 678 -> 679 on 2026-11-09: spacr/moa_benchmark.py (item 795), the
+    # same +1 as `shipped`, moved with the workflow in one commit.
+    assert len(ratchet.discover_shipped_python_files(ROOT)) == 679
+    assert "--expected-file-count 679" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script

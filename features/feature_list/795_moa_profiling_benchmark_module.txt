@@ -1,7 +1,7 @@
 MECHANISM-OF-ACTION PROFILING BENCHMARK MODULE
 
 Lifecycle: future
-Status: not started
+Status: DONE 2026-11-09 (alpha) — spacr.moa_benchmark is the one leave-one-compound-out MoA scorer: loco_nearest_neighbour (cosine 1-NN under NSC/NSCB, scored by spacr.embeddings.evaluate_moa, unchanged), loco_supervised (standardised L2 logistic regression C=1, and XGBoost on the CPU through spacr.ml._xgboost_cpu_safe with supervised_moa.py's fixed parameters; NSC one fold per compound, NSCB one per treatment minus every well of its batches; treatment prediction = argmax of the mean well probability, per-well accuracy too), shuffled_label_control (compound-to-MoA mapping permuted, NSC and NSCB on the same permutation, any arm) and majority_class_control; moa_benchmark runs the arms on per-well or per-treatment profiles (wells combined per treatment by spacr.embeddings.aggregate_profiles, median by default) and returns one table with a GLOSSARY; write_moa_benchmark writes moa_accuracy.csv, moa_predictions.csv, moa_glossary.csv and moa_summary.json through spacr.tabular. Acceptance on the BBBC021 CellProfiler wells (bbbc021_archive/tables, run_and_score.py's normalise for the profiles): all 8 run_and_score.py variants reproduced exactly under NSC and NSCB (row of record 84/103 NSC, 62/102 NSCB), and the 100-permutation shuffled control (6.6% ± 5.1%, chance) and the majority class (13.6%/13.7%) match to the last digit. Fourteen moa_* settings under app key moa_benchmark (ALPHA_FEATURES[795] module_settings); python -m spacr.moa_benchmark on the command line. No GUI screen yet. spacr/moa_benchmark.py, tests/test_moa_benchmark_795.py.
 Requested: maintainer, 2026-11-03 — every gap the BBBC021 reanalysis
            (BMC spaCR paper) worked around must become a spaCR item.
 Source: /nas_mnt/data/sync/papers/BMCspacr/reanalysis/bbbc021/cellprofiler_baseline/REPORT.md, "spaCR gaps", gap 6
@@ -47,6 +47,22 @@ and NSCB accuracies exactly, and the shuffled control is at chance.
 DELIBERATELY NOT DONE
 --------------------------------------------------------------------------------
 
-Nothing yet.
+- No per-plate percentile (Ljosa 1st-99th DMSO) scaling inside spaCR: the
+  acceptance built the normalised wells with run_and_score.py's normalise();
+  spaCR's own normalisers are aggregate_profiles (zscore, robust_zscore, tvn)
+  and the sp_stats profiling run.
+- No GUI screen and no figure; the module is settings + command line + API.
 
 2026-11-05: renumbered from 760 to 795; nightly already used 755-768 for other items.
+
+2026-11-09 acceptance (scratch scripts in /mnt/firecuda2/codex/scratch-docs/795-accept, not the test suite):
+1-NN: all 16 rows of cellprofiler_moa_accuracy.csv (2 well profiles x 2 normalisations x 2 replicate
+aggregations x NSC/NSCB) reproduced exactly, including accuracy_solvable, the 100-permutation shuffled
+mean and SD, and the majority-class rate. Supervised (not part of the acceptance criterion), Ljosa
+scaling, well means, against cellprofiler_supervised_accuracy.csv: logistic NSC 96/103 = 96/103 (per-well
+0.8244 both, float32 fits), NSCB 68/102 vs 67/102; XGBoost NSC 91/103 vs 88/103, NSCB 63/102 vs 64/102.
+Same folds and parameters; the remaining one-to-three-treatment differences are numerical, most likely
+library versions (scikit-learn, XGBoost, BLAS in the reanalysis environment) and threading (the reference
+ran 6 processes x 2 threads, here threads of one process).
+Maintainer decision 2026-11-09: do not chase an exact supervised match; the gap is documented here, in
+loco_supervised's docstring and in moa_summary.json (SUPERVISED_REPRODUCTION).
