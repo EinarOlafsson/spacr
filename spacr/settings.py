@@ -8455,6 +8455,12 @@ ALPHA_FEATURES = {
                      'timelapse_division_size_tolerance'),
         'widgets': ('DivisionAnalysisPanel',),
     },
+    864: {
+        'settings': ('timelapse_division_analysis',),
+    },
+    867: {
+        'settings': ('timelapse_division_analysis',),
+    },
     567: {
         'models': ('videomae_v1',),
         'settings': ('timelapse_events', 'timelapse_events_annotations',
