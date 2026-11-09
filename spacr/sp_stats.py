@@ -3809,6 +3809,198 @@ def _profile_map(ap: pd.DataFrame, sameby: Sequence[str], *,
     return out.loc[:, columns]
 
 
+#: Random rankings per list shape for gene-gene retrieval p values; the
+#: smallest p value is ``1 / 5001``.
+PAIR_NULL_SIZE = 5000
+
+_PAIR_NULLS: Dict[Tuple[int, int, int], np.ndarray] = {}
+
+
+def _pair_average_precision(sims, positive_matrix, candidates
+                            ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Average precision of every row at retrieving its partners.
+
+    Row ``i`` ranks every candidate column except itself by similarity and
+    scores the average precision of its partners (``positive_matrix[i]``),
+    exactly as :func:`_profile_average_precision` scores a query: the
+    similarities are ranked at single precision and a tie ranks the partner
+    first. Unlike that function, partners come from a boolean matrix, so a
+    gene may sit in several complexes or be a node of a graph.
+
+    :param sims: an ``n x n`` similarity matrix.
+    :param positive_matrix: an ``n x n`` boolean matrix of partners.
+    :param candidates: a boolean mask of the columns that are ranked.
+    :returns: ``(ap, n_pos, n_total)``; ``ap`` is NaN for a row with no
+        partner among the candidates.
+    """
+    sims = np.asarray(sims)
+    positives = np.asarray(positive_matrix, dtype=bool)
+    n = sims.shape[0]
+    ap = np.full(n, np.nan)
+    n_pos = np.zeros(n, dtype=int)
+    n_total = np.zeros(n, dtype=int)
+    columns = np.flatnonzero(np.asarray(candidates, dtype=bool))
+    for i in range(n):
+        c = columns[columns != i]
+        labels = positives[i, c]
+        k = int(labels.sum())
+        n_pos[i], n_total[i] = k, len(c)
+        if k == 0:
+            continue
+        s = sims[i, c].astype(np.float32)
+        hits = labels[np.lexsort((~labels, -s))]
+        precision = np.cumsum(hits) / np.arange(1, hits.size + 1)
+        ap[i] = float((precision * hits).sum() / k)
+    return ap, n_pos, n_total
+
+
+def _pair_null(positives: int, total: int, null_size: int = PAIR_NULL_SIZE,
+               cache_dir: Optional[str] = None) -> np.ndarray:
+    """The sorted random-ranking null of one list shape.
+
+    The seed is the md5 of ``"(positives, total)"`` modulo 8096, so every
+    shape has its own null and the same shape always gets the same one. The
+    draws are those of :func:`_null_average_precision`.
+
+    :param positives: partners in the list.
+    :param total: the list length.
+    :param null_size: random rankings.
+    :param cache_dir: a folder for ``n<null_size>_<positives>_<total>.npy``
+        files, read when present and written otherwise; None keeps the null
+        in memory only.
+    :returns: the null, sorted ascending.
+    """
+    import hashlib
+    import os
+
+    key = (int(positives), int(total))
+    memo = (int(null_size),) + key
+    if memo in _PAIR_NULLS:
+        return _PAIR_NULLS[memo]
+    path = (os.path.join(cache_dir, f"n{int(null_size)}_{key[0]}_{key[1]}.npy")
+            if cache_dir else None)
+    if path and os.path.isfile(path):
+        null = np.load(path)
+    else:
+        seed = int(hashlib.md5(f"{key}".encode()).hexdigest()[:8], 16) % 8096
+        null = np.sort(_null_average_precision(int(null_size), key[0], key[1], seed))
+        if path:
+            os.makedirs(cache_dir, exist_ok=True)
+            temporary = f"{path}.{os.getpid()}.tmp.npy"
+            np.save(temporary, null)
+            os.replace(temporary, path)
+    _PAIR_NULLS[memo] = null
+    return null
+
+
+def pair_map(sims, genes: Sequence[Any], positive_matrix, *,
+             controls=None, universe=None, null_size: int = PAIR_NULL_SIZE,
+             pvalues: bool = True, null_cache: Optional[str] = None
+             ) -> pd.DataFrame:
+    """Per-gene retrieval of reference partners, scored as copairs scores it.
+
+    Every gene with at least one partner among the non-control genes ranks
+    all other such genes by similarity; its average precision
+    (:func:`_pair_average_precision`), the normalised AP (against
+    :func:`_expected_ap`), a permutation p value from the random-ranking
+    null of its list shape (:func:`_pair_null`) and the Benjamini-Hochberg
+    q value across genes are reported. Controls are never queries, partners
+    or candidates.
+
+    References: copairs (github.com/cytomining/copairs); Benjamini and
+    Hochberg 1995.
+
+    :param sims: an ``n x n`` similarity matrix; set the diagonal to
+        ``-inf`` or leave it, the query itself is never ranked.
+    :param genes: the row names.
+    :param positive_matrix: an ``n x n`` boolean matrix of reference
+        partners, as :func:`spacr.ops_reference.positive_matrix` builds it.
+    :param controls: a boolean mask of control rows; None means none.
+    :param universe: a boolean mask of rows allowed to take part; None
+        means all.
+    :param null_size: random rankings per list shape.
+    :param pvalues: compute ``p`` and ``q``.
+    :param null_cache: see :func:`_pair_null`.
+    :returns: one row per scored gene: ``gene``, ``ap``, ``n_pos``,
+        ``n_total``, ``nap``, ``expected_ap`` and, with ``pvalues``, ``p``
+        and ``q``.
+    """
+    from .multiple_testing import adjust_p_values
+
+    genes = np.asarray(genes)
+    n = len(genes)
+    ok = np.ones(n, dtype=bool) if universe is None else np.asarray(universe, dtype=bool).copy()
+    if controls is not None:
+        ok &= ~np.asarray(controls, dtype=bool)
+    positives = np.asarray(positive_matrix, dtype=bool) & ok[None, :] & ok[:, None]
+    candidates = ok & positives.any(1)
+    ap, n_pos, n_total = _pair_average_precision(sims, positives, candidates)
+    scored = candidates & np.isfinite(ap)
+    table = pd.DataFrame({"gene": genes, "ap": ap, "n_pos": n_pos,
+                          "n_total": n_total})[scored].reset_index(drop=True)
+    expected = np.array([_expected_ap(a, b - a) for a, b in zip(table.n_pos, table.n_total)])
+    table["nap"] = np.clip((table.ap - expected) / np.maximum(1 - expected, 1e-10), -1, 1)
+    table["expected_ap"] = expected
+    if pvalues:
+        table["p"] = [(float(null_size - np.searchsorted(
+            _pair_null(a, b, null_size, null_cache), s, side="right")) + 1) / (null_size + 1)
+            for a, b, s in zip(table.n_pos, table.n_total, table.ap)]
+        table["q"] = (adjust_p_values(table.p.to_numpy(), "fdr_bh", alpha=0.05)[0]
+                      if len(table) else [])
+    return table
+
+
+def profile_cosine(values) -> np.ndarray:
+    """Cosine similarity of every pair of rows, at single precision.
+
+    :param values: rows by features.
+    :returns: the ``n x n`` matrix; a zero row has similarity 0 to all.
+    """
+    x = np.asarray(values, dtype=float)
+    x = x / np.clip(np.linalg.norm(x, axis=1, keepdims=True), 1e-12, None)
+    return (x @ x.T).astype(np.float32)
+
+
+def bootstrap_ci(values, n_boot: int = 1000, seed: int = 0, stat=np.mean
+                 ) -> Tuple[float, float]:
+    """Percentile bootstrap interval of a statistic.
+
+    :param values: the values; non-finite ones are dropped.
+    :param n_boot: resamples.
+    :param seed: the generator seed.
+    :param stat: the statistic.
+    :returns: ``(2.5th, 97.5th percentile)``; NaN for no values.
+    """
+    v = np.asarray(values, dtype=float)
+    v = v[np.isfinite(v)]
+    if not len(v):
+        return np.nan, np.nan
+    rng = np.random.default_rng(seed)
+    draws = [stat(v[rng.integers(0, len(v), len(v))]) for _ in range(int(n_boot))]
+    return float(np.percentile(draws, 2.5)), float(np.percentile(draws, 97.5))
+
+
+def summarize_pair_map(table: pd.DataFrame, n_boot: int = 1000) -> Dict[str, Any]:
+    """Mean AP, normalised mAP and the share of significant genes, with CIs.
+
+    :param table: the output of :func:`pair_map`.
+    :param n_boot: bootstrap resamples over genes (seeds 0, 1 and 2).
+    :returns: ``queries``, ``mAP`` with ``mAP_lo`` and ``mAP_hi``,
+        ``mmAP_normalised`` with its interval, ``expected_mAP_random`` and,
+        when ``q`` is present, ``frac_sig_q05`` with its interval.
+    """
+    lo, hi = bootstrap_ci(table.ap, n_boot)
+    nlo, nhi = bootstrap_ci(table.nap, n_boot, seed=1)
+    out = {"queries": int(len(table)), "mAP": float(table.ap.mean()), "mAP_lo": lo, "mAP_hi": hi,
+           "mmAP_normalised": float(table.nap.mean()), "mmAP_lo": nlo, "mmAP_hi": nhi,
+           "expected_mAP_random": float(table.expected_ap.mean())}
+    if "q" in table:
+        flo, fhi = bootstrap_ci((table.q < 0.05).astype(float), n_boot, seed=2)
+        out.update({"frac_sig_q05": float((table.q < 0.05).mean()),
+                    "frac_sig_lo": flo, "frac_sig_hi": fhi})
+    return out
+
+
 def _phenotypic_activity(frame: pd.DataFrame, features: Sequence[str],
                          group_columns: Sequence[str], negative: pd.Series, *,
                          similarity: str = "cosine",
