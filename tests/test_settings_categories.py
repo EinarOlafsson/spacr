@@ -540,6 +540,11 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_ph_secondary_window",
     "ops_ph_secondary_fallback",
     "ops_ph_measure_gpu",
+    # Cross-field ownership of phenotype cells (874).
+    "ops_cross_field_ownership",
+    "ops_cross_field_metric",
+    "ops_cross_field_min_overlap",
+    "ops_cross_field_policy",
     # TVN profiles for the OPS aggregate phase (item 854, 2026-11-07).
     "ops_profile_normalisation", "ops_tvn_mode", "ops_tvn_pca_sample",
     "ops_tvn_seed", "ops_tvn_components", "ops_tvn_whiten_epsilon",

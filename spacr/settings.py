@@ -8246,7 +8246,9 @@ ALPHA_FEATURES = {
                      'ops_max_files_per_folder', 'ops_ph_secondary_channels',
                      'ops_ph_secondary_registration',
                      'ops_ph_secondary_window', 'ops_ph_secondary_fallback',
-                     'ops_ph_measure_gpu'),
+                     'ops_ph_measure_gpu', 'ops_cross_field_ownership',
+                     'ops_cross_field_metric', 'ops_cross_field_min_overlap',
+                     'ops_cross_field_policy'),
     },
     691: {
         'models': ('mitonet_mini_v1',),

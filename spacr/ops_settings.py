@@ -112,6 +112,10 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_ph_secondary_window": 1024,
     "ops_ph_secondary_fallback": 'well_median',
     "ops_ph_measure_gpu": False,
+    "ops_cross_field_ownership": False,
+    "ops_cross_field_metric": 'overlap_fraction',
+    "ops_cross_field_min_overlap": 0.5,
+    "ops_cross_field_policy": 'one_per_cell',
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -207,6 +211,10 @@ OPS_TYPES: Dict[str, object] = {
     "ops_ph_secondary_window": int,
     "ops_ph_secondary_fallback": str,
     "ops_ph_measure_gpu": bool,
+    "ops_cross_field_ownership": bool,
+    "ops_cross_field_metric": str,
+    "ops_cross_field_min_overlap": (float, int),
+    "ops_cross_field_policy": str,
 }
 
 #: Which panel section each setting appears under.
@@ -262,6 +270,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_max_files_per_folder", "ops_ph_secondary_channels",
         "ops_ph_secondary_registration", "ops_ph_secondary_window",
         "ops_ph_secondary_fallback", "ops_ph_measure_gpu",
+        "ops_cross_field_ownership", "ops_cross_field_metric",
+        "ops_cross_field_min_overlap", "ops_cross_field_policy",
     ],
 }
 
@@ -766,6 +776,29 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "card. It is faster; the values agree with the CPU measurement to "
         "float precision except skew and kurtosis, which can differ "
         "slightly. Default False. Alpha.",
+    "ops_cross_field_ownership":
+        "(bool) - Find every copy of a cell that two or more overlapping "
+        "phenotype fields segmented (phase ph_ownership), by comparing the "
+        "fields' cell masks through their transforms, and keep one copy per "
+        "physical cell in the aggregate, merged/ and the crops. Off: "
+        "outputs are identical to a run without it. Default False. Alpha.",
+    "ops_cross_field_metric":
+        "(str) - How two masks are scored as copies: 'overlap_fraction' "
+        "divides the shared pixels by the smaller mask, so a copy cut by a "
+        "field's edge still matches the whole one; 'iou' divides by their "
+        "union. Default 'overlap_fraction'. Alpha.",
+    "ops_cross_field_min_overlap":
+        "(float) - Smallest score, in (0, 1], at which two masks of "
+        "overlapping fields count as the same cell. Lower merges more "
+        "neighbours into one cell; higher splits cut copies from their "
+        "whole twin. Default 0.5. Alpha.",
+    "ops_cross_field_policy":
+        "(str) - What the aggregate does with the copies: 'one_per_cell' "
+        "keeps one genotyped row per physical cell, its largest copy; "
+        "'owner_only' drops every copy that is not the owner, which on Funk "
+        "plate A also drops many genotyped cells whose owner was never "
+        "linked; 'flag_only' writes the ownership table and changes nothing "
+        "else. Default 'one_per_cell'. Alpha.",
 }
 
 #: The blurb the module shows above its settings.
