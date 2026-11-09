@@ -3,13 +3,13 @@
   "deck": {
    "repo": "einarolafsson/spacr-tutorials",
    "repo_type": "dataset",
-   "revision": "905cf826667e8b421cafddf492f23f8f0d0f385d",
+   "revision": "221325ff2d3d78927faf3036da16eb75bf7486d2",
    "version": "1.5.1.8",
    "files": {
     "docs/source/_static/deck/spacr_deck.pdf": {
      "path_in_repo": "deck/spacr_deck.pdf",
-     "sha256": "4607d5e8a66c7a0c8593fdb32091d01aa5ad84bac7f9471d1ab93f056df230c3",
-     "size": 63077805
+     "sha256": "266abb63c5c7d85a21147447abece702f543b719e06160a62bae3c9fe1a28f4f",
+     "size": 63077768
     },
     "docs/source/_static/deck/anim/slide_33_image-33-2.gif": {
      "path_in_repo": "deck/anim/slide_33_image-33-2.gif",
