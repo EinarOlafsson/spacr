@@ -667,7 +667,6 @@ def reference_clusters(path: str, *, gene: Optional[str] = None,
     """
     from .tabular import read_table, table_format
 
-    # The C parser's low_memory switch; the sniffing reader of a .txt has none.
     sniffed = table_format(path) != "csv" or str(path).lower().endswith(".txt")
     options = {} if sniffed else {"low_memory": False}
     table = read_table(path, report=None, **options)
