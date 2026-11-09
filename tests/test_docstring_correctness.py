@@ -3075,6 +3075,37 @@ def _validated_ops_tvn_clusters_mitotic_callables(callables):
     return [item for item in callables if item.symbol not in kinds]
 
 
+def _validated_public_datasets_callables(callables):
+    """Check the public dataset fetcher's functions against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "750_public_datasets_api_arrivals_2026-11-08.json").read_text(encoding="utf-8"))
+    assert len(entries) == 11 and "spacr.public_datasets" in entries
+    symbols = {f"spacr.public_datasets.{name}" for name in (
+        "archive_base_url", "check_completeness", "download_file", "fetch_dataset",
+        "list_ftp", "list_http_index", "main", "public_dataset_defaults", "read_manifest")}
+    assert set(entries) == symbols | {"spacr.public_datasets",
+                                      "spacr.public_datasets.DownloadError"}
+    found = {item.symbol: item for item in callables if item.symbol in symbols}
+    assert found.keys() == symbols
+    tree = ast.parse((root / "spacr/public_datasets.py").read_text(encoding="utf-8"))
+    for symbol, item in found.items():
+        name = symbol.rsplit(".", 1)[1]
+        declarations = [node for node in tree.body
+                        if isinstance(node, ast.FunctionDef) and node.name == name]
+        assert len(declarations) == 1
+        arguments = declarations[0].args
+        names = {arg.arg for arg in arguments.posonlyargs + arguments.args + arguments.kwonlyargs}
+        assert item.category == "function" and item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters == names
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert not item.accepts_arbitrary_keywords
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
 def _validated_733_easy_mode_callables(callables):
     """Check the exact four executable Easy mode boundaries before historical replay."""
     import json
@@ -3155,6 +3186,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_division_analysis_callables(callables)
     callables = _validated_ops_ownership_flatfield_funk_callables(callables)
     callables = _validated_ops_tvn_clusters_mitotic_callables(callables)
+    callables = _validated_public_datasets_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
@@ -5818,6 +5850,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("855_ops_clusters_api_arrivals_2026-11-07.json", 19),
         ("856_ops_mitotic_api_arrivals_2026-11-07.json", 9),
         ("864_867_division_units_bootstrap_api_arrivals_2026-11-08.json", 3),
+        ("750_public_datasets_api_arrivals_2026-11-08.json", 11),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -6394,7 +6427,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "854_ops_tvn_api_arrivals_2026-11-07.json",
                      "855_ops_clusters_api_arrivals_2026-11-07.json",
                      "856_ops_mitotic_api_arrivals_2026-11-07.json",
-                     "864_867_division_units_bootstrap_api_arrivals_2026-11-08.json"):
+                     "864_867_division_units_bootstrap_api_arrivals_2026-11-08.json",
+                     "750_public_datasets_api_arrivals_2026-11-08.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -6513,7 +6547,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "854_ops_tvn_api_arrivals_2026-11-07.json",
                      "855_ops_clusters_api_arrivals_2026-11-07.json",
                      "856_ops_mitotic_api_arrivals_2026-11-07.json",
-                     "864_867_division_units_bootstrap_api_arrivals_2026-11-08.json"):
+                     "864_867_division_units_bootstrap_api_arrivals_2026-11-08.json",
+                     "750_public_datasets_api_arrivals_2026-11-08.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

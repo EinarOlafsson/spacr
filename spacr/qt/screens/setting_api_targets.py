@@ -817,7 +817,7 @@ SETTING_API_TARGETS = {
     'phenotype_source': ('spacr.ops_engine', 'run_ops', True),
     'pin_memory': ('spacr.deep_spacr', 'train_test_model', True),
     'pipeline_style': ('spacr.core', 'preprocess_generate_masks', True),
-    'pixel_size_um': ('spacr.pipeline_v2', '', False),
+    'pixel_size_um': ('spacr.division_analysis', '', False),
     'pixels_per_um': ('spacr.timelapse', 'automated_motility_assay', True),
     'plaque_estimate_growth': ('spacr.plaque_growth', 'estimates_from_settings', True),
     'plaque_formation_hours': ('spacr.submodules', 'analyze_plaques', True),

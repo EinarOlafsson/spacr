@@ -1,7 +1,7 @@
 PUBLIC DATASET FETCHER WITH A COMPLETENESS CHECK AGAINST THE ARCHIVE
 
 Lifecycle: future
-Status: not started
+Status: DONE 2026-11-08 (alpha) — spacr.public_datasets fetches BioImage Archive, IDR and BBBC datasets (or any file list of addresses) with resumed HTTP Range transfers, retries and parallel files (<name>.<pid>.part, stale partials of stopped processes resumed), and checks every local file against the archive's file list by name, size and published MD5/SHA-256: ok, missing, empty, short, long, checksum, partial (lftp/Aspera/.part leftovers), corrupt_zip, failed and extra. The manifest, completeness.csv and summary.json go to <dst>/_spacr_dataset_check via spacr.tabular; a re-run fetches only missing or bad files. Ten dataset_* settings registered under app key public_datasets (ALPHA_FEATURES[750] module_settings); python -m spacr.public_datasets on the command line. No GUI screen yet. spacr/public_datasets.py, tests/test_public_datasets_750.py.
 Requested: maintainer, 2026-10-31 — anything done outside spaCR for the Funk
            2022 reanalysis must become a spaCR item so it is added later.
 Owner: unassigned. Ships as an ALPHA feature (features/README.md, item 569).

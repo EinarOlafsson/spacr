@@ -8160,6 +8160,13 @@ ALPHA_FEATURES = {
         'module_settings': {app_key: ('pixel_size_um',)
                             for app_key in ('measure', 'external_masks')},
     },
+    750: {
+        'module_settings': {'public_datasets': (
+            'dataset_archive', 'dataset_accession', 'dataset_manifest',
+            'dataset_base_url', 'dataset_dst', 'dataset_include',
+            'dataset_workers', 'dataset_retries', 'dataset_checksums',
+            'dataset_check_only')},
+    },
     790: {
         'settings': ('label_import', 'label_import_images',
                      'label_import_image_regex', 'label_import_channels',
