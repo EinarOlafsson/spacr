@@ -14,7 +14,7 @@ These specs describe spaCR features to build so that analyses now done by custom
 |---|---|---|---|---|---|---|
 | 1 | [ITEM_ops_phenotype_run_v2.md](ITEM_ops_phenotype_run_v2.md) | The OPS phenotype run from one settings file: `merged/` per field (stacked channels + masks, flat-field corrected, compressed, NAS destination), standard `measurements.db` tables + `png_list`, owned cells, raw sharded crops, second-acquisition registration | ops_engine (`ph_merged`, `ph_tables`, `ph_crops`) | 809–813, 852, 853, 857, 860–862 | L | yes |
 | 2 | [ITEM_ops_decode_rule_a_s2.md](ITEM_ops_decode_rule_a_s2.md) | Decode rule (a) + S2 + pixel fallback + decoy FDR + skip-unplaced-site as engine settings | ops_engine / ops_sbs / ops_cycles | 842 | L | yes |
-| 3 | *(not included yet: the cross-field ownership spec is still being written)* | Mask-based ownership of cells cut across overlapping fields (`ph_ownership`) | ops_engine | 852, 813 | M | yes |
+| 3 | [ITEM_ops_cross_field_ownership.md](ITEM_ops_cross_field_ownership.md) | Mask-based ownership of cells cut across overlapping fields (`ph_ownership`) | ops_engine | 852, 813 | M | yes |
 | 4 | [ITEM_ops_run_report_funnel_counts.md](ITEM_ops_run_report_funnel_counts.md) | Per-well yield funnel; per-guide/gene counts vs a published table with a shuffled control | ops_engine `report` | — | S | yes |
 | 5 | [ITEM_ops_false_call_model.md](ITEM_ops_false_call_model.md) | Decoy-vs-real false-call model with SHAP and a sequence-only control | ops_engine `decode_qc` | — | M | yes |
 | 6 | [ITEM_ops_genotype_confidence.md](ITEM_ops_genotype_confidence.md) | Calibrated per-cell genotype confidence + reliability report | ops_engine decode | — | M | yes |
