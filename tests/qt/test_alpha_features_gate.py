@@ -87,6 +87,7 @@ RELEASED_BEFORE_THE_ALPHA_RULE = {
     855: "alpha OPS phenotype path: ops_cluster_benchmark and its benchmark, cluster and consensus settings are registered in ALPHA_FEATURES[752] and hidden with its page",
     856: "alpha OPS phenotype path: ops_mitotic_model is registered in ALPHA_FEATURES[752] and hidden with its page",
     863: "alpha Measure profiling: the tvn choice of profiling_normalization is hidden with the profiling settings of ALPHA_FEATURES[547]",
+    870: "alpha Measure profiling: the ljosa_percentile choice of profiling_normalization is hidden with the profiling settings of ALPHA_FEATURES[547]",
     794: "bug fix only (xgboost fits on machines without a GPU): no setting, nothing in the app to hide",
     792: "bug fix only (GLCM homogeneity finite for objects narrower than the offset): no setting, nothing in the app to hide",
     793: "bug fix only (Measure divides by the flat field in float32, no clipping): no setting, nothing in the app to hide",
