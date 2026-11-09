@@ -3799,6 +3799,14 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "How the estimate itself is produced — the level the score is "
         "computed at, the backend that runs it, and the random seed. Fix "
         "the seed when you want two designs compared rather than two draws.",
+    "PUBLIC DATASET":
+        "Which public dataset is fetched and where to: the archive and its "
+        "accession, the file list every local file is checked against, and "
+        "the destination folder.",
+    "PUBLIC DATASET TRANSFER":
+        "How files are transferred and checked: parallel transfers, retries "
+        "that resume from the last byte, checksum comparison, and a check "
+        "without downloading.",
 }
 
 
