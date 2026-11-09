@@ -25,6 +25,7 @@ These specs describe spaCR features to build so that analyses now done by custom
 | 11 | [ITEM_ops_reference_sets.md](ITEM_ops_reference_sets.md) | Versioned CORUM/KEGG/STRING/BioGRID sets, SELECT/REPORT halves, time split | ops_reference (new) | — | S–M | yes |
 | 12 | [ITEM_ops_specificity_metrics.md](ITEM_ops_specificity_metrics.md) | Fitness-matched retrieval, complex identification, held-out complexes, time split, pair AUPRC | sp_stats | — | M | yes |
 | 13 | [ITEM_ops_gene_level_aggregation.md](ITEM_ops_gene_level_aggregation.md) | Gene profile = median over all cells (Brieflow aggregation, credited) | gene_measurement_compare | 858 | S | yes |
+| 13b | [ITEM_gene_graph.md](ITEM_gene_graph.md) | Gene graph: learned gene–gene links and gene → category membership from OPS (+ JUMP) profiles, held-out-gene and time-split validation, controls, calibrated FDR prediction tables | spacr/ops/gene_graph (new) | — | L | yes |
 | 14 | [ITEM_ops_modules_precomputed.md](ITEM_ops_modules_precomputed.md) | Module atlas (consensus + gates) incl. precomputed embeddings | ops_modules (new) | 855 | L | yes |
 | 15 | [ITEM_gene_class_training.md](ITEM_gene_class_training.md) | Gene-class multi-label training: class building, grouped folds, decoy heads, shuffled controls, LR baseline, discovery tables, benchmark arms, spaCR CNN fix | gene_classes (new) + train/classify | NEW-1, 772 | L | yes |
 | 16 | [ITEM_ops_cell_cycle_profiles.md](ITEM_ops_cell_cycle_profiles.md) | Cell-cycle-resolved gene profiles | ops_engine aggregate | 856 | M | yes |
@@ -56,6 +57,5 @@ These specs describe spaCR features to build so that analyses now done by custom
 **Not ported, by design:**
 - external comparator tools and their code (other OPS pipelines, CellProfiler, CellProfiler Analyst as a tool, copairs, HRMAn's own values); their outputs are inputs only;
 - one-off corpus builds: the plaque held-out set and the literature checks;
-- the gene graph;
 - figure drawing (item 818 later);
 - annotation readings (cluster annotation, mitotic labels, plaque gold labels, figure readings): these are stored as data, never re-derived.
