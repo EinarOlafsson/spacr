@@ -17,6 +17,8 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def _binary(mode):
+    if isinstance(mode, ast.IfExp):
+        return _binary(mode.body) and _binary(mode.orelse)
     return (isinstance(mode, ast.Constant) and isinstance(mode.value, str)
             and "b" in mode.value)
 
@@ -74,3 +76,10 @@ def test_a_file_older_spacr_wrote_in_cp1252_is_still_read(tmp_path):
     assert _legacy_text_encoding(modern) == "utf-8"
     assert open(legacy, encoding=_legacy_text_encoding(legacy)).read() == "name\nMüller\n"
     assert _legacy_text_encoding(tmp_path / "missing.csv") == "utf-8"
+
+
+def test_a_mode_chosen_between_two_binary_modes_counts_as_binary():
+    both = ast.parse("open(p, 'ab' if have else 'wb')").body[0].value
+    mixed = ast.parse("open(p, 'a' if have else 'wb')").body[0].value
+    assert _binary(_mode(both, 1))
+    assert not _binary(_mode(mixed, 1))

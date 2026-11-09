@@ -909,7 +909,12 @@ def test_restyling_a_live_figure_costs_the_gui_thread_nothing(qtbot, queue):
     inline (0.06-0.07 of it); traced by coverage on two cores shared with
     two busy loops, 12-16 ms against 150-208 ms (0.06-0.11). The bound was an absolute 20 ms, which a CI
     coverage shard missed at 21.2 ms, and the docstring said the figure was
-    on the live canvas, which a figure this slow never is.
+    on the live canvas, which a figure this slow never is. The bound was then
+    a quarter of the inline render, which coverage shard 2 of nightly run
+    42599006468 (2026-11-09) missed at 38.1 ms against 130.0 ms (0.29): the
+    worst of 40 requests on a shared hosted runner carries one scheduler
+    stall. Half the inline render still fails a restyle that renders on the
+    GUI thread, which costs the whole render or more.
     """
     import gc
     import time
@@ -951,7 +956,7 @@ def test_restyling_a_live_figure_costs_the_gui_thread_nothing(qtbot, queue):
             gc.enable()
         else:
             gc.disable()
-    assert worst < 0.25 * min(inline), (
+    assert worst < 0.5 * min(inline), (
         f"a restyle request cost {worst:.1f} ms against "
         f"{min(inline):.1f} ms for the inline render it replaces")
 
