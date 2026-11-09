@@ -1494,6 +1494,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Division Analysis α", (
             "timelapse_division_analysis", "timelapse_division_mode",
             "timelapse_division_window", "timelapse_division_size_tolerance",
+            "timelapse_division_prediction", "timelapse_division_prediction_frames",
+            "timelapse_division_prediction_model", "timelapse_division_prediction_folds",
         )),
         ("Event Detection α", (
             "timelapse_events", "timelapse_events_annotations",

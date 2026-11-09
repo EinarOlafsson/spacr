@@ -73,6 +73,8 @@ GROUPS = (
         (771, "What tracked cells do before they divide"),
         (864, "Division results in minutes and micrometres"),
         (867, "Division effect sizes that resample movies"),
+        (865, "Budding-yeast size control"),
+        (866, "Will this cell divide soon?"),
         (567, "Event detection: mitosis, egress, invasion, death"),
         (571, "Time-to-event: Kaplan-Meier and Cox"),
     )),
