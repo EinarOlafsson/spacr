@@ -8187,6 +8187,13 @@ ALPHA_FEATURES = {
             'published_duplicates', 'published_unmatched', 'published_bootstrap',
             'published_shuffles', 'published_seed', 'published_dst')},
     },
+    795: {
+        'module_settings': {'moa_benchmark': (
+            'moa_profiles', 'moa_labels', 'moa_label_column', 'moa_compound_column',
+            'moa_treatment_columns', 'moa_batch_column', 'moa_controls', 'moa_arms',
+            'moa_replicates', 'moa_shuffles', 'moa_supervised_shuffles', 'moa_seed',
+            'moa_workers', 'moa_dst')},
+    },
     790: {
         'settings': ('label_import', 'label_import_images',
                      'label_import_image_regex', 'label_import_channels',

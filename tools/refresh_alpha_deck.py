@@ -104,6 +104,7 @@ GROUPS = (
         (550, "Cloud storage (S3 and others)"),
         (750, "Fetch public datasets and check them against the archive"),
         (751, "Compare a screen with a published per-gene table"),
+        (795, "Mechanism-of-action benchmark, leaving one compound out"),
         (575, "Export a run as a Nextflow / Snakemake workflow"),
         (577, "Run-finished notifications (email, Slack, ntfy)"),
         (581, "Export for R (SingleCellExperiment), tidy Parquet"),

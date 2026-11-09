@@ -3169,6 +3169,37 @@ def _validated_865_866_budding_prediction_callables(callables):
     return [item for item in callables if item.symbol not in entries]
 
 
+def _validated_moa_benchmark_callables(callables):
+    """Check the leave-one-compound-out MoA benchmark's functions against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "795_moa_benchmark_api_arrivals_2026-11-09.json").read_text(encoding="utf-8"))
+    assert len(entries) == 10 and "spacr.moa_benchmark" in entries
+    symbols = {f"spacr.moa_benchmark.{name}" for name in (
+        "loco_nearest_neighbour", "loco_supervised", "majority_class_control", "main",
+        "moa_benchmark", "moa_benchmark_defaults", "run_moa_benchmark",
+        "shuffled_label_control", "write_moa_benchmark")}
+    assert set(entries) == symbols | {"spacr.moa_benchmark"}
+    found = {item.symbol: item for item in callables if item.symbol in symbols}
+    assert found.keys() == symbols
+    tree = ast.parse((root / "spacr/moa_benchmark.py").read_text(encoding="utf-8"))
+    for symbol, item in found.items():
+        name = symbol.rsplit(".", 1)[1]
+        declarations = [node for node in tree.body
+                        if isinstance(node, ast.FunctionDef) and node.name == name]
+        assert len(declarations) == 1
+        arguments = declarations[0].args
+        names = {arg.arg for arg in arguments.posonlyargs + arguments.args + arguments.kwonlyargs}
+        assert item.category == "function" and item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters == names
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert not item.accepts_arbitrary_keywords
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
 def _validated_733_easy_mode_callables(callables):
     """Check the exact four executable Easy mode boundaries before historical replay."""
     import json
@@ -3252,6 +3283,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_public_datasets_callables(callables)
     callables = _validated_published_reference_callables(callables)
     callables = _validated_865_866_budding_prediction_callables(callables)
+    callables = _validated_moa_benchmark_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
@@ -5918,6 +5950,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("750_public_datasets_api_arrivals_2026-11-08.json", 11),
         ("751_published_reference_api_arrivals_2026-11-09.json", 8),
         ("865_866_budding_prediction_api_arrivals_2026-11-09.json", 10),
+        ("795_moa_benchmark_api_arrivals_2026-11-09.json", 10),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -6497,7 +6530,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "864_867_division_units_bootstrap_api_arrivals_2026-11-08.json",
                      "750_public_datasets_api_arrivals_2026-11-08.json",
                      "751_published_reference_api_arrivals_2026-11-09.json",
-                     "865_866_budding_prediction_api_arrivals_2026-11-09.json"):
+                     "865_866_budding_prediction_api_arrivals_2026-11-09.json",
+                     "795_moa_benchmark_api_arrivals_2026-11-09.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -6619,7 +6653,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "864_867_division_units_bootstrap_api_arrivals_2026-11-08.json",
                      "750_public_datasets_api_arrivals_2026-11-08.json",
                      "751_published_reference_api_arrivals_2026-11-09.json",
-                     "865_866_budding_prediction_api_arrivals_2026-11-09.json"):
+                     "865_866_budding_prediction_api_arrivals_2026-11-09.json",
+                     "795_moa_benchmark_api_arrivals_2026-11-09.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
