@@ -1,9 +1,9 @@
 A BUDDING-YEAST CELL-CYCLE MODEL FOR BUDDING DIVISIONS
 =====================================================
 Lifecycle: future
-Status: open
+Status: DONE 2026-11-09 (alpha) — spacr.division_analysis gains bud_contacts (mother-bud contact per frame from the tracked label stack), budding_cytokinesis (cytokinesis per bud from contact ending, else from the bud's growth curve flattening, with the method and, when neither shows it, the reason it is not fitted), budding_cycles (cytokinesis-to-cytokinesis cycles for mothers and daughters: birth size at cytokinesis, division size mother + bud at the next one, added size, unbudded and budded frames) and add_budding_cycles (fits sizer/adder/timer slopes per branch for area and sphere-equivalent volume when the movie is analysed as budding); the Make Masks step uses it for budding (or auto finding budding) and the size-control figure draws mothers and daughters labelled as the budding model. Fission fits unchanged. Registered as ALPHA_FEATURES[865] (timelapse_division_analysis; no new settings).
 Requested: maintainer, 2026-11-08 (follow-on 4b of item 771).
-Owner: unassigned (alpha when built).
+Owner: Home (claude-div2-1109 worktree).
 Related: 771.
 
 WHAT THE STATE IS
@@ -40,3 +40,34 @@ before.
 DELIBERATELY NOT DONE
 No cytokinesis times are invented when the masks cannot show separation;
 those buds are reported as not fitted, with the reason.
+
+WHAT WAS BUILT (2026-11-09, alpha)
+- The model and its assumptions (stated in the docstrings and in summary.json as budding_model): a
+  bud emerges on the first frame its track is seen (bud emergence, the morphological mark of Start;
+  Hartwell 1974); the cycle ends at cytokinesis, read as the last frame the bud touches its mother
+  before they are seen apart on 2 consecutive frames (bud_contacts counts a one-pixel seam as contact).
+  Without contact, the bud's growth rate over 3 frames must fall to 25% of its peak before the bud
+  buds itself (method growth_plateau, a weaker reading: a daughter that keeps growing as fast after
+  separation is not fitted). Birth size = size at cytokinesis; division size = mother + bud at the
+  next cytokinesis, so the bud counts toward the cycle that made it (Soifer et al. 2016 Curr Biol;
+  Chandler-Brown et al. 2017 Curr Biol). Mothers and daughters (a former bud's first cycle) are fitted
+  separately (Hartwell & Unger 1977 JCB: daughters are born smaller and spend longer unbudded). volume
+  = sphere of the same projected area, 4/3 * area^1.5 / sqrt(pi), summed over mother and bud.
+- results gain buds (buds.csv: mother, bud, t_emergence, t_cytokinesis, budded_frames, method,
+  status); cycles carry branch, bud, t_emergence, unbudded_frames, budded_frames and
+  area/volume _birth/_emergence/_division/_added; size_control rows model=budding, branch,
+  size_measure area|volume. calibrate_divisions adds _min and _um2/_um3 columns for them;
+  pool_division_movies refits per branch and concatenates buds with their movie.
+- analyse_divisions keeps its signature, docstring and fission behaviour (reviewed translations stay
+  current); the step calls add_budding_cycles after it when the movie is budding.
+- Tests: tests/test_division_budding_865.py -- synthetic budding lineages with planted sizer (0),
+  adder (1) and timer (1.6) rules give back the planted slope within its CI for both branches; buds
+  without visible separation are reported not fitted with the reason; the growth-plateau fallback,
+  bud_contacts on real masks, writing, reading, pooling and the budding figure.
+
+NOT DONE / NEEDS A DECISION
+- No real budding-yeast movie was run (synthetic data only); the 2-frame separation rule, the
+  one-pixel seam and the 25% plateau are defaults chosen here, not calibrated on real data.
+- The timelapse_division_mode tooltip still says "Size control is fitted for fission only"; changing
+  it means a new English string and nine translations, so it was left for the translation lane.
+- Its English strings (docstrings, summary note, figure title and labels) have no catalogue records.

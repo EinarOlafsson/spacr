@@ -1,9 +1,9 @@
 PREDICT WHETHER A TRACKED CELL DIVIDES WITHIN N FRAMES
 ======================================================
 Lifecycle: future
-Status: open
+Status: DONE 2026-11-09 (alpha) — new module spacr.division_prediction (kept out of division_analysis, as the item asks): division_prediction_features (per track and frame: shape, intensity and motion measures, their change over 3 frames, age, and the label 'divides within N frames'; frames whose horizon the movie does not show are left out), predict_divisions (GroupKFold by movie; model beside age-only, shuffled-within-movie labels and majority-class controls; pooled held-out AUROC/AUPRC with per-movie bootstrap 95% CIs from 5 movies on, row bootstrap with a too-narrow note below; paired CIs of the model's margin over each control; permutation importances on held-out folds), write/read_division_prediction and division_prediction_figure (bars + jittered folds). The Make Masks step writes prediction_features.csv per field and, from 3 fields on, tracks/division/prediction_<tracker>_tracks_<object>/. Four settings under ALPHA_FEATURES[866]; xgboost when installed, scikit-learn otherwise.
 Requested: maintainer, 2026-11-08 (follow-on 4c of item 771).
-Owner: unassigned (alpha when built).
+Owner: Home (claude-div2-1109 worktree).
 Related: 771.
 
 WHAT THE STATE IS
@@ -39,3 +39,36 @@ control; folds never share a movie.
 DELIBERATELY NOT DONE
 Not added to spacr/division_analysis.py itself, to keep that module free
 of model dependencies.
+
+WHAT WAS BUILT (2026-11-09, alpha)
+- Settings (Timelapse > Division Analysis α): timelapse_division_prediction (off),
+  timelapse_division_prediction_frames (N, 5), timelapse_division_prediction_model
+  (auto/xgboost/gradient_boosting/logistic) and timelapse_division_prediction_folds (5), registered as
+  ALPHA_FEATURES[866]; resume treats them as cosmetic; deck row added (deck not re-rendered).
+- Label: frame t is positive when the cell's next division (alignment frame of division_events) is
+  in t .. t+N-1; negative only when the cell is seen past t+N without dividing or divides later;
+  otherwise censored (left out). Budding mothers' age restarts at each bud emergence.
+- Evaluation: folds never share a movie (checked per fold, n_shared_movies in folds.csv). The shuffled
+  control permutes labels within each training movie. The majority control is one constant score
+  (AUROC 0.5, AUPRC = prevalence). summary.json gives beats_shuffled / beats_age_only /
+  beats_majority (paired CI of the AUROC margin above 0) and a verdict that names the cell-cycle
+  clock when the model beats shuffled labels but not age alone.
+- Outputs: metrics.csv, folds.csv, importances.csv, predictions.csv, summary.json,
+  division_prediction figure.
+- Tests: tests/test_division_prediction_866.py -- a planted pre-division elongation beats all three
+  controls on held-out movies with the movie bootstrap; memoryless divisions with no planted change
+  do not beat the shuffled control; a minimum cycle length (a pure age clock) beats shuffled labels
+  but not the age-only control; folds never share a movie; censoring; metrics match scikit-learn;
+  xgboost fallback; the step waits for 3 fields.
+
+NOT DONE / NEEDS A DECISION
+- Not compared with the Fig 7 driver in the BMC reanalysis folder (that driver and its data were not
+  read here); the paper numbers should be rerun through spacr.division_prediction before they cite it.
+- Every frame of a track is one row, so long-lived tracks weigh more; whether to subsample one frame
+  per track per horizon is a modelling choice for the maintainer.
+- With fewer than 5 fields the intervals resample rows and are too narrow (said in ci_note); the
+  5-movie threshold follows item 867.
+- The prediction reruns after every field once 3 have features (like the pooling); a run with many
+  fields could instead predict once at the end.
+- Its English strings (settings tooltips, docstrings, verdicts, figure labels) have no catalogue
+  records.

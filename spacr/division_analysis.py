@@ -755,7 +755,348 @@ def size_control_fits(birth, division, n_boot: int = 2000, rng=None) -> dict:
     return out
 
 
-_RESULT_TABLES = ('events', 'effects', 'trajectories', 'cycles', 'size_control', 'changes')
+_BUDDING_SIZES = ('area', 'volume')
+_BUDDING_ASSUMPTIONS = (
+    'budding cycle model: a bud emerges on the first frame its track is seen '
+    '(bud emergence, the morphological mark of Start; Hartwell 1974) and the cycle '
+    'ends at cytokinesis, the last frame the bud still touches its mother in the masks; '
+    'without masks, or when they never show separation, the first frame after the '
+    "bud's fastest growth at which its growth rate falls to a fraction of that peak; "
+    'a bud without either is not fitted. Birth size is the size at cytokinesis; '
+    "division size is the mother's plus her bud's size at the next cytokinesis, so the "
+    'bud counts toward the cycle that made it (Soifer et al. 2016; Chandler-Brown '
+    'et al. 2017). Mothers and daughters (first cycle of a former bud) are fitted '
+    'separately because daughters are born smaller and spend longer unbudded '
+    '(Hartwell & Unger 1977). volume is the sphere of the same projected area, '
+    '4/3 * area^1.5 / sqrt(pi), summed over mother and bud.')
+
+
+def _sphere_volume(area):
+    """Volume of the sphere whose projected area is ``area``."""
+    return 4.0 / 3.0 * np.asarray(area, float) ** 1.5 / math.sqrt(math.pi)
+
+
+def bud_contacts(masks: Iterable[np.ndarray], events: pd.DataFrame,
+                 times: Optional[Sequence[int]] = None, distance: int = 2) -> pd.DataFrame:
+    """Whether each bud touches its mother, frame by frame, in a tracked label stack.
+
+    Two objects touch when a pixel of one lies within ``distance`` pixels
+    (in both rows and columns) of a pixel of the other. ``distance=1``
+    reads only adjacent pixels; the default 2 also reads a one-pixel
+    background seam, which segmentation often leaves between touching
+    cells, as contact.
+
+    :param masks: 2D integer label planes; the label value is the track id.
+    :param events: budding events from :func:`division_events`; rows of
+        another kind are ignored.
+    :param times: frame time of each plane; defaults to ``0, 1, 2, ...``.
+    :param distance: the largest gap, in pixels, still read as contact.
+    :returns: one row per (``bud``, ``t``) on which the bud and its
+        ``mother`` are both labelled, with ``touching`` (bool).
+    :raises ValueError: when ``times`` does not match the number of masks,
+        a mask is not 2D, or ``distance`` is below 1.
+    """
+    masks = list(masks)
+    times = list(range(len(masks))) if times is None else list(times)
+    if len(times) != len(masks):
+        raise ValueError('times and masks must have the same length')
+    if int(distance) < 1:
+        raise ValueError('distance must be at least 1 pixel')
+    distance = int(distance)
+    columns = ['bud', 'mother', 't', 'touching']
+    buds = events[events['kind'] == 'budding'] if len(events) else events
+    pairs = {}
+    for _, row in buds.iterrows():
+        for bud in row['daughters']:
+            pairs[int(bud)] = int(row['parent'])
+    if not pairs:
+        return pd.DataFrame(columns=columns)
+    rows = []
+    for i, mask in enumerate(masks):
+        mask = np.asarray(mask)
+        if mask.ndim != 2:
+            raise ValueError(f'mask {i} is not 2D: shape {mask.shape}')
+        present = set(np.unique(mask).tolist())
+        wanted = {b: m for b, m in pairs.items() if b in present and m in present}
+        if not wanted:
+            continue
+        touching = set()
+        for dy in range(-distance, distance + 1):
+            for dx in range(0, distance + 1):
+                if dx > 0 or dy > 0:
+                    touching.update(_shifted_pairs(mask, dy, dx))
+        for bud, mother in wanted.items():
+            rows.append((bud, mother, int(times[i]),
+                         (bud, mother) in touching or (mother, bud) in touching))
+    return pd.DataFrame(rows, columns=columns)
+
+
+def _shifted_pairs(mask, dy, dx):
+    """Label pairs ``(a, b)`` with ``a`` at a pixel and ``b`` at that pixel shifted by ``(dy, dx)``."""
+    h, w = mask.shape
+    a = mask[max(0, -dy):h - max(0, dy), max(0, -dx):w - max(0, dx)]
+    b = mask[max(0, dy):h - max(0, -dy), max(0, dx):w - max(0, -dx)]
+    keep = (a != b) & (a > 0) & (b > 0)
+    return set(zip(a[keep].tolist(), b[keep].tolist())) if keep.any() else set()
+
+
+def budding_cytokinesis(measures: pd.DataFrame, events: pd.DataFrame,
+                        contacts: Optional[pd.DataFrame] = None, min_separated: int = 2,
+                        growth_frames: int = 3, plateau_fraction: float = 0.25) -> pd.DataFrame:
+    """Cytokinesis frame of every bud, and how it was found.
+
+    The model this reads (stated, not tested by it): a budding cycle runs
+    from bud emergence, the first frame the bud's track is seen, to
+    cytokinesis. With ``contacts`` (:func:`bud_contacts`), cytokinesis is
+    the last frame the bud touches its mother before they are seen apart on
+    ``min_separated`` consecutive frames on which both are labelled
+    (``method='contact'``). When the masks never show that, the bud's area
+    curve is read instead: the growth rate over ``growth_frames`` frames
+    peaks while the bud grows on its mother, and cytokinesis is the first
+    later frame at which it has fallen to ``plateau_fraction`` of that peak
+    (``method='growth_plateau'``); only frames before the bud's own first
+    bud are read, since a cell cannot bud before it has separated. This
+    assumes the bud's growth slows when it separates, which is a weaker
+    reading than contact: a daughter that keeps growing as fast after
+    separation is not fitted. A bud with
+    neither is not fitted and its ``status`` says why; no cytokinesis time
+    is invented.
+
+    :param measures: per-frame table with ``track_id``, ``t`` and ``area``.
+    :param events: budding events from :func:`division_events`.
+    :param contacts: optional contact table from :func:`bud_contacts`.
+    :param min_separated: frames apart that confirm a separation.
+    :param growth_frames: frames over which the bud's growth rate is taken.
+    :param plateau_fraction: the fraction of the peak growth rate read as
+        the end of bud growth.
+    :returns: one row per bud with ``mother``, ``bud``, ``t_emergence``,
+        ``t_cytokinesis`` (-1 when not fitted), ``budded_frames``,
+        ``method`` (``'contact'``, ``'growth_plateau'`` or ``''``) and
+        ``status`` (``'ok'`` or the reason it was not fitted).
+    :raises ValueError: when ``measures`` lacks ``track_id``, ``t`` or
+        ``area``, or a threshold is out of range.
+    """
+    missing = [c for c in ('track_id', 't', 'area') if c not in measures.columns]
+    if missing:
+        raise ValueError(f'measures lack columns {missing}')
+    if int(min_separated) < 1 or int(growth_frames) < 1 or not 0 < float(plateau_fraction) < 1:
+        raise ValueError('min_separated and growth_frames must be at least 1 and '
+                         'plateau_fraction between 0 and 1')
+    columns = ['mother', 'bud', 't_emergence', 't_cytokinesis', 'budded_frames', 'method',
+               'status']
+    buds = events[events['kind'] == 'budding'] if len(events) else events
+    if not len(buds):
+        return pd.DataFrame(columns=columns)
+    area = {lab: g.sort_values('t') for lab, g in measures.groupby('track_id')}
+    own_bud = buds.groupby('parent')['t_div'].min().to_dict()
+    touch = {}
+    if contacts is not None and len(contacts):
+        for bud, g in contacts.groupby('bud'):
+            touch[int(bud)] = g.sort_values('t')
+    rows = []
+    for _, row in buds.iterrows():
+        mother, bud = int(row['parent']), int(row['daughters'][0])
+        t_e = int(row['t_div']) + 1
+        method, t_c, status = '', -1, 'ok'
+        series = touch.get(bud)
+        reason = 'no contact table'
+        if series is not None:
+            t_c, reason = _contact_cytokinesis(series, int(min_separated))
+            method = 'contact' if t_c >= 0 else ''
+        if t_c < 0:
+            g = area.get(bud)
+            if g is not None and bud in own_bud:
+                g = g[g['t'] <= int(own_bud[bud])]
+            if g is None:
+                status = 'bud not measured'
+            else:
+                t_c, why = _plateau_cytokinesis(g, int(growth_frames), float(plateau_fraction))
+                if t_c >= 0:
+                    method = 'growth_plateau'
+                else:
+                    status = f'not fitted: {reason}; {why}'
+        rows.append((mother, bud, t_e, t_c, t_c - t_e + 1 if t_c >= 0 else -1, method, status))
+    out = pd.DataFrame(rows, columns=columns)
+    return out.sort_values(['mother', 't_emergence', 'bud']).reset_index(drop=True)
+
+
+def _contact_cytokinesis(series, min_separated):
+    """Last touching frame before a confirmed separation, or -1 with the reason."""
+    t = series['t'].to_numpy(dtype=np.int64)
+    on = series['touching'].to_numpy(dtype=bool)
+    if not len(t) or not on[0]:
+        return -1, 'bud not touching its mother when first seen'
+    for i in range(1, len(on) - min_separated + 1):
+        if on[i - 1] and not on[i:i + min_separated].any():
+            return int(t[i - 1]), ''
+    return -1, 'separation not seen in the masks'
+
+
+def _plateau_cytokinesis(g, growth_frames, plateau_fraction):
+    """First frame after peak growth at which growth falls to the plateau, or -1 with the reason."""
+    t = g['t'].to_numpy(dtype=np.int64)
+    a = g['area'].to_numpy(dtype=float)
+    if len(t) < 2 * growth_frames + 2 or np.any(np.diff(t) != 1):
+        return -1, 'bud track too short or with gaps for its growth curve'
+    rate = (a[growth_frames:] - a[:-growth_frames]) / growth_frames
+    peak = int(np.argmax(rate))
+    if not rate[peak] > 0:
+        return -1, 'bud does not grow'
+    later = np.nonzero(rate[peak + 1:] <= plateau_fraction * rate[peak])[0]
+    if not len(later):
+        return -1, 'growth does not slow before the track ends or the bud buds'
+    return int(t[peak + 1 + later[0]]), ''
+
+
+def budding_cycles(measures: pd.DataFrame, buds: pd.DataFrame) -> pd.DataFrame:
+    """Budding cycles from one cytokinesis to the next, for mothers and daughters.
+
+    A cycle starts at a cytokinesis (birth) and ends at the next
+    cytokinesis of the same cell (division). On the ``mother`` branch the
+    cell is a mother and the cycle runs between two consecutive buds of
+    hers; on the ``daughter`` branch the cell is a former bud, born at its
+    own separation, and the cycle ends at the cytokinesis of its first bud.
+    Birth size is the cell's size at the birth frame; division size is the
+    cell's plus its bud's size at the division frame; added size is their
+    difference. A cycle whose cytokinesis on either end was not fitted
+    (:func:`budding_cytokinesis`), or whose next bud emerged before the
+    previous one separated, is left out. ``volume`` is the sphere of the
+    same projected area, summed over cell and bud.
+
+    :param measures: per-frame table with ``track_id``, ``t`` and ``area``.
+    :param buds: the table from :func:`budding_cytokinesis`.
+    :returns: one row per cycle with ``branch``, ``track_id``, ``bud``
+        (the bud that ends it), ``t_birth``, ``t_emergence``,
+        ``t_division``, ``duration``, ``unbudded_frames``,
+        ``budded_frames`` and, for ``area`` and ``volume``, ``<size>_birth``,
+        ``<size>_emergence``, ``<size>_division`` and ``<size>_added``.
+    :raises ValueError: when ``measures`` lacks ``track_id``, ``t`` or
+        ``area``.
+    """
+    missing = [c for c in ('track_id', 't', 'area') if c not in measures.columns]
+    if missing:
+        raise ValueError(f'measures lack columns {missing}')
+    area = measures.set_index(['track_id', 't'])['area'].astype(float)
+    area = area[~area.index.duplicated()]
+    fitted = buds[buds['status'] == 'ok'] if len(buds) else buds
+    by_bud = {int(r['bud']): r for _, r in fitted.iterrows()}
+    rows = []
+
+    def add(branch, cell, t_birth, nxt):
+        """Append the cycle of ``cell`` from ``t_birth`` to bud ``nxt``'s cytokinesis."""
+        t_div, bud = int(nxt['t_cytokinesis']), int(nxt['bud'])
+        t_e = int(nxt['t_emergence'])
+        keys = ((cell, t_birth), (cell, t_e), (cell, t_div), (bud, t_div))
+        if t_e <= t_birth or any(k not in area.index for k in keys):
+            return
+        birth, emergence, cell_div, bud_div = (float(area[k]) for k in keys)
+        r = {'branch': branch, 'track_id': cell, 'bud': bud, 't_birth': t_birth,
+             't_emergence': t_e, 't_division': t_div, 'duration': t_div - t_birth,
+             'unbudded_frames': t_e - t_birth, 'budded_frames': t_div - t_e + 1}
+        for name, f in (('area', float), ('volume', lambda x: float(_sphere_volume(x)))):
+            r[f'{name}_birth'] = f(birth)
+            r[f'{name}_emergence'] = f(emergence)
+            r[f'{name}_division'] = f(cell_div) + f(bud_div)
+            r[f'{name}_added'] = r[f'{name}_division'] - r[f'{name}_birth']
+        rows.append(r)
+
+    every = buds.sort_values(['mother', 't_emergence']) if len(buds) else buds
+    for mother, g in (every.groupby('mother') if len(every) else ()):
+        g = g.reset_index(drop=True)
+        for i in range(len(g) - 1):
+            a, b = g.iloc[i], g.iloc[i + 1]
+            if a['status'] == 'ok' and b['status'] == 'ok':
+                add('mother', int(mother), int(a['t_cytokinesis']), b)
+        first = g.iloc[0]
+        parent = by_bud.get(int(mother))
+        if parent is not None and first['status'] == 'ok':
+            add('daughter', int(mother), int(parent['t_cytokinesis']), first)
+    columns = ['branch', 'track_id', 'bud', 't_birth', 't_emergence', 't_division',
+               'duration', 'unbudded_frames', 'budded_frames'] + [
+        f'{n}_{s}' for n in _BUDDING_SIZES for s in ('birth', 'emergence', 'division', 'added')]
+    return pd.DataFrame(rows, columns=columns)
+
+
+def _budding_size_control(cycles, n_boot, rng):
+    """Size-control fits per branch and size measure of budding cycles.
+
+    Slopes do not change with the pixel size, so they are fitted in pixels.
+    """
+    rows = []
+    if not len(cycles):
+        return pd.DataFrame(rows)
+    for branch in ('mother', 'daughter'):
+        part = cycles[cycles['branch'] == branch]
+        for measure in _BUDDING_SIZES:
+            rows.append({'model': 'budding', 'branch': branch, 'size_measure': measure,
+                         **size_control_fits(part[f'{measure}_birth'],
+                                             part[f'{measure}_division'],
+                                             n_boot=n_boot, rng=rng)})
+    return pd.DataFrame(rows)
+
+
+def add_budding_cycles(results: dict, measures: pd.DataFrame, lineage: pd.DataFrame,
+                       contacts: Optional[pd.DataFrame] = None, n_boot: int = 2000,
+                       rng=0, min_separated: int = 2, growth_frames: int = 3,
+                       plateau_fraction: float = 0.25) -> dict:
+    """Fit size control under the budding cycle model to a budding movie's results.
+
+    :func:`analyse_divisions` fits size control for fission only. When its
+    summary says the movie was analysed as budding, this finds every bud's
+    cytokinesis (:func:`budding_cytokinesis`), builds the mother and daughter
+    cycles (:func:`budding_cycles`) and fits the sizer, adder and timer
+    slopes per branch with :func:`size_control_fits`, for area and for the
+    sphere-equivalent volume. The results gain a ``buds`` table (one row per
+    bud with its method and status), and ``cycles`` and ``size_control``
+    are replaced by the budding ones, every size-control row with
+    ``model='budding'`` and its ``branch``. The summary records
+    ``size_control_model``, ``n_buds``, ``n_buds_fitted``, the
+    ``cytokinesis_methods`` used, the reasons buds were not fitted and the
+    model's assumptions (``budding_model``). A fission movie is returned
+    unchanged apart from ``size_control_model='fission'``.
+
+    :param results: the dict from :func:`analyse_divisions`; changed in
+        place.
+    :param measures: the per-frame table the results were computed from.
+    :param lineage: the lineage table the results were computed from.
+    :param contacts: optional table from :func:`bud_contacts`; without it
+        only the growth curve is read.
+    :param n_boot: bootstrap resamples for the slope intervals.
+    :param rng: seed or generator for the resampling.
+    :param min_separated: see :func:`budding_cytokinesis`.
+    :param growth_frames: see :func:`budding_cytokinesis`.
+    :param plateau_fraction: see :func:`budding_cytokinesis`.
+    :returns: ``results``.
+    """
+    summary = results.setdefault('summary', {})
+    if summary.get('mode') != 'budding':
+        summary['size_control_model'] = 'fission'
+        results.setdefault('buds', pd.DataFrame())
+        return results
+    events = division_events(lineage, mode='budding')
+    buds = budding_cytokinesis(measures, events, contacts=contacts,
+                               min_separated=min_separated, growth_frames=growth_frames,
+                               plateau_fraction=plateau_fraction)
+    cycles = budding_cycles(measures, buds)
+    results['buds'] = buds
+    results['cycles'] = cycles
+    results['size_control'] = _budding_size_control(cycles, n_boot, np.random.default_rng(rng))
+    fitted = buds[buds['status'] == 'ok'] if len(buds) else buds
+    reasons = buds.loc[buds['status'] != 'ok', 'status'].value_counts() if len(buds) else {}
+    summary.update({
+        'size_control_model': 'budding', 'budding_model': _BUDDING_ASSUMPTIONS,
+        'n_buds': int(len(buds)), 'n_buds_fitted': int(len(fitted)),
+        'cytokinesis_methods': {str(k): int(v) for k, v in
+                                (fitted['method'].value_counts().items() if len(fitted) else ())},
+        'buds_not_fitted': {str(k): int(v) for k, v in dict(reasons).items()},
+        'n_cycles': int(len(cycles)),
+        'n_cycles_mother': int((cycles['branch'] == 'mother').sum()) if len(cycles) else 0,
+        'n_cycles_daughter': int((cycles['branch'] == 'daughter').sum()) if len(cycles) else 0})
+    return _add_units(results, _units(summary.get('frame_interval_min'),
+                                      summary.get('pixel_size_um')))
+
+
+_RESULT_TABLES = ('events', 'effects', 'trajectories', 'cycles', 'size_control', 'changes', 'buds')
 _SERIES = ('dividing', 'control', 'shuffled', 'shuffled_control')
 _CONTRASTS = (('dividing_vs_control', 'dividing', 'control'),
               ('shuffled_vs_its_control', 'shuffled', 'shuffled_control'))
@@ -926,11 +1267,16 @@ def _add_units(results, units):
         events['base_size_um2'] = events['base_size'] * size ** 2
     if len(cycles):
         if interval is not None:
-            for column in ('t_birth', 't_division', 'duration'):
-                cycles[f'{column}_min'] = cycles[column] * interval
+            for column in ('t_birth', 't_division', 'duration', 't_emergence',
+                           'unbudded_frames', 'budded_frames'):
+                if column in cycles:
+                    cycles[f'{column}_min'] = cycles[column] * interval
         if size is not None:
-            for column in [c for c in cycles.columns if c.startswith(('area_', 'major_axis_'))]:
-                scale, suffix = (size ** 2, 'um2') if column.startswith('area_') else (size, 'um')
+            scales = {'area_': (size ** 2, 'um2'), 'major_axis_': (size, 'um'),
+                      'volume_': (size ** 3, 'um3')}
+            for column in [c for c in cycles.columns if c.startswith(tuple(scales))
+                           and not c.endswith(('_um', '_um2', '_um3'))]:
+                scale, suffix = scales[next(p for p in scales if column.startswith(p))]
                 cycles[f'{column}_{suffix}'] = cycles[column] * scale
     speed_scale = size / interval if interval is not None and size is not None else None
     effects = results['effects']
@@ -1131,7 +1477,8 @@ def calibrate_divisions(results: dict, frame_interval_min: Optional[float] = Non
             results[name] = pd.DataFrame()
             continue
         added = [c for c in table.columns
-                 if c.endswith(('_min', '_um2', '_um', '_um_per_min')) or c in ('unit', 'change_unit')]
+                 if c.endswith(('_min', '_um2', '_um3', '_um', '_um_per_min'))
+                 or c in ('unit', 'change_unit')]
         results[name] = table.drop(columns=added)
     results.setdefault('summary', {})
     return _add_units(results, units)
@@ -1237,7 +1584,9 @@ def pool_division_movies(movies, n_boot: int = 2000, rng=0, min_movies: int = 5)
     if size_unit == 'px^2' and any(p is not None for p in sizes):
         notes.append('size control pooled in px^2: pixel size unknown for some movies')
     size_control = []
-    if len(cycles):
+    if len(cycles) and 'branch' in cycles:
+        size_control = _pooled_budding_size_control(cycles, size_unit, n_boot, rng)
+    elif len(cycles):
         for measure, suffix in (('area', 'um2'), ('major_axis', 'um')):
             birth, division = f'{measure}_birth', f'{measure}_division'
             if size_unit == 'um^2' and f'{birth}_{suffix}' in cycles:
@@ -1271,8 +1620,29 @@ def pool_division_movies(movies, n_boot: int = 2000, rng=0, min_movies: int = 5)
     summary['units_note'] = '; '.join(base + notes)
     return {'events': events, 'effects': effects, 'trajectories': trajectories,
             'cycles': cycles, 'size_control': pd.DataFrame(size_control),
-            'changes': changes, 'summary': summary}
+            'changes': changes, 'summary': summary,
+            'buds': pd.concat([r['buds'].assign(movie=name) for name, r in zip(names, results)
+                               if len(r.get('buds', ()))], ignore_index=True)
+            if any(len(r.get('buds', ())) for r in results) else pd.DataFrame()}
 
+
+def _pooled_budding_size_control(cycles, size_unit, n_boot, rng):
+    """Refit the budding size control per branch on the pooled cycles of several movies."""
+    rows = []
+    calibrated = size_unit == 'um^2'
+    for branch in ('mother', 'daughter'):
+        part = cycles[cycles['branch'] == branch]
+        for measure, suffix, unit in (('area', 'um2', size_unit),
+                                      ('volume', 'um3', 'um^3' if calibrated else 'px^3')):
+            birth, division = f'{measure}_birth', f'{measure}_division'
+            if calibrated and f'{birth}_{suffix}' in part:
+                birth, division = f'{birth}_{suffix}', f'{division}_{suffix}'
+            if birth in part and division in part:
+                rows.append({'model': 'budding', 'branch': branch, 'size_measure': measure,
+                             'size_unit': unit,
+                             **size_control_fits(part[birth], part[division],
+                                                 n_boot=n_boot, rng=rng)})
+    return rows
 
 def _pooled_trajectories(tables):
     """Pool per-movie trajectory summaries frame by frame.
@@ -1454,6 +1824,9 @@ def _size_control_figure(cycles, size_control, measure='area'):
     if calibrated:
         birth_col, division_col = f'{birth_col}_um2', f'{division_col}_um2'
     unit = '(µm²)' if calibrated else '(px², pixel size unknown)'
+    if len(cycles) and 'branch' in cycles:
+        return _budding_size_control_figure(fig, ax, cycles, size_control, measure,
+                                            birth_col, division_col, unit)
     _register_figure_data(fig, cycles, x=birth_col, y=division_col, kind='scatter',
                           title='Size at division against size at birth')
     if not len(cycles) or birth_col not in cycles:
@@ -1484,6 +1857,54 @@ def _size_control_figure(cycles, size_control, measure='area'):
     fig.tight_layout()
     return fig
 
+
+def _budding_size_control_figure(fig, ax, cycles, size_control, measure, birth_col,
+                                 division_col, unit):
+    """The size-control figure under the budding model: mothers and daughters with their fits.
+
+    Size at division is the mother's plus her bud's size at cytokinesis;
+    the sizer (slope 0) and adder (slope 1) lines are drawn through the
+    mean of all cycles. No timer line is drawn: with unequal division its
+    slope is the growth over the cycle, not 2.
+    """
+    from .figures.bundle import _register_figure_data
+    from .figures.style import ROLES
+
+    _register_figure_data(fig, cycles, x=birth_col, y=division_col, kind='scatter',
+                          title='Budding model: size at cytokinesis against size at birth')
+    birth = cycles[birth_col].to_numpy(float)
+    division = cycles[division_col].to_numpy(float)
+    grid = np.linspace(np.nanmin(birth), np.nanmax(birth), 20)
+    mean_b, mean_d = np.nanmean(birth), np.nanmean(division)
+    for slope, style, label in ((0.0, ':', 'sizer'), (1.0, '--', 'adder')):
+        ax.plot(grid, mean_d + slope * (grid - mean_b), style, color=ROLES['reference'],
+                lw=0.8, label=label)
+    for branch, role in (('mother', 'highlight'), ('daughter', 'control_positive')):
+        part = cycles[cycles['branch'] == branch]
+        if not len(part):
+            continue
+        b = part[birth_col].to_numpy(float)
+        d = part[division_col].to_numpy(float)
+        ax.scatter(b, d, s=10, color=ROLES[role], alpha=0.6, linewidths=0)
+        fits = (size_control[(size_control['branch'] == branch)
+                             & (size_control['size_measure'] == measure)]
+                if len(size_control) and 'branch' in size_control else size_control.iloc[0:0])
+        label = f'{branch}s (n={len(part)})'
+        if len(fits) and np.isfinite(fits['slope_division'].iloc[0]):
+            row = fits.iloc[0]
+            line = np.linspace(np.nanmin(b), np.nanmax(b), 10)
+            ax.plot(line, np.nanmean(d) + row['slope_division'] * (line - np.nanmean(b)),
+                    color=ROLES[role], lw=1.4)
+            label += (f", slope {row['slope_division']:.2f} "
+                      f"[{row.get('slope_division_ci_low', np.nan):.2f}, "
+                      f"{row.get('slope_division_ci_high', np.nan):.2f}]")
+        ax.plot([], [], 'o', color=ROLES[role], ms=3, label=label)
+    ax.set_title('Budding model: cytokinesis to cytokinesis', fontsize='small')
+    ax.set_xlabel(f'{measure} at birth (cytokinesis) {unit}')
+    ax.set_ylabel(f'mother + bud {measure} at next cytokinesis {unit}')
+    ax.legend(frameon=False, fontsize='small')
+    fig.tight_layout()
+    return fig
 
 def division_figures(results: dict, measures: Optional[Sequence[str]] = None) -> dict:
     """Draw the three figures of one division analysis.
@@ -1714,8 +2135,11 @@ def _run_division_step(src, name, object_type, tracker, settings, *,
             if stack.shape[:1] == (len(planes),) and stack.shape[1:] == planes[0].shape:
                 intensity = list(stack)
         measures = add_motion_features(measure_label_stack(planes, intensity))
-        results = calibrate_divisions(analyse_divisions(measures, lineage, **options),
-                                      frame_interval_min=interval, pixel_size_um=size)
+        results = analyse_divisions(measures, lineage, **options)
+        if results['summary']['mode'] == 'budding':
+            contacts = bud_contacts(planes, division_events(lineage, mode='budding'))
+            add_budding_cycles(results, measures, lineage, contacts=contacts)
+        results = calibrate_divisions(results, frame_interval_min=interval, pixel_size_um=size)
         results['summary'].update(sources)
         stem = os.path.splitext(os.path.basename(tracks_path))[0]
         out_dir = os.path.join(os.path.dirname(tracks_path), 'division', stem)
@@ -1726,6 +2150,10 @@ def _run_division_step(src, name, object_type, tracker, settings, *,
     except Exception as exc:
         print(f'Division analysis could not run for {tracks_path}: {exc}')
         return None
+    if settings.get('timelapse_division_prediction'):
+        from .division_prediction import _write_field_features
+
+        _write_field_features(measures, lineage, results, out_dir, settings)
     summary = results['summary']
     print(f"Division analysis ({object_type}, {name}): {summary['n_events_kept']} of "
           f"{summary['n_events']} {summary['mode']} divisions aligned, "
@@ -1743,4 +2171,11 @@ def _run_division_step(src, name, object_type, tracker, settings, *,
         print(f"Division analysis pooled {pooled['summary']['n_movies']} fields "
               f"({pooled['summary']['ci_method']} intervals); written to "
               f"{os.path.dirname(pooled['paths']['summary'])}")
+    if settings.get('timelapse_division_prediction'):
+        from .division_prediction import _run_prediction_step
+
+        predicted = _run_prediction_step(os.path.dirname(out_dir),
+                                         f'{prefix}_tracks_{object_type}_', settings)
+        if predicted is not None:
+            results['prediction'] = predicted
     return results

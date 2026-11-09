@@ -3106,6 +3106,39 @@ def _validated_public_datasets_callables(callables):
     return [item for item in callables if item.symbol not in entries]
 
 
+def _validated_865_866_budding_prediction_callables(callables):
+    """Check the budding cycle model and the division predictor against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "865_866_budding_prediction_api_arrivals_2026-11-09.json").read_text(encoding="utf-8"))
+    budding = {f"spacr.division_analysis.{name}" for name in (
+        "bud_contacts", "budding_cytokinesis", "budding_cycles", "add_budding_cycles")}
+    prediction = {f"spacr.division_prediction.{name}" for name in (
+        "division_prediction_features", "predict_divisions", "division_prediction_figure",
+        "write_division_prediction", "read_division_prediction")}
+    symbols = budding | prediction
+    assert set(entries) == symbols | {"spacr.division_prediction"}
+    found = {item.symbol: item for item in callables if item.symbol in symbols}
+    assert found.keys() == symbols
+    trees = {module: ast.parse((root / f"spacr/{module}.py").read_text(encoding="utf-8"))
+             for module in ("division_analysis", "division_prediction")}
+    for symbol, item in found.items():
+        module, name = symbol.split(".")[1:]
+        declarations = [node for node in trees[module].body
+                        if isinstance(node, ast.FunctionDef) and node.name == name]
+        assert len(declarations) == 1
+        arguments = declarations[0].args
+        names = {arg.arg for arg in arguments.posonlyargs + arguments.args + arguments.kwonlyargs}
+        assert item.category == "function" and item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters == names
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert not item.accepts_arbitrary_keywords
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
 def _validated_733_easy_mode_callables(callables):
     """Check the exact four executable Easy mode boundaries before historical replay."""
     import json
@@ -3187,6 +3220,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_ops_ownership_flatfield_funk_callables(callables)
     callables = _validated_ops_tvn_clusters_mitotic_callables(callables)
     callables = _validated_public_datasets_callables(callables)
+    callables = _validated_865_866_budding_prediction_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
@@ -5851,6 +5885,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("856_ops_mitotic_api_arrivals_2026-11-07.json", 9),
         ("864_867_division_units_bootstrap_api_arrivals_2026-11-08.json", 3),
         ("750_public_datasets_api_arrivals_2026-11-08.json", 11),
+        ("865_866_budding_prediction_api_arrivals_2026-11-09.json", 10),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -6428,7 +6463,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "855_ops_clusters_api_arrivals_2026-11-07.json",
                      "856_ops_mitotic_api_arrivals_2026-11-07.json",
                      "864_867_division_units_bootstrap_api_arrivals_2026-11-08.json",
-                     "750_public_datasets_api_arrivals_2026-11-08.json"):
+                     "750_public_datasets_api_arrivals_2026-11-08.json",
+                     "865_866_budding_prediction_api_arrivals_2026-11-09.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -6548,7 +6584,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "855_ops_clusters_api_arrivals_2026-11-07.json",
                      "856_ops_mitotic_api_arrivals_2026-11-07.json",
                      "864_867_division_units_bootstrap_api_arrivals_2026-11-08.json",
-                     "750_public_datasets_api_arrivals_2026-11-08.json"):
+                     "750_public_datasets_api_arrivals_2026-11-08.json",
+                     "865_866_budding_prediction_api_arrivals_2026-11-09.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

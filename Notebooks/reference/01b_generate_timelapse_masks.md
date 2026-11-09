@@ -362,7 +362,7 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
-<summary>Division Analysis α (4 settings)</summary>
+<summary>Division Analysis α (8 settings)</summary>
 
 #### Division Analysis α
 
@@ -370,6 +370,10 @@ This linked reference contains the full generated setting descriptions. Return t
 - **`timelapse_division_mode`** *(optional)* — (str) - Which divisions are analysed. fission: the mother's track ends and two daughters start on the next frame, as in bacteria, fission yeast and mammalian cells. budding: the mother goes on and each bud is a new track that starts while she is alive, as in budding yeast; a tracker that keeps one daughter under the mother's id also gives budding. auto takes whichever of the two the movie has more of. Size control is fitted for fission only. Ignored unless timelapse_division_analysis. Default auto. Default: `'auto'`.
 - **`timelapse_division_window`** *(optional)* — (int or None) - Frames before each division that are aligned and compared. The change is measured from the first frames of this window to the last frames before division, a quarter of the window each (at least 2). Blank uses 0.3 times the median cell cycle observed in the movie, between 4 and 30 frames, or 6 frames when no complete cycle is seen. Ignored unless timelapse_division_analysis. Default None. Default: `None`.
 - **`timelapse_division_size_tolerance`** *(optional)* — (float) - How different in size a control cell may be from the dividing cell at the start of the window, as a fraction: 0.25 accepts controls from 0.8 to 1.25 times its area. Smaller values match more closely but leave more divisions without a control. Ignored unless timelapse_division_analysis. Default 0.25. Default: `0.25`.
+- **`timelapse_division_prediction`** *(optional)* — (bool) - With timelapse_division_analysis, also ask whether a cell's shape, size, intensity and motion now tell that it will divide within the next few frames. Each field is one movie, and a model is always tested on fields it was not trained on. It is compared with the same model on cell age alone, with a model trained on shuffled labels and with always guessing the commoner answer. Writes AUROC and AUPRC with 95% intervals, per-fold results, feature importances, every held-out prediction and one figure to tracks/division/prediction_&lt;tracks&gt;/. Needs 3 or more fields. Default False. Default: `False`.
+- **`timelapse_division_prediction_frames`** *(optional)* — (int) - The horizon N: a frame counts as 'about to divide' when the cell divides within the next N frames. Frames whose next N frames the movie does not show are left out. Ignored unless timelapse_division_prediction. Default 5. Default: `5`.
+- **`timelapse_division_prediction_model`** *(optional)* — (str) - The classifier. auto uses xgboost when it is installed and scikit-learn gradient boosting otherwise; xgboost falls back the same way; gradient_boosting is scikit-learn's histogram gradient boosting; logistic is a logistic regression on standardised features. Ignored unless timelapse_division_prediction. Default auto. Default: `'auto'`.
+- **`timelapse_division_prediction_folds`** *(optional)* — (int) - Cross-validation folds, grouped by field so no field is in both training and testing; never more than the number of fields. Ignored unless timelapse_division_prediction. Default 5. Default: `5`.
 
 </details>
 

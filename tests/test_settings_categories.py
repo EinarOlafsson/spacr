@@ -955,6 +955,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # category and shown under "Division Analysis α" on the Timelapse app.
     "timelapse_division_analysis", "timelapse_division_mode",
     "timelapse_division_window", "timelapse_division_size_tolerance",
+    # Item 866 (2026-11-09): the "divides within N frames" predictor, same
+    # heading.
+    "timelapse_division_prediction", "timelapse_division_prediction_frames",
+    "timelapse_division_prediction_model", "timelapse_division_prediction_folds",
     # A NEW SETTING GROUP, not a regrouping (item 567, 2026-09-27): event
     # detection on tracks, appended to the Timelapse category and shown under
     # "Event Detection α" on the Timelapse app.
