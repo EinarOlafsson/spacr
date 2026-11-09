@@ -2957,6 +2957,11 @@ def _validated_division_analysis_callables(callables):
     root = pathlib.Path(__file__).resolve().parents[1]
     entries = json.loads((root / "tests/data/release_contracts"
         / "division_analysis_api_arrivals_2026-11-07.json").read_text(encoding="utf-8"))
+    pooling = json.loads((root / "tests/data/release_contracts"
+        / "864_867_division_units_bootstrap_api_arrivals_2026-11-08.json").read_text(encoding="utf-8"))
+    assert set(pooling) == {"spacr.division_analysis.pool_division_movies",
+                            "spacr.division_analysis.movie_effect_size",
+                            "spacr.division_analysis.calibrate_divisions"}
     panel = "spacr.qt.widgets.division_panel.DivisionAnalysisPanel"
     functions = {f"spacr.division_analysis.{name}" for name in (
         "lineage_from_tracks", "analyse_divisions", "division_figures",
@@ -2964,6 +2969,8 @@ def _validated_division_analysis_callables(callables):
     kinds = {**{symbol: "function" for symbol in functions}, panel: "constructor",
              f"{panel}.browse": "method", f"{panel}.load_folder": "method"}
     assert set(entries) == set(kinds) | {"spacr.qt.widgets.division_panel"}
+    kinds.update({symbol: "function" for symbol in pooling})
+    entries = {**entries, **pooling}
     found = {item.symbol: item for item in callables if item.symbol in kinds}
     assert found.keys() == kinds.keys()
     module_tree = ast.parse((root / "spacr/division_analysis.py").read_text(encoding="utf-8"))
@@ -5810,6 +5817,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("854_ops_tvn_api_arrivals_2026-11-07.json", 10),
         ("855_ops_clusters_api_arrivals_2026-11-07.json", 19),
         ("856_ops_mitotic_api_arrivals_2026-11-07.json", 9),
+        ("864_867_division_units_bootstrap_api_arrivals_2026-11-08.json", 3),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -6385,7 +6393,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "ops_ownership_flatfield_funk_api_arrivals_2026-11-07.json",
                      "854_ops_tvn_api_arrivals_2026-11-07.json",
                      "855_ops_clusters_api_arrivals_2026-11-07.json",
-                     "856_ops_mitotic_api_arrivals_2026-11-07.json"):
+                     "856_ops_mitotic_api_arrivals_2026-11-07.json",
+                     "864_867_division_units_bootstrap_api_arrivals_2026-11-08.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -6503,7 +6512,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "ops_ownership_flatfield_funk_api_arrivals_2026-11-07.json",
                      "854_ops_tvn_api_arrivals_2026-11-07.json",
                      "855_ops_clusters_api_arrivals_2026-11-07.json",
-                     "856_ops_mitotic_api_arrivals_2026-11-07.json"):
+                     "856_ops_mitotic_api_arrivals_2026-11-07.json",
+                     "864_867_division_units_bootstrap_api_arrivals_2026-11-08.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

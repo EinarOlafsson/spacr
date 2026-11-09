@@ -10025,6 +10025,8 @@ frame_interval_s
 |             ``_t_stack_plan``
 |                 :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam`
+|             ``_run_division_step``
+|                 ``_movie_calibration`` **-- reads it**
 |             ``_t_stack_plan``
 |                 :py:func:`~spacr.zstack.plan_4d_from_settings` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
@@ -10034,8 +10036,12 @@ frame_interval_s
 |         ``_measured_lineage_options`` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
+| :py:func:`~spacr.object.generate_cellpose_masks`
+|     ``_run_division_step``
+|         ``_movie_calibration`` **-- reads it**
+|     ``_run_lineage_step(...)  [UNRESOLVED]``
 
-Read by ``_measured_lineage_options``, ``_run_lineage_step``, ``plan_4d_from_settings``.
+Read by ``_measured_lineage_options``, ``_run_lineage_step``, ``_movie_calibration``, ``plan_4d_from_settings``.
 
 .. _setting-flow-freeze_encoder:
 
@@ -19078,8 +19084,10 @@ ops_tvn_components
 Keep only the leading control directions of TVN: a whole number keeps that many, a fraction below 1 keeps the directions holding that share of the control variance. The dropped directions are the weak ones that the whitening would blow up. Empty keeps all of them, as Brieflow does. Default None. Alpha.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
+| ``_aggregate_tvn``
+|     :py:func:`~spacr.ops_tvn.tvn_options` **-- reads it**
 
-Read by ``ops_defaults``.
+Read by ``ops_defaults``, ``tvn_options``.
 
 .. _setting-flow-ops_tvn_mode:
 
@@ -19101,8 +19109,10 @@ ops_tvn_pca_sample
 The number of cells, drawn at random, that the PCA of TVN is fitted on. The whitening gives weak PCA directions full weight, so a different sample changes those directions and the gene similarities they carry. A larger sample makes them steadier and costs memory. Default 100000. Alpha.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
+| ``_aggregate_tvn``
+|     :py:func:`~spacr.ops_tvn.tvn_options` **-- reads it**
 
-Read by ``ops_defaults``.
+Read by ``ops_defaults``, ``tvn_options``.
 
 .. _setting-flow-ops_tvn_seed:
 
@@ -19112,8 +19122,10 @@ ops_tvn_seed
 The seed of the TVN PCA sample. Change it to see how much the profiles depend on the sample. Default 0. Alpha.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
+| ``_aggregate_tvn``
+|     :py:func:`~spacr.ops_tvn.tvn_options` **-- reads it**
 
-Read by ``ops_defaults``.
+Read by ``ops_defaults``, ``tvn_options``.
 
 .. _setting-flow-ops_tvn_whiten_epsilon:
 
@@ -19123,8 +19135,10 @@ ops_tvn_whiten_epsilon
 Added to the control variance of every TVN direction before it is scaled to 1, so weak directions are shrunk instead of blown up and the profiles depend less on which cells the PCA saw. On one Funk et al. plate, 3 made the streamed and in-memory fits agree much better (gene similarity correlation 0.93 instead of 0.81) with an unchanged STRING score. 0 is Brieflow's TVN exactly; use it to reproduce Brieflow or the plate A pilot. Default 3. Alpha.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
+| ``_aggregate_tvn``
+|     :py:func:`~spacr.ops_tvn.tvn_options` **-- reads it**
 
-Read by ``ops_defaults``.
+Read by ``ops_defaults``, ``tvn_options``.
 
 .. _setting-flow-ops_window_overlap:
 
@@ -22390,6 +22404,8 @@ pixel_size_um
 |                 ``_get_object_settings`` **-- reads it**
 |             ``_robustness_grid`` **-- reads it**
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam`
+|             ``_run_division_step``
+|                 ``_movie_calibration`` **-- reads it**
 |             ``_note_the_diameter``
 |                 ``_diameter_used_by`` **-- reads it**
 |             ``_get_object_settings`` **-- reads it**
@@ -22411,6 +22427,8 @@ pixel_size_um
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
 | :py:func:`~spacr.object.generate_cellpose_masks`
+|     ``_run_division_step``
+|         ``_movie_calibration`` **-- reads it**
 |     ``_get_object_settings`` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 | ``_blank_diameters_held_still`` **-- reads it**
@@ -22428,7 +22446,7 @@ pixel_size_um
 |         ``isinstance(...)  [UNRESOLVED]``
 | ``_get_object_settings`` **-- reads it**
 
-Read by ``_blank_diameters_held_still``, ``_default_diameter_of``, ``_diameter_used_by``, ``_backend_mask_settings``, ``_seed_the_diameter``, ``_seed_the_diameter``, ``_robustness_grid``, ``_derived_measure_min_size``, ``_get_object_settings``, ``get_measure_crop_settings``, ``_get_object_settings``, ``_describe_objects``.
+Read by ``_movie_calibration``, ``_blank_diameters_held_still``, ``_default_diameter_of``, ``_diameter_used_by``, ``_backend_mask_settings``, ``_seed_the_diameter``, ``_seed_the_diameter``, ``_robustness_grid``, ``_derived_measure_min_size``, ``_get_object_settings``, ``get_measure_crop_settings``, ``_get_object_settings``, ``_describe_objects``.
 
 .. _setting-flow-pixels_per_um:
 

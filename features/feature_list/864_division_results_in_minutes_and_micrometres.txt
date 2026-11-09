@@ -1,9 +1,9 @@
 DIVISION RESULTS IN MINUTES AND MICROMETRES: FRAME INTERVAL AND PIXEL SIZE PER MOVIE
 ====================================================================================
 Lifecycle: future
-Status: open
+Status: DONE 2026-11-08 (alpha) — the new spacr.division_analysis.calibrate_divisions takes a movie's frame_interval_min and pixel_size_um and adds minute, um and um^2 columns beside the frame and pixel ones in the events, effects, trajectories and cycles tables; the Make Masks step reads the interval from the tracks table's time_s column or the existing frame_interval_s setting and the pixel size from the existing pixel_size_um setting (item 831); a movie without them stays in frames and pixels and summary.json and the figure axes say so. No new settings: ALPHA_FEATURES[864] registers timelapse_division_analysis, the alpha switch it runs under.
 Requested: maintainer, 2026-11-08 (follow-on 4a of item 771).
-Owner: unassigned (alpha when built).
+Owner: Home (claude-div-1108 worktree).
 Related: 771.
 
 WHAT THE STATE IS
@@ -41,3 +41,33 @@ without metadata still runs and reports frames/pixels with the unit stated.
 
 DELIBERATELY NOT DONE
 No default interval or pixel size: a wrong unit is worse than no unit.
+
+WHAT WAS BUILT (2026-11-08, alpha)
+- ALPHA_FEATURES[864]: timelapse_division_analysis (shared with 771; it is the only way to reach this);
+  alpha deck row added in tools/refresh_alpha_deck.py (deck not re-rendered).
+- calibrate_divisions(results, frame_interval_min=None, pixel_size_um=None): analyse_divisions still
+  runs in frames and pixels (its signature and docstring are unchanged, so their reviewed translations
+  stay current); calibrate_divisions then adds the units, and calling it again replaces them. Events gain t_div_min and base_size_um2, cycles t_birth_min,
+  t_division_min, duration_min and <size>_um2 / major_axis_*_um, trajectories rel_t_min and, for
+  speed, mean/sd/sem/ci_low/ci_high_um_per_min, effects a change_unit column (log ratio, um/min or
+  px/frame, rad, unitless) and speed mean changes in um/min. Each column appears only when its value
+  is known (time columns need the interval, area/length columns the pixel size, speed both).
+- summary.json: frame_interval_min, pixel_size_um, time_unit, length_unit, area_unit, speed_unit,
+  units_note ("frame interval unknown: times are in frames", "pixel size unknown: lengths are in
+  pixels", or "times in minutes, lengths in um"), window_min and median_cycle_min; the step adds
+  frame_interval_source, pixel_size_source and frame_interval_note when time_s and frame_interval_s
+  disagree (time_s wins).
+- Figures: "minutes from division" or "frames from division (frame interval unknown)"; speed in
+  um/min or px/frame; size control in um^2 or "px^2, pixel size unknown".
+- Sources reused, nothing new added: the tracks CSV time_s column (as the lineage step reads it), the
+  frame_interval_s and pixel_size_um Make Masks settings. A non-positive value is refused.
+- Arrival contract: tests/data/release_contracts/864_867_division_units_bootstrap_api_arrivals_2026-11-08.json
+  (calibrate_divisions). 9-locale catalogue records are owed.
+- tests/test_division_units_and_movie_bootstrap.py: a 12-frame cycle at 5 min/frame reads 60 min and
+  the birth area times 0.5^2 um^2/px^2 matches the hand calculation; an uncalibrated movie keeps
+  frames/pixels and says so.
+
+NOT DONE
+- Image headers (OME/ND2/CZI physical size, time increment) are not read in the step: Make Masks hands
+  it stacked arrays and file names, not the source files. spacr.point_spread.image_optics_metadata
+  can read a TIFF's pixel size and could feed pixel_size_um later; spaCR has no time-increment reader.

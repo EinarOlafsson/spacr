@@ -1,9 +1,9 @@
 PER-MOVIE BOOTSTRAP FOR THE DIVISION EFFECT SIZES
 =================================================
 Lifecycle: future
-Status: open
+Status: DONE 2026-11-08 (alpha) — the new spacr.division_analysis.movie_effect_size takes the movie of every value and adds an interval that resamples movies (fixed seed), reported from 5 movies on and shown beside the cell interval below that; one movie says "not available: one movie". The new pool_division_movies pools several movies' unit changes, and the Make Masks step pools every field of a run into tracks/division/pooled_<tracker>_tracks_<object>/. No new settings: ALPHA_FEATURES[867] registers timelapse_division_analysis, the alpha switch it runs under.
 Requested: maintainer, 2026-11-08 (follow-on 4d of item 771).
-Owner: unassigned (alpha when built).
+Owner: Home (claude-div-1108 worktree).
 Related: 771.
 
 WHAT THE STATE IS
@@ -35,3 +35,33 @@ with one movie the cell bootstrap is used and the result is unchanged.
 DELIBERATELY NOT DONE
 No mixed model in this item; the bootstrap is the smaller change and keeps
 Hedges g as the reported effect.
+
+WHAT WAS BUILT (2026-11-08, alpha)
+- ALPHA_FEATURES[867]: timelapse_division_analysis (shared with 771; it is the only way to reach this);
+  alpha deck row added in tools/refresh_alpha_deck.py (deck not re-rendered).
+- movie_effect_size(treated, control, treated_movies=None, control_movies=None, n_boot=2000, rng=None,
+  min_movies=5): calls effect_size first (unchanged, so its reviewed translations and the single-movie
+  result stay as they were), then resamples movies with replacement, keeps all of a drawn movie's
+  dividing and control values and recomputes g (one matrix product per resample). Extra keys:
+  ci_method (cell, movie or none), cell_ci_low/high, movie_ci_low/high, movie_ci_note, n_movies,
+  var_g_large_sample. From min_movies (5) movies on, ci_low/ci_high are the movie interval and var_g
+  the movie-bootstrap variance, the one random_effects_meta should be given. With 2-4 movies the
+  movie interval is shown and the cell one reported; with one movie the note is
+  "not available: one movie".
+- analyse_divisions also returns (and write_division_results writes) a changes table (every unit's late-vs-baseline change per series) and
+  summary ci_method / n_movies / movie_ci_note; a single field always reports the cell interval.
+- pool_division_movies(movies, n_boot=2000, rng=0, min_movies=5): pools fields, recomputes g with
+  the movie bootstrap, pools trajectories frame by frame when the movies share a frame interval,
+  refits size control (in um^2 when every movie has its pixel size), and converts speed changes to
+  um/min only when every movie is calibrated; the summary lists the movies and what was pooled in
+  which unit.
+- The Make Masks step pools after every field once two fields of the same tracker and object have
+  results; a pooling failure is printed and does not stop the run.
+- Arrival contract tests/data/release_contracts/864_867_division_units_bootstrap_api_arrivals_2026-11-08.json
+  (movie_effect_size, pool_division_movies); no existing public signature or docstring changed.
+- tests/test_division_units_and_movie_bootstrap.py: 80 synthetic datasets of 10 movies with a planted
+  between-movie spread of the effect; the movie interval covers the true g at >= 80% and the cell
+  interval at <= 65%; one movie gives the item 771 cell interval exactly.
+
+NOT DONE
+- No mixed model (as planned). 9-locale catalogue records for movie_effect_size and pool_division_movies are owed.

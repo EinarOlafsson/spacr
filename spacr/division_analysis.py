@@ -521,6 +521,119 @@ def effect_size(treated, control, n_boot: int = 2000, rng=None) -> dict:
     return res
 
 
+def movie_effect_size(treated, control, treated_movies=None, control_movies=None,
+                      n_boot: int = 2000, rng=None, min_movies: int = 5) -> dict:
+    """Hedges' g with a cell and a movie bootstrap interval.
+
+    :func:`effect_size` gives g and the cell interval, drawn first from the
+    same generator, so with one movie the result is the cell result. Cells of
+    one movie share its imaging and are not independent, so a second
+    interval resamples movies with replacement, keeps all of a drawn movie's
+    treated and control values and recomputes g. From ``min_movies`` movies
+    on it is the reported interval; with fewer it is shown beside the cell
+    one, and one movie has no movie interval.
+
+    :param treated: values of the treated group (dividing units).
+    :param control: values of the control group.
+    :param treated_movies: the movie of each ``treated`` value, or None when
+        every value comes from one movie.
+    :param control_movies: the movie of each ``control`` value, or None.
+    :param n_boot: bootstrap resamples; 0 skips the intervals.
+    :param rng: seed or generator for the resampling.
+    :param min_movies: the fewest movies for which the movie interval is the
+        reported one.
+    :returns: the keys of :func:`effect_size`, with ``ci_low``, ``ci_high``
+        and ``var_g`` the reported ones (``var_g`` is the movie bootstrap
+        variance when the movie interval is reported, the one to give
+        :func:`random_effects_meta`), and ``ci_method`` (``'cell'``,
+        ``'movie'`` or ``'none'``), ``cell_ci_low``, ``cell_ci_high``,
+        ``movie_ci_low``, ``movie_ci_high``, ``movie_ci_note``, ``n_movies``
+        and ``var_g_large_sample``.
+    :raises ValueError: when only one group's movies are given, or a movie
+        list does not match its values in length.
+    """
+    rng = np.random.default_rng(rng)
+    x = np.asarray(treated, float)
+    y = np.asarray(control, float)
+    if (treated_movies is None) != (control_movies is None):
+        raise ValueError('give the movies of both groups or of neither')
+    if treated_movies is not None:
+        mx = np.asarray(treated_movies, dtype=object)
+        my = np.asarray(control_movies, dtype=object)
+        if len(mx) != len(x) or len(my) != len(y):
+            raise ValueError('each value needs its movie')
+        mx, my = mx[np.isfinite(x)], my[np.isfinite(y)]
+    n_movies = 1 if treated_movies is None else len(set(mx.tolist()) | set(my.tolist()))
+    res = effect_size(x, y, n_boot=n_boot, rng=rng)
+    res.update({'var_g_large_sample': res['var_g'], 'cell_ci_low': res['ci_low'],
+                'cell_ci_high': res['ci_high'],
+                'ci_method': 'cell' if np.isfinite(res['ci_low']) else 'none',
+                'movie_ci_low': np.nan, 'movie_ci_high': np.nan, 'n_movies': n_movies,
+                'movie_ci_note': 'not available: one movie'})
+    if n_movies < 2:
+        return res
+    if not np.isfinite(res['g']):
+        res['movie_ci_note'] = 'not available: no finite effect size'
+        return res
+    if not n_boot:
+        res['movie_ci_note'] = 'not available: no bootstrap resamples'
+        return res
+    movie_gs = _movie_bootstrap_g(x[np.isfinite(x)], y[np.isfinite(y)], mx, my, n_boot, rng)
+    if not len(movie_gs):
+        res['movie_ci_note'] = 'not available: every movie resample was degenerate'
+        return res
+    res['movie_ci_low'], res['movie_ci_high'] = np.percentile(movie_gs, [2.5, 97.5])
+    if n_movies < int(min_movies):
+        res['movie_ci_note'] = (f'shown only: fewer than {int(min_movies)} movies, '
+                                'the cell interval is reported')
+        return res
+    res['movie_ci_note'] = 'reported: movies resampled'
+    res['ci_low'], res['ci_high'] = res['movie_ci_low'], res['movie_ci_high']
+    res['ci_method'] = 'movie'
+    if len(movie_gs) > 1:
+        res['var_g'] = float(np.var(movie_gs, ddof=1))
+    return res
+
+
+def _movie_bootstrap_g(x, y, mx, my, n_boot, rng):
+    """Hedges' g of every movie resample, drawn movies keeping all their values.
+
+    Each resample draws as many movies as there are, with replacement; a
+    movie drawn twice counts its values twice. The group sums are taken per
+    movie once, so a resample costs one matrix product.
+
+    :param x: finite treated values.
+    :param y: finite control values.
+    :param mx: the movie of each treated value.
+    :param my: the movie of each control value.
+    :param n_boot: number of resamples.
+    :param rng: the generator.
+    :returns: the finite resampled g values.
+    """
+    names = sorted(set(mx.tolist()) | set(my.tolist()), key=str)
+    index = {name: i for i, name in enumerate(names)}
+    shift = np.mean(np.concatenate([x, y]))
+    tables = []
+    for values, movies in ((x - shift, mx), (y - shift, my)):
+        where = np.array([index[m] for m in movies.tolist()], dtype=np.int64)
+        tables.append(np.stack([np.bincount(where, minlength=len(names)),
+                                np.bincount(where, weights=values, minlength=len(names)),
+                                np.bincount(where, weights=values ** 2, minlength=len(names))],
+                               axis=1).astype(float))
+    draws = rng.integers(0, len(names), size=(n_boot, len(names)))
+    counts = np.zeros((n_boot, len(names)))
+    np.add.at(counts, (np.arange(n_boot)[:, None], draws), 1.0)
+    (n1, s1, q1), (n2, s2, q2) = [(counts @ table).T for table in tables]
+    with np.errstate(divide='ignore', invalid='ignore'):
+        v1 = (q1 - s1 ** 2 / n1) / (n1 - 1)
+        v2 = (q2 - s2 ** 2 / n2) / (n2 - 1)
+        sp = np.sqrt(np.clip(((n1 - 1) * v1 + (n2 - 1) * v2) / (n1 + n2 - 2), 0, None))
+        j = 1.0 - 3.0 / (4.0 * (n1 + n2) - 9.0)
+        gs = j * (s1 / n1 - s2 / n2) / sp
+    ok = (n1 >= 2) & (n2 >= 2) & (sp > 0) & np.isfinite(gs)
+    return gs[ok]
+
+
 def random_effects_meta(effects, variances) -> dict:
     """DerSimonian-Laird random-effects pooling.
 
@@ -642,10 +755,12 @@ def size_control_fits(birth, division, n_boot: int = 2000, rng=None) -> dict:
     return out
 
 
-_RESULT_TABLES = ('events', 'effects', 'trajectories', 'cycles', 'size_control')
+_RESULT_TABLES = ('events', 'effects', 'trajectories', 'cycles', 'size_control', 'changes')
 _SERIES = ('dividing', 'control', 'shuffled', 'shuffled_control')
 _CONTRASTS = (('dividing_vs_control', 'dividing', 'control'),
               ('shuffled_vs_its_control', 'shuffled', 'shuffled_control'))
+_TRAJECTORY_COLUMNS = ['role', 'rel_t', 'mean', 'sd', 'n', 'sem', 'ci_low', 'ci_high',
+                       'measure', 'series', 'scale']
 
 
 def lineage_from_tracks(tracks: pd.DataFrame, max_distance: float = 30.0) -> pd.DataFrame:
@@ -749,6 +864,102 @@ def _trajectory_summary(normalised, series, columns):
     return rows
 
 
+def _calibration_value(value, name):
+    """A positive finite calibration number, or None for a blank one.
+
+    :raises ValueError: for a boolean, non-numeric, zero or negative value.
+    """
+    if value is None or (isinstance(value, str) and not value.strip()):
+        return None
+    if isinstance(value, (bool, np.bool_)):
+        raise ValueError(f'{name} must be a positive number')
+    try:
+        number = float(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f'{name} must be a positive number') from exc
+    if not np.isfinite(number) or number <= 0:
+        raise ValueError(f'{name} must be a positive number')
+    return number
+
+
+def _units(frame_interval_min, pixel_size_um):
+    """The units a movie's results are in, and a note on what is missing."""
+    timed, sized = frame_interval_min is not None, pixel_size_um is not None
+    notes = []
+    if not timed:
+        notes.append('frame interval unknown: times are in frames')
+    if not sized:
+        notes.append('pixel size unknown: lengths are in pixels')
+    return {'frame_interval_min': frame_interval_min, 'pixel_size_um': pixel_size_um,
+            'time_unit': 'min' if timed else 'frames',
+            'length_unit': 'um' if sized else 'px',
+            'area_unit': 'um^2' if sized else 'px^2',
+            'speed_unit': 'um/min' if timed and sized else 'px/frame',
+            'units_note': '; '.join(notes) if notes else 'times in minutes, lengths in um'}
+
+
+def _change_unit(measure, units):
+    """The unit of one measurement's late-vs-baseline change."""
+    if measure in LOG_MEASURES:
+        return 'log ratio'
+    if measure == 'speed':
+        return units['speed_unit']
+    return 'rad' if measure == 'turning' else 'unitless'
+
+
+_STATS = ('mean', 'sd', 'sem', 'ci_low', 'ci_high')
+
+
+def _add_units(results, units):
+    """Add minute and micrometre columns beside the frame and pixel ones.
+
+    Times gain ``_min`` columns when the frame interval is known; areas
+    ``_um2`` and lengths ``_um`` when the pixel size is; speed
+    ``_um_per_min`` when both are. The effects and trajectories get the unit
+    of each change, and the summary the calibration and its note.
+    """
+    interval, size = units['frame_interval_min'], units['pixel_size_um']
+    events, cycles = results['events'], results['cycles']
+    if interval is not None and len(events):
+        events['t_div_min'] = events['t_div'] * interval
+    if size is not None and 'base_size' in events:
+        events['base_size_um2'] = events['base_size'] * size ** 2
+    if len(cycles):
+        if interval is not None:
+            for column in ('t_birth', 't_division', 'duration'):
+                cycles[f'{column}_min'] = cycles[column] * interval
+        if size is not None:
+            for column in [c for c in cycles.columns if c.startswith(('area_', 'major_axis_'))]:
+                scale, suffix = (size ** 2, 'um2') if column.startswith('area_') else (size, 'um')
+                cycles[f'{column}_{suffix}'] = cycles[column] * scale
+    speed_scale = size / interval if interval is not None and size is not None else None
+    effects = results['effects']
+    if len(effects):
+        effects['change_unit'] = [_change_unit(m, units) for m in effects['measure']]
+        if speed_scale is not None:
+            is_speed = effects['measure'] == 'speed'
+            for column in ('mean_change_treated', 'mean_change_control'):
+                effects[f'{column}_um_per_min'] = effects[column].where(is_speed) * speed_scale
+    trajectories = results['trajectories']
+    if len(trajectories):
+        trajectories['unit'] = [_change_unit(m, units) for m in trajectories['measure']]
+        if interval is not None:
+            trajectories['rel_t_min'] = trajectories['rel_t'] * interval
+        if speed_scale is not None:
+            is_speed = trajectories['measure'] == 'speed'
+            for column in _STATS:
+                trajectories[f'{column}_um_per_min'] = (
+                    trajectories[column].astype(float).where(is_speed) * speed_scale)
+    summary = results['summary']
+    summary.update(units)
+    for key in ('window', 'median_cycle_frames'):
+        value = summary.get(key)
+        name = 'median_cycle_min' if key == 'median_cycle_frames' else 'window_min'
+        summary[name] = (float(value) * interval if interval is not None and value is not None
+                         and np.isfinite(float(value)) else None)
+    return results
+
+
 def analyse_divisions(measures: pd.DataFrame, lineage: pd.DataFrame, mode: str = 'auto',
                       window: Optional[int] = None, late_frames: Optional[int] = None,
                       size_tol: float = 0.25, n_boot: int = 2000, rng=0,
@@ -850,7 +1061,7 @@ def analyse_divisions(measures: pd.DataFrame, lineage: pd.DataFrame, mode: str =
     for contrast, treated, control in _CONTRASTS:
         a, b = changes[treated], changes[control]
         for c in columns:
-            result = effect_size(a[c], b[c], n_boot=n_boot, rng=rng)
+            result = movie_effect_size(a[c], b[c], n_boot=n_boot, rng=rng)
             effects.append({'contrast': contrast, 'measure': c,
                             'change_scale': 'log_ratio' if c in LOG_MEASURES else 'difference',
                             'mean_change_treated': _finite_mean(a[c]),
@@ -876,11 +1087,230 @@ def analyse_divisions(measures: pd.DataFrame, lineage: pd.DataFrame, mode: str =
     if trajectories:
         trajectories = pd.concat(trajectories, ignore_index=True)
     else:
-        trajectories = pd.DataFrame(columns=['role', 'rel_t', 'mean', 'sd', 'n', 'sem',
-                                             'ci_low', 'ci_high', 'measure', 'series', 'scale'])
-    return {'events': events, 'effects': pd.DataFrame(effects),
-            'trajectories': trajectories, 'cycles': cycles,
-            'size_control': pd.DataFrame(size_control), 'summary': summary}
+        trajectories = pd.DataFrame(columns=_TRAJECTORY_COLUMNS)
+    summary['ci_method'] = 'cell'
+    summary['n_movies'] = 1
+    summary['movie_ci_note'] = 'not available: one movie'
+    unit_changes_table = pd.concat(
+        [changes[s].assign(series=s) for s in _SERIES], ignore_index=True)
+    results = {'events': events, 'effects': pd.DataFrame(effects),
+               'trajectories': trajectories, 'cycles': cycles,
+               'size_control': pd.DataFrame(size_control),
+               'changes': unit_changes_table[['series', 'unit_id'] + columns],
+               'summary': summary}
+    return _add_units(results, _units(None, None))
+
+
+def calibrate_divisions(results: dict, frame_interval_min: Optional[float] = None,
+                        pixel_size_um: Optional[float] = None) -> dict:
+    """Give one movie's division results minutes and micrometres.
+
+    :func:`analyse_divisions` works in frames and pixels. With the movie's
+    frame interval, times gain ``_min`` columns (``t_div_min``,
+    ``t_birth_min``, ``t_division_min``, ``duration_min``, ``rel_t_min``);
+    with its pixel size, areas gain ``_um2`` and lengths ``_um`` columns;
+    with both, speed gains ``_um_per_min`` columns. The frame and pixel
+    columns stay. Every effect and trajectory row gets the unit of its
+    change, and the summary the calibration, the units, ``window_min``,
+    ``median_cycle_min`` and ``units_note``. A missing value is never
+    guessed: those results stay in frames or pixels and ``units_note`` says
+    which. Calling it again replaces the earlier calibration.
+
+    :param results: the dict from :func:`analyse_divisions` or
+        :func:`read_division_results`; changed in place.
+    :param frame_interval_min: minutes between frames, or None when unknown.
+    :param pixel_size_um: micrometres per pixel, or None when unknown.
+    :returns: ``results``.
+    :raises ValueError: for a value that is not a positive number.
+    """
+    units = _units(_calibration_value(frame_interval_min, 'frame_interval_min'),
+                   _calibration_value(pixel_size_um, 'pixel_size_um'))
+    for name in ('events', 'effects', 'trajectories', 'cycles'):
+        table = results.get(name)
+        if table is None:
+            results[name] = pd.DataFrame()
+            continue
+        added = [c for c in table.columns
+                 if c.endswith(('_min', '_um2', '_um', '_um_per_min')) or c in ('unit', 'change_unit')]
+        results[name] = table.drop(columns=added)
+    results.setdefault('summary', {})
+    return _add_units(results, units)
+
+
+def pool_division_movies(movies, n_boot: int = 2000, rng=0, min_movies: int = 5) -> dict:
+    """Pool several movies' division analyses, with intervals that resample movies.
+
+    Every movie's unit changes (the ``changes`` table of
+    :func:`analyse_divisions`) are put together and compared again as
+    Hedges' g (:func:`movie_effect_size` with the movie of every unit), so from
+    ``min_movies`` movies on the interval resamples movies rather than cells;
+    with fewer the cell interval is reported and the movie one shown beside
+    it, and one movie has no movie interval. Log-ratio changes have no unit.
+    Speed changes are pooled in um/min when every movie has its frame
+    interval and pixel size, else in px/frame, and ``units_note`` says so.
+    Trajectories are pooled frame by frame when the movies share a frame
+    interval (or none has one); cycles are pooled with their movie and the
+    size control is refitted, in um^2 when every movie has its pixel size.
+
+    :param movies: mapping of movie name to the results dict of
+        :func:`analyse_divisions` or :func:`read_division_results`.
+    :param n_boot: bootstrap resamples for every interval.
+    :param rng: seed or generator; the default seed makes the intervals
+        repeatable.
+    :param min_movies: the fewest movies for which the movie interval is
+        the reported one.
+    :returns: the same tables as :func:`analyse_divisions`, every row of
+        ``events``, ``cycles`` and ``changes`` with its ``movie``, and a
+        ``summary`` with ``n_movies``, ``movies``, ``ci_method``,
+        ``min_movies``, ``per_movie`` calibration and counts, and the units.
+    :raises ValueError: when no movie has a ``changes`` table.
+    """
+    rng = np.random.default_rng(rng)
+    names = [str(name) for name in movies]
+    results = [movies[name] for name in movies]
+    if not any(len(r.get('changes', ())) for r in results):
+        raise ValueError('no movie has unit changes to pool')
+    summaries = [r.get('summary', {}) or {} for r in results]
+    intervals = [_calibration_value(sm.get('frame_interval_min'), 'frame_interval_min')
+                 for sm in summaries]
+    sizes = [_calibration_value(sm.get('pixel_size_um'), 'pixel_size_um') for sm in summaries]
+    calibrated = all(i is not None for i in intervals) and all(p is not None for p in sizes)
+    columns = []
+    for r in results:
+        columns += [c for c in r.get('changes', pd.DataFrame()).columns
+                    if c not in ('series', 'unit_id', 'movie') and c not in columns]
+    changes = []
+    for name, r, interval, size in zip(names, results, intervals, sizes):
+        table = r.get('changes', pd.DataFrame())
+        if not len(table):
+            continue
+        table = table.assign(movie=name)
+        if calibrated and 'speed' in table:
+            table['speed'] = table['speed'].astype(float) * size / interval
+        changes.append(table)
+    changes = pd.concat(changes, ignore_index=True)
+    common = intervals[0] if len(set(intervals)) == 1 else None
+    common_size = sizes[0] if len(set(sizes)) == 1 else None
+    units = _units(common, common_size)
+    notes = [] if common is not None or len(set(intervals)) == 1 else [
+        'frame intervals differ between movies: times are in frames']
+    if common_size is None and len(set(sizes)) > 1:
+        notes.append('pixel sizes differ between movies: lengths are in pixels')
+    if calibrated:
+        units['speed_unit'] = 'um/min'
+    else:
+        units['speed_unit'] = 'px/frame'
+        notes.append('speed pooled in px/frame: frame interval or pixel size unknown '
+                     'for some movies')
+    effects = []
+    for contrast, treated, control in _CONTRASTS:
+        a = changes[changes['series'] == treated]
+        b = changes[changes['series'] == control]
+        for c in columns:
+            result = movie_effect_size(a[c], b[c], treated_movies=a['movie'],
+                                       control_movies=b['movie'], n_boot=n_boot, rng=rng,
+                                       min_movies=min_movies)
+            effects.append({'contrast': contrast, 'measure': c,
+                            'change_scale': 'log_ratio' if c in LOG_MEASURES else 'difference',
+                            'change_unit': _change_unit(c, units),
+                            'mean_change_treated': _finite_mean(a[c]),
+                            'mean_change_control': _finite_mean(b[c]),
+                            **result})
+    effects = pd.DataFrame(effects)
+    trajectories = pd.DataFrame(columns=_TRAJECTORY_COLUMNS)
+    if len(set(intervals)) == 1:
+        trajectories = _pooled_trajectories([r.get('trajectories', pd.DataFrame())
+                                             for r in results])
+        if len(trajectories):
+            trajectories['unit'] = [_change_unit(m, units) for m in trajectories['measure']]
+            if common is not None:
+                trajectories['rel_t_min'] = trajectories['rel_t'] * common
+    else:
+        notes.append('trajectories not pooled: the movies have different frame intervals')
+    events = pd.concat([r.get('events', pd.DataFrame()).assign(movie=name)
+                        for name, r in zip(names, results)], ignore_index=True)
+    cycles = pd.concat([r.get('cycles', pd.DataFrame()).assign(movie=name)
+                        for name, r in zip(names, results) if len(r.get('cycles', ()))],
+                       ignore_index=True) if any(len(r.get('cycles', ())) for r in results) \
+        else pd.DataFrame()
+    size_unit = 'um^2' if all(p is not None for p in sizes) else 'px^2'
+    if size_unit == 'px^2' and any(p is not None for p in sizes):
+        notes.append('size control pooled in px^2: pixel size unknown for some movies')
+    size_control = []
+    if len(cycles):
+        for measure, suffix in (('area', 'um2'), ('major_axis', 'um')):
+            birth, division = f'{measure}_birth', f'{measure}_division'
+            if size_unit == 'um^2' and f'{birth}_{suffix}' in cycles:
+                birth, division = f'{birth}_{suffix}', f'{division}_{suffix}'
+            if birth in cycles and division in cycles:
+                size_control.append({'size_measure': measure, 'size_unit': size_unit,
+                                     **size_control_fits(cycles[birth], cycles[division],
+                                                         n_boot=n_boot, rng=rng)})
+    methods = sorted(set(effects['ci_method']) - {'none'}) if len(effects) else []
+    windows = sorted({sm.get('window') for sm in summaries if sm.get('window') is not None})
+    counts = ('n_tracks', 'n_events', 'n_events_kept', 'n_controls_matched',
+              'n_shuffled_matched', 'n_cycles')
+    summary = {'pooled': True, 'n_movies': len(names), 'movies': names,
+               'mode': '/'.join(sorted({str(sm.get('mode')) for sm in summaries
+                                        if sm.get('mode')})),
+               'window': (windows[0] if len(windows) == 1 else
+                          f'{windows[0]}-{windows[-1]}' if windows else None),
+               'min_movies': int(min_movies),
+               'ci_method': '/'.join(methods) or 'none',
+               'movie_ci_note': (effects['movie_ci_note'].iloc[0] if len(effects)
+                                 else 'not available: no effect sizes'),
+               **{key: int(sum(int(sm.get(key, 0) or 0) for sm in summaries))
+                  for key in counts},
+               'per_movie': {name: {'frame_interval_min': i, 'pixel_size_um': p,
+                                    **{key: sm.get(key) for key in counts}}
+                             for name, sm, i, p in zip(names, summaries, intervals, sizes)},
+               **units, 'size_unit': size_unit}
+    base = [note for note in units['units_note'].split('; ')
+            if not (note.startswith('frame interval unknown') and len(set(intervals)) > 1)
+            and not (note.startswith('pixel size unknown') and len(set(sizes)) > 1)]
+    summary['units_note'] = '; '.join(base + notes)
+    return {'events': events, 'effects': effects, 'trajectories': trajectories,
+            'cycles': cycles, 'size_control': pd.DataFrame(size_control),
+            'changes': changes, 'summary': summary}
+
+
+def _pooled_trajectories(tables):
+    """Pool per-movie trajectory summaries frame by frame.
+
+    The pooled mean weights each movie by its units; the pooled deviation
+    adds the spread between the movie means to the spread within them.
+    Speed columns in um/min are pooled the same way when every movie has
+    them.
+    """
+    tables = [t for t in tables if len(t)]
+    if not tables:
+        return pd.DataFrame(columns=_TRAJECTORY_COLUMNS)
+    keys = ['series', 'role', 'rel_t', 'measure', 'scale']
+    stacked = pd.concat(tables, ignore_index=True)
+    suffixes = [''] + (['_um_per_min'] if all('mean_um_per_min' in t for t in tables) else [])
+    rows = []
+    for key, group in stacked.groupby(keys, sort=True):
+        n = group['n'].astype(float).to_numpy()
+        row = dict(zip(keys, key))
+        row['n'] = int(n.sum())
+        for suffix in suffixes:
+            mean = group[f'mean{suffix}'].astype(float).to_numpy()
+            sd = group[f'sd{suffix}'].astype(float).fillna(0.0).to_numpy()
+            ok = np.isfinite(mean) & (n > 0)
+            total = n[ok].sum()
+            if not total:
+                for column in _STATS:
+                    row[f'{column}{suffix}'] = np.nan
+                continue
+            pooled = float((n[ok] * mean[ok]).sum() / total)
+            spread = ((n[ok] - 1) * sd[ok] ** 2).sum() + (n[ok] * (mean[ok] - pooled) ** 2).sum()
+            deviation = math.sqrt(spread / (total - 1)) if total > 1 else np.nan
+            sem = deviation / math.sqrt(total) if total > 1 else np.nan
+            row.update({f'mean{suffix}': pooled, f'sd{suffix}': deviation,
+                        f'sem{suffix}': sem, f'ci_low{suffix}': pooled - 1.96 * sem,
+                        f'ci_high{suffix}': pooled + 1.96 * sem})
+        rows.append(row)
+    return pd.DataFrame(rows)
 
 
 def _finite_mean(values):
@@ -898,38 +1328,56 @@ _SERIES_STYLE = {
 
 
 def _trajectory_figure(trajectories, measures):
-    """Aligned trajectories: one panel per measure, a 95% band per series."""
+    """Aligned trajectories: one panel per measure, a 95% band per series.
+
+    Time is in minutes when the trajectories carry ``rel_t_min`` and speed
+    in um/min when they carry its ``_um_per_min`` columns; otherwise the
+    axis says the unit is frames or pixels and why.
+    """
     from matplotlib.figure import Figure
 
     from .figures.bundle import _register_figure_data
     from .figures.style import ROLES
 
+    if 'measure' not in trajectories:
+        trajectories = pd.DataFrame(columns=_TRAJECTORY_COLUMNS)
+    timed = 'rel_t_min' in trajectories and trajectories['rel_t_min'].notna().any()
+    x = 'rel_t_min' if timed else 'rel_t'
     n = max(1, len(measures))
     ncols = min(4, n)
     nrows = int(math.ceil(n / ncols))
     fig = Figure(figsize=(2.4 * ncols + 0.6, 2.0 * nrows + 0.6), dpi=100)
     axes = np.atleast_1d(fig.subplots(nrows, ncols, squeeze=False)).ravel()
-    _register_figure_data(fig, trajectories, x='rel_t', y='mean', hue='series', kind='line',
+    _register_figure_data(fig, trajectories, x=x, y='mean', hue='series', kind='line',
                           title='Division-aligned trajectories')
     for ax, measure in zip(axes, measures):
         part = trajectories[trajectories['measure'] == measure]
+        suffix = ('_um_per_min' if measure == 'speed' and 'mean_um_per_min' in part
+                  and part['mean_um_per_min'].notna().any() else '')
         for series, (role, style, label) in _SERIES_STYLE.items():
             for who in ('self', 'daughter'):
                 line = part[(part['series'] == series) & (part['role'] == who)].sort_values('rel_t')
                 if not len(line):
                     continue
                 colour = ROLES[role]
-                ax.fill_between(line['rel_t'], line['ci_low'], line['ci_high'],
+                ax.fill_between(line[x], line[f'ci_low{suffix}'], line[f'ci_high{suffix}'],
                                 color=colour, alpha=0.2, linewidth=0)
-                ax.plot(line['rel_t'], line['mean'], style, color=colour, lw=1.2,
+                ax.plot(line[x], line[f'mean{suffix}'], style, color=colour, lw=1.2,
                         alpha=0.6 if who == 'daughter' else 1.0,
                         label=label if who == 'self' else None)
         ax.axvline(0, color=ROLES['reference'], lw=0.6)
         ax.axhline(0, color=ROLES['reference'], lw=0.6, ls=':')
         scale = part['scale'].iloc[0] if len(part) else ''
         ax.set_title(measure)
-        ax.set_xlabel('frames from division')
-        ax.set_ylabel('log ratio to baseline' if scale.startswith('log') else 'change from baseline')
+        ax.set_xlabel('minutes from division' if timed
+                      else 'frames from division (frame interval unknown)')
+        if scale.startswith('log'):
+            ax.set_ylabel('log ratio to baseline')
+        elif measure == 'speed':
+            ax.set_ylabel('change from baseline (µm/min)' if suffix
+                          else 'change from baseline (px/frame)')
+        else:
+            ax.set_ylabel('change from baseline')
     for ax in axes[len(measures):]:
         ax.set_visible(False)
     if not len(trajectories):
@@ -975,7 +1423,10 @@ def _forest_figure(effects, measures):
     ax.set_yticks(range(len(measures)))
     ax.set_yticklabels(measures)
     ax.invert_yaxis()
-    ax.set_xlabel("Hedges' g of the late-vs-baseline change (95% CI)")
+    methods = set(effects['ci_method']) if 'ci_method' in effects else {'cell'}
+    resampled = ('movies resampled' if methods == {'movie'} else 'cells resampled'
+                 if methods <= {'cell', 'none'} else 'cells or movies resampled')
+    ax.set_xlabel(f"Hedges' g of the late-vs-baseline change (95% CI, {resampled})")
     if len(effects):
         ax.legend(frameon=False, fontsize='small')
     else:
@@ -985,7 +1436,11 @@ def _forest_figure(effects, measures):
 
 
 def _size_control_figure(cycles, size_control, measure='area'):
-    """Size at division against size at birth, with sizer, adder and timer lines."""
+    """Size at division against size at birth, with sizer, adder and timer lines.
+
+    Sizes are in um^2 when every cycle carries its ``_um2`` columns, else in
+    px^2 and the axis says the pixel size is unknown.
+    """
     from matplotlib.figure import Figure
 
     from .figures.bundle import _register_figure_data
@@ -994,6 +1449,11 @@ def _size_control_figure(cycles, size_control, measure='area'):
     fig = Figure(figsize=(4.2, 3.6), dpi=100)
     ax = fig.subplots()
     birth_col, division_col = f'{measure}_birth', f'{measure}_division'
+    calibrated = (f'{birth_col}_um2' in cycles and f'{division_col}_um2' in cycles
+                  and cycles[f'{birth_col}_um2'].notna().all() and len(cycles))
+    if calibrated:
+        birth_col, division_col = f'{birth_col}_um2', f'{division_col}_um2'
+    unit = '(µm²)' if calibrated else '(px², pixel size unknown)'
     _register_figure_data(fig, cycles, x=birth_col, y=division_col, kind='scatter',
                           title='Size at division against size at birth')
     if not len(cycles) or birth_col not in cycles:
@@ -1018,8 +1478,8 @@ def _size_control_figure(cycles, size_control, measure='area'):
                 lw=1.4, label=f"fit, slope {row['slope_division']:.2f} "
                               f"[{row.get('slope_division_ci_low', np.nan):.2f}, "
                               f"{row.get('slope_division_ci_high', np.nan):.2f}]")
-    ax.set_xlabel(f'{measure} at birth')
-    ax.set_ylabel(f'{measure} at division')
+    ax.set_xlabel(f'{measure} at birth {unit}')
+    ax.set_ylabel(f'{measure} at division {unit}')
     ax.legend(frameon=False, fontsize='small')
     fig.tight_layout()
     return fig
@@ -1145,6 +1605,67 @@ def _division_settings(settings):
             'size_tol': float(tolerance)}
 
 
+def _movie_calibration(tracks, settings):
+    """The frame interval (minutes) and pixel size (um) of one tracked movie.
+
+    The interval comes from the tracks table's ``time_s`` column when every
+    frame has one time and the steps are even, else from the
+    ``frame_interval_s`` setting; the pixel size from the ``pixel_size_um``
+    setting (item 831). A missing value stays None.
+
+    :returns: ``(frame_interval_min, pixel_size_um, sources)`` with the
+        source of each value, and a note when ``time_s`` and
+        ``frame_interval_s`` disagree.
+    :raises ValueError: for a setting that is not a positive number.
+    """
+    setting = _calibration_value(settings.get('frame_interval_s'), 'frame_interval_s')
+    size = _calibration_value(settings.get('pixel_size_um'), 'pixel_size_um')
+    sources = {'frame_interval_source': 'frame_interval_s setting' if setting else 'missing',
+               'pixel_size_source': 'pixel_size_um setting' if size else 'missing'}
+    seconds = setting
+    if 'time_s' in tracks and 'frame' in tracks and len(tracks):
+        times = tracks[['frame', 'time_s']].apply(pd.to_numeric, errors='coerce').dropna()
+        per_frame = times.groupby('frame')['time_s']
+        if len(times) and (per_frame.nunique() == 1).all() and per_frame.ngroups > 1:
+            first = per_frame.first().sort_index()
+            steps = np.diff(first.to_numpy(float)) / np.diff(first.index.to_numpy(float))
+            if (steps > 0).all() and np.allclose(steps, steps[0], rtol=1e-6):
+                if setting and not math.isclose(steps[0], setting, rel_tol=0.01):
+                    sources['frame_interval_note'] = (
+                        f'tracks time_s gives {steps[0]:g} s per frame, '
+                        f'frame_interval_s {setting:g} s; time_s used')
+                seconds = float(steps[0])
+                sources['frame_interval_source'] = 'tracks time_s'
+    return (None if seconds is None else seconds / 60.0), size, sources
+
+
+def _pool_division_folders(division_dir, stem_prefix, out_name, n_boot=2000, plot=True):
+    """Pool every field's results under ``division_dir`` that starts with ``stem_prefix``.
+
+    Runs :func:`pool_division_movies` with its fixed seed when two or more
+    fields have unit changes, and writes the result to
+    ``division_dir/out_name``.
+
+    :returns: the pooled results dict, or None with fewer than two fields.
+    """
+    import os
+
+    movies = {}
+    for entry in sorted(os.listdir(division_dir)):
+        folder = os.path.join(division_dir, entry)
+        if (entry.startswith(stem_prefix) and entry != out_name
+                and os.path.isfile(os.path.join(folder, 'changes.csv'))):
+            results = read_division_results(folder)
+            if len(results['changes']):
+                movies[entry[len(stem_prefix):] or entry] = results
+    if len(movies) < 2:
+        return None
+    pooled = pool_division_movies(movies, n_boot=n_boot)
+    pooled['paths'] = write_division_results(pooled, os.path.join(division_dir, out_name),
+                                             plot=plot)
+    return pooled
+
+
 def _run_division_step(src, name, object_type, tracker, settings, *,
                        label_stack=None, images=None):
     """Run the division analysis on the tracks one field just produced.
@@ -1156,7 +1677,13 @@ def _run_division_step(src, name, object_type, tracker, settings, *,
     writes :func:`analyse_divisions` with ``timelapse_division_mode``,
     ``timelapse_division_window`` and ``timelapse_division_size_tolerance``
     to ``<tracks folder>/division/<tracks file stem>/`` with ``lineage.csv``
-    beside it. A failure is reported and does not stop the run.
+    beside it. The frame interval and pixel size come from
+    :func:`_movie_calibration` and are applied with
+    :func:`calibrate_divisions`. Once two or more fields of the same tracker
+    and object have results, they are pooled with
+    :func:`pool_division_movies` into
+    ``division/pooled_<tracker>_tracks_<object>/``. A failure is reported
+    and does not stop the run.
 
     :returns: the results dict, or None.
     """
@@ -1176,6 +1703,7 @@ def _run_division_step(src, name, object_type, tracker, settings, *,
     try:
         options = _division_settings(settings)
         tracks = read_table(tracks_path, report=None)
+        interval, size, sources = _movie_calibration(tracks, settings)
         distance = float(settings.get('timelapse_lineage_max_distance') or 30.0)
         lineage = lineage_from_tracks(tracks, max_distance=distance)
         planes = [np.asarray(plane) for plane in label_stack]
@@ -1186,7 +1714,9 @@ def _run_division_step(src, name, object_type, tracker, settings, *,
             if stack.shape[:1] == (len(planes),) and stack.shape[1:] == planes[0].shape:
                 intensity = list(stack)
         measures = add_motion_features(measure_label_stack(planes, intensity))
-        results = analyse_divisions(measures, lineage, **options)
+        results = calibrate_divisions(analyse_divisions(measures, lineage, **options),
+                                      frame_interval_min=interval, pixel_size_um=size)
+        results['summary'].update(sources)
         stem = os.path.splitext(os.path.basename(tracks_path))[0]
         out_dir = os.path.join(os.path.dirname(tracks_path), 'division', stem)
         paths = write_division_results(
@@ -1200,5 +1730,17 @@ def _run_division_step(src, name, object_type, tracker, settings, *,
     print(f"Division analysis ({object_type}, {name}): {summary['n_events_kept']} of "
           f"{summary['n_events']} {summary['mode']} divisions aligned, "
           f"{summary['n_controls_matched']} matched controls, window {summary['window']} frames; "
-          f'written to {out_dir}')
+          f"{summary['units_note']}; written to {out_dir}")
+    try:
+        pooled = _pool_division_folders(os.path.dirname(out_dir), f'{prefix}_tracks_{object_type}_',
+                                        f'pooled_{prefix}_tracks_{object_type}',
+                                        plot=bool(settings.get('save', True) or settings.get('plot', False)))
+    except Exception as exc:
+        print(f'Division analysis could not pool the fields in {os.path.dirname(out_dir)}: {exc}')
+        pooled = None
+    if pooled is not None:
+        results['pooled'] = pooled
+        print(f"Division analysis pooled {pooled['summary']['n_movies']} fields "
+              f"({pooled['summary']['ci_method']} intervals); written to "
+              f"{os.path.dirname(pooled['paths']['summary'])}")
     return results
