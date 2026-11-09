@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-738 Lifecycle: new, 113 Lifecycle: future in features/feature_list/.
+739 Lifecycle: new, 113 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -1865,3 +1865,5 @@ NEW FEATURES
        849_plaque_figure_supplementary_source_data_reader.txt
   850  PLAQUE WELL DETECTOR FINDS RECTANGULAR PLAQUE TILES
        850_plaque_well_detector_finds_rectangular_plaque_tiles.txt
+  868  THE BUNDLED PLAQUE MODEL SHOWS AS MODIFIED IN EVERY CHECKOUT
+       868_plaque_model_left_out_of_lfs.txt

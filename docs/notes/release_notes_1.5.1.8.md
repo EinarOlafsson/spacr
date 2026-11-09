@@ -48,6 +48,7 @@ Desktop installers are listed under **Assets** below.
 - Feature QC and field-density reads close their database connections, so later copies of the database include every change.
 - New database connections wait up to 30 s for a busy database instead of failing after 5 s.
 - An SSH config with an unknown internal include marker no longer drops out of the current host block.
+- spaCR checkouts no longer show the bundled plaque model as modified: a stray Git LFS rule for it was removed.
 
 ### New features
 

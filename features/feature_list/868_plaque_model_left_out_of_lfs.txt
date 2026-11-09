@@ -1,0 +1,28 @@
+THE BUNDLED PLAQUE MODEL SHOWS AS MODIFIED IN EVERY CHECKOUT
+============================================================
+
+Lifecycle: new
+Status: DONE 2026-11-08 — the cause was a stray Hugging Face .gitattributes in spacr/resources/models, removed in bd7d795cf1; the model stays an ordinary blob and spaCR uses no Git LFS anywhere.
+Requested: badge-job investigation, 2026-11-08 (bug; the maintainer approved the LFS move).
+Related: 755 (clone size), 758 (history rewrite).
+
+WHAT THE STATE WAS
+spacr/resources/models/toxo_plaque_cyto_e25000_X1120_Y1120.CP_model
+(26.6 MB) was committed on 2026-04-14 (dc166dca5b "plot bugs") as a plain
+blob, though a .gitattributes file routes it through LFS. Every checkout
+then shows it as modified (git-lfs: "should have been a pointer"), which
+blocked the badge job's rebase on nightly (worked around with a sparse
+checkout, 8d925f0c05).
+
+PROPOSED FIX
+Re-add the model as an LFS pointer (git lfs migrate import --no-rewrite or
+git add --renormalize) and push the LFS object. This changes what clones
+download, so it needed the maintainer's OK.
+
+RESOLUTION
+spaCR uses no Git LFS anywhere. The maintainer approved moving the file into
+LFS, but the LFS rule itself was the fault: spacr/resources/models/.gitattributes
+was a Hugging Face attributes file copied in with the model on 2026-04-14,
+and it was the only thing routing the model through LFS. bd7d795cf1 removed
+it, so the model stays an ordinary blob and checkouts no longer show it as
+modified. The badge job's sparse checkout stays as a defence.
