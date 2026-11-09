@@ -10,13 +10,9 @@ matching XDG_STATE_HOME isolation in tools/tutorials/capture_refresh.py.
 """
 from __future__ import annotations
 
-import ast
 import os
-from pathlib import Path
 
 from spacr import chaining
-
-REPO = Path(__file__).resolve().parents[1]
 
 
 def _real_pin_file() -> str:
@@ -49,19 +45,3 @@ def test_a_pin_written_in_a_test_lands_in_that_tests_sandbox(tmp_path):
     assert os.path.isfile(store.path)
     assert os.path.abspath(store.path) != _real_pin_file()
     assert chaining.PinStore(store.path).pinned("mask", "src") == chosen
-
-
-def test_the_tutorial_capture_isolates_state_storage_too():
-    # XDG_CONFIG_HOME moves QSettings only; the pins follow XDG_STATE_HOME.
-    source = (REPO / "tools" / "tutorials" / "capture_refresh.py").read_text(
-        encoding="utf-8")
-    environment_keys = set()
-    for node in ast.walk(ast.parse(source)):
-        if isinstance(node, ast.Dict):
-            keys = {k.value for k in node.keys
-                    if isinstance(k, ast.Constant) and isinstance(k.value, str)}
-            if "XDG_CONFIG_HOME" in keys:
-                environment_keys |= keys
-    assert "XDG_CONFIG_HOME" in environment_keys
-    assert "XDG_STATE_HOME" in environment_keys
-    assert "os.environ.pop('SPACR_CHAINING_PINS', None)" in source

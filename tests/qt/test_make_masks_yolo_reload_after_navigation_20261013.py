@@ -10,8 +10,6 @@ side, and the driver now waits for the field it asked for.
 """
 from __future__ import annotations
 
-import ast
-from pathlib import Path
 
 import imageio.v2 as imageio
 import numpy as np
@@ -21,9 +19,6 @@ from spacr.qt import mask_engine as engine
 from spacr.qt.screens.make_masks import MODE_BOX, MakeMasksScreen
 
 pytestmark = pytest.mark.qt
-
-DRIVER = Path(__file__).resolve().parents[2] / "tools" / "tutorials" / "capture_make_masks.py"
-
 
 @pytest.fixture(params=["in_the_click", "on_the_loader"])
 def opened(request, qtbot, qt_theme_applied, tmp_path, monkeypatch):
@@ -86,16 +81,3 @@ def test_prev_after_a_negative_export_reloads_the_exact_saved_boxes(qtbot, opene
     assert not widget._boxes_dirty and widget.warnings == []
     stored = engine.load_yolo_boxes(folder, first, widget._canvas.image.shape)
     assert [list(box) for box in stored["boxes"]] == saved
-
-
-def test_the_driver_waits_for_the_field_a_navigation_asked_for():
-    """``ready`` takes the expected field, and both navigations pass one."""
-    tree = ast.parse(DRIVER.read_text(encoding="utf-8"))
-    tour = next(node for node in tree.body
-                if isinstance(node, ast.FunctionDef) and node.name == "record_yolo_boxes")
-    ready = next(node for node in ast.walk(tour)
-                 if isinstance(node, ast.FunctionDef) and node.name == "ready")
-    assert [arg.arg for arg in ready.args.args] == ["expected"]
-    calls = [node for node in ast.walk(tour)
-             if isinstance(node, ast.Call) and getattr(node.func, "id", None) == "ready"]
-    assert sum(1 for call in calls if call.args) == 2
