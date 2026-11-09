@@ -113,3 +113,4 @@ Desktop installers are listed under **Assets** below.
 - Harmony batch correction is an optional extra: pip install "spacr[harmony]".
 - The minimum supported nbconvert is now 7.16.5, the first release that works with mistune 3.1 and later.
 - The tutorial capture profile records the tiled Home for every lesson except the Navigator lesson, matching the new default where new users land on the Navigator.
+- The tutorial recording scripts and media now live in the spacr-tutorials repository and the einarolafsson/spacr-tutorials dataset; spaCR keeps the lesson definitions its Help and docs read, and the spaCR download is smaller.
