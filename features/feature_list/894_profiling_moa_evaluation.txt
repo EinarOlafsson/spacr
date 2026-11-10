@@ -17,17 +17,28 @@ WHAT TO DO
 - The CPA 3.0.5 classifiers, LDA, shrinkage LDA and KNN as arms.
 - Per-MoA table, confusion tables, majority and shuffled controls.
 
-RESULT (seed 0, CPU; scratch script /mnt/firecuda2/codex/scratch-docs/lane-h-1109/accept_894.py)
-spaCR end-to-end wells (bbbc021_spacr/tables, feature QC standard, 516
-features, the same two zernike_1 features dropped): every row of
-spacr_endtoend_cpa_classifiers_qc_{light,mid}_supervised_accuracy.csv that
-was rerun is reproduced exactly; see the report for the list and the
-shuffled controls (exact to the last digit for the rows rerun with
-shuffles) and the majority class (14/103, 14/102).
+RESULT (seed 0, CPU, /home/olafsson/anaconda3/envs/spacr/bin/python, one BLAS
+thread; scratch script /mnt/firecuda2/codex/scratch-docs/lane-h-1109/accept_894.py,
+logs accept_894_envspacr_{a,b,c}.log there)
+The reference CPA runs used /mnt/wd4tb/bmc_reanalysis/venv_moa, a venv on the
+envs/spacr interpreter with the same scikit-learn 1.9.0, numpy 2.5.2, pandas
+2.3.3 and scipy 1.18.0 (only its xgboost differs, not used here).
+- spaCR end to end (516 features, cell_zernike_1 and nucleus_zernike_1
+  dropped by the QC as in the reference): 1-NN 84/103 NSC, 64/102 NSCB;
+  cpa_LDA 90/43, cpa_KNeighborsClassifier 92/72, cpa_LogisticRegression
+  94/68, cpa_RandomForestClassifier 89/66, cpa_SVC 92/64,
+  cpa_NeuralNetwork 75/58, cpa_FastGentleBoosting 65/50,
+  cpa_AdaBoostClassifier 19/14 (NSC/NSCB): all exact. Shuffled controls
+  of 1-NN (100) and of LDA, KNN and logistic (10 each) exact to the last
+  digit; majority class 14/103 and 14/102.
+- CellProfiler (2473 features): 1-NN 84/62 with exact 100-shuffle control;
+  cpa_LDA 96/68, cpa_KNeighborsClassifier 85/63, cpa_LogisticRegression
+  89/62, cpa_SVC 90/64: all exact.
 
 STILL TO DO
-- cpa_GradientBoostingClassifier rows (one fit per fold is minutes on this
-  CPU; 141 folds x shuffles were not rerun here).
+- cpa_GradientBoostingClassifier rows, the CP RandomForest / NeuralNetwork /
+  FastGentleBoosting / AdaBoost rows and the shuffled controls of the
+  slower classifiers were not rerun (CPU time on a loaded machine).
 - The per-cell (pc50) CPA protocol (cpa_percell.py) is not ported.
 - Seeds 1-4 have no reference to compare with; they run.
 
