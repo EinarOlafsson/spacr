@@ -112,6 +112,29 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
+<summary>Held-out Evaluation α (15 settings)</summary>
+
+#### Held-out Evaluation α
+
+- **`ml_eval_report`** *(optional)* — (bool) - Also evaluate the classifier on held-out objects and write results/ml_eval/metrics.csv: accuracy, balanced accuracy, macro F1, AUROC and per-class precision and recall for every fold and for all held-out predictions pooled, beside the controls of ml_eval_controls. Needs annotation labels (ml_label_column). With ml_eval_features_table set, only this evaluation runs. Default False. Default: `False`.
+- **`ml_eval_split`** *(optional)* — (str) - How objects are held out. leave_one_well_out trains on every well but one and tests on that one, in turn; leave_one_plate_out does the same per plate; random is a stratified split into ml_eval_random_folds folds. No object of a test well or plate is seen in training. Ignored unless ml_eval_report. Default leave_one_well_out. Default: `'leave_one_well_out'`.
+- **`ml_eval_controls`** *(optional)* — (str) - Controls reported beside the model, comma-separated. majority always predicts the commonest class; shuffled trains the same model on labels permuted within each training fold, repeated ml_eval_shuffle_repeats times and averaged. Blank reports no control. Ignored unless ml_eval_report. Default majority, shuffled. Default: `'majority, shuffled'`.
+- **`ml_eval_shuffle_seed`** *(optional)* — (int) - Seed of the first shuffled-label repeat; the next repeats use the following seeds. Also seeds the random split. Ignored unless ml_eval_report. Default 0. Default: `0`.
+- **`ml_eval_shuffle_repeats`** *(optional)* — (int) - How many times the shuffled-label control is trained; its row is the mean. Ignored unless ml_eval_report. Default 20. Default: `20`.
+- **`ml_model_type`** *(optional)* — (str) - The model the held-out evaluation trains: hist_gbm (histogram gradient boosting with n_estimators iterations), random_forest or logistic_regression, each with balanced class weights. Ignored unless ml_eval_report. Default hist_gbm. Default: `'hist_gbm'`.
+- **`ml_label_column`** *(optional)* — (str) - The png_list column that holds the labels of the held-out evaluation, as the Annotate screen writes them. Ignored unless ml_eval_report or annotate_sample_n. Default annotate. Default: `'annotate'`.
+- **`ml_eval_classes`** *(optional)* — (str) - The label values evaluated, comma-separated (for example 1,2,3); objects with any other label are left out. Blank keeps every label. Ignored unless ml_eval_report. Default . Default: `''`.
+- **`ml_eval_features`** *(optional)* — (str) - The feature columns of the held-out evaluation, comma-separated. Blank uses every numeric column but the label; inside a full run it uses the features the classifier was trained on. Ignored unless ml_eval_report. Default . Default: `''`.
+- **`ml_eval_features_table`** *(optional)* — (str) - A table of per-object features (CSV or any table spaCR reads) joined to the png_list labels on ml_eval_join_column. When set, the run only evaluates: no classifier is fitted to the measurement database and no scores are written back. Ignored unless ml_eval_report. Default . Default: `''`.
+- **`ml_eval_join_column`** *(optional)* — (str) - The column present in both ml_eval_features_table and png_list that pairs each feature row with its label; rows without a match get no label and are left out. Default file_name. Default: `'file_name'`.
+- **`ml_eval_random_folds`** *(optional)* — (int) - How many stratified folds the random split makes; more folds train on more objects each time but give smaller, noisier test folds. Ignored unless ml_eval_split is random. Default 5. Default: `5`.
+- **`annotate_sample_n`** *(optional)* — (int) - Above 0, the run only picks that many objects to annotate, stratified by annotate_sample_strata, and writes their order (1 to N) into the png_list column annotate_sample so the Annotate screen can show just those crops. The label column is created empty if missing and never overwritten. Default 0. Default: `0`.
+- **`annotate_sample_seed`** *(optional)* — (int) - Seed of the annotation sample; the top-up draw uses the next seed and the final shuffle the one after. Ignored unless annotate_sample_n. Default 0. Default: `0`.
+- **`annotate_sample_strata`** *(optional)* — (str) - Strata of the annotation sample, comma-separated: a column name stratifies by its values; column:q bins the column into q quantiles within each value of the first stratum (for example strain, rim_enrichment:5). Every stratum gives an equal share. Blank samples without strata. Ignored unless annotate_sample_n. Default . Default: `''`.
+
+</details>
+
+<details>
 <summary>Plots &amp; Heatmaps (4 settings)</summary>
 
 #### Plots & Heatmaps

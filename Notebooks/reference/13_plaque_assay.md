@@ -109,6 +109,32 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
+<summary>Figure Scoring α (18 settings)</summary>
+
+#### Figure Scoring α
+
+- **`figure_condition_labels`** *(optional)* — (str) - Figure scoring: a JSON of figure -&gt; boxes (strain and treatment per detector box) and quantification (the reported panels, each value with is_reference). It is the condition table the measured wells are labelled with (gold or model-read) and the source of the reported effects. Default . Default: `''`.
+- **`figure_model_labels`** *(optional)* — (str) - Figure scoring: stored model readings of the figure conditions (a JSON list of figure -&gt; boxes with is_plaque_image, strain, treatment), scored beside figure_condition_labels as a second labelling. They are data: nothing is re-read. Blank scores the condition table only. Default . Default: `''`.
+- **`figure_detections`** *(optional)* — (str) - Figure scoring: the detector boxes per figure, a CSV with figure and boxes (a JSON list of [x0, y0, x1, y1, ...]). Default . Default: `''`.
+- **`figure_mode_folder`** *(optional)* — (str) - Figure scoring: the folder that holds the earlier Figure-mode runs, one &lt;paper&gt;/plaque_figures.db per paper; its regions give the condition text of every detected well. A paper without a database is skipped. Default . Default: `''`.
+- **`figure_segmentation_folder`** *(optional)* — (str) - Figure scoring: the per-well plaque segmentations, one &lt;figure&gt;__b&lt;box&gt;.json each with areas and cleared_frac. Default . Default: `''`.
+- **`figure_score_folder`** *(optional)* — (str) - Figure scoring: where results_measured_vs_reported.csv and summary.json are written. Blank writes to results/figure_score under src. Default . Default: `''`.
+- **`figure_metric`** *(optional)* — (str) - Figure scoring: the measured value behind an area or relative-size panel. area is the mean plaque area of the well; cleared_fraction the fraction of the well cleared by plaques. Number panels always use plaques per well. Default area. Default: `'area'`.
+- **`compare_permutations`** *(optional)* — (int) - Figure scoring: how many times the measured effects are shuffled for the permutation control of each Spearman rho (its mean, 95th percentile and one-sided p go into summary.json). 0 skips the control. Default 1000. Default: `1000`.
+- **`compare_seed`** *(optional)* — (int) - Figure scoring: the seed of the permutation control; the same seed gives the same permuted rho values on a rerun, another seed a different draw of the same null. Default 0. Default: `0`.
+- **`figure_low_confidence`** *(optional)* — (float) - Figure well merge: a well or reported panel read with confidence at or below this is flagged low_confidence (kept, marked for a second look). Default 0.7. Default: `0.7`.
+- **`figure_second_look`** *(optional)* — (str) - Figure well merge: reading task ids (space- or comma-separated) whose wells are flagged reader_second_look. Default . Default: `''`.
+- **`figure_condition_aggregate`** *(optional)* — (str) - Figure sizes: how the wells of one condition are pooled, mean or median. Default mean. Default: `'mean'`.
+- **`figure_size_stat`** *(optional)* — (str) - Figure sizes: which per-well plaque area is the plaque size, mean or median. Default mean. Default: `'mean'`.
+- **`figure_scales`** *(optional)* — (str) - Figure sizes: the comparison scales, comma-separated: absolute (counts only), rel_panel_max (each side over its panel maximum), rel_well_extent (spaCR area over the well extent, then over the panel maximum) and rel_reference (log2 ratio to the reference condition, the rows figure_score scores). Default absolute,rel_panel_max,rel_well_extent,rel_reference. Default: `'absolute,rel_panel_max,rel_well_extent,rel_reference'`.
+- **`figure_absolute_units`** *(optional)* — (str) - Figure sizes: the reported units, comma-separated, that the absolute scale accepts; only counts share a unit across papers. Default count. Default: `'count'`.
+- **`figure_ratio_floor`** *(optional)* — (float) - Figure sizes: ratios below this are raised to it before the log2 of the reference scale. Default 0.02. Default: `0.02`.
+- **`figure_scale_permutations`** *(optional)* — (int) - Figure sizes: how often the spaCR values are permuted among the conditions of each panel for the null R2 of each relative scale (normalising by the panel maximum puts one point per panel at (1, 1) for free; this null measures that). 0 skips it. Default 1000. Default: `1000`.
+- **`figure_scale_seed`** *(optional)* — (int) - Figure sizes: the seed of the within-panel permutation null; the same seed gives the same null R2 on a rerun, another seed a different draw. Default 0. Default: `0`.
+
+</details>
+
+<details>
 <summary>Image Geometry (3 settings)</summary>
 
 #### Image Geometry
@@ -135,7 +161,7 @@ This linked reference contains the full generated setting descriptions. Return t
 #### Additional Settings
 
 - **`plaque_model`** *(optional)* — (str) - Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v6' was trained on resized wells and turns plaque well resize on; 'toxoplasma_plaque_v5', the previous default, segments images as they are; 'toxoplasma_plaque_v3' scores higher on Gel Doc wells), a filesystem path selects a custom checkpoint, and 'bundled' is a Cellpose 3 checkpoint that needs Cellpose 3. Changing it changes plaque counts, so recorded runs should keep their value. Default 'toxoplasma_plaque_v6'. Default: `'toxoplasma_plaque_v6'`.
-- **`plaque_mode`** *(optional)* — (str) - What Plaque Assay reads. 'plaque' takes images that each show one plaque field (a well or a cropped plaque image), segments the plaques and writes per_image and per_plaque tables. 'figure' takes published figures: the YOLO detector finds the plaque images in each figure, the text around them is read (panel letter, column and row labels) and keyed to the figure legend, each image is annotated with its condition and its plaques are segmented, into plaque_figures/plaque_figures.db. Default 'plaque'. Default: `'plaque'`.
+- **`plaque_mode`** *(optional)* — (str) - What Plaque Assay reads. 'plaque' takes images that each show one plaque field (a well or a cropped plaque image), segments the plaques and writes per_image and per_plaque tables. 'figure' takes published figures: the YOLO detector finds the plaque images in each figure, the text around them is read (panel letter, column and row labels) and keyed to the figure legend, each image is annotated with its condition and its plaques are segmented, into plaque_figures/plaque_figures.db. 'figure_score' (alpha) scores Figure-mode wells against the effects the papers report (figure_condition_labels and the other figure scoring settings); 'figure_sizes' (alpha) compares measured with reported plaque sizes on absolute and relative scales; 'figure_merge' (alpha) merges a figure reading's wells and reported effects into the meta-analysis tables under src. Default 'plaque'. Default: `'plaque'`.
 - **`figure_detector`** *(optional)* — (str) - Figure mode: model-zoo key or checkpoint path of the YOLO detector that finds plaque images inside a figure. Default 'toxoplasma_well_detector_v2', which was measured to find cropped plaque panels in published figures. Default: `'toxoplasma_well_detector_v2'`.
 - **`figure_imgsz`** *(optional)* — (str) - Figure mode: comma-separated detector input sizes, all of which are asked and their boxes merged. 640 finds whole faint panels, 1280 finds small dilution spots; neither alone finds both. Default '640,1280'. Default: `'640,1280'`.
 - **`figure_confidence`** *(optional)* — (float) - Figure mode: minimum detector score, 0 to 1, for a box to count as a plaque image. Default 0.25. Default: `0.25`.

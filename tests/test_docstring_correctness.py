@@ -3207,10 +3207,10 @@ def _validated_bmc_paper_items_callables(callables):
     root = pathlib.Path(__file__).resolve().parents[1]
     entries = json.loads((root / "tests/data/release_contracts"
         / "871_911_bmc_paper_items_api_arrivals_2026-11-09.json").read_text(encoding="utf-8"))
-    assert len(entries) == 170
+    assert len(entries) == 171
     assert {"spacr.ops_decode", "spacr.ops_reference"} <= entries.keys()
     found = {item.symbol: item for item in callables if item.symbol in entries}
-    assert len(found) == 168
+    assert len(found) == 136
     for symbol, item in found.items():
         assert item.exposure == "autoapi"
         assert item.parameters == item.accepted_documented_parameters
@@ -5999,6 +5999,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("751_published_reference_api_arrivals_2026-11-09.json", 8),
         ("865_866_budding_prediction_api_arrivals_2026-11-09.json", 10),
         ("795_moa_benchmark_api_arrivals_2026-11-09.json", 10),
+        ("871_911_bmc_paper_items_api_arrivals_2026-11-09.json", 171),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -6579,7 +6580,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "750_public_datasets_api_arrivals_2026-11-08.json",
                      "751_published_reference_api_arrivals_2026-11-09.json",
                      "865_866_budding_prediction_api_arrivals_2026-11-09.json",
-                     "795_moa_benchmark_api_arrivals_2026-11-09.json"):
+                     "795_moa_benchmark_api_arrivals_2026-11-09.json",
+                     "871_911_bmc_paper_items_api_arrivals_2026-11-09.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -6702,7 +6704,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "750_public_datasets_api_arrivals_2026-11-08.json",
                      "751_published_reference_api_arrivals_2026-11-09.json",
                      "865_866_budding_prediction_api_arrivals_2026-11-09.json",
-                     "795_moa_benchmark_api_arrivals_2026-11-09.json"):
+                     "795_moa_benchmark_api_arrivals_2026-11-09.json",
+                     "871_911_bmc_paper_items_api_arrivals_2026-11-09.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
