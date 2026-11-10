@@ -4981,7 +4981,7 @@ def _ph_owned_cells(destination: str, well: str, cells, settings):
 
 
 def _ph_table_frames(plate: str, well: str, cells, links, genotype,
-                     owned, rule: str):
+                     owned, rule: str, integer_keys: bool = False):
     """The key columns and compartment features of one well's owned cells.
 
     :param plate: the plate name.
@@ -4992,6 +4992,8 @@ def _ph_table_frames(plate: str, well: str, cells, links, genotype,
         or None.
     :param owned: :func:`_ph_owned_cells`.
     :param rule: :func:`_ph_genotype_rule`.
+    :param integer_keys: also key each cell by ``cell_key``, the integer
+        :func:`spacr.ops_run_infra.integer_cell_key` (item 872, B17).
     :returns: ``(keys, {compartment: features})``, row-aligned.
     """
     import pandas as pd
@@ -5006,6 +5008,12 @@ def _ph_table_frames(plate: str, well: str, cells, links, genotype,
         "plateID": str(plate), "rowID": row, "columnID": column,
         "fieldID": [schema.field_id(int(s)) for s in kept["site"]],
         "object_label": kept["label"].astype(np.int64).to_numpy()})
+    if integer_keys:
+        from .ops_run_infra import integer_cell_key
+
+        keys.insert(1, "cell_key", integer_cell_key(
+            int(row[1:]), int(column[1:]), kept["site"].to_numpy(),
+            kept["label"].to_numpy()))
     lookup = kept[["site", "label"]].astype(np.int64)
     if links is not None and len(links):
         lookup = lookup.merge(links[["site", "label", "object_id"]].astype(
@@ -5109,6 +5117,13 @@ def _ph_tables(db: str, plate: str, wells: Sequence[str],
     one row per field from ``merged/`` (:func:`_ph_merged`), when that was
     written.
 
+    ``ops_tables_integer_keys`` adds ``cell_key``, an integer that joins
+    as ``prcfo`` does (:func:`spacr.ops_run_infra.integer_cell_key`), and
+    indexes it; ``ops_tables_layout`` ``'wide'`` also writes ``cell_wide``,
+    one row per cell with the keys and the cell, nucleus and cytoplasm
+    features side by side, which equals the three tables joined (item 872,
+    B17).
+
     The rows are written per well in one transaction per table (item 810),
     and the join keys are indexed afterwards (item 811). When the plate
     holds more owned cells than ``ops_tables_parquet_threshold``, the
@@ -5134,6 +5149,13 @@ def _ph_tables(db: str, plate: str, wells: Sequence[str],
     genotype = pd.read_parquet(path) if os.path.isfile(path) else None
     links = _rows_for_wells(db, "ops_merge", plate, wells)
     rule = _ph_genotype_rule(settings)
+    integer_keys = bool(settings.get("ops_tables_integer_keys", False))
+    layout = str(settings.get("ops_tables_layout") or "compartments").strip(
+        ).lower()
+    if layout not in ("compartments", "wide"):
+        raise ValueError(tr(
+            "ops_tables_layout must be compartments or wide; got {value}",
+            value=layout))
     plans = []
     total = 0
     for well in wells:
@@ -5163,8 +5185,14 @@ def _ph_tables(db: str, plate: str, wells: Sequence[str],
             well_genotype = (genotype[genotype["well"].astype(str) == str(well)]
                              if genotype is not None else None)
             keys, features = _ph_table_frames(plate, well, cells, well_links,
-                                              well_genotype, owned, rule)
+                                              well_genotype, owned, rule,
+                                              integer_keys=integer_keys)
             del cells
+            if layout == "wide":
+                frame = pd.concat([keys, *(features[c] for c in
+                                           _PH_TABLE_COMPARTMENTS)], axis=1)
+                _ph_insert_rows(conn, "cell_wide", frame)
+                counts["cell_wide"] += len(frame)
             for compartment in _PH_TABLE_COMPARTMENTS:
                 if wide_to_parquet:
                     sub = os.path.join(folder, compartment)
@@ -5204,6 +5232,13 @@ def _ph_tables(db: str, plate: str, wells: Sequence[str],
                          f"ON {compartment}(object_id)")
             conn.execute(f"CREATE INDEX IF NOT EXISTS ix_{compartment}_gene "
                          f"ON {compartment}(gene)")
+            if integer_keys:
+                conn.execute(f"CREATE INDEX IF NOT EXISTS "
+                             f"ix_{compartment}_cell_key ON "
+                             f"{compartment}(cell_key)")
+        if layout == "wide":
+            conn.execute("CREATE INDEX IF NOT EXISTS ix_cell_wide_prcfo ON "
+                         "cell_wide(prcfo)")
         index_seconds = time.perf_counter() - tick
     finally:
         conn.close()
@@ -5217,6 +5252,7 @@ def _ph_tables(db: str, plate: str, wells: Sequence[str],
               "parquet_files": len(parquet_files),
               "genotype_table": path if genotype is not None else None,
               "genotype_rule": rule,
+              "integer_keys": integer_keys, "layout": layout,
               "index_seconds": round(index_seconds, 1),
               "seconds": round(time.perf_counter() - started, 1)}
     _say(tr("{plate} ph_tables: {rows} cells written to {db}", plate=plate,
@@ -6432,7 +6468,20 @@ def run_ops(settings: Mapping[str, Any], *,
         a published table to ``results/ops_report/`` (:func:`_ph_report`). With
         ``ops_ph_secondary_registration`` set, each well's second phenotype
         acquisition is registered before its fields are read
-        (:func:`_ph_secondary_shifts`).
+        (:func:`_ph_secondary_shifts`). ``"stress"``, after ``report``,
+        times the finished store and writes
+        ``results/ops_stress/stress_test.csv``
+        (:func:`spacr.ops_run_infra.stress_rows`); ``ops_stress_report``
+        runs it too.
+
+        Plate-scale runs (item 872, alpha): ``ops_ph_acquisitions`` names
+        each phenotype acquisition's folder and channels
+        (:func:`_ph_acquisition_index`); ``ops_ph_pipeline`` and
+        ``ops_ph_stage_dir`` stream the fields (:func:`_ph_fields`);
+        ``ops_archive_root`` copies each finished well to archive storage,
+        verifies it and resumes from its ``WELL_DONE`` marker
+        (:func:`_ph_archive_resume`); ``ops_gpu_admission`` waits for a free
+        card first (:func:`_ops_admitted_run`).
     :param library: the guide barcodes, as a sequence or the path of a CSV
         with a ``prefix``, ``barcode`` or ``sequence`` column. When given,
         each barcode is also mapped to its closest guide. Overrides the
@@ -6668,7 +6717,16 @@ def run_ops(settings: Mapping[str, Any], *,
     if "report" in phases:
         out["report"] = _ph_report(db, plate, chosen, settings, destination,
                                    out.get("aggregate"))
-    for phase in ("ph_tables", "ph_crops", "report"):
+    if "stress" in phases or settings.get("ops_stress_report"):
+        from .ops_run_infra import stress_rows, write_stress_report
+
+        rows = stress_rows(destination, plate, chosen, out,
+                           crop_root=_ph_merged_root(settings, destination),
+                           control_prefix=str(settings.get("ops_control_prefix")
+                                              or "nontargeting"))
+        out["stress"] = {"csv": write_stress_report(destination, rows),
+                         "rows": len(rows)}
+    for phase in ("ph_tables", "ph_crops", "report", "stress"):
         if phase in out:
             with open(os.path.join(destination, f"ops_{phase}_{plate}.json"),
                       "w", encoding="utf-8") as handle:

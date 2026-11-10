@@ -122,6 +122,24 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_reference_seed": 0,
     "ops_retry_missing": False,
     "ops_crop_flat_mean_one": False,
+    "ops_ph_acquisitions": None,
+    "ops_ph_pipeline": False,
+    "ops_ph_measure_workers": None,
+    "ops_ph_stage_dir": None,
+    "ops_ph_stage_ahead": 48,
+    "ops_ph_stage_threads": 4,
+    "ops_ph_measure_gpu_check": True,
+    "ops_archive_root": None,
+    "ops_archive_verify": 'md5',
+    "ops_archive_delete_local": False,
+    "ops_gpu_admission": False,
+    "ops_gpu_idle_checks": 6,
+    "ops_gpu_min_process_mib": 500,
+    "ops_gpu_vram_cap_gb": None,
+    "ops_gpu_ignore_process_patterns": None,
+    "ops_tables_integer_keys": False,
+    "ops_tables_layout": 'compartments',
+    "ops_stress_report": False,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -227,6 +245,24 @@ OPS_TYPES: Dict[str, object] = {
     "ops_reference_seed": int,
     "ops_retry_missing": bool,
     "ops_crop_flat_mean_one": bool,
+    "ops_ph_acquisitions": (dict, str, type(None)),
+    "ops_ph_pipeline": bool,
+    "ops_ph_measure_workers": (int, type(None)),
+    "ops_ph_stage_dir": (str, type(None)),
+    "ops_ph_stage_ahead": int,
+    "ops_ph_stage_threads": int,
+    "ops_ph_measure_gpu_check": bool,
+    "ops_archive_root": (str, type(None)),
+    "ops_archive_verify": str,
+    "ops_archive_delete_local": bool,
+    "ops_gpu_admission": bool,
+    "ops_gpu_idle_checks": int,
+    "ops_gpu_min_process_mib": (int, float),
+    "ops_gpu_vram_cap_gb": (int, float, type(None)),
+    "ops_gpu_ignore_process_patterns": (str, type(None)),
+    "ops_tables_integer_keys": bool,
+    "ops_tables_layout": str,
+    "ops_stress_report": bool,
 }
 
 #: Which panel section each setting appears under.
@@ -287,6 +323,13 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_reference_counts", "ops_reference_counts_level",
         "ops_reference_shuffles", "ops_reference_seed", "ops_retry_missing",
         "ops_crop_flat_mean_one",
+        "ops_ph_acquisitions", "ops_ph_pipeline", "ops_ph_measure_workers",
+        "ops_ph_stage_dir", "ops_ph_stage_ahead", "ops_ph_stage_threads",
+        "ops_ph_measure_gpu_check", "ops_archive_root", "ops_archive_verify",
+        "ops_archive_delete_local", "ops_gpu_admission", "ops_gpu_idle_checks",
+        "ops_gpu_min_process_mib", "ops_gpu_vram_cap_gb",
+        "ops_gpu_ignore_process_patterns", "ops_tables_integer_keys",
+        "ops_tables_layout", "ops_stress_report",
     ],
 }
 
@@ -845,6 +888,96 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "before the crops are corrected with it, as the plate A gene-class "
         "crops were cut; off divides by the maps as stored, as merged/ and "
         "the measurement do. Default False. Alpha.",
+    "ops_ph_acquisitions":
+        "(dict or None) - For a plate whose phenotype channels sit in more "
+        "than one acquisition folder, each folder (relative to "
+        "phenotype_source) and the channels taken from it, plus an optional "
+        "register_on channel, for example {\"phenotype\": \"DAPI,GFP,A594\", "
+        "\"phenotype_af750\": \"AF750\", \"register_on\": \"A594\"}. Files of a "
+        "folder not listed, or of a channel not listed for its folder, are "
+        "not read. The later folders' channels become "
+        "ops_ph_secondary_channels when that is empty. Empty: one "
+        "acquisition. Default None. Alpha.",
+    "ops_ph_pipeline":
+        "(bool) - Hand each phenotype field to the measurement workers as "
+        "soon as its masks are saved, so the next field is segmented while "
+        "this one is measured, instead of segmenting the whole well first. "
+        "Masks and tables are the same. Default False. Alpha.",
+    "ops_ph_measure_workers":
+        "(int or None) - How many phenotype fields are measured at once. "
+        "Empty uses n_workers. Default None. Alpha.",
+    "ops_ph_stage_dir":
+        "(str or None) - A local folder where each phenotype field's "
+        "maximum projection is kept while the field is segmented and "
+        "measured, so each raw file on network storage is read once; the "
+        "copy is deleted when the field is done. Empty reads the raw files "
+        "directly. Default None. Alpha.",
+    "ops_ph_stage_ahead":
+        "(int) - Most phenotype fields staged in ops_ph_stage_dir at once; "
+        "the local space used is at most this many field projections. "
+        "Default 48. Alpha.",
+    "ops_ph_stage_threads":
+        "(int) - How many phenotype fields are read into ops_ph_stage_dir "
+        "at once. Default 4. Alpha.",
+    "ops_ph_measure_gpu_check":
+        "(bool) - With ops_ph_measure_gpu on, measure the first field on "
+        "the card and on the CPU before the run and report the columns that "
+        "differ by more than 1e-4 (relative). The run goes on either way. "
+        "Default True. Alpha.",
+    "ops_archive_root":
+        "(str or None) - After each well, copy its outputs to this archive "
+        "folder (under the plate's name), verify the copy and write a "
+        "WELL_DONE marker; PLATE_DONE follows when every well is copied. A "
+        "resumed run skips wells whose copy is complete and copies a "
+        "damaged one again. Empty: no archive copy. Default None. Alpha.",
+    "ops_archive_verify":
+        "(str) - How each archive copy is checked: 'md5' compares size and "
+        "MD5 checksum with the local file, 'size' the size only (faster, "
+        "misses a corrupted copy of the right size). Default 'md5'. Alpha.",
+    "ops_archive_delete_local":
+        "(bool) - Delete a well's local files once its archive copy is "
+        "verified and marked done. Later plate phases (aggregate, tables, "
+        "crops) then cannot read them locally. Default False. Alpha.",
+    "ops_gpu_admission":
+        "(bool) - Wait for the GPU to be free before the run starts: "
+        "ops_gpu_idle_checks samples in a row, 10 s apart, with 0 % "
+        "utilisation and no running compute process above "
+        "ops_gpu_min_process_mib (display and browser processes never "
+        "count). START and FINISH go to ~/.spacr/gpu/log, and a STOP file "
+        "in dst_root ends the wait or stops the run before the next well. "
+        "Default False. Alpha.",
+    "ops_gpu_idle_checks":
+        "(int) - How many idle GPU samples in a row ops_gpu_admission waits "
+        "for. Default 6. Alpha.",
+    "ops_gpu_min_process_mib":
+        "(float) - A GPU compute process using more card memory than this, "
+        "in MiB, keeps ops_gpu_admission waiting. Default 500. Alpha.",
+    "ops_gpu_vram_cap_gb":
+        "(float or None) - With ops_gpu_admission and ops_ph_measure_gpu "
+        "on, halve the measurement workers when the card's memory in use is "
+        "above this many GB when measuring starts. Empty: no cap. Default "
+        "None. Alpha.",
+    "ops_gpu_ignore_process_patterns":
+        "(str or None) - More processes ops_gpu_admission ignores, comma- "
+        "separated, besides browsers, editors and display servers: a "
+        "pattern starting with - is looked for in the command line, any "
+        "other matches the executable's name (* is a wildcard). Default "
+        "None. Alpha.",
+    "ops_tables_integer_keys":
+        "(bool) - Give every row of the ph_tables cell, nucleus and "
+        "cytoplasm tables an integer cell_key, indexed, that joins as prcfo "
+        "does but faster. Default False. Alpha.",
+    "ops_tables_layout":
+        "(str) - 'compartments' writes the cell, nucleus and cytoplasm "
+        "tables; 'wide' also writes cell_wide, one row per cell with all "
+        "three compartments' features, which needs no join. Default "
+        "'compartments'. Alpha.",
+    "ops_stress_report":
+        "(bool) - At the end of the run, time the store as the reference "
+        "stress test did (database rows, queries for one field, one gene, "
+        "the three-table join and a whole well, random crop reads) and "
+        "write results/ops_stress/stress_test.csv. Same as naming the "
+        "stress phase. Default False. Alpha.",
 }
 
 #: The blurb the module shows above its settings.
