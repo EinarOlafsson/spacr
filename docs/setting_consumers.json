@@ -5394,6 +5394,46 @@
     "qualname": "set_default_settings_preprocess_generate_masks"
    }
   ],
+  "cell_from_nucleus_expand_px": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "cell_from_nucleus_expand_px",
+    "line": 1114,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "nuclear_translocation"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "cell_from_nucleus_expand_px",
+    "line": 1116,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "nuclear_translocation"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "cell_from_nucleus_expand_px",
+    "line": 1123,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "nuclear_translocation"
+   }
+  ],
+  "cell_from_nucleus_min_nucleus_size": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "cell_from_nucleus_min_nucleus_size",
+    "line": 1117,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "nuclear_translocation"
+   }
+  ],
   "cell_intensity_outlier_mads": [
    {
     "form": "get-dynamic",
@@ -21586,6 +21626,64 @@
     "qualname": "get_measure_crop_settings"
    }
   ],
+  "host_assignment": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "host_assignment",
+    "line": 326,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "vacuole_objects"
+   }
+  ],
+  "host_min_size": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "host_min_size",
+    "line": 135,
+    "module": "spacr.annotation_dataset",
+    "nested": false,
+    "qualname": "filter_selection"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "host_min_size",
+    "line": 328,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "vacuole_objects"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "host_min_size",
+    "line": 9051,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_warn_when_a_size_filter_removes_most"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "host_min_size",
+    "line": 9343,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "host_min_size",
+    "line": 2204,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_describe_objects"
+   }
+  ],
   "hp_count_column": [
    {
     "form": "subscript",
@@ -23153,6 +23251,17 @@
     "qualname": "get_perform_regression_default_settings"
    }
   ],
+  "infection_floor_percentile": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "infection_floor_percentile",
+    "line": 538,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "infection_floor"
+   }
+  ],
   "infection_intensity_mode": [
    {
     "form": "get",
@@ -23737,6 +23846,48 @@
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_automated_motility_assay_default_settings"
+   }
+  ],
+  "infection_signal_column": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "infection_signal_column",
+    "line": 535,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "infection_floor"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "infection_signal_column",
+    "line": 701,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "analyze_titration"
+   }
+  ],
+  "infection_signal_floor": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "infection_signal_floor",
+    "line": 526,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "infection_floor"
+   }
+  ],
+  "infection_uninfected_wells": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "infection_uninfected_wells",
+    "line": 531,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "infection_floor"
    }
   ],
   "infection_xgb_ambiguous_high": [
@@ -35443,6 +35594,55 @@
     "qualname": "_defaults"
    }
   ],
+  "ops_aggregate_level": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_aggregate_level",
+    "line": 3859,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_aggregate"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_aggregate_level",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_aggregate_level",
+    "line": 772,
+    "module": "spacr.ops_tvn",
+    "nested": false,
+    "qualname": "_aggregate_tvn"
+   }
+  ],
+  "ops_assign_by_cell_territory": [
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_assign_by_cell_territory",
+    "line": 201,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "decode_rule"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_assign_by_cell_territory",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
   "ops_base_channels": [
    {
     "form": "get",
@@ -35537,6 +35737,46 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "ops_bootstrap",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_calibration_min_labels": [
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_calibration_min_labels",
+    "line": 196,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "decode_rule"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_calibration_min_labels",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_calibration_passes": [
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_calibration_passes",
+    "line": 195,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "decode_rule"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_calibration_passes",
     "line": 1519,
     "module": "spacr.ops_settings",
     "nested": false,
@@ -35681,6 +35921,175 @@
     "qualname": "ops_defaults"
    }
   ],
+  "ops_compare_fields": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_compare_fields",
+    "line": 1999,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "run_compare_calls"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_compare_fields",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_compare_match_px": [
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_compare_match_px",
+    "line": 1983,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "run_compare_calls"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_compare_match_px",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_compare_tables": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_compare_tables",
+    "line": 1982,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "run_compare_calls"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_compare_tables",
+    "line": 6908,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "run_ops"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_compare_tables",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_confidence_bins": [
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_confidence_bins",
+    "line": 1653,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "run_decode_qc"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_confidence_bins",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_confidence_calibration": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_confidence_calibration",
+    "line": 1652,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "run_decode_qc"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_confidence_calibration",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_confidence_min": [
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_confidence_min",
+    "line": 1659,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "run_decode_qc"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_confidence_min",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_confidence_model": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_confidence_model",
+    "line": 1651,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "run_decode_qc"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_confidence_model",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_confidence_seed": [
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_confidence_seed",
+    "line": 1654,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "run_decode_qc"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_confidence_seed",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
   "ops_consensus_runs": [
    {
     "form": "get",
@@ -35739,6 +36148,329 @@
     "qualname": "profile_cell_tables"
    }
   ],
+  "ops_crop_all_nt": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_crop_all_nt",
+    "line": 5234,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_crop_targets"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_crop_all_nt",
+    "line": 5511,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_crops"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_crop_all_nt",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_crop_channels": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_crop_channels",
+    "line": 5489,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_crops"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_crop_channels",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_crop_control_fraction": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_crop_control_fraction",
+    "line": 5500,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_crops"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_crop_control_fraction",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_crop_flat_mean_one": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_crop_flat_mean_one",
+    "line": 5515,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_crops"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_crop_flat_mean_one",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_crop_flatfield": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_crop_flatfield",
+    "line": 5505,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_crops"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_crop_flatfield",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_crop_masks": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_crop_masks",
+    "line": 5502,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_crops"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_crop_masks",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_crop_per_guide": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_crop_per_guide",
+    "line": 5217,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_crop_targets"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_crop_per_guide",
+    "line": 5510,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_crops"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_crop_per_guide",
+    "line": 5519,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_crops"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_crop_per_guide",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_crop_seed": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_crop_seed",
+    "line": 5224,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_crop_targets"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_crop_seed",
+    "line": 5513,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_crops"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_crop_seed",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_crop_size": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_crop_size",
+    "line": 5496,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_crops"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_crop_size",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_cross_field_metric": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_cross_field_metric",
+    "line": 5956,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_cross_field_ownership"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_cross_field_metric",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_cross_field_min_overlap": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_cross_field_min_overlap",
+    "line": 5963,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_cross_field_ownership"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_cross_field_min_overlap",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_cross_field_ownership": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_cross_field_ownership",
+    "line": 4034,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_aggregate"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_cross_field_ownership",
+    "line": 4583,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_owned_flags"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_cross_field_ownership",
+    "line": 4781,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_merged"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_cross_field_ownership",
+    "line": 5953,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_cross_field_ownership"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_cross_field_ownership",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_cross_field_policy": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_cross_field_policy",
+    "line": 5664,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_cross_field_policy"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_cross_field_policy",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
   "ops_crosstalk": [
    {
     "form": "get",
@@ -35753,6 +36485,295 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "ops_crosstalk",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_decode_impute_missing_cycles": [
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_decode_impute_missing_cycles",
+    "line": 200,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "decode_rule"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_decode_impute_missing_cycles",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_decode_library_calibration": [
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_decode_library_calibration",
+    "line": 194,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "decode_rule"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_decode_library_calibration",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_decode_pixel_fallback": [
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_decode_pixel_fallback",
+    "line": 205,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "decode_rule"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_decode_pixel_fallback",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_decode_preset": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_decode_preset",
+    "line": 134,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "resolve_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_decode_preset",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_decode_qc": [
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_decode_qc",
+    "line": 214,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "decode_rule"
+   },
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_decode_qc",
+    "line": 215,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "decode_rule"
+   },
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_decode_qc",
+    "line": 1661,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "run_decode_qc"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_decode_qc",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_decode_qc_features": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_decode_qc_features",
+    "line": 1672,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "run_decode_qc"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_decode_qc_features",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_decode_qc_max_calls": [
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_decode_qc_max_calls",
+    "line": 1678,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "run_decode_qc"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_decode_qc_max_calls",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_decode_qc_model": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_decode_qc_model",
+    "line": 1676,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "run_decode_qc"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_decode_qc_model",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_decode_qc_seed": [
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_decode_qc_seed",
+    "line": 1677,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "run_decode_qc"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_decode_qc_seed",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_decode_qc_split": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_decode_qc_split",
+    "line": 1662,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "run_decode_qc"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_decode_qc_split",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_decode_quality_weighted": [
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_decode_quality_weighted",
+    "line": 203,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "decode_rule"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_decode_quality_weighted",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_decode_runner_up": [
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_decode_runner_up",
+    "line": 198,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "decode_rule"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_decode_runner_up",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_decode_skip_unplaced_sites": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_decode_skip_unplaced_sites",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_decoy_library_k": [
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_decoy_library_k",
+    "line": 211,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "decode_rule"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_decoy_library_k",
     "line": 1519,
     "module": "spacr.ops_settings",
     "nested": false,
@@ -35786,6 +36807,26 @@
     "module": "spacr.ops_settings",
     "nested": false,
     "qualname": "ops_defaults"
+   }
+  ],
+  "ops_deterministic_blas": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_deterministic_blas",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_deterministic_blas",
+    "line": 1260,
+    "module": "spacr.ops_tvn",
+    "nested": false,
+    "qualname": "run_profile_phases"
    }
   ],
   "ops_drop_failed_fields": [
@@ -35831,6 +36872,289 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "ops_drop_nonfinite_rows",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_escaper_dbic": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_escaper_dbic",
+    "line": 6564,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_escaper_dbic",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_escaper_min_sep": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_escaper_min_sep",
+    "line": 6566,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_escaper_min_sep",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_escapers": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_escapers",
+    "line": 6548,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_escapers",
+    "line": 6573,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_escapers",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_eval_covariates": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_eval_covariates",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_eval_covariates",
+    "line": 1153,
+    "module": "spacr.ops_tvn",
+    "nested": false,
+    "qualname": "_profile_covariates"
+   }
+  ],
+  "ops_eval_decoys": [
+   {
+    "form": "keyword",
+    "function_depth": 1,
+    "key": "ops_eval_decoys",
+    "line": 750,
+    "module": "spacr.ops_reference",
+    "nested": false,
+    "qualname": "evaluate_gene_profiles"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "ops_eval_decoys",
+    "line": 752,
+    "module": "spacr.ops_reference",
+    "nested": false,
+    "qualname": "evaluate_gene_profiles"
+   },
+   {
+    "form": "keyword",
+    "function_depth": 1,
+    "key": "ops_eval_decoys",
+    "line": 802,
+    "module": "spacr.ops_reference",
+    "nested": false,
+    "qualname": "specificity_metrics"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "ops_eval_decoys",
+    "line": 803,
+    "module": "spacr.ops_reference",
+    "nested": false,
+    "qualname": "specificity_metrics"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_eval_decoys",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_eval_heldout_folds": [
+   {
+    "form": "keyword",
+    "function_depth": 1,
+    "key": "ops_eval_heldout_folds",
+    "line": 750,
+    "module": "spacr.ops_reference",
+    "nested": false,
+    "qualname": "evaluate_gene_profiles"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "ops_eval_heldout_folds",
+    "line": 752,
+    "module": "spacr.ops_reference",
+    "nested": false,
+    "qualname": "evaluate_gene_profiles"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_eval_heldout_folds",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_eval_null_size": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "ops_eval_null_size",
+    "line": 711,
+    "module": "spacr.ops_reference",
+    "nested": false,
+    "qualname": "evaluate_gene_profiles"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_eval_null_size",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_eval_references": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "ops_eval_references",
+    "line": 630,
+    "module": "spacr.ops_reference",
+    "nested": false,
+    "qualname": "_scored_references"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_eval_references",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_eval_split": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "ops_eval_split",
+    "line": 631,
+    "module": "spacr.ops_reference",
+    "nested": false,
+    "qualname": "_scored_references"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_eval_split",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_eval_time_split": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "ops_eval_time_split",
+    "line": 637,
+    "module": "spacr.ops_reference",
+    "nested": false,
+    "qualname": "_scored_references"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "ops_eval_time_split",
+    "line": 753,
+    "module": "spacr.ops_reference",
+    "nested": false,
+    "qualname": "evaluate_gene_profiles"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "ops_eval_time_split",
+    "line": 813,
+    "module": "spacr.ops_reference",
+    "nested": false,
+    "qualname": "specificity_metrics"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_eval_time_split",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_fdr_scale": [
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_fdr_scale",
+    "line": 212,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "decode_rule"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_fdr_scale",
     "line": 1519,
     "module": "spacr.ops_settings",
     "nested": false,
@@ -35957,6 +37281,46 @@
     "qualname": "ops_defaults"
    }
   ],
+  "ops_fusion_blocks": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_fusion_blocks",
+    "line": 6628,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_fusion_blocks",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_genotype_confidence": [
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_genotype_confidence",
+    "line": 1641,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "run_decode_qc"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_genotype_confidence",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
   "ops_genotype_table": [
    {
     "form": "get",
@@ -36042,6 +37406,86 @@
     "qualname": "ops_defaults"
    }
   ],
+  "ops_guide_efficacy": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_guide_efficacy",
+    "line": 6488,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_guide_efficacy",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_guide_efficacy_emax": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_guide_efficacy_emax",
+    "line": 6499,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_guide_efficacy_emax",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_guide_efficacy_iters": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_guide_efficacy_iters",
+    "line": 6497,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_guide_efficacy_iters",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_guide_null_size": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_guide_null_size",
+    "line": 6520,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_guide_null_size",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
   "ops_library": [
    {
     "form": "get",
@@ -36071,6 +37515,26 @@
     "qualname": "_easy_specialized_inputs"
    }
   ],
+  "ops_max_files_per_folder": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_max_files_per_folder",
+    "line": 5498,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_crops"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_max_files_per_folder",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
   "ops_merge_threshold": [
    {
     "form": "get",
@@ -36085,6 +37549,86 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "ops_merge_threshold",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_merged_dtype": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_merged_dtype",
+    "line": 4757,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_merged"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_merged_dtype",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_merged_flatfield": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_merged_flatfield",
+    "line": 4783,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_merged"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_merged_flatfield",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_merged_root": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_merged_root",
+    "line": 4550,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_merged_root"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_merged_root",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_merged_save_sbs": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_merged_save_sbs",
+    "line": 4849,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_merged"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_merged_save_sbs",
     "line": 1519,
     "module": "spacr.ops_settings",
     "nested": false,
@@ -36198,6 +37742,46 @@
     "qualname": "ops_defaults"
    }
   ],
+  "ops_mitotic_source": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_mitotic_source",
+    "line": 6373,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_mitotic_source",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_nt_rows": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_nt_rows",
+    "line": 3860,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_aggregate"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_nt_rows",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
   "ops_ownership": [
    {
     "form": "get",
@@ -36212,6 +37796,95 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "ops_ownership",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_penetrance": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_penetrance",
+    "line": 6548,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_penetrance",
+    "line": 6551,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_penetrance",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_penetrance_folds": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_penetrance_folds",
+    "line": 6558,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_penetrance_folds",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_penetrance_lambda": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_penetrance_lambda",
+    "line": 6562,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_penetrance_lambda",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_penetrance_nt_pool": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_penetrance_nt_pool",
+    "line": 6560,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_penetrance_nt_pool",
     "line": 1519,
     "module": "spacr.ops_settings",
     "nested": false,
@@ -36673,6 +38346,26 @@
     "qualname": "ops_defaults"
    }
   ],
+  "ops_ph_measure_gpu": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_ph_measure_gpu",
+    "line": 3090,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_fields"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_ph_measure_gpu",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
   "ops_ph_nucleus_diameter": [
    {
     "form": "get-dynamic",
@@ -36875,6 +38568,86 @@
     "qualname": "ops_defaults"
    }
   ],
+  "ops_ph_secondary_channels": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_ph_secondary_channels",
+    "line": 4354,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_secondary"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_ph_secondary_channels",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_ph_secondary_fallback": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_ph_secondary_fallback",
+    "line": 4363,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_secondary"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_ph_secondary_fallback",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_ph_secondary_registration": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_ph_secondary_registration",
+    "line": 4357,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_secondary"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_ph_secondary_registration",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_ph_secondary_window": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_ph_secondary_window",
+    "line": 4369,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_secondary"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_ph_secondary_window",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
   "ops_ph_sites": [
    {
     "form": "get",
@@ -36953,6 +38726,155 @@
     "qualname": "ops_defaults"
    }
   ],
+  "ops_phase_null": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_phase_null",
+    "line": 6579,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_phase_null",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_phase_tests": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_phase_tests",
+    "line": 6382,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_phase_tests",
+    "line": 6578,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_phase_tests",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_pixel_min_fraction": [
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_pixel_min_fraction",
+    "line": 209,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "decode_rule"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_pixel_min_fraction",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_pixel_min_pixels": [
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_pixel_min_pixels",
+    "line": 208,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "decode_rule"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_pixel_min_pixels",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_pixel_percentile": [
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_pixel_percentile",
+    "line": 206,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "decode_rule"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_pixel_percentile",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_pixel_quality": [
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_pixel_quality",
+    "line": 210,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "decode_rule"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_pixel_quality",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_pixel_radius": [
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_pixel_radius",
+    "line": 207,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "decode_rule"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_pixel_radius",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
   "ops_pool_interphase": [
    {
     "form": "get",
@@ -36993,6 +38915,164 @@
     "qualname": "ops_defaults"
    }
   ],
+  "ops_profile_active_filter": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_profile_active_filter",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_profile_active_filter",
+    "line": 1090,
+    "module": "spacr.ops_tvn",
+    "nested": false,
+    "qualname": "profile_cell_tables"
+   }
+  ],
+  "ops_profile_cell_cycle": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_profile_cell_cycle",
+    "line": 6372,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_profile_cell_cycle",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_profile_cells": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_profile_cells",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_profile_cells",
+    "line": 1035,
+    "module": "spacr.ops_tvn",
+    "nested": false,
+    "qualname": "profile_cell_tables"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_profile_cells",
+    "line": 1248,
+    "module": "spacr.ops_tvn",
+    "nested": false,
+    "qualname": "run_profile_phases"
+   }
+  ],
+  "ops_profile_essential_axis_min_rho": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_profile_essential_axis_min_rho",
+    "line": 6446,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_profile_essential_axis_min_rho",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_profile_g1_sg2_split_log2": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_profile_g1_sg2_split_log2",
+    "line": 6390,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_profile_g1_sg2_split_log2",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_profile_generic_axes": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_profile_generic_axes",
+    "line": 6381,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_profile_generic_axes",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_profile_min_cells": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_profile_min_cells",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_profile_min_cells",
+    "line": 1034,
+    "module": "spacr.ops_tvn",
+    "nested": false,
+    "qualname": "profile_cell_tables"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "ops_profile_min_cells",
+    "line": 1272,
+    "module": "spacr.ops_tvn",
+    "nested": false,
+    "qualname": "run_profile_phases"
+   }
+  ],
   "ops_profile_normalisation": [
    {
     "form": "get",
@@ -37011,6 +39091,249 @@
     "module": "spacr.ops_settings",
     "nested": false,
     "qualname": "ops_defaults"
+   }
+  ],
+  "ops_profile_recipe": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_profile_recipe",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_profile_recipe",
+    "line": 1031,
+    "module": "spacr.ops_tvn",
+    "nested": false,
+    "qualname": "profile_cell_tables"
+   }
+  ],
+  "ops_profile_responder_alpha": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_profile_responder_alpha",
+    "line": 6530,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_profile_responder_alpha",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_profile_run": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_profile_run",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_profile_run",
+    "line": 1249,
+    "module": "spacr.ops_tvn",
+    "nested": false,
+    "qualname": "run_profile_phases"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "ops_profile_run",
+    "line": 1250,
+    "module": "spacr.ops_tvn",
+    "nested": false,
+    "qualname": "run_profile_phases"
+   }
+  ],
+  "ops_profile_shrinkage": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_profile_shrinkage",
+    "line": 6416,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_profile_shrinkage",
+    "line": 6470,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_profile_shrinkage",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_profile_shrinkage",
+    "line": 1021,
+    "module": "spacr.ops_tvn",
+    "nested": false,
+    "qualname": "profile_cell_tables"
+   }
+  ],
+  "ops_profile_shrinkage_prior_df": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_profile_shrinkage_prior_df",
+    "line": 6421,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_profile_shrinkage_prior_df",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_profile_shrinkage_prior_df",
+    "line": 1121,
+    "module": "spacr.ops_tvn",
+    "nested": false,
+    "qualname": "_profile_shrink"
+   }
+  ],
+  "ops_profile_similarity": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_profile_similarity",
+    "line": 6513,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_profile_similarity",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_profile_similarity",
+    "line": 1245,
+    "module": "spacr.ops_tvn",
+    "nested": false,
+    "qualname": "run_profile_phases"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "ops_profile_similarity",
+    "line": 1247,
+    "module": "spacr.ops_tvn",
+    "nested": false,
+    "qualname": "run_profile_phases"
+   }
+  ],
+  "ops_profile_space": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_profile_space",
+    "line": 6592,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_profile_space",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_profile_weighting": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_profile_weighting",
+    "line": 6466,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_profile_options"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_profile_weighting",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_profile_weighting",
+    "line": 1022,
+    "module": "spacr.ops_tvn",
+    "nested": false,
+    "qualname": "profile_cell_tables"
+   }
+  ],
+  "ops_profile_wells": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_profile_wells",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_profile_wells",
+    "line": 1036,
+    "module": "spacr.ops_tvn",
+    "nested": false,
+    "qualname": "profile_cell_tables"
    }
   ],
   "ops_pvalue_null": [
@@ -37113,6 +39436,166 @@
     "qualname": "ops_defaults"
    }
   ],
+  "ops_reference_counts": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_reference_counts",
+    "line": 6223,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_report"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_reference_counts",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_reference_counts_level": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_reference_counts_level",
+    "line": 6230,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_report"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_reference_counts_level",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_reference_dir": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_reference_dir",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_reference_dir",
+    "line": 1277,
+    "module": "spacr.ops_tvn",
+    "nested": false,
+    "qualname": "run_profile_phases"
+   }
+  ],
+  "ops_reference_seed": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_reference_seed",
+    "line": 6238,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_report"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_reference_seed",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_reference_shuffles": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_reference_shuffles",
+    "line": 6236,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_report"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_reference_shuffles",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_registration_refine_px": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_registration_refine_px",
+    "line": 2020,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_decode"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_registration_refine_px",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_retry_missing": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_retry_missing",
+    "line": 3028,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_fields"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_retry_missing",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_runner_up_margin": [
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_runner_up_margin",
+    "line": 199,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "decode_rule"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_runner_up_margin",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
   "ops_single_read_quality": [
    {
     "form": "get",
@@ -37162,6 +39645,66 @@
     "qualname": "ops_defaults"
    }
   ],
+  "ops_spot_min_peak": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_spot_min_peak",
+    "line": 2022,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_decode"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_spot_min_peak",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_spot_overrule_share": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_spot_overrule_share",
+    "line": 2025,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_decode"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_spot_overrule_share",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_store_field_cache": [
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_store_field_cache",
+    "line": 213,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "decode_rule"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_store_field_cache",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
   "ops_store_reads": [
    {
     "form": "get",
@@ -37182,6 +39725,26 @@
     "qualname": "ops_defaults"
    }
   ],
+  "ops_tables_parquet_threshold": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "ops_tables_parquet_threshold",
+    "line": 5073,
+    "module": "spacr.ops_engine",
+    "nested": false,
+    "qualname": "_ph_tables"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_tables_parquet_threshold",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
   "ops_test_features": [
    {
     "form": "get",
@@ -37196,6 +39759,26 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "ops_test_features",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
+   }
+  ],
+  "ops_tie": [
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_tie",
+    "line": 202,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "decode_rule"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_tie",
     "line": 1519,
     "module": "spacr.ops_settings",
     "nested": false,
@@ -37318,6 +39901,26 @@
     "module": "spacr.ops_tvn",
     "nested": false,
     "qualname": "profile_cell_tables"
+   }
+  ],
+  "ops_vote_weight_floor": [
+   {
+    "form": "helper-key",
+    "function_depth": 1,
+    "key": "ops_vote_weight_floor",
+    "line": 204,
+    "module": "spacr.ops_decode",
+    "nested": false,
+    "qualname": "decode_rule"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "ops_vote_weight_floor",
+    "line": 1519,
+    "module": "spacr.ops_settings",
+    "nested": false,
+    "qualname": "ops_defaults"
    }
   ],
   "ops_window_overlap": [
@@ -54155,6 +56758,77 @@
     "qualname": "analyze_replication"
    }
   ],
+  "replication_class_column": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "replication_class_column",
+    "line": 451,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "replication_classifier_cv"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "replication_class_column",
+    "line": 471,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "_replication_rows"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "replication_class_column",
+    "line": 500,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "classify_replication"
+   }
+  ],
+  "replication_classes": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "replication_classes",
+    "line": 470,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "_replication_rows"
+   }
+  ],
+  "replication_classifier": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "replication_classifier",
+    "line": 495,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "classify_replication"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "replication_classifier",
+    "line": 708,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "analyze_titration"
+   }
+  ],
+  "replication_cv_folds": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "replication_cv_folds",
+    "line": 460,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "replication_classifier_cv"
+   }
+  ],
   "replication_method": [
    {
     "form": "get",
@@ -54182,6 +56856,48 @@
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_describe_objects"
+   }
+  ],
+  "replication_seed": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "replication_seed",
+    "line": 459,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "replication_classifier_cv"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "replication_seed",
+    "line": 499,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "classify_replication"
+   }
+  ],
+  "replication_training_columns": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "replication_training_columns",
+    "line": 417,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "_training_columns"
+   }
+  ],
+  "replication_training_table": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "replication_training_table",
+    "line": 709,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "analyze_titration"
    }
   ],
   "report": [
@@ -57949,6 +60665,37 @@
     "module": "spacr.submodules",
     "nested": false,
     "qualname": "_panel_crop_grids"
+   }
+  ],
+  "size_calibration": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "size_calibration",
+    "line": 405,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "size_calibration"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "size_calibration",
+    "line": 732,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "analyze_titration"
+   }
+  ],
+  "size_calibration_reference_px": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "size_calibration_reference_px",
+    "line": 411,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "size_calibration"
    }
   ],
   "smooth_lines": [
@@ -67994,6 +70741,97 @@
     "qualname": "set_default_settings_preprocess_generate_masks"
    }
   ],
+  "titration_merged_folder": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "titration_merged_folder",
+    "line": 649,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "_titration_objects"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "titration_merged_folder",
+    "line": 653,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "_titration_objects"
+   }
+  ],
+  "titration_min_well_cells": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "titration_min_well_cells",
+    "line": 574,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "titration_wells"
+   }
+  ],
+  "titration_object_tables": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "titration_object_tables",
+    "line": 645,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "_titration_objects"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "titration_object_tables",
+    "line": 646,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "_titration_objects"
+   }
+  ],
+  "titration_plate_map": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "titration_plate_map",
+    "line": 694,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "analyze_titration"
+   },
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "titration_plate_map",
+    "line": 1167,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "analyze_host_pathogen"
+   }
+  ],
+  "titration_reference_values": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "titration_reference_values",
+    "line": 719,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "analyze_titration"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "titration_reference_values",
+    "line": 720,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "analyze_titration"
+   }
+  ],
   "tolerance": [
    {
     "form": "subscript",
@@ -68968,6 +71806,537 @@
     "module": "spacr.settings",
     "nested": false,
     "qualname": "get_setting_dependencies"
+   }
+  ],
+  "translocation": [
+   {
+    "form": "get",
+    "function_depth": 1,
+    "key": "translocation",
+    "line": 1165,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "analyze_host_pathogen"
+   }
+  ],
+  "translocation_background": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "translocation_background",
+    "line": 873,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "translocation_cells"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_background",
+    "line": 1838,
+    "module": "spacr.io",
+    "nested": false,
+    "qualname": "_normalize_img_channels"
+   }
+  ],
+  "translocation_background_fallback_percentile": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "translocation_background_fallback_percentile",
+    "line": 880,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "translocation_cells"
+   }
+  ],
+  "translocation_background_min_px": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "translocation_background_min_px",
+    "line": 878,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "translocation_cells"
+   }
+  ],
+  "translocation_channel": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_channel",
+    "line": 533,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "translocation_channel",
+    "line": 588,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_channel",
+    "line": 591,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_channel",
+    "line": 704,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_channel",
+    "line": 754,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_channel",
+    "line": 822,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_channel",
+    "line": 824,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_channel",
+    "line": 268,
+    "module": "spacr.diameter",
+    "nested": false,
+    "qualname": "channels_from_settings"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "translocation_channel",
+    "line": 841,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "translocation_cells"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_channel",
+    "line": 1809,
+    "module": "spacr.io",
+    "nested": false,
+    "qualname": "_normalize_img_channels"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_channel",
+    "line": 1770,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_channel",
+    "line": 749,
+    "module": "spacr.object_classifier",
+    "nested": false,
+    "qualname": "_drop_unreal_objects"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_channel",
+    "line": 373,
+    "module": "spacr.object_roles",
+    "nested": false,
+    "qualname": "organelle_settings_view"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_channel",
+    "line": 4038,
+    "module": "spacr.qt.widgets.live_preview",
+    "nested": false,
+    "qualname": "LivePreviewPanel.apply_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_channel",
+    "line": 2635,
+    "module": "spacr.qt.widgets.timelapse_preview",
+    "nested": false,
+    "qualname": "TimelapsePreviewPanel.apply_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_channel",
+    "line": 8183,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "organelle_measurement_caveats"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_channel",
+    "line": 3571,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "_get_cellpose_channels"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_channel",
+    "line": 2180,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_describe_objects"
+   }
+  ],
+  "translocation_control_channel": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_control_channel",
+    "line": 533,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "subscript-dynamic",
+    "function_depth": 1,
+    "key": "translocation_control_channel",
+    "line": 588,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_control_channel",
+    "line": 591,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_control_channel",
+    "line": 704,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_control_channel",
+    "line": 754,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_control_channel",
+    "line": 822,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_control_channel",
+    "line": 824,
+    "module": "spacr.core",
+    "nested": false,
+    "qualname": "preprocess_generate_masks"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_control_channel",
+    "line": 268,
+    "module": "spacr.diameter",
+    "nested": false,
+    "qualname": "channels_from_settings"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "translocation_control_channel",
+    "line": 840,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "translocation_cells"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_control_channel",
+    "line": 1809,
+    "module": "spacr.io",
+    "nested": false,
+    "qualname": "_normalize_img_channels"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_control_channel",
+    "line": 1770,
+    "module": "spacr.object",
+    "nested": false,
+    "qualname": "generate_cellpose_masks_sam"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_control_channel",
+    "line": 749,
+    "module": "spacr.object_classifier",
+    "nested": false,
+    "qualname": "_drop_unreal_objects"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_control_channel",
+    "line": 373,
+    "module": "spacr.object_roles",
+    "nested": false,
+    "qualname": "organelle_settings_view"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_control_channel",
+    "line": 4038,
+    "module": "spacr.qt.widgets.live_preview",
+    "nested": false,
+    "qualname": "LivePreviewPanel.apply_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_control_channel",
+    "line": 2635,
+    "module": "spacr.qt.widgets.timelapse_preview",
+    "nested": false,
+    "qualname": "TimelapsePreviewPanel.apply_settings"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_control_channel",
+    "line": 8183,
+    "module": "spacr.settings",
+    "nested": false,
+    "qualname": "organelle_measurement_caveats"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_control_channel",
+    "line": 3571,
+    "module": "spacr.utils",
+    "nested": false,
+    "qualname": "_get_cellpose_channels"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "translocation_control_channel",
+    "line": 2180,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_describe_objects"
+   }
+  ],
+  "translocation_exclude_px": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "translocation_exclude_px",
+    "line": 849,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "translocation_cells"
+   }
+  ],
+  "translocation_groups": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "translocation_groups",
+    "line": 1001,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "translocation_summary"
+   }
+  ],
+  "translocation_k_column": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "translocation_k_column",
+    "line": 1014,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "translocation_summary"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "translocation_k_column",
+    "line": 1024,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "translocation_summary"
+   }
+  ],
+  "translocation_kmax": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "translocation_kmax",
+    "line": 1000,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "translocation_summary"
+   }
+  ],
+  "translocation_merged_folder": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "translocation_merged_folder",
+    "line": 1107,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "nuclear_translocation"
+   }
+  ],
+  "translocation_min_cells_per_bin": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "translocation_min_cells_per_bin",
+    "line": 1025,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "translocation_summary"
+   }
+  ],
+  "translocation_min_nucleus_size": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "translocation_min_nucleus_size",
+    "line": 1007,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "translocation_summary"
+   }
+  ],
+  "translocation_min_pathogen_size": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "translocation_min_pathogen_size",
+    "line": 844,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "translocation_cells"
+   }
+  ],
+  "translocation_null_percentile": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "translocation_null_percentile",
+    "line": 1034,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "translocation_summary"
+   }
+  ],
+  "translocation_reference": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "translocation_reference",
+    "line": 1125,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "nuclear_translocation"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "translocation_reference",
+    "line": 1126,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "nuclear_translocation"
+   }
+  ],
+  "translocation_seed": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "translocation_seed",
+    "line": 1047,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "translocation_summary"
+   }
+  ],
+  "translocation_shuffle_n": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "translocation_shuffle_n",
+    "line": 1050,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "translocation_summary"
    }
   ],
   "treatment_loc": [
@@ -70555,6 +73924,55 @@
     "qualname": "build_model_from_configuration"
    }
   ],
+  "vacuole_from_parasites": [
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "vacuole_from_parasites",
+    "line": 649,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "_titration_objects"
+   }
+  ],
+  "vacuole_gap_px": [
+   {
+    "form": "keyword",
+    "function_depth": 1,
+    "key": "vacuole_gap_px",
+    "line": 333,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "vacuole_objects"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "vacuole_gap_px",
+    "line": 333,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "vacuole_objects"
+   },
+   {
+    "form": "keyword",
+    "function_depth": 1,
+    "key": "vacuole_gap_px",
+    "line": 852,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "translocation_cells"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "vacuole_gap_px",
+    "line": 852,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "translocation_cells"
+   }
+  ],
   "vacuole_key": [
    {
     "form": "get",
@@ -70685,6 +74103,62 @@
     "module": "spacr.validate",
     "nested": false,
     "qualname": "_check_app_specific"
+   }
+  ],
+  "vacuole_min_size": [
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "vacuole_min_size",
+    "line": 135,
+    "module": "spacr.annotation_dataset",
+    "nested": false,
+    "qualname": "filter_selection"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "vacuole_min_size",
+    "line": 328,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "vacuole_objects"
+   },
+   {
+    "form": "subscript",
+    "function_depth": 1,
+    "key": "vacuole_min_size",
+    "line": 410,
+    "module": "spacr.host_pathogen",
+    "nested": false,
+    "qualname": "size_calibration"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "vacuole_min_size",
+    "line": 9051,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_warn_when_a_size_filter_removes_most"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "vacuole_min_size",
+    "line": 9343,
+    "module": "spacr.measure",
+    "nested": false,
+    "qualname": "_measure_crop_core"
+   },
+   {
+    "form": "get-dynamic",
+    "function_depth": 1,
+    "key": "vacuole_min_size",
+    "line": 2204,
+    "module": "spacr.validate",
+    "nested": false,
+    "qualname": "_describe_objects"
    }
   ],
   "val_split": [
@@ -74386,11 +77860,11 @@
    }
   ]
  },
- "exact_targets": 875,
+ "exact_targets": 1023,
  "nested_consumers_only": 0,
  "no_consumer_found": 131,
- "setting_count": 1544,
- "target_count": 1258,
+ "setting_count": 1697,
+ "target_count": 1411,
  "targets": {
   "CP_prob": {
    "exact": true,
@@ -74751,6 +78225,16 @@
    "exact": true,
    "module": "spacr.core",
    "symbol": "preprocess_generate_masks"
+  },
+  "cell_from_nucleus_expand_px": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "nuclear_translocation"
+  },
+  "cell_from_nucleus_min_nucleus_size": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "nuclear_translocation"
   },
   "cell_intensity_outlier_mads": {
    "exact": true,
@@ -76172,6 +79656,16 @@
    "module": "spacr.measure",
    "symbol": ""
   },
+  "host_assignment": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "vacuole_objects"
+  },
+  "host_min_size": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "vacuole_objects"
+  },
   "hp_count_column": {
    "exact": true,
    "module": "spacr.host_pathogen",
@@ -76357,6 +79851,11 @@
    "module": "spacr.ml",
    "symbol": ""
   },
+  "infection_floor_percentile": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "infection_floor"
+  },
   "infection_intensity_mode": {
    "exact": false,
    "module": "spacr.timelapse",
@@ -76426,6 +79925,21 @@
    "exact": false,
    "module": "spacr.timelapse",
    "symbol": ""
+  },
+  "infection_signal_column": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "infection_floor"
+  },
+  "infection_signal_floor": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "infection_floor"
+  },
+  "infection_uninfected_wells": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "infection_floor"
   },
   "infection_xgb_ambiguous_high": {
    "exact": true,
@@ -77422,6 +80936,16 @@
    "module": "spacr.runctx",
    "symbol": "resolve_error_policy"
   },
+  "ops_aggregate_level": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_assign_by_cell_territory": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "decode_rule"
+  },
   "ops_base_channels": {
    "exact": true,
    "module": "spacr.ops_settings",
@@ -77446,6 +80970,16 @@
    "exact": true,
    "module": "spacr.ops_settings",
    "symbol": "ops_defaults"
+  },
+  "ops_calibration_min_labels": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "decode_rule"
+  },
+  "ops_calibration_passes": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "decode_rule"
   },
   "ops_cell_rule": {
    "exact": true,
@@ -77477,6 +81011,46 @@
    "module": "spacr.ops_settings",
    "symbol": "ops_defaults"
   },
+  "ops_compare_fields": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "run_compare_calls"
+  },
+  "ops_compare_match_px": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "run_compare_calls"
+  },
+  "ops_compare_tables": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "run_compare_calls"
+  },
+  "ops_confidence_bins": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "run_decode_qc"
+  },
+  "ops_confidence_calibration": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "run_decode_qc"
+  },
+  "ops_confidence_min": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "run_decode_qc"
+  },
+  "ops_confidence_model": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "run_decode_qc"
+  },
+  "ops_confidence_seed": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "run_decode_qc"
+  },
   "ops_consensus_runs": {
    "exact": true,
    "module": "spacr.ops_settings",
@@ -77487,15 +81061,155 @@
    "module": "spacr.ops_tvn",
    "symbol": "profile_cell_tables"
   },
+  "ops_crop_all_nt": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_crop_channels": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_crop_control_fraction": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_crop_flat_mean_one": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_crop_flatfield": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_crop_masks": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_crop_per_guide": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_crop_seed": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_crop_size": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_cross_field_metric": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_cross_field_min_overlap": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_cross_field_ownership": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_cross_field_policy": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
   "ops_crosstalk": {
    "exact": true,
    "module": "spacr.ops_settings",
    "symbol": "ops_defaults"
   },
+  "ops_decode_impute_missing_cycles": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "decode_rule"
+  },
+  "ops_decode_library_calibration": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "decode_rule"
+  },
+  "ops_decode_pixel_fallback": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "decode_rule"
+  },
+  "ops_decode_preset": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "resolve_settings"
+  },
+  "ops_decode_qc": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "decode_rule"
+  },
+  "ops_decode_qc_features": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "run_decode_qc"
+  },
+  "ops_decode_qc_max_calls": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "run_decode_qc"
+  },
+  "ops_decode_qc_model": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "run_decode_qc"
+  },
+  "ops_decode_qc_seed": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "run_decode_qc"
+  },
+  "ops_decode_qc_split": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "run_decode_qc"
+  },
+  "ops_decode_quality_weighted": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "decode_rule"
+  },
+  "ops_decode_runner_up": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "decode_rule"
+  },
+  "ops_decode_skip_unplaced_sites": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_decoy_library_k": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "decode_rule"
+  },
   "ops_design": {
    "exact": true,
    "module": "spacr.ops_settings",
    "symbol": "ops_defaults"
+  },
+  "ops_deterministic_blas": {
+   "exact": true,
+   "module": "spacr.ops_tvn",
+   "symbol": "run_profile_phases"
   },
   "ops_drop_failed_fields": {
    "exact": true,
@@ -77506,6 +81220,61 @@
    "exact": true,
    "module": "spacr.ops_settings",
    "symbol": "ops_defaults"
+  },
+  "ops_escaper_dbic": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_escaper_min_sep": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_escapers": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_eval_covariates": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_eval_decoys": {
+   "exact": true,
+   "module": "spacr.ops_reference",
+   "symbol": "evaluate_gene_profiles"
+  },
+  "ops_eval_heldout_folds": {
+   "exact": true,
+   "module": "spacr.ops_reference",
+   "symbol": "evaluate_gene_profiles"
+  },
+  "ops_eval_null_size": {
+   "exact": true,
+   "module": "spacr.ops_reference",
+   "symbol": "evaluate_gene_profiles"
+  },
+  "ops_eval_references": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_eval_split": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_eval_time_split": {
+   "exact": true,
+   "module": "spacr.ops_reference",
+   "symbol": "evaluate_gene_profiles"
+  },
+  "ops_fdr_scale": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "decode_rule"
   },
   "ops_feature_qc": {
    "exact": true,
@@ -77537,6 +81306,16 @@
    "module": "spacr.ops_settings",
    "symbol": "ops_defaults"
   },
+  "ops_fusion_blocks": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_genotype_confidence": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "run_decode_qc"
+  },
   "ops_genotype_table": {
    "exact": true,
    "module": "spacr.ops_settings",
@@ -77547,12 +81326,57 @@
    "module": "spacr.ops_engine",
    "symbol": "run_ops"
   },
+  "ops_guide_efficacy": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_guide_efficacy_emax": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_guide_efficacy_iters": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_guide_null_size": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
   "ops_library": {
    "exact": true,
    "module": "spacr.ops_engine",
    "symbol": "run_ops"
   },
+  "ops_max_files_per_folder": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
   "ops_merge_threshold": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_merged_dtype": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_merged_flatfield": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_merged_root": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_merged_save_sbs": {
    "exact": true,
    "module": "spacr.ops_settings",
    "symbol": "ops_defaults"
@@ -77577,7 +81401,37 @@
    "module": "spacr.ops_settings",
    "symbol": "ops_defaults"
   },
+  "ops_mitotic_source": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_nt_rows": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
   "ops_ownership": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_penetrance": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_penetrance_folds": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_penetrance_lambda": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_penetrance_nt_pool": {
    "exact": true,
    "module": "spacr.ops_settings",
    "symbol": "ops_defaults"
@@ -77617,12 +81471,37 @@
    "module": "spacr.ops_settings",
    "symbol": "ops_defaults"
   },
+  "ops_ph_measure_gpu": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
   "ops_ph_nucleus_diameter": {
    "exact": true,
    "module": "spacr.object",
    "symbol": "generate_cellpose_masks_sam"
   },
   "ops_ph_nucleus_model": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_ph_secondary_channels": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_ph_secondary_fallback": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_ph_secondary_registration": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_ph_secondary_window": {
    "exact": true,
    "module": "spacr.ops_settings",
    "symbol": "ops_defaults"
@@ -77642,6 +81521,41 @@
    "module": "spacr.ops_settings",
    "symbol": "ops_defaults"
   },
+  "ops_phase_null": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_phase_tests": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_pixel_min_fraction": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "decode_rule"
+  },
+  "ops_pixel_min_pixels": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "decode_rule"
+  },
+  "ops_pixel_percentile": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "decode_rule"
+  },
+  "ops_pixel_quality": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "decode_rule"
+  },
+  "ops_pixel_radius": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "decode_rule"
+  },
   "ops_pool_interphase": {
    "exact": true,
    "module": "spacr.ops_settings",
@@ -77652,10 +81566,90 @@
    "module": "spacr.ops_settings",
    "symbol": "ops_defaults"
   },
+  "ops_profile_active_filter": {
+   "exact": true,
+   "module": "spacr.ops_tvn",
+   "symbol": "profile_cell_tables"
+  },
+  "ops_profile_cell_cycle": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_profile_cells": {
+   "exact": true,
+   "module": "spacr.ops_tvn",
+   "symbol": "profile_cell_tables"
+  },
+  "ops_profile_essential_axis_min_rho": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_profile_g1_sg2_split_log2": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_profile_generic_axes": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_profile_min_cells": {
+   "exact": true,
+   "module": "spacr.ops_tvn",
+   "symbol": "profile_cell_tables"
+  },
   "ops_profile_normalisation": {
    "exact": true,
    "module": "spacr.ops_settings",
    "symbol": "ops_defaults"
+  },
+  "ops_profile_recipe": {
+   "exact": true,
+   "module": "spacr.ops_tvn",
+   "symbol": "profile_cell_tables"
+  },
+  "ops_profile_responder_alpha": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_profile_run": {
+   "exact": true,
+   "module": "spacr.ops_tvn",
+   "symbol": "run_profile_phases"
+  },
+  "ops_profile_shrinkage": {
+   "exact": true,
+   "module": "spacr.ops_tvn",
+   "symbol": "profile_cell_tables"
+  },
+  "ops_profile_shrinkage_prior_df": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_profile_similarity": {
+   "exact": true,
+   "module": "spacr.ops_tvn",
+   "symbol": "run_profile_phases"
+  },
+  "ops_profile_space": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_profile_weighting": {
+   "exact": true,
+   "module": "spacr.ops_tvn",
+   "symbol": "profile_cell_tables"
+  },
+  "ops_profile_wells": {
+   "exact": true,
+   "module": "spacr.ops_tvn",
+   "symbol": "profile_cell_tables"
   },
   "ops_pvalue_null": {
    "exact": true,
@@ -77682,6 +81676,46 @@
    "module": "spacr.ops_settings",
    "symbol": "ops_defaults"
   },
+  "ops_reference_counts": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_reference_counts_level": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_reference_dir": {
+   "exact": true,
+   "module": "spacr.ops_tvn",
+   "symbol": "run_profile_phases"
+  },
+  "ops_reference_seed": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_reference_shuffles": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_registration_refine_px": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_retry_missing": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_runner_up_margin": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "decode_rule"
+  },
   "ops_single_read_quality": {
    "exact": true,
    "module": "spacr.ops_settings",
@@ -77692,7 +81726,27 @@
    "module": "spacr.ops_settings",
    "symbol": "ops_defaults"
   },
+  "ops_spot_min_peak": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_spot_overrule_share": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_store_field_cache": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "decode_rule"
+  },
   "ops_store_reads": {
+   "exact": true,
+   "module": "spacr.ops_settings",
+   "symbol": "ops_defaults"
+  },
+  "ops_tables_parquet_threshold": {
    "exact": true,
    "module": "spacr.ops_settings",
    "symbol": "ops_defaults"
@@ -77701,6 +81755,11 @@
    "exact": true,
    "module": "spacr.ops_settings",
    "symbol": "ops_defaults"
+  },
+  "ops_tie": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "decode_rule"
   },
   "ops_tvn_components": {
    "exact": true,
@@ -77726,6 +81785,11 @@
    "exact": true,
    "module": "spacr.ops_tvn",
    "symbol": "profile_cell_tables"
+  },
+  "ops_vote_weight_floor": {
+   "exact": true,
+   "module": "spacr.ops_decode",
+   "symbol": "decode_rule"
   },
   "ops_window_overlap": {
    "exact": true,
@@ -79092,10 +83156,45 @@
    "module": "spacr.submodules",
    "symbol": "analyze_replication"
   },
+  "replication_class_column": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "replication_classifier_cv"
+  },
+  "replication_classes": {
+   "exact": false,
+   "module": "spacr.host_pathogen",
+   "symbol": ""
+  },
+  "replication_classifier": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "classify_replication"
+  },
+  "replication_cv_folds": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "replication_classifier_cv"
+  },
   "replication_method": {
    "exact": true,
    "module": "spacr.submodules",
    "symbol": "analyze_replication"
+  },
+  "replication_seed": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "replication_classifier_cv"
+  },
+  "replication_training_columns": {
+   "exact": false,
+   "module": "spacr.host_pathogen",
+   "symbol": ""
+  },
+  "replication_training_table": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "analyze_titration"
   },
   "report": {
    "exact": true,
@@ -79431,6 +83530,16 @@
    "exact": false,
    "module": "spacr.embeddings",
    "symbol": ""
+  },
+  "size_calibration": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "size_calibration"
+  },
+  "size_calibration_reference_px": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "size_calibration"
   },
   "smooth_lines": {
    "exact": true,
@@ -80207,6 +84316,31 @@
    "module": "spacr.object",
    "symbol": "generate_cellpose_masks_sam"
   },
+  "titration_merged_folder": {
+   "exact": false,
+   "module": "spacr.host_pathogen",
+   "symbol": ""
+  },
+  "titration_min_well_cells": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "titration_wells"
+  },
+  "titration_object_tables": {
+   "exact": false,
+   "module": "spacr.host_pathogen",
+   "symbol": ""
+  },
+  "titration_plate_map": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "analyze_titration"
+  },
+  "titration_reference_values": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "analyze_titration"
+  },
   "tolerance": {
    "exact": true,
    "module": "spacr.ml",
@@ -80261,6 +84395,96 @@
    "exact": false,
    "module": "spacr.ml",
    "symbol": ""
+  },
+  "translocation": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "analyze_host_pathogen"
+  },
+  "translocation_background": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "translocation_cells"
+  },
+  "translocation_background_fallback_percentile": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "translocation_cells"
+  },
+  "translocation_background_min_px": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "translocation_cells"
+  },
+  "translocation_channel": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "translocation_cells"
+  },
+  "translocation_control_channel": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "translocation_cells"
+  },
+  "translocation_exclude_px": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "translocation_cells"
+  },
+  "translocation_groups": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "translocation_summary"
+  },
+  "translocation_k_column": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "translocation_summary"
+  },
+  "translocation_kmax": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "translocation_summary"
+  },
+  "translocation_merged_folder": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "nuclear_translocation"
+  },
+  "translocation_min_cells_per_bin": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "translocation_summary"
+  },
+  "translocation_min_nucleus_size": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "translocation_summary"
+  },
+  "translocation_min_pathogen_size": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "translocation_cells"
+  },
+  "translocation_null_percentile": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "translocation_summary"
+  },
+  "translocation_reference": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "nuclear_translocation"
+  },
+  "translocation_seed": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "translocation_summary"
+  },
+  "translocation_shuffle_n": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "translocation_summary"
   },
   "treatment_loc": {
    "exact": true,
@@ -80422,6 +84646,16 @@
    "module": "spacr.deep_spacr",
    "symbol": "train_test_model"
   },
+  "vacuole_from_parasites": {
+   "exact": false,
+   "module": "spacr.host_pathogen",
+   "symbol": ""
+  },
+  "vacuole_gap_px": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "vacuole_objects"
+  },
   "vacuole_key": {
    "exact": true,
    "module": "spacr.submodules",
@@ -80436,6 +84670,11 @@
    "exact": true,
    "module": "spacr.submodules",
    "symbol": "analyze_replication"
+  },
+  "vacuole_min_size": {
+   "exact": true,
+   "module": "spacr.host_pathogen",
+   "symbol": "vacuole_objects"
   },
   "val_split": {
    "exact": true,
@@ -80816,6 +85055,6 @@
   "umap_stability_repeats",
   "umap_stability_weight"
  ],
- "with_addressable_consumer": 1413,
- "with_any_consumer": 1413
+ "with_addressable_consumer": 1566,
+ "with_any_consumer": 1566
 }

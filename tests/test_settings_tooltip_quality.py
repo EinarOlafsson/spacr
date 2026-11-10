@@ -600,9 +600,12 @@ def test_unit_named_settings_keep_their_units_in_the_tooltip():
     # ops_ph_cell_diameter, the OPS phenotype segmentation sizes. Both
     # tooltips say pixels, so only the census moved.
     ops_phenotype_unit_settings = 2
+    # +1 on 2026-11-09 (item 873): ops_pixel_radius, the decode's pixel
+    # fallback radius. Its tooltip says pixels, so only the census moved.
+    ops_decode_unit_settings = 1
     assert len(diameter_or_radius) == (
         base_unit_settings + enhancement_unit_settings + spatial_unit_settings
-        + ops_phenotype_unit_settings
+        + ops_phenotype_unit_settings + ops_decode_unit_settings
         + per_organelle_unit_settings * MAX_ORGANELLES
     )
     assert not missing, f"unit-bearing tooltips without units: {sorted(missing)}"

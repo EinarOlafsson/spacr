@@ -3210,7 +3210,7 @@ def _validated_bmc_paper_items_callables(callables):
     assert len(entries) == 171
     assert {"spacr.ops_decode", "spacr.ops_reference"} <= entries.keys()
     found = {item.symbol: item for item in callables if item.symbol in entries}
-    assert len(found) == 136
+    assert len(found) == 135
     for symbol, item in found.items():
         assert item.exposure == "autoapi"
         assert item.parameters == item.accepted_documented_parameters

@@ -619,14 +619,13 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(str) - How each base channel is placed onto the reference cycle. "
         "'spots' registers the channel on its reads, with the cell "
         "background filtered away, wherever that disagrees with the "
-        "background registration by more than 2 pixels; 'background' "
-        "trusts the background alone, the earlier behaviour. On the Funk "
-        "et al. 2022 plates the background registration left one cycle of "
-        "each weak well at zero shift while it had drifted 10 to 25 pixels, "
-        "and that cycle carried most of the well's base-call errors. "
-        "'spots_refine' (alpha) also takes a believed spot answer within "
-        "ops_registration_refine_px of the background answer, correcting "
-        "small residual shifts. Default 'spots'.",
+        "background registration by more than 2 pixels; 'background' trusts"
+        " the background alone, the earlier behaviour, which on the Funk et"
+        " al. 2022 plates left one cycle of weak wells unshifted although "
+        "it had drifted 10 to 25 pixels. 'spots_refine' (alpha) also takes "
+        "a believed spot answer within ops_registration_refine_px of the "
+        "background answer, correcting small residual shifts. Default "
+        "'spots'.",
     "ops_crosstalk":
         "(str) - How the base caller undoes dye bleed-through between the "
         "four channels, after each cycle is put on a common scale. "

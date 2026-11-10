@@ -272,6 +272,7 @@ def convert_settings_dict_for_gui(settings):
         'p_threshold_kind': ('combo', ['adjusted', 'raw'], 'adjusted'),
         'metadata_type': ('combo', _metadata_type_choices(), 'cellvoyager'),
         'plaque_mode': ('combo', ['plaque', 'figure', 'figure_score', 'figure_sizes', 'figure_merge'], 'plaque'),
+        'ops_channel_registration': ('combo', ['spots', 'background', 'spots_refine'], 'spots'),
         'figure_condition_aggregate': ('combo', ['mean', 'median'], 'mean'),
         'figure_size_stat': ('combo', ['mean', 'median'], 'mean'),
         'figure_metric': ('combo', ['area', 'cleared_fraction'], 'area'),

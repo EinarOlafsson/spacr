@@ -316,12 +316,16 @@ def rule_a_run(tmp_path_factory):
     preset = {**settings, "ops_decode_preset": "rule_a_s2",
               "ops_store_field_cache": True}
     result = ops_engine.run_ops(preset, phases=("decode",), library=library)
-    yield plain, result, codes, nuclei, library, preset
+    with sqlite3.connect(result["db"]) as conn:
+        rows = conn.execute("SELECT b.mapped_guide, o.centroid_y, o.centroid_x "
+                            "FROM ops_barcodes b JOIN ops_objects o USING "
+                            "(plate, well, object_id)").fetchall()
+    yield plain, result, codes, nuclei, library, preset, rows
     monkeypatch.undo()
 
 
 def test_the_preset_decodes_the_well_and_writes_its_fdr_report(rule_a_run):
-    plain, result, codes, nuclei, library, preset = rule_a_run
+    plain, result, codes, nuclei, library, preset, _rows = rule_a_run
     decode = result["wells"]["A1"]["decode"]
     assert decode["cell_rule"] == "mapped"
     assert decode["channel_registration"] == "spots_refine"
@@ -344,10 +348,7 @@ def test_the_preset_decodes_the_well_and_writes_its_fdr_report(rule_a_run):
     assert len(decode["field_cache"]) == decode["fields_decoded"]
     cached = np.load(decode["field_cache"][0])
     assert {"peaks", "values", "gap", "pix_values"} <= set(cached.files)
-    with sqlite3.connect(result["db"]) as conn:
-        rows = conn.execute("SELECT b.mapped_guide, o.centroid_y, o.centroid_x "
-                            "FROM ops_barcodes b JOIN ops_objects o USING "
-                            "(plate, well, object_id)").fetchall()
+    rows = rule_a_run[6]
     assert len(rows) == fdr["assigned"]
     plain_rows = plain["wells"]["A1"]["decode"]["objects_mapped"]
     assert len(rows) >= plain_rows
