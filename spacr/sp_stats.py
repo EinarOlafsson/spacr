@@ -4934,6 +4934,310 @@ def write_cross_screen(result: Dict[str, Any], folder: str) -> Dict[str, str]:
     return out
 
 
+#: The settings of :func:`profile_retrieval` and their defaults.
+PROFILE_RETRIEVAL_DEFAULTS: Dict[str, Any] = {
+    "retrieval_profiles": None, "retrieval_perturbation_key": "Metadata_JCP2022",
+    "retrieval_type_key": "Metadata_perturbation_type", "retrieval_modality_key": "modality",
+    "retrieval_plate_key": "plateID", "retrieval_modalities": ["compound", "crispr", "orf"],
+    "retrieval_negcon": "negcon", "retrieval_normalisation": "mad_robustize",
+    "retrieval_feature_select": True, "retrieval_corr_threshold": 0.9, "retrieval_null_size": 100000,
+    "retrieval_seed": 0, "retrieval_matching": "compound_gene", "retrieval_target_map": None,
+    "retrieval_plate_effect": True, "retrieval_dst": None,
+}
+
+
+def shuffle_within_plate(wells: pd.DataFrame, column: str, rng, *, type_key: str = "control_type",
+                         negcon: str = "negcon", plate: str = "plateID") -> pd.DataFrame:
+    """A copy of ``wells`` with ``column`` permuted among the non-control wells of each plate.
+
+    :param wells: one row per well.
+    :param column: the label to shuffle.
+    :param rng: a numpy generator, consumed plate by plate.
+    :param type_key: the column naming the well type.
+    :param negcon: the negative-control type, which keeps its labels.
+    :param plate: the plate column.
+    :returns: the shuffled copy.
+    """
+    out = wells.copy()
+    treated = ~out[type_key].eq(negcon)
+    for _, index in out[treated].groupby(plate).groups.items():
+        index = np.asarray(list(index))
+        out.loc[index, column] = out.loc[rng.permutation(index), column].to_numpy()
+    return out
+
+
+def replicate_retrieval(wells: pd.DataFrame, features: Sequence[str], *, perturbation: str = "broad_sample",
+                        type_key: str = "control_type", negcon: str = "negcon", plate: str = "plateID",
+                        null_size: int = 100000, seed: int = 0, label: str = "real"
+                        ) -> Tuple[Dict[str, Any], pd.DataFrame]:
+    """Replicate retrieval per perturbation, as Chandrasekaran et al. 2024 score it.
+
+    Each well of a perturbation ranks its replicate wells against the
+    negative-control wells of its own plate; the perturbation's mAP gets a
+    copairs null and a BH q (:func:`_profile_map`). Percent replicating
+    (:func:`_percent_replicating`) is reported beside it.
+
+    :param wells: one normalised row per well, with ``perturbation``,
+        ``type_key`` and ``plate`` columns.
+    :param features: the feature columns.
+    :param perturbation: the column naming a perturbation.
+    :param type_key: the column naming the well type (``trt`` for a
+        treatment).
+    :param negcon: the negative-control type.
+    :param plate: the plate column.
+    :param null_size: random rankings per list shape.
+    :param seed: the null seed.
+    :param label: the ``label`` of the summary row.
+    :returns: ``(summary, per-perturbation table)``.
+    """
+    neg = wells[type_key].eq(negcon)
+    meta = wells[[plate, "wellID", perturbation, type_key]].copy() if "wellID" in wells else \
+        wells[[plate, perturbation, type_key]].copy()
+    meta["is_neg"] = np.where(neg, "neg", "pert")
+    ap = _profile_average_precision(meta, wells[list(features)], [perturbation, "is_neg"], (), [plate], ["is_neg"])
+    ap = ap[~neg.to_numpy()].reset_index(drop=True)
+    mapped = _profile_map(ap, [perturbation], null_size=null_size, seed=seed)
+    kinds = wells[~neg].groupby(perturbation)[type_key].first()
+    mapped[type_key] = mapped[perturbation].map(kinds)
+    _, percent = _percent_replicating(wells, list(features), [perturbation], exclude=neg, seed=seed)
+    treated = mapped[mapped[type_key] == "trt"]
+    summary = dict(label=label, n_perturbations=int(len(mapped)), mAP_mean=float(mapped.mean_average_precision.mean()),
+                   fraction_retrieved=float(mapped.below_corrected_p.mean()),
+                   fraction_retrieved_nominal=float(mapped.below_p.mean()), n_trt=int(len(treated)),
+                   mAP_mean_trt=float(treated.mean_average_precision.mean()),
+                   fraction_retrieved_trt=float(treated.below_corrected_p.mean()),
+                   percent_replicating=float(percent), n_features=len(features))
+    return summary, mapped
+
+
+def target_matching(compounds: pd.DataFrame, compound_gene: pd.Series, compound_targets: pd.Series,
+                    genes: pd.DataFrame, *, use_abs: bool = False, rng=None, use_target_list: bool = False,
+                    null_size: int = 100000, seed: int = 0, label: str = "real"
+                    ) -> Tuple[Dict[str, Any], pd.DataFrame]:
+    """Does each compound's profile retrieve its target gene's profile?
+
+    Every compound consensus profile ranks every gene consensus profile by
+    cosine (absolute with ``use_abs``) on the features both tables carry;
+    positives are the annotated target gene or genes (``A|B``). With ``rng``
+    the compound-to-gene annotation is permuted first: the shuffled control.
+
+    :param compounds: compounds x features.
+    :param compound_gene: the target gene of each compound.
+    :param compound_targets: the ``|``-separated target list of each.
+    :param genes: genes x features.
+    :param use_abs: rank by absolute cosine.
+    :param rng: a numpy generator for the shuffled control, or None.
+    :param use_target_list: positives from ``compound_targets`` rather
+        than ``compound_gene``.
+    :param null_size: random rankings per list shape.
+    :param seed: the null seed.
+    :param label: the ``label`` of the summary row.
+    :returns: ``(summary, per-compound table)``.
+    """
+    common = [c for c in compounds.columns if c in genes.columns]
+    sim = (_unit_rows(compounds[common].to_numpy(float)) @ _unit_rows(genes[common].to_numpy(float)).T
+           ).astype(np.float32)
+    if use_abs:
+        sim = np.abs(sim)
+    names = np.asarray(genes.index)
+    targets = compound_targets if use_target_list else compound_gene
+    if rng is not None:
+        targets = pd.Series(rng.permutation(targets.to_numpy()), index=targets.index)
+    rows = []
+    for i, cid in enumerate(compounds.index):
+        wanted = set(str(targets[cid]).split("|")) if pd.notna(targets[cid]) else set()
+        lab = np.isin(names, list(wanted)).astype(float)
+        positives = int(lab.sum())
+        if positives == 0:
+            continue
+        hits = lab[np.argsort(-sim[i], kind="stable")]
+        precision = np.cumsum(hits) / np.arange(1, hits.size + 1)
+        rows.append(dict(broad_sample=cid, gene=compound_gene[cid],
+                         average_precision=float((precision * hits).sum() / positives), n_pos_pairs=positives,
+                         n_total_pairs=int(hits.size), normalized_average_precision=np.nan,
+                         best_positive_similarity=float(sim[i][lab > 0].max())))
+    ap = pd.DataFrame(rows)
+    mapped = _profile_map(ap, ["broad_sample"], null_size=null_size, seed=seed)
+    mapped = mapped.merge(ap[["broad_sample", "gene", "best_positive_similarity"]], on="broad_sample")
+    summary = dict(label=label, n_compounds=int(len(mapped)), mAP_mean=float(mapped.mean_average_precision.mean()),
+                   fraction_matched=float(mapped.below_corrected_p.mean()),
+                   fraction_matched_uncorrected=float(mapped.below_p.mean()), n_common_features=len(common))
+    return summary, mapped
+
+
+def plate_effect(wells: pd.DataFrame, features: Sequence[str], *, type_key: str = "control_type",
+                 negcon: str = "negcon", plate: str = "plateID", rng=None, label: str = "real"
+                 ) -> Dict[str, Any]:
+    """How much the negative-control wells are grouped by plate.
+
+    Two numbers on the negative-control wells: the mAP of retrieving wells
+    of the same plate, and the share of the variance of the ten leading
+    principal components (of the standardised features) explained by the
+    plate, weighted by each component's variance. With ``rng`` the plate
+    labels are permuted first: the control.
+
+    :param wells: one row per well.
+    :param features: the feature columns.
+    :param type_key: the well-type column.
+    :param negcon: the negative-control type.
+    :param plate: the plate column.
+    :param rng: a numpy generator for the control, or None.
+    :param label: the ``label`` of the row.
+    :returns: ``label``, ``n_negcon_wells``, ``n_plates``,
+        ``plate_retrieval_mAP`` and ``plate_R2_top10PC_weighted``.
+    """
+    neg = wells[wells[type_key] == negcon].reset_index(drop=True)
+    meta = neg[[plate]].copy()
+    if rng is not None:
+        meta[plate] = rng.permutation(meta[plate].to_numpy())
+    ap = _profile_average_precision(meta, neg[list(features)], [plate], (), (), [plate])
+    x = neg[list(features)].to_numpy(float)
+    x = (x - x.mean(0)) / np.where(x.std(0) > 0, x.std(0), 1)
+    u, s, _ = np.linalg.svd(x, full_matrices=False)
+    pcs = u[:, :10] * s[:10]
+    groups = meta[plate].to_numpy()
+    r2 = []
+    for k in range(pcs.shape[1]):
+        y = pcs[:, k]
+        means = pd.Series(y).groupby(groups).transform("mean").to_numpy()
+        r2.append(1 - ((y - means) ** 2).sum() / max(((y - y.mean()) ** 2).sum(), 1e-12))
+    return dict(label=label, n_negcon_wells=int(len(neg)), n_plates=int(neg[plate].nunique()),
+                plate_retrieval_mAP=float(np.nanmean(ap.average_precision)),
+                plate_R2_top10PC_weighted=float(np.average(r2, weights=s[:10] ** 2)))
+
+
+def _retrieval_prepare(wells: pd.DataFrame, features: Sequence[str], options: Dict[str, Any], normalise: bool
+                       ) -> Dict[str, Tuple[pd.DataFrame, List[str], Dict[str, int]]]:
+    """Per modality: normalised wells, kept features and the exclusion counts."""
+    type_key, plate = options["retrieval_type_key"], options["retrieval_plate_key"]
+    out = {}
+    for modality in options["retrieval_modalities"]:
+        m = wells[wells[options["retrieval_modality_key"]] == modality].reset_index(drop=True)
+        neg = m[type_key].eq(options["retrieval_negcon"])
+        excluded: Dict[str, Any] = {}
+        kept = list(features)
+        if normalise:
+            m = _normalize_profiles(m, list(features), method=options["retrieval_normalisation"], by=plate,
+                                    reference=neg)
+            if options["retrieval_feature_select"]:
+                kept, excluded = _select_profile_features(m, list(features), reference=None,
+                                                          corr_threshold=float(options["retrieval_corr_threshold"]))
+        m[kept] = m[kept].fillna(0.0)
+        out[modality] = (m, kept, {k: len(v) for k, v in excluded.items()})
+    return out
+
+
+def profile_retrieval(wells: pd.DataFrame, features: Sequence[str], settings: Optional[Dict[str, Any]] = None
+                      ) -> Dict[str, pd.DataFrame]:
+    """Replicate retrieval, compound-gene matching and plate effect of well profiles.
+
+    The procedure of the JUMP CPJUMP1 benchmark (Chandrasekaran et al.
+    2024). Per modality the wells are normalised per plate against the
+    negative controls and feature-selected; replicate retrieval is scored
+    on the real labels and on labels shuffled within plates, and the plate
+    effect on the real and on permuted plate labels, all from one
+    ``default_rng(retrieval_seed)`` in that order; the plate effect is
+    then scored before normalisation. Compound consensus profiles are
+    matched to the CRISPR and ORF gene consensus profiles on the features
+    every modality kept, for all treatments and for replicable ones only,
+    by cosine and absolute cosine, each with a shuffled-annotation control
+    (``default_rng(retrieval_seed + 1)``).
+
+    :param wells: one row per well with the plate, well (``wellID``),
+        perturbation, type and modality columns, ``gene`` and
+        ``target_list`` for matching, and the features. Wells of type
+        ``empty`` are dropped.
+    :param features: the feature columns.
+    :param settings: :data:`PROFILE_RETRIEVAL_DEFAULTS` keys.
+    :returns: ``{"activity", "summary", "matching", "matching_per_compound",
+        "plate_effect"}``.
+    :raises ValueError: for an unknown matching mode.
+    """
+    import json
+
+    options = {**PROFILE_RETRIEVAL_DEFAULTS, **(settings or {})}
+    if options["retrieval_matching"] not in ("compound_gene", None):
+        raise ValueError(f"retrieval_matching must be 'compound_gene' or None; got {options['retrieval_matching']!r}")
+    key, type_key = options["retrieval_perturbation_key"], options["retrieval_type_key"]
+    plate, negcon = options["retrieval_plate_key"], options["retrieval_negcon"]
+    seed, null_size = int(options["retrieval_seed"]), int(options["retrieval_null_size"])
+    wells = wells[wells[type_key] != "empty"].reset_index(drop=True)
+    common_kw = dict(type_key=type_key, negcon=negcon, plate=plate)
+    rng = np.random.default_rng(seed)
+    normalise = options["retrieval_normalisation"] not in (None, "none")
+    prepared = _retrieval_prepare(wells, features, options, normalise)
+    summary, tables, effect = [], [], []
+    for modality, (m, kept, excluded) in prepared.items():
+        row, table = replicate_retrieval(m, kept, perturbation=key, null_size=null_size, seed=seed, **common_kw)
+        row.update(modality=modality, excluded=json.dumps(excluded))
+        summary.append(row)
+        tables.append(table.assign(modality=modality))
+        row, _ = replicate_retrieval(shuffle_within_plate(m, key, rng, **common_kw), kept, perturbation=key,
+                                     null_size=null_size, seed=seed, label="shuffled labels (control)", **common_kw)
+        summary.append({**row, "modality": modality})
+        if options["retrieval_plate_effect"]:
+            for label, r in (("real", None), ("shuffled plates (control)", rng)):
+                effect.append({**plate_effect(m, kept, rng=r, label=label, **common_kw), "modality": modality,
+                               "stage": "normalised"})
+    if options["retrieval_plate_effect"]:
+        for modality, (m, kept, _) in _retrieval_prepare(wells, features, options, False).items():
+            good = [c for c in kept if np.isfinite(m[c]).all() and m[c].std() > 0]
+            for label, r in (("real", None), ("shuffled plates (control)", rng)):
+                effect.append({**plate_effect(m, good, rng=r, label=label, **common_kw), "modality": modality,
+                               "stage": "raw"})
+    matching, per_compound = [], []
+    if options["retrieval_matching"] == "compound_gene" and {"compound", "crispr", "orf"} <= set(prepared):
+        common = sorted(set(prepared["compound"][1]) & set(prepared["crispr"][1]) & set(prepared["orf"][1]))
+        replicable = {t.modality.iat[0]: set(t.loc[t.below_corrected_p, key]) for t in tables}
+        for subset in ("all treatments", "replicable only"):
+            def consensus(modality, by):
+                """Median profile of the treatment wells, by ``by``."""
+                t = prepared[modality][0]
+                t = t[t[type_key] == "trt"].dropna(subset=["gene"])
+                if subset == "replicable only":
+                    t = t[t[key].isin(replicable[modality])]
+                return t, t.groupby(by)[common].median()
+            treated, compounds = consensus("compound", key)
+            compound_gene = treated.groupby(key).gene.first()
+            compound_targets = treated.groupby(key).target_list.first() if "target_list" in treated else compound_gene
+            for gene_modality in ("crispr", "orf"):
+                _, genes = consensus(gene_modality, "gene")
+                for use_abs in (False, True):
+                    similarity = "|cosine|" if use_abs else "cosine"
+                    for label, r in (("real", None),
+                                     ("shuffled compound-gene labels (control)", np.random.default_rng(seed + 1))):
+                        row, table = target_matching(compounds, compound_gene, compound_targets, genes,
+                                                     use_abs=use_abs, rng=r, null_size=null_size, seed=seed,
+                                                     label=label)
+                        row.update(gene_modality=gene_modality, similarity=similarity, subset=subset,
+                                   n_genes=len(genes))
+                        matching.append(row)
+                        if r is None:
+                            per_compound.append(table.assign(gene_modality=gene_modality, similarity=similarity,
+                                                             subset=subset))
+    return {"activity": pd.concat(tables, ignore_index=True), "summary": pd.DataFrame(summary),
+            "matching": pd.DataFrame(matching),
+            "matching_per_compound": pd.concat(per_compound, ignore_index=True) if per_compound else pd.DataFrame(),
+            "plate_effect": pd.DataFrame(effect)}
+
+
+def write_profile_retrieval(result: Dict[str, pd.DataFrame], folder: str) -> Dict[str, str]:
+    """Write a :func:`profile_retrieval` result.
+
+    :param result: its output.
+    :param folder: e.g. ``results/profiling_retrieval``.
+    :returns: the paths of ``activity.csv``, ``summary.csv``,
+        ``matching.csv``, ``matching_per_compound.csv`` and
+        ``plate_effect.csv``.
+    """
+    import os
+
+    from .tabular import write_table
+
+    return {f"{name}.csv": write_table(result[name], os.path.join(folder, f"{name}.csv"), canonicalise=False)
+            for name in ("activity", "summary", "matching", "matching_per_compound", "plate_effect")}
+
+
 def _phenotypic_activity(frame: pd.DataFrame, features: Sequence[str],
                          group_columns: Sequence[str], negative: pd.Series, *,
                          similarity: str = "cosine",
