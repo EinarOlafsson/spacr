@@ -13,4 +13,22 @@ ops_scoring_inputs, ops_scoring_genes, ops_scoring_null_size, ops_scoring_min_co
 ops_scoring_cluster_jitter, ops_scoring_cluster_seeds, ops_scoring_workers, ops_scoring_figures; ops_reference_dir.
 
 RESULT
-See the lane L report of 2026-11-10 for the row-by-row comparison with the reference tables.
+Settings-file run (run_ops phase score) on the reference bundle inputs.npz exported to tables (spaCR gene, guide
+and cluster rows, Funk gene rows and clusters, Brieflow clusters; 5,031 shared genes), copairs 0.6.0 and
+efaar_benchmarking 1.0 from the reference's own package folder, spacr env (numpy 2.5.2):
+- activity_map.csv (10,217 rows), consistency_complex_map.csv (7,322 rows, 444 complexes),
+  consistency_pairs_summary_by_seed.csv (44), efaar_recall_all.csv (180), efaar_recall_summary.csv (60) and
+  efaar_mcnemar.csv (40): every value identical to the reference tables (2,649 of 5,031 genes active; NT
+  pseudo-genes 0 of 155).
+- stats.json: all 32 p and Holm q values in the 8 panels identical. A pair of inputs is named in input order,
+  so "Funk clusters vs Brieflow clusters" with Funk listed before Brieflow is the reference's "Brieflow clusters
+  vs Funk clusters" with a and b swapped (same p).
+- summary_main.csv: the same 25 rows; means equal to within 7e-14 (summation order).
+- Figures are spaCR's own (bars with jittered points, Holm brackets), not pixel copies of the reference figures.
+
+FAIRNESS
+Every input is scored on the same shared genes with the same code, reference halves, thresholds, null sizes and
+control rows (setup.json "matching"); what an input cannot be scored on is listed in scorable.csv, never compared.
+
+DELIBERATELY NOT DONE
+- The per-gene CORUM/STRING mAP was not re-checked against pair_map (item 880) here.

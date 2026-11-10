@@ -6,7 +6,8 @@ precision, a seeded permutation null, a tail-recall benchmark) let the
 scoring step's own logic run: planted gene groups must be active and
 consistent, non-targeting pseudo-genes must not, shuffled labels fall to
 the null, and an input with clusters only is listed as not scorable for
-activity. With the real packages installed the same assertions run on them.
+activity. With the real packages installed, the planted run is skipped (their EFAAR
+sources name real genes) and the rest run on them.
 """
 from __future__ import annotations
 
@@ -209,9 +210,12 @@ def packages(tmp_path, monkeypatch):
     try:
         importlib.import_module("copairs")
         importlib.import_module("efaar_benchmarking")
-        return "real"
+        real = True
     except ImportError:
-        pass
+        real = False
+    if real:
+        yield "real"
+        return
     root = tmp_path / "fakes"
     files = {"copairs/__init__.py": _COPAIRS, "copairs/matching.py": _MATCHING,
              "copairs/map/__init__.py": _MAP_INIT, "copairs/map/map.py": _MAP,
@@ -267,13 +271,17 @@ def _inputs(tmp_path):
 
 
 def test_planted_groups_score_and_controls_do_not(tmp_path, packages):
+    if packages == "real":
+        pytest.skip("the real EFAAR sources hold real gene symbols, not the planted ones; the real packages are "
+                    "checked against the reference bundle instead")
     genes = _inputs(tmp_path)
     settings = {"dst_root": str(tmp_path / "run"), "ops_reference_dir": _references(tmp_path / "refs"),
                 "ops_scoring_null_size": 200, "ops_scoring_references": ["CORUM"],
                 "ops_scoring_inputs": {"spaCR": {"genes": str(tmp_path / "genes.parquet"),
                                                  "guides": str(tmp_path / "guides.parquet"),
                                                  "clusters": str(tmp_path / "clusters.parquet")},
-                                       "Other": {"clusters": str(tmp_path / "noisy.parquet")}},
+                                       "Other": {"genes": str(tmp_path / "genes.parquet"),
+                                                 "clusters": str(tmp_path / "noisy.parquet")}},
                 "ops_scoring_min_complex": 3}
     from spacr.ops_engine import run_ops
 
@@ -301,11 +309,12 @@ def test_planted_groups_score_and_controls_do_not(tmp_path, packages):
     null = recall[(recall.rep == "spaCR profile") & (recall.control == "shuffled gene labels")].recall_0p05_0p95.mean()
     assert hit > 3 * 0.10 and null < hit / 2
     tests = pd.read_csv(os.path.join(folder, "efaar_mcnemar.csv"))
-    assert set(tests.a) == {"spaCR clusters"} and set(tests.b) == {"Other clusters"}
+    assert set(zip(tests.a, tests.b)) == {("spaCR clusters", "Other clusters"), ("spaCR profile", "Other profile")}
     summary = pd.read_csv(os.path.join(folder, "summary_main.csv"))
     assert {"spaCR", "Other"} <= set(summary.pipeline)
     stats = json.load(open(os.path.join(folder, "stats.json")))
-    assert {"activity", "complex_profile", "complex_clusters", "retrieval_profile", "efaar_clusters"} <= set(stats)
+    assert {"activity", "complex_profile", "complex_clusters", "retrieval_profile", "efaar_clusters",
+            "efaar_profile_10pct"} <= set(stats)
     setup = json.load(open(os.path.join(folder, "setup.json")))
     assert "same shared genes" in setup["matching"] and setup["genes"] == len(genes)
     assert os.path.isfile(os.path.join(folder, "fig_shared_profile.png"))

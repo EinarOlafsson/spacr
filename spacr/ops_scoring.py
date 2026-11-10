@@ -593,8 +593,8 @@ def _holm(pvalues: Mapping[str, float]) -> Dict[str, float]:
 
 
 def summary_and_stats(data: Mapping[str, Any], activity: Optional[pd.DataFrame], complexes: pd.DataFrame,
-                      pairs: pd.DataFrame, efaar: pd.DataFrame, references: Sequence[str]
-                      ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+                      pairs: pd.DataFrame, efaar: pd.DataFrame, references: Sequence[str],
+                      mcnemar: Optional[pd.DataFrame] = None) -> Tuple[pd.DataFrame, Dict[str, Any]]:
     """The main summary table and the paired tests, Holm within each panel.
 
     :param data: :func:`load_scoring_inputs` output.
@@ -603,6 +603,8 @@ def summary_and_stats(data: Mapping[str, Any], activity: Optional[pd.DataFrame],
     :param pairs: the per-gene partner table.
     :param efaar: the EFAAR recall table.
     :param references: the partner references.
+    :param mcnemar: :func:`score_efaar`'s paired tests; with them the
+        10 % / 90 % profile tests get their own panel, Holm over the sources.
     :returns: ``(summary, stats)``. Activity: Fisher exact of active counts
         against each control. Complexes: exact McNemar over the same
         complexes (seed 0). Partners: paired Wilcoxon over the same genes.
@@ -736,6 +738,16 @@ def summary_and_stats(data: Mapping[str, Any], activity: Optional[pd.DataFrame],
         stats[tag] = {"p": p, "q_holm": _holm(p),
                       "test": "exact McNemar over the same known pairs (5 % / 95 % tails)",
                       "union_pairs": int(len(tails[reps[0]]["union"])) if reps else 0}
+    if mcnemar is not None and len(profiles) > 1:
+        for i in range(len(profiles)):
+            for j in range(i + 1, len(profiles)):
+                part = mcnemar[(mcnemar.threshold == "0.1_0.9") & (mcnemar.a == profiles[i])
+                               & (mcnemar.b == profiles[j])].set_index("source")
+                p = {src: float(part.loc[src, "p_mcnemar"]) for src in sources if src in part.index}
+                tag = "efaar_profile_10pct" if len(profiles) == 2 else \
+                    f"efaar_profile_10pct: {profiles[i]} vs {profiles[j]}"
+                stats[tag] = {"p": p, "q_holm": _holm(p),
+                              "test": "exact McNemar over the same known pairs (10 % / 90 % tails)"}
     for r in profiles + clusters:
         d = efaar[(efaar.rep == r) & (efaar.control == "none")].groupby("source")["recall_0.05_0.95"].mean()
         shuffled = efaar[(efaar.rep == r) & (efaar.control == "shuffled gene labels")].groupby(
@@ -868,7 +880,7 @@ def score_ops_profiles(settings: Mapping[str, Any], report: Optional[Callable[[s
     write(recall, "efaar_recall_all.csv")
     write(recall_summary, "efaar_recall_summary.csv")
     write(tests, "efaar_mcnemar.csv")
-    summary, stats = summary_and_stats(data, activity, complexes, pairs, recall, references)
+    summary, stats = summary_and_stats(data, activity, complexes, pairs, recall, references, tests)
     write(summary, "summary_main.csv")
     setup.update({"genes": int(len(data["genes"])), "inputs": {k: dict(v) for k, v in inputs.items()},
                   "references": references, "packages": _versions(),
