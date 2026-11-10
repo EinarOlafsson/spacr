@@ -225,3 +225,15 @@ def test_the_evaluation_is_registered_and_alpha():
     assert defaults["moa_eval_exclude"] == sp_stats.MOA_EVALUATION_EXCLUDE
     assert set(ALPHA_FEATURES[894]["module_settings"]["profiling_evaluation"]) == \
         set(mb._EVALUATION_DEFAULTS)
+
+
+def test_a_profile_table_that_already_names_the_moa_and_the_batch_needs_neither_table():
+    wells = _wells()
+    settings = _settings(moa_eval_methods="1nn_cosine", moa_eval_seeds="0", moa_eval_controls="")
+    joined = sp_stats.moa_evaluation(wells, None, settings)
+    labelled = wells.assign(moa=wells["compound"].map({**MOAS, "DMSO": "DMSO"}),
+                            week=wells["plate"].str.split("_").str[0])
+    own = sp_stats.moa_evaluation(labelled, None, dict(settings, moa_eval_labels=None))
+    assert set(own["summary"]["protocol"]) == {"NSC", "NSCB"}
+    pd.testing.assert_frame_equal(own["summary"].reset_index(drop=True),
+                                  joined["summary"].reset_index(drop=True))
