@@ -567,6 +567,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_confidence_bins",
     "ops_confidence_seed",
     "ops_confidence_min",
+    # Item 878: the per-cell comparison with other pipelines' calls.
+    "ops_compare_tables",
+    "ops_compare_match_px",
+    "ops_compare_fields",
     # `window_length`, the new name for `expected_end` (364, 2026-09-09).
     "window_length",
     # and `min_observations_per_hit`, the new name for `min_n`.

@@ -1692,3 +1692,366 @@ def _flag_or(settings: Mapping[str, Any], key: str) -> bool:
     if isinstance(value, str):
         return value.strip().lower() not in ("", "false", "0", "no", "off")
     return bool(value)
+
+
+#: How far apart, in pixels, two pipelines' nuclei may lie and still be one
+#: cell (item 878); the three-way comparison of the decode-yield study used 4.
+COMPARE_MATCH_PX = 4.0
+
+#: How far from the tile border a cell must lie to be compared, in pixels.
+COMPARE_EDGE_PX = 10
+
+
+def match_units(tables: Mapping[str, Any], max_px: float = COMPARE_MATCH_PX
+                ) -> List[Dict[str, int]]:
+    """Group the cells of several call tables into matched units.
+
+    Every pair of tables is linked by mutual nearest neighbours within
+    ``max_px``; the links are joined shortest first, and a link that would
+    put two cells of one table into a unit is skipped, so a unit holds at
+    most one cell per table.
+
+    :param tables: ``name -> DataFrame`` with ``y`` and ``x`` in one frame.
+    :param max_px: the largest distance linked.
+    :returns: one ``{name: row index}`` per unit, cells left alone included.
+    """
+    from itertools import combinations
+
+    from scipy.spatial import cKDTree
+
+    names = list(tables)
+    edges = []
+    for a, b in combinations(names, 2):
+        ta, tb = tables[a], tables[b]
+        if not len(ta) or not len(tb):
+            continue
+        pa, pb = ta[["y", "x"]].to_numpy(), tb[["y", "x"]].to_numpy()
+        dab, iab = cKDTree(pb).query(pa)
+        dba, iba = cKDTree(pa).query(pb)
+        for i, (d, j) in enumerate(zip(dab, iab)):
+            if d <= max_px and iba[j] == i:
+                edges.append((d, (a, i), (b, j)))
+    parent: Dict[Tuple[str, int], Tuple[str, int]] = {}
+    members: Dict[Tuple[str, int], Dict[str, int]] = {}
+
+    def find(node):
+        """The root of a node's unit.
+
+        :param node: ``(name, index)``.
+        :returns: the root.
+        """
+        while parent.get(node, node) != node:
+            node = parent[node]
+        return node
+
+    for name in names:
+        for i in range(len(tables[name])):
+            parent[(name, i)] = (name, i)
+            members[(name, i)] = {name: i}
+    for _, u, v in sorted(edges):
+        ru, rv = find(u), find(v)
+        if ru == rv or set(members[ru]) & set(members[rv]):
+            continue
+        parent[rv] = ru
+        members[ru] = {**members[ru], **members.pop(rv)}
+    return [members[r] for r in members if find(r) == r]
+
+
+def call_category(calls: Mapping[str, Optional[str]],
+                  labels: Optional[Mapping[str, str]] = None) -> Tuple[str, str]:
+    """The agreement category of one matched unit.
+
+    :param calls: ``name -> guide or None`` for the tables in the unit.
+    :param labels: display names; None uses the table names.
+    :returns: ``(category, subcategory)``: ``all3_same``, ``all3_diff``,
+        ``two_agree_third_diff``, ``two_agree_third_none``,
+        ``two_disagree_third_none``, ``one_only``, ``pair_agree``,
+        ``pair_disagree`` or ``none``, and which table it names.
+    """
+    labels = labels or {name: name for name in calls}
+    called = {m: g for m, g in calls.items() if g is not None}
+    n = len(called)
+    values = list(called.values())
+    if n == 0:
+        return "none", ""
+    if n == 1:
+        return "one_only", f"{labels[list(called)[0]]}-only"
+    if len(calls) == 2 or n == 2:
+        missing = [m for m in calls if calls[m] is None]
+        joined = "+".join(labels[m] for m in called)
+        if len(set(values)) == 1:
+            if len(calls) == 2:
+                return "pair_agree", joined
+            return "two_agree_third_none", f"{joined} agree, {labels[missing[0]]} none"
+        if len(calls) == 2:
+            return "pair_disagree", joined
+        return "two_disagree_third_none", f"{joined} differ, {labels[missing[0]]} none"
+    if len(set(values)) == 1:
+        return "all3_same", ""
+    if len(set(values)) == 3:
+        return "all3_diff", ""
+    odd = [m for m in called if values.count(called[m]) == 1][0]
+    return "two_agree_third_diff", f"{labels[odd]} differs"
+
+
+def compare_field(tables: Mapping[str, Any], calls: Mapping[str, Mapping[int, str]],
+                  decoys, *, max_px: float = COMPARE_MATCH_PX,
+                  labels: Optional[Mapping[str, str]] = None) -> List[Dict[str, Any]]:
+    """The matched units of one field and their categories.
+
+    :param tables: ``name -> DataFrame`` of the field's compared cells, with
+        ``cell``, ``y`` and ``x``.
+    :param calls: ``name -> {cell: guide}``.
+    :param decoys: the decoy set.
+    :param max_px: the matching distance.
+    :param labels: display names for the categories.
+    :returns: one row per unit: ``present``, ``<name>_cell``,
+        ``<name>_call``, ``<name>_decoy``, ``category``, ``subcategory``.
+    """
+    names = list(tables)
+    single = all(len(n) == 1 for n in names)
+    rows = []
+    for unit in match_units(tables, max_px):
+        present = ("" if single else "+").join(m for m in names if m in unit)
+        row: Dict[str, Any] = {"present": present}
+        found = {}
+        for m in names:
+            if m not in unit:
+                row.update({f"{m}_cell": np.nan, f"{m}_call": None})
+                continue
+            cell = int(tables[m].iloc[unit[m]]["cell"])
+            guide = calls[m].get(cell)
+            found[m] = guide
+            row.update({f"{m}_cell": cell, f"{m}_call": guide,
+                        f"{m}_decoy": guide in decoys if guide else False})
+        category, sub = call_category(found, labels)
+        everyone = len(unit) == len(names)
+        row["category"] = category if everyone else f"matched_{present}:{category}"
+        row["subcategory"] = sub
+        rows.append(row)
+    return rows
+
+
+def compare_summary(units, names: Sequence[str], *, decoy_k: int = 4,
+                    fdr_scale: float = 1.268,
+                    labels: Optional[Mapping[str, str]] = None):
+    """Category counts with a decoy FDR per table, and per-table totals.
+
+    :param units: rows from :func:`compare_field` with ``plate`` and
+        ``field`` added.
+    :param names: the table names, in order.
+    :param decoy_k: decoys per guide.
+    :param fdr_scale: the FDR calibration.
+    :param labels: display names for the columns.
+    :returns: ``(categories, tables)`` DataFrames: per plate and category,
+        ``n``, ``pct_of_matched_triples``, ``fields`` and each table's real
+        and decoy calls and FDR; per plate and table over the units every
+        table holds, real calls, assigned % and FDR.
+    """
+    import pandas as pd
+
+    labels = labels or {name: name for name in names}
+    single = all(len(n) == 1 for n in names)
+    full = ("" if single else "+").join(names)
+    u = units.copy()
+    for m in names:
+        if f"{m}_call" not in u:
+            u[f"{m}_call"] = None
+        u[f"{m}_called"] = u[f"{m}_call"].notna()
+        u[f"{m}_decoy"] = (u[f"{m}_decoy"].eq(True) if f"{m}_decoy" in u
+                           else False)
+        u[f"{m}_real"] = u[f"{m}_called"] & ~u[f"{m}_decoy"]
+    u["cat_full"] = np.where(u["subcategory"].fillna("") != "",
+                             u["category"] + " | " + u["subcategory"].fillna(""),
+                             u["category"])
+    rows = []
+    for plate, g in list(u.groupby("plate")) + [("ALL", u)]:
+        triples = int((g["present"] == full).sum())
+        for cat, h in g.groupby("cat_full"):
+            present = h["present"].iloc[0]
+            row = {"plate": plate, "category": cat, "present": present, "n": len(h),
+                   "pct_of_matched_triples": (round(100 * len(h) / max(triples, 1), 3)
+                                              if present == full else np.nan),
+                   "fields": h["field"].nunique()}
+            for m in names:
+                if not h["present"].str.contains(m, regex=False).any():
+                    continue
+                real, decoy = int(h[f"{m}_real"].sum()), int(h[f"{m}_decoy"].sum())
+                row.update({f"{labels[m]}_real_calls": real,
+                            f"{labels[m]}_decoy_calls": decoy,
+                            f"{labels[m]}_decoy_FDR_pct": (round(fdr(real, decoy, decoy_k, fdr_scale), 3)
+                                                           if real else np.nan)})
+            rows.append(row)
+    triples = u[u["present"] == full]
+    per_table = []
+    for plate, g in list(triples.groupby("plate")) + [("ALL", triples)]:
+        for m in names:
+            real, decoy = int(g[f"{m}_real"].sum()), int(g[f"{m}_decoy"].sum())
+            per_table.append({"plate": plate, "table": labels[m],
+                              "matched_triples": len(g), "real_calls": real,
+                              "assigned_pct": round(100 * real / max(len(g), 1), 2),
+                              "decoy_calls": decoy,
+                              "decoy_FDR_pct": round(fdr(real, decoy, decoy_k, fdr_scale), 3)
+                              if real else np.nan})
+    return pd.DataFrame(rows), pd.DataFrame(per_table)
+
+
+def compare_region(frame, site: int, origin: Tuple[float, float], centres,
+                   sites, *, tile: Tuple[int, int], edge: int = COMPARE_EDGE_PX):
+    """The cells of one field that it owns and that lie clear of its border.
+
+    :param frame: cells with ``y`` and ``x`` in the tile frame.
+    :param site: the field.
+    :param origin: the tile's ``(y, x)`` placement in the well.
+    :param centres: ``(N, 2)`` every placed tile's centre in the well.
+    :param sites: the site of each centre.
+    :param tile: the tile ``(height, width)``.
+    :param edge: the border margin.
+    :returns: the selected rows, re-indexed.
+    """
+    from scipy.spatial import cKDTree
+
+    if not len(frame):
+        return frame.reset_index(drop=True)
+    yy = frame["y"].to_numpy() + origin[0]
+    xx = frame["x"].to_numpy() + origin[1]
+    _, nearest = cKDTree(centres).query(np.column_stack([yy, xx]))
+    inside = ((frame["y"] >= edge) & (frame["y"] < tile[0] - edge)
+              & (frame["x"] >= edge) & (frame["x"] < tile[1] - edge)).to_numpy()
+    return frame[(np.asarray(sites)[nearest] == site) & inside].reset_index(drop=True)
+
+
+def _compare_tables_setting(value) -> Dict[str, str]:
+    """``ops_compare_tables`` as ``name -> path``.
+
+    :param value: a dict, a JSON object string, or ``name=path`` pairs
+        separated by commas.
+    :returns: the mapping.
+    :raises ValueError: when it names no table.
+    """
+    if isinstance(value, Mapping):
+        out = {str(k): str(v) for k, v in value.items()}
+    else:
+        text = str(value or "").strip()
+        if text.startswith("{"):
+            out = {str(k): str(v) for k, v in json.loads(text).items()}
+        else:
+            out = dict(part.split("=", 1) for part in text.split(",") if "=" in part)
+            out = {k.strip(): v.strip() for k, v in out.items()}
+    if not out:
+        raise ValueError("ops_compare_tables must name at least one external "
+                         "call table, as name=path or a JSON object")
+    return out
+
+
+def run_compare_calls(db: str, plate: str, wells: Sequence[str],
+                      settings: Mapping[str, Any], library: Sequence[str]
+                      ) -> Dict[str, Any]:
+    """The compare_calls phase: spaCR's genotype calls against other pipelines'.
+
+    Each external table holds one row per cell with ``well``, ``site``,
+    ``y`` and ``x`` in that site's tile frame (the sequencing cycle-1 tile)
+    and ``call`` (or ``guide``), empty for an uncalled cell, optionally
+    ``cell``. spaCR's side is every nucleus of the decoded fields with its
+    call from ``results/ops_decode/calls_<well>.parquet``, decoys included.
+    Cells are compared where their field owns them and at least
+    :data:`COMPARE_EDGE_PX` from its border; matched units are categorised
+    and each category gets a decoy FDR per table.
+
+    :param db: the measurements database.
+    :param plate: the plate.
+    :param wells: the wells decoded.
+    :param settings: read for ``ops_compare_tables``,
+        ``ops_compare_match_px``, ``ops_compare_fields`` (``well:site``
+        pairs separated by commas, or empty for every site of the tables),
+        ``ops_decoy_library_k`` and ``ops_fdr_scale``.
+    :param library: the guide barcodes, for the decoy set.
+    :returns: the report, with the paths written under
+        ``results/ops_compare``.
+    :raises ValueError: when a table lacks its columns or the decode's
+        calls are missing.
+    """
+    import pandas as pd
+
+    from .ops_sbs import decoy_library
+    from .ops_store import read_table as read_ops_table
+    from .tabular import read_table
+
+    settings = resolve_settings(settings)
+    rule = decode_rule(settings)
+    paths = _compare_tables_setting(settings.get("ops_compare_tables"))
+    max_px = _qc_number(settings, "ops_compare_match_px", COMPARE_MATCH_PX)
+    decoys = set(decoy_library(library, k=max(rule["decoy_k"], 1)))
+    external = {}
+    for name, path in paths.items():
+        frame = read_table(path, canonicalise=False, report=None)
+        if "call" not in frame and "guide" in frame:
+            frame = frame.rename(columns={"guide": "call"})
+        missing = {"well", "site", "y", "x", "call"} - set(frame.columns)
+        if missing:
+            raise ValueError(f"ops_compare_tables {name}: {path} lacks columns "
+                             f"{sorted(missing)}")
+        if "cell" not in frame:
+            frame = frame.assign(cell=np.arange(1, len(frame) + 1))
+        frame["call"] = frame["call"].where(frame["call"].astype(str).str.len() > 0)
+        frame["call"] = frame["call"].where(frame["call"].notna(), None)
+        external[name] = frame
+    wanted = settings.get("ops_compare_fields")
+    if wanted:
+        fields = [(w.split(":")[0].strip().upper(), int(w.split(":")[1]))
+                  for w in (wanted if isinstance(wanted, (list, tuple))
+                            else str(wanted).split(",")) if ":" in str(w)]
+    else:
+        fields = sorted({(str(w), int(s)) for frame in external.values()
+                         for w, s in zip(frame["well"], frame["site"])})
+    geometry = read_ops_table(db, "ops_geometry")
+    geometry = geometry[geometry["plate"].astype(str) == str(plate)]
+    objects = read_ops_table(db, "ops_objects")
+    objects = objects[objects["plate"].astype(str) == str(plate)]
+    names = ["spaCR"] + list(external)
+    units = []
+    for well, site in fields:
+        calls_path = os.path.join(results_folder(db), f"calls_{well}.parquet")
+        if not os.path.isfile(calls_path):
+            raise ValueError(f"compare_calls needs {calls_path}; decode well {well} "
+                             "with ops_decode_preset rule_a_s2 first")
+        spacr = read_table(calls_path, canonicalise=False, report=None)
+        placed = geometry[(geometry["well"].astype(str) == well)
+                          & (geometry["cycle"] == geometry["cycle"].min())]
+        tile = (int(placed["tile_height"].iloc[0]), int(placed["tile_width"].iloc[0]))
+        centres = np.column_stack([placed["y"] + tile[0] / 2, placed["x"] + tile[1] / 2])
+        origin_row = placed[placed["site"] == site]
+        if origin_row.empty:
+            continue
+        origin = (float(origin_row["y"].iloc[0]), float(origin_row["x"].iloc[0]))
+        cells = objects[objects["well"].astype(str) == well]
+        mine = pd.DataFrame({"cell": cells["object_id"].to_numpy(),
+                             "y": cells["centroid_y"].to_numpy() - origin[0],
+                             "x": cells["centroid_x"].to_numpy() - origin[1]})
+        mine = mine[(mine["y"] > -30) & (mine["y"] < tile[0] + 30)
+                    & (mine["x"] > -30) & (mine["x"] < tile[1] + 30)]
+        tables = {"spaCR": compare_region(mine, site, origin, centres,
+                                          placed["site"].to_numpy(), tile=tile)}
+        hits = spacr[spacr["site"] == site]
+        calls = {"spaCR": dict(zip(hits["object_id"].astype(int), hits["mapped_guide"]))}
+        for name, frame in external.items():
+            part = frame[(frame["well"].astype(str) == well) & (frame["site"] == site)]
+            tables[name] = compare_region(part[["cell", "y", "x"]], site, origin,
+                                          centres, placed["site"].to_numpy(), tile=tile)
+            calls[name] = {int(c): g for c, g in zip(part["cell"], part["call"])
+                           if isinstance(g, str)}
+        for row in compare_field(tables, calls, decoys, max_px=max_px):
+            row.update({"plate": plate, "well": well, "site": site,
+                        "field": f"{plate}_{well}_{site}"})
+            units.append(row)
+    frame = pd.DataFrame(units)
+    folder = results_folder(db, "ops_compare")
+    if frame.empty:
+        return {"units": 0, "fields": len(fields)}
+    categories, per_table = compare_summary(frame, names, decoy_k=max(rule["decoy_k"], 1),
+                                            fdr_scale=rule["fdr_scale"])
+    out = {"units": int(len(frame)), "fields": len(fields),
+           "paths": {"units": _write(frame, os.path.join(folder, "units.parquet")),
+                     "categories": _write(categories, os.path.join(folder, "categories.csv")),
+                     "tables": _write(per_table, os.path.join(folder, "tables.csv"))}}
+    return out

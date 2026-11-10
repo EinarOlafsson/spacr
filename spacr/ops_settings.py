@@ -129,6 +129,9 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_confidence_bins": 10,
     "ops_confidence_seed": 20261107,
     "ops_confidence_min": None,
+    "ops_compare_tables": None,
+    "ops_compare_match_px": 4.0,
+    "ops_compare_fields": None,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -241,6 +244,9 @@ OPS_TYPES: Dict[str, object] = {
     "ops_confidence_bins": int,
     "ops_confidence_seed": int,
     "ops_confidence_min": (float, int, type(None)),
+    "ops_compare_tables": (str, dict, type(None)),
+    "ops_compare_match_px": (float, int),
+    "ops_compare_fields": (str, list, type(None)),
 }
 
 #: Which panel section each setting appears under.
@@ -302,6 +308,9 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_confidence_bins",
         "ops_confidence_seed",
         "ops_confidence_min",
+        "ops_compare_tables",
+        "ops_compare_match_px",
+        "ops_compare_fields",
     ],
     "OPS performance": [
         "ops_gpu", "n_workers",
@@ -920,6 +929,22 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(float or None) - Drop genotype calls whose genotype_confidence is "
         "below this from ops_barcodes, and report how many were dropped. "
         "Empty keeps every call. Default None. Alpha.",
+    "ops_compare_tables":
+        "(str or None) - Other pipelines' per-cell genotype calls to "
+        "compare with spaCR's, as name=path pairs separated by commas or a "
+        "JSON object. Each table has one row per cell with well, site, y "
+        "and x in that site's sequencing tile and call (empty when "
+        "uncalled). Setting it runs the compare_calls phase after the "
+        "decode; results go to results/ops_compare. Default None. Alpha.",
+    "ops_compare_match_px":
+        "(float) - How far apart, in pixels, two pipelines' nuclei may lie "
+        "and still be matched as one cell; matches are mutual nearest "
+        "neighbours. Larger matches more cells and risks pairing "
+        "neighbours. Default 4. Alpha.",
+    "ops_compare_fields":
+        "(str or None) - Which fields to compare, as well:site pairs "
+        "separated by commas. Empty compares every site the external tables "
+        "hold. Default None. Alpha.",
 }
 
 #: The blurb the module shows above its settings.

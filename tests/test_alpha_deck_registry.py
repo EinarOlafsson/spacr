@@ -46,8 +46,8 @@ def test_the_published_alpha_page_covers_the_current_registry():
     # 795 (2026-11-09): the leave-one-compound-out MoA benchmark makes 82.
     # 873 (2026-11-09): the OPS decode rule (a) + S2 makes 83.
     # 876 and 877 (2026-11-09): the false-call model and the genotype
-    # confidence make 85.
-    assert deck._check_registry(ROOT / "spacr/settings.py") == 85
+    # confidence make 85, and 878 (the per-cell comparison) 86.
+    assert deck._check_registry(ROOT / "spacr/settings.py") == 86
     # 710: the published PDF is fetched from the pinned dataset revision.
     media_spec = importlib.util.spec_from_file_location("fetch_docs_media", ROOT / "tools/fetch_docs_media.py")
     media = importlib.util.module_from_spec(media_spec)
@@ -101,7 +101,7 @@ def test_refresh_preserves_other_pages_and_renders_searchable_text(tmp_path):
     assert len(after.pages) == 3
     assert [float(page.mediabox.width) for page in after.pages] == [100, 960, 200]
     assert after.metadata.title == "Keep this title"
-    assert "85 alpha features" in " ".join(after.pages[1].extract_text().split())
+    assert "86 alpha features" in " ".join(after.pages[1].extract_text().split())
     assert after.pages[0].get_contents() is None
     assert after.pages[2].get_contents() is None
     assert Image.open(tmp_path / "1.jpg").size == (3200, 1800)

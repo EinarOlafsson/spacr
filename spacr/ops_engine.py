@@ -286,7 +286,7 @@ _PH_PHASES = ("ph_flatfield", "ph_segment", "ph_measure", "ph_masks",
               "merge", "aggregate")
 
 #: Every phase :func:`run_ops` accepts, in the order they run.
-_ALL_PHASES = _PHASES + _PH_PHASES + ("decode_qc",)
+_ALL_PHASES = _PHASES + _PH_PHASES + ("decode_qc", "compare_calls")
 
 #: The columns of ``ops_phenotype`` that hold each field's similarity
 #: transform into the well frame: ``well = scale * R(rotation_deg) @
@@ -4030,7 +4030,11 @@ def run_ops(settings: Mapping[str, Any], *,
         ``decode_qc`` phase (items 876 and 877) fits the false-call model
         and the genotype confidence over the wells decoded, writing
         ``results/ops_decode_qc``; it also runs after ``decode`` when
-        ``ops_decode_qc`` or ``ops_genotype_confidence`` is on.
+        ``ops_decode_qc`` or ``ops_genotype_confidence`` is on. The alpha
+        ``compare_calls`` phase (item 878) matches spaCR's calls to other
+        pipelines' per-cell tables (``ops_compare_tables``) and writes
+        ``results/ops_compare``; it also runs after ``decode`` when those
+        tables are set.
     :param library: the guide barcodes, as a sequence or the path of a CSV
         with a ``prefix``, ``barcode`` or ``sequence`` column. When given,
         each barcode is also mapped to its closest guide. Overrides the
@@ -4080,7 +4084,7 @@ def run_ops(settings: Mapping[str, Any], *,
         missing = [well for well in chosen if well not in index]
         if missing:
             raise ValueError(f"no tiles for wells {missing}; found {sorted(index)}")
-    elif set(phases) <= {"decode_qc"}:
+    elif set(phases) <= {"decode_qc", "compare_calls"}:
         chosen = _decoded_wells(db, plate, wells)
     else:
         placed = _rows_for_wells(db, "ops_phenotype", plate,
@@ -4121,7 +4125,7 @@ def run_ops(settings: Mapping[str, Any], *,
         with open(os.path.join(destination, f"ops_flatfield_{plate}.json"),
                   "w", encoding="utf-8") as handle:
             json.dump(out["ph_flatfield"], handle, indent=1, default=str)
-    for well in ([] if set(phases) <= {"decode_qc"} else chosen):
+    for well in ([] if set(phases) <= {"decode_qc", "compare_calls"} else chosen):
         folder = os.path.join(destination, well)
         report_path = os.path.join(folder, "ops_report.json")
         report: Dict[str, Any] = {}
@@ -4196,6 +4200,16 @@ def run_ops(settings: Mapping[str, Any], *,
                                f"decode_qc_{plate}.json"),
                   "w", encoding="utf-8") as handle:
             json.dump(out["decode_qc"], handle, indent=1, default=str)
+    if "compare_calls" in phases or ("decode" in phases
+                                     and settings.get("ops_compare_tables")):
+        from .ops_decode import results_folder, run_compare_calls
+
+        out["compare_calls"] = run_compare_calls(db, plate, chosen, settings,
+                                                 barcodes)
+        with open(os.path.join(results_folder(db, "ops_compare"),
+                               f"compare_calls_{plate}.json"),
+                  "w", encoding="utf-8") as handle:
+            json.dump(out["compare_calls"], handle, indent=1, default=str)
     if "aggregate" in phases:
         out["aggregate"] = _ph_aggregate(db, plate, chosen, settings,
                                          destination)
@@ -4237,7 +4251,7 @@ def _decoded_wells(db: str, plate: str, wells) -> List[str]:
         return sorted(str(w).upper() for w in wells)
     if row_count(db, "ops_barcodes") is None:
         raise ValueError(f"no ops_barcodes in {db}; run the decode phase "
-                         "before decode_qc")
+                         "before decode_qc or compare_calls")
     rows = read_table(db, "ops_barcodes")
     return sorted(set(rows.loc[rows["plate"].astype(str) == str(plate),
                                "well"].astype(str)))

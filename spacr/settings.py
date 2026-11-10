@@ -8258,6 +8258,10 @@ ALPHA_FEATURES = {
                      'ops_decode_qc_features', 'ops_decode_qc_split',
                      'ops_decode_qc_seed', 'ops_decode_qc_max_calls'),
     },
+    878: {
+        'settings': ('ops_compare_tables', 'ops_compare_match_px',
+                     'ops_compare_fields'),
+    },
     877: {
         'settings': ('ops_genotype_confidence', 'ops_confidence_model',
                      'ops_confidence_calibration', 'ops_confidence_bins',

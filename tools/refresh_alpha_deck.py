@@ -96,6 +96,7 @@ GROUPS = (
         (873, "OPS decode rule (a) + S2 with a decoy FDR"),
         (876, "What makes an OPS genotype call false"),
         (877, "A calibrated confidence for each OPS genotype call"),
+        (878, "OPS genotype calls against other pipelines' calls"),
         (584, "Chemistry-aware hits: SMILES, clusters, SAR"),
         (585, "Sample-size planner for arrayed assays"),
         (534, "Spatial transcriptomics: Visium, Xenium; spatial masks, barcodes"),
