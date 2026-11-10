@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-739 Lifecycle: new, 114 Lifecycle: future in features/feature_list/.
+739 Lifecycle: new, 121 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -387,6 +387,27 @@ FUTURE FEATURES
 
   870  LJOSA PERCENTILE SCALING FOR MEASURE PROFILES
        870_profiling_ljosa_percentile_scaling.txt
+
+  898  HRMAN-STYLE INFECTION AND REPLICATION READOUT ACROSS A TITRATION
+       898_vacuole_replication_titration.txt
+
+  899  RECRUITMENT CLASSIFIER WITH LEAVE-ONE-WELL-OUT EVALUATION AND CONTROLS
+       899_recruitment_classifier_eval.txt
+
+  900  PLAQUE FIGURE MODE: MEASURED-VS-REPORTED SCORING, WELL MERGE AND PUBLIC PLAQUE ENTRY POINTS
+       900_plaque_measured_vs_reported.txt
+
+  901  DIVISION ANALYSIS: ONSET OF PRE-DIVISION CHANGES
+       901_division_onsets.txt
+
+  909  DIVISION PREDICTION: SCORING UNIT, GUARDS, SHAPE-AND-MOTION ARM, SINGLE-MOVIE GROUPING, REFERENCE FEATURES AND LEARNER
+       909_division_prediction_arms.txt
+
+  910  HOST-NUCLEUS EFFECTOR TRANSLOCATION AGAINST PARASITE LOAD
+       910_effector_translocation.txt
+
+  911  PLAQUE FIGURE MODE: ABSOLUTE AND RELATIVE PLAQUE SIZE AGAINST REPORTED SIZES
+       911_plaque_relative_size.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES
