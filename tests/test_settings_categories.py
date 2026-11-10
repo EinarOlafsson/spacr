@@ -366,6 +366,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "figure_second_look", "figure_condition_aggregate", "figure_size_stat",
     "figure_scales", "figure_absolute_units", "figure_ratio_floor",
     "figure_scale_permutations", "figure_scale_seed",
+    # NEW SETTINGS (2026-11-10, lane K): Measure's vacuole signal channel
+    # (item 898) and Plaque mode's per-well size readouts (item 911).
+    "vacuole_signal_channel", "plaque_size_readouts",
     # NEW SETTINGS, not a regrouping: Mask's pixel-size diameter default and
     # per-image diameter estimate, and the ML classifier's class list.
     "pixel_size_um", "estimate_diameters_per_image", "ml_classes",
@@ -1802,6 +1805,8 @@ def _rendered_sections(app_key):
             "Cellpose 3",
             # Mask keeps the two shared filters in its per-object alpha group.
             "Object filtration α",
+            # Item 910 (2026-11-10): cells grown from nuclei without a cell stain.
+            "Cells From Nuclei α",
             "Quality Control",
             # Item 578, 2026-09-27: the robustness report re-segments after
             # the masks and their QC exist.
@@ -1835,6 +1840,8 @@ def _rendered_sections(app_key):
             "Image Deconvolution (PSF)", "Illumination Correction",
             "Intensity Calibration α", "Plate Barcode Linkage α",
             "Features",
+            # Item 898 (2026-11-10): vacuoles grouped inside Measure.
+            "Vacuoles α",
             "Confluency α", "Cell Cycle α",
             "Wound Closure α", "Viability α",
             "CellProfiler α", "GPU Measurement α",

@@ -5597,7 +5597,7 @@ def _load_array_any(path):
 def _load_and_concatenate_arrays(
         src, channels, cell_chann_dim, nucleus_chann_dim,
         pathogen_chann_dim, organelle_chann_dim, resume=False,
-        organelle_chann_dims=None, mask_folders=None):
+        organelle_chann_dims=None, mask_folders=None, cell_source=None):
     """
     Load and concatenate arrays from multiple folders.
 
@@ -5627,6 +5627,10 @@ def _load_and_concatenate_arrays(
             finalized masks, for example ``{'cell': adjusted_cell_folder}``.
             Other roles retain their ordinary masks folders. Unknown roles
             and missing override directories are refused before any output.
+        cell_source (str or None): where the cell plane came from, recorded
+            as ``cell_source`` in the plane-layout sidecar when given (for
+            example ``'nucleus_territory'``, cells grown from nuclei); None
+            writes the sidecar as before.
 
     Returns:
         None
@@ -5705,6 +5709,8 @@ def _load_and_concatenate_arrays(
                 for index, role in enumerate(mask_roles)
             },
         }
+        if cell_source is not None:
+            intended_layout['cell_source'] = str(cell_source)
         manifest_path = os.path.join(output_folder, MERGED_LAYOUT_SIDECAR)
         if resume and os.path.isfile(manifest_path):
             try:
@@ -5762,6 +5768,8 @@ def _load_and_concatenate_arrays(
                             for index, role in enumerate(mask_roles)
                         },
                     }
+                    if cell_source is not None:
+                        layout['cell_source'] = str(cell_source)
                     fd, temporary = tempfile.mkstemp(
                         prefix='.spacr_plane_layout_', suffix='.json',
                         dir=output_folder)

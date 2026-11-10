@@ -9057,6 +9057,75 @@ def _warn_when_a_size_filter_removes_most(file, obj, before, after, settings):
     return True
 
 
+def _vacuole_planes(data, settings):
+    """The cell, pathogen and signal planes the vacuole tables are built from.
+
+    Copied as the merged array holds them, before any intensity promotion or
+    mask filter, so the vacuole tables equal those built from the merged
+    arrays outside Measure (item 898, alpha).
+
+    :param data: the field's merged array as loaded.
+    :param settings: Measure settings; ``vacuole_from_parasites``,
+        ``cell_mask_dim``, ``pathogen_mask_dim`` and ``vacuole_signal_channel``.
+    :returns: ``(cell, pathogen, signal or None)``, or None when the vacuole
+        tables are off, a mask is missing or the field is not 2-D.
+    """
+    if (not settings.get('vacuole_from_parasites') or data.ndim != 3
+            or settings.get('cell_mask_dim') is None
+            or settings.get('pathogen_mask_dim') is None):
+        return None
+    channel = settings.get('vacuole_signal_channel')
+    return (np.array(data[..., int(settings['cell_mask_dim'])], copy=True),
+            np.array(data[..., int(settings['pathogen_mask_dim'])], copy=True),
+            None if channel is None else np.array(data[..., int(channel)], copy=True))
+
+
+def _save_vacuole_tables(planes, file_name, source_folder, settings):
+    """Append one field's vacuole and vacuole_host rows to measurements.db.
+
+    :param planes: :func:`_vacuole_planes` of the field.
+    :param file_name: the field's name without extension.
+    :param source_folder: the plate folder holding ``measurements``.
+    :param settings: the Measure settings with the vacuole keys.
+    """
+    from .host_pathogen import measure_vacuoles
+    from .utils import _append_to_measurements_db
+
+    vacuoles, hosts = measure_vacuoles(*planes, settings=settings, file_name=file_name)
+    db_path = os.path.join(source_folder, 'measurements', 'measurements.db')
+    if len(vacuoles):
+        _append_to_measurements_db(db_path, 'vacuole', vacuoles)
+    if len(hosts):
+        _append_to_measurements_db(db_path, 'vacuole_host', hosts)
+
+
+def _with_vacuole_counts(cell_frame, cell_mask, pathogen_mask, settings):
+    """The cell table with ``n_vacuoles`` and ``n_pathogens`` per cell.
+
+    Counted on the measured (filtered) masks, so the counts belong to the
+    cell labels of this table (:func:`spacr.host_pathogen.vacuoles_per_cell`).
+
+    :param cell_frame: the field's cell morphology frame; its first column
+        naming a label is the cell label, as the database writer reads it.
+    :param cell_mask: the measured cell mask.
+    :param pathogen_mask: the measured pathogen mask.
+    :param settings: ``vacuole_gap_px``.
+    :returns: the frame with the two columns; cells without any are 0.
+    """
+    from .host_pathogen import vacuoles_per_cell
+
+    label = next((c for c in getattr(cell_frame, 'columns', ()) if 'label' in c), None)
+    if label is None or not len(cell_frame):
+        return cell_frame
+    counts = vacuoles_per_cell(cell_mask, pathogen_mask,
+                               gap_px=int(settings.get('vacuole_gap_px', 4))).set_index('object_label')
+    keys = cell_frame[label].astype(int)
+    out = cell_frame.drop(columns=['n_vacuoles', 'n_pathogens'], errors='ignore').copy()
+    for column in ('n_vacuoles', 'n_pathogens'):
+        out[column] = keys.map(counts[column]).fillna(0).astype(int).to_numpy()
+    return out
+
+
 def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel=None):
 
     """Measure one field using selected standard or PSF-processed intensities.
@@ -9092,6 +9161,7 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
         file_name = os.path.splitext(file)[0]
         data = np.load(os.path.join(settings['src'], file))
         data_type_before = data.dtype
+        vacuole_planes = _vacuole_planes(data, settings)
         rescale_record = _resolve_intensity_rescale_record(
             data, file, settings)
         factor = float(rescale_record['rescale_factor'])
@@ -9449,6 +9519,9 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                 **{role: settings.get(f'{role}_mask_dim') is not None
                    for role in ORGANELLE_ROLES},
             }
+            if vacuole_planes is not None and enabled['cell']:
+                morphology['cell'] = _with_vacuole_counts(
+                    morphology['cell'], cell_mask, pathogen_mask, settings)
             for role in role_order:
                 if enabled[role]:
                     _merge_and_save_to_database(
@@ -9459,6 +9532,8 @@ def _measure_crop_core(index, time_ls, file, settings, psf_plan=None, psf_cancel
                             os.path.join(source_folder, 'measurements',
                                          'measurements.db'), settings))
 
+            if vacuole_planes is not None:
+                _save_vacuole_tables(vacuole_planes, file_name, source_folder, settings)
             requested = settings.get('summarize_organelles_by')
             if isinstance(requested, str):
                 requested = {requested}

@@ -149,3 +149,112 @@ def test_translocation_settings_are_registered_alpha():
     names = set(hp.TRANSLOCATION_DEFAULTS) & set(ALPHA_FEATURES[772]['settings'])
     assert set(names) == set(hp.TRANSLOCATION_DEFAULTS)
     assert hp.default_settings()['translocation'] is False
+
+
+def _mask_run(tmp_path, wells=(('B02', 0), ('B03', 2), ('D02', 0), ('D03', 3))):
+    """A Make Masks run folder without a cell stain: stack/ and nucleus and pathogen masks."""
+    for sub in ('stack', 'masks/nucleus_mask_stack', 'masks/pathogen_mask_stack'):
+        os.makedirs(tmp_path / sub)
+    for well, k in wells:
+        stack = _field(k)
+        np.save(tmp_path / 'stack' / f'plate_{well}_1.npy', stack[..., :3].astype(np.uint16))
+        np.save(tmp_path / 'masks' / 'nucleus_mask_stack' / f'plate_{well}_1.npy',
+                stack[..., 4].astype(np.uint16))
+        np.save(tmp_path / 'masks' / 'pathogen_mask_stack' / f'plate_{well}_1.npy',
+                stack[..., 5].astype(np.uint16))
+    return tmp_path
+
+
+def test_make_masks_grows_cells_from_nuclei_and_the_merge_records_it(tmp_path, capsys):
+    import json
+
+    from spacr.core import _cells_from_nuclei
+    from spacr.io import _load_and_concatenate_arrays
+
+    src = _mask_run(tmp_path)
+    settings = {'cell_channel': None, 'nucleus_channel': 0, 'cell_from_nucleus_expand_px': 20,
+                'cell_from_nucleus_min_nucleus_size': 50, 'timelapse': False}
+    (src / 'masks' / 'nucleus_mask_stack' / 'notes.txt').write_text('not a mask')
+    folders = _cells_from_nuclei(str(src / 'masks'), settings)
+    assert 'nucleus territories' in capsys.readouterr().out
+    assert folders == {'nucleus': str(src / 'masks' / hp.TERRITORY_NUCLEUS_FOLDER)}
+    _load_and_concatenate_arrays(str(src), None, None, 0, 1, None, mask_folders=folders,
+                                 cell_source='nucleus_territory')
+    layout = json.loads((src / 'merged' / '.spacr_plane_layout.json').read_text())
+    assert layout['cell_source'] == 'nucleus_territory'
+    assert layout['mask_dims'] == {'cell': 3, 'nucleus': 4, 'pathogen': 5}
+    merged = np.load(src / 'merged' / 'plate_B03_1.npy')
+    territory, nuclei = hp.nucleus_territories(_field(2)[..., 4], 20, 50)
+    assert merged.shape[-1] == 6 and merged.dtype == np.uint16
+    assert np.array_equal(merged[..., 3], territory) and np.array_equal(merged[..., 4], nuclei)
+    result = hp.analyze_host_pathogen({'src': str(src), 'translocation': True,
+                                       'cell_from_nucleus_expand_px': 20,
+                                       'translocation_groups': 'B:A, D:B',
+                                       'translocation_min_nucleus_size': 100,
+                                       'translocation_shuffle_n': 5})
+    cells = result['cells']
+    assert (cells['cell_source'] == 'nucleus_territory').all()
+    assert sorted(cells['n_vacuoles']) == [0, 0, 2, 3]
+    assert os.path.isfile(result['figure'])
+
+
+def test_cells_from_nuclei_only_runs_without_a_cell_stain(tmp_path, capsys):
+    from spacr.core import _cells_from_nuclei
+
+    on = {'cell_channel': None, 'nucleus_channel': 0, 'cell_from_nucleus_expand_px': 20,
+          'timelapse': False}
+    assert _cells_from_nuclei(str(tmp_path), {**on, 'cell_channel': 1}) == {}
+    assert _cells_from_nuclei(str(tmp_path), {**on, 'nucleus_channel': None}) == {}
+    assert _cells_from_nuclei(str(tmp_path), {**on, 'cell_from_nucleus_expand_px': 0}) == {}
+    assert _cells_from_nuclei(str(tmp_path), {**on, 'timelapse': True}) == {}
+    assert 'not applied to time-lapse' in capsys.readouterr().out
+    with pytest.raises(FileNotFoundError):
+        _cells_from_nuclei(str(tmp_path), on)
+    with pytest.raises(ValueError):
+        hp.write_nucleus_territories(str(tmp_path), 0)
+
+
+def test_the_merged_layout_is_unchanged_without_territories(tmp_path):
+    import json
+
+    from spacr.io import _load_and_concatenate_arrays
+
+    src = _mask_run(tmp_path, wells=(('B02', 1),))
+    _load_and_concatenate_arrays(str(src), None, None, 0, 1, None)
+    layout = json.loads((src / 'merged' / '.spacr_plane_layout.json').read_text())
+    assert 'cell_source' not in layout and layout['mask_plane_order'] == ['nucleus', 'pathogen']
+
+
+def test_the_translocation_figure_has_raw_and_corrected_rows_per_group():
+    cells = _cells(True)
+    reference = pd.DataFrame([dict(effector=g, k=k, hrman_total=1 + 0.125 * k,
+                                   hrman_ratio=1 + 0.125 * k) for g in 'AB' for k in range(4)])
+    out = hp.translocation_summary(cells, SETTINGS, reference)
+    figure = hp.translocation_figure(out, SETTINGS)
+    assert len(figure.axes) == 4
+    dashed = [line for ax in figure.axes for line in ax.get_lines() if line.get_linestyle() == '--']
+    assert len(dashed) == 4
+    assert figure.axes[0].get_title() == 'A' and 'raw' in figure.axes[0].get_ylabel()
+    assert len(figure.axes[0].patches) == 4 and figure.axes[0].collections
+    sparse = dict(out, per_well_summary=out['per_well_summary'].iloc[0:0],
+                  per_well=out['per_well'].iloc[0:0], shuffle_null=out['shuffle_null'].iloc[0:0])
+    bare = hp.translocation_figure(sparse, {**SETTINGS, 'translocation_kmax': 10})
+    assert len(bare.axes[0].patches) == 4 and not bare.axes[0].collections
+
+
+def test_an_empty_translocation_summary_draws_empty_panels():
+    out = hp.translocation_summary(_cells(True), SETTINGS)
+    empty = {key: frame.iloc[0:0] for key, frame in out.items() if hasattr(frame, 'iloc')}
+    figure = hp.translocation_figure(empty, SETTINGS)
+    assert len(figure.axes) == 2 and figure.axes[0].get_legend() is None
+
+
+def test_six_plane_arrays_with_a_cell_stain_have_no_cell_source(tmp_path):
+    merged = tmp_path / 'merged'
+    os.makedirs(merged)
+    for well, k in (('B02', 0), ('B03', 2)):
+        np.save(merged / f'plate_{well}_1.npy', _territories(_field(k)))
+    result = hp.nuclear_translocation({'src': str(tmp_path), 'translocation_groups': 'B:A',
+                                       'translocation_min_nucleus_size': 100,
+                                       'translocation_shuffle_n': 2})
+    assert 'cell_source' not in result['cells'] and len(result['cells']) == 2

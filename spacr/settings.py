@@ -1382,6 +1382,8 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('mask_gpu_indices', '')
     settings.setdefault('mask_workers_per_gpu', 1)
     settings.setdefault('illumination_for_later_masks', False)
+    settings.setdefault('cell_from_nucleus_expand_px', 0)
+    settings.setdefault('cell_from_nucleus_min_nucleus_size', 250)
     settings.setdefault('gpu_memory_fraction', None)
     settings.setdefault('gpu_memory_margin_gb', 1.5)
     settings.setdefault('gpu_adaptive_batch', True)
@@ -2163,6 +2165,11 @@ def get_measure_crop_settings(settings=None):
     settings.setdefault('uninfected',True)
     settings.setdefault('pixel_size_um', None)
     _set_measure_min_size_defaults(settings)
+    settings.setdefault('vacuole_from_parasites', False)
+    settings.setdefault('vacuole_gap_px', 4)
+    settings.setdefault('vacuole_min_size', 15)
+    settings.setdefault('host_min_size', 300)
+    settings.setdefault('vacuole_signal_channel', None)
     settings.setdefault('cell_max_size',None)
     settings.setdefault('nucleus_max_size',None)
     settings.setdefault('pathogen_max_size',None)
@@ -3855,6 +3862,7 @@ expected_types = {
     "plate_format": (str, type(None)),
     "well_diameter_mm": (float, int, type(None)),
     "plaque_estimate_growth": bool,
+    "plaque_size_readouts": bool,
     "plaque_growth_reference_um": (float, int),
     "plaque_growth_reference_hours": (float, int),
     "plaque_pixels_per_um": (float, int, type(None)),
@@ -5343,6 +5351,7 @@ tooltips = {
     "well_confidence": "(float) - Minimum YOLO confidence, from 0 to 1, for keeping a detected well when well_detection is enabled. Raising it removes uncertain boxes but can lose an entire condition; lowering it retains more candidates and can create spurious well crops. Default 0.25.",
     "well_pad": "(int) - Extra image pixels retained on every side of a detected well crop, clipped at the source-image boundary. Increase it when the detector box trims the well edge; excessive padding can include neighbouring wells or background. Default 0.",
     "plate_format": "(str or None) - Standard culture-plate format used as the physical ruler for detected wells: '6-well', '12-well', '24-well', '48-well' or '96-well'. It converts plaque areas from pixels to square millimetres; None leaves physical-area columns empty unless well_diameter_mm is supplied. Default None.",
+    "plaque_size_readouts": "(bool) - Plaque mode: add the per-well size readouts to the per_image table (mean, median and largest plaque area in px2, largest over mean, well extent in px2 and px from the detected well box or the whole image, mean area over well extent, and plaque_area_mm2 when the image has a scale from plaque_pixels_per_um or a detected well with plate_format or well_diameter_mm) and area_rel_well_max (each plaque over the largest in its well) to per_plaque. Off leaves both tables as before. Default False.",
     "plaque_estimate_growth": "(bool) - Optional experimental plaque time/scale suggestions, saved separately from measurements. Uses the largest quarter of plaques and an assumed linear growth relation. Defaults off. The RH/HFF seven-day reference has about 40 hours held-out endpoint error and has not been validated across times or other conditions. Without a known scale or time, the reference duration is explicitly assumed.",
     "plaque_growth_reference_um": "(float) - Reference median equivalent diameter in micrometers of the largest 25 percent of plaques. Default 893.8178699548309, derived from three independent RH/HFF vehicle-control experiments in Kelsen et al. 2023 S20 Data, DOI 10.1371/journal.pbio.3002110. Replace with a matched local reference when available.",
     "plaque_growth_reference_hours": "(float) - Positive formation time in hours corresponding to the growth reference diameter. Default 168 (seven days). Linear diameter growth through zero is assumed; this is not a fitted temporal growth curve.",
@@ -6361,7 +6370,7 @@ categories = {
     "Host–Pathogen Analysis": ["hp_vacuole_table", "hp_vacuole_prefix",
         "hp_reference_table", "hp_reference_prefix", "hp_marker_channels",
         "hp_marker_thresholds", "hp_parasite_table", "hp_parasite_parent",
-        "hp_count_column", "vacuole_from_parasites", "vacuole_gap_px", "vacuole_min_size", "host_min_size", "host_assignment", "titration_merged_folder", "titration_object_tables", "titration_plate_map", "titration_reference_values", "titration_min_well_cells", "replication_classifier", "replication_training_table", "replication_training_columns", "replication_class_column", "replication_classes", "replication_seed", "replication_cv_folds", "size_calibration", "size_calibration_reference_px", "infection_signal_floor", "infection_floor_percentile", "infection_uninfected_wells", "infection_signal_column", "translocation", "translocation_merged_folder", "cell_from_nucleus_expand_px", "cell_from_nucleus_min_nucleus_size", "translocation_channel", "translocation_control_channel", "translocation_exclude_px", "translocation_min_pathogen_size", "translocation_background", "translocation_background_min_px", "translocation_background_fallback_percentile", "translocation_min_nucleus_size", "translocation_k_column", "translocation_kmax", "translocation_groups", "translocation_min_cells_per_bin", "translocation_null_percentile", "translocation_shuffle_n", "translocation_seed", "translocation_reference"],
+        "hp_count_column", "vacuole_from_parasites", "vacuole_signal_channel", "vacuole_gap_px", "vacuole_min_size", "host_min_size", "host_assignment", "titration_merged_folder", "titration_object_tables", "titration_plate_map", "titration_reference_values", "titration_min_well_cells", "replication_classifier", "replication_training_table", "replication_training_columns", "replication_class_column", "replication_classes", "replication_seed", "replication_cv_folds", "size_calibration", "size_calibration_reference_px", "infection_signal_floor", "infection_floor_percentile", "infection_uninfected_wells", "infection_signal_column", "translocation", "translocation_merged_folder", "cell_from_nucleus_expand_px", "cell_from_nucleus_min_nucleus_size", "translocation_channel", "translocation_control_channel", "translocation_exclude_px", "translocation_min_pathogen_size", "translocation_background", "translocation_background_min_px", "translocation_background_fallback_percentile", "translocation_min_nucleus_size", "translocation_k_column", "translocation_kmax", "translocation_groups", "translocation_min_cells_per_bin", "translocation_null_percentile", "translocation_shuffle_n", "translocation_seed", "translocation_reference"],
 
     "Point Spread Function": ["psf_measurement_source", "psf_operation", "psf_source", "psf_objective",
                               "psf_path", "psf_image_sampling_um", "psf_kernel_sampling_um",
@@ -6410,7 +6419,7 @@ categories = {
 
     "Object Crops": ["save_png", "crop_mode", "png_size", "png_channel_mapping", "png_dims", "dialate_pngs", "dialate_png_ratios", "use_bounding_box", "normalize_by", "crop_intensity", "save_arrays", "export_vvvv"],
 
-    "Plate Layout & Controls": ["plaque_mode", "plaque_well_resize", "plaque_well_resize_side", "plaque_well_resize_max_factor", "figure_detector", "figure_imgsz", "figure_confidence", "figure_read_text", "figure_condition_labels", "figure_model_labels", "figure_detections", "figure_mode_folder", "figure_segmentation_folder", "figure_score_folder", "figure_metric", "compare_permutations", "compare_seed", "figure_low_confidence", "figure_second_look", "figure_condition_aggregate", "figure_size_stat", "figure_scales", "figure_absolute_units", "figure_ratio_floor", "figure_scale_permutations", "figure_scale_seed", "confirm_annotations", "text_reach_above", "text_reach_left", "text_reach_below", "text_use_above", "text_use_left", "text_use_below", "text_panel_reach", "text_min_confidence", "text_ignore", "text_order", "text_separator", "text_reread", "text_reread_scale", "well_detection", "well_confidence", "well_pad", "plate_format", "well_diameter_mm", "plaque_pixels_per_um", "plaque_formation_hours", "plaque_estimate_growth", "plaque_growth_reference_um", "plaque_growth_reference_hours", "plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control_id", "negative_control_id", "exclude_grnas", "positive_control_wells", "negative_control_wells", "mixed_control_wells", "nontargeting_control_grnas", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "batch_correction", "batch_column", "batch_control_column", "batch_control_values", "batch_covariate_column", "batch_combat_mean_only", "batch_min_samples", "batch_missing_control"],
+    "Plate Layout & Controls": ["plaque_mode", "plaque_size_readouts", "plaque_well_resize", "plaque_well_resize_side", "plaque_well_resize_max_factor", "figure_detector", "figure_imgsz", "figure_confidence", "figure_read_text", "figure_condition_labels", "figure_model_labels", "figure_detections", "figure_mode_folder", "figure_segmentation_folder", "figure_score_folder", "figure_metric", "compare_permutations", "compare_seed", "figure_low_confidence", "figure_second_look", "figure_condition_aggregate", "figure_size_stat", "figure_scales", "figure_absolute_units", "figure_ratio_floor", "figure_scale_permutations", "figure_scale_seed", "confirm_annotations", "text_reach_above", "text_reach_left", "text_reach_below", "text_use_above", "text_use_left", "text_use_below", "text_panel_reach", "text_min_confidence", "text_ignore", "text_order", "text_separator", "text_reread", "text_reread_scale", "well_detection", "well_confidence", "well_pad", "plate_format", "well_diameter_mm", "plaque_pixels_per_um", "plaque_formation_hours", "plaque_estimate_growth", "plaque_growth_reference_um", "plaque_growth_reference_hours", "plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control_id", "negative_control_id", "exclude_grnas", "positive_control_wells", "negative_control_wells", "mixed_control_wells", "nontargeting_control_grnas", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "batch_correction", "batch_column", "batch_control_column", "batch_control_values", "batch_covariate_column", "batch_combat_mean_only", "batch_min_samples", "batch_missing_control"],
 
 
 
@@ -7738,6 +7747,7 @@ def get_analyze_plaque_settings(settings):
     settings.setdefault('plaque_pixels_per_um', None)
     settings.setdefault('plaque_formation_hours', None)
     settings.setdefault('plaque_estimate_growth', False)
+    settings.setdefault('plaque_size_readouts', False)
     settings.setdefault('plaque_growth_reference_um', 893.8178699548309)
     settings.setdefault('plaque_growth_reference_hours', 168.0)
     settings.setdefault('colony_counting', False)
@@ -8318,6 +8328,7 @@ expected_types.update({
     'hp_marker_channels': list, 'hp_marker_thresholds': dict,
     'hp_parasite_table': str, 'hp_parasite_parent': str, 'hp_count_column': str,
     'vacuole_from_parasites': bool,
+    'vacuole_signal_channel': (int, type(None)),
     'vacuole_gap_px': int,
     'vacuole_min_size': int,
     'host_min_size': int,
@@ -8370,7 +8381,8 @@ tooltips.update({
     'hp_marker_thresholds': '(dict) - Channel-to-ratio cutoffs, for example {0: 2.0, 1: 1.5}; ratios at or above the cutoff are positive. Calibrate cutoffs with assay controls. Unspecified channels remain unclassified. Default {}. API: spacr.host_pathogen.summarize_tables.',
     'hp_parasite_table': '(str) - Optional table containing one row per segmented parasite and an explicit parent-vacuole column. Leave empty if parasite counts are unavailable. Do not also set hp_count_column. Default empty. API: spacr.host_pathogen.summarize_tables.',
     'hp_parasite_parent': '(str) - Parent-vacuole label column in the selected parasite table. Host cell IDs cannot substitute for vacuole IDs. Unmatched parasites are exported separately. Default pathogen_id. API: spacr.host_pathogen.summarize_tables.',
-    'vacuole_from_parasites': '(bool) - Titration readout: build vacuoles from the parasite masks of titration_merged_folder: parasites closer than vacuole_gap_px are grouped into one vacuole and each parasite is linked to its vacuole by majority overlap, which gives the linked parasite count. Default False.',
+    'vacuole_from_parasites': '(bool) - Build vacuoles from the parasite masks: parasites closer than vacuole_gap_px are grouped into one vacuole and each parasite is linked to its vacuole by majority overlap, which gives the linked parasite count. In Measure it writes the vacuole and vacuole_host tables to measurements.db and adds n_vacuoles and n_pathogens to the cell table; in the titration readout it reads the masks of titration_merged_folder. Default False.',
+    'vacuole_signal_channel': '(int) - Measure with vacuole_from_parasites: the image channel whose mean inside each vacuole is the vacuole table tox_mean, the parasite signal the titration floor compares; None leaves tox_mean empty. Default None.',
     'vacuole_gap_px': '(int) - Titration readout: parasites up to about this many pixels apart become one vacuole (closing iterations). Default 4.',
     'vacuole_min_size': '(int) - Titration readout: vacuoles smaller than this many pixels are dropped; also the smallest area the modal size calibration counts. Default 15.',
     'host_min_size': '(int) - Titration readout: host cells smaller than this many pixels are dropped as debris, and a vacuole on one has no host. Default 300.',
@@ -8395,7 +8407,7 @@ tooltips.update({
     'infection_signal_column': '(str) - Titration readout: the vacuole column compared with the parasite-signal floor; vacuoles below the floor in this column are dropped before every count. Default tox_mean.',
     'translocation': '(bool) - Host-Pathogen: run the nuclear effector translocation readout instead: per host cell the effector signal in the nucleus (raw sum, as HRMAn, and corrected: nucleus pixels near parasites left out, field background subtracted) against vacuoles per cell, normalised to cells without vacuoles, with the null-threshold, within-field shuffle, DNA, nucleus-area and excluded-fraction controls. Writes <src>/translocation/. Default False.',
     'translocation_merged_folder': '(str) - Translocation: the merged arrays to read (planes 3, 4 and 5 the cell, nucleus and parasite masks; with cell_from_nucleus_expand_px, five planes with the nucleus and parasite masks at 3 and 4). Blank reads <src>/merged. Default .',
-    'cell_from_nucleus_expand_px': '(int) - With no cell stain, grow each nucleus by up to this many pixels without overlap and use the territories as cell masks (cell_source nucleus_territory). They are territories, not cell outlines. 0 is off. Default 0.',
+    'cell_from_nucleus_expand_px': '(int) - With no cell stain (Make Masks with cell_channel None, or the translocation readout on five-plane arrays), grow each nucleus by up to this many pixels without overlap and use the territories as cell masks; the merged arrays then carry a cell plane and the plane layout records cell_source nucleus_territory. They are territories, not cell outlines. 0 is off. Default 0.',
     'cell_from_nucleus_min_nucleus_size': '(int) - Nuclei smaller than this many pixels are removed before the territories grow (parasite nuclei in the DNA channel). Default 250.',
     'translocation_channel': '(int) - Translocation: the image channel holding the effector whose nuclear signal is read; the raw and the corrected readouts and the background all come from it. Default 2.',
     'translocation_control_channel': '(int) - Translocation: the DNA control channel, whose mean in the nucleus should not follow vacuoles per cell. Default 0.',
@@ -8462,6 +8474,7 @@ ALPHA_FEATURES = {
         'settings': ('crop_scaling', 'crop_scale_clip', 'crop_scale_file',
                      'control_shuffled_labels',
                      'vacuole_from_parasites',
+                     'vacuole_signal_channel',
                      'vacuole_gap_px',
                      'vacuole_min_size',
                      'host_min_size',
@@ -8950,6 +8963,7 @@ ALPHA_FEATURES = {
     },
     501: {
         'settings': ('plaque_estimate_growth', 'plaque_growth_reference_um',
+                     'plaque_size_readouts',
                      'plaque_growth_reference_hours',
                      'figure_condition_labels',
                      'figure_model_labels',

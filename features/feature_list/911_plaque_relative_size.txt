@@ -29,8 +29,19 @@ from the gold set and the stored v8 segmentations.
   beyond the reference: the within-panel permutation null (relative to panel
   maximum: null R2 p95 0.15) and the panel-maximum drop (R2 0.48, n 37).
 
+PLAQUE MODE COLUMNS (2026-11-10, lane K)
+- plaque_size_readouts (bool, default False, ALPHA_FEATURES[501]): the
+  Plaque module's per_image table gains plaque_mean_area_px2,
+  plaque_median_area_px2, plaque_max_area_px2, plaque_max_over_mean,
+  well_extent_px2, well_extent_px, plaque_area_rel_well_extent and
+  well_extent_source (the detected well box, or the whole image), and
+  plaque_area_mm2 when the image has a scale (plaque_pixels_per_um, or a
+  detected well with plate_format / well_diameter_mm); per_plaque gains
+  area_rel_well_max. Without a scale plaque_area_mm2 is absent and the run
+  says why. Off, both tables are unchanged.
+
 NOT DONE / REMAINING
-- The per-well size readouts are not yet columns of the Plaque module's
-  per-well and per-plaque tables outside figure mode; plaque_area_mm2 (item
-  500 scale) is not computed.
+- Figure mode's own per-well database table (plaque_figures.db) does not get
+  the columns; figure mode computes them per condition through
+  figure_condition_sizes.
 - Catalogue (9-locale) records and arrival contracts are left to the master.

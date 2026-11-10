@@ -1430,7 +1430,8 @@ if app_key == "mask":
                       'compare_permutations', 'compare_seed', 'figure_low_confidence',
                       'figure_second_look', 'figure_condition_aggregate', 'figure_size_stat',
                       'figure_scales', 'figure_absolute_units', 'figure_ratio_floor',
-                      'figure_scale_permutations', 'figure_scale_seed'})
+                      'figure_scale_permutations', 'figure_scale_seed',
+                      'vacuole_signal_channel', 'plaque_size_readouts'})
     lane_e_arrivals = {pair for pair in compared_pairs
                        if pair[1] in lane_e_keys} - set(variants.keys())
     recognized_arrivals |= lane_e_arrivals

@@ -154,3 +154,85 @@ def test_size_settings_are_registered_alpha():
     assert set(names) <= set(ALPHA_FEATURES[501]['settings'])
     for key in names:
         assert key in expected_types and tooltips[key].endswith(f'Default {defaults[key]}.')
+
+
+def _plaque_masks(tmp_path):
+    """One plaque-mode image with plaques of 100 and 400 px in a 64 x 64 image."""
+    tifffile = pytest.importorskip('tifffile')
+    masks = tmp_path / 'masks'
+    masks.mkdir()
+    labels = np.zeros((64, 64), np.uint16)
+    labels[4:14, 4:14] = 1
+    labels[30:50, 30:50] = 2
+    tifffile.imwrite(masks / 'well1.tif', labels)
+    return tmp_path
+
+
+def _plaque_tables(src):
+    import sqlite3
+
+    with sqlite3.connect(src / 'masks' / 'plaques_analysis.db') as db:
+        return (pd.read_sql('SELECT * FROM per_image', db),
+                pd.read_sql('SELECT * FROM per_plaque', db))
+
+
+def _run_plaque_mode(tmp_path, monkeypatch, **settings):
+    from spacr import submodules as sm
+
+    src = _plaque_masks(tmp_path)
+    monkeypatch.setattr(sm, '_resolve_plaque_model', lambda s, fetch=True: 'm')
+    monkeypatch.setattr('spacr.utils.save_settings', lambda *a, **k: None)
+    sm.analyze_plaques({'src': str(src), 'masks': False, **settings})
+    return _plaque_tables(src)
+
+
+def test_plaque_mode_tables_are_unchanged_without_size_readouts(tmp_path, monkeypatch):
+    image, plaques = _run_plaque_mode(tmp_path, monkeypatch)
+    added = {'plaque_mean_area_px2', 'plaque_max_over_mean', 'well_extent_px2',
+             'plaque_area_rel_well_extent', 'plaque_area_mm2', 'well_extent_source'}
+    assert not added & set(image.columns)
+    assert 'area_rel_well_max' not in plaques.columns
+
+
+def test_plaque_mode_adds_the_size_readouts_without_a_scale(tmp_path, monkeypatch, capsys):
+    image, plaques = _run_plaque_mode(tmp_path, monkeypatch, plaque_size_readouts=True)
+    row = image.iloc[0]
+    assert row['plaque_mean_area_px2'] == 250 and row['plaque_median_area_px2'] == 250
+    assert row['plaque_max_area_px2'] == 400 and row['plaque_max_over_mean'] == 1.6
+    assert row['well_extent_px2'] == 64 * 64 and row['well_extent_px'] == 64
+    assert row['plaque_area_rel_well_extent'] == pytest.approx(250 / 4096)
+    assert row['well_extent_source'] == 'image'
+    assert 'plaque_area_mm2' not in image.columns
+    assert 'no image has a scale' in capsys.readouterr().out
+    assert sorted(plaques['area_rel_well_max']) == [0.25, 1.0]
+
+
+def test_plaque_mode_converts_the_mean_area_to_mm2_with_a_pixel_size(tmp_path, monkeypatch):
+    image, _ = _run_plaque_mode(tmp_path, monkeypatch, plaque_size_readouts=True,
+                                plaque_pixels_per_um=0.01)
+    assert image.iloc[0]['plaque_area_mm2'] == pytest.approx(250 / 10.0 ** 2)
+    assert image.iloc[0]['plaque_area_mm2'] == pytest.approx(image.iloc[0]['mean_area_mm2'])
+
+
+def test_size_columns_use_the_detected_well_box():
+    from spacr.plaque import PlaqueScale
+    from spacr.submodules import _plaque_size_columns
+
+    settings = {'_well_geometry': {'w.tif': {'x0': 10, 'y0': 0, 'x1': 30, 'y1': 10}}}
+    scale = PlaqueScale(px_per_mm=2.0, well_diameter_px=20, well_diameter_mm=10, source='test')
+    out = _plaque_size_columns([10, 30], 'w.tif', (64, 64), scale, settings)
+    assert out['well_extent_source'] == 'well box' and out['well_extent_px2'] == 200
+    assert out['plaque_area_mm2'] == pytest.approx(20 / 4)
+    assert 'plaque_count' not in out and 'area_rel_well_max' not in out
+    empty = _plaque_size_columns([], 'x.tif', (8, 4), None, settings)
+    assert empty['well_extent_px2'] == 32 and empty['plaque_max_area_px2'] == 0
+    assert 'plaque_area_mm2' not in empty
+
+
+def test_plaque_size_readouts_setting_is_registered_alpha():
+    from spacr.settings import ALPHA_FEATURES, expected_types, get_analyze_plaque_settings, tooltips
+
+    assert get_analyze_plaque_settings({})['plaque_size_readouts'] is False
+    assert 'plaque_size_readouts' in ALPHA_FEATURES[501]['settings']
+    assert expected_types['plaque_size_readouts'] is bool
+    assert tooltips['plaque_size_readouts'].endswith('Default False.')
