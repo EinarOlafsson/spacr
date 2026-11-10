@@ -53,7 +53,10 @@ def test_the_published_alpha_page_covers_the_current_registry():
     # 898-901 and 909-911 (titration, classifier evaluation, plaque figure
     # scoring and sizes, division onsets and prediction arms, effector
     # translocation) make 111.
-    assert deck._check_registry(ROOT / "spacr/settings.py") == 111
+    # 2026-11-10, second integration: the gene graph (884), the
+    # protein-knowledge blocks (885) and screen x knowledge fusion (886)
+    # make 114.
+    assert deck._check_registry(ROOT / "spacr/settings.py") == 114
     # 710: the published PDF is fetched from the pinned dataset revision.
     media_spec = importlib.util.spec_from_file_location("fetch_docs_media", ROOT / "tools/fetch_docs_media.py")
     media = importlib.util.module_from_spec(media_spec)
@@ -65,7 +68,7 @@ def test_the_published_alpha_page_covers_the_current_registry():
             assert unicodedata.normalize("NFKC", caption) in text
     for _, name in deck.SPECIES:
         assert name in text
-    assert "111 alpha features and 7 alpha species" in text
+    assert "114 alpha features and 7 alpha species" in text
 
 
 def test_unknown_registry_entry_refuses_before_touching_assets(tmp_path):

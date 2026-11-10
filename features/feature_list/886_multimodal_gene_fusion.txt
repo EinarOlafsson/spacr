@@ -1,0 +1,51 @@
+MULTIMODAL GENE-FUNCTION PREDICTION: SCREEN X PRIOR-KNOWLEDGE FUSION, SCREEN-CONTRIBUTION CONTROLS, EXPLAINED HYPOTHESES
+======================================================================================================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha, ALPHA_FEATURES[886] module_settings under app key gene_function) — spacr.gene_function fuses the gene graph (884) with the knowledge blocks (885): run_knn_stack (per-block cosine over shared blocks and the 25-NN similarity-weighted vote over the 22 reference k_* arms, with shufOPS / shufScreen controls), train_gene_function (GPS / LR on the knowledge arms through the gene graph trainer, task-specific _f<k> / _time blocks, Foldseek edges as a sixth edge type, card rule), run_late_fusion (mean of whole-matrix z-scores, screen-shuffled controls), evaluate_gene_function (gene graph metrics plus paralog-excluded link and category AUPRC, results table, paired fold deltas against no-OPS, no-screen, shuffled, the gene graph references and knowledge-only, winner candidates and the pre-registered winner rule), explain_gene_function (cross-fitted calibration, NT-decoy q, hypotheses for poorly characterised genes with drivers, explanation from training-fold members only, new partners, post-hoc text check, ranked table with screen_specific, call_type, gene graph q and flags) and the figures (bars + jittered fold points, controls hatched). run_gene_function runs them in order; python -m spacr.gene_function --settings <csv>. spacr/gene_function.py, tests/test_gene_function_886.py.
+Requested: maintainer via the BMC paper session, 2026-11-09 (proposals/bmc_paper_items/ITEM_multimodal_gene_fusion.md).
+Owner: lane F (paper items 2026-11-09).
+Source: mm_train.py, mm_baselines.py, mm_late.py, mm_eval.py, mm_tables.py, mm_predict.py, mm_hypotheses.py, mm_figures.py.
+Related: 884, 885.
+
+WHAT WAS DONE
+- One flat module, spacr/gene_function.py; settings keys carry the
+  gene_function_ prefix. The trainer takes the gene graph run's saved
+  settings (its hyperparameters and seed) and adds the fusion arms; the
+  screen controls use this module's seed (20261109), as the reference.
+- The winner rule, the relations table (no-OPS / no-screen / shuffled
+  counterparts) and the knowledge-only table are settings, fixed by default
+  to the reference's values.
+
+RESULT (plate A, CPU, envs/spacr python; the reference's blocks, structure
+and run folders, with the gene graph reference runs)
+- kNN stack and late fusion recomputed from the reference blocks (56 runs:
+  k_ep, k_ep shufScreen, k_f, k_c shufOPS, k_ops, k_e on the time split and
+  the five folds, and every late fusion and control): k_ep, its control and
+  all late_opsf runs bit-identical; the other runs within 1.9e-6 (float32
+  matrix products), except one 25-NN vote tie in fold2 k_f (C differs by
+  0.036 on the tied cells).
+- evaluate on the reference runs: all 274 held-out rows (incl. the
+  paralog-excluded metrics) and 39 time-split rows identical, paired_deltas
+  (444 rows) and results_table (55 rows) within 2e-16, the four
+  winner_candidates tables identical and winners.json identical.
+- explain (cosine k_ep): calibration_cosine_k_ep.csv, fdr_summary_cosine_k_ep.json,
+  hypotheses_cosine_k_ep.csv and hypotheses_ranked.csv (3,016 rows)
+  identical, in the same row order; OPS / IMG z-scores within 4e-15.
+- Decided while the maintainer was asleep: the default knowledge-only arm of
+  the explained k_ep model is k_fp (knowledge + structure), which is what
+  the reference's hypotheses used; the spec's mm_predict default was f /
+  k_f. Sorts use pandas' default algorithm, as the reference, so tied rows
+  keep the reference's order.
+
+GPU CHECKS LEFT FOR THE PAPER SESSION
+- Retrain the GPS arms f, c, e, ep and their controls on CUDA: fold-mean
+  link and category AUPRC within +-0.010 of results_table.csv (per fold
+  +-0.015), every paired-delta sign and folds-better count unchanged,
+  winners.json unchanged; then the hypotheses flagged screen_specific stay
+  in the top 20 with the same class.
+- The arms the reference budget cut (g, h, their noOPS and shuffled
+  controls, e_noOPS, ep_noOPS, ep_noScreen, the time-split arms).
+
+DELIBERATELY NOT DONE
+- No GUI hypothesis tab.

@@ -1,0 +1,50 @@
+PROTEIN-KNOWLEDGE FEATURE BLOCKS FOR GENE-LEVEL ANALYSIS (ESM-2, DOMAINS, FOLD-MASKED TEXT, PROSTT5 3DI, FOLDSEEK)
+================================================================================================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha, ALPHA_FEATURES[885] module_settings under app key gene_knowledge) — spacr.gene_knowledge builds the knowledge blocks on the gene graph's node order (884): fetch_protein_annotations (stored current table or UniProt REST in batches of at most 100 with exact-gene fallback and a seeded out-of-library decoy draw; archived Swiss-Prot .dat parsed plain, gzipped or out of the release tarball), embed_sequences (ESM-2, windows 1,022/511, per-residue window averaging), embed_text (cleaned CC FUNCTION sentences with whole-word symbol/accession mentions, local sentence model, mean pooling, L2), predict_3di (ProstT5 encoder + CNN head, first-window 3Di, 3Di-string embedding), foldseek_similarity (base:createdb AA + 3Di or AFDB with pLDDT masking, exhaustive search, edges and fident > 0.30 / identical-sequence paralogs), build_knowledge_blocks (esm / esm_time, dom / dom_time TF-IDF + SVD, txt_f0..f4 fold-masked with PCA refit per fold, txt_time from the archive only, txt_all, image pass-through, s3di, s3di_kmer, struct_spec), paralog_mask, profile_metrics (SELECT / REPORT mAP through spacr.sp_stats.pair_map, paralog-excluded SELECT, shuffled-label control). Every embedding step can reuse stored outputs; weights load from the local Hugging Face cache and download only with gene_knowledge_allow_download; transformers is imported only when a model is run. spacr/gene_knowledge.py, tests/test_gene_knowledge_885.py.
+Requested: maintainer via the BMC paper session, 2026-11-09 (proposals/bmc_paper_items/ITEM_protein_knowledge_blocks.md).
+Owner: lane F (paper items 2026-11-09).
+Source: mm_fetch_uniprot.py, mm_parse_sprot2022.py, mm_esm.py, mm_text.py, mm_prostt5.py, mm_structure.py, mm_data.py, mm_profile.py, mm_eval.paralog_matrix.
+Related: 884, 886, 881, 880.
+
+WHAT WAS DONE
+- One flat module, spacr/gene_knowledge.py; settings keys carry the
+  gene_knowledge_ prefix. Leakage rules are enforced in text_block (test
+  nodes get no vector; sentences naming a test node by symbol or node name
+  dropped), pca_block (fit on present library rows only), the _time blocks
+  (archive columns only) and node_proteins (decoys are out-of-library
+  proteins). Foldseek edges are only written to structure.npz for message
+  passing (886), never used as labels.
+- GPU steps (ESM-2, ProstT5, text model) run on gene_knowledge_device with
+  CPU fallback, fp16 on CUDA and fp32 on the CPU, under the same card
+  admission rule as 884.
+
+RESULT (plate A, CPU, envs/spacr python; the reference's stored UniProt
+tables, ESM-2 / text / ProstT5 embeddings and Foldseek aln.m8)
+- blocks_summary.json and structure_summary.json: every count equal (decoy
+  proteins, coverages, domain vocabularies, sentences dropped per fold,
+  Foldseek hits 188,456, struct edges 103,653, lib-lib 100,896, paralog
+  pairs 5,277, nodes with an edge 4,181). dom membership and vocabulary,
+  node_protein.parquet, E_struct, E_paralog_fident30 and every H_* equal.
+- PCA / SVD blocks: within 1e-3 (X_esm 6.5e-4, X_txt_* <= 3.5e-4, X_img_*
+  3e-5, X_s3di 6.9e-4), not 1e-6: sklearn's randomized solver on float32
+  rows is not reproducible across BLAS threading; the base anaconda env
+  differs from the reference by the same order (X_esm 9.5e-4), so the
+  difference is not the environment. X_struct_spec differs (35 max abs)
+  because the Foldseek graph has many components: the leading eigenvalues
+  are all 1 and the basis inside that space is arbitrary.
+- profile_metrics.csv: all 16 rows, every mAP within 0.0009 of the
+  reference (tolerance +-0.002); SELECT_score within 0.0002.
+
+GPU CHECKS LEFT FOR THE PAPER SESSION
+- Recompute ESM-2 650M and ProstT5 embeddings on CUDA (fp16): cosine >= 0.999
+  per protein to the stored esm_by_md5.npz / emb3di_by_md5.npz, and profile
+  SELECT mAP within +-0.002 of profile_metrics.csv.
+- Text embeddings with the local PubMedBERT model against sent_emb.npy.
+
+DELIBERATELY NOT DONE
+- No download of the ESM-2 / ProstT5 / PubMedBERT weights or of the AFDB
+  tarball; validation used the reference's stored embeddings, alignments
+  and UniProt tables.
+- No GUI; settings file + python -m spacr.gene_knowledge --settings <csv>.

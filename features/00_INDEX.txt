@@ -3,7 +3,7 @@ spaCR FEATURES -- NEW, AND FUTURE
 Canonical discovery: features/FEATURE_LIST.md
 ================================================================================
 
-Regenerated 2026-11-09 by `tools/build_instruction_index.py`, from the files in
+Regenerated 2026-11-10 by `tools/build_instruction_index.py`, from the files in
 these globs and nothing else:
 
   features/feature_list/*.txt
@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-739 Lifecycle: new, 145 Lifecycle: future in features/feature_list/.
+739 Lifecycle: new, 148 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -426,6 +426,15 @@ FUTURE FEATURES
 
   883  OPS GENE PROFILE OVER ALL CELLS, CONTROL ROWS PER BARCODE
        883_ops_gene_level_aggregation.txt
+
+  884  GENE GRAPH: LEARNED GENE-GENE LINKS AND GENE -> CATEGORY MEMBERSHIP FROM OPS PROFILES
+       884_gene_graph.txt
+
+  885  PROTEIN-KNOWLEDGE FEATURE BLOCKS FOR GENE-LEVEL ANALYSIS (ESM-2, DOMAINS, FOLD-MASKED TEXT, PROSTT5 3DI, FOLDSEEK)
+       885_protein_knowledge_blocks.txt
+
+  886  MULTIMODAL GENE-FUNCTION PREDICTION: SCREEN X PRIOR-KNOWLEDGE FUSION, SCREEN-CONTRIBUTION CONTROLS, EXPLAINED HYPOTHESES
+       886_multimodal_gene_fusion.txt
 
   887  OPS GUIDE-EFFICACY (JACKS-STYLE) GENE PROFILE BLEND
        887_ops_guide_efficacy_blend.txt
