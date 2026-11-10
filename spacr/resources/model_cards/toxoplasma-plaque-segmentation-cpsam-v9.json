@@ -5,7 +5,7 @@
   "display_name": "Toxoplasma Plaque V9 (V8 epoch 100)",
   "family": "plaque",
   "round": "complete coverage + D4, epoch 100",
-  "status": "candidate",
+  "status": "default",
   "date": "2026-11-09",
   "pages": [
     "cards/page1.png",
@@ -175,7 +175,7 @@
       "set": "version8_pooled_curated_grouped_test",
       "n_fields": 101,
       "n_objects": 4533,
-      "rule": "Epoch-100 checkpoint of the V8 complete-coverage run, where training ended on its plateau rule. The 101 test crops were reported previously for an older V8 attempt and for the epoch-50 interim (toxoplasma_plaque_v7); they are not a fresh external or prospective test."
+      "rule": "Epoch-100 checkpoint of the V8 complete-coverage run, where training ended on its plateau rule. The 101 test crops were reported previously for an older V8 attempt and for the epoch-50 interim (toxoplasma_plaque_v8); they are not a fresh external or prospective test."
     }
   },
   "breakdowns": {
@@ -562,8 +562,8 @@
     "segments": "Toxoplasma plaque instances.",
     "version_line": "One plain native Cellpose-SAM model, vanilla cpsam_v2 initialization.",
     "trained_on": "All 810 training crops with complete grid coverage and D4 augmentation; 102 validation crops; 101 reporting-only test crops.",
-    "status": "Candidate: the epoch-100 checkpoint of the V8 run. No claim of detecting every plaque.",
-    "leak_note": "Epoch-100 checkpoint of the V8 complete-coverage run, where training ended on its plateau rule. The 101 test crops were reported previously for an older V8 attempt and for the epoch-50 interim (toxoplasma_plaque_v7); they are not a fresh external or prospective test.",
+    "status": "Default plaque model since 2026-11-10: the epoch-100 checkpoint of the V8 run. No claim of detecting every plaque.",
+    "leak_note": "Epoch-100 checkpoint of the V8 complete-coverage run, where training ended on its plateau rule. The 101 test crops were reported previously for an older V8 attempt and for the epoch-50 interim (toxoplasma_plaque_v8); they are not a fresh external or prospective test.",
     "load_line": "Select toxoplasma_plaque_v9 in spaCR with declared well preprocessing.",
     "links": {
       "model": "https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-v9",

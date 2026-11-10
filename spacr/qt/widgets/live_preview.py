@@ -2025,7 +2025,7 @@ def _plaque_model_the_run_would_use(
     """The checkpoint the plaque RUN would segment with, by its own resolver.
 
     ``analyze_plaques`` never hands ``model_name`` to Cellpose. It resolves
-    ``plaque_model`` -- a :mod:`spacr.model_zoo` key (``toxoplasma_plaque_v6``
+    ``plaque_model`` -- a :mod:`spacr.model_zoo` key (``toxoplasma_plaque_v9``
     by default), ``'bundled'``, or a path -- through :func:`spacr.submodules._resolve_plaque_model`
     and loads the answer as ``custom_model``. Measured on a built Plaque Assay
     screen the form carries ``plaque_model='bundled'`` AND

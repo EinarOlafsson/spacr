@@ -383,23 +383,24 @@ def test_equal_channel_rgb_is_segmented_as_grey():
     assert model.calls[0][0] == other.calls[0][0]
 
 
-def test_the_default_plaque_model_is_v6_with_resize_and_thresholds(monkeypatch):
+def test_the_default_plaque_model_is_v9_with_resize_and_thresholds(monkeypatch):
     from spacr import plaque_papers, submodules
     from spacr.settings import get_analyze_plaque_settings
 
     monkeypatch.setattr(plaque, "_resolve_well_resize_detector",
                         lambda requested, fetch: None)
     settings = get_analyze_plaque_settings({})
-    assert settings["plaque_model"] == submodules.DEFAULT_PLAQUE_MODEL == "toxoplasma_plaque_v6"
-    assert plaque_papers.DEFAULT_SEGMENTER == "toxoplasma_plaque_v6"
-    record = next(r for r in model_zoo.BUNDLED_REMOTE_MODELS if r["key"] == "toxoplasma_plaque_v6")
-    assert record["sha256"].startswith("a22697dd") and record["uri"].endswith("cpsam_plaque_v6")
-    assert model_zoo._model_preprocess("toxoplasma_plaque_v6") == {
-        "well_resize": {"side": 1500, "max_factor": 6},
-        "thresholds": {"cellprob": -0.5, "flow": 0.4, "min_size": 0}}
+    assert settings["plaque_model"] == submodules.DEFAULT_PLAQUE_MODEL == "toxoplasma_plaque_v9"
+    assert plaque_papers.DEFAULT_SEGMENTER == "toxoplasma_plaque_v9"
+    record = next(r for r in model_zoo.BUNDLED_REMOTE_MODELS if r["key"] == "toxoplasma_plaque_v9")
+    assert record["sha256"].startswith("8f58d374") and record["uri"].endswith("cpsam_plaque_v9")
+    assert model_zoo._model_preprocess("toxoplasma_plaque_v9") == {
+        "well_resize": {"side": 1500, "max_factor": 1500},
+        "thresholds": {"cellprob": 0.0, "flow": 0.4, "min_size": 0},
+        "use_bfloat16": False}
     plan = plaque._well_resize_plan(settings)
-    assert plan["side"] == 1500 and plan["max_factor"] == 6
-    assert plan["thresholds"] == {"cellprob_threshold": -0.5, "flow_threshold": 0.4,
+    assert plan["side"] == 1500 and plan["max_factor"] == 1500
+    assert plan["thresholds"] == {"cellprob_threshold": 0.0, "flow_threshold": 0.4,
                                   "min_size": 0.0}
     model = _DiskModel()
     plaque.segment_plaque_image(model, _field((300, 400, 3), np.uint8), settings)
