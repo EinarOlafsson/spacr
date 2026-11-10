@@ -1,0 +1,39 @@
+SCREEN STAGING: ONE SETTINGS FILE PER PLATE, PER-PLATE PARQUET, WELL AGGREGATE
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha, under ALPHA_FEATURES[893]) — spacr.screen_staging.run_screen runs a screen plate's phases from one settings dict (spacr-run screen): import_plate (raw images linked or copied under cellvoyager names, mapping in <src>/settings/import_map.csv; import_regex, import_map, import_mode, import_wells), prep + masks as ONE preprocess_generate_masks call with preprocess=True and masks=True (so gen_mask_settings.csv holds the whole mask run; mask_overrides / measure_overrides for keys the two pipelines read differently), measure_crop, export_plate_parquet (measurements.db -> <plate>.parquet, one row per cell with cytoplasm and largest-nucleus features, Location_* positions, per-field n_cells / cells_without_nucleus / cells_multi_nucleus written to the image table, item 814), aggregate_wells (wells_mean, wells_median, wells_heterogeneity with __sd and __p90mp10, <control>_percentiles from control_wells of a metadata table) and record_timing (screen_timing.json, wall and CPU seconds per phase). Acceptance on CPU (BBBC021): the Week10_40111 parquet exported from the of-record measurements.db is identical to the driver's (assert_frame_equal, exact, 69,404 cells x 571 columns); wells_mean, wells_median and dmso_percentiles of three plates (Week10_40111, Week1_22123, Week5_29301) identical to the of-record tables; 2,235,094 cells over the 55 plates = the of-record sum. One-pass equals two-pass on a synthetic plate (merged arrays and masks identical). spacr/screen_staging.py, tests/test_screen_staging_893.py.
+Requested: maintainer, 2026-11-09 (BMC paper item NEW-4, port P13).
+Owner: lane H, 2026-11-09.
+Source: R/bbbc021/spacr/bbbc021_spacr.py (cmd_import, export_plate, cmd_aggregate, _timed), R/jump/spacr/jump_spacr.py (wells_heterogeneity), proposals/bmc_paper_items/ITEM_screen_staging_export_aggregate.md.
+Related: 814, 870, 894, 896.
+
+WHAT THE STATE IS
+BBBC021, BBBC022 and JUMP CPJUMP1 ran through drivers that call
+preprocess_generate_masks twice (preprocess pass, then mask pass) and
+measure_crop, with custom import, export and aggregate steps. Each saved
+gen_mask_settings.csv held one pass; import, export and aggregate had no
+settings at all.
+
+WHAT TO DO
+- One settings file runs the whole plate: spacr-run screen with
+  screen_phases import,prep,masks,measure,export,aggregate.
+- Import, export and aggregate as settings, writing what the drivers wrote.
+- Record per-phase timing.
+
+RESULT
+Scratch script /mnt/firecuda2/codex/scratch-docs/lane-h-1109/accept_893.py
+(result accept_893.json): export identical; well tables and DMSO
+percentiles identical for three plates; 55-plate cell total identical.
+
+STILL TO DO (GPU or full scale)
+- Re-import + one-file mask run of Week10_40111 on the GPU: label counts
+  and matched IoU against the of-record masks (the merged arrays were
+  deleted after measuring), parquet within rtol 1e-3.
+- JUMP BR00117010-r0102 and BBBC022 20585 one-file runs (GPU).
+- The settings_flow artefacts (docs/source/_generated/settings_flow.rst,
+  spacr/qt/screens/settings_flow_index.py) are not regenerated here.
+
+DELIBERATELY NOT DONE
+- No pathogen table in the export (as the drivers); a plate without a
+  pathogen table drops the pathogen distance columns.
+- No GUI screen: each phase is its own module's screen.

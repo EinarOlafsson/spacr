@@ -1010,6 +1010,32 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "train_cell_patch", "train_cell_epochs", "train_cell_batch", "train_cell_lr",
     "pretrain_method", "pretrain_epochs", "pretrain_mask_ratio", "train_labels_per_class",
     "eval_channel_subsets",
+    # 893, alpha: a screen plate run from one settings file
+    # (`spacr/screen_staging.py`), two headings of its own: staging, and
+    # export and aggregate.
+    "screen_phases", "import_source", "import_naming", "import_regex",
+    "import_mode", "import_map", "import_wells", "mask_overrides",
+    "measure_overrides", "export_parquet", "export_parquet_dir",
+    "aggregate_levels", "aggregate_metadata", "aggregate_metadata_columns",
+    "aggregate_control", "aggregate_control_percentiles",
+    "aggregate_heterogeneity", "aggregate_dir", "record_timing",
+    # 896, alpha: crop shards, embeddings and well embedding profiles
+    # (`spacr/embedding_profiles.py`), two headings of its own.
+    "embedding_src", "embedding_cells", "embedding_wells", "crop_store",
+    "crop_window", "crop_channels", "crop_cap_per_well", "crop_mask_flags",
+    "crop_illumination", "crop_illumination_model", "crop_seed", "embedding_backbone",
+    "embedding_channel_mode", "embedding_channel_scale", "embedding_input_normalisation", "embedding_weights",
+    "embedding_masked", "embedding_batch_size", "embedding_aggregate", "embedding_control",
+    "embedding_control_column", "embedding_umap", "umap_metric", "umap_neighbors",
+    "umap_min_dist", "umap_seed", "umap_percentiles", "embedding_out",
+    # 894, alpha: the MoA profiling evaluation (`spacr/moa_benchmark.py`),
+    # two headings of its own: the tables and columns, and the methods.
+    "moa_eval_profiles", "moa_eval_metadata", "moa_eval_metadata_columns", "moa_eval_labels",
+    "moa_eval_label", "moa_eval_compound", "moa_eval_concentration", "moa_eval_batch",
+    "moa_eval_batch_pattern", "moa_eval_control", "moa_eval_protocols", "moa_eval_methods",
+    "moa_eval_feature_qc", "moa_eval_normalise", "moa_eval_percentiles", "moa_eval_exclude",
+    "moa_eval_controls", "moa_eval_shuffles", "moa_eval_knn_shuffles", "moa_eval_replicates",
+    "moa_eval_seeds", "moa_eval_per_moa", "moa_eval_workers", "moa_eval_dst",
     # 581, alpha: what the export writes (h5ad, Parquet tables, R loader)
     # and the folder the tables go to.
     "anndata_format", "anndata_tidy_dir",
@@ -1795,6 +1821,10 @@ def test_every_qt_section_hint_names_a_real_category():
     import spacr.gene_classes  # noqa: F401
     # 897: the architecture training registers its two headings.
     import spacr.architecture_training  # noqa: F401
+    # 893: the screen staging registers its two headings.
+    import spacr.screen_staging  # noqa: F401
+    # 896: the embedding profiles register their two headings.
+    import spacr.embedding_profiles  # noqa: F401
     known.update(c.upper().strip() for c in S.REGISTERED_CATEGORIES)
     # Qt may make app-scoped relocations without changing the category map
     # shared with the legacy UI (Measure's Filter settings is one).

@@ -626,6 +626,66 @@ _MODULE_LIST: Tuple[Module, ...] = (
                 "<dst>/model.pt for train_level cell"),
         note="ALPHA (897). Runs on the CPU; the full-size runs want a GPU.",
     ),
+    Module(
+        key="embedding_profiles",
+        summary="Cut raw single-cell crop shards, embed them with a pretrained "
+                "backbone, aggregate per well and map the wells by UMAP.",
+        entry="spacr.embedding_profiles:run_embedding_profiles",
+        defaults=None,
+        defaults_entry="spacr.embedding_profiles:embedding_profiles_defaults",
+        validate_key="",
+        requires=("embedding_src \u2014 the plate folder with merged/ fields",
+                  "embedding_cells \u2014 the cells to crop, such as the "
+                  "screen run's <plate>.parquet"),
+        writes=("<out>/crops/<plate>.h5, .cells.parquet and .json",
+                "<out>/emb/<plate>.npy and .json",
+                "<out>/tables/wells_median, wells_mean and "
+                "<control>_percentiles .parquet",
+                "<out>/well_umap.csv with embedding_umap"),
+        note="ALPHA (896). Crops are raw (no per-crop stretch); the "
+             "backbone runs on the CPU when no GPU is seen.",
+    ),
+    Module(
+        key="profiling_evaluation",
+        summary="Evaluate well profiles by mechanism of action under NSC and "
+                "NSCB: 1-NN, supervised and CellProfiler Analyst classifiers.",
+        entry="spacr.moa_benchmark:run_profiling_evaluation",
+        defaults=None,
+        defaults_entry="spacr.moa_benchmark:profiling_evaluation_defaults",
+        validate_key="",
+        requires=("moa_eval_profiles \u2014 a well-level profile table with "
+                  "plate and well",
+                  "moa_eval_labels \u2014 the MoA of each compound and "
+                  "concentration",
+                  "moa_eval_percentiles for the default ljosa normalisation"),
+        writes=("<dst>/summary.csv, controls.csv, per_moa.csv, "
+                "confusion_<method>.csv, predictions.csv, evaluation.json",),
+        note="ALPHA (894). Five seeds by default; each supervised shuffle "
+             "refits every fold, so the CellProfiler Analyst classifiers "
+             "with shuffles are slow on the CPU.",
+    ),
+    Module(
+        key="screen",
+        summary="Run a screen plate from one settings file: import, masks, "
+                "measure, per-plate Parquet export and well aggregate.",
+        entry="spacr.screen_staging:run_screen",
+        defaults=None,
+        defaults_entry="spacr.screen_staging:screen_defaults",
+        validate_key="",
+        requires=("src \u2014 the plate folder (import_source names the raw "
+                  "images when the import phase runs)",
+                  "the mask and measure settings of the plate"),
+        writes=("<src>/settings/import_map.csv, gen_mask_settings.csv and "
+                "screen_settings.csv",
+                "<src>/merged/*.npy and <src>/measurements/measurements.db",
+                "<src>/parquet/<plate>.parquet \u2014 one row per cell",
+                "<src>/tables/wells_mean, wells_median, wells_heterogeneity "
+                "and <control>_percentiles .parquet",
+                "<src>/settings/screen_timing.json"),
+        note="ALPHA (893). prep and masks together are ONE mask run with "
+             "preprocess and masks both on; mask_overrides and "
+             "measure_overrides set a key for one phase alone.",
+    ),
 )
 
 MODULES: Dict[str, Module] = {m.key: m for m in _MODULE_LIST}

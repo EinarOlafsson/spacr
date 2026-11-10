@@ -3888,6 +3888,31 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "How they train: the well-set arms and their sizes, the cell "
         "model's size and epochs, pre-training, few-shot labels, the "
         "missing-stain subsets, the shuffled-label control and the seed.",
+    "EMBEDDING CROPS":
+        "Which cells are cut into crop shards: the plate folder and cell "
+        "table, the window, channels and per-well cap, the bit-flag masks, "
+        "the flat-field correction, the seed and the output folder.",
+    "EMBEDDING PROFILES":
+        "How the crops become well profiles: the pretrained backbone, the "
+        "channel scale and input normalisation, the masking, the well "
+        "aggregate and its control, and the UMAP of the wells.",
+    "MOA EVALUATION":
+        "Which well profiles are evaluated by mechanism of action: the "
+        "profile, metadata and label tables, the columns that name the "
+        "compound, concentration and batch, the control and the output "
+        "folder.",
+    "MOA EVALUATION METHODS":
+        "How the profiles are evaluated: the protocols and methods, the "
+        "normalisation and feature QC, the majority and shuffled-label "
+        "controls, the seeds and the folds fitted at a time.",
+    "SCREEN STAGING":
+        "Which phases of a screen plate run from this one settings file: "
+        "the raw images and how they are imported, settings given to the "
+        "mask or the measure phase alone, and the timing record.",
+    "SCREEN EXPORT AND AGGREGATE":
+        "What the plate writes after Measure: one per-cell Parquet file, the "
+        "well means and medians, the per-well heterogeneity, and the control "
+        "cells' percentiles found from a metadata table.",
 }
 
 

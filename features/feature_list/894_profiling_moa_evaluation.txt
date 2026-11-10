@@ -1,0 +1,49 @@
+MOA PROFILING EVALUATION WITH THE CELLPROFILER ANALYST CLASSIFIERS AND CONTROLS
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha, under ALPHA_FEATURES[894]) — spacr.sp_stats.moa_evaluation(profiles, metadata, settings) and spacr-run profiling_evaluation (spacr.moa_benchmark.run_profiling_evaluation) score a well-level profile table by MoA as the reanalysis's scorer of record (run_and_score.py + supervised_moa.py): metadata join on plate and well, run_and_score.py's feature exclusion, per-plate normalisation to the control wells (ljosa through sp_stats._normalize_profiles with the control cells' percentiles, zscore, robust, none) with flat features dropped and NaN -> 0, feature QC 'standard' (drop_na_columns 5% on the raw wells, drop_outliers 500 after normalisation, sp_stats._too_many_missing / _extreme), then every method of moa_eval_methods leaving one compound out through spacr.moa_benchmark (1nn_cosine; supervised logistic, xgboost and the new lda, shrinkage_lda, knn and cpa_<name>), per seed of moa_eval_seeds, with shuffled-label (moa_benchmark.shuffled_label_control, new rng_seed: generator seed+1 and refits seed+1+i, supervised_moa.py's convention at seed 0) and majority-class controls. Writes summary.csv (method x protocol x seed), controls.csv, per_moa.csv, confusion_<method>.csv, predictions.csv and evaluation.json. spacr/cpa_classifiers.py ports CellProfiler Analyst 3.0.5's nine classifiers (commit f5e1b5e2, BSD 3-Clause): the eight scikit-learn ones as CPA's GeneralClassifier builds them (constructor strings and scaler flags verbatim) and FastGentleBoosting (5 rules) ported in float32. spacr/sp_stats.py, spacr/moa_benchmark.py, spacr/cpa_classifiers.py, tests/test_profiling_moa_evaluation_894.py.
+Requested: maintainer, 2026-11-09 (BMC paper port P14).
+Owner: lane H, 2026-11-09.
+Source: R/bbbc021/cellprofiler_baseline/{run_and_score.py, supervised_moa.py, cpa_models.py, feature_qc.py, run_cpa_qc.sh}, proposals/bmc_paper_items/ITEM_profiling_moa_evaluation.md.
+Related: 795, 807, 808, 870, 893, 896.
+
+WHAT THE STATE IS
+The BBBC021 MoA benchmark with the CellProfiler Analyst classifiers, per-MoA
+accuracy and majority / shuffled controls was computed by scorers that do
+not import spaCR. 795 gave spaCR the 1-NN, logistic and XGBoost arms.
+
+WHAT TO DO
+- One scorer, run from a settings file, with five seeds.
+- The CPA 3.0.5 classifiers, LDA, shrinkage LDA and KNN as arms.
+- Per-MoA table, confusion tables, majority and shuffled controls.
+
+RESULT (seed 0, CPU, /home/olafsson/anaconda3/envs/spacr/bin/python, one BLAS
+thread; scratch script /mnt/firecuda2/codex/scratch-docs/lane-h-1109/accept_894.py,
+logs accept_894_envspacr_{a,b,c}.log there)
+The reference CPA runs used /mnt/wd4tb/bmc_reanalysis/venv_moa, a venv on the
+envs/spacr interpreter with the same scikit-learn 1.9.0, numpy 2.5.2, pandas
+2.3.3 and scipy 1.18.0 (only its xgboost differs, not used here).
+- spaCR end to end (516 features, cell_zernike_1 and nucleus_zernike_1
+  dropped by the QC as in the reference): 1-NN 84/103 NSC, 64/102 NSCB;
+  cpa_LDA 90/43, cpa_KNeighborsClassifier 92/72, cpa_LogisticRegression
+  94/68, cpa_RandomForestClassifier 89/66, cpa_SVC 92/64,
+  cpa_NeuralNetwork 75/58, cpa_FastGentleBoosting 65/50,
+  cpa_AdaBoostClassifier 19/14 (NSC/NSCB): all exact. Shuffled controls
+  of 1-NN (100) and of LDA, KNN and logistic (10 each) exact to the last
+  digit; majority class 14/103 and 14/102.
+- CellProfiler (2473 features): 1-NN 84/62 with exact 100-shuffle control;
+  cpa_LDA 96/68, cpa_KNeighborsClassifier 85/63, cpa_LogisticRegression
+  89/62, cpa_SVC 90/64: all exact.
+
+STILL TO DO
+- cpa_GradientBoostingClassifier rows, the CP RandomForest / NeuralNetwork /
+  FastGentleBoosting / AdaBoost rows and the shuffled controls of the
+  slower classifiers were not rerun (CPU time on a loaded machine).
+- The per-cell (pc50) CPA protocol (cpa_percell.py) is not ported.
+- Seeds 1-4 have no reference to compare with; they run.
+
+DELIBERATELY NOT DONE
+- CPA's own source is not imported (the optional dependency the spec
+  allowed): the scikit-learn classifiers are built as CPA builds them and
+  FastGentleBoosting is ported, so nothing outside spaCR's dependencies is
+  needed.

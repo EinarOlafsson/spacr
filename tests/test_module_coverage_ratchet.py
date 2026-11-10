@@ -530,6 +530,13 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         'spacr/channel_models.py',
         'spacr/well_set_training.py',
         'spacr/architecture_training.py',
+        # 692 -> 695 on 2026-11-10, +3/-0, items 893, 894 and 896: screen
+        # staging, the CellProfiler Analyst classifiers and crop-embedding well
+        # profiles (spacr/screen_staging.py, spacr/cpa_classifiers.py and
+        # spacr/embedding_profiles.py).
+        'spacr/screen_staging.py',
+        'spacr/cpa_classifiers.py',
+        'spacr/embedding_profiles.py',
     }
     assert added_since_608 <= shipped
     # 664 -> 662 on 2026-10-12, +0/-2: spacr-tutorial opens the online
@@ -554,7 +561,7 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     assert metal_transport_arrivals <= shipped
     assert not metal_transport_arrivals & (added_since_608 | retired_since_608)
     assert (len(shipped - metal_transport_arrivals) == 608 + len(added_since_608)
-            - len(retired_since_608) == 689)
+            - len(retired_since_608) == 692)
     # 664 -> 666 on 2026-11-06: spacr/assay_report.py (item 816) and
     # spacr/_gpu_governor.py (item 803), the same +2 as `added_since_608`.
     # 666 -> 667 on 2026-11-06: spacr/_merge_pairs.py (item 833).
@@ -579,6 +586,10 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     # spacr/well_set_training.py and spacr/architecture_training.py (items 888,
     # 889 and 897: the OPS module atlas, gene classes with their image arms,
     # and the channel-adaptive architectures).
+    # 689 -> 692 on 2026-11-10: spacr/screen_staging.py,
+    # spacr/cpa_classifiers.py and spacr/embedding_profiles.py (items 893, 894
+    # and 896: screen staging, the CellProfiler Analyst classifiers and
+    # crop-embedding well profiles).
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
@@ -1043,8 +1054,13 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_required():
     # 889 and 897: the OPS module atlas, gene classes with their image arms,
     # and the channel-adaptive architectures), the same +6 as `shipped`, moved
     # with the workflow in one commit.
-    assert len(ratchet.discover_shipped_python_files(ROOT)) == 692
-    assert "--expected-file-count 692" in combine_script
+    # 692 -> 695 on 2026-11-10: spacr/screen_staging.py,
+    # spacr/cpa_classifiers.py and spacr/embedding_profiles.py (items 893, 894
+    # and 896: screen staging, the CellProfiler Analyst classifiers and
+    # crop-embedding well profiles), the same +3 as `shipped`, moved with the
+    # workflow in one commit.
+    assert len(ratchet.discover_shipped_python_files(ROOT)) == 695
+    assert "--expected-file-count 695" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script

@@ -76,7 +76,7 @@ from dataclasses import dataclass, field as _field
 import inspect as _inspect
 from math import lgamma as _lgamma
 from statistics import NormalDist as _NormalDist
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 import warnings as _warnings
 
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
@@ -8163,3 +8163,303 @@ def _representative_images(frame: pd.DataFrame, by: Sequence[str], *,
     result.attrs['excluded'] = excluded_all
     result.attrs['measurements'] = list(scaled.columns) if scaled is not None else [measurement]
     return result
+
+
+#: Columns of a BBBC021-style feature table that are never profile features:
+#: bookkeeping, positions and metadata, as ``run_and_score.py``'s
+#: ``DEFAULT_EXCLUDE`` (the BBBC021 reanalysis).
+MOA_EVALUATION_EXCLUDE = (
+    r"(^|_)(ImageNumber|ObjectNumber|Number_Object_Number|Parent_|Children_|Location_|"
+    r"Center_[XYZ]|BoundingBoxM(in|ax)imum|FirstClosestObjectNumber|SecondClosestObjectNumber|"
+    r"Metadata|FileName|PathName|URL|Series|Frame|MD5|Height|Width|Scaling|TableNumber|Replicate)")
+
+#: How :func:`moa_evaluation` normalises each plate's wells to its control wells.
+MOA_EVALUATION_NORMALISATIONS = ("ljosa", "zscore", "robust", "none")
+
+_MOA_KEYS = ("plate", "well", "compound", "concentration")
+
+#: The MAD scale ``run_and_score.py``'s robust normalisation uses.
+_MOA_MAD_SCALE = 1.4826
+
+
+def _moa_given(value: Any) -> Any:
+    """``value``, or ``None`` when it is ``None`` or a blank string."""
+    if value is None or (isinstance(value, str) and not value.strip()):
+        return None
+    return value
+
+
+def _moa_table(table: Any) -> pd.DataFrame:
+    """A frame for a frame, or a table path read with its column names as written."""
+    from .tabular import read_table
+
+    if isinstance(table, pd.DataFrame):
+        return table.reset_index(drop=True)
+    return read_table(table, canonicalise=False, report=None).reset_index(drop=True)
+
+
+def _moa_attach_metadata(frame: pd.DataFrame, metadata: Any,
+                         columns: Sequence[str]) -> pd.DataFrame:
+    """Name the plate, well, compound and concentration of each well.
+
+    A table that carries ``compound`` and ``concentration`` keeps them;
+    otherwise they are joined from ``metadata`` on plate and well (an inner
+    join). The concentration is rounded to 6 decimals, so it joins the MoA
+    table, as ``run_and_score.attach_metadata``.
+    """
+    frame = frame.copy()
+    frame["plate"] = frame["plate"].astype(str)
+    frame["well"] = frame["well"].astype(str)
+    if not {"compound", "concentration"} <= set(frame.columns):
+        if metadata is None:
+            raise _ProfilingError(
+                "the profiles name no compound and concentration; give a "
+                "metadata table that does")
+        table = _moa_table(metadata)
+        names = list(columns)
+        missing = [name for name in names if name not in table.columns]
+        if len(names) != 4 or missing:
+            raise _ProfilingError(
+                "the metadata columns must name plate, well, compound and "
+                f"concentration in that table; missing {missing or names}")
+        key = (table[names].drop_duplicates()
+               .set_axis(list(_MOA_KEYS), axis=1))
+        key["plate"] = key["plate"].astype(str)
+        key["well"] = key["well"].astype(str)
+        frame = frame.merge(key, on=["plate", "well"], how="inner")
+    frame["concentration"] = frame["concentration"].astype(float).round(6)
+    return frame
+
+
+def _moa_features(frame: pd.DataFrame, exclude: str) -> List[str]:
+    """The numeric profile columns, without keys, counts or excluded names."""
+    pattern = re.compile(exclude) if exclude else None
+    return [column for column in frame.columns
+            if column not in (*_MOA_KEYS, "n_cells")
+            and pd.api.types.is_numeric_dtype(frame[column])
+            and not (pattern and pattern.search(str(column)))]
+
+
+def _moa_normalise(frame: pd.DataFrame, features: List[str], method: str,
+                   control: pd.Series, percentiles: Any
+                   ) -> Tuple[pd.DataFrame, List[str], List[str]]:
+    """Normalise each plate to its control wells, as ``run_and_score.normalise``.
+
+    ``ljosa`` is ``(x - p1) / (p99 - p1)`` with the control cells'
+    percentiles (:func:`_normalize_profiles`, ``ljosa_percentile``);
+    ``zscore`` is ``(x - mean) / SD`` and ``robust`` ``(x - median) /
+    (1.4826 MAD)`` over the plate's control wells. A feature whose scale is
+    not finite and positive on any plate is dropped; the remaining missing
+    values become 0, the control level. Rows come out grouped by plate.
+
+    :returns: the normalised wells, the kept features and the dropped ones.
+    """
+    order = frame.assign(_control=np.asarray(control, dtype=bool))
+    order = order.iloc[np.argsort(order["plate"].to_numpy(), kind="stable")]
+    control_rows = order.pop("_control").to_numpy()
+    order = order.reset_index(drop=True)
+    if method == "none":
+        out, bad = order.copy(), set()
+    elif method == "ljosa":
+        if percentiles is None:
+            raise _ProfilingError(
+                "ljosa needs the control cells' percentiles (moa_eval_percentiles)")
+        table = _moa_table(percentiles)
+        table["plate"] = table["plate"].astype(str)
+        low = table[np.isclose(table["q"], 0.01)].set_index("plate")
+        high = table[np.isclose(table["q"], 0.99)].set_index("plate")
+        out = _normalize_profiles(order, features, method="ljosa_percentile",
+                                  by="plate", percentiles=(low, high))
+        bad = set(out.attrs.get("flat_features", ()))
+    else:
+        out = order.copy()
+        bad = set()
+        values = order[features].astype(float)
+        for plate in sorted(order["plate"].unique()):
+            rows = (order["plate"] == plate).to_numpy()
+            reference = values[rows & control_rows]
+            if not len(reference):
+                raise _ProfilingError(f"plate {plate} has no control well")
+            if method == "zscore":
+                centre, scale = reference.mean(), reference.std(ddof=1)
+            else:
+                centre = reference.median()
+                scale = _MOA_MAD_SCALE * (reference - centre).abs().median()
+            scale = scale.where(np.isfinite(scale) & (scale > 0))
+            bad |= set(scale.index[scale.isna()]) | set(centre.index[~np.isfinite(centre)])
+            out.loc[rows, features] = ((values[rows] - centre) / scale).to_numpy()
+    keep = [name for name in features if name not in bad]
+    out = out.drop(columns=[name for name in features if name in bad])
+    out[keep] = out[keep].replace([np.inf, -np.inf], np.nan).fillna(0.0)
+    return out, keep, sorted(bad)
+
+
+def _moa_rows(table: pd.DataFrame, method: str, seed: int, **extra: Any) -> List[Dict[str, Any]]:
+    """The accuracy rows of one method and seed, protocol named."""
+    rows = []
+    for _, row in table.iterrows():
+        record = {"method": method, "protocol": row["evaluation"], "seed": int(seed)}
+        record.update({column: row[column] for column in table.columns
+                       if column not in ("arm", "evaluation")})
+        record.update(extra)
+        rows.append(record)
+    return rows
+
+
+def moa_evaluation(profiles: Any, metadata: Any = None,
+                   settings: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
+    """Score well profiles by mechanism of action under NSC and NSCB, over several seeds.
+
+    The BBBC021 benchmark (Ljosa et al. 2013) as the reanalysis's scorer of
+    record runs it (``run_and_score.py`` and ``supervised_moa.py``):
+
+    1. every well gets its plate, well, compound and concentration (from
+       ``metadata`` when the profiles lack them) and every numeric column
+       outside the keys, counts and ``moa_eval_exclude`` is a feature;
+    2. each plate is normalised to its control wells (``moa_eval_normalise``)
+       and a feature without a finite positive scale on some plate is
+       dropped; ``moa_eval_feature_qc='standard'`` then drops a feature
+       non-finite in more than 5% of wells or above 500 after
+       normalisation (pycytominer's drop_na_columns and drop_outliers, item
+       807);
+    3. the labelled wells (``moa_eval_labels``, controls left out) are
+       scored by each method of ``moa_eval_methods``, leaving one compound
+       out (:mod:`spacr.moa_benchmark`): ``1nn_cosine`` on treatment
+       profiles (replicate wells combined by ``moa_eval_replicates``),
+       and the supervised ``logistic``, ``xgboost``, ``lda``,
+       ``shrinkage_lda``, ``knn`` and the nine CellProfiler Analyst 3.0.5
+       classifiers ``cpa_<name>`` (:mod:`spacr.cpa_classifiers`) on the
+       wells, as ``float32``;
+    4. per seed the supervised fits use that seed, and the shuffled-label
+       control permutes the compound-to-MoA mapping with generator seed
+       ``seed + 1`` and refits with seeds ``seed + 1 + i`` (the reference's
+       convention at seed 0); the 1-NN control uses generator seed
+       ``seed``. The majority-class control counts the treatments the
+       first method scored.
+
+    :param profiles: one row per well, a frame or a table path, with
+        ``plate`` and ``well``.
+    :param metadata: a frame or table path naming each well's compound and
+        concentration, by ``moa_eval_metadata_columns``; ``None`` when the
+        profiles carry them.
+    :param settings: the keys of
+        :func:`spacr.moa_benchmark.profiling_evaluation_defaults`.
+    :returns: ``{"summary", "controls", "per_moa", "confusion",
+        "predictions", "features", "dropped", "qc_dropped"}``: accuracy per
+        method, protocol and seed; the control rows; the per-MoA accuracy;
+        ``{method: long confusion table}``; every prediction; the scored
+        features; the features normalisation dropped and the ones the QC
+        dropped.
+    :raises _ProfilingError: for an unknown normalisation, method or
+        protocol, or missing metadata, percentiles or control wells.
+    """
+    from .moa_benchmark import (loco_nearest_neighbour, loco_supervised,
+                                majority_class_control, profiling_evaluation_defaults,
+                                shuffled_label_control, _names, _treatment_profiles,
+                                SUPERVISED_MODELS)
+
+    s = profiling_evaluation_defaults(settings)
+    normalise = str(s["moa_eval_normalise"]).strip().lower()
+    if normalise not in MOA_EVALUATION_NORMALISATIONS:
+        raise _ProfilingError(
+            f"moa_eval_normalise must be one of {MOA_EVALUATION_NORMALISATIONS}, "
+            f"not {normalise!r}")
+    protocols = [name.upper() for name in _names(s["moa_eval_protocols"])]
+    if not protocols or set(protocols) - {"NSC", "NSCB"}:
+        raise _ProfilingError(f"moa_eval_protocols must be NSC and/or NSCB, not {protocols}")
+    methods = _names(s["moa_eval_methods"])
+    unknown = [m for m in methods if m != "1nn_cosine" and m not in SUPERVISED_MODELS]
+    if not methods or unknown:
+        raise _ProfilingError(
+            f"unknown MoA evaluation method(s) {unknown}; choose 1nn_cosine or "
+            f"{', '.join(SUPERVISED_MODELS)}")
+    label, compound, control = s["moa_eval_label"], "compound", str(s["moa_eval_control"])
+    frame = _moa_table(profiles).rename(
+        columns={s["moa_eval_compound"]: "compound",
+                 s["moa_eval_concentration"]: "concentration"})
+    frame = _moa_attach_metadata(frame, metadata, _names(s["moa_eval_metadata_columns"]))
+    features = _moa_features(frame, s["moa_eval_exclude"])
+    is_control = frame["compound"].astype(str) == control
+    z, keep, dropped = _moa_normalise(frame, features, normalise, is_control,
+                                      _moa_given(s["moa_eval_percentiles"]))
+    qc_dropped: List[str] = []
+    if str(s["moa_eval_feature_qc"]).strip().lower() == "standard":
+        raw = frame.iloc[np.argsort(frame["plate"].to_numpy(), kind="stable")].reset_index(drop=True)
+        qc = set(_too_many_missing(raw[keep], 0.05)) | set(_extreme(z[keep], 500.0))
+        qc_dropped = [name for name in keep if name in qc]
+        keep = [name for name in keep if name not in qc]
+        z = z.drop(columns=qc_dropped)
+    labels = _moa_given(s["moa_eval_labels"])
+    if label not in z.columns:
+        if labels is None:
+            raise _ProfilingError("name the MoA of each treatment: moa_eval_labels")
+        moa = _moa_table(labels).rename(
+            columns={s["moa_eval_compound"]: "compound",
+                     s["moa_eval_concentration"]: "concentration"})
+        moa["concentration"] = moa["concentration"].astype(float).round(6)
+        z = z.merge(moa[["compound", "concentration", label]], on=["compound", "concentration"],
+                    how="inner")
+    lab = z[(z[label].astype(str) != control) & z[label].notna()].reset_index(drop=True)
+    batch = None
+    if "NSCB" in protocols:
+        batch = str(s["moa_eval_batch"])
+        if batch not in lab.columns:
+            pattern = re.compile(str(s["moa_eval_batch_pattern"]))
+            lab[batch] = [(pattern.search(p).group(0) if pattern.search(p) else p)
+                          for p in lab["plate"].astype(str)]
+    lab64 = lab
+    lab = lab.astype({name: np.float32 for name in keep})
+    shared = dict(moa_column=label, compound_column="compound",
+                  treatment_columns=["compound", "concentration"], batch_column=batch,
+                  features=keep, controls=())
+    seeds = [int(seed) for seed in _names(s["moa_eval_seeds"])] or [0]
+    want = {name.strip().lower() for name in _names(s["moa_eval_controls"])}
+    summary, controls_rows, predictions = [], [], []
+    treatments = None
+    for seed in seeds:
+        first = None
+        for method in methods:
+            if method == "1nn_cosine":
+                if treatments is None:
+                    treatments = _treatment_profiles(
+                        lab64, keep, moa_column=label,
+                        treatment_columns=["compound", "concentration"],
+                        batch_column=batch, replicates=s["moa_eval_replicates"])
+                result = loco_nearest_neighbour(treatments, **shared)
+                shuffles, source, rng_seed = int(s["moa_eval_knn_shuffles"]), treatments, seed
+                arm = "1-NN"
+            else:
+                result = loco_supervised(lab, model=method, seed=seed,
+                                         workers=int(s["moa_eval_workers"]), **shared)
+                shuffles, source, rng_seed = int(s["moa_eval_shuffles"]), lab, seed + 1
+                arm = method
+            table = result["table"][result["table"]["evaluation"].isin(protocols)]
+            summary += _moa_rows(table, method, seed, n_features=len(keep),
+                                 normalisation=normalise)
+            part = result["predictions"]
+            part = part[part["evaluation"].isin(protocols)].assign(method=method, seed=seed)
+            predictions.append(part)
+            first = part if first is None else first
+            if "shuffled" in want and shuffles > 0:
+                shuffled = shuffled_label_control(
+                    arm, source, n_permutations=shuffles, seed=seed, rng_seed=rng_seed,
+                    workers=int(s["moa_eval_workers"]), **shared)
+                shuffled = shuffled[shuffled["evaluation"].isin(protocols)]
+                controls_rows += _moa_rows(shuffled, method, seed, control="shuffled")
+        if "majority" in want and first is not None:
+            majority = majority_class_control(first, moa_column=label)
+            controls_rows += _moa_rows(majority, "majority class", seed, control="majority")
+    predictions = pd.concat(predictions, ignore_index=True)
+    scored = predictions[predictions["scored"].astype(bool)]
+    per_moa = (scored.groupby(["method", "evaluation", "seed", label], sort=True)["correct"]
+               .agg(n_treatments="size", correct="sum").reset_index())
+    per_moa["accuracy"] = per_moa["correct"] / per_moa["n_treatments"]
+    per_moa = per_moa.rename(columns={"evaluation": "protocol"})
+    confusion = {}
+    for method, part in scored.groupby("method", sort=False):
+        confusion[method] = (part.groupby(["evaluation", "seed", label, "predicted_moa"], sort=True)
+                             .size().rename("count").reset_index()
+                             .rename(columns={"evaluation": "protocol"}))
+    return {"summary": pd.DataFrame(summary), "controls": pd.DataFrame(controls_rows),
+            "per_moa": per_moa, "confusion": confusion, "predictions": predictions,
+            "features": keep, "dropped": dropped, "qc_dropped": qc_dropped}

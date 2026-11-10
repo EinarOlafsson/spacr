@@ -72,8 +72,15 @@ APP_KEY = 'moa_benchmark'
 #: The arms :func:`moa_benchmark` can run.
 ARMS = ('1-NN', 'logistic', 'xgboost')
 
-#: The supervised arms of :func:`loco_supervised`.
-SUPERVISED_MODELS = ('logistic', 'xgboost')
+#: The supervised arms of :func:`loco_supervised`: logistic regression,
+#: XGBoost, linear discriminant analysis (LDA, and with Ledoit-Wolf
+#: shrinkage), k-nearest neighbours on standardised features, and the nine
+#: CellProfiler Analyst 3.0.5 classifiers (:mod:`spacr.cpa_classifiers`).
+SUPERVISED_MODELS = ('logistic', 'xgboost', 'lda', 'shrinkage_lda', 'knn') + tuple(
+    f'cpa_{name}' for name in ('FastGentleBoosting', 'RandomForestClassifier',
+                               'AdaBoostClassifier', 'SVC', 'GradientBoostingClassifier',
+                               'LogisticRegression', 'LDA', 'KNeighborsClassifier',
+                               'NeuralNetwork'))
 
 #: How replicate wells combine into a treatment profile for the 1-NN arm.
 REPLICATE_METHODS = ('median', 'mean')
@@ -88,7 +95,9 @@ XGBOOST_PARAMS: Dict[str, Any] = dict(
 LOGISTIC_C = 1.0
 
 _ARM_LABELS = {'1-NN': '1-NN cosine', 'logistic': 'logistic regression',
-               'xgboost': 'XGBoost'}
+               'xgboost': 'XGBoost', 'lda': 'LDA', 'shrinkage_lda': 'shrinkage LDA',
+               'knn': 'k-nearest neighbours'}
+_ARM_LABELS.update({name: name for name in SUPERVISED_MODELS if name.startswith('cpa_')})
 
 #: What each abbreviation and column of the accuracy table means.
 GLOSSARY: Dict[str, str] = {
@@ -401,14 +410,40 @@ def loco_nearest_neighbour(profiles: Any, *, moa_column: str = 'moa',
     return {'table': _table(rows), 'predictions': pd.concat(parts, ignore_index=True)}
 
 
+def _supervised_name(model: Any) -> str:
+    """The :data:`SUPERVISED_MODELS` name of ``model``, matched without case."""
+    name = str(model).strip()
+    if name in SUPERVISED_MODELS:
+        return name
+    for known in SUPERVISED_MODELS:
+        if known.lower() == name.lower():
+            return known
+    return name.lower()
+
+
 def _make_model(model: str, seed: int) -> Any:
     """A fresh classifier for one fold."""
+    from sklearn.pipeline import make_pipeline
+    from sklearn.preprocessing import StandardScaler
+
     if model == 'logistic':
         from sklearn.linear_model import LogisticRegression
-        from sklearn.pipeline import make_pipeline
-        from sklearn.preprocessing import StandardScaler
 
         return make_pipeline(StandardScaler(), LogisticRegression(C=LOGISTIC_C, max_iter=5000))
+    if model in ('lda', 'shrinkage_lda'):
+        from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+
+        if model == 'lda':
+            return LinearDiscriminantAnalysis()
+        return LinearDiscriminantAnalysis(solver='lsqr', shrinkage='auto')
+    if model == 'knn':
+        from sklearn.neighbors import KNeighborsClassifier
+
+        return make_pipeline(StandardScaler(), KNeighborsClassifier())
+    if model.startswith('cpa_'):
+        from .cpa_classifiers import make_cpa_model
+
+        return make_cpa_model(model, seed=int(seed))
     from .ml import _xgboost_classifier, _xgboost_cpu_safe
 
     return _xgboost_classifier()(**_xgboost_cpu_safe(
@@ -468,7 +503,13 @@ def loco_supervised(wells: Any, *, model: str = 'logistic', moa_column: str = 'm
     ``'logistic'`` standardises the features on the training fold and fits
     a multinomial L2 logistic regression (C = 1). ``'xgboost'`` fits
     XGBoost with :data:`XGBOOST_PARAMS` on the CPU
-    (:func:`spacr.ml._xgboost_cpu_safe`). Neither is tuned on test folds.
+    (:func:`spacr.ml._xgboost_cpu_safe`). ``'lda'`` is scikit-learn's
+    linear discriminant analysis with its defaults, ``'shrinkage_lda'`` the
+    same with the lsqr solver and Ledoit-Wolf shrinkage, ``'knn'``
+    standardised features and five nearest neighbours, and ``'cpa_<name>'``
+    one of the CellProfiler Analyst 3.0.5 classifiers built as CPA builds
+    it (:func:`spacr.cpa_classifiers.make_cpa_model`). None is tuned on
+    test folds.
 
     A profiling run calls it on its normalised well profiles::
 
@@ -485,7 +526,7 @@ def loco_supervised(wells: Any, *, model: str = 'logistic', moa_column: str = 'm
 
     :param wells: one row per well (or per treatment), a frame or a table
         path. All-``float32`` features are fitted in ``float32``.
-    :param model: ``'logistic'`` or ``'xgboost'``.
+    :param model: one of :data:`SUPERVISED_MODELS`.
     :param moa_column: column with the MoA; rows without one are not scored.
     :param compound_column: column that names the compound.
     :param treatment_columns: columns that name a treatment.
@@ -496,7 +537,7 @@ def loco_supervised(wells: Any, *, model: str = 'logistic', moa_column: str = 'm
     :param labels: a frame or table path with the MoA, joined on the shared
         columns when the wells carry none.
     :param controls: compound or MoA values left out, such as ``'DMSO'``.
-    :param seed: seed of the XGBoost fits.
+    :param seed: seed of the XGBoost and CPA fits.
     :param workers: folds fitted at a time, in threads.
     :param confidence: level of the Wilson score interval.
     :returns: ``{"table", "predictions"}``: one row per evaluation (with
@@ -506,7 +547,7 @@ def loco_supervised(wells: Any, *, model: str = 'logistic', moa_column: str = 'm
     :raises ValueError: for an unknown model, missing columns, missing or
         infinite values, or fewer than two labelled compounds.
     """
-    model = str(model).strip().lower()
+    model = _supervised_name(model)
     if model not in SUPERVISED_MODELS:
         raise ValueError(f'model must be one of {SUPERVISED_MODELS}, not {model!r}')
     treatment_columns = _check_treatment_columns(treatment_columns, compound_column)
@@ -582,8 +623,9 @@ def _arm(arm: Union[str, Callable[..., Dict[str, Any]]]) -> Tuple[str, Callable[
     lowered = name.lower()
     if lowered in ('1-nn', '1nn', 'knn', 'nearest_neighbour'):
         return _ARM_LABELS['1-NN'], loco_nearest_neighbour, {}
-    if lowered in SUPERVISED_MODELS:
-        return _ARM_LABELS[lowered], loco_supervised, {'model': lowered}
+    model = _supervised_name(name)
+    if model in SUPERVISED_MODELS:
+        return _ARM_LABELS[model], loco_supervised, {'model': model}
     raise ValueError(f'arm must be one of {ARMS} or a function, not {arm!r}')
 
 
@@ -594,7 +636,8 @@ def shuffled_label_control(arm: Union[str, Callable[..., Dict[str, Any]]], data:
                            batch_column: Optional[str] = None,
                            features: Optional[Sequence[str]] = None,
                            controls: Any = ('DMSO',), workers: int = 1,
-                           confidence: float = 0.95) -> pd.DataFrame:
+                           confidence: float = 0.95,
+                           rng_seed: Optional[int] = None) -> pd.DataFrame:
     """The accuracy one arm reaches with the MoA labels shuffled between compounds.
 
     The compound-to-MoA mapping is permuted (each compound keeps one MoA,
@@ -604,8 +647,8 @@ def shuffled_label_control(arm: Union[str, Callable[..., Dict[str, Any]]], data:
     learned nothing about MoA. A compound with two MoA labels makes the
     shuffle permute the rows instead.
 
-    :param arm: ``'1-NN'``, ``'logistic'``, ``'xgboost'``, or a function
-        with the signature of :func:`loco_nearest_neighbour`.
+    :param arm: ``'1-NN'``, a name of :data:`SUPERVISED_MODELS`, or a
+        function with the signature of :func:`loco_nearest_neighbour`.
     :param data: what the arm scores: treatment profiles for 1-NN, wells
         for the supervised arms. Must carry the MoA column.
     :param n_permutations: shuffles; ``0`` returns an empty table.
@@ -620,6 +663,9 @@ def shuffled_label_control(arm: Union[str, Callable[..., Dict[str, Any]]], data:
     :param workers: folds fitted at a time by a supervised arm.
     :param confidence: share of the shuffles inside ``ci_low`` to
         ``ci_high``.
+    :param rng_seed: seed of the shuffles' generator when it differs from
+        ``seed``; ``supervised_moa.py`` shuffled with generator seed 1 and
+        refitted with seeds ``1 + i``, which is ``seed=0, rng_seed=1``.
     :returns: one control row per evaluation: the mean accuracy, its
         standard deviation and percentile interval over the shuffles, and
         ``n_permutations``.
@@ -643,7 +689,7 @@ def shuffled_label_control(arm: Union[str, Callable[..., Dict[str, Any]]], data:
     grouped = frame.groupby(compound_column, sort=True)[moa_column]
     per_compound = bool((grouped.nunique() == 1).all())
     compound_moa = grouped.first()
-    rng = np.random.default_rng(seed)
+    rng = np.random.default_rng(seed if rng_seed is None else rng_seed)
     shares: Dict[str, List[float]] = {}
     totals: Dict[str, int] = {}
     for index in range(max(0, int(n_permutations))):
@@ -875,6 +921,166 @@ def run_moa_benchmark(settings: Mapping[str, Any]) -> Dict[str, Any]:
     for _, row in result['table'].iterrows():
         logger.info('%s %s: %.3f over %s treatments', row['arm'], row['evaluation'],
                     row['accuracy'], row['n_treatments'])
+    return result
+
+
+#: Key the MoA profiling evaluation's settings are registered under (item 894).
+EVALUATION_APP_KEY = 'profiling_evaluation'
+
+_EVALUATION_DEFAULTS: Dict[str, Any] = {
+    'moa_eval_profiles': '',
+    'moa_eval_metadata': '',
+    'moa_eval_metadata_columns': 'plate,well,compound,concentration',
+    'moa_eval_labels': '',
+    'moa_eval_label': 'moa',
+    'moa_eval_compound': 'compound',
+    'moa_eval_concentration': 'concentration',
+    'moa_eval_batch': 'week',
+    'moa_eval_batch_pattern': '^[^_]+',
+    'moa_eval_control': 'DMSO',
+    'moa_eval_protocols': 'NSC,NSCB',
+    'moa_eval_methods': '1nn_cosine,logistic',
+    'moa_eval_feature_qc': 'standard',
+    'moa_eval_normalise': 'ljosa',
+    'moa_eval_percentiles': '',
+    'moa_eval_exclude': '',
+    'moa_eval_controls': 'majority,shuffled',
+    'moa_eval_shuffles': 10,
+    'moa_eval_knn_shuffles': 100,
+    'moa_eval_replicates': 'median',
+    'moa_eval_seeds': '0,1,2,3,4',
+    'moa_eval_per_moa': True,
+    'moa_eval_workers': 1,
+    'moa_eval_dst': '',
+}
+
+_EVALUATION_TOOLTIPS: Dict[str, str] = {
+    'moa_eval_profiles': "(str) - Table of well profiles to score, one row per well with plate and well columns, such as the screen run's wells_mean.parquet. CSV, TSV, Excel or Parquet. Default blank.",
+    'moa_eval_metadata': "(str) - Table naming each well's compound and concentration, such as BBBC021_v1_image.csv, joined on plate and well. Blank when the profiles carry compound and concentration. Default blank.",
+    'moa_eval_metadata_columns': "(str) - The metadata table's plate, well, compound and concentration columns, comma-separated, such as Image_Metadata_Plate_DAPI,Image_Metadata_Well_DAPI,Image_Metadata_Compound,Image_Metadata_Concentration. Default 'plate,well,compound,concentration'.",
+    'moa_eval_labels': "(str) - Table with the mechanism of action (MoA) of each compound and concentration, such as BBBC021_v1_moa.csv. Blank when the profiles carry a MoA column. Default blank.",
+    'moa_eval_label': "(str) - Column with the MoA. Default 'moa'.",
+    'moa_eval_compound': "(str) - Column that names the compound. Every method leaves a whole compound out. Default 'compound'.",
+    'moa_eval_concentration': "(str) - Column with the concentration; compound and concentration name one treatment. Default 'concentration'.",
+    'moa_eval_batch': "(str) - Column with each well's batch, such as the imaging week, for NSCB. When the table has no such column the batch is moa_eval_batch_pattern's match in the plate name. Default 'week'.",
+    'moa_eval_batch_pattern': "(str) - Regular expression whose match in the plate name is the batch when there is no batch column; '^[^_]+' takes Week10 from Week10_40111. Default '^[^_]+'.",
+    'moa_eval_control': "(str) - Compound of the control wells, such as DMSO: they set each plate's normalisation and are not scored. Default 'DMSO'.",
+    'moa_eval_protocols': "(str) - Protocols to score: NSC (not same compound) and NSCB (not same compound or batch). Default 'NSC,NSCB'.",
+    'moa_eval_methods': "(str) - Comma-separated methods: 1nn_cosine, logistic, xgboost, lda, shrinkage_lda, knn, and the CellProfiler Analyst 3.0.5 classifiers cpa_FastGentleBoosting, cpa_RandomForestClassifier, cpa_AdaBoostClassifier, cpa_SVC, cpa_GradientBoostingClassifier, cpa_LogisticRegression, cpa_LDA, cpa_KNeighborsClassifier, cpa_NeuralNetwork. Default '1nn_cosine,logistic'.",
+    'moa_eval_feature_qc': "(str) - 'standard' drops a feature non-finite in more than 5% of wells or above 500 after normalisation (pycytominer's defaults); 'none' keeps every feature. Default 'standard'.",
+    'moa_eval_normalise': "(str) - How each plate is scaled to its control wells: 'ljosa' ((x - p1) / (p99 - p1), the control cells' 1st and 99th percentiles, Ljosa et al. 2013), 'zscore', 'robust' (median and 1.4826 MAD) or 'none'. Default 'ljosa'.",
+    'moa_eval_percentiles': "(str) - The control cells' percentiles per plate for 'ljosa', such as the screen run's dmso_percentiles.parquet (plate, q, one column per feature). Default blank.",
+    'moa_eval_exclude': "(str) - Regular expression of columns that are not features. Blank takes the BBBC021 reanalysis's list (ImageNumber, Location_, Metadata and the like). Default blank.",
+    'moa_eval_controls': "(str) - Control rows to write: majority (always guessing the commonest MoA) and shuffled (the MoA labels shuffled between compounds). Default 'majority,shuffled'.",
+    'moa_eval_shuffles': "(int) - Shuffles for each supervised method's control; each one refits every fold. Default 10.",
+    'moa_eval_knn_shuffles': "(int) - Shuffles for the 1-NN control. Default 100.",
+    'moa_eval_replicates': "(str) - How replicate wells combine into a treatment profile for 1-NN: 'median' (Ljosa et al. 2013) or 'mean'. Default 'median'.",
+    'moa_eval_seeds': "(str) - Comma-separated seeds; every method and control is scored once per seed. Default '0,1,2,3,4'.",
+    'moa_eval_per_moa': "(bool) - Write per_moa.csv, the accuracy of each MoA per method, protocol and seed. Default True.",
+    'moa_eval_workers': "(int) - Folds fitted at a time by the supervised methods, in threads. Default 1.",
+    'moa_eval_dst': "(str) - Folder the results are written to. Blank writes to results/profiling_evaluation beside the profiles table. Default blank.",
+}
+
+_EVALUATION_CATEGORIES: Dict[str, List[str]] = {
+    'MoA evaluation': ['moa_eval_profiles', 'moa_eval_metadata', 'moa_eval_metadata_columns',
+                       'moa_eval_labels', 'moa_eval_label', 'moa_eval_compound',
+                       'moa_eval_concentration', 'moa_eval_batch', 'moa_eval_batch_pattern',
+                       'moa_eval_control', 'moa_eval_dst'],
+    'MoA evaluation methods': ['moa_eval_protocols', 'moa_eval_methods', 'moa_eval_feature_qc',
+                               'moa_eval_normalise', 'moa_eval_percentiles', 'moa_eval_exclude',
+                               'moa_eval_controls', 'moa_eval_shuffles',
+                               'moa_eval_knn_shuffles', 'moa_eval_replicates',
+                               'moa_eval_seeds', 'moa_eval_per_moa', 'moa_eval_workers'],
+}
+
+_EVALUATION_DESCRIPTION = (
+    "Evaluate well profiles by mechanism of action under NSC and NSCB over "
+    "several seeds: 1-NN, logistic regression, LDA, k-nearest neighbours and "
+    "the CellProfiler Analyst classifiers, with majority and shuffled controls."
+)
+
+
+def profiling_evaluation_defaults(settings: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
+    """The settings of :func:`run_profiling_evaluation`, filled in with their defaults.
+
+    :param settings: settings given so far; a key already present is kept.
+    :returns: a new dict with every ``moa_eval_*`` key.
+    """
+    merged = dict(settings or {})
+    for key, value in _EVALUATION_DEFAULTS.items():
+        merged.setdefault(key, value)
+    if not merged.get('moa_eval_exclude'):
+        from .sp_stats import MOA_EVALUATION_EXCLUDE
+
+        merged['moa_eval_exclude'] = MOA_EVALUATION_EXCLUDE
+    return merged
+
+
+def _register_evaluation() -> None:
+    """Register the evaluation's settings through the defaults seam, once per process."""
+    from .settings import has_registered_defaults, register_defaults
+
+    if has_registered_defaults(EVALUATION_APP_KEY):
+        return
+    register_defaults(EVALUATION_APP_KEY, profiling_evaluation_defaults,
+                      expected_types={key: type(value)
+                                      for key, value in _EVALUATION_DEFAULTS.items()},
+                      tooltips=_EVALUATION_TOOLTIPS, categories=_EVALUATION_CATEGORIES,
+                      description=_EVALUATION_DESCRIPTION)
+
+
+_register_evaluation()
+
+
+def run_profiling_evaluation(settings: Mapping[str, Any]) -> Dict[str, Any]:
+    """Evaluate a well-profile table by MoA from settings and write the results.
+
+    Runs :func:`spacr.sp_stats.moa_evaluation` and writes, to
+    ``moa_eval_dst`` (default ``results/profiling_evaluation`` beside the
+    profiles): ``summary.csv`` (method x protocol x seed accuracy),
+    ``controls.csv``, ``per_moa.csv`` (with ``moa_eval_per_moa``),
+    ``confusion_<method>.csv`` per method, ``predictions.csv`` and
+    ``evaluation.json`` (features, dropped features and the settings).
+
+    :param settings: the keys of :func:`profiling_evaluation_defaults`;
+        ``moa_eval_profiles`` may also be a frame.
+    :returns: the :func:`spacr.sp_stats.moa_evaluation` result with
+        ``paths`` added.
+    :raises ValueError: without a profiles table, or for settings the
+        evaluation rejects.
+    """
+    from .sp_stats import moa_evaluation
+    from .tabular import write_table
+
+    settings = profiling_evaluation_defaults(settings)
+    source = settings['moa_eval_profiles']
+    if source is None or (isinstance(source, str) and not source):
+        raise ValueError('moa_eval_profiles is blank: name the well profiles to score')
+    metadata = settings['moa_eval_metadata']
+    if isinstance(metadata, str) and not metadata:
+        metadata = None
+    result = moa_evaluation(source, metadata, settings)
+    dst = settings['moa_eval_dst']
+    if not dst:
+        base = Path.cwd() if isinstance(source, pd.DataFrame) else Path(os.fspath(source)).parent
+        dst = base / 'results' / 'profiling_evaluation'
+    folder = Path(dst)
+    folder.mkdir(parents=True, exist_ok=True)
+    paths = [write_table(result['summary'], folder / 'summary.csv', canonicalise=False),
+             write_table(result['controls'], folder / 'controls.csv', canonicalise=False),
+             write_table(result['predictions'], folder / 'predictions.csv', canonicalise=False)]
+    if settings['moa_eval_per_moa']:
+        paths.append(write_table(result['per_moa'], folder / 'per_moa.csv', canonicalise=False))
+    for method, table in result['confusion'].items():
+        paths.append(write_table(table, folder / f'confusion_{method}.csv', canonicalise=False))
+    record = folder / 'evaluation.json'
+    record.write_text(json.dumps({
+        'n_features': len(result['features']), 'features': result['features'],
+        'dropped_features': result['dropped'], 'qc_dropped_features': result['qc_dropped'],
+        'settings': {key: settings[key] for key in _EVALUATION_DEFAULTS
+                     if not isinstance(settings[key], pd.DataFrame)}},
+        indent=1, default=str), encoding='utf-8')
+    result['paths'] = [str(path) for path in paths] + [str(record)]
     return result
 
 

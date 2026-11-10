@@ -1,0 +1,31 @@
+RAW CROP SHARDS, PRETRAINED EMBEDDINGS, WELL EMBEDDING PROFILES AND THE WELL UMAP
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha, under ALPHA_FEATURES[896]) — spacr.embedding_profiles.run_embedding_profiles (spacr-run embedding_profiles): select_crop_cells (crop_cap_per_well per well, one numpy generator seeded crop_seed over the sorted wells), write_crop_shard (raw windows of crop_window px around each cell's centroid from merged/ through spacr.crops.open_merged_field, optional crop_illumination='gain_offset' with the plate's saved illumination model, bit-flag masks 1/2/4/8, one HDF5 shard per plate + .cells.parquet + .json), embed_crop_shard (spacr.embeddings: per-channel backbone, the plate's 99th-percentile scale from a 2,048-crop sample, embedding_input_normalisation 'none' or 'imagenet'), aggregate_embedding_wells (wells_median, wells_mean, dmso_percentiles through spacr.screen_staging.aggregate_wells, new prefixes argument) and well_umap (umap-learn, L2-normalised, cosine, 15 neighbours, seed 0, one thread). Acceptance on CPU (BBBC021 Week10_40111): the 300-per-well draw is identical to the reference's (5,965 crops); the crops, masks and crop index of wells B02 and B11 (600 crops) are pixel-identical to the reference shard; the channel scale and the ResNet-18 embeddings of the first 128 crops are bit-identical (same spec fingerprint); wells_median, wells_mean and dmso_percentiles of three plates are identical to the cv tables; through the MoA evaluation entry (894) logistic gives 98/103 NSC and 76/102 NSCB and 1-NN 80/103 and 74/102, as cv_summary.md. spacr/embedding_profiles.py, tests/test_embedding_profiles_896.py.
+Requested: maintainer, 2026-11-09 (BMC paper port P16).
+Owner: lane H, 2026-11-09.
+Source: R/bbbc021/cv/{make_crops.py, embed_crops.py, aggregate_emb.py, score_emb.sh}, figures/scripts/fig5_cv.py, proposals/bmc_paper_items/ITEM_crop_embedding_well_profiles.md.
+Related: 772, 809, 893, 894.
+
+WHAT THE STATE IS
+make_crops.py and embed_crops.py drove spaCR internals; the well aggregate
+of embeddings and the UMAP were custom.
+
+RESULT
+Scratch script /mnt/firecuda2/codex/scratch-docs/lane-h-1109/accept_896.py,
+results in v896/accept_896_*.json there.
+
+STILL TO DO
+- UMAP coordinates: with umap-learn 0.5.12 the reference's own code, run
+  here on the identical input matrix, no longer gives the Fig5D CSV (max
+  difference 25 units), so the CSV cannot be matched in this environment;
+  the reference's numba / pynndescent versions were not recorded.
+- The crop export is a step after Measure, not inside measure_crop as the
+  spec asked; 'png' and 'tar_shards' stores are not built (809).
+- Logistic NSC/NSCB match only with one BLAS thread (OMP_NUM_THREADS=1, as
+  the reference ran); with two threads NSC is 99/103.
+- GPU: allclose 1e-6 of embeddings on the GPU; full-plate embedding.
+
+DELIBERATELY NOT DONE
+- OpenPhenom loading and ChAda-ViT padding (cv README gaps 4 and 5) are in
+  spacr.embeddings, not here.

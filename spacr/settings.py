@@ -8458,6 +8458,34 @@ ALPHA_FEATURES = {
             'pretrain_method', 'pretrain_epochs', 'pretrain_mask_ratio', 'train_labels_per_class',
             'eval_channel_subsets')},
     },
+    896: {
+        'module_settings': {'embedding_profiles': (
+            'embedding_src', 'embedding_cells', 'embedding_wells', 'crop_store',
+            'crop_window', 'crop_channels', 'crop_cap_per_well', 'crop_mask_flags',
+            'crop_illumination', 'crop_illumination_model', 'crop_seed', 'embedding_backbone',
+            'embedding_channel_mode', 'embedding_channel_scale', 'embedding_input_normalisation', 'embedding_weights',
+            'embedding_masked', 'embedding_batch_size', 'embedding_aggregate', 'embedding_control',
+            'embedding_control_column', 'embedding_umap', 'umap_metric', 'umap_neighbors',
+            'umap_min_dist', 'umap_seed', 'umap_percentiles', 'embedding_out',)},
+    },
+    894: {
+        'module_settings': {'profiling_evaluation': (
+            'moa_eval_profiles', 'moa_eval_metadata', 'moa_eval_metadata_columns', 'moa_eval_labels',
+            'moa_eval_label', 'moa_eval_compound', 'moa_eval_concentration', 'moa_eval_batch',
+            'moa_eval_batch_pattern', 'moa_eval_control', 'moa_eval_protocols', 'moa_eval_methods',
+            'moa_eval_feature_qc', 'moa_eval_normalise', 'moa_eval_percentiles', 'moa_eval_exclude',
+            'moa_eval_controls', 'moa_eval_shuffles', 'moa_eval_knn_shuffles', 'moa_eval_replicates',
+            'moa_eval_seeds', 'moa_eval_per_moa', 'moa_eval_workers', 'moa_eval_dst',)},
+    },
+    893: {
+        'module_settings': {'screen': (
+            'screen_phases', 'import_source', 'import_naming', 'import_regex',
+            'import_mode', 'import_map', 'import_wells', 'mask_overrides',
+            'measure_overrides', 'export_parquet', 'export_parquet_dir',
+            'aggregate_levels', 'aggregate_metadata', 'aggregate_metadata_columns',
+            'aggregate_control', 'aggregate_control_percentiles',
+            'aggregate_heterogeneity', 'aggregate_dir', 'record_timing')},
+    },
     795: {
         'module_settings': {'moa_benchmark': (
             'moa_profiles', 'moa_labels', 'moa_label_column', 'moa_compound_column',
