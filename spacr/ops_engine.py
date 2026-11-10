@@ -3140,9 +3140,9 @@ _PH_POOL_BLOCK = 48
 #: The settings that turn on a gene-profile option of the aggregate phase
 #: (:func:`_ph_profile_options`); each needs the per-cell TVN components.
 _PH_PROFILE_SWITCHES: Tuple[str, ...] = (
-    "ops_profile_cell_cycle", "ops_profile_weighting",
-    "ops_guide_efficacy", "ops_penetrance", "ops_escapers",
-    "ops_phase_tests",
+    "ops_profile_cell_cycle", "ops_profile_shrinkage",
+    "ops_profile_weighting", "ops_guide_efficacy", "ops_penetrance",
+    "ops_escapers", "ops_phase_tests",
 )
 
 _PH_DEGENERATE_CAUSES = (
@@ -3857,7 +3857,8 @@ def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
     from .gene_measurement_compare import (
         CELL_CYCLE_PHASES, cell_cycle_phases, contrastive_weighting,
         guide_efficacy_profiles, nt_row_names, penetrance_tests,
-        phase_columns, phase_profiles, phase_tests)
+        phase_columns, phase_profiles, phase_tests,
+        shrink_gene_profiles)
     from .qt.i18n import tr
 
     report: Dict[str, Any] = {"outputs": {}}
@@ -3916,6 +3917,34 @@ def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
         profile_genes = genes[["gene", "n_guides", "n_cells"]].merge(
             phase_genes[["gene", *columns]], on="gene", how="inner")
         report["cell_cycle"]["profile"] = cycle
+
+    shrinkage = str(settings.get("ops_profile_shrinkage") or "").strip().lower() or None
+    if shrinkage not in (None, "eb_nt"):
+        raise ValueError(tr("ops_profile_shrinkage must be empty or eb_nt; "
+                            "got {value}", value=shrinkage))
+    if shrinkage:
+        prior = float(_setting_number(settings.get("ops_profile_shrinkage_prior_df"),
+                                      "ops_profile_shrinkage_prior_df", 4.0))
+        if cycle:
+            parts = []
+            for p in (CELL_CYCLE_PHASES if cycle == "concat" else (cycle,)):
+                chosen_columns = [f"{p}_{c}" for c in pcs]
+                sub = profile_guides[profile_guides[f"{p}_n_cells"].fillna(0) >= 3]
+                shrunk, _factor, _params = shrink_gene_profiles(
+                    sub, chosen_columns, control_prefix=control_prefix,
+                    n_cells=sub[f"{p}_n_cells"], prior_df=prior)
+                parts.append(shrunk.set_index("gene"))
+            shrunk = pd.concat(parts, axis=1).reset_index().dropna()
+            report["shrinkage"] = {"prior_df": prior, "per_phase": True}
+        else:
+            shrunk, factor, params = shrink_gene_profiles(
+                profile_guides, columns, control_prefix=control_prefix,
+                prior_df=prior)
+            report["shrinkage"] = {**params, "median_factor": float(factor.median())}
+        profile_genes = genes[["gene", "n_guides", "n_cells"]].merge(
+            shrunk, on="gene", how="inner")
+        _ph_profile_tables("genes_shrink", profile_genes, destination, label,
+                           outputs)
 
     weighting = str(settings.get("ops_profile_weighting") or "").strip().lower() or None
     if weighting not in (None, "contrastive_wiener"):

@@ -3134,3 +3134,70 @@ def escaper_classes(genes: pd.DataFrame, cells: pd.DataFrame, *,
         "controls_phase_chi_p<1e-3": int((ctl.phase_chi_p < 1e-3).sum()),
         "escapers_ashman_D>2": int((hit.ashman_D > 2).sum())}
     return out, summary
+
+def shrink_gene_profiles(guides: pd.DataFrame, features: Sequence[str], *,
+                         control_prefix: str = "nontargeting",
+                         n_cells: Optional[Sequence[float]] = None,
+                         prior_df: float = 4.0
+                         ) -> Tuple[pd.DataFrame, pd.Series, Dict[str, Any]]:
+    """Gene profiles shrunk toward the controls by their guides' reliability.
+
+    :param guides: one row per guide with ``gene``, ``n_cells`` and the
+        ``features`` (TVN components, whose per-cell variance is about 1).
+    :param features: the profile columns.
+    :param control_prefix: genes whose name starts with it (or with
+        ``NTpseudo``) are the non-targeting rows that set the noise.
+    :param n_cells: each guide's cell count; by default ``n_cells``.
+    :param prior_df: the degrees of freedom of the non-targeting noise
+        estimate when it is pooled with a gene's own guide spread
+        (``ops_profile_shrinkage_prior_df``).
+    :returns: ``(genes, factor, parameters)``: one row per gene, ``gene``
+        and the shrunk ``features``; each gene's mean shrink factor; and
+        ``a_between``, ``tau2`` and ``prior_df``.
+
+    Per feature ``d``, a guide's noise is the between-guide variance
+    ``a_d`` of the non-targeting guides plus the sampling variance of a
+    median of ``n`` cells, ``(pi / 2) v_d / n`` with ``v_d = 1``. For each
+    gene that noise, averaged over its guides, is pooled with the gene's own
+    between-guide variance (``K - 1`` degrees of freedom against
+    ``prior_df``), so a gene whose guides disagree is shrunk more. The
+    prior signal variance ``tau2_d`` comes from the moments of the
+    targeting genes, and the gene's mean guide profile, centred on the
+    non-targeting guides, is multiplied by ``tau2 / (tau2 + V / K)``. This
+    is empirical-Bayes variance moderation (Smyth 2004) followed by a
+    James-Stein-type shrinkage. Do not stack it with
+    :func:`contrastive_weighting`, which then has no direction left.
+    """
+    values = guides[list(features)].to_numpy(float)
+    names = guides["gene"].to_numpy()
+    nt = _control_rows(names, control_prefix)
+    counts = np.asarray(guides["n_cells"] if n_cells is None else n_cells,
+                        float)
+    centre = values[nt].mean(0)
+    centred = values - centre
+    cell_variance = np.ones(len(features))
+    residual = centred[nt] ** 2 - (np.pi / 2) * cell_variance[None, :] / counts[nt, None]
+    between = np.clip(residual.mean(0), 1e-6, None)
+    members = pd.Series(names)
+    means, pooled_variances, genes = [], [], []
+    for name, index in members.groupby(members).indices.items():
+        rows = centred[index]
+        k = len(index)
+        noise = (between[None, :] + (np.pi / 2) * cell_variance[None, :]
+                 / counts[index, None]).mean(0)
+        spread = rows.var(0, ddof=1) if k > 1 else np.zeros(len(features))
+        pooled = (prior_df * noise + (k - 1) * spread) / (prior_df + k - 1)
+        pooled_variances.append(pooled / k)
+        means.append(rows.mean(0))
+        genes.append(name)
+    means, pooled_variances = np.array(means), np.array(pooled_variances)
+    targeting = ~_control_rows(genes, control_prefix)
+    tau2 = np.clip(means[targeting].var(0) - pooled_variances[targeting].mean(0),
+                   1e-6, None)
+    factor = tau2[None, :] / (tau2[None, :] + pooled_variances)
+    out = pd.DataFrame(factor * means, columns=list(features))
+    out.insert(0, "gene", genes)
+    return (out, pd.Series(factor.mean(1), index=genes),
+            {"a_between": between.tolist(), "tau2": tau2.tolist(),
+             "prior_df": prior_df})
+

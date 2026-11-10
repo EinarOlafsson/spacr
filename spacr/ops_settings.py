@@ -111,6 +111,8 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_escaper_min_sep": 2.0,
     "ops_phase_tests": False,
     "ops_phase_null": "targeting",
+    "ops_profile_shrinkage": None,
+    "ops_profile_shrinkage_prior_df": 4.0,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -205,6 +207,8 @@ OPS_TYPES: Dict[str, object] = {
     "ops_escaper_min_sep": (float, int),
     "ops_phase_tests": bool,
     "ops_phase_null": str,
+    "ops_profile_shrinkage": (str, type(None)),
+    "ops_profile_shrinkage_prior_df": (float, int),
 }
 
 #: Which panel section each setting appears under.
@@ -270,6 +274,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_escaper_min_sep",
         "ops_phase_tests",
         "ops_phase_null",
+        "ops_profile_shrinkage",
+        "ops_profile_shrinkage_prior_df",
     ],
 }
 
@@ -776,6 +782,16 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "four targeting guides of four genes) or 'nt' (random sets of four "
         "control guides). Every targeting guide cuts DNA, so against "
         "controls almost every gene differs. Default 'targeting'. Alpha.",
+    "ops_profile_shrinkage":
+        "(str or None) - 'eb_nt' shrinks each gene profile toward the "
+        "controls by how reliable its guides are: the control guides set "
+        "the noise, each gene's own guide spread is pooled with it, and the "
+        "profile is multiplied by tau2 / (tau2 + V / K) per dimension. Not "
+        "stacked with ops_profile_weighting. Default None. Alpha.",
+    "ops_profile_shrinkage_prior_df":
+        "(float) - The degrees of freedom of the control-guide noise "
+        "estimate when it is pooled with a gene's own guide spread; higher "
+        "trusts the controls more. Default 4. Alpha.",
 }
 
 #: The blurb the module shows above its settings.
