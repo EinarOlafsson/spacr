@@ -679,3 +679,437 @@ def assign_reads_to_objects(owners: np.ndarray, barcodes: Sequence[str], *,
         per_owner.setdefault(int(ids[index]), []).append(int(index))
     return _vote(per_owner, barcodes, quality, min_reads=min_reads,
                  min_fraction=min_fraction)
+
+
+def decoy_library(library: Sequence[str], k: int = 4,
+                  seed: int = 1) -> List[str]:
+    """Base-shuffled decoy barcodes, ``k`` per guide, for a decoy FDR.
+
+    Each decoy is a permutation of one guide's letters, so it keeps that
+    guide's base composition, and it is accepted only when it lies at least
+    two edits from every guide and every decoy taken before it -- the same
+    separation the library was designed with. Matched alongside the real
+    library, a decoy call is a call that cannot be true, and ``k`` decoys per
+    guide measure a rare false match ``k`` times as precisely.
+
+    :param library: the guide barcodes; duplicates are dropped and the rest
+        sorted, so the decoys do not depend on the order they were listed in.
+    :param k: decoys per guide.
+    :param seed: the shuffle's seed. 1 is the seed of the decode-yield study
+        (item 873), whose decoy FDRs this reproduces.
+    :returns: the decoys, guide by guide and round by round. A guide whose 200
+        shuffles all collide gets none in that round.
+    """
+    guides = sorted(set(str(entry) for entry in library))
+    rng = np.random.default_rng(seed)
+    taken = set(guides)
+    masked = set()
+    for entry in guides:
+        for i in range(len(entry)):
+            masked.add((i, entry[:i] + entry[i + 1:]))
+    out: List[str] = []
+    for _ in range(int(k)):
+        for entry in guides:
+            for _ in range(200):
+                candidate = "".join(rng.permutation(list(entry)))
+                if candidate in taken or any(
+                        (i, candidate[:i] + candidate[i + 1:]) in masked
+                        for i in range(len(candidate))):
+                    continue
+                out.append(candidate)
+                taken.add(candidate)
+                for i in range(len(candidate)):
+                    masked.add((i, candidate[:i] + candidate[i + 1:]))
+                break
+    return out
+
+
+class LibraryMatcher:
+    """The unique closest barcode within a distance, with ``N`` as a wildcard.
+
+    One matcher holds the guides and, for a decoy FDR, the decoys, so a read
+    is matched against both under one uniqueness rule: a read equally close
+    to a guide and a decoy maps to neither.
+
+    :param entries: the barcodes to match against.
+    """
+
+    def __init__(self, entries: Sequence[str]):
+        """Index the barcodes.
+
+        :param entries: the barcodes; duplicates are dropped.
+        """
+        self.entries = sorted(set(str(entry) for entry in entries))
+        width = len(self.entries[0]) if self.entries else 0
+        self.width = width
+        self.table = (np.frombuffer("".join(self.entries).encode("ascii"),
+                                    dtype=np.uint8).reshape(len(self.entries), width)
+                      if self.entries else np.zeros((0, 0), np.uint8))
+        self.known = {entry: i for i, entry in enumerate(self.entries)}
+        self.cache: Dict[Tuple[str, int], Tuple[Optional[str], int]] = {}
+
+    def match(self, read: str, max_distance: int) -> Tuple[Optional[str], int]:
+        """Match one read.
+
+        :param read: the called read; ``N`` is a base that was not measured
+            and matches any letter without counting as a mismatch.
+        :param max_distance: the most mismatches accepted.
+        :returns: ``(barcode, distance)``, or ``(None, -1)`` when no barcode
+            is close enough or two tie for closest.
+        """
+        key = (read, max_distance)
+        found = self.cache.get(key)
+        if found is not None:
+            return found
+        if read in self.known:
+            result: Tuple[Optional[str], int] = (read, 0)
+        elif (max_distance == 0 and "N" not in read) or len(read) != self.width \
+                or not self.entries:
+            result = (None, -1)
+        else:
+            letters = np.frombuffer(read.encode("ascii"), dtype=np.uint8)
+            distance = ((self.table != letters) & (letters != ord("N"))).sum(1)
+            best = int(distance.min())
+            if best > max_distance or int((distance == best).sum()) > 1:
+                result = (None, -1)
+            else:
+                result = (self.entries[int(distance.argmin())], best)
+        self.cache[key] = result
+        return result
+
+
+def _argmax_median_unmix64(values: np.ndarray) -> np.ndarray:
+    """Brieflow's median crosstalk transform, kept in float64.
+
+    :param values: ``(N, cycles, channels)``; a row with any non-finite
+        channel stays NaN.
+    :returns: the unmixed intensities, float64, same shape. The library
+        calibration fits its per-cycle axes on these, so they are not
+        rounded to float32 first.
+    """
+    data = np.asarray(values)
+    flat = data.reshape(-1, data.shape[-1]).astype(np.float64)
+    ok = np.isfinite(flat).all(1)
+    rows = flat[ok]
+    median = np.median(rows, axis=0)
+    median[~(median > 0)] = 1
+    rows = rows / median
+    axes = []
+    for channel in range(rows.shape[1]):
+        chosen = rows[rows.argmax(1) == channel]
+        axes.append(np.median(chosen, axis=0) if len(chosen)
+                    else np.eye(rows.shape[1])[channel])
+    axes = np.array(axes).T
+    axes = axes / axes.sum(0)
+    try:
+        unmix = np.linalg.inv(axes)
+    except np.linalg.LinAlgError:
+        unmix = np.eye(rows.shape[1])
+    out = np.full_like(flat, np.nan)
+    out[ok] = unmix.dot(rows.T).T
+    return out.reshape(data.shape)
+
+
+def library_calibrated_bases(values: np.ndarray, library: Sequence[str], *,
+                             bases: Sequence[str] = BASES, passes: int = 2,
+                             min_labels: int = 30, masked: Optional[dict] = None
+                             ) -> Tuple[np.ndarray, List[str], np.ndarray]:
+    """Call bases with per-cycle axes learnt from the reads the library names.
+
+    The reads are first normalised per cycle and unmixed with brieflow's
+    median transform. Then, for each read and cycle, the read is matched on
+    its OTHER cycles; when exactly one guide fits, that guide names the true
+    base at the masked cycle without looking at it. Per cycle, the median
+    intensity of the reads labelled with each base is that base's axis; the
+    four axes, scaled to sum to one, are inverted and every read of the cycle
+    is unmixed with them. Labels come from the real library only, so a decoy
+    library matched later stays an independent false-match control. This is
+    the "S1b" calibration of the decode-yield study (item 873).
+
+    :param values: ``(N, cycles, channels)`` from :func:`extract_bases`.
+    :param library: the guide barcodes.
+    :param bases: the letter for each channel, in channel order.
+    :param passes: how often the labels are re-derived from the last calls.
+    :param min_labels: the fewest labelled reads per base a cycle needs; a
+        cycle short of it keeps the median transform.
+    :param masked: the library's masked index from :func:`_library_index`,
+        when the caller keeps one; None builds it.
+    :returns: ``(data, barcodes, margin)`` as :func:`called_bases` returns
+        them.
+    """
+    data = np.asarray(values, dtype=np.float32)
+    if data.size == 0:
+        return called_bases(data, bases=bases, gpu=False)
+    letters = "".join(str(b) for b in bases)
+    first, _, _ = called_bases(data, bases=bases, normalise=True, gpu=False)
+    first = _argmax_median_unmix64(first)
+    _, calls, _ = called_bases(first, bases=bases, normalise=False, gpu=False)
+    n_reads, n_cycles, n_channels = first.shape
+    if masked is None:
+        _, masked, _ = _library_index(library)
+    unmixed = first.copy()
+    for _ in range(int(passes)):
+        labels = np.full((n_reads, n_cycles), -1, np.int8)
+        for i, read in enumerate(calls):
+            for c in range(n_cycles):
+                candidates = masked.get((c, read[:c] + read[c + 1:]))
+                if candidates and len(candidates) == 1:
+                    labels[i, c] = letters.index(candidates[0][c])
+        unmixed = first.copy()
+        for c in range(n_cycles):
+            cycle = first[:, c]
+            ok = np.isfinite(cycle).all(1)
+            axes = np.eye(n_channels)
+            usable = True
+            for k in range(n_channels):
+                chosen = ok & (labels[:, c] == k)
+                if chosen.sum() < min_labels:
+                    usable = False
+                    break
+                axes[:, k] = np.median(cycle[chosen], axis=0)
+            if not usable:
+                continue
+            axes = axes / axes.sum(0)
+            try:
+                weights = np.linalg.inv(axes)
+            except np.linalg.LinAlgError:
+                continue
+            unmixed[ok, c] = cycle[ok] @ weights.T
+        _, calls, _ = called_bases(unmixed, bases=bases, normalise=False,
+                                   gpu=False)
+    return called_bases(unmixed, bases=bases, normalise=False, gpu=False)
+
+
+def runner_up_consistent(data_row: np.ndarray, margin_row: np.ndarray,
+                         read: str, guide: str, max_margin: float, *,
+                         bases: Sequence[str] = BASES) -> bool:
+    """Whether a one-mismatch read may count for its guide.
+
+    Every mismatched cycle must be one whose call was uncertain -- its margin
+    below ``max_margin`` -- and whose RUNNER-UP channel is the guide's base,
+    so the guide is what the read would have said had that cycle tipped the
+    other way. An ``N`` is not a mismatch.
+
+    :param data_row: ``(cycles, channels)``, the intensities the read was
+        called from.
+    :param margin_row: ``(cycles,)``, the per-cycle margins.
+    :param read: the called read.
+    :param guide: the guide it matched.
+    :param max_margin: the largest margin a mismatched cycle may carry.
+    :param bases: the letter for each channel, in channel order.
+    :returns: True when every mismatch passes.
+    """
+    letters = "".join(str(b) for b in bases)
+    for position, (called, wanted) in enumerate(zip(read, guide)):
+        if called == wanted or called == "N":
+            continue
+        order = np.argsort(np.nan_to_num(data_row[position], nan=-np.inf))[::-1]
+        if letters[order[1]] != wanted or not (margin_row[position] < max_margin):
+            return False
+    return True
+
+
+def nearest_boundaries(points: np.ndarray, centroids: np.ndarray,
+                       areas: np.ndarray, *, neighbours: int = 8
+                       ) -> Tuple[np.ndarray, np.ndarray]:
+    """The two nearest object boundaries of each point, and their objects.
+
+    Each object's boundary is its equivalent disc. The ``neighbours`` nearest
+    centroids are ranked by the gap from the point to their boundary, so the
+    rule that gives a read to the nearest boundary can also see how close the
+    runner-up came, which is what the territory rule and a tie test read.
+
+    :param points: ``(N, 2)`` positions ``(y, x)``.
+    :param centroids: ``(M, 2)`` object centroids in the same frame.
+    :param areas: ``(M,)`` object areas in pixels.
+    :param neighbours: how many nearest centroids are ranked.
+    :returns: ``(gap, index)`` -- ``(N, 2)`` float64 gaps, ``inf`` where
+        there is no second object, and ``(N, 2)`` indices into
+        ``centroids``, -1 where there is none.
+    """
+    from scipy.spatial import cKDTree
+
+    pts = np.asarray(points, dtype=float).reshape(-1, 2)
+    centres = np.asarray(centroids, dtype=float).reshape(-1, 2)
+    radius = np.sqrt(np.maximum(np.asarray(areas, dtype=float).reshape(-1), 0)
+                     / np.pi)
+    n = len(pts)
+    gap = np.full((n, 2), np.inf)
+    index = np.full((n, 2), -1, np.int64)
+    if n and len(centres):
+        k = min(int(neighbours), len(centres))
+        distance, near = cKDTree(centres).query(pts, k=k)
+        distance, near = distance.reshape(n, k), near.reshape(n, k)
+        gaps = distance - radius[near]
+        order = np.argsort(gaps, axis=1, kind="stable")
+        gaps = np.take_along_axis(gaps, order, 1)
+        near = np.take_along_axis(near, order, 1)
+        gap[:, :min(2, k)] = gaps[:, :2]
+        index[:, :min(2, k)] = near[:, :2]
+    return gap, index
+
+
+def vote_mapped_reads(objects: np.ndarray, barcodes: Sequence[str],
+                      quality: np.ndarray, data: np.ndarray,
+                      margin: np.ndarray, matcher: LibraryMatcher, *,
+                      max_distance: int = 0,
+                      runner_up_margin: Optional[float] = None,
+                      quality_weighted: bool = False,
+                      weight_floor: float = 0.05,
+                      min_fraction: float = 0.6,
+                      single_read_quality: float = 0.03,
+                      impute_missing: bool = True,
+                      strength: Optional[np.ndarray] = None,
+                      evidence: Optional[dict] = None,
+                      bases: Sequence[str] = BASES) -> Dict[int, dict]:
+    """Each object's guide from its reads, matched to the library first.
+
+    Every read is matched (:class:`LibraryMatcher`); a read at distance one
+    or more counts only when ``runner_up_margin`` is given and
+    :func:`runner_up_consistent` passes. The matched reads vote, each with
+    weight one, or with ``min(1, quality) + weight_floor`` when
+    ``quality_weighted``. An object takes the top guide when it holds at
+    least ``min_fraction`` of the votes with no tie, and, when one read is
+    all that supports it, that read's quality reaches
+    ``single_read_quality``.
+
+    :param objects: one object id per read.
+    :param barcodes: one called barcode per read.
+    :param quality: one quality per read, the worst cycle's margin.
+    :param data: ``(N, cycles, channels)``, the intensities called from.
+    :param margin: ``(N, cycles)``, the per-cycle margins.
+    :param matcher: the guides, and any decoys, to match against.
+    :param max_distance: the most mismatches a read may carry.
+    :param runner_up_margin: the runner-up rule's margin, or None to count
+        every match within ``max_distance``.
+    :param quality_weighted: weight votes by read quality.
+    :param weight_floor: added to every quality weight.
+    :param min_fraction: the share of the votes the guide must hold.
+    :param single_read_quality: the quality a one-read guide needs.
+    :param impute_missing: let an ``N`` -- a cycle that was not measured --
+        match any base; False leaves such reads unmatched.
+    :param strength: one spot strength per read, for the evidence; None
+        records none.
+    :param evidence: a dict filled with the per-object, per-guide tallies
+        behind every vote -- ``votes``, ``exact``, ``corrected``, ``best``,
+        ``qualities``, ``strength`` and ``matched`` -- for objects assigned
+        or not; None keeps none.
+    :param bases: the letter for each channel, in channel order.
+    :returns: ``{object: {"guide", "fraction", "n_support", "n_exact",
+        "n_corrected", "n_matched", "n_guides", "vote_top", "vote_total",
+        "runner_margin", "quality", "barcode"}}``; ``barcode`` is the
+        commonest raw read behind the guide, ``runner_margin`` the top vote
+        minus the second over the total.
+    """
+    from collections import Counter, defaultdict
+
+    votes: Dict[int, Dict[str, float]] = defaultdict(lambda: defaultdict(float))
+    exact: Dict[int, Dict[str, int]] = defaultdict(lambda: defaultdict(int))
+    corrected: Dict[int, Dict[str, int]] = defaultdict(lambda: defaultdict(int))
+    best: Dict[int, Dict[str, float]] = defaultdict(lambda: defaultdict(float))
+    raw: Dict[int, Dict[str, Counter]] = defaultdict(lambda: defaultdict(Counter))
+    qualities: Dict[int, Dict[str, list]] = defaultdict(lambda: defaultdict(list))
+    brightest: Dict[int, Dict[str, float]] = defaultdict(lambda: defaultdict(float))
+    matched: Counter = Counter()
+    for i, (owner, read) in enumerate(zip(objects, barcodes)):
+        if not impute_missing and "N" in read:
+            continue
+        guide, distance = matcher.match(read, max_distance if max_distance else 0)
+        if guide is None:
+            continue
+        owner = int(owner)
+        if distance > 0:
+            if runner_up_margin is not None and not runner_up_consistent(
+                    data[i], margin[i], read, guide, runner_up_margin,
+                    bases=bases):
+                continue
+            corrected[owner][guide] += 1
+        else:
+            exact[owner][guide] += 1
+        weight = (float(min(1.0, max(quality[i], 0.0)) + weight_floor)
+                  if quality_weighted else 1.0)
+        votes[owner][guide] += weight
+        best[owner][guide] = max(best[owner][guide], quality[i])
+        raw[owner][guide][read] += 1
+        matched[owner] += 1
+        if evidence is not None:
+            qualities[owner][guide].append(float(quality[i]))
+            if strength is not None:
+                brightest[owner][guide] = max(brightest[owner][guide],
+                                              float(strength[i]))
+    if evidence is not None:
+        evidence.update({"votes": votes, "exact": exact, "corrected": corrected,
+                         "best": best, "qualities": qualities,
+                         "strength": brightest, "matched": matched})
+    out: Dict[int, dict] = {}
+    for owner, tally in votes.items():
+        ranked = sorted(tally.items(), key=lambda kv: -kv[1])
+        guide, top = ranked[0]
+        total = sum(tally.values())
+        if len(ranked) > 1 and ranked[1][1] == top:
+            continue
+        if top / total < min_fraction:
+            continue
+        support = exact[owner].get(guide, 0) + corrected[owner].get(guide, 0)
+        if support == 1 and best[owner][guide] < single_read_quality:
+            continue
+        second = ranked[1][1] if len(ranked) > 1 else 0.0
+        out[owner] = {"guide": guide, "fraction": float(top / total),
+                      "n_support": int(support),
+                      "n_exact": int(exact[owner].get(guide, 0)),
+                      "n_corrected": int(corrected[owner].get(guide, 0)),
+                      "n_matched": int(matched[owner]),
+                      "n_guides": len(ranked), "vote_top": float(top),
+                      "vote_total": float(total),
+                      "runner_margin": float((top - second) / total),
+                      "quality": float(best[owner][guide]),
+                      "barcode": raw[owner][guide].most_common(1)[0][0]}
+    return out
+
+
+def vote_pixels(objects: np.ndarray, barcodes: Sequence[str],
+                quality: np.ndarray, matcher: LibraryMatcher, *,
+                min_quality: float = 0.1, min_pixels: int = 2,
+                min_fraction: float = 0.6) -> Dict[int, dict]:
+    """Each object's guide from its bright pixels, for objects no read named.
+
+    Pixels are called like reads but are not independent -- the pixels of one
+    spot repeat its call -- so the rule counts pixels, not reads: an object
+    takes the top exact guide when at least ``min_pixels`` pixels of quality
+    ``min_quality`` or better name it, it holds ``min_fraction`` of them, and
+    no other guide ties it. This is the "N3" pixel fallback of the
+    decode-yield study (item 873).
+
+    :param objects: one object id per pixel.
+    :param barcodes: one called barcode per pixel.
+    :param quality: one quality per pixel.
+    :param matcher: the guides, and any decoys, to match against exactly.
+    :param min_quality: the weakest pixel that votes.
+    :param min_pixels: the fewest agreeing pixels.
+    :param min_fraction: the share of the matched pixels the guide must hold.
+    :returns: ``{object: {"guide", "n_pixels", "n_matched", "fraction",
+        "runner_margin", "barcode"}}``.
+    """
+    from collections import Counter, defaultdict
+
+    votes: Dict[int, Counter] = defaultdict(Counter)
+    raw: Dict[int, Dict[str, Counter]] = defaultdict(lambda: defaultdict(Counter))
+    for owner, read, q in zip(objects, barcodes, quality):
+        if q < min_quality:
+            continue
+        guide, _ = matcher.match(read, 0)
+        if guide is not None:
+            votes[int(owner)][guide] += 1
+            raw[int(owner)][guide][read] += 1
+    out: Dict[int, dict] = {}
+    for owner, tally in votes.items():
+        (guide, n), *rest = tally.most_common()
+        total = sum(tally.values())
+        if n >= min_pixels and not (rest and rest[0][1] == n) \
+                and n / total >= min_fraction:
+            out[owner] = {"guide": guide, "n_pixels": int(n),
+                          "n_matched": int(total), "fraction": float(n / total),
+                          "runner_margin": float(
+                              (n - (rest[0][1] if rest else 0)) / total),
+                          "barcode": raw[owner][guide].most_common(1)[0][0]}
+    return out

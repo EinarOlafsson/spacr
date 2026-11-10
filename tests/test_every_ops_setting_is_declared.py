@@ -170,8 +170,8 @@ def test_the_engine_reads_every_setting_the_panel_offers(declared):
     import inspect
 
     keys, _ops, _cat = declared
-    from spacr import ops_engine
+    from spacr import ops_decode, ops_engine
 
-    source = inspect.getsource(ops_engine)
+    source = inspect.getsource(ops_engine) + inspect.getsource(ops_decode)
     unread = sorted(key for key in keys if f'"{key}"' not in source)
     assert not unread, f"in the OPS panel and never read by the engine: {unread}"

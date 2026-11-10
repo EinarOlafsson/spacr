@@ -1,0 +1,60 @@
+OPS DECODE RULE (A) + S2 AS ENGINE SETTINGS
+===========================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha, under ALPHA_FEATURES[873]). The build of item
+842 restricted to the arms of the final decode rule "rule (a) + S2".
+Requested: maintainer via paper session (spec ITEM_ops_decode_rule_a_s2.md).
+Owner: paper session.
+Related: 842, 813, 876, 877, 878.
+
+WHAT IT DOES
+A spacr-run ops settings run decodes with the study's final rule instead of a
+script over a field cache. Setting ops_decode_preset to rule_a_s2 fills every
+decode key a settings file leaves at its default with the rule's values:
+- registration: ops_channel_registration spots_refine (S2) with
+  ops_registration_refine_px 3, ops_spot_min_peak 20, ops_spot_overrule_share
+  0.5 (spacr.ops_cycles.align_field; replaces the refine_patch monkey-patch);
+- base calls: ops_crosstalk argmax_median + ops_decode_library_calibration
+  (S1b; passes 2, min labels 30; spacr.ops_sbs.library_calibrated_bases);
+- matching: exact plus the runner-up one-mismatch rule (ops_decode_runner_up,
+  ops_runner_up_margin 0.1), N imputed (ops_decode_impute_missing_cycles);
+- attribution: ops_assign_by_cell_territory (S6; ops_footprint 10, ops_tie 1);
+- cell rule: mapped, quality-weighted votes (ops_vote_weight_floor 0.05),
+  ops_min_fraction 0.6, ops_single_read_quality 0.06;
+- fallback: ops_decode_pixel_fallback (N3; percentile 97, radius 10, 2 pixels,
+  fraction 0.6, pixel quality 0.1);
+- decoys: ops_decoy_library_k 4, ops_fdr_scale 1.268; every decode then
+  writes results/ops_decode/decode_fdr_<well>.json, field_stats_<well>.csv
+  (the columns of *.field_stats_all_rules.csv) and decode_fdr_<plate>.json;
+- ops_decode_skip_unplaced_sites (True): sites the stitch did not place are
+  skipped and listed in the decode and FDR reports; False stops the well.
+- ops_store_field_cache writes each field's evidence (the study's cache
+  layout) to <dst_root>/<well>/decode_cache/siteNNNN.npz.
+With every new key at its default the decode is unchanged (identical-output
+rule). Code: spacr/ops_decode.py (new), spacr/ops_sbs.py, spacr/ops_cycles.py,
+spacr/ops_engine.py (_decode, _decode_field, _decode_field_rule_a).
+
+VALIDATION (2026-11-09, CPU)
+- Fields A1/74 and A1/190 from the raw tiles through the engine's
+  _decode_field: all 17 field-cache arrays bit-identical to repro_check, and
+  the calls identical to the plate A final decode (2,931 and 2,530 nuclei).
+- spacr.ops_decode.field_calls over the study's plate caches, 46 fields
+  (plate A A1 74/190/0/5, A B3 every 17th site, plate B B1 every 19th site
+  plus 236 and 238 beside the unplaced 237): per-nucleus guides, nuclei,
+  assigned and decoy counts identical on every field.
+- 176-field subset_v1.1: field_calls over the study's refined-registration
+  cache with the pixel fallback from the v1.1 cache (as s2_rulea.py combined
+  them) gives 70.98 % assigned (500,450 of 705,027 nuclei), 1,564 decoys,
+  FDR 0.099, and per plate A 74.24 / B 72.82 / C 68.94 / D 67.87 % --
+  identical to the master table's "rule (a) + S2" v1.1 row. A single spaCR
+  run takes its pixels from the same (refined) registration as its reads,
+  as the plate runs did, so a settings run over those raw fields gives the
+  plate-pipeline variant of this row, not this mixed-cache number.
+- Remaining: the full plate A and B re-decode from the raw tiles through
+  run_ops (about 4,000 fields at about 2.5 min each on CPU).
+
+TESTS
+tests/test_ops_decode_rule_a_s2_873.py: each arm on a synthetic case where it
+changes the outcome, the preset, the FDR arithmetic and report keys, the
+unplaced-site log and refusal, and the engine end to end on a synthetic well.
