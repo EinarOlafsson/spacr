@@ -1872,3 +1872,157 @@ def guide_efficacy_profiles(genes: pd.DataFrame, guides: pd.DataFrame, *,
     rows.insert(1, "n_cells", genes["n_cells"].to_numpy())
     return rows, efficacy
 
+
+#: The cell-cycle phases of :func:`cell_cycle_phases`, in profile order.
+CELL_CYCLE_PHASES: Tuple[str, ...] = ("G1", "SG2", "M")
+
+#: What ``ops_profile_cell_cycle`` may be besides empty.
+CELL_CYCLE_PROFILES: Tuple[str, ...] = ("concat", *CELL_CYCLE_PHASES)
+
+
+def g1_mode(log_dna: np.ndarray, *, bins: int = 120,
+            smooth: float = 2.0) -> float:
+    """The G1 peak of a log2 DNA-content distribution.
+
+    :param log_dna: log2 integrated nuclear DNA intensity of interphase
+        cells.
+    :param bins: histogram bins between the 0.5th and 99.5th percentiles.
+    :param smooth: the Gaussian smoothing of the histogram, in bins.
+    :returns: the centre of the highest bin of the smoothed histogram.
+    """
+    from scipy.ndimage import gaussian_filter1d
+
+    low, high = np.percentile(log_dna, [0.5, 99.5])
+    counts, edges = np.histogram(log_dna, bins=int(bins), range=(low, high))
+    smoothed = gaussian_filter1d(counts.astype(float), float(smooth))
+    return float(edges[np.argmax(smoothed)] + (edges[1] - edges[0]) / 2)
+
+
+def cell_cycle_phases(cells: pd.DataFrame, *, dna: str, control: pd.Series,
+                      mitotic: str = "mitotic", group: str = "well",
+                      split_log2: float = 0.30,
+                      mode_cells: Optional[pd.Series] = None) -> pd.DataFrame:
+    """Each cell's cell-cycle phase: G1, S/G2 or M.
+
+    :param cells: one row per cell.
+    :param dna: the integrated nuclear DNA (DAPI) intensity column,
+        flat-field corrected.
+    :param control: True for a non-targeting cell.
+    :param mitotic: the boolean mitotic-call column (the DNA rule of
+        :func:`mitotic_calls` or a trained classifier).
+    :param group: the column whose groups (wells) find their own G1 peak.
+    :param split_log2: interphase cells this far above the G1 peak, in log2
+        units, are S/G2 (``ops_profile_g1_sg2_split_log2``; 0.30 is about
+        1.23 times G1 DNA, the dip of the non-targeting histogram on Funk
+        plate A).
+    :param mode_cells: the cells the G1 peak is found on; by default the
+        non-targeting interphase cells.
+    :returns: ``phase`` (``'G1'``, ``'SG2'`` or ``'M'``) and
+        ``dna_log2_rel`` (log2 DNA minus the group's G1 peak), on the index
+        of ``cells``.
+
+    The G1 peak is the mode of the smoothed histogram of log2 DNA content
+    (:func:`g1_mode`), found per well on the non-targeting interphase cells,
+    so a knockout that piles cells up in S/G2 does not move it.
+    """
+    control = pd.Series(control, index=cells.index).fillna(False).astype(bool)
+    flags = cells[mitotic].astype(bool).to_numpy()
+    if mode_cells is None:
+        mode_cells = control & ~flags
+    mode_cells = pd.Series(mode_cells, index=cells.index).fillna(False
+                                                                 ).astype(bool)
+    log_dna = np.log2(np.clip(pd.to_numeric(cells[dna], errors="coerce")
+                              .to_numpy(float), 1, None))
+    relative = np.full(len(cells), np.nan)
+    for _key, rows in cells.groupby(group, sort=False).indices.items():
+        anchor = rows[mode_cells.to_numpy()[rows]]
+        if len(anchor) == 0:
+            continue
+        relative[rows] = log_dna[rows] - g1_mode(log_dna[anchor])
+    phase = np.where(flags, "M", np.where(relative < float(split_log2),
+                                          "G1", "SG2"))
+    return pd.DataFrame({"phase": phase,
+                         "dna_log2_rel": relative.astype(np.float32)},
+                        index=cells.index)
+
+
+def phase_profiles(cells: pd.DataFrame, features: Sequence[str], *,
+                   control: pd.Series, phase: str = "phase",
+                   group: str = "well", guide: str = "guide",
+                   gene: str = "gene",
+                   phases: Sequence[str] = CELL_CYCLE_PHASES,
+                   drop_genes: Sequence[str] = ("nontargeting_drop",)
+                   ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Guide and gene profiles resolved by cell-cycle phase.
+
+    :param cells: one row per cell with ``phase``, ``group``, ``guide``,
+        ``gene`` and the ``features`` (TVN components in the published
+        analysis).
+    :param features: the profile columns.
+    :param control: True for a non-targeting cell.
+    :param phase: the phase column (:func:`cell_cycle_phases`).
+    :param group: each group (well) is centred on its own controls.
+    :param guide: the guide column.
+    :param gene: the gene column.
+    :param phases: the phases profiled, in column order.
+    :param drop_genes: gene names left out of both tables after the
+        centring (the guides :func:`nt_row_names` could not group).
+    :returns: ``(guides, genes)``. The guide table has ``guide, gene`` and
+        per phase ``<phase>_n_cells`` and ``<phase>_<feature>``; a guide
+        with no cell in a phase has NaN there. The gene table has ``gene``
+        and the ``<phase>_<feature>`` columns: the median of its guides.
+
+    Within each well and phase, every cell is first centred on the median of
+    the well's non-targeting cells of the same phase. A profile then shows
+    what the knockout changes within a phase, not that it moves cells
+    between phases (the phase fractions say that). The concatenated profile
+    ``[G1 | S/G2 | M]`` keeps the three apart. A gene's cells therefore count
+    in the phase they are in.
+    """
+    control = pd.Series(control, index=cells.index).fillna(False
+                                                           ).astype(bool).to_numpy()
+    values = cells[list(features)].to_numpy()
+    centred = values.copy()
+    stage = cells[phase].astype(str).to_numpy()
+    wells = cells[group].to_numpy()
+    for well in pd.unique(wells):
+        for name in phases:
+            rows = (wells == well) & (stage == name)
+            reference = rows & control
+            if reference.any():
+                centred[rows] -= np.median(values[reference], axis=0)
+    parts = []
+    for name in phases:
+        rows = stage == name
+        columns = [f"{name}_{c}" for c in features]
+        frame = pd.DataFrame(centred[rows], columns=columns)
+        frame["guide"] = cells[guide].to_numpy()[rows]
+        frame["gene"] = cells[gene].to_numpy()[rows]
+        grouped = frame.groupby(["guide", "gene"], sort=True)
+        table = grouped[columns].median()
+        table.insert(0, f"{name}_n_cells", grouped.size())
+        parts.append(table)
+    guides = pd.concat(parts, axis=1).reset_index()
+    guides = guides[~guides["gene"].isin(list(drop_genes))].reset_index(drop=True)
+    columns = [f"{name}_{c}" for name in phases for c in features]
+    genes = guides.groupby("gene", sort=True)[columns].median().reset_index()
+    return guides, genes
+
+
+def phase_columns(table: pd.DataFrame, profile: str) -> List[str]:
+    """The profile columns ``ops_profile_cell_cycle`` keeps.
+
+    :param table: a :func:`phase_profiles` table.
+    :param profile: ``'concat'`` for every phase, or one phase name.
+    :returns: the ``<phase>_<feature>`` columns of the chosen phases.
+    :raises ValueError: for an unknown profile.
+    """
+    profile = str(profile).strip()
+    if profile not in CELL_CYCLE_PROFILES:
+        raise ValueError(f"the cell-cycle profile must be one of "
+                         f"{list(CELL_CYCLE_PROFILES)}; got {profile!r}")
+    chosen = CELL_CYCLE_PHASES if profile == "concat" else (profile,)
+    return [c for c in table.columns
+            if any(str(c).startswith(f"{p}_") for p in chosen)
+            and not str(c).endswith("_n_cells")]
+

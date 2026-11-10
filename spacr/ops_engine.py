@@ -3140,7 +3140,8 @@ _PH_POOL_BLOCK = 48
 #: The settings that turn on a gene-profile option of the aggregate phase
 #: (:func:`_ph_profile_options`); each needs the per-cell TVN components.
 _PH_PROFILE_SWITCHES: Tuple[str, ...] = (
-    "ops_profile_weighting", "ops_guide_efficacy",
+    "ops_profile_cell_cycle", "ops_profile_weighting",
+    "ops_guide_efficacy",
 )
 
 _PH_DEGENERATE_CAUSES = (
@@ -3853,7 +3854,8 @@ def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
     import pandas as pd
 
     from .gene_measurement_compare import (
-        contrastive_weighting, guide_efficacy_profiles)
+        CELL_CYCLE_PHASES, cell_cycle_phases, contrastive_weighting,
+        guide_efficacy_profiles, phase_columns, phase_profiles)
     from .qt.i18n import tr
 
     report: Dict[str, Any] = {"outputs": {}}
@@ -3868,6 +3870,50 @@ def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
     axes_asked: List[str] = []
     weighting = None
     similarity = None
+
+    cycle = str(settings.get("ops_profile_cell_cycle") or "").strip() or None
+    source = str(settings.get("ops_mitotic_source") or "rule").strip().lower()
+    if source not in ("rule", "classifier"):
+        raise ValueError(tr("ops_mitotic_source must be rule or classifier; "
+                            "got {value}", value=source))
+    if source == "classifier" and not settings.get("ops_mitotic_model"):
+        raise ValueError(tr(
+            "ops_mitotic_source classifier needs ops_mitotic_model, a "
+            "trained mitotic classifier"))
+    axes_asked = _ph_names(settings.get("ops_profile_generic_axes"))
+    needs_phases = bool(cycle) or bool(settings.get("ops_phase_tests")) or any(
+        str(a).startswith("shift_") for a in axes_asked)
+    if needs_phases:
+        if "_dna_integrated" not in cells:
+            raise ValueError(tr(
+                "cell-cycle phases need the nuclear integrated DNA intensity, "
+                "which the cell tables do not have"))
+        split = float(_setting_number(
+            settings.get("ops_profile_g1_sg2_split_log2"),
+            "ops_profile_g1_sg2_split_log2", 0.30))
+        phases = cell_cycle_phases(cells, dna="_dna_integrated",
+                                   control=control, split_log2=split)["phase"]
+        report["cell_cycle"] = {
+            "split_log2": split, "mitotic_source": source,
+            "fractions": {p: round(float((phases == p).mean()), 4)
+                          for p in CELL_CYCLE_PHASES}}
+    if cycle:
+        frame = pd.concat([cells[["well", "sgRNA", "gene"]].reset_index(drop=True),
+                           pd.DataFrame(embedding, columns=pcs)], axis=1)
+        frame["phase"] = phases.to_numpy()
+        phase_guides, phase_genes = phase_profiles(
+            frame, pcs, control=control, guide="sgRNA")
+        _ph_profile_tables("guides_phase", phase_guides, destination, label,
+                           outputs)
+        _ph_profile_tables("genes_phase", phase_genes, destination, label,
+                           outputs)
+        columns = phase_columns(phase_genes, cycle)
+        chosen = CELL_CYCLE_PHASES if cycle == "concat" else (cycle,)
+        profile_guides = phase_guides.assign(n_cells=phase_guides[[
+            f"{p}_n_cells" for p in chosen]].fillna(0).sum(axis=1).astype(int))
+        profile_genes = genes[["gene", "n_guides", "n_cells"]].merge(
+            phase_genes[["gene", *columns]], on="gene", how="inner")
+        report["cell_cycle"]["profile"] = cycle
 
     weighting = str(settings.get("ops_profile_weighting") or "").strip().lower() or None
     if weighting not in (None, "contrastive_wiener"):

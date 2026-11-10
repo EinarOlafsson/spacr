@@ -99,6 +99,9 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_guide_efficacy": None,
     "ops_guide_efficacy_iters": 20,
     "ops_guide_efficacy_emax": 1.0,
+    "ops_profile_cell_cycle": None,
+    "ops_profile_g1_sg2_split_log2": 0.3,
+    "ops_mitotic_source": "rule",
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -181,6 +184,9 @@ OPS_TYPES: Dict[str, object] = {
     "ops_guide_efficacy": (str, type(None)),
     "ops_guide_efficacy_iters": int,
     "ops_guide_efficacy_emax": (float, int),
+    "ops_profile_cell_cycle": (str, type(None)),
+    "ops_profile_g1_sg2_split_log2": (float, int),
+    "ops_mitotic_source": str,
 }
 
 #: Which panel section each setting appears under.
@@ -234,6 +240,9 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_guide_efficacy",
         "ops_guide_efficacy_iters",
         "ops_guide_efficacy_emax",
+        "ops_profile_cell_cycle",
+        "ops_profile_g1_sg2_split_log2",
+        "ops_mitotic_source",
     ],
 }
 
@@ -683,6 +692,22 @@ OPS_TOOLTIPS: Dict[str, str] = {
     "ops_guide_efficacy_emax":
         "(float) - The cap on a guide's efficacy before the gene's "
         "efficacies are rescaled so the best guide has 1. Default 1. Alpha.",
+    "ops_profile_cell_cycle":
+        "(str or None) - Resolve the TVN profiles by cell-cycle phase. "
+        "Cells are G1 or S/G2 by integrated nuclear DNA, M by the mitotic "
+        "call, and each phase is centred on the well's control cells of "
+        "that phase. 'concat' joins [G1 | S/G2 | M]; 'G1', 'SG2' or 'M' "
+        "keeps one phase. Default None. Alpha.",
+    "ops_profile_g1_sg2_split_log2":
+        "(float) - Interphase cells this many log2 units above their well's "
+        "G1 peak of integrated nuclear DNA are S/G2, the rest G1. 0.30 is "
+        "about 1.23 times G1 DNA, the dip of the control histogram on Funk "
+        "plate A. Default 0.30. Alpha.",
+    "ops_mitotic_source":
+        "(str) - Where the M phase of cell-cycle profiles comes from: "
+        "'rule' (the DNA rule of ops_mitotic_dna_z, or the classifier when "
+        "ops_mitotic_model is set) or 'classifier', which refuses to run "
+        "without ops_mitotic_model. Default 'rule'. Alpha.",
 }
 
 #: The blurb the module shows above its settings.
