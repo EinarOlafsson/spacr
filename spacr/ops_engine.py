@@ -14,6 +14,7 @@ listed in the report; it does not cost the well.
 """
 from __future__ import annotations
 
+import contextvars
 import json
 import logging
 import os
@@ -284,7 +285,12 @@ _PHASES = ("stitch", "phenotype", "objects", "decode")
 #: table; a run includes them only when ``phases`` names them.
 _PH_PHASES = ("ph_flatfield", "ph_segment", "ph_measure", "ph_masks",
               "ph_ownership", "merge", "ph_merged", "aggregate", "ph_tables",
-              "ph_crops", "report")
+              "ph_crops", "report", "stress")
+
+#: The phenotype phases that run once per plate rather than per well; a
+#: well's archive marker (item 872, B9) records only the others.
+_PH_PLATE_PHASES = ("ph_flatfield", "aggregate", "ph_tables", "ph_crops",
+                    "report", "stress")
 
 #: Every phase :func:`run_ops` accepts, in the order they run.
 _ALL_PHASES = _PHASES + _PH_PHASES
@@ -6436,6 +6442,9 @@ def run_ops(settings: Mapping[str, Any], *,
         unknown phase or well is asked for, or a phase's input is missing.
     """
     settings = dict(settings or {})
+    if settings.get("ops_gpu_admission") and not _OPS_ADMITTED.get():
+        return _ops_admitted_run(settings, wells=wells, phases=phases,
+                                 library=library)
     unknown = [phase for phase in phases if phase not in _ALL_PHASES]
     if unknown:
         raise ValueError(
@@ -6533,9 +6542,22 @@ def run_ops(settings: Mapping[str, Any], *,
         with open(os.path.join(destination, f"ops_flatfield_{plate}.json"),
                   "w", encoding="utf-8") as handle:
             json.dump(out["ph_flatfield"], handle, indent=1, default=str)
+    archive_root = settings.get("ops_archive_root") or None
+    well_phases = [p for p in phases if p not in _PH_PLATE_PHASES]
     for well in chosen:
         folder = os.path.join(destination, well)
         report_path = os.path.join(folder, "ops_report.json")
+        if settings.get("ops_gpu_admission") and os.path.exists(
+                os.path.join(destination, "STOP")):
+            out["stopped_before"] = well
+            _say(f"STOP found in {destination}; stopping before well {well}")
+            break
+        if archive_root:
+            resumed = _ph_archive_resume(destination, str(archive_root), plate,
+                                         well, well_phases, settings)
+            if resumed is not None:
+                out["wells"][well] = resumed
+                continue
         report: Dict[str, Any] = {}
         if not sequencing and os.path.isfile(report_path):
             with open(report_path, encoding="utf-8") as handle:
@@ -6613,7 +6635,20 @@ def run_ops(settings: Mapping[str, Any], *,
         os.makedirs(folder, exist_ok=True)
         with open(report_path, "w", encoding="utf-8") as handle:
             json.dump(report, handle, indent=1, default=str)
+        if archive_root:
+            from .ops_run_infra import archive_well
+
+            report["archive"] = archive_well(
+                destination, str(archive_root), plate, well,
+                phases=well_phases, verify=_ph_archive_verify(settings),
+                delete_local=bool(settings.get("ops_archive_delete_local")),
+                report=report)
         out["wells"][well] = report
+    if archive_root and "stopped_before" not in out:
+        from .ops_run_infra import mark_plate_done
+
+        out["archive_plate_done"] = mark_plate_done(str(archive_root), plate,
+                                                    chosen)
     if "aggregate" in phases:
         out["aggregate"] = _ph_aggregate(db, plate, chosen, settings,
                                          destination,
@@ -6639,6 +6674,114 @@ def run_ops(settings: Mapping[str, Any], *,
                       "w", encoding="utf-8") as handle:
                 json.dump(out[phase], handle, indent=1, default=str)
     return out
+
+
+#: True inside a run that :func:`_ops_admitted_run` let start, so the run
+#: does not wait for the card a second time.
+_OPS_ADMITTED: "contextvars.ContextVar[bool]" = contextvars.ContextVar(
+    "ops_gpu_admitted", default=False)
+
+
+def _ops_admitted_run(settings: Mapping[str, Any], *, wells, phases,
+                      library) -> Dict[str, Any]:
+    """:func:`run_ops` once the GPU admission policy lets it start (item 872, B11).
+
+    :param settings: the OPS settings with ``ops_gpu_admission`` set; read
+        for the ``ops_gpu_*`` settings
+        (:func:`spacr.gpu_admission.admission_from_settings`). A ``STOP``
+        file in ``dst_root`` ends the wait, and the run between wells.
+    :param wells: as :func:`run_ops` takes them.
+    :param phases: as :func:`run_ops` takes them.
+    :param library: as :func:`run_ops` takes it.
+    :returns: :func:`run_ops`'s result with ``gpu_admission`` (the wait's
+        outcome); when the wait ended without admission, only that and no
+        phase run.
+
+    START and FINISH go to ``~/.spacr/gpu/log``; FINISH is written however
+    the run ends, with the exception's name when it raised.
+    """
+    from .gpu_admission import admission_from_settings
+
+    destination = str(settings.get("dst_root") or settings.get("genotype_source")
+                      or "")
+    plate = str(settings.get("plate") or os.path.basename(
+        os.path.normpath(destination)) or "plate")
+    admission = admission_from_settings(
+        settings, f"spacr-ops-{plate}",
+        stop_file=os.path.join(destination, "STOP") if destination else None)
+    waited = admission.wait()
+    waited["waits"] = admission.waits[-20:]
+    if not waited["admitted"]:
+        _say(f"GPU admission: not started ({waited})")
+        return {"db": os.path.join(destination, "measurements.db"),
+                "plate": plate, "wells": {}, "gpu_admission": waited}
+    admission.start()
+    token = _OPS_ADMITTED.set(True)
+    status: Any = "error"
+    try:
+        out = run_ops(settings, wells=wells, phases=phases, library=library)
+        status = 0
+    except BaseException as failure:
+        status = type(failure).__name__
+        raise
+    finally:
+        _OPS_ADMITTED.reset(token)
+        admission.finish(status)
+    out["gpu_admission"] = waited
+    return out
+
+
+def _ph_archive_verify(settings: Mapping[str, Any]) -> str:
+    """``ops_archive_verify``, checked: ``"md5"`` or ``"size"``."""
+    from .ops_run_infra import ARCHIVE_VERIFY_MODES
+    from .qt.i18n import tr
+
+    mode = str(settings.get("ops_archive_verify") or "md5").strip().lower()
+    if mode not in ARCHIVE_VERIFY_MODES:
+        raise ValueError(tr("ops_archive_verify must be md5 or size; got "
+                            "{value}", value=mode))
+    return mode
+
+
+def _ph_archive_resume(destination: str, archive_root: str, plate: str,
+                       well: str, phases: Sequence[str],
+                       settings: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
+    """A well's report from its archive copy, when the copy is complete (item 872, B9).
+
+    :param destination: the run folder.
+    :param archive_root: ``ops_archive_root``.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param phases: the per-well phases this run asks for.
+    :param settings: read for ``ops_archive_verify`` and
+        ``ops_archive_delete_local``.
+    :returns: the archived report with ``archive``, ``{"resumed": True}``
+        when the well need not run again; None when it must run: no
+        marker, a marker of fewer phases, or a damaged copy whose local
+        files are gone. A damaged copy whose local files are still there
+        is copied again and verified, without measuring anything again.
+    """
+    from .ops_run_infra import archive_well, archived_well
+
+    done = archived_well(archive_root, plate, well, phases=phases)
+    if done is None:
+        return None
+    if done["ok"]:
+        return {**done["report"], "archive": {"resumed": True,
+                                              "marker": done["marker"]}}
+    if not all(os.path.isfile(os.path.join(destination, p))
+               for p in done["bad"]):
+        _say(f"{well}: the archive copy is damaged ({done['bad']}) and the "
+             "local files are gone; the well runs again")
+        return None
+    _say(f"{well}: the archive copy is damaged ({done['bad']}); copying again")
+    copied = archive_well(destination, archive_root, plate, well,
+                          phases=phases, verify=_ph_archive_verify(settings),
+                          delete_local=bool(settings.get(
+                              "ops_archive_delete_local")),
+                          report=done["report"])
+    return {**done["report"], "archive": {**copied, "resumed": True,
+                                          "damaged": done["bad"]}}
 
 
 def _placed_wells(db: str, plate: str) -> List[str]:
