@@ -348,6 +348,9 @@ KEYS_RETIRED = frozenset({
 })
 
 
+from spacr.division_prediction import PREDICTION_DEFAULTS  # noqa: E402
+from spacr.host_pathogen import TITRATION_DEFAULTS, TRANSLOCATION_DEFAULTS  # noqa: E402
+
 KEYS_ADDED_BY_REGROUP = frozenset({
     # 879-882, alpha: the OPS profile path from stored cell tables and its
     # retrieval metrics, filed under OPS phenotype with the rest of 752.
@@ -357,6 +360,20 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_reference_dir", "ops_eval_references", "ops_eval_split",
     "ops_eval_null_size", "ops_eval_heldout_folds", "ops_eval_decoys",
     "ops_eval_time_split", "ops_eval_covariates",
+    # NEW SETTINGS (2026-11-09, BMC paper items 898-901 and 909-911, lane E).
+    *PREDICTION_DEFAULTS, *TITRATION_DEFAULTS, *TRANSLOCATION_DEFAULTS,
+    "timelapse_division_onset", "timelapse_division_onset_ci",
+    "ml_eval_report", "ml_eval_split", "ml_eval_controls", "ml_eval_shuffle_seed",
+    "ml_eval_shuffle_repeats", "ml_model_type", "ml_label_column", "ml_eval_classes",
+    "ml_eval_features", "ml_eval_features_table", "ml_eval_join_column",
+    "ml_eval_random_folds", "annotate_sample_n", "annotate_sample_seed",
+    "annotate_sample_strata",
+    "figure_condition_labels", "figure_model_labels", "figure_detections",
+    "figure_mode_folder", "figure_segmentation_folder", "figure_score_folder",
+    "figure_metric", "compare_permutations", "compare_seed", "figure_low_confidence",
+    "figure_second_look", "figure_condition_aggregate", "figure_size_stat",
+    "figure_scales", "figure_absolute_units", "figure_ratio_floor",
+    "figure_scale_permutations", "figure_scale_seed",
     # NEW SETTINGS, not a regrouping: Mask's pixel-size diameter default and
     # per-image diameter estimate, and the ML classifier's class list.
     "pixel_size_um", "estimate_diameters_per_image", "ml_classes",
@@ -1852,6 +1869,7 @@ def _rendered_sections(app_key):
             "Labels & Classes", "Feature Preparation",
             "Plate & Batch Correction",
             "Classifier & Validation", "Feature Selection & Importance",
+            "Held-out Evaluation α",
             # "Output & Database" went with `save_to_db` on 2026-09-09
             # (357-Q4): that section held one setting, nothing read it, and
             # a heading with nothing under it is worse than no heading.

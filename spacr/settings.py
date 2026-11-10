@@ -1339,6 +1339,30 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('timelapse_division_prediction_frames', 5)
     settings.setdefault('timelapse_division_prediction_model', 'auto')
     settings.setdefault('timelapse_division_prediction_folds', 5)
+    settings.setdefault('timelapse_division_prediction_unit', 'track')
+    settings.setdefault('timelapse_division_prediction_sample_seed', 0)
+    settings.setdefault('timelapse_division_prediction_max_rows', None)
+    settings.setdefault('timelapse_division_prediction_row_seed', 0)
+    settings.setdefault('timelapse_division_prediction_min_positive_tracks', 30)
+    settings.setdefault('timelapse_division_prediction_min_positive_rows', 0)
+    settings.setdefault('timelapse_division_prediction_arms', 'model,age_only,shuffled,majority')
+    settings.setdefault('timelapse_division_prediction_group', 'movie')
+    settings.setdefault('timelapse_division_prediction_features', 'spacr')
+    settings.setdefault('timelapse_division_prediction_lag', 'auto')
+    settings.setdefault('timelapse_division_prediction_born_flag', None)
+    settings.setdefault('timelapse_division_prediction_history', 3)
+    settings.setdefault('timelapse_division_prediction_max_depth', 3)
+    settings.setdefault('timelapse_division_prediction_learning_rate', 0.1)
+    settings.setdefault('timelapse_division_prediction_max_bin', 256)
+    settings.setdefault('timelapse_division_prediction_n_estimators', 200)
+    settings.setdefault('timelapse_division_prediction_subsample', 0.8)
+    settings.setdefault('timelapse_division_prediction_colsample', 0.8)
+    settings.setdefault('timelapse_division_prediction_n_jobs', 2)
+    settings.setdefault('timelapse_division_prediction_seed', None)
+    settings.setdefault('timelapse_division_prediction_events', 'all')
+    settings.setdefault('timelapse_division_prediction_negative_rule', 'lineage_end')
+    settings.setdefault('timelapse_division_onset', False)
+    settings.setdefault('timelapse_division_onset_ci', 'ci_low/ci_high')
     settings.setdefault('timelapse_events', False)
     settings.setdefault('timelapse_events_annotations', None)
     settings.setdefault('timelapse_events_model', None)
@@ -2211,6 +2235,21 @@ def set_default_analyze_screen(settings):
     settings.setdefault('annotation_column', None)
     settings.setdefault('ml_classes', None)
     settings.setdefault('model_type_ml','logistic_regression')
+    settings.setdefault('ml_eval_report', False)
+    settings.setdefault('ml_eval_split', 'leave_one_well_out')
+    settings.setdefault('ml_eval_controls', 'majority, shuffled')
+    settings.setdefault('ml_eval_shuffle_seed', 0)
+    settings.setdefault('ml_eval_shuffle_repeats', 20)
+    settings.setdefault('ml_model_type', 'hist_gbm')
+    settings.setdefault('ml_label_column', 'annotate')
+    settings.setdefault('ml_eval_classes', '')
+    settings.setdefault('ml_eval_features', '')
+    settings.setdefault('ml_eval_features_table', '')
+    settings.setdefault('ml_eval_join_column', 'file_name')
+    settings.setdefault('ml_eval_random_folds', 5)
+    settings.setdefault('annotate_sample_n', 0)
+    settings.setdefault('annotate_sample_seed', 0)
+    settings.setdefault('annotate_sample_strata', '')
     settings.setdefault('heatmap_feature','predictions')
     settings.setdefault('grouping','mean')
     settings.setdefault('min_max','allq')
@@ -3778,6 +3817,24 @@ expected_types = {
     "figure_imgsz": str,
     "figure_confidence": float,
     "figure_read_text": bool,
+    "figure_condition_labels": str,
+    "figure_model_labels": str,
+    "figure_detections": str,
+    "figure_mode_folder": str,
+    "figure_segmentation_folder": str,
+    "figure_score_folder": str,
+    "figure_metric": str,
+    "compare_permutations": int,
+    "compare_seed": int,
+    "figure_low_confidence": (int, float),
+    "figure_second_look": str,
+    "figure_condition_aggregate": str,
+    "figure_size_stat": str,
+    "figure_scales": str,
+    "figure_absolute_units": str,
+    "figure_ratio_floor": (int, float),
+    "figure_scale_permutations": int,
+    "figure_scale_seed": int,
     "confirm_annotations": bool,
     "text_reach_above": float,
     "text_reach_left": float,
@@ -3861,9 +3918,33 @@ expected_types = {
     "timelapse_division_window": (int, type(None)),
     "timelapse_division_size_tolerance": (int, float),
     "timelapse_division_prediction": bool,
-    "timelapse_division_prediction_frames": int,
+    "timelapse_division_prediction_frames": (int, str),
     "timelapse_division_prediction_model": str,
     "timelapse_division_prediction_folds": int,
+    "timelapse_division_prediction_unit": str,
+    "timelapse_division_prediction_sample_seed": int,
+    "timelapse_division_prediction_max_rows": (int, type(None)),
+    "timelapse_division_prediction_row_seed": int,
+    "timelapse_division_prediction_min_positive_tracks": int,
+    "timelapse_division_prediction_min_positive_rows": int,
+    "timelapse_division_prediction_arms": str,
+    "timelapse_division_prediction_group": str,
+    "timelapse_division_prediction_features": str,
+    "timelapse_division_prediction_lag": (int, str),
+    "timelapse_division_prediction_born_flag": (bool, type(None)),
+    "timelapse_division_prediction_history": int,
+    "timelapse_division_prediction_max_depth": int,
+    "timelapse_division_prediction_learning_rate": (int, float),
+    "timelapse_division_prediction_max_bin": int,
+    "timelapse_division_prediction_n_estimators": int,
+    "timelapse_division_prediction_subsample": (int, float),
+    "timelapse_division_prediction_colsample": (int, float),
+    "timelapse_division_prediction_n_jobs": int,
+    "timelapse_division_prediction_seed": (int, type(None)),
+    "timelapse_division_prediction_events": str,
+    "timelapse_division_prediction_negative_rule": str,
+    "timelapse_division_onset": bool,
+    "timelapse_division_onset_ci": str,
     "timelapse_events": bool,
     "timelapse_events_annotations": (str, type(None)),
     "timelapse_events_model": (str, type(None)),
@@ -4358,6 +4439,21 @@ expected_types = {
     "calibrate_fraction_threshold": bool,
     "mix":str,
     "model_type_ml":str,
+    "ml_eval_report": bool,
+    "ml_eval_split": str,
+    "ml_eval_controls": str,
+    "ml_eval_shuffle_seed": int,
+    "ml_eval_shuffle_repeats": int,
+    "ml_model_type": str,
+    "ml_label_column": str,
+    "ml_eval_classes": str,
+    "ml_eval_features": str,
+    "ml_eval_features_table": str,
+    "ml_eval_join_column": str,
+    "ml_eval_random_folds": int,
+    "annotate_sample_n": int,
+    "annotate_sample_seed": int,
+    "annotate_sample_strata": str,
     "exclude_conditions":list,
     "exclude_rows": (dict, type(None)),
     "remove_highly_correlated_features":bool,
@@ -5224,7 +5320,7 @@ tooltips = {
     "estimate_diameters_per_image": "(bool) - When True, a cell, nucleus or pathogen diameter left blank, 0 or auto is estimated on each 2-D image. A Cellpose 3 model uses its size model. Cellpose-SAM has none, so each image is segmented first at native scale, the median object diameter of those masks is measured with cellpose.utils.diameters, and the image is segmented again at that diameter; an image with no object is segmented at the blank default. Each image is segmented twice, so the run is slower. A diameter you type is always used as it is. Z-stack and timelapse runs keep the single diameter. Default False.",
     "calculate_diameters": "(bool) - When True, the cell, nucleus and pathogen diameters are calculated from magnification: a blank diameter is its magnification default (2*magnification+80 px for cells, 0.75*magnification+45 px for nuclei, magnification px for pathogens), greyed in Per-object settings, and follows every magnification change. A diameter you type, or auto, is pinned (bold) and kept until you clear its cell or turn this off and on again, which recalculates all three. When False, magnification changes no longer touch any diameter. Default True.",
     "plaque_model": "(str) - Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v6' was trained on resized wells and turns plaque well resize on; 'toxoplasma_plaque_v5', the previous default, segments images as they are; 'toxoplasma_plaque_v3' scores higher on Gel Doc wells), a filesystem path selects a custom checkpoint, and 'bundled' is a Cellpose 3 checkpoint that needs Cellpose 3. Changing it changes plaque counts, so recorded runs should keep their value. Default 'toxoplasma_plaque_v6'.",
-    "plaque_mode": "(str) - What Plaque Assay reads. 'plaque' takes images that each show one plaque field (a well or a cropped plaque image), segments the plaques and writes per_image and per_plaque tables. 'figure' takes published figures: the YOLO detector finds the plaque images in each figure, the text around them is read (panel letter, column and row labels) and keyed to the figure legend, each image is annotated with its condition and its plaques are segmented, into plaque_figures/plaque_figures.db. Default 'plaque'.",
+    "plaque_mode": "(str) - What Plaque Assay reads. 'plaque' takes images that each show one plaque field (a well or a cropped plaque image), segments the plaques and writes per_image and per_plaque tables. 'figure' takes published figures: the YOLO detector finds the plaque images in each figure, the text around them is read (panel letter, column and row labels) and keyed to the figure legend, each image is annotated with its condition and its plaques are segmented, into plaque_figures/plaque_figures.db. 'figure_score' (alpha) scores Figure-mode wells against the effects the papers report (figure_condition_labels and the other figure scoring settings); 'figure_sizes' (alpha) compares measured with reported plaque sizes on absolute and relative scales; 'figure_merge' (alpha) merges a figure reading's wells and reported effects into the meta-analysis tables under src. Default 'plaque'.",
     "figure_detector": "(str) - Figure mode: model-zoo key or checkpoint path of the YOLO detector that finds plaque images inside a figure. Default 'toxoplasma_well_detector_v2', which was measured to find cropped plaque panels in published figures.",
     "figure_imgsz": "(str) - Figure mode: comma-separated detector input sizes, all of which are asked and their boxes merged. 640 finds whole faint panels, 1280 finds small dilution spots; neither alone finds both. Default '640,1280'.",
     "figure_confidence": "(float) - Figure mode: minimum detector score, 0 to 1, for a box to count as a plaque image. Default 0.25.",
@@ -5781,9 +5877,66 @@ tooltips = {
     "timelapse_division_window": "(int or None) - Frames before each division that are aligned and compared. The change is measured from the first frames of this window to the last frames before division, a quarter of the window each (at least 2). Blank uses 0.3 times the median cell cycle observed in the movie, between 4 and 30 frames, or 6 frames when no complete cycle is seen. Ignored unless timelapse_division_analysis. Default None.",
     "timelapse_division_size_tolerance": "(float) - How different in size a control cell may be from the dividing cell at the start of the window, as a fraction: 0.25 accepts controls from 0.8 to 1.25 times its area. Smaller values match more closely but leave more divisions without a control. Ignored unless timelapse_division_analysis. Default 0.25.",
     "timelapse_division_prediction": "(bool) - With timelapse_division_analysis, also ask whether a cell's shape, size, intensity and motion now tell that it will divide within the next few frames. Each field is one movie, and a model is always tested on fields it was not trained on. It is compared with the same model on cell age alone, with a model trained on shuffled labels and with always guessing the commoner answer. Writes AUROC and AUPRC with 95% intervals, per-fold results, feature importances, every held-out prediction and one figure to tracks/division/prediction_<tracks>/. Needs 3 or more fields. Default False.",
-    "timelapse_division_prediction_frames": "(int) - The horizon N: a frame counts as 'about to divide' when the cell divides within the next N frames. Frames whose next N frames the movie does not show are left out. Ignored unless timelapse_division_prediction. Default 5.",
+    "timelapse_division_prediction_frames": "(int) - The horizon N: a frame counts as 'about to divide' when the cell divides within the next N frames. Frames whose next N frames the movie does not show are left out. auto takes max(2, round(0.15 x the median cell cycle)), as the reference analysis. Ignored unless timelapse_division_prediction. Default 5.",
     "timelapse_division_prediction_model": "(str) - The classifier. auto uses xgboost when it is installed and scikit-learn gradient boosting otherwise; xgboost falls back the same way; gradient_boosting is scikit-learn's histogram gradient boosting; logistic is a logistic regression on standardised features. Ignored unless timelapse_division_prediction. Default auto.",
     "timelapse_division_prediction_folds": "(int) - Cross-validation folds, grouped by field so no field is in both training and testing; never more than the number of fields. Ignored unless timelapse_division_prediction. Default 5.",
+    "figure_condition_labels": "(str) - Figure scoring: a JSON of figure -> boxes (strain and treatment per detector box) and quantification (the reported panels, each value with is_reference). It is the condition table the measured wells are labelled with (gold or model-read) and the source of the reported effects. Default .",
+    "figure_model_labels": "(str) - Figure scoring: stored model readings of the figure conditions (a JSON list of figure -> boxes with is_plaque_image, strain, treatment), scored beside figure_condition_labels as a second labelling. They are data: nothing is re-read. Blank scores the condition table only. Default .",
+    "figure_detections": "(str) - Figure scoring: the detector boxes per figure, a CSV with figure and boxes (a JSON list of [x0, y0, x1, y1, ...]). Default .",
+    "figure_mode_folder": '(str) - Figure scoring: the folder that holds the earlier Figure-mode runs, one <paper>/plaque_figures.db per paper; its regions give the condition text of every detected well. A paper without a database is skipped. Default .',
+    "figure_segmentation_folder": "(str) - Figure scoring: the per-well plaque segmentations, one <figure>__b<box>.json each with areas and cleared_frac. Default .",
+    "figure_score_folder": "(str) - Figure scoring: where results_measured_vs_reported.csv and summary.json are written. Blank writes to results/figure_score under src. Default .",
+    "figure_metric": "(str) - Figure scoring: the measured value behind an area or relative-size panel. area is the mean plaque area of the well; cleared_fraction the fraction of the well cleared by plaques. Number panels always use plaques per well. Default area.",
+    "compare_permutations": "(int) - Figure scoring: how many times the measured effects are shuffled for the permutation control of each Spearman rho (its mean, 95th percentile and one-sided p go into summary.json). 0 skips the control. Default 1000.",
+    "compare_seed": '(int) - Figure scoring: the seed of the permutation control; the same seed gives the same permuted rho values on a rerun, another seed a different draw of the same null. Default 0.',
+    "figure_low_confidence": "(float) - Figure well merge: a well or reported panel read with confidence at or below this is flagged low_confidence (kept, marked for a second look). Default 0.7.",
+    "figure_second_look": "(str) - Figure well merge: reading task ids (space- or comma-separated) whose wells are flagged reader_second_look. Default .",
+    "ml_eval_report": "(bool) - Also evaluate the classifier on held-out objects and write results/ml_eval/metrics.csv: accuracy, balanced accuracy, macro F1, AUROC and per-class precision and recall for every fold and for all held-out predictions pooled, beside the controls of ml_eval_controls. Needs annotation labels (ml_label_column). With ml_eval_features_table set, only this evaluation runs. Default False.",
+    "ml_eval_split": "(str) - How objects are held out. leave_one_well_out trains on every well but one and tests on that one, in turn; leave_one_plate_out does the same per plate; random is a stratified split into ml_eval_random_folds folds. No object of a test well or plate is seen in training. Ignored unless ml_eval_report. Default leave_one_well_out.",
+    "ml_eval_controls": "(str) - Controls reported beside the model, comma-separated. majority always predicts the commonest class; shuffled trains the same model on labels permuted within each training fold, repeated ml_eval_shuffle_repeats times and averaged. Blank reports no control. Ignored unless ml_eval_report. Default majority, shuffled.",
+    "ml_eval_shuffle_seed": "(int) - Seed of the first shuffled-label repeat; the next repeats use the following seeds. Also seeds the random split. Ignored unless ml_eval_report. Default 0.",
+    "ml_eval_shuffle_repeats": "(int) - How many times the shuffled-label control is trained; its row is the mean. Ignored unless ml_eval_report. Default 20.",
+    "ml_model_type": "(str) - The model the held-out evaluation trains: hist_gbm (histogram gradient boosting with n_estimators iterations), random_forest or logistic_regression, each with balanced class weights. Ignored unless ml_eval_report. Default hist_gbm.",
+    "ml_label_column": "(str) - The png_list column that holds the labels of the held-out evaluation, as the Annotate screen writes them. Ignored unless ml_eval_report or annotate_sample_n. Default annotate.",
+    "ml_eval_classes": "(str) - The label values evaluated, comma-separated (for example 1,2,3); objects with any other label are left out. Blank keeps every label. Ignored unless ml_eval_report. Default .",
+    "ml_eval_features": "(str) - The feature columns of the held-out evaluation, comma-separated. Blank uses every numeric column but the label; inside a full run it uses the features the classifier was trained on. Ignored unless ml_eval_report. Default .",
+    "ml_eval_features_table": "(str) - A table of per-object features (CSV or any table spaCR reads) joined to the png_list labels on ml_eval_join_column. When set, the run only evaluates: no classifier is fitted to the measurement database and no scores are written back. Ignored unless ml_eval_report. Default .",
+    "ml_eval_join_column": '(str) - The column present in both ml_eval_features_table and png_list that pairs each feature row with its label; rows without a match get no label and are left out. Default file_name.',
+    "ml_eval_random_folds": '(int) - How many stratified folds the random split makes; more folds train on more objects each time but give smaller, noisier test folds. Ignored unless ml_eval_split is random. Default 5.',
+    "annotate_sample_n": "(int) - Above 0, the run only picks that many objects to annotate, stratified by annotate_sample_strata, and writes their order (1 to N) into the png_list column annotate_sample so the Annotate screen can show just those crops. The label column is created empty if missing and never overwritten. Default 0.",
+    "annotate_sample_seed": "(int) - Seed of the annotation sample; the top-up draw uses the next seed and the final shuffle the one after. Ignored unless annotate_sample_n. Default 0.",
+    "annotate_sample_strata": "(str) - Strata of the annotation sample, comma-separated: a column name stratifies by its values; column:q bins the column into q quantiles within each value of the first stratum (for example strain, rim_enrichment:5). Every stratum gives an equal share. Blank samples without strata. Ignored unless annotate_sample_n. Default .",
+    "timelapse_division_prediction_unit": "(str) - What one scored row is. track keeps one labelled frame per track, so each cell counts once; frame keeps every labelled frame, as the reference analysis did. Ignored unless timelapse_division_prediction. Default track.",
+    "timelapse_division_prediction_sample_seed": '(int) - Seed of the draw that keeps one labelled frame per track; another seed keeps other frames of the same tracks and shows how much the result depends on that draw. Ignored unless timelapse_division_prediction. Default 0.',
+    "timelapse_division_prediction_max_rows": "(int or None) - Keep at most this many rows, drawn at random after labelling and before the folds (120000 in the reference). Blank keeps all. Ignored unless timelapse_division_prediction. Default None.",
+    "timelapse_division_prediction_row_seed": '(int) - Seed of the random row cap; with the same seed a rerun keeps the same rows, another seed keeps a different subsample of the same size. Ignored unless timelapse_division_prediction. Default 0.',
+    "timelapse_division_prediction_min_positive_tracks": "(int) - With fewer distinct tracks that divide within the horizon, the result is computed but flagged informative False in summary.json and the metrics, and the figure greys the bars: AUPRC on so few positives says little. Ignored unless timelapse_division_prediction. Default 30.",
+    "timelapse_division_prediction_min_positive_rows": "(int) - With fewer positive rows no model is fitted, and summary.json says why (20 in the reference). 0 always fits. Ignored unless timelapse_division_prediction. Default 0.",
+    "timelapse_division_prediction_arms": "(str) - The arms scored, comma-separated: model (every feature), age_only, shape_motion (every feature but age and born_in_view), shuffled (labels shuffled within each group) and majority. Ignored unless timelapse_division_prediction. Default model,age_only,shuffled,majority.",
+    "timelapse_division_prediction_group": "(str) - What the folds are grouped by: movie (each field one movie), lineage_tree, or auto (movie with two or more movies, lineage tree for a single movie, with a note that tree folds are weaker). The intervals resample the same unit. Ignored unless timelapse_division_prediction. Default movie.",
+    "timelapse_division_prediction_features": "(str) - spacr: value, change over timelapse_division_prediction_history frames and age. reference: per measurement the value, its change over 1 and over lag frames and its rolling mean over lag frames, plus age and born_in_view, as the reference analysis. Ignored unless timelapse_division_prediction. Default spacr.",
+    "timelapse_division_prediction_lag": "(int or str) - The lag of the reference features; auto takes min(alignment window, 5). Ignored unless timelapse_division_prediction_features is reference. Default auto.",
+    "timelapse_division_prediction_born_flag": "(bool or None) - Add born_in_view: 1 when the track has a parent or starts after the movie's first frame. Blank adds it with the reference features only. Ignored unless timelapse_division_prediction. Default None.",
+    "timelapse_division_prediction_history": "(int) - Frames back for the change features of the spacr feature set. Ignored unless timelapse_division_prediction. Default 3.",
+    "timelapse_division_prediction_max_depth": '(int) - How deep each tree of the learner may grow; deeper trees fit more interactions between features but overfit small movies sooner (4 in the reference). Ignored unless timelapse_division_prediction. Default 3.',
+    "timelapse_division_prediction_learning_rate": '(float) - How much each boosting round changes the model; smaller steps need more rounds but generalise more smoothly (0.05 in the reference). Ignored unless timelapse_division_prediction. Default 0.1.',
+    "timelapse_division_prediction_max_bin": "(int) - xgboost histogram bins (64 in the reference); 256 is xgboost's own default. Ignored unless timelapse_division_prediction. Default 256.",
+    "timelapse_division_prediction_n_estimators": '(int) - How many boosting rounds (trees) the learner fits; more rounds fit the training movies more closely and take longer. Ignored unless timelapse_division_prediction. Default 200.',
+    "timelapse_division_prediction_subsample": '(float) - The share of rows each xgboost tree is trained on; below 1 every tree sees a random part of the rows, which reduces overfitting. Ignored unless timelapse_division_prediction. Default 0.8.',
+    "timelapse_division_prediction_colsample": '(float) - The share of features each xgboost tree may use; below 1 every tree sees a random part of the features, which spreads the model over more of them. Ignored unless timelapse_division_prediction. Default 0.8.',
+    "timelapse_division_prediction_n_jobs": '(int) - How many threads the learner uses; more threads are faster, and 1 gives results bit-identical with the reference analysis because the order of the sums is fixed. Ignored unless timelapse_division_prediction. Default 2.',
+    "timelapse_division_prediction_seed": "(int or None) - One learner seed for every fit (20261104 in the reference). Blank draws one per fold from the run's seed, as before. Ignored unless timelapse_division_prediction. Default None.",
+    "timelapse_division_prediction_events": "(str) - Which fission events count as divisions: all, or two_daughters only. Budding is unchanged. Ignored unless timelapse_division_prediction. Default all.",
+    "timelapse_division_prediction_negative_rule": "(str) - When a frame may be called negative: lineage_end (the track's lineage end lies past the horizon) or last_seen (the last frame the track is seen lies at least N - 1 frames ahead, as the reference). Ignored unless timelapse_division_prediction. Default lineage_end.",
+    "figure_condition_aggregate": "(str) - Figure sizes: how the wells of one condition are pooled, mean or median. Default mean.",
+    "figure_size_stat": "(str) - Figure sizes: which per-well plaque area is the plaque size, mean or median. Default mean.",
+    "figure_scales": "(str) - Figure sizes: the comparison scales, comma-separated: absolute (counts only), rel_panel_max (each side over its panel maximum), rel_well_extent (spaCR area over the well extent, then over the panel maximum) and rel_reference (log2 ratio to the reference condition, the rows figure_score scores). Default absolute,rel_panel_max,rel_well_extent,rel_reference.",
+    "figure_absolute_units": "(str) - Figure sizes: the reported units, comma-separated, that the absolute scale accepts; only counts share a unit across papers. Default count.",
+    "figure_ratio_floor": "(float) - Figure sizes: ratios below this are raised to it before the log2 of the reference scale. Default 0.02.",
+    "figure_scale_permutations": "(int) - Figure sizes: how often the spaCR values are permuted among the conditions of each panel for the null R2 of each relative scale (normalising by the panel maximum puts one point per panel at (1, 1) for free; this null measures that). 0 skips it. Default 1000.",
+    "figure_scale_seed": '(int) - Figure sizes: the seed of the within-panel permutation null; the same seed gives the same null R2 on a rerun, another seed a different draw. Default 0.',
+    "timelapse_division_onset": "(bool) - With timelapse_division_analysis, also find when each measurement starts to change before division. Dividing and control cells are compared at every frame of the window (Hedges' g with a bootstrap 95% interval). Reading back from the division, the onset is the earliest frame of the unbroken run of frames whose interval excludes zero in the direction of the last frame; a measurement whose last frame is not significant has no onset. Writes onsets.csv (onset in frames, as a fraction of the median cycle and in minutes when the frame interval is known, and the direction) and frame_effects.csv next to the division results. Default False.",
+    "timelapse_division_onset_ci": "(str) - The two interval columns of the per-frame effect table that decide whether a frame is significant, written as low/high. Ignored unless timelapse_division_onset. Default ci_low/ci_high.",
     "timelapse_events": "(bool) - After the run, detect events on every tracked object with a small neural network that reads short windows of each track (shape, intensity, movement, tracks starting or ending nearby, and image crops): mitosis, egress, invasion, host death or whatever classes timelapse_events_annotations names. Writes time-stamped events, lineage trees re-linked from detected mitoses and Kaplan-Meier time to each event per condition to tracks/events. The small encoder runs on CPU; the optional videomae encoder uses its separately installed worker and declared video device. Default False.",
     "timelapse_events_annotations": "(str or None) - Table of hand-annotated events with columns field (the tracks file's field name), track_id, frame and event, plus an optional object column. Every event of an annotated field must be listed. The detector is scored on held-out annotated fields (precision, recall and timing error in frames, matched within 2 frames), trained on all of them and saved as tracks/events/event_model.pt. Blank uses timelapse_events_model. Default None.",
     "timelapse_events_model": "(str or None) - A trained event model (event_model.pt from an earlier run) to apply when timelapse_events_annotations is blank. It is read as tensors only. Default None.",
@@ -6144,7 +6297,7 @@ def _name_the_family_in_every_estimator_tooltip():
 
 _name_the_family_in_every_estimator_tooltip()
 
-timelapse_settings = ['fps', 'timelapse_mode', 'trackastra_model', 'trackastra_linking', 'ultrack_max_distance', 'ultrack_division_weight', 'ultrack_contour_sigma', 'ultrack_n_workers', 'timeflows_model', 'timelapse_displacement', 'timelapse_memory', 'timelapse_frame_limits', 'timelapse_remove_transient', 'timelapse_objects', 'timelapse_lineage', 'timelapse_lineage_color_by', 'timelapse_lineage_max_distance', 'timelapse_lineage_min_division_h', 'timelapse_lineage_edge_entry', 'timelapse_lineage_vacuole_count', 'timelapse_lineage_bud_guard', 'timelapse_lineage_bud_threshold', 'timelapse_division_analysis', 'timelapse_division_mode', 'timelapse_division_window', 'timelapse_division_size_tolerance', 'timelapse_division_prediction', 'timelapse_division_prediction_frames', 'timelapse_division_prediction_model', 'timelapse_division_prediction_folds', 'timelapse_events', 'timelapse_events_annotations', 'timelapse_events_model', 'timelapse_events_window', 'timelapse_events_threshold', 'timelapse_events_conditions', 'timelapse_events_encoder', 'timelapse_events_video_checkpoint', 'timelapse_events_video_channels', 'timelapse_events_video_device']
+timelapse_settings = ['fps', 'timelapse_mode', 'trackastra_model', 'trackastra_linking', 'ultrack_max_distance', 'ultrack_division_weight', 'ultrack_contour_sigma', 'ultrack_n_workers', 'timeflows_model', 'timelapse_displacement', 'timelapse_memory', 'timelapse_frame_limits', 'timelapse_remove_transient', 'timelapse_objects', 'timelapse_lineage', 'timelapse_lineage_color_by', 'timelapse_lineage_max_distance', 'timelapse_lineage_min_division_h', 'timelapse_lineage_edge_entry', 'timelapse_lineage_vacuole_count', 'timelapse_lineage_bud_guard', 'timelapse_lineage_bud_threshold', 'timelapse_division_analysis', 'timelapse_division_mode', 'timelapse_division_window', 'timelapse_division_size_tolerance', 'timelapse_division_prediction', 'timelapse_division_prediction_frames', 'timelapse_division_prediction_model', 'timelapse_division_prediction_folds', 'timelapse_division_prediction_unit', 'timelapse_division_prediction_sample_seed', 'timelapse_division_prediction_max_rows', 'timelapse_division_prediction_row_seed', 'timelapse_division_prediction_min_positive_tracks', 'timelapse_division_prediction_min_positive_rows', 'timelapse_division_prediction_arms', 'timelapse_division_prediction_group', 'timelapse_division_prediction_features', 'timelapse_division_prediction_lag', 'timelapse_division_prediction_born_flag', 'timelapse_division_prediction_history', 'timelapse_division_prediction_max_depth', 'timelapse_division_prediction_learning_rate', 'timelapse_division_prediction_max_bin', 'timelapse_division_prediction_n_estimators', 'timelapse_division_prediction_subsample', 'timelapse_division_prediction_colsample', 'timelapse_division_prediction_n_jobs', 'timelapse_division_prediction_seed', 'timelapse_division_prediction_events', 'timelapse_division_prediction_negative_rule', 'timelapse_division_onset', 'timelapse_division_onset_ci', 'timelapse_events', 'timelapse_events_annotations', 'timelapse_events_model', 'timelapse_events_window', 'timelapse_events_threshold', 'timelapse_events_conditions', 'timelapse_events_encoder', 'timelapse_events_video_checkpoint', 'timelapse_events_video_channels', 'timelapse_events_video_device']
 
 motility_settings = ['motility_analysis','tracked_object', 'infection_intensity_strategy', 'seconds_per_frame', 'pixels_per_um', 'motility_ylim', 'motility_xlim', 'infection_intensity_qc_scope']
 
@@ -6208,7 +6361,7 @@ categories = {
     "Host–Pathogen Analysis": ["hp_vacuole_table", "hp_vacuole_prefix",
         "hp_reference_table", "hp_reference_prefix", "hp_marker_channels",
         "hp_marker_thresholds", "hp_parasite_table", "hp_parasite_parent",
-        "hp_count_column"],
+        "hp_count_column", "vacuole_from_parasites", "vacuole_gap_px", "vacuole_min_size", "host_min_size", "host_assignment", "titration_merged_folder", "titration_object_tables", "titration_plate_map", "titration_reference_values", "titration_min_well_cells", "replication_classifier", "replication_training_table", "replication_training_columns", "replication_class_column", "replication_classes", "replication_seed", "replication_cv_folds", "size_calibration", "size_calibration_reference_px", "infection_signal_floor", "infection_floor_percentile", "infection_uninfected_wells", "infection_signal_column", "translocation", "translocation_merged_folder", "cell_from_nucleus_expand_px", "cell_from_nucleus_min_nucleus_size", "translocation_channel", "translocation_control_channel", "translocation_exclude_px", "translocation_min_pathogen_size", "translocation_background", "translocation_background_min_px", "translocation_background_fallback_percentile", "translocation_min_nucleus_size", "translocation_k_column", "translocation_kmax", "translocation_groups", "translocation_min_cells_per_bin", "translocation_null_percentile", "translocation_shuffle_n", "translocation_seed", "translocation_reference"],
 
     "Point Spread Function": ["psf_measurement_source", "psf_operation", "psf_source", "psf_objective",
                               "psf_path", "psf_image_sampling_um", "psf_kernel_sampling_um",
@@ -6257,7 +6410,7 @@ categories = {
 
     "Object Crops": ["save_png", "crop_mode", "png_size", "png_channel_mapping", "png_dims", "dialate_pngs", "dialate_png_ratios", "use_bounding_box", "normalize_by", "crop_intensity", "save_arrays", "export_vvvv"],
 
-    "Plate Layout & Controls": ["plaque_mode", "plaque_well_resize", "plaque_well_resize_side", "plaque_well_resize_max_factor", "figure_detector", "figure_imgsz", "figure_confidence", "figure_read_text", "confirm_annotations", "text_reach_above", "text_reach_left", "text_reach_below", "text_use_above", "text_use_left", "text_use_below", "text_panel_reach", "text_min_confidence", "text_ignore", "text_order", "text_separator", "text_reread", "text_reread_scale", "well_detection", "well_confidence", "well_pad", "plate_format", "well_diameter_mm", "plaque_pixels_per_um", "plaque_formation_hours", "plaque_estimate_growth", "plaque_growth_reference_um", "plaque_growth_reference_hours", "plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control_id", "negative_control_id", "exclude_grnas", "positive_control_wells", "negative_control_wells", "mixed_control_wells", "nontargeting_control_grnas", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "batch_correction", "batch_column", "batch_control_column", "batch_control_values", "batch_covariate_column", "batch_combat_mean_only", "batch_min_samples", "batch_missing_control"],
+    "Plate Layout & Controls": ["plaque_mode", "plaque_well_resize", "plaque_well_resize_side", "plaque_well_resize_max_factor", "figure_detector", "figure_imgsz", "figure_confidence", "figure_read_text", "figure_condition_labels", "figure_model_labels", "figure_detections", "figure_mode_folder", "figure_segmentation_folder", "figure_score_folder", "figure_metric", "compare_permutations", "compare_seed", "figure_low_confidence", "figure_second_look", "figure_condition_aggregate", "figure_size_stat", "figure_scales", "figure_absolute_units", "figure_ratio_floor", "figure_scale_permutations", "figure_scale_seed", "confirm_annotations", "text_reach_above", "text_reach_left", "text_reach_below", "text_use_above", "text_use_left", "text_use_below", "text_panel_reach", "text_min_confidence", "text_ignore", "text_order", "text_separator", "text_reread", "text_reread_scale", "well_detection", "well_confidence", "well_pad", "plate_format", "well_diameter_mm", "plaque_pixels_per_um", "plaque_formation_hours", "plaque_estimate_growth", "plaque_growth_reference_um", "plaque_growth_reference_hours", "plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control_id", "negative_control_id", "exclude_grnas", "positive_control_wells", "negative_control_wells", "mixed_control_wells", "nontargeting_control_grnas", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "batch_correction", "batch_column", "batch_control_column", "batch_control_values", "batch_covariate_column", "batch_combat_mean_only", "batch_min_samples", "batch_missing_control"],
 
 
 
@@ -6288,7 +6441,7 @@ categories = {
     "Leakage Audit": ["evaluation_fail_on_leakage", "leakage_audit_train_test",
                       "leakage_hash_content", "leakage_require_identity"],
 
-    "Machine Learning Model and Features": ["model_type_ml", "n_estimators", "test_size", "cross_validation", "reg_lambda", "reg_alpha", "prune_features", "top_features", "n_repeats", ],
+    "Machine Learning Model and Features": ["model_type_ml", "n_estimators", "test_size", "cross_validation", "reg_lambda", "reg_alpha", "prune_features", "top_features", "n_repeats", "ml_eval_report", "ml_eval_split", "ml_eval_controls", "ml_eval_shuffle_seed", "ml_eval_shuffle_repeats", "ml_model_type", "ml_label_column", "ml_eval_classes", "ml_eval_features", "ml_eval_features_table", "ml_eval_join_column", "ml_eval_random_folds", "annotate_sample_n", "annotate_sample_seed", "annotate_sample_strata"],
 
     "Embedding & Clustering": ["reduction_method", "n_neighbors", "min_dist", "metric", "tsne_perplexity", "tsne_learning_rate", "tsne_early_exaggeration", "tsne_max_iter", "pca_whiten", "pca_svd_solver", "isomap_n_neighbors", "isomap_path_method", "spectral_affinity", "spectral_n_neighbors", "log_data", "embedding_by_controls", "col_to_compare", "resnet_features", "clustering", "eps", "min_samples", "remove_cluster_noise", "analyze_clusters"],
 
@@ -7545,6 +7698,24 @@ def get_analyze_plaque_settings(settings):
     settings.setdefault('figure_imgsz', '640,1280')
     settings.setdefault('figure_confidence', 0.25)
     settings.setdefault('figure_read_text', True)
+    settings.setdefault('figure_condition_labels', '')
+    settings.setdefault('figure_model_labels', '')
+    settings.setdefault('figure_detections', '')
+    settings.setdefault('figure_mode_folder', '')
+    settings.setdefault('figure_segmentation_folder', '')
+    settings.setdefault('figure_score_folder', '')
+    settings.setdefault('figure_metric', 'area')
+    settings.setdefault('compare_permutations', 1000)
+    settings.setdefault('compare_seed', 0)
+    settings.setdefault('figure_low_confidence', 0.7)
+    settings.setdefault('figure_second_look', '')
+    settings.setdefault('figure_condition_aggregate', 'mean')
+    settings.setdefault('figure_size_stat', 'mean')
+    settings.setdefault('figure_scales', 'absolute,rel_panel_max,rel_well_extent,rel_reference')
+    settings.setdefault('figure_absolute_units', 'count')
+    settings.setdefault('figure_ratio_floor', 0.02)
+    settings.setdefault('figure_scale_permutations', 1000)
+    settings.setdefault('figure_scale_seed', 0)
     settings.setdefault('confirm_annotations', False)
     settings.setdefault('text_reach_above', 1.0)
     settings.setdefault('text_reach_left', 1.0)
@@ -8146,6 +8317,49 @@ expected_types.update({
     'hp_reference_table': str, 'hp_reference_prefix': str,
     'hp_marker_channels': list, 'hp_marker_thresholds': dict,
     'hp_parasite_table': str, 'hp_parasite_parent': str, 'hp_count_column': str,
+    'vacuole_from_parasites': bool,
+    'vacuole_gap_px': int,
+    'vacuole_min_size': int,
+    'host_min_size': int,
+    'host_assignment': str,
+    'titration_merged_folder': str,
+    'titration_object_tables': str,
+    'titration_plate_map': str,
+    'titration_reference_values': str,
+    'titration_min_well_cells': (int, float),
+    'replication_classifier': str,
+    'replication_training_table': str,
+    'replication_training_columns': (dict, str),
+    'replication_class_column': str,
+    'replication_classes': str,
+    'replication_seed': int,
+    'replication_cv_folds': int,
+    'size_calibration': str,
+    'size_calibration_reference_px': (int, float),
+    'infection_signal_floor': (int, float, str),
+    'infection_floor_percentile': (int, float),
+    'infection_uninfected_wells': str,
+    'infection_signal_column': str,
+    'translocation': bool,
+    'translocation_merged_folder': str,
+    'cell_from_nucleus_expand_px': int,
+    'cell_from_nucleus_min_nucleus_size': int,
+    'translocation_channel': int,
+    'translocation_control_channel': int,
+    'translocation_exclude_px': int,
+    'translocation_min_pathogen_size': int,
+    'translocation_background': str,
+    'translocation_background_min_px': int,
+    'translocation_background_fallback_percentile': (int, float),
+    'translocation_min_nucleus_size': int,
+    'translocation_k_column': str,
+    'translocation_kmax': int,
+    'translocation_groups': (str, dict),
+    'translocation_min_cells_per_bin': int,
+    'translocation_null_percentile': (int, float),
+    'translocation_shuffle_n': int,
+    'translocation_seed': int,
+    'translocation_reference': str,
 })
 tooltips.update({
     'hp_vacuole_table': '(str) - Measurement table with one object per whole vacuole and a cell_id link to its host. Use whole-vacuole masks, not individual parasite masks. Default pathogen. API: spacr.host_pathogen.analyze_host_pathogen.',
@@ -8156,6 +8370,49 @@ tooltips.update({
     'hp_marker_thresholds': '(dict) - Channel-to-ratio cutoffs, for example {0: 2.0, 1: 1.5}; ratios at or above the cutoff are positive. Calibrate cutoffs with assay controls. Unspecified channels remain unclassified. Default {}. API: spacr.host_pathogen.summarize_tables.',
     'hp_parasite_table': '(str) - Optional table containing one row per segmented parasite and an explicit parent-vacuole column. Leave empty if parasite counts are unavailable. Do not also set hp_count_column. Default empty. API: spacr.host_pathogen.summarize_tables.',
     'hp_parasite_parent': '(str) - Parent-vacuole label column in the selected parasite table. Host cell IDs cannot substitute for vacuole IDs. Unmatched parasites are exported separately. Default pathogen_id. API: spacr.host_pathogen.summarize_tables.',
+    'vacuole_from_parasites': '(bool) - Titration readout: build vacuoles from the parasite masks of titration_merged_folder: parasites closer than vacuole_gap_px are grouped into one vacuole and each parasite is linked to its vacuole by majority overlap, which gives the linked parasite count. Default False.',
+    'vacuole_gap_px': '(int) - Titration readout: parasites up to about this many pixels apart become one vacuole (closing iterations). Default 4.',
+    'vacuole_min_size': '(int) - Titration readout: vacuoles smaller than this many pixels are dropped; also the smallest area the modal size calibration counts. Default 15.',
+    'host_min_size': '(int) - Titration readout: host cells smaller than this many pixels are dropped as debris, and a vacuole on one has no host. Default 300.',
+    'host_assignment': '(str) - Titration readout: how a vacuole gets its host cell. majority_overlap takes the cell most of its pixels lie on. Default majority_overlap.',
+    'titration_merged_folder': '(str) - Titration readout: the merged arrays of the plate (channel 1 the parasite signal, mask channels 3 cells and 5 parasites, as Make Masks writes them with merge_pathogens off), used with vacuole_from_parasites. Default .',
+    'titration_object_tables': '(str) - Titration readout: a folder with saved cells.csv and vacuoles.csv to use instead of the merged arrays. Default .',
+    'titration_plate_map': '(str) - Titration readout: a table of well, strain, status (infected or uninfected) and dose. Setting it makes the Host-Pathogen run the titration readout. Default .',
+    'titration_reference_values': '(str) - Titration readout: an optional table of published values (strain, dose, metric repl or size, value, err) written beside each condition. Default .',
+    'titration_min_well_cells': "(float) - Titration readout: a well with fewer cells than this fraction of its condition's median is marked qc_pass False and left out of the condition means. Default 0.3.",
+    'replication_classifier': '(str) - Titration readout: none, or hist_gbm to call parasites per vacuole with a gradient-boosting classifier trained on replication_training_table and cross-validated on it. Default none.',
+    'replication_training_table': "(str) - Titration readout: the labelled training table of the replication classifier, for example HRMAn's Training_dataset.csv. Default .",
+    'replication_training_columns': "(dict) - Titration readout: training-table column -> spaCR vacuole column; the first is the area. Default {'Num Pix': 'area_px', 'Circularity': 'circularity', 'Convexity': 'solidity', 'Extend': 'extent', 'Diameter': 'feret_max'}.",
+    'replication_class_column': '(str) - Titration readout: the training-table column that holds the parasites per vacuole of each labelled vacuole; its values are the classes the classifier learns. Default Parasites/vacuole.',
+    'replication_classes': '(str) - Titration readout: the parasite-per-vacuole classes the classifier is trained on, comma-separated; training rows of other classes are left out, so leaving one out removes it from the predictions. Default "1,2,4,8".',
+    'replication_seed': '(int) - Titration readout: the random seed of the replication classifier and its cross-validation; the same seed gives the same calls and report on a rerun. Default 0.',
+    'replication_cv_folds': '(int) - Titration readout: cross-validation folds of the classifier report (majority class, area only and all columns). Default 5.',
+    'size_calibration': "(str) - Titration readout: none, or modal_single to put spaCR vacuole sizes on the training table's scale: k = size_calibration_reference_px over the modal vacuole area of the infected wells; areas are multiplied by k and lengths by sqrt(k) before the classifier. Default none.",
+    'size_calibration_reference_px': '(float) - Titration readout: the single-parasite vacuole area of the reference pipeline, in its pixels (57.0 for HRMAn). Default 57.0.',
+    'infection_signal_floor': '(str or float) - Titration readout: vacuoles whose mean parasite signal is below the floor are dropped before every count: none, a number, or uninfected_percentile (infection_floor_percentile of the uninfected wells). Default none.',
+    'infection_floor_percentile': "(float) - Titration readout: the percentile of the uninfected wells' vacuole signal used as the floor. Default 95.",
+    'infection_uninfected_wells': '(str) - Titration readout: the uninfected wells, comma-separated; blank uses the wells the plate map calls uninfected. Default .',
+    'infection_signal_column': '(str) - Titration readout: the vacuole column compared with the parasite-signal floor; vacuoles below the floor in this column are dropped before every count. Default tox_mean.',
+    'translocation': '(bool) - Host-Pathogen: run the nuclear effector translocation readout instead: per host cell the effector signal in the nucleus (raw sum, as HRMAn, and corrected: nucleus pixels near parasites left out, field background subtracted) against vacuoles per cell, normalised to cells without vacuoles, with the null-threshold, within-field shuffle, DNA, nucleus-area and excluded-fraction controls. Writes <src>/translocation/. Default False.',
+    'translocation_merged_folder': '(str) - Translocation: the merged arrays to read (planes 3, 4 and 5 the cell, nucleus and parasite masks; with cell_from_nucleus_expand_px, five planes with the nucleus and parasite masks at 3 and 4). Blank reads <src>/merged. Default .',
+    'cell_from_nucleus_expand_px': '(int) - With no cell stain, grow each nucleus by up to this many pixels without overlap and use the territories as cell masks (cell_source nucleus_territory). They are territories, not cell outlines. 0 is off. Default 0.',
+    'cell_from_nucleus_min_nucleus_size': '(int) - Nuclei smaller than this many pixels are removed before the territories grow (parasite nuclei in the DNA channel). Default 250.',
+    'translocation_channel': '(int) - Translocation: the image channel holding the effector whose nuclear signal is read; the raw and the corrected readouts and the background all come from it. Default 2.',
+    'translocation_control_channel': '(int) - Translocation: the DNA control channel, whose mean in the nucleus should not follow vacuoles per cell. Default 0.',
+    'translocation_exclude_px': '(int) - Translocation: nucleus pixels within this distance of a parasite pixel are left out of the corrected readout, since the effector also fills the parasites and the vacuole. Default 2.',
+    'translocation_min_pathogen_size': '(int) - Translocation: parasite objects smaller than this many pixels are dropped before vacuoles are grouped and before the nucleus pixels near parasites are excluded. Default 15.',
+    'translocation_background': '(str) - Translocation: outside_cells_median subtracts the median effector signal outside every cell and parasite; none subtracts nothing. Default outside_cells_median.',
+    'translocation_background_min_px': '(int) - Translocation: with fewer background pixels than this, the background is the fallback percentile of the whole field. Default 1000.',
+    'translocation_background_fallback_percentile': '(float) - Translocation: the field percentile used as background when too few background pixels are left. Default 5.',
+    'translocation_min_nucleus_size': '(int) - Translocation: cells whose nucleus is smaller than this many pixels are left out of the summaries. Default 250.',
+    'translocation_k_column': '(str) - Translocation: what the curves bin cells by: n_vacuoles (vacuoles per cell) or n_parasites. Default n_vacuoles.',
+    'translocation_kmax': '(int) - Translocation: the largest k plotted; cells with more are counted but not binned. Default 10.',
+    'translocation_groups': '(str or dict) - Translocation: the group of each well row, as row:group pairs (for example B:TgIST, C:TgIST, D:GRA16), a dict, or a plate-map table with well and group columns. Default .',
+    'translocation_min_cells_per_bin': "(int) - Translocation: a well's ratio for a k bin needs at least this many cells in it. Default 3.",
+    'translocation_null_percentile': '(float) - Translocation: the percentile of the corrected nuclear mean in cells without vacuoles that calls a nucleus positive. Default 99.',
+    'translocation_shuffle_n': '(int) - Translocation: how often k is permuted among the cells of each field for the shuffle null. Default 200.',
+    'translocation_seed': '(int) - Translocation: the seed of the within-field shuffle null; the same seed gives the same null ratios on a rerun, consumed group by group, raw readout first. Default 0.',
+    'translocation_reference': "(str) - Translocation: an optional reference curve table (effector, k, hrman_total, hrman_ratio), for example parsed from HRMAn's Result.pzfx, for the agreement table. Default .",
     'hp_count_column': '(str) - Optional measured count column on each vacuole. Nonnegative integer counts are accepted; missing values remain unknown. Alternative to a linked parasite table. Default empty. API: spacr.host_pathogen.summarize_tables.',
 })
 
@@ -8203,7 +8460,65 @@ ALPHA_FEATURES = {
     },
     772: {
         'settings': ('crop_scaling', 'crop_scale_clip', 'crop_scale_file',
-                     'control_shuffled_labels'),
+                     'control_shuffled_labels',
+                     'vacuole_from_parasites',
+                     'vacuole_gap_px',
+                     'vacuole_min_size',
+                     'host_min_size',
+                     'host_assignment',
+                     'titration_merged_folder',
+                     'titration_object_tables',
+                     'titration_plate_map',
+                     'titration_reference_values',
+                     'titration_min_well_cells',
+                     'replication_classifier',
+                     'replication_training_table',
+                     'replication_training_columns',
+                     'replication_class_column',
+                     'replication_classes',
+                     'replication_seed',
+                     'replication_cv_folds',
+                     'size_calibration',
+                     'size_calibration_reference_px',
+                     'infection_signal_floor',
+                     'infection_floor_percentile',
+                     'infection_uninfected_wells',
+                     'infection_signal_column',
+                     'ml_eval_report',
+                     'ml_eval_split',
+                     'ml_eval_controls',
+                     'ml_eval_shuffle_seed',
+                     'ml_eval_shuffle_repeats',
+                     'ml_model_type',
+                     'ml_label_column',
+                     'ml_eval_classes',
+                     'ml_eval_features',
+                     'ml_eval_features_table',
+                     'ml_eval_join_column',
+                     'ml_eval_random_folds',
+                     'annotate_sample_n',
+                     'annotate_sample_seed',
+                     'annotate_sample_strata',
+                     'translocation',
+                     'translocation_merged_folder',
+                     'cell_from_nucleus_expand_px',
+                     'cell_from_nucleus_min_nucleus_size',
+                     'translocation_channel',
+                     'translocation_control_channel',
+                     'translocation_exclude_px',
+                     'translocation_min_pathogen_size',
+                     'translocation_background',
+                     'translocation_background_min_px',
+                     'translocation_background_fallback_percentile',
+                     'translocation_min_nucleus_size',
+                     'translocation_k_column',
+                     'translocation_kmax',
+                     'translocation_groups',
+                     'translocation_min_cells_per_bin',
+                     'translocation_null_percentile',
+                     'translocation_shuffle_n',
+                     'translocation_seed',
+                     'translocation_reference'),
     },
     801: {
         'settings': ('mask_workers_per_gpu',),
@@ -8543,7 +8858,9 @@ ALPHA_FEATURES = {
         'widgets': ('DivisionAnalysisPanel',),
     },
     864: {
-        'settings': ('timelapse_division_analysis',),
+        'settings': ('timelapse_division_analysis',
+                     'timelapse_division_onset',
+                     'timelapse_division_onset_ci'),
     },
     867: {
         'settings': ('timelapse_division_analysis',),
@@ -8554,7 +8871,29 @@ ALPHA_FEATURES = {
     866: {
         'settings': ('timelapse_division_prediction', 'timelapse_division_prediction_frames',
                      'timelapse_division_prediction_model',
-                     'timelapse_division_prediction_folds'),
+                     'timelapse_division_prediction_folds',
+                     'timelapse_division_prediction_unit',
+                     'timelapse_division_prediction_sample_seed',
+                     'timelapse_division_prediction_max_rows',
+                     'timelapse_division_prediction_row_seed',
+                     'timelapse_division_prediction_min_positive_tracks',
+                     'timelapse_division_prediction_min_positive_rows',
+                     'timelapse_division_prediction_arms',
+                     'timelapse_division_prediction_group',
+                     'timelapse_division_prediction_features',
+                     'timelapse_division_prediction_lag',
+                     'timelapse_division_prediction_born_flag',
+                     'timelapse_division_prediction_history',
+                     'timelapse_division_prediction_max_depth',
+                     'timelapse_division_prediction_learning_rate',
+                     'timelapse_division_prediction_max_bin',
+                     'timelapse_division_prediction_n_estimators',
+                     'timelapse_division_prediction_subsample',
+                     'timelapse_division_prediction_colsample',
+                     'timelapse_division_prediction_n_jobs',
+                     'timelapse_division_prediction_seed',
+                     'timelapse_division_prediction_events',
+                     'timelapse_division_prediction_negative_rule'),
     },
     906: {
         'settings': ('ops_profile_space', 'ops_fusion_blocks'),
@@ -8694,7 +9033,25 @@ ALPHA_FEATURES = {
     },
     501: {
         'settings': ('plaque_estimate_growth', 'plaque_growth_reference_um',
-                     'plaque_growth_reference_hours'),
+                     'plaque_growth_reference_hours',
+                     'figure_condition_labels',
+                     'figure_model_labels',
+                     'figure_detections',
+                     'figure_mode_folder',
+                     'figure_segmentation_folder',
+                     'figure_score_folder',
+                     'figure_metric',
+                     'compare_permutations',
+                     'compare_seed',
+                     'figure_low_confidence',
+                     'figure_second_look',
+                     'figure_condition_aggregate',
+                     'figure_size_stat',
+                     'figure_scales',
+                     'figure_absolute_units',
+                     'figure_ratio_floor',
+                     'figure_scale_permutations',
+                     'figure_scale_seed'),
         'widgets': ('PlaqueEstimateScaleTime', 'PlaqueEstimateScaleTimeNote'),
     },
     564: {

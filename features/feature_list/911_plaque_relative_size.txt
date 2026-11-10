@@ -1,0 +1,32 @@
+PLAQUE FIGURE MODE: ABSOLUTE AND RELATIVE PLAQUE SIZE AGAINST REPORTED SIZES
+============================================================================
+
+Lifecycle: future
+Status: PARTIAL 2026-11-09 (alpha; no reference outputs to compare with) — spacr.plaque_papers gains plaque_size_readouts (per well: count, mean/median/max plaque area, max over mean, each plaque over the largest, well extent and mean area over well extent), figure_condition_sizes (one row per reported condition with the sizes of its matched wells, the cond.csv columns), figure_size_scales (absolute counts, relative to the panel maximum, relative to well extent, log2 relative to the reference condition from the gold rows of compare_reported), figure_size_agreement (R2, p, n, figures, Spearman rho, Lin's concordance, median log2 bias; within-panel permutation null and the agreement without each panel's maximum), figure_size_figure (four scatter panels) and compare_figure_sizes; the Plaque module runs it with plaque_mode='figure_sizes'. Seven settings, registered under ALPHA_FEATURES[501] (the plaque entry; a new key breaks the alpha deck test).
+Requested: maintainer, 2026-11-09 (BMC paper item spec ITEM_plaque_relative_size.md).
+Owner: Home (claude-lane-e-1109 worktree).
+Related: 900, 843-849, 500, 501.
+
+SETTINGS
+figure_condition_aggregate (mean), figure_size_stat (mean), figure_scales
+(all four), figure_absolute_units (count), figure_ratio_floor (0.02),
+figure_scale_permutations (1000), figure_scale_seed (0).
+
+RESULT (scratch: /mnt/firecuda2/codex/scratch-docs/paper-items-1109/lane-e/validate_911.py)
+Gold set with the stored v8 segmentations: 75 reported conditions in 12
+figures, 54 with matched wells. The rel_reference rows are the 43 gold rows
+of compare_reported (same rows; the log2 values are compare_reported's).
+R2 (all readouts): absolute 0.38 (n 11), relative to panel maximum 0.58
+(n 54; null p95 0.15; without the panel maxima 0.48, n 37), relative to well
+extent 0.56 (n 43; null p95 0.21), log2 vs reference 0.21 (n 43; null p95
+0.11). The permutation null is identical on rerun with the same seed.
+
+NOT DONE / REMAINING
+- The reference implementation (comp.py and its build step) and its outputs
+  (cond.csv, the scale-statistics table) were not found on the NAS or local
+  disks, so "identical to the reference" could not be checked; the code
+  follows the spec text.
+- The per-well size readouts are not yet columns of the Plaque module's
+  per-well and per-plaque tables outside figure mode; plaque_area_mm2 (item
+  500 scale) is not computed.
+- Catalogue (9-locale) records and arrival contracts are left to the master.

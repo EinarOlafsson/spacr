@@ -1,0 +1,14 @@
+Key,Value
+src,PLACEHOLDER
+ml_eval_report,True
+ml_eval_features_table,<src>/selection.csv
+ml_eval_join_column,file_name
+ml_label_column,annotate
+ml_eval_classes,"1,2,3"
+ml_eval_features,"rim_enrichment,ring_median_bgsub,ref_cyto_median_bgsub,area_px,tox_mean,ring_sat_frac"
+ml_eval_split,leave_one_well_out
+ml_eval_controls,"majority, shuffled"
+ml_eval_shuffle_seed,0
+ml_eval_shuffle_repeats,20
+ml_model_type,hist_gbm
+n_estimators,200

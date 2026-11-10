@@ -1,0 +1,39 @@
+DIVISION PREDICTION: SCORING UNIT, GUARDS, SHAPE-AND-MOTION ARM, SINGLE-MOVIE GROUPING, REFERENCE FEATURES AND LEARNER
+======================================================================================================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha; reference preset validated on 4 of 13 datasets) — spacr.division_prediction: predict_divisions gains arms (shape_motion = every feature but age and born_in_view, with the shape-and-motion-minus-age margin), group (movie, lineage_tree or auto; lineage-tree folds never split a tree and are flagged weaker), max_rows / row_seed, min_positive_rows (no fit, reason in the summary) and min_positive_tracks (informative flag in summary, metrics and greyed figure), learner options (depth, rate, max_bin, rounds, subsample, colsample, threads) and one fixed seed; it always reports unit, n_positive_rows and n_positive_tracks and writes pr_curves.csv (120 points per arm, division_prediction_pr_curve). division_prediction_features gains feature_set='reference' (value, 1- and lag-frame changes, rolling mean, age, born_in_view, in the reference row order), events='two_daughters', negative_rule='last_seen' and a lineage_tree column (lineage_trees). prediction_feature_options / prediction_run_options read 22 timelapse_division_prediction_* settings, registered under ALPHA_FEATURES[866]; frames and lag accept auto. spacr/resources/division_prediction_reference.json is the reference preset with the per-dataset horizons. Every default keeps the item-866 numbers.
+Requested: maintainer, 2026-11-09 (BMC paper item spec ITEM_division_prediction_arms.md).
+Owner: Home (claude-lane-e-1109 worktree).
+Related: 866, 867, 771, 901.
+
+DELIBERATE CHOICES
+- timelapse_division_prediction_min_positive_rows defaults to 0 (the spec
+  says 20): a default guard would stop fits that run today, against the
+  spec's own no-regression rule. The reference preset sets 20.
+- Arm labels for the default arms are unchanged ("model", not "full"), so
+  default outputs stay identical.
+
+RESULT (scratch: /mnt/firecuda2/codex/scratch-docs/paper-items-1109/lane-e/validate_909.py, noreg909.py)
+Four datasets run (DeepSea, S. pombe, Cell-ACDC, Fluo-N2DL-HeLa), CPU,
+xgboost 2.1.1, one thread:
+- Reference preset vs panelE_prediction_summary.csv (the script): n_rows and
+  n_positive identical on all four; prevalence, age only, shape and motion
+  only and full AUPRC identical to the last stored digit (|d| < 1e-15);
+  S. pombe runs with group auto -> lineage tree and prints the warning.
+  Shuffled-label arm |d| 0.003 / 0.017 / 0.007 / 0.007 (tolerance 0.02).
+- No regression: with default settings the features, metrics and every
+  held-out prediction equal the pre-909 module (commit aa9d8b1677) exactly
+  on Cell-ACDC and HeLa.
+- The spacr_default / all_frames_diagnostic columns of
+  comparison_script_vs_spacr_module.csv were produced by an older nightly
+  (917a2cab6a); today's module (before and after 909) gives the same row and
+  positive counts but different AUPRCs there, so those columns are no longer
+  a no-regression reference and should be regenerated.
+
+NOT DONE / REMAINING
+- Nine datasets, including the three over the row cap (C. glutamicum, bck2,
+  DynamicNuclearNet), were not run; their tolerance check, the 5-seed spread
+  and the track-unit guard list (Cell-ACDC, BABY, MuSC, S. pombe, HSC, LYN)
+  remain.
+- Catalogue (9-locale) records and arrival contracts are left to the master.

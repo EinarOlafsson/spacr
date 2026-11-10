@@ -1262,6 +1262,23 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Feature Selection & Importance", (
             "prune_features", "top_features", "n_repeats",
         )),
+        ("Held-out Evaluation α", (
+            "ml_eval_report",
+            "ml_eval_split",
+            "ml_eval_controls",
+            "ml_eval_shuffle_seed",
+            "ml_eval_shuffle_repeats",
+            "ml_model_type",
+            "ml_label_column",
+            "ml_eval_classes",
+            "ml_eval_features",
+            "ml_eval_features_table",
+            "ml_eval_join_column",
+            "ml_eval_random_folds",
+            "annotate_sample_n",
+            "annotate_sample_seed",
+            "annotate_sample_strata",
+        )),
         ("Plots & Heatmaps", (
             "cmap", "heatmap_feature", "grouping", "min_max",
         )),
@@ -1496,6 +1513,29 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "timelapse_division_window", "timelapse_division_size_tolerance",
             "timelapse_division_prediction", "timelapse_division_prediction_frames",
             "timelapse_division_prediction_model", "timelapse_division_prediction_folds",
+            "timelapse_division_prediction_unit",
+            "timelapse_division_prediction_sample_seed",
+            "timelapse_division_prediction_max_rows",
+            "timelapse_division_prediction_row_seed",
+            "timelapse_division_prediction_min_positive_tracks",
+            "timelapse_division_prediction_min_positive_rows",
+            "timelapse_division_prediction_arms",
+            "timelapse_division_prediction_group",
+            "timelapse_division_prediction_features",
+            "timelapse_division_prediction_lag",
+            "timelapse_division_prediction_born_flag",
+            "timelapse_division_prediction_history",
+            "timelapse_division_prediction_max_depth",
+            "timelapse_division_prediction_learning_rate",
+            "timelapse_division_prediction_max_bin",
+            "timelapse_division_prediction_n_estimators",
+            "timelapse_division_prediction_subsample",
+            "timelapse_division_prediction_colsample",
+            "timelapse_division_prediction_n_jobs",
+            "timelapse_division_prediction_seed",
+            "timelapse_division_prediction_events",
+            "timelapse_division_prediction_negative_rule",
+            "timelapse_division_onset", "timelapse_division_onset_ci",
         )),
         ("Event Detection α", (
             "timelapse_events", "timelapse_events_annotations",
@@ -1759,6 +1799,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Detection Thresholds", (
             "CP_prob", "flow_threshold", "minimum_object_size", "rescale", "resample", "fill_in",
         )),
+        ("Figure Scoring α", ("figure_condition_labels", "figure_model_labels", "figure_detections", "figure_mode_folder", "figure_segmentation_folder", "figure_score_folder", "figure_metric", "compare_permutations", "compare_seed", "figure_low_confidence", "figure_second_look", "figure_condition_aggregate", "figure_size_stat", "figure_scales", "figure_absolute_units", "figure_ratio_floor", "figure_scale_permutations", "figure_scale_seed")),
         ("Image Geometry", ("plaque_well_resize", "plaque_well_resize_side",
                             "plaque_well_resize_max_factor", "resize", "target_height",
                             "target_width")),
@@ -1887,6 +1928,8 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ('Marker Recruitment', ('hp_reference_table', 'hp_reference_prefix',
                                 'hp_marker_channels', 'hp_marker_thresholds')),
         ('Parasite Counts', ('hp_parasite_table', 'hp_parasite_parent', 'hp_count_column')),
+        ('Titration Readout α', ('vacuole_from_parasites', 'vacuole_gap_px', 'vacuole_min_size', 'host_min_size', 'host_assignment', 'titration_merged_folder', 'titration_object_tables', 'titration_plate_map', 'titration_reference_values', 'titration_min_well_cells', 'replication_classifier', 'replication_training_table', 'replication_training_columns', 'replication_class_column', 'replication_classes', 'replication_seed', 'replication_cv_folds', 'size_calibration', 'size_calibration_reference_px', 'infection_signal_floor', 'infection_floor_percentile', 'infection_uninfected_wells', 'infection_signal_column')),
+        ('Translocation α', ('translocation', 'translocation_merged_folder', 'cell_from_nucleus_expand_px', 'cell_from_nucleus_min_nucleus_size', 'translocation_channel', 'translocation_control_channel', 'translocation_exclude_px', 'translocation_min_pathogen_size', 'translocation_background', 'translocation_background_min_px', 'translocation_background_fallback_percentile', 'translocation_min_nucleus_size', 'translocation_k_column', 'translocation_kmax', 'translocation_groups', 'translocation_min_cells_per_bin', 'translocation_null_percentile', 'translocation_shuffle_n', 'translocation_seed', 'translocation_reference')),
         ('Assay Output', ('save',)),
     ),
 }
@@ -3903,6 +3946,11 @@ CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
             "time, or a known time to estimate scale: plaque size alone cannot "
             "determine both. Estimates are approximate and require validation "
             "for the parasite strain, host cells and imaging conditions.",
+        "FIGURE SCORING α":
+            "Score the wells Figure mode measured against the effects the "
+            "papers report, with a permutation control, or merge a figure "
+            "reading into the meta-analysis tables (plaque_mode figure_score "
+            "or figure_merge).",
         "MODEL":
             "Choose the plaque model and expected plaque diameter in original "
             "input-image or well-crop pixels. Use 0 for the model’s own scale. "

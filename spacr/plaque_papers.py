@@ -3367,6 +3367,979 @@ def annotation_as_dict(annotation: Annotation) -> Dict[str, Any]:
     return out
 
 
+
+#: Strain names that mean the parental / wild-type line of a plaque figure.
+WILD_TYPE_STRAINS = frozenset({
+    'wt', 'wildtype', 'parental', 'parentaltir1', 'tir', 'tir1', 'tati', 'rh', 'rhdku80',
+    'dku80', 'ku80', 'pru', 'prududprt', 'pruduprt', 'rhgfp', 'wtpruduprt', 'cas9',
+    'rhdku80dhxgprt'})
+#: Treatment agents a figure condition is read for, with their sign.
+TREATMENT_AGENTS = ('iaa', 'atc', 'auxin', 'ifng', 'ifn', 'tbooh', 'halofuginone', 'pacap',
+                    'rapamycin', 'dmso', 'iron', 'glutamine', 'induced')
+FIGURE_METRICS = ('area', 'number', 'cleared_fraction')
+
+
+def _condition_norm(text):
+    """Lower-case NFKC text with delta, gamma, minus and dash spellings unified."""
+    import unicodedata
+
+    text = unicodedata.normalize('NFKC', text or '').lower()
+    for old, new in (('∆', 'd'), ('δ', 'd'), ('△', 'd'), ('ifny', 'ifng'), ('k0', 'ko'),
+                     ('−', '-'), ('–', '-'), ('γ', 'g')):
+        text = text.replace(old, new)
+    return text
+
+
+def _alnum(text):
+    """The letters and digits of normalised text."""
+    return re.sub(r'[^a-z0-9]', '', _condition_norm(text))
+
+
+def _strain_key(text):
+    """The tokens that identify a mutant strain name."""
+    text = _condition_norm(text)
+    drop = {'tg', '12ha', '3ha', 'ha', 'aid', 'mut', 'strain', 'line', 'the', 'and', 'of',
+            'parasites', 'clone', 'ko'}
+    out = []
+    for token in re.findall(r'[a-z0-9]+', text):
+        token = re.sub(r'^tg(?=[a-z])', '', token)
+        if token in drop or len(token) < 2:
+            continue
+        out.append(token)
+    clone = re.search(r'clone\s*(\d)', text)
+    if clone:
+        out.append('clone' + clone.group(1))
+    return out
+
+
+def is_wild_type(strain) -> bool:
+    """Whether a strain name means the parental or wild-type line.
+
+    :param strain: the strain as written in a figure or a reading.
+    :returns: True for the names in :data:`WILD_TYPE_STRAINS`, and names
+        starting with wt or parental.
+    """
+    name = re.sub(r'\(.*\)', '', _alnum(strain))
+    return (name in WILD_TYPE_STRAINS or name.startswith('wt') or name.startswith('parental')
+            or name in ('rhku80',))
+
+
+def treatment_tokens(text) -> set:
+    """The signed agents, doses and condition words of a treatment.
+
+    :param text: a treatment as written, e.g. ``'+IAA 500 µM'``.
+    :returns: tokens such as ``'+iaa'``, ``'500um'``, ``'untreated'``.
+    """
+    text = _condition_norm(text)
+    text = text.replace('ifn-g', 'ifng').replace('ifn g', 'ifng').replace('deprivation', 'depleted')
+    text = re.sub(r'\bid\b', 'iron depleted', text)
+    tokens = set()
+    for agent in TREATMENT_AGENTS:
+        pattern = (r'([+-])\s*' + agent + r'|' + agent + r'\s*([+-])|' + agent
+                   + r'\s*\((\+|-)\)')
+        for found in re.finditer(pattern, text):
+            sign = found.group(1) or found.group(2) or found.group(3)
+            tokens.add(sign + agent.replace('ifng', 'ifn'))
+    for found in re.finditer(r'(\d+(?:\.\d+)?)\s*(nm|µm|um|days?|d)\b', text):
+        unit = found.group(2)
+        unit = 'um' if unit in ('µm', 'um') else ('d' if unit.startswith('d') else unit)
+        tokens.add(found.group(1) + unit)
+    for word in ('untreated', 'depleted', 'full', 'low', 'control'):
+        if re.search(r'\b' + word + r'\b', text):
+            tokens.add(word)
+    return tokens
+
+
+def strain_matches(gold, predicted) -> bool:
+    """Whether a read strain names the same strain as the reference strain.
+
+    :param gold: the reference strain, or None (anything matches).
+    :param predicted: the strain text that was read.
+    :returns: for a wild-type ``gold``, whether ``predicted`` is blank or a
+        wild-type name; otherwise whether every token of ``gold`` occurs in
+        ``predicted``.
+    """
+    if gold is None:
+        return True
+    text = _alnum(predicted)
+    if is_wild_type(gold) and not text:
+        return True
+    if is_wild_type(gold) and re.match(r'(rh|wt|parental|pru|tir|tati|dku80|ku80)', text):
+        return True
+    if is_wild_type(gold):
+        return (is_wild_type(predicted) or any(text.startswith(w) for w in ('wt', 'parental'))
+                or any(w in text for w in ('wt', 'parental', 'wildtype', 'rhdku80', 'dku80',
+                                           'tir', 'tati', 'pru')))
+    keys = _strain_key(gold)
+    text = text.replace('tg', '')
+    return all(k.replace('tg', '') in text for k in keys) and len(keys) > 0
+
+
+def treatment_matches(gold, predicted) -> bool:
+    """Whether a read treatment carries every token of the reference treatment.
+
+    A missing negative agent is excused when the read text says untreated or
+    control; 'untreated' is excused unless the read text is about iron; a
+    missing ``0nm`` is excused for a control.
+
+    :param gold: the reference treatment, or blank (anything matches).
+    :param predicted: the treatment text that was read.
+    :returns: True when no reference token is missing.
+    """
+    if not gold:
+        return True
+    wanted, found = treatment_tokens(gold), treatment_tokens(predicted or '')
+    if not wanted:
+        return True
+    missing = {m for m in wanted - found
+               if not (m.startswith('-') and ('untreated' in found or 'control' in found))}
+    if 'depleted' not in found and 'iron' not in found:
+        missing -= {'untreated'}
+    if missing == {'0nm'} and ('control' in found or 'untreated' in found):
+        missing = set()
+    return not missing
+
+
+def condition_matches(gold_strain, gold_treatment, predicted_strain, predicted_treatment) -> bool:
+    """Whether a read figure condition is the reported condition.
+
+    :param gold_strain: the reported strain.
+    :param gold_treatment: the reported treatment.
+    :param predicted_strain: the strain text of a measured well.
+    :param predicted_treatment: the treatment text of a measured well.
+    :returns: :func:`strain_matches` and :func:`treatment_matches`.
+    """
+    return (strain_matches(gold_strain, predicted_strain)
+            and treatment_matches(gold_treatment, predicted_treatment))
+
+
+def resolve_plaque_model(name=None, settings=None) -> Tuple[str, str]:
+    """The local checkpoint of a plaque segmentation model.
+
+    :param name: a model-zoo key or a checkpoint path; None takes the
+        ``plaque_model`` setting (default :data:`DEFAULT_SEGMENTER`).
+    :param settings: run settings.
+    :returns: ``(path, description)``; a zoo model is downloaded and
+        checksum-verified into the shared cache first.
+    """
+    name = name or (settings or {}).get('plaque_model') or DEFAULT_SEGMENTER
+    return _zoo_path(str(name), None, kind='cellpose', setting='plaque_model')
+
+
+def segment_wells(images, model=None, settings=None) -> List[Dict[str, Any]]:
+    """Segment the plaques of well crops as Figure mode does.
+
+    Every crop is one well. With ``plaque_well_resize='auto'`` (the default)
+    it is resized whole to the size the model was trained at and its
+    plaques mapped back to the crop (the model's own zoo plan); ``'off'``
+    segments the crop as it is.
+
+    :param images: well crops (arrays).
+    :param model: a segmenter ``fn(crop) -> labels``; None builds the one of
+        ``plaque_model`` (:func:`resolve_plaque_model`).
+    :param settings: ``plaque_model`` and ``plaque_well_resize``.
+    :returns: one dict per crop with ``labels``, ``n`` (plaques), ``areas``
+        (pixels, by label) and ``cleared_frac`` (plaque pixels over crop
+        pixels).
+    """
+    settings = dict(settings or {})
+    if model is None:
+        path, _ = resolve_plaque_model(settings=settings)
+        resize = str(settings.get('plaque_well_resize') or 'auto')
+        plan = _model_well_resize(settings.get('plaque_model') or DEFAULT_SEGMENTER) \
+            if resize != 'off' else None
+        model = _cellpose_segmenter(path, well_resize=plan)
+    out = []
+    for image in images:
+        labels = np.asarray(model(np.asarray(image)))
+        ids, areas = np.unique(labels[labels > 0], return_counts=True)
+        out.append({'labels': labels, 'n': int(len(ids)), 'areas': [int(a) for a in areas],
+                    'cleared_frac': float((labels > 0).mean())})
+    return out
+
+
+def measured_by_condition(regions, metric, labeler) -> List[Tuple[str, str, float]]:
+    """The measured value of every labelled, segmented well of one figure.
+
+    :param regions: ``{box: region}`` with ``seg`` (segmented), ``n``,
+        ``mean_area`` and ``frac_area`` per region.
+    :param metric: ``'number'`` (plaques per well), ``'area'`` (mean plaque
+        area) or ``'cleared_fraction'``; the reference spellings
+        ``'plaque_number'`` and ``'plaque_area'`` are accepted.
+    :param labeler: ``fn(box) -> (strain, treatment)`` or None for a well
+        that is not a plaque image.
+    :returns: ``(strain, treatment, value)`` per well.
+    :raises ValueError: for an unknown ``metric``.
+    """
+    metric = {'plaque_number': 'number', 'plaque_area': 'area'}.get(metric, metric)
+    if metric not in FIGURE_METRICS:
+        raise ValueError(f'figure_metric must be one of {FIGURE_METRICS}, not {metric!r}')
+    column = {'number': 'n', 'area': 'mean_area', 'cleared_fraction': 'frac_area'}[metric]
+    values = []
+    for box, region in regions.items():
+        label = labeler(box)
+        if label is None or not region['seg']:
+            continue
+        values.append((label[0], label[1], region[column]))
+    return values
+
+
+def _box_iou(a, b):
+    """Intersection over union of two ``(x0, y0, x1, y1)`` boxes."""
+    ix = max(0, min(a[2], b[2]) - max(a[0], b[0]))
+    iy = max(0, min(a[3], b[3]) - max(a[1], b[1]))
+    inter = ix * iy
+    union = (a[2] - a[0]) * (a[3] - a[1]) + (b[2] - b[0]) * (b[3] - b[1]) - inter
+    return inter / union if union else 0
+
+
+def figure_mode_regions(db_path, boxes, segmentation, min_iou=0.5) -> Dict[str, Dict[str, Any]]:
+    """The Figure-mode regions of one figure matched to detector boxes and their plaques.
+
+    Each region of ``plaque_figures.db`` is matched to the detector box it
+    overlaps most; one under ``min_iou`` is dropped. The box's segmentation
+    (``n``, ``areas``, ``cleared_frac``) is attached when there is one.
+
+    :param db_path: the figure's ``plaque_figures.db``.
+    :param boxes: the figure's detector boxes, ``[x0, y0, x1, y1, ...]``.
+    :param segmentation: ``fn(box_index) -> dict or None`` (a
+        :func:`segment_wells` result).
+    :param min_iou: the least overlap that matches.
+    :returns: ``{str(box_index): region}`` with the condition texts,
+        ``seg``, ``n``, ``mean_area`` and ``frac_area``.
+    """
+    import statistics
+
+    from .tabular import read_table
+
+    regions = read_table(db_path, table='regions', canonicalise=False, report=None)
+    out = {}
+    for r in regions.to_dict('records'):
+        bb = [r['x0'], r['y0'], r['x1'], r['y1']]
+        if not boxes:
+            continue
+        j = max(range(len(boxes)), key=lambda k: _box_iou(bb, boxes[k][:4]))
+        if _box_iou(bb, boxes[j][:4]) < min_iou:
+            continue
+        seg = segmentation(j)
+        areas = seg['areas'] if seg else []
+
+        def text(value):
+            """A database text that may be missing."""
+            return None if value is None or (isinstance(value, float) and np.isnan(value)) else value
+
+        out[str(j)] = dict(text=text(r['condition']) or '', legend=text(r['legend_text']) or '',
+                           condition=text(r['condition']), label=text(r['label_text']),
+                           strength=text(r['strength']), conflict=text(r['conflict']),
+                           seg=bool(seg), n=len(areas),
+                           mean_area=statistics.mean(areas) if areas else 0.0,
+                           frac_area=seg['cleared_frac'] if seg else 0)
+    return out
+
+
+def _spearman(a, b):
+    """Spearman's rho as the Pearson correlation of argsort ranks."""
+    ra = np.argsort(np.argsort(a))
+    rb = np.argsort(np.argsort(b))
+    return float(np.corrcoef(ra, rb)[0, 1])
+
+
+def compare_reported(figures, settings=None) -> Dict[str, Any]:
+    """Score measured plaque effects against the effects the papers report.
+
+    For every reported panel of a figure (``plaque_area``, ``plaque_number``
+    or ``relative_plaque_size``), each labelling of the wells gives the
+    measured value of a condition as the mean over its matching wells
+    (:func:`condition_matches`); the measured effect is that over the
+    reference condition's, and the reported effect is the panel's value over
+    its reference value. The summary has, per labelling and readout (area,
+    number, all), Spearman's rho of the log2 effects (clipped at 0.02), how
+    many effects that differ from 1 by more than 15% point the same way,
+    how many agree within 1.5-fold, and a permutation control: rho with the
+    measured effects shuffled ``compare_permutations`` times (seed
+    ``compare_seed``), its mean, its 95th percentile and a one-sided p.
+
+    :param figures: ``{figure: {'quantification': [...], 'regions': {...},
+        'labelers': {name: fn(box) -> (strain, treatment) or None}}}``;
+        ``quantification`` is the reported panels (``panel``, ``metric``,
+        ``values`` with ``strain``, ``treatment``, ``value`` and
+        ``is_reference``) and ``regions`` :func:`figure_mode_regions`.
+    :param settings: ``figure_metric`` (the area readout:
+        ``'area'`` or ``'cleared_fraction'``), ``compare_permutations`` and
+        ``compare_seed``.
+    :returns: dict with ``rows`` (a DataFrame: figure, panel, metric,
+        labels, strain, treatment, reported_ratio, measured_ratio) and
+        ``summary`` (a list of dicts).
+    """
+    import math
+    import statistics
+
+    import pandas as pd
+
+    settings = settings or {}
+    area_metric = settings.get('figure_metric') or 'area'
+    rows = []
+    for figure, record in figures.items():
+        if not record.get('regions'):
+            continue
+        for panel in record['quantification']:
+            if panel['metric'] not in ('plaque_area', 'plaque_number', 'relative_plaque_size'):
+                continue
+            metric = 'number' if panel['metric'] == 'plaque_number' else area_metric
+            for source, labeler in record['labelers'].items():
+                measured = measured_by_condition(record['regions'], metric, labeler)
+
+                def value_of(entry, measured=measured):
+                    """The mean measured value of the wells of one reported condition."""
+                    xs = [v for s, t, v in measured
+                          if condition_matches(entry['strain'], entry['treatment'],
+                                               s + ' ' + (t or ''), (t or '') + ' ' + s)]
+                    return statistics.mean(xs) if xs else None
+
+                reference = [v for v in panel['values'] if v['is_reference']][0]
+                measured_reference = value_of(reference)
+                for entry in panel['values']:
+                    if entry['is_reference']:
+                        continue
+                    value = value_of(entry)
+                    if value is None or not measured_reference or not reference['value']:
+                        continue
+                    rows.append(dict(figure=figure, panel=panel['panel'], metric=panel['metric'],
+                                     labels=source, strain=entry['strain'],
+                                     treatment=entry['treatment'],
+                                     reported_ratio=entry['value'] / reference['value'],
+                                     measured_ratio=value / measured_reference))
+    permutations = int(settings.get('compare_permutations') or 0)
+    rng = np.random.default_rng(int(settings.get('compare_seed') or 0))
+    summary = []
+    sources = list(dict.fromkeys(r['labels'] for r in rows))
+    for source in sources:
+        for readout in ('plaque_area', 'plaque_number', 'all'):
+            chosen = [r for r in rows if r['labels'] == source and (
+                readout == 'all' or (r['metric'] == readout if readout == 'plaque_number'
+                                     else r['metric'] != 'plaque_number'))]
+            entry = {'labels': source, 'readout': readout, 'n': len(chosen),
+                     'figures': len({r['figure'] for r in chosen})}
+            if len(chosen) >= 3:
+                a = [math.log2(max(r['reported_ratio'], 0.02)) for r in chosen]
+                b = [math.log2(max(r['measured_ratio'], 0.02)) for r in chosen]
+                moved = [r for r in chosen if abs(r['reported_ratio'] - 1) > 0.15]
+                entry.update(
+                    spearman=_spearman(a, b), direction_agree=sum(
+                        (r['measured_ratio'] - 1) * (r['reported_ratio'] - 1) > 0 for r in moved),
+                    direction_n=len(moved),
+                    within_1_5x=sum(abs(x - y) <= math.log2(1.5) for x, y in zip(a, b)))
+                if permutations:
+                    null = np.array([_spearman(a, rng.permutation(b)) for _ in range(permutations)])
+                    entry.update(permuted_spearman_mean=float(np.nanmean(null)),
+                                 permuted_spearman_p95=float(np.nanpercentile(null, 95)),
+                                 permutation_p=float((1 + np.sum(null >= entry['spearman']))
+                                                     / (1 + permutations)))
+            summary.append(entry)
+    columns = ['figure', 'panel', 'metric', 'labels', 'strain', 'treatment', 'reported_ratio',
+               'measured_ratio']
+    return {'rows': pd.DataFrame(rows, columns=columns), 'summary': summary}
+
+
+def _json_file(path):
+    """A JSON file's content."""
+    with open(path, encoding='utf-8') as handle:
+        return json.load(handle)
+
+
+def _csv_rows(path):
+    """A CSV file's rows as dicts of strings, exactly as written."""
+    import csv
+
+    csv.field_size_limit(10 ** 9)
+    with open(path, newline='', encoding='utf-8') as handle:
+        return list(csv.DictReader(handle))
+
+
+def score_figure_folder(settings) -> Dict[str, Any]:
+    """Score a Figure-mode run against the reported effects, from settings.
+
+    Reads the reported panels of ``figure_condition_labels`` (a JSON of
+    figure -> boxes and quantification, gold or model-read), the stored
+    model readings of ``figure_model_labels`` (optional, data, never re-read
+    here), the detector boxes of ``figure_detections``, the Figure-mode
+    databases under ``figure_mode_folder`` (``<paper>/plaque_figures.db``)
+    and the per-well segmentations under ``figure_segmentation_folder``
+    (``<figure>__b<box>.json`` from :func:`segment_wells`), and runs
+    :func:`compare_reported`. Writes ``results_measured_vs_reported.csv``
+    and ``summary.json`` to ``figure_score_folder`` (default
+    ``<src>/results/figure_score``).
+
+    :param settings: the settings above plus ``figure_metric``,
+        ``compare_permutations`` and ``compare_seed``.
+    :returns: the :func:`compare_reported` dict with ``folder``.
+    """
+    import os
+
+    from .tabular import write_table
+
+    gold = _json_file(settings['figure_condition_labels'])
+    readings = ({d['figure']: d for d in _json_file(settings['figure_model_labels'])}
+                if settings.get('figure_model_labels') else {})
+    detections = {r['figure']: json.loads(r['boxes'])
+                  for r in _csv_rows(settings['figure_detections'])}
+    seg_dir = settings['figure_segmentation_folder']
+    figures = {}
+    for figure, record in gold.items():
+        paper = figure.split('__')[0]
+        db = os.path.join(settings['figure_mode_folder'], paper, 'plaque_figures.db')
+        if not os.path.exists(db):
+            continue
+
+        def segmentation(j, figure=figure):
+            """The stored segmentation of one detector box, or None."""
+            path = os.path.join(seg_dir, f'{figure}__b{j}.json')
+            return _json_file(path) if os.path.exists(path) else None
+
+        regions = figure_mode_regions(db, detections.get(figure, []), segmentation)
+        labelers = {'gold': lambda i, g=record: (
+            None if g['boxes'].get(i) is None
+            else (g['boxes'][i]['strain'], g['boxes'][i]['treatment']))}
+        if figure in readings:
+            boxes = {str(b['i']): b for b in readings[figure]['boxes']}
+            labelers['vlm'] = lambda i, vb=boxes: (
+                None if not vb.get(i, {}).get('is_plaque_image')
+                else (vb[i].get('strain') or '', vb[i].get('treatment') or ''))
+        figures[figure] = {'quantification': record['quantification'], 'regions': regions,
+                           'labelers': labelers}
+    result = compare_reported(figures, settings)
+    out = settings.get('figure_score_folder') or os.path.join(
+        settings.get('src') or '.', 'results', 'figure_score')
+    os.makedirs(out, exist_ok=True)
+    write_table(result['rows'], os.path.join(out, 'results_measured_vs_reported.csv'),
+                canonicalise=False)
+    with open(os.path.join(out, 'summary.json'), 'w', encoding='utf-8') as handle:
+        json.dump(result['summary'], handle, indent=1)
+    result['folder'] = out
+    return result
+
+
+_ZOOM = re.compile(r'zoom|inset|magnif|enlarg|close-?up|duplicate|same well|crop of', re.I)
+
+
+def merge_figure_wells(root, settings=None) -> Dict[str, Any]:
+    """Merge the plaque wells of a figure reading into one meta-analysis table.
+
+    Wells are the detector boxes the full reading
+    (``vlm_index_all/annotations.json``) called plaque images plus the
+    missed tiles the check round kept
+    (``vlm_index_all/check_snapped/annotations_new.json``). Every record is
+    kept; flags mark what is not measured (``rejected_not_plaque``,
+    ``zoom_duplicate``) and what needs a second look (``low_confidence`` at
+    or under ``figure_low_confidence``, ``snap_*``, ``reader_second_look``
+    for the tasks in ``figure_second_look``). Toxoplasma wells go to the
+    main table. Reported values become within-panel effects: value over the
+    panel's reference value, and log2 of it (floored at 1/1000 of the
+    reference).
+
+    :param root: the folder holding ``heldout/`` and ``vlm_index_all/``.
+    :param settings: ``figure_low_confidence`` (0.7) and
+        ``figure_second_look`` (task ids, space- or comma-separated).
+    :returns: dict of ``wells_all``, ``wells_toxo``, ``reported_values_all``
+        and ``reported_effects_toxo`` (lists of dicts) and ``counts``.
+    """
+    import collections
+    import math
+    import os
+
+    settings = settings or {}
+    low = float(settings.get('figure_low_confidence', 0.7))
+    second = set(re.split(r'[\s,]+', str(settings.get('figure_second_look') or '').strip())) - {''}
+    held = os.path.join(root, 'heldout')
+    det = {r['figure']: json.loads(r['boxes']) for r in _csv_rows(os.path.join(held, 'detections_v3.csv'))}
+    full = {o['figure']: o for o in _json_file(os.path.join(root, 'vlm_index_all', 'annotations.json'))}
+    check = os.path.join(root, 'vlm_index_all', 'check_snapped')
+    chk = {o['figure']: o for o in _json_file(os.path.join(check, 'annotations_new.json'))}
+    snapq = {(r['figure'], int(r['box_index'])): r['flags']
+             for r in _csv_rows(os.path.join(held, 'snapped_box_index_map.csv'))}
+    kept_rows = _csv_rows(os.path.join(held, 'detections_missed_snapped_kept.csv'))
+    kept = {r['figure']: json.loads(r['new_boxes']) for r in kept_rows}
+    first = {r['figure']: int(r['n_existing']) for r in kept_rows}
+    task_of = {v['figure']: k for k, v in _json_file(os.path.join(check, 'index_new.json')).items()}
+    man = {r['figure']: r for r in _csv_rows(os.path.join(held, 'heldout_manifest.csv'))}
+    rows = []
+
+    def add(f, i, src, bbox, b, extra_flags, task=None):
+        """Append one candidate well with its flags."""
+        flags = list(extra_flags)
+        if not b['is_plaque_image']:
+            flags.append('rejected_not_plaque')
+        if b.get('confidence') is not None and b['confidence'] <= low:
+            flags.append('low_confidence')
+        text = ' '.join(str(b.get(k) or '') for k in ('treatment', 'replicate', 'notes', 'strain'))
+        if _ZOOM.search(text):
+            flags.append('zoom_duplicate')
+        org = (full.get(f) or chk.get(f) or {}).get('organism', '')
+        if org != 'Toxoplasma':
+            flags.append(f'organism_{org}')
+        measurable = b['is_plaque_image'] and 'zoom_duplicate' not in flags
+        rows.append(dict(figure=f, pmcid=man[f]['pmcid'], box_index=i, source=src, task=task or '',
+                         x0=bbox[0], y0=bbox[1], x1=bbox[2], y1=bbox[3], panel=b.get('panel'),
+                         strain=b.get('strain'), treatment=b.get('treatment'),
+                         replicate=b.get('replicate'),
+                         is_reference=int(bool(b.get('is_parental_control'))),
+                         confidence=b.get('confidence'), notes=b.get('notes') or '',
+                         organism=org, detector_trained=man[f]['detector_trained'],
+                         measurable=int(measurable), main_toxo=int(measurable and org == 'Toxoplasma'),
+                         flags=';'.join(flags)))
+
+    for f, o in full.items():
+        for b in o['boxes']:
+            if b['i'] < len(det.get(f, [])):
+                add(f, b['i'], 'detector_v3', [int(v) for v in det[f][b['i']][:4]], b, [])
+    for f, o in chk.items():
+        for b in o['boxes']:
+            bb = kept[f][b['i'] - first[f]][:4]
+            snap = snapq.get((f, b['i']), '')
+            task = task_of.get(f)
+            add(f, b['i'], 'reader_tile_snapped', bb, b,
+                [f'snap_{x}' for x in snap.split(';') if x]
+                + (['reader_second_look'] if task in second else []), task=task)
+    values, effects = [], []
+    for f, o in full.items():
+        for pi, q in enumerate(o['quantification']):
+            ref = [v for v in q['values'] if v['is_parental_control'] and v['mean'] is not None]
+            refv = ref[0]['mean'] if ref else None
+            for v in q['values']:
+                r = dict(figure=f, pmcid=man[f]['pmcid'], organism=o['organism'], panel=q['panel'],
+                         panel_index=pi, metric=q['metric'], unit=q['unit'],
+                         statistic=q['statistic'], condition=v['condition'], strain=v['strain'],
+                         treatment=v['treatment'], value=v['mean'],
+                         is_reference=int(v['is_parental_control']),
+                         panel_confidence=q['confidence'],
+                         significance=q['significance_vs_control'], n_references_in_panel=len(ref))
+                values.append(r)
+                if (o['organism'] == 'Toxoplasma' and refv and v['mean'] is not None
+                        and not v['is_parental_control'] and refv > 0 and v['mean'] >= 0):
+                    e = dict(r)
+                    e['reference_condition'] = ref[0]['condition']
+                    e['reference_value'] = refv
+                    e['ratio'] = v['mean'] / refv
+                    e['log2_ratio'] = math.log2(max(v['mean'], 1e-3 * refv) / refv)
+                    e['flags'] = ';'.join(x for x in (
+                        'multiple_references' if len(ref) > 1 else '',
+                        'low_panel_confidence' if (q['confidence'] or 0) <= low else '') if x)
+                    effects.append(e)
+    toxo = [r for r in rows if r['main_toxo']]
+    second_look = ('low_confidence', 'reader_second_look', 'snap_')
+    count = collections.Counter
+    counts = {
+        'candidate_wells': len(rows),
+        'detector_boxes': sum(r['source'] == 'detector_v3' for r in rows),
+        'detector_plaque': sum(r['source'] == 'detector_v3' and 'rejected_not_plaque' not in r['flags']
+                               for r in rows),
+        'snapped_tiles_checked': sum(r['source'] == 'reader_tile_snapped' for r in rows),
+        'snapped_kept': sum(r['source'] == 'reader_tile_snapped'
+                            and 'rejected_not_plaque' not in r['flags'] for r in rows),
+        'snapped_rejected': sum(r['source'] == 'reader_tile_snapped'
+                                and 'rejected_not_plaque' in r['flags'] for r in rows),
+        'zoom_duplicates_excluded': sum('zoom_duplicate' in r['flags']
+                                        and 'rejected_not_plaque' not in r['flags'] for r in rows),
+        'measurable_wells_all_organisms': sum(r['measurable'] for r in rows),
+        'measurable_wells_toxo': len(toxo),
+        'measurable_wells_toxo_by_source': dict(count(r['source'] for r in toxo)),
+        'low_confidence_wells': sum('low_confidence' in r['flags'] for r in rows),
+        'reader_second_look_wells': sum('reader_second_look' in r['flags'] for r in rows),
+        'needs_second_look_wells': sum(any(k in r['flags'] for k in second_look) and r['measurable'] == 1
+                                       for r in rows),
+        'figures_with_toxo_wells': len({r['figure'] for r in toxo}),
+        'articles_with_toxo_wells': len({r['pmcid'] for r in toxo}),
+        'toxo_wells_in_detector_trained_articles': sum(r['detector_trained'] == '1' for r in toxo),
+        'toxo_reference_wells': sum(r['is_reference'] for r in toxo),
+        'toxo_figures_without_reference_well': len({r['figure'] for r in toxo}
+                                                   - {r['figure'] for r in toxo if r['is_reference']}),
+        'organism_wells_measurable': dict(count(r['organism'] for r in rows if r['measurable'])),
+        'reported_panels_all': len({(v['figure'], v['panel_index']) for v in values}),
+        'reported_values_all': len(values),
+        'reported_panels_toxo': len({(v['figure'], v['panel_index']) for v in values
+                                     if v['organism'] == 'Toxoplasma'}),
+        'reported_values_toxo': sum(v['organism'] == 'Toxoplasma' for v in values),
+        'toxo_panels_with_one_reference': len({(v['figure'], v['panel_index']) for v in values
+                                               if v['organism'] == 'Toxoplasma'
+                                               and v['n_references_in_panel'] == 1}),
+        'toxo_panels_without_reference': len({(v['figure'], v['panel_index']) for v in values
+                                              if v['organism'] == 'Toxoplasma'
+                                              and v['n_references_in_panel'] == 0}),
+        'toxo_effects': len(effects),
+        'toxo_effects_by_metric': dict(count(e['metric'] for e in effects)),
+        'toxo_articles_with_effects': len({e['pmcid'] for e in effects}),
+    }
+    return {'wells_all': rows, 'wells_toxo': toxo, 'reported_values_all': values,
+            'reported_effects_toxo': effects, 'counts': counts}
+
+
+
+def run_figure_scoring(settings) -> Dict[str, Any]:
+    """The Plaque module's figure scoring and figure merge, from a settings file.
+
+    ``plaque_mode='figure_score'`` runs :func:`score_figure_folder`,
+    ``'figure_sizes'`` :func:`compare_figure_sizes`, and
+    ``'figure_merge'`` runs :func:`merge_figure_wells` on ``src`` and writes
+    wells_all.csv, wells_toxo.csv, reported_values_all.csv,
+    reported_effects_toxo.csv and merge_counts.json to
+    ``<src>/results/figure_merge``.
+
+    :param settings: Plaque module settings.
+    :returns: the result dict of the chosen step, with ``folder``.
+    :raises ValueError: for another ``plaque_mode``.
+    """
+    import os
+
+    from .tabular import write_table
+
+    mode = str(settings.get('plaque_mode'))
+    if mode == 'figure_score':
+        return score_figure_folder(settings)
+    if mode == 'figure_sizes':
+        return compare_figure_sizes(settings)
+    if mode != 'figure_merge':
+        raise ValueError(f"plaque_mode must be 'figure_score', 'figure_sizes' or "
+                         f"'figure_merge', not {mode!r}")
+    import pandas as pd
+
+    result = merge_figure_wells(settings['src'], settings)
+    out = os.path.join(settings['src'], 'results', 'figure_merge')
+    os.makedirs(out, exist_ok=True)
+    for name in ('wells_all', 'wells_toxo', 'reported_values_all', 'reported_effects_toxo'):
+        write_table(pd.DataFrame(result[name]), os.path.join(out, f'{name}.csv'), canonicalise=False)
+    with open(os.path.join(out, 'merge_counts.json'), 'w', encoding='utf-8') as handle:
+        json.dump(result['counts'], handle, indent=1)
+    result['folder'] = out
+    return result
+
+
+
+FIGURE_SCALES = ('absolute', 'rel_panel_max', 'rel_well_extent', 'rel_reference')
+_SIZE_READOUTS = ('plaque_area', 'plaque_number', 'relative_plaque_size')
+
+
+def plaque_size_readouts(areas, well_box=None) -> Dict[str, Any]:
+    """Absolute and relative plaque sizes of one well.
+
+    :param areas: plaque areas in pixels.
+    :param well_box: the well box ``(x0, y0, x1, y1)``, or None.
+    :returns: ``plaque_count``, ``plaque_mean_area_px2``,
+        ``plaque_median_area_px2``, ``plaque_max_area_px2`` (0 without
+        plaques), ``plaque_max_over_mean`` (NaN without plaques),
+        ``area_rel_well_max`` (each plaque over the largest), and with a box
+        ``well_extent_px2`` (width x height), ``well_extent_px`` (mean of
+        width and height) and ``plaque_area_rel_well_extent``.
+    """
+    areas = np.asarray(list(areas), dtype=float)
+    out = {'plaque_count': int(len(areas)),
+           'plaque_mean_area_px2': float(areas.mean()) if len(areas) else 0.0,
+           'plaque_median_area_px2': float(np.median(areas)) if len(areas) else 0.0,
+           'plaque_max_area_px2': float(areas.max()) if len(areas) else 0.0}
+    out['plaque_max_over_mean'] = (out['plaque_max_area_px2'] / out['plaque_mean_area_px2']
+                                   if len(areas) and out['plaque_mean_area_px2'] else float('nan'))
+    out['area_rel_well_max'] = (areas / areas.max()).tolist() if len(areas) and areas.max() else []
+    if well_box is not None:
+        width, height = well_box[2] - well_box[0], well_box[3] - well_box[1]
+        out['well_extent_px2'] = float(width * height)
+        out['well_extent_px'] = float((width + height) / 2)
+        out['plaque_area_rel_well_extent'] = (out['plaque_mean_area_px2'] / out['well_extent_px2']
+                                              if out['well_extent_px2'] else float('nan'))
+    return out
+
+
+def figure_condition_sizes(gold, segmentation, settings=None) -> pd.DataFrame:
+    """One row per reported condition with the plaque sizes measured in its wells.
+
+    The reported values are the panels of each figure's quantification whose
+    metric is plaque_area, plaque_number or relative_plaque_size. A
+    condition's wells are the boxes whose condition label matches it
+    (:func:`condition_matches`); over several wells the value is their mean
+    (``figure_condition_aggregate='median'`` takes the median), and a well
+    without plaques has area 0. ``figure_size_stat`` picks the per-well mean
+    or median plaque area.
+
+    :param gold: ``{figure: {'boxes': {box: {'strain', 'treatment'}},
+        'quantification': [...]}}``.
+    :param segmentation: ``fn(figure, box) -> {'areas', 'bbox', 'n'} or None``.
+    :param settings: ``figure_condition_aggregate`` and ``figure_size_stat``.
+    :returns: columns figure, pmcid, panel, metric, unit, strain, treatment,
+        is_ref, reported, n_wells, spacr_n, spacr_mean_area_px2,
+        spacr_max_area_px2, well_box_px2 and well_box_px.
+    """
+    import statistics
+
+    import pandas as pd
+
+    settings = settings or {}
+    pool = statistics.median if settings.get('figure_condition_aggregate') == 'median' \
+        else statistics.mean
+    size_key = ('plaque_median_area_px2' if settings.get('figure_size_stat') == 'median'
+                else 'plaque_mean_area_px2')
+    rows = []
+    for figure, record in gold.items():
+        wells = []
+        for box, label in record.get('boxes', {}).items():
+            seg = segmentation(figure, box) if label else None
+            if seg is None:
+                continue
+            readout = plaque_size_readouts(seg.get('areas', []), seg.get('bbox'))
+            wells.append((label['strain'], label.get('treatment'), readout))
+        for panel in record.get('quantification', []):
+            if panel['metric'] not in _SIZE_READOUTS:
+                continue
+            for value in panel['values']:
+                matched = [r for s, t, r in wells if condition_matches(
+                    value['strain'], value['treatment'], s + ' ' + (t or ''), (t or '') + ' ' + s)]
+                row = dict(figure=figure, pmcid=figure.split('__')[0], panel=panel['panel'],
+                           metric=panel['metric'], unit=panel.get('unit'), strain=value['strain'],
+                           treatment=value['treatment'], is_ref=bool(value['is_reference']),
+                           reported=value['value'], n_wells=len(matched))
+                if matched:
+                    row.update(spacr_n=pool([r['plaque_count'] for r in matched]),
+                               spacr_mean_area_px2=pool([r[size_key] for r in matched]),
+                               spacr_max_area_px2=pool([r['plaque_max_area_px2'] for r in matched]),
+                               well_box_px2=pool([r.get('well_extent_px2', np.nan) for r in matched]),
+                               well_box_px=pool([r.get('well_extent_px', np.nan) for r in matched]))
+                rows.append(row)
+    columns = ['figure', 'pmcid', 'panel', 'metric', 'unit', 'strain', 'treatment', 'is_ref',
+               'reported', 'n_wells', 'spacr_n', 'spacr_mean_area_px2', 'spacr_max_area_px2',
+               'well_box_px2', 'well_box_px']
+    return pd.DataFrame(rows, columns=columns)
+
+
+def _panel_relative(table, column):
+    """``column`` over its (pmcid, panel) maximum; NaN when the maximum is 0."""
+    peak = table.groupby(['pmcid', 'panel'])[column].transform('max')
+    return table[column] / peak.where(peak != 0)
+
+
+def figure_size_scales(conditions, reference_rows=None, settings=None) -> pd.DataFrame:
+    """Measured and reported plaque sizes on the four comparison scales.
+
+    ``absolute``: counts only, for readouts whose unit names one of
+    ``figure_absolute_units``. ``rel_panel_max``: each side over the largest
+    value of its figure panel. ``rel_well_extent``: area readouts; spaCR
+    area over the well extent, then over the panel maximum, against the
+    reported value over its panel maximum. ``rel_reference``: log2 of each
+    side's ratio to the reference condition, floored at
+    ``figure_ratio_floor``, taken from the gold rows of
+    :func:`compare_reported`.
+
+    :param conditions: :func:`figure_condition_sizes` rows.
+    :param reference_rows: :func:`compare_reported` rows, or None.
+    :param settings: ``figure_scales``, ``figure_absolute_units`` and
+        ``figure_ratio_floor``.
+    :returns: one row per scale and condition with ``reported_value``,
+        ``spacr_value``, ``readout``, figure, pmcid, panel, strain and
+        treatment.
+    """
+    import math
+
+    import pandas as pd
+
+    settings = settings or {}
+    scales = settings.get('figure_scales') or FIGURE_SCALES
+    scales = [s.strip() for s in scales.split(',')] if isinstance(scales, str) else list(scales)
+    units = settings.get('figure_absolute_units') or ['count']
+    units = [u.strip().lower() for u in (units.split(',') if isinstance(units, str) else units)]
+    floor = float(settings.get('figure_ratio_floor') or 0.02)
+    t = conditions[(conditions['n_wells'] > 0) & conditions['reported'].notna()].copy()
+    t['spacr_value'] = np.where(t['metric'] == 'plaque_number', t['spacr_n'],
+                                t['spacr_mean_area_px2'])
+    area = t['metric'] != 'plaque_number'
+    t['spacr_well'] = np.where(area, t['spacr_value'] / t['well_box_px2'], np.nan)
+    t['rep_rel'] = _panel_relative(t, 'reported')
+    t['sp_rel'] = _panel_relative(t, 'spacr_value')
+    t['sp_wellrel'] = _panel_relative(t, 'spacr_well')
+    keep = ['figure', 'pmcid', 'panel', 'metric', 'strain', 'treatment']
+    out = []
+    unit = t['unit'].fillna('').str.lower()
+    counted = (t['metric'] == 'plaque_number') & unit.apply(lambda u: any(k in u for k in units))
+    for scale, mask, reported, measured in (
+            ('absolute', counted, 'reported', 'spacr_value'),
+            ('rel_panel_max', t['metric'].notna(), 'rep_rel', 'sp_rel'),
+            ('rel_well_extent', area, 'rep_rel', 'sp_wellrel')):
+        if scale in scales and mask.any():
+            part = t.loc[mask]
+            out.append(part[keep].assign(scale=scale, reported_value=part[reported],
+                                         spacr_value=part[measured]))
+    if 'rel_reference' in scales and reference_rows is not None and len(reference_rows):
+        r = reference_rows[reference_rows['labels'] == 'gold']
+        out.append(pd.DataFrame({
+            'figure': r['figure'], 'pmcid': r['figure'].str.split('__').str[0],
+            'panel': r['panel'], 'metric': r['metric'], 'strain': r['strain'],
+            'treatment': r['treatment'], 'scale': 'rel_reference',
+            'reported_value': [math.log2(max(v, floor)) for v in r['reported_ratio']],
+            'spacr_value': [math.log2(max(v, floor)) for v in r['measured_ratio']]}))
+    columns = ['scale'] + keep + ['reported_value', 'spacr_value']
+    table = pd.concat(out, ignore_index=True) if out else pd.DataFrame(columns=columns)
+    table = table[columns].dropna(subset=['reported_value', 'spacr_value'])
+    table['readout'] = table['metric'].map({'plaque_number': 'number', 'plaque_area': 'area',
+                                            'relative_plaque_size': 'relative size'})
+    return table.reset_index(drop=True)
+
+
+def _agreement(x, y):
+    """R2, p, Spearman rho, Lin's concordance and median log2 bias of two value sets."""
+    from scipy import stats
+
+    x, y = np.asarray(x, float), np.asarray(y, float)
+    out = {'n': int(len(x)), 'r2': np.nan, 'p': np.nan, 'spearman': np.nan, 'lin_ccc': np.nan,
+           'median_log2_bias': np.nan}
+    if len(x) < 3:
+        return out
+    r, p = stats.pearsonr(x, y)
+    out.update(r2=float(r ** 2), p=float(p), spearman=float(stats.spearmanr(x, y)[0]))
+    sx, sy = x.var(), y.var()
+    out['lin_ccc'] = float(2 * np.cov(x, y, bias=True)[0, 1] / (sx + sy + (x.mean() - y.mean()) ** 2))
+    positive = (x > 0) & (y > 0)
+    if positive.any():
+        out['median_log2_bias'] = float(np.median(np.log2(y[positive] / x[positive])))
+    return out
+
+
+def figure_size_agreement(scales, settings=None) -> pd.DataFrame:
+    """Agreement of measured with reported sizes per scale, overall and per readout.
+
+    R2 is the squared Pearson r (NaN under 3 points), beside its p,
+    Spearman rho, Lin's concordance and the median log2 bias of spaCR over
+    the paper (positive pairs). Controls: for every relative scale the spaCR
+    values are permuted among the conditions of each panel
+    ``figure_scale_permutations`` times (seed ``figure_scale_seed``), giving
+    the null median and 95th percentile of R2; and the agreement with each
+    panel's maximum-defining conditions left out (``rel_panel_max`` and
+    ``rel_well_extent``).
+
+    :param scales: :func:`figure_size_scales` rows.
+    :param settings: ``figure_scale_permutations`` (1000) and
+        ``figure_scale_seed`` (0).
+    :returns: one row per scale and readout (``'all'`` included) with
+        ``r2``, ``p``, ``n``, ``figures``, ``spearman``, ``lin_ccc``,
+        ``median_log2_bias``, ``null_r2_median``, ``null_r2_p95``,
+        ``r2_without_panel_max`` and ``n_without_panel_max``.
+    """
+    import pandas as pd
+
+    settings = settings or {}
+    permutations = int(settings.get('figure_scale_permutations', 1000) or 0)
+    rng = np.random.default_rng(int(settings.get('figure_scale_seed') or 0))
+    rows = []
+    for scale in [s for s in FIGURE_SCALES if s in set(scales['scale'])]:
+        table = scales[scales['scale'] == scale]
+        for readout in ['all'] + [r for r in ('number', 'area', 'relative size')
+                                  if r in set(table['readout'])]:
+            chosen = table if readout == 'all' else table[table['readout'] == readout]
+            row = {'scale': scale, 'readout': readout,
+                   **_agreement(chosen['reported_value'], chosen['spacr_value']),
+                   'figures': int(chosen['figure'].nunique())}
+            if scale != 'absolute' and permutations and len(chosen) >= 3:
+                groups = [np.nonzero((chosen['pmcid'] + '|' + chosen['panel'].astype(str)
+                                      == key).to_numpy())[0]
+                          for key in pd.unique(chosen['pmcid'] + '|' + chosen['panel'].astype(str))]
+                values = chosen['spacr_value'].to_numpy(float)
+                null = []
+                for _ in range(permutations):
+                    shuffled = values.copy()
+                    for idx in groups:
+                        shuffled[idx] = values[rng.permutation(idx)]
+                    null.append(_agreement(chosen['reported_value'], shuffled)['r2'])
+                row['null_r2_median'] = float(np.nanmedian(null))
+                row['null_r2_p95'] = float(np.nanpercentile(null, 95))
+            if scale in ('rel_panel_max', 'rel_well_extent'):
+                rest = chosen[(chosen['reported_value'] < 1) & (chosen['spacr_value'] < 1)]
+                trimmed = _agreement(rest['reported_value'], rest['spacr_value'])
+                row['r2_without_panel_max'] = trimmed['r2']
+                row['n_without_panel_max'] = trimmed['n']
+            rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def figure_size_figure(scales, agreement):
+    """Four scatter panels of measured against reported plaque size, one per scale.
+
+    :param scales: :func:`figure_size_scales` rows.
+    :param agreement: :func:`figure_size_agreement` rows.
+    :returns: a :class:`matplotlib.figure.Figure`; points coloured by
+        readout at 60% opacity, the identity line dashed, R2 and n in the
+        corner and the permutation null R2 (95th percentile) beside them.
+    """
+    from matplotlib.figure import Figure
+
+    colours = {'number': '#2A9D8F', 'area': '#3A7BD5', 'relative size': '#1F4E79'}
+    titles = {'absolute': 'absolute (counts)', 'rel_panel_max': 'relative to panel maximum',
+              'rel_well_extent': 'relative to well extent', 'rel_reference': 'log2 vs reference'}
+    fig = Figure(figsize=(12, 3.2), dpi=100)
+    axes = fig.subplots(1, 4)
+    for ax, scale in zip(axes, FIGURE_SCALES):
+        table = scales[scales['scale'] == scale]
+        for readout, part in table.groupby('readout'):
+            ax.scatter(part['reported_value'], part['spacr_value'], s=14, alpha=0.6,
+                       color=colours.get(readout, '#1F4E79'), linewidths=0, label=readout)
+        if len(table):
+            lo = float(min(table['reported_value'].min(), table['spacr_value'].min()))
+            hi = float(max(table['reported_value'].max(), table['spacr_value'].max()))
+            ax.plot([lo, hi], [lo, hi], ls='--', lw=0.8, color='#8A94A6')
+        row = agreement[(agreement['scale'] == scale) & (agreement['readout'] == 'all')]
+        if len(row):
+            row = row.iloc[0]
+            text = f"R² {row['r2']:.2f}, n {int(row['n'])}"
+            if np.isfinite(row.get('null_r2_p95', np.nan)):
+                text += f"\nnull p95 {row['null_r2_p95']:.2f}"
+            ax.text(0.04, 0.96, text, transform=ax.transAxes, va='top', fontsize='small')
+        ax.set_title(titles[scale], fontsize='small')
+        ax.set_xlabel('reported')
+        ax.set_ylabel('spaCR')
+    if len(scales):
+        axes[0].legend(fontsize='x-small', frameon=False, loc='lower right')
+    fig.tight_layout()
+    return fig
+
+
+def compare_figure_sizes(settings) -> Dict[str, Any]:
+    """The plaque-size comparison of a figure set, from settings.
+
+    Builds :func:`figure_condition_sizes` from ``figure_condition_labels``
+    and the per-well segmentations of ``figure_segmentation_folder``, the
+    scales (:func:`figure_size_scales`, with the gold rows of
+    :func:`score_figure_folder` for ``rel_reference``) and their agreement,
+    and writes conditions_measured_vs_reported.csv,
+    agreement_by_scale.csv, size_scales.csv and the plaque_size_agreement
+    figure to ``figure_score_folder``.
+
+    :param settings: the figure scoring settings and the size settings.
+    :returns: dict with ``conditions``, ``scales``, ``agreement`` and
+        ``folder``.
+    """
+    import os
+
+    from .plot import save_figure
+    from .tabular import write_table
+
+    gold = _json_file(settings['figure_condition_labels'])
+    seg_dir = settings['figure_segmentation_folder']
+
+    def segmentation(figure, box):
+        """The stored segmentation of one well box, or None."""
+        path = os.path.join(seg_dir, f'{figure}__b{box}.json')
+        return _json_file(path) if os.path.exists(path) else None
+
+    conditions = figure_condition_sizes(gold, segmentation, settings)
+    reference = score_figure_folder(dict(settings, figure_metric='area'))['rows'] \
+        if settings.get('figure_detections') else None
+    scales = figure_size_scales(conditions, reference, settings)
+    agreement = figure_size_agreement(scales, settings)
+    out = settings.get('figure_score_folder') or os.path.join(
+        settings.get('src') or '.', 'results', 'figure_score')
+    os.makedirs(out, exist_ok=True)
+    write_table(conditions, os.path.join(out, 'conditions_measured_vs_reported.csv'),
+                canonicalise=False)
+    write_table(scales, os.path.join(out, 'size_scales.csv'), canonicalise=False)
+    write_table(agreement, os.path.join(out, 'agreement_by_scale.csv'), canonicalise=False)
+    save_figure(figure_size_figure(scales, agreement),
+                os.path.join(out, 'plaque_size_agreement.pdf'), close=True)
+    return {'conditions': conditions, 'scales': scales, 'agreement': agreement, 'folder': out}
+
+
 def main(argv: Optional[Sequence[str]] = None) -> int:
     """``python -m spacr.plaque_papers DOI|PMID|PMC|PDF ... --dst DIR``.
 

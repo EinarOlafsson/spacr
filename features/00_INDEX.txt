@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-739 Lifecycle: new, 120 Lifecycle: future in features/feature_list/.
+739 Lifecycle: new, 144 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -388,6 +388,27 @@ FUTURE FEATURES
   870  LJOSA PERCENTILE SCALING FOR MEASURE PROFILES
        870_profiling_ljosa_percentile_scaling.txt
 
+  871  OPS PHENOTYPE RUN V2: MERGED/, STANDARD TABLES, OWNED CELLS AND CROPS FROM ONE SETTINGS FILE
+       871_ops_phenotype_run_v2.txt
+
+  872  OPS PHENOTYPE RUN INFRASTRUCTURE: THE TWO UNMERGED MEASUREMENT/SQLITE COMMITS AND THE ENGINEERING ITEMS OF THE LARGE RUN
+       872_ops_phenotype_run_infrastructure.txt
+
+  873  OPS DECODE RULE (A) + S2 AS ENGINE SETTINGS
+       873_ops_decode_rule_a_s2.txt
+
+  874  OPS CROSS-FIELD OWNERSHIP OF PHENOTYPE CELLS
+       874_ops_cross_field_ownership.txt
+
+  875  OPS RUN REPORT: PER-WELL YIELD FUNNEL AND PER-GUIDE COUNTS AGAINST A PUBLISHED REFERENCE
+       875_ops_run_report_funnel_counts.txt
+
+  876  OPS FALSE-CALL MODEL: WHAT MAKES A GENOTYPE CALL A DECOY
+       876_ops_false_call_model.txt
+
+  877  CALIBRATED PER-CELL GENOTYPE CONFIDENCE
+       877_ops_genotype_confidence.txt
+
   879  ONE SETTINGS-DRIVEN PROFILE PATH: STORED CELL TABLES -> PROFILES -> METRICS
        879_ops_profile_pipeline.txt
 
@@ -400,11 +421,62 @@ FUTURE FEATURES
   882  SPECIFICITY METRICS FOR GENE PROFILES
        882_ops_specificity_metrics.txt
 
+  883  OPS GENE PROFILE OVER ALL CELLS, CONTROL ROWS PER BARCODE
+       883_ops_gene_level_aggregation.txt
+
+  887  OPS GUIDE-EFFICACY (JACKS-STYLE) GENE PROFILE BLEND
+       887_ops_guide_efficacy_blend.txt
+
+  890  OPS CELL-CYCLE-RESOLVED GENE PROFILES
+       890_ops_cell_cycle_profiles.txt
+
+  891  OPS PENETRANCE, ESCAPERS, PHASE TESTS AND NEIGHBOUR EFFECTS
+       891_ops_penetrance_neighbours.txt
+
   892  CROSS-SCREEN GENE SIMILARITY (OPS AND JUMP)
        892_cross_screen_similarity.txt
 
   895  A PUBLIC PROFILE-RETRIEVAL ENTRY: REPLICATE MAP, COMPOUND-GENE MATCHING AND PLATE EFFECT
        895_profile_retrieval_entry.txt
+
+  898  HRMAN-STYLE INFECTION AND REPLICATION READOUT ACROSS A TITRATION
+       898_vacuole_replication_titration.txt
+
+  899  RECRUITMENT CLASSIFIER WITH LEAVE-ONE-WELL-OUT EVALUATION AND CONTROLS
+       899_recruitment_classifier_eval.txt
+
+  900  PLAQUE FIGURE MODE: MEASURED-VS-REPORTED SCORING, WELL MERGE AND PUBLIC PLAQUE ENTRY POINTS
+       900_plaque_measured_vs_reported.txt
+
+  901  DIVISION ANALYSIS: ONSET OF PRE-DIVISION CHANGES
+       901_division_onsets.txt
+
+  902  OPS GUIDE-RELIABILITY EMPIRICAL-BAYES SHRINKAGE
+       902_ops_guide_shrinkage.txt
+
+  903  OPS FITNESS AND GENERIC-AXIS REMOVAL
+       903_ops_generic_axes.txt
+
+  904  OPS GUIDE-LEVEL GENE-GENE SIMILARITY WITH PAIR P VALUES
+       904_ops_guide_level_similarity.txt
+
+  905  OPS RESPONDER FRACTION, RESPONDER PROFILES AND DISTRIBUTION DISTANCES
+       905_ops_distribution_similarity.txt
+
+  906  OPS GENE PROFILES FROM FROZEN SINGLE-CELL EMBEDDINGS, AND FUSION
+       906_ops_embedding_profiles.txt
+
+  907  OPS CONTRASTIVE GENERALISED-EIGEN WIENER WEIGHTING
+       907_ops_contrastive_weighting.txt
+
+  909  DIVISION PREDICTION: SCORING UNIT, GUARDS, SHAPE-AND-MOTION ARM, SINGLE-MOVIE GROUPING, REFERENCE FEATURES AND LEARNER
+       909_division_prediction_arms.txt
+
+  910  HOST-NUCLEUS EFFECTOR TRANSLOCATION AGAINST PARASITE LOAD
+       910_effector_translocation.txt
+
+  911  PLAQUE FIGURE MODE: ABSOLUTE AND RELATIVE PLAQUE SIZE AGAINST REPORTED SIZES
+       911_plaque_relative_size.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES

@@ -1,0 +1,56 @@
+PLAQUE FIGURE MODE: MEASURED-VS-REPORTED SCORING, WELL MERGE AND PUBLIC PLAQUE ENTRY POINTS
+==========================================================================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha; segmentation re-run with v8 remains) — spacr.plaque_papers gains public resolve_plaque_model and segment_wells (the Figure-mode segmentation path: zoo checkpoint, the model's own well-resize plan, whole-frame crops; replaces the private _zoo_path / _model_well_resize / _cellpose_segmenter / plaque._segment_resized_wells imports of the reanalysis scripts), the condition matcher of score_lib as documented functions (condition_matches, strain_matches, treatment_matches, treatment_tokens, is_wild_type), measured_by_condition, figure_mode_regions, compare_reported (measured vs reported effects with Spearman rho, direction and within-1.5x agreement per labelling and readout, plus a seeded permutation control that the reference did not have), score_figure_folder, merge_figure_wells (merge_wells.py) and run_figure_scoring. The Plaque module runs them from a settings file with plaque_mode='figure_score' or 'figure_merge'; eleven settings under ALPHA_FEATURES[900]. On the reanalysis data the outputs equal the reference exactly: both 83-row results_measured_vs_reported tables (mean area and cleared fraction) and all four merge tables plus merge_counts.json.
+Requested: maintainer, 2026-11-09 (BMC paper item spec ITEM_plaque_measured_vs_reported.md, port P20).
+Owner: Home (claude-lane-e-1109 worktree).
+Source: the BMC reanalysis plaque_meta code (score_figure_mode.py, score_lib.py, merge_wells.py, gpu_seg_job.py).
+Related: 843-849, 850, 911.
+
+WHAT THE STATE IS
+Scoring plaque effects measured from published figures against the effects
+the papers report, and merging the measured wells into one meta-analysis
+table, were custom scripts that imported private spaCR functions and ran
+from an origin/main worktree.
+
+WHAT WAS BUILT
+- Public entries: resolve_plaque_model(name, settings) and
+  segment_wells(images, model, settings) (n, areas, cleared_frac per crop,
+  plaque_model and plaque_well_resize honoured).
+- Scoring: measured_by_condition (area, number, cleared_fraction),
+  figure_mode_regions (Figure-mode regions matched to detector boxes at
+  IoU >= 0.5 and their stored segmentation), compare_reported and
+  score_figure_folder (results_measured_vs_reported.csv and summary.json).
+- Merge: merge_figure_wells (flags rejected_not_plaque, low_confidence,
+  zoom_duplicate, organism_*, snap_*, reader_second_look; within-panel
+  reported effects) and run_figure_scoring writing results/figure_merge.
+- Settings (Plaque > Figure Scoring α): figure_condition_labels,
+  figure_model_labels, figure_detections, figure_mode_folder,
+  figure_segmentation_folder, figure_score_folder, figure_metric,
+  compare_permutations (1000), compare_seed (0), figure_low_confidence (0.7),
+  figure_second_look; plaque_mode gains figure_score and figure_merge.
+- The stored model readings stay data: score_figure_folder reads them, it
+  never re-reads a figure, and no LLM provider is involved.
+
+RESULT (scratch: /mnt/firecuda2/codex/scratch-docs/paper-items-1109/lane-e/validate_900.py)
+- figure_metric=area: 83 rows identical to results_measured_vs_reported_meanarea.csv
+  (= results_measured_vs_reported.csv); cleared_fraction: identical to
+  results_measured_vs_reported_clearedfrac.csv.
+- Spearman rho (log2, gold labels): area 0.697 (n 35), number 0.976 (n 8),
+  all 0.708 (n 43); model-read labels 0.638 / 0.976 / 0.662. Permuted
+  control (1000, seed 0): mean rho about 0, permutation p 0.001.
+- merge_figure_wells with the reference's second-look task list: wells_all
+  (1741), wells_toxo (1542), reported_values_all (2022),
+  reported_effects_toxo (1424) and merge_counts.json identical.
+
+NOT DONE / REMAINING
+- The masks were not re-made: there is no GPU at Home and no
+  toxoplasma_plaque_v8 zoo key on nightly yet. Remaining acceptance: rerun
+  the reference wells through segment_wells on nightly with v8 and compare
+  with the origin/main masks (areas rtol 1e-3, counts exact), recording the
+  commit.
+- figure_reference_condition and figure_effect from the spec are not
+  settings: the reference condition is the reading's is_reference flag and
+  the effect the ratio (log2 in the summary), as in the reference.
+- Catalogue (9-locale) records and arrival contracts are left to the master.
