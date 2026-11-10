@@ -1,0 +1,31 @@
+RECRUITMENT CLASSIFIER WITH LEAVE-ONE-WELL-OUT EVALUATION AND CONTROLS
+=====================================================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha; feature route; CNN route not split) — spacr.ml gains evaluation_folds (leave_one_well_out, leave_one_plate_out, random), classifier_metrics (accuracy, balanced accuracy, macro F1, AUROC, per-class precision/recall/n), evaluate_classifier (model per fold and pooled, majority and shuffled-label controls, the shuffles seeded ml_eval_shuffle_seed.. and averaged), run_ml_evaluation (writes results/ml_eval/metrics.csv), annotation_sample and export_annotation_sample (a stratified sample of N objects marked in png_list.annotate_sample; replaces the raw-sqlite export script). generate_ml_scores (the ml_analyze module) runs the evaluation after a fit with ml_eval_report, runs it alone on a feature table with ml_eval_features_table, and only marks the annotation sample with annotate_sample_n. 15 settings, registered under ALPHA_FEATURES[772] (a new key breaks the alpha deck test).
+Requested: maintainer, 2026-11-09 (BMC paper item spec ITEM_recruitment_classifier_eval.md, port P19).
+Owner: Home (claude-lane-e-1109 worktree).
+Source: hrman_fig6 scripts train_eval_recruitment.py, export_annotation_set.py.
+Related: 816, 830, 832.
+
+RESULT (scratch: /mnt/firecuda2/codex/scratch-docs/paper-items-1109/lane-e/validate_899.py)
+GBP plate77 annotation set (500 vacuoles) with fixed synthetic labels
+(border-touching = artefact, else rim_enrichment >= the null p99 threshold
+3.345 = recruitment, else no recruitment; 80 / 375 / 45). A settings-file
+run (gbp_plate77_ml_eval_settings.csv in the scratch folder) of
+generate_ml_scores against the reference script on the same copy of the
+annotation database: the leave-one-well-out model, the majority control and
+the shuffled-label control (mean of 20, seeds 0-19) give the same accuracy
+and per-class precision, recall and n as the reference script, to 1.1e-16
+(floating-point summation order): accuracy 0.874 / 0.750 / 0.647. spaCR adds
+balanced accuracy 0.641, macro F1 0.637 and AUROC 0.818 for the model
+(controls 0.333 / 0.286 / 0.500 and 0.327 / 0.321 / 0.492). The model and
+majority rows are pinned in tests/data/recruitment_eval_899.
+
+NOT DONE / REMAINING
+- The CNN route (train_split='leave_one_well_out' in the train module) is
+  not built; spaCR's own cv_group_by='well' split remains the CNN route.
+- The rim-threshold-only row and the HRMAlexNet literature row of the
+  reference table are not produced (the latter is literature, not a run).
+- Real labels do not exist yet (ANNOTATE_ME.md).
+- Catalogue (9-locale) records and arrival contracts are left to the master.

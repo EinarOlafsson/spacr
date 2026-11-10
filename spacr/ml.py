@@ -9441,6 +9441,18 @@ def generate_ml_scores(settings):
           column per class and ``<model>_model_confusion_matrix.csv``.
         - ``annotation_column`` — override controls with a PNG-level
           annotation column.
+        - ``ml_eval_report`` — also write a held-out evaluation with
+          controls to ``results/ml_eval/metrics.csv``
+          (:func:`run_ml_evaluation`, settings ``ml_eval_split``,
+          ``ml_eval_controls``, ``ml_eval_shuffle_seed``,
+          ``ml_eval_shuffle_repeats``, ``ml_model_type``,
+          ``ml_label_column``, ``ml_eval_classes``, ``ml_eval_features``).
+          With ``ml_eval_features_table`` set, only that evaluation runs,
+          on the table's features and the png_list labels, and its result
+          dict is returned.
+        - ``annotate_sample_n`` — above 0, only mark a stratified sample of
+          that many objects for annotation (:func:`export_annotation_sample`)
+          and return it.
         - ``location_column`` — ``'columnID'`` or ``'rowID'``.
         - ``heatmap_feature`` — feature plotted on the plate heatmap.
         - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``,
@@ -9487,6 +9499,12 @@ def generate_ml_scores(settings):
                               migrate_prediction_columns)
 
     settings = set_default_analyze_screen(settings)
+    if int(settings.get('annotate_sample_n') or 0) > 0:
+        save_settings(settings, name='generate_ml_scores', show=True)
+        return export_annotation_sample(settings)
+    if settings.get('ml_eval_report') and settings.get('ml_eval_features_table'):
+        save_settings(settings, name='generate_ml_scores', show=True)
+        return run_ml_evaluation(settings)
     from .object_roles import ALL_ROLES
     tables = settings.get('tables', ['cell', 'nucleus', 'pathogen', 'cytoplasm'])
     allowed_tables = frozenset(ALL_ROLES) | {'png_list'}
@@ -9706,8 +9724,428 @@ def generate_ml_scores(settings):
     _flowview_metric("matched_objects", matched_objects)
     _flowview_metric("unmatched_objects", unmatched_objects)
     _flowview_metric("databases", len(measurement_stores))
+    if settings.get('ml_eval_report'):
+        _evaluate_after_training(settings, output, _label_column)
 
     return [output, plate_heatmap]
+
+
+def _evaluate_after_training(settings, output, label_column):
+    """Run :func:`run_ml_evaluation` on the objects and features one fit used."""
+    if not label_column:
+        print('ml_eval_report: the held-out evaluation needs annotation labels '
+              '(dataset_mode annotation); skipped for control-well labels.')
+        return None
+    frame = output[0]
+    features = [f for f in output[9] if f in frame.columns]
+    return run_ml_evaluation(dict(settings, ml_label_column=label_column), df=frame,
+                             features=features)
+
+ML_EVAL_SPLITS = ('random', 'leave_one_well_out', 'leave_one_plate_out')
+ML_EVAL_CONTROLS = ('majority', 'shuffled')
+
+
+def _ml_eval_list(value):
+    """A comma-separated string or a sequence as a list of stripped names."""
+    if value is None or (isinstance(value, float) and np.isnan(value)):
+        return []
+    if isinstance(value, str):
+        return [part.strip() for part in value.split(',') if part.strip()]
+    return [str(part).strip() for part in value if str(part).strip()]
+
+
+def _ml_eval_classifier(model_type, n_estimators=200, random_state=0):
+    """The classifier one evaluation fold trains.
+
+    ``'hist_gbm'`` is scikit-learn's histogram gradient boosting with
+    balanced class weights; ``'random_forest'`` and ``'logistic_regression'``
+    are the scikit-learn models of those names, also class-balanced.
+
+    :raises ValueError: for any other ``model_type``.
+    """
+    if model_type == 'hist_gbm':
+        return HistGradientBoostingClassifier(max_iter=int(n_estimators), class_weight='balanced',
+                                              random_state=random_state)
+    if model_type == 'random_forest':
+        return RandomForestClassifier(n_estimators=int(n_estimators), class_weight='balanced',
+                                      random_state=random_state)
+    if model_type == 'logistic_regression':
+        from sklearn.pipeline import make_pipeline
+
+        return make_pipeline(StandardScaler(), LogisticRegression(
+            max_iter=1000, class_weight='balanced', random_state=random_state))
+    raise ValueError(f"ml_model_type must be 'hist_gbm', 'random_forest' or "
+                     f"'logistic_regression', not {model_type!r}")
+
+
+def _ml_eval_groups(df, split):
+    """The group label of every row for a leave-one-group-out split."""
+    if split == 'leave_one_plate_out':
+        for column in ('plateID', 'plate'):
+            if column in df.columns:
+                return df[column].astype(str)
+        raise ValueError("leave_one_plate_out needs a 'plateID' or 'plate' column")
+    if 'well' in df.columns:
+        return df['well'].astype(str)
+    if {'rowID', 'columnID'} <= set(df.columns):
+        plate = df['plateID'].astype(str) + '_' if 'plateID' in df.columns else ''
+        return plate + df['rowID'].astype(str) + '_' + df['columnID'].astype(str)
+    raise ValueError("leave_one_well_out needs a 'well' column or 'rowID' and 'columnID'")
+
+
+def evaluation_folds(df, split='leave_one_well_out', seed=0, n_splits=5):
+    """The train and test rows of every evaluation fold.
+
+    ``'leave_one_well_out'`` holds out one well at a time (the ``well``
+    column, else plate, ``rowID`` and ``columnID``), in sorted order;
+    ``'leave_one_plate_out'`` one plate (``plateID`` or ``plate``);
+    ``'random'`` is a stratified ``n_splits``-fold split shuffled with
+    ``seed``.
+
+    :param df: the labelled objects; its index is kept.
+    :param split: one of :data:`ML_EVAL_SPLITS`.
+    :param seed: shuffling seed of the random split.
+    :param n_splits: folds of the random split.
+    :returns: a list of ``(fold_name, train_index, test_index)``.
+    :raises ValueError: for an unknown split or missing grouping columns.
+    """
+    if split not in ML_EVAL_SPLITS:
+        raise ValueError(f'ml_eval_split must be one of {ML_EVAL_SPLITS}, not {split!r}')
+    if split == 'random':
+        labels = df['label'].to_numpy()
+        splitter = StratifiedKFold(n_splits=int(n_splits), shuffle=True, random_state=seed)
+        return [(f'fold{i}', df.index[tr], df.index[te])
+                for i, (tr, te) in enumerate(splitter.split(np.zeros(len(df)), labels))]
+    groups = _ml_eval_groups(df, split)
+    return [(group, df.index[(groups != group).to_numpy()], df.index[(groups == group).to_numpy()])
+            for group in sorted(groups.unique())]
+
+
+def classifier_metrics(y_true, y_pred, classes, name, y_score=None) -> dict:
+    """Accuracy, balanced accuracy, macro F1, AUROC and per-class precision and recall.
+
+    :param y_true: the true labels.
+    :param y_pred: the predicted labels.
+    :param classes: every class, in the order of the ``y_score`` columns.
+    :param name: the model name of the row.
+    :param y_score: class probabilities (one column per class), or None; the
+        AUROC is one-vs-rest macro for three or more classes and NaN without
+        scores or with one class present.
+    :returns: one metrics row as a dict, with ``<class> precision``,
+        ``<class> recall`` and ``<class> n`` for every class.
+    """
+    from sklearn.metrics import (accuracy_score, balanced_accuracy_score, f1_score,
+                                 precision_recall_fscore_support, roc_auc_score)
+
+    y_true, y_pred = np.asarray(y_true), np.asarray(y_pred)
+    classes = list(classes)
+    out = {'model': name, 'n': int(len(y_true)), 'accuracy': accuracy_score(y_true, y_pred)}
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        out['balanced_accuracy'] = balanced_accuracy_score(y_true, y_pred)
+    out['f1_macro'] = f1_score(y_true, y_pred, labels=classes, average='macro', zero_division=0)
+    out['auroc'] = np.nan
+    present = [c for c in classes if (y_true == c).any()]
+    if y_score is not None and len(present) >= 2:
+        score = np.asarray(y_score, float)
+        try:
+            if len(classes) == 2:
+                out['auroc'] = roc_auc_score(y_true == classes[1], score[:, 1])
+            elif len(present) == len(classes):
+                out['auroc'] = roc_auc_score(y_true, score, labels=classes, multi_class='ovr')
+        except ValueError:
+            out['auroc'] = np.nan
+    precision, recall, _, support = precision_recall_fscore_support(
+        y_true, y_pred, labels=classes, zero_division=0)
+    for i, c in enumerate(classes):
+        out[f'{c} precision'] = precision[i]
+        out[f'{c} recall'] = recall[i]
+        out[f'{c} n'] = int(support[i])
+    return out
+
+
+def _ml_eval_predict(df, features, folds, classes, model_type, n_estimators, shuffle_seed=None):
+    """Out-of-fold predictions and class probabilities over ``folds``."""
+    predictions = pd.Series(index=df.index, dtype=object)
+    scores = pd.DataFrame(np.nan, index=df.index, columns=classes)
+    rng = np.random.default_rng(shuffle_seed)
+    for _, train, test in folds:
+        y = df.loc[train, 'label'].to_numpy()
+        if shuffle_seed is not None:
+            y = rng.permutation(y)
+        model = _ml_eval_classifier(model_type, n_estimators)
+        model.fit(df.loc[train, features], y)
+        predictions[test] = model.predict(df.loc[test, features])
+        fitted = list(getattr(model, 'classes_', None) if not hasattr(model, 'steps')
+                      else model.steps[-1][1].classes_)
+        proba = model.predict_proba(df.loc[test, features])
+        for j, c in enumerate(fitted):
+            if c in scores.columns:
+                scores.loc[test, c] = proba[:, j]
+    return predictions, scores.fillna(0.0)
+
+
+def evaluate_classifier(df, features, settings) -> pd.DataFrame:
+    """Evaluate a classifier with held-out folds and controls.
+
+    The model of ``ml_model_type`` is trained on every fold of
+    ``ml_eval_split`` (:func:`evaluation_folds`) and predicts the held-out
+    rows. One row per fold and one pooled row (every held-out prediction
+    together) are reported. The controls of ``ml_eval_controls`` are
+    reported the same way: ``majority`` always predicts the commonest label
+    of the whole set; ``shuffled`` trains on labels permuted within each
+    training fold, repeated ``ml_eval_shuffle_repeats`` times with seeds
+    ``ml_eval_shuffle_seed``, ``ml_eval_shuffle_seed + 1``, ... and
+    averaged.
+
+    :param df: the labelled objects with a ``label`` column, the
+        ``features`` and the grouping columns of the split.
+    :param features: the feature columns.
+    :param settings: ``ml_eval_split``, ``ml_eval_controls``,
+        ``ml_eval_shuffle_seed``, ``ml_eval_shuffle_repeats``,
+        ``ml_model_type``, ``n_estimators`` and ``ml_eval_random_folds``.
+    :returns: the metrics table (:func:`classifier_metrics` columns plus
+        ``role`` -- model or control -- and ``fold``, ``'pooled'`` for the
+        pooled rows).
+    :raises ValueError: for an unknown split, control or model type, or
+        fewer than two classes.
+    """
+    split = settings.get('ml_eval_split') or 'leave_one_well_out'
+    controls = _ml_eval_list(settings.get('ml_eval_controls', 'majority, shuffled'))
+    unknown = [c for c in controls if c not in ML_EVAL_CONTROLS]
+    if unknown:
+        raise ValueError(f'ml_eval_controls must name {ML_EVAL_CONTROLS}, not {unknown}')
+    model_type = settings.get('ml_model_type') or 'hist_gbm'
+    _ml_eval_classifier(model_type)
+    n_estimators = int(settings.get('n_estimators') or 200)
+    seed = int(settings.get('ml_eval_shuffle_seed') or 0)
+    repeats = int(settings.get('ml_eval_shuffle_repeats') or 20)
+    classes = sorted(pd.unique(df['label']))
+    if len(classes) < 2:
+        raise ValueError(f'evaluation needs at least two classes, found {classes}')
+    folds = evaluation_folds(df, split, seed=seed,
+                             n_splits=int(settings.get('ml_eval_random_folds') or 5))
+    y = df['label']
+    rows = []
+
+    def add(name, role, predictions, scores):
+        """Append the pooled row and one row per fold of one prediction set."""
+        pooled = classifier_metrics(y, predictions.loc[y.index].to_numpy(), classes, name,
+                                    None if scores is None else scores.loc[y.index].to_numpy())
+        rows.append({**pooled, 'role': role, 'fold': 'pooled'})
+        for fold, _, test in folds:
+            row = classifier_metrics(y.loc[test], predictions.loc[test].to_numpy(), classes, name,
+                                     None if scores is None else scores.loc[test].to_numpy())
+            rows.append({**row, 'role': role, 'fold': fold})
+
+    predictions, scores = _ml_eval_predict(df, features, folds, classes, model_type, n_estimators)
+    add(f'{model_type}, {split}', 'model', predictions.astype(y.dtype), scores)
+    if 'majority' in controls:
+        majority = y.value_counts().idxmax()
+        constant = pd.DataFrame(0.0, index=df.index, columns=classes)
+        constant[majority] = 1.0
+        add(f'control: majority class ({majority})', 'control',
+            pd.Series(majority, index=df.index), constant)
+    if 'shuffled' in controls:
+        start = len(rows)
+        for s in range(seed, seed + repeats):
+            p, sc = _ml_eval_predict(df, features, folds, classes, model_type, n_estimators,
+                                     shuffle_seed=s)
+            add('shuffled', 'control', p.astype(y.dtype), sc)
+        repeated = pd.DataFrame(rows[start:])
+        del rows[start:]
+        numeric = repeated.select_dtypes(include=[np.number]).columns
+        for fold, table in repeated.groupby('fold', sort=False):
+            mean = table[numeric].mean().to_dict()
+            rows.append({'model': f'control: shuffled training labels (mean of {repeats})',
+                         **mean, 'role': 'control', 'fold': fold})
+    out = pd.DataFrame(rows)
+    lead = ['role', 'model', 'fold']
+    return out[lead + [c for c in out.columns if c not in lead]]
+
+
+def _ml_eval_frame(settings):
+    """The labelled objects and feature columns of an evaluation-only run.
+
+    The labels are ``ml_label_column`` of ``png_list`` in
+    ``<src>/measurements/measurements.db``; the features come from
+    ``ml_eval_features_table`` joined on ``ml_eval_join_column``.
+    """
+    import os
+
+    src = settings['src'][0] if isinstance(settings['src'], (list, tuple)) else settings['src']
+    label_column = settings.get('ml_label_column') or 'annotate'
+    join = settings.get('ml_eval_join_column') or 'file_name'
+    db = os.path.join(src, 'measurements', 'measurements.db')
+    labels = tabular.read_table(db, table='png_list', canonicalise=False, report=None)
+    if label_column not in labels.columns:
+        raise ValueError(f'png_list in {db} has no {label_column!r} column')
+    table = tabular.read_table(settings['ml_eval_features_table'], canonicalise=False,
+                               report=None)
+    keep = [c for c in (join, label_column, 'rowID', 'columnID', 'plateID')
+            if c in labels.columns and (c in (join, label_column) or c not in table.columns)]
+    df = table.drop(columns=[label_column], errors='ignore').merge(
+        labels[keep], on=join, how='left')
+    return df, label_column
+
+
+def run_ml_evaluation(settings, df=None, features=None):
+    """Write the held-out evaluation of a classifier to ``results/ml_eval/``.
+
+    Without ``df`` the objects come from ``ml_eval_features_table`` joined
+    to the ``ml_label_column`` labels in ``png_list`` (the evaluation-only
+    run :func:`generate_ml_scores` makes when that table is set). Rows whose
+    label is missing or not in ``ml_eval_classes`` are left out.
+    :func:`evaluate_classifier` does the evaluation.
+
+    :param settings: run settings; ``src`` (the first source folder takes
+        the results), ``ml_label_column``, ``ml_eval_classes``,
+        ``ml_eval_features`` (blank: every numeric column but the label)
+        and the :func:`evaluate_classifier` settings.
+    :param df: the objects, already joined to their labels, or None.
+    :param features: the feature columns, or None for ``ml_eval_features``.
+    :returns: dict with ``metrics`` (the table), ``path`` (``metrics.csv``),
+        ``n`` and ``classes``.
+    :raises ValueError: when no feature column is left, or the
+        :func:`evaluate_classifier` errors.
+    """
+    import os
+
+    label_column = settings.get('ml_label_column') or 'annotate'
+    if df is None:
+        df, label_column = _ml_eval_frame(settings)
+    df = df.copy()
+    wanted = _ml_eval_list(settings.get('ml_eval_classes'))
+    df['label'] = pd.to_numeric(df[label_column], errors='coerce')
+    df = df[df['label'].notna()]
+    if wanted:
+        df = df[df['label'].isin([float(v) for v in wanted])]
+    df['label'] = df['label'].astype(int)
+    if features is None:
+        features = _ml_eval_list(settings.get('ml_eval_features'))
+    if not features:
+        drop = {label_column, 'label'}
+        features = [c for c in df.select_dtypes(include=[np.number]).columns if c not in drop]
+    missing = [c for c in features if c not in df.columns]
+    if missing or not features:
+        raise ValueError(f'ml_eval_features not found in the objects: {missing or features}')
+    metrics = evaluate_classifier(df.reset_index(drop=True), list(features), settings)
+    src = settings['src'][0] if isinstance(settings['src'], (list, tuple)) else settings['src']
+    out_dir = os.path.join(src, 'results', 'ml_eval')
+    os.makedirs(out_dir, exist_ok=True)
+    path = tabular.write_table(metrics, os.path.join(out_dir, 'metrics.csv'), canonicalise=False)
+    pooled = metrics[metrics['fold'] == 'pooled']
+    print('Held-out evaluation (' + str(settings.get('ml_eval_split') or 'leave_one_well_out')
+          + '):\n' + pooled[['model', 'n', 'accuracy', 'balanced_accuracy', 'f1_macro',
+                             'auroc']].round(3).to_string(index=False))
+    return {'metrics': metrics, 'path': path, 'n': int(len(df)),
+            'classes': sorted(df['label'].unique().tolist())}
+
+
+def _annotate_strata(df, strata):
+    """The stratum of every row: columns as they are, ``column:q`` in q quantile bins."""
+    keys = []
+    for spec in _ml_eval_list(strata):
+        column, _, bins = spec.partition(':')
+        column = column.strip()
+        if column not in df.columns:
+            raise ValueError(f'annotate_sample_strata names {column!r}, not a column')
+        if bins:
+            parent = keys[0] if keys else pd.Series('all', index=df.index)
+            binned = df[column].groupby(parent).transform(
+                lambda s: pd.qcut(s.rank(method='first'), int(bins), labels=False))
+            keys.append(binned.astype(str).rename(column))
+        else:
+            keys.append(df[column].astype(str))
+    return keys
+
+
+def annotation_sample(df, n, seed=0, strata=None) -> pd.DataFrame:
+    """A stratified sample of ``n`` objects to annotate.
+
+    Every stratum (each combination of the ``strata`` keys) contributes up to
+    ``ceil(n / number of strata)`` objects drawn with ``seed``; when that
+    falls short of ``n`` the rest is drawn from what is left, spread over
+    the first key with ``seed + 1``. The result is shuffled with
+    ``seed + 2`` and cut to ``n``. A stratum key ``column:q`` bins the column
+    into q quantiles by rank within each value of the first key.
+
+    :param df: the objects to sample from.
+    :param n: how many objects to keep.
+    :param seed: the sampling seed.
+    :param strata: comma-separated stratum keys, e.g. ``'strain,
+        rim_enrichment:5'``; blank samples without strata.
+    :returns: the sampled rows, with a ``stratum`` column.
+    """
+    import math
+
+    keys = _annotate_strata(df, strata)
+    df = df.copy()
+    df['stratum'] = (pd.concat(keys, axis=1).agg('|'.join, axis=1) if keys
+                     else pd.Series('all', index=df.index))
+    first = keys[0] if keys else df['stratum']
+    per = int(math.ceil(n / max(1, df['stratum'].nunique())))
+    sample = df.groupby('stratum', group_keys=False).apply(
+        lambda g: g.sample(min(len(g), per), random_state=seed))
+    if len(sample) < n:
+        rest = df.drop(sample.index)
+        share = int(math.ceil((n - len(sample)) / max(1, first.nunique())))
+        extra = rest.groupby(first.loc[rest.index], group_keys=False).apply(
+            lambda g: g.sample(min(len(g), share), random_state=seed + 1))
+        sample = pd.concat([sample, extra])
+    return sample.sample(frac=1, random_state=seed + 2).head(int(n))
+
+
+def export_annotation_sample(settings) -> pd.DataFrame:
+    """Mark a stratified sample of objects for the Annotate screen.
+
+    Draws :func:`annotation_sample` from ``png_list`` of
+    ``<src>/measurements/measurements.db`` (joined to
+    ``ml_eval_features_table`` on ``ml_eval_join_column`` when the strata
+    need its columns) and writes the draw order (1..N) into the png_list
+    column ``annotate_sample`` with spaCR's png_list column writer, so the
+    Annotate screen can show just those crops. ``ml_label_column`` is
+    created empty when missing and never overwritten.
+
+    :param settings: ``src``, ``annotate_sample_n``, ``annotate_sample_seed``,
+        ``annotate_sample_strata`` and optionally ``ml_eval_features_table``.
+    :returns: the sampled rows with their ``annotate_sample`` order.
+    """
+    import os
+
+    from .database_concurrency import connect as connect_database
+
+    src = settings['src'][0] if isinstance(settings['src'], (list, tuple)) else settings['src']
+    db = os.path.join(src, 'measurements', 'measurements.db')
+    objects = tabular.read_table(db, table='png_list', canonicalise=False, report=None)
+    if settings.get('ml_eval_features_table'):
+        join = settings.get('ml_eval_join_column') or 'file_name'
+        table = tabular.read_table(settings['ml_eval_features_table'], canonicalise=False,
+                                   report=None)
+        objects = objects.merge(table[[c for c in table.columns
+                                       if c == join or c not in objects.columns]],
+                                on=join, how='inner')
+    sample = annotation_sample(objects, int(settings.get('annotate_sample_n') or 500),
+                               seed=int(settings.get('annotate_sample_seed') or 0),
+                               strata=settings.get('annotate_sample_strata'))
+    sample['annotate_sample'] = np.arange(1, len(sample) + 1)
+    label_column = settings.get('ml_label_column') or 'annotate'
+    connection = connect_database(db)
+    try:
+        present = {row[1] for row in connection.execute('PRAGMA table_info(png_list)')}
+        for column in ('annotate_sample', label_column):
+            if column not in present:
+                connection.execute(f'ALTER TABLE png_list ADD COLUMN "{column}" INTEGER')
+        connection.execute('UPDATE png_list SET annotate_sample = NULL')
+        connection.executemany('UPDATE png_list SET annotate_sample = ? WHERE png_path = ?',
+                               [(int(o), str(p)) for o, p in
+                                zip(sample['annotate_sample'], sample['png_path'])])
+        connection.commit()
+    finally:
+        connection.close()
+    print(f'{len(sample)} objects marked in png_list.annotate_sample of {db}')
+    return sample
+
 
 def _class_arms(classes):
     """The classes a multiclass fit trains, one entry per class, or ``None``.

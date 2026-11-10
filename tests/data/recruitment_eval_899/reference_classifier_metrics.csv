@@ -1,0 +1,5 @@
+model,accuracy,recruitment precision,recruitment recall,no recruitment precision,no recruitment recall,artefact precision,artefact recall,n,recruitment n,no recruitment n,artefact n
+"HRMAlexNet (Fisch et al. 2019, reference)",0.921,0.92,0.89,0.92,0.94,0.71,1.0,,,,
+"spaCR masks + gradient boosting, leave-one-well-out",0.874,0.8765432098765432,0.8875,0.9189873417721519,0.968,0.125,0.06666666666666667,500.0,80.0,375.0,45.0
+control: majority class (no recruitment),0.75,0.0,0.0,0.75,1.0,0.0,0.0,500.0,80.0,375.0,45.0
+control: shuffled training labels (mean of 20),0.6473000000000001,0.1541358664332887,0.11000000000000001,0.7465453744589459,0.8351999999999998,0.06927162641516862,0.03666666666666667,500.0,80.0,375.0,45.0

@@ -1262,6 +1262,23 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Feature Selection & Importance", (
             "prune_features", "top_features", "n_repeats",
         )),
+        ("Held-out Evaluation α", (
+            "ml_eval_report",
+            "ml_eval_split",
+            "ml_eval_controls",
+            "ml_eval_shuffle_seed",
+            "ml_eval_shuffle_repeats",
+            "ml_model_type",
+            "ml_label_column",
+            "ml_eval_classes",
+            "ml_eval_features",
+            "ml_eval_features_table",
+            "ml_eval_join_column",
+            "ml_eval_random_folds",
+            "annotate_sample_n",
+            "annotate_sample_seed",
+            "annotate_sample_strata",
+        )),
         ("Plots & Heatmaps", (
             "cmap", "heatmap_feature", "grouping", "min_max",
         )),

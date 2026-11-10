@@ -2213,6 +2213,21 @@ def set_default_analyze_screen(settings):
     settings.setdefault('annotation_column', None)
     settings.setdefault('ml_classes', None)
     settings.setdefault('model_type_ml','logistic_regression')
+    settings.setdefault('ml_eval_report', False)
+    settings.setdefault('ml_eval_split', 'leave_one_well_out')
+    settings.setdefault('ml_eval_controls', 'majority, shuffled')
+    settings.setdefault('ml_eval_shuffle_seed', 0)
+    settings.setdefault('ml_eval_shuffle_repeats', 20)
+    settings.setdefault('ml_model_type', 'hist_gbm')
+    settings.setdefault('ml_label_column', 'annotate')
+    settings.setdefault('ml_eval_classes', '')
+    settings.setdefault('ml_eval_features', '')
+    settings.setdefault('ml_eval_features_table', '')
+    settings.setdefault('ml_eval_join_column', 'file_name')
+    settings.setdefault('ml_eval_random_folds', 5)
+    settings.setdefault('annotate_sample_n', 0)
+    settings.setdefault('annotate_sample_seed', 0)
+    settings.setdefault('annotate_sample_strata', '')
     settings.setdefault('heatmap_feature','predictions')
     settings.setdefault('grouping','mean')
     settings.setdefault('min_max','allq')
@@ -4373,6 +4388,21 @@ expected_types = {
     "calibrate_fraction_threshold": bool,
     "mix":str,
     "model_type_ml":str,
+    "ml_eval_report": bool,
+    "ml_eval_split": str,
+    "ml_eval_controls": str,
+    "ml_eval_shuffle_seed": int,
+    "ml_eval_shuffle_repeats": int,
+    "ml_model_type": str,
+    "ml_label_column": str,
+    "ml_eval_classes": str,
+    "ml_eval_features": str,
+    "ml_eval_features_table": str,
+    "ml_eval_join_column": str,
+    "ml_eval_random_folds": int,
+    "annotate_sample_n": int,
+    "annotate_sample_seed": int,
+    "annotate_sample_strata": str,
     "exclude_conditions":list,
     "exclude_rows": (dict, type(None)),
     "remove_highly_correlated_features":bool,
@@ -5810,6 +5840,21 @@ tooltips = {
     "compare_seed": "(int) - Figure scoring: the seed of the permutation control. Default 0.",
     "figure_low_confidence": "(float) - Figure well merge: a well or reported panel read with confidence at or below this is flagged low_confidence (kept, marked for a second look). Default 0.7.",
     "figure_second_look": "(str) - Figure well merge: reading task ids (space- or comma-separated) whose wells are flagged reader_second_look. Default .",
+    "ml_eval_report": "(bool) - Also evaluate the classifier on held-out objects and write results/ml_eval/metrics.csv: accuracy, balanced accuracy, macro F1, AUROC and per-class precision and recall for every fold and for all held-out predictions pooled, beside the controls of ml_eval_controls. Needs annotation labels (ml_label_column). With ml_eval_features_table set, only this evaluation runs. Default False.",
+    "ml_eval_split": "(str) - How objects are held out. leave_one_well_out trains on every well but one and tests on that one, in turn; leave_one_plate_out does the same per plate; random is a stratified split into ml_eval_random_folds folds. No object of a test well or plate is seen in training. Ignored unless ml_eval_report. Default leave_one_well_out.",
+    "ml_eval_controls": "(str) - Controls reported beside the model, comma-separated. majority always predicts the commonest class; shuffled trains the same model on labels permuted within each training fold, repeated ml_eval_shuffle_repeats times and averaged. Blank reports no control. Ignored unless ml_eval_report. Default majority, shuffled.",
+    "ml_eval_shuffle_seed": "(int) - Seed of the first shuffled-label repeat; the next repeats use the following seeds. Also seeds the random split. Ignored unless ml_eval_report. Default 0.",
+    "ml_eval_shuffle_repeats": "(int) - How many times the shuffled-label control is trained; its row is the mean. Ignored unless ml_eval_report. Default 20.",
+    "ml_model_type": "(str) - The model the held-out evaluation trains: hist_gbm (histogram gradient boosting with n_estimators iterations), random_forest or logistic_regression, each with balanced class weights. Ignored unless ml_eval_report. Default hist_gbm.",
+    "ml_label_column": "(str) - The png_list column that holds the labels of the held-out evaluation, as the Annotate screen writes them. Ignored unless ml_eval_report or annotate_sample_n. Default annotate.",
+    "ml_eval_classes": "(str) - The label values evaluated, comma-separated (for example 1,2,3); objects with any other label are left out. Blank keeps every label. Ignored unless ml_eval_report. Default .",
+    "ml_eval_features": "(str) - The feature columns of the held-out evaluation, comma-separated. Blank uses every numeric column but the label; inside a full run it uses the features the classifier was trained on. Ignored unless ml_eval_report. Default .",
+    "ml_eval_features_table": "(str) - A table of per-object features (CSV or any table spaCR reads) joined to the png_list labels on ml_eval_join_column. When set, the run only evaluates: no classifier is fitted to the measurement database and no scores are written back. Ignored unless ml_eval_report. Default .",
+    "ml_eval_join_column": "(str) - The column that joins ml_eval_features_table to png_list. Default file_name.",
+    "ml_eval_random_folds": "(int) - Folds of the random split. Ignored unless ml_eval_split is random. Default 5.",
+    "annotate_sample_n": "(int) - Above 0, the run only picks that many objects to annotate, stratified by annotate_sample_strata, and writes their order (1 to N) into the png_list column annotate_sample so the Annotate screen can show just those crops. The label column is created empty if missing and never overwritten. Default 0.",
+    "annotate_sample_seed": "(int) - Seed of the annotation sample; the top-up draw uses the next seed and the final shuffle the one after. Ignored unless annotate_sample_n. Default 0.",
+    "annotate_sample_strata": "(str) - Strata of the annotation sample, comma-separated: a column name stratifies by its values; column:q bins the column into q quantiles within each value of the first stratum (for example strain, rim_enrichment:5). Every stratum gives an equal share. Blank samples without strata. Ignored unless annotate_sample_n. Default .",
     "timelapse_division_onset": "(bool) - With timelapse_division_analysis, also find when each measurement starts to change before division. Dividing and control cells are compared at every frame of the window (Hedges' g with a bootstrap 95% interval). Reading back from the division, the onset is the earliest frame of the unbroken run of frames whose interval excludes zero in the direction of the last frame; a measurement whose last frame is not significant has no onset. Writes onsets.csv (onset in frames, as a fraction of the median cycle and in minutes when the frame interval is known, and the direction) and frame_effects.csv next to the division results. Default False.",
     "timelapse_division_onset_ci": "(str) - The two interval columns of the per-frame effect table that decide whether a frame is significant, written as low/high. Ignored unless timelapse_division_onset. Default ci_low/ci_high.",
     "timelapse_events": "(bool) - After the run, detect events on every tracked object with a small neural network that reads short windows of each track (shape, intensity, movement, tracks starting or ending nearby, and image crops): mitosis, egress, invasion, host death or whatever classes timelapse_events_annotations names. Writes time-stamped events, lineage trees re-linked from detected mitoses and Kaplan-Meier time to each event per condition to tracks/events. The small encoder runs on CPU; the optional videomae encoder uses its separately installed worker and declared video device. Default False.",
@@ -6316,7 +6361,7 @@ categories = {
     "Leakage Audit": ["evaluation_fail_on_leakage", "leakage_audit_train_test",
                       "leakage_hash_content", "leakage_require_identity"],
 
-    "Machine Learning Model and Features": ["model_type_ml", "n_estimators", "test_size", "cross_validation", "reg_lambda", "reg_alpha", "prune_features", "top_features", "n_repeats", ],
+    "Machine Learning Model and Features": ["model_type_ml", "n_estimators", "test_size", "cross_validation", "reg_lambda", "reg_alpha", "prune_features", "top_features", "n_repeats", "ml_eval_report", "ml_eval_split", "ml_eval_controls", "ml_eval_shuffle_seed", "ml_eval_shuffle_repeats", "ml_model_type", "ml_label_column", "ml_eval_classes", "ml_eval_features", "ml_eval_features_table", "ml_eval_join_column", "ml_eval_random_folds", "annotate_sample_n", "annotate_sample_seed", "annotate_sample_strata"],
 
     "Embedding & Clustering": ["reduction_method", "n_neighbors", "min_dist", "metric", "tsne_perplexity", "tsne_learning_rate", "tsne_early_exaggeration", "tsne_max_iter", "pca_whiten", "pca_svd_solver", "isomap_n_neighbors", "isomap_path_method", "spectral_affinity", "spectral_n_neighbors", "log_data", "embedding_by_controls", "col_to_compare", "resnet_features", "clustering", "eps", "min_samples", "remove_cluster_noise", "analyze_clusters"],
 
@@ -8311,7 +8356,22 @@ ALPHA_FEATURES = {
                      'infection_signal_floor',
                      'infection_floor_percentile',
                      'infection_uninfected_wells',
-                     'infection_signal_column'),
+                     'infection_signal_column',
+                     'ml_eval_report',
+                     'ml_eval_split',
+                     'ml_eval_controls',
+                     'ml_eval_shuffle_seed',
+                     'ml_eval_shuffle_repeats',
+                     'ml_model_type',
+                     'ml_label_column',
+                     'ml_eval_classes',
+                     'ml_eval_features',
+                     'ml_eval_features_table',
+                     'ml_eval_join_column',
+                     'ml_eval_random_folds',
+                     'annotate_sample_n',
+                     'annotate_sample_seed',
+                     'annotate_sample_strata'),
     },
     801: {
         'settings': ('mask_workers_per_gpu',),
