@@ -4062,9 +4062,11 @@ def figure_condition_sizes(gold, segmentation, settings=None) -> pd.DataFrame:
         'quantification': [...]}}``.
     :param segmentation: ``fn(figure, box) -> {'areas', 'bbox', 'n'} or None``.
     :param settings: ``figure_condition_aggregate`` and ``figure_size_stat``.
-    :returns: columns figure, pmcid, panel, metric, unit, strain, treatment,
-        is_ref, reported, n_wells, spacr_n, spacr_mean_area_px2,
-        spacr_max_area_px2, well_box_px2 and well_box_px.
+    :returns: one row per reported condition with at least one matched
+        well (a blank treatment as ``''``, ``is_ref`` 0 or 1): figure,
+        pmcid, panel, metric, unit, strain, treatment, is_ref, reported,
+        n_wells, spacr_n, spacr_mean_area_px2, spacr_max_area_px2,
+        well_box_px2 and well_box_px.
     """
     import statistics
 
@@ -4090,17 +4092,18 @@ def figure_condition_sizes(gold, segmentation, settings=None) -> pd.DataFrame:
             for value in panel['values']:
                 matched = [r for s, t, r in wells if condition_matches(
                     value['strain'], value['treatment'], s + ' ' + (t or ''), (t or '') + ' ' + s)]
-                row = dict(figure=figure, pmcid=figure.split('__')[0], panel=panel['panel'],
-                           metric=panel['metric'], unit=panel.get('unit'), strain=value['strain'],
-                           treatment=value['treatment'], is_ref=bool(value['is_reference']),
-                           reported=value['value'], n_wells=len(matched))
-                if matched:
-                    row.update(spacr_n=pool([r['plaque_count'] for r in matched]),
-                               spacr_mean_area_px2=pool([r[size_key] for r in matched]),
-                               spacr_max_area_px2=pool([r['plaque_max_area_px2'] for r in matched]),
-                               well_box_px2=pool([r.get('well_extent_px2', np.nan) for r in matched]),
-                               well_box_px=pool([r.get('well_extent_px', np.nan) for r in matched]))
-                rows.append(row)
+                if not matched:
+                    continue
+                rows.append(dict(
+                    figure=figure, pmcid=figure.split('__')[0], panel=panel['panel'],
+                    metric=panel['metric'], unit=panel.get('unit'), strain=value['strain'],
+                    treatment=value['treatment'] or '', is_ref=int(bool(value['is_reference'])),
+                    reported=value['value'], n_wells=len(matched),
+                    spacr_n=pool([r['plaque_count'] for r in matched]),
+                    spacr_mean_area_px2=pool([r[size_key] for r in matched]),
+                    spacr_max_area_px2=pool([r['plaque_max_area_px2'] for r in matched]),
+                    well_box_px2=pool([r.get('well_extent_px2', np.nan) for r in matched]),
+                    well_box_px=pool([r.get('well_extent_px', np.nan) for r in matched])))
     columns = ['figure', 'pmcid', 'panel', 'metric', 'unit', 'strain', 'treatment', 'is_ref',
                'reported', 'n_wells', 'spacr_n', 'spacr_mean_area_px2', 'spacr_max_area_px2',
                'well_box_px2', 'well_box_px']
@@ -4177,6 +4180,31 @@ def figure_size_scales(conditions, reference_rows=None, settings=None) -> pd.Dat
     table['readout'] = table['metric'].map({'plaque_number': 'number', 'plaque_area': 'area',
                                             'relative_plaque_size': 'relative size'})
     return table.reset_index(drop=True)
+
+
+def figure_size_table(conditions) -> pd.DataFrame:
+    """Per condition: published and spaCR value, both relative to their panel maximum, and the spread.
+
+    :param conditions: :func:`figure_condition_sizes` rows.
+    :returns: one row per condition with figure (pmcid and panel), readout,
+        reported, spacr (count for number readouts, mean plaque area
+        otherwise), reported_rel, spacr_rel and largest_over_mean (largest
+        over mean plaque area, area readouts with plaques only).
+    """
+    import pandas as pd
+
+    t = conditions.copy()
+    t['spacr'] = np.where(t['metric'] == 'plaque_number', t['spacr_n'], t['spacr_mean_area_px2'])
+    readout = {'plaque_number': 'Plaque number', 'plaque_area': 'Plaque area',
+               'relative_plaque_size': 'Relative plaque size'}
+    spread = np.where((t['spacr_mean_area_px2'] > 0) & (t['metric'] != 'plaque_number'),
+                      t['spacr_max_area_px2'] / t['spacr_mean_area_px2'].where(
+                          t['spacr_mean_area_px2'] > 0), np.nan)
+    return pd.DataFrame({'figure': t['pmcid'] + ' ' + t['panel'].astype(str),
+                         'readout': t['metric'].map(readout), 'reported': t['reported'],
+                         'spacr': t['spacr'], 'reported_rel': _panel_relative(t, 'reported'),
+                         'spacr_rel': _panel_relative(t, 'spacr'),
+                         'largest_over_mean': spread})
 
 
 def _agreement(x, y):
@@ -4303,7 +4331,8 @@ def compare_figure_sizes(settings) -> Dict[str, Any]:
     scales (:func:`figure_size_scales`, with the gold rows of
     :func:`score_figure_folder` for ``rel_reference``) and their agreement,
     and writes conditions_measured_vs_reported.csv,
-    agreement_by_scale.csv, size_scales.csv and the plaque_size_agreement
+    agreement_by_scale.csv, size_scales.csv, sizes_per_condition.csv
+    (:func:`figure_size_table`) and the plaque_size_agreement
     figure to ``figure_score_folder``.
 
     :param settings: the figure scoring settings and the size settings.
@@ -4335,6 +4364,8 @@ def compare_figure_sizes(settings) -> Dict[str, Any]:
                 canonicalise=False)
     write_table(scales, os.path.join(out, 'size_scales.csv'), canonicalise=False)
     write_table(agreement, os.path.join(out, 'agreement_by_scale.csv'), canonicalise=False)
+    write_table(figure_size_table(conditions), os.path.join(out, 'sizes_per_condition.csv'),
+                canonicalise=False)
     save_figure(figure_size_figure(scales, agreement),
                 os.path.join(out, 'plaque_size_agreement.pdf'), close=True)
     return {'conditions': conditions, 'scales': scales, 'agreement': agreement, 'folder': out}

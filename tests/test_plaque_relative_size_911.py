@@ -67,6 +67,14 @@ def test_condition_sizes_scales_and_agreement_recover_planted_sizes():
     assert row['n_without_panel_max'] == 6
     again = pp.figure_size_agreement(scales, {'figure_scale_permutations': 50})
     pd.testing.assert_frame_equal(agreement, again)
+    table = pp.figure_size_table(conditions).set_index('figure')
+    area_rows = table.loc['PMC9 B']
+    assert list(area_rows['reported_rel']) == [1.0, 0.5, 0.25, 0.125]
+    assert list(area_rows['spacr_rel']) == [1.0, 0.5, 0.25, 0.125]
+    assert (area_rows['largest_over_mean'] == 1).all()
+    assert table.loc['PMC9 C', 'largest_over_mean'].isna().all()
+    unmatched = pp.figure_condition_sizes(_gold(), lambda f, b: None)
+    assert unmatched.empty and list(unmatched.columns)[-1] == 'well_box_px'
     medians = pp.figure_condition_sizes(_gold(), _segmentation(),
                                         {'figure_condition_aggregate': 'median',
                                          'figure_size_stat': 'median'})
