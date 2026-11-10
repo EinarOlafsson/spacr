@@ -4623,8 +4623,9 @@ def choose_model(model_type: str,
     """Instantiate a classification model by name for binary or multiclass problems.
 
     :param model_type: TorchVision model name (e.g. ``'resnet50'``, ``'vit_b_16'``),
-        or ``'custom'`` for the small :class:`CustomCellClassifier` trained
-        from scratch.
+        ``'custom'`` for the small :class:`CustomCellClassifier` trained
+        from scratch, or ``'spacr_channel_cnn'`` / ``'spacr_channel_vit'``
+        for the channel-adaptive models of :mod:`spacr.channel_models`.
     :param device: unused; the model is built on the CPU and the caller moves it.
     :param init_weights: load pretrained weights when available.
     :param dropout_rate: dropout probability before the classifier head (``None``/``0`` disables).
@@ -4637,7 +4638,8 @@ def choose_model(model_type: str,
         dimension (and so the size of the classifier head) as well as both dimensions
         of the square forward sanity check (falls back to ``224`` when falsy).
     :param width: unused; ``height`` sets both dimensions.
-    :param chan_dict: unused; reserved for the unimplemented custom branch.
+    :param chan_dict: for the channel-adaptive models, ``{'stains': [...]}``
+        names the stain of each input channel; otherwise unused.
     :param num_classes: output class count; ``1`` yields a single-logit BCE head.
     :param verbose: print the model structure when ``True``.
 
@@ -4650,8 +4652,15 @@ def choose_model(model_type: str,
     """
     import difflib
 
+    from .channel_models import CHANNEL_IMAGE_ARCHITECTURES, build_channel_model
+
     tv_names = _list_torchvision_model_names()
-    valid_names = set(tv_names) | {"custom"}
+    valid_names = set(tv_names) | {"custom"} | set(CHANNEL_IMAGE_ARCHITECTURES)
+    if model_type == "spacr_well_transformer":
+        raise ValueError(
+            "model_type='spacr_well_transformer' trains on cell embeddings, "
+            "not on images: run it with train_level='well_set' "
+            "(spacr.well_set_training).")
 
     if model_type not in valid_names:
         close = difflib.get_close_matches(str(model_type), sorted(tv_names),
@@ -4676,6 +4685,16 @@ def choose_model(model_type: str,
         base_model = CustomCellClassifier(
             num_classes=head_dim, use_checkpoint=use_checkpoint,
             in_channels=n_in, image_size=img_size)
+    elif model_type in CHANNEL_IMAGE_ARCHITECTURES:
+        options = {}
+        if model_type == "spacr_channel_vit":
+            options["patch"] = next((p for p in (32, 16, 8, 4, 2) if img_size % p == 0), 1)
+        if dropout_rate:
+            options["head_dropout"] = float(dropout_rate)
+        base_model = build_channel_model(
+            model_type, num_classes=head_dim, channels=n_in,
+            stains=(chan_dict or {}).get("stains"), image_size=img_size,
+            options=options)
     else:
         base_model = TorchModel(
             model_name=model_type,

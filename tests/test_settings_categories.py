@@ -854,6 +854,20 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "moa_treatment_columns", "moa_batch_column", "moa_controls", "moa_arms",
     "moa_replicates", "moa_shuffles", "moa_supervised_shuffles", "moa_seed",
     "moa_workers", "moa_dst",
+    # 897, alpha: the channel-adaptive architectures
+    # (`spacr/architecture_training.py`), two headings of its own: the data
+    # and the training.
+    "train_arch", "train_level", "train_set_input", "train_set_cells", "train_set_tag",
+    "train_set_normalisation", "train_set_pca_dims", "train_set_control", "train_set_max_cells",
+    "train_protocol", "train_set_arms", "train_set_steps", "train_set_bag_batch",
+    "train_set_bag_cells", "train_set_dim", "train_set_depth", "train_set_lr",
+    "train_set_weight_decay", "train_set_instance_weight", "train_set_shuffle_control",
+    "train_set_seed", "train_set_threads", "train_set_folds", "train_set_dst",
+    "train_cell_crops", "train_cell_table", "train_cell_label_column", "train_cell_group_column",
+    "train_cell_stains", "train_cell_test_fraction", "train_cell_size", "train_cell_vit_size",
+    "train_cell_patch", "train_cell_epochs", "train_cell_batch", "train_cell_lr",
+    "pretrain_method", "pretrain_epochs", "pretrain_mask_ratio", "train_labels_per_class",
+    "eval_channel_subsets",
     # 581, alpha: what the export writes (h5ad, Parquet tables, R loader)
     # and the folder the tables go to.
     "anndata_format", "anndata_tidy_dir",
@@ -1635,6 +1649,8 @@ def test_every_qt_section_hint_names_a_real_category():
     import spacr.published_reference  # noqa: F401
     # 795: the MoA benchmark registers its two headings.
     import spacr.moa_benchmark  # noqa: F401
+    # 897: the architecture training registers its two headings.
+    import spacr.architecture_training  # noqa: F401
     known.update(c.upper().strip() for c in S.REGISTERED_CATEGORIES)
     # Qt may make app-scoped relocations without changing the category map
     # shared with the legacy UI (Measure's Filter settings is one).

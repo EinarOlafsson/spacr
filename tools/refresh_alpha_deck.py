@@ -87,6 +87,7 @@ GROUPS = (
         (564, "Counterfactuals: morph a control cell toward a hit"),
         (561, "Self-supervised DINO pretraining"),
         (772, "Fixed crop scaling and a shuffled-label control"),
+        (897, "Channel-adaptive CNN, ViT and well transformer"),
         (470, "Judge every label from cross-channel ground truth"),
     )),
     ("Screens and statistics", (

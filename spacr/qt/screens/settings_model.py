@@ -3826,6 +3826,14 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "How the profiles are scored: the nearest-neighbour, logistic "
         "regression and XGBoost arms, how replicate wells combine, the "
         "shuffled-label controls, the seed and the folds fitted at a time.",
+    "ARCHITECTURE DATA":
+        "What the channel-adaptive models train on: the architecture and "
+        "level, the cell embeddings or crops and their tables, the stains, "
+        "the normalisation, the fold protocol and the output folder.",
+    "ARCHITECTURE TRAINING":
+        "How they train: the well-set arms and their sizes, the cell "
+        "model's size and epochs, pre-training, few-shot labels, the "
+        "missing-stain subsets, the shuffled-label control and the seed.",
 }
 
 

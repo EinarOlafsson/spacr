@@ -8187,6 +8187,20 @@ ALPHA_FEATURES = {
             'published_duplicates', 'published_unmatched', 'published_bootstrap',
             'published_shuffles', 'published_seed', 'published_dst')},
     },
+    897: {
+        'module_settings': {'spacr_architectures': (
+            'train_arch', 'train_level', 'train_set_input', 'train_set_cells', 'train_set_tag',
+            'train_set_normalisation', 'train_set_pca_dims', 'train_set_control', 'train_set_max_cells',
+            'train_protocol', 'train_set_arms', 'train_set_steps', 'train_set_bag_batch',
+            'train_set_bag_cells', 'train_set_dim', 'train_set_depth', 'train_set_lr',
+            'train_set_weight_decay', 'train_set_instance_weight', 'train_set_shuffle_control',
+            'train_set_seed', 'train_set_threads', 'train_set_folds', 'train_set_dst',
+            'train_cell_crops', 'train_cell_table', 'train_cell_label_column', 'train_cell_group_column',
+            'train_cell_stains', 'train_cell_test_fraction', 'train_cell_size', 'train_cell_vit_size',
+            'train_cell_patch', 'train_cell_epochs', 'train_cell_batch', 'train_cell_lr',
+            'pretrain_method', 'pretrain_epochs', 'pretrain_mask_ratio', 'train_labels_per_class',
+            'eval_channel_subsets')},
+    },
     795: {
         'module_settings': {'moa_benchmark': (
             'moa_profiles', 'moa_labels', 'moa_label_column', 'moa_compound_column',

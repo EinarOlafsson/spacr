@@ -61,6 +61,9 @@ HEADLESS_ONLY = {
     "endodyogeny": "the legacy area-derived size proxy remains headless; the "
                    "Replication button runs the parasite-count assay",
     "simulation": "the pooled-screen simulator, which has no GUI screen at all",
+    "spacr_architectures": "item 897's channel-adaptive models (well "
+                           "transformer, channel CNN and ViT), trained "
+                           "headless from a settings file",
     # THE TWO CLASSIFY SCREENS WERE REMOVED, their entry points were not.
     # "Classify (CV)" and "Classify (ML)" were the originals kept beside the
     # merged screen; three entries for one job is three places to look, and
