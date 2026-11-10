@@ -4352,6 +4352,588 @@ def time_split_pairs(sims, genes: Sequence[Any], bins, old_pairs, new_pairs, *,
     return out
 
 
+#: Gene names left out of a cross-screen comparison by default: ribosomal
+#: and tubulin genes, whose profiles agree in every screen for reasons
+#: unrelated to function.
+CROSS_SCREEN_EXCLUDE = r"^(RPL\d|RPLP|RPS\d|RPSA|MRPL|MRPS|TUBA|TUBB|TUBG|TUBD|TUBE)"
+
+#: The settings of :func:`cross_screen_similarity` and their defaults.
+CROSS_SCREEN_DEFAULTS: Dict[str, Any] = {
+    "cross_screen_profiles_a": None, "cross_screen_profiles_b": None, "cross_screen_nt_b": None,
+    "cross_screen_modality": None, "cross_screen_gene_key": "gene", "cross_screen_metric": "cosine",
+    "cross_screen_permutations": 999, "cross_screen_seed": 0, "cross_screen_top_pairs": 0.01,
+    "cross_screen_string": None, "cross_screen_biogrid": None, "cross_screen_corum": None,
+    "cross_screen_flagged": None, "cross_screen_exclude": CROSS_SCREEN_EXCLUDE,
+    "cross_screen_generic_axes": [False], "cross_screen_pairs": None,
+    "cross_screen_pair_draws": 9999, "cross_screen_pair_seed": 1, "cross_screen_compounds": None,
+    "cross_screen_compound_targets": None, "cross_screen_compound_nt": None, "cross_screen_dst": None,
+}
+
+_CROSS_STATISTICS = ("Mantel Spearman r", "partial Mantel r (OPS fitness + JUMP strength removed)",
+                     "neighbour overlap@10", "fraction STRING>=0.7 among top-1 %-in-both pairs",
+                     "n top-1 %-in-both pairs")
+
+
+def _unit_rows(values) -> np.ndarray:
+    """Rows scaled to unit length (a zero row stays zero)."""
+    x = np.asarray(values, dtype=float)
+    return x / np.maximum(np.linalg.norm(x, axis=1, keepdims=True), 1e-12)
+
+
+def _cross_cosine(a, b=None) -> np.ndarray:
+    """Cosine of the rows of ``a`` with the rows of ``b`` (or of ``a``)."""
+    ua = _unit_rows(a)
+    return ua @ (ua if b is None else _unit_rows(b)).T
+
+
+def remove_generic_axes(values, axes) -> np.ndarray:
+    """Project the rows of ``values`` off the span of ``axes``.
+
+    :param values: rows by features.
+    :param axes: directions, one per row.
+    :returns: the residual rows.
+    """
+    q, _ = np.linalg.qr(np.asarray(axes, dtype=float).T)
+    return values - (values @ q) @ q.T
+
+
+def _generic_axes_removed(a: pd.DataFrame, fitness: pd.Series, b: pd.DataFrame
+                          ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Both screens with their generic axes removed.
+
+    Screen A loses the mean profile of its 5 % least fit genes and its
+    first principal component; screen B its first principal component and
+    the mean profile of its 5 % strongest genes.
+    """
+    xa = a.to_numpy(float)
+    sick = xa[fitness.loc[a.index].to_numpy() <= np.quantile(fitness, 0.05)].mean(0)
+    pc_a = np.linalg.svd(xa - xa.mean(0), full_matrices=False)[2][0]
+    xb = b.to_numpy(float)
+    norm = np.linalg.norm(xb, axis=1)
+    strong = xb[norm >= np.quantile(norm, 0.95)].mean(0)
+    pc_b = np.linalg.svd(xb - xb.mean(0), full_matrices=False)[2][0]
+    return (pd.DataFrame(remove_generic_axes(xa, [sick, pc_a]), index=a.index, columns=a.columns),
+            pd.DataFrame(remove_generic_axes(xb, [strong, pc_b]), index=b.index, columns=b.columns))
+
+
+def stratified_permutation(bins, rng) -> np.ndarray:
+    """A permutation that only swaps positions within the same bin.
+
+    :param bins: the bin of every position.
+    :param rng: a numpy generator, consumed bin by bin in sorted bin order.
+    :returns: the permutation.
+    """
+    bins = np.asarray(bins)
+    p = np.arange(len(bins))
+    for b in np.unique(bins):
+        idx = np.where(bins == b)[0]
+        p[idx] = idx[rng.permutation(len(idx))]
+    return p
+
+
+def cross_screen_concordance(sims_a, sims_b, fitness_a, strength_b, degree, known_pairs, genes, *,
+                             n_perm: int = 999, seed: int = 0, top_fraction: float = 0.01, k: int = 10
+                             ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """How alike two screens find the same gene pairs, against four nulls.
+
+    Statistics, on the upper triangle of the two gene x gene similarity
+    matrices: the Mantel statistic (Spearman, i.e. Pearson of tie-averaged
+    ranks; Mantel 1967); the partial Mantel statistic after both rank
+    vectors are residualised on the rank similarity of screen A's fitness
+    and of screen B's profile strength; the overlap of the ``k`` nearest
+    neighbours; and, of the pairs in the top ``top_fraction`` of both
+    screens, their number and the share that are known (STRING >= 0.7).
+    Each is recomputed for ``n_perm`` relabellings of screen A's genes:
+    unrestricted, then within fitness deciles, within STRING-degree deciles
+    and within strength deciles, all drawn from one ``default_rng(seed)``
+    in that order. ``p = (1 + draws >= observed) / (1 + draws)``.
+
+    :param sims_a: screen A's ``n x n`` similarities.
+    :param sims_b: screen B's.
+    :param fitness_a: screen A's fitness percentile of every gene, in (0, 1].
+    :param strength_b: screen B's profile norm of every gene.
+    :param degree: the STRING degree of every gene.
+    :param known_pairs: known pairs, as frozensets of two names.
+    :param genes: the gene names in matrix order.
+    :param n_perm: relabellings per null.
+    :param seed: the generator seed.
+    :param top_fraction: the share of pairs called top in each screen.
+    :param k: neighbours compared.
+    :returns: ``(rows, draws)``: one row per statistic and group (``real``
+        and the four controls with mean, 95 % interval, maximum and p) and
+        every null draw.
+    """
+    from scipy.stats import rankdata
+
+    genes = list(genes)
+    so = np.asarray(sims_a, dtype=np.float32)
+    sj = np.asarray(sims_b, dtype=np.float32)
+    n = len(genes)
+    iu0, iu1 = np.triu_indices(n, 1)
+    uo, uj = so[iu0, iu1], sj[iu0, iu1]
+    ro = rankdata(uo).astype(np.float32)
+    rj = rankdata(uj).astype(np.float32)
+    ranks = np.zeros((n, n), np.float32)
+    ranks[iu0, iu1] = ro
+    ranks = ranks + ranks.T
+    zj = (rj - rj.mean()) / rj.std()
+    f = np.asarray(fitness_a, dtype=float)
+    jn = np.asarray(strength_b, dtype=float)
+    design = np.c_[np.ones(len(uo)), rankdata(-np.abs(f[iu0] - f[iu1])),
+                   rankdata(-np.abs(jn[iu0] - jn[iu1]))].astype(np.float64)
+    projector = np.linalg.solve(design.T @ design, design.T)
+
+    def resid(y):
+        """``y`` minus its least-squares fit on the design."""
+        y = y.astype(np.float64)
+        return y - design @ (projector @ y)
+
+    ej = resid(rj)
+    ej = (ej - ej.mean()) / ej.std()
+    s1, s2 = so.copy(), sj.copy()
+    np.fill_diagonal(s1, -np.inf)
+    np.fill_diagonal(s2, -np.inf)
+    no = np.argpartition(-s1, k, axis=1)[:, :k]
+    nj = np.argpartition(-s2, k, axis=1)[:, :k]
+    njset = np.zeros((n, n), bool)
+    njset[np.arange(n)[:, None], nj] = True
+    top = int(round(top_fraction * len(uo)))
+    top_o = np.argpartition(-uo, top)[:top]
+    top_j = np.argpartition(-uj, top)[:top]
+
+    def code(a, b):
+        """One integer per unordered pair of positions."""
+        return np.minimum(a, b).astype(np.int64) * n + np.maximum(a, b)
+
+    jcodes = np.sort(code(iu0[top_j], iu1[top_j]))
+    known = np.array([frozenset((genes[a], genes[b])) in known_pairs for a, b in zip(iu0[top_j], iu1[top_j])],
+                     dtype=bool)
+    kcodes = set(code(iu0[top_j], iu1[top_j])[known].tolist())
+    oa, ob = iu0[top_o], iu1[top_o]
+
+    def stats(p):
+        """The five statistics with screen A's gene at position i being p[i]."""
+        pin = np.empty(n, int)
+        pin[p] = np.arange(n)
+        r_ = ranks[p[iu0], p[iu1]]
+        mantel = float(((r_ - r_.mean()) / r_.std() * zj).mean())
+        e = resid(r_)
+        e = (e - e.mean()) / e.std()
+        partial = float((e * ej).mean())
+        overlap = float(njset[np.arange(n)[:, None], pin[no[p]]].sum() / (k * n))
+        both = np.intersect1d(code(pin[oa], pin[ob]), jcodes, assume_unique=False)
+        share = float(np.mean([x in kcodes for x in both.tolist()])) if len(both) else np.nan
+        return mantel, partial, overlap, share, len(both)
+
+    observed = stats(np.arange(n))
+    rng = np.random.default_rng(seed)
+    fitness_bins = np.minimum((f * 10).astype(int), 9)
+    degree_bins = pd.qcut(rankdata(np.asarray(degree, dtype=float), method="ordinal"), 10, labels=False)
+    strength_bins = pd.qcut(rankdata(jn, method="ordinal"), 10, labels=False)
+    rows = [dict(statistic=name, group="real", value=observed[j]) for j, name in enumerate(_CROSS_STATISTICS)]
+    draws = []
+    for group, make in (("control: shuffled gene labels", lambda: rng.permutation(n)),
+                        ("control: fitness-stratified shuffle", lambda: stratified_permutation(fitness_bins, rng)),
+                        ("control: STRING-degree-stratified shuffle",
+                         lambda: stratified_permutation(degree_bins, rng)),
+                        ("control: JUMP-strength-stratified shuffle",
+                         lambda: stratified_permutation(strength_bins, rng))):
+        values = np.array([stats(make()) for _ in range(int(n_perm))], dtype=float)
+        for j, name in enumerate(_CROSS_STATISTICS):
+            v = values[:, j]
+            v = v[np.isfinite(v)]
+            if not len(v):
+                rows.append(dict(statistic=name, group=group, value=np.nan, n_perm=0))
+                continue
+            rows.append(dict(statistic=name, group=group, value=float(v.mean()),
+                             ci_lo=float(np.quantile(v, 0.025)), ci_hi=float(np.quantile(v, 0.975)),
+                             null_max=float(v.max()), n_perm=len(v),
+                             p_perm=float((1 + (v >= observed[j]).sum()) / (1 + len(v)))))
+        draws.append(pd.DataFrame(values, columns=["mantel", "partial", "overlap10", "string_frac_topboth",
+                                                   "n_topboth"]).assign(group=group))
+    return pd.DataFrame(rows), pd.concat(draws, ignore_index=True)
+
+
+def cross_screen_pairs(sims_a, sims_b, genes, *, top_fraction: float = 0.01, nt_threshold: float = -np.inf,
+                       string_scores: Optional[Dict[frozenset, float]] = None, biogrid=(), corum=(),
+                       flagged=(), exclude: Optional[str] = CROSS_SCREEN_EXCLUDE,
+                       fitness: Optional[pd.Series] = None) -> pd.DataFrame:
+    """Gene pairs in the top ``top_fraction`` of both screens, annotated.
+
+    :param sims_a: screen A's similarities.
+    :param sims_b: screen B's (absolute values for an overexpression screen).
+    :param genes: the gene names in matrix order.
+    :param top_fraction: each screen's quantile cut is ``1 - top_fraction``.
+    :param nt_threshold: screen B's 99th percentile of gene-to-control
+        similarity; a pair above it is distinguishable from controls.
+    :param string_scores: ``{frozenset pair: combined score}``.
+    :param biogrid: known physical pairs, as frozensets.
+    :param corum: CORUM pairs, as frozensets.
+    :param flagged: genes whose guides are flagged.
+    :param exclude: a regular expression of genes such as ribosomal ones.
+    :param fitness: screen A's fitness percentile by gene.
+    :returns: one row per pair, most similar in screen A first, with
+        ``known`` (STRING >= 0.4, BioGRID or CORUM) and ``new_clean`` (none
+        of those, no flag, no excluded gene, not both in the lowest fitness
+        decile, above the control threshold, no gene in more than ten pairs).
+    """
+    import re
+
+    genes = np.asarray(genes)
+    upper = np.triu_indices(len(genes), 1)
+    uo, uj = np.asarray(sims_a)[upper], np.asarray(sims_b)[upper]
+    keep = (uo >= np.quantile(uo, 1 - top_fraction)) & (uj >= np.quantile(uj, 1 - top_fraction))
+    df = pd.DataFrame(dict(gene_a=genes[upper[0][keep]], gene_b=genes[upper[1][keep]], ops_cos=uo[keep],
+                           jump_cos=uj[keep]))
+    pairs = [frozenset(p) for p in zip(df.gene_a, df.gene_b)]
+    pattern = re.compile(exclude) if exclude else None
+    flagged = set(flagged)
+    fitness = pd.Series(dtype=float) if fitness is None else fitness
+    df["jump_cos_above_nt99"] = df.jump_cos > nt_threshold
+    df["string_v12"] = [(string_scores or {}).get(p, 0) / 1000 for p in pairs]
+    df["biogrid_physical"] = [p in biogrid for p in pairs]
+    df["corum"] = [p in corum for p in pairs]
+    df["known"] = (df.string_v12 >= 0.4) | df.biogrid_physical | df.corum
+    df["guide_flag"] = [x in flagged or y in flagged for x, y in zip(df.gene_a, df.gene_b)]
+    df["ribo_or_tubulin"] = [bool(pattern and (pattern.match(x) or pattern.match(y)))
+                             for x, y in zip(df.gene_a, df.gene_b)]
+    df["fitness_a"] = fitness.reindex(df.gene_a).to_numpy()
+    df["fitness_b"] = fitness.reindex(df.gene_b).to_numpy()
+    df["both_essential_decile"] = (df.fitness_a < 0.1) & (df.fitness_b < 0.1)
+    degree = pd.concat([df.gene_a, df.gene_b]).value_counts()
+    df["hub_max_degree"] = [max(degree[x], degree[y]) for x, y in zip(df.gene_a, df.gene_b)]
+    df["new_clean"] = (~df.known & ~df.guide_flag & ~df.ribo_or_tubulin & ~df.both_essential_decile
+                       & df.jump_cos_above_nt99 & (df.hub_max_degree <= 10))
+    return df.sort_values("ops_cos", ascending=False)
+
+
+class _Representations:
+    """Every screen-B modality's genes, controls and null pools for named-pair tests."""
+
+    def __init__(self, genes: Dict[str, pd.DataFrame], controls: Dict[str, pd.DataFrame],
+                 fitness: Optional[pd.Series] = None, compounds: Optional[pd.DataFrame] = None,
+                 compound_targets: Optional[pd.Series] = None, compound_controls: Optional[pd.DataFrame] = None):
+        """Index the modalities.
+
+        :param genes: ``{modality: genes x features}``.
+        :param controls: ``{modality: control pseudo-profiles x features}``.
+        :param fitness: screen A's fitness percentile by gene.
+        :param compounds: compounds x features; a compound represents each
+            gene of its ``|``-separated target list when it has at most five.
+        :param compound_targets: the target list of every compound.
+        :param compound_controls: control pseudo-profiles of the compounds.
+        """
+        self.src = {("G", m): g for m, g in genes.items()}
+        self.src.update({("NT", m): x for m, x in controls.items()})
+        self.compound_targets = None
+        if compounds is not None:
+            self.src[("G", "compound")], self.src[("NT", "compound")] = compounds, compound_controls
+            self.compound_targets = compound_targets
+        self.genes = genes
+        norms = {m: pd.Series(np.linalg.norm(g.to_numpy(), axis=1), index=g.index) for m, g in genes.items()}
+        self.strength = {m: pd.Series(pd.qcut(v.rank(method="first"), 10, labels=False), index=v.index)
+                         for m, v in norms.items()}
+        self.fitness = (fitness * 10).astype(int).clip(0, 9) if fitness is not None else pd.Series(dtype=int)
+        self._unit, self._pool = {}, {}
+
+    def common(self, ma: str, mb: str) -> List[str]:
+        """Features two modalities are compared on: all within one, at least 20 shared named ones across."""
+        ca, cb = self.src[("G", ma)].columns, self.src[("G", mb)].columns
+        if ma == mb:
+            return list(ca)
+        if str(ca[0]).startswith("X_") or str(cb[0]).startswith("X_"):
+            return []
+        shared = list(ca.intersection(cb))
+        return shared if len(shared) >= 20 else []
+
+    def unit(self, source: str, m: str, partner: str) -> Optional[np.ndarray]:
+        """Unit rows of one table on the features shared with ``partner``."""
+        key = (source, m, partner)
+        if key not in self._unit:
+            columns = self.common(m, partner)
+            self._unit[key] = _unit_rows(self.src[(source, m)][columns].to_numpy(float)) if columns else None
+        return self._unit[key]
+
+    def reps(self, gene: str) -> List[Tuple[str, str]]:
+        """``(modality, gene)`` for every modality that profiled ``gene``."""
+        out = [(m, gene) for m, g in self.genes.items() if gene in g.index]
+        if self.compound_targets is not None:
+            for compound, targets in self.compound_targets.items():
+                listed = str(targets).split("|")
+                if gene in listed and len(listed) <= 5:
+                    out.append(("compound", compound))
+        return out
+
+    def pool(self, m: str, gene: str, kind: str) -> pd.Index:
+        """The genes a null draws from: strength- or fitness-matched, or all."""
+        key = (m, kind, gene if kind in ("strength", "fitness") else None)
+        if key not in self._pool:
+            index = self.src[("G", m)].index
+            if m != "compound" and kind == "strength":
+                chosen = self.strength[m].index[self.strength[m] == self.strength[m].get(gene, 5)]
+            elif m != "compound" and kind == "fitness" and gene in self.fitness.index:
+                chosen = index.intersection(self.fitness.index[self.fitness == self.fitness[gene]])
+            else:
+                chosen = index
+            self._pool[key] = chosen
+        return self._pool[key]
+
+
+def _pair_values(reps: _Representations, query, partner_rows, sources):
+    """Mean similarity of the query's representations to each partner row set."""
+    total, count = None, 0
+    for ma, ia in query:
+        for (mb, ib, rows), source in zip(partner_rows, sources):
+            if ia == ib:
+                continue
+            ua, ub = reps.unit("G", ma, mb), reps.unit(source, mb, ma)
+            if ua is None or ub is None:
+                continue
+            v = ub[rows] @ ua[reps.src[("G", ma)].index.get_loc(ia)]
+            if ma != mb and "orf" in (ma, mb):
+                v = np.abs(v)
+            total = v if total is None else total + v
+            count += 1
+    return (total / count if count else None), count
+
+
+def named_pair_support(reps: _Representations, gene_a: Sequence[str], partners: Sequence[str], rng, *,
+                       n: int = 9999, max_partner_reps: int = 60) -> Dict[str, Any]:
+    """Is a named gene's similarity to its partners above four nulls?
+
+    The observed value is the mean cosine between the representations of
+    ``gene_a`` and of the partners (absolute across an overexpression
+    modality). Each null replaces every partner by ``n`` draws: control
+    pseudo-profiles, random genes, genes of the same profile-strength
+    decile and genes of the same screen-A fitness decile, none of them a
+    named gene. ``p = (1 + draws >= observed) / (1 + n)``.
+
+    :param reps: the representations (:class:`_Representations`).
+    :param gene_a: the query gene or genes.
+    :param partners: the partner genes.
+    :param rng: a numpy generator, consumed partner by partner per null.
+    :param n: draws per null.
+    :param max_partner_reps: partner representations used at most.
+    :returns: ``observed``, ``n_rep_pairs`` and ``<null>_null_p95`` and
+        ``p_<null>`` for ``nt``, ``random``, ``strength`` and ``fitness``.
+    """
+    query = [x for g in gene_a for x in reps.reps(g)]
+    targets = [x for g in partners for x in reps.reps(g)][:max_partner_reps]
+    exclude = list(set(gene_a) | set(partners))
+    rows = [(m, i, np.array([reps.src[("G", m)].index.get_loc(i)])) for m, i in targets]
+    observed, pairs = _pair_values(reps, query, rows, ["G"] * len(targets))
+    if observed is None:
+        return dict(observed=np.nan, n_rep_pairs=0)
+    observed = float(observed[0])
+    out = dict(observed=observed, n_rep_pairs=pairs)
+    for kind in ("nt", "random", "strength", "fitness"):
+        drawn, sources = [], []
+        for m, i in targets:
+            if kind == "nt":
+                drawn.append((m, "nt", rng.integers(len(reps.src[("NT", m)]), size=n)))
+                sources.append("NT")
+            else:
+                pool = reps.pool(m, i, kind).difference(exclude)
+                pick = pool[rng.integers(len(pool), size=n)]
+                drawn.append((m, "rand", reps.src[("G", m)].index.get_indexer(pick)))
+                sources.append("G")
+        v, _ = _pair_values(reps, query, drawn, sources)
+        out[f"{kind}_null_p95"] = float(np.quantile(v, 0.95))
+        out[f"p_{kind}"] = float((1 + (v >= observed).sum()) / (1 + n))
+    return out
+
+
+def _gene_table(source, gene_key: str = "gene") -> pd.DataFrame:
+    """A gene-level profile table indexed by gene, read when given as a path."""
+    from .tabular import read_table
+
+    table = read_table(source, canonicalise=False, report=None) if isinstance(source, str) else source
+    return table.set_index(gene_key) if gene_key in table.columns else table
+
+
+def _screen_a(table: pd.DataFrame) -> Tuple[pd.DataFrame, pd.Series]:
+    """Screen A's gene profiles and fitness percentile.
+
+    Control rows (``NTpseudo*``, ``nontargeting``) are dropped, features
+    present in more than 99 % of genes are kept with gaps set to 0, and the
+    fitness is the percentile rank of the gene's cell count.
+    """
+    features = [c for c in table.columns if c not in ("n_guides", "n_cells", "guide")
+                and pd.api.types.is_numeric_dtype(table[c])]
+    names = table.index.astype(str)
+    genes = table.loc[~(names.str.startswith("NTpseudo") | (names == "nontargeting")), features].astype(float)
+    genes = genes.replace([np.inf, -np.inf], np.nan)
+    genes = genes[genes.columns[genes.notna().mean() > 0.99]].fillna(0.0)
+    return genes, table.loc[genes.index, "n_cells"].astype(float).rank(pct=True)
+
+
+def _pair_set(source) -> set:
+    """Unordered pairs of the first two columns of a pair table."""
+    from .tabular import read_table
+
+    if not source:
+        return set()
+    table = read_table(source, canonicalise=False, report=None)
+    a, b = table.columns[:2]
+    return set(map(frozenset, zip(table[a], table[b])))
+
+
+def cross_screen_similarity(profiles_a, profiles_b, settings: Optional[Dict[str, Any]] = None
+                            ) -> Dict[str, Any]:
+    """Compare the gene-gene similarity of the same genes in two screens.
+
+    Typically an optical pooled screen (A) and the JUMP consensus gene
+    profiles (B). For each ``cross_screen_generic_axes`` choice the genes
+    both screens profiled, less the guide-flagged ones and those matching
+    ``cross_screen_exclude``, are compared by :func:`cross_screen_concordance`
+    on the first (or ``cross_screen_modality``) modality of B; every
+    modality's top pairs in both screens are listed by
+    :func:`cross_screen_pairs` (absolute similarity for ``orf``); and each
+    entry of ``cross_screen_pairs`` is tested by :func:`named_pair_support`
+    with one ``default_rng(cross_screen_pair_seed)`` taken in list order.
+
+    :param profiles_a: screen A's gene table (``gene``, ``n_cells`` and
+        features, control rows allowed), or its path.
+    :param profiles_b: screen B's gene table or path, or ``{modality: table
+        or path}``.
+    :param settings: :data:`CROSS_SCREEN_DEFAULTS` keys. ``cross_screen_nt_b``
+        gives B's control pseudo-profiles in the same shape;
+        ``cross_screen_string`` (STRING pairs with ``combined_score``),
+        ``cross_screen_biogrid`` and ``cross_screen_corum`` are pair tables;
+        ``cross_screen_flagged`` a table with ``gene`` and
+        ``specificity_flag``; ``cross_screen_pairs`` a list of
+        ``{"item", "gene_a", "partners"}`` (names or lists of names);
+        ``cross_screen_compounds``, ``cross_screen_compound_targets`` (a
+        ``target_list`` column) and ``cross_screen_compound_nt`` add
+        compounds as representations of their target genes.
+    :returns: ``{"concordance", "draws", "pairs", "pairs_summary",
+        "named_pairs", "record"}`` as tables, and the inputs' md5 in
+        ``record``.
+    :raises ValueError: for a metric other than cosine or an unknown
+        modality.
+    """
+    import os
+    import re
+
+    from .ops_reference import file_md5
+    from .tabular import read_table
+
+    options = {**CROSS_SCREEN_DEFAULTS, **(settings or {})}
+    if options["cross_screen_metric"] != "cosine":
+        raise ValueError(f"cross_screen_metric must be 'cosine'; got {options['cross_screen_metric']!r}")
+    key = options["cross_screen_gene_key"]
+    a, fitness = _screen_a(_gene_table(profiles_a, key))
+    b = {m: _gene_table(t, key) for m, t in (profiles_b.items() if isinstance(profiles_b, dict)
+                                             else [("crispr", profiles_b)])}
+    nt_source = {} if options["cross_screen_nt_b"] is None else options["cross_screen_nt_b"]
+    nt = {m: _gene_table(t, key) for m, t in (nt_source.items() if isinstance(nt_source, dict)
+                                              else [(next(iter(b)), nt_source)])}
+    modality = options["cross_screen_modality"] or next(iter(b))
+    if modality not in b:
+        raise ValueError(f"cross_screen_modality {modality!r} is not one of {list(b)}")
+    string = (read_table(options["cross_screen_string"], canonicalise=False, report=None)
+              if options["cross_screen_string"] else pd.DataFrame(columns=["a", "b", "combined_score"]))
+    scores = {frozenset(k): v for k, v in zip(zip(string.a, string.b), string.combined_score)}
+    known = set(map(frozenset, zip(string.a[string.combined_score >= 700], string.b[string.combined_score >= 700])))
+    degree = pd.concat([string.a, string.b]).value_counts()
+    flagged = set()
+    if options["cross_screen_flagged"]:
+        table = read_table(options["cross_screen_flagged"], canonicalise=False, report=None)
+        flagged = set(table.gene[table.specificity_flag.astype(bool)])
+    pattern = re.compile(options["cross_screen_exclude"]) if options["cross_screen_exclude"] else None
+    biogrid, corum = _pair_set(options["cross_screen_biogrid"]), _pair_set(options["cross_screen_corum"])
+    top = float(options["cross_screen_top_pairs"])
+    concordance, draws, pairs, summary = [], [], [], []
+    for axes in [bool(x) for x in options["cross_screen_generic_axes"]]:
+        oa, ga = _generic_axes_removed(a, fitness, b[modality]) if axes else (a, b[modality])
+        genes = [g for g in sorted(set(b[modality].index) & set(a.index))
+                 if g not in flagged and not (pattern and pattern.match(g))]
+        so = _cross_cosine(oa.loc[genes].to_numpy()).astype(np.float32)
+        sj = _cross_cosine(ga.loc[genes].to_numpy()).astype(np.float32)
+        rows, null = cross_screen_concordance(
+            so, sj, fitness.loc[genes].to_numpy(), np.linalg.norm(ga.loc[genes].to_numpy(), axis=1),
+            degree.reindex(genes).fillna(0).to_numpy(), known, genes,
+            n_perm=int(options["cross_screen_permutations"]), seed=int(options["cross_screen_seed"]),
+            top_fraction=top)
+        label = dict(modality=modality, generic_axes_removed=axes, n_genes=len(genes))
+        concordance.append(rows.assign(**label))
+        draws.append(null.assign(**label))
+        for m, table in b.items():
+            oa, ga = _generic_axes_removed(a, fitness, table) if axes else (a, table)
+            genes = sorted(set(table.index) & set(a.index))
+            so = _cross_cosine(oa.loc[genes].to_numpy())
+            sj = _cross_cosine(ga.loc[genes].to_numpy())
+            if m == "orf":
+                sj = np.abs(sj)
+            threshold = -np.inf
+            if not axes and m in nt:
+                controls = _cross_cosine(ga.loc[genes].to_numpy(), nt[m].to_numpy())
+                threshold = float(np.quantile(np.abs(controls) if m == "orf" else controls, 0.99))
+            found = cross_screen_pairs(so, sj, genes, top_fraction=top, nt_threshold=threshold,
+                                       string_scores=scores, biogrid=biogrid, corum=corum, flagged=flagged,
+                                       exclude=options["cross_screen_exclude"], fitness=fitness)
+            pairs.append(found.assign(modality=m, generic_axes_removed=axes))
+            n_pairs = len(genes) * (len(genes) - 1) // 2
+            summary.append(dict(modality=m, generic_axes_removed=axes, n_genes=len(genes), n_pairs_total=n_pairs,
+                                top_fraction=top, n_top_both=len(found), expected_if_independent=n_pairs * top * top,
+                                n_known=int(found.known.sum()), n_guide_flagged=int(found.guide_flag.sum()),
+                                n_ribo_tub=int(found.ribo_or_tubulin.sum()),
+                                n_both_essential=int(found.both_essential_decile.sum()),
+                                n_new_clean=int(found.new_clean.sum()), jump_nt99=threshold))
+    named = []
+    if options["cross_screen_pairs"]:
+        compounds = targets = compound_nt = None
+        if options["cross_screen_compounds"] is not None:
+            compounds = _gene_table(options["cross_screen_compounds"], "compound")
+            targets = _gene_table(options["cross_screen_compound_targets"], "compound").target_list
+            compound_nt = _gene_table(options["cross_screen_compound_nt"], "compound")
+        reps = _Representations(b, nt, fitness=fitness, compounds=compounds, compound_targets=targets,
+                                compound_controls=compound_nt)
+        rng = np.random.default_rng(int(options["cross_screen_pair_seed"]))
+        for entry in options["cross_screen_pairs"]:
+            gene_a = [entry["gene_a"]] if isinstance(entry["gene_a"], str) else list(entry["gene_a"])
+            partners = [entry["partners"]] if isinstance(entry["partners"], str) else list(entry["partners"])
+            query = [x for g in gene_a for x in reps.reps(g)]
+            result = named_pair_support(reps, gene_a, partners, rng, n=int(options["cross_screen_pair_draws"]))
+            named.append(dict(item=entry.get("item", f"{'+'.join(gene_a)} vs {len(partners)} partners"),
+                              representations=";".join(f"{m}:{i}" for m, i in query),
+                              n_partner_reps=sum(len(reps.reps(g)) for g in partners), **result))
+    record = {k: (file_md5(v) if isinstance(v, str) and os.path.isfile(v) else None)
+              for k, v in (("profiles_a", profiles_a), ("string", options["cross_screen_string"]),
+                           ("biogrid", options["cross_screen_biogrid"]), ("corum", options["cross_screen_corum"]))}
+    return {"concordance": pd.concat(concordance, ignore_index=True), "draws": pd.concat(draws, ignore_index=True),
+            "pairs": pd.concat(pairs, ignore_index=True), "pairs_summary": pd.DataFrame(summary),
+            "named_pairs": pd.DataFrame(named), "record": record}
+
+
+def write_cross_screen(result: Dict[str, Any], folder: str) -> Dict[str, str]:
+    """Write a :func:`cross_screen_similarity` result.
+
+    :param result: its output.
+    :param folder: e.g. ``results/cross_screen``.
+    :returns: the paths of ``summary.json``, ``concordance.csv``,
+        ``null_draws.csv.gz``, ``pairs.csv``, ``pairs_summary.csv`` and
+        ``named_pairs.csv``.
+    """
+    import json
+    import os
+
+    from .tabular import write_table
+
+    os.makedirs(folder, exist_ok=True)
+    out = {}
+    for name, key in (("concordance.csv", "concordance"), ("null_draws.csv.gz", "draws"), ("pairs.csv", "pairs"),
+                      ("pairs_summary.csv", "pairs_summary"), ("named_pairs.csv", "named_pairs")):
+        out[name] = write_table(result[key], os.path.join(folder, name), canonicalise=False)
+    real = result["concordance"]
+    summary = {"real": real[real.group == "real"].to_dict("records"),
+               "controls": real[real.group != "real"].to_dict("records"), "inputs_md5": result["record"]}
+    out["summary.json"] = os.path.join(folder, "summary.json")
+    with open(out["summary.json"], "w", encoding="utf-8") as handle:
+        json.dump(summary, handle, indent=1, default=float)
+    return out
+
+
 def _phenotypic_activity(frame: pd.DataFrame, features: Sequence[str],
                          group_columns: Sequence[str], negative: pd.Series, *,
                          similarity: str = "cosine",
