@@ -1,0 +1,29 @@
+OPS CELL-STATE STRATIFIED PROFILES AND THE PER-GENE MITOTIC INDEX TEST
+=====================================================================
+
+Lifecycle: future
+Status: DONE 2026-11-10 (alpha, under ALPHA_FEATURES[914]) — ops_profile_cell_state runs the whole profile recipe of the profile phase (spacr.ops_tvn.profile_cell_tables) once per cell state: 'interphase_rule' (the stored DNA rule, as before), 'interphase_classifier' and 'mitotic_classifier' (the trained classifier of ops_mitotic_model, applied to each whole well before rows are dropped) or 'all', writing genes_<state>.parquet, guides_<state>.parquet and, with ops_profile_weighting and ops_guide_efficacy, rows_<state>.npz (Z/|Z| + M/|M|). ops_profile_gene_universe keeps and orders the genes before the weighting. ops_mitotic_index_test calls every genotyped cell with the classifier and spacr.ops_mitotic.mitotic_index_table tests each gene's mitotic share against the pooled non-targeting rate (exact binomial, BH), scores the non-targeting guides the same way as the control, and with ops_mitotic_index_reference (published_mitotic_index) reports Spearman rho with a 200-shuffle control. spacr/ops_tvn.py, spacr/ops_mitotic.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_cell_state_profiles_914.py.
+Requested: maintainer via paper session, 2026-11-10.
+Owner: lane L (paper items 2026-11-10).
+Source: ops_stats_ideas/scripts/a1_calls.py, a1_recipe.py, a1_rows.py, a1_mitotic_index.py.
+Related: 856, 879, 887, 890, 907.
+
+SETTINGS
+ops_profile_cell_state, ops_profile_gene_universe, ops_mitotic_index_test, ops_mitotic_index_min_cells,
+ops_mitotic_index_reference; the existing ops_mitotic_model (the spec's ops_mitotic_classifier_path).
+
+RESULT
+Mitotic index on plate A (calls of the 856 classifier, 5,049 genes, 250 control guides): per-gene and
+control-guide tables and the summary (183 genes at q < 0.05, rho 0.472 vs Funk, shuffled p95 0.028) identical to
+the reference a1 tables bit for bit.
+Mitotic-classifier state on plate A (settings run: recipe lof 1 / knn / brieflow PCA / gene / barcode, TVN
+epsilon 0, contrastive_wiener + jacks_blend, gene universe universe_full.json), against a1_recipe.py + a1_rows.py:
+the same 168,854 aligned cells (per-well LOF removals identical), the same 5,086 genes in the same order with the
+same cell counts, and rows_mitotic_classifier.npz with the same names and shape as arms/mit_clf.npz; values within
+2.1e-3 (row cosines within 1.7e-3). Not bit-identical: the reference runs Brieflow's own aggregate/align code, and
+the float32 PCA/TVN products differ at the 1e-3 level as item 879 measured for the interphase profile.
+
+DELIBERATELY NOT DONE
+- The interphase-classifier state was not rerun on all 5.3 M plate A cells here (CPU hours); the synthetic test
+  covers it and the mitotic state checks the shared code path.
+- The spec's ops_mitotic_classifier_path is the existing ops_mitotic_model; ops_mitotic_source is unchanged.

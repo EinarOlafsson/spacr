@@ -8917,6 +8917,13 @@ ALPHA_FEATURES = {
     907: {
         'settings': ('ops_profile_weighting',),
     },
+    914: {
+        'settings': ('ops_profile_cell_state',
+                     'ops_profile_gene_universe',
+                     'ops_mitotic_index_test',
+                     'ops_mitotic_index_min_cells',
+                     'ops_mitotic_index_reference'),
+    },
     913: {
         'settings': ('ops_scoring_inputs',
                      'ops_scoring_genes',

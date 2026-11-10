@@ -842,12 +842,55 @@ def _knn_impute(features: pd.DataFrame, batch_size: int = 1000, sample_size: int
     return features
 
 
-def _profile_well(path: str, plate: str, well: str, features: Sequence[str], recipe: Mapping[str, Any],
-                  columns: Optional[List[str]], control_prefix: str
-                  ) -> Tuple[pd.DataFrame, np.ndarray, List[str]]:
-    """One well's interphase cells, filtered and imputed, ready for the PCA.
+#: The cell states a profile can be built from (item 914), the first being
+#: what every profile before it used: interphase by the stored DNA rule.
+CELL_STATES = ("interphase_rule", "interphase_classifier", "mitotic_classifier", "all")
 
-    Mitotic cells are dropped; non-finite values become gaps; columns with
+
+def cell_states(value: Any) -> List[str]:
+    """The cell states ``ops_profile_cell_state`` asks for, checked.
+
+    :param value: one state, a comma-separated string or a list; empty is
+        ``'interphase_rule'``.
+    :returns: the states in the order given.
+    :raises ValueError: for an unknown state.
+    """
+    if value is None or (isinstance(value, str) and not value.strip()):
+        return [CELL_STATES[0]]
+    states = [v.strip() for v in value.split(",")] if isinstance(value, str) else [str(v).strip() for v in value]
+    unknown = [v for v in states if v not in CELL_STATES]
+    if unknown or not states:
+        raise ValueError(f"ops_profile_cell_state must name states of {list(CELL_STATES)}; got {unknown or value}")
+    return states
+
+
+def _state_keep(cells: pd.DataFrame, state: str, classifier: Optional[Mapping[str, Any]]) -> np.ndarray:
+    """Which cells of one whole well belong to ``state``.
+
+    The classifier is applied to the whole well before any row is dropped,
+    because it normalises each feature by the well (robust z).
+    """
+    if state == "interphase_rule":
+        return ~cells["mitotic"].to_numpy(bool)
+    if state == "all":
+        return np.ones(len(cells), bool)
+    if classifier is None:
+        raise ValueError(f"cell state {state} needs ops_mitotic_model, the trained mitotic classifier")
+    from .ops_mitotic import predict_mitotic
+
+    called = predict_mitotic(classifier, cells, probability=True).to_numpy() >= float(classifier["threshold"])
+    return called if state == "mitotic_classifier" else ~called
+
+
+def _profile_well(path: str, plate: str, well: str, features: Sequence[str], recipe: Mapping[str, Any],
+                  columns: Optional[List[str]], control_prefix: str, state: str = "interphase_rule",
+                  classifier: Optional[Mapping[str, Any]] = None
+                  ) -> Tuple[pd.DataFrame, np.ndarray, List[str]]:
+    """One well's cells of one state, filtered and imputed, ready for the PCA.
+
+    Cells outside ``state`` are dropped (by default the mitotic cells of
+    the stored DNA rule; a classifier state calls every cell of the well
+    with ``classifier`` first); non-finite values become gaps; columns with
     5 % or more gaps and cells with 1 % or more are dropped (Brieflow's
     ``missing_values_filter``); remaining gaps are imputed; with ``lof``
     the outlier filter runs; the columns are aligned to the first well's.
@@ -858,9 +901,15 @@ def _profile_well(path: str, plate: str, well: str, features: Sequence[str], rec
     """
     from .tabular import read_table
 
-    cells = read_table(path, canonicalise=False, report=None,
-                       columns=["well", "sgRNA", "gene", "mitotic"] + list(features))
-    cells = cells[~cells.mitotic].drop(columns="mitotic").reset_index(drop=True)
+    wanted = ["well", "sgRNA", "gene", "mitotic"] + list(features)
+    if classifier is not None and state not in ("interphase_rule", "all"):
+        wanted += [c for c in classifier["features"] if c not in wanted]
+        group = classifier.get("normalise_by")
+        if group and group not in wanted:
+            wanted.append(group)
+    cells = read_table(path, canonicalise=False, report=None, columns=wanted)
+    keep = _state_keep(cells, state, classifier)
+    cells = cells[keep][["well", "sgRNA", "gene"] + list(features)].reset_index(drop=True)
     meta = pd.DataFrame({"plate": plate, "well": well, "gene_symbol_0": cells.gene.astype(str),
                          "cell_barcode_0": cells.sgRNA.astype(str)})
     x = cells[list(features)].astype(np.float32).replace([np.inf, -np.inf], np.nan)
@@ -976,7 +1025,8 @@ def _cell_tables(value: Any, plate: str, wells: Optional[Sequence[str]]) -> List
     return out
 
 
-def profile_cell_tables(settings: Mapping[str, Any], report: Optional[Callable[[str], None]] = None
+def profile_cell_tables(settings: Mapping[str, Any], report: Optional[Callable[[str], None]] = None,
+                        state: str = "interphase_rule", classifier: Optional[Mapping[str, Any]] = None
                         ) -> Tuple[pd.DataFrame, pd.DataFrame, Dict[str, Any]]:
     """Gene profiles from stored per-well cell tables, without any image step.
 
@@ -1005,6 +1055,11 @@ def profile_cell_tables(settings: Mapping[str, Any], report: Optional[Callable[[
         ``ops_control_prefix``. Shrinkage and weighting run on every gene
         before the active-gene filter, as in the aggregate phase.
     :param report: called with progress lines.
+    :param state: the cell state profiled (:data:`CELL_STATES`); each
+        state goes through the whole recipe on its own, as Brieflow profiles
+        interphase and mitotic cells.
+    :param classifier: the mitotic classifier bundle the classifier states
+        call cells with (:func:`spacr.ops_mitotic.load_mitotic_classifier`).
     :returns: ``(genes, guides, info)``: ``genes`` has ``gene``,
         ``n_cells`` and ``PC_*`` (``w_*`` once weighted); ``guides`` has
         ``guide``, ``gene``, ``n_cells`` and the same columns; ``info``
@@ -1041,11 +1096,11 @@ def profile_cell_tables(settings: Mapping[str, Any], report: Optional[Callable[[
     for plate, well, path in tables:
         listed = read_table(path, canonicalise=False, report=None, columns=["sgRNA", "gene"])
         control_guides |= set(listed.sgRNA[listed.gene.astype(str).str.startswith(prefix)].astype(str))
-        meta, x, cols = _profile_well(path, plate, well, features, recipe, columns, prefix)
+        meta, x, cols = _profile_well(path, plate, well, features, recipe, columns, prefix, state, classifier)
         columns = columns or cols
         metas.append(meta)
         values.append(x)
-        say(f"profile: {plate} {well}: {len(meta)} interphase cells")
+        say(f"profile: {plate} {well}: {len(meta)} {state} cells")
     timing["load_and_filter_s"] = round(time.time() - started, 1)
     started = time.time()
     embedding, n_components = _profile_embedding(values, metas, recipe)
@@ -1082,6 +1137,16 @@ def profile_cell_tables(settings: Mapping[str, Any], report: Optional[Callable[[
         genes = grouped[pcs].median()
         genes.insert(0, "n_cells", grouped.n_cells.sum())
     genes = genes[genes.n_cells > min_cells].reset_index()
+    universe = settings.get("ops_profile_gene_universe")
+    if universe:
+        listed = (read_table(universe, canonicalise=False, report=None).gene.astype(str).tolist()
+                  if isinstance(universe, str) and not universe.endswith(".json") else
+                  _json_list(universe))
+        have = set(genes.gene)
+        is_control = genes.gene.str.lower().str.startswith((prefix.lower(), "ntpseudo"))
+        order = [g for g in listed if g in have] + list(genes.gene[is_control])
+        genes = genes.set_index("gene").loc[order].reset_index()
+        guides = guides[guides.gene.isin(set(order))].reset_index(drop=True)
     adjusted: Dict[str, Any] = {}
     if shrinkage:
         genes, guides, adjusted["shrinkage"] = _profile_shrink(genes, guides, pcs, prefix, settings)
@@ -1101,6 +1166,16 @@ def profile_cell_tables(settings: Mapping[str, Any], report: Optional[Callable[[
             "features": len(columns), "recipe": recipe, "tvn_whiten_epsilon": epsilon, "runtime": timing,
             **adjusted}
     return genes, guides, info
+
+
+def _json_list(value: Any) -> List[str]:
+    """A list given inline or as the path of a JSON list."""
+    import json
+
+    if isinstance(value, str):
+        with open(value, encoding="utf-8") as handle:
+            value = json.load(handle)
+    return [str(v) for v in value]
 
 
 def _profile_shrink(genes: pd.DataFrame, guides: pd.DataFrame, pcs: Sequence[str], prefix: str,
@@ -1256,40 +1331,135 @@ def run_profile_phases(settings: Mapping[str, Any], phases: Sequence[str] = ("pr
     os.makedirs(folder, exist_ok=True)
     outputs: Dict[str, str] = {}
     info: Dict[str, Any] = {}
-    genes_path, guides_path = os.path.join(folder, "genes.parquet"), os.path.join(folder, "guides.parquet")
+    states = cell_states(settings.get("ops_profile_cell_state"))
+    classifier = None
+    if settings.get("ops_mitotic_model") and (
+            any(s != "interphase_rule" and s != "all" for s in states)
+            or settings.get("ops_mitotic_index_test")):
+        from .ops_mitotic import load_mitotic_classifier
+
+        classifier = load_mitotic_classifier(str(settings["ops_mitotic_model"]))
+    by_state: Dict[str, Any] = {}
     with _pinned_blas(bool(settings.get("ops_deterministic_blas", True))) as pinned:
-        if "profile" in phases:
-            genes, guides, info = profile_cell_tables(settings, report=say)
-            outputs["genes"] = write_table(genes, genes_path, canonicalise=False)
-            outputs["guides"] = write_table(guides, guides_path, canonicalise=False)
-            say(f"profile {run}: {len(genes)} genes, {len(guides)} guides from {info['cells']} cells")
-        if "evaluate" in phases:
-            if not os.path.isfile(genes_path):
-                raise ValueError(f"evaluate needs the profile table {genes_path}; run the profile phase first")
-            started = time.time()
-            genes = read_table(genes_path, canonicalise=False, report=None)
-            guides = read_table(guides_path, canonicalise=False, report=None)
-            genes = genes[genes.n_cells > int(settings["ops_profile_min_cells"])]
-            columns = [c for c in genes.columns if c.startswith(("PC_", "w_"))]
-            names = genes.gene.to_numpy()
-            pcs = ops_reference.embed_gene_profiles(genes[columns].to_numpy(float))
-            fitness = _profile_covariates(settings, guides)
-            reference_dir = settings.get("ops_reference_dir")
-            metrics, per_gene = ops_reference.evaluate_gene_profiles(
-                names, pcs, fitness, reference_dir, settings, arm=run,
-                null_cache=os.path.join(str(settings["dst_root"]), "ops_profile", "null_cache"))
-            extra = ops_reference.specificity_metrics(names, pcs, fitness, reference_dir, settings, arm=run)
-            for name, table in (("metrics.csv", metrics), ("metrics.extra.csv", extra),
-                                ("per_gene.csv.gz", per_gene)):
-                outputs[name] = write_table(table, os.path.join(folder, name), canonicalise=False)
-            info.setdefault("runtime", {})["metrics_s"] = round(time.time() - started, 1)
-            info["references"] = ops_reference.reference_record(
-                sorted({r for r in per_gene.reference.unique()}), reference_dir)
-            say(f"evaluate {run}: {int(metrics.genes.iloc[0])} genes scored")
+        if settings.get("ops_mitotic_index_test") and "profile" in phases:
+            outputs.update(_mitotic_index_outputs(settings, classifier, folder, say))
+        for state in states:
+            suffix = "" if states == ["interphase_rule"] else f"_{state}"
+            info = _profile_state(settings, phases, state, classifier, folder, suffix, run, outputs, say)
+            by_state[state] = info
+    info = by_state[states[0]] if len(states) == 1 else {"states": by_state}
     info["blas_threads"] = pinned
-    keys = sorted(k for k in settings if k.startswith(("ops_profile_", "ops_eval_", "ops_reference_"))
+    extra = (("ops_mitotic_", "ops_guide_efficacy") if states != ["interphase_rule"]
+             or settings.get("ops_mitotic_index_test") else ())
+    keys = sorted(k for k in settings if k.startswith(("ops_profile_", "ops_eval_", "ops_reference_") + extra)
                   or k in ("ops_tvn_whiten_epsilon", "plate", "ops_control_prefix", "ops_deterministic_blas"))
     record = {"settings": {k: settings[k] for k in keys}, "phases": list(phases), "outputs": outputs, **info}
     with open(os.path.join(folder, "runtime.json"), "w", encoding="utf-8") as handle:
         json.dump(record, handle, indent=1, default=str)
     return {"folder": folder, "outputs": outputs, "info": info}
+
+
+def _mitotic_index_outputs(settings: Mapping[str, Any], classifier: Optional[Mapping[str, Any]], folder: str,
+                           say: Callable[[str], None]) -> Dict[str, str]:
+    """Call every genotyped cell and test each gene's mitotic index (item 914).
+
+    :returns: the paths of ``mitotic_index_per_gene.csv``,
+        ``mitotic_index_nt_guides.csv`` and ``mitotic_index_summary.json``.
+    """
+    import json
+
+    from .ops_mitotic import mitotic_index_table, predict_mitotic, published_mitotic_index
+    from .tabular import read_table, write_table
+
+    if classifier is None:
+        raise ValueError("ops_mitotic_index_test needs ops_mitotic_model, the trained mitotic classifier")
+    prefix = str(settings.get("ops_control_prefix") or "nontargeting")
+    calls = []
+    for _plate, _well, path in _cell_tables(settings.get("ops_profile_cells"), str(settings.get("plate") or ""),
+                                            settings.get("ops_profile_wells")):
+        wanted = ["well", "sgRNA", "gene", "mitotic"] + [c for c in classifier["features"]
+                                                         if c not in ("well", "sgRNA", "gene", "mitotic")]
+        cells = read_table(path, canonicalise=False, report=None, columns=wanted)
+        p = predict_mitotic(classifier, cells, probability=True).to_numpy()
+        calls.append(pd.DataFrame({"sgRNA": cells.sgRNA.astype(str), "gene": cells.gene.astype(str),
+                                   "rule": cells.mitotic.to_numpy(bool),
+                                   "clf": p >= float(classifier["threshold"])}))
+    calls = pd.concat(calls)
+    reference = settings.get("ops_mitotic_index_reference")
+    if reference:
+        reference = published_mitotic_index(read_table(reference, canonicalise=False, report=None))
+    genes, guides, summary = mitotic_index_table(
+        calls, reference=reference if reference is not None and len(reference) else None,
+        min_cells=int(settings.get("ops_mitotic_index_min_cells") or 50), control_prefix=prefix)
+    out = {"mitotic_index_per_gene.csv": write_table(genes.reset_index(), os.path.join(
+               folder, "mitotic_index_per_gene.csv"), canonicalise=False),
+           "mitotic_index_nt_guides.csv": write_table(guides.reset_index(), os.path.join(
+               folder, "mitotic_index_nt_guides.csv"), canonicalise=False)}
+    path = os.path.join(folder, "mitotic_index_summary.json")
+    with open(path, "w", encoding="utf-8") as handle:
+        json.dump(summary, handle, indent=1)
+    out["mitotic_index_summary.json"] = path
+    say(f"mitotic index: {summary['genes_q05']} of {summary['genes']} genes at q < 0.05")
+    return out
+
+
+def _profile_state(settings: Mapping[str, Any], phases: Sequence[str], state: str,
+                   classifier: Optional[Mapping[str, Any]], folder: str, suffix: str, run: str,
+                   outputs: Dict[str, str], say: Callable[[str], None]) -> Dict[str, Any]:
+    """The profile and evaluate phases of one cell state, outputs suffixed by it.
+
+    With ``ops_profile_weighting`` and ``ops_guide_efficacy`` both set, the
+    final rows ``Z/|Z| + M/|M|`` (:func:`spacr.gene_measurement_compare.guide_efficacy_profiles`)
+    are also written as ``rows<suffix>.npz`` (``names``, ``pcs``).
+    """
+    import time
+
+    from . import ops_reference
+    from .tabular import read_table, write_table
+
+    info: Dict[str, Any] = {}
+    genes_path = os.path.join(folder, f"genes{suffix}.parquet")
+    guides_path = os.path.join(folder, f"guides{suffix}.parquet")
+    if "profile" in phases:
+        genes, guides, info = profile_cell_tables(settings, report=say, state=state, classifier=classifier)
+        outputs[f"genes{suffix}"] = write_table(genes, genes_path, canonicalise=False)
+        outputs[f"guides{suffix}"] = write_table(guides, guides_path, canonicalise=False)
+        efficacy = str(settings.get("ops_guide_efficacy") or "").strip().lower() or None
+        if efficacy:
+            if "weighting" not in info:
+                raise ValueError("ops_guide_efficacy runs in the weighted space; set ops_profile_weighting "
+                                 "to contrastive_wiener")
+            from .gene_measurement_compare import guide_efficacy_profiles
+
+            rows, _efficacy = guide_efficacy_profiles(
+                genes, guides, iters=int(settings.get("ops_guide_efficacy_iters") or 20),
+                emax=float(settings.get("ops_guide_efficacy_emax") or 1.0))
+            path = os.path.join(folder, f"rows{suffix}.npz")
+            np.savez(path, names=rows.gene.to_numpy().astype(str),
+                     pcs=rows[[c for c in rows.columns if c.startswith("w_")]].to_numpy(np.float32))
+            outputs[f"rows{suffix}"] = path
+        say(f"profile {run} {state}: {len(genes)} genes, {len(guides)} guides from {info['cells']} cells")
+    if "evaluate" in phases:
+        if not os.path.isfile(genes_path):
+            raise ValueError(f"evaluate needs the profile table {genes_path}; run the profile phase first")
+        started = time.time()
+        genes = read_table(genes_path, canonicalise=False, report=None)
+        guides = read_table(guides_path, canonicalise=False, report=None)
+        genes = genes[genes.n_cells > int(settings["ops_profile_min_cells"])]
+        columns = [c for c in genes.columns if c.startswith(("PC_", "w_"))]
+        names = genes.gene.to_numpy()
+        pcs = ops_reference.embed_gene_profiles(genes[columns].to_numpy(float))
+        fitness = _profile_covariates(settings, guides)
+        reference_dir = settings.get("ops_reference_dir")
+        metrics, per_gene = ops_reference.evaluate_gene_profiles(
+            names, pcs, fitness, reference_dir, settings, arm=run,
+            null_cache=os.path.join(str(settings["dst_root"]), "ops_profile", "null_cache"))
+        extra = ops_reference.specificity_metrics(names, pcs, fitness, reference_dir, settings, arm=run)
+        for name, table in ((f"metrics{suffix}.csv", metrics), (f"metrics{suffix}.extra.csv", extra),
+                            (f"per_gene{suffix}.csv.gz", per_gene)):
+            outputs[name] = write_table(table, os.path.join(folder, name), canonicalise=False)
+        info.setdefault("runtime", {})["metrics_s"] = round(time.time() - started, 1)
+        info["references"] = ops_reference.reference_record(
+            sorted({r for r in per_gene.reference.unique()}), reference_dir)
+        say(f"evaluate {run}: {int(metrics.genes.iloc[0])} genes scored")
+    return info

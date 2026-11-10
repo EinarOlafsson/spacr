@@ -660,6 +660,10 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_scoring_min_complex", "ops_scoring_references",
     "ops_scoring_cluster_jitter", "ops_scoring_cluster_seeds",
     "ops_scoring_workers", "ops_scoring_figures",
+    # Item 914: cell-state profiles and the mitotic index test (2026-11-10).
+    "ops_profile_cell_state", "ops_profile_gene_universe",
+    "ops_mitotic_index_test", "ops_mitotic_index_min_cells",
+    "ops_mitotic_index_reference",
     # `window_length`, the new name for `expected_end` (364, 2026-09-09).
     "window_length",
     # and `min_observations_per_hit`, the new name for `min_n`.

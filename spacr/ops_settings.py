@@ -218,6 +218,11 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_profile_recipe": None,
     "ops_profile_min_cells": 10,
     "ops_profile_active_filter": None,
+    "ops_profile_cell_state": None,
+    "ops_profile_gene_universe": None,
+    "ops_mitotic_index_test": False,
+    "ops_mitotic_index_min_cells": 50,
+    "ops_mitotic_index_reference": None,
     "ops_reference_dir": None,
     "ops_scoring_inputs": None,
     "ops_scoring_genes": None,
@@ -437,6 +442,11 @@ OPS_TYPES: Dict[str, object] = {
     "ops_profile_recipe": (dict, type(None)),
     "ops_profile_min_cells": int,
     "ops_profile_active_filter": (dict, type(None)),
+    "ops_profile_cell_state": (str, list, type(None)),
+    "ops_profile_gene_universe": (str, list, type(None)),
+    "ops_mitotic_index_test": bool,
+    "ops_mitotic_index_min_cells": int,
+    "ops_mitotic_index_reference": (str, type(None)),
     "ops_reference_dir": (str, list, type(None)),
     "ops_scoring_inputs": (dict, type(None)),
     "ops_scoring_genes": (str, list, type(None)),
@@ -595,6 +605,9 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_profile_cells", "ops_profile_wells",
         "ops_profile_run", "ops_profile_recipe",
         "ops_profile_min_cells", "ops_profile_active_filter",
+        "ops_profile_cell_state", "ops_profile_gene_universe",
+        "ops_mitotic_index_test", "ops_mitotic_index_min_cells",
+        "ops_mitotic_index_reference",
         "ops_reference_dir",
         "ops_scoring_inputs", "ops_scoring_genes", "ops_scoring_null_size",
         "ops_scoring_min_complex", "ops_scoring_references",
@@ -840,6 +853,32 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(phase ph_masks), in about a minute per plate. 'exact' divides "
         "every pixel before measuring, so it needs the raw images again. "
         "Default 'none'. Alpha.",
+    "ops_profile_cell_state":
+        "(str, list or None) - Which cells the profile phase profiles. "
+        "'interphase_rule' drops the cells the stored DNA rule calls mitotic, "
+        "as before. 'interphase_classifier' and 'mitotic_classifier' use the "
+        "trained classifier of ops_mitotic_model; 'all' keeps every cell. A "
+        "list runs the whole recipe once per state, writing "
+        "genes_<state>.parquet, guides_<state>.parquet and metrics per state. "
+        "Default None ('interphase_rule'). Alpha.",
+    "ops_profile_gene_universe":
+        "(str, list or None) - Genes kept, in this order, before the profile "
+        "weighting: a table with a gene column, a JSON list or a list. "
+        "Control rows are always kept. Default None (every gene). Alpha.",
+    "ops_mitotic_index_test":
+        "(bool) - In the profile phase, call every genotyped cell with "
+        "ops_mitotic_model and test each gene's share of mitotic cells "
+        "against the pooled non-targeting cells (exact binomial, BH). "
+        "Non-targeting guides are scored the same way as the control. "
+        "Default False. Alpha.",
+    "ops_mitotic_index_min_cells":
+        "(int) - Genes with fewer cells are left out of the agreement with "
+        "the published mitotic index. Default 50. Alpha.",
+    "ops_mitotic_index_reference":
+        "(str or None) - A published gene table with per-guide mitotic and "
+        "interphase cell counts (sgRNA_<k>_mitotic_cells), such as Funk et "
+        "al. 2022's; its per-gene index is compared by Spearman rho with a "
+        "200-shuffle control. Default None. Alpha.",
     "ops_scoring_inputs":
         "(dict or None) - The analyses phase score compares, as {name: "
         "{'genes': gene profile table, 'guides': guide profile table, "
