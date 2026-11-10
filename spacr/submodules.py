@@ -3037,7 +3037,7 @@ def analyze_plaques(settings):
     from .utils import save_settings, download_models
     spacr_path = os.path.join(os.path.dirname(__file__), '__init__.py')
 
-    if str(settings.get('plaque_mode') or 'plaque') in ('figure_score', 'figure_merge'):
+    if str(settings.get('plaque_mode') or 'plaque') in ('figure_score', 'figure_sizes', 'figure_merge'):
         from .plaque_papers import run_figure_scoring
 
         settings = get_analyze_plaque_settings(settings)

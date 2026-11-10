@@ -3977,7 +3977,8 @@ def merge_figure_wells(root, settings=None) -> Dict[str, Any]:
 def run_figure_scoring(settings) -> Dict[str, Any]:
     """The Plaque module's figure scoring and figure merge, from a settings file.
 
-    ``plaque_mode='figure_score'`` runs :func:`score_figure_folder`;
+    ``plaque_mode='figure_score'`` runs :func:`score_figure_folder`,
+    ``'figure_sizes'`` :func:`compare_figure_sizes`, and
     ``'figure_merge'`` runs :func:`merge_figure_wells` on ``src`` and writes
     wells_all.csv, wells_toxo.csv, reported_values_all.csv,
     reported_effects_toxo.csv and merge_counts.json to
@@ -3994,8 +3995,11 @@ def run_figure_scoring(settings) -> Dict[str, Any]:
     mode = str(settings.get('plaque_mode'))
     if mode == 'figure_score':
         return score_figure_folder(settings)
+    if mode == 'figure_sizes':
+        return compare_figure_sizes(settings)
     if mode != 'figure_merge':
-        raise ValueError(f"plaque_mode must be 'figure_score' or 'figure_merge', not {mode!r}")
+        raise ValueError(f"plaque_mode must be 'figure_score', 'figure_sizes' or "
+                         f"'figure_merge', not {mode!r}")
     import pandas as pd
 
     result = merge_figure_wells(settings['src'], settings)
@@ -4007,6 +4011,333 @@ def run_figure_scoring(settings) -> Dict[str, Any]:
         json.dump(result['counts'], handle, indent=1)
     result['folder'] = out
     return result
+
+
+
+FIGURE_SCALES = ('absolute', 'rel_panel_max', 'rel_well_extent', 'rel_reference')
+_SIZE_READOUTS = ('plaque_area', 'plaque_number', 'relative_plaque_size')
+
+
+def plaque_size_readouts(areas, well_box=None) -> Dict[str, Any]:
+    """Absolute and relative plaque sizes of one well.
+
+    :param areas: plaque areas in pixels.
+    :param well_box: the well box ``(x0, y0, x1, y1)``, or None.
+    :returns: ``plaque_count``, ``plaque_mean_area_px2``,
+        ``plaque_median_area_px2``, ``plaque_max_area_px2`` (0 without
+        plaques), ``plaque_max_over_mean`` (NaN without plaques),
+        ``area_rel_well_max`` (each plaque over the largest), and with a box
+        ``well_extent_px2`` (width x height), ``well_extent_px`` (mean of
+        width and height) and ``plaque_area_rel_well_extent``.
+    """
+    areas = np.asarray(list(areas), dtype=float)
+    out = {'plaque_count': int(len(areas)),
+           'plaque_mean_area_px2': float(areas.mean()) if len(areas) else 0.0,
+           'plaque_median_area_px2': float(np.median(areas)) if len(areas) else 0.0,
+           'plaque_max_area_px2': float(areas.max()) if len(areas) else 0.0}
+    out['plaque_max_over_mean'] = (out['plaque_max_area_px2'] / out['plaque_mean_area_px2']
+                                   if len(areas) and out['plaque_mean_area_px2'] else float('nan'))
+    out['area_rel_well_max'] = (areas / areas.max()).tolist() if len(areas) and areas.max() else []
+    if well_box is not None:
+        width, height = well_box[2] - well_box[0], well_box[3] - well_box[1]
+        out['well_extent_px2'] = float(width * height)
+        out['well_extent_px'] = float((width + height) / 2)
+        out['plaque_area_rel_well_extent'] = (out['plaque_mean_area_px2'] / out['well_extent_px2']
+                                              if out['well_extent_px2'] else float('nan'))
+    return out
+
+
+def figure_condition_sizes(gold, segmentation, settings=None) -> pd.DataFrame:
+    """One row per reported condition with the plaque sizes measured in its wells.
+
+    The reported values are the panels of each figure's quantification whose
+    metric is plaque_area, plaque_number or relative_plaque_size. A
+    condition's wells are the boxes whose condition label matches it
+    (:func:`condition_matches`); over several wells the value is their mean
+    (``figure_condition_aggregate='median'`` takes the median), and a well
+    without plaques has area 0. ``figure_size_stat`` picks the per-well mean
+    or median plaque area.
+
+    :param gold: ``{figure: {'boxes': {box: {'strain', 'treatment'}},
+        'quantification': [...]}}``.
+    :param segmentation: ``fn(figure, box) -> {'areas', 'bbox', 'n'} or None``.
+    :param settings: ``figure_condition_aggregate`` and ``figure_size_stat``.
+    :returns: columns figure, pmcid, panel, metric, unit, strain, treatment,
+        is_ref, reported, n_wells, spacr_n, spacr_mean_area_px2,
+        spacr_max_area_px2, well_box_px2 and well_box_px.
+    """
+    import statistics
+
+    import pandas as pd
+
+    settings = settings or {}
+    pool = statistics.median if settings.get('figure_condition_aggregate') == 'median' \
+        else statistics.mean
+    size_key = ('plaque_median_area_px2' if settings.get('figure_size_stat') == 'median'
+                else 'plaque_mean_area_px2')
+    rows = []
+    for figure, record in gold.items():
+        wells = []
+        for box, label in record.get('boxes', {}).items():
+            seg = segmentation(figure, box) if label else None
+            if seg is None:
+                continue
+            readout = plaque_size_readouts(seg.get('areas', []), seg.get('bbox'))
+            wells.append((label['strain'], label.get('treatment'), readout))
+        for panel in record.get('quantification', []):
+            if panel['metric'] not in _SIZE_READOUTS:
+                continue
+            for value in panel['values']:
+                matched = [r for s, t, r in wells if condition_matches(
+                    value['strain'], value['treatment'], s + ' ' + (t or ''), (t or '') + ' ' + s)]
+                row = dict(figure=figure, pmcid=figure.split('__')[0], panel=panel['panel'],
+                           metric=panel['metric'], unit=panel.get('unit'), strain=value['strain'],
+                           treatment=value['treatment'], is_ref=bool(value['is_reference']),
+                           reported=value['value'], n_wells=len(matched))
+                if matched:
+                    row.update(spacr_n=pool([r['plaque_count'] for r in matched]),
+                               spacr_mean_area_px2=pool([r[size_key] for r in matched]),
+                               spacr_max_area_px2=pool([r['plaque_max_area_px2'] for r in matched]),
+                               well_box_px2=pool([r.get('well_extent_px2', np.nan) for r in matched]),
+                               well_box_px=pool([r.get('well_extent_px', np.nan) for r in matched]))
+                rows.append(row)
+    columns = ['figure', 'pmcid', 'panel', 'metric', 'unit', 'strain', 'treatment', 'is_ref',
+               'reported', 'n_wells', 'spacr_n', 'spacr_mean_area_px2', 'spacr_max_area_px2',
+               'well_box_px2', 'well_box_px']
+    return pd.DataFrame(rows, columns=columns)
+
+
+def _panel_relative(table, column):
+    """``column`` over its (pmcid, panel) maximum; NaN when the maximum is 0."""
+    peak = table.groupby(['pmcid', 'panel'])[column].transform('max')
+    return table[column] / peak.where(peak != 0)
+
+
+def figure_size_scales(conditions, reference_rows=None, settings=None) -> pd.DataFrame:
+    """Measured and reported plaque sizes on the four comparison scales.
+
+    ``absolute``: counts only, for readouts whose unit names one of
+    ``figure_absolute_units``. ``rel_panel_max``: each side over the largest
+    value of its figure panel. ``rel_well_extent``: area readouts; spaCR
+    area over the well extent, then over the panel maximum, against the
+    reported value over its panel maximum. ``rel_reference``: log2 of each
+    side's ratio to the reference condition, floored at
+    ``figure_ratio_floor``, taken from the gold rows of
+    :func:`compare_reported`.
+
+    :param conditions: :func:`figure_condition_sizes` rows.
+    :param reference_rows: :func:`compare_reported` rows, or None.
+    :param settings: ``figure_scales``, ``figure_absolute_units`` and
+        ``figure_ratio_floor``.
+    :returns: one row per scale and condition with ``reported_value``,
+        ``spacr_value``, ``readout``, figure, pmcid, panel, strain and
+        treatment.
+    """
+    import math
+
+    import pandas as pd
+
+    settings = settings or {}
+    scales = settings.get('figure_scales') or FIGURE_SCALES
+    scales = [s.strip() for s in scales.split(',')] if isinstance(scales, str) else list(scales)
+    units = settings.get('figure_absolute_units') or ['count']
+    units = [u.strip().lower() for u in (units.split(',') if isinstance(units, str) else units)]
+    floor = float(settings.get('figure_ratio_floor') or 0.02)
+    t = conditions[(conditions['n_wells'] > 0) & conditions['reported'].notna()].copy()
+    t['spacr_value'] = np.where(t['metric'] == 'plaque_number', t['spacr_n'],
+                                t['spacr_mean_area_px2'])
+    area = t['metric'] != 'plaque_number'
+    t['spacr_well'] = np.where(area, t['spacr_value'] / t['well_box_px2'], np.nan)
+    t['rep_rel'] = _panel_relative(t, 'reported')
+    t['sp_rel'] = _panel_relative(t, 'spacr_value')
+    t['sp_wellrel'] = _panel_relative(t, 'spacr_well')
+    keep = ['figure', 'pmcid', 'panel', 'metric', 'strain', 'treatment']
+    out = []
+    unit = t['unit'].fillna('').str.lower()
+    counted = (t['metric'] == 'plaque_number') & unit.apply(lambda u: any(k in u for k in units))
+    for scale, mask, reported, measured in (
+            ('absolute', counted, 'reported', 'spacr_value'),
+            ('rel_panel_max', t['metric'].notna(), 'rep_rel', 'sp_rel'),
+            ('rel_well_extent', area, 'rep_rel', 'sp_wellrel')):
+        if scale in scales and mask.any():
+            part = t.loc[mask]
+            out.append(part[keep].assign(scale=scale, reported_value=part[reported],
+                                         spacr_value=part[measured]))
+    if 'rel_reference' in scales and reference_rows is not None and len(reference_rows):
+        r = reference_rows[reference_rows['labels'] == 'gold']
+        out.append(pd.DataFrame({
+            'figure': r['figure'], 'pmcid': r['figure'].str.split('__').str[0],
+            'panel': r['panel'], 'metric': r['metric'], 'strain': r['strain'],
+            'treatment': r['treatment'], 'scale': 'rel_reference',
+            'reported_value': [math.log2(max(v, floor)) for v in r['reported_ratio']],
+            'spacr_value': [math.log2(max(v, floor)) for v in r['measured_ratio']]}))
+    columns = ['scale'] + keep + ['reported_value', 'spacr_value']
+    table = pd.concat(out, ignore_index=True) if out else pd.DataFrame(columns=columns)
+    table = table[columns].dropna(subset=['reported_value', 'spacr_value'])
+    table['readout'] = table['metric'].map({'plaque_number': 'number', 'plaque_area': 'area',
+                                            'relative_plaque_size': 'relative size'})
+    return table.reset_index(drop=True)
+
+
+def _agreement(x, y):
+    """R2, p, Spearman rho, Lin's concordance and median log2 bias of two value sets."""
+    from scipy import stats
+
+    x, y = np.asarray(x, float), np.asarray(y, float)
+    out = {'n': int(len(x)), 'r2': np.nan, 'p': np.nan, 'spearman': np.nan, 'lin_ccc': np.nan,
+           'median_log2_bias': np.nan}
+    if len(x) < 3:
+        return out
+    r, p = stats.pearsonr(x, y)
+    out.update(r2=float(r ** 2), p=float(p), spearman=float(stats.spearmanr(x, y)[0]))
+    sx, sy = x.var(), y.var()
+    out['lin_ccc'] = float(2 * np.cov(x, y, bias=True)[0, 1] / (sx + sy + (x.mean() - y.mean()) ** 2))
+    positive = (x > 0) & (y > 0)
+    if positive.any():
+        out['median_log2_bias'] = float(np.median(np.log2(y[positive] / x[positive])))
+    return out
+
+
+def figure_size_agreement(scales, settings=None) -> pd.DataFrame:
+    """Agreement of measured with reported sizes per scale, overall and per readout.
+
+    R2 is the squared Pearson r (NaN under 3 points), beside its p,
+    Spearman rho, Lin's concordance and the median log2 bias of spaCR over
+    the paper (positive pairs). Controls: for every relative scale the spaCR
+    values are permuted among the conditions of each panel
+    ``figure_scale_permutations`` times (seed ``figure_scale_seed``), giving
+    the null median and 95th percentile of R2; and the agreement with each
+    panel's maximum-defining conditions left out (``rel_panel_max`` and
+    ``rel_well_extent``).
+
+    :param scales: :func:`figure_size_scales` rows.
+    :param settings: ``figure_scale_permutations`` (1000) and
+        ``figure_scale_seed`` (0).
+    :returns: one row per scale and readout (``'all'`` included) with
+        ``r2``, ``p``, ``n``, ``figures``, ``spearman``, ``lin_ccc``,
+        ``median_log2_bias``, ``null_r2_median``, ``null_r2_p95``,
+        ``r2_without_panel_max`` and ``n_without_panel_max``.
+    """
+    import pandas as pd
+
+    settings = settings or {}
+    permutations = int(settings.get('figure_scale_permutations', 1000) or 0)
+    rng = np.random.default_rng(int(settings.get('figure_scale_seed') or 0))
+    rows = []
+    for scale in [s for s in FIGURE_SCALES if s in set(scales['scale'])]:
+        table = scales[scales['scale'] == scale]
+        for readout in ['all'] + [r for r in ('number', 'area', 'relative size')
+                                  if r in set(table['readout'])]:
+            chosen = table if readout == 'all' else table[table['readout'] == readout]
+            row = {'scale': scale, 'readout': readout,
+                   **_agreement(chosen['reported_value'], chosen['spacr_value']),
+                   'figures': int(chosen['figure'].nunique())}
+            if scale != 'absolute' and permutations and len(chosen) >= 3:
+                groups = [np.nonzero((chosen['pmcid'] + '|' + chosen['panel'].astype(str)
+                                      == key).to_numpy())[0]
+                          for key in pd.unique(chosen['pmcid'] + '|' + chosen['panel'].astype(str))]
+                values = chosen['spacr_value'].to_numpy(float)
+                null = []
+                for _ in range(permutations):
+                    shuffled = values.copy()
+                    for idx in groups:
+                        shuffled[idx] = values[rng.permutation(idx)]
+                    null.append(_agreement(chosen['reported_value'], shuffled)['r2'])
+                row['null_r2_median'] = float(np.nanmedian(null))
+                row['null_r2_p95'] = float(np.nanpercentile(null, 95))
+            if scale in ('rel_panel_max', 'rel_well_extent'):
+                rest = chosen[(chosen['reported_value'] < 1) & (chosen['spacr_value'] < 1)]
+                trimmed = _agreement(rest['reported_value'], rest['spacr_value'])
+                row['r2_without_panel_max'] = trimmed['r2']
+                row['n_without_panel_max'] = trimmed['n']
+            rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def figure_size_figure(scales, agreement):
+    """Four scatter panels of measured against reported plaque size, one per scale.
+
+    :param scales: :func:`figure_size_scales` rows.
+    :param agreement: :func:`figure_size_agreement` rows.
+    :returns: a :class:`matplotlib.figure.Figure`; points coloured by
+        readout at 60% opacity, the identity line dashed, R2 and n in the
+        corner and the permutation null R2 (95th percentile) beside them.
+    """
+    from matplotlib.figure import Figure
+
+    colours = {'number': '#2A9D8F', 'area': '#3A7BD5', 'relative size': '#1F4E79'}
+    titles = {'absolute': 'absolute (counts)', 'rel_panel_max': 'relative to panel maximum',
+              'rel_well_extent': 'relative to well extent', 'rel_reference': 'log2 vs reference'}
+    fig = Figure(figsize=(12, 3.2), dpi=100)
+    axes = fig.subplots(1, 4)
+    for ax, scale in zip(axes, FIGURE_SCALES):
+        table = scales[scales['scale'] == scale]
+        for readout, part in table.groupby('readout'):
+            ax.scatter(part['reported_value'], part['spacr_value'], s=14, alpha=0.6,
+                       color=colours.get(readout, '#1F4E79'), linewidths=0, label=readout)
+        if len(table):
+            lo = float(min(table['reported_value'].min(), table['spacr_value'].min()))
+            hi = float(max(table['reported_value'].max(), table['spacr_value'].max()))
+            ax.plot([lo, hi], [lo, hi], ls='--', lw=0.8, color='#8A94A6')
+        row = agreement[(agreement['scale'] == scale) & (agreement['readout'] == 'all')]
+        if len(row):
+            row = row.iloc[0]
+            text = f"R² {row['r2']:.2f}, n {int(row['n'])}"
+            if np.isfinite(row.get('null_r2_p95', np.nan)):
+                text += f"\nnull p95 {row['null_r2_p95']:.2f}"
+            ax.text(0.04, 0.96, text, transform=ax.transAxes, va='top', fontsize='small')
+        ax.set_title(titles[scale], fontsize='small')
+        ax.set_xlabel('reported')
+        ax.set_ylabel('spaCR')
+    if len(scales):
+        axes[0].legend(fontsize='x-small', frameon=False, loc='lower right')
+    fig.tight_layout()
+    return fig
+
+
+def compare_figure_sizes(settings) -> Dict[str, Any]:
+    """The plaque-size comparison of a figure set, from settings.
+
+    Builds :func:`figure_condition_sizes` from ``figure_condition_labels``
+    and the per-well segmentations of ``figure_segmentation_folder``, the
+    scales (:func:`figure_size_scales`, with the gold rows of
+    :func:`score_figure_folder` for ``rel_reference``) and their agreement,
+    and writes conditions_measured_vs_reported.csv,
+    agreement_by_scale.csv, size_scales.csv and the plaque_size_agreement
+    figure to ``figure_score_folder``.
+
+    :param settings: the figure scoring settings and the size settings.
+    :returns: dict with ``conditions``, ``scales``, ``agreement`` and
+        ``folder``.
+    """
+    import os
+
+    from .plot import save_figure
+    from .tabular import write_table
+
+    gold = _json_file(settings['figure_condition_labels'])
+    seg_dir = settings['figure_segmentation_folder']
+
+    def segmentation(figure, box):
+        """The stored segmentation of one well box, or None."""
+        path = os.path.join(seg_dir, f'{figure}__b{box}.json')
+        return _json_file(path) if os.path.exists(path) else None
+
+    conditions = figure_condition_sizes(gold, segmentation, settings)
+    reference = score_figure_folder(dict(settings, figure_metric='area'))['rows'] \
+        if settings.get('figure_detections') else None
+    scales = figure_size_scales(conditions, reference, settings)
+    agreement = figure_size_agreement(scales, settings)
+    out = settings.get('figure_score_folder') or os.path.join(
+        settings.get('src') or '.', 'results', 'figure_score')
+    os.makedirs(out, exist_ok=True)
+    write_table(conditions, os.path.join(out, 'conditions_measured_vs_reported.csv'),
+                canonicalise=False)
+    write_table(scales, os.path.join(out, 'size_scales.csv'), canonicalise=False)
+    write_table(agreement, os.path.join(out, 'agreement_by_scale.csv'), canonicalise=False)
+    save_figure(figure_size_figure(scales, agreement),
+                os.path.join(out, 'plaque_size_agreement.pdf'), close=True)
+    return {'conditions': conditions, 'scales': scales, 'agreement': agreement, 'folder': out}
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:

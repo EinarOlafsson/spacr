@@ -1799,7 +1799,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Detection Thresholds", (
             "CP_prob", "flow_threshold", "minimum_object_size", "rescale", "resample", "fill_in",
         )),
-        ("Figure Scoring α", ("figure_condition_labels", "figure_model_labels", "figure_detections", "figure_mode_folder", "figure_segmentation_folder", "figure_score_folder", "figure_metric", "compare_permutations", "compare_seed", "figure_low_confidence", "figure_second_look")),
+        ("Figure Scoring α", ("figure_condition_labels", "figure_model_labels", "figure_detections", "figure_mode_folder", "figure_segmentation_folder", "figure_score_folder", "figure_metric", "compare_permutations", "compare_seed", "figure_low_confidence", "figure_second_look", "figure_condition_aggregate", "figure_size_stat", "figure_scales", "figure_absolute_units", "figure_ratio_floor", "figure_scale_permutations", "figure_scale_seed")),
         ("Image Geometry", ("plaque_well_resize", "plaque_well_resize_side",
                             "plaque_well_resize_max_factor", "resize", "target_height",
                             "target_width")),
