@@ -96,6 +96,9 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_aggregate_level": "guides",
     "ops_nt_rows": None,
     "ops_profile_weighting": None,
+    "ops_guide_efficacy": None,
+    "ops_guide_efficacy_iters": 20,
+    "ops_guide_efficacy_emax": 1.0,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -175,6 +178,9 @@ OPS_TYPES: Dict[str, object] = {
     "ops_aggregate_level": str,
     "ops_nt_rows": (str, type(None)),
     "ops_profile_weighting": (str, type(None)),
+    "ops_guide_efficacy": (str, type(None)),
+    "ops_guide_efficacy_iters": int,
+    "ops_guide_efficacy_emax": (float, int),
 }
 
 #: Which panel section each setting appears under.
@@ -225,6 +231,9 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_aggregate_level",
         "ops_nt_rows",
         "ops_profile_weighting",
+        "ops_guide_efficacy",
+        "ops_guide_efficacy_iters",
+        "ops_guide_efficacy_emax",
     ],
 }
 
@@ -661,6 +670,19 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "max((lambda - 1) / lambda, 0). Refused when fewer than two "
         "directions rise above the noise, and not stacked with "
         "ops_profile_shrinkage. Default None. Alpha.",
+    "ops_guide_efficacy":
+        "(str or None) - 'jacks_blend' fits each gene's guides in the "
+        "weighted space as x_g = e_g m (the rank-1 guide model of JACKS, "
+        "Allen et al. 2019), so a guide that knocks down poorly counts "
+        "less, and blends that profile with the all-cell gene profile as "
+        "unit vectors. Needs ops_profile_weighting. Default None. Alpha.",
+    "ops_guide_efficacy_iters":
+        "(int) - The most alternations of the guide-efficacy fit per gene; "
+        "it also stops when no efficacy changes by more than 1e-6. Default "
+        "20. Alpha.",
+    "ops_guide_efficacy_emax":
+        "(float) - The cap on a guide's efficacy before the gene's "
+        "efficacies are rescaled so the best guide has 1. Default 1. Alpha.",
 }
 
 #: The blurb the module shows above its settings.

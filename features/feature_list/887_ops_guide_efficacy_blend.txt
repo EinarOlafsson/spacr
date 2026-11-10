@@ -1,0 +1,33 @@
+OPS GUIDE-EFFICACY (JACKS-STYLE) GENE PROFILE BLEND
+===================================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha, under ALPHA_FEATURES[887]) — spacr.gene_measurement_compare.guide_efficacy_profiles fits each gene's guide rows in the S02-weighted space as x_g = e_g m (alternating m = sum w e x / sum w e^2 and e = clip(<x, m> / <m, m>, 0, emax), the largest e rescaled to 1, for at most ops_guide_efficacy_iters rounds or until e moves by less than 1e-6) and returns Z/|Z| + M/|M| and every guide's efficacy; a gene row without guide rows keeps Z. ops_guide_efficacy='jacks_blend' (with ops_profile_weighting) writes ops_genes_<plate>_efficacy and ops_guides_<plate>_efficacy. spacr/gene_measurement_compare.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_guide_efficacy_blend_887.py.
+Requested: maintainer via paper session, 2026-11-09.
+Owner: paper session (lane C).
+Source: strategies_xfield/scripts/xf_methods.py (efficacy_profiles, x04_jacks mode 'blend', s02_transform) and export_rows.py; JACKS (Allen et al. 2019, Genome Res).
+Related: 907, 883.
+
+WHAT THE STATE IS
+The X04 arm was a script on top of S02.
+
+WHAT TO DO
+- Port the efficacy fit and the blend, alpha, after contrastive_weighting.
+
+RESULT
+On the xfield BF/full inputs (X_bf_spacrcells, genes with more than 10
+cells in both bases, one row per control barcode),
+contrastive_weighting(drop_zero=True) and guide_efficacy_profiles
+reproduce X04_jacks_blend.npz bit for bit (5,299 x 69, float32) in the
+reference environment, and the share of guides with e < 0.5 is
+0.41455061402221244, as recorded. The cosines are therefore those of the
+scored arm; the SELECT and REPORT retrieval scores were not recomputed
+here (that needs the retrieval scorer of item 880).
+
+The stopping rule is the reference's np.allclose(e_new, e, atol=1e-6),
+which also has a relative tolerance of 1e-5, and the clip at emax slows
+convergence: a planted efficacy is recovered to about 1e-4, not 1e-6.
+
+DELIBERATELY NOT DONE
+- The 'replace', 'guidemean' and 'blend_guidemean' control variants are
+  not settings.

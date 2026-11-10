@@ -8503,6 +8503,9 @@ ALPHA_FEATURES = {
                      'timelapse_division_prediction_model',
                      'timelapse_division_prediction_folds'),
     },
+    887: {
+        'settings': ('ops_guide_efficacy', 'ops_guide_efficacy_iters', 'ops_guide_efficacy_emax'),
+    },
     907: {
         'settings': ('ops_profile_weighting',),
     },

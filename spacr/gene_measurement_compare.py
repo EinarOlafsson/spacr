@@ -1764,3 +1764,111 @@ def contrastive_weighting(genes: pd.DataFrame, guides: pd.DataFrame,
             "genes": int(targeting.sum())}
     return out_genes, out_guides, info
 
+
+#: Gene-profile options applied after :func:`contrastive_weighting`
+#: (``ops_guide_efficacy``).
+GUIDE_EFFICACY_MODES: Tuple[str, ...] = ("jacks_blend",)
+
+
+def _unit_rows(values: np.ndarray) -> np.ndarray:
+    """Every row scaled to length 1 (a zero row stays zero).
+
+    :param values: a matrix.
+    :returns: the scaled matrix.
+    """
+    return values / np.clip(np.linalg.norm(values, axis=1, keepdims=True),
+                            1e-12, None)
+
+
+def _rank_one_efficacy(rows: np.ndarray, weights: np.ndarray, *,
+                       iters: int, emax: float
+                       ) -> Tuple[np.ndarray, np.ndarray, int]:
+    """Fit ``x_g = e_g m`` to one gene's guide rows.
+
+    :param rows: the gene's guide rows.
+    :param weights: each guide's weight (its cell count).
+    :param iters: the most alternations run.
+    :param emax: the cap on an efficacy before rescaling.
+    :returns: ``(m, e, iterations)``: the profile ``sum w e x / sum w e^2``,
+        the efficacies and the alternations run.
+    """
+    e = np.ones(len(rows))
+    done = 0
+    for done in range(1, int(iters) + 1):
+        den = (weights * e ** 2).sum()
+        if den <= 0:
+            e = np.ones(len(rows))
+            den = weights.sum()
+        m = (weights * e) @ rows / den
+        mm = m @ m
+        if mm <= 0:
+            break
+        e_new = np.clip(rows @ m / mm, 0, emax)
+        e_new = (e_new / max(e_new.max(), 1e-12) if e_new.max() > 0
+                 else np.ones(len(rows)))
+        if np.allclose(e_new, e, atol=1e-6):
+            e = e_new
+            break
+        e = e_new
+    m = (weights * e) @ rows / max((weights * e ** 2).sum(), 1e-12)
+    return m, e, done
+
+
+def guide_efficacy_profiles(genes: pd.DataFrame, guides: pd.DataFrame, *,
+                            columns: Optional[Sequence[str]] = None,
+                            iters: int = 20, emax: float = 1.0
+                            ) -> Tuple[pd.DataFrame, pd.Series]:
+    """Gene profiles that weight each guide by how well it knocks down.
+
+    :param genes: the gene rows :func:`contrastive_weighting` returns
+        (``gene``, ``n_cells``, ``w_*``); with the cell level of
+        :func:`aggregate_genes` they are the all-cell gene medians.
+    :param guides: its guide rows (``guide``, ``gene``, ``n_cells``,
+        ``w_*``).
+    :param columns: the profile columns; by default the ``w_*`` columns.
+    :param iters: the most alternations per gene (``ops_guide_efficacy_iters``).
+    :param emax: the cap on an efficacy before rescaling
+        (``ops_guide_efficacy_emax``).
+    :returns: ``(rows, efficacy)``: one row per gene, ``gene, n_cells`` and
+        the columns of ``Z/|Z| + M/|M|``, whose cosine is the similarity;
+        and the efficacy of every guide, indexed by guide.
+    :raises ValueError: when the weighted space has fewer than two
+        directions, as :func:`contrastive_weighting` refuses.
+
+    THE GUIDE MODEL IS JACKS' RANK-1 MODEL (Allen et al. 2019, Genome Res,
+    doi:10.1101/gr.238923.118), with the profile features in the role of
+    JACKS' screens: each guide row is ``x_g = e_g m + noise``, the noise
+    variance proportional to ``1 / n_cells(g)``. Starting from ``e = 1``,
+    ``m = sum w e x / sum w e^2`` (``w`` the cell counts) and ``e =
+    clip(<x, m> / <m, m>, 0, emax)`` alternate, ``e`` rescaled so its
+    maximum is 1, for at most ``iters`` rounds or until ``e`` changes by
+    less than 1e-6. The efficacy-weighted profile ``M`` is then blended
+    with the all-cell gene profile ``Z`` as unit vectors. A gene row
+    without guide rows keeps ``Z``. The method uses no reference labels.
+    """
+    if columns is None:
+        columns = [c for c in genes.columns if str(c).startswith("w_")]
+    columns = list(columns)
+    z = genes[columns].to_numpy(float)
+    if (np.abs(z).sum(axis=0) > 0).sum() < 2:
+        raise ValueError(
+            "guide efficacy refused: the weighted profiles have fewer than "
+            "two directions; run contrastive_weighting first")
+    zg = guides[columns].to_numpy(float)
+    counts = guides["n_cells"].to_numpy(float)
+    members = pd.Series(guides["gene"].to_numpy())
+    members = members.groupby(members).indices
+    m_rows = z.copy()
+    efficacy = pd.Series(np.nan, index=guides["guide"].to_numpy(), dtype=float)
+    for i, name in enumerate(genes["gene"].to_numpy()):
+        index = members.get(name)
+        if index is None or len(index) == 0:
+            continue
+        m_rows[i], e, _done = _rank_one_efficacy(
+            zg[index], counts[index], iters=iters, emax=emax)
+        efficacy.iloc[index] = e
+    rows = pd.DataFrame(_unit_rows(z) + _unit_rows(m_rows), columns=columns)
+    rows.insert(0, "gene", genes["gene"].to_numpy())
+    rows.insert(1, "n_cells", genes["n_cells"].to_numpy())
+    return rows, efficacy
+

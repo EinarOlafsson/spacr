@@ -3140,7 +3140,7 @@ _PH_POOL_BLOCK = 48
 #: The settings that turn on a gene-profile option of the aggregate phase
 #: (:func:`_ph_profile_options`); each needs the per-cell TVN components.
 _PH_PROFILE_SWITCHES: Tuple[str, ...] = (
-    "ops_profile_weighting",
+    "ops_profile_weighting", "ops_guide_efficacy",
 )
 
 _PH_DEGENERATE_CAUSES = (
@@ -3853,7 +3853,7 @@ def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
     import pandas as pd
 
     from .gene_measurement_compare import (
-        contrastive_weighting)
+        contrastive_weighting, guide_efficacy_profiles)
     from .qt.i18n import tr
 
     report: Dict[str, Any] = {"outputs": {}}
@@ -3890,6 +3890,31 @@ def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
                            outputs)
         _ph_profile_tables("guides_weighted", profile_guides, destination,
                            label, outputs)
+
+    efficacy = str(settings.get("ops_guide_efficacy") or "").strip().lower() or None
+    if efficacy not in (None, "jacks_blend"):
+        raise ValueError(tr("ops_guide_efficacy must be empty or jacks_blend; "
+                            "got {value}", value=efficacy))
+    if efficacy and not weighting:
+        raise ValueError(tr(
+            "ops_guide_efficacy runs in the weighted space; set "
+            "ops_profile_weighting to contrastive_wiener"))
+    if efficacy:
+        iters = int(_setting_number(settings.get("ops_guide_efficacy_iters"),
+                                    "ops_guide_efficacy_iters", 20))
+        emax = float(_setting_number(settings.get("ops_guide_efficacy_emax"),
+                                     "ops_guide_efficacy_emax", 1.0))
+        profile_genes, per_guide = guide_efficacy_profiles(
+            profile_genes, profile_guides, columns=columns, iters=iters,
+            emax=emax)
+        report["guide_efficacy"] = {
+            "iters": iters, "emax": emax,
+            "guides_below_half": float((per_guide.dropna() < 0.5).mean())}
+        _ph_profile_tables("genes_efficacy", profile_genes, destination, label,
+                           outputs)
+        _ph_profile_tables("guides_efficacy", per_guide.rename(
+            "efficacy").rename_axis("guide").reset_index(), destination,
+            label, outputs)
     return report
 
 
