@@ -658,7 +658,9 @@ def preprocess_generate_masks(settings):
                                     resume=settings.get('resume', False)):
                                 start = time.time()
                                 if gpu_plan is None:
-                                    generate_cellpose_masks_sam(mask_src, settings, 'cell')
+                                    from ._mask_workers import _sampled_ordinary_masks
+                                    with _sampled_ordinary_masks(mask_src, 'cell'):
+                                        generate_cellpose_masks_sam(mask_src, settings, 'cell')
                                 else:
                                     from ._mask_workers import _generate_masks_in_parallel
                                     from .object import _note_the_diameter
@@ -678,7 +680,9 @@ def preprocess_generate_masks(settings):
                                     resume=settings.get('resume', False)):
                                 start = time.time()
                                 if gpu_plan is None:
-                                    generate_cellpose_masks_sam(mask_src, settings, 'nucleus')
+                                    from ._mask_workers import _sampled_ordinary_masks
+                                    with _sampled_ordinary_masks(mask_src, 'nucleus'):
+                                        generate_cellpose_masks_sam(mask_src, settings, 'nucleus')
                                 else:
                                     from ._mask_workers import _generate_masks_in_parallel
                                     from .object import _note_the_diameter
@@ -698,7 +702,9 @@ def preprocess_generate_masks(settings):
                                     resume=settings.get('resume', False)):
                                 start = time.time()
                                 if gpu_plan is None:
-                                    generate_cellpose_masks_sam(mask_src, settings, 'pathogen')
+                                    from ._mask_workers import _sampled_ordinary_masks
+                                    with _sampled_ordinary_masks(mask_src, 'pathogen'):
+                                        generate_cellpose_masks_sam(mask_src, settings, 'pathogen')
                                 else:
                                     from ._mask_workers import _generate_masks_in_parallel
                                     from .object import _note_the_diameter

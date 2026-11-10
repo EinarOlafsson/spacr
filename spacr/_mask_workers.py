@@ -1228,9 +1228,23 @@ class _GpuUtilisation:
         self.read = read if read is not None else _nvml_reader(gpus)
         self.interval = _SAMPLE_SECONDS if interval is None else interval
         self.samples = {index: [] for index in gpus}
+        self.events = []
         self._stop = threading.Event()
         self._thread = None
         self._started = None
+
+    def _elapsed(self):
+        """Seconds since :meth:`start`, to one decimal; 0 before it."""
+        if self._started is None:
+            return 0.0
+        return round(time.monotonic() - self._started, 1)
+
+    def note(self, label):
+        """Record that ``label`` happened now, for the utilisation file.
+
+        :param label: a short description, such as ``worker 0.2 started``.
+        """
+        self.events.append([self._elapsed(), str(label)])
 
     def _sample(self):
         """Append one reading of every GPU; a failed reading is skipped."""
@@ -1238,9 +1252,10 @@ class _GpuUtilisation:
             values = self.read()
         except Exception:                                   # noqa: BLE001
             return
+        moment = self._elapsed()
         for index, value in values.items():
             if index in self.samples:
-                self.samples[index].append(value)
+                self.samples[index].append((value[0], value[1], moment))
 
     def _loop(self):
         """Sample every interval until stopped."""
@@ -1261,8 +1276,11 @@ class _GpuUtilisation:
         """Stop sampling and summarise.
 
         :returns: ``{gpu index: {'samples', 'seconds', 'mean_busy_percent',
-            'busy_share', 'peak_memory_gb'}}``; empty when no reader was
-            available.
+            'busy_share', 'peak_memory_gb', 'trace', 'events'}}``; empty when
+            no reader was available. ``trace`` lists every sample as
+            ``[seconds since start, busy percent, memory GB]`` and ``events``
+            the :meth:`note` calls as ``[seconds since start, label]``, so
+            start-up and steady segmentation can be told apart afterwards.
         """
         self._stop.set()
         if self._thread is not None:
@@ -1281,6 +1299,9 @@ class _GpuUtilisation:
                                      / len(busy), 3) if busy else None),
                 'peak_memory_gb': (round(max(value[1] for value in values) / (1 << 30), 2)
                                    if values else None),
+                'trace': [[value[2], round(float(value[0]), 1),
+                           round(value[1] / (1 << 30), 2)] for value in values],
+                'events': [list(event) for event in self.events],
             }
         return summary
 
@@ -1308,8 +1329,9 @@ def _report_gpu_utilisation(mask_src, object_type, plan, summary):
     for index, row in sorted(summary.items()):
         if not row['samples']:
             continue
+        noun = 'worker' if workers[index] == 1 else 'workers'
         print(f'[gpu] plate {plate} {object_type} masks: GPU {index} with '
-              f'{workers[index]} workers busy {row["mean_busy_percent"]:.0f}% on average, '
+              f'{workers[index]} {noun} busy {row["mean_busy_percent"]:.0f}% on average, '
               f'at least {_BUSY_PERCENT}% in {100 * row["busy_share"]:.0f}% of '
               f'{row["samples"]} samples over {row["seconds"]:.0f} s; '
               f'memory up to {row["peak_memory_gb"]:.1f} GB')
@@ -1334,6 +1356,64 @@ def _report_gpu_utilisation(mask_src, object_type, plan, summary):
             os.remove(temporary)
         except OSError:
             pass
+
+
+def _note_worker_events(utilisation, before, after):
+    """Note worker starts and finished archives between two progress snapshots.
+
+    :param utilisation: the role's :class:`_GpuUtilisation`.
+    :param before: the previous snapshot, empty for the first one.
+    :param after: the new snapshot.
+    """
+    previous = before.get('workers', {})
+    for device, worker in sorted(after.get('workers', {}).items(),
+                                 key=lambda item: str(item[0])):
+        state = worker.get('state')
+        if state != previous.get(device, {}).get('state') and state != 'starting':
+            utilisation.note(f'worker {device} {state}')
+    if before:
+        done = len(after.get('completed_batches', ()))
+        for _ in range(done - len(before.get('completed_batches', ()))):
+            utilisation.note('archive finished')
+
+
+def _ordinary_mask_gpu():
+    """The CUDA device the ordinary single-process mask path runs on, or None.
+
+    The device spaCR's accelerator resolved, ``cuda:0`` unless another index
+    was chosen; None on the CPU and on other accelerators, which NVML cannot
+    read.
+    """
+    from . import accelerator
+
+    if not accelerator.is_cuda():
+        return None
+    _, _, index = accelerator.device_string().partition(':')
+    return int(index) if index.isdigit() else 0
+
+
+@contextmanager
+def _sampled_ordinary_masks(mask_src, object_type):
+    """Sample the GPU while the ordinary single-process path segments one role.
+
+    The same sampler and report as the worker path, so a run with
+    ``mask_workers_per_gpu`` 1 writes the ``[gpu]`` line and
+    ``gpu_utilisation.json`` its multi-worker comparison is measured against.
+    Nothing is sampled or printed without a CUDA device.
+
+    :param mask_src: the plate's ``masks`` folder.
+    :param object_type: the role being segmented.
+    """
+    index = _ordinary_mask_gpu()
+    if index is None:
+        yield
+        return
+    utilisation = _GpuUtilisation({index: _device_uuid(index)}).start()
+    try:
+        yield
+    finally:
+        _report_gpu_utilisation(mask_src, object_type, {'gpus': {index: index}},
+                                utilisation.stop())
 
 
 def _generate_masks_in_parallel(mask_src, settings, object_type, plan, *,
@@ -1371,14 +1451,17 @@ def _generate_masks_in_parallel(mask_src, settings, object_type, plan, *,
           f'model {_model_label(identity)}')
     last = {}
 
+    gpus = plan.get('uuids') or {}
+    utilisation = _GpuUtilisation(gpus).start() if gpus else None
+
     def report(state):
         """Keep the latest snapshot for the summary and print it for the GUI."""
+        if utilisation is not None:
+            _note_worker_events(utilisation, last, state)
         last.clear()
         last.update(state)
         print(_progress_line(object_type, state))
 
-    gpus = plan.get('uuids') or {}
-    utilisation = _GpuUtilisation(gpus).start() if gpus else None
     try:
         _run_checkpointed_mask_workers(mask_src, prepared, object_type, assignments,
             plan['environments'], ledger, on_progress=report, context=context,
