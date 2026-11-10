@@ -285,8 +285,12 @@ _PHASES = ("stitch", "phenotype", "objects", "decode")
 _PH_PHASES = ("ph_flatfield", "ph_segment", "ph_measure", "ph_masks",
               "merge", "aggregate")
 
+#: The profile path (alpha): stored per-well cell tables to gene profiles,
+#: then their retrieval metrics. Needs no image step and no database.
+_PROFILE_PHASES = ("profile", "evaluate")
+
 #: Every phase :func:`run_ops` accepts, in the order they run.
-_ALL_PHASES = _PHASES + _PH_PHASES
+_ALL_PHASES = _PHASES + _PH_PHASES + _PROFILE_PHASES
 
 #: The columns of ``ops_phenotype`` that hold each field's similarity
 #: transform into the well frame: ``well = scale * R(rotation_deg) @
@@ -3802,7 +3806,11 @@ def run_ops(settings: Mapping[str, Any], *,
         and ``plate`` but no ``genotype_source``, takes its wells from
         ``ops_phenotype``, and adds to each well's ``ops_report.json``
         rather than replacing it. ``aggregate`` pools the wells run and
-        writes ``ops_guides_<plate>`` and ``ops_genes_<plate>``.
+        writes ``ops_guides_<plate>`` and ``ops_genes_<plate>``. The alpha
+        profile path, ``"profile"`` and ``"evaluate"``, runs alone: it turns
+        the stored cell tables of ``ops_profile_cells`` into gene profiles
+        and scores them against reference gene pairs
+        (:func:`spacr.ops_tvn.run_profile_phases`).
     :param library: the guide barcodes, as a sequence or the path of a CSV
         with a ``prefix``, ``barcode`` or ``sequence`` column. When given,
         each barcode is also mapped to its closest guide. Overrides the
@@ -3816,6 +3824,13 @@ def run_ops(settings: Mapping[str, Any], *,
     if unknown:
         raise ValueError(
             f"unknown phases {unknown}; choose from {list(_ALL_PHASES)}")
+    if any(phase in _PROFILE_PHASES for phase in phases):
+        if any(phase not in _PROFILE_PHASES for phase in phases):
+            raise ValueError("the profile phases run on their own; run "
+                             f"{list(_PROFILE_PHASES)} without the image phases")
+        from .ops_tvn import run_profile_phases
+
+        return run_profile_phases(settings, phases, report=_say)
     sequencing = any(phase in _PHASES for phase in phases)
     root = settings.get("genotype_source")
     if sequencing and (not isinstance(root, (str, os.PathLike))

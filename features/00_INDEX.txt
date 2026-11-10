@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-739 Lifecycle: new, 117 Lifecycle: future in features/feature_list/.
+739 Lifecycle: new, 118 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -387,6 +387,9 @@ FUTURE FEATURES
 
   870  LJOSA PERCENTILE SCALING FOR MEASURE PROFILES
        870_profiling_ljosa_percentile_scaling.txt
+
+  879  ONE SETTINGS-DRIVEN PROFILE PATH: STORED CELL TABLES -> PROFILES -> METRICS
+       879_ops_profile_pipeline.txt
 
   880  GENE-GENE RETRIEVAL MAP WITH MULTI-LABEL REFERENCES
        880_ops_retrieval_map.txt
