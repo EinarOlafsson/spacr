@@ -38,7 +38,7 @@ def test_each_image_is_segmented_at_its_own_diameter(
         tmp_path, fake_model, monkeypatch):
     seen = {}
 
-    def per_image(model, images, eval_kwargs, fallback):
+    def per_image(model, images, eval_kwargs, fallback, **governor):
         seen["images"] = len(images)
         seen["fallback"] = fallback
         masks = [np.asarray(m, np.uint16) for m in model.eval(
@@ -63,7 +63,7 @@ def test_each_image_is_segmented_at_its_own_diameter(
 
 def test_each_image_without_an_estimate_notes_no_diameter(
         tmp_path, fake_model, monkeypatch):
-    def per_image(model, images, eval_kwargs, fallback):
+    def per_image(model, images, eval_kwargs, fallback, **governor):
         masks = [np.zeros(image.shape[:2], np.uint16) for image in images]
         return masks, [np.zeros(m.shape, np.float32) for m in masks], [0, None]
 

@@ -100,7 +100,8 @@ def _first_mask(masks):
     return np.asarray(masks[0])
 
 
-def _per_image_diameter_masks(model, images, eval_kwargs, fallback):
+def _per_image_diameter_masks(model, images, eval_kwargs, fallback, *,
+                              site='mask_sam', settings=None):
     """Segment each image at the object diameter Cellpose finds in it.
 
     Cellpose-SAM has no size model, so each image is first segmented at
@@ -115,6 +116,10 @@ def _per_image_diameter_masks(model, images, eval_kwargs, fallback):
     :param eval_kwargs: the keywords the batch would be segmented with.
     :param fallback: the diameter for an image with no first-pass object,
         or ``None`` for native scale.
+    :param site: the governor's name for these calls, ``mask_shared_gpu``
+        when the worker shares its GPU, as for the batch call.
+    :param settings: run settings holding the governor keys, so a worker
+        process honours the run's memory budget too.
     :returns: ``(masks, flows, diameters)``, one entry per image.
     """
     from cellpose.utils import diameters as cellpose_diameters
@@ -124,11 +129,13 @@ def _per_image_diameter_masks(model, images, eval_kwargs, fallback):
     masks, flows, used = [], [], []
     for image in images:
         first = parse_cellpose4_output(_mask_eval(
-            model, [image], site='mask_sam', **{**keywords, 'diameter': None}))[0]
+            model, [image], site=site, settings=settings,
+            **{**keywords, 'diameter': None}))[0]
         estimate = float(cellpose_diameters(_first_mask(first))[0])
         diameter = estimate if estimate > 0 else fallback
         found, found_flows = parse_cellpose4_output(_mask_eval(
-            model, [image], site='mask_sam', **{**keywords, 'diameter': diameter}))[:2]
+            model, [image], site=site, settings=settings,
+            **{**keywords, 'diameter': diameter}))[:2]
         masks.append(_first_mask(found))
         flows.append(found_flows[0])
         used.append(diameter)
@@ -1696,7 +1703,10 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                                  resample=object_settings['resample']),
                             _eval_diameter(
                                 settings.get(f'{object_type}_diameter'),
-                                object_type, object_settings['diameter']))
+                                object_type, object_settings['diameter']),
+                            site=('mask_shared_gpu' if _shares_a_gpu(settings)
+                                  else 'mask_sam'),
+                            settings=settings)
                         measured = [value for value in estimates if value]
                         if measured:
                             _note_the_diameter(
