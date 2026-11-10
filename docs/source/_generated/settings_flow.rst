@@ -21189,7 +21189,7 @@ Read by :py:func:`~spacr.ops_clusters.cluster_sweep_phase`, ``ops_defaults``.
 ops_cluster_knn
 ---------------
 
-The neighbours of the 'knn' graph of the cluster_sweep phase. Default 12. Alpha.
+How many nearest neighbours each gene is linked to in the 'knn' graph of the cluster_sweep phase. More neighbours give a denser graph and fewer, larger clusters at the same resolution; fewer split the genes into more, smaller clusters. Default 12. Alpha.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 
@@ -21864,7 +21864,7 @@ Read by :py:func:`~spacr.gene_measurement_compare.etest_phase`, ``ops_defaults``
 ops_etest_permutations
 ----------------------
 
-Label permutations per gene when ops_etest_mode is 'permutation'. Default 1000. Alpha.
+Label permutations per gene when ops_etest_mode is 'permutation'. More permutations reach smaller p-values (the smallest is 1 / (permutations + 1)) but take longer; fewer run faster with coarser p-values. Default 1000. Alpha.
 
 | :py:func:`~spacr.ops_settings.ops_defaults` **-- reads it**
 

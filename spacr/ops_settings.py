@@ -1455,8 +1455,11 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "and/or 'knn', a symmetric cosine k-nearest-neighbour graph. Default "
         "['phate', 'knn']. Alpha.",
     "ops_cluster_knn":
-        "(int) - The neighbours of the 'knn' graph of the cluster_sweep "
-        "phase. Default 12. Alpha.",
+        "(int) - How many nearest neighbours each gene is linked to in the "
+        "'knn' graph of the cluster_sweep phase. More neighbours give a "
+        "denser graph and fewer, larger clusters at the same resolution; "
+        "fewer split the genes into more, smaller clusters. Default 12. "
+        "Alpha.",
     "ops_cluster_sweep_resolutions":
         "(dict or None) - Leiden resolutions per graph for the cluster_sweep "
         "phase, such as {'phate': [5, 12], 'knn': [1, 2]}; a graph not named "
@@ -1518,7 +1521,9 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "Alpha.",
     "ops_etest_permutations":
         "(int) - Label permutations per gene when ops_etest_mode is "
-        "'permutation'. Default 1000. Alpha.",
+        "'permutation'. More permutations reach smaller p-values (the "
+        "smallest is 1 / (permutations + 1)) but take longer; fewer run "
+        "faster with coarser p-values. Default 1000. Alpha.",
     "ops_power_cells":
         "(list) - The cells-per-gene caps of the power curve; None keeps "
         "every cell (scored once, its null drawn at the median cells per "

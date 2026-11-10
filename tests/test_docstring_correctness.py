@@ -3249,7 +3249,7 @@ def _validated_bmc_paper_items_3_callables(callables):
     assert {"spacr.ops_scoring", "spacr.ops_flatfield.run_flat_phases",
             "spacr.qt.screens.model_zoo.ModelZooScreen.showEvent"} <= entries.keys()
     found = {item.symbol: item for item in callables if item.symbol in entries}
-    assert len(found) == 52
+    assert len(found) == 53
     for symbol, item in found.items():
         assert item.exposure == "autoapi"
         assert item.parameters == item.accepted_documented_parameters
