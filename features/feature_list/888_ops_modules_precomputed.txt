@@ -31,6 +31,13 @@ paper-items-1109/lane-g/v888_atlas.py and v888_phate.py):
   embedding, the three reference partitions and reference.json identical
   for both arms, and consensus runs 0-2 (W_bf_S02) and 0-1 (C0_base)
   identical label for label.
+- End to end from a settings file (run_ops phases=("modules",), 100 runs,
+  arm W_bf_S02, precomputed): consensus_partitions.npz, consensus_runs.json,
+  reference.json, module_members.csv, module_atlas.csv and
+  module_summary.json all identical to the stored outputs.
+- PHATE checks ran in the bench venv (phate 2.0.0, leidenalg 0.12,
+  scikit-learn 1.9.1), the env the reference atlas ran in; the atlas checks
+  from stored partitions ran in envs/spacr.
 
 RULE
 With the phase not requested, every output stays identical to today's;

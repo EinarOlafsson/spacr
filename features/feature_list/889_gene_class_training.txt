@@ -23,7 +23,16 @@ v889_tables.py and v889_lr.py):
 - Class tables v1 (tables/), v3 (tables_v3/) and the gated v3
   (tables_v3_gated/): every CSV byte-identical, class_summary.json
   identical (the source path aside); folds identical.
-- LR runs: see the lane report.
+- LR baseline from settings (envs/spacr): runs/v3_lr_funkscores_d300 (the
+  run of record), its shuffled control v3_lr_funkscores_shuffled_d300 and
+  the v1 run lr_funkscores_all: decoys.csv byte-identical, every fold's
+  gene_scores identical, discovery.csv byte-identical, per_class.csv
+  byte-identical and summary.json identical (the tables path aside) with
+  gene_class_eval_boot set to the reference's bootstrap count: 300 for
+  v3_lr_funkscores_d300 and lr_funkscores_all, 200 for the shuffled control
+  (found by matching the stored intervals; the script default is 1000).
+- Remaining (GPU, paper session): the image-model arms and the BBBC021
+  architecture benchmark within the 5-seed spread.
 
 RULE
 Nothing changes unless the gene_classes module is run.
