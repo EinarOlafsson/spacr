@@ -93,6 +93,35 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_cluster_seed": 42,
     "ops_consensus_runs": 0,
     "ops_mitotic_model": None,
+    "ops_merged_root": None,
+    "ops_merged_flatfield": True,
+    "ops_merged_dtype": 'uint16',
+    "ops_merged_save_sbs": False,
+    "ops_tables_parquet_threshold": 5000000,
+    "ops_crop_per_guide": None,
+    "ops_crop_size": 96,
+    "ops_crop_channels": None,
+    "ops_crop_flatfield": True,
+    "ops_crop_seed": 0,
+    "ops_crop_all_nt": True,
+    "ops_crop_control_fraction": 0.01,
+    "ops_crop_masks": False,
+    "ops_max_files_per_folder": 10000,
+    "ops_ph_secondary_channels": None,
+    "ops_ph_secondary_registration": 'none',
+    "ops_ph_secondary_window": 1024,
+    "ops_ph_secondary_fallback": 'well_median',
+    "ops_ph_measure_gpu": False,
+    "ops_cross_field_ownership": False,
+    "ops_cross_field_metric": 'overlap_fraction',
+    "ops_cross_field_min_overlap": 0.5,
+    "ops_cross_field_policy": 'one_per_cell',
+    "ops_reference_counts": None,
+    "ops_reference_counts_level": 'sbs',
+    "ops_reference_shuffles": 1000,
+    "ops_reference_seed": 0,
+    "ops_retry_missing": False,
+    "ops_crop_flat_mean_one": False,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -169,6 +198,35 @@ OPS_TYPES: Dict[str, object] = {
     "ops_cluster_seed": int,
     "ops_consensus_runs": int,
     "ops_mitotic_model": (str, type(None)),
+    "ops_merged_root": (str, type(None)),
+    "ops_merged_flatfield": bool,
+    "ops_merged_dtype": str,
+    "ops_merged_save_sbs": bool,
+    "ops_tables_parquet_threshold": int,
+    "ops_crop_per_guide": (int, type(None)),
+    "ops_crop_size": int,
+    "ops_crop_channels": (str, type(None)),
+    "ops_crop_flatfield": bool,
+    "ops_crop_seed": int,
+    "ops_crop_all_nt": bool,
+    "ops_crop_control_fraction": (float, int),
+    "ops_crop_masks": bool,
+    "ops_max_files_per_folder": int,
+    "ops_ph_secondary_channels": (str, type(None)),
+    "ops_ph_secondary_registration": str,
+    "ops_ph_secondary_window": int,
+    "ops_ph_secondary_fallback": str,
+    "ops_ph_measure_gpu": bool,
+    "ops_cross_field_ownership": bool,
+    "ops_cross_field_metric": str,
+    "ops_cross_field_min_overlap": (float, int),
+    "ops_cross_field_policy": str,
+    "ops_reference_counts": (str, type(None)),
+    "ops_reference_counts_level": str,
+    "ops_reference_shuffles": int,
+    "ops_reference_seed": int,
+    "ops_retry_missing": bool,
+    "ops_crop_flat_mean_one": bool,
 }
 
 #: Which panel section each setting appears under.
@@ -216,6 +274,19 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_reference_clusters", "ops_cluster_target",
         "ops_cluster_resolutions", "ops_cluster_seed", "ops_consensus_runs",
         "ops_mitotic_model",
+        "ops_merged_root", "ops_merged_flatfield", "ops_merged_dtype",
+        "ops_merged_save_sbs", "ops_tables_parquet_threshold",
+        "ops_crop_per_guide", "ops_crop_size", "ops_crop_channels",
+        "ops_crop_flatfield", "ops_crop_seed", "ops_crop_all_nt",
+        "ops_crop_control_fraction", "ops_crop_masks",
+        "ops_max_files_per_folder", "ops_ph_secondary_channels",
+        "ops_ph_secondary_registration", "ops_ph_secondary_window",
+        "ops_ph_secondary_fallback", "ops_ph_measure_gpu",
+        "ops_cross_field_ownership", "ops_cross_field_metric",
+        "ops_cross_field_min_overlap", "ops_cross_field_policy",
+        "ops_reference_counts", "ops_reference_counts_level",
+        "ops_reference_shuffles", "ops_reference_seed", "ops_retry_missing",
+        "ops_crop_flat_mean_one",
     ],
 }
 
@@ -630,6 +701,150 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "intensity is this many robust standard deviations above its well's "
         "median and its nucleus is no larger than the median: condensed "
         "chromatin. Lower calls more cells mitotic. Default 3. Alpha.",
+    "ops_merged_root":
+        "(str or None) - Folder the ph_merged phase writes merged/ (one "
+        "compressed array file per phenotype field: channels, nucleus, cell "
+        "and cytoplasm masks, ownership flags) and the ph_crops phase "
+        "writes its crop shards to. Point it at network storage to keep the "
+        "working database on local disk. Empty uses dst_root. Default None. "
+        "Alpha.",
+    "ops_merged_flatfield":
+        "(bool) - Divide the channels the ph_merged phase stores by the "
+        "plate's flat-field maps, as (I - b) / F + b, when the maps exist. "
+        "Off stores the projected raw counts. Default True. Alpha.",
+    "ops_merged_dtype":
+        "(str) - How ph_merged stores the channels: 'uint16' rounds them "
+        "back to camera counts and halves the disk use; 'float32' keeps the "
+        "flat-field-corrected values unrounded. Default 'uint16'. Alpha.",
+    "ops_merged_save_sbs":
+        "(bool) - Reserved for also storing the sequencing stacks under "
+        "merged/sbs; not built yet, so the phase only reports it. Default "
+        "False. Alpha.",
+    "ops_tables_parquet_threshold":
+        "(int) - Above this many owned cells in a plate, the ph_tables "
+        "phase writes the wide feature columns to one Parquet file per "
+        "table and well, and measurements.db keeps only the key columns; a "
+        "SQLite table of tens of millions of wide rows is slow to write and "
+        "to join. Default 5,000,000. Alpha.",
+    "ops_crop_per_guide":
+        "(int or None) - How many cells of each targeting guide the "
+        "ph_crops phase cuts per well, chosen at random with ops_crop_seed. "
+        "Empty cuts every owned, linked cell. Default None. Alpha.",
+    "ops_crop_size":
+        "(int) - Side of each crop in phenotype pixels, centred on the cell "
+        "mask's centroid; pixels outside the cell are 0. Larger crops show "
+        "more context and take more disk. Default 96. Alpha.",
+    "ops_crop_channels":
+        "(str or None) - Which phenotype channels the crops hold, "
+        "comma-separated, in that order. Empty keeps every channel of "
+        "ops_ph_channels. Default None. Alpha.",
+    "ops_crop_flatfield":
+        "(bool) - Correct each field with the plate's flat-field maps "
+        "before cutting its crops, so a cell at the corner of a field is as "
+        "bright as the same cell at its centre. The crops stay raw "
+        "otherwise: no per-crop stretch. Default True. Alpha.",
+    "ops_crop_seed":
+        "(int) - Seed of the random choice of cells per guide "
+        "(ops_crop_per_guide). The same seed picks the same cells in every "
+        "run. Default 0. Alpha.",
+    "ops_crop_all_nt":
+        "(bool) - With ops_crop_per_guide set, still cut every "
+        "non-targeting cell, the control set crops are compared against. "
+        "Default True. Alpha.",
+    "ops_crop_control_fraction":
+        "(float) - Also cut this share of all owned, whole cells, linked or "
+        "not, chosen by a stable hash of plate, well, site and label so the "
+        "choice does not depend on run order or genotype. 0 turns it off. "
+        "Default 0.01. Alpha.",
+    "ops_crop_masks":
+        "(bool) - Store each crop's mask with it (1 = the cell, 2 = its "
+        "nucleus) as a second image page. Default False. Alpha.",
+    "ops_max_files_per_folder":
+        "(int) - Most crops one shard holds and most files one folder of "
+        "the crop store holds; more go to the next shard or to a part-NNNN "
+        "subfolder. Folders of millions of files take minutes to list on "
+        "network storage. Default 10,000. Alpha.",
+    "ops_ph_secondary_channels":
+        "(str or None) - For a plate whose phenotype channels were imaged "
+        "in two acquisitions, the channels the second one contributes, "
+        "comma-separated (for example AF750). They are read from the second "
+        "acquisition's files and moved by the registration shift; the other "
+        "channels come only from the first. Empty: one acquisition. Default "
+        "None. Alpha.",
+    "ops_ph_secondary_registration":
+        "(str) - How the second acquisition is put on the first: "
+        "'phase_correlation' measures a whole-pixel shift per field on the "
+        "centre of the fields, on a channel both hold or on DAPI against "
+        "the second acquisition's first channel, and stores it in "
+        "ops_phenotype; 'none' uses no shift. Default 'none'. Alpha.",
+    "ops_ph_secondary_window":
+        "(int) - Side in pixels of the centre square the registration shift "
+        "is measured on. Larger is slower and more robust in sparse fields. "
+        "Default 1024. Alpha.",
+    "ops_ph_secondary_fallback":
+        "(str) - What replaces a field's shift that lies more than 12 px "
+        "from the median of the well's earlier fields (once five are "
+        "registered): 'well_median' uses that median; 'none' keeps the "
+        "field's own shift. Default 'well_median'. Alpha.",
+    "ops_ph_measure_gpu":
+        "(bool) - Measure the intensity and texture features on the CUDA "
+        "card. It is faster; the values agree with the CPU measurement to "
+        "float precision except skew and kurtosis, which can differ "
+        "slightly. Default False. Alpha.",
+    "ops_cross_field_ownership":
+        "(bool) - Find every copy of a cell that two or more overlapping "
+        "phenotype fields segmented (phase ph_ownership), by comparing the "
+        "fields' cell masks through their transforms, and keep one copy per "
+        "physical cell in the aggregate, merged/ and the crops. Off: "
+        "outputs are identical to a run without it. Default False. Alpha.",
+    "ops_cross_field_metric":
+        "(str) - How two masks are scored as copies: 'overlap_fraction' "
+        "divides the shared pixels by the smaller mask, so a copy cut by a "
+        "field's edge still matches the whole one; 'iou' divides by their "
+        "union. Default 'overlap_fraction'. Alpha.",
+    "ops_cross_field_min_overlap":
+        "(float) - Smallest score, in (0, 1], at which two masks of "
+        "overlapping fields count as the same cell. Lower merges more "
+        "neighbours into one cell; higher splits cut copies from their "
+        "whole twin. Default 0.5. Alpha.",
+    "ops_cross_field_policy":
+        "(str) - What the aggregate does with the copies: 'one_per_cell' "
+        "keeps one genotyped row per physical cell, its largest copy; "
+        "'owner_only' drops every copy that is not the owner, which on Funk "
+        "plate A also drops many genotyped cells whose owner was never "
+        "linked; 'flag_only' writes the ownership table and changes nothing "
+        "else. Default 'one_per_cell'. Alpha.",
+    "ops_reference_counts":
+        "(str or None) - A published per-guide count table (columns guide, "
+        "gene, count; CSV, TSV or Excel), for example Funk et al. 2022's "
+        "supplementary counts. The report phase ranks spaCR's count of "
+        "every guide and gene against it (Spearman's rho with a shuffled "
+        "control). Empty skips the comparison. Default None. Alpha.",
+    "ops_reference_counts_level":
+        "(str) - Which spaCR counts the report compares with "
+        "ops_reference_counts: 'sbs' counts decoded sequencing nuclei per "
+        "guide, 'phenotype' the linked, owned cells the aggregate pooled; "
+        "'sbs,phenotype' writes both. Each result names its level, so the "
+        "two are never mixed. Default 'sbs'. Alpha.",
+    "ops_reference_shuffles":
+        "(int) - How many times the report permutes spaCR's counts across "
+        "guides for the shuffled-label control of the rank correlation; it "
+        "reports the 95th percentile of abs(rho). More is steadier and "
+        "slower. Default 1000. Alpha.",
+    "ops_reference_seed":
+        "(int) - Seed of the shuffled-label control's permutations; the "
+        "same seed gives the same control in every run. Default 0. Alpha.",
+    "ops_retry_missing":
+        "(bool) - Try again the phenotype fields an earlier run found missing "
+        "or unreadable in the source (recorded in "
+        "ops_missing_fields_<well>.parquet). Off, a resumed run skips them, "
+        "so a well with fields absent from a public download still "
+        "finishes. Default False. Alpha.",
+    "ops_crop_flat_mean_one":
+        "(bool) - Scale each flat-field map to a mean of 1 over the field "
+        "before the crops are corrected with it, as the plate A gene-class "
+        "crops were cut; off divides by the maps as stored, as merged/ and "
+        "the measurement do. Default False. Alpha.",
 }
 
 #: The blurb the module shows above its settings.
