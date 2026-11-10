@@ -1611,7 +1611,9 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "Masks and tables are the same. Default False. Alpha.",
     "ops_ph_measure_workers":
         "(int or None) - How many phenotype fields are measured at once. "
-        "Empty uses n_workers. Default None. Alpha.",
+        "More workers finish a well sooner but hold more fields in memory; "
+        "with ops_gpu_vram_cap_gb set, a GPU measurement gets fewer when the "
+        "card is full. Empty uses n_workers. Default None. Alpha.",
     "ops_ph_stage_dir":
         "(str or None) - A local folder where each phenotype field's "
         "maximum projection is kept while the field is segmented and "
@@ -1624,7 +1626,8 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "Default 48. Alpha.",
     "ops_ph_stage_threads":
         "(int) - How many phenotype fields are read into ops_ph_stage_dir "
-        "at once. Default 4. Alpha.",
+        "at once. More threads keep the measurement fed from slow storage "
+        "but load the disk and network harder. Default 4. Alpha.",
     "ops_ph_measure_gpu_check":
         "(bool) - With ops_ph_measure_gpu on, measure the first field on "
         "the card and on the CPU before the run and report the columns that "
@@ -1653,8 +1656,9 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "in dst_root ends the wait or stops the run before the next well. "
         "Default False. Alpha.",
     "ops_gpu_idle_checks":
-        "(int) - How many idle GPU samples in a row ops_gpu_admission waits "
-        "for. Default 6. Alpha.",
+        "(int) - How many idle GPU samples in a row, ten seconds apart, "
+        "ops_gpu_admission waits for before the run starts. Higher waits "
+        "longer and is surer the card is free. Default 6. Alpha.",
     "ops_gpu_min_process_mib":
         "(float) - A GPU compute process using more card memory than this, "
         "in MiB, keeps ops_gpu_admission waiting. Default 500. Alpha.",

@@ -350,6 +350,9 @@ KEYS_RETIRED = frozenset({
 
 from spacr.division_prediction import PREDICTION_DEFAULTS  # noqa: E402
 from spacr.host_pathogen import TITRATION_DEFAULTS, TRANSLOCATION_DEFAULTS  # noqa: E402
+from spacr.gene_function import _DEFAULTS as GENE_FUNCTION_DEFAULTS  # noqa: E402
+from spacr.gene_graph import _DEFAULTS as GENE_GRAPH_DEFAULTS  # noqa: E402
+from spacr.gene_knowledge import _DEFAULTS as GENE_KNOWLEDGE_DEFAULTS  # noqa: E402
 
 KEYS_ADDED_BY_REGROUP = frozenset({
     # 879-882, alpha: the OPS profile path from stored cell tables and its
@@ -382,6 +385,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # NEW SETTINGS (2026-11-10, lane K): Measure's vacuole signal channel
     # (item 898) and Plaque mode's per-well size readouts (item 911).
     "vacuole_signal_channel", "plaque_size_readouts",
+    # 884-886, alpha: the gene graph, the protein-knowledge blocks and the
+    # screen x knowledge fusion, four headings of their own each.
+    *GENE_GRAPH_DEFAULTS, *GENE_KNOWLEDGE_DEFAULTS, *GENE_FUNCTION_DEFAULTS,
     # NEW SETTINGS, not a regrouping: Mask's pixel-size diameter default and
     # per-image diameter estimate, and the ML classifier's class list.
     "pixel_size_um", "estimate_diameters_per_image", "ml_classes",
@@ -1827,6 +1833,11 @@ def test_every_qt_section_hint_names_a_real_category():
     import spacr.screen_staging  # noqa: F401
     # 896: the embedding profiles register their two headings.
     import spacr.embedding_profiles  # noqa: F401
+    # 884-886: the gene graph, protein knowledge and gene function register
+    # their headings.
+    import spacr.gene_function  # noqa: F401
+    import spacr.gene_graph  # noqa: F401
+    import spacr.gene_knowledge  # noqa: F401
     known.update(c.upper().strip() for c in S.REGISTERED_CATEGORIES)
     # Qt may make app-scoped relocations without changing the category map
     # shared with the legacy UI (Measure's Filter settings is one).

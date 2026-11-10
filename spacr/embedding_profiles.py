@@ -92,27 +92,27 @@ _TOOLTIPS: Dict[str, str] = {
     'embedding_wells': "(str) - Optional table of the wells to crop, with plate, well and any labels (such as moa) to carry; blank crops every well of the cell table. Default blank.",
     'crop_store': "(str) - How the crops are stored: 'h5_shards', one HDF5 shard per plate with images and masks and a .cells.parquet index. Default 'h5_shards'.",
     'crop_window': "(int) - Side of the square window around each cell's centroid, in pixels; past the field edge it is zero padded. Default 128.",
-    'crop_channels': "(str) - Comma-separated intensity planes of the merged field to crop, in order. Default '0,1,2'.",
+    'crop_channels': "(str) - Comma-separated intensity planes of the merged field to crop, in order, such as 0,1,2. Each plane becomes one channel of the crop and, in per_channel mode, its own block of the embedding, so more planes give a wider embedding and a longer run. Default '0,1,2'.",
     'crop_cap_per_well': "(int) - Most cells cropped per well, drawn at random with crop_seed; 0 crops every cell. Default 300.",
     'crop_mask_flags': "(bool) - Store a bit-flag mask with each crop: 1 this cell, 2 any nucleus, 4 another cell, 8 outside the field. Default True.",
     'crop_illumination': "(str) - 'gain_offset' divides each window by the plate's saved flat field (offset subtracted) before it is stored as uint16; 'none' stores it raw. Never a per-crop stretch. Default 'none'.",
-    'crop_illumination_model': "(str) - The saved illumination model for 'gain_offset'. Blank takes <src>/illumination/illumination_model.npz. Default blank.",
-    'crop_seed': "(int) - Seed of the per-well draw of cells. Default 0.",
-    'embedding_backbone': "(str) - Pretrained encoder, such as resnet18 (timm, ImageNet) or openphenom. Default 'resnet18'.",
+    'crop_illumination_model': "(str) - Path to the saved illumination model (.npz) used when crop_illumination is 'gain_offset'. Blank takes <src>/illumination/illumination_model.npz. With crop_illumination 'none' this path is not read at all. Default blank.",
+    'crop_seed': "(int) - Seed of the random draw of cells in each well when crop_cap_per_well limits them. The same seed picks the same cells again; another seed picks a different sample. It has no effect when every cell is cropped. Default 0.",
+    'embedding_backbone': "(str) - Pretrained encoder that turns each crop into a vector, such as resnet18 (timm, ImageNet weights) or openphenom. A different backbone gives different features and a different vector width, so profiles from two backbones cannot be mixed in one table. Default 'resnet18'.",
     'embedding_channel_mode': "(str) - 'per_channel' encodes each channel alone and concatenates the vectors; 'project' encodes them together. Default 'per_channel'.",
     'embedding_channel_scale': "(str) - 'estimate' divides each channel by its 99th percentile over a 2,048-crop sample of the plate, clipped to [0, 1]; 'none' feeds the values as they are. Default 'estimate'.",
     'embedding_input_normalisation': "(str) - 'none' feeds the [0, 1] crops at their own size; 'imagenet' resizes them to the backbone's training size and standardises by its mean and standard deviation. Default 'none'.",
     'embedding_weights': "(str) - A local weights file for the backbone; blank uses the backbone's own cached weights. Default blank.",
     'embedding_masked': "(bool) - Multiply each crop by its cell's own mask, so background and neighbours are 0. Default True.",
-    'embedding_batch_size': "(int) - Crops per forward pass. Default 64.",
-    'embedding_aggregate': "(str) - Well tables of the embeddings: well_median (wells_median.parquet) and well_mean (wells_mean.parquet). Default 'well_median,well_mean'.",
+    'embedding_batch_size': "(int) - Crops sent through the backbone in one forward pass. Higher is faster on a GPU but needs more memory; lower fits a small GPU or the CPU and runs slower. Default 64.",
+    'embedding_aggregate': "(str) - Comma-separated well tables of the embeddings: well_median (wells_median.parquet) and well_mean (wells_mean.parquet). The median resists outlier cells, the mean follows every cell. The UMAP reads the median table, so keep well_median when embedding_umap is on. Default 'well_median,well_mean'.",
     'embedding_control': "(str) - Value of embedding_control_column that marks control cells; their percentiles are written per plate for Ljosa scaling. Default 'DMSO'.",
-    'embedding_control_column': "(str) - Column of the cell table that names the control. Default 'moa'.",
-    'embedding_umap': "(bool) - Also write a UMAP of the wells (well_umap.csv). Needs umap-learn. Default False.",
-    'umap_metric': "(str) - Distance of the UMAP. Default 'cosine'.",
-    'umap_neighbors': "(int) - Neighbours of the UMAP. Default 15.",
-    'umap_min_dist': "(float) - Minimum distance of the UMAP. Default 0.3.",
-    'umap_seed': "(int) - Random state of the UMAP. Default 0.",
+    'embedding_control_column': "(str) - Column of the cell table that marks the control cells, compared with embedding_control. When the column is missing no control percentiles are written, and the UMAP then uses the well medians without scaling. Default 'moa'.",
+    'embedding_umap': "(bool) - Also writes a two-dimensional UMAP of the median well profiles to well_umap.csv, for plotting. On needs the umap-learn package and adds run time; off skips the map and leaves the well tables unchanged. Default False.",
+    'umap_metric': "(str) - Distance UMAP uses to find each well's neighbours; any metric umap-learn accepts works. Profiles are scaled to unit length first, so 'euclidean' ranks neighbours the same way as 'cosine', while 'correlation' or 'manhattan' give a different map. Default 'cosine'.",
+    'umap_neighbors': "(int) - Number of nearest wells UMAP looks at around each well. Higher keeps more of the global layout between groups of wells but blurs small clusters; lower keeps fine local structure and can split the map into islands. Default 15.",
+    'umap_min_dist': "(float) - Smallest distance UMAP allows between points in the map. Lower packs similar wells into tight clumps; higher spreads them out and shows the overall layout more evenly. Default 0.3.",
+    'umap_seed': "(int) - Random state of the UMAP, run on one thread so the same seed and wells give the same map. Another seed can rotate or rearrange the map while keeping similar neighbourhoods. Default 0.",
     'umap_percentiles': "(bool) - Scale each plate's wells by the control cells' percentiles (Ljosa) before the UMAP; else the medians as they are. Default True.",
     'embedding_out': "(str) - Folder of the shards, embeddings, well tables and UMAP. Blank writes to <src>/embeddings. Default blank.",
 }
@@ -239,7 +239,10 @@ def write_crop_shard(merged: Any, cells: pd.DataFrame, out: Any, *, plate: str,
         ``truncated_frac``, ``clipped_px``, ``seconds`` and the paths.
     :raises ImportError: when h5py is missing.
     """
-    import h5py
+    try:
+        import h5py
+    except ImportError as missing:
+        raise ImportError('writing crop shards needs h5py: pip install "spacr[embeddings]"') from missing
 
     from .crops import open_merged_field
 

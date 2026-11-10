@@ -73,14 +73,13 @@ SAMPLING_RULES = ('class_gene', 'class', 'none')
 
 #: Tooltip of ``train_arch``, shared by :mod:`spacr.architecture_training` and :mod:`spacr.gene_classes`.
 TRAIN_ARCH_TOOLTIP = (
-    "(str) - The model trained. Channel-adaptive models (spacr_architectures): 'spacr_channel_cnn' "
-    "(channel-adaptive CNN), 'spacr_channel_vit' (channel-aware ViT) or 'spacr_well_transformer' (set model "
-    "over the cell embeddings of a well); the image models train on crops (train_level 'cell'), the well "
-    "transformer on cell embeddings (train_level 'well_set'). Image arms of the gene-class benchmark "
-    "(gene_classes with ml_model 'image'): 'resnet18', 'resnet50', 'efficientnet_b0', 'convnext_tiny' "
-    "(ImageNet weights), 'dinov2' or 'dinov2_frozen' (DINOv2 ViT-S/14, fine-tuned or a linear probe), "
-    "'maxvit_t' (spaCR's TorchModel) and 'spacr_cnn' (spaCR's CNN, from scratch). Default "
-    "'spacr_well_transformer' in spacr_architectures, 'resnet18' in gene_classes.")
+    "(str) - The model trained. In spacr_architectures, 'spacr_channel_cnn' and "
+    "'spacr_channel_vit' train on cell crops (train_level 'cell') and 'spacr_well_transformer' on"
+    " a well's cell embeddings (train_level 'well_set'); a model that does not fit the level "
+    "stops the run. In gene_classes image arms: 'resnet18', 'resnet50', 'efficientnet_b0', "
+    "'convnext_tiny', 'dinov2', 'dinov2_frozen' (linear probe), 'maxvit_t' or 'spacr_cnn' (from "
+    "scratch). Default 'spacr_well_transformer' in spacr_architectures, 'resnet18' in "
+    "gene_classes.")
 
 #: Tooltip of ``train_protocol``, shared by :mod:`spacr.architecture_training` and :mod:`spacr.gene_classes`.
 TRAIN_PROTOCOL_TOOLTIP = (

@@ -3912,6 +3912,52 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "How the profiles are evaluated: the protocols and methods, the "
         "normalisation and feature QC, the majority and shuffled-label "
         "controls, the seeds and the folds fitted at a time.",
+    "GENE GRAPH INPUTS":
+        "What the gene graph is built from: the output folders, the OPS gene "
+        "and guide tables and their feature columns, extra and sensitivity "
+        "blocks, the known edges of each period, the categories and the "
+        "held-out gene folds.",
+    "GENE GRAPH MODELS":
+        "Which models and arms are trained and how: the protocols, the "
+        "controls, the seeds, the graph size and dropout, the masking and "
+        "loss weights, the learning rates and the early-stopping schedule.",
+    "GENE GRAPH COMPUTE":
+        "Where the gene graph trains: the device, the GPU memory cap and the "
+        "card limit a run waits under, the GPU-hour budget and the GPU log.",
+    "GENE GRAPH EVALUATION":
+        "How the predictions are scored and listed: the bootstrap, the top-k "
+        "cut-offs, the decoy false discovery rate, the model and arm of the "
+        "output lists, what drove each prediction, and the figures.",
+    "PROTEIN KNOWLEDGE INPUTS":
+        "Which genes and sources the protein-knowledge blocks use: the gene "
+        "graph's nodes, the UniProt tables and archived release, the decoy "
+        "proteins, the local model folder, image blocks, folds and the seed.",
+    "PROTEIN KNOWLEDGE MODELS":
+        "How each block is computed: ESM-2 sequence embeddings, the "
+        "fold-masked function text, the domain block, ProstT5 3Di and "
+        "Foldseek structure similarity, their sizes and the paralog rules.",
+    "PROTEIN KNOWLEDGE COMPUTE":
+        "Where the protein models run: the device, the GPU memory cap and the "
+        "card limit a run waits under, and the GPU log.",
+    "PROTEIN KNOWLEDGE EVALUATION":
+        "How the knowledge blocks are scored as gene profiles: the reference "
+        "gene-pair folder, the references used and the profile sets compared.",
+    "GENE FUNCTION INPUTS":
+        "What the fusion reads: its output folder, the gene graph and "
+        "protein-knowledge runs, the protocols, the UniProt and InterPro "
+        "tables, the guide-specificity flags and the seed.",
+    "GENE FUNCTION ARMS":
+        "Which combinations of screen and knowledge are run: the "
+        "nearest-neighbour stack, the graph transformer on knowledge blocks "
+        "and the late fusion pairs, each with its controls and reference runs.",
+    "GENE FUNCTION EVALUATION":
+        "How the arms are compared: the relations scored, knowledge alone, "
+        "the paralog-free scores and the pre-registered winner rule, and the "
+        "figures.",
+    "GENE FUNCTION HYPOTHESES":
+        "How the function hypotheses are written: the model and arm that "
+        "explain them, the shuffled-screen control, how many per gene, the "
+        "screen-specific margin, the partners and the z-score null.",
     "SCREEN STAGING":
         "Which phases of a screen plate run from this one settings file: "
         "the raw images and how they are imported, settings given to the "
