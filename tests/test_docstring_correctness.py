@@ -3200,6 +3200,25 @@ def _validated_moa_benchmark_callables(callables):
     return [item for item in callables if item.symbol not in entries]
 
 
+def _validated_bmc_paper_items_callables(callables):
+    """Check the public callables of the BMC paper items 871-911 against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "871_911_bmc_paper_items_api_arrivals_2026-11-09.json").read_text(encoding="utf-8"))
+    assert len(entries) == 170
+    assert {"spacr.ops_decode", "spacr.ops_reference"} <= entries.keys()
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert len(found) == 168
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
 def _validated_733_easy_mode_callables(callables):
     """Check the exact four executable Easy mode boundaries before historical replay."""
     import json
@@ -3284,6 +3303,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_published_reference_callables(callables)
     callables = _validated_865_866_budding_prediction_callables(callables)
     callables = _validated_moa_benchmark_callables(callables)
+    callables = _validated_bmc_paper_items_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
