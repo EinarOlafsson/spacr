@@ -1416,6 +1416,24 @@ if app_key == "mask":
     assert resolve_default_settings("mask")["mask_workers_per_gpu"] == 1
     assert resolve_default_settings("mask")["illumination_for_later_masks"] is False
     recognized_arrivals |= shared_gpu_arrivals
+    # Items 898-901 and 909-911 (2026-11-09, BMC paper items, lane E): the
+    # new settings' "Default X." claims, each resolved by its own app.
+    from spacr.division_prediction import PREDICTION_DEFAULTS
+    from spacr.host_pathogen import TITRATION_DEFAULTS, TRANSLOCATION_DEFAULTS
+    lane_e_keys = (set(PREDICTION_DEFAULTS) | set(TITRATION_DEFAULTS)
+                   | set(TRANSLOCATION_DEFAULTS)
+                   | {'timelapse_division_onset', 'timelapse_division_onset_ci'}
+                   | {k for k in tooltips if k.startswith(('ml_eval_', 'annotate_sample_'))}
+                   | {'ml_model_type', 'ml_label_column', 'figure_condition_labels',
+                      'figure_model_labels', 'figure_detections', 'figure_mode_folder',
+                      'figure_segmentation_folder', 'figure_score_folder', 'figure_metric',
+                      'compare_permutations', 'compare_seed', 'figure_low_confidence',
+                      'figure_second_look', 'figure_condition_aggregate', 'figure_size_stat',
+                      'figure_scales', 'figure_absolute_units', 'figure_ratio_floor',
+                      'figure_scale_permutations', 'figure_scale_seed'})
+    lane_e_arrivals = {pair for pair in compared_pairs
+                       if pair[1] in lane_e_keys} - set(variants.keys())
+    recognized_arrivals |= lane_e_arrivals
     assert comparisons - len(recognized_arrivals) == 1005
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))
