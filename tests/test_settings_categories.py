@@ -867,6 +867,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "moa_treatment_columns", "moa_batch_column", "moa_controls", "moa_arms",
     "moa_replicates", "moa_shuffles", "moa_supervised_shuffles", "moa_seed",
     "moa_workers", "moa_dst",
+    # 889, alpha: gene classes and the gene-class baseline
+    # (`spacr/gene_classes.py`), two headings of its own.
+    "gene_class_sources", "gene_class_gating", "gene_class_merge", "gene_class_merge_jaccard", "gene_class_kegg_filter", "gene_class_min_train", "gene_class_max_members", "gene_class_gated_from", "train_label_source", "train_gene_classes", "train_split", "train_split_group", "train_folds", "train_decoy_heads", "train_shuffle_control", "train_seed", "ml_model", "train_features", "train_feature_suffix", "train_exclude_sources", "gene_class_eval_min_cells", "gene_class_eval_boot", "gene_class_dst",
     # 581, alpha: what the export writes (h5ad, Parquet tables, R loader)
     # and the folder the tables go to.
     "anndata_format", "anndata_tidy_dir",
@@ -1648,6 +1651,8 @@ def test_every_qt_section_hint_names_a_real_category():
     import spacr.published_reference  # noqa: F401
     # 795: the MoA benchmark registers its two headings.
     import spacr.moa_benchmark  # noqa: F401
+    # 889: gene classes register their two headings.
+    import spacr.gene_classes  # noqa: F401
     known.update(c.upper().strip() for c in S.REGISTERED_CATEGORIES)
     # Qt may make app-scoped relocations without changing the category map
     # shared with the legacy UI (Measure's Filter settings is one).

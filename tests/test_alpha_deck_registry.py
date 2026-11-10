@@ -46,7 +46,8 @@ def test_the_published_alpha_page_covers_the_current_registry():
     # 795 (2026-11-09): the leave-one-compound-out MoA benchmark makes 82.
     # 888 (2026-11-09): the OPS module atlas makes 83.
     # 908 (2026-11-09): the MitoCarta and external-module benchmark makes 84.
-    assert deck._check_registry(ROOT / "spacr/settings.py") == 84
+    # 889 (2026-11-09): gene-class training with grouped folds makes 85.
+    assert deck._check_registry(ROOT / "spacr/settings.py") == 85
     # 710: the published PDF is fetched from the pinned dataset revision.
     media_spec = importlib.util.spec_from_file_location("fetch_docs_media", ROOT / "tools/fetch_docs_media.py")
     media = importlib.util.module_from_spec(media_spec)
@@ -58,7 +59,7 @@ def test_the_published_alpha_page_covers_the_current_registry():
             assert unicodedata.normalize("NFKC", caption) in text
     for _, name in deck.SPECIES:
         assert name in text
-    assert "84 alpha features and 7 alpha species" in text
+    assert "85 alpha features and 7 alpha species" in text
 
 
 def test_unknown_registry_entry_refuses_before_touching_assets(tmp_path):
