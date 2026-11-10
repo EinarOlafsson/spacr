@@ -394,7 +394,10 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # counted above; no dunder changed.
     # Moved 2026-11-06 (was 8f1a22e2...) by the two outlier_policy
     # context-manager dunders counted above; no assignment changed.
-    ) == "f44e3eae5a0c5f3ec7d04750df34d1bb20c80bab3fdc2ca90ed3071077dab55e"
+    # Moved 2026-11-10 (was f44e3eae...) by the seven crop-reader and
+    # batch-transform dunders of items 889 and 896 counted above; the
+    # assignment count stays 39, so no assignment changed.
+    ) == "7aff0ed494c9f16cf0741634abfad7906121cf276f9614704542d712e6a564bf"
     # The item 770 constants (2026-11-05) are named and taken out here, so
     # every older fingerprint below still describes the surface before them.
     tvn_constants = {
@@ -411,6 +414,18 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
                        "spacr.assay_panels.outlier_policy.__exit__"}
     assert outlier_dunders <= dunders
     dunders = dunders - outlier_dunders
+    # And the seven crop-reader and batch-transform dunders (2026-11-10,
+    # items 889 and 896): without them every older fingerprint holds.
+    crop_reader_dunders = {
+        "spacr.embedding_profiles.ShardCrops.__getitem__",
+        "spacr.embedding_profiles.ShardCrops.__len__",
+        "spacr.gene_class_images.DevicePrep.__call__",
+        "spacr.gene_class_images.MemmapCrops.__getitem__",
+        "spacr.gene_class_images.MemmapCrops.__len__",
+        "spacr.gene_class_images.OpsCropDataset.__getitem__",
+        "spacr.gene_class_images.OpsCropDataset.__len__"}
+    assert crop_reader_dunders <= dunders
+    dunders = dunders - crop_reader_dunders
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders - {psf_validator}),
          *(f"new_constant_attribute\0{key}" for key in assignments)]
