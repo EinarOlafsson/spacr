@@ -3143,7 +3143,7 @@ _PH_PROFILE_SWITCHES: Tuple[str, ...] = (
     "ops_profile_cell_cycle", "ops_profile_shrinkage",
     "ops_profile_generic_axes", "ops_profile_weighting",
     "ops_guide_efficacy", "ops_profile_similarity", "ops_penetrance",
-    "ops_escapers", "ops_phase_tests",
+    "ops_escapers", "ops_phase_tests", "ops_profile_space",
 )
 
 _PH_DEGENERATE_CAUSES = (
@@ -3856,8 +3856,9 @@ def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
     import pandas as pd
 
     from .gene_measurement_compare import (
-        CELL_CYCLE_PHASES, cell_cycle_phases, contrastive_weighting,
-        generic_covariates, guide_efficacy_profiles,
+        CELL_CYCLE_PHASES, aggregate_genes, aggregate_guides,
+        cell_cycle_phases, contrastive_weighting, embedding_profiles,
+        fusion_profiles, generic_covariates, guide_efficacy_profiles,
         guide_level_similarity, nt_row_names, penetrance_tests,
         phase_columns, phase_profiles, phase_tests,
         remove_generic_axes, responder_profiles, shrink_gene_profiles)
@@ -4095,6 +4096,54 @@ def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
         _ph_profile_tables("phase_calls", result["calls"], destination, label,
                            outputs)
         report["phase_tests"] = result["summary"]
+
+    space = str(settings.get("ops_profile_space") or "").strip()
+    if space and space != "tvn":
+        kind, _sep, folder = space.partition(":")
+        if kind not in ("embedding", "fusion") or not folder:
+            raise ValueError(tr(
+                "ops_profile_space must be tvn, embedding:<folder> or "
+                "fusion:<folder>; got {value}", value=space))
+        index = pd.read_parquet(os.path.join(folder, "index.parquet"),
+                                columns=["row", "well", "site", "label"])
+        exported = np.load(os.path.join(folder, "embeddings.npy"), mmap_mode="r")
+        frame = cells[["well", "site", "label", "sgRNA", "gene"]].reset_index(
+            drop=True).rename_axis("_cell").reset_index()
+        index["well"] = index["well"].astype(str)
+        frame["well"] = frame["well"].astype(str)
+        matched = index.merge(frame, on=["well", "site", "label"], how="inner")
+        if phases is not None:
+            matched = matched[phases.to_numpy()[matched["_cell"].to_numpy()] != "M"]
+        matched = matched.sort_values("row").reset_index(drop=True)
+        matched_control = matched["gene"].astype(str).str.lower().str.startswith(
+            control_prefix.lower())
+        embedded, info = embedding_profiles(
+            exported, matched, control=matched_control,
+            rows=matched["row"].to_numpy(),
+            whiten_epsilon=float(_setting_number(
+                settings.get("ops_tvn_whiten_epsilon"), "ops_tvn_whiten_epsilon", 3.0)))
+        _ph_profile_tables("genes_embedding", embedded, destination, label,
+                           outputs)
+        report["embedding"] = {"folder": folder, "cells_matched": int(len(matched)),
+                               "exported_rows": int(len(index)), **info}
+        if kind == "fusion":
+            measured = pd.concat([matched[["sgRNA", "gene"]],
+                                  pd.DataFrame(embedding[matched["_cell"].to_numpy()],
+                                               columns=pcs)], axis=1)
+            blocks = {"meas": aggregate_genes(aggregate_guides(
+                measured, pcs, guide="sgRNA"), pcs),
+                      "emb": embedded}
+            order = _ph_names(settings.get("ops_fusion_blocks")) or ["meas", "emb"]
+            unknown = [b for b in order if b not in blocks]
+            if unknown:
+                raise ValueError(tr(
+                    "ops_fusion_blocks names {unknown}; the blocks are meas "
+                    "and emb", unknown=unknown))
+            fused = fusion_profiles({b: blocks[b] for b in order})
+            _ph_profile_tables("genes_fusion", fused, destination, label,
+                               outputs)
+            report["embedding"]["fusion_dims"] = {
+                b: int(fused.columns.str.startswith(f"f_{b}").sum()) for b in order}
     return report
 
 

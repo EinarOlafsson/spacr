@@ -118,6 +118,8 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_profile_similarity": None,
     "ops_guide_null_size": 200000,
     "ops_profile_responder_alpha": 0.05,
+    "ops_profile_space": None,
+    "ops_fusion_blocks": None,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -219,6 +221,8 @@ OPS_TYPES: Dict[str, object] = {
     "ops_profile_similarity": (str, type(None)),
     "ops_guide_null_size": int,
     "ops_profile_responder_alpha": (float, int),
+    "ops_profile_space": (str, type(None)),
+    "ops_fusion_blocks": (str, list, type(None)),
 }
 
 #: Which panel section each setting appears under.
@@ -291,6 +295,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_profile_similarity",
         "ops_guide_null_size",
         "ops_profile_responder_alpha",
+        "ops_profile_space",
+        "ops_fusion_blocks",
     ],
 }
 
@@ -832,6 +838,18 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(float) - The share of held-out control cells a responder "
         "threshold lets through; the responder fraction is (flagged - "
         "alpha) / (1 - alpha). Default 0.05. Alpha.",
+    "ops_profile_space":
+        "(str or None) - Profile frozen single-cell embeddings as well: "
+        "'embedding:<folder>' reads <folder>/embeddings.npy and "
+        "index.parquet (row, well, site, label), joins them to the profiled "
+        "interphase cells and writes TVN gene profiles of the embedding; "
+        "'fusion:<folder>' also joins them with the measurement profile of "
+        "the same cells, each block whitened and given equal weight. Empty "
+        "or 'tvn' does neither. Default None. Alpha.",
+    "ops_fusion_blocks":
+        "(str, list or None) - The blocks of a fusion profile, in order: "
+        "'meas' (the TVN measurement profile) and 'emb' (the embedding "
+        "profile). Empty uses both, measurement first. Default None. Alpha.",
 }
 
 #: The blurb the module shows above its settings.

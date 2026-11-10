@@ -3736,3 +3736,178 @@ def distribution_distances(cells: pd.DataFrame, features: Sequence[str], *,
     return (result["summary"][["gene", "energy_distance_vs_NT"]],
             result["sliced_wasserstein"])
 
+
+#: How :func:`embedding_profiles` normalises single-cell embeddings.
+EMBEDDING_NORMS: Tuple[str, ...] = ("tvn", "robustz")
+
+
+def _well_statistics(embedding, rows: np.ndarray, wells: np.ndarray,
+                     control: np.ndarray, chunk: int
+                     ) -> Tuple[Dict[Any, np.ndarray], ...]:
+    """Per-well mean, standard deviation, control median and control MAD.
+
+    :param embedding: the embedding rows (an array or a memory map).
+    :param rows: the rows used, in order.
+    :param wells: the well of each used row.
+    :param control: True for a control row.
+    :param chunk: rows read at a time.
+    :returns: ``(mean, sd, median, mad)`` keyed by well; a zero MAD is 1.
+    """
+    names = sorted(pd.unique(wells))
+    width = np.asarray(embedding[rows[:1]]).shape[1]
+    first = {w: np.zeros(width) for w in names}
+    second = {w: np.zeros(width) for w in names}
+    count = {w: 0 for w in names}
+    controls: Dict[Any, List[np.ndarray]] = {w: [] for w in names}
+    for start in range(0, len(rows), int(chunk)):
+        x = np.asarray(embedding[rows[start:start + int(chunk)]], dtype=np.float32)
+        here = wells[start:start + int(chunk)]
+        for w in names:
+            k = here == w
+            if k.any():
+                first[w] += x[k].sum(0)
+                second[w] += (x[k].astype(np.float64) ** 2).sum(0)
+                count[w] += int(k.sum())
+                kc = k & control[start:start + int(chunk)]
+                if kc.any():
+                    controls[w].append(x[kc])
+    mean = {w: first[w] / count[w] for w in names}
+    sd = {w: np.sqrt(np.clip(second[w] / count[w] - mean[w] ** 2, 1e-12, None))
+          for w in names}
+    median, mad = {}, {}
+    for w in names:
+        values = np.vstack(controls[w])
+        median[w] = np.median(values, 0)
+        mad[w] = MAD_TO_SD * np.median(np.abs(values - median[w]), 0)
+        mad[w][mad[w] == 0] = 1
+    return mean, sd, median, mad
+
+
+def _scaled_by_well(x: np.ndarray, wells: np.ndarray, centre: Mapping,
+                    scale: Mapping) -> np.ndarray:
+    """Rows centred and scaled by their well's statistics.
+
+    :param x: the rows.
+    :param wells: each row's well.
+    :param centre: the per-well centre.
+    :param scale: the per-well scale.
+    :returns: the scaled rows, in the dtype of ``x``.
+    """
+    out = np.empty_like(x)
+    for w in np.unique(wells):
+        k = wells == w
+        out[k] = (x[k] - centre[w]) / scale[w]
+    return out
+
+
+def embedding_profiles(embedding, cells: pd.DataFrame, *,
+                       control: pd.Series, rows: Optional[np.ndarray] = None,
+                       guide: str = "sgRNA", gene: str = "gene",
+                       well: str = "well", norm: str = "tvn",
+                       sample: int = 100000, seed: int = 0,
+                       chunk: int = 200000, whiten_epsilon: float = 0.0
+                       ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    """Gene profiles from frozen single-cell embeddings.
+
+    :param embedding: one row per exported cell (a NumPy array or memory
+        map, any float dtype); only the rows of ``rows`` are read, a chunk
+        at a time, so a large export stays on disk.
+    :param cells: one row per profiled cell, in the order of ``rows``, with
+        ``guide``, ``gene`` (non-targeting cells under pseudo-gene names,
+        :func:`nt_row_names`; ``nontargeting_drop`` cells are left out of
+        the profiles) and ``well``.
+    :param control: True for a non-targeting cell.
+    :param rows: the embedding row of each cell; by default ``0..n-1``.
+    :param guide: the guide column.
+    :param gene: the gene column.
+    :param well: the well column (the batch).
+    :param norm: ``'tvn'`` (per-well centre-scale, PCA 99 % fitted on a
+        ``sample``-cell sample, then TVN on the control cells with CORAL by
+        well, :func:`spacr.ops_tvn.tvn_on_controls`) or ``'robustz'``
+        (per-well robust z against the control cells, then PCA 99 %).
+    :param sample: cells the PCA is fitted on.
+    :param seed: the sample and PCA seed.
+    :param chunk: embedding rows read at a time.
+    :param whiten_epsilon: the TVN whitening epsilon; 0 is Brieflow's TVN.
+    :returns: ``(genes, info)``: ``gene, n_guides, n_cells, emb_0 ...``
+        (a guide is the median of its cells, a gene the median of its
+        guides) and ``components`` and ``cells``.
+    :raises ValueError: for an unknown ``norm``.
+
+    The cells are the ones the measurements were profiled on, so the
+    embedding and measurement profiles of :func:`fusion_profiles` describe
+    the same cells.
+    """
+    from sklearn.decomposition import PCA
+
+    norm = str(norm or "tvn").strip().lower()
+    if norm not in EMBEDDING_NORMS:
+        raise ValueError(f"norm must be one of {list(EMBEDDING_NORMS)}; got {norm!r}")
+    rows = np.arange(len(cells)) if rows is None else np.asarray(rows)
+    wells = cells[well].to_numpy()
+    control = pd.Series(control, index=cells.index).fillna(False
+                                                           ).astype(bool).to_numpy()
+    mean, sd, median, mad = _well_statistics(embedding, rows, wells, control, chunk)
+    centre, scale = (mean, sd) if norm == "tvn" else (median, mad)
+    rng = np.random.default_rng(int(seed))
+    picked = np.sort(rng.choice(len(rows), min(int(sample), len(rows)), replace=False))
+    fit = np.asarray(embedding[rows[picked]], dtype=np.float32)
+    pca = PCA(n_components=0.99, random_state=int(seed)).fit(
+        _scaled_by_well(fit, wells[picked], centre, scale))
+    del fit
+    scores = np.empty((len(rows), pca.n_components_), np.float32)
+    for start in range(0, len(rows), int(chunk)):
+        x = np.asarray(embedding[rows[start:start + int(chunk)]], dtype=np.float32)
+        scores[start:start + len(x)] = pca.transform(_scaled_by_well(
+            x, wells[start:start + int(chunk)], centre, scale)).astype(np.float32)
+    if norm == "tvn":
+        from .ops_tvn import tvn_on_controls
+
+        scores, _info = tvn_on_controls(scores, control, wells,
+                                        whiten_epsilon=float(whiten_epsilon))
+    columns = [f"emb_{j}" for j in range(scores.shape[1])]
+    keep = cells[gene].astype(str).to_numpy() != "nontargeting_drop"
+    frame = pd.concat([cells.loc[keep, [guide, gene]].reset_index(drop=True),
+                       pd.DataFrame(scores[keep], columns=columns)], axis=1)
+    guides = aggregate_guides(frame, columns, guide=guide, gene=gene)
+    return aggregate_genes(guides, columns), {"components": int(pca.n_components_),
+                                              "cells": int(keep.sum())}
+
+
+def fusion_profiles(blocks: Mapping[str, pd.DataFrame], *,
+                    variance: float = 0.99, seed: int = 0) -> pd.DataFrame:
+    """Gene profiles of several blocks joined with equal weight.
+
+    :param blocks: name -> gene table (``gene``, ``n_cells`` and profile
+        columns starting ``PC_``, ``emb_`` or ``f_``), in join order; the
+        first block's cell counts are kept (``ops_fusion_blocks``).
+    :param variance: the share of variance each block keeps.
+    :param seed: the PCA seed.
+    :returns: ``gene, n_cells, f_<block>0 ...`` for the genes every block
+        has.
+
+    Each block is standardised across genes, PCA-whitened to ``variance``
+    and divided by the square root of its dimension count, so a block's
+    squared norm averages one whatever its width, and a 768-dimension
+    embedding cannot outvote a 100-dimension measurement profile.
+    """
+    from sklearn.decomposition import PCA
+
+    parts, counts = [], None
+    for name, table in blocks.items():
+        columns = [c for c in table.columns if str(c).startswith(("PC_", "emb_", "f_"))]
+        x = table[columns].to_numpy(float)
+        spread = x.std(0)
+        x = (x - x.mean(0)) / np.where(spread > 0, spread, 1)
+        p = PCA(n_components=variance, whiten=True, random_state=int(seed)).fit_transform(x)
+        p /= np.sqrt(p.shape[1])
+        parts.append(pd.DataFrame(p, columns=[f"f_{name}{j}" for j in range(p.shape[1])],
+                                  index=table["gene"].to_numpy()))
+        if counts is None:
+            counts = table.set_index("gene")["n_cells"]
+    fused = parts[0]
+    for part in parts[1:]:
+        fused = fused.join(part, how="inner")
+    fused.insert(0, "n_cells", counts.reindex(fused.index).to_numpy())
+    fused.index.name = "gene"
+    return fused.reset_index()
