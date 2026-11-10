@@ -8247,6 +8247,10 @@ ALPHA_FEATURES = {
                      'ops_eval_decoys', 'ops_eval_time_split',
                      'ops_eval_covariates'),
     },
+    888: {
+        'settings': ('ops_modules_runs', 'ops_modules_precomputed_embedding',
+                     'ops_modules_profiles', 'ops_modules_driver_profiles'),
+    },
     691: {
         'models': ('mitonet_mini_v1',),
         'widgets': ('MakeMasksMitoNetSettings', 'ModelZooSourceThirdParty'),

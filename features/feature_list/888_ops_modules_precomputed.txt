@@ -1,0 +1,37 @@
+OPS MODULE ATLAS ON CONSENSUS PARTITIONS, WITH PRECOMPUTED (WEIGHTED) EMBEDDINGS
+===============================================================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha, under ALPHA_FEATURES[888]) — the OPS "modules" phase (run_ops(settings, phases=("modules",))) clusters the gene profiles of ops_modules_profiles once at the module resolutions (PHATE + Leiden at 3 / 10 / 26, seed 42) and ops_modules_runs times on resampled genes and guides (seeds 1000 + k, the 855 consensus runs), then anchors every reference cluster on its best enriched CORUM / KEGG / GO-slim group and gates the unlinked genes into stable new members (co-membership, fitness-matched soft cosine, guide support, specificity flag, no STRING >= 0.4 / BioGRID / group link), with control pseudo-genes and three label shuffles as controls. ops_modules_precomputed_embedding uses the profile columns as they are (weighted profiles), instead of standardise + PCA 99 %. spacr/ops_modules.py, spacr/ops_engine.py, spacr/ops_settings.py, tests/test_ops_modules_888.py.
+Requested: maintainer via the BMC paper session, 2026-11-09.
+Owner: lane G (paper items 2026-11-09).
+Source: the plate A pilot's consensus clustering and module atlas, run per arm by the improved analysis' atlas wrapper (precomputed.json switches the embedding off).
+Related: 855, 879, 907, 908.
+
+WHAT THE STATE IS
+The consensus runs of the cluster benchmark (855) were written but nothing
+turned them into modules; the module atlas and its gates existed only as
+pilot scripts, and weighted profiles needed a monkey-patched embedding.
+
+WHAT TO DO
+- A modules phase that reads the profile tables, writes the reference and
+  consensus partitions (resumable per run) and the atlas tables.
+- The pilot's anchoring, gates, controls and summary, every seed as there.
+- A setting that skips the standardise + PCA embedding for weighted
+  profiles.
+
+RESULT
+Against the stored outputs of the improved analysis (scratch scripts
+paper-items-1109/lane-g/v888_atlas.py and v888_phate.py):
+- rows_reference identical; module_members.csv and module_atlas.csv
+  byte-identical and module_summary.json identical for arm C0_base
+  (standard embedding) and arm W_bf_S02 (precomputed embedding), from the
+  stored reference and consensus partitions.
+- PHATE + Leiden (venv with phate 2.0.0, leidenalg 0.12): the reference
+  embedding, the three reference partitions and reference.json identical
+  for both arms, and consensus runs 0-2 (W_bf_S02) and 0-1 (C0_base)
+  identical label for label.
+
+RULE
+With the phase not requested, every output stays identical to today's;
+the 855 consensus runs and their code are unchanged.

@@ -110,6 +110,10 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_eval_decoys": 10,
     "ops_eval_time_split": False,
     "ops_eval_covariates": None,
+    "ops_modules_runs": 100,
+    "ops_modules_precomputed_embedding": False,
+    "ops_modules_profiles": None,
+    "ops_modules_driver_profiles": None,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -203,6 +207,10 @@ OPS_TYPES: Dict[str, object] = {
     "ops_eval_decoys": int,
     "ops_eval_time_split": bool,
     "ops_eval_covariates": (str, type(None)),
+    "ops_modules_runs": int,
+    "ops_modules_precomputed_embedding": bool,
+    "ops_modules_profiles": (str, type(None)),
+    "ops_modules_driver_profiles": (str, list, type(None)),
 }
 
 #: Which panel section each setting appears under.
@@ -257,6 +265,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_eval_references", "ops_eval_split", "ops_eval_null_size",
         "ops_eval_heldout_folds", "ops_eval_decoys",
         "ops_eval_time_split", "ops_eval_covariates",
+        "ops_modules_runs", "ops_modules_precomputed_embedding",
+        "ops_modules_profiles", "ops_modules_driver_profiles",
     ],
 }
 
@@ -740,6 +750,29 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(str or None) - A table with gene and cells_per_guide columns, the "
         "fitness that decoy partners are matched on; empty takes cells per "
         "guide from the run's own guide table. Default None. Alpha.",
+    "ops_modules_runs":
+        "(int) - How many resampled PHATE + Leiden runs the modules phase "
+        "clusters the gene profiles in. Each run takes 90 % of the genes, "
+        "resamples each gene's guides and has its own seed and resolution; "
+        "how often a gene shares a cluster with a module's known core over "
+        "these runs is one of the gates for a new module member. More runs "
+        "give steadier co-membership and take longer. Default 100. Alpha.",
+    "ops_modules_precomputed_embedding":
+        "(bool) - Cluster the profile columns as they are in the modules "
+        "phase, instead of standardising them and keeping the principal "
+        "components that hold 99 % of the variance. Turn it on for weighted "
+        "profiles, such as contrastive weighting, which standardising again "
+        "would undo. Default False. Alpha.",
+    "ops_modules_profiles":
+        "(str or None) - The folder holding the genes.parquet and "
+        "guides.parquet profile tables the modules phase clusters; its "
+        "results go to a modules folder inside it. Empty takes the profile "
+        "phase's folder, dst_root/ops_profile/<run>. Default None. Alpha.",
+    "ops_modules_driver_profiles":
+        "(str or None) - The robust z profile tables the modules phase reads "
+        "each module's driving features from: a folder with genes.parquet "
+        "and guides.parquet, or the two paths as a list. Empty uses the "
+        "clustered profiles. Default None. Alpha.",
     "ops_mitotic_model":
         "(str or None) - A mitotic-cell classifier trained on labelled cells "
         "with spacr.ops_mitotic.train_mitotic_classifier. When set it calls "

@@ -357,6 +357,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_reference_dir", "ops_eval_references", "ops_eval_split",
     "ops_eval_null_size", "ops_eval_heldout_folds", "ops_eval_decoys",
     "ops_eval_time_split", "ops_eval_covariates",
+    # 888, alpha: the module atlas of the OPS modules phase.
+    "ops_modules_runs", "ops_modules_precomputed_embedding",
+    "ops_modules_profiles", "ops_modules_driver_profiles",
     # NEW SETTINGS, not a regrouping: Mask's pixel-size diameter default and
     # per-image diameter estimate, and the ML classifier's class list.
     "pixel_size_um", "estimate_diameters_per_image", "ml_classes",
