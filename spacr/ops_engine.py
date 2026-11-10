@@ -5091,7 +5091,8 @@ def _ph_crop_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     :param task: ``site``, ``files``, ``channels``, ``crop_channels``,
         ``mask_path``, ``labels`` (``{label: (reason, object_id)}``),
         ``size``, ``flat_folder``, ``masks``, ``secondary``, ``plate``,
-        ``well``.
+        ``well``; optionally ``flat_mean_one``, which scales each flat to
+        mean 1 over the field before it divides.
     :returns: ``site``, ``members`` (``(name, bytes, record)``) and
         ``unreadable``.
     """
@@ -5109,6 +5110,10 @@ def _ph_crop_field(task: Mapping[str, Any]) -> Dict[str, Any]:
 
         planes, offsets, _inverse = _ph_flat_planes(
             task["flat_folder"], task["channels"], stack.shape[:2])
+        if task.get("flat_mean_one"):
+            planes = {c: (p.astype(np.float64) / p.astype(np.float64).mean()
+                          ).astype(np.float32) for c, p in planes.items()}
+            offsets = {c: float(np.float32(v)) for c, v in offsets.items()}
         stack = correct_field(stack, planes, offsets, task["channels"])
     keep = [task["channels"].index(c) for c in task["crop_channels"]]
     stack = np.clip(np.rint(stack[..., keep]), 0, 65535).astype(np.uint16)
@@ -5150,7 +5155,7 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
     :param settings: read for ``ops_crop_per_guide``, ``ops_crop_size``,
         ``ops_crop_channels``, ``ops_crop_flatfield``, ``ops_crop_seed``,
         ``ops_crop_all_nt``, ``ops_crop_control_fraction``,
-        ``ops_crop_masks``, ``ops_max_files_per_folder``,
+        ``ops_crop_masks``, ``ops_crop_flat_mean_one``, ``ops_max_files_per_folder``,
         ``ops_merged_root``, ``ops_design``, ``ops_genotype_table`` and the
         ``ops_ph_secondary_*`` options.
     :param destination: the run folder.
@@ -5210,6 +5215,8 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
                "control_fraction": fraction, "masks": with_masks,
                "seed": settings.get("ops_crop_seed") or 0,
                "flatfield": flat_folder, "cap": cap,
+               "flat_mean_one": bool(settings.get("ops_crop_flat_mean_one",
+                                                  False)),
                "genotype": _ph_genotype_rule(settings)}
     design_path = settings.get("ops_design")
     sampled = (settings.get("ops_crop_per_guide") not in (None, "")
@@ -5277,6 +5284,7 @@ def _ph_crops(db: str, plate: str, wells: Sequence[str], phenotype_index,
                   "mask_path": os.path.join(mask_dir, f"site-{site}.npz"),
                   "labels": labels, "size": size, "flat_folder": flat_folder,
                   "masks": with_masks, "secondary": secondary.get(site),
+                  "flat_mean_one": options["flat_mean_one"],
                   "plate": plate, "well": well}
                  for site, labels in sorted(chosen.items())
                  if site in files and os.path.isfile(

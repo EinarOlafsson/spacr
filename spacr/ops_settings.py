@@ -121,6 +121,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_reference_shuffles": 1000,
     "ops_reference_seed": 0,
     "ops_retry_missing": False,
+    "ops_crop_flat_mean_one": False,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -225,6 +226,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_reference_shuffles": int,
     "ops_reference_seed": int,
     "ops_retry_missing": bool,
+    "ops_crop_flat_mean_one": bool,
 }
 
 #: Which panel section each setting appears under.
@@ -284,6 +286,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_cross_field_min_overlap", "ops_cross_field_policy",
         "ops_reference_counts", "ops_reference_counts_level",
         "ops_reference_shuffles", "ops_reference_seed", "ops_retry_missing",
+        "ops_crop_flat_mean_one",
     ],
 }
 
@@ -837,6 +840,11 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "ops_missing_fields_<well>.parquet). Off, a resumed run skips them, "
         "so a well with fields absent from a public download still "
         "finishes. Default False. Alpha.",
+    "ops_crop_flat_mean_one":
+        "(bool) - Scale each flat-field map to a mean of 1 over the field "
+        "before the crops are corrected with it, as the plate A gene-class "
+        "crops were cut; off divides by the maps as stored, as merged/ and "
+        "the measurement do. Default False. Alpha.",
 }
 
 #: The blurb the module shows above its settings.

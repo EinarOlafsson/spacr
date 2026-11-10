@@ -436,3 +436,40 @@ def test_measure_gpu_reaches_the_measurement(monkeypatch, tmp_path):
         "mask_path": str(masks), "cell_path": str(tmp_path / "c.parquet"),
         "texture": False, "measure_gpu": True})
     assert seen["gpu"] is True
+
+
+def test_crops_can_divide_by_flats_scaled_to_mean_one(measured):
+    run = measured / "run"
+    folder = run / "flat"
+    folder.mkdir()
+    channels = ("DAPI", "GFP", "AF750")
+    for name in channels:
+        np.save(folder / f"flat_{name}.npy",
+                np.linspace(0.5, 1.0, 16).reshape(4, 4).astype(np.float32))
+    (folder / "flat_info.json").write_text(json.dumps(
+        {"method": {c: {"offset": 5.0} for c in channels}}))
+    from spacr.ops_flatfield import correct_field, flat_planes, load_flat_maps
+
+    maps, offsets, _info = load_flat_maps(str(folder), list(channels))
+    out = _run(measured, ("ph_masks", "merge", "ph_crops"),
+               ops_flatfield_maps=str(folder), ops_crop_flat_mean_one=True,
+               ops_crop_control_fraction=0.0)
+    assert out["ph_crops"]["options"]["flat_mean_one"] is True
+    shard = run / "data" / "cell" / PLATE / "A1" / "shard-0000.tar"
+    first = pd.read_parquet(str(shard)[:-4] + ".index.parquet").iloc[0]
+    image, _mask = ops_engine._ph_read_crop(str(shard), first["offset_data"],
+                                            first["size"])
+    planes = {c: (p.astype(np.float64) / p.astype(np.float64).mean()
+                  ).astype(np.float32)
+              for c, p in flat_planes(maps, (SIZE, SIZE)).items()}
+    stack = np.stack([_field(first["site"])[c] for c in channels], -1)
+    stack = np.clip(np.rint(correct_field(stack, planes, offsets, channels)),
+                    0, 65535).astype(np.uint16)
+    with np.load(run / "A1" / "phenotype_masks" /
+                 f"site-{first['site']}.npz") as saved:
+        cells = saved["cells"].astype(np.int32)
+        nuclei = saved["nuclei"].astype(np.int32)
+    expected = ops_engine._ph_crop_cell(
+        stack, cells, nuclei, ndimage.find_objects(cells)[first["label"] - 1],
+        int(first["label"]), 96, False)[0]
+    assert np.array_equal(image, expected)
