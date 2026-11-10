@@ -534,8 +534,7 @@ class DataFilterPanel(QWidget):
 
         :param state: dict as :meth:`state` returns it,
             ``{"version": 1, "filters": [...]}``; any other version raises
-            ``ValueError``. Existing clauses are cleared first. An entry whose
-            ``enabled`` is false is not applied and not reported missing.
+            ``ValueError``. Existing clauses are cleared first.
         :returns: the columns that could not be restored, so the caller can
             say so. A filter set saved against one table and loaded against
             another is a normal thing to do -- what must not happen is it
@@ -550,6 +549,7 @@ class DataFilterPanel(QWidget):
         missing = []
         available = set(self.available_columns())
         for entry in state.get("filters", ()):
+            # A filter saved switched off is not applied, and is not missing.
             if not entry.get("enabled", True):
                 continue
             column = str(entry.get("column", ""))
