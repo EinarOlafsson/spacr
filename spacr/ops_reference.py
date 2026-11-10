@@ -560,3 +560,257 @@ def reference_versions(out_dir: str) -> Optional[Dict[str, Any]]:
         return None
     with open(target, encoding="utf-8") as handle:
         return json.load(handle)
+
+
+#: References whose shuffled-label and fitness-matched controls are scored.
+CONTROL_REFERENCES: Tuple[str, ...] = ("CORUM", "STRING>=0.7", "BioGRID")
+
+#: The evaluation settings and their defaults.
+EVALUATION_DEFAULTS: Dict[str, Any] = {
+    "ops_eval_references": list(MAIN_REFERENCES),
+    "ops_eval_split": "all",
+    "ops_eval_null_size": 5000,
+    "ops_eval_heldout_folds": 5,
+    "ops_eval_decoys": 10,
+    "ops_eval_time_split": False,
+}
+
+
+def embed_gene_profiles(values, variance: float = 0.99, seed: int = 0) -> np.ndarray:
+    """The components gene profiles are compared in, as Brieflow embeds them.
+
+    Columns with 5 % or more missing values are dropped, other gaps take the
+    column median, constant columns are dropped, the rest are standardised,
+    and a PCA keeping ``variance`` of the variance is fitted and applied in
+    one step (``fit_transform``), as ``funk_benchmark.py`` does.
+
+    :param values: rows by features.
+    :param variance: the share of variance kept.
+    :param seed: the PCA seed.
+    :returns: rows by components, double precision.
+    """
+    from sklearn.decomposition import PCA
+
+    x = np.asarray(values, dtype=float)
+    x = np.where(np.isfinite(x), x, np.nan)
+    x = x[:, np.isnan(x).mean(axis=0) < 0.05]
+    x = np.where(np.isnan(x), np.nanmedian(x, axis=0), x)
+    spread = x.std(axis=0)
+    x = (x[:, spread > 0] - x[:, spread > 0].mean(axis=0)) / spread[spread > 0]
+    return PCA(n_components=variance, random_state=seed).fit_transform(x)
+
+
+def evaluation_options(settings: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
+    """The evaluation settings with their defaults filled in and checked.
+
+    :param settings: any mapping holding ``ops_eval_*`` keys.
+    :returns: ``{key: value}`` for every key of :data:`EVALUATION_DEFAULTS`.
+    :raises ValueError: for an unknown split or reference, or a count below 1.
+    """
+    settings = dict(settings or {})
+    out = {k: (settings[k] if settings.get(k) is not None else v) for k, v in EVALUATION_DEFAULTS.items()}
+    references = out["ops_eval_references"]
+    out["ops_eval_references"] = [references] if isinstance(references, str) else list(references)
+    unknown = [r for r in out["ops_eval_references"] if r.split("@")[0] not in REFERENCE_FILES]
+    if unknown:
+        raise ValueError(f"ops_eval_references names unknown references {unknown}; choose from "
+                         f"{sorted(REFERENCE_FILES)}")
+    split_references(out["ops_eval_references"], out["ops_eval_split"])
+    for key in ("ops_eval_null_size", "ops_eval_heldout_folds", "ops_eval_decoys"):
+        if int(out[key]) < 1:
+            raise ValueError(f"{key} must be at least 1; got {out[key]}")
+        out[key] = int(out[key])
+    out["ops_eval_split"] = str(out["ops_eval_split"]).lower()
+    out["ops_eval_time_split"] = bool(out["ops_eval_time_split"])
+    return out
+
+
+def _scored_references(options: Mapping[str, Any]) -> List[Tuple[str, bool]]:
+    """``(reference, with p values)`` in the order an evaluation scores them."""
+    base = [r for r in options["ops_eval_references"] if "@" not in r]
+    split = options["ops_eval_split"]
+    if split == "all":
+        scored = [(r, True) for r in base]
+        scored += [(r, False) for r in HALF_REFERENCES if r.split("@")[0] in base]
+    else:
+        scored = [(r, True) for r in split_references(base, split)]
+    if options["ops_eval_time_split"]:
+        scored += [(r, False) for r in TIME_REFERENCES]
+    return scored
+
+
+def _fitness(names: np.ndarray, cells_per_guide: Mapping[str, float], *, fill: bool) -> np.ndarray:
+    """Cells per guide of every row; single-guide control rows take the median."""
+    values = pd.Series(cells_per_guide, dtype=float)
+    median = values.median()
+    cpg = np.array([values.get(n, np.nan) if not str(n).startswith("nontargeting_") else median for n in names])
+    return np.where(np.isfinite(cpg), cpg, np.nanmedian(cpg)) if fill else cpg
+
+
+def _shuffled(names: np.ndarray, targeting: np.ndarray, rng) -> np.ndarray:
+    """``names`` with the targeting rows' labels permuted."""
+    out = names.copy()
+    out[targeting] = names[targeting][rng.permutation(targeting.sum())]
+    return out
+
+
+def _check_profiles(names: np.ndarray, pcs: np.ndarray, sims: np.ndarray) -> None:
+    """Refuse profiles the tie rule would score as perfect."""
+    targeting = np.flatnonzero(~is_control(names))
+    if (np.linalg.norm(pcs[targeting], axis=1) < 1e-8).mean() > 0.01:
+        raise ValueError("more than 1% of the gene profiles are zero vectors; refusing to score them "
+                         "(a tie ranks the partner first, so they would score AP 1)")
+    sample = sims[np.ix_(targeting[:300], targeting[300:600])]
+    if np.unique(sample.astype(np.float32)).size < 0.5 * sample.size:
+        raise ValueError("more than half of the sampled similarities are tied; refusing to score them")
+
+
+def evaluate_gene_profiles(names: Sequence[Any], pcs, cells_per_guide: Mapping[str, float],
+                           reference_dir: Any, settings: Optional[Mapping[str, Any]] = None,
+                           *, arm: str = "", null_cache: Optional[str] = None
+                           ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Every retrieval metric and control of one set of gene profiles.
+
+    Cosine similarity of the components ranks the genes. Rows, in order:
+    the per-gene retrieval mAP of every scored reference
+    (:func:`spacr.sp_stats.pair_map`, :func:`spacr.sp_stats.summarize_pair_map`;
+    p values for the whole references only), each followed for CORUM,
+    STRING >= 0.7 and BioGRID by two controls: gene labels shuffled among
+    the targeting rows (seed 7) and fitness-matched decoy partners (seed 3);
+    the share of control rows among the ten nearest neighbours of every
+    targeting gene; the pair AUPRC of Brieflow's STRING pairs (30 gene
+    resamples) and of STRING >= 0.7, and the first with shuffled labels
+    (seed 8); held-out CORUM members, and the same with the shuffled labels;
+    the time split.
+
+    :param names: the row names; control rows start with ``nontargeting``
+        or ``NTpseudo``.
+    :param pcs: rows by components (:func:`embed_gene_profiles`).
+    :param cells_per_guide: ``{gene: cells per guide}``, the fitness used to
+        match decoys; single-guide control rows take the median.
+    :param reference_dir: see :func:`reference_dirs`.
+    :param settings: the ``ops_eval_*`` settings (:func:`evaluation_options`).
+    :param arm: the label of the ``arm`` column.
+    :param null_cache: see :func:`spacr.sp_stats._pair_null`.
+    :returns: ``(metrics, per_gene)``: one row per metric, and the per-gene
+        table of every reference with a ``reference`` column.
+    :raises ValueError: for degenerate profiles (see the module notes) or
+        bad settings.
+    """
+    from . import sp_stats
+
+    options = evaluation_options(settings)
+    names = np.asarray(names)
+    pcs = np.asarray(pcs, dtype=float)
+    sims = sp_stats.profile_cosine(pcs)
+    _check_profiles(names, pcs, sims)
+    np.fill_diagonal(sims, -np.inf)
+    controls = is_control(names)
+    targeting = ~controls
+    bins = sp_stats.fitness_bins(_fitness(names, cells_per_guide, fill=False), controls)
+    null_size = options["ops_eval_null_size"]
+    rows, per_gene = [], []
+    for reference, with_p in _scored_references(options):
+        timed = reference in TIME_REFERENCES
+        positives = positive_matrix(names, reference_pairs(reference, reference_dir))
+        table = sp_stats.pair_map(sims, names, positives, controls=controls, null_size=null_size,
+                                  pvalues=with_p, null_cache=null_cache)
+        summary = sp_stats.summarize_pair_map(table, 300 if "@" in reference or timed else 1000)
+        rows.append({"arm": arm, "metric_set": "retrieval", "reference": reference, "control": "", **summary})
+        per_gene.append(table.assign(reference=reference))
+        if reference in CONTROL_REFERENCES:
+            rng = np.random.default_rng(7)
+            rng.permutation(len(names))
+            shuffled = _shuffled(names, targeting, rng)
+            control = sp_stats.pair_map(sims, shuffled, positive_matrix(shuffled, reference_pairs(
+                reference, reference_dir)), controls=controls, null_size=null_size, null_cache=null_cache)
+            rows.append({"arm": arm, "metric_set": "retrieval", "reference": reference,
+                         "control": "shuffled gene labels", **sp_stats.summarize_pair_map(control, 200)})
+            decoys = sp_stats.fitness_matched_positives(positives, bins, seed=3)
+            control = sp_stats.pair_map(sims, names, decoys, controls=controls, null_size=null_size,
+                                        null_cache=null_cache)
+            rows.append({"arm": arm, "metric_set": "retrieval", "reference": reference,
+                         "control": "fitness-matched random partners", **sp_stats.summarize_pair_map(control, 200)})
+    top = np.argsort(-sims[targeting], axis=1)[:, :10]
+    rows.append({"arm": arm, "metric_set": "NT control", "reference": "", "control": "NT pseudo-genes",
+                 "nt_in_top10": float(controls[top].mean()), "nt_share_of_rows": float(controls.mean())})
+    finite = np.where(np.isfinite(sims), sims, -1e9)
+    for reference, boot in (("STRING_brieflow", 30), ("STRING>=0.7", 0)):
+        positives = positive_matrix(names, reference_pairs(reference, reference_dir))
+        rows.append({"arm": arm, "metric_set": "pair AUPRC", "reference": reference, "control": "",
+                     **sp_stats.pair_auprc(finite, positives, controls=controls, n_boot=boot)})
+    shuffled = _shuffled(names, targeting, np.random.default_rng(8))
+    positives = positive_matrix(shuffled, reference_pairs("STRING_brieflow", reference_dir))
+    rows.append({"arm": arm, "metric_set": "pair AUPRC", "reference": "STRING_brieflow",
+                 "control": "shuffled gene labels", **sp_stats.pair_auprc(finite, positives, controls=controls)})
+    zeroed = np.nan_to_num(np.where(np.isfinite(sims), sims, np.nan), nan=0.0)
+    groups = reference_groups("CORUM", reference_dir)
+    for label, rows_names, seed in (("", names, 0), ("shuffled gene labels", shuffled, 1)):
+        rows.append({"arm": arm, "metric_set": "held-out CORUM", "reference": "CORUM", "control": label,
+                     **sp_stats.heldout_complex_members(
+                         zeroed, rows_names, bins, groups, controls=controls,
+                         folds=options["ops_eval_heldout_folds"], decoys=options["ops_eval_decoys"], seed=seed)})
+    if options["ops_eval_time_split"]:
+        rows += [dict(arm=arm, **r) for r in _time_split(finite, names, bins, controls, reference_dir)]
+    metrics = pd.DataFrame(rows)
+    metrics["genes"] = int(targeting.sum())
+    return metrics, pd.concat(per_gene, ignore_index=True)
+
+
+def _time_split(sims, names, bins, controls, reference_dir) -> List[Dict[str, Any]]:
+    """The time-split rows (:func:`spacr.sp_stats.time_split_pairs`)."""
+    from . import sp_stats
+
+    old = set().union(*(reference_pairs(r, reference_dir) for r in TIME_SPLIT_OLD))
+    new = set().union(*(reference_pairs(r, reference_dir) for r in TIME_SPLIT_NEW))
+    return sp_stats.time_split_pairs(sims, names, bins, old, new, controls=controls)
+
+
+def specificity_metrics(names: Sequence[Any], pcs, cells_per_guide: Mapping[str, float],
+                        reference_dir: Any, settings: Optional[Mapping[str, Any]] = None,
+                        *, arm: str = "") -> pd.DataFrame:
+    """Specificity and new-biology rows of one set of gene profiles.
+
+    Rows: retrieval of CORUM, STRING >= 0.7 and BioGRID partners against
+    fitness-matched non-partners (:func:`spacr.sp_stats.fitness_matched_retrieval`);
+    CORUM complex identification, and the same with gene labels shuffled
+    among the targeting rows (seed 9); the time split with its binomial p
+    values. The components are compared at single precision, as the stored
+    arm files hold them; missing fitness takes the median.
+
+    :param names: the row names.
+    :param pcs: rows by components.
+    :param cells_per_guide: ``{gene: cells per guide}``.
+    :param reference_dir: see :func:`reference_dirs`.
+    :param settings: the ``ops_eval_*`` settings.
+    :param arm: the label of the ``arm`` column.
+    :returns: one row per metric.
+    """
+    from . import sp_stats
+
+    options = evaluation_options(settings)
+    names = np.asarray(names)
+    sims = sp_stats.profile_cosine(np.asarray(pcs, dtype=np.float32))
+    np.fill_diagonal(sims, -np.inf)
+    controls = is_control(names)
+    bins = sp_stats.fitness_bins(_fitness(names, cells_per_guide, fill=True), controls)
+    rows = []
+    for reference in CONTROL_REFERENCES:
+        positives = positive_matrix(names, reference_pairs(reference, reference_dir))
+        rows.append({"arm": arm, "metric_set": "specificity: fitness-matched non-partners",
+                     "reference": reference, "control": "",
+                     **sp_stats.fitness_matched_retrieval(sims, positives, bins, controls=controls,
+                                                          decoys=options["ops_eval_decoys"])})
+    zeroed = np.where(np.isfinite(sims), sims, 0.0)
+    np.fill_diagonal(zeroed, 0.0)
+    groups = reference_groups("CORUM", reference_dir)
+    rows.append({"arm": arm, "metric_set": "complex identification", "reference": "CORUM", "control": "",
+                 **sp_stats.complex_identification(zeroed, names, groups, controls=controls)})
+    shuffled = _shuffled(names, ~controls, np.random.default_rng(9))
+    rows.append({"arm": arm, "metric_set": "complex identification", "reference": "CORUM",
+                 "control": "shuffled gene labels",
+                 **sp_stats.complex_identification(zeroed, shuffled, groups, controls=controls)})
+    if options["ops_eval_time_split"]:
+        rows += [dict(arm=arm, **r) for r in _time_split(np.where(np.isfinite(sims), sims, -1e9), names, bins,
+                                                          controls, reference_dir)]
+    return pd.DataFrame(rows)

@@ -4001,6 +4001,357 @@ def summarize_pair_map(table: pd.DataFrame, n_boot: int = 1000) -> Dict[str, Any
     return out
 
 
+def _gene_symbols(genes: Sequence[Any]) -> np.ndarray:
+    """Gene symbols of row names, ``"A&B"`` read as ``A``."""
+    from .ops_reference import gene_symbol
+
+    return np.array([gene_symbol(g) for g in genes])
+
+
+def _first_rows(symbols: np.ndarray, ok: np.ndarray) -> Dict[str, int]:
+    """The first allowed row of every symbol."""
+    first: Dict[str, int] = {}
+    for i, g in enumerate(symbols):
+        if ok[i]:
+            first.setdefault(g, i)
+    return first
+
+
+def fitness_bins(cells_per_guide, controls=None, n_bins: int = 10) -> np.ndarray:
+    """Decile bins of log cells per guide, the in-screen fitness of a gene.
+
+    A low bin holds depleted (fitness) genes. Bin edges are the quantiles of
+    the non-control rows.
+
+    :param cells_per_guide: cells per guide of every row.
+    :param controls: a boolean mask of control rows, which get bin -1.
+    :param n_bins: the number of bins.
+    :returns: the bin of every row.
+    """
+    v = np.log(np.clip(np.asarray(cells_per_guide, dtype=float), 1, None))
+    nt = np.zeros(len(v), dtype=bool) if controls is None else np.asarray(controls, dtype=bool)
+    bins = np.full(len(v), -1)
+    edges = np.quantile(v[~nt], np.linspace(0, 1, n_bins + 1)[1:-1])
+    bins[~nt] = np.searchsorted(edges, v[~nt])
+    return bins
+
+
+def fitness_matched_positives(positive_matrix, bins, seed: int = 0) -> np.ndarray:
+    """A decoy reference with the fitness profile of the real one.
+
+    Each true partner ``b`` of ``a`` is replaced by a random gene from
+    ``b``'s fitness bin that is neither ``a`` nor a true partner of ``a``
+    (20 tries). Retrieval of the decoys measures what fitness alone buys.
+
+    :param positive_matrix: the ``n x n`` boolean partner matrix.
+    :param bins: the fitness bin of every row (:func:`fitness_bins`).
+    :param seed: the generator seed.
+    :returns: the decoy partner matrix.
+    """
+    positives = np.asarray(positive_matrix, dtype=bool)
+    bins = np.asarray(bins)
+    rng = np.random.default_rng(seed)
+    by_bin = {k: np.flatnonzero(bins == k) for k in np.unique(bins) if k >= 0}
+    decoys = np.zeros_like(positives)
+    for a, b in zip(*np.nonzero(np.triu(positives, 1))):
+        pool = by_bin.get(bins[b])
+        for _ in range(20):
+            c = pool[rng.integers(len(pool))]
+            if c != a and not positives[a, c]:
+                decoys[a, c] = decoys[c, a] = True
+                break
+    return decoys
+
+
+def fitness_matched_retrieval(sims, positive_matrix, bins, *, controls=None,
+                              decoys: int = 10, seed: int = 0) -> Dict[str, Any]:
+    """Retrieval of partners against fitness-matched non-partners.
+
+    Each query ranks its partners against ``decoys`` random non-partners
+    per partner, drawn from that partner's fitness bin. A profile that only
+    tracks fitness scores the random expectation; mAP above it is
+    partner-specific signal.
+
+    :param sims: the ``n x n`` similarity matrix.
+    :param positive_matrix: the ``n x n`` boolean partner matrix.
+    :param bins: the fitness bin of every row.
+    :param controls: a boolean mask of control rows.
+    :param decoys: non-partners per partner.
+    :param seed: the generator seed.
+    :returns: ``queries``, ``mAP``, ``mAP_lo``, ``mAP_hi`` (500 resamples),
+        ``expected_mAP_random`` and ``excess_over_random``.
+    """
+    sims = np.asarray(sims)
+    bins = np.asarray(bins)
+    ok = np.ones(len(bins), dtype=bool) if controls is None else ~np.asarray(controls, dtype=bool)
+    positives = np.asarray(positive_matrix, dtype=bool) & ok[None, :] & ok[:, None]
+    rng = np.random.default_rng(seed)
+    by_bin = {b: np.flatnonzero((bins == b) & ok) for b in np.unique(bins) if b >= 0}
+    aps, expected = [], []
+    for i in np.flatnonzero(positives.any(1)):
+        pos = np.flatnonzero(positives[i])
+        neg = []
+        for p in pos:
+            pool = by_bin[bins[p]]
+            c = rng.choice(pool, min(len(pool), 3 * decoys), replace=False)
+            neg.append(c[(c != i) & ~positives[i, c]][:decoys])
+        neg = np.unique(np.concatenate(neg))
+        if not len(neg):
+            continue
+        s = np.concatenate([sims[i, pos], sims[i, neg]]).astype(np.float32)
+        labels = np.r_[np.ones(len(pos), bool), np.zeros(len(neg), bool)]
+        hits = labels[np.lexsort((~labels, -s))]
+        aps.append(float(((np.cumsum(hits) / np.arange(1, len(hits) + 1)) * hits).sum() / len(pos)))
+        expected.append(_expected_ap(len(pos), len(neg)))
+    aps, expected = np.array(aps), np.array(expected)
+    lo, hi = bootstrap_ci(aps, 500)
+    return {"queries": int(len(aps)), "mAP": float(aps.mean()) if len(aps) else np.nan,
+            "mAP_lo": lo, "mAP_hi": hi,
+            "expected_mAP_random": float(expected.mean()) if len(aps) else np.nan,
+            "excess_over_random": float(aps.mean() - expected.mean()) if len(aps) else np.nan}
+
+
+def pair_auprc(sims, positive_matrix, *, controls=None, universe=None,
+               n_boot: int = 0, seed: int = 0) -> Dict[str, Any]:
+    """Area under the precision-recall curve of all gene pairs.
+
+    Every pair of non-control genes is ranked by similarity and the
+    reference pairs are the positives. The interval resamples genes: a pair
+    is weighted by the product of how often each of its genes was drawn.
+
+    :param sims: the ``n x n`` similarity matrix (finite).
+    :param positive_matrix: the ``n x n`` boolean partner matrix.
+    :param controls: a boolean mask of control rows.
+    :param universe: a boolean mask of rows allowed to take part.
+    :param n_boot: gene resamples; 0 skips the interval.
+    :param seed: the resampling seed.
+    :returns: ``AUPRC``, ``base_rate``, ``pairs`` and, with ``n_boot``,
+        ``AUPRC_lo`` and ``AUPRC_hi``.
+    """
+    from sklearn.metrics import average_precision_score
+
+    sims = np.asarray(sims)
+    n = sims.shape[0]
+    ok = np.ones(n, dtype=bool) if universe is None else np.asarray(universe, dtype=bool).copy()
+    if controls is not None:
+        ok &= ~np.asarray(controls, dtype=bool)
+    idx = np.flatnonzero(ok)
+    upper = np.triu_indices(len(idx), 1)
+    s = sims[np.ix_(idx, idx)][upper]
+    labels = np.asarray(positive_matrix, dtype=bool)[np.ix_(idx, idx)][upper]
+    out = {"AUPRC": float(average_precision_score(labels, s)), "base_rate": float(labels.mean()),
+           "pairs": int(len(labels))}
+    if n_boot:
+        rng = np.random.default_rng(seed)
+        draws = []
+        for _ in range(int(n_boot)):
+            w = np.bincount(rng.integers(0, len(idx), len(idx)), minlength=len(idx)).astype(float)
+            ww = w[upper[0]] * w[upper[1]]
+            k = ww > 0
+            draws.append(average_precision_score(labels[k], s[k], sample_weight=ww[k]))
+        out["AUPRC_lo"] = float(np.percentile(draws, 2.5))
+        out["AUPRC_hi"] = float(np.percentile(draws, 97.5))
+    return out
+
+
+def heldout_complex_members(sims, genes: Sequence[Any], bins, groups: Dict[str, Sequence[str]], *,
+                            controls=None, min_members: int = 5, folds: int = 5,
+                            decoys: int = 10, seed: int = 0, n_boot: int = 500
+                            ) -> Dict[str, Any]:
+    """Can a complex's hidden members be told from fitness-matched genes?
+
+    The members of every complex with at least ``min_members`` present are
+    split into ``folds`` folds; each hidden member is scored by its mean
+    similarity to the complex's other members, as are ``decoys`` random
+    genes of its fitness bin that are not in the complex. AUROC and AP are
+    pooled over complexes, with intervals from resampling complexes.
+
+    :param sims: the ``n x n`` similarity matrix (finite).
+    :param genes: the row names.
+    :param bins: the fitness bin of every row.
+    :param groups: ``{complex: member symbols}``, e.g. CORUM from
+        :func:`spacr.ops_reference.reference_groups`.
+    :param controls: a boolean mask of control rows.
+    :param min_members: members a complex needs.
+    :param folds: folds within each complex.
+    :param decoys: decoys per hidden member.
+    :param seed: the split and decoy seed; ``seed + 1`` resamples.
+    :param n_boot: complex resamples.
+    :returns: ``complexes``, ``hidden``, ``decoys``, ``AUROC``, ``AP``,
+        ``AP_random`` and the intervals ``AUROC_lo``, ``AUROC_hi``,
+        ``AP_lo``, ``AP_hi``.
+    """
+    from sklearn.metrics import average_precision_score, roc_auc_score
+
+    sims = np.asarray(sims)
+    bins = np.asarray(bins)
+    symbols = _gene_symbols(genes)
+    ok = np.ones(len(symbols), dtype=bool) if controls is None else ~np.asarray(controls, dtype=bool)
+    first = _first_rows(symbols, ok)
+    by_bin = {k: np.flatnonzero((bins == k) & ok) for k in np.unique(bins) if k >= 0}
+    rng = np.random.default_rng(seed)
+    rows = []
+    for name, members in groups.items():
+        m = np.array(sorted({first[g] for g in members if g in first}))
+        if len(m) < min_members:
+            continue
+        member_set = set(m.tolist())
+        perm = rng.permutation(m)
+        for f in range(folds):
+            hidden = perm[f::folds]
+            kept = np.setdiff1d(m, hidden)
+            if len(hidden) == 0 or len(kept) < 2:
+                continue
+            for h in hidden:
+                rows.append((name, 1, float(sims[h, kept].mean())))
+                pool = [c for c in by_bin.get(bins[h], []) if c not in member_set]
+                for c in rng.choice(pool, size=min(decoys, len(pool)), replace=False):
+                    rows.append((name, 0, float(sims[c, kept].mean())))
+    d = pd.DataFrame(rows, columns=["complex", "label", "score"])
+    if d.empty or d.label.nunique() < 2:
+        return {"complexes": 0, "hidden": 0, "decoys": 0, "AUROC": np.nan, "AP": np.nan, "AP_random": np.nan,
+                "AUROC_lo": np.nan, "AUROC_hi": np.nan, "AP_lo": np.nan, "AP_hi": np.nan}
+    out = {"complexes": int(d.complex.nunique()), "hidden": int(d.label.sum()),
+           "decoys": int((d.label == 0).sum()), "AUROC": float(roc_auc_score(d.label, d.score)),
+           "AP": float(average_precision_score(d.label, d.score)), "AP_random": float(d.label.mean())}
+    names = d.complex.unique()
+    by_complex = {c: g for c, g in d.groupby("complex")}
+    auroc, aps = [], []
+    resample = np.random.default_rng(seed + 1)
+    for _ in range(int(n_boot)):
+        s = pd.concat([by_complex[c] for c in resample.choice(names, len(names))])
+        auroc.append(roc_auc_score(s.label, s.score))
+        aps.append(average_precision_score(s.label, s.score))
+    out.update({"AUROC_lo": float(np.percentile(auroc, 2.5)), "AUROC_hi": float(np.percentile(auroc, 97.5)),
+                "AP_lo": float(np.percentile(aps, 2.5)), "AP_hi": float(np.percentile(aps, 97.5))})
+    return out
+
+
+def complex_identification(sims, genes: Sequence[Any], groups: Dict[str, Sequence[str]], *,
+                           controls=None, min_size: int = 3) -> Dict[str, Any]:
+    """Does a gene's profile pick out its own complex among all others?
+
+    For every member of every complex with at least ``min_size`` members
+    present, the complex's leave-one-out mean similarity to the gene is
+    ranked against the mean similarity of every complex without the gene.
+
+    :param sims: the ``n x n`` similarity matrix, finite, zero diagonal.
+    :param genes: the row names.
+    :param groups: ``{complex: member symbols}``.
+    :param controls: a boolean mask of control rows.
+    :param min_size: members a complex needs.
+    :returns: ``complexes``, ``members``, ``top1``, ``top5`` (shares of
+        members whose own complex ranks first or in the first five),
+        ``random_top1`` and ``margin`` (own minus median other complex).
+    """
+    sims = np.asarray(sims)
+    symbols = _gene_symbols(genes)
+    ok = np.ones(len(symbols), dtype=bool) if controls is None else ~np.asarray(controls, dtype=bool)
+    first = _first_rows(symbols, ok)
+    complexes = {n: np.array(sorted({first[g] for g in m if g in first})) for n, m in groups.items()}
+    complexes = {n: v for n, v in complexes.items() if len(v) >= min_size}
+    names = list(complexes)
+    if len(names) < 6:
+        return {"complexes": len(names), "members": 0, "top1": np.nan, "top5": np.nan, "margin": np.nan}
+    member = np.zeros((len(names), sims.shape[0]), dtype=bool)
+    for k, n in enumerate(names):
+        member[k, complexes[n]] = True
+    finite = np.where(np.isfinite(sims), sims, 0.0)
+    sums = member.astype(np.float32) @ finite.T
+    sizes = member.sum(1)
+    top1 = top5 = count = 0
+    margins = []
+    for k, name in enumerate(names):
+        for i in complexes[name]:
+            own = (sums[k, i] - finite[i, i]) / (sizes[k] - 1)
+            others = ~member[:, i]
+            scores = sums[others, i] / sizes[others]
+            rank = int((scores > own).sum())
+            top1 += rank == 0
+            top5 += rank < 5
+            margins.append(own - np.median(scores))
+            count += 1
+    return {"complexes": len(names), "members": count, "top1": top1 / count, "top5": top5 / count,
+            "random_top1": float(np.mean([1 / (1 + (~member[:, i]).sum())
+                                          for i in np.flatnonzero(member.any(0))])),
+            "margin": float(np.mean(margins))}
+
+
+def time_split_pairs(sims, genes: Sequence[Any], bins, old_pairs, new_pairs, *,
+                     controls=None, top: Sequence[int] = (500, 2000), seed: int = 0
+                     ) -> List[Dict[str, Any]]:
+    """Are the most similar unknown pairs confirmed by later evidence?
+
+    The ``N`` most similar gene pairs with no link in the old references
+    are called; the share of them found in the evidence added later is
+    compared with random unlinked pairs drawn with the same fitness-bin
+    pairing (five draws, 20 tries per pair), with a one-sided binomial test.
+
+    :param sims: the ``n x n`` similarity matrix (finite).
+    :param genes: the row names.
+    :param bins: the fitness bin of every row.
+    :param old_pairs: pairs known before the split.
+    :param new_pairs: pairs added after it.
+    :param controls: a boolean mask of control rows.
+    :param top: the call counts ``N``.
+    :param seed: the control's generator seed.
+    :returns: one row per ``N``: ``calls``, ``confirmed_later``,
+        ``confirmed_count``, the control share, ``enrichment`` and
+        ``p_binomial_vs_control``.
+    """
+    from scipy.stats import binomtest
+
+    old, new = set(old_pairs), set(new_pairs)
+    sims = np.asarray(sims)
+    bins = np.asarray(bins)
+    symbols = _gene_symbols(genes)
+    nt = np.zeros(len(symbols), dtype=bool) if controls is None else np.asarray(controls, dtype=bool)
+    targeting = np.flatnonzero(~nt)
+    upper = np.triu_indices(len(targeting), 1)
+    order = np.argsort(-sims[np.ix_(targeting, targeting)][upper], kind="stable")
+    out = []
+    rng = np.random.default_rng(seed)
+    for n_calls in top:
+        calls, call_bins = [], []
+        for k in order:
+            i, j = targeting[upper[0][k]], targeting[upper[1][k]]
+            a, b = symbols[i], symbols[j]
+            key = (min(a, b), max(a, b))
+            if a == b or key in old:
+                continue
+            calls.append(key)
+            call_bins.append((bins[i], bins[j]))
+            if len(calls) == n_calls:
+                break
+        confirmed = float(np.mean([c in new for c in calls])) if calls else np.nan
+        by_bin: Dict[Any, List[int]] = {}
+        for i in targeting:
+            by_bin.setdefault(bins[i], []).append(i)
+        control = []
+        for _ in range(5):
+            hits = drawn = 0
+            for ba, bb in call_bins:
+                for _try in range(20):
+                    i, j = rng.choice(by_bin[ba]), rng.choice(by_bin[bb])
+                    key = (min(symbols[i], symbols[j]), max(symbols[i], symbols[j]))
+                    if i != j and key not in old:
+                        hits += key in new
+                        drawn += 1
+                        break
+            control.append(hits / max(drawn, 1))
+        k_confirmed = int(round(confirmed * len(calls))) if calls else 0
+        p_control = max(float(np.mean(control)), 1e-6)
+        p = (float(binomtest(k_confirmed, len(calls), p_control, alternative="greater").pvalue)
+             if calls else np.nan)
+        out.append({"p_binomial_vs_control": p, "confirmed_count": k_confirmed,
+                    "metric_set": "time split",
+                    "reference": "added after 2022 (STRING v12 new >= 0.7 | BioGRID new | CORUM new)",
+                    "control": "", "calls": n_calls, "confirmed_later": confirmed,
+                    "confirmed_later_fitness_matched_random (control)": float(np.mean(control)),
+                    "enrichment": confirmed / max(float(np.mean(control)), 1e-9)})
+    return out
+
+
 def _phenotypic_activity(frame: pd.DataFrame, features: Sequence[str],
                          group_columns: Sequence[str], negative: pd.Series, *,
                          similarity: str = "cosine",
