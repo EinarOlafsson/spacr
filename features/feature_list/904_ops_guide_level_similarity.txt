@@ -1,0 +1,27 @@
+OPS GUIDE-LEVEL GENE-GENE SIMILARITY WITH PAIR P VALUES
+=======================================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha, under ALPHA_FEATURES[904]) — spacr.gene_measurement_compare.guide_mean_vectors and guide_level_similarity: guides embedded as the benchmark embeds them and scaled to unit length, s(A, B) = the mean of the k_A x k_B guide cosines, a P value per pair from ops_guide_null_size random guide-set pairs of the same shape (one guide from each of k distinct random genes; one seeded stream), Benjamini-Hochberg q, a control-guide null and the pseudo-gene calibration. ops_profile_similarity='guide_level' writes ops_gene_pairs_<plate> in the aggregate phase. spacr/gene_measurement_compare.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_guide_level_similarity_904.py.
+Requested: maintainer via paper session, 2026-11-09.
+Owner: paper session (lane C).
+Source: improved/scripts/ic_lib.py unit_mean_guides, guide_pair_pvalues.py, evaluate.py 'G_' arms.
+Related: 880, 881.
+
+WHAT THE STATE IS
+Upgrade 3b was a script.
+
+WHAT TO DO
+- Port the similarity, the null and the calibration, alpha.
+
+RESULT
+On profiles/guides_base.parquet with the 2,129 hits2-active genes
+(2,265,256 pairs), the 228,889 pairs at q < 0.05 are the same pairs as
+eval/guide_pairs/significant_pairs_q05.csv.gz, with s, p and q equal to
+1e-16 (the CSV's text round trip); calibration_nt_pseudo_p.npy is equal
+bit for bit; and summary.json's counts, null quantiles and calibration
+shares are equal in the reference environment. 94 s on one core.
+
+DELIBERATELY NOT DONE
+- The CORUM / STRING / BioGRID overlap columns of the summary need the
+  reference sets of item 881 and are not written.

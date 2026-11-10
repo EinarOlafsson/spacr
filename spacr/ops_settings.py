@@ -161,6 +161,33 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_compare_tables": None,
     "ops_compare_match_px": 4.0,
     "ops_compare_fields": None,
+    "ops_aggregate_level": "guides",
+    "ops_nt_rows": None,
+    "ops_profile_weighting": None,
+    "ops_guide_efficacy": None,
+    "ops_guide_efficacy_iters": 20,
+    "ops_guide_efficacy_emax": 1.0,
+    "ops_profile_cell_cycle": None,
+    "ops_profile_g1_sg2_split_log2": 0.3,
+    "ops_mitotic_source": "rule",
+    "ops_penetrance": False,
+    "ops_penetrance_folds": 5,
+    "ops_penetrance_nt_pool": 20000,
+    "ops_penetrance_lambda": 0.5,
+    "ops_escapers": False,
+    "ops_escaper_dbic": 10.0,
+    "ops_escaper_min_sep": 2.0,
+    "ops_phase_tests": False,
+    "ops_phase_null": "targeting",
+    "ops_profile_shrinkage": None,
+    "ops_profile_shrinkage_prior_df": 4.0,
+    "ops_profile_generic_axes": None,
+    "ops_profile_essential_axis_min_rho": 0.3,
+    "ops_profile_similarity": None,
+    "ops_guide_null_size": 200000,
+    "ops_profile_responder_alpha": 0.05,
+    "ops_profile_space": None,
+    "ops_fusion_blocks": None,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -305,6 +332,33 @@ OPS_TYPES: Dict[str, object] = {
     "ops_compare_tables": (str, dict, type(None)),
     "ops_compare_match_px": (float, int),
     "ops_compare_fields": (str, list, type(None)),
+    "ops_aggregate_level": str,
+    "ops_nt_rows": (str, type(None)),
+    "ops_profile_weighting": (str, type(None)),
+    "ops_guide_efficacy": (str, type(None)),
+    "ops_guide_efficacy_iters": int,
+    "ops_guide_efficacy_emax": (float, int),
+    "ops_profile_cell_cycle": (str, type(None)),
+    "ops_profile_g1_sg2_split_log2": (float, int),
+    "ops_mitotic_source": str,
+    "ops_penetrance": bool,
+    "ops_penetrance_folds": int,
+    "ops_penetrance_nt_pool": int,
+    "ops_penetrance_lambda": (float, int),
+    "ops_escapers": bool,
+    "ops_escaper_dbic": (float, int),
+    "ops_escaper_min_sep": (float, int),
+    "ops_phase_tests": bool,
+    "ops_phase_null": str,
+    "ops_profile_shrinkage": (str, type(None)),
+    "ops_profile_shrinkage_prior_df": (float, int),
+    "ops_profile_generic_axes": (str, list, type(None)),
+    "ops_profile_essential_axis_min_rho": (float, int),
+    "ops_profile_similarity": (str, type(None)),
+    "ops_guide_null_size": int,
+    "ops_profile_responder_alpha": (float, int),
+    "ops_profile_space": (str, type(None)),
+    "ops_fusion_blocks": (str, list, type(None)),
 }
 
 #: Which panel section each setting appears under.
@@ -404,6 +458,33 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_reference_counts", "ops_reference_counts_level",
         "ops_reference_shuffles", "ops_reference_seed", "ops_retry_missing",
         "ops_crop_flat_mean_one",
+        "ops_aggregate_level",
+        "ops_nt_rows",
+        "ops_profile_weighting",
+        "ops_guide_efficacy",
+        "ops_guide_efficacy_iters",
+        "ops_guide_efficacy_emax",
+        "ops_profile_cell_cycle",
+        "ops_profile_g1_sg2_split_log2",
+        "ops_mitotic_source",
+        "ops_penetrance",
+        "ops_penetrance_folds",
+        "ops_penetrance_nt_pool",
+        "ops_penetrance_lambda",
+        "ops_escapers",
+        "ops_escaper_dbic",
+        "ops_escaper_min_sep",
+        "ops_phase_tests",
+        "ops_phase_null",
+        "ops_profile_shrinkage",
+        "ops_profile_shrinkage_prior_df",
+        "ops_profile_generic_axes",
+        "ops_profile_essential_axis_min_rho",
+        "ops_profile_similarity",
+        "ops_guide_null_size",
+        "ops_profile_responder_alpha",
+        "ops_profile_space",
+        "ops_fusion_blocks",
     ],
 }
 
@@ -1160,6 +1241,145 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(str or None) - Which fields to compare, as well:site pairs "
         "separated by commas. Empty compares every site the external tables "
         "hold. Default None. Alpha.",
+    "ops_aggregate_level":
+        "(str) - How a gene profile is reduced from its cells. 'guides' "
+        "takes the median of the gene's guide medians, so each guide counts "
+        "once; 'cells' takes the median over all of the gene's cells, as "
+        "Brieflow does, so a guide with more cells counts more. On Funk "
+        "plate A 'cells' raised retrieval mAP from 0.060 to 0.064. Default "
+        "'guides'. Alpha.",
+    "ops_nt_rows":
+        "(str or None) - How non-targeting guides appear in the gene "
+        "tables. Empty keeps one row per control gene name; 'barcode' gives "
+        "every non-targeting guide its own row, as Brieflow does; 'pseudo' "
+        "groups them at random (seed 0) into pseudo-genes of four guides, "
+        "processed exactly as genes, so they act as a null. Default None. "
+        "Alpha.",
+    "ops_profile_weighting":
+        "(str or None) - 'contrastive_wiener' weights the TVN gene profiles "
+        "by how far each direction rises above guide noise: directions "
+        "solving Sigma_genes v = lambda Sigma_NT v, the noise the Ledoit- "
+        "Wolf covariance of the non-targeting guides, each weighted by "
+        "max((lambda - 1) / lambda, 0). Refused when fewer than two "
+        "directions rise above the noise, and not stacked with "
+        "ops_profile_shrinkage. Default None. Alpha.",
+    "ops_guide_efficacy":
+        "(str or None) - 'jacks_blend' fits each gene's guides in the "
+        "weighted space as x_g = e_g m (the rank-1 guide model of JACKS, "
+        "Allen et al. 2019), so a guide that knocks down poorly counts "
+        "less, and blends that profile with the all-cell gene profile as "
+        "unit vectors. Needs ops_profile_weighting. Default None. Alpha.",
+    "ops_guide_efficacy_iters":
+        "(int) - The most alternations of the guide-efficacy fit per gene; "
+        "it also stops when no efficacy changes by more than 1e-6. Default "
+        "20. Alpha.",
+    "ops_guide_efficacy_emax":
+        "(float) - The cap on a guide's efficacy before the gene's "
+        "efficacies are rescaled so the best guide has 1. Default 1. Alpha.",
+    "ops_profile_cell_cycle":
+        "(str or None) - Resolve the TVN profiles by cell-cycle phase. "
+        "Cells are G1 or S/G2 by integrated nuclear DNA, M by the mitotic "
+        "call, and each phase is centred on the well's control cells of "
+        "that phase. 'concat' joins [G1 | S/G2 | M]; 'G1', 'SG2' or 'M' "
+        "keeps one phase. Default None. Alpha.",
+    "ops_profile_g1_sg2_split_log2":
+        "(float) - Interphase cells this many log2 units above their well's "
+        "G1 peak of integrated nuclear DNA are S/G2, the rest G1. 0.30 is "
+        "about 1.23 times G1 DNA, the dip of the control histogram on Funk "
+        "plate A. Default 0.30. Alpha.",
+    "ops_mitotic_source":
+        "(str) - Where the M phase of cell-cycle profiles comes from: "
+        "'rule' (the DNA rule of ops_mitotic_dna_z, or the classifier when "
+        "ops_mitotic_model is set) or 'classifier', which refuses to run "
+        "without ops_mitotic_model. Default 'rule'. Alpha.",
+    "ops_penetrance":
+        "(bool) - Estimate each gene's penetrance, the share of its cells "
+        "with its phenotype: a classifier cross-fitted by field scores "
+        "every cell against held-out control cells, Storey's estimator "
+        "gives the share, with a field-bootstrap interval. Control pseudo- "
+        "genes and shuffled labels are run alongside. Needs TVN profiles. "
+        "Default False. Alpha.",
+    "ops_penetrance_folds":
+        "(int) - Fields are split into this many folds by name, and every "
+        "cell is scored by a model trained on the other folds. Default 5. "
+        "Alpha.",
+    "ops_penetrance_nt_pool":
+        "(int) - Control cells drawn once, in proportion to each well, as "
+        "every gene's reference in the penetrance test. Default 20000. "
+        "Alpha.",
+    "ops_penetrance_lambda":
+        "(float) - The control percentile below which only unaffected cells "
+        "are assumed to fall in Storey's estimator; lower gives a less "
+        "biased, noisier penetrance. Default 0.5. Alpha.",
+    "ops_escapers":
+        "(bool) - Write the genes whose cells split into responders and "
+        "unaffected escapers: a control-plus-responder mixture beats a "
+        "unimodal shift by ops_escaper_dbic and no simulated unimodal gene "
+        "makes the same call. Needs ops_penetrance. Default False. Alpha.",
+    "ops_escaper_dbic":
+        "(float) - The BIC margin by which the mixture must beat a unimodal "
+        "shift for an escaper call. Default 10. Alpha.",
+    "ops_escaper_min_sep":
+        "(float) - The responder mode's least distance from the controls, "
+        "in control standard deviations, for an escaper call. Default 2. "
+        "Alpha.",
+    "ops_phase_tests":
+        "(bool) - Test every gene within each cell-cycle phase and pooled, "
+        "and call genes that change cells in one phase only. Needs TVN "
+        "profiles and the nuclear integrated DNA intensity. Default False. "
+        "Alpha.",
+    "ops_phase_null":
+        "(str) - The null of the phase tests: 'targeting' (random sets of "
+        "four targeting guides of four genes) or 'nt' (random sets of four "
+        "control guides). Every targeting guide cuts DNA, so against "
+        "controls almost every gene differs. Default 'targeting'. Alpha.",
+    "ops_profile_shrinkage":
+        "(str or None) - 'eb_nt' shrinks each gene profile toward the "
+        "controls by how reliable its guides are: the control guides set "
+        "the noise, each gene's own guide spread is pooled with it, and the "
+        "profile is multiplied by tau2 / (tau2 + V / K) per dimension. Not "
+        "stacked with ops_profile_weighting. Default None. Alpha.",
+    "ops_profile_shrinkage_prior_df":
+        "(float) - The degrees of freedom of the control-guide noise "
+        "estimate when it is pooled with a gene's own guide spread; higher "
+        "trusts the controls more. Default 4. Alpha.",
+    "ops_profile_generic_axes":
+        "(str, list or None) - Remove generic axes from the gene profiles: "
+        "any of log_cells_per_guide, shift_G1, shift_SG2, shift_M "
+        "(regressed out across genes) and essential_axis (the fitness "
+        "genes' main direction, removed only when it tracks fitness). "
+        "Shifts need cell-cycle phases. Default None. Alpha.",
+    "ops_profile_essential_axis_min_rho":
+        "(float) - The essential axis is projected out only when the genes' "
+        "scores on it correlate with log cells per guide by more than this "
+        "absolute Spearman rho. Default 0.30. Alpha.",
+    "ops_profile_similarity":
+        "(str or None) - How gene-gene similarity is written besides the "
+        "gene tables: 'guide_level' (mean guide-guide cosine with a P value "
+        "per pair from random guide sets), 'responder' or "
+        "'sliced_wasserstein' (responder profiles, energy distance and a "
+        "sliced Wasserstein embedding of each gene's cells). Default None. "
+        "Alpha.",
+    "ops_guide_null_size":
+        "(int) - Random guide-set pairs per pair of guide counts in the "
+        "guide-level null; P values resolve to 1 / (N + 1). Default 200000. "
+        "Alpha.",
+    "ops_profile_responder_alpha":
+        "(float) - The share of held-out control cells a responder "
+        "threshold lets through; the responder fraction is (flagged - "
+        "alpha) / (1 - alpha). Default 0.05. Alpha.",
+    "ops_profile_space":
+        "(str or None) - Profile frozen single-cell embeddings as well: "
+        "'embedding:<folder>' reads <folder>/embeddings.npy and "
+        "index.parquet (row, well, site, label), joins them to the profiled "
+        "interphase cells and writes TVN gene profiles of the embedding; "
+        "'fusion:<folder>' also joins them with the measurement profile of "
+        "the same cells, each block whitened and given equal weight. Empty "
+        "or 'tvn' does neither. Default None. Alpha.",
+    "ops_fusion_blocks":
+        "(str, list or None) - The blocks of a fusion profile, in order: "
+        "'meas' (the TVN measurement profile) and 'emb' (the embedding "
+        "profile). Empty uses both, measurement first. Default None. Alpha.",
 }
 
 #: The blurb the module shows above its settings.

@@ -576,7 +576,8 @@ def _fit_control_stage(model: "TVNModel", nt: np.ndarray, nt_batch: np.ndarray, 
 
 
 def tvn_profiles(cells: pd.DataFrame, embedding: np.ndarray, *, guide: str = "sgRNA",
-                 gene: str = "gene", prefix: str = "PC_") -> Tuple[pd.DataFrame, pd.DataFrame]:
+                 gene: str = "gene", prefix: str = "PC_",
+                 level: str = "guides") -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Guide and gene profiles from per-cell TVN components.
 
     :param cells: one row per cell with the ``guide`` and ``gene`` columns,
@@ -585,8 +586,11 @@ def tvn_profiles(cells: pd.DataFrame, embedding: np.ndarray, *, guide: str = "sg
     :param guide: the guide column.
     :param gene: the gene column.
     :param prefix: the component column prefix (``PC_0``, ``PC_1``, ...).
+    :param level: ``'guides'`` or ``'cells'``, as in
+        :func:`spacr.gene_measurement_compare.aggregate_genes`.
     :returns: ``(guides, genes)``: a guide is the median of its cells and a
-        gene the median of its guides, as for robust z profiles.
+        gene the median of its guides (or of its cells), as for robust z
+        profiles.
     """
     from .gene_measurement_compare import aggregate_genes, aggregate_guides
 
@@ -594,7 +598,8 @@ def tvn_profiles(cells: pd.DataFrame, embedding: np.ndarray, *, guide: str = "sg
     frame = pd.concat([cells[[guide, gene]].reset_index(drop=True),
                        pd.DataFrame(embedding, columns=columns)], axis=1)
     guides = aggregate_guides(frame, columns, guide=guide, gene=gene)
-    return guides, aggregate_genes(guides, columns)
+    return guides, aggregate_genes(guides, columns, level=level, cells=frame,
+                                   gene=gene)
 
 
 def gene_pair_cosines(profiles: pd.DataFrame, columns: Sequence[str],
@@ -709,8 +714,10 @@ def _aggregate_tvn(sources, rows: np.ndarray, cells: pd.DataFrame, use: np.ndarr
         interphase only).
     :param control: the control cells.
     :param features: the feature columns.
-    :param settings: read for ``ops_tvn_mode`` and the ``ops_tvn_*``
-        options (:func:`tvn_options`).
+    :param settings: read for ``ops_tvn_mode``, ``ops_aggregate_level`` and
+        the ``ops_tvn_*`` options (:func:`tvn_options`); with
+        ``_keep_embedding`` the returned info also holds the profiled cells
+        (``_cells``) and their components (``_embedding``).
     :param read_columns: ``read_columns(sources, columns)`` reads columns.
     :param block: columns read at a time by the in-memory mode.
     :returns: ``(guides, genes, info)``.
@@ -759,6 +766,11 @@ def _aggregate_tvn(sources, rows: np.ndarray, cells: pd.DataFrame, use: np.ndarr
         position[np.flatnonzero(use)] = np.arange(int(use.sum()))
         embedding[position[index]] = np.vstack(parts)
         info = model.info
-    guides, genes = tvn_profiles(cells.loc[use], embedding)
+    guides, genes = tvn_profiles(cells.loc[use], embedding,
+                                 level=str(settings.get("ops_aggregate_level")
+                                           or "guides"))
     info = {**info, "options": options, "cells": int(use.sum())}
+    if settings.get("_keep_embedding"):
+        info["_cells"] = cells.loc[use].reset_index(drop=True)
+        info["_embedding"] = embedding
     return guides, genes, info

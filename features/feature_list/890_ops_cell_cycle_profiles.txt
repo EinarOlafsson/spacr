@@ -1,0 +1,30 @@
+OPS CELL-CYCLE-RESOLVED GENE PROFILES
+=====================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha, under ALPHA_FEATURES[890]) — spacr.gene_measurement_compare.g1_mode, cell_cycle_phases (M = the mitotic call; interphase cells G1 or S/G2 by log2 integrated nuclear DNA against the well's G1 peak of control interphase cells, split ops_profile_g1_sg2_split_log2 = 0.30), phase_profiles (per-well, per-phase control centring, per-phase guide medians, gene = median of guides) and phase_columns. In the aggregate phase ops_profile_cell_cycle ('concat', 'G1', 'SG2', 'M') writes ops_guides_<plate>_phase and ops_genes_<plate>_phase from the per-cell TVN components and the (flat-field corrected) integrated DNA column; ops_mitotic_source='classifier' insists on ops_mitotic_model. spacr/gene_measurement_compare.py, spacr/ops_engine.py, spacr/ops_tvn.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_cell_cycle_profiles_890.py.
+Requested: maintainer via paper session, 2026-11-09.
+Owner: paper session (lane C).
+Source: improved/scripts/build_cells.py (phase call), build_profiles.py (2c block), phase_trained.py.
+Related: 856, 883, 902, 891.
+
+WHAT THE STATE IS
+Upgrade 2c was a script; the aggregate phase pooled all phases.
+
+WHAT TO DO
+- Phase calls, per-phase profiles and the concatenated profile, alpha.
+
+RESULT
+From the flat-field corrected nucleus_dapi_integrated_intensity and the
+mitotic call of analysis_plateA/cells/raw_<well>.parquet, cell_cycle_phases
+gives the phase and dna_log2_rel of improved/cells/tvn_<well>.parquet bit
+for bit in all six wells (5,532,572 cells). From those cell tables,
+phase_profiles gives profiles/guides_phase.parquet (20,437 guides x 311
+columns) and genes_phase.parquet (5,111 genes) bit for bit, NaN pattern
+included.
+
+DIFFERENCE FROM THE REFERENCE RUN
+The reference fits TVN on interphase cells and applies it to all cells.
+The aggregate phase fits TVN on the cells it pools, so a spaCR run gives
+the same phase tables only from the same per-cell TVN components; with
+ops_pool_interphase the M block is empty.

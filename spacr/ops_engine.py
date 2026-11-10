@@ -3509,6 +3509,15 @@ _PH_NONFINITE_SHARE = 0.01
 #: took 46 GB at once and about 8 GB in blocks of 48.
 _PH_POOL_BLOCK = 48
 
+#: The settings that turn on a gene-profile option of the aggregate phase
+#: (:func:`_ph_profile_options`); each needs the per-cell TVN components.
+_PH_PROFILE_SWITCHES: Tuple[str, ...] = (
+    "ops_profile_cell_cycle", "ops_profile_shrinkage",
+    "ops_profile_generic_axes", "ops_profile_weighting",
+    "ops_guide_efficacy", "ops_profile_similarity", "ops_penetrance",
+    "ops_escapers", "ops_phase_tests", "ops_profile_space",
+)
+
 _PH_DEGENERATE_CAUSES = (
     ("distance_to_nucleus",
      "the intensity centre of mass of most cells lies inside the nucleus, "
@@ -3751,8 +3760,9 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         ``ops_mitotic_dna_z``, ``ops_genotype_table``, ``ops_pool_wells``,
         ``ops_pool_interphase``, ``ops_feature_qc``, ``ops_ownership``,
         ``ops_flatfield``, ``ops_flatfield_maps``, ``ops_drop_failed_fields``,
-        ``ops_drop_nonfinite_rows``, ``ops_profile_normalisation`` and the
-        ``ops_tvn_*``, ``ops_cluster_*`` and ``ops_mitotic_model`` options.
+        ``ops_drop_nonfinite_rows``, ``ops_profile_normalisation``,
+        ``ops_aggregate_level``, ``ops_nt_rows`` and the ``ops_tvn_*``,
+        ``ops_cluster_*`` and ``ops_mitotic_model`` options.
     :param destination: where ``ops_guides_<plate>`` and
         ``ops_genes_<plate>`` (CSV and Parquet) are written. A run that pools
         only interphase cells or only some wells adds ``_interphase`` or
@@ -3821,17 +3831,33 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     them (:mod:`spacr.ops_clusters`), and ``ops_mitotic_model`` calls
     mitotic cells with a trained classifier (:mod:`spacr.ops_mitotic`)
     instead of the DNA rule.
+
+    ``ops_aggregate_level='cells'`` makes a gene the median of all of its
+    cells, as Brieflow does, instead of the median of its guides.
+    ``ops_nt_rows`` makes the non-targeting guides rows of the gene tables:
+    ``'barcode'`` one row per guide (Brieflow's layout), ``'pseudo'``
+    random pseudo-genes of four guides
+    (:func:`spacr.gene_measurement_compare.nt_row_names`).
     """
     import pandas as pd
     import pyarrow.parquet as pq
 
-    from .gene_measurement_compare import (aggregate_genes, aggregate_guides,
+    from .gene_measurement_compare import (AGGREGATE_LEVELS, NT_ROW_MODES,
+                                           aggregate_genes, aggregate_guides,
                                            bootstrap_gene_pvalues,
-                                           mitotic_calls, robust_z_to_controls)
+                                           mitotic_calls, nt_row_names,
+                                           robust_z_to_controls)
     from .qt.i18n import tr
     from .tabular import write_table
 
     started = time.perf_counter()
+    level = str(settings.get("ops_aggregate_level") or "guides").strip().lower()
+    nt_rows = str(settings.get("ops_nt_rows") or "").strip().lower() or None
+    if level not in AGGREGATE_LEVELS or nt_rows not in (None, *NT_ROW_MODES):
+        raise ValueError(tr(
+            "ops_aggregate_level must be guides or cells and ops_nt_rows "
+            "empty, pseudo or barcode; got {level} and {rows}",
+            level=level, rows=nt_rows))
     design_path = settings.get("ops_design")
     if not design_path or not os.path.isfile(str(design_path)):
         raise ValueError(tr(
@@ -4018,6 +4044,11 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         cells = cells[~broken].reset_index(drop=True)
     rows = cells["_row"].to_numpy()
     control = cells["gene"].str.lower().str.startswith(control_prefix.lower())
+    if nt_rows:
+        cells["gene"] = nt_row_names(
+            cells["sgRNA"], cells["gene"], rows=nt_rows,
+            control_prefix=control_prefix,
+            pseudo_prefix=f"{control_prefix}_pseudo_")
     mitotic_z = float(_setting_number(settings.get("ops_mitotic_dna_z"),
                                       "ops_mitotic_dna_z", 3.0))
     if gain_columns and dna_column:
@@ -4117,12 +4148,13 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         scored = pd.concat([meta, normalised], axis=1)[keep]
         guides = aggregate_guides(scored, block, guide="sgRNA", gene="gene",
                                   mitotic=None if interphase else "mitotic")
-        genes = aggregate_genes(guides, block)
+        genes = aggregate_genes(guides, block, level=level, cells=scored)
         guide_parts.append(guides if not guide_parts else guides[block])
         gene_parts.append(genes if not gene_parts else genes[block])
         del values, normalised, scored
     guides = pd.concat(guide_parts, axis=1)
     genes = pd.concat(gene_parts, axis=1)
+    genes = genes[genes["gene"] != "nontargeting_drop"].reset_index(drop=True)
     dropped = [row["feature"] for row in degenerate]
     if dropped:
         guides = guides.drop(columns=dropped)
@@ -4162,14 +4194,48 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
             write_table(table, target, canonicalise=False)
             outputs[f"{name}_{suffix}"] = target
     tvn_report = None
+    profile_report = None
+    wants_profiles = any(settings.get(key) for key in _PH_PROFILE_SWITCHES)
+    if wants_profiles and normalisation != "tvn":
+        raise ValueError(tr(
+            "the gene-profile options {keys} work on TVN profiles; set "
+            "ops_profile_normalisation to tvn", keys=[
+                key for key in _PH_PROFILE_SWITCHES if settings.get(key)]))
     if normalisation == "tvn":
         from .ops_tvn import _aggregate_tvn
         tvn_settings = {key: settings.get(key) for key in (
             "ops_tvn_mode", "ops_tvn_pca_sample", "ops_tvn_seed",
-            "ops_tvn_components", "ops_tvn_whiten_epsilon")}
+            "ops_tvn_components", "ops_tvn_whiten_epsilon",
+            "ops_aggregate_level")}
+        extra: List[str] = []
+        if wants_profiles:
+            tvn_settings["_keep_embedding"] = True
+            extra = ["site", "label", "mitotic"]
+            integrated = f"nucleus_{channels[0]}_integrated_intensity" \
+                if channels else ""
+            if integrated not in columns:
+                integrated = next((c for c in features if c.startswith(
+                    "nucleus_") and c.endswith("integrated_intensity")), "")
+            if integrated:
+                cells["_dna_integrated"] = _ph_read_columns(
+                    sources, [integrated]).iloc[rows][integrated].to_numpy()
+                if gain_columns:
+                    from .ops_flatfield import correct_features
+                    cells["_dna_integrated"] = correct_features(
+                        cells.rename(columns={"_dna_integrated": integrated}),
+                        cells, [integrated], flat_offsets)[integrated].to_numpy()
+                extra.append("_dna_integrated")
         tvn_guides, tvn_genes, tvn_report = _aggregate_tvn(
-            sources, rows, cells[["well", "sgRNA", "gene"]], keep,
+            sources, rows, cells[["well", "sgRNA", "gene", *extra]], keep,
             control.to_numpy(), features, tvn_settings, _ph_read_columns)
+        tvn_genes = tvn_genes[tvn_genes["gene"] != "nontargeting_drop"
+                              ].reset_index(drop=True)
+        if wants_profiles:
+            profile_report = _ph_profile_options(
+                settings, tvn_report.pop("_cells"),
+                tvn_report.pop("_embedding"), tvn_guides, tvn_genes,
+                destination, f"{plate}{tag}", control_prefix)
+            outputs.update(profile_report["outputs"])
         for name, table in (("guides", tvn_guides), ("genes", tvn_genes)):
             for suffix in ("csv", "parquet"):
                 target = os.path.join(destination,
@@ -4239,7 +4305,9 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         "pvalue_null": null if tested else None,
         "null_parameters": null_parameters,
         "profile_normalisation": normalisation,
+        "aggregate_level": level, "nt_rows": nt_rows,
         "tvn": tvn_report,
+        "profile_options": profile_report,
         "clusters": cluster_report,
         "outputs": outputs,
         "seconds": round(time.perf_counter() - started, 1),
@@ -6233,6 +6301,336 @@ def _ph_report(db: str, plate: str, wells: Sequence[str],
         "csv": target, "json": os.path.join(folder, "counts_vs_reference.json"),
         **summary}
     report["seconds"] = round(time.perf_counter() - started, 1)
+    return report
+
+
+def _ph_profile_tables(name: str, table, destination: str, label: str,
+                       outputs: Dict[str, str]) -> None:
+    """Write one profile-option table as CSV and Parquet and record both.
+
+    :param name: the table's role, such as ``genes_phase``.
+    :param table: the table.
+    :param destination: the output folder.
+    :param label: the plate and tag of the run.
+    :param outputs: the report's outputs, updated in place.
+    """
+    from .tabular import write_table
+
+    for suffix in ("csv", "parquet"):
+        target = os.path.join(destination, f"ops_{name}_{label}.{suffix}")
+        write_table(table, target, canonicalise=False)
+        outputs[f"{name}_{suffix}"] = target
+
+
+def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
+                        guides, genes, destination: str, label: str,
+                        control_prefix: str = "nontargeting"
+                        ) -> Dict[str, Any]:
+    """Apply the gene-profile options to the TVN profiles of a run.
+
+    :param settings: read for the ``ops_profile_*`` options.
+    :param cells: the profiled cells in the row order of ``embedding``,
+        with ``well``, ``sgRNA`` and ``gene``, and ``site``, ``mitotic``
+        and ``_dna_integrated`` when an option needs them.
+    :param embedding: the per-cell TVN components.
+    :param guides: the TVN guide table.
+    :param genes: the TVN gene table.
+    :param destination: where the tables are written.
+    :param label: the plate and tag, as in ``ops_genes_<label>_tvn``.
+    :param control_prefix: the control gene prefix.
+    :returns: the report: what each option did, and the tables written.
+    """
+    import pandas as pd
+
+    from .gene_measurement_compare import (
+        CELL_CYCLE_PHASES, aggregate_genes, aggregate_guides,
+        cell_cycle_phases, contrastive_weighting, embedding_profiles,
+        fusion_profiles, generic_covariates, guide_efficacy_profiles,
+        guide_level_similarity, nt_row_names, penetrance_tests,
+        phase_columns, phase_profiles, phase_tests,
+        remove_generic_axes, responder_profiles, shrink_gene_profiles)
+    from .qt.i18n import tr
+
+    report: Dict[str, Any] = {"outputs": {}}
+    outputs = report["outputs"]
+    columns = [c for c in genes.columns if str(c).startswith("PC_")]
+    control = cells["gene"].astype(str).str.lower().str.startswith(
+        control_prefix.lower()).to_numpy()
+    profile_guides, profile_genes = guides, genes
+    pcs = list(columns)
+    phases = None
+    cycle = None
+    axes_asked: List[str] = []
+    weighting = None
+    similarity = None
+
+    cycle = str(settings.get("ops_profile_cell_cycle") or "").strip() or None
+    source = str(settings.get("ops_mitotic_source") or "rule").strip().lower()
+    if source not in ("rule", "classifier"):
+        raise ValueError(tr("ops_mitotic_source must be rule or classifier; "
+                            "got {value}", value=source))
+    if source == "classifier" and not settings.get("ops_mitotic_model"):
+        raise ValueError(tr(
+            "ops_mitotic_source classifier needs ops_mitotic_model, a "
+            "trained mitotic classifier"))
+    axes_asked = _ph_names(settings.get("ops_profile_generic_axes"))
+    needs_phases = bool(cycle) or bool(settings.get("ops_phase_tests")) or any(
+        str(a).startswith("shift_") for a in axes_asked)
+    if needs_phases:
+        if "_dna_integrated" not in cells:
+            raise ValueError(tr(
+                "cell-cycle phases need the nuclear integrated DNA intensity, "
+                "which the cell tables do not have"))
+        split = float(_setting_number(
+            settings.get("ops_profile_g1_sg2_split_log2"),
+            "ops_profile_g1_sg2_split_log2", 0.30))
+        phases = cell_cycle_phases(cells, dna="_dna_integrated",
+                                   control=control, split_log2=split)["phase"]
+        report["cell_cycle"] = {
+            "split_log2": split, "mitotic_source": source,
+            "fractions": {p: round(float((phases == p).mean()), 4)
+                          for p in CELL_CYCLE_PHASES}}
+    if cycle:
+        frame = pd.concat([cells[["well", "sgRNA", "gene"]].reset_index(drop=True),
+                           pd.DataFrame(embedding, columns=pcs)], axis=1)
+        frame["phase"] = phases.to_numpy()
+        phase_guides, phase_genes = phase_profiles(
+            frame, pcs, control=control, guide="sgRNA")
+        _ph_profile_tables("guides_phase", phase_guides, destination, label,
+                           outputs)
+        _ph_profile_tables("genes_phase", phase_genes, destination, label,
+                           outputs)
+        columns = phase_columns(phase_genes, cycle)
+        chosen = CELL_CYCLE_PHASES if cycle == "concat" else (cycle,)
+        profile_guides = phase_guides.assign(n_cells=phase_guides[[
+            f"{p}_n_cells" for p in chosen]].fillna(0).sum(axis=1).astype(int))
+        profile_genes = genes[["gene", "n_guides", "n_cells"]].merge(
+            phase_genes[["gene", *columns]], on="gene", how="inner")
+        report["cell_cycle"]["profile"] = cycle
+
+    shrinkage = str(settings.get("ops_profile_shrinkage") or "").strip().lower() or None
+    if shrinkage not in (None, "eb_nt"):
+        raise ValueError(tr("ops_profile_shrinkage must be empty or eb_nt; "
+                            "got {value}", value=shrinkage))
+    if shrinkage:
+        prior = float(_setting_number(settings.get("ops_profile_shrinkage_prior_df"),
+                                      "ops_profile_shrinkage_prior_df", 4.0))
+        if cycle:
+            parts = []
+            for p in (CELL_CYCLE_PHASES if cycle == "concat" else (cycle,)):
+                chosen_columns = [f"{p}_{c}" for c in pcs]
+                sub = profile_guides[profile_guides[f"{p}_n_cells"].fillna(0) >= 3]
+                shrunk, _factor, _params = shrink_gene_profiles(
+                    sub, chosen_columns, control_prefix=control_prefix,
+                    n_cells=sub[f"{p}_n_cells"], prior_df=prior)
+                parts.append(shrunk.set_index("gene"))
+            shrunk = pd.concat(parts, axis=1).reset_index().dropna()
+            report["shrinkage"] = {"prior_df": prior, "per_phase": True}
+        else:
+            shrunk, factor, params = shrink_gene_profiles(
+                profile_guides, columns, control_prefix=control_prefix,
+                prior_df=prior)
+            report["shrinkage"] = {**params, "median_factor": float(factor.median())}
+        profile_genes = genes[["gene", "n_guides", "n_cells"]].merge(
+            shrunk, on="gene", how="inner")
+        _ph_profile_tables("genes_shrink", profile_genes, destination, label,
+                           outputs)
+
+    if axes_asked:
+        min_rho = float(_setting_number(
+            settings.get("ops_profile_essential_axis_min_rho"),
+            "ops_profile_essential_axis_min_rho", 0.30))
+        stage = phases.to_numpy() if phases is not None else np.full(len(cells), "G1")
+        covariates = generic_covariates(
+            genes, cells[["gene"]].assign(phase=stage), control=control)
+        profile_genes = profile_genes.dropna(subset=columns).reset_index(drop=True)
+        guide_rows = profile_guides[columns].to_numpy(float)
+        residual, info, _axis, guide_residual = remove_generic_axes(
+            profile_genes[columns].to_numpy(float), profile_genes["gene"],
+            covariates, axes=axes_asked, min_rho=min_rho,
+            control_prefix=control_prefix, guide_values=guide_rows,
+            guide_genes=profile_guides["gene"])
+        profile_genes = profile_genes.copy()
+        profile_genes[columns] = residual
+        profile_guides = profile_guides.copy()
+        profile_guides[columns] = guide_residual
+        report["generic_axes"] = info
+        _ph_profile_tables("genes_generic", profile_genes, destination, label,
+                           outputs)
+
+    weighting = str(settings.get("ops_profile_weighting") or "").strip().lower() or None
+    if weighting not in (None, "contrastive_wiener"):
+        raise ValueError(tr("ops_profile_weighting must be empty or "
+                            "contrastive_wiener; got {value}", value=weighting))
+    if weighting and settings.get("ops_profile_shrinkage"):
+        raise ValueError(tr(
+            "ops_profile_weighting and ops_profile_shrinkage both remove what "
+            "the control guides explain; stacked, no direction is left, so "
+            "choose one"))
+    if weighting:
+        profile_genes, profile_guides, info = contrastive_weighting(
+            profile_genes, profile_guides, columns,
+            control_prefix=control_prefix)
+        columns = [c for c in profile_genes.columns if str(c).startswith("w_")]
+        report["weighting"] = {"directions_kept": info["directions_kept"],
+                               "kbar": info["kbar"],
+                               "nt_guides": info["nt_guides"]}
+        _ph_profile_tables("genes_weighted", profile_genes, destination, label,
+                           outputs)
+        _ph_profile_tables("guides_weighted", profile_guides, destination,
+                           label, outputs)
+
+    efficacy = str(settings.get("ops_guide_efficacy") or "").strip().lower() or None
+    if efficacy not in (None, "jacks_blend"):
+        raise ValueError(tr("ops_guide_efficacy must be empty or jacks_blend; "
+                            "got {value}", value=efficacy))
+    if efficacy and not weighting:
+        raise ValueError(tr(
+            "ops_guide_efficacy runs in the weighted space; set "
+            "ops_profile_weighting to contrastive_wiener"))
+    if efficacy:
+        iters = int(_setting_number(settings.get("ops_guide_efficacy_iters"),
+                                    "ops_guide_efficacy_iters", 20))
+        emax = float(_setting_number(settings.get("ops_guide_efficacy_emax"),
+                                     "ops_guide_efficacy_emax", 1.0))
+        profile_genes, per_guide = guide_efficacy_profiles(
+            profile_genes, profile_guides, columns=columns, iters=iters,
+            emax=emax)
+        report["guide_efficacy"] = {
+            "iters": iters, "emax": emax,
+            "guides_below_half": float((per_guide.dropna() < 0.5).mean())}
+        _ph_profile_tables("genes_efficacy", profile_genes, destination, label,
+                           outputs)
+        _ph_profile_tables("guides_efficacy", per_guide.rename(
+            "efficacy").rename_axis("guide").reset_index(), destination,
+            label, outputs)
+
+    similarity = str(settings.get("ops_profile_similarity") or "").strip().lower() or None
+    if similarity not in (None, "gene_cosine", "guide_level", "responder",
+                          "sliced_wasserstein"):
+        raise ValueError(tr(
+            "ops_profile_similarity must be gene_cosine, guide_level, "
+            "responder or sliced_wasserstein; got {value}", value=similarity))
+    if similarity == "guide_level":
+        null_size = int(_setting_number(settings.get("ops_guide_null_size"),
+                                        "ops_guide_null_size", 200000))
+        result = guide_level_similarity(
+            profile_guides.dropna(subset=columns), columns,
+            control_prefix=control_prefix, null_size=null_size)
+        report["guide_level"] = result["summary"]
+        _ph_profile_tables("gene_pairs", result["pairs"], destination, label,
+                           outputs)
+
+    if similarity in ("responder", "sliced_wasserstein"):
+        alpha = float(_setting_number(settings.get("ops_profile_responder_alpha"),
+                                      "ops_profile_responder_alpha", 0.05))
+        frame = pd.concat([cells[["sgRNA", "gene"]].reset_index(drop=True),
+                           pd.DataFrame(embedding, columns=pcs)], axis=1)
+        use = frame["gene"].to_numpy() != "nontargeting_drop"
+        if phases is not None:
+            use &= phases.to_numpy() != "M"
+        result = responder_profiles(frame, pcs, control=control, guide="sgRNA",
+                                    use=use, alpha=alpha)
+        for name in ("summary", "genes", "guides"):
+            _ph_profile_tables(f"responder_{name}", result[name], destination,
+                               label, outputs)
+        quantiles = pd.DataFrame(result["sliced_wasserstein"]).add_prefix("sw_")
+        quantiles.insert(0, "gene", result["summary"]["gene"].to_numpy())
+        _ph_profile_tables("genes_sliced_wasserstein", quantiles, destination,
+                           label, outputs)
+        report["responders"] = {"alpha": alpha, "genes": int(len(result["summary"]))}
+
+    if settings.get("ops_escapers") and not settings.get("ops_penetrance"):
+        raise ValueError(tr("ops_escapers reads the penetrance fit; set "
+                            "ops_penetrance too"))
+    if settings.get("ops_penetrance"):
+        frame = pd.concat([cells[["well", "site", "sgRNA", "gene"]].reset_index(drop=True),
+                           pd.DataFrame(embedding, columns=pcs)], axis=1)
+        tested = sorted(g for g in pd.unique(frame["gene"].astype(str))
+                        if not g.lower().startswith(control_prefix.lower()))
+        result = penetrance_tests(
+            frame, pcs, tested, control=control,
+            folds=int(_setting_number(settings.get("ops_penetrance_folds"),
+                                      "ops_penetrance_folds", 5)),
+            control_pool=int(_setting_number(settings.get("ops_penetrance_nt_pool"),
+                                             "ops_penetrance_nt_pool", 20000)),
+            lam=float(_setting_number(settings.get("ops_penetrance_lambda"),
+                                      "ops_penetrance_lambda", 0.5)),
+            dbic=float(_setting_number(settings.get("ops_escaper_dbic"),
+                                       "ops_escaper_dbic", 10.0)),
+            min_separation=float(_setting_number(settings.get("ops_escaper_min_sep"),
+                                                 "ops_escaper_min_sep", 2.0)))
+        for name in ("genes", "controls", "guides"):
+            _ph_profile_tables(f"penetrance_{name}", result[name], destination,
+                               label, outputs)
+        report["penetrance"] = {"genes": int(len(result["genes"])),
+                                "controls": int(len(result["controls"]))}
+        if settings.get("ops_escapers") and len(result["genes"]):
+            escapers = result["genes"][result["genes"]["escaper"]]
+            _ph_profile_tables("penetrance_escapers", escapers, destination,
+                               label, outputs)
+            report["penetrance"]["escapers"] = int(len(escapers))
+    if settings.get("ops_phase_tests"):
+        null_kind = str(settings.get("ops_phase_null") or "targeting").strip().lower()
+        frame = pd.concat([cells[["well", "sgRNA"]].reset_index(drop=True),
+                           pd.DataFrame(embedding, columns=pcs)], axis=1)
+        frame["gene"] = nt_row_names(cells["sgRNA"], cells["gene"], rows="pseudo",
+                                     control_prefix=control_prefix)
+        frame["phase"] = phases.to_numpy()
+        result = phase_tests(frame, pcs, control=control, null=null_kind)
+        _ph_profile_tables("phase_tests", result["tests"], destination, label,
+                           outputs)
+        _ph_profile_tables("phase_calls", result["calls"], destination, label,
+                           outputs)
+        report["phase_tests"] = result["summary"]
+
+    space = str(settings.get("ops_profile_space") or "").strip()
+    if space and space != "tvn":
+        kind, _sep, folder = space.partition(":")
+        if kind not in ("embedding", "fusion") or not folder:
+            raise ValueError(tr(
+                "ops_profile_space must be tvn, embedding:<folder> or "
+                "fusion:<folder>; got {value}", value=space))
+        index = pd.read_parquet(os.path.join(folder, "index.parquet"),
+                                columns=["row", "well", "site", "label"])
+        exported = np.load(os.path.join(folder, "embeddings.npy"), mmap_mode="r")
+        frame = cells[["well", "site", "label", "sgRNA", "gene"]].reset_index(
+            drop=True).rename_axis("_cell").reset_index()
+        index["well"] = index["well"].astype(str)
+        frame["well"] = frame["well"].astype(str)
+        matched = index.merge(frame, on=["well", "site", "label"], how="inner")
+        if phases is not None:
+            matched = matched[phases.to_numpy()[matched["_cell"].to_numpy()] != "M"]
+        matched = matched.sort_values("row").reset_index(drop=True)
+        matched_control = matched["gene"].astype(str).str.lower().str.startswith(
+            control_prefix.lower())
+        embedded, info = embedding_profiles(
+            exported, matched, control=matched_control,
+            rows=matched["row"].to_numpy(),
+            whiten_epsilon=float(_setting_number(
+                settings.get("ops_tvn_whiten_epsilon"), "ops_tvn_whiten_epsilon", 3.0)))
+        _ph_profile_tables("genes_embedding", embedded, destination, label,
+                           outputs)
+        report["embedding"] = {"folder": folder, "cells_matched": int(len(matched)),
+                               "exported_rows": int(len(index)), **info}
+        if kind == "fusion":
+            measured = pd.concat([matched[["sgRNA", "gene"]],
+                                  pd.DataFrame(embedding[matched["_cell"].to_numpy()],
+                                               columns=pcs)], axis=1)
+            blocks = {"meas": aggregate_genes(aggregate_guides(
+                measured, pcs, guide="sgRNA"), pcs),
+                      "emb": embedded}
+            order = _ph_names(settings.get("ops_fusion_blocks")) or ["meas", "emb"]
+            unknown = [b for b in order if b not in blocks]
+            if unknown:
+                raise ValueError(tr(
+                    "ops_fusion_blocks names {unknown}; the blocks are meas "
+                    "and emb", unknown=unknown))
+            fused = fusion_profiles({b: blocks[b] for b in order})
+            _ph_profile_tables("genes_fusion", fused, destination, label,
+                               outputs)
+            report["embedding"]["fusion_dims"] = {
+                b: int(fused.columns.str.startswith(f"f_{b}").sum()) for b in order}
     return report
 
 

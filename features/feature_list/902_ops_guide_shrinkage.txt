@@ -1,0 +1,25 @@
+OPS GUIDE-RELIABILITY EMPIRICAL-BAYES SHRINKAGE
+===============================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha, under ALPHA_FEATURES[902]) — spacr.gene_measurement_compare.shrink_gene_profiles: per dimension the control guides give the guide noise a_d + (pi/2) v_d / n, each gene's noise is pooled with its own guide spread (prior_df against K - 1), the prior signal variance comes from the moments of the targeting genes, and the gene's mean guide profile (centred on the controls) is multiplied by tau2 / (tau2 + V / K). ops_profile_shrinkage='eb_nt' (ops_profile_shrinkage_prior_df, default 4) writes ops_genes_<plate>_shrink in the aggregate phase, per phase when ops_profile_cell_cycle is set (guides with at least three cells in the phase). spacr/gene_measurement_compare.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_guide_shrinkage_902.py.
+Requested: maintainer via paper session, 2026-11-09.
+Owner: paper session (lane C).
+Source: improved/scripts/ic_lib.py eb_shrink, used by build_profiles.py and spacr_best.py; Smyth 2004.
+Related: 907, 890.
+
+WHAT THE STATE IS
+Upgrade 2b was a script.
+
+WHAT TO DO
+- Port eb_shrink beside aggregate_genes, alpha.
+
+RESULT
+From profiles/guides_base.parquet, shrink_gene_profiles gives
+genes_shrink.parquet, shrink_factor.parquet and shrink_params.json bit
+for bit, and per phase (from guides_phase.parquet) genes_phase_shrink.parquet
+bit for bit, NaN pattern included, in both numpy 1.26 and 2.5.
+
+DELIBERATELY NOT DONE
+- tests_retrieval.py check 4 needs the retrieval scorer of item 880 and is
+  not ported here.

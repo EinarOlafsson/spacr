@@ -8547,6 +8547,36 @@ ALPHA_FEATURES = {
                      'timelapse_division_prediction_model',
                      'timelapse_division_prediction_folds'),
     },
+    906: {
+        'settings': ('ops_profile_space', 'ops_fusion_blocks'),
+    },
+    905: {
+        'settings': ('ops_profile_similarity', 'ops_profile_responder_alpha'),
+    },
+    904: {
+        'settings': ('ops_profile_similarity', 'ops_guide_null_size'),
+    },
+    903: {
+        'settings': ('ops_profile_generic_axes', 'ops_profile_essential_axis_min_rho'),
+    },
+    902: {
+        'settings': ('ops_profile_shrinkage', 'ops_profile_shrinkage_prior_df'),
+    },
+    891: {
+        'settings': ('ops_penetrance', 'ops_penetrance_folds', 'ops_penetrance_nt_pool', 'ops_penetrance_lambda', 'ops_escapers', 'ops_escaper_dbic', 'ops_escaper_min_sep', 'ops_phase_tests', 'ops_phase_null'),
+    },
+    890: {
+        'settings': ('ops_profile_cell_cycle', 'ops_profile_g1_sg2_split_log2', 'ops_mitotic_source'),
+    },
+    887: {
+        'settings': ('ops_guide_efficacy', 'ops_guide_efficacy_iters', 'ops_guide_efficacy_emax'),
+    },
+    907: {
+        'settings': ('ops_profile_weighting',),
+    },
+    883: {
+        'settings': ('ops_aggregate_level', 'ops_nt_rows'),
+    },
     567: {
         'models': ('videomae_v1',),
         'settings': ('timelapse_events', 'timelapse_events_annotations',

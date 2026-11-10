@@ -1,0 +1,44 @@
+OPS PENETRANCE, ESCAPERS, PHASE TESTS AND NEIGHBOUR EFFECTS
+===========================================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha, under ALPHA_FEATURES[891]) — spacr.gene_measurement_compare: field_folds, storey_penetrance, escaper_statistics, ashman_d, penetrance_tests (field-cross-fitted logistic regression against a well-stratified control pool, Storey penetrance with a field-bootstrap interval, escaper mixture vs unimodal shift with simulation check, guide heterogeneity; NT pseudo-gene and shuffled-label controls), escaper_classes, phase_tests (pooled and per-phase omnibus tests with a targeting or control null, phase-specific and composition-only calls), disk_offsets, mask_neighbours (mask-based neighbour table, radius 50 px on a 2 px grid) and neighbour_effects (exposed receivers vs control-exposed receivers, FWL residualisation within field, field-clustered variance, shuffle and clone-preserving nulls). The aggregate phase runs ops_penetrance / ops_escapers (ops_penetrance_folds, _nt_pool, _lambda, ops_escaper_dbic, ops_escaper_min_sep) and ops_phase_tests (ops_phase_null) on the TVN cells and writes ops_penetrance_* and ops_phase_* tables. spacr/gene_measurement_compare.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_penetrance_neighbours_891.py.
+Requested: maintainer via paper session, 2026-11-09.
+Owner: paper session (lane C).
+Source: funk_plateA_full/strategies/scripts: s1c_penetrance.py, s1c_escapers.py, s2a_phase.py, neighbour_pairs.py, s2b_neighbours.py (strategies/PORTING.md rows P1, P4-P8); Storey 2002; Ashman et al. 1994.
+Related: 856, 890, 877.
+
+WHAT THE STATE IS
+Penetrance, escapers, phase-coupled tests and neighbour effects were
+custom scripts.
+
+WHAT TO DO
+- Port them into spaCR as one alpha item with the published controls.
+
+RESULT
+All on plate A in the reference environment, compared with the tables
+the strategies scripts wrote:
+- penetrance_tests on the 1,145 copairs-active genes: penetrance_genes
+  (1,145 rows), penetrance_controls (62 NT pseudo-genes and 100 shuffled-
+  label genes) and penetrance_guides (4,828 rows) bit for bit, every
+  column (CIs, escaper fits, simulation calls, guide heterogeneity). 9 min.
+- phase_tests with the targeting null: phase_tests_tnull (49,601 rows,
+  fresh random-set controls included), phase_calls_tnull (5,111 genes)
+  and phase_summary_tnull.json identical. 6 min.
+- neighbour_effects, inactive receivers, 5 reps of each null:
+  nbr_tests_B, nbr_null_B (51,120 rows), nbr_d_B and nbr_V_B identical.
+  7 min.
+- mask_neighbours on six fields (A1 and B3, sites 0-2): nbr_<well> pairs
+  and recv_<well> receiver rows identical.
+escaper_classes was tested on synthetic data only; its genotype-error
+inputs come from item 877.
+
+NOT DONE IN THIS ITEM
+- The neighbour table and neighbour effects are library functions only:
+  the aggregate phase does not read the phenotype masks, so
+  ops_neighbour_radius_px, ops_neighbour_grid_px, ops_neighbour_effects,
+  ops_neighbour_receivers and ops_neighbour_null_reps are not settings
+  yet.
+- s1c_read_support.py and the spill-over checks (spill_*.py) are not
+  ported; escaper_classes takes the genotype-confidence columns (item 877)
+  as inputs.

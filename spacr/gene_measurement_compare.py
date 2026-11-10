@@ -7,7 +7,7 @@ individual cells as observations and do not account for cells that share a
 well; use the well level when wells are the experimental units.
 """
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -1316,25 +1316,126 @@ def aggregate_guides(cells: pd.DataFrame, features: Sequence[str], *,
     return out.reset_index().rename(columns={guide: "guide", gene: "gene"})
 
 
-def aggregate_genes(guides: pd.DataFrame, features: Sequence[str]
-                    ) -> pd.DataFrame:
-    """One row per gene: the median of its guides' medians.
+#: How a gene profile is reduced from its cells (``ops_aggregate_level``).
+AGGREGATE_LEVELS: Tuple[str, ...] = ("guides", "cells")
+
+#: How non-targeting guides become profile rows (``ops_nt_rows``).
+NT_ROW_MODES: Tuple[str, ...] = ("pseudo", "barcode")
+
+
+def aggregate_genes(guides: pd.DataFrame, features: Sequence[str], *,
+                    level: str = "guides",
+                    cells: Optional[pd.DataFrame] = None,
+                    gene: str = "gene",
+                    min_cells: Optional[int] = None) -> pd.DataFrame:
+    """One row per gene: the median of its guides' medians, or of its cells.
 
     :param guides: the table :func:`aggregate_guides` returns.
     :param features: the feature columns to reduce.
+    :param level: ``'guides'`` (the median of the gene's guide medians) or
+        ``'cells'`` (the median over every cell of the gene).
+    :param cells: the cell table the guides were reduced from; ``level=
+        'cells'`` needs it.
+    :param gene: the gene column of ``cells``.
+    :param min_cells: when set, genes with this many cells or fewer are
+        left out.
     :returns: ``gene, n_guides, n_cells, [mitotic_cells, mitotic_index,]
         <features>``. The mitotic index pools the gene's cells -- mitotic
         cells over all cells -- which is how the published per-gene
         ``mitotic_index`` is defined.
+    :raises ValueError: for an unknown ``level``, or ``level='cells'``
+        without ``cells``.
+
+    THE CELL LEVEL FOLLOWS BRIEFLOW. Brieflow (Di Bernardo et al., Nat
+    Commun 2026, doi:10.1038/s41467-026-73643-7; cheeseman-lab/brieflow,
+    MIT licence) reduces a gene as the median of all of its cells
+    (``lib.aggregate.aggregate`` by ``gene_symbol_0``). A guide with many
+    cells then weighs more than one with few, where the guide level gives
+    every guide one vote. On plate A of Funk et al. 2022 the cell level
+    raised mean retrieval mAP from 0.0602 to 0.0639 in TVN space.
     """
+    level = str(level or "guides").strip().lower()
+    if level not in AGGREGATE_LEVELS:
+        raise ValueError(f"level must be one of {list(AGGREGATE_LEVELS)}; "
+                         f"got {level!r}")
     grouped = guides.groupby("gene", sort=True)
-    out = grouped[list(features)].median()
-    out.insert(0, "n_guides", grouped.size())
-    out.insert(1, "n_cells", grouped["n_cells"].sum())
+    if level == "cells":
+        if cells is None:
+            raise ValueError("level='cells' needs the cell table")
+        by_cell = cells.groupby(gene, sort=True)
+        out = by_cell[list(features)].median()
+        out.index.name = "gene"
+        out.insert(0, "n_guides", grouped.size().reindex(out.index)
+                   .fillna(0).astype(int))
+        out.insert(1, "n_cells", by_cell.size())
+    else:
+        out = grouped[list(features)].median()
+        out.insert(0, "n_guides", grouped.size())
+        out.insert(1, "n_cells", grouped["n_cells"].sum())
     if "mitotic_cells" in guides:
-        out.insert(2, "mitotic_cells", grouped["mitotic_cells"].sum())
+        mitotic = grouped["mitotic_cells"].sum().reindex(out.index).fillna(0)
+        out.insert(2, "mitotic_cells", mitotic.astype(int))
         out.insert(3, "mitotic_index", out["mitotic_cells"] / out["n_cells"])
+    if min_cells is not None:
+        out = out[out["n_cells"] > int(min_cells)]
     return out.reset_index()
+
+
+def nt_row_names(guides: Sequence, genes: Sequence, *, rows: str = "pseudo",
+                 control_prefix: str = "nontargeting",
+                 nt_guides: Optional[Sequence] = None, group_size: int = 4,
+                 seed: int = 0, drop_incomplete: bool = True,
+                 pseudo_prefix: str = "NTpseudo_") -> np.ndarray:
+    """The gene name each cell (or guide) gets when controls become rows.
+
+    :param guides: the guide of every row.
+    :param genes: the gene of every row; a name starting with
+        ``control_prefix`` (any case) marks a non-targeting guide.
+    :param rows: ``'pseudo'`` groups the non-targeting guides at random into
+        pseudo-genes of ``group_size``, named ``NTpseudo_00``,
+        ``NTpseudo_01``, ...; ``'barcode'`` makes every non-targeting guide
+        its own row, named ``<control_prefix>_<guide>``.
+    :param control_prefix: the control gene prefix.
+    :param nt_guides: the non-targeting guides the pseudo-genes are drawn
+        from; by default those among ``guides``. Pass the full set when only
+        part of the cells is named, so every part gets the same groups.
+    :param group_size: guides per pseudo-gene.
+    :param seed: the permutation seed.
+    :param drop_incomplete: name the guides of a last, smaller pseudo-gene
+        ``nontargeting_drop`` so they can be left out.
+    :param pseudo_prefix: the pseudo-gene name before its two-digit number.
+    :returns: the gene names; targeting rows keep their gene.
+    :raises ValueError: for an unknown ``rows``.
+
+    The pseudo-genes are drawn as in the improved Funk plate A analysis:
+    the sorted unique non-targeting guides are permuted with
+    ``numpy.random.default_rng(seed)`` and guide ``i`` goes to pseudo-gene
+    ``rank_i // group_size``, where ``rank_i`` is its position in the
+    permutation. A pseudo-gene is processed exactly as a gene, so it is the
+    null a gene's statistic is compared against. One row per barcode is
+    Brieflow's layout (Di Bernardo et al., Nat Commun 2026).
+    """
+    rows = str(rows or "pseudo").strip().lower()
+    if rows not in NT_ROW_MODES:
+        raise ValueError(f"rows must be one of {list(NT_ROW_MODES)}; got {rows!r}")
+    guides = np.asarray(guides).astype(str)
+    names = np.asarray(genes).astype(str).astype(object)
+    control = pd.Series(names).str.lower().str.startswith(
+        control_prefix.lower()).to_numpy()
+    if rows == "barcode":
+        names[control] = [f"{control_prefix}_{g}" for g in guides[control]]
+        return names
+    pool = guides[control] if nt_guides is None else np.asarray(nt_guides).astype(str)
+    universe = np.array(sorted(set(pool)))
+    rank = np.argsort(np.random.default_rng(int(seed)).permutation(len(universe)))
+    mapping = {g: f"{pseudo_prefix}{k // int(group_size):02d}"
+               for g, k in zip(universe, rank)}
+    if drop_incomplete:
+        sizes = pd.Series(mapping).value_counts()
+        mapping = {g: p for g, p in mapping.items()
+                   if sizes[p] == int(group_size)}
+    names[control] = [mapping.get(g, "nontargeting_drop") for g in guides[control]]
+    return names
 
 
 _GENE_PVALUE_NULLS: Tuple[str, ...] = ("calibrated", "cell_bootstrap")
@@ -1510,3 +1611,2303 @@ def bootstrap_gene_pvalues(control_values: pd.DataFrame,
     if null == "calibrated":
         out.attrs["null"] = params
     return out
+
+
+#: Name prefixes that mark a non-targeting profile row, besides the control
+#: prefix itself: the pseudo-genes of :func:`nt_row_names`.
+_PSEUDO_PREFIXES: Tuple[str, ...] = ("ntpseudo",)
+
+
+def _control_rows(names: Sequence, control_prefix: str = "nontargeting"
+                  ) -> np.ndarray:
+    """True for every name that marks a non-targeting row (any case).
+
+    :param names: gene names.
+    :param control_prefix: the control gene prefix.
+    :returns: a boolean array.
+    """
+    prefixes = (control_prefix.lower(), *_PSEUDO_PREFIXES)
+    return pd.Series(np.asarray(names, dtype=object)).astype(str).str.lower(
+    ).str.startswith(prefixes).to_numpy()
+
+
+class _RowEmbedder:
+    """Standardise the gene rows and keep the PCs holding ``variance``.
+
+    The transform is fitted on the gene rows and kept, so guide rows of the
+    same feature space land in the same embedding. It is the embedding of
+    Brieflow's ``funk_benchmark.py``: columns with 5 % or more non-finite
+    values are dropped, the rest median-imputed, standardised (columns with
+    no spread dropped) and reduced by PCA to ``variance``.
+    """
+
+    def __init__(self, values, variance: float = 0.99, seed: int = 0):
+        """Fit the embedding.
+
+        :param values: the gene rows, one row per gene.
+        :param variance: the share of variance the PCA keeps.
+        :param seed: the PCA seed.
+        """
+        from sklearn.decomposition import PCA
+
+        x = np.asarray(values, float)
+        x = np.where(np.isfinite(x), x, np.nan)
+        self.keep = np.isnan(x).mean(axis=0) < 0.05
+        x = x[:, self.keep]
+        self.median = np.nanmedian(x, axis=0)
+        x = np.where(np.isnan(x), self.median, x)
+        spread = x.std(axis=0)
+        self.ok = spread > 0
+        self.mean, self.sd = x[:, self.ok].mean(axis=0), spread[self.ok]
+        self.pca = PCA(n_components=variance, random_state=seed)
+        self.rows = self.pca.fit_transform((x[:, self.ok] - self.mean) / self.sd)
+
+    def __call__(self, values) -> np.ndarray:
+        """Embed other rows with the fitted transform.
+
+        :param values: rows of the same feature columns.
+        :returns: the embedded rows.
+        """
+        x = np.asarray(values, float)[:, self.keep]
+        x = np.where(np.isfinite(x), x, self.median)
+        return self.pca.transform((x[:, self.ok] - self.mean) / self.sd)
+
+
+def contrastive_weighting(genes: pd.DataFrame, guides: pd.DataFrame,
+                          features: Sequence[str], *,
+                          control_prefix: str = "nontargeting",
+                          min_cells: Optional[int] = 10,
+                          variance: float = 0.99, seed: int = 0,
+                          drop_zero: bool = False
+                          ) -> Tuple[pd.DataFrame, pd.DataFrame, Dict[str, Any]]:
+    """Weight gene profiles by how far each direction rises above guide noise.
+
+    :param genes: one row per gene with ``gene``, ``n_cells`` and the
+        ``features``; non-targeting rows (names starting with
+        ``control_prefix`` or ``NTpseudo``) are kept as rows but not fitted.
+    :param guides: one row per guide with ``guide``, ``gene``, ``n_cells``
+        and the same ``features``. The non-targeting guides give the noise.
+    :param features: the profile columns.
+    :param control_prefix: the control gene prefix.
+    :param min_cells: genes with this many cells or fewer are left out
+        first; None keeps every gene.
+    :param variance: the share of variance the embedding keeps.
+    :param seed: the PCA seed.
+    :param drop_zero: leave out the directions whose weight is 0. The
+        cosine of two rows is the same either way.
+    :returns: ``(gene_rows, guide_rows, info)``: ``gene, n_cells, w_0 ...``
+        and ``guide, gene, n_cells, w_0 ...`` in the weighted space, and
+        ``lambda``, ``weights``, ``directions_kept``, ``kbar`` and
+        ``nt_guides``.
+    :raises ValueError: when fewer than two directions have lambda above 1.
+
+    The gene rows are embedded (standardised, PCA 99 %) and the guide rows
+    put in the same space. The noise covariance is the Ledoit-Wolf
+    covariance (Ledoit & Wolf 2004) of the centred non-targeting guide rows,
+    divided by ``kbar``, the mean number of guides per targeting gene, since
+    a gene profile pools that many guides. The generalised eigenproblem
+    ``Sigma_genes v = lambda Sigma_noise v`` gives directions ordered by
+    signal over noise; each is weighted by ``max((lambda - 1) / lambda,
+    0)``, a Wiener weight. This is a contrastive eigenproblem in the spirit
+    of contrastive PCA (Abid et al. 2018).
+
+    IT REFUSES A DEGENERATE SPACE. On profiles already shrunk toward the
+    controls (:func:`shrink_gene_profiles`) no direction rises above the
+    noise, every weight is 0 and every row the zero vector; a retrieval
+    score then ranks ties first and reports AP = 1. Do not stack the two.
+    """
+    from scipy.linalg import eigh
+    from sklearn.covariance import LedoitWolf
+
+    if min_cells is not None:
+        genes = genes[genes["n_cells"] > int(min_cells)]
+    genes = genes.reset_index(drop=True)
+    names = genes["gene"].to_numpy()
+    embed = _RowEmbedder(genes[list(features)].to_numpy(float),
+                         variance=variance, seed=seed)
+    targeting = ~_control_rows(names, control_prefix)
+    keep = guides["gene"].isin(set(names)) | _control_rows(guides["gene"],
+                                                           control_prefix)
+    guides = guides[keep.to_numpy()].reset_index(drop=True)
+    guide_rows = embed(guides[list(features)].to_numpy(float))
+    guide_nt = _control_rows(guides["gene"], control_prefix)
+    kbar = float(pd.Series(guides["gene"].to_numpy()[~guide_nt])
+                 .value_counts().mean())
+    noise = guide_rows[guide_nt] - guide_rows[guide_nt].mean(0)
+    noise = LedoitWolf().fit(noise).covariance_ / kbar
+    lam, vectors = eigh(np.cov(embed.rows[targeting], rowvar=False), noise)
+    lam, vectors = lam[::-1], vectors[:, ::-1]
+    weights = np.clip((lam - 1) / lam, 0, None)
+    above = int((lam > 1).sum())
+    if above < 2:
+        raise ValueError(
+            f"contrastive weighting refused: only {above} direction(s) have "
+            "lambda above 1, so the weighted profiles would be degenerate; "
+            "profiles shrunk toward the controls should not be weighted")
+    if drop_zero:
+        kept = weights > 0
+        basis = vectors[:, kept] * weights[kept]
+        z_genes, z_guides = embed.rows @ basis, guide_rows @ basis
+    else:
+        z_genes = (embed.rows @ vectors) * weights
+        z_guides = (guide_rows @ vectors) * weights
+    columns = [f"w_{j}" for j in range(z_genes.shape[1])]
+    out_genes = pd.DataFrame(z_genes, columns=columns)
+    out_genes.insert(0, "gene", names)
+    out_genes.insert(1, "n_cells", genes["n_cells"].to_numpy())
+    out_guides = pd.DataFrame(z_guides, columns=columns)
+    out_guides.insert(0, "guide", guides["guide"].to_numpy())
+    out_guides.insert(1, "gene", guides["gene"].to_numpy())
+    out_guides.insert(2, "n_cells", guides["n_cells"].to_numpy())
+    info = {"lambda": lam, "weights": weights, "directions_kept": above,
+            "kbar": kbar, "nt_guides": int(guide_nt.sum()),
+            "genes": int(targeting.sum())}
+    return out_genes, out_guides, info
+
+
+#: Gene-profile options applied after :func:`contrastive_weighting`
+#: (``ops_guide_efficacy``).
+GUIDE_EFFICACY_MODES: Tuple[str, ...] = ("jacks_blend",)
+
+
+def _unit_rows(values: np.ndarray) -> np.ndarray:
+    """Every row scaled to length 1 (a zero row stays zero).
+
+    :param values: a matrix.
+    :returns: the scaled matrix.
+    """
+    return values / np.clip(np.linalg.norm(values, axis=1, keepdims=True),
+                            1e-12, None)
+
+
+def _rank_one_efficacy(rows: np.ndarray, weights: np.ndarray, *,
+                       iters: int, emax: float
+                       ) -> Tuple[np.ndarray, np.ndarray, int]:
+    """Fit ``x_g = e_g m`` to one gene's guide rows.
+
+    :param rows: the gene's guide rows.
+    :param weights: each guide's weight (its cell count).
+    :param iters: the most alternations run.
+    :param emax: the cap on an efficacy before rescaling.
+    :returns: ``(m, e, iterations)``: the profile ``sum w e x / sum w e^2``,
+        the efficacies and the alternations run.
+    """
+    e = np.ones(len(rows))
+    done = 0
+    for done in range(1, int(iters) + 1):
+        den = (weights * e ** 2).sum()
+        if den <= 0:
+            e = np.ones(len(rows))
+            den = weights.sum()
+        m = (weights * e) @ rows / den
+        mm = m @ m
+        if mm <= 0:
+            break
+        e_new = np.clip(rows @ m / mm, 0, emax)
+        e_new = (e_new / max(e_new.max(), 1e-12) if e_new.max() > 0
+                 else np.ones(len(rows)))
+        if np.allclose(e_new, e, atol=1e-6):
+            e = e_new
+            break
+        e = e_new
+    m = (weights * e) @ rows / max((weights * e ** 2).sum(), 1e-12)
+    return m, e, done
+
+
+def guide_efficacy_profiles(genes: pd.DataFrame, guides: pd.DataFrame, *,
+                            columns: Optional[Sequence[str]] = None,
+                            iters: int = 20, emax: float = 1.0
+                            ) -> Tuple[pd.DataFrame, pd.Series]:
+    """Gene profiles that weight each guide by how well it knocks down.
+
+    :param genes: the gene rows :func:`contrastive_weighting` returns
+        (``gene``, ``n_cells``, ``w_*``); with the cell level of
+        :func:`aggregate_genes` they are the all-cell gene medians.
+    :param guides: its guide rows (``guide``, ``gene``, ``n_cells``,
+        ``w_*``).
+    :param columns: the profile columns; by default the ``w_*`` columns.
+    :param iters: the most alternations per gene (``ops_guide_efficacy_iters``).
+    :param emax: the cap on an efficacy before rescaling
+        (``ops_guide_efficacy_emax``).
+    :returns: ``(rows, efficacy)``: one row per gene, ``gene, n_cells`` and
+        the columns of ``Z/|Z| + M/|M|``, whose cosine is the similarity;
+        and the efficacy of every guide, indexed by guide.
+    :raises ValueError: when the weighted space has fewer than two
+        directions, as :func:`contrastive_weighting` refuses.
+
+    THE GUIDE MODEL IS JACKS' RANK-1 MODEL (Allen et al. 2019, Genome Res,
+    doi:10.1101/gr.238923.118), with the profile features in the role of
+    JACKS' screens: each guide row is ``x_g = e_g m + noise``, the noise
+    variance proportional to ``1 / n_cells(g)``. Starting from ``e = 1``,
+    ``m = sum w e x / sum w e^2`` (``w`` the cell counts) and ``e =
+    clip(<x, m> / <m, m>, 0, emax)`` alternate, ``e`` rescaled so its
+    maximum is 1, for at most ``iters`` rounds or until ``e`` changes by
+    less than 1e-6. The efficacy-weighted profile ``M`` is then blended
+    with the all-cell gene profile ``Z`` as unit vectors. A gene row
+    without guide rows keeps ``Z``. The method uses no reference labels.
+    """
+    if columns is None:
+        columns = [c for c in genes.columns if str(c).startswith("w_")]
+    columns = list(columns)
+    z = genes[columns].to_numpy(float)
+    if (np.abs(z).sum(axis=0) > 0).sum() < 2:
+        raise ValueError(
+            "guide efficacy refused: the weighted profiles have fewer than "
+            "two directions; run contrastive_weighting first")
+    zg = guides[columns].to_numpy(float)
+    counts = guides["n_cells"].to_numpy(float)
+    members = pd.Series(guides["gene"].to_numpy())
+    members = members.groupby(members).indices
+    m_rows = z.copy()
+    efficacy = pd.Series(np.nan, index=guides["guide"].to_numpy(), dtype=float)
+    for i, name in enumerate(genes["gene"].to_numpy()):
+        index = members.get(name)
+        if index is None or len(index) == 0:
+            continue
+        m_rows[i], e, _done = _rank_one_efficacy(
+            zg[index], counts[index], iters=iters, emax=emax)
+        efficacy.iloc[index] = e
+    rows = pd.DataFrame(_unit_rows(z) + _unit_rows(m_rows), columns=columns)
+    rows.insert(0, "gene", genes["gene"].to_numpy())
+    rows.insert(1, "n_cells", genes["n_cells"].to_numpy())
+    return rows, efficacy
+
+
+#: The cell-cycle phases of :func:`cell_cycle_phases`, in profile order.
+CELL_CYCLE_PHASES: Tuple[str, ...] = ("G1", "SG2", "M")
+
+#: What ``ops_profile_cell_cycle`` may be besides empty.
+CELL_CYCLE_PROFILES: Tuple[str, ...] = ("concat", *CELL_CYCLE_PHASES)
+
+
+def g1_mode(log_dna: np.ndarray, *, bins: int = 120,
+            smooth: float = 2.0) -> float:
+    """The G1 peak of a log2 DNA-content distribution.
+
+    :param log_dna: log2 integrated nuclear DNA intensity of interphase
+        cells.
+    :param bins: histogram bins between the 0.5th and 99.5th percentiles.
+    :param smooth: the Gaussian smoothing of the histogram, in bins.
+    :returns: the centre of the highest bin of the smoothed histogram.
+    """
+    from scipy.ndimage import gaussian_filter1d
+
+    low, high = np.percentile(log_dna, [0.5, 99.5])
+    counts, edges = np.histogram(log_dna, bins=int(bins), range=(low, high))
+    smoothed = gaussian_filter1d(counts.astype(float), float(smooth))
+    return float(edges[np.argmax(smoothed)] + (edges[1] - edges[0]) / 2)
+
+
+def cell_cycle_phases(cells: pd.DataFrame, *, dna: str, control: pd.Series,
+                      mitotic: str = "mitotic", group: str = "well",
+                      split_log2: float = 0.30,
+                      mode_cells: Optional[pd.Series] = None) -> pd.DataFrame:
+    """Each cell's cell-cycle phase: G1, S/G2 or M.
+
+    :param cells: one row per cell.
+    :param dna: the integrated nuclear DNA (DAPI) intensity column,
+        flat-field corrected.
+    :param control: True for a non-targeting cell.
+    :param mitotic: the boolean mitotic-call column (the DNA rule of
+        :func:`mitotic_calls` or a trained classifier).
+    :param group: the column whose groups (wells) find their own G1 peak.
+    :param split_log2: interphase cells this far above the G1 peak, in log2
+        units, are S/G2 (``ops_profile_g1_sg2_split_log2``; 0.30 is about
+        1.23 times G1 DNA, the dip of the non-targeting histogram on Funk
+        plate A).
+    :param mode_cells: the cells the G1 peak is found on; by default the
+        non-targeting interphase cells.
+    :returns: ``phase`` (``'G1'``, ``'SG2'`` or ``'M'``) and
+        ``dna_log2_rel`` (log2 DNA minus the group's G1 peak), on the index
+        of ``cells``.
+
+    The G1 peak is the mode of the smoothed histogram of log2 DNA content
+    (:func:`g1_mode`), found per well on the non-targeting interphase cells,
+    so a knockout that piles cells up in S/G2 does not move it.
+    """
+    control = pd.Series(control, index=cells.index).fillna(False).astype(bool)
+    flags = cells[mitotic].astype(bool).to_numpy()
+    if mode_cells is None:
+        mode_cells = control & ~flags
+    mode_cells = pd.Series(mode_cells, index=cells.index).fillna(False
+                                                                 ).astype(bool)
+    log_dna = np.log2(np.clip(pd.to_numeric(cells[dna], errors="coerce")
+                              .to_numpy(float), 1, None))
+    relative = np.full(len(cells), np.nan)
+    for _key, rows in cells.groupby(group, sort=False).indices.items():
+        anchor = rows[mode_cells.to_numpy()[rows]]
+        if len(anchor) == 0:
+            continue
+        relative[rows] = log_dna[rows] - g1_mode(log_dna[anchor])
+    phase = np.where(flags, "M", np.where(relative < float(split_log2),
+                                          "G1", "SG2"))
+    return pd.DataFrame({"phase": phase,
+                         "dna_log2_rel": relative.astype(np.float32)},
+                        index=cells.index)
+
+
+def phase_profiles(cells: pd.DataFrame, features: Sequence[str], *,
+                   control: pd.Series, phase: str = "phase",
+                   group: str = "well", guide: str = "guide",
+                   gene: str = "gene",
+                   phases: Sequence[str] = CELL_CYCLE_PHASES,
+                   drop_genes: Sequence[str] = ("nontargeting_drop",)
+                   ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Guide and gene profiles resolved by cell-cycle phase.
+
+    :param cells: one row per cell with ``phase``, ``group``, ``guide``,
+        ``gene`` and the ``features`` (TVN components in the published
+        analysis).
+    :param features: the profile columns.
+    :param control: True for a non-targeting cell.
+    :param phase: the phase column (:func:`cell_cycle_phases`).
+    :param group: each group (well) is centred on its own controls.
+    :param guide: the guide column.
+    :param gene: the gene column.
+    :param phases: the phases profiled, in column order.
+    :param drop_genes: gene names left out of both tables after the
+        centring (the guides :func:`nt_row_names` could not group).
+    :returns: ``(guides, genes)``. The guide table has ``guide, gene`` and
+        per phase ``<phase>_n_cells`` and ``<phase>_<feature>``; a guide
+        with no cell in a phase has NaN there. The gene table has ``gene``
+        and the ``<phase>_<feature>`` columns: the median of its guides.
+
+    Within each well and phase, every cell is first centred on the median of
+    the well's non-targeting cells of the same phase. A profile then shows
+    what the knockout changes within a phase, not that it moves cells
+    between phases (the phase fractions say that). The concatenated profile
+    ``[G1 | S/G2 | M]`` keeps the three apart. A gene's cells therefore count
+    in the phase they are in.
+    """
+    control = pd.Series(control, index=cells.index).fillna(False
+                                                           ).astype(bool).to_numpy()
+    values = cells[list(features)].to_numpy()
+    centred = values.copy()
+    stage = cells[phase].astype(str).to_numpy()
+    wells = cells[group].to_numpy()
+    for well in pd.unique(wells):
+        for name in phases:
+            rows = (wells == well) & (stage == name)
+            reference = rows & control
+            if reference.any():
+                centred[rows] -= np.median(values[reference], axis=0)
+    parts = []
+    for name in phases:
+        rows = stage == name
+        columns = [f"{name}_{c}" for c in features]
+        frame = pd.DataFrame(centred[rows], columns=columns)
+        frame["guide"] = cells[guide].to_numpy()[rows]
+        frame["gene"] = cells[gene].to_numpy()[rows]
+        grouped = frame.groupby(["guide", "gene"], sort=True)
+        table = grouped[columns].median()
+        table.insert(0, f"{name}_n_cells", grouped.size())
+        parts.append(table)
+    guides = pd.concat(parts, axis=1).reset_index()
+    guides = guides[~guides["gene"].isin(list(drop_genes))].reset_index(drop=True)
+    columns = [f"{name}_{c}" for name in phases for c in features]
+    genes = guides.groupby("gene", sort=True)[columns].median().reset_index()
+    return guides, genes
+
+
+def phase_columns(table: pd.DataFrame, profile: str) -> List[str]:
+    """The profile columns ``ops_profile_cell_cycle`` keeps.
+
+    :param table: a :func:`phase_profiles` table.
+    :param profile: ``'concat'`` for every phase, or one phase name.
+    :returns: the ``<phase>_<feature>`` columns of the chosen phases.
+    :raises ValueError: for an unknown profile.
+    """
+    profile = str(profile).strip()
+    if profile not in CELL_CYCLE_PROFILES:
+        raise ValueError(f"the cell-cycle profile must be one of "
+                         f"{list(CELL_CYCLE_PROFILES)}; got {profile!r}")
+    chosen = CELL_CYCLE_PHASES if profile == "concat" else (profile,)
+    return [c for c in table.columns
+            if any(str(c).startswith(f"{p}_") for p in chosen)
+            and not str(c).endswith("_n_cells")]
+
+
+def field_folds(wells: Sequence, sites: Sequence, folds: int = 5) -> np.ndarray:
+    """The cross-fitting fold of every field, fixed by its name.
+
+    :param wells: the well of every cell.
+    :param sites: the field (site) of every cell.
+    :param folds: the number of folds.
+    :returns: the fold of every cell: the first eight hex digits of the md5
+        of ``"<well>|<site>"`` modulo ``folds``, so a field is in the same
+        fold for every gene and every run.
+    """
+    import hashlib
+
+    return np.array([int(hashlib.md5(f"{w}|{s}".encode()).hexdigest()[:8], 16)
+                     % int(folds) for w, s in zip(wells, sites)])
+
+
+def storey_penetrance(u: np.ndarray, lam: float = 0.5) -> float:
+    """The share of a gene's cells that carry its phenotype.
+
+    :param u: each gene cell's percentile among held-out control cells
+        (uniform when the gene has no effect).
+    :param lam: the percentile below which only non-responders are assumed
+        to fall (``ops_penetrance_lambda``).
+    :returns: ``1 - F(lam) / lam``, Storey's estimator (Storey 2002) of the
+        non-null share: non-responding cells look like controls, responding
+        cells sit above the controls' median.
+    """
+    return 1.0 - np.mean(np.asarray(u) <= lam) / lam
+
+
+def _field_bootstrap(u: np.ndarray, fields: np.ndarray, lam: float,
+                     reps: int, seed: int) -> Tuple[float, float]:
+    """A 95 % interval of the penetrance from resampling whole fields.
+
+    :param u: the cells' control percentiles.
+    :param fields: each cell's field.
+    :param lam: the Storey lambda.
+    :param reps: bootstrap draws.
+    :param seed: the bootstrap seed, the same for every gene.
+    :returns: the 2.5th and 97.5th percentiles.
+    """
+    codes, inverse = np.unique(fields, return_inverse=True)
+    below = np.bincount(inverse, weights=(u <= lam).astype(float),
+                        minlength=len(codes))
+    counts = np.bincount(inverse, minlength=len(codes)).astype(float)
+    rng = np.random.default_rng(int(seed))
+    draws = []
+    for _ in range(int(reps)):
+        w = np.bincount(rng.integers(0, len(codes), len(codes)),
+                        minlength=len(codes))
+        draws.append(1.0 - (w @ below) / max(w @ counts, 1) / lam)
+    return float(np.percentile(draws, 2.5)), float(np.percentile(draws, 97.5))
+
+
+def _mixture_fit(z: np.ndarray, iters: int = 200
+                 ) -> Tuple[float, float, float, float, np.ndarray]:
+    """``(1 - p) N(0, 1) + p N(mu1, s1^2)`` by EM, the control part fixed.
+
+    :param z: the cells' control z scores.
+    :param iters: the most EM rounds.
+    :returns: ``(log likelihood, p, mu1, s1, posterior)``, the posterior
+        being each cell's probability of being a responder.
+    """
+    from scipy import stats
+
+    high = z > np.quantile(z, 0.7)
+    p = 0.3
+    mu1 = z[high].mean() if high.any() else 1.0
+    s1 = max(z[high].std() if high.sum() > 1 else 1.0, 0.3)
+    for _ in range(int(iters)):
+        a = (1 - p) * stats.norm.pdf(z, 0, 1)
+        b = p * stats.norm.pdf(z, mu1, s1)
+        r = b / np.clip(a + b, 1e-300, None)
+        p_new = np.clip(r.mean(), 1e-4, 1 - 1e-4)
+        mu1 = (r * z).sum() / max(r.sum(), 1e-9)
+        s1 = max(np.sqrt((r * (z - mu1) ** 2).sum() / max(r.sum(), 1e-9)), 0.2)
+        if abs(p_new - p) < 1e-6:
+            p = p_new
+            break
+        p = p_new
+    density = (1 - p) * stats.norm.pdf(z, 0, 1) + p * stats.norm.pdf(z, mu1, s1)
+    ll = np.log(np.clip(density, 1e-300, None)).sum()
+    posterior = p * stats.norm.pdf(z, mu1, s1) / np.clip(density, 1e-300, None)
+    return ll, p, mu1, s1, posterior
+
+
+def escaper_statistics(z: np.ndarray, *, dbic: float = 10.0,
+                       min_separation: float = 2.0
+                       ) -> Tuple[Dict[str, Any], np.ndarray]:
+    """Does a gene's response split its cells into responders and escapers?
+
+    :param z: the gene cells' z scores against held-out control cells.
+    :param dbic: the BIC margin the mixture must win by
+        (``ops_escaper_dbic``).
+    :param min_separation: the responder mode's least distance from the
+        controls, in control standard deviations (``ops_escaper_min_sep``).
+    :returns: ``(statistics, posterior)``: ``dBIC``, ``mix_p``,
+        ``mix_mu1``, ``mix_s1``, ``shift_delta``, ``shift_kappa`` and
+        ``escaper_raw``, and each cell's responder probability.
+
+    Two models are compared: a unimodal shift ``N(delta, kappa^2)`` (two
+    parameters) and the controls plus a responder mode, ``(1 - p) N(0, 1) +
+    p N(mu1, s1^2)`` (three). A gene is an escaper candidate when the
+    mixture wins by ``dbic``, ``0.1 <= p <= 0.9`` and ``mu1`` is at least
+    ``min_separation``.
+    """
+    from scipy import stats
+
+    n = len(z)
+    mu, sd = z.mean(), z.std()
+    ll_shift = stats.norm.logpdf(z, mu, sd).sum()
+    ll_mix, p, mu1, s1, posterior = _mixture_fit(z)
+    delta = (-2 * ll_shift + 2 * np.log(n)) - (-2 * ll_mix + 3 * np.log(n))
+    call = bool(delta > dbic and 0.1 <= p <= 0.9 and mu1 >= min_separation)
+    return ({"dBIC": float(delta), "mix_p": float(p), "mix_mu1": float(mu1),
+             "mix_s1": float(s1), "shift_delta": float(mu),
+             "shift_kappa": float(sd), "escaper_raw": call}, posterior)
+
+
+def ashman_d(mu1: Any, s1: Any) -> Any:
+    """Ashman's D between the control mode N(0, 1) and N(mu1, s1^2).
+
+    :param mu1: the responder mode's mean.
+    :param s1: its standard deviation.
+    :returns: ``sqrt(2) |mu1| / sqrt(1 + s1^2)`` (Ashman et al. 1994); above
+        2 the two modes are clearly separated.
+    """
+    return np.sqrt(2) * np.abs(mu1) / np.sqrt(1 + np.asarray(s1) ** 2)
+
+
+def _name_seed(name: str) -> int:
+    """A seed fixed by a gene's name.
+
+    :param name: the gene name.
+    :returns: the first eight hex digits of its md5 as an integer.
+    """
+    import hashlib
+
+    return int(hashlib.md5(str(name).encode()).hexdigest()[:8], 16)
+
+
+class _Penetrance:
+    """The cross-fitted penetrance test of one screen's cells."""
+
+    def __init__(self, x: np.ndarray, guide_of: np.ndarray, fold: np.ndarray,
+                 field: np.ndarray, *, folds: int, lam: float, reps: int,
+                 simulations: int, seed: int, dbic: float,
+                 min_separation: float):
+        """Hold the cells and the options.
+
+        :param x: one row per cell, the profile columns.
+        :param guide_of: each cell's guide.
+        :param fold: each cell's cross-fitting fold.
+        :param field: each cell's field.
+        :param folds: the number of folds.
+        :param lam: the Storey lambda.
+        :param reps: field-bootstrap draws.
+        :param simulations: unimodal simulations an escaper call must beat.
+        :param seed: the screen seed.
+        :param dbic: the escaper BIC margin.
+        :param min_separation: the escaper mode separation.
+        """
+        self.x, self.guide_of, self.fold, self.field = x, guide_of, fold, field
+        self.folds, self.lam, self.reps = int(folds), float(lam), int(reps)
+        self.simulations, self.seed = int(simulations), int(seed)
+        self.dbic, self.min_separation = float(dbic), float(min_separation)
+
+    def crossfit(self, gene_rows: np.ndarray, reference: np.ndarray
+                 ) -> Tuple[np.ndarray, np.ndarray]:
+        """Each gene cell scored by a classifier that never saw its field.
+
+        :param gene_rows: the gene's cells.
+        :param reference: the control cells it is told apart from.
+        :returns: ``(u, z)``: each gene cell's percentile among, and z score
+            against, the held-out control cells of its fold.
+        """
+        from sklearn.linear_model import LogisticRegression
+
+        xg, xn = self.x[gene_rows], self.x[reference]
+        fg, fn = self.fold[gene_rows], self.fold[reference]
+        u = np.full(len(gene_rows), np.nan)
+        z = np.full(len(gene_rows), np.nan)
+        for k in range(self.folds):
+            train_g, train_n = fg != k, fn != k
+            if (fg == k).sum() == 0 or train_g.sum() < 10:
+                continue
+            model = LogisticRegression(C=0.1, class_weight="balanced",
+                                       max_iter=300)
+            model.fit(np.vstack([xg[train_g], xn[train_n]]),
+                      np.r_[np.ones(train_g.sum()), np.zeros(train_n.sum())])
+            held = np.sort(model.decision_function(xn[fn == k]))
+            scores = model.decision_function(xg[fg == k])
+            u[fg == k] = np.searchsorted(held, scores, side="right") / len(held)
+            z[fg == k] = (scores - held.mean()) / held.std()
+        return u, z
+
+    def analyse(self, name: str, gene_rows: np.ndarray, reference: np.ndarray,
+                kind: str) -> Tuple[Dict[str, Any], pd.DataFrame,
+                                    Dict[str, np.ndarray]]:
+        """The penetrance, escaper and guide statistics of one gene.
+
+        :param name: the gene.
+        :param gene_rows: its cells.
+        :param reference: the control cells.
+        :param kind: the row's kind, such as ``'active gene'``.
+        :returns: ``(row, guides, cells)``: the gene row, its guide rows and
+            the per-cell ``rows``, ``u``, ``z`` and ``p_responder``.
+        """
+        from scipy import stats
+
+        u, z = self.crossfit(gene_rows, reference)
+        ok = np.isfinite(u)
+        gene_rows, u, z = gene_rows[ok], u[ok], z[ok]
+        low, high = _field_bootstrap(u, self.field[gene_rows], self.lam,
+                                     self.reps, self.seed + 1)
+        own = self.guide_of[gene_rows]
+        row: Dict[str, Any] = {
+            "gene": name, "kind": kind, "cells": int(len(gene_rows)),
+            "guides": int(len(set(own))),
+            "penetrance": storey_penetrance(u, self.lam), "pen_lo": low,
+            "pen_hi": high, "penetrance_l25": storey_penetrance(u, 0.25),
+            "frac_above_nt95": float(np.mean(u > 0.95)),
+            "median_z": float(np.median(z))}
+        escaper, posterior = escaper_statistics(
+            z, dbic=self.dbic, min_separation=self.min_separation)
+        row.update(escaper)
+        rng = np.random.default_rng(_name_seed(name))
+        false_calls = np.nan
+        if escaper["escaper_raw"]:
+            false_calls = 0
+            for _ in range(self.simulations):
+                simulated, _p = escaper_statistics(
+                    rng.normal(escaper["shift_delta"], escaper["shift_kappa"],
+                               len(z)), dbic=self.dbic,
+                    min_separation=self.min_separation)
+                false_calls += simulated["escaper_raw"]
+        row["sim_false_calls"] = false_calls
+        row["escaper"] = bool(escaper["escaper_raw"] and false_calls == 0)
+        threshold = escaper["mix_mu1"] / 2
+        guide_rows = []
+        for g in sorted(set(own)):
+            k = own == g
+            guide_rows.append({
+                "gene": name, "guide": g, "cells": int(k.sum()),
+                "pen_guide": storey_penetrance(u[k], self.lam)
+                if k.sum() >= 10 else np.nan,
+                "resp_frac": float(np.mean(z[k] > threshold)),
+                "n_resp": int((z[k] > threshold).sum())})
+        guides = pd.DataFrame(guide_rows)
+        het = np.nan
+        if len(guides) >= 2 and guides["n_resp"].sum() > 0:
+            table = np.c_[guides["n_resp"], guides["cells"] - guides["n_resp"]]
+            table = table[table.sum(1) > 0]
+            if (table.sum(0) > 0).all() and len(table) >= 2:
+                het = stats.chi2_contingency(table)[1]
+        row["guide_het_p"] = float(het) if het == het else np.nan
+        row["guide_resp_span"] = (float(guides["resp_frac"].max()
+                                        - guides["resp_frac"].min())
+                                  if len(guides) else np.nan)
+        row["guide_driven"] = (bool(row["guide_het_p"] < 1e-3
+                                    and row["guide_resp_span"] > 0.4)
+                               if row["guide_het_p"] == row["guide_het_p"]
+                               else False)
+        return row, guides, {"rows": gene_rows, "u": u, "z": z,
+                             "p_responder": posterior}
+
+
+def penetrance_tests(cells: pd.DataFrame, features: Sequence[str],
+                     genes: Sequence[str], *, control: pd.Series,
+                     guide: str = "sgRNA", gene: str = "gene",
+                     well: str = "well", site: str = "site",
+                     folds: int = 5, control_pool: int = 20000,
+                     lam: float = 0.5, reps: int = 500,
+                     simulations: int = 20, min_cells: int = 50,
+                     shuffled: int = 100, dbic: float = 10.0,
+                     min_separation: float = 2.0, seed: int = 20261107
+                     ) -> Dict[str, pd.DataFrame]:
+    """Per-gene penetrance and escapers, with their controls.
+
+    :param cells: one row per cell with ``guide``, ``gene``, ``well``,
+        ``site`` and the ``features`` (TVN components).
+    :param features: the profile columns.
+    :param genes: the genes to test, in order (the active genes).
+    :param control: True for a non-targeting cell.
+    :param guide: the guide column.
+    :param gene: the gene column.
+    :param well: the well column.
+    :param site: the field column.
+    :param folds: cross-fitting folds (``ops_penetrance_folds``).
+    :param control_pool: control cells drawn once, in proportion to each
+        well, as every gene's reference (``ops_penetrance_nt_pool``).
+    :param lam: the Storey lambda (``ops_penetrance_lambda``).
+    :param reps: field-bootstrap draws for the interval.
+    :param simulations: unimodal simulations an escaper call must beat.
+    :param min_cells: genes with fewer cells are not tested.
+    :param shuffled: genes rerun with shuffled labels, the second control.
+    :param dbic: the escaper BIC margin (``ops_escaper_dbic``).
+    :param min_separation: the escaper mode separation
+        (``ops_escaper_min_sep``).
+    :param seed: the seed of the control pool, the bootstrap and the
+        shuffled-gene draw.
+    :returns: ``genes``, ``controls``, ``guides`` and ``cells`` tables with
+        the columns of the published analysis.
+
+    EVERY CELL IS SCORED BY A MODEL THAT NEVER SAW ITS FIELD. Fields go to
+    folds by name (:func:`field_folds`). For each fold an L2 logistic
+    regression (balanced classes) is trained on the gene's and the
+    controls' cells of the other folds, and the held-out gene cells are
+    placed on the held-out control cells: ``u`` is their control
+    percentile, uniform without an effect, and ``z`` their control z score.
+    The penetrance is Storey's estimator on ``u`` (:func:`storey_penetrance`)
+    with a 95 % interval from resampling whole fields; escapers are tested
+    on ``z`` (:func:`escaper_statistics`), and a call stands only if none
+    of ``simulations`` unimodal simulations of the fitted shift makes it.
+    Guides are compared by the share of their cells above half the
+    responder mode (chi-square). CONTROLS: the non-targeting pseudo-genes
+    (:func:`nt_row_names`) scored against the pool without their own
+    cells, which should show no penetrance; and ``shuffled`` genes whose
+    gene and control labels are permuted, whose penetrance should fall to
+    the real cells' share times the gene's penetrance.
+    """
+    x = cells[list(features)].to_numpy(np.float32)
+    names = cells[gene].astype(str).to_numpy()
+    guide_of = cells[guide].astype(str).to_numpy()
+    wells = cells[well].to_numpy()
+    fold = field_folds(wells, cells[site].to_numpy(), folds)
+    field = (cells[well].astype(str) + "|" + cells[site].astype(str)).to_numpy()
+    control = pd.Series(control, index=cells.index).fillna(False
+                                                           ).astype(bool).to_numpy()
+    pseudo = nt_row_names(guide_of, np.where(control, "nontargeting", "x"),
+                          rows="pseudo")
+    pseudo = np.where(control, pseudo, "")
+    pseudo = np.where(pseudo == "nontargeting_drop", "", pseudo)
+    rng = np.random.default_rng(int(seed))
+    nt_rows = np.flatnonzero(control)
+    pool = np.sort(np.concatenate([
+        rng.choice(nt_rows[wells[nt_rows] == w],
+                   min(int(round(control_pool * (wells[nt_rows] == w).mean())),
+                       int((wells[nt_rows] == w).sum())),
+                   replace=False) for w in sorted(pd.unique(wells))]))
+    test = _Penetrance(x, guide_of, fold, field, folds=folds, lam=lam,
+                       reps=reps, simulations=simulations, seed=seed, dbic=dbic,
+                       min_separation=min_separation)
+    by_gene = pd.Series(np.arange(len(names))).groupby(names).indices
+    rows, guide_tables, cell_tables = [], [], []
+    for name in genes:
+        if name not in by_gene or len(by_gene[name]) < int(min_cells):
+            continue
+        row, guides, per_cell = test.analyse(name, by_gene[name], pool,
+                                             "active gene")
+        rows.append(row)
+        guide_tables.append(guides)
+        picked = per_cell["rows"]
+        cell_tables.append(pd.DataFrame({
+            "gene": name, "well": wells[picked],
+            "site": cells[site].to_numpy()[picked],
+            "guide": guide_of[picked], "u": per_cell["u"].astype(np.float32),
+            "z": per_cell["z"].astype(np.float32),
+            "p_responder": per_cell["p_responder"].astype(np.float32)},
+            index=cells.index[picked]))
+    controls = []
+    for name in sorted(set(pseudo) - {""}):
+        row, guides, _cells = test.analyse(
+            name, np.flatnonzero(pseudo == name), pool[pseudo[pool] != name],
+            "control: NT pseudo-gene")
+        controls.append(row)
+        guide_tables.append(guides)
+    candidates = [g for g in genes if g in by_gene]
+    chosen = list(np.random.default_rng(int(seed) + 2).choice(
+        candidates, min(int(shuffled), len(list(genes))), replace=False)) \
+        if int(shuffled) > 0 and candidates else []
+    for name in chosen:
+        members = by_gene[name]
+        everyone = np.r_[members, pool]
+        labels = np.r_[np.ones(len(members), bool), np.zeros(len(pool), bool)]
+        labels = labels[np.random.default_rng(_name_seed(name)).permutation(
+            len(labels))]
+        row, _g, _c = test.analyse(f"{name}__shuffled", everyone[labels],
+                                   everyone[~labels], "control: shuffled labels")
+        row["real_gene_share"] = float(np.r_[np.ones(len(members), bool),
+                                             np.zeros(len(pool), bool)][labels].mean())
+        controls.append(row)
+    return {"genes": pd.DataFrame(rows), "controls": pd.DataFrame(controls),
+            "guides": (pd.concat(guide_tables, ignore_index=True)
+                       if guide_tables else pd.DataFrame()),
+            "cells": (pd.concat(cell_tables) if cell_tables else pd.DataFrame())}
+
+
+#: The nulls :func:`phase_tests` can calibrate on (``ops_phase_null``).
+PHASE_NULLS: Tuple[str, ...] = ("targeting", "nt")
+
+
+def _phase_guide_medians(x: np.ndarray, guides: np.ndarray, wells: np.ndarray,
+                         stages: np.ndarray, control: np.ndarray,
+                         mask: np.ndarray, by_phase: bool,
+                         columns: Sequence[str]) -> pd.DataFrame:
+    """Guide medians of the masked cells, centred on the controls.
+
+    :param x: the cells' profile columns.
+    :param guides: each cell's guide.
+    :param wells: each cell's well.
+    :param stages: each cell's phase.
+    :param control: True for a control cell.
+    :param mask: the cells used.
+    :param by_phase: centre within well and phase (else within well).
+    :param columns: the profile column names.
+    :returns: one row per guide: ``n`` and the medians.
+    """
+    y = x[mask].copy()
+    w_, p_, c_ = wells[mask], stages[mask], control[mask]
+    for w in sorted(pd.unique(wells)):
+        if by_phase:
+            for p in CELL_CYCLE_PHASES:
+                k = (w_ == w) & (p_ == p)
+                if k.any():
+                    y[k] -= np.median(y[k & c_], axis=0)
+        else:
+            k = w_ == w
+            y[k] -= np.median(y[k & c_], axis=0)
+    frame = pd.DataFrame(y, columns=list(columns))
+    frame["guide"] = guides[mask]
+    grouped = frame.groupby("guide", sort=True)
+    medians = grouped[list(columns)].median()
+    medians.insert(0, "n", grouped.size())
+    return medians
+
+
+def _noise_fit(medians: np.ndarray, n: np.ndarray
+               ) -> Tuple[np.ndarray, np.ndarray]:
+    """``m_jd^2 = a_d + b_d / n_j`` fitted over control guides.
+
+    :param medians: control guide medians.
+    :param n: their cell counts.
+    :returns: ``(a, b)``, floored at 1e-8.
+    """
+    design = np.c_[np.ones(len(n)), 1.0 / n]
+    coef, *_ = np.linalg.lstsq(design, medians ** 2, rcond=None)
+    return np.clip(coef[0], 1e-8, None), np.clip(coef[1], 1e-8, None)
+
+
+def _omnibus(medians: np.ndarray, n: np.ndarray, a: np.ndarray,
+             b: np.ndarray) -> Tuple[float, np.ndarray]:
+    """``T = sum_d M_d^2 / V_d`` of one gene's guides.
+
+    :param medians: the gene's guide medians.
+    :param n: their cell counts.
+    :param a: the between-guide variance per dimension.
+    :param b: the cell sampling term per dimension.
+    :returns: ``(T, mean)``.
+    """
+    k = len(n)
+    mean = medians.mean(0)
+    variance = (a[None, :] + b[None, :] / n[:, None]).sum(0) / k ** 2
+    return float((mean ** 2 / variance).sum()), mean
+
+
+def _random_targeting_set(rng: np.random.Generator,
+                          groups: Sequence[Sequence[int]]) -> np.ndarray:
+    """Four guides, one from each of four random targeting genes.
+
+    :param rng: the stream.
+    :param groups: the guide rows of every targeting gene.
+    :returns: four guide rows.
+    """
+    return np.array([members[rng.integers(len(members))]
+                     for members in (groups[k] for k in rng.choice(
+                         len(groups), 4, replace=False))])
+
+
+def _phase_profile_tests(name: str, medians: pd.DataFrame,
+                         other: Optional[pd.DataFrame],
+                         context: Mapping[str, Any]) -> pd.DataFrame:
+    """The omnibus tests of one profile of :func:`phase_tests`.
+
+    :param name: the profile.
+    :param medians: its guide medians.
+    :param other: for an interaction, the guide medians of the gene's other
+        cells; else None.
+    :param context: ``columns``, ``gene_of``, ``fit`` (the control guides
+        the noise is fitted on), ``controls``, ``null``, ``null_sets``,
+        ``fresh_sets`` and ``seed``.
+    :returns: one row per gene (and fresh random set).
+    """
+    from scipy import stats
+
+    columns, gene_of = context["columns"], context["gene_of"]
+    medians = medians[medians.n >= 3]
+    if other is not None:
+        common = medians.index.intersection(other.index[other.n >= 3])
+        values = (medians.loc[common, columns].to_numpy()
+                  - other.loc[common, columns].to_numpy())
+        n = 1.0 / (1.0 / medians.loc[common, "n"].to_numpy()
+                   + 1.0 / other.loc[common, "n"].to_numpy())
+        index = common
+    else:
+        values = medians[columns].to_numpy()
+        n = medians.n.to_numpy().astype(float)
+        index = medians.index
+    owner = gene_of.reindex(index).to_numpy()
+    fit = np.isin(index, context["fit"])
+    a, b = _noise_fit(values[fit], n[fit])
+    rng = np.random.default_rng(context["seed"])
+    fresh: List[np.ndarray] = []
+    if context["null"] == "nt":
+        sets = [rng.choice(np.flatnonzero(fit), 4, replace=False)
+                for _ in range(context["null_sets"])]
+    else:
+        targeting = ~np.isin(index, context["controls"])
+        groups = pd.Series(np.flatnonzero(targeting)).groupby(
+            owner[targeting]).apply(list).tolist()
+        sets = [_random_targeting_set(rng, groups)
+                for _ in range(context["null_sets"])]
+        fresh = [_random_targeting_set(rng, groups)
+                 for _ in range(context["fresh_sets"])]
+    scores = np.array([_omnibus(values[s], n[s], a, b)[0] for s in sets])
+    m, v = scores.mean(), scores.var()
+    scale, df = v / (2 * m), 2 * m * m / v
+    rows = []
+    for gene_name, members in pd.Series(np.arange(len(index))).groupby(
+            owner).indices.items():
+        if gene_name == "nontargeting_drop" or len(members) < 2:
+            continue
+        t, mean = _omnibus(values[members], n[members], a, b)
+        rows.append({"gene": gene_name, "profile": name,
+                     "guides": len(members), "cells": float(n[members].sum()),
+                     "T": t, "p": float(stats.chi2.sf(t / scale, df)),
+                     "norm": float(np.linalg.norm(mean))})
+    for k, s in enumerate(fresh):
+        t, _mean = _omnibus(values[s], n[s], a, b)
+        rows.append({"gene": f"RANDSET_{k:04d}", "profile": name, "guides": 4,
+                     "cells": float(n[s].sum()), "T": t,
+                     "p": float(stats.chi2.sf(t / scale, df)), "norm": np.nan})
+    frame = pd.DataFrame(rows)
+    tested = ~frame.gene.str.startswith(("NTpseudo", "RANDSET"))
+    frame["q"] = np.nan
+    frame.loc[tested, "q"] = stats.false_discovery_control(
+        frame.p[tested].to_numpy())
+    frame["null_scale_c"], frame["null_df_nu"] = scale, df
+    return frame
+
+
+def phase_tests(cells: pd.DataFrame, features: Sequence[str], *,
+                control: pd.Series, guide: str = "sgRNA",
+                gene: str = "gene", well: str = "well",
+                phase: str = "phase", null: str = "targeting",
+                null_sets: int = 4000, fresh_sets: int = 2000,
+                seed: int = 20261107) -> Dict[str, Any]:
+    """Which genes change cells in one cell-cycle phase only?
+
+    :param cells: one row per cell with ``guide``, ``gene`` (non-targeting
+        cells under pseudo-gene names, :func:`nt_row_names`), ``well``,
+        ``phase`` and the ``features``.
+    :param features: the profile columns.
+    :param control: True for a non-targeting cell.
+    :param guide: the guide column.
+    :param gene: the gene column.
+    :param well: the well column.
+    :param phase: the phase column (:func:`cell_cycle_phases`).
+    :param null: ``'targeting'`` calibrates on random sets of four
+        targeting guides of four genes, ``'nt'`` on random sets of four
+        control guides (``ops_phase_null``).
+    :param null_sets: random sets the null is fitted on.
+    :param fresh_sets: with the targeting null, fresh random sets scored as
+        genes, the held-out check.
+    :param seed: the seed of every profile's null.
+    :returns: ``tests`` (one row per gene and profile), ``calls`` (one row
+        per gene, with ``specific_<phase>``, ``specific_<phase>_interaction``
+        and ``composition_only``) and ``summary``.
+
+    Profiles are ``pooled`` (every cell, centred on its well's controls) and
+    each phase (that phase's cells, centred on the well's controls of the
+    same phase); a guide is the median of its cells, with at least three.
+    A gene's statistic is ``T = sum_d M_d^2 / V_d`` over the dimensions,
+    ``M`` the mean of its guides and ``V_d = (1/K^2) sum_j (a_d + b_d /
+    n_j)``, the noise fitted on the control guides of the first half of the
+    pseudo-genes; the second half is held out. ``T`` is referred to a scaled
+    chi-square matched to the null sets' mean and variance. The targeting
+    null is the main one: every targeting guide cuts DNA, control guides do
+    not, so against controls almost every gene differs pooled. The
+    interaction profiles test a phase against the gene's other cells.
+    A gene is phase-specific when its phase ``q < 0.1`` (Benjamini-Hochberg)
+    and its pooled ``q >= 0.1``.
+    """
+    from scipy import stats
+
+    null = str(null or "targeting").strip().lower()
+    if null not in PHASE_NULLS:
+        raise ValueError(f"null must be one of {list(PHASE_NULLS)}; got {null!r}")
+    columns = list(features)
+    x = cells[columns].to_numpy(np.float32)
+    guides = cells[guide].astype(str).to_numpy()
+    wells = cells[well].to_numpy()
+    stages = cells[phase].astype(str).to_numpy()
+    control = pd.Series(control, index=cells.index).fillna(False
+                                                           ).astype(bool).to_numpy()
+    profiles = {"pooled": _phase_guide_medians(
+        x, guides, wells, stages, control, np.ones(len(x), bool), False, columns)}
+    for p in CELL_CYCLE_PHASES:
+        profiles[p] = _phase_guide_medians(x, guides, wells, stages, control,
+                                           stages == p, True, columns)
+        profiles[f"not_{p}"] = _phase_guide_medians(
+            x, guides, wells, stages, control, stages != p, True, columns)
+    gene_of = pd.Series(cells[gene].astype(str).to_numpy(), index=guides
+                        ).groupby(level=0).first()
+    control_guides = [g for g in gene_of.index
+                      if gene_of[g].startswith(("NTpseudo", "nontargeting"))]
+    numbers = sorted({int(gene_of[g][-2:]) for g in control_guides
+                      if gene_of[g].startswith("NTpseudo")})
+    half = (max(numbers) + 1) // 2 if numbers else 0
+    fit_guides = [g for g in control_guides
+                  if not (gene_of[g].startswith("NTpseudo")
+                          and int(gene_of[g][-2:]) >= half)]
+    held_out = {f"NTpseudo_{k:02d}" for k in numbers if k >= half}
+
+    context = {"columns": columns, "gene_of": gene_of, "fit": fit_guides,
+               "controls": control_guides, "null": null,
+               "null_sets": int(null_sets), "fresh_sets": int(fresh_sets),
+               "seed": int(seed)}
+    parts = [_phase_profile_tests(name, profiles[name], None, context)
+             for name in ("pooled", *CELL_CYCLE_PHASES)]
+    parts += [_phase_profile_tests(f"interaction_{p}", profiles[p],
+                                   profiles[f"not_{p}"], context)
+              for p in CELL_CYCLE_PHASES]
+    tests = pd.concat(parts, ignore_index=True)
+    calls = tests.pivot_table(index="gene", columns="profile",
+                              values=["p", "q", "norm", "cells", "guides"])
+    calls.columns = [f"{a}_{b}" for a, b in calls.columns]
+    calls = calls.reset_index()
+    for p in CELL_CYCLE_PHASES:
+        calls[f"specific_{p}"] = (calls[f"q_{p}"] < 0.1) & (calls["q_pooled"] >= 0.1)
+        calls[f"specific_{p}_interaction"] = (calls[f"specific_{p}"]
+                                              & (calls[f"q_interaction_{p}"] < 0.1))
+    calls["composition_only"] = (calls.q_pooled < 0.1) & ~(
+        (calls.q_G1 < 0.1) | (calls.q_SG2 < 0.1) | (calls.q_M < 0.1))
+    held = tests[tests.gene.isin(held_out)]
+    summary: Dict[str, Any] = {}
+    if null != "nt":
+        fresh_rows = tests[tests.gene.str.startswith("RANDSET")]
+        summary["control_fresh_random_gene_sets_p_lt_0.05_by_profile"] = {
+            k: float((v < 0.05).mean()) for k, v in fresh_rows.groupby("profile").p}
+        calls = calls[~calls.gene.str.startswith("RANDSET")].reset_index(drop=True)
+    for p in CELL_CYCLE_PHASES:
+        summary[p] = {"specific": int(calls[f"specific_{p}"].sum()),
+                      "specific_with_interaction": int(
+                          calls[f"specific_{p}_interaction"].sum()),
+                      "phase_sig": int((calls[f"q_{p}"] < 0.1).sum())}
+    summary["pooled_sig"] = int((calls.q_pooled < 0.1).sum())
+    summary["composition_only"] = int(calls.composition_only.sum())
+    summary["control_NT_pseudo_p_lt_0.05_by_profile"] = {
+        k: float((v < 0.05).mean()) for k, v in held.groupby("profile").p}
+    summary["control_NT_pseudo_min_p_by_profile"] = {
+        k: float(v.min()) for k, v in held.groupby("profile").p}
+    return {"tests": tests, "calls": calls, "summary": summary}
+
+
+def disk_offsets(radius: int = 50, grid: int = 2) -> Tuple[np.ndarray, np.ndarray]:
+    """The pixel offsets of a disk sampled on a grid.
+
+    :param radius: the disk radius in pixels (``ops_neighbour_radius_px``).
+    :param grid: the sampling step in pixels (``ops_neighbour_grid_px``).
+    :returns: ``(dy, dx)``; radius 50 on a 2-pixel grid gives 1,961 offsets.
+    """
+    oy, ox = np.mgrid[-radius:radius + 1:grid, -radius:radius + 1:grid]
+    inside = oy ** 2 + ox ** 2 <= radius * radius
+    return oy[inside].astype(np.int32), ox[inside].astype(np.int32)
+
+
+def mask_neighbours(cell_mask: np.ndarray, labels: Sequence[int],
+                    centroids: np.ndarray, *, radius: int = 50,
+                    grid: int = 2) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Every cell whose mask reaches within ``radius`` of a cell's nucleus.
+
+    :param cell_mask: one field's cell label image (0 is background).
+    :param labels: the receivers' labels in that image.
+    :param centroids: their nucleus centroids, ``(row, col)`` per receiver.
+    :param radius: the neighbourhood radius in pixels.
+    :param grid: the disk is sampled on this grid, so a neighbour that
+        touches the disk only in a sliver narrower than ``grid`` can be
+        missed.
+    :returns: ``(pairs, receivers)``: ``r_label, n_label, n_px`` (neighbour
+        mask pixels on the sampled disk) per pair, the receiver itself left
+        out; and per receiver ``label, cy, cx, edge_dist,
+        disk_occupied_frac, n_nbr``. Neighbours are any segmented cell,
+        genotyped or not.
+    """
+    oy, ox = disk_offsets(radius, grid)
+    height, width = cell_mask.shape
+    centroids = np.asarray(centroids, float)
+    cy = np.rint(centroids[:, 0]).astype(np.int32)
+    cx = np.rint(centroids[:, 1]).astype(np.int32)
+    yy = cy[:, None] + oy[None]
+    xx = cx[:, None] + ox[None]
+    found = cell_mask[np.clip(yy, 0, height - 1), np.clip(xx, 0, width - 1)
+                      ].astype(np.int64)
+    inside = (yy >= 0) & (yy < height) & (xx >= 0) & (xx < width)
+    found = np.where(inside, found, 0)
+    own = np.asarray(labels).astype(np.int64)
+    found = np.where(found == own[:, None], 0, found)
+    occupied = (found > 0).sum(1)
+    top = int(cell_mask.max()) + 1
+    receiver = np.repeat(np.arange(len(own)), found.shape[1])
+    key = receiver * top + found.ravel()
+    key = key[found.ravel() > 0]
+    unique, counts = np.unique(key, return_counts=True)
+    r_index, n_label = unique // top, unique % top
+    pairs = pd.DataFrame({"r_label": own[r_index].astype(np.int32),
+                          "n_label": n_label.astype(np.int32),
+                          "n_px": counts.astype(np.int32)})
+    edge = np.minimum.reduce([centroids[:, 0], centroids[:, 1],
+                              height - 1 - centroids[:, 0],
+                              width - 1 - centroids[:, 1]])
+    receivers = pd.DataFrame({
+        "label": own.astype(np.int32), "cy": centroids[:, 0].astype(np.float32),
+        "cx": centroids[:, 1].astype(np.float32),
+        "edge_dist": edge.astype(np.float32),
+        "disk_occupied_frac": (occupied / len(oy)).astype(np.float32),
+        "n_nbr": np.bincount(r_index, minlength=len(own)).astype(np.int16)})
+    return pairs, receivers
+
+
+#: Which receivers :func:`neighbour_effects` uses (``ops_neighbour_receivers``).
+NEIGHBOUR_RECEIVERS: Tuple[str, ...] = ("inactive", "nt")
+
+
+def _within_field(values: np.ndarray, fields: np.ndarray) -> np.ndarray:
+    """Each column minus its field mean (a field fixed effect).
+
+    :param values: one row per cell.
+    :param fields: each cell's field.
+    :returns: the demeaned float64 matrix.
+    """
+    values = values.astype(np.float64, copy=True)
+    return values - pd.DataFrame(values).groupby(fields).transform("mean").to_numpy()
+
+
+def _residualise_receivers(receivers: pd.DataFrame, z: np.ndarray, *,
+                           centre: float) -> np.ndarray:
+    """Receiver features with field, density and position regressed out.
+
+    :param receivers: ``site, n_nbr, n_geno_nbr, disk_occupied_frac, cy,
+        cx`` per receiver.
+    :param z: their features, own-gene mean already removed.
+    :param centre: the field centre in pixels (row and column).
+    :returns: the residuals (float32): within-field OLS (Frisch-Waugh-Lovell)
+        on binned neighbour count, genotyped-neighbour count, occupied disk
+        fraction and 200-pixel radial position.
+    """
+    fields = receivers["site"].to_numpy()
+    count = np.clip(receivers["n_nbr"].to_numpy(), 0, 12)
+    typed = np.clip(receivers["n_geno_nbr"].to_numpy(), 0, 8)
+    occupied = receivers["disk_occupied_frac"].to_numpy()
+    occupied = np.digitize(occupied, np.quantile(occupied, np.linspace(0.1, 0.9, 9)))
+    radial = np.clip((np.hypot(receivers["cy"].to_numpy() - centre,
+                               receivers["cx"].to_numpy() - centre) // 200
+                      ).astype(int), 0, 9)
+    design = np.column_stack([count[:, None] == np.arange(1, 13)[None],
+                              typed[:, None] == np.arange(1, 9)[None],
+                              occupied[:, None] == np.arange(1, 10)[None],
+                              radial[:, None] == np.arange(1, 10)[None]]
+                             ).astype(np.float32)
+    design, z = _within_field(design, fields), _within_field(z, fields)
+    beta, *_ = np.linalg.lstsq(design, z, rcond=None)
+    return (z - design @ beta).astype(np.float32)
+
+
+def _exposure_statistics(prepared: Sequence[Mapping[str, Any]], labels,
+                         design: str, size: int, reference: int
+                         ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Exposed-receiver means against the reference, with field-clustered
+    variance.
+
+    :param prepared: per well, from :func:`neighbour_effects`.
+    :param labels: per well ``(gene codes, pseudo codes, guide codes)`` the
+        neighbours carry (shuffled for a null).
+    :param design: ``'inactive'`` or ``'nt'`` receivers.
+    :param size: the number of gene codes.
+    :param reference: the code of the control reference.
+    :returns: ``(n_exposed, T, d, V)``.
+    """
+    import scipy.sparse as sp
+
+    dims = prepared[0]["z"].shape[1]
+    n = np.zeros(size)
+    total = np.zeros((size, dims))
+    squares = np.zeros((size, dims))
+    cross = np.zeros((size, dims))
+    counts = np.zeros(size)
+    for well, (codes, pseudo, guide_codes) in zip(prepared, labels):
+        use = well["receivers"] if design == "inactive" else well["receivers_nt"]
+        ri, ni = well["ri"], well["ni"]
+        ok = use[ri] & (guide_codes[ni] != well["guide_codes"][ri])
+        ri, ni = ri[ok], ni[ok]
+        carried = codes[ni]
+        own = well["gene_codes"][ri]
+        exposed = (carried != own) | (carried == reference)
+        rows = np.r_[ri[exposed], ri[pseudo[ni] >= 0]]
+        cols = np.r_[carried[exposed], pseudo[ni][pseudo[ni] >= 0]]
+        cells = len(well["receivers"])
+        matrix = sp.csr_matrix((np.ones(len(rows), np.float32), (rows, cols)),
+                               shape=(cells, size))
+        matrix.data[:] = 1.0
+        matrix.sum_duplicates()
+        matrix.data[:] = 1.0
+        field_codes, field_index = np.unique(well["site"], return_inverse=True)
+        coo = matrix.tocoo()
+        key = coo.col.astype(np.int64) * len(field_codes) + field_index[coo.row]
+        unique, inverse = np.unique(key, return_inverse=True)
+        membership = sp.csr_matrix((np.ones(len(inverse), np.float32),
+                                    (coo.row, inverse)), shape=(cells, len(unique)))
+        sums = np.asarray(membership.T @ well["z"], dtype=np.float64)
+        sizes = np.asarray(membership.sum(0)).ravel()
+        gene_of_key = (unique // len(field_codes)).astype(int)
+        np.add.at(n, gene_of_key, sizes)
+        np.add.at(total, gene_of_key, sums)
+        np.add.at(squares, gene_of_key, sums ** 2)
+        np.add.at(cross, gene_of_key, sizes[:, None] * sums)
+        np.add.at(counts, gene_of_key, sizes ** 2)
+    with np.errstate(invalid="ignore", divide="ignore"):
+        mean = total / n[:, None]
+        variance = (squares - 2 * mean * cross + mean ** 2 * counts[:, None]) / (
+            n[:, None] ** 2)
+        d = mean - mean[reference][None, :]
+        t = (d ** 2 / (variance + variance[reference][None, :])).sum(1)
+    return n, t, d, (variance + variance[reference][None, :]).astype(np.float32)
+
+
+def _shuffled_labels(prepared: Sequence[Mapping[str, Any]], kind: str,
+                     rep: int, wells: Sequence[str], seed: int):
+    """Neighbour labels permuted within fields for one null replicate.
+
+    :param prepared: per well, from :func:`neighbour_effects`.
+    :param kind: ``'shuffle'`` permutes genotypes among the field's cells;
+        ``'clone'`` keeps same-guide neighbour clusters together and permutes
+        whole clusters within the field.
+    :param rep: the replicate.
+    :param wells: the well order the seeds follow.
+    :param seed: the base seed.
+    :returns: per well ``(gene codes, pseudo codes, guide codes)``.
+    """
+    import scipy.sparse as sp
+    from scipy.sparse.csgraph import connected_components
+
+    out = []
+    for well in prepared:
+        rng = np.random.default_rng(seed + 1000 * rep + list(wells).index(
+            well["well"]) + (0 if kind == "shuffle" else 500))
+        site = well["site"]
+        index = np.arange(len(site))
+        if kind == "shuffle":
+            order = index.copy()
+            for _s, members in pd.Series(index).groupby(site).indices.items():
+                order[members] = members[rng.permutation(len(members))]
+        else:
+            ri, ni = well["ri"], well["ni"]
+            same = well["guide_codes"][ri] == well["guide_codes"][ni]
+            graph = sp.coo_matrix((np.ones(same.sum()), (ri[same], ni[same])),
+                                  shape=(len(site), len(site)))
+            count, component = connected_components(graph, directed=False)
+            first = pd.Series(index).groupby(component).first().to_numpy()
+            component_site = site[first]
+            moved = first.copy()
+            for _s, members in pd.Series(np.arange(count)).groupby(
+                    component_site).indices.items():
+                moved[members] = first[members][rng.permutation(len(members))]
+            order = moved[component]
+        out.append((well["gene_codes"][order], well["pseudo_codes"][order],
+                    well["guide_codes"][order]))
+    return out
+
+
+def neighbour_effects(wells: Mapping[str, Tuple[pd.DataFrame, pd.DataFrame,
+                                                pd.DataFrame]],
+                      features: Sequence[str], *, active: Sequence[str],
+                      receivers: str = "inactive", null_reps: int = 5,
+                      edge_px: float = 50.0, field_centre: float = 1480.0,
+                      seed: int = 20261107) -> Dict[str, Any]:
+    """Does a knockout change its unperturbed neighbours?
+
+    :param wells: per well ``(cells, receivers, pairs)``: the analysed cells
+        (``site, label, sgRNA, gene`` and the ``features``), the receiver
+        table and the neighbour pairs of :func:`mask_neighbours` (with a
+        ``site`` column).
+    :param features: the profile columns.
+    :param active: genes with a phenotype of their own; their cells are
+        never receivers.
+    :param receivers: ``'inactive'`` (own gene non-targeting or inactive)
+        or ``'nt'`` (own gene non-targeting only)
+        (``ops_neighbour_receivers``).
+    :param null_reps: replicates of each null (``ops_neighbour_null_reps``).
+    :param edge_px: receivers nearer the field edge are left out.
+    :param field_centre: the field centre in pixels, for radial position.
+    :param seed: the base seed of the nulls.
+    :returns: ``tests`` (``gene, n_exposed, T, kind, p_clone, q_clone,
+        p_shuffle, q_shuffle``), ``nulls``, ``d``, ``V`` and ``names``.
+
+    A receiver is exposed to gene X when a genotyped neighbour carries X; a
+    neighbour with the receiver's own guide never counts, so clone sisters
+    are not exposures, and the reference is exposure to a control
+    neighbour. Receiver features are its TVN components minus its own
+    gene's mean in the well, residualised within field on local density
+    and radial position (Frisch-Waugh-Lovell). The statistic is ``T =
+    sum_d d^2 / (v_X + v_ref)``, ``d`` the exposed-minus-reference mean and
+    ``v`` its field-clustered variance. Nulls: genotypes shuffled within
+    each field, and a clone-preserving shuffle that moves whole same-guide
+    clusters; the control pseudo-genes are exposures too. ``p`` is
+    empirical against the pooled null genes of the same exposure-count
+    quintile, ``q`` Benjamini-Hochberg across genes.
+    """
+    from scipy.stats import false_discovery_control
+
+    receivers = str(receivers or "inactive").strip().lower()
+    if receivers not in NEIGHBOUR_RECEIVERS:
+        raise ValueError(f"receivers must be one of {list(NEIGHBOUR_RECEIVERS)}; "
+                         f"got {receivers!r}")
+    order = list(wells)
+    all_genes, control_guides = set(), set()
+    for name in order:
+        frame = wells[name][0]
+        all_genes |= set(frame["gene"].astype(str))
+        nt = frame["gene"].astype(str).str.lower().str.startswith("nontargeting")
+        control_guides |= set(frame.loc[nt, "sgRNA"].astype(str))
+    universe = sorted(control_guides)
+    pseudo_names = nt_row_names(universe, ["nontargeting"] * len(universe),
+                                rows="pseudo")
+    pseudo = {g: p for g, p in zip(universe, pseudo_names)
+              if p != "nontargeting_drop"}
+    targeting = sorted(g for g in all_genes
+                       if not g.lower().startswith("nontargeting"))
+    names = targeting + sorted(set(pseudo.values())) + ["NT"]
+    code = {g: i for i, g in enumerate(names)}
+    reference = code["NT"]
+    active = set(active)
+    prepared = []
+    for name in order:
+        cells, table, pairs = wells[name]
+        cells = cells.merge(table, on=["site", "label"], how="left")
+        key = pd.Series(np.arange(len(cells)),
+                        index=pd.MultiIndex.from_arrays([cells.site, cells.label]))
+        ni = key.reindex(pd.MultiIndex.from_arrays([pairs.site, pairs.n_label])
+                         ).fillna(-1).astype(int).to_numpy()
+        ri = key.reindex(pd.MultiIndex.from_arrays([pairs.site, pairs.r_label])
+                         ).to_numpy().astype(int)
+        cells["n_geno_nbr"] = np.bincount(ri[ni >= 0], minlength=len(cells))
+        genes_here = cells["gene"].astype(str).to_numpy()
+        guides_here = cells["sgRNA"].astype(str).to_numpy()
+        gene_codes = np.array([code.get(g, reference)
+                               if not g.lower().startswith("nontargeting")
+                               else reference for g in genes_here])
+        pseudo_codes = np.array([code[pseudo[s]] if s in pseudo else -1
+                                 for s in guides_here])
+        own_inactive = (gene_codes == reference) | ~np.isin(genes_here, list(active))
+        use = (cells["edge_dist"].to_numpy() >= edge_px) & own_inactive
+        z = cells[list(features)].to_numpy(np.float32)
+        z = z - pd.DataFrame(z).groupby(genes_here).transform("mean").to_numpy(np.float32)
+        residual = np.zeros_like(z)
+        residual[use] = _residualise_receivers(cells[use], z[use],
+                                               centre=field_centre)
+        keep = ni >= 0
+        prepared.append({"well": name, "receivers": use,
+                         "receivers_nt": use & (gene_codes == reference),
+                         "z": residual, "ri": ri[keep], "ni": ni[keep],
+                         "gene_codes": gene_codes, "pseudo_codes": pseudo_codes,
+                         "guide_codes": pd.factorize(guides_here)[0],
+                         "site": cells["site"].to_numpy()})
+    observed = [(w["gene_codes"], w["pseudo_codes"], w["guide_codes"])
+                for w in prepared]
+    n, t, d, v = _exposure_statistics(prepared, observed, receivers,
+                                      len(names), reference)
+    tests = pd.DataFrame({"gene": names, "n_exposed": n, "T": t})
+    nulls = []
+    for kind in ("shuffle", "clone"):
+        for rep in range(int(null_reps)):
+            labels = _shuffled_labels(prepared, kind, rep, order, int(seed))
+            nn, tt, _d, _v = _exposure_statistics(prepared, labels, receivers,
+                                                  len(names), reference)
+            nulls.append(pd.DataFrame({"gene": names, "n_exposed": nn, "T": tt,
+                                       "null": kind, "rep": rep}))
+    nulls = pd.concat(nulls, ignore_index=True)
+    tests["kind"] = np.where(tests.gene.str.startswith("NTpseudo"),
+                             "control: NT pseudo-gene",
+                             np.where(tests.gene == "NT", "reference", "gene"))
+    in_targeting = nulls.gene.isin(targeting) & (nulls.n_exposed > 0) & np.isfinite(nulls["T"])
+    edges = np.quantile(nulls[(nulls.null == "clone") & in_targeting].n_exposed,
+                        [0.2, 0.4, 0.6, 0.8])
+    observed_bin = np.digitize(tests.n_exposed, edges)
+    finite = np.isfinite(tests["T"].to_numpy()) & (tests.n_exposed.to_numpy() > 0)
+    for kind in ("clone", "shuffle"):
+        pooled = nulls[(nulls.null == kind) & in_targeting]
+        pooled_bin = np.digitize(pooled.n_exposed, edges)
+        p = np.full(len(tests), np.nan)
+        for b in range(5):
+            ref = np.sort(pooled["T"].to_numpy()[pooled_bin == b])
+            rows = (observed_bin == b) & finite
+            p[rows] = (len(ref) - np.searchsorted(ref, tests["T"].to_numpy()[rows],
+                                                  side="left") + 1) / (len(ref) + 1)
+        tests[f"p_{kind}"] = p
+        genes_rows = (tests.kind == "gene").to_numpy() & np.isfinite(p)
+        q = np.full(len(tests), np.nan)
+        q[genes_rows] = false_discovery_control(p[genes_rows])
+        tests[f"q_{kind}"] = q
+    return {"tests": tests, "nulls": nulls, "d": d, "V": v,
+            "names": np.array(names)}
+
+
+def _escaper_class(row: Mapping[str, Any]) -> str:
+    """Why an escaper gene's cells split, from its statistics.
+
+    :param row: one row of :func:`escaper_classes`.
+    :returns: the class name.
+    """
+    if row["set"] != "escaper":
+        return "control"
+    if row["guide_driven"]:
+        return "guide-driven"
+    if row["phase_chi_p"] < 1e-3 and abs(row["cycling_share_diff"]) > 0.2:
+        return "cell-cycle-coupled"
+    if (row["Pwrong_mw_p"] < 0.01
+            and row["error_explainable_share"] >= 0.5 * row["nonresp_share"]):
+        return "genotype-error-like"
+    if row["ashman_D"] > 2:
+        return "within-guide escapers (candidate)"
+    return "weakly bimodal (heavy-tailed shift)"
+
+
+def escaper_classes(genes: pd.DataFrame, cells: pd.DataFrame, *,
+                    controls: int = 300, seed: int = 20261107
+                    ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    """Are escaper genes guide-driven, cell-cycle-coupled or genotype errors?
+
+    :param genes: the ``genes`` table of :func:`penetrance_tests`.
+    :param cells: its ``cells`` table with ``phase`` and, per cell, the
+        genotype-error probability ``e``, ``n_exact``, ``runner_margin``,
+        ``source`` and ``n_reads`` of the genotype confidence model.
+    :param controls: non-escaper genes analysed the same way, the control.
+    :param seed: the seed of the control draw.
+    :returns: ``(table, summary)``: one row per escaper and control gene
+        with the responder and non-responder genotype-error rates (and a
+        one-sided Mann-Whitney P), phase composition (chi-square P),
+        responder shares in well-supported and single-read cells, Ashman's
+        D (:func:`ashman_d`) and ``escaper_class``.
+    """
+    from scipy import stats
+
+    genes = genes.copy()
+    cells = cells.copy()
+    cells["well_supported"] = ((cells.n_exact >= 3) & (cells.runner_margin >= 0.999)
+                               & (cells.source == "primary"))
+    cells["single_read"] = cells.n_reads <= 1
+    genes["ashman_D"] = ashman_d(genes.mix_mu1, genes.mix_s1)
+    rng = np.random.default_rng(int(seed))
+    escapers = set(genes.gene[genes.escaper])
+    chosen = set(rng.choice(genes.gene[~genes.escaper].to_numpy(),
+                            min(int(controls), int((~genes.escaper).sum())),
+                            replace=False))
+    rows = []
+    for name, d in cells[cells.gene.isin(escapers | chosen)].groupby("gene"):
+        r = d.p_responder > 0.5
+        nr = ~r
+        row = {"gene": name, "set": "escaper" if name in escapers
+               else "control: non-escaper active gene",
+               "cells": len(d), "responders": int(r.sum()),
+               "Pwrong_resp": float(d.e[r].mean()),
+               "Pwrong_nonresp": float(d.e[nr].mean()),
+               "Pwrong_mw_p": float(stats.mannwhitneyu(
+                   d.e[nr].dropna(), d.e[r].dropna(), alternative="greater").pvalue)
+               if r.sum() > 5 and nr.sum() > 5 else np.nan,
+               "nonresp_share": float(nr.mean()),
+               "error_explainable_share": float(d.e.mean()),
+               "resp_share_well_supported": float(r[d.well_supported].mean())
+               if d.well_supported.sum() >= 20 else np.nan,
+               "resp_share_single_read": float(r[d.single_read].mean())
+               if d.single_read.sum() >= 20 else np.nan,
+               "n_well_supported": int(d.well_supported.sum()),
+               "n_single_read": int(d.single_read.sum())}
+        for p in CELL_CYCLE_PHASES:
+            row[f"{p}_resp"] = float((d.phase[r] == p).mean()) if r.any() else np.nan
+            row[f"{p}_nonresp"] = float((d.phase[nr] == p).mean()) if nr.any() else np.nan
+        table = pd.crosstab(r, d.phase).to_numpy()
+        row["phase_chi_p"] = (float(stats.chi2_contingency(table)[1])
+                              if table.shape[0] == 2 and table.shape[1] >= 2
+                              else np.nan)
+        row["cycling_share_diff"] = float(
+            (row["SG2_resp"] + row["M_resp"]) - (row["SG2_nonresp"] + row["M_nonresp"]))
+        rows.append(row)
+    keep = ["gene", "penetrance", "pen_lo", "pen_hi", "mix_p", "mix_mu1", "mix_s1",
+            "ashman_D", "dBIC", "guide_het_p", "guide_resp_span", "guide_driven"]
+    keep += [c for c in ("in_hits2",) if c in genes]
+    out = pd.DataFrame(rows).merge(genes[keep], on="gene")
+    out["escaper_class"] = out.apply(_escaper_class, axis=1)
+    hit, ctl = out[out.set == "escaper"], out[out.set != "escaper"]
+    summary = {
+        "escapers": int(len(hit)),
+        "classes": {k: int(v) for k, v in hit.escaper_class.value_counts().items()},
+        "escapers_nonresp_higher_Pwrong_p<0.01": int((hit.Pwrong_mw_p < 0.01).sum()),
+        "control_nonresp_higher_Pwrong_p<0.01": int((ctl.Pwrong_mw_p < 0.01).sum()),
+        "controls": int(len(ctl)),
+        "median_nonresp_share_escapers": float(hit.nonresp_share.median()),
+        "median_error_explainable_share_escapers": float(
+            hit.error_explainable_share.median()),
+        "median_resp_share_well_supported_minus_single_read_escapers": float(
+            (hit.resp_share_well_supported - hit.resp_share_single_read).median()),
+        "median_resp_share_well_supported_minus_single_read_controls": float(
+            (ctl.resp_share_well_supported - ctl.resp_share_single_read).median()),
+        "escapers_phase_chi_p<1e-3": int((hit.phase_chi_p < 1e-3).sum()),
+        "controls_phase_chi_p<1e-3": int((ctl.phase_chi_p < 1e-3).sum()),
+        "escapers_ashman_D>2": int((hit.ashman_D > 2).sum())}
+    return out, summary
+
+def shrink_gene_profiles(guides: pd.DataFrame, features: Sequence[str], *,
+                         control_prefix: str = "nontargeting",
+                         n_cells: Optional[Sequence[float]] = None,
+                         prior_df: float = 4.0
+                         ) -> Tuple[pd.DataFrame, pd.Series, Dict[str, Any]]:
+    """Gene profiles shrunk toward the controls by their guides' reliability.
+
+    :param guides: one row per guide with ``gene``, ``n_cells`` and the
+        ``features`` (TVN components, whose per-cell variance is about 1).
+    :param features: the profile columns.
+    :param control_prefix: genes whose name starts with it (or with
+        ``NTpseudo``) are the non-targeting rows that set the noise.
+    :param n_cells: each guide's cell count; by default ``n_cells``.
+    :param prior_df: the degrees of freedom of the non-targeting noise
+        estimate when it is pooled with a gene's own guide spread
+        (``ops_profile_shrinkage_prior_df``).
+    :returns: ``(genes, factor, parameters)``: one row per gene, ``gene``
+        and the shrunk ``features``; each gene's mean shrink factor; and
+        ``a_between``, ``tau2`` and ``prior_df``.
+
+    Per feature ``d``, a guide's noise is the between-guide variance
+    ``a_d`` of the non-targeting guides plus the sampling variance of a
+    median of ``n`` cells, ``(pi / 2) v_d / n`` with ``v_d = 1``. For each
+    gene that noise, averaged over its guides, is pooled with the gene's own
+    between-guide variance (``K - 1`` degrees of freedom against
+    ``prior_df``), so a gene whose guides disagree is shrunk more. The
+    prior signal variance ``tau2_d`` comes from the moments of the
+    targeting genes, and the gene's mean guide profile, centred on the
+    non-targeting guides, is multiplied by ``tau2 / (tau2 + V / K)``. This
+    is empirical-Bayes variance moderation (Smyth 2004) followed by a
+    James-Stein-type shrinkage. Do not stack it with
+    :func:`contrastive_weighting`, which then has no direction left.
+    """
+    values = guides[list(features)].to_numpy(float)
+    names = guides["gene"].to_numpy()
+    nt = _control_rows(names, control_prefix)
+    counts = np.asarray(guides["n_cells"] if n_cells is None else n_cells,
+                        float)
+    centre = values[nt].mean(0)
+    centred = values - centre
+    cell_variance = np.ones(len(features))
+    residual = centred[nt] ** 2 - (np.pi / 2) * cell_variance[None, :] / counts[nt, None]
+    between = np.clip(residual.mean(0), 1e-6, None)
+    members = pd.Series(names)
+    means, pooled_variances, genes = [], [], []
+    for name, index in members.groupby(members).indices.items():
+        rows = centred[index]
+        k = len(index)
+        noise = (between[None, :] + (np.pi / 2) * cell_variance[None, :]
+                 / counts[index, None]).mean(0)
+        spread = rows.var(0, ddof=1) if k > 1 else np.zeros(len(features))
+        pooled = (prior_df * noise + (k - 1) * spread) / (prior_df + k - 1)
+        pooled_variances.append(pooled / k)
+        means.append(rows.mean(0))
+        genes.append(name)
+    means, pooled_variances = np.array(means), np.array(pooled_variances)
+    targeting = ~_control_rows(genes, control_prefix)
+    tau2 = np.clip(means[targeting].var(0) - pooled_variances[targeting].mean(0),
+                   1e-6, None)
+    factor = tau2[None, :] / (tau2[None, :] + pooled_variances)
+    out = pd.DataFrame(factor * means, columns=list(features))
+    out.insert(0, "gene", genes)
+    return (out, pd.Series(factor.mean(1), index=genes),
+            {"a_between": between.tolist(), "tau2": tau2.tolist(),
+             "prior_df": prior_df})
+
+
+#: The generic axes :func:`remove_generic_axes` knows
+#: (``ops_profile_generic_axes``).
+GENERIC_AXES: Tuple[str, ...] = ("log_cells_per_guide", "shift_G1",
+                                 "shift_SG2", "shift_M", "essential_axis")
+
+
+def generic_covariates(genes: pd.DataFrame, cells: pd.DataFrame, *,
+                       control: pd.Series, gene: str = "gene",
+                       phase: str = "phase") -> pd.DataFrame:
+    """Per-gene covariates of fitness and cell-cycle arrest.
+
+    :param genes: one row per gene with ``gene``, ``n_guides`` and
+        ``n_cells`` (:func:`aggregate_genes`).
+    :param cells: one row per cell with ``gene`` and ``phase``
+        (:func:`cell_cycle_phases`).
+    :param control: True for a non-targeting cell.
+    :param gene: the gene column of ``cells``.
+    :param phase: the phase column of ``cells``.
+    :returns: ``gene, n_guides, n_cells, frac_G1, frac_SG2, frac_M,
+        cells_per_guide, shift_G1, shift_SG2, shift_M``: each phase's share
+        of the gene's cells, and that share minus the non-targeting cells'
+        share.
+
+    Cells per guide falls when a knockout kills or slows cells, so it is a
+    fitness readout of the screen itself; the phase shifts measure arrest.
+    """
+    stage = cells[phase].astype(str).to_numpy()
+    flags = pd.DataFrame({"gene": cells[gene].to_numpy(),
+                          **{p: stage == p for p in CELL_CYCLE_PHASES}})
+    shares = flags.groupby("gene")[list(CELL_CYCLE_PHASES)].mean()
+    shares.columns = [f"frac_{p}" for p in CELL_CYCLE_PHASES]
+    out = genes[["gene", "n_guides", "n_cells"]].merge(
+        shares, left_on="gene", right_index=True)
+    out["cells_per_guide"] = out["n_cells"] / out["n_guides"]
+    control = pd.Series(control, index=cells.index).fillna(False
+                                                           ).astype(bool).to_numpy()
+    reference = flags[control][list(CELL_CYCLE_PHASES)].mean()
+    for p in CELL_CYCLE_PHASES:
+        out[f"shift_{p}"] = out[f"frac_{p}"] - reference[p]
+    return out
+
+
+def fitness_bins(genes: Sequence, cells_per_guide: Sequence, *,
+                 bins: int = 10, control_prefix: str = "nontargeting"
+                 ) -> np.ndarray:
+    """Quantile bins of log cells per guide; the lowest bin is fitness genes.
+
+    :param genes: gene names; non-targeting rows get -1.
+    :param cells_per_guide: each gene's cells per guide.
+    :param bins: the number of bins.
+    :param control_prefix: the control gene prefix.
+    :returns: the bin of every gene, 0 the most depleted.
+    """
+    values = np.log(np.clip(np.asarray(cells_per_guide, float), 1, None))
+    nt = _control_rows(genes, control_prefix)
+    out = np.full(len(values), -1)
+    edges = np.quantile(values[~nt], np.linspace(0, 1, int(bins) + 1)[1:-1])
+    out[~nt] = np.searchsorted(edges, values[~nt])
+    return out
+
+
+def remove_generic_axes(values: np.ndarray, genes: Sequence,
+                        covariates: pd.DataFrame, *,
+                        axes: Sequence[str] = GENERIC_AXES,
+                        min_rho: float = 0.30,
+                        control_prefix: str = "nontargeting",
+                        guide_values: Optional[np.ndarray] = None,
+                        guide_genes: Optional[Sequence] = None
+                        ) -> Tuple[np.ndarray, Dict[str, Any],
+                                   Optional[np.ndarray], Optional[np.ndarray]]:
+    """Regress fitness and arrest out of gene profiles.
+
+    :param values: one row per gene, the profile columns.
+    :param genes: the gene of every row.
+    :param covariates: :func:`generic_covariates`, indexed by gene or with a
+        ``gene`` column; every gene of ``genes`` must be in it.
+    :param axes: what to remove (``ops_profile_generic_axes``):
+        ``log_cells_per_guide`` and the ``shift_<phase>`` covariates are
+        regressed out; ``essential_axis`` also projects out the fitness
+        genes' main direction when it tracks fitness.
+    :param min_rho: the essential axis is removed only when the genes'
+        scores on it correlate with log cells per guide by more than this
+        in absolute Spearman rho (``ops_profile_essential_axis_min_rho``).
+    :param control_prefix: non-targeting rows are corrected but not fitted.
+    :param guide_values: optional guide rows of the same space, corrected
+        with the same fit.
+    :param guide_genes: the gene of every guide row.
+    :returns: ``(residuals, report, axis, guide_residuals)``. The report
+        holds ``var_removed_by_covariates``, ``covariates``,
+        ``essential_genes``,
+        ``essential_axis_rho_with_log_cells_per_guide``,
+        ``essential_axis_removed`` and, when removed,
+        ``var_removed_by_essential_axis``.
+    :raises ValueError: for an unknown axis.
+
+    Each profile column is fitted across the targeting genes by ordinary
+    least squares on the standardised covariates (intercept kept), and the
+    covariate part is subtracted from every row, non-targeting rows
+    included. The essential axis is the first right singular vector of the
+    uncentred profiles of the lowest decile of cells per guide
+    (:func:`fitness_bins`); it is projected out only when it tracks
+    fitness, so a profile direction that merely contains many fitness genes
+    stays.
+    """
+    unknown = [a for a in axes if a not in GENERIC_AXES]
+    if unknown:
+        raise ValueError(f"unknown generic axes {unknown}; choose from "
+                         f"{list(GENERIC_AXES)}")
+    table = covariates.set_index("gene") if "gene" in covariates else covariates
+    table = table.loc[list(genes)]
+    x = np.asarray(values, float)
+    names = np.asarray(genes)
+    targeting = ~_control_rows(names, control_prefix)
+    labels = {"log_cells_per_guide": "log cells per guide",
+              "shift_G1": "G1 fraction shift", "shift_SG2": "S/G2 fraction shift",
+              "shift_M": "M fraction shift"}
+    chosen = [a for a in axes if a != "essential_axis"]
+    report: Dict[str, Any] = {}
+    residuals = x
+    beta = None
+    design = None
+    if chosen:
+        design = np.column_stack([
+            np.log(table["cells_per_guide"]) if a == "log_cells_per_guide"
+            else table[a] for a in chosen])
+        fitted = design[targeting]
+        centre, spread = fitted.mean(0), fitted.std(0)
+        design = np.column_stack([np.ones(len(design)), (design - centre) / spread])
+        beta, *_ = np.linalg.lstsq(design[targeting], x[targeting], rcond=None)
+        residuals = x - design[:, 1:] @ beta[1:]
+        total = ((x[targeting] - x[targeting].mean(0)) ** 2).sum()
+        report["var_removed_by_covariates"] = float(
+            1 - ((residuals[targeting] - residuals[targeting].mean(0)) ** 2).sum()
+            / total)
+        report["covariates"] = [labels[a] for a in chosen]
+    axis = None
+    removed = False
+    if "essential_axis" in axes:
+        from scipy.stats import spearmanr
+
+        cells_per_guide = table["cells_per_guide"].to_numpy()
+        essential = fitness_bins(names, cells_per_guide,
+                                 control_prefix=control_prefix) == 0
+        _u, _s, vt = np.linalg.svd(x[essential], full_matrices=False)
+        axis = vt[0] / np.linalg.norm(vt[0])
+        rho = float(spearmanr(x[targeting] @ axis,
+                              np.log(cells_per_guide[targeting])).correlation)
+        removed = abs(rho) > float(min_rho)
+        report.update({"essential_genes": int(essential.sum()),
+                       "essential_axis_rho_with_log_cells_per_guide": rho,
+                       "essential_axis_removed": bool(removed)})
+        if removed:
+            before = ((residuals[targeting] - residuals[targeting].mean(0)) ** 2).sum()
+            residuals = residuals - np.outer(residuals @ axis, axis)
+            report["var_removed_by_essential_axis"] = float(
+                1 - ((residuals[targeting] - residuals[targeting].mean(0)) ** 2
+                     ).sum() / before)
+    guide_residuals = None
+    if guide_values is not None:
+        guide_residuals = np.asarray(guide_values, float).copy()
+        if beta is not None:
+            index = pd.Index(names).get_indexer(list(guide_genes))
+            found = index >= 0
+            guide_residuals[found] = (guide_residuals[found]
+                                      - design[index[found], 1:] @ beta[1:])
+        if removed:
+            guide_residuals = guide_residuals - np.outer(guide_residuals @ axis,
+                                                         axis)
+    return residuals, report, axis, guide_residuals
+
+
+def guide_mean_vectors(guide_rows: np.ndarray, guide_genes: Sequence, *,
+                       normalise: bool = True
+                       ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Each gene as the mean of its guides' unit vectors.
+
+    :param guide_rows: one row per guide, in an embedded space.
+    :param guide_genes: the gene of every guide.
+    :param normalise: scale each mean to length 1, so the dot product of
+        two genes is the cosine of their means.
+    :returns: ``(genes, vectors, guides_per_gene)``, genes sorted.
+
+    Without ``normalise`` the dot product of two genes is exactly the mean
+    of their ``k_A x k_B`` guide-guide cosines. That rewards a single-guide
+    row (length 1) over a gene whose guides disagree (length below 1), and
+    on Funk plate A single-barcode control rows then filled 58 % of the top
+    ten neighbours; normalising removes that.
+    """
+    unit = _unit_rows(np.asarray(guide_rows, float))
+    members = pd.Series(np.asarray(guide_genes))
+    names, vectors, sizes = [], [], []
+    for name, index in members.groupby(members).indices.items():
+        names.append(name)
+        vectors.append(unit[index].mean(0))
+        sizes.append(len(index))
+    vectors = np.array(vectors)
+    if normalise:
+        vectors = _unit_rows(vectors)
+    return np.array(names), vectors, np.array(sizes)
+
+
+def _upper_tail(null: np.ndarray, values: np.ndarray) -> np.ndarray:
+    """``(1 + #null >= value) / (1 + N)`` against a sorted null.
+
+    :param null: the sorted null values.
+    :param values: the observed values.
+    :returns: the P values.
+    """
+    return (1 + len(null) - np.searchsorted(null, values, side="left")) / (1 + len(null))
+
+
+class _GuideSetNull:
+    """The similarity of two random guide sets, per pair of set sizes.
+
+    Draws follow one seeded stream in the order they are asked for, so the
+    same calls give the same nulls.
+    """
+
+    def __init__(self, unit: np.ndarray, targeting: np.ndarray,
+                 genes: np.ndarray, control: np.ndarray, *, size: int,
+                 control_size: int, seed: int):
+        """Index the guides.
+
+        :param unit: unit guide vectors.
+        :param targeting: row indices of the targeting guides.
+        :param genes: the gene of each targeting guide.
+        :param control: row indices of the non-targeting guides.
+        :param size: draws per targeting null.
+        :param control_size: draws per non-targeting null.
+        :param seed: the seed of the stream.
+        """
+        self.unit, self.control = unit, control
+        self.size, self.control_size = int(size), int(control_size)
+        self.rng = np.random.default_rng(int(seed))
+        frame = pd.Series(targeting).groupby(genes)
+        self.by_gene = {k: np.asarray(v) for k, v in frame}
+        self.names = np.array(sorted(self.by_gene))
+        self.cache: Dict[Tuple[int, int, str], np.ndarray] = {}
+
+    def draw(self, k: int, pool: str) -> np.ndarray:
+        """One random guide set of ``k`` guides.
+
+        :param k: the set size.
+        :param pool: ``'targeting'`` (one guide from each of ``k`` distinct
+            random genes) or ``'nt'`` (``k`` non-targeting guides).
+        :returns: guide row indices.
+        """
+        if pool == "nt":
+            return self.rng.choice(self.control, k, replace=False)
+        picked = self.rng.choice(len(self.names), k, replace=False)
+        return np.array([self.rng.choice(self.by_gene[self.names[x]])
+                         for x in picked])
+
+    def __call__(self, ka: int, kb: int, pool: str = "targeting") -> np.ndarray:
+        """The sorted null for sets of ``ka`` and ``kb`` guides.
+
+        :param ka: one set size.
+        :param kb: the other set size.
+        :param pool: ``'targeting'`` or ``'nt'``.
+        :returns: the sorted null similarities (float32).
+        """
+        key = (min(ka, kb), max(ka, kb), pool)
+        if key not in self.cache:
+            values = np.empty(self.size if pool == "targeting"
+                              else self.control_size, np.float32)
+            for i in range(len(values)):
+                a = self.draw(key[0], pool)
+                b = self.draw(key[1], pool)
+                values[i] = self.unit[a].mean(0) @ self.unit[b].mean(0)
+            self.cache[key] = np.sort(values)
+        return self.cache[key]
+
+
+def _shape_pvalues(similarity: np.ndarray, ka: np.ndarray, kb: np.ndarray,
+                   null: "_GuideSetNull") -> np.ndarray:
+    """P values of pair similarities against the null of their set sizes.
+
+    :param similarity: one value per pair.
+    :param ka: the guides of the first gene of each pair.
+    :param kb: the guides of the second gene.
+    :param null: the null of random guide sets.
+    :returns: the P values.
+    """
+    p = np.empty(len(similarity))
+    low, high = np.minimum(ka, kb), np.maximum(ka, kb)
+    for shape in set(zip(low, high)):
+        rows = (low == shape[0]) & (high == shape[1])
+        p[rows] = _upper_tail(null(*shape), similarity[rows])
+    return p
+
+
+def guide_level_similarity(guides: pd.DataFrame, features: Sequence[str], *,
+                           genes: Optional[Sequence[str]] = None,
+                           control_prefix: str = "nontargeting",
+                           null_size: int = 200000,
+                           control_null_size: int = 20000, seed: int = 0,
+                           alpha: float = 0.05) -> Dict[str, Any]:
+    """Gene-gene similarity from guides, with a P value for every pair.
+
+    :param guides: one row per guide with ``gene`` and the ``features``;
+        non-targeting guides carry pseudo-gene names (:func:`nt_row_names`).
+    :param features: the profile columns.
+    :param genes: the targeting genes whose pairs are tested (the active
+        genes in the published analysis); by default every targeting gene.
+    :param control_prefix: the control gene prefix.
+    :param null_size: random guide-set pairs per pair of set sizes
+        (``ops_guide_null_size``); P values resolve to ``1 / (N + 1)``.
+    :param control_null_size: non-targeting guide-set pairs in the reported
+        control null.
+    :param seed: the seed of the one random stream.
+    :param alpha: the false discovery rate of ``pairs_q05``.
+    :returns: ``pairs`` (``gene_a, gene_b, s, p, q`` for every tested pair),
+        ``calibration_p`` (the pseudo-gene x gene P values, the control),
+        ``similarity`` and ``names`` (the gene x gene matrix, tested genes
+        then pseudo-genes) and ``summary``.
+
+    The guides are embedded as the benchmark embeds them (standardised, PCA
+    99 %, fitted on the guides) and scaled to unit length; ``s(A, B)`` is
+    the mean of the ``k_A x k_B`` guide-guide cosines. The null of a pair
+    is ``null_size`` similarities between two random guide sets of the same
+    sizes, each guide from a distinct random targeting gene, so a P value
+    asks whether two genes agree more than random guides do. Benjamini-
+    Hochberg gives ``q`` across all pairs. The pseudo-genes, paired with
+    every tested gene, should give uniform P values; the share under 0.05 is
+    the calibration control. Non-targeting guide sets give a second null,
+    reported for comparison. Without reference sets this does not annotate
+    pairs with CORUM or STRING; :mod:`spacr.ops_clusters` scores those.
+    """
+    from .multiple_testing import adjust_p_values
+
+    unit = _unit_rows(_RowEmbedder(guides[list(features)].to_numpy(float)).rows)
+    names = guides["gene"].to_numpy()
+    nt = _control_rows(names, control_prefix)
+    targeting = np.flatnonzero(~nt)
+    null = _GuideSetNull(unit, targeting, names[targeting], np.flatnonzero(nt),
+                         size=null_size, control_size=control_null_size,
+                         seed=seed)
+    tested = sorted(set(null.by_gene) if genes is None
+                    else set(genes) & set(null.by_gene))
+    pseudo = sorted(set(names[nt]))
+    rows = tested + pseudo
+    vectors = np.array([unit[null.by_gene[x]].mean(0) if x in null.by_gene
+                        else unit[np.flatnonzero(names == x)].mean(0)
+                        for x in rows])
+    sizes = np.array([len(null.by_gene[x]) if x in null.by_gene
+                      else int((names == x).sum()) for x in rows])
+    similarity = vectors @ vectors.T
+    n = len(tested)
+    upper = np.triu_indices(n, 1)
+    s = similarity[upper]
+    p = _shape_pvalues(s, sizes[upper[0]], sizes[upper[1]], null)
+    q = adjust_p_values(p, "fdr_bh", alpha=alpha)[0]
+    control = similarity[n:, :n].ravel()
+    calibration = _shape_pvalues(control, np.repeat(sizes[n:], n),
+                                 np.tile(sizes[:n], len(pseudo)), null)
+    control_null = null(4, 4, "nt")
+    tested_names = np.array(tested)
+    pairs = pd.DataFrame({"gene_a": tested_names[upper[0]],
+                          "gene_b": tested_names[upper[1]],
+                          "s": s, "p": p, "q": q})
+    summary = {
+        "active_genes": n, "pairs_tested": int(len(s)),
+        "pairs_q05": int((q < alpha).sum()),
+        "null_random_guides_4x4_p95": float(np.quantile(null(4, 4), 0.95)),
+        "null_NT_guides_4x4_p95": float(np.quantile(control_null, 0.95)),
+        "calibration_NT_pseudo_x_active (control)": {
+            "pairs": int(len(calibration)),
+            "frac_p_lt_0.05": float((calibration < 0.05).mean()),
+            "frac_p_lt_0.01": float((calibration < 0.01).mean())}}
+    return {"pairs": pairs, "calibration_p": calibration,
+            "similarity": similarity, "names": np.array(rows),
+            "summary": summary}
+
+
+def _mean_distance(u: np.ndarray, v: np.ndarray) -> float:
+    """The mean Euclidean distance between the rows of two matrices.
+
+    :param u: one matrix.
+    :param v: the other.
+    :returns: the mean over all row pairs.
+    """
+    squared = (u ** 2).sum(1)[:, None] + (v ** 2).sum(1)[None] - 2 * u @ v.T
+    return float(np.sqrt(np.clip(squared, 0, None)).mean())
+
+
+def responder_profiles(cells: pd.DataFrame, features: Sequence[str], *,
+                       control: pd.Series, guide: str = "guide",
+                       gene: str = "gene", use: Optional[pd.Series] = None,
+                       alpha: float = 0.05, folds: int = 5,
+                       max_cells: int = 3000, control_pool: int = 20000,
+                       min_cells: int = 20, energy_cells: int = 300,
+                       energy_controls: int = 2000, directions: int = 64,
+                       quantiles: int = 32, seed: int = 0) -> Dict[str, Any]:
+    """Per gene: which of its cells respond, how they differ, and how far
+    its cell distribution is from the controls'.
+
+    :param cells: one row per cell with ``guide``, ``gene`` and the
+        ``features`` (TVN components).
+    :param features: the profile columns.
+    :param control: True for a non-targeting cell.
+    :param guide: the guide column.
+    :param gene: the gene column; non-targeting cells carry pseudo-gene
+        names (:func:`nt_row_names`) so they are processed as genes.
+    :param use: the cells to use (interphase cells in the published
+        analysis, with ``nontargeting_drop`` cells left out); all by default.
+    :param alpha: the share of control cells a threshold lets through
+        (``ops_profile_responder_alpha``).
+    :param folds: cross-fitting folds.
+    :param max_cells: a gene with more cells is subsampled to this many.
+    :param control_pool: control cells drawn once as the reference.
+    :param min_cells: genes with fewer cells are skipped.
+    :param energy_cells: gene cells in the energy distance and the sliced
+        Wasserstein embedding.
+    :param energy_controls: control cells in the energy distance.
+    :param directions: random projections of the sliced Wasserstein
+        embedding.
+    :param quantiles: quantiles per projection.
+    :param seed: the seed of the one random stream.
+    :returns: ``summary`` (``gene, cells_used, flagged_frac,
+        responder_fraction, energy_distance_vs_NT, responders``),
+        ``genes`` (``gene`` and the responder-shift profile),
+        ``guides`` (``guide, gene, responders`` and its profile) and
+        ``sliced_wasserstein`` (genes x ``directions * quantiles``).
+
+    RESPONDERS ARE CALLED BY A CROSS-FITTED DISCRIMINANT. Per fold, the
+    direction is the gene's mean minus the controls' mean on the other
+    folds, and a cell is flagged when its projection exceeds the held-out
+    controls' ``1 - alpha`` quantile. The responder fraction is ``(flagged
+    - alpha) / (1 - alpha)``, floored at 0: the share of the gene's cells
+    with the phenotype, its penetrance. The responder profile is the mean
+    of the flagged gene cells minus the mean of the flagged control cells
+    (the plain mean difference when fewer than five of either are
+    flagged), so a phenotype carried by a few cells is not diluted by the
+    rest. A control cell of the gene's own guides is never its reference.
+
+    The energy distance (Szekely & Rizzo 2013) compares ``energy_cells``
+    gene cells with ``energy_controls`` control cells. The sliced
+    Wasserstein embedding (Bonneel et al. 2015) gives each gene the
+    ``quantiles`` quantiles of its cells along ``directions`` fixed random
+    directions, so the Euclidean distance between two embeddings
+    approximates their sliced Wasserstein distance.
+    """
+    x = cells[list(features)].to_numpy(np.float32)
+    names = cells[gene].astype(str).to_numpy()
+    guide_of = cells[guide].astype(str).to_numpy()
+    control = pd.Series(control, index=cells.index).fillna(False
+                                                           ).astype(bool).to_numpy()
+    use = (np.ones(len(cells), bool) if use is None
+           else pd.Series(use, index=cells.index).fillna(False).astype(bool).to_numpy())
+    rng = np.random.default_rng(int(seed))
+    index = np.flatnonzero(use)
+    by_gene = pd.Series(names[index]).groupby(names[index]).indices
+    controls = index[control[index]]
+    pool = rng.choice(controls, min(int(control_pool), len(controls)),
+                      replace=False)
+    pool_guides = guide_of[pool]
+    projections = rng.standard_normal((len(features), int(directions)))
+    projections /= np.linalg.norm(projections, axis=0, keepdims=True)
+    levels = (np.arange(int(quantiles)) + 0.5) / int(quantiles)
+    rows, gene_rows, guide_rows, embedding = [], [], [], []
+    for name in sorted(by_gene):
+        members = index[by_gene[name]]
+        if len(members) < int(min_cells):
+            continue
+        if len(members) > int(max_cells):
+            members = np.sort(rng.choice(members, int(max_cells), replace=False))
+        reference = pool[~np.isin(pool_guides, guide_of[members])]
+        if len(reference) == 0:
+            continue
+        xg, xn = x[members].astype(np.float64), x[reference].astype(np.float64)
+        fold_g = rng.integers(0, int(folds), len(members))
+        fold_n = rng.integers(0, int(folds), len(reference))
+        flag_g = np.zeros(len(members), bool)
+        flag_n = np.zeros(len(reference), bool)
+        for f in range(int(folds)):
+            w = xg[fold_g != f].mean(0) - xn[fold_n != f].mean(0)
+            w /= max(np.linalg.norm(w), 1e-12)
+            held = xn[fold_n == f] @ w
+            threshold = np.quantile(held, 1 - alpha)
+            flag_g[fold_g == f] = (xg[fold_g == f] @ w) > threshold
+            flag_n[fold_n == f] = held > threshold
+        share = float(flag_g.mean())
+        fraction = max(0.0, (share - alpha) / (1 - alpha))
+        if flag_g.sum() >= 5 and flag_n.sum() >= 5:
+            profile = xg[flag_g].mean(0) - xn[flag_n].mean(0)
+        else:
+            profile = xg.mean(0) - xn.mean(0)
+        gene_rows.append(profile)
+        own = guide_of[members]
+        for g in np.unique(own):
+            picked = (own == g) & flag_g
+            if picked.sum() >= 3 and flag_n.sum() >= 5:
+                v = xg[picked].mean(0) - xn[flag_n].mean(0)
+            else:
+                v = xg[own == g].mean(0) - xn.mean(0)
+            guide_rows.append((g, name, int(picked.sum()), *v))
+        a = xg[rng.choice(len(xg), min(int(energy_cells), len(xg)), replace=False)]
+        b = xn[rng.choice(len(xn), min(int(energy_controls), len(xn)), replace=False)]
+        energy = (2 * _mean_distance(a, b) - _mean_distance(a, a)
+                  - _mean_distance(b[:int(energy_cells)], b[:int(energy_cells)]))
+        embedding.append(np.quantile(a @ projections, levels, axis=0).T.ravel())
+        rows.append({"gene": name, "cells_used": len(members),
+                     "flagged_frac": share, "responder_fraction": fraction,
+                     "energy_distance_vs_NT": energy,
+                     "responders": int(flag_g.sum())})
+    summary = pd.DataFrame(rows)
+    genes_out = pd.DataFrame(np.array(gene_rows, np.float32),
+                             columns=list(features))
+    genes_out.insert(0, "gene", summary["gene"].to_numpy() if len(summary) else [])
+    guides_out = pd.DataFrame(guide_rows, columns=["guide", "gene", "responders",
+                                                   *features])
+    return {"summary": summary, "genes": genes_out, "guides": guides_out,
+            "sliced_wasserstein": np.array(embedding, np.float32)}
+
+
+def distribution_distances(cells: pd.DataFrame, features: Sequence[str], *,
+                           control: pd.Series, **options: Any
+                           ) -> Tuple[pd.DataFrame, np.ndarray]:
+    """Each gene's energy distance to the controls and its sliced
+    Wasserstein embedding.
+
+    :param cells: as :func:`responder_profiles`.
+    :param features: the profile columns.
+    :param control: True for a non-targeting cell.
+    :param options: passed to :func:`responder_profiles`, whose random
+        stream also draws the responder folds, so the distances are the
+        same as in its summary.
+    :returns: ``(distances, embedding)``: ``gene`` and
+        ``energy_distance_vs_NT``, and one sliced Wasserstein row per gene.
+    """
+    result = responder_profiles(cells, features, control=control, **options)
+    return (result["summary"][["gene", "energy_distance_vs_NT"]],
+            result["sliced_wasserstein"])
+
+
+#: How :func:`embedding_profiles` normalises single-cell embeddings.
+EMBEDDING_NORMS: Tuple[str, ...] = ("tvn", "robustz")
+
+
+def _well_statistics(embedding, rows: np.ndarray, wells: np.ndarray,
+                     control: np.ndarray, chunk: int
+                     ) -> Tuple[Dict[Any, np.ndarray], ...]:
+    """Per-well mean, standard deviation, control median and control MAD.
+
+    :param embedding: the embedding rows (an array or a memory map).
+    :param rows: the rows used, in order.
+    :param wells: the well of each used row.
+    :param control: True for a control row.
+    :param chunk: rows read at a time.
+    :returns: ``(mean, sd, median, mad)`` keyed by well; a zero MAD is 1.
+    """
+    names = sorted(pd.unique(wells))
+    width = np.asarray(embedding[rows[:1]]).shape[1]
+    first = {w: np.zeros(width) for w in names}
+    second = {w: np.zeros(width) for w in names}
+    count = {w: 0 for w in names}
+    controls: Dict[Any, List[np.ndarray]] = {w: [] for w in names}
+    for start in range(0, len(rows), int(chunk)):
+        x = np.asarray(embedding[rows[start:start + int(chunk)]], dtype=np.float32)
+        here = wells[start:start + int(chunk)]
+        for w in names:
+            k = here == w
+            if k.any():
+                first[w] += x[k].sum(0)
+                second[w] += (x[k].astype(np.float64) ** 2).sum(0)
+                count[w] += int(k.sum())
+                kc = k & control[start:start + int(chunk)]
+                if kc.any():
+                    controls[w].append(x[kc])
+    mean = {w: first[w] / count[w] for w in names}
+    sd = {w: np.sqrt(np.clip(second[w] / count[w] - mean[w] ** 2, 1e-12, None))
+          for w in names}
+    median, mad = {}, {}
+    for w in names:
+        values = np.vstack(controls[w])
+        median[w] = np.median(values, 0)
+        mad[w] = MAD_TO_SD * np.median(np.abs(values - median[w]), 0)
+        mad[w][mad[w] == 0] = 1
+    return mean, sd, median, mad
+
+
+def _scaled_by_well(x: np.ndarray, wells: np.ndarray, centre: Mapping,
+                    scale: Mapping) -> np.ndarray:
+    """Rows centred and scaled by their well's statistics.
+
+    :param x: the rows.
+    :param wells: each row's well.
+    :param centre: the per-well centre.
+    :param scale: the per-well scale.
+    :returns: the scaled rows, in the dtype of ``x``.
+    """
+    out = np.empty_like(x)
+    for w in np.unique(wells):
+        k = wells == w
+        out[k] = (x[k] - centre[w]) / scale[w]
+    return out
+
+
+def embedding_profiles(embedding, cells: pd.DataFrame, *,
+                       control: pd.Series, rows: Optional[np.ndarray] = None,
+                       guide: str = "sgRNA", gene: str = "gene",
+                       well: str = "well", norm: str = "tvn",
+                       sample: int = 100000, seed: int = 0,
+                       chunk: int = 200000, whiten_epsilon: float = 0.0
+                       ) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    """Gene profiles from frozen single-cell embeddings.
+
+    :param embedding: one row per exported cell (a NumPy array or memory
+        map, any float dtype); only the rows of ``rows`` are read, a chunk
+        at a time, so a large export stays on disk.
+    :param cells: one row per profiled cell, in the order of ``rows``, with
+        ``guide``, ``gene`` (non-targeting cells under pseudo-gene names,
+        :func:`nt_row_names`; ``nontargeting_drop`` cells are left out of
+        the profiles) and ``well``.
+    :param control: True for a non-targeting cell.
+    :param rows: the embedding row of each cell; by default ``0..n-1``.
+    :param guide: the guide column.
+    :param gene: the gene column.
+    :param well: the well column (the batch).
+    :param norm: ``'tvn'`` (per-well centre-scale, PCA 99 % fitted on a
+        ``sample``-cell sample, then TVN on the control cells with CORAL by
+        well, :func:`spacr.ops_tvn.tvn_on_controls`) or ``'robustz'``
+        (per-well robust z against the control cells, then PCA 99 %).
+    :param sample: cells the PCA is fitted on.
+    :param seed: the sample and PCA seed.
+    :param chunk: embedding rows read at a time.
+    :param whiten_epsilon: the TVN whitening epsilon; 0 is Brieflow's TVN.
+    :returns: ``(genes, info)``: ``gene, n_guides, n_cells, emb_0 ...``
+        (a guide is the median of its cells, a gene the median of its
+        guides) and ``components`` and ``cells``.
+    :raises ValueError: for an unknown ``norm``.
+
+    The cells are the ones the measurements were profiled on, so the
+    embedding and measurement profiles of :func:`fusion_profiles` describe
+    the same cells.
+    """
+    from sklearn.decomposition import PCA
+
+    norm = str(norm or "tvn").strip().lower()
+    if norm not in EMBEDDING_NORMS:
+        raise ValueError(f"norm must be one of {list(EMBEDDING_NORMS)}; got {norm!r}")
+    rows = np.arange(len(cells)) if rows is None else np.asarray(rows)
+    wells = cells[well].to_numpy()
+    control = pd.Series(control, index=cells.index).fillna(False
+                                                           ).astype(bool).to_numpy()
+    mean, sd, median, mad = _well_statistics(embedding, rows, wells, control, chunk)
+    centre, scale = (mean, sd) if norm == "tvn" else (median, mad)
+    rng = np.random.default_rng(int(seed))
+    picked = np.sort(rng.choice(len(rows), min(int(sample), len(rows)), replace=False))
+    fit = np.asarray(embedding[rows[picked]], dtype=np.float32)
+    pca = PCA(n_components=0.99, random_state=int(seed)).fit(
+        _scaled_by_well(fit, wells[picked], centre, scale))
+    del fit
+    scores = np.empty((len(rows), pca.n_components_), np.float32)
+    for start in range(0, len(rows), int(chunk)):
+        x = np.asarray(embedding[rows[start:start + int(chunk)]], dtype=np.float32)
+        scores[start:start + len(x)] = pca.transform(_scaled_by_well(
+            x, wells[start:start + int(chunk)], centre, scale)).astype(np.float32)
+    if norm == "tvn":
+        from .ops_tvn import tvn_on_controls
+
+        scores, _info = tvn_on_controls(scores, control, wells,
+                                        whiten_epsilon=float(whiten_epsilon))
+    columns = [f"emb_{j}" for j in range(scores.shape[1])]
+    keep = cells[gene].astype(str).to_numpy() != "nontargeting_drop"
+    frame = pd.concat([cells.loc[keep, [guide, gene]].reset_index(drop=True),
+                       pd.DataFrame(scores[keep], columns=columns)], axis=1)
+    guides = aggregate_guides(frame, columns, guide=guide, gene=gene)
+    return aggregate_genes(guides, columns), {"components": int(pca.n_components_),
+                                              "cells": int(keep.sum())}
+
+
+def fusion_profiles(blocks: Mapping[str, pd.DataFrame], *,
+                    variance: float = 0.99, seed: int = 0) -> pd.DataFrame:
+    """Gene profiles of several blocks joined with equal weight.
+
+    :param blocks: name -> gene table (``gene``, ``n_cells`` and profile
+        columns starting ``PC_``, ``emb_`` or ``f_``), in join order; the
+        first block's cell counts are kept (``ops_fusion_blocks``).
+    :param variance: the share of variance each block keeps.
+    :param seed: the PCA seed.
+    :returns: ``gene, n_cells, f_<block>0 ...`` for the genes every block
+        has.
+
+    Each block is standardised across genes, PCA-whitened to ``variance``
+    and divided by the square root of its dimension count, so a block's
+    squared norm averages one whatever its width, and a 768-dimension
+    embedding cannot outvote a 100-dimension measurement profile.
+    """
+    from sklearn.decomposition import PCA
+
+    parts, counts = [], None
+    for name, table in blocks.items():
+        columns = [c for c in table.columns if str(c).startswith(("PC_", "emb_", "f_"))]
+        x = table[columns].to_numpy(float)
+        spread = x.std(0)
+        x = (x - x.mean(0)) / np.where(spread > 0, spread, 1)
+        p = PCA(n_components=variance, whiten=True, random_state=int(seed)).fit_transform(x)
+        p /= np.sqrt(p.shape[1])
+        parts.append(pd.DataFrame(p, columns=[f"f_{name}{j}" for j in range(p.shape[1])],
+                                  index=table["gene"].to_numpy()))
+        if counts is None:
+            counts = table.set_index("gene")["n_cells"]
+    fused = parts[0]
+    for part in parts[1:]:
+        fused = fused.join(part, how="inner")
+    fused.insert(0, "n_cells", counts.reindex(fused.index).to_numpy())
+    fused.index.name = "gene"
+    return fused.reset_index()

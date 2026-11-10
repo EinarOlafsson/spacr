@@ -1,0 +1,29 @@
+OPS GENE PROFILES FROM FROZEN SINGLE-CELL EMBEDDINGS, AND FUSION
+================================================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha, under ALPHA_FEATURES[906]) — spacr.gene_measurement_compare.embedding_profiles reads an embedding export a chunk at a time (memory map), normalises it per well (tvn: centre-scale, PCA 99 % on a 100k sample, TVN on the control cells via spacr.ops_tvn.tvn_on_controls; robustz: robust z against the controls, PCA 99 %) and reduces guide medians to gene medians; fusion_profiles standardises each block across genes, PCA-whitens it to 99 % and divides by the square root of its width before joining. ops_profile_space 'embedding:<folder>' or 'fusion:<folder>' (embeddings.npy + index.parquet with row, well, site, label) and ops_fusion_blocks run them in the aggregate phase on the profiled (interphase) cells, writing ops_genes_<plate>_embedding and _fusion. spacr/gene_measurement_compare.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_embedding_profiles_906.py.
+Requested: maintainer via paper session, 2026-11-09.
+Owner: paper session (lane C).
+Source: improved/scripts/aggregate_ogc.py (ops_gene_classes export layout), aggregate_embeddings.py.
+Related: 883, 854.
+
+WHAT THE STATE IS
+Embedding and fusion profiles were scripts.
+
+WHAT TO DO
+- Embedding gene profiles and measurement-embedding fusion, alpha.
+
+RESULT
+On the DINOv2-S CLS export of plate A (2,003,014 rows, 1,151,038 matched
+interphase cells, reference environment):
+- robustz: X_emb_ogc_dinov2_s_cls_robustz.parquet bit for bit (235 PCs);
+- measurement profile on the same cells: X_meas_ogc_dinov2_s_cls bit for
+  bit; fusion_profiles of the reference blocks: X_fusion_ogc_dinov2_s_cls
+  bit for bit (99 + 232 dimensions);
+- tvn: same rows, cell counts and 236 PCs; values differ by at most 4.7e-4
+  (gene-gene cosines by 2.7e-4). With Brieflow's tvn_on_controls swapped
+  in for spacr.ops_tvn.tvn_on_controls the tvn table is bit-identical too,
+  so the whole difference is the shared TVN core at epsilon 0 on float32
+  scores, not this item's code.
+The ResNet-50 and DINOv2 'all' / 'patch' exports were not rerun.
