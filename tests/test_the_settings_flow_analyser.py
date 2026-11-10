@@ -247,15 +247,27 @@ def test_the_page_stays_inside_the_docs_job_timeout(flow, data):
     docs job that cannot finish, and the next raise wants its own three
     lines above.
 
+    RAISED TO 8,500 ON 2026-11-10 for the BMC paper items 871-911, which
+    took the page from 7,334 cross-references to 8,067 (their settings and
+    the functions that read them). Measured with a whole-site build of the
+    integration branch (-E -b html), on a workstation already running about
+    24 processes' worth of other jobs (load average 24):
+
+        8,067 xrefs   13:29.67 wall   5,007,600 KB peak   0 Sphinx warnings
+
+    The unloaded machine built 7,000 in about 4:16; even this loaded run
+    stays well inside the 30-minute docs job, so 433 of headroom is kept
+    rather than the ceiling removed.
+
     The builds also came back with ZERO warnings, which is the second
     thing this page can break: the docs job runs `-W`, so an xref the
     inventory cannot resolve fails it as surely as a timeout.
     """
     rst = flow.rst_for(data)
     xrefs = rst.count(":py:func:")
-    assert xrefs <= 7500, (
+    assert xrefs <= 8500, (
         f"{xrefs} cross-references on the settings-flow page, up from the "
-        "7,000 measured against a real sphinx-build on 2026-09-09. This is "
+        "8,067 measured against a real sphinx-build on 2026-11-10. This is "
         "the build-time ratchet; confirm a real sphinx-build before raising "
         "it, and record the wall clock in the docstring above")
 
