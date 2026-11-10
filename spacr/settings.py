@@ -9150,6 +9150,15 @@ ALPHA_FEATURES = {
                      'ops_flatfield_bootstrap_seed',
                      'ops_flatfield_min_bin_cells'),
     },
+    915: {
+        'settings': ('ops_report_read_stage', 'ops_report_overlap_zones', 'ops_report_edge_bin_px', 'ops_report_external_cells', 'ops_report_external_max_px',),
+    },
+    916: {
+        'settings': ('ops_cluster_rows', 'ops_cluster_graph', 'ops_cluster_knn', 'ops_cluster_sweep_resolutions', 'ops_cluster_seeds', 'ops_cluster_target_clusters', 'ops_cluster_shuffles', 'ops_cluster_reference_dir', 'ops_cluster_gene_list',),
+    },
+    917: {
+        'settings': ('ops_etest', 'ops_etest_cells', 'ops_etest_metric', 'ops_etest_reference_cells', 'ops_etest_null', 'ops_etest_holdout', 'ops_etest_mode', 'ops_etest_permutations', 'ops_power_cells', 'ops_power_seeds', 'ops_power_retrieval',),
+    },
     883: {
         'settings': ('ops_aggregate_level', 'ops_nt_rows'),
     },

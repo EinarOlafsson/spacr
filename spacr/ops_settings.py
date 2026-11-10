@@ -266,6 +266,31 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_eval_mitocarta": None,
     "ops_eval_external_modules": None,
     "ops_eval_arms": None,
+    "ops_report_read_stage": False,
+    "ops_report_overlap_zones": False,
+    "ops_report_edge_bin_px": 100,
+    "ops_report_external_cells": None,
+    "ops_report_external_max_px": 8.0,
+    "ops_cluster_rows": None,
+    "ops_cluster_graph": ['phate', 'knn'],
+    "ops_cluster_knn": 12,
+    "ops_cluster_sweep_resolutions": None,
+    "ops_cluster_seeds": [42, 1, 2],
+    "ops_cluster_target_clusters": 227,
+    "ops_cluster_shuffles": 1,
+    "ops_cluster_reference_dir": None,
+    "ops_cluster_gene_list": None,
+    "ops_etest": False,
+    "ops_etest_cells": None,
+    "ops_etest_metric": 'both',
+    "ops_etest_reference_cells": 2000,
+    "ops_etest_null": 1000,
+    "ops_etest_holdout": 500,
+    "ops_etest_mode": 'empirical_null',
+    "ops_etest_permutations": 1000,
+    "ops_power_cells": [10, 25, 50, 100, 200, 500, None],
+    "ops_power_seeds": [0, 1, 2],
+    "ops_power_retrieval": False,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -515,6 +540,31 @@ OPS_TYPES: Dict[str, object] = {
     "ops_eval_mitocarta": (str, type(None)),
     "ops_eval_external_modules": (str, type(None)),
     "ops_eval_arms": (str, list, type(None)),
+    "ops_report_read_stage": bool,
+    "ops_report_overlap_zones": bool,
+    "ops_report_edge_bin_px": (int, float),
+    "ops_report_external_cells": (str, type(None)),
+    "ops_report_external_max_px": (float, int),
+    "ops_cluster_rows": (str, type(None)),
+    "ops_cluster_graph": (list, str),
+    "ops_cluster_knn": int,
+    "ops_cluster_sweep_resolutions": (dict, type(None)),
+    "ops_cluster_seeds": (list, str),
+    "ops_cluster_target_clusters": int,
+    "ops_cluster_shuffles": int,
+    "ops_cluster_reference_dir": (str, list, type(None)),
+    "ops_cluster_gene_list": (str, type(None)),
+    "ops_etest": bool,
+    "ops_etest_cells": (str, type(None)),
+    "ops_etest_metric": str,
+    "ops_etest_reference_cells": int,
+    "ops_etest_null": int,
+    "ops_etest_holdout": int,
+    "ops_etest_mode": str,
+    "ops_etest_permutations": int,
+    "ops_power_cells": (list, str),
+    "ops_power_seeds": (list, str),
+    "ops_power_retrieval": bool,
 }
 
 #: Which panel section each setting appears under.
@@ -677,6 +727,31 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_modules_runs", "ops_modules_precomputed_embedding",
         "ops_modules_profiles", "ops_modules_driver_profiles",
         "ops_eval_mitocarta", "ops_eval_external_modules", "ops_eval_arms",
+        "ops_report_read_stage",
+        "ops_report_overlap_zones",
+        "ops_report_edge_bin_px",
+        "ops_report_external_cells",
+        "ops_report_external_max_px",
+        "ops_cluster_rows",
+        "ops_cluster_graph",
+        "ops_cluster_knn",
+        "ops_cluster_sweep_resolutions",
+        "ops_cluster_seeds",
+        "ops_cluster_target_clusters",
+        "ops_cluster_shuffles",
+        "ops_cluster_reference_dir",
+        "ops_cluster_gene_list",
+        "ops_etest",
+        "ops_etest_cells",
+        "ops_etest_metric",
+        "ops_etest_reference_cells",
+        "ops_etest_null",
+        "ops_etest_holdout",
+        "ops_etest_mode",
+        "ops_etest_permutations",
+        "ops_power_cells",
+        "ops_power_seeds",
+        "ops_power_retrieval",
     ],
 }
 
@@ -1341,6 +1416,121 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(str or None) - A table with gene and cells_per_guide columns, the "
         "fitness that decoy partners are matched on; empty takes cells per "
         "guide from the run's own guide table. Default None. Alpha.",
+    "ops_report_read_stage":
+        "(bool) - Add the read stage to the report phase's yield funnel: "
+        "sbs_nuclei, sbs_nuclei_with_read and its %, the owned sequencing "
+        "nuclei whose territory holds at least one spot above the read "
+        "threshold. The decode phase must have run with this on, so its field "
+        "stats count them. Default False. Alpha.",
+    "ops_report_overlap_zones":
+        "(bool) - The report phase writes phenotype-genotype match rates in "
+        "tile-overlap strips and cores: a cell is in a strip when its "
+        "centroid maps inside another acquired field. Per segmented copy and, "
+        "after the ph_ownership phase, per physical cell (matched when any "
+        "copy is linked, zoned by its owner copy); also by distance to the "
+        "field edge and per field. Default False. Alpha.",
+    "ops_report_edge_bin_px":
+        "(int) - The width in pixels of the field-edge distance bins of the "
+        "overlap report (overlap_match_by_edge_distance.csv). Needs "
+        "ops_report_overlap_zones. Default 100. Alpha.",
+    "ops_report_external_cells":
+        "(str or None) - Another pipeline's phenotype cells (field, label, y, "
+        "x, matched; optional well) to compare on the same physical cells: "
+        "each is assigned to the nearest spaCR copy in its field, and both "
+        "pipelines' match rates per zone are reported with exact McNemar "
+        "counts. Needs ops_report_overlap_zones and the ph_ownership table. "
+        "Default None. Alpha.",
+    "ops_report_external_max_px":
+        "(float) - The largest distance in pixels between an external cell's "
+        "centroid and the spaCR centroid it is assigned to; farther cells "
+        "stay unassigned. Default 8.0. Alpha.",
+    "ops_cluster_rows":
+        "(str or None) - A table of ready gene-profile rows (gene plus "
+        "numeric columns, used as given) for the cluster_sweep phase; empty "
+        "clusters the profile phase's gene rows, embedded as the evaluate "
+        "phase embeds them. Default None. Alpha.",
+    "ops_cluster_graph":
+        "(list) - The graphs the cluster_sweep phase clusters: 'phate', "
+        "PHATE's symmetrised diffusion operator (10 cosine neighbours), "
+        "and/or 'knn', a symmetric cosine k-nearest-neighbour graph. Default "
+        "['phate', 'knn']. Alpha.",
+    "ops_cluster_knn":
+        "(int) - The neighbours of the 'knn' graph of the cluster_sweep "
+        "phase. Default 12. Alpha.",
+    "ops_cluster_sweep_resolutions":
+        "(dict or None) - Leiden resolutions per graph for the cluster_sweep "
+        "phase, such as {'phate': [5, 12], 'knn': [1, 2]}; a graph not named "
+        "takes its full grid (phate 1-40, knn 0.25-16). More resolutions draw "
+        "more of the trade-off curve and take longer. Default None. Alpha.",
+    "ops_cluster_seeds":
+        "(list) - The PHATE and Leiden seeds of the cluster_sweep phase; the "
+        "summary gives the mean, minimum and maximum over them. Default [42, "
+        "1, 2]. Alpha.",
+    "ops_cluster_target_clusters":
+        "(int) - The cluster count the sweep summary flags: the resolution "
+        "whose mean cluster count is nearest it, so a comparison is made at a "
+        "matched number of clusters. Default 227 (Brieflow's interphase "
+        "clusters). Alpha.",
+    "ops_cluster_shuffles":
+        "(int) - Shuffled-label controls per partition in the cluster_sweep "
+        "phase: the scored genes' cluster labels permuted with cluster sizes "
+        "kept. Default 1. Alpha.",
+    "ops_cluster_reference_dir":
+        "(str or None) - The folder holding Brieflow's CORUM, KEGG and STRING "
+        "benchmark tables that the cluster_sweep phase scores against; empty "
+        "uses ops_reference_dir. Default None. Alpha.",
+    "ops_cluster_gene_list":
+        "(str or None) - A table with a gene column: the genes the "
+        "cluster_sweep phase scores, so arms are compared on the same genes. "
+        "Every row is still clustered. Empty scores every targeting row. "
+        "Default None. Alpha.",
+    "ops_etest":
+        "(bool) - Keep the per-cell aligned embedding when the profile phase "
+        "runs (cells_E.npy and cells_meta.parquet in its folder), which the "
+        "etest phase tests. Default False. Alpha.",
+    "ops_etest_cells":
+        "(str or None) - A folder holding cells_E.npy and cells_meta.parquet "
+        "(gene_symbol_0, cell_barcode_0) for the etest phase; empty reads the "
+        "profile run's own. Default None. Alpha.",
+    "ops_etest_metric":
+        "(str) - The E-distance the etest phase writes: 'euclidean' (energy "
+        "distance), 'sqeuclidean' (scPerturb's default) or 'both'. Default "
+        "'both'. Alpha.",
+    "ops_etest_reference_cells":
+        "(int) - The non-targeting cells drawn once as the reference every "
+        "gene's E-distance is measured against. Default 2000. Alpha.",
+    "ops_etest_null":
+        "(int) - The non-targeting pseudo-genes, drawn from cells outside the "
+        "reference at a gene's cell count, whose E-distances form the "
+        "empirical null of the E-test. Default 1000. Alpha.",
+    "ops_etest_holdout":
+        "(int) - Further non-targeting pseudo-genes scored against the null: "
+        "their share at p < 0.05 is the false-positive control. Default 500. "
+        "Alpha.",
+    "ops_etest_mode":
+        "(str) - 'empirical_null' tests each gene against pseudo-genes of "
+        "random non-targeting cells; 'guide_null' against pseudo-genes of "
+        "four non-targeting guides, the shape of a gene, which keeps "
+        "guide-level structure in the null (the guides are split in halves "
+        "for the null and the held-out control); 'permutation' permutes the "
+        "gene's cells with the reference (scPerturb's E-test, "
+        "ops_etest_permutations times; slow). Default 'empirical_null'. "
+        "Alpha.",
+    "ops_etest_permutations":
+        "(int) - Label permutations per gene when ops_etest_mode is "
+        "'permutation'. Default 1000. Alpha.",
+    "ops_power_cells":
+        "(list) - The cells-per-gene caps of the power curve; None keeps "
+        "every cell (scored once, its null drawn at the median cells per "
+        "gene). Default [10, 25, 50, 100, 200, 500, None]. Alpha.",
+    "ops_power_seeds":
+        "(list) - The subsampling seeds of the power curve; each capped draw "
+        "is repeated once per seed. Default [0, 1, 2]. Alpha.",
+    "ops_power_retrieval":
+        "(bool) - Also draw the retrieval power curve: at most n cells per "
+        "gene and every control cell, guide and gene medians, then the "
+        "evaluate phase's retrieval metrics on ops_reference_dir, with paired "
+        "Wilcoxon tests against the largest cap. Default False. Alpha.",
     "ops_deterministic_blas":
         "(bool) - Run the profile phases with the BLAS and OpenMP libraries "
         "held to one thread, so a re-run of the same settings file writes "
