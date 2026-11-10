@@ -854,6 +854,15 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "moa_treatment_columns", "moa_batch_column", "moa_controls", "moa_arms",
     "moa_replicates", "moa_shuffles", "moa_supervised_shuffles", "moa_seed",
     "moa_workers", "moa_dst",
+    # 893, alpha: a screen plate run from one settings file
+    # (`spacr/screen_staging.py`), two headings of its own: staging, and
+    # export and aggregate.
+    "screen_phases", "import_source", "import_naming", "import_regex",
+    "import_mode", "import_map", "import_wells", "mask_overrides",
+    "measure_overrides", "export_parquet", "export_parquet_dir",
+    "aggregate_levels", "aggregate_metadata", "aggregate_metadata_columns",
+    "aggregate_control", "aggregate_control_percentiles",
+    "aggregate_heterogeneity", "aggregate_dir", "record_timing",
     # 581, alpha: what the export writes (h5ad, Parquet tables, R loader)
     # and the folder the tables go to.
     "anndata_format", "anndata_tidy_dir",
@@ -1635,6 +1644,8 @@ def test_every_qt_section_hint_names_a_real_category():
     import spacr.published_reference  # noqa: F401
     # 795: the MoA benchmark registers its two headings.
     import spacr.moa_benchmark  # noqa: F401
+    # 893: the screen staging registers its two headings.
+    import spacr.screen_staging  # noqa: F401
     known.update(c.upper().strip() for c in S.REGISTERED_CATEGORIES)
     # Qt may make app-scoped relocations without changing the category map
     # shared with the legacy UI (Measure's Filter settings is one).

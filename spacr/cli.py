@@ -607,6 +607,28 @@ _MODULE_LIST: Tuple[Module, ...] = (
               "onto their parent cell, and no downstream analysis can undo "
               "that."),
     ),
+    Module(
+        key="screen",
+        summary="Run a screen plate from one settings file: import, masks, "
+                "measure, per-plate Parquet export and well aggregate.",
+        entry="spacr.screen_staging:run_screen",
+        defaults=None,
+        defaults_entry="spacr.screen_staging:screen_defaults",
+        validate_key="",
+        requires=("src \u2014 the plate folder (import_source names the raw "
+                  "images when the import phase runs)",
+                  "the mask and measure settings of the plate"),
+        writes=("<src>/settings/import_map.csv, gen_mask_settings.csv and "
+                "screen_settings.csv",
+                "<src>/merged/*.npy and <src>/measurements/measurements.db",
+                "<src>/parquet/<plate>.parquet \u2014 one row per cell",
+                "<src>/tables/wells_mean, wells_median, wells_heterogeneity "
+                "and <control>_percentiles .parquet",
+                "<src>/settings/screen_timing.json"),
+        note="ALPHA (893). prep and masks together are ONE mask run with "
+             "preprocess and masks both on; mask_overrides and "
+             "measure_overrides set a key for one phase alone.",
+    ),
 )
 
 MODULES: Dict[str, Module] = {m.key: m for m in _MODULE_LIST}

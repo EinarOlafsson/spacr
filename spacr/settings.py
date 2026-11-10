@@ -8187,6 +8187,15 @@ ALPHA_FEATURES = {
             'published_duplicates', 'published_unmatched', 'published_bootstrap',
             'published_shuffles', 'published_seed', 'published_dst')},
     },
+    893: {
+        'module_settings': {'screen': (
+            'screen_phases', 'import_source', 'import_naming', 'import_regex',
+            'import_mode', 'import_map', 'import_wells', 'mask_overrides',
+            'measure_overrides', 'export_parquet', 'export_parquet_dir',
+            'aggregate_levels', 'aggregate_metadata', 'aggregate_metadata_columns',
+            'aggregate_control', 'aggregate_control_percentiles',
+            'aggregate_heterogeneity', 'aggregate_dir', 'record_timing')},
+    },
     795: {
         'module_settings': {'moa_benchmark': (
             'moa_profiles', 'moa_labels', 'moa_label_column', 'moa_compound_column',

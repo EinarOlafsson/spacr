@@ -3826,6 +3826,14 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "How the profiles are scored: the nearest-neighbour, logistic "
         "regression and XGBoost arms, how replicate wells combine, the "
         "shuffled-label controls, the seed and the folds fitted at a time.",
+    "SCREEN STAGING":
+        "Which phases of a screen plate run from this one settings file: "
+        "the raw images and how they are imported, settings given to the "
+        "mask or the measure phase alone, and the timing record.",
+    "SCREEN EXPORT AND AGGREGATE":
+        "What the plate writes after Measure: one per-cell Parquet file, the "
+        "well means and medians, the per-well heterogeneity, and the control "
+        "cells' percentiles found from a metadata table.",
 }
 
 
