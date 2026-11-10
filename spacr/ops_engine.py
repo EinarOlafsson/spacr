@@ -2825,31 +2825,29 @@ def _ph_masks(plate: str, well: str, settings: Mapping[str, Any],
     return report
 
 
-def _ph_measure_field(task: Mapping[str, Any]) -> Dict[str, Any]:
-    """Measure one segmented phenotype field; the ``ph_measure`` worker.
+#: How many fields this process has measured, so the report can tell the
+#: first field of each measurement worker (which pays the GPU kernel
+#: compile, item 872 B15) from the rest.
+_PH_WORKER_FIELDS = {"count": 0}
 
-    :param task: ``site``, ``files``, ``channels``, ``mask_path``,
-        ``cell_path`` and ``texture``; optionally ``flat_folder``, whose
-        maps correct the field before it is measured
-        (:func:`spacr.ops_flatfield.correct_field`), ``funk_features``,
-        ``zernike`` and ``measure_gpu``, which measures intensity and
-        texture on the card.
-    :returns: ``site``, ``cells``, ``seconds`` and ``unreadable``.
 
-    Module level so a spawned process can run it. It reads its own field
-    and masks and writes its own Parquet part, so nothing large crosses the
-    process boundary. The correction is applied to the copy in memory; the
-    raw files are never changed.
+def _ph_measure_table(task: Mapping[str, Any]):
+    """One segmented phenotype field measured: ``(table or None, unreadable, shape)``.
+
+    :param task: as :func:`_ph_measure_field` takes it; ``staged``, when
+        set, is the field's stack staged by :class:`spacr.ops_run_infra.FieldStager`,
+        read in place of the raw files.
     """
     from .ops_sample import measure_phenotype_field
 
-    tick = time.perf_counter()
     unreadable: list = []
-    stack = _ph_read_field(task["files"], task["channels"], unreadable,
-                           task.get("secondary"))
+    if task.get("staged"):
+        stack = np.load(task["staged"])
+    else:
+        stack = _ph_read_field(task["files"], task["channels"], unreadable,
+                               task.get("secondary"))
     if stack is None:
-        return {"site": task["site"], "cells": None, "seconds": 0.0,
-                "unreadable": unreadable}
+        return None, unreadable, None
     with np.load(task["mask_path"]) as saved:
         nuclei = saved["nuclei"].astype(np.int32)
         cells = saved["cells"].astype(np.int32)
@@ -2859,6 +2857,9 @@ def _ph_measure_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         planes, offsets, _inverse = _ph_flat_planes(
             task["flat_folder"], task["channels"], stack.shape[:2])
         stack = correct_field(stack, planes, offsets, task["channels"])
+    if task.get("measure_gpu"):
+        os.environ.setdefault("CUPY_CACHE_DIR", os.path.join(
+            os.path.expanduser("~"), ".spacr", "cupy_cache"))
     table = measure_phenotype_field(
         nuclei, cells, stack, task["channels"],
         texture=bool(task["texture"]),
@@ -2866,11 +2867,82 @@ def _ph_measure_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         zernike=bool(task.get("zernike", False)),
         gpu=bool(task.get("measure_gpu", False)))
     table.insert(0, "site", int(task["site"]))
+    return table, unreadable, tuple(int(v) for v in stack.shape[:2])
+
+
+def _ph_measure_field(task: Mapping[str, Any]) -> Dict[str, Any]:
+    """Measure one segmented phenotype field; the ``ph_measure`` worker.
+
+    :param task: ``site``, ``files``, ``channels``, ``mask_path``,
+        ``cell_path`` and ``texture``; optionally ``flat_folder``, whose
+        maps correct the field before it is measured
+        (:func:`spacr.ops_flatfield.correct_field`), ``funk_features``,
+        ``zernike``, ``measure_gpu``, which measures intensity and
+        texture on the card, and ``staged``, a staged copy of the field
+        read in place of its raw files.
+    :returns: ``site``, ``cells``, ``seconds``, ``unreadable`` and
+        ``first_in_worker``, True for the first field this process measured.
+
+    Module level so a spawned process can run it. It reads its own field
+    and masks and writes its own Parquet part, so nothing large crosses the
+    process boundary. The correction is applied to the copy in memory; the
+    raw files are never changed.
+    """
+    tick = time.perf_counter()
+    _PH_WORKER_FIELDS["count"] += 1
+    first = _PH_WORKER_FIELDS["count"] == 1
+    table, unreadable, shape = _ph_measure_table(task)
+    if table is None:
+        return {"site": task["site"], "cells": None, "seconds": 0.0,
+                "unreadable": unreadable, "first_in_worker": first}
     table.to_parquet(task["cell_path"] + ".part", index=False)
     os.replace(task["cell_path"] + ".part", task["cell_path"])
     return {"site": task["site"], "cells": int(len(table)),
             "seconds": time.perf_counter() - tick, "unreadable": unreadable,
-            "shape": tuple(int(v) for v in stack.shape[:2])}
+            "shape": shape, "first_in_worker": first}
+
+
+def _ph_gpu_check(task: Mapping[str, Any], rtol: float = 1e-4
+                  ) -> Dict[str, Any]:
+    """Measure one field on the card and on the CPU and compare (item 872, B7).
+
+    :param task: a ``ph_measure`` task with ``measure_gpu`` set.
+    :param rtol: the relative tolerance a column must keep.
+    :returns: ``site`` and :func:`spacr.ops_run_infra.compare_tables` of the
+        GPU table against the CPU table; ``outside`` lists the columns
+        beyond ``rtol``. The run then goes on: the check reports, it does
+        not stop the run.
+    """
+    from .ops_run_infra import compare_tables
+
+    gpu, _unreadable, _shape = _ph_measure_table({**task, "measure_gpu": True})
+    cpu, _unreadable, _shape = _ph_measure_table({**task, "measure_gpu": False})
+    if gpu is None or cpu is None:
+        return {"site": task["site"], "skipped": "the field is unreadable"}
+    return {"site": task["site"], **compare_tables(gpu, cpu, rtol=rtol)}
+
+
+def _ph_measure_workers(settings: Mapping[str, Any], fields: int,
+                        measure_gpu: bool) -> int:
+    """How many fields are measured at once.
+
+    :param settings: read for ``ops_ph_measure_workers`` (``n_workers`` when
+        empty) and, with ``ops_gpu_admission`` and ``ops_gpu_vram_cap_gb``
+        set on a GPU measurement, the card's memory in use
+        (:meth:`spacr.gpu_admission.GpuAdmission.workers_under_cap`).
+    :param fields: how many fields there are to measure.
+    :param measure_gpu: whether the measurement runs on the card.
+    :returns: at least 1 and at most ``fields``.
+    """
+    asked = settings.get("ops_ph_measure_workers") or settings.get("n_workers")
+    workers = max(1, min(int(asked or 1), fields or 1))
+    if (measure_gpu and settings.get("ops_gpu_admission")
+            and settings.get("ops_gpu_vram_cap_gb")):
+        from .gpu_admission import admission_from_settings
+
+        workers = admission_from_settings(settings, "").workers_under_cap(
+            workers)
+    return workers
 
 
 def _ph_fields(db: str, plate: str, well: str, phenotype_files,
@@ -2882,8 +2954,8 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     :param plate: the plate name.
     :param well: the well name.
     :param phenotype_files: the phenotype index for this well.
-    :param settings: the OPS settings; ``n_workers`` sets how many fields
-        are measured at once.
+    :param settings: the OPS settings; ``ops_ph_measure_workers`` (else
+        ``n_workers``) sets how many fields are measured at once.
     :param gpu: segment on the card.
     :param destination: the run folder.
     :param segment: run ``ph_segment``.
@@ -2901,8 +2973,26 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     already uses every core (or the card), while spaCR's measurement of a
     field is one core for a few minutes on the reference plate's 2,960 px
     fields, so measuring fields side by side is what keeps the machine busy.
+
+    FIELD BY FIELD WHEN ASKED (item 872, B1 and B2). ``ops_ph_pipeline``
+    hands each field to the measurement workers as soon as its masks are
+    saved, so the card segments field n + 1 while field n is measured, in
+    place of segmenting the whole well first. ``ops_ph_stage_dir`` stages
+    each field's maximum projection on local disk with
+    ``ops_ph_stage_threads`` reader threads, at most ``ops_ph_stage_ahead``
+    fields ahead (:class:`spacr.ops_run_infra.FieldStager`): each raw file
+    is then read once, not once to segment and once to measure, and the
+    local copy is deleted when the field is done. Staging without the
+    pipeline measures each field right after segmenting it. Masks and
+    tables are the same either way.
+
+    With ``ops_ph_measure_gpu`` and ``ops_ph_measure_gpu_check`` (the
+    default), the first field to measure is measured on the card and on
+    the CPU first and the columns beyond relative 1e-4 are reported under
+    ``ph_measure_gpu_check`` (item 872, B7).
     """
     import multiprocessing
+    from concurrent.futures import ThreadPoolExecutor as _OneThread
 
     import pandas as pd
 
@@ -2937,68 +3027,10 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     report: Dict[str, Any] = {"fields": len(sites)}
     field_shape = None
     secondary = _ph_secondary_by_site(db, plate, well, settings)
-    if segment:
-        models = None
-        seconds = Counter()
-        counts = Counter()
-        missing = ({} if settings.get("ops_retry_missing")
-                   else _ph_missing_fields(destination, well))
-        todo = [s for s in sites if not os.path.isfile(mask_path(s))
-                and s not in missing]
-        found: Dict[int, str] = {
-            int(s): "no file for the site in phenotype_source"
-            for s in sorted(rows["site"])
-            if (wanted is None or int(s) in wanted) and int(s) not in files
-            and int(s) not in missing}
-        for count, site in enumerate(todo, start=1):
-            tick = time.perf_counter()
-            before = len(unreadable)
-            stack = _ph_read_field(files[site], channels, unreadable,
-                                   secondary.get(site))
-            seconds["read"] += time.perf_counter() - tick
-            if stack is None:
-                found[site] = "; ".join(str(r) for _p, r in
-                                        unreadable[before:]) or "unreadable"
-                continue
-            field_shape = field_shape or stack.shape[:2]
-            if models is None:
-                nucleus_model = _cellpose_model(settings, gpu,
-                                                "ops_ph_nucleus_model")
-                same = (str(settings.get("ops_ph_cell_model") or "cpsam")
-                        == str(settings.get("ops_ph_nucleus_model") or "cpsam"))
-                models = (nucleus_model, nucleus_model if same else
-                          _cellpose_model(settings, gpu, "ops_ph_cell_model"))
-            tick = time.perf_counter()
-            nuclei, cells, paired = _ph_segment_field(stack, channels, models,
-                                                      settings)
-            seconds["segment"] += time.perf_counter() - tick
-            counts.update(paired)
-            np.savez_compressed(mask_path(site) + ".part.npz",
-                                nuclei=nuclei.astype(np.uint32),
-                                cells=cells.astype(np.uint32))
-            os.replace(mask_path(site) + ".part.npz", mask_path(site))
-            _say(tr("{well} ph_segment: site {site}, {cells} cells, "
-                    "{count} of {total}", well=well, site=site,
-                    cells=paired["paired"], count=count, total=len(todo)))
-        fresh = sum(1 for s in todo if os.path.isfile(mask_path(s)))
-        _ph_record_missing(plate, well, destination, found)
-        report["ph_segment"] = {
-            "missing_recorded": sorted(found),
-            "missing_skipped": sorted(
-                s for s in missing if (wanted is None or s in wanted)
-                and not os.path.isfile(mask_path(s))),
-            "segmented": fresh, "resumed": len(sites) - len(todo),
-            "objects": dict(counts),
-            "seconds": {k: round(v, 1) for k, v in seconds.items()},
-            "segment_seconds_per_field": (round(seconds["segment"] / fresh, 2)
-                                          if fresh else None),
-            "read_seconds_per_field": (round(seconds["read"] / fresh, 2)
-                                       if fresh else None),
-        }
+    flat_folder = None
+    options: Dict[str, Any] = {}
     if measure:
-        tick = time.perf_counter()
-        flat_folder = None
-        options: Dict[str, Any] = {
+        options = {
             "flatfield": None,
             "funk_features": bool(settings.get("ops_ph_funk_features",
                                                False)),
@@ -3012,31 +3044,194 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
             options["flatfield"] = load_flat_maps(flat_folder,
                                                   channels)[2]["md5"]
         _ph_options_marker(cell_dir, options)
-        tasks = [{"site": s, "files": files[s], "channels": channels,
-                  "mask_path": mask_path(s), "cell_path": cell_path(s),
-                  "texture": bool(settings.get("ops_ph_texture", True)),
-                  "flat_folder": flat_folder,
-                  "funk_features": options["funk_features"],
-                  "zernike": options["zernike"],
-                  "measure_gpu": options["measure_gpu"],
-                  "secondary": secondary.get(s)}
-                 for s in sites if os.path.isfile(mask_path(s))
-                 and not os.path.isfile(cell_path(s))]
-        workers = max(1, min(int(settings.get("n_workers") or 1),
-                             len(tasks) or 1))
-        results = []
-        if workers == 1:
-            results = [_ph_measure_field(task) for task in tasks]
-        else:
-            context = multiprocessing.get_context("spawn")
-            with ProcessPoolExecutor(workers, mp_context=context) as pool:
-                for count, result in enumerate(
-                        pool.map(_ph_measure_field, tasks), start=1):
-                    results.append(result)
-                    if count % 10 == 0:
-                        _say(tr("{well} ph_measure: {count} of {total} "
-                                "fields", well=well, count=count,
-                                total=len(tasks)))
+
+    def measure_task(site: int) -> Dict[str, Any]:
+        """The ``ph_measure`` task of one field."""
+        return {"site": site, "files": files[site], "channels": channels,
+                "mask_path": mask_path(site), "cell_path": cell_path(site),
+                "texture": bool(settings.get("ops_ph_texture", True)),
+                "flat_folder": flat_folder,
+                "funk_features": options["funk_features"],
+                "zernike": options["zernike"],
+                "measure_gpu": options["measure_gpu"],
+                "secondary": secondary.get(site)}
+
+    check_gpu = bool(measure and options["measure_gpu"]
+                     and settings.get("ops_ph_measure_gpu_check", True))
+    pipelined = bool(segment and measure and settings.get("ops_ph_pipeline"))
+    stage_dir = settings.get("ops_ph_stage_dir") or None
+    streamed = pipelined or bool(stage_dir)
+    todo: List[int] = []
+    found: Dict[int, str] = {}
+    missing: Dict[int, str] = {}
+    if segment:
+        missing = ({} if settings.get("ops_retry_missing")
+                   else _ph_missing_fields(destination, well))
+        todo = [s for s in sites if not os.path.isfile(mask_path(s))
+                and s not in missing]
+        found = {
+            int(s): "no file for the site in phenotype_source"
+            for s in sorted(rows["site"])
+            if (wanted is None or int(s) in wanted) and int(s) not in files
+            and int(s) not in missing}
+    to_measure = ({s for s in sites if not os.path.isfile(cell_path(s))
+                   and (os.path.isfile(mask_path(s)) or s in todo)}
+                  if measure else set())
+    stager = None
+    if stage_dir:
+        from .ops_run_infra import FieldStager
+
+        def stage_read(site: int):
+            """One field's projected stack, for the stager."""
+            lost: list = []
+            return _ph_read_field(files[site], channels, lost,
+                                  secondary.get(site)), lost
+
+        stager = FieldStager(
+            os.path.join(str(stage_dir), str(plate), str(well)),
+            [s for s in sites if s in to_measure or s in todo], stage_read,
+            ahead=int(_setting_number(settings.get("ops_ph_stage_ahead"),
+                                      "ops_ph_stage_ahead", 48)),
+            threads=int(_setting_number(settings.get("ops_ph_stage_threads"),
+                                        "ops_ph_stage_threads", 4)))
+    pool = None
+    futures: List[Any] = []
+    results: List[Dict[str, Any]] = []
+    workers = 1
+    if streamed and measure:
+        workers = _ph_measure_workers(settings, len(to_measure),
+                                      options["measure_gpu"])
+        if pipelined:
+            pool = (_OneThread(1) if workers == 1 else ProcessPoolExecutor(
+                workers, mp_context=multiprocessing.get_context("spawn")))
+
+    def measure_now(site: int) -> None:
+        """Measure one field in the stream: in the pool, or here."""
+        task = measure_task(site)
+        if stager is not None:
+            staged, lost = stager.path(site)
+            if staged is None:
+                unreadable.extend(lost)
+                return
+            task["staged"] = staged
+        if check_gpu and "ph_measure_gpu_check" not in report:
+            report["ph_measure_gpu_check"] = _ph_gpu_check(task)
+        if pool is None:
+            results.append(_ph_measure_field(task))
+            if stager is not None:
+                stager.release(site)
+            return
+        future = pool.submit(_ph_measure_field, task)
+        if stager is not None:
+            future.add_done_callback(lambda _done, s=site: stager.release(s))
+        futures.append(future)
+
+    stream_tick = time.perf_counter()
+    try:
+        if segment:
+            models = None
+            seconds = Counter()
+            counts = Counter()
+            order = ([s for s in sites if s in todo or s in to_measure]
+                     if streamed else todo)
+            for count, site in enumerate(order, start=1):
+                if site not in todo:
+                    measure_now(site)
+                    continue
+                tick = time.perf_counter()
+                before = len(unreadable)
+                if stager is not None:
+                    stack, lost = stager.load(site)
+                    unreadable.extend(lost)
+                else:
+                    stack = _ph_read_field(files[site], channels, unreadable,
+                                           secondary.get(site))
+                seconds["read"] += time.perf_counter() - tick
+                if stack is None:
+                    found[site] = "; ".join(str(r) for _p, r in
+                                            unreadable[before:]) or "unreadable"
+                    continue
+                field_shape = field_shape or stack.shape[:2]
+                if models is None:
+                    nucleus_model = _cellpose_model(settings, gpu,
+                                                    "ops_ph_nucleus_model")
+                    same = (str(settings.get("ops_ph_cell_model") or "cpsam")
+                            == str(settings.get("ops_ph_nucleus_model")
+                                   or "cpsam"))
+                    models = (nucleus_model, nucleus_model if same else
+                              _cellpose_model(settings, gpu,
+                                              "ops_ph_cell_model"))
+                tick = time.perf_counter()
+                nuclei, cells, paired = _ph_segment_field(stack, channels,
+                                                          models, settings)
+                seconds["segment"] += time.perf_counter() - tick
+                counts.update(paired)
+                np.savez_compressed(mask_path(site) + ".part.npz",
+                                    nuclei=nuclei.astype(np.uint32),
+                                    cells=cells.astype(np.uint32))
+                os.replace(mask_path(site) + ".part.npz", mask_path(site))
+                _say(tr("{well} ph_segment: site {site}, {cells} cells, "
+                        "{count} of {total}", well=well, site=site,
+                        cells=paired["paired"], count=count,
+                        total=len(order)))
+                if streamed and site in to_measure:
+                    measure_now(site)
+                elif stager is not None:
+                    stager.release(site)
+            fresh = sum(1 for s in todo if os.path.isfile(mask_path(s)))
+            _ph_record_missing(plate, well, destination, found)
+            report["ph_segment"] = {
+                "missing_recorded": sorted(found),
+                "missing_skipped": sorted(
+                    s for s in missing if (wanted is None or s in wanted)
+                    and not os.path.isfile(mask_path(s))),
+                "segmented": fresh, "resumed": len(sites) - len(todo),
+                "objects": dict(counts),
+                "seconds": {k: round(v, 1) for k, v in seconds.items()},
+                "segment_seconds_per_field": (
+                    round(seconds["segment"] / fresh, 2) if fresh else None),
+                "read_seconds_per_field": (round(seconds["read"] / fresh, 2)
+                                           if fresh else None),
+            }
+        elif streamed and measure:
+            for site in [s for s in sites if s in to_measure]:
+                measure_now(site)
+        for future in futures:
+            results.append(future.result())
+    finally:
+        if pool is not None:
+            pool.shutdown(wait=True)
+        if stager is not None:
+            stager.close()
+    if streamed:
+        report["ph_stream"] = {
+            "pipelined": pipelined, "staged": stager is not None,
+            "workers": workers,
+            "wall_seconds": round(time.perf_counter() - stream_tick, 1),
+            "stage_peak_files": stager.peak_files if stager else None,
+            "stage_peak_bytes": stager.peak_bytes if stager else None}
+    if measure:
+        tick = time.perf_counter()
+        if not streamed:
+            tasks = [measure_task(s) for s in sites
+                     if os.path.isfile(mask_path(s))
+                     and not os.path.isfile(cell_path(s))]
+            if check_gpu and tasks:
+                report["ph_measure_gpu_check"] = _ph_gpu_check(tasks[0])
+            workers = _ph_measure_workers(settings, len(tasks),
+                                          options["measure_gpu"])
+            if workers == 1:
+                results = [_ph_measure_field(task) for task in tasks]
+            else:
+                context = multiprocessing.get_context("spawn")
+                with ProcessPoolExecutor(workers, mp_context=context) as pool:
+                    for count, result in enumerate(
+                            pool.map(_ph_measure_field, tasks), start=1):
+                        results.append(result)
+                        if count % 10 == 0:
+                            _say(tr("{well} ph_measure: {count} of {total} "
+                                    "fields", well=well, count=count,
+                                    total=len(tasks)))
         for result in results:
             unreadable.extend(result["unreadable"])
             field_shape = field_shape or result.get("shape")
@@ -3051,6 +3246,8 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
         write_table(cells_table, _ph_cells_path(destination, well),
                     canonicalise=False)
         measured = [r for r in results if r["cells"] is not None]
+        first = [r["seconds"] for r in measured if r.get("first_in_worker")]
+        rest = [r["seconds"] for r in measured if not r.get("first_in_worker")]
         report["ph_measure"] = {
             "measured": len(measured), "resumed": len(parts) - len(measured),
             "workers": workers, "cells": int(len(cells_table)),
@@ -3058,6 +3255,9 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
             "measure_seconds_per_field": (
                 round(float(np.mean([r["seconds"] for r in measured])), 2)
                 if measured else None),
+            "first_field_seconds_per_worker": [round(v, 2) for v in first],
+            "later_field_seconds_median": (round(float(np.median(rest)), 2)
+                                           if rest else None),
             "wall_seconds": round(time.perf_counter() - tick, 1),
             "table": _ph_cells_path(destination, well),
             "flatfield": ({"mode": "exact", "folder": flat_folder,
