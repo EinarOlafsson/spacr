@@ -95,6 +95,7 @@ GROUPS = (
         (561, "Self-supervised DINO pretraining"),
         (772, "Fixed crop scaling and a shuffled-label control"),
         (899, "Classifier scores held out by well, with controls"),
+        (897, "Channel-adaptive CNN, ViT and well transformer"),
         (470, "Judge every label from cross-channel ground truth"),
     )),
     ("Screens and statistics", (
@@ -126,6 +127,9 @@ GROUPS = (
         (884, "Gene graph: gene links and categories from screen profiles"),
         (885, "Protein-knowledge blocks: ESM-2, domains, text, 3Di"),
         (886, "Screen x knowledge fusion with explained hypotheses"),
+        (888, "OPS module atlas: anchored consensus modules"),
+        (908, "OPS MitoCarta and external-module benchmark"),
+        (889, "Gene-class training: grouped folds, decoy heads"),
         (584, "Chemistry-aware hits: SMILES, clusters, SAR"),
         (585, "Sample-size planner for arrayed assays"),
         (534, "Spatial transcriptomics: Visium, Xenium; spatial masks, barcodes"),

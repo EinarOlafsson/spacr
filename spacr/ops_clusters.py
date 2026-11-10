@@ -40,6 +40,7 @@ tables in Brieflow's format) are the user's own: spaCR does not ship them.
 """
 from __future__ import annotations
 
+import os
 from functools import lru_cache, partial
 from importlib import import_module
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Set, Tuple
@@ -764,3 +765,466 @@ def _aggregate_benchmark(guides: pd.DataFrame, genes: pd.DataFrame, columns: Seq
               encoding="utf-8") as handle:
         json.dump(summary, handle, indent=1, default=str)
     return summary
+
+
+#: The MitoCarta sub-compartments the retrieval benchmark scores: each label
+#: and the ``MitoCarta3.0_MitoPathways`` text that puts a gene in it.
+MITOCARTA_SUBCOMPARTMENTS: Dict[str, Tuple[str, ...]] = {
+    "OXPHOS": ("OXPHOS",),
+    "mitoribosome": ("Mitochondrial ribosome",),
+    "ATP synthase (complex V)": ("Complex V",),
+    "membrane organisation (dynamics, cristae, phospholipid)":
+        ("Mitochondrial dynamics", "Cristae", "Phospholipid"),
+}
+
+#: The MitoCarta 3.0 sheet that lists the human genes.
+MITOCARTA_SHEET = "A Human MitoCarta3.0"
+
+
+def _read_any(path: str, sheet: Optional[str] = None) -> pd.DataFrame:
+    """Read a table exactly as written; ``sheet`` picks an Excel sheet."""
+    from .tabular import read_table
+
+    options = {"sheet_name": sheet} if sheet else {}
+    if str(path).lower().endswith((".csv", ".csv.gz")):
+        options["low_memory"] = False
+    return read_table(str(path), canonicalise=False, report=None, **options)
+
+
+def read_mitocarta(path: str, sheet: str = MITOCARTA_SHEET,
+                   subcompartments: Mapping[str, Sequence[str]] = MITOCARTA_SUBCOMPARTMENTS
+                   ) -> Tuple[Set[str], Dict[str, Set[str]]]:
+    """The MitoCarta genes and the genes of each sub-compartment.
+
+    :param path: MitoCarta 3.0 (``Human.MitoCarta3.0.xls``), or any table with
+        ``Symbol`` and ``MitoCarta3.0_MitoPathways`` columns.
+    :param sheet: the Excel sheet; ignored for other formats.
+    :param subcompartments: ``{label: pathway texts}``; a gene whose pathway
+        field contains any of the texts is in that sub-compartment.
+    :returns: ``(genes, {label: genes})``.
+    """
+    excel = str(path).lower().endswith((".xls", ".xlsx"))
+    table = _read_any(path, sheet if excel else None)
+    table = table[["Symbol", "MitoCarta3.0_MitoPathways"]].fillna("").astype(str)
+    out = {}
+    for label, texts in subcompartments.items():
+        hit = table["MitoCarta3.0_MitoPathways"].map(lambda s, t=tuple(texts): any(x in s for x in t))
+        out[label] = set(table.Symbol[hit])
+    return set(table.Symbol), out
+
+
+def mitocarta_enrichment(assignments: Mapping[str, Any], mitocarta: Set[str]) -> Dict[str, Any]:
+    """MitoCarta recovery of one clustering.
+
+    :param assignments: ``{gene: cluster}`` of the targeting genes; they are
+        the background.
+    :param mitocarta: the MitoCarta genes.
+    :returns: the gene and MitoCarta counts, the cluster count, the clusters
+        enriched for MitoCarta genes (one-sided Fisher, BH q < 0.05), the
+        MitoCarta genes in them, their purity and the share of MitoCarta
+        recovered.
+    """
+    from scipy.stats import fisher_exact
+    from statsmodels.stats.multitest import multipletests
+
+    g = pd.Series(assignments)
+    background = set(g.index)
+    mito = background & mitocarta
+    rows = []
+    for cluster, members in g.groupby(g):
+        genes = set(members.index)
+        a = len(genes & mito)
+        p = fisher_exact([[a, len(genes) - a], [len(mito) - a, len(background) - len(genes) - len(mito) + a]],
+                         alternative="greater")[1]
+        rows.append((cluster, len(genes), a, p))
+    table = pd.DataFrame(rows, columns=["cluster", "size", "mito", "p"])
+    table["q"] = multipletests(table.p, method="fdr_bh")[1]
+    enriched = table[table.q < 0.05]
+    return {"genes": len(background), "mitocarta_genes": len(mito), "clusters": int(len(table)),
+            "mito_enriched_clusters": int(len(enriched)),
+            "mito_genes_in_enriched": int(enriched.mito.sum()),
+            "purity_in_enriched": float(enriched.mito.sum() / max(enriched["size"].sum(), 1)),
+            "share_of_mitocarta_recovered": float(enriched.mito.sum() / max(len(mito), 1))}
+
+
+def _profile_cosines(path: str) -> Tuple[np.ndarray, np.ndarray]:
+    """The row names and float32 cosine matrix of a profile file (``names`` with ``pcs`` or ``S``)."""
+    with np.load(path, allow_pickle=True) as stored:
+        names = stored["names"]
+        if "pcs" in stored:
+            x = np.asarray(stored["pcs"], float)
+            x = x / np.clip(np.linalg.norm(x, axis=1, keepdims=True), 1e-12, None)
+            return names, (x @ x.T).astype(np.float32)
+        return names, stored["S"].astype(np.float32)
+
+
+def _symbols(names: Sequence[Any]) -> np.ndarray:
+    """Gene symbols of profile rows; ``"A&B"`` gives ``"A"``."""
+    from .ops_reference import gene_symbol
+
+    return np.array([gene_symbol(x) for x in names])
+
+
+def _controls(names: Sequence[Any]) -> np.ndarray:
+    """True for control guides and pseudo-genes."""
+    from .ops_reference import is_control
+
+    return is_control(names)
+
+
+def subcompartment_retrieval(label: str, names: np.ndarray, sims: np.ndarray, mitocarta: Set[str],
+                             subcompartments: Mapping[str, Set[str]]) -> List[Dict[str, Any]]:
+    """Retrieval mAP within MitoCarta, one row per sub-compartment.
+
+    :param label: the arm label of the rows.
+    :param names: the profile row names.
+    :param sims: their similarity matrix; its diagonal is set to ``-inf``.
+    :param mitocarta: the MitoCarta genes.
+    :param subcompartments: ``{label: genes}`` of :func:`read_mitocarta`.
+    :returns: per sub-compartment with a query: queries, mAP and its
+        bootstrap interval (500 resamples, seed 0), the random expectation
+        and the candidate count. The queries are the sub-compartment's
+        genes, the candidates every MitoCarta gene of the arm, the positives
+        the other genes of the same sub-compartment.
+    """
+    from .sp_stats import _expected_ap, _pair_average_precision, bootstrap_ci
+
+    np.fill_diagonal(sims, -np.inf)
+    sym = _symbols(names)
+    univ = np.isin(sym, list(mitocarta)) & ~_controls(names)
+    rows = []
+    for name, genes in subcompartments.items():
+        inc = np.isin(sym, list(genes))
+        positives = inc[:, None] & inc[None, :]
+        np.fill_diagonal(positives, False)
+        ap, npos, ntot = _pair_average_precision(sims, positives & univ[None, :] & univ[:, None], univ)
+        q = univ & inc & np.isfinite(ap)
+        frame = pd.DataFrame({"ap": ap[q], "expected_ap": [_expected_ap(a, b - a)
+                                                           for a, b in zip(npos[q], ntot[q])]})
+        if len(frame):
+            lo, hi = bootstrap_ci(frame.ap, 500)
+            rows.append({"arm": label, "sub_compartment": name, "queries": int(len(frame)),
+                         "mAP": float(frame.ap.mean()), "mAP_lo": lo, "mAP_hi": hi,
+                         "expected_random": float(frame.expected_ap.mean()),
+                         "candidates (MitoCarta genes)": int(univ.sum())})
+    return rows
+
+
+def _pair_comembership(labels: np.ndarray, rows: np.ndarray) -> float:
+    """The share of runs in which two of ``rows`` share a cluster, over every pair clustered together."""
+    sub = labels[:, rows]
+    total = count = 0.0
+    for a in range(len(rows)):
+        for b in range(a + 1, len(rows)):
+            ok = (sub[:, a] >= 0) & (sub[:, b] >= 0)
+            total += ok.sum()
+            count += (sub[ok, a] == sub[ok, b]).sum()
+    return count / max(total, 1)
+
+
+def module_coherence(consensus_dir: str, genes: Iterable[str], rng: np.random.Generator,
+                     n_null: int = 200) -> Optional[Dict[str, Any]]:
+    """How tightly an external module holds together in a consensus atlas.
+
+    :param consensus_dir: a consensus folder of the modules phase
+        (``rows_reference.parquet``, ``consensus_partitions.npz``,
+        ``reference.npz``).
+    :param genes: the module's genes; taken in sorted order.
+    :param rng: the generator of the null draws (advanced).
+    :param n_null: fitness-matched random gene sets of the same size.
+    :returns: None without partitions; ``{"present"}`` alone for fewer than
+        three genes; else the mean pairwise co-membership over the runs,
+        the null mean, 99th percentile and percentile, whether it is above
+        that 99th percentile, and the largest share of the module in one
+        ~250-cluster of the reference clustering.
+    """
+    from .ops_modules import MODULE_RESOLUTIONS
+    from .tabular import read_table
+
+    partitions = os.path.join(consensus_dir, "consensus_partitions.npz")
+    if not os.path.isfile(partitions):
+        return None
+    rows = read_table(os.path.join(consensus_dir, "rows_reference.parquet"), canonicalise=False, report=None)
+    with np.load(partitions, allow_pickle=True) as stored:
+        labels = stored["labels"]
+    key = f"r{MODULE_RESOLUTIONS['~250']}"
+    with np.load(os.path.join(consensus_dir, "reference.npz")) as stored:
+        r250 = stored[key] if key in stored else None
+    ix = {g: i for i, g in enumerate(rows.gene)}
+    idx = np.array([ix[g] for g in sorted(genes) if g in ix])
+    if len(idx) < 3:
+        return {"present": int(len(idx))}
+    targeting = ~rows.gene.str.startswith("NTpseudo").to_numpy()
+    dec = np.full(len(rows), -1)
+    dec[targeting] = pd.qcut(rows.n_cells[targeting].rank(method="first"), 10, labels=False).to_numpy()
+    observed = _pair_comembership(labels, idx)
+    null = np.array([_pair_comembership(labels, np.array(
+        [rng.choice(np.flatnonzero((dec == dec[i]) & targeting)) for i in idx])) for _ in range(int(n_null))])
+    out = {"present": int(len(idx)), "comembership": float(observed), "null_mean": float(null.mean()),
+           "null_p99": float(np.quantile(null, 0.99)), "percentile": float((null < observed).mean()),
+           "recovered (above null p99)": bool(observed > np.quantile(null, 0.99))}
+    if r250 is not None:
+        out["largest_fraction_in_one_~250_cluster"] = float(
+            pd.Series(r250[idx]).value_counts().iloc[0] / len(idx))
+    return out
+
+
+def _external_clusters(spec: Mapping[str, Any]) -> pd.DataFrame:
+    """One external cluster table: ``table`` (and ``sheet``), its ``gene`` and ``cluster`` columns."""
+    table = _read_any(spec["table"], spec.get("sheet"))
+    gene, cluster = spec.get("gene", "gene_symbol"), spec.get("cluster", "cluster_id")
+    for column in (gene, cluster):
+        if column not in table:
+            raise ValueError(f"{spec['table']} has no column {column!r}")
+    return table.dropna(subset=[cluster])
+
+
+def _arm_assignments(path: str, target: int) -> Tuple[Dict[str, Any], int]:
+    """``{symbol: cluster}`` of an arm's targeting genes at the resolution nearest ``target`` clusters."""
+    from .tabular import read_table
+
+    table = read_table(str(path), canonicalise=False, report=None)
+    counts = {c[len("leiden_r"):]: int(table[c].nunique()) for c in table.columns
+              if str(c).startswith("leiden_r")}
+    if not counts:
+        raise ValueError(f"{path} has no leiden_r<resolution> column")
+    r = min(counts, key=lambda k: abs(counts[k] - target))
+    table = table[~_controls(table.gene)]
+    return dict(zip(_symbols(table.gene), table[f"leiden_r{r}"])), int(float(r))
+
+
+def mitocarta_benchmark(arms: Sequence[Mapping[str, Any]], mitocarta: Set[str],
+                        subcompartments: Mapping[str, Set[str]], external: Mapping[str, Any], *,
+                        seed: int = 0) -> Dict[str, pd.DataFrame]:
+    """MitoCarta and external-module benchmark of several clusterings.
+
+    :param arms: one mapping per arm, in report order: ``label``, and any of
+        ``assignments`` (a cluster table with ``gene`` and
+        ``leiden_r<resolution>`` columns, :func:`benchmark_clusters`),
+        ``profiles`` (an ``.npz`` with ``names`` and ``pcs`` or a similarity
+        ``S``), ``atlas`` (a consensus folder of the modules phase) and
+        ``own_genes_only`` (score this arm on its own genes only, as for an
+        arm restricted to active genes).
+    :param mitocarta: the MitoCarta genes.
+    :param subcompartments: ``{label: genes}`` of :func:`read_mitocarta`.
+    :param external: the external modules, as read from
+        ``ops_eval_external_modules``: ``modules`` (``name``, ``table``,
+        ``sheet``, ``gene``, ``cluster``, ``clusters``: the external
+        sub-modules), ``published`` (a list of published clusterings, each
+        ``label``, ``table``, ``sheet``, ``gene``, ``cluster`` and
+        ``score_modules``), ``named_clusters`` (a list, each ``key``,
+        ``title``, ``short``, ``table``, ``sheet``, ``gene``, ``cluster``,
+        ``id``, ``members_flag``, ``members_name``, ``partners``,
+        ``partners_name``, ``probe``) and ``target_clusters`` (250).
+    :param seed: the seed of every null draw, shared in order.
+    :returns: ``{"A", "B", "C", "D_<key>", "comparison"}``: MitoCarta
+        recovery, sub-compartment retrieval, the external sub-modules and
+        each named cluster, then one headline row per clustering.
+    """
+    rng = np.random.default_rng(seed)
+    target = int(external.get("target_clusters", 250))
+    tag = f"~{target}"
+    modules = external["modules"]
+    module_table = _external_clusters(modules)
+    module_genes = {int(c): set(g[modules.get("gene", "gene_symbol")])
+                    for c, g in module_table.groupby(modules.get("cluster", "cluster_id"))}
+    module_ids = [int(c) for c in modules.get("clusters", sorted(module_genes))]
+    module_name = str(modules.get("name", "external"))
+    sets: Dict[str, Dict[str, Any]] = {}
+    scored_modules = []
+    for published in external.get("published", []):
+        table = _external_clusters(published)
+        g, c = published.get("gene", "gene_symbol"), published.get("cluster", "cluster_id")
+        sets[published["label"]] = dict(zip(table[g], table[c].astype(int)))
+        if published.get("score_modules", True):
+            scored_modules.append(published["label"])
+    resolution: Dict[str, int] = {}
+    own_only = set()
+    for arm in arms:
+        if arm.get("assignments"):
+            sets[arm["label"]], resolution[arm["label"]] = _arm_assignments(arm["assignments"], target)
+        if arm.get("own_genes_only"):
+            own_only.add(arm["label"])
+    shared = [k for k in sets if k not in own_only]
+    common = set.intersection(*[set(sets[k]) for k in shared]) if shared else set()
+    rows_a = []
+    for label, assignments in sets.items():
+        rows_a.append({"set": label, "scope": "own genes", "leiden_resolution": resolution.get(label),
+                       **mitocarta_enrichment(assignments, mitocarta)})
+        if label in shared:
+            rows_a.append({"set": label, "scope": f"common genes ({len(common)})",
+                           "leiden_resolution": resolution.get(label),
+                           **mitocarta_enrichment({g: c for g, c in assignments.items() if g in common},
+                                                  mitocarta)})
+    rows_b = []
+    for arm in arms:
+        if arm.get("profiles"):
+            names, sims = _profile_cosines(arm["profiles"])
+            rows_b += subcompartment_retrieval(arm["label"], names, sims, mitocarta, subcompartments)
+    column = f"{module_name.lower()}_cluster"
+    largest = f"largest_fraction_in_one_arm_cluster_{tag}"
+    rows_c = []
+    for arm in arms:
+        assignments = sets.get(arm["label"])
+        for c in module_ids:
+            genes = module_genes[c]
+            row = {"arm": arm["label"], column: c, "module_genes": len(genes)}
+            if assignments:
+                present = [x for x in sorted(genes) if x in assignments]
+                row["present_in_arm"] = len(present)
+                row[largest] = float(pd.Series([assignments[x] for x in present]).value_counts().iloc[0]
+                                     / len(present)) if present else np.nan
+            if arm.get("atlas"):
+                coherence = module_coherence(str(arm["atlas"]), genes, rng)
+                if coherence:
+                    row.update({f"atlas {k}": v for k, v in coherence.items()})
+            rows_c.append(row)
+    for label in scored_modules:
+        assignments = sets[label]
+        for c in module_ids:
+            present = [x for x in sorted(module_genes[c]) if x in assignments]
+            rows_c.append({"arm": label, column: c, "module_genes": len(module_genes[c]),
+                           "present_in_arm": len(present),
+                           largest: float(pd.Series([assignments[x] for x in present]).value_counts().iloc[0]
+                                          / len(present)) if present else np.nan})
+    out = {"A": pd.DataFrame(rows_a), "B": pd.DataFrame(rows_b), "C": pd.DataFrame(rows_c)}
+    for named in external.get("named_clusters", []):
+        out[f"D_{named['key']}"] = _named_cluster_rows(named, arms, sets, rng, tag)
+    out["comparison"] = _mito_comparison(sets, out["A"], out["B"], out["C"], module_name,
+                                         len(module_ids), largest)
+    return out
+
+
+def _named_cluster_rows(named: Mapping[str, Any], arms: Sequence[Mapping[str, Any]],
+                        sets: Mapping[str, Mapping[str, Any]], rng: np.random.Generator,
+                        tag: str) -> pd.DataFrame:
+    """One row per arm: where a named external cluster's members and its partner genes land.
+
+    :param named: the named cluster (see :func:`mitocarta_benchmark`).
+    :param arms: the arms.
+    :param sets: ``{label: {gene: cluster}}`` of every clustering.
+    :param rng: the generator of the random-gene null (advanced).
+    :param tag: the cluster-count tag of the column names, ``~250``.
+    :returns: the table.
+    """
+    table = _external_clusters(named)
+    gene = named.get("gene", "gene_symbol")
+    cluster = table[table[named.get("cluster", "cluster_id")] == named["id"]]
+    flag = named.get("members_flag")
+    members = set(cluster[gene][cluster[flag].astype(bool)]) if flag else set(cluster[gene])
+    every = set(cluster[gene])
+    partners = set(named["partners"])
+    probe = named.get("probe")
+    key, short, title = named["key"], str(named.get("short", named["id"])), named.get("title", named["key"])
+    m_name, p_name = named.get("members_name", "members"), named.get("partners_name", "partners")
+    rows = []
+    for arm in arms:
+        assignments = sets.get(arm["label"])
+        row = {"arm": arm["label"], f"{key}_{m_name.lower()}_members": len(members)}
+        if assignments:
+            clusters = {assignments[g] for g in partners if g in assignments}
+            row[f"{p_name} clusters ({tag})"] = len(clusters)
+            row[f"{short} {m_name} members sharing a cluster with the {p_name}"] = int(
+                sum(assignments.get(g) in clusters for g in members if g in assignments))
+            if probe and probe in assignments:
+                same = {g for g, c in assignments.items() if c == assignments[probe]}
+                row[f"{probe} cluster size"] = len(same)
+                row[f"{probe} cluster members from {title}"] = ", ".join(sorted(same & every))
+                row[f"{probe} cluster contains {p_name}"] = ", ".join(sorted(same & partners))
+        if arm.get("profiles"):
+            names, sims = _profile_cosines(arm["profiles"])
+            sym = _symbols(names)
+            ia = np.flatnonzero(np.isin(sym, list(partners)))
+            io = np.flatnonzero(np.isin(sym, list(members)))
+            if len(ia) and len(io):
+                observed = float(sims[np.ix_(ia, io)].mean())
+                targeting = np.flatnonzero(~_controls(names))
+                null = [float(sims[np.ix_(rng.choice(targeting, len(ia), replace=False), io)].mean())
+                        for _ in range(500)]
+                row.update({f"cosine {p_name} vs {short} {m_name}": observed,
+                            f"random genes vs {short} {m_name} (mean)": float(np.mean(null)),
+                            "random p99": float(np.quantile(null, 0.99))})
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def _mito_comparison(sets, table_a, table_b, table_c, module_name, n_modules, largest) -> pd.DataFrame:
+    """The headline row of every clustering: recovery, sub-compartment mAP and sub-module coherence.
+
+    :param sets: ``{label: {gene: cluster}}``, in report order.
+    :param table_a: the MitoCarta recovery table.
+    :param table_b: the sub-compartment retrieval table.
+    :param table_c: the sub-module table.
+    :param module_name: the external modules' name.
+    :param n_modules: how many sub-modules were scored.
+    :param largest: the largest-fraction column of ``table_c``.
+    :returns: one row per clustering.
+    """
+    common = table_a[table_a.scope.str.startswith("common")].set_index("set") if len(table_a) else pd.DataFrame()
+    pivot = (table_b.pivot_table(index="arm", columns="sub_compartment", values="mAP")
+             if len(table_b) else pd.DataFrame())
+    coherent = "atlas recovered (above null p99)"
+    rows = []
+    for label in sets:
+        row: Dict[str, Any] = {"set": label}
+        if label in common.index:
+            row.update({"MitoCarta genes in mito-enriched clusters (common genes)":
+                        common.loc[label, "mito_genes_in_enriched"],
+                        "purity": common.loc[label, "purity_in_enriched"],
+                        "mito-enriched clusters": common.loc[label, "mito_enriched_clusters"]})
+        if label in pivot.index:
+            row.update({f"sub-compartment mAP: {k}": v for k, v in pivot.loc[label].items()})
+        c = table_c[table_c.arm == label] if len(table_c) else table_c
+        if coherent in c:
+            row[f"{module_name} sub-modules coherent in atlas (of {n_modules})"] = int(
+                c[coherent].eq(True).sum())
+        if largest in c:
+            row["sub-modules: mean largest fraction in one cluster"] = float(c[largest].mean())
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def run_mitocarta_benchmark(settings: Mapping[str, Any],
+                            report: Optional[Any] = None) -> Dict[str, Any]:
+    """The OPS ``mitocarta`` phase: :func:`mitocarta_benchmark` from settings.
+
+    Writes ``mito_A_mitocarta_recovery.csv``,
+    ``mito_B_subcompartment_retrieval.csv``, ``mito_C_submodules.csv``, one
+    ``mito_D_<key>.csv`` per named cluster and ``mito_comparison.csv`` to
+    ``<dst_root>/ops_eval/mitocarta``.
+
+    :param settings: read here: ``ops_eval_mitocarta`` (the MitoCarta 3.0
+        table), ``ops_eval_external_modules`` (a JSON file with the external
+        modules, published clusterings and named clusters, see
+        :func:`mitocarta_benchmark`), ``ops_eval_arms`` (the arms, a list of
+        mappings or a JSON file holding one) and ``dst_root``.
+    :param report: called with one line when done.
+    :returns: ``{"folder", "outputs", "tables"}``.
+    :raises ValueError: when a setting is missing.
+    """
+    import json
+
+    from .tabular import write_table
+
+    for key in ("ops_eval_mitocarta", "ops_eval_external_modules", "ops_eval_arms", "dst_root"):
+        if not settings.get(key):
+            raise ValueError(f"the mitocarta phase needs {key}")
+    with open(str(settings["ops_eval_external_modules"]), encoding="utf-8") as handle:
+        external = json.load(handle)
+    arms = settings["ops_eval_arms"]
+    if isinstance(arms, str):
+        with open(arms, encoding="utf-8") as handle:
+            arms = json.load(handle)
+    mitocarta, subcompartments = read_mitocarta(str(settings["ops_eval_mitocarta"]))
+    tables = mitocarta_benchmark(arms, mitocarta, subcompartments, external)
+    folder = os.path.join(str(settings["dst_root"]), "ops_eval", "mitocarta")
+    os.makedirs(folder, exist_ok=True)
+    names = {"A": "mito_A_mitocarta_recovery.csv", "B": "mito_B_subcompartment_retrieval.csv",
+             "C": "mito_C_submodules.csv", "comparison": "mito_comparison.csv"}
+    outputs = {}
+    for key, table in tables.items():
+        name = names.get(key, f"mito_{key}.csv")
+        outputs[key] = write_table(table, os.path.join(folder, name), canonicalise=False)
+    if report:
+        report(f"mitocarta: {len(tables['comparison'])} clusterings scored")
+    return {"folder": folder, "outputs": outputs, "tables": tables}

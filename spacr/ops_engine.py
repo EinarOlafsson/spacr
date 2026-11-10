@@ -293,8 +293,9 @@ _PH_PLATE_PHASES = ("ph_flatfield", "aggregate", "ph_tables", "ph_crops",
                     "report", "stress")
 
 #: The profile path (alpha): stored per-well cell tables to gene profiles,
-#: then their retrieval metrics. Needs no image step and no database.
-_PROFILE_PHASES = ("profile", "evaluate")
+#: then their retrieval metrics and their module atlas. Needs no image step
+#: and no database.
+_PROFILE_PHASES = ("profile", "evaluate", "modules", "mitocarta")
 
 #: Every phase :func:`run_ops` accepts, in the order they run.
 _ALL_PHASES = (_PHASES + _PH_PHASES + ("decode_qc", "compare_calls")
@@ -7107,7 +7108,11 @@ def run_ops(settings: Mapping[str, Any], *,
         profile path, ``"profile"`` and ``"evaluate"``, runs alone: it turns
         the stored cell tables of ``ops_profile_cells`` into gene profiles
         and scores them against reference gene pairs
-        (:func:`spacr.ops_tvn.run_profile_phases`).
+        (:func:`spacr.ops_tvn.run_profile_phases`); ``"modules"`` builds
+        the module atlas of those profiles
+        (:func:`spacr.ops_modules.run_module_phase`) and ``"mitocarta"``
+        scores clusterings against MitoCarta and an external module table
+        (:func:`spacr.ops_clusters.run_mitocarta_benchmark`).
         ``"stress"``, after ``report``,
         times the finished store and writes
         ``results/ops_stress/stress_test.csv``
@@ -7144,7 +7149,17 @@ def run_ops(settings: Mapping[str, Any], *,
                              f"{list(_PROFILE_PHASES)} without the image phases")
         from .ops_tvn import run_profile_phases
 
-        return run_profile_phases(settings, phases, report=_say)
+        profile = [phase for phase in phases if phase in ("profile", "evaluate")]
+        result = run_profile_phases(settings, profile, report=_say) if profile else {}
+        if "modules" in phases:
+            from .ops_modules import run_module_phase
+
+            result = {**result, "modules": run_module_phase(settings, report=_say)}
+        if "mitocarta" in phases:
+            from .ops_clusters import run_mitocarta_benchmark
+
+            result = {**result, "mitocarta": run_mitocarta_benchmark(settings, report=_say)}
+        return result
     sequencing = any(phase in _PHASES for phase in phases)
     root = settings.get("genotype_source")
     if sequencing and (not isinstance(root, (str, os.PathLike))

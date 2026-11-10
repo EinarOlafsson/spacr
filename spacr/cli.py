@@ -607,6 +607,25 @@ _MODULE_LIST: Tuple[Module, ...] = (
               "onto their parent cell, and no downstream analysis can undo "
               "that."),
     ),
+    Module(
+        key="spacr_architectures",
+        summary="Train the channel-adaptive models: the well transformer on "
+                "cell embeddings, or the channel CNN and ViT on crops with "
+                "pre-training and the missing-stain evaluation.",
+        entry="spacr.architecture_training:run_spacr_architectures",
+        defaults=None,
+        defaults_entry="spacr.architecture_training:architecture_defaults",
+        validate_key="",
+        requires=("train_set_input \u2014 per-plate cell embeddings "
+                  "(<plate>.npy) for train_level well_set",
+                  "train_cell_crops and train_cell_table \u2014 crops and "
+                  "their labels for train_level cell"),
+        writes=("<dst>/summary.csv \u2014 one row per arm and control",
+                "<dst>/<run>/ \u2014 config, summary and per-treatment "
+                "probabilities of each well-set arm",
+                "<dst>/model.pt for train_level cell"),
+        note="ALPHA (897). Runs on the CPU; the full-size runs want a GPU.",
+    ),
 )
 
 MODULES: Dict[str, Module] = {m.key: m for m in _MODULE_LIST}

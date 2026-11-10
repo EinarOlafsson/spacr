@@ -221,6 +221,13 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_tables_integer_keys": False,
     "ops_tables_layout": 'compartments',
     "ops_stress_report": False,
+    "ops_modules_runs": 100,
+    "ops_modules_precomputed_embedding": False,
+    "ops_modules_profiles": None,
+    "ops_modules_driver_profiles": None,
+    "ops_eval_mitocarta": None,
+    "ops_eval_external_modules": None,
+    "ops_eval_arms": None,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -425,6 +432,13 @@ OPS_TYPES: Dict[str, object] = {
     "ops_tables_integer_keys": bool,
     "ops_tables_layout": str,
     "ops_stress_report": bool,
+    "ops_modules_runs": int,
+    "ops_modules_precomputed_embedding": bool,
+    "ops_modules_profiles": (str, type(None)),
+    "ops_modules_driver_profiles": (str, list, type(None)),
+    "ops_eval_mitocarta": (str, type(None)),
+    "ops_eval_external_modules": (str, type(None)),
+    "ops_eval_arms": (str, list, type(None)),
 }
 
 #: Which panel section each setting appears under.
@@ -566,6 +580,9 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_gpu_min_process_mib", "ops_gpu_vram_cap_gb",
         "ops_gpu_ignore_process_patterns", "ops_tables_integer_keys",
         "ops_tables_layout", "ops_stress_report",
+        "ops_modules_runs", "ops_modules_precomputed_embedding",
+        "ops_modules_profiles", "ops_modules_driver_profiles",
+        "ops_eval_mitocarta", "ops_eval_external_modules", "ops_eval_arms",
     ],
 }
 
@@ -1068,6 +1085,46 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "bit-identical profiles and metrics. Off is faster on many cores, "
         "and the last digits of the PCA and TVN can then change from run to "
         "run. Default True. Alpha.",
+    "ops_modules_runs":
+        "(int) - How many resampled PHATE + Leiden runs the modules phase "
+        "clusters the gene profiles in. Each run takes 90 % of the genes, "
+        "resamples each gene's guides and has its own seed and resolution; "
+        "how often a gene shares a cluster with a module's known core over "
+        "these runs is one of the gates for a new module member. More runs "
+        "give steadier co-membership and take longer. Default 100. Alpha.",
+    "ops_modules_precomputed_embedding":
+        "(bool) - Cluster the profile columns as they are in the modules "
+        "phase, instead of standardising them and keeping the principal "
+        "components that hold 99 % of the variance. Turn it on for weighted "
+        "profiles, such as contrastive weighting, which standardising again "
+        "would undo. Default False. Alpha.",
+    "ops_modules_profiles":
+        "(str or None) - The folder holding the genes.parquet and "
+        "guides.parquet profile tables the modules phase clusters; its "
+        "results go to a modules folder inside it. Empty takes the profile "
+        "phase's folder, dst_root/ops_profile/<run>. Default None. Alpha.",
+    "ops_modules_driver_profiles":
+        "(str or None) - The robust z profile tables the modules phase reads "
+        "each module's driving features from: a folder with genes.parquet "
+        "and guides.parquet, or the two paths as a list. Empty uses the "
+        "clustered profiles. Default None. Alpha.",
+    "ops_eval_mitocarta":
+        "(str or None) - The MitoCarta 3.0 table (Human.MitoCarta3.0.xls) "
+        "the mitocarta phase scores clusterings against: which clusters are "
+        "enriched for mitochondrial genes, and how well the profiles find the "
+        "genes of the same sub-compartment (OXPHOS, mitoribosome, ATP "
+        "synthase, membrane organisation). Default None. Alpha.",
+    "ops_eval_external_modules":
+        "(str or None) - A JSON file naming the published tables the "
+        "mitocarta phase compares with: an external module table and the "
+        "sub-modules to test for coherence in the consensus atlas, the "
+        "published clusterings, and named clusters whose members and partner "
+        "genes are followed. Default None. Alpha.",
+    "ops_eval_arms":
+        "(str, list or None) - The clusterings the mitocarta phase scores, "
+        "in report order: a list, or a JSON file holding one, of entries with "
+        "a label and any of a cluster assignment table, a profile file and a "
+        "consensus atlas folder. Default None. Alpha.",
     "ops_mitotic_model":
         "(str or None) - A mitotic-cell classifier trained on labelled cells "
         "with spacr.ops_mitotic.train_mitotic_classifier. When set it calls "

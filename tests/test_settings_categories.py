@@ -374,6 +374,12 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "figure_second_look", "figure_condition_aggregate", "figure_size_stat",
     "figure_scales", "figure_absolute_units", "figure_ratio_floor",
     "figure_scale_permutations", "figure_scale_seed",
+    "ops_eval_time_split", "ops_eval_covariates",
+    # 888, alpha: the module atlas of the OPS modules phase.
+    "ops_modules_runs", "ops_modules_precomputed_embedding",
+    "ops_modules_profiles", "ops_modules_driver_profiles",
+    # 908, alpha: the MitoCarta and external-module benchmark.
+    "ops_eval_mitocarta", "ops_eval_external_modules", "ops_eval_arms",
     # NEW SETTINGS, not a regrouping: Mask's pixel-size diameter default and
     # per-image diameter estimate, and the ML classifier's class list.
     "pixel_size_um", "estimate_diameters_per_image", "ml_classes",
@@ -987,6 +993,23 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "moa_treatment_columns", "moa_batch_column", "moa_controls", "moa_arms",
     "moa_replicates", "moa_shuffles", "moa_supervised_shuffles", "moa_seed",
     "moa_workers", "moa_dst",
+    # 889, alpha: gene classes and the gene-class baseline
+    # (`spacr/gene_classes.py`), two headings of its own.
+    "gene_class_sources", "gene_class_gating", "gene_class_merge", "gene_class_merge_jaccard", "gene_class_kegg_filter", "gene_class_min_train", "gene_class_max_members", "gene_class_gated_from", "train_label_source", "train_gene_classes", "train_split", "train_split_group", "train_folds", "train_decoy_heads", "train_shuffle_control", "train_seed", "ml_model", "train_arch", "train_input_size", "train_balanced_sampling", "train_image_dataset", "train_crops", "train_crop_index", "train_genotype", "train_crop_scales", "train_classes", "train_protocol", "train_steps", "train_batch", "train_features", "train_feature_suffix", "train_exclude_sources", "gene_class_eval_min_cells", "gene_class_eval_boot", "gene_class_dst",
+    # 897, alpha: the channel-adaptive architectures
+    # (`spacr/architecture_training.py`), two headings of its own: the data
+    # and the training.
+    "train_arch", "train_level", "train_set_input", "train_set_cells", "train_set_tag",
+    "train_set_normalisation", "train_set_pca_dims", "train_set_control", "train_set_max_cells",
+    "train_protocol", "train_set_arms", "train_set_steps", "train_set_bag_batch",
+    "train_set_bag_cells", "train_set_dim", "train_set_depth", "train_set_lr",
+    "train_set_weight_decay", "train_set_instance_weight", "train_set_shuffle_control",
+    "train_set_seed", "train_set_threads", "train_set_folds", "train_set_dst",
+    "train_cell_crops", "train_cell_table", "train_cell_label_column", "train_cell_group_column",
+    "train_cell_stains", "train_cell_test_fraction", "train_cell_size", "train_cell_vit_size",
+    "train_cell_patch", "train_cell_epochs", "train_cell_batch", "train_cell_lr",
+    "pretrain_method", "pretrain_epochs", "pretrain_mask_ratio", "train_labels_per_class",
+    "eval_channel_subsets",
     # 581, alpha: what the export writes (h5ad, Parquet tables, R loader)
     # and the folder the tables go to.
     "anndata_format", "anndata_tidy_dir",
@@ -1768,6 +1791,10 @@ def test_every_qt_section_hint_names_a_real_category():
     import spacr.published_reference  # noqa: F401
     # 795: the MoA benchmark registers its two headings.
     import spacr.moa_benchmark  # noqa: F401
+    # 889: gene classes register their two headings.
+    import spacr.gene_classes  # noqa: F401
+    # 897: the architecture training registers its two headings.
+    import spacr.architecture_training  # noqa: F401
     known.update(c.upper().strip() for c in S.REGISTERED_CATEGORIES)
     # Qt may make app-scoped relocations without changing the category map
     # shared with the legacy UI (Measure's Filter settings is one).

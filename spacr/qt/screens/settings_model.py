@@ -3869,6 +3869,25 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "How the profiles are scored: the nearest-neighbour, logistic "
         "regression and XGBoost arms, how replicate wells combine, the "
         "shuffled-label controls, the seed and the folds fitted at a time.",
+    "GENE CLASSES":
+        "Which gene classes are built: the annotation files, whether only "
+        "members with a screen phenotype train, how near-duplicate classes "
+        "are merged, the KEGG filter and the class size limits.",
+    "GENE-CLASS TRAINING":
+        "How the classes are learned and scored: the class tables, the "
+        "gene-grouped folds, the decoy heads and shuffled control, the seed, "
+        "the model and features, and the evaluation and output folder.",
+    "MODEL ARCHITECTURE":
+        "Which model is trained and, for BBBC021, the fold protocol it is "
+        "scored under (NSCB or NSC).",
+    "ARCHITECTURE DATA":
+        "What the channel-adaptive models train on: the architecture and "
+        "level, the cell embeddings or crops and their tables, the stains, "
+        "the normalisation, the fold protocol and the output folder.",
+    "ARCHITECTURE TRAINING":
+        "How they train: the well-set arms and their sizes, the cell "
+        "model's size and epochs, pre-training, few-shot labels, the "
+        "missing-stain subsets, the shuffled-label control and the seed.",
 }
 
 

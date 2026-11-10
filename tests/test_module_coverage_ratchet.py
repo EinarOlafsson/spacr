@@ -518,6 +518,18 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         # spacr/gene_function.py).
         'spacr/gene_graph.py', 'spacr/gene_knowledge.py',
         'spacr/gene_function.py',
+        # 686 -> 692 on 2026-11-10, +6/-0, items 888, 889 and 897: the OPS
+        # module atlas, gene classes with their image arms, and the
+        # channel-adaptive architectures (spacr/ops_modules.py,
+        # spacr/gene_classes.py, spacr/gene_class_images.py,
+        # spacr/channel_models.py, spacr/well_set_training.py and
+        # spacr/architecture_training.py).
+        'spacr/ops_modules.py',
+        'spacr/gene_classes.py',
+        'spacr/gene_class_images.py',
+        'spacr/channel_models.py',
+        'spacr/well_set_training.py',
+        'spacr/architecture_training.py',
     }
     assert added_since_608 <= shipped
     # 664 -> 662 on 2026-10-12, +0/-2: spacr-tutorial opens the online
@@ -542,7 +554,7 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     assert metal_transport_arrivals <= shipped
     assert not metal_transport_arrivals & (added_since_608 | retired_since_608)
     assert (len(shipped - metal_transport_arrivals) == 608 + len(added_since_608)
-            - len(retired_since_608) == 683)
+            - len(retired_since_608) == 689)
     # 664 -> 666 on 2026-11-06: spacr/assay_report.py (item 816) and
     # spacr/_gpu_governor.py (item 803), the same +2 as `added_since_608`.
     # 666 -> 667 on 2026-11-06: spacr/_merge_pairs.py (item 833).
@@ -562,6 +574,11 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     # 680 -> 683 on 2026-11-10: spacr/gene_graph.py, spacr/gene_knowledge.py
     # and spacr/gene_function.py (items 884-886: the gene graph,
     # protein-knowledge blocks and screen x knowledge fusion).
+    # 683 -> 689 on 2026-11-10: spacr/ops_modules.py, spacr/gene_classes.py,
+    # spacr/gene_class_images.py, spacr/channel_models.py,
+    # spacr/well_set_training.py and spacr/architecture_training.py (items 888,
+    # 889 and 897: the OPS module atlas, gene classes with their image arms,
+    # and the channel-adaptive architectures).
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
@@ -1020,8 +1037,14 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_required():
     # and spacr/gene_function.py (items 884-886: the gene graph,
     # protein-knowledge blocks and screen x knowledge fusion), the same +3 as
     # `shipped`, moved with the workflow in one commit.
-    assert len(ratchet.discover_shipped_python_files(ROOT)) == 686
-    assert "--expected-file-count 686" in combine_script
+    # 686 -> 692 on 2026-11-10: spacr/ops_modules.py, spacr/gene_classes.py,
+    # spacr/gene_class_images.py, spacr/channel_models.py,
+    # spacr/well_set_training.py and spacr/architecture_training.py (items 888,
+    # 889 and 897: the OPS module atlas, gene classes with their image arms,
+    # and the channel-adaptive architectures), the same +6 as `shipped`, moved
+    # with the workflow in one commit.
+    assert len(ratchet.discover_shipped_python_files(ROOT)) == 692
+    assert "--expected-file-count 692" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script
