@@ -3141,8 +3141,9 @@ _PH_POOL_BLOCK = 48
 #: (:func:`_ph_profile_options`); each needs the per-cell TVN components.
 _PH_PROFILE_SWITCHES: Tuple[str, ...] = (
     "ops_profile_cell_cycle", "ops_profile_shrinkage",
-    "ops_profile_weighting", "ops_guide_efficacy", "ops_penetrance",
-    "ops_escapers", "ops_phase_tests",
+    "ops_profile_generic_axes", "ops_profile_weighting",
+    "ops_guide_efficacy", "ops_penetrance", "ops_escapers",
+    "ops_phase_tests",
 )
 
 _PH_DEGENERATE_CAUSES = (
@@ -3856,9 +3857,9 @@ def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
 
     from .gene_measurement_compare import (
         CELL_CYCLE_PHASES, cell_cycle_phases, contrastive_weighting,
-        guide_efficacy_profiles, nt_row_names, penetrance_tests,
-        phase_columns, phase_profiles, phase_tests,
-        shrink_gene_profiles)
+        generic_covariates, guide_efficacy_profiles, nt_row_names,
+        penetrance_tests, phase_columns, phase_profiles, phase_tests,
+        remove_generic_axes, shrink_gene_profiles)
     from .qt.i18n import tr
 
     report: Dict[str, Any] = {"outputs": {}}
@@ -3944,6 +3945,28 @@ def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
         profile_genes = genes[["gene", "n_guides", "n_cells"]].merge(
             shrunk, on="gene", how="inner")
         _ph_profile_tables("genes_shrink", profile_genes, destination, label,
+                           outputs)
+
+    if axes_asked:
+        min_rho = float(_setting_number(
+            settings.get("ops_profile_essential_axis_min_rho"),
+            "ops_profile_essential_axis_min_rho", 0.30))
+        stage = phases.to_numpy() if phases is not None else np.full(len(cells), "G1")
+        covariates = generic_covariates(
+            genes, cells[["gene"]].assign(phase=stage), control=control)
+        profile_genes = profile_genes.dropna(subset=columns).reset_index(drop=True)
+        guide_rows = profile_guides[columns].to_numpy(float)
+        residual, info, _axis, guide_residual = remove_generic_axes(
+            profile_genes[columns].to_numpy(float), profile_genes["gene"],
+            covariates, axes=axes_asked, min_rho=min_rho,
+            control_prefix=control_prefix, guide_values=guide_rows,
+            guide_genes=profile_guides["gene"])
+        profile_genes = profile_genes.copy()
+        profile_genes[columns] = residual
+        profile_guides = profile_guides.copy()
+        profile_guides[columns] = guide_residual
+        report["generic_axes"] = info
+        _ph_profile_tables("genes_generic", profile_genes, destination, label,
                            outputs)
 
     weighting = str(settings.get("ops_profile_weighting") or "").strip().lower() or None

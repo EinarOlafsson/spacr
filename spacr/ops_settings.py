@@ -113,6 +113,8 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_phase_null": "targeting",
     "ops_profile_shrinkage": None,
     "ops_profile_shrinkage_prior_df": 4.0,
+    "ops_profile_generic_axes": None,
+    "ops_profile_essential_axis_min_rho": 0.3,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -209,6 +211,8 @@ OPS_TYPES: Dict[str, object] = {
     "ops_phase_null": str,
     "ops_profile_shrinkage": (str, type(None)),
     "ops_profile_shrinkage_prior_df": (float, int),
+    "ops_profile_generic_axes": (str, list, type(None)),
+    "ops_profile_essential_axis_min_rho": (float, int),
 }
 
 #: Which panel section each setting appears under.
@@ -276,6 +280,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_phase_null",
         "ops_profile_shrinkage",
         "ops_profile_shrinkage_prior_df",
+        "ops_profile_generic_axes",
+        "ops_profile_essential_axis_min_rho",
     ],
 }
 
@@ -792,6 +798,16 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(float) - The degrees of freedom of the control-guide noise "
         "estimate when it is pooled with a gene's own guide spread; higher "
         "trusts the controls more. Default 4. Alpha.",
+    "ops_profile_generic_axes":
+        "(str, list or None) - Remove generic axes from the gene profiles: "
+        "any of log_cells_per_guide, shift_G1, shift_SG2, shift_M "
+        "(regressed out across genes) and essential_axis (the fitness "
+        "genes' main direction, removed only when it tracks fitness). "
+        "Shifts need cell-cycle phases. Default None. Alpha.",
+    "ops_profile_essential_axis_min_rho":
+        "(float) - The essential axis is projected out only when the genes' "
+        "scores on it correlate with log cells per guide by more than this "
+        "absolute Spearman rho. Default 0.30. Alpha.",
 }
 
 #: The blurb the module shows above its settings.

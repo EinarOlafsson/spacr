@@ -1,0 +1,25 @@
+OPS FITNESS AND GENERIC-AXIS REMOVAL
+====================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha, under ALPHA_FEATURES[903]) — spacr.gene_measurement_compare.generic_covariates (cells per guide and phase-share shifts against the controls), fitness_bins and remove_generic_axes: OLS across targeting genes of each profile column on the standardised covariates (log cells per guide, shift_G1, shift_SG2, shift_M; the controls get the same correction), then the first singular vector of the lowest-decile fitness genes is projected out when |Spearman rho(score, log cells per guide)| exceeds ops_profile_essential_axis_min_rho. ops_profile_generic_axes chooses the axes and writes ops_genes_<plate>_generic. spacr/gene_measurement_compare.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_generic_axes_903.py.
+Requested: maintainer via paper session, 2026-11-09.
+Owner: paper session (lane C).
+Source: improved/scripts/evaluate.py generic_removal (arm C2d_generic), build_profiles.py covariates.
+Related: 890, 902.
+
+WHAT THE STATE IS
+Upgrade 2d was a script.
+
+WHAT TO DO
+- Port the covariates and the axis removal, alpha.
+
+RESULT
+generic_covariates on the plate A cell table reproduces
+profiles/covariates.parquet bit for bit. On the C2d_generic inputs
+(genes_phase_shrink, hits2-active genes and controls, more than 10 cells),
+the residuals embedded as the arm embeds them equal eval/arms/C2d_generic.npz
+bit for bit (2,190 x 284) in the reference environment, and the report
+equals C2d_generic_info.json (variance removed 0.09796, 213 fitness genes,
+rho 0.0593, axis kept) except its always-empty essential_axis_score entry,
+which is not written.

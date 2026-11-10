@@ -8503,6 +8503,9 @@ ALPHA_FEATURES = {
                      'timelapse_division_prediction_model',
                      'timelapse_division_prediction_folds'),
     },
+    903: {
+        'settings': ('ops_profile_generic_axes', 'ops_profile_essential_axis_min_rho'),
+    },
     902: {
         'settings': ('ops_profile_shrinkage', 'ops_profile_shrinkage_prior_df'),
     },

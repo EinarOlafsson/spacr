@@ -3201,3 +3201,174 @@ def shrink_gene_profiles(guides: pd.DataFrame, features: Sequence[str], *,
             {"a_between": between.tolist(), "tau2": tau2.tolist(),
              "prior_df": prior_df})
 
+
+#: The generic axes :func:`remove_generic_axes` knows
+#: (``ops_profile_generic_axes``).
+GENERIC_AXES: Tuple[str, ...] = ("log_cells_per_guide", "shift_G1",
+                                 "shift_SG2", "shift_M", "essential_axis")
+
+
+def generic_covariates(genes: pd.DataFrame, cells: pd.DataFrame, *,
+                       control: pd.Series, gene: str = "gene",
+                       phase: str = "phase") -> pd.DataFrame:
+    """Per-gene covariates of fitness and cell-cycle arrest.
+
+    :param genes: one row per gene with ``gene``, ``n_guides`` and
+        ``n_cells`` (:func:`aggregate_genes`).
+    :param cells: one row per cell with ``gene`` and ``phase``
+        (:func:`cell_cycle_phases`).
+    :param control: True for a non-targeting cell.
+    :param gene: the gene column of ``cells``.
+    :param phase: the phase column of ``cells``.
+    :returns: ``gene, n_guides, n_cells, frac_G1, frac_SG2, frac_M,
+        cells_per_guide, shift_G1, shift_SG2, shift_M``: each phase's share
+        of the gene's cells, and that share minus the non-targeting cells'
+        share.
+
+    Cells per guide falls when a knockout kills or slows cells, so it is a
+    fitness readout of the screen itself; the phase shifts measure arrest.
+    """
+    stage = cells[phase].astype(str).to_numpy()
+    flags = pd.DataFrame({"gene": cells[gene].to_numpy(),
+                          **{p: stage == p for p in CELL_CYCLE_PHASES}})
+    shares = flags.groupby("gene")[list(CELL_CYCLE_PHASES)].mean()
+    shares.columns = [f"frac_{p}" for p in CELL_CYCLE_PHASES]
+    out = genes[["gene", "n_guides", "n_cells"]].merge(
+        shares, left_on="gene", right_index=True)
+    out["cells_per_guide"] = out["n_cells"] / out["n_guides"]
+    control = pd.Series(control, index=cells.index).fillna(False
+                                                           ).astype(bool).to_numpy()
+    reference = flags[control][list(CELL_CYCLE_PHASES)].mean()
+    for p in CELL_CYCLE_PHASES:
+        out[f"shift_{p}"] = out[f"frac_{p}"] - reference[p]
+    return out
+
+
+def fitness_bins(genes: Sequence, cells_per_guide: Sequence, *,
+                 bins: int = 10, control_prefix: str = "nontargeting"
+                 ) -> np.ndarray:
+    """Quantile bins of log cells per guide; the lowest bin is fitness genes.
+
+    :param genes: gene names; non-targeting rows get -1.
+    :param cells_per_guide: each gene's cells per guide.
+    :param bins: the number of bins.
+    :param control_prefix: the control gene prefix.
+    :returns: the bin of every gene, 0 the most depleted.
+    """
+    values = np.log(np.clip(np.asarray(cells_per_guide, float), 1, None))
+    nt = _control_rows(genes, control_prefix)
+    out = np.full(len(values), -1)
+    edges = np.quantile(values[~nt], np.linspace(0, 1, int(bins) + 1)[1:-1])
+    out[~nt] = np.searchsorted(edges, values[~nt])
+    return out
+
+
+def remove_generic_axes(values: np.ndarray, genes: Sequence,
+                        covariates: pd.DataFrame, *,
+                        axes: Sequence[str] = GENERIC_AXES,
+                        min_rho: float = 0.30,
+                        control_prefix: str = "nontargeting",
+                        guide_values: Optional[np.ndarray] = None,
+                        guide_genes: Optional[Sequence] = None
+                        ) -> Tuple[np.ndarray, Dict[str, Any],
+                                   Optional[np.ndarray], Optional[np.ndarray]]:
+    """Regress fitness and arrest out of gene profiles.
+
+    :param values: one row per gene, the profile columns.
+    :param genes: the gene of every row.
+    :param covariates: :func:`generic_covariates`, indexed by gene or with a
+        ``gene`` column; every gene of ``genes`` must be in it.
+    :param axes: what to remove (``ops_profile_generic_axes``):
+        ``log_cells_per_guide`` and the ``shift_<phase>`` covariates are
+        regressed out; ``essential_axis`` also projects out the fitness
+        genes' main direction when it tracks fitness.
+    :param min_rho: the essential axis is removed only when the genes'
+        scores on it correlate with log cells per guide by more than this
+        in absolute Spearman rho (``ops_profile_essential_axis_min_rho``).
+    :param control_prefix: non-targeting rows are corrected but not fitted.
+    :param guide_values: optional guide rows of the same space, corrected
+        with the same fit.
+    :param guide_genes: the gene of every guide row.
+    :returns: ``(residuals, report, axis, guide_residuals)``. The report
+        holds ``var_removed_by_covariates``, ``covariates``,
+        ``essential_genes``,
+        ``essential_axis_rho_with_log_cells_per_guide``,
+        ``essential_axis_removed`` and, when removed,
+        ``var_removed_by_essential_axis``.
+    :raises ValueError: for an unknown axis.
+
+    Each profile column is fitted across the targeting genes by ordinary
+    least squares on the standardised covariates (intercept kept), and the
+    covariate part is subtracted from every row, non-targeting rows
+    included. The essential axis is the first right singular vector of the
+    uncentred profiles of the lowest decile of cells per guide
+    (:func:`fitness_bins`); it is projected out only when it tracks
+    fitness, so a profile direction that merely contains many fitness genes
+    stays.
+    """
+    unknown = [a for a in axes if a not in GENERIC_AXES]
+    if unknown:
+        raise ValueError(f"unknown generic axes {unknown}; choose from "
+                         f"{list(GENERIC_AXES)}")
+    table = covariates.set_index("gene") if "gene" in covariates else covariates
+    table = table.loc[list(genes)]
+    x = np.asarray(values, float)
+    names = np.asarray(genes)
+    targeting = ~_control_rows(names, control_prefix)
+    labels = {"log_cells_per_guide": "log cells per guide",
+              "shift_G1": "G1 fraction shift", "shift_SG2": "S/G2 fraction shift",
+              "shift_M": "M fraction shift"}
+    chosen = [a for a in axes if a != "essential_axis"]
+    report: Dict[str, Any] = {}
+    residuals = x
+    beta = None
+    design = None
+    if chosen:
+        design = np.column_stack([
+            np.log(table["cells_per_guide"]) if a == "log_cells_per_guide"
+            else table[a] for a in chosen])
+        fitted = design[targeting]
+        centre, spread = fitted.mean(0), fitted.std(0)
+        design = np.column_stack([np.ones(len(design)), (design - centre) / spread])
+        beta, *_ = np.linalg.lstsq(design[targeting], x[targeting], rcond=None)
+        residuals = x - design[:, 1:] @ beta[1:]
+        total = ((x[targeting] - x[targeting].mean(0)) ** 2).sum()
+        report["var_removed_by_covariates"] = float(
+            1 - ((residuals[targeting] - residuals[targeting].mean(0)) ** 2).sum()
+            / total)
+        report["covariates"] = [labels[a] for a in chosen]
+    axis = None
+    removed = False
+    if "essential_axis" in axes:
+        from scipy.stats import spearmanr
+
+        cells_per_guide = table["cells_per_guide"].to_numpy()
+        essential = fitness_bins(names, cells_per_guide,
+                                 control_prefix=control_prefix) == 0
+        _u, _s, vt = np.linalg.svd(x[essential], full_matrices=False)
+        axis = vt[0] / np.linalg.norm(vt[0])
+        rho = float(spearmanr(x[targeting] @ axis,
+                              np.log(cells_per_guide[targeting])).correlation)
+        removed = abs(rho) > float(min_rho)
+        report.update({"essential_genes": int(essential.sum()),
+                       "essential_axis_rho_with_log_cells_per_guide": rho,
+                       "essential_axis_removed": bool(removed)})
+        if removed:
+            before = ((residuals[targeting] - residuals[targeting].mean(0)) ** 2).sum()
+            residuals = residuals - np.outer(residuals @ axis, axis)
+            report["var_removed_by_essential_axis"] = float(
+                1 - ((residuals[targeting] - residuals[targeting].mean(0)) ** 2
+                     ).sum() / before)
+    guide_residuals = None
+    if guide_values is not None:
+        guide_residuals = np.asarray(guide_values, float).copy()
+        if beta is not None:
+            index = pd.Index(names).get_indexer(list(guide_genes))
+            found = index >= 0
+            guide_residuals[found] = (guide_residuals[found]
+                                      - design[index[found], 1:] @ beta[1:])
+        if removed:
+            guide_residuals = guide_residuals - np.outer(guide_residuals @ axis,
+                                                         axis)
+    return residuals, report, axis, guide_residuals
+
