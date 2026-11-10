@@ -115,6 +115,8 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_profile_shrinkage_prior_df": 4.0,
     "ops_profile_generic_axes": None,
     "ops_profile_essential_axis_min_rho": 0.3,
+    "ops_profile_similarity": None,
+    "ops_guide_null_size": 200000,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -213,6 +215,8 @@ OPS_TYPES: Dict[str, object] = {
     "ops_profile_shrinkage_prior_df": (float, int),
     "ops_profile_generic_axes": (str, list, type(None)),
     "ops_profile_essential_axis_min_rho": (float, int),
+    "ops_profile_similarity": (str, type(None)),
+    "ops_guide_null_size": int,
 }
 
 #: Which panel section each setting appears under.
@@ -282,6 +286,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_profile_shrinkage_prior_df",
         "ops_profile_generic_axes",
         "ops_profile_essential_axis_min_rho",
+        "ops_profile_similarity",
+        "ops_guide_null_size",
     ],
 }
 
@@ -808,6 +814,17 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(float) - The essential axis is projected out only when the genes' "
         "scores on it correlate with log cells per guide by more than this "
         "absolute Spearman rho. Default 0.30. Alpha.",
+    "ops_profile_similarity":
+        "(str or None) - How gene-gene similarity is written besides the "
+        "gene tables: 'guide_level' (mean guide-guide cosine with a P value "
+        "per pair from random guide sets), 'responder' or "
+        "'sliced_wasserstein' (responder profiles, energy distance and a "
+        "sliced Wasserstein embedding of each gene's cells). Default None. "
+        "Alpha.",
+    "ops_guide_null_size":
+        "(int) - Random guide-set pairs per pair of guide counts in the "
+        "guide-level null; P values resolve to 1 / (N + 1). Default 200000. "
+        "Alpha.",
 }
 
 #: The blurb the module shows above its settings.

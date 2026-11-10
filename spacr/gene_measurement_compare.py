@@ -3372,3 +3372,206 @@ def remove_generic_axes(values: np.ndarray, genes: Sequence,
                                                          axis)
     return residuals, report, axis, guide_residuals
 
+
+def guide_mean_vectors(guide_rows: np.ndarray, guide_genes: Sequence, *,
+                       normalise: bool = True
+                       ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Each gene as the mean of its guides' unit vectors.
+
+    :param guide_rows: one row per guide, in an embedded space.
+    :param guide_genes: the gene of every guide.
+    :param normalise: scale each mean to length 1, so the dot product of
+        two genes is the cosine of their means.
+    :returns: ``(genes, vectors, guides_per_gene)``, genes sorted.
+
+    Without ``normalise`` the dot product of two genes is exactly the mean
+    of their ``k_A x k_B`` guide-guide cosines. That rewards a single-guide
+    row (length 1) over a gene whose guides disagree (length below 1), and
+    on Funk plate A single-barcode control rows then filled 58 % of the top
+    ten neighbours; normalising removes that.
+    """
+    unit = _unit_rows(np.asarray(guide_rows, float))
+    members = pd.Series(np.asarray(guide_genes))
+    names, vectors, sizes = [], [], []
+    for name, index in members.groupby(members).indices.items():
+        names.append(name)
+        vectors.append(unit[index].mean(0))
+        sizes.append(len(index))
+    vectors = np.array(vectors)
+    if normalise:
+        vectors = _unit_rows(vectors)
+    return np.array(names), vectors, np.array(sizes)
+
+
+def _upper_tail(null: np.ndarray, values: np.ndarray) -> np.ndarray:
+    """``(1 + #null >= value) / (1 + N)`` against a sorted null.
+
+    :param null: the sorted null values.
+    :param values: the observed values.
+    :returns: the P values.
+    """
+    return (1 + len(null) - np.searchsorted(null, values, side="left")) / (1 + len(null))
+
+
+class _GuideSetNull:
+    """The similarity of two random guide sets, per pair of set sizes.
+
+    Draws follow one seeded stream in the order they are asked for, so the
+    same calls give the same nulls.
+    """
+
+    def __init__(self, unit: np.ndarray, targeting: np.ndarray,
+                 genes: np.ndarray, control: np.ndarray, *, size: int,
+                 control_size: int, seed: int):
+        """Index the guides.
+
+        :param unit: unit guide vectors.
+        :param targeting: row indices of the targeting guides.
+        :param genes: the gene of each targeting guide.
+        :param control: row indices of the non-targeting guides.
+        :param size: draws per targeting null.
+        :param control_size: draws per non-targeting null.
+        :param seed: the seed of the stream.
+        """
+        self.unit, self.control = unit, control
+        self.size, self.control_size = int(size), int(control_size)
+        self.rng = np.random.default_rng(int(seed))
+        frame = pd.Series(targeting).groupby(genes)
+        self.by_gene = {k: np.asarray(v) for k, v in frame}
+        self.names = np.array(sorted(self.by_gene))
+        self.cache: Dict[Tuple[int, int, str], np.ndarray] = {}
+
+    def draw(self, k: int, pool: str) -> np.ndarray:
+        """One random guide set of ``k`` guides.
+
+        :param k: the set size.
+        :param pool: ``'targeting'`` (one guide from each of ``k`` distinct
+            random genes) or ``'nt'`` (``k`` non-targeting guides).
+        :returns: guide row indices.
+        """
+        if pool == "nt":
+            return self.rng.choice(self.control, k, replace=False)
+        picked = self.rng.choice(len(self.names), k, replace=False)
+        return np.array([self.rng.choice(self.by_gene[self.names[x]])
+                         for x in picked])
+
+    def __call__(self, ka: int, kb: int, pool: str = "targeting") -> np.ndarray:
+        """The sorted null for sets of ``ka`` and ``kb`` guides.
+
+        :param ka: one set size.
+        :param kb: the other set size.
+        :param pool: ``'targeting'`` or ``'nt'``.
+        :returns: the sorted null similarities (float32).
+        """
+        key = (min(ka, kb), max(ka, kb), pool)
+        if key not in self.cache:
+            values = np.empty(self.size if pool == "targeting"
+                              else self.control_size, np.float32)
+            for i in range(len(values)):
+                a = self.draw(key[0], pool)
+                b = self.draw(key[1], pool)
+                values[i] = self.unit[a].mean(0) @ self.unit[b].mean(0)
+            self.cache[key] = np.sort(values)
+        return self.cache[key]
+
+
+def _shape_pvalues(similarity: np.ndarray, ka: np.ndarray, kb: np.ndarray,
+                   null: "_GuideSetNull") -> np.ndarray:
+    """P values of pair similarities against the null of their set sizes.
+
+    :param similarity: one value per pair.
+    :param ka: the guides of the first gene of each pair.
+    :param kb: the guides of the second gene.
+    :param null: the null of random guide sets.
+    :returns: the P values.
+    """
+    p = np.empty(len(similarity))
+    low, high = np.minimum(ka, kb), np.maximum(ka, kb)
+    for shape in set(zip(low, high)):
+        rows = (low == shape[0]) & (high == shape[1])
+        p[rows] = _upper_tail(null(*shape), similarity[rows])
+    return p
+
+
+def guide_level_similarity(guides: pd.DataFrame, features: Sequence[str], *,
+                           genes: Optional[Sequence[str]] = None,
+                           control_prefix: str = "nontargeting",
+                           null_size: int = 200000,
+                           control_null_size: int = 20000, seed: int = 0,
+                           alpha: float = 0.05) -> Dict[str, Any]:
+    """Gene-gene similarity from guides, with a P value for every pair.
+
+    :param guides: one row per guide with ``gene`` and the ``features``;
+        non-targeting guides carry pseudo-gene names (:func:`nt_row_names`).
+    :param features: the profile columns.
+    :param genes: the targeting genes whose pairs are tested (the active
+        genes in the published analysis); by default every targeting gene.
+    :param control_prefix: the control gene prefix.
+    :param null_size: random guide-set pairs per pair of set sizes
+        (``ops_guide_null_size``); P values resolve to ``1 / (N + 1)``.
+    :param control_null_size: non-targeting guide-set pairs in the reported
+        control null.
+    :param seed: the seed of the one random stream.
+    :param alpha: the false discovery rate of ``pairs_q05``.
+    :returns: ``pairs`` (``gene_a, gene_b, s, p, q`` for every tested pair),
+        ``calibration_p`` (the pseudo-gene x gene P values, the control),
+        ``similarity`` and ``names`` (the gene x gene matrix, tested genes
+        then pseudo-genes) and ``summary``.
+
+    The guides are embedded as the benchmark embeds them (standardised, PCA
+    99 %, fitted on the guides) and scaled to unit length; ``s(A, B)`` is
+    the mean of the ``k_A x k_B`` guide-guide cosines. The null of a pair
+    is ``null_size`` similarities between two random guide sets of the same
+    sizes, each guide from a distinct random targeting gene, so a P value
+    asks whether two genes agree more than random guides do. Benjamini-
+    Hochberg gives ``q`` across all pairs. The pseudo-genes, paired with
+    every tested gene, should give uniform P values; the share under 0.05 is
+    the calibration control. Non-targeting guide sets give a second null,
+    reported for comparison. Without reference sets this does not annotate
+    pairs with CORUM or STRING; :mod:`spacr.ops_clusters` scores those.
+    """
+    from .multiple_testing import adjust_p_values
+
+    unit = _unit_rows(_RowEmbedder(guides[list(features)].to_numpy(float)).rows)
+    names = guides["gene"].to_numpy()
+    nt = _control_rows(names, control_prefix)
+    targeting = np.flatnonzero(~nt)
+    null = _GuideSetNull(unit, targeting, names[targeting], np.flatnonzero(nt),
+                         size=null_size, control_size=control_null_size,
+                         seed=seed)
+    tested = sorted(set(null.by_gene) if genes is None
+                    else set(genes) & set(null.by_gene))
+    pseudo = sorted(set(names[nt]))
+    rows = tested + pseudo
+    vectors = np.array([unit[null.by_gene[x]].mean(0) if x in null.by_gene
+                        else unit[np.flatnonzero(names == x)].mean(0)
+                        for x in rows])
+    sizes = np.array([len(null.by_gene[x]) if x in null.by_gene
+                      else int((names == x).sum()) for x in rows])
+    similarity = vectors @ vectors.T
+    n = len(tested)
+    upper = np.triu_indices(n, 1)
+    s = similarity[upper]
+    p = _shape_pvalues(s, sizes[upper[0]], sizes[upper[1]], null)
+    q = adjust_p_values(p, "fdr_bh", alpha=alpha)[0]
+    control = similarity[n:, :n].ravel()
+    calibration = _shape_pvalues(control, np.repeat(sizes[n:], n),
+                                 np.tile(sizes[:n], len(pseudo)), null)
+    control_null = null(4, 4, "nt")
+    tested_names = np.array(tested)
+    pairs = pd.DataFrame({"gene_a": tested_names[upper[0]],
+                          "gene_b": tested_names[upper[1]],
+                          "s": s, "p": p, "q": q})
+    summary = {
+        "active_genes": n, "pairs_tested": int(len(s)),
+        "pairs_q05": int((q < alpha).sum()),
+        "null_random_guides_4x4_p95": float(np.quantile(null(4, 4), 0.95)),
+        "null_NT_guides_4x4_p95": float(np.quantile(control_null, 0.95)),
+        "calibration_NT_pseudo_x_active (control)": {
+            "pairs": int(len(calibration)),
+            "frac_p_lt_0.05": float((calibration < 0.05).mean()),
+            "frac_p_lt_0.01": float((calibration < 0.01).mean())}}
+    return {"pairs": pairs, "calibration_p": calibration,
+            "similarity": similarity, "names": np.array(rows),
+            "summary": summary}
+

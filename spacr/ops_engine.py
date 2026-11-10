@@ -3142,8 +3142,8 @@ _PH_POOL_BLOCK = 48
 _PH_PROFILE_SWITCHES: Tuple[str, ...] = (
     "ops_profile_cell_cycle", "ops_profile_shrinkage",
     "ops_profile_generic_axes", "ops_profile_weighting",
-    "ops_guide_efficacy", "ops_penetrance", "ops_escapers",
-    "ops_phase_tests",
+    "ops_guide_efficacy", "ops_profile_similarity", "ops_penetrance",
+    "ops_escapers", "ops_phase_tests",
 )
 
 _PH_DEGENERATE_CAUSES = (
@@ -3857,8 +3857,9 @@ def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
 
     from .gene_measurement_compare import (
         CELL_CYCLE_PHASES, cell_cycle_phases, contrastive_weighting,
-        generic_covariates, guide_efficacy_profiles, nt_row_names,
-        penetrance_tests, phase_columns, phase_profiles, phase_tests,
+        generic_covariates, guide_efficacy_profiles,
+        guide_level_similarity, nt_row_names, penetrance_tests,
+        phase_columns, phase_profiles, phase_tests,
         remove_generic_axes, shrink_gene_profiles)
     from .qt.i18n import tr
 
@@ -4015,6 +4016,22 @@ def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
         _ph_profile_tables("guides_efficacy", per_guide.rename(
             "efficacy").rename_axis("guide").reset_index(), destination,
             label, outputs)
+
+    similarity = str(settings.get("ops_profile_similarity") or "").strip().lower() or None
+    if similarity not in (None, "gene_cosine", "guide_level", "responder",
+                          "sliced_wasserstein"):
+        raise ValueError(tr(
+            "ops_profile_similarity must be gene_cosine, guide_level, "
+            "responder or sliced_wasserstein; got {value}", value=similarity))
+    if similarity == "guide_level":
+        null_size = int(_setting_number(settings.get("ops_guide_null_size"),
+                                        "ops_guide_null_size", 200000))
+        result = guide_level_similarity(
+            profile_guides.dropna(subset=columns), columns,
+            control_prefix=control_prefix, null_size=null_size)
+        report["guide_level"] = result["summary"]
+        _ph_profile_tables("gene_pairs", result["pairs"], destination, label,
+                           outputs)
 
     if settings.get("ops_escapers") and not settings.get("ops_penetrance"):
         raise ValueError(tr("ops_escapers reads the penetrance fit; set "
