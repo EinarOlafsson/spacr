@@ -472,7 +472,8 @@ def preprocess_generate_masks(settings):
     source_folders = settings['src']
     ledger = RunLedger('preprocess_generate_masks')
     module_key = 'timelapse' if settings.get('timelapse') else 'mask'
-    with run_context(module_key, settings, ledger=ledger) as run:
+    from ._mask_workers import _MaskWorkerPool
+    with run_context(module_key, settings, ledger=ledger) as run, _MaskWorkerPool() as mask_pool:
         for source_folder in source_folders:
             for attempt in run.policy.attempts_for(source_folder,
                                                    stage='plate'):
@@ -619,66 +620,71 @@ def preprocess_generate_masks(settings):
                                 verbose=settings.get('verbose', True),
                             )
 
-                        if settings['cell_channel'] != None:
+                        parallel_roles = []
+                        for parallel_role in (('cell', 'nucleus', 'pathogen')
+                                              if gpu_plan is not None else ()):
+                            if settings[f'{parallel_role}_channel'] is None:
+                                continue
+                            cancellation_checkpoint()
+                            if check_mask_folder(
+                                    src, f'{parallel_role}_mask_stack',
+                                    resume=settings.get('resume', False)):
+                                from .object import _note_the_diameter
+                                _note_the_diameter(settings, parallel_role)
+                                parallel_roles.append(parallel_role)
+                        if parallel_roles:
+                            from ._mask_workers import _generate_roles_in_parallel
+                            role_seconds = _generate_roles_in_parallel(
+                                mask_src, settings, parallel_roles, gpu_plan, pool=mask_pool)
+                            for parallel_role in parallel_roles:
+                                files_processed += 1
+                                print_progress(files_processed, files_to_process, n_jobs=1,
+                                               time_ls=[role_seconds[parallel_role]],
+                                               batch_size=None,
+                                               operation_type=f'{parallel_role}_mask_gen')
+
+                        if gpu_plan is None and settings['cell_channel'] != None:
                             cancellation_checkpoint()
                             time_ls=[]
                             if check_mask_folder(
                                     src, 'cell_mask_stack',
                                     resume=settings.get('resume', False)):
                                 start = time.time()
-                                if gpu_plan is None:
-                                    from ._mask_workers import _sampled_ordinary_masks
-                                    with _sampled_ordinary_masks(mask_src, 'cell'):
-                                        generate_cellpose_masks_sam(mask_src, settings, 'cell')
-                                else:
-                                    from ._mask_workers import _generate_masks_in_parallel
-                                    from .object import _note_the_diameter
-                                    _note_the_diameter(settings, 'cell')
-                                    _generate_masks_in_parallel(mask_src, settings, 'cell', gpu_plan)
+                                from ._mask_workers import _sampled_ordinary_masks
+                                with _sampled_ordinary_masks(mask_src, 'cell'):
+                                    generate_cellpose_masks_sam(mask_src, settings, 'cell')
                                 stop = time.time()
                                 duration = (stop - start)
                                 time_ls.append(duration)
                                 files_processed += 1
                                 print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'cell_mask_gen')
 
-                        if settings['nucleus_channel'] != None:
+                        if gpu_plan is None and settings['nucleus_channel'] != None:
                             cancellation_checkpoint()
                             time_ls=[]
                             if check_mask_folder(
                                     src, 'nucleus_mask_stack',
                                     resume=settings.get('resume', False)):
                                 start = time.time()
-                                if gpu_plan is None:
-                                    from ._mask_workers import _sampled_ordinary_masks
-                                    with _sampled_ordinary_masks(mask_src, 'nucleus'):
-                                        generate_cellpose_masks_sam(mask_src, settings, 'nucleus')
-                                else:
-                                    from ._mask_workers import _generate_masks_in_parallel
-                                    from .object import _note_the_diameter
-                                    _note_the_diameter(settings, 'nucleus')
-                                    _generate_masks_in_parallel(mask_src, settings, 'nucleus', gpu_plan)
+                                from ._mask_workers import _sampled_ordinary_masks
+                                with _sampled_ordinary_masks(mask_src, 'nucleus'):
+                                    generate_cellpose_masks_sam(mask_src, settings, 'nucleus')
                                 stop = time.time()
                                 duration = (stop - start)
                                 time_ls.append(duration)
                                 files_processed += 1
                                 print_progress(files_processed, files_to_process, n_jobs=1, time_ls=time_ls, batch_size=None, operation_type=f'nucleus_mask_gen')
 
-                        if settings['pathogen_channel'] != None:
+                        if gpu_plan is None and settings['pathogen_channel'] != None:
                             cancellation_checkpoint()
                             time_ls=[]
                             if check_mask_folder(
                                     src, 'pathogen_mask_stack',
                                     resume=settings.get('resume', False)):
                                 start = time.time()
-                                if gpu_plan is None:
-                                    from ._mask_workers import _sampled_ordinary_masks
-                                    with _sampled_ordinary_masks(mask_src, 'pathogen'):
-                                        generate_cellpose_masks_sam(mask_src, settings, 'pathogen')
-                                else:
-                                    from ._mask_workers import _generate_masks_in_parallel
-                                    from .object import _note_the_diameter
-                                    _note_the_diameter(settings, 'pathogen')
-                                    _generate_masks_in_parallel(mask_src, settings, 'pathogen', gpu_plan)
+                                from ._mask_workers import _sampled_ordinary_masks
+                                with _sampled_ordinary_masks(mask_src, 'pathogen'):
+                                    generate_cellpose_masks_sam(mask_src, settings, 'pathogen')
                                 stop = time.time()
                                 duration = (stop - start)
                                 time_ls.append(duration)
