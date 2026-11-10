@@ -508,6 +508,10 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         # 680 -> 681 on 2026-11-09, +1/-0, item 881: versioned gene-gene
         # reference sets for scoring OPS gene profiles (spacr/ops_reference.py).
         'spacr/ops_reference.py',
+        # 681 -> 683 on 2026-11-10, +2/-0, item 872: the OPS phenotype run's
+        # plate-scale infrastructure (spacr/ops_run_infra.py) and the GPU
+        # admission policy of long runs (spacr/gpu_admission.py).
+        'spacr/ops_run_infra.py', 'spacr/gpu_admission.py',
     }
     assert added_since_608 <= shipped
     # 664 -> 662 on 2026-10-12, +0/-2: spacr-tutorial opens the online
@@ -532,7 +536,7 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     assert metal_transport_arrivals <= shipped
     assert not metal_transport_arrivals & (added_since_608 | retired_since_608)
     assert (len(shipped - metal_transport_arrivals) == 608 + len(added_since_608)
-            - len(retired_since_608) == 678)
+            - len(retired_since_608) == 680)
     # 664 -> 666 on 2026-11-06: spacr/assay_report.py (item 816) and
     # spacr/_gpu_governor.py (item 803), the same +2 as `added_since_608`.
     # 666 -> 667 on 2026-11-06: spacr/_merge_pairs.py (item 833).
@@ -547,6 +551,8 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     # 675 -> 676 on 2026-11-09: spacr/moa_benchmark.py (item 795).
     # 676 -> 677 on 2026-11-09: spacr/ops_decode.py (item 873).
     # 677 -> 678 on 2026-11-09: spacr/ops_reference.py (item 881).
+    # 678 -> 680 on 2026-11-10: spacr/ops_run_infra.py and
+    # spacr/gpu_admission.py (item 872).
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
@@ -998,8 +1004,11 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_required():
     # as `shipped`, moved with the workflow in one commit.
     # 680 -> 681 on 2026-11-09: spacr/ops_reference.py (item 881), the
     # same +1 as `shipped`, moved with the workflow in one commit.
-    assert len(ratchet.discover_shipped_python_files(ROOT)) == 681
-    assert "--expected-file-count 681" in combine_script
+    # 681 -> 683 on 2026-11-10: spacr/ops_run_infra.py and
+    # spacr/gpu_admission.py (item 872), the same +2 as `shipped`, moved
+    # with the workflow in one commit.
+    assert len(ratchet.discover_shipped_python_files(ROOT)) == 683
+    assert "--expected-file-count 683" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script

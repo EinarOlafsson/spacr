@@ -8543,7 +8543,17 @@ ALPHA_FEATURES = {
     },
     872: {
         'settings': ('ops_crop_all_nt', 'ops_crop_control_fraction',
-                     'ops_crop_masks', 'ops_retry_missing'),
+                     'ops_crop_masks', 'ops_retry_missing',
+                     'ops_ph_acquisitions', 'ops_ph_pipeline',
+                     'ops_ph_measure_workers', 'ops_ph_stage_dir',
+                     'ops_ph_stage_ahead', 'ops_ph_stage_threads',
+                     'ops_ph_measure_gpu_check', 'ops_archive_root',
+                     'ops_archive_verify', 'ops_archive_delete_local',
+                     'ops_gpu_admission', 'ops_gpu_idle_checks',
+                     'ops_gpu_min_process_mib', 'ops_gpu_vram_cap_gb',
+                     'ops_gpu_ignore_process_patterns',
+                     'ops_tables_integer_keys', 'ops_tables_layout',
+                     'ops_stress_report'),
     },
     874: {
         'settings': ('ops_cross_field_ownership', 'ops_cross_field_metric',

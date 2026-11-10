@@ -14,6 +14,7 @@ listed in the report; it does not cost the well.
 """
 from __future__ import annotations
 
+import contextvars
 import json
 import logging
 import os
@@ -284,7 +285,12 @@ _PHASES = ("stitch", "phenotype", "objects", "decode")
 #: table; a run includes them only when ``phases`` names them.
 _PH_PHASES = ("ph_flatfield", "ph_segment", "ph_measure", "ph_masks",
               "ph_ownership", "merge", "ph_merged", "aggregate", "ph_tables",
-              "ph_crops", "report")
+              "ph_crops", "report", "stress")
+
+#: The phenotype phases that run once per plate rather than per well; a
+#: well's archive marker (item 872, B9) records only the others.
+_PH_PLATE_PHASES = ("ph_flatfield", "aggregate", "ph_tables", "ph_crops",
+                    "report", "stress")
 
 #: The profile path (alpha): stored per-well cell tables to gene profiles,
 #: then their retrieval metrics. Needs no image step and no database.
@@ -351,20 +357,41 @@ def _index_tiles(root: str, scheme: Optional[str] = None
     ``*.tif.lftp-pget-status`` files, the remains of interrupted downloads,
     and an index that took those for tiles would hand tifffile a status
     file.
+
+    A CHANNEL TOKEN SEEN TWICE FOR ONE SITE IS REFUSED, not overwritten
+    (item 872, B3). Funk plate B's two phenotype acquisitions both hold an
+    ``A594`` file per site, and the walk used to keep whichever it reached
+    last. Naming each acquisition's folder and channels in
+    ``ops_ph_acquisitions`` (:func:`_ph_acquisition_index`) indexes such a
+    plate.
+
+    :raises ValueError: when two files carry the same well, cycle, site
+        and channel token.
     """
+    from .qt.i18n import tr
+
     wanted = ("cycled", "uncycled") if scheme is None else (scheme,)
     found: Dict[str, Dict[str, Dict[int, Dict[int, Dict[str, str]]]]] = {
         name: {} for name in wanted}
     for folder, _folders, files in os.walk(root, followlinks=True):
-        for name in files:
+        for name in sorted(files):
             for which in wanted:
                 parsed = _match_tile(name, which)
                 if parsed is None:
                     continue
                 well, cycle, site, channel, _magnification = parsed
-                found[which].setdefault(well, {}).setdefault(
-                    cycle, {}).setdefault(
-                        site, {})[channel] = os.path.join(folder, name)
+                held = found[which].setdefault(well, {}).setdefault(
+                    cycle, {}).setdefault(site, {})
+                path = os.path.join(folder, name)
+                if channel in held and held[channel] != path:
+                    raise ValueError(tr(
+                        "two files under {root} carry channel {channel} for "
+                        "well {well}, site {site}: {first} and {second}. Name "
+                        "each acquisition's folder and channels in "
+                        "ops_ph_acquisitions, or point the setting at one "
+                        "acquisition.", root=root, channel=channel, well=well,
+                        site=site, first=held[channel], second=path))
+                held[channel] = path
                 break
     for which in wanted:
         if found[which]:
@@ -2381,8 +2408,132 @@ def _ph_split_files(files: Mapping[str, str], secondary: Sequence[str]
     second: Dict[str, str] = {}
     for token, path in files.items():
         names = {name.upper() for name in str(token).split("-")}
-        (second if names & wanted else primary)[token] = path
+        (second if names & wanted or "@" in str(token)
+         else primary)[token] = path
     return primary, second
+
+
+def _ph_acquisitions(settings: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
+    """``ops_ph_acquisitions`` read: each acquisition's folder and channels.
+
+    :param settings: read for ``ops_ph_acquisitions``, a mapping (or its
+        JSON text) of acquisition folder to the channels taken from it,
+        comma-separated or a list, plus an optional ``register_on``
+        channel; for example ``{"phenotype": "DAPI,GFP,A594", "phenotype_af750":
+        "AF750", "register_on": "A594"}``. A relative folder is under
+        ``phenotype_source``. The first acquisition is the primary one.
+    :returns: ``{"folders": [(folder, [channels])], "register_on": channel
+        or None}``, or None when the setting is empty.
+    :raises ValueError: when the setting is not a mapping, an acquisition
+        names no channel, or a channel is named for two acquisitions.
+    """
+    from .qt.i18n import tr
+
+    raw = settings.get("ops_ph_acquisitions")
+    if not raw:
+        return None
+    if isinstance(raw, str):
+        try:
+            raw = json.loads(raw)
+        except ValueError as failure:
+            raise ValueError(tr(
+                "ops_ph_acquisitions must map each acquisition folder to its "
+                "channels; {value!r} is not that: {error}", value=raw,
+                error=failure)) from failure
+    if not isinstance(raw, Mapping):
+        raise ValueError(tr(
+            "ops_ph_acquisitions must map each acquisition folder to its "
+            "channels; got {value!r}", value=raw))
+    register_on = raw.get("register_on")
+    folders: List[Tuple[str, List[str]]] = []
+    owner: Dict[str, str] = {}
+    for folder, channels in raw.items():
+        if folder == "register_on":
+            continue
+        names = [c.upper() for c in _ph_names(channels)]
+        if not names:
+            raise ValueError(tr(
+                "ops_ph_acquisitions names no channel for {folder}",
+                folder=folder))
+        for name in names:
+            if name in owner:
+                raise ValueError(tr(
+                    "ops_ph_acquisitions takes channel {channel} from both "
+                    "{first} and {second}; each channel comes from one "
+                    "acquisition", channel=name, first=owner[name],
+                    second=folder))
+            owner[name] = str(folder)
+        folders.append((str(folder), names))
+    if not folders:
+        raise ValueError(tr("ops_ph_acquisitions names no acquisition"))
+    return {"folders": folders,
+            "register_on": str(register_on).upper() if register_on else None}
+
+
+def _ph_acquisition_index(root: str, acquisitions: Mapping[str, Any]
+                          ) -> Tuple[Dict[str, Any], Dict[str, int]]:
+    """One phenotype index built from the acquisitions ``ops_ph_acquisitions`` names.
+
+    :param root: ``phenotype_source``; relative acquisition folders are
+        under it.
+    :param acquisitions: :func:`_ph_acquisitions`.
+    :returns: ``(index, ignored)``: the ``well -> cycle -> site -> channel
+        token -> path`` index of the files whose token names a channel
+        listed for their acquisition, and how many files each acquisition
+        had that were left out. A later acquisition's single-channel file
+        of the ``register_on`` channel is kept under the token
+        ``<channel>@<n>`` (n the acquisition's position), which
+        :func:`_ph_secondary_pair` registers on and no measurement reads.
+    :raises ValueError: when a folder is missing or holds no tiles, or two
+        files give one site the same token.
+
+    A FOLDER THAT IS NOT LISTED IS NOT READ, which is how Funk plate D's
+    single-file GFP re-image stays out of the index: its in-stack GFP is
+    the one listed. Each acquisition is checked for one objective on its
+    own (:func:`_one_acquisition`).
+    """
+    from .qt.i18n import tr
+
+    register_on = acquisitions.get("register_on")
+    merged: Dict[str, Any] = {}
+    ignored: Dict[str, int] = {}
+    for number, (folder, channels) in enumerate(acquisitions["folders"]):
+        path = folder if os.path.isabs(folder) else os.path.join(root, folder)
+        if not os.path.isdir(path):
+            raise ValueError(tr(
+                "ops_ph_acquisitions names {folder}, which is not a folder "
+                "under {root}", folder=folder, root=root))
+        index = (_index_tiles(path, "uncycled")
+                 or _index_tiles(path, "cycled"))
+        if not index:
+            raise ValueError(tr(
+                "ops_ph_acquisitions names {folder}, which holds no phenotype "
+                "tiles", folder=path))
+        _one_acquisition(index, "ops_ph_acquisitions", path)
+        listed = set(channels)
+        ignored[folder] = 0
+        for well, cycles in index.items():
+            for cycle, sites in cycles.items():
+                for site, files in sites.items():
+                    target = merged.setdefault(well, {}).setdefault(
+                        cycle, {}).setdefault(site, {})
+                    for token, file in files.items():
+                        names = set(token.split("-"))
+                        if names & listed:
+                            key = token
+                        elif number and names == {register_on}:
+                            key = f"{register_on}@{number}"
+                        else:
+                            ignored[folder] += 1
+                            continue
+                        if key in target:
+                            raise ValueError(tr(
+                                "ops_ph_acquisitions gives well {well}, site "
+                                "{site} two {token} files: {first} and "
+                                "{second}", well=well, site=site, token=key,
+                                first=target[key], second=file))
+                        target[key] = file
+    return merged, ignored
 
 
 def _ph_shift_plane(plane: np.ndarray, dy: int, dx: int) -> np.ndarray:
@@ -2909,31 +3060,29 @@ def _ph_masks(plate: str, well: str, settings: Mapping[str, Any],
     return report
 
 
-def _ph_measure_field(task: Mapping[str, Any]) -> Dict[str, Any]:
-    """Measure one segmented phenotype field; the ``ph_measure`` worker.
+#: How many fields this process has measured, so the report can tell the
+#: first field of each measurement worker (which pays the GPU kernel
+#: compile, item 872 B15) from the rest.
+_PH_WORKER_FIELDS = {"count": 0}
 
-    :param task: ``site``, ``files``, ``channels``, ``mask_path``,
-        ``cell_path`` and ``texture``; optionally ``flat_folder``, whose
-        maps correct the field before it is measured
-        (:func:`spacr.ops_flatfield.correct_field`), ``funk_features``,
-        ``zernike`` and ``measure_gpu``, which measures intensity and
-        texture on the card.
-    :returns: ``site``, ``cells``, ``seconds`` and ``unreadable``.
 
-    Module level so a spawned process can run it. It reads its own field
-    and masks and writes its own Parquet part, so nothing large crosses the
-    process boundary. The correction is applied to the copy in memory; the
-    raw files are never changed.
+def _ph_measure_table(task: Mapping[str, Any]):
+    """One segmented phenotype field measured: ``(table or None, unreadable, shape)``.
+
+    :param task: as :func:`_ph_measure_field` takes it; ``staged``, when
+        set, is the field's stack staged by :class:`spacr.ops_run_infra.FieldStager`,
+        read in place of the raw files.
     """
     from .ops_sample import measure_phenotype_field
 
-    tick = time.perf_counter()
     unreadable: list = []
-    stack = _ph_read_field(task["files"], task["channels"], unreadable,
-                           task.get("secondary"))
+    if task.get("staged"):
+        stack = np.load(task["staged"])
+    else:
+        stack = _ph_read_field(task["files"], task["channels"], unreadable,
+                               task.get("secondary"))
     if stack is None:
-        return {"site": task["site"], "cells": None, "seconds": 0.0,
-                "unreadable": unreadable}
+        return None, unreadable, None
     with np.load(task["mask_path"]) as saved:
         nuclei = saved["nuclei"].astype(np.int32)
         cells = saved["cells"].astype(np.int32)
@@ -2943,6 +3092,9 @@ def _ph_measure_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         planes, offsets, _inverse = _ph_flat_planes(
             task["flat_folder"], task["channels"], stack.shape[:2])
         stack = correct_field(stack, planes, offsets, task["channels"])
+    if task.get("measure_gpu"):
+        os.environ.setdefault("CUPY_CACHE_DIR", os.path.join(
+            os.path.expanduser("~"), ".spacr", "cupy_cache"))
     table = measure_phenotype_field(
         nuclei, cells, stack, task["channels"],
         texture=bool(task["texture"]),
@@ -2950,11 +3102,82 @@ def _ph_measure_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         zernike=bool(task.get("zernike", False)),
         gpu=bool(task.get("measure_gpu", False)))
     table.insert(0, "site", int(task["site"]))
+    return table, unreadable, tuple(int(v) for v in stack.shape[:2])
+
+
+def _ph_measure_field(task: Mapping[str, Any]) -> Dict[str, Any]:
+    """Measure one segmented phenotype field; the ``ph_measure`` worker.
+
+    :param task: ``site``, ``files``, ``channels``, ``mask_path``,
+        ``cell_path`` and ``texture``; optionally ``flat_folder``, whose
+        maps correct the field before it is measured
+        (:func:`spacr.ops_flatfield.correct_field`), ``funk_features``,
+        ``zernike``, ``measure_gpu``, which measures intensity and
+        texture on the card, and ``staged``, a staged copy of the field
+        read in place of its raw files.
+    :returns: ``site``, ``cells``, ``seconds``, ``unreadable`` and
+        ``first_in_worker``, True for the first field this process measured.
+
+    Module level so a spawned process can run it. It reads its own field
+    and masks and writes its own Parquet part, so nothing large crosses the
+    process boundary. The correction is applied to the copy in memory; the
+    raw files are never changed.
+    """
+    tick = time.perf_counter()
+    _PH_WORKER_FIELDS["count"] += 1
+    first = _PH_WORKER_FIELDS["count"] == 1
+    table, unreadable, shape = _ph_measure_table(task)
+    if table is None:
+        return {"site": task["site"], "cells": None, "seconds": 0.0,
+                "unreadable": unreadable, "first_in_worker": first}
     table.to_parquet(task["cell_path"] + ".part", index=False)
     os.replace(task["cell_path"] + ".part", task["cell_path"])
     return {"site": task["site"], "cells": int(len(table)),
             "seconds": time.perf_counter() - tick, "unreadable": unreadable,
-            "shape": tuple(int(v) for v in stack.shape[:2])}
+            "shape": shape, "first_in_worker": first}
+
+
+def _ph_gpu_check(task: Mapping[str, Any], rtol: float = 1e-4
+                  ) -> Dict[str, Any]:
+    """Measure one field on the card and on the CPU and compare (item 872, B7).
+
+    :param task: a ``ph_measure`` task with ``measure_gpu`` set.
+    :param rtol: the relative tolerance a column must keep.
+    :returns: ``site`` and :func:`spacr.ops_run_infra.compare_tables` of the
+        GPU table against the CPU table; ``outside`` lists the columns
+        beyond ``rtol``. The run then goes on: the check reports, it does
+        not stop the run.
+    """
+    from .ops_run_infra import compare_tables
+
+    gpu, _unreadable, _shape = _ph_measure_table({**task, "measure_gpu": True})
+    cpu, _unreadable, _shape = _ph_measure_table({**task, "measure_gpu": False})
+    if gpu is None or cpu is None:
+        return {"site": task["site"], "skipped": "the field is unreadable"}
+    return {"site": task["site"], **compare_tables(gpu, cpu, rtol=rtol)}
+
+
+def _ph_measure_workers(settings: Mapping[str, Any], fields: int,
+                        measure_gpu: bool) -> int:
+    """How many fields are measured at once.
+
+    :param settings: read for ``ops_ph_measure_workers`` (``n_workers`` when
+        empty) and, with ``ops_gpu_admission`` and ``ops_gpu_vram_cap_gb``
+        set on a GPU measurement, the card's memory in use
+        (:meth:`spacr.gpu_admission.GpuAdmission.workers_under_cap`).
+    :param fields: how many fields there are to measure.
+    :param measure_gpu: whether the measurement runs on the card.
+    :returns: at least 1 and at most ``fields``.
+    """
+    asked = settings.get("ops_ph_measure_workers") or settings.get("n_workers")
+    workers = max(1, min(int(asked or 1), fields or 1))
+    if (measure_gpu and settings.get("ops_gpu_admission")
+            and settings.get("ops_gpu_vram_cap_gb")):
+        from .gpu_admission import admission_from_settings
+
+        workers = admission_from_settings(settings, "").workers_under_cap(
+            workers)
+    return workers
 
 
 def _ph_fields(db: str, plate: str, well: str, phenotype_files,
@@ -2966,8 +3189,8 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     :param plate: the plate name.
     :param well: the well name.
     :param phenotype_files: the phenotype index for this well.
-    :param settings: the OPS settings; ``n_workers`` sets how many fields
-        are measured at once.
+    :param settings: the OPS settings; ``ops_ph_measure_workers`` (else
+        ``n_workers``) sets how many fields are measured at once.
     :param gpu: segment on the card.
     :param destination: the run folder.
     :param segment: run ``ph_segment``.
@@ -2985,8 +3208,26 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     already uses every core (or the card), while spaCR's measurement of a
     field is one core for a few minutes on the reference plate's 2,960 px
     fields, so measuring fields side by side is what keeps the machine busy.
+
+    FIELD BY FIELD WHEN ASKED (item 872, B1 and B2). ``ops_ph_pipeline``
+    hands each field to the measurement workers as soon as its masks are
+    saved, so the card segments field n + 1 while field n is measured, in
+    place of segmenting the whole well first. ``ops_ph_stage_dir`` stages
+    each field's maximum projection on local disk with
+    ``ops_ph_stage_threads`` reader threads, at most ``ops_ph_stage_ahead``
+    fields ahead (:class:`spacr.ops_run_infra.FieldStager`): each raw file
+    is then read once, not once to segment and once to measure, and the
+    local copy is deleted when the field is done. Staging without the
+    pipeline measures each field right after segmenting it. Masks and
+    tables are the same either way.
+
+    With ``ops_ph_measure_gpu`` and ``ops_ph_measure_gpu_check`` (the
+    default), the first field to measure is measured on the card and on
+    the CPU first and the columns beyond relative 1e-4 are reported under
+    ``ph_measure_gpu_check`` (item 872, B7).
     """
     import multiprocessing
+    from concurrent.futures import ThreadPoolExecutor as _OneThread
 
     import pandas as pd
 
@@ -3021,68 +3262,10 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
     report: Dict[str, Any] = {"fields": len(sites)}
     field_shape = None
     secondary = _ph_secondary_by_site(db, plate, well, settings)
-    if segment:
-        models = None
-        seconds = Counter()
-        counts = Counter()
-        missing = ({} if settings.get("ops_retry_missing")
-                   else _ph_missing_fields(destination, well))
-        todo = [s for s in sites if not os.path.isfile(mask_path(s))
-                and s not in missing]
-        found: Dict[int, str] = {
-            int(s): "no file for the site in phenotype_source"
-            for s in sorted(rows["site"])
-            if (wanted is None or int(s) in wanted) and int(s) not in files
-            and int(s) not in missing}
-        for count, site in enumerate(todo, start=1):
-            tick = time.perf_counter()
-            before = len(unreadable)
-            stack = _ph_read_field(files[site], channels, unreadable,
-                                   secondary.get(site))
-            seconds["read"] += time.perf_counter() - tick
-            if stack is None:
-                found[site] = "; ".join(str(r) for _p, r in
-                                        unreadable[before:]) or "unreadable"
-                continue
-            field_shape = field_shape or stack.shape[:2]
-            if models is None:
-                nucleus_model = _cellpose_model(settings, gpu,
-                                                "ops_ph_nucleus_model")
-                same = (str(settings.get("ops_ph_cell_model") or "cpsam")
-                        == str(settings.get("ops_ph_nucleus_model") or "cpsam"))
-                models = (nucleus_model, nucleus_model if same else
-                          _cellpose_model(settings, gpu, "ops_ph_cell_model"))
-            tick = time.perf_counter()
-            nuclei, cells, paired = _ph_segment_field(stack, channels, models,
-                                                      settings)
-            seconds["segment"] += time.perf_counter() - tick
-            counts.update(paired)
-            np.savez_compressed(mask_path(site) + ".part.npz",
-                                nuclei=nuclei.astype(np.uint32),
-                                cells=cells.astype(np.uint32))
-            os.replace(mask_path(site) + ".part.npz", mask_path(site))
-            _say(tr("{well} ph_segment: site {site}, {cells} cells, "
-                    "{count} of {total}", well=well, site=site,
-                    cells=paired["paired"], count=count, total=len(todo)))
-        fresh = sum(1 for s in todo if os.path.isfile(mask_path(s)))
-        _ph_record_missing(plate, well, destination, found)
-        report["ph_segment"] = {
-            "missing_recorded": sorted(found),
-            "missing_skipped": sorted(
-                s for s in missing if (wanted is None or s in wanted)
-                and not os.path.isfile(mask_path(s))),
-            "segmented": fresh, "resumed": len(sites) - len(todo),
-            "objects": dict(counts),
-            "seconds": {k: round(v, 1) for k, v in seconds.items()},
-            "segment_seconds_per_field": (round(seconds["segment"] / fresh, 2)
-                                          if fresh else None),
-            "read_seconds_per_field": (round(seconds["read"] / fresh, 2)
-                                       if fresh else None),
-        }
+    flat_folder = None
+    options: Dict[str, Any] = {}
     if measure:
-        tick = time.perf_counter()
-        flat_folder = None
-        options: Dict[str, Any] = {
+        options = {
             "flatfield": None,
             "funk_features": bool(settings.get("ops_ph_funk_features",
                                                False)),
@@ -3096,31 +3279,194 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
             options["flatfield"] = load_flat_maps(flat_folder,
                                                   channels)[2]["md5"]
         _ph_options_marker(cell_dir, options)
-        tasks = [{"site": s, "files": files[s], "channels": channels,
-                  "mask_path": mask_path(s), "cell_path": cell_path(s),
-                  "texture": bool(settings.get("ops_ph_texture", True)),
-                  "flat_folder": flat_folder,
-                  "funk_features": options["funk_features"],
-                  "zernike": options["zernike"],
-                  "measure_gpu": options["measure_gpu"],
-                  "secondary": secondary.get(s)}
-                 for s in sites if os.path.isfile(mask_path(s))
-                 and not os.path.isfile(cell_path(s))]
-        workers = max(1, min(int(settings.get("n_workers") or 1),
-                             len(tasks) or 1))
-        results = []
-        if workers == 1:
-            results = [_ph_measure_field(task) for task in tasks]
-        else:
-            context = multiprocessing.get_context("spawn")
-            with ProcessPoolExecutor(workers, mp_context=context) as pool:
-                for count, result in enumerate(
-                        pool.map(_ph_measure_field, tasks), start=1):
-                    results.append(result)
-                    if count % 10 == 0:
-                        _say(tr("{well} ph_measure: {count} of {total} "
-                                "fields", well=well, count=count,
-                                total=len(tasks)))
+
+    def measure_task(site: int) -> Dict[str, Any]:
+        """The ``ph_measure`` task of one field."""
+        return {"site": site, "files": files[site], "channels": channels,
+                "mask_path": mask_path(site), "cell_path": cell_path(site),
+                "texture": bool(settings.get("ops_ph_texture", True)),
+                "flat_folder": flat_folder,
+                "funk_features": options["funk_features"],
+                "zernike": options["zernike"],
+                "measure_gpu": options["measure_gpu"],
+                "secondary": secondary.get(site)}
+
+    check_gpu = bool(measure and options["measure_gpu"]
+                     and settings.get("ops_ph_measure_gpu_check", True))
+    pipelined = bool(segment and measure and settings.get("ops_ph_pipeline"))
+    stage_dir = settings.get("ops_ph_stage_dir") or None
+    streamed = pipelined or bool(stage_dir)
+    todo: List[int] = []
+    found: Dict[int, str] = {}
+    missing: Dict[int, str] = {}
+    if segment:
+        missing = ({} if settings.get("ops_retry_missing")
+                   else _ph_missing_fields(destination, well))
+        todo = [s for s in sites if not os.path.isfile(mask_path(s))
+                and s not in missing]
+        found = {
+            int(s): "no file for the site in phenotype_source"
+            for s in sorted(rows["site"])
+            if (wanted is None or int(s) in wanted) and int(s) not in files
+            and int(s) not in missing}
+    to_measure = ({s for s in sites if not os.path.isfile(cell_path(s))
+                   and (os.path.isfile(mask_path(s)) or s in todo)}
+                  if measure else set())
+    stager = None
+    if stage_dir:
+        from .ops_run_infra import FieldStager
+
+        def stage_read(site: int):
+            """One field's projected stack, for the stager."""
+            lost: list = []
+            return _ph_read_field(files[site], channels, lost,
+                                  secondary.get(site)), lost
+
+        stager = FieldStager(
+            os.path.join(str(stage_dir), str(plate), str(well)),
+            [s for s in sites if s in to_measure or s in todo], stage_read,
+            ahead=int(_setting_number(settings.get("ops_ph_stage_ahead"),
+                                      "ops_ph_stage_ahead", 48)),
+            threads=int(_setting_number(settings.get("ops_ph_stage_threads"),
+                                        "ops_ph_stage_threads", 4)))
+    pool = None
+    futures: List[Any] = []
+    results: List[Dict[str, Any]] = []
+    workers = 1
+    if streamed and measure:
+        workers = _ph_measure_workers(settings, len(to_measure),
+                                      options["measure_gpu"])
+        if pipelined:
+            pool = (_OneThread(1) if workers == 1 else ProcessPoolExecutor(
+                workers, mp_context=multiprocessing.get_context("spawn")))
+
+    def measure_now(site: int) -> None:
+        """Measure one field in the stream: in the pool, or here."""
+        task = measure_task(site)
+        if stager is not None:
+            staged, lost = stager.path(site)
+            if staged is None:
+                unreadable.extend(lost)
+                return
+            task["staged"] = staged
+        if check_gpu and "ph_measure_gpu_check" not in report:
+            report["ph_measure_gpu_check"] = _ph_gpu_check(task)
+        if pool is None:
+            results.append(_ph_measure_field(task))
+            if stager is not None:
+                stager.release(site)
+            return
+        future = pool.submit(_ph_measure_field, task)
+        if stager is not None:
+            future.add_done_callback(lambda _done, s=site: stager.release(s))
+        futures.append(future)
+
+    stream_tick = time.perf_counter()
+    try:
+        if segment:
+            models = None
+            seconds = Counter()
+            counts = Counter()
+            order = ([s for s in sites if s in todo or s in to_measure]
+                     if streamed else todo)
+            for count, site in enumerate(order, start=1):
+                if site not in todo:
+                    measure_now(site)
+                    continue
+                tick = time.perf_counter()
+                before = len(unreadable)
+                if stager is not None:
+                    stack, lost = stager.load(site)
+                    unreadable.extend(lost)
+                else:
+                    stack = _ph_read_field(files[site], channels, unreadable,
+                                           secondary.get(site))
+                seconds["read"] += time.perf_counter() - tick
+                if stack is None:
+                    found[site] = "; ".join(str(r) for _p, r in
+                                            unreadable[before:]) or "unreadable"
+                    continue
+                field_shape = field_shape or stack.shape[:2]
+                if models is None:
+                    nucleus_model = _cellpose_model(settings, gpu,
+                                                    "ops_ph_nucleus_model")
+                    same = (str(settings.get("ops_ph_cell_model") or "cpsam")
+                            == str(settings.get("ops_ph_nucleus_model")
+                                   or "cpsam"))
+                    models = (nucleus_model, nucleus_model if same else
+                              _cellpose_model(settings, gpu,
+                                              "ops_ph_cell_model"))
+                tick = time.perf_counter()
+                nuclei, cells, paired = _ph_segment_field(stack, channels,
+                                                          models, settings)
+                seconds["segment"] += time.perf_counter() - tick
+                counts.update(paired)
+                np.savez_compressed(mask_path(site) + ".part.npz",
+                                    nuclei=nuclei.astype(np.uint32),
+                                    cells=cells.astype(np.uint32))
+                os.replace(mask_path(site) + ".part.npz", mask_path(site))
+                _say(tr("{well} ph_segment: site {site}, {cells} cells, "
+                        "{count} of {total}", well=well, site=site,
+                        cells=paired["paired"], count=count,
+                        total=len(order)))
+                if streamed and site in to_measure:
+                    measure_now(site)
+                elif stager is not None:
+                    stager.release(site)
+            fresh = sum(1 for s in todo if os.path.isfile(mask_path(s)))
+            _ph_record_missing(plate, well, destination, found)
+            report["ph_segment"] = {
+                "missing_recorded": sorted(found),
+                "missing_skipped": sorted(
+                    s for s in missing if (wanted is None or s in wanted)
+                    and not os.path.isfile(mask_path(s))),
+                "segmented": fresh, "resumed": len(sites) - len(todo),
+                "objects": dict(counts),
+                "seconds": {k: round(v, 1) for k, v in seconds.items()},
+                "segment_seconds_per_field": (
+                    round(seconds["segment"] / fresh, 2) if fresh else None),
+                "read_seconds_per_field": (round(seconds["read"] / fresh, 2)
+                                           if fresh else None),
+            }
+        elif streamed and measure:
+            for site in [s for s in sites if s in to_measure]:
+                measure_now(site)
+        for future in futures:
+            results.append(future.result())
+    finally:
+        if pool is not None:
+            pool.shutdown(wait=True)
+        if stager is not None:
+            stager.close()
+    if streamed:
+        report["ph_stream"] = {
+            "pipelined": pipelined, "staged": stager is not None,
+            "workers": workers,
+            "wall_seconds": round(time.perf_counter() - stream_tick, 1),
+            "stage_peak_files": stager.peak_files if stager else None,
+            "stage_peak_bytes": stager.peak_bytes if stager else None}
+    if measure:
+        tick = time.perf_counter()
+        if not streamed:
+            tasks = [measure_task(s) for s in sites
+                     if os.path.isfile(mask_path(s))
+                     and not os.path.isfile(cell_path(s))]
+            if check_gpu and tasks:
+                report["ph_measure_gpu_check"] = _ph_gpu_check(tasks[0])
+            workers = _ph_measure_workers(settings, len(tasks),
+                                          options["measure_gpu"])
+            if workers == 1:
+                results = [_ph_measure_field(task) for task in tasks]
+            else:
+                context = multiprocessing.get_context("spawn")
+                with ProcessPoolExecutor(workers, mp_context=context) as pool:
+                    for count, result in enumerate(
+                            pool.map(_ph_measure_field, tasks), start=1):
+                        results.append(result)
+                        if count % 10 == 0:
+                            _say(tr("{well} ph_measure: {count} of {total} "
+                                    "fields", well=well, count=count,
+                                    total=len(tasks)))
         for result in results:
             unreadable.extend(result["unreadable"])
             field_shape = field_shape or result.get("shape")
@@ -3135,6 +3481,8 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
         write_table(cells_table, _ph_cells_path(destination, well),
                     canonicalise=False)
         measured = [r for r in results if r["cells"] is not None]
+        first = [r["seconds"] for r in measured if r.get("first_in_worker")]
+        rest = [r["seconds"] for r in measured if not r.get("first_in_worker")]
         report["ph_measure"] = {
             "measured": len(measured), "resumed": len(parts) - len(measured),
             "workers": workers, "cells": int(len(cells_table)),
@@ -3142,6 +3490,9 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
             "measure_seconds_per_field": (
                 round(float(np.mean([r["seconds"] for r in measured])), 2)
                 if measured else None),
+            "first_field_seconds_per_worker": [round(v, 2) for v in first],
+            "later_field_seconds_median": (round(float(np.median(rest)), 2)
+                                           if rest else None),
             "wall_seconds": round(time.perf_counter() - tick, 1),
             "table": _ph_cells_path(destination, well),
             "flatfield": ({"mode": "exact", "folder": flat_folder,
@@ -4394,6 +4745,10 @@ def _ph_secondary_pair(files: Mapping[str, str], channels: Sequence[str]
             "ops_ph_secondary_channels names {channels}, but the site's files "
             "{files} are not two acquisitions", channels=list(channels),
             files=sorted(files)))
+    tagged = [c for c in held_second
+              if "@" in c and c.split("@")[0] in held_primary]
+    if tagged:
+        return tagged[0].split("@")[0], tagged[0]
     shared = [c for c in held_second if c in held_primary
               and c.upper() not in {x.upper() for x in channels}]
     if shared:
@@ -4923,7 +5278,7 @@ def _ph_owned_cells(destination: str, well: str, cells, settings):
 
 
 def _ph_table_frames(plate: str, well: str, cells, links, genotype,
-                     owned, rule: str):
+                     owned, rule: str, integer_keys: bool = False):
     """The key columns and compartment features of one well's owned cells.
 
     :param plate: the plate name.
@@ -4934,6 +5289,8 @@ def _ph_table_frames(plate: str, well: str, cells, links, genotype,
         or None.
     :param owned: :func:`_ph_owned_cells`.
     :param rule: :func:`_ph_genotype_rule`.
+    :param integer_keys: also key each cell by ``cell_key``, the integer
+        :func:`spacr.ops_run_infra.integer_cell_key` (item 872, B17).
     :returns: ``(keys, {compartment: features})``, row-aligned.
     """
     import pandas as pd
@@ -4948,6 +5305,12 @@ def _ph_table_frames(plate: str, well: str, cells, links, genotype,
         "plateID": str(plate), "rowID": row, "columnID": column,
         "fieldID": [schema.field_id(int(s)) for s in kept["site"]],
         "object_label": kept["label"].astype(np.int64).to_numpy()})
+    if integer_keys:
+        from .ops_run_infra import integer_cell_key
+
+        keys.insert(1, "cell_key", integer_cell_key(
+            int(row[1:]), int(column[1:]), kept["site"].to_numpy(),
+            kept["label"].to_numpy()))
     lookup = kept[["site", "label"]].astype(np.int64)
     if links is not None and len(links):
         lookup = lookup.merge(links[["site", "label", "object_id"]].astype(
@@ -5051,6 +5414,13 @@ def _ph_tables(db: str, plate: str, wells: Sequence[str],
     one row per field from ``merged/`` (:func:`_ph_merged`), when that was
     written.
 
+    ``ops_tables_integer_keys`` adds ``cell_key``, an integer that joins
+    as ``prcfo`` does (:func:`spacr.ops_run_infra.integer_cell_key`), and
+    indexes it; ``ops_tables_layout`` ``'wide'`` also writes ``cell_wide``,
+    one row per cell with the keys and the cell, nucleus and cytoplasm
+    features side by side, which equals the three tables joined (item 872,
+    B17).
+
     The rows are written per well in one transaction per table (item 810),
     and the join keys are indexed afterwards (item 811). When the plate
     holds more owned cells than ``ops_tables_parquet_threshold``, the
@@ -5076,6 +5446,13 @@ def _ph_tables(db: str, plate: str, wells: Sequence[str],
     genotype = pd.read_parquet(path) if os.path.isfile(path) else None
     links = _rows_for_wells(db, "ops_merge", plate, wells)
     rule = _ph_genotype_rule(settings)
+    integer_keys = bool(settings.get("ops_tables_integer_keys", False))
+    layout = str(settings.get("ops_tables_layout") or "compartments").strip(
+        ).lower()
+    if layout not in ("compartments", "wide"):
+        raise ValueError(tr(
+            "ops_tables_layout must be compartments or wide; got {value}",
+            value=layout))
     plans = []
     total = 0
     for well in wells:
@@ -5105,8 +5482,14 @@ def _ph_tables(db: str, plate: str, wells: Sequence[str],
             well_genotype = (genotype[genotype["well"].astype(str) == str(well)]
                              if genotype is not None else None)
             keys, features = _ph_table_frames(plate, well, cells, well_links,
-                                              well_genotype, owned, rule)
+                                              well_genotype, owned, rule,
+                                              integer_keys=integer_keys)
             del cells
+            if layout == "wide":
+                frame = pd.concat([keys, *(features[c] for c in
+                                           _PH_TABLE_COMPARTMENTS)], axis=1)
+                _ph_insert_rows(conn, "cell_wide", frame)
+                counts["cell_wide"] += len(frame)
             for compartment in _PH_TABLE_COMPARTMENTS:
                 if wide_to_parquet:
                     sub = os.path.join(folder, compartment)
@@ -5146,6 +5529,13 @@ def _ph_tables(db: str, plate: str, wells: Sequence[str],
                          f"ON {compartment}(object_id)")
             conn.execute(f"CREATE INDEX IF NOT EXISTS ix_{compartment}_gene "
                          f"ON {compartment}(gene)")
+            if integer_keys:
+                conn.execute(f"CREATE INDEX IF NOT EXISTS "
+                             f"ix_{compartment}_cell_key ON "
+                             f"{compartment}(cell_key)")
+        if layout == "wide":
+            conn.execute("CREATE INDEX IF NOT EXISTS ix_cell_wide_prcfo ON "
+                         "cell_wide(prcfo)")
         index_seconds = time.perf_counter() - tick
     finally:
         conn.close()
@@ -5159,6 +5549,7 @@ def _ph_tables(db: str, plate: str, wells: Sequence[str],
               "parquet_files": len(parquet_files),
               "genotype_table": path if genotype is not None else None,
               "genotype_rule": rule,
+              "integer_keys": integer_keys, "layout": layout,
               "index_seconds": round(index_seconds, 1),
               "seconds": round(time.perf_counter() - started, 1)}
     _say(tr("{plate} ph_tables: {rows} cells written to {db}", plate=plate,
@@ -6717,6 +7108,20 @@ def run_ops(settings: Mapping[str, Any], *,
         the stored cell tables of ``ops_profile_cells`` into gene profiles
         and scores them against reference gene pairs
         (:func:`spacr.ops_tvn.run_profile_phases`).
+        ``"stress"``, after ``report``,
+        times the finished store and writes
+        ``results/ops_stress/stress_test.csv``
+        (:func:`spacr.ops_run_infra.stress_rows`); ``ops_stress_report``
+        runs it too.
+
+        Plate-scale runs (item 872, alpha): ``ops_ph_acquisitions`` names
+        each phenotype acquisition's folder and channels
+        (:func:`_ph_acquisition_index`); ``ops_ph_pipeline`` and
+        ``ops_ph_stage_dir`` stream the fields (:func:`_ph_fields`);
+        ``ops_archive_root`` copies each finished well to archive storage,
+        verifies it and resumes from its ``WELL_DONE`` marker
+        (:func:`_ph_archive_resume`); ``ops_gpu_admission`` waits for a free
+        card first (:func:`_ops_admitted_run`).
     :param library: the guide barcodes, as a sequence or the path of a CSV
         with a ``prefix``, ``barcode`` or ``sequence`` column. When given,
         each barcode is also mapped to its closest guide. Overrides the
@@ -6726,6 +7131,9 @@ def run_ops(settings: Mapping[str, Any], *,
         unknown phase or well is asked for, or a phase's input is missing.
     """
     settings = dict(settings or {})
+    if settings.get("ops_gpu_admission") and not _OPS_ADMITTED.get():
+        return _ops_admitted_run(settings, wells=wells, phases=phases,
+                                 library=library)
     unknown = [phase for phase in phases if phase not in _ALL_PHASES]
     if unknown:
         raise ValueError(
@@ -6789,6 +7197,7 @@ def run_ops(settings: Mapping[str, Any], *,
 
     phenotype_root = settings.get("phenotype_source")
     phenotype_index: Dict[str, Any] = {}
+    out_acquisitions = None
     wants_tiles = any(p in phases for p in ("phenotype", "ph_segment",
                                             "ph_measure", "ph_flatfield",
                                             "ph_merged", "ph_crops"))
@@ -6797,27 +7206,58 @@ def run_ops(settings: Mapping[str, Any], *,
             raise ValueError(
                 f"phenotype_source must be the folder of phenotype tiles; "
                 f"got {phenotype_root!r}")
-        phenotype_index = (_index_tiles(str(phenotype_root), "uncycled")
-                           or _index_tiles(str(phenotype_root), "cycled"))
+        acquisitions = _ph_acquisitions(settings)
+        if acquisitions is not None:
+            phenotype_index, ignored = _ph_acquisition_index(
+                str(phenotype_root), acquisitions)
+            out_acquisitions = {"folders": acquisitions["folders"],
+                                "register_on": acquisitions["register_on"],
+                                "ignored_files": ignored}
+            if (len(acquisitions["folders"]) > 1
+                    and not settings.get("ops_ph_secondary_channels")):
+                settings["ops_ph_secondary_channels"] = ",".join(
+                    c for _folder, names in acquisitions["folders"][1:]
+                    for c in names)
+        else:
+            phenotype_index = (_index_tiles(str(phenotype_root), "uncycled")
+                               or _index_tiles(str(phenotype_root), "cycled"))
         if not phenotype_index:
             raise ValueError(
                 f"no tile under {phenotype_root} is named like "
                 "20X_DAPI-GFP-A594-AF750_A1_DAPI-GFP_Site-0.tif "
                 "(magnification, channel set, well, this file's channels, "
                 "site) or like 20X_c1_A1_DAPI-GFP_Site-0.tif")
-        _one_acquisition(phenotype_index, "phenotype_source",
-                         str(phenotype_root))
+        if acquisitions is None:
+            _one_acquisition(phenotype_index, "phenotype_source",
+                             str(phenotype_root))
 
     out: Dict[str, Any] = {"db": db, "plate": plate, "wells": {}}
+    if out_acquisitions is not None:
+        out["ph_acquisitions"] = out_acquisitions
     if "ph_flatfield" in phases:
         out["ph_flatfield"] = _ph_flatfield(plate, chosen, phenotype_index,
                                             settings, destination, db)
         with open(os.path.join(destination, f"ops_flatfield_{plate}.json"),
                   "w", encoding="utf-8") as handle:
             json.dump(out["ph_flatfield"], handle, indent=1, default=str)
-    for well in ([] if set(phases) <= {"decode_qc", "compare_calls"} else chosen):
+    archive_root = settings.get("ops_archive_root") or None
+    well_phases = [p for p in phases if p not in _PH_PLATE_PHASES
+                   and p not in ("decode_qc", "compare_calls")]
+    only_qc = set(phases) <= {"decode_qc", "compare_calls"}
+    for well in ([] if only_qc else chosen):
         folder = os.path.join(destination, well)
         report_path = os.path.join(folder, "ops_report.json")
+        if settings.get("ops_gpu_admission") and os.path.exists(
+                os.path.join(destination, "STOP")):
+            out["stopped_before"] = well
+            _say(f"STOP found in {destination}; stopping before well {well}")
+            break
+        if archive_root:
+            resumed = _ph_archive_resume(destination, str(archive_root), plate,
+                                         well, well_phases, settings)
+            if resumed is not None:
+                out["wells"][well] = resumed
+                continue
         report: Dict[str, Any] = {}
         if not sequencing and os.path.isfile(report_path):
             with open(report_path, encoding="utf-8") as handle:
@@ -6895,6 +7335,14 @@ def run_ops(settings: Mapping[str, Any], *,
         os.makedirs(folder, exist_ok=True)
         with open(report_path, "w", encoding="utf-8") as handle:
             json.dump(report, handle, indent=1, default=str)
+        if archive_root:
+            from .ops_run_infra import archive_well
+
+            report["archive"] = archive_well(
+                destination, str(archive_root), plate, well,
+                phases=well_phases, verify=_ph_archive_verify(settings),
+                delete_local=bool(settings.get("ops_archive_delete_local")),
+                report=report)
         out["wells"][well] = report
     if _wants_decode_qc(settings, phases):
         from .ops_decode import results_folder, run_decode_qc
@@ -6914,6 +7362,11 @@ def run_ops(settings: Mapping[str, Any], *,
                                f"compare_calls_{plate}.json"),
                   "w", encoding="utf-8") as handle:
             json.dump(out["compare_calls"], handle, indent=1, default=str)
+    if archive_root and not only_qc and "stopped_before" not in out:
+        from .ops_run_infra import mark_plate_done
+
+        out["archive_plate_done"] = mark_plate_done(str(archive_root), plate,
+                                                    chosen)
     if "aggregate" in phases:
         out["aggregate"] = _ph_aggregate(db, plate, chosen, settings,
                                          destination,
@@ -6933,7 +7386,16 @@ def run_ops(settings: Mapping[str, Any], *,
     if "report" in phases:
         out["report"] = _ph_report(db, plate, chosen, settings, destination,
                                    out.get("aggregate"))
-    for phase in ("ph_tables", "ph_crops", "report"):
+    if "stress" in phases or settings.get("ops_stress_report"):
+        from .ops_run_infra import stress_rows, write_stress_report
+
+        rows = stress_rows(destination, plate, chosen, out,
+                           crop_root=_ph_merged_root(settings, destination),
+                           control_prefix=str(settings.get("ops_control_prefix")
+                                              or "nontargeting"))
+        out["stress"] = {"csv": write_stress_report(destination, rows),
+                         "rows": len(rows)}
+    for phase in ("ph_tables", "ph_crops", "report", "stress"):
         if phase in out:
             with open(os.path.join(destination, f"ops_{phase}_{plate}.json"),
                       "w", encoding="utf-8") as handle:
@@ -6976,6 +7438,114 @@ def _decoded_wells(db: str, plate: str, wells) -> List[str]:
     rows = read_table(db, "ops_barcodes")
     return sorted(set(rows.loc[rows["plate"].astype(str) == str(plate),
                                "well"].astype(str)))
+
+
+#: True inside a run that :func:`_ops_admitted_run` let start, so the run
+#: does not wait for the card a second time.
+_OPS_ADMITTED: "contextvars.ContextVar[bool]" = contextvars.ContextVar(
+    "ops_gpu_admitted", default=False)
+
+
+def _ops_admitted_run(settings: Mapping[str, Any], *, wells, phases,
+                      library) -> Dict[str, Any]:
+    """:func:`run_ops` once the GPU admission policy lets it start (item 872, B11).
+
+    :param settings: the OPS settings with ``ops_gpu_admission`` set; read
+        for the ``ops_gpu_*`` settings
+        (:func:`spacr.gpu_admission.admission_from_settings`). A ``STOP``
+        file in ``dst_root`` ends the wait, and the run between wells.
+    :param wells: as :func:`run_ops` takes them.
+    :param phases: as :func:`run_ops` takes them.
+    :param library: as :func:`run_ops` takes it.
+    :returns: :func:`run_ops`'s result with ``gpu_admission`` (the wait's
+        outcome); when the wait ended without admission, only that and no
+        phase run.
+
+    START and FINISH go to ``~/.spacr/gpu/log``; FINISH is written however
+    the run ends, with the exception's name when it raised.
+    """
+    from .gpu_admission import admission_from_settings
+
+    destination = str(settings.get("dst_root") or settings.get("genotype_source")
+                      or "")
+    plate = str(settings.get("plate") or os.path.basename(
+        os.path.normpath(destination)) or "plate")
+    admission = admission_from_settings(
+        settings, f"spacr-ops-{plate}",
+        stop_file=os.path.join(destination, "STOP") if destination else None)
+    waited = admission.wait()
+    waited["waits"] = admission.waits[-20:]
+    if not waited["admitted"]:
+        _say(f"GPU admission: not started ({waited})")
+        return {"db": os.path.join(destination, "measurements.db"),
+                "plate": plate, "wells": {}, "gpu_admission": waited}
+    admission.start()
+    token = _OPS_ADMITTED.set(True)
+    status: Any = "error"
+    try:
+        out = run_ops(settings, wells=wells, phases=phases, library=library)
+        status = 0
+    except BaseException as failure:
+        status = type(failure).__name__
+        raise
+    finally:
+        _OPS_ADMITTED.reset(token)
+        admission.finish(status)
+    out["gpu_admission"] = waited
+    return out
+
+
+def _ph_archive_verify(settings: Mapping[str, Any]) -> str:
+    """``ops_archive_verify``, checked: ``"md5"`` or ``"size"``."""
+    from .ops_run_infra import ARCHIVE_VERIFY_MODES
+    from .qt.i18n import tr
+
+    mode = str(settings.get("ops_archive_verify") or "md5").strip().lower()
+    if mode not in ARCHIVE_VERIFY_MODES:
+        raise ValueError(tr("ops_archive_verify must be md5 or size; got "
+                            "{value}", value=mode))
+    return mode
+
+
+def _ph_archive_resume(destination: str, archive_root: str, plate: str,
+                       well: str, phases: Sequence[str],
+                       settings: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
+    """A well's report from its archive copy, when the copy is complete (item 872, B9).
+
+    :param destination: the run folder.
+    :param archive_root: ``ops_archive_root``.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param phases: the per-well phases this run asks for.
+    :param settings: read for ``ops_archive_verify`` and
+        ``ops_archive_delete_local``.
+    :returns: the archived report with ``archive``, ``{"resumed": True}``
+        when the well need not run again; None when it must run: no
+        marker, a marker of fewer phases, or a damaged copy whose local
+        files are gone. A damaged copy whose local files are still there
+        is copied again and verified, without measuring anything again.
+    """
+    from .ops_run_infra import archive_well, archived_well
+
+    done = archived_well(archive_root, plate, well, phases=phases)
+    if done is None:
+        return None
+    if done["ok"]:
+        return {**done["report"], "archive": {"resumed": True,
+                                              "marker": done["marker"]}}
+    if not all(os.path.isfile(os.path.join(destination, p))
+               for p in done["bad"]):
+        _say(f"{well}: the archive copy is damaged ({done['bad']}) and the "
+             "local files are gone; the well runs again")
+        return None
+    _say(f"{well}: the archive copy is damaged ({done['bad']}); copying again")
+    copied = archive_well(destination, archive_root, plate, well,
+                          phases=phases, verify=_ph_archive_verify(settings),
+                          delete_local=bool(settings.get(
+                              "ops_archive_delete_local")),
+                          report=done["report"])
+    return {**done["report"], "archive": {**copied, "resumed": True,
+                                          "damaged": done["bad"]}}
 
 
 def _placed_wells(db: str, plate: str) -> List[str]:
