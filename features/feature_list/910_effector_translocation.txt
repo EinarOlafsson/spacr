@@ -1,0 +1,49 @@
+HOST-NUCLEUS EFFECTOR TRANSLOCATION AGAINST PARASITE LOAD
+========================================================
+
+Lifecycle: future
+Status: PARTIAL 2026-11-09 (alpha) — spacr.host_pathogen gains nucleus_territories (cells from nuclei without a cell stain: small nuclei removed, each nucleus grown by up to N px without overlap), translocation_cells (per host cell: vacuoles and parasites per cell by majority overlap, raw nuclear effector sum as HRMAn, nuclear mean with pixels near parasites left out, field background, cytoplasm, DNA and nucleus-area controls), translocation_summary (curves by vacuoles per cell normalised to k = 0 per group, per-well ratios, null-threshold % positive nuclei per k and per well, within-field shuffle null, agreement with a reference curve) and nuclear_translocation (the settings run; analyze_host_pathogen dispatches to it with translocation=True), writing <src>/translocation/. Twenty settings under ALPHA_FEATURES[910]. On the 3-field CPU pilot (B02_3, D05_3, F08_3) the territories and nuclei, cells_translocation.csv (309 cells) and all nine summary tables, the shuffle null with seed 0 included, equal the reference scripts' output.
+Requested: maintainer, 2026-11-09 (BMC paper item spec ITEM_effector_translocation.md).
+Owner: Home (claude-lane-e-1109 worktree).
+Source: the HRMAn Protein_translocation reanalysis scripts cell_territories.py, translocation_objects.py and summary_pt.py.
+Related: 898 (vacuole grouping, reused), 815, 829.
+
+WHAT WAS BUILT
+- nucleus_territories(nucleus_mask, expand_px, min_nucleus_size), with
+  cell_from_nucleus_expand_px / cell_from_nucleus_min_nucleus_size; the
+  cell table gets cell_source = nucleus_territory.
+- translocation_cells(stack, settings, well, field) and
+  translocation_summary(cells, settings, reference), with the settings
+  translocation, translocation_merged_folder, translocation_channel,
+  translocation_control_channel, translocation_exclude_px,
+  translocation_min_pathogen_size, translocation_background,
+  translocation_background_min_px,
+  translocation_background_fallback_percentile,
+  translocation_min_nucleus_size, translocation_k_column, translocation_kmax,
+  translocation_groups (row:group pairs, a dict or a plate map),
+  translocation_min_cells_per_bin, translocation_null_percentile,
+  translocation_shuffle_n, translocation_seed, translocation_reference (a
+  reference curve table; the HRMAn values are data, never code).
+- Vacuoles reuse vacuole_gap_px and vacuoles_from_parasites of item 898.
+
+RESULT (scratch: /mnt/firecuda2/codex/scratch-docs/paper-items-1109/lane-e/validate_910.py)
+Pilot arrays /mnt/wd4tb/hrman_pt/work/test: territories and nuclei
+identical for all 3 fields; cells_translocation identical (309 rows);
+counts_per_effector, curves_all_readouts (114 rows), per_well_ratios,
+per_well_summary, null_thresholds, pct_ha_positive_nuclei,
+pct_ha_positive_per_well, shuffle_null (66 rows) and agreement_with_hrman
+(24 rows) identical.
+
+NOT DONE / REMAINING
+- Make Masks does not yet call nucleus_territories when cell_channel is None
+  (the readout makes the territories itself from the five-plane arrays), and
+  measure_crop still rejects _None.npy arrays; item 1 of the spec is
+  therefore reachable only through nuclear_translocation.
+- The readout spacr_db_integrated_by_parasites (measure_crop's nucleus
+  integrated intensity binned by pathogen objects, read from the
+  measurement database) and spacr_infection_report_per_well.csv were left
+  out; the reference's Result.pzfx parser was not ported (the reference
+  curve is read from a CSV, as the spec asks).
+- No figure yet (ratio vs k per group, raw and corrected, null band).
+- Full-plate acceptance waits for the GPU masks of the paper session.
+- Catalogue (9-locale) records and arrival contracts are left to the master.

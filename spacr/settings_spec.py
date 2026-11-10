@@ -311,6 +311,8 @@ def convert_settings_dict_for_gui(settings):
         'model_type': ('combo', torchvision_models, 'resnet50'),
         'cam_type': ('combo', _cam_type_choices(), 'gradcam'),
         'compression': ('combo', ['lzw', 'zlib', 'none'], 'lzw'),
+        'translocation_background': ('combo', ['outside_cells_median', 'none'], 'outside_cells_median'),
+        'translocation_k_column': ('combo', ['n_vacuoles', 'n_parasites'], 'n_vacuoles'),
         'replication_classifier': ('combo', ['none', 'hist_gbm'], 'none'),
         'size_calibration': ('combo', ['none', 'modal_single'], 'none'),
         'ml_eval_split': ('combo', ['leave_one_well_out', 'leave_one_plate_out', 'random'], 'leave_one_well_out'),

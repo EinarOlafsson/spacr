@@ -740,7 +740,405 @@ def analyze_titration(settings=None):
     return result
 
 
+TRANSLOCATION_DEFAULTS = {
+    'translocation': False,
+    'translocation_merged_folder': '',
+    'cell_from_nucleus_expand_px': 0,
+    'cell_from_nucleus_min_nucleus_size': 250,
+    'translocation_channel': 2,
+    'translocation_control_channel': 0,
+    'translocation_exclude_px': 2,
+    'translocation_min_pathogen_size': 15,
+    'translocation_background': 'outside_cells_median',
+    'translocation_background_min_px': 1000,
+    'translocation_background_fallback_percentile': 5,
+    'translocation_min_nucleus_size': 250,
+    'translocation_k_column': 'n_vacuoles',
+    'translocation_kmax': 10,
+    'translocation_groups': '',
+    'translocation_min_cells_per_bin': 3,
+    'translocation_null_percentile': 99,
+    'translocation_shuffle_n': 200,
+    'translocation_seed': 0,
+    'translocation_reference': '',
+}
+
+
+def nucleus_territories(nucleus_mask, expand_px=40, min_nucleus_size=250):
+    """Cell masks from nuclei when there is no cell stain.
+
+    Nuclei under ``min_nucleus_size`` pixels are removed, then every nucleus
+    grows by up to ``expand_px`` pixels without overlapping another
+    (:func:`skimage.segmentation.expand_labels`, a distance-capped Voronoi
+    territory). The territories are not cell outlines.
+
+    :param nucleus_mask: integer nucleus mask.
+    :param expand_px: the largest growth in pixels.
+    :param min_nucleus_size: the smallest nucleus kept.
+    :returns: ``(territories, nuclei)`` as int32 masks; a territory has its
+        nucleus's label.
+    """
+    import numpy as np
+    from skimage.segmentation import expand_labels
+
+    nuclei = np.asarray(nucleus_mask).astype(np.int32)
+    area = np.bincount(nuclei.ravel())
+    small = np.nonzero((area > 0) & (area < int(min_nucleus_size)))[0]
+    small = small[small > 0]
+    if small.size:
+        nuclei[np.isin(nuclei, small)] = 0
+    return expand_labels(nuclei, distance=int(expand_px)).astype(np.int32), nuclei
+
+
+def _majority_parent(labels_a, labels_b, n_a):
+    """For each label 1..n_a of ``labels_a``, the ``labels_b`` label holding most of its pixels."""
+    import numpy as np
+    import pandas as pd
+
+    both = (labels_a > 0) & (labels_b > 0)
+    out = np.zeros(n_a + 1, dtype=np.int64)
+    if not both.any():
+        return out
+    pairs = pd.DataFrame({'a': labels_a[both], 'b': labels_b[both]})
+    best = (pairs.groupby(['a', 'b']).size().reset_index(name='n').sort_values('n')
+            .drop_duplicates('a', keep='last'))
+    out[best['a'].to_numpy()] = best['b'].to_numpy()
+    return out
+
+
+def translocation_cells(stack, settings=None, well='', field=0):
+    """Per-host-cell nuclear effector signal and vacuole counts of one field.
+
+    ``stack`` is a merged array ``[..., c]`` with the image channels and, at
+    planes 3, 4 and 5, the cell (territory), nucleus and parasite masks.
+    Parasites under ``translocation_min_pathogen_size`` pixels are dropped;
+    vacuoles are :func:`vacuoles_from_parasites` with ``vacuole_gap_px``;
+    parasites and vacuoles go to the cell holding most of their pixels.
+    Nucleus pixels within ``translocation_exclude_px`` of a parasite pixel
+    are excluded from the corrected readout; the field background is the
+    median effector signal outside every cell and parasite (the
+    ``translocation_background_fallback_percentile`` of the field when fewer
+    than ``translocation_background_min_px`` such pixels).
+
+    :param stack: the merged array.
+    :param settings: :data:`TRANSLOCATION_DEFAULTS` and ``vacuole_gap_px``.
+    :param well: the well name written into the table.
+    :param field: the field number written into the table.
+    :returns: one row per cell with a nucleus: nucleus_area, n_parasites,
+        n_vacuoles, ha_total_nucleus (raw sum over the nucleus),
+        ha_mean_nucleus, ha_total_nucleus_excl, ha_mean_nucleus_excl,
+        frac_nucleus_excluded, ha_mean_cyto, cyto_area, dna_mean_nucleus and
+        bg_ha (``ha`` is the ``translocation_channel``, ``dna`` the control
+        channel).
+    """
+    import numpy as np
+    import pandas as pd
+    from scipy import ndimage as ndi
+
+    config = {**TITRATION_DEFAULTS, **TRANSLOCATION_DEFAULTS, **(settings or {})}
+    stack = np.asarray(stack)
+    dna = stack[..., int(config['translocation_control_channel'])].astype(np.float64)
+    ha = stack[..., int(config['translocation_channel'])].astype(np.float64)
+    cell, nuc, par = (stack[..., k].astype(np.int64) for k in (3, 4, 5))
+    parea = np.bincount(par.ravel())
+    tiny = np.nonzero((parea > 0) & (parea < int(config['translocation_min_pathogen_size'])))[0]
+    tiny = tiny[tiny > 0]
+    if tiny.size:
+        par[np.isin(par, tiny)] = 0
+    foreground = par > 0
+    exclude = int(config['translocation_exclude_px'])
+    near = (ndi.binary_dilation(foreground, iterations=exclude)
+            if foreground.any() and exclude > 0 else foreground)
+    vacuoles, _ = vacuoles_from_parasites(par.astype(np.int32), gap_px=config['vacuole_gap_px'])
+    vacuoles = vacuoles.astype(np.int64)
+    n_cells = max(int(cell.max()), int(nuc.max()))
+    par_host = _majority_parent(par, cell, int(par.max()))
+    vac_host = _majority_parent(vacuoles, cell, int(vacuoles.max()))
+    n_par = (np.bincount(par_host[1:][par_host[1:] > 0], minlength=n_cells + 1) if par.max()
+             else np.zeros(n_cells + 1, int))
+    n_vac = (np.bincount(vac_host[1:][vac_host[1:] > 0], minlength=n_cells + 1)
+             if vacuoles.max() else np.zeros(n_cells + 1, int))
+    idx = np.arange(1, n_cells + 1)
+    ones = np.ones_like(ha)
+    area = ndi.sum(ones, nuc, idx)
+    keep = area > 0
+    ha_total = ndi.sum(ha, nuc, idx)
+    dna_mean = ndi.mean(dna, nuc, idx)
+    nuc_kept = np.where(near, 0, nuc)
+    area_kept = ndi.sum(ones, nuc_kept, idx)
+    ha_kept = ndi.sum(ha, nuc_kept, idx)
+    cyto = np.where((nuc > 0) | near, 0, cell)
+    area_cyto = ndi.sum(ones, cyto, idx)
+    ha_cyto = ndi.sum(ha, cyto, idx)
+    if config['translocation_background'] == 'none':
+        background = 0.0
+    else:
+        outside = (cell == 0) & ~near
+        background = (float(np.median(ha[outside]))
+                      if outside.sum() > int(config['translocation_background_min_px'])
+                      else float(np.percentile(
+                          ha, float(config['translocation_background_fallback_percentile']))))
+    with np.errstate(invalid='ignore', divide='ignore'):
+        table = pd.DataFrame(dict(
+            well=well, field=field, cell=idx, nucleus_area=area,
+            n_parasites=n_par[idx], n_vacuoles=n_vac[idx],
+            ha_total_nucleus=ha_total, ha_mean_nucleus=ha_total / area,
+            ha_total_nucleus_excl=ha_kept, ha_mean_nucleus_excl=ha_kept / area_kept,
+            frac_nucleus_excluded=1 - area_kept / area,
+            ha_mean_cyto=ha_cyto / area_cyto, cyto_area=area_cyto,
+            dna_mean_nucleus=dna_mean, bg_ha=background))
+    return table[keep]
+
+
+def _translocation_groups(spec):
+    """The well-row -> group mapping: a dict, a 'B:TgIST, C:TgIST' string or a plate-map table."""
+    import os
+
+    if isinstance(spec, dict):
+        return {str(k): str(v) for k, v in spec.items()}
+    spec = str(spec or '')
+    if spec and os.path.isfile(spec):
+        from .tabular import read_table
+
+        plate = read_table(spec, canonicalise=False, report=None)
+        return {str(w): str(g) for w, g in zip(plate['well'], plate['group'])}
+    return {k.strip(): v.strip() for k, v in
+            (part.split(':') for part in spec.split(',') if ':' in part)}
+
+
+def _translocation_curve(cells, k_column, value, kmax):
+    """Mean and count per group and k, and the ratio to k = 0 of the same group."""
+    g = (cells[cells[k_column] <= kmax].groupby(['effector', k_column])[value]
+         .agg(['mean', 'count']).reset_index())
+    base = g[g[k_column] == 0].set_index('effector')['mean']
+    g['ratio'] = g['mean'] / g['effector'].map(base)
+    return g.rename(columns={k_column: 'k'})
+
+
+def _translocation_per_well(cells, k_column, value, kmax, min_cells):
+    """Per-well ratios of each k bin to the k = 0 cells of the same well."""
+    import pandas as pd
+
+    rows = []
+    for (group, well), d in cells[cells[k_column] <= kmax].groupby(['effector', 'well']):
+        m0 = d.loc[d[k_column] == 0, value].mean()
+        for k, dk in d.groupby(k_column):
+            if len(dk) >= min_cells and m0 > 0:
+                rows.append(dict(effector=group, well=well, k=int(k),
+                                 ratio=dk[value].mean() / m0, n=len(dk)))
+    return pd.DataFrame(rows, columns=['effector', 'well', 'k', 'ratio', 'n'])
+
+
+def _translocation_shuffle(cells, value, n, kmax, rng):
+    """Ratio at each k after permuting k among the cells of each field, ``n`` times."""
+    import numpy as np
+    import pandas as pd
+
+    rows = []
+    for group, d in cells.groupby('effector'):
+        d = d[['well', 'field', 'n_vacuoles', value]].copy()
+        keys = d['well'] + '_' + d['field'].astype(str)
+        idx = [np.flatnonzero(keys.to_numpy() == u) for u in keys.unique()]
+        v = d[value].to_numpy()
+        kk = d['n_vacuoles'].to_numpy()
+        acc = []
+        for _ in range(int(n)):
+            perm = kk.copy()
+            for ix in idx:
+                perm[ix] = rng.permutation(kk[ix])
+            s = pd.Series(v).groupby(perm).mean()
+            acc.append((s / s.loc[0]).reindex(range(kmax + 1)).to_numpy())
+        acc = np.array(acc)
+        for k in range(kmax + 1):
+            rows.append(dict(effector=group, k=k, null_ratio_mean=np.nanmean(acc[:, k]),
+                             null_ratio_p2_5=np.nanpercentile(acc[:, k], 2.5),
+                             null_ratio_p97_5=np.nanpercentile(acc[:, k], 97.5)))
+    return pd.DataFrame(rows)
+
+
+#: The curves of the translocation readout: name, k column, value column.
+TRANSLOCATION_READOUTS = (
+    ('hrman_equiv', 'n_vacuoles', 'ha_total_nucleus'),
+    ('corrected', 'n_vacuoles', 'ha_corr_total'),
+    ('corrected_mean', 'n_vacuoles', 'ha_corr_mean'),
+    ('hrman_equiv_by_parasites', 'n_parasites', 'ha_total_nucleus'),
+    ('dna_control', 'n_vacuoles', 'dna_mean_nucleus'),
+    ('nucleus_area', 'n_vacuoles', 'nucleus_area'),
+    ('cyto_ha', 'n_vacuoles', 'ha_mean_cyto'),
+    ('frac_nucleus_excluded', 'n_vacuoles', 'frac_nucleus_excluded'))
+
+
+def translocation_summary(cells, settings=None, reference=None):
+    """Effector translocation against vacuoles per cell, with its controls.
+
+    Every cell gets its group from ``translocation_groups`` (by well row, or
+    by well from a plate map) and two readouts: raw (``ha_total_nucleus``)
+    and corrected (``(ha_mean_nucleus_excl - bg_ha) x nucleus_area``). Cells
+    with nuclei under ``translocation_min_nucleus_size`` are left out.
+    Curves bin cells by k = vacuoles per cell up to ``translocation_kmax``
+    and divide by the k = 0 cells of the same group; per-well ratios use
+    wells with ``translocation_min_cells_per_bin`` cells in the bin. The
+    controls are the k = 0 reference, the ``translocation_null_percentile``
+    threshold of the corrected mean in k = 0 cells (% positive nuclei per k
+    and per well), the within-field shuffle of k (``translocation_shuffle_n``
+    times, seed ``translocation_seed``, group by group, raw then corrected),
+    the DNA control, nucleus area and the excluded fraction.
+
+    :param cells: :func:`translocation_cells` rows of every field.
+    :param settings: the translocation settings.
+    :param reference: an optional reference curve (effector, k,
+        hrman_total, hrman_ratio) for the agreement table.
+    :returns: dict of DataFrames ``cells``, ``counts``, ``curves``,
+        ``per_well``, ``per_well_summary``, ``null_thresholds``,
+        ``pct_positive``, ``pct_positive_per_well``, ``shuffle_null`` and
+        ``agreement`` (empty without a reference).
+    """
+    import numpy as np
+    import pandas as pd
+
+    config = {**TRANSLOCATION_DEFAULTS, **(settings or {})}
+    kmax = int(config['translocation_kmax'])
+    groups = _translocation_groups(config['translocation_groups'])
+    c = cells.copy()
+    c['effector'] = c['well'].map(groups) if set(c['well']) & set(groups) else \
+        c['well'].str[0].map(groups)
+    c['ha_corr_total'] = (c['ha_mean_nucleus_excl'] - c['bg_ha']) * c['nucleus_area']
+    c['ha_corr_mean'] = c['ha_mean_nucleus_excl'] - c['bg_ha']
+    c = c[c['effector'].notna() & (c['nucleus_area'] >= float(config['translocation_min_nucleus_size']))]
+    counts = c.groupby('effector').agg(
+        cells=('cell', 'size'), wells=('well', 'nunique'),
+        infected=('n_vacuoles', lambda s: (s > 0).mean() * 100),
+        over_kmax=('n_vacuoles', lambda s: int((s > kmax).sum())))
+    parts = []
+    for name, k_column, value in TRANSLOCATION_READOUTS:
+        k_column = config['translocation_k_column'] if k_column == 'n_vacuoles' else k_column
+        g = _translocation_curve(c, k_column, value, kmax)
+        g['readout'] = name
+        parts.append(g)
+    curves = pd.concat(parts, ignore_index=True)
+    if reference is not None:
+        curves = curves.merge(reference, on=['effector', 'k'], how='left')
+    per_well = []
+    for name, value in (('hrman_equiv', 'ha_total_nucleus'), ('corrected', 'ha_corr_total'),
+                        ('dna_control', 'dna_mean_nucleus')):
+        p = _translocation_per_well(c, config['translocation_k_column'], value, kmax,
+                                    int(config['translocation_min_cells_per_bin']))
+        p['readout'] = name
+        per_well.append(p)
+    per_well = pd.concat(per_well, ignore_index=True)
+    per_well_summary = per_well.groupby(['readout', 'effector', 'k'])['ratio'].agg(
+        well_mean='mean', well_sem=lambda s: s.std(ddof=1) / np.sqrt(len(s)),
+        n_wells='count').reset_index()
+    k0 = c[c['n_vacuoles'] == 0]
+    threshold = k0.groupby('effector')['ha_corr_mean'].quantile(
+        float(config['translocation_null_percentile']) / 100)
+    c['ha_positive'] = c['ha_corr_mean'] > c['effector'].map(threshold)
+    positive = (c[c['n_vacuoles'] <= kmax].groupby(['effector', 'n_vacuoles'])['ha_positive']
+                .agg(pct_positive=lambda s: s.mean() * 100, n='count').reset_index()
+                .rename(columns={'n_vacuoles': 'k'}))
+    thresholds = pd.DataFrame({'effector': threshold.index,
+                               'null_threshold_bgsub_mean_HA': threshold.values})
+    per_well_positive = c.groupby(['effector', 'well']).apply(
+        lambda d: pd.Series(dict(
+            pct_pos_infected=d.loc[d['n_vacuoles'] > 0, 'ha_positive'].mean() * 100,
+            pct_pos_uninfected=d.loc[d['n_vacuoles'] == 0, 'ha_positive'].mean() * 100,
+            n_inf=int((d['n_vacuoles'] > 0).sum()), n_uninf=int((d['n_vacuoles'] == 0).sum())))
+    ).reset_index()
+    rng = np.random.default_rng(int(config['translocation_seed']))
+    null = []
+    for name, value in (('hrman_equiv', 'ha_total_nucleus'), ('corrected', 'ha_corr_total')):
+        s = _translocation_shuffle(c, value, int(config['translocation_shuffle_n']), kmax, rng)
+        s['readout'] = name
+        null.append(s)
+    agreement = []
+    if reference is not None:
+        for (readout, group), g in curves[curves['k'] >= 1].groupby(['readout', 'effector']):
+            g = g.dropna(subset=['ratio', 'hrman_ratio'])
+            if len(g) < 3:
+                continue
+            at_kmax = g['k'] == kmax
+            agreement.append(dict(
+                readout=readout, effector=group,
+                pearson_r=np.corrcoef(g['ratio'], g['hrman_ratio'])[0, 1],
+                spearman_rho=g['ratio'].rank().corr(g['hrman_ratio'].rank()),
+                mean_abs_diff=(g['ratio'] - g['hrman_ratio']).abs().mean(),
+                ratio_k10=g.loc[at_kmax, 'ratio'].squeeze() if at_kmax.any() else np.nan,
+                hrman_k10=g.loc[at_kmax, 'hrman_ratio'].squeeze() if at_kmax.any() else np.nan))
+    return {'cells': c, 'counts': counts, 'curves': curves, 'per_well': per_well,
+            'per_well_summary': per_well_summary, 'null_thresholds': thresholds,
+            'pct_positive': positive, 'pct_positive_per_well': per_well_positive,
+            'shuffle_null': pd.concat(null), 'agreement': pd.DataFrame(agreement)}
+
+
+_TRANSLOCATION_FILES = {
+    'counts': 'counts_per_effector.csv', 'curves': 'curves_all_readouts.csv',
+    'per_well': 'per_well_ratios.csv', 'per_well_summary': 'per_well_summary.csv',
+    'null_thresholds': 'null_thresholds.csv', 'pct_positive': 'pct_ha_positive_nuclei.csv',
+    'pct_positive_per_well': 'pct_ha_positive_per_well.csv', 'shuffle_null': 'shuffle_null.csv',
+    'agreement': 'agreement_with_hrman.csv'}
+
+
+def nuclear_translocation(settings=None):
+    """The host-nucleus effector translocation readout of a plate, from settings.
+
+    Reads the merged arrays of ``translocation_merged_folder`` (or
+    ``<src>/merged``). With ``cell_from_nucleus_expand_px`` above 0 the cell
+    plane is made from the nuclei first (:func:`nucleus_territories`,
+    ``cell_source`` nucleus_territory; the territories are not cell
+    outlines): a five-plane array ``[c0, c1, c2, nucleus, parasite]``
+    becomes the six-plane layout. Then :func:`translocation_cells` per field
+    and :func:`translocation_summary`, written to
+    ``<src>/translocation/`` (cells_translocation.csv and the summary
+    tables, plus reference_curve.csv when ``translocation_reference`` names
+    a reference curve table).
+
+    :param settings: ``src`` and the translocation settings.
+    :returns: the :func:`translocation_summary` dict with ``folder``.
+    """
+    import glob
+    import os
+
+    import numpy as np
+    import pandas as pd
+
+    from .tabular import read_table, write_table
+
+    config = {**TITRATION_DEFAULTS, **TRANSLOCATION_DEFAULTS, **(settings or {})}
+    folder = config['translocation_merged_folder'] or os.path.join(config['src'], 'merged')
+    tables = []
+    for path in sorted(glob.glob(os.path.join(folder, '*.npy'))):
+        stem = os.path.basename(path)[:-4]
+        stem = stem[:-len('_None')] if stem.endswith('_None') else stem
+        parts = stem.split('_')
+        stack = np.load(path)
+        if int(config['cell_from_nucleus_expand_px']) > 0:
+            territory, nuclei = nucleus_territories(
+                stack[..., 3], config['cell_from_nucleus_expand_px'],
+                config['cell_from_nucleus_min_nucleus_size'])
+            stack = np.stack([stack[..., 0], stack[..., 1], stack[..., 2],
+                              territory.astype(stack.dtype), nuclei.astype(stack.dtype),
+                              stack[..., 4]], axis=-1)
+        tables.append(translocation_cells(stack, config, well=parts[-2], field=int(parts[-1])))
+    cells = pd.concat(tables, ignore_index=True)
+    if int(config['cell_from_nucleus_expand_px']) > 0:
+        cells['cell_source'] = 'nucleus_territory'
+    reference = (read_table(config['translocation_reference'], canonicalise=False, report=None)
+                 if config['translocation_reference'] else None)
+    result = translocation_summary(cells, config, reference)
+    out = os.path.join(config['src'], 'translocation')
+    os.makedirs(out, exist_ok=True)
+    write_table(cells, os.path.join(out, 'cells_translocation.csv'), canonicalise=False)
+    for key, name in _TRANSLOCATION_FILES.items():
+        write_table(result[key], os.path.join(out, name), canonicalise=False,
+                    index=key == 'counts')
+    if reference is not None:
+        write_table(reference, os.path.join(out, 'reference_curve.csv'), canonicalise=False)
+    result['folder'] = out
+    return result
+
+
 DEFAULTS.update(TITRATION_DEFAULTS)
+DEFAULTS.update(TRANSLOCATION_DEFAULTS)
 
 
 def analyze_host_pathogen(settings=None):
@@ -756,13 +1154,16 @@ def analyze_host_pathogen(settings=None):
         with uninfected=True to include uninfected hosts in that denominator;
         previously discarded hosts cannot be reconstructed from these tables.
         With ``titration_plate_map`` set, the run is the titration readout of
-        :func:`analyze_titration` instead, and returns its dict.
+        :func:`analyze_titration` instead, and returns its dict; with
+        ``translocation`` it is :func:`nuclear_translocation`.
     """
     import pandas as pd
     from .io import _read_db
     from .cancellation import checkpoint
 
     config = default_settings(settings)
+    if config.get('translocation'):
+        return nuclear_translocation(config)
     if config.get('titration_plate_map'):
         return analyze_titration(config)
     sources = config['src'] if isinstance(config['src'], list) else [config['src']]
