@@ -1586,10 +1586,11 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                      and settings.get('pathogen_model') is not None else f'{object_type}_model_name')
         pretrained = _resolve_cellpose_pretrained(
             model_name, object_type=object_type, setting=model_key)
-        model = cp_models.CellposeModel(
-            pretrained_model=pretrained,
-            **accelerator.cellpose_kwargs(),
-        )
+        from ._mask_workers import _cached_model
+        model_kwargs = accelerator.cellpose_kwargs()
+        model = _cached_model(
+            ('cellpose', pretrained, model_kwargs),
+            lambda: cp_models.CellposeModel(pretrained_model=pretrained, **model_kwargs))
     else:
         model = _load_backend(segmentation_backend, z_plan=z_plan,
                               t_plan=t_plan, model_name=model_name,
@@ -1992,6 +1993,8 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
         gc.collect()
         if on_batch_done is not None:
             on_batch_done(path)
+        from ._mask_workers import _announce_archive
+        _announce_archive(path)
 
     if (timelapse and settings.get('timelapse_division_analysis')
             and settings.get('timelapse_division_prediction')):

@@ -79,7 +79,7 @@ def _prepare_mask_model(settings, object_type):
     """
     from .artifacts import material_settings
     from .checkpoint import fingerprint
-    from .model_zoo import sha256_file, _resolve_pinned_model_file
+    from .model_zoo import _resolve_pinned_model_file
     from .utils import _resolve_cellpose_pretrained, cp_models
 
     prepared, model, backend = _role_backend(settings, object_type)
@@ -104,7 +104,7 @@ def _prepare_mask_model(settings, object_type):
     before = path.stat()
     if not path.is_file() or before.st_size == 0:
         raise ValueError(f'Model checkpoint is not a nonempty file: {path}')
-    digest = sha256_file(path)
+    digest = _file_sha256(path)
     after = path.stat()
     if any(getattr(before, key) != getattr(after, key)
            for key in ('st_dev', 'st_ino', 'st_size', 'st_mtime_ns')):
@@ -122,6 +122,66 @@ def _prepare_mask_model(settings, object_type):
     return prepared, signature, identity
 
 
+_DIGESTS = None
+
+
+def _file_sha256(path):
+    """SHA256 of one model file, read once per run while a worker pool is open.
+
+    Inside a :class:`_MaskWorkerPool` the digest is kept under the file's
+    path, device, inode, size and modification time, so the cell and nucleus
+    roles of every plate share one read of a 1 GB checkpoint and an edited
+    file is read again. Outside a pool every call reads the file.
+
+    :param path: the model file.
+    :returns: the hex digest.
+    """
+    from .model_zoo import sha256_file
+
+    if _DIGESTS is None:
+        return sha256_file(path)
+    stat = os.stat(path)
+    key = (os.fspath(path), stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns)
+    if key not in _DIGESTS:
+        _DIGESTS[key] = sha256_file(path)
+    return _DIGESTS[key]
+
+
+_MODEL_CACHE = None
+
+
+def _cached_model(key, build):
+    """Build a mask model, or reuse the one this pooled worker already holds.
+
+    Outside a pooled mask worker every call builds. Inside one the last
+    model is kept with its identity: the backend, the weights path with the
+    file's size and modification time, and the constructor keywords. The
+    next role or plate asking for the same identity reuses it, so a worker
+    loads Cellpose-SAM once per run; a different identity drops the held
+    model before building, so a worker never holds two.
+
+    :param key: ``(backend, weights, keywords)``.
+    :param build: callable without arguments that constructs the model.
+    :returns: the model.
+    """
+    if _MODEL_CACHE is None:
+        return build()
+    backend, weights, keywords = key
+    try:
+        stat = Path(str(weights)).expanduser().stat()
+        stamp = (str(Path(str(weights)).expanduser().resolve()), stat.st_size, stat.st_mtime_ns)
+    except OSError:
+        stamp = (str(weights),)
+    identity = (backend, stamp, repr(sorted(keywords.items())))
+    if _MODEL_CACHE['key'] == identity:
+        _MODEL_CACHE['hits'] += 1
+        return _MODEL_CACHE['model']
+    _MODEL_CACHE.update(key=None, model=None)
+    model = build()
+    _MODEL_CACHE.update(key=identity, model=model, loads=_MODEL_CACHE['loads'] + 1)
+    return model
+
+
 def _artifact_digest(path):
     """SHA256 and byte count of a model file or of a model folder's files.
 
@@ -129,8 +189,6 @@ def _artifact_digest(path):
     sorted order, so renaming, adding or editing a file changes it. Files
     that change while being read are refused.
     """
-    from .model_zoo import sha256_file
-
     path = Path(path).resolve()
     if path.is_file():
         files = [(path.name, path)]
@@ -145,7 +203,7 @@ def _artifact_digest(path):
     total = 0
     for name, item in files:
         before = item.stat()
-        content = sha256_file(item)
+        content = _file_sha256(item)
         after = item.stat()
         if any(getattr(before, key) != getattr(after, key)
                for key in ('st_dev', 'st_ino', 'st_size', 'st_mtime_ns')):
@@ -329,41 +387,81 @@ class _MaskBatchLedger:
             self.store.mark(path, payload)
 
 
-def _run_checkpointed_mask_workers(src, settings, object_type, assignments,
-                                   environments, ledger, *, on_progress=None,
-                                   on_figure=None, context=None, segmenter=None):
-    """Resume verified archives and persist new safe boundaries during dispatch.
+def _checkpointed_role(src, settings, object_type, assignments, ledger, *, on_progress=None):
+    """One pool role that resumes verified archives and records new ones.
 
-    The caller creates a ledger from a fresh input manifest and material/model
-    signature before entering. This adapter never deletes prepared inputs or
-    declares shared QC finished; successful workers leave status ``segmented``.
+    The caller creates ``ledger`` from a fresh input manifest and
+    material/model signature first. Archives the ledger verifies are left
+    out of the dispatch; each newly completed archive is hashed into the
+    ledger before ``on_progress`` sees it. The ledger is marked ``running``
+    here; the caller marks it ``segmented`` once the role succeeds. Prepared
+    inputs are never deleted.
+
+    :param src: the run's ``masks`` folder.
+    :param settings: the role's prepared settings.
+    :param object_type: the role.
+    :param assignments: ``{worker: [archive paths]}`` covering the manifest once.
+    :param ledger: the role's :class:`_MaskBatchLedger`.
+    :param on_progress: optional callable receiving each progress snapshot.
+    :returns: the role for :meth:`_MaskWorkerPool.run_roles`, with the
+        verified ``complete`` set and the ``ledger``.
+    :raises ValueError: when the assignments miss or repeat an archive.
     """
-    from .cancellation import PipelineCancelled
-
     paths = [os.path.abspath(os.fspath(path))
              for assigned in assignments.values() for path in assigned]
     if len(paths) != len(set(paths)) or set(paths) != set(ledger.records):
         raise ValueError('Worker assignments must cover the manifest exactly once')
+    import functools
+
     complete = ledger.verified()
     pending = {device: [path for path in assigned if os.path.abspath(path) not in complete]
                for device, assigned in assignments.items()}
     ledger.store.update(status='running')
+    return {'src': src, 'settings': settings, 'object_type': object_type,
+            'assignments': pending,
+            'on_progress': functools.partial(_record_progress, ledger, complete, on_progress),
+            'complete': complete, 'ledger': ledger}
 
-    def progress(state):
-        """Persist each newly completed archive before publishing aggregate progress."""
-        for path in state['completed_batches']:
-            if path not in complete:
-                ledger.mark(path)
-                complete.add(path)
-        state['completed_batches'] = sorted(complete)
-        state['total_batches'] = len(ledger.records)
-        if on_progress is not None:
-            on_progress(state)
 
+def _record_progress(ledger, complete, on_progress, state):
+    """Persist each newly completed archive before publishing aggregate progress.
+
+    :param ledger: the role's :class:`_MaskBatchLedger`.
+    :param complete: the set of archives already recorded, extended here.
+    :param on_progress: optional callable receiving the snapshot.
+    :param state: the pool's progress snapshot, completed in place.
+    """
+    for path in state['completed_batches']:
+        if path not in complete:
+            ledger.mark(path)
+            complete.add(path)
+    state['completed_batches'] = sorted(complete)
+    state['total_batches'] = len(ledger.records)
+    if on_progress is not None:
+        on_progress(state)
+
+
+def _run_checkpointed_mask_workers(src, settings, object_type, assignments,
+                                   environments, ledger, *, on_progress=None,
+                                   on_figure=None, context=None, segmenter=None):
+    """Run one checkpointed role in a worker pool of its own.
+
+    Resumes verified archives and persists new safe boundaries during
+    dispatch, as :func:`_checkpointed_role` describes. Successful workers
+    leave the ledger ``segmented``; a failure or stop leaves it ``failed``
+    or ``cancelled``. Shared QC is the caller's.
+
+    :returns: the final worker states with every completed archive.
+    """
+    from .cancellation import PipelineCancelled
+
+    role = _checkpointed_role(src, settings, object_type, assignments, ledger,
+                              on_progress=on_progress)
+    role['on_figure'] = on_figure
     try:
-        result = _run_mask_workers(src, settings, object_type, pending, environments,
-            on_progress=progress, on_figure=on_figure, context=context, segmenter=segmenter)
-        result['completed_batches'] = sorted(complete)
+        with _MaskWorkerPool(context=context, segmenter=segmenter) as pool:
+            result = pool.run_roles([role], environments)[0]
+        result['completed_batches'] = sorted(role['complete'])
         result['total_batches'] = len(ledger.records)
         ledger.store.update(status='segmented')
         return result
@@ -520,238 +618,268 @@ class _WorkerOutput:
         return False
 
 
-def _mask_worker(src, settings, object_type, device, paths, environment,
-                 messages, stop, segmenter=None, figure_directory=None):
-    """Bind a fresh process before loading its model, then report safe units.
+def _serve_mask_jobs(device, environment, messages, stop, jobs, segmenter=None,
+                     figure_directory=None, *, cache_models=False):
+    """Bind this process to its device once, then run mask jobs in order.
 
-    ``segmenter`` is an injectable CPU test seam; ordinary workers load the
-    shipped generator only after validating their isolated CUDA/ROCm device.
+    The first job validates the isolated CUDA/ROCm binding, imports the
+    generator and announces ``started``; later jobs reuse that binding, the
+    CUDA context and, with ``cache_models``, the loaded model. Each job ends
+    with one ``finished`` event. A failed, cancelled or overloaded job ends
+    the loop, so a restart gets fresh device memory.
+
+    :param device: the worker name, such as ``0`` or ``0.2``.
+    :param environment: the worker's isolated device environment.
+    :param messages: queue receiving the worker's events.
+    :param stop: process-shared stop event.
+    :param jobs: callable returning the next ``(src, settings, object_type,
+        paths)`` job, or None to exit.
+    :param segmenter: injectable CPU test seam; ordinary workers load the
+        shipped generator only after validating their device.
+    :param figure_directory: the parent's figure transport folder, or None.
+    :param cache_models: keep the loaded model for the next job.
     """
+    global _MODEL_CACHE
+    import functools
+
     from .cancellation import PipelineCancelled, installed_token
 
     output = _WorkerOutput(messages, device)
+    bound = False
     with redirect_stdout(output), redirect_stderr(output):
-        try:
-            imported = sys.modules.get('torch')
-            if imported is not None and imported.cuda.is_initialized():
-                raise RuntimeError('Mask worker inherited an initialized CUDA runtime')
-            os.environ.update(environment)
-            token = _SharedCancellation(stop)
-            token.checkpoint()
-            with _worker_figures(figure_directory, messages, device):
-                if segmenter is None:
-                    import torch
-                    if not torch.cuda.is_available() or torch.cuda.device_count() != 1:
-                        raise RuntimeError('Mask worker must see exactly its assigned GPU')
-                    from . import accelerator
-                    accelerator._CACHED = None
-                    from .object import generate_cellpose_masks_sam
-                    segmenter = generate_cellpose_masks_sam
-                messages.put(('started', device, os.getpid()))
+        while True:
+            job = jobs()
+            if job is None:
+                return
+            src, settings, object_type, paths = job
+            try:
+                if not bound:
+                    imported = sys.modules.get('torch')
+                    if imported is not None and imported.cuda.is_initialized():
+                        raise RuntimeError('Mask worker inherited an initialized CUDA runtime')
+                    os.environ.update(environment)
+                token = _SharedCancellation(stop)
+                token.checkpoint()
+                with _worker_figures(figure_directory, messages, device):
+                    if not bound:
+                        if segmenter is None:
+                            import torch
+                            if not torch.cuda.is_available() or torch.cuda.device_count() != 1:
+                                raise RuntimeError('Mask worker must see exactly its assigned GPU')
+                            from . import accelerator
+                            accelerator._CACHED = None
+                            from .object import generate_cellpose_masks_sam
+                            segmenter = generate_cellpose_masks_sam
+                        if cache_models:
+                            _MODEL_CACHE = {'key': None, 'model': None, 'hits': 0, 'loads': 0}
+                        messages.put(('started', device, os.getpid()))
+                        bound = True
 
-                def completed(path):
-                    """Publish completion only after the pipeline's save boundary."""
-                    messages.put(('batch', device, os.path.abspath(os.fspath(path))))
+                    with installed_token(token):
+                        segmenter(src, dict(settings), object_type, batch_paths=paths,
+                                  on_batch_done=functools.partial(_report_batch, messages, device),
+                                  run_qc=False)
+                messages.put(('finished', device, ('success', '')))
+            except PipelineCancelled:
+                messages.put(('finished', device, ('cancelled', '')))
+                return
+            except BaseException as error:
+                import traceback
+                from .runctx import _is_overload_failure
 
-                with installed_token(token):
-                    segmenter(src, dict(settings), object_type, batch_paths=paths,
-                              on_batch_done=completed, run_qc=False)
-            messages.put(('finished', device, ('success', '')))
-        except PipelineCancelled:
-            messages.put(('finished', device, ('cancelled', '')))
-        except BaseException as error:
-            import traceback
-            from .runctx import _is_overload_failure
-
-            status = 'overloaded' if _is_overload_failure(error) else 'failed'
-            if status == 'failed':
-                stop.set()
-            messages.put(('finished', device,
-                          (status, ''.join(traceback.format_exception(
-                              type(error), error, error.__traceback__)))))
+                status = 'overloaded' if _is_overload_failure(error) else 'failed'
+                if status == 'failed':
+                    stop.set()
+                messages.put(('finished', device,
+                              (status, ''.join(traceback.format_exception(
+                                  type(error), error, error.__traceback__)))))
+                return
 
 
-def _run_mask_workers(src, settings, object_type, assignments, environments, *,
-                      on_progress=None, on_figure=None, context=None, segmenter=None,
-                      gate=None):
-    """Run one persistent model process per nonempty assignment.
+def _report_batch(messages, device, path):
+    """Publish an archive's completion only after the pipeline's save boundary.
 
-    Worker events report individual completed archives. Cancellation waits for
-    safe pipeline boundaries; an invalid or crashed worker stops its peers.
-    Explicit overloads receive one serial restart after every primary worker
-    finishes, with already completed archives excluded. Worker deployments
-    are ten seconds apart. Inputs are never deleted here. Shared QC belongs to the caller after all
-    workers succeed. ``on_progress`` receives independent state snapshots.
-    ``on_figure`` receives detached figures on this calling thread. By default
-    figures reach the existing GUI sink or are saved under mask_worker_plots
-    beside the batch source for headless runs, outside the temporary masks
-    folder. Transport files are cleaned on every exit path.
-    This layer neither decides resume eligibility nor declares output integrity.
-
-    :returns: final worker states and the unique completed archive paths.
-    :raises PipelineCancelled: after a requested cooperative stop completes.
-    :raises RuntimeError: if a worker fails, crashes or omits assigned work.
+    :param messages: queue receiving the worker's events.
+    :param device: the worker name.
+    :param path: the archive whose masks are saved.
     """
-    from .cancellation import PipelineCancelled, cancellation_requested, checkpoint
+    messages.put(('batch', device, os.path.abspath(os.fspath(path))))
 
-    from .resource_log import _WorkerStartGate
 
-    checkpoint()
-    gate = gate or _WorkerStartGate()
-    assignments = {device: [os.path.abspath(os.fspath(path)) for path in paths]
-                   for device, paths in assignments.items() if paths}
-    owners = {}
-    for device, paths in assignments.items():
-        if device not in environments:
-            raise ValueError(f'No isolated environment for worker {device}')
-        for path in paths:
-            if path in owners:
-                raise ValueError(f'Archive assigned more than once: {path}')
-            owners[path] = device
-    context = context or multiprocessing.get_context('spawn')
-    messages = context.Queue(maxsize=128)
-    stop = context.Event()
-    processes, dead_since = {}, {}
-    completed = set()
-    state = {'total_batches': len(owners), 'completed_batches': [], 'workers': {
-        device: {'state': 'starting', 'pid': None, 'completed': 0,
-                 'total': len(paths), 'error': '', 'attempts': 0}
-        for device, paths in assignments.items()}}
-    requested = False
-    figures = tempfile.TemporaryDirectory(prefix='spacr-mask-figures-') if settings.get('plot') else None
+def _pooled_mask_worker(device, environment, messages, jobs, stop, segmenter=None,
+                        figure_directory=None, first_job=None):
+    """Entry point of one persistent mask worker process.
 
-    def publish():
-        """Do not let consumers mutate scheduler bookkeeping."""
-        state['completed_batches'] = sorted(completed)
-        if on_progress is not None:
-            on_progress(copy.deepcopy(state))
+    Runs ``first_job``, handed over with the process like a one-shot
+    worker's assignment, then serves jobs from ``jobs`` until it receives
+    None, keeping its device binding and its loaded model between them; see
+    :func:`_serve_mask_jobs`.
 
-    def consume(message):
-        """Validate archive ownership before accepting a worker's event."""
-        kind, device, value = message
-        worker = state['workers'][device]
-        if kind == 'log':
-            print(f'[GPU {device}] {value}', end='')
+    :param device: the worker name.
+    :param environment: the worker's isolated device environment.
+    :param messages: queue receiving the worker's events.
+    :param jobs: this worker's own job queue.
+    :param stop: process-shared stop event.
+    :param segmenter: injectable CPU test seam.
+    :param figure_directory: the parent's figure transport folder, or None.
+    :param first_job: the job the process was started for, or None.
+    """
+    import functools
+    import itertools
+
+    queued = itertools.chain([first_job] if first_job is not None else [],
+                             iter(jobs.get, None))
+    _serve_mask_jobs(device, environment, messages, stop,
+                     functools.partial(next, queued, None), segmenter,
+                     figure_directory, cache_models=True)
+
+
+_FINAL_STATES = ('success', 'failed', 'cancelled', 'overloaded')
+
+
+class _MaskWorkerPool:
+    """Mask worker processes kept for every role and plate of one run.
+
+    Each worker is spawned once, binds its device, keeps its CUDA context and
+    its loaded model, and takes role-tagged archive jobs in order. Only the
+    first spawn of each worker passes the start gate; a worker restarted
+    after an overload starts at once. While the pool is open each model file
+    is hashed once. Worker events report individual completed archives.
+    Cancellation waits for safe pipeline boundaries; an invalid or crashed
+    worker stops its peers, and any failure or stop tears every worker down,
+    so the next run spawns fresh ones. Explicit overloads receive one serial
+    restart, alone on the devices, after every primary worker of that role
+    finishes, with already completed archives excluded. Inputs are never
+    deleted here. ``on_figure`` receives detached figures on the calling
+    thread; by default figures reach the existing GUI sink or are saved
+    under mask_worker_plots beside the batch source for headless runs.
+    Transport files are cleaned when the pool closes.
+
+    :param context: multiprocessing context; spawn when None.
+    :param segmenter: optional CPU stand-in for the mask generator.
+    :param gate: optional start gate; deployments ten seconds apart when None.
+    """
+
+    def __init__(self, *, context=None, segmenter=None, gate=None):
+        """Hold the settings; no process starts before :meth:`run_roles`."""
+        self.context = context or multiprocessing.get_context('spawn')
+        self.segmenter = segmenter
+        self.gate = gate
+        self.spawns = 0
+        self._environments = None
+        self._messages = None
+        self._stop = None
+        self._figures = None
+        self._pump = None
+        self._pumping = threading.Event()
+        self._inbox = queue.Queue()
+        self._processes = {}
+        self._jobs = {}
+        self._spawned = set()
+        self._bound = set()
+        self._retired = set()
+        self._previous_digests = None
+
+    def __enter__(self):
+        """Hash each model file once while the pool is open."""
+        global _DIGESTS
+        self._previous_digests = _DIGESTS
+        if _DIGESTS is None:
+            _DIGESTS = {}
+        return self
+
+    def __exit__(self, *exc):
+        """Stop every worker and forget this run's model digests."""
+        global _DIGESTS
+        try:
+            self.close()
+        finally:
+            _DIGESTS = self._previous_digests
+
+    def _open(self, environments, plot):
+        """Create the event queue, stop event and figure folder once per run.
+
+        A different worker plan, or plots asked for after a run without
+        them, closes the old workers first.
+        """
+        if self._messages is not None and (environments != self._environments
+                                           or (plot and self._figures is None)):
+            self.close()
+        if self._messages is not None:
             return
-        if kind == 'figure':
-            figure = _read_worker_figure(value, figures.name if figures else None)
-            if on_figure is not None:
-                on_figure(figure)
-            else:
-                from .figure_sink import publish as publish_figure
-                from .figure_sink import sink
-                if sink() is not None:
-                    publish_figure(figure)
-                else:
-                    from .plot import save_figure
-                    destination = Path(src).parent / 'mask_worker_plots'
-                    target = save_figure(
-                        figure, destination / f'{object_type}_{Path(value).stem}.png',
-                        fmt='png', dpi=figure.dpi)
-                    print(f'[GPU {device}] Saved figure: {target}')
-            return
-        if kind == 'started':
-            worker.update(state='running', pid=value)
-        elif kind == 'batch':
-            if owners.get(value) != device or value in completed:
-                raise RuntimeError(f'Invalid or repeated batch completion from GPU {device}: {value}')
-            completed.add(value)
-            worker['completed'] += 1
-        elif kind == 'finished':
-            status, error = value
-            if status not in ('success', 'failed', 'cancelled', 'overloaded'):
-                raise RuntimeError(f'Invalid worker status: {status}')
-            exhausted = status == 'overloaded' and worker['attempts'] > 1
-            if exhausted:
-                status = 'failed'
-            if status == 'success' and worker['completed'] != worker['total']:
-                status, error = 'failed', 'Worker exited without completing its assigned archives'
-            worker.update(state=status, error=error)
-            if status == 'failed' and not exhausted:
-                stop.set()
+        self._environments = copy.deepcopy(dict(environments))
+        self._messages = self.context.Queue(maxsize=128)
+        self._stop = self.context.Event()
+        self._figures = (tempfile.TemporaryDirectory(prefix='spacr-mask-figures-')
+                         if plot else None)
+        self._inbox = queue.Queue()
+        self._pumping.set()
+        self._pump = threading.Thread(target=self._receive, name='spacr-mask-events',
+                                      daemon=True)
+        self._pump.start()
+
+    def _receive(self):
+        """Move worker events into the inbox, stamped with when they arrived.
+
+        Runs on its own thread, so workers never block on a full queue while
+        the caller finalizes a role, and every event keeps its real time.
+        """
+        while self._pumping.is_set():
+            try:
+                message = self._messages.get(timeout=0.05)
+            except queue.Empty:
+                continue
+            except (EOFError, OSError, ValueError):
+                return
+            self._inbox.put((time.monotonic(), message))
+
+    def _spawn(self, device, job):
+        """Start one worker process for ``job``; only its first start waits for the gate."""
+        jobs = self.context.Queue()
+        process = self.context.Process(target=_pooled_mask_worker, args=(
+            device, self._environments[device], self._messages, jobs, self._stop,
+            self.segmenter, self._figures.name if self._figures else None, job),
+            name=f'spacr-mask-gpu-{device}')
+        if device in self._spawned:
+            self.gate.start_now(process.start)
         else:
-            raise RuntimeError(f'Unknown mask-worker event: {kind}')
-        publish()
+            self.gate.start(process.start)
+        self._spawned.add(device)
+        self.spawns += 1
+        old = self._jobs.pop(device, None)
+        if old is not None:
+            old.cancel_join_thread()
+            old.close()
+        self._jobs[device] = jobs
+        self._processes[device] = process
+        return process
 
-    def run_group(group):
-        """Join every member of one primary or serial final worker group."""
-        nonlocal requested
+    def _release(self, device):
+        """Join and forget a worker that ended, so its next job respawns it."""
+        process = self._processes.pop(device)
+        process.join(timeout=5.0)
+        if process.is_alive():
+            process.terminate()
+            process.join()
+        process.close()
+        self._bound.discard(device)
+        self._retired.discard(device)
 
-        for device, paths in group.items():
-            if device in processes:
-                processes[device].close()
-                dead_since.pop(device, None)
-            worker = state['workers'][device]
-            worker['attempts'] += 1
-            worker.update(state='starting', error='')
-            process = context.Process(target=_mask_worker, args=(
-                src, settings, object_type, device, paths, environments[device],
-                messages, stop, segmenter, figures.name if figures else None),
-                name=f'spacr-mask-gpu-{device}')
-            gate.start(process.start)
-            processes[device] = process
-            state['workers'][device]['pid'] = process.pid
-        publish()
-        pending = set(group)
-        while pending:
-            if cancellation_requested():
-                requested = True
-                stop.set()
+    def close(self):
+        """Stop every worker and release the pool's queues and figure files."""
+        if self._messages is None:
+            return
+        for jobs in self._jobs.values():
             try:
-                consume(messages.get(timeout=0.05))
-                while True:
-                    consume(messages.get_nowait())
-            except queue.Empty:
+                jobs.put(None)
+            except (OSError, ValueError):
                 pass
-            for device in tuple(pending):
-                process = processes[device]
-                if process.is_alive():
-                    continue
-                process.join()
-                worker = state['workers'][device]
-                if worker['state'] not in ('success', 'failed', 'cancelled', 'overloaded'):
-                    since = dead_since.setdefault(device, time.monotonic())
-                    if process.exitcode == 0 and time.monotonic() - since < 1.0:
-                        continue
-                    worker.update(state='failed', error=f'Worker exited with code {process.exitcode} without a final event')
-                    stop.set()
-                    publish()
-                elif process.exitcode != 0:
-                    worker.update(state='failed', error=f'Worker exited with code {process.exitcode}')
-                    stop.set()
-                    publish()
-                pending.remove(device)
-
-    try:
-        run_group(assignments)
-        failed = any(worker['state'] == 'failed'
-                     for worker in state['workers'].values())
-        if not failed and not requested and not stop.is_set():
-            for device, paths in assignments.items():
-                worker = state['workers'][device]
-                if worker['state'] == 'overloaded':
-                    worker['primary_error'] = worker['error']
-                    run_group({device: [path for path in paths if path not in completed]})
-                    if stop.is_set():
-                        break
-        failures = [f'GPU {device}: {worker["error"]}'
-                    for device, worker in state['workers'].items()
-                    if worker['state'] == 'failed']
-        if failures:
-            raise RuntimeError('; '.join(failures))
-        if requested or any(worker['state'] == 'cancelled'
-                            for worker in state['workers'].values()):
-            raise PipelineCancelled('Parallel mask generation cancelled')
-        return state
-    finally:
-        stop.set()
         deadline = time.monotonic() + 5.0
-        while any(process.is_alive() for process in processes.values()) and time.monotonic() < deadline:
-            try:
-                messages.get(timeout=0.05)
-            except queue.Empty:
-                pass
-        for process in processes.values():
+        while (any(process.is_alive() for process in self._processes.values())
+               and time.monotonic() < deadline):
+            time.sleep(0.05)
+        self._stop.set()
+        for process in self._processes.values():
             if process.is_alive():
                 process.terminate()
             process.join(timeout=2.0)
@@ -759,10 +887,356 @@ def _run_mask_workers(src, settings, object_type, assignments, environments, *,
                 process.kill()
                 process.join()
             process.close()
-        messages.close()
-        messages.join_thread()
-        if figures is not None:
-            figures.cleanup()
+        self._pumping.clear()
+        self._pump.join(timeout=5.0)
+        for jobs in self._jobs.values():
+            jobs.cancel_join_thread()
+            jobs.close()
+        self._messages.close()
+        self._messages.join_thread()
+        if self._figures is not None:
+            self._figures.cleanup()
+        self._processes, self._jobs = {}, {}
+        self._bound, self._retired = set(), set()
+        self._messages = self._stop = self._figures = self._pump = None
+        self._environments = None
+
+    @staticmethod
+    def _role_run(role, environments):
+        """Validate one role's assignments and give it fresh bookkeeping."""
+        assignments = {device: [os.path.abspath(os.fspath(path)) for path in paths]
+                       for device, paths in role['assignments'].items() if paths}
+        owners = {}
+        for device, paths in assignments.items():
+            if device not in environments:
+                raise ValueError(f'No isolated environment for worker {device}')
+            for path in paths:
+                if path in owners:
+                    raise ValueError(f'Archive assigned more than once: {path}')
+                owners[path] = device
+        state = {'total_batches': len(owners), 'completed_batches': [], 'workers': {
+            device: {'state': 'starting', 'pid': None, 'completed': 0,
+                     'total': len(paths), 'error': '', 'attempts': 0}
+            for device, paths in assignments.items()}}
+        return dict(role, assignments=assignments, owners=owners, state=state,
+                    completed=set(), overloaded=[], begun=False, done=False, done_at=None)
+
+    def run_roles(self, roles, environments, *, on_role_done=None):
+        """Run each role's assigned archives, overlapping consecutive roles.
+
+        A worker that finished its share of one role starts its share of
+        the next at once, while its peers finish. ``on_role_done`` is called
+        on this thread, in role order, once each role has succeeded, while
+        later roles keep segmenting. Workers stay up for the next call.
+
+        :param roles: dicts with ``src``, ``settings``, ``object_type`` and
+            ``assignments`` (``{worker: [archive paths]}``), and optional
+            callables ``on_progress(state)``, ``on_figure(figure)``,
+            ``on_start(moment)`` at the role's first dispatch,
+            ``on_event(label, moment)`` for worker states and finished
+            archives, and ``on_finished(moment)`` when its last archive is
+            in. Moments are ``time.monotonic()`` values of arrival.
+        :param environments: ``{worker: isolated device environment}``.
+        :param on_role_done: optional callable ``(index, state)``.
+        :returns: each role's final worker states, in order.
+        :raises PipelineCancelled: after a requested cooperative stop completes.
+        :raises RuntimeError: if a worker fails, crashes or omits assigned work.
+        :raises ValueError: for assignments without an environment or with
+            an archive given twice, before any process starts.
+        """
+        from .cancellation import PipelineCancelled, cancellation_requested, checkpoint
+        from .resource_log import _WorkerStartGate
+
+        checkpoint()
+        runs = [self._role_run(role, environments) for role in roles]
+        if self.gate is None:
+            self.gate = _WorkerStartGate()
+        try:
+            self._open(environments, any(run['settings'].get('plot') for run in runs))
+            self._runs = runs
+            devices = list(dict.fromkeys(device for run in runs for device in run['assignments']))
+            self._waiting = {device: [index for index, run in enumerate(runs)
+                                      if device in run['assignments']] for device in devices}
+            self._inflight = {device: [] for device in devices}
+            self._last = {}
+            self._dead_since = {}
+            self._retrying = None
+            self._requested = False
+            reported = 0
+            for run in runs:
+                self._publish(run)
+            while True:
+                if cancellation_requested():
+                    self._requested = True
+                    self._stop.set()
+                self._dispatch()
+                busy = any(self._inflight.values())
+                self._consume(0.05 if busy else 0)
+                self._reap()
+                for run in runs:
+                    if not run['done'] and self._complete(run):
+                        run['done'] = True
+                        if run.get('on_finished') is not None:
+                            run['on_finished'](run['done_at'])
+                while (reported < len(runs) and runs[reported]['done']
+                       and not self._broken()):
+                    if on_role_done is not None:
+                        on_role_done(reported, copy.deepcopy(runs[reported]['state']))
+                    reported += 1
+                if reported == len(runs):
+                    break
+                if not busy and not any(self._inflight.values()):
+                    break
+            failures = [f'{prefix}GPU {device}: {worker["error"]}'
+                        for run in runs
+                        for prefix in [f'{run["object_type"]} ' if len(runs) > 1 else '']
+                        for device, worker in run['state']['workers'].items()
+                        if worker['state'] == 'failed']
+            if failures:
+                raise RuntimeError('; '.join(failures))
+            if self._requested or any(worker['state'] == 'cancelled' for run in runs
+                                      for worker in run['state']['workers'].values()):
+                raise PipelineCancelled('Parallel mask generation cancelled')
+            if reported < len(runs):
+                raise RuntimeError('Mask workers stopped before every archive finished')
+            return [run['state'] for run in runs]
+        except BaseException:
+            if self._stop is not None:
+                self._stop.set()
+            self.close()
+            raise
+
+    def _broken(self):
+        """Whether a failure or stop means no further role may succeed."""
+        return (self._requested or self._stop.is_set()
+                or any(worker['state'] == 'failed' for run in self._runs
+                       for worker in run['state']['workers'].values()))
+
+    def _complete(self, run):
+        """Whether every worker of ``run`` succeeded and nothing of it is pending."""
+        return (not run['overloaded']
+                and all(worker['state'] == 'success'
+                        for worker in run['state']['workers'].values())
+                and not any(queued is run for jobs in self._inflight.values()
+                            for queued in jobs))
+
+    def _allowed(self, index):
+        """Whether role ``index`` may start: no earlier role awaits a restart."""
+        return not any(run['overloaded'] for run in self._runs[:index])
+
+    def _dispatch(self):
+        """Hand waiting jobs to idle or running workers, and serial restarts."""
+        if self._stop.is_set() or self._requested or self._retrying is not None:
+            return
+        if not any(self._inflight.values()):
+            for index, run in enumerate(self._runs):
+                if run['overloaded']:
+                    device = run['overloaded'].pop(0)
+                    self._retrying = device
+                    paths = [path for path in run['assignments'][device]
+                             if path not in run['completed']]
+                    self._send(device, index, paths, retry=True)
+                    return
+        if self._broken():
+            return
+        for device, waiting in self._waiting.items():
+            if any(device in run['overloaded'] for run in self._runs):
+                continue
+            while waiting and self._allowed(waiting[0]):
+                index = waiting.pop(0)
+                self._send(device, index, self._runs[index]['assignments'][device])
+
+    def _send(self, device, index, paths, retry=False):
+        """Queue one role's archives to a worker, spawning it when needed."""
+        run = self._runs[index]
+        worker = run['state']['workers'][device]
+        if retry:
+            worker['primary_error'] = worker['error']
+        worker['attempts'] += 1
+        worker.update(state='starting', error='')
+        head = not self._inflight[device]
+        if head and not run['begun']:
+            run['begun'] = True
+            if run.get('on_start') is not None:
+                run['on_start'](time.monotonic())
+        if device in self._retired:
+            self._release(device)
+        job = (run['src'], run['settings'], run['object_type'], paths)
+        process = self._processes.get(device)
+        if process is None:
+            process = self._spawn(device, job)
+        else:
+            self._jobs[device].put(job)
+        worker['pid'] = process.pid
+        self._inflight[device].append(run)
+        if head:
+            self._begin(device, time.monotonic())
+        self._publish(run)
+
+    def _begin(self, device, moment):
+        """Mark the role at the head of a worker's queue as running there."""
+        run = self._inflight[device][0]
+        if not run['begun']:
+            run['begun'] = True
+            if run.get('on_start') is not None:
+                run['on_start'](moment)
+        if device in self._bound:
+            self._set_state(run, device, moment, state='running')
+
+    def _set_state(self, run, device, moment, **changes):
+        """Update one worker's record and note a changed state."""
+        worker = run['state']['workers'][device]
+        previous = worker['state']
+        worker.update(changes)
+        if (worker['state'] != previous and worker['state'] != 'starting'
+                and run.get('on_event') is not None):
+            run['on_event'](f'worker {device} {worker["state"]}', moment)
+
+    def _publish(self, run):
+        """Give the role's progress callback a snapshot it cannot mutate."""
+        run['state']['completed_batches'] = sorted(run['completed'])
+        if run.get('on_progress') is not None:
+            run['on_progress'](copy.deepcopy(run['state']))
+
+    def _consume(self, timeout):
+        """Handle every event already in the inbox, waiting up to ``timeout``."""
+        try:
+            moment, message = (self._inbox.get(timeout=timeout) if timeout
+                               else self._inbox.get_nowait())
+            self._handle(moment, message)
+            while True:
+                moment, message = self._inbox.get_nowait()
+                self._handle(moment, message)
+        except queue.Empty:
+            pass
+
+    def _handle(self, moment, message):
+        """Validate archive ownership before accepting a worker's event."""
+        kind, device, value = message
+        jobs = self._inflight.get(device) or []
+        run = jobs[0] if jobs else self._last.get(device, self._runs[0])
+        if kind == 'log':
+            print(f'[GPU {device}] {value}', end='')
+            return
+        if kind == 'figure':
+            self._deliver_figure(run, device, value)
+            return
+        if kind == 'started':
+            self._bound.add(device)
+            if jobs:
+                self._set_state(run, device, moment, state='running', pid=value)
+            return
+        if kind == 'batch':
+            if not jobs or run['owners'].get(value) != device or value in run['completed']:
+                raise RuntimeError(f'Invalid or repeated batch completion from GPU {device}: {value}')
+            run['completed'].add(value)
+            run['state']['workers'][device]['completed'] += 1
+            if run.get('on_event') is not None:
+                run['on_event']('archive finished', moment)
+        elif kind == 'finished':
+            self._finish(device, run, value, moment)
+        else:
+            raise RuntimeError(f'Unknown mask-worker event: {kind}')
+        self._publish(run)
+
+    def _finish(self, device, run, value, moment):
+        """Close the worker's current job and decide what its outcome means."""
+        status, error = value
+        if status not in _FINAL_STATES:
+            raise RuntimeError(f'Invalid worker status: {status}')
+        jobs = self._inflight[device]
+        if not jobs:
+            raise RuntimeError(f'GPU {device} finished a job it was never given')
+        jobs.pop(0)
+        self._last[device] = run
+        worker = run['state']['workers'][device]
+        exhausted = status == 'overloaded' and worker['attempts'] > 1
+        if exhausted:
+            status = 'failed'
+        if status == 'success' and worker['completed'] != worker['total']:
+            status, error = 'failed', 'Worker exited without completing its assigned archives'
+        self._set_state(run, device, moment, state=status, error=error)
+        run['done_at'] = moment
+        if self._retrying == device:
+            self._retrying = None
+        if status == 'failed' and not exhausted:
+            self._stop.set()
+        if status != 'success':
+            self._retired.add(device)
+            self._waiting[device][:0] = [index for queued in jobs
+                                         for index, candidate in enumerate(self._runs)
+                                         if candidate is queued]
+            jobs.clear()
+            if status == 'overloaded':
+                order = list(run['assignments'])
+                run['overloaded'] = sorted(run['overloaded'] + [device], key=order.index)
+        elif jobs:
+            self._begin(device, moment)
+
+    def _reap(self):
+        """Fail roles whose worker died without its final event."""
+        for device, process in list(self._processes.items()):
+            if process.is_alive():
+                continue
+            jobs = self._inflight.get(device, [])
+            if jobs:
+                since = self._dead_since.setdefault(device, time.monotonic())
+                if process.exitcode == 0 and time.monotonic() - since < 1.0:
+                    continue
+                run = jobs[0]
+                self._set_state(run, device, time.monotonic(), state='failed',
+                                error=f'Worker exited with code {process.exitcode} '
+                                      'without a final event')
+                jobs.clear()
+                self._stop.set()
+                self._publish(run)
+            elif device not in self._retired and process.exitcode != 0:
+                run = self._last.get(device)
+                if run is not None:
+                    self._set_state(run, device, time.monotonic(), state='failed',
+                                    error=f'Worker exited with code {process.exitcode}')
+                    self._stop.set()
+                    self._publish(run)
+            self._dead_since.pop(device, None)
+            self._release(device)
+
+    def _deliver_figure(self, run, device, value):
+        """Hand a worker's figure to the role's callback, the GUI sink or a file."""
+        figure = _read_worker_figure(value, self._figures.name if self._figures else None)
+        if run.get('on_figure') is not None:
+            run['on_figure'](figure)
+            return
+        from .figure_sink import publish as publish_figure
+        from .figure_sink import sink
+        if sink() is not None:
+            publish_figure(figure)
+        else:
+            from .plot import save_figure
+            destination = Path(run['src']).parent / 'mask_worker_plots'
+            target = save_figure(
+                figure, destination / f'{run["object_type"]}_{Path(value).stem}.png',
+                fmt='png', dpi=figure.dpi)
+            print(f'[GPU {device}] Saved figure: {target}')
+
+
+def _run_mask_workers(src, settings, object_type, assignments, environments, *,
+                      on_progress=None, on_figure=None, context=None, segmenter=None,
+                      gate=None):
+    """Run one role's assignments in a worker pool of its own.
+
+    The pool is closed on return; see :class:`_MaskWorkerPool` for the
+    events, cancellation, overload restarts and figure delivery. Shared QC
+    belongs to the caller after all workers succeed, and this layer neither
+    decides resume eligibility nor declares output integrity.
+
+    :returns: final worker states and the unique completed archive paths.
+    :raises PipelineCancelled: after a requested cooperative stop completes.
+    :raises RuntimeError: if a worker fails, crashes or omits assigned work.
+    """
+    role = {'src': src, 'settings': settings, 'object_type': object_type,
+            'assignments': assignments, 'on_progress': on_progress, 'on_figure': on_figure}
+    with _MaskWorkerPool(context=context, segmenter=segmenter, gate=gate) as pool:
+        return pool.run_roles([role], environments)[0]
 
 
 _PROGRESS_PREFIX = '[mask GPUs]'
@@ -1210,12 +1684,52 @@ def _nvml_sample(pynvml, handles):
             for index, handle in handles.items()}
 
 
+def _busy_summary(busy):
+    """Mean busy percentage and share of samples at or above the busy mark.
+
+    :param busy: busy percentages.
+    :returns: ``(mean, share)``, both None without samples.
+    """
+    if not busy:
+        return None, None
+    return (round(sum(busy) / len(busy), 1),
+            round(sum(1 for value in busy if value >= _BUSY_PERCENT) / len(busy), 3))
+
+
+def _startup_split(values, events):
+    """Split one GPU's samples at the role's first finished archive.
+
+    Everything up to that event is start-up (spawning, binding the device,
+    loading the model, the first archive); everything after it is steady
+    segmentation.
+
+    :param values: ``(busy percent, used bytes, seconds since start)`` samples.
+    :param events: ``[seconds since start, label]`` notes.
+    :returns: ``startup_seconds``, ``startup_mean_busy_percent``,
+        ``steady_mean_busy_percent``, ``steady_busy_share`` and
+        ``steady_samples``; the first three are None before any archive finished.
+    """
+    finished = [moment for moment, label in events if label == 'archive finished']
+    if not finished:
+        return {'startup_seconds': None, 'startup_mean_busy_percent': None,
+                'steady_mean_busy_percent': None, 'steady_busy_share': None,
+                'steady_samples': 0}
+    first = min(finished)
+    startup, _ = _busy_summary([value[0] for value in values if value[2] <= first])
+    steady = [value[0] for value in values if value[2] > first]
+    mean, share = _busy_summary(steady)
+    return {'startup_seconds': first, 'startup_mean_busy_percent': startup,
+            'steady_mean_busy_percent': mean, 'steady_busy_share': share,
+            'steady_samples': len(steady)}
+
+
 class _GpuUtilisation:
     """Sample how busy each GPU is while one role's workers run.
 
     A thread reads every GPU each :data:`_SAMPLE_SECONDS`; :meth:`stop`
     returns, per GPU, the mean busy percentage, the share of samples at or
-    above :data:`_BUSY_PERCENT` and the peak memory in use.
+    above :data:`_BUSY_PERCENT`, the peak memory in use, the wall-clock
+    start and the start-up/steady split at the first finished archive.
 
     :param gpus: ``{gpu index: UUID}`` from the worker plan.
     :param read: optional reader in :func:`_nvml_reader` form, for tests.
@@ -1229,22 +1743,24 @@ class _GpuUtilisation:
         self.interval = _SAMPLE_SECONDS if interval is None else interval
         self.samples = {index: [] for index in gpus}
         self.events = []
+        self.started_at = None
         self._stop = threading.Event()
         self._thread = None
         self._started = None
 
-    def _elapsed(self):
-        """Seconds since :meth:`start`, to one decimal; 0 before it."""
+    def _elapsed(self, moment=None):
+        """Seconds from :meth:`start` to ``moment`` (now when None), to one decimal; 0 before it."""
         if self._started is None:
             return 0.0
-        return round(time.monotonic() - self._started, 1)
+        return round((time.monotonic() if moment is None else moment) - self._started, 1)
 
-    def note(self, label):
-        """Record that ``label`` happened now, for the utilisation file.
+    def note(self, label, at=None):
+        """Record that ``label`` happened, for the utilisation file.
 
         :param label: a short description, such as ``worker 0.2 started``.
+        :param at: the ``time.monotonic()`` moment it happened; now when None.
         """
-        self.events.append([self._elapsed(), str(label)])
+        self.events.append([self._elapsed(at), str(label)])
 
     def _sample(self):
         """Append one reading of every GPU; a failed reading is skipped."""
@@ -1262,9 +1778,15 @@ class _GpuUtilisation:
         while not self._stop.wait(self.interval):
             self._sample()
 
-    def start(self):
-        """Start sampling in a daemon thread, when a reader is available."""
-        self._started = time.monotonic()
+    def start(self, at=None):
+        """Start sampling in a daemon thread, when a reader is available.
+
+        :param at: the ``time.monotonic()`` moment the role began, when
+            that was before this call; now when None.
+        """
+        now = time.monotonic()
+        self._started = now if at is None else min(at, now)
+        self.started_at = time.time() - (now - self._started)
         if self.read is None:
             return self
         self._thread = threading.Thread(target=self._loop, name='spacr-gpu-utilisation',
@@ -1272,36 +1794,54 @@ class _GpuUtilisation:
         self._thread.start()
         return self
 
-    def stop(self):
+    def stop(self, until=None):
         """Stop sampling and summarise.
 
+        :param until: the ``time.monotonic()`` moment the role ended, when
+            that was before this call; samples after it are left out.
         :returns: ``{gpu index: {'samples', 'seconds', 'mean_busy_percent',
-            'busy_share', 'peak_memory_gb', 'trace', 'events'}}``; empty when
-            no reader was available. ``trace`` lists every sample as
-            ``[seconds since start, busy percent, memory GB]`` and ``events``
-            the :meth:`note` calls as ``[seconds since start, label]``, so
-            start-up and steady segmentation can be told apart afterwards.
+            'busy_share', 'peak_memory_gb', 'trace', 'events', 'started_at',
+            'started_at_iso', 'startup_seconds', 'startup_mean_busy_percent',
+            'steady_mean_busy_percent', 'steady_busy_share',
+            'steady_samples'}}``; empty when no reader was available.
+            ``trace`` lists every sample as ``[seconds since start, busy
+            percent, memory GB]`` and ``events`` the :meth:`note` calls as
+            ``[seconds since start, label]``. ``started_at`` is the start in
+            epoch seconds and ``started_at_iso`` the same moment in local
+            time with its offset, so the trace can be laid against file
+            times. The start-up is everything up to the first finished
+            archive and the steady part everything after it.
         """
+        import datetime
+
         self._stop.set()
         if self._thread is not None:
             self._thread.join(timeout=5.0)
         if self.read is None:
             return {}
-        seconds = time.monotonic() - (self._started or time.monotonic())
+        end = time.monotonic() if until is None else until
+        seconds = end - (self._started if self._started is not None else end)
+        cutoff = self._elapsed(end)
+        started_at = round(self.started_at, 3) if self.started_at is not None else None
+        iso = (datetime.datetime.fromtimestamp(self.started_at).astimezone().isoformat(
+            timespec='seconds') if self.started_at is not None else None)
         summary = {}
-        for index, values in self.samples.items():
-            busy = [value[0] for value in values]
+        for index, samples in self.samples.items():
+            values = [value for value in samples if value[2] <= cutoff]
+            mean, share = _busy_summary([value[0] for value in values])
             summary[index] = {
                 'samples': len(values),
                 'seconds': round(seconds, 1),
-                'mean_busy_percent': round(sum(busy) / len(busy), 1) if busy else None,
-                'busy_share': (round(sum(1 for value in busy if value >= _BUSY_PERCENT)
-                                     / len(busy), 3) if busy else None),
+                'mean_busy_percent': mean,
+                'busy_share': share,
                 'peak_memory_gb': (round(max(value[1] for value in values) / (1 << 30), 2)
                                    if values else None),
                 'trace': [[value[2], round(float(value[0]), 1),
                            round(value[1] / (1 << 30), 2)] for value in values],
                 'events': [list(event) for event in self.events],
+                'started_at': started_at,
+                'started_at_iso': iso,
+                **_startup_split(values, self.events),
             }
         return summary
 
@@ -1330,11 +1870,15 @@ def _report_gpu_utilisation(mask_src, object_type, plan, summary):
         if not row['samples']:
             continue
         noun = 'worker' if workers[index] == 1 else 'workers'
+        steady = ''
+        if row.get('steady_mean_busy_percent') is not None:
+            steady = (f'; busy {row["steady_mean_busy_percent"]:.0f}% after the first '
+                      f'archive finished at {row["startup_seconds"]:.0f} s')
         print(f'[gpu] plate {plate} {object_type} masks: GPU {index} with '
               f'{workers[index]} {noun} busy {row["mean_busy_percent"]:.0f}% on average, '
               f'at least {_BUSY_PERCENT}% in {100 * row["busy_share"]:.0f}% of '
               f'{row["samples"]} samples over {row["seconds"]:.0f} s; '
-              f'memory up to {row["peak_memory_gb"]:.1f} GB')
+              f'memory up to {row["peak_memory_gb"]:.1f} GB{steady}')
     path = os.path.join(plate_dir, _UTILISATION_FILE)
     try:
         with open(path, encoding='utf-8') as handle:
@@ -1358,25 +1902,6 @@ def _report_gpu_utilisation(mask_src, object_type, plan, summary):
             pass
 
 
-def _note_worker_events(utilisation, before, after):
-    """Note worker starts and finished archives between two progress snapshots.
-
-    :param utilisation: the role's :class:`_GpuUtilisation`.
-    :param before: the previous snapshot, empty for the first one.
-    :param after: the new snapshot.
-    """
-    previous = before.get('workers', {})
-    for device, worker in sorted(after.get('workers', {}).items(),
-                                 key=lambda item: str(item[0])):
-        state = worker.get('state')
-        if state != previous.get(device, {}).get('state') and state != 'starting':
-            utilisation.note(f'worker {device} {state}')
-    if before:
-        done = len(after.get('completed_batches', ()))
-        for _ in range(done - len(before.get('completed_batches', ()))):
-            utilisation.note('archive finished')
-
-
 def _ordinary_mask_gpu():
     """The CUDA device the ordinary single-process mask path runs on, or None.
 
@@ -1392,14 +1917,30 @@ def _ordinary_mask_gpu():
     return int(index) if index.isdigit() else 0
 
 
+_ARCHIVE_SAMPLERS = []
+
+
+def _announce_archive(path):
+    """Tell the ordinary path's GPU sampler that one archive's masks are saved.
+
+    The mask generator calls this after each archive, next to its
+    ``on_batch_done`` callback; with no sampler listening it does nothing.
+
+    :param path: the finished archive.
+    """
+    for sampler in tuple(_ARCHIVE_SAMPLERS):
+        sampler.note('archive finished')
+
+
 @contextmanager
 def _sampled_ordinary_masks(mask_src, object_type):
     """Sample the GPU while the ordinary single-process path segments one role.
 
     The same sampler and report as the worker path, so a run with
     ``mask_workers_per_gpu`` 1 writes the ``[gpu]`` line and
-    ``gpu_utilisation.json`` its multi-worker comparison is measured against.
-    Nothing is sampled or printed without a CUDA device.
+    ``gpu_utilisation.json`` its multi-worker comparison is measured against,
+    with the same start time and start-up/steady split at the first
+    finished archive. Nothing is sampled or printed without a CUDA device.
 
     :param mask_src: the plate's ``masks`` folder.
     :param object_type: the role being segmented.
@@ -1409,77 +1950,215 @@ def _sampled_ordinary_masks(mask_src, object_type):
         yield
         return
     utilisation = _GpuUtilisation({index: _device_uuid(index)}).start()
+    _ARCHIVE_SAMPLERS.append(utilisation)
     try:
         yield
     finally:
+        _ARCHIVE_SAMPLERS.remove(utilisation)
         _report_gpu_utilisation(mask_src, object_type, {'gpus': {index: index}},
                                 utilisation.stop())
 
 
-def _generate_masks_in_parallel(mask_src, settings, object_type, plan, *,
-                                context=None, segmenter=None):
-    """Segment one role's prepared archives with one model process per worker.
+class _RoleMonitor:
+    """Sample, print and time one role while the worker pool segments it.
 
-    Inputs are inventoried once, partitioned by bytes and signed with the
-    resolved model before dispatch. Verified archives from an interrupted run
-    are skipped, shared QC runs once in this process, and ``settings`` gains
-    the same entries the ordinary generator records. Failures and cancellation
-    print completed/failed/unfinished counts and keep every prepared input.
-    While the workers run, each GPU's utilisation is sampled and reported per
-    plate by :func:`_report_gpu_utilisation`.
-
-    :param mask_src: the run's ``masks`` folder of prepared NPZ archives.
-    :param settings: run settings; updated as the ordinary generator does.
-    :param object_type: ``cell``, ``nucleus`` or ``pathogen``.
-    :param plan: result of :func:`_parallel_mask_plan`.
-    :param context: optional multiprocessing context for tests.
-    :param segmenter: optional CPU stand-in for the mask generator, which
-        serves Cellpose-SAM and every backend with a model contract.
+    :param mask_src: the plate's ``masks`` folder.
+    :param object_type: the role.
+    :param plan: the worker plan.
     """
-    from .io import _mask_batch_manifest
-    from .object import _fill_cellpose_channel_positions, _run_seg_qc
+
+    def __init__(self, mask_src, object_type, plan):
+        """Nothing is sampled before the role's first dispatch."""
+        self.mask_src = mask_src
+        self.object_type = object_type
+        self.plan = plan
+        self.utilisation = None
+        self.began = None
+        self.ended = None
+        self.last = {}
+
+    def start(self, moment):
+        """Start sampling the plan's GPUs from the role's first dispatch."""
+        self.began = moment
+        gpus = self.plan.get('uuids') or {}
+        if gpus:
+            self.utilisation = _GpuUtilisation(gpus).start(at=moment)
+
+    def event(self, label, moment):
+        """Note a worker state or a finished archive at the moment it arrived."""
+        if self.utilisation is not None:
+            self.utilisation.note(label, at=moment)
+
+    def progress(self, state):
+        """Keep the latest snapshot for the summary and print it for the GUI."""
+        self.last = state
+        print(_progress_line(self.object_type, state))
+
+    def finish(self, moment=None):
+        """Stop sampling at the role's last event and report the plate's record once."""
+        if self.ended is None and self.began is not None:
+            self.ended = time.monotonic() if moment is None else moment
+        if self.utilisation is not None:
+            utilisation, self.utilisation = self.utilisation, None
+            _report_gpu_utilisation(self.mask_src, self.object_type, self.plan,
+                                    utilisation.stop(until=self.ended))
+
+    def seconds(self):
+        """Seconds from the role's first dispatch to its last archive; 0 if it never ran."""
+        if self.began is None or self.ended is None:
+            return 0.0
+        return self.ended - self.began
+
+
+def _settings_after_role(settings, mask_src):
+    """Apply to ``settings`` what finalizing one parallel role does to them.
+
+    The next role is signed with the result, so overlapped roles carry the
+    same settings, signature and resume record as roles run one by one.
+
+    :param settings: the run settings, changed in place.
+    :param mask_src: the run's ``masks`` folder.
+    :returns: ``settings``.
+    """
+    from .object import _fill_cellpose_channel_positions
     from .settings import set_default_settings_preprocess_generate_masks
 
-    prepared, signature, identity = _mask_model_contract(settings, object_type)
-    records = _mask_batch_manifest(mask_src)
-    ledger = _MaskBatchLedger(mask_src, records, object_type, signature,
-                              excluded_fields=settings.get('image_qc_excluded_fields') or ())
-    assignments = _partition_batches(records, plan['devices'])
-    names = ', '.join(f'GPU {device} ({plan["names"].get(device, "?")})'
-                      for device in plan['devices'])
-    print(f'Parallel {object_type} masks: {len(records)} archives on {names}; '
-          f'model {_model_label(identity)}')
-    last = {}
-
-    gpus = plan.get('uuids') or {}
-    utilisation = _GpuUtilisation(gpus).start() if gpus else None
-
-    def report(state):
-        """Keep the latest snapshot for the summary and print it for the GUI."""
-        if utilisation is not None:
-            _note_worker_events(utilisation, last, state)
-        last.clear()
-        last.update(state)
-        print(_progress_line(object_type, state))
-
-    try:
-        _run_checkpointed_mask_workers(mask_src, prepared, object_type, assignments,
-            plan['environments'], ledger, on_progress=report, context=context,
-            segmenter=segmenter)
-    except BaseException:
-        done = len(ledger.verified())
-        failed = _failed_archives(last)
-        print(f'Parallel {object_type} masks stopped: {done} completed, {failed} failed, '
-              f'{len(records) - done - failed} unfinished of {len(records)} archives. '
-              'Completed masks and every prepared input are kept; '
-              'rerun with the same settings to resume.')
-        raise
-    finally:
-        if utilisation is not None:
-            _report_gpu_utilisation(mask_src, object_type, plan, utilisation.stop())
     settings['src'] = mask_src
     set_default_settings_preprocess_generate_masks(settings)
     _fill_cellpose_channel_positions(settings)
+    return settings
+
+
+def _roles_may_overlap(settings):
+    """Whether one role's QC leaves the next role's settings unchanged.
+
+    ``seg_qc`` set to ``flag`` records each role's flags in the settings
+    the next role is signed with, so those roles run one after another.
+    """
+    try:
+        from .seg_qc import qc_mode
+    except Exception:                                       # noqa: BLE001
+        return True
+    return qc_mode(settings) != 'flag'
+
+
+def _generate_roles_in_parallel(mask_src, settings, roles, plan, *, pool=None,
+                                context=None, segmenter=None):
+    """Segment several roles' prepared archives with persistent worker processes.
+
+    Each role's archives are inventoried, partitioned by bytes and signed
+    with the role's resolved model before dispatch, exactly as when the
+    role ran alone. Consecutive roles overlap: a worker that finished its
+    share of one role starts its share of the next while its peers finish,
+    and this process finalizes a finished role (its shared QC) while the
+    next one segments. With ``seg_qc`` set to ``flag`` the roles run one
+    after another, in the same worker processes. Verified archives from an
+    interrupted run are skipped, and ``settings`` gains the same entries the
+    ordinary generator records. Failures and cancellation print
+    completed/failed/unfinished counts and keep every prepared input. Each
+    role's GPU utilisation is sampled from its first dispatch to its last
+    archive and reported per plate by :func:`_report_gpu_utilisation`.
+
+    :param mask_src: the run's ``masks`` folder of prepared NPZ archives.
+    :param settings: run settings; updated as the ordinary generator does.
+    :param roles: ``cell``, ``nucleus`` and ``pathogen`` names, in run order.
+    :param plan: result of :func:`_parallel_mask_plan`.
+    :param pool: the run's :class:`_MaskWorkerPool`; a pool of its own,
+        closed on return, when None.
+    :param context: optional multiprocessing context for a pool of its own.
+    :param segmenter: optional CPU stand-in for the mask generator, which
+        serves Cellpose-SAM and every backend with a model contract.
+    :returns: ``{role: seconds}`` from each role's first dispatch to its
+        last finished archive.
+    """
+    from contextlib import ExitStack
+
+    seconds = {}
+    with ExitStack() as stack:
+        if pool is None:
+            pool = stack.enter_context(_MaskWorkerPool(context=context, segmenter=segmenter))
+        groups = ([list(roles)] if _roles_may_overlap(settings)
+                  else [[role] for role in roles])
+        for group in groups:
+            seconds.update(_segment_role_group(mask_src, settings, group, plan, pool))
+    return seconds
+
+
+def _segment_role_group(mask_src, settings, group, plan, pool):
+    """Sign, dispatch and finalize one group of overlapping roles.
+
+    :param mask_src: the run's ``masks`` folder.
+    :param settings: run settings; finalizing each role updates them.
+    :param group: role names in run order.
+    :param plan: the worker plan.
+    :param pool: the run's :class:`_MaskWorkerPool`.
+    :returns: ``{role: seconds}`` for the group.
+    """
+    from .cancellation import PipelineCancelled
+    from .io import _mask_batch_manifest
+
+    records = _mask_batch_manifest(mask_src)
+    names = ', '.join(f'GPU {device} ({plan["names"].get(device, "?")})'
+                      for device in plan['devices'])
+    signed = settings
+    entries = []
+    for position, object_type in enumerate(group):
+        if position:
+            signed = _settings_after_role(copy.deepcopy(signed), mask_src)
+        prepared, signature, identity = _mask_model_contract(signed, object_type)
+        ledger = _MaskBatchLedger(mask_src, records, object_type, signature,
+                                  excluded_fields=settings.get('image_qc_excluded_fields') or ())
+        print(f'Parallel {object_type} masks: {len(records)} archives on {names}; '
+              f'model {_model_label(identity)}')
+        monitor = _RoleMonitor(mask_src, object_type, plan)
+        role = _checkpointed_role(mask_src, prepared, object_type,
+                                  _partition_batches(records, plan['devices']), ledger,
+                                  on_progress=monitor.progress)
+        role.update(on_start=monitor.start, on_event=monitor.event,
+                    on_finished=monitor.finish)
+        entries.append((object_type, ledger, monitor, role))
+    import functools
+
+    segmented = set()
+    try:
+        pool.run_roles([entry[3] for entry in entries], plan['environments'],
+                       on_role_done=functools.partial(_finalize_role, entries, segmented,
+                                                      settings, mask_src))
+    except BaseException as error:
+        for index, (object_type, ledger, monitor, _) in enumerate(entries):
+            if index in segmented:
+                continue
+            ledger.store.update(status='cancelled' if isinstance(error, PipelineCancelled)
+                                else 'failed')
+            done = len(ledger.verified())
+            failed = _failed_archives(monitor.last)
+            print(f'Parallel {object_type} masks stopped: {done} completed, {failed} failed, '
+                  f'{len(records) - done - failed} unfinished of {len(records)} archives. '
+                  'Completed masks and every prepared input are kept; '
+                  'rerun with the same settings to resume.')
+        raise
+    finally:
+        for _, _, monitor, _ in entries:
+            monitor.finish()
+    return {object_type: monitor.seconds() for object_type, _, monitor, _ in entries}
+
+
+def _finalize_role(entries, segmented, settings, mask_src, index, state):
+    """Record one role's masks as segmented, then run its shared QC once.
+
+    :param entries: the group's ``(role, ledger, monitor, pool role)`` tuples.
+    :param segmented: indexes of roles already marked segmented, extended here.
+    :param settings: run settings; updated as the ordinary generator does.
+    :param mask_src: the run's ``masks`` folder.
+    :param index: the finished role's position in ``entries``.
+    :param state: the role's final worker states.
+    """
+    from .object import _run_seg_qc
+
+    object_type, ledger, _, _ = entries[index]
+    ledger.store.update(status='segmented')
+    segmented.add(index)
+    _settings_after_role(settings, mask_src)
     _run_seg_qc(mask_src, settings, object_type)
     ledger.store.update(status='finalized')
 

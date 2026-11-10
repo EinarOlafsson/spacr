@@ -13,7 +13,7 @@ from types import SimpleNamespace
 import numpy as np
 import pytest
 
-from spacr._mask_workers import _mask_worker, _partition_batches, _run_mask_workers
+from spacr._mask_workers import _partition_batches, _run_mask_workers, _serve_mask_jobs
 from spacr.cancellation import CancellationToken, PipelineCancelled, installed_token
 
 
@@ -115,9 +115,9 @@ def test_default_worker_checks_its_binding_before_loading_the_generator(
     monkeypatch.setattr(accelerator, '_CACHED', None)
     monkeypatch.setenv('CUDA_VISIBLE_DEVICES', 'parent-allocation')
     messages = queue.Queue()
-    _mask_worker(str(tmp_path), {}, 'cell', 0, [str(tmp_path / 'batch.npz')],
-                 {'CUDA_VISIBLE_DEVICES': 'assigned-device'}, messages,
-                 threading.Event())
+    jobs = iter([(str(tmp_path), {}, 'cell', [str(tmp_path / 'batch.npz')])])
+    _serve_mask_jobs(0, {'CUDA_VISIBLE_DEVICES': 'assigned-device'}, messages,
+                     threading.Event(), lambda: next(jobs, None))
     records = []
     while not messages.empty():
         records.append(messages.get())

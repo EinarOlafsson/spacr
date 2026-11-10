@@ -59,3 +59,29 @@ DELIBERATELY NOT DONE
 2026-11-05: renumbered from 766 to 801; nightly already used 755-768 for other items.
 
 2026-11-07: item 803's GPU memory governor (spacr/_gpu_governor.py: free-VRAM batch sizing, a machine-wide ledger and the gpu_* settings) is the VRAM budget step 1 points to; running several workers on one GPU under it is still to be built.
+
+2026-11-10: workstation re-run (RTX 3090 Ti, BBBC021 Week1_22123, 240
+fields, batch size 50, Cellpose-SAM for cell and nucleus): one worker
+61 % (cell) and 60 % (nucleus) busy at steady state, 644 s; two workers
+81.1 % / 66.8 % steady but 72.4 % / 56.6 % over the whole role, 559 s.
+The miss was start-up: each role spawned fresh workers (imports, CUDA
+context, model load, a 10 s start gate) and hashed the 1.15 GB model
+again. Now the workers persist: spacr/_mask_workers.py's
+_MaskWorkerPool spawns each worker once per Make Masks call, keeps its
+CUDA context and its loaded Cellpose-SAM model (one held model per
+worker, reused when the weights file, its size and time and the
+constructor keywords match) and takes role-tagged jobs for every role
+and plate; only the first spawn passes the start gate, an overload
+restart starts at once. A worker that finished its share of one role
+starts the next role's while its peers finish, and the parent runs a
+finished role's QC while the next one segments (not with seg_qc flag,
+whose flags change the next role's settings; those roles run one after
+another in the same workers). Each model file is hashed once per call.
+gpu_utilisation.json now records, per role and GPU, started_at (epoch
+seconds and started_at_iso), startup_seconds (the first finished
+archive) and the start-up and steady busy percentages on both the
+worker and the one-worker path, and the [gpu] line gives the steady
+figure. Defaults are unchanged. Tests:
+tests/test_mask_workers_persist_across_roles.py (CPU stand-ins in real
+spawned workers, a fake Cellpose model in process, no GPU). The >80 %
+check waits for the workstation re-run with the same three arms.

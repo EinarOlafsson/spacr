@@ -158,7 +158,7 @@ def test_dispatch_accepts_every_backend_with_a_contract(tmp_path, monkeypatch, c
     plan['environments'] = {i: acc._mask_worker_environment(i, backend='cuda', count=2)
                             for i in plan['devices']}
 
-    mw._generate_masks_in_parallel(str(masks), run, 'nucleus', plan, segmenter=_stub_segment)
+    mw._generate_roles_in_parallel(str(masks), run, ['nucleus'], plan, segmenter=_stub_segment)
 
     calls = [line.split() for line in (masks.parent / 'calls.log').read_text(encoding="utf-8").splitlines()]
     assert sorted(name for _, name in calls) == [f'batch{i}.npz' for i in range(4)]

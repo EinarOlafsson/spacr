@@ -146,7 +146,7 @@ def test_two_workers_on_one_gpu_match_the_serial_run_and_report_the_plate(
     monkeypatch.setattr(mw, '_nvml_reader', lambda gpus: asked.append(gpus) or (
         lambda: {0: (90.0, 6 * GB)}))
 
-    mw._generate_masks_in_parallel(str(masks), settings, 'cell', plan, segmenter=_segment)
+    mw._generate_roles_in_parallel(str(masks), settings, ['cell'], plan, segmenter=_segment)
 
     serial_out = sorted((serial / 'cell_mask_stack').glob('*.npy'))
     shared_out = sorted((masks / 'cell_mask_stack').glob('*.npy'))
@@ -320,28 +320,45 @@ def test_make_masks_samples_each_role_on_the_ordinary_path(tmp_path, monkeypatch
         ('open', 'masks', role), ('segment', role), ('close', role))]
 
 
-def test_worker_starts_and_finished_archives_are_noted():
+def test_events_keep_the_moment_they_arrived_and_split_start_up_from_steady():
+    import time
+    from datetime import datetime
+
     sampler = mw._GpuUtilisation({0: ''}, read=lambda: {0: (50.0, GB)})
-    first = {'completed_batches': ['old.npz'],
-             'workers': {'0.1': {'state': 'starting'}, '0.2': {'state': 'starting'}}}
-    mw._note_worker_events(sampler, {}, first)
-    assert sampler.events == []
-    running = {'completed_batches': ['old.npz'],
-               'workers': {'0.1': {'state': 'running'}, '0.2': {'state': 'starting'}}}
-    mw._note_worker_events(sampler, first, running)
-    done = {'completed_batches': ['a.npz', 'b.npz', 'old.npz'],
-            'workers': {'0.1': {'state': 'success'}, '0.2': {'state': 'running'}}}
-    mw._note_worker_events(sampler, running, done)
-    assert [label for _, label in sampler.events] == [
-        'worker 0.1 running', 'worker 0.1 success', 'worker 0.2 running',
-        'archive finished', 'archive finished']
-    assert all(moment == 0.0 for moment, _ in sampler.events)
-    sampler.start()
+    sampler.note('before start')
+    assert sampler.events == [[0.0, 'before start']]
+    begun = time.monotonic() - 10.0
+    wall = time.time()
+    sampler.start(at=begun)
+    assert abs(sampler.started_at - (wall - 10.0)) < 1.0
+    sampler.events.clear()
+    sampler.note('worker 0.1 running', at=begun + 2.0)
+    sampler.note('archive finished', at=begun + 6.0)
     sampler.note('marker')
+    sampler.samples[0] = [(20.0, GB, 1.0), (40.0, 2 * GB, 5.0), (90.0, 3 * GB, 7.0),
+                          (100.0, 3 * GB, 9.0), (100.0, 5 * GB, 12.0)]
+    row = sampler.stop(until=begun + 10.0)[0]
+    assert [label for _, label in row['events']] == [
+        'worker 0.1 running', 'archive finished', 'marker']
+    assert row['events'][0][0] == 2.0 and row['events'][1][0] == 6.0
+    assert row['samples'] == 4 and row['seconds'] == 10.0
+    assert row['peak_memory_gb'] == 3.0
+    assert row['startup_seconds'] == 6.0
+    assert row['startup_mean_busy_percent'] == 30.0
+    assert row['steady_mean_busy_percent'] == 95.0
+    assert row['steady_busy_share'] == 1.0 and row['steady_samples'] == 2
+    assert row['started_at'] == round(sampler.started_at, 3)
+    assert datetime.fromisoformat(row['started_at_iso']).timestamp() == pytest.approx(
+        sampler.started_at, abs=1.0)
+
+
+def test_a_role_without_a_finished_archive_has_no_steady_part():
+    sampler = mw._GpuUtilisation({0: ''}, read=lambda: {0: (50.0, GB)}).start()
     sampler._sample()
     row = sampler.stop()[0]
-    assert row['events'][-1][1] == 'marker'
-    assert row['trace'][-1][1:] == [50.0, 1.0]
+    assert row['startup_seconds'] is None and row['steady_mean_busy_percent'] is None
+    assert row['steady_samples'] == 0 and row['samples'] == 1
+    assert isinstance(row['started_at'], float) and row['started_at_iso']
 
 
 def test_per_image_diameters_are_governed_like_the_batch_call(monkeypatch):

@@ -227,10 +227,10 @@ class _InvalidStatusContext:
         return getattr(self.real, name)
 
     def Process(self, *, target, args, name):
-        from spacr._mask_workers import _mask_worker
-        assert target is _mask_worker
+        from spacr._mask_workers import _pooled_mask_worker
+        assert target is _pooled_mask_worker
         return self.real.Process(target=_send_invalid_mask_status,
-                                 args=(args[6], args[3]), name=name)
+                                 args=(args[2], args[0]), name=name)
 
 
 def test_malformed_mask_worker_status_fails_and_preserves_original_archive(tmp_path):

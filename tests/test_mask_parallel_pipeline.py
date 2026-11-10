@@ -157,7 +157,7 @@ def test_parallel_batches_match_the_serial_run_and_write_each_field_once(
     settings = _settings(mask_parallel=True)
     plan = _plan(settings)
 
-    mw._generate_masks_in_parallel(str(masks), settings, 'cell', plan, segmenter=_segment)
+    mw._generate_roles_in_parallel(str(masks), settings, ['cell'], plan, segmenter=_segment)
 
     serial_out = sorted((serial / 'cell_mask_stack').glob('*.npy'))
     parallel_out = sorted((masks / 'cell_mask_stack').glob('*.npy'))
@@ -187,7 +187,7 @@ def test_an_interrupted_worker_resumes_only_unfinished_batches(tmp_path, cpu_wor
     settings = _settings(mask_parallel=True, fail_on='batch3.npz')
     plan = _plan(settings)
     with pytest.raises(RuntimeError, match='inference failed'):
-        mw._generate_masks_in_parallel(str(masks), settings, 'cell', plan, segmenter=_segment)
+        mw._generate_roles_in_parallel(str(masks), settings, ['cell'], plan, segmenter=_segment)
     out = capsys.readouterr().out
     assert 'failed 1' in out and 'unfinished of 4 archives' in out
     assert 'every prepared input are kept' in out
@@ -200,7 +200,7 @@ def test_an_interrupted_worker_resumes_only_unfinished_batches(tmp_path, cpu_wor
     assert json.loads((masks / '.mask-workers-cell.json').read_text(encoding="utf-8"))['status'] == 'failed'
 
     settings.pop('fail_on')
-    mw._generate_masks_in_parallel(str(masks), settings, 'cell', plan, segmenter=_segment)
+    mw._generate_roles_in_parallel(str(masks), settings, ['cell'], plan, segmenter=_segment)
     second = [name for _, name in _calls(tmp_path)][len(first):]
     assert sorted(first + second) == [f'batch{index}.npz' for index in range(4)]
     assert 'batch3.npz' in second and not set(first) & set(second)
@@ -214,12 +214,12 @@ def test_an_interrupted_worker_resumes_only_unfinished_batches(tmp_path, cpu_wor
 def test_changed_settings_cannot_claim_a_previous_runs_masks(tmp_path, cpu_workers, monkeypatch):
     masks = _plate(tmp_path, archives=2)
     settings = _settings(mask_parallel=True)
-    mw._generate_masks_in_parallel(str(masks), settings, 'cell', _plan(settings), segmenter=_segment)
+    mw._generate_roles_in_parallel(str(masks), settings, ['cell'], _plan(settings), segmenter=_segment)
     monkeypatch.setattr(mw, '_prepare_mask_model', lambda settings, role: (
         dict(settings), fingerprint({'model': 'other'}), {'path': 'other'}))
     from spacr.checkpoint import CheckpointMismatch
     with pytest.raises(CheckpointMismatch):
-        mw._generate_masks_in_parallel(str(masks), settings, 'cell', _plan(settings),
+        mw._generate_roles_in_parallel(str(masks), settings, ['cell'], _plan(settings),
                                        segmenter=_segment)
 
 
@@ -306,7 +306,8 @@ def core_stubs(monkeypatch, tmp_path):
     monkeypatch.setattr(su, 'adjust_cell_masks', spies['adjust'])
     monkeypatch.setattr(su, '_pivot_counts_table', _Spy())
     monkeypatch.setattr(su, 'cleanup_pipeline_folders', lambda *a, **k: [])
-    monkeypatch.setattr(mw, '_generate_masks_in_parallel', spies['parallel'])
+    monkeypatch.setattr(mw, '_generate_roles_in_parallel', lambda *args, **kwargs: (
+        spies['parallel'](*args, **kwargs) or {role: 1.5 for role in args[2]}))
     monkeypatch.setattr(mw, '_finalize_adjusted_cells',
                         lambda *args, **kwargs: spies['finalize'](*args, **kwargs) or 'ADJUSTED')
     src = tmp_path / 'plate1'
@@ -353,7 +354,27 @@ def test_with_the_feature_on_core_dispatches_every_role_and_finalizes(core_stubs
     mask_src = os.path.join(str(src), 'masks')
     assert not spies['cellpose'].calls and not spies['adjust'].calls
     assert [(args[0], args[2], args[3]['devices']) for args, _ in spies['parallel'].calls] == [
-        (mask_src, role, [0, 1]) for role in ('cell', 'nucleus', 'pathogen')]
+        (mask_src, ['cell', 'nucleus', 'pathogen'], [0, 1])]
+    assert isinstance(spies['parallel'].calls[0][1]['pool'], mw._MaskWorkerPool)
     assert spies['finalize'].calls == [((mask_src, None), {'n_jobs': 1})]
     assert spies['qc'].calls[0][1] == {'mask_folder': 'ADJUSTED'}
     assert spies['concat'].calls[0][1]['mask_folders'] == {'cell': 'ADJUSTED'}
+
+
+def test_core_hands_the_pool_only_the_roles_that_still_need_masks(core_stubs, monkeypatch, capsys):
+    """A role without a channel or with complete masks never reaches the workers."""
+    import spacr.utils as su
+    from spacr.core import preprocess_generate_masks
+    spies, src = core_stubs
+    monkeypatch.setattr(mw, '_compatible_mask_gpus', lambda: tuple(DEVICES))
+    monkeypatch.setattr(su, 'check_mask_folder',
+                        lambda root, folder, resume=False: folder != 'pathogen_mask_stack')
+    preprocess_generate_masks(_core_settings(src, mask_parallel=True, nucleus_channel=None))
+    assert [args[2] for args, _ in spies['parallel'].calls] == [['cell']]
+    assert not spies['cellpose'].calls
+    assert 'cell_mask_gen' in capsys.readouterr().out
+
+    spies['parallel'].calls.clear()
+    monkeypatch.setattr(su, 'check_mask_folder', lambda root, folder, resume=False: False)
+    preprocess_generate_masks(_core_settings(src, mask_parallel=True))
+    assert not spies['parallel'].calls and not spies['cellpose'].calls

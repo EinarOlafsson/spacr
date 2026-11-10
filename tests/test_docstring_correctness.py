@@ -5490,8 +5490,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     docs = _documentation_public_docstrings()
     from tests.test_documentation_i18n import _navigator_input_identity_arrival
     _navigator_input_identity_arrival(docs)
-    from tests.test_documentation_i18n import _retired_732_remote_api
-    historical_docs = docs | _retired_732_remote_api(docs)
+    from tests.test_documentation_i18n import _retired_732_remote_api, _retired_801_mask_worker_api
+    historical_docs = docs | _retired_732_remote_api(docs) | _retired_801_mask_worker_api(docs)
     imported_package_modules = {
         name for name in set(sys.modules) - before_modules
         if name == "spacr" or name.startswith("spacr.")
@@ -5791,7 +5791,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         / "data/release_contracts/664_665_worker_api_arrivals_2026-10-08.json"
     ).read_text(encoding="utf-8"))
     assert len(worker_additions) == 8
-    assert {key: docs[key] for key in worker_additions} == worker_additions
+    assert {key: historical_docs[key] for key in worker_additions} == worker_additions
     assert not worker_additions.keys() & (
         private_additions.keys() | radius_symbols | channel_additions.keys()
         | scn_additions.keys() | popup_additions.keys() | background_additions.keys())

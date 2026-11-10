@@ -1,0 +1,13 @@
+{
+  "source_commit": "5735ec4b7d4538cb33d92eef250b2afd7ee15717",
+  "source_blob": "3ac0ca2448f963e3cfde971ae17859b59c43708b",
+  "source_path": "spacr/_mask_workers.py",
+  "retired": {
+    "spacr._mask_workers._generate_masks_in_parallel.report": "Keep the latest snapshot for the summary and print it for the GUI.",
+    "spacr._mask_workers._mask_worker.completed": "Publish completion only after the pipeline's save boundary.",
+    "spacr._mask_workers._run_checkpointed_mask_workers.progress": "Persist each newly completed archive before publishing aggregate progress.",
+    "spacr._mask_workers._run_mask_workers.consume": "Validate archive ownership before accepting a worker's event.",
+    "spacr._mask_workers._run_mask_workers.publish": "Do not let consumers mutate scheduler bookkeeping.",
+    "spacr._mask_workers._run_mask_workers.run_group": "Join every member of one primary or serial final worker group."
+  }
+}
