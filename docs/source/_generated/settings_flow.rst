@@ -2016,11 +2016,12 @@ cell_channel
 
 (int or None) - Zero-indexed raw acquisition channel that Cellpose segments into cell masks; it also selects which channel the cell_background, cell_signal_to_noise and remove_background_cell settings are applied to during preprocessing. Set to None and no cell masks, cell table or cell crops are produced. At least one of cell/nucleus/pathogen/organelle_channel must be an integer or the run aborts. Default None.
 
+| ``_finalize_role``
+|     ``_settings_after_role``
+|         ``_fill_cellpose_channel_positions``
+|             :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
-|         ``_generate_masks_in_parallel``
-|             ``_fill_cellpose_channel_positions``
-|                 :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
 |         ``_cells_from_nuclei`` **-- reads it**
 |         ``_check_archives_without_preprocessing``
 |             :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
@@ -13619,7 +13620,10 @@ image_qc_excluded_fields
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
-|         ``_generate_masks_in_parallel`` **-- reads it**
+|         ``_generate_roles_in_parallel``
+|             ``_segment_role_group`` **-- reads it**
+|                 ``deepcopy(...)  [UNRESOLVED]``
+|                 ``partial(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam`
 |             :py:func:`~spacr.image_quality.filter_batch` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
@@ -13630,7 +13634,7 @@ image_qc_excluded_fields
 |     :py:func:`~spacr.image_quality.filter_batch` **-- reads it**
 |     ``_run_lineage_step(...)  [UNRESOLVED]``
 
-Read by ``_generate_masks_in_parallel``, ``preprocess_generate_masks``, ``filter_batch``.
+Read by ``_segment_role_group``, ``preprocess_generate_masks``, ``filter_batch``.
 
 .. _setting-flow-image_qc_max_nonfinite:
 
@@ -19577,11 +19581,12 @@ nucleus_channel
 
 (int or None) - Zero-indexed raw acquisition channel segmented into nucleus masks, and the channel that nucleus_background, nucleus_signal_to_noise and remove_background_nucleus apply to. None means no nucleus masks, hence no nucleus table, no cell-to-nucleus linking, and nothing subtracted from the cytoplasm mask. Set it whenever a DNA stain was acquired. Default None.
 
+| ``_finalize_role``
+|     ``_settings_after_role``
+|         ``_fill_cellpose_channel_positions``
+|             :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
-|         ``_generate_masks_in_parallel``
-|             ``_fill_cellpose_channel_positions``
-|                 :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
 |         ``_cells_from_nuclei`` **-- reads it**
 |         ``_check_archives_without_preprocessing``
 |             :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
@@ -20433,12 +20438,20 @@ number_of_organelles
 
 (int) - How many organelle slots this run has, from 0 to 702. Each slot is an independent object with its own channel, its own type preset and its own copy of every detection setting, matching the pattern organelle(?:[b-z]|[a-z]{2})?_.\*; raising the number generates another slot's settings and lowering it hides the slots above the new number without deleting them. A hidden slot keeps its values, is still written to the settings file, and comes back exactly as it was when the number is raised again, so a smaller number can be tried without losing work. Default 0.
 
+| ``_finalize_role``
+|     ``_settings_after_role``
+|         :py:func:`~spacr.settings.set_default_settings_preprocess_generate_masks`
+|             ``_clone_primary_organelle_values``
+|                 :py:func:`~spacr.organelle_types.declared_organelle_roles`
+|                     :py:func:`~spacr.organelle_types.active_organelle_roles`
+|                         :py:func:`~spacr.organelle_types.organelle_count` **-- reads it**
+|             ``_set_organelle_defaults``
+|                 :py:func:`~spacr.organelle_types.declared_organelle_roles`
+|                     :py:func:`~spacr.organelle_types.active_organelle_roles`
+|                         :py:func:`~spacr.organelle_types.organelle_count` **-- reads it**
+|                 :py:func:`~spacr.organelle_types.organelle_count` **-- reads it**
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_generate_masks_in_parallel``
-|             :py:func:`~spacr.settings.set_default_settings_preprocess_generate_masks`
-|                 ``_set_organelle_defaults``
-|                     :py:func:`~spacr.organelle_types.organelle_count` **-- reads it**
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_mapped_volume_series``
 |                 :py:func:`~spacr.settings.set_default_settings_preprocess_generate_masks`
@@ -20694,16 +20707,17 @@ object_filters
 
 (dict) - Object filters on any scalar scikit-image regionprop, per object type, for example {'cell': [{'property': 'area', 'min': 200}, {'property': 'solidity', 'min': 0.9}]}. An object is kept when min <= value <= max; a missing side is off. Intensity properties read the object's own raw channel. An area minimum is also Cellpose's min_size. An old file's cell_min_area and the other retired per-object bounds become rows here when it loads. Default {}.
 
+| ``_finalize_role``
+|     ``_settings_after_role``
+|         :py:func:`~spacr.settings.set_default_settings_preprocess_generate_masks`
+|             ``_fold_object_bounds`` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
 | ``_under_todays_names``
 |     ``_fold_object_bounds`` **-- reads it**
 |         ``isinstance(...)  [UNRESOLVED]``
 |     ``set(...)  [UNRESOLVED]``
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_generate_masks_in_parallel``
-|             :py:func:`~spacr.settings.set_default_settings_preprocess_generate_masks`
-|                 ``_fold_object_bounds`` **-- reads it**
-|                     ``isinstance(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_mapped_volume_series``
 |                 :py:func:`~spacr.settings.set_default_settings_preprocess_generate_masks`
@@ -23426,13 +23440,14 @@ organelle_diameter
 
 (float) - Deprecated. Expected organelle diameter in pixels. The Cellpose-SAM path used for organelles calls model.eval with diameter=None, and no classical method sizes its kernels from it, so changing this value has no effect on organelle masks. Bound object size with organelle_min_area / organelle_max_area instead. Default 30.
 
+| ``_finalize_role``
+|     ``_settings_after_role``
+|         :py:func:`~spacr.settings.set_default_settings_preprocess_generate_masks`
+|             ``_set_organelle_defaults``
+|                 :py:func:`~spacr.organelle_types.apply_preset` **-- reads it**
+|                     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_generate_masks_in_parallel``
-|             :py:func:`~spacr.settings.set_default_settings_preprocess_generate_masks`
-|                 ``_set_organelle_defaults``
-|                     :py:func:`~spacr.organelle_types.apply_preset` **-- reads it**
-|                         ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_mapped_volume_series``
 |                 :py:func:`~spacr.settings.set_default_settings_preprocess_generate_masks`
@@ -24373,13 +24388,14 @@ organelle_type
 
 (str) - Organelle morphology used to populate recommended detection settings; explicitly configured values are not overwritten. Options are 'punctate', 'vesicular', 'spherical', 'filamentous', 'tubular', 'reticular', 'cisternal', 'toroidal' and 'crescent'. Morphology alone does not determine the detector: 'vesicular' and 'spherical' also use organelle_diameter because a 200 nm vesicle appears punctate whereas a 2 µm vacuole appears annular. Default 'custom', which applies no recommendations.
 
+| ``_finalize_role``
+|     ``_settings_after_role``
+|         :py:func:`~spacr.settings.set_default_settings_preprocess_generate_masks`
+|             ``_set_organelle_defaults``
+|                 :py:func:`~spacr.organelle_types.apply_preset` **-- reads it**
+|                     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_generate_masks_in_parallel``
-|             :py:func:`~spacr.settings.set_default_settings_preprocess_generate_masks`
-|                 ``_set_organelle_defaults``
-|                     :py:func:`~spacr.organelle_types.apply_preset` **-- reads it**
-|                         ``dict(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.io.preprocess_img_data`
 |             ``_preprocess_mapped_volume_series``
 |                 :py:func:`~spacr.settings.set_default_settings_preprocess_generate_masks`
@@ -25332,11 +25348,12 @@ pathogen_channel
 
 (int or None) - Zero-indexed raw acquisition channel segmented into pathogen masks (Toxoplasma etc.), and the channel pathogen_background, pathogen_signal_to_noise and remove_background_pathogen apply to. None disables pathogen segmentation, the pathogen table, the infected-only filter (uninfected) and the adjust_cells step, which needs cell, nucleus and pathogen masks together. Default None.
 
+| ``_finalize_role``
+|     ``_settings_after_role``
+|         ``_fill_cellpose_channel_positions``
+|             :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
-|         ``_generate_masks_in_parallel``
-|             ``_fill_cellpose_channel_positions``
-|                 :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
 |         ``_check_archives_without_preprocessing``
 |             :py:func:`~spacr.utils.dense_mask_channel_positions` **-- reads it**
 |         :py:func:`~spacr.io.preprocess_img_data`
@@ -27041,8 +27058,6 @@ plot
 (bool) - Render and save quality-control figures during the pipeline, including channel montages, Cellpose mask overlays, filtration comparisons, and crop grids. Figure generation increases runtime and memory use, particularly for complete plates. test_mode enables this setting automatically. Default False. Merged Classifier and Recruitment both start with plotting enabled so their diagnostic figures are produced on the first run.
 
 | ``_run_lineage_step`` **-- reads it**
-| ``_run_checkpointed_mask_workers``
-|     ``_run_mask_workers`` **-- reads it**
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
 |         ``_watch_folder_and_analyse`` **-- reads it**
@@ -27171,7 +27186,7 @@ plot
 |     :py:func:`~spacr.utils.save_settings` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``_run_measured_lineage_step``, ``_run_lineage_step``, ``_run_mask_workers``, ``_watch_folder_and_analyse``, ``preprocess_generate_masks``, ``_cross_validate_model``, ``_fit_one``, ``generate_activation_map``, ``train_test_model``, ``_run_division_step``, ``_run_prediction_step``, ``_concatenate_and_normalize_impl``, ``_preprocess_mapped_volume_series``, ``preprocess_img_data``, ``_classify_cell_cycle``, ``_classify_viability``, ``_measure_crop_core``, ``_run_wound_closure``, ``_show_response_distribution``, ``_segment_cellpose``, ``_segment_cellpose_sam``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``generate_organelle_masks_sam``, ``refit_settings``, ``barcode_qc``, ``barcode_qc_defaults``, ``get_default_generate_activation_map_settings``, ``get_measure_crop_settings``, ``get_train_test_model_settings``, ``run_and_save``, ``check_cellpose_models``, ``analyze_recruitment``, ``_run_event_detection_step``, ``save_settings``.
+Read by ``_run_measured_lineage_step``, ``_run_lineage_step``, ``_watch_folder_and_analyse``, ``preprocess_generate_masks``, ``_cross_validate_model``, ``_fit_one``, ``generate_activation_map``, ``train_test_model``, ``_run_division_step``, ``_run_prediction_step``, ``_concatenate_and_normalize_impl``, ``_preprocess_mapped_volume_series``, ``preprocess_img_data``, ``_classify_cell_cycle``, ``_classify_viability``, ``_measure_crop_core``, ``_run_wound_closure``, ``_show_response_distribution``, ``_segment_cellpose``, ``_segment_cellpose_sam``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``generate_organelle_masks_sam``, ``refit_settings``, ``barcode_qc``, ``barcode_qc_defaults``, ``get_default_generate_activation_map_settings``, ``get_measure_crop_settings``, ``get_train_test_model_settings``, ``run_and_save``, ``check_cellpose_models``, ``analyze_recruitment``, ``_run_event_detection_step``, ``save_settings``.
 
 .. _setting-flow-plot_by_cluster:
 
@@ -31154,10 +31169,13 @@ seg_qc
 
 (str) - Segmentation quality control performed when masks are written, before measurement. 'off' skips scoring; 'report' scores every field, writes qc/segmentation_qc\_<object>.csv, and displays detected quality issues; 'flag' also writes per-field JSON for downstream processing; 'stop' raises when the plate verdict is 'fail', after writing the scorecard. No mode deletes or omits a field, and 'stop' does not raise for a 'warn' verdict. Default 'report'.
 
+| ``_finalize_role``
+|     ``_run_seg_qc``
+|         :py:func:`~spacr.seg_qc.qc_mode` **-- reads it**
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_generate_masks_in_parallel``
-|             ``_run_seg_qc``
+|         ``_generate_roles_in_parallel``
+|             ``_roles_may_overlap``
 |                 :py:func:`~spacr.seg_qc.qc_mode` **-- reads it**
 |         ``_score_v2_masks``
 |             :py:func:`~spacr.seg_qc.qc_mode` **-- reads it**
@@ -31225,11 +31243,11 @@ seg_qc_border_fraction
 
 (float) - Fraction of a field's objects allowed to touch the image edge before the field is flagged. Edge objects are truncated, so their crop dimensions and measured areas are biased downward. Geometry alone places approximately two object diameters on the border, corresponding to about 8% for 60 px cells in a 1400 px field; the default is therefore above the fraction expected in a valid field. Default 0.3.
 
+| ``_finalize_role``
+|     ``_run_seg_qc``
+|         :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_generate_masks_in_parallel``
-|             ``_run_seg_qc``
-|                 :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 |         ``_score_v2_masks``
 |             :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 |         ``_run_seg_qc``
@@ -31256,11 +31274,11 @@ seg_qc_count_ratio
 
 (float) - Permitted ratio between a field's object count and the plate median before the field is flagged. A value of 0.25 flags counts below one quarter of the median or above its reciprocal, four times the median. Calibrate this threshold with representative control plates when expected object density varies by assay. Default 0.25.
 
+| ``_finalize_role``
+|     ``_run_seg_qc``
+|         :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_generate_masks_in_parallel``
-|             ``_run_seg_qc``
-|                 :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 |         ``_score_v2_masks``
 |             :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 |         ``_run_seg_qc``
@@ -31285,10 +31303,10 @@ Read by ``thresholds_from_settings``.
 seg_qc_flags
 ------------
 
+| ``_finalize_role``
+|     ``_run_seg_qc`` **-- reads it**
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_generate_masks_in_parallel``
-|             ``_run_seg_qc`` **-- reads it**
 |         ``_score_v2_masks`` **-- reads it**
 |         ``_run_seg_qc`` **-- reads it**
 |         :py:func:`~spacr.object.generate_cellpose_masks_sam`
@@ -31310,11 +31328,11 @@ seg_qc_foreground_fraction
 
 (float) - Foreground coverage at or above which a field is classified as confluent. The distance-transform fusion check runs only above this threshold. Increasing it reduces computation but decreases sensitivity to fusion in moderately dense fields; decreasing it evaluates more sparse fields and increases runtime. It matches the fused_fraction used by the diameter estimator. Default 0.35.
 
+| ``_finalize_role``
+|     ``_run_seg_qc``
+|         :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_generate_masks_in_parallel``
-|             ``_run_seg_qc``
-|                 :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 |         ``_score_v2_masks``
 |             :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 |         ``_run_seg_qc``
@@ -31341,11 +31359,11 @@ seg_qc_max_object_fraction
 
 (float) - Fraction of the field that a single label may cover before it is classified as evidence of fusion rather than a valid object. A component covering one quarter of a field commonly represents a confluent monolayer merged into one mask; the diameter estimator excludes such components for the same reason. Lower it for small objects on large fields; raise it only when a single large object per field is expected. Default 0.25.
 
+| ``_finalize_role``
+|     ``_run_seg_qc``
+|         :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_generate_masks_in_parallel``
-|             ``_run_seg_qc``
-|                 :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 |         ``_score_v2_masks``
 |             :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 |         ``_run_seg_qc``
@@ -31372,11 +31390,11 @@ seg_qc_min_diameter
 
 (float) - Equivalent diameter in pixels below which an object is treated as a fragment; it drives the over-segmentation check and sets the seed floor of the fusion cross-check. Lower it to two or three for punctate organelles, where five-pixel objects may represent valid signal rather than debris, and raise it for large cells where components of that size are likely segmentation fragments. Default 5.
 
+| ``_finalize_role``
+|     ``_run_seg_qc``
+|         :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_generate_masks_in_parallel``
-|             ``_run_seg_qc``
-|                 :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 |         ``_score_v2_masks``
 |             :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 |         ``_run_seg_qc``
@@ -31403,11 +31421,11 @@ seg_qc_min_objects
 
 (int) - Fields with fewer objects than this are classified as near-empty, and robust per-field size statistics are suppressed because the median absolute deviation is unstable for very small samples. Increase the value for confluent cell plates expected to contain hundreds of objects per field; reduce it to 3-5 for low-multiplicity pathogen assays in which few objects per field are expected. Default 10.
 
+| ``_finalize_role``
+|     ``_run_seg_qc``
+|         :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_generate_masks_in_parallel``
-|             ``_run_seg_qc``
-|                 :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 |         ``_score_v2_masks``
 |             :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 |         ``_run_seg_qc``
@@ -31434,11 +31452,11 @@ seg_qc_outlier_fraction
 
 (float) - Fraction of a field's objects that must fall outside the robust size range before the field is reported as containing multiple size populations. Such objects commonly represent debris, fused pairs, or fragments. Decrease the value to increase sensitivity to mixed fields, at the cost of more flags. Default 0.15.
 
+| ``_finalize_role``
+|     ``_run_seg_qc``
+|         :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_generate_masks_in_parallel``
-|             ``_run_seg_qc``
-|                 :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 |         ``_score_v2_masks``
 |             :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 |         ``_run_seg_qc``
@@ -31465,11 +31483,11 @@ seg_qc_outlier_mad
 
 (float) - Number of robust standard deviations, each defined as 1.4826 times the median absolute deviation, that an object's diameter may differ from the field median before it is classified as a size outlier. Median and MAD limit the influence of debris. The default of five accommodates heavier-tailed biological size distributions; a threshold of three can flag valid objects. Default 5.
 
+| ``_finalize_role``
+|     ``_run_seg_qc``
+|         :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_generate_masks_in_parallel``
-|             ``_run_seg_qc``
-|                 :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 |         ``_score_v2_masks``
 |             :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 |         ``_run_seg_qc``
@@ -31496,11 +31514,11 @@ seg_qc_plate_fail_fraction
 
 (float) - Fraction of failing fields at which the plate-level scorecard changes from warn to fail. The default 0.1 corresponds approximately to one column of a 96-well plate. This setting changes only the reported verdict and does not determine which fields are processed. Default 0.1.
 
+| ``_finalize_role``
+|     ``_run_seg_qc``
+|         :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_generate_masks_in_parallel``
-|             ``_run_seg_qc``
-|                 :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 |         ``_score_v2_masks``
 |             :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 |         ``_run_seg_qc``
@@ -31527,11 +31545,11 @@ seg_qc_size_ratio
 
 (float) - Fold change in a field's median object diameter, measured against the plate median, that marks it as fused or fragmented when its object count has moved in the opposite direction. Merging two equal objects into one increases equivalent diameter by a factor of approximately 1.41, while dividing one object into two produces the reciprocal change; the default therefore reflects the expected geometric ratio. Default 1.4.
 
+| ``_finalize_role``
+|     ``_run_seg_qc``
+|         :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_generate_masks_in_parallel``
-|             ``_run_seg_qc``
-|                 :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 |         ``_score_v2_masks``
 |             :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 |         ``_run_seg_qc``
@@ -31558,11 +31576,11 @@ seg_qc_split_ratio
 
 (float) - Minimum ratio of distance-transform maxima to mask objects required to flag fusion in a field already classified as confluent. A value of 2 requires at least two resolved maxima per mask object on average. Increasing the value reduces sensitivity to fused masks. Default 2.
 
+| ``_finalize_role``
+|     ``_run_seg_qc``
+|         :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_generate_masks_in_parallel``
-|             ``_run_seg_qc``
-|                 :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 |         ``_score_v2_masks``
 |             :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 |         ``_run_seg_qc``
@@ -31589,11 +31607,11 @@ seg_qc_tiny_fraction
 
 (float) - Fraction of a field's objects that may be smaller than seg_qc_min_diameter before the field is classified as over-segmented. Dividing one cell into multiple fragments increases this fraction, whereas a valid field containing limited debris should remain below the default threshold. Default 0.3.
 
+| ``_finalize_role``
+|     ``_run_seg_qc``
+|         :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
-|         ``_generate_masks_in_parallel``
-|             ``_run_seg_qc``
-|                 :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 |         ``_score_v2_masks``
 |             :py:func:`~spacr.seg_qc.thresholds_from_settings` **-- reads it**
 |         ``_run_seg_qc``
@@ -32498,6 +32516,8 @@ src
 
 (str, path) - Folder the current step reads from and writes into: raw images for mask generation, the merged/ folder of .npy stacks for measure, the plate root for dataset/regression steps, or the folder of .fastq.gz reads for sequencing. Outputs (stack/, masks/, measurements/measurements.db, datasets/, results/) are created inside it. A list of paths, or a "['a','b']" string, processes several plates in one run. No usable default: the settings factories fill a placeholder ('path' or '/path/to/src'), so this must be supplied.
 
+| ``_finalize_role``
+|     ``_settings_after_role`` **-- reads it**
 | :py:func:`~spacr.align.align_folder` **-- reads it**
 | :py:func:`~spacr.anndata_export.run_anndata_export` **-- reads it**
 |     :py:func:`~spacr.anndata_export.anndata_export_settings` **-- reads it**
@@ -32528,7 +32548,6 @@ src
 | :py:func:`~spacr.core.generate_screen_graphs` **-- reads it**
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
-|         ``_generate_masks_in_parallel`` **-- reads it**
 |         ``_watch_folder_and_analyse``
 |             ``_watch_check_settings`` **-- reads it**
 |             ``_watch_closed_pool_spec`` **-- reads it**
@@ -32861,7 +32880,7 @@ src
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 | :py:func:`~spacr.utils.delete_intermedeate_files` **-- reads it**
 
-Read by ``_generate_masks_in_parallel``, ``align_folder``, ``anndata_export_settings``, ``run_anndata_export``, ``generate_annotation_dataset``, ``_src_values``, ``default_label``, ``_call_entry``, ``_workflow_plates``, ``convert_folder``, ``_watch_check_settings``, ``_watch_closed_pool_spec``, ``_watch_vendor_recipe``, ``generate_image_umap``, ``generate_screen_graphs``, ``preprocess_generate_masks``, ``reducer_hyperparameter_search``, ``resolve_crop_source``, ``_cross_validate_model``, ``annotate_filter_vision``, ``deep_spacr``, ``generate_activation_map``, ``train_test_model``, ``_import_label_images_for_measure``, ``_plan_label_import``, ``_source_value``, ``run_import``, ``_titration_objects``, ``analyze_host_pathogen``, ``analyze_titration``, ``nuclear_translocation``, ``preview_fields``, ``load_activation_data``, ``load_search_data``, ``umap_checkpoint_path``, ``illumination_settings``, ``prepare_illumination_model``, ``prepare_segmentation_illumination``, ``validate_measurement_illumination_inputs``, ``_preprocess_mapped_volume_series``, ``_preprocess_volume_tiffs``, ``_save_settings_to_db``, ``generate_dataset``, ``generate_training_dataset``, ``open_crop_source``, ``preprocess_img_data``, ``_project_root``, ``_calibration_reference_hashes``, ``_check_measure_field_names``, ``_export_vvvv_measured_field``, ``_measure_crop_core``, ``_measured_fields``, ``_measurement_run_archive_plan``, ``_prepare_measurement_calibration``, ``_prepare_measurement_crop_output``, ``_run_cellprofiler_step``, ``_run_plate_barcode_step``, ``_write_intensity_rescale_record``, ``measure_crop``, ``process_measure_crop_results``, ``_annotation_cache``, ``_ml_eval_frame``, ``_perform_drug_screen_regression``, ``_perform_regression_set_paths``, ``_show_response_distribution``, ``create_extended_radar_plot``, ``export_annotation_sample``, ``generate_ml_scores``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``run_ml_evaluation``, ``_describe_cellpose_training``, ``_describe_classifier_training``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``_needs_cloud_run``, ``_run_with_cloud_sources``, ``_trial_settings``, ``rerun_trial``, ``run_trial_contained``, ``settings_for_trial``, ``compare_figure_sizes``, ``run_figure_scoring``, ``score_figure_folder``, ``graph_importance``, ``plot_data_from_csv``, ``plot_data_from_db``, ``plot_region``, ``fill_psf_settings``, ``_prepare_measure_unmixing``, ``_open_easy_suggestion``, ``apply``, ``build``, ``import_plates_from_csv``, ``_claim_the_project``, ``_confirm_measure_plane_layout``, ``_confirm_ram_guard``, ``_load_regression_results``, ``_lock_analysis_now``, ``_measurements_destination``, ``_on_run``, ``_search_figure_dir``, ``plan_barcode_search``, ``_make_screen``, ``_trial_figures_ready``, ``apply_settings``, ``_on_click``, ``wire_add_current``, ``resolve_default_settings``, ``settings_from_pack``, ``_plan_gains``, ``apply_settings``, ``load_source_async``, ``run_preview``, ``apply_settings``, ``_dose_runs``, ``_journal_dose_runs``, ``_colony_preview_pass``, ``detect_figure``, ``figure_pass``, ``seed_well_boxes``, ``__init__``, ``_open_field_overview``, ``_open_overview_module``, ``run``, ``_protocol_handoff``, ``destination``, ``_settings_point_at``, ``_app_unit_bytes``, ``measurements_db_path``, ``plan_measure_resume``, ``plates_of``, ``_check_lock_for_run``, ``_observe_settings_changes``, ``_recorded_models``, ``check_analysis_lock``, ``_mask_defaults``, ``_measure_defaults``, ``import_plate``, ``run_screen``, ``generate_barecode_mapping``, ``default_settings_analyze_percent_positive``, ``get_analyze_plaque_settings``, ``get_default_apply_cellpose_model_settings``, ``get_default_test_cellpose_model_settings``, ``get_measure_crop_settings``, ``get_train_test_model_settings``, ``set_annotate_default_settings``, ``_run_and_save_queued``, ``run_and_save``, ``run_multiple_simulations``, ``check_cellpose_models``, ``identify_masks_finetune``, ``stream_dataset``, ``_analyze_colony_plates``, ``_analyze_plaque_figures``, ``_recruitment_new_filters``, ``_recruitment_report_impl``, ``_recruitment_tile_config``, ``_replication_report_impl``, ``_replication_tile_config``, ``_segment_plaque_folder``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_percent_positive``, ``analyze_plaques``, ``analyze_recruitment``, ``analyze_replication``, ``apply_cellpose_model``, ``count_phenotypes``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``split_wells``, ``test_cellpose_model``, ``train_cellpose``, ``main``, ``automated_motility_assay``, ``delete_intermedeate_files``, ``measure_test_mode``, ``save_settings``, ``_describe_outputs``, ``_describe_regression_plan``.
+Read by ``_settings_after_role``, ``align_folder``, ``anndata_export_settings``, ``run_anndata_export``, ``generate_annotation_dataset``, ``_src_values``, ``default_label``, ``_call_entry``, ``_workflow_plates``, ``convert_folder``, ``_watch_check_settings``, ``_watch_closed_pool_spec``, ``_watch_vendor_recipe``, ``generate_image_umap``, ``generate_screen_graphs``, ``preprocess_generate_masks``, ``reducer_hyperparameter_search``, ``resolve_crop_source``, ``_cross_validate_model``, ``annotate_filter_vision``, ``deep_spacr``, ``generate_activation_map``, ``train_test_model``, ``_import_label_images_for_measure``, ``_plan_label_import``, ``_source_value``, ``run_import``, ``_titration_objects``, ``analyze_host_pathogen``, ``analyze_titration``, ``nuclear_translocation``, ``preview_fields``, ``load_activation_data``, ``load_search_data``, ``umap_checkpoint_path``, ``illumination_settings``, ``prepare_illumination_model``, ``prepare_segmentation_illumination``, ``validate_measurement_illumination_inputs``, ``_preprocess_mapped_volume_series``, ``_preprocess_volume_tiffs``, ``_save_settings_to_db``, ``generate_dataset``, ``generate_training_dataset``, ``open_crop_source``, ``preprocess_img_data``, ``_project_root``, ``_calibration_reference_hashes``, ``_check_measure_field_names``, ``_export_vvvv_measured_field``, ``_measure_crop_core``, ``_measured_fields``, ``_measurement_run_archive_plan``, ``_prepare_measurement_calibration``, ``_prepare_measurement_crop_output``, ``_run_cellprofiler_step``, ``_run_plate_barcode_step``, ``_write_intensity_rescale_record``, ``measure_crop``, ``process_measure_crop_results``, ``_annotation_cache``, ``_ml_eval_frame``, ``_perform_drug_screen_regression``, ``_perform_regression_set_paths``, ``_show_response_distribution``, ``create_extended_radar_plot``, ``export_annotation_sample``, ``generate_ml_scores``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``run_ml_evaluation``, ``_describe_cellpose_training``, ``_describe_classifier_training``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``_needs_cloud_run``, ``_run_with_cloud_sources``, ``_trial_settings``, ``rerun_trial``, ``run_trial_contained``, ``settings_for_trial``, ``compare_figure_sizes``, ``run_figure_scoring``, ``score_figure_folder``, ``graph_importance``, ``plot_data_from_csv``, ``plot_data_from_db``, ``plot_region``, ``fill_psf_settings``, ``_prepare_measure_unmixing``, ``_open_easy_suggestion``, ``apply``, ``build``, ``import_plates_from_csv``, ``_claim_the_project``, ``_confirm_measure_plane_layout``, ``_confirm_ram_guard``, ``_load_regression_results``, ``_lock_analysis_now``, ``_measurements_destination``, ``_on_run``, ``_search_figure_dir``, ``plan_barcode_search``, ``_make_screen``, ``_trial_figures_ready``, ``apply_settings``, ``_on_click``, ``wire_add_current``, ``resolve_default_settings``, ``settings_from_pack``, ``_plan_gains``, ``apply_settings``, ``load_source_async``, ``run_preview``, ``apply_settings``, ``_dose_runs``, ``_journal_dose_runs``, ``_colony_preview_pass``, ``detect_figure``, ``figure_pass``, ``seed_well_boxes``, ``__init__``, ``_open_field_overview``, ``_open_overview_module``, ``run``, ``_protocol_handoff``, ``destination``, ``_settings_point_at``, ``_app_unit_bytes``, ``measurements_db_path``, ``plan_measure_resume``, ``plates_of``, ``_check_lock_for_run``, ``_observe_settings_changes``, ``_recorded_models``, ``check_analysis_lock``, ``_mask_defaults``, ``_measure_defaults``, ``import_plate``, ``run_screen``, ``generate_barecode_mapping``, ``default_settings_analyze_percent_positive``, ``get_analyze_plaque_settings``, ``get_default_apply_cellpose_model_settings``, ``get_default_test_cellpose_model_settings``, ``get_measure_crop_settings``, ``get_train_test_model_settings``, ``set_annotate_default_settings``, ``_run_and_save_queued``, ``run_and_save``, ``run_multiple_simulations``, ``check_cellpose_models``, ``identify_masks_finetune``, ``stream_dataset``, ``_analyze_colony_plates``, ``_analyze_plaque_figures``, ``_recruitment_new_filters``, ``_recruitment_report_impl``, ``_recruitment_tile_config``, ``_replication_report_impl``, ``_replication_tile_config``, ``_segment_plaque_folder``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_percent_positive``, ``analyze_plaques``, ``analyze_recruitment``, ``analyze_replication``, ``apply_cellpose_model``, ``count_phenotypes``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``split_wells``, ``test_cellpose_model``, ``train_cellpose``, ``main``, ``automated_motility_assay``, ``delete_intermedeate_files``, ``measure_test_mode``, ``save_settings``, ``_describe_outputs``, ``_describe_regression_plan``.
 
 .. _setting-flow-ssmd_estimator:
 
@@ -38453,11 +38472,11 @@ verbose
 
 (bool) - Print the resolved settings table, channel and model choices per object type, row counts per table, and object counts after each filter. It only adds console output; enable it to identify which stage produced an unexpected object count. The default is True for mask, UMAP, screen analysis, barcode mapping and Cellpose training, and False for measure, plotting helpers and regression. Invasion and Replication also start with console detail disabled.
 
+| ``_finalize_role``
+|     ``_run_seg_qc`` **-- reads it**
 | :py:func:`~spacr.core.generate_image_umap` **-- reads it**
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks` **-- reads it**
-|         ``_generate_masks_in_parallel``
-|             ``_run_seg_qc`` **-- reads it**
 |         ``_score_v2_masks`` **-- reads it**
 |         :py:func:`~spacr.illumination.load_segmentation_illumination_resume` **-- reads it**
 |         :py:func:`~spacr.io.preprocess_img_data` **-- reads it**
