@@ -94,6 +94,7 @@ GROUPS = (
         (372, "Optical pooled screening (OPS) in Mask Generation"),
         (752, "OPS phenotype path: segment, merge, per-gene profiles"),
         (884, "Gene graph: gene links and categories from screen profiles"),
+        (885, "Protein-knowledge blocks: ESM-2, domains, text, 3Di"),
         (584, "Chemistry-aware hits: SMILES, clusters, SAR"),
         (585, "Sample-size planner for arrayed assays"),
         (534, "Spatial transcriptomics: Visium, Xenium; spatial masks, barcodes"),

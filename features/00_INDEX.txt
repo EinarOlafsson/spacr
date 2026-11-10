@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-739 Lifecycle: new, 121 Lifecycle: future in features/feature_list/.
+739 Lifecycle: new, 122 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -402,6 +402,9 @@ FUTURE FEATURES
 
   884  GENE GRAPH: LEARNED GENE-GENE LINKS AND GENE -> CATEGORY MEMBERSHIP FROM OPS PROFILES
        884_gene_graph.txt
+
+  885  PROTEIN-KNOWLEDGE FEATURE BLOCKS FOR GENE-LEVEL ANALYSIS (ESM-2, DOMAINS, FOLD-MASKED TEXT, PROSTT5 3DI, FOLDSEEK)
+       885_protein_knowledge_blocks.txt
 
   892  CROSS-SCREEN GENE SIMILARITY (OPS AND JUMP)
        892_cross_screen_similarity.txt
