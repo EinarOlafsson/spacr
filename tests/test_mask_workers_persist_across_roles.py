@@ -160,7 +160,6 @@ def test_workers_spawn_once_for_every_role_and_plate(tmp_path, cpu_workers, samp
     assert cpu_workers == [(str(masks), role, {}) for masks in plates for role in ROLES]
     out = capsys.readouterr().out
     assert 'cell masks: GPU 0 with 2 workers busy 90% on average' in out
-    assert 'after the first archive finished at' in out
 
 
 def test_a_worker_starts_the_next_role_while_its_peer_finishes(tmp_path, cpu_workers):
@@ -499,3 +498,22 @@ def test_a_run_whose_roles_cannot_finish_says_so(tmp_path, monkeypatch):
     with pool, pytest.raises(RuntimeError, match='before every archive finished'):
         pool.run_roles([role], {'0.1': dict(os.environ)})
     assert pool._messages is None and pool.spawns == 0
+
+
+def test_the_gpu_line_gives_the_steady_figure_when_there_is_one(tmp_path, capsys):
+    masks = tmp_path / 'plate3' / 'masks'
+    masks.mkdir(parents=True)
+    row = {'samples': 20, 'seconds': 40.0, 'mean_busy_percent': 72.4, 'busy_share': 0.6,
+           'peak_memory_gb': 9.5, 'trace': [], 'events': [], 'started_at': 1.0,
+           'started_at_iso': '1970-01-01T00:00:01+00:00', 'startup_seconds': 12.0,
+           'startup_mean_busy_percent': 40.0, 'steady_mean_busy_percent': 81.1,
+           'steady_busy_share': 0.8, 'steady_samples': 14}
+    mw._report_gpu_utilisation(str(masks), 'cell', {'gpus': {'0.1': 0, '0.2': 0}}, {0: row})
+    line = capsys.readouterr().out.strip()
+    assert line.endswith('memory up to 9.5 GB; busy 81% after the first archive finished at 12 s')
+    mw._report_gpu_utilisation(str(masks), 'nucleus', {'gpus': {0: 0}},
+                               {0: dict(row, steady_mean_busy_percent=None)})
+    assert capsys.readouterr().out.strip().endswith('memory up to 9.5 GB')
+    record = json.loads((masks.parent / 'gpu_utilisation.json').read_text(encoding='utf-8'))
+    assert record['cell']['0']['steady_mean_busy_percent'] == 81.1
+    assert record['nucleus']['0']['workers'] == 1

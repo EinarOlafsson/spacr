@@ -411,25 +411,34 @@ def _checkpointed_role(src, settings, object_type, assignments, ledger, *, on_pr
              for assigned in assignments.values() for path in assigned]
     if len(paths) != len(set(paths)) or set(paths) != set(ledger.records):
         raise ValueError('Worker assignments must cover the manifest exactly once')
+    import functools
+
     complete = ledger.verified()
     pending = {device: [path for path in assigned if os.path.abspath(path) not in complete]
                for device, assigned in assignments.items()}
     ledger.store.update(status='running')
-
-    def progress(state):
-        """Persist each newly completed archive before publishing aggregate progress."""
-        for path in state['completed_batches']:
-            if path not in complete:
-                ledger.mark(path)
-                complete.add(path)
-        state['completed_batches'] = sorted(complete)
-        state['total_batches'] = len(ledger.records)
-        if on_progress is not None:
-            on_progress(state)
-
     return {'src': src, 'settings': settings, 'object_type': object_type,
-            'assignments': pending, 'on_progress': progress,
+            'assignments': pending,
+            'on_progress': functools.partial(_record_progress, ledger, complete, on_progress),
             'complete': complete, 'ledger': ledger}
+
+
+def _record_progress(ledger, complete, on_progress, state):
+    """Persist each newly completed archive before publishing aggregate progress.
+
+    :param ledger: the role's :class:`_MaskBatchLedger`.
+    :param complete: the set of archives already recorded, extended here.
+    :param on_progress: optional callable receiving the snapshot.
+    :param state: the pool's progress snapshot, completed in place.
+    """
+    for path in state['completed_batches']:
+        if path not in complete:
+            ledger.mark(path)
+            complete.add(path)
+    state['completed_batches'] = sorted(complete)
+    state['total_batches'] = len(ledger.records)
+    if on_progress is not None:
+        on_progress(state)
 
 
 def _run_checkpointed_mask_workers(src, settings, object_type, assignments,
@@ -631,6 +640,8 @@ def _serve_mask_jobs(device, environment, messages, stop, jobs, segmenter=None,
     :param cache_models: keep the loaded model for the next job.
     """
     global _MODEL_CACHE
+    import functools
+
     from .cancellation import PipelineCancelled, installed_token
 
     output = _WorkerOutput(messages, device)
@@ -664,13 +675,10 @@ def _serve_mask_jobs(device, environment, messages, stop, jobs, segmenter=None,
                         messages.put(('started', device, os.getpid()))
                         bound = True
 
-                    def completed(path):
-                        """Publish completion only after the pipeline's save boundary."""
-                        messages.put(('batch', device, os.path.abspath(os.fspath(path))))
-
                     with installed_token(token):
                         segmenter(src, dict(settings), object_type, batch_paths=paths,
-                                  on_batch_done=completed, run_qc=False)
+                                  on_batch_done=functools.partial(_report_batch, messages, device),
+                                  run_qc=False)
                 messages.put(('finished', device, ('success', '')))
             except PipelineCancelled:
                 messages.put(('finished', device, ('cancelled', '')))
@@ -686,6 +694,16 @@ def _serve_mask_jobs(device, environment, messages, stop, jobs, segmenter=None,
                               (status, ''.join(traceback.format_exception(
                                   type(error), error, error.__traceback__)))))
                 return
+
+
+def _report_batch(messages, device, path):
+    """Publish an archive's completion only after the pipeline's save boundary.
+
+    :param messages: queue receiving the worker's events.
+    :param device: the worker name.
+    :param path: the archive whose masks are saved.
+    """
+    messages.put(('batch', device, os.path.abspath(os.fspath(path))))
 
 
 def _pooled_mask_worker(device, environment, messages, jobs, stop, segmenter=None,
@@ -2078,7 +2096,6 @@ def _segment_role_group(mask_src, settings, group, plan, pool):
     """
     from .cancellation import PipelineCancelled
     from .io import _mask_batch_manifest
-    from .object import _run_seg_qc
 
     records = _mask_batch_manifest(mask_src)
     names = ', '.join(f'GPU {device} ({plan["names"].get(device, "?")})'
@@ -2100,20 +2117,13 @@ def _segment_role_group(mask_src, settings, group, plan, pool):
         role.update(on_start=monitor.start, on_event=monitor.event,
                     on_finished=monitor.finish)
         entries.append((object_type, ledger, monitor, role))
+    import functools
+
     segmented = set()
-
-    def finalize(index, state):
-        """Record the role's masks as segmented, then run its shared QC once."""
-        object_type, ledger, _, _ = entries[index]
-        ledger.store.update(status='segmented')
-        segmented.add(index)
-        _settings_after_role(settings, mask_src)
-        _run_seg_qc(mask_src, settings, object_type)
-        ledger.store.update(status='finalized')
-
     try:
         pool.run_roles([entry[3] for entry in entries], plan['environments'],
-                       on_role_done=finalize)
+                       on_role_done=functools.partial(_finalize_role, entries, segmented,
+                                                      settings, mask_src))
     except BaseException as error:
         for index, (object_type, ledger, monitor, _) in enumerate(entries):
             if index in segmented:
@@ -2131,6 +2141,26 @@ def _segment_role_group(mask_src, settings, group, plan, pool):
         for _, _, monitor, _ in entries:
             monitor.finish()
     return {object_type: monitor.seconds() for object_type, _, monitor, _ in entries}
+
+
+def _finalize_role(entries, segmented, settings, mask_src, index, state):
+    """Record one role's masks as segmented, then run its shared QC once.
+
+    :param entries: the group's ``(role, ledger, monitor, pool role)`` tuples.
+    :param segmented: indexes of roles already marked segmented, extended here.
+    :param settings: run settings; updated as the ordinary generator does.
+    :param mask_src: the run's ``masks`` folder.
+    :param index: the finished role's position in ``entries``.
+    :param state: the role's final worker states.
+    """
+    from .object import _run_seg_qc
+
+    object_type, ledger, _, _ = entries[index]
+    ledger.store.update(status='segmented')
+    segmented.add(index)
+    _settings_after_role(settings, mask_src)
+    _run_seg_qc(mask_src, settings, object_type)
+    ledger.store.update(status='finalized')
 
 
 def _mask_digests(folder):

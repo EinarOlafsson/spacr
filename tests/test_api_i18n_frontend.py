@@ -759,9 +759,14 @@ def test_every_complete_real_catalog_renders_through_the_browser_selector(api_ca
     worker_arrivals = json.loads((ROOT / "tests/data/release_contracts"
         / "664_665_worker_api_arrivals_2026-10-08.json").read_text(encoding="utf-8"))
     assert len(worker_arrivals) == 8
-    assert {key: docs[key] for key in worker_arrivals} == worker_arrivals
+    from tests.test_documentation_i18n import _retired_801_mask_worker_api
+    retired_workers = _retired_801_mask_worker_api(docs)
+    assert {key: (docs | retired_workers)[key] for key in worker_arrivals} == worker_arrivals
     assert not worker_arrivals.keys() & arrivals.keys()
-    assert {key: english["symbols"][key]["text"] for key in worker_arrivals} == worker_arrivals
+    live_workers = worker_arrivals.keys() - retired_workers.keys()
+    assert len(live_workers) == 7
+    assert {key: english["symbols"][key]["text"] for key in live_workers} == {
+        key: worker_arrivals[key] for key in live_workers}
     home_ui_arrivals = json.loads((ROOT / "tests/data/release_contracts"
         / "615_home_ui_api_arrivals_2026-10-08.json").read_text(encoding="utf-8"))
     assert len(home_ui_arrivals) == 10  # + LiveSettingsDialog.close (39bfe8e19)

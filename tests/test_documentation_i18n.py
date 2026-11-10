@@ -196,6 +196,26 @@ def _retired_707_home_api(docs):
     return retired
 
 
+def _retired_801_mask_worker_api(docs):
+    """Replay the six mask-worker helpers retired when item 801's pool replaced them."""
+    retirement = json.loads((ROOT / "tests/data/release_contracts"
+        / "801_mask_worker_pool_api_retirement_2026-11-10.json").read_text(encoding="utf-8"))
+    assert retirement["source_commit"] == "5735ec4b7d4538cb33d92eef250b2afd7ee15717"
+    assert retirement["source_blob"] == "3ac0ca2448f963e3cfde971ae17859b59c43708b"
+    assert retirement["source_path"] == "spacr/_mask_workers.py"
+    module = "spacr._mask_workers."
+    retired = retirement["retired"]
+    assert set(retired) == {module + name for name in (
+        "_generate_masks_in_parallel.report", "_mask_worker.completed",
+        "_run_checkpointed_mask_workers.progress", "_run_mask_workers.consume",
+        "_run_mask_workers.publish", "_run_mask_workers.run_group")}
+    assert hashlib.sha256(json.dumps(
+        retired, sort_keys=True, ensure_ascii=False,
+    ).encode()).hexdigest() == "9d432bf4c949636f23e33754f3baf287f1a864dff3b75d5882020098188ec593"
+    assert not retired.keys() & docs.keys()
+    return retired
+
+
 def _retired_732_remote_api(docs):
     """Replay the seven exact callback bodies after their source-owned retirement."""
     import ast
@@ -3550,13 +3570,13 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
     import build_documentation_i18n as builder
 
     docs, source_contracts = current_documentation_api_contracts
-    historical_docs = docs | _retired_732_remote_api(docs)
+    historical_docs = docs | _retired_732_remote_api(docs) | _retired_801_mask_worker_api(docs)
     assert len(SOURCE_REVIEWED_SYMBOLS_2026_10_07) == 33
     assert SOURCE_REVIEWED_SYMBOLS_2026_10_07 <= set(docs)
     worker_arrivals = json.loads((ROOT / "tests/data/release_contracts"
         / "664_665_worker_api_arrivals_2026-10-08.json").read_text(encoding="utf-8"))
     assert len(worker_arrivals) == 8
-    assert {key: docs[key] for key in worker_arrivals} == worker_arrivals
+    assert {key: historical_docs[key] for key in worker_arrivals} == worker_arrivals
     home_ui_arrivals = json.loads((ROOT / "tests/data/release_contracts"
         / "615_home_ui_api_arrivals_2026-10-08.json").read_text(encoding="utf-8"))
     assert len(home_ui_arrivals) == 10
