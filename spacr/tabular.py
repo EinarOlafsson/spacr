@@ -68,7 +68,7 @@ from . import schema
 
 __all__ = [
     'TabularFormatError',
-    'CSV_SUFFIXES', 'DATABASE_SUFFIXES', 'TABLE_SUFFIXES',
+    'CSV_SUFFIXES', 'COMPRESSED_SUFFIXES', 'DATABASE_SUFFIXES', 'TABLE_SUFFIXES',
     'resolve_path', 'table_format',
     'read_table', 'write_table',
     'read_database', 'write_database',
@@ -88,6 +88,10 @@ CSV_SUFFIXES: Dict[str, Optional[str]] = {
     '.tab': '\t',
     '.txt': None,
 }
+
+#: Compression suffixes pandas undoes on its own; ``x.tsv.gz`` is read as the
+#: ``.tsv`` beneath it.
+COMPRESSED_SUFFIXES: Tuple[str, ...] = ('.gz', '.bz2', '.xz', '.zst')
 
 #: SQLite, by every suffix spaCR has ever written one under.
 DATABASE_SUFFIXES: Tuple[str, ...] = ('.db', '.sqlite', '.sqlite3', '.db3')
@@ -135,15 +139,35 @@ def _fetched(source: Any) -> Any:
     return source
 
 
+def _table_suffix(path: Any) -> str:
+    """The lower-case suffix that names a path's format.
+
+    A compression suffix is looked through, so ``links.txt.gz`` gives
+    ``.txt``.
+
+    :param path: a path.
+    :returns: the suffix, with its dot, or an empty string.
+    """
+    stem, suffix = os.path.splitext(str(resolve_path(path)))
+    if suffix.lower() in COMPRESSED_SUFFIXES:
+        inner = os.path.splitext(stem)[1].lower()
+        if inner in CSV_SUFFIXES:
+            return inner
+    return suffix.lower()
+
+
 def table_format(path: Any) -> str:
     """Which reader a path needs: ``'csv'``, ``'sqlite'``, ``'parquet'``,
     ``'feather'`` or ``'excel'``.
+
+    Delimited text compressed with gzip, bzip2, xz or zstd (``.tsv.gz``) is
+    ``'csv'``; pandas decompresses it.
 
     :param path: a path.
     :returns: the format name.
     :raises TabularFormatError: when the suffix names no known format.
     """
-    suffix = os.path.splitext(str(resolve_path(path)))[1].lower()
+    suffix = _table_suffix(path)
     if suffix in CSV_SUFFIXES:
         return 'csv'
     if suffix in DATABASE_SUFFIXES:
@@ -253,7 +277,7 @@ def read_table(source: Any, *, table: Optional[str] = None,
                                repair_plate_ids=repair_plate_ids, **kwargs)
         return frames[0]
     if kind == 'csv':
-        suffix = os.path.splitext(path)[1].lower()
+        suffix = _table_suffix(path)
         separator = CSV_SUFFIXES.get(suffix)
         if separator is not None:
             kwargs.setdefault('sep', separator)
@@ -382,7 +406,7 @@ def write_table(frame: pd.DataFrame, path: Any, *,
         if mapping:
             frame = frame.rename(columns=mapping)
     if kind == 'csv':
-        suffix = os.path.splitext(target)[1].lower()
+        suffix = _table_suffix(target)
         separator = CSV_SUFFIXES.get(suffix)
         if separator is not None:
             kwargs.setdefault('sep', separator)

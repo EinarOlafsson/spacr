@@ -1,0 +1,25 @@
+A PUBLIC PROFILE-RETRIEVAL ENTRY: REPLICATE MAP, COMPOUND-GENE MATCHING AND PLATE EFFECT
+=======================================================================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha; library entry, no GUI screen yet) — spacr.sp_stats.profile_retrieval(wells, features, settings) runs the JUMP CPJUMP1 benchmark procedure (Chandrasekaran et al. 2024) on well profiles: per-modality plate normalisation against the negative controls and feature selection (_normalize_profiles, _select_profile_features), replicate_retrieval (mAP per perturbation against same-plate controls, copairs null, BH; percent replicating) with a within-plate shuffled-label control, target_matching (compound consensus vs CRISPR / ORF gene consensus, cosine and absolute cosine, all and replicable treatments, shuffled-annotation control) and plate_effect (same-plate mAP of the controls and the plate share of the top-10-PC variance, normalised and raw, shuffled-plate control); shuffle_within_plate and write_profile_retrieval (activity.csv, summary.csv, matching.csv, matching_per_compound.csv, plate_effect.csv). Settings retrieval_* (PROFILE_RETRIEVAL_DEFAULTS). spacr/sp_stats.py, tests/test_profile_retrieval_895.py.
+Requested: maintainer via the BMC paper session, 2026-11-09.
+Owner: lane D (paper items 2026-11-09).
+Source: jump/scripts/jump_compare.py (activity, compound_consensus, gene_consensus, match, plate_effect, main).
+Related: 547, 863, 892.
+
+RESULT
+CPJUMP1 CellProfiler augmented profiles, 3,840 wells, 5,792 features
+(scratch accept_895.py, settings_895.json), against jump/source_data/*_cellprofiler.csv:
+activity per perturbation (771 rows), matching summary (16 rows), matching
+per compound (1,350 rows) identical in every column; plate effect identical
+to 5e-16; activity summary identical in every number. Only the excluded-
+feature counts in the summary's 'excluded' text differ for CRISPR and ORF
+(variance 55 / 59 vs 53, frequency 62 / 58 vs 64 / 64): the same features
+are kept, but today's _select_profile_features attributes a few features to
+the variance rather than the frequency filter (the reference ran at an
+older spaCR snapshot).
+
+NOT DONE
+- No Measure GUI entry or registered settings panel; 'tvn' normalisation goes
+  through _normalize_profiles as for 863 when named, untested here.
