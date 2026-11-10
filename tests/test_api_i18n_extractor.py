@@ -332,7 +332,19 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # for every panel drawn inside it.
     assert {"spacr.assay_panels.outlier_policy.__enter__",
             "spacr.assay_panels.outlier_policy.__exit__"} <= dunders
-    assert len(dunders) == 219
+    # 219 -> 226 on 2026-11-10: the dataset protocols of the paper items'
+    # crop readers (items 889 and 896) and the batch transform of the
+    # gene-class image arms -- ShardCrops, MemmapCrops and OpsCropDataset
+    # __len__ / __getitem__, and DevicePrep.__call__ -- the interface a
+    # torch DataLoader or training loop calls, so they belong on the page.
+    assert {"spacr.embedding_profiles.ShardCrops.__getitem__",
+            "spacr.embedding_profiles.ShardCrops.__len__",
+            "spacr.gene_class_images.DevicePrep.__call__",
+            "spacr.gene_class_images.MemmapCrops.__getitem__",
+            "spacr.gene_class_images.MemmapCrops.__len__",
+            "spacr.gene_class_images.OpsCropDataset.__getitem__",
+            "spacr.gene_class_images.OpsCropDataset.__len__"} <= dunders
+    assert len(dunders) == 226
     # It is counted here and left out of the historical fingerprints below,
     # which it would otherwise move.
     dunders = dunders - {"spacr.layers.VolumeLens.__post_init__"}
