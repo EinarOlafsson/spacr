@@ -863,6 +863,15 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "aggregate_levels", "aggregate_metadata", "aggregate_metadata_columns",
     "aggregate_control", "aggregate_control_percentiles",
     "aggregate_heterogeneity", "aggregate_dir", "record_timing",
+    # 896, alpha: crop shards, embeddings and well embedding profiles
+    # (`spacr/embedding_profiles.py`), two headings of its own.
+    "embedding_src", "embedding_cells", "embedding_wells", "crop_store",
+    "crop_window", "crop_channels", "crop_cap_per_well", "crop_mask_flags",
+    "crop_illumination", "crop_illumination_model", "crop_seed", "embedding_backbone",
+    "embedding_channel_mode", "embedding_channel_scale", "embedding_input_normalisation", "embedding_weights",
+    "embedding_masked", "embedding_batch_size", "embedding_aggregate", "embedding_control",
+    "embedding_control_column", "embedding_umap", "umap_metric", "umap_neighbors",
+    "umap_min_dist", "umap_seed", "umap_percentiles", "embedding_out",
     # 894, alpha: the MoA profiling evaluation (`spacr/moa_benchmark.py`),
     # two headings of its own: the tables and columns, and the methods.
     "moa_eval_profiles", "moa_eval_metadata", "moa_eval_metadata_columns", "moa_eval_labels",
@@ -1654,6 +1663,8 @@ def test_every_qt_section_hint_names_a_real_category():
     import spacr.moa_benchmark  # noqa: F401
     # 893: the screen staging registers its two headings.
     import spacr.screen_staging  # noqa: F401
+    # 896: the embedding profiles register their two headings.
+    import spacr.embedding_profiles  # noqa: F401
     known.update(c.upper().strip() for c in S.REGISTERED_CATEGORIES)
     # Qt may make app-scoped relocations without changing the category map
     # shared with the legacy UI (Measure's Filter settings is one).

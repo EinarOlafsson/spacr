@@ -458,9 +458,9 @@ def control_wells(metadata: Any, *, columns: Any = ('plate', 'well', 'compound')
     return set(map(tuple, chosen.astype(str).values))
 
 
-def _feature_columns(frame: pd.DataFrame) -> List[str]:
-    """The per-cell feature columns of an exported plate."""
-    return [column for column in frame.columns if column.startswith(FEATURE_PREFIXES)]
+def _feature_columns(frame: pd.DataFrame, prefixes: Sequence[str] = FEATURE_PREFIXES) -> List[str]:
+    """The per-cell feature columns of an exported plate: those with one of ``prefixes``."""
+    return [column for column in frame.columns if str(column).startswith(tuple(prefixes))]
 
 
 def _percentile_pair(value: Any) -> List[float]:
@@ -476,7 +476,8 @@ def aggregate_wells(parquet_files: Iterable[Any], dst: Any, *,
                     levels: Any = AGGREGATE_LEVELS,
                     controls: Optional[Set[Tuple[str, str]]] = None,
                     control_name: str = 'DMSO', percentiles: Any = (1, 99),
-                    heterogeneity: bool = False) -> Dict[str, Any]:
+                    heterogeneity: bool = False,
+                    prefixes: Sequence[str] = FEATURE_PREFIXES) -> Dict[str, Any]:
     """Aggregate per-cell plate files into well tables.
 
     Each plate file is aggregated on its own (a well lies on one plate) by
@@ -502,6 +503,8 @@ def aggregate_wells(parquet_files: Iterable[Any], dst: Any, *,
     :param control_name: names the percentile file.
     :param percentiles: the percentiles to write, such as ``(1, 99)``.
     :param heterogeneity: also write the heterogeneity table.
+    :param prefixes: the prefixes of the feature columns; the embedding
+        aggregate (item 896) passes ``('emb_',)``.
     :returns: ``{"paths", "plates", "n_cells", "n_features"}``.
     :raises ValueError: for an unknown level, no input files, or files
         without feature columns.
@@ -520,7 +523,7 @@ def aggregate_wells(parquet_files: Iterable[Any], dst: Any, *,
     n_cells, n_features = 0, 0
     for path in files:
         frame = read_table(path, canonicalise=False, report=None)
-        features = _feature_columns(frame)
+        features = _feature_columns(frame, prefixes)
         if not features:
             raise ValueError(f'{path} has no feature columns')
         grouped = frame.groupby(['plate', 'well'])[features]

@@ -8187,6 +8187,16 @@ ALPHA_FEATURES = {
             'published_duplicates', 'published_unmatched', 'published_bootstrap',
             'published_shuffles', 'published_seed', 'published_dst')},
     },
+    896: {
+        'module_settings': {'embedding_profiles': (
+            'embedding_src', 'embedding_cells', 'embedding_wells', 'crop_store',
+            'crop_window', 'crop_channels', 'crop_cap_per_well', 'crop_mask_flags',
+            'crop_illumination', 'crop_illumination_model', 'crop_seed', 'embedding_backbone',
+            'embedding_channel_mode', 'embedding_channel_scale', 'embedding_input_normalisation', 'embedding_weights',
+            'embedding_masked', 'embedding_batch_size', 'embedding_aggregate', 'embedding_control',
+            'embedding_control_column', 'embedding_umap', 'umap_metric', 'umap_neighbors',
+            'umap_min_dist', 'umap_seed', 'umap_percentiles', 'embedding_out',)},
+    },
     894: {
         'module_settings': {'profiling_evaluation': (
             'moa_eval_profiles', 'moa_eval_metadata', 'moa_eval_metadata_columns', 'moa_eval_labels',

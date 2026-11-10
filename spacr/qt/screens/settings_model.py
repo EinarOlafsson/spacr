@@ -3826,6 +3826,14 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "How the profiles are scored: the nearest-neighbour, logistic "
         "regression and XGBoost arms, how replicate wells combine, the "
         "shuffled-label controls, the seed and the folds fitted at a time.",
+    "EMBEDDING CROPS":
+        "Which cells are cut into crop shards: the plate folder and cell "
+        "table, the window, channels and per-well cap, the bit-flag masks, "
+        "the flat-field correction, the seed and the output folder.",
+    "EMBEDDING PROFILES":
+        "How the crops become well profiles: the pretrained backbone, the "
+        "channel scale and input normalisation, the masking, the well "
+        "aggregate and its control, and the UMAP of the wells.",
     "MOA EVALUATION":
         "Which well profiles are evaluated by mechanism of action: the "
         "profile, metadata and label tables, the columns that name the "

@@ -608,6 +608,25 @@ _MODULE_LIST: Tuple[Module, ...] = (
               "that."),
     ),
     Module(
+        key="embedding_profiles",
+        summary="Cut raw single-cell crop shards, embed them with a pretrained "
+                "backbone, aggregate per well and map the wells by UMAP.",
+        entry="spacr.embedding_profiles:run_embedding_profiles",
+        defaults=None,
+        defaults_entry="spacr.embedding_profiles:embedding_profiles_defaults",
+        validate_key="",
+        requires=("embedding_src \u2014 the plate folder with merged/ fields",
+                  "embedding_cells \u2014 the cells to crop, such as the "
+                  "screen run's <plate>.parquet"),
+        writes=("<out>/crops/<plate>.h5, .cells.parquet and .json",
+                "<out>/emb/<plate>.npy and .json",
+                "<out>/tables/wells_median, wells_mean and "
+                "<control>_percentiles .parquet",
+                "<out>/well_umap.csv with embedding_umap"),
+        note="ALPHA (896). Crops are raw (no per-crop stretch); the "
+             "backbone runs on the CPU when no GPU is seen.",
+    ),
+    Module(
         key="profiling_evaluation",
         summary="Evaluate well profiles by mechanism of action under NSC and "
                 "NSCB: 1-NN, supervised and CellProfiler Analyst classifiers.",
