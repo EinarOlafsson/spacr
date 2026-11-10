@@ -880,6 +880,9 @@ def bioimage_collection(qtbot, monkeypatch, tmp_path):
     qtbot.addWidget(widget)
     widget._scan_edit.setText(str(root))
     widget.show()
+    qtbot.waitUntil(lambda: widget._loaded and not widget.is_busy()
+                    and widget.active_jobs() == 0, timeout=10000)
+    calls.clear()
     state = dict(widget=widget, home=home, local=local, original=original,
                  payload=payload, calls=calls, control=control,
                  entered=entered, release=release, gui=QThread.currentThread())
