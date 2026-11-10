@@ -15,4 +15,15 @@ WHAT TO DO
 - Embedding gene profiles and measurement-embedding fusion, alpha.
 
 RESULT
-Validation against the reference tables is in progress; results follow in a later commit.
+On the DINOv2-S CLS export of plate A (2,003,014 rows, 1,151,038 matched
+interphase cells, reference environment):
+- robustz: X_emb_ogc_dinov2_s_cls_robustz.parquet bit for bit (235 PCs);
+- measurement profile on the same cells: X_meas_ogc_dinov2_s_cls bit for
+  bit; fusion_profiles of the reference blocks: X_fusion_ogc_dinov2_s_cls
+  bit for bit (99 + 232 dimensions);
+- tvn: same rows, cell counts and 236 PCs; values differ by at most 4.7e-4
+  (gene-gene cosines by 2.7e-4). With Brieflow's tvn_on_controls swapped
+  in for spacr.ops_tvn.tvn_on_controls the tvn table is bit-identical too,
+  so the whole difference is the shared TVN core at epsilon 0 on float32
+  scores, not this item's code.
+The ResNet-50 and DINOv2 'all' / 'patch' exports were not rerun.
