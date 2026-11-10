@@ -1,0 +1,43 @@
+{
+  "description": "Division prediction as the BMC reanalysis computed it (stage2_analyse.prediction_table / run_prediction): every labelled frame capped at 120,000 rows, reference features, two-daughter divisions, last-seen negatives, lineage-tree folds for a single movie, xgboost depth 4 / learning rate 0.05 / max_bin 64 / seed 20261104 / one thread. Set timelapse_division_prediction_frames per dataset from horizons_frames.",
+  "settings": {
+    "timelapse_division_prediction": true,
+    "timelapse_division_prediction_model": "xgboost",
+    "timelapse_division_prediction_folds": 5,
+    "timelapse_division_prediction_unit": "frame",
+    "timelapse_division_prediction_max_rows": 120000,
+    "timelapse_division_prediction_row_seed": 0,
+    "timelapse_division_prediction_min_positive_tracks": 30,
+    "timelapse_division_prediction_min_positive_rows": 20,
+    "timelapse_division_prediction_arms": "model,age_only,shape_motion,shuffled,majority",
+    "timelapse_division_prediction_group": "auto",
+    "timelapse_division_prediction_features": "reference",
+    "timelapse_division_prediction_lag": "auto",
+    "timelapse_division_prediction_born_flag": true,
+    "timelapse_division_prediction_max_depth": 4,
+    "timelapse_division_prediction_learning_rate": 0.05,
+    "timelapse_division_prediction_max_bin": 64,
+    "timelapse_division_prediction_n_estimators": 200,
+    "timelapse_division_prediction_subsample": 0.8,
+    "timelapse_division_prediction_colsample": 0.8,
+    "timelapse_division_prediction_n_jobs": 1,
+    "timelapse_division_prediction_seed": 20261104,
+    "timelapse_division_prediction_events": "two_daughters",
+    "timelapse_division_prediction_negative_rule": "last_seen"
+  },
+  "horizons_frames": {
+    "bacmother_ctc": 2,
+    "cglutamicum_tracking": 10,
+    "bck2_yeast_s_biad4064": 6,
+    "lyn_yeast_budding": 3,
+    "cell_acdc_yeast": 6,
+    "baby_yeast_alcatras_bf": 4,
+    "spombe_cuny_tracking": 4,
+    "deepcell_dynamicnuclearnet_trk": 6,
+    "deepsea_phase": 5,
+    "ctc_phc_psc_timelapse": 11,
+    "ctc_fluo_n2dl_hela": 5,
+    "ctc_bf_hsc_timelapse": 41,
+    "ctc_bf_musc_timelapse": 20
+  }
+}

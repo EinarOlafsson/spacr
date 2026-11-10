@@ -1,0 +1,27 @@
+DIVISION PREDICTION: SCORING UNIT, GUARDS, SHAPE-AND-MOTION ARM, SINGLE-MOVIE GROUPING, REFERENCE FEATURES AND LEARNER
+======================================================================================================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha; validation partly run, see RESULT) — spacr.division_prediction: predict_divisions gains arms (shape_motion = every feature but age and born_in_view, with the shape-and-motion-minus-age margin), group (movie, lineage_tree or auto; lineage-tree folds never split a tree and are flagged weaker), max_rows / row_seed, min_positive_rows (no fit, reason in the summary) and min_positive_tracks (informative flag in summary, metrics and greyed figure), learner options (depth, rate, max_bin, rounds, subsample, colsample, threads) and one fixed seed; it always reports unit, n_positive_rows and n_positive_tracks and writes pr_curves.csv (120 points per arm, division_prediction_pr_curve). division_prediction_features gains feature_set='reference' (value, 1- and lag-frame changes, rolling mean, age, born_in_view, in the reference row order), events='two_daughters', negative_rule='last_seen' and a lineage_tree column (lineage_trees). prediction_feature_options / prediction_run_options read 22 timelapse_division_prediction_* settings, registered under ALPHA_FEATURES[866]; frames and lag accept auto. spacr/resources/division_prediction_reference.json is the reference preset with the per-dataset horizons. Every default keeps the item-866 numbers.
+Requested: maintainer, 2026-11-09 (BMC paper item spec ITEM_division_prediction_arms.md).
+Owner: Home (claude-lane-e-1109 worktree).
+Related: 866, 867, 771, 901.
+
+DELIBERATE CHOICES
+- timelapse_division_prediction_min_positive_rows defaults to 0 (the spec
+  says 20): a default guard would stop fits that run today, against the
+  spec's own no-regression rule. The reference preset sets 20.
+- Arm labels for the default arms are unchanged ("model", not "full"), so
+  default outputs stay identical.
+
+RESULT
+See the 909 section of the lane-E report; validation script
+/mnt/firecuda2/codex/scratch-docs/paper-items-1109/lane-e/validate_909.py
+(no-regression spacr_default columns, the every-frame diagnostic and the
+reference preset against panelE_prediction_summary.csv).
+
+NOT DONE / REMAINING
+- The shuffled-label arm and the three capped datasets cannot be replayed
+  bit for bit (the reference drew those seeds from a per-dataset stream);
+  their tolerance check and the 5-seed spread were not recorded.
+- Catalogue (9-locale) records and arrival contracts are left to the master.

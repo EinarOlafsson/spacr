@@ -1339,6 +1339,28 @@ def set_default_settings_preprocess_generate_masks(settings=None):
     settings.setdefault('timelapse_division_prediction_frames', 5)
     settings.setdefault('timelapse_division_prediction_model', 'auto')
     settings.setdefault('timelapse_division_prediction_folds', 5)
+    settings.setdefault('timelapse_division_prediction_unit', 'track')
+    settings.setdefault('timelapse_division_prediction_sample_seed', 0)
+    settings.setdefault('timelapse_division_prediction_max_rows', None)
+    settings.setdefault('timelapse_division_prediction_row_seed', 0)
+    settings.setdefault('timelapse_division_prediction_min_positive_tracks', 30)
+    settings.setdefault('timelapse_division_prediction_min_positive_rows', 0)
+    settings.setdefault('timelapse_division_prediction_arms', 'model,age_only,shuffled,majority')
+    settings.setdefault('timelapse_division_prediction_group', 'movie')
+    settings.setdefault('timelapse_division_prediction_features', 'spacr')
+    settings.setdefault('timelapse_division_prediction_lag', 'auto')
+    settings.setdefault('timelapse_division_prediction_born_flag', None)
+    settings.setdefault('timelapse_division_prediction_history', 3)
+    settings.setdefault('timelapse_division_prediction_max_depth', 3)
+    settings.setdefault('timelapse_division_prediction_learning_rate', 0.1)
+    settings.setdefault('timelapse_division_prediction_max_bin', 256)
+    settings.setdefault('timelapse_division_prediction_n_estimators', 200)
+    settings.setdefault('timelapse_division_prediction_subsample', 0.8)
+    settings.setdefault('timelapse_division_prediction_colsample', 0.8)
+    settings.setdefault('timelapse_division_prediction_n_jobs', 2)
+    settings.setdefault('timelapse_division_prediction_seed', None)
+    settings.setdefault('timelapse_division_prediction_events', 'all')
+    settings.setdefault('timelapse_division_prediction_negative_rule', 'lineage_end')
     settings.setdefault('timelapse_division_onset', False)
     settings.setdefault('timelapse_division_onset_ci', 'ci_low/ci_high')
     settings.setdefault('timelapse_events', False)
@@ -3889,9 +3911,31 @@ expected_types = {
     "timelapse_division_window": (int, type(None)),
     "timelapse_division_size_tolerance": (int, float),
     "timelapse_division_prediction": bool,
-    "timelapse_division_prediction_frames": int,
+    "timelapse_division_prediction_frames": (int, str),
     "timelapse_division_prediction_model": str,
     "timelapse_division_prediction_folds": int,
+    "timelapse_division_prediction_unit": str,
+    "timelapse_division_prediction_sample_seed": int,
+    "timelapse_division_prediction_max_rows": (int, type(None)),
+    "timelapse_division_prediction_row_seed": int,
+    "timelapse_division_prediction_min_positive_tracks": int,
+    "timelapse_division_prediction_min_positive_rows": int,
+    "timelapse_division_prediction_arms": str,
+    "timelapse_division_prediction_group": str,
+    "timelapse_division_prediction_features": str,
+    "timelapse_division_prediction_lag": (int, str),
+    "timelapse_division_prediction_born_flag": (bool, type(None)),
+    "timelapse_division_prediction_history": int,
+    "timelapse_division_prediction_max_depth": int,
+    "timelapse_division_prediction_learning_rate": (int, float),
+    "timelapse_division_prediction_max_bin": int,
+    "timelapse_division_prediction_n_estimators": int,
+    "timelapse_division_prediction_subsample": (int, float),
+    "timelapse_division_prediction_colsample": (int, float),
+    "timelapse_division_prediction_n_jobs": int,
+    "timelapse_division_prediction_seed": (int, type(None)),
+    "timelapse_division_prediction_events": str,
+    "timelapse_division_prediction_negative_rule": str,
     "timelapse_division_onset": bool,
     "timelapse_division_onset_ci": str,
     "timelapse_events": bool,
@@ -5826,7 +5870,7 @@ tooltips = {
     "timelapse_division_window": "(int or None) - Frames before each division that are aligned and compared. The change is measured from the first frames of this window to the last frames before division, a quarter of the window each (at least 2). Blank uses 0.3 times the median cell cycle observed in the movie, between 4 and 30 frames, or 6 frames when no complete cycle is seen. Ignored unless timelapse_division_analysis. Default None.",
     "timelapse_division_size_tolerance": "(float) - How different in size a control cell may be from the dividing cell at the start of the window, as a fraction: 0.25 accepts controls from 0.8 to 1.25 times its area. Smaller values match more closely but leave more divisions without a control. Ignored unless timelapse_division_analysis. Default 0.25.",
     "timelapse_division_prediction": "(bool) - With timelapse_division_analysis, also ask whether a cell's shape, size, intensity and motion now tell that it will divide within the next few frames. Each field is one movie, and a model is always tested on fields it was not trained on. It is compared with the same model on cell age alone, with a model trained on shuffled labels and with always guessing the commoner answer. Writes AUROC and AUPRC with 95% intervals, per-fold results, feature importances, every held-out prediction and one figure to tracks/division/prediction_<tracks>/. Needs 3 or more fields. Default False.",
-    "timelapse_division_prediction_frames": "(int) - The horizon N: a frame counts as 'about to divide' when the cell divides within the next N frames. Frames whose next N frames the movie does not show are left out. Ignored unless timelapse_division_prediction. Default 5.",
+    "timelapse_division_prediction_frames": "(int) - The horizon N: a frame counts as 'about to divide' when the cell divides within the next N frames. Frames whose next N frames the movie does not show are left out. auto takes max(2, round(0.15 x the median cell cycle)), as the reference analysis. Ignored unless timelapse_division_prediction. Default 5.",
     "timelapse_division_prediction_model": "(str) - The classifier. auto uses xgboost when it is installed and scikit-learn gradient boosting otherwise; xgboost falls back the same way; gradient_boosting is scikit-learn's histogram gradient boosting; logistic is a logistic regression on standardised features. Ignored unless timelapse_division_prediction. Default auto.",
     "timelapse_division_prediction_folds": "(int) - Cross-validation folds, grouped by field so no field is in both training and testing; never more than the number of fields. Ignored unless timelapse_division_prediction. Default 5.",
     "figure_condition_labels": "(str) - Figure scoring: a JSON of figure -> boxes (strain and treatment per detector box) and quantification (the reported panels, each value with is_reference). It is the condition table the measured wells are labelled with (gold or model-read) and the source of the reported effects. Default .",
@@ -5855,6 +5899,28 @@ tooltips = {
     "annotate_sample_n": "(int) - Above 0, the run only picks that many objects to annotate, stratified by annotate_sample_strata, and writes their order (1 to N) into the png_list column annotate_sample so the Annotate screen can show just those crops. The label column is created empty if missing and never overwritten. Default 0.",
     "annotate_sample_seed": "(int) - Seed of the annotation sample; the top-up draw uses the next seed and the final shuffle the one after. Ignored unless annotate_sample_n. Default 0.",
     "annotate_sample_strata": "(str) - Strata of the annotation sample, comma-separated: a column name stratifies by its values; column:q bins the column into q quantiles within each value of the first stratum (for example strain, rim_enrichment:5). Every stratum gives an equal share. Blank samples without strata. Ignored unless annotate_sample_n. Default .",
+    "timelapse_division_prediction_unit": "(str) - What one scored row is. track keeps one labelled frame per track, so each cell counts once; frame keeps every labelled frame, as the reference analysis did. Ignored unless timelapse_division_prediction. Default track.",
+    "timelapse_division_prediction_sample_seed": "(int) - Seed of the one-frame-per-track draw. Ignored unless timelapse_division_prediction. Default 0.",
+    "timelapse_division_prediction_max_rows": "(int or None) - Keep at most this many rows, drawn at random after labelling and before the folds (120000 in the reference). Blank keeps all. Ignored unless timelapse_division_prediction. Default None.",
+    "timelapse_division_prediction_row_seed": "(int) - Seed of the row cap. Ignored unless timelapse_division_prediction. Default 0.",
+    "timelapse_division_prediction_min_positive_tracks": "(int) - With fewer distinct tracks that divide within the horizon, the result is computed but flagged informative False in summary.json and the metrics, and the figure greys the bars: AUPRC on so few positives says little. Ignored unless timelapse_division_prediction. Default 30.",
+    "timelapse_division_prediction_min_positive_rows": "(int) - With fewer positive rows no model is fitted, and summary.json says why (20 in the reference). 0 always fits. Ignored unless timelapse_division_prediction. Default 0.",
+    "timelapse_division_prediction_arms": "(str) - The arms scored, comma-separated: model (every feature), age_only, shape_motion (every feature but age and born_in_view), shuffled (labels shuffled within each group) and majority. Ignored unless timelapse_division_prediction. Default model,age_only,shuffled,majority.",
+    "timelapse_division_prediction_group": "(str) - What the folds are grouped by: movie (each field one movie), lineage_tree, or auto (movie with two or more movies, lineage tree for a single movie, with a note that tree folds are weaker). The intervals resample the same unit. Ignored unless timelapse_division_prediction. Default movie.",
+    "timelapse_division_prediction_features": "(str) - spacr: value, change over timelapse_division_prediction_history frames and age. reference: per measurement the value, its change over 1 and over lag frames and its rolling mean over lag frames, plus age and born_in_view, as the reference analysis. Ignored unless timelapse_division_prediction. Default spacr.",
+    "timelapse_division_prediction_lag": "(int or str) - The lag of the reference features; auto takes min(alignment window, 5). Ignored unless timelapse_division_prediction_features is reference. Default auto.",
+    "timelapse_division_prediction_born_flag": "(bool or None) - Add born_in_view: 1 when the track has a parent or starts after the movie's first frame. Blank adds it with the reference features only. Ignored unless timelapse_division_prediction. Default None.",
+    "timelapse_division_prediction_history": "(int) - Frames back for the change features of the spacr feature set. Ignored unless timelapse_division_prediction. Default 3.",
+    "timelapse_division_prediction_max_depth": "(int) - Tree depth of the learner (4 in the reference). Ignored unless timelapse_division_prediction. Default 3.",
+    "timelapse_division_prediction_learning_rate": "(float) - Learning rate of the learner (0.05 in the reference). Ignored unless timelapse_division_prediction. Default 0.1.",
+    "timelapse_division_prediction_max_bin": "(int) - xgboost histogram bins (64 in the reference); 256 is xgboost's own default. Ignored unless timelapse_division_prediction. Default 256.",
+    "timelapse_division_prediction_n_estimators": "(int) - Boosting rounds. Ignored unless timelapse_division_prediction. Default 200.",
+    "timelapse_division_prediction_subsample": "(float) - Share of rows each xgboost tree sees. Ignored unless timelapse_division_prediction. Default 0.8.",
+    "timelapse_division_prediction_colsample": "(float) - Share of features each xgboost tree sees. Ignored unless timelapse_division_prediction. Default 0.8.",
+    "timelapse_division_prediction_n_jobs": "(int) - Learner threads; 1 gives bit-identical results with the reference. Ignored unless timelapse_division_prediction. Default 2.",
+    "timelapse_division_prediction_seed": "(int or None) - One learner seed for every fit (20261104 in the reference). Blank draws one per fold from the run's seed, as before. Ignored unless timelapse_division_prediction. Default None.",
+    "timelapse_division_prediction_events": "(str) - Which fission events count as divisions: all, or two_daughters only. Budding is unchanged. Ignored unless timelapse_division_prediction. Default all.",
+    "timelapse_division_prediction_negative_rule": "(str) - When a frame may be called negative: lineage_end (the track's lineage end lies past the horizon) or last_seen (the last frame the track is seen lies at least N - 1 frames ahead, as the reference). Ignored unless timelapse_division_prediction. Default lineage_end.",
     "timelapse_division_onset": "(bool) - With timelapse_division_analysis, also find when each measurement starts to change before division. Dividing and control cells are compared at every frame of the window (Hedges' g with a bootstrap 95% interval). Reading back from the division, the onset is the earliest frame of the unbroken run of frames whose interval excludes zero in the direction of the last frame; a measurement whose last frame is not significant has no onset. Writes onsets.csv (onset in frames, as a fraction of the median cycle and in minutes when the frame interval is known, and the direction) and frame_effects.csv next to the division results. Default False.",
     "timelapse_division_onset_ci": "(str) - The two interval columns of the per-frame effect table that decide whether a frame is significant, written as low/high. Ignored unless timelapse_division_onset. Default ci_low/ci_high.",
     "timelapse_events": "(bool) - After the run, detect events on every tracked object with a small neural network that reads short windows of each track (shape, intensity, movement, tracks starting or ending nearby, and image crops): mitosis, egress, invasion, host death or whatever classes timelapse_events_annotations names. Writes time-stamped events, lineage trees re-linked from detected mitoses and Kaplan-Meier time to each event per condition to tracks/events. The small encoder runs on CPU; the optional videomae encoder uses its separately installed worker and declared video device. Default False.",
@@ -6217,7 +6283,7 @@ def _name_the_family_in_every_estimator_tooltip():
 
 _name_the_family_in_every_estimator_tooltip()
 
-timelapse_settings = ['fps', 'timelapse_mode', 'trackastra_model', 'trackastra_linking', 'ultrack_max_distance', 'ultrack_division_weight', 'ultrack_contour_sigma', 'ultrack_n_workers', 'timeflows_model', 'timelapse_displacement', 'timelapse_memory', 'timelapse_frame_limits', 'timelapse_remove_transient', 'timelapse_objects', 'timelapse_lineage', 'timelapse_lineage_color_by', 'timelapse_lineage_max_distance', 'timelapse_lineage_min_division_h', 'timelapse_lineage_edge_entry', 'timelapse_lineage_vacuole_count', 'timelapse_lineage_bud_guard', 'timelapse_lineage_bud_threshold', 'timelapse_division_analysis', 'timelapse_division_mode', 'timelapse_division_window', 'timelapse_division_size_tolerance', 'timelapse_division_prediction', 'timelapse_division_prediction_frames', 'timelapse_division_prediction_model', 'timelapse_division_prediction_folds', 'timelapse_division_onset', 'timelapse_division_onset_ci', 'timelapse_events', 'timelapse_events_annotations', 'timelapse_events_model', 'timelapse_events_window', 'timelapse_events_threshold', 'timelapse_events_conditions', 'timelapse_events_encoder', 'timelapse_events_video_checkpoint', 'timelapse_events_video_channels', 'timelapse_events_video_device']
+timelapse_settings = ['fps', 'timelapse_mode', 'trackastra_model', 'trackastra_linking', 'ultrack_max_distance', 'ultrack_division_weight', 'ultrack_contour_sigma', 'ultrack_n_workers', 'timeflows_model', 'timelapse_displacement', 'timelapse_memory', 'timelapse_frame_limits', 'timelapse_remove_transient', 'timelapse_objects', 'timelapse_lineage', 'timelapse_lineage_color_by', 'timelapse_lineage_max_distance', 'timelapse_lineage_min_division_h', 'timelapse_lineage_edge_entry', 'timelapse_lineage_vacuole_count', 'timelapse_lineage_bud_guard', 'timelapse_lineage_bud_threshold', 'timelapse_division_analysis', 'timelapse_division_mode', 'timelapse_division_window', 'timelapse_division_size_tolerance', 'timelapse_division_prediction', 'timelapse_division_prediction_frames', 'timelapse_division_prediction_model', 'timelapse_division_prediction_folds', 'timelapse_division_prediction_unit', 'timelapse_division_prediction_sample_seed', 'timelapse_division_prediction_max_rows', 'timelapse_division_prediction_row_seed', 'timelapse_division_prediction_min_positive_tracks', 'timelapse_division_prediction_min_positive_rows', 'timelapse_division_prediction_arms', 'timelapse_division_prediction_group', 'timelapse_division_prediction_features', 'timelapse_division_prediction_lag', 'timelapse_division_prediction_born_flag', 'timelapse_division_prediction_history', 'timelapse_division_prediction_max_depth', 'timelapse_division_prediction_learning_rate', 'timelapse_division_prediction_max_bin', 'timelapse_division_prediction_n_estimators', 'timelapse_division_prediction_subsample', 'timelapse_division_prediction_colsample', 'timelapse_division_prediction_n_jobs', 'timelapse_division_prediction_seed', 'timelapse_division_prediction_events', 'timelapse_division_prediction_negative_rule', 'timelapse_division_onset', 'timelapse_division_onset_ci', 'timelapse_events', 'timelapse_events_annotations', 'timelapse_events_model', 'timelapse_events_window', 'timelapse_events_threshold', 'timelapse_events_conditions', 'timelapse_events_encoder', 'timelapse_events_video_checkpoint', 'timelapse_events_video_channels', 'timelapse_events_video_device']
 
 motility_settings = ['motility_analysis','tracked_object', 'infection_intensity_strategy', 'seconds_per_frame', 'pixels_per_um', 'motility_ylim', 'motility_xlim', 'infection_intensity_qc_scope']
 
@@ -8671,7 +8737,29 @@ ALPHA_FEATURES = {
     866: {
         'settings': ('timelapse_division_prediction', 'timelapse_division_prediction_frames',
                      'timelapse_division_prediction_model',
-                     'timelapse_division_prediction_folds'),
+                     'timelapse_division_prediction_folds',
+                     'timelapse_division_prediction_unit',
+                     'timelapse_division_prediction_sample_seed',
+                     'timelapse_division_prediction_max_rows',
+                     'timelapse_division_prediction_row_seed',
+                     'timelapse_division_prediction_min_positive_tracks',
+                     'timelapse_division_prediction_min_positive_rows',
+                     'timelapse_division_prediction_arms',
+                     'timelapse_division_prediction_group',
+                     'timelapse_division_prediction_features',
+                     'timelapse_division_prediction_lag',
+                     'timelapse_division_prediction_born_flag',
+                     'timelapse_division_prediction_history',
+                     'timelapse_division_prediction_max_depth',
+                     'timelapse_division_prediction_learning_rate',
+                     'timelapse_division_prediction_max_bin',
+                     'timelapse_division_prediction_n_estimators',
+                     'timelapse_division_prediction_subsample',
+                     'timelapse_division_prediction_colsample',
+                     'timelapse_division_prediction_n_jobs',
+                     'timelapse_division_prediction_seed',
+                     'timelapse_division_prediction_events',
+                     'timelapse_division_prediction_negative_rule'),
     },
     567: {
         'models': ('videomae_v1',),
