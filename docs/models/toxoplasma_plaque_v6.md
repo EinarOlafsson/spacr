@@ -2,7 +2,7 @@
 
 # Plaques
 
-v6
+v6 · older
 
 **0.768** — F1 · 160 held-out fields
 
@@ -15,15 +15,17 @@ v6
 | Dice | 0.909 | 0.414 |
 
 
-![Score card of Plaques v6 (toxoplasma_plaque_v6, default): F1 0.768 on 160 held-out fields against 0.294 for stock cpsam_v2.](cards/toxoplasma_plaque_v6.svg)
+![Score card of Plaques v6 (toxoplasma_plaque_v6, older version): F1 0.768 on 160 held-out fields against 0.294 for stock cpsam_v2.](cards/toxoplasma_plaque_v6.svg)
 
-## Toxoplasma Plaque v6 (round 8, cpsam_v2, resized wells, default)
+## Toxoplasma Plaque v6 (round 8, cpsam_v2, resized wells)
 
-`toxoplasma_plaque_v6` · Cellpose-SAM (cpsam_v2, Cellpose 4.2.1.1) · default in the `toxoplasma_plaque` family
+`toxoplasma_plaque_v6` · Cellpose-SAM (cpsam_v2, Cellpose 4.2.1.1) · older version in the `toxoplasma_plaque` family
 
 Toxoplasma plaques in crystal-violet plaque-assay wells. Stock Cellpose-SAM was never trained on plaques and finds few of them, fewest on Gel Doc scans.
 
-Other versions: [toxoplasma_plaque_v9](toxoplasma_plaque_v9.md) (candidate), [toxoplasma_plaque_v7](toxoplasma_plaque_v7.md) (candidate), [toxoplasma_plaque_v5](toxoplasma_plaque_v5.md), [toxoplasma_plaque_v4](toxoplasma_plaque_v4.md), [toxoplasma_plaque_v3](toxoplasma_plaque_v3.md) (alternative), [toxoplasma_plaque_v2](toxoplasma_plaque_v2.md), [toxoplasma_plaque_v1](toxoplasma_plaque_v1.md).
+The family's default is [toxoplasma_plaque_v9](toxoplasma_plaque_v9.md).
+
+Other versions: [toxoplasma_plaque_v9](toxoplasma_plaque_v9.md), [toxoplasma_plaque_v8](toxoplasma_plaque_v8.md), [toxoplasma_plaque_v5](toxoplasma_plaque_v5.md), [toxoplasma_plaque_v4](toxoplasma_plaque_v4.md), [toxoplasma_plaque_v3](toxoplasma_plaque_v3.md) (alternative), [toxoplasma_plaque_v2](toxoplasma_plaque_v2.md), [toxoplasma_plaque_v1](toxoplasma_plaque_v1.md).
 
 ## Training data
 
@@ -61,7 +63,7 @@ Evaluation set `plaque_v6_20261024_test`, version `strict hold-out, pooled`; 160
 
 ## Notes
 
-- The default plaque model since 2026-10-25, by the maintainer's choice; it needs well resize (plaque_well_resize auto follows this record's preprocess). toxoplasma_plaque_v5 stays selectable.
+- The default plaque model 2026-10-25 to 2026-11-10; toxoplasma_plaque_v9 replaced it by the maintainer's choice, and v6 stays selectable so recorded runs reproduce. It needs well resize (plaque_well_resize auto follows this record's preprocess). toxoplasma_plaque_v5 stays selectable.
 - Scored 2026-10-25 on the 160 test fields (single locked test, validation-chosen thresholds cellprob -0.5, flow 0.4, min size 0): object F1 0.768 (95% group-bootstrap CI 0.715 to 0.815), precision 0.777, recall 0.760, boundary F1 0.781, AJI 0.752, Dice 0.909. Recall by plaque size 0.432 (<5 px), 0.795 (5-10 px), 0.811 (>=10 px). Control: stock cpsam_v2 with the same well resize and its own validation-tuned thresholds, object F1 0.294.
 - Final epoch 100 shipped by the maintainer's choice; the validation objective peaked at epoch 25 (0.673 against 0.651).
 

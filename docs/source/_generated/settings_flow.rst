@@ -26678,7 +26678,7 @@ Read by ``run_figure_scoring``, ``_confirm_plaque_model_download``, ``get_analyz
 plaque_model
 ------------
 
-(str) - Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v6' was trained on resized wells and turns plaque well resize on; 'toxoplasma_plaque_v5', the previous default, segments images as they are; 'toxoplasma_plaque_v3' scores higher on Gel Doc wells), a filesystem path selects a custom checkpoint, and 'bundled' is a Cellpose 3 checkpoint that needs Cellpose 3. Changing it changes plaque counts, so recorded runs should keep their value. Default 'toxoplasma_plaque_v6'.
+(str) - Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v9', the epoch-100 checkpoint of the V8 run, was trained on resized wells and turns plaque well resize on; 'toxoplasma_plaque_v6', the previous default, also resizes wells; 'toxoplasma_plaque_v3' scores higher on Gel Doc wells), a filesystem path selects a custom checkpoint, and 'bundled' is a Cellpose 3 checkpoint that needs Cellpose 3. Changing it changes plaque counts, so recorded runs should keep their value. Default 'toxoplasma_plaque_v9'.
 
 | ``_cellpose_segmenter``
 |     :py:func:`~spacr.plaque.segment_plaque_image`

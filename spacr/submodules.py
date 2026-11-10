@@ -2837,10 +2837,11 @@ def _resolve_training_base(requested):
     return _resolve_cellpose_pretrained(name, setting='base_model')
 
 
-#: The plaque model a run segments with when none is named: the cpsam_v2
-#: round-8 model trained on resized wells (toxoplasma_plaque_v6). ``'bundled'`` is not the default because
+#: The plaque model a run segments with when none is named: the epoch-100 checkpoint of the V8
+#: run (toxoplasma_plaque_v9), trained on wells resized to a 1500 px longest side; the default since
+#: 2026-11-10, when it replaced toxoplasma_plaque_v6. ``'bundled'`` is not the default because
 #: the bundled checkpoint is a Cellpose 3 model, and the Cellpose 4 spaCR installs refuses to load it.
-DEFAULT_PLAQUE_MODEL = 'toxoplasma_plaque_v6'
+DEFAULT_PLAQUE_MODEL = 'toxoplasma_plaque_v9'
 
 
 class Cellpose3Checkpoint(ValueError):
@@ -2964,9 +2965,11 @@ def _resolve_plaque_model(settings, fetch=True):
     THE DEFAULT IS NOT ``'bundled'``, though keeping it would avoid changing
     counts behind anyone's back: the bundled checkpoint is a Cellpose 3 model
     and the Cellpose 4 spaCR installs will not load it, so a default run on it
-    fails. ``toxoplasma_plaque_v6`` (the cpsam_v2 round-8 model, trained on
-    wells resized so their longest side is 1500 pixels) is the default; its
-    zoo record turns well resize and its validation-chosen thresholds on. ``toxoplasma_plaque_v5``, the
+    fails. ``toxoplasma_plaque_v9`` (the epoch-100 checkpoint of the V8 run,
+    trained on wells resized so their longest side is 1500 pixels) is the
+    default since 2026-11-10; its zoo record turns well resize and its
+    validation-chosen thresholds on. ``toxoplasma_plaque_v6``, the default
+    from 2026-10-25, stays selectable. ``toxoplasma_plaque_v5``, the
     default from 2026-10-17, scores object F1 0.816 on the 153 test fields of
     the curated 2026-10-15 set, against 0.725 for ``toxoplasma_plaque_v4``
     and 0.741 for ``toxoplasma_plaque_v3``, which stays the better choice on

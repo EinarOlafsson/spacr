@@ -1211,7 +1211,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
                  'n_test': '160 fields', 'test_objects': '6182', 'cv': 'no',
                  'train_loss': 'see training/run_config.json', 'val_loss': 'see training/run_config.json',
                  'best_epoch': '100 / 100 (final epoch kept, maintainer choice)'},
-     'display_name': 'Toxoplasma Plaque v6 (round 8, cpsam_v2, resized wells, default)',
+     'display_name': 'Toxoplasma Plaque v6 (round 8, cpsam_v2, resized wells)',
      'architecture': 'Cellpose-SAM (cpsam_v2, Cellpose 4.2.1.1)',
      'dataset': '1,520 curated plaque fields (Gel Doc wells, lab plates, published figures, earlier curation rounds); '
                 '1,196 train / 164 validation / 160 test, grouped per-domain split of 2026-10-24',
@@ -1220,7 +1220,8 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
      'trained_on': 'Toxoplasma plaques from Gel Doc wells, lab plates, published figures and earlier curation rounds, each '
                    'well resized so its longest side is 1500 px (enlargement at most 6x); 100 epochs, final epoch kept, base cpsam_v2',
      'trained_by': 'einarolafsson',
-     'notes': ['The default plaque model since 2026-10-25, by the maintainer\'s choice; it needs well resize '
+     'notes': ['The default plaque model 2026-10-25 to 2026-11-10; toxoplasma_plaque_v9 replaced it by the '
+               'maintainer\'s choice, and v6 stays selectable so recorded runs reproduce. It needs well resize '
                '(plaque_well_resize auto follows this record\'s preprocess). toxoplasma_plaque_v5 stays selectable.',
                'Scored 2026-10-25 on the 160 test fields (single locked test, validation-chosen thresholds cellprob -0.5, '
                'flow 0.4, min size 0): object F1 0.768 (95% group-bootstrap CI 0.715 to 0.815), precision 0.777, recall '
@@ -1337,7 +1338,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "though that benchmark is its held-out test set",
         ),
     },
-    {'key': 'toxoplasma_plaque_v7',
+    {'key': 'toxoplasma_plaque_v8',
      'name': 'cpsam_plaque_v8_e50',
      'remote_name': 'cpsam_plaque_v8_e50',
      'kind': 'cellpose',
@@ -1346,8 +1347,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
      'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-v8-e50/resolve/main/weights/cpsam_plaque_v8_e50',
      'sha256': 'b4f4a9e9d026f44c597c2a865cd35ce66cbde4293cc173935720c34daa1dec73',
      'size_bytes': 1218650610,
-     'display_name': 'Toxoplasma Plaque V8 epoch 50 (interim candidate)',
-     'candidate': True,
+     'display_name': 'Toxoplasma Plaque V8 epoch 50 (interim checkpoint of the V8 run)',
      'architecture': 'Cellpose-SAM (vanilla cpsam_v2 initialization; Cellpose 4.2.1.1)',
      'preprocess': {'well_resize': {'side': 1500, 'max_factor': 1500},
                     'thresholds': {'cellprob': 0.0, 'flow': 0.4, 'min_size': 0},
@@ -1370,14 +1370,17 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
                    'longest well side; whole-image D4 (independent window D4 only in epochs 1-6); 50 epochs from '
                    'cpsam_v2',
      'trained_by': 'einarolafsson',
-     'notes': ['Interim export of epoch 50 while V8 trains to at least 100 epochs; the final V8 will be released '
-               'separately.',
+     'notes': ['Interim export of epoch 50 of the V8 run; its epoch-100 checkpoint is toxoplasma_plaque_v9, the '
+               'default plaque model since 2026-11-10.',
+               'Listed as toxoplasma_plaque_v7 until 2026-11-10; settings files that name toxoplasma_plaque_v7 '
+               'still resolve to these weights.',
                'Thresholds chosen on the 102 validation crops (cellprob 0.0, flow 0.4, min size 0); test used '
                'for reporting only. The 101 test crops were reported once before, for an older V8 attempt, so '
                'they are not a fresh external or prospective test.',
                'FP32 inference, 1st/99th percentile normalization; well resized to a 1500 px longest side with '
                'no enlargement cap.',
-               'Candidate; existing plaque models and the default stay as they are.']},    {'key': 'toxoplasma_plaque_v9',
+               'Superseded by toxoplasma_plaque_v9; stays selectable so recorded runs reproduce.']},
+    {'key': 'toxoplasma_plaque_v9',
      'name': 'cpsam_plaque_v9',
      'remote_name': 'cpsam_plaque_v9',
      'kind': 'cellpose',
@@ -1386,8 +1389,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
      'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-v9/resolve/main/weights/cpsam_plaque_v9',
      'sha256': '8f58d3744fd7b3bcf0fc7cf9f9ecc44030da03b911163f70af689ca9804b8f35',
      'size_bytes': 1218650610,
-     'display_name': 'Toxoplasma Plaque V9 (V8 epoch 100, candidate)',
-     'candidate': True,
+     'display_name': 'Toxoplasma Plaque V9 (V8 epoch 100, default)',
      'architecture': 'Cellpose-SAM (vanilla cpsam_v2 initialization; Cellpose 4.2.1.1)',
      'preprocess': {'well_resize': {'side': 1500, 'max_factor': 1500},
                     'thresholds': {'cellprob': 0.0, 'flow': 0.4, 'min_size': 0},
@@ -1409,14 +1411,16 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
      'trained_on': 'All 51192 overlapping 256 px grid windows per epoch from all 810 training crops at a 1500 px '
                    'longest well side; whole-image D4; 100 epochs from cpsam_v2',
      'trained_by': 'einarolafsson',
-     'notes': ['Epoch-100 checkpoint of the V8 complete-coverage run, where training ended on its plateau rule; '
-               'the epoch-50 interim of the same run is toxoplasma_plaque_v7.',
+     'notes': ['The default plaque model since 2026-11-10, by the maintainer\'s choice; it replaced '
+               'toxoplasma_plaque_v6, which stays selectable. It turns well resize on (plaque_well_resize auto '
+               'follows this record\'s preprocess).',
+               'Epoch-100 checkpoint of the V8 complete-coverage run, where training ended on its plateau rule; '
+               'the epoch-50 interim of the same run is toxoplasma_plaque_v8.',
                'Thresholds chosen on the 102 validation crops (cellprob 0.0, flow 0.4, min size 0); test used '
                'for reporting only. The 101 test crops were reported before, for an older V8 attempt and for the '
                'epoch-50 interim, so they are not a fresh external or prospective test.',
                'FP32 inference, 1st/99th percentile normalization; well resized to a 1500 px longest side with '
-               'no enlargement cap.',
-               'Candidate; existing plaque models and the default stay as they are.']},
+               'no enlargement cap.']},
 )
 
 #: Models that are no longer OFFERED, by filename.
@@ -1436,6 +1440,26 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
 RETIRED_MODEL_NAMES: frozenset = frozenset({
     "toxo_plaque_cyto_e25000_X1120_Y1120.CP_model",
 })
+
+#: Zoo keys that were renamed, mapped to the key that names the same weights now.
+#:
+#: The V8 epoch-50 checkpoint was published as ``toxoplasma_plaque_v7`` and
+#: renamed ``toxoplasma_plaque_v8`` on 2026-11-10. A settings file or a
+#: recorded model pin that names the old key resolves to the same checksum.
+_MODEL_KEY_ALIASES: Dict[str, str] = {
+    "toxoplasma_plaque_v7": "toxoplasma_plaque_v8",
+}
+
+
+def _canonical_key(key: Any) -> Any:
+    """The current zoo key for ``key``; anything that is not a renamed key is returned unchanged.
+
+    :param key: a zoo key, a model name, a path or any other setting value.
+    :returns: the key :data:`_MODEL_KEY_ALIASES` maps it to, else ``key``.
+    """
+    if isinstance(key, str):
+        return _MODEL_KEY_ALIASES.get(key.strip(), key)
+    return key
 
 
 #: Keys :func:`rank` will sort on, with the direction and what the number is.
@@ -1495,7 +1519,7 @@ _CURATED_SCORECARD_BINDINGS = {'toxoplasma_plaque_v1': {'checkpoint_sha256': 'ee
                           'field_ids_sha256': '136c014288f825c68d430876b8a9faabc0677550b16fb5cdbdc11ba1a8b76b51',
                           'full_card_sha256': 'd38dcf07ba785cdc968f6e6c7b584dfefd41f2d6d24a8c15a080542651b91439',
                           'resource': 'toxoplasma-plaque-segmentation-cpsam-v6.json',
-                          'resource_sha256': 'd117aa5577cc771023081571a0a1a3956d34335bfccfb1e2f05446f72e421190',
+                          'resource_sha256': '73f6dcbdcee199691ddb9ff246b26ff786d008a2769784b006a69c7df0e1d079',
                           'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-v6/resolve/main/weights/cpsam_plaque_v6'},
  'toxoplasma_pv_v1': {'checkpoint_sha256': '182d8cf6b32c7b9ef2917c85870d188486e5e119f05e9c5c1f07652f6859f2d0',
                       'field_ids_sha256': '8192aa87281f8da7d1a4fd7884472e83f57c344b059953db0aa94e359b46a046',
@@ -1527,17 +1551,17 @@ _CURATED_SCORECARD_BINDINGS = {'toxoplasma_plaque_v1': {'checkpoint_sha256': 'ee
                       'resource': 'toxoplasma-pv-segmentation-cpsam-r8.json',
                       'resource_sha256': '34c9df8121b591b5c5c8d0b8566dea5a8294fdb1c26197df7a42180db9d4d40f',
                       'uri': 'https://huggingface.co/einarolafsson/toxoplasma-pv-segmentation-cpsam-r8/resolve/main/weights/cpsam_v2_toxo_r8'},
- 'toxoplasma_plaque_v7': {'checkpoint_sha256': 'b4f4a9e9d026f44c597c2a865cd35ce66cbde4293cc173935720c34daa1dec73',
+ 'toxoplasma_plaque_v8': {'checkpoint_sha256': 'b4f4a9e9d026f44c597c2a865cd35ce66cbde4293cc173935720c34daa1dec73',
                           'field_ids_sha256': 'a8a8555c509377bda8c8644a74ceb9faf50bfaafeed884fa375017e0c8425cd6',
                           'full_card_sha256': 'a7d3b62b2ec376d4f629b11096cbdaf866abc805edb14e951f8503109f4ca55b',
                           'resource': 'toxoplasma-plaque-segmentation-cpsam-v8-e50.json',
-                          'resource_sha256': 'ae81b439efb868ea7951cec8b972593200b793da449fd6474f98bcc97b69fe68',
+                          'resource_sha256': '123e6e1e3368d3877be84896e9a8a9eddf02d372c252751f1fffdbb2252bf3bc',
                           'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-v8-e50/resolve/main/weights/cpsam_plaque_v8_e50'},
  'toxoplasma_plaque_v9': {'checkpoint_sha256': '8f58d3744fd7b3bcf0fc7cf9f9ecc44030da03b911163f70af689ca9804b8f35',
                           'field_ids_sha256': 'a8a8555c509377bda8c8644a74ceb9faf50bfaafeed884fa375017e0c8425cd6',
                           'full_card_sha256': '81c2ce8221fab9f549c83e0f464a6b7261e448bc2dbf3f4aaeba999ecf34bc70',
                           'resource': 'toxoplasma-plaque-segmentation-cpsam-v9.json',
-                          'resource_sha256': 'a604a4f83dc4a97861408fd7e7475aa961ea222514401837ee0b645e8bc1bd34',
+                          'resource_sha256': 'b9394aeacca905efc70b4c66226012d4adcd3fe8446ab587552e2ac295bb2120',
                           'uri': 'https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-v9/resolve/main/weights/cpsam_plaque_v9'},
 }
 
@@ -3975,7 +3999,8 @@ def catalogue(include_bundled: bool = True, remote: bool = True,
                     entries.append(entry)
                     have.add((entry.key, entry.name))
         for entry in shared_catalogue(block=block):
-            if (entry.key, entry.name) not in have:
+            if ((entry.key, entry.name) not in have
+                    and (_canonical_key(entry.key), entry.name) not in have):
                 entries.append(entry)
                 have.add((entry.key, entry.name))
     entries = [e for e in entries if e.name not in RETIRED_MODEL_NAMES]
@@ -4041,6 +4066,7 @@ def resolve(key_or_path: Any,
             f"that either")
 
     pool = list(entries) if entries is not None else catalogue()
+    text = _canonical_key(text)
     for entry in pool:
         if entry.key == text or entry.name == text:
             return entry
@@ -4110,9 +4136,10 @@ def _model_preprocess(requested: Any,
     base = os.path.basename(text)
     if records is None:
         records = tuple(BUNDLED_REMOTE_MODELS) + _known_shared_records()
+    key = _canonical_key(text)
     for record in records:
         names = {str(record.get(k) or "") for k in ("key", "name", "remote_name")}
-        if text in names or base in names - {""}:
+        if key in names or base in names - {""}:
             declared = record.get("preprocess")
             return deepcopy(dict(declared)) if isinstance(declared, Mapping) else {}
     return {}
@@ -4175,7 +4202,7 @@ def _capture_model_metadata(module, settings):
             continue
         matches = []
         for raw in BUNDLED_REMOTE_MODELS:
-            if requested != raw.get("key") or raw.get("kind", "cellpose") not in accepted:
+            if _canonical_key(requested) != raw.get("key") or raw.get("kind", "cellpose") not in accepted:
                 continue
             pin = _model_reference_from_record(requested, raw)
             if pin not in matches:
@@ -4384,7 +4411,7 @@ def _validate_model_metadata(settings, *, model_kinds=None):
     if metadata is not None:
         known = {row.get("key") or row.get("name") for row in BUNDLED_REMOTE_MODELS}
         for record in metadata["settings"].values():
-            if record["key"] in known:
+            if _canonical_key(record["key"]) in known:
                 _match_model_reference(record)
     return metadata
 
@@ -4420,11 +4447,16 @@ def _model_reference_from_record(requested, record):
 
 
 def _match_model_reference(record, catalogue_records=None):
-    """Select a conjunction of raw trusted identity fields without first-match fallback."""
+    """Select a conjunction of raw trusted identity fields without first-match fallback.
+
+    A pin recorded under a renamed key (:data:`_MODEL_KEY_ALIASES`) matches
+    the row under its current key, and the returned pin carries that key.
+    """
     if not isinstance(record, Mapping):
         _bad_model_metadata("model_metadata", "mapping")
     _validate_model_metadata_structure({"model": record.get("requested_value"), "model_metadata": {
         "schema_version": 1, "settings": {"model": record}}})
+    record = dict(record, key=_canonical_key(record["key"]))
     matches = []
     rows = BUNDLED_REMOTE_MODELS if catalogue_records is None else catalogue_records
     for candidate in rows:
@@ -4459,7 +4491,7 @@ def _resolve_pinned_model_file(settings, name, *, kinds=(), download=True):
                 f"{name}={record['requested_value']!r}; {record['key']} {record['version']!r}; {requested}",
                 f"sha256={record['sha256']}; actual={actual}")
         return requested
-    _match_model_reference(record)
+    record = _match_model_reference(record)
     raw = next(row for row in BUNDLED_REMOTE_MODELS
                if row.get("key", row.get("name")) == record["key"]
                and _model_reference_from_record(record["requested_value"], row) == record)
@@ -4512,7 +4544,7 @@ def _resolution_model_entries(download):
     selected = []
     have = set()
     for entry in entries:
-        identity = (entry.key, entry.name)
+        identity = (_canonical_key(entry.key), entry.name)
         if identity not in have and entry.name not in RETIRED_MODEL_NAMES:
             selected.append(entry)
             have.add(identity)
@@ -4533,11 +4565,15 @@ def _declared_extra_entries():
 
 
 def _unseen_entries(existing, extra):
-    """``extra`` entries whose key and name are not in ``existing`` and are not retired."""
-    have = {(entry.key, entry.name) for entry in existing}
+    """``extra`` entries whose key and name are not in ``existing`` and are not retired.
+
+    Keys are compared after :func:`_canonical_key`, so a row under a renamed
+    key is not taken for a second model beside the row that carries its file.
+    """
+    have = {(_canonical_key(entry.key), entry.name) for entry in existing}
     selected = []
     for entry in extra:
-        identity = (entry.key, entry.name)
+        identity = (_canonical_key(entry.key), entry.name)
         if identity not in have and entry.name not in RETIRED_MODEL_NAMES:
             selected.append(entry)
             have.add(identity)
@@ -4569,7 +4605,7 @@ def _ensure_model_file(requested, *, kinds=(), download=True, setting=None, orig
     if "://" in text:
         return None
     path_like = "/" in text or "\\" in text or text.startswith("~")
-    identifier = Path(text.replace("\\", "/")).name if path_like else text
+    identifier = Path(text.replace("\\", "/")).name if path_like else _canonical_key(text)
     entries = _resolution_model_entries(download)
     matches = [item for item in entries
                if item.key == identifier or item.name == identifier
