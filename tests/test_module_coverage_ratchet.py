@@ -502,7 +502,16 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         # 678 -> 679 on 2026-11-09, +1/-0, item 795: the leave-one-compound-out
         # MoA benchmark (spacr/moa_benchmark.py).
         'spacr/moa_benchmark.py',
-        # 679 -> 682 on 2026-11-10, +3/-0, item 897: the channel-adaptive
+        # 679 -> 680 on 2026-11-09, +1/-0, item 881: versioned gene-gene
+        # reference sets for scoring OPS gene profiles (spacr/ops_reference.py).
+        'spacr/ops_reference.py',
+        # 680 -> 681 on 2026-11-09, +1/-0, item 888: the OPS module atlas
+        # (spacr/ops_modules.py).
+        'spacr/ops_modules.py',
+        # 681 -> 682 on 2026-11-09, +1/-0, item 889: gene classes, grouped
+        # folds and the gene-class baseline (spacr/gene_classes.py).
+        'spacr/gene_classes.py',
+        # 682 -> 685 on 2026-11-10, +3/-0, item 897: the channel-adaptive
         # models (spacr/channel_models.py), the well-set training
         # (spacr/well_set_training.py) and its settings entry with the cell
         # level, pre-training and missing stains (spacr/architecture_training.py).
@@ -533,7 +542,7 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     assert metal_transport_arrivals <= shipped
     assert not metal_transport_arrivals & (added_since_608 | retired_since_608)
     assert (len(shipped - metal_transport_arrivals) == 608 + len(added_since_608)
-            - len(retired_since_608) == 679)
+            - len(retired_since_608) == 682)
     # 664 -> 666 on 2026-11-06: spacr/assay_report.py (item 816) and
     # spacr/_gpu_governor.py (item 803), the same +2 as `added_since_608`.
     # 666 -> 667 on 2026-11-06: spacr/_merge_pairs.py (item 833).
@@ -546,7 +555,10 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     # 673 -> 674 on 2026-11-09: spacr/published_reference.py (item 751).
     # 674 -> 675 on 2026-11-09: spacr/division_prediction.py (item 866).
     # 675 -> 676 on 2026-11-09: spacr/moa_benchmark.py (item 795).
-    # 676 -> 679 on 2026-11-10: spacr/channel_models.py,
+    # 676 -> 677 on 2026-11-09: spacr/ops_reference.py (item 881).
+    # 677 -> 678 on 2026-11-09: spacr/ops_modules.py (item 888).
+    # 678 -> 679 on 2026-11-09: spacr/gene_classes.py (item 889).
+    # 679 -> 682 on 2026-11-10: spacr/channel_models.py,
     # spacr/well_set_training.py and spacr/architecture_training.py (item 897).
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
@@ -995,10 +1007,16 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_required():
     # same +1 as `shipped`, moved with the workflow in one commit.
     # 678 -> 679 on 2026-11-09: spacr/moa_benchmark.py (item 795), the
     # same +1 as `shipped`, moved with the workflow in one commit.
-    # 679 -> 682 on 2026-11-10: the three item 897 modules, the same +3 as
+    # 679 -> 680 on 2026-11-09: spacr/ops_reference.py (item 881), the
+    # same +1 as `shipped`, moved with the workflow in one commit.
+    # 680 -> 681 on 2026-11-09: spacr/ops_modules.py (item 888), the
+    # same +1 as `shipped`, moved with the workflow in one commit.
+    # 681 -> 682 on 2026-11-09: spacr/gene_classes.py (item 889), the
+    # same +1 as `shipped`, moved with the workflow in one commit.
+    # 682 -> 685 on 2026-11-10: the three item 897 modules, the same +3 as
     # `shipped`, moved with the workflow in one commit.
-    assert len(ratchet.discover_shipped_python_files(ROOT)) == 682
-    assert "--expected-file-count 682" in combine_script
+    assert len(ratchet.discover_shipped_python_files(ROOT)) == 685
+    assert "--expected-file-count 685" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script

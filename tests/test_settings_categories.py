@@ -349,6 +349,19 @@ KEYS_RETIRED = frozenset({
 
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # 879-882, alpha: the OPS profile path from stored cell tables and its
+    # retrieval metrics, filed under OPS phenotype with the rest of 752.
+    "ops_profile_cells", "ops_profile_wells", "ops_profile_run",
+    "ops_profile_recipe", "ops_profile_min_cells", "ops_profile_active_filter",
+    "ops_profile_shrinkage", "ops_profile_weighting", "ops_profile_similarity",
+    "ops_reference_dir", "ops_eval_references", "ops_eval_split",
+    "ops_eval_null_size", "ops_eval_heldout_folds", "ops_eval_decoys",
+    "ops_eval_time_split", "ops_eval_covariates",
+    # 888, alpha: the module atlas of the OPS modules phase.
+    "ops_modules_runs", "ops_modules_precomputed_embedding",
+    "ops_modules_profiles", "ops_modules_driver_profiles",
+    # 908, alpha: the MitoCarta and external-module benchmark.
+    "ops_eval_mitocarta", "ops_eval_external_modules", "ops_eval_arms",
     # NEW SETTINGS, not a regrouping: Mask's pixel-size diameter default and
     # per-image diameter estimate, and the ML classifier's class list.
     "pixel_size_um", "estimate_diameters_per_image", "ml_classes",
@@ -854,6 +867,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "moa_treatment_columns", "moa_batch_column", "moa_controls", "moa_arms",
     "moa_replicates", "moa_shuffles", "moa_supervised_shuffles", "moa_seed",
     "moa_workers", "moa_dst",
+    # 889, alpha: gene classes and the gene-class baseline
+    # (`spacr/gene_classes.py`), two headings of its own.
+    "gene_class_sources", "gene_class_gating", "gene_class_merge", "gene_class_merge_jaccard", "gene_class_kegg_filter", "gene_class_min_train", "gene_class_max_members", "gene_class_gated_from", "train_label_source", "train_gene_classes", "train_split", "train_split_group", "train_folds", "train_decoy_heads", "train_shuffle_control", "train_seed", "ml_model", "train_features", "train_feature_suffix", "train_exclude_sources", "gene_class_eval_min_cells", "gene_class_eval_boot", "gene_class_dst",
     # 897, alpha: the channel-adaptive architectures
     # (`spacr/architecture_training.py`), two headings of its own: the data
     # and the training.
@@ -1649,6 +1665,8 @@ def test_every_qt_section_hint_names_a_real_category():
     import spacr.published_reference  # noqa: F401
     # 795: the MoA benchmark registers its two headings.
     import spacr.moa_benchmark  # noqa: F401
+    # 889: gene classes register their two headings.
+    import spacr.gene_classes  # noqa: F401
     # 897: the architecture training registers its two headings.
     import spacr.architecture_training  # noqa: F401
     known.update(c.upper().strip() for c in S.REGISTERED_CATEGORIES)

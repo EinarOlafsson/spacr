@@ -1,0 +1,32 @@
+SPECIFICITY METRICS FOR GENE PROFILES
+=====================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha; run by the OPS profile phase, 879) — spacr.sp_stats evaluation helpers: fitness_bins, fitness_matched_positives (decoy reference), fitness_matched_retrieval (partners vs 10 fitness-matched non-partners per partner), pair_auprc (gene bootstrap), heldout_complex_members (5 folds within each CORUM complex vs 10 fitness-matched decoys, AUROC / AP, CI over complexes), complex_identification (own complex leave-one-out vs every complex without the gene, top-1 / top-5, shuffled-label control) and time_split_pairs (top 500 / 2,000 pairs unknown in 2022 confirmed later vs a fitness-matched random control, binomial p). spacr.ops_reference.evaluate_gene_profiles runs every retrieval metric and control in the reference order and specificity_metrics the specificity rows; embed_gene_profiles is Brieflow's embedding. Settings ops_eval_heldout_folds (5), ops_eval_decoys (10), ops_eval_time_split (False). spacr/sp_stats.py, spacr/ops_reference.py, tests/test_ops_specificity_metrics_882.py.
+Requested: maintainer via the BMC paper session, 2026-11-09.
+Owner: lane D (paper items 2026-11-09).
+Source: ic_lib.retrieval_ap_fitmatched, complex_identification, heldout_complex, fitness_bins, fitness_matched_positives, pair_auprc; evaluate.py evaluate, time_split, extra_metrics.
+Related: 879, 880, 881.
+
+WHAT THE STATE IS
+Retrieval mAP alone cannot tell partner-specific signal from profiles that
+only track cell fitness, and says nothing about whether a screen finds
+biology unknown when it was run. These controls lived in the paper scripts.
+
+WHAT TO DO
+- Port each metric with its seeds, and one entry that produces the
+  reference's metric rows in the reference's order.
+
+RESULT
+Funk et al. 2022 plate A (scratch script paper-items-1109/lane-d/accept_882.py),
+all 31 metric rows and all 7 specificity rows, every column:
+- C0_base: identical to eval/metrics/C0_base.csv and C0_base.extra.csv up to
+  1.1e-16 (CSV round trip), except the complex-identification margin
+  (4e-11) and the time-split binomial p (absolute 9e-55); per-gene table
+  identical (54,328 rows).
+- X_bf_spacrcells: the same, except complex identification top1 differs by
+  1/5,960 members (0.00017) and the margin by 2e-10: one member whose own
+  complex ties another at single precision; the sums are float32 matrix
+  products whose order BLAS chooses.
+The C0_base.csv time-split rows predate the binomial p columns; the
+extra-file rows carry them and match.
