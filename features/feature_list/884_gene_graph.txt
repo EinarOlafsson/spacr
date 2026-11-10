@@ -39,7 +39,17 @@ RESULT (plate A, CPU, on the reference's stored inputs and run folders)
   the ops_gene_classes v3 tables: data_summary.json equal to the reference
   (minus its "embeddings" note), every graph.npz array equal (edges, folds,
   indicators exactly; features within 1e-6) and nodes.parquet equal.
-- Evaluation of the reference run folders: see the 2026-11-09 note below.
+- evaluate on the reference's 132 held-out run folders and 4 time-split
+  runs (cosine, prior, Adamic-Adar, gps noJUMP): every metric of
+  heldout_metrics_per_fold.csv and time_split_metrics.csv, and the 80
+  bootstrap rows, within 4.4e-16 of the reference; no NaN mismatch.
+- predict on the reference runs (gps noJUMP and full): calibration.csv,
+  fdr_summary (held-out and time split) and the category (155 rows),
+  gene-gene (25 rows, full) and time-split (1,254 rows) prediction tables
+  identical row for row, flags included. Where the reference wrote an empty
+  file, spaCR writes the header only.
+- All of it with /home/olafsson/anaconda3/envs/spacr/bin/python (numpy 2.5);
+  the data step gave the same result in the base anaconda python.
 
 GPU CHECKS LEFT FOR THE PAPER SESSION (no GPU at Home)
 - Retrain gps / sage / gcn / lr with the same seeds on CUDA: every fold-mean
