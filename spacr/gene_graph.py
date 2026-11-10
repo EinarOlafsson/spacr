@@ -987,7 +987,15 @@ class Encoder(nn.Module):
         self.cat = nn.Embedding(n_cat, h) if n_cat else None
 
     def forward(self, X, H, N, pe=None, n_cat=0):
-        """Node inputs: genes first, then the category nodes."""
+        """Node inputs: genes first, then the category nodes.
+
+        :param X: block -> gene features (N x block dimensions).
+        :param H: block -> per-gene indicator of a present block (N).
+        :param N: number of genes.
+        :param pe: structural encodings (RWSE and log degree) of every node.
+        :param n_cat: number of category nodes appended after the genes.
+        :returns: the node inputs ((N + n_cat) x h).
+        """
         z = self.bias.expand(N, -1)
         for b in self.blocks:
             z = z + self.proj[b](X[b]) * H[b][:, None].float() + self.miss[b](H[b].long())
@@ -1015,7 +1023,12 @@ class RSage(nn.Module):
         self.rel = nn.ModuleList([nn.Linear(h, h, bias=False) for _ in range(n_types)])
 
     def forward(self, x, mats):
-        """One layer of message passing."""
+        """One layer of message passing.
+
+        :param x: node states (nodes x h).
+        :param mats: one sparse mean-aggregation matrix per edge type, or None.
+        :returns: the new node states.
+        """
         out = self.root(x)
         for t, A in enumerate(mats):
             if A is not None:
@@ -1044,7 +1057,12 @@ class GPSLayer(nn.Module):
         self.drop = nn.Dropout(drop)
 
     def forward(self, x, mats):
-        """One layer."""
+        """One layer.
+
+        :param x: node states (nodes x h).
+        :param mats: one sparse mean-aggregation matrix per edge type, or None.
+        :returns: the new node states.
+        """
         hl = self.n1(x + self.drop(self.local(x, mats)))
         M, h = x.shape
         q, k, v = self.qkv(x).view(M, 3, self.heads, h // self.heads).permute(1, 2, 0, 3)
@@ -1108,7 +1126,13 @@ class GeneGraphModel(nn.Module):
         self.scale = nn.Parameter(torch.tensor(1.0 / math.sqrt(hz)))
 
     def embed(self, X, H, graph):
-        """Gene embeddings (N x h) and category embeddings, from a message graph of :func:`build_graph`."""
+        """Gene embeddings (N x h) and category embeddings, from a message graph of :func:`build_graph`.
+
+        :param X: block -> gene features (N x block dimensions).
+        :param H: block -> per-gene indicator of a present block (N).
+        :param graph: the message graph of :func:`build_graph`.
+        :returns: ``(gene embeddings, category embeddings or None)``.
+        """
         if self.kind == 'lr':
             parts = []
             for b in self.dims:
@@ -1127,15 +1151,30 @@ class GeneGraphModel(nn.Module):
         return z[:N], (z[N:] if self.n_cat else None)
 
     def pair_logit(self, zu, zv):
-        """DistMult logits of matched pairs."""
+        """DistMult logits of matched pairs.
+
+        :param zu: embeddings of the first gene of each pair.
+        :param zv: embeddings of the second gene of each pair.
+        :returns: one logit per pair.
+        """
         return self.scale * (zu * self.r * zv).sum(-1) + self.b
 
     def pair_matrix(self, zr, zc):
-        """DistMult logits of every row x column pair."""
+        """DistMult logits of every row x column pair.
+
+        :param zr: row gene embeddings.
+        :param zc: column gene embeddings.
+        :returns: the rows x columns logit matrix.
+        """
         return self.scale * (zr * self.r) @ zc.T + self.b
 
     def cat_logits(self, zg, zc):
-        """Category logits of genes."""
+        """Category logits of genes.
+
+        :param zg: gene embeddings.
+        :param zc: category embeddings (unused by ``lr``).
+        :returns: the genes x categories logit matrix.
+        """
         if self.kind == 'lr':
             return self.cat_w(zg)
         return self.scale * (zg * self.cat_q) @ zc.T + self.cat_b

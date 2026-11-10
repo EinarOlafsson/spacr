@@ -375,10 +375,12 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
-<summary>Additional settings (40 settings)</summary>
+<summary>Additional settings (42 settings)</summary>
 
 #### Additional settings
 
+- **`cell_from_nucleus_expand_px`** *(optional)* — (int) - With no cell stain (Make Masks with cell_channel None, or the translocation readout on five-plane arrays), grow each nucleus by up to this many pixels without overlap and use the territories as cell masks; the merged arrays then carry a cell plane and the plane layout records cell_source nucleus_territory. They are territories, not cell outlines. 0 is off. Default 0. Default: `0`.
+- **`cell_from_nucleus_min_nucleus_size`** *(optional)* — (int) - Nuclei smaller than this many pixels are removed before the territories grow (parasite nuclei in the DNA channel). Default 250. Default: `250`.
 - **`cloud_anonymous`** *(optional)* — (bool) - Read cloud sources without credentials, for public data such as IDR or the Cell Painting Gallery. When off, s3:// sources use the AWS credentials in the AWS_* environment variables, ~/.aws or AWS_PROFILE, and are read anonymously only when none are found; gs:// and az:// use their own default credentials. spaCR never stores or prints credentials. Default False. Default: `False`.
 - **`cloud_cache`** *(optional)* — (str) - Folder where cloud sources are fetched to and analysed in. Each src address gets its own subfolder, so a repeated run reuses what was fetched and Measure finds what Make Masks wrote. Blank uses ~/.cache/spacr/cloud. Default blank. Default: `''`.
 - **`cloud_endpoint`** *(optional)* — (str) - Address of the S3-compatible service holding s3:// sources, such as a MinIO or Ceph server, or https://uk1s3.embassy.ebi.ac.uk for IDR. Blank uses Amazon S3. Default blank. Default: `''`.

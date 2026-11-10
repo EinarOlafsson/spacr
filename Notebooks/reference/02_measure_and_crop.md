@@ -212,6 +212,19 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
+<summary>Vacuoles α (5 settings)</summary>
+
+#### Vacuoles α
+
+- **`vacuole_from_parasites`** *(optional)* — (bool) - Build vacuoles from the parasite masks: parasites closer than vacuole_gap_px are grouped into one vacuole and each parasite is linked to its vacuole by majority overlap, which gives the linked parasite count. In Measure it writes the vacuole and vacuole_host tables to measurements.db and adds n_vacuoles and n_pathogens to the cell table; in the titration readout it reads the masks of titration_merged_folder. Default False. Default: `False`.
+- **`vacuole_gap_px`** *(optional)* — (int) - Titration readout: parasites up to about this many pixels apart become one vacuole (closing iterations). Default 4. Default: `4`.
+- **`vacuole_min_size`** *(optional)* — (int) - Titration readout: vacuoles smaller than this many pixels are dropped; also the smallest area the modal size calibration counts. Default 15. Default: `15`.
+- **`host_min_size`** *(optional)* — (int) - Titration readout: host cells smaller than this many pixels are dropped as debris, and a vacuole on one has no host. Default 300. Default: `300`.
+- **`vacuole_signal_channel`** *(optional)* — (int) - Measure with vacuole_from_parasites: the image channel whose mean inside each vacuole is the vacuole table tox_mean, the parasite signal the titration floor compares; None leaves tox_mean empty. Default None. Default: `None`.
+
+</details>
+
+<details>
 <summary>Confluency α (5 settings)</summary>
 
 #### Confluency α

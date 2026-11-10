@@ -780,7 +780,11 @@ class CNN(nn.Module):
                                         nn.Dropout(0.0), nn.Conv2d(32, 20, kernel_size=(7, 1), padding=(3, 0)))
 
     def forward(self, x):
-        """3Di logits (batch x 20 x residues) from encoder states (batch x residues x 1024)."""
+        """3Di logits (batch x 20 x residues) from encoder states (batch x residues x 1024).
+
+        :param x: the encoder states (batch x residues x 1024).
+        :returns: the 3Di logits (batch x 20 x residues).
+        """
         return self.classifier(x.permute(0, 2, 1).unsqueeze(-1)).squeeze(-1)
 
 

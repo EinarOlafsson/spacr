@@ -2601,7 +2601,7 @@ def _plaque_well_diameter(filename, settings):
 
 
 def _plaque_size_columns(sizes, filename, shape, scale, settings):
-    """The per-well plaque size readouts of one image (item 911, alpha).
+    r"""The per-well plaque size readouts of one image (item 911, alpha).
 
     :func:`spacr.plaque_papers.plaque_size_readouts` against the image's well
     box -- the detected well when the image was split into wells, the whole

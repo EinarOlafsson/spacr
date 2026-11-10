@@ -61,6 +61,15 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
+<summary>Plaque Size Readouts α (1 settings)</summary>
+
+#### Plaque Size Readouts α
+
+- **`plaque_size_readouts`** *(optional)* — (bool) - Plaque mode: add the per-well size readouts to the per_image table (mean, median and largest plaque area in px2, largest over mean, well extent in px2 and px from the detected well box or the whole image, mean area over well extent, and plaque_area_mm2 when the image has a scale from plaque_pixels_per_um or a detected well with plate_format or well_diameter_mm) and area_rel_well_max (each plaque over the largest in its well) to per_plaque. Off leaves both tables as before. Default False. Default: `False`.
+
+</details>
+
+<details>
 <summary>Colony Counting α (9 settings)</summary>
 
 #### Colony Counting α

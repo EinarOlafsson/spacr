@@ -299,6 +299,16 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
+<summary>Cells From Nuclei α (2 settings)</summary>
+
+#### Cells From Nuclei α
+
+- **`cell_from_nucleus_expand_px`** *(optional)* — (int) - With no cell stain (Make Masks with cell_channel None, or the translocation readout on five-plane arrays), grow each nucleus by up to this many pixels without overlap and use the territories as cell masks; the merged arrays then carry a cell plane and the plane layout records cell_source nucleus_territory. They are territories, not cell outlines. 0 is off. Default 0. Default: `0`.
+- **`cell_from_nucleus_min_nucleus_size`** *(optional)* — (int) - Nuclei smaller than this many pixels are removed before the territories grow (parasite nuclei in the DNA channel). Default 250. Default: `250`.
+
+</details>
+
+<details>
 <summary>Quality Control (32 settings)</summary>
 
 #### Quality Control
