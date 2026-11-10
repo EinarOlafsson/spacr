@@ -774,3 +774,412 @@ def _aggregate_tvn(sources, rows: np.ndarray, cells: pd.DataFrame, use: np.ndarr
         info["_cells"] = cells.loc[use].reset_index(drop=True)
         info["_embedding"] = embedding
     return guides, genes, info
+
+
+#: The profile recipe of :func:`profile_cell_tables` and its defaults: no
+#: outlier filter, median imputation, the per-well standardised PCA, gene =
+#: median of its guides, non-targeting guides pooled four at a time into
+#: pseudo-genes.
+PROFILE_RECIPE: Dict[str, Any] = {"lof": 0, "impute": "median", "pca": "c0", "agg": "guide", "nt": "pseudo"}
+
+#: The channels whose mean intensities the outlier filter looks at.
+PROFILE_CHANNELS = ("dapi", "gfp", "a594", "af750")
+
+_RECIPE_CHOICES = {"lof": (0, 1), "impute": ("median", "knn"), "pca": ("c0", "brieflow"),
+                   "agg": ("guide", "gene"), "nt": ("pseudo", "barcode")}
+
+
+def profile_recipe(value: Optional[Mapping[str, Any]] = None) -> Dict[str, Any]:
+    """A profile recipe with its defaults filled in and checked.
+
+    :param value: any of the :data:`PROFILE_RECIPE` keys. ``lof`` 1 drops
+        the 1 % of cells a local outlier factor finds on the mean
+        intensities; ``impute`` ``'knn'`` fills gaps by five nearest
+        neighbours, as Brieflow does; ``pca`` ``'brieflow'`` fits the PCA on
+        100,000 cells standardised by well with Brieflow's sampling; ``agg``
+        ``'gene'`` takes the median of all of a gene's cells; ``nt``
+        ``'barcode'`` keeps each non-targeting guide as its own row.
+    :returns: the recipe.
+    :raises ValueError: for an unknown key or choice.
+    """
+    recipe = dict(PROFILE_RECIPE)
+    unknown = set(value or {}) - set(PROFILE_RECIPE)
+    if unknown:
+        raise ValueError(f"ops_profile_recipe has unknown keys {sorted(unknown)}; use {list(PROFILE_RECIPE)}")
+    recipe.update(value or {})
+    for key, choices in _RECIPE_CHOICES.items():
+        if recipe[key] not in choices:
+            raise ValueError(f"ops_profile_recipe[{key!r}] must be one of {list(choices)}; got {recipe[key]!r}")
+    return recipe
+
+
+def _knn_impute(features: pd.DataFrame, batch_size: int = 1000, sample_size: int = 10000) -> pd.DataFrame:
+    """Fill gaps by five nearest neighbours in batches, as Brieflow's filter does.
+
+    Each batch of rows with a gap is imputed together with a random sample
+    of complete rows (``np.random.seed(42)``), on the columns that have gaps.
+    """
+    from sklearn.impute import KNNImputer
+
+    gaps = features.columns[features.isna().any()].tolist()
+    if not gaps:
+        return features
+    for column in gaps:
+        if pd.api.types.is_integer_dtype(features[column]):
+            features[column] = features[column].astype("float64")
+    has_gap = features[gaps].isna().any(axis=1).to_numpy()
+    gap_rows, full_rows = np.flatnonzero(has_gap), np.flatnonzero(~has_gap)
+    positions = [features.columns.get_loc(c) for c in gaps]
+    np.random.seed(42)
+    for start in range(0, len(gap_rows), batch_size):
+        batch = gap_rows[start:start + batch_size]
+        sample = np.random.choice(full_rows, size=min(sample_size, len(full_rows)), replace=False)
+        values = KNNImputer(n_neighbors=5).fit_transform(
+            features.iloc[np.concatenate([batch, sample]), positions].to_numpy())
+        features.iloc[batch, positions] = values[:len(batch)]
+    return features
+
+
+def _profile_well(path: str, plate: str, well: str, features: Sequence[str], recipe: Mapping[str, Any],
+                  columns: Optional[List[str]], control_prefix: str
+                  ) -> Tuple[pd.DataFrame, np.ndarray, List[str]]:
+    """One well's interphase cells, filtered and imputed, ready for the PCA.
+
+    Mitotic cells are dropped; non-finite values become gaps; columns with
+    5 % or more gaps and cells with 1 % or more are dropped (Brieflow's
+    ``missing_values_filter``); remaining gaps are imputed; with ``lof``
+    the outlier filter runs; the columns are aligned to the first well's.
+
+    :returns: ``(meta, values, columns)``: ``meta`` has ``plate``, ``well``,
+        ``gene_symbol_0`` (control genes suffixed with their guide),
+        ``cell_barcode_0`` and ``batch_values`` (plate_well).
+    """
+    from .tabular import read_table
+
+    cells = read_table(path, canonicalise=False, report=None,
+                       columns=["well", "sgRNA", "gene", "mitotic"] + list(features))
+    cells = cells[~cells.mitotic].drop(columns="mitotic").reset_index(drop=True)
+    meta = pd.DataFrame({"plate": plate, "well": well, "gene_symbol_0": cells.gene.astype(str),
+                         "cell_barcode_0": cells.sgRNA.astype(str)})
+    x = cells[list(features)].astype(np.float32).replace([np.inf, -np.inf], np.nan)
+    del cells
+    if x.isna().any().any():
+        x = x.drop(columns=x.columns[x.isna().mean() >= 0.05].tolist())
+        keep = x.isna().sum(axis=1) / x.shape[1] < 0.01
+        x, meta = x.loc[keep], meta.loc[keep]
+        if recipe["impute"] == "knn":
+            x = _knn_impute(x)
+    if recipe["impute"] == "median":
+        x = x.fillna(x.median())
+    if recipe["lof"]:
+        from sklearn.neighbors import LocalOutlierFactor
+
+        intensity = [c for c in features if any(c.endswith(f"_{ch}_mean_intensity") for ch in PROFILE_CHANNELS)]
+        inlier = LocalOutlierFactor(contamination=0.01, n_jobs=2).fit_predict(x[[c for c in intensity if c in x]])
+        meta, x = meta[inlier == 1], x[inlier == 1]
+    meta, x = meta.reset_index(drop=True), x.reset_index(drop=True)
+    if columns is not None:
+        x = x.reindex(columns=columns)
+        x = x.fillna(x.median()).fillna(0.0)
+    meta["batch_values"] = meta["plate"].astype(str) + "_" + meta["well"].astype(str)
+    control = meta["gene_symbol_0"].astype(str).str.startswith(control_prefix)
+    meta.loc[control, "gene_symbol_0"] = (meta.loc[control, "gene_symbol_0"].astype(str) + "_"
+                                          + meta.loc[control, "cell_barcode_0"].astype(str))
+    return meta, x.to_numpy(), list(x.columns)
+
+
+def _profile_embedding(values: List[np.ndarray], metas: List[pd.DataFrame], recipe: Mapping[str, Any]
+                       ) -> Tuple[np.ndarray, int]:
+    """The per-cell PCA of every well, fitted on a 100,000-cell sample.
+
+    ``'c0'`` standardises each well on its own cells and samples each well
+    in proportion to its size (``default_rng(0)``; every cell when there
+    are fewer than 100,000); ``'brieflow'`` samples
+    the pooled cells with ``np.random.seed(0)`` and centres and scales by
+    well, as Brieflow's aggregate does. ``'c0'`` scales ``values`` in place.
+
+    :returns: ``(components, n_components)``; single precision.
+    """
+    from sklearn.decomposition import PCA
+
+    sizes = [len(m) for m in metas]
+    if recipe["pca"] == "brieflow":
+        np.random.seed(0)
+        pick = np.sort(np.random.choice(sum(sizes), size=min(100000, sum(sizes)), replace=False))
+        offsets = np.cumsum([0] + sizes)
+        sample, sample_meta = [], []
+        for i, x in enumerate(values):
+            k = pick[(pick >= offsets[i]) & (pick < offsets[i + 1])] - offsets[i]
+            sample.append(x[k])
+            sample_meta.append(metas[i].iloc[k].reset_index(drop=True))
+        batches = pd.concat(sample_meta, ignore_index=True)["batch_values"].to_numpy()
+        pca = PCA(n_components=0.99).fit(_centerscale_by_batch(np.vstack(sample).copy(), batches))
+        parts = [pca.transform(_centerscale_by_batch(x.copy(), m["batch_values"].to_numpy())).astype(np.float32)
+                 for x, m in zip(values, metas)]
+    else:
+        rng = np.random.default_rng(0)
+        take = [min(s, int(round(100000 * s / sum(sizes)))) for s in sizes]
+        scaled = []
+        for x in values:
+            mu, sd = x.mean(0), x.std(0)
+            sd[sd == 0] = 1
+            x -= mu
+            x /= sd
+            scaled.append(x.astype(np.float32, copy=False))
+        pca = PCA(n_components=0.99, random_state=0).fit(
+            np.vstack([z[rng.choice(len(z), k, replace=False)] for z, k in zip(scaled, take)]))
+        parts = [pca.transform(z).astype(np.float32) for z in scaled]
+        del scaled
+    return np.vstack(parts), int(pca.n_components_)
+
+
+def nt_pseudo_genes(guides: Sequence[str], genes: Sequence[str], control_guides: Sequence[str], *,
+                    size: int = 4, seed: int = 0, control_prefix: str = "nontargeting") -> np.ndarray:
+    """Pool non-targeting guides into pseudo-genes of ``size`` guides.
+
+    The sorted control guides are permuted with ``default_rng(seed)`` and
+    taken ``size`` at a time as ``NTpseudo_00``, ``NTpseudo_01``, ...; a
+    control row whose guide is not listed becomes ``nontargeting_drop``.
+
+    :param guides: the guide of every row.
+    :param genes: the gene of every row.
+    :param control_guides: every control guide of the screen.
+    :param size: guides per pseudo-gene.
+    :param seed: the permutation seed.
+    :param control_prefix: the control gene prefix.
+    :returns: the gene names with control rows renamed.
+    """
+    pool = np.array(sorted(set(map(str, control_guides))))
+    order = np.argsort(np.random.default_rng(seed).permutation(len(pool)))
+    names = {g: "NTpseudo_%02d" % (k // size) for g, k in zip(pool, order)}
+    return np.array([names.get(str(s), "nontargeting_drop") if str(g).startswith(control_prefix) else g
+                     for s, g in zip(guides, genes)])
+
+
+def _cell_tables(value: Any, plate: str, wells: Optional[Sequence[str]]) -> List[Tuple[str, str, str]]:
+    """``(plate, well, path)`` of every stored cell table to profile."""
+    import glob
+    import os
+
+    folders = value if isinstance(value, Mapping) else {plate or "A": value}
+    out = []
+    for name, folder in sorted(folders.items()):
+        if not folder or not os.path.isdir(str(folder)):
+            raise ValueError(f"ops_profile_cells: {folder!r} is not a folder of raw_<well>.parquet cell tables")
+        found = {os.path.basename(p)[4:-8]: p for p in glob.glob(os.path.join(str(folder), "raw_*.parquet"))}
+        chosen = sorted(found) if not wells else [str(w) for w in wells]
+        missing = [w for w in chosen if w not in found]
+        if missing or not chosen:
+            raise ValueError(f"plate {name}: no stored cell table for wells {missing or 'any'} in {folder}")
+        out += [(str(name), w, found[w]) for w in chosen]
+    return out
+
+
+def profile_cell_tables(settings: Mapping[str, Any], report: Optional[Callable[[str], None]] = None
+                        ) -> Tuple[pd.DataFrame, pd.DataFrame, Dict[str, Any]]:
+    """Gene profiles from stored per-well cell tables, without any image step.
+
+    The cells of every well are filtered and imputed (:func:`_profile_well`),
+    embedded by a PCA keeping 99 % of the variance
+    (:func:`_profile_embedding`), normalised by TVN on the control cells
+    with the well as batch (:func:`tvn_on_controls`, whitening epsilon
+    ``ops_tvn_whiten_epsilon``; 0 is Brieflow's TVN and is computed at
+    single precision as Brieflow does, a positive value at double), and
+    reduced to guides (median of cells) and genes (median of guides, or of
+    cells), keeping rows with more than ``ops_profile_min_cells`` cells. A
+    hits table can then keep only active genes and the control rows.
+
+    :param settings: read for ``ops_profile_cells`` (a folder of
+        ``raw_<well>.parquet`` tables with ``well``, ``sgRNA``, ``gene``,
+        ``mitotic`` and feature columns, or ``{plate: folder}``),
+        ``ops_profile_wells``, ``plate``, ``ops_profile_recipe``
+        (:func:`profile_recipe`), ``ops_tvn_whiten_epsilon``,
+        ``ops_profile_min_cells``, ``ops_profile_active_filter``
+        (``{"hits_table": path, "fdr": 0.05}``: genes with any ``*_fdr``
+        column below ``fdr``), ``ops_profile_shrinkage``,
+        ``ops_profile_weighting`` and ``ops_control_prefix``.
+    :param report: called with progress lines.
+    :returns: ``(genes, guides, info)``: ``genes`` has ``gene``,
+        ``n_cells`` and ``PC_*``; ``guides`` has ``guide``, ``gene``,
+        ``n_cells`` and ``PC_*``; ``info`` counts cells and components and
+        times each step.
+    :raises ValueError: for a bad setting, a missing table, or a
+        shrinkage or weighting that this version does not offer.
+    """
+    import time
+
+    from .ops_engine import _ph_feature_columns
+    from .tabular import read_table, table_columns
+
+    for key in ("ops_profile_shrinkage", "ops_profile_weighting"):
+        if settings.get(key):
+            raise ValueError(f"{key}={settings[key]!r} is not available in the profile phase yet; leave it empty")
+    say = report or (lambda text: None)
+    recipe = profile_recipe(settings.get("ops_profile_recipe"))
+    prefix = str(settings.get("ops_control_prefix") or "nontargeting")
+    epsilon = float(settings["ops_tvn_whiten_epsilon"])
+    min_cells = int(settings.get("ops_profile_min_cells", 10))
+    tables = _cell_tables(settings.get("ops_profile_cells"), str(settings.get("plate") or ""),
+                          settings.get("ops_profile_wells"))
+    features = _ph_feature_columns(table_columns(tables[0][2], canonicalise=False))
+    timing: Dict[str, Any] = {"plates": sorted({t[0] for t in tables})}
+    started = time.time()
+    metas, values, columns, control_guides = [], [], None, set()
+    for plate, well, path in tables:
+        listed = read_table(path, canonicalise=False, report=None, columns=["sgRNA", "gene"])
+        control_guides |= set(listed.sgRNA[listed.gene.astype(str).str.startswith(prefix)].astype(str))
+        meta, x, cols = _profile_well(path, plate, well, features, recipe, columns, prefix)
+        columns = columns or cols
+        metas.append(meta)
+        values.append(x)
+        say(f"profile: {plate} {well}: {len(meta)} interphase cells")
+    timing["load_and_filter_s"] = round(time.time() - started, 1)
+    started = time.time()
+    embedding, n_components = _profile_embedding(values, metas, recipe)
+    del values
+    meta = pd.concat(metas, ignore_index=True)
+    control = meta.gene_symbol_0.str.startswith(prefix).to_numpy()
+    batches = meta.batch_values.to_numpy()
+    if epsilon > 0:
+        embedding = tvn_on_controls(embedding.astype(np.float64), control, batches, whiten_epsilon=epsilon)[0]
+    else:
+        embedding = tvn_on_controls(embedding, control, batches, whiten_epsilon=0.0)[0]
+    timing["pca_tvn_s"] = round(time.time() - started, 1)
+    started = time.time()
+    pcs = [f"PC_{j}" for j in range(embedding.shape[1])]
+    guide = np.where(control, meta.gene_symbol_0.str.split("_", n=1).str[1], meta.cell_barcode_0).astype(str)
+    gene = np.where(control, prefix, meta.gene_symbol_0).astype(str)
+    if recipe["nt"] == "pseudo":
+        gene = nt_pseudo_genes(guide, gene, sorted(control_guides), control_prefix=prefix)
+    else:
+        gene = np.where(control, np.char.add(f"{prefix}_", guide), gene)
+    cells = pd.DataFrame(embedding.astype(np.float32), columns=pcs)
+    cells["guide"], cells["gene"] = guide, gene
+    cells = cells[cells.gene != "nontargeting_drop"]
+    grouped = cells.groupby(["guide", "gene"])
+    guides = grouped[pcs].median()
+    guides.insert(0, "n_cells", grouped.size())
+    guides = guides.reset_index()
+    if recipe["agg"] == "gene":
+        grouped = cells.groupby("gene")
+        genes = grouped[pcs].median()
+        genes.insert(0, "n_cells", grouped.size())
+    else:
+        grouped = guides.groupby("gene")
+        genes = grouped[pcs].median()
+        genes.insert(0, "n_cells", grouped.n_cells.sum())
+    genes = genes[genes.n_cells > min_cells].reset_index()
+    active = settings.get("ops_profile_active_filter")
+    if active:
+        hits = read_table(active["hits_table"], canonicalise=False, report=None)
+        fdr = [c for c in hits.columns if c.endswith("_fdr")]
+        keep = set(hits.gene[(hits[fdr] < float(active.get("fdr", 0.05))).any(axis=1)])
+        is_control = genes.gene.str.lower().str.startswith((prefix.lower(), "ntpseudo"))
+        genes = genes[genes.gene.isin(keep) | is_control].reset_index(drop=True)
+        is_control = guides.gene.str.lower().str.startswith((prefix.lower(), "ntpseudo"))
+        guides = guides[guides.gene.isin(keep) | is_control].reset_index(drop=True)
+    timing["aggregate_s"] = round(time.time() - started, 1)
+    info = {"cells": int(len(cells)), "pcs": n_components, "tvn_dims": int(embedding.shape[1]),
+            "features": len(columns), "recipe": recipe, "tvn_whiten_epsilon": epsilon, "runtime": timing}
+    return genes, guides, info
+
+
+def _profile_covariates(settings: Mapping[str, Any], guides: pd.DataFrame) -> Dict[str, float]:
+    """Cells per guide of every gene: from ``ops_eval_covariates`` or the guide table."""
+    from .tabular import read_table
+
+    path = settings.get("ops_eval_covariates")
+    if path:
+        table = read_table(path, canonicalise=False, report=None)
+        return dict(zip(table.gene, table.cells_per_guide.astype(float)))
+    grouped = guides.groupby("gene").n_cells
+    return (grouped.sum() / grouped.size()).astype(float).to_dict()
+
+
+def run_profile_phases(settings: Mapping[str, Any], phases: Sequence[str] = ("profile", "evaluate"),
+                       report: Optional[Callable[[str], None]] = None) -> Dict[str, Any]:
+    """The OPS profile path: stored cell tables -> gene profiles -> metrics.
+
+    ``profile`` runs :func:`profile_cell_tables` and writes ``genes.parquet``
+    and ``guides.parquet``; ``evaluate`` embeds the gene rows with more than
+    ``ops_profile_min_cells`` cells (:func:`spacr.ops_reference.embed_gene_profiles`)
+    and writes ``metrics.csv`` (:func:`spacr.ops_reference.evaluate_gene_profiles`),
+    ``metrics.extra.csv`` (:func:`spacr.ops_reference.specificity_metrics`)
+    and ``per_gene.csv.gz``. Everything goes to
+    ``<dst_root>/ops_profile/<ops_profile_run>``, with ``runtime.json``
+    holding the settings, counts and seconds per step.
+
+    :param settings: the OPS settings; missing keys take the defaults of
+        :func:`spacr.ops_settings.ops_defaults`. Read here: ``dst_root``,
+        ``ops_profile_run`` (the plates when empty), ``ops_profile_similarity``
+        (only ``'cosine'``), ``ops_profile_min_cells``, ``ops_reference_dir``,
+        ``ops_eval_covariates`` (a table with ``gene`` and
+        ``cells_per_guide``; the guide table's own cells per guide when
+        empty), the ``ops_eval_*`` settings and those of
+        :func:`profile_cell_tables`.
+    :param phases: ``"profile"``, ``"evaluate"`` or both.
+    :param report: called with progress lines.
+    :returns: ``{"folder", "outputs", "info"}``.
+    :raises ValueError: for a missing ``dst_root``, an unknown similarity,
+        or an ``evaluate`` with no profile table to read.
+    """
+    import json
+    import os
+    import time
+
+    from . import ops_reference
+    from .ops_settings import ops_defaults
+    from .tabular import read_table, write_table
+
+    settings = ops_defaults(dict(settings))
+    say = report or (lambda text: None)
+    if not settings.get("dst_root"):
+        raise ValueError("the profile phases need dst_root, the folder their results go to")
+    if str(settings.get("ops_profile_similarity") or "cosine") != "cosine":
+        raise ValueError(f"ops_profile_similarity must be 'cosine'; got {settings['ops_profile_similarity']!r}")
+    cells = settings.get("ops_profile_cells")
+    if settings.get("ops_profile_run"):
+        run = str(settings["ops_profile_run"])
+    elif isinstance(cells, Mapping):
+        run = "".join(sorted(map(str, cells)))
+    else:
+        run = str(settings.get("plate") or "A")
+    folder = os.path.join(str(settings["dst_root"]), "ops_profile", run)
+    os.makedirs(folder, exist_ok=True)
+    outputs: Dict[str, str] = {}
+    info: Dict[str, Any] = {}
+    genes_path, guides_path = os.path.join(folder, "genes.parquet"), os.path.join(folder, "guides.parquet")
+    if "profile" in phases:
+        genes, guides, info = profile_cell_tables(settings, report=say)
+        outputs["genes"] = write_table(genes, genes_path, canonicalise=False)
+        outputs["guides"] = write_table(guides, guides_path, canonicalise=False)
+        say(f"profile {run}: {len(genes)} genes, {len(guides)} guides from {info['cells']} cells")
+    if "evaluate" in phases:
+        if not os.path.isfile(genes_path):
+            raise ValueError(f"evaluate needs the profile table {genes_path}; run the profile phase first")
+        started = time.time()
+        genes = read_table(genes_path, canonicalise=False, report=None)
+        guides = read_table(guides_path, canonicalise=False, report=None)
+        genes = genes[genes.n_cells > int(settings["ops_profile_min_cells"])]
+        columns = [c for c in genes.columns if c.startswith("PC_")]
+        names = genes.gene.to_numpy()
+        pcs = ops_reference.embed_gene_profiles(genes[columns].to_numpy(float))
+        fitness = _profile_covariates(settings, guides)
+        reference_dir = settings.get("ops_reference_dir")
+        metrics, per_gene = ops_reference.evaluate_gene_profiles(
+            names, pcs, fitness, reference_dir, settings, arm=run,
+            null_cache=os.path.join(str(settings["dst_root"]), "ops_profile", "null_cache"))
+        extra = ops_reference.specificity_metrics(names, pcs, fitness, reference_dir, settings, arm=run)
+        for name, table in (("metrics.csv", metrics), ("metrics.extra.csv", extra),
+                            ("per_gene.csv.gz", per_gene)):
+            outputs[name] = write_table(table, os.path.join(folder, name), canonicalise=False)
+        info.setdefault("runtime", {})["metrics_s"] = round(time.time() - started, 1)
+        info["references"] = ops_reference.reference_record(
+            sorted({r for r in per_gene.reference.unique()}), reference_dir)
+        say(f"evaluate {run}: {int(metrics.genes.iloc[0])} genes scored")
+    keys = sorted(k for k in settings if k.startswith(("ops_profile_", "ops_eval_", "ops_reference_"))
+                  or k in ("ops_tvn_whiten_epsilon", "plate", "ops_control_prefix"))
+    record = {"settings": {k: settings[k] for k in keys}, "phases": list(phases), "outputs": outputs, **info}
+    with open(os.path.join(folder, "runtime.json"), "w", encoding="utf-8") as handle:
+        json.dump(record, handle, indent=1, default=str)
+    return {"folder": folder, "outputs": outputs, "info": info}

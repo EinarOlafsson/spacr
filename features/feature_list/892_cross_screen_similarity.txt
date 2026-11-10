@@ -1,0 +1,29 @@
+CROSS-SCREEN GENE SIMILARITY (OPS AND JUMP)
+===========================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha; library entry, no GUI screen yet) — spacr.sp_stats.cross_screen_similarity(profiles_a, profiles_b, settings) compares the gene-gene similarity of the genes two screens share: cross_screen_concordance (Mantel Spearman r, partial Mantel r with screen A fitness and screen B strength removed, neighbour overlap@10, number and STRING >= 0.7 share of the pairs in the top 1 % of both, each against 999 shuffled, fitness-, STRING-degree- and strength-stratified relabellings from one default_rng(seed)); cross_screen_pairs (the top-both pairs annotated with STRING, BioGRID, CORUM, guide flags, ribosomal/tubulin genes, fitness, hub degree and a control threshold); named_pair_support (a named gene vs its partners against control, random, strength-matched and fitness-matched nulls, compounds as target representations); generic axes removable (remove_generic_axes); write_cross_screen writes summary.json, concordance.csv, null_draws.csv.gz, pairs.csv, pairs_summary.csv and named_pairs.csv. Settings cross_screen_* (CROSS_SCREEN_DEFAULTS). spacr/sp_stats.py, tests/test_cross_screen_similarity_892.py.
+Requested: maintainer via the BMC paper session, 2026-11-09.
+Owner: lane D (paper items 2026-11-09).
+Source: ops_jump_cross/scripts ojx_cpg0016_precise.py (parts A and B), ojx_cpg0016_pairs.py, ojx_cpg0016.py (Reps, support, strat_perm, generic_axes_removed), ojx_data.py (load_ops). Mantel 1967.
+Related: 879, 881, 895.
+
+RESULT
+Plate A TVN gene profiles vs JUMP cpg0016 CRISPR/ORF consensus profiles
+(scratch accept_892.py, settings_892.json), against
+source_data/cpg0016_final:
+- c6_precise_concordance, both TVN variants (all 25 rows each: the five
+  statistics and the four 999-permutation controls with mean, interval,
+  maximum and p): identical to 7e-12; every p value identical.
+- c5 top-pair tables (CRISPR 1,194 / 561 pairs, ORF 741 / 637 with generic
+  axes removed): identical in every column (cosines to 7e-16), and the
+  c5 summary counts identical.
+- c6_precise_candidates (11 named items, 9,999 draws): observed values,
+  representations, partner counts, null 95th percentiles and all four p
+  values identical. BH q of the reference pooled these with the 2,000-draw
+  c4 rows; spaCR reports the p values, q pooling is left to the caller.
+
+NOT DONE
+- No Measure GUI entry or registered settings panel; settings are passed as a
+  dict. The CPJUMP1 pilot (ojx_sensitivity.py, jump_compare_frozen.py) and the
+  ridge mapping of c2 are not ported.

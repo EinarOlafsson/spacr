@@ -170,8 +170,12 @@ def test_the_engine_reads_every_setting_the_panel_offers(declared):
     import inspect
 
     keys, _ops, _cat = declared
-    from spacr import ops_decode, ops_engine
+    from spacr import ops_decode, ops_engine, ops_reference, ops_tvn
 
-    source = inspect.getsource(ops_engine) + inspect.getsource(ops_decode)
+    # 879: run_ops hands the profile phases to ops_tvn.run_profile_phases,
+    # which reads the ops_profile_* settings and passes the ops_eval_* ones
+    # to ops_reference; reading them there is reading them in the engine.
+    source = "".join(inspect.getsource(m)
+                     for m in (ops_engine, ops_decode, ops_tvn, ops_reference))
     unread = sorted(key for key in keys if f'"{key}"' not in source)
     assert not unread, f"in the OPS panel and never read by the engine: {unread}"

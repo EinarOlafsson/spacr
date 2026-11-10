@@ -1,0 +1,39 @@
+ONE SETTINGS-DRIVEN PROFILE PATH: STORED CELL TABLES -> PROFILES -> METRICS
+=========================================================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha, settings under ALPHA_FEATURES[752] with the OPS phenotype path) — spacr.ops_engine.run_ops(settings, phases=('profile', 'evaluate')) runs spacr.ops_tvn.run_profile_phases: profile_cell_tables reads the stored per-well cell tables (ops_profile_cells, raw_<well>.parquet), drops mitotic cells, filters and imputes as Brieflow's missing_values_filter, embeds by the c0 or Brieflow PCA (99 %), applies TVN on the control cells with the well as batch (ops_tvn_whiten_epsilon; pin it in every settings file of record), aggregates guides and genes (recipe lof / impute / pca / agg / nt, ops_profile_recipe), pools control guides into NTpseudo genes (nt_pseudo_genes) and optionally keeps only hits-table active genes; evaluate embeds the gene table and writes metrics.csv, metrics.extra.csv and per_gene.csv.gz (items 880-882) plus runtime.json with the settings, counts, seconds per step and the md5 of every reference. No image step. Shrinkage (902) and contrastive weighting (907) are refused for now. spacr/ops_tvn.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_profile_pipeline_879.py.
+Requested: maintainer via the BMC paper session, 2026-11-09.
+Owner: lane D (paper items 2026-11-09).
+Source: final_pipeline.py and settings/FINAL.json of the improved plate A analysis.
+Related: 752, 854, 863, 880, 881, 882, 902, 907.
+
+SETTINGS
+ops_profile_cells, ops_profile_wells, ops_profile_run, ops_profile_recipe,
+ops_profile_min_cells, ops_profile_active_filter, ops_profile_shrinkage,
+ops_profile_weighting, ops_profile_similarity, ops_reference_dir,
+ops_eval_references, ops_eval_split, ops_eval_null_size,
+ops_eval_heldout_folds, ops_eval_decoys, ops_eval_time_split,
+ops_eval_covariates; the existing ops_tvn_whiten_epsilon and
+ops_control_prefix.
+
+RESULT
+Plate A, 5,281,214 interphase cells (scratch accept_879.py with
+settings_879_A_check.json), against final_pipeline.py --plates A
+(final/A_check, eval/external/X_final_A_check*, eval/metrics/X_final_A_check*):
+- the same 5,112 genes and 20,439 guides in the same order with the same
+  cell counts; the TVN components differ by up to 1e-3 (guides 2.6e-3);
+- all 31 metric rows and 7 specificity rows present with the same queries,
+  pairs and complexes; mAP within 1.6e-5, AUROC 2e-5, AUPRC 7e-7, the share
+  of genes with q < 0.05 within 0.0019 (about 4 of 2,079 CORUM genes), the
+  fitness-matched specificity mAP within 1.8e-4 and complex top-5 within
+  1/5,960; the time-split control share differs by 0.0016, which moves the
+  enrichment (a ratio over a small control share) by 1.9.
+The cause is not the TVN rotation: replacing the shared core by a
+step-for-step single-precision port of Brieflow's tvn_on_controls left the
+same 1e-3 difference (tried and reverted). TVN scales every control axis to
+unit variance, so the float32 rounding of the 5.3-million-cell PCA
+products (whose summation order depends on the BLAS threads) is amplified
+on the weak axes, as the ops_tvn module notes describe for the PCA sample.
+Bit-identical profiles would need a pinned single-threaded BLAS in both
+runs; this was not attempted.

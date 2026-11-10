@@ -188,6 +188,20 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_profile_responder_alpha": 0.05,
     "ops_profile_space": None,
     "ops_fusion_blocks": None,
+    "ops_profile_cells": None,
+    "ops_profile_wells": None,
+    "ops_profile_run": "",
+    "ops_profile_recipe": None,
+    "ops_profile_min_cells": 10,
+    "ops_profile_active_filter": None,
+    "ops_reference_dir": None,
+    "ops_eval_references": ["CORUM", "STRING>=0.7", "STRING>=0.4", "KEGG", "BioGRID"],
+    "ops_eval_split": "all",
+    "ops_eval_null_size": 5000,
+    "ops_eval_heldout_folds": 5,
+    "ops_eval_decoys": 10,
+    "ops_eval_time_split": False,
+    "ops_eval_covariates": None,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -359,6 +373,20 @@ OPS_TYPES: Dict[str, object] = {
     "ops_profile_responder_alpha": (float, int),
     "ops_profile_space": (str, type(None)),
     "ops_fusion_blocks": (str, list, type(None)),
+    "ops_profile_cells": (str, dict, type(None)),
+    "ops_profile_wells": (list, str, type(None)),
+    "ops_profile_run": str,
+    "ops_profile_recipe": (dict, type(None)),
+    "ops_profile_min_cells": int,
+    "ops_profile_active_filter": (dict, type(None)),
+    "ops_reference_dir": (str, list, type(None)),
+    "ops_eval_references": (list, str),
+    "ops_eval_split": str,
+    "ops_eval_null_size": int,
+    "ops_eval_heldout_folds": int,
+    "ops_eval_decoys": int,
+    "ops_eval_time_split": bool,
+    "ops_eval_covariates": (str, type(None)),
 }
 
 #: Which panel section each setting appears under.
@@ -485,6 +513,13 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_profile_responder_alpha",
         "ops_profile_space",
         "ops_fusion_blocks",
+        "ops_profile_cells", "ops_profile_wells",
+        "ops_profile_run", "ops_profile_recipe",
+        "ops_profile_min_cells", "ops_profile_active_filter",
+        "ops_reference_dir",
+        "ops_eval_references", "ops_eval_split", "ops_eval_null_size",
+        "ops_eval_heldout_folds", "ops_eval_decoys",
+        "ops_eval_time_split", "ops_eval_covariates",
     ],
 }
 
@@ -890,6 +925,98 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "and a resolution from a sweep. The runs give how often two genes "
         "share a cluster. 0 skips it; 100 takes about half an hour per "
         "plate. Default 0. Alpha.",
+    "ops_profile_cells":
+        "(str, dict or None) - The folder of stored per-well cell tables "
+        "(raw_<well>.parquet with well, sgRNA, gene, mitotic and feature "
+        "columns) that the profile phase turns into gene profiles without any "
+        "image step, or {plate: folder} to pool several plates, each well a "
+        "batch. Default None. Alpha.",
+    "ops_profile_wells":
+        "(list or None) - Profile only these wells of each plate's cell tables; "
+        "empty takes every raw_<well>.parquet found. Leaving wells out changes "
+        "the PCA sample and the TVN batches, so the profiles change too. "
+        "Default None. Alpha.",
+    "ops_profile_run":
+        "(str) - The name of the profile run: its results go to "
+        "<dst_root>/ops_profile/<name>. Empty uses the plate names. Default ''. "
+        "Alpha.",
+    "ops_profile_recipe":
+        "(dict or None) - How cells become gene profiles: lof (1 drops the 1% "
+        "intensity outliers), impute ('median' or 'knn'), pca ('c0' per-well "
+        "standardised, or 'brieflow'), agg ('guide' = median of guide medians, "
+        "or 'gene' = median of all cells) and nt ('pseudo' = four control "
+        "guides per pseudo-gene, or 'barcode'). Empty is lof 0, median, c0, "
+        "guide, pseudo. Default None. Alpha.",
+    "ops_profile_min_cells":
+        "(int) - Genes and pseudo-genes with this many cells or fewer are left "
+        "out of the profile table and the metrics; raising it drops weakly "
+        "sampled genes whose profiles are noisy. Default 10. Alpha.",
+    "ops_profile_active_filter":
+        "(dict or None) - Keep only active genes: {'hits_table': path, 'fdr': "
+        "0.05} keeps the genes with any *_fdr column of the hits table below "
+        "fdr, plus the controls. Retrieval then scores only genes with a "
+        "phenotype. Default None. Alpha.",
+    "ops_profile_shrinkage":
+        "(str or None) - 'eb_nt' shrinks each gene profile toward the "
+        "controls by how reliable its guides are: the control guides set "
+        "the noise, each gene's own guide spread is pooled with it, and the "
+        "profile is multiplied by tau2 / (tau2 + V / K) per dimension. Not "
+        "stacked with ops_profile_weighting. The aggregate and profile "
+        "phases both apply it. Default None. Alpha.",
+    "ops_profile_weighting":
+        "(str or None) - 'contrastive_wiener' weights the TVN gene profiles "
+        "by how far each direction rises above guide noise: directions "
+        "solving Sigma_genes v = lambda Sigma_NT v, the noise the Ledoit- "
+        "Wolf covariance of the non-targeting guides, each weighted by "
+        "max((lambda - 1) / lambda, 0). Refused when fewer than two "
+        "directions rise above the noise, and not stacked with "
+        "ops_profile_shrinkage. The aggregate and profile phases both "
+        "apply it. Default None. Alpha.",
+    "ops_profile_similarity":
+        "(str or None) - How gene-gene similarity is written besides the "
+        "gene tables: 'guide_level' (mean guide-guide cosine with a P value "
+        "per pair from random guide sets), 'responder' or "
+        "'sliced_wasserstein' (responder profiles, energy distance and a "
+        "sliced Wasserstein embedding of each gene's cells). The profile "
+        "phase's metrics always compare gene profiles by cosine. Default "
+        "None. Alpha.",
+    "ops_reference_dir":
+        "(str, list or None) - The folder, or folders, holding the reference "
+        "files the metrics score against: Brieflow's CORUM, KEGG and STRING "
+        "benchmark tables and the prepared STRING, BioGRID and time-split pair "
+        "tables (spacr.ops_reference). Default None. Alpha.",
+    "ops_eval_references":
+        "(list) - The references gene profiles are scored against: any of "
+        "CORUM, STRING>=0.7, STRING>=0.4, KEGG and BioGRID. Each gene's "
+        "partners must rank above its non-partners; more references give a "
+        "fuller but slower evaluation. Default all five. Alpha.",
+    "ops_eval_split":
+        "(str) - 'select' or 'report' scores only that half of each reference, "
+        "so settings chosen on one half are reported on the other; 'all' scores "
+        "the whole references and both halves of CORUM, STRING>=0.7 and "
+        "BioGRID. Default 'all'. Alpha.",
+    "ops_eval_null_size":
+        "(int) - Random rankings per list shape behind each gene's p value; the "
+        "smallest p value is 1/(n+1). Larger is slower and resolves smaller p "
+        "values. Default 5000. Alpha.",
+    "ops_eval_heldout_folds":
+        "(int) - Folds in which a CORUM complex's members are hidden and scored "
+        "against the rest of the complex; more folds hide fewer members at a "
+        "time. Default 5. Alpha.",
+    "ops_eval_decoys":
+        "(int) - Fitness-matched non-partners drawn per partner (and per hidden "
+        "complex member) in the specificity metrics; a profile that only tracks "
+        "cell fitness scores the random expectation against them. Default 10. "
+        "Alpha.",
+    "ops_eval_time_split":
+        "(bool) - Also score the references known in 2022 and the gene pairs "
+        "added since: do the screen's most similar unknown pairs turn up later? "
+        "Needs the time-split tables in ops_reference_dir. Default False. "
+        "Alpha.",
+    "ops_eval_covariates":
+        "(str or None) - A table with gene and cells_per_guide columns, the "
+        "fitness that decoy partners are matched on; empty takes cells per "
+        "guide from the run's own guide table. Default None. Alpha.",
     "ops_mitotic_model":
         "(str or None) - A mitotic-cell classifier trained on labelled cells "
         "with spacr.ops_mitotic.train_mitotic_classifier. When set it calls "
@@ -1255,14 +1382,6 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "groups them at random (seed 0) into pseudo-genes of four guides, "
         "processed exactly as genes, so they act as a null. Default None. "
         "Alpha.",
-    "ops_profile_weighting":
-        "(str or None) - 'contrastive_wiener' weights the TVN gene profiles "
-        "by how far each direction rises above guide noise: directions "
-        "solving Sigma_genes v = lambda Sigma_NT v, the noise the Ledoit- "
-        "Wolf covariance of the non-targeting guides, each weighted by "
-        "max((lambda - 1) / lambda, 0). Refused when fewer than two "
-        "directions rise above the noise, and not stacked with "
-        "ops_profile_shrinkage. Default None. Alpha.",
     "ops_guide_efficacy":
         "(str or None) - 'jacks_blend' fits each gene's guides in the "
         "weighted space as x_g = e_g m (the rank-1 guide model of JACKS, "
@@ -1333,12 +1452,6 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "four targeting guides of four genes) or 'nt' (random sets of four "
         "control guides). Every targeting guide cuts DNA, so against "
         "controls almost every gene differs. Default 'targeting'. Alpha.",
-    "ops_profile_shrinkage":
-        "(str or None) - 'eb_nt' shrinks each gene profile toward the "
-        "controls by how reliable its guides are: the control guides set "
-        "the noise, each gene's own guide spread is pooled with it, and the "
-        "profile is multiplied by tau2 / (tau2 + V / K) per dimension. Not "
-        "stacked with ops_profile_weighting. Default None. Alpha.",
     "ops_profile_shrinkage_prior_df":
         "(float) - The degrees of freedom of the control-guide noise "
         "estimate when it is pooled with a gene's own guide spread; higher "
@@ -1353,13 +1466,6 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(float) - The essential axis is projected out only when the genes' "
         "scores on it correlate with log cells per guide by more than this "
         "absolute Spearman rho. Default 0.30. Alpha.",
-    "ops_profile_similarity":
-        "(str or None) - How gene-gene similarity is written besides the "
-        "gene tables: 'guide_level' (mean guide-guide cosine with a P value "
-        "per pair from random guide sets), 'responder' or "
-        "'sliced_wasserstein' (responder profiles, energy distance and a "
-        "sliced Wasserstein embedding of each gene's cells). Default None. "
-        "Alpha.",
     "ops_guide_null_size":
         "(int) - Random guide-set pairs per pair of guide counts in the "
         "guide-level null; P values resolve to 1 / (N + 1). Default 200000. "

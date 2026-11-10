@@ -1,0 +1,31 @@
+GENE-GENE RETRIEVAL MAP WITH MULTI-LABEL REFERENCES
+===================================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha; its settings are read by the OPS profile phase, 879) — spacr.sp_stats._pair_average_precision(sims, positive_matrix, candidates) scores every gene's AP at retrieving its reference partners from a boolean gene x gene matrix (complexes overlap, STRING is a graph), ranked exactly as _profile_average_precision ranks (float32, a tie ranks the partner first); pair_map adds the normalised AP (_expected_ap), a per-gene p from one cached random-ranking null per (partners, list length) (_null_average_precision, seed md5 of the shape mod 8096, 5,000 draws, optional .npy cache) and BH q (multiple_testing.adjust_p_values); summarize_pair_map gives mAP, normalised mAP and the share with q < 0.05 with bootstrap CIs over genes (B = 1000, seeds 0, 1, 2); bootstrap_ci and profile_cosine are public. spacr/sp_stats.py, tests/test_ops_retrieval_map_880.py.
+Requested: maintainer via the BMC paper session, 2026-11-09.
+Owner: lane D (paper items 2026-11-09).
+Source: ic_lib.retrieval_ap, _ap_rows, _null, summarize_ap, boot_ci; tests_retrieval.py. References: copairs (github.com/cytomining/copairs); Benjamini and Hochberg 1995.
+Related: 879, 881, 882, 547.
+
+WHAT THE STATE IS
+_profile_average_precision defines positives by metadata equality, one
+label per profile. Gene-gene references are multi-label, so the paper's
+retrieval mAP was computed outside spaCR.
+
+WHAT TO DO
+- A multi-label AP that agrees with _profile_average_precision on
+  single-label data (tests_retrieval.py check 1, now a spaCR test).
+- Per-gene p values from spaCR's copairs null, BH q values, normalised AP,
+  bootstrap CIs.
+
+RESULT
+Funk et al. 2022 plate A, arm C0_base (scratch script
+paper-items-1109/lane-d/accept_880.py): for all 17 references of
+eval/per_gene/C0_base.csv.gz (CORUM, STRING >= 0.7 and >= 0.4, KEGG,
+BioGRID, the six halves and the six time-split references) the genes are
+the same and ap, n_pos, n_total, nap, expected_ap, p and q agree to
+1.1e-16 (the CSV round trip). This holds when the similarities come from
+the double-precision embedding, as evaluate.py computed them; the arm file
+stores the components at single precision, and similarities rebuilt from
+it move AP by up to 5e-7.
