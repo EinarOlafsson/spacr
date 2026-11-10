@@ -15,4 +15,12 @@ WHAT TO DO
 - Port the responder, energy-distance and sliced-Wasserstein outputs, alpha.
 
 RESULT
-Validation against the reference tables is in progress; results follow in a later commit.
+From the plate A cell tables (improved/cells/tvn_<well>.parquet, interphase
+cells, pseudo-gene NT rows), responder_profiles reproduces
+profiles/responder_summary.parquet (5,111 genes, energy distance included),
+responder_genes.parquet, responder_guides.parquet (20,437 guides) and
+sw_quantiles.npy bit for bit in the reference environment, on the same
+default_rng(0) stream as build_profiles.py. 45 min on one core.
+
+A gene whose control reference would be empty (all control guides are its
+own) is skipped instead of producing NaN; on the reference data no gene is.
