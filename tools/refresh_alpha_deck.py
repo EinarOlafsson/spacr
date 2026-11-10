@@ -94,6 +94,7 @@ GROUPS = (
         (372, "Optical pooled screening (OPS) in Mask Generation"),
         (752, "OPS phenotype path: segment, merge, per-gene profiles"),
         (888, "OPS module atlas: anchored consensus modules"),
+        (908, "OPS MitoCarta and external-module benchmark"),
         (584, "Chemistry-aware hits: SMILES, clusters, SAR"),
         (585, "Sample-size planner for arrayed assays"),
         (534, "Spatial transcriptomics: Visium, Xenium; spatial masks, barcodes"),

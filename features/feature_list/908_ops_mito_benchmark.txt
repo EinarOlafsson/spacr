@@ -1,0 +1,35 @@
+OPS MITOCARTA SUB-MODULE BENCHMARK AGAINST AN EXTERNAL PUBLISHED MODULE TABLE
+=============================================================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha, under ALPHA_FEATURES[908]) — the OPS "mitocarta" phase (run_ops(settings, phases=("mitocarta",))) scores clusterings named in ops_eval_arms (cluster assignments, profile cosines, consensus atlas) and the published clusterings of ops_eval_external_modules: MitoCarta recovery at ~250 clusters on each set's own and on the common genes (one-sided Fisher, BH q < 0.05); retrieval mAP within MitoCarta by sub-compartment (OXPHOS, mitoribosome, ATP synthase, membrane organisation) with its random expectation; co-membership of the external sub-modules in the consensus atlas against 200 fitness-matched random gene sets; and the clusters, partners and cosines of named external clusters. Writes mito_A/B/C/D_<key>/comparison CSVs to dst_root/ops_eval/mitocarta. spacr/ops_clusters.py (mitocarta_benchmark, run_mitocarta_benchmark), spacr/ops_engine.py, spacr/ops_settings.py, tests/test_ops_mito_benchmark_908.py.
+Requested: maintainer via the BMC paper session, 2026-11-09.
+Owner: lane G (paper items 2026-11-09).
+Source: the improved plate A analysis' MitoCarta comparison with the Brieflow paper's mitochondrial sub-modules (Di Bernardo et al., Nat Commun 2026, Supplementary Data 1 and 3; MitoCarta 3.0, Rath et al. 2021).
+Related: 855, 880, 888.
+
+WHAT THE STATE IS
+The comparison with the published mitochondrial sub-modules existed only as
+a script with the arms, the module ids and the named cluster written in.
+
+WHAT TO DO
+- One settings-driven benchmark: MitoCarta and the external tables by path,
+  the arms and the named clusters in settings files.
+- Identical tables to the reference script.
+
+RESULT
+Against the stored tables of the improved analysis (scratch script
+paper-items-1109/lane-g/v908.py, the reference's nine arms):
+- mito_A_mitocarta_recovery.csv, mito_B_subcompartment_retrieval.csv and
+  mito_D_funk147.csv byte-identical.
+- mito_C_submodules.csv: every column identical except the four columns of
+  the fitness-matched null (null mean, null p99, percentile, recovered).
+  The reference drew the null genes while iterating a Python set of gene
+  symbols, whose order changes with the interpreter's hash seed, so its
+  null is not reproducible even by the reference itself; spaCR takes the
+  module genes in sorted order. "recovered" differs in 2 of 35 arm x
+  module rows, so mito_comparison.csv differs in "Brieflow sub-modules
+  coherent in atlas (of 5)" for 2 arms; every other column is identical.
+
+RULE
+With the phase not requested nothing changes.

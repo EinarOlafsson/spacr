@@ -288,7 +288,7 @@ _PH_PHASES = ("ph_flatfield", "ph_segment", "ph_measure", "ph_masks",
 #: The profile path (alpha): stored per-well cell tables to gene profiles,
 #: then their retrieval metrics and their module atlas. Needs no image step
 #: and no database.
-_PROFILE_PHASES = ("profile", "evaluate", "modules")
+_PROFILE_PHASES = ("profile", "evaluate", "modules", "mitocarta")
 
 #: Every phase :func:`run_ops` accepts, in the order they run.
 _ALL_PHASES = _PHASES + _PH_PHASES + _PROFILE_PHASES
@@ -3813,7 +3813,9 @@ def run_ops(settings: Mapping[str, Any], *,
         and scores them against reference gene pairs
         (:func:`spacr.ops_tvn.run_profile_phases`); ``"modules"`` builds
         the module atlas of those profiles
-        (:func:`spacr.ops_modules.run_module_phase`).
+        (:func:`spacr.ops_modules.run_module_phase`) and ``"mitocarta"``
+        scores clusterings against MitoCarta and an external module table
+        (:func:`spacr.ops_clusters.run_mitocarta_benchmark`).
     :param library: the guide barcodes, as a sequence or the path of a CSV
         with a ``prefix``, ``barcode`` or ``sequence`` column. When given,
         each barcode is also mapped to its closest guide. Overrides the
@@ -3839,6 +3841,10 @@ def run_ops(settings: Mapping[str, Any], *,
             from .ops_modules import run_module_phase
 
             result = {**result, "modules": run_module_phase(settings, report=_say)}
+        if "mitocarta" in phases:
+            from .ops_clusters import run_mitocarta_benchmark
+
+            result = {**result, "mitocarta": run_mitocarta_benchmark(settings, report=_say)}
         return result
     sequencing = any(phase in _PHASES for phase in phases)
     root = settings.get("genotype_source")

@@ -8251,6 +8251,10 @@ ALPHA_FEATURES = {
         'settings': ('ops_modules_runs', 'ops_modules_precomputed_embedding',
                      'ops_modules_profiles', 'ops_modules_driver_profiles'),
     },
+    908: {
+        'settings': ('ops_eval_mitocarta', 'ops_eval_external_modules',
+                     'ops_eval_arms'),
+    },
     691: {
         'models': ('mitonet_mini_v1',),
         'widgets': ('MakeMasksMitoNetSettings', 'ModelZooSourceThirdParty'),
