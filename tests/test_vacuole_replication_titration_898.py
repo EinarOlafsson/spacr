@@ -208,3 +208,191 @@ def test_titration_settings_are_registered_alpha():
     defaults = hp.default_settings()
     assert set(names) == set(hp.TITRATION_DEFAULTS)
     assert defaults['vacuole_gap_px'] == 4 and defaults['replication_classifier'] == 'none'
+
+
+def _measure_field(tmp_path, **over):
+    """One 80 x 80 field: two cells, three parasites (two 2 px apart), signal 9 on parasites."""
+    from spacr import measure
+    from spacr.settings import get_measure_crop_settings
+
+    merged = tmp_path / 'merged'
+    merged.mkdir(parents=True)
+    cell = np.zeros((80, 80), np.uint16)
+    cell[5:40, 5:40] = 1
+    cell[45:78, 45:78] = 2
+    nucleus = np.zeros_like(cell)
+    nucleus[15:25, 15:25] = 1
+    nucleus[55:65, 55:65] = 2
+    par = np.zeros_like(cell)
+    par[10:16, 10:16] = 1
+    par[10:16, 18:24] = 2
+    par[50:56, 50:56] = 3
+    signal = np.where(par > 0, 9, 1).astype(np.uint16)
+    dna = np.where(nucleus > 0, 5, 1).astype(np.uint16)
+    np.save(merged / 'plate1_B02_1.npy', np.stack([dna, signal, cell, nucleus, par], axis=-1))
+    settings = get_measure_crop_settings({})
+    settings.update({'src': str(merged), 'channels': [0, 1], 'cell_mask_dim': 2,
+                     'nucleus_mask_dim': 3, 'pathogen_mask_dim': 4, 'cell_min_size': 0,
+                     'nucleus_min_size': 0, 'pathogen_min_size': 0, 'cytoplasm_min_size': 0,
+                     'save_png': False, 'save_arrays': False, 'plot': False, 'verbose': False,
+                     'n_jobs': 1, **over})
+    measure.measure_crop(settings)
+    import sqlite3
+
+    with sqlite3.connect(tmp_path / 'measurements' / 'measurements.db') as db:
+        tables = {r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        cells = pd.read_sql('SELECT * FROM cell', db)
+        vacuoles = (pd.read_sql('SELECT * FROM vacuole', db) if 'vacuole' in tables else None)
+        hosts = (pd.read_sql('SELECT * FROM vacuole_host', db) if 'vacuole_host' in tables else None)
+    return tables, cells, vacuoles, hosts
+
+
+def test_measure_groups_vacuoles_and_counts_them_per_cell(tmp_path):
+    tables, cells, vacuoles, hosts = _measure_field(
+        tmp_path, vacuole_from_parasites=True, vacuole_signal_channel=1, host_min_size=10,
+        vacuole_min_size=5)
+    assert {'vacuole', 'vacuole_host'} <= tables
+    assert len(vacuoles) == 2 and set(vacuoles['n_parasites_cellpose']) == {1, 2}
+    assert (vacuoles['tox_mean'] > 1).all() and set(vacuoles['file_name']) == {'plate1_B02_1'}
+    assert set(vacuoles['well']) == {'B02'} and set(vacuoles['field']) == {1}
+    assert sorted(hosts['n_vacuoles']) == [1, 1] and hosts['infected'].astype(bool).all()
+    counts = cells.set_index('object_label')[['n_vacuoles', 'n_pathogens']]
+    assert counts.loc[1].tolist() == [1, 2] and counts.loc[2].tolist() == [1, 1]
+    read_cells, read_vacuoles = hp._titration_objects({**hp.TITRATION_DEFAULTS,
+                                                       'src': str(tmp_path)})
+    assert len(read_vacuoles) == 2 and 'file_name' not in read_vacuoles
+    assert len(read_cells) == 2
+
+
+def test_measure_without_vacuole_grouping_writes_no_vacuole_columns(tmp_path):
+    tables, cells, vacuoles, _ = _measure_field(tmp_path)
+    assert 'vacuole' not in tables and vacuoles is None
+    assert 'n_vacuoles' not in cells and 'n_pathogens' not in cells
+
+
+def test_measure_vacuole_helpers_skip_what_they_cannot_read():
+    from spacr.measure import _vacuole_planes, _with_vacuole_counts
+
+    data = np.zeros((10, 10, 5), np.uint16)
+    on = {'vacuole_from_parasites': True, 'cell_mask_dim': 2, 'pathogen_mask_dim': 4}
+    assert _vacuole_planes(data, {**on, 'vacuole_from_parasites': False}) is None
+    assert _vacuole_planes(data, {**on, 'pathogen_mask_dim': None}) is None
+    assert _vacuole_planes(np.zeros((2, 10, 10, 5)), on) is None
+    planes = _vacuole_planes(data, on)
+    assert planes[2] is None and planes[0].shape == (10, 10)
+    assert _vacuole_planes(data, {**on, 'vacuole_signal_channel': 1})[2].shape == (10, 10)
+    empty = pd.DataFrame({'area': []})
+    assert _with_vacuole_counts(empty, data[..., 2], data[..., 4], {}) is empty
+
+
+def test_vacuoles_per_cell_and_measure_vacuoles():
+    cell = np.zeros((40, 40), int)
+    cell[0:20, 0:20] = 1
+    cell[20:40, 20:40] = 2
+    par = np.zeros_like(cell)
+    par[8:11, 8:11] = 1
+    par[8:11, 12:15] = 2
+    par[25:28, 25:28] = 3
+    par[0:3, 30:33] = 4
+    counts = hp.vacuoles_per_cell(cell, par, gap_px=4).set_index('object_label')
+    assert counts.loc[1].tolist() == [1, 2] and counts.loc[2].tolist() == [1, 1]
+    none = hp.vacuoles_per_cell(cell, np.zeros_like(par))
+    assert none['n_vacuoles'].sum() == 0 and none['n_pathogens'].sum() == 0
+    vacuoles, hosts = hp.measure_vacuoles(cell, par, None, {'host_min_size': 10,
+                                                            'vacuole_min_size': 1},
+                                          'plate1_C03_x')
+    assert vacuoles['tox_mean'].isna().all() and set(vacuoles['field']) == {'x'}
+    assert set(hosts['file_name']) == {'plate1_C03_x'} and set(hosts['well']) == {'C03'}
+
+
+def test_vacuole_signal_channel_is_registered_alpha():
+    from spacr.settings import ALPHA_FEATURES, expected_types, get_measure_crop_settings, tooltips
+
+    defaults = get_measure_crop_settings({})
+    assert defaults['vacuole_from_parasites'] is False and defaults['vacuole_signal_channel'] is None
+    assert defaults['vacuole_gap_px'] == 4 and defaults['host_min_size'] == 300
+    assert 'vacuole_signal_channel' in ALPHA_FEATURES[898]['settings']
+    assert expected_types['vacuole_signal_channel'] == (int, type(None))
+    assert tooltips['vacuole_signal_channel'].endswith('Default None.')
+
+
+def test_vacuole_tables_skip_empty_fields_and_a_database_without_them(tmp_path):
+    import sqlite3
+
+    from spacr.measure import _save_vacuole_tables
+
+    os.makedirs(tmp_path / 'measurements')
+    db = tmp_path / 'measurements' / 'measurements.db'
+    cell = np.zeros((20, 20), np.uint16)
+    _save_vacuole_tables((cell, cell.copy(), None), 'plate1_B02_1', str(tmp_path), {})
+    assert not db.exists()
+    cell[2:18, 2:18] = 1
+    _save_vacuole_tables((cell, np.zeros_like(cell), None), 'plate1_B02_1', str(tmp_path),
+                         {'host_min_size': 10})
+    with sqlite3.connect(db) as con:
+        tables = {r[0] for r in con.execute("SELECT name FROM sqlite_master WHERE type='table'")}
+        con.execute('CREATE TABLE cell (object_label INTEGER)')
+    assert 'vacuole_host' in tables and 'vacuole' not in tables
+    with pytest.raises(ValueError):
+        hp._titration_objects({**hp.TITRATION_DEFAULTS, 'src': str(tmp_path)})
+
+
+def test_cell_frames_get_vacuole_counts_by_their_label_column():
+    from spacr.measure import _with_vacuole_counts
+
+    cell = np.zeros((40, 40), np.uint16)
+    cell[0:20, 0:20] = 1
+    cell[20:40, 20:40] = 2
+    par = np.zeros_like(cell)
+    par[8:11, 8:11] = 1
+    par[8:11, 12:15] = 2
+    frame = pd.DataFrame({'cell_label': [2, 1, 3], 'cell_area': [400, 400, 0],
+                          'n_vacuoles': [9, 9, 9]})
+    out = _with_vacuole_counts(frame, cell, par, {'vacuole_gap_px': 4})
+    assert out['n_vacuoles'].tolist() == [0, 1, 0] and out['n_pathogens'].tolist() == [0, 2, 0]
+    assert frame['n_vacuoles'].tolist() == [9, 9, 9]
+
+
+def test_a_field_measured_again_on_resume_keeps_one_set_of_vacuole_rows(tmp_path):
+    """A partial field is cleared and measured again; its vacuole rows must not double."""
+    import sqlite3
+
+    from spacr import measure
+    from spacr.settings import get_measure_crop_settings
+
+    over = dict(vacuole_from_parasites=True, vacuole_signal_channel=1, host_min_size=10,
+                vacuole_min_size=5)
+    _, _, first_vacuoles, first_hosts = _measure_field(tmp_path, **over)
+    db = tmp_path / 'measurements' / 'measurements.db'
+    with sqlite3.connect(db) as con:
+        con.execute('DELETE FROM cytoplasm')
+    settings = get_measure_crop_settings({})
+    settings.update({'src': str(tmp_path / 'merged'), 'channels': [0, 1], 'cell_mask_dim': 2,
+                     'nucleus_mask_dim': 3, 'pathogen_mask_dim': 4, 'cell_min_size': 0,
+                     'nucleus_min_size': 0, 'pathogen_min_size': 0, 'cytoplasm_min_size': 0,
+                     'save_png': False, 'save_arrays': False, 'plot': False, 'verbose': False,
+                     'n_jobs': 1, 'resume': True, **over})
+    measure.measure_crop(settings)
+    with sqlite3.connect(db) as con:
+        assert con.execute('SELECT COUNT(*) FROM cytoplasm').fetchone()[0] > 0
+        vacuoles = pd.read_sql('SELECT * FROM vacuole', con)
+        hosts = pd.read_sql('SELECT * FROM vacuole_host', con)
+    assert len(vacuoles) == len(first_vacuoles) == 2
+    assert len(hosts) == len(first_hosts) == 2
+    pd.testing.assert_frame_equal(vacuoles, first_vacuoles)
+
+
+def test_releasing_a_field_leaves_the_other_fields_rows(tmp_path):
+    import sqlite3
+
+    from spacr.measure import _release_vacuole_rows
+
+    db = tmp_path / 'measurements.db'
+    assert _release_vacuole_rows(str(db), 'plate1_B02_1') == 0
+    with sqlite3.connect(db) as con:
+        con.execute('CREATE TABLE vacuole (file_name TEXT, area_px INTEGER)')
+        con.executemany('INSERT INTO vacuole VALUES (?, ?)',
+                        [('plate1_B02_1', 5), ('plate1_B02_1', 6), ('plate1_B02_10', 7)])
+    assert _release_vacuole_rows(str(db), 'plate1_B02_1') == 2
+    with sqlite3.connect(db) as con:
+        assert con.execute('SELECT file_name FROM vacuole').fetchall() == [('plate1_B02_10',)]

@@ -175,6 +175,37 @@ def _overlay_candidates(merged_src):
     return [name for name in _listdir_visible(merged_src) if name.endswith('.npy')]
 
 
+def _cells_from_nuclei(mask_src, settings):
+    """Grow Make Masks' cell masks from the nuclei when there is no cell stain (item 910, alpha).
+
+    Runs :func:`spacr.host_pathogen.write_nucleus_territories` when
+    ``cell_channel`` is None, ``nucleus_channel`` is set and
+    ``cell_from_nucleus_expand_px`` is above 0; a time-lapse run is left
+    alone and says so.
+
+    :param mask_src: the run's ``masks`` folder.
+    :param settings: the Make Masks settings.
+    :returns: the mask-folder override for the merge (``{'nucleus': the
+        kept nuclei}``), or ``{}`` when no territories were grown.
+    """
+    if (settings.get('cell_channel') is not None
+            or settings.get('nucleus_channel') is None
+            or int(settings.get('cell_from_nucleus_expand_px') or 0) <= 0):
+        return {}
+    if settings.get('timelapse'):
+        print('cell_from_nucleus_expand_px is not applied to time-lapse runs; '
+              'no cell masks were grown from the nuclei.')
+        return {}
+    from .host_pathogen import write_nucleus_territories
+
+    _, seed_folder, n_fields = write_nucleus_territories(
+        mask_src, settings['cell_from_nucleus_expand_px'],
+        settings.get('cell_from_nucleus_min_nucleus_size', 250))
+    print(f'Cell masks of {n_fields} fields are nucleus territories (each nucleus grown by '
+          f'up to {settings["cell_from_nucleus_expand_px"]} px), not cell outlines.')
+    return {'nucleus': seed_folder}
+
+
 def preprocess_generate_masks(settings):
     """Turn a folder of raw microscopy images into per-channel Cellpose masks ready for :func:`spacr.measure.measure_crop`.
 
@@ -710,6 +741,9 @@ def preprocess_generate_masks(settings):
                             cancellation_checkpoint()
                             _drop_unreal_objects(src, settings)
 
+                        cancellation_checkpoint()
+                        territory_folders = _cells_from_nuclei(mask_src, settings)
+
                         adjusted_cells = None
                         if settings['adjust_cells']:
                             if not settings['timelapse']:
@@ -755,7 +789,10 @@ def preprocess_generate_masks(settings):
                                     f'{role}_channel')) is not None},
                             resume=settings.get('resume', False),
                             **({'mask_folders': {'cell': adjusted_cells}}
-                               if adjusted_cells is not None else {})
+                               if adjusted_cells is not None else {}),
+                            **({'mask_folders': territory_folders,
+                                'cell_source': 'nucleus_territory'}
+                               if territory_folders else {})
                         )
                         if settings.get('export_vvvv', False):
                             cancellation_checkpoint()

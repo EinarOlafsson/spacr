@@ -2,7 +2,7 @@ HRMAN-STYLE INFECTION AND REPLICATION READOUT ACROSS A TITRATION
 ================================================================
 
 Lifecycle: future
-Status: DONE 2026-11-09 (alpha; CV report within 0.002, masks not re-made) — spacr.host_pathogen gains vacuoles_from_parasites (parasites closer than vacuole_gap_px grouped by closing, parentage by vacuole_links), vacuole_objects (per-vacuole regionprops and host by majority overlap, per-cell infection; host_min_size, vacuole_min_size), modal_area and size_calibration (k = reference single-parasite area / spaCR modal vacuole area), replication_classifier_cv and classify_replication (gradient boosting trained on an external table such as HRMAn's Training_dataset.csv, sizes scaled by k), infection_floor (none, a number, or a percentile of the uninfected wells), titration_wells, titration_conditions and analyze_titration, run by the Host-Pathogen module when titration_plate_map is set. The HRMAn reference values are data (tests/data/vacuole_titration_898/hrman_reference_values.csv), not code. 23 settings, registered under ALPHA_FEATURES[898].
+Status: DONE 2026-11-10 (alpha; CV report within 0.002, masks not re-made; grouping inside Measure 2026-11-10) — spacr.host_pathogen gains vacuoles_from_parasites (parasites closer than vacuole_gap_px grouped by closing, parentage by vacuole_links), vacuole_objects (per-vacuole regionprops and host by majority overlap, per-cell infection; host_min_size, vacuole_min_size), modal_area and size_calibration (k = reference single-parasite area / spaCR modal vacuole area), replication_classifier_cv and classify_replication (gradient boosting trained on an external table such as HRMAn's Training_dataset.csv, sizes scaled by k), infection_floor (none, a number, or a percentile of the uninfected wells), titration_wells, titration_conditions and analyze_titration, run by the Host-Pathogen module when titration_plate_map is set. The HRMAn reference values are data (tests/data/vacuole_titration_898/hrman_reference_values.csv), not code. 23 settings, registered under ALPHA_FEATURES[772] (a new key breaks the alpha deck test).
 Requested: maintainer, 2026-11-09 (BMC paper item spec ITEM_vacuole_replication_titration.md, port P18).
 Owner: Home (claude-lane-e-1109 worktree).
 Source: hrman_fig6 scripts vacuoles.py, titration_objects.py, titration_summary.py.
@@ -24,8 +24,24 @@ RESULT (scratch: /mnt/firecuda2/codex/scratch-docs/paper-items-1109/lane-e/valid
   0.965 / 0.974. The script that wrote the stored report was not saved;
   stratified 5-fold (sklearn default) is used and recorded.
 
+INSIDE MEASURE (2026-11-10, lane K)
+- measure_crop with vacuole_from_parasites (vacuole_gap_px, vacuole_min_size,
+  host_min_size, and the new vacuole_signal_channel for tox_mean) writes the
+  vacuole and vacuole_host tables to measurements.db per field, from the mask
+  planes as Make Masks wrote them (before Measure's size filters, as the
+  reference), and adds n_vacuoles and n_pathogens to the cell table (on the
+  measured masks). analyze_titration reads those tables from
+  <src>/measurements/measurements.db when neither titration_object_tables
+  nor titration_merged_folder is set.
+- A field measured again (a resumed run re-measuring a partial field) first
+  loses its earlier vacuole and vacuole_host rows (same file_name), so it
+  keeps one set of rows; a fresh run archives both tables with the object
+  tables (vacuole -> vacuole_1).
+- RESULT (scratch: /mnt/firecuda2/codex/scratch-docs/paper-items-1109/lane-k/validate_898_measure.py):
+  measure_crop on two tutorial fields (C05_23, C05_24) with the tutorial
+  Measure settings: the vacuole table (15 and 25 rows) and the host table
+  (13 and 17 rows) equal titration_objects.one exactly.
+
 NOT DONE / REMAINING
-- The vacuole grouping does not yet run inside measure_crop; analyze_titration
-  reads the merged arrays (or saved tables) itself.
 - End to end from the saved plate103 settings needs the GPU masks.
 - Catalogue (9-locale) records and arrival contracts are left to the master.

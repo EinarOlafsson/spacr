@@ -632,7 +632,9 @@ def _titration_objects(config):
     vacuoles.csv) or, with ``vacuole_from_parasites``, from the merged
     arrays in ``titration_merged_folder`` (channel 1 parasite signal, mask
     channels 3 cells and 5 parasites, as Make Masks writes them with
-    merge_pathogens off).
+    merge_pathogens off). Without either, from the vacuole and vacuole_host
+    tables Measure wrote to ``<src>/measurements/measurements.db`` with
+    ``vacuole_from_parasites``.
     """
     import glob
     import os
@@ -646,9 +648,19 @@ def _titration_objects(config):
         folder = config['titration_object_tables']
         return (read_table(os.path.join(folder, 'cells.csv'), canonicalise=False, report=None),
                 read_table(os.path.join(folder, 'vacuoles.csv'), canonicalise=False, report=None))
+    database = os.path.join(str(config.get('src') or ''), 'measurements', 'measurements.db')
+    if not config['titration_merged_folder'] and os.path.isfile(database):
+        from .tabular import database_tables, read_database
+
+        if {'vacuole', 'vacuole_host'} <= set(database_tables(database)):
+            vacuoles, cells = read_database(database, ['vacuole', 'vacuole_host'],
+                                            canonicalise=False, report=None)
+            return (cells.drop(columns=['file_name'], errors='ignore'),
+                    vacuoles.drop(columns=['file_name'], errors='ignore'))
     if not config['vacuole_from_parasites'] or not config['titration_merged_folder']:
         raise ValueError('Set titration_object_tables, or vacuole_from_parasites with '
-                         'titration_merged_folder')
+                         'titration_merged_folder, or measure the plate with '
+                         'vacuole_from_parasites')
     cells, vacuoles = [], []
     for path in sorted(glob.glob(os.path.join(config['titration_merged_folder'], '*.npy'))):
         parts = os.path.basename(path)[:-4].split('_')
@@ -788,6 +800,121 @@ def nucleus_territories(nucleus_mask, expand_px=40, min_nucleus_size=250):
     if small.size:
         nuclei[np.isin(nuclei, small)] = 0
     return expand_labels(nuclei, distance=int(expand_px)).astype(np.int32), nuclei
+
+
+#: The folder Make Masks writes the size-filtered nuclei of the territories into.
+TERRITORY_NUCLEUS_FOLDER = 'nucleus_territory_seed_stack'
+
+
+def write_nucleus_territories(mask_src, expand_px, min_nucleus_size=250):
+    """Make Masks' cell masks from nuclei when there is no cell stain.
+
+    For every field in ``<mask_src>/nucleus_mask_stack`` the nuclei under
+    ``min_nucleus_size`` pixels are removed and the rest grow by up to
+    ``expand_px`` pixels (:func:`nucleus_territories`). The territories are
+    written to ``<mask_src>/cell_mask_stack`` and the kept nuclei to
+    ``<mask_src>/nucleus_territory_seed_stack``, both as ``.npy`` in the
+    nucleus mask's dtype, so the merged arrays carry a cell plane, the
+    nucleus plane holds the nuclei the territories grew from, and Measure
+    reads them like any other cell mask.
+
+    :param mask_src: the run's ``masks`` folder.
+    :param expand_px: the largest growth in pixels; must be above 0.
+    :param min_nucleus_size: the smallest nucleus kept.
+    :returns: ``(cell_folder, nucleus_folder, n_fields)``.
+    :raises ValueError: when ``expand_px`` is not above 0.
+    :raises FileNotFoundError: when there is no nucleus mask folder.
+    """
+    import os
+
+    from .io import _listdir_visible, _load_array_any, _save_array_atomic
+
+    if int(expand_px) <= 0:
+        raise ValueError('cell_from_nucleus_expand_px must be above 0')
+    nucleus_folder = os.path.join(mask_src, 'nucleus_mask_stack')
+    if not os.path.isdir(nucleus_folder):
+        raise FileNotFoundError(f'No nucleus masks to grow cells from: {nucleus_folder}')
+    cell_folder = os.path.join(mask_src, 'cell_mask_stack')
+    seed_folder = os.path.join(mask_src, TERRITORY_NUCLEUS_FOLDER)
+    os.makedirs(cell_folder, exist_ok=True)
+    os.makedirs(seed_folder, exist_ok=True)
+    n_fields = 0
+    for name in sorted(_listdir_visible(nucleus_folder)):
+        if not name.lower().endswith(('.npy', '.tif', '.tiff')):
+            continue
+        nuclei = _load_array_any(os.path.join(nucleus_folder, name))
+        territory, kept = nucleus_territories(nuclei, expand_px, min_nucleus_size)
+        stem = os.path.splitext(name)[0]
+        _save_array_atomic(os.path.join(cell_folder, stem + '.npy'),
+                           territory.astype(nuclei.dtype))
+        _save_array_atomic(os.path.join(seed_folder, stem + '.npy'), kept.astype(nuclei.dtype))
+        n_fields += 1
+    return cell_folder, seed_folder, n_fields
+
+
+def vacuoles_per_cell(cell_mask, parasite_mask, gap_px=4):
+    """Vacuoles and parasites per host cell, by majority overlap.
+
+    Vacuoles are :func:`vacuoles_from_parasites` with ``gap_px``; each
+    vacuole and each parasite goes to the cell label most of its pixels lie
+    on (none when it lies on no cell).
+
+    :param cell_mask: integer host-cell mask.
+    :param parasite_mask: integer parasite mask of the same shape.
+    :param gap_px: the vacuole grouping gap.
+    :returns: a DataFrame with ``object_label`` (every cell label present),
+        ``n_vacuoles`` and ``n_pathogens``.
+    """
+    import numpy as np
+    import pandas as pd
+
+    cell = np.asarray(cell_mask).astype(np.int64)
+    par = np.asarray(parasite_mask).astype(np.int64)
+    vacuoles, _ = vacuoles_from_parasites(par.astype(np.int32), gap_px=gap_px)
+    vacuoles = vacuoles.astype(np.int64)
+    n_cells = int(cell.max()) if cell.size else 0
+    counts = {}
+    for name, labels in (('n_vacuoles', vacuoles), ('n_pathogens', par)):
+        host = _majority_parent(labels, cell, int(labels.max()) if labels.size else 0)
+        hosted = host[1:][host[1:] > 0]
+        counts[name] = np.bincount(hosted, minlength=n_cells + 1)
+    ids = np.unique(cell)
+    ids = ids[ids > 0]
+    return pd.DataFrame({'object_label': ids, 'n_vacuoles': counts['n_vacuoles'][ids],
+                         'n_pathogens': counts['n_pathogens'][ids]})
+
+
+def measure_vacuoles(cell_mask, parasite_mask, signal=None, settings=None, file_name=''):
+    """The vacuole and host-cell tables of one field, as Measure writes them.
+
+    :func:`vacuole_objects` on the field's mask planes as Make Masks wrote
+    them (before Measure's size filters, as the titration reference), with
+    the well and field parsed from ``file_name`` (``<plate>_<well>_<field>``)
+    and ``file_name`` added to both tables. Without a ``signal`` image the
+    vacuoles' ``tox_mean`` is empty.
+
+    :param cell_mask: the field's cell mask plane.
+    :param parasite_mask: the field's pathogen mask plane.
+    :param signal: the ``vacuole_signal_channel`` image, or None.
+    :param settings: the :data:`TITRATION_DEFAULTS` keys.
+    :param file_name: the field's file name without extension.
+    :returns: ``(vacuoles, hosts)`` DataFrames.
+    """
+    import numpy as np
+
+    parts = str(file_name).split('_')
+    well = parts[-2] if len(parts) >= 2 else ''
+    try:
+        field = int(parts[-1])
+    except ValueError:
+        field = parts[-1]
+    hosts, vacuoles = vacuole_objects(cell_mask, parasite_mask, signal, settings,
+                                      well=well, field=field)
+    if signal is None:
+        vacuoles['tox_mean'] = np.nan
+    vacuoles['file_name'] = file_name
+    hosts['file_name'] = file_name
+    return vacuoles, hosts
 
 
 def _majority_parent(labels_a, labels_b, n_a):
@@ -1070,6 +1197,70 @@ def translocation_summary(cells, settings=None, reference=None):
             'shuffle_null': pd.concat(null), 'agreement': pd.DataFrame(agreement)}
 
 
+def translocation_figure(result, settings=None):
+    """Nuclear effector against vacuoles per cell: one column per group, raw and corrected rows.
+
+    Bars are the mean of the per-well ratios at each k (the pooled curve
+    where no well has enough cells), the wells are jittered points, both at
+    60% opacity; the shuffle null's 2.5-97.5 percentile range is a grey
+    band, the reference curve (when the curves carry ``hrman_ratio``) a
+    dashed line and ratio 1 a dotted line.
+
+    :param result: the :func:`translocation_summary` dict.
+    :param settings: ``translocation_kmax`` and ``translocation_seed`` (the
+        jitter).
+    :returns: a :class:`matplotlib.figure.Figure`.
+    """
+    import numpy as np
+    from matplotlib.figure import Figure
+
+    config = {**TRANSLOCATION_DEFAULTS, **(settings or {})}
+    kmax = int(config['translocation_kmax'])
+    rng = np.random.default_rng(int(config['translocation_seed']))
+    curves, per_well = result['curves'], result['per_well']
+    summary, null = result['per_well_summary'], result['shuffle_null']
+    groups = sorted(curves['effector'].dropna().unique())
+    rows = (('hrman_equiv', 'raw: total nuclear signal'),
+            ('corrected', 'corrected: parasite pixels removed,\nbackground subtracted'))
+    fig = Figure(figsize=(3.2 * max(len(groups), 1), 5.6), dpi=100)
+    axes = fig.subplots(2, max(len(groups), 1), sharex=True, squeeze=False)
+    for r, (readout, label) in enumerate(rows):
+        for j, group in enumerate(groups):
+            ax = axes[r, j]
+            band = null[(null['readout'] == readout) & (null['effector'] == group)].sort_values('k')
+            if len(band):
+                ax.fill_between(band['k'], band['null_ratio_p2_5'], band['null_ratio_p97_5'],
+                                color='#8A94A6', alpha=0.3, linewidth=0, label='shuffle null (95%)')
+            bars = summary[(summary['readout'] == readout) & (summary['effector'] == group)]
+            if not len(bars):
+                bars = curves[(curves['readout'] == readout) & (curves['effector'] == group)]
+                bars = bars.rename(columns={'ratio': 'well_mean'})
+            ax.bar(bars['k'], bars['well_mean'], width=0.7, color='#2A9D8F', alpha=0.6,
+                   linewidth=0, label='mean of wells')
+            wells = per_well[(per_well['readout'] == readout) & (per_well['effector'] == group)]
+            if len(wells):
+                ax.scatter(wells['k'] + rng.uniform(-0.2, 0.2, len(wells)), wells['ratio'], s=8,
+                           color='#3A7BD5', alpha=0.6, linewidths=0, label='wells')
+            reference = curves[(curves['readout'] == readout) & (curves['effector'] == group)]
+            if 'hrman_ratio' in reference and reference['hrman_ratio'].notna().any():
+                reference = reference.dropna(subset=['hrman_ratio']).sort_values('k')
+                ax.plot(reference['k'], reference['hrman_ratio'], ls='--', lw=1.2,
+                        color='#1F4E79', label='reference')
+            ax.axhline(1, ls=':', lw=0.8, color='#8A94A6')
+            ax.set_xlim(-0.6, kmax + 0.6)
+            ax.set_xticks(range(0, kmax + 1, 2 if kmax > 5 else 1))
+            if r == 0:
+                ax.set_title(str(group), fontsize='small')
+            if r == 1:
+                ax.set_xlabel('vacuoles per cell')
+            if j == 0:
+                ax.set_ylabel(f'{label}\n(relative to 0 vacuoles)', fontsize='small')
+    if groups:
+        axes[0, 0].legend(fontsize='x-small', frameon=False, loc='upper left')
+    fig.tight_layout()
+    return fig
+
+
 _TRANSLOCATION_FILES = {
     'counts': 'counts_per_effector.csv', 'curves': 'curves_all_readouts.csv',
     'per_well': 'per_well_ratios.csv', 'per_well_summary': 'per_well_summary.csv',
@@ -1082,18 +1273,23 @@ def nuclear_translocation(settings=None):
     """The host-nucleus effector translocation readout of a plate, from settings.
 
     Reads the merged arrays of ``translocation_merged_folder`` (or
-    ``<src>/merged``). With ``cell_from_nucleus_expand_px`` above 0 the cell
-    plane is made from the nuclei first (:func:`nucleus_territories`,
-    ``cell_source`` nucleus_territory; the territories are not cell
-    outlines): a five-plane array ``[c0, c1, c2, nucleus, parasite]``
-    becomes the six-plane layout. Then :func:`translocation_cells` per field
-    and :func:`translocation_summary`, written to
-    ``<src>/translocation/`` (cells_translocation.csv and the summary
-    tables, plus reference_curve.csv when ``translocation_reference`` names
-    a reference curve table).
+    ``<src>/merged``). With ``cell_from_nucleus_expand_px`` above 0 a
+    five-plane array ``[c0, c1, c2, nucleus, parasite]`` gets its cell plane
+    from the nuclei first (:func:`nucleus_territories`) and becomes the
+    six-plane layout; a six-plane array already has its cell plane (Make
+    Masks grows the territories itself with the same setting) and is read
+    as it is. Cells are marked ``cell_source`` nucleus_territory when the
+    territories were grown here or the merged folder's plane layout says
+    Make Masks grew them; the territories are not cell outlines. Then
+    :func:`translocation_cells` per field and :func:`translocation_summary`,
+    written to ``<src>/translocation/`` (cells_translocation.csv, the
+    summary tables, reference_curve.csv when ``translocation_reference``
+    names a reference curve table, and the
+    translocation_ratio_vs_vacuoles figure of :func:`translocation_figure`).
 
     :param settings: ``src`` and the translocation settings.
-    :returns: the :func:`translocation_summary` dict with ``folder``.
+    :returns: the :func:`translocation_summary` dict with ``folder`` and
+        ``figure`` (the path written).
     """
     import glob
     import os
@@ -1105,13 +1301,18 @@ def nuclear_translocation(settings=None):
 
     config = {**TITRATION_DEFAULTS, **TRANSLOCATION_DEFAULTS, **(settings or {})}
     folder = config['translocation_merged_folder'] or os.path.join(config['src'], 'merged')
+    from .crops import read_merged_plane_layout
+
+    layout = read_merged_plane_layout(folder) or {}
+    territories = layout.get('cell_source') == 'nucleus_territory'
     tables = []
     for path in sorted(glob.glob(os.path.join(folder, '*.npy'))):
         stem = os.path.basename(path)[:-4]
         stem = stem[:-len('_None')] if stem.endswith('_None') else stem
         parts = stem.split('_')
         stack = np.load(path)
-        if int(config['cell_from_nucleus_expand_px']) > 0:
+        if int(config['cell_from_nucleus_expand_px']) > 0 and stack.shape[-1] == 5:
+            territories = True
             territory, nuclei = nucleus_territories(
                 stack[..., 3], config['cell_from_nucleus_expand_px'],
                 config['cell_from_nucleus_min_nucleus_size'])
@@ -1120,7 +1321,7 @@ def nuclear_translocation(settings=None):
                               stack[..., 4]], axis=-1)
         tables.append(translocation_cells(stack, config, well=parts[-2], field=int(parts[-1])))
     cells = pd.concat(tables, ignore_index=True)
-    if int(config['cell_from_nucleus_expand_px']) > 0:
+    if territories:
         cells['cell_source'] = 'nucleus_territory'
     reference = (read_table(config['translocation_reference'], canonicalise=False, report=None)
                  if config['translocation_reference'] else None)
@@ -1133,6 +1334,11 @@ def nuclear_translocation(settings=None):
                     index=key == 'counts')
     if reference is not None:
         write_table(reference, os.path.join(out, 'reference_curve.csv'), canonicalise=False)
+    from .plot import save_figure
+
+    result['figure'] = save_figure(translocation_figure(result, config),
+                                   os.path.join(out, 'translocation_ratio_vs_vacuoles.pdf'),
+                                   close=True)
     result['folder'] = out
     return result
 

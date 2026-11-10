@@ -2,7 +2,7 @@ HOST-NUCLEUS EFFECTOR TRANSLOCATION AGAINST PARASITE LOAD
 ========================================================
 
 Lifecycle: future
-Status: PARTIAL 2026-11-09 (alpha) — spacr.host_pathogen gains nucleus_territories (cells from nuclei without a cell stain: small nuclei removed, each nucleus grown by up to N px without overlap), translocation_cells (per host cell: vacuoles and parasites per cell by majority overlap, raw nuclear effector sum as HRMAn, nuclear mean with pixels near parasites left out, field background, cytoplasm, DNA and nucleus-area controls), translocation_summary (curves by vacuoles per cell normalised to k = 0 per group, per-well ratios, null-threshold % positive nuclei per k and per well, within-field shuffle null, agreement with a reference curve) and nuclear_translocation (the settings run; analyze_host_pathogen dispatches to it with translocation=True), writing <src>/translocation/. Twenty settings under ALPHA_FEATURES[910]. On the 3-field CPU pilot (B02_3, D05_3, F08_3) the territories and nuclei, cells_translocation.csv (309 cells) and all nine summary tables, the shuffle null with seed 0 included, equal the reference scripts' output.
+Status: PARTIAL 2026-11-10 (alpha; Make Masks hook and figure added 2026-11-10, full plate waits for GPU masks) — spacr.host_pathogen gains nucleus_territories (cells from nuclei without a cell stain: small nuclei removed, each nucleus grown by up to N px without overlap), translocation_cells (per host cell: vacuoles and parasites per cell by majority overlap, raw nuclear effector sum as HRMAn, nuclear mean with pixels near parasites left out, field background, cytoplasm, DNA and nucleus-area controls), translocation_summary (curves by vacuoles per cell normalised to k = 0 per group, per-well ratios, null-threshold % positive nuclei per k and per well, within-field shuffle null, agreement with a reference curve) and nuclear_translocation (the settings run; analyze_host_pathogen dispatches to it with translocation=True), writing <src>/translocation/. Twenty settings under ALPHA_FEATURES[772] (a new key breaks the alpha deck test). On the 3-field CPU pilot (B02_3, D05_3, F08_3) the territories and nuclei, cells_translocation.csv (309 cells) and all nine summary tables, the shuffle null with seed 0 included, equal the reference scripts' output.
 Requested: maintainer, 2026-11-09 (BMC paper item spec ITEM_effector_translocation.md).
 Owner: Home (claude-lane-e-1109 worktree).
 Source: the HRMAn Protein_translocation reanalysis scripts cell_territories.py, translocation_objects.py and summary_pt.py.
@@ -34,16 +34,40 @@ per_well_summary, null_thresholds, pct_ha_positive_nuclei,
 pct_ha_positive_per_well, shuffle_null (66 rows) and agreement_with_hrman
 (24 rows) identical.
 
+MAKE MASKS HOOK AND FIGURE (2026-11-10, lane K)
+- Make Masks with cell_channel None, a nucleus channel and
+  cell_from_nucleus_expand_px above 0 grows the territories itself
+  (spacr.core._cells_from_nuclei -> host_pathogen.write_nucleus_territories):
+  masks/cell_mask_stack gets the territories, masks/nucleus_territory_seed_stack
+  the size-filtered nuclei, and the merge writes [channels, cell, nucleus,
+  pathogen] with cell_source nucleus_territory in the merged plane-layout
+  sidecar. Measure therefore reads a normal cell plane (no _None workaround);
+  the run prints that the cell masks are territories, not cell outlines.
+  Time-lapse runs are left alone and say so.
+- nuclear_translocation reads six-plane arrays as they are (no second
+  growth) and marks cell_source from the sidecar.
+- translocation_figure: ratio vs vacuoles per cell per group, raw and
+  corrected rows, bars (mean of wells) + jittered wells at 60% opacity,
+  shuffle-null band, reference curve dashed; written as
+  translocation/translocation_ratio_vs_vacuoles.pdf (format follows the
+  figure preference).
+- Measure with vacuole_from_parasites (item 898) adds n_vacuoles and
+  n_pathogens (majority overlap, on the measured masks) to the cell table.
+
+RESULT (scratch: /mnt/firecuda2/codex/scratch-docs/paper-items-1109/lane-k/validate_910_masks.py)
+From the pilot's stack and nucleus/pathogen masks (split back out of the
+3 pilot fields): the merged arrays Make Masks now writes equal
+cell_territories.py's arrays exactly (dtype and every plane, 3/3 fields);
+from them cells_translocation (309 rows) and all nine summary tables equal
+the reference again (floats <= 1e-9).
+
 NOT DONE / REMAINING
-- Make Masks does not yet call nucleus_territories when cell_channel is None
-  (the readout makes the territories itself from the five-plane arrays), and
-  measure_crop still rejects _None.npy arrays; item 1 of the spec is
-  therefore reachable only through nuclear_translocation.
-- The readout spacr_db_integrated_by_parasites (measure_crop's nucleus
-  integrated intensity binned by pathogen objects, read from the
-  measurement database) and spacr_infection_report_per_well.csv were left
-  out; the reference's Result.pzfx parser was not ported (the reference
-  curve is read from a CSV, as the spec asks).
-- No figure yet (ratio vs k per group, raw and corrected, null band).
-- Full-plate acceptance waits for the GPU masks of the paper session.
+- The cell table cannot carry cell_source as a text column (the object-table
+  schema requires its cell_* namespace to be numeric); it is recorded in the
+  merged plane-layout sidecar, the run report and cells_translocation.csv.
+- The readout spacr_db_integrated_by_parasites and
+  spacr_infection_report_per_well.csv are still left out; the Result.pzfx
+  parser is not ported (the reference curve is read from a CSV).
+- Make Masks end to end from the saved pilot settings (Cellpose on CPU) and
+  the full plate wait for the paper session (GPU masks).
 - Catalogue (9-locale) records and arrival contracts are left to the master.

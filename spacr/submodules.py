@@ -2600,6 +2600,37 @@ def _plaque_well_diameter(filename, settings):
     return Well(**{k: geometry[k] for k in ('x0', 'y0', 'x1', 'y1')}).diameter_px
 
 
+def _plaque_size_columns(sizes, filename, shape, scale, settings):
+    """The per-well plaque size readouts of one image (item 911, alpha).
+
+    :func:`spacr.plaque_papers.plaque_size_readouts` against the image's well
+    box -- the detected well when the image was split into wells, the whole
+    image otherwise (``well_extent_source``) -- and ``plaque_area_mm2`` (the
+    mean plaque area in mm\ :sup:`2`) only when the image has a scale.
+
+    :param sizes: the image's plaque areas in pixels.
+    :param filename: the image's file name, the key of ``_well_geometry``.
+    :param shape: the label image's shape.
+    :param scale: the image's :class:`spacr.plaque.PlaqueScale`, or None.
+    :param settings: the plaque settings.
+    :returns: the columns to add to the image's per-image row.
+    """
+    from .plaque_papers import plaque_size_readouts
+
+    geometry = (settings.get('_well_geometry') or {}).get(filename) or {}
+    if all(k in geometry for k in ('x0', 'y0', 'x1', 'y1')):
+        box, source = tuple(geometry[k] for k in ('x0', 'y0', 'x1', 'y1')), 'well box'
+    else:
+        box, source = (0, 0, int(shape[1]), int(shape[0])), 'image'
+    out = plaque_size_readouts(sizes, box)
+    out.pop('area_rel_well_max')
+    out.pop('plaque_count')
+    out['well_extent_source'] = source
+    if scale is not None:
+        out['plaque_area_mm2'] = scale.area_mm2(out['plaque_mean_area_px2'])
+    return out
+
+
 def _plaque_scale_for(filename, settings):
     """The pixels-per-mm for one segmented image, or ``None``.
 
@@ -3150,7 +3181,9 @@ def analyze_plaques(settings):
                 'image_width': int(labeled_image.shape[1]),
                 'well_diameter_px': well_px, 'px_per_mm': px_per_mm,
                 'mean_area_mm2': mm2(average_size),
-                'plaque_model': settings.get('plaque_model')})
+                'plaque_model': settings.get('plaque_model'),
+                **(_plaque_size_columns(sizes, filename, labeled_image.shape, scale, settings)
+                   if settings.get('plaque_size_readouts') else {})})
             for region in regions:
                 per_plaque.append({
                     **calibration,
@@ -3165,7 +3198,12 @@ def analyze_plaques(settings):
                     'eccentricity': float(region.eccentricity),
                     'solidity': float(region.solidity),
                     'centroid_y': float(region.centroid[0]),
-                    'centroid_x': float(region.centroid[1])})
+                    'centroid_x': float(region.centroid[1]),
+                    **({'area_rel_well_max': float(region.area) / max(sizes)}
+                       if settings.get('plaque_size_readouts') else {})})
+    if settings.get('plaque_size_readouts') and not any('plaque_area_mm2' in row for row in per_image):
+        print('plaque_area_mm2 is not written: no image has a scale. Set plaque_pixels_per_um, '
+              'or detect wells with plate_format or well_diameter_mm.')
     
     from .plaque_growth import estimates_from_settings
     growth = {}
