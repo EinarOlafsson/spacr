@@ -253,7 +253,7 @@ def test_figure_scoring_settings_are_registered_alpha():
              'figure_mode_folder', 'figure_segmentation_folder', 'figure_score_folder',
              'figure_metric', 'compare_permutations', 'compare_seed', 'figure_low_confidence',
              'figure_second_look')
-    assert set(names) <= set(ALPHA_FEATURES[501]['settings'])
+    assert set(names) <= set(ALPHA_FEATURES[900]['settings'])
     for key in names:
         assert key in expected_types and tooltips[key].endswith(f'Default {defaults[key]}.')
     assert defaults['compare_permutations'] == 1000 and defaults['figure_metric'] == 'area'

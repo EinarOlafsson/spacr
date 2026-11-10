@@ -204,7 +204,7 @@ def test_a_titration_settings_run_from_merged_arrays(tmp_path):
 def test_titration_settings_are_registered_alpha():
     from spacr.settings import ALPHA_FEATURES
 
-    names = set(hp.TITRATION_DEFAULTS) & set(ALPHA_FEATURES[772]['settings'])
+    names = set(hp.TITRATION_DEFAULTS) & set(ALPHA_FEATURES[898]['settings'])
     defaults = hp.default_settings()
     assert set(names) == set(hp.TITRATION_DEFAULTS)
     assert defaults['vacuole_gap_px'] == 4 and defaults['replication_classifier'] == 'none'

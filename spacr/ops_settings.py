@@ -202,6 +202,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_eval_decoys": 10,
     "ops_eval_time_split": False,
     "ops_eval_covariates": None,
+    "ops_deterministic_blas": True,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.

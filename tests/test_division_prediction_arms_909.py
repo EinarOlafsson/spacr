@@ -147,7 +147,7 @@ def test_settings_become_options_and_the_reference_preset_loads():
     assert dp.division_prediction_pr_curve([1, 1], [0.2, 0.4]).empty
     from spacr.settings import ALPHA_FEATURES, expected_types, tooltips
     for key in dp.PREDICTION_DEFAULTS:
-        assert key in ALPHA_FEATURES[866]['settings']
+        assert key in ALPHA_FEATURES[909]['settings']
         assert key in expected_types and key in tooltips
 
 

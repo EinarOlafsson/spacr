@@ -146,6 +146,6 @@ def test_a_translocation_settings_run_from_five_plane_arrays(tmp_path):
 def test_translocation_settings_are_registered_alpha():
     from spacr.settings import ALPHA_FEATURES
 
-    names = set(hp.TRANSLOCATION_DEFAULTS) & set(ALPHA_FEATURES[772]['settings'])
+    names = set(hp.TRANSLOCATION_DEFAULTS) & set(ALPHA_FEATURES[910]['settings'])
     assert set(names) == set(hp.TRANSLOCATION_DEFAULTS)
     assert hp.default_settings()['translocation'] is False

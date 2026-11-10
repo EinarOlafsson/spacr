@@ -202,7 +202,7 @@ def test_evaluation_settings_are_registered_alpha():
     from spacr.settings import ALPHA_FEATURES, expected_types, set_default_analyze_screen, tooltips
 
     defaults = set_default_analyze_screen({})
-    names = [k for k in ALPHA_FEATURES[772]['settings'] if k.startswith(('ml_', 'annotate_sample'))]
+    names = [k for k in ALPHA_FEATURES[899]['settings'] if k.startswith(('ml_', 'annotate_sample'))]
     assert len(names) == 15
     assert defaults['ml_eval_report'] is False and defaults['annotate_sample_n'] == 0
     assert defaults['ml_eval_split'] == 'leave_one_well_out'

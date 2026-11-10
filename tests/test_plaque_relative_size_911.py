@@ -151,6 +151,6 @@ def test_size_settings_are_registered_alpha():
     names = ('figure_condition_aggregate', 'figure_size_stat', 'figure_scales',
              'figure_absolute_units', 'figure_ratio_floor', 'figure_scale_permutations',
              'figure_scale_seed')
-    assert set(names) <= set(ALPHA_FEATURES[501]['settings'])
+    assert set(names) <= set(ALPHA_FEATURES[911]['settings'])
     for key in names:
         assert key in expected_types and tooltips[key].endswith(f'Default {defaults[key]}.')

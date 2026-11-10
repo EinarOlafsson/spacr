@@ -149,7 +149,7 @@ def test_onset_settings_are_registered_alpha_and_validated():
     defaults = set_default_settings_preprocess_generate_masks({})
     keys = ('timelapse_division_onset', 'timelapse_division_onset_ci')
     assert [defaults[k] for k in keys] == [False, 'ci_low/ci_high']
-    assert set(keys) <= set(ALPHA_FEATURES[864]['settings'])
+    assert set(keys) <= set(ALPHA_FEATURES[901]['settings'])
     for key in keys:
         assert key in expected_types and tooltips[key].endswith(f'Default {defaults[key]}.')
     assert 'onsets' not in da._division_settings(defaults)

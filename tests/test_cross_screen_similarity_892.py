@@ -115,6 +115,11 @@ def test_the_whole_comparison_from_settings(tmp_path):
                                                      "cross_screen_exclude": None, "cross_screen_pair_draws": 20,
                                                      "cross_screen_pairs": [{"gene_a": "G00", "partners": "G01"}]})
     assert len(single["named_pairs"]) == 1 and (single["concordance"].n_genes == 60).all()
+    unnamed = S.cross_screen_similarity(ops, crispr, {"cross_screen_permutations": 3,
+                                                      "cross_screen_nt_b": nt["crispr"],
+                                                      "cross_screen_exclude": None, "cross_screen_pairs": None})
+    assert unnamed["named_pairs"].empty
+    pd.testing.assert_frame_equal(unnamed["concordance"], single["concordance"])
     with pytest.raises(ValueError, match="cosine"):
         S.cross_screen_similarity(ops, crispr, {"cross_screen_metric": "pearson"})
     with pytest.raises(ValueError, match="cross_screen_modality"):
