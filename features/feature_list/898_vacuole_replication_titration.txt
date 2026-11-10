@@ -33,13 +33,15 @@ INSIDE MEASURE (2026-11-10, lane K)
   measured masks). analyze_titration reads those tables from
   <src>/measurements/measurements.db when neither titration_object_tables
   nor titration_merged_folder is set.
+- A field measured again (a resumed run re-measuring a partial field) first
+  loses its earlier vacuole and vacuole_host rows (same file_name), so it
+  keeps one set of rows; a fresh run archives both tables with the object
+  tables (vacuole -> vacuole_1).
 - RESULT (scratch: /mnt/firecuda2/codex/scratch-docs/paper-items-1109/lane-k/validate_898_measure.py):
   measure_crop on two tutorial fields (C05_23, C05_24) with the tutorial
   Measure settings: the vacuole table (15 and 25 rows) and the host table
   (13 and 17 rows) equal titration_objects.one exactly.
 
 NOT DONE / REMAINING
-- A field measured twice appends its vacuole rows twice (the object tables
-  release a field's earlier rows; these side tables do not yet).
 - End to end from the saved plate103 settings needs the GPU masks.
 - Catalogue (9-locale) records and arrival contracts are left to the master.

@@ -351,3 +351,48 @@ def test_cell_frames_get_vacuole_counts_by_their_label_column():
     out = _with_vacuole_counts(frame, cell, par, {'vacuole_gap_px': 4})
     assert out['n_vacuoles'].tolist() == [0, 1, 0] and out['n_pathogens'].tolist() == [0, 2, 0]
     assert frame['n_vacuoles'].tolist() == [9, 9, 9]
+
+
+def test_a_field_measured_again_on_resume_keeps_one_set_of_vacuole_rows(tmp_path):
+    """A partial field is cleared and measured again; its vacuole rows must not double."""
+    import sqlite3
+
+    from spacr import measure
+    from spacr.settings import get_measure_crop_settings
+
+    over = dict(vacuole_from_parasites=True, vacuole_signal_channel=1, host_min_size=10,
+                vacuole_min_size=5)
+    _, _, first_vacuoles, first_hosts = _measure_field(tmp_path, **over)
+    db = tmp_path / 'measurements' / 'measurements.db'
+    with sqlite3.connect(db) as con:
+        con.execute('DELETE FROM cytoplasm')
+    settings = get_measure_crop_settings({})
+    settings.update({'src': str(tmp_path / 'merged'), 'channels': [0, 1], 'cell_mask_dim': 2,
+                     'nucleus_mask_dim': 3, 'pathogen_mask_dim': 4, 'cell_min_size': 0,
+                     'nucleus_min_size': 0, 'pathogen_min_size': 0, 'cytoplasm_min_size': 0,
+                     'save_png': False, 'save_arrays': False, 'plot': False, 'verbose': False,
+                     'n_jobs': 1, 'resume': True, **over})
+    measure.measure_crop(settings)
+    with sqlite3.connect(db) as con:
+        assert con.execute('SELECT COUNT(*) FROM cytoplasm').fetchone()[0] > 0
+        vacuoles = pd.read_sql('SELECT * FROM vacuole', con)
+        hosts = pd.read_sql('SELECT * FROM vacuole_host', con)
+    assert len(vacuoles) == len(first_vacuoles) == 2
+    assert len(hosts) == len(first_hosts) == 2
+    pd.testing.assert_frame_equal(vacuoles, first_vacuoles)
+
+
+def test_releasing_a_field_leaves_the_other_fields_rows(tmp_path):
+    import sqlite3
+
+    from spacr.measure import _release_vacuole_rows
+
+    db = tmp_path / 'measurements.db'
+    assert _release_vacuole_rows(str(db), 'plate1_B02_1') == 0
+    with sqlite3.connect(db) as con:
+        con.execute('CREATE TABLE vacuole (file_name TEXT, area_px INTEGER)')
+        con.executemany('INSERT INTO vacuole VALUES (?, ?)',
+                        [('plate1_B02_1', 5), ('plate1_B02_1', 6), ('plate1_B02_10', 7)])
+    assert _release_vacuole_rows(str(db), 'plate1_B02_1') == 2
+    with sqlite3.connect(db) as con:
+        assert con.execute('SELECT file_name FROM vacuole').fetchall() == [('plate1_B02_10',)]

@@ -9081,7 +9081,11 @@ def _vacuole_planes(data, settings):
 
 
 def _save_vacuole_tables(planes, file_name, source_folder, settings):
-    """Append one field's vacuole and vacuole_host rows to measurements.db.
+    """Replace one field's vacuole and vacuole_host rows in measurements.db.
+
+    The field's earlier rows (same ``file_name``) are deleted first, so a
+    field measured again -- a resumed run re-measuring a partial field --
+    keeps one set of rows, as the object tables do.
 
     :param planes: :func:`_vacuole_planes` of the field.
     :param file_name: the field's name without extension.
@@ -9093,10 +9097,42 @@ def _save_vacuole_tables(planes, file_name, source_folder, settings):
 
     vacuoles, hosts = measure_vacuoles(*planes, settings=settings, file_name=file_name)
     db_path = os.path.join(source_folder, 'measurements', 'measurements.db')
+    _release_vacuole_rows(db_path, file_name)
     if len(vacuoles):
         _append_to_measurements_db(db_path, 'vacuole', vacuoles)
     if len(hosts):
         _append_to_measurements_db(db_path, 'vacuole_host', hosts)
+
+
+#: The side tables Measure writes with ``vacuole_from_parasites`` (item 898).
+VACUOLE_TABLES = ('vacuole', 'vacuole_host')
+
+
+def _release_vacuole_rows(db_path, file_name):
+    """Delete one field's rows from the vacuole side tables, in one transaction.
+
+    :param db_path: the plate's measurements.db; nothing happens when it is
+        missing.
+    :param file_name: the field's name without extension.
+    :returns: the number of rows deleted.
+    """
+    from .database_concurrency import connect, transaction
+
+    if not os.path.isfile(db_path):
+        return 0
+    connection = connect(db_path, timeout=30)
+    try:
+        with transaction(connection):
+            present = {row[0] for row in connection.execute(
+                "SELECT name FROM sqlite_master WHERE type='table'")}
+            deleted = 0
+            for table in VACUOLE_TABLES:
+                if table in present:
+                    deleted += connection.execute(
+                        f'DELETE FROM "{table}" WHERE file_name = ?', (file_name,)).rowcount
+    finally:
+        connection.close()
+    return deleted
 
 
 def _with_vacuole_counts(cell_frame, cell_mask, pathogen_mask, settings):
