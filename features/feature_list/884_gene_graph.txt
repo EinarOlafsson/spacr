@@ -1,0 +1,57 @@
+GENE GRAPH: LEARNED GENE-GENE LINKS AND GENE -> CATEGORY MEMBERSHIP FROM OPS PROFILES
+====================================================================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha, ALPHA_FEATURES[884] module_settings under app key gene_graph) — spacr.gene_graph ports the gene-graph analysis of the Funk et al. 2022 plate A reanalysis: build_gene_graph (screen block with global-RMS scale and fitness feature, non-targeting pseudo-genes from 4-guide groups, extra blocks with PCA and decoy pseudo-profiles at the genes' coverage, sensitivity blocks, typed edges per source from spacr.ops_reference names or pair tables, time-split new edges minus training, known-extra references, GO counts, classes, folds with seeded fill), GeneGraphModel (lr / gcn / sage / gps with RWSE, DistMult and category decoders), run_config (node/edge masking, degree-proportional negatives, early stopping, card admission / yield with resume.pt carrying the torch RNG, budget guard), the cosine + kNN vote, Adamic-Adar and degree/size baselines, the spectral block, the shufX / shufY / rewire controls, time-split and held-out metrics, heldout_summary, ablation_table, paired fold deltas, cross-fitted isotonic calibration, NT target-decoy q-values, JUMP support, drivers, specificity flags, the time-split prediction list and the bars + jittered points figures. run_gene_graph runs everything from settings and saves the settings CSV first; python -m spacr.gene_graph --settings <csv>. spacr/gene_graph.py, tests/test_gene_graph_884.py, tests/gene_graph_synthetic.py.
+Requested: maintainer via the BMC paper session, 2026-11-09 (proposals/bmc_paper_items/ITEM_gene_graph.md).
+Owner: lane F (paper items 2026-11-09).
+Source: the gene-graph reanalysis scripts gg_data.py, gg_models.py, gg_train.py, gg_baselines.py, gg_eval.py, gg_predict.py, gg_predict_time.py, gg_flag.py, gg_tables.py, gg_figures.py.
+Related: 881 (reference sets), 883 (gene-level aggregation), 885 (knowledge blocks), 886 (fusion), 803 (GPU budget).
+
+WHAT THE STATE IS
+spaCR had no way to learn gene-gene links and category membership from OPS
+gene profiles and to judge them on held-out genes and a 2022 time split,
+with the controls (shuffled features and labels, rewired edges, decoys,
+degree prior) that make the numbers interpretable.
+
+WHAT WAS DONE
+- One flat module, spacr/gene_graph.py (no spacr/ops/ package exists), with
+  the entry points get_gene_graph_default_settings, build_gene_graph,
+  train_gene_graph, evaluate_gene_graph, predict_gene_functions and
+  run_gene_graph. Settings keys carry the gene_graph_ prefix (the spec's key
+  names after the prefix), so they never collide with another module's.
+- The models are plain PyTorch on the device of gene_graph_device; CUDA falls
+  back to the CPU with a warning. On the CPU the trainer runs with
+  torch.use_deterministic_algorithms(True) and no autocast, so a rerun is
+  identical to itself. On CUDA: admission (card + cap + 0.5 <= limit held
+  for admission_hold_s), set_per_process_memory_fraction(cap), YIELD with
+  resume.pt (exit 75 from python -m), STOP at gene_graph_gpu_budget_h, and
+  START / YIELD / FINISH / STOP lines in gene_graph_gpu_log.
+- Differences from the reference that do not change its numbers: the resume
+  file also stores the torch RNG state (the reference reseeded nothing on
+  resume, so dropout differed after a resume); a run whose validation never
+  improves keeps its last state instead of failing; empty prediction tables
+  are written with their header.
+
+RESULT (plate A, CPU, on the reference's stored inputs and run folders)
+- build_gene_graph from W_bf_S02(_guides), the pilot TVN tables, the JUMP
+  cpg0016 gene and NT tables, the archived and current references, GOA and
+  the ops_gene_classes v3 tables: data_summary.json equal to the reference
+  (minus its "embeddings" note), every graph.npz array equal (edges, folds,
+  indicators exactly; features within 1e-6) and nodes.parquet equal.
+- Evaluation of the reference run folders: see the 2026-11-09 note below.
+
+GPU CHECKS LEFT FOR THE PAPER SESSION (no GPU at Home)
+- Retrain gps / sage / gcn / lr with the same seeds on CUDA: every fold-mean
+  held-out metric within +-0.010 of heldout_summary.csv, per fold within
+  +-0.015, time-split AUPRC_any inside the reference bootstrap CI, every
+  paired-delta sign and folds-better count unchanged, controls at or below
+  the ablation table (+0.01), category Jaccard >= 0.7 at q < 0.1.
+- The queue under the card rule, including the configs the reference budget
+  cut (compare run_configs.csv with queue_gpu_v1_full168.txt).
+
+DELIBERATELY NOT DONE
+- No GUI result tab (the spec's 1-day GUI part) and no spacr-run module entry
+  yet: settings file + python -m spacr.gene_graph --settings <csv> + API.
+- No evaluation cache (the reference cached metrics in parquet); every run
+  folder is evaluated on each call.

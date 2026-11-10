@@ -44,7 +44,9 @@ def test_the_published_alpha_page_covers_the_current_registry():
     # 865 and 866 (2026-11-09): budding-yeast size control and the
     # "divides within N frames" predictor make 81 with 751.
     # 795 (2026-11-09): the leave-one-compound-out MoA benchmark makes 82.
-    assert deck._check_registry(ROOT / "spacr/settings.py") == 82
+    # 884 (2026-11-09): the gene graph (learned gene links and categories)
+    # makes 83.
+    assert deck._check_registry(ROOT / "spacr/settings.py") == 83
     # 710: the published PDF is fetched from the pinned dataset revision.
     media_spec = importlib.util.spec_from_file_location("fetch_docs_media", ROOT / "tools/fetch_docs_media.py")
     media = importlib.util.module_from_spec(media_spec)
@@ -56,7 +58,7 @@ def test_the_published_alpha_page_covers_the_current_registry():
             assert unicodedata.normalize("NFKC", caption) in text
     for _, name in deck.SPECIES:
         assert name in text
-    assert "82 alpha features and 7 alpha species" in text
+    assert "83 alpha features and 7 alpha species" in text
 
 
 def test_unknown_registry_entry_refuses_before_touching_assets(tmp_path):
