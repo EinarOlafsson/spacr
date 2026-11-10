@@ -33,3 +33,6 @@ VALIDATION (2026-11-09, CPU)
   decode_diag.py's output row for row and column for column (plate A A1 sites
   0-2, 11,892 calls, exact equality including row order).
 - Full plate A (5,979,511 calls): see the item report.
+- Plate A reliability tables against the reference (lane B validation): the
+  hist-GBM and logistic reliability tables are identical to the reference;
+  the isotonic and strata tables differ by at most 14 calls per bin.

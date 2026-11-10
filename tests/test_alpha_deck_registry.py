@@ -47,7 +47,13 @@ def test_the_published_alpha_page_covers_the_current_registry():
     # 873 (2026-11-09): the OPS decode rule (a) + S2 makes 83.
     # 876 and 877 (2026-11-09): the false-call model and the genotype
     # confidence make 85, and 878 (the per-cell comparison) 86.
-    assert deck._check_registry(ROOT / "spacr/settings.py") == 86
+    # 2026-11-09, BMC paper items: the OPS gene-profile options 883, 887,
+    # 890, 891 and 902-907 make 96; the OPS phenotype run 871, 872, 874 and
+    # 875 make 100; the profile path and its metrics 879-882 make 104; and
+    # 898-901 and 909-911 (titration, classifier evaluation, plaque figure
+    # scoring and sizes, division onsets and prediction arms, effector
+    # translocation) make 111.
+    assert deck._check_registry(ROOT / "spacr/settings.py") == 111
     # 710: the published PDF is fetched from the pinned dataset revision.
     media_spec = importlib.util.spec_from_file_location("fetch_docs_media", ROOT / "tools/fetch_docs_media.py")
     media = importlib.util.module_from_spec(media_spec)
@@ -59,7 +65,7 @@ def test_the_published_alpha_page_covers_the_current_registry():
             assert unicodedata.normalize("NFKC", caption) in text
     for _, name in deck.SPECIES:
         assert name in text
-    assert "82 alpha features and 7 alpha species" in text
+    assert "111 alpha features and 7 alpha species" in text
 
 
 def test_unknown_registry_entry_refuses_before_touching_assets(tmp_path):
@@ -101,7 +107,7 @@ def test_refresh_preserves_other_pages_and_renders_searchable_text(tmp_path):
     assert len(after.pages) == 3
     assert [float(page.mediabox.width) for page in after.pages] == [100, 960, 200]
     assert after.metadata.title == "Keep this title"
-    assert "86 alpha features" in " ".join(after.pages[1].extract_text().split())
+    assert "111 alpha features" in " ".join(after.pages[1].extract_text().split())
     assert after.pages[0].get_contents() is None
     assert after.pages[2].get_contents() is None
     assert Image.open(tmp_path / "1.jpg").size == (3200, 1800)

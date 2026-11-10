@@ -20,7 +20,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 TITLE = "Alpha features: switch them on in Preferences"
-# Each registry entry appears once. The two columns balance complete categories.
+# Each registry entry appears once. The two columns balance complete categories:
+# the first LEFT_GROUPS groups fill the left column, the rest the right one.
 GROUPS = (
     ("Segmentation", (
         (551, "StarDist segmentation backend"),
@@ -65,6 +66,10 @@ GROUPS = (
         (770, "Batch correction: typical variation normalisation"),
         (566, "GPU measurement (cuCIM, CuPy)"),
         (501, "Estimate plaque scale and growth time"),
+        (900, "Plaque effects measured against the papers' reports"),
+        (911, "Plaque sizes, absolute and relative, against reports"),
+        (898, "Infection and replication across a titration"),
+        (910, "Host-nucleus effector translocation by parasite load"),
     )),
     ("Time-lapse", (
         (556, "SAM2 propagation: segment once, follow each object"),
@@ -75,6 +80,8 @@ GROUPS = (
         (867, "Division effect sizes that resample movies"),
         (865, "Budding-yeast size control"),
         (866, "Will this cell divide soon?"),
+        (909, "Division prediction: shape-and-motion arm, guards"),
+        (901, "When the changes before a division begin"),
         (567, "Event detection: mitosis, egress, invasion, death"),
         (571, "Time-to-event: Kaplan-Meier and Cox"),
     )),
@@ -87,12 +94,21 @@ GROUPS = (
         (564, "Counterfactuals: morph a control cell toward a hit"),
         (561, "Self-supervised DINO pretraining"),
         (772, "Fixed crop scaling and a shuffled-label control"),
+        (899, "Classifier scores held out by well, with controls"),
         (470, "Judge every label from cross-channel ground truth"),
     )),
     ("Screens and statistics", (
         (570, "Arrayed-screen hits: SSMD, robust z, B-score"),
         (372, "Optical pooled screening (OPS) in Mask Generation"),
         (752, "OPS phenotype path: segment, merge, per-gene profiles"),
+        (871, "OPS phenotype store, measurement tables and raw crops"),
+        (872, "OPS runs that resume, skip missing fields, add controls"),
+        (874, "OPS cells seen in two fields counted once"),
+        (875, "OPS yield funnel and counts against a published table"),
+        (879, "OPS profiles from stored cell tables, re-run identical"),
+        (880, "OPS gene-pair retrieval mAP against a random null"),
+        (881, "Versioned gene-pair references with held-out halves"),
+        (882, "OPS profile specificity against fitness-matched decoys"),
         (873, "OPS decode rule (a) + S2 with a decoy FDR"),
         (876, "What makes an OPS genotype call false"),
         (877, "A calibrated confidence for each OPS genotype call"),
@@ -135,6 +151,7 @@ GROUPS = (
         (803, "GPU memory budget on a shared card"),
     )),
 )
+LEFT_GROUPS = 4
 # Alpha organism pages (ALPHA_SPECIES), drawn as a strip with their Home icons.
 SPECIES_ITEM = 634
 SPECIES = (
@@ -241,9 +258,11 @@ def _draw_pdf(target, count, page_size):
         label("ALPHA", 2910, 123, 160, 64, 32, "#d63fa1", True)
         # Rows shrink from 36 px so the longer column ends above the species strip.
         longest = max(sum(len(rows) for _, rows in column)
-                      for column in (GROUPS[:3], GROUPS[3:]))
+                      for column in (GROUPS[:LEFT_GROUPS], GROUPS[LEFT_GROUPS:]))
         row_height = min(36, int((1545 - 375) // longest))
-        for x, groups in ((120, GROUPS[:3]), (1640, GROUPS[3:])):
+        # The captions shrink with the rows, so a line never spills into the next.
+        caption_size = min(27, row_height - 4)
+        for x, groups in ((120, GROUPS[:LEFT_GROUPS]), (1640, GROUPS[LEFT_GROUPS:])):
             painter.fillRect(QRectF(x, 310, 1440, 65), QColor("#222932"))
             label("Category", x + 14, 310, 345, 65, 34, bold=True)
             label("Alpha feature", x + 388, 310, 1035, 65, 34, bold=True)
@@ -255,7 +274,7 @@ def _draw_pdf(target, count, page_size):
                 for _, caption in rows:
                     painter.fillRect(QRectF(x + 374, y, 1066, row_height - 3),
                                      QColor("#191f27"))
-                    label(caption, x + 388, y, 1038, row_height - 3)
+                    label(caption, x + 388, y, 1038, row_height - 3, caption_size)
                     y += row_height
         top, cell_h = 1560, 110
         painter.fillRect(QRectF(120, top, 371, cell_h), QColor("#222932"))

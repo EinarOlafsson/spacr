@@ -387,6 +387,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_eval_decoys": int,
     "ops_eval_time_split": bool,
     "ops_eval_covariates": (str, type(None)),
+    "ops_deterministic_blas": bool,
 }
 
 #: Which panel section each setting appears under.
@@ -520,6 +521,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_eval_references", "ops_eval_split", "ops_eval_null_size",
         "ops_eval_heldout_folds", "ops_eval_decoys",
         "ops_eval_time_split", "ops_eval_covariates",
+        "ops_deterministic_blas",
     ],
 }
 
@@ -1017,6 +1019,12 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(str or None) - A table with gene and cells_per_guide columns, the "
         "fitness that decoy partners are matched on; empty takes cells per "
         "guide from the run's own guide table. Default None. Alpha.",
+    "ops_deterministic_blas":
+        "(bool) - Run the profile phases with the BLAS and OpenMP libraries "
+        "held to one thread, so a re-run of the same settings file writes "
+        "bit-identical profiles and metrics. Off is faster on many cores, "
+        "and the last digits of the PCA and TVN can then change from run to "
+        "run. Default True. Alpha.",
     "ops_mitotic_model":
         "(str or None) - A mitotic-cell classifier trained on labelled cells "
         "with spacr.ops_mitotic.train_mitotic_classifier. When set it calls "

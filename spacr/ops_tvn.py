@@ -49,6 +49,8 @@ well-level profiles that pycytominer calls TVN; it is a different step.
 """
 from __future__ import annotations
 
+import os
+from contextlib import contextmanager
 from dataclasses import dataclass, field
 from functools import partial
 from typing import Any, Callable, Dict, Mapping, Optional, Sequence, Tuple, Union
@@ -959,7 +961,6 @@ def nt_pseudo_genes(guides: Sequence[str], genes: Sequence[str], control_guides:
 def _cell_tables(value: Any, plate: str, wells: Optional[Sequence[str]]) -> List[Tuple[str, str, str]]:
     """``(plate, well, path)`` of every stored cell table to profile."""
     import glob
-    import os
 
     folders = value if isinstance(value, Mapping) else {plate or "A": value}
     out = []
@@ -996,24 +997,36 @@ def profile_cell_tables(settings: Mapping[str, Any], report: Optional[Callable[[
         (:func:`profile_recipe`), ``ops_tvn_whiten_epsilon``,
         ``ops_profile_min_cells``, ``ops_profile_active_filter``
         (``{"hits_table": path, "fdr": 0.05}``: genes with any ``*_fdr``
-        column below ``fdr``), ``ops_profile_shrinkage``,
-        ``ops_profile_weighting`` and ``ops_control_prefix``.
+        column below ``fdr``), ``ops_profile_shrinkage`` (``'eb_nt'``:
+        :func:`spacr.gene_measurement_compare.shrink_gene_profiles`, with
+        ``ops_profile_shrinkage_prior_df``), ``ops_profile_weighting``
+        (``'contrastive_wiener'``:
+        :func:`spacr.gene_measurement_compare.contrastive_weighting`) and
+        ``ops_control_prefix``. Shrinkage and weighting run on every gene
+        before the active-gene filter, as in the aggregate phase.
     :param report: called with progress lines.
     :returns: ``(genes, guides, info)``: ``genes`` has ``gene``,
-        ``n_cells`` and ``PC_*``; ``guides`` has ``guide``, ``gene``,
-        ``n_cells`` and ``PC_*``; ``info`` counts cells and components and
-        times each step.
-    :raises ValueError: for a bad setting, a missing table, or a
-        shrinkage or weighting that this version does not offer.
+        ``n_cells`` and ``PC_*`` (``w_*`` once weighted); ``guides`` has
+        ``guide``, ``gene``, ``n_cells`` and the same columns; ``info``
+        counts cells and components, times each step and, when used,
+        records the shrinkage or weighting.
+    :raises ValueError: for a bad setting, a missing table, an unknown
+        shrinkage or weighting, or both asked for at once.
     """
     import time
 
     from .ops_engine import _ph_feature_columns
     from .tabular import read_table, table_columns
 
-    for key in ("ops_profile_shrinkage", "ops_profile_weighting"):
-        if settings.get(key):
-            raise ValueError(f"{key}={settings[key]!r} is not available in the profile phase yet; leave it empty")
+    shrinkage = str(settings.get("ops_profile_shrinkage") or "").strip().lower() or None
+    weighting = str(settings.get("ops_profile_weighting") or "").strip().lower() or None
+    if shrinkage not in (None, "eb_nt"):
+        raise ValueError(f"ops_profile_shrinkage must be empty or eb_nt; got {shrinkage!r}")
+    if weighting not in (None, "contrastive_wiener"):
+        raise ValueError(f"ops_profile_weighting must be empty or contrastive_wiener; got {weighting!r}")
+    if shrinkage and weighting:
+        raise ValueError("ops_profile_weighting and ops_profile_shrinkage both remove what the control "
+                         "guides explain; stacked, no direction is left, so choose one")
     say = report or (lambda text: None)
     recipe = profile_recipe(settings.get("ops_profile_recipe"))
     prefix = str(settings.get("ops_control_prefix") or "nontargeting")
@@ -1069,6 +1082,11 @@ def profile_cell_tables(settings: Mapping[str, Any], report: Optional[Callable[[
         genes = grouped[pcs].median()
         genes.insert(0, "n_cells", grouped.n_cells.sum())
     genes = genes[genes.n_cells > min_cells].reset_index()
+    adjusted: Dict[str, Any] = {}
+    if shrinkage:
+        genes, guides, adjusted["shrinkage"] = _profile_shrink(genes, guides, pcs, prefix, settings)
+    if weighting:
+        genes, guides, adjusted["weighting"] = _profile_weight(genes, guides, pcs, prefix)
     active = settings.get("ops_profile_active_filter")
     if active:
         hits = read_table(active["hits_table"], canonicalise=False, report=None)
@@ -1080,8 +1098,52 @@ def profile_cell_tables(settings: Mapping[str, Any], report: Optional[Callable[[
         guides = guides[guides.gene.isin(keep) | is_control].reset_index(drop=True)
     timing["aggregate_s"] = round(time.time() - started, 1)
     info = {"cells": int(len(cells)), "pcs": n_components, "tvn_dims": int(embedding.shape[1]),
-            "features": len(columns), "recipe": recipe, "tvn_whiten_epsilon": epsilon, "runtime": timing}
+            "features": len(columns), "recipe": recipe, "tvn_whiten_epsilon": epsilon, "runtime": timing,
+            **adjusted}
     return genes, guides, info
+
+
+def _profile_shrink(genes: pd.DataFrame, guides: pd.DataFrame, pcs: Sequence[str], prefix: str,
+                    settings: Mapping[str, Any]) -> Tuple[pd.DataFrame, pd.DataFrame, Dict[str, Any]]:
+    """Shrink the gene profiles toward the controls by their guides' reliability (item 902).
+
+    :param genes: the gene rows, ``gene``, ``n_cells`` and ``pcs``.
+    :param guides: the guide rows, ``guide``, ``gene``, ``n_cells`` and ``pcs``.
+    :param pcs: the profile columns.
+    :param prefix: the control gene prefix.
+    :param settings: read for ``ops_profile_shrinkage_prior_df`` (4 when empty).
+    :returns: ``(genes, guides, record)``: the shrunk gene rows in the order
+        of ``genes``, the guide rows unchanged, and the shrinkage parameters
+        with the median shrink factor.
+    """
+    from .gene_measurement_compare import shrink_gene_profiles
+
+    prior = settings.get("ops_profile_shrinkage_prior_df")
+    prior = 4.0 if prior is None else float(prior)
+    shrunk, factor, params = shrink_gene_profiles(guides, pcs, control_prefix=prefix, prior_df=prior)
+    out = genes[["gene", "n_cells"]].merge(shrunk[["gene", *pcs]], on="gene", how="inner")
+    return out, guides, {**params, "median_factor": float(factor.median())}
+
+
+def _profile_weight(genes: pd.DataFrame, guides: pd.DataFrame, pcs: Sequence[str], prefix: str
+                    ) -> Tuple[pd.DataFrame, pd.DataFrame, Dict[str, Any]]:
+    """Weight the gene and guide profiles by signal over guide noise (item 907).
+
+    :param genes: the gene rows, ``gene``, ``n_cells`` and ``pcs``.
+    :param guides: the guide rows, ``guide``, ``gene``, ``n_cells`` and ``pcs``.
+    :param pcs: the profile columns.
+    :param prefix: the control gene prefix.
+    :returns: ``(genes, guides, record)``: both tables in the weighted space
+        (``w_*`` columns) and the directions kept, ``kbar`` and the number of
+        control guides.
+    :raises ValueError: when fewer than two directions rise above the noise.
+    """
+    from .gene_measurement_compare import contrastive_weighting
+
+    weighted_genes, weighted_guides, info = contrastive_weighting(genes, guides, pcs, control_prefix=prefix)
+    record = {"directions_kept": int(info["directions_kept"]), "kbar": float(info["kbar"]),
+              "nt_guides": int(info["nt_guides"])}
+    return weighted_genes, weighted_guides, record
 
 
 def _profile_covariates(settings: Mapping[str, Any], guides: pd.DataFrame) -> Dict[str, float]:
@@ -1094,6 +1156,50 @@ def _profile_covariates(settings: Mapping[str, Any], guides: pd.DataFrame) -> Di
         return dict(zip(table.gene, table.cells_per_guide.astype(float)))
     grouped = guides.groupby("gene").n_cells
     return (grouped.sum() / grouped.size()).astype(float).to_dict()
+
+
+#: The environment variables that set the thread count of the BLAS and
+#: OpenMP libraries numpy, scipy and scikit-learn load.
+_BLAS_THREAD_VARIABLES = ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS",
+                          "BLIS_NUM_THREADS", "VECLIB_MAXIMUM_THREADS", "NUMEXPR_NUM_THREADS")
+
+
+@contextmanager
+def _pinned_blas(pin: bool):
+    """Hold the BLAS and OpenMP thread pools to one thread while the block runs.
+
+    A matrix product summed over several threads may add in another order
+    from one run to the next, so the last bits of a PCA or a covariance can
+    differ; one thread fixes the order. threadpoolctl limits the pools
+    already loaded; without it the thread-count variables are set, which
+    only reaches libraries loaded afterwards. Both are restored on exit.
+
+    :param pin: False leaves every pool as it is.
+    :returns: a context manager that yields ``"threadpoolctl"``,
+        ``"environment"`` or None (nothing pinned).
+    """
+    if not pin:
+        yield None
+        return
+    try:
+        from threadpoolctl import threadpool_limits
+    except ImportError:
+        threadpool_limits = None
+    if threadpool_limits is not None:
+        with threadpool_limits(limits=1):
+            yield "threadpoolctl"
+        return
+    saved = {name: os.environ.get(name) for name in _BLAS_THREAD_VARIABLES}
+    try:
+        for name in _BLAS_THREAD_VARIABLES:
+            os.environ[name] = "1"
+        yield "environment"
+    finally:
+        for name, value in saved.items():
+            if value is None:
+                os.environ.pop(name, None)
+            else:
+                os.environ[name] = value
 
 
 def run_profile_phases(settings: Mapping[str, Any], phases: Sequence[str] = ("profile", "evaluate"),
@@ -1112,10 +1218,12 @@ def run_profile_phases(settings: Mapping[str, Any], phases: Sequence[str] = ("pr
     :param settings: the OPS settings; missing keys take the defaults of
         :func:`spacr.ops_settings.ops_defaults`. Read here: ``dst_root``,
         ``ops_profile_run`` (the plates when empty), ``ops_profile_similarity``
-        (only ``'cosine'``), ``ops_profile_min_cells``, ``ops_reference_dir``,
+        (empty, ``'cosine'`` or ``'gene_cosine'``), ``ops_profile_min_cells``, ``ops_reference_dir``,
         ``ops_eval_covariates`` (a table with ``gene`` and
         ``cells_per_guide``; the guide table's own cells per guide when
-        empty), the ``ops_eval_*`` settings and those of
+        empty), ``ops_deterministic_blas`` (True holds the BLAS and OpenMP
+        pools to one thread, so a re-run of the same settings file gives
+        bit-identical tables), the ``ops_eval_*`` settings and those of
         :func:`profile_cell_tables`.
     :param phases: ``"profile"``, ``"evaluate"`` or both.
     :param report: called with progress lines.
@@ -1124,7 +1232,6 @@ def run_profile_phases(settings: Mapping[str, Any], phases: Sequence[str] = ("pr
         or an ``evaluate`` with no profile table to read.
     """
     import json
-    import os
     import time
 
     from . import ops_reference
@@ -1135,8 +1242,9 @@ def run_profile_phases(settings: Mapping[str, Any], phases: Sequence[str] = ("pr
     say = report or (lambda text: None)
     if not settings.get("dst_root"):
         raise ValueError("the profile phases need dst_root, the folder their results go to")
-    if str(settings.get("ops_profile_similarity") or "cosine") != "cosine":
-        raise ValueError(f"ops_profile_similarity must be 'cosine'; got {settings['ops_profile_similarity']!r}")
+    if str(settings.get("ops_profile_similarity") or "cosine") not in ("cosine", "gene_cosine"):
+        raise ValueError("the profile phases compare gene profiles by cosine: ops_profile_similarity must be "
+                         f"empty, cosine or gene_cosine; got {settings['ops_profile_similarity']!r}")
     cells = settings.get("ops_profile_cells")
     if settings.get("ops_profile_run"):
         run = str(settings["ops_profile_run"])
@@ -1149,36 +1257,38 @@ def run_profile_phases(settings: Mapping[str, Any], phases: Sequence[str] = ("pr
     outputs: Dict[str, str] = {}
     info: Dict[str, Any] = {}
     genes_path, guides_path = os.path.join(folder, "genes.parquet"), os.path.join(folder, "guides.parquet")
-    if "profile" in phases:
-        genes, guides, info = profile_cell_tables(settings, report=say)
-        outputs["genes"] = write_table(genes, genes_path, canonicalise=False)
-        outputs["guides"] = write_table(guides, guides_path, canonicalise=False)
-        say(f"profile {run}: {len(genes)} genes, {len(guides)} guides from {info['cells']} cells")
-    if "evaluate" in phases:
-        if not os.path.isfile(genes_path):
-            raise ValueError(f"evaluate needs the profile table {genes_path}; run the profile phase first")
-        started = time.time()
-        genes = read_table(genes_path, canonicalise=False, report=None)
-        guides = read_table(guides_path, canonicalise=False, report=None)
-        genes = genes[genes.n_cells > int(settings["ops_profile_min_cells"])]
-        columns = [c for c in genes.columns if c.startswith("PC_")]
-        names = genes.gene.to_numpy()
-        pcs = ops_reference.embed_gene_profiles(genes[columns].to_numpy(float))
-        fitness = _profile_covariates(settings, guides)
-        reference_dir = settings.get("ops_reference_dir")
-        metrics, per_gene = ops_reference.evaluate_gene_profiles(
-            names, pcs, fitness, reference_dir, settings, arm=run,
-            null_cache=os.path.join(str(settings["dst_root"]), "ops_profile", "null_cache"))
-        extra = ops_reference.specificity_metrics(names, pcs, fitness, reference_dir, settings, arm=run)
-        for name, table in (("metrics.csv", metrics), ("metrics.extra.csv", extra),
-                            ("per_gene.csv.gz", per_gene)):
-            outputs[name] = write_table(table, os.path.join(folder, name), canonicalise=False)
-        info.setdefault("runtime", {})["metrics_s"] = round(time.time() - started, 1)
-        info["references"] = ops_reference.reference_record(
-            sorted({r for r in per_gene.reference.unique()}), reference_dir)
-        say(f"evaluate {run}: {int(metrics.genes.iloc[0])} genes scored")
+    with _pinned_blas(bool(settings.get("ops_deterministic_blas", True))) as pinned:
+        if "profile" in phases:
+            genes, guides, info = profile_cell_tables(settings, report=say)
+            outputs["genes"] = write_table(genes, genes_path, canonicalise=False)
+            outputs["guides"] = write_table(guides, guides_path, canonicalise=False)
+            say(f"profile {run}: {len(genes)} genes, {len(guides)} guides from {info['cells']} cells")
+        if "evaluate" in phases:
+            if not os.path.isfile(genes_path):
+                raise ValueError(f"evaluate needs the profile table {genes_path}; run the profile phase first")
+            started = time.time()
+            genes = read_table(genes_path, canonicalise=False, report=None)
+            guides = read_table(guides_path, canonicalise=False, report=None)
+            genes = genes[genes.n_cells > int(settings["ops_profile_min_cells"])]
+            columns = [c for c in genes.columns if c.startswith(("PC_", "w_"))]
+            names = genes.gene.to_numpy()
+            pcs = ops_reference.embed_gene_profiles(genes[columns].to_numpy(float))
+            fitness = _profile_covariates(settings, guides)
+            reference_dir = settings.get("ops_reference_dir")
+            metrics, per_gene = ops_reference.evaluate_gene_profiles(
+                names, pcs, fitness, reference_dir, settings, arm=run,
+                null_cache=os.path.join(str(settings["dst_root"]), "ops_profile", "null_cache"))
+            extra = ops_reference.specificity_metrics(names, pcs, fitness, reference_dir, settings, arm=run)
+            for name, table in (("metrics.csv", metrics), ("metrics.extra.csv", extra),
+                                ("per_gene.csv.gz", per_gene)):
+                outputs[name] = write_table(table, os.path.join(folder, name), canonicalise=False)
+            info.setdefault("runtime", {})["metrics_s"] = round(time.time() - started, 1)
+            info["references"] = ops_reference.reference_record(
+                sorted({r for r in per_gene.reference.unique()}), reference_dir)
+            say(f"evaluate {run}: {int(metrics.genes.iloc[0])} genes scored")
+    info["blas_threads"] = pinned
     keys = sorted(k for k in settings if k.startswith(("ops_profile_", "ops_eval_", "ops_reference_"))
-                  or k in ("ops_tvn_whiten_epsilon", "plate", "ops_control_prefix"))
+                  or k in ("ops_tvn_whiten_epsilon", "plate", "ops_control_prefix", "ops_deterministic_blas"))
     record = {"settings": {k: settings[k] for k in keys}, "phases": list(phases), "outputs": outputs, **info}
     with open(os.path.join(folder, "runtime.json"), "w", encoding="utf-8") as handle:
         json.dump(record, handle, indent=1, default=str)

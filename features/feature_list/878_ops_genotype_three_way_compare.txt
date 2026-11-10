@@ -1,0 +1,37 @@
+OPS GENOTYPE CALLS AGAINST OTHER PIPELINES' CALLS (THREE-WAY COMPARISON)
+=======================================================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha, under ALPHA_FEATURES[878]).
+Requested: maintainer via paper session (spec ITEM_ops_genotype_three_way_compare.md).
+Owner: paper session.
+Related: 873, 876, 877.
+
+WHAT IT DOES
+The compare_calls phase of spacr.ops_engine.run_ops (also run after the decode
+when ops_compare_tables is set) reads other pipelines' per-cell call tables
+(ops_compare_tables: a name -> path mapping, a JSON object or name=path
+pairs; columns well, site, y, x in the tile frame and call), keeps the cells
+of the well:site fields listed in ops_compare_fields (all when empty) that a
+field owns away from its border (COMPARE_EDGE_PX, 10 px), and matches them
+to spaCR's nuclei
+by mutual nearest neighbours within ops_compare_match_px (4 px). The links
+of every pair of tables are joined shortest first, and a link that would put
+two cells of one table into a unit is skipped (spacr.ops_decode.match_units).
+spaCR's side is the decode's own calls, decoys included, so no rule is
+re-implemented. Writes results/ops_compare/: units.parquet (one row per
+matched unit with every table's call), categories.csv (all agree, two agree,
+one only, ... with a decoy FDR per category and table) and tables.csv
+(assigned % and FDR per table over the cells every table holds).
+Settings: ops_compare_tables, ops_compare_match_px (4.0), ops_compare_fields.
+Code: spacr/ops_decode.py (match_units, compare_field, compare_summary,
+compare_region, run_compare_calls), spacr/ops_engine.py (the compare_calls
+phase). Test: tests/test_ops_compare_calls_878.py.
+
+VALIDATION (2026-11-09, CPU, plate A of Funk et al. 2022)
+- spaCR against Brieflow and Funk et al.'s published calls: 95,695 matched
+  units, with categories identical to the reference three-way comparison of
+  the decode-yield study.
+- On the 91,591 cells all three pipelines saw: spaCR assigned 76.13 % at a
+  decoy FDR of 0.055, Brieflow 63.73 % at 0.082 and Funk et al. 61.51 % at
+  0.099.

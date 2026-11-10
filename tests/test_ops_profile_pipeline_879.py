@@ -120,9 +120,14 @@ def test_every_recipe_choice_runs(tmp_path):
 
 def test_bad_inputs_are_refused(tmp_path):
     cells = _cell_tables(tmp_path / "cells", wells=("A1",))
-    with pytest.raises(ValueError, match="not available"):
-        T.profile_cell_tables({"ops_profile_cells": str(cells), "ops_tvn_whiten_epsilon": 0,
-                               "ops_profile_shrinkage": "eb_nt"})
+    base = {"ops_profile_cells": str(cells), "ops_tvn_whiten_epsilon": 0}
+    with pytest.raises(ValueError, match="eb_nt"):
+        T.profile_cell_tables({**base, "ops_profile_shrinkage": "james_stein"})
+    with pytest.raises(ValueError, match="contrastive_wiener"):
+        T.profile_cell_tables({**base, "ops_profile_weighting": "pca"})
+    with pytest.raises(ValueError, match="choose one"):
+        T.profile_cell_tables({**base, "ops_profile_shrinkage": "eb_nt",
+                               "ops_profile_weighting": "contrastive_wiener"})
     with pytest.raises(ValueError, match="is not a folder"):
         T.profile_cell_tables({"ops_profile_cells": str(tmp_path / "none"), "ops_tvn_whiten_epsilon": 0})
     with pytest.raises(ValueError, match="no stored cell table"):
@@ -189,3 +194,105 @@ def test_a_named_run_goes_to_its_own_folder(tmp_path):
     out = run_ops({"dst_root": str(tmp_path), "ops_profile_cells": str(cells), "ops_profile_run": "named",
                    "ops_tvn_whiten_epsilon": 0, "ops_profile_min_cells": 5}, phases=("profile",))
     assert out["folder"] == str(tmp_path / "ops_profile" / "named") and "genes" in out["outputs"]
+
+
+def test_shrinkage_and_weighting_run_in_the_profile_phase(tmp_path):
+    """902 and 907 in the profile path: the same functions the aggregate phase uses."""
+    from spacr.gene_measurement_compare import contrastive_weighting, shrink_gene_profiles
+
+    cells = _cell_tables(tmp_path / "cells")
+    base = {"ops_profile_cells": str(cells), "plate": "P1", "ops_tvn_whiten_epsilon": 0,
+            "ops_profile_min_cells": 10}
+    genes, guides, info = T.profile_cell_tables(base)
+    assert "shrinkage" not in info and "weighting" not in info
+    pcs = [c for c in genes.columns if c.startswith("PC_")]
+    shrunk, kept, shrink_info = T.profile_cell_tables({**base, "ops_profile_shrinkage": "eb_nt",
+                                                       "ops_profile_shrinkage_prior_df": 2.0})
+    expected, factor, _params = shrink_gene_profiles(guides, pcs, control_prefix="nontargeting", prior_df=2.0)
+    expected = genes[["gene", "n_cells"]].merge(expected, on="gene")
+    pd.testing.assert_frame_equal(shrunk.reset_index(drop=True), expected.reset_index(drop=True))
+    pd.testing.assert_frame_equal(kept, guides)
+    assert shrink_info["shrinkage"]["prior_df"] == 2.0
+    assert shrink_info["shrinkage"]["median_factor"] == pytest.approx(float(factor.median()))
+    assert np.abs(shrunk[pcs].to_numpy()).sum() < np.abs(genes[pcs].to_numpy()).sum()
+    _, _, record = T.profile_cell_tables({**base, "ops_profile_shrinkage": "EB_NT",
+                                          "ops_profile_shrinkage_prior_df": None})
+    assert record["shrinkage"]["prior_df"] == 4.0
+    weighted, weighted_guides, weight_info = T.profile_cell_tables(
+        {**base, "ops_profile_weighting": "contrastive_wiener"})
+    want_genes, want_guides, want = contrastive_weighting(genes, guides, pcs, control_prefix="nontargeting")
+    pd.testing.assert_frame_equal(weighted, want_genes)
+    pd.testing.assert_frame_equal(weighted_guides, want_guides)
+    assert weight_info["weighting"] == {"directions_kept": int(want["directions_kept"]),
+                                        "kbar": float(want["kbar"]), "nt_guides": int(want["nt_guides"])}
+    assert any(c.startswith("w_") for c in weighted.columns)
+    assert not any(c.startswith("PC_") for c in weighted.columns)
+
+
+def test_evaluate_scores_weighted_profiles(tmp_path):
+    cells = _cell_tables(tmp_path / "cells")
+    refs = tmp_path / "refs"
+    refs.mkdir()
+    _references(refs)
+    out = run_ops({"dst_root": str(tmp_path / "out"), "plate": "P1", "ops_profile_cells": str(cells),
+                   "ops_tvn_whiten_epsilon": 0, "ops_reference_dir": str(refs), "ops_eval_null_size": 100,
+                   "ops_eval_references": ["CORUM"], "ops_eval_decoys": 2,
+                   "ops_profile_weighting": "contrastive_wiener", "ops_profile_similarity": "gene_cosine"},
+                  phases=("profile", "evaluate"))
+    folder = tmp_path / "out" / "ops_profile" / "P1"
+    metrics = pd.read_csv(folder / "metrics.csv")
+    assert out["info"]["weighting"]["directions_kept"] >= 2
+    assert (metrics.reference == "CORUM").any()
+    record = json.loads((folder / "runtime.json").read_text())
+    assert record["settings"]["ops_profile_weighting"] == "contrastive_wiener"
+
+
+def test_a_rerun_of_the_same_settings_is_bit_identical(tmp_path):
+    """879: ops_deterministic_blas pins the BLAS threads, so two runs write the same tables."""
+    cells = _cell_tables(tmp_path / "cells")
+    refs = tmp_path / "refs"
+    refs.mkdir()
+    _references(refs)
+    tables = {}
+    for run in ("one", "two"):
+        out = run_ops({"dst_root": str(tmp_path / run), "plate": "P1", "ops_profile_cells": str(cells),
+                       "ops_tvn_whiten_epsilon": 0, "ops_reference_dir": str(refs), "ops_eval_null_size": 100,
+                       "ops_eval_references": ["CORUM", "KEGG"], "ops_eval_decoys": 2},
+                      phases=("profile", "evaluate"))
+        assert out["info"]["blas_threads"] in ("threadpoolctl", "environment")
+        folder = tmp_path / run / "ops_profile" / "P1"
+        tables[run] = {name: pd.read_parquet(folder / name) if name.endswith(".parquet")
+                       else pd.read_csv(folder / name)
+                       for name in ("genes.parquet", "guides.parquet", "metrics.csv", "metrics.extra.csv")}
+        record = json.loads((folder / "runtime.json").read_text())
+        assert record["settings"]["ops_deterministic_blas"] is True
+    for name, table in tables["one"].items():
+        other = tables["two"][name]
+        numeric = table.select_dtypes("number").columns
+        assert np.array_equal(table[numeric].to_numpy(), other[numeric].to_numpy(), equal_nan=True), name
+        pd.testing.assert_frame_equal(table, other, check_exact=True)
+    loose = run_ops({"dst_root": str(tmp_path / "loose"), "plate": "P1", "ops_profile_cells": str(cells),
+                     "ops_tvn_whiten_epsilon": 0, "ops_deterministic_blas": False}, phases=("profile",))
+    assert loose["info"]["blas_threads"] is None
+
+
+def test_blas_pin_falls_back_to_the_thread_variables(monkeypatch):
+    import builtins
+    import os
+
+    real_import = builtins.__import__
+
+    def refuse_threadpoolctl(name, *args, **kwargs):
+        if name == "threadpoolctl":
+            raise ImportError("no threadpoolctl")
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", refuse_threadpoolctl)
+    monkeypatch.setenv("OMP_NUM_THREADS", "8")
+    monkeypatch.delenv("MKL_NUM_THREADS", raising=False)
+    with T._pinned_blas(True) as how:
+        assert how == "environment"
+        assert os.environ["OMP_NUM_THREADS"] == os.environ["MKL_NUM_THREADS"] == "1"
+    assert os.environ["OMP_NUM_THREADS"] == "8" and "MKL_NUM_THREADS" not in os.environ
+    with T._pinned_blas(False) as how:
+        assert how is None

@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-739 Lifecycle: new, 144 Lifecycle: future in features/feature_list/.
+739 Lifecycle: new, 145 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -408,6 +408,9 @@ FUTURE FEATURES
 
   877  CALIBRATED PER-CELL GENOTYPE CONFIDENCE
        877_ops_genotype_confidence.txt
+
+  878  OPS GENOTYPE CALLS AGAINST OTHER PIPELINES' CALLS (THREE-WAY COMPARISON)
+       878_ops_genotype_three_way_compare.txt
 
   879  ONE SETTINGS-DRIVEN PROFILE PATH: STORED CELL TABLES -> PROFILES -> METRICS
        879_ops_profile_pipeline.txt
