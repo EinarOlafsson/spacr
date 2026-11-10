@@ -952,3 +952,67 @@ Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam-v8-e50 <https:/
    :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-v8-e50/blob/main/cards/page3.png
 
 SHA-256 ``b4f4a9e9d026f44c597c2a865cd35ce66cbde4293cc173935720c34daa1dec73``.
+
+Toxoplasma Plaque V9 (V8 epoch 100, candidate)
+----------------------------------------------
+
+**Architecture.** Cellpose-SAM (vanilla cpsam_v2 initialization; Cellpose 4.2.1.1)
+
+**Trained on.** All 51192 overlapping 256 px grid windows per epoch from all 810 training crops at a 1500 px longest well side; whole-image D4; 100 epochs from cpsam_v2
+
+**Measured.** F1 0.656 against stock cpsam_v2's 0.200 on the 101 strict hold-out fields at IoU 0.5; AJI 0.692 against 0.211
+
+.. list-table:: Published scorecard
+   :header-rows: 1
+
+   * - Metric
+     - This model
+     - Stock
+     - Difference
+   * - F1
+     - 0.6557
+     - 0.1999
+     - 0.4558
+   * - Boundary F1 (2 px)
+     - 0.7176
+     - 0.2247
+     - 0.4929
+   * - Precision
+     - 0.7059
+     - 0.1998
+     - 0.5061
+   * - Recall
+     - 0.6122
+     - 0.2001
+     - 0.4121
+   * - AJI
+     - 0.6921
+     - 0.2105
+     - 0.4816
+   * - Dice
+     - 0.9003
+     - 0.3923
+     - 0.5080
+
+Evaluation set: ``version8_pooled_curated_grouped_test``; version ``strict hold-out, pooled``; 101 scored fields and 4533 annotated objects.
+
+* Epoch-100 checkpoint of the V8 complete-coverage run, where training ended on its plateau rule; the epoch-50 interim of the same run is toxoplasma_plaque_v7.
+* Thresholds chosen on the 102 validation crops (cellprob 0.0, flow 0.4, min size 0); test used for reporting only. The 101 test crops were reported before, for an older V8 attempt and for the epoch-50 interim, so they are not a fresh external or prospective test.
+* FP32 inference, 1st/99th percentile normalization; well resized to a 1500 px longest side with no enlargement cap.
+* Candidate; existing plaque models and the default stay as they are.
+
+Published as `einarolafsson/toxoplasma-plaque-segmentation-cpsam-v9 <https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-v9>`_, as ``cpsam_plaque_v9``.
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-v9/resolve/main/cards/page1.png
+   :alt: Published scorecard for Toxoplasma Plaque V9 (V8 epoch 100, candidate): cards/page1.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-v9/blob/main/cards/page1.png
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-v9/resolve/main/cards/page2.png
+   :alt: Published scorecard for Toxoplasma Plaque V9 (V8 epoch 100, candidate): cards/page2.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-v9/blob/main/cards/page2.png
+
+.. image:: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-v9/resolve/main/cards/page3.png
+   :alt: Published scorecard for Toxoplasma Plaque V9 (V8 epoch 100, candidate): cards/page3.png
+   :target: https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-v9/blob/main/cards/page3.png
+
+SHA-256 ``8f58d3744fd7b3bcf0fc7cf9f9ecc44030da03b911163f70af689ca9804b8f35``.

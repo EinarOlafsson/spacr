@@ -85,3 +85,7 @@
        (Cellpose-SAM (vanilla cpsam_v2 initialization; Cellpose 4.2.1.1))
      - 1013 accepted curated well crops; grouped 810 train / 102 validation / 101 test. Historical images were pooled and repartitioned
      - F1 0.668 against stock cpsam_v2's 0.200 on the 101 strict hold-out fields at IoU 0.5; AJI 0.698 against 0.211
+   * - ``toxoplasma_plaque_v9``
+       (Cellpose-SAM (vanilla cpsam_v2 initialization; Cellpose 4.2.1.1))
+     - 1013 accepted curated well crops; grouped 810 train / 102 validation / 101 test. Historical images were pooled and repartitioned
+     - F1 0.656 against stock cpsam_v2's 0.200 on the 101 strict hold-out fields at IoU 0.5; AJI 0.692 against 0.211

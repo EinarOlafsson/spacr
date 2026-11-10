@@ -5,6 +5,6 @@
 
 Äldre modeller: `toxoplasma_pv_v3 <../../models/toxoplasma_pv_v3.md>`__, `toxoplasma_pv_v2 <../../models/toxoplasma_pv_v2.md>`__, `toxoplasma_pv_v1 <../../models/toxoplasma_pv_v1.md>`__, `toxoplasma_plaque_v5 <../../models/toxoplasma_plaque_v5.md>`__, `toxoplasma_plaque_v4 <../../models/toxoplasma_plaque_v4.md>`__, `toxoplasma_plaque_v2 <../../models/toxoplasma_plaque_v2.md>`__, `toxoplasma_plaque_v1 <../../models/toxoplasma_plaque_v1.md>`__, `toxoplasma_well_detector_v2 <../../models/toxoplasma_well_detector_v2.md>`__, `toxoplasma_well_detector_v1 <../../models/toxoplasma_well_detector_v1.md>`__
 
-Alternativ: `toxoplasma_pv_v5 <../../models/toxoplasma_pv_v5.md>`__, `toxoplasma_plaque_v7 <../../models/toxoplasma_plaque_v7.md>`__ (kandidat), `toxoplasma_plaque_v3 <../../models/toxoplasma_plaque_v3.md>`__, `live_cell_v1 <../../models/live_cell_v1.md>`__
+Alternativ: `toxoplasma_pv_v5 <../../models/toxoplasma_pv_v5.md>`__, `toxoplasma_plaque_v9 <../../models/toxoplasma_plaque_v9.md>`__ (kandidat), `toxoplasma_plaque_v7 <../../models/toxoplasma_plaque_v7.md>`__ (kandidat), `toxoplasma_plaque_v3 <../../models/toxoplasma_plaque_v3.md>`__, `live_cell_v1 <../../models/live_cell_v1.md>`__
 
 `Maskgenerator <https://einarolafsson.github.io/projects/spacr/sv/#mask-generator>`__
