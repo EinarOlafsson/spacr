@@ -10,13 +10,18 @@ Related: 879, 881, 895.
 
 RESULT
 Plate A TVN gene profiles vs JUMP cpg0016 CRISPR/ORF consensus profiles
-(scratch accept_892.py, settings_892.json): see the lane D report for the
-999-permutation run. The observed concordance statistics of both variants
-(Mantel 0.018297, partial 0.010642, overlap@10 0.040403, STRING share
-0.480620, 1,032 pairs; with generic axes removed 0.034312 / 0.019484 /
-0.034257 / 0.555340 / 515), all four top-pair tables (1,194 / 561 CRISPR,
-741 / 637 ORF pairs, every column to 7e-16) and their summary counts are
-identical to source_data/cpg0016_final.
+(scratch accept_892.py, settings_892.json), against
+source_data/cpg0016_final:
+- c6_precise_concordance, both TVN variants (all 25 rows each: the five
+  statistics and the four 999-permutation controls with mean, interval,
+  maximum and p): identical to 7e-12; every p value identical.
+- c5 top-pair tables (CRISPR 1,194 / 561 pairs, ORF 741 / 637 with generic
+  axes removed): identical in every column (cosines to 7e-16), and the
+  c5 summary counts identical.
+- c6_precise_candidates (11 named items, 9,999 draws): observed values,
+  representations, partner counts, null 95th percentiles and all four p
+  values identical. BH q of the reference pooled these with the 2,000-draw
+  c4 rows; spaCR reports the p values, q pooling is left to the caller.
 
 NOT DONE
 - No Measure GUI entry or registered settings panel; settings are passed as a

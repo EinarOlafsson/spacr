@@ -19,8 +19,21 @@ ops_control_prefix.
 
 RESULT
 Plate A, 5,281,214 interphase cells (scratch accept_879.py with
-settings_879_A_check.json): the same 5,112 genes and 20,439 guides with the
-same cell counts as final_pipeline.py --plates A. The TVN components differ
-by up to 1e-3 (guides 2.6e-3): spaCR's shared TVN core rotates on a
-double-precision eigendecomposition, while Brieflow's tvn_on_controls, which
-the reference called at epsilon 0, fits a single-precision scikit-learn PCA.
+settings_879_A_check.json), against final_pipeline.py --plates A
+(final/A_check, eval/external/X_final_A_check*, eval/metrics/X_final_A_check*):
+- the same 5,112 genes and 20,439 guides in the same order with the same
+  cell counts; the TVN components differ by up to 1e-3 (guides 2.6e-3);
+- all 31 metric rows and 7 specificity rows present with the same queries,
+  pairs and complexes; mAP within 1.6e-5, AUROC 2e-5, AUPRC 7e-7, the share
+  of genes with q < 0.05 within 0.0019 (about 4 of 2,079 CORUM genes), the
+  fitness-matched specificity mAP within 1.8e-4 and complex top-5 within
+  1/5,960; the time-split control share differs by 0.0016, which moves the
+  enrichment (a ratio over a small control share) by 1.9.
+The cause is not the TVN rotation: replacing the shared core by a
+step-for-step single-precision port of Brieflow's tvn_on_controls left the
+same 1e-3 difference (tried and reverted). TVN scales every control axis to
+unit variance, so the float32 rounding of the 5.3-million-cell PCA
+products (whose summation order depends on the BLAS threads) is amplified
+on the weak axes, as the ops_tvn module notes describe for the PCA sample.
+Bit-identical profiles would need a pinned single-threaded BLAS in both
+runs; this was not attempted.
