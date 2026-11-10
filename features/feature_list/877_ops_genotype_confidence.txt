@@ -1,0 +1,35 @@
+CALIBRATED PER-CELL GENOTYPE CONFIDENCE
+=======================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha, under ALPHA_FEATURES[877]).
+Requested: maintainer via paper session (spec ITEM_ops_genotype_confidence.md).
+Owner: paper session.
+Related: 873, 876.
+
+WHAT IT DOES
+Under the 873 decode rules every decode writes
+results/ops_decode/calls_<well>.parquet: every call, decoys included, with the
+read and pixel support behind it (the study's decode_diag.py columns).
+ops_genotype_confidence (False) runs the decode_qc phase over the plate's
+wells: P(decoy | evidence) by logistic regression, its isotonic recalibration,
+histogram gradient boosting and matched strata, cross-fitted in five folds by
+md5(well|site); a real call's error is c * P(decoy) / P(real), c =
+ops_fdr_scale / ops_decoy_library_k, and genotype_confidence = 1 - error. A
+shuffled-label control is fitted too. Writes results/ops_decode_qc/
+confidence_reliability.csv (bin, predicted, observed, n, ...),
+confidence_reliability_all_models.csv, confidence_metrics.json (AUC, ECE,
+shuffled AUC, every model), confidence_strata.csv, confidence_calls.parquet,
+and adds genotype_confidence to ops_barcodes; ops_confidence_min drops calls
+below it. ECE = sum over bins of (real calls in bin / real calls) x
+|predicted - observed| for the chosen model.
+Settings: ops_confidence_model (hist_gbm | logistic | isotonic | strata |
+auto), ops_confidence_calibration (target_decoy | none), ops_confidence_bins
+(10), ops_confidence_seed (20261107, the reference seed), ops_confidence_min.
+Code: spacr/ops_decode.py (genotype_confidence, run_decode_qc).
+
+VALIDATION (2026-11-09, CPU)
+- The per-call evidence rows of spacr.ops_decode.field_calls equal
+  decode_diag.py's output row for row and column for column (plate A A1 sites
+  0-2, 11,892 calls, exact equality including row order).
+- Full plate A (5,979,511 calls): see the item report.

@@ -260,7 +260,7 @@ _CROSSTALK_METHODS = ("none", "argmax_median", "median", "percentile")
 
 #: How each base channel is registered (``ops_channel_registration``); see
 #: :data:`spacr.ops_cycles.CHANNEL_MODES`.
-_CHANNEL_REGISTRATIONS = ("background", "spots")
+_CHANNEL_REGISTRATIONS = ("background", "spots", "spots_refine")
 _CHANNEL_REGISTRATION = "spots"
 _CROSSTALK = "argmax_median"
 
@@ -287,7 +287,7 @@ _PH_PHASES = ("ph_flatfield", "ph_segment", "ph_measure", "ph_masks",
               "ph_crops", "report")
 
 #: Every phase :func:`run_ops` accepts, in the order they run.
-_ALL_PHASES = _PHASES + _PH_PHASES
+_ALL_PHASES = _PHASES + _PH_PHASES + ("decode_qc", "compare_calls")
 
 #: The columns of ``ops_phenotype`` that hold each field's similarity
 #: transform into the well frame: ``well = scale * R(rotation_deg) @
@@ -299,6 +299,10 @@ _PH_TRANSFORM_COLUMNS = ("scale", "rotation_deg", "offset_y", "offset_x",
 #: process by :func:`_init_decode_worker` rather than shipped with every
 #: field.
 _LIBRARY: frozenset = frozenset()
+
+#: The decoy barcodes a decode worker matches alongside :data:`_LIBRARY`
+#: when a decoy FDR is asked for (item 873).
+_DECOYS: frozenset = frozenset()
 
 
 def _say(message: str) -> None:
@@ -1439,13 +1443,16 @@ def _spotnet_peaks(stack: np.ndarray, detect=None,
     return np.unique(peaks, axis=0)
 
 
-def _init_decode_worker(library: frozenset) -> None:
+def _init_decode_worker(library: frozenset,
+                        decoys: frozenset = frozenset()) -> None:
     """Hand a decode worker process the guide library once.
 
     :param library: the guide barcodes.
+    :param decoys: the decoy barcodes matched alongside them.
     """
-    global _LIBRARY
+    global _LIBRARY, _DECOYS
     _LIBRARY = library
+    _DECOYS = decoys
 
 
 def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
@@ -1512,7 +1519,8 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     tick = time.perf_counter()
     field = align_field(planes, reference=reference, gpu=gpu,
                         channel_mode=str(task.get("channel_mode")
-                                         or "background"))
+                                         or "background"),
+                        **task.get("registration", {}))
     ticks["align"] = time.perf_counter() - tick
     base.update(kept=list(field.kept), refused=list(field.refused),
                 refused_channels=[list(pair) for pair in field.refused_channels],
@@ -1536,11 +1544,17 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         for k in range(stack.shape[1]):
             filtered[c, k] = np.clip(
                 -ndimage.gaussian_laplace(stack[c, k], 1.0), 0, None)
-    del stack
     shifts = [abs(v) for pair in field.cycle_shifts.values() for v in pair]
     shifts += [abs(v) for per in field.channel_shifts.values()
                for pair in per for v in pair]
     margin = 5 + max(shifts + [0])
+    if task.get("rule_a"):
+        result = _decode_field_rule_a(task, field, stack, filtered, spotnet,
+                                      margin, gpu)
+        ticks["spots_calls"] = time.perf_counter() - tick
+        return {**base, **result,
+                "seconds": {k: round(v, 2) for k, v in ticks.items()}}
+    del stack
     height, width = filtered.shape[-2:]
     if spotnet is not None:
         peaks = spotnet
@@ -1604,6 +1618,68 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
             if intensities is not None and len(intensities)
             else np.zeros((len(rows), len(cycles), len(_BASES)), np.float32))
     return result
+
+
+def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
+                         spotnet, margin: int, gpu: bool) -> Dict[str, Any]:
+    """The rest of :func:`_decode_field` under the item-873 decode rules.
+
+    :param task: the field's task, carrying ``rule_a`` (the rule from
+        :func:`spacr.ops_decode.decode_rule` with ``threshold``,
+        ``footprint``, ``max_distance``, ``min_fraction`` and
+        ``single_read_quality``), ``crosstalk`` and the objects.
+    :param field: the aligned field.
+    :param stack: its aligned stack.
+    :param filtered: the stack after the -LoG filter.
+    :param spotnet: a backend detector's peaks, or None for the native score.
+    :param margin: how far from the edge a read must lie.
+    :param gpu: let the peak finder use the card.
+    :returns: ``n_cycles``, ``spots``, ``attributed``, ``ambiguous``,
+        ``exact``, ``max_channel_shift``, ``rule_a`` (from
+        :func:`spacr.ops_decode.field_calls`) and, when the field cache is
+        stored, ``cache``.
+    """
+    from scipy import ndimage
+
+    from .ops_decode import (field_calls, field_evidence, matcher_for,
+                             save_field_cache, _CACHE_FLOOR)
+    from .ops_sbs import estimate_read_locations, find_peaks
+
+    rule = task["rule_a"]
+    score = estimate_read_locations(filtered)
+    if spotnet is not None:
+        peaks = np.asarray(spotnet).reshape(-1, 2)
+        strength = np.full(len(peaks), 1e6, np.float32)
+    else:
+        peaks = find_peaks(score, min_distance=2, gpu=gpu)
+        surface = score - ndimage.minimum_filter(score, size=5)
+        strength = (surface[peaks[:, 0], peaks[:, 1]] if peaks.size
+                    else np.zeros(0, np.float32))
+    floor = min(_CACHE_FLOOR, rule["threshold"]) if rule["store_cache"] \
+        else rule["threshold"]
+    evidence = field_evidence(
+        stack, filtered, score, peaks, strength, field.kept, task, edge=margin,
+        floor=floor,
+        pixel_percentile=rule["pixel_percentile"] if rule["pixels"] else None,
+        features=bool(rule.get("features")))
+    matcher, decoys = matcher_for(_LIBRARY, _DECOYS)
+    calls = field_calls(
+        evidence, rule, sorted(_LIBRARY), matcher, decoys,
+        threshold=rule["threshold"], footprint=rule["footprint"],
+        max_distance=rule["max_distance"], min_fraction=rule["min_fraction"],
+        single_read_quality=rule["single_read_quality"],
+        crosstalk=str(task.get("crosstalk") or "none"), evidence_rows=True)
+    out = {"n_cycles": len(field.kept), "spots": calls["reads"],
+           "attributed": calls["reads_near"] - calls["reads_ambiguous"],
+           "ambiguous": calls["reads_ambiguous"], "exact": None,
+           "rule_a": calls, "ids": np.zeros(0, np.int64), "calls": [],
+           "quality": np.zeros(0, np.float32),
+           "max_channel_shift": int(max([abs(v) for per in field.channel_shifts.values()
+                                         for pair in per for v in pair] + [0]))}
+    if rule["store_cache"] and task.get("cache_folder"):
+        out["cache"] = save_field_cache(task["cache_folder"], task["site"],
+                                        evidence)
+    return out
 
 
 def _crosstalk_arguments(task: Mapping[str, Any]) -> Dict[str, Any]:
@@ -1754,6 +1830,101 @@ def _cell_rule(settings: Mapping[str, Any], library: Sequence[str]
     return rule, mismatches, min_reads, fraction
 
 
+def _rule_a_flag(settings: Mapping[str, Any], key: str) -> bool:
+    """One boolean decode setting of item 873, its default when empty.
+
+    :param settings: the settings.
+    :param key: the key.
+    :returns: the value.
+    """
+    from .ops_decode import _flag
+
+    return _flag(settings, key)
+
+
+def _decode_rule_a_report(db, plate, well, settings, rule_a, tasks, results,
+                          decoded, skipped_sites, placements, owner_site,
+                          cycles, channels, store_reads, detector, crosstalk,
+                          channel_mode, workers, started) -> Dict[str, Any]:
+    """Store a well decoded under the item-873 rules and report it.
+
+    :param db: the measurements database.
+    :param plate: the plate.
+    :param well: the well.
+    :param settings: the resolved settings.
+    :param rule_a: the rule the fields were decoded under.
+    :param tasks: the field tasks.
+    :param results: every field's result, skipped ones included.
+    :param decoded: the fields that decoded.
+    :param skipped_sites: the unplaced sites.
+    :param placements: ``site -> (y, x)``.
+    :param owner_site: each object's owning site.
+    :param cycles: the cycles.
+    :param channels: the base channels.
+    :param store_reads: unused under these rules; reported.
+    :param detector: the spot detector.
+    :param crosstalk: the unmixing method.
+    :param channel_mode: the channel registration.
+    :param workers: how many fields decoded at once.
+    :param started: when the decode started.
+    :returns: the decode report, with the FDR report under ``fdr``.
+    """
+    import pandas as pd
+
+    from .ops_decode import barcode_rows, write_well_calls, write_well_reports
+
+    columns = ["plate", "well", "object_id", "barcode", "quality", "n_reads",
+               "n_agreeing", "fraction", "n_cycles", "mapped_guide"]
+    frame = pd.DataFrame(barcode_rows(plate, well, decoded), columns=columns)
+    _replace_well_rows(db, "ops_barcodes", frame, plate, well)
+    fdr = write_well_reports(db, plate, well, decoded, rule_a, skipped_sites)
+    calls_path = write_well_calls(db, well, decoded)
+    spots = sum(r["spots"] for r in decoded)
+    inside = sum(r["attributed"] + r["ambiguous"] for r in decoded)
+    containment = inside / spots if spots else 0.0
+    decoded_sites = {r["site"] for r in decoded}
+    sources = Counter(hit["source"] for r in decoded
+                      for hit in r["rule_a"]["calls"].values() if not hit["decoy"])
+    report = {
+        "fields": len(tasks), "fields_decoded": len(decoded),
+        "skipped": {str(r["site"]): r["skipped"] for r in results if "skipped" in r},
+        "skipped_unplaced_sites": skipped_sites,
+        "cycles_used": dict(Counter(int(r["n_cycles"]) for r in decoded)),
+        "cycles_missing": {str(r["site"]): r["missing"] for r in decoded if r["missing"]},
+        "cycles_refused": {str(r["site"]): r["refused"] for r in decoded if r["refused"]},
+        "channels_refused": sum(len(r["refused_channels"]) for r in decoded),
+        "unreadable": [item for r in results for item in r["unreadable"]],
+        "spots": spots, "containment": round(containment, 4),
+        "containment_below_gate": bool(containment < _MIN_CONTAINMENT),
+        "reads_ambiguous": sum(r["ambiguous"] for r in decoded),
+        "reads_owned": sum(r["rule_a"]["reads_owned"] for r in decoded),
+        "objects_owned_by_decoded_fields": int(np.isin(owner_site, list(decoded_sites)).sum()),
+        "objects_assigned": int(len(frame)),
+        "objects_mapped": int(len(frame)),
+        "objects_assigned_decoy": int(fdr["assigned_decoy"]),
+        "assigned_by_source": dict(sources),
+        "ops_barcodes_rows": int(len(frame)), "ops_reads_rows": None,
+        "cell_rule": "mapped", "decode_rules": {
+            k: v for k, v in rule_a.items() if k not in ("active",)},
+        "crosstalk": crosstalk, "channel_registration": channel_mode,
+        "channels_spot_registered": sum(len(r.get("spot_replaced", ()))
+                                        for r in decoded),
+        "read_threshold": rule_a["threshold"], "footprint": rule_a["footprint"],
+        "spot_detector": detector, "store_reads": bool(store_reads),
+        "base_channels": list(channels), "workers": workers,
+        "fdr": fdr, "calls": calls_path,
+        "field_cache": sorted(r["cache"] for r in decoded if r.get("cache")),
+        "field_seconds": dict(sum((Counter(r["seconds"]) for r in results
+                                   if "seconds" in r), Counter())),
+        "total_seconds": round(time.perf_counter() - started, 1),
+    }
+    _say(f"{well} decode: {len(frame)} objects assigned "
+         f"({fdr['pct']} % of {fdr['nuclei']} nuclei), FDR "
+         f"{fdr['fdr_per_100']} per 100, {len(decoded)} fields, "
+         f"{report['total_seconds']} s")
+    return report
+
+
 def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
             settings: Mapping[str, Any], gpu: bool,
             library: Sequence[str]) -> Dict[str, Any]:
@@ -1790,11 +1961,24 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
     from .ops_sbs import assign_reads_to_objects, correct_to_library
     from .ops_store import objects_ready
 
+    from .ops_decode import decode_rule, resolve_settings, unplaced_sites
+
     started = time.perf_counter()
+    settings = resolve_settings(settings)
     gate = objects_ready(db)
     if not gate:
         raise ValueError(gate.reason)
     placements, shape = _placements(db, plate, well)
+    skipped_sites = unplaced_sites(cycle_files, placements)
+    rule_a = decode_rule(settings)
+    if skipped_sites:
+        if not _rule_a_flag(settings, "ops_decode_skip_unplaced_sites"):
+            raise ValueError(
+                f"well {well}: the stitch placed no position for sites "
+                f"{skipped_sites}; set ops_decode_skip_unplaced_sites to "
+                "decode the placed sites and log these")
+        _say(f"{well} decode: {len(skipped_sites)} site(s) the stitch did not "
+             f"place are skipped and logged: {skipped_sites}")
     objects = _well_rows(db, "ops_objects", plate, well)
     if objects is None or objects.empty:
         raise ValueError(f"well {well} has no ops_objects rows; run the "
@@ -1827,6 +2011,39 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
     if channel_mode not in _CHANNEL_REGISTRATIONS:
         raise ValueError(f"ops_channel_registration must be one of "
                          f"{list(_CHANNEL_REGISTRATIONS)}; got {channel_mode!r}")
+    registration = {
+        "refine_px": int(_setting_number(settings.get("ops_registration_refine_px"),
+                                         "ops_registration_refine_px", 3)),
+        "spot_min_peak": float(_setting_number(settings.get("ops_spot_min_peak"),
+                                               "ops_spot_min_peak", 20.0)),
+        "spot_overrule_share": float(_setting_number(
+            settings.get("ops_spot_overrule_share"), "ops_spot_overrule_share",
+            0.5)),
+    }
+    decoys: List[str] = []
+    rule, mismatches, min_reads, min_fraction = _cell_rule(settings, library)
+    if rule_a["active"] and rule == "mapped":
+        from .ops_sbs import decoy_library
+
+        rule_a.update({
+            "threshold": threshold, "footprint": footprint,
+            "max_distance": mismatches, "min_fraction": min_fraction,
+            "single_read_quality": float(_setting_number(
+                settings.get("ops_single_read_quality"),
+                "ops_single_read_quality", _SINGLE_READ_QUALITY)),
+            "features": rule_a["features"],
+        })
+        if rule_a["decoy_k"] > 0:
+            decoys = decoy_library(library, k=rule_a["decoy_k"])
+        cache_folder = os.path.join(os.path.dirname(os.path.abspath(db)),
+                                    well, "decode_cache")
+    else:
+        if rule_a["active"]:
+            _say(f"{well} decode: the item-873 decode rules need "
+                 "ops_cell_rule 'mapped' and a guide library; decoding with "
+                 f"the '{rule}' rule instead")
+        rule_a = None
+        cache_folder = None
     tasks = []
     for site in order:
         top, left = placements[site]
@@ -1845,9 +2062,12 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
             "threshold": threshold, "footprint": footprint,
             "store_reads": store_reads, "spot_detector": detector,
             "crosstalk": crosstalk, "channel_mode": channel_mode,
+            "registration": registration, "rule_a": rule_a,
+            "cache_folder": cache_folder,
         })
 
     library_set = frozenset(library)
+    decoy_set = frozenset(decoys)
     workers = max(1, min(int(settings.get("n_workers") or 1),
                          _DECODE_WORKERS_CAP, len(tasks)))
     if detector in _BACKEND_SPOT_DETECTORS and workers > 1:
@@ -1864,14 +2084,14 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
             settings=settings)
     results = []
     if workers == 1:
-        _init_decode_worker(library_set)
+        _init_decode_worker(library_set, decoy_set)
         for task in tasks:
             results.append(_decode_field({**task, "gpu": gpu}))
     else:
         context = multiprocessing.get_context("spawn")
         with ProcessPoolExecutor(workers, mp_context=context,
                                  initializer=_init_decode_worker,
-                                 initargs=(library_set,)) as pool:
+                                 initargs=(library_set, decoy_set)) as pool:
             for count, result in enumerate(pool.map(
                     _decode_field, [{**t, "gpu": False} for t in tasks]), start=1):
                 results.append(result)
@@ -1879,6 +2099,11 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
                     _say(f"{well} decode: {count} of {len(tasks)} fields")
 
     decoded = [r for r in results if "skipped" not in r]
+    if rule_a is not None:
+        return _decode_rule_a_report(
+            db, plate, well, settings, rule_a, tasks, results, decoded,
+            skipped_sites, placements, owner_site, cycles, channels,
+            store_reads, detector, crosstalk, channel_mode, workers, started)
     all_ids = np.concatenate([r["ids"] for r in decoded]) if decoded else np.zeros(0, np.int64)
     all_calls = [code for r in decoded for code in r["calls"]]
     all_quality = (np.concatenate([r["quality"] for r in decoded])
@@ -1887,7 +2112,6 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
     for r in decoded:
         for object_id in np.unique(r["ids"]):
             cycles_of[int(object_id)] = r["n_cycles"]
-    rule, mismatches, min_reads, min_fraction = _cell_rule(settings, library)
     reads_mapped = None
     if rule == "mapped":
         calls_seen = sorted(set(all_calls))
@@ -1986,7 +2210,7 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         "reads_mapped": reads_mapped,
         "objects_with_a_mapped_read": objects_with_mapped,
         "read_threshold": threshold, "footprint": footprint,
-        "spot_detector": detector,
+        "spot_detector": detector, "skipped_unplaced_sites": skipped_sites,
         "base_channels": list(channels), "workers": workers,
         "field_seconds": dict(sum((Counter(r["seconds"]) for r in results
                                    if "seconds" in r), Counter())),
@@ -6077,7 +6301,15 @@ def run_ops(settings: Mapping[str, Any], *,
         a published table to ``results/ops_report/`` (:func:`_ph_report`). With
         ``ops_ph_secondary_registration`` set, each well's second phenotype
         acquisition is registered before its fields are read
-        (:func:`_ph_secondary_shifts`).
+        (:func:`_ph_secondary_shifts`). The alpha
+        ``decode_qc`` phase (items 876 and 877) fits the false-call model
+        and the genotype confidence over the wells decoded, writing
+        ``results/ops_decode_qc``; it also runs after ``decode`` when
+        ``ops_decode_qc`` or ``ops_genotype_confidence`` is on. The alpha
+        ``compare_calls`` phase (item 878) matches spaCR's calls to other
+        pipelines' per-cell tables (``ops_compare_tables``) and writes
+        ``results/ops_compare``; it also runs after ``decode`` when those
+        tables are set.
     :param library: the guide barcodes, as a sequence or the path of a CSV
         with a ``prefix``, ``barcode`` or ``sequence`` column. When given,
         each barcode is also mapped to its closest guide. Overrides the
@@ -6127,6 +6359,8 @@ def run_ops(settings: Mapping[str, Any], *,
         missing = [well for well in chosen if well not in index]
         if missing:
             raise ValueError(f"no tiles for wells {missing}; found {sorted(index)}")
+    elif set(phases) <= {"decode_qc", "compare_calls"}:
+        chosen = _decoded_wells(db, plate, wells)
     else:
         placed = _rows_for_wells(db, "ops_phenotype", plate,
                                  [str(w).upper() for w in wells] if wells
@@ -6167,7 +6401,7 @@ def run_ops(settings: Mapping[str, Any], *,
         with open(os.path.join(destination, f"ops_flatfield_{plate}.json"),
                   "w", encoding="utf-8") as handle:
             json.dump(out["ph_flatfield"], handle, indent=1, default=str)
-    for well in chosen:
+    for well in ([] if set(phases) <= {"decode_qc", "compare_calls"} else chosen):
         folder = os.path.join(destination, well)
         report_path = os.path.join(folder, "ops_report.json")
         report: Dict[str, Any] = {}
@@ -6248,6 +6482,24 @@ def run_ops(settings: Mapping[str, Any], *,
         with open(report_path, "w", encoding="utf-8") as handle:
             json.dump(report, handle, indent=1, default=str)
         out["wells"][well] = report
+    if _wants_decode_qc(settings, phases):
+        from .ops_decode import results_folder, run_decode_qc
+
+        out["decode_qc"] = run_decode_qc(db, plate, chosen, settings, barcodes)
+        with open(os.path.join(results_folder(db, "ops_decode_qc"),
+                               f"decode_qc_{plate}.json"),
+                  "w", encoding="utf-8") as handle:
+            json.dump(out["decode_qc"], handle, indent=1, default=str)
+    if "compare_calls" in phases or ("decode" in phases
+                                     and settings.get("ops_compare_tables")):
+        from .ops_decode import results_folder, run_compare_calls
+
+        out["compare_calls"] = run_compare_calls(db, plate, chosen, settings,
+                                                 barcodes)
+        with open(os.path.join(results_folder(db, "ops_compare"),
+                               f"compare_calls_{plate}.json"),
+                  "w", encoding="utf-8") as handle:
+            json.dump(out["compare_calls"], handle, indent=1, default=str)
     if "aggregate" in phases:
         out["aggregate"] = _ph_aggregate(db, plate, chosen, settings,
                                          destination,
@@ -6273,6 +6525,43 @@ def run_ops(settings: Mapping[str, Any], *,
                       "w", encoding="utf-8") as handle:
                 json.dump(out[phase], handle, indent=1, default=str)
     return out
+
+
+def _wants_decode_qc(settings: Mapping[str, Any], phases: Sequence[str]) -> bool:
+    """Whether the decode QC phase runs (items 876 and 877).
+
+    :param settings: the run's settings.
+    :param phases: the phases asked for.
+    :returns: True when ``decode_qc`` is named, or the decode runs with
+        ``ops_decode_qc`` or ``ops_genotype_confidence`` on.
+    """
+    from .ops_decode import _flag_or
+
+    if "decode_qc" in phases:
+        return True
+    return "decode" in phases and (_flag_or(settings, "ops_decode_qc")
+                                   or _flag_or(settings, "ops_genotype_confidence"))
+
+
+def _decoded_wells(db: str, plate: str, wells) -> List[str]:
+    """The wells of ``plate`` that ``ops_barcodes`` has rows for.
+
+    :param db: the measurements database.
+    :param plate: the plate.
+    :param wells: the wells asked for, or None for every decoded well.
+    :returns: the wells, sorted.
+    :raises ValueError: when nothing was decoded.
+    """
+    from .ops_store import read_table, row_count
+
+    if wells:
+        return sorted(str(w).upper() for w in wells)
+    if row_count(db, "ops_barcodes") is None:
+        raise ValueError(f"no ops_barcodes in {db}; run the decode phase "
+                         "before decode_qc or compare_calls")
+    rows = read_table(db, "ops_barcodes")
+    return sorted(set(rows.loc[rows["plate"].astype(str) == str(plate),
+                               "well"].astype(str)))
 
 
 def _placed_wells(db: str, plate: str) -> List[str]:

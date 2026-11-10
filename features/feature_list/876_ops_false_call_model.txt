@@ -1,0 +1,43 @@
+OPS FALSE-CALL MODEL: WHAT MAKES A GENOTYPE CALL A DECOY
+========================================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha, under ALPHA_FEATURES[876]).
+Requested: maintainer via paper session (spec ITEM_ops_false_call_model.md).
+Owner: paper session.
+Related: 873, 877.
+
+WHAT IT DOES
+ops_decode_qc (False) adds the decode_qc phase after the decode (or run alone
+with phases=("decode_qc",)). The decode then stores each field's evidence
+with the spot features (decode_cache/siteNNNN.npz). The phase decodes those
+fields permissively (threshold 150, up to two mismatches, territory, plain
+majority), labels each nucleus FP (decoy), TP (guide) or TN, holds out half
+the fields of each plate (seed 7) and splits the decoys in halves by md5, and
+trains gradient boosting on decoy-versus-library calls with a sequence-only
+control and chance. results/ops_decode_qc/: model_metrics.csv (main,
+control_sequence_only, chance; AUROC and AP with field-bootstrap CIs),
+shap_mean_abs.csv, permutation_importance.csv, model.json and
+false_call_cells.parquet.
+Settings: ops_decode_qc_model (xgboost, optional dependency imported lazily
+with an install message | hist_gbm), ops_decode_qc_features, ops_decode_qc_split
+(field), ops_decode_qc_seed (0), ops_decode_qc_max_calls (20000, the SHAP
+sample). SHAP: the shap package when installed; for XGBoost without it the
+booster's exact TreeSHAP (pred_contribs).
+Code: spacr/ops_decode.py (false_call_tables, false_call_model,
+run_decode_qc), spacr/ops_engine.py (decode_qc phase).
+
+VALIDATION (2026-11-09, CPU)
+Over the study's subset_v1.1 field cache (176 fields, samples_v11):
+- the cell table (705,027 rows, 78 columns) is identical to
+  fp_characterisation/cells_permissive.parquet, row for row;
+- XGBoost, seed 0, n_jobs 2 as in the reference: main AUROC 0.9813 (CI
+  0.97935-0.98284) and sequence-only 0.8262 (CI 0.81734-0.83398), equal to
+  model_metrics.csv; mean |SHAP| over the 20,000-call sample within 2.1e-8 of
+  shap_mean_abs.csv; permutation importance within 6.2e-17 of
+  permutation_importance_repeats.csv.
+Remaining: none for the model; the engine path from raw tiles shares 873's
+field evidence code, validated bit-identical on A1/74 and A1/190.
+
+TESTS
+tests/test_ops_decode_qc_876_877.py.
