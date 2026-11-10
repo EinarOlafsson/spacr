@@ -136,3 +136,75 @@ def test_a_training_run_with_ml_eval_report_evaluates_what_it_fitted(tmp_path, r
                                                    negative_control=None, ml_eval_report=True))
     assert calls == [("test", len(output[0]))] or (len(calls) == 1 and calls[0][1] == len(output[0]))
     assert os.path.isdir(src)
+
+
+def _votes(objects, codes, guides, **kw):
+    from spacr import ops_sbs
+
+    n, cycles = len(codes), len(codes[0])
+    data = np.zeros((n, cycles, 4), np.float32)
+    for i, code in enumerate(codes):
+        for c, letter in enumerate(code):
+            data[i, c, "GTAC".index(letter)] = 1.0
+    margin = np.ones((n, cycles), np.float32)
+    return ops_sbs.vote_mapped_reads(np.asarray(objects), codes, np.ones(n, np.float32), data, margin,
+                                     ops_sbs.LibraryMatcher(guides), **kw)
+
+
+def test_mapped_votes_count_corrections_ties_and_weak_majorities():
+    guides = ["GTAC", "CATG"]
+    evidence = {}
+    corrected = _votes([1, 1], ["GTAA", "GTAA"], guides, max_distance=1, evidence=evidence)
+    assert corrected[1]["guide"] == "GTAC" and corrected[1]["n_corrected"] == 2
+    assert dict(evidence["strength"]) == {}
+    refused = _votes([1, 1], ["GTAA", "GTAA"], guides, max_distance=1, runner_up_margin=0.1)
+    assert refused == {}
+    assert _votes([2, 2], ["GTAC", "CATG"], guides) == {}
+    weak = _votes([3, 3, 3], ["GTAC", "GTAC", "CATG"], guides, min_fraction=0.8)
+    assert weak == {}
+
+
+def test_unmixing_falls_back_to_identity_on_singular_axes_and_boundaries_need_points(monkeypatch):
+    from spacr import ops_sbs
+
+    values = np.arange(1, 49, dtype=float).reshape(6, 2, 4)
+
+    def singular(matrix):
+        raise np.linalg.LinAlgError("singular")
+
+    monkeypatch.setattr(np.linalg, "inv", singular)
+    unmixed = ops_sbs._argmax_median_unmix64(values)
+    flat = values.reshape(-1, 4)
+    assert np.allclose(unmixed.reshape(-1, 4), flat / np.median(flat, axis=0))
+    monkeypatch.undo()
+    gap, index = ops_sbs.nearest_boundaries(np.zeros((0, 2)), np.array([[1.0, 1.0]]), np.array([4.0]))
+    assert gap.shape == (0, 2) and index.shape == (0, 2)
+    gap, index = ops_sbs.nearest_boundaries(np.array([[0.0, 0.0]]), np.zeros((0, 2)), np.zeros(0))
+    assert np.isinf(gap).all() and (index == -1).all()
+
+
+def test_library_calibration_skips_a_cycle_whose_axes_are_singular(monkeypatch):
+    from spacr import ops_sbs
+
+    rng = np.random.default_rng(0)
+    guides, codes, values = _library_reads(rng)
+    _, expected, _ = ops_sbs.called_bases(values, compensate=True, method="argmax_median", gpu=False)
+    real_inv = np.linalg.inv
+    calls = {"n": 0}
+
+    def singular_after_first(matrix):
+        calls["n"] += 1
+        if calls["n"] > 1:
+            raise np.linalg.LinAlgError("singular")
+        return real_inv(matrix)
+
+    monkeypatch.setattr(np.linalg, "inv", singular_after_first)
+    _, called, margin = ops_sbs.library_calibrated_bases(values, guides)
+    assert calls["n"] > 1
+    assert len(called) == len(codes) and margin.shape == (len(codes), values.shape[1])
+
+
+def _library_reads(rng):
+    from tests.test_ops_decode_rule_a_s2_873 import _library_reads as reads
+
+    return reads(rng)
