@@ -297,9 +297,18 @@ _PH_PLATE_PHASES = ("ph_flatfield", "aggregate", "ph_tables", "ph_crops",
 #: and no database.
 _PROFILE_PHASES = ("profile", "evaluate", "modules", "mitocarta")
 
+#: The nuclear-median flat-field path (alpha, item 912): per-plate maps from
+#: the per-nucleus tables, then their held-out check. Needs no image step
+#: beyond the held-out fields' raw images.
+_FLAT_PHASES = ("flat_nuclear", "flat_validate")
+
+#: The shared scoring of gene profiles and clusterings (alpha, item 913):
+#: copairs activity and consistency and EFAAR recall, with controls.
+_SCORING_PHASES = ("score",)
+
 #: Every phase :func:`run_ops` accepts, in the order they run.
 _ALL_PHASES = (_PHASES + _PH_PHASES + ("decode_qc", "compare_calls")
-               + _PROFILE_PHASES)
+               + _PROFILE_PHASES + _FLAT_PHASES + _SCORING_PHASES)
 
 #: The columns of ``ops_phenotype`` that hold each field's similarity
 #: transform into the well frame: ``well = scale * R(rotation_deg) @
@@ -2840,12 +2849,12 @@ def _ph_flat_planes(folder: str, channels: Sequence[str], shape):
         correction divides by them, the offsets, and float64 ``1 / flat``
         as the mask pass averages it.
     """
-    from .ops_flatfield import flat_planes, load_flat_maps
+    from .ops_flatfield import flat_lookups, flat_planes, load_flat_maps
 
     key = (os.path.abspath(folder), tuple(channels), tuple(shape))
     if key not in _PH_FLAT_CACHE:
-        maps, offsets, _info = load_flat_maps(folder, channels)
-        planes = flat_planes(maps, shape)
+        maps, offsets, info = load_flat_maps(folder, channels)
+        planes = flat_planes(maps, shape, lookups=flat_lookups(info))
         inverse = {c: 1.0 / planes[c].astype(np.float64) for c in planes}
         _PH_FLAT_CACHE.clear()
         _PH_FLAT_CACHE[key] = (planes, offsets, inverse)
@@ -3014,10 +3023,12 @@ def _ph_masks(plate: str, well: str, settings: Mapping[str, Any],
     flat_folder = None
     options: Dict[str, Any] = {"flatfield": None}
     if _ph_flatfield_mode(settings) == "analytic":
-        from .ops_flatfield import load_flat_maps
+        from .ops_flatfield import load_flat_maps, record_flat_md5
 
         flat_folder = _ph_flat_folder(settings, destination)
-        options["flatfield"] = load_flat_maps(flat_folder, channels)[2]["md5"]
+        flat_info = load_flat_maps(flat_folder, channels)[2]
+        record_flat_md5(destination, flat_info)
+        options["flatfield"] = flat_info["md5"]
     part_dir = os.path.join(destination, well, "phenotype_maskpass")
     os.makedirs(part_dir, exist_ok=True)
     _ph_options_marker(part_dir, options)
@@ -3274,11 +3285,12 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
             "measure_gpu": bool(settings.get("ops_ph_measure_gpu", False)),
             "secondary": _ph_secondary(settings) if secondary else None}
         if _ph_flatfield_mode(settings) == "exact":
-            from .ops_flatfield import load_flat_maps
+            from .ops_flatfield import load_flat_maps, record_flat_md5
 
             flat_folder = _ph_flat_folder(settings, destination)
-            options["flatfield"] = load_flat_maps(flat_folder,
-                                                  channels)[2]["md5"]
+            flat_info = load_flat_maps(flat_folder, channels)[2]
+            record_flat_md5(destination, flat_info)
+            options["flatfield"] = flat_info["md5"]
         _ph_options_marker(cell_dir, options)
 
     def measure_task(site: int) -> Dict[str, Any]:
@@ -4297,11 +4309,12 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     flat_record: Optional[Dict[str, Any]] = None
     gain_columns: List[str] = []
     if flatfield == "analytic":
-        from .ops_flatfield import load_flat_maps
+        from .ops_flatfield import load_flat_maps, record_flat_md5
 
         flat_folder = _ph_flat_folder(settings, destination)
         _maps, flat_offsets, info = load_flat_maps(
             flat_folder, _ph_channels(settings))
+        record_flat_md5(destination, info)
         flat_record = {"mode": "analytic", "folder": flat_folder,
                        "md5": info.get("md5"), "offsets": flat_offsets}
         gain_columns = [f"{comp}_{ch}_g" for comp in
@@ -7130,6 +7143,13 @@ def run_ops(settings: Mapping[str, Any], *,
         verifies it and resumes from its ``WELL_DONE`` marker
         (:func:`_ph_archive_resume`); ``ops_gpu_admission`` waits for a free
         card first (:func:`_ops_admitted_run`).
+        The alpha
+        ``"flat_nuclear"`` and ``"flat_validate"`` phases (item 912) run
+        alone: they build each plate's nuclear-median DNA flat-field map and
+        check it on held-out fields (:func:`spacr.ops_flatfield.run_flat_phases`).
+        The alpha ``"score"`` phase (item 913) runs alone: it scores gene
+        profiles and clusterings with copairs and EFAAR
+        (:func:`spacr.ops_scoring.score_ops_profiles`).
     :param library: the guide barcodes, as a sequence or the path of a CSV
         with a ``prefix``, ``barcode`` or ``sequence`` column. When given,
         each barcode is also mapped to its closest guide. Overrides the
@@ -7167,6 +7187,19 @@ def run_ops(settings: Mapping[str, Any], *,
                     result = {**result, "mitocarta": run_mitocarta_benchmark(settings, report=_say)}
             result = {**result, "atlas_blas_threads": pinned}
         return result
+    if any(phase in _FLAT_PHASES for phase in phases):
+        if any(phase not in _FLAT_PHASES for phase in phases):
+            raise ValueError("the nuclear flat-field phases run on their own; run "
+                             f"{list(_FLAT_PHASES)} without the image phases")
+        from .ops_flatfield import run_flat_phases
+
+        return run_flat_phases(settings, phases, report=_say)
+    if "score" in phases:
+        if list(phases) != ["score"]:
+            raise ValueError("the score phase runs on its own")
+        from .ops_scoring import score_ops_profiles
+
+        return score_ops_profiles(settings, report=_say)
     sequencing = any(phase in _PHASES for phase in phases)
     root = settings.get("genotype_source")
     if sequencing and (not isinstance(root, (str, os.PathLike))

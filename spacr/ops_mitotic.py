@@ -31,7 +31,7 @@ trained on the rule's calls can only learn the rule.
 """
 from __future__ import annotations
 
-from typing import Any, Dict, List, Mapping, Optional, Sequence
+from typing import Any, Dict, List, Mapping, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -508,3 +508,94 @@ def mitotic_index_agreement(genes: pd.DataFrame, reference: pd.DataFrame, *,
                      if null else float("nan")})
     return pd.DataFrame(rows, columns=["min_cells", "genes", "spearman", "shuffled_mean",
                                        "shuffled_p95_abs"])
+
+
+def _bh(p: np.ndarray) -> np.ndarray:
+    """Benjamini-Hochberg q-values, clipped to [0, 1]."""
+    p = np.asarray(p, float)
+    n = len(p)
+    order = np.argsort(p)
+    q = np.empty(n)
+    q[order] = np.minimum.accumulate((p[order] * n / np.arange(1, n + 1))[::-1])[::-1]
+    return np.clip(q, 0, 1)
+
+
+def published_mitotic_index(table: pd.DataFrame, *, guides: int = 4) -> pd.Series:
+    """Per-gene mitotic index of a published table with per-guide cell counts.
+
+    :param table: one row per gene with ``gene_symbol`` and
+        ``sgRNA_<k>_mitotic_cells`` / ``sgRNA_<k>_interphase_cells`` for
+        ``k = 1 .. guides`` (Funk et al. 2022's gene table); duplicate genes
+        keep the first row.
+    :param guides: the guides per gene.
+    :returns: mitotic / (mitotic + interphase) cells summed over the
+        guides, indexed by gene.
+    """
+    table = table.drop_duplicates("gene_symbol")
+    mitotic = table[[f"sgRNA_{k}_mitotic_cells" for k in range(1, guides + 1)]].sum(1)
+    interphase = table[[f"sgRNA_{k}_interphase_cells" for k in range(1, guides + 1)]].sum(1)
+    return pd.Series((mitotic / (mitotic + interphase)).to_numpy(), index=table["gene_symbol"])
+
+
+def mitotic_index_table(cells: pd.DataFrame, *, call: str = "clf", rule: Optional[str] = "rule",
+                        reference: Optional[pd.Series] = None, min_cells: int = 50,
+                        shuffles: int = 200, seed: int = 0,
+                        control_prefix: str = "nontargeting"
+                        ) -> Tuple[pd.DataFrame, pd.DataFrame, Dict[str, Any]]:
+    """Per-gene mitotic index tested against the non-targeting cells (item 914).
+
+    :param cells: one row per genotyped cell with ``gene``, ``sgRNA`` and
+        the boolean ``call`` (and ``rule``, a second call compared alongside).
+    :param call: the column of the mitotic call tested.
+    :param rule: a second call column reported as ``rule_index``, or None.
+    :param reference: a published per-gene mitotic index
+        (:func:`published_mitotic_index`) for the agreement rows, or None.
+    :param min_cells: genes with fewer cells are left out of the agreement.
+    :param shuffles: gene-label shuffles of the agreement control.
+    :param seed: the shuffle seed of :func:`numpy.random.default_rng`.
+    :param control_prefix: genes starting with it (any case) are the
+        controls.
+    :returns: ``(per_gene, nt_guides, summary)``. Per gene: ``cells``,
+        ``mitotic``, ``mitotic_index``, the two-sided exact binomial ``p``
+        against the pooled control rate, ``z`` and BH ``q`` (genes only),
+        sorted by ``z``; per control guide the same without ``q``, the
+        control. The summary has the control rate, the genes at q < 0.05
+        up and down, the share of control guides at p < 0.05, and with a
+        reference Spearman rho of each call against it with the 95th
+        percentile of ``|rho|`` over the shuffles.
+    """
+    from scipy.stats import binomtest, spearmanr
+
+    control = cells["gene"].astype(str).str.lower().str.startswith(control_prefix.lower())
+    rate = float(cells[call][control].mean())
+    agg = {"cells": (call, "size"), "mitotic": (call, "sum")}
+    if rule:
+        agg["rule_mitotic"] = (rule, "sum")
+    genes = cells[~control].groupby("gene").agg(**agg)
+    guides = cells[control].groupby("sgRNA").agg(cells=(call, "size"), mitotic=(call, "sum"))
+    for table in (genes, guides):
+        table["mitotic_index"] = table.mitotic / table.cells
+        table["p"] = [binomtest(int(k), int(n), rate).pvalue for k, n in zip(table.mitotic, table.cells)]
+        table["z"] = (table.mitotic_index - rate) / np.sqrt(rate * (1 - rate) / table.cells)
+    genes["q"] = _bh(genes.p.to_numpy())
+    if rule:
+        genes["rule_index"] = genes.rule_mitotic / genes.cells
+    summary: Dict[str, Any] = {
+        "nt_rate": rate, "genes": int(len(genes)), "genes_q05": int((genes.q < 0.05).sum()),
+        "genes_q05_up": int(((genes.q < 0.05) & (genes.z > 0)).sum()),
+        "genes_q05_down": int(((genes.q < 0.05) & (genes.z < 0)).sum()),
+        "nt_guides": int(len(guides)), "nt_guides_p05_pct": 100 * float((guides.p < 0.05).mean()),
+        "median_mitotic_cells_per_gene": float(genes.mitotic.median())}
+    if reference is not None:
+        joined = genes[genes.cells >= min_cells].join(reference.rename("reference_index"), how="inner").dropna()
+        rng = np.random.default_rng(seed)
+        for column in ("mitotic_index", "rule_index") if rule else ("mitotic_index",):
+            rho = spearmanr(joined[column], joined.reference_index).statistic
+            null = [abs(spearmanr(rng.permutation(joined[column].to_numpy()), joined.reference_index).statistic)
+                    for _ in range(int(shuffles))]
+            summary[f"rho_{column}_vs_reference"] = float(rho)
+            summary[f"shuffled_p95_{column}"] = float(np.percentile(null, 95))
+        summary["genes_rho"] = int(len(joined))
+    summary["matching"] = ("every gene and control guide is tested against the same pooled control rate "
+                           "with the same call; the agreement uses the same genes for every call")
+    return genes.sort_values("z", ascending=False), guides, summary

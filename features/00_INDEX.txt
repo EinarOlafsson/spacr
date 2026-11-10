@@ -490,6 +490,15 @@ FUTURE FEATURES
   911  PLAQUE FIGURE MODE: ABSOLUTE AND RELATIVE PLAQUE SIZE AGAINST REPORTED SIZES
        911_plaque_relative_size.txt
 
+  912  OPS DNA FLAT-FIELD MAP FROM PER-NUCLEUS INTENSITIES
+       912_ops_flatfield_v2.txt
+
+  913  OPS SHARED COMMUNITY-STANDARD SCORING (COPAIRS + EFAAR) WITH CONTROLS
+       913_ops_shared_scoring.txt
+
+  914  OPS CELL-STATE STRATIFIED PROFILES AND THE PER-GENE MITOTIC INDEX TEST
+       914_ops_cell_state_profiles.txt
+
 --------------------------------------------------------------------------------
 NEW FEATURES
 --------------------------------------------------------------------------------
