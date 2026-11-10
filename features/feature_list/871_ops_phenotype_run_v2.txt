@@ -1,0 +1,44 @@
+OPS PHENOTYPE RUN V2: MERGED/, STANDARD TABLES, OWNED CELLS AND CROPS FROM ONE SETTINGS FILE
+===========================================================================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha, under ALPHA_FEATURES[752]). — run_ops phases ph_merged (merged/phenotype/<plate>/<well>/<site>.npz: channels, nuclei/cells/cytoplasm, owned flags, meta; merged/LAYOUT.json ops_merged_v1), ph_tables (measurements/measurements.db cell/nucleus/cytoplasm/image keyed by prcfo with object_id, sgRNA, gene, genotype_rule, mitotic, owned; indexes; Parquet above ops_tables_parquet_threshold) and ph_crops (raw TIFF crops of owned whole cells in tar shards with a parquet index, folder cap ops_max_files_per_folder); second-acquisition registration (ops_ph_secondary_*, shifts stored in ops_phenotype); ops_ph_measure_gpu. spacr/ops_engine.py, spacr/ops_settings.py, tests/test_ops_phenotype_run_v2.py.
+Requested: maintainer via paper session (BMC paper item spec ITEM_ops_phenotype_run_v2.md), 2026-11-09.
+Owner: paper session (lane A).
+Source: Funk et al. 2022 plate A phenotype run (custom driver funk_phenotype.py).
+Related: 752, 809, 810, 811, 812, 813, 814, 852, 853, 872, 874, 875.
+
+WHAT THE STATE WAS
+origin/nightly's phenotype phases wrote per-well parquet and mask npz files only:
+no merged/, no standard measurement tables, no png_list or crops, and no
+registration of a second phenotype acquisition.
+
+WHAT WAS BUILT
+- ph_merged (after merge, so the A1/A1b ownership flags exist): one compressed
+  npz per placed, segmented field; flat-field corrected as (I - b) / F + b with
+  ops_merged_flatfield; uint16 or float32 (ops_merged_dtype); owned flag per
+  label (1 owned, 0 margin copy, 2 touches the field edge); meta JSON with the
+  transform, the field's image row and the spaCR version and commit. Atomic
+  writes (.part then rename), resumable, part_options.json refuses mixed options.
+  ops_merged_root sends merged/ and the crop store to other storage.
+- ph_tables (after aggregate): cell/nucleus/cytoplasm, one row per owned whole
+  cell; image (item 814) per field from merged/; one transaction per table and
+  well; indexes on prcfo, field keys, object_id and gene after the load.
+- ph_crops: sampling of the reference run (ops_crop_per_guide with
+  ops_crop_seed, ops_crop_all_nt, ops_crop_control_fraction by stable hash),
+  crops cut as spaCR's crop export cuts them (_crop_center, cell-masked, raw
+  counts), optional mask page (ops_crop_masks), offsets read back from the
+  closed tar.
+- ops_ph_secondary_channels / _registration / _window / _fallback: per-field
+  phase-correlation shift, stored as secondary_dy/dx/fallback in ops_phenotype
+  and applied by every reader of the field.
+- ops_ph_measure_gpu passes measure_gpu to the measurement (872 Part A).
+
+NOT BUILT HERE
+- ops_merged_save_sbs is reserved (reported, not written).
+- The Measure module does not read ops_merged_v1 fields; _ph_merged_layout and
+  _ph_read_merged are the readers.
+
+RULE
+With every new option at its default and none of the new phases named, a run's
+outputs are identical to before.
