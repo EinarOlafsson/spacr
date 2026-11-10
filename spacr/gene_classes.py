@@ -19,6 +19,10 @@ overlapping-class non-members, and the two discovery lists (known members
 with a new image phenotype; predicted new functions) at BH q < 0.05 against
 the decoy heads.
 
+With ``ml_model='image'`` the classes are learned from single-cell crops
+instead, by an image model (``train_arch``) trained fold by fold with
+:mod:`spacr.gene_class_images`, and scored by the same evaluation.
+
 :func:`run_gene_classes` runs the whole chain from a settings file. Every
 seed is the reference's: folds 0, control pseudo-genes 0, decoys 99, label
 shuffle 1, bootstrap 0, each offset by ``train_seed``.
@@ -34,6 +38,8 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Set, 
 
 import numpy as np
 import pandas as pd
+
+from .gene_class_images import ARCHITECTURE_CATEGORY, TRAIN_ARCH_TOOLTIP, TRAIN_PROTOCOL_TOOLTIP
 
 #: Key the settings of this module are registered under.
 APP_KEY = 'gene_classes'
@@ -67,6 +73,18 @@ _DEFAULTS: Dict[str, Any] = {
     'train_shuffle_control': False,
     'train_seed': 0,
     'ml_model': 'logistic_regression',
+    'train_arch': 'resnet18',
+    'train_input_size': 224,
+    'train_balanced_sampling': 'class_gene',
+    'train_image_dataset': 'ops',
+    'train_crops': '',
+    'train_crop_index': '',
+    'train_genotype': '',
+    'train_crop_scales': '',
+    'train_classes': '',
+    'train_protocol': 'NSCB',
+    'train_steps': 1500,
+    'train_batch': 64,
     'train_features': '',
     'train_feature_suffix': '',
     'train_exclude_sources': '',
@@ -95,7 +113,19 @@ _TOOLTIPS: Dict[str, str] = {
     'train_decoy_heads': "(int) - Random gene sets, drawn with the sizes of the real classes, trained and scored beside them; they are the null that a discovery call must beat. 0 trains none and makes no discovery calls. Default 300.",
     'train_shuffle_control': "(bool) - Shuffle the class labels among the targeting genes before training: the control that shows what chance alone gives. Default False.",
     'train_seed': "(int) - Added to every seed of the run (folds, decoy heads, label shuffle, bootstrap), so 0 gives the reference run. Default 0.",
-    'ml_model': "(str) - The model fitted per class on the gene feature table: 'logistic_regression', standardised features and L2 logistic regression with balanced class weights. Default 'logistic_regression'.",
+    'ml_model': "(str) - The model: 'logistic_regression', one standardised L2 logistic regression per class on the gene feature table with balanced class weights, or 'image', an image model (train_arch) trained on single-cell crops with one output per class. Default 'logistic_regression'.",
+    'train_arch': TRAIN_ARCH_TOOLTIP,
+    'train_input_size': "(int) - Size the crops are resized to before an image model, on the device. Default 224.",
+    'train_balanced_sampling': "(str) - How training crops are drawn: 'class_gene' (OPS: half the batch from genes in a class, class then gene then cell uniform; half from genes in no class and the control pseudo-genes), 'class' (uniform over classes; BBBC021) or 'none' (uniform over cells). Default 'class_gene'.",
+    'train_image_dataset': "(str) - The crops of an image model: 'ops' (cell-masked TIFF crops in tar archives with byte-offset index tables, labels from the gene classes) or 'bbbc021' (a crop array with its index, labels the MoA). Default 'ops'.",
+    'train_crops': "(str) - The crops of an image model: comma-separated folders of crop tar archives (ops) or the crop array .npy (bbbc021). Default blank.",
+    'train_crop_index': "(str) - BBBC021: the crop index table, one row per crop, with plate, well, compound, concentration, moa, week and one scale column per channel. Default blank.",
+    'train_genotype': "(str) - OPS: the per-cell genotype table (plate, well, site, label, sgRNA, gene). Default blank.",
+    'train_crop_scales': "(str) - OPS: JSON file with each plate's per-channel scale (the 99th percentile of cell pixels). Default blank.",
+    'train_classes': "(str) - OPS: comma-separated class ids an image model trains on; blank trains every class of the table. Default blank.",
+    'train_protocol': TRAIN_PROTOCOL_TOOLTIP,
+    'train_steps': "(int) - Training steps per fold of an image model. Default 1500.",
+    'train_batch': "(int) - Crops per training step of an image model; on a GPU that runs out of memory the micro-batch halves and the batch is kept by accumulation. Default 64.",
     'train_features': "(str) - Gene-level feature table, one row per gene. Its gene column is gene or gene_symbol. Default blank.",
     'train_feature_suffix': "(str) - Use only the feature columns whose names end with this text, such as _score; blank uses every numeric column. Default blank.",
     'train_exclude_sources': "(str) - Comma-separated class sources left out, such as funk when the features are Funk's own scores and the funk classes would be circular. Default blank.",
@@ -105,12 +135,16 @@ _TOOLTIPS: Dict[str, str] = {
 }
 
 _CATEGORIES: Dict[str, List[str]] = {
+    ARCHITECTURE_CATEGORY: ['train_arch', 'train_protocol'],
     'Gene classes': ['gene_class_sources', 'gene_class_gating', 'gene_class_merge',
                      'gene_class_merge_jaccard', 'gene_class_kegg_filter', 'gene_class_min_train',
                      'gene_class_max_members', 'gene_class_gated_from'],
     'Gene-class training': ['train_label_source', 'train_gene_classes', 'train_split',
                             'train_split_group', 'train_folds', 'train_decoy_heads',
-                            'train_shuffle_control', 'train_seed', 'ml_model', 'train_features',
+                            'train_shuffle_control', 'train_seed', 'ml_model',
+                            'train_input_size', 'train_balanced_sampling', 'train_image_dataset',
+                            'train_crops', 'train_crop_index', 'train_genotype', 'train_crop_scales',
+                            'train_classes', 'train_steps', 'train_batch', 'train_features',
                             'train_feature_suffix', 'train_exclude_sources',
                             'gene_class_eval_min_cells', 'gene_class_eval_boot', 'gene_class_dst'],
 }
@@ -1041,8 +1075,14 @@ def run_gene_classes(settings: Mapping[str, Any],
         raise ValueError(f"train_label_source must be 'gene_classes'; got {s['train_label_source']!r}")
     if s["train_split"] != "grouped_multilabel" or s["train_split_group"] != "gene":
         raise ValueError("train_split must be 'grouped_multilabel' with train_split_group 'gene'")
-    if s["ml_model"] != "logistic_regression":
-        raise ValueError(f"ml_model must be 'logistic_regression' for gene-level features; got {s['ml_model']!r}")
+    if s["ml_model"] == "image":
+        from .gene_class_images import run_gene_class_images
+
+        if s["train_image_dataset"] == "bbbc021":
+            images = run_gene_class_images(s, log=say)
+            return {"tables": None, "run": images["config"]["out"], "classes": None, "summary": images["summary"]}
+    elif s["ml_model"] != "logistic_regression":
+        raise ValueError(f"ml_model must be 'logistic_regression' or 'image'; got {s['ml_model']!r}")
     tables = str(s["train_gene_classes"] or "")
     if not tables:
         raise ValueError("train_gene_classes, the class-table folder, is empty")
@@ -1057,11 +1097,19 @@ def run_gene_classes(settings: Mapping[str, Any],
             built = build_gene_classes(json.load(handle), s, tables)
     if built is not None:
         say(f"gene classes: {built['kept']} kept in {tables}")
+    dst = str(s["gene_class_dst"] or os.path.join(tables, "results", "gene_classes"))
+    seed = int(s["train_seed"])
+    if s["ml_model"] == "image":
+        from .gene_class_images import run_gene_class_images
+
+        run_gene_class_images(dict(s, gene_class_dst=dst), log=say)
+        summary = evaluate_gene_class_run(dst, min_cells=int(s["gene_class_eval_min_cells"]),
+                                          boot=int(s["gene_class_eval_boot"]), seed=seed)
+        say(f"gene classes: median AUROC {summary['median_auroc']} over {summary['classes_scored']} classes")
+        return {"tables": tables, "run": dst, "classes": built, "summary": summary}
     if not s["train_features"]:
         raise ValueError("train_features, the gene feature table, is empty")
-    dst = str(s["gene_class_dst"] or os.path.join(tables, "results", "gene_classes"))
     exclude = [x.strip() for x in str(s["train_exclude_sources"]).split(",") if x.strip()]
-    seed = int(s["train_seed"])
     train_gene_class_baseline(_feature_table(s["train_features"], str(s["train_feature_suffix"])), tables, dst,
                               decoys=int(s["train_decoy_heads"]), shuffle=bool(s["train_shuffle_control"]),
                               exclude_sources=exclude, seed=seed, report=say)

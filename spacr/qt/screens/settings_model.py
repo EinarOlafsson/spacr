@@ -3834,6 +3834,9 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "How the classes are learned and scored: the class tables, the "
         "gene-grouped folds, the decoy heads and shuffled control, the seed, "
         "the model and features, and the evaluation and output folder.",
+    "MODEL ARCHITECTURE":
+        "Which model is trained and, for BBBC021, the fold protocol it is "
+        "scored under (NSCB or NSC).",
     "ARCHITECTURE DATA":
         "What the channel-adaptive models train on: the architecture and "
         "level, the cell embeddings or crops and their tables, the stains, "

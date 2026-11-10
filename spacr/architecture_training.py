@@ -45,6 +45,7 @@ import torch.nn.functional as F
 
 from .channel_models import (CHANNEL_ARCHITECTURES, CHANNEL_IMAGE_ARCHITECTURES, ChannelClassifier,
                              ChannelDINO, ChannelMAE, SpacrChannelViT, build_channel_model, default_stains)
+from .gene_class_images import ARCHITECTURE_CATEGORY, TRAIN_ARCH_TOOLTIP, TRAIN_PROTOCOL_TOOLTIP
 from .well_set_training import cosine_schedule
 
 logger = logging.getLogger(__name__)
@@ -125,7 +126,7 @@ _DEFAULTS: Dict[str, Any] = {
 _EXPECTED_TYPES: Dict[str, Any] = {key: type(value) for key, value in _DEFAULTS.items()}
 
 _TOOLTIPS: Dict[str, str] = {
-    'train_arch': "(str) - The model trained: 'spacr_channel_cnn' (channel-adaptive CNN), 'spacr_channel_vit' (channel-aware ViT) or 'spacr_well_transformer' (set model over the cell embeddings of a well). The two image models train on crops (train_level 'cell'); the well transformer trains on cell embeddings (train_level 'well_set'). Default 'spacr_well_transformer'.",
+    'train_arch': TRAIN_ARCH_TOOLTIP,
     'train_level': "(str) - What one training example is: 'well_set', all cell embeddings of one well, or 'cell', one cell crop. Default 'well_set'.",
     'train_set_input': "(str) - Folder of per-plate cell embeddings, <plate>.npy with one row per cell, as the embedding profiles step writes them. Default blank.",
     'train_set_cells': "(str) - Folder of the matching <plate>.cells.parquet tables (plate, well, compound, concentration, moa), in the same row order as the embeddings. Blank looks in train_set_input. Default blank.",
@@ -134,7 +135,7 @@ _TOOLTIPS: Dict[str, str] = {
     'train_set_pca_dims': "(int) - Dimensions kept by the PCA whitening of 'plate_control_pca'. Default 256.",
     'train_set_control': "(str) - MoA value of the negative-control cells, used for the normalisation and for the penetrance thresholds; control wells are not scored. Default 'DMSO'.",
     'train_set_max_cells': "(int) - Most cells of a well used at prediction, the first ones in table order. Default 300.",
-    'train_protocol': "(str) - Folds: 'NSCB' (not same compound or batch: one fold per imaging week, and taxol at 1 and 3 uM) or 'NSC' (not same compound: four folds, every compound of a MoA in another fold). Default 'NSCB'.",
+    'train_protocol': TRAIN_PROTOCOL_TOOLTIP,
     'train_set_arms': "(str) - Comma-separated arms: settf (set transformer), abmil (attention-MIL only), n1 (one cell at a time, the no-context ablation), mixbag (bags from random wells of the same class), mean_lr (mean profile, logistic regression), mean_knn (mean profile, cosine 1-NN). Default 'settf,n1,mean_lr,mean_knn'.",
     'train_set_steps': "(int) - Training steps per fold of the transformer arms. Default 800.",
     'train_set_bag_batch': "(int) - Wells per training step, drawn class-uniformly. Default 16.",
@@ -169,9 +170,10 @@ _TOOLTIPS: Dict[str, str] = {
 }
 
 _CATEGORIES: Dict[str, List[str]] = {
-    'Architecture data': ['train_arch', 'train_level', 'train_set_input', 'train_set_cells', 'train_set_tag',
+    ARCHITECTURE_CATEGORY: ['train_arch', 'train_protocol'],
+    'Architecture data': ['train_level', 'train_set_input', 'train_set_cells', 'train_set_tag',
                           'train_set_normalisation', 'train_set_pca_dims', 'train_set_control',
-                          'train_set_max_cells', 'train_protocol', 'train_cell_crops', 'train_cell_table',
+                          'train_set_max_cells', 'train_cell_crops', 'train_cell_table',
                           'train_cell_label_column', 'train_cell_group_column', 'train_cell_stains',
                           'train_cell_test_fraction', 'train_set_dst'],
     'Architecture training': ['train_set_arms', 'train_set_steps', 'train_set_bag_batch', 'train_set_bag_cells',

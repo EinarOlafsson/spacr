@@ -869,7 +869,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "moa_workers", "moa_dst",
     # 889, alpha: gene classes and the gene-class baseline
     # (`spacr/gene_classes.py`), two headings of its own.
-    "gene_class_sources", "gene_class_gating", "gene_class_merge", "gene_class_merge_jaccard", "gene_class_kegg_filter", "gene_class_min_train", "gene_class_max_members", "gene_class_gated_from", "train_label_source", "train_gene_classes", "train_split", "train_split_group", "train_folds", "train_decoy_heads", "train_shuffle_control", "train_seed", "ml_model", "train_features", "train_feature_suffix", "train_exclude_sources", "gene_class_eval_min_cells", "gene_class_eval_boot", "gene_class_dst",
+    "gene_class_sources", "gene_class_gating", "gene_class_merge", "gene_class_merge_jaccard", "gene_class_kegg_filter", "gene_class_min_train", "gene_class_max_members", "gene_class_gated_from", "train_label_source", "train_gene_classes", "train_split", "train_split_group", "train_folds", "train_decoy_heads", "train_shuffle_control", "train_seed", "ml_model", "train_arch", "train_input_size", "train_balanced_sampling", "train_image_dataset", "train_crops", "train_crop_index", "train_genotype", "train_crop_scales", "train_classes", "train_protocol", "train_steps", "train_batch", "train_features", "train_feature_suffix", "train_exclude_sources", "gene_class_eval_min_cells", "gene_class_eval_boot", "gene_class_dst",
     # 897, alpha: the channel-adaptive architectures
     # (`spacr/architecture_training.py`), two headings of its own: the data
     # and the training.

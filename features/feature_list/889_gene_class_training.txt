@@ -2,9 +2,9 @@ GENE-CLASS (MULTI-LABEL) TRAINING WITH GROUPED SPLITS, DECOY HEADS AND SHUFFLED 
 ========================================================================================
 
 Lifecycle: future
-Status: PARTIAL 2026-11-09 (alpha, under ALPHA_FEATURES[889]) — spacr.gene_classes builds the gene classes from versioned annotation files (KinHub, CORUM, KEGG with the BRITE filter, GO-slim, Funk feature directions; md5 in sources.json), merges or drops near-duplicates, splits genes into folds by multi-label iterative stratification (grouped_multilabel_folds, every gene in one fold), gates a table on phenotype-positive members, trains the per-class logistic-regression baseline on a gene feature table with decoy heads and a shuffled-class control, and writes the evaluation report (per_class.csv, summary.json, discovery.csv / discovery_a.csv / discovery_b.csv against the gene-wise decoy null). run_gene_classes runs it from settings (module 'gene_classes'). The shipped spaCR CNN (CustomCellClassifier) is pinned to the benchmark's fixed arm. NOT YET: the image-model arms (gc_train.py: crop sampler, transform spec check, resnet18 / convnext_tiny / dinov2_frozen / maxvit_t / spacr_cnn) and the BBBC021 architecture benchmark. spacr/gene_classes.py, tests/test_gene_classes_889.py.
+Status: PARTIAL 2026-11-09 (alpha, under ALPHA_FEATURES[889]) — spacr.gene_classes builds the gene classes from versioned annotation files (KinHub, CORUM, KEGG with the BRITE filter, GO-slim, Funk feature directions; md5 in sources.json), merges or drops near-duplicates, splits genes into folds by multi-label iterative stratification (grouped_multilabel_folds, every gene in one fold), gates a table on phenotype-positive members, trains the per-class logistic-regression baseline on a gene feature table with decoy heads and a shuffled-class control, and writes the evaluation report (per_class.csv, summary.json, discovery.csv / discovery_a.csv / discovery_b.csv against the gene-wise decoy null). run_gene_classes runs it from settings (module 'gene_classes'). The shipped spaCR CNN (CustomCellClassifier) is pinned to the benchmark's fixed arm. Image arms (lane J, 2026-11-10): spacr.gene_class_images ports gc_train.py — OPS shard crops and BBBC021 memmap crops with fixed per-plate channel scales, the class_gene / class balanced samplers, DevicePrep augmentation, transform_spec saved per fold and checked before scoring (772), the arms resnet18, resnet50, efficientnet_b0, convnext_tiny, dinov2, dinov2_frozen, maxvit_t (spaCR TorchModel) and spacr_cnn (spaCR's CustomCellClassifier, the fixed arm), train_image_fold and score_bbbc_run; ml_model='image' with train_arch, train_input_size, train_balanced_sampling and the crop settings runs them from settings. NOT YET: the GPU runs of the benchmark. spacr/gene_classes.py, tests/test_gene_classes_889.py.
 Requested: maintainer via the BMC paper session, 2026-11-09 ("NEW-1").
-Owner: lane G (paper items 2026-11-09).
+Owner: lane G (paper items 2026-11-09); image arms lane J (2026-11-10).
 Source: the OPS gene-class analysis (build_classes.py, baseline_lr.py, eval_ops.py; benchmark spacr_cnn_fixed.py).
 Related: 772, 855.
 
@@ -31,8 +31,21 @@ v889_tables.py and v889_lr.py):
   gene_class_eval_boot set to the reference's bootstrap count: 300 for
   v3_lr_funkscores_d300 and lr_funkscores_all, 200 for the shuffled control
   (found by matching the stored intervals; the script default is 1000).
-- Remaining (GPU, paper session): the image-model arms and the BBBC021
-  architecture benchmark within the 5-seed spread.
+- Image arms (lane J; scratch-docs/lane-j-1109/v889/smoke_equiv.py, CPU,
+  envs/spacr, OMP_NUM_THREADS=2): the reference gc_train.run_fold and
+  spacr.gene_class_images.train_image_fold on the same benchmark config
+  (bbbc021_NSCB_<arch>, fold 0, smoke: 3 steps of batch 8, 256 test cells)
+  give bit-identical test probabilities and identical transform.json for
+  resnet18, convnext_tiny, spacr_maxvit_t (maxvit_t), vit_s_dinov2 frozen
+  (dinov2_frozen) and spacr_cnn against the reference's spacr_cnn_fixed arm:
+  same batches, augmentation, model initialisation and scoring. The
+  nightly CustomCellClassifier is therefore the fixed arm.
+- Remaining (GPU, paper session): every arm of the BBBC021 benchmark at full
+  length (1,500 steps x 64, NSCB 11 folds and NSC 4 folds) against
+  runs/bbbc021_*/eval/summary.json, within a seed spread that the
+  reference has not measured yet (5 seeds of each arm needed); the OPS
+  plate A arms (16 classes, 8 decoy heads) the same way. The OPS crop path
+  is tested on a synthetic shard only.
 
 RULE
 Nothing changes unless the gene_classes module is run.

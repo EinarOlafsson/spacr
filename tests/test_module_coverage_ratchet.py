@@ -518,6 +518,9 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         'spacr/channel_models.py',
         'spacr/well_set_training.py',
         'spacr/architecture_training.py',
+        # 685 -> 686 on 2026-11-10, +1/-0, item 889: the image arms of the
+        # gene-class benchmark (spacr/gene_class_images.py).
+        'spacr/gene_class_images.py',
     }
     assert added_since_608 <= shipped
     # 664 -> 662 on 2026-10-12, +0/-2: spacr-tutorial opens the online
@@ -542,7 +545,7 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     assert metal_transport_arrivals <= shipped
     assert not metal_transport_arrivals & (added_since_608 | retired_since_608)
     assert (len(shipped - metal_transport_arrivals) == 608 + len(added_since_608)
-            - len(retired_since_608) == 682)
+            - len(retired_since_608) == 683)
     # 664 -> 666 on 2026-11-06: spacr/assay_report.py (item 816) and
     # spacr/_gpu_governor.py (item 803), the same +2 as `added_since_608`.
     # 666 -> 667 on 2026-11-06: spacr/_merge_pairs.py (item 833).
@@ -560,6 +563,7 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     # 678 -> 679 on 2026-11-09: spacr/gene_classes.py (item 889).
     # 679 -> 682 on 2026-11-10: spacr/channel_models.py,
     # spacr/well_set_training.py and spacr/architecture_training.py (item 897).
+    # 682 -> 683 on 2026-11-10: spacr/gene_class_images.py (item 889).
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
@@ -1015,8 +1019,10 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_required():
     # same +1 as `shipped`, moved with the workflow in one commit.
     # 682 -> 685 on 2026-11-10: the three item 897 modules, the same +3 as
     # `shipped`, moved with the workflow in one commit.
-    assert len(ratchet.discover_shipped_python_files(ROOT)) == 685
-    assert "--expected-file-count 685" in combine_script
+    # 685 -> 686 on 2026-11-10: spacr/gene_class_images.py (item 889), the
+    # same +1 as `shipped`, moved with the workflow in one commit.
+    assert len(ratchet.discover_shipped_python_files(ROOT)) == 686
+    assert "--expected-file-count 686" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script
