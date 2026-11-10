@@ -117,6 +117,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_profile_essential_axis_min_rho": 0.3,
     "ops_profile_similarity": None,
     "ops_guide_null_size": 200000,
+    "ops_profile_responder_alpha": 0.05,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -217,6 +218,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_profile_essential_axis_min_rho": (float, int),
     "ops_profile_similarity": (str, type(None)),
     "ops_guide_null_size": int,
+    "ops_profile_responder_alpha": (float, int),
 }
 
 #: Which panel section each setting appears under.
@@ -288,6 +290,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_profile_essential_axis_min_rho",
         "ops_profile_similarity",
         "ops_guide_null_size",
+        "ops_profile_responder_alpha",
     ],
 }
 
@@ -825,6 +828,10 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(int) - Random guide-set pairs per pair of guide counts in the "
         "guide-level null; P values resolve to 1 / (N + 1). Default 200000. "
         "Alpha.",
+    "ops_profile_responder_alpha":
+        "(float) - The share of held-out control cells a responder "
+        "threshold lets through; the responder fraction is (flagged - "
+        "alpha) / (1 - alpha). Default 0.05. Alpha.",
 }
 
 #: The blurb the module shows above its settings.

@@ -3860,7 +3860,7 @@ def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
         generic_covariates, guide_efficacy_profiles,
         guide_level_similarity, nt_row_names, penetrance_tests,
         phase_columns, phase_profiles, phase_tests,
-        remove_generic_axes, shrink_gene_profiles)
+        remove_generic_axes, responder_profiles, shrink_gene_profiles)
     from .qt.i18n import tr
 
     report: Dict[str, Any] = {"outputs": {}}
@@ -4032,6 +4032,25 @@ def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
         report["guide_level"] = result["summary"]
         _ph_profile_tables("gene_pairs", result["pairs"], destination, label,
                            outputs)
+
+    if similarity in ("responder", "sliced_wasserstein"):
+        alpha = float(_setting_number(settings.get("ops_profile_responder_alpha"),
+                                      "ops_profile_responder_alpha", 0.05))
+        frame = pd.concat([cells[["sgRNA", "gene"]].reset_index(drop=True),
+                           pd.DataFrame(embedding, columns=pcs)], axis=1)
+        use = frame["gene"].to_numpy() != "nontargeting_drop"
+        if phases is not None:
+            use &= phases.to_numpy() != "M"
+        result = responder_profiles(frame, pcs, control=control, guide="sgRNA",
+                                    use=use, alpha=alpha)
+        for name in ("summary", "genes", "guides"):
+            _ph_profile_tables(f"responder_{name}", result[name], destination,
+                               label, outputs)
+        quantiles = pd.DataFrame(result["sliced_wasserstein"]).add_prefix("sw_")
+        quantiles.insert(0, "gene", result["summary"]["gene"].to_numpy())
+        _ph_profile_tables("genes_sliced_wasserstein", quantiles, destination,
+                           label, outputs)
+        report["responders"] = {"alpha": alpha, "genes": int(len(result["summary"]))}
 
     if settings.get("ops_escapers") and not settings.get("ops_penetrance"):
         raise ValueError(tr("ops_escapers reads the penetrance fit; set "

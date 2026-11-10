@@ -3575,3 +3575,164 @@ def guide_level_similarity(guides: pd.DataFrame, features: Sequence[str], *,
             "similarity": similarity, "names": np.array(rows),
             "summary": summary}
 
+
+def _mean_distance(u: np.ndarray, v: np.ndarray) -> float:
+    """The mean Euclidean distance between the rows of two matrices.
+
+    :param u: one matrix.
+    :param v: the other.
+    :returns: the mean over all row pairs.
+    """
+    squared = (u ** 2).sum(1)[:, None] + (v ** 2).sum(1)[None] - 2 * u @ v.T
+    return float(np.sqrt(np.clip(squared, 0, None)).mean())
+
+
+def responder_profiles(cells: pd.DataFrame, features: Sequence[str], *,
+                       control: pd.Series, guide: str = "guide",
+                       gene: str = "gene", use: Optional[pd.Series] = None,
+                       alpha: float = 0.05, folds: int = 5,
+                       max_cells: int = 3000, control_pool: int = 20000,
+                       min_cells: int = 20, energy_cells: int = 300,
+                       energy_controls: int = 2000, directions: int = 64,
+                       quantiles: int = 32, seed: int = 0) -> Dict[str, Any]:
+    """Per gene: which of its cells respond, how they differ, and how far
+    its cell distribution is from the controls'.
+
+    :param cells: one row per cell with ``guide``, ``gene`` and the
+        ``features`` (TVN components).
+    :param features: the profile columns.
+    :param control: True for a non-targeting cell.
+    :param guide: the guide column.
+    :param gene: the gene column; non-targeting cells carry pseudo-gene
+        names (:func:`nt_row_names`) so they are processed as genes.
+    :param use: the cells to use (interphase cells in the published
+        analysis, with ``nontargeting_drop`` cells left out); all by default.
+    :param alpha: the share of control cells a threshold lets through
+        (``ops_profile_responder_alpha``).
+    :param folds: cross-fitting folds.
+    :param max_cells: a gene with more cells is subsampled to this many.
+    :param control_pool: control cells drawn once as the reference.
+    :param min_cells: genes with fewer cells are skipped.
+    :param energy_cells: gene cells in the energy distance and the sliced
+        Wasserstein embedding.
+    :param energy_controls: control cells in the energy distance.
+    :param directions: random projections of the sliced Wasserstein
+        embedding.
+    :param quantiles: quantiles per projection.
+    :param seed: the seed of the one random stream.
+    :returns: ``summary`` (``gene, cells_used, flagged_frac,
+        responder_fraction, energy_distance_vs_NT, responders``),
+        ``genes`` (``gene`` and the responder-shift profile),
+        ``guides`` (``guide, gene, responders`` and its profile) and
+        ``sliced_wasserstein`` (genes x ``directions * quantiles``).
+
+    RESPONDERS ARE CALLED BY A CROSS-FITTED DISCRIMINANT. Per fold, the
+    direction is the gene's mean minus the controls' mean on the other
+    folds, and a cell is flagged when its projection exceeds the held-out
+    controls' ``1 - alpha`` quantile. The responder fraction is ``(flagged
+    - alpha) / (1 - alpha)``, floored at 0: the share of the gene's cells
+    with the phenotype, its penetrance. The responder profile is the mean
+    of the flagged gene cells minus the mean of the flagged control cells
+    (the plain mean difference when fewer than five of either are
+    flagged), so a phenotype carried by a few cells is not diluted by the
+    rest. A control cell of the gene's own guides is never its reference.
+
+    The energy distance (Szekely & Rizzo 2013) compares ``energy_cells``
+    gene cells with ``energy_controls`` control cells. The sliced
+    Wasserstein embedding (Bonneel et al. 2015) gives each gene the
+    ``quantiles`` quantiles of its cells along ``directions`` fixed random
+    directions, so the Euclidean distance between two embeddings
+    approximates their sliced Wasserstein distance.
+    """
+    x = cells[list(features)].to_numpy(np.float32)
+    names = cells[gene].astype(str).to_numpy()
+    guide_of = cells[guide].astype(str).to_numpy()
+    control = pd.Series(control, index=cells.index).fillna(False
+                                                           ).astype(bool).to_numpy()
+    use = (np.ones(len(cells), bool) if use is None
+           else pd.Series(use, index=cells.index).fillna(False).astype(bool).to_numpy())
+    rng = np.random.default_rng(int(seed))
+    index = np.flatnonzero(use)
+    by_gene = pd.Series(names[index]).groupby(names[index]).indices
+    controls = index[control[index]]
+    pool = rng.choice(controls, min(int(control_pool), len(controls)),
+                      replace=False)
+    pool_guides = guide_of[pool]
+    projections = rng.standard_normal((len(features), int(directions)))
+    projections /= np.linalg.norm(projections, axis=0, keepdims=True)
+    levels = (np.arange(int(quantiles)) + 0.5) / int(quantiles)
+    rows, gene_rows, guide_rows, embedding = [], [], [], []
+    for name in sorted(by_gene):
+        members = index[by_gene[name]]
+        if len(members) < int(min_cells):
+            continue
+        if len(members) > int(max_cells):
+            members = np.sort(rng.choice(members, int(max_cells), replace=False))
+        reference = pool[~np.isin(pool_guides, guide_of[members])]
+        if len(reference) == 0:
+            continue
+        xg, xn = x[members].astype(np.float64), x[reference].astype(np.float64)
+        fold_g = rng.integers(0, int(folds), len(members))
+        fold_n = rng.integers(0, int(folds), len(reference))
+        flag_g = np.zeros(len(members), bool)
+        flag_n = np.zeros(len(reference), bool)
+        for f in range(int(folds)):
+            w = xg[fold_g != f].mean(0) - xn[fold_n != f].mean(0)
+            w /= max(np.linalg.norm(w), 1e-12)
+            held = xn[fold_n == f] @ w
+            threshold = np.quantile(held, 1 - alpha)
+            flag_g[fold_g == f] = (xg[fold_g == f] @ w) > threshold
+            flag_n[fold_n == f] = held > threshold
+        share = float(flag_g.mean())
+        fraction = max(0.0, (share - alpha) / (1 - alpha))
+        if flag_g.sum() >= 5 and flag_n.sum() >= 5:
+            profile = xg[flag_g].mean(0) - xn[flag_n].mean(0)
+        else:
+            profile = xg.mean(0) - xn.mean(0)
+        gene_rows.append(profile)
+        own = guide_of[members]
+        for g in np.unique(own):
+            picked = (own == g) & flag_g
+            if picked.sum() >= 3 and flag_n.sum() >= 5:
+                v = xg[picked].mean(0) - xn[flag_n].mean(0)
+            else:
+                v = xg[own == g].mean(0) - xn.mean(0)
+            guide_rows.append((g, name, int(picked.sum()), *v))
+        a = xg[rng.choice(len(xg), min(int(energy_cells), len(xg)), replace=False)]
+        b = xn[rng.choice(len(xn), min(int(energy_controls), len(xn)), replace=False)]
+        energy = (2 * _mean_distance(a, b) - _mean_distance(a, a)
+                  - _mean_distance(b[:int(energy_cells)], b[:int(energy_cells)]))
+        embedding.append(np.quantile(a @ projections, levels, axis=0).T.ravel())
+        rows.append({"gene": name, "cells_used": len(members),
+                     "flagged_frac": share, "responder_fraction": fraction,
+                     "energy_distance_vs_NT": energy,
+                     "responders": int(flag_g.sum())})
+    summary = pd.DataFrame(rows)
+    genes_out = pd.DataFrame(np.array(gene_rows, np.float32),
+                             columns=list(features))
+    genes_out.insert(0, "gene", summary["gene"].to_numpy() if len(summary) else [])
+    guides_out = pd.DataFrame(guide_rows, columns=["guide", "gene", "responders",
+                                                   *features])
+    return {"summary": summary, "genes": genes_out, "guides": guides_out,
+            "sliced_wasserstein": np.array(embedding, np.float32)}
+
+
+def distribution_distances(cells: pd.DataFrame, features: Sequence[str], *,
+                           control: pd.Series, **options: Any
+                           ) -> Tuple[pd.DataFrame, np.ndarray]:
+    """Each gene's energy distance to the controls and its sliced
+    Wasserstein embedding.
+
+    :param cells: as :func:`responder_profiles`.
+    :param features: the profile columns.
+    :param control: True for a non-targeting cell.
+    :param options: passed to :func:`responder_profiles`, whose random
+        stream also draws the responder folds, so the distances are the
+        same as in its summary.
+    :returns: ``(distances, embedding)``: ``gene`` and
+        ``energy_distance_vs_NT``, and one sliced Wasserstein row per gene.
+    """
+    result = responder_profiles(cells, features, control=control, **options)
+    return (result["summary"][["gene", "energy_distance_vs_NT"]],
+            result["sliced_wasserstein"])
+

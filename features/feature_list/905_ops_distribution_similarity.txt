@@ -1,0 +1,18 @@
+OPS RESPONDER FRACTION, RESPONDER PROFILES AND DISTRIBUTION DISTANCES
+=====================================================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha, under ALPHA_FEATURES[905]) — spacr.gene_measurement_compare.responder_profiles: per gene against a fixed control pool (own guides excluded), a 5-fold cross-fitted mean-difference discriminant flags cells above the held-out controls' 1 - alpha quantile; responder fraction (flagged - alpha) / (1 - alpha), responder-shift profiles per gene and guide, energy distance to the controls (300 vs 2,000 cells) and a sliced-Wasserstein quantile embedding (64 directions x 32 quantiles), all on one seeded stream; distribution_distances returns the distances and the embedding. ops_profile_similarity 'responder' or 'sliced_wasserstein' (ops_profile_responder_alpha) writes ops_responder_* and ops_genes_sliced_wasserstein tables in the aggregate phase, on interphase cells when phases are called. spacr/gene_measurement_compare.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_distribution_similarity_905.py.
+Requested: maintainer via paper session, 2026-11-09.
+Owner: paper session (lane C).
+Source: improved/scripts/build_profiles.py (3a block); Szekely & Rizzo 2013; Bonneel et al. 2015.
+Related: 891, 904.
+
+WHAT THE STATE IS
+Upgrade 3a was a script.
+
+WHAT TO DO
+- Port the responder, energy-distance and sliced-Wasserstein outputs, alpha.
+
+RESULT
+Validation against the reference tables is in progress; results follow in a later commit.
