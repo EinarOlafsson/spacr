@@ -3971,9 +3971,7 @@ def catalogue(include_bundled: bool = True, remote: bool = True,
         ``None`` lets that function decide from the thread it is on.
     :returns: entries in the order above. An entry whose ``(key, name)`` is
         already listed is not added again, so a downloaded model is listed
-        once, as the local file; a community row under a renamed key
-        (:data:`_MODEL_KEY_ALIASES`) is not listed beside the bundled row
-        that now carries its file.
+        once, as the local file.
     """
     entries: List[ModelEntry] = []
     if include_bundled:
