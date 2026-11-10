@@ -25,11 +25,17 @@ xgboost 2.1.1, one thread:
 - No regression: with default settings the features, metrics and every
   held-out prediction equal the pre-909 module (commit aa9d8b1677) exactly
   on Cell-ACDC and HeLa.
-- The spacr_default / all_frames_diagnostic columns of
-  comparison_script_vs_spacr_module.csv were produced by an older nightly
-  (917a2cab6a); today's module (before and after 909) gives the same row and
-  positive counts but different AUPRCs there, so those columns are no longer
-  a no-regression reference and should be regenerated.
+- No regression against the module run (spacr_default_2a65332005 and
+  all_frames_diagnostic_2a65332005, the runner's exact call, scratch
+  noreg909b.py): run in the spacr env (xgboost 3.4.1, scikit-learn 1.9.0,
+  numpy 2.5.2, pandas 2.3.3), the 909 branch with default options writes
+  metrics, folds, predictions and importances numerically identical to the
+  reference tables for Cell-ACDC and HeLa (32 tables, every number exact; the
+  only addition is the metrics column informative). The earlier mismatch was
+  the environment, not the code: those runs used the base anaconda python
+  (xgboost 2.1.1, numpy 1.26.4, pandas 2.2.2), where xgboost grows different
+  trees. The reference-preset comparison above was run in that base
+  environment, which matches the stage-2 script.
 
 NOT DONE / REMAINING
 - Nine datasets, including the three over the row cap (C. glutamicum, bck2,
