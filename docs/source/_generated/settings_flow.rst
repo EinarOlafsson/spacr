@@ -11793,6 +11793,10 @@ gpu_adaptive_batch
 |                 ``_governed_eval``
 |                     ``_config`` **-- reads it**
 |                         ``isinstance(...)  [UNRESOLVED]``
+|             ``_per_image_diameter_masks``
+|                 ``_mask_eval``
+|                     ``_governed_eval``
+|                         ``_config`` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_segment_cellpose_sam``
@@ -11876,6 +11880,10 @@ gpu_fallback_policy
 |                 ``_governed_eval``
 |                     ``_config`` **-- reads it**
 |                         ``isinstance(...)  [UNRESOLVED]``
+|             ``_per_image_diameter_masks``
+|                 ``_mask_eval``
+|                     ``_governed_eval``
+|                         ``_config`` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_segment_cellpose_sam``
@@ -11965,6 +11973,10 @@ gpu_memory_fraction
 |                 ``_governed_eval``
 |                     ``_config`` **-- reads it**
 |                         ``isinstance(...)  [UNRESOLVED]``
+|             ``_per_image_diameter_masks``
+|                 ``_mask_eval``
+|                     ``_governed_eval``
+|                         ``_config`` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_segment_cellpose_sam``
@@ -12047,6 +12059,10 @@ gpu_memory_margin_gb
 |                 ``_governed_eval``
 |                     ``_config`` **-- reads it**
 |                         ``isinstance(...)  [UNRESOLVED]``
+|             ``_per_image_diameter_masks``
+|                 ``_mask_eval``
+|                     ``_governed_eval``
+|                         ``_config`` **-- reads it**
 |             ``_run_lineage_step(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.object.generate_organelle_masks_sam`
 |             ``_segment_cellpose_sam``
