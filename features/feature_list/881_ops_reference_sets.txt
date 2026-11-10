@@ -1,0 +1,44 @@
+VERSIONED REFERENCE SETS, SELECT / REPORT HALVES AND THE 2022 TIME SPLIT
+=======================================================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha; its settings are read by the OPS profile phase, 879) — spacr.ops_reference reads CORUM, KEGG and STRING (Brieflow benchmark files), STRING v12 >= 0.4 / >= 0.7 and BioGRID physical (prepared parquet), and the 2022 time-split references (STRING v11.5, BioGRID 4.4.214, CORUM 3.0 and the evidence added since) by name, splits each into REF@SELECT / REF@REPORT (CORUM by a seeded permutation of complex names, SPLIT_SEED 20261107, REPORT pairs also in a SELECT complex dropped; pair references by md5('a|b') parity), and prepares the current and the time-split tables from the downloads (prepare_current_references, prepare_time_split_references; md5 of the CORUM 3.0 archive recorded). spacr.tabular reads compressed delimited text (.txt.gz, .tsv.gz). spacr/ops_reference.py, spacr/tabular.py, tests/test_ops_reference_sets_881.py.
+Requested: maintainer via the BMC paper session, 2026-11-09.
+Owner: lane D (paper items 2026-11-09).
+Source: the improved gene-profiling analysis of Funk et al. 2022 plate A (ic_lib._ref_pairs, corum_halves, _pair_half; prep_archive_refs.py; prep_refs.py).
+Related: 879, 880, 882, 855.
+
+WHAT THE STATE IS
+The OPS cluster benchmark (855) read the three Brieflow benchmark tables for
+cluster enrichment only. Gene-gene retrieval needs every reference as a set
+of gene pairs, with a fixed split into a half used to choose and a half used
+to report, and a split by date for asking what was found before it was
+known.
+
+WHAT TO DO
+- One module that reads every reference by name from ops_reference_dir (a
+  folder or a list of folders) and returns its unordered pairs.
+- The SELECT / REPORT halves exactly as the reference code draws them.
+- The 2022 references and the 'new after 2022' sets, diffed on stable ids
+  (STRING protein ids, Entrez ids), both genes present in the old release.
+- Record file, md5, release and pair count of each reference of a run.
+
+RESULT
+Against the reference code and files (scratch script
+paper-items-1109/lane-d/accept_881.py):
+- every reference and every half (CORUM, KEGG, STRING_brieflow,
+  STRING>=0.7, STRING>=0.4, BioGRID, the seven time-split references, and
+  the SELECT / REPORT halves of the first six) gives exactly the pair set
+  of ic_lib._ref_pairs;
+- prepare_time_split_references rebuilt from the archives gives the
+  versions.json counts exactly (STRING v11.5 897,565 / 252,982 pairs,
+  22,349 new v12 >= 0.7; BioGRID 746,082 old, 989,498 new, 242,263 added;
+  CORUM 3.0 2,916 complexes, 39,593 pairs, 6,840 new) and the same pair set
+  in all seven parquet tables (the two BioGRID tables differ only in row
+  order, which comes from set iteration);
+- prepare_current_references gives string_v12_ge400.parquet and
+  biogrid_physical.parquet frame-identical to the prepared tables.
+
+DELIBERATELY NOT DONE
+- No download step: the files named in SPACR_PROVENANCE.md are on disk and
+  are read from there.
