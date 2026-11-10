@@ -529,6 +529,20 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_cluster_resolutions", "ops_cluster_seed", "ops_consensus_runs",
     # A trained mitotic classifier (item 856, 2026-11-07).
     "ops_mitotic_model",
+    # Gene-profile options of the aggregate phase (items 883, 887, 890, 891,
+    # 902-907, 2026-11-09).
+    "ops_aggregate_level", "ops_nt_rows", "ops_profile_weighting",
+    "ops_guide_efficacy", "ops_guide_efficacy_iters",
+    "ops_guide_efficacy_emax", "ops_profile_cell_cycle",
+    "ops_profile_g1_sg2_split_log2", "ops_mitotic_source",
+    "ops_penetrance", "ops_penetrance_folds", "ops_penetrance_nt_pool",
+    "ops_penetrance_lambda", "ops_escapers", "ops_escaper_dbic",
+    "ops_escaper_min_sep", "ops_phase_tests", "ops_phase_null",
+    "ops_profile_shrinkage", "ops_profile_shrinkage_prior_df",
+    "ops_profile_generic_axes", "ops_profile_essential_axis_min_rho",
+    "ops_profile_similarity", "ops_guide_null_size",
+    "ops_profile_responder_alpha", "ops_profile_space",
+    "ops_fusion_blocks",
     # `window_length`, the new name for `expected_end` (364, 2026-09-09).
     "window_length",
     # and `min_observations_per_hit`, the new name for `min_n`.

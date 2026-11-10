@@ -17,4 +17,14 @@ WHAT TO DO
   alpha, crediting Brieflow.
 
 RESULT
-Validation against the reference tables is in progress; results follow in a later commit.
+The per-cell matrix of the c0 / no-LOF / median-impute arm was rebuilt from
+the stored per-well caches with the reference code in the reference
+environment (5,281,214 cells, 102 TVN dimensions, epsilon 0). From it,
+aggregate_guides, nt_row_names and aggregate_genes(min_cells=10) give
+X_bfr_only_agg (level 'cells', pseudo NT rows, 5,112 genes),
+X_bfr_only_nt (level 'guides', barcode NT rows, 5,299 rows) and X_bfr_none
+(level 'guides', pseudo NT rows) and their guide tables bit for bit: same
+rows, same cell counts, every value equal. The pseudo-genes are drawn from
+the NT guides of the improved cell tables without dropping the short last
+group, as aggregate_embeddings.pseudo_names does (nt_guides,
+drop_incomplete=False). The eps-3 arm X_bfr_best_eps3 was not rebuilt.
