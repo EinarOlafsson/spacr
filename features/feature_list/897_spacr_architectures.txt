@@ -2,7 +2,7 @@ CHANNEL-ADAPTIVE CNN AND VIT, THE WELL SET TRANSFORMER, MAE / DINO PRE-TRAINING 
 ================================================================================================================
 
 Lifecycle: future
-Status: PARTIAL 2026-11-10 (alpha, under ALPHA_FEATURES[897]) — spacr.channel_models: SpacrChannelCNN (HyperNet stem, FiLM ConvNeXt blocks, cross-channel mixing, channel attention pooling), SpacrChannelViT (per-channel patch tokens, stain embeddings, availability mask, Hierarchical Channel Sampling, bag-of-channels), ChannelMAE, ChannelDINO, SpacrWellTransformer (arrayed ISAB + gated attention-MIL with instance head; pooled with context and null token), penetrant_fraction; the registry build_channel_model / CHANNEL_ARCHITECTURES, and choose_model builds spacr_channel_cnn and spacr_channel_vit for the spaCR train path. spacr.well_set_training: label-free normalisation (per-plate control centring and scaling, control-fitted PCA whitening), wells, the NSCB / NSC folds, the arms settf, abmil, n1, mixbag, mean_lr and mean_knn, the eval_bbbc scoring with bootstrap, penetrance against control cells, shuffled-label and majority-class controls, summary.csv; synthetic arrayed and pooled checks. spacr.architecture_training: settings (app key spacr_architectures, spacr-run spacr_architectures, python -m spacr.architecture_training), train_level 'well_set' or 'cell'; the cell level trains the CNN or ViT on raw crops with a fixed per-channel scale, optional MAE or DINO pre-training (pretrain_method, pretrain_epochs, pretrain_mask_ratio), few-shot labels (train_labels_per_class) and the missing-stain evaluation (eval_channel_subsets), with shuffled-label and majority-class controls. spacr/channel_models.py, spacr/well_set_training.py, spacr/architecture_training.py, tests/test_spacr_architectures_897.py, tests/test_architecture_training_897.py.
+Status: PARTIAL 2026-11-10 (well-set path DONE: every NSCB ResNet-18 arm and control bit-identical to the reference; cell-level GPU runs remain) (alpha, under ALPHA_FEATURES[897]) — spacr.channel_models: SpacrChannelCNN (HyperNet stem, FiLM ConvNeXt blocks, cross-channel mixing, channel attention pooling), SpacrChannelViT (per-channel patch tokens, stain embeddings, availability mask, Hierarchical Channel Sampling, bag-of-channels), ChannelMAE, ChannelDINO, SpacrWellTransformer (arrayed ISAB + gated attention-MIL with instance head; pooled with context and null token), penetrant_fraction; the registry build_channel_model / CHANNEL_ARCHITECTURES, and choose_model builds spacr_channel_cnn and spacr_channel_vit for the spaCR train path. spacr.well_set_training: label-free normalisation (per-plate control centring and scaling, control-fitted PCA whitening), wells, the NSCB / NSC folds, the arms settf, abmil, n1, mixbag, mean_lr and mean_knn, the eval_bbbc scoring with bootstrap, penetrance against control cells, shuffled-label and majority-class controls, summary.csv; synthetic arrayed and pooled checks. spacr.architecture_training: settings (app key spacr_architectures, spacr-run spacr_architectures, python -m spacr.architecture_training), train_level 'well_set' or 'cell'; the cell level trains the CNN or ViT on raw crops with a fixed per-channel scale, optional MAE or DINO pre-training (pretrain_method, pretrain_epochs, pretrain_mask_ratio), few-shot labels (train_labels_per_class) and the missing-stain evaluation (eval_channel_subsets), with shuffled-label and majority-class controls. spacr/channel_models.py, spacr/well_set_training.py, spacr/architecture_training.py, tests/test_spacr_architectures_897.py, tests/test_architecture_training_897.py.
 Requested: maintainer via the BMC paper session, 2026-11-09 (port P17).
 Owner: lane J (paper items 2026-11-09).
 Source: the BMC reanalysis spacr_architectures code (spacr_arch.py, train_well.py, train_cell.py, pretrain_cell.py, smoke_tests.py, summarize_cpu.py), proposals/bmc_paper_items/ITEM_spacr_architectures.md.
@@ -17,18 +17,26 @@ Acceptance scripts and logs: scratch-docs/lane-j-1109/v897/ (accept_897.py,
 accept_*.json). In envs/spacr, on the reference's normalised ResNet-18
 embeddings of BBBC021 (255,310 cells), OMP_NUM_THREADS=2 as the reference
 queue ran:
-- mean_knn, mean_lr, mean_lr_shuffled, n1 and abmil (n1 and abmil are
-  trained transformer arms, 12 folds of 800 steps each): treatment_probs.csv
-  bit-identical to the reference runs, and accuracy, bootstrap interval,
-  macro AUROC, macro AP, majority class, parameter count and (abmil) median
-  penetrant fraction identical to the reference summaries.
-- settf, settf_shuffled and mixbag (1 to 1.5 h each on 2 threads): see the
-  next commits.
+- The normalisation from the raw per-plate embeddings (plate control
+  centring and scaling, control PCA whitening to 256 dimensions) gives the
+  reference's cached input bit for bit (float16, 255,310 x 256); with every
+  BLAS thread instead of two it differs by one float16 step (max 0.0156).
+- mean_knn, mean_lr, mean_lr_shuffled, n1, abmil and settf (the main arm;
+  n1, abmil and settf are trained transformer arms, 12 folds of 800 steps
+  each): treatment_probs.csv bit-identical to the reference runs, and
+  accuracy (settf 0.794, 81/102), bootstrap interval, macro AUROC, macro AP,
+  majority class, parameter count and median penetrant fraction identical
+  to runs_cpu/summary_table.csv.
+- mixbag (ablation) and settf_shuffled (control): bit-identical too, so
+  every NSCB ResNet-18 arm and control the reference ran matches.
 - The 25 unit tests of spacr_arch.py are ported (CPU, smaller widths where
-  the reference used 224 px on full-size models).
-- mean_lr matches only with two BLAS threads (one thread moves AUROC by
-  4e-4); the normalisation from the raw embeddings likewise depends on the
-  BLAS thread count (see the commit).
+  the reference used 224 px on full-size models); the parameter counts of
+  the default sizes match the reference's smoke log (2.43 M, 5.57 M, 21.76 M).
+- mean_lr matches only with two BLAS threads, as the reference queue
+  (OMP_NUM_THREADS=2); with one thread AUROC moves by 4e-4.
+- Not matched: the synthetic arms of summary_table.csv, because the
+  reference did not seed torch for them (spaCR seeds it, so its synthetic
+  runs are reproducible from now on).
 
 STILL TO DO
 - GPU (paper session): the cell-level arms at full size: CNN and ViT on
