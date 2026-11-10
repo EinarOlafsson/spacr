@@ -342,20 +342,41 @@ def _index_tiles(root: str, scheme: Optional[str] = None
     ``*.tif.lftp-pget-status`` files, the remains of interrupted downloads,
     and an index that took those for tiles would hand tifffile a status
     file.
+
+    A CHANNEL TOKEN SEEN TWICE FOR ONE SITE IS REFUSED, not overwritten
+    (item 872, B3). Funk plate B's two phenotype acquisitions both hold an
+    ``A594`` file per site, and the walk used to keep whichever it reached
+    last. Naming each acquisition's folder and channels in
+    ``ops_ph_acquisitions`` (:func:`_ph_acquisition_index`) indexes such a
+    plate.
+
+    :raises ValueError: when two files carry the same well, cycle, site
+        and channel token.
     """
+    from .qt.i18n import tr
+
     wanted = ("cycled", "uncycled") if scheme is None else (scheme,)
     found: Dict[str, Dict[str, Dict[int, Dict[int, Dict[str, str]]]]] = {
         name: {} for name in wanted}
     for folder, _folders, files in os.walk(root, followlinks=True):
-        for name in files:
+        for name in sorted(files):
             for which in wanted:
                 parsed = _match_tile(name, which)
                 if parsed is None:
                     continue
                 well, cycle, site, channel, _magnification = parsed
-                found[which].setdefault(well, {}).setdefault(
-                    cycle, {}).setdefault(
-                        site, {})[channel] = os.path.join(folder, name)
+                held = found[which].setdefault(well, {}).setdefault(
+                    cycle, {}).setdefault(site, {})
+                path = os.path.join(folder, name)
+                if channel in held and held[channel] != path:
+                    raise ValueError(tr(
+                        "two files under {root} carry channel {channel} for "
+                        "well {well}, site {site}: {first} and {second}. Name "
+                        "each acquisition's folder and channels in "
+                        "ops_ph_acquisitions, or point the setting at one "
+                        "acquisition.", root=root, channel=channel, well=well,
+                        site=site, first=held[channel], second=path))
+                held[channel] = path
                 break
     for which in wanted:
         if found[which]:
@@ -2152,8 +2173,132 @@ def _ph_split_files(files: Mapping[str, str], secondary: Sequence[str]
     second: Dict[str, str] = {}
     for token, path in files.items():
         names = {name.upper() for name in str(token).split("-")}
-        (second if names & wanted else primary)[token] = path
+        (second if names & wanted or "@" in str(token)
+         else primary)[token] = path
     return primary, second
+
+
+def _ph_acquisitions(settings: Mapping[str, Any]) -> Optional[Dict[str, Any]]:
+    """``ops_ph_acquisitions`` read: each acquisition's folder and channels.
+
+    :param settings: read for ``ops_ph_acquisitions``, a mapping (or its
+        JSON text) of acquisition folder to the channels taken from it,
+        comma-separated or a list, plus an optional ``register_on``
+        channel; for example ``{"phenotype": "DAPI,GFP,A594", "phenotype_af750":
+        "AF750", "register_on": "A594"}``. A relative folder is under
+        ``phenotype_source``. The first acquisition is the primary one.
+    :returns: ``{"folders": [(folder, [channels])], "register_on": channel
+        or None}``, or None when the setting is empty.
+    :raises ValueError: when the setting is not a mapping, an acquisition
+        names no channel, or a channel is named for two acquisitions.
+    """
+    from .qt.i18n import tr
+
+    raw = settings.get("ops_ph_acquisitions")
+    if not raw:
+        return None
+    if isinstance(raw, str):
+        try:
+            raw = json.loads(raw)
+        except ValueError as failure:
+            raise ValueError(tr(
+                "ops_ph_acquisitions must map each acquisition folder to its "
+                "channels; {value!r} is not that: {error}", value=raw,
+                error=failure)) from failure
+    if not isinstance(raw, Mapping):
+        raise ValueError(tr(
+            "ops_ph_acquisitions must map each acquisition folder to its "
+            "channels; got {value!r}", value=raw))
+    register_on = raw.get("register_on")
+    folders: List[Tuple[str, List[str]]] = []
+    owner: Dict[str, str] = {}
+    for folder, channels in raw.items():
+        if folder == "register_on":
+            continue
+        names = [c.upper() for c in _ph_names(channels)]
+        if not names:
+            raise ValueError(tr(
+                "ops_ph_acquisitions names no channel for {folder}",
+                folder=folder))
+        for name in names:
+            if name in owner:
+                raise ValueError(tr(
+                    "ops_ph_acquisitions takes channel {channel} from both "
+                    "{first} and {second}; each channel comes from one "
+                    "acquisition", channel=name, first=owner[name],
+                    second=folder))
+            owner[name] = str(folder)
+        folders.append((str(folder), names))
+    if not folders:
+        raise ValueError(tr("ops_ph_acquisitions names no acquisition"))
+    return {"folders": folders,
+            "register_on": str(register_on).upper() if register_on else None}
+
+
+def _ph_acquisition_index(root: str, acquisitions: Mapping[str, Any]
+                          ) -> Tuple[Dict[str, Any], Dict[str, int]]:
+    """One phenotype index built from the acquisitions ``ops_ph_acquisitions`` names.
+
+    :param root: ``phenotype_source``; relative acquisition folders are
+        under it.
+    :param acquisitions: :func:`_ph_acquisitions`.
+    :returns: ``(index, ignored)``: the ``well -> cycle -> site -> channel
+        token -> path`` index of the files whose token names a channel
+        listed for their acquisition, and how many files each acquisition
+        had that were left out. A later acquisition's single-channel file
+        of the ``register_on`` channel is kept under the token
+        ``<channel>@<n>`` (n the acquisition's position), which
+        :func:`_ph_secondary_pair` registers on and no measurement reads.
+    :raises ValueError: when a folder is missing or holds no tiles, or two
+        files give one site the same token.
+
+    A FOLDER THAT IS NOT LISTED IS NOT READ, which is how Funk plate D's
+    single-file GFP re-image stays out of the index: its in-stack GFP is
+    the one listed. Each acquisition is checked for one objective on its
+    own (:func:`_one_acquisition`).
+    """
+    from .qt.i18n import tr
+
+    register_on = acquisitions.get("register_on")
+    merged: Dict[str, Any] = {}
+    ignored: Dict[str, int] = {}
+    for number, (folder, channels) in enumerate(acquisitions["folders"]):
+        path = folder if os.path.isabs(folder) else os.path.join(root, folder)
+        if not os.path.isdir(path):
+            raise ValueError(tr(
+                "ops_ph_acquisitions names {folder}, which is not a folder "
+                "under {root}", folder=folder, root=root))
+        index = (_index_tiles(path, "uncycled")
+                 or _index_tiles(path, "cycled"))
+        if not index:
+            raise ValueError(tr(
+                "ops_ph_acquisitions names {folder}, which holds no phenotype "
+                "tiles", folder=path))
+        _one_acquisition(index, "ops_ph_acquisitions", path)
+        listed = set(channels)
+        ignored[folder] = 0
+        for well, cycles in index.items():
+            for cycle, sites in cycles.items():
+                for site, files in sites.items():
+                    target = merged.setdefault(well, {}).setdefault(
+                        cycle, {}).setdefault(site, {})
+                    for token, file in files.items():
+                        names = set(token.split("-"))
+                        if names & listed:
+                            key = token
+                        elif number and names == {register_on}:
+                            key = f"{register_on}@{number}"
+                        else:
+                            ignored[folder] += 1
+                            continue
+                        if key in target:
+                            raise ValueError(tr(
+                                "ops_ph_acquisitions gives well {well}, site "
+                                "{site} two {token} files: {first} and "
+                                "{second}", well=well, site=site, token=key,
+                                first=target[key], second=file))
+                        target[key] = file
+    return merged, ignored
 
 
 def _ph_shift_plane(plane: np.ndarray, dy: int, dx: int) -> np.ndarray:
@@ -4097,6 +4242,10 @@ def _ph_secondary_pair(files: Mapping[str, str], channels: Sequence[str]
             "ops_ph_secondary_channels names {channels}, but the site's files "
             "{files} are not two acquisitions", channels=list(channels),
             files=sorted(files)))
+    tagged = [c for c in held_second
+              if "@" in c and c.split("@")[0] in held_primary]
+    if tagged:
+        return tagged[0].split("@")[0], tagged[0]
     shared = [c for c in held_second if c in held_primary
               and c.upper() not in {x.upper() for x in channels}]
     if shared:
@@ -6141,6 +6290,7 @@ def run_ops(settings: Mapping[str, Any], *,
 
     phenotype_root = settings.get("phenotype_source")
     phenotype_index: Dict[str, Any] = {}
+    out_acquisitions = None
     wants_tiles = any(p in phases for p in ("phenotype", "ph_segment",
                                             "ph_measure", "ph_flatfield",
                                             "ph_merged", "ph_crops"))
@@ -6149,18 +6299,34 @@ def run_ops(settings: Mapping[str, Any], *,
             raise ValueError(
                 f"phenotype_source must be the folder of phenotype tiles; "
                 f"got {phenotype_root!r}")
-        phenotype_index = (_index_tiles(str(phenotype_root), "uncycled")
-                           or _index_tiles(str(phenotype_root), "cycled"))
+        acquisitions = _ph_acquisitions(settings)
+        if acquisitions is not None:
+            phenotype_index, ignored = _ph_acquisition_index(
+                str(phenotype_root), acquisitions)
+            out_acquisitions = {"folders": acquisitions["folders"],
+                                "register_on": acquisitions["register_on"],
+                                "ignored_files": ignored}
+            if (len(acquisitions["folders"]) > 1
+                    and not settings.get("ops_ph_secondary_channels")):
+                settings["ops_ph_secondary_channels"] = ",".join(
+                    c for _folder, names in acquisitions["folders"][1:]
+                    for c in names)
+        else:
+            phenotype_index = (_index_tiles(str(phenotype_root), "uncycled")
+                               or _index_tiles(str(phenotype_root), "cycled"))
         if not phenotype_index:
             raise ValueError(
                 f"no tile under {phenotype_root} is named like "
                 "20X_DAPI-GFP-A594-AF750_A1_DAPI-GFP_Site-0.tif "
                 "(magnification, channel set, well, this file's channels, "
                 "site) or like 20X_c1_A1_DAPI-GFP_Site-0.tif")
-        _one_acquisition(phenotype_index, "phenotype_source",
-                         str(phenotype_root))
+        if acquisitions is None:
+            _one_acquisition(phenotype_index, "phenotype_source",
+                             str(phenotype_root))
 
     out: Dict[str, Any] = {"db": db, "plate": plate, "wells": {}}
+    if out_acquisitions is not None:
+        out["ph_acquisitions"] = out_acquisitions
     if "ph_flatfield" in phases:
         out["ph_flatfield"] = _ph_flatfield(plate, chosen, phenotype_index,
                                             settings, destination, db)
