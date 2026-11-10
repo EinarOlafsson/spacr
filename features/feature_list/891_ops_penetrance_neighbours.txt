@@ -16,7 +16,22 @@ WHAT TO DO
 - Port them into spaCR as one alpha item with the published controls.
 
 RESULT
-Validation against the reference tables is in progress; results follow in a later commit.
+All on plate A in the reference environment, compared with the tables
+the strategies scripts wrote:
+- penetrance_tests on the 1,145 copairs-active genes: penetrance_genes
+  (1,145 rows), penetrance_controls (62 NT pseudo-genes and 100 shuffled-
+  label genes) and penetrance_guides (4,828 rows) bit for bit, every
+  column (CIs, escaper fits, simulation calls, guide heterogeneity). 9 min.
+- phase_tests with the targeting null: phase_tests_tnull (49,601 rows,
+  fresh random-set controls included), phase_calls_tnull (5,111 genes)
+  and phase_summary_tnull.json identical. 6 min.
+- neighbour_effects, inactive receivers, 5 reps of each null:
+  nbr_tests_B, nbr_null_B (51,120 rows), nbr_d_B and nbr_V_B identical.
+  7 min.
+- mask_neighbours on six fields (A1 and B3, sites 0-2): nbr_<well> pairs
+  and recv_<well> receiver rows identical.
+escaper_classes was tested on synthetic data only; its genotype-error
+inputs come from item 877.
 
 NOT DONE IN THIS ITEM
 - The neighbour table and neighbour effects are library functions only:
