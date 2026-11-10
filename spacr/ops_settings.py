@@ -102,6 +102,15 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_profile_cell_cycle": None,
     "ops_profile_g1_sg2_split_log2": 0.3,
     "ops_mitotic_source": "rule",
+    "ops_penetrance": False,
+    "ops_penetrance_folds": 5,
+    "ops_penetrance_nt_pool": 20000,
+    "ops_penetrance_lambda": 0.5,
+    "ops_escapers": False,
+    "ops_escaper_dbic": 10.0,
+    "ops_escaper_min_sep": 2.0,
+    "ops_phase_tests": False,
+    "ops_phase_null": "targeting",
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -187,6 +196,15 @@ OPS_TYPES: Dict[str, object] = {
     "ops_profile_cell_cycle": (str, type(None)),
     "ops_profile_g1_sg2_split_log2": (float, int),
     "ops_mitotic_source": str,
+    "ops_penetrance": bool,
+    "ops_penetrance_folds": int,
+    "ops_penetrance_nt_pool": int,
+    "ops_penetrance_lambda": (float, int),
+    "ops_escapers": bool,
+    "ops_escaper_dbic": (float, int),
+    "ops_escaper_min_sep": (float, int),
+    "ops_phase_tests": bool,
+    "ops_phase_null": str,
 }
 
 #: Which panel section each setting appears under.
@@ -243,6 +261,15 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_profile_cell_cycle",
         "ops_profile_g1_sg2_split_log2",
         "ops_mitotic_source",
+        "ops_penetrance",
+        "ops_penetrance_folds",
+        "ops_penetrance_nt_pool",
+        "ops_penetrance_lambda",
+        "ops_escapers",
+        "ops_escaper_dbic",
+        "ops_escaper_min_sep",
+        "ops_phase_tests",
+        "ops_phase_null",
     ],
 }
 
@@ -708,6 +735,47 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "'rule' (the DNA rule of ops_mitotic_dna_z, or the classifier when "
         "ops_mitotic_model is set) or 'classifier', which refuses to run "
         "without ops_mitotic_model. Default 'rule'. Alpha.",
+    "ops_penetrance":
+        "(bool) - Estimate each gene's penetrance, the share of its cells "
+        "with its phenotype: a classifier cross-fitted by field scores "
+        "every cell against held-out control cells, Storey's estimator "
+        "gives the share, with a field-bootstrap interval. Control pseudo- "
+        "genes and shuffled labels are run alongside. Needs TVN profiles. "
+        "Default False. Alpha.",
+    "ops_penetrance_folds":
+        "(int) - Fields are split into this many folds by name, and every "
+        "cell is scored by a model trained on the other folds. Default 5. "
+        "Alpha.",
+    "ops_penetrance_nt_pool":
+        "(int) - Control cells drawn once, in proportion to each well, as "
+        "every gene's reference in the penetrance test. Default 20000. "
+        "Alpha.",
+    "ops_penetrance_lambda":
+        "(float) - The control percentile below which only unaffected cells "
+        "are assumed to fall in Storey's estimator; lower gives a less "
+        "biased, noisier penetrance. Default 0.5. Alpha.",
+    "ops_escapers":
+        "(bool) - Write the genes whose cells split into responders and "
+        "unaffected escapers: a control-plus-responder mixture beats a "
+        "unimodal shift by ops_escaper_dbic and no simulated unimodal gene "
+        "makes the same call. Needs ops_penetrance. Default False. Alpha.",
+    "ops_escaper_dbic":
+        "(float) - The BIC margin by which the mixture must beat a unimodal "
+        "shift for an escaper call. Default 10. Alpha.",
+    "ops_escaper_min_sep":
+        "(float) - The responder mode's least distance from the controls, "
+        "in control standard deviations, for an escaper call. Default 2. "
+        "Alpha.",
+    "ops_phase_tests":
+        "(bool) - Test every gene within each cell-cycle phase and pooled, "
+        "and call genes that change cells in one phase only. Needs TVN "
+        "profiles and the nuclear integrated DNA intensity. Default False. "
+        "Alpha.",
+    "ops_phase_null":
+        "(str) - The null of the phase tests: 'targeting' (random sets of "
+        "four targeting guides of four genes) or 'nt' (random sets of four "
+        "control guides). Every targeting guide cuts DNA, so against "
+        "controls almost every gene differs. Default 'targeting'. Alpha.",
 }
 
 #: The blurb the module shows above its settings.

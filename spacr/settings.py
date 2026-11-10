@@ -8503,6 +8503,9 @@ ALPHA_FEATURES = {
                      'timelapse_division_prediction_model',
                      'timelapse_division_prediction_folds'),
     },
+    891: {
+        'settings': ('ops_penetrance', 'ops_penetrance_folds', 'ops_penetrance_nt_pool', 'ops_penetrance_lambda', 'ops_escapers', 'ops_escaper_dbic', 'ops_escaper_min_sep', 'ops_phase_tests', 'ops_phase_null'),
+    },
     890: {
         'settings': ('ops_profile_cell_cycle', 'ops_profile_g1_sg2_split_log2', 'ops_mitotic_source'),
     },

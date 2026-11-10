@@ -3141,7 +3141,8 @@ _PH_POOL_BLOCK = 48
 #: (:func:`_ph_profile_options`); each needs the per-cell TVN components.
 _PH_PROFILE_SWITCHES: Tuple[str, ...] = (
     "ops_profile_cell_cycle", "ops_profile_weighting",
-    "ops_guide_efficacy",
+    "ops_guide_efficacy", "ops_penetrance", "ops_escapers",
+    "ops_phase_tests",
 )
 
 _PH_DEGENERATE_CAUSES = (
@@ -3855,7 +3856,8 @@ def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
 
     from .gene_measurement_compare import (
         CELL_CYCLE_PHASES, cell_cycle_phases, contrastive_weighting,
-        guide_efficacy_profiles, phase_columns, phase_profiles)
+        guide_efficacy_profiles, nt_row_names, penetrance_tests,
+        phase_columns, phase_profiles, phase_tests)
     from .qt.i18n import tr
 
     report: Dict[str, Any] = {"outputs": {}}
@@ -3961,6 +3963,50 @@ def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
         _ph_profile_tables("guides_efficacy", per_guide.rename(
             "efficacy").rename_axis("guide").reset_index(), destination,
             label, outputs)
+
+    if settings.get("ops_escapers") and not settings.get("ops_penetrance"):
+        raise ValueError(tr("ops_escapers reads the penetrance fit; set "
+                            "ops_penetrance too"))
+    if settings.get("ops_penetrance"):
+        frame = pd.concat([cells[["well", "site", "sgRNA", "gene"]].reset_index(drop=True),
+                           pd.DataFrame(embedding, columns=pcs)], axis=1)
+        tested = sorted(g for g in pd.unique(frame["gene"].astype(str))
+                        if not g.lower().startswith(control_prefix.lower()))
+        result = penetrance_tests(
+            frame, pcs, tested, control=control,
+            folds=int(_setting_number(settings.get("ops_penetrance_folds"),
+                                      "ops_penetrance_folds", 5)),
+            control_pool=int(_setting_number(settings.get("ops_penetrance_nt_pool"),
+                                             "ops_penetrance_nt_pool", 20000)),
+            lam=float(_setting_number(settings.get("ops_penetrance_lambda"),
+                                      "ops_penetrance_lambda", 0.5)),
+            dbic=float(_setting_number(settings.get("ops_escaper_dbic"),
+                                       "ops_escaper_dbic", 10.0)),
+            min_separation=float(_setting_number(settings.get("ops_escaper_min_sep"),
+                                                 "ops_escaper_min_sep", 2.0)))
+        for name in ("genes", "controls", "guides"):
+            _ph_profile_tables(f"penetrance_{name}", result[name], destination,
+                               label, outputs)
+        report["penetrance"] = {"genes": int(len(result["genes"])),
+                                "controls": int(len(result["controls"]))}
+        if settings.get("ops_escapers") and len(result["genes"]):
+            escapers = result["genes"][result["genes"]["escaper"]]
+            _ph_profile_tables("penetrance_escapers", escapers, destination,
+                               label, outputs)
+            report["penetrance"]["escapers"] = int(len(escapers))
+    if settings.get("ops_phase_tests"):
+        null_kind = str(settings.get("ops_phase_null") or "targeting").strip().lower()
+        frame = pd.concat([cells[["well", "sgRNA"]].reset_index(drop=True),
+                           pd.DataFrame(embedding, columns=pcs)], axis=1)
+        frame["gene"] = nt_row_names(cells["sgRNA"], cells["gene"], rows="pseudo",
+                                     control_prefix=control_prefix)
+        frame["phase"] = phases.to_numpy()
+        result = phase_tests(frame, pcs, control=control, null=null_kind)
+        _ph_profile_tables("phase_tests", result["tests"], destination, label,
+                           outputs)
+        _ph_profile_tables("phase_calls", result["calls"], destination, label,
+                           outputs)
+        report["phase_tests"] = result["summary"]
     return report
 
 
