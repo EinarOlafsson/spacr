@@ -174,3 +174,30 @@ def test_the_mitocarta_phase_refuses_missing_settings(tmp_path):
         oc._external_clusters({"table": str(bad)})
     with pytest.raises(ValueError, match="leiden_r"):
         oc._arm_assignments(str(bad), 250)
+
+
+@pytest.mark.parametrize("pin, expected", [(True, "threadpoolctl"), (False, None)])
+def test_the_atlas_phases_honour_ops_deterministic_blas(monkeypatch, tmp_path, pin, expected):
+    from threadpoolctl import threadpool_info
+
+    from spacr import ops_modules
+    from spacr.ops_engine import run_ops
+
+    seen = {}
+
+    def fake(name):
+        """A stand-in phase that records the BLAS pool sizes it ran under."""
+        def run(settings, report=None):
+            """Record the pool sizes and return the phase name."""
+            seen[name] = {pool["num_threads"] for pool in threadpool_info()}
+            return {"phase": name}
+        return run
+
+    monkeypatch.setattr(ops_modules, "run_module_phase", fake("modules"))
+    monkeypatch.setattr(oc, "run_mitocarta_benchmark", fake("mitocarta"))
+    out = run_ops({"dst_root": str(tmp_path), "ops_deterministic_blas": pin},
+                  phases=("modules", "mitocarta"))
+    assert out["modules"] == {"phase": "modules"} and out["mitocarta"] == {"phase": "mitocarta"}
+    assert out["atlas_blas_threads"] == expected
+    if pin:
+        assert seen["modules"] <= {1} and seen["mitocarta"] <= {1}

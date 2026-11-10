@@ -7112,7 +7112,10 @@ def run_ops(settings: Mapping[str, Any], *,
         the module atlas of those profiles
         (:func:`spacr.ops_modules.run_module_phase`) and ``"mitocarta"``
         scores clusterings against MitoCarta and an external module table
-        (:func:`spacr.ops_clusters.run_mitocarta_benchmark`).
+        (:func:`spacr.ops_clusters.run_mitocarta_benchmark`); like the
+        profile path, both hold the BLAS and OpenMP pools to one thread while
+        ``ops_deterministic_blas`` is on (the result's
+        ``atlas_blas_threads``).
         ``"stress"``, after ``report``,
         times the finished store and writes
         ``results/ops_stress/stress_test.csv``
@@ -7147,18 +7150,22 @@ def run_ops(settings: Mapping[str, Any], *,
         if any(phase not in _PROFILE_PHASES for phase in phases):
             raise ValueError("the profile phases run on their own; run "
                              f"{list(_PROFILE_PHASES)} without the image phases")
-        from .ops_tvn import run_profile_phases
+        from .ops_tvn import _pinned_blas, run_profile_phases
 
         profile = [phase for phase in phases if phase in ("profile", "evaluate")]
         result = run_profile_phases(settings, profile, report=_say) if profile else {}
-        if "modules" in phases:
-            from .ops_modules import run_module_phase
+        atlas = [phase for phase in phases if phase in ("modules", "mitocarta")]
+        if atlas:
+            with _pinned_blas(bool(settings.get("ops_deterministic_blas", True))) as pinned:
+                if "modules" in atlas:
+                    from .ops_modules import run_module_phase
 
-            result = {**result, "modules": run_module_phase(settings, report=_say)}
-        if "mitocarta" in phases:
-            from .ops_clusters import run_mitocarta_benchmark
+                    result = {**result, "modules": run_module_phase(settings, report=_say)}
+                if "mitocarta" in atlas:
+                    from .ops_clusters import run_mitocarta_benchmark
 
-            result = {**result, "mitocarta": run_mitocarta_benchmark(settings, report=_say)}
+                    result = {**result, "mitocarta": run_mitocarta_benchmark(settings, report=_say)}
+            result = {**result, "atlas_blas_threads": pinned}
         return result
     sequencing = any(phase in _PHASES for phase in phases)
     root = settings.get("genotype_source")
