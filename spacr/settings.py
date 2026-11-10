@@ -8503,6 +8503,9 @@ ALPHA_FEATURES = {
                      'timelapse_division_prediction_model',
                      'timelapse_division_prediction_folds'),
     },
+    907: {
+        'settings': ('ops_profile_weighting',),
+    },
     883: {
         'settings': ('ops_aggregate_level', 'ops_nt_rows'),
     },

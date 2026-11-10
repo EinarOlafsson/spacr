@@ -3137,6 +3137,12 @@ _PH_NONFINITE_SHARE = 0.01
 #: took 46 GB at once and about 8 GB in blocks of 48.
 _PH_POOL_BLOCK = 48
 
+#: The settings that turn on a gene-profile option of the aggregate phase
+#: (:func:`_ph_profile_options`); each needs the per-cell TVN components.
+_PH_PROFILE_SWITCHES: Tuple[str, ...] = (
+    "ops_profile_weighting",
+)
+
 _PH_DEGENERATE_CAUSES = (
     ("distance_to_nucleus",
      "the intensity centre of mass of most cells lies inside the nucleus, "
@@ -3685,17 +3691,48 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
             write_table(table, target, canonicalise=False)
             outputs[f"{name}_{suffix}"] = target
     tvn_report = None
+    profile_report = None
+    wants_profiles = any(settings.get(key) for key in _PH_PROFILE_SWITCHES)
+    if wants_profiles and normalisation != "tvn":
+        raise ValueError(tr(
+            "the gene-profile options {keys} work on TVN profiles; set "
+            "ops_profile_normalisation to tvn", keys=[
+                key for key in _PH_PROFILE_SWITCHES if settings.get(key)]))
     if normalisation == "tvn":
         from .ops_tvn import _aggregate_tvn
         tvn_settings = {key: settings.get(key) for key in (
             "ops_tvn_mode", "ops_tvn_pca_sample", "ops_tvn_seed",
             "ops_tvn_components", "ops_tvn_whiten_epsilon",
             "ops_aggregate_level")}
+        extra: List[str] = []
+        if wants_profiles:
+            tvn_settings["_keep_embedding"] = True
+            extra = ["site", "label", "mitotic"]
+            integrated = f"nucleus_{channels[0]}_integrated_intensity" \
+                if channels else ""
+            if integrated not in columns:
+                integrated = next((c for c in features if c.startswith(
+                    "nucleus_") and c.endswith("integrated_intensity")), "")
+            if integrated:
+                cells["_dna_integrated"] = _ph_read_columns(
+                    sources, [integrated]).iloc[rows][integrated].to_numpy()
+                if gain_columns:
+                    from .ops_flatfield import correct_features
+                    cells["_dna_integrated"] = correct_features(
+                        cells.rename(columns={"_dna_integrated": integrated}),
+                        cells, [integrated], flat_offsets)[integrated].to_numpy()
+                extra.append("_dna_integrated")
         tvn_guides, tvn_genes, tvn_report = _aggregate_tvn(
-            sources, rows, cells[["well", "sgRNA", "gene"]], keep,
+            sources, rows, cells[["well", "sgRNA", "gene", *extra]], keep,
             control.to_numpy(), features, tvn_settings, _ph_read_columns)
         tvn_genes = tvn_genes[tvn_genes["gene"] != "nontargeting_drop"
                               ].reset_index(drop=True)
+        if wants_profiles:
+            profile_report = _ph_profile_options(
+                settings, tvn_report.pop("_cells"),
+                tvn_report.pop("_embedding"), tvn_guides, tvn_genes,
+                destination, f"{plate}{tag}", control_prefix)
+            outputs.update(profile_report["outputs"])
         for name, table in (("guides", tvn_guides), ("genes", tvn_genes)):
             for suffix in ("csv", "parquet"):
                 target = os.path.join(destination,
@@ -3766,6 +3803,7 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         "profile_normalisation": normalisation,
         "aggregate_level": level, "nt_rows": nt_rows,
         "tvn": tvn_report,
+        "profile_options": profile_report,
         "clusters": cluster_report,
         "outputs": outputs,
         "seconds": round(time.perf_counter() - started, 1),
@@ -3773,6 +3811,85 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     _say(tr("{plate} aggregate: {guides} guides, {genes} genes from {cells} "
             "cells", plate=plate, guides=report["guides"],
             genes=report["genes"], cells=report["cells_in_design"]))
+    return report
+
+
+def _ph_profile_tables(name: str, table, destination: str, label: str,
+                       outputs: Dict[str, str]) -> None:
+    """Write one profile-option table as CSV and Parquet and record both.
+
+    :param name: the table's role, such as ``genes_phase``.
+    :param table: the table.
+    :param destination: the output folder.
+    :param label: the plate and tag of the run.
+    :param outputs: the report's outputs, updated in place.
+    """
+    from .tabular import write_table
+
+    for suffix in ("csv", "parquet"):
+        target = os.path.join(destination, f"ops_{name}_{label}.{suffix}")
+        write_table(table, target, canonicalise=False)
+        outputs[f"{name}_{suffix}"] = target
+
+
+def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
+                        guides, genes, destination: str, label: str,
+                        control_prefix: str = "nontargeting"
+                        ) -> Dict[str, Any]:
+    """Apply the gene-profile options to the TVN profiles of a run.
+
+    :param settings: read for the ``ops_profile_*`` options.
+    :param cells: the profiled cells in the row order of ``embedding``,
+        with ``well``, ``sgRNA`` and ``gene``, and ``site``, ``mitotic``
+        and ``_dna_integrated`` when an option needs them.
+    :param embedding: the per-cell TVN components.
+    :param guides: the TVN guide table.
+    :param genes: the TVN gene table.
+    :param destination: where the tables are written.
+    :param label: the plate and tag, as in ``ops_genes_<label>_tvn``.
+    :param control_prefix: the control gene prefix.
+    :returns: the report: what each option did, and the tables written.
+    """
+    import pandas as pd
+
+    from .gene_measurement_compare import (
+        contrastive_weighting)
+    from .qt.i18n import tr
+
+    report: Dict[str, Any] = {"outputs": {}}
+    outputs = report["outputs"]
+    columns = [c for c in genes.columns if str(c).startswith("PC_")]
+    control = cells["gene"].astype(str).str.lower().str.startswith(
+        control_prefix.lower()).to_numpy()
+    profile_guides, profile_genes = guides, genes
+    pcs = list(columns)
+    phases = None
+    cycle = None
+    axes_asked: List[str] = []
+    weighting = None
+    similarity = None
+
+    weighting = str(settings.get("ops_profile_weighting") or "").strip().lower() or None
+    if weighting not in (None, "contrastive_wiener"):
+        raise ValueError(tr("ops_profile_weighting must be empty or "
+                            "contrastive_wiener; got {value}", value=weighting))
+    if weighting and settings.get("ops_profile_shrinkage"):
+        raise ValueError(tr(
+            "ops_profile_weighting and ops_profile_shrinkage both remove what "
+            "the control guides explain; stacked, no direction is left, so "
+            "choose one"))
+    if weighting:
+        profile_genes, profile_guides, info = contrastive_weighting(
+            profile_genes, profile_guides, columns,
+            control_prefix=control_prefix)
+        columns = [c for c in profile_genes.columns if str(c).startswith("w_")]
+        report["weighting"] = {"directions_kept": info["directions_kept"],
+                               "kbar": info["kbar"],
+                               "nt_guides": info["nt_guides"]}
+        _ph_profile_tables("genes_weighted", profile_genes, destination, label,
+                           outputs)
+        _ph_profile_tables("guides_weighted", profile_guides, destination,
+                           label, outputs)
     return report
 
 

@@ -715,7 +715,9 @@ def _aggregate_tvn(sources, rows: np.ndarray, cells: pd.DataFrame, use: np.ndarr
     :param control: the control cells.
     :param features: the feature columns.
     :param settings: read for ``ops_tvn_mode``, ``ops_aggregate_level`` and
-        the ``ops_tvn_*`` options (:func:`tvn_options`).
+        the ``ops_tvn_*`` options (:func:`tvn_options`); with
+        ``_keep_embedding`` the returned info also holds the profiled cells
+        (``_cells``) and their components (``_embedding``).
     :param read_columns: ``read_columns(sources, columns)`` reads columns.
     :param block: columns read at a time by the in-memory mode.
     :returns: ``(guides, genes, info)``.
@@ -768,4 +770,7 @@ def _aggregate_tvn(sources, rows: np.ndarray, cells: pd.DataFrame, use: np.ndarr
                                  level=str(settings.get("ops_aggregate_level")
                                            or "guides"))
     info = {**info, "options": options, "cells": int(use.sum())}
+    if settings.get("_keep_embedding"):
+        info["_cells"] = cells.loc[use].reset_index(drop=True)
+        info["_embedding"] = embedding
     return guides, genes, info

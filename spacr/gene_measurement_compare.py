@@ -1612,3 +1612,155 @@ def bootstrap_gene_pvalues(control_values: pd.DataFrame,
         out.attrs["null"] = params
     return out
 
+
+#: Name prefixes that mark a non-targeting profile row, besides the control
+#: prefix itself: the pseudo-genes of :func:`nt_row_names`.
+_PSEUDO_PREFIXES: Tuple[str, ...] = ("ntpseudo",)
+
+
+def _control_rows(names: Sequence, control_prefix: str = "nontargeting"
+                  ) -> np.ndarray:
+    """True for every name that marks a non-targeting row (any case).
+
+    :param names: gene names.
+    :param control_prefix: the control gene prefix.
+    :returns: a boolean array.
+    """
+    prefixes = (control_prefix.lower(), *_PSEUDO_PREFIXES)
+    return pd.Series(np.asarray(names, dtype=object)).astype(str).str.lower(
+    ).str.startswith(prefixes).to_numpy()
+
+
+class _RowEmbedder:
+    """Standardise the gene rows and keep the PCs holding ``variance``.
+
+    The transform is fitted on the gene rows and kept, so guide rows of the
+    same feature space land in the same embedding. It is the embedding of
+    Brieflow's ``funk_benchmark.py``: columns with 5 % or more non-finite
+    values are dropped, the rest median-imputed, standardised (columns with
+    no spread dropped) and reduced by PCA to ``variance``.
+    """
+
+    def __init__(self, values, variance: float = 0.99, seed: int = 0):
+        """Fit the embedding.
+
+        :param values: the gene rows, one row per gene.
+        :param variance: the share of variance the PCA keeps.
+        :param seed: the PCA seed.
+        """
+        from sklearn.decomposition import PCA
+
+        x = np.asarray(values, float)
+        x = np.where(np.isfinite(x), x, np.nan)
+        self.keep = np.isnan(x).mean(axis=0) < 0.05
+        x = x[:, self.keep]
+        self.median = np.nanmedian(x, axis=0)
+        x = np.where(np.isnan(x), self.median, x)
+        spread = x.std(axis=0)
+        self.ok = spread > 0
+        self.mean, self.sd = x[:, self.ok].mean(axis=0), spread[self.ok]
+        self.pca = PCA(n_components=variance, random_state=seed)
+        self.rows = self.pca.fit_transform((x[:, self.ok] - self.mean) / self.sd)
+
+    def __call__(self, values) -> np.ndarray:
+        """Embed other rows with the fitted transform.
+
+        :param values: rows of the same feature columns.
+        :returns: the embedded rows.
+        """
+        x = np.asarray(values, float)[:, self.keep]
+        x = np.where(np.isfinite(x), x, self.median)
+        return self.pca.transform((x[:, self.ok] - self.mean) / self.sd)
+
+
+def contrastive_weighting(genes: pd.DataFrame, guides: pd.DataFrame,
+                          features: Sequence[str], *,
+                          control_prefix: str = "nontargeting",
+                          min_cells: Optional[int] = 10,
+                          variance: float = 0.99, seed: int = 0,
+                          drop_zero: bool = False
+                          ) -> Tuple[pd.DataFrame, pd.DataFrame, Dict[str, Any]]:
+    """Weight gene profiles by how far each direction rises above guide noise.
+
+    :param genes: one row per gene with ``gene``, ``n_cells`` and the
+        ``features``; non-targeting rows (names starting with
+        ``control_prefix`` or ``NTpseudo``) are kept as rows but not fitted.
+    :param guides: one row per guide with ``guide``, ``gene``, ``n_cells``
+        and the same ``features``. The non-targeting guides give the noise.
+    :param features: the profile columns.
+    :param control_prefix: the control gene prefix.
+    :param min_cells: genes with this many cells or fewer are left out
+        first; None keeps every gene.
+    :param variance: the share of variance the embedding keeps.
+    :param seed: the PCA seed.
+    :param drop_zero: leave out the directions whose weight is 0. The
+        cosine of two rows is the same either way.
+    :returns: ``(gene_rows, guide_rows, info)``: ``gene, n_cells, w_0 ...``
+        and ``guide, gene, n_cells, w_0 ...`` in the weighted space, and
+        ``lambda``, ``weights``, ``directions_kept``, ``kbar`` and
+        ``nt_guides``.
+    :raises ValueError: when fewer than two directions have lambda above 1.
+
+    The gene rows are embedded (standardised, PCA 99 %) and the guide rows
+    put in the same space. The noise covariance is the Ledoit-Wolf
+    covariance (Ledoit & Wolf 2004) of the centred non-targeting guide rows,
+    divided by ``kbar``, the mean number of guides per targeting gene, since
+    a gene profile pools that many guides. The generalised eigenproblem
+    ``Sigma_genes v = lambda Sigma_noise v`` gives directions ordered by
+    signal over noise; each is weighted by ``max((lambda - 1) / lambda,
+    0)``, a Wiener weight. This is a contrastive eigenproblem in the spirit
+    of contrastive PCA (Abid et al. 2018).
+
+    IT REFUSES A DEGENERATE SPACE. On profiles already shrunk toward the
+    controls (:func:`shrink_gene_profiles`) no direction rises above the
+    noise, every weight is 0 and every row the zero vector; a retrieval
+    score then ranks ties first and reports AP = 1. Do not stack the two.
+    """
+    from scipy.linalg import eigh
+    from sklearn.covariance import LedoitWolf
+
+    if min_cells is not None:
+        genes = genes[genes["n_cells"] > int(min_cells)]
+    genes = genes.reset_index(drop=True)
+    names = genes["gene"].to_numpy()
+    embed = _RowEmbedder(genes[list(features)].to_numpy(float),
+                         variance=variance, seed=seed)
+    targeting = ~_control_rows(names, control_prefix)
+    keep = guides["gene"].isin(set(names)) | _control_rows(guides["gene"],
+                                                           control_prefix)
+    guides = guides[keep.to_numpy()].reset_index(drop=True)
+    guide_rows = embed(guides[list(features)].to_numpy(float))
+    guide_nt = _control_rows(guides["gene"], control_prefix)
+    kbar = float(pd.Series(guides["gene"].to_numpy()[~guide_nt])
+                 .value_counts().mean())
+    noise = guide_rows[guide_nt] - guide_rows[guide_nt].mean(0)
+    noise = LedoitWolf().fit(noise).covariance_ / kbar
+    lam, vectors = eigh(np.cov(embed.rows[targeting], rowvar=False), noise)
+    lam, vectors = lam[::-1], vectors[:, ::-1]
+    weights = np.clip((lam - 1) / lam, 0, None)
+    above = int((lam > 1).sum())
+    if above < 2:
+        raise ValueError(
+            f"contrastive weighting refused: only {above} direction(s) have "
+            "lambda above 1, so the weighted profiles would be degenerate; "
+            "profiles shrunk toward the controls should not be weighted")
+    if drop_zero:
+        kept = weights > 0
+        basis = vectors[:, kept] * weights[kept]
+        z_genes, z_guides = embed.rows @ basis, guide_rows @ basis
+    else:
+        z_genes = (embed.rows @ vectors) * weights
+        z_guides = (guide_rows @ vectors) * weights
+    columns = [f"w_{j}" for j in range(z_genes.shape[1])]
+    out_genes = pd.DataFrame(z_genes, columns=columns)
+    out_genes.insert(0, "gene", names)
+    out_genes.insert(1, "n_cells", genes["n_cells"].to_numpy())
+    out_guides = pd.DataFrame(z_guides, columns=columns)
+    out_guides.insert(0, "guide", guides["guide"].to_numpy())
+    out_guides.insert(1, "gene", guides["gene"].to_numpy())
+    out_guides.insert(2, "n_cells", guides["n_cells"].to_numpy())
+    info = {"lambda": lam, "weights": weights, "directions_kept": above,
+            "kbar": kbar, "nt_guides": int(guide_nt.sum()),
+            "genes": int(targeting.sum())}
+    return out_genes, out_guides, info
+

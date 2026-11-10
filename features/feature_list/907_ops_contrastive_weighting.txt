@@ -1,0 +1,27 @@
+OPS CONTRASTIVE GENERALISED-EIGEN WIENER WEIGHTING
+==================================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha, under ALPHA_FEATURES[907]) — spacr.gene_measurement_compare.contrastive_weighting embeds the gene rows (standardise, PCA 99 %), puts the guide rows in the same space, solves Sigma_genes v = lambda Sigma_NT v with the Ledoit-Wolf covariance of the centred non-targeting guide rows divided by the mean guides per gene, and weights each direction by max((lambda - 1) / lambda, 0); it refuses when fewer than two directions have lambda > 1. ops_profile_weighting='contrastive_wiener' applies it to the TVN profiles in the aggregate phase (ops_engine._ph_profile_options) and writes ops_genes_<plate>_weighted and ops_guides_<plate>_weighted; it refuses to stack with ops_profile_shrinkage. spacr/gene_measurement_compare.py, spacr/ops_engine.py, spacr/ops_tvn.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_contrastive_weighting_907.py.
+Requested: maintainer via paper session, 2026-11-09.
+Owner: paper session (lane C).
+Source: strategies_lit S02 (strategies._geneig, shrink_cov, sl_common.Embedder), applied by improved/scripts/s02_arms.py; contrastive PCA (Abid et al. 2018); Ledoit & Wolf 2004.
+Related: 887, 902, 879.
+
+WHAT THE STATE IS
+The literature-strategy winner S02 existed only as a script.
+
+WHAT TO DO
+- Port S02 into spaCR, applied after aggregation, alpha.
+- Refuse the degenerate case (every weight 0 on shrunk profiles).
+
+RESULT
+In the reference environment (numpy 2.5, scikit-learn 1.9) the weighted
+gene and guide rows equal W_bf_S02 (base X_bf_spacrcells: 95 dimensions,
+69 with lambda > 1, kbar 3.9986) and W_bestnoshr_S02 (base
+X_bfr_best_eps3: 94 dimensions, 72 with lambda > 1) bit for bit. On the
+shrunk X_best it refuses (0 directions with lambda > 1). Under numpy 1.26
+the rows differ by at most 6e-12.
+
+DELIBERATELY NOT DONE
+- The module atlas's precomputed-embedding switch belongs to item 888.

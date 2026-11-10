@@ -95,6 +95,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_mitotic_model": None,
     "ops_aggregate_level": "guides",
     "ops_nt_rows": None,
+    "ops_profile_weighting": None,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -173,6 +174,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_mitotic_model": (str, type(None)),
     "ops_aggregate_level": str,
     "ops_nt_rows": (str, type(None)),
+    "ops_profile_weighting": (str, type(None)),
 }
 
 #: Which panel section each setting appears under.
@@ -222,6 +224,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_mitotic_model",
         "ops_aggregate_level",
         "ops_nt_rows",
+        "ops_profile_weighting",
     ],
 }
 
@@ -650,6 +653,14 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "groups them at random (seed 0) into pseudo-genes of four guides, "
         "processed exactly as genes, so they act as a null. Default None. "
         "Alpha.",
+    "ops_profile_weighting":
+        "(str or None) - 'contrastive_wiener' weights the TVN gene profiles "
+        "by how far each direction rises above guide noise: directions "
+        "solving Sigma_genes v = lambda Sigma_NT v, the noise the Ledoit- "
+        "Wolf covariance of the non-targeting guides, each weighted by "
+        "max((lambda - 1) / lambda, 0). Refused when fewer than two "
+        "directions rise above the noise, and not stacked with "
+        "ops_profile_shrinkage. Default None. Alpha.",
 }
 
 #: The blurb the module shows above its settings.
