@@ -106,6 +106,7 @@ GROUPS = (
         (751, "Compare a screen with a published per-gene table"),
         (795, "Mechanism-of-action benchmark, leaving one compound out"),
         (893, "Screen plates from one settings file, well tables"),
+        (894, "MoA evaluation with CellProfiler Analyst classifiers"),
         (575, "Export a run as a Nextflow / Snakemake workflow"),
         (577, "Run-finished notifications (email, Slack, ntfy)"),
         (581, "Export for R (SingleCellExperiment), tidy Parquet"),

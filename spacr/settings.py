@@ -8187,6 +8187,15 @@ ALPHA_FEATURES = {
             'published_duplicates', 'published_unmatched', 'published_bootstrap',
             'published_shuffles', 'published_seed', 'published_dst')},
     },
+    894: {
+        'module_settings': {'profiling_evaluation': (
+            'moa_eval_profiles', 'moa_eval_metadata', 'moa_eval_metadata_columns', 'moa_eval_labels',
+            'moa_eval_label', 'moa_eval_compound', 'moa_eval_concentration', 'moa_eval_batch',
+            'moa_eval_batch_pattern', 'moa_eval_control', 'moa_eval_protocols', 'moa_eval_methods',
+            'moa_eval_feature_qc', 'moa_eval_normalise', 'moa_eval_percentiles', 'moa_eval_exclude',
+            'moa_eval_controls', 'moa_eval_shuffles', 'moa_eval_knn_shuffles', 'moa_eval_replicates',
+            'moa_eval_seeds', 'moa_eval_per_moa', 'moa_eval_workers', 'moa_eval_dst',)},
+    },
     893: {
         'module_settings': {'screen': (
             'screen_phases', 'import_source', 'import_naming', 'import_regex',

@@ -863,6 +863,14 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "aggregate_levels", "aggregate_metadata", "aggregate_metadata_columns",
     "aggregate_control", "aggregate_control_percentiles",
     "aggregate_heterogeneity", "aggregate_dir", "record_timing",
+    # 894, alpha: the MoA profiling evaluation (`spacr/moa_benchmark.py`),
+    # two headings of its own: the tables and columns, and the methods.
+    "moa_eval_profiles", "moa_eval_metadata", "moa_eval_metadata_columns", "moa_eval_labels",
+    "moa_eval_label", "moa_eval_compound", "moa_eval_concentration", "moa_eval_batch",
+    "moa_eval_batch_pattern", "moa_eval_control", "moa_eval_protocols", "moa_eval_methods",
+    "moa_eval_feature_qc", "moa_eval_normalise", "moa_eval_percentiles", "moa_eval_exclude",
+    "moa_eval_controls", "moa_eval_shuffles", "moa_eval_knn_shuffles", "moa_eval_replicates",
+    "moa_eval_seeds", "moa_eval_per_moa", "moa_eval_workers", "moa_eval_dst",
     # 581, alpha: what the export writes (h5ad, Parquet tables, R loader)
     # and the folder the tables go to.
     "anndata_format", "anndata_tidy_dir",

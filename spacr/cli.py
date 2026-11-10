@@ -608,6 +608,25 @@ _MODULE_LIST: Tuple[Module, ...] = (
               "that."),
     ),
     Module(
+        key="profiling_evaluation",
+        summary="Evaluate well profiles by mechanism of action under NSC and "
+                "NSCB: 1-NN, supervised and CellProfiler Analyst classifiers.",
+        entry="spacr.moa_benchmark:run_profiling_evaluation",
+        defaults=None,
+        defaults_entry="spacr.moa_benchmark:profiling_evaluation_defaults",
+        validate_key="",
+        requires=("moa_eval_profiles \u2014 a well-level profile table with "
+                  "plate and well",
+                  "moa_eval_labels \u2014 the MoA of each compound and "
+                  "concentration",
+                  "moa_eval_percentiles for the default ljosa normalisation"),
+        writes=("<dst>/summary.csv, controls.csv, per_moa.csv, "
+                "confusion_<method>.csv, predictions.csv, evaluation.json",),
+        note="ALPHA (894). Five seeds by default; each supervised shuffle "
+             "refits every fold, so the CellProfiler Analyst classifiers "
+             "with shuffles are slow on the CPU.",
+    ),
+    Module(
         key="screen",
         summary="Run a screen plate from one settings file: import, masks, "
                 "measure, per-plate Parquet export and well aggregate.",

@@ -81,6 +81,10 @@ HEADLESS_ONLY = {
     # for it both still work, and this ledger has been red about it ever
     # since -- not folded (no host offers `cellpose_masks` as a button), just
     # the second half of a page reached by its tab.
+    "profiling_evaluation": "item 894's MoA evaluation of a well-profile "
+                            "table; the profiles come from Measure's "
+                            "profiling or spacr-run screen, and it runs "
+                            "headless from a settings file",
     "screen": "item 893's whole-plate run from one settings file (import, "
               "masks, measure, export, aggregate); each phase is the module "
               "of its own screen, so a GUI user runs those, and the plate's "

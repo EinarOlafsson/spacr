@@ -3826,6 +3826,15 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "How the profiles are scored: the nearest-neighbour, logistic "
         "regression and XGBoost arms, how replicate wells combine, the "
         "shuffled-label controls, the seed and the folds fitted at a time.",
+    "MOA EVALUATION":
+        "Which well profiles are evaluated by mechanism of action: the "
+        "profile, metadata and label tables, the columns that name the "
+        "compound, concentration and batch, the control and the output "
+        "folder.",
+    "MOA EVALUATION METHODS":
+        "How the profiles are evaluated: the protocols and methods, the "
+        "normalisation and feature QC, the majority and shuffled-label "
+        "controls, the seeds and the folds fitted at a time.",
     "SCREEN STAGING":
         "Which phases of a screen plate run from this one settings file: "
         "the raw images and how they are imported, settings given to the "
