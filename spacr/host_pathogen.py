@@ -238,6 +238,511 @@ def summarize_tables(cells, vacuoles, reference, parasites=None, *, settings=Non
                 replication_distribution=distribution, orphan_parasites=orphans)
 
 
+TITRATION_DEFAULTS = {
+    'vacuole_from_parasites': False,
+    'vacuole_gap_px': 4,
+    'vacuole_min_size': 15,
+    'host_min_size': 300,
+    'host_assignment': 'majority_overlap',
+    'titration_merged_folder': '',
+    'titration_object_tables': '',
+    'titration_plate_map': '',
+    'titration_reference_values': '',
+    'titration_min_well_cells': 0.3,
+    'replication_classifier': 'none',
+    'replication_training_table': '',
+    'replication_training_columns': {'Num Pix': 'area_px', 'Circularity': 'circularity',
+                                     'Convexity': 'solidity', 'Extend': 'extent',
+                                     'Diameter': 'feret_max'},
+    'replication_class_column': 'Parasites/vacuole',
+    'replication_classes': '1,2,4,8',
+    'replication_seed': 0,
+    'replication_cv_folds': 5,
+    'size_calibration': 'none',
+    'size_calibration_reference_px': 57.0,
+    'infection_signal_floor': 'none',
+    'infection_floor_percentile': 95,
+    'infection_uninfected_wells': '',
+    'infection_signal_column': 'tox_mean',
+}
+
+#: Training-table columns that are lengths and so scale by sqrt(k) under a size calibration.
+_LENGTH_COLUMNS = ('feret_max',)
+#: Training-table columns that are areas and so scale by k.
+_AREA_COLUMNS = ('area_px',)
+
+
+def vacuoles_from_parasites(parasite_mask, gap_px=4):
+    """Group touching or nearly touching parasites into vacuoles.
+
+    The parasite foreground is closed with a 4-connected structuring element
+    ``gap_px`` times (parasites up to about ``gap_px`` pixels apart join),
+    every original parasite pixel is kept, and the result is labelled.
+    Parasite-to-vacuole parentage is :func:`vacuole_links` (majority overlap).
+
+    :param parasite_mask: integer parasite mask, zero background.
+    :param gap_px: closing iterations.
+    :returns: ``(vacuole_mask, links)``; ``links`` is None for an empty mask.
+    """
+    import numpy as np
+    from scipy import ndimage as ndi
+
+    parasite_mask = np.asarray(parasite_mask)
+    foreground = parasite_mask > 0
+    if not foreground.any():
+        return np.zeros_like(parasite_mask, dtype=np.int32), None
+    structure = ndi.generate_binary_structure(2, 1)
+    closed = ndi.binary_closing(foreground, structure=structure, iterations=int(gap_px)) | foreground
+    vacuoles, _ = ndi.label(closed)
+    vacuoles = vacuoles.astype(np.int32)
+    return vacuoles, vacuole_links(parasite_mask, vacuoles)
+
+
+def vacuole_objects(cell_mask, parasite_mask, intensity=None, settings=None, well='', field=0):
+    """Per-vacuole and per-cell tables of one field.
+
+    Vacuoles come from :func:`vacuoles_from_parasites`; each one under
+    ``vacuole_min_size`` pixels is dropped. Its host is the cell label most
+    of its pixels lie on (``host_assignment='majority_overlap'``), 0 when it
+    lies on no cell or the cell is under ``host_min_size`` pixels. Cells
+    under ``host_min_size`` are dropped; a cell is infected when it hosts a
+    vacuole.
+
+    :param cell_mask: integer host-cell mask.
+    :param parasite_mask: integer parasite mask of the same shape.
+    :param intensity: the parasite-channel image for ``tox_mean``, or None.
+    :param settings: :data:`TITRATION_DEFAULTS` keys.
+    :param well: the well name written into both tables.
+    :param field: the field number written into both tables.
+    :returns: ``(cells, vacuoles)`` with the columns of the reference
+        titration_objects script.
+    :raises ValueError: for another ``host_assignment``.
+    """
+    import numpy as np
+    import pandas as pd
+    from skimage.measure import regionprops
+
+    config = {**TITRATION_DEFAULTS, **(settings or {})}
+    if config['host_assignment'] != 'majority_overlap':
+        raise ValueError("host_assignment must be 'majority_overlap'")
+    min_cell, min_vac = int(config['host_min_size']), int(config['vacuole_min_size'])
+    cell_mask = np.asarray(cell_mask).astype(np.int32)
+    parasite_mask = np.asarray(parasite_mask).astype(np.int32)
+    image = (np.zeros(cell_mask.shape, np.float32) if intensity is None
+             else np.asarray(intensity).astype(np.float32))
+    vacuole_mask, links = vacuoles_from_parasites(parasite_mask, gap_px=config['vacuole_gap_px'])
+    counts = (links.dropna().groupby('pathogen_id').size() if links is not None
+              else pd.Series(dtype=int))
+    cell_area = np.bincount(cell_mask.ravel())
+    rows = []
+    for region in regionprops(vacuole_mask, intensity_image=image):
+        if region.area < min_vac:
+            continue
+        hosts = cell_mask[region.coords[:, 0], region.coords[:, 1]]
+        hosts = hosts[hosts > 0]
+        host = int(np.bincount(hosts).argmax()) if hosts.size else 0
+        if host and cell_area[host] < min_cell:
+            host = 0
+        perimeter = region.perimeter if region.perimeter > 0 else np.nan
+        rows.append(dict(well=well, field=field, vacuole=region.label, host_cell=host,
+                         area_px=int(region.area), perimeter=perimeter,
+                         circularity=(min(1.0, 4 * np.pi * region.area / perimeter ** 2)
+                                      if perimeter == perimeter else np.nan),
+                         solidity=region.solidity, extent=region.extent,
+                         feret_max=region.feret_diameter_max,
+                         tox_mean=region.intensity_mean,
+                         n_parasites_cellpose=int(counts.get(region.label, 0))))
+    vacuoles = pd.DataFrame(rows, columns=_VACUOLE_COLUMNS)
+    ids = np.nonzero(cell_area)[0]
+    ids = ids[(ids > 0) & (cell_area[ids] >= min_cell)]
+    infected = set(vacuoles.loc[vacuoles['host_cell'] > 0, 'host_cell'])
+    cells = pd.DataFrame(dict(well=well, field=field, cell=ids, area_px=cell_area[ids],
+                              infected=[int(i) in infected for i in ids],
+                              n_vacuoles=[int((vacuoles['host_cell'] == i).sum()) for i in ids]))
+    return cells, vacuoles
+
+
+_VACUOLE_COLUMNS = ['well', 'field', 'vacuole', 'host_cell', 'area_px', 'perimeter', 'circularity',
+                    'solidity', 'extent', 'feret_max', 'tox_mean', 'n_parasites_cellpose']
+
+
+def modal_area(areas, min_size=15, bins=60):
+    """The modal object area on a log scale.
+
+    Areas under ``min_size`` are left out; the log areas are binned into
+    ``bins`` equal bins and the centre of the fullest bin is returned.
+
+    :param areas: object areas in pixels.
+    :param min_size: smallest area counted.
+    :param bins: histogram bins.
+    :returns: the modal area in pixels.
+    """
+    import numpy as np
+
+    areas = np.asarray(areas, float)
+    logs = np.log(areas[areas >= min_size])
+    counts, edges = np.histogram(logs, bins=bins)
+    i = int(np.argmax(counts))
+    return float(np.exp((edges[i] + edges[i + 1]) / 2))
+
+
+def size_calibration(vacuole_areas, settings=None):
+    """The factor that puts spaCR vacuole sizes on an external reference scale.
+
+    With ``size_calibration='modal_single'``,
+    k = ``size_calibration_reference_px`` / :func:`modal_area` of the
+    vacuole areas: the reference single-parasite area over spaCR's modal
+    vacuole area. Areas are multiplied by k and lengths by sqrt(k);
+    ``'none'`` gives k = 1.
+
+    :param vacuole_areas: areas of the vacuoles of infected wells.
+    :param settings: ``size_calibration``, ``size_calibration_reference_px``
+        and ``vacuole_min_size``.
+    :returns: dict with ``k``, ``reference_px`` and ``modal_px``.
+    :raises ValueError: for an unknown ``size_calibration``.
+    """
+    config = {**TITRATION_DEFAULTS, **(settings or {})}
+    mode = config['size_calibration']
+    if mode == 'none':
+        return {'k': 1.0, 'reference_px': None, 'modal_px': None}
+    if mode != 'modal_single':
+        raise ValueError("size_calibration must be 'none' or 'modal_single'")
+    modal = modal_area(vacuole_areas, min_size=int(config['vacuole_min_size']))
+    reference = float(config['size_calibration_reference_px'])
+    return {'k': reference / modal, 'reference_px': reference, 'modal_px': modal}
+
+
+def _training_columns(config):
+    """The training-table-to-spaCR column mapping as a dict."""
+    mapping = config['replication_training_columns']
+    if isinstance(mapping, str):
+        mapping = json.loads(mapping)
+    return dict(mapping)
+
+
+def _replication_model(seed):
+    """The replication classifier: histogram gradient boosting."""
+    from sklearn.ensemble import HistGradientBoostingClassifier
+
+    return HistGradientBoostingClassifier(max_iter=200, random_state=int(seed))
+
+
+def replication_classifier_cv(training, settings=None):
+    """Cross-validate the replication classifier on its own training table.
+
+    Reports the majority-class accuracy, the area quantiles (10%, 50%, 90%)
+    per class, and the ``replication_cv_folds``-fold accuracy of the
+    classifier on the area column alone and on every training column, each
+    for the classes themselves and for 'more than one parasite'.
+
+    :param training: the training table (e.g. HRMAn's Training_dataset.csv).
+    :param settings: ``replication_training_columns``,
+        ``replication_class_column``, ``replication_classes``,
+        ``replication_seed`` and ``replication_cv_folds``.
+    :returns: dict with ``majority``, ``quantiles`` (a DataFrame),
+        ``scores`` (a DataFrame of feature set, target and accuracy) and
+        ``text`` (the report as written).
+    """
+    import pandas as pd
+    from sklearn.model_selection import cross_val_score
+
+    config = {**TITRATION_DEFAULTS, **(settings or {})}
+    columns = list(_training_columns(config))
+    target_column = config['replication_class_column']
+    training = _replication_rows(training, config)
+    target = training[target_column]
+    majority = float(target.value_counts(normalize=True).max())
+    quantiles = training.groupby(target_column)[columns[0]].quantile([.1, .5, .9]).unstack()
+    rows = []
+    for features in ([columns[0]], columns):
+        for name, y in ((f'{target.nunique()}class', target), ('binary>1', target > 1)):
+            score = cross_val_score(_replication_model(config['replication_seed']),
+                                    training[features], y, cv=int(config['replication_cv_folds']))
+            rows.append({'features': features, 'target': name, 'accuracy': float(score.mean())})
+    lines = [f'majority {majority:.3f}', quantiles.to_string()]
+    lines += [f"{row['features']} {row['target']} {row['accuracy']:.3f}" for row in rows]
+    return {'majority': majority, 'quantiles': quantiles, 'scores': pd.DataFrame(rows),
+            'text': '\n'.join(lines) + '\n'}
+
+
+def _replication_rows(training, config):
+    """The training rows of the configured classes."""
+    classes = [float(c) for c in str(config['replication_classes']).split(',') if c.strip()]
+    target = config['replication_class_column']
+    return training[training[target].isin(classes)] if classes else training
+
+
+def classify_replication(vacuoles, training, settings=None, k=1.0):
+    """Parasites per vacuole from a classifier trained on an external table.
+
+    The classifier (``replication_classifier='hist_gbm'``) is trained on the
+    training table's columns; each vacuole is described by the mapped spaCR
+    columns, areas multiplied by ``k`` and lengths by sqrt(``k``), missing
+    values filled with the column median.
+
+    :param vacuoles: the vacuole table.
+    :param training: the training table.
+    :param settings: the replication settings.
+    :param k: the size calibration factor (:func:`size_calibration`).
+    :returns: the predicted parasites per vacuole, one per vacuole row.
+    :raises ValueError: for ``replication_classifier`` other than
+        ``'hist_gbm'``.
+    """
+    import numpy as np
+    import pandas as pd
+
+    config = {**TITRATION_DEFAULTS, **(settings or {})}
+    if config['replication_classifier'] != 'hist_gbm':
+        raise ValueError("replication_classifier must be 'hist_gbm' to classify")
+    mapping = _training_columns(config)
+    training = _replication_rows(training, config)
+    model = _replication_model(config['replication_seed']).fit(
+        training[list(mapping)], training[config['replication_class_column']])
+    scale = {c: k for c in _AREA_COLUMNS}
+    scale.update({c: np.sqrt(k) for c in _LENGTH_COLUMNS})
+    features = pd.DataFrame({name: vacuoles[column] * scale.get(column, 1.0)
+                             for name, column in mapping.items()})
+    return model.predict(features.fillna(features.median()))
+
+
+def infection_floor(vacuoles, settings=None):
+    """The parasite-signal floor below which a vacuole is not counted.
+
+    ``infection_signal_floor`` is ``'none'`` (no floor), a number, or
+    ``'uninfected_percentile'``: the ``infection_floor_percentile``
+    percentile of ``infection_signal_column`` over the vacuoles found in the
+    ``infection_uninfected_wells`` (or the wells with status
+    ``uninfected``).
+
+    :param vacuoles: the vacuole table (with ``status`` when no wells are
+        named).
+    :param settings: the floor settings.
+    :returns: the floor, or None for no floor.
+    :raises ValueError: when the percentile has no uninfected vacuole to read.
+    """
+    import numpy as np
+
+    config = {**TITRATION_DEFAULTS, **(settings or {})}
+    floor = config['infection_signal_floor']
+    if floor in (None, '', 'none'):
+        return None
+    if floor != 'uninfected_percentile':
+        return float(floor)
+    wells = [w.strip() for w in str(config['infection_uninfected_wells'] or '').split(',')
+             if w.strip()]
+    chosen = (vacuoles['well'].isin(wells) if wells
+              else vacuoles.get('status', '') == 'uninfected')
+    values = vacuoles.loc[chosen, config['infection_signal_column']].dropna()
+    if not len(values):
+        raise ValueError('infection_signal_floor=uninfected_percentile found no uninfected vacuole')
+    return float(np.percentile(values, float(config['infection_floor_percentile'])))
+
+
+def titration_wells(cells, vacuoles, settings=None):
+    """Per-well infection, replication and vacuole size.
+
+    Columns as the reference titration_summary: cells, infected_cells,
+    vacuoles, vacuoles_unhosted, mean_vacuole_area_px, parasites per
+    vacuole and % replicating (classifier and linked-parasite counts),
+    pct_infected, vacuoles_per_100_cells and ``qc_pass`` -- False for a well
+    with fewer than ``titration_min_well_cells`` times the median cell count
+    of its condition.
+
+    :param cells: per-cell table with ``well``, ``strain``, ``status``,
+        ``dose``, ``cell`` and ``infected``.
+    :param vacuoles: per-vacuole table with ``n_parasites_clf``,
+        ``n_parasites_cellpose``, ``repl_clf`` and ``repl_cellpose``.
+    :param settings: ``titration_min_well_cells``.
+    :returns: the per-well table, sorted by strain, status, dose and well.
+    """
+    config = {**TITRATION_DEFAULTS, **(settings or {})}
+    counted = cells.groupby(['well', 'strain', 'status', 'dose'], dropna=False).agg(
+        cells=('cell', 'size'), infected_cells=('infected', 'sum')).reset_index()
+    per_vacuole = vacuoles.groupby('well').agg(
+        vacuoles=('vacuole', 'size'),
+        vacuoles_unhosted=('host_cell', lambda s: int((s == 0).sum())),
+        mean_vacuole_area_px=('area_px', 'mean'),
+        parasites_per_vacuole_clf=('n_parasites_clf', 'mean'),
+        parasites_per_vacuole_cellpose=('n_parasites_cellpose', 'mean'),
+        pct_replicating_clf=('repl_clf', lambda s: 100 * s.mean()),
+        pct_replicating_cellpose=('repl_cellpose', lambda s: 100 * s.mean())).reset_index()
+    wells = counted.merge(per_vacuole, on='well', how='left')
+    wells['vacuoles'] = wells['vacuoles'].fillna(0).astype(int)
+    wells['pct_infected'] = 100 * wells['infected_cells'] / wells['cells']
+    wells['vacuoles_per_100_cells'] = 100 * wells['vacuoles'] / wells['cells']
+    median = wells.groupby(['strain', 'status', 'dose'], dropna=False)['cells'].transform('median')
+    wells['qc_pass'] = wells['cells'] >= float(config['titration_min_well_cells']) * median
+    return wells.sort_values(['strain', 'status', 'dose', 'well'])
+
+
+TITRATION_METRICS = ('pct_infected', 'parasites_per_vacuole_clf', 'pct_replicating_clf',
+                     'pct_replicating_cellpose', 'mean_vacuole_area_px', 'vacuoles_per_100_cells')
+
+
+def titration_conditions(wells, reference=None):
+    """Per-condition means and SDs of the wells that pass QC, beside reference values.
+
+    :param wells: the table from :func:`titration_wells`.
+    :param reference: optional reference values with ``strain``, ``dose``,
+        ``metric`` (``repl`` or ``size``), ``value`` and ``err``; they become
+        the ``HRMAn pct_replicating`` and ``HRMAn mean_size`` columns and
+        their ``err(as stored)`` columns.
+    :returns: one row per strain, status and dose, values rounded to 2
+        decimals, with ``wells``, ``cells`` and ``vacuoles``.
+    """
+    import numpy as np
+
+    kept = wells[wells['qc_pass'].astype(bool)]
+    grouped = kept.groupby(['strain', 'status', 'dose'], dropna=False)
+    table = grouped[list(TITRATION_METRICS)].agg(['mean', 'std']).round(2)
+    table.columns = [f'{a} {b}' for a, b in table.columns]
+    table['wells'] = grouped.size()
+    table['cells'] = grouped['cells'].sum()
+    table['vacuoles'] = grouped['vacuoles'].sum()
+    table = table.reset_index()
+    if reference is not None and len(reference):
+        names = {'repl': 'HRMAn pct_replicating', 'size': 'HRMAn mean_size'}
+        for metric in ('repl', 'size'):
+            if (reference['metric'] == metric).any():
+                table[names[metric]] = np.nan
+                table[names[metric] + ' err(as stored)'] = np.nan
+        for row in reference.itertuples(index=False):
+            chosen = (table['strain'] == row.strain) & (table['dose'] == float(row.dose))
+            column = names[row.metric]
+            table.loc[chosen, column] = row.value
+            table.loc[chosen, column + ' err(as stored)'] = row.err
+    return table
+
+
+def _plate_map(path):
+    """The plate map (well, strain, status, dose) from a table spaCR reads."""
+    from .tabular import read_table
+
+    plate = read_table(path, canonicalise=False, report=None)
+    missing = {'well', 'strain', 'status', 'dose'} - set(plate.columns)
+    if missing:
+        raise ValueError(f'titration_plate_map lacks columns {sorted(missing)}')
+    return plate[['well', 'strain', 'status', 'dose']]
+
+
+def _titration_objects(config):
+    """The cell and vacuole tables of a titration run.
+
+    From ``titration_object_tables`` (a folder with cells.csv and
+    vacuoles.csv) or, with ``vacuole_from_parasites``, from the merged
+    arrays in ``titration_merged_folder`` (channel 1 parasite signal, mask
+    channels 3 cells and 5 parasites, as Make Masks writes them with
+    merge_pathogens off).
+    """
+    import glob
+    import os
+
+    import numpy as np
+    import pandas as pd
+
+    from .tabular import read_table
+
+    if config['titration_object_tables']:
+        folder = config['titration_object_tables']
+        return (read_table(os.path.join(folder, 'cells.csv'), canonicalise=False, report=None),
+                read_table(os.path.join(folder, 'vacuoles.csv'), canonicalise=False, report=None))
+    if not config['vacuole_from_parasites'] or not config['titration_merged_folder']:
+        raise ValueError('Set titration_object_tables, or vacuole_from_parasites with '
+                         'titration_merged_folder')
+    cells, vacuoles = [], []
+    for path in sorted(glob.glob(os.path.join(config['titration_merged_folder'], '*.npy'))):
+        parts = os.path.basename(path)[:-4].split('_')
+        stack = np.load(path)
+        c, v = vacuole_objects(stack[..., 3], stack[..., 5], stack[..., 1], config,
+                               well=parts[1], field=int(parts[2]))
+        cells.append(c)
+        if len(v):
+            vacuoles.append(v)
+    return (pd.concat(cells, ignore_index=True),
+            pd.concat(vacuoles, ignore_index=True) if vacuoles
+            else pd.DataFrame(columns=_VACUOLE_COLUMNS))
+
+
+def analyze_titration(settings=None):
+    """An HRMAn-style infection and replication readout across a titration.
+
+    Vacuoles and cells come from :func:`vacuole_objects` (or saved tables).
+    Every well gets its strain, status and dose from
+    ``titration_plate_map``. Vacuoles under the parasite-signal floor
+    (:func:`infection_floor`) are dropped and cells are called infected from
+    the kept vacuoles. With ``replication_classifier='hist_gbm'`` the
+    classifier is cross-validated on ``replication_training_table``
+    (:func:`replication_classifier_cv`) and predicts parasites per vacuole
+    after the size calibration (:func:`size_calibration`, on the kept
+    vacuoles of infected wells). Writes titration_vacuoles.csv,
+    titration_per_well.csv, titration_per_condition.csv,
+    titration_calibration.txt and replication_classifier_cv.txt to
+    ``<src>/results/titration/``.
+
+    :param settings: ``src`` and the :data:`TITRATION_DEFAULTS` keys.
+    :returns: dict with ``vacuoles``, ``wells``, ``conditions``,
+        ``calibration``, ``floor`` and ``cv`` (None without a classifier).
+    """
+    import os
+
+    import numpy as np
+
+    from .tabular import read_table, write_table
+
+    config = {**TITRATION_DEFAULTS, **(settings or {})}
+    cells, vacuoles = _titration_objects(config)
+    plate = _plate_map(config['titration_plate_map'])
+    cells = cells.drop(columns=['strain', 'status', 'dose'], errors='ignore').merge(
+        plate, on='well', how='left')
+    vacuoles = vacuoles.drop(columns=['strain', 'status', 'dose'], errors='ignore').merge(
+        plate, on='well', how='left')
+    floor = infection_floor(vacuoles, config)
+    if floor is not None:
+        vacuoles = vacuoles[vacuoles[config['infection_signal_column']] >= floor].copy()
+    kept = set(zip(vacuoles['well'], vacuoles['field'], vacuoles['host_cell']))
+    cells['infected'] = [(w, f, c) in kept
+                         for w, f, c in zip(cells['well'], cells['field'], cells['cell'])]
+    infected_areas = vacuoles.loc[vacuoles['status'] == 'infected', 'area_px'].to_numpy()
+    calibration = size_calibration(infected_areas, config)
+    cv = None
+    if config['replication_classifier'] != 'none':
+        training = read_table(config['replication_training_table'], canonicalise=False,
+                              report=None)
+        cv = replication_classifier_cv(training, config)
+        vacuoles['n_parasites_clf'] = classify_replication(vacuoles, training, config,
+                                                           k=calibration['k'])
+    else:
+        vacuoles['n_parasites_clf'] = np.nan
+    vacuoles['repl_clf'] = vacuoles['n_parasites_clf'] > 1
+    vacuoles['repl_cellpose'] = vacuoles['n_parasites_cellpose'] > 1
+    wells = titration_wells(cells, vacuoles, config)
+    reference = (read_table(config['titration_reference_values'], canonicalise=False, report=None)
+                 if config['titration_reference_values'] else None)
+    conditions = titration_conditions(wells, reference)
+    result = {'vacuoles': vacuoles, 'wells': wells, 'conditions': conditions,
+              'calibration': calibration, 'floor': floor, 'cv': cv}
+    if config.get('save', True):
+        out = os.path.join(config['src'], 'results', 'titration')
+        os.makedirs(out, exist_ok=True)
+        write_table(vacuoles, os.path.join(out, 'titration_vacuoles.csv'), canonicalise=False)
+        write_table(wells, os.path.join(out, 'titration_per_well.csv'), canonicalise=False)
+        write_table(conditions, os.path.join(out, 'titration_per_condition.csv'),
+                    canonicalise=False)
+        with open(os.path.join(out, 'titration_calibration.txt'), 'w', encoding='utf-8') as fh:
+            fh.write(f"size calibration: {config['size_calibration']}; k = {calibration['k']:.3f} "
+                     f"(reference {calibration['reference_px']} px, spaCR modal "
+                     f"{calibration['modal_px']} px)\nparasite-signal floor: {floor}\n")
+        if cv is not None:
+            with open(os.path.join(out, 'replication_classifier_cv.txt'), 'w',
+                      encoding='utf-8') as fh:
+                fh.write(cv['text'])
+        result['folder'] = out
+    return result
+
+
+DEFAULTS.update(TITRATION_DEFAULTS)
+
+
 def analyze_host_pathogen(settings=None):
     """Analyze measured projects and save a unified, source-separated report.
 
@@ -250,12 +755,16 @@ def analyze_host_pathogen(settings=None):
         Host infection fractions describe retained measured cells. Run Measure
         with uninfected=True to include uninfected hosts in that denominator;
         previously discarded hosts cannot be reconstructed from these tables.
+        With ``titration_plate_map`` set, the run is the titration readout of
+        :func:`analyze_titration` instead, and returns its dict.
     """
     import pandas as pd
     from .io import _read_db
     from .cancellation import checkpoint
 
     config = default_settings(settings)
+    if config.get('titration_plate_map'):
+        return analyze_titration(config)
     sources = config['src'] if isinstance(config['src'], list) else [config['src']]
     databases = []
     for source in sources:

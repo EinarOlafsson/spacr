@@ -304,6 +304,8 @@ def convert_settings_dict_for_gui(settings):
         'model_type': ('combo', torchvision_models, 'resnet50'),
         'cam_type': ('combo', _cam_type_choices(), 'gradcam'),
         'compression': ('combo', ['lzw', 'zlib', 'none'], 'lzw'),
+        'replication_classifier': ('combo', ['none', 'hist_gbm'], 'none'),
+        'size_calibration': ('combo', ['none', 'modal_single'], 'none'),
         'model_type_ml': ('combo', ['logistic_regression', 'shrinkage_lda', 'xgboost', 'lightgbm', 'catboost', 'random_forest', 'extra_trees', 'gradient_boosting', 'svm', 'mlp'], 'logistic_regression'),
         'optimizer_type': ('combo', ['adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta', 'asgd'], 'adamw'),
         'schedule': ('combo', ['cosine', 'cosine_warm_restarts', 'reduce_lr_on_plateau', 'step_lr', 'exponential', 'linear', 'none'], 'cosine'),

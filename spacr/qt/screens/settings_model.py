@@ -1889,6 +1889,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ('Marker Recruitment', ('hp_reference_table', 'hp_reference_prefix',
                                 'hp_marker_channels', 'hp_marker_thresholds')),
         ('Parasite Counts', ('hp_parasite_table', 'hp_parasite_parent', 'hp_count_column')),
+        ('Titration Readout α', ('vacuole_from_parasites', 'vacuole_gap_px', 'vacuole_min_size', 'host_min_size', 'host_assignment', 'titration_merged_folder', 'titration_object_tables', 'titration_plate_map', 'titration_reference_values', 'titration_min_well_cells', 'replication_classifier', 'replication_training_table', 'replication_training_columns', 'replication_class_column', 'replication_classes', 'replication_seed', 'replication_cv_folds', 'size_calibration', 'size_calibration_reference_px', 'infection_signal_floor', 'infection_floor_percentile', 'infection_uninfected_wells', 'infection_signal_column')),
         ('Assay Output', ('save',)),
     ),
 }
