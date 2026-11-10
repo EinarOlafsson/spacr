@@ -4127,7 +4127,11 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # its match, library_calibrated_bases, runner_up_consistent,
     # nearest_boundaries, vote_mapped_reads, vote_pixels) and the public
     # functions of the new spacr.ops_decode module.
-    assert len(callables) == len(by_symbol) == 10083
+    # 2026-11-09 items 876 and 877: +7 functions, all documented, of
+    # spacr.ops_decode: genotype_confidence, false_call_tables,
+    # false_call_model, write_well_calls, confidence_outputs,
+    # false_call_outputs and run_decode_qc.
+    assert len(callables) == len(by_symbol) == 10090
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -4218,7 +4222,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # functions named in the total.
         # 2026-11-09 item 873: +19 function, +1 method, +1 constructor
         # (spacr.ops_sbs.LibraryMatcher with its match).
-        "function": 4543,
+        # 2026-11-09 items 876 and 877: +7 function.
+        "function": 4550,
         # -9 on 2026-09-15: the seven spacrStitcher methods,
         # StitchedMultiAligner.align and FOVAlignAndCropper.run.
         # Items 591-592: +2 method (the object grid's filter rows and the
@@ -4322,7 +4327,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 2026-11-03 item 749: +3 autoapi, dock.SectionHeader.set_open, .event and .paintEvent.
         # 2026-11-05 items 791, 770, 771: +17 autoapi, the functions named in the total.
         # 2026-11-06 item 773: +1 autoapi, IlluminationField.correct_window.
-        "autoapi": 10078,
+        "autoapi": 10085,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -4388,7 +4393,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-11-03 item 749: +3, dock.SectionHeader.set_open, .event and .paintEvent.
     # 2026-11-05 items 791, 770, 771: +17, one variant each: sp_stats.flag_degenerate_features, batch_correction.spherize_features and .harmony_embedding, and the fourteen spacr.division_analysis functions.
     # 2026-11-06 item 773: +1, IlluminationField.correct_window.
-    assert sum(item.variant_count for item in callables) == 10090
+    assert sum(item.variant_count for item in callables) == 10097
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
@@ -4418,7 +4423,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 2026-11-03 item 749: +3, dock.SectionHeader.set_open, .event and .paintEvent.
         # 2026-11-05 items 791, 770, 771: +17, the seventeen new module-level functions.
         # 2026-11-06 item 773: +1, IlluminationField.correct_window.
-        1: 10076,
+        1: 10083,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -4739,7 +4744,8 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # stamp_crop_folder's extra for item 772; the arrival validators above
     # account for the rest separately.
     # 20,251 -> 20,359 on 2026-11-09: item 873's 21 decode callables.
-    assert sum(len(item.parameters) for item in callables) == 20359
+    # 20,359 -> 20,396 on 2026-11-09: items 876 and 877's 7 functions.
+    assert sum(len(item.parameters) for item in callables) == 20396
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -4804,7 +4810,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-11-07 item 772: 10,377 -> 10,372, -5 required: CustomCellClassifier's
     # num_classes, pathogen_channel, use_attention, use_checkpoint and
     # dropout_rate now have defaults (model_type='custom').
-    assert sum(len(item.required_parameters) for item in callables) == 10447
+    assert sum(len(item.required_parameters) for item in callables) == 10465
     # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
     # subtraction on the full inventory: without that one parameter the digest
     # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
@@ -5066,7 +5072,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Moved 2026-11-09 for item 873 (was 4b9f4f7c...): the 21 decode
     # callables of spacr.ops_sbs and spacr.ops_decode, and align_field's
     # new spot-refinement keywords.
-) == 'dbbf438cc5f1b8a05f2ce74ed388790f657e8e0b405c82de4c1d479b84202c29'
+    # Moved 2026-11-09 for items 876 and 877 (was dbbf438c...): the seven
+    # decode-QC functions of spacr.ops_decode.
+) == '5161f08d589408e9fadc7f9753b4c79a96babc5b7ba1906da5bef35fd7f005fe'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing

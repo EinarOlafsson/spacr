@@ -8253,6 +8253,16 @@ ALPHA_FEATURES = {
                      'ops_decode_skip_unplaced_sites', 'ops_store_field_cache'),
         'choices': {'ops_channel_registration': ('spots_refine',)},
     },
+    876: {
+        'settings': ('ops_decode_qc', 'ops_decode_qc_model',
+                     'ops_decode_qc_features', 'ops_decode_qc_split',
+                     'ops_decode_qc_seed', 'ops_decode_qc_max_calls'),
+    },
+    877: {
+        'settings': ('ops_genotype_confidence', 'ops_confidence_model',
+                     'ops_confidence_calibration', 'ops_confidence_bins',
+                     'ops_confidence_seed', 'ops_confidence_min'),
+    },
     691: {
         'models': ('mitonet_mini_v1',),
         'widgets': ('MakeMasksMitoNetSettings', 'ModelZooSourceThirdParty'),

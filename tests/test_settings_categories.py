@@ -554,6 +554,19 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_fdr_scale",
     "ops_decode_skip_unplaced_sites",
     "ops_store_field_cache",
+    # Items 876 and 877: the false-call model and the genotype confidence.
+    "ops_decode_qc",
+    "ops_decode_qc_model",
+    "ops_decode_qc_features",
+    "ops_decode_qc_split",
+    "ops_decode_qc_seed",
+    "ops_decode_qc_max_calls",
+    "ops_genotype_confidence",
+    "ops_confidence_model",
+    "ops_confidence_calibration",
+    "ops_confidence_bins",
+    "ops_confidence_seed",
+    "ops_confidence_min",
     # `window_length`, the new name for `expected_end` (364, 2026-09-09).
     "window_length",
     # and `min_observations_per_hit`, the new name for `min_n`.

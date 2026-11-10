@@ -117,6 +117,18 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_fdr_scale": 1.268,
     "ops_decode_skip_unplaced_sites": True,
     "ops_store_field_cache": False,
+    "ops_decode_qc": False,
+    "ops_decode_qc_model": "xgboost",
+    "ops_decode_qc_features": None,
+    "ops_decode_qc_split": "field",
+    "ops_decode_qc_seed": 0,
+    "ops_decode_qc_max_calls": 20000,
+    "ops_genotype_confidence": False,
+    "ops_confidence_model": "hist_gbm",
+    "ops_confidence_calibration": "target_decoy",
+    "ops_confidence_bins": 10,
+    "ops_confidence_seed": 20261107,
+    "ops_confidence_min": None,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -217,6 +229,18 @@ OPS_TYPES: Dict[str, object] = {
     "ops_fdr_scale": (float, int),
     "ops_decode_skip_unplaced_sites": bool,
     "ops_store_field_cache": bool,
+    "ops_decode_qc": bool,
+    "ops_decode_qc_model": str,
+    "ops_decode_qc_features": (str, type(None)),
+    "ops_decode_qc_split": str,
+    "ops_decode_qc_seed": int,
+    "ops_decode_qc_max_calls": int,
+    "ops_genotype_confidence": bool,
+    "ops_confidence_model": str,
+    "ops_confidence_calibration": str,
+    "ops_confidence_bins": int,
+    "ops_confidence_seed": int,
+    "ops_confidence_min": (float, int, type(None)),
 }
 
 #: Which panel section each setting appears under.
@@ -266,6 +290,18 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_fdr_scale",
         "ops_decode_skip_unplaced_sites",
         "ops_store_field_cache",
+        "ops_decode_qc",
+        "ops_decode_qc_model",
+        "ops_decode_qc_features",
+        "ops_decode_qc_split",
+        "ops_decode_qc_seed",
+        "ops_decode_qc_max_calls",
+        "ops_genotype_confidence",
+        "ops_confidence_model",
+        "ops_confidence_calibration",
+        "ops_confidence_bins",
+        "ops_confidence_seed",
+        "ops_confidence_min",
     ],
     "OPS performance": [
         "ops_gpu", "n_workers",
@@ -822,6 +858,68 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "and the fallback pixels -- to <dst_root>/<well>/decode_cache as "
         "one npz per site. The decode QC reads it. A field takes about 13 "
         "MB. Default False. Alpha.",
+    "ops_decode_qc":
+        "(bool) - After the decode, train a model of what makes a genotype "
+        "call a decoy: gradient boosting on a permissive decode of the "
+        "stored field evidence, held-out fields and decoys, a sequence-only "
+        "control and chance. Writes model_metrics.csv, shap_mean_abs.csv, "
+        "permutation_importance.csv and model.json to "
+        "results/ops_decode_qc. Turns on ops_store_field_cache with the "
+        "spot features. Default False. Alpha.",
+    "ops_decode_qc_model":
+        "(str) - The false-call model: 'xgboost', the model of the "
+        "decode-yield study, needs the optional xgboost package (pip "
+        "install xgboost); 'hist_gbm' is scikit-learn's histogram gradient "
+        "boosting and needs nothing extra. Default 'xgboost'. Alpha.",
+    "ops_decode_qc_features":
+        "(str or None) - The false-call model's features, separated by "
+        "commas. Empty takes every per-call feature of the evidence table: "
+        "read counts, matches and mismatches, read quality, per-cycle "
+        "margins, spot shape, background and position. Default None. Alpha.",
+    "ops_decode_qc_split":
+        "(str) - How calls are held out from the false-call model: 'field' "
+        "holds out half the sequencing fields of each plate, so no field is "
+        "both learnt and scored. Decoys are split in halves by sequence as "
+        "well. Default 'field'. Alpha.",
+    "ops_decode_qc_seed":
+        "(int) - The seed of the false-call model, its SHAP sample and its "
+        "bootstrap intervals. The held-out field draw keeps the study's "
+        "seed 7. Default 0. Alpha.",
+    "ops_decode_qc_max_calls":
+        "(int) - How many held-out calls the SHAP ranking of the false-call "
+        "model is taken over, drawn with ops_decode_qc_seed; 0 takes every "
+        "held-out call, slower on a plate. Default 20000. Alpha.",
+    "ops_genotype_confidence":
+        "(bool) - After the decode, give every genotype call a calibrated "
+        "probability of being correct, learnt from the decoy calls with "
+        "five-fold cross-fitting by field, and add it to ops_barcodes as "
+        "genotype_confidence. Writes confidence_reliability.csv and "
+        "confidence_metrics.json (AUC, ECE, shuffled-label AUC) to "
+        "results/ops_decode_qc. Needs ops_decoy_library_k above 0. Default "
+        "False. Alpha.",
+    "ops_confidence_model":
+        "(str) - Which model's error becomes genotype_confidence: "
+        "'hist_gbm' (gradient boosting), 'logistic', 'isotonic' (the "
+        "logistic score recalibrated), 'strata' (the decoy rate of matched "
+        "read-count strata) or 'auto' (the lowest held-out log-loss). All "
+        "are fitted and reported. Default 'hist_gbm'. Alpha.",
+    "ops_confidence_calibration":
+        "(str) - How a model's decoy probability becomes the error of a "
+        "real call: 'target_decoy' scales it by ops_fdr_scale over "
+        "ops_decoy_library_k and by the odds of a real call, so the errors "
+        "add up to the decoy-estimated false calls; 'none' reports one "
+        "minus the decoy probability. Default 'target_decoy'. Alpha.",
+    "ops_confidence_bins":
+        "(int) - How many bins the reliability curve has; each bin expects "
+        "the same number of decoy calls. Default 10. Alpha.",
+    "ops_confidence_seed":
+        "(int) - The seed of the confidence models' subsampling, the "
+        "shuffled-label control and the boosting. The default is the seed "
+        "of the reference run. Default 20261107. Alpha.",
+    "ops_confidence_min":
+        "(float or None) - Drop genotype calls whose genotype_confidence is "
+        "below this from ops_barcodes, and report how many were dropped. "
+        "Empty keeps every call. Default None. Alpha.",
 }
 
 #: The blurb the module shows above its settings.

@@ -93,6 +93,7 @@ _DEFAULTS: Dict[str, Any] = {
     "ops_fdr_scale": 1.268,
     "ops_decode_skip_unplaced_sites": True,
     "ops_store_field_cache": False,
+    "ops_decode_qc": False,
 }
 
 #: How far from a nucleus boundary a fallback pixel is kept at all, in
@@ -109,7 +110,7 @@ _CACHE_FLOOR = 100.0
 _RULE_SWITCHES = ("ops_decode_library_calibration", "ops_decode_runner_up",
                   "ops_assign_by_cell_territory",
                   "ops_decode_quality_weighted", "ops_decode_pixel_fallback",
-                  "ops_store_field_cache")
+                  "ops_store_field_cache", "ops_decode_qc")
 
 #: Matchers and library indices built once per process, keyed by the
 #: library and decoy sets they hold.
@@ -209,7 +210,9 @@ def decode_rule(settings: Mapping[str, Any]) -> Dict[str, Any]:
         "pixel_quality": _number(settings, "ops_pixel_quality"),
         "decoy_k": _number(settings, "ops_decoy_library_k", int),
         "fdr_scale": _number(settings, "ops_fdr_scale"),
-        "store_cache": _flag(settings, "ops_store_field_cache"),
+        "store_cache": (_flag(settings, "ops_store_field_cache")
+                        or _flag(settings, "ops_decode_qc")),
+        "features": _flag(settings, "ops_decode_qc"),
     }
     if rule["decoy_k"] < 0 or rule["pixel_min_pixels"] < 1 \
             or rule["calibration_passes"] < 1:
@@ -785,3 +788,907 @@ def unplaced_sites(cycle_files: Mapping[int, Mapping[int, Any]],
     sites = {int(site) for files in cycle_files.values() for site in files}
     return sorted(site for site in sites if site not in placements)
 
+
+
+#: The features the genotype confidence reads off each call's evidence
+#: (item 877), in the order the reference model saw them.
+CONFIDENCE_FEATURES = ("log_reads", "n_matched", "n_exact", "n_corr",
+                       "vote_frac", "runner_margin", "q_best", "q_mean",
+                       "log_strength", "n_amb", "pixel", "pix_n", "pix_frac",
+                       "n_guides_seen", "field_reads_per_nucleus",
+                       "field_nuclei", "q_best_missing", "vote_frac_missing")
+
+#: The models :func:`genotype_confidence` fits; the setting names them.
+CONFIDENCE_MODELS = {"logistic": "LR", "isotonic": "ISO", "hist_gbm": "HGB",
+                     "strata": "STRATA"}
+
+#: The seed of the reference confidence run (2026-11-07).
+CONFIDENCE_SEED = 20261107
+
+
+def _confidence_table(calls, folds: int = 5):
+    """The evidence table with the confidence model's derived columns.
+
+    :param calls: rows with :data:`EVIDENCE_COLUMNS` plus ``well`` and
+        ``site``.
+    :param folds: how many folds the field key is split into.
+    :returns: a copy with ``fold``, ``pixel``, ``unanimous``, the ``_missing``
+        flags, the logs, and the NaN fields filled with 0.
+    """
+    import hashlib
+
+    d = calls.copy()
+    d["fold"] = [int(hashlib.md5(f"{w}|{s}".encode()).hexdigest()[:8], 16) % int(folds)
+                 for w, s in zip(d["well"], d["site"])]
+    d["pixel"] = (d["source"] == "pixel_fallback").astype(float)
+    d["unanimous"] = (d["runner_margin"] >= 0.999).astype(float)
+    for column in ("q_best", "q_mean", "strength_max", "vote_frac"):
+        d[f"{column}_missing"] = d[column].isna().astype(float)
+        d[column] = d[column].fillna(0.0)
+    d["log_reads"] = np.log1p(d["n_reads"])
+    d["log_strength"] = np.log1p(d["strength_max"])
+    return d
+
+
+class _Logistic:
+    """Logistic regression on standardised features, the reference's LR."""
+
+    def __init__(self):
+        """Build the scaler and the model."""
+        from sklearn.linear_model import LogisticRegression
+        from sklearn.preprocessing import StandardScaler
+
+        self.scaler = StandardScaler()
+        self.model = LogisticRegression(C=1.0, max_iter=2000)
+
+    def fit(self, x, y, sample_weight=None):
+        """Fit on ``x``.
+
+        :param x: the features.
+        :param y: the decoy labels.
+        :param sample_weight: per-row weights.
+        :returns: self.
+        """
+        self.scaler.fit(x)
+        self.model.fit(self.scaler.transform(x), y, sample_weight=sample_weight)
+        return self
+
+    def predict_proba(self, x):
+        """Class probabilities.
+
+        :param x: the features.
+        :returns: ``(N, 2)``.
+        """
+        return self.model.predict_proba(self.scaler.transform(x))
+
+
+def genotype_confidence(calls, *, model: str = "hist_gbm",
+                        calibration: str = "target_decoy", bins: int = 10,
+                        seed: int = CONFIDENCE_SEED, fdr_scale: float = 1.268,
+                        decoy_k: int = 4, folds: int = 5,
+                        max_real: int = 1_000_000) -> Dict[str, Any]:
+    """Each call's calibrated probability of being correct (item 877).
+
+    A call to a decoy is a known false call. Out of fold, by sequencing
+    field (five folds keyed on the field's name, so a field is never scored
+    by a model that saw it), four models estimate P(decoy | evidence) from
+    each call's read and pixel support (:data:`CONFIDENCE_FEATURES`):
+    logistic regression on the features and their squares, an isotonic
+    recalibration of that score, histogram gradient boosting, and the decoy
+    rate of matched strata. A real call's error is then
+    ``c * P(decoy) / P(real)``, ``c = fdr_scale / decoy_k``, and
+    ``genotype_confidence`` is one minus it. A control fits the logistic
+    model on decoy labels shuffled within fields; its AUC should be 0.5.
+
+    :param calls: one row per call, decoys included, with ``well``, ``site``
+        and :data:`EVIDENCE_COLUMNS`, in decode order.
+    :param model: which model's error becomes the confidence: ``hist_gbm``,
+        ``logistic``, ``isotonic``, ``strata``, or ``auto`` for the lowest
+        held-out log-loss.
+    :param calibration: ``target_decoy`` converts P(decoy) to the error of a
+        real call as above; ``none`` reports ``1 - P(decoy)``.
+    :param bins: reliability bins, each expecting an equal number of decoys.
+    :param seed: the subsampling, shuffling and boosting seed.
+    :param fdr_scale: the decoy calibration (1.268 for the Funk library).
+    :param decoy_k: decoys per guide.
+    :param folds: cross-fitting folds, keyed on the md5 of ``well|site``.
+    :param max_real: the most real calls each fit sees, weighted back.
+    :returns: ``table`` (the calls with ``e_LR``, ``e_ISO``, ``e_HGB``,
+        ``e_STRATA``, ``e`` and ``genotype_confidence``), ``metrics`` (per
+        model AUC, log-loss, Brier and error counts, the chosen model),
+        ``reliability`` (bin, predicted, observed, n per model) and
+        ``strata``.
+    :raises ValueError: for an unknown model or calibration, or calls with
+        no decoy.
+    """
+    import pandas as pd
+    from scipy.stats import chi2
+    from sklearn.ensemble import HistGradientBoostingClassifier
+    from sklearn.isotonic import IsotonicRegression
+    from sklearn.metrics import roc_auc_score
+
+    if model != "auto" and model not in CONFIDENCE_MODELS:
+        raise ValueError(f"ops_confidence_model must be one of "
+                         f"{['auto'] + sorted(CONFIDENCE_MODELS)}; got {model!r}")
+    if calibration not in ("target_decoy", "none"):
+        raise ValueError("ops_confidence_calibration must be 'target_decoy' "
+                         f"or 'none'; got {calibration!r}")
+    d = _confidence_table(calls, folds)
+    y = d["is_decoy"].to_numpy().astype(int)
+    if not y.any() or y.all():
+        raise ValueError("the genotype confidence needs decoy and real calls; "
+                         "decode with ops_decoy_library_k above 0")
+    c = float(fdr_scale) / float(decoy_k)
+    features = list(CONFIDENCE_FEATURES)
+    base = d[features].to_numpy(float)
+    squared = np.c_[base, np.clip(base[:, :10], -50, 50) ** 2]
+    fold = d["fold"].to_numpy()
+    rng = np.random.default_rng(seed)
+
+    def crossfit(make, x, labels, sub_real=max_real):
+        """Out-of-fold P(decoy), each fit on its folds' decoys and real calls.
+
+        :param make: builds an unfitted model.
+        :param x: the features.
+        :param labels: the decoy labels.
+        :param sub_real: the most real calls a fit sees.
+        :returns: one probability per call.
+        """
+        p = np.zeros(len(labels))
+        for k in range(int(folds)):
+            train = fold != k
+            real_rows = np.flatnonzero(train & (labels == 0))
+            decoy_rows = np.flatnonzero(train & (labels == 1))
+            take = rng.choice(real_rows, min(sub_real, len(real_rows)), replace=False)
+            rows = np.r_[take, decoy_rows]
+            weight = np.r_[np.full(len(take), len(real_rows) / len(take)),
+                           np.ones(len(decoy_rows))]
+            fitted = make()
+            fitted.fit(x[rows], labels[rows], sample_weight=weight)
+            p[~train] = fitted.predict_proba(x[~train])[:, 1]
+        return p
+
+    p_lr = crossfit(_Logistic, squared, y)
+    p_hgb = crossfit(lambda: HistGradientBoostingClassifier(
+        max_iter=300, learning_rate=0.05, max_leaf_nodes=31,
+        min_samples_leaf=200, l2_regularization=1.0, random_state=seed), base, y)
+    p_iso = np.zeros(len(y))
+    score = np.log(np.clip(p_lr, 1e-9, 1))
+    for k in range(int(folds)):
+        train = fold != k
+        iso = IsotonicRegression(out_of_bounds="clip", y_min=0, y_max=1).fit(
+            score[train], y[train])
+        p_iso[~train] = iso.predict(score[~train])
+    strata = (np.clip(d["n_reads"], 0, 5).astype(str) + "|" + d["source"] + "|"
+              + d["unanimous"].astype(int).astype(str)).to_numpy()
+    p_str = np.zeros(len(y))
+    for k in range(int(folds)):
+        train = fold != k
+        rate = pd.Series(y[train]).groupby(strata[train]).mean()
+        p_str[~train] = pd.Series(strata[~train]).map(rate).fillna(
+            y[train].mean()).to_numpy()
+    shuffled = y.copy()
+    groups = (d["well"].astype(str) + "|" + d["site"].astype(str)).to_numpy()
+    for _, index in pd.Series(np.arange(len(y))).groupby(groups).indices.items():
+        shuffled[index] = y[index][rng.permutation(len(index))]
+    p_sh = crossfit(_Logistic, squared, shuffled, sub_real=300_000)
+
+    def error(p):
+        """A real call's error from P(decoy).
+
+        :param p: P(decoy).
+        :returns: the error, 0 to 1.
+        """
+        if calibration == "none":
+            return np.clip(p, 0, 1)
+        return np.clip(c * p / np.clip(1 - p, 1e-12, None), 0, 1)
+
+    def logloss(p, labels):
+        """Mean log-loss.
+
+        :param p: P(decoy).
+        :param labels: the labels.
+        :returns: the loss.
+        """
+        p = np.clip(p, 1e-9, 1 - 1e-9)
+        return float(-(labels * np.log(p) + (1 - labels) * np.log(1 - p)).mean())
+
+    def reliability(p, name):
+        """Reliability rows: bins of equal expected decoys.
+
+        :param p: P(decoy).
+        :param name: the model.
+        :returns: one row per bin.
+        """
+        order = np.argsort(p)
+        cumulative = np.cumsum(p[order])
+        edges = np.searchsorted(cumulative, np.linspace(0, cumulative[-1], bins + 1)[1:-1])
+        which = np.zeros(len(p), int)
+        which[order] = np.searchsorted(edges, np.arange(len(p)), side="right")
+        rows = []
+        for b in range(int(bins)):
+            m = which == b
+            nd, nr = int(y[m].sum()), int((1 - y[m]).sum())
+            lo = chi2.ppf(0.025, 2 * nd) / 2 if nd > 0 else 0.0
+            hi = chi2.ppf(0.975, 2 * nd + 2) / 2
+            rows.append({"model": name, "bin": b, "calls": int(m.sum()),
+                         "real_calls": nr, "decoy_calls": nd,
+                         "predicted_error": float(error(p[m])[y[m] == 0].mean()),
+                         "observed_error": c * nd / max(nr, 1),
+                         "observed_lo": c * lo / max(nr, 1),
+                         "observed_hi": c * hi / max(nr, 1)})
+        return rows
+
+    probabilities = {"LR": p_lr, "ISO": p_iso, "HGB": p_hgb, "STRATA": p_str,
+                     "control: shuffled decoy labels": p_sh}
+    metrics: Dict[str, Any] = {}
+    reliability_rows: List[Dict[str, Any]] = []
+    for name, p in probabilities.items():
+        labels = shuffled if name.startswith("control") else y
+        e = error(p)
+        metrics[name] = {
+            "AUC_decoy": float(roc_auc_score(labels, p)), "logloss": logloss(p, labels),
+            "brier": float(((p - labels) ** 2).mean()),
+            "predicted_false_real_calls": float(e[labels == 0].sum()),
+            "decoy_estimated_false_real_calls": float(c * labels.sum()),
+            "mean_error_real": float(e[labels == 0].mean()),
+            "real_calls_error_gt_1pct": int((e[labels == 0] > 0.01).sum()),
+            "real_calls_error_gt_10pct": int((e[labels == 0] > 0.1).sum())}
+        if not name.startswith("control"):
+            reliability_rows += reliability(p, name)
+    best = min(("LR", "ISO", "HGB", "STRATA"), key=lambda k: metrics[k]["logloss"])
+    chosen = best if model == "auto" else CONFIDENCE_MODELS[model]
+    metrics.update({"best_by_logloss": best, "chosen": chosen,
+                    "rule": ("lowest held-out log-loss on the decoy label"
+                             if model == "auto" else f"ops_confidence_model {model}"),
+                    "fdr_scale_c": c, "calibration": calibration, "seed": int(seed)})
+    table = calls.copy()
+    for name in ("LR", "ISO", "HGB", "STRATA"):
+        table[f"e_{name}"] = error(probabilities[name])
+    table["e"] = table[f"e_{chosen}"]
+    table["genotype_confidence"] = 1 - table["e"]
+    stratum = pd.DataFrame({"stratum": strata, "is_decoy": d["is_decoy"].to_numpy(),
+                            "e": table["e"].to_numpy()})
+    strata_table = stratum.groupby("stratum").agg(
+        calls=("is_decoy", "size"), decoys=("is_decoy", "sum"),
+        model_error=("e", "mean")).reset_index()
+    strata_table["observed_error"] = c * strata_table["decoys"] / (
+        strata_table["calls"] - strata_table["decoys"]).clip(lower=1)
+    return {"table": table, "metrics": metrics,
+            "reliability": pd.DataFrame(reliability_rows), "strata": strata_table}
+
+
+#: The sequence-only control features of the false-call model (item 876):
+#: what a call's guide sequence alone says about whether it is a decoy.
+SEQUENCE_FEATURES = ("_gc", "_homopolymer", "_frac_G", "_frac_T", "_frac_A",
+                     "_frac_C", "nearest_other_guide")
+
+#: The columns of the false-call cell table that are labels, keys or splits,
+#: never features.
+_QC_DROP = ("field", "obj", "label", "guide", "tp2", "test", "plate",
+            "decoy_half")
+
+#: The permissive decode the false-call model is trained on: a low read
+#: threshold, matches at up to two mismatches, territory attribution and a
+#: plain majority vote, so the decoy calls the strict rule refuses are there
+#: to learn from.
+QC_PERMISSIVE = {"threshold": 150.0, "footprint": 10.0, "max_distance": 2,
+                 "tie": 1.0, "min_fraction": 0.6}
+
+
+def _field_exact_rate(codes, real_matcher) -> float:
+    """The share of a field's reads that match a guide exactly.
+
+    :param codes: the field's called reads.
+    :param real_matcher: a matcher over the real guides only.
+    :returns: the share, 0 for a field without reads.
+    """
+    return float(np.mean([real_matcher.match(b, 0)[0] is not None for b in codes])
+                 if codes else 0)
+
+
+def false_call_tables(fields: Sequence[Mapping[str, Any]],
+                      library: Sequence[str], decoys: Sequence[str], *,
+                      seed: int = 7, tile_centre: float = 740.0,
+                      permissive: Optional[Mapping[str, Any]] = None,
+                      keep_reads: bool = False):
+    """The read and cell tables the false-call model learns from (item 876).
+
+    Each field is decoded permissively (:data:`QC_PERMISSIVE`) against the
+    library and the decoys. Every read owned by a field's nucleus becomes a
+    row with its match, per-cycle margins and mismatches, spot features and
+    position; every owned nucleus becomes a row labelled ``FP`` (its reads
+    vote for a decoy), ``TP`` (a guide) or ``TN`` (no call), with the mean
+    evidence of its supporting reads and the sequence features of its guide.
+    Half the fields of each plate are held out (``test``), and the decoys are
+    split by the md5 of their sequence into a training half and an
+    evaluation half (``decoy_half``).
+
+    :param fields: ``{"plate", "well", "site", "z"}`` per field, ``z`` the
+        field's evidence (:func:`field_evidence` with ``features=True``).
+    :param library: the guide barcodes.
+    :param decoys: the decoy barcodes.
+    :param seed: the held-out field draw's seed (7 in the study).
+    :param tile_centre: the tile centre, for each read's radius in the tile.
+    :param permissive: overrides of :data:`QC_PERMISSIVE`.
+    :param keep_reads: also return the read table, which is about ten times
+        the size of the cell table; False returns an empty one.
+    :returns: ``(reads, cells)`` DataFrames.
+    """
+    import hashlib
+    from collections import Counter, defaultdict
+
+    import pandas as pd
+
+    from .ops_sbs import LibraryMatcher, called_bases
+
+    rule = {**QC_PERMISSIVE, **(permissive or {})}
+    library = sorted(set(library))
+    decoy_set = set(decoys)
+    real = LibraryMatcher(library)
+    combined = LibraryMatcher(library + list(decoys))
+    table = np.frombuffer("".join(library).encode(), np.uint8).reshape(len(library), -1)
+    nearest: Dict[str, int] = {}
+
+    def nearest_other(guide):
+        """The fewest mismatches from a guide to another guide.
+
+        :param guide: a library guide.
+        :returns: the distance.
+        """
+        if guide not in nearest:
+            distance = (table != np.frombuffer(guide.encode(), np.uint8)).sum(1)
+            nearest[guide] = int(distance[distance > 0].min())
+        return nearest[guide]
+
+    rng = np.random.default_rng(seed)
+    evaluation = {d for d in decoy_set if int(hashlib.md5(d.encode()).hexdigest(), 16) % 2}
+    training = decoy_set - evaluation
+    plates = np.array([str(f["plate"]) for f in fields])
+    test_field = np.zeros(len(fields), bool)
+    for plate in sorted(set(plates)):
+        index = np.flatnonzero(plates == plate)
+        test_field[rng.choice(index, len(index) // 2, replace=False)] = True
+    all_reads, cell_frames = [], []
+    cycle_keys = None
+    for fi, fd in enumerate(fields):
+        z = fd["z"]
+        selected = np.asarray(z["strength"]) > rule["threshold"]
+        first, _, _ = called_bases(np.asarray(z["values"])[selected], normalise=True, gpu=False)
+        data, codes, margin = called_bases(first, compensate=True, method="argmax_median",
+                                           normalise=False, gpu=False) if len(first) else \
+            (first, [], np.zeros((0, np.asarray(z["values"]).shape[1])))
+        gap = np.asarray(z["gap"])[selected]
+        first_id = np.asarray(z["id0"])[selected]
+        near = (gap[:, 0] <= rule["footprint"]) & np.asarray(z["owned0"])[selected]
+        ambiguous = (gap[:, 1] - gap[:, 0]) < rule["tie"]
+        peaks = np.asarray(z["peaks"])[selected]
+        strength = np.asarray(z["strength"])[selected]
+        spot = {k: np.asarray(z[k])[selected] for k in
+                ("f_raw", "f_bg", "f_sharp", "f_focus", "f_density") if k in z}
+        exact_rate = _field_exact_rate(codes, real)
+        areas = dict(zip(np.asarray(z["owned_ids"]).tolist(),
+                         np.asarray(z["owned_areas"]).tolist()))
+        n_cycles = np.asarray(z["values"]).shape[1]
+        cells = defaultdict(list)
+        for i in np.flatnonzero(near):
+            guide, d = combined.match(codes[i], rule["max_distance"])
+            mismatched = ([c for c, (x, yv) in enumerate(zip(codes[i], guide)) if x != yv]
+                          if guide else [])
+            m = margin[i]
+            finite = np.isfinite(m).any()
+            row = {"field": fi, "obj": int(first_id[i]), "guide": guide,
+                   "d": d if guide else -1,
+                   "label_read": "TN" if guide is None else ("FP" if guide in decoy_set else "TP"),
+                   "q": float(np.nanmin(m)) if finite else 0.0,
+                   "q_mean": float(np.nanmean(m)) if finite else 0.0,
+                   "strength": float(strength[i]), "gap0": float(gap[i, 0]),
+                   "gap_diff": float(min(gap[i, 1] - gap[i, 0], 50)),
+                   "ambiguous": bool(ambiguous[i]),
+                   "y": float(peaks[i, 0]), "x": float(peaks[i, 1]),
+                   "n_mismatch": len(mismatched),
+                   "nearest_other_guide": (nearest_other(guide)
+                                           if (guide and guide not in decoy_set) else
+                                           (int(((table != np.frombuffer(guide.encode(), np.uint8)).sum(1)).min())
+                                            if guide else -1))}
+            for c in range(n_cycles):
+                row[f"margin_c{c + 1}"] = float(np.nan_to_num(m[c], nan=-1))
+                row[f"mismatch_c{c + 1}"] = int(c in mismatched)
+                if spot:
+                    raw = spot["f_raw"][i, c]
+                    background = spot["f_bg"][i, c]
+                    row[f"raw_max_c{c + 1}"] = (float(np.nanmax(raw))
+                                                if np.isfinite(raw).any() else -1)
+                    row[f"bg_c{c + 1}"] = (float(np.nanmean(background))
+                                           if np.isfinite(background).any() else -1)
+            if spot:
+                row["sharpness"] = float(spot["f_sharp"][i])
+                row["focus_local"] = float(spot["f_focus"][i])
+                row["neighbour_spots"] = int(spot["f_density"][i])
+            row["field_exact_rate"] = float(exact_rate)
+            row["radius_in_tile"] = float(np.hypot(peaks[i, 0] - tile_centre,
+                                                   peaks[i, 1] - tile_centre))
+            row["nucleus_area"] = float(areas.get(int(first_id[i]), np.nan))
+            row["_seq"] = guide or ""
+            if keep_reads:
+                all_reads.append(row)
+            cells[int(first_id[i])].append(row)
+        if cycle_keys is None:
+            cycle_keys = ([f"margin_c{i}" for i in range(1, n_cycles + 1)]
+                          + [f"mismatch_c{i}" for i in range(1, n_cycles + 1)]
+                          + [f"bg_c{i}" for i in range(1, n_cycles + 1)]
+                          + [f"raw_max_c{i}" for i in range(1, n_cycles + 1)]
+                          + ["sharpness", "focus_local", "neighbour_spots",
+                             "radius_in_tile", "y", "x"])
+        field_cells = []
+        for owner in np.asarray(z["owned_ids"]).tolist():
+            reads = cells.get(owner, [])
+            matched = [r for r in reads if r["guide"]]
+            cell = {"field": fi, "obj": owner, "n_reads": len(reads),
+                    "n_matched": len(matched),
+                    "nucleus_area": float(areas.get(owner, np.nan)),
+                    "field_exact_rate": float(exact_rate)}
+            label, guide = "TN", None
+            if matched:
+                tally = Counter(r["guide"] for r in matched)
+                (guide, n), *rest = tally.most_common()
+                if not (rest and rest[0][1] == n) and n / len(matched) >= rule["min_fraction"]:
+                    label = "FP" if guide in decoy_set else "TP"
+                else:
+                    guide = None
+            cell["label"] = label
+            cell["guide"] = guide
+            if guide:
+                support = [r for r in matched if r["guide"] == guide]
+                cell["n_support"] = len(support)
+                cell["agreement"] = len(support) / len(matched)
+                cell["n_exact_support"] = sum(r["d"] == 0 for r in support)
+                cell["tp2"] = label == "TP" and cell["n_exact_support"] >= 2
+                cell["min_mismatch"] = min(r["d"] for r in support)
+                cell["q_best"] = max(r["q"] for r in support)
+                cell["q_mean"] = float(np.mean([r["q_mean"] for r in support]))
+                cell["strength_max"] = max(r["strength"] for r in support)
+                cell["gap0_min"] = min(r["gap0"] for r in support)
+                cell["ambiguous_share"] = float(np.mean([r["ambiguous"] for r in support]))
+                cell["nearest_other_guide"] = support[0]["nearest_other_guide"]
+                for key in cycle_keys:
+                    if key in support[0]:
+                        cell[key] = float(np.mean([r[key] for r in support]))
+                runs = "".join(ch if i == 0 or guide[i - 1] == ch else "|" + ch
+                               for i, ch in enumerate(guide)).split("|")
+                cell["_gc"] = (guide.count("G") + guide.count("C")) / len(guide)
+                cell["_homopolymer"] = max(len(x) for x in runs)
+                for base in "GTAC":
+                    cell[f"_frac_{base}"] = guide.count(base) / len(guide)
+            field_cells.append(cell)
+        cell_frames.append(pd.DataFrame(field_cells))
+    reads = pd.DataFrame(all_reads)
+    cells = (pd.concat(cell_frames, ignore_index=True, sort=False)
+             if cell_frames else pd.DataFrame())
+    for frame in (cells, reads):
+        if len(frame):
+            frame["test"] = test_field[frame["field"].to_numpy()]
+            frame["plate"] = plates[frame["field"].to_numpy()]
+            frame["decoy_half"] = frame["guide"].map(
+                lambda g: "eval" if g in evaluation else ("train" if g in training else ""))
+    return reads, cells
+
+
+def _xgboost_classifier(params: Mapping[str, Any]):
+    """An XGBoost classifier, imported only when asked for.
+
+    :param params: the classifier's parameters.
+    :returns: the unfitted classifier.
+    :raises ImportError: with the install line, when xgboost is absent.
+    """
+    try:
+        import xgboost
+    except ImportError as error:
+        raise ImportError(
+            "ops_decode_qc_model 'xgboost' needs the xgboost package: "
+            "pip install xgboost, or set ops_decode_qc_model to 'hist_gbm'"
+        ) from error
+    return xgboost.XGBClassifier(**params)
+
+
+def _tree_shap(model, frame) -> Tuple[np.ndarray, float]:
+    """Per-call SHAP values of a fitted tree model.
+
+    :param model: a fitted XGBoost or scikit-learn tree classifier.
+    :param frame: the features.
+    :returns: ``(values, base_value)``. The shap package is used when it is
+        installed; for XGBoost without it, the booster's own exact TreeSHAP
+        (``pred_contribs``) gives the same values.
+    """
+    try:
+        import shap
+    except ImportError:
+        shap = None
+    if shap is not None:
+        explainer = shap.TreeExplainer(model)
+        values = explainer.shap_values(frame)
+        if isinstance(values, list):
+            values = values[-1]
+        values = np.asarray(values)
+        if values.ndim == 3:
+            values = values[..., -1]
+        return values, float(np.atleast_1d(explainer.expected_value)[-1])
+    if hasattr(model, "get_booster"):
+        import xgboost
+
+        contributions = model.get_booster().predict(
+            xgboost.DMatrix(frame), pred_contribs=True)
+        return contributions[:, :-1], float(contributions[0, -1])
+    raise ImportError("SHAP values of a hist_gbm model need the shap package: "
+                      "pip install shap")
+
+
+def false_call_model(cells, *, model: str = "xgboost", seed: int = 0,
+                     shap_sample: int = 20000, permutation_repeats: int = 10,
+                     n_jobs: int = 1, features: Optional[Sequence[str]] = None,
+                     boot: int = 300) -> Dict[str, Any]:
+    """What separates a decoy call from a library call (item 876).
+
+    Trained on the training fields' library calls and training-half decoys,
+    scored on the held-out fields' library calls and evaluation-half
+    decoys, so neither a field nor a decoy sequence is both learnt and
+    tested. A sequence-only model (:data:`SEQUENCE_FEATURES`) measures how
+    much of the separation comes from how the decoys were built; chance is
+    an AUROC of 0.5. Mean absolute SHAP (Lundberg and Lee 2017) and
+    permutation importance (average-precision drop) rank the features.
+
+    :param cells: from :func:`false_call_tables`.
+    :param model: ``xgboost`` (an optional dependency) or ``hist_gbm``.
+    :param seed: the model and resampling seed (0 in the study).
+    :param shap_sample: how many held-out calls the SHAP ranking is taken
+        over; 0 takes them all.
+    :param permutation_repeats: permutation-importance repeats.
+    :param n_jobs: model threads; 1 is reproducible bit for bit.
+    :param features: the main model's features; None takes every column that
+        is not a label, key, split or sequence feature.
+    :param boot: field-bootstrap replicates for the AUROC and AP intervals.
+    :returns: ``metrics`` (a DataFrame: main, sequence-only control, chance),
+        ``shap_mean_abs`` and ``permutation_importance`` (DataFrames),
+        ``model`` (the fitted main model) and ``features``.
+    :raises ValueError: for an unknown model, or no held-out decoy.
+    """
+    import pandas as pd
+    from sklearn.inspection import permutation_importance
+    from sklearn.metrics import average_precision_score, roc_auc_score
+
+    if model not in ("xgboost", "hist_gbm"):
+        raise ValueError("ops_decode_qc_model must be 'xgboost' or 'hist_gbm'; "
+                         f"got {model!r}")
+    sequence = [c for c in cells.columns if c.startswith("_")] + ["nearest_other_guide"]
+    main = list(features) if features else [
+        c for c in cells.columns if c not in _QC_DROP and c not in sequence]
+    assigned = cells[cells["label"].isin(["TP", "FP"])]
+    train = assigned[~assigned["test"] & ((assigned["label"] == "TP")
+                                          | (assigned["decoy_half"] == "train"))]
+    test = assigned[assigned["test"] & ((assigned["label"] == "TP")
+                                        | (assigned["decoy_half"] == "eval"))]
+    y_train = (train["label"] == "FP").astype(int)
+    y_test = (test["label"] == "FP").astype(int).to_numpy()
+    if not y_test.any() or not y_train.any():
+        raise ValueError("the false-call model needs decoy calls in the training "
+                         "and the held-out fields; decode with ops_decoy_library_k "
+                         "above 0 over more fields")
+
+    def make():
+        """An unfitted classifier of the chosen kind.
+
+        :returns: the classifier.
+        """
+        if model == "xgboost":
+            return _xgboost_classifier(dict(
+                n_estimators=400, max_depth=5, learning_rate=0.05, subsample=0.8,
+                colsample_bytree=0.8, n_jobs=n_jobs, eval_metric="logloss",
+                random_state=seed))
+        from sklearn.ensemble import HistGradientBoostingClassifier
+
+        return HistGradientBoostingClassifier(max_iter=400, max_depth=5,
+                                              learning_rate=0.05, random_state=seed)
+
+    rng = np.random.default_rng(seed)
+    test_fields = test["field"].unique()
+    field_of = test["field"].to_numpy()
+
+    def interval(labels, p, score):
+        """A field-bootstrap 95 % interval.
+
+        :param labels: the held-out labels.
+        :param p: the predictions.
+        :param score: the metric.
+        :returns: ``(low, high)``.
+        """
+        values = []
+        for _ in range(int(boot)):
+            picked = rng.choice(test_fields, len(test_fields))
+            index = np.concatenate([np.flatnonzero(field_of == x) for x in picked])
+            if labels[index].min() == labels[index].max():
+                continue
+            values.append(score(labels[index], p[index]))
+        return float(np.percentile(values, 2.5)), float(np.percentile(values, 97.5))
+
+    rows, fitted = [], {}
+    for name, columns in (("main_fp_vs_tp", main), ("control_sequence_only", sequence)):
+        classifier = make()
+        classifier.fit(train[columns].astype(float), y_train)
+        p = classifier.predict_proba(test[columns].astype(float))[:, 1]
+        rows.append({"model": name, "n_train": int(len(train)), "n_test": int(len(test)),
+                     "fp_test": int(y_test.sum()),
+                     "auc": round(roc_auc_score(y_test, p), 4),
+                     "auc_ci95": interval(y_test, p, roc_auc_score),
+                     "average_precision": round(average_precision_score(y_test, p), 4),
+                     "ap_ci95": interval(y_test, p, average_precision_score),
+                     "fp_prevalence_test": round(float(y_test.mean()), 4)})
+        fitted[name] = classifier
+    rows.append({"model": "chance", "n_train": int(len(train)), "n_test": int(len(test)),
+                 "fp_test": int(y_test.sum()), "auc": 0.5, "auc_ci95": (0.5, 0.5),
+                 "average_precision": round(float(y_test.mean()), 4),
+                 "ap_ci95": (round(float(y_test.mean()), 4),) * 2,
+                 "fp_prevalence_test": round(float(y_test.mean()), 4)})
+    best = fitted["main_fp_vs_tp"]
+    held_out = test[main].astype(float)
+    sample = held_out.sample(min(int(shap_sample), len(held_out)), random_state=seed) \
+        if shap_sample else held_out
+    values, base_value = _tree_shap(best, sample)
+    shap_mean = pd.Series(np.abs(values).mean(0), index=main).sort_values(ascending=False)
+    permutation = permutation_importance(
+        best, held_out, y_test,
+        scoring=lambda est, x, y: average_precision_score(y, est.predict_proba(x)[:, 1]),
+        n_repeats=int(permutation_repeats), random_state=seed, n_jobs=1)
+    importance = pd.DataFrame({"feature": main,
+                               "permutation_ap_drop_mean": permutation.importances_mean,
+                               "permutation_ap_drop_sd": permutation.importances_std})
+    return {"metrics": pd.DataFrame(rows),
+            "shap_mean_abs": shap_mean.rename("mean_abs_shap").rename_axis("feature").reset_index(),
+            "shap_base_value": base_value,
+            "permutation_importance": importance.sort_values(
+                "permutation_ap_drop_mean", ascending=False).reset_index(drop=True),
+            "model": best, "features": main, "sequence_features": sequence}
+
+
+def _write(frame, path: str) -> str:
+    """Write a table by its suffix, column names as they are.
+
+    :param frame: the table.
+    :param path: the destination.
+    :returns: the path written.
+    """
+    from .tabular import write_table
+
+    return write_table(frame, path, canonicalise=False)
+
+
+def write_well_calls(db: str, well: str, decoded: Sequence[Mapping[str, Any]]) -> str:
+    """Write every call of a well with its evidence, decoys included.
+
+    :param db: the measurements database.
+    :param well: the well.
+    :param decoded: the decoded fields, each with ``site`` and ``rule_a``
+        carrying ``evidence``.
+    :returns: the path of ``results/ops_decode/calls_<well>.parquet``.
+    """
+    import pandas as pd
+
+    rows = [{"well": well, "site": int(r["site"]), **row}
+            for r in sorted(decoded, key=lambda r: r["site"])
+            for row in r["rule_a"].get("evidence", ())]
+    frame = pd.DataFrame(rows, columns=["well", "site"] + list(EVIDENCE_COLUMNS))
+    path = os.path.join(results_folder(db), f"calls_{well}.parquet")
+    _write(frame, path)
+    return path
+
+
+def _qc_number(settings: Mapping[str, Any], key: str, default, cast=float):
+    """One decode-QC setting, its default when empty.
+
+    :param settings: the settings.
+    :param key: the key.
+    :param default: the default.
+    :param cast: ``float`` or ``int``.
+    :returns: the value, or None when the default is None and it is empty.
+    :raises ValueError: when it is not a number.
+    """
+    value = settings.get(key)
+    if value is None or value == "":
+        return default
+    try:
+        return cast(float(value)) if cast is int else cast(value)
+    except (TypeError, ValueError):
+        raise ValueError(f"{key} must be a number; got {value!r}") from None
+
+
+def confidence_outputs(result: Mapping[str, Any], folder: str) -> Dict[str, Any]:
+    """Write the genotype-confidence report (item 877).
+
+    :param result: from :func:`genotype_confidence`.
+    :param folder: ``results/ops_decode_qc``.
+    :returns: ``confidence_metrics.json``'s content, with the paths.
+    """
+    reliability = result["reliability"]
+    chosen = result["metrics"]["chosen"]
+    mine = reliability[reliability["model"] == chosen]
+    table = mine.rename(columns={"predicted_error": "predicted",
+                                 "observed_error": "observed",
+                                 "real_calls": "n"})[
+        ["bin", "predicted", "observed", "n", "decoy_calls", "observed_lo",
+         "observed_hi"]]
+    reliability_path = os.path.join(folder, "confidence_reliability.csv")
+    _write(table, reliability_path)
+    _write(reliability, os.path.join(folder, "confidence_reliability_all_models.csv"))
+    ece = float((mine["real_calls"] / max(int(mine["real_calls"].sum()), 1)
+                 * (mine["predicted_error"] - mine["observed_error"]).abs()).sum())
+    metrics = {"model": chosen, "auc": result["metrics"][chosen]["AUC_decoy"],
+               "ece": ece,
+               "shuffled_auc": result["metrics"]["control: shuffled decoy labels"]["AUC_decoy"],
+               "models": result["metrics"]}
+    metrics_path = os.path.join(folder, "confidence_metrics.json")
+    with open(metrics_path, "w", encoding="utf-8") as handle:
+        json.dump(metrics, handle, indent=1, default=str)
+    _write(result["strata"], os.path.join(folder, "confidence_strata.csv"))
+    calls_path = os.path.join(folder, "confidence_calls.parquet")
+    _write(result["table"], calls_path)
+    metrics["paths"] = {"reliability": reliability_path, "metrics": metrics_path,
+                        "calls": calls_path}
+    return metrics
+
+
+def _with_confidence(db: str, plate: str, table, minimum) -> Dict[str, Any]:
+    """Add ``genotype_confidence`` to ``ops_barcodes``, dropping calls below
+    ``minimum``.
+
+    :param db: the measurements database.
+    :param plate: the plate.
+    :param table: the confidence table: ``well``, ``object_id``,
+        ``is_decoy``, ``genotype_confidence``.
+    :param minimum: the lowest confidence kept, or None.
+    :returns: rows updated and rows dropped.
+    """
+    from .ops_store import read_table, row_count, write_table
+
+    if row_count(db, "ops_barcodes") is None:
+        return {"updated": 0, "dropped": 0}
+    barcodes = read_table(db, "ops_barcodes")
+    real = table[~table["is_decoy"].astype(bool)][
+        ["well", "object_id", "genotype_confidence"]].copy()
+    real["plate"] = plate
+    barcodes = barcodes.drop(columns=[c for c in ("genotype_confidence",)
+                                      if c in barcodes.columns])
+    merged = barcodes.merge(real, on=["plate", "well", "object_id"], how="left")
+    dropped = 0
+    if minimum is not None:
+        low = (merged["plate"].astype(str) == str(plate)) & (
+            merged["genotype_confidence"] < float(minimum))
+        dropped = int(low.sum())
+        merged = merged[~low].reset_index(drop=True)
+    write_table(db, "ops_barcodes", merged, if_exists="replace")
+    return {"updated": int(merged["genotype_confidence"].notna().sum()),
+            "dropped": dropped}
+
+
+def false_call_outputs(result: Mapping[str, Any], cells, folder: str) -> Dict[str, Any]:
+    """Write the false-call model's report (item 876).
+
+    :param result: from :func:`false_call_model`.
+    :param cells: the cell table it was trained on.
+    :param folder: ``results/ops_decode_qc``.
+    :returns: the paths and the metric rows.
+    """
+    paths = {name: os.path.join(folder, name) for name in (
+        "model_metrics.csv", "shap_mean_abs.csv", "permutation_importance.csv",
+        "model.json", "false_call_cells.parquet")}
+    _write(result["metrics"], paths["model_metrics.csv"])
+    _write(result["shap_mean_abs"], paths["shap_mean_abs.csv"])
+    _write(result["permutation_importance"], paths["permutation_importance.csv"])
+    model = result["model"]
+    if hasattr(model, "get_booster"):
+        model.get_booster().save_model(paths["model.json"])
+    else:
+        with open(paths["model.json"], "w", encoding="utf-8") as handle:
+            json.dump({"model": type(model).__name__,
+                       "params": {k: str(v) for k, v in model.get_params().items()},
+                       "features": list(result["features"])}, handle, indent=1)
+    _write(cells, paths["false_call_cells.parquet"])
+    return {"paths": paths, "metrics": result["metrics"].to_dict("records")}
+
+
+def _cached_fields(destination: str, plate: str, wells: Sequence[str]):
+    """The stored field evidence of the wells, in well and site order.
+
+    :param destination: ``dst_root``.
+    :param plate: the plate.
+    :param wells: the wells.
+    :returns: ``{"plate", "well", "site", "z"}`` per field; ``z`` opens lazily.
+    """
+    fields = []
+    for well in sorted(wells):
+        folder = os.path.join(destination, well, "decode_cache")
+        if not os.path.isdir(folder):
+            continue
+        for name in sorted(os.listdir(folder)):
+            if name.startswith("site") and name.endswith(".npz"):
+                fields.append({"plate": plate, "well": well, "site": int(name[4:8]),
+                               "z": np.load(os.path.join(folder, name))})
+    return fields
+
+
+def run_decode_qc(db: str, plate: str, wells: Sequence[str],
+                  settings: Mapping[str, Any], library: Sequence[str]
+                  ) -> Dict[str, Any]:
+    """The decode QC phase: the false-call model and the genotype confidence.
+
+    :param db: the measurements database.
+    :param plate: the plate.
+    :param wells: the wells decoded.
+    :param settings: the run's settings; ``ops_decode_qc`` and
+        ``ops_genotype_confidence`` choose what runs.
+    :param library: the guide barcodes.
+    :returns: one report per part run, under ``false_call_model`` and
+        ``genotype_confidence``.
+    :raises ValueError: when a part's input is missing.
+    """
+    import pandas as pd
+
+    from .ops_sbs import decoy_library
+    from .tabular import read_table
+
+    settings = resolve_settings(settings)
+    rule = decode_rule(settings)
+    folder = results_folder(db, "ops_decode_qc")
+    report: Dict[str, Any] = {}
+    if _flag_or(settings, "ops_genotype_confidence"):
+        names = [os.path.join(results_folder(db), f"calls_{w}.parquet")
+                 for w in sorted(wells)]
+        present = [n for n in names if os.path.isfile(n)]
+        if not present:
+            raise ValueError("ops_genotype_confidence needs the per-call evidence "
+                             "the decode writes under results/ops_decode; decode "
+                             "with ops_decode_preset rule_a_s2 first")
+        calls = pd.concat([read_table(n, canonicalise=False, report=None) for n in present], ignore_index=True)
+        result = genotype_confidence(
+            calls, model=str(settings.get("ops_confidence_model") or "hist_gbm"),
+            calibration=str(settings.get("ops_confidence_calibration") or "target_decoy"),
+            bins=_qc_number(settings, "ops_confidence_bins", 10, int),
+            seed=_qc_number(settings, "ops_confidence_seed", CONFIDENCE_SEED, int),
+            fdr_scale=rule["fdr_scale"], decoy_k=max(rule["decoy_k"], 1))
+        metrics = confidence_outputs(result, folder)
+        metrics["ops_barcodes"] = _with_confidence(
+            db, plate, result["table"],
+            _qc_number(settings, "ops_confidence_min", None))
+        report["genotype_confidence"] = metrics
+    if _flag_or(settings, "ops_decode_qc"):
+        split = str(settings.get("ops_decode_qc_split") or "field").strip().lower()
+        if split != "field":
+            raise ValueError(f"ops_decode_qc_split must be 'field'; got {split!r}")
+        destination = os.path.dirname(os.path.abspath(db))
+        fields = _cached_fields(destination, plate, wells)
+        if not fields:
+            raise ValueError("ops_decode_qc needs the field evidence the decode "
+                             "stores with ops_decode_qc on; decode again with it")
+        decoys = decoy_library(library, k=max(rule["decoy_k"], 1))
+        _, cells = false_call_tables(fields, library, decoys)
+        chosen = settings.get("ops_decode_qc_features")
+        features = ([f.strip() for f in str(chosen).split(",") if f.strip()]
+                    if chosen else None)
+        result = false_call_model(
+            cells, model=str(settings.get("ops_decode_qc_model") or "xgboost"),
+            seed=_qc_number(settings, "ops_decode_qc_seed", 0, int),
+            shap_sample=_qc_number(settings, "ops_decode_qc_max_calls", 20000, int),
+            features=features)
+        report["false_call_model"] = false_call_outputs(result, cells, folder)
+    return report
+
+
+def _flag_or(settings: Mapping[str, Any], key: str) -> bool:
+    """A boolean QC setting, False when empty.
+
+    :param settings: the settings.
+    :param key: the key.
+    :returns: the value.
+    """
+    value = settings.get(key)
+    if isinstance(value, str):
+        return value.strip().lower() not in ("", "false", "0", "no", "off")
+    return bool(value)

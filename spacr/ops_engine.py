@@ -286,7 +286,7 @@ _PH_PHASES = ("ph_flatfield", "ph_segment", "ph_measure", "ph_masks",
               "merge", "aggregate")
 
 #: Every phase :func:`run_ops` accepts, in the order they run.
-_ALL_PHASES = _PHASES + _PH_PHASES
+_ALL_PHASES = _PHASES + _PH_PHASES + ("decode_qc",)
 
 #: The columns of ``ops_phenotype`` that hold each field's similarity
 #: transform into the well frame: ``well = scale * R(rotation_deg) @
@@ -1644,7 +1644,7 @@ def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
         threshold=rule["threshold"], footprint=rule["footprint"],
         max_distance=rule["max_distance"], min_fraction=rule["min_fraction"],
         single_read_quality=rule["single_read_quality"],
-        crosstalk=str(task.get("crosstalk") or "none"))
+        crosstalk=str(task.get("crosstalk") or "none"), evidence_rows=True)
     out = {"n_cycles": len(field.kept), "spots": calls["reads"],
            "attributed": calls["reads_near"] - calls["reads_ambiguous"],
            "ambiguous": calls["reads_ambiguous"], "exact": None,
@@ -1847,13 +1847,14 @@ def _decode_rule_a_report(db, plate, well, settings, rule_a, tasks, results,
     """
     import pandas as pd
 
-    from .ops_decode import barcode_rows, write_well_reports
+    from .ops_decode import barcode_rows, write_well_calls, write_well_reports
 
     columns = ["plate", "well", "object_id", "barcode", "quality", "n_reads",
                "n_agreeing", "fraction", "n_cycles", "mapped_guide"]
     frame = pd.DataFrame(barcode_rows(plate, well, decoded), columns=columns)
     _replace_well_rows(db, "ops_barcodes", frame, plate, well)
     fdr = write_well_reports(db, plate, well, decoded, rule_a, skipped_sites)
+    calls_path = write_well_calls(db, well, decoded)
     spots = sum(r["spots"] for r in decoded)
     inside = sum(r["attributed"] + r["ambiguous"] for r in decoded)
     containment = inside / spots if spots else 0.0
@@ -1887,7 +1888,7 @@ def _decode_rule_a_report(db, plate, well, settings, rule_a, tasks, results,
         "read_threshold": rule_a["threshold"], "footprint": rule_a["footprint"],
         "spot_detector": detector, "store_reads": bool(store_reads),
         "base_channels": list(channels), "workers": workers,
-        "fdr": fdr,
+        "fdr": fdr, "calls": calls_path,
         "field_cache": sorted(r["cache"] for r in decoded if r.get("cache")),
         "field_seconds": dict(sum((Counter(r["seconds"]) for r in results
                                    if "seconds" in r), Counter())),
@@ -2006,7 +2007,7 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
             "single_read_quality": float(_setting_number(
                 settings.get("ops_single_read_quality"),
                 "ops_single_read_quality", _SINGLE_READ_QUALITY)),
-            "features": bool(settings.get("ops_decode_qc_features_cache")),
+            "features": rule_a["features"],
         })
         if rule_a["decoy_k"] > 0:
             decoys = decoy_library(library, k=rule_a["decoy_k"])
@@ -4025,7 +4026,11 @@ def run_ops(settings: Mapping[str, Any], *,
         and ``plate`` but no ``genotype_source``, takes its wells from
         ``ops_phenotype``, and adds to each well's ``ops_report.json``
         rather than replacing it. ``aggregate`` pools the wells run and
-        writes ``ops_guides_<plate>`` and ``ops_genes_<plate>``.
+        writes ``ops_guides_<plate>`` and ``ops_genes_<plate>``. The alpha
+        ``decode_qc`` phase (items 876 and 877) fits the false-call model
+        and the genotype confidence over the wells decoded, writing
+        ``results/ops_decode_qc``; it also runs after ``decode`` when
+        ``ops_decode_qc`` or ``ops_genotype_confidence`` is on.
     :param library: the guide barcodes, as a sequence or the path of a CSV
         with a ``prefix``, ``barcode`` or ``sequence`` column. When given,
         each barcode is also mapped to its closest guide. Overrides the
@@ -4075,6 +4080,8 @@ def run_ops(settings: Mapping[str, Any], *,
         missing = [well for well in chosen if well not in index]
         if missing:
             raise ValueError(f"no tiles for wells {missing}; found {sorted(index)}")
+    elif set(phases) <= {"decode_qc"}:
+        chosen = _decoded_wells(db, plate, wells)
     else:
         placed = _rows_for_wells(db, "ops_phenotype", plate,
                                  [str(w).upper() for w in wells] if wells
@@ -4114,7 +4121,7 @@ def run_ops(settings: Mapping[str, Any], *,
         with open(os.path.join(destination, f"ops_flatfield_{plate}.json"),
                   "w", encoding="utf-8") as handle:
             json.dump(out["ph_flatfield"], handle, indent=1, default=str)
-    for well in chosen:
+    for well in ([] if set(phases) <= {"decode_qc"} else chosen):
         folder = os.path.join(destination, well)
         report_path = os.path.join(folder, "ops_report.json")
         report: Dict[str, Any] = {}
@@ -4181,6 +4188,14 @@ def run_ops(settings: Mapping[str, Any], *,
         with open(report_path, "w", encoding="utf-8") as handle:
             json.dump(report, handle, indent=1, default=str)
         out["wells"][well] = report
+    if _wants_decode_qc(settings, phases):
+        from .ops_decode import results_folder, run_decode_qc
+
+        out["decode_qc"] = run_decode_qc(db, plate, chosen, settings, barcodes)
+        with open(os.path.join(results_folder(db, "ops_decode_qc"),
+                               f"decode_qc_{plate}.json"),
+                  "w", encoding="utf-8") as handle:
+            json.dump(out["decode_qc"], handle, indent=1, default=str)
     if "aggregate" in phases:
         out["aggregate"] = _ph_aggregate(db, plate, chosen, settings,
                                          destination)
@@ -4189,6 +4204,43 @@ def run_ops(settings: Mapping[str, Any], *,
                   "w", encoding="utf-8") as handle:
             json.dump(out["aggregate"], handle, indent=1, default=str)
     return out
+
+
+def _wants_decode_qc(settings: Mapping[str, Any], phases: Sequence[str]) -> bool:
+    """Whether the decode QC phase runs (items 876 and 877).
+
+    :param settings: the run's settings.
+    :param phases: the phases asked for.
+    :returns: True when ``decode_qc`` is named, or the decode runs with
+        ``ops_decode_qc`` or ``ops_genotype_confidence`` on.
+    """
+    from .ops_decode import _flag_or
+
+    if "decode_qc" in phases:
+        return True
+    return "decode" in phases and (_flag_or(settings, "ops_decode_qc")
+                                   or _flag_or(settings, "ops_genotype_confidence"))
+
+
+def _decoded_wells(db: str, plate: str, wells) -> List[str]:
+    """The wells of ``plate`` that ``ops_barcodes`` has rows for.
+
+    :param db: the measurements database.
+    :param plate: the plate.
+    :param wells: the wells asked for, or None for every decoded well.
+    :returns: the wells, sorted.
+    :raises ValueError: when nothing was decoded.
+    """
+    from .ops_store import read_table, row_count
+
+    if wells:
+        return sorted(str(w).upper() for w in wells)
+    if row_count(db, "ops_barcodes") is None:
+        raise ValueError(f"no ops_barcodes in {db}; run the decode phase "
+                         "before decode_qc")
+    rows = read_table(db, "ops_barcodes")
+    return sorted(set(rows.loc[rows["plate"].astype(str) == str(plate),
+                               "well"].astype(str)))
 
 
 def _placed_wells(db: str, plate: str) -> List[str]:
