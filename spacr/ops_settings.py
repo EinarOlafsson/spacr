@@ -219,6 +219,15 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_profile_min_cells": 10,
     "ops_profile_active_filter": None,
     "ops_reference_dir": None,
+    "ops_scoring_inputs": None,
+    "ops_scoring_genes": None,
+    "ops_scoring_null_size": 10000,
+    "ops_scoring_min_complex": 3,
+    "ops_scoring_references": ["CORUM@REPORT", "STRING>=0.7@REPORT"],
+    "ops_scoring_cluster_jitter": 1e-3,
+    "ops_scoring_cluster_seeds": [0, 1, 2],
+    "ops_scoring_workers": 4,
+    "ops_scoring_figures": True,
     "ops_eval_references": ["CORUM", "STRING>=0.7", "STRING>=0.4", "KEGG", "BioGRID"],
     "ops_eval_split": "all",
     "ops_eval_null_size": 5000,
@@ -429,6 +438,15 @@ OPS_TYPES: Dict[str, object] = {
     "ops_profile_min_cells": int,
     "ops_profile_active_filter": (dict, type(None)),
     "ops_reference_dir": (str, list, type(None)),
+    "ops_scoring_inputs": (dict, type(None)),
+    "ops_scoring_genes": (str, list, type(None)),
+    "ops_scoring_null_size": int,
+    "ops_scoring_min_complex": int,
+    "ops_scoring_references": list,
+    "ops_scoring_cluster_jitter": float,
+    "ops_scoring_cluster_seeds": list,
+    "ops_scoring_workers": int,
+    "ops_scoring_figures": bool,
     "ops_eval_references": (list, str),
     "ops_eval_split": str,
     "ops_eval_null_size": int,
@@ -578,6 +596,10 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_profile_run", "ops_profile_recipe",
         "ops_profile_min_cells", "ops_profile_active_filter",
         "ops_reference_dir",
+        "ops_scoring_inputs", "ops_scoring_genes", "ops_scoring_null_size",
+        "ops_scoring_min_complex", "ops_scoring_references",
+        "ops_scoring_cluster_jitter", "ops_scoring_cluster_seeds",
+        "ops_scoring_workers", "ops_scoring_figures",
         "ops_eval_references", "ops_eval_split", "ops_eval_null_size",
         "ops_eval_heldout_folds", "ops_eval_decoys",
         "ops_eval_time_split", "ops_eval_covariates",
@@ -818,6 +840,45 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(phase ph_masks), in about a minute per plate. 'exact' divides "
         "every pixel before measuring, so it needs the raw images again. "
         "Default 'none'. Alpha.",
+    "ops_scoring_inputs":
+        "(dict or None) - The analyses phase score compares, as {name: "
+        "{'genes': gene profile table, 'guides': guide profile table, "
+        "'clusters': gene-to-cluster table}}; give what each analysis has. "
+        "Activity needs guides; consistency and EFAAR need a profile per "
+        "gene or clusters. What cannot be scored is listed in scorable.csv. "
+        "Default None. Alpha.",
+    "ops_scoring_genes":
+        "(str, list or None) - The genes every analysis is scored on, as a "
+        "table with a gene column or a list. Empty takes the genes all "
+        "inputs share. Default None. Alpha.",
+    "ops_scoring_null_size":
+        "(int) - Permutations of the copairs null. Smaller is faster but "
+        "cannot reach small p-values (the smallest is 1/(n+1)). Default "
+        "10000. Alpha.",
+    "ops_scoring_min_complex":
+        "(int) - REPORT-half CORUM complexes with fewer shared genes are not "
+        "scored. Higher keeps only large complexes, which are easier to "
+        "retrieve but fewer. Default 3. Alpha.",
+    "ops_scoring_references":
+        "(list) - Partner references of the per-gene retrieval mAP; each "
+        "adds its own rows to every table. Use the REPORT halves so no "
+        "tuning was done on the scored pairs. Default "
+        "['CORUM@REPORT', 'STRING>=0.7@REPORT']. Alpha.",
+    "ops_scoring_cluster_jitter":
+        "(float) - Noise added to one-hot cluster rows for copairs so ties "
+        "are broken at random; scores are averaged over the cluster seeds. "
+        "EFAAR uses exact one-hot rows. Default 0.001. Alpha.",
+    "ops_scoring_cluster_seeds":
+        "(list) - Seeds of the cluster-row noise; the cluster scores are "
+        "averaged over them, so more seeds give steadier cluster mAP at more "
+        "run time. Default [0, 1, 2]. Alpha.",
+    "ops_scoring_workers":
+        "(int) - copairs worker threads. More is faster and uses more "
+        "memory; the scores do not change. Default 4. Alpha.",
+    "ops_scoring_figures":
+        "(bool) - Draw the profile and cluster figures (bars with jittered "
+        "points and Holm-corrected tests). False writes the tables only. "
+        "Default True. Alpha.",
     "ops_flatfield_nuclear_channel":
         "(str or None) - The DNA channel the nuclear-median flat-field map "
         "corrects, as named in ops_ph_channels. Phases flat_nuclear and "

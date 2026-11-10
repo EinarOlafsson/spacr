@@ -504,6 +504,7 @@ setup(
         'papers': ['ultralytics>=8.4,<9', 'rapidocr-onnxruntime>=1.3,<2',
                    'pdfplumber>=0.11,<1'],
         'umap': ['umap-learn>=0.5.11,<1.0'],
+        'scoring': ['copairs==0.6.0', 'efaar_benchmarking==1.0'],
         # PHATE + Leiden gene clusters of the OPS cluster benchmark (item 855).
         'clustering': ['phate>=1.0.11,<3', 'leidenalg>=0.10,<1', 'igraph>=0.11,<2'],
         'harmony': ['harmonypy>=0.0.10,<3'],

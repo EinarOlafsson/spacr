@@ -655,6 +655,11 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_flatfield_holdout_masks", "ops_flatfield_compare_maps",
     "ops_flatfield_radial_edges", "ops_flatfield_bootstrap",
     "ops_flatfield_bootstrap_seed", "ops_flatfield_min_bin_cells",
+    # Item 913: shared copairs / EFAAR scoring (2026-11-10).
+    "ops_scoring_inputs", "ops_scoring_genes", "ops_scoring_null_size",
+    "ops_scoring_min_complex", "ops_scoring_references",
+    "ops_scoring_cluster_jitter", "ops_scoring_cluster_seeds",
+    "ops_scoring_workers", "ops_scoring_figures",
     # `window_length`, the new name for `expected_end` (364, 2026-09-09).
     "window_length",
     # and `min_observations_per_hit`, the new name for `min_n`.

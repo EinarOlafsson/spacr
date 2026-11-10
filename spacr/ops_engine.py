@@ -295,9 +295,13 @@ _PROFILE_PHASES = ("profile", "evaluate")
 #: beyond the held-out fields' raw images.
 _FLAT_PHASES = ("flat_nuclear", "flat_validate")
 
+#: The shared scoring of gene profiles and clusterings (alpha, item 913):
+#: copairs activity and consistency and EFAAR recall, with controls.
+_SCORING_PHASES = ("score",)
+
 #: Every phase :func:`run_ops` accepts, in the order they run.
 _ALL_PHASES = (_PHASES + _PH_PHASES + ("decode_qc", "compare_calls")
-               + _PROFILE_PHASES + _FLAT_PHASES)
+               + _PROFILE_PHASES + _FLAT_PHASES + _SCORING_PHASES)
 
 #: The columns of ``ops_phenotype`` that hold each field's similarity
 #: transform into the well frame: ``well = scale * R(rotation_deg) @
@@ -6729,6 +6733,9 @@ def run_ops(settings: Mapping[str, Any], *,
         ``"flat_nuclear"`` and ``"flat_validate"`` phases (item 912) run
         alone: they build each plate's nuclear-median DNA flat-field map and
         check it on held-out fields (:func:`spacr.ops_flatfield.run_flat_phases`).
+        The alpha ``"score"`` phase (item 913) runs alone: it scores gene
+        profiles and clusterings with copairs and EFAAR
+        (:func:`spacr.ops_scoring.score_ops_profiles`).
     :param library: the guide barcodes, as a sequence or the path of a CSV
         with a ``prefix``, ``barcode`` or ``sequence`` column. When given,
         each barcode is also mapped to its closest guide. Overrides the
@@ -6756,6 +6763,12 @@ def run_ops(settings: Mapping[str, Any], *,
         from .ops_flatfield import run_flat_phases
 
         return run_flat_phases(settings, phases, report=_say)
+    if "score" in phases:
+        if list(phases) != ["score"]:
+            raise ValueError("the score phase runs on its own")
+        from .ops_scoring import score_ops_profiles
+
+        return score_ops_profiles(settings, report=_say)
     sequencing = any(phase in _PHASES for phase in phases)
     root = settings.get("genotype_source")
     if sequencing and (not isinstance(root, (str, os.PathLike))

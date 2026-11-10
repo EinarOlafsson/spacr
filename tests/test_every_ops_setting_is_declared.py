@@ -170,14 +170,15 @@ def test_the_engine_reads_every_setting_the_panel_offers(declared):
     import inspect
 
     keys, _ops, _cat = declared
-    from spacr import ops_decode, ops_engine, ops_flatfield, ops_reference, ops_tvn
+    from spacr import ops_decode, ops_engine, ops_flatfield, ops_reference, ops_scoring, ops_tvn
 
     # 879: run_ops hands the profile phases to ops_tvn.run_profile_phases,
     # which reads the ops_profile_* settings and passes the ops_eval_* ones
     # to ops_reference; reading them there is reading them in the engine.
-    # 912: run_ops hands the flat_nuclear / flat_validate phases to
-    # ops_flatfield.run_flat_phases, which reads their settings there.
+    # 912 and 913: run_ops hands the flat_nuclear / flat_validate phases to
+    # ops_flatfield.run_flat_phases and the score phase to
+    # ops_scoring.score_ops_profiles, which read their settings there.
     source = "".join(inspect.getsource(m)
-                     for m in (ops_engine, ops_decode, ops_tvn, ops_reference, ops_flatfield))
+                     for m in (ops_engine, ops_decode, ops_tvn, ops_reference, ops_flatfield, ops_scoring))
     unread = sorted(key for key in keys if f'"{key}"' not in source)
     assert not unread, f"in the OPS panel and never read by the engine: {unread}"

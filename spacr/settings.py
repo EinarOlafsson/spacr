@@ -8917,6 +8917,17 @@ ALPHA_FEATURES = {
     907: {
         'settings': ('ops_profile_weighting',),
     },
+    913: {
+        'settings': ('ops_scoring_inputs',
+                     'ops_scoring_genes',
+                     'ops_scoring_null_size',
+                     'ops_scoring_min_complex',
+                     'ops_scoring_references',
+                     'ops_scoring_cluster_jitter',
+                     'ops_scoring_cluster_seeds',
+                     'ops_scoring_workers',
+                     'ops_scoring_figures'),
+    },
     912: {
         'settings': ('ops_flatfield_nuclear_channel',
                      'ops_flatfield_nuclei',
