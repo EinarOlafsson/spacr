@@ -643,6 +643,18 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_profile_similarity", "ops_guide_null_size",
     "ops_profile_responder_alpha", "ops_profile_space",
     "ops_fusion_blocks",
+    # Item 912: the nuclear-median DNA flat-field map (2026-11-10).
+    "ops_flatfield_nuclear_channel", "ops_flatfield_nuclei",
+    "ops_flatfield_dark", "ops_flatfield_nuclear_maps",
+    "ops_flatfield_block_px", "ops_flatfield_fit", "ops_flatfield_sigma_px",
+    "ops_flatfield_ridge", "ops_flatfield_floor", "ops_flatfield_centre_cells",
+    "ops_flatfield_lookup", "ops_flatfield_map_grid",
+    "ops_flatfield_centre_offset", "ops_flatfield_field_px",
+    "ops_flatfield_holdout_fields", "ops_flatfield_holdout_n",
+    "ops_flatfield_seed", "ops_flatfield_holdout_images",
+    "ops_flatfield_holdout_masks", "ops_flatfield_compare_maps",
+    "ops_flatfield_radial_edges", "ops_flatfield_bootstrap",
+    "ops_flatfield_bootstrap_seed", "ops_flatfield_min_bin_cells",
     # `window_length`, the new name for `expected_end` (364, 2026-09-09).
     "window_length",
     # and `min_observations_per_hit`, the new name for `min_n`.

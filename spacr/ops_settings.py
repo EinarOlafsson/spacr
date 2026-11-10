@@ -73,6 +73,30 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_flatfield_maps": None,
     "ops_flatfield_fields": 204,
     "ops_flatfield_field_list": None,
+    "ops_flatfield_nuclear_channel": None,
+    "ops_flatfield_nuclei": None,
+    "ops_flatfield_dark": None,
+    "ops_flatfield_nuclear_maps": None,
+    "ops_flatfield_block_px": 16,
+    "ops_flatfield_fit": "local_quadratic_log",
+    "ops_flatfield_sigma_px": 32.0,
+    "ops_flatfield_ridge": None,
+    "ops_flatfield_floor": 0.10,
+    "ops_flatfield_centre_cells": 18,
+    "ops_flatfield_lookup": "block_centre",
+    "ops_flatfield_map_grid": "block_centre",
+    "ops_flatfield_centre_offset": 8.0,
+    "ops_flatfield_field_px": None,
+    "ops_flatfield_holdout_fields": None,
+    "ops_flatfield_holdout_n": 24,
+    "ops_flatfield_seed": 0,
+    "ops_flatfield_holdout_images": None,
+    "ops_flatfield_holdout_masks": None,
+    "ops_flatfield_compare_maps": None,
+    "ops_flatfield_radial_edges": [0, 500, 1000, 1400, 1600, 1800, 1900, 2000, 2100],
+    "ops_flatfield_bootstrap": 2000,
+    "ops_flatfield_bootstrap_seed": 20261109,
+    "ops_flatfield_min_bin_cells": 100,
     "ops_ph_funk_features": False,
     "ops_ph_zernike": False,
     "ops_drop_failed_fields": False,
@@ -259,6 +283,30 @@ OPS_TYPES: Dict[str, object] = {
     "ops_flatfield_maps": (str, type(None)),
     "ops_flatfield_fields": int,
     "ops_flatfield_field_list": (str, type(None)),
+    "ops_flatfield_nuclear_channel": (str, type(None)),
+    "ops_flatfield_nuclei": (str, dict, type(None)),
+    "ops_flatfield_dark": (int, float, dict, type(None)),
+    "ops_flatfield_nuclear_maps": (str, type(None)),
+    "ops_flatfield_block_px": int,
+    "ops_flatfield_fit": str,
+    "ops_flatfield_sigma_px": float,
+    "ops_flatfield_ridge": (float, type(None)),
+    "ops_flatfield_floor": float,
+    "ops_flatfield_centre_cells": int,
+    "ops_flatfield_lookup": str,
+    "ops_flatfield_map_grid": str,
+    "ops_flatfield_centre_offset": float,
+    "ops_flatfield_field_px": (int, type(None)),
+    "ops_flatfield_holdout_fields": (str, list, dict, type(None)),
+    "ops_flatfield_holdout_n": int,
+    "ops_flatfield_seed": int,
+    "ops_flatfield_holdout_images": (str, dict, type(None)),
+    "ops_flatfield_holdout_masks": (str, dict, type(None)),
+    "ops_flatfield_compare_maps": (dict, type(None)),
+    "ops_flatfield_radial_edges": list,
+    "ops_flatfield_bootstrap": int,
+    "ops_flatfield_bootstrap_seed": int,
+    "ops_flatfield_min_bin_cells": int,
     "ops_ph_funk_features": bool,
     "ops_ph_zernike": bool,
     "ops_drop_failed_fields": bool,
@@ -464,6 +512,17 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ph_sites", "ops_ph_texture", "ops_ph_zernike", "ops_ph_funk_features",
         "ops_flatfield", "ops_flatfield_maps", "ops_flatfield_fields",
         "ops_flatfield_field_list", "ops_merge_threshold", "ops_ownership",
+        "ops_flatfield_nuclear_channel", "ops_flatfield_nuclei",
+        "ops_flatfield_dark", "ops_flatfield_nuclear_maps",
+        "ops_flatfield_block_px", "ops_flatfield_fit", "ops_flatfield_sigma_px",
+        "ops_flatfield_ridge", "ops_flatfield_floor", "ops_flatfield_centre_cells",
+        "ops_flatfield_lookup", "ops_flatfield_map_grid",
+        "ops_flatfield_centre_offset", "ops_flatfield_field_px",
+        "ops_flatfield_holdout_fields", "ops_flatfield_holdout_n",
+        "ops_flatfield_seed", "ops_flatfield_holdout_images",
+        "ops_flatfield_holdout_masks", "ops_flatfield_compare_maps",
+        "ops_flatfield_radial_edges", "ops_flatfield_bootstrap",
+        "ops_flatfield_bootstrap_seed", "ops_flatfield_min_bin_cells",
         "ops_drop_failed_fields", "ops_drop_nonfinite_rows",
         "ops_design", "ops_control_prefix", "ops_bootstrap",
         "ops_pvalue_null", "ops_test_features", "ops_mitotic_dna_z",
@@ -759,6 +818,109 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(phase ph_masks), in about a minute per plate. 'exact' divides "
         "every pixel before measuring, so it needs the raw images again. "
         "Default 'none'. Alpha.",
+    "ops_flatfield_nuclear_channel":
+        "(str or None) - The DNA channel the nuclear-median flat-field map "
+        "corrects, as named in ops_ph_channels. Phases flat_nuclear and "
+        "flat_validate need it. Default None. Alpha.",
+    "ops_flatfield_nuclei":
+        "(str, dict or None) - A per-nucleus table (well, site, label, "
+        "nucleus_cy, nucleus_cx and the nuclear mean of the channel, no flat "
+        "applied), a folder of them, or {plate: path}. Empty joins the run's "
+        "own mask-pass and phenotype cell tables in dst_root. Default None. "
+        "Alpha.",
+    "ops_flatfield_dark":
+        "(number, dict or None) - The camera offset b of the DNA channel, or "
+        "{plate: offset}. It is subtracted before the fit and added back on "
+        "correction. Empty takes the offset recorded in the "
+        "ops_flatfield_maps folder; with neither the build refuses rather "
+        "than use 0. Default None. Alpha.",
+    "ops_flatfield_nuclear_maps":
+        "(str or None) - Where the nuclear maps are written, one new folder "
+        "per plate holding the map, its JSON record and the plate's other "
+        "channel maps copied unchanged. Empty uses "
+        "<dst_root>/flatfield_nuclear. Default None. Alpha.",
+    "ops_flatfield_block_px":
+        "(int) - Field pixels per map cell. Each cell takes the median of "
+        "the nuclei whose centroid falls in it. Default 16. Alpha.",
+    "ops_flatfield_fit":
+        "(str) - How the cell medians become a smooth map. "
+        "'local_quadratic_log' fits a weighted quadratic to the log of "
+        "(median - offset) around every cell, which follows a steep corner "
+        "fall. 'gaussian' and 'local_linear' smooth more and leave the "
+        "corners too dim; they are kept for comparison. Default "
+        "'local_quadratic_log'. Alpha.",
+    "ops_flatfield_sigma_px":
+        "(float) - Width, in field pixels, of the Gaussian weight of the "
+        "local fit. Wider is smoother but cannot follow the corner fall. "
+        "Default 32 (2 map cells). Alpha.",
+    "ops_flatfield_ridge":
+        "(float or None) - Added to each local fit's equations so empty "
+        "corners stay solvable. Empty takes 1e-6 for the quadratic and 1e-9 "
+        "for the plane. Default None. Alpha.",
+    "ops_flatfield_floor":
+        "(float) - The smallest map value, so no pixel is multiplied by more "
+        "than 1/floor. Default 0.10. Alpha.",
+    "ops_flatfield_centre_cells":
+        "(int) - The edge, in map cells, of the central square the map is "
+        "scaled to 1 on. Default 18. Alpha.",
+    "ops_flatfield_lookup":
+        "(str) - How the map is read at field pixels, recorded with it. "
+        "'block_centre' puts each map cell at the centre of the block it "
+        "was measured on. 'zoom_endpoints' stretches the map to the field "
+        "edges, which places corner cells up to 8 px too far out; maps "
+        "built before this option are read that way. Default "
+        "'block_centre'. Alpha.",
+    "ops_flatfield_map_grid":
+        "(str) - Where the fit is evaluated. 'block_centre' at each cell's "
+        "centre. 'lookup' at the positions the zoom lookup reads, which "
+        "rebuilds the reference maps byte for byte. Default "
+        "'block_centre'. Alpha.",
+    "ops_flatfield_centre_offset":
+        "(float) - Field-pixel offset of a block's centre from its first "
+        "pixel: 8 is the convention the reference maps use, 7.5 the middle "
+        "of a 16-pixel block. Default 8. Alpha.",
+    "ops_flatfield_field_px":
+        "(int or None) - Field size in pixels along each axis. Empty takes "
+        "the largest nucleus centroid rounded up to whole blocks. Default "
+        "None. Alpha.",
+    "ops_flatfield_holdout_fields":
+        "(str, list, dict or None) - Fields left out of the map and used to "
+        "check it, as well:site, or {plate: list}. Empty draws "
+        "ops_flatfield_holdout_n fields, the same number per well. Default "
+        "None. Alpha.",
+    "ops_flatfield_holdout_n":
+        "(int) - How many fields to hold out when none are listed, split "
+        "evenly over the wells. More gives tighter radial intervals and "
+        "leaves fewer nuclei to build from. Default 24. Alpha.",
+    "ops_flatfield_seed":
+        "(int) - Seed of the held-out field draw; another seed holds out "
+        "other fields and so builds a slightly different map. Default 0. "
+        "Alpha.",
+    "ops_flatfield_holdout_images":
+        "(str, dict or None) - Folder, or {plate: folder}, of the held-out "
+        "fields' raw images of the DNA channel, one *<well>_<site>.npy each, "
+        "for the exact re-measure of phase flat_validate. Default None. "
+        "Alpha.",
+    "ops_flatfield_holdout_masks":
+        "(str, dict or None) - The run folder holding "
+        "<well>/phenotype_masks/site-<n>.npz of the held-out fields. Empty "
+        "uses dst_root. Default None. Alpha.",
+    "ops_flatfield_compare_maps":
+        "(dict or None) - More maps to check beside the new and the earlier "
+        "one, as {name: path to .npy}, read by zoom. Default None. Alpha.",
+    "ops_flatfield_radial_edges":
+        "(list) - Ring edges, in pixels from the field centre, of the "
+        "held-out radial table. Default [0, 500, 1000, 1400, 1600, 1800, "
+        "1900, 2000, 2100]. Alpha.",
+    "ops_flatfield_bootstrap":
+        "(int) - Bootstraps over held-out fields for the 95 % intervals of "
+        "the radial table. 0 skips them. Default 2000. Alpha.",
+    "ops_flatfield_bootstrap_seed":
+        "(int) - Seed of the field bootstraps of the radial intervals; it "
+        "moves the interval ends, not the medians. Default 20261109. Alpha.",
+    "ops_flatfield_min_bin_cells":
+        "(int) - Rings with fewer held-out nuclei are left out of the "
+        "largest-deviation score. Default 100. Alpha.",
     "ops_flatfield_maps":
         "(str or None) - The folder holding the plate's flat-field maps, "
         "flat_info.json and one flat_*_<channel>.npy per channel. Empty "
