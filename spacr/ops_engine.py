@@ -3286,8 +3286,9 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         ``ops_mitotic_dna_z``, ``ops_genotype_table``, ``ops_pool_wells``,
         ``ops_pool_interphase``, ``ops_feature_qc``, ``ops_ownership``,
         ``ops_flatfield``, ``ops_flatfield_maps``, ``ops_drop_failed_fields``,
-        ``ops_drop_nonfinite_rows``, ``ops_profile_normalisation`` and the
-        ``ops_tvn_*``, ``ops_cluster_*`` and ``ops_mitotic_model`` options.
+        ``ops_drop_nonfinite_rows``, ``ops_profile_normalisation``,
+        ``ops_aggregate_level``, ``ops_nt_rows`` and the ``ops_tvn_*``,
+        ``ops_cluster_*`` and ``ops_mitotic_model`` options.
     :param destination: where ``ops_guides_<plate>`` and
         ``ops_genes_<plate>`` (CSV and Parquet) are written. A run that pools
         only interphase cells or only some wells adds ``_interphase`` or
@@ -3347,17 +3348,33 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     them (:mod:`spacr.ops_clusters`), and ``ops_mitotic_model`` calls
     mitotic cells with a trained classifier (:mod:`spacr.ops_mitotic`)
     instead of the DNA rule.
+
+    ``ops_aggregate_level='cells'`` makes a gene the median of all of its
+    cells, as Brieflow does, instead of the median of its guides.
+    ``ops_nt_rows`` makes the non-targeting guides rows of the gene tables:
+    ``'barcode'`` one row per guide (Brieflow's layout), ``'pseudo'``
+    random pseudo-genes of four guides
+    (:func:`spacr.gene_measurement_compare.nt_row_names`).
     """
     import pandas as pd
     import pyarrow.parquet as pq
 
-    from .gene_measurement_compare import (aggregate_genes, aggregate_guides,
+    from .gene_measurement_compare import (AGGREGATE_LEVELS, NT_ROW_MODES,
+                                           aggregate_genes, aggregate_guides,
                                            bootstrap_gene_pvalues,
-                                           mitotic_calls, robust_z_to_controls)
+                                           mitotic_calls, nt_row_names,
+                                           robust_z_to_controls)
     from .qt.i18n import tr
     from .tabular import write_table
 
     started = time.perf_counter()
+    level = str(settings.get("ops_aggregate_level") or "guides").strip().lower()
+    nt_rows = str(settings.get("ops_nt_rows") or "").strip().lower() or None
+    if level not in AGGREGATE_LEVELS or nt_rows not in (None, *NT_ROW_MODES):
+        raise ValueError(tr(
+            "ops_aggregate_level must be guides or cells and ops_nt_rows "
+            "empty, pseudo or barcode; got {level} and {rows}",
+            level=level, rows=nt_rows))
     design_path = settings.get("ops_design")
     if not design_path or not os.path.isfile(str(design_path)):
         raise ValueError(tr(
@@ -3532,6 +3549,11 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         cells = cells[~broken].reset_index(drop=True)
     rows = cells["_row"].to_numpy()
     control = cells["gene"].str.lower().str.startswith(control_prefix.lower())
+    if nt_rows:
+        cells["gene"] = nt_row_names(
+            cells["sgRNA"], cells["gene"], rows=nt_rows,
+            control_prefix=control_prefix,
+            pseudo_prefix=f"{control_prefix}_pseudo_")
     mitotic_z = float(_setting_number(settings.get("ops_mitotic_dna_z"),
                                       "ops_mitotic_dna_z", 3.0))
     if gain_columns and dna_column:
@@ -3630,12 +3652,13 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         scored = pd.concat([meta, normalised], axis=1)[keep]
         guides = aggregate_guides(scored, block, guide="sgRNA", gene="gene",
                                   mitotic=None if interphase else "mitotic")
-        genes = aggregate_genes(guides, block)
+        genes = aggregate_genes(guides, block, level=level, cells=scored)
         guide_parts.append(guides if not guide_parts else guides[block])
         gene_parts.append(genes if not gene_parts else genes[block])
         del values, normalised, scored
     guides = pd.concat(guide_parts, axis=1)
     genes = pd.concat(gene_parts, axis=1)
+    genes = genes[genes["gene"] != "nontargeting_drop"].reset_index(drop=True)
     dropped = [row["feature"] for row in degenerate]
     if dropped:
         guides = guides.drop(columns=dropped)
@@ -3666,10 +3689,13 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         from .ops_tvn import _aggregate_tvn
         tvn_settings = {key: settings.get(key) for key in (
             "ops_tvn_mode", "ops_tvn_pca_sample", "ops_tvn_seed",
-            "ops_tvn_components", "ops_tvn_whiten_epsilon")}
+            "ops_tvn_components", "ops_tvn_whiten_epsilon",
+            "ops_aggregate_level")}
         tvn_guides, tvn_genes, tvn_report = _aggregate_tvn(
             sources, rows, cells[["well", "sgRNA", "gene"]], keep,
             control.to_numpy(), features, tvn_settings, _ph_read_columns)
+        tvn_genes = tvn_genes[tvn_genes["gene"] != "nontargeting_drop"
+                              ].reset_index(drop=True)
         for name, table in (("guides", tvn_guides), ("genes", tvn_genes)):
             for suffix in ("csv", "parquet"):
                 target = os.path.join(destination,
@@ -3738,6 +3764,7 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
         "pvalue_null": null if tested else None,
         "null_parameters": null_parameters,
         "profile_normalisation": normalisation,
+        "aggregate_level": level, "nt_rows": nt_rows,
         "tvn": tvn_report,
         "clusters": cluster_report,
         "outputs": outputs,

@@ -8503,6 +8503,9 @@ ALPHA_FEATURES = {
                      'timelapse_division_prediction_model',
                      'timelapse_division_prediction_folds'),
     },
+    883: {
+        'settings': ('ops_aggregate_level', 'ops_nt_rows'),
+    },
     567: {
         'models': ('videomae_v1',),
         'settings': ('timelapse_events', 'timelapse_events_annotations',

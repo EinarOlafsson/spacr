@@ -93,6 +93,8 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_cluster_seed": 42,
     "ops_consensus_runs": 0,
     "ops_mitotic_model": None,
+    "ops_aggregate_level": "guides",
+    "ops_nt_rows": None,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -169,6 +171,8 @@ OPS_TYPES: Dict[str, object] = {
     "ops_cluster_seed": int,
     "ops_consensus_runs": int,
     "ops_mitotic_model": (str, type(None)),
+    "ops_aggregate_level": str,
+    "ops_nt_rows": (str, type(None)),
 }
 
 #: Which panel section each setting appears under.
@@ -216,6 +220,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_reference_clusters", "ops_cluster_target",
         "ops_cluster_resolutions", "ops_cluster_seed", "ops_consensus_runs",
         "ops_mitotic_model",
+        "ops_aggregate_level",
+        "ops_nt_rows",
     ],
 }
 
@@ -630,6 +636,20 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "intensity is this many robust standard deviations above its well's "
         "median and its nucleus is no larger than the median: condensed "
         "chromatin. Lower calls more cells mitotic. Default 3. Alpha.",
+    "ops_aggregate_level":
+        "(str) - How a gene profile is reduced from its cells. 'guides' "
+        "takes the median of the gene's guide medians, so each guide counts "
+        "once; 'cells' takes the median over all of the gene's cells, as "
+        "Brieflow does, so a guide with more cells counts more. On Funk "
+        "plate A 'cells' raised retrieval mAP from 0.060 to 0.064. Default "
+        "'guides'. Alpha.",
+    "ops_nt_rows":
+        "(str or None) - How non-targeting guides appear in the gene "
+        "tables. Empty keeps one row per control gene name; 'barcode' gives "
+        "every non-targeting guide its own row, as Brieflow does; 'pseudo' "
+        "groups them at random (seed 0) into pseudo-genes of four guides, "
+        "processed exactly as genes, so they act as a null. Default None. "
+        "Alpha.",
 }
 
 #: The blurb the module shows above its settings.

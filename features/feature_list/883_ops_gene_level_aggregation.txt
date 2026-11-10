@@ -1,0 +1,20 @@
+OPS GENE PROFILE OVER ALL CELLS, CONTROL ROWS PER BARCODE
+=========================================================
+
+Lifecycle: future
+Status: DONE 2026-11-09 (alpha, under ALPHA_FEATURES[883]) — spacr.gene_measurement_compare.aggregate_genes(..., level='cells', cells=...) takes a gene as the median over all of its cells (Brieflow's aggregate by gene_symbol_0) instead of the median of its guide medians, with min_cells; nt_row_names makes the non-targeting guides one row per barcode (<prefix>_<guide>) or seeded pseudo-genes of four (NTpseudo_XX; drop_incomplete, nt_guides). ops_aggregate_level ('guides' | 'cells') and ops_nt_rows (empty | 'pseudo' | 'barcode') apply them in the aggregate phase to the robust z and the TVN tables (pseudo-genes are named <prefix>_pseudo_XX there, so they stay controls); with both off the tables are unchanged. spacr/gene_measurement_compare.py, spacr/ops_tvn.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_gene_level_aggregation_883.py.
+Requested: maintainer via paper session, 2026-11-09.
+Owner: paper session (lane C).
+Source: improved/scripts/recipe_ablation.py (--agg gene --nt barcode); Brieflow (Di Bernardo et al., Nat Commun 2026, doi:10.1038/s41467-026-73643-7; cheeseman-lab/brieflow, MIT), lib.aggregate.aggregate.
+Related: 879, 887, 854.
+
+WHAT THE STATE IS
+spaCR reduced a gene as the median of its guides; the Brieflow step that
+carries the recipe's edge on plate A existed only in a script.
+
+WHAT TO DO
+- aggregate_genes(level='cells'), NT rows per barcode or pseudo-gene,
+  alpha, crediting Brieflow.
+
+RESULT
+Validation against the reference tables is in progress; results follow in a later commit.
