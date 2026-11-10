@@ -170,12 +170,16 @@ def test_the_engine_reads_every_setting_the_panel_offers(declared):
     import inspect
 
     keys, _ops, _cat = declared
-    from spacr import ops_decode, ops_engine, ops_reference, ops_tvn
+    from spacr import (gene_measurement_compare, ops_clusters, ops_decode, ops_engine,
+                       ops_reference, ops_tvn)
 
     # 879: run_ops hands the profile phases to ops_tvn.run_profile_phases,
     # which reads the ops_profile_* settings and passes the ops_eval_* ones
     # to ops_reference; reading them there is reading them in the engine.
+    # 916 and 917: the profile path's cluster_sweep and etest phases read
+    # their settings in ops_clusters and gene_measurement_compare.
     source = "".join(inspect.getsource(m)
-                     for m in (ops_engine, ops_decode, ops_tvn, ops_reference))
+                     for m in (ops_engine, ops_decode, ops_tvn, ops_reference,
+                               ops_clusters, gene_measurement_compare))
     unread = sorted(key for key in keys if f'"{key}"' not in source)
     assert not unread, f"in the OPS panel and never read by the engine: {unread}"

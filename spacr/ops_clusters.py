@@ -764,3 +764,376 @@ def _aggregate_benchmark(guides: pd.DataFrame, genes: pd.DataFrame, columns: Seq
               encoding="utf-8") as handle:
         json.dump(summary, handle, indent=1, default=str)
     return summary
+
+
+#: The Leiden resolution grids of the resolution sweep (item 916), per graph.
+SWEEP_RESOLUTIONS: Dict[str, Tuple[float, ...]] = {
+    "phate": (1, 2, 3, 5, 7, 8, 10, 12, 13, 15, 18, 22, 26, 32, 40),
+    "knn": (0.25, 0.5, 0.75, 1, 1.5, 2, 3, 4, 5, 6, 8, 10, 13, 16),
+}
+
+#: The PHATE and Leiden seeds of the resolution sweep.
+SWEEP_SEEDS: Tuple[int, ...] = (42, 1, 2)
+
+#: The seed of the sweep's shuffled-label controls, drawn in loop order.
+SWEEP_CONTROL_SEED = 20261109
+
+#: The metrics the sweep summary averages over seeds.
+SWEEP_METRICS: Tuple[str, ...] = (
+    "clusters", "STRING_precision", "STRING_recall", "STRING_f1",
+    "CORUM_pct_enriched_may2025", "KEGG_pct_enriched_may2025",
+    "complexes_recovered_pct", "CORUM_partner_in_cluster_pct")
+
+
+def gene_graph(rows: np.ndarray, kind: str = "phate", k: int = 12, seed: int = 42, *,
+               knn: int = 10, n_jobs: int = 2):
+    """The gene graph a Leiden sweep clusters.
+
+    :param rows: one profile row per gene (controls included).
+    :param kind: ``'phate'``, PHATE's diffusion operator (``knn`` cosine
+        neighbours) made symmetric, ``(P + P.T) / 2``; or ``'knn'``, the
+        union of every row's ``k`` nearest rows by cosine, each edge weighted
+        by its cosine clipped at 1e-6.
+    :param k: the neighbours of the ``'knn'`` graph.
+    :param seed: PHATE's seed; the ``'knn'`` graph has none.
+    :param knn: PHATE's neighbours.
+    :param n_jobs: PHATE's worker count.
+    :returns: an undirected, weighted ``igraph.Graph``, one vertex per row.
+    :raises ImportError: when the ``clustering`` extra is not installed.
+    :raises ValueError: for an unknown ``kind``.
+    """
+    if kind not in ("phate", "knn"):
+        raise ValueError(f"the gene graph must be 'phate' or 'knn'; got {kind!r}")
+    igraph = _optional("igraph")
+    rows = np.asarray(rows, float)
+    if kind == "phate":
+        phate = _optional("phate")
+        model = phate.PHATE(random_state=seed, n_jobs=n_jobs, knn=knn, knn_dist="cosine",
+                            verbose=False)
+        model.fit(rows)
+        w = model.graph.diff_op
+        w = (w + w.T) / 2
+        if hasattr(w, "tocoo"):
+            w = w.tocoo()
+        else:
+            from scipy.sparse import coo_matrix
+            w = coo_matrix(w)
+        upper = w.row < w.col
+        graph = igraph.Graph(n=rows.shape[0], edges=list(zip(w.row[upper], w.col[upper])),
+                             directed=False)
+        graph.es["weight"] = w.data[upper].tolist()
+        return graph
+    unit = rows / np.clip(np.linalg.norm(rows, axis=1, keepdims=True), 1e-12, None)
+    similarity = unit @ unit.T
+    np.fill_diagonal(similarity, -np.inf)
+    nearest = np.argpartition(-similarity, k, axis=1)[:, :k]
+    edges: Dict[Tuple[int, int], float] = {}
+    for i in range(len(unit)):
+        for j in nearest[i]:
+            a, b = (i, int(j)) if i < j else (int(j), i)
+            edges[(a, b)] = max(float(similarity[a, b]), 1e-6)
+    graph = igraph.Graph(n=len(unit), edges=list(edges), directed=False)
+    graph.es["weight"] = list(edges.values())
+    return graph
+
+
+def leiden_partitions(graph, resolutions: Iterable[float], seeds: Iterable[int]
+                      ) -> Dict[Tuple[int, float], np.ndarray]:
+    """Leiden partitions of one graph for every seed and resolution.
+
+    :param graph: from :func:`gene_graph`.
+    :param resolutions: Leiden resolution parameters.
+    :param seeds: Leiden seeds.
+    :returns: ``{(seed, resolution): labels}`` in seed-then-resolution order;
+        each partition optimises the RB configuration model with
+        ``n_iterations=-1`` (until it stops improving).
+    :raises ImportError: when the ``clustering`` extra is not installed.
+    """
+    leidenalg = _optional("leidenalg")
+    out: Dict[Tuple[int, float], np.ndarray] = {}
+    for seed in seeds:
+        for resolution in resolutions:
+            partition = leidenalg.find_partition(
+                graph, leidenalg.RBConfigurationVertexPartition, weights="weight",
+                n_iterations=-1, seed=int(seed), resolution_parameter=float(resolution))
+            out[(int(seed), resolution)] = np.array(partition.membership)
+    return out
+
+
+def complex_metrics(genes: Sequence[str], labels: np.ndarray,
+                    groups: Mapping[str, Sequence[str]], halves: Mapping[str, int]
+                    ) -> Dict[str, Any]:
+    """Complex recovery and partner-in-cluster share of one clustering.
+
+    :param genes: the scored genes.
+    :param labels: one cluster label per gene.
+    :param groups: ``{complex: members}`` (CORUM).
+    :param halves: ``{complex: 0 or 1}``; complexes of half 1 (REPORT) are
+        scored for recovery.
+    :returns: ``REPORT_complexes`` (REPORT complexes with at least three
+        scored members), ``complexes_recovered_pct`` (those with at least
+        half their scored members in one cluster) and
+        ``CORUM_partner_in_cluster_pct`` (genes with a CORUM partner among
+        the scored genes, of any half, that share its cluster).
+    """
+    labels = np.asarray(labels)
+    index = {g: i for i, g in enumerate(genes)}
+    recovered: List[bool] = []
+    has = np.zeros(len(index), bool)
+    hit = np.zeros(len(index), bool)
+    for name, members in groups.items():
+        idx = np.array([index[x] for x in members if x in index], dtype=int)
+        if len(idx) >= 2:
+            has[idx] = True
+            values, counts = np.unique(labels[idx], return_counts=True)
+            hit[idx[np.isin(labels[idx], values[counts >= 2])]] = True
+        if len(idx) >= 3 and halves.get(name) == 1:
+            recovered.append(np.unique(labels[idx], return_counts=True)[1].max() / len(idx) >= 0.5)
+    return {"REPORT_complexes": len(recovered),
+            "complexes_recovered_pct": 100 * float(np.mean(recovered)) if recovered else float("nan"),
+            "CORUM_partner_in_cluster_pct": 100 * float(hit[has].mean()) if has.any() else float("nan")}
+
+
+def sweep_references(reference_dir: Any) -> Dict[str, Any]:
+    """The reference tables a resolution sweep scores against.
+
+    :param reference_dir: the folder (or folders) holding Brieflow's
+        ``corum_group_benchmark.tsv``, ``kegg_group_benchmark.tsv`` and
+        ``string_pair_benchmark.tsv``.
+    :returns: ``corum`` and ``kegg`` (group tables), ``positives`` (the
+        STRING pairs), ``groups`` (CORUM complexes) and ``halves`` (each
+        complex's half, :func:`spacr.ops_reference.group_halves`).
+    """
+    from . import ops_reference
+
+    def table(name: str) -> pd.DataFrame:
+        """One benchmark table by its reference name."""
+        return read_benchmark(ops_reference.reference_file(name, reference_dir))
+
+    groups = ops_reference.reference_groups("CORUM", reference_dir)
+    return {"corum": table("CORUM"), "kegg": table("KEGG"),
+            "positives": string_positives(table("STRING_brieflow")),
+            "groups": groups, "halves": ops_reference.group_halves(groups)}
+
+
+def score_partition(name: str, genes: Sequence[str], labels: np.ndarray,
+                    refs: Mapping[str, Any]) -> Dict[str, Any]:
+    """One sweep row: :func:`score_clusters` plus :func:`complex_metrics`.
+
+    :param name: the row's label.
+    :param genes: the scored genes.
+    :param labels: their cluster labels.
+    :param refs: from :func:`sweep_references`.
+    :returns: the row; ``STRING_f1`` is computed from the rounded precision
+        and recall, as the sweep reports them.
+    """
+    row = score_clusters(name, genes, np.asarray(labels), corum=refs["corum"], kegg=refs["kegg"],
+                         positives=refs["positives"])
+    p, r = row["STRING_precision"], row["STRING_recall"]
+    row["STRING_f1"] = 2 * p * r / (p + r) if p + r else 0.0
+    row.update(complex_metrics(list(genes), labels, refs["groups"], refs["halves"]))
+    return row
+
+
+def score_partitions(names: Sequence[str], partitions: Mapping[Tuple[str, int, float], np.ndarray],
+                     refs: Mapping[str, Any], shuffles: int = 1, seed: int = SWEEP_CONTROL_SEED, *,
+                     genes: Optional[Sequence[str]] = None, label: str = "spaCR",
+                     report=None) -> pd.DataFrame:
+    """Score every partition and its shuffled-label controls.
+
+    :param names: the clustered row names, in the partitions' row order.
+    :param partitions: ``{(graph, seed, resolution): labels}``, scored in
+        this order.
+    :param refs: from :func:`sweep_references`.
+    :param shuffles: shuffled-label controls per partition: the scored
+        genes' labels permuted, cluster sizes kept.
+    :param seed: the controls' seed; one generator draws them in loop order.
+    :param genes: the genes scored; every non-control row when None.
+    :param label: the ``profile`` of every row.
+    :param report: called with one progress line per partition.
+    :returns: one row per partition (``control`` ``'real'``) and per
+        control (``'shuffled gene labels'``), with ``graph``, ``seed`` and
+        ``resolution``.
+    :raises KeyError: when a gene of ``genes`` is not a row.
+    """
+    names = np.asarray(names).astype(str)
+    if genes is None:
+        genes = names[~_is_control(names, "nontargeting")]
+    genes = np.asarray(genes).astype(str)
+    position = pd.Series(np.arange(len(names)), index=names).loc[genes].to_numpy()
+    rng = np.random.default_rng(seed)
+    rows = []
+    for (graph, run_seed, resolution), labels in partitions.items():
+        scored = np.asarray(labels)[position]
+        key = {"graph": graph, "seed": int(run_seed), "resolution": float(resolution)}
+        real = dict(score_partition(label, genes, scored, refs), **key, control="real")
+        rows.append(real)
+        for _ in range(int(shuffles)):
+            rows.append(dict(score_partition(label, genes, scored[rng.permutation(len(scored))], refs),
+                             **key, control="shuffled gene labels"))
+        if report is not None:
+            report(f"{graph} seed {run_seed} r {resolution}: {real['clusters']} clusters, "
+                   f"CORUM {real['CORUM_pct_enriched_may2025']} %, "
+                   f"STRING F1 {round(real['STRING_f1'], 4)}")
+    return pd.DataFrame(rows)
+
+
+def sweep_summary(rows: pd.DataFrame, target: int = 227) -> pd.DataFrame:
+    """Mean, minimum and maximum of every sweep metric over the seeds.
+
+    :param rows: from :func:`score_partitions`.
+    :param target: the cluster count to flag.
+    :returns: one row per graph, resolution and control, with
+        ``<metric> mean|min|max`` columns and ``nearest_<target>`` True on
+        each graph's real resolution whose mean cluster count is nearest
+        ``target`` (the first on a tie).
+    """
+    summary = rows.groupby(["graph", "resolution", "control"])[list(SWEEP_METRICS)].agg(
+        ["mean", "min", "max"])
+    summary.columns = [f"{a} {b}" for a, b in summary.columns]
+    summary = summary.reset_index()
+    flag = f"nearest_{int(target)}"
+    summary[flag] = np.nan
+    summary[flag] = summary[flag].astype(object)
+    for graph in summary["graph"].unique():
+        real = summary[(summary["graph"] == graph) & (summary["control"] == "real")]
+        if len(real):
+            near = real.iloc[(real["clusters mean"] - target).abs().argsort()[:1]]["resolution"].iloc[0]
+            summary.loc[(summary["graph"] == graph) & (summary["resolution"] == near), flag] = True
+    return summary
+
+
+def _sweep_figure(summary: pd.DataFrame, path: str) -> str:
+    """Each sweep metric against the cluster count, real and shuffled.
+
+    :param summary: from :func:`sweep_summary`.
+    :param path: the PNG written.
+    :returns: ``path``.
+    """
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    panels = (("CORUM_pct_enriched_may2025", "CORUM clusters enriched (%)"),
+              ("KEGG_pct_enriched_may2025", "KEGG clusters enriched (%)"),
+              ("STRING_f1", "STRING pair F1"),
+              ("complexes_recovered_pct", "CORUM complexes in one cluster (%)"))
+    colours = {"real": "#1f6f8b", "shuffled gene labels": "#9aa5b1"}
+    figure, axes = plt.subplots(1, len(panels), figsize=(4 * len(panels), 3.4))
+    for ax, (metric, title) in zip(axes, panels):
+        for (graph, control), d in summary.groupby(["graph", "control"]):
+            d = d.sort_values("clusters mean")
+            ax.plot(d["clusters mean"], d[f"{metric} mean"], marker="o", ms=3,
+                    color=colours.get(control, "#333333"),
+                    linestyle="-" if graph == "phate" else "--",
+                    label=f"{graph}, {control}")
+        ax.set_xscale("log")
+        ax.set_xlabel("clusters (mean over seeds)")
+        ax.set_title(title, fontsize=9)
+    axes[-1].legend(fontsize=7, loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False)
+    figure.tight_layout()
+    figure.savefig(path, dpi=150, bbox_inches="tight")
+    plt.close(figure)
+    return path
+
+
+def _sweep_rows_from_table(table: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
+    """Row names and values of a ready profile table: ``gene`` plus numbers."""
+    columns = [c for c in table.columns if c not in ("gene", "n_cells")
+               and pd.api.types.is_numeric_dtype(table[c])]
+    return table["gene"].astype(str).to_numpy(), table[columns].to_numpy(float)
+
+
+def _sweep_setting_list(value: Any, default: Sequence[Any], cast) -> List[Any]:
+    """A list setting given as a list or a comma-separated string."""
+    if value is None or (isinstance(value, str) and not value.strip()):
+        return list(default)
+    items = value.split(",") if isinstance(value, str) else list(value)
+    return [cast(item) for item in items]
+
+
+def cluster_sweep_phase(settings: Mapping[str, Any], genes: Optional[pd.DataFrame], folder: str,
+                        report=None) -> Dict[str, Any]:
+    """The ``cluster_sweep`` phase of the OPS profile path (item 916).
+
+    :param settings: read for ``ops_cluster_rows`` (a table of ready
+        profile rows, ``gene`` plus numeric columns used as given; the
+        profile phase's gene rows, embedded as the evaluate phase embeds
+        them, when empty), ``ops_cluster_graph`` (``'phate'``, ``'knn'`` or
+        both), ``ops_cluster_knn``, ``ops_cluster_sweep_resolutions``
+        (``{graph: grid}``; :data:`SWEEP_RESOLUTIONS` for a graph not
+        named), ``ops_cluster_seeds``, ``ops_cluster_target_clusters``,
+        ``ops_cluster_shuffles``, ``ops_cluster_reference_dir`` (falling
+        back to ``ops_reference_dir``), ``ops_cluster_gene_list`` (a table
+        with a ``gene`` column; every targeting row when empty),
+        ``ops_profile_min_cells`` and ``ops_control_prefix``.
+    :param genes: the profile phase's gene table, or None.
+    :param folder: ``dst_root``; outputs go to its
+        ``results/ops_clusters``.
+    :param report: called with progress lines.
+    :returns: ``{"folder", "outputs", "rows", "graphs"}``.
+    :raises ValueError: when no rows or no reference folder are given, or a
+        graph is unknown.
+    :raises ImportError: when the ``clustering`` extra is not installed.
+    """
+    import os
+
+    from . import ops_reference
+    from .tabular import read_table, write_table
+
+    say = report or (lambda text: None)
+    prefix = str(settings.get("ops_control_prefix") or "nontargeting")
+    graphs = _sweep_setting_list(settings.get("ops_cluster_graph"), ("phate", "knn"),
+                                 lambda v: str(v).strip().lower())
+    unknown = [g for g in graphs if g not in SWEEP_RESOLUTIONS]
+    if unknown:
+        raise ValueError(f"ops_cluster_graph must name phate and/or knn; got {unknown}")
+    reference_dir = settings.get("ops_cluster_reference_dir") or settings.get("ops_reference_dir")
+    if not reference_dir:
+        raise ValueError("cluster_sweep needs ops_cluster_reference_dir (or ops_reference_dir), the folder "
+                         "holding Brieflow's CORUM, KEGG and STRING benchmark tables")
+    source = settings.get("ops_cluster_rows")
+    if source:
+        names, rows = _sweep_rows_from_table(read_table(str(source), canonicalise=False, report=None))
+    elif genes is not None:
+        kept = genes[genes["n_cells"] > int(settings.get("ops_profile_min_cells", 10))]
+        columns = [c for c in kept.columns if c.startswith(("PC_", "w_"))]
+        names = kept["gene"].astype(str).to_numpy()
+        rows = ops_reference.embed_gene_profiles(kept[columns].to_numpy(float))
+    else:
+        raise ValueError("cluster_sweep needs gene rows: run the profile phase first or set ops_cluster_rows")
+    k = int(settings.get("ops_cluster_knn") or 12)
+    grids = dict(settings.get("ops_cluster_sweep_resolutions") or {})
+    seeds = _sweep_setting_list(settings.get("ops_cluster_seeds"), SWEEP_SEEDS, int)
+    target = int(settings.get("ops_cluster_target_clusters") or 227)
+    shuffles = int(1 if settings.get("ops_cluster_shuffles") is None else settings["ops_cluster_shuffles"])
+    gene_list = settings.get("ops_cluster_gene_list")
+    scored = (read_table(str(gene_list), canonicalise=False, report=None)["gene"].astype(str).to_numpy()
+              if gene_list else names[~_is_control(names, prefix)])
+    refs = sweep_references(reference_dir)
+    out_dir = os.path.join(folder, "results", "ops_clusters")
+    os.makedirs(out_dir, exist_ok=True)
+    outputs: Dict[str, str] = {}
+    partitions: Dict[Tuple[str, int, float], np.ndarray] = {}
+    tags = []
+    for kind in graphs:
+        tag = "phate" if kind == "phate" else f"knn{k}"
+        tags.append(tag)
+        grid = list(grids.get(kind) or grids.get(tag) or SWEEP_RESOLUTIONS[kind])
+        for seed in seeds:
+            graph = gene_graph(rows, kind, k=k, seed=seed)
+            assignments = pd.DataFrame({"gene": names})
+            for (run_seed, resolution), labels in leiden_partitions(graph, grid, [seed]).items():
+                partitions[(tag, run_seed, resolution)] = labels
+                assignments[f"leiden_r{resolution}"] = labels
+            outputs[f"assignments_{tag}_s{seed}"] = write_table(
+                assignments, os.path.join(out_dir, f"assignments_{tag}_s{seed}.csv.gz"), canonicalise=False)
+            say(f"cluster_sweep: {tag} seed {seed}: {len(grid)} resolutions")
+    table = score_partitions(names, partitions, refs, shuffles, genes=scored, report=say)
+    summary = sweep_summary(table, target)
+    outputs["sweep_rows"] = write_table(table, os.path.join(out_dir, "sweep_rows.csv"), canonicalise=False)
+    outputs["sweep_summary"] = write_table(summary, os.path.join(out_dir, "sweep_summary.csv"),
+                                           canonicalise=False)
+    outputs["figure"] = _sweep_figure(summary, os.path.join(out_dir, "sweep.png"))
+    return {"folder": out_dir, "outputs": outputs, "rows": int(len(names)), "graphs": tags}

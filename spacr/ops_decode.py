@@ -214,6 +214,9 @@ def decode_rule(settings: Mapping[str, Any]) -> Dict[str, Any]:
                         or _flag(settings, "ops_decode_qc")),
         "features": _flag(settings, "ops_decode_qc"),
     }
+    if settings.get("ops_report_read_stage") not in (None, "") \
+            and _flag(settings, "ops_report_read_stage"):
+        rule["read_stage"] = True
     if rule["decoy_k"] < 0 or rule["pixel_min_pixels"] < 1 \
             or rule["calibration_passes"] < 1:
         raise ValueError("ops_decoy_library_k must be 0 or more, and "
@@ -225,6 +228,23 @@ def decode_rule(settings: Mapping[str, Any]) -> Dict[str, Any]:
     rule["active"] = bool(rule["decoy_k"] > 0 or any(
         _flag(settings, key) for key in _RULE_SWITCHES))
     return rule
+
+
+def nuclei_with_read(evidence: Mapping[str, np.ndarray], threshold: float) -> int:
+    """How many of a field's owned nuclei have at least one read (item 915).
+
+    :param evidence: one field's decode evidence (:func:`field_evidence` or
+        its cache): ``strength``, ``id0``, ``owned0`` and ``owned_ids``.
+    :param threshold: the read threshold; a spot is a read when its
+        strength is above it.
+    :returns: the owned nuclei whose territory holds a read: spots above the
+        threshold attributed to a nucleus (``id0`` at least 0) that the
+        field owns.
+    """
+    strength = np.asarray(evidence["strength"])
+    first = np.asarray(evidence["id0"])
+    read = (strength > threshold) & (first >= 0) & np.asarray(evidence["owned0"], bool)
+    return int(len(np.intersect1d(np.unique(first[read]), np.asarray(evidence["owned_ids"]))))
 
 
 def matcher_for(library: Sequence[str], decoys: Sequence[str]):
@@ -511,6 +531,8 @@ def field_calls(evidence: Mapping[str, np.ndarray], rule: Mapping[str, Any],
            "assigned_decoy": decoy, "reads": int(selected.sum()),
            "reads_owned": int(len(rows)), "reads_near": int(near.sum()),
            "reads_ambiguous": int(ambiguous.sum())}
+    if rule.get("read_stage"):
+        out["nuclei_with_read"] = nuclei_with_read(evidence, threshold)
     if evidence_rows:
         out["evidence"] = _evidence_rows(primary, pixel, tallies, owned, decoys,
                                          objects, ambiguous[rows])
@@ -715,10 +737,14 @@ def write_well_reports(db: str, plate: str, well: str, decoded: Sequence[Mapping
     stats = pd.DataFrame([{"plate": plate, "well": well, "site": int(r["site"]),
                            "nuclei": int(r["rule_a"]["nuclei"]),
                            "assigned_real": int(r["rule_a"]["assigned_real"]),
-                           "assigned_decoy": int(r["rule_a"]["assigned_decoy"])}
+                           "assigned_decoy": int(r["rule_a"]["assigned_decoy"]),
+                           "nuclei_with_read": int(r["rule_a"].get("nuclei_with_read", 0))}
                           for r in sorted(decoded, key=lambda r: r["site"])],
                          columns=["plate", "well", "site", "nuclei",
-                                  "assigned_real", "assigned_decoy"])
+                                  "assigned_real", "assigned_decoy",
+                                  "nuclei_with_read"])
+    if not rule.get("read_stage"):
+        stats = stats.drop(columns=["nuclei_with_read"])
     stats_path = os.path.join(folder, f"field_stats_{well}.csv")
     write_table(stats, stats_path, canonicalise=False)
     report = fdr_report(stats, plate=plate, well=well, k=int(rule["decoy_k"]),

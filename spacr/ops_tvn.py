@@ -1066,6 +1066,10 @@ def profile_cell_tables(settings: Mapping[str, Any], report: Optional[Callable[[
         gene = nt_pseudo_genes(guide, gene, sorted(control_guides), control_prefix=prefix)
     else:
         gene = np.where(control, np.char.add(f"{prefix}_", guide), gene)
+    kept_cells = None
+    if bool(settings.get("ops_etest", False)):
+        kept = [c for c in ("gene_symbol_0", "cell_barcode_0", "well") if c in meta]
+        kept_cells = (embedding.astype(np.float32), meta[kept].reset_index(drop=True))
     cells = pd.DataFrame(embedding.astype(np.float32), columns=pcs)
     cells["guide"], cells["gene"] = guide, gene
     cells = cells[cells.gene != "nontargeting_drop"]
@@ -1097,10 +1101,26 @@ def profile_cell_tables(settings: Mapping[str, Any], report: Optional[Callable[[
         is_control = guides.gene.str.lower().str.startswith((prefix.lower(), "ntpseudo"))
         guides = guides[guides.gene.isin(keep) | is_control].reset_index(drop=True)
     timing["aggregate_s"] = round(time.time() - started, 1)
-    info = {"cells": int(len(cells)), "pcs": n_components, "tvn_dims": int(embedding.shape[1]),
+    info = {"kept_cells": kept_cells} if kept_cells is not None else {}
+    info.update({"cells": int(len(cells)), "pcs": n_components, "tvn_dims": int(embedding.shape[1]),
             "features": len(columns), "recipe": recipe, "tvn_whiten_epsilon": epsilon, "runtime": timing,
-            **adjusted}
+            **adjusted})
     return genes, guides, info
+
+
+def _keep_cells(folder: str, embedding: np.ndarray, meta: pd.DataFrame) -> None:
+    """Write the per-cell aligned embedding the etest phase reads (item 917).
+
+    :param folder: the profile run folder.
+    :param embedding: cells by TVN dimensions, single precision.
+    :param meta: ``gene_symbol_0``, ``cell_barcode_0`` and ``well`` when
+        present, one row per cell.
+    """
+    from .tabular import write_table
+
+    os.makedirs(folder, exist_ok=True)
+    np.save(os.path.join(folder, "cells_E.npy"), embedding)
+    write_table(meta, os.path.join(folder, "cells_meta.parquet"), canonicalise=False)
 
 
 def _profile_shrink(genes: pd.DataFrame, guides: pd.DataFrame, pcs: Sequence[str], prefix: str,
@@ -1260,6 +1280,9 @@ def run_profile_phases(settings: Mapping[str, Any], phases: Sequence[str] = ("pr
     with _pinned_blas(bool(settings.get("ops_deterministic_blas", True))) as pinned:
         if "profile" in phases:
             genes, guides, info = profile_cell_tables(settings, report=say)
+            kept_cells = info.pop("kept_cells", None)
+            if kept_cells is not None:
+                _keep_cells(folder, *kept_cells)
             outputs["genes"] = write_table(genes, genes_path, canonicalise=False)
             outputs["guides"] = write_table(guides, guides_path, canonicalise=False)
             say(f"profile {run}: {len(genes)} genes, {len(guides)} guides from {info['cells']} cells")
@@ -1286,8 +1309,24 @@ def run_profile_phases(settings: Mapping[str, Any], phases: Sequence[str] = ("pr
             info["references"] = ops_reference.reference_record(
                 sorted({r for r in per_gene.reference.unique()}), reference_dir)
             say(f"evaluate {run}: {int(metrics.genes.iloc[0])} genes scored")
+        if "etest" in phases:
+            from .gene_measurement_compare import etest_phase
+
+            info["etest"] = etest_phase(settings, folder, str(settings["dst_root"]), report=say)
+            outputs.update(info["etest"]["outputs"])
+        if "cluster_sweep" in phases:
+            from .ops_clusters import cluster_sweep_phase
+
+            gene_rows = (read_table(genes_path, canonicalise=False, report=None)
+                         if os.path.isfile(genes_path) else None)
+            info["cluster_sweep"] = cluster_sweep_phase(settings, gene_rows, str(settings["dst_root"]),
+                                                        report=say)
+            outputs.update(info["cluster_sweep"]["outputs"])
     info["blas_threads"] = pinned
-    keys = sorted(k for k in settings if k.startswith(("ops_profile_", "ops_eval_", "ops_reference_"))
+    recorded = ("ops_profile_", "ops_eval_", "ops_reference_") + tuple(
+        prefix for phase, prefix in (("cluster_sweep", "ops_cluster_"), ("etest", "ops_etest"),
+                                     ("etest", "ops_power_")) if phase in phases)
+    keys = sorted(k for k in settings if k.startswith(recorded)
                   or k in ("ops_tvn_whiten_epsilon", "plate", "ops_control_prefix", "ops_deterministic_blas"))
     record = {"settings": {k: settings[k] for k in keys}, "phases": list(phases), "outputs": outputs, **info}
     with open(os.path.join(folder, "runtime.json"), "w", encoding="utf-8") as handle:
