@@ -267,7 +267,7 @@ class _RangeRow(_ClauseRow):
         """Enough to rebuild this row. Column included so a saved set can
         say which column it was for -- the panel is rebuilt from the frame,
         and a column that has gone away has to be reported, not guessed."""
-        return {"kind": "range", "column": self.column,
+        return {"kind": "range", "column": self.column, "enabled": True,
                 "low": float(self._low.value()),
                 "high": float(self._high.value())}
 
@@ -336,8 +336,9 @@ class _CategoryRow(_ClauseRow):
 
         :returns: the row's kind, its column, and which values are ticked.
         """
-        return {"kind": "category", "column": self.column,
-                "chosen": [b.text() for b in self._boxes if b.isChecked()]}
+        return {"kind": "category", "column": self.column, "enabled": True,
+                "chosen": [b.text() for b in self._boxes if b.isChecked()],
+                "values": [b.text() for b in self._boxes]}
 
     def restore(self, state: dict) -> None:
         """Tick the saved values that still exist in this frame.
@@ -345,10 +346,18 @@ class _CategoryRow(_ClauseRow):
         A value that has gone is skipped rather than recreated: the box list
         comes from the data, and a checkbox for a category with no rows is a
         control that can only ever select nothing.
+
+        A state carrying ``keep_new_values`` comes from a refresh of the same
+        table (new columns or labels added), not from a file: there a value the
+        row did not have before (listed in ``values``) is ticked, because the
+        user never had the chance to untick it. A loaded file ticks exactly
+        what it saved, so plates are filtered identically.
         """
         chosen = set(state.get("chosen", ()))
+        known = set(state.get("values", ())) if state.get("keep_new_values") else None
         for box in self._boxes:
-            box.setChecked(box.text() in chosen)
+            box.setChecked(box.text() in chosen or
+                           (known is not None and box.text() not in known))
 
     def clause(self) -> CategoryFilter:
         """Return this row's category clause.
@@ -525,7 +534,8 @@ class DataFilterPanel(QWidget):
 
         :param state: dict as :meth:`state` returns it,
             ``{"version": 1, "filters": [...]}``; any other version raises
-            ``ValueError``. Existing clauses are cleared first.
+            ``ValueError``. Existing clauses are cleared first. An entry whose
+            ``enabled`` is false is not applied and not reported missing.
         :returns: the columns that could not be restored, so the caller can
             say so. A filter set saved against one table and loaded against
             another is a normal thing to do -- what must not happen is it
@@ -540,6 +550,8 @@ class DataFilterPanel(QWidget):
         missing = []
         available = set(self.available_columns())
         for entry in state.get("filters", ()):
+            if not entry.get("enabled", True):
+                continue
             column = str(entry.get("column", ""))
             if column not in available:
                 missing.append(column)
