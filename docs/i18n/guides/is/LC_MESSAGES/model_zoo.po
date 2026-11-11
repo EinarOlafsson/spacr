@@ -776,6 +776,10 @@ msgstr "geymda skiptingin velur vistunarpunktinn, svo hún er sannprófunargögn
 msgid "accuracy falls above IoU 0.8 -- suited to counting, occupancy and area rather than precise morphometry"
 msgstr "nákvæmni fellur yfir IoU 0,8 -- hentar til talningar, mats á nýtingu og flatarmáls frekar en nákvæmrar formmælingar"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Re-scored 2026-11-10 on curated ground truth, fields this model never saw (spaCR pipeline call, defaults, cellpose 4.2.1.1; receipt features/data/model_rescore_unseen_20261110/receipt.json): object F1 0.355 (95% CI 0.300 to 0.411) against stock cpsam_v2's 0.012 on 80 fields with 1,332 curated vacuoles, at IoU 0.5. Precision is 0.683 but recall is 0.239: it misses about three of every four vacuoles. The recorded F1 0.606 was scored against automatic PV-regenerated masks on the checkpoint-selection split, so it overstates accuracy on curated masks. Default unchanged."
+msgstr "Endurmetið 2026-11-10 á yfirfarinni viðmiðunarmerkingu, á sjónsviðum sem þetta líkan sá aldrei (kall í spaCR-leiðsluna, sjálfgefin gildi, cellpose 4.2.1.1; kvittun features/data/model_rescore_unseen_20261110/receipt.json): hlut-F1 0,355 (95% öryggisbil 0,300 til 0,411) á móti 0,012 hjá grunnlíkaninu cpsam_v2 á 80 sjónsviðum með 1.332 yfirförnum frymisbólum, við IoU 0,5. Nákvæmnin er 0,683 en heimtur aðeins 0,239: líkanið missir af um þremur af hverjum fjórum frymisbólum. Skráða F1-gildið 0,606 var mælt á móti sjálfvirkt endurgerðum PV-grímum á skiptingunni sem valdi vistunarpunktinn og ofmetur því nákvæmni á móti yfirförnum grímum. Sjálfgefið óbreytt."
+
 msgid "Published as `einarolafsson/toxoplasma-from-cellmask-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-cellmask-cpsam>`_, as ``toxoplasma_from_cellmask_pv``."
 msgstr "Birt sem `einarolafsson/toxoplasma-from-cellmask-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-cellmask-cpsam>`_, sem ``toxoplasma_from_cellmask_pv``."
 
@@ -1344,6 +1348,10 @@ msgstr "eftir hýsli: HFF 0,932, HeLa 0,860, THP1 0,861"
 msgid "predicts nuclei from cell morphology -- expect degraded accuracy on unusual or highly confluent morphologies"
 msgstr "spáir kjörnum út frá formgerð frumunnar -- búast má við minni nákvæmni á óvenjulegri eða mjög þéttri formgerð"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "No curated ground truth exists yet for this model, so it has not been re-scored on fields it never saw (2026-11-10)."
+msgstr "Engin yfirfarin viðmiðunarmerking er enn til fyrir þetta líkan, svo það hefur ekki verið endurmetið á sjónsviðum sem það sá aldrei (2026-11-10)."
+
 msgid "Published as `einarolafsson/cross-channel-nuclei-from-cellmask-cpsam <https://huggingface.co/einarolafsson/cross-channel-nuclei-from-cellmask-cpsam>`_, as ``nuclei_from_cellmask_best``."
 msgstr "Birt sem `einarolafsson/cross-channel-nuclei-from-cellmask-cpsam <https://huggingface.co/einarolafsson/cross-channel-nuclei-from-cellmask-cpsam>`_, sem ``nuclei_from_cellmask_best``."
 
@@ -1388,6 +1396,10 @@ msgstr "F1 0,569, AJI 0,421, Dice 0,546 við IoU 0,5 á móti 0,002/0,006/0,016 
 
 msgid "the Hoechst route is harder than the cell-mask route -- compare toxoplasma_from_cellmask_v1"
 msgstr "Hoechst-leiðin er erfiðari en frumugrímuleiðin -- berðu saman við toxoplasma_from_cellmask_v1"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Re-scored 2026-11-10 on curated ground truth, fields this model never saw (spaCR pipeline call, defaults, cellpose 4.2.1.1; receipt features/data/model_rescore_unseen_20261110/receipt.json): object F1 0.446 (95% CI 0.404 to 0.486) against stock cpsam_v2's 0.001 on 224 fields with 13,474 curated vacuoles, at IoU 0.5. Per acquisition F1 ranges from 0.039 to 0.581; on the HFF and HeLa tubulin acquisitions precision is 0.020 and 0.078, so most objects it reports there are not vacuoles. The recorded F1 0.569 was scored against automatic PV-regenerated masks on the checkpoint-selection split. Default unchanged."
+msgstr "Endurmetið 2026-11-10 á yfirfarinni viðmiðunarmerkingu, á sjónsviðum sem þetta líkan sá aldrei (kall í spaCR-leiðsluna, sjálfgefin gildi, cellpose 4.2.1.1; kvittun features/data/model_rescore_unseen_20261110/receipt.json): hlut-F1 0,446 (95% öryggisbil 0,404 til 0,486) á móti 0,001 hjá grunnlíkaninu cpsam_v2 á 224 sjónsviðum með 13.474 yfirförnum frymisbólum, við IoU 0,5. Eftir myndatökuröð er F1 frá 0,039 til 0,581; á HFF- og HeLa-túbúlínröðunum er nákvæmnin 0,020 og 0,078, svo flestir hlutir sem líkanið skilar þar eru ekki frymisbólur. Skráða F1-gildið 0,569 var mælt á móti sjálfvirkt endurgerðum PV-grímum á skiptingunni sem valdi vistunarpunktinn. Sjálfgefið óbreytt."
 
 msgid "Published as `einarolafsson/toxoplasma-from-hoechst-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-hoechst-cpsam>`_, as ``toxoplasma_from_hoechst_pv``."
 msgstr "Birt sem `einarolafsson/toxoplasma-from-hoechst-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-hoechst-cpsam>`_, sem ``toxoplasma_from_hoechst_pv``."

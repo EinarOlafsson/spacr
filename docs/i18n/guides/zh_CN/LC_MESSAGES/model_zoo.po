@@ -776,6 +776,10 @@ msgstr "留出划分用于选择检查点，因此它属于验证数据，而不
 msgid "accuracy falls above IoU 0.8 -- suited to counting, occupancy and area rather than precise morphometry"
 msgstr "IoU 高于 0.8 时准确率下降——适用于计数、占位和面积，而非精确的形态测量"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Re-scored 2026-11-10 on curated ground truth, fields this model never saw (spaCR pipeline call, defaults, cellpose 4.2.1.1; receipt features/data/model_rescore_unseen_20261110/receipt.json): object F1 0.355 (95% CI 0.300 to 0.411) against stock cpsam_v2's 0.012 on 80 fields with 1,332 curated vacuoles, at IoU 0.5. Precision is 0.683 but recall is 0.239: it misses about three of every four vacuoles. The recorded F1 0.606 was scored against automatic PV-regenerated masks on the checkpoint-selection split, so it overstates accuracy on curated masks. Default unchanged."
+msgstr "2026-11-10 在经过整理的真值上、在本模型从未见过的视野上重新评分（spaCR 流程调用，默认参数，cellpose 4.2.1.1；记录 features/data/model_rescore_unseen_20261110/receipt.json）：IoU 0.5 时对象 F1 为 0.355（95% 置信区间 0.300 至 0.411），原版模型 cpsam_v2 为 0.012；共 80 个视野、1,332 个经整理的液泡。精确率为 0.683，但召回率只有 0.239：约每四个液泡漏掉三个。记录中的 F1 0.606 是在用于选择检查点的划分上、以自动重新生成的 PV 掩膜为参照测得的，因此高估了相对于整理掩膜的准确度。默认设置不变。"
+
 msgid "Published as `einarolafsson/toxoplasma-from-cellmask-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-cellmask-cpsam>`_, as ``toxoplasma_from_cellmask_pv``."
 msgstr "发布为 `einarolafsson/toxoplasma-from-cellmask-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-cellmask-cpsam>`_，名称为 ``toxoplasma_from_cellmask_pv``。"
 
@@ -1344,6 +1348,10 @@ msgstr "按宿主：HFF 0.932、HeLa 0.860、THP1 0.861"
 msgid "predicts nuclei from cell morphology -- expect degraded accuracy on unusual or highly confluent morphologies"
 msgstr "根据细胞形态预测细胞核——在不寻常或高度汇合的形态上准确率可能下降"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "No curated ground truth exists yet for this model, so it has not been re-scored on fields it never saw (2026-11-10)."
+msgstr "本模型尚无经过整理的真值，因此尚未在其从未见过的视野上重新评分（2026-11-10）。"
+
 msgid "Published as `einarolafsson/cross-channel-nuclei-from-cellmask-cpsam <https://huggingface.co/einarolafsson/cross-channel-nuclei-from-cellmask-cpsam>`_, as ``nuclei_from_cellmask_best``."
 msgstr "发布为 `einarolafsson/cross-channel-nuclei-from-cellmask-cpsam <https://huggingface.co/einarolafsson/cross-channel-nuclei-from-cellmask-cpsam>`_，名称为 ``nuclei_from_cellmask_best``。"
 
@@ -1388,6 +1396,10 @@ msgstr "IoU 0.5 时 F1 0.569、AJI 0.421、Dice 0.546，而原版 cpsam_v2 为 0
 
 msgid "the Hoechst route is harder than the cell-mask route -- compare toxoplasma_from_cellmask_v1"
 msgstr "Hoechst 路线比细胞掩膜路线更难——请与 toxoplasma_from_cellmask_v1 比较"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Re-scored 2026-11-10 on curated ground truth, fields this model never saw (spaCR pipeline call, defaults, cellpose 4.2.1.1; receipt features/data/model_rescore_unseen_20261110/receipt.json): object F1 0.446 (95% CI 0.404 to 0.486) against stock cpsam_v2's 0.001 on 224 fields with 13,474 curated vacuoles, at IoU 0.5. Per acquisition F1 ranges from 0.039 to 0.581; on the HFF and HeLa tubulin acquisitions precision is 0.020 and 0.078, so most objects it reports there are not vacuoles. The recorded F1 0.569 was scored against automatic PV-regenerated masks on the checkpoint-selection split. Default unchanged."
+msgstr "2026-11-10 在经过整理的真值上、在本模型从未见过的视野上重新评分（spaCR 流程调用，默认参数，cellpose 4.2.1.1；记录 features/data/model_rescore_unseen_20261110/receipt.json）：IoU 0.5 时对象 F1 为 0.446（95% 置信区间 0.404 至 0.486），原版模型 cpsam_v2 为 0.001；共 224 个视野、13,474 个经整理的液泡。各采集批次的 F1 从 0.039 到 0.581；在 HFF 和 HeLa 微管蛋白采集上精确率为 0.020 和 0.078，因此它在那里报告的对象大多不是液泡。记录中的 F1 0.569 是在用于选择检查点的划分上、以自动重新生成的 PV 掩膜为参照测得的。默认设置不变。"
 
 msgid "Published as `einarolafsson/toxoplasma-from-hoechst-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-hoechst-cpsam>`_, as ``toxoplasma_from_hoechst_pv``."
 msgstr "发布为 `einarolafsson/toxoplasma-from-hoechst-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-hoechst-cpsam>`_，名称为 ``toxoplasma_from_hoechst_pv``。"

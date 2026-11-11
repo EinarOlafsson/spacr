@@ -55,6 +55,7 @@ Scorecard state: **recorded at publication**. These numbers were recorded with t
 - The counterpart of nuclei_from_cellmask_v1: that one predicts nuclei from the cell mask, this one predicts the cell from the nucleus.
 - Precision 0.944 against recall 0.806 -- it misses cells rather than inventing them, which is the safer direction for counting.
 - Quote the DELTA over stock (0.569), not the ratio: stock's mAP of 0.0575 is a near-zero denominator that makes any ratio look huge.
+- No curated ground truth exists yet for this model, so it has not been re-scored on fields it never saw (2026-11-10).
 
 ## How to read these scores
 
@@ -65,7 +66,7 @@ Scorecard state: **recorded at publication**. These numbers were recorded with t
 - **Dice** is twice the overlap divided by the predicted area plus the reference area.
 - **AP** at one IoU threshold is true positives divided by true positives, false positives and false negatives together. **mAP** averages it over IoU thresholds from 0.5 to 0.9, so it also rewards outlines that fit closely.
 - **Stock** is the base model named under Architecture, run without fine-tuning on the same images. **Difference** is this model's score minus stock's.
-- A **hold-out** or **test** set is images kept out of training and used only for scoring.
+- A **hold-out** or **test** set is images kept out of training and used only for scoring. The re-score note says how many of its fields this model had not seen.
 
 ## Files
 
