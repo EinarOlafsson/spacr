@@ -7485,7 +7485,10 @@ def run_ops(settings: Mapping[str, Any], *,
         ``compare_calls`` phase (item 878) matches spaCR's calls to other
         pipelines' per-cell tables (``ops_compare_tables``) and writes
         ``results/ops_compare``; it also runs after ``decode`` when those
-        tables are set. The alpha
+        tables are set. With ``ops_compare_match`` ``"mask_overlap"``
+        (item 922) it runs alone and matches spaCR's label masks to a
+        reference pipeline's by pixel overlap instead
+        (:func:`spacr.ops_decode.run_compare_masks`). The alpha
         profile path, ``"profile"`` and ``"evaluate"``, runs alone: it turns
         the stored cell tables of ``ops_profile_cells`` into gene profiles
         and scores them against reference gene pairs
@@ -7581,6 +7584,12 @@ def run_ops(settings: Mapping[str, Any], *,
         with _pinned_blas(bool(settings.get("ops_deterministic_blas", True))) as pinned:
             result = score_ops_profiles(settings, report=_say)
         return {**result, "blas_threads": pinned}
+    if "compare_calls" in phases and str(settings.get("ops_compare_match") or "centroid") == "mask_overlap":
+        if list(phases) != ["compare_calls"]:
+            raise ValueError("compare_calls with ops_compare_match 'mask_overlap' runs on its own")
+        from .ops_decode import run_compare_masks
+
+        return {"compare_calls": run_compare_masks(settings, report=_say)}
     sequencing = any(phase in _PHASES for phase in phases)
     root = settings.get("genotype_source")
     if sequencing and (not isinstance(root, (str, os.PathLike))

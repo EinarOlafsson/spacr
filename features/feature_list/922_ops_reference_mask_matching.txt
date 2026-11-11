@@ -1,0 +1,32 @@
+OPS CROSS-PIPELINE CELL MATCHING BY MASK OVERLAP (F1 AT IoU 0.5, MEDIAN IoU, PER-CELL CALL CONCORDANCE)
+=====================================================================================================
+
+Lifecycle: future
+Status: DONE 2026-11-11 (alpha, under ALPHA_FEATURES[922]) — the compare_calls phase gains ops_compare_match 'mask_overlap' (spacr.ops_decode.run_compare_masks; runs alone). Per field and object, spaCR's label masks (default <dst_root>/<well>/phenotype_masks/site-<n>.npz, or any template) are matched to the reference pipeline's label masks (ops_compare_reference_masks template with {plate}/{well}/{site}|{tile}/{object}) by a one-pass sparse contingency (label_contingency); each spaCR object gets the reference object of largest overlap (ties: higher IoU, then lower label; best_overlaps) and F1 uses a Hungarian one-to-one matching at IoU >= ops_compare_iou (one_to_one, match_masks). Objects touching the image border are counted apart (ops_compare_edge_policy). Reference per-cell calls (ops_compare_reference_calls + ops_compare_call_columns, PERISCOPE map by default; reference_cell_calls, parse_site_key) are carried through the matches and compared with spaCR's (ops_cells_<plate>.parquet or ops_compare_spacr_calls; 'reference' = self-match control). Feldman reads -> per-cell call rule: cell_calls_from_reads (top barcode by read count, tie = no call). spacr/ops_decode.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_mask_matching_922.py.
+Requested: maintainer via paper session (BMC paper item spec ITEM_ops_reference_mask_matching.md), 2026-11-10.
+Owner: lane O (Wave 4).
+Related: 878 (centroid compare_calls), 921, 920.
+
+OUTPUTS (<dst_root>/results/ops_compare)
+match_cells.parquet (spacr_id, reference_id, overlap_px, iou, matched, matched_reference_id, edge flags), mask_agreement.csv
+(per site and per well: n, TP/FP/FN, F1, median IoU, edge counts), call_concordance.csv (same_guide / same_gene_other_guide /
+disagree / spacr_only / reference_only / neither, and both_called with % same guide, per quality class; observed and
+shuffled-within-site seed rows), centroid_vs_overlap.csv (centroid control on the same objects), reference_ids.csv,
+compare_masks.json (summary with the matching statement).
+
+RESULT (spacr env, settings-file run via run_ops(settings, phases=['compare_calls']))
+PERISCOPE CP186A Well1, 4 sites (7, 24, 52, 74; small sample, masks mirrored to NVMe), deposited single-cell metadata:
+- self-match control (reference masks vs themselves, calls vs themselves): Cells 24,381/24,381 TP, Nuclei 24,597/24,597,
+  F1 = 1, median IoU = 1; 216 edge Cells per side counted apart; concordance 100 % same guide of 10,396 both-called cells.
+- shuffled-within-site control (seed 0): 0.04 % same guide.
+- reference IDs: 10,482 of 10,482 Well1 calls in these sites resolve to a label of their Cells_Objects.tiff (0 unresolved).
+- centroid control on the same objects: same reference object for every object (self-match, as expected).
+- a second run from the same settings gave byte-identical tables.
+
+NOT DONE / REMAINING
+- spaCR vs reference F1, median IoU and per-cell concordance for Well1: no spaCR segmentation of PERISCOPE Well1 exists yet
+  (needs the P1 phenotype run on the GPU at WS). The phase is ready; run it with the default spaCR mask template.
+- Full Well1 ID resolution (85 sites; ~5 GB of NAS masks) was not read; only the 4-site sample.
+- Feldman experiment C (cells.tif/nuclei.tif/reads.csv): data not here; column names of reads.csv unverified, the rule is
+  implemented and tested on a synthetic table.
+- Translation and arrival-contract records: left for the master.

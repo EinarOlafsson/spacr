@@ -808,12 +808,639 @@ def _figures(summary: pd.DataFrame, stats: Mapping[str, Any], folder: str) -> Li
     return written
 
 
+#: The profile-benchmark metrics of item 923, run by :func:`score_profile_benchmarks`.
+BENCHMARK_METRICS = ("corum_within_r", "string_auprc", "hits_mw_ztpm")
+
+#: The phase-score metrics of item 913, run when ``ops_scoring_metrics`` is empty.
+SHARED_METRICS = ("activity", "consistency", "efaar")
+
+#: PERISCOPE's compartments (Ramezani et al. 2025, Figure 4 notebook): a
+#: feature belongs to every compartment whose name it contains, in any case.
+PERISCOPE_COMPARTMENTS: Dict[str, str] = {"Mito": "mito", "ConA": "cona", "WGA": "wga",
+                                          "DAPI": "dapi", "Phalloidin": "phalloidin"}
+
+#: Where PERISCOPE's threshold search starts: compartment counts, whole profile.
+PERISCOPE_NULL_START: Dict[str, int] = {"compartment": 200, "Sum": 500}
+
+#: The column names a gene can go by in a profile or p-value table.
+GENE_COLUMNS = ("gene", "Gene", "Metadata_Foci_Barcode_MatchedTo_GeneCode", "Metadata_gene_symbol",
+                "Metadata_Gene")
+
+#: The correlation bins of PERISCOPE's STRING display (Figure 4D).
+STRING_BINS = (-1.0, -0.66, -0.33, 0.0, 0.33, 0.66, 1.0)
+
+#: More genes than this are not scored on STRING AUPRC (all gene pairs are held at once).
+STRING_MAX_GENES = 6000
+
+
+def gene_column(table: pd.DataFrame) -> str:
+    """The column of a table that names the gene.
+
+    :param table: a profile, guide or p-value table.
+    :returns: the first of :data:`GENE_COLUMNS` the table has.
+    :raises ValueError: when it has none of them.
+    """
+    for name in GENE_COLUMNS:
+        if name in table.columns:
+            return name
+    raise ValueError(f"the table names no gene column; expected one of {list(GENE_COLUMNS)}")
+
+
+def profile_frame(table: pd.DataFrame) -> pd.DataFrame:
+    """A profile table as numeric features indexed by gene, controls dropped.
+
+    :param table: one row per gene with a gene column (:data:`GENE_COLUMNS`)
+        and numeric features; ``Metadata_*`` and ``n_cells`` are not features.
+    :returns: the targeting genes' rows, first row per gene, in file order.
+    """
+    gene = gene_column(table)
+    frame = table.drop_duplicates(gene)
+    frame = frame[~is_nt(frame[gene])]
+    cols = [c for c in _features(frame, (gene, "n_cells")) if not str(c).startswith("Metadata_")]
+    return frame.set_index(frame[gene].astype(str))[cols].astype(float)
+
+
+def compartment_features(features: Sequence[str], compartments: Any = "periscope") -> Dict[str, List[str]]:
+    """Which features belong to which compartment.
+
+    :param features: the feature names.
+    :param compartments: ``"periscope"`` (:data:`PERISCOPE_COMPARTMENTS`) or a
+        ``{name: substring}`` mapping, matched in any case.
+    :returns: ``{compartment: features}`` in feature order; one feature may
+        sit in several compartments, as in the reference.
+    """
+    table = PERISCOPE_COMPARTMENTS if compartments in (None, "periscope") else dict(compartments)
+    return {name: [f for f in features if str(part).lower() in str(f).lower()] for name, part in table.items()}
+
+
+def mann_whitney_table(guides: pd.DataFrame, *, control: str = "nontargeting",
+                       features: Optional[Sequence[str]] = None) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Per gene and feature, a Mann-Whitney U test of the gene's rows against the controls'.
+
+    The reference rule (PERISCOPE ``per_feature_hit_calling.ipynb``): the
+    unit is a guide-level profile row; each gene's rows are tested against
+    all non-targeting rows with :func:`scipy.stats.mannwhitneyu` (control
+    rows first, two-sided, default method), one test per feature.
+
+    :param guides: guide-level rows with a gene column and numeric features.
+    :param control: the gene name of the control rows.
+    :param features: the features tested; every numeric non-metadata column
+        when None.
+    :returns: ``(u, p)``, each indexed by gene in order of first appearance,
+        one column per feature; U is the control sample's statistic.
+    :raises ValueError: when there are no control rows.
+    """
+    from scipy.stats import mannwhitneyu
+
+    gene = gene_column(guides)
+    names = guides[gene].astype(str)
+    if features is None:
+        features = [c for c in _features(guides, (gene, "n_cells")) if not str(c).startswith("Metadata_")]
+    values = guides[list(features)].to_numpy(float)
+    nt = values[(names == control).to_numpy()]
+    if not len(nt):
+        raise ValueError(f"no {control!r} rows to test against")
+    genes = [g for g in pd.unique(names) if g != control]
+    u_rows, p_rows = [], []
+    for g in genes:
+        test = mannwhitneyu(nt, values[(names == g).to_numpy()], axis=0)
+        u_rows.append(np.asarray(test.statistic, float))
+        p_rows.append(np.asarray(test.pvalue, float))
+    index = pd.Index(genes, name="Gene")
+    return (pd.DataFrame(u_rows, index=index, columns=list(features)),
+            pd.DataFrame(p_rows, index=index, columns=list(features)))
+
+
+def significant_feature_counts(pvalues: pd.DataFrame, compartments: Any = "periscope",
+                               feature_p: float = 0.001) -> pd.DataFrame:
+    """Per gene, the number of features below the p threshold, per compartment and in all.
+
+    :param pvalues: gene by feature p-values, indexed by gene; a
+        ``sig_gene_count`` row (the reference file's per-feature tally) is
+        dropped.
+    :param compartments: as :func:`compartment_features`.
+    :param feature_p: a feature counts when its p is strictly below this.
+    :returns: one column per compartment and ``Sum``, integer counts.
+    """
+    frame = pvalues.drop(index=[g for g in ("sig_gene_count",) if g in pvalues.index])
+    significant = frame.to_numpy(float) < float(feature_p)
+    columns = list(frame.columns)
+    out = {}
+    for name, feats in compartment_features(columns, compartments).items():
+        where = [columns.index(f) for f in feats]
+        out[name] = significant[:, where].sum(axis=1)
+    out["Sum"] = significant.sum(axis=1)
+    return pd.DataFrame(out, index=frame.index.astype(str))
+
+
+def null_threshold(scores: Sequence[float], level: float, start: int) -> int:
+    """PERISCOPE's score threshold from the null genes' scores at one FDR level.
+
+    From ``start`` downwards, the first count ``c`` that more than
+    ``int(n / (100 / (100 * level)))`` null genes exceed sets the threshold
+    to ``c + 1``; a gene is a hit when its score is above it. This is the
+    reference's ``FDR_thresholds`` loop, kept exactly.
+
+    :param scores: the null (zero-TPM) genes' scores.
+    :param level: the FDR level, e.g. 0.05.
+    :param start: where the search starts (200 for a compartment, 500 for
+        the whole profile in the reference).
+    :returns: the threshold.
+    :raises ValueError: when there are no null genes.
+    """
+    values = np.asarray(scores, float)
+    if not len(values):
+        raise ValueError("the hit null has no genes")
+    allowed = int(len(values) / (100 / round(100 * float(level), 10)))
+    count, c, threshold = 0, int(start), int(start) + 1
+    while count <= allowed and c >= -1:
+        count = int((values > c).sum())
+        threshold = c + 1
+        c -= 1
+    return threshold
+
+
+def expression_null(genes: Sequence[str], expression: Any, cell_line: Optional[str] = None
+                    ) -> Tuple[List[str], List[str]]:
+    """The zero-TPM (null) genes and the expressed genes among the scored genes.
+
+    :param genes: the scored genes.
+    :param expression: a table with ``Gene`` and one column per cell line
+        (DepMap log2(TPM+1); 0 is not expressed), or a mapping with
+        ``zero_tpm`` and ``expressed_genes`` lists (the reference's
+        ``<line>_CCLE_expression_summary.json``).
+    :param cell_line: the expression column, e.g. ``"A549"``.
+    :returns: ``(zero_tpm, expressed)``: zero-TPM genes sorted, expressed
+        genes in ``genes`` order, controls left out.
+    :raises ValueError: when the cell line is not a column.
+    """
+    genes = [str(g) for g in genes if not is_nt([g])[0]]
+    if isinstance(expression, Mapping):
+        zero = set(map(str, expression["zero_tpm"])) & set(genes)
+        if "expressed_genes" in expression:
+            expressed = set(map(str, expression["expressed_genes"]))
+            return sorted(zero), [g for g in genes if g in expressed]
+    else:
+        gene = gene_column(expression)
+        if cell_line not in expression.columns:
+            raise ValueError(f"ops_hits_cell_line {cell_line!r} is not a column of the expression table")
+        zero = set(expression.loc[expression[cell_line] == 0, gene].astype(str)) & set(genes)
+    return sorted(zero), [g for g in genes if g not in zero]
+
+
+def call_hits(pvalues: pd.DataFrame, *, zero_tpm: Sequence[str], expressed: Sequence[str],
+              compartments: Any = "periscope", feature_p: float = 0.001,
+              fdr_levels: Sequence[float] = (0.05, 0.01),
+              starts: Optional[Mapping[str, int]] = None) -> Dict[str, Any]:
+    """Hit genes by PERISCOPE's per-feature Mann-Whitney rule with a zero-TPM null.
+
+    A gene's score is its count of features with p below ``feature_p``, in
+    each compartment and in all (:func:`significant_feature_counts`). The
+    null is the scores of genes not expressed in the cell line; per FDR
+    level each score gets a threshold (:func:`null_threshold`). An
+    expressed gene is a WHOLE-CELL hit when its whole-profile count is
+    above that threshold, and a COMPARTMENT-SPECIFIC hit when it is not but
+    some compartment's count is above its own.
+
+    :param pvalues: gene by feature p-values, indexed by gene.
+    :param zero_tpm: the null genes.
+    :param expressed: the genes that can be hits.
+    :param compartments: as :func:`compartment_features`.
+    :param feature_p: the per-feature threshold.
+    :param fdr_levels: the FDR levels.
+    :param starts: the threshold search starts, ``{"compartment", "Sum"}``;
+        :data:`PERISCOPE_NULL_START` when None.
+    :returns: ``{"scores", "thresholds", "null", "summary"}``: scores per
+        gene with ``expressed``, ``zero_tpm`` and per level
+        ``whole_cell_<pct>``, ``compartment_<pct>`` and ``hit_<pct>``; the
+        thresholds per level; the null genes' scores; counts per level.
+    """
+    starts = dict(PERISCOPE_NULL_START if starts is None else starts)
+    scores = significant_feature_counts(pvalues, compartments, feature_p)
+    names = [c for c in scores.columns if c != "Sum"]
+    zero, keep = set(map(str, zero_tpm)), set(map(str, expressed))
+    null = scores.loc[[g for g in scores.index if g in zero]]
+    out = scores.copy()
+    out["expressed"] = out.index.isin(list(keep))
+    out["zero_tpm"] = out.index.isin(list(zero))
+    thresholds, summary = {}, {}
+    for level in fdr_levels:
+        pct = f"{round(100 * float(level), 6):g}"
+        limits = {c: null_threshold(null[c], level, starts["Sum" if c == "Sum" else "compartment"])
+                  for c in names + ["Sum"]}
+        whole = out["expressed"] & (out["Sum"] > limits["Sum"])
+        part = (out["expressed"] & (out["Sum"] <= limits["Sum"])
+                & np.any([out[c] > limits[c] for c in names], axis=0))
+        out[f"whole_cell_{pct}"] = whole
+        out[f"compartment_{pct}"] = part
+        out[f"hit_{pct}"] = whole | part
+        thresholds[pct] = limits
+        summary[pct] = {"whole_cell": int(whole.sum()), "compartment_specific": int(part.sum()),
+                        "hits": int((whole | part).sum()),
+                        "per_compartment": {c: int((out["expressed"] & (out["Sum"] <= limits["Sum"])
+                                                    & (out[c] > limits[c])).sum()) for c in names}}
+    summary["null_genes"] = int(len(null))
+    summary["expressed_genes"] = int(out["expressed"].sum())
+    return {"scores": out, "thresholds": thresholds, "null": null, "summary": summary}
+
+
+def overlap_with_reference(hits: Sequence[str], reference: Sequence[str], *,
+                           cell_counts: Optional[Mapping[str, float]] = None, min_cells: int = 20
+                           ) -> Dict[str, Any]:
+    """Jaccard and recall of a published hit list, on genes with enough cells.
+
+    :param hits: the genes called here.
+    :param reference: the published hit genes.
+    :param cell_counts: cells per gene on the scored plate; no restriction
+        when None.
+    :param min_cells: genes with fewer cells are left out of both lists.
+    :returns: ``hits``, ``reference``, ``shared``, ``jaccard``, ``recall``
+        (of the reference), ``precision`` and ``restricted`` (whether the
+        cell-count rule was applied).
+    """
+    mine, theirs = set(map(str, hits)), set(map(str, reference))
+    if cell_counts is not None:
+        enough = {str(g) for g, n in cell_counts.items() if n >= min_cells}
+        mine, theirs = mine & enough, theirs & enough
+    shared = mine & theirs
+    union = mine | theirs
+    return {"hits": len(mine), "reference": len(theirs), "shared": len(shared),
+            "jaccard": len(shared) / len(union) if union else float("nan"),
+            "recall": len(shared) / len(theirs) if theirs else float("nan"),
+            "precision": len(shared) / len(mine) if mine else float("nan"),
+            "restricted": cell_counts is not None}
+
+
+def pca_rows(profile: pd.DataFrame, variance: Optional[float] = 0.9) -> pd.DataFrame:
+    """Gene rows projected on the principal components closest to a variance share.
+
+    The reference keeps the number of components whose cumulative
+    explained variance is closest to ``variance``. spaCR uses the exact
+    (full) SVD, so the result is deterministic; the reference's
+    randomized solver differs from it in the fourth decimal of the median r.
+
+    :param profile: genes by features.
+    :param variance: the share, or None to keep the features.
+    :returns: genes by components (or the profile unchanged).
+    """
+    if not variance:
+        return profile
+    from sklearn.decomposition import PCA
+
+    ratios = PCA(svd_solver="full").fit(profile.to_numpy(float)).explained_variance_ratio_
+    keep = int(np.argmin(np.abs(float(variance) - np.cumsum(ratios)))) + 1
+    rows = PCA(n_components=keep, svd_solver="full").fit_transform(profile.to_numpy(float))
+    return pd.DataFrame(rows, index=profile.index)
+
+
+def read_corum(path: str) -> List[Tuple[str, List[str]]]:
+    """CORUM complexes as ``(name, subunits)`` from the ``humanComplexes.txt`` export.
+
+    :param path: the tab-separated CORUM file with ``ComplexName`` and
+        ``subunits(Gene name)`` (members separated by ``;``).
+    :returns: one entry per row, members in file order.
+    """
+    from .tabular import read_table
+
+    table = read_table(path, canonicalise=False, report=None, sep="\t")
+    name = "ComplexName" if "ComplexName" in table.columns else table.columns[0]
+    return [(str(n), str(s).split(";")) for n, s in zip(table[name], table["subunits(Gene name)"])
+            if isinstance(s, str)]
+
+
+def corum_within_r(rows: pd.DataFrame, complexes: Sequence[Tuple[str, Sequence[str]]], *,
+                   coverage: float = 0.333, seed: int = 0) -> Dict[str, Any]:
+    """Pearson r of gene pairs within CORUM complexes, against random pairs.
+
+    The reference rule (PERISCOPE Figure 4C): a complex counts when more
+    than ``coverage`` of its listed subunits are scored genes; every
+    distinct pair of its scored members is a within-complex pair, and the
+    summary is the median r over the unique pairs pooled across complexes.
+    The background is the median over all pairs of scored genes. The
+    controls are the same number of random gene pairs and the same pairs
+    after shuffling the gene labels of the rows (both with ``seed``).
+
+    :param rows: genes by features (e.g. :func:`pca_rows`).
+    :param complexes: :func:`read_corum` output.
+    :param coverage: the share of a complex's subunits that must be scored.
+    :param seed: the controls' :func:`numpy.random.default_rng` seed.
+    :returns: ``{"summary", "complexes"}``: the summary rows (``observed``,
+        ``all_pairs``, ``random_pairs``, ``shuffled_labels``) with ``median_r``
+        and ``n_pairs``; one row per counted complex with its scored members,
+        pairs and median r.
+    """
+    genes = [str(g) for g in rows.index]
+    where = {g: i for i, g in enumerate(genes)}
+    r = np.corrcoef(rows.to_numpy(float))
+    pairs, per_complex = set(), []
+    for name, members in complexes:
+        found = [m for m in members if m in where]
+        if not found or len(found) / len(members) <= float(coverage):
+            continue
+        mine = sorted({tuple(sorted((where[a], where[b]))) for a in found for b in found if a != b})
+        pairs.update(mine)
+        per_complex.append({"complex": name, "subunits": len(members), "scored": len(set(found)),
+                            "pairs": len(mine),
+                            "median_r": float(np.median([r[i, j] for i, j in mine])) if mine else float("nan")})
+    pairs = sorted(pairs)
+    rng = np.random.default_rng(int(seed))
+    upper = np.triu_indices(len(genes), 1)
+    summary = [{"control": "observed", "median_r": float(np.median([r[i, j] for i, j in pairs]))
+                if pairs else float("nan"), "n_pairs": len(pairs)},
+               {"control": "all_pairs", "median_r": float(np.median(r[upper])) if len(genes) > 1
+                else float("nan"), "n_pairs": int(len(upper[0]))}]
+    if pairs:
+        pick = rng.choice(len(upper[0]), size=min(len(pairs), len(upper[0])), replace=False)
+        summary.append({"control": "random_pairs", "median_r": float(np.median(r[upper[0][pick], upper[1][pick]])),
+                        "n_pairs": int(len(pick))})
+        order = rng.permutation(len(genes))
+        summary.append({"control": "shuffled_labels",
+                        "median_r": float(np.median([r[order[i], order[j]] for i, j in pairs])),
+                        "n_pairs": len(pairs)})
+    return {"summary": pd.DataFrame(summary), "complexes": pd.DataFrame(per_complex)}
+
+
+def _string_positive(rows: pd.DataFrame, string: pd.DataFrame, threshold: float) -> set:
+    """Unordered index pairs of scored genes with a STRING edge at a confidence."""
+    where = {str(g): i for i, g in enumerate(rows.index)}
+    scale = 1000.0 if float(string["combined_score"].max()) > 1.0 else 1.0
+    edges = string[string["combined_score"] >= float(threshold) * scale]
+    first = edges["protein1"].astype(str).map(where)
+    second = edges["protein2"].astype(str).map(where)
+    ok = first.notna() & second.notna() & (first != second)
+    return {tuple(sorted((int(a), int(b)))) for a, b in zip(first[ok], second[ok])}
+
+
+def string_auprc(rows: pd.DataFrame, string: pd.DataFrame, thresholds: Sequence[float] = (0.4, 0.7, 0.9),
+                 *, seed: int = 0) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Gene pairs ranked by cosine similarity against STRING edges, with the r-bin display.
+
+    :param rows: genes by features.
+    :param string: STRING links with ``protein1``, ``protein2`` (gene
+        symbols) and ``combined_score`` (0-1000 or 0-1).
+    :param thresholds: STRING confidences; pairs at or above one are its
+        positives, every other pair of scored genes a negative.
+    :param seed: the shuffled-label control's seed.
+    :returns: ``(auprc, bins)``: per threshold and control (``observed``,
+        ``shuffled_labels``) the average precision, the random baseline
+        (positive share) and the counts; per Pearson-r bin
+        (:data:`STRING_BINS`, as the reference's Figure 4D) the STRING links
+        among scored genes with their mean and median combined score.
+    :raises ValueError: when more than :data:`STRING_MAX_GENES` genes are given.
+    """
+    from sklearn.metrics import average_precision_score
+
+    if len(rows) > STRING_MAX_GENES:
+        raise ValueError(f"STRING AUPRC holds every gene pair at once; {len(rows)} genes is more than "
+                         f"{STRING_MAX_GENES}, so score a gene subset (ops_scoring_benchmark_genes)")
+    X = rows.to_numpy(float)
+    upper = np.triu_indices(len(X), 1)
+    order = np.random.default_rng(int(seed)).permutation(len(X))
+    out = []
+    for control, perm in (("observed", np.arange(len(X))), ("shuffled_labels", order)):
+        cos = _cosine(X[perm])[upper]
+        for threshold in thresholds:
+            positive = _string_positive(rows, string, threshold)
+            labels = np.zeros(len(cos), bool)
+            if positive:
+                a, b = np.array(sorted(positive)).T
+                n = len(X)
+                labels[(a * n - a * (a + 1) // 2 + (b - a - 1)).astype(np.int64)] = True
+            out.append({"control": control, "threshold": float(threshold), "pairs": int(len(cos)),
+                        "positives": int(labels.sum()),
+                        "auprc": float(average_precision_score(labels, cos)) if labels.any() else float("nan"),
+                        "baseline": float(labels.mean()) if len(labels) else float("nan")})
+    r = np.corrcoef(X)
+    where = {str(g): i for i, g in enumerate(rows.index)}
+    links = string[string["protein1"].astype(str).isin(where) & string["protein2"].astype(str).isin(where)]
+    values = np.array([r[where[str(a)], where[str(b)]] for a, b in zip(links["protein1"], links["protein2"])])
+    edges = np.asarray(STRING_BINS)
+    bin_of = np.clip(np.searchsorted(edges, values, side="left") - 1, 0, len(edges) - 2) if len(values) else values
+    bins = []
+    for k in range(len(edges) - 1):
+        inside = links["combined_score"].to_numpy(float)[bin_of == k] if len(values) else np.array([])
+        bins.append({"bin": f"{edges[k]:g} to {edges[k + 1]:g}", "links": int(len(inside)),
+                     "mean_score": float(inside.mean()) if len(inside) else float("nan"),
+                     "median_score": float(np.median(inside)) if len(inside) else float("nan")})
+    return pd.DataFrame(out), pd.DataFrame(bins)
+
+
+def _sha256(path: str) -> str:
+    """The SHA-256 of a file, to record a reference version."""
+    import hashlib
+
+    digest = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for block in iter(lambda: handle.read(1 << 20), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def _reference_genes(entries: Any) -> List[str]:
+    """The genes of a published hit list: paths, each optionally ``path::sheet``."""
+    from .tabular import read_table
+
+    genes: List[str] = []
+    for entry in ([entries] if isinstance(entries, str) else list(entries)):
+        path, _, sheet = str(entry).partition("::")
+        kwargs = {"sheet_name": sheet} if sheet else {}
+        table = read_table(path, canonicalise=False, report=None, **kwargs)
+        genes.extend(table[gene_column(table)].astype(str).tolist())
+    return genes
+
+
+def score_profile_benchmarks(settings: Mapping[str, Any], folder: str,
+                             report: Optional[Callable[[str], None]] = None) -> Dict[str, str]:
+    """CORUM within-complex r, STRING AUPRC and the zero-TPM hit rule on every input (item 923).
+
+    The same code scores every input of ``ops_scoring_inputs``: a reference
+    pipeline's deposited profiles and spaCR's. ``hits_mw_ztpm`` reads an
+    input's ``pvalues`` table (gene by feature, as deposited) or, without
+    one, tests its ``guides`` rows (:func:`mann_whitney_table`), then calls
+    hits (:func:`call_hits`); ``corum_within_r`` and ``string_auprc`` score
+    its ``genes`` profile on the genes ``ops_scoring_benchmark_genes``
+    names. What an input lacks is written to ``benchmark_scorable.csv``.
+
+    :param settings: the resolved settings: ``ops_scoring_inputs``,
+        ``ops_scoring_metrics``, ``ops_scoring_corum_file``,
+        ``ops_scoring_string_file``, ``ops_scoring_string_thresholds``,
+        ``ops_scoring_corum_coverage``, ``ops_scoring_pca_variance``,
+        ``ops_scoring_benchmark_genes``, ``ops_scoring_benchmark_seed`` and
+        the ``ops_hits_*`` keys.
+    :param folder: the output folder.
+    :param report: called with progress lines.
+    :returns: the written files by name.
+    :raises ValueError: when a metric's reference file is missing.
+    """
+    from .tabular import read_table, write_table
+
+    say = report or (lambda text: None)
+    metrics = [m for m in (settings.get("ops_scoring_metrics") or []) if m in BENCHMARK_METRICS]
+    inputs = dict(settings.get("ops_scoring_inputs") or {})
+    seed = int(settings.get("ops_scoring_benchmark_seed") or 0)
+    levels = [float(x) for x in (settings.get("ops_hits_fdr") or [0.05, 0.01])]
+    compartments = settings.get("ops_hits_compartments") or "periscope"
+    outputs: Dict[str, str] = {}
+    scorable, summary, hit_summary, references = [], [], {}, {}
+
+    def write(frame, name):
+        """Write one output table and remember it."""
+        outputs[name] = write_table(frame, os.path.join(folder, name), canonicalise=False)
+
+    def missing(name, metric, why):
+        """Record that an input cannot be scored on a metric."""
+        scorable.append({"input": name, "metric": metric, "scorable": "not scorable", "reason": why})
+
+    hits_of: Dict[str, List[str]] = {}
+    if "hits_mw_ztpm" in metrics:
+        table = settings.get("ops_hits_expression_table")
+        if not table:
+            raise ValueError("hits_mw_ztpm needs ops_hits_expression_table (DepMap TPM table or the "
+                             "expression summary JSON)")
+        if str(table).endswith(".json"):
+            with open(str(table), encoding="utf-8") as handle:
+                expression: Any = json.load(handle)
+        else:
+            expression = read_table(str(table), canonicalise=False, report=None)
+        references["expression"] = {"path": str(table), "sha256": _sha256(str(table)),
+                                    "cell_line": settings.get("ops_hits_cell_line")}
+        for name, parts in inputs.items():
+            parts = dict(parts)
+            if parts.get("pvalues"):
+                raw = read_table(parts["pvalues"], canonicalise=False, report=None)
+                pvalues = raw.set_index(raw[gene_column(raw)].astype(str)).drop(columns=[gene_column(raw)])
+                source = "pvalues"
+            elif parts.get("guides"):
+                guides = read_table(parts["guides"], canonicalise=False, report=None)
+                u, pvalues = mann_whitney_table(guides)
+                write(u.reset_index(), f"mann_whitney_u_{name}.csv.gz")
+                write(pvalues.reset_index(), f"mann_whitney_p_{name}.csv.gz")
+                source = "guides"
+            else:
+                missing(name, "hits_mw_ztpm", "no guide-level profiles or per-feature p-values")
+                continue
+            genes = [g for g in pvalues.index if g != "sig_gene_count"]
+            zero, expressed = expression_null(genes, expression, settings.get("ops_hits_cell_line"))
+            called = call_hits(pvalues, zero_tpm=zero, expressed=expressed, compartments=compartments,
+                               feature_p=float(settings.get("ops_hits_feature_p") or 0.001), fdr_levels=levels)
+            scores = called["scores"].rename_axis("gene").reset_index()
+            write(scores, f"hits_{name}.csv")
+            write(called["null"].rename_axis("gene").reset_index(), f"hit_null_{name}.csv")
+            record = {"source": source, "thresholds": called["thresholds"], **called["summary"]}
+            strict = f"{round(100 * min(levels), 6):g}"
+            hits_of[name] = scores.loc[scores[f"hit_{strict}"], "gene"].tolist()
+            if settings.get("ops_hits_reference_list"):
+                counts = None
+                if parts.get("cell_counts"):
+                    cells = read_table(parts["cell_counts"], canonicalise=False, report=None)
+                    column = next(c for c in ("cells", "n_cells", "count") if c in cells.columns)
+                    counts = dict(zip(cells[gene_column(cells)].astype(str), cells[column]))
+                reference = _reference_genes(settings["ops_hits_reference_list"])
+                record["reference_overlap"] = {
+                    pct: overlap_with_reference(scores.loc[scores[f"hit_{pct}"], "gene"], reference,
+                                                cell_counts=counts,
+                                                min_cells=int(settings.get("ops_hits_min_cells") or 20))
+                    for pct in called["thresholds"]}
+            hit_summary[name] = record
+            for pct, values in called["summary"].items():
+                if isinstance(values, dict):
+                    summary.append({"input": name, "metric": "hits_mw_ztpm", "control": f"fdr_{pct}",
+                                    "value": values["hits"], "n": called["summary"]["expressed_genes"]})
+            say(f"hits_mw_ztpm {name}: " + ", ".join(f"{p}% FDR {v['hits']}" for p, v in called["summary"].items()
+                                                    if isinstance(v, dict)))
+    profiles: Dict[str, pd.DataFrame] = {}
+    if {"corum_within_r", "string_auprc"} & set(metrics):
+        for name, parts in inputs.items():
+            if dict(parts).get("genes"):
+                profiles[name] = profile_frame(read_table(dict(parts)["genes"], canonicalise=False, report=None))
+            else:
+                for metric in ("corum_within_r", "string_auprc"):
+                    if metric in metrics:
+                        missing(name, metric, "no profile per gene")
+        choice = settings.get("ops_scoring_benchmark_genes") or "all"
+        if choice == "all" and profiles:
+            shared = sorted(set.intersection(*[set(p.index) for p in profiles.values()]))
+            chosen = {name: shared for name in profiles}
+        elif choice == "hits":
+            chosen = {name: [g for g in hits_of.get(name, []) if g in profiles[name].index] for name in profiles}
+            for name in [n for n in profiles if n not in hits_of]:
+                missing(name, "corum_within_r", "ops_scoring_benchmark_genes 'hits' needs hits_mw_ztpm hits")
+                chosen.pop(name)
+        else:
+            listed = choice if isinstance(choice, (list, tuple)) else read_table(
+                str(choice), canonicalise=False, report=None).pipe(lambda t: t[gene_column(t)].astype(str).tolist())
+            chosen = {name: [g for g in listed if g in profiles[name].index] for name in profiles}
+        variance = settings.get("ops_scoring_pca_variance", 0.9)
+        corum = string = None
+        if "corum_within_r" in metrics:
+            path = settings.get("ops_scoring_corum_file")
+            if not path:
+                raise ValueError("corum_within_r needs ops_scoring_corum_file (CORUM humanComplexes.txt)")
+            corum = read_corum(str(path))
+            references["corum"] = {"path": str(path), "sha256": _sha256(str(path))}
+        if "string_auprc" in metrics:
+            path = settings.get("ops_scoring_string_file")
+            if not path:
+                raise ValueError("string_auprc needs ops_scoring_string_file (protein1, protein2, combined_score)")
+            string = read_table(str(path), canonicalise=False, report=None)
+            references["string"] = {"path": str(path), "sha256": _sha256(str(path))}
+        complex_rows, auprc_rows, bin_rows = [], [], []
+        for name, genes in chosen.items():
+            rows = pca_rows(profiles[name].loc[genes], variance)
+            if corum is not None:
+                result = corum_within_r(rows, corum, coverage=float(settings.get("ops_scoring_corum_coverage", 0.333)),
+                                        seed=seed)
+                for row in result["summary"].to_dict("records"):
+                    summary.append({"input": name, "metric": "corum_within_r", "control": row["control"],
+                                    "value": row["median_r"], "n": row["n_pairs"], "genes": len(genes)})
+                complex_rows.append(result["complexes"].assign(input=name))
+            if string is not None:
+                if len(rows) > STRING_MAX_GENES:
+                    missing(name, "string_auprc", f"{len(rows)} genes; more than {STRING_MAX_GENES}")
+                    continue
+                auprc, bins = string_auprc(rows, string, settings.get("ops_scoring_string_thresholds")
+                                           or [0.4, 0.7, 0.9], seed=seed)
+                for row in auprc.to_dict("records"):
+                    summary.append({"input": name, "metric": f"string_auprc>={row['threshold']:g}",
+                                    "control": row["control"], "value": row["auprc"], "n": row["pairs"],
+                                    "genes": len(genes), "baseline": row["baseline"]})
+                auprc_rows.append(auprc.assign(input=name))
+                bin_rows.append(bins.assign(input=name))
+            say(f"profile benchmarks {name}: {len(genes)} genes")
+        if complex_rows:
+            write(pd.concat(complex_rows, ignore_index=True), "corum_complexes.csv")
+        if auprc_rows:
+            write(pd.concat(auprc_rows, ignore_index=True), "string_auprc.csv")
+            write(pd.concat(bin_rows, ignore_index=True), "string_bins.csv")
+    write(pd.DataFrame(summary), "benchmark_summary.csv")
+    write(pd.DataFrame(scorable, columns=["input", "metric", "scorable", "reason"]), "benchmark_scorable.csv")
+    setup = {"metrics": metrics, "references": references, "fdr_levels": levels, "seed": seed,
+             "benchmark_genes": settings.get("ops_scoring_benchmark_genes") or "all",
+             "pca_variance": settings.get("ops_scoring_pca_variance", 0.9),
+             "matching": ("every input is scored by the same functions with the same reference files, "
+                          "thresholds, FDR levels, PCA rule and control seed; with benchmark genes 'all' "
+                          "on the genes all inputs share, with 'hits' on each input's own hits at the "
+                          "strictest FDR level (the published rule, so the gene sets differ)")}
+    for name, record in (("hits_summary.json", hit_summary), ("benchmark_setup.json", setup)):
+        if name == "hits_summary.json" and not hit_summary:
+            continue
+        with open(os.path.join(folder, name), "w", encoding="utf-8") as handle:
+            json.dump(record, handle, indent=1, default=float)
+        outputs[name] = os.path.join(folder, name)
+    return outputs
+
+
 def score_ops_profiles(settings: Mapping[str, Any], report: Optional[Callable[[str], None]] = None
                        ) -> Dict[str, Any]:
     """Score OPS gene profiles and clusterings with copairs and EFAAR (item 913).
 
     :param settings: read for ``ops_scoring_inputs`` (``{name: {"genes",
-        "guides", "clusters": path}}``), ``ops_scoring_genes`` (a table with
+        "guides", "clusters", "pvalues", "cell_counts": path}}``; the last
+        two serve item 923's hit rule), ``ops_scoring_metrics`` (empty runs
+        the item-913 metrics ``activity``, ``consistency`` and ``efaar``;
+        listing ``corum_within_r``, ``string_auprc`` or ``hits_mw_ztpm``
+        adds :func:`score_profile_benchmarks`, and a list of only those
+        skips the copairs and EFAAR scoring), ``ops_scoring_genes`` (a table with
         ``gene``, or a list; the intersection of the inputs when empty),
         ``ops_scoring_null_size``, ``ops_scoring_min_complex``,
         ``ops_scoring_references``, ``ops_scoring_cluster_jitter``,
@@ -839,19 +1466,31 @@ def score_ops_profiles(settings: Mapping[str, Any], report: Optional[Callable[[s
         raise ValueError("OPS shared scoring needs ops_scoring_inputs, {name: {genes, guides, clusters}}")
     if not settings.get("dst_root"):
         raise ValueError("OPS shared scoring needs dst_root, the folder its results go to")
+    wanted = list(settings.get("ops_scoring_metrics") or SHARED_METRICS)
+    unknown = [m for m in wanted if m not in SHARED_METRICS + BENCHMARK_METRICS]
+    if unknown:
+        raise ValueError(f"ops_scoring_metrics: unknown {unknown}; choose from "
+                         f"{list(SHARED_METRICS + BENCHMARK_METRICS)}")
+    folder = os.path.join(str(settings["dst_root"]), "ops_scoring")
+    os.makedirs(folder, exist_ok=True)
+    benchmark: Dict[str, str] = {}
+    if any(m in BENCHMARK_METRICS for m in wanted):
+        benchmark = score_profile_benchmarks({**settings, "ops_scoring_metrics": wanted}, folder, report=say)
+    if not any(m in SHARED_METRICS for m in wanted):
+        return {"folder": folder, "outputs": benchmark}
     genes = settings.get("ops_scoring_genes")
     if isinstance(genes, str):
         genes = read_table(genes, canonicalise=False, report=None).gene.astype(str).tolist()
-    data = load_scoring_inputs(inputs, genes)
-    folder = os.path.join(str(settings["dst_root"]), "ops_scoring")
-    os.makedirs(folder, exist_ok=True)
+    data = load_scoring_inputs({name: {k: v for k, v in dict(parts).items()
+                                       if k in ("genes", "guides", "clusters")}
+                                for name, parts in inputs.items()}, genes)
     cache = os.path.join(folder, "copairs_null")
     null = int(settings.get("ops_scoring_null_size") or 10000)
     workers = int(settings.get("ops_scoring_workers") or 4)
     references = list(settings.get("ops_scoring_references") or ["CORUM@REPORT", "STRING>=0.7@REPORT"])
     seeds = [int(s) for s in (settings.get("ops_scoring_cluster_seeds") or [0, 1, 2])]
     jitter = float(settings.get("ops_scoring_cluster_jitter", 1e-3))
-    outputs: Dict[str, str] = {}
+    outputs: Dict[str, str] = dict(benchmark)
 
     def write(frame, name):
         """Write one output table and remember it."""

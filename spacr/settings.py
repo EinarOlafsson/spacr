@@ -9106,6 +9106,24 @@ ALPHA_FEATURES = {
     907: {
         'settings': ('ops_profile_weighting',),
     },
+    922: {
+        'settings': ('ops_compare_match', 'ops_compare_reference_masks',
+                     'ops_compare_spacr_masks', 'ops_compare_reference_objects',
+                     'ops_compare_iou', 'ops_compare_reference_calls',
+                     'ops_compare_call_columns', 'ops_compare_spacr_calls',
+                     'ops_compare_edge_policy', 'ops_compare_mask_scale',
+                     'ops_compare_control_seed'),
+    },
+    923: {
+        'settings': ('ops_scoring_metrics', 'ops_scoring_corum_file',
+                     'ops_scoring_string_file', 'ops_scoring_string_thresholds',
+                     'ops_scoring_corum_coverage', 'ops_scoring_pca_variance',
+                     'ops_scoring_benchmark_genes', 'ops_scoring_benchmark_seed',
+                     'ops_hits_feature_p', 'ops_hits_fdr',
+                     'ops_hits_expression_table', 'ops_hits_cell_line',
+                     'ops_hits_compartments', 'ops_hits_min_cells',
+                     'ops_hits_reference_list'),
+    },
     914: {
         'settings': ('ops_profile_cell_state',
                      'ops_profile_gene_universe',

@@ -1,0 +1,55 @@
+OPS PROFILE BENCHMARKS FOR A SECOND SCREEN: CORUM WITHIN-COMPLEX r, STRING AUPRC, PERISCOPE ZERO-TPM HIT RULE
+============================================================================================================
+
+Lifecycle: future
+Status: DONE 2026-11-11 (alpha, under ALPHA_FEATURES[923]) — phase score (spacr.ops_scoring.score_ops_profiles) gains ops_scoring_metrics; listing 'corum_within_r', 'string_auprc' or 'hits_mw_ztpm' runs spacr.ops_scoring.score_profile_benchmarks on every input of ops_scoring_inputs with the same code (inputs may now carry 'pvalues' and 'cell_counts'); a list of only those skips copairs/EFAAR, and an empty list runs item 913 unchanged. spacr/ops_scoring.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_profile_benchmarks_923.py.
+Requested: maintainer via paper session (BMC paper item spec ITEM_ops_profile_benchmark_hits.md), 2026-11-10.
+Owner: lane O (Wave 4).
+Source: 2022_PERISCOPE repository, Hit_Calling/per_feature_hit_calling.ipynb, 4_A549_Screen_Summary/Figure_4.ipynb,
+Extended_Data_3/number_of_hits_DMEM_5_all_FDR.ipynb (read 2026-11-11 from GitHub).
+Related: 913, 880, 882.
+
+RULE PINNED FROM THE NOTEBOOKS
+- Test unit: guide-level profile rows (guide_normalized_feature_select_median_merged) of a gene vs ALL nontargeting rows, per
+  feature, scipy.stats.mannwhitneyu(NT, gene) default (two-sided); U is the NT sample's (mann_whitney_table).
+- Gene score: count of features with p STRICTLY below 0.001, per compartment and in all; compartment = feature name contains
+  mito / cona / wga / dapi / phalloidin in any case (a feature may count in two); the file's sig_gene_count row is dropped.
+- Null: genes of the dataset with DepMap 21Q4 A549 log2(TPM+1) == 0 (3,068); expressed = the rest minus nontargeting (17,324).
+- Threshold per score (null_threshold): from 200 (compartment) / 500 (whole profile) down, the first c with more than
+  int(n_null / (100 / FDR%)) null genes above c sets threshold c+1. Whole-cell hit: expressed and Sum > threshold;
+  compartment-specific: expressed, Sum <= its threshold, any compartment > its threshold.
+- CORUM r (Figure 4C): genes = hit list; PCA keeping the number of components closest to 90 % variance; Pearson r between gene
+  rows; complexes with > 0.333 of subunits scored; unique within-complex pairs pooled; median. (The spec's per-complex
+  median is also written, corum_complexes.csv.)
+- STRING display (Figure 4D): STRING links among scored genes binned by r (-1,-0.66,-0.33,0,0.33,0.66,1], combined score per bin.
+  AUPRC (new, no reference value): pairs ranked by cosine, positives = links >= threshold x 1000.
+
+RESULT (spacr env: numpy 2.5.2, pandas 2.3.3, scipy 1.18.0, sklearn 1.9.0; settings-file run, phase score, 30 s)
+Control row from the deposited A549 Mann-Whitney p table + CCLE_expression_HeLa_A549.csv (cell line A549):
+- 5 % FDR: 3,659 hits = 1,339 whole-cell + 2,320 compartment-specific (the paper's numbers); thresholds Mito 36, ConA 23,
+  WGA 36, DAPI 52, Phalloidin 31, Sum 166.
+- 1 % FDR: 1,089 = 399 + 690; thresholds 49/37/57/78/48/217 (the notebook's printed values). Both 1 % gene lists, their row
+  order and every per-compartment count equal the repository's A549_plate_level_median_per_feat_sig_genes_1_FDR_*.csv and
+  Supplementary Table 2 (1 %). Recomputed zero-TPM list equals the deposited A549_CCLE_expression_summary.json (3,068).
+- 5 % whole-cell list equals Table S2 (5 %) A549_Whole_cell except one Excel-mangled name (SEPT7 shown as 2023-09-07).
+- Published-table defects found: Table S2 (5 %) sheet A549_Compartment holds 1,292 rows identical to HeLa_HPLM_Compartment,
+  not A549's 2,320 (the paper text says 2,320); Table S2 (1 %) A549_Compartment has its DAPI and WGA column headers swapped.
+- CORUM within-complex median r on the 1 % hits: 0.16186 over 972 pairs (reference 0.16171, 972 pairs); all-pairs
+  background -0.00404 (reference -0.00408). The 1.5e-4 difference is the reference's randomized PCA solver (unseeded
+  sklearn 'auto'); spaCR uses the exact SVD. Randomized solver over seeds 0/1/42/43 gives 0.1605-0.1621. Controls: random
+  pairs -0.027, shuffled labels -0.007.
+- STRING links among the 1,089 hits: 87,880 (reference 87,880). AUPRC observed / shuffled / baseline: >=0.4 0.0221 / 0.0186
+  / 0.0187; >=0.7 0.0120 / 0.0089 / 0.0090; >=0.9 0.0075 / 0.0052 / 0.0052.
+
+FAIRNESS
+Every input is scored by the same functions, reference files (sha256 in benchmark_setup.json), thresholds, FDR levels, PCA
+rule and control seed. With ops_scoring_benchmark_genes 'hits' each input is scored on its own hits (the published rule), so
+gene sets differ; use 'all' or a gene list for a same-genes comparison. What an input lacks is in benchmark_scorable.csv.
+
+NOT DONE / REMAINING
+- U/p recomputed from the guide-level profile (1e-12 check): the guide-level CP186 file is not in Tier 0; the function is
+  built and tested on synthetic guides.
+- spaCR CP186A profile scored with the identical call: no spaCR PERISCOPE profile exists yet (P1 run pending).
+- The per-plate CP186A profile rows and the HeLa screens were not scored.
+- Funk plate A 913 rows: unchanged by construction (empty ops_scoring_metrics takes the 913 path); 913 tests pass.
+- Translation and arrival-contract records: left for the master.
