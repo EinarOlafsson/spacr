@@ -75,7 +75,7 @@ def test_a_saved_row_names_the_column_and_the_kind_it_was(qapp):
     saved = panel.state()
     assert saved["version"] == 1
     assert saved["filters"] == [{"kind": "range", "column": "cell_area",
-                                 "low": 0.0, "high": 99.0}]
+                                 "enabled": True, "low": 0.0, "high": 99.0}]
 
 
 def test_saved_bounds_are_clamped_to_what_the_current_data_allows(qapp):
