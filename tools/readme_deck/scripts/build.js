@@ -905,7 +905,7 @@ moduleSlide({
 moduleSlide({
   icon: "graph_builder", color: AMBER, kicker: TOOLS(5), title: "Graph Builder: plots without code", stage: "beta", demo: true,
   purpose: "Build a plot by dragging columns onto axes. The chart type follows the data.",
-  can: ["Six drop zones: x, y, colour, size and two facets", "Histogram, bar, scatter, box or heatmap chosen for you; violin and line on request", "Brush points to select cells: linked to the UMAP and plate map", "Annotate conditions from metadata; reusable schemas", "Merge tables by name; save a chart and load it back"],
+  can: ["Six drop zones: x, y, colour, size and two facets", "Histogram, bar, scatter, box or heatmap chosen for you; violin and line on request", "Brush points to select cells: linked to the UMAP and plate map", "Annotate conditions from metadata; reusable schemas", "Merge tables by name; save and reload charts and filter sets"],
   out: ["Interactive charts and annotated tables, exportable"],
   images: [{ src: "keyframes/plate_heat.png", caption: "Plate Viewer: mean cell intensity per well", frac: 0.55 }, { src: "manuscript/fig3B_recruitment.png", caption: "Violin plot of per-well values", card: true, frac: 0.45 }],
   sub: [["Plate Viewer", "Plate heatmaps and edge-effect detection"], ["Small Multiples", "One plot per group, shared or independent axes"]],
@@ -1003,7 +1003,7 @@ section("05", "Trained models", L("Models I trained for our images, shipped thro
 
 const MODELS = [
   ["Toxoplasma PV v4", "toxoplasma_pv_v4", "Parasite vacuoles", "Cellpose-SAM", "F1 0.761 (stock 0.377)"],
-  ["Toxoplasma Plaque v5", "toxoplasma_plaque_v5", "Plaques in wells", "Cellpose-SAM", "F1 0.816 (stock 0.227)"],
+  ["Toxoplasma Plaque v9", "toxoplasma_plaque_v9", "Plaques in wells", "Cellpose-SAM", "F1 0.656 (stock 0.200)"],
   ["Plaque Well Detector v3", "toxoplasma_well_detector_v3", "Wells in plates / figures", "YOLO11n", "mAP50 0.994"],
   ["Toxoplasma from Cell Mask", "toxoplasma_from_cellmask_v1", "PVs from the cell channel", "Cellpose-SAM", "F1 0.606 (stock 0.021)"],
   ["Nuclei from Cell Mask", "nuclei_from_cellmask_v1", "Nuclei from the cell channel", "Cellpose-SAM", "F1 0.888 (stock 0.201)"],
@@ -1026,7 +1026,7 @@ const MODELS = [
     { text: "Name a key in a settings file: ", options: { color: TXT } }, { text: "pathogen_model: toxoplasma_pv_v4", options: { fontFace: MONO, color: "C8F2EE" } },
     { text: ": and spaCR downloads it the first time it is needed. Anyone can contribute a trained model: it is uploaded to the spaCR Hugging Face and then appears in every user's Model Zoo.", options: { color: TXT } },
   ], { x: M + 0.3, y: 5.6, w: W - 2 * M - 0.6, h: 1.3, fontFace: BF, fontSize: 14, valign: "middle", margin: 0, isTextBox: true });
-  notes(s, "Only the newest default version of each model line is shown. Older versions and alternatives (PV v1-v3 and v5, plaque v1-v4, well detector v1 and v2) remain in the zoo. Live cell v1: F1 0.960 against 0.885 on the datasets stock Cellpose-SAM never trained on; over all 2,199 test fields 0.694 against 0.738, because stock trained on LIVECell.");
+  notes(s, "Only the newest default version of each model line is shown. Older versions and alternatives (PV v1-v3 and v5, plaque v1-v6 and v8, well detector v1 and v2; toxoplasma_plaque_v7 is an alias of v8) remain in the zoo. Live cell v1: F1 0.960 against 0.885 on the datasets stock Cellpose-SAM never trained on; over all 2,199 test fields 0.694 against 0.738, because stock trained on LIVECell.");
 }
 
 const SEG_DEFS = [
@@ -1088,13 +1088,13 @@ modelSlide({
 });
 
 modelSlide({
-  title: "Toxoplasma Plaque v5", key: "toxoplasma_plaque_v5", icon: "analyze_plaques", color: MAG,
-  arch: "Cellpose-SAM (cpsam_v2), round 7", task: "Outlines plaques in crystal-violet wells: from gel imagers, our plates and published figures.",
+  title: "Toxoplasma Plaque v9", key: "toxoplasma_plaque_v9", icon: "analyze_plaques", color: MAG,
+  arch: "Cellpose-SAM (cpsam_v2), V8 run, epoch 100", task: "Outlines plaques in crystal-violet wells: from gel imagers, our plates and published figures.",
   images: [{ src: "models/plaque_examples.png", caption: "Curated plaque outlines (cyan): our microscope (left) and a published figure (right)", card: true }],
-  chart: { title: "153 held-out fields, never seen in training", series: [{ name: "Plaque v5", labels: ["F1", "AJI", "Dice"], values: [0.816, 0.737, 0.896] }, { name: "vanilla Cellpose-SAM", labels: ["F1", "AJI", "Dice"], values: [0.227, 0.178, 0.329] }] },
-  data: "1,507 curated fields (1,201 train, 153 validation, 153 test): Gel Doc wells, lab plates and published figures; 49,360 training plaques.",
-  notes: ["Default since 2026-10-17: built on cpsam_v2", "Precision 0.87, recall 0.77; on the 153 test fields v4 scores F1 0.725 and v3 0.741", "On Gel Doc wells v3 scores higher (0.954 vs 0.868): use v3 there", "v4 stays selectable"],
-  speaker: "Example images show curated ground truth, not predictions.",
+  chart: { title: "101 held-out well crops, never used in training", series: [{ name: "Plaque v9", labels: ["F1", "AJI", "Dice"], values: [0.656, 0.692, 0.900] }, { name: "vanilla Cellpose-SAM", labels: ["F1", "AJI", "Dice"], values: [0.200, 0.211, 0.392] }] },
+  data: "1,013 curated well crops (810 train, 102 validation, 101 test): Gel Doc wells, lab plates and published figures; 36,411 training plaques. Each well is resized to a 1500 px longest side.",
+  notes: ["Default since 2026-11-10; v6 stays selectable", "Precision 0.71, recall 0.61; a new test set, not comparable with older versions", "v8 is epoch 50 of the same run; the key v7 loads v8", "On Gel Doc wells v3 scores higher: use v3 there"],
+  speaker: "Example images show curated ground truth, not predictions. Scores: the 101 test crops of the V8 run's grouped split, thresholds chosen on the 102 validation crops; stock cpsam_v2 had the same well resize and its own validation-chosen thresholds. These test crops were also reported for the epoch-50 interim (v8) and an older V8 attempt, so they are not a fresh external test.",
 });
 
 modelSlide({
