@@ -356,6 +356,59 @@ def _summary(entry: Mapping[str, Any]) -> List[str]:
     return lines + [""]
 
 
+UNSEEN_HEADING = "## Fields this model never saw (curated ground truth)"
+
+
+def _ci(bounds: Sequence[float]) -> str:
+    return f"{bounds[0]:.3f} to {bounds[1]:.3f}"
+
+
+def _unseen_rescore(entry: Mapping[str, Any]) -> List[str]:
+    """The re-score on curated fields the model never saw, from ``unseen_rescore``.
+
+    The record holds the pooled numbers with their 95% confidence intervals,
+    the per-group breakdown, the plain findings and the fairness legend, all
+    copied from the receipt it names.
+    """
+    data = entry.get("unseen_rescore")
+    if not data:
+        return []
+    stock = data["stock_model"]
+    lines = [UNSEEN_HEADING, "",
+             f"Re-scored {data['date']} against hand-curated masks on fields this "
+             f"model never saw, beside stock "
+             f"{stock} (the control) on the identical fields. Receipt: "
+             f"`{data['receipt']}`.", "",
+             f"| Metric | This model (95% CI) | Stock {stock} (95% CI) | "
+             f"Difference (95% CI) |",
+             "| --- | --- | --- | --- |"]
+    for name, mine, mine_ci, base, base_ci, diff, diff_ci in data["rows"]:
+        label = "Object F1" if name == "object_f1" else METRIC_LABELS.get(name, name)
+        lines.append(f"| {label} | {mine:.3f} ({_ci(mine_ci)}) | "
+                     f"{base:.3f} ({_ci(base_ci)}) | {diff:.3f} ({_ci(diff_ci)}) |")
+    counts = data["counts"]
+    this, base = counts["this"], counts["stock"]
+    lines += ["",
+              f"n = {data['n_fields']} fields ({data['n_empty_fields']} with no "
+              f"vacuole) and {data['n_objects']:,} curated objects. This model "
+              f"reported {this['n_pred']:,} objects: {this['tp']:,} matched, "
+              f"{this['fp']:,} false, {this['fn']:,} curated objects missed. Stock "
+              f"{stock} reported {base['n_pred']:,}: {base['tp']:,} matched, "
+              f"{base['fp']:,} false, {base['fn']:,} missed. Confidence intervals: "
+              f"{data['ci_method']}.", "",
+              "| Group | Fields | Objects | Object F1 | Precision | Recall | AJI | "
+              f"Objects reported | Stock {stock} object F1 |",
+              "| --- | --- | --- | --- | --- | --- | --- | --- | --- |"]
+    for kind, label, fields, objects, f1, prec, rec, aji, pred, base_f1 in data["groups"]:
+        lines.append(f"| {kind} `{label}` | {fields} | {objects:,} | {f1:.3f} | "
+                     f"{prec:.3f} | {rec:.3f} | {aji:.3f} | {pred:,} | "
+                     f"{base_f1:.3f} |")
+    lines.append("")
+    lines += [f"- {_sentence(text)}" for text in data.get("findings") or ()]
+    lines += ["", f"Fair comparison: {_sentence(data['legend'])}", ""]
+    return lines
+
+
 def _card_text(entry: Mapping[str, Any]) -> str:
     """Everything a card prints, for deciding which terms it explains."""
     metrics = entry.get("metrics") or {}
@@ -450,6 +503,16 @@ def how_to_read(entry: Mapping[str, Any]) -> List[str]:
                 "**Stock** is the base model named under Architecture, run "
                 "without fine-tuning on the same images. **Difference** is "
                 "this model's score minus stock's.")
+    if entry.get("unseen_rescore"):
+        lines.append(
+            "**Object F1** is F1 over whole objects matched at IoU 0.5. "
+            "**Boundary F1 (2 px)** is F1 over outline pixels, where a "
+            "predicted outline pixel counts when it lies within 2 pixels of a "
+            "reference outline.")
+        lines.append(
+            "A **95% CI** (confidence interval) is the range the pooled score "
+            "falls in for 95% of bootstrap resamples, drawn by well so that "
+            "neighbouring fields of one well stay together.")
     if _cross_validated(entry):
         lines.append(
             "**Cross-validated** scores split the data into folds, hold out "
@@ -531,6 +594,7 @@ def render_card(entry: Mapping[str, Any], family: Mapping[str, Any]) -> str:
     metrics = entry.get("metrics") or {}
     lines += _scorecard(metrics)
     lines += _summary(entry)
+    lines += _unseen_rescore(entry)
 
     notes = [str(note).strip() for note in entry.get("notes") or ()
              if str(note).strip()]

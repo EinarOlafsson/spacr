@@ -776,6 +776,10 @@ msgstr "अलग रखा गया विभाजन चेकपॉइं�
 msgid "accuracy falls above IoU 0.8 -- suited to counting, occupancy and area rather than precise morphometry"
 msgstr "IoU 0.8 से ऊपर सटीकता गिरती है -- सटीक आकृतिमिति के बजाय गिनती, अधिभोग और क्षेत्रफल के लिए उपयुक्त"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Re-scored 2026-11-10 on curated ground truth, fields this model never saw (spaCR pipeline call, defaults, cellpose 4.2.1.1; receipt features/data/model_rescore_unseen_20261110/receipt.json): object F1 0.355 (95% CI 0.300 to 0.411) against stock cpsam_v2's 0.012 on 80 fields with 1,332 curated vacuoles, at IoU 0.5. Precision is 0.683 but recall is 0.239: it misses about three of every four vacuoles. The recorded F1 0.606 was scored against automatic PV-regenerated masks on the checkpoint-selection split, so it overstates accuracy on curated masks. Default unchanged."
+msgstr "2026-11-10 को क्यूरेट किए गए ग्राउंड ट्रुथ पर, इस मॉडल द्वारा कभी न देखे गए फ़ील्ड पर पुनः स्कोर किया गया (spaCR पाइपलाइन कॉल, डिफ़ॉल्ट, cellpose 4.2.1.1; रसीद features/data/model_rescore_unseen_20261110/receipt.json): IoU 0.5 पर ऑब्जेक्ट F1 0.355 (95% विश्वास अंतराल 0.300 से 0.411), जबकि स्टॉक cpsam_v2 का 0.012; 80 फ़ील्ड और 1,332 क्यूरेट की गई रिक्तिकाएँ। प्रिसिशन 0.683 है पर रिकॉल केवल 0.239: यह लगभग हर चार में से तीन रिक्तिकाएँ छोड़ देता है। दर्ज F1 0.606 चेकपॉइंट चुनने वाले विभाजन पर स्वचालित रूप से पुनर्जनित PV मास्क के विरुद्ध मापा गया था, इसलिए यह क्यूरेट किए गए मास्क पर सटीकता को बढ़ाकर दिखाता है। डिफ़ॉल्ट अपरिवर्तित।"
+
 msgid "Published as `einarolafsson/toxoplasma-from-cellmask-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-cellmask-cpsam>`_, as ``toxoplasma_from_cellmask_pv``."
 msgstr "`einarolafsson/toxoplasma-from-cellmask-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-cellmask-cpsam>`_ के रूप में, ``toxoplasma_from_cellmask_pv`` नाम से प्रकाशित।"
 
@@ -1344,6 +1348,10 @@ msgstr "प्रति मेज़बान: HFF 0.932, HeLa 0.860, THP1 0.861
 msgid "predicts nuclei from cell morphology -- expect degraded accuracy on unusual or highly confluent morphologies"
 msgstr "कोशिका आकृति से केंद्रकों का अनुमान लगाता है -- असामान्य या अत्यधिक सघन आकृतियों पर कम सटीकता की अपेक्षा करें"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "No curated ground truth exists yet for this model, so it has not been re-scored on fields it never saw (2026-11-10)."
+msgstr "इस मॉडल के लिए अभी कोई क्यूरेट किया गया ग्राउंड ट्रुथ नहीं है, इसलिए इसे कभी न देखे गए फ़ील्ड पर पुनः स्कोर नहीं किया गया है (2026-11-10)।"
+
 msgid "Published as `einarolafsson/cross-channel-nuclei-from-cellmask-cpsam <https://huggingface.co/einarolafsson/cross-channel-nuclei-from-cellmask-cpsam>`_, as ``nuclei_from_cellmask_best``."
 msgstr "`einarolafsson/cross-channel-nuclei-from-cellmask-cpsam <https://huggingface.co/einarolafsson/cross-channel-nuclei-from-cellmask-cpsam>`_ के रूप में, ``nuclei_from_cellmask_best`` नाम से प्रकाशित।"
 
@@ -1388,6 +1396,10 @@ msgstr "IoU 0.5 पर F1 0.569, AJI 0.421, Dice 0.546, जबकि मान�
 
 msgid "the Hoechst route is harder than the cell-mask route -- compare toxoplasma_from_cellmask_v1"
 msgstr "Hoechst मार्ग कोशिका-मास्क मार्ग से कठिन है -- toxoplasma_from_cellmask_v1 से तुलना करें"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Re-scored 2026-11-10 on curated ground truth, fields this model never saw (spaCR pipeline call, defaults, cellpose 4.2.1.1; receipt features/data/model_rescore_unseen_20261110/receipt.json): object F1 0.446 (95% CI 0.404 to 0.486) against stock cpsam_v2's 0.001 on 224 fields with 13,474 curated vacuoles, at IoU 0.5. Per acquisition F1 ranges from 0.039 to 0.581; on the HFF and HeLa tubulin acquisitions precision is 0.020 and 0.078, so most objects it reports there are not vacuoles. The recorded F1 0.569 was scored against automatic PV-regenerated masks on the checkpoint-selection split. Default unchanged."
+msgstr "2026-11-10 को क्यूरेट किए गए ग्राउंड ट्रुथ पर, इस मॉडल द्वारा कभी न देखे गए फ़ील्ड पर पुनः स्कोर किया गया (spaCR पाइपलाइन कॉल, डिफ़ॉल्ट, cellpose 4.2.1.1; रसीद features/data/model_rescore_unseen_20261110/receipt.json): IoU 0.5 पर ऑब्जेक्ट F1 0.446 (95% विश्वास अंतराल 0.404 से 0.486), जबकि स्टॉक cpsam_v2 का 0.001; 224 फ़ील्ड और 13,474 क्यूरेट की गई रिक्तिकाएँ। प्रति अधिग्रहण F1 0.039 से 0.581 तक है; HFF और HeLa ट्यूबुलिन अधिग्रहणों पर प्रिसिशन 0.020 और 0.078 है, इसलिए वहाँ यह जिन ऑब्जेक्ट की रिपोर्ट करता है उनमें से अधिकांश रिक्तिकाएँ नहीं हैं। दर्ज F1 0.569 चेकपॉइंट चुनने वाले विभाजन पर स्वचालित रूप से पुनर्जनित PV मास्क के विरुद्ध मापा गया था। डिफ़ॉल्ट अपरिवर्तित।"
 
 msgid "Published as `einarolafsson/toxoplasma-from-hoechst-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-hoechst-cpsam>`_, as ``toxoplasma_from_hoechst_pv``."
 msgstr "`einarolafsson/toxoplasma-from-hoechst-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-hoechst-cpsam>`_ के रूप में, ``toxoplasma_from_hoechst_pv`` नाम से प्रकाशित।"

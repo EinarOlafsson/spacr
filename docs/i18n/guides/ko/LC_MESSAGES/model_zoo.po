@@ -776,6 +776,10 @@ msgstr "홀드아웃 분할로 체크포인트를 선택하므로 독립 테스�
 msgid "accuracy falls above IoU 0.8 -- suited to counting, occupancy and area rather than precise morphometry"
 msgstr "IoU 0.8을 넘으면 정확도가 떨어짐 -- 정밀한 형태 측정보다는 계수, 점유, 면적 측정에 적합"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Re-scored 2026-11-10 on curated ground truth, fields this model never saw (spaCR pipeline call, defaults, cellpose 4.2.1.1; receipt features/data/model_rescore_unseen_20261110/receipt.json): object F1 0.355 (95% CI 0.300 to 0.411) against stock cpsam_v2's 0.012 on 80 fields with 1,332 curated vacuoles, at IoU 0.5. Precision is 0.683 but recall is 0.239: it misses about three of every four vacuoles. The recorded F1 0.606 was scored against automatic PV-regenerated masks on the checkpoint-selection split, so it overstates accuracy on curated masks. Default unchanged."
+msgstr "2026-11-10에 선별된 정답 데이터로, 이 모델이 본 적 없는 시야에서 재채점함(spaCR 파이프라인 호출, 기본값, cellpose 4.2.1.1; 기록 features/data/model_rescore_unseen_20261110/receipt.json): IoU 0.5 기준 객체 F1 0.355(95% 신뢰구간 0.300~0.411), 기본 모델 cpsam_v2는 0.012; 시야 80개, 선별된 액포 1,332개. 정밀도는 0.683이지만 재현율은 0.239로, 액포 네 개 중 약 세 개를 놓칩니다. 기록된 F1 0.606은 체크포인트 선택에 쓰인 분할에서 자동 재생성된 PV 마스크를 기준으로 측정되었으므로 선별된 마스크 기준 정확도를 과대평가합니다. 기본값은 변경되지 않았습니다."
+
 msgid "Published as `einarolafsson/toxoplasma-from-cellmask-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-cellmask-cpsam>`_, as ``toxoplasma_from_cellmask_pv``."
 msgstr "`einarolafsson/toxoplasma-from-cellmask-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-cellmask-cpsam>`_ 에 ``toxoplasma_from_cellmask_pv`` 로 게시되었습니다."
 
@@ -1344,6 +1348,10 @@ msgstr "숙주별: HFF 0.932, HeLa 0.860, THP1 0.861"
 msgid "predicts nuclei from cell morphology -- expect degraded accuracy on unusual or highly confluent morphologies"
 msgstr "세포 형태로 핵을 예측함 -- 특이하거나 밀집도가 매우 높은 형태에서는 정확도가 떨어질 수 있음"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "No curated ground truth exists yet for this model, so it has not been re-scored on fields it never saw (2026-11-10)."
+msgstr "이 모델에는 아직 선별된 정답 데이터가 없으므로, 본 적 없는 시야에서 재채점되지 않았습니다(2026-11-10)."
+
 msgid "Published as `einarolafsson/cross-channel-nuclei-from-cellmask-cpsam <https://huggingface.co/einarolafsson/cross-channel-nuclei-from-cellmask-cpsam>`_, as ``nuclei_from_cellmask_best``."
 msgstr "`einarolafsson/cross-channel-nuclei-from-cellmask-cpsam <https://huggingface.co/einarolafsson/cross-channel-nuclei-from-cellmask-cpsam>`_ 에 ``nuclei_from_cellmask_best`` 로 게시되었습니다."
 
@@ -1388,6 +1396,10 @@ msgstr "IoU 0.5 기준 F1 0.569, AJI 0.421, Dice 0.546, 기본 cpsam_v2는 0.002
 
 msgid "the Hoechst route is harder than the cell-mask route -- compare toxoplasma_from_cellmask_v1"
 msgstr "Hoechst 경로가 세포 마스크 경로보다 어려움 -- toxoplasma_from_cellmask_v1과 비교"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Re-scored 2026-11-10 on curated ground truth, fields this model never saw (spaCR pipeline call, defaults, cellpose 4.2.1.1; receipt features/data/model_rescore_unseen_20261110/receipt.json): object F1 0.446 (95% CI 0.404 to 0.486) against stock cpsam_v2's 0.001 on 224 fields with 13,474 curated vacuoles, at IoU 0.5. Per acquisition F1 ranges from 0.039 to 0.581; on the HFF and HeLa tubulin acquisitions precision is 0.020 and 0.078, so most objects it reports there are not vacuoles. The recorded F1 0.569 was scored against automatic PV-regenerated masks on the checkpoint-selection split. Default unchanged."
+msgstr "2026-11-10에 선별된 정답 데이터로, 이 모델이 본 적 없는 시야에서 재채점함(spaCR 파이프라인 호출, 기본값, cellpose 4.2.1.1; 기록 features/data/model_rescore_unseen_20261110/receipt.json): IoU 0.5 기준 객체 F1 0.446(95% 신뢰구간 0.404~0.486), 기본 모델 cpsam_v2는 0.001; 시야 224개, 선별된 액포 13,474개. 획득 세트별 F1은 0.039에서 0.581까지이며, HFF 및 HeLa 튜불린 획득 세트에서는 정밀도가 0.020과 0.078이므로 그곳에서 보고하는 객체 대부분은 액포가 아닙니다. 기록된 F1 0.569는 체크포인트 선택에 쓰인 분할에서 자동 재생성된 PV 마스크를 기준으로 측정되었습니다. 기본값은 변경되지 않았습니다."
 
 msgid "Published as `einarolafsson/toxoplasma-from-hoechst-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-hoechst-cpsam>`_, as ``toxoplasma_from_hoechst_pv``."
 msgstr "`einarolafsson/toxoplasma-from-hoechst-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-hoechst-cpsam>`_ 에 ``toxoplasma_from_hoechst_pv`` 로 게시되었습니다."
