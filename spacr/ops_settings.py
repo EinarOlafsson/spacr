@@ -2435,7 +2435,9 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "for the spacer-prefix decode. Default 'sgRNA'. Alpha.",
     "ops_library_gene_col":
         "(str) - The library column holding each guide's gene for the "
-        "spacer-prefix decode. Default 'gene_symbol'. Alpha.",
+        "spacer-prefix decode. It names the gene of every call, and a prefix "
+        "shared by guides of different genes in this column is never called. "
+        "Default 'gene_symbol'. Alpha.",
     "ops_prefix_length":
         "(int) - How many cycles of the spacer are matched, from cycle 1. "
         "Shorter prefixes collide more often between guides; PERISCOPE used "
@@ -2481,8 +2483,9 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "same size and base composition, the rate a random library would "
         "reach. Default True. Alpha.",
     "ops_control_seed":
-        "(int) - Seed of the shuffled-whitelist control; another seed "
-        "shuffles differently. Default 0. Alpha.",
+        "(int) - Seed of the shuffled-whitelist control. Another seed draws "
+        "another shuffled whitelist, so the control's chance match rate moves "
+        "a little while the real calls stay the same. Default 0. Alpha.",
     "ops_stress_report":
         "(bool) - At the end of the run, time the store as the reference "
         "stress test did (database rows, queries for one field, one gene, "
