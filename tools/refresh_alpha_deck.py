@@ -136,6 +136,8 @@ GROUPS = (
         (912, "OPS DNA flat-field map from nuclei, held-out check"),
         (913, "OPS copairs and EFAAR scores on shared genes"),
         (914, "OPS cell-state profiles and mitotic index test"),
+        (919, "Cell Painting Gallery cropped-site reader"),
+        (920, "OPS spacer-prefix decode with quality classes"),
         (584, "Chemistry-aware hits: SMILES, clusters, SAR"),
         (585, "Sample-size planner for arrayed assays"),
         (534, "Spatial transcriptomics: Visium, Xenium; spatial masks, barcodes"),

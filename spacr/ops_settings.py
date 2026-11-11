@@ -291,6 +291,31 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_power_cells": [10, 25, 50, 100, 200, 500, None],
     "ops_power_seeds": [0, 1, 2],
     "ops_power_retrieval": False,
+    "ops_layout": "tiles",
+    "cpg_root": None,
+    "cpg_wells": None,
+    "cpg_sites": None,
+    "cpg_phenotype_channels": ["CorrDNA", "CorrPhalloidin", "CorrMito", "CorrER", "CorrWGA"],
+    "cpg_sbs_cycles": 12,
+    "cpg_sbs_bases": ["G", "T", "A", "C"],
+    "cpg_sbs_dapi": "Cycle01_DAPI",
+    "cpg_sbs_resample": "none",
+    "cpg_missing": "error",
+    "cpg_md5": False,
+    "ops_library_mode": "barcode",
+    "ops_library_sequence_col": "sgRNA",
+    "ops_library_gene_col": "gene_symbol",
+    "ops_prefix_length": 10,
+    "ops_sbs_cycles": 12,
+    "ops_cycle_mask": [],
+    "ops_prefix_collision": "exclude",
+    "ops_prefix_metric": "hamming",
+    "ops_prefix_max_distance": 1,
+    "ops_prefix_crosstalk": "none",
+    "ops_prefix_masks": None,
+    "ops_quality_min_reads": 2,
+    "ops_random_barcode_control": True,
+    "ops_control_seed": 0,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -565,6 +590,31 @@ OPS_TYPES: Dict[str, object] = {
     "ops_power_cells": (list, str),
     "ops_power_seeds": (list, str),
     "ops_power_retrieval": bool,
+    "ops_layout": str,
+    "cpg_root": (str, type(None)),
+    "cpg_wells": (list, str, type(None)),
+    "cpg_sites": (list, str, int, type(None)),
+    "cpg_phenotype_channels": (list, str),
+    "cpg_sbs_cycles": int,
+    "cpg_sbs_bases": (list, str),
+    "cpg_sbs_dapi": (str, type(None)),
+    "cpg_sbs_resample": str,
+    "cpg_missing": str,
+    "cpg_md5": bool,
+    "ops_library_mode": str,
+    "ops_library_sequence_col": str,
+    "ops_library_gene_col": str,
+    "ops_prefix_length": int,
+    "ops_sbs_cycles": int,
+    "ops_cycle_mask": (list, str),
+    "ops_prefix_collision": str,
+    "ops_prefix_metric": str,
+    "ops_prefix_max_distance": int,
+    "ops_prefix_crosstalk": str,
+    "ops_prefix_masks": (str, type(None)),
+    "ops_quality_min_reads": int,
+    "ops_random_barcode_control": bool,
+    "ops_control_seed": int,
 }
 
 #: Which panel section each setting appears under.
@@ -578,6 +628,9 @@ OPS_TYPES: Dict[str, object] = {
 OPS_CATEGORIES: Dict[str, List[str]] = {
     "OPS input": [
         "dst_root", "genotype_source", "phenotype_source", "ops_library",
+        "ops_layout", "cpg_root", "cpg_wells", "cpg_sites",
+        "cpg_phenotype_channels", "cpg_sbs_cycles", "cpg_sbs_bases",
+        "cpg_sbs_dapi", "cpg_sbs_resample", "cpg_missing", "cpg_md5",
     ],
     "OPS alignment": [
         "cellpose_model", "cellpose_diameter", "ops_raster_overlap",
@@ -629,6 +682,11 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_compare_tables",
         "ops_compare_match_px",
         "ops_compare_fields",
+        "ops_library_mode", "ops_library_sequence_col", "ops_library_gene_col",
+        "ops_prefix_length", "ops_sbs_cycles", "ops_cycle_mask",
+        "ops_prefix_collision", "ops_prefix_metric", "ops_prefix_max_distance",
+        "ops_prefix_crosstalk", "ops_prefix_masks", "ops_quality_min_reads",
+        "ops_random_barcode_control", "ops_control_seed",
     ],
     "OPS performance": [
         "ops_gpu", "n_workers",
@@ -2139,6 +2197,113 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "tables; 'wide' also writes cell_wide, one row per cell with all "
         "three compartments' features, which needs no join. Default "
         "'compartments'. Alpha.",
+    "ops_layout":
+        "(str) - How the input folders are laid out. 'tiles' is the "
+        "microscope's tile names, stitched and registered by the engine. "
+        "'cpg_cropped' reads the Cell Painting Gallery's "
+        "images_corrected_cropped layout (one TIFF per channel and site, "
+        "already corrected and aligned) from cpg_root: no stitching and no "
+        "registration; run phases cpg_index, cpg_merged and prefix_decode. "
+        "Default 'tiles'. Alpha.",
+    "cpg_root":
+        "(str or None) - The images_corrected_cropped folder, or one "
+        "<plate>_Well<N> folder inside it. The plate and well are taken from "
+        "that folder name. Default None. Alpha.",
+    "cpg_wells":
+        "(list, str or None) - Which wells of cpg_root to read, as Well1, W1 "
+        "or CP186A_Well1. Empty reads every well folder. Default None. Alpha.",
+    "cpg_sites":
+        "(list, str, int or None) - Which sites to read, as a list or a "
+        "string such as '1-10,45'. Empty reads every site. Default None. "
+        "Alpha.",
+    "cpg_phenotype_channels":
+        "(list) - The painting channel folders, in the order they are "
+        "stacked into each site's phenotype array. The order is never taken "
+        "from the folder listing. Default CorrDNA, CorrPhalloidin, CorrMito, "
+        "CorrER, CorrWGA. Alpha.",
+    "cpg_sbs_cycles":
+        "(int) - How many sequencing cycles each site holds; every site must "
+        "have Cycle01 to this cycle for every base. Default 12. Alpha.",
+    "cpg_sbs_bases":
+        "(list) - The base of each sequencing plane per cycle, in the order "
+        "they are stacked; the decode calls the brightest plane by this "
+        "order. Default G, T, A, C, the order of ops_base_channels. Alpha.",
+    "cpg_sbs_dapi":
+        "(str or None) - The sequencing nuclear channel, read on cycle 1 "
+        "only. Empty skips it. Default 'Cycle01_DAPI'. Alpha.",
+    "cpg_sbs_resample":
+        "(str) - What to do when a site's sequencing grid differs from its "
+        "painting grid. 'none' refuses, which keeps the pixels exactly as "
+        "published; 'nearest' or 'linear' resizes the sequencing planes and "
+        "records the factor. Default 'none'. Alpha.",
+    "cpg_missing":
+        "(str) - What to do when a site lacks a pinned channel or cycle. "
+        "'error' stops and names every missing file; 'skip_site' leaves "
+        "those sites out and lists them in cpg_missing.csv. Default 'error'. "
+        "Alpha.",
+    "cpg_md5":
+        "(bool) - Add each file's md5 to cpg_index.csv, which proves later "
+        "that a run read the same bytes. Reading every file takes time on a "
+        "network drive. Default False. Alpha.",
+    "ops_library_mode":
+        "(str) - What the library holds. 'barcode' is a separate barcode "
+        "per guide, matched by the tile decode. 'spacer_prefix' reads the "
+        "guide's own spacer (CROP-seq) and matches its first "
+        "ops_prefix_length bases (phase prefix_decode). Default 'barcode'. "
+        "Alpha.",
+    "ops_library_sequence_col":
+        "(str) - The library column holding each guide's spacer sequence "
+        "for the spacer-prefix decode. Default 'sgRNA'. Alpha.",
+    "ops_library_gene_col":
+        "(str) - The library column holding each guide's gene for the "
+        "spacer-prefix decode. Default 'gene_symbol'. Alpha.",
+    "ops_prefix_length":
+        "(int) - How many cycles of the spacer are matched, from cycle 1. "
+        "Shorter prefixes collide more often between guides; PERISCOPE used "
+        "10 for A549 and 12 for HeLa. Default 10. Alpha.",
+    "ops_sbs_cycles":
+        "(int) - How many sequencing cycles were imaged; the prefix may not "
+        "be longer. Default 12. Alpha.",
+    "ops_cycle_mask":
+        "(list) - Cycles, counted from 1, that are not read (for example a "
+        "failed cycle). They are removed from both the reads and the library "
+        "prefixes, so the key is that much shorter. Default []. Alpha.",
+    "ops_prefix_collision":
+        "(str) - What to do with a prefix shared by several guides. Guides "
+        "of different genes are never called. 'exclude' calls no shared "
+        "prefix; 'gene_level' calls a prefix shared only by guides of one "
+        "gene as that gene. Default 'exclude'. Alpha.",
+    "ops_prefix_metric":
+        "(str) - How a read that is not an exact prefix is corrected. "
+        "'hamming' counts differing cycles; 'levenshtein' also corrects one "
+        "skipped or extra base, as CellProfiler's CallBarcodes does. "
+        "Default 'hamming'. Alpha.",
+    "ops_prefix_max_distance":
+        "(int) - The largest distance a read is corrected over; a read "
+        "equally close to two prefixes is never assigned. 0 keeps exact "
+        "matches only. Default 1. Alpha.",
+    "ops_prefix_crosstalk":
+        "(str) - Dye crosstalk compensation before the spacer-prefix calls. "
+        "'none' calls the median-normalised channels as they are (the "
+        "published crops are already compensated); 'per_cycle' fits one "
+        "unmixing per cycle, 'global' one over all cycles. Default 'none'. "
+        "Alpha.",
+    "ops_prefix_masks":
+        "(str or None) - The cell labels each read is assigned by: a path "
+        "with {plate}, {well}, {well_id}, {well_number} and {site} fields to "
+        "a TIFF, .npy or .npz label image per site. Empty uses each site's "
+        "merged/ labels when they exist. Default None. Alpha.",
+    "ops_quality_min_reads":
+        "(int) - Exact reads of one barcode a cell needs, with no read of "
+        "another barcode, to be called perfect; fewer, or a minority "
+        "competitor, makes it great. Default 2. Alpha.",
+    "ops_random_barcode_control":
+        "(bool) - Also match every read against a shuffled whitelist of the "
+        "same size and base composition, the rate a random library would "
+        "reach. Default True. Alpha.",
+    "ops_control_seed":
+        "(int) - Seed of the shuffled-whitelist control; another seed "
+        "shuffles differently. Default 0. Alpha.",
     "ops_stress_report":
         "(bool) - At the end of the run, time the store as the reference "
         "stress test did (database rows, queries for one field, one gene, "

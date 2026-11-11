@@ -308,9 +308,54 @@ _FLAT_PHASES = ("flat_nuclear", "flat_validate")
 #: copairs activity and consistency and EFAAR recall, with controls.
 _SCORING_PHASES = ("score",)
 
+#: The cropped-site layout path (alpha, items 919 and 920): index the Cell
+#: Painting Gallery's per-channel site TIFFs, write their painting stacks to
+#: ``merged/``, and decode the sequencing stacks against spacer prefixes.
+_CPG_PHASES = ("cpg_index", "cpg_merged", "prefix_decode")
+
 #: Every phase :func:`run_ops` accepts, in the order they run.
 _ALL_PHASES = (_PHASES + _PH_PHASES + ("decode_qc", "compare_calls")
-               + _PROFILE_PHASES + _FLAT_PHASES + _SCORING_PHASES)
+               + _PROFILE_PHASES + _FLAT_PHASES + _SCORING_PHASES + _CPG_PHASES)
+
+
+def _run_cpg(settings: Mapping[str, Any], phases: Sequence[str]) -> Dict[str, Any]:
+    """Run the cropped-site phases of :func:`run_ops` (items 919 and 920).
+
+    :param settings: the OPS settings with ``ops_layout`` ``'cpg_cropped'``.
+    :param phases: the phases asked for. The default tile phases mean
+        ``cpg_index`` and ``cpg_merged``, plus ``prefix_decode`` when
+        ``ops_library_mode`` is ``'spacer_prefix'``.
+    :returns: ``{phase: report}`` and ``"layout": "cpg_cropped"``.
+    :raises ValueError: when the layout is not ``'cpg_cropped'``, when a tile
+        phase is asked for, or when ``prefix_decode`` is asked for without
+        ``ops_library_mode='spacer_prefix'``.
+    """
+    from .cpg_cropped import run_cpg_phases
+
+    layout = str(settings.get("ops_layout") or "tiles")
+    if layout != "cpg_cropped":
+        raise ValueError(f"phases {list(_CPG_PHASES)} read the cropped-site layout; "
+                         f"set ops_layout to 'cpg_cropped' (got {layout!r})")
+    mode = str(settings.get("ops_library_mode") or "barcode")
+    if tuple(phases) == _PHASES:
+        phases = ("cpg_index", "cpg_merged") + (
+            ("prefix_decode",) if mode == "spacer_prefix" else ())
+    other = [phase for phase in phases if phase not in _CPG_PHASES]
+    if other:
+        raise ValueError(f"ops_layout 'cpg_cropped' runs only {list(_CPG_PHASES)}; "
+                         f"the crops are already stitched and registered, so {other} "
+                         "do not apply")
+    if "prefix_decode" in phases and mode != "spacer_prefix":
+        raise ValueError("prefix_decode needs ops_library_mode 'spacer_prefix'")
+    out: Dict[str, Any] = {"layout": "cpg_cropped", "phases": list(phases)}
+    reader = [phase for phase in _CPG_PHASES[:2] if phase in phases]
+    if reader:
+        out["cpg"] = run_cpg_phases(settings, reader, report=_say)
+    if "prefix_decode" in phases:
+        from .ops_prefix import run_prefix_decode
+
+        out["prefix_decode"] = run_prefix_decode(settings, report=_say)
+    return out
 
 #: The columns of ``ops_phenotype`` that hold each field's similarity
 #: transform into the well frame: ``well = scale * R(rotation_deg) @
@@ -7523,7 +7568,13 @@ def run_ops(settings: Mapping[str, Any], *,
         phases run inside :func:`spacr.ops_tvn.run_profile_phases`. Like the
         profile path, the flat-field and score phases hold the BLAS and
         OpenMP pools to one thread while ``ops_deterministic_blas`` is on
-        (the result's ``blas_threads``).
+        (the result's ``blas_threads``). With ``ops_layout`` set to
+        ``'cpg_cropped'`` (alpha, items 919 and 920) only ``"cpg_index"``,
+        ``"cpg_merged"`` and ``"prefix_decode"`` run
+        (:func:`spacr.cpg_cropped.run_cpg_phases`,
+        :func:`spacr.ops_prefix.run_prefix_decode`); the default phases mean
+        the first two, and the decode too under
+        ``ops_library_mode='spacer_prefix'``.
     :param library: the guide barcodes, as a sequence or the path of a CSV
         with a ``prefix``, ``barcode`` or ``sequence`` column. When given,
         each barcode is also mapped to its closest guide. Overrides the
@@ -7540,6 +7591,9 @@ def run_ops(settings: Mapping[str, Any], *,
     if unknown:
         raise ValueError(
             f"unknown phases {unknown}; choose from {list(_ALL_PHASES)}")
+    if (str(settings.get("ops_layout") or "tiles") == "cpg_cropped"
+            or any(phase in _CPG_PHASES for phase in phases)):
+        return _run_cpg(settings, phases)
     if any(phase in _PROFILE_PHASES for phase in phases):
         if any(phase not in _PROFILE_PHASES for phase in phases):
             raise ValueError("the profile phases run on their own; run "

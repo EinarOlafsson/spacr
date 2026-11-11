@@ -1,0 +1,72 @@
+OPS IN-SITU DECODE OF sgRNA SPACER PREFIXES (CROP-SEQ): PREFIX WHITELIST, CYCLE MASK, CROSSTALK, HAMMING/LEVENSHTEIN, QUALITY CLASSES
+====================================================================================================================================
+
+Lifecycle: future
+Status: DONE 2026-11-11 (alpha, under ALPHA_FEATURES[920]) — spacr.ops_prefix: spacer_prefix_library builds the whitelist from a library table (ops_library, columns ops_library_sequence_col / ops_library_gene_col): each guide's key is its spacer at cycles 1..ops_prefix_length minus ops_cycle_mask (prefix_positions); identical spacers count once; a key shared by guides of different genes is never called; a key shared only by guides of one gene is called as that gene under ops_prefix_collision='gene_level' and excluded under 'exclude'; collisions table and the whitelist's minimum Hamming distance (whitelist_min_distance). match_prefix_reads: exact, then Hamming (default) or Levenshtein (one skipped or extra base, matched against the spacer's next base) up to ops_prefix_max_distance; an equally close pair is ambiguous, a unique match to an uncallable key is 'collision'; N (unmeasured) matches any base. shuffled_library is the random-barcode control (every key shuffled with default_rng(ops_control_seed)). compensate_prefix: ops_prefix_crosstalk 'none' | 'per_cycle' | 'global' (brieflow median unmixing). detect_spots / decode_prefix_site: the tile decode's LoG + cross-cycle std spot score (ops_read_threshold), median-normalised argmax calls, reads assigned by the cell label under them (ops_prefix_masks template, else merged/ labels). prefix_cell_calls / classify_cell: per cell the top barcode, read counts and class perfect | great | ambiguous | none (QUALITY_CLASSES, written to quality_classes.json). run_prefix_decode is OPS phase prefix_decode under ops_layout='cpg_cropped' and ops_library_mode='spacer_prefix' (item 919 input), writing results/ops_prefix/. spacr/ops_prefix.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_spacer_prefix_decode_920.py.
+Requested: maintainer via paper session (BMC paper item spec ITEM_ops_spacer_prefix_decode.md), 2026-11-10.
+Owner: lane N (Wave 4).
+Source: PCPIP 9_Analysis.cppipe CallBarcodes (A549 10 cycles, HeLa 12); Funk 2022 / brieflow crosstalk; spacr.ops_sbs base calling.
+Related: 873, 876, 877, 919, 922, 925.
+
+SETTINGS (alpha, ALPHA_FEATURES[920])
+ops_library_mode ('barcode' | 'spacer_prefix'), ops_library_sequence_col
+('sgRNA'), ops_library_gene_col ('gene_symbol'), ops_prefix_length (10),
+ops_sbs_cycles (12), ops_cycle_mask ([]), ops_prefix_collision ('exclude'),
+ops_prefix_metric ('hamming'), ops_prefix_max_distance (1),
+ops_prefix_crosstalk ('none'), ops_prefix_masks (None),
+ops_quality_min_reads (2), ops_random_barcode_control (True),
+ops_control_seed (0). The library path is the existing ops_library.
+
+QUALITY CLASSES
+perfect   >= ops_quality_min_reads exact reads of one barcode, no read of
+          any other barcode
+great     not perfect; the top barcode has more reads than any other
+          (exact reads with a minority competitor, a single exact read,
+          or corrected reads only)
+ambiguous matched reads, two barcodes tie for the most reads
+none      no read matched a callable barcode
+CellProfiler's Perfect / Great (pycytominer 'simple' cell quality) are not
+re-implemented; the classes are written to the run folder for comparison.
+
+OUTPUTS (<dst_root>/results/ops_prefix/)
+library_prefix_collisions.csv, library_summary.json, quality_classes.json,
+reads_<plate>_<well_id>.parquet (y, x, cell, quality, read, key, prefix,
+distance, status, guide, gene, level, control_status), cells_<plate>_<well_id>.csv,
+site_summary.csv (read fractions exact / corrected / ambiguous / collision /
+out_of_library, control match rate, cells per class), cells_per_guide.csv,
+cells_per_gene.csv.
+
+DEVIATIONS FROM THE SPEC
+- Crosstalk is its own setting, ops_prefix_crosstalk, rather than new values
+  of ops_crosstalk: the tile decode's ops_crosstalk keeps its default
+  'argmax_median', while the spec wants 'none' first for P1.
+- ops_prefix_masks (new) names the cell labels reads are assigned by, since
+  the cropped layout has no spaCR segmentation yet (items 921/922).
+- The decode phase reads only the cropped-site layout (item 919). The tile
+  path (Feldman via item 925) is not wired.
+- Reads with an N are matched by Hamming distance under either metric.
+
+VALIDATION (Home, CPU, spacr env, 2026-11-11)
+- Library, N = 10, from the deposited Barcodes.csv: 80,862 guides, 78,521
+  prefixes, 2,324 shared prefixes (2,323 shared by different genes, 1 by
+  one gene; 4,665 guides involved), 76,197 callable prefixes, minimum
+  Hamming distance 1 (109,954 pairs at distance 1). An independent pandas
+  count from Barcodes.csv gives the same numbers and the same prefix set.
+  N = 11 and 12 have no shared prefixes (minimum distance 1 and 2).
+- Pilot, one site (CP186A Well1 site 45), settings-file run with defaults
+  (ops_read_threshold 315 from the Funk plate, crosstalk 'none', Hamming 1)
+  and CellProfiler's own Cells masks: 668 reads; exact 34 %, corrected
+  13 %, ambiguous 38 %, collision 3 %, out of library 11 %; the shuffled
+  whitelist matches 30 % of the same reads against 48 % for the real one.
+  549 cells with a read (2.0 % of CellProfiler's 11,135 segmented cells
+  with an exact read); 3 perfect and 284 great. CellProfiler retained 2,026
+  cells (18 %; 1,066 Perfect, 960 Great). Of their retained cells that
+  spaCR also called (213), 169 (79 %) have the same gene. Same cells
+  (their masks), same site, same library; the spot threshold was NOT tuned
+  (no tuning on test data), so this is not a fair yield comparison: spaCR
+  found far fewer reads than CellProfiler's foci at this threshold.
+- A rerun from the saved settings gives identical reads, cell and summary
+  tables.
+REMAINS: the read threshold for PERISCOPE's background-subtracted crops
+(design card + held-out sites before choosing it); NGS-count R2 per guide;
+Well1 at full scale; the reference row through item 922.
