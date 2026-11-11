@@ -1,0 +1,75 @@
+IMAGE UMAP FOR OPS GENE PROFILES: PROFILE CLUSTERS, HIERARCHY, ENRICHMENT LABELS, MEDOID-CELL CROPS
+===================================================================================================
+
+Lifecycle: future
+Status: PARTIAL 2026-11-11 (alpha, under ALPHA_FEATURES[918]) — Image UMAP (spacr.core.generate_image_umap, spacr-run umap) takes umap_source='ops_profiles' and hands the call to spacr.ops_image_umap.run_ops_image_umap: reads gene (and optionally guide) profiles from an npz (names / pcs) or a table (read_profiles); lays them out with umap-learn for display only, guides fitted jointly or projected (umap_layout; n_jobs=1 with a seed); clusters the FULL profiles with a cosine kNN or PHATE graph and Leiden through spacr.ops_clusters.gene_graph / leiden_partitions, or reads a partition column 'file:column' (profile_clusters), never the 2-D layout; builds an average-linkage (cosine) hierarchy of the cluster centroid profiles cut at ops_umap_hierarchy_levels (cluster_hierarchy); labels each cluster with its best gene set at BH q < ops_umap_label_q across all cluster x term pairs, one-sided hypergeometric or Brieflow's two-sided Fisher, background = clustered non-control genes, minimum overlap 2, with a shuffled-gene-label control at the same cluster sizes (label_sets, enrich_clusters, shuffled_label_control); picks per cluster or top-level group the medoid gene by summed cosine distance and that gene's cells closest to its profile in the per-cell embedding, skipping small cells and crops cut by the field edge (medoid_gene, medoid_cells, read_crop); shows raw crops at ONE display range per channel pooled over every crop shown (shared_display_range, composite); places the crop panels on a ring by Hungarian assignment on angle so leader lines do not cross (layout_crop_ring); reports layout faithfulness over several UMAP seeds (trustworthiness and same-cluster neighbour shares, layout_stability); records library versions (library_versions). Writes umap_coords.csv, clusters.csv, cluster_hierarchy.csv, cluster_enrichment.csv, enrichment_control.json, layout_stability.csv, cluster_medoids.csv, crops/ (raw .npy + PNG at the shared range), crops_display.json, ops_umap.pdf/png/svg and umap_provenance.json. spacr/ops_image_umap.py, spacr/core.py, spacr/settings.py, tests/test_ops_image_umap_918.py.
+Requested: maintainer via paper session (BMC paper item spec ITEM_image_umap_ops.md), 2026-11-10.
+Owner: lane P.
+Source: funk_plateA_full/scripts/prep_fig_data.py (the paper's gene map); improved/scripts/bench_ci.py::partitions (PHATE knn 10 + Leiden).
+Related: 855, 869, 879, 881, 916.
+
+SETTINGS NAMES
+As in the spec. n_neighbors / min_dist / metric / random_seed take 15 / 0.3 /
+'cosine' / 42 when umap_source is 'ops_profiles' and the caller set none
+(per-object UMAP keeps 1000 / 0.1 / 'euclidean'). Added: ops_umap_reference_dir
+(falls back to ops_reference_dir), ops_umap_display_range (fixed ranges that
+win over the percentiles), ops_umap_stability_seeds ([42, 1, 2, 3, 4]),
+ops_umap_shuffle_seed (7) and ops_umap_dst. The figure follows
+black_background (dark or light) and the spaCR cluster palette.
+
+LIBRARY VERSIONS (not pinned)
+The spec gives umap-learn 0.5.12 / pynndescent 0.5.13 as the environment of
+record. The spacr env has umap-learn 0.5.12, pynndescent 0.6.0, numba 0.67.0
+(installed 2026-08-19), and prep_fig_data.py (2026-11-07) says it ran in the
+spacr env, and the layout check below reproduces that map exactly with
+pynndescent 0.6.0, so the reference map was made with 0.6.0, not 0.5.13.
+Nothing was pinned; the versions in use are written to umap_provenance.json.
+
+FAIR COMPARISON
+Partitions and coordinates are compared with the reference on the same rows
+(same genes, same profile file), the same graph, seeds, resolutions and UMAP
+settings; nothing was tuned.
+
+VALIDATION DONE
+- Partitions (venv_bench: leidenalg 0.12.0, igraph 1.0.0, phate as in 916;
+  OLD flat-field map): X04_jacks_blend.npz (5,299 x 69), ops_umap_graph
+  'phate', seed 42 / resolution 12 and seed 1 / resolution 15 give the
+  shipped bench_ci_X04_jacks_blend_assignments columns s42_r12 (220
+  clusters) and s1_r15 (270 clusters) exactly.
+- Layout (spacr env: umap-learn 0.5.12, pynndescent 0.6.0, numba 0.67.0):
+  umap_layout on analysis_plateA/bench/pcs_final_tvn.npy (5,299 x 98) with
+  the reference settings gives the paper's gene_umap_final.csv x / y
+  identical in float32 (max abs difference 9.5e-7, the CSV's text rounding).
+- Settings-file run (spacr-run umap, spacr env, 86 s): X04_jacks_blend.npz
+  with ops_umap_partition = the shipped s42_r12 column and CORUM@REPORT +
+  KEGG (Brieflow benchmark files): 220 clusters, 42 labelled at BH q < 0.05,
+  0 labelled with shuffled gene labels (seed 7, same cluster sizes); 60S
+  ribosome q = 7.4e-69, spliceosome B complex q = 2.8e-47, 20S proteasome
+  q = 7.6e-30. Layout faithfulness (seeds 42 and 1): trustworthiness 0.817 /
+  0.816; same-cluster share of 15 nearest neighbours 0.147 in 2-D against
+  0.348 in profile space, which is why clusters come from the profiles.
+  An earlier version applied BH only to pairs passing the overlap filter and
+  labelled 70 of 220 shuffled clusters; BH now runs over every cluster x
+  term pair (untested pairs count as p = 1), as the spec says.
+- CPU tests (spacr env, stand-in Leiden): planted groups recovered from the
+  profiles (ARI 1) where k-means on a distorted 2-D layout is not (ARI < 0.2);
+  the planted complex labelled at q < 0.05 and the shuffled control labels
+  none; medoid = the planted central gene; the shared display range is the
+  pooled percentile written to crops_display.json; two runs give
+  byte-identical tables, crops and PNG; changing only the UMAP seed changes
+  umap_coords.csv and not clusters, hierarchy or enrichment.
+Coverage of spacr/ops_image_umap.py: about 98 % lines and branches.
+
+REMAINING VALIDATION
+- Enrichment table against the reference with the same CORUM / GO BP set
+  versions (no GO BP file is in the reference folder yet; a missing set is
+  skipped and named in the legend and provenance).
+- Medoid cells and crops on plate A: needs the aligned per-cell embedding
+  table (cell_id, gene, field_path + centroids or crop_path, embedding
+  columns) from the profile recipe.
+
+NOT DONE
+- The multi-resolution Leiden containment tree (spec: optional).
+- Leader lines keep the groups' angular order but can still cross when
+  top-level groups have medoid points near the map centre.
+- GUI fields, tooltips, arrival contracts and 9-locale records (master).

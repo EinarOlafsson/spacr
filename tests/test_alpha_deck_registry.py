@@ -67,7 +67,9 @@ def test_the_published_alpha_page_covers_the_current_registry():
     # the mitotic index test (914), the overlap-zone report (915), the
     # Leiden resolution sweep (916) and the E-test power curve (917) make
     # 127.
-    assert deck._check_registry(ROOT / "spacr/settings.py") == 127
+    # 2026-11-11: the OPS gene map source of Image UMAP (918) and tiled
+    # segmentation of large cropped sites (921) make 129.
+    assert deck._check_registry(ROOT / "spacr/settings.py") == 129
     # 710: the published PDF is fetched from the pinned dataset revision.
     media_spec = importlib.util.spec_from_file_location("fetch_docs_media", ROOT / "tools/fetch_docs_media.py")
     media = importlib.util.module_from_spec(media_spec)
@@ -79,7 +81,7 @@ def test_the_published_alpha_page_covers_the_current_registry():
             assert unicodedata.normalize("NFKC", caption) in text
     for _, name in deck.SPECIES:
         assert name in text
-    assert "127 alpha features and 7 alpha species" in text
+    assert "129 alpha features and 7 alpha species" in text
 
 
 def test_unknown_registry_entry_refuses_before_touching_assets(tmp_path):
@@ -121,7 +123,7 @@ def test_refresh_preserves_other_pages_and_renders_searchable_text(tmp_path):
     assert len(after.pages) == 3
     assert [float(page.mediabox.width) for page in after.pages] == [100, 960, 200]
     assert after.metadata.title == "Keep this title"
-    assert "127 alpha features" in " ".join(after.pages[1].extract_text().split())
+    assert "129 alpha features" in " ".join(after.pages[1].extract_text().split())
     assert after.pages[0].get_contents() is None
     assert after.pages[2].get_contents() is None
     assert Image.open(tmp_path / "1.jpg").size == (3200, 1800)

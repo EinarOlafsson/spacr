@@ -1853,6 +1853,12 @@ def set_default_umap_image_settings(settings=None):
     if settings is None:
         settings = {}
     _fold_renamed_settings(settings)
+    from .ops_image_umap import OPS_UMAP_DEFAULTS, OPS_UMAP_LAYOUT_DEFAULTS
+    if settings.get('umap_source') == 'ops_profiles':
+        for key, value in OPS_UMAP_LAYOUT_DEFAULTS.items():
+            settings.setdefault(key, value)
+    for key, value in OPS_UMAP_DEFAULTS.items():
+        settings.setdefault(key, list(value) if isinstance(value, list) else value)
     settings.setdefault('src', 'path')
     settings.setdefault('row_limit', 1000)
     settings.setdefault('tables', ['cell', 'cytoplasm', 'nucleus', 'pathogen'])
@@ -4086,6 +4092,32 @@ expected_types = {
     "min_dist": float,
     "metric": str,
     "tsne_perplexity": float,
+    "umap_source": str,
+    "ops_umap_profiles": str,
+    "ops_umap_guide_profiles": str,
+    "ops_umap_guides": str,
+    "ops_umap_graph": str,
+    "ops_umap_knn": int,
+    "ops_umap_resolution": float,
+    "ops_umap_leiden_seed": int,
+    "ops_umap_partition": str,
+    "ops_umap_hierarchy_method": str,
+    "ops_umap_hierarchy_levels": list,
+    "ops_umap_label_sources": list,
+    "ops_umap_reference_dir": str,
+    "ops_umap_enrichment_test": str,
+    "ops_umap_label_q": float,
+    "ops_umap_cell_embedding": str,
+    "ops_umap_crop_level": str,
+    "ops_umap_cells_per_cluster": int,
+    "ops_umap_crop_px": int,
+    "ops_umap_crop_channels": dict,
+    "ops_umap_display_percentiles": list,
+    "ops_umap_display_range": dict,
+    "ops_umap_min_cell_px": int,
+    "ops_umap_stability_seeds": list,
+    "ops_umap_shuffle_seed": int,
+    "ops_umap_dst": str,
     "tsne_learning_rate": float,
     "tsne_early_exaggeration": float,
     "tsne_max_iter": int,
@@ -5584,6 +5616,32 @@ tooltips = {
     "metric": "(str) - Distance metric used both by the reducer (UMAP or t-SNE) and by DBSCAN clustering, e.g. 'euclidean', 'manhattan', 'cosine' or 'correlation'. Correlation-type metrics compare feature profiles regardless of magnitude and often separate phenotypes better than euclidean on scaled data. Default 'euclidean'.",
     "min_cells_per_well": "(int) - Wells with fewer than this many cells are dropped. In a regression it is scored objects and the well is left out of the fit; in the machine-learning screen it is measured cells and the well is left out of the plate heatmap, whose pivot is then filled with 0, so an excluded well renders at the bottom of the colour scale rather than blank. Raising it removes noisy, sparsely imaged wells at the cost of power. Set 0 to switch it off. Default 100 for a regression, 25 for the screen.",
     "min_dist": "(float) - UMAP's minimum spacing between points in the 2-D embedding, range 0.0-1.0. Low values (0.0-0.1) let clusters pack tightly and look crisply separated; higher values spread points out and preserve more of the global layout at the cost of visible cluster structure. Ignored when reduction_method is 'tsne'. Default 0.1.",
+    "umap_source": "(str) - What Image UMAP embeds. 'measurements' (default) embeds per-object rows of measurements.db as before; 'ops_profiles' draws an OPS gene map from gene (and guide) profiles: clusters from the full profiles, labels from gene-set enrichment and medoid-cell raw crops around a display-only UMAP layout. Alpha.",
+    "ops_umap_profiles": "(str) - Gene profile file for umap_source 'ops_profiles': an .npz with names and pcs, or a table with a gene column and numeric feature columns. Required for that source. Default None. Alpha.",
+    "ops_umap_guide_profiles": "(str) - Optional guide profile file (npz names/pcs, or a table with a guide column) drawn on the same map; see ops_umap_guides. Default None. Alpha.",
+    "ops_umap_guides": "(str) - How guide rows are placed: 'none' ignores them, 'joint' fits genes and guides in one UMAP, 'project' fits the genes and places the guides with UMAP's transform. Default 'none'. Alpha.",
+    "ops_umap_graph": "(str) - Graph of the full gene profiles that Leiden clusters: 'knn' (each gene linked to its ops_umap_knn nearest genes by cosine) or 'phate' (PHATE's diffusion graph, 10 cosine neighbours). Clusters never come from the 2-D layout. Default 'knn'. Alpha.",
+    "ops_umap_knn": "(int) - Neighbours per gene in the 'knn' graph. More give a denser graph and fewer, larger clusters at the same resolution. Default 12. Alpha.",
+    "ops_umap_resolution": "(float) - Leiden resolution (RB configuration model) for the gene-profile graph. Raising it splits the genes into more, smaller clusters; lowering it merges them into fewer, larger ones. Default 12. Alpha.",
+    "ops_umap_leiden_seed": "(int) - Leiden seed; the same seed, resolution and graph give the same partition. Default 42. Alpha.",
+    "ops_umap_partition": "(str) - Use a partition from a file instead of running Leiden, written 'file:column'; the file needs a gene column. Empty runs Leiden. Default None. Alpha.",
+    "ops_umap_hierarchy_method": "(str) - Linkage method for the cluster hierarchy, built on the clusters' mean profiles with cosine distance (scipy linkage: 'average', 'complete', 'single', 'weighted'). Default 'average'. Alpha.",
+    "ops_umap_hierarchy_levels": "(list[int]) - Numbers of top-level groups the hierarchy is cut into; the smallest is drawn as hulls on the map and used when ops_umap_crop_level is 'top'. Default [8, 30]. Alpha.",
+    "ops_umap_label_sources": "(list[str]) - Gene sets clusters are labelled with: 'CORUM' or 'KEGG' (all groups), 'CORUM@REPORT' or '@SELECT' (that half of the groups), 'NAME' (NAME.tsv in the reference folder) or 'NAME=path' (a file with gene_name and group columns). A set that is not found is skipped and named in the legend. Default ['CORUM@REPORT', 'GO_BP']. Alpha.",
+    "ops_umap_reference_dir": "(str) - Folder holding the gene-set files the cluster labels are drawn from; changing it changes which set versions label the clusters. Empty uses ops_reference_dir. Default None. Alpha.",
+    "ops_umap_enrichment_test": "(str) - Test of each cluster against each gene set: 'hypergeom' (one-sided over-representation) or 'fisher_two_sided' (the Brieflow benchmark's test). q-values are Benjamini-Hochberg across all cluster x term pairs. Default 'hypergeom'. Alpha.",
+    "ops_umap_label_q": "(float) - A cluster is labelled with its best gene set only when that set's q-value is below this; otherwise it is 'unlabelled'. The label shows its q-value. Default 0.05. Alpha.",
+    "ops_umap_cell_embedding": "(str) - Per-cell table with cell_id, gene, crop addresses (field_path with centroid_y / centroid_x, or crop_path / png_path), optional cell_px and edge_cut, and the cells' profile-space columns. Needed for medoid-cell crops. Default None. Alpha.",
+    "ops_umap_crop_level": "(str) - One crop panel per Leiden cluster ('cluster') or per top-level hierarchy group ('top'). Default 'top'. Alpha.",
+    "ops_umap_cells_per_cluster": "(int) - Cells shown per panel: the medoid gene's cells closest to its profile. Default 3. Alpha.",
+    "ops_umap_crop_px": "(int) - Side of every crop in pixels; crops that would leave the field are skipped. Default 96. Alpha.",
+    "ops_umap_crop_channels": "(dict) - Channels shown in the crops and their colours, {channel index: colour}. Required when ops_umap_cell_embedding is set. Default None. Alpha.",
+    "ops_umap_display_percentiles": "(list[float]) - Low and high percentiles of the pooled pixels of every crop shown, giving ONE display range per channel shared by all crops (no per-crop stretch). Written to crops_display.json and the legend. Default [0.5, 99.5]. Alpha.",
+    "ops_umap_display_range": "(dict) - Fixed display ranges {channel: [low, high]} that replace the percentiles for those channels. Empty uses the percentiles. Default None. Alpha.",
+    "ops_umap_min_cell_px": "(int) - Cells smaller than this many pixels (cell_px or area) are not shown. Default 200. Alpha.",
+    "ops_umap_stability_seeds": "(list[int]) - UMAP seeds of the layout-stability control: trustworthiness (k = 15) and same-cluster neighbour shares in 2-D and in profile space, per seed. Empty skips the extra layouts. Default [42, 1, 2, 3, 4]. Alpha.",
+    "ops_umap_shuffle_seed": "(int) - Seed of the shuffled-gene-label control, which counts the clusters labelled by chance at the same cluster sizes. Default 7. Alpha.",
+    "ops_umap_dst": "(str) - Output folder of the OPS gene map, its tables, crops and provenance; changing it only moves where they are written. Empty writes ops_umap/ next to ops_umap_profiles. Default None. Alpha.",
     "tsne_perplexity": "(float) - t-SNE neighborhood scale. It must be smaller than the number of rows; values around 5-50 are typical. Low values emphasize very local structure and can fragment populations; high values smooth them together. Used only by t-SNE. Default 30.",
     "tsne_learning_rate": "(float) - t-SNE optimization step size. Too small crowds points into a dense ball; too large can scatter them. Used only by t-SNE. Default 200.",
     "tsne_early_exaggeration": "(float) - t-SNE's initial attraction multiplier, controlling how much space forms between natural groups early in optimization. Used only by t-SNE. Default 12.",
@@ -6452,7 +6510,7 @@ categories = {
 
     "Machine Learning Model and Features": ["model_type_ml", "n_estimators", "test_size", "cross_validation", "reg_lambda", "reg_alpha", "prune_features", "top_features", "n_repeats", "ml_eval_report", "ml_eval_split", "ml_eval_controls", "ml_eval_shuffle_seed", "ml_eval_shuffle_repeats", "ml_model_type", "ml_label_column", "ml_eval_classes", "ml_eval_features", "ml_eval_features_table", "ml_eval_join_column", "ml_eval_random_folds", "annotate_sample_n", "annotate_sample_seed", "annotate_sample_strata"],
 
-    "Embedding & Clustering": ["reduction_method", "n_neighbors", "min_dist", "metric", "tsne_perplexity", "tsne_learning_rate", "tsne_early_exaggeration", "tsne_max_iter", "pca_whiten", "pca_svd_solver", "isomap_n_neighbors", "isomap_path_method", "spectral_affinity", "spectral_n_neighbors", "log_data", "embedding_by_controls", "col_to_compare", "resnet_features", "clustering", "eps", "min_samples", "remove_cluster_noise", "analyze_clusters"],
+    "Embedding & Clustering": ["reduction_method", "n_neighbors", "min_dist", "metric", "tsne_perplexity", "tsne_learning_rate", "tsne_early_exaggeration", "tsne_max_iter", "pca_whiten", "pca_svd_solver", "isomap_n_neighbors", "isomap_path_method", "spectral_affinity", "spectral_n_neighbors", "log_data", "embedding_by_controls", "col_to_compare", "resnet_features", "clustering", "eps", "min_samples", "remove_cluster_noise", "analyze_clusters", "umap_source", "ops_umap_profiles", "ops_umap_guide_profiles", "ops_umap_guides", "ops_umap_graph", "ops_umap_knn", "ops_umap_resolution", "ops_umap_leiden_seed", "ops_umap_partition", "ops_umap_hierarchy_method", "ops_umap_hierarchy_levels", "ops_umap_label_sources", "ops_umap_reference_dir", "ops_umap_enrichment_test", "ops_umap_label_q", "ops_umap_cell_embedding", "ops_umap_crop_level", "ops_umap_cells_per_cluster", "ops_umap_crop_px", "ops_umap_crop_channels", "ops_umap_display_percentiles", "ops_umap_display_range", "ops_umap_min_cell_px", "ops_umap_stability_seeds", "ops_umap_shuffle_seed", "ops_umap_dst"],
 
     "Regression: Response": [
         "screen_type", "drug_data", "drug_table", "treatment_map",
@@ -9155,6 +9213,26 @@ ALPHA_FEATURES = {
     },
     916: {
         'settings': ('ops_cluster_rows', 'ops_cluster_graph', 'ops_cluster_knn', 'ops_cluster_sweep_resolutions', 'ops_cluster_seeds', 'ops_cluster_target_clusters', 'ops_cluster_shuffles', 'ops_cluster_reference_dir', 'ops_cluster_gene_list',),
+    },
+    918: {
+        'settings': ('umap_source', 'ops_umap_profiles', 'ops_umap_guide_profiles',
+                     'ops_umap_guides', 'ops_umap_graph', 'ops_umap_knn', 'ops_umap_resolution',
+                     'ops_umap_leiden_seed', 'ops_umap_partition', 'ops_umap_hierarchy_method',
+                     'ops_umap_hierarchy_levels', 'ops_umap_label_sources',
+                     'ops_umap_reference_dir', 'ops_umap_enrichment_test', 'ops_umap_label_q',
+                     'ops_umap_cell_embedding', 'ops_umap_crop_level',
+                     'ops_umap_cells_per_cluster', 'ops_umap_crop_px', 'ops_umap_crop_channels',
+                     'ops_umap_display_percentiles', 'ops_umap_display_range',
+                     'ops_umap_min_cell_px', 'ops_umap_stability_seeds', 'ops_umap_shuffle_seed',
+                     'ops_umap_dst'),
+    },
+    921: {
+        'settings': ('seg_tile_px', 'seg_tile_overlap_px', 'seg_stitch_iou', 'seg_max_ram_gb',
+                     'seg_edge_policy', 'seg_preset', 'cell_model',
+                     'cell_channels', 'seg_report_reference', 'seg_sites_src',
+                     'seg_site_channels', 'seg_sites', 'seg_dst', 'seg_workers',
+                     'seg_measure_band_px', 'seg_nucleus_channel', 'seg_nucleus_model',
+                     'seg_nucleus_diameter_range', 'seg_gpu', 'seg_tiling_control_px'),
     },
     917: {
         'settings': ('ops_etest', 'ops_etest_cells', 'ops_etest_metric', 'ops_etest_reference_cells', 'ops_etest_null', 'ops_etest_holdout', 'ops_etest_mode', 'ops_etest_permutations', 'ops_power_cells', 'ops_power_seeds', 'ops_power_retrieval',),

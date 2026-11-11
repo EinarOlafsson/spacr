@@ -224,6 +224,23 @@ _MODULE_LIST: Tuple[Module, ...] = (
              "that plate's.",
     ),
     Module(
+        key="ops_large_sites",
+        summary="Segment large cropped OPS sites in overlapping tiles under a "
+                "per-worker RAM cap, with the Phalloidin + DNA preset.",
+        entry="spacr.ops_large_sites:run_large_site_segmentation",
+        defaults=None,
+        defaults_entry="spacr.ops_large_sites:large_site_settings",
+        validate_key="ops_large_sites",
+        requires=("seg_sites_src — a cropped well folder: "
+                  "<channel>/<channel>_Site_<n>.tiff, or <site>.npy stacks",
+                  "seg_dst — the output folder"),
+        writes=("<seg_dst>/labels/<site>_{nuclei,cells}.npy",
+                "<seg_dst>/tables/<site>_cells.parquet",
+                "<seg_dst>/sites.csv — counts, edge exclusions, agreement, "
+                "peak memory per site"),
+        note="ALPHA (item 921). CPU-validated on synthetic sites only.",
+    ),
+    Module(
         key="spatial_masks",
         summary="Segment a whole Xenium morphology or Visium HD H&E slide "
                 "in overlapping tiles into Measure-ready fields.",

@@ -1,0 +1,74 @@
+OPS LARGE CROPPED SITES: TILED SEGMENTATION, CHUNKED MEASUREMENT, RAM CAP, EDGE POLICY, PHALLOIDIN PRESET
+=========================================================================================================
+
+Lifecycle: future
+Status: PARTIAL 2026-11-11 (alpha, under ALPHA_FEATURES[921]) — CPU path built and pinned by synthetic fixture tests; the GPU tolerance check and the CP186A Well1 run are not done (no GPU at Home). New module spacr/ops_large_sites.py, run by spacr-run ops_large_sites (run_large_site_segmentation): reads a cropped well folder (<channel>/<channel>_Site_<n>.tiff, the Cell Painting Gallery's images_corrected_cropped layout, or <site>.npy stacks); plans tile size and workers from seg_max_ram_gb and refuses a cap it cannot meet (plan_site_memory); segments nuclei on DNA and cells on [Phalloidin, DNA] tile by tile with overlap (segment_tiled, tile_grid) and stitches labels by IoU, keeping the copy whose centroid is farther from an inner tile edge, relabelled in raster order (stitch_tile_labels, relabel_raster); a site no larger than one tile goes through the segmenter unchanged; pairs one nucleus per cell (spacr.ops_sample.pair_nuclei_with_cells); applies the crop-edge policy exclude / keep / own (apply_edge_policy); measures every object once and whole in row bands with a halo (measure_chunked, basic_features); estimates the plate's nucleus diameter from a first pass, clipped to [10, 80] px (estimate_nucleus_diameter); scores agreement with reference label masks (mask_agreement: F1 at IoU 0.5, median IoU, count ratio, non-edge objects only); records peak memory per site with spacr.resource_log.ResourceSampler; optional tiled-vs-untiled control on a centred region (tiling_control). Writes <seg_dst>/labels/<site>_{nuclei,cells}.npy, tables/<site>_cells.parquet, sites.csv, agreement_well.csv, tiling_control.json, resource_log/site_<n>.jsonl and settings.json. spacr/ops_large_sites.py, spacr/settings.py, spacr/cli.py, tests/test_ops_large_sites_921.py.
+Requested: maintainer via paper session (BMC paper item spec ITEM_ops_large_site_segmentation.md), 2026-11-10.
+Owner: lane P.
+Source: PERISCOPE 9_Analysis.cppipe (IdentifyPrimaryObjects on DNA, 10-80 px; cells on Phalloidin).
+Related: 871, 874, 919, 922.
+
+SETTINGS NAMES
+The spec's keys are kept (seg_tile_px, seg_tile_overlap_px, seg_stitch_iou,
+seg_max_ram_gb, seg_edge_policy, seg_preset, nucleus_diameter, cell_model,
+cell_channels, seg_report_reference). nucleus_diameter is an existing Mask
+setting, so it is read here but not registered as alpha (registering it would
+hide it in Mask). Added: seg_sites_src, seg_site_channels, seg_sites, seg_dst,
+seg_workers, seg_measure_band_px, seg_gpu, seg_tiling_control_px, and the
+preset's seg_nucleus_channel, seg_nucleus_model, seg_nucleus_diameter_range
+(prefixed because nucleus_channel is an existing setting).
+
+MODELS
+Cellpose 4 ships only cpsam; 'nuclei' and 'cyto3' resolve to cpsam through
+spacr.utils._resolve_cellpose_pretrained, which says so. The cyto3 arm needs
+the cellpose3 backend and is not wired in this module. Cellpose-SAM has no
+size model, so the per-plate nucleus diameter is the median equivalent
+diameter of a first pass without a diameter, clipped to [10, 80] px.
+
+FAIR COMPARISON
+The agreement report compares spaCR and CellProfiler on the same pixels
+(same sites, same 5,500 px grid), non-edge objects only in both, with one
+matching rule (IoU >= 0.5) and no tuning on the reference masks. It is
+agreement, not ground truth.
+
+VALIDATION DONE (CPU, synthetic, spacr env)
+- 6,000 x 6,000 image, discs centred on and beside every seam of a 2,048 /
+  256 tiling: every disc found once with its exact area; labels equal the
+  untiled labels.
+- 2,048 px region of 120 discs: tiled (700 / 100) equals untiled, label for
+  label; tiling_control reports every seam-free object identical and every
+  seam object at IoU >= 0.9.
+- Chunked measurement equals whole-image measurement (rtol 1e-12).
+- Edge policy counts; 'own' gives a cut cell to exactly one of two crops,
+  ties included.
+- RAM planner halves the tile under a tight cap and refuses an impossible one.
+- Settings-file run twice: identical labels and tables (CPU bit-identical).
+Coverage of spacr/ops_large_sites.py: about 98 % lines and branches.
+
+REMAINING VALIDATION (GPU machine)
+1. Mirror CP186A Well1 (painting crops + segmentation_masks) to NVMe.
+2. Settings (JSON):
+   {"seg_preset": "cell_painting_phalloidin",
+    "seg_sites_src": "<nvme>/CP186A_Well1/images_corrected_cropped/CP186A_Well1",
+    "seg_report_reference": "<nvme>/CP186A_Well1/analysis",
+    "seg_dst": "<nvme>/spacr_921/CP186A_Well1",
+    "seg_site_channels": ["CorrDNA", "CorrPhalloidin", "CorrWGA", "CorrMito", "CorrER"],
+    "seg_tile_px": 2048, "seg_tile_overlap_px": 256, "seg_stitch_iou": 0.5,
+    "seg_max_ram_gb": 24, "seg_edge_policy": "exclude", "cell_model": "cpsam",
+    "seg_gpu": true, "seg_tiling_control_px": 2048, "seg_workers": 1}
+3. Command: CUBLAS_WORKSPACE_CONFIG=:4096:8 spacr-run ops_large_sites --settings well1_921.json
+   then run it again with seg_dst ending in _rerun and compare labels/*.npy.
+4. Accept when: every site's peak_memory_gb <= 24 (sites.csv within_cap);
+   tiling_control.json at_seams_share >= 0.99 and away_identical ==
+   away_from_seams; cells_count_ratio within 1 +/- 0.10 per site, sites
+   outside listed in agreement_well.csv; cells/nuclei F1 and median IoU
+   reported per site and per well; the rerun gives identical labels, or the
+   difference count is reported with the GPU model and deterministic flags.
+5. Record seconds per site (target 15-35 min per well).
+
+NOT DONE
+- 'own' needs neighbour crops' placement; the run applies exclude / keep only
+  (apply_edge_policy takes neighbours when a caller has them).
+- No GUI preset entry or tooltips (translations and tooltips are the
+  master's); no arrival contracts or 9-locale records (per the lane brief).
+- SBS linking at the reader's grid and the cyto3 arm.

@@ -1438,6 +1438,13 @@ if app_key == "mask":
     lane_e_arrivals = {pair for pair in compared_pairs
                        if pair[1] in lane_e_keys} - set(variants.keys())
     recognized_arrivals |= lane_e_arrivals
+    # Item 918 (2026-11-11, lane P): the ops_profiles source of Image UMAP;
+    # every "Default X." claim is resolved by the umap app itself.
+    from spacr.ops_image_umap import OPS_UMAP_DEFAULTS
+    lane_p_arrivals = {pair for pair in compared_pairs
+                       if pair[0] == "umap" and pair[1] in OPS_UMAP_DEFAULTS} - set(variants.keys())
+    assert lane_p_arrivals and not lane_p_arrivals & recognized_arrivals
+    recognized_arrivals |= lane_p_arrivals
     assert comparisons - len(recognized_arrivals) == 1005
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))

@@ -91,6 +91,9 @@ HEADLESS_ONLY = {
                             "table; the profiles come from Measure's "
                             "profiling or spacr-run screen, and it runs "
                             "headless from a settings file",
+    "ops_large_sites": "item 921's tiled segmentation of large cropped OPS "
+                       "sites under a per-worker RAM cap; a batch job over a "
+                       "whole well, run headless from a settings file",
     "screen": "item 893's whole-plate run from one settings file (import, "
               "masks, measure, export, aggregate); each phase is the module "
               "of its own screen, so a GUI user runs those, and the plate's "
