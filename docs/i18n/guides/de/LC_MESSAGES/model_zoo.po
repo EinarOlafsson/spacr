@@ -776,6 +776,10 @@ msgstr "die zurückgehaltene Aufteilung wählt den Checkpoint aus, daher handelt
 msgid "accuracy falls above IoU 0.8 -- suited to counting, occupancy and area rather than precise morphometry"
 msgstr "die Genauigkeit fällt oberhalb von IoU 0,8 ab -- geeignet für Zählung, Belegung und Fläche, nicht für präzise Morphometrie"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Re-scored 2026-11-10 on curated ground truth, fields this model never saw (spaCR pipeline call, defaults, cellpose 4.2.1.1; receipt features/data/model_rescore_unseen_20261110/receipt.json): object F1 0.355 (95% CI 0.300 to 0.411) against stock cpsam_v2's 0.012 on 80 fields with 1,332 curated vacuoles, at IoU 0.5. Precision is 0.683 but recall is 0.239: it misses about three of every four vacuoles. The recorded F1 0.606 was scored against automatic PV-regenerated masks on the checkpoint-selection split, so it overstates accuracy on curated masks. Default unchanged."
+msgstr "Neu bewertet am 2026-11-10 anhand kuratierter Referenzdaten, auf Bildfeldern, die dieses Modell nie gesehen hat (Aufruf der spaCR-Pipeline, Standardwerte, cellpose 4.2.1.1; Beleg features/data/model_rescore_unseen_20261110/receipt.json): Objekt-F1 0,355 (95-%-KI 0,300 bis 0,411) gegenüber 0,012 für das Standardmodell cpsam_v2 auf 80 Bildfeldern mit 1.332 kuratierten Vakuolen, bei IoU 0,5. Die Präzision beträgt 0,683, die Trefferquote aber nur 0,239: Das Modell übersieht etwa drei von vier Vakuolen. Der erfasste F1-Wert 0,606 wurde gegen automatisch regenerierte PV-Masken auf der Aufteilung zur Checkpoint-Auswahl gemessen und überschätzt daher die Genauigkeit gegenüber kuratierten Masken. Voreinstellung unverändert."
+
 msgid "Published as `einarolafsson/toxoplasma-from-cellmask-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-cellmask-cpsam>`_, as ``toxoplasma_from_cellmask_pv``."
 msgstr "Veröffentlicht als `einarolafsson/toxoplasma-from-cellmask-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-cellmask-cpsam>`_, als ``toxoplasma_from_cellmask_pv``."
 
@@ -1344,6 +1348,10 @@ msgstr "pro Wirtszelle: HFF 0,932, HeLa 0,860, THP1 0,861"
 msgid "predicts nuclei from cell morphology -- expect degraded accuracy on unusual or highly confluent morphologies"
 msgstr "sagt Zellkerne aus der Zellmorphologie voraus -- bei ungewöhnlichen oder stark konfluenten Morphologien ist mit geringerer Genauigkeit zu rechnen"
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "No curated ground truth exists yet for this model, so it has not been re-scored on fields it never saw (2026-11-10)."
+msgstr "Für dieses Modell gibt es noch keine kuratierten Referenzdaten, daher wurde es nicht auf Bildfeldern neu bewertet, die es nie gesehen hat (2026-11-10)."
+
 msgid "Published as `einarolafsson/cross-channel-nuclei-from-cellmask-cpsam <https://huggingface.co/einarolafsson/cross-channel-nuclei-from-cellmask-cpsam>`_, as ``nuclei_from_cellmask_best``."
 msgstr "Veröffentlicht als `einarolafsson/cross-channel-nuclei-from-cellmask-cpsam <https://huggingface.co/einarolafsson/cross-channel-nuclei-from-cellmask-cpsam>`_, als ``nuclei_from_cellmask_best``."
 
@@ -1388,6 +1396,10 @@ msgstr "F1 0,569, AJI 0,421, Dice 0,546 bei IoU 0,5 gegenüber 0,002/0,006/0,016
 
 msgid "the Hoechst route is harder than the cell-mask route -- compare toxoplasma_from_cellmask_v1"
 msgstr "der Hoechst-Weg ist schwieriger als der Weg über die Zellmaske -- vergleichen Sie toxoplasma_from_cellmask_v1"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Re-scored 2026-11-10 on curated ground truth, fields this model never saw (spaCR pipeline call, defaults, cellpose 4.2.1.1; receipt features/data/model_rescore_unseen_20261110/receipt.json): object F1 0.446 (95% CI 0.404 to 0.486) against stock cpsam_v2's 0.001 on 224 fields with 13,474 curated vacuoles, at IoU 0.5. Per acquisition F1 ranges from 0.039 to 0.581; on the HFF and HeLa tubulin acquisitions precision is 0.020 and 0.078, so most objects it reports there are not vacuoles. The recorded F1 0.569 was scored against automatic PV-regenerated masks on the checkpoint-selection split. Default unchanged."
+msgstr "Neu bewertet am 2026-11-10 anhand kuratierter Referenzdaten, auf Bildfeldern, die dieses Modell nie gesehen hat (Aufruf der spaCR-Pipeline, Standardwerte, cellpose 4.2.1.1; Beleg features/data/model_rescore_unseen_20261110/receipt.json): Objekt-F1 0,446 (95-%-KI 0,404 bis 0,486) gegenüber 0,001 für das Standardmodell cpsam_v2 auf 224 Bildfeldern mit 13.474 kuratierten Vakuolen, bei IoU 0,5. Je Aufnahmeserie reicht F1 von 0,039 bis 0,581; auf den HFF- und HeLa-Tubulin-Aufnahmen beträgt die Präzision 0,020 und 0,078, die meisten dort gemeldeten Objekte sind also keine Vakuolen. Der erfasste F1-Wert 0,569 wurde gegen automatisch regenerierte PV-Masken auf der Aufteilung zur Checkpoint-Auswahl gemessen. Voreinstellung unverändert."
 
 msgid "Published as `einarolafsson/toxoplasma-from-hoechst-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-hoechst-cpsam>`_, as ``toxoplasma_from_hoechst_pv``."
 msgstr "Veröffentlicht als `einarolafsson/toxoplasma-from-hoechst-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-hoechst-cpsam>`_, als ``toxoplasma_from_hoechst_pv``."

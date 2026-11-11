@@ -243,6 +243,7 @@ Toxoplasma from Cell Mask (cross-channel)
 * per host: HeLa 0.711, HFF 0.557, THP1 0.465; THP1 is the weak case
 * the held-out split selects the checkpoint, so it is validation data rather than an independent test set
 * accuracy falls above IoU 0.8 -- suited to counting, occupancy and area rather than precise morphometry
+* Re-scored 2026-11-10 on curated ground truth, fields this model never saw (spaCR pipeline call, defaults, cellpose 4.2.1.1; receipt features/data/model_rescore_unseen_20261110/receipt.json): object F1 0.355 (95% CI 0.300 to 0.411) against stock cpsam_v2's 0.012 on 80 fields with 1,332 curated vacuoles, at IoU 0.5. Precision is 0.683 but recall is 0.239: it misses about three of every four vacuoles. The recorded F1 0.606 was scored against automatic PV-regenerated masks on the checkpoint-selection split, so it overstates accuracy on curated masks. Default unchanged.
 
 Published as `einarolafsson/toxoplasma-from-cellmask-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-cellmask-cpsam>`_, as ``toxoplasma_from_cellmask_pv``.
 
@@ -540,6 +541,7 @@ Cross-channel nuclei-from-cellmask
 * per host: HFF 0.932, HeLa 0.860, THP1 0.861
 * the held-out split selects the checkpoint, so it is validation data rather than an independent test set
 * predicts nuclei from cell morphology -- expect degraded accuracy on unusual or highly confluent morphologies
+* No curated ground truth exists yet for this model, so it has not been re-scored on fields it never saw (2026-11-10).
 
 Published as `einarolafsson/cross-channel-nuclei-from-cellmask-cpsam <https://huggingface.co/einarolafsson/cross-channel-nuclei-from-cellmask-cpsam>`_, as ``nuclei_from_cellmask_best``.
 
@@ -557,6 +559,7 @@ Cross-channel cell-from-hoechst
 * the counterpart of nuclei_from_cellmask_v1: that one predicts nuclei from the cell mask, this one predicts the cell from the nucleus
 * precision 0.944 against recall 0.806 -- it misses cells rather than inventing them, which is the safer direction for counting
 * quote the DELTA over stock (0.569), not the ratio: stock's mAP of 0.0575 is a near-zero denominator that makes any ratio look huge
+* No curated ground truth exists yet for this model, so it has not been re-scored on fields it never saw (2026-11-10).
 
 Published as `einarolafsson/cross-channel-cell-from-hoechst-cpsam <https://huggingface.co/einarolafsson/cross-channel-cell-from-hoechst-cpsam>`_, as ``cell_from_hoechst_best``.
 
@@ -575,6 +578,7 @@ Toxoplasma from Hoechst (cross-channel)
 * the Hoechst route is harder than the cell-mask route -- compare toxoplasma_from_cellmask_v1
 * the held-out split selects the checkpoint, so it is validation data rather than an independent test set
 * accuracy falls above IoU 0.8 -- suited to counting, occupancy and area rather than precise morphometry
+* Re-scored 2026-11-10 on curated ground truth, fields this model never saw (spaCR pipeline call, defaults, cellpose 4.2.1.1; receipt features/data/model_rescore_unseen_20261110/receipt.json): object F1 0.446 (95% CI 0.404 to 0.486) against stock cpsam_v2's 0.001 on 224 fields with 13,474 curated vacuoles, at IoU 0.5. Per acquisition F1 ranges from 0.039 to 0.581; on the HFF and HeLa tubulin acquisitions precision is 0.020 and 0.078, so most objects it reports there are not vacuoles. The recorded F1 0.569 was scored against automatic PV-regenerated masks on the checkpoint-selection split. Default unchanged.
 
 Published as `einarolafsson/toxoplasma-from-hoechst-cpsam <https://huggingface.co/einarolafsson/toxoplasma-from-hoechst-cpsam>`_, as ``toxoplasma_from_hoechst_pv``.
 

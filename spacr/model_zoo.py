@@ -599,7 +599,66 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "rather than an independent test set",
             "accuracy falls above IoU 0.8 -- suited to counting, occupancy and "
             "area rather than precise morphometry",
+            "Re-scored 2026-11-10 on curated ground truth, fields this model "
+            "never saw (spaCR pipeline call, defaults, cellpose 4.2.1.1; receipt "
+            "features/data/model_rescore_unseen_20261110/receipt.json): object F1 "
+            "0.355 (95% CI 0.300 to 0.411) against stock cpsam_v2's 0.012 on 80 "
+            "fields with 1,332 curated vacuoles, at IoU 0.5. Precision is 0.683 "
+            "but recall is 0.239: it misses about three of every four vacuoles. "
+            "The recorded F1 0.606 was scored against automatic PV-regenerated "
+            "masks on the checkpoint-selection split, so it overstates accuracy "
+            "on curated masks. Default unchanged.",
         ),
+        "unseen_rescore": {
+            "date": "2026-11-10",
+            "receipt": "features/data/model_rescore_unseen_20261110/receipt.json",
+            "stock_model": "cpsam_v2",
+            "n_fields": 80, "n_empty_fields": 2, "n_objects": 1332,
+            "counts": {"this": {"n_pred": 467, "tp": 319, "fp": 148, "fn": 1013},
+                       "stock": {"n_pred": 7665, "tp": 56, "fp": 7609, "fn": 1276}},
+            "ci_method": "2000 group-bootstrap resamples of 80 well groups "
+                         "(seed 20261110)",
+            "rows": (
+                ("object_f1", 0.355, (0.300, 0.411), 0.012, (0.009, 0.016),
+                 0.342, (0.287, 0.399)),
+                ("boundary_f1_2px", 0.298, (0.251, 0.345), 0.023, (0.017, 0.029),
+                 0.275, (0.229, 0.321)),
+                ("precision", 0.683, (0.616, 0.743), 0.007, (0.005, 0.010),
+                 0.676, (0.610, 0.737)),
+                ("recall", 0.239, (0.196, 0.286), 0.042, (0.031, 0.054),
+                 0.197, (0.152, 0.247)),
+                ("aji", 0.220, (0.178, 0.264), 0.008, (0.006, 0.010),
+                 0.212, (0.170, 0.257)),
+                ("dice", 0.387, (0.324, 0.450), 0.027, (0.019, 0.036),
+                 0.360, (0.298, 0.422)),
+            ),
+            "groups": (
+                ("acquisition", "anuRep__Replication09182026-plate1",
+                 80, 1332, 0.355, 0.683, 0.239, 0.220, 467, 0.012),
+                ("curation source", "pv_r7_dataset_recuration",
+                 60, 928, 0.377, 0.701, 0.258, 0.215, 341, 0.012),
+                ("curation source", "pv_r7_plate_test20",
+                 20, 404, 0.302, 0.635, 0.198, 0.233, 126, 0.013),
+            ),
+            "findings": (
+                "low recall: the model found 319 of 1,332 curated vacuoles and "
+                "missed 1,013; what it does report is mostly right (precision "
+                "0.683)",
+                "all 80 fields come from one acquisition (anuRep "
+                "Replication09182026 plate 1), so this re-score says nothing "
+                "about other hosts or stains",
+                "on these same 80 fields toxoplasma_from_hoechst_v1 scores "
+                "object F1 0.551",
+                "stock cpsam_v2 reports 7,665 objects and matches 56 vacuoles: "
+                "it cannot do this task",
+            ),
+            "legend": ("each model and stock cpsam_v2 are scored on the same "
+                       "fields and the same input pixels (SHA-256 per field), "
+                       "against the same curated masks, with the same scoring "
+                       "code and thresholds (IoU 0.5 matching, 2 px boundary "
+                       "tolerance), in the same environment (cellpose 4.2.1.1, "
+                       "the version the model was trained with)"),
+        },
     },
     {
         "key": "toxoplasma_pv_v2",
@@ -908,6 +967,8 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "data rather than an independent test set",
             "predicts nuclei from cell morphology -- expect degraded accuracy "
             "on unusual or highly confluent morphologies",
+            "No curated ground truth exists yet for this model, so it has not "
+            "been re-scored on fields it never saw (2026-11-10).",
         ),
     },
     {
@@ -943,6 +1004,8 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "than inventing them, which is the safer direction for counting",
             "quote the DELTA over stock (0.569), not the ratio: stock's mAP of "
             "0.0575 is a near-zero denominator that makes any ratio look huge",
+            "No curated ground truth exists yet for this model, so it has not "
+            "been re-scored on fields it never saw (2026-11-10).",
         ),
     },
     {
@@ -978,7 +1041,83 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "rather than an independent test set",
             "accuracy falls above IoU 0.8 -- suited to counting, occupancy and "
             "area rather than precise morphometry",
+            "Re-scored 2026-11-10 on curated ground truth, fields this model "
+            "never saw (spaCR pipeline call, defaults, cellpose 4.2.1.1; receipt "
+            "features/data/model_rescore_unseen_20261110/receipt.json): object F1 "
+            "0.446 (95% CI 0.404 to 0.486) against stock cpsam_v2's 0.001 on 224 "
+            "fields with 13,474 curated vacuoles, at IoU 0.5. Per acquisition F1 "
+            "ranges from 0.039 to 0.581; on the HFF and HeLa tubulin acquisitions "
+            "precision is 0.020 and 0.078, so most objects it reports there are "
+            "not vacuoles. The recorded F1 0.569 was scored against automatic "
+            "PV-regenerated masks on the checkpoint-selection split. Default "
+            "unchanged.",
         ),
+        "unseen_rescore": {
+            "date": "2026-11-10",
+            "receipt": "features/data/model_rescore_unseen_20261110/receipt.json",
+            "stock_model": "cpsam_v2",
+            "n_fields": 224, "n_empty_fields": 11, "n_objects": 13474,
+            "counts": {"this": {"n_pred": 13789, "tp": 6085, "fp": 7704,
+                                "fn": 7389},
+                       "stock": {"n_pred": 35658, "tp": 34, "fp": 35624,
+                                 "fn": 13440}},
+            "ci_method": "2000 group-bootstrap resamples of 221 well groups "
+                         "(seed 20261110)",
+            "rows": (
+                ("object_f1", 0.446, (0.404, 0.486), 0.001, (0.001, 0.002),
+                 0.445, (0.403, 0.484)),
+                ("boundary_f1_2px", 0.428, (0.391, 0.462), 0.037, (0.032, 0.042),
+                 0.391, (0.356, 0.423)),
+                ("precision", 0.441, (0.366, 0.525), 0.001, (0.001, 0.001),
+                 0.440, (0.365, 0.524)),
+                ("recall", 0.452, (0.432, 0.474), 0.003, (0.002, 0.004),
+                 0.449, (0.429, 0.471)),
+                ("aji", 0.384, (0.357, 0.412), 0.011, (0.009, 0.012),
+                 0.373, (0.347, 0.401)),
+                ("dice", 0.606, (0.571, 0.640), 0.029, (0.025, 0.033),
+                 0.577, (0.544, 0.609)),
+            ),
+            "groups": (
+                ("acquisition", "RH__abTg__HELAtubulin_20230923_114209",
+                 29, 67, 0.141, 0.078, 0.731, 0.202, 629, 0.001),
+                ("acquisition", "RH__abTg__HFFtubulin_20230922_175830",
+                 38, 140, 0.039, 0.020, 0.807, 0.081, 5606, 0.000),
+                ("acquisition", "RH__abTg__TSG101RH111523_20231115_162716",
+                 43, 4887, 0.581, 0.805, 0.454, 0.454, 2760, 0.002),
+                ("acquisition", "anuRep__Replication09182026-plate1",
+                 80, 1332, 0.551, 0.555, 0.546, 0.519, 1309, 0.002),
+                ("acquisition",
+                 "me49__abTg__Anu_ME49ALIX_final_plate1_20230822_192029",
+                 34, 7048, 0.565, 0.854, 0.422, 0.424, 3485, 0.001),
+                ("curation source", "pv_r7_dataset_recuration",
+                 102, 6741, 0.569, 0.705, 0.476, 0.461, 4553, 0.001),
+                ("curation source", "pv_r7_plate_test20",
+                 20, 404, 0.496, 0.563, 0.443, 0.543, 318, 0.005),
+                ("curation source", "pv_round3_queue",
+                 102, 6329, 0.354, 0.302, 0.426, 0.292, 8918, 0.001),
+            ),
+            "findings": (
+                "recall is 0.452: the model found 6,085 of 13,474 curated "
+                "vacuoles and missed 7,389",
+                "the HFF and HeLa tubulin acquisitions fail: 5,606 objects "
+                "reported for 140 curated vacuoles on HFF (precision 0.020, F1 "
+                "0.039) and 629 for 67 on HeLa (precision 0.078, F1 0.141); do "
+                "not use this model on those plates without checking the masks",
+                "the other three acquisitions score object F1 0.551 to 0.581",
+                "on the 80 anuRep plate 1 fields that toxoplasma_from_cellmask_v1 "
+                "was also scored on, this model scores object F1 0.551 against "
+                "its 0.355, so the recorded ranking of the two routes does not "
+                "hold on curated masks there",
+                "95% CIs are given for the pooled numbers only; per-group rows "
+                "have none",
+            ),
+            "legend": ("each model and stock cpsam_v2 are scored on the same "
+                       "fields and the same input pixels (SHA-256 per field), "
+                       "against the same curated masks, with the same scoring "
+                       "code and thresholds (IoU 0.5 matching, 2 px boundary "
+                       "tolerance), in the same environment (cellpose 4.2.1.1, "
+                       "the version the model was trained with)"),
+        },
     },
     {
         "key": "colony_yolo11n_makrai_v1",

@@ -52,6 +52,7 @@ Scorecard state: **recorded at publication**. These numbers were recorded with t
 - Per host: HFF 0.932, HeLa 0.860, THP1 0.861.
 - The held-out split selects the checkpoint, so it is validation data rather than an independent test set.
 - Predicts nuclei from cell morphology -- expect degraded accuracy on unusual or highly confluent morphologies.
+- No curated ground truth exists yet for this model, so it has not been re-scored on fields it never saw (2026-11-10).
 
 ## How to read these scores
 
@@ -61,7 +62,7 @@ Scorecard state: **recorded at publication**. These numbers were recorded with t
 - **AJI** (aggregated Jaccard index) adds up the overlap of every matched pair and divides it by their combined area plus the area of unmatched objects, so merged, split and missed objects all lower it.
 - **Dice** is twice the overlap divided by the predicted area plus the reference area.
 - **Stock** is the base model named under Architecture, run without fine-tuning on the same images. **Difference** is this model's score minus stock's.
-- A **hold-out** or **test** set is images kept out of training and used only for scoring.
+- A **hold-out** or **test** set is images kept out of training and used only for scoring. The re-score note says how many of its fields this model had not seen.
 
 ## Files
 
