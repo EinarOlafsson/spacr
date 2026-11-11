@@ -4173,6 +4173,7 @@ API_ENTRIES = (
     ('spacr.ops_prefix.prefix_positions', 'The 1-based cycles a prefix key is read from.'),
     ('spacr.ops_prefix.prefix_settings', 'The item-920 settings, checked and with defaults filled in.'),
     ('spacr.ops_prefix.read_fractions', "The share of reads in each status, and the control's match rate."),
+    ('spacr.ops_prefix.recipe_simple_quality', 'Each cell\'s class under the pooled Cell Painting recipe\'s "simple" rules.'),
     ('spacr.ops_prefix.run_prefix_decode', 'The ``prefix_decode`` phase: decode every indexed site against spacer prefixes.'),
     ('spacr.ops_prefix.shuffled_library', "The random-barcode control: every key's letters shuffled."),
     ('spacr.ops_prefix.site_labels', 'The cell label image of one site, or None.'),

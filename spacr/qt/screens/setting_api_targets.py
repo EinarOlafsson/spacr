@@ -861,6 +861,7 @@ SETTING_API_TARGETS = {
     'ops_prefix_masks': ('spacr.ops_prefix', 'prefix_settings', True),
     'ops_prefix_max_distance': ('spacr.ops_prefix', 'prefix_settings', True),
     'ops_prefix_metric': ('spacr.ops_prefix', 'prefix_settings', True),
+    'ops_prefix_quality_method': ('spacr.ops_prefix', 'prefix_settings', True),
     'ops_profile_active_filter': ('spacr.ops_tvn', 'profile_cell_tables', True),
     'ops_profile_cell_cycle': ('spacr.ops_settings', 'ops_defaults', True),
     'ops_profile_cell_state': ('spacr.ops_tvn', 'run_profile_phases', True),

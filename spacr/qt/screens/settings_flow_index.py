@@ -1350,6 +1350,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_prefix_masks',
     'ops_prefix_max_distance',
     'ops_prefix_metric',
+    'ops_prefix_quality_method',
     'ops_profile_active_filter',
     'ops_profile_cell_cycle',
     'ops_profile_cell_state',
