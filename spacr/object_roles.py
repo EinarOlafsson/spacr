@@ -9,6 +9,7 @@ roles relate.
 """
 from __future__ import annotations
 
+import re
 from typing import Any, Dict, Mapping, Tuple
 
 from .schema import (  # noqa: F401
@@ -427,6 +428,65 @@ ANCHOR_COLUMN: Dict[str, str] = {
 ONE_ROW_PER_CELL: Tuple[str, ...] = ("cell", "cytoplasm")
 
 
+_RERUN_SUFFIX = re.compile(r"^(?P<role>.+)_(?P<run>\d+)$")
+
+
+def _table_role_and_run(table: str) -> Tuple[str, int]:
+    """Split a measurement table name into its object role and Measure run.
+
+    Measuring a project again archives the previous population by renaming
+    every table it owns to ``<name>_<n>``, so ``cell_1``, ``cytoplasm_1`` and
+    ``pathogen_1`` are the cell, cytoplasm and pathogen tables of one earlier
+    run. Object roles never end in ``_<digits>``, so the suffix is stripped
+    only when what remains is a role with a declared anchor; any other name
+    is returned whole as run 0.
+
+    :param table: a table name as stored in ``measurements.db``.
+    :returns: ``(role, run)``, with run 0 for the current, unsuffixed table.
+    """
+    key = str(table).strip().lower()
+    match = _RERUN_SUFFIX.match(key)
+    if match and match.group("role") in ANCHOR_COLUMN:
+        return match.group("role"), int(match.group("run"))
+    return key, 0
+
+
+def _table_role(table: str) -> str:
+    """Return the object role a measurement table holds, ignoring a re-run suffix.
+
+    :param table: a table name such as ``cell`` or ``cell_1``.
+    :returns: the lower-case role, or the lower-case name when it has none.
+    """
+    return _table_role_and_run(table)[0]
+
+
+def _has_anchor(table: str) -> bool:
+    """True when ``table`` is a standard object table, current or archived.
+
+    :param table: a table name such as ``pathogen`` or ``pathogen_1``.
+    :returns: whether :func:`anchor_column` knows how it joins to the cell.
+    """
+    return _table_role(table) in ANCHOR_COLUMN
+
+
+def _mixed_run_tables(tables) -> Dict[int, Tuple[str, ...]]:
+    """Group standard object tables by Measure run when more than one run is named.
+
+    ``png_list`` is left out: further annotation sets are numbered the same
+    way without belonging to another Measure run.
+
+    :param tables: table names chosen for one merge.
+    :returns: ``{run: tables}`` when the tables come from two or more runs,
+        otherwise an empty mapping.
+    """
+    runs: Dict[int, Tuple[str, ...]] = {}
+    for table in tables:
+        role, run = _table_role_and_run(table)
+        if role in ANCHOR_COLUMN and role != "png_list":
+            runs[run] = runs.get(run, ()) + (str(table),)
+    return runs if len(runs) > 1 else {}
+
+
 def anchor_column(table: str) -> str:
     """The column in ``table`` that carries the cell it belongs to.
 
@@ -435,7 +495,7 @@ def anchor_column(table: str) -> str:
     :raises ValueError: for a table with no declared anchor, naming the ones
         that have. Guessing produces a join on a coincidence.
     """
-    key = str(table).strip().lower()
+    key = _table_role(table)
     if key not in ANCHOR_COLUMN:
         raise ValueError(
             f"no anchor column declared for table {table!r}; known tables are "
@@ -449,7 +509,7 @@ def is_one_row_per_cell(table: str) -> bool:
     :param table: object-table name to classify.
     :returns: Whether the table needs no child-to-cell roll-up.
     """
-    return str(table).strip().lower() in ONE_ROW_PER_CELL
+    return _table_role(table) in ONE_ROW_PER_CELL
 
 
 #: How each table joins onto the cell, and why the answers differ.
@@ -490,7 +550,7 @@ def join_how(table: str, *, keep_uninfected: bool = True) -> str:
         not a cell.
     :returns: ``'left'`` or ``'inner'``, for :meth:`pandas.DataFrame.merge`.
     """
-    key = str(table).strip().lower()
+    key = _table_role(table)
     how = JOIN_HOW.get(key, "left")
     if not keep_uninfected and (key == "pathogen" or key in ORGANELLE_ROLES):
         return "inner"
