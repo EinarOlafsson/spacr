@@ -3279,6 +3279,28 @@ def _validated_bmc_paper_items_4_callables(callables):
     return [item for item in callables if item.symbol not in entries]
 
 
+def _validated_annotate_jump_callables(callables):
+    """Check the public callables of the jump to Annotate against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "annotate_jump_api_arrivals_2026-11-11.json").read_text(encoding="utf-8"))
+    assert set(entries) == {
+        "spacr.qt.linked_selection.LinkedSelection.deliver_request",
+        "spacr.qt.linked_selection.LinkedSelection.register_object_navigator",
+        "spacr.qt.linked_selection.LinkedSelection.unregister_object_navigator",
+        "spacr.qt.linked_selection.object_database_context",
+    }
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == entries.keys()
+    for symbol, item in found.items():
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
 def _validated_733_easy_mode_callables(callables):
     """Check the exact four executable Easy mode boundaries before historical replay."""
     import json
@@ -3367,6 +3389,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_bmc_paper_items_2_callables(callables)
     callables = _validated_bmc_paper_items_3_callables(callables)
     callables = _validated_bmc_paper_items_4_callables(callables)
+    callables = _validated_annotate_jump_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
@@ -6078,6 +6101,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("884_911_bmc_paper_items_2_api_arrivals_2026-11-10.json", 376),
         ("912_917_bmc_paper_items_3_api_arrivals_2026-11-10.json", 54),
         ("918_923_bmc_paper_items_4_api_arrivals_2026-11-11.json", 97),
+        ("annotate_jump_api_arrivals_2026-11-11.json", 4),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -6662,7 +6686,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "871_911_bmc_paper_items_api_arrivals_2026-11-09.json",
                      "884_911_bmc_paper_items_2_api_arrivals_2026-11-10.json",
                      "912_917_bmc_paper_items_3_api_arrivals_2026-11-10.json",
-                     "918_923_bmc_paper_items_4_api_arrivals_2026-11-11.json"):
+                     "918_923_bmc_paper_items_4_api_arrivals_2026-11-11.json",
+                     "annotate_jump_api_arrivals_2026-11-11.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -6789,7 +6814,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "871_911_bmc_paper_items_api_arrivals_2026-11-09.json",
                      "884_911_bmc_paper_items_2_api_arrivals_2026-11-10.json",
                      "912_917_bmc_paper_items_3_api_arrivals_2026-11-10.json",
-                     "918_923_bmc_paper_items_4_api_arrivals_2026-11-11.json"):
+                     "918_923_bmc_paper_items_4_api_arrivals_2026-11-11.json",
+                     "annotate_jump_api_arrivals_2026-11-11.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

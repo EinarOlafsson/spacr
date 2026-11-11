@@ -93,6 +93,7 @@ from PySide6.QtWidgets import (
 from ..app_catalog import declared_app, register_declared
 from ..i18n import tr
 from ..job_runner import JobRunner
+from ..linked_selection import object_database_context
 from ..theme import SPACING, page_tabs_qss, register_widget_qss
 from ..widgets.collapsible_splitter import EDGE, CollapsibleSplitter
 from ..widgets.data_filter_panel import DataFilterPanel
@@ -1342,7 +1343,48 @@ class GateEditorScreen(DerivedTableSource, QWidget):
                 self._condition_source.get('path') and not self._condition_source['path'].lower().endswith(('.csv', '.tsv', '.txt'))),
                 self._save_selected_annotation, ''),
             (tr('Export table'), self._frame is not None, self._export_selected_annotation, ''),
+            (tr('Open selection in Annotate'),
+             self._frame is not None and self._has_merge_image_provenance(),
+             self._open_selection_in_annotate, ''),
         ]
+
+    def _open_selection_in_annotate(self) -> None:
+        """Show the selected gate's objects as crops in Annotate.
+
+        The objects are the selected gate's members in the full table, or,
+        with no gate selected, the shared selection. They are routed through
+        :meth:`~spacr.qt.linked_selection.LinkedView.open_objects`, so this
+        screen never imports Annotate: in the main window the route switches
+        to Annotate, building it on first use, and the database the table
+        came from travels with the request so its crops show at once.
+        """
+        if not self._has_merge_image_provenance():
+            self._source.setText("This merge has no verified image/object provenance.")
+            return
+        canvas = self.gates.canvas
+        name = self.gates.tree.active_gate()
+        frame = self.gates._frame
+        if name and frame is not None:
+            try:
+                keys = frame.loc[self.gates.gates.mask(frame, name)]
+            except GateError as exc:
+                self._source.setText(str(exc))
+                return
+            reason = f"gate {name} in the Gate Editor"
+        else:
+            selection = canvas.link.selection
+            if not selection.is_active or not len(selection):
+                self._source.setText(tr('Select a gate in the hierarchy first.'))
+                return
+            keys = selection.keys
+            reason = "selected in the Gate Editor"
+        database = self._path if len(self._paths) <= 1 else None
+        try:
+            canvas.open_objects(keys, reason=reason,
+                                context=object_database_context(database))
+        except Exception as exc:
+            LOG.info("could not open the gated objects", exc_info=True)
+            self._source.setText(f"could not open those objects: {exc}")
 
     def _append_annotation_actions(self, menu):
         """Append the current annotation actions and enabled states to a menu.

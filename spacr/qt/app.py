@@ -6941,6 +6941,10 @@ class MainWindow(QMainWindow):
         #: see :meth:`_snapshot_current_screen_settings`.
         self._visit_order: list[str] = []
         self._install_startup_page()
+        from .linked_selection import DEFAULT_OPEN_KIND, linked_selection
+
+        linked_selection().register_object_navigator(
+            DEFAULT_OPEN_KIND, self._bring_object_destination_forward)
 
         status = QStatusBar()
         self._status_app_label = QLabel("Home")
@@ -9664,6 +9668,10 @@ class MainWindow(QMainWindow):
         if not event.isAccepted():
             _close_without_restyling(self, closing=False)
         if event.isAccepted():
+            from .linked_selection import DEFAULT_OPEN_KIND, linked_selection
+
+            linked_selection().unregister_object_navigator(
+                DEFAULT_OPEN_KIND, self._bring_object_destination_forward)
             app = QApplication.instance()
             if app is not None:
                 _note_native_context(action="close ends the event loop")
@@ -10457,6 +10465,30 @@ class MainWindow(QMainWindow):
         if target != wanted:
             self._switch_a_fold_on(target, wanted)
         return target
+
+    def _bring_object_destination_forward(self, kind: str) -> None:
+        """Switch to the module that shows ``kind`` objects, building it first.
+
+        The navigator this window registers with the shared
+        :class:`~spacr.qt.linked_selection.LinkedSelection`. Open selection in
+        Annotate, from Graph Builder, Gate Editor, PCA or any other plot, runs
+        it before the request is delivered: it goes through
+        :meth:`open_module`, the same path as clicking the module in the
+        sidebar, so the screen is built on first use (and registers its
+        opener) and the navigation highlight follows. A window that has
+        already been destroyed withdraws itself instead of navigating.
+
+        :param kind: the destination kind, which is the module's app key.
+        """
+        from shiboken6 import isValid
+
+        if not isValid(self):
+            from .linked_selection import linked_selection
+
+            linked_selection().unregister_object_navigator(
+                kind, self._bring_object_destination_forward)
+            return
+        self.open_module(kind)
 
     def _switch_a_fold_on(self, host_key: str, folded_key: str) -> None:
         """Press ``host_key``'s switch for ``folded_key``, if it has one.

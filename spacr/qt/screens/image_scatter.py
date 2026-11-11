@@ -42,11 +42,12 @@ from PySide6.QtWidgets import (QComboBox, QFileDialog, QFrame, QHBoxLayout,
                                QLabel, QLineEdit, QPushButton, QSizePolicy,
                                QVBoxLayout, QWidget)
 
-from ...selection import (OBJECT_KEY_COLUMNS, match_keys, object_keys,
-                          with_object_type)
+from ...selection import (OBJECT_KEY_COLUMNS, ObjectRequest, match_keys,
+                          object_keys, with_object_type)
 from ..crop_thumbs import CropThumbnails, crop_paths_for_keys
 from ..job_runner import JobRunner
-from ..linked_selection import DEFAULT_OPEN_KIND, LinkedView, has_object_opener
+from ..linked_selection import (DEFAULT_OPEN_KIND, LinkedView,
+                                has_object_opener, object_database_context)
 from ..theme import (RADIUS, SPACING, active_palette, block_surface,
                      register_widget_qss)
 from ..widgets.collapsible_splitter import CollapsibleSplitter
@@ -817,7 +818,7 @@ class ImageScatterScreen(LinkedView, QWidget):
                 "object_label.")
             return
         self.publish_selection([key])
-        self.open_point(index)
+        self._route_point(index, navigate=False)
 
     def open_point(self, index: int) -> Any:
         """Route point ``index``'s object to whatever shows crops.
@@ -826,16 +827,36 @@ class ImageScatterScreen(LinkedView, QWidget):
         :returns: what the opener returned, or ``None`` when there is no key
             or nowhere to open it.
         """
+        return self._route_point(index, navigate=True)
+
+    def _route_point(self, index: int, *, navigate: bool) -> Any:
+        """Route point ``index``'s object, switching to the destination or not.
+
+        :param index: the point's position in the plotted arrays.
+        :param navigate: switch the main window to the destination, building
+            it if needed. A plain click passes ``False``: it updates an
+            Annotate screen that is already open without leaving the scatter.
+        :returns: what the opener returned, or ``None`` when there is no key
+            or nowhere to open it.
+        """
         key = self.key_at(index)
         if not key or not has_object_opener(DEFAULT_OPEN_KIND):
+            return None
+        if (not navigate
+                and DEFAULT_OPEN_KIND not in self.link.object_opener_kinds()):
             return None
         x_name = self._x_choice.currentText()
         y_name = self._y_choice.currentText()
         try:
-            return self.open_objects(
-                [key],
+            request = ObjectRequest(
+                keys=[key],
                 reason=f"clicked in the scatter of {y_name} against {x_name}",
-                context={"x": x_name, "y": y_name, "index": int(index)})
+                source=self.link_source,
+                context={"x": x_name, "y": y_name, "index": int(index),
+                         **object_database_context(self._db.text())})
+            if navigate:
+                return self.link.open_request(request)
+            return self.link.deliver_request(request)
         except Exception as exc:
             LOG.exception("Could not open %s", key)
             self.status.setText(f"Could not open {key}: {exc}")

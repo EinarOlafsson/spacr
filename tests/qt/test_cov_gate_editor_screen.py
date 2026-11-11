@@ -644,7 +644,8 @@ def test_the_plot_menu_is_every_action_that_is_already_on_the_screen(loaded):
     assert labels == [
         "Save graph…", "Copy image to clipboard", None, "Reset view",
         "Graph settings…", None, "Export gates to the database…",
-        "Annotate…", "Annotate conditions", "Save annotated table", "Export table"]
+        "Annotate…", "Annotate conditions", "Save annotated table", "Export table",
+        "Open selection in Annotate"]
     by_label = {label: callback
                 for label, _on, callback, _why in loaded.graph_menu_items()
                 if label}
@@ -654,6 +655,7 @@ def test_the_plot_menu_is_every_action_that_is_already_on_the_screen(loaded):
     assert by_label["Annotate conditions"] == loaded.annotate_from_gates
     assert by_label["Save annotated table"] == loaded._save_selected_annotation
     assert by_label["Export table"] == loaded._export_selected_annotation
+    assert by_label["Open selection in Annotate"] == loaded._open_selection_in_annotate
 
 
 def test_a_greyed_row_says_why_it_is_greyed(screen):
@@ -750,7 +752,8 @@ def test_the_menu_pops_up_where_the_user_right_clicked(loaded, monkeypatch):
     assert labels == [
         "Save graph…", "Copy image to clipboard", None, "Reset view",
         "Graph settings…", None, "Export gates to the database…",
-        "Annotate…", "Annotate conditions", "Save annotated table", "Export table", None]
+        "Annotate…", "Annotate conditions", "Save annotated table", "Export table",
+        "Open selection in Annotate", None]
     assert menu.at == loaded.gates.canvas.mapToGlobal(QPoint(4, 5))
     assert figures == [loaded.gates.canvas.figure()]
     assert all(row.calls for row in menu.rows if row is not None and row.enabled), (

@@ -91,6 +91,7 @@ from ...condition_annotations import (
 from ..app_catalog import declared_app, register_declared
 from ..i18n import tr
 from ..job_runner import JobRunner
+from ..linked_selection import object_database_context
 from ..theme import SPACING
 from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.data_filter_panel import DataFilterPanel, classify_columns
@@ -711,26 +712,25 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
         """Send the brushed objects to whatever shows crops.
 
         Routed through :func:`spacr.qt.linked_selection.open_objects`, so this
-        screen never imports Annotate and Annotate grows no method for it.
+        screen never imports Annotate and Annotate grows no method for it. In
+        the main window the route switches to Annotate, building it on first
+        use, and the database the table came from travels with the request so
+        a freshly built Annotate opens it and shows the crops at once.
         """
         if not self._has_merge_image_provenance():
             self._source.setText("This merge has no verified image/object provenance.")
             return
-        from ..linked_selection import has_object_opener
         canvas = self.builder.canvas
         selection = canvas.link.selection
         if not selection.is_active or not len(selection):
             self._source.setText("Brush a region first — nothing is selected.")
             return
-        if not has_object_opener("annotate"):
-            self._source.setText(
-                "Nothing can show crops yet — open the Annotate screen once.")
-            return
         try:
             canvas.open_objects(
                 selection.keys,
                 reason=f"brushed in the Graph Builder · "
-                       f"{canvas.spec.describe(canvas.kinds)}")
+                       f"{canvas.spec.describe(canvas.kinds)}",
+                context=object_database_context(self._path))
         except Exception as exc:
             LOG.info("could not open the brushed objects", exc_info=True)
             self._source.setText(f"could not open those objects: {exc}")

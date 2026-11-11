@@ -343,7 +343,11 @@ def _brush_everything(screen):
 
 def test_with_nothing_able_to_show_crops_the_screen_says_which_screen(
         screen, features):
-    """A destination that does not exist yet is named, not guessed at."""
+    """A destination that does not exist yet is named, not guessed at.
+
+    Outside the main window no navigator builds Annotate, so the routing
+    error reaches the label instead of the old advice to open it once.
+    """
     screen.set_frame(features)
     screen.pca.features.set_selected(["f1", "f2", "f3"])
     screen.pca.recompute()
@@ -352,7 +356,8 @@ def test_with_nothing_able_to_show_crops_the_screen_says_which_screen(
 
     screen._open_selection()
 
-    assert "open the Annotate screen once" in screen._source.text()
+    assert "could not open those objects" in screen._source.text()
+    assert "'annotate'" in screen._source.text()
 
 
 def test_a_brushed_cluster_reaches_the_registered_opener(screen, link,

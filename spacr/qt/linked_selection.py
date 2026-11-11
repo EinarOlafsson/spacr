@@ -82,6 +82,7 @@ __all__ = [
     "unregister_object_opener",
     "has_object_opener",
     "object_opener_kinds",
+    "object_database_context",
 ]
 
 #: The destination :func:`open_objects` routes to when the caller does not say
@@ -140,6 +141,7 @@ class LinkedSelection(QObject):
         self._filter = DataFilter()
         self._selection = Selection.none()
         self._openers: Dict[str, ObjectOpener] = {}
+        self._navigators: Dict[str, Callable[[str], Any]] = {}
 
     @property
     def filter(self) -> DataFilter:
@@ -294,6 +296,56 @@ class LinkedSelection(QObject):
         del self._openers[key]
         return True
 
+    def register_object_navigator(self, kind: str, fn: Callable[[str], Any]
+                                  ) -> Optional[Callable[[str], Any]]:
+        """Bring the destination for ``kind`` forward before each request.
+
+        The main window registers one per module that opens objects. It is
+        called with the kind before the opener is looked up, and is expected
+        to show the destination, building it first when it does not exist
+        yet, so that its constructor registers the opener in time. A request
+        then switches to the destination and delivers in one step, whether or
+        not the user ever opened it.
+
+        :param kind: the destination name, stripped of surrounding whitespace;
+            must not be blank.
+        :param fn: called with the kind; its return value is ignored.
+        :returns: the navigator this one displaced, or ``None``.
+        :raises ValueError: on a blank kind.
+        :raises TypeError: if ``fn`` is not callable.
+        """
+        key = str(kind).strip()
+        if not key:
+            raise ValueError("an object navigator needs a non-blank kind")
+        if not callable(fn):
+            raise TypeError(
+                f"object navigator for {key!r} is not callable "
+                f"({type(fn).__name__})")
+        previous = self._navigators.get(key)
+        self._navigators[key] = fn
+        return previous
+
+    def unregister_object_navigator(self, kind: str,
+                                    fn: Optional[Callable[[str], Any]] = None
+                                    ) -> bool:
+        """Withdraw the navigator for ``kind``; ``True`` if this call removed it.
+
+        With ``fn`` given, removes it only while it is the one registered, so
+        a closing window cannot take the navigator of the window that
+        replaced it. Compared with ``==`` for the bound-method reason
+        :meth:`unregister_object_opener` gives.
+
+        :param kind: the destination name, stripped of surrounding whitespace
+            before lookup.
+        :param fn: the navigator to withdraw, or ``None`` for any.
+        """
+        key = str(kind).strip()
+        current = self._navigators.get(key)
+        if current is None or (fn is not None and current != fn):
+            return False
+        del self._navigators[key]
+        return True
+
     def has_object_opener(self, kind: str) -> bool:
         """Whether anything is registered for ``kind``.
 
@@ -302,7 +354,8 @@ class LinkedSelection(QObject):
         :param kind: the destination name, stripped of surrounding whitespace
             before lookup.
         """
-        return str(kind).strip() in self._openers
+        key = str(kind).strip()
+        return key in self._openers or key in self._navigators
 
     def object_opener_kinds(self) -> Tuple[str, ...]:
         """Every registered kind, sorted — for diagnostics and menus."""
@@ -343,6 +396,32 @@ class LinkedSelection(QObject):
             empty ``kind`` means ``DEFAULT_OPEN_KIND``. It is passed to the
             registered opener and then emitted on ``objects_opened``.
         :raises NoObjectOpener: if nothing is registered for the kind.
+        """
+        kind = request.kind or DEFAULT_OPEN_KIND
+        navigator = self._navigators.get(kind)
+        if navigator is not None:
+            navigator(kind)
+            if kind not in self._openers:
+                raise NoObjectOpener(
+                    f"the {kind} screen did not open, so the objects could "
+                    f"not be shown. Another screen may still be opening; try "
+                    f"again in a moment.")
+        return self.deliver_request(request)
+
+    def deliver_request(self, request: ObjectRequest) -> Any:
+        """Hand a request to the opener already registered, without navigating.
+
+        :meth:`open_request` first runs the kind's navigator, which switches
+        the main window to the destination and builds it if needed. This is
+        the step after that, on its own, for a browsing gesture such as a
+        click on a scatter point: it updates a destination that is already
+        open and leaves the user where they are.
+
+        :param request: the built :class:`~spacr.selection.ObjectRequest`; an
+            empty ``kind`` means ``DEFAULT_OPEN_KIND``. It is passed to the
+            registered opener and then emitted on ``objects_opened``.
+        :returns: whatever the opener returned, unchanged.
+        :raises NoObjectOpener: if no opener is registered for the kind.
         """
         kind = request.kind or DEFAULT_OPEN_KIND
         opener = self._openers.get(kind)
@@ -645,6 +724,24 @@ def open_objects(keys: Any, *, reason: str, kind: str = DEFAULT_OPEN_KIND,
     return linked_selection().open_objects(
         keys, reason=reason, kind=kind, source=source, timelapse=timelapse,
         context=context)
+
+
+def object_database_context(path: Any) -> Dict[str, str]:
+    """The request context naming the database a plot's objects came from.
+
+    A plot that loaded a ``measurements.db`` passes this as ``context`` to
+    :func:`open_objects`, so a destination with nothing open yet, such as an
+    Annotate screen the jump has just built, can open that database and show
+    the crops straight away. A CSV, a blank path or several databases give an
+    empty mapping, and the destination keeps whatever it has open.
+
+    :param path: the loaded table's file path, or ``None``.
+    :returns: ``{"db_path": path}`` for a ``.db`` file, otherwise ``{}``.
+    """
+    text = str(path or "").strip()
+    if not text or not text.lower().endswith(".db"):
+        return {}
+    return {"db_path": text}
 
 
 def open_request(request: ObjectRequest) -> Any:

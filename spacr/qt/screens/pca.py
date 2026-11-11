@@ -50,6 +50,7 @@ from PySide6.QtWidgets import (
 )
 
 from ..job_runner import JobRunner
+from ..linked_selection import object_database_context
 from ..theme import SPACING
 from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.data_filter_panel import DataFilterPanel
@@ -401,24 +402,22 @@ class PCAScreen(QWidget):
         """Send the brushed cluster to whatever shows crops.
 
         Routed through :func:`spacr.qt.linked_selection.open_objects`, so this
-        screen never imports Annotate and Annotate grows no method for it.
+        screen never imports Annotate and Annotate grows no method for it. In
+        the main window the route switches to Annotate, building it on first
+        use, and the database the table came from travels with the request.
         """
-        from ..linked_selection import has_object_opener
         canvas = self.pca.canvas
         selection = canvas.link.selection
         if not selection.is_active or not len(selection):
             self._source.setText("Brush a cluster first — nothing is selected.")
-            return
-        if not has_object_opener("annotate"):
-            self._source.setText(
-                "Nothing can show crops yet — open the Annotate screen once.")
             return
         plane = canvas.plane()
         where = (f"{canvas.spec.x} / {canvas.spec.y}" if plane
                  else canvas.spec.describe(canvas.kinds))
         try:
             canvas.open_objects(selection.keys,
-                                reason=f"brushed in PCA · {where}")
+                                reason=f"brushed in PCA · {where}",
+                                context=object_database_context(self._path))
         except Exception as exc:
             LOG.info("could not open the brushed objects", exc_info=True)
             self._source.setText(f"could not open those objects: {exc}")

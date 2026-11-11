@@ -167,19 +167,21 @@ def test_a_brush_around_blank_space_is_also_nothing_to_open(screen,
 
 
 def test_with_nothing_able_to_show_crops_the_screen_says_so(screen,
-                                                            measurements,
-                                                            monkeypatch):
-    """Better than a NoObjectOpener traceback from a button press."""
+                                                            measurements):
+    """Outside the main window nothing builds Annotate; the label says why.
+
+    Better than a NoObjectOpener traceback from a button press, and no longer
+    the old advice to open Annotate once: in the main window the jump builds
+    it.
+    """
     screen.set_frame(measurements)
     screen.builder.canvas.link.set_selection(Selection(keys=measurements.index[:2],
                                          source="graph_builder"))
-    monkeypatch.setattr("spacr.qt.linked_selection.has_object_opener",
-                        lambda kind: False)
 
     screen._open_selection()
 
-    assert screen._source.text() == (
-        "Nothing can show crops yet — open the Annotate screen once.")
+    assert screen._source.text().startswith("could not open those objects")
+    assert "open the Annotate screen once" not in screen._source.text()
 
 
 def test_a_brushed_selection_reaches_the_registered_opener(screen,

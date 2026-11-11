@@ -352,6 +352,34 @@ def _probe_isdir(path) -> bool:
     return path_probe.isdir(text)
 
 
+def _request_source_folder(request) -> str:
+    """The project folder a routed request's database names, or ``""``.
+
+    A plot that knows which ``measurements.db`` its objects came from puts it
+    in ``request.context["db_path"]``. When Annotate has no source open yet,
+    which is the case right after the jump built it, that folder is opened so
+    the crops can be shown without a second step. Only a database at the
+    standard ``<folder>/measurements/measurements.db`` place that exists
+    qualifies; anything else leaves the screen asking for a source.
+
+    :param request: the routed :class:`~spacr.selection.ObjectRequest`.
+    :returns: the folder holding ``measurements/measurements.db``, or ``""``.
+    """
+    try:
+        db_path = str((request.context or {}).get("db_path") or "")
+    except Exception:
+        return ""
+    if not db_path:
+        return ""
+    database = os.path.abspath(db_path)
+    measurements = os.path.dirname(database)
+    if (os.path.basename(database) != "measurements.db"
+            or os.path.basename(measurements) != "measurements"
+            or not os.path.isfile(database)):
+        return ""
+    return os.path.dirname(measurements)
+
+
 def _ask_about_the_folder(path) -> None:
     """Put both questions about ``path`` to their own threads, and return.
 
@@ -7542,6 +7570,12 @@ class AnnotateScreen(QWidget):
             why reads as the whole screen.
         :returns: this screen, so the caller can raise or focus it.
         """
+        source = ("" if self._settings.db_path
+                  else _request_source_folder(request))
+        if source:
+            self._open_source(
+                source, then=lambda: self.open_object_request(request))
+            return self
         self._object_request = request
         keys = list(request.keys)
         if not self._settings.db_path:
