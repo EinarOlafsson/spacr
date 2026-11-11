@@ -1,9 +1,10 @@
 """Install and launch the separate ParaScape desktop application.
 
-ParaScape uses PyQt6 and never imports into spaCR's PySide6 process. Its
-environment lives under ``~/.spacr/apps`` (or ``SPACR_APPS_DIR``). Installation
-reuses the segmentation installers' interpreter discovery, isolated command
-environment and cancellable subprocess runner, without registering a detector.
+ParaScape uses PySide6, as spaCR does, but never imports into spaCR's
+process. Its environment lives under ``~/.spacr/apps`` (or
+``SPACR_APPS_DIR``). Installation reuses the segmentation installers'
+interpreter discovery, isolated command environment and cancellable
+subprocess runner, without registering a detector.
 """
 from __future__ import annotations
 
@@ -29,8 +30,13 @@ MINIMUM_VERSION = "0.0.1.0"
 _SPEC = SimpleNamespace(name="parascape", label="ParaScape", python=((3, 10), (3, 13)), size_gb=12)
 _OWNER = ".spacr-parascape.json"
 _SELFTEST = (
-    "import json, importlib.metadata; from PyQt6 import QtWidgets; "
+    "import json, sys, importlib.metadata; from PySide6 import QtWidgets; "
     "from parascape import paths; from parascape.app import main; "
+    "import pyqtgraph.Qt\n"
+    "if 'PyQt6' in sys.modules:\n"
+    " raise SystemExit('PyQt6 was imported into ParaScape, whose Qt binding is PySide6')\n"
+    "if pyqtgraph.Qt.QT_LIB != 'PySide6':\n"
+    " raise SystemExit('pyqtgraph uses ' + str(pyqtgraph.Qt.QT_LIB) + ', not PySide6')\n"
     "ok, message = paths.check()\n"
     "if not ok:\n"
     " from parascape.data_download_dialog import ensure_data\n"
@@ -129,8 +135,8 @@ def process_environment(env: Path) -> dict:
     values["PIP_CONFIG_FILE"] = os.devnull
     values["PIP_DISABLE_PIP_VERSION_CHECK"] = "1"
     values["PIP_NO_INPUT"] = "1"
-    values["PYQTGRAPH_QT_LIB"] = "PyQt6"
-    values["QT_API"] = "pyqt6"
+    values["PYQTGRAPH_QT_LIB"] = "PySide6"
+    values["QT_API"] = "pyside6"
     for key in ("LD_LIBRARY_PATH", "DYLD_LIBRARY_PATH"):
         if key + "_ORIG" in values:
             values[key] = values.pop(key + "_ORIG")

@@ -1,5 +1,5 @@
 {
-  "spacr._parascape": "Install and launch the separate ParaScape desktop application.\n\nParaScape uses PyQt6 and never imports into spaCR's PySide6 process. Its\nenvironment lives under ``~/.spacr/apps`` (or ``SPACR_APPS_DIR``). Installation\nreuses the segmentation installers' interpreter discovery, isolated command\nenvironment and cancellable subprocess runner, without registering a detector.",
+  "spacr._parascape": "Install and launch the separate ParaScape desktop application.\n\nParaScape uses PySide6, as spaCR does, but never imports into spaCR's\nprocess. Its environment lives under ``~/.spacr/apps`` (or\n``SPACR_APPS_DIR``). Installation reuses the segmentation installers'\ninterpreter discovery, isolated command environment and cancellable\nsubprocess runner, without registering a detector.",
   "spacr._parascape.PYPI_PACKAGE": "Install the latest compatible stable release from the official PyPI index.",
   "spacr._parascape.REPOSITORY": "Optional explicit source for development installations.",
   "spacr._parascape.apps_root": "Return the external-application folder without creating it.\n\n:param root: explicit folder, otherwise ``SPACR_APPS_DIR`` or ``~/.spacr/apps``.\n:returns: absolute application root.",

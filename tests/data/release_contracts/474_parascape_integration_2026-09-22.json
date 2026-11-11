@@ -60,7 +60,7 @@
       "name": "spacr.qt.parascape._InstallThread",
       "file": "spacr/qt/parascape.py",
       "signature": null,
-      "description": "Run the cancellable installer without importing PyQt6 into spaCR."
+      "description": "Run the cancellable installer without importing ParaScape into spaCR."
     },
     {
       "name": "spacr.qt.parascape._InstallThread.__init__",
