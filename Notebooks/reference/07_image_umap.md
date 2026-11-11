@@ -39,7 +39,7 @@ This linked reference contains the full generated setting descriptions. Return t
 
 
 <details>
-<summary>Input Data (8 settings)</summary>
+<summary>Input Data (14 settings)</summary>
 
 #### Input Data
 
@@ -51,6 +51,12 @@ This linked reference contains the full generated setting descriptions. Return t
 - **`remove_highly_correlated`** *(optional)* — (bool or float) - Before dimensionality reduction, drop numeric features whose absolute Pearson correlation with an already-kept feature exceeds a cut-off. Pass a float to set the cut-off yourself, True to use 0.95, or False to keep everything. Enable it so families of near-duplicate measurements (area, perimeter, convex_area) do not dominate the embedding. Default True. Default: `True`.
 - **`log_data`** *(optional)* — (bool) - Apply log(x + 1e-6) to every numeric feature, after the correlation filter and before standard scaling. Compresses heavy-tailed measurements such as intensity sums and areas so a handful of bright or huge objects stop dominating the embedding. Negative feature values become NaN and are then filled with the column mean. Default False. Default: `False`.
 - **`resnet_features`** *(optional)* — (bool) - Placeholder for embedding raw crops with ResNet features instead of the measured feature table. Not implemented: when it is True, generate_image_umap raises NotImplementedError before embedding. Leave it False. Default False. Default: `False`.
+- **`umap_source`** *(optional)* — (str) - What Image UMAP embeds. 'measurements' (default) embeds per-object rows of measurements.db as before; 'ops_profiles' draws an OPS gene map from gene (and guide) profiles: clusters from the full profiles, labels from gene-set enrichment and medoid-cell raw crops around a display-only UMAP layout. Alpha. Default: `'measurements'`.
+- **`ops_umap_profiles`** *(optional)* — (str) - Gene profile file for umap_source 'ops_profiles': an .npz with names and pcs, or a table with a gene column and numeric feature columns. Required for that source. Default None. Alpha. Default: `None`.
+- **`ops_umap_guide_profiles`** *(optional)* — (str) - Optional guide profile file (npz names/pcs, or a table with a guide column) drawn on the same map; see ops_umap_guides. Default None. Alpha. Default: `None`.
+- **`ops_umap_cell_embedding`** *(optional)* — (str) - Per-cell table with cell_id, gene, crop addresses (field_path with centroid_y / centroid_x, or crop_path / png_path), optional cell_px and edge_cut, and the cells' profile-space columns. Needed for medoid-cell crops. Default None. Alpha. Default: `None`.
+- **`ops_umap_partition`** *(optional)* — (str) - Use a partition from a file instead of running Leiden, written 'file:column'; the file needs a gene column. Empty runs Leiden. Default None. Alpha. Default: `None`.
+- **`ops_umap_reference_dir`** *(optional)* — (str) - Folder holding the gene-set files the cluster labels are drawn from; changing it changes which set versions label the clusters. Empty uses ops_reference_dir. Default None. Alpha. Default: `None`.
 
 </details>
 
@@ -66,12 +72,14 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
-<summary>UMAP (2 settings)</summary>
+<summary>UMAP (4 settings)</summary>
 
 #### UMAP
 
 - **`n_neighbors`** *(optional)* — (int or float) - Size of the local neighbourhood UMAP balances against global structure, and the perplexity when reduction_method is 'tsne'. Small values (5-50) sharpen fine local structure; large values give a smoother, more global embedding. A float is read as a fraction of the number of objects, and anything below 2 is clamped to 2. Default 1000. Default: `1000`.
 - **`min_dist`** *(optional)* — (float) - UMAP's minimum spacing between points in the 2-D embedding, range 0.0-1.0. Low values (0.0-0.1) let clusters pack tightly and look crisply separated; higher values spread points out and preserve more of the global layout at the cost of visible cluster structure. Ignored when reduction_method is 'tsne'. Default 0.1. Default: `0.1`.
+- **`ops_umap_guides`** *(optional)* — (str) - How guide rows are placed: 'none' ignores them, 'joint' fits genes and guides in one UMAP, 'project' fits the genes and places the guides with UMAP's transform. Default 'none'. Alpha. Default: `'none'`.
+- **`ops_umap_stability_seeds`** *(optional)* — (list[int]) - UMAP seeds of the layout-stability control: trustworthiness (k = 15) and same-cluster neighbour shares in 2-D and in profile space, per seed. Empty skips the extra layouts. Default [42, 1, 2, 3, 4]. Alpha. Default: `[42, 1, 2, 3, 4]`.
 
 </details>
 
@@ -118,7 +126,7 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
-<summary>Clustering (6 settings)</summary>
+<summary>Clustering (16 settings)</summary>
 
 #### Clustering
 
@@ -128,6 +136,16 @@ This linked reference contains the full generated setting descriptions. Return t
 - **`remove_cluster_noise`** *(optional)* — (bool) - Remove points that DBSCAN labels as noise (-1) before plotting the embedding, so the figure contains only clustered points. Disable it to retain all embedded points, including diffuse background. It has no effect with kmeans, which never emits -1, and is disabled automatically when color_by is set. Default True. Default: `True`.
 - **`analyze_clusters`** *(optional)* — (bool) - After clustering the embedding, rank every measured feature by cluster separation using random-forest importance and a per-feature ANOVA or Kruskal-Wallis test, then write results/cluster_results.csv. Enable this setting to identify morphology or intensity features associated with each cluster. It adds a full model fit over the feature table. Default False. Default: `False`.
 - **`color_by`** *(optional)* — (str) - Name of a column in the joined measurement table (e.g. 'cond', 'columnID', 'plateID') used to color embedding points instead of the cluster labels. Set it to see how a known grouping such as condition or plate column falls across the map; leave it None to color by the clustering result. Setting it also disables remove_cluster_noise, plot_outlines and smooth_lines. Default None. Default: `None`.
+- **`ops_umap_graph`** *(optional)* — (str) - Graph of the full gene profiles that Leiden clusters: 'knn' (each gene linked to its ops_umap_knn nearest genes by cosine) or 'phate' (PHATE's diffusion graph, 10 cosine neighbours). Clusters never come from the 2-D layout. Default 'knn'. Alpha. Default: `'knn'`.
+- **`ops_umap_knn`** *(optional)* — (int) - Neighbours per gene in the 'knn' graph. More give a denser graph and fewer, larger clusters at the same resolution. Default 12. Alpha. Default: `12`.
+- **`ops_umap_resolution`** *(optional)* — (float) - Leiden resolution (RB configuration model) for the gene-profile graph. Raising it splits the genes into more, smaller clusters; lowering it merges them into fewer, larger ones. Default 12. Alpha. Default: `12`.
+- **`ops_umap_leiden_seed`** *(optional)* — (int) - Leiden seed; the same seed, resolution and graph give the same partition. Default 42. Alpha. Default: `42`.
+- **`ops_umap_hierarchy_method`** *(optional)* — (str) - Linkage method for the cluster hierarchy, built on the clusters' mean profiles with cosine distance (scipy linkage: 'average', 'complete', 'single', 'weighted'). Default 'average'. Alpha. Default: `'average'`.
+- **`ops_umap_hierarchy_levels`** *(optional)* — (list[int]) - Numbers of top-level groups the hierarchy is cut into; the smallest is drawn as hulls on the map and used when ops_umap_crop_level is 'top'. Default [8, 30]. Alpha. Default: `[8, 30]`.
+- **`ops_umap_label_sources`** *(optional)* — (list[str]) - Gene sets clusters are labelled with: 'CORUM' or 'KEGG' (all groups), 'CORUM@REPORT' or '@SELECT' (that half of the groups), 'NAME' (NAME.tsv in the reference folder) or 'NAME=path' (a file with gene_name and group columns). A set that is not found is skipped and named in the legend. Default ['CORUM@REPORT', 'GO_BP']. Alpha. Default: `['CORUM@REPORT', 'GO_BP']`.
+- **`ops_umap_enrichment_test`** *(optional)* — (str) - Test of each cluster against each gene set: 'hypergeom' (one-sided over-representation) or 'fisher_two_sided' (the Brieflow benchmark's test). q-values are Benjamini-Hochberg across all cluster x term pairs. Default 'hypergeom'. Alpha. Default: `'hypergeom'`.
+- **`ops_umap_label_q`** *(optional)* — (float) - A cluster is labelled with its best gene set only when that set's q-value is below this; otherwise it is 'unlabelled'. The label shows its q-value. Default 0.05. Alpha. Default: `0.05`.
+- **`ops_umap_shuffle_seed`** *(optional)* — (int) - Seed of the shuffled-gene-label control, which counts the clusters labelled by chance at the same cluster sizes. Default 7. Alpha. Default: `7`.
 
 </details>
 
@@ -178,6 +196,22 @@ This linked reference contains the full generated setting descriptions. Return t
 - **`umap_sidebar_width`** *(optional)* — (int) - Initial interactive UMAP image and annotation sidebar width in pixels. The divider remains draggable. Default 280. Default: `280`.
 - **`black_background`** *(optional)* — (bool) - Choose the standalone/CLI embedding fallback: black canvas with white axes when True, white canvas with black axes when False. In the Qt app, Image UMAP automatically matches its enclosing card in the active theme and uses that theme's readable foreground color instead. Default True. Default: `True`.
 - **`save_figure`** *(optional)* — (bool) - Write the embedding, plus the cluster grid when plot_cluster_grids is on, as vector PDFs to &lt;src&gt;/results/&lt;METHOD&gt;_embedding.pdf and &lt;METHOD&gt;_grid.pdf. Enable it when you want the figure for a paper or a record of the run; either way the plots are still displayed on screen. Default False. Default: `False`.
+
+</details>
+
+<details>
+<summary>OPS Gene Map Crops (8 settings)</summary>
+
+#### OPS Gene Map Crops
+
+- **`ops_umap_crop_level`** *(optional)* — (str) - One crop panel per Leiden cluster ('cluster') or per top-level hierarchy group ('top'). Default 'top'. Alpha. Default: `'top'`.
+- **`ops_umap_cells_per_cluster`** *(optional)* — (int) - Cells shown per panel: the medoid gene's cells closest to its profile. Default 3. Alpha. Default: `3`.
+- **`ops_umap_crop_px`** *(optional)* — (int) - Side of every crop in pixels; crops that would leave the field are skipped. Default 96. Alpha. Default: `96`.
+- **`ops_umap_crop_channels`** *(optional)* — (dict) - Channels shown in the crops and their colours, {channel index: colour}. Required when ops_umap_cell_embedding is set. Default None. Alpha. Default: `None`.
+- **`ops_umap_display_percentiles`** *(optional)* — (list[float]) - Low and high percentiles of the pooled pixels of every crop shown, giving ONE display range per channel shared by all crops (no per-crop stretch). Written to crops_display.json and the legend. Default [0.5, 99.5]. Alpha. Default: `[0.5, 99.5]`.
+- **`ops_umap_display_range`** *(optional)* — (dict) - Fixed display ranges {channel: [low, high]} that replace the percentiles for those channels. Empty uses the percentiles. Default None. Alpha. Default: `None`.
+- **`ops_umap_min_cell_px`** *(optional)* — (int) - Cells smaller than this many pixels (cell_px or area) are not shown. Default 200. Alpha. Default: `200`.
+- **`ops_umap_dst`** *(optional)* — (str) - Output folder of the OPS gene map, its tables, crops and provenance; changing it only moves where they are written. Empty writes ops_umap/ next to ops_umap_profiles. Default None. Alpha. Default: `None`.
 
 </details>
 
