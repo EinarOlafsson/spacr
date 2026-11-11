@@ -271,15 +271,26 @@ def test_the_page_stays_inside_the_docs_job_timeout(flow, data):
     and the unloaded docs runner builds the 8,067 page in a few minutes,
     so 261 of headroom is kept.
 
+    RAISED TO 9,300 ON 2026-11-11 for the fourth paper-item integration
+    (918-923), which took the page to 9,032. Measured with a whole-site
+    build of that branch (-E -b html) at a load average of about 15:
+
+        9,032 xrefs   17:26.24 wall   5,515,316 KB peak
+
+    The settings-flow page itself raised no warning; the one docutils
+    warning of that build (a field list in generate_image_umap ending
+    without a blank line) was fixed on the same branch. 268 of headroom
+    is kept.
+
     The builds also came back with ZERO warnings, which is the second
     thing this page can break: the docs job runs `-W`, so an xref the
     inventory cannot resolve fails it as surely as a timeout.
     """
     rst = flow.rst_for(data)
     xrefs = rst.count(":py:func:")
-    assert xrefs <= 9000, (
+    assert xrefs <= 9300, (
         f"{xrefs} cross-references on the settings-flow page, up from the "
-        "8,739 measured against a real sphinx-build on 2026-11-10. This is "
+        "9,032 measured against a real sphinx-build on 2026-11-11. This is "
         "the build-time ratchet; confirm a real sphinx-build before raising "
         "it, and record the wall clock in the docstring above")
 
