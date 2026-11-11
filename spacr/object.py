@@ -1429,6 +1429,30 @@ def _release_native_mask_pages(mapped, batch):
             pass
 
 
+_ARCHIVE_STAGES = ('load', 'prep', 'segment', 'post', 'write', 'release')
+
+
+def _new_archive_stages():
+    """Zeroed per-archive stage seconds and field count for the timing record.
+
+    ``load`` opens the archive, ``prep`` selects channels, filters and
+    prepares each batch, ``segment`` is the model call (network and the
+    model's own mask reconstruction), ``post`` merges, filters, counts and
+    records objects, ``write`` saves the masks and ``release`` frees the
+    archive. Timing reads the clock only; no array is touched.
+    """
+    stages = {stage: 0.0 for stage in _ARCHIVE_STAGES}
+    stages['fields'] = 0
+    return stages
+
+
+def _add_stage(stages, stage, since):
+    """Add the seconds since ``since`` to ``stages[stage]``; return the new clock."""
+    now = time.perf_counter()
+    stages[stage] += now - since
+    return now
+
+
 def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                                 on_batch_done=None, run_qc=True):
     """Segment one object channel across all ``.npz`` batches under ``src`` using Cellpose-SAM.
@@ -1606,6 +1630,8 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
     average_count = []
     for file_index, path in enumerate(paths):
         cancellation_checkpoint()
+        stages = _new_archive_stages()
+        clock = time.perf_counter()
         name = os.path.basename(path)
         name, ext = os.path.splitext(name)
         output_folder = os.path.join(os.path.dirname(path), object_type+'_mask_stack')
@@ -1615,6 +1641,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
         with _mask_archive_arrays(
                 path, native=(t_plan is not None or z_plan is not None)
                 and not timelapse, workspace=output_folder) as (stack, filenames, source_map):
+            clock = _add_stage(stages, 'load', clock)
             try:
                 archive_t_plan = t_plan
                 if t_plan is not None:
@@ -1656,6 +1683,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                 batch_starts = range(0, stack.shape[0], batch_size) if len(stack) else ()
                 for i in batch_starts:
                     cancellation_checkpoint()
+                    clock = time.perf_counter()
                     mask_stack = []
                     selected_channels = (channels if z_plan is not None or t_plan is not None
                                          or stack.shape[-1] != 1 else [0])
@@ -1673,10 +1701,12 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                             resume=settings.get('resume', False))
                     if batch.size == 0:
                         del batch
+                        clock = _add_stage(stages, 'prep', clock)
                         continue
 
                     cp_batch = prepare_batch_for_segmentation(batch)
                     batch_list = [cp_batch[i] for i in range(cp_batch.shape[0])]
+                    stages['fields'] += len(batch_list)
 
                     if timelapse:
                         movie_path = os.path.join(os.path.dirname(src), 'movies')
@@ -1685,6 +1715,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                         _npz_to_movie(cp_batch, batch_filenames, save_path, fps=2)
 
 
+                    clock = _add_stage(stages, 'prep', clock)
                     beta_intensity = t_result = z_results = result = None
                     if z_plan is None and t_plan is None and segmentation_backend == _CELLPOSE3:
                         masks, flows = _cellpose3_masks(
@@ -1769,6 +1800,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                                         print(f"[3D] {filename}: {note}")
                         flows = None
 
+                    clock = _add_stage(stages, 'segment', clock)
                     filter_images = batch if beta_mode is None else beta_intensity
                     if filter_by_raw_intensity:
                         filter_z_axis = (0 if archive_t_plan is not None and archive_t_plan.z_axis is not None
@@ -1973,6 +2005,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                             else:
                                 plot_cellpose4_output(batch_list, masks, flows, cmap='inferno', figuresize=figuresize, nr=len(batch_list))
 
+                    clock = _add_stage(stages, 'post', clock)
                     if settings['save']:
                         field_shape = _field_shape_of(batch)
                         mask_stack = [_as_uint16_mask(_mask_at_field_size(
@@ -1983,6 +2016,7 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
                             _save_array_atomic(output_filename, mask)
                         mask_stack = []
                         batch_filenames = []
+                    clock = _add_stage(stages, 'write', clock)
 
                     del batch, cp_batch, batch_list, masks, flows, filter_images, mask_stack
                     beta_intensity = t_result = z_results = result = mask = planes = None
@@ -1991,10 +2025,11 @@ def generate_cellpose_masks_sam(src, settings, object_type, *, batch_paths=None,
             finally:
                 stack = source_map = None
         gc.collect()
+        _add_stage(stages, 'release', clock)
         if on_batch_done is not None:
             on_batch_done(path)
         from ._mask_workers import _announce_archive
-        _announce_archive(path)
+        _announce_archive(path, stages)
 
     if (timelapse and settings.get('timelapse_division_analysis')
             and settings.get('timelapse_division_prediction')):

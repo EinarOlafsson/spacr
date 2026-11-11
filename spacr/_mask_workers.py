@@ -470,13 +470,25 @@ def _run_checkpointed_mask_workers(src, settings, object_type, assignments,
         raise
 
 
-def _partition_batches(records, devices):
-    """Assign each archive once, balancing stored bytes across selected GPUs."""
+def _partition_batches(records, devices, load=None):
+    """Assign each archive once, balancing stored bytes across selected GPUs.
+
+    :param records: manifest rows with ``path`` and ``bytes``.
+    :param devices: distinct worker names.
+    :param load: optional ``{worker: bytes}`` already given to each worker
+        by earlier roles of the same run, updated in place. Workers serve
+        their roles in order, so balancing the running total lets the
+        worker with less of one role take more of the next, and the last
+        role ends on every worker at about the same time instead of
+        leaving one worker alone on the GPU.
+    """
     devices = list(devices)
     if not devices or len(set(devices)) != len(devices):
         raise ValueError('Choose distinct worker devices')
     assignments = {device: [] for device in devices}
     sizes = {device: 0 for device in devices}
+    if load is not None:
+        sizes.update({device: load.get(device, 0) for device in devices})
     seen = set()
     for record in sorted(records, key=lambda row: (-row['bytes'], row['path'])):
         path = os.path.abspath(os.fspath(record['path']))
@@ -488,6 +500,8 @@ def _partition_batches(records, devices):
         sizes[device] += record['bytes']
     for paths in assignments.values():
         paths.sort()
+    if load is not None:
+        load.update(sizes)
     return assignments
 
 
@@ -639,14 +653,14 @@ def _serve_mask_jobs(device, environment, messages, stop, jobs, segmenter=None,
     :param figure_directory: the parent's figure transport folder, or None.
     :param cache_models: keep the loaded model for the next job.
     """
-    global _MODEL_CACHE
+    global _MODEL_CACHE, _STAGE_SINK
     import functools
 
     from .cancellation import PipelineCancelled, installed_token
 
     output = _WorkerOutput(messages, device)
     bound = False
-    with redirect_stdout(output), redirect_stderr(output):
+    with redirect_stdout(output), redirect_stderr(output), _stage_sink_kept():
         while True:
             job = jobs()
             if job is None:
@@ -673,6 +687,7 @@ def _serve_mask_jobs(device, environment, messages, stop, jobs, segmenter=None,
                         if cache_models:
                             _MODEL_CACHE = {'key': None, 'model': None, 'hits': 0, 'loads': 0}
                         messages.put(('started', device, os.getpid()))
+                        _STAGE_SINK = functools.partial(_report_stages, messages, device)
                         bound = True
 
                     with installed_token(token):
@@ -735,6 +750,29 @@ def _pooled_mask_worker(device, environment, messages, jobs, stop, segmenter=Non
 
 
 _FINAL_STATES = ('success', 'failed', 'cancelled', 'overloaded')
+_STAGE_SINK = None
+
+
+@contextmanager
+def _stage_sink_kept():
+    """Restore the stage sink a worker loop installs once the loop ends."""
+    global _STAGE_SINK
+    previous = _STAGE_SINK
+    try:
+        yield
+    finally:
+        _STAGE_SINK = previous
+
+
+def _report_stages(messages, device, path, stages):
+    """Publish one archive's stage seconds from a worker to the pool.
+
+    :param messages: queue receiving the worker's events.
+    :param device: the worker name.
+    :param path: the finished archive.
+    :param stages: :func:`spacr.object._new_archive_stages` totals.
+    """
+    messages.put(('stages', device, (os.path.abspath(os.fspath(path)), dict(stages))))
 
 
 class _MaskWorkerPool:
@@ -1120,6 +1158,11 @@ class _MaskWorkerPool:
             return
         if kind == 'figure':
             self._deliver_figure(run, device, value)
+            return
+        if kind == 'stages':
+            if jobs and run.get('on_stages') is not None:
+                path, stages = value
+                run['on_stages'](device, path, stages, moment)
             return
         if kind == 'started':
             self._bound.add(device)
@@ -1723,6 +1766,52 @@ def _startup_split(values, events):
             'steady_samples': len(steady)}
 
 
+def _tail_split(values, events):
+    """Busy share after the role's first worker finished its share.
+
+    From then on fewer workers feed the GPU unless the next role fills the
+    gap, so a low figure here, with a high one before, means the role's
+    work was unevenly split rather than that each worker was slow.
+
+    :param values: ``(busy percent, used bytes, seconds since start)`` samples.
+    :param events: ``[seconds since start, label]`` notes.
+    :returns: ``tail_seconds`` (from the first worker success to the end),
+        ``tail_mean_busy_percent`` and ``tail_samples``; None and 0 without
+        a worker success.
+    """
+    done = [moment for moment, label in events
+            if label.startswith('worker ') and label.endswith(' success')]
+    if not done:
+        return {'tail_seconds': None, 'tail_mean_busy_percent': None, 'tail_samples': 0}
+    first = min(done)
+    tail = [value[0] for value in values if value[2] > first]
+    end = max([value[2] for value in values] + [moment for moment, _ in events])
+    mean, _ = _busy_summary(tail)
+    return {'tail_seconds': round(max(0.0, end - first), 1),
+            'tail_mean_busy_percent': mean, 'tail_samples': len(tail)}
+
+
+def _stage_summary(archives):
+    """Per-archive stage seconds and their totals per worker.
+
+    :param archives: rows from :meth:`_GpuUtilisation.archive`.
+    :returns: ``archives`` (each row: ``at``, ``worker``, ``archive``,
+        ``fields`` and seconds of ``load``, ``prep``, ``segment``, ``post``,
+        ``write``, ``release``) and ``stage_seconds``, ``{worker: {stage:
+        seconds, 'fields': n, 'archives': n}}``.
+    """
+    totals = {}
+    for row in archives:
+        worker = str(row.get('worker'))
+        total = totals.setdefault(worker, {'archives': 0})
+        total['archives'] += 1
+        for key, value in row.items():
+            if key in ('at', 'worker', 'archive'):
+                continue
+            total[key] = round(total.get(key, 0) + value, 3)
+    return {'archives': [dict(row) for row in archives], 'stage_seconds': totals}
+
+
 class _GpuUtilisation:
     """Sample how busy each GPU is while one role's workers run.
 
@@ -1743,6 +1832,7 @@ class _GpuUtilisation:
         self.interval = _SAMPLE_SECONDS if interval is None else interval
         self.samples = {index: [] for index in gpus}
         self.events = []
+        self.archives = []
         self.started_at = None
         self._stop = threading.Event()
         self._thread = None
@@ -1761,6 +1851,20 @@ class _GpuUtilisation:
         :param at: the ``time.monotonic()`` moment it happened; now when None.
         """
         self.events.append([self._elapsed(at), str(label)])
+
+    def archive(self, worker, path, stages, at=None):
+        """Record one finished archive's stage seconds.
+
+        :param worker: the worker name, or None on the ordinary path.
+        :param path: the archive.
+        :param stages: seconds per stage and the field count.
+        :param at: the ``time.monotonic()`` moment it arrived; now when None.
+        """
+        row = {'at': self._elapsed(at), 'worker': None if worker is None else str(worker),
+               'archive': os.path.basename(os.fspath(path))}
+        row.update({key: (int(value) if key == 'fields' else round(float(value), 3))
+                    for key, value in stages.items()})
+        self.archives.append(row)
 
     def _sample(self):
         """Append one reading of every GPU; a failed reading is skipped."""
@@ -1810,7 +1914,12 @@ class _GpuUtilisation:
             epoch seconds and ``started_at_iso`` the same moment in local
             time with its offset, so the trace can be laid against file
             times. The start-up is everything up to the first finished
-            archive and the steady part everything after it.
+            archive and the steady part everything after it. The tail
+            (``tail_seconds``, ``tail_mean_busy_percent``,
+            ``tail_samples``) runs from the first worker that finished its
+            share; ``archives`` and ``stage_seconds`` give each archive's
+            load, prep, segment, post, write and release seconds, see
+            :func:`_stage_summary`.
         """
         import datetime
 
@@ -1842,6 +1951,8 @@ class _GpuUtilisation:
                 'started_at': started_at,
                 'started_at_iso': iso,
                 **_startup_split(values, self.events),
+                **_tail_split(values, self.events),
+                **_stage_summary(self.archives),
             }
         return summary
 
@@ -1920,16 +2031,24 @@ def _ordinary_mask_gpu():
 _ARCHIVE_SAMPLERS = []
 
 
-def _announce_archive(path):
-    """Tell the ordinary path's GPU sampler that one archive's masks are saved.
+def _announce_archive(path, stages=None):
+    """Tell the GPU sampler that one archive's masks are saved, with its stage times.
 
     The mask generator calls this after each archive, next to its
-    ``on_batch_done`` callback; with no sampler listening it does nothing.
+    ``on_batch_done`` callback. The ordinary path's sampler notes the
+    archive and its stages; inside a mask worker the stages go to the pool,
+    which records them for the role. With nobody listening it does nothing.
 
     :param path: the finished archive.
+    :param stages: optional per-stage seconds and field count.
     """
     for sampler in tuple(_ARCHIVE_SAMPLERS):
         sampler.note('archive finished')
+        if stages is not None:
+            sampler.archive(None, path, stages)
+    sink = _STAGE_SINK
+    if sink is not None and stages is not None:
+        sink(path, stages)
 
 
 @contextmanager
@@ -1988,6 +2107,11 @@ class _RoleMonitor:
         """Note a worker state or a finished archive at the moment it arrived."""
         if self.utilisation is not None:
             self.utilisation.note(label, at=moment)
+
+    def stages(self, device, path, stages, moment):
+        """Record one archive's stage seconds as reported by its worker."""
+        if self.utilisation is not None:
+            self.utilisation.archive(device, path, stages, at=moment)
 
     def progress(self, state):
         """Keep the latest snapshot for the summary and print it for the GUI."""
@@ -2102,6 +2226,7 @@ def _segment_role_group(mask_src, settings, group, plan, pool):
                       for device in plan['devices'])
     signed = settings
     entries = []
+    load = {}
     for position, object_type in enumerate(group):
         if position:
             signed = _settings_after_role(copy.deepcopy(signed), mask_src)
@@ -2112,10 +2237,10 @@ def _segment_role_group(mask_src, settings, group, plan, pool):
               f'model {_model_label(identity)}')
         monitor = _RoleMonitor(mask_src, object_type, plan)
         role = _checkpointed_role(mask_src, prepared, object_type,
-                                  _partition_batches(records, plan['devices']), ledger,
+                                  _partition_batches(records, plan['devices'], load), ledger,
                                   on_progress=monitor.progress)
         role.update(on_start=monitor.start, on_event=monitor.event,
-                    on_finished=monitor.finish)
+                    on_finished=monitor.finish, on_stages=monitor.stages)
         entries.append((object_type, ledger, monitor, role))
     import functools
 

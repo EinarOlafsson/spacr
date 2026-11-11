@@ -381,7 +381,7 @@ def test_the_cached_generator_writes_the_same_masks_as_the_ordinary_one(
     monkeypatch.setattr(O.cp_models, 'CellposeModel',
                         lambda *args, **kwargs: built.append(1) or original(*args, **kwargs))
     announced = []
-    monkeypatch.setattr(mw, '_announce_archive', announced.append)
+    monkeypatch.setattr(mw, '_announce_archive', lambda path, stages=None: announced.append(path))
     outputs = {}
     for cached in (False, True):
         monkeypatch.setattr(mw, '_MODEL_CACHE', {'key': None, 'model': None, 'hits': 0,
