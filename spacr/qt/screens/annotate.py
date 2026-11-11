@@ -184,6 +184,7 @@ from ..widgets.test_data_chooser import TestDataChooser  # noqa: F401
 #: numpy and nothing heavier -- both are already imported by the time this
 #: screen exists -- so this costs nothing at launch.
 from ...suggest import SUGGESTION_OFFSET
+from ...database_concurrency import DatabaseBusy
 from ...logging_util import _legacy_text_encoding
 
 LOG = logging.getLogger(__name__)
@@ -6557,6 +6558,18 @@ class AnnotateScreen(QWidget):
             )
             if answer != QMessageBox.Yes:
                 return
+        try:
+            ensure_annotation_column(db_path, self._settings.annotation_column,
+                                     table=self._settings.png_table)
+        except DatabaseBusy:
+            LOG.warning("Annotate did not open %s: database locked",
+                        db_path, exc_info=True)
+            self._blind_warning(
+                tr("Busy"),
+                tr("Database: {path}", path=db_path) + "\n" + tr(
+                    "in use or not permitted; close anything using it and "
+                    "try again"))
+            return
         self._flush_pending()
         self._leave_blind_unopened("another source was opened")
         if self._worker:
@@ -6565,8 +6578,6 @@ class AnnotateScreen(QWidget):
         self._settings.src = src
         self._settings.db_path = db_path
         _ask_about_the_folder(src)
-        ensure_annotation_column(db_path, self._settings.annotation_column,
-                                 table=self._settings.png_table)
         self._pending_verdicts.clear()
         self._verdict_ready = None
         self._ensure_verdict_column()
