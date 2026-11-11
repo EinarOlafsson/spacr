@@ -271,6 +271,52 @@ def test_site_decode_reads_every_cell():
     assert empty.empty and P.read_fractions(empty)["frac_matched"] == 0.0
 
 
+def test_recipe_simple_rules_match_the_recipe_cases():
+    spots = pd.DataFrame({
+        "cell": [1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 5, 5, 6, 7, 7],
+        "gene": ["A", "A", "A", "B", "A", "A", "B", "A", "B", "A", "B", "B", "A", "A", None],
+        "prefix": ["x", "x", "x", "y", "x", "x", "y", "x", "y", "x", "y", "y", "x", "x", "z"],
+        "score": [1, 1, 1, .9, 1, 1, .9, 1, 1, 1, .9, .9, 11 / 12, 1, 1]})
+    out = P.recipe_simple_quality(spots).set_index("cell")
+    assert out["quality"].to_dict() == {1: "perfect", 2: "bad", 3: "imperfect", 4: "bad",
+                                        5: "bad", 6: "great", 7: "perfect"}
+    assert out["quality_index"].to_dict() == {1: 1, 2: 4, 3: 3, 4: 4, 5: 4, 6: 2, 7: 1}
+    assert out.loc[3, "barcode"] == "x" and out.loc[3, "score_count"] == 2
+    assert out.loc[5, "barcode"] == "x" and out.loc[5, "score_mean"] == 1.0
+    assert out.loc[7, "barcodes"] == 1
+    assert out.loc[6, "score_mean"] == pytest.approx(11 / 12)
+    named = spots.rename(columns={"cell": "Parent_Cells", "gene": "G", "prefix": "B",
+                                  "score": "S"}).assign(site="s1")
+    same = P.recipe_simple_quality(named, cell_cols=["site", "Parent_Cells"], barcode_col="B",
+                                   gene_col="G", score_col="S")
+    assert list(same["quality"]) == list(out["quality"])
+    assert list(same.columns[:2]) == ["site", "Parent_Cells"]
+    assert P.recipe_simple_quality(spots.iloc[0:0]).empty
+    assert set(P.RECIPE_SIMPLE_CLASSES) == {"perfect", "great", "imperfect", "bad", "none"}
+    assert P.RECIPE_SIMPLE_SOURCE["commit"].startswith("49e62a3")
+
+
+def test_cell_calls_under_the_recipe_simple_method():
+    lib = P.spacer_prefix_library(library_table(SPACERS))
+    reads = ["ACGTACGTACGG", "ACGTACGTACGG", "TTTTGGGGCCCC", "TTTTGGGGCACC",
+             "AAAAAAAAAAAA", "TTTTGGGGCCCC", "GATTACAGATTA", "ACGTACGTACGG", "AAAAAAAAAAAA",
+             "ACGTACGTACGG"]
+    frame = P.match_prefix_reads(reads, lib)
+    frame.insert(0, "cell", [1, 1, 2, 2, 2, 3, 3, 0, 4, 5])
+    frame.insert(0, "site", 1)
+    frame.insert(0, "well", "W1")
+    frame.insert(0, "plate", "P")
+    cells = P.prefix_cell_calls(frame, method="recipe_simple").set_index("cell")
+    assert cells["quality"].to_dict() == {1: "perfect", 2: "great", 3: "bad", 4: "none",
+                                          5: "perfect"}
+    assert cells.loc[1, "gene"] == "GENE1" and cells.loc[5, "gene"] == "GENE1"
+    assert cells.loc[2, "gene"] == "GENE2" and pd.isna(cells.loc[3, "gene"])
+    spacr = P.prefix_cell_calls(frame).set_index("cell")
+    assert spacr.loc[5, "quality"] == "great" and spacr.loc[3, "quality"] == "ambiguous"
+    with pytest.raises(ValueError, match="ops_prefix_quality_method"):
+        P.prefix_cell_calls(frame, method="pycytominer")
+
+
 def test_settings_are_checked():
     with pytest.raises(ValueError, match="needs ops_library"):
         P.prefix_settings({})
@@ -280,6 +326,9 @@ def test_settings_are_checked():
         P.prefix_settings({"ops_library": "x", "ops_prefix_crosstalk": "argmax_median"})
     with pytest.raises(ValueError, match="ops_prefix_metric"):
         P.prefix_settings({"ops_library": "x", "ops_prefix_metric": "edit"})
+    assert chosen["ops_prefix_quality_method"] == "spacr"
+    with pytest.raises(ValueError, match="ops_prefix_quality_method"):
+        P.prefix_settings({"ops_library": "x", "ops_prefix_quality_method": "simple"})
 
 
 def test_site_labels_sources(tmp_path):
@@ -359,6 +408,16 @@ def test_settings_run_decodes_and_reruns_identically(tmp_path):
         second = read_table(os.path.join(outputs[1]["folder"], name), canonicalise=False,
                             report=None)
         pd.testing.assert_frame_equal(first, second)
+    recipe = P.run_prefix_decode({**settings, "dst_root": str(tmp_path / "recipe"),
+                                  "ops_prefix_quality_method": "recipe_simple"})
+    classes = json.loads(open(os.path.join(recipe["folder"], "quality_classes.json")).read())
+    assert classes["method"] == "recipe_simple" and set(classes["classes"]) == set(
+        P.RECIPE_SIMPLE_CLASSES)
+    assert classes["source"]["commit"] == P.RECIPE_SIMPLE_SOURCE["commit"]
+    summary = read_table(os.path.join(recipe["folder"], "site_summary.csv"),
+                         canonicalise=False, report=None)
+    assert {"cells_imperfect", "cells_bad"} <= set(summary.columns)
+    assert recipe["cells"] == report["cells"] and recipe["totals"] == report["totals"]
     with pytest.raises(ValueError, match="cpg_sbs_cycles"):
         P.run_prefix_decode({**settings, "dst_root": str(tmp_path / "x"), "cpg_sbs_cycles": 8,
                              "ops_sbs_cycles": 12})
@@ -373,3 +432,5 @@ def test_alpha_registration():
     assert "ops_prefix_length" in ALPHA_FEATURES[920]["settings"]
     assert OPS_DEFAULTS["ops_library_mode"] == "barcode"
     assert OPS_DEFAULTS["ops_prefix_crosstalk"] == "none"
+    assert OPS_DEFAULTS["ops_prefix_quality_method"] == "spacr"
+    assert "ops_prefix_quality_method" in ALPHA_FEATURES[920]["settings"]

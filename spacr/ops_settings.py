@@ -340,6 +340,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_prefix_crosstalk": "none",
     "ops_prefix_masks": None,
     "ops_quality_min_reads": 2,
+    "ops_prefix_quality_method": "spacr",
     "ops_random_barcode_control": True,
     "ops_control_seed": 0,
 }
@@ -665,6 +666,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_prefix_crosstalk": str,
     "ops_prefix_masks": (str, type(None)),
     "ops_quality_min_reads": int,
+    "ops_prefix_quality_method": str,
     "ops_random_barcode_control": bool,
     "ops_control_seed": int,
 }
@@ -738,6 +740,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_prefix_length", "ops_sbs_cycles", "ops_cycle_mask",
         "ops_prefix_collision", "ops_prefix_metric", "ops_prefix_max_distance",
         "ops_prefix_crosstalk", "ops_prefix_masks", "ops_quality_min_reads",
+        "ops_prefix_quality_method",
         "ops_random_barcode_control", "ops_control_seed",
         "ops_compare_match", "ops_compare_reference_masks",
         "ops_compare_spacr_masks", "ops_compare_reference_objects",
@@ -2478,6 +2481,15 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(int) - Exact reads of one barcode a cell needs, with no read of "
         "another barcode, to be called perfect; fewer, or a minority "
         "competitor, makes it great. Default 2. Alpha.",
+    "ops_prefix_quality_method":
+        "(str) - How each cell's quality class is set from its matched reads. "
+        "'spacr' counts reads: perfect needs ops_quality_min_reads exact reads "
+        "of one barcode, and a tie between barcodes is ambiguous. "
+        "'recipe_simple' uses the 'simple' rules of the Broad pooled Cell "
+        "Painting recipe that PERISCOPE used: one barcode with only exact reads "
+        "is perfect, one barcode with a corrected read is great, and several "
+        "barcodes are imperfect or bad; ops_quality_min_reads is then not used. "
+        "Default 'spacr'. Alpha.",
     "ops_random_barcode_control":
         "(bool) - Also match every read against a shuffled whitelist of the "
         "same size and base composition, the rate a random library would "

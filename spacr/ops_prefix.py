@@ -15,7 +15,9 @@ What this module adds on top of spaCR's base calling:
 * matching (:func:`match_prefix_reads`): exact, then Hamming or Levenshtein
   distance up to a limit, an equally close pair is ambiguous;
 * a shuffled-whitelist control (:func:`shuffled_library`);
-* per-cell calls with a quality class (:func:`prefix_cell_calls`);
+* per-cell calls with a quality class (:func:`prefix_cell_calls`), by
+  spaCR's read-count rules or by the pooled Cell Painting recipe's "simple"
+  rules PERISCOPE used (:func:`recipe_simple_quality`);
 * per-cycle or pooled crosstalk compensation (:func:`compensate_prefix`);
 * the site decode (:func:`decode_prefix_site`) and the run phase
   (:func:`run_prefix_decode`) over the cropped-site layout of item 919.
@@ -48,6 +50,36 @@ QUALITY_CLASSES = {
     "ambiguous": "matched reads, but two barcodes tie for the most reads",
     "none": "no read matched a callable barcode",
 }
+
+#: The per-cell quality methods (``ops_prefix_quality_method``).
+QUALITY_METHODS = ("spacr", "recipe_simple")
+
+#: The classes of the ``'recipe_simple'`` method, the "simple" cell quality
+#: of the Broad pooled Cell Painting profiling recipe that PERISCOPE used.
+#: A read's score is one minus its distance over the key length, as
+#: CellProfiler's ``CallBarcodes`` scores a match.
+RECIPE_SIMPLE_CLASSES = {
+    "perfect": "one barcode in the cell and every read of it an exact match "
+               "(mean score 1)",
+    "great": "one barcode in the cell and at least one corrected read "
+             "(mean score below 1)",
+    "imperfect": "several barcodes; one barcode has both the highest mean score "
+                 "and the most reads",
+    "bad": "several barcodes and no single barcode has both the highest mean "
+           "score and the most reads",
+    "none": "no read matched a callable barcode",
+}
+
+#: Where the ``'recipe_simple'`` rules were ported from.
+RECIPE_SIMPLE_SOURCE = {
+    "repository": "https://github.com/broadinstitute/pooled-cell-painting-profiling-recipe",
+    "function": "simple_categorize (cell_quality_utils.py) and category_counts (spot_utils.py)",
+    "commit": "49e62a30c6a624ae68fdb8fec0b9702345ffa01a",
+    "same_rules_as": "1d5e071 (2020-08-20, scripts/cell_quality_utils.py)",
+    "pycytominer": "pycytominer 1.7.1 has no cell-quality method",
+}
+
+_RECIPE_SIMPLE_INDEX = {1: "perfect", 2: "great", 3: "imperfect", 4: "bad"}
 
 _METRICS = ("hamming", "levenshtein")
 _COLLISIONS = ("exclude", "gene_level")
@@ -422,17 +454,90 @@ def classify_cell(counts: Mapping[str, Tuple[int, int]], min_reads: int = 2) -> 
     return "great"
 
 
+def recipe_simple_quality(spots: pd.DataFrame, *, cell_cols: Sequence[str] = ("cell",),
+                          barcode_col: str = "prefix", gene_col: str = "gene",
+                          score_col: str = "score") -> pd.DataFrame:
+    """Each cell's class under the pooled Cell Painting recipe's "simple" rules.
+
+    A port of ``simple_categorize`` from the Broad pooled Cell Painting
+    profiling recipe (:data:`RECIPE_SIMPLE_SOURCE`), which assigned
+    PERISCOPE's per-cell ``Perfect`` and ``Great`` classes. The spots of a
+    cell are grouped by gene and barcode, each group's mean score and
+    spot count are taken, and then: one barcode with a mean score of
+    exactly 1 is ``perfect`` and below 1 is ``great``; with several
+    barcodes, one barcode holding both the single highest mean score and
+    the single highest count is ``imperfect``, anything else is ``bad``.
+    Spots with a missing gene or barcode are left out, as the recipe's
+    group-by leaves them out.
+
+    :param spots: one row per spot inside a cell, with ``cell_cols``,
+        ``barcode_col``, ``gene_col`` and ``score_col`` (1 for an exact
+        match).
+    :param cell_cols: the columns naming a cell.
+    :param barcode_col: the matched barcode.
+    :param gene_col: the matched barcode's gene.
+    :param score_col: the match score.
+    :returns: one row per cell with a scored spot: ``cell_cols``,
+        ``barcodes`` (distinct barcodes), ``barcode``, ``gene``,
+        ``score_mean`` and ``score_count`` of the recipe's top barcode (the
+        first with the highest mean score, in gene and barcode order),
+        ``quality_index`` (1 to 4) and ``quality`` (a key of
+        :data:`RECIPE_SIMPLE_CLASSES`).
+    """
+    cell_cols = list(cell_cols)
+    columns = cell_cols + ["barcodes", "barcode", "gene", "score_mean", "score_count",
+                           "quality_index", "quality"]
+    groups = cell_cols + [gene_col, barcode_col]
+    frame = spots.dropna(subset=groups)
+    if frame.empty:
+        return pd.DataFrame(columns=columns)
+    table = (frame.groupby(groups, sort=True)[score_col].agg(["mean", "count"])
+             .reset_index())
+    per_cell = table.groupby(cell_cols, sort=False)
+    max_score = per_cell["mean"].transform("max")
+    max_count = per_cell["count"].transform("max")
+    table = table.assign(at_score=table["mean"] == max_score,
+                         at_count=table["count"] == max_count)
+    per_cell = table.groupby(cell_cols, sort=False)
+    top = table[table["at_score"]].groupby(cell_cols, sort=False).head(1)
+    summary = pd.DataFrame({
+        "barcodes": per_cell.size(),
+        "n_at_score": per_cell["at_score"].sum(),
+        "n_at_count": per_cell["at_count"].sum()})
+    top = top.set_index(cell_cols)
+    summary = summary.join(top[[gene_col, barcode_col, "mean", "count", "at_count"]])
+    single = summary["barcodes"] == 1
+    unique = (summary["n_at_score"] == 1) & (summary["n_at_count"] == 1)
+    index = np.where(single, np.where(summary["mean"] == 1, 1, 2),
+                     np.where(unique & summary["at_count"].astype(bool), 3, 4))
+    out = summary.reset_index()
+    out = pd.DataFrame({
+        **{name: out[name] for name in cell_cols},
+        "barcodes": out["barcodes"].astype(int),
+        "barcode": out[barcode_col], "gene": out[gene_col],
+        "score_mean": out["mean"].astype(float), "score_count": out["count"].astype(int),
+        "quality_index": index.astype(int),
+        "quality": [_RECIPE_SIMPLE_INDEX[int(i)] for i in index]})
+    return out.sort_values(cell_cols, kind="stable").reset_index(drop=True)[columns]
+
+
 def prefix_cell_calls(reads: pd.DataFrame, *, min_reads: int = 2,
-                      keys: Sequence[str] = ("plate", "well", "site", "cell")
-                      ) -> pd.DataFrame:
+                      keys: Sequence[str] = ("plate", "well", "site", "cell"),
+                      method: str = "spacr") -> pd.DataFrame:
     """Each cell's barcode, its read counts and its quality class.
 
-    :param reads: one row per read with ``keys``, ``status``, ``prefix``,
-        ``guide``, ``gene`` and ``level`` (:func:`match_prefix_reads` joined
-        to the read positions); rows whose ``cell`` is 0 are not in a cell.
+    :param reads: one row per read with ``keys``, ``status``, ``key``,
+        ``distance``, ``prefix``, ``guide``, ``gene`` and ``level``
+        (:func:`match_prefix_reads` joined to the read positions); rows
+        whose ``cell`` is 0 are not in a cell.
     :param min_reads: exact reads a ``perfect`` cell needs
-        (``ops_quality_min_reads``).
+        (``ops_quality_min_reads``) under ``'spacr'``.
     :param keys: the columns naming a cell.
+    :param method: ``ops_prefix_quality_method``: ``'spacr'``
+        (:func:`classify_cell`, classes :data:`QUALITY_CLASSES`) or
+        ``'recipe_simple'`` (:func:`recipe_simple_quality` on the exact and
+        corrected reads, each scored one minus its distance over the key
+        length; classes :data:`RECIPE_SIMPLE_CLASSES`).
     :returns: one row per cell with any read: ``keys``, ``reads``,
         ``matched`` (exact or corrected), ``exact``, ``corrected``,
         ``ambiguous``, ``collision``, ``out_of_library``, ``barcodes``
@@ -440,7 +545,11 @@ def prefix_cell_calls(reads: pd.DataFrame, *, min_reads: int = 2,
         ``level`` of the top barcode (empty unless ``perfect`` or ``great``),
         ``top_reads``, ``top_exact``, ``top_share`` (of matched reads),
         ``second_reads``, ``has_exact_read`` and ``quality``.
+    :raises ValueError: for an unknown method.
     """
+    if method not in QUALITY_METHODS:
+        raise ValueError(f"ops_prefix_quality_method must be one of {list(QUALITY_METHODS)}; "
+                         f"got {method!r}")
     columns = list(keys) + ["reads", "matched", "exact", "corrected", "ambiguous",
                             "collision", "out_of_library", "barcodes", "prefix", "guide",
                             "gene", "level", "top_reads", "top_exact", "top_share",
@@ -448,6 +557,15 @@ def prefix_cell_calls(reads: pd.DataFrame, *, min_reads: int = 2,
     frame = reads[reads["cell"] > 0] if "cell" in reads.columns else reads.iloc[0:0]
     if frame.empty:
         return pd.DataFrame(columns=columns)
+    recipe = {}
+    if method == "recipe_simple":
+        scored = frame[frame["status"].isin(("exact", "corrected"))]
+        scored = scored.assign(score=1.0 - scored["distance"].astype(float)
+                               / scored["key"].str.len().astype(float))
+        classes = recipe_simple_quality(scored, cell_cols=list(keys), barcode_col="prefix",
+                                        gene_col="gene", score_col="score")
+        recipe = dict(zip(map(tuple, classes[list(keys)].to_numpy().tolist()),
+                          classes["quality"]))
     out = []
     for cell_key, group in frame.groupby(list(keys), sort=True):
         status = group["status"].value_counts()
@@ -456,7 +574,11 @@ def prefix_cell_calls(reads: pd.DataFrame, *, min_reads: int = 2,
         for prefix, kind in zip(matched["prefix"], matched["status"]):
             slot = counts.setdefault(prefix, [0, 0])
             slot[0 if kind == "exact" else 1] += 1
-        quality = classify_cell({k: tuple(v) for k, v in counts.items()}, min_reads)
+        if method == "recipe_simple":
+            named = cell_key if isinstance(cell_key, tuple) else (cell_key,)
+            quality = recipe.get(tuple(named), "none")
+        else:
+            quality = classify_cell({k: tuple(v) for k, v in counts.items()}, min_reads)
         ranked = sorted(counts.items(), key=lambda kv: (-(kv[1][0] + kv[1][1]), kv[0]))
         top = ranked[0] if ranked else None
         call = (matched[matched["prefix"] == top[0]].iloc[0]
@@ -647,8 +769,9 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
         ``ops_prefix_length``, ``ops_sbs_cycles``, ``ops_cycle_mask``,
         ``ops_prefix_collision``, ``ops_prefix_metric``,
         ``ops_prefix_max_distance``, ``ops_prefix_crosstalk``,
-        ``ops_quality_min_reads``, ``ops_random_barcode_control``,
-        ``ops_control_seed``, ``ops_prefix_masks`` and ``ops_read_threshold``.
+        ``ops_quality_min_reads``, ``ops_prefix_quality_method``,
+        ``ops_random_barcode_control``, ``ops_control_seed``,
+        ``ops_prefix_masks`` and ``ops_read_threshold``.
     :returns: the normalised values under the same keys.
     :raises ValueError: without a library, or for an unknown choice.
     """
@@ -671,6 +794,7 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
         "ops_prefix_max_distance": int(settings.get("ops_prefix_max_distance", 1)),
         "ops_prefix_crosstalk": str(settings.get("ops_prefix_crosstalk") or "none"),
         "ops_quality_min_reads": int(settings.get("ops_quality_min_reads", 2)),
+        "ops_prefix_quality_method": str(settings.get("ops_prefix_quality_method") or "spacr"),
         "ops_random_barcode_control": bool(settings.get("ops_random_barcode_control", True)),
         "ops_control_seed": int(settings.get("ops_control_seed", 0) or 0),
         "ops_prefix_masks": settings.get("ops_prefix_masks") or None,
@@ -680,6 +804,8 @@ def prefix_settings(settings: Mapping[str, Any]) -> Dict[str, Any]:
         raise ValueError(f"ops_prefix_crosstalk must be one of {list(_CROSSTALK)}")
     if out["ops_prefix_metric"] not in _METRICS:
         raise ValueError(f"ops_prefix_metric must be one of {list(_METRICS)}")
+    if out["ops_prefix_quality_method"] not in QUALITY_METHODS:
+        raise ValueError(f"ops_prefix_quality_method must be one of {list(QUALITY_METHODS)}")
     return out
 
 
@@ -731,7 +857,8 @@ def run_prefix_decode(settings: Mapping[str, Any],
     writes, under ``<dst_root>/results/ops_prefix/``:
 
     * ``library_prefix_collisions.csv`` and ``library_summary.json``;
-    * ``quality_classes.json`` (the class definitions and the settings);
+    * ``quality_classes.json`` (the quality method, its class definitions
+      and the settings);
     * ``reads_<plate>_<well_id>.parquet`` (one row per read) and
       ``cells_<plate>_<well_id>.csv`` (:func:`prefix_cell_calls`);
     * ``site_summary.csv`` (per site: :func:`read_fractions`, cells with
@@ -775,8 +902,12 @@ def run_prefix_decode(settings: Mapping[str, Any],
                 canonicalise=False)
     with open(os.path.join(folder, "library_summary.json"), "w", encoding="utf-8") as handle:
         json.dump(library.summary, handle, indent=1)
+    method = chosen["ops_prefix_quality_method"]
+    class_names = RECIPE_SIMPLE_CLASSES if method == "recipe_simple" else QUALITY_CLASSES
     with open(os.path.join(folder, "quality_classes.json"), "w", encoding="utf-8") as handle:
-        json.dump({"classes": QUALITY_CLASSES, "settings": chosen,
+        json.dump({"method": method, "classes": class_names,
+                   "source": RECIPE_SIMPLE_SOURCE if method == "recipe_simple" else None,
+                   "settings": chosen,
                    "bases": pinned["cpg_sbs_bases"], "spacr_version": __version__},
                   handle, indent=1, default=str)
     index = built["index"]
@@ -799,7 +930,8 @@ def run_prefix_decode(settings: Mapping[str, Any],
             reads.insert(0, "site", int(site))
             reads.insert(0, "well", well_id)
             reads.insert(0, "plate", plate)
-            cells = prefix_cell_calls(reads, min_reads=chosen["ops_quality_min_reads"])
+            cells = prefix_cell_calls(reads, min_reads=chosen["ops_quality_min_reads"],
+                                      method=method)
             classes = cells["quality"].value_counts() if len(cells) else {}
             site_rows.append({"plate": plate, "well": well_id, "site": int(site),
                               **read_fractions(reads),
@@ -808,7 +940,7 @@ def run_prefix_decode(settings: Mapping[str, Any],
                               "cells_with_exact_read": int(cells["has_exact_read"].sum())
                               if len(cells) else 0,
                               **{f"cells_{name}": int(classes.get(name, 0)) if len(cells) else 0
-                                 for name in QUALITY_CLASSES}})
+                                 for name in class_names}})
             reads_frames.append(reads)
             cell_frames.append(cells)
             say(f"prefix_decode {plate} {well_id} site {site}: {len(reads)} reads, "

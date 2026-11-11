@@ -742,6 +742,7 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_prefix_length", "ops_sbs_cycles", "ops_cycle_mask",
     "ops_prefix_collision", "ops_prefix_metric", "ops_prefix_max_distance",
     "ops_prefix_crosstalk", "ops_prefix_masks", "ops_quality_min_reads",
+    "ops_prefix_quality_method",
     "ops_random_barcode_control", "ops_control_seed",
     # Item 918 (2026-11-11): the ops_profiles source of Image UMAP.
     "umap_source",
