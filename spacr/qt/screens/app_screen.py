@@ -9606,6 +9606,9 @@ class AppScreen(QWidget):
             QMessageBox.warning(self, tr("Bad settings"), str(e))
             return
 
+        if not self._annotation_labels_named(settings):
+            return
+
         if (self.app_key == "analyze_plaques"
                 and not self._confirm_plaque_model_download(settings)):
             return
@@ -9723,6 +9726,39 @@ class AppScreen(QWidget):
         self._thread.finished.connect(self._clear_thread_refs)
         self._thread.start()
 
+
+    def _annotation_labels_named(self, settings) -> bool:
+        """Refuse a Classify run that trains on annotations no setting names.
+
+        Issue #185: ``dataset_mode='annotation'`` with no column reached
+        :func:`spacr.ml.generate_ml_scores`, which raised in the background.
+        The Classify screen hides ``annotation_column`` -- the Classes editor
+        names the column -- so the user is told here, before anything starts,
+        what to fill in.
+
+        :param settings: the collected run settings.
+        :returns: whether the run may go on.
+        """
+        if self.app_key not in ("classify", "classify_merged", "ml_analyze"):
+            return True
+        from ..verbose_logger import log_button_press
+
+        try:
+            from ...classify import _annotation_labels_missing
+
+            missing = _annotation_labels_missing(settings, self.app_key)
+        except Exception:                                    # noqa: BLE001
+            return True
+        if not missing:
+            return True
+        log_button_press(f"{self.app_key}.Run",
+                         {"result": "annotation_column_missing"})
+        QMessageBox.warning(self, tr("Bad settings"), tr(
+            "dataset_mode is 'annotation', but no annotation column is set, "
+            "so there are no labels to train on. Name the png_list column "
+            "that holds your labels in the Classes editor or in "
+            "annotation_column, or set dataset_mode to 'metadata'."))
+        return False
 
     def _write_the_run_notebook(self, settings) -> None:
         """Write the notebook that repeats this run into its project.
