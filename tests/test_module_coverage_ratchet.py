@@ -540,11 +540,15 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
         # 695 -> 696 on 2026-11-10, +1/-0, item 913: shared copairs / EFAAR
         # scoring of OPS gene profiles and clusterings (spacr/ops_scoring.py).
         'spacr/ops_scoring.py',
-        # 696 -> 698 on 2026-11-11, +2/-0, items 919 and 920: the Cell
-        # Painting Gallery cropped-site reader (spacr/cpg_cropped.py) and the
-        # spacer-prefix decode (spacr/ops_prefix.py).
+        # 696 -> 700 on 2026-11-11, +4/-0, items 919, 920, 918 and 921: the
+        # Cell Painting Gallery cropped-site reader (spacr/cpg_cropped.py),
+        # the spacer-prefix decode (spacr/ops_prefix.py), the OPS gene map
+        # source of Image UMAP (spacr/ops_image_umap.py) and tiled
+        # segmentation of large cropped sites (spacr/ops_large_sites.py).
         'spacr/cpg_cropped.py',
         'spacr/ops_prefix.py',
+        'spacr/ops_image_umap.py',
+        'spacr/ops_large_sites.py',
     }
     assert added_since_608 <= shipped
     # 664 -> 662 on 2026-10-12, +0/-2: spacr-tutorial opens the online
@@ -569,7 +573,7 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     assert metal_transport_arrivals <= shipped
     assert not metal_transport_arrivals & (added_since_608 | retired_since_608)
     assert (len(shipped - metal_transport_arrivals) == 608 + len(added_since_608)
-            - len(retired_since_608) == 695)
+            - len(retired_since_608) == 697)
     # 664 -> 666 on 2026-11-06: spacr/assay_report.py (item 816) and
     # spacr/_gpu_governor.py (item 803), the same +2 as `added_since_608`.
     # 666 -> 667 on 2026-11-06: spacr/_merge_pairs.py (item 833).
@@ -600,8 +604,10 @@ def test_current_packaging_denominator_is_645_not_asset_generators():
     # crop-embedding well profiles).
     # 692 -> 693 on 2026-11-10: spacr/ops_scoring.py (item 913: shared copairs
     # / EFAAR scoring of OPS gene profiles and clusterings).
-    # 693 -> 695 on 2026-11-11: spacr/cpg_cropped.py and spacr/ops_prefix.py
-    # (items 919 and 920: the cropped-site reader and the spacer-prefix decode).
+    # 693 -> 697 on 2026-11-11: spacr/cpg_cropped.py and spacr/ops_prefix.py
+    # (items 919 and 920: the cropped-site reader and the spacer-prefix
+    # decode), spacr/ops_image_umap.py and spacr/ops_large_sites.py (items
+    # 918 and 921).
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
@@ -1074,11 +1080,14 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_required():
     # 695 -> 696 on 2026-11-10: spacr/ops_scoring.py (item 913: shared copairs
     # / EFAAR scoring of OPS gene profiles and clusterings), the same +1 as
     # `shipped`, moved with the workflow in one commit.
-    # 696 -> 698 on 2026-11-11: spacr/cpg_cropped.py and spacr/ops_prefix.py
+    # 696 -> 700 on 2026-11-11: spacr/cpg_cropped.py and spacr/ops_prefix.py
     # (items 919 and 920: the cropped-site reader and the spacer-prefix
-    # decode), the same +2 as `shipped`, moved with the workflow in one commit.
-    assert len(ratchet.discover_shipped_python_files(ROOT)) == 698
-    assert "--expected-file-count 698" in combine_script
+    # decode), spacr/ops_image_umap.py and spacr/ops_large_sites.py (items
+    # 918 and 921: the OPS gene map source of Image UMAP and tiled
+    # segmentation of large cropped sites), the same +4 as `shipped`, moved
+    # with the workflow in one commit.
+    assert len(ratchet.discover_shipped_python_files(ROOT)) == 700
+    assert "--expected-file-count 700" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script

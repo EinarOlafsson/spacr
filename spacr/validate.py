@@ -98,6 +98,7 @@ APP_FUNCTIONS: Dict[str, str] = {
     "external_masks": "spacr.external_masks.prepare_external_masks",
     "align": "spacr.align.align_folder",
     "ops": "spacr.ops_engine.run_ops",
+    "ops_large_sites": "spacr.ops_large_sites.run_large_site_segmentation",
     "spatial_masks": "spacr.ops_engine.run_spatial_masks",
     "spatial_map": "spacr.ops_engine.run_spatial_map",
     "umap": "spacr.core.generate_image_umap",
@@ -163,6 +164,7 @@ ALT_SRC_KEYS: Dict[str, str] = {
     "ops": "genotype_source",
     "spatial_masks": "spatial_source",
     "spatial_map": "spatial_source",
+    "ops_large_sites": "seg_sites_src",
 }
 
 CHANNEL_KEYS: Tuple[str, ...] = tuple(
@@ -1877,6 +1879,30 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
 
 
 
+def _check_ops_umap_inputs(settings: Dict[str, Any]) -> List[Problem]:
+    """The inputs of Image UMAP's ``ops_profiles`` source (item 918).
+
+    That source reads profile files rather than a plate folder, so ``src``
+    is not checked; the profile, guide-profile and cell files must exist.
+
+    :param settings: the Image UMAP settings.
+    :returns: one ERROR per missing file, or for no ``ops_umap_profiles``.
+    """
+    problems: List[Problem] = []
+    if not settings.get("ops_umap_profiles"):
+        problems.append(Problem(
+            ERROR, "ops_umap_profiles",
+            "umap_source 'ops_profiles' needs ops_umap_profiles.",
+            "Set ops_umap_profiles to the gene profile file (.npz or a table)."))
+    for key in ("ops_umap_profiles", "ops_umap_guide_profiles", "ops_umap_cell_embedding"):
+        path = settings.get(key)
+        if path and not os.path.isfile(str(path)):
+            problems.append(Problem(
+                ERROR, key, f"{key} does not exist: {path}",
+                "Check the path for typos, and that the drive or share is mounted."))
+    return problems
+
+
 def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
     """Check a settings dict against the data it points at.
 
@@ -1919,9 +1945,12 @@ def validate_settings(settings: Dict[str, Any], app_key: str) -> List[Problem]:
             WARNING, "", f"unknown app '{app_key}'; only the generic checks were run.",
             f"Use one of: {', '.join(sorted(APP_FUNCTIONS))}."))
 
-    inventories = [_inventory(src, settings, app) for src in _src_values(settings, app)]
+    ops_map = app == "umap" and settings.get("umap_source") == "ops_profiles"
+    inventories = ([] if ops_map else
+                   [_inventory(src, settings, app) for src in _src_values(settings, app)])
 
-    problems.extend(_check_src(settings, app, inventories))
+    problems.extend(_check_ops_umap_inputs(settings) if ops_map
+                    else _check_src(settings, app, inventories))
     problems.extend(_check_channels(settings, app, inventories))
     problems.extend(_check_types(settings, app))
     problems.extend(_check_unknown_keys(settings, app))

@@ -66,9 +66,13 @@ def test_the_published_alpha_page_covers_the_current_registry():
     # (912), shared copairs / EFAAR scoring (913), cell-state profiles and
     # the mitotic index test (914), the overlap-zone report (915), the
     # Leiden resolution sweep (916) and the E-test power curve (917) make
-    # 127. The cropped-site reader (919) and the spacer-prefix decode (920)
-    # make 129; the published deck below is republished by the master.
-    assert deck._check_registry(ROOT / "spacr/settings.py") == 129
+    # 127.
+    # 2026-11-11, fourth integration: the cropped-site reader (919), the
+    # spacer-prefix decode (920), mask-overlap matching to a reference
+    # pipeline (922), CORUM r / STRING AUPRC / zero-TPM hit calls (923),
+    # the OPS gene map source of Image UMAP (918) and tiled segmentation of
+    # large cropped sites (921) make 133.
+    assert deck._check_registry(ROOT / "spacr/settings.py") == 133
     # 710: the published PDF is fetched from the pinned dataset revision.
     media_spec = importlib.util.spec_from_file_location("fetch_docs_media", ROOT / "tools/fetch_docs_media.py")
     media = importlib.util.module_from_spec(media_spec)

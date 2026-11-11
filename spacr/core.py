@@ -5067,8 +5067,16 @@ def generate_image_umap(settings=None, return_fig=False):
         ``plot_images``, ``save_figure``, ``exclude``, ``crop_source``.
     :param return_fig: When True, return the Matplotlib figure instead of the
         annotated DataFrame.
+    With ``umap_source='ops_profiles'`` (alpha, item 918) the input is OPS
+    gene (and guide) profiles instead of measurements: the call is handed to
+    :func:`spacr.ops_image_umap.run_ops_image_umap`, which clusters the full
+    profiles, labels clusters by enrichment and shows medoid-cell raw crops
+    around a display-only UMAP layout.
+
     :returns: DataFrame of the input rows plus a ``cluster`` column, or a
-        Matplotlib ``Figure`` when ``return_fig`` is True. With
+        Matplotlib ``Figure`` when ``return_fig`` is True; for
+        ``umap_source='ops_profiles'`` the summary dict
+        :func:`spacr.ops_image_umap.run_ops_image_umap` returns. With
         ``remove_cluster_noise`` the noise objects are dropped from the frame
         as well as from the embedding, so the two always describe the same
         objects.
@@ -5085,6 +5093,9 @@ def generate_image_umap(settings=None, return_fig=False):
     from .settings import set_default_umap_image_settings
     from .batch_correction import correction_kwargs
     settings = set_default_umap_image_settings(settings)
+    if settings.get('umap_source') == 'ops_profiles':
+        from .ops_image_umap import run_ops_image_umap
+        return run_ops_image_umap(settings)
 
     reduction_method = str(settings.get('reduction_method', 'umap')).lower()
     reducer_options = {

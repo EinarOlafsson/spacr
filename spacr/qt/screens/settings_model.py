@@ -1202,12 +1202,15 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         ("Input Data", (
             "src", "tables", "crop_source", "filter_by", "row_limit",
             "exclude", "exclude_rows", "remove_highly_correlated",
-            "log_data", "resnet_features",
+            "log_data", "resnet_features", "umap_source", "ops_umap_profiles",
+            "ops_umap_guide_profiles", "ops_umap_cell_embedding",
+            "ops_umap_partition", "ops_umap_reference_dir",
         )),
         ("Dimensionality Reduction", (
             "reduction_method", "random_seed", "metric",
         )),
-        ("UMAP", ("n_neighbors", "min_dist")),
+        ("UMAP", ("n_neighbors", "min_dist", "ops_umap_guides",
+                  "ops_umap_stability_seeds")),
         ("t-SNE", (
             "tsne_perplexity", "tsne_learning_rate",
             "tsne_early_exaggeration", "tsne_max_iter",
@@ -1219,7 +1222,11 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Clustering", (
             "clustering", "eps", "min_samples", "remove_cluster_noise",
-            "analyze_clusters", "color_by",
+            "analyze_clusters", "color_by", "ops_umap_graph", "ops_umap_knn",
+            "ops_umap_resolution", "ops_umap_leiden_seed",
+            "ops_umap_hierarchy_method", "ops_umap_hierarchy_levels",
+            "ops_umap_label_sources", "ops_umap_enrichment_test",
+            "ops_umap_label_q", "ops_umap_shuffle_seed",
         )),
         ("Plate & Batch Correction", (
             "batch_correction", "batch_column", "batch_control_column",
@@ -1231,11 +1238,14 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "dot_size", "point_color", "point_alpha", "outline_width",
             "img_zoom", "image_nr", "plot_images", "remove_image_canvas",
             "plot_points", "plot_outlines", "smooth_lines",
-            "plot_by_cluster", "plot_cluster_grids",
+            "plot_by_cluster", "plot_cluster_grids", "ops_umap_crop_level",
+            "ops_umap_cells_per_cluster", "ops_umap_crop_px",
+            "ops_umap_crop_channels", "ops_umap_display_percentiles",
+            "ops_umap_display_range", "ops_umap_min_cell_px",
         )),
         ("Canvas & Output", (
             "figuresize", "umap_canvas_width", "umap_sidebar_width",
-            "black_background", "save_figure",
+            "black_background", "save_figure", "ops_umap_dst",
         )),
         ("Runtime", ("n_jobs", "ram_guard", "verbose")),
     ),
