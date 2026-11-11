@@ -307,6 +307,9 @@ QTableWidget#{TABLE_NAME}, QPlainTextEdit#{DETAIL_NAME} {{
 QLabel#{PREVIEW_NAME} {{
     background: transparent;
 }}
+QTableWidget#{TABLE_NAME} QHeaderView::section {{
+    border-right: 2px solid {palette.get("border", palette["border_soft"])};
+}}
 """
 
 
@@ -322,6 +325,132 @@ def _cell(text: str, key=None) -> QTableWidgetItem:
     item = table_item(text, key=key)
     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
     return item
+
+
+#: Object name of the scorecard table above the model card.
+SCORECARD_NAME = "ModelZooScorecard"
+
+_SCORECARD_HEADERS = ("Score", "This model", "Stock", "Change")
+
+#: The scorecard's own colours, the same in every theme. The text is white,
+#: so the table carries a navy fill of its own rather than the page surface,
+#: which is near-white in the light theme. Header teal, grid blue.
+SCORECARD_COLOURS = {"background": "#13294b", "alternate": "#183459",
+                     "header": "#1f5f73", "grid": "#2f5d8a",
+                     "text": "#ffffff"}
+
+#: Where the model list's column widths are remembered.
+_WIDTHS_SETTING = "model_zoo/screen_column_widths"
+
+#: First widths of the model list, in unscaled pixels; the last column
+#: stretches. "trained on" holds the long descriptions, so it gets the room
+#: and wraps inside it instead of growing one line wide.
+_DEFAULT_WIDTHS = (230, 90, 480, 120)
+
+
+def _px(base: int) -> int:
+    """``base`` pixels at the user's font scale, or ``base`` when unknown."""
+    try:
+        from ..preferences import scaled_px
+
+        return int(scaled_px(int(base)))
+    except Exception:
+        return int(base)
+
+
+def _scorecard_qss() -> str:
+    """White text on a navy table, readable over the dark and light pages."""
+    c = SCORECARD_COLOURS
+    return (f"QTableWidget#{SCORECARD_NAME} {{ background: {c['background']};"
+            f" alternate-background-color: {c['alternate']};"
+            f" color: {c['text']}; gridline-color: {c['grid']};"
+            f" border: 1px solid {c['grid']}; border-radius: {RADIUS['sm']}px; }}"
+            f"QTableWidget#{SCORECARD_NAME}::item {{ color: {c['text']};"
+            f" padding: 2px 6px; }}"
+            f"QTableWidget#{SCORECARD_NAME} QHeaderView::section {{"
+            f" background: {c['header']}; color: {c['text']};"
+            f" font-weight: 600; border: none;"
+            f" border-right: 1px solid {c['grid']}; padding: 3px 6px; }}")
+
+
+def _score_text(value: Any) -> str:
+    """A score to three decimals, ``""`` for none, else the text as given."""
+    if value is None or (isinstance(value, str) and not value.strip()):
+        return ""
+    try:
+        return f"{float(value):.3f}"
+    except (TypeError, ValueError):
+        return str(value)
+
+
+def _score_difference(this: Any, stock: Any) -> str:
+    """``this - stock`` signed to three decimals, or ``""`` when either is missing."""
+    try:
+        return f"{float(this) - float(stock):+.3f}"
+    except (TypeError, ValueError):
+        return ""
+
+
+def _scorecard_rows(entry, card: Optional[dict] = None) -> List[tuple]:
+    """The scorecard of one model as ``(score, this, stock, difference)`` rows.
+
+    A trusted builtin entry answers from its curated metrics, the same six
+    matched-stock measurements its tooltip prints; otherwise the shipped
+    model card's score rows are used. A model with neither has no rows, and
+    the screen shows no table rather than a table of blanks.
+
+    :param entry: a :class:`spacr.model_zoo.ModelEntry`.
+    :param card: the entry's model card, when the caller already has it.
+    :returns: text rows, values to three decimals.
+    """
+    rows: List[tuple] = []
+    metrics = dict(getattr(entry, "metrics", None) or {})
+    if getattr(entry, "_curated_card", False):
+        try:
+            labelled = zoo._curated_scorecard_rows()
+        except Exception:
+            labelled = ()
+        for label, key in labelled:
+            value = metrics.get(key)
+            if not isinstance(value, dict):
+                continue
+            this, stock = value.get("finetuned"), value.get("vanilla")
+            rows.append((str(label), _score_text(this), _score_text(stock),
+                         _score_difference(this, stock)))
+        if rows:
+            return rows
+    if card is None:
+        try:
+            card = model_cards.card_for_entry(entry)
+        except Exception:
+            card = None
+    for row in ((card or {}).get("scores") or {}).get("rows") or []:
+        this, stock = row.get("this"), row.get("stock")
+        rows.append((str(row.get("label", row.get("key", ""))),
+                     _score_text(this), _score_text(stock),
+                     _score_difference(this, stock)))
+    return rows
+
+
+def _remembered_widths() -> List[int]:
+    """The model list's column widths this user left, or ``[]``."""
+    try:
+        from ..widgets.model_zoo_picker import _store
+
+        text = str(_store().value(_WIDTHS_SETTING, "") or "")
+        return [int(w) for w in text.split(",") if w.strip()]
+    except Exception:
+        return []
+
+
+def _remember_widths(widths) -> None:
+    """Persist the model list's column widths, quietly."""
+    try:
+        from ..widgets.model_zoo_picker import _store
+
+        _store().setValue(_WIDTHS_SETTING, ",".join(str(int(w)) for w in widths))
+    except Exception:
+        pass
 
 
 def compose_labels(image: Optional[np.ndarray], mask: Any,
@@ -454,6 +583,10 @@ class ModelZooScreen(QWidget):
         self._busy = False
         self._bioimageio_attempted = False
         self._source_scan_pending = False
+        self._first_load_queued = False
+        self._first_load_wanted = False
+        self._loading = False
+        self._loaded = False
         self._closing = False
         self._cancel = {"stop": False}
         self._jobs: List[tuple] = []
@@ -528,9 +661,18 @@ class ModelZooScreen(QWidget):
         self._table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self._table.setAlternatingRowColors(True)
         self._table.verticalHeader().setVisible(False)
-        self._table.horizontalHeader().setSectionResizeMode(
-            QHeaderView.Interactive)
-        self._table.horizontalHeader().setStretchLastSection(True)
+        header = self._table.horizontalHeader()
+        header.setSectionResizeMode(QHeaderView.Interactive)
+        header.setStretchLastSection(True)
+        header.setMinimumSectionSize(_px(48))
+        header.setToolTip(tr("Drag the line between two headings to make a "
+                             "column wider or narrower."))
+        header.sectionResized.connect(self._column_resized)
+        self._table.setWordWrap(True)
+        self._table.setTextElideMode(Qt.ElideNone)
+        self._table.verticalHeader().setSectionResizeMode(
+            QHeaderView.ResizeToContents)
+        self._widths_set = False
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._table.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self._table.itemSelectionChanged.connect(self._on_selection_changed)
@@ -546,20 +688,54 @@ class ModelZooScreen(QWidget):
             "Select a model to see where it came from and what it was trained "
             "on.")
 
+        self._list_note = QLabel("", self)
+        self._list_note.setObjectName("Muted")
+        self._list_note.setWordWrap(True)
+        self._list_note.hide()
+
+        self._scorecard = QTableWidget(0, len(_SCORECARD_HEADERS), self)
+        self._scorecard.setObjectName(SCORECARD_NAME)
+        self._scorecard.setHorizontalHeaderLabels(
+            [tr(h) for h in _SCORECARD_HEADERS])
+        self._scorecard.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self._scorecard.setSelectionMode(QAbstractItemView.NoSelection)
+        self._scorecard.setFocusPolicy(Qt.NoFocus)
+        self._scorecard.verticalHeader().setVisible(False)
+        self._scorecard.setWordWrap(False)
+        self._scorecard.setAlternatingRowColors(True)
+        self._scorecard.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self._scorecard.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        score_header = self._scorecard.horizontalHeader()
+        score_header.setSectionResizeMode(QHeaderView.ResizeToContents)
+        score_header.setSectionResizeMode(0, QHeaderView.Stretch)
+        self._scorecard.verticalHeader().setSectionResizeMode(
+            QHeaderView.ResizeToContents)
+        self._scorecard.setStyleSheet(_scorecard_qss())
+        self._scorecard.hide()
+
         listing = QWidget(self)
         lv = QVBoxLayout(listing)
         lv.setContentsMargins(0, 0, 0, 0)
         lv.setSpacing(SPACING["sm"])
+        lv.addWidget(self._list_note)
         lv.addWidget(self.models_section, 1)
         lv.addWidget(self._detail)
-        self._card_viewer = ModelCardViewer(self, threaded=self._threaded)
+        self._card_pane = QWidget(self)
+        cv = QVBoxLayout(self._card_pane)
+        cv.setContentsMargins(0, 0, 0, 0)
+        cv.setSpacing(SPACING["sm"])
+        self._card_viewer = ModelCardViewer(self._card_pane,
+                                            threaded=self._threaded)
         self._card_viewer.setMinimumHeight(420)
         self._card_viewer.hide()
+        cv.addWidget(self._scorecard)
+        cv.addWidget(self._card_viewer, 1)
+        self._card_pane.hide()
         self._list_split = CollapsibleSplitter(
             Qt.Horizontal, self, persist_key=f"{FOLD_KEY}::cards")
         self._list_split.add_pane(listing, "Models", stretch=4, extent=560,
                                   minimum=380)
-        self._list_split.add_pane(self._card_viewer, "Model card", stretch=5,
+        self._list_split.add_pane(self._card_pane, "Model card", stretch=5,
                                   extent=720, minimum=360)
         outer.addWidget(self._list_split, 6)
 
@@ -718,6 +894,7 @@ class ModelZooScreen(QWidget):
             grouped into families by key, newest version first.
         """
         self._entries = list(entries)
+        self._loaded = True
         self._groups = group_entries(self._entries)
         self._chosen = {stem: zoo.default_version_index(pairs)
                         for stem, pairs in self._groups}
@@ -739,9 +916,103 @@ class ModelZooScreen(QWidget):
         table.blockSignals(False)
         table.setSortingEnabled(sorting)
         self._apply_source_filter()
-        table.resizeColumnsToContents()
+        self._apply_column_widths()
         self.models_listed.emit(len(self._entries))
         self._update_controls()
+
+    def _apply_column_widths(self) -> None:
+        """Size the model list's columns once: as last left, else the defaults.
+
+        Only the first listing sets widths. A rescan used to call
+        ``resizeColumnsToContents``, which stretched "trained on" to its
+        longest description on one line and threw away any width the user
+        had dragged.
+        """
+        if self._widths_set or not self._groups:
+            return
+        header = self._table.horizontalHeader()
+        last = self._table.columnCount() - 1
+        stored = _remembered_widths()
+        widths = (stored if len(stored) == last
+                  else [_px(w) for w in _DEFAULT_WIDTHS[:last]])
+        self._applying_widths = True
+        try:
+            for column, width in enumerate(widths):
+                header.resizeSection(column, max(int(width),
+                                                 header.minimumSectionSize()))
+        finally:
+            self._applying_widths = False
+        self._widths_set = True
+
+    def _column_resized(self, column: int, _old: int, _new: int) -> None:
+        """Remember the widths after the user drags a column edge.
+
+        :param column: the resized column; the stretching last one is not
+            stored, because its width is whatever room is left.
+        """
+        if (getattr(self, "_applying_widths", False) or not self._widths_set
+                or column >= self._table.columnCount() - 1):
+            return
+        header = self._table.horizontalHeader()
+        _remember_widths(header.sectionSize(c)
+                         for c in range(self._table.columnCount() - 1))
+
+    def _column_widths(self) -> List[int]:
+        """The model list's current column widths, in pixels."""
+        header = self._table.horizontalHeader()
+        return [header.sectionSize(c) for c in range(self._table.columnCount())]
+
+    def _list_note_text(self) -> str:
+        """What the note above the model list says now, or ``''`` when hidden."""
+        return "" if self._list_note.isHidden() else self._list_note.text()
+
+    def _update_list_note(self) -> None:
+        """Say the list is loading, or that the headings that are on hide it all.
+
+        An empty table under a blue heading read as "spaCR has no models";
+        while the catalogue is read it says so, and once read, an empty
+        view names the cause.
+        """
+        table = self._table
+        shown = sum(1 for r in range(table.rowCount())
+                    if not table.isRowHidden(r))
+        if self._loading and not shown:
+            text = tr("Loading models…")
+        elif self._loaded and not shown:
+            text = tr("No models under the headings that are on. Click a "
+                      "heading above to show its models.")
+        else:
+            text = ""
+        self._list_note.setText(text)
+        self._list_note.setVisible(bool(text))
+
+    def showEvent(self, event):  # noqa: N802
+        """Read the catalogue the first time the screen is shown.
+
+        Nothing listed the models when the screen opened: only Scan, or
+        turning on a heading that fetches (community, bioimage.io), started
+        a read. A heading such as spaCR only folds rows, so with spaCR alone
+        on the list stayed empty until the community confirmation was
+        answered. The read is queued, not run here, so the window paints
+        first and shows the loading note.
+
+        :param event: the show event, passed on to the base class.
+        """
+        super().showEvent(event)
+        if not self._first_load_queued:
+            self._first_load_queued = True
+            from PySide6.QtCore import QTimer
+
+            QTimer.singleShot(0, self._load_on_first_show)
+
+    def _load_on_first_show(self) -> None:
+        """Start the first catalogue read unless something already listed models."""
+        if self._closing or self._entries or self._loaded:
+            return
+        if self._busy:
+            self._first_load_wanted = True
+            return
+        self.scan(None, include_catalogue=True, refresh_bioimageio=False)
 
     def _apply_source_filter(self) -> None:
         """Hide the rows whose source heading is folded away.
@@ -765,6 +1036,7 @@ class ModelZooScreen(QWidget):
                     row,
                     zoo.source_of(entry) not in enabled
                     or _model_is_alpha_hidden(entry))
+        self._update_list_note()
 
     def _refresh_alpha_visibility(self) -> None:
         """Re-fold the table after Show alpha features changes (item 569)."""
@@ -984,6 +1256,7 @@ class ModelZooScreen(QWidget):
 
         self._set_status(
             f"Scanning {target}…" if target else "Reading the catalogue…")
+        self._loading = True
         return self._run_job(_job, self._apply_scan)
 
     def _apply_scan(self, entries: List[zoo.ModelEntry]) -> None:
@@ -1077,12 +1350,53 @@ class ModelZooScreen(QWidget):
             self._detail.setPlainText("")
         card = (model_cards.card_for_entry(chosen[0])
                 if len(chosen) == 1 else None)
+        self._show_scorecard(
+            _scorecard_rows(chosen[0], card) if len(chosen) == 1 else [])
         self._detail.setVisible(card is None)
         self._card_viewer.setVisible(card is not None)
+        self._card_pane.setVisible(
+            card is not None or not self._scorecard.isHidden())
         if card is not None and card is not self._card_viewer.card():
             self._card_viewer.set_card(card)
         self._update_controls()
 
+
+    def _show_scorecard(self, rows) -> None:
+        """Fill the scorecard table, or hide it when there is nothing to show.
+
+        :param rows: ``(score, this, stock, difference)`` text rows.
+        """
+        table = self._scorecard
+        rows = list(rows)
+        table.setRowCount(len(rows))
+        for r, row in enumerate(rows):
+            for c, text in enumerate(row):
+                item = table.item(r, c)
+                if item is None:
+                    item = QTableWidgetItem()
+                    item.setFlags(Qt.ItemIsEnabled)
+                    table.setItem(r, c, item)
+                item.setText(str(text))
+                item.setForeground(_brush(SCORECARD_COLOURS["text"]))
+                item.setTextAlignment(
+                    (Qt.AlignLeft if c == 0 else Qt.AlignRight)
+                    | Qt.AlignVCenter)
+        table.setVisible(bool(rows))
+        if rows:
+            table.resizeRowsToContents()
+            height = (table.horizontalHeader().sizeHint().height()
+                      + sum(table.rowHeight(r) for r in range(len(rows)))
+                      + 2 * table.frameWidth())
+            table.setFixedHeight(height)
+
+    def _scorecard_table(self) -> List[List[str]]:
+        """The scorecard table as plain strings, ``[]`` when it is hidden."""
+        table = self._scorecard
+        if table.isHidden():
+            return []
+        return [[table.item(r, c).text() if table.item(r, c) else ""
+                 for c in range(table.columnCount())]
+                for r in range(table.rowCount())]
 
     def set_opener(self, opener: Optional[Callable]) -> None:
         """Override how bytes are fetched.
@@ -1552,6 +1866,9 @@ class ModelZooScreen(QWidget):
         if self._source_scan_pending and not self._closing:
             self._source_scan_pending = False
             self._sources_changed()
+        if self._first_load_wanted and not self._closing and not self._busy:
+            self._first_load_wanted = False
+            self._load_on_first_show()
         self._update_controls()
         self.job_finished.emit(ok)
 
@@ -1656,6 +1973,9 @@ class ModelZooScreen(QWidget):
         self._btn_test.setEnabled(
             not busy and one and bool(self._images) and chosen[0].exists)
         self._btn_compare.setEnabled(not busy and len(chosen) == 2)
+        if not busy:
+            self._loading = False
+        self._update_list_note()
 
 
     def closeEvent(self, event):  # noqa: N802

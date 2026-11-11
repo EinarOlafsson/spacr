@@ -293,13 +293,24 @@ _PH_PLATE_PHASES = ("ph_flatfield", "aggregate", "ph_tables", "ph_crops",
                     "report", "stress")
 
 #: The profile path (alpha): stored per-well cell tables to gene profiles,
-#: then their retrieval metrics and their module atlas. Needs no image step
+#: then their retrieval metrics, their module atlas, the Leiden resolution
+#: sweep (item 916) and the per-gene E-test (item 917). Needs no image step
 #: and no database.
-_PROFILE_PHASES = ("profile", "evaluate", "modules", "mitocarta")
+_PROFILE_PHASES = ("profile", "evaluate", "modules", "mitocarta",
+                   "cluster_sweep", "etest")
+
+#: The nuclear-median flat-field path (alpha, item 912): per-plate maps from
+#: the per-nucleus tables, then their held-out check. Needs no image step
+#: beyond the held-out fields' raw images.
+_FLAT_PHASES = ("flat_nuclear", "flat_validate")
+
+#: The shared scoring of gene profiles and clusterings (alpha, item 913):
+#: copairs activity and consistency and EFAAR recall, with controls.
+_SCORING_PHASES = ("score",)
 
 #: Every phase :func:`run_ops` accepts, in the order they run.
 _ALL_PHASES = (_PHASES + _PH_PHASES + ("decode_qc", "compare_calls")
-               + _PROFILE_PHASES)
+               + _PROFILE_PHASES + _FLAT_PHASES + _SCORING_PHASES)
 
 #: The columns of ``ops_phenotype`` that hold each field's similarity
 #: transform into the well frame: ``well = scale * R(rotation_deg) @
@@ -2840,12 +2851,12 @@ def _ph_flat_planes(folder: str, channels: Sequence[str], shape):
         correction divides by them, the offsets, and float64 ``1 / flat``
         as the mask pass averages it.
     """
-    from .ops_flatfield import flat_planes, load_flat_maps
+    from .ops_flatfield import flat_lookups, flat_planes, load_flat_maps
 
     key = (os.path.abspath(folder), tuple(channels), tuple(shape))
     if key not in _PH_FLAT_CACHE:
-        maps, offsets, _info = load_flat_maps(folder, channels)
-        planes = flat_planes(maps, shape)
+        maps, offsets, info = load_flat_maps(folder, channels)
+        planes = flat_planes(maps, shape, lookups=flat_lookups(info))
         inverse = {c: 1.0 / planes[c].astype(np.float64) for c in planes}
         _PH_FLAT_CACHE.clear()
         _PH_FLAT_CACHE[key] = (planes, offsets, inverse)
@@ -3014,10 +3025,12 @@ def _ph_masks(plate: str, well: str, settings: Mapping[str, Any],
     flat_folder = None
     options: Dict[str, Any] = {"flatfield": None}
     if _ph_flatfield_mode(settings) == "analytic":
-        from .ops_flatfield import load_flat_maps
+        from .ops_flatfield import load_flat_maps, record_flat_md5
 
         flat_folder = _ph_flat_folder(settings, destination)
-        options["flatfield"] = load_flat_maps(flat_folder, channels)[2]["md5"]
+        flat_info = load_flat_maps(flat_folder, channels)[2]
+        record_flat_md5(destination, flat_info)
+        options["flatfield"] = flat_info["md5"]
     part_dir = os.path.join(destination, well, "phenotype_maskpass")
     os.makedirs(part_dir, exist_ok=True)
     _ph_options_marker(part_dir, options)
@@ -3274,11 +3287,12 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
             "measure_gpu": bool(settings.get("ops_ph_measure_gpu", False)),
             "secondary": _ph_secondary(settings) if secondary else None}
         if _ph_flatfield_mode(settings) == "exact":
-            from .ops_flatfield import load_flat_maps
+            from .ops_flatfield import load_flat_maps, record_flat_md5
 
             flat_folder = _ph_flat_folder(settings, destination)
-            options["flatfield"] = load_flat_maps(flat_folder,
-                                                  channels)[2]["md5"]
+            flat_info = load_flat_maps(flat_folder, channels)[2]
+            record_flat_md5(destination, flat_info)
+            options["flatfield"] = flat_info["md5"]
         _ph_options_marker(cell_dir, options)
 
     def measure_task(site: int) -> Dict[str, Any]:
@@ -4297,11 +4311,12 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     flat_record: Optional[Dict[str, Any]] = None
     gain_columns: List[str] = []
     if flatfield == "analytic":
-        from .ops_flatfield import load_flat_maps
+        from .ops_flatfield import load_flat_maps, record_flat_md5
 
         flat_folder = _ph_flat_folder(settings, destination)
         _maps, flat_offsets, info = load_flat_maps(
             flat_folder, _ph_channels(settings))
+        record_flat_md5(destination, info)
         flat_record = {"mode": "analytic", "folder": flat_folder,
                        "md5": info.get("md5"), "offsets": flat_offsets}
         gain_columns = [f"{comp}_{ch}_g" for comp in
@@ -6543,6 +6558,347 @@ def _ph_reference_counts(path: str):
     return table.reset_index(drop=True)
 
 
+def _ph_field_geometry(placed) -> Tuple[Dict[int, Any], Dict[int, Tuple[int, int]],
+                                        Dict[int, List[int]]]:
+    """Every placed field's transform, shape and overlapping neighbours.
+
+    :param placed: one well's ``ops_phenotype`` rows.
+    :returns: ``(transforms, shapes, neighbours)`` keyed by site; a field's
+        neighbours are the other fields whose well-frame bounding boxes
+        overlap its own.
+    """
+    transforms, shapes = {}, {}
+    for record in placed.to_dict("records"):
+        site = int(record["site"])
+        transforms[site] = _ph_field_record_transform(record)
+        shapes[site] = (int(record["field_height"]), int(record["field_width"]))
+    boxes = {}
+    for site, transform in transforms.items():
+        h, w = float(shapes[site][0]), float(shapes[site][1])
+        corners = _ph_to_well(np.array([[0, 0], [0, w], [h, 0], [h, w]], float),
+                              transform)
+        boxes[site] = (corners.min(axis=0), corners.max(axis=0))
+    sites = sorted(transforms)
+    neighbours = {s: [t for t in sites if t != s and bool(np.all(
+        np.minimum(boxes[s][1], boxes[t][1]) > np.maximum(boxes[s][0], boxes[t][0])))]
+        for s in sites}
+    return transforms, shapes, neighbours
+
+
+def _ph_zone(site: int, points, geometry) -> Tuple[np.ndarray, np.ndarray]:
+    """How many other fields cover each point, and its distance to the field edge.
+
+    :param site: the field the points lie in.
+    :param points: ``(N, 2)`` field ``(row, col)`` centroids.
+    :param geometry: :func:`_ph_field_geometry`.
+    :returns: ``(covered, edge_distance)``: the number of other acquired
+        fields each point maps inside (``[0, H) x [0, W)``), and
+        ``min(row, H - 1 - row, col, W - 1 - col)``.
+    """
+    transforms, shapes, neighbours = geometry
+    points = np.asarray(points, float)
+    well = _ph_to_well(points, transforms[site])
+    covered = np.zeros(len(points), int)
+    for other in neighbours.get(site, []):
+        mapped = _ph_to_field(well, transforms[other])
+        h, w = shapes[other]
+        covered += ((mapped[:, 0] >= 0) & (mapped[:, 0] < h)
+                    & (mapped[:, 1] >= 0) & (mapped[:, 1] < w)).astype(int)
+    h, w = shapes[site]
+    edge = np.minimum.reduce([points[:, 0], h - 1 - points[:, 0],
+                              points[:, 1], w - 1 - points[:, 1]])
+    return covered, edge
+
+
+def _ph_rate_rows(frame, keys: Sequence[str], column: str, min_cells: int = 0
+                  ) -> List[Dict[str, Any]]:
+    """Cells, matched and match % of every group of ``frame``.
+
+    :param frame: one row per unit with a boolean ``column``.
+    :param keys: the grouping columns.
+    :param column: the matched flag.
+    :param min_cells: groups with fewer units are left out.
+    :returns: one dict per group, keys first.
+    """
+    rows = []
+    for key, group in frame.groupby(list(keys), observed=True):
+        if len(group) < min_cells:
+            continue
+        key = key if isinstance(key, tuple) else (key,)
+        values = group[column].astype(bool)
+        rows.append({**dict(zip(keys, key)), "cells": int(len(group)),
+                     "matched": int(values.sum()),
+                     "match_pct": 100 * float(values.mean())})
+    return rows
+
+
+def _ph_external_assign(external, copies, max_px: float):
+    """Assign each external cell to the nearest spaCR copy of its field.
+
+    :param external: ``field, label, y, x, matched`` rows of one well.
+    :param copies: the spaCR copies with ``site``, ``label`` and the cell and
+        nucleus centroids.
+    :param max_px: the largest distance an assignment may span.
+    :returns: the external rows with ``site`` and the assigned spaCR
+        ``spacr_label`` (-1 when none lies within ``max_px``). Per field
+        the nucleus and the cell centroids are both tried and the one with
+        the smaller median nearest distance is kept.
+    """
+    import pandas as pd
+    from scipy.spatial import cKDTree
+
+    out = []
+    by_site = {int(s): g for s, g in copies.groupby("site")}
+    for field, rows in external.groupby("field"):
+        table = by_site.get(int(field))
+        if table is None:
+            continue
+        best = None
+        for kind in ("nucleus", "cell"):
+            if f"{kind}_cy" not in table:
+                continue
+            xy = table[[f"{kind}_cy", f"{kind}_cx"]].to_numpy(float)
+            ok = np.isfinite(xy).all(1)
+            if not ok.any():
+                continue
+            distance, index = cKDTree(xy[ok]).query(
+                rows[["y", "x"]].to_numpy(float), distance_upper_bound=max_px)
+            found = np.isfinite(distance)
+            labels = np.where(found, table["label"].to_numpy()[ok][
+                np.minimum(index, ok.sum() - 1)], -1)
+            median = (float(np.median(distance[found])) if found.any()
+                      else float("nan"))
+            if best is None or median < best[0]:
+                best = (median, labels)
+        if best is not None:
+            out.append(rows.assign(site=int(field), spacr_label=best[1]))
+    if not out:
+        return external.iloc[:0].assign(site=pd.Series(dtype=int),
+                                        spacr_label=pd.Series(dtype=int))
+    return pd.concat(out, ignore_index=True)
+
+
+#: How the external comparison of ``ops_report_external_cells`` is matched,
+#: written beside its numbers.
+_PH_EXTERNAL_MATCHING = (
+    "Paired on the same physical cells: each external cell is assigned to the "
+    "nearest spaCR copy in the same field within ops_report_external_max_px "
+    "and through it to that copy's cross-field component; only components "
+    "with at least one external copy are counted, for both pipelines. Both "
+    "use the same field transforms, the same overlap-strip rule (the owner "
+    "copy's zone) and the same matched rule (any copy matched). The external "
+    "match flags are taken as given; their threshold and deduplication are "
+    "the external pipeline's own.")
+
+
+def _ph_overlap_report(db: str, plate: str, wells: Sequence[str],
+                       settings: Mapping[str, Any], destination: str,
+                       folder: str) -> Dict[str, Any]:
+    """Phenotype-genotype match rates in tile-overlap strips and cores (item 915).
+
+    :param db: the measurements database.
+    :param plate: the plate.
+    :param wells: the wells.
+    :param settings: read for ``ops_report_edge_bin_px``,
+        ``ops_report_external_cells`` and ``ops_report_external_max_px``.
+    :param destination: the run folder, holding ``ops_maskpass_<well>``
+        and, when the ``ph_ownership`` phase ran, ``ops_cross_field_<well>``.
+    :param folder: where the tables go.
+    :returns: the paths written and the counts per well.
+
+    A copy (a segmented cell in one field) lies in an OVERLAP STRIP when its
+    centroid maps inside at least one other acquired field, else in the
+    CORE (:func:`_ph_zone`). A copy is matched when ``ops_merge`` links it.
+    A physical cell (a cross-field component) is matched when any copy is,
+    and its zone is its owner copy's. ``overlap_match_by_zone.csv`` has
+    both units; ``overlap_match_by_edge_distance.csv`` bins copies by
+    their distance to the field edge; ``overlap_match_per_field.csv`` keeps
+    fields with at least 50 units per zone.
+    """
+    import pandas as pd
+    from scipy.stats import binomtest
+
+    from .qt.i18n import tr
+    from .tabular import read_table, write_table
+
+    bin_px = float(_setting_number(settings.get("ops_report_edge_bin_px"),
+                                   "ops_report_edge_bin_px", 100))
+    max_px = float(_setting_number(settings.get("ops_report_external_max_px"),
+                                   "ops_report_external_max_px", 8.0))
+    if bin_px <= 0 or max_px <= 0:
+        raise ValueError(tr(
+            "ops_report_edge_bin_px and ops_report_external_max_px must be "
+            "positive; got {bin} and {px}", bin=bin_px, px=max_px))
+    external_path = settings.get("ops_report_external_cells")
+    external_all = (read_table(str(external_path), canonicalise=False, report=None)
+                    if external_path else None)
+    zones, edges, fields, paired, external_info = [], [], [], [], {}
+    for well in wells:
+        maskpass = _ph_maskpass_path(destination, well)
+        placed = _well_rows(db, "ops_phenotype", plate, well)
+        if not os.path.isfile(maskpass) or placed is None or placed.empty:
+            raise ValueError(tr(
+                "the overlap report of well {well} needs its mask pass and "
+                "ops_phenotype rows; run ph_masks first", well=well))
+        geometry = _ph_field_geometry(placed)
+        copies = pd.read_parquet(maskpass)
+        copies = copies[copies["site"].astype(int).isin(geometry[0])].copy()
+        parts = []
+        for site, group in copies.groupby("site", sort=True):
+            covered, edge = _ph_zone(int(site), group[["cell_cy", "cell_cx"]], geometry)
+            parts.append(group.assign(covered_by_others=covered, edge_dist=edge))
+        copies = pd.concat(parts, ignore_index=True) if parts else copies.assign(
+            covered_by_others=0, edge_dist=0.0)
+        links = _well_rows(db, "ops_merge", plate, well)
+        linked = set() if links is None else set(zip(
+            links["site"].astype(int), links["label"].astype(int)))
+        copies["matched"] = [(int(a), int(b)) in linked for a, b in
+                             zip(copies["site"], copies["label"])]
+        copies["zone"] = np.where(copies["covered_by_others"] > 0,
+                                  "overlap strip", "core")
+        copies["well"], copies["unit"] = well, "copy"
+        zones += _ph_rate_rows(copies, ["well", "unit", "zone"], "matched")
+        copies["edge_dist_bin_px"] = (np.floor(copies["edge_dist"] / bin_px)
+                                      * bin_px).astype(int)
+        for row in _ph_rate_rows(copies, ["well", "unit", "edge_dist_bin_px"],
+                                 "matched"):
+            band = copies["edge_dist_bin_px"] == row["edge_dist_bin_px"]
+            row["strip_share"] = float((copies.loc[band, "zone"]
+                                        == "overlap strip").mean())
+            edges.append(row)
+        fields += _ph_rate_rows(copies.rename(columns={"site": "field"}),
+                                ["well", "unit", "field", "zone"], "matched", 50)
+        cross = _ph_cross_field_path(destination, well)
+        physical = None
+        if os.path.isfile(cross):
+            owners = pd.read_parquet(cross, columns=["site", "label", "component",
+                                                     "is_owner"])
+            joined = copies.merge(owners, on=["site", "label"], how="left").dropna(
+                subset=["component"])
+            owner = joined[joined["is_owner"].astype(bool)].drop_duplicates(
+                "component").set_index("component")
+            physical = joined.groupby("component").agg(matched=("matched", "max"))
+            physical["zone"] = owner["zone"].reindex(physical.index).fillna("core")
+            physical["field"] = owner["site"].reindex(physical.index)
+            physical["well"], physical["unit"] = well, "physical_cell"
+            zones += _ph_rate_rows(physical, ["well", "unit", "zone"], "matched")
+            fields += _ph_rate_rows(physical.dropna(subset=["field"]).astype(
+                {"field": int}), ["well", "unit", "field", "zone"], "matched", 50)
+        if external_all is None:
+            continue
+        external = external_all
+        if "well" in external_all:
+            external = external_all[external_all["well"].astype(str) == str(well)]
+        external = external.copy()
+        external["matched"] = external["matched"].astype(bool)
+        inside = external[external["field"].astype(int).isin(geometry[0])]
+        parts = []
+        for site, group in inside.groupby("field", sort=True):
+            covered, _edge = _ph_zone(int(site), group[["y", "x"]], geometry)
+            parts.append(group.assign(zone=np.where(covered > 0, "overlap strip",
+                                                    "core")))
+        if parts:
+            per_copy = pd.concat(parts, ignore_index=True).assign(
+                well=well, unit="external_copy")
+            zones += _ph_rate_rows(per_copy, ["well", "unit", "zone"], "matched")
+        if physical is None:
+            raise ValueError(tr(
+                "ops_report_external_cells compares physical cells and needs "
+                "the ph_ownership phase's table {path}", path=cross))
+        assigned = _ph_external_assign(external, copies, max_px)
+        assigned = assigned[assigned["spacr_label"] >= 0].merge(
+            owners.rename(columns={"label": "spacr_label"}),
+            on=["site", "spacr_label"], how="inner")
+        theirs = assigned.groupby("component")["matched"].max()
+        both_sides = pd.DataFrame({"external": theirs}).join(
+            physical[["matched", "zone"]].rename(columns={"matched": "spacr"}),
+            how="left")
+        both_sides["zone"] = both_sides["zone"].fillna("core")
+        for zone in ("core", "overlap strip"):
+            group = both_sides[both_sides["zone"] == zone]
+            spacr = group["spacr"].fillna(False).astype(bool)
+            theirs_ = group["external"].astype(bool)
+            only_spacr = int((spacr & ~theirs_).sum())
+            only_theirs = int((~spacr & theirs_).sum())
+            paired.append({
+                "well": well, "zone": zone, "physical_cells": int(len(group)),
+                "spacr_match_pct": 100 * float(spacr.mean()) if len(group) else np.nan,
+                "external_match_pct": (100 * float(theirs_.mean())
+                                       if len(group) else np.nan),
+                "both": int((spacr & theirs_).sum()), "spacr_only": only_spacr,
+                "external_only": only_theirs,
+                "mcnemar_exact_p": (float(binomtest(
+                    only_spacr, only_spacr + only_theirs, 0.5).pvalue)
+                    if only_spacr + only_theirs else 1.0)})
+        external_info[well] = {"external_cells": int(len(external)),
+                               "assigned": int(len(assigned)),
+                               "max_px": max_px}
+    outputs = {}
+    rates = ["cells", "matched", "match_pct"]
+    for name, rows, columns in (
+            ("overlap_match_by_zone", zones, ["well", "unit", "zone", *rates]),
+            ("overlap_match_by_edge_distance", edges,
+             ["well", "unit", "edge_dist_bin_px", *rates, "strip_share"]),
+            ("overlap_match_per_field", fields,
+             ["well", "unit", "field", "zone", *rates])):
+        outputs[name] = write_table(pd.DataFrame(rows, columns=columns), os.path.join(
+            folder, f"{name}.csv"), canonicalise=False)
+    if external_all is not None:
+        outputs["overlap_external_paired"] = write_table(
+            pd.DataFrame(paired), os.path.join(folder, "overlap_external_paired.csv"),
+            canonicalise=False)
+        with open(os.path.join(folder, "overlap_external_paired.json"), "w",
+                  encoding="utf-8") as handle:
+            json.dump({"matching": _PH_EXTERNAL_MATCHING, "wells": external_info,
+                       "source": str(external_path)}, handle, indent=1)
+        outputs["overlap_external_info"] = os.path.join(
+            folder, "overlap_external_paired.json")
+    return {"outputs": outputs, "zones": zones}
+
+
+def _ph_with_read_stage(out, read_stage: Mapping[str, Tuple[int, int]]):
+    """The funnel with ``sbs_nuclei``, ``sbs_nuclei_with_read`` and its % added.
+
+    :param out: one row per well with a ``well`` column.
+    :param read_stage: :func:`_ph_read_stage`.
+    :returns: a copy; wells without field stats get NaN.
+    """
+    out = out.copy()
+    wells = out["well"].astype(str)
+    nuclei = wells.map(lambda w: read_stage[w][0] if w in read_stage else np.nan)
+    reads = wells.map(lambda w: read_stage[w][1] if w in read_stage else np.nan)
+    out["sbs_nuclei"] = nuclei.to_numpy()
+    out["sbs_nuclei_with_read"] = reads.to_numpy()
+    out["sbs_nuclei_with_read_pct"] = (100 * reads / nuclei).to_numpy()
+    return out
+
+
+def _ph_read_stage(db: str, wells: Sequence[str]) -> Dict[str, Tuple[int, int]]:
+    """Each well's decoded nuclei and nuclei with at least one read.
+
+    :param db: the measurements database; the decode phase's
+        ``results/ops_decode/field_stats_<well>.csv`` sit beside it.
+    :param wells: the wells.
+    :returns: ``{well: (nuclei, nuclei_with_read)}`` for the wells whose
+        field stats carry ``nuclei_with_read`` (a decode run with
+        ``ops_report_read_stage`` on).
+    """
+    from .tabular import read_table
+
+    folder = os.path.join(os.path.dirname(os.path.abspath(db)), "results",
+                          "ops_decode")
+    out = {}
+    for well in wells:
+        path = os.path.join(folder, f"field_stats_{well}.csv")
+        if not os.path.isfile(path):
+            continue
+        stats = read_table(path, canonicalise=False, report=None)
+        if "nuclei_with_read" in stats:
+            out[str(well)] = (int(stats["nuclei"].sum()),
+                              int(stats["nuclei_with_read"].sum()))
+    return out
+
+
 def _ph_report(db: str, plate: str, wells: Sequence[str],
                settings: Mapping[str, Any], destination: str,
                aggregate: Optional[Mapping[str, Any]] = None
@@ -6554,7 +6910,10 @@ def _ph_report(db: str, plate: str, wells: Sequence[str],
     :param wells: the wells run.
     :param settings: read for ``ops_reference_counts``,
         ``ops_reference_counts_level``, ``ops_reference_shuffles``,
-        ``ops_reference_seed``, ``ops_design`` and ``ops_genotype_table``.
+        ``ops_reference_seed``, ``ops_design``, ``ops_genotype_table``
+        and the alpha ``ops_report_read_stage``, ``ops_report_overlap_zones``,
+        ``ops_report_edge_bin_px``, ``ops_report_external_cells`` and
+        ``ops_report_external_max_px`` (item 915).
     :param destination: the run folder; the files go to
         ``<dst_root>/results/ops_report/``.
     :param aggregate: this run's aggregate report, whose ``outputs`` name
@@ -6578,6 +6937,12 @@ def _ph_report(db: str, plate: str, wells: Sequence[str],
     counts the pooled cells of the guide and gene tables (the guides and
     genes both have). ``spacr_scaled`` is spaCR's count scaled to the
     reference's pooled total.
+
+    With ``ops_report_read_stage`` the funnel gains ``sbs_nuclei``,
+    ``sbs_nuclei_with_read`` and ``sbs_nuclei_with_read_pct`` from the
+    decode phase's field stats (:func:`_ph_read_stage`); with
+    ``ops_report_overlap_zones`` the match rates in overlap strips and
+    cores are written (:func:`_ph_overlap_report`).
     """
     import pandas as pd
 
@@ -6591,6 +6956,8 @@ def _ph_report(db: str, plate: str, wells: Sequence[str],
     funnel_path = outputs.get("funnel_parquet") or os.path.join(
         destination, f"ops_funnel_{plate}.parquet")
     report: Dict[str, Any] = {"folder": folder}
+    read_stage = (_ph_read_stage(db, wells)
+                  if bool(settings.get("ops_report_read_stage", False)) else None)
     if os.path.isfile(funnel_path):
         funnel = pd.read_parquet(funnel_path)
         out = funnel[["plate", "well"]].copy()
@@ -6605,13 +6972,27 @@ def _ph_report(db: str, plate: str, wells: Sequence[str],
                 out[name] = funnel["owned"]
             else:
                 out[name] = 0
+        if read_stage is not None:
+            out = _ph_with_read_stage(out, read_stage)
         rest = [c for c in funnel.columns if c not in ("plate", "well")]
         out = pd.concat([out, funnel[rest].add_prefix("aggregate_")], axis=1)
         target = os.path.join(folder, "funnel_per_well.csv")
         write_table(out, target, canonicalise=False)
         report["funnel"] = target
+    elif read_stage:
+        out = _ph_with_read_stage(pd.DataFrame({"plate": plate, "well": sorted(read_stage)}),
+                                  read_stage)
+        target = os.path.join(folder, "funnel_per_well.csv")
+        write_table(out, target, canonicalise=False)
+        report["funnel"] = target
     else:
         report["funnel"] = None
+    if read_stage is not None:
+        report["read_stage"] = {w: {"nuclei": v[0], "with_read": v[1]}
+                                for w, v in read_stage.items()}
+    if bool(settings.get("ops_report_overlap_zones", False)):
+        report["overlap"] = _ph_overlap_report(db, plate, wells, settings,
+                                               destination, folder)["outputs"]
     reference_path = settings.get("ops_reference_counts")
     if not reference_path:
         report["counts_vs_reference"] = {
@@ -7130,6 +7511,19 @@ def run_ops(settings: Mapping[str, Any], *,
         verifies it and resumes from its ``WELL_DONE`` marker
         (:func:`_ph_archive_resume`); ``ops_gpu_admission`` waits for a free
         card first (:func:`_ops_admitted_run`).
+        The alpha
+        ``"flat_nuclear"`` and ``"flat_validate"`` phases (item 912) run
+        alone: they build each plate's nuclear-median DNA flat-field map and
+        check it on held-out fields (:func:`spacr.ops_flatfield.run_flat_phases`).
+        The alpha ``"score"`` phase (item 913) runs alone: it scores gene
+        profiles and clusterings with copairs and EFAAR
+        (:func:`spacr.ops_scoring.score_ops_profiles`). The profile path's
+        alpha ``"cluster_sweep"`` (item 916, the Leiden resolution sweep) and
+        ``"etest"`` (item 917, the per-gene E-test and its power curve)
+        phases run inside :func:`spacr.ops_tvn.run_profile_phases`. Like the
+        profile path, the flat-field and score phases hold the BLAS and
+        OpenMP pools to one thread while ``ops_deterministic_blas`` is on
+        (the result's ``blas_threads``).
     :param library: the guide barcodes, as a sequence or the path of a CSV
         with a ``prefix``, ``barcode`` or ``sequence`` column. When given,
         each barcode is also mapped to its closest guide. Overrides the
@@ -7152,7 +7546,8 @@ def run_ops(settings: Mapping[str, Any], *,
                              f"{list(_PROFILE_PHASES)} without the image phases")
         from .ops_tvn import _pinned_blas, run_profile_phases
 
-        profile = [phase for phase in phases if phase in ("profile", "evaluate")]
+        profile = [phase for phase in phases
+                   if phase in ("profile", "evaluate", "cluster_sweep", "etest")]
         result = run_profile_phases(settings, profile, report=_say) if profile else {}
         atlas = [phase for phase in phases if phase in ("modules", "mitocarta")]
         if atlas:
@@ -7167,6 +7562,25 @@ def run_ops(settings: Mapping[str, Any], *,
                     result = {**result, "mitocarta": run_mitocarta_benchmark(settings, report=_say)}
             result = {**result, "atlas_blas_threads": pinned}
         return result
+    if any(phase in _FLAT_PHASES for phase in phases):
+        if any(phase not in _FLAT_PHASES for phase in phases):
+            raise ValueError("the nuclear flat-field phases run on their own; run "
+                             f"{list(_FLAT_PHASES)} without the image phases")
+        from .ops_flatfield import run_flat_phases
+        from .ops_tvn import _pinned_blas
+
+        with _pinned_blas(bool(settings.get("ops_deterministic_blas", True))) as pinned:
+            result = run_flat_phases(settings, phases, report=_say)
+        return {**result, "blas_threads": pinned}
+    if "score" in phases:
+        if list(phases) != ["score"]:
+            raise ValueError("the score phase runs on its own")
+        from .ops_scoring import score_ops_profiles
+        from .ops_tvn import _pinned_blas
+
+        with _pinned_blas(bool(settings.get("ops_deterministic_blas", True))) as pinned:
+            result = score_ops_profiles(settings, report=_say)
+        return {**result, "blas_threads": pinned}
     sequencing = any(phase in _PHASES for phase in phases)
     root = settings.get("genotype_source")
     if sequencing and (not isinstance(root, (str, os.PathLike))

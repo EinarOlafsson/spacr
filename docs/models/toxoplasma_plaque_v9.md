@@ -2,7 +2,7 @@
 
 # Plaques
 
-v9 · candidate
+v9
 
 **0.656** — F1 · 101 held-out fields
 
@@ -15,17 +15,15 @@ v9 · candidate
 | Dice | 0.900 | 0.392 |
 
 
-![Score card of Plaques v9 (toxoplasma_plaque_v9, candidate): F1 0.656 on 101 held-out fields against 0.200 for stock cpsam_v2.](cards/toxoplasma_plaque_v9.svg)
+![Score card of Plaques v9 (toxoplasma_plaque_v9, default): F1 0.656 on 101 held-out fields against 0.200 for stock cpsam_v2.](cards/toxoplasma_plaque_v9.svg)
 
-## Toxoplasma Plaque V9 (V8 epoch 100, candidate)
+## Toxoplasma Plaque V9 (V8 epoch 100, default)
 
-`toxoplasma_plaque_v9` · Cellpose-SAM (vanilla cpsam_v2 initialization; Cellpose 4.2.1.1) · candidate in the `toxoplasma_plaque` family
+`toxoplasma_plaque_v9` · Cellpose-SAM (vanilla cpsam_v2 initialization; Cellpose 4.2.1.1) · default in the `toxoplasma_plaque` family
 
 Toxoplasma plaques in crystal-violet plaque-assay wells. Stock Cellpose-SAM was never trained on plaques and finds few of them, fewest on Gel Doc scans.
 
-The family's default is [toxoplasma_plaque_v6](toxoplasma_plaque_v6.md).
-
-Other versions: [toxoplasma_plaque_v7](toxoplasma_plaque_v7.md) (candidate), [toxoplasma_plaque_v6](toxoplasma_plaque_v6.md), [toxoplasma_plaque_v5](toxoplasma_plaque_v5.md), [toxoplasma_plaque_v4](toxoplasma_plaque_v4.md), [toxoplasma_plaque_v3](toxoplasma_plaque_v3.md) (alternative), [toxoplasma_plaque_v2](toxoplasma_plaque_v2.md), [toxoplasma_plaque_v1](toxoplasma_plaque_v1.md).
+Other versions: [toxoplasma_plaque_v8](toxoplasma_plaque_v8.md), [toxoplasma_plaque_v6](toxoplasma_plaque_v6.md), [toxoplasma_plaque_v5](toxoplasma_plaque_v5.md), [toxoplasma_plaque_v4](toxoplasma_plaque_v4.md), [toxoplasma_plaque_v3](toxoplasma_plaque_v3.md) (alternative), [toxoplasma_plaque_v2](toxoplasma_plaque_v2.md), [toxoplasma_plaque_v1](toxoplasma_plaque_v1.md).
 
 ## Training data
 
@@ -61,10 +59,10 @@ Evaluation set `version8_pooled_curated_grouped_test`, version `strict hold-out,
 
 ## Notes
 
-- Epoch-100 checkpoint of the V8 complete-coverage run, where training ended on its plateau rule; the epoch-50 interim of the same run is toxoplasma_plaque_v7.
+- The default plaque model since 2026-11-10, by the maintainer's choice; it replaced toxoplasma_plaque_v6, which stays selectable. It turns well resize on (plaque_well_resize auto follows this record's preprocess).
+- Epoch-100 checkpoint of the V8 complete-coverage run, where training ended on its plateau rule; the epoch-50 interim of the same run is toxoplasma_plaque_v8.
 - Thresholds chosen on the 102 validation crops (cellprob 0.0, flow 0.4, min size 0); test used for reporting only. The 101 test crops were reported before, for an older V8 attempt and for the epoch-50 interim, so they are not a fresh external or prospective test.
 - FP32 inference, 1st/99th percentile normalization; well resized to a 1500 px longest side with no enlargement cap.
-- Candidate; existing plaque models and the default stay as they are.
 
 ## How to read these scores
 

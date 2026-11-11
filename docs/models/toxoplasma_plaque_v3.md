@@ -23,9 +23,9 @@ v3 · alt
 
 Toxoplasma plaques in crystal-violet plaque-assay wells. Stock Cellpose-SAM was never trained on plaques and finds few of them, fewest on Gel Doc scans.
 
-The family's default is [toxoplasma_plaque_v6](toxoplasma_plaque_v6.md).
+The family's default is [toxoplasma_plaque_v9](toxoplasma_plaque_v9.md).
 
-Other versions: [toxoplasma_plaque_v9](toxoplasma_plaque_v9.md) (candidate), [toxoplasma_plaque_v7](toxoplasma_plaque_v7.md) (candidate), [toxoplasma_plaque_v6](toxoplasma_plaque_v6.md), [toxoplasma_plaque_v5](toxoplasma_plaque_v5.md), [toxoplasma_plaque_v4](toxoplasma_plaque_v4.md), [toxoplasma_plaque_v2](toxoplasma_plaque_v2.md), [toxoplasma_plaque_v1](toxoplasma_plaque_v1.md).
+Other versions: [toxoplasma_plaque_v9](toxoplasma_plaque_v9.md), [toxoplasma_plaque_v8](toxoplasma_plaque_v8.md), [toxoplasma_plaque_v6](toxoplasma_plaque_v6.md), [toxoplasma_plaque_v5](toxoplasma_plaque_v5.md), [toxoplasma_plaque_v4](toxoplasma_plaque_v4.md), [toxoplasma_plaque_v2](toxoplasma_plaque_v2.md), [toxoplasma_plaque_v1](toxoplasma_plaque_v1.md).
 
 ## Training data
 

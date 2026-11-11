@@ -60,7 +60,7 @@ def test_batch_missing_model_preflight_is_read_only_and_requires_consent(
 
     monkeypatch.setattr(submodules, '_resolve_plaque_model', missing)
     monkeypatch.setattr(model_install, '_confirm_checkpoint_download',
-                        lambda owner, name: accept if name == 'toxoplasma_plaque_v6' else pytest.fail(name))
+                        lambda owner, name: accept if name == 'toxoplasma_plaque_v9' else pytest.fail(name))
     assert AppScreen._confirm_plaque_model_download(parent, {}) is accept
     assert requests == [False] and not (tmp_path / 'v6.CP_model').exists()
 

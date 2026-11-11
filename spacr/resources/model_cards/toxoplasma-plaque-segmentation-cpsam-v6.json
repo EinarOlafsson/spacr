@@ -5,7 +5,7 @@
  "display_name": "Toxoplasma Plaque v6",
  "family": "plaque",
  "round": "round 8",
- "status": "default",
+ "status": "previous default",
  "date": "trained 2026-10-25",
  "pages": [
   "cards/page1.png",
@@ -454,9 +454,9 @@
  },
  "about": {
   "segments": "Toxoplasma gondii plaques in crystal-violet-stained plaque-assay wells, small plaques included.",
-  "version_line": "Zoo key toxoplasma_plaque_v6, round 8 (weights cpsam_plaque_v6). Default plaque model in spaCR versions that resize wells (plaque_well_resize); older versions keep toxoplasma_plaque_v5.",
+  "version_line": "Zoo key toxoplasma_plaque_v6, round 8 (weights cpsam_plaque_v6). Default plaque model 2026-10-25 to 2026-11-10, in spaCR versions that resize wells (plaque_well_resize); toxoplasma_plaque_v9 replaced it.",
   "trained_on": "1,196 curated fields from Gel Doc lab plates, lab plates, published figures and earlier curation rounds, each well resized to 1500 px (at most 6x), with 164 for validation.",
-  "status": "Default plaque model in spaCR versions with well resize; toxoplasma_plaque_v5 stays selectable.",
+  "status": "Default plaque model 2026-10-25 to 2026-11-10; toxoplasma_plaque_v9 replaced it, and v6 stays selectable.",
   "leak_note": "Needs the same well crop and resize before Cellpose (normalize.py in training/); native-pixel inference is not what was scored.",
   "load_line": "Set `plaque_model` to `toxoplasma_plaque_v6` (spaCR with plaque_well_resize); spaCR downloads and checks the weights on first use and resizes wells automatically.",
   "links": {

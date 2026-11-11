@@ -1,0 +1,45 @@
+OPS DNA FLAT-FIELD MAP FROM PER-NUCLEUS INTENSITIES
+====================================================
+
+Lifecycle: future
+Status: DONE 2026-11-10 (alpha, under ALPHA_FEATURES[912]) — spacr.ops_flatfield.build_nuclear_flat builds a plate's DNA map from its per-nucleus table: the median nuclear DNA mean per 16 px map cell (nuclear_median_grid), a count-weighted local quadratic fit of log(median - b) with Gaussian sigma 32 px and ridge 1e-6 (fit_nuclear_flat; 'gaussian' and 'local_linear' kept as the losing arms), normalised to the central 18 x 18 cells and floored at 0.10. The camera offset b is required (ops_flatfield_dark, else the plate's flat_info.json), never 0. flat_to_field reads a map at block centres (16 i + 8) or, for every earlier map, by zoom; the lookup is recorded with each map (flat_lookups) and ops_engine._ph_flat_planes honours it, so earlier maps read exactly as before. write_nuclear_flat writes one new folder per plate with the map, a JSON sidecar (offset, floor, held-out fields, nucleus counts, centre value, corner mean, % at floor, fit, sigma, grid, lookup, versions, md5) and the plate's other channel maps copied byte for byte. record_flat_md5 keeps the md5 in <dst_root>/illumination_md5.json the first time ph_masks, ph_measure (exact) or aggregate use such maps and refuses a changed map with both md5s. validate_nuclear_flat re-measures the held-out nuclei exactly ((I - b)/F + b) and analytically ((v - b) g + b) and writes the radial table with 2,000 field bootstraps. Run as OPS phases flat_nuclear and flat_validate (run_flat_phases). spacr/ops_flatfield.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_flatfield_v2_912.py.
+Requested: maintainer via paper session, 2026-11-10.
+Owner: lane L (paper items 2026-11-10).
+Source: ops_flat_v2/scripts/build_maps.py, validate.py, radial.py (plate A); flatfield_v2_adoption/scripts/plateB_flat_v2.py (plate B).
+Related: 853, 809-813, 871.
+
+WHAT THE STATE IS
+The DNA map was a pixel median with a wide Gaussian, a 4th-order polynomial and a 0.25 floor, read by zoom; the field corners stayed at about half the centre after correction.
+
+WHAT TO DO
+- Nuclear-median estimator, local log-quadratic fit, explicit offset, block-centre lookup, per-plate maps with md5 records, held-out exact re-measure, alpha.
+
+SETTINGS
+ops_flatfield_nuclear_channel, ops_flatfield_nuclei, ops_flatfield_dark, ops_flatfield_nuclear_maps,
+ops_flatfield_block_px, ops_flatfield_fit, ops_flatfield_sigma_px, ops_flatfield_ridge, ops_flatfield_floor,
+ops_flatfield_centre_cells, ops_flatfield_lookup, ops_flatfield_map_grid, ops_flatfield_centre_offset,
+ops_flatfield_field_px, ops_flatfield_holdout_fields, ops_flatfield_holdout_n, ops_flatfield_seed,
+ops_flatfield_holdout_images, ops_flatfield_holdout_masks, ops_flatfield_compare_maps,
+ops_flatfield_radial_edges, ops_flatfield_bootstrap, ops_flatfield_bootstrap_seed, ops_flatfield_min_bin_cells.
+(The spec's illumination_* keys are named ops_flatfield_* because the OPS run already owns ops_flatfield_maps and
+Measure's illumination_dark is a float.)
+
+RESULT
+Settings-file runs (run_ops phases flat_nuclear, flat_validate) in the spacr env (numpy 2.5.2, pandas 2.3.3):
+- Map bytes with ops_flatfield_map_grid 'lookup': plate A md5 f0dbfb9da3e6ab3c1e38a63485491146 and plate B
+  088f3fa027f58bfb3e44fac7ed05e997, identical to the reference; the earlier plate A map is untouched.
+- Regression arms rebuilt by the same functions, md5-identical: nuc_lq2_centres (= the new default grid),
+  nuc_s1, nuc_s3, nuc_ll1, nuc_ll2, and pix_s2 / pix_s6 (normalise_flat of the Gaussian-smoothed pixel median).
+- Held-out radial tables (24 fields per plate, every arm, analytic and exact, with the 2,000-bootstrap CIs):
+  all 152 plate A rows and all 40 plate B rows identical to radial_arms.csv / radial_plateB.csv; the summaries
+  (largest ring deviation 0.0247 A, 0.0229 B; beyond 1,800 px 1.016 / 1.0164) identical. Sanity: raw CPU mean vs
+  run r = 0.9999999999999983 (A); earlier-map gains equal the run's within 1.5e-8 (A) and 1.1e-8 (B; the
+  reference zoomed the float32 map there, spaCR zooms in float64 as the plate A reference does).
+- New default (block-centre grid and lookup): every held-out ring with >= 100 cells within 0.0228 of 1.0 on both
+  plates and within 0.0025 of the reference ring value (acceptance 0.03 / 0.01).
+
+DELIBERATELY NOT DONE
+- The held-out raw images are read from a folder of .npy files (ops_flatfield_holdout_images), not re-read from
+  the phenotype source through the phenotype index.
+- The downstream per-cell table rebuild (ph_masks + aggregate with the new map) is the existing analytic path;
+  it was not rerun on plate A here.

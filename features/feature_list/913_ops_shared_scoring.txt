@@ -1,0 +1,34 @@
+OPS SHARED COMMUNITY-STANDARD SCORING (COPAIRS + EFAAR) WITH CONTROLS
+====================================================================
+
+Lifecycle: future
+Status: DONE 2026-11-10 (alpha, under ALPHA_FEATURES[913]) — spacr.ops_scoring.score_ops_profiles (OPS phase score) scores every input of ops_scoring_inputs ({name: {genes, guides, clusters}}) on the same shared genes with copairs 0.6.0 and efaar_benchmarking 1.0, unchanged: activity of each gene's guides against the non-targeting guides (score_activity), CORUM@REPORT complex consistency (complex_map) and per-gene partner retrieval with copairs' kernels (pair_ap), EFAAR known-relationship recall (score_efaar), with shuffled-label, NT pseudo-gene and NT pseudo-complex controls; clusters are scored as one-hot rows (jittered for copairs, averaged over seeds; exact for EFAAR). scorable.csv states what each input cannot be scored on. summary_and_stats writes summary_main.csv and stats.json (Fisher, exact McNemar, paired Wilcoxon, Holm within each panel) and two figures. The packages are the optional extra spacr[scoring], pinned; copairs' null cache goes to <dst_root>/ops_scoring/copairs_null. spacr/ops_scoring.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, setup.py, tests/test_ops_shared_scoring_913.py.
+Requested: maintainer via paper session, 2026-11-10.
+Owner: lane L (paper items 2026-11-10).
+Source: shared_scoring/scripts/score_activity.py, score_consistency.py, score_efaar.py, stats_and_figures.py.
+Related: 880, 881, 879.
+
+SETTINGS
+ops_scoring_inputs, ops_scoring_genes, ops_scoring_null_size, ops_scoring_min_complex, ops_scoring_references,
+ops_scoring_cluster_jitter, ops_scoring_cluster_seeds, ops_scoring_workers, ops_scoring_figures; ops_reference_dir.
+
+RESULT
+Settings-file run (run_ops phase score) on the reference bundle inputs.npz exported to tables (spaCR gene, guide
+and cluster rows, Funk gene rows and clusters, Brieflow clusters; 5,031 shared genes), copairs 0.6.0 and
+efaar_benchmarking 1.0 from the reference's own package folder, spacr env (numpy 2.5.2):
+- activity_map.csv (10,217 rows), consistency_complex_map.csv (7,322 rows, 444 complexes),
+  consistency_pairs_summary_by_seed.csv (44), efaar_recall_all.csv (180), efaar_recall_summary.csv (60) and
+  efaar_mcnemar.csv (40): every value identical to the reference tables (2,649 of 5,031 genes active; NT
+  pseudo-genes 0 of 155).
+- stats.json: all 32 p and Holm q values in the 8 panels identical. A pair of inputs is named in input order,
+  so "Funk clusters vs Brieflow clusters" with Funk listed before Brieflow is the reference's "Brieflow clusters
+  vs Funk clusters" with a and b swapped (same p).
+- summary_main.csv: the same 25 rows; means equal to within 7e-14 (summation order).
+- Figures are spaCR's own (bars with jittered points, Holm brackets), not pixel copies of the reference figures.
+
+FAIRNESS
+Every input is scored on the same shared genes with the same code, reference halves, thresholds, null sizes and
+control rows (setup.json "matching"); what an input cannot be scored on is listed in scorable.csv, never compared.
+
+DELIBERATELY NOT DONE
+- The per-gene CORUM/STRING mAP was not re-checked against pair_map (item 880) here.

@@ -350,9 +350,31 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
 
         self.filters = DataFilterPanel(self, link=link)
         from ..preferences import scaled_px
-        self.filters.setMaximumWidth(scaled_px(320))
+        filter_pane = QWidget(self)
+        filter_pane.setMaximumWidth(scaled_px(320))
+        filter_column = QVBoxLayout(filter_pane)
+        filter_column.setContentsMargins(0, 0, 0, 0)
+        filter_column.setSpacing(0)
+        filter_column.addWidget(self.filters, 1)
+        filter_files = QHBoxLayout()
+        filter_files.setContentsMargins(SPACING["sm"], 0, SPACING["sm"], SPACING["sm"])
+        self._save_filters_button = QPushButton(tr("Save filters…"), filter_pane)
+        self._save_filters_button.setObjectName("GraphSaveFilters")
+        self._save_filters_button.setToolTip(
+            tr("Write the current filter set to a file, so the same rows can "
+               "be selected again on another plate."))
+        self._save_filters_button.clicked.connect(self._choose_save_filters)
+        filter_files.addWidget(self._save_filters_button)
+        self._load_filters_button = QPushButton(tr("Load filters…"), filter_pane)
+        self._load_filters_button.setObjectName("GraphLoadFilters")
+        self._load_filters_button.setToolTip(
+            tr("Apply a saved filter set. Columns this table does not have are "
+               "reported rather than skipped silently."))
+        self._load_filters_button.clicked.connect(self._choose_load_filters)
+        filter_files.addWidget(self._load_filters_button)
+        filter_column.addLayout(filter_files)
         self.filters_section = body.add_section(
-            self.filters, "Filter", persist_key=f"{APP_KEY}/Filter",
+            filter_pane, "Filter", persist_key=f"{APP_KEY}/Filter",
             stretch=0)
         self._body = body
         outer.addWidget(body, 1)
@@ -377,6 +399,7 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
             saved_key = json.dumps(saved_annotation["source"], sort_keys=True)
             self._condition_definitions.setdefault(saved_key, copy.deepcopy(saved_annotation))
         self._annotation_base_frame = frame
+        previous_source = self._condition_source if self._frame is not None else None
         self._condition_source = source_context(
             self._path, self._table_picker.currentText(), frame.attrs.get("merge_definition"))
         key = json.dumps(self._condition_source, sort_keys=True)
@@ -395,9 +418,108 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
         self._update_save_annotated_button()
         self._derived_frame_loaded(frame)
         self.builder.set_frame(frame)
-        self.filters.set_frame(frame)
+        dropped = self._refresh_filters(
+            frame, keep=previous_source is not None and previous_source == self._condition_source)
         self._source.setText(
             annotation_problem or label or f"{len(frame):,} rows × {len(frame.columns)} columns")
+        self._say_dropped_filters(dropped)
+
+    def _refresh_filters(self, frame, *, keep):
+        """Hand ``frame`` to the filter panel, keeping its clauses when asked.
+
+        The panel's own ``set_frame`` starts from no filters, which is right for
+        a different table but wrong when the same table only gained or lost
+        columns (an annotation, a reloaded source): there the user's filters
+        must survive, and a new column is offered without being filtered on.
+
+        :param frame: the table now on screen.
+        :param keep: re-apply the current filters to ``frame``.
+        :returns: columns whose filter could not be kept because ``frame`` no
+            longer has them.
+        """
+        state = self.filters.state() if keep else None
+        self.filters.set_frame(frame)
+        if not state or not state.get("filters"):
+            return []
+        for entry in state["filters"]:
+            entry["keep_new_values"] = True
+        return self.filters.restore(state)
+
+    def _say_dropped_filters(self, dropped):
+        """Tell the user which filters a refresh could not keep.
+
+        :param dropped: column names, possibly empty.
+        """
+        if dropped:
+            self._source.setText(
+                f"{self._source.text()} · filters removed, this table has no "
+                f"{', '.join(dropped)}")
+
+    def _choose_save_filters(self):
+        """Ask for a file and write the current filters to it as JSON."""
+        path, _ = QFileDialog.getSaveFileName(
+            self, tr("Save the filter set"), "filters.json", tr("JSON files (*.json)"))
+        if path:
+            try:
+                self._save_filters(path)
+            except (OSError, ValueError) as exc:
+                self._source.setText(f"could not save that filter set: {exc}")
+
+    def _save_filters(self, path):
+        """Write every filter (column, kind, values or bounds, enabled) to ``path``.
+
+        The table it was saved from is recorded for the reader's benefit only;
+        loading applies the set to whatever table is open.
+
+        :param path: destination JSON file.
+        :returns: ``path``.
+        """
+        self.filters.flush()
+        payload = self.filters.state()
+        source = self._condition_source or {}
+        payload["saved_from"] = {"path": source.get("path"), "table": source.get("table")}
+        Path(path).write_text(json.dumps(payload, indent=2), encoding="utf-8")
+        return path
+
+    def _choose_load_filters(self):
+        """Ask for a saved filter set and apply it to the open table."""
+        path, _ = QFileDialog.getOpenFileName(
+            self, tr("Load a filter set"), "", tr("JSON files (*.json)"))
+        if path:
+            self._load_filters(path)
+
+    def _load_filters(self, path, *, warn=True):
+        """Apply a saved filter set to the open table.
+
+        Filters on columns this table does not have are skipped and listed in a
+        warning, so a set that only partly applies never looks complete.
+
+        :param path: JSON file written by Save filters.
+        :param warn: show the skipped columns in a message box as well as in
+            the source line; tests turn the box off.
+        :returns: the skipped column names, or ``None`` when nothing was
+            applied (no table, unreadable file).
+        """
+        if self._frame is None:
+            self._source.setText(tr("Load a table first."))
+            return None
+        try:
+            state = json.loads(Path(path).read_text(encoding="utf-8"))
+            if not isinstance(state, dict):
+                raise ValueError("not a saved filter set")
+            missing = self.filters.restore(state)
+        except (OSError, ValueError) as exc:
+            self._source.setText(tr("Could not load: {error}", error=str(exc)))
+            return None
+        applied = len([e for e in state.get("filters", ()) if e.get("enabled", True)]) - len(missing)
+        self._source.setText(f"{applied} filters loaded from {Path(path).name}")
+        if missing:
+            message = (f"Not applied, because this table has no such column: "
+                       f"{', '.join(missing)}")
+            self._source.setText(f"{self._source.text()}. {message}")
+            if warn:
+                QMessageBox.warning(self, tr("Load a filter set"), message)
+        return missing
 
     def choose_table(self) -> None:
         """Ask which table in the project to use."""
@@ -651,9 +773,10 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
         self._frame = frame
         self._update_save_annotated_button()
         self.builder.set_frame(frame)
-        self.filters.set_frame(frame)
+        dropped = self._refresh_filters(frame, keep=True)
         self._source.setText(tr("Conditions applied to {rows} rows in {column}.",
                                 rows=f"{len(frame):,}", column=", ".join(annotation_columns(definition))))
+        self._say_dropped_filters(dropped)
         return frame
 
     def _update_save_annotated_button(self):

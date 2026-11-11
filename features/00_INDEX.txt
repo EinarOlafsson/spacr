@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-739 Lifecycle: new, 148 Lifecycle: future in features/feature_list/.
+739 Lifecycle: new, 161 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -439,6 +439,12 @@ FUTURE FEATURES
   887  OPS GUIDE-EFFICACY (JACKS-STYLE) GENE PROFILE BLEND
        887_ops_guide_efficacy_blend.txt
 
+  888  OPS MODULE ATLAS ON CONSENSUS PARTITIONS, WITH PRECOMPUTED (WEIGHTED) EMBEDDINGS
+       888_ops_modules_precomputed.txt
+
+  889  GENE-CLASS (MULTI-LABEL) TRAINING WITH GROUPED SPLITS, DECOY HEADS AND SHUFFLED CONTROLS
+       889_gene_class_training.txt
+
   890  OPS CELL-CYCLE-RESOLVED GENE PROFILES
        890_ops_cell_cycle_profiles.txt
 
@@ -448,8 +454,20 @@ FUTURE FEATURES
   892  CROSS-SCREEN GENE SIMILARITY (OPS AND JUMP)
        892_cross_screen_similarity.txt
 
+  893  SCREEN STAGING: ONE SETTINGS FILE PER PLATE, PER-PLATE PARQUET, WELL AGGREGATE
+       893_screen_staging_export_aggregate.txt
+
+  894  MOA PROFILING EVALUATION WITH THE CELLPROFILER ANALYST CLASSIFIERS AND CONTROLS
+       894_profiling_moa_evaluation.txt
+
   895  A PUBLIC PROFILE-RETRIEVAL ENTRY: REPLICATE MAP, COMPOUND-GENE MATCHING AND PLATE EFFECT
        895_profile_retrieval_entry.txt
+
+  896  RAW CROP SHARDS, PRETRAINED EMBEDDINGS, WELL EMBEDDING PROFILES AND THE WELL UMAP
+       896_crop_embedding_well_profiles.txt
+
+  897  CHANNEL-ADAPTIVE CNN AND VIT, THE WELL SET TRANSFORMER, MAE / DINO PRE-TRAINING AND THE MISSING-STAIN EVALUATION
+       897_spacr_architectures.txt
 
   898  HRMAN-STYLE INFECTION AND REPLICATION READOUT ACROSS A TITRATION
        898_vacuole_replication_titration.txt
@@ -481,6 +499,9 @@ FUTURE FEATURES
   907  OPS CONTRASTIVE GENERALISED-EIGEN WIENER WEIGHTING
        907_ops_contrastive_weighting.txt
 
+  908  OPS MITOCARTA SUB-MODULE BENCHMARK AGAINST AN EXTERNAL PUBLISHED MODULE TABLE
+       908_ops_mito_benchmark.txt
+
   909  DIVISION PREDICTION: SCORING UNIT, GUARDS, SHAPE-AND-MOTION ARM, SINGLE-MOVIE GROUPING, REFERENCE FEATURES AND LEARNER
        909_division_prediction_arms.txt
 
@@ -489,6 +510,24 @@ FUTURE FEATURES
 
   911  PLAQUE FIGURE MODE: ABSOLUTE AND RELATIVE PLAQUE SIZE AGAINST REPORTED SIZES
        911_plaque_relative_size.txt
+
+  912  OPS DNA FLAT-FIELD MAP FROM PER-NUCLEUS INTENSITIES
+       912_ops_flatfield_v2.txt
+
+  913  OPS SHARED COMMUNITY-STANDARD SCORING (COPAIRS + EFAAR) WITH CONTROLS
+       913_ops_shared_scoring.txt
+
+  914  OPS CELL-STATE STRATIFIED PROFILES AND THE PER-GENE MITOTIC INDEX TEST
+       914_ops_cell_state_profiles.txt
+
+  915  OPS YIELD TABLE WITH A READ STAGE, AND MATCH RATES IN TILE-OVERLAP STRIPS VS CORES
+       915_ops_yield_overlap_report.txt
+
+  916  OPS LEIDEN RESOLUTION SWEEP OF GENE PROFILES WITH SHUFFLED-CLUSTER CONTROLS
+       916_ops_leiden_resolution_sweep.txt
+
+  917  OPS PER-GENE E-DISTANCE AND E-TEST AGAINST NON-TARGETING CELLS, WITH A CELLS-PER-GENE POWER CURVE
+       917_ops_etest_power_curve.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES

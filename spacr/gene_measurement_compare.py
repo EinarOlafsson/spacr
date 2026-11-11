@@ -3911,3 +3911,575 @@ def fusion_profiles(blocks: Mapping[str, pd.DataFrame], *,
     fused.insert(0, "n_cells", counts.reindex(fused.index).to_numpy())
     fused.index.name = "gene"
     return fused.reset_index()
+
+
+#: The cells-per-gene caps of the E-test power curve (item 917); None is
+#: every cell.
+ETEST_POWER_CELLS: Tuple[Optional[int], ...] = (10, 25, 50, 100, 200, 500, None)
+
+#: The two distances an E-statistic is computed with, as column suffixes.
+ETEST_METRICS: Tuple[str, ...] = ("sqeuclidean", "euclidean")
+
+
+def _squared_distances(a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    """Squared Euclidean distances of every row of ``a`` to every row of ``b``."""
+    left = (a * a).sum(1)[:, None]
+    right = (b * b).sum(1)[None, :]
+    return np.clip(left + right - 2 * a @ b.T, 0, None)
+
+
+def _bh(p: np.ndarray) -> np.ndarray:
+    """Benjamini-Hochberg q-values, clipped to [0, 1]."""
+    p = np.asarray(p, float)
+    n = len(p)
+    order = np.argsort(p)
+    q = np.empty(n)
+    q[order] = np.minimum.accumulate((p[order] * n / np.arange(1, n + 1))[::-1])[::-1]
+    return np.clip(q, 0, 1)
+
+
+def _upper_p(null: np.ndarray, values: np.ndarray) -> np.ndarray:
+    """``(1 + #null >= value) / (1 + len(null))`` for every value."""
+    ordered = np.sort(np.asarray(null, float))
+    return (1 + len(ordered) - np.searchsorted(ordered, np.asarray(values, float), side="left")) \
+        / (1 + len(ordered))
+
+
+class EnergyReference:
+    """A fixed set of control cells every E-statistic is measured against.
+
+    :param reference: control cells by dimensions.
+
+    ``energy(x)`` returns ``(E_sqeuclidean, E_euclidean)`` of the cells
+    ``x``: ``2 mean d(x, y) - mean_{x != x'} d(x, x') - mean_{y != y'} d(y, y')``,
+    with ``d`` the squared Euclidean distance (scPerturb's default) and the
+    Euclidean distance (the energy distance of Szekely and Rizzo).
+    """
+
+    def __init__(self, reference: np.ndarray):
+        """Precompute the reference's own mean distances."""
+        self.reference = np.asarray(reference, np.float64)
+        distances = _squared_distances(self.reference, self.reference)
+        m = len(self.reference)
+        self.within_sq = distances.sum() / (m * (m - 1))
+        self.within_eu = np.sqrt(distances).sum() / (m * (m - 1))
+
+    def energy(self, cells: np.ndarray) -> Tuple[float, float]:
+        """The two E-statistics of ``cells`` against the reference.
+
+        :param cells: at least two cells by dimensions.
+        :returns: ``(E_sqeuclidean, E_euclidean)``.
+        """
+        cells = np.asarray(cells, np.float64)
+        n = len(cells)
+        cross = _squared_distances(cells, self.reference)
+        within = _squared_distances(cells, cells)
+        return (2 * cross.mean() - within.sum() / (n * (n - 1)) - self.within_sq,
+                2 * np.sqrt(cross).mean() - np.sqrt(within).sum() / (n * (n - 1)) - self.within_eu)
+
+
+def energy_distance(x: np.ndarray, y: np.ndarray, metric: str = "euclidean") -> float:
+    """The E-statistic of two cell sets.
+
+    :param x: cells by dimensions.
+    :param y: cells by dimensions.
+    :param metric: ``'euclidean'`` (energy distance) or ``'sqeuclidean'``.
+    :returns: ``2 mean d(x, y) - mean_{x != x'} d(x, x') - mean_{y != y'} d(y, y')``.
+    :raises ValueError: for an unknown metric.
+    """
+    if metric not in ETEST_METRICS:
+        raise ValueError(f"the E-distance metric must be one of {list(ETEST_METRICS)}; got {metric!r}")
+    values = EnergyReference(y).energy(x)
+    return float(values[ETEST_METRICS.index(metric)])
+
+
+class EnergyTest:
+    """Per-gene E-statistics and E-tests against non-targeting cells (item 917).
+
+    :param cells: the per-cell aligned embedding, cells by dimensions.
+    :param labels: each cell's gene; control cells start with ``control``.
+    :param guides: each cell's guide; the control guides with at least
+        ``min_guide_cells`` cells are scored as their own rows.
+    :param control: the control prefix (case-sensitive).
+    :param n_ref: control cells in the fixed reference, drawn with
+        ``default_rng(seed)``.
+    :param n_null: control pseudo-genes of the empirical null, drawn from
+        the control cells outside the reference with
+        ``default_rng(seed + 1 + n)``, ``n`` the null's cell count.
+    :param n_holdout: held-out control pseudo-genes, ``default_rng(seed + 2 + n)``,
+        scored against the null: the false-positive rate.
+    :param seed: the base seed.
+    :param mode: ``'empirical_null'`` (the null above), ``'guide_null'``
+        (pseudo-genes of four control guides, the shape of a gene: the
+        control guides outside the reference are split in halves with
+        ``default_rng(seed + 7)``; the null draws four guides of the first
+        half and ``n`` cells of their union, ``default_rng(seed + 11 + n)``,
+        and the held-out control does the same from the second half,
+        ``default_rng(seed + 12 + n)``) or ``'permutation'`` (scPerturb's
+        label permutation of the gene's cells and the reference,
+        ``permutations`` times, ``default_rng(seed + 3)``).
+    :param permutations: label permutations per gene in permutation mode.
+    :param min_cells: genes with fewer cells after the cap are skipped.
+    :param min_guide_cells: the cells a control guide needs to be a row.
+
+    ``score(n, subsample_seed)`` caps every gene and control guide at ``n``
+    cells (``default_rng(seed + 100 + subsample_seed)``, genes in sorted
+    order, then the control guides); ``n`` None keeps every cell and draws
+    the null at the median cells per gene.
+    """
+
+    def __init__(self, cells: np.ndarray, labels: Sequence, guides: Sequence, *,
+                 control: str = "nontargeting", n_ref: int = 2000, n_null: int = 1000,
+                 n_holdout: int = 500, seed: int = 0, mode: str = "empirical_null",
+                 permutations: int = 1000, min_cells: int = 3, min_guide_cells: int = 10):
+        """Draw the reference and group the cells by gene and control guide."""
+        if mode not in ("empirical_null", "guide_null", "permutation"):
+            raise ValueError("the E-test mode must be empirical_null, guide_null or permutation; "
+                             f"got {mode!r}")
+        self.cells = cells
+        labels = np.asarray(labels).astype(str)
+        guides = np.asarray(guides)
+        nt = np.char.startswith(labels.astype("U"), control)
+        nt_index = np.flatnonzero(nt)
+        if len(nt_index) <= n_ref:
+            raise ValueError(f"the E-test needs more than {n_ref} control cells; got {len(nt_index)}")
+        self.seed, self.n_null, self.n_holdout = int(seed), int(n_null), int(n_holdout)
+        self.mode, self.permutations = mode, int(permutations)
+        self.min_cells = int(min_cells)
+        reference = np.random.default_rng(self.seed).choice(nt_index, n_ref, replace=False)
+        self.rest = np.setdiff1d(nt_index, reference)
+        self.reference = EnergyReference(self._rows(reference))
+        self.genes = pd.Series(np.arange(len(labels))[~nt]).groupby(labels[~nt]).apply(np.asarray)
+        control_guides = pd.Series(nt_index).groupby(guides[nt_index]).apply(np.asarray)
+        self.control_guides = control_guides[control_guides.map(len) >= int(min_guide_cells)]
+        self._nulls: Dict[int, Tuple[np.ndarray, np.ndarray]] = {}
+        if mode == "guide_null":
+            pools = pd.Series(self.rest).groupby(guides[self.rest]).apply(np.asarray)
+            names = np.array(sorted(pools.index))
+            order = np.random.default_rng(self.seed + 7).permutation(len(names))
+            self._pools = pools
+            self._halves = (names[order[: len(names) // 2]], names[order[len(names) // 2:]])
+
+    def _rows(self, index: np.ndarray) -> np.ndarray:
+        """The embedding rows of ``index``, double precision."""
+        return np.asarray(self.cells[index], np.float64)
+
+    def null(self, n: int) -> Tuple[np.ndarray, np.ndarray]:
+        """The null and held-out E-statistics of ``n``-cell control pseudo-genes.
+
+        :param n: the pseudo-genes' cell count.
+        :returns: ``(null, holdout)``, each ``draws x 2`` (squared Euclidean,
+            Euclidean).
+        """
+        if n not in self._nulls and self.mode == "guide_null":
+            sets = []
+            for offset, half in ((11, self._halves[0]), (12, self._halves[1])):
+                draw = np.random.default_rng(self.seed + offset + n)
+                count = self.n_null if offset == 11 else self.n_holdout
+                sets.append(np.array([self.reference.energy(self._rows(self._pseudo_gene(draw, half, n)))
+                                      for _ in range(count)]))
+            self._nulls[n] = (sets[0], sets[1])
+        if n not in self._nulls:
+            draw = np.random.default_rng(self.seed + 1 + n)
+            null = np.array([self.reference.energy(self._rows(draw.choice(self.rest, n, replace=False)))
+                             for _ in range(self.n_null)])
+            draw = np.random.default_rng(self.seed + 2 + n)
+            hold = np.array([self.reference.energy(self._rows(draw.choice(self.rest, n, replace=False)))
+                             for _ in range(self.n_holdout)])
+            self._nulls[n] = (null, hold)
+        return self._nulls[n]
+
+    def _pseudo_gene(self, draw: np.random.Generator, half: np.ndarray, n: int) -> np.ndarray:
+        """``n`` cells of the union of four control guides drawn from ``half``."""
+        chosen = draw.choice(half, 4, replace=False)
+        cells = np.concatenate([self._pools[g] for g in chosen])
+        return draw.choice(cells, min(n, len(cells)), replace=False)
+
+    def _permutation_p(self, x: np.ndarray, observed: Tuple[float, float],
+                       rng: np.random.Generator) -> Tuple[float, float]:
+        """scPerturb's E-test p of one gene by permuting the pooled labels."""
+        pooled = np.vstack([x, self.reference.reference])
+        squared = _squared_distances(pooled, pooled)
+        roots = np.sqrt(squared)
+        n, total = len(x), len(pooled)
+        exceed = np.zeros(2)
+        for _ in range(self.permutations):
+            order = rng.permutation(total)
+            a, b = order[:n], order[n:]
+            values = []
+            for matrix in (squared, roots):
+                cross = matrix[np.ix_(a, b)].mean()
+                within_a = matrix[np.ix_(a, a)].sum() / (n * (n - 1))
+                within_b = matrix[np.ix_(b, b)].sum() / ((total - n) * (total - n - 1))
+                values.append(2 * cross - within_a - within_b)
+            exceed += np.asarray(values) >= np.asarray(observed)
+        return tuple((1 + exceed) / (1 + self.permutations))
+
+    def score(self, n: Optional[int] = None, subsample_seed: int = 0) -> Dict[str, Any]:
+        """E-statistics, p and q of every gene and control guide at a cap of ``n`` cells.
+
+        :param n: the cells-per-gene cap; None keeps every cell.
+        :param subsample_seed: the subsampling seed.
+        :returns: ``{"table", "summary"}``: ``table`` has ``gene``, ``cells``,
+            ``e_sqeuclidean``, ``e_euclidean`` and, per metric, ``p_*`` and
+            (genes only, BH over genes) ``q_*``; control guides are rows
+            named ``NTguide_<guide>``. ``summary`` has one row per metric:
+            genes, hits at q < 0.05, the held-out pseudo-genes' and control
+            guides' shares at p < 0.05.
+        """
+        null_cells = int(np.median(self.genes.map(len))) if n is None else int(n)
+        null, hold = self.null(null_cells) if self.mode != "permutation" else (None, None)
+        draw = np.random.default_rng(self.seed + 100 + int(subsample_seed))
+        permute = np.random.default_rng(self.seed + 3)
+        rows, pvalues = [], []
+        for name, index in list(self.genes.items()) + [
+                (f"NTguide_{g}", ix) for g, ix in self.control_guides.items()]:
+            control_row = name.startswith("NTguide_")
+            if n is not None and len(index) > n:
+                index = draw.choice(index, n, replace=False)
+            if not control_row and len(index) < self.min_cells:
+                continue
+            x = self._rows(index)
+            values = self.reference.energy(x)
+            rows.append((name, len(index), values[0], values[1]))
+            if self.mode == "permutation":
+                pvalues.append(self._permutation_p(x, values, permute))
+        table = pd.DataFrame(rows, columns=["gene", "cells", "e_sqeuclidean", "e_euclidean"])
+        is_gene = ~table["gene"].str.startswith("NTguide_")
+        summary = []
+        for j, metric in enumerate(ETEST_METRICS):
+            column = f"e_{metric}"
+            if self.mode != "permutation":
+                table[f"p_{column}"] = _upper_p(null[:, j], table[column].to_numpy())
+                held = 100 * float((_upper_p(null[:, j], hold[:, j]) < 0.05).mean())
+            else:
+                table[f"p_{column}"] = [p[j] for p in pvalues]
+                held = float("nan")
+            table.loc[is_gene, f"q_{column}"] = _bh(table.loc[is_gene, f"p_{column}"])
+            q = table.loc[is_gene, f"q_{column}"]
+            summary.append({
+                "n": "all" if n is None else str(n), "seed": int(subsample_seed), "distance": metric,
+                "genes": int(is_gene.sum()), "hits_q05": int((q < 0.05).sum()),
+                "hit_pct": 100 * float((q < 0.05).mean()),
+                "nt_pseudo_p05_pct": held,
+                "nt_guide_p05_pct": 100 * float((table.loc[~is_gene, f"p_{column}"] < 0.05).mean()),
+                "nt_guides": int((~is_gene).sum()),
+                "genes_p05_pct": 100 * float((table.loc[is_gene, f"p_{column}"] < 0.05).mean()),
+                "null_cells": null_cells})
+        return {"table": table, "summary": summary}
+
+
+def energy_distance_test(cells: np.ndarray, labels: Sequence, control: str = "nontargeting",
+                         n_ref: int = 2000, n_null: int = 1000, seed: int = 0, *,
+                         guides: Optional[Sequence] = None, n_cells: Optional[int] = None,
+                         subsample_seed: int = 0, **options) -> Dict[str, Any]:
+    """Per-gene E-distance and E-test against non-targeting cells.
+
+    :param cells: the per-cell aligned embedding, cells by dimensions.
+    :param labels: each cell's gene; control cells start with ``control``.
+    :param control: the control prefix.
+    :param n_ref: control cells in the fixed reference.
+    :param n_null: control pseudo-genes in the null.
+    :param seed: the base seed (see :class:`EnergyTest`).
+    :param guides: each cell's guide, for the control-guide rows; the
+        labels when None.
+    :param n_cells: the cells-per-gene cap; None keeps every cell.
+    :param subsample_seed: the subsampling seed.
+    :param options: the other :class:`EnergyTest` options.
+    :returns: :meth:`EnergyTest.score`.
+    """
+    test = EnergyTest(cells, labels, labels if guides is None else guides, control=control,
+                      n_ref=n_ref, n_null=n_null, seed=seed, **options)
+    return test.score(n_cells, subsample_seed)
+
+
+def subsample_power(cells: np.ndarray, labels: Sequence, ns: Sequence[Optional[int]],
+                    seeds: Sequence[int], scorer=None, **options) -> Dict[str, Any]:
+    """A cells-per-gene power curve.
+
+    :param cells: the per-cell aligned embedding.
+    :param labels: each cell's gene.
+    :param ns: the caps; None is every cell, scored once with the first seed.
+    :param seeds: the subsampling seeds.
+    :param scorer: ``scorer(n, seed)`` returning ``{"table", "summary"}``;
+        an :class:`EnergyTest` built from ``cells``, ``labels`` and
+        ``options`` when None.
+    :param options: :class:`EnergyTest` options (``guides`` included).
+    :returns: ``{"tables": {(n, seed): table}, "hits": frame}``, the hits
+        table holding every summary row in loop order.
+    """
+    if scorer is None:
+        guides = options.pop("guides", None)
+        test = EnergyTest(cells, labels, labels if guides is None else guides, **options)
+        scorer = test.score
+    tables, hits = {}, []
+    for n in ns:
+        for seed in (list(seeds)[:1] if n is None else list(seeds)):
+            result = scorer(n, seed)
+            tables[("all" if n is None else str(n), int(seed))] = result["table"]
+            hits.extend(result["summary"])
+    return {"tables": tables, "hits": pd.DataFrame(hits)}
+
+
+def _median_rows(embedding: np.ndarray, keys: np.ndarray) -> Tuple[List[str], np.ndarray, np.ndarray]:
+    """Per-key medians of the embedding rows, keys in sorted order."""
+    frame = pd.DataFrame({"key": keys})
+    names, medians, counts = [], [], []
+    for key, group in frame.groupby("key"):
+        medians.append(np.median(embedding[group.index.to_numpy(), :], axis=0))
+        names.append(key)
+        counts.append(len(group))
+    return names, np.vstack(medians), np.asarray(counts)
+
+
+def subsample_profiles(embedding: np.ndarray, labels: Sequence, guides: Sequence, n: int, seed: int,
+                       *, control: str = "nontargeting", min_cells: int = 10
+                       ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Gene and guide medians from at most ``n`` cells per targeting gene.
+
+    :param embedding: the per-cell aligned embedding.
+    :param labels: each cell's gene; control cells start with ``control``
+        and every control cell is kept.
+    :param guides: each cell's guide.
+    :param n: the cap.
+    :param seed: picks with ``default_rng(1000 * n + seed)``, genes in
+        sorted order.
+    :param control: the control prefix.
+    :param min_cells: gene rows with this many cells or fewer are dropped,
+        unless ``n`` is at most ``min_cells``, when rows of at least ``n``
+        cells are kept.
+    :returns: ``(genes, guides)``: ``gene, n_cells, PC_*`` (control guides as
+        ``<control>_<guide>`` rows, from the label) and ``guide, gene,
+        n_cells, PC_*`` (control guides named by the label's suffix, gene
+        ``control``), the medians in the embedding's precision.
+    """
+    labels = pd.Series(np.asarray(labels).astype(str))
+    guides = np.asarray(guides).astype(str)
+    nt = labels.str.startswith(control).to_numpy()
+    targeting = pd.Series(np.flatnonzero(~nt)).groupby(labels.to_numpy()[~nt]).apply(np.asarray)
+    rng = np.random.default_rng(1000 * int(n) + int(seed))
+    picks = [ix if len(ix) <= n else np.sort(rng.choice(ix, n, replace=False)) for ix in targeting]
+    index = np.sort(np.concatenate(picks + [np.flatnonzero(nt)]))
+    rows = np.asarray(embedding[index])
+    kept = labels.to_numpy()[index]
+    columns = [f"PC_{j}" for j in range(rows.shape[1])]
+    names, medians, counts = _median_rows(rows, kept)
+    genes = pd.DataFrame(medians, columns=columns)
+    genes.insert(0, "gene", names)
+    genes.insert(1, "n_cells", counts)
+    floor = int(n) if int(n) <= int(min_cells) else int(min_cells) + 1
+    genes = genes[genes["n_cells"] >= floor].reset_index(drop=True)
+    is_nt = nt[index]
+    guide = np.where(is_nt, pd.Series(kept).str.split("_", n=1).str[1].to_numpy(), guides[index]).astype(str)
+    gene = np.where(is_nt, control, kept)
+    names, medians, counts = _median_rows(rows, guide)
+    owner = pd.Series(gene).groupby(guide).first()
+    guide_table = pd.DataFrame(medians, columns=columns)
+    guide_table.insert(0, "guide", names)
+    guide_table.insert(1, "gene", owner.reindex(names).to_numpy())
+    guide_table.insert(2, "n_cells", counts)
+    return genes, guide_table
+
+
+def _etest_list(value: Any, default: Sequence[Any]) -> List[Any]:
+    """A list setting; null entries (or 'all') mean every cell."""
+    if value is None or (isinstance(value, str) and not value.strip()):
+        return list(default)
+    items = value.split(",") if isinstance(value, str) else list(value)
+    out = []
+    for item in items:
+        if item is None or str(item).strip().lower() in ("", "none", "null", "all"):
+            out.append(None)
+        else:
+            out.append(int(item))
+    return out
+
+
+def _etest_figure(hits: pd.DataFrame, path: str) -> str:
+    """Genes called and held-out false positives against the cells per gene.
+
+    :param hits: the power table.
+    :param path: the PNG written.
+    :returns: ``path``.
+    """
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    order = list(dict.fromkeys(hits["n"].astype(str)))
+    figure, ax = plt.subplots(figsize=(6.4, 3.6))
+    width = 0.8 / max(hits["distance"].nunique(), 1)
+    colours = {"euclidean": "#1f6f8b", "sqeuclidean": "#3a7ca5"}
+    rng = np.random.default_rng(0)
+    for k, (metric, d) in enumerate(hits.groupby("distance", sort=False)):
+        x = np.array([order.index(v) for v in d["n"].astype(str)]) + (k - 0.5) * width
+        means = d.groupby("n", sort=False)["hit_pct"].mean().reindex(order)
+        ax.bar(np.arange(len(order)) + (k - 0.5) * width, means.to_numpy(), width,
+               color=colours.get(metric, "#555555"), alpha=0.6, label=f"genes called, {metric}",
+               hatch="" if k == 0 else "..")
+        ax.scatter(x + rng.uniform(-width / 4, width / 4, len(x)), d["hit_pct"], s=10,
+                   color="#0b2545", alpha=0.6)
+    control = hits.groupby("n", sort=False)["nt_pseudo_p05_pct"].mean().reindex(order)
+    ax.plot(np.arange(len(order)), control.to_numpy(), color="#8d99ae", marker="s",
+            label="held-out control pseudo-genes, p < 0.05")
+    ax.set_xticks(np.arange(len(order)))
+    ax.set_xticklabels(order)
+    ax.set_xlabel("cells per gene (at most)")
+    ax.set_ylabel("% of genes")
+    ax.legend(fontsize=7, loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False)
+    figure.tight_layout()
+    figure.savefig(path, dpi=150, bbox_inches="tight")
+    plt.close(figure)
+    return path
+
+
+def etest_phase(settings: Mapping[str, Any], cells_folder: str, destination: str,
+                report=None) -> Dict[str, Any]:
+    """The ``etest`` phase of the OPS profile path (item 917).
+
+    :param settings: read for ``ops_etest_cells`` (a folder with
+        ``cells_E.npy``, the per-cell aligned embedding, and
+        ``cells_meta.parquet`` with ``gene_symbol_0`` and
+        ``cell_barcode_0``; ``cells_folder`` when empty),
+        ``ops_etest_metric`` (``'both'``, ``'euclidean'`` or
+        ``'sqeuclidean'``), ``ops_etest_reference_cells``,
+        ``ops_etest_null``, ``ops_etest_holdout``, ``ops_etest_mode``,
+        ``ops_etest_permutations``, ``ops_power_cells``,
+        ``ops_power_seeds``, ``ops_power_retrieval``,
+        ``ops_control_prefix`` and, for the retrieval curve,
+        ``ops_reference_dir`` and the ``ops_eval_*`` settings.
+    :param cells_folder: the profile run folder, where the profile phase
+        writes the embedding when ``ops_etest`` is on.
+    :param destination: ``dst_root``; outputs go to its
+        ``results/ops_etest``.
+    :param report: called with progress lines.
+    :returns: ``{"folder", "outputs"}``.
+    :raises ValueError: when the embedding is missing or a setting is bad.
+    """
+    import os
+
+    from .tabular import read_table, write_table
+
+    say = report or (lambda text: None)
+    source = str(settings.get("ops_etest_cells") or cells_folder)
+    matrix = os.path.join(source, "cells_E.npy")
+    meta_path = os.path.join(source, "cells_meta.parquet")
+    if not (os.path.isfile(matrix) and os.path.isfile(meta_path)):
+        raise ValueError(f"the etest phase needs cells_E.npy and cells_meta.parquet in {source}; run the "
+                         "profile phase with ops_etest on, or set ops_etest_cells")
+    metric = str(settings.get("ops_etest_metric") or "both").strip().lower()
+    if metric not in ("both",) + ETEST_METRICS:
+        raise ValueError(f"ops_etest_metric must be both, euclidean or sqeuclidean; got {metric!r}")
+    prefix = str(settings.get("ops_control_prefix") or "nontargeting")
+    meta = read_table(meta_path, canonicalise=False, report=None,
+                      columns=["gene_symbol_0", "cell_barcode_0"])
+    cells = np.load(matrix, mmap_mode="r")
+    labels = meta["gene_symbol_0"].astype(str).to_numpy()
+    guides = meta["cell_barcode_0"].to_numpy()
+    ns = _etest_list(settings.get("ops_power_cells"), ETEST_POWER_CELLS)
+    seeds = [int(s) for s in (settings.get("ops_power_seeds") or [0, 1, 2])]
+    say(f"etest: {len(labels)} cells, caps {ns}, seeds {seeds}")
+    test = EnergyTest(np.asarray(cells, np.float64), labels, guides, control=prefix,
+                      n_ref=int(settings.get("ops_etest_reference_cells") or 2000),
+                      n_null=int(settings.get("ops_etest_null") or 1000),
+                      n_holdout=int(settings.get("ops_etest_holdout") or 500),
+                      mode=str(settings.get("ops_etest_mode") or "empirical_null"),
+                      permutations=int(settings.get("ops_etest_permutations") or 1000))
+    folder = os.path.join(destination, "results", "ops_etest")
+    os.makedirs(folder, exist_ok=True)
+    outputs: Dict[str, str] = {}
+    dropped = [] if metric == "both" else [m for m in ETEST_METRICS if m != metric]
+
+    def scorer(n: Optional[int], seed: int) -> Dict[str, Any]:
+        """Score one cap and seed, write its table and log its hit rate."""
+        result = test.score(n, seed)
+        table = result["table"].drop(columns=[c for c in result["table"].columns
+                                              if any(c.endswith(f"e_{m}") for m in dropped)])
+        tag = "all" if n is None else str(n)
+        outputs[f"edist_n{tag}_s{seed}"] = write_table(
+            table, os.path.join(folder, f"edist_per_gene_n{tag}_s{seed}.csv.gz"), canonicalise=False)
+        summary = [row for row in result["summary"] if row["distance"] not in dropped]
+        say(f"etest n={tag} seed {seed}: " + ", ".join(
+            f"{row['distance']} {row['hits_q05']} of {row['genes']} genes" for row in summary))
+        return {"table": table, "summary": summary}
+
+    power = subsample_power(cells, labels, ns, seeds, scorer)
+    outputs["power_hits"] = write_table(power["hits"], os.path.join(folder, "power_hits.csv"),
+                                        canonicalise=False)
+    outputs["figure"] = _etest_figure(power["hits"], os.path.join(folder, "power_hits.png"))
+    if bool(settings.get("ops_power_retrieval", False)):
+        outputs.update(_power_retrieval(cells, labels, guides, [n for n in ns if n is not None], seeds,
+                                        settings, folder, prefix, say))
+    return {"folder": folder, "outputs": outputs}
+
+
+def _power_retrieval(cells, labels, guides, ns, seeds, settings, folder, prefix, say) -> Dict[str, str]:
+    """The retrieval power curve: subsampled profiles scored as the evaluate phase scores them.
+
+    :param cells: the per-cell embedding.
+    :param labels: each cell's gene.
+    :param guides: each cell's guide.
+    :param ns: the caps.
+    :param seeds: the subsampling seeds.
+    :param settings: read for ``ops_reference_dir``, ``ops_profile_min_cells``
+        and the ``ops_eval_*`` settings.
+    :param folder: the etest results folder.
+    :param prefix: the control prefix.
+    :param say: the progress callback.
+    :returns: the paths written.
+    """
+    import os
+
+    from scipy.stats import wilcoxon
+
+    from . import ops_reference
+    from .tabular import write_table
+
+    reference_dir = settings.get("ops_reference_dir")
+    if not reference_dir:
+        raise ValueError("ops_power_retrieval needs ops_reference_dir, the folder of the reference sets")
+    min_cells = int(settings.get("ops_profile_min_cells", 10))
+    outputs: Dict[str, str] = {}
+    summaries, per_gene = [], []
+    for n in ns:
+        for seed in seeds:
+            genes, guide_rows = subsample_profiles(cells, labels, guides, n, seed, control=prefix,
+                                                   min_cells=min_cells)
+            for name, table in (("genes", genes), ("guides", guide_rows)):
+                outputs[f"power_{name}_n{n}_s{seed}"] = write_table(
+                    table, os.path.join(folder, "power_profiles", f"{name}_n{n}_s{seed}.parquet"),
+                    canonicalise=False)
+            columns = [c for c in genes.columns if c.startswith("PC_")]
+            pcs = ops_reference.embed_gene_profiles(genes[columns].to_numpy(float))
+            fitness = (guide_rows.groupby("gene")["n_cells"].mean()).to_dict()
+            metrics, scored = ops_reference.evaluate_gene_profiles(
+                genes["gene"].to_numpy(), pcs, fitness, reference_dir, settings, arm=f"n{n}_s{seed}")
+            summaries.append(metrics.assign(n=n, seed=seed))
+            per_gene.append(scored.assign(n=n, seed=seed))
+            say(f"etest retrieval n={n} seed {seed}: {len(genes)} gene rows")
+    summary = pd.concat(summaries, ignore_index=True)
+    outputs["power_retrieval_summary"] = write_table(
+        summary, os.path.join(folder, "power_retrieval_summary.csv"), canonicalise=False)
+    per_gene = pd.concat(per_gene, ignore_index=True)
+    tests = []
+    if {"gene", "ap", "reference"} <= set(per_gene.columns) and len(ns):
+        top = max(ns)
+        for reference, d in per_gene.groupby("reference"):
+            wide = d.pivot_table(index="gene", columns=["n", "seed"], values="ap")
+            for n in ns:
+                for seed in seeds:
+                    if n == top or (n, seed) not in wide or (top, seed) not in wide:
+                        continue
+                    pair = wide[[(n, seed), (top, seed)]].dropna()
+                    if len(pair) < 2 or np.allclose(pair.iloc[:, 0], pair.iloc[:, 1]):
+                        continue
+                    tests.append({"reference": reference, "n": n, "seed": seed, "vs_n": top,
+                                  "genes": len(pair), "mAP": float(pair.iloc[:, 0].mean()),
+                                  "mAP_vs": float(pair.iloc[:, 1].mean()),
+                                  "p_wilcoxon": float(wilcoxon(pair.iloc[:, 0], pair.iloc[:, 1]).pvalue)})
+    outputs["power_retrieval_tests"] = write_table(
+        pd.DataFrame(tests, columns=["reference", "n", "seed", "vs_n", "genes", "mAP", "mAP_vs",
+                                     "p_wilcoxon"]),
+        os.path.join(folder, "power_retrieval_tests.csv"), canonicalise=False)
+    return outputs

@@ -1,0 +1,56 @@
+OPS PER-GENE E-DISTANCE AND E-TEST AGAINST NON-TARGETING CELLS, WITH A CELLS-PER-GENE POWER CURVE
+=================================================================================================
+
+Lifecycle: future
+Status: DONE 2026-11-10 (alpha, under ALPHA_FEATURES[917]) — with ops_etest the profile phase keeps the per-cell aligned (TVN) embedding (cells_E.npy, cells_meta.parquet); the profile-path phase etest (spacr-run ops, phases ["etest"]) measures each gene's E-distance to a fixed reference of 2,000 non-targeting cells (squared Euclidean and Euclidean; spacr.gene_measurement_compare.EnergyReference), tests it against 1,000 non-targeting pseudo-genes of the same cell count (empirical null, p = (1 + #null >= E) / 1,001, BH over genes) or by scPerturb's label permutation, scores 500 held-out pseudo-genes and every non-targeting guide as false-positive controls (EnergyTest), and repeats it with at most n cells per gene for n in 10, 25, 50, 100, 200, 500 and all, three seeds (subsample_power). ops_power_retrieval adds the retrieval power curve: at most n cells per targeting gene and every control cell, guide and gene medians (subsample_profiles), the evaluate phase's retrieval metrics and paired Wilcoxon tests against the largest cap. Writes <dst_root>/results/ops_etest/edist_per_gene_n<n>_s<seed>.csv.gz, power_hits.csv, power_hits.png and, with retrieval, power_profiles/, power_retrieval_summary.csv and power_retrieval_tests.csv. spacr/gene_measurement_compare.py, spacr/ops_tvn.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_etest_power_917.py.
+Requested: maintainer via paper session (BMC paper item spec ITEM_ops_etest_power_curve.md), 2026-11-10.
+Owner: lane M.
+Source: ops_stats_ideas analysis 4, a4_edist.py (pooled-cell null) and a4_power_profiles.py.
+Related: 905, 914, 879.
+
+SEEDS (base seed 0)
+reference default_rng(0); null default_rng(1 + n); held-out default_rng(2 + n);
+cap subsampling default_rng(100 + seed), genes in sorted order then the
+non-targeting guides; permutation mode default_rng(3); retrieval subsampling
+default_rng(1000 * n + seed).
+
+FAIR COMPARISON
+Every cap and seed uses the same cells, the same reference cells, the same
+null construction at the matched cell count and the same gene list; the
+held-out pseudo-genes and the non-targeting guides are scored by the same
+code as the genes. With all cells genes differ in cell count and the null
+is drawn at the median, which the hits table records (null_cells).
+
+NULLS
+The analysis found the spec's pooled-cell null too liberal: single
+non-targeting guides come out "significant" (guide / founder-cell
+structure), so its valid null is pseudo-genes of four non-targeting guides
+(a4_guide_null.py). Both are here: ops_etest_mode 'empirical_null' (the
+spec's, default) and 'guide_null' (guides outside the reference split in
+halves with default_rng(7); null default_rng(11 + n), held-out control
+default_rng(12 + n)). Report the guide_null numbers for gene calls; the
+pooled-cell null is kept for the comparison with the analysis.
+
+VALIDATION (Funk 2022 plate A classifier-interphase cells; Home, CPU, spacr env)
+Settings run of the etest phase (ops_etest_cells = the a1_recipe int_clf
+arm's cells_E.npy / cells_meta.parquet: 5,308,386 cells, 5,049 genes, 250
+non-targeting guides) against a4_edist.py's outputs, same environment
+(numpy 2.5.2): all 19 edist_per_gene_n<n>_s<seed>.csv.gz tables have the
+same rows, genes and cell counts, and every E, p and q value is identical
+(max abs difference 0, below the 1e-9 tolerance); power_hits.csv equals
+a4_power_hits.csv on every column except the reference's run-time column
+(seconds), which the phase does not write. 702 s on the loaded machine.
+Retrieval subsampling: subsample_profiles reproduces a4_power_profiles.py's
+X_bf_sub_n<n>_s<seed> gene and guide medians bit for bit (checked n10 s0,
+n100 s1, n500 s2: same rows, names and float32 values). The one difference
+is deliberate: at n = 10 the reference clipped the stored gene n_cells to
+11 so its downstream script would keep the rows; spaCR stores the true
+count and keeps rows of at least n cells when n <= ops_profile_min_cells.
+
+NOT REPRODUCED / REMAINS
+- The reference's retrieval curve scored the subsampled medians through
+  the strategies_xfield S02 + X04 rows (a1_rows.py) and retrieval.py on a
+  fixed gene list. The phase scores them with the evaluate phase's
+  embedding and metrics instead, so its mAP values are not the report's
+  numbers; reproducing those needs the S02 + X04 row builder (items 907,
+  887) chained on each draw.

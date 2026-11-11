@@ -1,0 +1,42 @@
+OPS YIELD TABLE WITH A READ STAGE, AND MATCH RATES IN TILE-OVERLAP STRIPS VS CORES
+==================================================================================
+
+Lifecycle: future
+Status: DONE 2026-11-10 (alpha, under ALPHA_FEATURES[915]) — with ops_report_read_stage the decode (item-873 rules) counts, per field, the owned nuclei whose territory holds a spot above the read threshold (spacr.ops_decode.nuclei_with_read; field_stats_<well>.csv gains nuclei_with_read) and the report phase adds sbs_nuclei, sbs_nuclei_with_read and its % to funnel_per_well.csv. With ops_report_overlap_zones the report phase writes overlap_match_by_zone.csv (unit copy / physical_cell / external_copy), overlap_match_by_edge_distance.csv (ops_report_edge_bin_px) and overlap_match_per_field.csv (fields with >= 50 units per zone); ops_report_external_cells (+ ops_report_external_max_px) adds overlap_external_paired.csv/.json, the paired comparison on the same physical cells with exact McNemar counts and the matching statement. spacr/ops_decode.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_overlap_report_915.py.
+Requested: maintainer via paper session (BMC paper item spec ITEM_ops_yield_overlap_report.md), 2026-11-10.
+Owner: lane M.
+Source: ops_stats_ideas analysis 2 scripts a2_yield.py, a2_overlap.py, a2_overlap_physical.py.
+Related: 852, 874, 875.
+
+DEFINITIONS
+- A copy (a segmented cell in one field) is in an OVERLAP STRIP when its
+  centroid, mapped through the field transforms (refined when refined == 1),
+  lies inside [0, H) x [0, W) of at least one other acquired field; else CORE.
+- A copy is matched when ops_merge links it. A physical cell (an
+  ops_cross_field component) is matched when any copy is; its zone is the
+  owner copy's zone.
+- Edge distance = min(row, H - 1 - row, col, W - 1 - col), binned by
+  floor(d / ops_report_edge_bin_px).
+- External cells are assigned per field to the nearest spaCR copy within
+  ops_report_external_max_px, trying nucleus and cell centroids and keeping
+  the one with the smaller median distance (as the reference script does).
+
+VALIDATION (Funk 2022 plate A well A1, Home, CPU)
+spaCR layout staged from the plate A run (ops_phenotype + ops_merge rows,
+the mask-pass parts as ops_maskpass_A1, the A1 ownership table as
+ops_cross_field_A1, Brieflow's own A1 cells as the external table) and the
+report phase run from settings. Every count identical to the reference
+tables: copies core 826,386 / 811,544 matched, strip 761,049 / 350,190;
+physical cells core 826,386 / 812,643, strip 350,582 / 347,933; Brieflow
+copies core 823,377 / 794,445, strip 668,089 / 362,766; paired physical
+cells core 808,673 (both 782,484, spaCR only 14,353, Brieflow only 987),
+strip 344,428 (335,204 / 7,517 / 253); all 15 edge bins and all 2,542
+per-field rows identical (percentages differ by 0.0). Read stage from the
+decode cache: 1,100,228 of 1,278,978 nuclei, identical.
+The Brieflow merge_deduplicated table the reference read had been removed
+from the Brieflow run; merge_final (same 1,157,211 rows) gave the flags.
+
+NOT DONE / REMAINS
+- The read stage was validated on the decode's field cache, not by a fresh
+  decode of A1 (GPU-heavy); the decode path writes the same count per field.
+- Wells A2-B3 and plates B-D not rerun.

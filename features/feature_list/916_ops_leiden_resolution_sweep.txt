@@ -1,0 +1,48 @@
+OPS LEIDEN RESOLUTION SWEEP OF GENE PROFILES WITH SHUFFLED-CLUSTER CONTROLS
+==========================================================================
+
+Lifecycle: future
+Status: DONE 2026-11-10 (alpha, under ALPHA_FEATURES[916]) — the profile-path phase cluster_sweep (spacr-run ops, phases ["cluster_sweep"], after profile) builds a PHATE diffusion graph and/or a symmetric cosine kNN graph of the gene rows (spacr.ops_clusters.gene_graph), runs Leiden RBConfiguration over a resolution grid for every seed (leiden_partitions), scores every partition with Brieflow's benchmark (CORUM / KEGG % clusters enriched head and may2025, STRING pair precision / recall / F1 / tp / fp / fn) plus CORUM REPORT-half complex recovery and partner-in-cluster share (score_partition, complex_metrics), each with shuffled-label controls drawn in loop order from default_rng(20261109) (score_partitions), and summarises over seeds with the resolution nearest ops_cluster_target_clusters flagged (sweep_summary). Writes <dst_root>/results/ops_clusters/sweep_rows.csv, sweep_summary.csv, assignments_<graph>_s<seed>.csv.gz and sweep.png. spacr/ops_clusters.py, spacr/ops_tvn.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_leiden_sweep_916.py.
+Requested: maintainer via paper session (BMC paper item spec ITEM_ops_leiden_resolution_sweep.md), 2026-11-10.
+Owner: lane M.
+Source: ops_stats_ideas analysis 3, a3_sweep.py and ops_lib.py (phate_graph, knn_graph, leiden, complex_metrics, score).
+Related: 855, 879, 881, 888.
+
+SETTINGS NAMES
+The spec's ops_cluster_resolutions is already item 855's setting (its own
+grid, default "5,10,...,22"); changing it would change 855's outputs, so the
+sweep's grids are ops_cluster_sweep_resolutions ({graph: grid}, the spec's
+grids when empty). ops_cluster_rows was added so a ready row table (the
+paper's X04 rows) can be swept as given; empty embeds the profile phase's
+gene rows as the evaluate phase does. ops_cluster_reference_dir falls back
+to ops_reference_dir. STRING_f1 is computed from the rounded precision and
+recall, as the reference reports it.
+
+FAIR COMPARISON
+Every graph, seed and resolution is scored on the same gene list
+(ops_cluster_gene_list), with the same benchmark files and scoring code;
+each real partition has its shuffled-label control at the same cluster
+sizes; the nearest-target flag compares arms at a matched cluster count.
+
+VALIDATION (Funk 2022 plate A X04 rows, OLD flat-field map; Home, CPU)
+Settings run in the reference environment (venv_bench: phate 2.0.0,
+leidenalg 0.12.0, igraph 1.0.0, scikit-learn 1.9.1, numpy 2.5.4) on
+X04_jacks_blend.npz rows (5,299 rows, 69 dims; written to a parquet table
+with the same float32 values) and the 5,031-gene list. See the RESULT
+section for the comparison with a3_sweep_rows.csv / a3_sweep_summary.csv.
+
+RESULT
+sweep_rows.csv equals a3_sweep_rows.csv on all 174 rows (phate 15
+resolutions and knn12 14 resolutions, 3 seeds, real and shuffled): same
+columns, every integer equal and every float identical (max abs difference
+0.0), so every partition gives the same cluster count and scores.
+sweep_summary.csv equals a3_sweep_summary.csv (max abs difference 0.0) with
+the same nearest_227 flags (phate r 12, knn12 r 16). 1,904 s on the loaded
+machine. The phase also ran in the spacr env's tests with stand-in
+modules; the spacr env has no phate / leidenalg / igraph, so a real run
+needs the clustering extra installed (venv_bench has the pinned versions).
+
+NOT DONE
+- The published-comparator rows (Brieflow / Funk published clusters,
+  a3_sweep_rows_with_published.csv) are not part of the phase; they read
+  Brieflow's supplementary workbook.

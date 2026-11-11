@@ -69,9 +69,10 @@ def test_the_nine_reviewed_cards_stay_reviewed():
     # the 101-crop V8 test, thresholds fixed on validation first.
     # 2026-11-10: toxoplasma_plaque_v9 (V8 epoch 100, candidate) joined with a
     # binding to checkpoint 8f58d374... and six matched-stock rows on the same
-    # 101-crop test.
+    # 101-crop test. The same day v9 became the default and the epoch-50
+    # interim was renamed toxoplasma_plaque_v8 (toxoplasma_plaque_v7 is an alias).
     assert reviewed == {f"toxoplasma_pv_v{i}" for i in range(1, 6)} | {
-        f"toxoplasma_plaque_v{i}" for i in range(1, 8)} | {"toxoplasma_plaque_v9"}
+        f"toxoplasma_plaque_v{i}" for i in (1, 2, 3, 4, 5, 6, 8, 9)}
 
 
 def test_an_unevaluated_spacr_model_says_so_and_a_stock_model_does_not():

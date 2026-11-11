@@ -1,11 +1,11 @@
 {
   "schema": "spacr-model-card-v2",
   "repo_id": "einarolafsson/toxoplasma-plaque-segmentation-cpsam-v8-e50",
-  "key": "toxoplasma_plaque_v7",
+  "key": "toxoplasma_plaque_v8",
   "display_name": "Toxoplasma Plaque V8 epoch 50 (interim)",
   "family": "plaque",
   "round": "complete coverage + D4, interim epoch 50",
-  "status": "candidate",
+  "status": "earlier version",
   "date": "2026-11-03",
   "pages": [
     "cards/page1.png",
@@ -54,7 +54,7 @@
         "stock": 0.3922989852489361
       }
     ],
-    "this_model": "toxoplasma_plaque_v7",
+    "this_model": "toxoplasma_plaque_v8",
     "stock_model": "cpsam_v2",
     "stock_note": "Vanilla weights, same well preprocessing, own validation-selected thresholds.",
     "counts": {
@@ -562,9 +562,9 @@
     "segments": "Toxoplasma plaque instances.",
     "version_line": "One plain native Cellpose-SAM model, vanilla cpsam_v2 initialization.",
     "trained_on": "All 810 training crops with complete grid coverage and D4 augmentation; 102 validation crops; 101 reporting-only test crops.",
-    "status": "Interim candidate at epoch 50; the final V8 is still training. No claim of detecting every plaque.",
+    "status": "Interim epoch-50 checkpoint of the V8 run; its epoch-100 checkpoint, toxoplasma_plaque_v9, is the default plaque model since 2026-11-10. No claim of detecting every plaque.",
     "leak_note": "Interim epoch-50 release while training continues to >=100 epochs. The 101 test crops were reported previously for an older V8 attempt; they are not a fresh external or prospective test.",
-    "load_line": "Select toxoplasma_plaque_v7 in spaCR with declared well preprocessing.",
+    "load_line": "Select toxoplasma_plaque_v8 (listed as toxoplasma_plaque_v7 until 2026-11-10; the old key still works) in spaCR with declared well preprocessing.",
     "links": {
       "model": "https://huggingface.co/einarolafsson/toxoplasma-plaque-segmentation-cpsam-v8-e50",
       "stock": "https://huggingface.co/mouseland/cellpose-sam"

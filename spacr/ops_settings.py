@@ -73,6 +73,30 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_flatfield_maps": None,
     "ops_flatfield_fields": 204,
     "ops_flatfield_field_list": None,
+    "ops_flatfield_nuclear_channel": None,
+    "ops_flatfield_nuclei": None,
+    "ops_flatfield_dark": None,
+    "ops_flatfield_nuclear_maps": None,
+    "ops_flatfield_block_px": 16,
+    "ops_flatfield_fit": "local_quadratic_log",
+    "ops_flatfield_sigma_px": 32.0,
+    "ops_flatfield_ridge": None,
+    "ops_flatfield_floor": 0.10,
+    "ops_flatfield_centre_cells": 18,
+    "ops_flatfield_lookup": "block_centre",
+    "ops_flatfield_map_grid": "block_centre",
+    "ops_flatfield_centre_offset": 8.0,
+    "ops_flatfield_field_px": None,
+    "ops_flatfield_holdout_fields": None,
+    "ops_flatfield_holdout_n": 24,
+    "ops_flatfield_seed": 0,
+    "ops_flatfield_holdout_images": None,
+    "ops_flatfield_holdout_masks": None,
+    "ops_flatfield_compare_maps": None,
+    "ops_flatfield_radial_edges": [0, 500, 1000, 1400, 1600, 1800, 1900, 2000, 2100],
+    "ops_flatfield_bootstrap": 2000,
+    "ops_flatfield_bootstrap_seed": 20261109,
+    "ops_flatfield_min_bin_cells": 100,
     "ops_ph_funk_features": False,
     "ops_ph_zernike": False,
     "ops_drop_failed_fields": False,
@@ -194,7 +218,21 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_profile_recipe": None,
     "ops_profile_min_cells": 10,
     "ops_profile_active_filter": None,
+    "ops_profile_cell_state": None,
+    "ops_profile_gene_universe": None,
+    "ops_mitotic_index_test": False,
+    "ops_mitotic_index_min_cells": 50,
+    "ops_mitotic_index_reference": None,
     "ops_reference_dir": None,
+    "ops_scoring_inputs": None,
+    "ops_scoring_genes": None,
+    "ops_scoring_null_size": 10000,
+    "ops_scoring_min_complex": 3,
+    "ops_scoring_references": ["CORUM@REPORT", "STRING>=0.7@REPORT"],
+    "ops_scoring_cluster_jitter": 1e-3,
+    "ops_scoring_cluster_seeds": [0, 1, 2],
+    "ops_scoring_workers": 4,
+    "ops_scoring_figures": True,
     "ops_eval_references": ["CORUM", "STRING>=0.7", "STRING>=0.4", "KEGG", "BioGRID"],
     "ops_eval_split": "all",
     "ops_eval_null_size": 5000,
@@ -228,6 +266,31 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_eval_mitocarta": None,
     "ops_eval_external_modules": None,
     "ops_eval_arms": None,
+    "ops_report_read_stage": False,
+    "ops_report_overlap_zones": False,
+    "ops_report_edge_bin_px": 100,
+    "ops_report_external_cells": None,
+    "ops_report_external_max_px": 8.0,
+    "ops_cluster_rows": None,
+    "ops_cluster_graph": ['phate', 'knn'],
+    "ops_cluster_knn": 12,
+    "ops_cluster_sweep_resolutions": None,
+    "ops_cluster_seeds": [42, 1, 2],
+    "ops_cluster_target_clusters": 227,
+    "ops_cluster_shuffles": 1,
+    "ops_cluster_reference_dir": None,
+    "ops_cluster_gene_list": None,
+    "ops_etest": False,
+    "ops_etest_cells": None,
+    "ops_etest_metric": 'both',
+    "ops_etest_reference_cells": 2000,
+    "ops_etest_null": 1000,
+    "ops_etest_holdout": 500,
+    "ops_etest_mode": 'empirical_null',
+    "ops_etest_permutations": 1000,
+    "ops_power_cells": [10, 25, 50, 100, 200, 500, None],
+    "ops_power_seeds": [0, 1, 2],
+    "ops_power_retrieval": False,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -284,6 +347,30 @@ OPS_TYPES: Dict[str, object] = {
     "ops_flatfield_maps": (str, type(None)),
     "ops_flatfield_fields": int,
     "ops_flatfield_field_list": (str, type(None)),
+    "ops_flatfield_nuclear_channel": (str, type(None)),
+    "ops_flatfield_nuclei": (str, dict, type(None)),
+    "ops_flatfield_dark": (int, float, dict, type(None)),
+    "ops_flatfield_nuclear_maps": (str, type(None)),
+    "ops_flatfield_block_px": int,
+    "ops_flatfield_fit": str,
+    "ops_flatfield_sigma_px": float,
+    "ops_flatfield_ridge": (float, type(None)),
+    "ops_flatfield_floor": float,
+    "ops_flatfield_centre_cells": int,
+    "ops_flatfield_lookup": str,
+    "ops_flatfield_map_grid": str,
+    "ops_flatfield_centre_offset": float,
+    "ops_flatfield_field_px": (int, type(None)),
+    "ops_flatfield_holdout_fields": (str, list, dict, type(None)),
+    "ops_flatfield_holdout_n": int,
+    "ops_flatfield_seed": int,
+    "ops_flatfield_holdout_images": (str, dict, type(None)),
+    "ops_flatfield_holdout_masks": (str, dict, type(None)),
+    "ops_flatfield_compare_maps": (dict, type(None)),
+    "ops_flatfield_radial_edges": list,
+    "ops_flatfield_bootstrap": int,
+    "ops_flatfield_bootstrap_seed": int,
+    "ops_flatfield_min_bin_cells": int,
     "ops_ph_funk_features": bool,
     "ops_ph_zernike": bool,
     "ops_drop_failed_fields": bool,
@@ -405,7 +492,21 @@ OPS_TYPES: Dict[str, object] = {
     "ops_profile_recipe": (dict, type(None)),
     "ops_profile_min_cells": int,
     "ops_profile_active_filter": (dict, type(None)),
+    "ops_profile_cell_state": (str, list, type(None)),
+    "ops_profile_gene_universe": (str, list, type(None)),
+    "ops_mitotic_index_test": bool,
+    "ops_mitotic_index_min_cells": int,
+    "ops_mitotic_index_reference": (str, type(None)),
     "ops_reference_dir": (str, list, type(None)),
+    "ops_scoring_inputs": (dict, type(None)),
+    "ops_scoring_genes": (str, list, type(None)),
+    "ops_scoring_null_size": int,
+    "ops_scoring_min_complex": int,
+    "ops_scoring_references": list,
+    "ops_scoring_cluster_jitter": float,
+    "ops_scoring_cluster_seeds": list,
+    "ops_scoring_workers": int,
+    "ops_scoring_figures": bool,
     "ops_eval_references": (list, str),
     "ops_eval_split": str,
     "ops_eval_null_size": int,
@@ -439,6 +540,31 @@ OPS_TYPES: Dict[str, object] = {
     "ops_eval_mitocarta": (str, type(None)),
     "ops_eval_external_modules": (str, type(None)),
     "ops_eval_arms": (str, list, type(None)),
+    "ops_report_read_stage": bool,
+    "ops_report_overlap_zones": bool,
+    "ops_report_edge_bin_px": (int, float),
+    "ops_report_external_cells": (str, type(None)),
+    "ops_report_external_max_px": (float, int),
+    "ops_cluster_rows": (str, type(None)),
+    "ops_cluster_graph": (list, str),
+    "ops_cluster_knn": int,
+    "ops_cluster_sweep_resolutions": (dict, type(None)),
+    "ops_cluster_seeds": (list, str),
+    "ops_cluster_target_clusters": int,
+    "ops_cluster_shuffles": int,
+    "ops_cluster_reference_dir": (str, list, type(None)),
+    "ops_cluster_gene_list": (str, type(None)),
+    "ops_etest": bool,
+    "ops_etest_cells": (str, type(None)),
+    "ops_etest_metric": str,
+    "ops_etest_reference_cells": int,
+    "ops_etest_null": int,
+    "ops_etest_holdout": int,
+    "ops_etest_mode": str,
+    "ops_etest_permutations": int,
+    "ops_power_cells": (list, str),
+    "ops_power_seeds": (list, str),
+    "ops_power_retrieval": bool,
 }
 
 #: Which panel section each setting appears under.
@@ -514,6 +640,17 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ph_sites", "ops_ph_texture", "ops_ph_zernike", "ops_ph_funk_features",
         "ops_flatfield", "ops_flatfield_maps", "ops_flatfield_fields",
         "ops_flatfield_field_list", "ops_merge_threshold", "ops_ownership",
+        "ops_flatfield_nuclear_channel", "ops_flatfield_nuclei",
+        "ops_flatfield_dark", "ops_flatfield_nuclear_maps",
+        "ops_flatfield_block_px", "ops_flatfield_fit", "ops_flatfield_sigma_px",
+        "ops_flatfield_ridge", "ops_flatfield_floor", "ops_flatfield_centre_cells",
+        "ops_flatfield_lookup", "ops_flatfield_map_grid",
+        "ops_flatfield_centre_offset", "ops_flatfield_field_px",
+        "ops_flatfield_holdout_fields", "ops_flatfield_holdout_n",
+        "ops_flatfield_seed", "ops_flatfield_holdout_images",
+        "ops_flatfield_holdout_masks", "ops_flatfield_compare_maps",
+        "ops_flatfield_radial_edges", "ops_flatfield_bootstrap",
+        "ops_flatfield_bootstrap_seed", "ops_flatfield_min_bin_cells",
         "ops_drop_failed_fields", "ops_drop_nonfinite_rows",
         "ops_design", "ops_control_prefix", "ops_bootstrap",
         "ops_pvalue_null", "ops_test_features", "ops_mitotic_dna_z",
@@ -568,7 +705,14 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_profile_cells", "ops_profile_wells",
         "ops_profile_run", "ops_profile_recipe",
         "ops_profile_min_cells", "ops_profile_active_filter",
+        "ops_profile_cell_state", "ops_profile_gene_universe",
+        "ops_mitotic_index_test", "ops_mitotic_index_min_cells",
+        "ops_mitotic_index_reference",
         "ops_reference_dir",
+        "ops_scoring_inputs", "ops_scoring_genes", "ops_scoring_null_size",
+        "ops_scoring_min_complex", "ops_scoring_references",
+        "ops_scoring_cluster_jitter", "ops_scoring_cluster_seeds",
+        "ops_scoring_workers", "ops_scoring_figures",
         "ops_eval_references", "ops_eval_split", "ops_eval_null_size",
         "ops_eval_heldout_folds", "ops_eval_decoys",
         "ops_eval_time_split", "ops_eval_covariates",
@@ -583,6 +727,31 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_modules_runs", "ops_modules_precomputed_embedding",
         "ops_modules_profiles", "ops_modules_driver_profiles",
         "ops_eval_mitocarta", "ops_eval_external_modules", "ops_eval_arms",
+        "ops_report_read_stage",
+        "ops_report_overlap_zones",
+        "ops_report_edge_bin_px",
+        "ops_report_external_cells",
+        "ops_report_external_max_px",
+        "ops_cluster_rows",
+        "ops_cluster_graph",
+        "ops_cluster_knn",
+        "ops_cluster_sweep_resolutions",
+        "ops_cluster_seeds",
+        "ops_cluster_target_clusters",
+        "ops_cluster_shuffles",
+        "ops_cluster_reference_dir",
+        "ops_cluster_gene_list",
+        "ops_etest",
+        "ops_etest_cells",
+        "ops_etest_metric",
+        "ops_etest_reference_cells",
+        "ops_etest_null",
+        "ops_etest_holdout",
+        "ops_etest_mode",
+        "ops_etest_permutations",
+        "ops_power_cells",
+        "ops_power_seeds",
+        "ops_power_retrieval",
     ],
 }
 
@@ -819,6 +988,174 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(phase ph_masks), in about a minute per plate. 'exact' divides "
         "every pixel before measuring, so it needs the raw images again. "
         "Default 'none'. Alpha.",
+    "ops_profile_cell_state":
+        "(str, list or None) - Which cells the profile phase profiles. "
+        "'interphase_rule' drops the cells the stored DNA rule calls mitotic, "
+        "as before. 'interphase_classifier' and 'mitotic_classifier' use the "
+        "trained classifier of ops_mitotic_model; 'all' keeps every cell. A "
+        "list runs the whole recipe once per state, writing "
+        "genes_<state>.parquet, guides_<state>.parquet and metrics per state. "
+        "Default None ('interphase_rule'). Alpha.",
+    "ops_profile_gene_universe":
+        "(str, list or None) - Genes kept, in this order, before the profile "
+        "weighting: a table with a gene column, a JSON list or a list. "
+        "Control rows are always kept. Default None (every gene). Alpha.",
+    "ops_mitotic_index_test":
+        "(bool) - In the profile phase, call every genotyped cell with "
+        "ops_mitotic_model and test each gene's share of mitotic cells "
+        "against the pooled non-targeting cells (exact binomial, BH). "
+        "Non-targeting guides are scored the same way as the control. "
+        "Default False. Alpha.",
+    "ops_mitotic_index_min_cells":
+        "(int) - Genes with fewer cells are left out of the agreement with "
+        "the published mitotic index. Default 50. Alpha.",
+    "ops_mitotic_index_reference":
+        "(str or None) - A published gene table with per-guide mitotic and "
+        "interphase cell counts (sgRNA_<k>_mitotic_cells), such as Funk et "
+        "al. 2022's; its per-gene index is compared by Spearman rho with a "
+        "200-shuffle control. Default None. Alpha.",
+    "ops_scoring_inputs":
+        "(dict or None) - The analyses phase score compares, as {name: "
+        "{'genes': gene profile table, 'guides': guide profile table, "
+        "'clusters': gene-to-cluster table}}; give what each analysis has. "
+        "Activity needs guides; consistency and EFAAR need a profile per "
+        "gene or clusters. What cannot be scored is listed in scorable.csv. "
+        "Default None. Alpha.",
+    "ops_scoring_genes":
+        "(str, list or None) - The genes every analysis is scored on, as a "
+        "table with a gene column or a list. Empty takes the genes all "
+        "inputs share. Default None. Alpha.",
+    "ops_scoring_null_size":
+        "(int) - Permutations of the copairs null. Smaller is faster but "
+        "cannot reach small p-values (the smallest is 1/(n+1)). Default "
+        "10000. Alpha.",
+    "ops_scoring_min_complex":
+        "(int) - REPORT-half CORUM complexes with fewer shared genes are not "
+        "scored. Higher keeps only large complexes, which are easier to "
+        "retrieve but fewer. Default 3. Alpha.",
+    "ops_scoring_references":
+        "(list) - Partner references of the per-gene retrieval mAP; each "
+        "adds its own rows to every table. Use the REPORT halves so no "
+        "tuning was done on the scored pairs. Default "
+        "['CORUM@REPORT', 'STRING>=0.7@REPORT']. Alpha.",
+    "ops_scoring_cluster_jitter":
+        "(float) - Noise added to one-hot cluster rows for copairs so ties "
+        "are broken at random; scores are averaged over the cluster seeds. "
+        "EFAAR uses exact one-hot rows. Default 0.001. Alpha.",
+    "ops_scoring_cluster_seeds":
+        "(list) - Seeds of the cluster-row noise; the cluster scores are "
+        "averaged over them, so more seeds give steadier cluster mAP at more "
+        "run time. Default [0, 1, 2]. Alpha.",
+    "ops_scoring_workers":
+        "(int) - copairs worker threads. More is faster and uses more "
+        "memory; the scores do not change. Default 4. Alpha.",
+    "ops_scoring_figures":
+        "(bool) - Draw the profile and cluster figures (bars with jittered "
+        "points and Holm-corrected tests). False writes the tables only. "
+        "Default True. Alpha.",
+    "ops_flatfield_nuclear_channel":
+        "(str or None) - The DNA channel the nuclear-median flat-field map "
+        "corrects, as named in ops_ph_channels. Phases flat_nuclear and "
+        "flat_validate need it. Default None. Alpha.",
+    "ops_flatfield_nuclei":
+        "(str, dict or None) - A per-nucleus table (well, site, label, "
+        "nucleus_cy, nucleus_cx and the nuclear mean of the channel, no flat "
+        "applied), a folder of them, or {plate: path}. Empty joins the run's "
+        "own mask-pass and phenotype cell tables in dst_root. Default None. "
+        "Alpha.",
+    "ops_flatfield_dark":
+        "(number, dict or None) - The camera offset b of the DNA channel, or "
+        "{plate: offset}. It is subtracted before the fit and added back on "
+        "correction. Empty takes the offset recorded in the "
+        "ops_flatfield_maps folder; with neither the build refuses rather "
+        "than use 0. Default None. Alpha.",
+    "ops_flatfield_nuclear_maps":
+        "(str or None) - Where the nuclear maps are written, one new folder "
+        "per plate holding the map, its JSON record and the plate's other "
+        "channel maps copied unchanged. Empty uses "
+        "<dst_root>/flatfield_nuclear. Default None. Alpha.",
+    "ops_flatfield_block_px":
+        "(int) - Field pixels per map cell. Each cell takes the median of "
+        "the nuclei whose centroid falls in it. Default 16. Alpha.",
+    "ops_flatfield_fit":
+        "(str) - How the cell medians become a smooth map. "
+        "'local_quadratic_log' fits a weighted quadratic to the log of "
+        "(median - offset) around every cell, which follows a steep corner "
+        "fall. 'gaussian' and 'local_linear' smooth more and leave the "
+        "corners too dim; they are kept for comparison. Default "
+        "'local_quadratic_log'. Alpha.",
+    "ops_flatfield_sigma_px":
+        "(float) - Width, in field pixels, of the Gaussian weight of the "
+        "local fit. Wider is smoother but cannot follow the corner fall. "
+        "Default 32 (2 map cells). Alpha.",
+    "ops_flatfield_ridge":
+        "(float or None) - Added to each local fit's equations so empty "
+        "corners stay solvable. Empty takes 1e-6 for the quadratic and 1e-9 "
+        "for the plane. Default None. Alpha.",
+    "ops_flatfield_floor":
+        "(float) - The smallest map value, so no pixel is multiplied by more "
+        "than 1/floor. Default 0.10. Alpha.",
+    "ops_flatfield_centre_cells":
+        "(int) - The edge, in map cells, of the central square the map is "
+        "scaled to 1 on. Default 18. Alpha.",
+    "ops_flatfield_lookup":
+        "(str) - How the map is read at field pixels, recorded with it. "
+        "'block_centre' puts each map cell at the centre of the block it "
+        "was measured on. 'zoom_endpoints' stretches the map to the field "
+        "edges, which places corner cells up to 8 px too far out; maps "
+        "built before this option are read that way. Default "
+        "'block_centre'. Alpha.",
+    "ops_flatfield_map_grid":
+        "(str) - Where the fit is evaluated. 'block_centre' at each cell's "
+        "centre. 'lookup' at the positions the zoom lookup reads, which "
+        "rebuilds the reference maps byte for byte. Default "
+        "'block_centre'. Alpha.",
+    "ops_flatfield_centre_offset":
+        "(float) - Field-pixel offset of a block's centre from its first "
+        "pixel: 8 is the convention the reference maps use, 7.5 the middle "
+        "of a 16-pixel block. Default 8. Alpha.",
+    "ops_flatfield_field_px":
+        "(int or None) - Field size in pixels along each axis. Empty takes "
+        "the largest nucleus centroid rounded up to whole blocks. Default "
+        "None. Alpha.",
+    "ops_flatfield_holdout_fields":
+        "(str, list, dict or None) - Fields left out of the map and used to "
+        "check it, as well:site, or {plate: list}. Empty draws "
+        "ops_flatfield_holdout_n fields, the same number per well. Default "
+        "None. Alpha.",
+    "ops_flatfield_holdout_n":
+        "(int) - How many fields to hold out when none are listed, split "
+        "evenly over the wells. More gives tighter radial intervals and "
+        "leaves fewer nuclei to build from. Default 24. Alpha.",
+    "ops_flatfield_seed":
+        "(int) - Seed of the held-out field draw; another seed holds out "
+        "other fields and so builds a slightly different map. Default 0. "
+        "Alpha.",
+    "ops_flatfield_holdout_images":
+        "(str, dict or None) - Folder, or {plate: folder}, of the held-out "
+        "fields' raw images of the DNA channel, one *<well>_<site>.npy each, "
+        "for the exact re-measure of phase flat_validate. Default None. "
+        "Alpha.",
+    "ops_flatfield_holdout_masks":
+        "(str, dict or None) - The run folder holding "
+        "<well>/phenotype_masks/site-<n>.npz of the held-out fields. Empty "
+        "uses dst_root. Default None. Alpha.",
+    "ops_flatfield_compare_maps":
+        "(dict or None) - More maps to check beside the new and the earlier "
+        "one, as {name: path to .npy}, read by zoom. Default None. Alpha.",
+    "ops_flatfield_radial_edges":
+        "(list) - Ring edges, in pixels from the field centre, of the "
+        "held-out radial table. Default [0, 500, 1000, 1400, 1600, 1800, "
+        "1900, 2000, 2100]. Alpha.",
+    "ops_flatfield_bootstrap":
+        "(int) - Bootstraps over held-out fields for the 95 % intervals of "
+        "the radial table. 0 skips them. Default 2000. Alpha.",
+    "ops_flatfield_bootstrap_seed":
+        "(int) - Seed of the field bootstraps of the radial intervals; it "
+        "moves the interval ends, not the medians. Default 20261109. Alpha.",
+    "ops_flatfield_min_bin_cells":
+        "(int) - Rings with fewer held-out nuclei are left out of the "
+        "largest-deviation score. Default 100. Alpha.",
     "ops_flatfield_maps":
         "(str or None) - The folder holding the plate's flat-field maps, "
         "flat_info.json and one flat_*_<channel>.npy per channel. Empty "
@@ -1079,6 +1416,126 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(str or None) - A table with gene and cells_per_guide columns, the "
         "fitness that decoy partners are matched on; empty takes cells per "
         "guide from the run's own guide table. Default None. Alpha.",
+    "ops_report_read_stage":
+        "(bool) - Add the read stage to the report phase's yield funnel: "
+        "sbs_nuclei, sbs_nuclei_with_read and its %, the owned sequencing "
+        "nuclei whose territory holds at least one spot above the read "
+        "threshold. The decode phase must have run with this on, so its field "
+        "stats count them. Default False. Alpha.",
+    "ops_report_overlap_zones":
+        "(bool) - The report phase writes phenotype-genotype match rates in "
+        "tile-overlap strips and cores: a cell is in a strip when its "
+        "centroid maps inside another acquired field. Per segmented copy and, "
+        "after the ph_ownership phase, per physical cell (matched when any "
+        "copy is linked, zoned by its owner copy); also by distance to the "
+        "field edge and per field. Default False. Alpha.",
+    "ops_report_edge_bin_px":
+        "(int) - The width in pixels of the field-edge distance bins of the "
+        "overlap report (overlap_match_by_edge_distance.csv). Needs "
+        "ops_report_overlap_zones. Default 100. Alpha.",
+    "ops_report_external_cells":
+        "(str or None) - Another pipeline's phenotype cells (field, label, y, "
+        "x, matched; optional well) to compare on the same physical cells: "
+        "each is assigned to the nearest spaCR copy in its field, and both "
+        "pipelines' match rates per zone are reported with exact McNemar "
+        "counts. Needs ops_report_overlap_zones and the ph_ownership table. "
+        "Default None. Alpha.",
+    "ops_report_external_max_px":
+        "(float) - The largest distance in pixels between an external cell's "
+        "centroid and the spaCR centroid it is assigned to; farther cells "
+        "stay unassigned. Default 8.0. Alpha.",
+    "ops_cluster_rows":
+        "(str or None) - A table of ready gene-profile rows (gene plus "
+        "numeric columns, used as given) for the cluster_sweep phase; empty "
+        "clusters the profile phase's gene rows, embedded as the evaluate "
+        "phase embeds them. Default None. Alpha.",
+    "ops_cluster_graph":
+        "(list) - The graphs the cluster_sweep phase clusters: 'phate', "
+        "PHATE's symmetrised diffusion operator (10 cosine neighbours), "
+        "and/or 'knn', a symmetric cosine k-nearest-neighbour graph. Default "
+        "['phate', 'knn']. Alpha.",
+    "ops_cluster_knn":
+        "(int) - How many nearest neighbours each gene is linked to in the "
+        "'knn' graph of the cluster_sweep phase. More neighbours give a "
+        "denser graph and fewer, larger clusters at the same resolution; "
+        "fewer split the genes into more, smaller clusters. Default 12. "
+        "Alpha.",
+    "ops_cluster_sweep_resolutions":
+        "(dict or None) - Leiden resolutions per graph for the cluster_sweep "
+        "phase, such as {'phate': [5, 12], 'knn': [1, 2]}; a graph not named "
+        "takes its full grid (phate 1-40, knn 0.25-16). More resolutions draw "
+        "more of the trade-off curve and take longer. Default None. Alpha.",
+    "ops_cluster_seeds":
+        "(list) - The PHATE and Leiden seeds of the cluster_sweep phase; the "
+        "summary gives the mean, minimum and maximum over them. Default [42, "
+        "1, 2]. Alpha.",
+    "ops_cluster_target_clusters":
+        "(int) - The cluster count the sweep summary flags: the resolution "
+        "whose mean cluster count is nearest it, so a comparison is made at a "
+        "matched number of clusters. Default 227 (Brieflow's interphase "
+        "clusters). Alpha.",
+    "ops_cluster_shuffles":
+        "(int) - Shuffled-label controls per partition in the cluster_sweep "
+        "phase: the scored genes' cluster labels permuted with cluster sizes "
+        "kept. Default 1. Alpha.",
+    "ops_cluster_reference_dir":
+        "(str or None) - The folder holding Brieflow's CORUM, KEGG and STRING "
+        "benchmark tables that the cluster_sweep phase scores against; empty "
+        "uses ops_reference_dir. Default None. Alpha.",
+    "ops_cluster_gene_list":
+        "(str or None) - A table with a gene column: the genes the "
+        "cluster_sweep phase scores, so arms are compared on the same genes. "
+        "Every row is still clustered. Empty scores every targeting row. "
+        "Default None. Alpha.",
+    "ops_etest":
+        "(bool) - Keep the per-cell aligned embedding when the profile phase "
+        "runs (cells_E.npy and cells_meta.parquet in its folder), which the "
+        "etest phase tests. Default False. Alpha.",
+    "ops_etest_cells":
+        "(str or None) - A folder holding cells_E.npy and cells_meta.parquet "
+        "(gene_symbol_0, cell_barcode_0) for the etest phase; empty reads the "
+        "profile run's own. Default None. Alpha.",
+    "ops_etest_metric":
+        "(str) - The E-distance the etest phase writes: 'euclidean' (energy "
+        "distance), 'sqeuclidean' (scPerturb's default) or 'both'. Default "
+        "'both'. Alpha.",
+    "ops_etest_reference_cells":
+        "(int) - The non-targeting cells drawn once as the reference every "
+        "gene's E-distance is measured against. Default 2000. Alpha.",
+    "ops_etest_null":
+        "(int) - The non-targeting pseudo-genes, drawn from cells outside the "
+        "reference at a gene's cell count, whose E-distances form the "
+        "empirical null of the E-test. Default 1000. Alpha.",
+    "ops_etest_holdout":
+        "(int) - Further non-targeting pseudo-genes scored against the null: "
+        "their share at p < 0.05 is the false-positive control. Default 500. "
+        "Alpha.",
+    "ops_etest_mode":
+        "(str) - 'empirical_null' tests each gene against pseudo-genes of "
+        "random non-targeting cells; 'guide_null' against pseudo-genes of "
+        "four non-targeting guides, the shape of a gene, which keeps "
+        "guide-level structure in the null (the guides are split in halves "
+        "for the null and the held-out control); 'permutation' permutes the "
+        "gene's cells with the reference (scPerturb's E-test, "
+        "ops_etest_permutations times; slow). Default 'empirical_null'. "
+        "Alpha.",
+    "ops_etest_permutations":
+        "(int) - Label permutations per gene when ops_etest_mode is "
+        "'permutation'. More permutations reach smaller p-values (the "
+        "smallest is 1 / (permutations + 1)) but take longer; fewer run "
+        "faster with coarser p-values. Default 1000. Alpha.",
+    "ops_power_cells":
+        "(list) - The cells-per-gene caps of the power curve; None keeps "
+        "every cell (scored once, its null drawn at the median cells per "
+        "gene). Default [10, 25, 50, 100, 200, 500, None]. Alpha.",
+    "ops_power_seeds":
+        "(list) - The subsampling seeds of the power curve; each capped draw "
+        "is repeated once per seed. Default [0, 1, 2]. Alpha.",
+    "ops_power_retrieval":
+        "(bool) - Also draw the retrieval power curve: at most n cells per "
+        "gene and every control cell, guide and gene medians, then the "
+        "evaluate phase's retrieval metrics on ops_reference_dir, with paired "
+        "Wilcoxon tests against the largest cap. Default False. Alpha.",
     "ops_deterministic_blas":
         "(bool) - Run the profile phases with the BLAS and OpenMP libraries "
         "held to one thread, so a re-run of the same settings file writes "
