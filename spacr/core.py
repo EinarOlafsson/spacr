@@ -5059,6 +5059,12 @@ def generate_image_umap(settings=None, return_fig=False):
     crop folder is channel-corrected on load and the montage shows the same
     image the Annotate screen does.
 
+    With ``umap_source='ops_profiles'`` (alpha, item 918) the input is OPS
+    gene (and guide) profiles instead of measurements: the call is handed to
+    :func:`spacr.ops_image_umap.run_ops_image_umap`, which clusters the full
+    profiles, labels clusters by enrichment and shows medoid-cell raw crops
+    around a display-only UMAP layout.
+
     :param settings: Configuration dict; canonicalized via
         :func:`spacr.settings.set_default_umap_image_settings`. Common keys:
         ``src``, ``tables``, ``row_limit``, ``clustering``,
@@ -5067,12 +5073,6 @@ def generate_image_umap(settings=None, return_fig=False):
         ``plot_images``, ``save_figure``, ``exclude``, ``crop_source``.
     :param return_fig: When True, return the Matplotlib figure instead of the
         annotated DataFrame.
-    With ``umap_source='ops_profiles'`` (alpha, item 918) the input is OPS
-    gene (and guide) profiles instead of measurements: the call is handed to
-    :func:`spacr.ops_image_umap.run_ops_image_umap`, which clusters the full
-    profiles, labels clusters by enrichment and shows medoid-cell raw crops
-    around a display-only UMAP layout.
-
     :returns: DataFrame of the input rows plus a ``cluster`` column, or a
         Matplotlib ``Figure`` when ``return_fig`` is True; for
         ``umap_source='ops_profiles'`` the summary dict
