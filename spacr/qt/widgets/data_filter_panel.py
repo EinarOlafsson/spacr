@@ -549,7 +549,6 @@ class DataFilterPanel(QWidget):
         missing = []
         available = set(self.available_columns())
         for entry in state.get("filters", ()):
-            # A filter saved switched off is not applied, and is not missing.
             if not entry.get("enabled", True):
                 continue
             column = str(entry.get("column", ""))
