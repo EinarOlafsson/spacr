@@ -1,0 +1,83 @@
+================================================================================
+NATIVE CRASH REPORTS LACK SESSION CONTEXT WHEN THE FAULT DUMP IS EMPTY
+================================================================================
+
+Lifecycle: new
+Status:    done (branch claude-issue182-1111, 2026-11-11; for nightly)
+Requested: maintainer, standing rule (AGENTS.md rule 39): an issue without the
+           information to find its cause gets a reporter change so the next
+           report of that kind carries it, then a comment and a close.
+Owner:     Home
+Related:   730 (native crash context), 731 (teardown step), 743 (shutdown
+           diagnostics), 709 (GitHub issues). GitHub issue #182.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE WAS
+--------------------------------------------------------------------------------
+
+Issue #182 is a macOS (Apple GPU) segmentation fault from spaCR 1.5.1.8 with
+0 frames, no screen, no stage and the note "Crashed session unknown: no
+complete supported startup header". The crash log held a "Fatal Python
+error: Segmentation fault" line and no thread list after it.
+
+Why the session was unknown:
+- Every spaCR start appends a session header to the one shared crash log, so
+  the strict rule "exactly one header and the log read from byte 0" holds
+  only for the first session in a fresh log.
+- The fallback matched the crashed session through the thread ids in
+  faulthandler's dump. Python writes no thread list when the fault is in a
+  thread it does not know (Metal/MPS, OpenMP or Qt render threads) while the
+  interpreter is starting or shutting down, or when the handler itself
+  faults. With no thread ids there was no session, so no version, screens
+  or context lines, and no frames.
+- Nothing recorded which GUI task was running, and the macOS crash report
+  (~/Library/Logs/DiagnosticReports), which does hold the native stack, was
+  never read.
+
+--------------------------------------------------------------------------------
+WHAT CHANGED
+--------------------------------------------------------------------------------
+
+spacr/crashreport.py, spacr/qt/bridge.py:
+- Session inference only when the dump holds no Python frame at all: among
+  the sessions started since the previous fault that wrote at least one
+  context line, the only one that never began its interpreter shutdown is
+  reported as the crashed session; otherwise the session that wrote the
+  last context line before the fault lends its context to the note,
+  labelled a best guess, and the session itself stays unknown. A dump with
+  frames but no recorded thread is never guessed (the item 730 rule that a
+  report never borrows another writer's session still holds).
+- New context lines: the spaCR version on every session's platform line, a
+  task start/end line around each GUI pipeline run (PipelineWorker.run), and
+  an atexit line "interpreter shutdown began".
+- The report now carries: the crashed build's spaCR version, the screens
+  and the task running at the crash (also as the run stage), how the session
+  was matched, a plain statement when the fault handler wrote no Python
+  stack, and the Python frames of all threads when they exist.
+- On macOS, the Python/spaCR crash report written closest to the fault
+  (within 10 minutes) is read: exception type and signal, main or background
+  thread, the crashing thread's innermost native frames, and the number of
+  OpenMP runtimes loaded. When there is no Python frame, these native frames
+  become the report's frames.
+
+--------------------------------------------------------------------------------
+PRIVACY
+--------------------------------------------------------------------------------
+
+Context values pass the item 730 validation (letters, digits, spaces and
+._+()- only, length caps, no IPv4, no user or host name); task keys have
+anything else turned into "-". From a macOS crash report only image
+basenames and symbols leave, and only for images in system or package
+folders; any other image is "<user-code>" with no symbol. No path, address,
+thread name, process id or user name is read into the report.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+tests/test_native_crash_session_context_182.py passes (session inferred
+with an empty dump, best-guess labelling, incomplete header stays unknown,
+all-thread frames, .ips and legacy .crash parsing without personal data,
+nearest-report selection, task and shutdown lines), together with
+tests/test_crashreport_native_capture_edges_20261024.py and the
+test_700_* crash-report suites.
