@@ -185,6 +185,17 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_compare_tables": None,
     "ops_compare_match_px": 4.0,
     "ops_compare_fields": None,
+    "ops_compare_match": "centroid",
+    "ops_compare_reference_masks": None,
+    "ops_compare_spacr_masks": None,
+    "ops_compare_reference_objects": ["Cells", "Nuclei"],
+    "ops_compare_iou": 0.5,
+    "ops_compare_reference_calls": None,
+    "ops_compare_call_columns": None,
+    "ops_compare_spacr_calls": None,
+    "ops_compare_edge_policy": "exclude",
+    "ops_compare_mask_scale": None,
+    "ops_compare_control_seed": 0,
     "ops_aggregate_level": "guides",
     "ops_nt_rows": None,
     "ops_profile_weighting": None,
@@ -233,6 +244,21 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_scoring_cluster_seeds": [0, 1, 2],
     "ops_scoring_workers": 4,
     "ops_scoring_figures": True,
+    "ops_scoring_metrics": None,
+    "ops_scoring_corum_file": None,
+    "ops_scoring_string_file": None,
+    "ops_scoring_string_thresholds": [0.4, 0.7, 0.9],
+    "ops_scoring_corum_coverage": 0.333,
+    "ops_scoring_pca_variance": 0.9,
+    "ops_scoring_benchmark_genes": "all",
+    "ops_scoring_benchmark_seed": 0,
+    "ops_hits_feature_p": 0.001,
+    "ops_hits_fdr": [0.05, 0.01],
+    "ops_hits_expression_table": None,
+    "ops_hits_cell_line": None,
+    "ops_hits_compartments": "periscope",
+    "ops_hits_min_cells": 20,
+    "ops_hits_reference_list": None,
     "ops_eval_references": ["CORUM", "STRING>=0.7", "STRING>=0.4", "KEGG", "BioGRID"],
     "ops_eval_split": "all",
     "ops_eval_null_size": 5000,
@@ -484,6 +510,17 @@ OPS_TYPES: Dict[str, object] = {
     "ops_compare_tables": (str, dict, type(None)),
     "ops_compare_match_px": (float, int),
     "ops_compare_fields": (str, list, type(None)),
+    "ops_compare_match": str,
+    "ops_compare_reference_masks": (str, type(None)),
+    "ops_compare_spacr_masks": (str, type(None)),
+    "ops_compare_reference_objects": list,
+    "ops_compare_iou": (float, int),
+    "ops_compare_reference_calls": (str, type(None)),
+    "ops_compare_call_columns": (dict, str, type(None)),
+    "ops_compare_spacr_calls": (str, type(None)),
+    "ops_compare_edge_policy": str,
+    "ops_compare_mask_scale": (int, type(None)),
+    "ops_compare_control_seed": int,
     "ops_aggregate_level": str,
     "ops_nt_rows": (str, type(None)),
     "ops_profile_weighting": (str, type(None)),
@@ -532,6 +569,21 @@ OPS_TYPES: Dict[str, object] = {
     "ops_scoring_cluster_seeds": list,
     "ops_scoring_workers": int,
     "ops_scoring_figures": bool,
+    "ops_scoring_metrics": (list, type(None)),
+    "ops_scoring_corum_file": (str, type(None)),
+    "ops_scoring_string_file": (str, type(None)),
+    "ops_scoring_string_thresholds": list,
+    "ops_scoring_corum_coverage": (float, int),
+    "ops_scoring_pca_variance": (float, int, type(None)),
+    "ops_scoring_benchmark_genes": (str, list),
+    "ops_scoring_benchmark_seed": int,
+    "ops_hits_feature_p": (float, int),
+    "ops_hits_fdr": list,
+    "ops_hits_expression_table": (str, type(None)),
+    "ops_hits_cell_line": (str, type(None)),
+    "ops_hits_compartments": (str, dict),
+    "ops_hits_min_cells": int,
+    "ops_hits_reference_list": (str, list, type(None)),
     "ops_eval_references": (list, str),
     "ops_eval_split": str,
     "ops_eval_null_size": int,
@@ -687,6 +739,12 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_prefix_collision", "ops_prefix_metric", "ops_prefix_max_distance",
         "ops_prefix_crosstalk", "ops_prefix_masks", "ops_quality_min_reads",
         "ops_random_barcode_control", "ops_control_seed",
+        "ops_compare_match", "ops_compare_reference_masks",
+        "ops_compare_spacr_masks", "ops_compare_reference_objects",
+        "ops_compare_iou", "ops_compare_reference_calls",
+        "ops_compare_call_columns", "ops_compare_spacr_calls",
+        "ops_compare_edge_policy", "ops_compare_mask_scale",
+        "ops_compare_control_seed",
     ],
     "OPS performance": [
         "ops_gpu", "n_workers",
@@ -771,6 +829,13 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_scoring_min_complex", "ops_scoring_references",
         "ops_scoring_cluster_jitter", "ops_scoring_cluster_seeds",
         "ops_scoring_workers", "ops_scoring_figures",
+        "ops_scoring_metrics", "ops_scoring_corum_file",
+        "ops_scoring_string_file", "ops_scoring_string_thresholds",
+        "ops_scoring_corum_coverage", "ops_scoring_pca_variance",
+        "ops_scoring_benchmark_genes", "ops_scoring_benchmark_seed",
+        "ops_hits_feature_p", "ops_hits_fdr", "ops_hits_expression_table",
+        "ops_hits_cell_line", "ops_hits_compartments", "ops_hits_min_cells",
+        "ops_hits_reference_list",
         "ops_eval_references", "ops_eval_split", "ops_eval_null_size",
         "ops_eval_heldout_folds", "ops_eval_decoys",
         "ops_eval_time_split", "ops_eval_covariates",
@@ -1111,6 +1176,69 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(bool) - Draw the profile and cluster figures (bars with jittered "
         "points and Holm-corrected tests). False writes the tables only. "
         "Default True. Alpha.",
+    "ops_scoring_metrics":
+        "(list or None) - What phase score computes. Empty runs activity, "
+        "consistency and EFAAR (copairs and EFAAR, all three together). "
+        "Add 'corum_within_r', 'string_auprc' or 'hits_mw_ztpm' for the "
+        "PERISCOPE-style benchmarks; a list of only those skips copairs and "
+        "EFAAR. Default None. Alpha.",
+    "ops_scoring_corum_file":
+        "(str or None) - The CORUM complex file (humanComplexes.txt) of "
+        "corum_within_r; its checksum is recorded with the results. Default "
+        "None. Alpha.",
+    "ops_scoring_string_file":
+        "(str or None) - The STRING link table (protein1, protein2, "
+        "combined_score) of string_auprc; its checksum is recorded. Default "
+        "None. Alpha.",
+    "ops_scoring_string_thresholds":
+        "(list) - STRING confidences; links at or above each are that "
+        "threshold's true pairs. Higher thresholds keep fewer, surer links. "
+        "Default [0.4, 0.7, 0.9]. Alpha.",
+    "ops_scoring_corum_coverage":
+        "(float) - A CORUM complex counts when more than this share of its "
+        "subunits are scored genes, as in PERISCOPE. Default 0.333. Alpha.",
+    "ops_scoring_pca_variance":
+        "(float or None) - Gene profiles are reduced to the principal "
+        "components closest to this share of variance before r and cosine "
+        "are taken, as in PERISCOPE; empty uses the features. Default 0.9. "
+        "Alpha.",
+    "ops_scoring_benchmark_genes":
+        "(str or list) - The genes of corum_within_r and string_auprc: "
+        "'all' (the genes every input shares), 'hits' (each input's own "
+        "hits at the strictest FDR level, the published rule), or a gene "
+        "table or list. Default 'all'. Alpha.",
+    "ops_scoring_benchmark_seed":
+        "(int) - Seed of the random-pair and shuffled-label controls of the "
+        "benchmarks; another seed draws other random pairs and labels, the "
+        "observed rows do not change. Default 0. Alpha.",
+    "ops_hits_feature_p":
+        "(float) - A feature counts toward a gene's hit score when its "
+        "Mann-Whitney p against the non-targeting rows is below this. "
+        "Default 0.001. Alpha.",
+    "ops_hits_fdr":
+        "(list) - FDR levels of the zero-TPM null; each gives its own hit "
+        "list. Default [0.05, 0.01]. Alpha.",
+    "ops_hits_expression_table":
+        "(str or None) - Expression table (Gene plus one column per cell "
+        "line, DepMap log2(TPM+1)) or the expression summary JSON; genes at "
+        "0 are the hit null. Needed for hits_mw_ztpm. Default None. Alpha.",
+    "ops_hits_cell_line":
+        "(str or None) - The expression table's column for the screened "
+        "cell line, e.g. 'A549'; another line changes which genes count as "
+        "unexpressed, so the null and every threshold change. Default None. "
+        "Alpha.",
+    "ops_hits_compartments":
+        "(str or dict) - How features map to compartments for the "
+        "compartment-specific hits: 'periscope' (Mito, ConA, WGA, DAPI, "
+        "Phalloidin by name) or {compartment: name part}. Default "
+        "'periscope'. Alpha.",
+    "ops_hits_min_cells":
+        "(int) - Genes with fewer cells are left out when the hits are "
+        "compared with a published list. Default 20. Alpha.",
+    "ops_hits_reference_list":
+        "(str, list or None) - A published hit list to compare with, as a "
+        "table path (path::sheet for a workbook sheet) or a list of them. "
+        "Default None. Alpha.",
     "ops_flatfield_nuclear_channel":
         "(str or None) - The DNA channel the nuclear-median flat-field map "
         "corrects, as named in ops_ph_channels. Phases flat_nuclear and "
@@ -1991,6 +2119,57 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(str or None) - Which fields to compare, as well:site pairs "
         "separated by commas. Empty compares every site the external tables "
         "hold. Default None. Alpha.",
+    "ops_compare_match":
+        "(str) - How compare_calls pairs spaCR's cells with another "
+        "pipeline's. 'centroid' pairs nuclei by centroid distance; "
+        "'mask_overlap' matches spaCR's label masks to the reference's "
+        "label masks by pixel overlap, which holds when segmentations differ "
+        "in shape and cells touch, and runs compare_calls on its own. "
+        "Default 'centroid'. Alpha.",
+    "ops_compare_reference_masks":
+        "(str or None) - Path template of the reference pipeline's label "
+        "masks, with {plate}, {well}, {site} (or {tile}) and {object}, e.g. "
+        ".../Plate_{plate}_Well_{well}_Site_{site}_{object}_Objects.tiff. "
+        "Needed for 'mask_overlap'. Default None. Alpha.",
+    "ops_compare_spacr_masks":
+        "(str or None) - Path template of spaCR's label masks, as above; a "
+        ".npz file is a spaCR phenotype mask file holding cells and nuclei. "
+        "Empty uses {dst_root}/{well}/phenotype_masks/site-{site}.npz. "
+        "Default None. Alpha.",
+    "ops_compare_reference_objects":
+        "(list) - The objects compared, as the reference names them "
+        "({object} in the templates); Cells also carries the per-cell calls. "
+        "Default ['Cells', 'Nuclei']. Alpha.",
+    "ops_compare_iou":
+        "(float) - The overlap (IoU) two objects need to count as the same "
+        "cell for F1 and for carrying calls across. Higher demands closer "
+        "outlines. Default 0.5. Alpha.",
+    "ops_compare_reference_calls":
+        "(str or None) - The reference pipeline's per-cell call table, such "
+        "as PERISCOPE's single-cell metadata. Empty compares masks only. "
+        "Default None. Alpha.",
+    "ops_compare_call_columns":
+        "(dict or None) - Which columns of the reference call table hold "
+        "the site key, the cell's mask label, the barcode, the gene and the "
+        "quality class. Empty uses PERISCOPE's column names. Default None. "
+        "Alpha.",
+    "ops_compare_spacr_calls":
+        "(str or None) - spaCR's per-cell call table (well, site, label, "
+        "sgRNA, gene), or 'reference' to compare the reference with itself "
+        "as a control. Empty uses ops_cells_<plate>.parquet in dst_root when "
+        "it exists. Default None. Alpha.",
+    "ops_compare_edge_policy":
+        "(str) - 'exclude' leaves cells touching the image border out of "
+        "the agreement counts (they are counted separately); 'keep' counts "
+        "them. Default 'exclude'. Alpha.",
+    "ops_compare_mask_scale":
+        "(int or None) - Whole-number factor that enlarges spaCR's masks to "
+        "the reference grid when the two differ in size; empty refuses masks "
+        "of different sizes. Default None. Alpha.",
+    "ops_compare_control_seed":
+        "(int) - Seed of the control that shuffles reference calls among "
+        "the cells of each site, which gives the agreement expected by "
+        "chance. Default 0. Alpha.",
     "ops_aggregate_level":
         "(str) - How a gene profile is reduced from its cells. 'guides' "
         "takes the median of the gene's guide medians, so each guide counts "

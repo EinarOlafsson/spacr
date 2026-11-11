@@ -662,6 +662,11 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_compare_tables",
     "ops_compare_match_px",
     "ops_compare_fields",
+    # Item 922: matching spaCR's cells to a reference pipeline's by mask overlap.
+    "ops_compare_match", "ops_compare_reference_masks", "ops_compare_spacr_masks",
+    "ops_compare_reference_objects", "ops_compare_iou", "ops_compare_reference_calls",
+    "ops_compare_call_columns", "ops_compare_spacr_calls", "ops_compare_edge_policy",
+    "ops_compare_mask_scale", "ops_compare_control_seed",
     # Gene-profile options of the aggregate phase (items 883, 887, 890, 891,
     # 902-907, 2026-11-09).
     "ops_aggregate_level", "ops_nt_rows", "ops_profile_weighting",
@@ -693,6 +698,12 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_scoring_min_complex", "ops_scoring_references",
     "ops_scoring_cluster_jitter", "ops_scoring_cluster_seeds",
     "ops_scoring_workers", "ops_scoring_figures",
+    # Item 923: CORUM r, STRING AUPRC and the zero-TPM hit rule (2026-11-11).
+    "ops_scoring_metrics", "ops_scoring_corum_file", "ops_scoring_string_file",
+    "ops_scoring_string_thresholds", "ops_scoring_corum_coverage", "ops_scoring_pca_variance",
+    "ops_scoring_benchmark_genes", "ops_scoring_benchmark_seed", "ops_hits_feature_p",
+    "ops_hits_fdr", "ops_hits_expression_table", "ops_hits_cell_line", "ops_hits_compartments",
+    "ops_hits_min_cells", "ops_hits_reference_list",
     # Item 914: cell-state profiles and the mitotic index test (2026-11-10).
     "ops_profile_cell_state", "ops_profile_gene_universe",
     "ops_mitotic_index_test", "ops_mitotic_index_min_cells",

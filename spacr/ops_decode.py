@@ -2081,3 +2081,604 @@ def run_compare_calls(db: str, plate: str, wells: Sequence[str],
                      "categories": _write(categories, os.path.join(folder, "categories.csv")),
                      "tables": _write(per_table, os.path.join(folder, "tables.csv"))}}
     return out
+
+
+#: How PERISCOPE's single-cell metadata names a cell's site, object and
+#: call (item 922): the site key is ``<plate>-<well>-<site>``, the object
+#: is the CellProfiler ``Cells`` ObjectNumber, which is the label of that
+#: cell in ``Cells_Objects.tiff``.
+PERISCOPE_CALL_COLUMNS: Dict[str, str] = {
+    "site": "Metadata_Foci_site",
+    "object": "Metadata_Cells_ObjectNumber",
+    "barcode": "Metadata_Foci_Barcode_MatchedTo_Barcode",
+    "gene": "Metadata_Foci_Barcode_MatchedTo_GeneCode",
+    "quality": "Metadata_Foci_Cell_Quality",
+}
+
+#: The mask object of each reference object name in a spaCR phenotype mask
+#: file (``<well>/phenotype_masks/site-<n>.npz``).
+MASK_OBJECT_KEYS: Dict[str, str] = {"cells": "cells", "nuclei": "nuclei"}
+
+#: The concordance categories of a matched cell pair, in report order.
+CONCORDANCE_CATEGORIES = ("same_guide", "same_gene_other_guide", "disagree",
+                          "spacr_only", "reference_only", "neither")
+
+
+def parse_site_key(text: str) -> Tuple[str, str, int]:
+    """Split a ``<plate>-<well>-<site>`` key such as ``CP186A-Well3-75``.
+
+    :param text: the key; the plate may itself contain hyphens.
+    :returns: ``(plate, well, site)``.
+    :raises ValueError: when the key has fewer than three parts or the
+        site is not a whole number.
+    """
+    parts = str(text).rsplit("-", 2)
+    if len(parts) != 3 or not parts[2].strip().isdigit():
+        raise ValueError(f"site key {text!r} is not <plate>-<well>-<site>")
+    return parts[0], parts[1], int(parts[2])
+
+
+def edge_labels(labels: np.ndarray) -> np.ndarray:
+    """The labels of a label image that touch its border.
+
+    :param labels: a 2-D label image, 0 for background.
+    :returns: the sorted labels on the first or last row or column.
+    """
+    border = np.concatenate([labels[0], labels[-1], labels[:, 0], labels[:, -1]])
+    found = np.unique(border)
+    return found[found > 0]
+
+
+def label_contingency(first: np.ndarray, second: np.ndarray):
+    """Pixel overlap of every pair of objects of two label images, in one pass.
+
+    :param first: a 2-D label image (spaCR), 0 for background.
+    :param second: a label image of the same shape (the reference).
+    :returns: ``(pairs, area_first, area_second)``: ``pairs`` has
+        ``label_a``, ``label_b``, ``overlap`` (pixels both cover) and
+        ``iou`` for every pair that shares a pixel, sorted by ``label_a``
+        then ``label_b``; the areas are Series indexed by label.
+    :raises ValueError: when the shapes differ.
+    """
+    import pandas as pd
+
+    if first.shape != second.shape:
+        raise ValueError(f"label images differ in shape: {first.shape} vs {second.shape}")
+    a = np.asarray(first).ravel().astype(np.int64)
+    b = np.asarray(second).ravel().astype(np.int64)
+    ids_a, n_a = np.unique(a[a > 0], return_counts=True)
+    ids_b, n_b = np.unique(b[b > 0], return_counts=True)
+    area_a = pd.Series(n_a, index=ids_a, dtype=np.int64)
+    area_b = pd.Series(n_b, index=ids_b, dtype=np.int64)
+    both = (a > 0) & (b > 0)
+    width = int(b.max()) + 1 if b.size else 1
+    keys, overlap = np.unique(a[both] * width + b[both], return_counts=True)
+    pairs = pd.DataFrame({"label_a": keys // width, "label_b": keys % width,
+                          "overlap": overlap.astype(np.int64)})
+    union = (area_a.reindex(pairs["label_a"]).to_numpy()
+             + area_b.reindex(pairs["label_b"]).to_numpy() - pairs["overlap"].to_numpy())
+    pairs["iou"] = pairs["overlap"].to_numpy() / np.maximum(union, 1)
+    return pairs, area_a, area_b
+
+
+def best_overlaps(pairs) -> Any:
+    """Each first-image object's reference object of largest overlap.
+
+    Ties are broken by the higher IoU, then the lower reference label, so
+    the result does not depend on pixel order.
+
+    :param pairs: the ``pairs`` of :func:`label_contingency`.
+    :returns: one row per ``label_a`` with its chosen ``label_b``,
+        ``overlap`` and ``iou``.
+    """
+    order = pairs.sort_values(["label_a", "overlap", "iou", "label_b"],
+                              ascending=[True, False, False, True], kind="mergesort")
+    return order.drop_duplicates("label_a").reset_index(drop=True)
+
+
+def one_to_one(pairs, threshold: float = 0.5) -> Any:
+    """Optimal one-to-one matching on IoU of the pairs at or above a threshold.
+
+    The standard instance-segmentation pairing: a Hungarian assignment
+    maximising summed IoU over the candidate pairs, which at a threshold
+    above 0.5 equals keeping every candidate (two objects cannot both
+    overlap a third by more than half).
+
+    :param pairs: rows with ``label_a``, ``label_b`` and ``iou``.
+    :param threshold: the smallest IoU a match may have.
+    :returns: the matched rows, sorted by ``label_a``.
+    """
+    from scipy.optimize import linear_sum_assignment
+
+    candidates = pairs[pairs["iou"] >= float(threshold)]
+    if candidates.empty:
+        return candidates.reset_index(drop=True)
+    rows, row_of = np.unique(candidates["label_a"].to_numpy(), return_inverse=True)
+    cols, col_of = np.unique(candidates["label_b"].to_numpy(), return_inverse=True)
+    if len(rows) == len(candidates) and len(cols) == len(candidates):
+        return candidates.sort_values("label_a").reset_index(drop=True)
+    weight = np.zeros((len(rows), len(cols)))
+    weight[row_of, col_of] = candidates["iou"].to_numpy()
+    picked_rows, picked_cols = linear_sum_assignment(weight, maximize=True)
+    keep = weight[picked_rows, picked_cols] > 0
+    chosen = set(zip(rows[picked_rows[keep]].tolist(), cols[picked_cols[keep]].tolist()))
+    mask = [(int(x), int(y)) in chosen for x, y in zip(candidates["label_a"], candidates["label_b"])]
+    return candidates[mask].sort_values("label_a").reset_index(drop=True)
+
+
+def match_masks(first: np.ndarray, second: np.ndarray, *, iou: float = 0.5,
+                edge_policy: str = "exclude") -> Dict[str, Any]:
+    """Match two segmentations of one field object by object.
+
+    :param first: spaCR's label image.
+    :param second: the reference label image, same shape.
+    :param iou: the IoU a one-to-one match needs, for F1.
+    :param edge_policy: ``"exclude"`` leaves objects that touch the image
+        border in either image out of the counts (they are counted
+        separately); ``"keep"`` counts them.
+    :returns: ``{"matches", "counts"}``. ``matches`` has one row per spaCR
+        object: ``spacr_id``, ``reference_id`` (largest overlap, 0 when
+        none), ``overlap_px``, ``iou``, ``matched`` (in the one-to-one
+        matching), ``matched_reference_id`` (its one-to-one partner, 0 when
+        none), ``spacr_edge`` and ``reference_edge``. ``counts`` holds
+        ``n_spacr``, ``n_reference``, ``tp``, ``fp``, ``fn``, ``f1``,
+        ``median_iou`` (of the one-to-one matches), ``edge_spacr`` and
+        ``edge_reference``.
+    :raises ValueError: for an unknown edge policy or differing shapes.
+    """
+    import pandas as pd
+
+    if edge_policy not in ("exclude", "keep"):
+        raise ValueError(f"ops_compare_edge_policy must be 'exclude' or 'keep', not {edge_policy!r}")
+    pairs, area_a, area_b = label_contingency(first, second)
+    edge_a = set(edge_labels(first).tolist()) if edge_policy == "exclude" else set()
+    edge_b = set(edge_labels(second).tolist()) if edge_policy == "exclude" else set()
+    best = best_overlaps(pairs).set_index("label_a")
+    kept = pairs[~pairs["label_a"].isin(edge_a) & ~pairs["label_b"].isin(edge_b)]
+    pairs_matched = one_to_one(kept, iou)
+    matched = dict(zip(pairs_matched["label_a"].astype(int), pairs_matched["label_b"].astype(int)))
+    ids = area_a.index.to_numpy()
+    reference = best["label_b"].reindex(ids).fillna(0).astype(np.int64).to_numpy()
+    matches = pd.DataFrame({
+        "spacr_id": ids.astype(np.int64),
+        "reference_id": reference,
+        "overlap_px": best["overlap"].reindex(ids).fillna(0).astype(np.int64).to_numpy(),
+        "iou": best["iou"].reindex(ids).fillna(0.0).to_numpy(),
+        "matched": [int(i) in matched for i in ids],
+        "matched_reference_id": [matched.get(int(i), 0) for i in ids],
+        "spacr_edge": [int(i) in edge_a for i in ids],
+        "reference_edge": [int(r) in edge_b for r in reference]})
+    n_a = int(sum(1 for i in ids if int(i) not in edge_a))
+    n_b = int(sum(1 for i in area_b.index if int(i) not in edge_b))
+    tp = len(pairs_matched)
+    fp, fn = n_a - tp, n_b - tp
+    counts = {"n_spacr": n_a, "n_reference": n_b, "tp": tp, "fp": fp, "fn": fn,
+              "f1": (2 * tp / (2 * tp + fp + fn)) if (tp + fp + fn) else float("nan"),
+              "median_iou": float(np.median(pairs_matched["iou"])) if tp else float("nan"),
+              "edge_spacr": len(edge_a & set(ids.tolist())),
+              "edge_reference": len(edge_b & set(area_b.index.tolist()))}
+    return {"matches": matches, "counts": counts}
+
+
+def centroid_matches(first: np.ndarray, second: np.ndarray, max_px: float = COMPARE_MATCH_PX
+                     ) -> Any:
+    """Each first-image object's nearest reference centroid within a distance.
+
+    The centroid mode of the compare_calls phase, applied to the same two
+    label images, as the control for the mask-overlap matching.
+
+    :param first: spaCR's label image.
+    :param second: the reference label image.
+    :param max_px: the largest centroid distance of a match.
+    :returns: ``spacr_id``, ``centroid_reference_id`` (0 when none) and
+        ``distance_px`` per spaCR object.
+    """
+    import pandas as pd
+    from scipy import ndimage
+    from scipy.spatial import cKDTree
+
+    def centres(labels):
+        """Object ids and centroids of a label image."""
+        ids = np.unique(labels)
+        ids = ids[ids > 0]
+        if not len(ids):
+            return ids, np.zeros((0, 2))
+        return ids, np.asarray(ndimage.center_of_mass(np.ones_like(labels), labels, ids), float)
+
+    ids_a, xy_a = centres(first)
+    ids_b, xy_b = centres(second)
+    if not len(ids_a):
+        return pd.DataFrame({"spacr_id": [], "centroid_reference_id": [], "distance_px": []})
+    if not len(ids_b):
+        return pd.DataFrame({"spacr_id": ids_a, "centroid_reference_id": 0, "distance_px": np.inf})
+    distance, nearest = cKDTree(xy_b).query(xy_a)
+    found = np.where(distance <= float(max_px), ids_b[nearest], 0)
+    return pd.DataFrame({"spacr_id": ids_a.astype(np.int64),
+                         "centroid_reference_id": found.astype(np.int64), "distance_px": distance})
+
+
+def reference_cell_calls(table, columns: Optional[Mapping[str, str]] = None) -> Any:
+    """A reference pipeline's per-cell calls keyed by plate, well, site and object.
+
+    :param table: the reference call table, one row per called cell.
+    :param columns: the column map with ``site`` (a ``<plate>-<well>-
+        <site>`` key, or the site number when ``plate`` and ``well`` are
+        mapped too), ``object``, ``barcode``, ``gene`` and optionally
+        ``quality``, ``plate`` and ``well``; :data:`PERISCOPE_CALL_COLUMNS`
+        when None.
+    :returns: ``plate``, ``well``, ``site``, ``object``, ``barcode``,
+        ``gene`` and ``quality`` (``"all"`` when not mapped); an empty
+        barcode is no call.
+    :raises ValueError: when a mapped column is missing.
+    """
+    import pandas as pd
+
+    names = dict(PERISCOPE_CALL_COLUMNS if columns is None else columns)
+    missing = [names[k] for k in ("site", "object", "barcode", "gene") if names.get(k) not in table.columns]
+    if missing:
+        raise ValueError(f"the reference call table lacks columns {missing}")
+    if names.get("plate") in table.columns and names.get("well") in table.columns:
+        plate = table[names["plate"]].astype(str).to_numpy()
+        well = table[names["well"]].astype(str).to_numpy()
+        site = table[names["site"]].astype(int).to_numpy()
+    else:
+        keys = [parse_site_key(k) for k in table[names["site"]].astype(str)]
+        plate = np.array([k[0] for k in keys], dtype=object)
+        well = np.array([k[1] for k in keys], dtype=object)
+        site = np.array([k[2] for k in keys], dtype=np.int64)
+    barcode = table[names["barcode"]].where(table[names["barcode"]].notna(), None)
+    quality = (table[names["quality"]].astype(str).to_numpy() if names.get("quality") in table.columns
+               else "all")
+    out = pd.DataFrame({"plate": plate, "well": well, "site": site,
+                        "object": table[names["object"]].astype(np.int64).to_numpy(),
+                        "barcode": barcode.to_numpy(), "gene": table[names["gene"]].to_numpy(),
+                        "quality": quality})
+    out.loc[out["barcode"].astype(str).str.len().eq(0), "barcode"] = None
+    return out
+
+
+def cell_calls_from_reads(reads, *, cell: str = "cell", barcode: str = "barcode",
+                          keys: Sequence[str] = ("well", "tile")) -> Any:
+    """One call per cell from a per-read table: the barcode with most reads.
+
+    Feldman et al. 2019 deposit reads, not cells; the rule pinned here is
+    the top barcode by read count, and a tie for the top is no call.
+
+    :param reads: one row per read with the key, cell and barcode columns.
+    :param cell: the cell column; 0 or empty is a read outside any cell.
+    :param barcode: the barcode column.
+    :param keys: the columns that, with ``cell``, name one cell.
+    :returns: per cell the keys, ``cell``, ``barcode`` (None on a tie),
+        ``reads`` of the top barcode and ``total_reads``.
+    """
+    keys = [k for k in keys if k in reads.columns]
+    inside = reads[reads[cell].notna() & (reads[cell].astype(str) != "0")]
+    counts = inside.groupby(keys + [cell, barcode], sort=True).size().rename("reads").reset_index()
+    counts = counts.sort_values(keys + [cell, "reads", barcode],
+                                ascending=[True] * (len(keys) + 1) + [False, True], kind="mergesort")
+    total = counts.groupby(keys + [cell])["reads"].transform("sum")
+    second = counts.groupby(keys + [cell])["reads"].transform(lambda r: r.iloc[1] if len(r) > 1 else 0)
+    counts = counts.assign(total_reads=total, runner_up=second)
+    top = counts.drop_duplicates(keys + [cell]).reset_index(drop=True)
+    top.loc[top["reads"] == top["runner_up"], barcode] = None
+    return top.drop(columns="runner_up")
+
+
+def concordance_category(spacr_guide, spacr_gene, ref_guide, ref_gene) -> str:
+    """The concordance category of one matched cell pair.
+
+    :param spacr_guide: spaCR's guide call or None.
+    :param spacr_gene: spaCR's gene or None.
+    :param ref_guide: the reference's guide call or None.
+    :param ref_gene: the reference's gene or None.
+    :returns: one of :data:`CONCORDANCE_CATEGORIES`.
+    """
+    def called(value):
+        """True for a non-empty call."""
+        return isinstance(value, str) and value != ""
+
+    mine, theirs = called(spacr_guide), called(ref_guide)
+    if mine and theirs:
+        if spacr_guide == ref_guide:
+            return "same_guide"
+        if called(spacr_gene) and spacr_gene == ref_gene:
+            return "same_gene_other_guide"
+        return "disagree"
+    if mine:
+        return "spacr_only"
+    if theirs:
+        return "reference_only"
+    return "neither"
+
+
+def call_concordance(pairs, *, control: str = "observed") -> Any:
+    """Per quality class, how many matched cells fall in each concordance category.
+
+    :param pairs: one row per one-to-one matched cell pair with
+        ``spacr_guide``, ``spacr_gene``, ``reference_guide``,
+        ``reference_gene`` and ``quality``.
+    :param control: the label of this table's rows (``observed`` or
+        ``shuffled_seed<k>``).
+    :returns: ``control``, ``quality`` (each class and ``all``),
+        ``category``, ``n``, ``pct`` of the class's pairs and, on the
+        ``both_called`` rows, the share with the same guide.
+    """
+    import pandas as pd
+
+    cats = [concordance_category(a, b, c, d) for a, b, c, d in zip(
+        pairs["spacr_guide"], pairs["spacr_gene"], pairs["reference_guide"], pairs["reference_gene"])]
+    frame = pd.DataFrame({"quality": pairs["quality"].astype(str).to_numpy(), "category": cats})
+    rows = []
+    groups = [(q, g) for q, g in frame.groupby("quality", sort=True)] + [("all", frame)]
+    for quality, group in groups:
+        total = len(group)
+        counts = group["category"].value_counts()
+        for cat in CONCORDANCE_CATEGORIES:
+            n = int(counts.get(cat, 0))
+            rows.append({"control": control, "quality": quality, "category": cat, "n": n,
+                         "pct": round(100 * n / total, 4) if total else float("nan")})
+        both = int(sum(counts.get(c, 0) for c in ("same_guide", "same_gene_other_guide", "disagree")))
+        rows.append({"control": control, "quality": quality, "category": "both_called", "n": both,
+                     "pct": round(100 * int(counts.get("same_guide", 0)) / both, 4) if both else float("nan")})
+    return pd.DataFrame(rows)
+
+
+def shuffle_calls_within_site(calls, seed: int = 0) -> Any:
+    """Reference calls permuted among the cells of each site.
+
+    :param calls: :func:`reference_cell_calls` output.
+    :param seed: the :func:`numpy.random.default_rng` seed.
+    :returns: the same rows with ``barcode``, ``gene`` and ``quality``
+        permuted within each plate, well and site.
+    """
+    rng = np.random.default_rng(int(seed))
+    out = calls.sort_values(["plate", "well", "site", "object"], kind="mergesort").reset_index(drop=True)
+    for _, index in out.groupby(["plate", "well", "site"], sort=True).indices.items():
+        order = rng.permutation(len(index))
+        for column in ("barcode", "gene", "quality"):
+            out.loc[out.index[index], column] = out[column].to_numpy()[index][order]
+    return out
+
+
+def _mask_path(template: str, *, plate: str, well: str, site: int, obj: str, root: str) -> str:
+    """Fill a mask path template; ``{tile}`` is a synonym of ``{site}``."""
+    return str(template).format(plate=plate, well=well, site=site, tile=site, object=obj,
+                                dst_root=root)
+
+
+def _read_labels(path: str, obj: str) -> np.ndarray:
+    """One label image: a TIFF, or an object's array of a spaCR mask ``.npz``."""
+    if path.endswith(".npz"):
+        with np.load(path) as saved:
+            key = MASK_OBJECT_KEYS.get(obj.lower(), obj.lower())
+            if key not in saved:
+                raise ValueError(f"{path} holds no {key!r} masks; it has {sorted(saved.files)}")
+            return np.asarray(saved[key])
+    import tifffile
+
+    return np.asarray(tifffile.imread(path))
+
+
+def _rescale_labels(labels: np.ndarray, shape: Tuple[int, int], factor) -> np.ndarray:
+    """A label image brought to ``shape`` by an integer factor, or refused."""
+    if labels.shape == tuple(shape):
+        return labels
+    if not factor:
+        raise ValueError(f"spaCR masks are {labels.shape} and the reference masks {tuple(shape)}; "
+                         "set ops_compare_mask_scale to compare them on one grid")
+    step = int(factor)
+    grown = np.repeat(np.repeat(labels, step, axis=0), step, axis=1)
+    if grown.shape != tuple(shape):
+        raise ValueError(f"spaCR masks scaled by {step} are {grown.shape}, not {tuple(shape)}")
+    return grown
+
+
+def _spacr_cell_calls(path: str, plate: str):
+    """spaCR's per-cell guide calls, keyed like the reference calls."""
+    import pandas as pd
+
+    from .tabular import read_table
+
+    table = read_table(path, canonicalise=False, report=None)
+    guide = next((c for c in ("sgRNA", "mapped_guide", "guide") if c in table.columns), None)
+    if guide is None or not {"well", "site", "label"} <= set(table.columns):
+        raise ValueError(f"{path} needs well, site, label and sgRNA (or mapped_guide) columns")
+    gene = table["gene"] if "gene" in table.columns else pd.Series([None] * len(table))
+    return pd.DataFrame({"plate": table["plate"].astype(str) if "plate" in table.columns else plate,
+                         "well": table["well"].astype(str).to_numpy(),
+                         "site": table["site"].astype(np.int64).to_numpy(),
+                         "object": table["label"].astype(np.int64).to_numpy(),
+                         "barcode": table[guide].to_numpy(), "gene": gene.to_numpy(),
+                         "quality": "all"})
+
+
+def _call_pairs(matches, spacr_calls, ref_calls, key):
+    """The one-to-one matched pairs of one site with both sides' calls."""
+    import pandas as pd
+
+    matched = matches[matches["matched"]]
+    mine = {int(o): (b, g) for o, b, g in zip(spacr_calls["object"], spacr_calls["barcode"], spacr_calls["gene"])}
+    theirs = {int(o): (b, g, q) for o, b, g, q in zip(ref_calls["object"], ref_calls["barcode"],
+                                                     ref_calls["gene"], ref_calls["quality"])}
+    rows = []
+    for spacr_id, ref_id in zip(matched["spacr_id"].astype(int), matched["matched_reference_id"].astype(int)):
+        a = mine.get(spacr_id, (None, None))
+        b = theirs.get(ref_id, (None, None, "uncalled"))
+        rows.append({**key, "spacr_id": spacr_id, "reference_id": ref_id,
+                     "spacr_guide": a[0], "spacr_gene": a[1],
+                     "reference_guide": b[0], "reference_gene": b[1], "quality": b[2]})
+    return pd.DataFrame(rows, columns=list(key) + ["spacr_id", "reference_id", "spacr_guide",
+                                                   "spacr_gene", "reference_guide", "reference_gene",
+                                                   "quality"])
+
+
+def _compare_fields(settings: Mapping[str, Any], ref_calls) -> List[Tuple[str, int]]:
+    """The ``(well, site)`` fields of a mask comparison."""
+    wanted = settings.get("ops_compare_fields")
+    if wanted:
+        items = wanted if isinstance(wanted, (list, tuple)) else str(wanted).split(",")
+        return [(str(w).split(":")[0].strip(), int(str(w).split(":")[1])) for w in items if ":" in str(w)]
+    if ref_calls is not None:
+        return sorted({(str(w), int(s)) for w, s in zip(ref_calls["well"], ref_calls["site"])})
+    raise ValueError("ops_compare_match 'mask_overlap' needs ops_compare_fields (well:site pairs) "
+                     "or ops_compare_reference_calls to know which fields to compare")
+
+
+def run_compare_masks(settings: Mapping[str, Any], report: Optional[Any] = None) -> Dict[str, Any]:
+    """The compare_calls phase in mask-overlap mode (item 922).
+
+    spaCR's label masks and a reference pipeline's are matched object by
+    object on each field (:func:`match_masks`); the reference's per-cell
+    calls are carried to spaCR's cells through the matches and compared
+    with spaCR's (:func:`call_concordance`), next to two controls: the
+    reference calls shuffled among the cells of each site, and centroid
+    matching of the same cells (:func:`centroid_matches`).
+
+    :param settings: read for ``plate``, ``dst_root``,
+        ``ops_compare_reference_masks`` (a path template with ``{plate}``,
+        ``{well}``, ``{site}`` or ``{tile}`` and ``{object}``),
+        ``ops_compare_spacr_masks`` (the same; ``.npz`` files are spaCR
+        phenotype masks; default
+        ``{dst_root}/{well}/phenotype_masks/site-{site}.npz``),
+        ``ops_compare_reference_objects``, ``ops_compare_iou``,
+        ``ops_compare_edge_policy``, ``ops_compare_mask_scale``,
+        ``ops_compare_reference_calls``, ``ops_compare_call_columns``,
+        ``ops_compare_spacr_calls`` (a spaCR cell table with well, site,
+        label and sgRNA, or ``"reference"`` for the self-match control),
+        ``ops_compare_control_seed``, ``ops_compare_match_px`` and
+        ``ops_compare_fields``.
+    :param report: called with progress lines.
+    :returns: the summary, with the paths written under
+        ``<dst_root>/results/ops_compare``: ``match_cells.parquet``,
+        ``mask_agreement.csv``, ``call_concordance.csv``,
+        ``centroid_vs_overlap.csv``, ``reference_ids.csv`` and
+        ``compare_masks.json``.
+    :raises ValueError: for missing settings, files or columns, or masks on
+        different grids without a scale factor.
+    """
+    import pandas as pd
+
+    from .tabular import read_table
+
+    say = report or (lambda text: None)
+    root = str(settings.get("dst_root") or "")
+    if not root:
+        raise ValueError("ops_compare_match 'mask_overlap' needs dst_root, where results/ops_compare goes")
+    template = settings.get("ops_compare_reference_masks")
+    if not template:
+        raise ValueError("ops_compare_match 'mask_overlap' needs ops_compare_reference_masks, a path "
+                         "template with {well}, {site} and {object}")
+    plate = str(settings.get("plate") or "")
+    spacr_template = (settings.get("ops_compare_spacr_masks")
+                      or os.path.join("{dst_root}", "{well}", "phenotype_masks", "site-{site}.npz"))
+    objects = list(settings.get("ops_compare_reference_objects") or ["Cells", "Nuclei"])
+    threshold = float(settings.get("ops_compare_iou", 0.5))
+    policy = str(settings.get("ops_compare_edge_policy") or "exclude")
+    seed = int(settings.get("ops_compare_control_seed") or 0)
+    max_px = float(settings.get("ops_compare_match_px") or COMPARE_MATCH_PX)
+    ref_calls = None
+    if settings.get("ops_compare_reference_calls"):
+        columns = settings.get("ops_compare_call_columns")
+        if isinstance(columns, str):
+            columns = json.loads(columns)
+        ref_calls = reference_cell_calls(read_table(str(settings["ops_compare_reference_calls"]),
+                                                    canonicalise=False, report=None), columns)
+        if plate:
+            ref_calls = ref_calls[ref_calls["plate"].astype(str) == plate]
+    spacr_source = settings.get("ops_compare_spacr_calls")
+    if spacr_source == "reference":
+        spacr_calls = ref_calls
+    elif spacr_source:
+        spacr_calls = _spacr_cell_calls(str(spacr_source), plate)
+    else:
+        default = os.path.join(root, f"ops_cells_{plate}.parquet")
+        spacr_calls = _spacr_cell_calls(default, plate) if os.path.isfile(default) else None
+    fields = _compare_fields(settings, ref_calls)
+    call_object = next((o for o in objects if o.lower() == "cells"), objects[0])
+    shuffled = shuffle_calls_within_site(ref_calls, seed) if ref_calls is not None else None
+    matches_all, agreement, pairs_obs, pairs_shuf, centroid_rows, id_rows = [], [], [], [], [], []
+    for number, (well, site) in enumerate(fields, 1):
+        for obj in objects:
+            ref_path = _mask_path(template, plate=plate, well=well, site=site, obj=obj, root=root)
+            mine_path = _mask_path(spacr_template, plate=plate, well=well, site=site, obj=obj, root=root)
+            for path in (ref_path, mine_path):
+                if not os.path.isfile(path):
+                    raise ValueError(f"compare_calls (mask_overlap) needs {path}")
+            theirs = _read_labels(ref_path, obj)
+            mine = _rescale_labels(_read_labels(mine_path, obj), theirs.shape,
+                                   settings.get("ops_compare_mask_scale"))
+            result = match_masks(mine, theirs, iou=threshold, edge_policy=policy)
+            key = {"plate": plate, "well": well, "site": int(site), "object": obj}
+            matches_all.append(result["matches"].assign(**key))
+            agreement.append({**key, **result["counts"]})
+            centroid = centroid_matches(mine, theirs, max_px)
+            joined = result["matches"].merge(centroid, on="spacr_id", how="left")
+            same = joined["centroid_reference_id"].fillna(0).astype(np.int64) == joined["reference_id"]
+            centroid_rows.append({**key, "spacr_objects": int(len(joined)),
+                                  "overlap_matched": int(joined["matched"].sum()),
+                                  "centroid_matched": int((joined["centroid_reference_id"].fillna(0) > 0).sum()),
+                                  "same_reference_object": int(same.sum()),
+                                  "differ": int((~same).sum())})
+            if obj != call_object or ref_calls is None:
+                continue
+            here = ref_calls[(ref_calls["well"].astype(str) == well) & (ref_calls["site"] == site)]
+            present = set(np.unique(theirs).tolist())
+            id_rows.append({**key, "reference_calls": int(len(here)),
+                            "resolved": int(here["object"].isin(present).sum()),
+                            "unresolved": int((~here["object"].isin(present)).sum())})
+            if spacr_calls is None:
+                continue
+            mine_calls = spacr_calls[(spacr_calls["well"].astype(str) == well) & (spacr_calls["site"] == site)]
+            pairs_obs.append(_call_pairs(result["matches"], mine_calls, here, key))
+            here_shuffled = shuffled[(shuffled["well"].astype(str) == well) & (shuffled["site"] == site)]
+            pairs_shuf.append(_call_pairs(result["matches"], mine_calls, here_shuffled, key))
+        say(f"compare_calls (mask_overlap): field {well}:{site}, {number} of {len(fields)}")
+    folder = os.path.join(root, "results", "ops_compare")
+    os.makedirs(folder, exist_ok=True)
+    per_site = pd.DataFrame(agreement)
+    every_match = pd.concat(matches_all, ignore_index=True)
+    well_rows = []
+    for (well, obj), group in per_site.groupby(["well", "object"], sort=True):
+        tp, fp, fn = int(group["tp"].sum()), int(group["fp"].sum()), int(group["fn"].sum())
+        ious = every_match[(every_match["well"] == well) & (every_match["object"] == obj)
+                           & every_match["matched"] & ~every_match["spacr_edge"] & ~every_match["reference_edge"]]
+        ious = ious["iou"]
+        well_rows.append({"plate": plate, "well": well, "site": "all", "object": obj,
+                          "n_spacr": int(group["n_spacr"].sum()), "n_reference": int(group["n_reference"].sum()),
+                          "tp": tp, "fp": fp, "fn": fn,
+                          "f1": (2 * tp / (2 * tp + fp + fn)) if (tp + fp + fn) else float("nan"),
+                          "median_iou": float(np.median(ious)) if len(ious) else float("nan"),
+                          "edge_spacr": int(group["edge_spacr"].sum()),
+                          "edge_reference": int(group["edge_reference"].sum())})
+    agreement_table = pd.concat([per_site.assign(site=per_site["site"].astype(str)),
+                                 pd.DataFrame(well_rows)], ignore_index=True)
+    agreement_table["iou_threshold"] = threshold
+    agreement_table["edge_policy"] = policy
+    paths = {"matches": _write(every_match, os.path.join(folder, "match_cells.parquet")),
+             "mask_agreement": _write(agreement_table, os.path.join(folder, "mask_agreement.csv")),
+             "centroid_vs_overlap": _write(pd.DataFrame(centroid_rows),
+                                           os.path.join(folder, "centroid_vs_overlap.csv"))}
+    out: Dict[str, Any] = {"fields": len(fields), "objects": objects,
+                           "agreement": [r for r in well_rows]}
+    if id_rows:
+        ids = pd.DataFrame(id_rows)
+        paths["reference_ids"] = _write(ids, os.path.join(folder, "reference_ids.csv"))
+        out["reference_calls"] = int(ids["reference_calls"].sum())
+        out["reference_ids_unresolved"] = int(ids["unresolved"].sum())
+    if pairs_obs:
+        observed = pd.concat(pairs_obs, ignore_index=True)
+        table = pd.concat([call_concordance(observed),
+                           call_concordance(pd.concat(pairs_shuf, ignore_index=True),
+                                            control=f"shuffled_seed{seed}")], ignore_index=True)
+        paths["call_concordance"] = _write(table, os.path.join(folder, "call_concordance.csv"))
+        both = table[(table["category"] == "both_called") & (table["quality"] == "all")]
+        out["same_guide_pct_of_both_called"] = dict(zip(both["control"], both["pct"]))
+    out["matching"] = ("spaCR and reference objects are matched on the same pixels of the same fields with "
+                       f"the same IoU threshold ({threshold}) and edge policy ({policy}); the shuffled row "
+                       "permutes reference calls within each site (seed "
+                       f"{seed}); the centroid row matches the same objects by centroid within {max_px} px")
+    out["paths"] = paths
+    with open(os.path.join(folder, "compare_masks.json"), "w", encoding="utf-8") as handle:
+        json.dump(out, handle, indent=1, default=str)
+    out["paths"]["summary"] = os.path.join(folder, "compare_masks.json")
+    return out
