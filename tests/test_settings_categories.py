@@ -723,6 +723,15 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_power_cells",
     "ops_power_seeds",
     "ops_power_retrieval",
+    # Items 919 and 920 (2026-11-11): cropped-site reader, spacer-prefix decode.
+    "ops_layout", "cpg_root", "cpg_wells", "cpg_sites",
+    "cpg_phenotype_channels", "cpg_sbs_cycles", "cpg_sbs_bases",
+    "cpg_sbs_dapi", "cpg_sbs_resample", "cpg_missing", "cpg_md5",
+    "ops_library_mode", "ops_library_sequence_col", "ops_library_gene_col",
+    "ops_prefix_length", "ops_sbs_cycles", "ops_cycle_mask",
+    "ops_prefix_collision", "ops_prefix_metric", "ops_prefix_max_distance",
+    "ops_prefix_crosstalk", "ops_prefix_masks", "ops_quality_min_reads",
+    "ops_random_barcode_control", "ops_control_seed",
     # `window_length`, the new name for `expected_end` (364, 2026-09-09).
     "window_length",
     # and `min_observations_per_hit`, the new name for `min_n`.

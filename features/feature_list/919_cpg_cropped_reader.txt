@@ -1,0 +1,40 @@
+CELL PAINTING GALLERY CROPPED-SITE READER (PERISCOPE images_corrected_cropped AS OPS INPUT)
+=========================================================================================
+
+Lifecycle: future
+Status: DONE 2026-11-11 (alpha, under ALPHA_FEATURES[919]) — spacr.cpg_cropped reads the Cell Painting Gallery's images_corrected_cropped/<plate>_Well<N>/<Channel>/<Channel>_Site_<S>.tiff layout. cpg_cropped_index builds one row per file from paths and TIFF headers only (plate and well from the folder name, well_id W<N>, site, modality phenotype|sbs, cycle, channel, base, path, shape, dtype, size; md5 with cpg_md5). check_cpg_complete lists every missing pinned channel or cycle and refuses (cpg_missing='error') or drops the site ('skip_site'). load_cpg_site returns the (Y, X, C) painting stack in the pinned cpg_phenotype_channels order and the (cycles, Y, X, 4) sequencing stack in the pinned cpg_sbs_bases order (plus Cycle01_DAPI), each plane exactly tifffile.imread of its file; a sequencing grid that differs from the painting grid is refused unless cpg_sbs_resample is 'nearest' or 'linear' (factor recorded). run_ops with ops_layout='cpg_cropped' runs phases cpg_index (cpg_index.csv, cpg_channels.json, cpg_missing.csv) and cpg_merged (merged/phenotype/<plate>/<well_id>/<site>.npz, channels as stored, per-plane md5 in meta; masks added later); no stitching and no registration (the crops are already aligned), and tile phases are refused under this layout. spacr/cpg_cropped.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, tests/test_cpg_cropped_reader_919.py.
+Requested: maintainer via paper session (BMC paper item spec ITEM_cpg_cropped_reader.md), 2026-11-10.
+Owner: lane N (Wave 4).
+Source: the cpg0021 S3 layout and PCPIP 9_Analysis.cppipe (LoadData of Corr* and Cycle* per site); the reference arrays are the files themselves.
+Related: 920, 921, 922.
+
+SETTINGS (alpha, ALPHA_FEATURES[919])
+ops_layout ('tiles' | 'cpg_cropped'), cpg_root, cpg_wells, cpg_sites,
+cpg_phenotype_channels (CorrDNA, CorrPhalloidin, CorrMito, CorrER, CorrWGA),
+cpg_sbs_cycles (12), cpg_sbs_bases (G, T, A, C), cpg_sbs_dapi (Cycle01_DAPI),
+cpg_sbs_resample ('none'), cpg_missing ('error'), cpg_md5 (False).
+
+DEVIATIONS FROM THE SPEC
+- The spec's ops_register=False is not a setting: the cropped layout never
+  registers and refuses the tile phases (stitch, phenotype, objects, decode).
+- merged/ holds the painting channels only. The SBS stack (49 planes of
+  5,500 x 5,500 per site, about 3 GB) is not copied; the decode reads it
+  from the index.
+- cpg_index.csv holds every file of the complete sites, not only the pinned
+  channels, so it is the provenance of the whole tree.
+- spacr-run ops needs --no-preflight: the OPS module has no preflight key and
+  the generic check asks for src. This predates the item.
+
+VALIDATION (PERISCOPE CP186A Well1, Home, CPU, spacr env, 2026-11-11)
+- Index of the whole well from paths and TIFF headers: 5,400 rows, 100
+  sites x 54 channels, all 5,500 x 5,500 uint16, no missing file (178 s on
+  the NAS).
+- spacr-run ops (settings file, --no-preflight) with cpg_sites [12, 45] and
+  cpg_md5: 108 index rows, each md5 equal to the file's md5; the run
+  folder's channel order equals the settings file.
+- Pixel identity: 118 of 118 planes (5 painting planes per site from both
+  merged/ and the loader, 48 SBS planes and Cycle01_DAPI per site) equal
+  tifffile.imread of their file byte for byte (md5 of the array).
+- A rerun from the saved settings gives an identical cpg_index.csv (bytes)
+  and identical merged arrays.
+REMAINS: md5 identity on all 100 sites (only 2 were loaded); wells 2-6.

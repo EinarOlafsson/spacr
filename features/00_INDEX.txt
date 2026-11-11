@@ -3,7 +3,7 @@ spaCR FEATURES -- NEW, AND FUTURE
 Canonical discovery: features/FEATURE_LIST.md
 ================================================================================
 
-Regenerated 2026-11-10 by `tools/build_instruction_index.py`, from the files in
+Regenerated 2026-11-11 by `tools/build_instruction_index.py`, from the files in
 these globs and nothing else:
 
   features/feature_list/*.txt
@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-739 Lifecycle: new, 161 Lifecycle: future in features/feature_list/.
+739 Lifecycle: new, 163 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -528,6 +528,12 @@ FUTURE FEATURES
 
   917  OPS PER-GENE E-DISTANCE AND E-TEST AGAINST NON-TARGETING CELLS, WITH A CELLS-PER-GENE POWER CURVE
        917_ops_etest_power_curve.txt
+
+  919  CELL PAINTING GALLERY CROPPED-SITE READER (PERISCOPE images_corrected_cropped AS OPS INPUT)
+       919_cpg_cropped_reader.txt
+
+  920  OPS IN-SITU DECODE OF sgRNA SPACER PREFIXES (CROP-SEQ): PREFIX WHITELIST, CYCLE MASK, CROSSTALK, HAMMING/LEVENSHTEIN, QUALITY CLASSES
+       920_ops_spacer_prefix_decode.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES

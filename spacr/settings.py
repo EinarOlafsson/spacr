@@ -9159,6 +9159,19 @@ ALPHA_FEATURES = {
     917: {
         'settings': ('ops_etest', 'ops_etest_cells', 'ops_etest_metric', 'ops_etest_reference_cells', 'ops_etest_null', 'ops_etest_holdout', 'ops_etest_mode', 'ops_etest_permutations', 'ops_power_cells', 'ops_power_seeds', 'ops_power_retrieval',),
     },
+    919: {
+        'settings': ('ops_layout', 'cpg_root', 'cpg_wells', 'cpg_sites',
+                     'cpg_phenotype_channels', 'cpg_sbs_cycles', 'cpg_sbs_bases',
+                     'cpg_sbs_dapi', 'cpg_sbs_resample', 'cpg_missing', 'cpg_md5'),
+    },
+    920: {
+        'settings': ('ops_library_mode', 'ops_library_sequence_col',
+                     'ops_library_gene_col', 'ops_prefix_length', 'ops_sbs_cycles',
+                     'ops_cycle_mask', 'ops_prefix_collision', 'ops_prefix_metric',
+                     'ops_prefix_max_distance', 'ops_prefix_crosstalk',
+                     'ops_prefix_masks', 'ops_quality_min_reads',
+                     'ops_random_barcode_control', 'ops_control_seed'),
+    },
     883: {
         'settings': ('ops_aggregate_level', 'ops_nt_rows'),
     },
