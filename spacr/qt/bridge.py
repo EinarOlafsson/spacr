@@ -1892,6 +1892,8 @@ class PipelineWorker(QObject):
             self._say(message)
 
         ok = False
+        from ..crashreport import _note_native_task
+        _note_native_task(self.app_key, "started")
         try:
             with installed_token(self.cancel_token), responsive_gui():
                 self.cancel_token.checkpoint()
@@ -1940,6 +1942,7 @@ class PipelineWorker(QObject):
                 journal_run.error_traceback = tb
             self._say_error(tb, exception=exc)
         finally:
+            _note_native_task(self.app_key, "ended")
             if journal_run is not None and ok:
                 try:
                     from spacr.run_journal import _raise_if_incomplete

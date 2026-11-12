@@ -79,6 +79,7 @@ Usage
 from __future__ import annotations
 
 import argparse
+import atexit
 from contextlib import contextmanager as _contextmanager
 import hashlib
 import io
@@ -3878,7 +3879,7 @@ def _capture_error_line(text, *, origin="terminal"):
 _NATIVE_CONTEXT_KEYS = {
     "os": 12, "os_release": 40, "machine": 16, "pyside6": 24, "qt": 24,
     "qt_platform": 24, "accessibility": 4, "gpu": 16, "screen": MAX_SCREEN_CHARS,
-    "action": 48,
+    "action": 48, "spacr": 40, "task": 40, "task_state": 8,
     "shutdown_phase": 24, "shutdown_workers": 8, "shutdown_wait_ms": 8,
     "shutdown_worker": 8, "shutdown_module": 96, "shutdown_function": 96,
     "shutdown_line": 8, "shutdown_cancelled": 4, "shutdown_interruption": 4,
@@ -3894,6 +3895,21 @@ _NATIVE_THREAD_RE = re.compile(r"^(Current thread|Thread) [^\n]*\(most recent ca
 _NATIVE_FRAME_RE = re.compile(r'  File "([^"\n]+)", line (\d+) in ([^\n]+)')
 _NATIVE_THREAD_ID_RE = re.compile(r"^(?:Current thread|Thread) (0x[0-9a-fA-F]+)", re.M)
 _NATIVE_SESSION_ID = ""
+_NATIVE_SESSION_LINE_RE = re.compile(r"^=== spaCR session (\{.*\}) ===$", re.M)
+_NATIVE_SHUTDOWN_ACTION = "interpreter shutdown began"
+_NATIVE_MATCH_NOTES = {
+    "open": "the only spaCR session still open at the crash",
+    "last line": "the session that wrote the last line before the crash (best guess)",
+}
+_MACOS_LIBRARY_PATH_RE = re.compile(
+    r"/(?:site|dist)-packages/|/lib/python\d|^/System/|^/usr/|^/Library/|^/opt/|\.framework/"
+    r"|/(?:ana|mini)conda\d?/|/miniforge\d?/|/mambaforge/|/micromamba/|/\.pyenv/|/envs/[^/]+/lib/"
+    r"|/bin/python[\d.]*$")
+_MACOS_OPENMP_RE = re.compile(r"^lib(?:i?omp|gomp)[\w.-]*\.dylib$")
+_MACOS_LEGACY_FRAME_RE = re.compile(r"^\d+\s+(\S+)\s+0x[0-9a-fA-F]+\s+(.+?)(?:\s+\+\s+\d+)?\s*$")
+_MACOS_LEGACY_IMAGE_RE = re.compile(r"^\s*0x[0-9a-fA-F]+\s+-\s+0x[0-9a-fA-F]+\s+\+?(\S+).*?\s(/\S.*)$")
+_MAX_MACOS_FRAMES = 12
+_MACOS_REPORT_WINDOW_S = 600.0
 
 
 def _native_context_values(fields):
@@ -3962,7 +3978,7 @@ def _native_platform_context():
     """The operating system, its release, the machine and the installed PySide6."""
     release = platform.mac_ver()[0] if sys.platform == "darwin" else platform.release()
     facts = {"os": _os_family(), "os_release": release, "machine": platform.machine(),
-             "pyside6": _distribution_version("PySide6")}
+             "pyside6": _distribution_version("PySide6"), "spacr": _spacr_version()}
     qtcore = sys.modules.get("PySide6.QtCore")
     if qtcore is not None:
         try:
@@ -4011,6 +4027,226 @@ def _native_session_by_id(before, owner):
     return {"known": False}
 
 
+def _native_session_guess(before):
+    """Name the crashed session when the fault's dump lists no recorded thread.
+
+    Python writes no thread list when the fault is in a thread it does not
+    know while the interpreter is starting or shutting down, or when the
+    fault handler itself faults; the crash log then still holds a header for
+    every session since the previous fault (GitHub #182).
+
+    Only a session that wrote at least one context line after its header
+    counts, as every capturing session does at once; a header alone may
+    belong to a writer other than the one that faulted.
+
+    :param before: the crash log up to the fault.
+    :returns: ``(session id, how)``. ``how`` is ``"open"`` when exactly one
+        such session since the previous fault never began its interpreter
+        shutdown, ``"last line"`` when the session that wrote the last
+        context line before the fault is named instead, or ``("", "")``.
+    """
+    previous = list(re.finditer(r"^Fatal Python error: ", before, re.M))
+    segment = before[previous[-1].end():] if previous else before
+    ids, seen, ended, last = [], set(), set(), ""
+    for match in re.finditer(r"^=== spaCR (session|context) (\{[^\n]*\}) ===$", segment, re.M):
+        try:
+            line = json.loads(match.group(2))
+        except (ValueError, TypeError):
+            continue
+        if not isinstance(line, dict):
+            continue
+        owner = str(line.get("id" if match.group(1) == "session" else "_session", ""))
+        if not _UUID_RE.fullmatch(owner):
+            continue
+        if match.group(1) == "session":
+            ids.append(owner)
+            continue
+        if owner not in ids:
+            continue
+        seen.add(owner)
+        if line.get("action") == _NATIVE_SHUTDOWN_ACTION:
+            ended.add(owner)
+        last = owner
+    still_open = [owner for owner in ids if owner in seen and owner not in ended]
+    if len(still_open) == 1:
+        return still_open[0], "open"
+    if last:
+        return last, "last line"
+    return "", ""
+
+
+def _native_contexts_of(before, owner):
+    """The public context values that session ``owner`` recorded, oldest first."""
+    contexts = []
+    for match in _NATIVE_CONTEXT_LINE_RE.finditer(before):
+        try:
+            line = json.loads(match.group(1))
+        except (ValueError, TypeError):
+            continue
+        if isinstance(line, dict) and str(line.get("_session", "")) == owner:
+            values = _native_context_values(line)
+            if values:
+                contexts.append(values)
+    return contexts
+
+
+def _native_running_task(contexts):
+    """The task a session had started and not yet ended, or ``""``."""
+    running = []
+    for values in contexts:
+        task = values.get("task")
+        if not task:
+            continue
+        if values.get("task_state") == "started":
+            running.append(task)
+        elif task in running:
+            running.remove(task)
+    return running[-1] if running else ""
+
+
+def _note_native_task(app_key, state):
+    """Record that a GUI task started or ended, for a later native crash report.
+
+    :param app_key: the module key, such as ``"mask"``; anything but letters
+        and digits becomes ``-``.
+    :param state: ``"started"`` or ``"ended"``.
+    :returns: whether a line was written. Never raises.
+    """
+    task = re.sub(r"[^A-Za-z0-9]+", "-", str(app_key or "")).strip("-")
+    return _note_native_context(task=task, task_state=state) if task else False
+
+
+def _note_native_shutdown():
+    """Mark that this session began its interpreter shutdown (``atexit``)."""
+    return _note_native_context(action=_NATIVE_SHUTDOWN_ACTION)
+
+
+def _macos_crash_reports_dir():
+    """Where macOS writes the crash reports of this user's processes."""
+    return Path.home() / "Library" / "Logs" / "DiagnosticReports"
+
+
+def _macos_public_image(name, path):
+    """A native image's basename when it ships with a system or package, else ``<user-code>``."""
+    raw = str(path or "")
+    base = re.split(r"[\\/]+", str(name or "") or raw)[-1]
+    if not _MACOS_LIBRARY_PATH_RE.search(raw):
+        return "<user-code>"
+    return _safe_token(base, 80) or "<unknown>"
+
+
+def _macos_public_symbol(symbol):
+    """A native symbol in name-like characters only, ``::`` written as ``.``."""
+    text = re.sub(r"\(.*", "", str(symbol or "")).replace("::", ".")
+    return _safe_token(text, 80) or "<unknown>"
+
+
+def _macos_crash_facts(text):
+    """Public facts from one macOS crash report, ``.ips`` or legacy text.
+
+    Only the exception type and signal, whether the main thread faulted,
+    the crashing thread's innermost frames (image basename and symbol) and
+    the OpenMP runtimes loaded are read. Images outside system and package
+    folders are published as ``<user-code>`` with no symbol; no path, user
+    name, address or thread name leaves.
+
+    :returns: ``(note, frames)``, frames outermost first; ``("", [])`` when
+        the text is not a crash report.
+    """
+    exception, main, frames, images = "", None, [], []
+    head, _, rest = str(text or "").partition("\n")
+    try:
+        body = json.loads(rest) if rest.lstrip().startswith("{") else None
+        json.loads(head)
+    except (ValueError, TypeError):
+        body = None
+    if isinstance(body, dict):
+        info = body.get("exception") if isinstance(body.get("exception"), dict) else {}
+        exception = " ".join(_safe_token(info.get(key, ""), 40) for key in ("type", "signal")).strip()
+        used = body.get("usedImages") if isinstance(body.get("usedImages"), list) else []
+        images = [(item.get("name", ""), item.get("path", "")) for item in used if isinstance(item, dict)]
+        threads = body.get("threads") if isinstance(body.get("threads"), list) else []
+        index = body.get("faultingThread")
+        crashed = threads[index] if isinstance(index, int) and 0 <= index < len(threads) else next(
+            (thread for thread in threads if isinstance(thread, dict) and thread.get("triggered")), None)
+        if isinstance(crashed, dict):
+            main = crashed.get("queue") == "com.apple.main-thread" or threads.index(crashed) == 0
+            for frame in (crashed.get("frames") or [])[:_MAX_MACOS_FRAMES]:
+                if not isinstance(frame, dict):
+                    continue
+                at = frame.get("imageIndex")
+                name, path = images[at] if isinstance(at, int) and 0 <= at < len(images) else ("", "")
+                image = _macos_public_image(name, path)
+                symbol = _macos_public_symbol(frame.get("symbol")) if image != "<user-code>" else "<unknown>"
+                frames.append({"file": image, "function": symbol, "line": 0})
+    else:
+        lines = str(text or "").splitlines()
+        found = next((line for line in lines if line.startswith("Exception Type:")), "")
+        if not found:
+            return "", []
+        exception = " ".join(_safe_token(word, 40) for word in found.split(":", 1)[1].replace("(", " ").replace(")", " ").split()[:2])
+        for line in lines:
+            match = _MACOS_LEGACY_IMAGE_RE.match(line)
+            if match:
+                images.append((match.group(1), match.group(2)))
+        paths = {name: path for name, path in images}
+        start = next((at for at, line in enumerate(lines) if re.match(r"^Thread \d+ Crashed", line)), None)
+        if start is not None:
+            main = lines[start].startswith("Thread 0 ")
+            for line in lines[start + 1:]:
+                match = _MACOS_LEGACY_FRAME_RE.match(line.strip())
+                if not match or len(frames) >= _MAX_MACOS_FRAMES:
+                    break
+                image = _macos_public_image(match.group(1), paths.get(match.group(1), ""))
+                symbol = _macos_public_symbol(match.group(2)) if image != "<user-code>" else "<unknown>"
+                frames.append({"file": image, "function": symbol, "line": 0})
+    if not exception and not frames:
+        return "", []
+    runtimes = [_macos_public_image(name, path) for name, path in images
+                if _MACOS_OPENMP_RE.match(re.split(r"[\\/]+", str(name or "") or str(path or ""))[-1])]
+    parts = ["macOS crash report: " + (exception or "unknown exception")
+             + (" on the main thread" if main else " on a background thread" if main is False else "") + "."]
+    if frames:
+        parts.append("Innermost native frames: " + " < ".join(
+            frame["file"] + " " + frame["function"] for frame in frames[:4]) + ".")
+    parts.append("OpenMP runtimes loaded: " + str(len(runtimes))
+                 + (" (" + ", ".join(runtimes[:4]) + ")" if runtimes else "") + ".")
+    return " ".join(parts), list(reversed(frames))
+
+
+def _macos_crash_excerpt(near):
+    """The public facts of the macOS crash report written nearest ``near``.
+
+    :param near: epoch seconds close to the fault, the crash log's last write.
+    :returns: :func:`_macos_crash_facts`' answer for the closest ``Python``
+        or ``spacr`` report within :data:`_MACOS_REPORT_WINDOW_S`, or
+        ``("", [])`` off macOS or when there is none.
+    """
+    if sys.platform != "darwin":
+        return "", []
+    try:
+        entries = list(_macos_crash_reports_dir().iterdir())
+    except OSError:
+        return "", []
+    best = None
+    for entry in entries:
+        if entry.suffix not in (".ips", ".crash") or not entry.name.lower().startswith(("python", "spacr")):
+            continue
+        try:
+            stat = entry.stat()
+        except OSError:
+            continue
+        gap = abs(stat.st_mtime - near)
+        if gap <= _MACOS_REPORT_WINDOW_S and stat.st_size <= 4 * MAX_LOG_BYTES and (best is None or gap < best[0]):
+            best = (gap, entry)
+    if best is None:
+        return "", []
+    try:
+        return _macos_crash_facts(best[1].read_text(encoding="utf-8", errors="replace"))
+    except OSError:
+        return "", []
+
+
 def _native_threads(observed):
     """Split faulthandler's dump into threads, the crashing thread first.
 
@@ -4043,6 +4279,8 @@ def _native_crash_note(session, contexts, threads):
     parts = []
     if session.get("known"):
         parts.append("Crashed build: spaCR v" + session["spacr_version"] + ", Python v" + session["python"] + ".")
+    elif merged.get("spacr"):
+        parts.append("Crashed build: spaCR v" + merged["spacr"] + ".")
     system = " ".join(merged[key] for key in ("os", "os_release", "machine") if merged.get(key))
     if system:
         parts.append("OS: " + system + ".")
@@ -4058,6 +4296,9 @@ def _native_crash_note(session, contexts, threads):
             parts.append(label + ": " + merged[key] + ".")
     if screens:
         parts.append("Screens before the crash: " + " > ".join(screens[-_MAX_NATIVE_SCREENS:]) + ".")
+    running = _native_running_task(contexts)
+    if running:
+        parts.append("Task running at the crash: " + running + ".")
     if contexts and contexts[-1].get("action"):
         parts.append("Last step recorded before the crash: " + contexts[-1]["action"] + ".")
     if merged.get("shutdown_phase"):
@@ -4132,17 +4373,36 @@ def _consume_native_crash(path):
             observed = raw[fatal.end():].split("\n\n", 1)[-1].split("\n=== spaCR ", 1)[0]
             threads = _native_threads(observed)
             contexts, owner = _native_contexts(raw[:fatal.start()], observed)
-            if not session.get("known") and owner:
+            how = ""
+            if not owner and not session.get("known") and not any(frames for _, frames in threads):
+                owner, how = _native_session_guess(raw[:fatal.start()])
+                if owner:
+                    contexts = _native_contexts_of(raw[:fatal.start()], owner)
+            if not session.get("known") and owner and how != "last line":
                 session = _native_session_by_id(raw[:fatal.start()], owner)
             summary["native_session"] = _validated_summary({"native_session": session})["native_session"]
             frames = [frame for _, thread_frames in threads for frame in thread_frames]
             summary["frames"] = [_frame(file, function, line)
                                  for file, line, function in frames[:MAX_FRAMES]]
             note, screen = _native_crash_note(summary["native_session"], contexts, threads)
+            extra = []
+            if how:
+                extra.append("Crashed session matched as " + _NATIVE_MATCH_NOTES[how] + ".")
+            if not frames:
+                extra.append("The fault handler wrote no Python stack for any thread.")
+            mac_note, mac_frames = _macos_crash_excerpt(path.stat().st_mtime)
+            if mac_note:
+                extra.append(mac_note)
+            if mac_frames and not summary["frames"]:
+                summary["frames"] = mac_frames[-MAX_FRAMES:]
+            note = " ".join([note] + extra if note else extra)
             if note:
                 summary["user_note"] = scrub_public_text(note, MAX_NOTE_CHARS)
             if screen:
                 summary["screen"] = screen
+            running = _native_running_task(contexts)
+            if running:
+                summary["run"] = {"stage": running}
             record = f"{path.stat().st_ino}:{offset}:{size}"
             event_id = _new_error_occurrence(event_key=record)
             return _dispatch_error(message, summary=summary, event_id=event_id)
@@ -4229,6 +4489,7 @@ def _install_native_error_capture(path=None):
         _NATIVE_CAPTURE_HANDLE = handle
         _NATIVE_SESSION_ID = session["id"]
         _note_native_context(**_native_platform_context())
+        atexit.register(_note_native_shutdown)
         if _NATIVE_EXCEPTION_HOOK is None:
             _NATIVE_EXCEPTION_HOOK = install_excepthook()
         return str(path)

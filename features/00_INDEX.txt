@@ -2029,3 +2029,5 @@ NEW FEATURES
        850_plaque_well_detector_finds_rectangular_plaque_tiles.txt
   868  THE BUNDLED PLAQUE MODEL SHOWS AS MODIFIED IN EVERY CHECKOUT
        868_plaque_model_left_out_of_lfs.txt
+  927  NATIVE CRASH REPORTS LACK SESSION CONTEXT WHEN THE FAULT DUMP IS EMPTY
+       927_native_crash_reports_lack_session_context.txt
