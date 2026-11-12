@@ -46,3 +46,19 @@ NOT DONE
 - The published-comparator rows (Brieflow / Funk published clusters,
   a3_sweep_rows_with_published.csv) are not part of the phase; they read
   Brieflow's supplementary workbook.
+
+FINISHED 2026-11-12 (published comparators)
+ops_cluster_published lists published clusterings ({name, table, sheet,
+gene, cluster}, or a JSON file of them; Brieflow's MOESM3 sheet 'Interphase
+Genes' with cluster_id, Funk's table with interphase_cluster). The phase
+scores each on the sweep's gene list with score_partition (the same files
+and code) plus shuffled-label controls (cluster sizes kept,
+default_rng(20261110), ops_cluster_shuffles per comparator), writes
+sweep_rows_with_published.csv (the sweep rows unchanged, data_matched True;
+comparator rows graph 'published', data_matched False),
+published_comparators.json (legend: genes, scoring and control matched;
+data and clustering not matched; genes missing; the sweep resolution
+nearest each comparator's cluster count) and draws the comparators on
+sweep.png. The real comparator rows follow a3_sweep.py's published rows
+(same columns and genes); the shuffled comparator rows are new (a3 had
+none). Not yet rerun on plate A rows.

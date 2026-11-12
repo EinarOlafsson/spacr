@@ -4348,7 +4348,9 @@ def etest_phase(settings: Mapping[str, Any], cells_folder: str, destination: str
         ``ops_etest_permutations``, ``ops_power_cells``,
         ``ops_power_seeds``, ``ops_power_retrieval``,
         ``ops_control_prefix`` and, for the retrieval curve,
-        ``ops_reference_dir`` and the ``ops_eval_*`` settings.
+        ``ops_reference_dir``, ``ops_power_gene_list``,
+        ``ops_power_reference_rows`` and the profile options
+        :func:`power_profile_rows` reads.
     :param cells_folder: the profile run folder, where the profile phase
         writes the embedding when ``ops_etest`` is on.
     :param destination: ``dst_root``; outputs go to its
@@ -4413,73 +4415,255 @@ def etest_phase(settings: Mapping[str, Any], cells_folder: str, destination: str
                                         settings, folder, prefix, say))
     return {"folder": folder, "outputs": outputs}
 
+#: The references the retrieval power curve scores (item 917): the REPORT
+#: halves of CORUM, STRING >= 0.7 and BioGRID.
+POWER_RETRIEVAL_REFERENCES: Tuple[str, ...] = ("CORUM@REPORT", "STRING>=0.7@REPORT", "BioGRID@REPORT")
+
+#: The seed of the retrieval power curve's shuffled-label control.
+POWER_RETRIEVAL_SHUFFLE_SEED = 3
+
+
+def power_profile_rows(genes: pd.DataFrame, guides: pd.DataFrame, settings: Mapping[str, Any], *,
+                       control: str = "nontargeting", min_cells: int = 10
+                       ) -> Tuple[np.ndarray, np.ndarray]:
+    """The final gene rows of one subsampled draw, built as the profile phase builds them.
+
+    :param genes: the gene medians of :func:`subsample_profiles`.
+    :param guides: its guide medians.
+    :param settings: read for ``ops_profile_gene_universe`` (a table with a
+        ``gene`` column, or a JSON list: the genes kept, in that order, then
+        the control rows), ``ops_profile_weighting``
+        (``'contrastive_wiener'``: :func:`contrastive_weighting`),
+        ``ops_guide_efficacy`` (``'jacks_blend'``:
+        :func:`guide_efficacy_profiles` on the weighted rows) and their
+        options.
+    :param control: the control prefix.
+    :param min_cells: gene rows with this many cells or fewer are left out
+        of the weighting, as :func:`subsample_profiles` left them out.
+    :returns: ``(names, rows)``: the row names (control guides as
+        ``<control>_<guide>``) and the rows whose cosine is the similarity:
+        ``Z/|Z| + M/|M|`` with the guide efficacy, otherwise the profile
+        columns embedded as the evaluate phase embeds them
+        (:func:`spacr.ops_reference.embed_gene_profiles`).
+    :raises ValueError: for an unknown weighting or efficacy, or the
+        efficacy without the weighting.
+    """
+    import json
+
+    from . import ops_reference
+    from .tabular import read_table
+
+    weighting = str(settings.get("ops_profile_weighting") or "").strip().lower() or None
+    efficacy = str(settings.get("ops_guide_efficacy") or "").strip().lower() or None
+    if weighting not in (None, "contrastive_wiener"):
+        raise ValueError(f"ops_profile_weighting must be empty or contrastive_wiener; got {weighting!r}")
+    if efficacy not in (None, "jacks_blend"):
+        raise ValueError(f"ops_guide_efficacy must be empty or jacks_blend; got {efficacy!r}")
+    if efficacy and not weighting:
+        raise ValueError("ops_guide_efficacy runs in the weighted space; set ops_profile_weighting "
+                         "to contrastive_wiener")
+    guides = guides.copy()
+    is_nt = guides["gene"].astype(str) == control
+    guides.loc[is_nt, "gene"] = control + "_" + guides.loc[is_nt, "guide"].astype(str)
+    universe = settings.get("ops_profile_gene_universe")
+    if universe:
+        if isinstance(universe, str) and not universe.endswith(".json"):
+            listed = read_table(universe, canonicalise=False, report=None)["gene"].astype(str).tolist()
+        else:
+            if isinstance(universe, str):
+                with open(universe, encoding="utf-8") as handle:
+                    universe = json.load(handle)
+            listed = [str(v) for v in universe]
+        have = set(genes["gene"].astype(str))
+        controls = ops_reference.is_control(genes["gene"], (control, "ntpseudo"))
+        order = [g for g in listed if g in have] + list(genes["gene"][controls])
+        genes = genes.set_index("gene").loc[order].reset_index()
+        guides = guides[guides["gene"].isin(set(order))].reset_index(drop=True)
+    columns = [c for c in genes.columns if str(c).startswith("PC_")]
+    if weighting:
+        genes, guides, _info = contrastive_weighting(genes, guides, columns, control_prefix=control,
+                                                     min_cells=int(min_cells))
+        columns = [c for c in genes.columns if str(c).startswith("w_")]
+    names = genes["gene"].astype(str).to_numpy()
+    if efficacy:
+        rows, _efficacy = guide_efficacy_profiles(
+            genes, guides, columns=columns,
+            iters=int(settings.get("ops_guide_efficacy_iters") or 20),
+            emax=float(settings.get("ops_guide_efficacy_emax") or 1.0))
+        return rows["gene"].astype(str).to_numpy(), rows[columns].to_numpy(np.float32)
+    return names, ops_reference.embed_gene_profiles(genes[columns].to_numpy(float))
+
+
+def power_retrieval(arms: Mapping[str, Tuple[Sequence[str], np.ndarray]], reference_dir: Any, *,
+                    genes: Optional[Sequence[str]] = None,
+                    references: Sequence[str] = POWER_RETRIEVAL_REFERENCES, top: int = 10,
+                    shuffle_seed: int = POWER_RETRIEVAL_SHUFFLE_SEED) -> Dict[str, pd.DataFrame]:
+    """Ranked retrieval of reference partners by several profile arms on one gene list.
+
+    Every arm is scored on the same genes: the targeting rows every arm
+    has (and, when given, in ``genes``), sorted. The cosine of the rows
+    ranks them; the per-gene average precision is
+    :func:`spacr.sp_stats.pair_map` (without p values), and the top-``top``
+    partner hit is whether a reference partner is among the ``top`` most
+    similar genes. The control is the same ranking with the gene labels
+    permuted (``default_rng(shuffle_seed)``). Each later arm is tested
+    against the first: a Wilcoxon signed-rank test of the per-gene AP and
+    an exact McNemar test of the top-``top`` hits, Holm-adjusted over every
+    test.
+
+    :param arms: ``{arm: (names, rows)}``; the first is the comparator.
+    :param reference_dir: the folder of the reference sets
+        (:func:`spacr.ops_reference.reference_dirs`).
+    :param genes: restrict the gene list to these genes.
+    :param references: the references scored, with their halves.
+    :param top: the neighbours the partner hit looks at.
+    :param shuffle_seed: the seed of the shuffled-label control.
+    :returns: ``genes`` (the gene list), ``summary`` (``arm, reference,
+        queries, mAP, random_mAP, shuffled_mAP, top10_partner_pct,
+        p_at_10``), ``per_gene`` (:func:`spacr.sp_stats.pair_map` columns
+        with ``arm, reference, top10_hit, p_at_10``) and ``tests``.
+    :raises ValueError: when no arm is given or the arms share no gene.
+    """
+    from scipy.stats import binomtest, wilcoxon
+
+    from . import ops_reference, sp_stats
+    from .multiple_testing import adjust_p_values
+
+    if not arms:
+        raise ValueError("power_retrieval needs at least one arm")
+    common = None
+    for names, _rows in arms.values():
+        names = np.asarray(names).astype(str)
+        kept = set(names[~ops_reference.is_control(names)])
+        common = kept if common is None else common & kept
+    if genes is not None:
+        common &= {str(g) for g in genes}
+    gene_list = np.array(sorted(common), dtype=object)
+    if not len(gene_list):
+        raise ValueError("the arms share no targeting gene to score")
+    n = len(gene_list)
+    index = {g: i for i, g in enumerate(gene_list)}
+    pairs = {r: ops_reference.reference_pairs(r, reference_dir) for r in references}
+    positives = {r: ops_reference.positive_matrix(gene_list, pairs[r]) for r in references}
+    shuffled = gene_list[np.random.default_rng(int(shuffle_seed)).permutation(n)]
+    summary, per_gene = [], []
+    for arm, (names, rows) in arms.items():
+        x = pd.DataFrame(np.asarray(rows), index=np.asarray(names).astype(str)).loc[gene_list]
+        sims = sp_stats.profile_cosine(x.to_numpy(float)).astype(np.float64)
+        np.fill_diagonal(sims, -np.inf)
+        order = np.argsort(-sims, axis=1)[:, :int(top)]
+        for reference in references:
+            table = sp_stats.pair_map(sims, gene_list, positives[reference], pvalues=False)
+            queries = np.array([index[g] for g in table["gene"]], dtype=int)
+            hits = np.take_along_axis(positives[reference][queries], order[queries], 1)
+            control = sp_stats.pair_map(sims, shuffled, ops_reference.positive_matrix(
+                shuffled, pairs[reference]), pvalues=False)
+            table = table.assign(arm=arm, reference=reference, top10_hit=hits.any(1),
+                                 p_at_10=hits.mean(1))
+            per_gene.append(table)
+            summary.append({"arm": arm, "reference": reference, "queries": len(table),
+                            "mAP": table["ap"].mean(), "random_mAP": table["expected_ap"].mean(),
+                            "shuffled_mAP": control["ap"].mean(),
+                            "top10_partner_pct": 100 * table["top10_hit"].mean(),
+                            "p_at_10": table["p_at_10"].mean()})
+    per_gene = pd.concat(per_gene, ignore_index=True)
+    first = list(arms)[0]
+    tests = []
+    for reference in references:
+        scored = per_gene[per_gene["reference"] == reference]
+        ap = scored.pivot(index="gene", columns="arm", values="ap")
+        hit = scored.pivot(index="gene", columns="arm", values="top10_hit")
+        for arm in list(arms)[1:]:
+            both = ap[[first, arm]].dropna().index
+            result = wilcoxon(ap.loc[both, arm], ap.loc[both, first])
+            mine = hit.loc[both, arm].astype(bool)
+            theirs = hit.loc[both, first].astype(bool)
+            only_arm, only_first = int((mine & ~theirs).sum()), int((~mine & theirs).sum())
+            tests.append({"reference": reference, "arm": arm, "vs": first, "genes": len(both),
+                          "mAP_arm": ap.loc[both, arm].mean(), "mAP_ref": ap.loc[both, first].mean(),
+                          "test": "Wilcoxon AP", "p": float(result.pvalue)})
+            tests.append({"reference": reference, "arm": arm, "vs": first, "genes": len(both),
+                          "top10_arm_only": only_arm, "top10_ref_only": only_first,
+                          "test": "McNemar top-10",
+                          "p": float(binomtest(only_arm, only_arm + only_first, 0.5).pvalue)
+                          if only_arm + only_first else 1.0})
+    tests = pd.DataFrame(tests, columns=["reference", "arm", "vs", "genes", "mAP_arm", "mAP_ref", "test",
+                                         "p", "top10_arm_only", "top10_ref_only"])
+    if len(tests):
+        tests["p_holm"] = adjust_p_values(tests["p"].to_numpy(float), "holm")[0]
+    else:
+        tests["p_holm"] = pd.Series(dtype=float)
+    return {"genes": pd.DataFrame({"gene": gene_list.astype(str)}), "summary": pd.DataFrame(summary),
+            "per_gene": per_gene, "tests": tests}
+
+
+def _power_rows_file(path: str) -> Tuple[np.ndarray, np.ndarray]:
+    """Ready profile rows: an ``.npz`` with ``names`` and ``pcs``, or a table of ``gene`` plus numbers."""
+    from .tabular import read_table
+
+    if str(path).lower().endswith(".npz"):
+        with np.load(path, allow_pickle=True) as stored:
+            return np.asarray(stored["names"]).astype(str), np.asarray(stored["pcs"])
+    table = read_table(str(path), canonicalise=False, report=None)
+    columns = [c for c in table.columns if c not in ("gene", "n_cells")
+               and pd.api.types.is_numeric_dtype(table[c])]
+    return table["gene"].astype(str).to_numpy(), table[columns].to_numpy(float)
+
 
 def _power_retrieval(cells, labels, guides, ns, seeds, settings, folder, prefix, say) -> Dict[str, str]:
-    """The retrieval power curve: subsampled profiles scored as the evaluate phase scores them.
+    """The retrieval power curve: every draw's final rows scored on one gene list.
 
     :param cells: the per-cell embedding.
     :param labels: each cell's gene.
     :param guides: each cell's guide.
     :param ns: the caps.
     :param seeds: the subsampling seeds.
-    :param settings: read for ``ops_reference_dir``, ``ops_profile_min_cells``
-        and the ``ops_eval_*`` settings.
+    :param settings: read for ``ops_reference_dir``, ``ops_profile_min_cells``,
+        ``ops_power_gene_list``, ``ops_power_reference_rows`` and the
+        options of :func:`power_profile_rows`.
     :param folder: the etest results folder.
     :param prefix: the control prefix.
     :param say: the progress callback.
     :returns: the paths written.
+
+    The arms are, in order: the ready rows of ``ops_power_reference_rows``
+    (``reference``) when given, every cell (``all``) and each cap and seed
+    (``n<n>_s<seed>``); each later arm is tested against the first
+    (:func:`power_retrieval`).
     """
     import os
 
-    from scipy.stats import wilcoxon
-
-    from . import ops_reference
-    from .tabular import write_table
+    from .tabular import read_table, write_table
 
     reference_dir = settings.get("ops_reference_dir")
     if not reference_dir:
         raise ValueError("ops_power_retrieval needs ops_reference_dir, the folder of the reference sets")
     min_cells = int(settings.get("ops_profile_min_cells", 10))
     outputs: Dict[str, str] = {}
-    summaries, per_gene = [], []
-    for n in ns:
-        for seed in seeds:
-            genes, guide_rows = subsample_profiles(cells, labels, guides, n, seed, control=prefix,
-                                                   min_cells=min_cells)
+    arms: Dict[str, Tuple[np.ndarray, np.ndarray]] = {}
+    ready = settings.get("ops_power_reference_rows")
+    if ready:
+        arms["reference"] = _power_rows_file(str(ready))
+    draws = [("all", len(labels), 0)] + [(f"n{n}_s{seed}", n, seed) for n in ns for seed in seeds]
+    for arm, n, seed in draws:
+        genes, guide_rows = subsample_profiles(cells, labels, guides, n, seed, control=prefix,
+                                               min_cells=min_cells)
+        if arm != "all":
             for name, table in (("genes", genes), ("guides", guide_rows)):
                 outputs[f"power_{name}_n{n}_s{seed}"] = write_table(
                     table, os.path.join(folder, "power_profiles", f"{name}_n{n}_s{seed}.parquet"),
                     canonicalise=False)
-            columns = [c for c in genes.columns if c.startswith("PC_")]
-            pcs = ops_reference.embed_gene_profiles(genes[columns].to_numpy(float))
-            fitness = (guide_rows.groupby("gene")["n_cells"].mean()).to_dict()
-            metrics, scored = ops_reference.evaluate_gene_profiles(
-                genes["gene"].to_numpy(), pcs, fitness, reference_dir, settings, arm=f"n{n}_s{seed}")
-            summaries.append(metrics.assign(n=n, seed=seed))
-            per_gene.append(scored.assign(n=n, seed=seed))
-            say(f"etest retrieval n={n} seed {seed}: {len(genes)} gene rows")
-    summary = pd.concat(summaries, ignore_index=True)
-    outputs["power_retrieval_summary"] = write_table(
-        summary, os.path.join(folder, "power_retrieval_summary.csv"), canonicalise=False)
-    per_gene = pd.concat(per_gene, ignore_index=True)
-    tests = []
-    if {"gene", "ap", "reference"} <= set(per_gene.columns) and len(ns):
-        top = max(ns)
-        for reference, d in per_gene.groupby("reference"):
-            wide = d.pivot_table(index="gene", columns=["n", "seed"], values="ap")
-            for n in ns:
-                for seed in seeds:
-                    if n == top or (n, seed) not in wide or (top, seed) not in wide:
-                        continue
-                    pair = wide[[(n, seed), (top, seed)]].dropna()
-                    if len(pair) < 2 or np.allclose(pair.iloc[:, 0], pair.iloc[:, 1]):
-                        continue
-                    tests.append({"reference": reference, "n": n, "seed": seed, "vs_n": top,
-                                  "genes": len(pair), "mAP": float(pair.iloc[:, 0].mean()),
-                                  "mAP_vs": float(pair.iloc[:, 1].mean()),
-                                  "p_wilcoxon": float(wilcoxon(pair.iloc[:, 0], pair.iloc[:, 1]).pvalue)})
-    outputs["power_retrieval_tests"] = write_table(
-        pd.DataFrame(tests, columns=["reference", "n", "seed", "vs_n", "genes", "mAP", "mAP_vs",
-                                     "p_wilcoxon"]),
-        os.path.join(folder, "power_retrieval_tests.csv"), canonicalise=False)
+        floor = int(n) - 1 if int(n) <= min_cells else min_cells
+        arms[arm] = power_profile_rows(genes, guide_rows, settings, control=prefix, min_cells=floor)
+        say(f"etest retrieval {arm}: {len(arms[arm][0])} rows")
+    listed = settings.get("ops_power_gene_list")
+    wanted = (read_table(str(listed), canonicalise=False, report=None)["gene"].astype(str).tolist()
+              if listed else None)
+    scored = power_retrieval(arms, reference_dir, genes=wanted)
+    for name, file in (("genes", "power_retrieval_genes.csv"), ("summary", "power_retrieval_summary.csv"),
+                       ("per_gene", "power_retrieval_pergene.csv.gz"),
+                       ("tests", "power_retrieval_tests.csv")):
+        outputs[f"power_retrieval_{name}"] = write_table(scored[name], os.path.join(folder, file),
+                                                         canonicalise=False)
+    say(f"etest retrieval: {len(scored['genes'])} genes scored in {len(arms)} arms")
     return outputs

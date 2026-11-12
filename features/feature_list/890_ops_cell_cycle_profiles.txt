@@ -28,3 +28,15 @@ The reference fits TVN on interphase cells and applies it to all cells.
 The aggregate phase fits TVN on the cells it pools, so a spaCR run gives
 the same phase tables only from the same per-cell TVN components; with
 ops_pool_interphase the M block is empty.
+
+FINISHED 2026-11-12 (the TVN fit)
+ops_tvn_fit_cells ('pooled' default, 'interphase') closes the difference
+above: with 'interphase' the streamed TVN of the aggregate phase is fitted
+on the interphase cells (per-well centre and scale, PCA sample and control
+cells all interphase, as improved/scripts/build_cells.py) and applied to
+every pooled cell, each well centred and scaled on its interphase cells
+(TVNModel.transform reference). Pool every cell (ops_pool_interphase off)
+with ops_tvn_fit_cells 'interphase' and ops_profile_cell_cycle to get the
+reference's phase tables with an M block. Tested on synthetic wells against
+a port of build_cells.py's transform (within BLAS rounding). Not yet rerun
+on plate A: that run needs a design card and sign-off.

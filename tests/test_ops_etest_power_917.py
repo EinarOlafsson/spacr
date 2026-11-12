@@ -198,27 +198,225 @@ def test_the_etest_phase_writes_tables_power_and_figure(tmp_path):
         run_ops({**settings, "ops_power_retrieval": True, "ops_power_cells": [10]}, phases=["etest"])
 
 
-def test_the_retrieval_curve_scores_each_draw_and_tests_it(tmp_path, monkeypatch):
+def _complex_cells(seed=0, dims=8, complexes=10, members=4, cells=200, nt_guides=30, nt_cells=60,
+                   effect=1.2):
+    """Planted cells: the genes of one complex share a direction; control cells are noise."""
+    rng = np.random.default_rng(seed)
+    blocks, labels, guides, groups = [], [], [], []
+    for k in range(nt_guides):
+        blocks.append(rng.standard_normal((nt_cells, dims)))
+        labels += [f"nontargeting_nt{k}"] * nt_cells
+        guides += [f"NT{k}"] * nt_cells
+    for c in range(complexes):
+        direction = rng.standard_normal(dims)
+        direction *= effect / np.linalg.norm(direction)
+        for m in range(members):
+            gene = f"C{c}G{m}"
+            groups.append((gene, f"complex{c}"))
+            for guide in range(2):
+                blocks.append(rng.standard_normal((cells // 2, dims)) + direction)
+                labels += [gene] * (cells // 2)
+                guides += [f"{gene}_{guide}"] * (cells // 2)
+    return np.vstack(blocks).astype(np.float32), np.array(labels), np.array(guides), groups
+
+
+def _retrieval_references(folder, groups):
+    """CORUM, STRING and BioGRID tables whose partners are the planted complexes."""
+    folder.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(groups, columns=["gene_name", "group"]).to_csv(
+        folder / "corum_group_benchmark.tsv", sep="\t", index=False)
+    by = {}
+    for gene, group in groups:
+        by.setdefault(group, []).append(gene)
+    pairs = [(a, b) for members in by.values() for i, a in enumerate(sorted(members))
+             for b in sorted(members)[i + 1:]]
+    pd.DataFrame({"a": [p[0] for p in pairs], "b": [p[1] for p in pairs],
+                  "combined_score": 900}).to_parquet(folder / "string_v12_ge400.parquet", index=False)
+    pd.DataFrame({"a": [p[0] for p in pairs], "b": [p[1] for p in pairs]}).to_parquet(
+        folder / "biogrid_physical.parquet", index=False)
+    return folder
+
+
+def _reference_ap(sims, positives, candidates):
+    """retrieval.py's average precision (ic_lib._ap_rows), written out again."""
+    out = np.full(len(sims), np.nan)
+    columns = np.flatnonzero(candidates)
+    for i in range(len(sims)):
+        c = columns[columns != i]
+        lab = positives[i, c]
+        if not lab.any():
+            continue
+        order = np.lexsort((~lab, -sims[i, c].astype(np.float32)))
+        hits = lab[order]
+        out[i] = float((np.cumsum(hits) / np.arange(1, hits.size + 1) * hits).sum() / lab.sum())
+    return out
+
+
+def test_power_retrieval_is_the_reference_retrieval_on_one_gene_list(tmp_path):
+    from scipy.stats import binomtest, wilcoxon
+
     from spacr import ops_reference
 
-    def evaluate(names, pcs, fitness, reference_dir, settings, arm=""):
-        genes = [n for n in names if not str(n).startswith("nontargeting")]
-        ap = np.linspace(0.1, 0.9, len(genes)) * (1 + 0.1 * int(arm.split("_")[0][1:]) / 50)
-        per_gene = pd.DataFrame({"gene": genes, "ap": ap, "reference": "CORUM"})
-        return pd.DataFrame({"metric": ["mAP"], "value": [float(ap.mean())], "arm": [arm]}), per_gene
+    _cells, _labels, _guides, groups = _complex_cells()
+    refs = _retrieval_references(tmp_path / "refs", groups)
+    rng = np.random.default_rng(4)
+    genes = sorted({g for g, _ in groups})
+    base = rng.standard_normal((len(genes), 6))
+    arms = {"first": (np.array(genes + ["nontargeting_x"]), np.vstack([base, rng.standard_normal(6)])),
+            "noisy": (np.array(genes[::-1]), (base + rng.normal(0, 1.5, base.shape))[::-1]),
+            "short": (np.array(genes[1:]), base[1:] + rng.normal(0, 0.1, (len(genes) - 1, 6)))}
+    out = G.power_retrieval(arms, str(refs))
+    gene_list = np.array(genes[1:], dtype=object)
+    assert out["genes"]["gene"].tolist() == list(gene_list)
+    summary = out["summary"]
+    assert summary[["arm", "reference"]].values.tolist() == [
+        [a, r] for a in arms for r in G.POWER_RETRIEVAL_REFERENCES]
+    shuffled = gene_list[np.random.default_rng(3).permutation(len(gene_list))]
+    for arm, (names, rows) in arms.items():
+        x = pd.DataFrame(rows, index=names).loc[gene_list].to_numpy(float)
+        unit = x / np.linalg.norm(x, axis=1, keepdims=True)
+        sims = (unit @ unit.T).astype(np.float32).astype(np.float64)
+        np.fill_diagonal(sims, -np.inf)
+        order = np.argsort(-sims, axis=1)[:, :10]
+        for reference in G.POWER_RETRIEVAL_REFERENCES:
+            pairs = ops_reference.reference_pairs(reference, str(refs))
+            pos = ops_reference.positive_matrix(gene_list, pairs)
+            ap = _reference_ap(sims, pos, pos.any(1))
+            keep = np.isfinite(ap)
+            hits = np.take_along_axis(pos[keep], order[keep], 1)
+            spos = ops_reference.positive_matrix(shuffled, pairs)
+            sap = _reference_ap(sims, spos, spos.any(1))
+            row = summary[(summary.arm == arm) & (summary.reference == reference)].iloc[0]
+            assert row["queries"] == keep.sum()
+            assert row["mAP"] == pytest.approx(ap[keep].mean(), abs=1e-12)
+            assert row["shuffled_mAP"] == pytest.approx(np.nanmean(sap), abs=1e-12)
+            assert row["top10_partner_pct"] == pytest.approx(100 * hits.any(1).mean())
+            assert row["p_at_10"] == pytest.approx(hits.mean(1).mean())
+    tests = out["tests"]
+    assert len(tests) == 2 * 2 * len(G.POWER_RETRIEVAL_REFERENCES)
+    assert set(tests["vs"]) == {"first"} and set(tests["arm"]) == {"noisy", "short"}
+    per_gene = out["per_gene"]
+    corum = per_gene[per_gene.reference == "CORUM@REPORT"].pivot(index="gene", columns="arm", values="ap")
+    pair = corum[["first", "noisy"]].dropna()
+    row = tests[(tests.reference == "CORUM@REPORT") & (tests.arm == "noisy") & (tests.test == "Wilcoxon AP")]
+    assert row["p"].iloc[0] == wilcoxon(pair["noisy"], pair["first"]).pvalue
+    hit = per_gene[per_gene.reference == "CORUM@REPORT"].pivot(index="gene", columns="arm", values="top10_hit")
+    mine = hit.loc[pair.index, "noisy"].astype(bool)
+    theirs = hit.loc[pair.index, "first"].astype(bool)
+    only, other = int((mine & ~theirs).sum()), int((~mine & theirs).sum())
+    mcnemar = tests[(tests.reference == "CORUM@REPORT") & (tests.arm == "noisy")
+                    & (tests.test == "McNemar top-10")]
+    assert mcnemar["p"].iloc[0] == (binomtest(only, only + other, 0.5).pvalue if only + other else 1.0)
+    assert (tests["p_holm"] >= tests["p"]).all() and (tests["p_holm"] <= 1).all()
+    assert out["summary"].equals(G.power_retrieval(arms, str(refs))["summary"])
 
-    monkeypatch.setattr(ops_reference, "evaluate_gene_profiles", evaluate)
-    folder = _cells_folder(tmp_path)
-    run_ops({"dst_root": str(tmp_path / "run"), "ops_etest_cells": str(folder),
-             "ops_etest_reference_cells": 500, "ops_etest_null": 49, "ops_etest_holdout": 20,
-             "ops_power_cells": [10, 50], "ops_power_seeds": [0, 1], "ops_power_retrieval": True,
-             "ops_reference_dir": str(tmp_path), "ops_profile_min_cells": 5}, phases=["etest"])
+
+def test_power_retrieval_refuses_arms_without_a_shared_gene(tmp_path):
+    _cells, _labels, _guides, groups = _complex_cells()
+    refs = _retrieval_references(tmp_path / "refs", groups)
+    with pytest.raises(ValueError, match="at least one arm"):
+        G.power_retrieval({}, str(refs))
+    with pytest.raises(ValueError, match="share no targeting gene"):
+        G.power_retrieval({"a": (np.array(["C0G0", "C0G1"]), np.eye(2)),
+                           "b": (np.array(["C1G0", "C1G1"]), np.eye(2))}, str(refs))
+    single = G.power_retrieval({"a": (np.array(["C0G0", "C0G1", "C1G0"]), np.eye(3))}, str(refs))
+    assert single["tests"].empty and "p_holm" in single["tests"].columns
+
+
+def test_power_profile_rows_build_the_profile_phases_final_rows():
+    from spacr import ops_reference
+
+    cells, labels, guides, _groups = _complex_cells(dims=10, effect=2.0)
+    genes, guide_rows = G.subsample_profiles(cells, labels, guides, len(labels), 0)
+    names, rows = G.power_profile_rows(genes, guide_rows, {})
+    pcs = [c for c in genes.columns if c.startswith("PC_")]
+    assert list(names) == genes["gene"].tolist()
+    np.testing.assert_array_equal(rows, ops_reference.embed_gene_profiles(genes[pcs].to_numpy(float)))
+    listed = [f"C{c}G{m}" for c in range(10) for m in range(4)][::-1][:-2]
+    settings = {"ops_profile_weighting": "contrastive_wiener", "ops_guide_efficacy": "jacks_blend",
+                "ops_profile_gene_universe": listed + ["MISSING"]}
+    names, rows = G.power_profile_rows(genes, guide_rows, settings)
+    assert list(names[:38]) == listed and all(n.startswith("nontargeting_") for n in names[38:])
+    renamed = guide_rows.copy()
+    nt = renamed["gene"] == "nontargeting"
+    renamed.loc[nt, "gene"] = "nontargeting_" + renamed.loc[nt, "guide"]
+    order = listed + [g for g in genes["gene"] if g.startswith("nontargeting")]
+    kept = genes.set_index("gene").loc[order].reset_index()
+    weighted, weighted_guides, _info = G.contrastive_weighting(
+        kept, renamed[renamed["gene"].isin(order)].reset_index(drop=True), pcs, min_cells=10)
+    blended, _e = G.guide_efficacy_profiles(weighted, weighted_guides)
+    w = [c for c in blended.columns if c.startswith("w_")]
+    np.testing.assert_array_equal(rows, blended[w].to_numpy(np.float32))
+    with pytest.raises(ValueError, match="weighted space"):
+        G.power_profile_rows(genes, guide_rows, {"ops_guide_efficacy": "jacks_blend"})
+    with pytest.raises(ValueError, match="ops_profile_weighting must be"):
+        G.power_profile_rows(genes, guide_rows, {"ops_profile_weighting": "pca"})
+    with pytest.raises(ValueError, match="ops_guide_efficacy must be"):
+        G.power_profile_rows(genes, guide_rows, {"ops_guide_efficacy": "mean"})
+
+
+def _complex_folder(tmp_path, **options):
+    """The planted complex cells in the etest phase's layout, and their reference folder."""
+    cells, labels, guides, groups = _complex_cells(**options)
+    folder = tmp_path / "cells"
+    folder.mkdir()
+    np.save(folder / "cells_E.npy", cells)
+    pd.DataFrame({"gene_symbol_0": labels, "cell_barcode_0": guides}).to_parquet(
+        folder / "cells_meta.parquet", index=False)
+    return folder, _retrieval_references(tmp_path / "refs", groups)
+
+
+def test_the_retrieval_curve_scores_every_draw_on_one_gene_list(tmp_path):
+    folder, refs = _complex_folder(tmp_path)
+    pd.DataFrame({"gene": [f"C{c}G{m}" for c in range(10) for m in range(4)][2:]}).to_csv(
+        tmp_path / "genes.csv", index=False)
+    settings = {"dst_root": str(tmp_path / "run"), "ops_etest_cells": str(folder),
+                "ops_etest_reference_cells": 500, "ops_etest_null": 19, "ops_etest_holdout": 10,
+                "ops_power_cells": [10, 50, None], "ops_power_seeds": [0, 1], "ops_power_retrieval": True,
+                "ops_reference_dir": str(refs), "ops_power_gene_list": str(tmp_path / "genes.csv")}
+    run_ops(settings, phases=["etest"])
+    results = tmp_path / "run" / "results" / "ops_etest"
+    genes = pd.read_csv(results / "power_retrieval_genes.csv")
+    assert len(genes) == 38 and "C0G0" not in set(genes.gene)
+    summary = pd.read_csv(results / "power_retrieval_summary.csv")
+    assert list(dict.fromkeys(summary.arm)) == ["all", "n10_s0", "n10_s1", "n50_s0", "n50_s1"]
+    corum = summary[summary.reference == "CORUM@REPORT"].set_index("arm")
+    assert corum.loc["all", "mAP"] > corum.loc["n10_s0", "mAP"]
+    assert corum.loc["all", "mAP"] > 3 * corum.loc["all", "shuffled_mAP"]
+    tests = pd.read_csv(results / "power_retrieval_tests.csv")
+    assert set(tests.vs) == {"all"} and len(tests) == 4 * 2 * 3
+    assert (results / "power_retrieval_pergene.csv.gz").is_file()
+    assert (results / "power_profiles" / "genes_n10_s1.parquet").is_file()
+    run_ops({**settings, "dst_root": str(tmp_path / "again")}, phases=["etest"])
+    again = pd.read_csv(tmp_path / "again" / "results" / "ops_etest" / "power_retrieval_summary.csv")
+    pd.testing.assert_frame_equal(summary, again)
+
+
+def test_ready_reference_rows_are_the_first_arm(tmp_path):
+    folder, refs = _complex_folder(tmp_path)
+    cells = np.load(folder / "cells_E.npy")
+    meta = pd.read_parquet(folder / "cells_meta.parquet")
+    genes, guide_rows = G.subsample_profiles(cells, meta.gene_symbol_0, meta.cell_barcode_0, len(meta), 0)
+    names, rows = G.power_profile_rows(genes, guide_rows, {})
+    np.savez(tmp_path / "final.npz", names=names, pcs=rows.astype(np.float32))
+    settings = {"dst_root": str(tmp_path / "run"), "ops_etest_cells": str(folder),
+                "ops_etest_reference_cells": 500, "ops_etest_null": 19, "ops_etest_holdout": 10,
+                "ops_power_cells": [25], "ops_power_seeds": [0], "ops_power_retrieval": True,
+                "ops_reference_dir": str(refs), "ops_power_reference_rows": str(tmp_path / "final.npz")}
+    run_ops(settings, phases=["etest"])
     results = tmp_path / "run" / "results" / "ops_etest"
     summary = pd.read_csv(results / "power_retrieval_summary.csv")
-    assert sorted(set(zip(summary.n, summary.seed))) == [(10, 0), (10, 1), (50, 0), (50, 1)]
+    assert list(dict.fromkeys(summary.arm)) == ["reference", "all", "n25_s0"]
+    first = summary[summary.arm == "reference"].reset_index(drop=True)
+    same = summary[summary.arm == "all"].reset_index(drop=True)
+    np.testing.assert_allclose(first["mAP"], same["mAP"], atol=1e-6)
     tests = pd.read_csv(results / "power_retrieval_tests.csv")
-    assert list(tests.n) == [10, 10] and (tests.vs_n == 50).all() and (tests.p_wilcoxon < 0.05).all()
-    assert (results / "power_profiles" / "genes_n10_s1.parquet").is_file()
+    assert set(tests.vs) == {"reference"}
+    table = pd.DataFrame(rows, columns=[f"c{j}" for j in range(rows.shape[1])])
+    table.insert(0, "gene", names)
+    table.to_csv(tmp_path / "final.csv", index=False)
+    read_names, read_rows = G._power_rows_file(str(tmp_path / "final.csv"))
+    assert list(read_names) == list(names) and np.allclose(read_rows, rows)
 
 
 def test_the_profile_phase_keeps_the_cells_the_etest_reads(tmp_path):
@@ -243,6 +441,7 @@ def test_the_etest_settings_are_alpha_with_short_tooltips():
 
     keys = ALPHA_FEATURES[917]["settings"]
     assert "ops_etest" in keys and "ops_power_retrieval" in keys
+    assert "ops_power_gene_list" in keys and "ops_power_reference_rows" in keys
     for key in keys:
         assert key in OPS_DEFAULTS and len(OPS_TOOLTIPS[key]) <= 600 and "Alpha" in OPS_TOOLTIPS[key]
     assert OPS_DEFAULTS["ops_power_cells"] == [10, 25, 50, 100, 200, 500, None]

@@ -1,8 +1,8 @@
 """Edge branches of the third paper-item integration and the Model Zoo fixes.
 
 The E-test power settings fall back to their defaults when left blank; the
-retrieval power curve writes an empty test table when no paired draw can be
-tested (identical scores, or a reference table without a reference column);
+retrieval power curve writes an empty test table when it has only the
+all-cells arm;
 and the Model Zoo scorecard and column-width helpers degrade quietly when the
 preference store, the curated scorecard or the model card is unavailable.
 """
@@ -22,34 +22,16 @@ def test_blank_power_settings_take_the_defaults():
     assert G._etest_list("  ", (3,)) == [3]
 
 
-def _retrieval(tmp_path, monkeypatch, per_gene_columns):
-    """Run the retrieval power curve with a fixed per-gene table."""
-    from spacr import ops_reference
+def test_a_single_retrieval_arm_writes_an_empty_test_table(tmp_path):
+    from tests.test_ops_etest_power_917 import _complex_folder
 
-    def evaluate(names, pcs, fitness, reference_dir, settings, arm=""):
-        genes = [n for n in names if not str(n).startswith("nontargeting")]
-        table = pd.DataFrame({"gene": genes, "ap": np.linspace(0.1, 0.9, len(genes)),
-                              "reference": "CORUM"})
-        return (pd.DataFrame({"metric": ["mAP"], "value": [0.5], "arm": [arm]}),
-                table[per_gene_columns])
-
-    monkeypatch.setattr(ops_reference, "evaluate_gene_profiles", evaluate)
-    folder = _cells_folder(tmp_path)
+    folder, refs = _complex_folder(tmp_path)
     run_ops({"dst_root": str(tmp_path / "run"), "ops_etest_cells": str(folder),
              "ops_etest_reference_cells": 500, "ops_etest_null": 19, "ops_etest_holdout": 10,
-             "ops_power_cells": [10, 50], "ops_power_seeds": [0], "ops_power_retrieval": True,
-             "ops_reference_dir": str(tmp_path), "ops_profile_min_cells": 5}, phases=["etest"])
-    return pd.read_csv(tmp_path / "run" / "results" / "ops_etest" / "power_retrieval_tests.csv")
-
-
-def test_identical_retrieval_scores_are_not_tested(tmp_path, monkeypatch):
-    tests = _retrieval(tmp_path, monkeypatch, ["gene", "ap", "reference"])
-    assert tests.empty and "p_wilcoxon" in tests.columns
-
-
-def test_a_per_gene_table_without_references_writes_no_tests(tmp_path, monkeypatch):
-    tests = _retrieval(tmp_path, monkeypatch, ["gene", "ap"])
-    assert tests.empty and list(tests.columns)[:2] == ["reference", "n"]
+             "ops_power_cells": [None], "ops_power_seeds": [0], "ops_power_retrieval": True,
+             "ops_reference_dir": str(refs)}, phases=["etest"])
+    tests = pd.read_csv(tmp_path / "run" / "results" / "ops_etest" / "power_retrieval_tests.csv")
+    assert tests.empty and list(tests.columns)[:2] == ["reference", "arm"] and "p_holm" in tests.columns
 
 
 pytest.importorskip("PySide6")
