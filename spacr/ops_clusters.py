@@ -1467,11 +1467,108 @@ def sweep_summary(rows: pd.DataFrame, target: int = 227) -> pd.DataFrame:
     return summary
 
 
-def _sweep_figure(summary: pd.DataFrame, path: str) -> str:
+#: The seed of the published comparators' shuffled-label controls, drawn
+#: in comparator order.
+PUBLISHED_CONTROL_SEED = 20261110
+
+
+def published_clusters(spec: Mapping[str, Any], control_prefix: str = "nontargeting") -> Dict[str, int]:
+    """One published clustering as ``{gene: cluster}``.
+
+    :param spec: ``table`` (CSV, TSV, Excel or Parquet), optional ``sheet``
+        (an Excel sheet), ``gene`` (default ``gene_symbol``) and
+        ``cluster`` (default ``cluster_id``); Brieflow's supplementary
+        workbook is ``sheet`` ``'Interphase Genes'``, and Funk et al.'s
+        table has ``cluster`` ``'interphase_cluster'``.
+    :param control_prefix: rows whose gene starts with it are left out.
+    :returns: every gene with a cluster; a gene listed twice keeps its last
+        cluster.
+    :raises ValueError: when a column is missing.
+    """
+    table = _external_clusters(spec)
+    gene, cluster = spec.get("gene", "gene_symbol"), spec.get("cluster", "cluster_id")
+    table = table[[gene, cluster]].dropna()
+    table = table[~table[gene].astype(str).str.lower().str.startswith(control_prefix.lower())]
+    return dict(zip(table[gene], table[cluster].astype(int)))
+
+
+def score_published(published: Mapping[str, Mapping[str, int]], genes: Sequence[str],
+                    refs: Mapping[str, Any], shuffles: int = 1,
+                    seed: int = PUBLISHED_CONTROL_SEED) -> pd.DataFrame:
+    """Score published clusterings exactly as the sweep scores its partitions.
+
+    :param published: ``{name: {gene: cluster}}``.
+    :param genes: the sweep's scored genes; each comparator is scored on
+        those it clusters, in this order.
+    :param refs: from :func:`sweep_references`.
+    :param shuffles: shuffled-label controls per comparator, cluster sizes
+        kept, as the sweep's.
+    :param seed: the controls' seed; one generator draws them in order.
+    :returns: one ``'real'`` row per comparator and its ``'shuffled gene
+        labels'`` rows, with the sweep's columns, ``graph`` ``'published'``
+        and no seed or resolution.
+    """
+    rng = np.random.default_rng(seed)
+    rows = []
+    for name, clusters in published.items():
+        scored = np.array([g for g in genes if g in clusters])
+        labels = np.array([clusters[g] for g in scored])
+        key = {"graph": "published", "seed": np.nan, "resolution": np.nan}
+        rows.append(dict(score_partition(name, scored, labels, refs), **key, control="real"))
+        for _ in range(int(shuffles)):
+            rows.append(dict(score_partition(name, scored, labels[rng.permutation(len(labels))], refs),
+                             **key, control="shuffled gene labels"))
+    return pd.DataFrame(rows)
+
+
+def published_record(rows: pd.DataFrame, published: Sequence[Mapping[str, Any]], genes: Sequence[str],
+                     summary: pd.DataFrame, target: int, shuffles: int, seed: int) -> Dict[str, Any]:
+    """What the published comparator rows match and what they do not.
+
+    :param rows: from :func:`score_published`.
+    :param published: the comparator specs (``ops_cluster_published``).
+    :param genes: the sweep's scored genes.
+    :param summary: from :func:`sweep_summary`, for the matched cluster count.
+    :param target: the cluster count the summary flags.
+    :param shuffles: shuffled-label controls per comparator.
+    :param seed: their seed.
+    :returns: the legend and, per comparator, its source, genes scored and
+        missing, clusters, and the sweep resolution nearest its cluster
+        count on each graph.
+    """
+    real = summary[summary["control"] == "real"]
+    out = []
+    for spec, row in zip(published, rows[rows["control"] == "real"].to_dict("records")):
+        nearest = {}
+        for graph, d in real.groupby("graph"):
+            pick = d.iloc[(d["clusters mean"] - row["clusters"]).abs().argsort()[:1]]
+            nearest[str(graph)] = {"resolution": float(pick["resolution"].iloc[0]),
+                                   "clusters_mean": float(pick["clusters mean"].iloc[0])}
+        out.append({"name": row["profile"], "table": str(spec.get("table")),
+                    "sheet": spec.get("sheet"), "clusters": int(row["clusters"]),
+                    "genes_scored": int(row["genes"]), "genes_missing": int(len(genes) - row["genes"]),
+                    "nearest_sweep_resolution": nearest})
+    return {
+        "legend": (
+            "Published comparator rows (graph 'published', data_matched False) score the authors' own "
+            "published gene clusters. Matched: the same scored gene list (genes the publication did not "
+            "cluster are missing, counted per row), the same CORUM, KEGG and STRING files and the same "
+            "scoring code as every sweep row, and the same control (gene labels shuffled with cluster "
+            f"sizes kept, {int(shuffles)} per comparator, numpy default_rng({int(seed)})). Not matched: "
+            "the data and the clustering: the published partitions come from the authors' own profiles "
+            "and pipeline, not from this run's cells, and their cluster counts are the authors' choice. "
+            "Compare a comparator with the sweep at a matched cluster count (nearest_sweep_resolution, "
+            f"or the rows flagged nearest_{int(target)})."),
+        "comparators": out}
+
+
+def _sweep_figure(summary: pd.DataFrame, path: str, published: Optional[pd.DataFrame] = None) -> str:
     """Each sweep metric against the cluster count, real and shuffled.
 
     :param summary: from :func:`sweep_summary`.
     :param path: the PNG written.
+    :param published: rows of :func:`score_published`, drawn as points at
+        their own cluster counts, real and shuffled.
     :returns: ``path``.
     """
     import matplotlib
@@ -1492,6 +1589,13 @@ def _sweep_figure(summary: pd.DataFrame, path: str) -> str:
                     color=colours.get(control, "#333333"),
                     linestyle="-" if graph == "phate" else "--",
                     label=f"{graph}, {control}")
+        if published is not None:
+            for k, ((name, control), d) in enumerate(published.groupby(["profile", "control"], sort=False)):
+                real = control == "real"
+                ax.scatter(d["clusters"], d[metric], s=28 if real else 14,
+                           marker=("s", "^", "D", "v")[k // 2 % 4],
+                           color="#0b2545" if real else "#9aa5b1", alpha=0.6, zorder=3,
+                           label=f"{name}, {control} (published partition, data not matched)")
         ax.set_xscale("log")
         ax.set_xlabel("clusters (mean over seeds)")
         ax.set_title(title, fontsize=9)
@@ -1517,6 +1621,26 @@ def _sweep_setting_list(value: Any, default: Sequence[Any], cast) -> List[Any]:
     return [cast(item) for item in items]
 
 
+def _published_specs(value: Any) -> List[Dict[str, Any]]:
+    """The ``ops_cluster_published`` comparators: a list of specs, or the path of a JSON list.
+
+    :raises ValueError: when a spec has no ``name`` or ``table`` or two share a name.
+    """
+    import json
+
+    if not value:
+        return []
+    if isinstance(value, str):
+        with open(value, encoding="utf-8") as handle:
+            value = json.load(handle)
+    specs = [dict(spec) for spec in value]
+    names = [str(spec.get("name") or "") for spec in specs]
+    if any(not name for name in names) or len(set(names)) < len(names) or not all(
+            spec.get("table") for spec in specs):
+        raise ValueError("every ops_cluster_published entry needs a table and a name of its own")
+    return specs
+
+
 def cluster_sweep_phase(settings: Mapping[str, Any], genes: Optional[pd.DataFrame], folder: str,
                         report=None) -> Dict[str, Any]:
     """The ``cluster_sweep`` phase of the OPS profile path (item 916).
@@ -1531,16 +1655,20 @@ def cluster_sweep_phase(settings: Mapping[str, Any], genes: Optional[pd.DataFram
         ``ops_cluster_shuffles``, ``ops_cluster_reference_dir`` (falling
         back to ``ops_reference_dir``), ``ops_cluster_gene_list`` (a table
         with a ``gene`` column; every targeting row when empty),
-        ``ops_profile_min_cells`` and ``ops_control_prefix``.
+        ``ops_profile_min_cells``, ``ops_control_prefix`` and
+        ``ops_cluster_published`` (published clusterings scored as
+        comparators, :func:`published_clusters` specs each with a
+        ``name``, or the path of a JSON list of them).
     :param genes: the profile phase's gene table, or None.
     :param folder: ``dst_root``; outputs go to its
         ``results/ops_clusters``.
     :param report: called with progress lines.
     :returns: ``{"folder", "outputs", "rows", "graphs"}``.
-    :raises ValueError: when no rows or no reference folder are given, or a
-        graph is unknown.
+    :raises ValueError: when no rows or no reference folder are given, a
+        graph is unknown, or a published comparator has no name of its own.
     :raises ImportError: when the ``clustering`` extra is not installed.
     """
+    import json
     import os
 
     from . import ops_reference
@@ -1599,5 +1727,21 @@ def cluster_sweep_phase(settings: Mapping[str, Any], genes: Optional[pd.DataFram
     outputs["sweep_rows"] = write_table(table, os.path.join(out_dir, "sweep_rows.csv"), canonicalise=False)
     outputs["sweep_summary"] = write_table(summary, os.path.join(out_dir, "sweep_summary.csv"),
                                            canonicalise=False)
-    outputs["figure"] = _sweep_figure(summary, os.path.join(out_dir, "sweep.png"))
+    specs = _published_specs(settings.get("ops_cluster_published"))
+    published_rows = None
+    if specs:
+        published = {str(spec["name"]): published_clusters(spec, prefix) for spec in specs}
+        published_rows = score_published(published, scored, refs, shuffles)
+        combined = pd.concat([table.assign(data_matched=True), published_rows.assign(data_matched=False)],
+                             ignore_index=True)
+        outputs["sweep_rows_with_published"] = write_table(
+            combined, os.path.join(out_dir, "sweep_rows_with_published.csv"), canonicalise=False)
+        record = published_record(published_rows, specs, scored, summary, target, shuffles,
+                                  PUBLISHED_CONTROL_SEED)
+        path = os.path.join(out_dir, "published_comparators.json")
+        with open(path, "w", encoding="utf-8") as handle:
+            json.dump(record, handle, indent=1)
+        outputs["published_comparators"] = path
+        say(f"cluster_sweep: {len(specs)} published comparators scored on the same genes")
+    outputs["figure"] = _sweep_figure(summary, os.path.join(out_dir, "sweep.png"), published_rows)
     return {"folder": out_dir, "outputs": outputs, "rows": int(len(names)), "graphs": tags}

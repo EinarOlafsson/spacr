@@ -205,6 +205,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_profile_cell_cycle": None,
     "ops_profile_g1_sg2_split_log2": 0.3,
     "ops_mitotic_source": "rule",
+    "ops_tvn_fit_cells": "pooled",
     "ops_penetrance": False,
     "ops_penetrance_folds": 5,
     "ops_penetrance_nt_pool": 20000,
@@ -214,6 +215,12 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_escaper_min_sep": 2.0,
     "ops_phase_tests": False,
     "ops_phase_null": "targeting",
+    "ops_neighbour_effects": False,
+    "ops_neighbour_receivers": "inactive",
+    "ops_neighbour_null_reps": 5,
+    "ops_neighbour_radius_px": 50,
+    "ops_neighbour_grid_px": 2,
+    "ops_neighbour_active": None,
     "ops_profile_shrinkage": None,
     "ops_profile_shrinkage_prior_df": 4.0,
     "ops_profile_generic_axes": None,
@@ -306,6 +313,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_cluster_shuffles": 1,
     "ops_cluster_reference_dir": None,
     "ops_cluster_gene_list": None,
+    "ops_cluster_published": None,
     "ops_etest": False,
     "ops_etest_cells": None,
     "ops_etest_metric": 'both',
@@ -317,6 +325,8 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_power_cells": [10, 25, 50, 100, 200, 500, None],
     "ops_power_seeds": [0, 1, 2],
     "ops_power_retrieval": False,
+    "ops_power_gene_list": None,
+    "ops_power_reference_rows": None,
     "ops_layout": "tiles",
     "cpg_root": None,
     "cpg_wells": None,
@@ -531,6 +541,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_profile_cell_cycle": (str, type(None)),
     "ops_profile_g1_sg2_split_log2": (float, int),
     "ops_mitotic_source": str,
+    "ops_tvn_fit_cells": str,
     "ops_penetrance": bool,
     "ops_penetrance_folds": int,
     "ops_penetrance_nt_pool": int,
@@ -540,6 +551,12 @@ OPS_TYPES: Dict[str, object] = {
     "ops_escaper_min_sep": (float, int),
     "ops_phase_tests": bool,
     "ops_phase_null": str,
+    "ops_neighbour_effects": bool,
+    "ops_neighbour_receivers": str,
+    "ops_neighbour_null_reps": int,
+    "ops_neighbour_radius_px": int,
+    "ops_neighbour_grid_px": int,
+    "ops_neighbour_active": (str, list, type(None)),
     "ops_profile_shrinkage": (str, type(None)),
     "ops_profile_shrinkage_prior_df": (float, int),
     "ops_profile_generic_axes": (str, list, type(None)),
@@ -632,6 +649,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_cluster_shuffles": int,
     "ops_cluster_reference_dir": (str, list, type(None)),
     "ops_cluster_gene_list": (str, type(None)),
+    "ops_cluster_published": (list, str, type(None)),
     "ops_etest": bool,
     "ops_etest_cells": (str, type(None)),
     "ops_etest_metric": str,
@@ -643,6 +661,8 @@ OPS_TYPES: Dict[str, object] = {
     "ops_power_cells": (list, str),
     "ops_power_seeds": (list, str),
     "ops_power_retrieval": bool,
+    "ops_power_gene_list": (str, type(None)),
+    "ops_power_reference_rows": (str, type(None)),
     "ops_layout": str,
     "cpg_root": (str, type(None)),
     "cpg_wells": (list, str, type(None)),
@@ -803,6 +823,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_profile_cell_cycle",
         "ops_profile_g1_sg2_split_log2",
         "ops_mitotic_source",
+        "ops_tvn_fit_cells",
         "ops_penetrance",
         "ops_penetrance_folds",
         "ops_penetrance_nt_pool",
@@ -812,6 +833,12 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_escaper_min_sep",
         "ops_phase_tests",
         "ops_phase_null",
+        "ops_neighbour_effects",
+        "ops_neighbour_receivers",
+        "ops_neighbour_null_reps",
+        "ops_neighbour_radius_px",
+        "ops_neighbour_grid_px",
+        "ops_neighbour_active",
         "ops_profile_shrinkage",
         "ops_profile_shrinkage_prior_df",
         "ops_profile_generic_axes",
@@ -867,6 +894,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_cluster_shuffles",
         "ops_cluster_reference_dir",
         "ops_cluster_gene_list",
+        "ops_cluster_published",
         "ops_etest",
         "ops_etest_cells",
         "ops_etest_metric",
@@ -878,6 +906,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_power_cells",
         "ops_power_seeds",
         "ops_power_retrieval",
+        "ops_power_gene_list",
+        "ops_power_reference_rows",
     ],
 }
 
@@ -1676,6 +1706,13 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "cluster_sweep phase scores, so arms are compared on the same genes. "
         "Every row is still clustered. Empty scores every targeting row. "
         "Default None. Alpha.",
+    "ops_cluster_published":
+        "(list, str or None) - Published gene clusterings, such as "
+        "Brieflow's or Funk et al.'s, scored in the cluster_sweep phase as "
+        "comparators on the same genes, files, code and shuffled control: "
+        "each a name, table and optional sheet, gene and cluster column, or "
+        "the path of a JSON list of them. Their data is the authors', so the "
+        "rows are marked data_matched False. Default None. Alpha.",
     "ops_etest":
         "(bool) - Keep the per-cell aligned embedding when the profile phase "
         "runs (cells_E.npy and cells_meta.parquet in its folder), which the "
@@ -1722,9 +1759,21 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "is repeated once per seed. Default [0, 1, 2]. Alpha.",
     "ops_power_retrieval":
         "(bool) - Also draw the retrieval power curve: at most n cells per "
-        "gene and every control cell, guide and gene medians, then the "
-        "evaluate phase's retrieval metrics on ops_reference_dir, with paired "
-        "Wilcoxon tests against the largest cap. Default False. Alpha.",
+        "gene and every control cell, guide and gene medians, the profile "
+        "weighting set for the profile phase on top, then retrieval mAP and "
+        "the top-10 partner rate on the REPORT halves of CORUM, STRING >= 0.7 "
+        "and BioGRID over one gene list, with a shuffled-label control and "
+        "paired tests against all cells. Default False. Alpha.",
+    "ops_power_gene_list":
+        "(str or None) - A table with a gene column: the retrieval power "
+        "curve scores only these genes, and only those every draw keeps. "
+        "Empty scores every targeting gene all draws keep. Default None. "
+        "Alpha.",
+    "ops_power_reference_rows":
+        "(str or None) - Ready gene rows (an .npz with names and pcs, or a "
+        "table of gene and numbers), such as a shipped profile, scored first "
+        "in the retrieval power curve; every draw is then tested against it "
+        "instead of against all cells. Default None. Alpha.",
     "ops_deterministic_blas":
         "(bool) - Run the profile phases with the BLAS and OpenMP libraries "
         "held to one thread, so a re-run of the same settings file writes "
@@ -2216,6 +2265,13 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "'rule' (the DNA rule of ops_mitotic_dna_z, or the classifier when "
         "ops_mitotic_model is set) or 'classifier', which refuses to run "
         "without ops_mitotic_model. Default 'rule'. Alpha.",
+    "ops_tvn_fit_cells":
+        "(str) - The cells the aggregate phase fits TVN on: 'pooled' (every "
+        "pooled cell) or 'interphase' (the interphase cells, the fit then "
+        "applied to every pooled cell, so mitotic cells share the "
+        "interphase space; streamed TVN only). Use 'interphase' with every "
+        "cell pooled for cell-cycle profiles with an M block. Default "
+        "'pooled'. Alpha.",
     "ops_penetrance":
         "(bool) - Estimate each gene's penetrance, the share of its cells "
         "with its phenotype: a classifier cross-fitted by field scores "
@@ -2257,6 +2313,35 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "four targeting guides of four genes) or 'nt' (random sets of four "
         "control guides). Every targeting guide cuts DNA, so against "
         "controls almost every gene differs. Default 'targeting'. Alpha.",
+    "ops_neighbour_effects":
+        "(bool) - Test whether a knockout changes its unperturbed "
+        "neighbours: each receiver cell's neighbours come from the cell "
+        "masks, and exposed receivers are compared with receivers next to "
+        "control cells, against shuffled and clone-preserving nulls. Writes "
+        "results/ops_neighbours. Needs the ph_segment masks and the ph_masks "
+        "centroids. Default False. Alpha.",
+    "ops_neighbour_receivers":
+        "(str) - Which cells can be receivers: 'inactive' (own gene a "
+        "control or a gene without a phenotype of its own, from "
+        "ops_neighbour_active) or 'nt' (control cells only, stricter, fewer "
+        "cells). Default 'inactive'. Alpha.",
+    "ops_neighbour_null_reps":
+        "(int) - Replicates of each neighbour null, the within-field "
+        "shuffle and the clone-preserving shuffle. More give steadier p "
+        "values and take longer. Default 5. Alpha.",
+    "ops_neighbour_radius_px":
+        "(int) - A cell is a neighbour when its mask reaches within this "
+        "many pixels of the receiver's nucleus centroid; receivers nearer the "
+        "field edge are left out. Default 50. Alpha.",
+    "ops_neighbour_grid_px":
+        "(int) - The neighbourhood disk is sampled on this pixel grid; a "
+        "neighbour touching it in a sliver narrower than the grid can be "
+        "missed, and a finer grid is slower. Default 2. Alpha.",
+    "ops_neighbour_active":
+        "(str, list or None) - Tables with a gene column that say which "
+        "genes have a phenotype of their own: any *_fdr column below 0.05 or "
+        "below_corrected_p true. Their cells are never 'inactive' receivers. "
+        "Default None. Alpha.",
     "ops_profile_shrinkage_prior_df":
         "(float) - The degrees of freedom of the control-guide noise "
         "estimate when it is pooled with a gene's own guide spread; higher "

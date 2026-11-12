@@ -3932,6 +3932,7 @@ _PH_PROFILE_SWITCHES: Tuple[str, ...] = (
     "ops_profile_generic_axes", "ops_profile_weighting",
     "ops_guide_efficacy", "ops_profile_similarity", "ops_penetrance",
     "ops_escapers", "ops_phase_tests", "ops_profile_space",
+    "ops_neighbour_effects",
 )
 
 _PH_DEGENERATE_CAUSES = (
@@ -4242,7 +4243,11 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     set to ``'tvn'`` the run also writes TVN profiles
     (:mod:`spacr.ops_tvn`) as ``ops_guides_<plate>[tag]_tvn`` and
     ``ops_genes_<plate>[tag]_tvn``; the robust z tables are still written,
-    because the per-gene test needs named features. ``ops_cluster_benchmark``
+    because the per-gene test needs named features.
+    ``ops_tvn_fit_cells='interphase'`` fits the TVN on the interphase cells
+    and applies it to every pooled cell, so in a run that pools every cell
+    the mitotic cells share the interphase space, as the cell-cycle
+    profiles' reference has them. ``ops_cluster_benchmark``
     clusters the TVN profiles (or the robust z ones without TVN) and scores
     them (:mod:`spacr.ops_clusters`), and ``ops_mitotic_model`` calls
     mitotic cells with a trained classifier (:mod:`spacr.ops_mitotic`)
@@ -4642,9 +4647,17 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
                         cells.rename(columns={"_dna_integrated": integrated}),
                         cells, [integrated], flat_offsets)[integrated].to_numpy()
                 extra.append("_dna_integrated")
+        fit_cells = str(settings.get("ops_tvn_fit_cells") or "pooled").strip().lower()
+        if fit_cells not in ("pooled", "interphase"):
+            raise ValueError(tr(
+                "ops_tvn_fit_cells must be pooled or interphase; got {value}",
+                value=fit_cells))
+        fit = (~cells["mitotic"].astype(bool)).to_numpy() \
+            if fit_cells == "interphase" else None
         tvn_guides, tvn_genes, tvn_report = _aggregate_tvn(
             sources, rows, cells[["well", "sgRNA", "gene", *extra]], keep,
-            control.to_numpy(), features, tvn_settings, _ph_read_columns)
+            control.to_numpy(), features, tvn_settings, _ph_read_columns,
+            fit=fit)
         tvn_genes = tvn_genes[tvn_genes["gene"] != "nontargeting_drop"
                               ].reset_index(drop=True)
         if wants_profiles:
@@ -7145,6 +7158,168 @@ def _ph_profile_tables(name: str, table, destination: str, label: str,
         outputs[f"{name}_{suffix}"] = target
 
 
+def _ph_active_genes(settings: Mapping[str, Any]) -> List[str]:
+    """The genes with a phenotype of their own, from ``ops_neighbour_active``.
+
+    :param settings: read for ``ops_neighbour_active``: one table or a
+        list of tables with a ``gene`` column; a gene is active when any
+        ``*_fdr`` column is below 0.05 or ``below_corrected_p`` is true.
+    :returns: the active genes, sorted.
+    """
+    import pandas as pd
+
+    from .tabular import read_table
+
+    value = settings.get("ops_neighbour_active")
+    paths = [value] if isinstance(value, str) else list(value or [])
+    active = set()
+    for path in paths:
+        table = read_table(str(path), canonicalise=False, report=None)
+        hit = np.zeros(len(table), bool)
+        for column in table.columns:
+            if str(column).endswith("_fdr"):
+                hit |= (pd.to_numeric(table[column], errors="coerce") < 0.05).to_numpy()
+            elif column == "below_corrected_p":
+                hit |= table[column].fillna(False).astype(bool).to_numpy()
+        active |= set(table["gene"][hit].astype(str))
+    return sorted(active)
+
+
+def _ph_neighbour_effects(settings: Mapping[str, Any], cells, embedding, pcs: Sequence[str],
+                          destination: str, control_prefix: str = "nontargeting"
+                          ) -> Dict[str, Any]:
+    """The neighbour table and neighbour effects of the aggregate phase (item 891).
+
+    :param settings: read for ``ops_neighbour_radius_px``,
+        ``ops_neighbour_grid_px``, ``ops_neighbour_receivers``,
+        ``ops_neighbour_null_reps`` and ``ops_neighbour_active``.
+    :param cells: the profiled cells, with ``well``, ``site``, ``label``,
+        ``sgRNA`` and ``gene``, in the row order of ``embedding``.
+    :param embedding: their TVN components.
+    :param pcs: the component names.
+    :param destination: the run folder: each well's
+        ``<well>/phenotype_masks/site-<n>.npz`` cell masks and
+        ``ops_maskpass_<well>.parquet`` nucleus centroids are read from it,
+        and the tables go to its ``results/ops_neighbours``.
+    :param control_prefix: the control gene prefix.
+    :returns: the report, with ``outputs``.
+    :raises ValueError: for a bad setting, a missing mask or centroid, or
+        ``'inactive'`` receivers without ``ops_neighbour_active``.
+
+    Every receiver's neighbours are the segmented cells whose mask reaches
+    within the radius of its nucleus centroid
+    (:func:`spacr.gene_measurement_compare.mask_neighbours`); receivers
+    nearer the field edge than the radius are left out, and the field
+    centre is half the mask height
+    (:func:`spacr.gene_measurement_compare.neighbour_effects`). The tables
+    are named as the reference scripts name them: ``nbr_<well>`` and
+    ``recv_<well>``, and ``nbr_tests_<design>``, ``nbr_null_<design>``,
+    ``nbr_d_<design>`` and ``nbr_V_<design>`` with design ``B`` for
+    inactive and ``A`` for control receivers.
+    """
+    import pandas as pd
+
+    from .gene_measurement_compare import (NEIGHBOUR_RECEIVERS, mask_neighbours,
+                                           neighbour_effects)
+    from .qt.i18n import tr
+    from .tabular import read_table, write_table
+
+    radius = int(_setting_number(settings.get("ops_neighbour_radius_px"),
+                                 "ops_neighbour_radius_px", 50))
+    grid = int(_setting_number(settings.get("ops_neighbour_grid_px"),
+                               "ops_neighbour_grid_px", 2))
+    reps = int(_setting_number(settings.get("ops_neighbour_null_reps"),
+                               "ops_neighbour_null_reps", 5))
+    receivers = str(settings.get("ops_neighbour_receivers") or "inactive").strip().lower()
+    if receivers not in NEIGHBOUR_RECEIVERS or radius < 1 or grid < 1:
+        raise ValueError(tr(
+            "ops_neighbour_receivers must be inactive or nt and the radius and "
+            "grid at least 1 pixel; got {receivers}, {radius}, {grid}",
+            receivers=receivers, radius=radius, grid=grid))
+    active = _ph_active_genes(settings)
+    if receivers == "inactive" and not settings.get("ops_neighbour_active"):
+        raise ValueError(tr(
+            "ops_neighbour_receivers inactive needs ops_neighbour_active, the "
+            "tables that say which genes have a phenotype of their own"))
+    folder = os.path.join(destination, "results", "ops_neighbours")
+    os.makedirs(folder, exist_ok=True)
+    outputs: Dict[str, str] = {}
+    frame = pd.concat([cells[["well", "site", "label", "sgRNA", "gene"]].reset_index(drop=True),
+                       pd.DataFrame(np.asarray(embedding), columns=list(pcs))], axis=1)
+    frame["well"] = frame["well"].astype(str)
+    wells: Dict[str, Any] = {}
+    centre = None
+    for well, part in frame.groupby("well", sort=True):
+        path = _ph_maskpass_path(destination, well)
+        if not os.path.isfile(path):
+            raise ValueError(tr(
+                "ops_neighbour_effects needs the mask pass of well {well} at "
+                "{path}; run the ph_masks phase first", well=well, path=path))
+        centroids = read_table(path, canonicalise=False, report=None,
+                               columns=["site", "label", "nucleus_cy", "nucleus_cx"])
+        located = part[["site", "label"]].merge(centroids, on=["site", "label"], how="left")
+        if located["nucleus_cy"].isna().any():
+            raise ValueError(tr(
+                "{count} cells of well {well} have no nucleus centroid in {path}",
+                count=int(located["nucleus_cy"].isna().sum()), well=well, path=path))
+        pairs, table = [], []
+        for site, here in located.groupby("site", sort=True):
+            mask_file = os.path.join(destination, well, "phenotype_masks", f"site-{int(site)}.npz")
+            if not os.path.isfile(mask_file):
+                raise ValueError(tr(
+                    "ops_neighbour_effects needs the cell masks at {path}; run "
+                    "the ph_segment phase first", path=mask_file))
+            with np.load(mask_file) as stored:
+                mask = stored["cells"]
+            centre = float(mask.shape[0]) / 2 if centre is None else centre
+            p, r = mask_neighbours(mask, here["label"].to_numpy(),
+                                   here[["nucleus_cy", "nucleus_cx"]].to_numpy(float),
+                                   radius=radius, grid=grid)
+            p.insert(0, "site", np.int32(site))
+            r.insert(0, "site", np.int32(site))
+            pairs.append(p)
+            table.append(r)
+        pairs = pd.concat(pairs, ignore_index=True)
+        table = pd.concat(table, ignore_index=True)
+        outputs[f"nbr_{well}"] = write_table(pairs, os.path.join(folder, f"nbr_{well}.parquet"),
+                                             canonicalise=False)
+        outputs[f"recv_{well}"] = write_table(table, os.path.join(folder, f"recv_{well}.parquet"),
+                                              canonicalise=False)
+        wells[well] = (part.drop(columns="well").reset_index(drop=True), table, pairs)
+    result = neighbour_effects(wells, list(pcs), active=active, receivers=receivers,
+                               null_reps=reps, edge_px=float(radius), field_centre=centre)
+    design = "B" if receivers == "inactive" else "A"
+    for name in ("tests", "null"):
+        table = result["tests" if name == "tests" else "nulls"]
+        outputs[f"nbr_{name}_{design}"] = write_table(
+            table, os.path.join(folder, f"nbr_{name}_{design}.parquet"), canonicalise=False)
+    for name in ("d", "V"):
+        target = os.path.join(folder, f"nbr_{name}_{design}.npy")
+        np.save(target, np.asarray(result[name], np.float32))
+        outputs[f"nbr_{name}_{design}"] = target
+    target = os.path.join(folder, "nbr_names.npy")
+    np.save(target, result["names"])
+    outputs["nbr_names"] = target
+    tests = result["tests"]
+    genes = tests[tests["kind"] == "gene"]
+    controls = tests[tests["kind"].str.startswith("control")]
+    summary = {"design": design, "receivers": receivers, "radius_px": radius, "grid_px": grid,
+               "null_reps": reps, "active_genes": len(active), "field_centre_px": centre,
+               "genes_tested": int(genes["T"].notna().sum()),
+               "median_exposed": float(genes["n_exposed"].median()) if len(genes) else None,
+               "q_clone<0.1": int((genes["q_clone"] < 0.1).sum()),
+               "q_shuffle<0.1": int((genes["q_shuffle"] < 0.1).sum()),
+               "NTpseudo p_clone<0.05": float((controls["p_clone"] < 0.05).mean())
+               if len(controls) else None,
+               "NTpseudo p_shuffle<0.05": float((controls["p_shuffle"] < 0.05).mean())
+               if len(controls) else None}
+    target = os.path.join(folder, f"nbr_summary_{design}.json")
+    with open(target, "w", encoding="utf-8") as handle:
+        json.dump(summary, handle, indent=1)
+    outputs[f"nbr_summary_{design}"] = target
+    return {**summary, "outputs": outputs}
+
+
 def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
                         guides, genes, destination: str, label: str,
                         control_prefix: str = "nontargeting"
@@ -7406,6 +7581,10 @@ def _ph_profile_options(settings: Mapping[str, Any], cells, embedding,
         _ph_profile_tables("phase_calls", result["calls"], destination, label,
                            outputs)
         report["phase_tests"] = result["summary"]
+    if settings.get("ops_neighbour_effects"):
+        report["neighbours"] = _ph_neighbour_effects(
+            settings, cells, embedding, pcs, destination, control_prefix)
+        outputs.update(report["neighbours"].pop("outputs"))
 
     space = str(settings.get("ops_profile_space") or "").strip()
     if space and space != "tvn":

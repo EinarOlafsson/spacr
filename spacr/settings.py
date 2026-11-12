@@ -9168,10 +9168,10 @@ ALPHA_FEATURES = {
         'settings': ('ops_profile_shrinkage', 'ops_profile_shrinkage_prior_df'),
     },
     891: {
-        'settings': ('ops_penetrance', 'ops_penetrance_folds', 'ops_penetrance_nt_pool', 'ops_penetrance_lambda', 'ops_escapers', 'ops_escaper_dbic', 'ops_escaper_min_sep', 'ops_phase_tests', 'ops_phase_null'),
+        'settings': ('ops_penetrance', 'ops_penetrance_folds', 'ops_penetrance_nt_pool', 'ops_penetrance_lambda', 'ops_escapers', 'ops_escaper_dbic', 'ops_escaper_min_sep', 'ops_phase_tests', 'ops_phase_null', 'ops_neighbour_effects', 'ops_neighbour_receivers', 'ops_neighbour_null_reps', 'ops_neighbour_radius_px', 'ops_neighbour_grid_px', 'ops_neighbour_active'),
     },
     890: {
-        'settings': ('ops_profile_cell_cycle', 'ops_profile_g1_sg2_split_log2', 'ops_mitotic_source'),
+        'settings': ('ops_profile_cell_cycle', 'ops_profile_g1_sg2_split_log2', 'ops_mitotic_source', 'ops_tvn_fit_cells'),
     },
     887: {
         'settings': ('ops_guide_efficacy', 'ops_guide_efficacy_iters', 'ops_guide_efficacy_emax'),
@@ -9245,7 +9245,7 @@ ALPHA_FEATURES = {
         'settings': ('ops_report_read_stage', 'ops_report_overlap_zones', 'ops_report_edge_bin_px', 'ops_report_external_cells', 'ops_report_external_max_px',),
     },
     916: {
-        'settings': ('ops_cluster_rows', 'ops_cluster_graph', 'ops_cluster_knn', 'ops_cluster_sweep_resolutions', 'ops_cluster_seeds', 'ops_cluster_target_clusters', 'ops_cluster_shuffles', 'ops_cluster_reference_dir', 'ops_cluster_gene_list',),
+        'settings': ('ops_cluster_rows', 'ops_cluster_graph', 'ops_cluster_knn', 'ops_cluster_sweep_resolutions', 'ops_cluster_seeds', 'ops_cluster_target_clusters', 'ops_cluster_shuffles', 'ops_cluster_reference_dir', 'ops_cluster_gene_list', 'ops_cluster_published',),
     },
     918: {
         'settings': ('umap_source', 'ops_umap_profiles', 'ops_umap_guide_profiles',
@@ -9270,7 +9270,7 @@ ALPHA_FEATURES = {
             'seg_diameter_sites', 'seg_diameter_min_objects')},
     },
     917: {
-        'settings': ('ops_etest', 'ops_etest_cells', 'ops_etest_metric', 'ops_etest_reference_cells', 'ops_etest_null', 'ops_etest_holdout', 'ops_etest_mode', 'ops_etest_permutations', 'ops_power_cells', 'ops_power_seeds', 'ops_power_retrieval',),
+        'settings': ('ops_etest', 'ops_etest_cells', 'ops_etest_metric', 'ops_etest_reference_cells', 'ops_etest_null', 'ops_etest_holdout', 'ops_etest_mode', 'ops_etest_permutations', 'ops_power_cells', 'ops_power_seeds', 'ops_power_retrieval', 'ops_power_gene_list', 'ops_power_reference_rows',),
     },
     919: {
         'settings': ('ops_layout', 'cpg_root', 'cpg_wells', 'cpg_sites',

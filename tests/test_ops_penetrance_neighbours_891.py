@@ -217,3 +217,119 @@ def test_escapers_need_the_penetrance_fit(tmp_path):
 
     with pytest.raises(ValueError, match="ops_penetrance too"):
         _run(tmp_path, ops_escapers=True)
+
+
+def _masked_plate(tmp_path):
+    """The profile plate with cell masks and nucleus centroids: each field's
+    300 cells sit on a 20 x 15 grid of 16-pixel squares, 20 pixels apart."""
+    from tests.test_ops_gene_level_aggregation_883 import profile_plate
+
+    db, wells = profile_plate(tmp_path)
+    for well in wells:
+        rows = []
+        for site in range(6):
+            labels = np.arange(1, 1801)[np.arange(1, 1801) % 6 == site]
+            mask = np.zeros((320, 420), np.uint32)
+            for k, label in enumerate(labels):
+                top, left = 10 + 20 * (k // 20), 10 + 20 * (k % 20)
+                mask[top:top + 16, left:left + 16] = label
+                rows.append({"site": site, "label": int(label), "nucleus_cy": top + 7.5,
+                             "nucleus_cx": left + 7.5})
+            folder = tmp_path / well / "phenotype_masks"
+            folder.mkdir(parents=True, exist_ok=True)
+            np.savez_compressed(folder / f"site-{site}.npz", nuclei=mask, cells=mask)
+        pd.DataFrame(rows).to_parquet(tmp_path / f"ops_maskpass_{well}.parquet", index=False)
+    pd.DataFrame({"gene": [f"GENE{g:02d}" for g in range(40)],
+                  "area_fdr": [0.01] * 10 + [0.5] * 30}).to_csv(tmp_path / "hits.csv", index=False)
+    return db, wells
+
+
+def test_the_aggregate_phase_reads_the_masks_and_tests_neighbour_effects(tmp_path):
+    from spacr import ops_engine
+    from tests.test_ops_gene_level_aggregation_883 import PLATE, profile_settings
+
+    db, wells = _masked_plate(tmp_path)
+    settings = profile_settings(tmp_path, ops_neighbour_effects=True, ops_neighbour_radius_px=25,
+                                ops_neighbour_grid_px=2, ops_neighbour_null_reps=1,
+                                ops_neighbour_active=str(tmp_path / "hits.csv"))
+    report = ops_engine._ph_aggregate(db, PLATE, wells, settings, str(tmp_path))
+    found = report["profile_options"]["neighbours"]
+    assert found["design"] == "B" and found["active_genes"] == 10 and found["field_centre_px"] == 160.0
+    folder = tmp_path / "results" / "ops_neighbours"
+    pairs = pd.read_parquet(folder / "nbr_A1.parquet")
+    receivers = pd.read_parquet(folder / "recv_A1.parquet")
+    assert list(pairs.columns) == ["site", "r_label", "n_label", "n_px"]
+    assert list(receivers.columns) == ["site", "label", "cy", "cx", "edge_dist",
+                                       "disk_occupied_frac", "n_nbr"]
+    with np.load(tmp_path / "A1" / "phenotype_masks" / "site-0.npz") as stored:
+        mask = stored["cells"]
+    centroids = pd.read_parquet(tmp_path / "ops_maskpass_A1.parquet")
+    first = receivers[receivers.site == 0]
+    here = centroids[centroids.site == 0].set_index("label").loc[first.label]
+    direct_pairs, direct = mask_neighbours(mask, first.label.to_numpy(),
+                                           here[["nucleus_cy", "nucleus_cx"]].to_numpy(float),
+                                           radius=25, grid=2)
+    pd.testing.assert_frame_equal(first.drop(columns="site").reset_index(drop=True), direct)
+    pd.testing.assert_frame_equal(pairs[pairs.site == 0].drop(columns="site").reset_index(drop=True),
+                                  direct_pairs)
+    assert set(receivers.n_nbr) == {3, 5, 8}
+    tests = pd.read_parquet(folder / "nbr_tests_B.parquet")
+    assert {"gene", "n_exposed", "T", "kind", "p_clone", "q_clone", "p_shuffle", "q_shuffle"} <= set(tests)
+    assert set(tests.kind) == {"gene", "control: NT pseudo-gene", "reference"}
+    gene_rows = tests[tests.kind == "gene"]
+    assert gene_rows["p_clone"].dropna().between(0, 1).all() and len(gene_rows) == 40
+    nulls = pd.read_parquet(folder / "nbr_null_B.parquet")
+    assert set(nulls["null"]) == {"shuffle", "clone"} and set(nulls["rep"]) == {0}
+    names = np.load(folder / "nbr_names.npy", allow_pickle=True)
+    assert np.load(folder / "nbr_d_B.npy").shape[0] == len(names) == len(tests)
+    again = ops_engine._ph_aggregate(db, PLATE, wells, settings, str(tmp_path))
+    assert again["profile_options"]["neighbours"]["q_clone<0.1"] == found["q_clone<0.1"]
+    pd.testing.assert_frame_equal(pd.read_parquet(folder / "nbr_tests_B.parquet"), tests)
+    strict = ops_engine._ph_aggregate(db, PLATE, wells, {
+        **settings, "ops_neighbour_receivers": "nt", "ops_neighbour_active": None}, str(tmp_path))
+    assert strict["profile_options"]["neighbours"]["design"] == "A"
+    assert (folder / "nbr_tests_A.parquet").is_file()
+
+
+def test_neighbour_effects_refuse_what_they_cannot_read(tmp_path):
+    from spacr import ops_engine
+    from tests.test_ops_gene_level_aggregation_883 import PLATE, profile_settings
+
+    db, wells = _masked_plate(tmp_path)
+    settings = profile_settings(tmp_path, ops_neighbour_effects=True, ops_neighbour_null_reps=1)
+    with pytest.raises(ValueError, match="needs ops_neighbour_active"):
+        ops_engine._ph_aggregate(db, PLATE, wells, settings, str(tmp_path))
+    with pytest.raises(ValueError, match="must be inactive or nt"):
+        ops_engine._ph_aggregate(db, PLATE, wells, {**settings, "ops_neighbour_receivers": "all"},
+                                 str(tmp_path))
+    (tmp_path / "ops_maskpass_A2.parquet").unlink()
+    with pytest.raises(ValueError, match="mask pass of well A2"):
+        ops_engine._ph_aggregate(db, PLATE, wells, {**settings, "ops_neighbour_receivers": "nt"},
+                                 str(tmp_path))
+
+
+def test_active_genes_come_from_fdr_columns_or_the_copairs_flag(tmp_path):
+    from spacr.ops_engine import _ph_active_genes
+
+    pd.DataFrame({"gene": ["A", "B", "C"], "x_fdr": [0.01, 0.2, None]}).to_csv(tmp_path / "h.csv", index=False)
+    pd.DataFrame({"gene": ["C", "D"], "below_corrected_p": [True, False]}).to_csv(
+        tmp_path / "a.csv", index=False)
+    assert _ph_active_genes({"ops_neighbour_active": str(tmp_path / "h.csv")}) == ["A"]
+    assert _ph_active_genes({"ops_neighbour_active": [str(tmp_path / "h.csv"),
+                                                      str(tmp_path / "a.csv")]}) == ["A", "C"]
+    assert _ph_active_genes({}) == []
+
+
+def test_the_neighbour_settings_are_alpha_with_their_item():
+    from spacr.ops_engine import _PH_PROFILE_SWITCHES
+    from spacr.ops_settings import OPS_DEFAULTS, OPS_TOOLTIPS
+    from spacr.settings import ALPHA_FEATURES
+
+    keys = ("ops_neighbour_effects", "ops_neighbour_receivers", "ops_neighbour_null_reps",
+            "ops_neighbour_radius_px", "ops_neighbour_grid_px", "ops_neighbour_active")
+    assert set(keys) <= set(ALPHA_FEATURES[891]["settings"])
+    assert "ops_neighbour_effects" in _PH_PROFILE_SWITCHES
+    assert OPS_DEFAULTS["ops_neighbour_radius_px"] == 50 and OPS_DEFAULTS["ops_neighbour_grid_px"] == 2
+    assert OPS_DEFAULTS["ops_neighbour_null_reps"] == 5 and OPS_DEFAULTS["ops_neighbour_effects"] is False
+    for key in keys:
+        assert "Alpha" in OPS_TOOLTIPS[key] and len(OPS_TOOLTIPS[key]) <= 600
