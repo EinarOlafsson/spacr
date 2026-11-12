@@ -4053,8 +4053,6 @@ def _native_session_guess(before):
             line = json.loads(match.group(2))
         except (ValueError, TypeError):
             continue
-        if not isinstance(line, dict):
-            continue
         owner = str(line.get("id" if match.group(1) == "session" else "_session", ""))
         if not _UUID_RE.fullmatch(owner):
             continue

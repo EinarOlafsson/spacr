@@ -425,3 +425,37 @@ def test_archive_without_an_annotation_receipt_preserves_every_population_row(tm
     assert _snapshot(database)[1]['cell_1'] == before_rows
     with sqlite3.connect(database) as connection:
         assert connection.execute('SELECT * FROM _spacr_condition_annotations').fetchall() == []
+
+
+
+def test_a_run_with_vacuoles_writes_their_tables_and_counts_them_per_cell(
+        tmp_path, synth_masks_multi, rng):
+    data = _build_merged_stack(synth_masks_multi, rng)
+    merged, _name = _write_stack(tmp_path, data)
+    settings = _settings_for(merged, resume=False, database_write_queue_gib=0,
+                             vacuole_from_parasites=True, host_min_size=0)
+
+    measure.measure_crop(dict(settings))
+
+    database = tmp_path / 'measurements' / 'measurements.db'
+    with sqlite3.connect(database) as connection:
+        vacuoles = connection.execute('SELECT COUNT(*) FROM vacuole').fetchone()[0]
+        hosts = connection.execute('SELECT COUNT(*) FROM vacuole_host').fetchone()[0]
+        counted = connection.execute(
+            'SELECT SUM(n_vacuoles), SUM(n_pathogens) FROM cell').fetchone()
+    assert vacuoles >= 1 and hosts >= 1
+    assert counted[0] >= 1 and counted[1] >= counted[0]
+
+
+def test_a_finished_run_writes_one_row_per_cell_when_asked(
+        tmp_path, synth_masks_multi, rng, capsys):
+    data = _build_merged_stack(synth_masks_multi, rng)
+    merged, _name = _write_stack(tmp_path, data)
+    settings = _settings_for(merged, resume=False, database_write_queue_gib=0,
+                             per_cell_export=True)
+
+    measure.measure_crop(dict(settings))
+
+    printed = capsys.readouterr().out
+    assert 'Per-cell export: 4 cells' in printed
+    assert 'Per-cell table: ' in printed

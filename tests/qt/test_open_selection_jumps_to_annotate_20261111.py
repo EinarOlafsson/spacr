@@ -159,3 +159,19 @@ def test_annotate_opens_the_requests_database_when_nothing_is_open(
     screen._settings.db_path = ""
     assert screen.open_object_request(request) is screen
     assert opened == [str(plate)]
+
+
+def test_a_navigator_needs_a_kind_and_something_to_call():
+    link = LinkedSelection()
+    first, second = (lambda kind: None), (lambda kind: None)
+
+    with pytest.raises(ValueError, match="needs a non-blank kind"):
+        link.register_object_navigator("   ", first)
+    with pytest.raises(TypeError,
+                       match=r"navigator for 'annotate' is not callable \(str\)"):
+        link.register_object_navigator(" annotate ", "not a function")
+
+    assert not link.has_object_opener("annotate")
+    assert link.register_object_navigator(" annotate ", first) is None
+    assert link.register_object_navigator("annotate", second) is first
+    assert link.has_object_opener("annotate")

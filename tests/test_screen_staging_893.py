@@ -11,6 +11,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
+from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
 
 from spacr import screen_staging as ss
 
@@ -44,7 +45,9 @@ def threshold_cellpose(monkeypatch):
         def __init__(self, *args, **kwargs):
             pass
 
-        def eval(self, x, **kwargs):
+        def eval(self, x, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+            check_cellpose_eval_call(x, channel_axis, z_axis=kwargs.get("z_axis"),
+                                     do_3D=kwargs.get("do_3D", False))
             masks, flows = [], []
             for image in x:
                 array = np.asarray(image, dtype=float)

@@ -264,6 +264,16 @@ def test_measure_groups_vacuoles_and_counts_them_per_cell(tmp_path):
     assert len(read_cells) == 2
 
 
+def test_the_per_cell_export_carries_the_vacuole_counts(tmp_path):
+    tables, cells, _, _ = _measure_field(
+        tmp_path, vacuole_from_parasites=True, vacuole_signal_channel=1, host_min_size=10,
+        vacuole_min_size=5, per_cell_export=True)
+    out = pd.read_csv(tmp_path / 'measurements' / 'per_cell.csv')
+    counts = out.set_index('Metadata_cell_id')[['Metadata_n_vacuoles', 'Metadata_n_pathogens']]
+    assert counts.loc[1].tolist() == [1, 2] and counts.loc[2].tolist() == [1, 1]
+    assert not any(name in ('n_vacuoles', 'n_pathogens') for name in out.columns)
+
+
 def test_measure_without_vacuole_grouping_writes_no_vacuole_columns(tmp_path):
     tables, cells, vacuoles, _ = _measure_field(tmp_path)
     assert 'vacuole' not in tables and vacuoles is None
@@ -396,3 +406,22 @@ def test_releasing_a_field_leaves_the_other_fields_rows(tmp_path):
     assert _release_vacuole_rows(str(db), 'plate1_B02_1') == 2
     with sqlite3.connect(db) as con:
         assert con.execute('SELECT file_name FROM vacuole').fetchall() == [('plate1_B02_10',)]
+
+
+def test_a_field_with_vacuoles_replaces_its_rows_rather_than_adding_to_them(tmp_path):
+    import sqlite3
+
+    from spacr.measure import _save_vacuole_tables
+
+    os.makedirs(tmp_path / 'measurements')
+    cell = np.zeros((40, 40), np.uint16)
+    cell[2:38, 2:38] = 1
+    parasites = np.zeros_like(cell)
+    parasites[10:16, 10:16] = 1
+    parasites[20:26, 20:26] = 2
+    for _ in range(2):
+        _save_vacuole_tables((cell, parasites, None), 'plate1_B02_1', str(tmp_path),
+                             {'host_min_size': 10})
+    with sqlite3.connect(tmp_path / 'measurements' / 'measurements.db') as con:
+        rows = con.execute('SELECT well, field, host_cell, file_name FROM vacuole').fetchall()
+    assert rows == [('B02', 1, 1, 'plate1_B02_1')] * 2
