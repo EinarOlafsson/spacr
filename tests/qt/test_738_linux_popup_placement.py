@@ -48,7 +48,7 @@ def test_initial_dialog_is_centred_after_sizing_with_real_transient_owner(qtbot,
     from spacr.qt.hidpi import screen_for_widget
     work = screen_for_widget(owner).availableGeometry()
     frame = dialog.frameGeometry()
-    expected = owner.frameGeometry().center()
+    expected = work.center()
     assert work.contains(frame)
     if (expected.x() - frame.width() // 2 >= work.left()
             and expected.y() - frame.height() // 2 >= work.top()):
