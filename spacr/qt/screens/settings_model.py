@@ -2757,6 +2757,14 @@ def _categories_for_app_uncached(app_key, categories, plugin_app):
                     "remove_highly_correlated_features",
                     "remove_low_variance_features", "min_cells_per_well",
                     "prune_features", "top_features", "n_repeats"],
+                "Held-out Evaluation α": [
+                    "ml_eval_report", "ml_eval_split", "ml_eval_controls",
+                    "ml_eval_shuffle_seed", "ml_eval_shuffle_repeats",
+                    "ml_model_type", "ml_label_column", "ml_eval_classes",
+                    "ml_eval_features", "ml_eval_features_table",
+                    "ml_eval_join_column", "ml_eval_random_folds",
+                    "annotate_sample_n", "annotate_sample_seed",
+                    "annotate_sample_strata"],
             })
             ordered["Results & figures"] = (
                 ordered["Results & figures"]
@@ -2769,7 +2777,8 @@ def _categories_for_app_uncached(app_key, categories, plugin_app):
             ml_family = "Machine Learning"
             cv_groups = ("Images & Cropping", "Model & Regularization",
                          "Training & Loss", "Test-time augmentation")
-            ml_groups = ("Model & Features", "Plate & Batch Correction")
+            ml_groups = ("Model & Features", "Plate & Batch Correction",
+                         "Held-out Evaluation α")
             shared_first = ("Plate Sources & Workflow", "Labels & Classes")
             shared_last = ("Evaluation", "Results & figures",
                            "Runtime & Reliability", "GPU Memory α")

@@ -75,6 +75,7 @@ def test_cancelled_batch_consent_stops_before_project_claim_or_launch(qtbot, mon
     parent.app_key = 'analyze_plaques'
     parent._settings_model = SimpleNamespace(collect=lambda: {})
     parent._wait_for_the_entry_import = lambda override: False
+    parent._annotation_labels_named = lambda settings: True
     parent._confirm_plaque_model_download = lambda settings: AppScreen._confirm_plaque_model_download(parent, settings)
     parent._claim_the_project = lambda settings: pytest.fail('cancelled download claimed a project')
     monkeypatch.setattr(app_screen, 'resolve_pipeline_entry', lambda key: lambda settings: pytest.fail('cancelled run started'))
