@@ -10,7 +10,12 @@ one piece on a worker with a fixed RAM budget. This module adds:
   ``seg_tile_overlap_px`` of overlap, segmented in row-major order; copies of
   one object in two tiles are merged by IoU, keeping the copy whose centroid
   is farther from an inner tile edge (:func:`stitch_tile_labels`); a site no
-  larger than one tile goes through the segmenter unchanged;
+  larger than one tile goes through the segmenter unchanged; each channel is
+  normalised once on the whole site (:func:`normalize_site`) and the tiles
+  are segmented with ``normalize=False``, so a tile sees the same values as
+  the untiled site, and tiles are placed on Cellpose's own network-tile grid
+  (:func:`tiling_layout`), so the network sees the same pixels tiled and
+  untiled;
 * chunked measurement (:func:`measure_chunked`): objects measured in row
   bands, each band read with a halo that holds every object whose centroid
   lies in it, so each object is measured once and whole;
@@ -20,7 +25,9 @@ one piece on a worker with a fixed RAM budget. This module adds:
   ``'keep'`` or ``'own'`` (an object cut by a seam between two placed crops
   is kept by the crop holding its larger part);
 * the ``cell_painting_phalloidin`` preset (:func:`segment_cell_painting_site`):
-  nuclei on DNA, cells on ``[Phalloidin, DNA]``, one nucleus per cell;
+  nuclei on DNA, cells on ``[Phalloidin, DNA]``, one nucleus per cell, with
+  the plate's nucleus diameter and the tiling-control site taken from
+  populated sites spread over the well (:func:`survey_sites`);
 * the agreement report against reference label masks (:func:`mask_agreement`).
 
 :func:`run_large_site_segmentation` is the settings-file entry. The memory
@@ -62,6 +69,8 @@ LARGE_SITE_DEFAULTS: Dict[str, Any] = {
     "seg_nucleus_channel": "CorrDNA",
     "seg_nucleus_model": "cpsam",
     "seg_nucleus_diameter_range": [10.0, 80.0],
+    "seg_diameter_sites": 9,
+    "seg_diameter_min_objects": 50,
 }
 
 #: What ``seg_preset='cell_painting_phalloidin'`` sets, after PERISCOPE's
@@ -92,6 +101,11 @@ MODEL_BYTES = int(1.5 * 2 ** 30)
 
 #: The smallest tile the planner will fall back to.
 MIN_TILE_PX = 512
+
+#: Cellpose-SAM's network tile side, and the overlap fraction Cellpose puts
+#: between network tiles when ``eval`` runs with its defaults.
+NET_TILE_PX = 256
+NET_TILE_OVERLAP = 0.1
 
 
 class MemoryPlanError(ValueError):
@@ -152,6 +166,128 @@ def tile_grid(shape: Tuple[int, int], tile_px: int, overlap_px: int
 
     return [(y, min(y + tile_px, height), x, min(x + tile_px, width))
             for y in starts(height) for x in starts(width)]
+
+
+def network_tile_starts(length: int, bsize: int = NET_TILE_PX,
+                        overlap: float = NET_TILE_OVERLAP) -> np.ndarray:
+    """Where Cellpose runs its network along one image axis, in image coordinates.
+
+    Cellpose pads an image to a multiple of 16 plus 8 px on each side and
+    spreads ``ceil((1 + 2 * overlap) * padded / bsize)`` network tiles evenly
+    over the padded side (``cellpose.core.run_net`` without resizing). A
+    pixel's flows are the tapered mean of the network tiles that cover it, so
+    two runs give a pixel the same flows only when the same network tiles,
+    with the same pixels, cover it.
+
+    :param length: the image side in pixels.
+    :param bsize: the network tile side.
+    :param overlap: Cellpose's ``tile_overlap``.
+    :returns: the start of each network tile; negative starts lie in the
+        padding.
+    """
+    length = int(length)
+    if length >= bsize:
+        extra = int(16 * np.ceil(length / 16) - length)
+    else:
+        extra = max(0, bsize - length - 16)
+    padded = length + 16 + extra
+    overlap = min(0.5, max(0.05, float(overlap)))
+    count = 1 if padded <= bsize else int(np.ceil((1.0 + 2 * overlap) * padded / bsize))
+    return np.linspace(0, padded - min(bsize, padded), count).astype(int) - (8 + extra // 2)
+
+
+def _lattice_stride(length: int) -> Optional[int]:
+    """The network-tile stride of a side whose network tiles start at -8 and
+    are evenly spaced by a whole number of pixels, else None."""
+    starts = network_tile_starts(length)
+    if starts.size < 2 or starts[0] != -8:
+        return None
+    steps = np.diff(starts)
+    return int(steps[0]) if bool((steps == steps[0]).all()) else None
+
+
+def aligned_tiling(tile_px: int, overlap_px: int) -> Optional[Tuple[int, int, int]]:
+    """A tile side and step that put every tile's network tiles on one grid.
+
+    Tiles whose sides have evenly spaced network tiles (stride ``s``) and
+    whose starts are multiples of ``s`` all run Cellpose's network on the
+    same network tiles as the untiled image would: a pixel at least
+    ``NET_TILE_PX`` from a cut tile edge then gets bit-identical flows tiled
+    and untiled. Holds for Cellpose's defaults (``bsize=256``,
+    ``tile_overlap=0.1``) and no resizing, that is no ``diameter``.
+
+    :param tile_px: the largest tile side wanted.
+    :param overlap_px: the smallest overlap wanted.
+    :returns: ``(tile, step, stride)``: the largest tile side no larger than
+        ``tile_px``, a step between tile starts that is a multiple of the
+        stride and leaves at least ``overlap_px`` of overlap, and the
+        stride; None when no such tile exists.
+    """
+    for length in range(int(tile_px) // 16 * 16, NET_TILE_PX, -16):
+        stride = _lattice_stride(length)
+        if stride is None:
+            continue
+        step = stride * ((length - int(overlap_px)) // stride)
+        if step >= stride:
+            return length, step, stride
+    return None
+
+
+def tiling_layout(shape: Tuple[int, int], tile_px: int, overlap_px: int,
+                  align: bool = False) -> Dict[str, Any]:
+    """The tiles :func:`segment_tiled` uses for one image.
+
+    Without ``align`` these are :func:`tile_grid`'s tiles. With ``align``,
+    and when the image needs more than one tile, the tile side and step come
+    from :func:`aligned_tiling`, and each tiled side is padded at its end so
+    that the last tile also starts on the network grid; the stitched labels
+    are then cut back to the image.
+
+    :param shape: ``(height, width)``.
+    :param tile_px: the tile side asked for.
+    :param overlap_px: the overlap asked for.
+    :param align: put the tiles on Cellpose's network grid.
+    :returns: ``boxes`` (in padded coordinates), ``padded`` (the padded
+        shape), ``tile_px`` and ``overlap_px`` (those used) and ``aligned``.
+    """
+    shape = (int(shape[0]), int(shape[1]))
+    boxes = tile_grid(shape, tile_px, overlap_px)
+    plan = aligned_tiling(tile_px, overlap_px) if align and len(boxes) > 1 else None
+    if plan is None:
+        return {"boxes": boxes, "padded": shape, "tile_px": int(tile_px),
+                "overlap_px": int(overlap_px), "aligned": False}
+    tile, step, stride = plan
+    padded = tuple(size if size <= tile else tile + stride * int(np.ceil((size - tile) / stride))
+                   for size in shape)
+    return {"boxes": tile_grid(padded, tile, tile - step), "padded": padded, "tile_px": tile,
+            "overlap_px": tile - step, "aligned": True}
+
+
+def control_layout(side: int, overlap_px: int) -> Tuple[int, int, bool]:
+    """The region and tile sides of the tiling control.
+
+    The region is the largest side no larger than ``side`` whose network
+    tiles fall on one grid, and the tile the smallest side on the same grid
+    that covers the region in two tiles per axis with at least
+    ``overlap_px`` of overlap, so tiled and untiled runs share every network
+    tile away from the seams (:func:`aligned_tiling`). Without such a pair
+    the region is ``side`` and the tile ``(side + overlap_px) // 2 + 1``,
+    unaligned.
+
+    :param side: the region side asked for (``seg_tiling_control_px``).
+    :param overlap_px: the overlap asked for.
+    :returns: ``(region_px, tile_px, aligned)``.
+    """
+    for region in range(int(side) // 16 * 16, NET_TILE_PX, -16):
+        stride = _lattice_stride(region)
+        if stride is None:
+            continue
+        smallest = (region + int(overlap_px) + 1) // 2
+        for tile in range(-(-smallest // 16) * 16, region, 16):
+            plan = aligned_tiling(tile, overlap_px)
+            if plan is not None and plan[0] == tile and plan[2] == stride:
+                return region, tile, True
+    return int(side), (int(side) + int(overlap_px)) // 2 + 1, False
 
 
 def plan_site_memory(shape: Tuple[int, int], n_channels: int, settings: Mapping[str, Any], *,
@@ -292,7 +428,8 @@ def relabel_raster(labels: np.ndarray) -> np.ndarray:
 
 
 def segment_tiled(image: np.ndarray, segment: Callable[[np.ndarray], np.ndarray], *,
-                  tile_px: int = 2048, overlap_px: int = 256, iou: float = 0.5) -> np.ndarray:
+                  tile_px: int = 2048, overlap_px: int = 256, iou: float = 0.5,
+                  align: bool = False) -> np.ndarray:
     """Segment an image tile by tile and stitch the labels.
 
     :param image: ``(H, W)`` or ``(H, W, C)``.
@@ -302,44 +439,59 @@ def segment_tiled(image: np.ndarray, segment: Callable[[np.ndarray], np.ndarray]
     :param overlap_px: overlap between tiles, at least twice the largest
         expected object diameter.
     :param iou: passed to :func:`stitch_tile_labels`.
+    :param align: place the tiles on Cellpose's network grid
+        (:func:`tiling_layout`), so that objects away from the seams are the
+        untiled run's objects pixel for pixel; only for a segmenter that
+        does not resize the image.
     :returns: an int32 label image of the image's height and width.
     """
     shape = tuple(int(v) for v in np.shape(image)[:2])
-    boxes = tile_grid(shape, tile_px, overlap_px)
-    if len(boxes) == 1:
+    layout = tiling_layout(shape, tile_px, overlap_px, align)
+    if len(layout["boxes"]) == 1:
         return np.asarray(segment(image))
+    padded = layout["padded"]
+    if padded != shape:
+        image = np.pad(image, [(0, padded[0] - shape[0]), (0, padded[1] - shape[1])]
+                       + [(0, 0)] * (np.ndim(image) - 2))
     tiles = [((y0, y1, x0, x1), np.asarray(segment(image[y0:y1, x0:x1])))
-             for y0, y1, x0, x1 in boxes]
-    return stitch_tile_labels(tiles, shape, iou)
+             for y0, y1, x0, x1 in layout["boxes"]]
+    labels = stitch_tile_labels(tiles, padded, iou)
+    return labels if padded == shape else relabel_raster(labels[:shape[0], :shape[1]])
 
 
 def tiling_control(image: np.ndarray, segment: Callable[[np.ndarray], np.ndarray], *,
-                   tile_px: int, overlap_px: int, iou: float = 0.5) -> Dict[str, Any]:
+                   tile_px: int, overlap_px: int, iou: float = 0.5,
+                   align: bool = False) -> Dict[str, Any]:
     """Tiled against untiled segmentation of one region that fits untiled.
 
     Objects of the untiled run that stay clear of every seam zone (the
-    overlap strips of inner tile edges) must come back with identical
+    strips that two or more tiles share) must come back with identical
     pixels; objects in a seam zone are scored by their best IoU with a tiled
-    object.
+    object. ``segment`` must not rescale intensities per call (Cellpose's
+    default), or every tile is scaled differently from the region; pass a
+    region normalised once (:func:`normalize_site`) and a segmenter run with
+    ``normalize=False``.
 
     :param image: the region, ``(H, W)`` or ``(H, W, C)``.
     :param segment: maps an image to a label image.
     :param tile_px: the tile side of the tiled run; smaller than the region.
     :param overlap_px: the overlap of the tiled run.
     :param iou: passed to :func:`stitch_tile_labels`.
+    :param align: passed to :func:`segment_tiled`.
     :returns: ``objects``, ``away_from_seams``, ``away_identical``,
-        ``at_seams``, ``at_seams_iou_ge_0_9`` and ``at_seams_share``
-        (``nan`` without seam objects).
+        ``at_seams``, ``at_seams_iou_ge_0_9``, ``at_seams_share`` (``nan``
+        without seam objects), and ``tile_px``, ``overlap_px`` and
+        ``aligned`` of the tiles used.
     """
     shape = tuple(int(v) for v in np.shape(image)[:2])
     untiled = relabel_raster(np.asarray(segment(image)))
-    tiled = segment_tiled(image, segment, tile_px=tile_px, overlap_px=overlap_px, iou=iou)
-    seam = np.zeros(shape, bool)
-    for y0, y1, x0, x1 in tile_grid(shape, tile_px, overlap_px):
-        if y0 > 0:
-            seam[y0:y0 + overlap_px, :] = True
-        if x0 > 0:
-            seam[:, x0:x0 + overlap_px] = True
+    tiled = segment_tiled(image, segment, tile_px=tile_px, overlap_px=overlap_px, iou=iou,
+                          align=align)
+    layout = tiling_layout(shape, tile_px, overlap_px, align)
+    cover = np.zeros(layout["padded"], np.int32)
+    for y0, y1, x0, x1 in layout["boxes"]:
+        cover[y0:y1, x0:x1] += 1
+    seam = cover[:shape[0], :shape[1]] > 1
     a, b = untiled.ravel().astype(np.int64), tiled.ravel().astype(np.int64)
     area_a, area_b = np.bincount(a), np.bincount(b)
     on_seam = np.zeros(area_a.size, bool)
@@ -357,7 +509,9 @@ def tiling_control(image: np.ndarray, segment: Callable[[np.ndarray], np.ndarray
     return {"objects": int(ids.size), "away_from_seams": int(away.size),
             "away_identical": int(identical[away].sum()), "at_seams": int(near.size),
             "at_seams_iou_ge_0_9": good,
-            "at_seams_share": good / near.size if near.size else float("nan")}
+            "at_seams_share": good / near.size if near.size else float("nan"),
+            "tile_px": layout["tile_px"], "overlap_px": layout["overlap_px"],
+            "aligned": layout["aligned"]}
 
 
 def _border_labels(labels: np.ndarray) -> Dict[str, np.ndarray]:
@@ -545,6 +699,63 @@ def estimate_nucleus_diameter(nuclei: Sequence[np.ndarray],
     return float(np.clip(np.median(2 * np.sqrt(areas / np.pi)), bounds[0], bounds[1]))
 
 
+def survey_sites(sites: Sequence[str], nuclei: Mapping[str, np.ndarray],
+                 bounds: Tuple[float, float] = (10.0, 80.0), *, min_objects: int = 50
+                 ) -> Dict[str, Any]:
+    """The plate's nucleus diameter and the tiling-control site from a sample of sites.
+
+    A well's first site is often an empty corner of the well, so neither the
+    diameter nor the tiling control may come from it. A sampled site counts
+    only when it holds at least ``min_objects`` nuclei; the diameter is the
+    median equivalent diameter over every nucleus of those sites, clipped to
+    ``bounds`` (:func:`estimate_nucleus_diameter`), and the control site is
+    the one with the median nucleus count among them (the lower of the two
+    middle sites when their number is even).
+
+    :param sites: the sampled sites, in run order.
+    :param nuclei: per site, its nuclei as a label image.
+    :param bounds: ``(low, high)`` in pixels.
+    :param min_objects: the fewest nuclei a site needs to be used.
+    :returns: ``diameter_px``, ``sites_sampled``, ``objects_per_site``,
+        ``diameter_per_site`` (``None`` for a site without nuclei),
+        ``sites_used``, ``min_objects`` and ``control_site``.
+    :raises ValueError: when no sampled site holds ``min_objects`` nuclei.
+    """
+    objects, per_site = {}, {}
+    for site in sites:
+        areas = np.bincount(np.asarray(nuclei[site]).ravel())[1:]
+        areas = areas[areas > 0]
+        objects[site] = int(areas.size)
+        per_site[site] = (float(np.median(2 * np.sqrt(areas / np.pi))) if areas.size else None)
+    used = [site for site in sites if objects[site] >= int(min_objects)]
+    if not used:
+        raise ValueError(
+            f"no sampled site has at least {int(min_objects)} nuclei "
+            f"({', '.join(f'site {s}: {objects[s]}' for s in sites)}), so the nucleus diameter "
+            "and the tiling-control site cannot be chosen; set nucleus_diameter, sample more "
+            "sites with seg_diameter_sites or lower seg_diameter_min_objects")
+    ranked = sorted(used, key=lambda site: (objects[site], sites.index(site)))
+    return {"diameter_px": estimate_nucleus_diameter([nuclei[s] for s in used], bounds),
+            "sites_sampled": list(sites), "objects_per_site": objects,
+            "diameter_per_site": per_site, "sites_used": used,
+            "min_objects": int(min_objects), "control_site": ranked[(len(ranked) - 1) // 2]}
+
+
+def sample_sites(sites: Sequence[str], n: int) -> List[str]:
+    """``n`` sites spread evenly over a well's site list, first and last included.
+
+    :param sites: the well's sites in run order.
+    :param n: how many to take; at least one.
+    :returns: the sampled sites, in run order.
+    """
+    sites = list(sites)
+    if not sites:
+        return []
+    picks = np.unique(np.linspace(0, len(sites) - 1, max(1, min(int(n), len(sites))))
+                      .round().astype(int))
+    return [sites[i] for i in picks]
+
+
 def preset_models(settings: Mapping[str, Any], gpu: bool = False):
     """The nucleus and cell Cellpose models the preset segments with.
 
@@ -565,14 +776,45 @@ def preset_models(settings: Mapping[str, Any], gpu: bool = False):
     return tuple(out)
 
 
+def normalize_site(image: np.ndarray, percentiles: Tuple[float, float] = (1.0, 99.0)
+                   ) -> np.ndarray:
+    """Cellpose's percentile normalisation, computed once on a whole site.
+
+    Cellpose normalises every image it is given, so a tile is scaled by its
+    own 1st and 99th percentiles and the same pixel gets different values in
+    two tiles and in the untiled site. Here the percentiles of each channel
+    come from the whole site, with the arithmetic of Cellpose's
+    ``normalize_img`` (``normalize99`` with its subsampling; a flat channel
+    becomes zeros), and every tile is then segmented with
+    ``normalize=False``. A site that fits in one tile gets exactly the values
+    Cellpose would have computed itself.
+
+    :param image: ``(H, W)`` or ``(H, W, C)``.
+    :param percentiles: ``(lower, upper)``.
+    :returns: a float32 copy of ``image``, normalised per channel.
+    """
+    from cellpose.transforms import normalize99
+
+    out = np.array(image, dtype=np.float32, copy=True)
+    planes = out[..., np.newaxis] if out.ndim == 2 else out
+    for c in range(planes.shape[-1]):
+        if np.ptp(planes[..., c]) > 0:
+            planes[..., c] = normalize99(planes[..., c], lower=percentiles[0],
+                                         upper=percentiles[1], copy=False, downsample=True)
+        else:
+            planes[..., c] = 0
+    return out
+
+
 def _eval_labels(model: Any, image: np.ndarray, settings: Mapping[str, Any],
                  diameter: Optional[float], **kwargs: Any) -> np.ndarray:
-    """One Cellpose call under spaCR's GPU governor, returning the labels."""
+    """One Cellpose call on a site-normalised image, returning the labels."""
     from ._gpu_governor import _governed_eval
 
     extra = {"diameter": float(diameter)} if diameter else {}
     return np.asarray(_governed_eval(model, image, site="ops_large_sites", settings=settings,
-                                     batch_size=8, **extra, **kwargs)[0], np.int32)
+                                     batch_size=8, normalize=False, **extra, **kwargs)[0],
+                      np.int32)
 
 
 def segment_cell_painting_site(stack: np.ndarray, channel_names: Sequence[str],
@@ -582,7 +824,10 @@ def segment_cell_painting_site(stack: np.ndarray, channel_names: Sequence[str],
     """Nuclei and cells of one site with the ``cell_painting_phalloidin`` preset.
 
     Nuclei are segmented on the DNA channel, cells on ``cell_channels``
-    (Phalloidin, then DNA), each tiled by :func:`segment_tiled`; then each
+    (Phalloidin, then DNA), each normalised once on the whole site
+    (:func:`normalize_site`) and tiled by :func:`segment_tiled` on Cellpose's
+    network grid (nuclei only without a diameter, since a diameter resizes
+    each tile); then each
     nucleus is paired with one cell by
     :func:`spacr.ops_sample.pair_nuclei_with_cells` (cells without a nucleus
     are dropped, as in the OPS phenotype path).
@@ -609,14 +854,14 @@ def segment_cell_painting_site(stack: np.ndarray, channel_names: Sequence[str],
     iou = float(settings.get("seg_stitch_iou") or 0.5)
     diameter = nucleus_diameter or settings.get("nucleus_diameter")
     nucleus_model, cell_model = models
-    dna = np.asarray(stack[..., names.index(wanted[0])], np.float32)
+    dna = normalize_site(stack[..., names.index(wanted[0])])
     nuclei = segment_tiled(dna, lambda x: _eval_labels(nucleus_model, x, settings, diameter),
-                           tile_px=tile, overlap_px=overlap, iou=iou)
-    body = np.stack([np.asarray(stack[..., names.index(c)], np.float32)
-                     for c in settings["cell_channels"]], axis=-1)
+                           tile_px=tile, overlap_px=overlap, iou=iou, align=not diameter)
+    body = normalize_site(np.stack([stack[..., names.index(c)] for c in settings["cell_channels"]],
+                                   axis=-1))
     cells = segment_tiled(body, lambda x: _eval_labels(cell_model, x, settings, None,
                                                        channel_axis=-1),
-                          tile_px=tile, overlap_px=overlap, iou=iou)
+                          tile_px=tile, overlap_px=overlap, iou=iou, align=True)
     return pair_nuclei_with_cells(nuclei, cells)
 
 
@@ -722,18 +967,26 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
     ``labels/<site>_cells.npy``, ``tables/<site>_cells.parquet`` (one row per
     cell, measured by :func:`measure_chunked`), ``sites.csv`` (per site: objects,
     edge counts, the agreement with ``seg_report_reference`` when given, peak
-    memory and seconds), ``agreement_well.csv``, ``settings.json`` and, with
+    memory and seconds), ``agreement_well.csv``, ``settings.json``,
+    ``nucleus_diameter.json`` (the diameter, whether it was fixed or
+    estimated, and the survey it came from) and, with
     ``seg_tiling_control_px``, ``tiling_control.json`` (:func:`tiling_control`
-    on a centred region of the first site's cell channels). The
-    nucleus diameter, when not fixed, is estimated once from the first site.
+    on a centred region of the control site's cell channels, sized by
+    :func:`control_layout`). The nucleus
+    diameter, when not fixed, and the tiling-control site come from
+    ``seg_diameter_sites`` sites spread over the well, of which only those
+    with at least ``seg_diameter_min_objects`` nuclei count
+    (:func:`survey_sites`), never from one site that may be empty.
 
     :param settings: item 921 settings; ``seg_sites_src`` (the well folder)
         and ``seg_dst`` are required.
     :param models: ``(nucleus_model, cell_model)``; built by
         :func:`preset_models` when ``None``, on the card when ``seg_gpu``.
     :param available_bytes: passed to :func:`plan_site_memory`.
-    :returns: ``plan``, ``sites`` (the site table as records) and ``dst``.
-    :raises ValueError: when ``seg_sites_src`` or ``seg_dst`` is missing.
+    :returns: ``plan``, ``sites`` (the site table as records), ``dst`` and
+        ``nucleus_diameter`` (what ``nucleus_diameter.json`` holds).
+    :raises ValueError: when ``seg_sites_src`` or ``seg_dst`` is missing, or
+        when no sampled site holds enough nuclei to estimate the diameter.
     :raises MemoryPlanError: when the RAM cap cannot be met.
     """
     from .resource_log import ResourceSampler
@@ -755,6 +1008,36 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
         models = preset_models(settings, gpu=bool(settings.get("seg_gpu")))
     plan = None
     diameter = settings.get("nucleus_diameter")
+    control_px = int(settings.get("seg_tiling_control_px") or 0)
+    estimate = not diameter and bool(settings.get("seg_preset"))
+    survey: Dict[str, Any] = {}
+    if estimate or control_px:
+        sampled = sample_sites(sites, int(settings.get("seg_diameter_sites") or 1))
+        found = {}
+        for site in sampled:
+            stack = read_cropped_site(src, site, channels)
+            if plan is None:
+                plan = plan_site_memory(stack.shape[:2], len(channels), settings,
+                                        available_bytes=available_bytes)
+            local = dict(settings, seg_tile_px=plan["tile_px"])
+            dna = normalize_site(stack[..., channels.index(local.get("seg_nucleus_channel")
+                                                           or "CorrDNA")])
+            found[site] = segment_tiled(
+                dna, lambda x: _eval_labels(models[0], x, local, None),
+                tile_px=plan["tile_px"], overlap_px=int(local["seg_tile_overlap_px"]),
+                iou=float(local["seg_stitch_iou"]), align=True)
+            del stack, dna
+        survey = survey_sites(sampled, found,
+                              tuple(settings.get("seg_nucleus_diameter_range") or (10.0, 80.0)),
+                              min_objects=int(settings.get("seg_diameter_min_objects") or 1))
+        del found
+        if estimate:
+            diameter = survey["diameter_px"]
+    survey.update({"nucleus_diameter_px": diameter,
+                   "nucleus_diameter_source": ("estimated" if estimate
+                                               else "fixed" if diameter else "none")})
+    with open(os.path.join(dst, "nucleus_diameter.json"), "w", encoding="utf-8") as handle:
+        json.dump(survey, handle, indent=2, sort_keys=True)
     rows = []
     for site in sites:
         sampler = ResourceSampler(path=os.path.join(dst, "resource_log", f"site_{site}.jsonl"),
@@ -767,26 +1050,20 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
                 plan = plan_site_memory(stack.shape[:2], len(channels), settings,
                                         available_bytes=available_bytes)
             local = dict(settings, seg_tile_px=plan["tile_px"])
-            if not diameter and settings.get("seg_preset"):
-                dna = np.asarray(stack[..., channels.index(local.get("seg_nucleus_channel") or "CorrDNA")],
-                                 np.float32)
-                first = segment_tiled(dna, lambda x: _eval_labels(models[0], x, local, None),
-                                      tile_px=plan["tile_px"],
-                                      overlap_px=int(local["seg_tile_overlap_px"]),
-                                      iou=float(local["seg_stitch_iou"]))
-                diameter = estimate_nucleus_diameter(
-                    [first], tuple(local.get("seg_nucleus_diameter_range") or (10.0, 80.0)))
-            if int(local.get("seg_tiling_control_px") or 0) and site == sites[0]:
-                side = min(int(local["seg_tiling_control_px"]), *stack.shape[:2])
-                y0, x0 = (stack.shape[0] - side) // 2, (stack.shape[1] - side) // 2
-                region = np.stack([np.asarray(stack[y0:y0 + side, x0:x0 + side, channels.index(c)],
-                                              np.float32) for c in local["cell_channels"]], axis=-1)
+            if control_px and site == survey.get("control_site"):
                 overlap = int(local["seg_tile_overlap_px"])
+                side, control_tile, _ = control_layout(min(control_px, *stack.shape[:2]), overlap)
+                y0, x0 = (stack.shape[0] - side) // 2, (stack.shape[1] - side) // 2
+                body = normalize_site(np.stack([stack[..., channels.index(c)]
+                                                for c in local["cell_channels"]], axis=-1))
+                region = np.ascontiguousarray(body[y0:y0 + side, x0:x0 + side])
+                del body
                 control = tiling_control(
                     region, lambda x: _eval_labels(models[1], x, local, None, channel_axis=-1),
-                    tile_px=(side + overlap) // 2 + 1, overlap_px=overlap,
-                    iou=float(local["seg_stitch_iou"]))
-                control.update({"site": site, "region_px": side, "origin": [y0, x0]})
+                    tile_px=control_tile, overlap_px=overlap,
+                    iou=float(local["seg_stitch_iou"]), align=True)
+                control.update({"site": site, "region_px": side, "origin": [y0, x0],
+                                "site_nuclei": survey["objects_per_site"][site]})
                 with open(os.path.join(dst, "tiling_control.json"), "w", encoding="utf-8") as handle:
                     json.dump(control, handle, indent=2, sort_keys=True)
             nuclei, cells, paired = segment_cell_painting_site(stack, channels, local, models,
@@ -803,6 +1080,8 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
         row: Dict[str, Any] = {"site": site, "cells": int(table.shape[0]),
                                "edge_objects": edge["edge_objects"], "excluded_edge": edge["excluded"],
                                "nucleus_diameter_px": diameter,
+                               "nucleus_diameter_sites": ";".join(survey.get("sites_used", [])
+                                                                  if estimate else []),
                                "seconds": round(time.perf_counter() - started, 2)}
         row.update({f"paired_{k}": int(v) for k, v in paired.items()})
         peak = sampler.summary().get("peak_total")
@@ -829,4 +1108,4 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
                     frame.loc[(ratio - 1).abs() > 0.10, "site"].astype(str))
         write_table(pd.DataFrame([well]), os.path.join(dst, "agreement_well.csv"),
                     canonicalise=False)
-    return {"plan": plan, "sites": rows, "dst": dst}
+    return {"plan": plan, "sites": rows, "dst": dst, "nucleus_diameter": survey}
