@@ -836,6 +836,17 @@ annotation_column
 |     ``_rules_from_annotation`` **-- reads it**
 |     :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
+|     :py:func:`~spacr.core.preprocess_generate_masks`
+|         :py:func:`~spacr.validate.run_preflight`
+|             :py:func:`~spacr.validate.validate_settings`
+|                 ``_check_app_specific``
+|                     ``_annotation_labels_missing``
+|                         :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
+|                     ``dict(...)  [UNRESOLVED]``
+|                 ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
+|         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.deep_spacr.deep_spacr`
 |     :py:func:`~spacr.io.generate_training_dataset` **-- reads it**
 |         :py:func:`~spacr.settings.set_generate_training_dataset_defaults`
@@ -849,10 +860,28 @@ annotation_column
 |     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.hyperparam.run_search_for_app`
 |     :py:func:`~spacr.hyperparam.load_search_data` **-- reads it**
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.validate.run_preflight`
+|         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_app_specific``
+|                 ``_annotation_labels_missing``
+|                     ``_annotation_column_named``
+|                         :py:func:`~spacr.classify_classes.annotation_column_of` **-- reads it**
+|                     :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
+|             ``isinstance(...)  [UNRESOLVED]``
+|             ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ml.generate_ml_scores` **-- reads it**
 |     :py:func:`~spacr.settings.set_default_analyze_screen`
 |         :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
 |     :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
+| ``_annotation_labels_named``
+|     ``_annotation_labels_missing``
+|         ``_annotation_column_named``
+|             :py:func:`~spacr.classify_classes.annotation_column_of` **-- reads it**
+|         :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
 | :py:func:`~spacr.settings.set_annotate_default_settings` **-- reads it**
 | :py:func:`~spacr.settings.set_default_classify`
 |     :py:func:`~spacr.settings.set_default_analyze_screen`
@@ -869,10 +898,35 @@ annotation_columns
 | :py:func:`~spacr.classify_classes.normalize_settings`
 |     ``_rules_from_annotation`` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
+|     :py:func:`~spacr.core.preprocess_generate_masks`
+|         :py:func:`~spacr.validate.run_preflight`
+|             :py:func:`~spacr.validate.validate_settings`
+|                 ``_check_app_specific``
+|                     ``_annotation_labels_missing``
+|                         ``_annotation_column_named`` **-- reads it**
+|                     ``dict(...)  [UNRESOLVED]``
+|                 ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
+|         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.deep_spacr.deep_spacr`
 |     :py:func:`~spacr.io.generate_training_dataset` **-- reads it**
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.validate.run_preflight`
+|         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_app_specific``
+|                 ``_annotation_labels_missing``
+|                     ``_annotation_column_named`` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
+|             ``isinstance(...)  [UNRESOLVED]``
+|             ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
+| ``_annotation_labels_named``
+|     ``_annotation_labels_missing``
+|         ``_annotation_column_named`` **-- reads it**
 
-Read by ``_rules_from_annotation``, ``generate_training_dataset``.
+Read by ``_annotation_column_named``, ``_rules_from_annotation``, ``generate_training_dataset``.
 
 .. _setting-flow-annotation_counts:
 
@@ -4001,12 +4055,28 @@ classes
 |             :py:func:`~spacr.settings.get_train_test_model_settings` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.validate.run_preflight`
+|         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_app_specific``
+|                 ``_annotation_labels_missing``
+|                     ``_annotation_column_named``
+|                         :py:func:`~spacr.classify_classes.annotation_column_of` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
+|             ``isinstance(...)  [UNRESOLVED]``
+|             ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
 | :py:func:`~spacr.model_check.check_model`
 |     :py:func:`~spacr.model_check.expected_classes`
 |         :py:func:`~spacr.classify_classes.class_names` **-- reads it**
 |             :py:func:`~spacr.classify_classes.class_rules` **-- reads it**
 | :py:func:`~spacr.model_zoo.entry_from_file`
 |     ``_describe_classifier_training`` **-- reads it**
+| ``_annotation_labels_named``
+|     ``_annotation_labels_missing``
+|         ``_annotation_column_named``
+|             :py:func:`~spacr.classify_classes.annotation_column_of` **-- reads it**
 | ``_migrate_control_wells`` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 | ``_cpu_detect`` **-- reads it**
@@ -4096,6 +4166,10 @@ classifier_family
 |             :py:func:`~spacr.validate.validate_settings`
 |                 ``_model_input_kinds``
 |                     :py:func:`~spacr.classify.resolve_family` **-- reads it**
+|                 ``_check_app_specific``
+|                     ``_annotation_labels_missing``
+|                         :py:func:`~spacr.classify.resolve_family` **-- reads it**
+|                     ``dict(...)  [UNRESOLVED]``
 |                 ``isinstance(...)  [UNRESOLVED]``
 |                 ``dict(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
@@ -4109,6 +4183,10 @@ classifier_family
 |         :py:func:`~spacr.validate.validate_settings`
 |             ``_model_input_kinds``
 |                 :py:func:`~spacr.classify.resolve_family` **-- reads it**
+|             ``_check_app_specific``
+|                 ``_annotation_labels_missing``
+|                     :py:func:`~spacr.classify.resolve_family` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
 |             ``isinstance(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
@@ -4117,6 +4195,9 @@ classifier_family
 |     ``_model_input_kinds``
 |         :py:func:`~spacr.classify.resolve_family` **-- reads it**
 |     ``deepcopy(...)  [UNRESOLVED]``
+| ``_annotation_labels_named``
+|     ``_annotation_labels_missing``
+|         :py:func:`~spacr.classify.resolve_family` **-- reads it**
 | :py:func:`~spacr.qt.screens.app_screen.apply_settings_dict`
 |     ``_model_input_kinds``
 |         :py:func:`~spacr.classify.resolve_family` **-- reads it**
@@ -7479,6 +7560,17 @@ dataset_mode
 | :py:func:`~spacr.classify_classes.normalize_settings`
 |     :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
+|     :py:func:`~spacr.core.preprocess_generate_masks`
+|         :py:func:`~spacr.validate.run_preflight`
+|             :py:func:`~spacr.validate.validate_settings`
+|                 ``_check_app_specific``
+|                     ``_annotation_labels_missing``
+|                         :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
+|                     ``dict(...)  [UNRESOLVED]``
+|                 ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
+|         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.deep_spacr.deep_spacr`
 |     :py:func:`~spacr.io.generate_training_dataset`
 |         :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
@@ -7486,10 +7578,24 @@ dataset_mode
 |     :py:func:`~spacr.flowview.classify_blueprint.classify_graph`
 |         :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.validate.run_preflight`
+|         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_app_specific``
+|                 ``_annotation_labels_missing``
+|                     :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
+|             ``isinstance(...)  [UNRESOLVED]``
+|             ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ml.generate_ml_scores`
 |     :py:func:`~spacr.settings.set_default_analyze_screen`
 |         :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
 |     :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
+| ``_annotation_labels_named``
+|     ``_annotation_labels_missing``
+|         :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
 | :py:func:`~spacr.settings.set_default_classify`
 |     :py:func:`~spacr.settings.set_default_analyze_screen`
 |         :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
@@ -11831,6 +11937,9 @@ generate_training_dataset
 |                 ``_watch_map_manifest(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.validate.run_preflight`
 |             :py:func:`~spacr.validate.validate_settings`
+|                 ``_check_app_specific``
+|                     ``_annotation_labels_missing`` **-- reads it**
+|                     ``dict(...)  [UNRESOLVED]``
 |                 ``_check_required_paths`` **-- reads it**
 |                 ``isinstance(...)  [UNRESOLVED]``
 |                 ``dict(...)  [UNRESOLVED]``
@@ -11839,13 +11948,18 @@ generate_training_dataset
 | :py:func:`~spacr.measure.measure_crop`
 |     :py:func:`~spacr.validate.run_preflight`
 |         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_app_specific``
+|                 ``_annotation_labels_missing`` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
 |             ``_check_required_paths`` **-- reads it**
 |             ``isinstance(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
+| ``_annotation_labels_named``
+|     ``_annotation_labels_missing`` **-- reads it**
 
-Read by ``_watch_folder_and_analyse``, ``deep_spacr``, ``_preprocess_mapped_volume_series``, ``_check_required_paths``.
+Read by ``_annotation_labels_missing``, ``_watch_folder_and_analyse``, ``deep_spacr``, ``_preprocess_mapped_volume_series``, ``_check_required_paths``.
 
 .. _setting-flow-genes:
 
@@ -37946,6 +38060,9 @@ train
 |     :py:func:`~spacr.core.preprocess_generate_masks`
 |         :py:func:`~spacr.validate.run_preflight`
 |             :py:func:`~spacr.validate.validate_settings`
+|                 ``_check_app_specific``
+|                     ``_annotation_labels_missing`` **-- reads it**
+|                     ``dict(...)  [UNRESOLVED]``
 |                 ``_check_required_paths`` **-- reads it**
 |                 ``isinstance(...)  [UNRESOLVED]``
 |                 ``dict(...)  [UNRESOLVED]``
@@ -37965,13 +38082,18 @@ train
 | :py:func:`~spacr.measure.measure_crop`
 |     :py:func:`~spacr.validate.run_preflight`
 |         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_app_specific``
+|                 ``_annotation_labels_missing`` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
 |             ``_check_required_paths`` **-- reads it**
 |             ``isinstance(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
+| ``_annotation_labels_named``
+|     ``_annotation_labels_missing`` **-- reads it**
 
-Read by ``deep_spacr``, ``train_test_model``, ``get_train_test_model_settings``, ``_check_required_paths``.
+Read by ``_annotation_labels_missing``, ``deep_spacr``, ``train_test_model``, ``get_train_test_model_settings``, ``_check_required_paths``.
 
 .. _setting-flow-train_arch:
 
