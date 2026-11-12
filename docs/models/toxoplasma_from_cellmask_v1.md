@@ -4,18 +4,18 @@
 
 v1
 
-**0.606** — F1 · 463 held-out fields
+**0.355** — F1 · 80 unseen fields
 
-+0.584 vs stock cpsam_v2
++0.343 vs stock cpsam_v2
 
 | Metric | this model | stock cpsam_v2 |
 | --- | --- | --- |
-| F1 | 0.606 | 0.021 |
-| AJI | 0.494 | 0.008 |
-| Dice | 0.610 | 0.020 |
+| F1 | 0.355 | 0.012 |
+| AJI | 0.220 | 0.008 |
+| Dice | 0.387 | 0.027 |
 
 
-![Score card of Vacuoles from cell mask v1 (toxoplasma_from_cellmask_v1, default): F1 0.606 on 463 held-out fields against 0.021 for stock cpsam_v2.](cards/toxoplasma_from_cellmask_v1.svg)
+![Score card of Vacuoles from cell mask v1 (toxoplasma_from_cellmask_v1, default): F1 0.355 on 80 unseen fields against 0.012 for stock cpsam_v2.](cards/toxoplasma_from_cellmask_v1.svg)
 
 ## Toxoplasma from Cell Mask (cross-channel)
 
@@ -31,25 +31,9 @@ cross-channel: given the host cell image, predicts where the Toxoplasma parasito
 
 ## Hold-out performance
 
-F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5.
+Object F1 0.355 against stock cpsam_v2's 0.012 on 80 curated fields this model never saw (re-scored 2026-11-10), at IoU 0.5. Recorded at publication: F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5.
 
-Scorecard state: **recorded at publication**. These numbers were recorded with the model when it was published; a reviewed held-out comparison against the stock model is not yet available.
-
-| Recorded | Value |
-| --- | --- |
-| Training set | 2567 |
-| Test set | 463 |
-| Test objects | 6116 |
-| Cross-validation | no |
-| F1 | 0.6058 |
-| AJI | 0.4939 |
-| Dice | 0.6096 |
-| Stock F1 | 0.0215 |
-| Stock AJI | 0.0080 |
-| Stock Dice | 0.0201 |
-| Training loss | 0.0075 |
-| Validation loss | 0.0100 |
-| Best epoch | 100 / 100 |
+Scorecard state: **reviewed hold-out scorecard**.
 
 ## Fields this model never saw (curated ground truth)
 
@@ -78,6 +62,26 @@ n = 80 fields (2 with no vacuole) and 1,332 curated objects. This model reported
 - Stock cpsam_v2 reports 7,665 objects and matches 56 vacuoles: it cannot do this task.
 
 Fair comparison: Each model and stock cpsam_v2 are scored on the same fields and the same input pixels (SHA-256 per field), against the same curated masks, with the same scoring code and thresholds (IoU 0.5 matching, 2 px boundary tolerance), in the same environment (cellpose 4.2.1.1, the version the model was trained with).
+
+## Recorded at publication
+
+These numbers were recorded with the model when it was published, before the curated re-score above; the notes say how they were scored.
+
+| Recorded | Value |
+| --- | --- |
+| Training set | 2567 |
+| Test set | 463 |
+| Test objects | 6116 |
+| Cross-validation | no |
+| F1 | 0.6058 |
+| AJI | 0.4939 |
+| Dice | 0.6096 |
+| Stock F1 | 0.0215 |
+| Stock AJI | 0.0080 |
+| Stock Dice | 0.0201 |
+| Training loss | 0.0075 |
+| Validation loss | 0.0100 |
+| Best epoch | 100 / 100 |
 
 ## Notes
 

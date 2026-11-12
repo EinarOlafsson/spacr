@@ -99,8 +99,9 @@ msgstr "``toxoplasma_from_cellmask_v1`` （Cellpose-SAM (cpsam_v2)）"
 msgid "Toxoplasma PV masks predicted from the HOST CELL MASK channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1"
 msgstr "仅根据宿主细胞掩膜（HOST CELL MASK）通道预测的弓形虫纳虫泡掩膜；2567 个训练视野和 463 个留出视野，按孔划分，宿主为 HFF/HeLa/THP1"
 
-msgid "F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
-msgstr "在 463 个按孔分组的留出视野上，IoU 0.5 时 F1 为 0.606，而原版 cpsam_v2 为 0.021"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Object F1 0.355 against stock cpsam_v2's 0.012 on 80 curated fields this model never saw (re-scored 2026-11-10), at IoU 0.5. Recorded at publication: F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "在该模型从未见过的 80 个整理后的视野上（2026-11-10 重新评分），IoU 0.5 时对象 F1 为 0.355，而原版 cpsam_v2 为 0.012。发布时记录：在 463 个按孔分组的留出视野上，IoU 0.5 时 F1 为 0.606，而原版 cpsam_v2 为 0.021"
 
 msgid "``toxoplasma_pv_v2`` (Cellpose-SAM (cpsam_v2))"
 msgstr "``toxoplasma_pv_v2`` （Cellpose-SAM (cpsam_v2)）"
@@ -179,8 +180,9 @@ msgstr "``toxoplasma_from_hoechst_v1`` （Cellpose-SAM (cpsam_v2)）"
 msgid "Toxoplasma PV masks predicted from the HOECHST channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1"
 msgstr "仅根据 HOECHST 通道预测的弓形虫纳虫泡掩膜；2567 个训练视野和 463 个留出视野，按孔划分，宿主为 HFF/HeLa/THP1"
 
-msgid "F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
-msgstr "在 463 个按孔分组的留出视野上，IoU 0.5 时 F1 为 0.569，而原版 cpsam_v2 为 0.002"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Object F1 0.446 against stock cpsam_v2's 0.001 on 224 curated fields this model never saw (re-scored 2026-11-10), at IoU 0.5. Recorded at publication: F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "在该模型从未见过的 224 个整理后的视野上（2026-11-10 重新评分），IoU 0.5 时对象 F1 为 0.446，而原版 cpsam_v2 为 0.001。发布时记录：在 463 个按孔分组的留出视野上，IoU 0.5 时 F1 为 0.569，而原版 cpsam_v2 为 0.002"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "``toxoplasma_plaque_v3`` (Cellpose-SAM (cpsam, Cellpose 4.0.9))"
@@ -761,8 +763,9 @@ msgstr "由细胞掩膜推断弓形虫（跨通道）"
 msgid "**Trained on.** cross-channel: given the host cell image, predicts where the Toxoplasma parasitophorous vacuoles are, with no parasite stain. 100 epochs, base cpsam_v2, AdamW lr 1e-5, targets are PV-regenerated masks"
 msgstr "**训练数据。** 跨通道：给定宿主细胞图像，在没有寄生虫染色的情况下预测弓形虫纳虫泡的位置。100 个 epoch，基础模型 cpsam_v2，AdamW lr 1e-5，目标为由纳虫泡重新生成的掩膜"
 
-msgid "**Measured.** F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
-msgstr "**测量结果。** 在 463 个按孔分组的留出视野上，IoU 0.5 时 F1 为 0.606，而原版 cpsam_v2 为 0.021"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Measured.** Object F1 0.355 against stock cpsam_v2's 0.012 on 80 curated fields this model never saw (re-scored 2026-11-10), at IoU 0.5. Recorded at publication: F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "**测量结果。** 在该模型从未见过的 80 个整理后的视野上（2026-11-10 重新评分），IoU 0.5 时对象 F1 为 0.355，而原版 cpsam_v2 为 0.012。发布时记录：在 463 个按孔分组的留出视野上，IoU 0.5 时 F1 为 0.606，而原版 cpsam_v2 为 0.021"
 
 msgid "F1 0.606, AJI 0.494, Dice 0.610 at IoU 0.5 against stock cpsam_v2's 0.021/0.008/0.020 -- stock cannot do this task at all"
 msgstr "IoU 0.5 时 F1 0.606、AJI 0.494、Dice 0.610，而原版 cpsam_v2 为 0.021/0.008/0.020——原版模型根本无法完成此任务"
@@ -1361,8 +1364,9 @@ msgstr "SHA-256 ``2675553a46e97a7bc4bd2bfe3e954954194fe71ca4e94261e752a02bf0b6eb
 msgid "Cross-channel cell-from-hoechst"
 msgstr "跨通道：由 Hoechst 推断细胞"
 
-msgid "**Trained on.** Hoechst-stained nuclei paired with curated host-cell masks; fine-tuned from stock cpsam_v2, 100 epochs, best epoch 70"
-msgstr "**训练数据。** 与整理后的宿主细胞掩膜配对的 Hoechst 染色细胞核；从原版 cpsam_v2 微调，100 个 epoch，最佳 epoch 为 70"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Trained on.** Hoechst-stained nuclei paired with automatic spaCR host-cell masks (not curated); fine-tuned from stock cpsam_v2, 100 epochs, best epoch 70"
+msgstr "**训练数据。** 与 spaCR 自动生成的宿主细胞掩膜（未经人工整理）配对的 Hoechst 染色细胞核；从原版 cpsam_v2 微调，100 个 epoch，最佳 epoch 为 70"
 
 msgid "**Measured.** F1 0.870 against stock cpsam_v2's 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569"
 msgstr "**测量结果。** 在 451 个留出视野上，IoU 0.5 时 F1 为 0.870，而原版 cpsam_v2 为 0.301——差值为 0.569"
@@ -1388,8 +1392,9 @@ msgstr "由 Hoechst 推断弓形虫（跨通道）"
 msgid "**Trained on.** cross-channel: given the Hoechst/nuclear image, predicts where the Toxoplasma parasitophorous vacuoles are, with no parasite stain. 100 epochs, base cpsam_v2, AdamW lr 1e-05, targets are PV-regenerated masks"
 msgstr "**训练数据。** 跨通道：给定 Hoechst/细胞核图像，在没有寄生虫染色的情况下预测弓形虫纳虫泡的位置。100 个 epoch，基础模型 cpsam_v2，AdamW lr 1e-05，目标为由纳虫泡重新生成的掩膜"
 
-msgid "**Measured.** F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
-msgstr "**测量结果。** 在 463 个按孔分组的留出视野上，IoU 0.5 时 F1 为 0.569，而原版 cpsam_v2 为 0.002"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Measured.** Object F1 0.446 against stock cpsam_v2's 0.001 on 224 curated fields this model never saw (re-scored 2026-11-10), at IoU 0.5. Recorded at publication: F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "**测量结果。** 在该模型从未见过的 224 个整理后的视野上（2026-11-10 重新评分），IoU 0.5 时对象 F1 为 0.446，而原版 cpsam_v2 为 0.001。发布时记录：在 463 个按孔分组的留出视野上，IoU 0.5 时 F1 为 0.569，而原版 cpsam_v2 为 0.002"
 
 msgid "F1 0.569, AJI 0.421, Dice 0.546 at IoU 0.5 against stock cpsam_v2's 0.002/0.006/0.016"
 msgstr "IoU 0.5 时 F1 0.569、AJI 0.421、Dice 0.546，而原版 cpsam_v2 为 0.002/0.006/0.016"

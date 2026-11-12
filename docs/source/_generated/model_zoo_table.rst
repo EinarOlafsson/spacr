@@ -28,7 +28,7 @@
    * - ``toxoplasma_from_cellmask_v1``
        (Cellpose-SAM (cpsam_v2))
      - Toxoplasma PV masks predicted from the HOST CELL MASK channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1
-     - F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5
+     - Object F1 0.355 against stock cpsam_v2's 0.012 on 80 curated fields this model never saw (re-scored 2026-11-10), at IoU 0.5. Recorded at publication: F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5
    * - ``toxoplasma_pv_v2``
        (Cellpose-SAM (cpsam_v2))
      - anti-Toxoplasma-biotin and DsRed PV lumen; 556 curated images accumulated over five rounds
@@ -60,7 +60,7 @@
    * - ``toxoplasma_from_hoechst_v1``
        (Cellpose-SAM (cpsam_v2))
      - Toxoplasma PV masks predicted from the HOECHST channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1
-     - F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5
+     - Object F1 0.446 against stock cpsam_v2's 0.001 on 224 curated fields this model never saw (re-scored 2026-11-10), at IoU 0.5. Recorded at publication: F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5
    * - ``toxoplasma_plaque_v3``
        (Cellpose-SAM (cpsam, Cellpose 4.0.9))
      - 496 curated plaque fields, including 34 reviewed empty negatives and 71 Gel Doc wells; 100 epochs; fixed physical-plate/source groups

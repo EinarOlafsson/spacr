@@ -27,7 +27,7 @@ Host-cell outlines from a Hoechst (nuclear) stain alone. No cell stain needed: t
 
 The HOST CELL outline predicted from the Hoechst (nuclear) channel alone; 2,578 training fields and 451 held-out test fields, split by well so no well is on both sides.
 
-Hoechst-stained nuclei paired with curated host-cell masks; fine-tuned from stock cpsam_v2, 100 epochs, best epoch 70.
+Hoechst-stained nuclei paired with automatic spaCR host-cell masks (not curated); fine-tuned from stock cpsam_v2, 100 epochs, best epoch 70.
 
 ## Hold-out performance
 

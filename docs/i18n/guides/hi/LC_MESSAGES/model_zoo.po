@@ -99,8 +99,9 @@ msgstr "``toxoplasma_from_cellmask_v1`` (Cellpose-SAM (cpsam_v2))"
 msgid "Toxoplasma PV masks predicted from the HOST CELL MASK channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1"
 msgstr "केवल मेज़बान कोशिका मास्क (HOST CELL MASK) चैनल से अनुमानित टोक्सोप्लाज़्मा PV मास्क; 2567 प्रशिक्षण और 463 अलग रखे गए फ़ील्ड, कूप के अनुसार विभाजित, मेज़बान HFF/HeLa/THP1"
 
-msgid "F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
-msgstr "463 कूप-समूहित अलग रखे गए फ़ील्ड पर IoU 0.5 पर F1 0.606, जबकि मानक cpsam_v2 के लिए 0.021"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Object F1 0.355 against stock cpsam_v2's 0.012 on 80 curated fields this model never saw (re-scored 2026-11-10), at IoU 0.5. Recorded at publication: F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "80 क्यूरेट किए गए फ़ील्ड पर, जिन्हें इस मॉडल ने कभी नहीं देखा (2026-11-10 को पुनः स्कोर किया गया), IoU 0.5 पर ऑब्जेक्ट F1 0.355, जबकि मानक cpsam_v2 के लिए 0.012। प्रकाशन के समय दर्ज: 463 कूप-समूहित अलग रखे गए फ़ील्ड पर IoU 0.5 पर F1 0.606, जबकि मानक cpsam_v2 के लिए 0.021"
 
 msgid "``toxoplasma_pv_v2`` (Cellpose-SAM (cpsam_v2))"
 msgstr "``toxoplasma_pv_v2`` (Cellpose-SAM (cpsam_v2))"
@@ -179,8 +180,9 @@ msgstr "``toxoplasma_from_hoechst_v1`` (Cellpose-SAM (cpsam_v2))"
 msgid "Toxoplasma PV masks predicted from the HOECHST channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1"
 msgstr "केवल HOECHST चैनल से अनुमानित टोक्सोप्लाज़्मा PV मास्क; 2567 प्रशिक्षण और 463 अलग रखे गए फ़ील्ड, कूप के अनुसार विभाजित, मेज़बान HFF/HeLa/THP1"
 
-msgid "F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
-msgstr "463 कूप-समूहित अलग रखे गए फ़ील्ड पर IoU 0.5 पर F1 0.569, जबकि मानक cpsam_v2 के लिए 0.002"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Object F1 0.446 against stock cpsam_v2's 0.001 on 224 curated fields this model never saw (re-scored 2026-11-10), at IoU 0.5. Recorded at publication: F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "224 क्यूरेट किए गए फ़ील्ड पर, जिन्हें इस मॉडल ने कभी नहीं देखा (2026-11-10 को पुनः स्कोर किया गया), IoU 0.5 पर ऑब्जेक्ट F1 0.446, जबकि मानक cpsam_v2 के लिए 0.001। प्रकाशन के समय दर्ज: 463 कूप-समूहित अलग रखे गए फ़ील्ड पर IoU 0.5 पर F1 0.569, जबकि मानक cpsam_v2 के लिए 0.002"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "``toxoplasma_plaque_v3`` (Cellpose-SAM (cpsam, Cellpose 4.0.9))"
@@ -761,8 +763,9 @@ msgstr "कोशिका मास्क से टोक्सोप्ला
 msgid "**Trained on.** cross-channel: given the host cell image, predicts where the Toxoplasma parasitophorous vacuoles are, with no parasite stain. 100 epochs, base cpsam_v2, AdamW lr 1e-5, targets are PV-regenerated masks"
 msgstr "**प्रशिक्षण डेटा।** क्रॉस-चैनल: मेज़बान कोशिका छवि दिए जाने पर, परजीवी अभिरंजन के बिना, यह अनुमान लगाता है कि टोक्सोप्लाज़्मा परजीवीधानी रिक्तिकाएँ कहाँ हैं। 100 एपोक, आधार cpsam_v2, AdamW lr 1e-5, लक्ष्य PV से पुनः बनाए गए मास्क हैं"
 
-msgid "**Measured.** F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
-msgstr "**मापा गया।** 463 कूप-समूहित अलग रखे गए फ़ील्ड पर IoU 0.5 पर F1 0.606, जबकि मानक cpsam_v2 के लिए 0.021"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Measured.** Object F1 0.355 against stock cpsam_v2's 0.012 on 80 curated fields this model never saw (re-scored 2026-11-10), at IoU 0.5. Recorded at publication: F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "**मापा गया।** 80 क्यूरेट किए गए फ़ील्ड पर, जिन्हें इस मॉडल ने कभी नहीं देखा (2026-11-10 को पुनः स्कोर किया गया), IoU 0.5 पर ऑब्जेक्ट F1 0.355, जबकि मानक cpsam_v2 के लिए 0.012। प्रकाशन के समय दर्ज: 463 कूप-समूहित अलग रखे गए फ़ील्ड पर IoU 0.5 पर F1 0.606, जबकि मानक cpsam_v2 के लिए 0.021"
 
 msgid "F1 0.606, AJI 0.494, Dice 0.610 at IoU 0.5 against stock cpsam_v2's 0.021/0.008/0.020 -- stock cannot do this task at all"
 msgstr "IoU 0.5 पर F1 0.606, AJI 0.494, Dice 0.610, जबकि मानक cpsam_v2 के 0.021/0.008/0.020 -- मानक मॉडल यह कार्य बिल्कुल नहीं कर सकता"
@@ -1361,8 +1364,9 @@ msgstr "SHA-256 ``2675553a46e97a7bc4bd2bfe3e954954194fe71ca4e94261e752a02bf0b6eb
 msgid "Cross-channel cell-from-hoechst"
 msgstr "क्रॉस-चैनल: Hoechst से कोशिका"
 
-msgid "**Trained on.** Hoechst-stained nuclei paired with curated host-cell masks; fine-tuned from stock cpsam_v2, 100 epochs, best epoch 70"
-msgstr "**प्रशिक्षण डेटा।** क्यूरेट किए गए मेज़बान-कोशिका मास्क के साथ जोड़े गए Hoechst-अभिरंजित केंद्रक; मानक cpsam_v2 से फ़ाइन-ट्यून, 100 एपोक, सर्वश्रेष्ठ एपोक 70"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Trained on.** Hoechst-stained nuclei paired with automatic spaCR host-cell masks (not curated); fine-tuned from stock cpsam_v2, 100 epochs, best epoch 70"
+msgstr "**प्रशिक्षण डेटा।** spaCR के स्वचालित मेज़बान-कोशिका मास्क (क्यूरेट नहीं किए गए) के साथ जोड़े गए Hoechst-अभिरंजित केंद्रक; मानक cpsam_v2 से फ़ाइन-ट्यून, 100 एपोक, सर्वश्रेष्ठ एपोक 70"
 
 msgid "**Measured.** F1 0.870 against stock cpsam_v2's 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569"
 msgstr "**मापा गया।** 451 अलग रखे गए फ़ील्ड पर IoU 0.5 पर F1 0.870, जबकि मानक cpsam_v2 का 0.301 -- 0.569 का अंतर"
@@ -1388,8 +1392,9 @@ msgstr "Hoechst से टोक्सोप्लाज़्मा (क्र�
 msgid "**Trained on.** cross-channel: given the Hoechst/nuclear image, predicts where the Toxoplasma parasitophorous vacuoles are, with no parasite stain. 100 epochs, base cpsam_v2, AdamW lr 1e-05, targets are PV-regenerated masks"
 msgstr "**प्रशिक्षण डेटा।** क्रॉस-चैनल: Hoechst/केंद्रकीय छवि दिए जाने पर, परजीवी अभिरंजन के बिना, यह अनुमान लगाता है कि टोक्सोप्लाज़्मा परजीवीधानी रिक्तिकाएँ कहाँ हैं। 100 एपोक, आधार cpsam_v2, AdamW lr 1e-05, लक्ष्य PV से पुनः बनाए गए मास्क हैं"
 
-msgid "**Measured.** F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
-msgstr "**मापा गया।** 463 कूप-समूहित अलग रखे गए फ़ील्ड पर IoU 0.5 पर F1 0.569, जबकि मानक cpsam_v2 के लिए 0.002"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Measured.** Object F1 0.446 against stock cpsam_v2's 0.001 on 224 curated fields this model never saw (re-scored 2026-11-10), at IoU 0.5. Recorded at publication: F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "**मापा गया।** 224 क्यूरेट किए गए फ़ील्ड पर, जिन्हें इस मॉडल ने कभी नहीं देखा (2026-11-10 को पुनः स्कोर किया गया), IoU 0.5 पर ऑब्जेक्ट F1 0.446, जबकि मानक cpsam_v2 के लिए 0.001। प्रकाशन के समय दर्ज: 463 कूप-समूहित अलग रखे गए फ़ील्ड पर IoU 0.5 पर F1 0.569, जबकि मानक cpsam_v2 के लिए 0.002"
 
 msgid "F1 0.569, AJI 0.421, Dice 0.546 at IoU 0.5 against stock cpsam_v2's 0.002/0.006/0.016"
 msgstr "IoU 0.5 पर F1 0.569, AJI 0.421, Dice 0.546, जबकि मानक cpsam_v2 के 0.002/0.006/0.016"
