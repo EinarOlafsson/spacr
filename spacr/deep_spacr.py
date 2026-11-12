@@ -1644,6 +1644,34 @@ def _apply_train_eval_split(settings):
                                    'leave_one_plate_out': 'plate'}.get(split, '')
 
 
+def _held_out_rows(name, role, run, classes, predicted=None):
+    """The pooled row and one row per fold of one set of out-of-fold predictions.
+
+    ``predicted`` names one class index to predict for every crop (the
+    majority control); otherwise each crop takes its most probable class.
+    """
+    from .ml import classifier_metrics
+
+    labels = np.asarray(run['labels'], dtype=int)
+    scores = np.concatenate(run['probabilities'], axis=0)
+    if predicted is None:
+        predicted = scores.argmax(axis=1)
+    else:
+        scores = np.zeros_like(scores)
+        scores[:, predicted] = 1.0
+        predicted = np.full(len(labels), predicted)
+    truth = np.asarray(classes, dtype=object)[labels]
+    guess = np.asarray(classes, dtype=object)[predicted]
+    folds = np.asarray(run['folds'], dtype=object)
+    out = [{**classifier_metrics(truth, guess, classes, name, scores),
+            'role': role, 'fold': 'pooled'}]
+    for fold in dict.fromkeys(folds):
+        at = folds == fold
+        out.append({**classifier_metrics(truth[at], guess[at], classes, name, scores[at]),
+                    'role': role, 'fold': str(fold)})
+    return out
+
+
 def _held_out_metrics_table(settings, runs):
     """The ``ml_eval`` metrics table of a CNN evaluated on held-out folds.
 
@@ -1656,43 +1684,23 @@ def _held_out_metrics_table(settings, runs):
         ``model`` and ``fold`` first, as :func:`spacr.ml.evaluate_classifier`
         writes them.
     """
-    from .ml import _ml_eval_list, classifier_metrics
+    from .ml import _ml_eval_list
 
     classes = list(_class_folder_names(settings))
     controls = _ml_eval_list(settings.get('train_eval_controls'))
     rows = []
 
-    def add(name, role, run, predicted=None):
-        """Append the pooled row and one row per fold of one set of predictions."""
-        labels = np.asarray(run['labels'], dtype=int)
-        scores = np.concatenate(run['probabilities'], axis=0)
-        if predicted is None:
-            predicted = scores.argmax(axis=1)
-        else:
-            scores = np.zeros_like(scores)
-            scores[:, predicted] = 1.0
-            predicted = np.full(len(labels), predicted)
-        truth = np.asarray(classes, dtype=object)[labels]
-        guess = np.asarray(classes, dtype=object)[predicted]
-        folds = np.asarray(run['folds'], dtype=object)
-        out = [{**classifier_metrics(truth, guess, classes, name, scores),
-                'role': role, 'fold': 'pooled'}]
-        for fold in dict.fromkeys(folds):
-            at = folds == fold
-            out.append({**classifier_metrics(truth[at], guess[at], classes, name, scores[at]),
-                        'role': role, 'fold': str(fold)})
-        return out
-
     model = runs['model']
-    rows += add(f"{settings['model_type']}, {settings['train_eval_split']}", 'model', model)
+    rows += _held_out_rows(f"{settings['model_type']}, {settings['train_eval_split']}", 'model',
+                           model, classes)
     if 'majority' in controls:
         majority = int(np.bincount(np.asarray(model['labels'], dtype=int),
                                    minlength=len(classes)).argmax())
-        rows += add(f'control: majority class ({classes[majority]})', 'control', model,
-                    predicted=majority)
+        rows += _held_out_rows(f'control: majority class ({classes[majority]})', 'control',
+                               model, classes, predicted=majority)
     if 'shuffled' in controls and runs.get('shuffled'):
         repeated = pd.DataFrame([row for run in runs['shuffled']
-                                 for row in add('shuffled', 'control', run)])
+                                 for row in _held_out_rows('shuffled', 'control', run, classes)])
         numeric = repeated.select_dtypes(include=[np.number]).columns
         for fold, table in repeated.groupby('fold', sort=False):
             rows.append({'model': 'control: shuffled training labels '
