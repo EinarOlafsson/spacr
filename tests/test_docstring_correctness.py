@@ -3387,6 +3387,27 @@ def _validated_measure_profile_family_callables(callables):
     return [item for item in callables if item.symbol not in entries]
 
 
+def _validated_paper_remaining_910_899_callables(callables):
+    """Check the public callables that finish items 910 and 899 (the Prism reference reader and Measure's own translocation readout) against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "910_899_paper_remaining_api_arrivals_2026-11-12.json").read_text(encoding="utf-8"))
+    assert set(entries) == {
+        "spacr.host_pathogen.pzfx_reference_curve",
+        "spacr.host_pathogen.pzfx_tables",
+        "spacr.host_pathogen.translocation_measured_cells",
+    }
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == entries.keys()
+    for symbol, item in found.items():
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
 def _validated_733_easy_mode_callables(callables):
     """Check the exact four executable Easy mode boundaries before historical replay."""
     import json
@@ -3480,6 +3501,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_gate_editor_png_list_callables(callables)
     callables = _validated_bmc_paper_remaining_callables(callables)
     callables = _validated_measure_profile_family_callables(callables)
+    callables = _validated_paper_remaining_910_899_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
@@ -6196,6 +6218,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("gate_editor_png_list_annotations_api_arrivals_2026-11-12.json", 1),
         ("890_917_bmc_paper_remaining_api_arrivals_2026-11-12.json", 5),
         ("measure_profile_families_api_arrivals_2026-11-12.json", 16),
+        ("910_899_paper_remaining_api_arrivals_2026-11-12.json", 3),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -6785,7 +6808,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "issue_186_png_list_annotations_api_arrivals_2026-11-11.json",
                      "gate_editor_png_list_annotations_api_arrivals_2026-11-12.json",
                      "890_917_bmc_paper_remaining_api_arrivals_2026-11-12.json",
-                     "measure_profile_families_api_arrivals_2026-11-12.json"):
+                     "measure_profile_families_api_arrivals_2026-11-12.json",
+                     "910_899_paper_remaining_api_arrivals_2026-11-12.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -6917,7 +6941,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "issue_186_png_list_annotations_api_arrivals_2026-11-11.json",
                      "gate_editor_png_list_annotations_api_arrivals_2026-11-12.json",
                      "890_917_bmc_paper_remaining_api_arrivals_2026-11-12.json",
-                     "measure_profile_families_api_arrivals_2026-11-12.json"):
+                     "measure_profile_families_api_arrivals_2026-11-12.json",
+                     "910_899_paper_remaining_api_arrivals_2026-11-12.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":

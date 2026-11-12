@@ -99,8 +99,9 @@ msgstr "``toxoplasma_from_cellmask_v1`` (Cellpose-SAM (cpsam_v2))"
 msgid "Toxoplasma PV masks predicted from the HOST CELL MASK channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1"
 msgstr "masques de PV de Toxoplasma prédits à partir du seul canal du MASQUE DE CELLULE HÔTE ; 2567 champs d’entraînement et 463 mis de côté, partitionnés par puits, hôtes HFF/HeLa/THP1"
 
-msgid "F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
-msgstr "F1 0,606 contre 0,021 pour cpsam_v2 standard sur 463 champs mis de côté groupés par puits, à IoU 0,5"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Object F1 0.355 against stock cpsam_v2's 0.012 on 80 curated fields this model never saw (re-scored 2026-11-10), at IoU 0.5. Recorded at publication: F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "F1 par objet 0,355 contre 0,012 pour cpsam_v2 standard sur 80 champs curés que ce modèle n'a jamais vus (réévalué le 2026-11-10), à IoU 0,5. Enregistré à la publication : F1 0,606 contre 0,021 pour cpsam_v2 standard sur 463 champs mis de côté groupés par puits, à IoU 0,5"
 
 msgid "``toxoplasma_pv_v2`` (Cellpose-SAM (cpsam_v2))"
 msgstr "``toxoplasma_pv_v2`` (Cellpose-SAM (cpsam_v2))"
@@ -179,8 +180,9 @@ msgstr "``toxoplasma_from_hoechst_v1`` (Cellpose-SAM (cpsam_v2))"
 msgid "Toxoplasma PV masks predicted from the HOECHST channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1"
 msgstr "masques de PV de Toxoplasma prédits à partir du seul canal HOECHST ; 2567 champs d’entraînement et 463 mis de côté, partitionnés par puits, hôtes HFF/HeLa/THP1"
 
-msgid "F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
-msgstr "F1 0,569 contre 0,002 pour cpsam_v2 standard sur 463 champs mis de côté groupés par puits, à IoU 0,5"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Object F1 0.446 against stock cpsam_v2's 0.001 on 224 curated fields this model never saw (re-scored 2026-11-10), at IoU 0.5. Recorded at publication: F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "F1 par objet 0,446 contre 0,001 pour cpsam_v2 standard sur 224 champs curés que ce modèle n'a jamais vus (réévalué le 2026-11-10), à IoU 0,5. Enregistré à la publication : F1 0,569 contre 0,002 pour cpsam_v2 standard sur 463 champs mis de côté groupés par puits, à IoU 0,5"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "``toxoplasma_plaque_v3`` (Cellpose-SAM (cpsam, Cellpose 4.0.9))"
@@ -761,8 +763,9 @@ msgstr "Toxoplasma depuis le masque cellulaire (inter-canaux)"
 msgid "**Trained on.** cross-channel: given the host cell image, predicts where the Toxoplasma parasitophorous vacuoles are, with no parasite stain. 100 epochs, base cpsam_v2, AdamW lr 1e-5, targets are PV-regenerated masks"
 msgstr "**Entraîné sur.** inter-canaux : à partir de l’image de la cellule hôte, prédit où se trouvent les vacuoles parasitophores de Toxoplasma, sans marquage du parasite. 100 époques, base cpsam_v2, AdamW lr 1e-5, les cibles sont des masques régénérés à partir des PV"
 
-msgid "**Measured.** F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
-msgstr "**Mesuré.** F1 0,606 contre 0,021 pour cpsam_v2 standard sur 463 champs mis de côté groupés par puits, à IoU 0,5"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Measured.** Object F1 0.355 against stock cpsam_v2's 0.012 on 80 curated fields this model never saw (re-scored 2026-11-10), at IoU 0.5. Recorded at publication: F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "**Mesuré.** F1 par objet 0,355 contre 0,012 pour cpsam_v2 standard sur 80 champs curés que ce modèle n'a jamais vus (réévalué le 2026-11-10), à IoU 0,5. Enregistré à la publication : F1 0,606 contre 0,021 pour cpsam_v2 standard sur 463 champs mis de côté groupés par puits, à IoU 0,5"
 
 msgid "F1 0.606, AJI 0.494, Dice 0.610 at IoU 0.5 against stock cpsam_v2's 0.021/0.008/0.020 -- stock cannot do this task at all"
 msgstr "F1 0,606, AJI 0,494, Dice 0,610 à IoU 0,5 contre 0,021/0,008/0,020 pour cpsam_v2 standard -- le modèle standard ne sait pas du tout faire cette tâche"
@@ -1361,8 +1364,9 @@ msgstr "SHA-256 ``2675553a46e97a7bc4bd2bfe3e954954194fe71ca4e94261e752a02bf0b6eb
 msgid "Cross-channel cell-from-hoechst"
 msgstr "Inter-canaux : cellule depuis Hoechst"
 
-msgid "**Trained on.** Hoechst-stained nuclei paired with curated host-cell masks; fine-tuned from stock cpsam_v2, 100 epochs, best epoch 70"
-msgstr "**Entraîné sur.** noyaux marqués au Hoechst appariés à des masques de cellules hôtes curés ; affiné à partir de cpsam_v2 standard, 100 époques, meilleure époque 70"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Trained on.** Hoechst-stained nuclei paired with automatic spaCR host-cell masks (not curated); fine-tuned from stock cpsam_v2, 100 epochs, best epoch 70"
+msgstr "**Entraîné sur.** noyaux marqués au Hoechst appariés à des masques automatiques spaCR de cellules hôtes (non curés) ; affiné à partir de cpsam_v2 standard, 100 époques, meilleure époque 70"
 
 msgid "**Measured.** F1 0.870 against stock cpsam_v2's 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569"
 msgstr "**Mesuré.** F1 0,870 contre 0,301 pour cpsam_v2 standard sur 451 champs mis de côté à IoU 0,5 -- un écart de 0,569"
@@ -1388,8 +1392,9 @@ msgstr "Toxoplasma depuis Hoechst (inter-canaux)"
 msgid "**Trained on.** cross-channel: given the Hoechst/nuclear image, predicts where the Toxoplasma parasitophorous vacuoles are, with no parasite stain. 100 epochs, base cpsam_v2, AdamW lr 1e-05, targets are PV-regenerated masks"
 msgstr "**Entraîné sur.** inter-canaux : à partir de l’image Hoechst/nucléaire, prédit où se trouvent les vacuoles parasitophores de Toxoplasma, sans marquage du parasite. 100 époques, base cpsam_v2, AdamW lr 1e-05, les cibles sont des masques régénérés à partir des PV"
 
-msgid "**Measured.** F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
-msgstr "**Mesuré.** F1 0,569 contre 0,002 pour cpsam_v2 standard sur 463 champs mis de côté groupés par puits, à IoU 0,5"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Measured.** Object F1 0.446 against stock cpsam_v2's 0.001 on 224 curated fields this model never saw (re-scored 2026-11-10), at IoU 0.5. Recorded at publication: F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "**Mesuré.** F1 par objet 0,446 contre 0,001 pour cpsam_v2 standard sur 224 champs curés que ce modèle n'a jamais vus (réévalué le 2026-11-10), à IoU 0,5. Enregistré à la publication : F1 0,569 contre 0,002 pour cpsam_v2 standard sur 463 champs mis de côté groupés par puits, à IoU 0,5"
 
 msgid "F1 0.569, AJI 0.421, Dice 0.546 at IoU 0.5 against stock cpsam_v2's 0.002/0.006/0.016"
 msgstr "F1 0,569, AJI 0,421, Dice 0,546 à IoU 0,5 contre 0,002/0,006/0,016 pour cpsam_v2 standard"

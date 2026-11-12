@@ -237,7 +237,7 @@ Toxoplasma from Cell Mask (cross-channel)
 
 **Trained on.** cross-channel: given the host cell image, predicts where the Toxoplasma parasitophorous vacuoles are, with no parasite stain. 100 epochs, base cpsam_v2, AdamW lr 1e-5, targets are PV-regenerated masks
 
-**Measured.** F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5
+**Measured.** Object F1 0.355 against stock cpsam_v2's 0.012 on 80 curated fields this model never saw (re-scored 2026-11-10), at IoU 0.5. Recorded at publication: F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5
 
 * F1 0.606, AJI 0.494, Dice 0.610 at IoU 0.5 against stock cpsam_v2's 0.021/0.008/0.020 -- stock cannot do this task at all
 * per host: HeLa 0.711, HFF 0.557, THP1 0.465; THP1 is the weak case
@@ -552,7 +552,7 @@ Cross-channel cell-from-hoechst
 
 **Architecture.** Cellpose-SAM (cpsam_v2)
 
-**Trained on.** Hoechst-stained nuclei paired with curated host-cell masks; fine-tuned from stock cpsam_v2, 100 epochs, best epoch 70
+**Trained on.** Hoechst-stained nuclei paired with automatic spaCR host-cell masks (not curated); fine-tuned from stock cpsam_v2, 100 epochs, best epoch 70
 
 **Measured.** F1 0.870 against stock cpsam_v2's 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569
 
@@ -572,7 +572,7 @@ Toxoplasma from Hoechst (cross-channel)
 
 **Trained on.** cross-channel: given the Hoechst/nuclear image, predicts where the Toxoplasma parasitophorous vacuoles are, with no parasite stain. 100 epochs, base cpsam_v2, AdamW lr 1e-05, targets are PV-regenerated masks
 
-**Measured.** F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5
+**Measured.** Object F1 0.446 against stock cpsam_v2's 0.001 on 224 curated fields this model never saw (re-scored 2026-11-10), at IoU 0.5. Recorded at publication: F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5
 
 * F1 0.569, AJI 0.421, Dice 0.546 at IoU 0.5 against stock cpsam_v2's 0.002/0.006/0.016
 * the Hoechst route is harder than the cell-mask route -- compare toxoplasma_from_cellmask_v1

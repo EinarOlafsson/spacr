@@ -1564,7 +1564,191 @@ def _print_cv_report(fold_df, summary_df, k):
               "the spread is how lucky that number could have been.")
 
 
-def _cross_validate_model(settings, num_classes):
+_TRAIN_EVAL_SPLITS = ('random', 'leave_one_well_out', 'leave_one_plate_out')
+
+
+class _PermutedLabels(torch.utils.data.Dataset):
+    """A training set whose labels are replaced, for a shuffled-label control."""
+
+    def __init__(self, dataset, labels):
+        """Wrap ``dataset`` and give its samples ``labels`` in order."""
+        self.dataset = dataset
+        self.labels = [int(v) for v in labels]
+
+    def __len__(self):
+        """The number of samples of the wrapped set."""
+        return len(self.labels)
+
+    def __getitem__(self, index):
+        """The wrapped ``(image, label, filename)`` with the replaced label."""
+        image, _, name = self.dataset[index]
+        return image, self.labels[index], name
+
+    @property
+    def filenames(self):
+        """The source filename of every sample, as :func:`spacr.io.dataset_filenames` reads them."""
+        from .io import dataset_filenames
+
+        return dataset_filenames(self.dataset)
+
+
+def _shuffled_train_loader(loader, rng, settings):
+    """A copy of one fold's training loader with its labels permuted by ``rng``.
+
+    The permutation is drawn over the training crops of the fold only, so the
+    held-out crops keep their true labels; class balancing follows the
+    permuted labels.
+    """
+    from .io import dataset_labels, make_class_balance_sampler
+
+    labels = dataset_labels(loader.dataset)
+    dataset = _PermutedLabels(loader.dataset, rng.permutation(np.asarray(labels)))
+    sampler, _ = make_class_balance_sampler(dataset.labels, settings.get('class_balance', 'none'))
+    workers = int(getattr(loader, 'num_workers', 0) or 0)
+    shuffled = DataLoader(dataset, batch_size=getattr(loader, 'batch_size', settings['batch_size']),
+                          shuffle=sampler is None, sampler=sampler, num_workers=workers,
+                          pin_memory=bool(getattr(loader, 'pin_memory', False)),
+                          persistent_workers=workers > 0)
+    shuffled.crop_loading_policy = getattr(loader, 'crop_loading_policy', None)
+    return shuffled
+
+
+def _apply_train_eval_split(settings):
+    """Turn ``train_eval_split`` into the cross-validation settings that make it.
+
+    ``leave_one_well_out`` and ``leave_one_plate_out`` hold out one well or
+    plate per fold (``cv_group_column``); ``random`` uses the stratified
+    ``cross_validation_folds`` folds (5 when fewer than 2), grouped by
+    ``cv_group_by``.
+
+    :raises ValueError: for an unknown split or control, or with nested
+        cross-validation.
+    """
+    from .ml import ML_EVAL_CONTROLS, _ml_eval_list
+
+    split = str(settings.get('train_eval_split') or '')
+    if split not in _TRAIN_EVAL_SPLITS:
+        raise ValueError(f"train_eval_split must be 'none' or one of {_TRAIN_EVAL_SPLITS}, "
+                         f'not {split!r}')
+    unknown = [c for c in _ml_eval_list(settings.get('train_eval_controls'))
+               if c not in ML_EVAL_CONTROLS]
+    if unknown:
+        raise ValueError(f'train_eval_controls must name {ML_EVAL_CONTROLS}, not {unknown}')
+    if int(settings.get('nested_cv_inner_folds', 0) or 0):
+        raise ValueError('train_eval_split cannot be combined with nested_cv_inner_folds; '
+                         'set nested_cv_inner_folds to 0.')
+    settings['cross_validation_enabled'] = True
+    folds = int(settings.get('cross_validation_folds', 0) or 0)
+    settings['cross_validation_folds'] = folds if folds >= 2 else 5
+    settings['cv_group_column'] = {'leave_one_well_out': 'well',
+                                   'leave_one_plate_out': 'plate'}.get(split, '')
+
+
+def _held_out_rows(name, role, run, classes, predicted=None):
+    """The pooled row and one row per fold of one set of out-of-fold predictions.
+
+    ``predicted`` names one class index to predict for every crop (the
+    majority control); otherwise each crop takes its most probable class.
+    """
+    from .ml import classifier_metrics
+
+    labels = np.asarray(run['labels'], dtype=int)
+    scores = np.concatenate(run['probabilities'], axis=0)
+    if predicted is None:
+        predicted = scores.argmax(axis=1)
+    else:
+        scores = np.zeros_like(scores)
+        scores[:, predicted] = 1.0
+        predicted = np.full(len(labels), predicted)
+    truth = np.asarray(classes, dtype=object)[labels]
+    guess = np.asarray(classes, dtype=object)[predicted]
+    folds = np.asarray(run['folds'], dtype=object)
+    out = [{**classifier_metrics(truth, guess, classes, name, scores),
+            'role': role, 'fold': 'pooled'}]
+    for fold in dict.fromkeys(folds):
+        at = folds == fold
+        out.append({**classifier_metrics(truth[at], guess[at], classes, name, scores[at]),
+                    'role': role, 'fold': str(fold)})
+    return out
+
+
+def _held_out_metrics_table(settings, runs):
+    """The ``ml_eval`` metrics table of a CNN evaluated on held-out folds.
+
+    :param settings: the train settings (``train_eval_split``,
+        ``train_eval_controls``, ``model_type`` and the class names).
+    :param runs: ``{'model': collected, 'shuffled': [collected, ...]}``,
+        where each collected run holds the out-of-fold ``labels``,
+        ``probabilities`` and ``folds`` of :func:`_cross_validate_model`.
+    :returns: the rows of :func:`spacr.ml.classifier_metrics` with ``role``,
+        ``model`` and ``fold`` first, as :func:`spacr.ml.evaluate_classifier`
+        writes them.
+    """
+    from .ml import _ml_eval_list
+
+    classes = list(_class_folder_names(settings))
+    controls = _ml_eval_list(settings.get('train_eval_controls'))
+    rows = []
+
+    model = runs['model']
+    rows += _held_out_rows(f"{settings['model_type']}, {settings['train_eval_split']}", 'model',
+                           model, classes)
+    if 'majority' in controls:
+        majority = int(np.bincount(np.asarray(model['labels'], dtype=int),
+                                   minlength=len(classes)).argmax())
+        rows += _held_out_rows(f'control: majority class ({classes[majority]})', 'control',
+                               model, classes, predicted=majority)
+    if 'shuffled' in controls and runs.get('shuffled'):
+        repeated = pd.DataFrame([row for run in runs['shuffled']
+                                 for row in _held_out_rows('shuffled', 'control', run, classes)])
+        numeric = repeated.select_dtypes(include=[np.number]).columns
+        for fold, table in repeated.groupby('fold', sort=False):
+            rows.append({'model': 'control: shuffled training labels '
+                                  f"(mean of {len(runs['shuffled'])})",
+                         **table[numeric].mean().to_dict(), 'role': 'control', 'fold': fold})
+    out = pd.DataFrame(rows)
+    lead = ['role', 'model', 'fold']
+    return out[lead + [c for c in out.columns if c not in lead]]
+
+
+def _held_out_evaluation(settings, num_classes, model_run):
+    """Run the controls of ``train_eval_split`` and write ``<dst>/ml_eval/metrics.csv``.
+
+    The shuffled-label control repeats the whole cross-validation
+    ``train_eval_shuffle_repeats`` times, each in its own
+    ``shuffled_seed_<seed>`` folder, with the training labels of every fold
+    permuted by seeds ``train_eval_shuffle_seed``, +1, ...
+
+    :returns: the path of the metrics table.
+    """
+    from .ml import _ml_eval_list
+    from .tabular import write_table
+
+    runs = {'model': model_run, 'shuffled': []}
+    if 'shuffled' in _ml_eval_list(settings.get('train_eval_controls')):
+        seed = int(settings.get('train_eval_shuffle_seed') or 0)
+        for s in range(seed, seed + int(settings.get('train_eval_shuffle_repeats') or 1)):
+            control = dict(settings)
+            control['dst'] = os.path.join(settings['dst'], f'shuffled_seed_{s}')
+            os.makedirs(control['dst'], exist_ok=True)
+            print(f"\nShuffled-label control, seed {s}")
+            run = {}
+            _cross_validate_model(control, num_classes, shuffle_seed=s, collect=run)
+            if run:
+                runs['shuffled'].append(run)
+    table = _held_out_metrics_table(settings, runs)
+    folder = os.path.join(settings['dst'], 'ml_eval')
+    os.makedirs(folder, exist_ok=True)
+    path = write_table(table, os.path.join(folder, 'metrics.csv'), canonicalise=False)
+    pooled = table[table['fold'] == 'pooled']
+    print(f"Held-out evaluation ({settings['train_eval_split']}):\n"
+          + pooled[['model', 'n', 'accuracy', 'balanced_accuracy', 'f1_macro',
+                    'auroc']].round(3).to_string(index=False))
+    settings['ml_eval_metrics_path'] = str(path)
+    return path
+
+
+def _cross_validate_model(settings, num_classes, shuffle_seed=None, collect=None):
     """Run k-fold cross-validation and report per-fold metrics plus their spread.
 
     Each fold trains a fresh model on its own train split and is scored on the
@@ -1579,6 +1763,12 @@ def _cross_validate_model(settings, num_classes):
 
     :param settings: the canonicalised train/test settings dict.
     :param num_classes: size of the classifier head.
+    :param shuffle_seed: when given, every fold trains on its training
+        labels permuted with one generator seeded here, fold after fold (the
+        shuffled-label control of ``train_eval_split``).
+    :param collect: a dict that receives the out-of-fold ``labels``,
+        ``probabilities`` (one array per fold) and ``folds`` (the held-out
+        value, or the fold number, per crop).
     :returns: path to the written per-fold CSV, or None if no fold trained.
     """
     from sklearn.metrics import log_loss
@@ -1660,6 +1850,8 @@ def _cross_validate_model(settings, num_classes):
             "cv_exclude_batch_column: the inner folds are drawn from "
             "cross_validation_folds over the whole dataset, not from the "
             "folds those settings build. Set nested_cv_inner_folds to 0.")
+    if nested_inner >= 2 and shuffle_seed is not None:
+        raise ValueError("the shuffled-label control cannot run with nested_cv_inner_folds")
     if nested_inner >= 2:
         nested_layout = nested_group_folds(
             info['labels'],
@@ -1774,6 +1966,7 @@ def _cross_validate_model(settings, num_classes):
     oof_folds = []
     leakage_reports = [cv_partition_audit]
     ledger = RunLedger('cross_validation')
+    shuffle_rng = np.random.default_rng(shuffle_seed) if shuffle_seed is not None else None
     for i, (train_loader, val_loader) in enumerate(fold_loaders, start=1):
         fold_dst = os.path.join(dst, f'fold_{i}')
         os.makedirs(fold_dst, exist_ok=True)
@@ -1798,6 +1991,8 @@ def _cross_validate_model(settings, num_classes):
             )
 
         fold_model_path = None
+        if shuffle_rng is not None:
+            train_loader = _shuffled_train_loader(train_loader, shuffle_rng, settings)
         if nested_layout is None:
             model, fold_model_path = _fit_one(
                 train_loader, val_loader, fold_dst,
@@ -1922,6 +2117,12 @@ def _cross_validate_model(settings, num_classes):
         oof_labels.extend(fold_labels.tolist())
         oof_paths.extend(validation_paths)
         oof_folds.extend([i] * len(fold_labels))
+        if collect is not None:
+            held = info.get('held_out')
+            collect.setdefault('labels', []).extend(fold_labels.tolist())
+            collect.setdefault('probabilities', []).append(fold_probabilities)
+            collect.setdefault('folds', []).extend(
+                [held[i - 1] if held is not None else f'fold{i}'] * len(fold_labels))
         ledger.record_success(f'fold_{i}', stage='train')
 
     if not rows:
@@ -2146,6 +2347,19 @@ def train_test_model(settings):
           fold without the batches (plates, imaging weeks) of its held-out
           samples; with a compound ``cv_group_column`` this is the
           not-same-compound-or-batch rule.
+        - ``train_eval_split`` (alpha) -- ``leave_one_well_out``,
+          ``leave_one_plate_out`` or ``random``: train with
+          cross-validation on those held-out folds and write
+          ``<dst>/ml_eval/metrics.csv``, the table of
+          :func:`spacr.ml.evaluate_classifier` (accuracy, balanced
+          accuracy, macro F1, AUROC and per-class precision and recall,
+          pooled and per fold) with the controls of
+          ``train_eval_controls``: ``majority`` (always the commonest
+          class) and ``shuffled`` (the whole cross-validation again on
+          training labels permuted within each fold,
+          ``train_eval_shuffle_repeats`` times from seed
+          ``train_eval_shuffle_seed``, averaged). ``none`` keeps the
+          split above.
         - ``augment``, ``dropout_rate``, ``optimizer_type``,
           ``early_stopping_patience``, ``n_jobs``, ``pin_memory``.
 
@@ -2244,6 +2458,9 @@ def train_test_model(settings):
     if balance_msg:
         print(balance_msg)
 
+    held_out_split = str(settings.get('train_eval_split') or 'none') != 'none'
+    if held_out_split and settings['train']:
+        _apply_train_eval_split(settings)
     cv_folds = int(settings.get('cross_validation_folds', 0) or 0)
     if settings.get('cross_validation_enabled') and cv_folds < 2:
         cv_folds = 5
@@ -2280,7 +2497,10 @@ def train_test_model(settings):
             "crop_scaling='fixed' is not available with cross-validation yet. "
             "Use the single validation split, or crop_scaling='legacy'.")
     if settings['train'] and cv_folds >= 2:
-        cv_result_loc = _cross_validate_model(settings, num_classes)
+        model_run = {} if held_out_split else None
+        cv_result_loc = _cross_validate_model(settings, num_classes, collect=model_run)
+        if model_run:
+            _held_out_evaluation(settings, num_classes, model_run)
 
     elif settings['train']:
         crop_loading_policy = initialization_policy(

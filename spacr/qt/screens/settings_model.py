@@ -2726,6 +2726,10 @@ def _categories_for_app_uncached(app_key, categories, plugin_app):
                 "leakage_audit_train_test", "leakage_hash_content",
                 "leakage_require_identity"],
 
+            "Held-out Evaluation α": [
+                "train_eval_split", "train_eval_controls",
+                "train_eval_shuffle_seed", "train_eval_shuffle_repeats"],
+
             "Results & figures": [
                 "n_top_examples", "plot", "tensorboard",
                 "intermedeate_save"],

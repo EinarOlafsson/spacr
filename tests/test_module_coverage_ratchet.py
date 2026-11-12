@@ -629,7 +629,7 @@ def test_cli_passes_at_full_statement_and_branch_coverage(tmp_path):
     )
 
     assert result.returncode == 0, result.stdout + result.stderr
-    assert report["schema"] == "spacr.module-coverage-ratchet/v4"
+    assert report["schema"] == "spacr.module-coverage-ratchet/v5"
     assert report["status"] == "pass"
     assert report["floor_percent"] == 90
     assert report["summary"] == {
@@ -645,8 +645,10 @@ def test_cli_passes_at_full_statement_and_branch_coverage(tmp_path):
         "shipped_modules": 2,
         "stale_baseline_entries": 0,
         "stale_exemptions": 0,
+        "tolerated_modules": 0,
         "unconfirmed_modules": 0,
     }
+    assert report["loss_tolerance_points"] == 0.0
     assert report["measurement_integrity"] == {"checked": False}
     assert text.startswith("spaCR shipped-module coverage ratchet: PASS\n")
     assert result.stdout == text

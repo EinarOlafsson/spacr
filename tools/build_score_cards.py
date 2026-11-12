@@ -196,6 +196,10 @@ def rescored(entry: Mapping[str, Any]) -> Dict[str, Any]:
     digest; custom or changed declarations keep their own measurements. All
     six approved metrics, including boundary F1 at two pixels, counts, source
     provenance and earlier evaluations come from that same bound entry.
+
+    A declaration reviewed through a signed-off re-score keeps its recorded
+    ``metrics``; the bound re-score is added as ``reviewed_rescore`` and the
+    ``versus_stock`` sentence names both, each labelled.
     """
     from copy import deepcopy
     import sys
@@ -203,11 +207,14 @@ def rescored(entry: Mapping[str, Any]) -> Dict[str, Any]:
     root = str(Path(__file__).resolve().parent.parent)
     if root not in sys.path:
         sys.path.insert(0, root)
-    from spacr.model_zoo import _builtin_entry_from_mapping
+    from spacr.model_zoo import _builtin_entry_from_mapping, scorecard_state
 
     bound = _builtin_entry_from_mapping(entry)
     out = deepcopy(dict(entry))
     if not bound._curated_card:
+        if scorecard_state(bound) == "reviewed":
+            out["reviewed_rescore"] = deepcopy(bound.metrics)
+            out["versus_stock"] = _rescore_sentence(bound.metrics, entry)
         return out
     metrics = deepcopy(bound.metrics)
     out["metrics"] = metrics
@@ -220,6 +227,20 @@ def rescored(entry: Mapping[str, Any]) -> Dict[str, Any]:
         f"hold-out fields at IoU 0.5; AJI {aji['finetuned']:.3f} "
         f"against {aji['vanilla']:.3f}")
     return out
+
+
+def _rescore_sentence(metrics: Mapping[str, Any], entry: Mapping[str, Any]) -> str:
+    """The versus-stock sentence of a reviewed re-score, then the recorded one."""
+    f1 = metrics["f1"]
+    provenance = metrics["scorecard_provenance"]
+    text = (f"Object F1 {f1['finetuned']:.3f} against stock "
+            f"{provenance['stock_model']}'s {f1['vanilla']:.3f} on "
+            f"{metrics['n_fields']} curated fields this model never saw "
+            f"(re-scored {provenance['rescored']}), at IoU 0.5")
+    recorded = str(entry.get("versus_stock") or "").strip().rstrip(".")
+    if recorded:
+        text += f". Recorded at publication: {recorded}"
+    return text
 
 
 def _key(entry: Mapping[str, Any]) -> str:
@@ -316,11 +337,21 @@ def holdout_size(entry: Mapping[str, Any]) -> str:
 def scores(entry: Mapping[str, Any]) -> Dict[str, Any]:
     """The card's numbers, all read from the zoo record.
 
+    A record carrying ``reviewed_rescore`` (see :func:`rescored`) shows that
+    signed-off re-score: F1, AJI and Dice against stock on the unseen fields.
+
     :returns: ``rows``, exactly ``ROWS`` tuples of (label, this model or None,
         baseline or None), a row of ``None`` being one the record has no
         number for; ``baseline``, the comparison's name; ``caveat``, a note
         on how the baseline was scored; ``holdout``, the hold-out size.
     """
+    rescore = entry.get("reviewed_rescore")
+    if isinstance(rescore, Mapping):
+        rows = [(LABELS[name], rescore[name]["finetuned"], rescore[name]["vanilla"])
+                for name in ("f1", "aji", "dice")]
+        return {"rows": rows,
+                "baseline": f"Stock {rescore['scorecard_provenance']['stock_model']}",
+                "caveat": "", "holdout": f"{rescore['n_fields']:,} unseen fields"}
     metrics = entry.get("metrics") or {}
     if not isinstance(metrics, Mapping):
         metrics = {}

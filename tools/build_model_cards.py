@@ -357,6 +357,10 @@ def _summary(entry: Mapping[str, Any]) -> List[str]:
 
 
 UNSEEN_HEADING = "## Fields this model never saw (curated ground truth)"
+RECORDED_HEADING = "## Recorded at publication"
+RECORDED_SENTENCE = ("These numbers were recorded with the model when it was "
+                     "published, before the curated re-score above; the notes "
+                     "say how they were scored.")
 
 
 def _ci(bounds: Sequence[float]) -> str:
@@ -593,8 +597,14 @@ def render_card(entry: Mapping[str, Any], family: Mapping[str, Any]) -> str:
                                      STATE_SENTENCES.get(state, "")))), ""]
     metrics = entry.get("metrics") or {}
     lines += _scorecard(metrics)
-    lines += _summary(entry)
-    lines += _unseen_rescore(entry)
+    if entry.get("reviewed_rescore"):
+        lines += _unseen_rescore(entry)
+        summary = _summary(entry)
+        if summary:
+            lines += [RECORDED_HEADING, "", RECORDED_SENTENCE, ""] + summary
+    else:
+        lines += _summary(entry)
+        lines += _unseen_rescore(entry)
 
     notes = [str(note).strip() for note in entry.get("notes") or ()
              if str(note).strip()]

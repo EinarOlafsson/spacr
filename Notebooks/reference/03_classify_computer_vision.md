@@ -225,6 +225,18 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
+<summary>Additional Settings (4 settings)</summary>
+
+#### Additional Settings
+
+- **`train_eval_split`** *(optional)* — (str) - Held-out evaluation of the classifier, as in the machine-learning module: leave_one_well_out trains on every well but one and tests on that one, in turn; leave_one_plate_out does the same per plate; random uses the stratified cross_validation_folds folds. No crop of a test well or plate is seen in training. The pooled and per-fold accuracy, balanced accuracy, macro F1 and AUROC go to ml_eval/metrics.csv in the model folder, beside the controls of train_eval_controls. Turns cross-validation on. none keeps the usual split. Default none. Default: `'none'`.
+- **`train_eval_controls`** *(optional)* — (str) - Controls reported beside the classifier when train_eval_split is set, comma-separated. majority always predicts the commonest class; shuffled runs the whole cross-validation again with the training labels permuted within each fold, train_eval_shuffle_repeats times, and averages it. Blank reports no control. Default majority, shuffled. Default: `'majority, shuffled'`.
+- **`train_eval_shuffle_seed`** *(optional)* — (int) - Seed of the first shuffled-label control run of train_eval_split; the next runs use the following seeds. Default 0. Default: `0`.
+- **`train_eval_shuffle_repeats`** *(optional)* — (int) - How many times the shuffled-label control of train_eval_split retrains every fold; its row is the mean. Each repeat costs as much as the classifier itself. Default 1. Default: `1`.
+
+</details>
+
+<details>
 <summary>Additional settings (6 settings)</summary>
 
 #### Additional settings
