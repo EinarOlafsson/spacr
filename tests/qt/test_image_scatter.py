@@ -422,3 +422,20 @@ def test_the_gui_only_sentence_is_written_where_the_cli_reads_it():
 
     assert cli.INTERACTIVE_ONLY[isc.APP_KEY] == isc.APP_CLI_NOTE
     assert isc.APP_KEY not in cli.MODULES
+
+
+def test_a_plain_click_never_builds_annotate_through_its_navigator(screen, plate):
+    """Only a registered opener receives a plain click; a navigator that
+    would build and switch to Annotate is for an explicit open."""
+    from spacr.qt.linked_selection import linked_selection
+
+    built = []
+    link = linked_selection()
+    link.register_object_navigator("annotate", built.append)
+    try:
+        screen._on_click(1)
+    finally:
+        link.unregister_object_navigator("annotate", built.append)
+
+    assert built == []
+    assert list(screen.link.selection.keys) == [plate["keys"][1]]

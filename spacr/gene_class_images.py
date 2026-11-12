@@ -139,7 +139,7 @@ class OpsCrops:
         idx = idx[idx['window_edge'] == 0] if cfg.get('drop_window_edge', False) else idx
         cap = cfg.get('cells_per_gene_cap', 0)
         if cap:
-            idx = idx.groupby('gene', group_keys=False).apply(_cap_sample, cap=cap)
+            idx = pd.concat([_cap_sample(g, cap) for _, g in idx.groupby('gene', sort=True)])
         self.idx = idx.reset_index(drop=True)
         self.scales = json.loads(Path(cfg['scales']).read_text())
 
@@ -701,7 +701,9 @@ def train_image_fold(cfg: Mapping[str, Any], fold: int, out: Any) -> Dict[str, A
     sched = torch.optim.lr_scheduler.LambdaLR(
         opt, functools.partial(_cosine_warmup, warm=max(1, int(0.03 * steps)), steps=steps))
     amp = dev.type == 'cuda'
-    scaler = torch.amp.GradScaler('cuda', enabled=amp)
+    from .deep_spacr import _gradient_scaler
+
+    scaler = _gradient_scaler(dev, amp)
     Yt = torch.from_numpy(S['Y']) if ds_kind == 'ops' else None
     Mt = torch.from_numpy(S['M']) if ds_kind == 'ops' else None
     Wt = torch.from_numpy(S['W']) if ds_kind == 'ops' else None
@@ -746,9 +748,9 @@ def train_image_fold(cfg: Mapping[str, Any], fold: int, out: Any) -> Dict[str, A
             if oom:
                 xb = logits = loss = None
                 opt.zero_grad(set_to_none=True)
-                import gc
+                from . import _gc
 
-                gc.collect()
+                _gc.collect()
                 torch.cuda.empty_cache()
                 if micro == 1:
                     raise RuntimeError('CUDA out of memory at micro-batch 1')
@@ -847,7 +849,7 @@ def score_bbbc_run(run: Any, cfg: Optional[Mapping[str, Any]] = None) -> Dict[st
         c = _read(fd / 'cell_probs.parquet')
         trained = set(idx['moa'].values[fl[k][1]])
         w = c.groupby(['plate', 'well', 'compound', 'concentration', 'moa'], as_index=False)[classes].mean()
-        P = w[classes].to_numpy(float)
+        P = w[classes].to_numpy(float, copy=True)
         P[:, [cl not in trained for cl in classes]] = 0
         P /= P.sum(1, keepdims=True)
         w[classes] = P

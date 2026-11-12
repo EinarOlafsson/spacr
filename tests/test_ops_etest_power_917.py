@@ -7,6 +7,7 @@ called about as often as the test level says.
 """
 from __future__ import annotations
 
+import json
 import numpy as np
 import pandas as pd
 import pytest
@@ -446,3 +447,25 @@ def test_the_etest_settings_are_alpha_with_short_tooltips():
         assert key in OPS_DEFAULTS and len(OPS_TOOLTIPS[key]) <= 600 and "Alpha" in OPS_TOOLTIPS[key]
     assert OPS_DEFAULTS["ops_power_cells"] == [10, 25, 50, 100, 200, 500, None]
     assert OPS_DEFAULTS["ops_etest"] is False
+
+
+@pytest.mark.parametrize("kind", ["json", "csv"])
+def test_a_gene_universe_file_orders_the_rows_like_the_same_list(tmp_path, kind):
+    cells, labels, guides, _groups = _complex_cells(dims=10, effect=2.0)
+    genes, guide_rows = G.subsample_profiles(cells, labels, guides, len(labels), 0)
+    listed = [f"C{c}G{m}" for c in range(10) for m in range(4)][::-1][:-2]
+    if kind == "json":
+        universe = tmp_path / "universe.json"
+        universe.write_text(json.dumps(listed + ["MISSING"]), encoding="utf-8")
+    else:
+        universe = tmp_path / "universe.csv"
+        pd.DataFrame({"gene": listed + ["MISSING"]}).to_csv(universe, index=False)
+
+    from_file = G.power_profile_rows(genes, guide_rows,
+                                     {"ops_profile_gene_universe": str(universe)})
+    from_list = G.power_profile_rows(genes, guide_rows,
+                                     {"ops_profile_gene_universe": listed + ["MISSING"]})
+
+    assert list(from_file[0]) == list(from_list[0])
+    assert list(from_file[0][:38]) == listed
+    np.testing.assert_array_equal(from_file[1], from_list[1])

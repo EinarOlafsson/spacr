@@ -777,35 +777,79 @@ def _centred_dialog_frame(owner_frame, size, available):
 
 
 def _place_dialog_on_first_show(dialog):
-    """Place an unpositioned dialog once, after its opening size is known.
+    """Centre an unpositioned dialog on its screen once, after it is sized.
 
-    Explicit and restored positions, and subsequent shows, remain untouched.
+    Asked 2026-11-12: "ALL popup windows must appear centred on the
+    screen". The screen is the one holding the visible owner window, or the
+    primary screen when there is none, and the frame is clamped so it stays
+    fully on that screen's work area. A dialog given a position, or one
+    restored from saved geometry, keeps it, and so does every later show,
+    so a dialog the user moved is never pulled back.
+
+    A dialog can still change size after its first Show -- a QMessageBox
+    fits itself to its text in its own showEvent -- so it is centred once
+    more when control returns to the event loop, unless something moved it
+    in between.
+
     Native dialogs retain their native backend and use the prepared parent.
 
     :param dialog: the top-level QDialog receiving its first Show event.
     :returns: True when its initial frame was moved, otherwise False.
     """
-    from PySide6.QtCore import Qt
-    from .hidpi import screen_for_widget
+    from functools import partial
+    from PySide6.QtCore import Qt, QTimer
 
     if dialog.property("spacrInitiallyPlaced"):
         return False
     dialog.setProperty("spacrInitiallyPlaced", True)
     owner = _visible_dialog_owner(dialog)
-    if owner is None:
-        return False
-    handle, owner_handle = dialog.windowHandle(), owner.windowHandle()
-    if handle is not None and owner_handle is not None:
-        handle.setTransientParent(owner_handle)
+    if owner is not None:
+        handle, owner_handle = dialog.windowHandle(), owner.windowHandle()
+        if handle is not None and owner_handle is not None:
+            handle.setTransientParent(owner_handle)
     if dialog.testAttribute(Qt.WidgetAttribute.WA_Moved):
         return False
+    if not _centre_dialog_on_its_screen(dialog, owner):
+        return False
+    QTimer.singleShot(0, dialog, partial(_centre_again_unless_moved, dialog, dialog.pos()))
+    return True
+
+
+def _centre_dialog_on_its_screen(dialog, owner):
+    """Move ``dialog`` to the centre of its screen's work area.
+
+    :param dialog: the top-level dialog to move.
+    :param owner: its visible owner window, or None for the primary screen.
+    :returns: True when it was moved.
+    """
+    from .hidpi import screen_for_widget
+
     screen = screen_for_widget(owner)
     if screen is None:
         return False
-    frame = _centred_dialog_frame(owner.frameGeometry(), dialog.frameGeometry().size(),
-                                 screen.availableGeometry())
+    available = screen.availableGeometry()
+    frame = _centred_dialog_frame(available, dialog.frameGeometry().size(), available)
     dialog.move(frame.topLeft())
     return True
+
+
+def _centre_again_unless_moved(dialog, placed):
+    """Re-centre a dialog whose size settled after its first Show.
+
+    :param dialog: the dialog centred by :func:`_place_dialog_on_first_show`.
+    :param placed: the top-left it was given then; any other position means
+        the user or the dialog itself has moved it, and it is left there.
+    :returns: True when it was centred again.
+    """
+    try:
+        from shiboken6 import isValid
+
+        if not isValid(dialog) or not dialog.isVisible() or dialog.pos() != placed:
+            return False
+        return _centre_dialog_on_its_screen(dialog, _visible_dialog_owner(dialog))
+    except Exception:                       # noqa: BLE001
+        LOG.debug("could not centre a dialog again", exc_info=True)
+        return False
 
 
 class _DetachEveryDialog:

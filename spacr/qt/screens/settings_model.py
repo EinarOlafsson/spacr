@@ -2768,7 +2768,9 @@ def _categories_for_app_uncached(app_key, categories, plugin_app):
                     "ml_eval_features", "ml_eval_features_table",
                     "ml_eval_join_column", "ml_eval_random_folds",
                     "annotate_sample_n", "annotate_sample_seed",
-                    "annotate_sample_strata"],
+                    "annotate_sample_strata", "train_eval_split",
+                    "train_eval_controls", "train_eval_shuffle_seed",
+                    "train_eval_shuffle_repeats"],
             })
             ordered["Results & figures"] = (
                 ordered["Results & figures"]

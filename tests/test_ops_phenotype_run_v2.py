@@ -26,6 +26,7 @@ tifffile = pytest.importorskip("tifffile")
 from scipy import ndimage
 
 from spacr import ops_engine
+from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
 from spacr.ops_merge import field_to_well
 from spacr.ops_store import read_table, write_table
 
@@ -42,9 +43,14 @@ class _ThresholdModel:
     def __init__(self, grow=0):
         self.grow = grow
 
-    def eval(self, image, batch_size=8, channel_axis=None, diameter=None,
-             **_ignored):
-        """Label the last channel above half its maximum."""
+    def eval(self, image, batch_size=8, channel_axis=MISSING_CHANNEL_AXIS,
+             diameter=None, **_ignored):
+        """Label the last channel above half its maximum.
+
+        The call is checked as Cellpose would check it; the nucleus plane is
+        passed without ``channel_axis``, the two-channel cell stack with it.
+        """
+        check_cellpose_eval_call(image, channel_axis, require_channel_axis=False)
         from skimage.segmentation import expand_labels
 
         plane = np.asarray(image, float)
@@ -263,10 +269,7 @@ def test_float32_merged_fields_keep_the_flat_corrected_values(measured):
     info = {"method": {c: {"offset": 5.0} for c in flats},
             "maps": {c: f"flat_{c}.npy" for c in flats}}
     (folder / "flat_info.json").write_text(json.dumps(info))
-    try:
-        maps, offsets, _info = load_flat_maps(str(folder), list(flats))
-    except Exception as failure:  # noqa: BLE001
-        pytest.skip(f"flat map record format differs: {failure}")
+    maps, offsets, _info = load_flat_maps(str(folder), list(flats))
     out = _run(measured, ("ph_merged",), ops_flatfield_maps=str(folder),
                ops_merged_dtype="float32")
     assert out["wells"]["A1"]["ph_merged"]["flatfield_md5"]
