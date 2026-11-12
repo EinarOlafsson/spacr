@@ -12378,11 +12378,19 @@ gpu_adaptive_batch
 |         ``_config`` **-- reads it**
 |             ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ops_large_sites.run_large_site_segmentation`
+|     ``_eval_flows``
+|         ``_governed_eval``
+|             ``_config`` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
 |     ``_eval_labels``
 |         ``_governed_eval``
 |             ``_config`` **-- reads it**
 |                 ``isinstance(...)  [UNRESOLVED]``
 |     :py:func:`~spacr.ops_large_sites.segment_cell_painting_site`
+|         ``_eval_flows``
+|             ``_governed_eval``
+|                 ``_config`` **-- reads it**
+|                     ``isinstance(...)  [UNRESOLVED]``
 |         ``_eval_labels``
 |             ``_governed_eval``
 |                 ``_config`` **-- reads it**
@@ -12476,11 +12484,19 @@ gpu_fallback_policy
 |         ``_config`` **-- reads it**
 |             ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ops_large_sites.run_large_site_segmentation`
+|     ``_eval_flows``
+|         ``_governed_eval``
+|             ``_config`` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
 |     ``_eval_labels``
 |         ``_governed_eval``
 |             ``_config`` **-- reads it**
 |                 ``isinstance(...)  [UNRESOLVED]``
 |     :py:func:`~spacr.ops_large_sites.segment_cell_painting_site`
+|         ``_eval_flows``
+|             ``_governed_eval``
+|                 ``_config`` **-- reads it**
+|                     ``isinstance(...)  [UNRESOLVED]``
 |         ``_eval_labels``
 |             ``_governed_eval``
 |                 ``_config`` **-- reads it**
@@ -12580,11 +12596,19 @@ gpu_memory_fraction
 |         ``_config`` **-- reads it**
 |             ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ops_large_sites.run_large_site_segmentation`
+|     ``_eval_flows``
+|         ``_governed_eval``
+|             ``_config`` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
 |     ``_eval_labels``
 |         ``_governed_eval``
 |             ``_config`` **-- reads it**
 |                 ``isinstance(...)  [UNRESOLVED]``
 |     :py:func:`~spacr.ops_large_sites.segment_cell_painting_site`
+|         ``_eval_flows``
+|             ``_governed_eval``
+|                 ``_config`` **-- reads it**
+|                     ``isinstance(...)  [UNRESOLVED]``
 |         ``_eval_labels``
 |             ``_governed_eval``
 |                 ``_config`` **-- reads it**
@@ -12677,11 +12701,19 @@ gpu_memory_margin_gb
 |         ``_config`` **-- reads it**
 |             ``isinstance(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ops_large_sites.run_large_site_segmentation`
+|     ``_eval_flows``
+|         ``_governed_eval``
+|             ``_config`` **-- reads it**
+|                 ``isinstance(...)  [UNRESOLVED]``
 |     ``_eval_labels``
 |         ``_governed_eval``
 |             ``_config`` **-- reads it**
 |                 ``isinstance(...)  [UNRESOLVED]``
 |     :py:func:`~spacr.ops_large_sites.segment_cell_painting_site`
+|         ``_eval_flows``
+|             ``_governed_eval``
+|                 ``_config`` **-- reads it**
+|                     ``isinstance(...)  [UNRESOLVED]``
 |         ``_eval_labels``
 |             ``_governed_eval``
 |                 ``_config`` **-- reads it**

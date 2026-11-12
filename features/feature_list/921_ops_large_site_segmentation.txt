@@ -90,6 +90,28 @@ The WS run (100 sites, spaCR 3bc1124532) found two bugs.
   diameter are resized per tile by Cellpose, so they get the normalisation
   fix only.
 
+AWAY-FROM-SEAM IDENTITY ON REAL CELLPOSE (2026-11-12, second fix)
+With site normalisation and grid-aligned tiles, 125 of 141 away objects were
+identical on site 76 (CPU cpsam, 1200 px region). Cause, found by saving the
+untiled and per-tile flows: Cellpose's network outputs were bit-identical
+at every pixel at least 248 px from a cut tile edge (0 of 322,624 per tile
+differed; every difference lay within 247 px), but Cellpose's mask step is
+not local. follow_flows (dynamics.steps_interp) scales positions and flows
+by the image size and samples with grid_sample(align_corners=False), so
+trajectories depend on the image size (18 of the 33 tile/object cases), and
+get_masks_torch orders seeds over the whole image with an unstable argsort
+and resolves overlapping seeds by global seed index (the other 15). Fix:
+only the network runs per tile (_eval_flows, compute_masks=False); tiles
+overlap by at least 2 x FLOW_MARGIN_PX (496 px), the flows are stitched with
+each pixel taken from the tile it lies deepest in (stitch_tile_flows), and
+Cellpose's mask step runs once on the whole site (_cellpose_masks, eval's
+defaults). On the same flows: 141 of 141 away objects identical, seam
+objects 208 of 208 at IoU >= 0.9. Memory: the whole-site mask step measured
+52 bytes per pixel at 10 % and 205 at 60 % cell pixels; the planner now
+counts 342 bytes per site pixel (about 12 GB for a 5,500 px site under the
+24 GB cap). On a GPU the mask step runs on the card, outside the GPU
+governor.
+
 NOT DONE
 - 'own' needs neighbour crops' placement; the run applies exclude / keep only
   (apply_edge_policy takes neighbours when a caller has them).
