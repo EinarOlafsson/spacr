@@ -1895,13 +1895,13 @@ def _check_annotation_column_in_png_list(settings: Dict[str, Any]) -> List[Probl
     the run failed later inside :func:`spacr.ml.generate_ml_scores`. Only
     databases that exist and have a ``png_list`` are read.
     """
-    from .classify_classes import annotation_column_of
+    from .classify import _annotation_column_named
     from .training_basis import _annotation_column_absent, resolve_basis
 
     try:
         if resolve_basis(settings) != "annotation":
             return []
-        column = annotation_column_of(settings) or settings.get("annotation_column")
+        column = _annotation_column_named(settings)
     except Exception:                                            # noqa: BLE001
         return []
     sources = settings.get("src")

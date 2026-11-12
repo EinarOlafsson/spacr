@@ -18,6 +18,7 @@ pytest.importorskip("PySide6")
 from PySide6.QtWidgets import QMessageBox
 
 from spacr import condition_annotations
+from spacr.qt import annotate_engine
 from spacr.condition_annotations import (
     new_definition,
     save_annotated_table,
@@ -172,6 +173,7 @@ def test_a_busy_database_is_reported_and_saved_on_retry(qtbot, tmp_path, monkeyp
     screen.load_path(str(database), table="cell")
     _annotate(screen)
     monkeypatch.setattr(condition_annotations, "_PNG_LIST_BUSY_WAIT_S", 0.05)
+    monkeypatch.setattr(annotate_engine, "_SCHEMA_WRITE_TIMEOUT_S", 0.05)
     holder = sqlite3.connect(database, isolation_level=None)
     try:
         holder.execute("BEGIN IMMEDIATE")
@@ -197,6 +199,7 @@ def test_closing_with_unsaved_annotations_asks_first(qtbot, tmp_path, monkeypatc
     qtbot.waitExposed(screen)
     screen.load_path(str(database), table="cell")
     monkeypatch.setattr(condition_annotations, "_PNG_LIST_BUSY_WAIT_S", 0.05)
+    monkeypatch.setattr(annotate_engine, "_SCHEMA_WRITE_TIMEOUT_S", 0.05)
     holder = sqlite3.connect(database, isolation_level=None)
     holder.execute("BEGIN IMMEDIATE")
     holder.execute("UPDATE png_list SET annotate = 2")
