@@ -7409,6 +7409,7 @@ API_ENTRIES = (
     ('spacr.qt.screens.gate_editor.GateEditorScreen.reduce_to_components', 'Project every measurement onto components, and gate on those.'),
     ('spacr.qt.screens.gate_editor.GateEditorScreen.remove_database', 'Drop one database from the working set and re-merge the rest.'),
     ('spacr.qt.screens.gate_editor.GateEditorScreen.remove_table', 'Drop a table from the working set.'),
+    ('spacr.qt.screens.gate_editor.GateEditorScreen.save_annotations', 'Save every unsaved annotation column to png_list now.'),
     ('spacr.qt.screens.gate_editor.GateEditorScreen.save_filters', 'Write the current filter set to ``path``.'),
     ('spacr.qt.screens.gate_editor.GateEditorScreen.save_gates', 'Write the gating strategy to ``path``.'),
     ('spacr.qt.screens.gate_editor.GateEditorScreen.save_graph', 'Write the current graph to a PNG or PDF.'),
