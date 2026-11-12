@@ -13,6 +13,25 @@ Every session (Home, work machine, paper) reads this file before running any ana
 
 Maintainer rule, 2026-11-12.
 
+## Feature workflow (maintainer, 2026-11-12, all lanes)
+
+Every feature goes through these steps:
+
+1. Build it in scripts.
+2. Iterate fast on a small but robust dataset.
+3. Test it in scripts.
+4. Make a development-deck slide of that test.
+5. Implement it in spaCR, with its new settings.
+6. Test it in spaCR.
+7. Make a development-deck slide of that test.
+8. Do a production run with spaCR, saving all settings and files as source data.
+
+- At every step, run Brieflow's code on the same data. "Does our output match or beat Brieflow?" is always one of the tests, but never the only one.
+- Once the Brieflow level is reached, keep iterating. Move to step 5 only after three principally different new approaches have failed to improve further.
+- Paper data come only from step 8, and only when the step and everything upstream of it are Ready.
+- No TB-scale production runs with scripts.
+- Work through the OPS stages in order, 1 to 5. A plate gets a production run only after every stage it uses is Ready.
+
 ## OPS: five stages, all under development
 
 Maintainer, 2026-11-12: every OPS stage is optimised for **quality first, then analysis time**. A stage is Ready only after its quality proof passes. Speed work comes after that, and must not change the stage's output beyond the stated tolerance.
