@@ -42,3 +42,19 @@ NOT DONE IN THIS ITEM
 - s1c_read_support.py and the spill-over checks (spill_*.py) are not
   ported; escaper_classes takes the genotype-confidence columns (item 877)
   as inputs.
+
+FINISHED 2026-11-12 (the neighbour settings)
+The aggregate phase now runs the neighbour table and neighbour effects:
+ops_neighbour_effects reads <run>/<well>/phenotype_masks/site-<n>.npz (cells)
+and ops_maskpass_<well>.parquet (nucleus_cy, nucleus_cx), builds
+nbr_<well> / recv_<well> with mask_neighbours (ops_neighbour_radius_px,
+ops_neighbour_grid_px), and runs neighbour_effects (ops_neighbour_receivers
+'inactive' = design B, 'nt' = design A; ops_neighbour_null_reps; receivers
+nearer the edge than the radius left out; field centre = half the mask
+height). Active genes come from ops_neighbour_active (tables with *_fdr or
+below_corrected_p). Outputs in results/ops_neighbours with the reference
+names: nbr_<well>, recv_<well>, nbr_tests_<design>, nbr_null_<design>,
+nbr_d_<design>.npy, nbr_V_<design>.npy, nbr_names.npy and
+nbr_summary_<design>.json. Tested on a synthetic masked plate. Not yet
+rerun on plate A (design card needed). s1c_read_support.py and spill_*.py
+remain unported.

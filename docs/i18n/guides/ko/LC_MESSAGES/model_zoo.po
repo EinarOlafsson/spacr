@@ -99,8 +99,9 @@ msgstr "``toxoplasma_from_cellmask_v1`` (Cellpose-SAM (cpsam_v2))"
 msgid "Toxoplasma PV masks predicted from the HOST CELL MASK channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1"
 msgstr "숙주 세포 마스크(HOST CELL MASK) 채널만으로 예측한 톡소플라스마 PV 마스크; 학습 시야 2567개와 홀드아웃 시야 463개, 웰 단위 분할, 숙주 HFF/HeLa/THP1"
 
-msgid "F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
-msgstr "웰 단위로 묶은 홀드아웃 시야 463개에서 IoU 0.5 기준 F1 0.606, 기본 cpsam_v2는 0.021"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Object F1 0.355 against stock cpsam_v2's 0.012 on 80 curated fields this model never saw (re-scored 2026-11-10), at IoU 0.5. Recorded at publication: F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "이 모델이 한 번도 보지 못한 선별 시야 80개에서 IoU 0.5 기준 객체 F1 0.355, 기본 cpsam_v2는 0.012 (2026-11-10 재채점). 공개 시 기록: 웰 단위로 묶은 홀드아웃 시야 463개에서 IoU 0.5 기준 F1 0.606, 기본 cpsam_v2는 0.021"
 
 msgid "``toxoplasma_pv_v2`` (Cellpose-SAM (cpsam_v2))"
 msgstr "``toxoplasma_pv_v2`` (Cellpose-SAM (cpsam_v2))"
@@ -179,8 +180,9 @@ msgstr "``toxoplasma_from_hoechst_v1`` (Cellpose-SAM (cpsam_v2))"
 msgid "Toxoplasma PV masks predicted from the HOECHST channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1"
 msgstr "HOECHST 채널만으로 예측한 톡소플라스마 PV 마스크; 학습 시야 2567개와 홀드아웃 시야 463개, 웰 단위 분할, 숙주 HFF/HeLa/THP1"
 
-msgid "F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
-msgstr "웰 단위로 묶은 홀드아웃 시야 463개에서 IoU 0.5 기준 F1 0.569, 기본 cpsam_v2는 0.002"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Object F1 0.446 against stock cpsam_v2's 0.001 on 224 curated fields this model never saw (re-scored 2026-11-10), at IoU 0.5. Recorded at publication: F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "이 모델이 한 번도 보지 못한 선별 시야 224개에서 IoU 0.5 기준 객체 F1 0.446, 기본 cpsam_v2는 0.001 (2026-11-10 재채점). 공개 시 기록: 웰 단위로 묶은 홀드아웃 시야 463개에서 IoU 0.5 기준 F1 0.569, 기본 cpsam_v2는 0.002"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "``toxoplasma_plaque_v3`` (Cellpose-SAM (cpsam, Cellpose 4.0.9))"
@@ -761,8 +763,9 @@ msgstr "세포 마스크로부터 톡소플라스마 예측(교차 채널)"
 msgid "**Trained on.** cross-channel: given the host cell image, predicts where the Toxoplasma parasitophorous vacuoles are, with no parasite stain. 100 epochs, base cpsam_v2, AdamW lr 1e-5, targets are PV-regenerated masks"
 msgstr "**학습 데이터.** 교차 채널: 숙주 세포 이미지가 주어지면 기생충 염색 없이 톡소플라스마 기생포성 액포의 위치를 예측. 100 에포크, 기반 cpsam_v2, AdamW lr 1e-5, 목표는 PV에서 재생성한 마스크"
 
-msgid "**Measured.** F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
-msgstr "**측정 결과.** 웰 단위로 묶은 홀드아웃 시야 463개에서 IoU 0.5 기준 F1 0.606, 기본 cpsam_v2는 0.021"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Measured.** Object F1 0.355 against stock cpsam_v2's 0.012 on 80 curated fields this model never saw (re-scored 2026-11-10), at IoU 0.5. Recorded at publication: F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "**측정 결과.** 이 모델이 한 번도 보지 못한 선별 시야 80개에서 IoU 0.5 기준 객체 F1 0.355, 기본 cpsam_v2는 0.012 (2026-11-10 재채점). 공개 시 기록: 웰 단위로 묶은 홀드아웃 시야 463개에서 IoU 0.5 기준 F1 0.606, 기본 cpsam_v2는 0.021"
 
 msgid "F1 0.606, AJI 0.494, Dice 0.610 at IoU 0.5 against stock cpsam_v2's 0.021/0.008/0.020 -- stock cannot do this task at all"
 msgstr "IoU 0.5 기준 F1 0.606, AJI 0.494, Dice 0.610, 기본 cpsam_v2는 0.021/0.008/0.020 -- 기본 모델은 이 작업을 전혀 수행하지 못함"
@@ -1361,8 +1364,9 @@ msgstr "SHA-256 ``2675553a46e97a7bc4bd2bfe3e954954194fe71ca4e94261e752a02bf0b6eb
 msgid "Cross-channel cell-from-hoechst"
 msgstr "교차 채널: Hoechst로부터 세포 예측"
 
-msgid "**Trained on.** Hoechst-stained nuclei paired with curated host-cell masks; fine-tuned from stock cpsam_v2, 100 epochs, best epoch 70"
-msgstr "**학습 데이터.** 선별된 숙주 세포 마스크와 짝을 이룬 Hoechst 염색 핵; 기본 cpsam_v2에서 미세 조정, 100 에포크, 최적 에포크 70"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Trained on.** Hoechst-stained nuclei paired with automatic spaCR host-cell masks (not curated); fine-tuned from stock cpsam_v2, 100 epochs, best epoch 70"
+msgstr "**학습 데이터.** spaCR의 자동 숙주 세포 마스크(선별되지 않음)와 짝을 이룬 Hoechst 염색 핵; 기본 cpsam_v2에서 미세 조정, 100 에포크, 최적 에포크 70"
 
 msgid "**Measured.** F1 0.870 against stock cpsam_v2's 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569"
 msgstr "**측정 결과.** 홀드아웃 시야 451개에서 IoU 0.5 기준 F1 0.870, 기본 cpsam_v2는 0.301 -- 차이 0.569"
@@ -1388,8 +1392,9 @@ msgstr "Hoechst로부터 톡소플라스마 예측(교차 채널)"
 msgid "**Trained on.** cross-channel: given the Hoechst/nuclear image, predicts where the Toxoplasma parasitophorous vacuoles are, with no parasite stain. 100 epochs, base cpsam_v2, AdamW lr 1e-05, targets are PV-regenerated masks"
 msgstr "**학습 데이터.** 교차 채널: Hoechst/핵 이미지가 주어지면 기생충 염색 없이 톡소플라스마 기생포성 액포의 위치를 예측. 100 에포크, 기반 cpsam_v2, AdamW lr 1e-05, 목표는 PV에서 재생성한 마스크"
 
-msgid "**Measured.** F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
-msgstr "**측정 결과.** 웰 단위로 묶은 홀드아웃 시야 463개에서 IoU 0.5 기준 F1 0.569, 기본 cpsam_v2는 0.002"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Measured.** Object F1 0.446 against stock cpsam_v2's 0.001 on 224 curated fields this model never saw (re-scored 2026-11-10), at IoU 0.5. Recorded at publication: F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "**측정 결과.** 이 모델이 한 번도 보지 못한 선별 시야 224개에서 IoU 0.5 기준 객체 F1 0.446, 기본 cpsam_v2는 0.001 (2026-11-10 재채점). 공개 시 기록: 웰 단위로 묶은 홀드아웃 시야 463개에서 IoU 0.5 기준 F1 0.569, 기본 cpsam_v2는 0.002"
 
 msgid "F1 0.569, AJI 0.421, Dice 0.546 at IoU 0.5 against stock cpsam_v2's 0.002/0.006/0.016"
 msgstr "IoU 0.5 기준 F1 0.569, AJI 0.421, Dice 0.546, 기본 cpsam_v2는 0.002/0.006/0.016"

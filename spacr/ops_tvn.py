@@ -408,29 +408,36 @@ class TVNModel:
     coral: Dict[str, Optional[np.ndarray]]
     info: Dict[str, Any] = field(default_factory=dict)
 
-    def standardise(self, values: np.ndarray) -> np.ndarray:
+    def standardise(self, values: np.ndarray, reference: Optional[np.ndarray] = None) -> np.ndarray:
         """Kept columns, gaps filled, centred and scaled on this batch.
 
         :param values: one batch's cells, every input column.
+        :param reference: the cells whose mean and spread centre and scale
+            every cell; all of them when None.
         :returns: float32 values ready for the first PCA.
         """
         x = np.array(values, dtype=np.float32)[:, self.columns]
         bad = ~np.isfinite(x)
         if bad.any():
             x[bad] = np.broadcast_to(self.medians, x.shape)[bad]
-        mean, spread = x.mean(0), x.std(0)
+        fit = x if reference is None else x[np.asarray(reference, bool)]
+        mean, spread = fit.mean(0), fit.std(0)
         spread[spread == 0] = 1
         return (x - mean) / spread
 
-    def transform(self, values: np.ndarray, batch: Any) -> np.ndarray:
+    def transform(self, values: np.ndarray, batch: Any,
+                  reference: Optional[np.ndarray] = None) -> np.ndarray:
         """TVN components of one batch's cells.
 
         :param values: the batch's cells, every input column, the same cells
-            the fit saw for this batch.
+            the fit saw for this batch, or more of them.
         :param batch: the batch name the fit used.
+        :param reference: the cells the fit saw among ``values``, which
+            centre and scale them all; all of them when None. A model fitted
+            on interphase cells is applied to mitotic cells this way.
         :returns: float32 TVN components, one row per cell.
         """
-        e = self.pca.transform(self.standardise(values)).astype(np.float32)
+        e = self.pca.transform(self.standardise(values, reference)).astype(np.float32)
         return self._from_embedding(e, batch)
 
     def _from_embedding(self, e: np.ndarray, batch: Any) -> np.ndarray:
@@ -704,7 +711,8 @@ TVN_MODES = ("in_memory", "streamed")
 
 def _aggregate_tvn(sources, rows: np.ndarray, cells: pd.DataFrame, use: np.ndarray,
                    control: np.ndarray, features: Sequence[str],
-                   settings: Mapping[str, Any], read_columns, block: int = 48
+                   settings: Mapping[str, Any], read_columns, block: int = 48,
+                   fit: Optional[np.ndarray] = None
                    ) -> Tuple[pd.DataFrame, pd.DataFrame, Dict[str, Any]]:
     """TVN guide and gene tables for the OPS aggregate phase.
 
@@ -722,7 +730,14 @@ def _aggregate_tvn(sources, rows: np.ndarray, cells: pd.DataFrame, use: np.ndarr
         (``_cells``) and their components (``_embedding``).
     :param read_columns: ``read_columns(sources, columns)`` reads columns.
     :param block: columns read at a time by the in-memory mode.
+    :param fit: the cells the TVN is fitted on, a subset of ``use`` (the
+        interphase cells for ``ops_tvn_fit_cells`` ``'interphase'``); the
+        fit is then applied to every ``use`` cell, each well centred and
+        scaled on its ``fit`` cells. None fits on the ``use`` cells.
+        Streamed mode only.
     :returns: ``(guides, genes, info)``.
+    :raises ValueError: for an unknown mode, or ``fit`` in the in-memory
+        mode.
 
     The cells are taken in the order of the cell tables, well by well, so
     the PCA sample is the same whichever order the joins left them in.
@@ -733,9 +748,13 @@ def _aggregate_tvn(sources, rows: np.ndarray, cells: pd.DataFrame, use: np.ndarr
     options = tvn_options(settings)
     order = np.argsort(rows, kind="stable")
     rows, use, control = rows[order], np.asarray(use, bool)[order], np.asarray(control, bool)[order]
+    fitted = use if fit is None else np.asarray(fit, bool)[order] & use
     cells = cells.iloc[order].reset_index(drop=True)
     wells = cells["well"].astype(str).to_numpy()
     offsets = np.cumsum([0] + [int(s[2]) for s in sources])
+    if fit is not None and mode == "in_memory":
+        raise ValueError("a TVN fitted on some cells and applied to more (ops_tvn_fit_cells) needs "
+                         "ops_tvn_mode streamed")
     if mode == "in_memory":
         picked = rows[use]
         x = np.empty((len(picked), len(features)), np.float32)
@@ -756,11 +775,12 @@ def _aggregate_tvn(sources, rows: np.ndarray, cells: pd.DataFrame, use: np.ndarr
         read = partial(_read_well, table_of=table_of, cache=cache, sources=sources,
                        read_columns=read_columns, features=features, rows=rows,
                        offsets=offsets, control=control, use=use)
-        model = fit_tvn_streamed(names, read, **options)
+        model = fit_tvn_streamed(names, partial(read, use=fitted), **options)
         parts = []
         for well in names:
             values, _c, keep = read(well)
-            parts.append(model.transform(values[keep], well))
+            reference = None if fit is None else fitted[table_of[well][1]][keep]
+            parts.append(model.transform(values[keep], well, reference))
         cache.clear()
         index = np.concatenate([np.flatnonzero(table_of[w][1] & use) for w in names])
         embedding = np.empty((int(use.sum()), parts[0].shape[1]), np.float32)
@@ -772,6 +792,8 @@ def _aggregate_tvn(sources, rows: np.ndarray, cells: pd.DataFrame, use: np.ndarr
                                  level=str(settings.get("ops_aggregate_level")
                                            or "guides"))
     info = {**info, "options": options, "cells": int(use.sum())}
+    if fit is not None:
+        info["fitted_cells"] = int(fitted.sum())
     if settings.get("_keep_embedding"):
         info["_cells"] = cells.loc[use].reset_index(drop=True)
         info["_embedding"] = embedding

@@ -288,6 +288,7 @@ def test_the_sweep_settings_are_alpha_with_short_tooltips():
 
     keys = ALPHA_FEATURES[916]["settings"]
     assert "ops_cluster_graph" in keys and "ops_cluster_gene_list" in keys
+    assert "ops_cluster_published" in keys and OPS_DEFAULTS["ops_cluster_published"] is None
     for key in keys:
         assert key in OPS_DEFAULTS and len(OPS_TOOLTIPS[key]) <= 600 and "Alpha" in OPS_TOOLTIPS[key]
     assert OPS_DEFAULTS["ops_cluster_seeds"] == [42, 1, 2]
@@ -303,3 +304,89 @@ def test_real_leiden_recovers_planted_blocks_at_a_matching_resolution():
     labels = found[(42, 0.5)]
     assert len(np.unique(labels)) == 6
     assert all(len(np.unique(labels[block == b])) == 1 for b in range(6))
+
+
+def _published_tables(tmp_path, names, block):
+    """A Brieflow-style workbook sheet and a Funk-style CSV of published clusters."""
+    brieflow = pd.DataFrame({"gene_symbol": list(names[:-3]) + ["nontargeting_1"],
+                             "cluster_id": list(block[:-3]) + [0]})
+    path = tmp_path / "published.xlsx"
+    with pd.ExcelWriter(path) as writer:
+        pd.DataFrame({"x": [1]}).to_excel(writer, sheet_name="Other", index=False)
+        brieflow.to_excel(writer, sheet_name="Interphase Genes", index=False)
+    funk = pd.DataFrame({"gene_symbol": names, "interphase_cluster": np.where(
+        np.arange(len(names)) % 5 == 0, np.nan, block % 3)})
+    funk.to_csv(tmp_path / "funk.csv", index=False)
+    return [{"name": "Brieflow published", "table": str(path), "sheet": "Interphase Genes"},
+            {"name": "Funk published", "table": str(tmp_path / "funk.csv"),
+             "cluster": "interphase_cluster"}]
+
+
+def test_published_clusters_read_a_sheet_or_a_named_column(tmp_path):
+    names, _rows, block = _blocks(n_blocks=4, size=10)
+    specs = _published_tables(tmp_path, names, block)
+    brieflow = oc.published_clusters(specs[0])
+    assert len(brieflow) == len(names) - 3 and "nontargeting_1" not in brieflow
+    assert brieflow[names[0]] == block[0] and isinstance(brieflow[names[0]], (int, np.integer))
+    funk = oc.published_clusters(specs[1])
+    assert names[0] not in funk and funk[names[1]] == block[1] % 3
+    with pytest.raises(ValueError, match="no column"):
+        oc.published_clusters({**specs[1], "cluster": "mitotic_cluster"})
+
+
+def test_published_rows_are_scored_like_the_sweep_on_the_same_genes(tmp_path):
+    names, _rows, block = _blocks(n_blocks=8, size=12)
+    refs = oc.sweep_references(str(_references(tmp_path / "ref", names, block)))
+    specs = _published_tables(tmp_path, names, block)
+    published = {spec["name"]: oc.published_clusters(spec) for spec in specs}
+    rows = oc.score_published(published, names, refs, shuffles=2)
+    assert rows[["profile", "control"]].values.tolist() == [
+        ["Brieflow published", "real"], ["Brieflow published", "shuffled gene labels"],
+        ["Brieflow published", "shuffled gene labels"], ["Funk published", "real"],
+        ["Funk published", "shuffled gene labels"], ["Funk published", "shuffled gene labels"]]
+    assert (rows.graph == "published").all() and rows.seed.isna().all() and rows.resolution.isna().all()
+    scored = np.array([g for g in names if g in published["Brieflow published"]])
+    expected = oc.score_partition("Brieflow published", scored,
+                                  np.array([published["Brieflow published"][g] for g in scored]), refs)
+    real = rows.iloc[0]
+    for key, value in expected.items():
+        assert real[key] == value
+    assert real["genes"] == len(names) - 3 and real["CORUM_pct_enriched_may2025"] == 100.0
+    rng = np.random.default_rng(oc.PUBLISHED_CONTROL_SEED)
+    labels = np.array([published["Brieflow published"][g] for g in scored])
+    first = oc.score_partition("Brieflow published", scored, labels[rng.permutation(len(labels))], refs)
+    assert rows.iloc[1]["STRING_tp"] == first["STRING_tp"]
+    assert rows.iloc[1]["CORUM_pct_enriched_may2025"] < real["CORUM_pct_enriched_may2025"]
+    sweep = oc.score_partitions(names, {("knn12", 42, 1.0): block}, refs, shuffles=1)
+    assert list(rows.columns) == list(sweep.columns)
+
+
+def test_the_phase_adds_published_comparators_marked_as_not_data_matched(monkeypatch, tmp_path):
+    import json
+
+    _install(monkeypatch)
+    names, rows, block = _blocks(n_blocks=8, size=12)
+    specs = _published_tables(tmp_path, names, block)
+    plain = _sweep_settings(tmp_path, names, rows, block)
+    run_ops(plain, phases=["cluster_sweep"])
+    folder = tmp_path / "run" / "results" / "ops_clusters"
+    sweep = pd.read_csv(folder / "sweep_rows.csv")
+    assert not (folder / "sweep_rows_with_published.csv").exists()
+    (tmp_path / "specs.json").write_text(json.dumps(specs))
+    out = run_ops({**plain, "ops_cluster_published": str(tmp_path / "specs.json")}, phases=["cluster_sweep"])
+    combined = pd.read_csv(folder / "sweep_rows_with_published.csv")
+    ours = combined[combined.data_matched].drop(columns="data_matched").reset_index(drop=True)
+    pd.testing.assert_frame_equal(ours, sweep, check_dtype=False)
+    pd.testing.assert_frame_equal(pd.read_csv(folder / "sweep_rows.csv"), sweep)
+    theirs = combined[~combined.data_matched]
+    assert set(theirs.graph) == {"published"} and len(theirs) == 4
+    record = json.loads((folder / "published_comparators.json").read_text())
+    assert "Not matched" in record["legend"] and "data_matched False" in record["legend"]
+    first = record["comparators"][0]
+    assert first["name"] == "Brieflow published" and first["genes_missing"] == 3
+    assert first["clusters"] == 8 and set(first["nearest_sweep_resolution"]) == {"knn4", "phate"}
+    assert out["outputs"]["published_comparators"].endswith("published_comparators.json")
+    assert (folder / "sweep.png").stat().st_size > 1000
+    for bad in ([{"table": specs[0]["table"]}], [specs[0], specs[0]], [{"name": "x"}]):
+        with pytest.raises(ValueError, match="a name of its own"):
+            oc.cluster_sweep_phase({**plain, "ops_cluster_published": bad}, None, str(tmp_path))

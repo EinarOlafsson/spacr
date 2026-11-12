@@ -54,3 +54,20 @@ NOT REPRODUCED / REMAINS
   embedding and metrics instead, so its mAP values are not the report's
   numbers; reproducing those needs the S02 + X04 row builder (items 907,
   887) chained on each draw.
+
+FINISHED 2026-11-12 (the retrieval-curve mAP)
+The retrieval power curve now follows a1_rows.py + retrieval.py: each draw
+(and every cell, arm 'all'; optional ready rows ops_power_reference_rows,
+arm 'reference', first) is turned into final rows by power_profile_rows
+(control guides as nontargeting_<guide>, ops_profile_gene_universe order,
+contrastive_weighting with the draw's cell floor, guide_efficacy_profiles
+when set; otherwise embed_gene_profiles), and power_retrieval scores them on
+one gene list (ops_power_gene_list, intersected with every arm) with the
+shared mAP code (sp_stats.pair_map, item 880, no second implementation):
+mAP, random mAP, shuffled-label mAP (default_rng(3)), top-10 partner rate
+and P@10 on CORUM@REPORT, STRING>=0.7@REPORT and BioGRID@REPORT; Wilcoxon
+AP and exact McNemar top-10 tests against the first arm, Holm over all.
+Writes power_retrieval_genes.csv, _summary.csv, _pergene.csv.gz and
+_tests.csv (retrieval.py's columns). Tested against a port of
+retrieval.py on synthetic complexes. Not yet rerun on plate A (design card
+needed).

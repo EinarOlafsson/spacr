@@ -4,18 +4,18 @@
 
 v1
 
-**0.569** — F1 · 463 held-out fields
+**0.446** — F1 · 224 unseen fields
 
-+0.567 vs stock cpsam_v2
++0.445 vs stock cpsam_v2
 
 | Metric | this model | stock cpsam_v2 |
 | --- | --- | --- |
-| F1 | 0.569 | 0.002 |
-| AJI | 0.421 | 0.006 |
-| Dice | 0.546 | 0.016 |
+| F1 | 0.446 | 0.001 |
+| AJI | 0.384 | 0.011 |
+| Dice | 0.606 | 0.029 |
 
 
-![Score card of Vacuoles from Hoechst v1 (toxoplasma_from_hoechst_v1, default): F1 0.569 on 463 held-out fields against 0.002 for stock cpsam_v2.](cards/toxoplasma_from_hoechst_v1.svg)
+![Score card of Vacuoles from Hoechst v1 (toxoplasma_from_hoechst_v1, default): F1 0.446 on 224 unseen fields against 0.001 for stock cpsam_v2.](cards/toxoplasma_from_hoechst_v1.svg)
 
 ## Toxoplasma from Hoechst (cross-channel)
 
@@ -31,21 +31,9 @@ cross-channel: given the Hoechst/nuclear image, predicts where the Toxoplasma pa
 
 ## Hold-out performance
 
-F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5.
+Object F1 0.446 against stock cpsam_v2's 0.001 on 224 curated fields this model never saw (re-scored 2026-11-10), at IoU 0.5. Recorded at publication: F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5.
 
-Scorecard state: **recorded at publication**. These numbers were recorded with the model when it was published; a reviewed held-out comparison against the stock model is not yet available.
-
-| Recorded | Value |
-| --- | --- |
-| Training set | 2567 |
-| Test set | 463 |
-| Cross-validation | no |
-| F1 | 0.569 |
-| AJI | 0.421 |
-| Dice | 0.546 |
-| Stock F1 | 0.002 |
-| Stock AJI | 0.006 |
-| Stock Dice | 0.016 |
+Scorecard state: **reviewed hold-out scorecard**.
 
 ## Fields this model never saw (curated ground truth)
 
@@ -80,6 +68,22 @@ n = 224 fields (11 with no vacuole) and 13,474 curated objects. This model repor
 - 95% CIs are given for the pooled numbers only; per-group rows have none.
 
 Fair comparison: Each model and stock cpsam_v2 are scored on the same fields and the same input pixels (SHA-256 per field), against the same curated masks, with the same scoring code and thresholds (IoU 0.5 matching, 2 px boundary tolerance), in the same environment (cellpose 4.2.1.1, the version the model was trained with).
+
+## Recorded at publication
+
+These numbers were recorded with the model when it was published, before the curated re-score above; the notes say how they were scored.
+
+| Recorded | Value |
+| --- | --- |
+| Training set | 2567 |
+| Test set | 463 |
+| Cross-validation | no |
+| F1 | 0.569 |
+| AJI | 0.421 |
+| Dice | 0.546 |
+| Stock F1 | 0.002 |
+| Stock AJI | 0.006 |
+| Stock Dice | 0.016 |
 
 ## Notes
 

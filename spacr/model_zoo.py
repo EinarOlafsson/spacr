@@ -609,6 +609,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "masks on the checkpoint-selection split, so it overstates accuracy "
             "on curated masks. Default unchanged.",
         ),
+        "scorecard_review": {"reviewed": "2026-11-12", "source": "unseen_rescore"},
         "unseen_rescore": {
             "date": "2026-11-10",
             "receipt": "features/data/model_rescore_unseen_20261110/receipt.json",
@@ -992,8 +993,9 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         "versus_stock": "F1 0.870 against stock cpsam_v2's 0.301 on 451 "
                         "held-out fields at IoU 0.5 -- a delta of 0.569",
         "trained_on": (
-            "Hoechst-stained nuclei paired with curated host-cell masks; "
-            "fine-tuned from stock cpsam_v2, 100 epochs, best epoch 70"
+            "Hoechst-stained nuclei paired with automatic spaCR host-cell masks "
+            "(not curated); fine-tuned from stock cpsam_v2, 100 epochs, best "
+            "epoch 70"
         ),
         "trained_by": "einarolafsson",
         "notes": (
@@ -1052,6 +1054,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "PV-regenerated masks on the checkpoint-selection split. Default "
             "unchanged.",
         ),
+        "scorecard_review": {"reviewed": "2026-11-12", "source": "unseen_rescore"},
         "unseen_rescore": {
             "date": "2026-11-10",
             "receipt": "features/data/model_rescore_unseen_20261110/receipt.json",
@@ -2658,12 +2661,21 @@ def _builtin_entry_from_mapping(record: Mapping[str, Any]) -> ModelEntry:
     files retain their original measurements. The earlier evaluation remains
     available in ``historical_scorecards``; no score is recalculated.
 
+    A declaration with no packaged card but a ``scorecard_review`` sign-off
+    gets the six matched-stock rows of the re-score that sign-off names,
+    bound to its own published checkpoint digest.
+
     :param record: One declaration from ``BUNDLED_REMOTE_MODELS``.
     :returns: Its model entry, with an approved matched-stock evaluation when bound.
     """
     from copy import deepcopy
 
     entry = _entry_from_mapping(record)
+    rescore = _signed_off_rescore(record)
+    if (rescore is not None and any(record is raw for raw in BUNDLED_REMOTE_MODELS)
+            and entry.source == "remote" and not entry.path
+            and entry.sha256 and entry.sha256 == record.get("sha256")):
+        return replace(entry, metrics=_signed_off_rescore_metrics(entry, record, rescore))
     binding = _CURATED_SCORECARD_BINDINGS.get(entry.key)
     if (binding is None or not any(record is raw for raw in BUNDLED_REMOTE_MODELS)
             or entry.source != "remote" or entry.path
@@ -2712,6 +2724,100 @@ def _builtin_entry_from_mapping(record: Mapping[str, Any]) -> ModelEntry:
                         "field_ids_sha256": binding["field_ids_sha256"],
                         "field_ids_included": False}})
     return replace(entry, metrics=metrics, _curated_card=True)
+
+
+_RESCORE_SCHEMA = "spacr-signed-off-rescore-v1"
+_RESCORE_METRICS = (("f1", "object_f1"), ("boundary_f1_2px", "boundary_f1_2px"),
+                    ("precision", "precision"), ("recall", "recall"),
+                    ("aji", "aji"), ("dice", "dice"))
+
+
+def _signed_off_rescore(record: Mapping[str, Any]) -> Optional[Mapping[str, Any]]:
+    """The re-score a declaration's ``scorecard_review`` signs off, if complete.
+
+    :param record: One declaration from ``BUNDLED_REMOTE_MODELS``.
+    :returns: The named re-score block when the sign-off is dated and the block
+        holds all six matched-stock rows, else ``None``.
+    """
+    review = record.get("scorecard_review")
+    if not isinstance(review, Mapping) or not review.get("reviewed"):
+        return None
+    data = record.get(str(review.get("source") or ""))
+    if not isinstance(data, Mapping):
+        return None
+    names = {row[0] for row in data.get("rows") or ()}
+    if not all(source in names for _key, source in _RESCORE_METRICS):
+        return None
+    return data
+
+
+def _signed_off_rescore_metrics(entry: ModelEntry, record: Mapping[str, Any],
+                                data: Mapping[str, Any]) -> Dict[str, Any]:
+    """Six matched-stock measurements copied from a signed-off re-score.
+
+    Values and differences are copied as recorded, never recomputed. The
+    numbers recorded at publication stay in ``historical_scorecards``.
+
+    :param entry: The entry built from ``record``.
+    :param record: Its declaration, carrying ``scorecard_review``.
+    :param data: The re-score block the sign-off names.
+    :returns: Metrics with the six rows, counts, evaluation identity and provenance.
+    """
+    from copy import deepcopy
+
+    review = record["scorecard_review"]
+    rows = {row[0]: row for row in data["rows"]}
+    metrics = {key: deepcopy(value) for key, value in entry.metrics.items()
+               if key in ("n_train", "train_objects", "cv", "train_loss", "val_loss", "best_epoch")}
+    for key, source in _RESCORE_METRICS:
+        _name, mine, _mine_ci, stock, _stock_ci, delta, _delta_ci = rows[source]
+        metrics[key] = {"finetuned": mine, "vanilla": stock, "delta": delta}
+    counts = (data.get("counts") or {}).get("this") or {}
+    for key, source in (("true_positives", "tp"), ("false_positives", "fp"),
+                        ("false_negatives", "fn")):
+        if source in counts:
+            metrics[key] = counts[source]
+    metrics.update({"holdout": Path(str(data["receipt"])).parent.name,
+                    "holdout_version": "curated fields the model never saw, pooled",
+                    "n_fields": data["n_fields"], "n_objects": data["n_objects"],
+                    "n_test": str(data["n_fields"]) + " fields",
+                    "test_objects": str(data["n_objects"]),
+                    "historical_scorecards": [{"metrics": deepcopy(entry.metrics)}],
+                    "scorecard_provenance": {"schema": _RESCORE_SCHEMA,
+                        "stock_model": data["stock_model"], "boundary_tolerance_px": 2,
+                        "reviewed": review["reviewed"], "source": review["source"],
+                        "rescored": data["date"], "receipt": data["receipt"],
+                        "ci_method": data.get("ci_method", ""),
+                        "checkpoint_uri": entry.uri, "checkpoint_sha256": entry.sha256}})
+    return metrics
+
+
+def _signed_off_rescore_record(entry: Any) -> Optional[Mapping[str, Any]]:
+    """The builtin declaration whose signed-off re-score ``entry`` carries.
+
+    :param entry: A zoo row, or anything with ``key``, ``sha256`` and ``metrics``.
+    :returns: The declaration when its sign-off and re-score are present, the
+        checkpoint digest matches it, and all six measurements are attached;
+        ``None`` otherwise, including for a copy whose metrics were emptied.
+    """
+    metrics = getattr(entry, "metrics", None) or {}
+    if not isinstance(metrics, Mapping):
+        return None
+    provenance = metrics.get("scorecard_provenance")
+    if not isinstance(provenance, Mapping) or provenance.get("schema") != _RESCORE_SCHEMA:
+        return None
+    key = str(getattr(entry, "key", "") or "")
+    record = next((raw for raw in BUNDLED_REMOTE_MODELS if raw.get("key") == key), None)
+    if record is None or _signed_off_rescore(record) is None:
+        return None
+    digest = str(getattr(entry, "sha256", "") or "")
+    if not digest or digest != record.get("sha256") or provenance.get("checkpoint_sha256") != digest:
+        return None
+    for name, _source in _RESCORE_METRICS:
+        value = metrics.get(name)
+        if not isinstance(value, Mapping) or value.get("finetuned") is None:
+            return None
+    return record
 
 
 _SHARED_CATALOGUE_CACHE: Dict[str, Any] = {"fetched_at": 0.0, "entries": ()}
@@ -6079,7 +6185,7 @@ def scorecard_state(entry: Any) -> str:
     :param entry: a :class:`ModelEntry`, or anything with ``metrics``.
     :returns: one of the four words above.
     """
-    if getattr(entry, "_curated_card", False):
+    if getattr(entry, "_curated_card", False) or _signed_off_rescore_record(entry):
         return "reviewed"
     metrics = dict(getattr(entry, "metrics", None) or {})
     from .scorecard import scorecard_is_present
