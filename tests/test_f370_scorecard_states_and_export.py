@@ -71,8 +71,12 @@ def test_the_nine_reviewed_cards_stay_reviewed():
     # binding to checkpoint 8f58d374... and six matched-stock rows on the same
     # 101-crop test. The same day v9 became the default and the epoch-50
     # interim was renamed toxoplasma_plaque_v8 (toxoplasma_plaque_v7 is an alias).
+    # 2026-11-12: the maintainer signed off the 2026-11-10 unseen-field
+    # re-score of the two cross-channel Toxoplasma models; the sign-off is the
+    # scorecard_review field of their records, bound to their checkpoint digests.
     assert reviewed == {f"toxoplasma_pv_v{i}" for i in range(1, 6)} | {
-        f"toxoplasma_plaque_v{i}" for i in (1, 2, 3, 4, 5, 6, 8, 9)}
+        f"toxoplasma_plaque_v{i}" for i in (1, 2, 3, 4, 5, 6, 8, 9)} | {
+        "toxoplasma_from_cellmask_v1", "toxoplasma_from_hoechst_v1"}
 
 
 def test_an_unevaluated_spacr_model_says_so_and_a_stock_model_does_not():
@@ -148,10 +152,19 @@ def test_export_agrees_with_the_svg_score_cards(cards):
 
 
 def test_recorded_stock_values_match_the_versus_stock_sentence():
-    for key, stock in (("nuclei_from_cellmask_v1", 0.201), ("toxoplasma_from_hoechst_v1", 0.002)):
+    # 2026-11-12: toxoplasma_from_hoechst_v1 is reviewed from its signed-off
+    # 2026-11-10 unseen-field re-score (stock F1 0.001); its recorded stock F1
+    # 0.002 stays in historical_scorecards and in the record's versus_stock.
+    for key, stock in (("nuclei_from_cellmask_v1", 0.201),):
         rows = _rows(zoo._builtin_entry_from_mapping(_record(key)))
         assert rows["f1"]["stock"] == stock
         assert f"{stock:.3f}" in _record(key)["versus_stock"]
+    record = _record("toxoplasma_from_hoechst_v1")
+    entry = zoo._builtin_entry_from_mapping(record)
+    rescore = {row[0]: row for row in record["unseen_rescore"]["rows"]}
+    assert _rows(entry)["f1"]["stock"] == rescore["object_f1"][3] == 0.001
+    recorded = entry.metrics["historical_scorecards"][0]["metrics"]
+    assert recorded["stock_f1"] == "0.002" and "0.002" in record["versus_stock"]
 
 
 def test_the_published_csv_is_current_and_matches_the_index(cards):
@@ -166,3 +179,12 @@ def test_the_published_csv_is_current_and_matches_the_index(cards):
         line = next(line for line in index.splitlines()
                     if line.startswith(f"| [{row['key']}]("))
         assert line.rstrip(" |").endswith(cards.STATE_WORDS[row["state"]]), row["key"]
+
+
+def test_the_signed_off_rescore_is_bound_to_its_record_and_checkpoint():
+    entry = zoo._builtin_entry_from_mapping(_record("toxoplasma_from_cellmask_v1"))
+    assert zoo.scorecard_state(entry) == "reviewed"
+    assert zoo.scorecard_state(replace(entry, sha256="0" * 64)) != "reviewed"
+    unsigned = {k: v for k, v in _record("toxoplasma_from_cellmask_v1").items()
+                if k != "scorecard_review"}
+    assert zoo.scorecard_state(zoo._builtin_entry_from_mapping(unsigned)) == "recorded"

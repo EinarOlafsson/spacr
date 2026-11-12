@@ -99,8 +99,9 @@ msgstr "``toxoplasma_from_cellmask_v1`` (Cellpose-SAM (cpsam_v2))"
 msgid "Toxoplasma PV masks predicted from the HOST CELL MASK channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1"
 msgstr "Toxoplasma PV-grímur spáðar eingöngu út frá HÝSILFRUMUGRÍMU-rásinni; 2567 þjálfunarsjónsvið og 463 geymd, skipt eftir brunni, hýslar HFF/HeLa/THP1"
 
-msgid "F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
-msgstr "F1 0,606 á móti 0,021 fyrir staðlað cpsam_v2 á 463 geymdum sjónsviðum hópuðum eftir brunni, við IoU 0,5"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Object F1 0.355 against stock cpsam_v2's 0.012 on 80 curated fields this model never saw (re-scored 2026-11-10), at IoU 0.5. Recorded at publication: F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "F1 á hlutastigi 0,355 á móti 0,012 fyrir staðlað cpsam_v2 á 80 grisjuðum sjónsviðum sem þetta líkan sá aldrei (endurmetið 2026-11-10), við IoU 0,5. Skráð við birtingu: F1 0,606 á móti 0,021 fyrir staðlað cpsam_v2 á 463 geymdum sjónsviðum hópuðum eftir brunni, við IoU 0,5"
 
 msgid "``toxoplasma_pv_v2`` (Cellpose-SAM (cpsam_v2))"
 msgstr "``toxoplasma_pv_v2`` (Cellpose-SAM (cpsam_v2))"
@@ -179,8 +180,9 @@ msgstr "``toxoplasma_from_hoechst_v1`` (Cellpose-SAM (cpsam_v2))"
 msgid "Toxoplasma PV masks predicted from the HOECHST channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1"
 msgstr "Toxoplasma PV-grímur spáðar eingöngu út frá HOECHST-rásinni; 2567 þjálfunarsjónsvið og 463 geymd, skipt eftir brunni, hýslar HFF/HeLa/THP1"
 
-msgid "F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
-msgstr "F1 0,569 á móti 0,002 fyrir staðlað cpsam_v2 á 463 geymdum sjónsviðum hópuðum eftir brunni, við IoU 0,5"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Object F1 0.446 against stock cpsam_v2's 0.001 on 224 curated fields this model never saw (re-scored 2026-11-10), at IoU 0.5. Recorded at publication: F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "F1 á hlutastigi 0,446 á móti 0,001 fyrir staðlað cpsam_v2 á 224 grisjuðum sjónsviðum sem þetta líkan sá aldrei (endurmetið 2026-11-10), við IoU 0,5. Skráð við birtingu: F1 0,569 á móti 0,002 fyrir staðlað cpsam_v2 á 463 geymdum sjónsviðum hópuðum eftir brunni, við IoU 0,5"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "``toxoplasma_plaque_v3`` (Cellpose-SAM (cpsam, Cellpose 4.0.9))"
@@ -761,8 +763,9 @@ msgstr "Toxoplasma út frá frumugrímu (milli rása)"
 msgid "**Trained on.** cross-channel: given the host cell image, predicts where the Toxoplasma parasitophorous vacuoles are, with no parasite stain. 100 epochs, base cpsam_v2, AdamW lr 1e-5, targets are PV-regenerated masks"
 msgstr "**Þjálfað á.** milli rása: út frá mynd af hýsilfrumu spáir það fyrir um hvar sníkjubólur Toxoplasma eru, án litunar á sníkjudýrinu. 100 lotur, grunnur cpsam_v2, AdamW lr 1e-5, mörk eru PV-endursköpuð grímur"
 
-msgid "**Measured.** F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
-msgstr "**Mælt.** F1 0,606 á móti 0,021 fyrir staðlað cpsam_v2 á 463 geymdum sjónsviðum hópuðum eftir brunni, við IoU 0,5"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Measured.** Object F1 0.355 against stock cpsam_v2's 0.012 on 80 curated fields this model never saw (re-scored 2026-11-10), at IoU 0.5. Recorded at publication: F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "**Mælt.** F1 á hlutastigi 0,355 á móti 0,012 fyrir staðlað cpsam_v2 á 80 grisjuðum sjónsviðum sem þetta líkan sá aldrei (endurmetið 2026-11-10), við IoU 0,5. Skráð við birtingu: F1 0,606 á móti 0,021 fyrir staðlað cpsam_v2 á 463 geymdum sjónsviðum hópuðum eftir brunni, við IoU 0,5"
 
 msgid "F1 0.606, AJI 0.494, Dice 0.610 at IoU 0.5 against stock cpsam_v2's 0.021/0.008/0.020 -- stock cannot do this task at all"
 msgstr "F1 0,606, AJI 0,494, Dice 0,610 við IoU 0,5 á móti 0,021/0,008/0,020 hjá stöðluðu cpsam_v2 -- staðlaða líkanið ræður alls ekki við þetta verkefni"
@@ -1361,8 +1364,9 @@ msgstr "SHA-256 ``2675553a46e97a7bc4bd2bfe3e954954194fe71ca4e94261e752a02bf0b6eb
 msgid "Cross-channel cell-from-hoechst"
 msgstr "Fruma út frá Hoechst (milli rása)"
 
-msgid "**Trained on.** Hoechst-stained nuclei paired with curated host-cell masks; fine-tuned from stock cpsam_v2, 100 epochs, best epoch 70"
-msgstr "**Þjálfað á.** kjörnum lituðum með Hoechst pöruðum við grisjaðar grímur hýsilfrumna; fínstillt frá stöðluðu cpsam_v2, 100 lotur, besta lota 70"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Trained on.** Hoechst-stained nuclei paired with automatic spaCR host-cell masks (not curated); fine-tuned from stock cpsam_v2, 100 epochs, best epoch 70"
+msgstr "**Þjálfað á.** kjörnum lituðum með Hoechst pöruðum við sjálfvirkar spaCR-grímur hýsilfrumna (ekki grisjaðar); fínstillt frá stöðluðu cpsam_v2, 100 lotur, besta lota 70"
 
 msgid "**Measured.** F1 0.870 against stock cpsam_v2's 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569"
 msgstr "**Mælt.** F1 0,870 á móti 0,301 hjá stöðluðu cpsam_v2 á 451 geymdu sjónsviði við IoU 0,5 -- munur upp á 0,569"
@@ -1388,8 +1392,9 @@ msgstr "Toxoplasma út frá Hoechst (milli rása)"
 msgid "**Trained on.** cross-channel: given the Hoechst/nuclear image, predicts where the Toxoplasma parasitophorous vacuoles are, with no parasite stain. 100 epochs, base cpsam_v2, AdamW lr 1e-05, targets are PV-regenerated masks"
 msgstr "**Þjálfað á.** milli rása: út frá Hoechst-/kjarnamynd spáir það fyrir um hvar sníkjubólur Toxoplasma eru, án litunar á sníkjudýrinu. 100 lotur, grunnur cpsam_v2, AdamW lr 1e-05, mörk eru PV-endursköpuð grímur"
 
-msgid "**Measured.** F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
-msgstr "**Mælt.** F1 0,569 á móti 0,002 fyrir staðlað cpsam_v2 á 463 geymdum sjónsviðum hópuðum eftir brunni, við IoU 0,5"
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "**Measured.** Object F1 0.446 against stock cpsam_v2's 0.001 on 224 curated fields this model never saw (re-scored 2026-11-10), at IoU 0.5. Recorded at publication: F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5"
+msgstr "**Mælt.** F1 á hlutastigi 0,446 á móti 0,001 fyrir staðlað cpsam_v2 á 224 grisjuðum sjónsviðum sem þetta líkan sá aldrei (endurmetið 2026-11-10), við IoU 0,5. Skráð við birtingu: F1 0,569 á móti 0,002 fyrir staðlað cpsam_v2 á 463 geymdum sjónsviðum hópuðum eftir brunni, við IoU 0,5"
 
 msgid "F1 0.569, AJI 0.421, Dice 0.546 at IoU 0.5 against stock cpsam_v2's 0.002/0.006/0.016"
 msgstr "F1 0,569, AJI 0,421, Dice 0,546 við IoU 0,5 á móti 0,002/0,006/0,016 hjá stöðluðu cpsam_v2"
