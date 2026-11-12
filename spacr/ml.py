@@ -9570,10 +9570,20 @@ def generate_ml_scores(settings):
 
         _label_column = settings['annotation_column']
 
-        migrate_prediction_columns(db_loc[0])
-        png_list_df = _read_db(db_loc[0], tables=['png_list'])[0]
-        if not {'prcfo', settings['annotation_column']}.issubset(png_list_df.columns):
-            raise ValueError("The 'png_list_df' DataFrame must contain 'prcfo' and 'test' columns.")
+        from .training_basis import _annotation_column_absent
+        absent = _annotation_column_absent(measurement_stores, _label_column)
+        if absent:
+            raise ValueError(absent)
+        png_frames = []
+        for store in measurement_stores:
+            migrate_prediction_columns(store)
+            png_frames.append(_read_db(store, tables=['png_list'])[0])
+        png_list_df = pd.concat(png_frames, ignore_index=True, sort=False)
+        if not {'prcfo', _label_column}.issubset(png_list_df.columns):
+            raise ValueError(
+                f"png_list needs the columns 'prcfo' and {_label_column!r} to "
+                f"train on annotations; it has: "
+                f"{', '.join(map(str, png_list_df.columns))}.")
         annotated_df = png_list_df[['prcfo', settings['annotation_column']]].set_index('prcfo')
         measurement_rows = len(df)
         annotation_rows = len(annotated_df)

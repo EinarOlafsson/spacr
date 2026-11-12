@@ -638,7 +638,9 @@ def save_annotated_table(path, name, frame, definition, source, *, merge_definit
 
     :param path: Existing SQLite source database, never a delimited input file.
     :param name: New table name; physical, view and saved-derived collisions fail.
-    :param frame: Working frame including every annotation output column.
+    :param frame: Working frame including every annotation output column. A
+        frame without ``prcfo`` that carries the columns forming it is saved
+        with a ``prcfo`` column too, so the table joins to ``png_list``.
     :param definition: Validated annotation rules used for the working frame.
     :param source: Original annotation source context.
     :param merge_definition: Original merged-source configuration, if applicable.
@@ -671,6 +673,10 @@ def save_annotated_table(path, name, frame, definition, source, *, merge_definit
     expected = apply_conditions(base, definition, source)
     if any(not expected[column].equals(frame[column]) for column in output_columns):
         raise AnnotationError("The working annotations changed; apply the conditions again before saving.")
+    if "prcfo" not in frame.columns and _keyable(frame.columns):
+        keys = _object_keys(frame)
+        frame = frame.copy()
+        frame.insert(min(frame.columns.get_loc(column) for column in output_columns), "prcfo", keys)
     columns = list(frame.columns)
     types = ['INTEGER' if pd.api.types.is_integer_dtype(dtype) or pd.api.types.is_bool_dtype(dtype)
              else 'REAL' if pd.api.types.is_float_dtype(dtype) else 'TEXT' for dtype in frame.dtypes]
@@ -753,3 +759,403 @@ def saved_table_annotation(path, name, frame):
     if schema != payload.get('stored_schema') or digest != payload.get('stored_content_sha256'):
         raise AnnotationError("The saved annotated table changed; its previous editable rules were not restored.")
     return payload['editable_definition']
+
+
+#: Key prefix of the provenance rows recording annotation columns written into
+#: ``png_list``. The rest of the key is the annotated source, so the recipe is
+#: found again from the table it was made on.
+_PNG_LIST_RECEIPT = "png_list:"
+
+#: Where a plate folder keeps its measurement database.
+_PLATE_DATABASE = ("measurements", "measurements.db")
+
+#: Seconds a ``png_list`` write waits for a database another program holds
+#: before it is reported as in use.
+_PNG_LIST_BUSY_WAIT_S = 5.0
+
+#: Text files Graph Builder reads directly rather than as SQLite.
+_DELIMITED_SUFFIXES = (".csv", ".tsv", ".txt")
+
+
+def _receipt_key(source):
+    """The provenance key of the ``png_list`` columns written from ``source``."""
+    return _PNG_LIST_RECEIPT + json.dumps(source, sort_keys=True)
+
+
+def _object_token(value):
+    """The ``o<N>`` object component of ``prcfo`` for one label, or None."""
+    from .schema import object_id
+
+    if value is None or value is pd.NA or (isinstance(value, (float, np.floating)) and not np.isfinite(value)):
+        return None
+    if isinstance(value, (float, np.floating)) and float(value).is_integer():
+        value = int(value)
+    try:
+        return object_id(value)
+    except ValueError:
+        return None
+
+
+def _field_key(plate, row, column, field, time=None):
+    """The ``prcf`` of one row from its plate, row, column and field, or None."""
+    from .schema import compose_prcf
+
+    if any(value is None or value is pd.NA or (isinstance(value, float) and np.isnan(value))
+           for value in (plate, row, column, field)):
+        return None
+    if isinstance(time, float) and np.isnan(time):
+        time = None
+    try:
+        return compose_prcf(plate, row, column, field, time)
+    except ValueError:
+        return None
+
+
+def _keyable(columns):
+    """Whether rows with these columns carry enough to form their ``prcfo``."""
+    columns = set(columns)
+    return "prcfo" in columns or ("object_label" in columns and (
+        "prcf" in columns or {"plateID", "rowID", "columnID", "fieldID"} <= columns))
+
+
+def _object_keys(frame):
+    """The ``prcfo`` of every row of ``frame``, None where it cannot be formed.
+
+    A ``prcfo`` column is used as it is. Otherwise the key is ``prcf``, or the
+    plate, row, column and field (and ``timeID`` when present), joined to the
+    ``o<N>`` form of ``object_label``: the composition the object tables and
+    ``png_list`` share.
+
+    :returns: one key or None per row, by position, or None when the frame
+        has none of these columns.
+    """
+    if not _keyable(frame.columns):
+        return None
+    if "prcfo" in frame.columns:
+        return [None if pd.isna(value) or str(value) == "" else str(value)
+                for value in frame["prcfo"].tolist()]
+    labels = frame["object_label"]
+    if pd.api.types.is_integer_dtype(labels.dtype):
+        objects = ["o" + str(int(value)) for value in labels.tolist()]
+    else:
+        objects = [_object_token(value) for value in labels.tolist()]
+    if "prcf" in frame.columns:
+        fields = [None if pd.isna(value) or str(value) == "" else str(value)
+                  for value in frame["prcf"].tolist()]
+    else:
+        times = (frame["timeID"].tolist() if "timeID" in frame.columns
+                 else [None] * len(frame))
+        fields = [_field_key(*parts) for parts in zip(
+            frame["plateID"].tolist(), frame["rowID"].tolist(),
+            frame["columnID"].tolist(), frame["fieldID"].tolist(), times)]
+    return [f"{field}_{obj}" if field and obj else None
+            for field, obj in zip(fields, objects)]
+
+
+def _has_png_list(path):
+    """Whether the SQLite file at ``path`` has a ``png_list`` table.
+
+    A database another program has locked counts as having one, so the write
+    that follows reports it as in use instead of the rows going nowhere.
+    """
+    import sqlite3
+
+    from .database_concurrency import connect, is_busy_error
+
+    if not Path(path).is_file():
+        return False
+    try:
+        connection = connect(path, readonly=True, timeout=_PNG_LIST_BUSY_WAIT_S)
+        try:
+            return connection.execute(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name='png_list'").fetchone() is not None
+        finally:
+            connection.close()
+    except sqlite3.Error as exc:
+        return is_busy_error(exc)
+
+
+def _plate_database(names, roots):
+    """The first ``<root>/<name>/measurements/measurements.db`` with a ``png_list``."""
+    for root in roots:
+        for name in names:
+            if name is None or name is pd.NA or str(name).strip() in ("", "nan"):
+                continue
+            candidate = Path(root, str(name).strip(), *_PLATE_DATABASE)
+            if _has_png_list(candidate):
+                return str(candidate.resolve())
+    return None
+
+
+def _search_roots(source, roots):
+    """Folders holding plate folders: the caller's, then those above the source."""
+    found = [str(Path(root).expanduser()) for root in roots or () if root]
+    path = (source or {}).get("path")
+    if path:
+        parents = Path(path).resolve().parents
+        found += [str(parent) for parent in list(parents)[:3]]
+    return list(dict.fromkeys(found))
+
+
+def _plate_databases(frame, source, roots=()):
+    """The database each row's labels are written to, None where none is found.
+
+    The source database is used for every row when it has a ``png_list``.
+    Otherwise each row goes to the plate folder named by its ``plateID`` (or
+    its ``source_database`` label, for a frame merged from several
+    databases), looked for under ``roots`` and the folders above the source
+    file.
+    """
+    path = (source or {}).get("path")
+    if path and not str(path).lower().endswith(_DELIMITED_SUFFIXES) and _has_png_list(path):
+        return [str(Path(path).resolve())] * len(frame)
+    from .multi_database import SOURCE_COLUMN
+
+    plate_column = next((name for name in ("plateID", "plate") if name in frame.columns), None)
+    plates = frame[plate_column].tolist() if plate_column else [None] * len(frame)
+    labels = frame[SOURCE_COLUMN].tolist() if SOURCE_COLUMN in frame.columns else [None] * len(frame)
+    folders = _search_roots(source, roots)
+    found = {}
+    targets = []
+    for pair in zip(plates, labels):
+        key = tuple(str(value) for value in pair)
+        if key not in found:
+            found[key] = _plate_database(pair, folders)
+        targets.append(found[key])
+    return targets
+
+
+def _sql_value(value):
+    """One label as SQLite takes it: a Python scalar, or None for a blank."""
+    if value is None or value is pd.NA or value is pd.NaT:
+        return None
+    if isinstance(value, np.generic):
+        value = value.item()
+    if isinstance(value, float) and np.isnan(value):
+        return None
+    return value
+
+
+def _same_label(stored, wanted):
+    """Whether a stored ``png_list`` value already holds the wanted label."""
+    if stored is None or wanted is None:
+        return stored is None and wanted is None
+    return str(stored) == str(wanted)
+
+
+def _owned_png_list_columns(connection):
+    """Columns of ``png_list`` that earlier Graph Builder saves wrote."""
+    import sqlite3
+
+    try:
+        rows = connection.execute(
+            f"SELECT payload_json FROM {_quote(PROVENANCE_TABLE)} WHERE table_name LIKE ?",
+            (_PNG_LIST_RECEIPT + "%",)).fetchall()
+    except sqlite3.Error:
+        return set()
+    owned = set()
+    for (payload,) in rows:
+        try:
+            owned.update(json.loads(payload).get("columns", []))
+        except (ValueError, AttributeError):
+            continue
+    return owned
+
+
+def _write_png_list_labels(path, labels, columns, source, definition, busy_timeout):
+    """Write one database's labels into ``png_list`` by ``prcfo``.
+
+    Columns are added with :func:`spacr.qt.annotate_engine.ensure_annotation_column`,
+    the call Annotate opens a source with. Only rows whose value changes are
+    written, in one transaction that also records the receipt.
+
+    :param path: the plate's measurement database.
+    :param labels: one row per ``prcfo`` with every output column.
+    :returns: ``objects`` written, ``labelled`` objects and objects with
+        ``no_png_list_row``.
+    :raises AnnotationError: when ``png_list`` already has an output column
+        that no Graph Builder save wrote, so Annotate's labels are never
+        overwritten.
+    :raises DatabaseBusy: when another program holds the database past
+        ``busy_timeout`` seconds.
+    """
+    import sqlite3
+
+    from .database_concurrency import DatabaseBusy, connect, is_busy_error, transaction
+    from .filters import rowid_expression
+    from .qt.annotate_engine import ensure_annotation_column
+
+    try:
+        reader = connect(path, readonly=True, timeout=busy_timeout)
+        try:
+            existing = [row[1] for row in reader.execute('PRAGMA table_info("png_list")')]
+            owned = _owned_png_list_columns(reader)
+        finally:
+            reader.close()
+        foreign = [column for column in columns if column in existing and column not in owned]
+        if foreign:
+            raise AnnotationError(
+                f"png_list in {path} already has a column named {', '.join(foreign)} that Graph Builder "
+                "did not write. Rename the annotation column so those values are not overwritten.")
+        for column in columns:
+            if column not in existing:
+                ensure_annotation_column(path, column)
+        connection = connect(path, timeout=busy_timeout)
+        try:
+            with transaction(connection, busy_timeout=busy_timeout):
+                names = [row[1] for row in connection.execute('PRAGMA table_info("png_list")')]
+                rowid = rowid_expression(names) or "_rowid_"
+                selected = ", ".join(_quote(column) for column in columns)
+                stored = pd.DataFrame(
+                    connection.execute(f'SELECT {rowid}, "prcfo", {selected} FROM "png_list"').fetchall(),
+                    columns=["__row", "prcfo", *columns])
+                stored["prcfo"] = stored["prcfo"].astype(str)
+                joined = stored.merge(labels, on="prcfo", how="inner", suffixes=("", "__new"))
+                for column in columns:
+                    changed = [(wanted, int(row)) for row, current, wanted in zip(
+                        joined["__row"].tolist(), joined[column].tolist(), joined[column + "__new"].tolist())
+                        if not _same_label(current, wanted)]
+                    connection.executemany(
+                        f'UPDATE "png_list" SET {_quote(column)} = ? WHERE {rowid} = ?', changed)
+                found = connection.execute(
+                    "SELECT type FROM sqlite_master WHERE name=?", (PROVENANCE_TABLE,)).fetchone()
+                if found is None:
+                    connection.execute(f"CREATE TABLE {_quote(PROVENANCE_TABLE)} "
+                                       "(table_name TEXT PRIMARY KEY, payload_json TEXT NOT NULL)")
+                elif found[0] != "table" or [row[1] for row in connection.execute(
+                        f"PRAGMA table_info({_quote(PROVENANCE_TABLE)})")] != ["table_name", "payload_json"]:
+                    raise AnnotationError("The annotation provenance table has an incompatible schema.")
+                payload = {"version": 1, "kind": "png_list", "source": source,
+                           "columns": list(columns), "definition": definition}
+                connection.execute(f"INSERT OR REPLACE INTO {_quote(PROVENANCE_TABLE)} VALUES (?, ?)",
+                                   (_receipt_key(source), json.dumps(payload)))
+        finally:
+            connection.close()
+    except sqlite3.OperationalError as exc:
+        if isinstance(exc, DatabaseBusy) or is_busy_error(exc):
+            raise DatabaseBusy(
+                f"{path} is in use by another program, so the annotations were not written "
+                f"there. Close what is using it and save again.") from exc
+        raise
+    matched = set(joined["prcfo"])
+    written = labels[labels["prcfo"].isin(matched)]
+    return {"objects": len(written),
+            "labelled": int(written[list(columns)].notna().any(axis=1).sum()),
+            "no_png_list_row": len(labels) - len(written)}
+
+
+def save_annotations_to_png_list(frame, definition, source, *, roots=(), busy_timeout=None):
+    """Write the annotation columns to ``png_list`` in each plate's database.
+
+    Classify's annotation mode reads its labels from ``png_list`` only, joined
+    by ``prcfo``, so a label that stays on the annotated table never reaches
+    it. Each output column is added to ``png_list`` the way Annotate adds its
+    own and filled for the objects of ``frame``; a row whose label was
+    cleared is set to NULL, and objects outside ``frame`` are left as they
+    are. A receipt with the recipe is stored beside the labels, so the source
+    reopens with its annotation columns.
+
+    Rows of one plate go to that plate's database: the source database when it
+    has a ``png_list``, otherwise ``<plate>/measurements/measurements.db`` in
+    ``roots`` or in the folders above the source file, matched by ``plateID``
+    or by the ``source_database`` label of a merged frame.
+
+    :param frame: working frame including every annotation output column.
+    :param definition: the recipe the frame was labelled with.
+    :param source: the annotated source, as :func:`source_context` gives it.
+    :param roots: more folders to look in for plate folders.
+    :param busy_timeout: seconds to wait for a database another program
+        holds before reporting it as in use; None waits five seconds.
+    :returns: a report: ``columns``; ``databases``, per database written,
+        the ``objects`` written, ``labelled`` objects and objects with
+        ``no_png_list_row``; ``busy`` and ``refused``, per database not
+        written, the reason; ``no_key`` rows without an object key;
+        ``no_database`` rows whose plate database was not found, of which
+        ``unrouted_labels`` carry a label; and ``conflicting`` objects
+        labelled differently on several rows, where the first row's label is
+        written.
+    :raises AnnotationError: when an output column is missing from ``frame``
+        or ``frame`` has no column an object key can be formed from.
+    """
+    from .database_concurrency import DatabaseBusy
+
+    columns = annotation_columns(definition)
+    if any(column not in frame.columns for column in columns):
+        raise AnnotationError("Apply every annotation output before saving it to png_list.")
+    if busy_timeout is None:
+        busy_timeout = _PNG_LIST_BUSY_WAIT_S
+    keys = _object_keys(frame)
+    if keys is None:
+        raise AnnotationError(
+            "This table has no prcfo column and no plate, row, column, field and object_label "
+            "columns, so its rows cannot be matched to png_list.")
+    labels = pd.DataFrame({"prcfo": keys})
+    for column in columns:
+        labels[column] = [_sql_value(value) for value in frame[column].tolist()]
+    labels["__database"] = _plate_databases(frame, source, roots) if len(frame) else []
+    report = {"columns": list(columns), "databases": {}, "busy": {}, "refused": {},
+              "no_key": int(labels["prcfo"].isna().sum()), "no_database": 0,
+              "unrouted_labels": 0, "conflicting": 0}
+    keyed = labels[labels["prcfo"].notna()]
+    unrouted = keyed[keyed["__database"].isna()]
+    report["no_database"] = len(unrouted)
+    report["unrouted_labels"] = int(unrouted[columns].notna().any(axis=1).sum())
+    for database, rows in keyed[keyed["__database"].notna()].groupby("__database", sort=True):
+        rows = rows.drop(columns="__database")
+        repeated = rows[rows["prcfo"].duplicated(keep=False)]
+        if len(repeated):
+            text = repeated[columns].astype(str)
+            report["conflicting"] += int((text.groupby(repeated["prcfo"]).nunique() > 1).any(axis=1).sum())
+        rows = rows.drop_duplicates(subset="prcfo", keep="first")
+        try:
+            report["databases"][database] = _write_png_list_labels(
+                database, rows, columns, source, definition, busy_timeout)
+        except DatabaseBusy as exc:
+            report["busy"][database] = str(exc)
+        except AnnotationError as exc:
+            report["refused"][database] = str(exc)
+    return report
+
+
+def saved_png_list_annotation(path, name=None, merge_definition=None, frame=None):
+    """The recipe whose labels were saved to ``png_list`` from this source, or None.
+
+    :param path: the source: a measurement database, or a delimited file
+        whose plate databases are found the way
+        :func:`save_annotations_to_png_list` finds them.
+    :param name: the table, or None for a delimited file.
+    :param merge_definition: the merge definition of a derived table.
+    :param frame: the source rows; needed only to find the plate databases of
+        a delimited file.
+    :returns: the editable recipe of the most recent save, or None.
+    """
+    import sqlite3
+
+    from .database_concurrency import connect
+
+    source = source_context(path, name, merge_definition)
+    if str(path).lower().endswith(_DELIMITED_SUFFIXES):
+        if frame is None:
+            return None
+        databases = [database for database in dict.fromkeys(_plate_databases(frame, source)) if database]
+    else:
+        databases = [str(Path(path).resolve())]
+    for database in databases:
+        try:
+            connection = connect(database, readonly=True, timeout=_PNG_LIST_BUSY_WAIT_S)
+        except sqlite3.Error:
+            continue
+        try:
+            if not connection.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
+                                      (PROVENANCE_TABLE,)).fetchone():
+                continue
+            row = connection.execute(
+                f"SELECT payload_json FROM {_quote(PROVENANCE_TABLE)} WHERE table_name=?",
+                (_receipt_key(source),)).fetchone()
+        except sqlite3.Error:
+            continue
+        finally:
+            connection.close()
+        if row:
+            return json.loads(row[0]).get("definition")
+    return None
