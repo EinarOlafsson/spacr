@@ -1848,6 +1848,8 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'seconds_per_frame',
     'seed',
     'seed_wells_from_cells',
+    'seg_diameter_min_objects',
+    'seg_diameter_sites',
     'seg_dst',
     'seg_edge_policy',
     'seg_gpu',
