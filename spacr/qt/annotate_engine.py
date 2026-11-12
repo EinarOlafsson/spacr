@@ -871,26 +871,10 @@ def ensure_annotation_column(db_path: str, column: str, *,
                              table: str = DEFAULT_PNG_TABLE) -> None:
     """Add `column` INTEGER to ``table`` if missing and index png_path.
 
-    Issue #184: opening a source called this on every open, and it always ran
-    a write transaction, because ``CREATE INDEX IF NOT EXISTS`` takes the
-    write lock even when the index is already there. Under the rollback
-    journal that commit has to wait for every reader of the file -- the
-    screen's own population count from a previous open, a Measure or Classify
-    run, a backup client -- and a reader that outlasted the busy timeout
-    surfaced as ``database is locked`` in the slot that opens the source.
-
-    The schema is now read first on a read-only connection, and nothing is
-    written when the column and the index already exist, which is every open
-    after the first. Only a source that really needs the column waits for the
-    write lock, for at most ``_SCHEMA_WRITE_TIMEOUT_S`` seconds.
-
     :param db_path: path to the SQLite measurement database; nothing happens
         if the file does not exist.
     :param column: name of the annotation column to create; an empty name
         does nothing.
-    :param table: the crop table to add the column to.
-    :raises DatabaseBusy: when another connection keeps the database locked
-        past the bounded wait; nothing is changed.
     """
     if not column or not os.path.isfile(db_path):
         return
@@ -927,6 +911,18 @@ _SCHEMA_WRITE_TIMEOUT_S = 10.0
 
 def _annotation_schema_ready(db_path: str, column: str, table: str) -> bool:
     """Whether ``table`` already has ``column`` and the png_path index.
+
+    Issue #184: opening a source called `ensure_annotation_column` on every
+    open, and it always ran a write transaction, because ``CREATE INDEX IF
+    NOT EXISTS`` takes the write lock even when the index is already there.
+    Under the rollback journal that commit has to wait for every reader of
+    the file -- the screen's own population count from a previous open, a
+    Measure or Classify run, a backup client -- and a reader that outlasted
+    the busy timeout surfaced as ``database is locked`` in the slot that
+    opens the source. This check lets every open after the first write
+    nothing; only a source that really needs the column waits for the write
+    lock, for at most ``_SCHEMA_WRITE_TIMEOUT_S`` seconds, and then raises
+    `DatabaseBusy` with nothing changed.
 
     Read on a read-only connection, so it never asks for the write lock. Any
     error is answered False and left to the writing path to report.
