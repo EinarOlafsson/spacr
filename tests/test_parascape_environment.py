@@ -287,6 +287,8 @@ def fake_pyside6(monkeypatch, qt_lib='PySide6'):
         monkeypatch.setitem(sys.modules, name, module)
     for name in [name for name in sys.modules if name == 'PyQt6' or name.startswith('PyQt6.')]:
         monkeypatch.delitem(sys.modules, name)
+    monkeypatch.setenv('PYQTGRAPH_QT_LIB', 'PySide6')
+    monkeypatch.setenv('QT_API', 'pyside6')
 
 
 def fake_parascape(monkeypatch):
@@ -315,8 +317,11 @@ def test_selftest_and_environment_use_pyside6_never_pyqt6(tmp_path):
     assert 'from PySide6 import QtWidgets' in service._SELFTEST
     assert "pyqtgraph.Qt.QT_LIB != 'PySide6'" in service._SELFTEST
     lines = service._SELFTEST.splitlines()
-    assert lines[0].index('parascape.app') < lines[0].index('import pyqtgraph.Qt')
-    assert lines[1] == "if 'PyQt6' in sys.modules:"
+    assert lines[0] == 'import os, sys'
+    imports = next(line for line in lines if 'parascape.app' in line)
+    assert imports.index('parascape.app') < imports.index('import pyqtgraph.Qt')
+    assert lines.index("if 'PyQt6' in sys.modules:") < lines.index(imports)
+    assert lines.index(" value = os.environ.get(name)") < lines.index(imports)
     values = service.process_environment(tmp_path/'parascape')
     assert values['PYQTGRAPH_QT_LIB'] == 'PySide6'
     assert values['QT_API'] == 'pyside6'
@@ -331,6 +336,45 @@ def test_selftest_fails_when_anything_imports_pyqt6(monkeypatch, capsys):
     with pytest.raises(SystemExit, match='PyQt6 was imported into ParaScape'):
         exec(service._SELFTEST, {})
     assert capsys.readouterr().out == ''
+
+
+@pytest.mark.parametrize('name, value, found', [
+    ('PYQTGRAPH_QT_LIB', 'PyQt6', "'PyQt6'"), ('QT_API', 'pyqt6', "'pyqt6'"),
+    ('PYQTGRAPH_QT_LIB', 'pyside6', "'pyside6'"),
+    ('PYQTGRAPH_QT_LIB', None, 'None'), ('QT_API', None, 'None')])
+def test_selftest_rejects_wrong_or_missing_qt_environment_before_any_import(
+        monkeypatch, capsys, name, value, found):
+    from types import ModuleType
+    imported = []
+    class Probe(ModuleType):
+        def __getattr__(self, attr):
+            imported.append(attr)
+            raise AttributeError(attr)
+    monkeypatch.setitem(sys.modules, 'PySide6', Probe('PySide6'))
+    monkeypatch.setitem(sys.modules, 'pyqtgraph', Probe('pyqtgraph'))
+    monkeypatch.delitem(sys.modules, 'PyQt6', raising=False)
+    monkeypatch.setenv('PYQTGRAPH_QT_LIB', 'PySide6')
+    monkeypatch.setenv('QT_API', 'pyside6')
+    if value is None:
+        monkeypatch.delenv(name)
+    else:
+        monkeypatch.setenv(name, value)
+    want = 'PySide6' if name == 'PYQTGRAPH_QT_LIB' else 'pyside6'
+    message = name + ' must be ' + want + ' for ParaScape, found ' + found
+    with pytest.raises(SystemExit) as raised:
+        exec(service._SELFTEST, {})
+    assert raised.value.code == message
+    assert imported == []
+    assert capsys.readouterr().out == ''
+
+
+def test_selftest_accepts_pyside6_environment_with_any_case_only_in_qt_api(monkeypatch, capsys):
+    fake_pyside6(monkeypatch)
+    fake_parascape(monkeypatch)
+    monkeypatch.setenv('PYQTGRAPH_QT_LIB', 'PySide6')
+    monkeypatch.setenv('QT_API', 'PYSide6')
+    exec(service._SELFTEST, {})
+    assert json.loads(capsys.readouterr().out)['ok'] is True
 
 
 def test_selftest_fails_when_pyqtgraph_binds_another_qt(monkeypatch, capsys):
