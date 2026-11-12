@@ -1427,7 +1427,6 @@ API_ENTRIES = (
     ('spacr.deep_spacr._flowview_pipeline.decorate.observed', 'Call the pipeline, preserving its result or error while tracing lifecycle.'),
     ('spacr.deep_spacr._governed_logits.on_cpu', 'Logits of one part with the model moved to the CPU.'),
     ('spacr.deep_spacr._governed_predictions.on_cpu', 'Score one part with the model moved to the CPU.'),
-    ('spacr.deep_spacr._held_out_metrics_table.add', 'Append the pooled row and one row per fold of one set of predictions.'),
     ('spacr.deep_spacr._train_batch.on_cpu', 'One part with the model moved to the CPU.'),
     ('spacr.deep_spacr._train_batch.on_gpu', 'One part on the training device.'),
     ('spacr.deep_spacr._train_batch.restore', 'Put the gradients back to what they were before this batch.'),
