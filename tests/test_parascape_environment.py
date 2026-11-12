@@ -340,6 +340,7 @@ def test_selftest_fails_when_anything_imports_pyqt6(monkeypatch, capsys):
 
 @pytest.mark.parametrize('name, value, found', [
     ('PYQTGRAPH_QT_LIB', 'PyQt6', "'PyQt6'"), ('QT_API', 'pyqt6', "'pyqt6'"),
+    ('PYQTGRAPH_QT_LIB', 'pyside6', "'pyside6'"),
     ('PYQTGRAPH_QT_LIB', None, 'None'), ('QT_API', None, 'None')])
 def test_selftest_rejects_wrong_or_missing_qt_environment_before_any_import(
         monkeypatch, capsys, name, value, found):
@@ -367,11 +368,11 @@ def test_selftest_rejects_wrong_or_missing_qt_environment_before_any_import(
     assert capsys.readouterr().out == ''
 
 
-def test_selftest_accepts_pyside6_environment_in_any_case(monkeypatch, capsys):
+def test_selftest_accepts_pyside6_environment_with_any_case_only_in_qt_api(monkeypatch, capsys):
     fake_pyside6(monkeypatch)
     fake_parascape(monkeypatch)
-    monkeypatch.setenv('PYQTGRAPH_QT_LIB', 'PYSIDE6')
-    monkeypatch.setenv('QT_API', 'PySide6')
+    monkeypatch.setenv('PYQTGRAPH_QT_LIB', 'PySide6')
+    monkeypatch.setenv('QT_API', 'PYSide6')
     exec(service._SELFTEST, {})
     assert json.loads(capsys.readouterr().out)['ok'] is True
 

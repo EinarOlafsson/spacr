@@ -33,7 +33,7 @@ _SELFTEST = (
     "import os, sys\n"
     "for name, want in (('PYQTGRAPH_QT_LIB', 'PySide6'), ('QT_API', 'pyside6')):\n"
     " value = os.environ.get(name)\n"
-    " if (value or '').lower() != want.lower():\n"
+    " if (value if name == 'PYQTGRAPH_QT_LIB' else (value or '').lower()) != want:\n"
     "  raise SystemExit(name + ' must be ' + want + ' for ParaScape, found ' + repr(value))\n"
     "if 'PyQt6' in sys.modules:\n"
     " raise SystemExit('PyQt6 was imported into ParaScape, whose Qt binding is PySide6')\n"
