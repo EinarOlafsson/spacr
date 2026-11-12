@@ -2,7 +2,7 @@ RECRUITMENT CLASSIFIER WITH LEAVE-ONE-WELL-OUT EVALUATION AND CONTROLS
 =====================================================================
 
 Lifecycle: future
-Status: DONE 2026-11-09 (alpha; feature route; CNN route not split) — spacr.ml gains evaluation_folds (leave_one_well_out, leave_one_plate_out, random), classifier_metrics (accuracy, balanced accuracy, macro F1, AUROC, per-class precision/recall/n), evaluate_classifier (model per fold and pooled, majority and shuffled-label controls, the shuffles seeded ml_eval_shuffle_seed.. and averaged), run_ml_evaluation (writes results/ml_eval/metrics.csv), annotation_sample and export_annotation_sample (a stratified sample of N objects marked in png_list.annotate_sample; replaces the raw-sqlite export script). generate_ml_scores (the ml_analyze module) runs the evaluation after a fit with ml_eval_report, runs it alone on a feature table with ml_eval_features_table, and only marks the annotation sample with annotate_sample_n. 15 settings, registered under ALPHA_FEATURES[899].
+Status: DONE 2026-11-09 (alpha; feature route; CNN route train_eval_split added 2026-11-12, not run on real crops) — spacr.ml gains evaluation_folds (leave_one_well_out, leave_one_plate_out, random), classifier_metrics (accuracy, balanced accuracy, macro F1, AUROC, per-class precision/recall/n), evaluate_classifier (model per fold and pooled, majority and shuffled-label controls, the shuffles seeded ml_eval_shuffle_seed.. and averaged), run_ml_evaluation (writes results/ml_eval/metrics.csv), annotation_sample and export_annotation_sample (a stratified sample of N objects marked in png_list.annotate_sample; replaces the raw-sqlite export script). generate_ml_scores (the ml_analyze module) runs the evaluation after a fit with ml_eval_report, runs it alone on a feature table with ml_eval_features_table, and only marks the annotation sample with annotate_sample_n. 15 settings, registered under ALPHA_FEATURES[899].
 Requested: maintainer, 2026-11-09 (BMC paper item spec ITEM_recruitment_classifier_eval.md, port P19).
 Owner: Home (claude-lane-e-1109 worktree).
 Source: hrman_fig6 scripts train_eval_recruitment.py, export_annotation_set.py.
@@ -22,10 +22,26 @@ balanced accuracy 0.641, macro F1 0.637 and AUROC 0.818 for the model
 (controls 0.333 / 0.286 / 0.500 and 0.327 / 0.321 / 0.492). The model and
 majority rows are pinned in tests/data/recruitment_eval_899.
 
+CNN ROUTE (2026-11-12)
+- Classify's train module gets train_eval_split (none, leave_one_well_out,
+  leave_one_plate_out, random), train_eval_controls (majority, shuffled),
+  train_eval_shuffle_seed (0) and train_eval_shuffle_repeats (1), under
+  ALPHA_FEATURES[899]. The name is train_eval_split, not train_split:
+  train_split is already the gene-class trainer's fold setting.
+- A split turns cross-validation on with one fold per well or plate
+  (cv_group_column) or the stratified cross_validation_folds folds; the
+  out-of-fold predictions give <model folder>/ml_eval/metrics.csv with the
+  columns of evaluate_classifier (pooled and per fold), a majority-class
+  control, and a shuffled-label control that reruns the whole
+  cross-validation with each fold's training labels permuted (seeds
+  train_eval_shuffle_seed, +1, ...; each repeat in shuffled_seed_<seed>/),
+  averaged.
+- Tests use a fixed model in place of the network (folds, permutation and
+  table); no CNN was trained on real crops.
+
 NOT DONE / REMAINING
-- The CNN route (train_split='leave_one_well_out' in the train module) is
-  not built; spaCR's own cv_group_by='well' split remains the CNN route.
+- The CNN route on GBP plate77 (GPU) has not been run: it needs the
+  design card and sign-off.
 - The rim-threshold-only row and the HRMAlexNet literature row of the
   reference table are not produced (the latter is literature, not a run).
 - Real labels do not exist yet (ANNOTATE_ME.md).
-- Catalogue (9-locale) records and arrival contracts are left to the master.

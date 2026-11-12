@@ -3831,6 +3831,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("918_923_bmc_paper_items_4_api_arrivals_2026-11-11.json", 98),
         ("annotate_jump_api_arrivals_2026-11-11.json", 4),
         ("issue_186_png_list_annotations_api_arrivals_2026-11-11.json", 3),
+        ("910_899_paper_remaining_api_arrivals_2026-11-12.json", 3),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))

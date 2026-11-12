@@ -1083,6 +1083,155 @@ def _translocation_shuffle(cells, value, n, kmax, rng):
     return pd.DataFrame(rows)
 
 
+def _pzfx_text(element):
+    """The whitespace-normalised text of an XML element and its children."""
+    return ' '.join(''.join(element.itertext()).split()) if element is not None else ''
+
+
+def _pzfx_number(value):
+    """A Prism cell value as a float, NaN when it is empty or not a number."""
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return math.nan
+
+
+def pzfx_tables(path):
+    """The data tables of a GraphPad Prism ``.pzfx`` file.
+
+    Each ``Table`` element becomes a DataFrame named by its title, with one
+    column per X or Y column (named by the column title; a repeated title
+    gets ``_2``, ``_3``, ...) and one row per value of the first
+    subcolumn. Empty cells are NaN; a value that is not a number is NaN
+    too. The binary template after the tables is not read.
+
+    :param path: the ``.pzfx`` file.
+    :returns: ``{table title: DataFrame}``, in file order.
+    :raises ValueError: when the file is not XML, is not a Prism file or
+        holds no data table.
+    """
+    import xml.etree.ElementTree as ElementTree
+
+    import pandas as pd
+
+    try:
+        root = ElementTree.parse(path).getroot()
+    except (OSError, ElementTree.ParseError) as exc:
+        raise ValueError(f'{path} could not be read as a Prism .pzfx file: {exc}') from exc
+    if not str(root.tag).endswith('GraphPadPrismFile'):
+        raise ValueError(f'{path} is not a Prism .pzfx file (root element {root.tag!r})')
+    tables = {}
+    for table in root.iter():
+        if str(table.tag).split('}')[-1] != 'Table':
+            continue
+        columns = {}
+        for column in table:
+            tag = str(column.tag).split('}')[-1]
+            if tag not in ('XColumn', 'YColumn'):
+                continue
+            subcolumn = column.find('Subcolumn')
+            values = [_pzfx_number(d.text) for d in (subcolumn if subcolumn is not None else [])
+                      if str(d.tag).split('}')[-1] == 'd']
+            name = _pzfx_text(column.find('Title')) or tag
+            base, n = name, 2
+            while name in columns:
+                name, n = f'{base}_{n}', n + 1
+            columns[name] = values
+        if not columns:
+            continue
+        length = max(len(v) for v in columns.values())
+        frame = pd.DataFrame({name: values + [math.nan] * (length - len(values))
+                              for name, values in columns.items()})
+        title = _pzfx_text(table.find('Title')) or str(table.get('ID', f'Table{len(tables)}'))
+        tables[title] = frame
+    if not tables:
+        raise ValueError(f'{path} holds no Prism data table')
+    return tables
+
+
+def pzfx_reference_curve(path, column='Nuclear signal', kmax=10):
+    """A reference translocation curve from a Prism ``.pzfx`` file such as HRMAn's Result.pzfx.
+
+    Every table with a ``column`` Y column is one group, named by the table
+    title up to `` (`` ("TgIST (Group 1)" is TgIST). Its first ``kmax + 1``
+    values are the signal at k = 0, 1, ... vacuoles per cell, in row order,
+    and the ratio is each value over the k = 0 value. The values are the
+    file's data; none is written into spaCR.
+
+    :param path: the ``.pzfx`` file (:func:`pzfx_tables`).
+    :param column: the title of the Y column holding the signal.
+    :param kmax: the largest k kept.
+    :returns: a DataFrame with ``effector``, ``k``, ``hrman_total`` and
+        ``hrman_ratio``, the reference columns of
+        :func:`translocation_summary`.
+    :raises ValueError: when no table has ``column``, or a group's k = 0
+        value is missing or zero.
+    """
+    import pandas as pd
+
+    rows = []
+    found = set()
+    for title, table in pzfx_tables(path).items():
+        found.update(table.columns)
+        if column not in table.columns:
+            continue
+        values = table[column].to_numpy()[:int(kmax) + 1]
+        if not len(values) or not values[0] or math.isnan(values[0]):
+            raise ValueError(f'{path}: {title!r} has no k = 0 value in {column!r}')
+        group = title.split(' (')[0].strip()
+        rows.extend(dict(effector=group, k=k, hrman_total=v, hrman_ratio=v / values[0])
+                    for k, v in enumerate(values))
+    if not rows:
+        raise ValueError(f'{path}: no table has a {column!r} column (columns: {sorted(found)})')
+    return pd.DataFrame(rows, columns=['effector', 'k', 'hrman_total', 'hrman_ratio'])
+
+
+def translocation_measured_cells(database, settings=None):
+    """spaCR's own nuclear effector readout per host cell, from a Measure database.
+
+    Each nucleus of the ``nucleus`` table gets the integrated and mean
+    intensity of the ``translocation_channel`` and its area, and the number
+    of ``pathogen`` objects Measure assigned to its cell (``n_par``; 0 for
+    none). The group comes from ``translocation_groups`` by well (row
+    letter and two-digit column) or by row letter.
+
+    :param database: the ``measurements.db`` Measure wrote.
+    :param settings: ``translocation_channel`` and ``translocation_groups``.
+    :returns: one row per nucleus with ``prcf``, ``cell``, ``ha_int``,
+        ``ha_mean``, ``nucleus_area``, ``n_par``, ``well`` and ``effector``
+        (NaN outside every group).
+    :raises ValueError: when a table or column is missing.
+    """
+    from .tabular import read_database
+
+    config = {**TRANSLOCATION_DEFAULTS, **(settings or {})}
+    channel = int(config['translocation_channel'])
+    nucleus, pathogen = read_database(database, ['nucleus', 'pathogen'], canonicalise=False,
+                                      report=None, migrate=False, read_only=True)
+    wanted = {'prcf': 'prcf', 'rowID': 'rowID', 'columnID': 'columnID',
+              'nucleus_cell_id': 'cell',
+              f'nucleus_channel_{channel}_integrated_intensity': 'ha_int',
+              f'nucleus_channel_{channel}_mean_intensity': 'ha_mean',
+              'nucleus_area': 'nucleus_area'}
+    missing = [c for c in wanted if c not in nucleus.columns]
+    missing += [f'pathogen.{c}' for c in ('prcf', 'pathogen_cell_id') if c not in pathogen.columns]
+    if missing:
+        raise ValueError(f'{database} lacks the columns {missing}')
+    nuc = nucleus[list(wanted)].rename(columns=wanted)
+    par = pathogen[['prcf', 'pathogen_cell_id']].rename(columns={'pathogen_cell_id': 'cell'})
+    counts = par[par['cell'] > 0].groupby(['prcf', 'cell']).size().rename('n_par').reset_index()
+    d = nuc.merge(counts, on=['prcf', 'cell'], how='left').fillna({'n_par': 0})
+    d['n_par'] = d['n_par'].astype(int)
+    row = d['rowID'].astype(str).str.extract(r'(\d+)')[0].astype(int)
+    col = d['columnID'].astype(str).str.extract(r'(\d+)')[0].astype(int)
+    letter = row.map(lambda r: chr(ord('A') + r - 1))
+    d['well'] = letter + col.map(lambda c: f'{c:02d}')
+    groups = _translocation_groups(config['translocation_groups'])
+    by_well = d['well'].map(groups)
+    d['effector'] = by_well.where(by_well.notna(), letter.map(groups))
+    return d.drop(columns=['rowID', 'columnID'])
+
+
 #: The curves of the translocation readout: name, k column, value column.
 TRANSLOCATION_READOUTS = (
     ('hrman_equiv', 'n_vacuoles', 'ha_total_nucleus'),
@@ -1095,7 +1244,7 @@ TRANSLOCATION_READOUTS = (
     ('frac_nucleus_excluded', 'n_vacuoles', 'frac_nucleus_excluded'))
 
 
-def translocation_summary(cells, settings=None, reference=None):
+def translocation_summary(cells, settings=None, reference=None, measured=None):
     """Effector translocation against vacuoles per cell, with its controls.
 
     Every cell gets its group from ``translocation_groups`` (by well row, or
@@ -1115,6 +1264,10 @@ def translocation_summary(cells, settings=None, reference=None):
     :param settings: the translocation settings.
     :param reference: an optional reference curve (effector, k,
         hrman_total, hrman_ratio) for the agreement table.
+    :param measured: optional :func:`translocation_measured_cells` rows;
+        they add the curve ``spacr_db_integrated_by_parasites`` (Measure's
+        integrated nuclear intensity binned by the pathogen objects of the
+        cell), with the same nucleus size filter.
     :returns: dict of DataFrames ``cells``, ``counts``, ``curves``,
         ``per_well``, ``per_well_summary``, ``null_thresholds``,
         ``pct_positive``, ``pct_positive_per_well``, ``shuffle_null`` and
@@ -1141,6 +1294,12 @@ def translocation_summary(cells, settings=None, reference=None):
         k_column = config['translocation_k_column'] if k_column == 'n_vacuoles' else k_column
         g = _translocation_curve(c, k_column, value, kmax)
         g['readout'] = name
+        parts.append(g)
+    if measured is not None:
+        m = measured[measured['effector'].notna()
+                     & (measured['nucleus_area'] >= float(config['translocation_min_nucleus_size']))]
+        g = _translocation_curve(m, 'n_par', 'ha_int', kmax)
+        g['readout'] = 'spacr_db_integrated_by_parasites'
         parts.append(g)
     curves = pd.concat(parts, ignore_index=True)
     if reference is not None:
@@ -1283,9 +1442,17 @@ def nuclear_translocation(settings=None):
     Make Masks grew them; the territories are not cell outlines. Then
     :func:`translocation_cells` per field and :func:`translocation_summary`,
     written to ``<src>/translocation/`` (cells_translocation.csv, the
-    summary tables, reference_curve.csv when ``translocation_reference``
-    names a reference curve table, and the
-    translocation_ratio_vs_vacuoles figure of :func:`translocation_figure`).
+    summary tables and the translocation_ratio_vs_vacuoles figure of
+    :func:`translocation_figure`).
+
+    ``translocation_reference`` names a reference curve: a table with
+    effector, k, hrman_total and hrman_ratio, or a Prism ``.pzfx`` file
+    read by :func:`pzfx_reference_curve` (HRMAn's Result.pzfx); it is
+    written as hrman_reference.csv. When Measure's
+    ``<src>/measurements/measurements.db`` is there, its nuclei add the
+    curve of :func:`translocation_measured_cells`, and Measure's
+    infection_report.csv beside it is written as
+    spacr_infection_report_per_well.csv.
 
     :param settings: ``src`` and the translocation settings.
     :returns: the :func:`translocation_summary` dict with ``folder`` and
@@ -1323,9 +1490,17 @@ def nuclear_translocation(settings=None):
     cells = pd.concat(tables, ignore_index=True)
     if territories:
         cells['cell_source'] = 'nucleus_territory'
-    reference = (read_table(config['translocation_reference'], canonicalise=False, report=None)
-                 if config['translocation_reference'] else None)
-    result = translocation_summary(cells, config, reference)
+    reference = config['translocation_reference']
+    if reference and str(reference).lower().endswith('.pzfx'):
+        reference = pzfx_reference_curve(reference, kmax=int(config['translocation_kmax']))
+    elif reference:
+        reference = read_table(reference, canonicalise=False, report=None)
+    else:
+        reference = None
+    database = os.path.join(config['src'], 'measurements', 'measurements.db')
+    measured = (translocation_measured_cells(database, config)
+                if os.path.isfile(database) else None)
+    result = translocation_summary(cells, config, reference, measured)
     out = os.path.join(config['src'], 'translocation')
     os.makedirs(out, exist_ok=True)
     write_table(cells, os.path.join(out, 'cells_translocation.csv'), canonicalise=False)
@@ -1333,7 +1508,11 @@ def nuclear_translocation(settings=None):
         write_table(result[key], os.path.join(out, name), canonicalise=False,
                     index=key == 'counts')
     if reference is not None:
-        write_table(reference, os.path.join(out, 'reference_curve.csv'), canonicalise=False)
+        write_table(reference, os.path.join(out, 'hrman_reference.csv'), canonicalise=False)
+    report = os.path.join(config['src'], 'measurements', 'infection_report.csv')
+    if os.path.isfile(report):
+        write_table(read_table(report, canonicalise=False, report=None),
+                    os.path.join(out, 'spacr_infection_report_per_well.csv'), canonicalise=False)
     from .plot import save_figure
 
     result['figure'] = save_figure(translocation_figure(result, config),

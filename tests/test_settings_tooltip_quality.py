@@ -1445,6 +1445,17 @@ if app_key == "mask":
                        if pair[0] == "umap" and pair[1] in OPS_UMAP_DEFAULTS} - set(variants.keys())
     assert lane_p_arrivals and not lane_p_arrivals & recognized_arrivals
     recognized_arrivals |= lane_p_arrivals
+    # Item 899's CNN route (2026-11-12): the four train_eval_* settings of
+    # the Classify train module; each "Default X." claim is the resolved one.
+    train_eval_defaults = {"train_eval_split": "none",
+                           "train_eval_controls": "majority, shuffled",
+                           "train_eval_shuffle_seed": 0, "train_eval_shuffle_repeats": 1}
+    train_eval_arrivals = {pair for pair in compared_pairs
+                           if pair[1] in train_eval_defaults} - set(variants.keys())
+    assert train_eval_arrivals and not train_eval_arrivals & recognized_arrivals
+    for app, key in train_eval_arrivals:
+        assert resolve_default_settings(app)[key] == train_eval_defaults[key]
+    recognized_arrivals |= train_eval_arrivals
     assert comparisons - len(recognized_arrivals) == 1005
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))
