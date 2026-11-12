@@ -211,22 +211,311 @@ def _attach_png_list_annotation(frame, path, name, merge_definition=None):
         frame.attrs["saved_condition_definition"] = annotation
 
 
-def _png_list_save_job(frame, definition, source, roots):
+def _png_list_save_job(frame, definition, source, roots, routes=None):
     """Save one source's annotation columns to png_list. Worker thread.
 
     Never raises, so a failure reaches the screen with the save it belongs
     to rather than through ``job_failed``, which carries no source.
 
+    :param routes: database path per ``source_database`` label, for a frame
+        read from several databases at once; each label's rows are saved to
+        its own database. None or empty saves ``frame`` as one source.
     :returns: ``("saved", report)`` from
         :func:`spacr.condition_annotations.save_annotations_to_png_list`, or
         ``("failed", message)``.
     """
     from ...condition_annotations import save_annotations_to_png_list
     try:
+        if routes:
+            return "saved", _save_routed_to_png_list(frame, definition, source, roots, routes)
         return "saved", save_annotations_to_png_list(frame, definition, source, roots=roots)
     except Exception as exc:                                     # noqa: BLE001
         LOG.info("annotations not saved to png_list", exc_info=True)
         return "failed", str(exc) or exc.__class__.__name__
+
+
+def _save_routed_to_png_list(frame, definition, source, roots, routes):
+    """Save each database's rows of a multi-database frame to that database.
+
+    The rows of one ``source_database`` label are saved as if read from its
+    own database, so they reach its ``png_list`` whatever the plate folders
+    are called; rows of a label not in ``routes`` are matched to plate
+    folders the ordinary way.
+
+    :returns: one report, the reports of every database added together.
+    """
+    from ...condition_annotations import save_annotations_to_png_list
+    from ...multi_database import SOURCE_COLUMN
+
+    labels = (frame[SOURCE_COLUMN].astype(str) if SOURCE_COLUMN in frame.columns
+              else pd.Series([""] * len(frame), index=frame.index))
+    report = {"columns": annotation_columns(definition), "databases": {}, "busy": {},
+              "refused": {}, "no_key": 0, "no_database": 0, "unrouted_labels": 0,
+              "conflicting": 0}
+    for label in dict.fromkeys(labels.tolist()):
+        route = routes.get(label)
+        part_source = dict(source, path=str(Path(route).resolve()) if route else None)
+        part = save_annotations_to_png_list(frame[(labels == label).to_numpy()], definition,
+                                            part_source, roots=roots)
+        for name in ("databases", "busy", "refused"):
+            report[name].update(part[name])
+        for name in ("no_key", "no_database", "unrouted_labels", "conflicting"):
+            report[name] += part[name]
+    return report
+
+
+class _PngListAnnotationSaves:
+    """The png_list save of annotation columns, shared by Graph Builder and Gate Editor.
+
+    A screen calls :meth:`_init_png_list_saves` in its constructor, puts the
+    two widgets :meth:`_build_png_list_controls` returns in its layout, queues
+    each committed annotation with :meth:`_queue_png_list_save`, and asks
+    :meth:`_close_with_unsaved_allowed` from ``closeEvent``. It also names
+    the gesture that makes an annotation, in :meth:`_nothing_to_save_hint`.
+    The screen holds ``_frame`` and ``_condition_definition``.
+    """
+
+    def _init_png_list_saves(self, threaded, app_key):
+        """Start with nothing unsaved and a save runner of the screen's own.
+
+        :param threaded: run saves on a worker thread.
+        :param app_key: the screen's registry key, for the runner.
+        """
+        self._saves = JobRunner(self, threaded=threaded, app_key=app_key)
+        self._saves.job_failed.connect(self._on_png_list_save_failed)
+        self._unsaved = {}
+        self._save_notes = {}
+        self._save_queue = []
+        self._save_roots = []
+        self._saving = None
+        self._save_generation = 0
+        self._last_save_note = ""
+
+    def _build_png_list_controls(self, button_name, state_name):
+        """Make the Save annotations button and the unsaved note.
+
+        :param button_name: objectName of the button.
+        :param state_name: objectName of the note.
+        :returns: ``(button, note)``, for the screen to place.
+        """
+        self._save_annotations_button = QPushButton(tr("Save annotations"), self)
+        self._save_annotations_button.setObjectName(button_name)
+        self._save_annotations_button.clicked.connect(self.save_annotations)
+        self._annotation_state = QLabel(self)
+        self._annotation_state.setObjectName(state_name)
+        self._annotation_state.setWordWrap(True)
+        return self._save_annotations_button, self._annotation_state
+
+    def _nothing_to_save_hint(self):
+        """The disabled button's tooltip before anything is annotated."""
+        return tr("Nothing to save yet. Annotate rows first: right-click the chart "
+                  "and choose Annotate selection.")
+
+    def _retry_png_list_saves(self):
+        """Queue every unsaved source again, asking for a project folder when one would help."""
+        if not self._unsaved:
+            return
+        if any(self._save_notes.get(key, ("", False))[1] for key in self._unsaved):
+            folder = QFileDialog.getExistingDirectory(
+                self, tr("Choose the project folder that holds the plate folders"))
+            if folder:
+                self._save_roots.append(folder)
+        for key in self._unsaved:
+            if key not in self._save_queue:
+                self._save_queue.append(key)
+        self._start_next_save()
+        self._update_annotation_state()
+
+    def _queue_png_list_save(self, frame, definition, source, routes=None):
+        """Mark a source's annotations unsaved and queue their png_list save.
+
+        :param frame: the working frame with every annotation column.
+        :param definition: the recipe that labelled it.
+        :param source: the annotated source.
+        :param routes: database path per ``source_database`` label of a
+            frame read from several databases at once, or None.
+        """
+        key = json.dumps(source, sort_keys=True)
+        self._save_generation += 1
+        self._unsaved[key] = (frame, copy.deepcopy(definition), copy.deepcopy(source),
+                              self._save_generation, dict(routes or {}))
+        self._save_notes.pop(key, None)
+        if key not in self._save_queue:
+            self._save_queue.append(key)
+        self._start_next_save()
+        self._update_annotation_state()
+
+    def _start_next_save(self):
+        """Start the next queued save unless one is running; one at a time."""
+        while self._saving is None and self._save_queue:
+            key = self._save_queue.pop(0)
+            entry = self._unsaved.get(key)
+            if entry is None:
+                continue
+            frame, definition, source, generation, routes = entry
+            self._saving = (key, generation)
+            self._saves.submit(
+                functools.partial(_png_list_save_job, frame, definition, source,
+                                  list(self._save_roots), routes),
+                functools.partial(self._on_png_list_saved, key, generation))
+
+    def _on_png_list_saved(self, key, generation, outcome):
+        """Record what one save wrote and start the next.
+
+        :param key: the source the save was for.
+        :param generation: which annotation of that source it saved; a newer
+            one is already queued, so an older result changes nothing.
+        :param outcome: ``(kind, report or message)`` from the job.
+        """
+        if self._saving == (key, generation):
+            self._saving = None
+        entry = self._unsaved.get(key)
+        if entry is not None and entry[3] == generation:
+            note, needs_folder = self._describe_save(*outcome)
+            if note is None:
+                self._forget_unsaved(key)
+                self._last_save_note = self._summarise_save(outcome[1])
+            else:
+                self._save_notes[key] = (note, needs_folder)
+        self._start_next_save()
+        self._update_annotation_state()
+
+    def _on_png_list_save_failed(self, message):
+        """Keep the annotations unsaved when the save job itself failed.
+
+        :param message: the failure text.
+        """
+        if self._saving is not None:
+            key, generation = self._saving
+            self._saving = None
+            self._on_png_list_saved(key, generation, ("failed", message))
+
+    def _describe_save(self, kind, result):
+        """Why a save left annotations unsaved, or None when it saved them all.
+
+        :returns: ``(text or None, whether a project folder would help)``.
+        """
+        if kind != "saved":
+            return tr("Not saved: {reason}", reason=result), False
+        if result["busy"]:
+            return tr("Not saved: a measurement database is in use. Close what is "
+                      "using it, then press Save annotations."), False
+        if result["refused"]:
+            return tr("Not saved: {reason}", reason=next(iter(result["refused"].values()))), False
+        if result["unrouted_labels"]:
+            return tr("Not saved: no plate database was found for {count} labelled objects. "
+                      "Press Save annotations and choose the project folder.",
+                      count=f"{result['unrouted_labels']:,}"), True
+        return None, False
+
+    def _summarise_save(self, report):
+        """One line saying where the labels went and what had nowhere to go."""
+        objects = sum(entry["objects"] for entry in report["databases"].values())
+        parts = [tr("Annotations saved to png_list: {objects} objects in {databases} database(s).",
+                    objects=f"{objects:,}", databases=len(report["databases"]))]
+        missing = sum(entry["no_png_list_row"] for entry in report["databases"].values())
+        if missing:
+            parts.append(tr("{count} objects have no png_list row.", count=f"{missing:,}"))
+        if report["no_key"]:
+            parts.append(tr("{count} rows have no object key.", count=f"{report['no_key']:,}"))
+        if report["conflicting"]:
+            parts.append(tr("{count} objects are labelled differently on several rows; "
+                            "the first label was saved.", count=f"{report['conflicting']:,}"))
+        return " ".join(parts)
+
+    def _forget_unsaved(self, key):
+        """Drop one source's unsaved annotations and anything queued for them."""
+        self._unsaved.pop(key, None)
+        self._save_notes.pop(key, None)
+        if key in self._save_queue:
+            self._save_queue.remove(key)
+
+    def _unsaved_columns(self):
+        """Every annotation column not yet saved, in the order first made."""
+        columns = []
+        for _frame, definition, _source, _generation, _routes in self._unsaved.values():
+            columns += [name for name in annotation_columns(definition) if name not in columns]
+        return columns
+
+    def _update_annotation_state(self):
+        """Show what is unsaved and say why Save annotations is off when it is."""
+        button = self._save_annotations_button
+        label = self._annotation_state
+        columns = self._unsaved_columns()
+        frame = self._frame
+        if self._saving is not None:
+            button.setEnabled(False)
+            button.setToolTip(tr("Saving the annotations to png_list…"))
+        elif columns and any(_keyable(entry[0].columns) for entry in self._unsaved.values()):
+            button.setEnabled(True)
+            button.setToolTip(tr("Write the annotation columns to png_list in each plate's "
+                                 "measurements.db, matched by prcfo, so Classify can train on them."))
+        elif columns:
+            button.setEnabled(False)
+            button.setToolTip(tr("This table has no prcfo column and no plate, row, column, field "
+                                 "and object_label columns, so its annotations cannot be saved to "
+                                 "png_list. Use Export table… or Save annotated table… to keep them."))
+        elif self._condition_definition is not None:
+            button.setEnabled(False)
+            button.setToolTip(tr("Every annotation column is saved to png_list."))
+        else:
+            button.setEnabled(False)
+            button.setToolTip(self._nothing_to_save_hint())
+        if columns:
+            notes = [self._save_notes[key][0] for key in self._unsaved if key in self._save_notes]
+            if self._saving is not None and not notes:
+                notes = [tr("Saving to png_list…")]
+            label.setText(" ".join([tr("Unsaved annotations: {columns}.", columns=", ".join(columns)),
+                                    *dict.fromkeys(notes)]))
+            label.setVisible(True)
+        elif self._last_save_note and frame is not None and self._condition_definition is not None:
+            label.setText(self._last_save_note)
+            label.setVisible(True)
+        else:
+            label.setVisible(False)
+
+    def _save_unsaved_now(self):
+        """Save everything unsaved on this thread; used when the screen closes.
+
+        A save already running is waited for first, so it cannot land after
+        this one with older labels.
+
+        :returns: whether nothing is left unsaved.
+        """
+        self._saves.shutdown(timeout_ms=30_000)
+        self._saving = None
+        self._save_queue.clear()
+        for key, (frame, definition, source, generation, routes) in list(self._unsaved.items()):
+            outcome = _png_list_save_job(frame, definition, source, list(self._save_roots), routes)
+            self._on_png_list_saved(key, generation, outcome)
+        return not self._unsaved
+
+    def _confirm_close_with_unsaved(self):
+        """Ask what to do with unsaved annotations. True lets the screen close."""
+        answer = QMessageBox.question(
+            self, tr("Unsaved annotations"),
+            tr("These annotation columns are not saved to png_list: {columns}. "
+               "Closing loses them.", columns=", ".join(self._unsaved_columns())),
+            QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, QMessageBox.Save)
+        if answer == QMessageBox.Discard:
+            return True
+        if answer != QMessageBox.Save:
+            return False
+        if self._save_unsaved_now():
+            return True
+        notes = [note for note, _folder in self._save_notes.values()]
+        QMessageBox.warning(self, tr("Unsaved annotations"),
+                            " ".join(dict.fromkeys(notes)) or tr("The annotations were not saved."))
+        return False
+
+    def _close_with_unsaved_allowed(self):
+        """Whether the screen may close, asking first while columns are unsaved.
+
+        Only a window on screen asks; one closed unseen keeps the old
+        behaviour and closes.
+        """
+        return not (self._unsaved and self.window().isVisible()
+                    and not self._confirm_close_with_unsaved())
 
 
 def _one_line(exc: BaseException) -> str:
@@ -276,7 +565,7 @@ class _Loaded(NamedTuple):
     problem: Optional[str]
 
 
-class GraphBuilderScreen(DerivedTableSource, QWidget):
+class GraphBuilderScreen(DerivedTableSource, _PngListAnnotationSaves, QWidget):
     """Drag columns onto channels; the chart follows.
 
     :param link: a private :class:`~spacr.qt.linked_selection.LinkedSelection`
@@ -318,15 +607,7 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
         self._threaded = threaded
         self._jobs = JobRunner(self, threaded=threaded, app_key="graph_builder")
         self._jobs.job_failed.connect(self._on_load_failed)
-        self._saves = JobRunner(self, threaded=threaded, app_key="graph_builder")
-        self._saves.job_failed.connect(self._on_png_list_save_failed)
-        self._unsaved = {}
-        self._save_notes = {}
-        self._save_queue = []
-        self._save_roots = []
-        self._saving = None
-        self._save_generation = 0
-        self._last_save_note = ""
+        self._init_png_list_saves(threaded, "graph_builder")
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["md"], SPACING["md"],
@@ -378,10 +659,9 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
         self._save_annotated_button = QAction(tr("Save annotated table…"), self)
         self._save_annotated_button.setEnabled(False)
         self._save_annotated_button.triggered.connect(self.choose_save_annotated_table)
-        self._save_annotations_button = QPushButton(tr("Save annotations"), self)
-        self._save_annotations_button.setObjectName("GraphSaveAnnotations")
-        self._save_annotations_button.clicked.connect(self.save_annotations)
-        head.addWidget(self._save_annotations_button)
+        save_annotations, annotation_state = self._build_png_list_controls(
+            "GraphSaveAnnotations", "GraphAnnotationState")
+        head.addWidget(save_annotations)
         install_test_data_button(
             self, head, lambda _folder, db: self.load_path(
                 str(db), table=EXAMPLE_TABLE),
@@ -411,10 +691,7 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
         points.addWidget(self._point_limit, 1)
         self._point_count = QLabel(self)
         points.addWidget(self._point_count)
-        self._annotation_state = QLabel(self)
-        self._annotation_state.setObjectName("GraphAnnotationState")
-        self._annotation_state.setWordWrap(True)
-        points.addWidget(self._annotation_state, 1)
+        points.addWidget(annotation_state, 1)
         outer.addLayout(points)
         self._update_annotation_state()
 
@@ -1036,199 +1313,7 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
         no plate database was found for labelled rows, the project folder
         holding the plate folders is asked for first.
         """
-        if not self._unsaved:
-            return
-        if any(self._save_notes.get(key, ("", False))[1] for key in self._unsaved):
-            folder = QFileDialog.getExistingDirectory(
-                self, tr("Choose the project folder that holds the plate folders"))
-            if folder:
-                self._save_roots.append(folder)
-        for key in self._unsaved:
-            if key not in self._save_queue:
-                self._save_queue.append(key)
-        self._start_next_save()
-        self._update_annotation_state()
-
-    def _queue_png_list_save(self, frame, definition, source):
-        """Mark a source's annotations unsaved and queue their png_list save.
-
-        :param frame: the working frame with every annotation column.
-        :param definition: the recipe that labelled it.
-        :param source: the annotated source.
-        """
-        key = json.dumps(source, sort_keys=True)
-        self._save_generation += 1
-        self._unsaved[key] = (frame, copy.deepcopy(definition), copy.deepcopy(source),
-                              self._save_generation)
-        self._save_notes.pop(key, None)
-        if key not in self._save_queue:
-            self._save_queue.append(key)
-        self._start_next_save()
-        self._update_annotation_state()
-
-    def _start_next_save(self):
-        """Start the next queued save unless one is running; one at a time."""
-        while self._saving is None and self._save_queue:
-            key = self._save_queue.pop(0)
-            entry = self._unsaved.get(key)
-            if entry is None:
-                continue
-            frame, definition, source, generation = entry
-            self._saving = (key, generation)
-            self._saves.submit(
-                functools.partial(_png_list_save_job, frame, definition, source,
-                                  list(self._save_roots)),
-                functools.partial(self._on_png_list_saved, key, generation))
-
-    def _on_png_list_saved(self, key, generation, outcome):
-        """Record what one save wrote and start the next.
-
-        :param key: the source the save was for.
-        :param generation: which annotation of that source it saved; a newer
-            one is already queued, so an older result changes nothing.
-        :param outcome: ``(kind, report or message)`` from the job.
-        """
-        if self._saving == (key, generation):
-            self._saving = None
-        entry = self._unsaved.get(key)
-        if entry is not None and entry[3] == generation:
-            note, needs_folder = self._describe_save(*outcome)
-            if note is None:
-                self._forget_unsaved(key)
-                self._last_save_note = self._summarise_save(outcome[1])
-            else:
-                self._save_notes[key] = (note, needs_folder)
-        self._start_next_save()
-        self._update_annotation_state()
-
-    def _on_png_list_save_failed(self, message):
-        """Keep the annotations unsaved when the save job itself failed.
-
-        :param message: the failure text.
-        """
-        if self._saving is not None:
-            key, generation = self._saving
-            self._saving = None
-            self._on_png_list_saved(key, generation, ("failed", message))
-
-    def _describe_save(self, kind, result):
-        """Why a save left annotations unsaved, or None when it saved them all.
-
-        :returns: ``(text or None, whether a project folder would help)``.
-        """
-        if kind != "saved":
-            return tr("Not saved: {reason}", reason=result), False
-        if result["busy"]:
-            return tr("Not saved: a measurement database is in use. Close what is "
-                      "using it, then press Save annotations."), False
-        if result["refused"]:
-            return tr("Not saved: {reason}", reason=next(iter(result["refused"].values()))), False
-        if result["unrouted_labels"]:
-            return tr("Not saved: no plate database was found for {count} labelled objects. "
-                      "Press Save annotations and choose the project folder.",
-                      count=f"{result['unrouted_labels']:,}"), True
-        return None, False
-
-    def _summarise_save(self, report):
-        """One line saying where the labels went and what had nowhere to go."""
-        objects = sum(entry["objects"] for entry in report["databases"].values())
-        parts = [tr("Annotations saved to png_list: {objects} objects in {databases} database(s).",
-                    objects=f"{objects:,}", databases=len(report["databases"]))]
-        missing = sum(entry["no_png_list_row"] for entry in report["databases"].values())
-        if missing:
-            parts.append(tr("{count} objects have no png_list row.", count=f"{missing:,}"))
-        if report["no_key"]:
-            parts.append(tr("{count} rows have no object key.", count=f"{report['no_key']:,}"))
-        if report["conflicting"]:
-            parts.append(tr("{count} objects are labelled differently on several rows; "
-                            "the first label was saved.", count=f"{report['conflicting']:,}"))
-        return " ".join(parts)
-
-    def _forget_unsaved(self, key):
-        """Drop one source's unsaved annotations and anything queued for them."""
-        self._unsaved.pop(key, None)
-        self._save_notes.pop(key, None)
-        if key in self._save_queue:
-            self._save_queue.remove(key)
-
-    def _unsaved_columns(self):
-        """Every annotation column not yet saved, in the order first made."""
-        columns = []
-        for _frame, definition, _source, _generation in self._unsaved.values():
-            columns += [name for name in annotation_columns(definition) if name not in columns]
-        return columns
-
-    def _update_annotation_state(self):
-        """Show what is unsaved and say why Save annotations is off when it is."""
-        button = self._save_annotations_button
-        label = self._annotation_state
-        columns = self._unsaved_columns()
-        frame = self._frame
-        if self._saving is not None:
-            button.setEnabled(False)
-            button.setToolTip(tr("Saving the annotations to png_list…"))
-        elif columns and any(_keyable(entry[0].columns) for entry in self._unsaved.values()):
-            button.setEnabled(True)
-            button.setToolTip(tr("Write the annotation columns to png_list in each plate's "
-                                 "measurements.db, matched by prcfo, so Classify can train on them."))
-        elif columns:
-            button.setEnabled(False)
-            button.setToolTip(tr("This table has no prcfo column and no plate, row, column, field "
-                                 "and object_label columns, so its annotations cannot be saved to "
-                                 "png_list. Use Export table… or Save annotated table… to keep them."))
-        elif self._condition_definition is not None:
-            button.setEnabled(False)
-            button.setToolTip(tr("Every annotation column is saved to png_list."))
-        else:
-            button.setEnabled(False)
-            button.setToolTip(tr("Nothing to save yet. Annotate rows first: right-click the chart "
-                                 "and choose Annotate selection."))
-        if columns:
-            notes = [self._save_notes[key][0] for key in self._unsaved if key in self._save_notes]
-            if self._saving is not None and not notes:
-                notes = [tr("Saving to png_list…")]
-            label.setText(" ".join([tr("Unsaved annotations: {columns}.", columns=", ".join(columns)),
-                                    *dict.fromkeys(notes)]))
-            label.setVisible(True)
-        elif self._last_save_note and frame is not None and self._condition_definition is not None:
-            label.setText(self._last_save_note)
-            label.setVisible(True)
-        else:
-            label.setVisible(False)
-
-    def _save_unsaved_now(self):
-        """Save everything unsaved on this thread; used when the screen closes.
-
-        A save already running is waited for first, so it cannot land after
-        this one with older labels.
-
-        :returns: whether nothing is left unsaved.
-        """
-        self._saves.shutdown(timeout_ms=30_000)
-        self._saving = None
-        self._save_queue.clear()
-        for key, (frame, definition, source, generation) in list(self._unsaved.items()):
-            outcome = _png_list_save_job(frame, definition, source, list(self._save_roots))
-            self._on_png_list_saved(key, generation, outcome)
-        return not self._unsaved
-
-    def _confirm_close_with_unsaved(self):
-        """Ask what to do with unsaved annotations. True lets the screen close."""
-        answer = QMessageBox.question(
-            self, tr("Unsaved annotations"),
-            tr("These annotation columns are not saved to png_list: {columns}. "
-               "Closing loses them.", columns=", ".join(self._unsaved_columns())),
-            QMessageBox.Save | QMessageBox.Discard | QMessageBox.Cancel, QMessageBox.Save)
-        if answer == QMessageBox.Discard:
-            return True
-        if answer != QMessageBox.Save:
-            return False
-        if self._save_unsaved_now():
-            return True
-        notes = [note for note, _folder in self._save_notes.values()]
-        QMessageBox.warning(self, tr("Unsaved annotations"),
-                            " ".join(dict.fromkeys(notes)) or tr("The annotations were not saved."))
-        return False
+        self._retry_png_list_saves()
 
     def closeEvent(self, event):  # noqa: N802 - Qt name
         """Stop background work and unlink before going away.
@@ -1239,8 +1324,7 @@ class GraphBuilderScreen(DerivedTableSource, QWidget):
         :param event: the Qt close event; ignored when the user stays or the
             save did not complete.
         """
-        if (self._unsaved and self.window().isVisible()
-                and not self._confirm_close_with_unsaved()):
+        if not self._close_with_unsaved_allowed():
             event.ignore()
             return
         self._jobs.shutdown()

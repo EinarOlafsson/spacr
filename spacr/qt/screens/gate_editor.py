@@ -57,6 +57,13 @@ Assembles:
   of a gate over a lasso is that it re-applies to the next plate.
 
 :func:`register` is not called at import; read its docstring.
+
+**Where annotations go.** Each annotation column is saved as it is made, to
+``png_list`` in each plate's ``measurements/measurements.db``, matched by
+``prcfo``; that is the only place Classify's annotation mode reads labels
+from. Reopening the table brings the columns back. A column that could not be
+saved is named beside the chart, **Save annotations** tries again, and
+closing the screen asks first.
 """
 from __future__ import annotations
 
@@ -120,7 +127,12 @@ from ..widgets.measurements_example import (
 )
 from ..widgets.table_chip import TableChip
 from .app_screen import ModuleHeader
-from .graph_builder import read_table, table_names
+from .graph_builder import (
+    _attach_png_list_annotation,
+    _PngListAnnotationSaves,
+    read_table,
+    table_names,
+)
 
 LOG = logging.getLogger("spacr.qt.screens.gate_editor")
 
@@ -336,7 +348,7 @@ def _render_the_graph(snapshot: bytes, png_path: str, write_pdf: bool) -> bool:
                                      for_print=True, write_pdf=write_pdf))
 
 
-class GateEditorScreen(DerivedTableSource, QWidget):
+class GateEditorScreen(DerivedTableSource, _PngListAnnotationSaves, QWidget):
     """A table, two axis pickers, the gating surface, and save/load.
 
     :param parent: parent widget.
@@ -394,6 +406,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         self._jobs = JobRunner(self, threaded=threaded, app_key=APP_KEY)
         self._threaded = bool(threaded)
         self._jobs.job_failed.connect(self._on_load_failed)
+        self._init_png_list_saves(threaded, APP_KEY)
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["md"], SPACING["md"],
@@ -471,6 +484,10 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         self._export.clicked.connect(self.export_gates)
         head.addWidget(self._export)
 
+        save_annotations, annotation_state = self._build_png_list_controls(
+            "GateSaveAnnotations", "GateAnnotationState")
+        head.addWidget(save_annotations)
+
         self._save_graph = QPushButton("Save graph\u2026", self)
         self._save_graph.setToolTip(
             "Write the graph as it appears, including the gates drawn on "
@@ -493,7 +510,9 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         point_bar.addWidget(self._point_limit, 1)
         self._point_count = QLabel(self)
         point_bar.addWidget(self._point_count)
+        point_bar.addWidget(annotation_state, 1)
         outer.addLayout(point_bar)
+        self._update_annotation_state()
 
         self._db_chips = QHBoxLayout()
         self._db_chips.setContentsMargins(0, 0, 0, 0)
@@ -673,7 +692,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
 
         saved = frame.attrs.get('saved_condition_definition')
         if saved:
-            frame = frame.drop(columns=annotation_columns(saved))
+            frame = frame.drop(columns=annotation_columns(saved), errors='ignore')
             self._condition_definitions.setdefault(json.dumps(saved['source'], sort_keys=True), copy.deepcopy(saved))
         self._annotation_base_frame = frame
         self._condition_source = source_context(self._path, self._table, frame.attrs.get('merge_definition'))
@@ -694,6 +713,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         self._derived_frame_loaded(frame)
         self.formulas.set_frame(frame)
         self._push_frame()
+        self._update_annotation_state()
         self._source.setText(
             label or f"{len(frame):,} rows × {len(frame.columns)} columns")
 
@@ -917,10 +937,23 @@ class GateEditorScreen(DerivedTableSource, QWidget):
                 self._condition_definition = copy.deepcopy(definition)
                 self._condition_definitions[json.dumps(self._condition_source, sort_keys=True)] = copy.deepcopy(definition)
                 self._frame = result
+                self._queue_png_list_save(result, definition, self._condition_source,
+                                          self._png_list_routes())
                 self.formulas.set_frame(result)
                 self._push_frame()
         except (ValueError, GateError) as exc:
             self._source.setText(str(exc))
+
+    def _png_list_routes(self):
+        """Database path per ``source_database`` label while several are loaded, else None."""
+        if len(self._paths) < 2:
+            return None
+        return dict(zip(self.database_labels(), self._paths))
+
+    def _nothing_to_save_hint(self):
+        """The disabled Save annotations tooltip before anything is annotated."""
+        return tr("Nothing to save yet. Annotate rows first: select a gate in the hierarchy, "
+                  "right-click the plot and choose Annotate…")
 
     def _save_selected_annotation(self):
         """Offer a new database table for the annotated frame and its rule provenance."""
@@ -939,7 +972,21 @@ class GateEditorScreen(DerivedTableSource, QWidget):
             merge = copy.deepcopy(self._merge_definition)
             self._jobs.submit(lambda: save_annotated_table(path, name.strip(), frame, definition, source,
                                                          merge_definition=merge),
-                              lambda saved: self.load_path(path, table=saved))
+                              partial(self._on_annotated_table_saved, path,
+                                      json.dumps(source, sort_keys=True)))
+
+    def _on_annotated_table_saved(self, path, key, saved):
+        """Open the saved table; its rows now keep the annotation columns.
+
+        :param path: the database the table was saved in.
+        :param key: the source the annotations were made on.
+        :param saved: the new table's name.
+        """
+        from ...condition_annotations import _keyable
+
+        if key in self._unsaved and not _keyable(self._unsaved[key][0].columns):
+            self._forget_unsaved(key)
+        self.load_path(path, table=saved)
 
     def _export_selected_annotation(self):
         """Export the annotated frame through the graph table exporter."""
@@ -1121,6 +1168,7 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         self._tables = [chosen]
         self._rebuild_chips()
         self._rebuild_database_chips()
+        _attach_png_list_annotation(frame, paths[0], chosen)
         self.set_frame(
             frame,
             label=(f"{len(plan.sources)} databases · {chosen} · "
@@ -2858,12 +2906,30 @@ class GateEditorScreen(DerivedTableSource, QWidget):
         self._source.setText(noted)
         return True
 
+    def save_annotations(self):
+        """Save every unsaved annotation column to png_list now.
+
+        Annotations are saved on their own as they are made; this retries the
+        ones that could not be, for example while a database was in use. When
+        no plate database was found for labelled rows, the project folder
+        holding the plate folders is asked for first.
+        """
+        self._retry_png_list_saves()
+
     def closeEvent(self, event):  # noqa: N802 - Qt name
         """Let the panel close first, so it can unlink its canvas.
 
-        :param event: the Qt close event.
+        While annotation columns are unsaved and the window is on screen, the
+        user is asked first to save them, close without them, or stay.
+
+        :param event: the Qt close event; ignored when the user stays or the
+            save did not complete.
         """
+        if not self._close_with_unsaved_allowed():
+            event.ignore()
+            return
         self._jobs.shutdown()
+        self._saves.shutdown()
         counter = getattr(self, "_count_runner", None)
         if counter is not None:
             counter.shutdown()

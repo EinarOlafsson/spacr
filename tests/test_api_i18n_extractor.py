@@ -2314,6 +2314,15 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **png_list_annotation_arrivals}
+    gate_editor_save_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "gate_editor_png_list_annotations_api_arrivals_2026-11-12.json").read_text(encoding="utf-8"))
+    assert len(gate_editor_save_arrivals) == 1
+    assert {key: docs[key] for key in gate_editor_save_arrivals} == gate_editor_save_arrivals
+    assert not gate_editor_save_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **gate_editor_save_arrivals}
     paper_remaining_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "890_917_bmc_paper_remaining_api_arrivals_2026-11-12.json").read_text(encoding="utf-8"))
     assert len(paper_remaining_arrivals) == 5
