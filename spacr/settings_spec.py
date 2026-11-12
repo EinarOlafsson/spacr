@@ -318,6 +318,7 @@ def convert_settings_dict_for_gui(settings):
         'size_calibration': ('combo', ['none', 'modal_single'], 'none'),
         'ml_eval_split': ('combo', ['leave_one_well_out', 'leave_one_plate_out', 'random'], 'leave_one_well_out'),
         'ml_model_type': ('combo', ['hist_gbm', 'random_forest', 'logistic_regression'], 'hist_gbm'),
+        'train_eval_split': ('combo', ['none', 'leave_one_well_out', 'leave_one_plate_out', 'random'], 'none'),
         'model_type_ml': ('combo', ['logistic_regression', 'shrinkage_lda', 'xgboost', 'lightgbm', 'catboost', 'random_forest', 'extra_trees', 'gradient_boosting', 'svm', 'mlp'], 'logistic_regression'),
         'optimizer_type': ('combo', ['adamw', 'adam', 'adamax', 'sgd', 'rmsprop', 'nadam', 'radam', 'adagrad', 'adadelta', 'asgd'], 'adamw'),
         'schedule': ('combo', ['cosine', 'cosine_warm_restarts', 'reduce_lr_on_plateau', 'step_lr', 'exponential', 'linear', 'none'], 'cosine'),

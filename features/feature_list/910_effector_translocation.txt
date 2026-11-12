@@ -2,7 +2,7 @@ HOST-NUCLEUS EFFECTOR TRANSLOCATION AGAINST PARASITE LOAD
 ========================================================
 
 Lifecycle: future
-Status: PARTIAL 2026-11-10 (alpha; Make Masks hook and figure added 2026-11-10, full plate waits for GPU masks) — spacr.host_pathogen gains nucleus_territories (cells from nuclei without a cell stain: small nuclei removed, each nucleus grown by up to N px without overlap), translocation_cells (per host cell: vacuoles and parasites per cell by majority overlap, raw nuclear effector sum as HRMAn, nuclear mean with pixels near parasites left out, field background, cytoplasm, DNA and nucleus-area controls), translocation_summary (curves by vacuoles per cell normalised to k = 0 per group, per-well ratios, null-threshold % positive nuclei per k and per well, within-field shuffle null, agreement with a reference curve) and nuclear_translocation (the settings run; analyze_host_pathogen dispatches to it with translocation=True), writing <src>/translocation/. Twenty settings under ALPHA_FEATURES[772] (a new key breaks the alpha deck test). On the 3-field CPU pilot (B02_3, D05_3, F08_3) the territories and nuclei, cells_translocation.csv (309 cells) and all nine summary tables, the shuffle null with seed 0 included, equal the reference scripts' output.
+Status: PARTIAL 2026-11-10 (alpha; Make Masks hook and figure added 2026-11-10; Result.pzfx reader, Measure readout and infection report added 2026-11-12; full plate waits for GPU masks) — spacr.host_pathogen gains nucleus_territories (cells from nuclei without a cell stain: small nuclei removed, each nucleus grown by up to N px without overlap), translocation_cells (per host cell: vacuoles and parasites per cell by majority overlap, raw nuclear effector sum as HRMAn, nuclear mean with pixels near parasites left out, field background, cytoplasm, DNA and nucleus-area controls), translocation_summary (curves by vacuoles per cell normalised to k = 0 per group, per-well ratios, null-threshold % positive nuclei per k and per well, within-field shuffle null, agreement with a reference curve) and nuclear_translocation (the settings run; analyze_host_pathogen dispatches to it with translocation=True), writing <src>/translocation/. Twenty settings under ALPHA_FEATURES[772] (a new key breaks the alpha deck test). On the 3-field CPU pilot (B02_3, D05_3, F08_3) the territories and nuclei, cells_translocation.csv (309 cells) and all nine summary tables, the shuffle null with seed 0 included, equal the reference scripts' output.
 Requested: maintainer, 2026-11-09 (BMC paper item spec ITEM_effector_translocation.md).
 Owner: Home (claude-lane-e-1109 worktree).
 Source: the HRMAn Protein_translocation reanalysis scripts cell_territories.py, translocation_objects.py and summary_pt.py.
@@ -61,13 +61,35 @@ cell_territories.py's arrays exactly (dtype and every plane, 3/3 fields);
 from them cells_translocation (309 rows) and all nine summary tables equal
 the reference again (floats <= 1e-9).
 
+REFERENCE READER, MEASURE READOUT AND INFECTION REPORT (2026-11-12)
+- pzfx_tables (every data table of a GraphPad Prism .pzfx file, by
+  title; empty or non-numeric cells NaN; malformed XML, a foreign root
+  element or a file without tables refused) and pzfx_reference_curve
+  (the Nuclear signal column of each group table, k = 0..kmax, ratio to
+  k = 0). translocation_reference now takes a .pzfx file as well as a
+  table; the reference is written as hrman_reference.csv (was
+  reference_curve.csv).
+- translocation_measured_cells: Measure's nucleus integrated and mean
+  intensity of translocation_channel and the pathogen objects of each
+  cell, grouped by well or row. With <src>/measurements/measurements.db
+  present, translocation_summary adds the curve
+  spacr_db_integrated_by_parasites (in the agreement table too), and
+  Measure's infection_report.csv is written as
+  spacr_infection_report_per_well.csv.
+- RESULT (scratch: /mnt/firecuda2/codex/scratch-docs/paper-910-899-1112/validate_910.py):
+  the curve parsed from HRMAn's Result.pzfx equals the reference
+  hrman_reference.csv (33 rows; TgIST 1.88, GRA16 1.82, GRA24 1.40 at
+  k = 10); a settings run on the 3 pilot fields with the pilot's
+  measurements.db gives cells_translocation (309), curves_all_readouts
+  (140 rows, the spaCR-db curve included), agreement_with_hrman (27 rows),
+  hrman_reference (33) and spacr_infection_report_per_well (18) equal to
+  the reference scripts' output, with all other summary tables still
+  identical (floats <= 1e-9).
+- Arrival contract 910_899_paper_remaining_api_arrivals_2026-11-12.json.
+
 NOT DONE / REMAINING
 - The cell table cannot carry cell_source as a text column (the object-table
   schema requires its cell_* namespace to be numeric); it is recorded in the
   merged plane-layout sidecar, the run report and cells_translocation.csv.
-- The readout spacr_db_integrated_by_parasites and
-  spacr_infection_report_per_well.csv are still left out; the Result.pzfx
-  parser is not ported (the reference curve is read from a CSV).
 - Make Masks end to end from the saved pilot settings (Cellpose on CPU) and
   the full plate wait for the paper session (GPU masks).
-- Catalogue (9-locale) records and arrival contracts are left to the master.
