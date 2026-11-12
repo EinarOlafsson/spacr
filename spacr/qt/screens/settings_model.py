@@ -3199,6 +3199,31 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "decay, or histogram matching. Corrected intensities are written "
         "beside the measured ones with the method, and the fitted decay is "
         "plotted.",
+    "VACUOLES Α":
+        "Groups the measured parasites into vacuoles and writes the "
+        "vacuole and vacuole_host tables to measurements.db, with "
+        "vacuole and parasite counts added to the cell table. Parasites "
+        "closer than the gap are one vacuole, each parasite is linked to "
+        "the vacuole it overlaps most, and you can pick a channel for the "
+        "vacuole signal mean. Set the minimum vacuole and host sizes to "
+        "drop debris. Turn it on when you count parasites per vacuole; "
+        "leave it off otherwise.",
+    "FIGURE SCORING Α":
+        "Scores plaque assays read from published figures against what the "
+        "papers report. It takes the condition table, optional stored model "
+        "readings, the detector boxes and the per-well segmentations, then "
+        "writes the measured-versus-reported table and a summary with a "
+        "permutation control. Choose the panel metric, how wells are "
+        "pooled, the comparison scales and the confidence below which a "
+        "reading is flagged. Use it to check spaCR against the literature; "
+        "ordinary plaque runs do not need it.",
+    "PLAQUE SIZE READOUTS Α":
+        "Adds per-well size readouts to a plaque run: mean, median and "
+        "largest plaque area, the largest relative to the mean, the well "
+        "extent and the plaque area over it, and each plaque relative to "
+        "the largest in its well. Millimetre areas appear when the image "
+        "has a scale. Turn it on to compare plaque sizes across wells and "
+        "plates; off leaves the per-image and per-plaque tables unchanged.",
     "MEASUREMENT BACKEND Α":
         "Copies a finished run's measurements into DuckDB or Parquet for "
         "very large screens, or into PostgreSQL for labs that share one "
