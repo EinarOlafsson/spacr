@@ -1,0 +1,3 @@
+{
+  "spacr.qt.screens.gate_editor.GateEditorScreen.save_annotations": "Save every unsaved annotation column to png_list now.\n\nAnnotations are saved on their own as they are made; this retries the\nones that could not be, for example while a database was in use. When\nno plate database was found for labelled rows, the project folder\nholding the plate folders is asked for first."
+}
