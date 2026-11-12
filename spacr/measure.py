@@ -1330,7 +1330,8 @@ def _morphological_measurements(
     :param settings: Settings dict; ``<object>_mask_dim`` keys drive whether
         each object type is analysed, ``cytoplasm`` toggles cytoplasm output,
         ``spatial_measurements`` (default ``False``) adds the spatial-context
-        block and ``spatial_neighbor_radius`` (default 50) sizes it.
+        block, as does ``'neighbours'`` in ``profile_features``, and
+        ``spatial_neighbor_radius`` (default 50) sizes it.
     :param zernike: ``True`` requires and computes Zernike moments; ``False``
         disables them. ``None`` computes them when Mahotas is installed and
         otherwise skips them with an actionable console message.
@@ -1380,7 +1381,9 @@ def _morphological_measurements(
                 frame[name] = values
         return frame
 
-    spatial_on = bool(settings.get('spatial_measurements', False))
+    spatial_on = (bool(settings.get('spatial_measurements', False))
+                  or 'neighbours' in profile_feature_families(
+                      settings.get('profile_features')))
     try:
         spatial_radius = int(settings.get('spatial_neighbor_radius', 50))
     except (TypeError, ValueError):
@@ -1758,7 +1761,9 @@ def _intensity_measurements(
         ``(Z, Y, X, C)`` in 3-D.
     :param settings: Settings dict (``radial_dist``, ``calculate_correlation``,
         ``homogeneity``, ``homogeneity_distances``, ``manders_thresholds``,
-        ``distance_gaussian_sigma``, and the ``<object>_mask_dim`` toggles).
+        ``distance_gaussian_sigma``, ``profile_features`` (the
+        profiling families of :func:`measure_profile_features`, 2-D only;
+        empty adds nothing), ``profile_granularity_subsample`` and the ``<object>_mask_dim`` toggles).
     :param sizes: Legacy size bins. Defaults to ``[3, 6, 12, 24]``.
     :param periphery: When True, compute periphery-intensity stats for
         nucleus/pathogen/organelle.
@@ -1928,9 +1933,75 @@ def _intensity_measurements(
                         coloc_df = _calculate_correlation_object_level(chan_i, chan_j, mask, settings)
                         coloc_df.columns = [f'{ls[m]}_channel_{i}_channel_{j}_{col}' for col in coloc_df.columns]
                         dfs[m].append(coloc_df)
-    
+
+    families = tuple(name for name in profile_feature_families(
+        settings.get('profile_features')) if name != 'neighbours')
+    if families and ndim == 2:
+        _add_profile_frames(
+            dfs, ls, labels, channel_arrays, families,
+            granularity_subsample=settings.get(
+                'profile_granularity_subsample', 1.0) or 1.0)
+    elif families:
+        print("3-D mask: skipping the profiling families "
+              f"({', '.join(families)}); they are defined for 2-D fields.")
+
     return tuple(pd.concat(frames, axis=1) for frames in dfs)
     
+#: Profiling families computed on the whole field once and read out per mask.
+_PROFILE_FIELD_FAMILIES = {
+    'texture_lbp': '_lbp_frames',
+    'texture_gabor': '_gabor_frames',
+    'granularity': '_granularity_frames',
+}
+
+
+def _add_profile_frames(dfs, roles, masks, channel_arrays, families,
+                        granularity_subsample=1.0):
+    """Append the profiling families of every non-empty mask to its frame list.
+
+    :param dfs: one list of frames per role, as ``_intensity_measurements``
+        builds them.
+    :param roles: the role names, the column prefixes.
+    :param masks: the label masks, in the order of ``roles``.
+    :param channel_arrays: the ``(H, W, C)`` image.
+    :param families: the families, without ``'neighbours'`` (the
+        morphology block writes it).
+    :param granularity_subsample: ``subsample`` of
+        :func:`measure_granularity` (``profile_granularity_subsample``).
+
+    The families that filter the whole field (LBP, Gabor, granularity) run
+    once for all masks; the others run per mask through
+    :func:`measure_profile_features`.
+    """
+    present = [m for m, mask in enumerate(masks)
+               if mask is not None and np.max(mask) != 0]
+    if not present:
+        return
+    image = np.asarray(channel_arrays, dtype=np.float64)
+    if image.ndim == 2:
+        image = image[..., None]
+    per_object = [f for f in families if f not in _PROFILE_FIELD_FAMILIES]
+    checked = [_profile_inputs(masks[m], None)[0] for m in present]
+    blocks = {m: [pd.DataFrame({'label': np.unique(mask[mask > 0])})]
+              for m, mask in zip(present, checked)}
+    if per_object:
+        for m in present:
+            blocks[m].append(measure_profile_features(
+                masks[m], image, per_object).drop(columns='label'))
+    options = {'granularity': {'subsample': granularity_subsample}}
+    for family in families:
+        if family in _PROFILE_FIELD_FAMILIES:
+            frames = globals()[_PROFILE_FIELD_FAMILIES[family]](
+                checked, image, **options.get(family, {}))
+            for m, frame in zip(present, frames):
+                blocks[m].append(frame.drop(columns='label'))
+    for m in present:
+        frame = pd.concat([b.reset_index(drop=True) for b in blocks[m]], axis=1)
+        frame.columns = [col if col == 'label' else f'{roles[m]}_{col}'
+                         for col in frame.columns]
+        dfs[m].append(frame)
+
+
 def _create_dataframe(radial_distributions, object_type):
         """Convert a ``{(cell, obj, ch): bins}`` mapping into a per-object DataFrame."""
         df = pd.DataFrame()
@@ -2957,6 +3028,1221 @@ def _calculate_correlation_object_level(channel_image1, channel_image2, mask, se
                                  'manders_overlap_coefficient': MOC})
 
         return pd.DataFrame(corr_data.values())
+
+# ---------------------------------------------------------------------------
+# Profiling feature families (2026-11-12). Each family is one public function
+# over a 2-D label mask and an ``(H, W, C)`` image that returns one row per
+# label, in ascending label order, with ``channel_<i>_...`` column names.
+# :func:`measure_profile_features` runs a chosen set of them, and
+# ``profile_features`` in the measure settings (``ops_ph_profile_features`` in
+# the OPS phenotype path) switches them on. With the setting empty nothing
+# here runs, so an existing settings file measures exactly as before.
+# ---------------------------------------------------------------------------
+
+#: The families :func:`measure_profile_features` knows, in output order.
+PROFILE_FEATURE_FAMILIES = (
+    'edge_intensity', 'intensity_moments', 'radial_distribution',
+    'shape_extended', 'texture_haralick', 'texture_pftas',
+    'texture_lbp', 'texture_gabor', 'periphery', 'outside',
+    'colocalisation', 'colocalisation_extra', 'colocalisation_costes',
+    'neighbours', 'granularity',
+)
+
+#: The families switched on by ``profile_features='profiling'``: the ones that
+#: cost little per cell. The others are named one by one or with ``'all'``.
+PROFILE_FEATURE_DEFAULT = (
+    'edge_intensity', 'intensity_moments', 'radial_distribution',
+    'shape_extended', 'texture_haralick', 'texture_pftas',
+    'texture_lbp', 'texture_gabor', 'periphery', 'outside',
+    'colocalisation', 'colocalisation_extra', 'neighbours',
+)
+
+#: Haralick's 13 statistics in mahotas' order (Haralick et al. 1973).
+_HARALICK_NAMES = (
+    'asm', 'contrast', 'correlation', 'variance', 'idm', 'sum_average',
+    'sum_variance', 'sum_entropy', 'entropy', 'difference_variance',
+    'difference_entropy', 'imc1', 'imc2',
+)
+
+#: Grey levels each object is quantised to before its co-occurrence matrix.
+PROFILE_HARALICK_LEVELS = 32
+
+#: Co-occurrence offset in pixels, averaged over the four directions.
+PROFILE_HARALICK_DISTANCE = 5
+
+#: Rings of :func:`measure_radial_distribution` (CellProfiler's default).
+PROFILE_RADIAL_BINS = 4
+
+
+def profile_feature_families(value):
+    """The profiling families a ``profile_features`` setting asks for.
+
+    :param value: ``None``, ``False``, ``''`` or an empty list for none;
+        ``'profiling'`` for :data:`PROFILE_FEATURE_DEFAULT`; ``'all'`` for
+        every family in :data:`PROFILE_FEATURE_FAMILIES`; otherwise family
+        names, as a list or a comma-separated string, which may include
+        ``'profiling'``.
+    :returns: the families in :data:`PROFILE_FEATURE_FAMILIES` order.
+    :raises ValueError: for a name that is not a family.
+    """
+    if value is None or value is False or value == '':
+        return ()
+    names = value.split(',') if isinstance(value, str) else list(value)
+    wanted = set()
+    for raw in names:
+        name = str(raw).strip()
+        if not name:
+            continue
+        if name == 'profiling':
+            wanted.update(PROFILE_FEATURE_DEFAULT)
+        elif name == 'all':
+            wanted.update(PROFILE_FEATURE_FAMILIES)
+        elif name in PROFILE_FEATURE_FAMILIES:
+            wanted.add(name)
+        else:
+            raise ValueError(
+                f"profile_features: {name!r} is not a measurement family; "
+                f"use 'profiling', 'all' or names from "
+                f"{', '.join(PROFILE_FEATURE_FAMILIES)}")
+    return tuple(name for name in PROFILE_FEATURE_FAMILIES if name in wanted)
+
+
+def _profile_inputs(labels, image):
+    """Validate one family's inputs: ``(labels int64, image float64 HWC, present)``."""
+    labels = np.asarray(labels)
+    if labels.ndim != 2:
+        raise ValueError(
+            f"profiling families are 2-D; this mask is {labels.ndim}-D")
+    labels = labels.astype(np.int64, copy=False)
+    if image is not None:
+        image = np.asarray(image, dtype=np.float64)
+        if image.ndim == 2:
+            image = image[..., None]
+        if image.shape[:2] != labels.shape:
+            raise ValueError(
+                f"the image {image.shape} does not cover the mask "
+                f"{labels.shape}")
+    present = np.unique(labels[labels > 0])
+    return labels, image, present
+
+
+def _hu_from_moments(m):
+    """Hu's seven invariants from normalised central moments ``m[p][q]``.
+
+    The formulas of :func:`skimage.measure.moments_hu`, with ``p`` along
+    rows; each ``m[p][q]`` is an array over objects.
+    """
+    n20, n02, n11 = m[2][0], m[0][2], m[1][1]
+    n30, n03, n21, n12 = m[3][0], m[0][3], m[2][1], m[1][2]
+    t0, t1 = n30 + n12, n21 + n03
+    q0, q1 = n30 - 3 * n12, 3 * n21 - n03
+    return [
+        n20 + n02,
+        (n20 - n02) ** 2 + 4 * n11 ** 2,
+        q0 ** 2 + q1 ** 2,
+        t0 ** 2 + t1 ** 2,
+        q0 * t0 * (t0 ** 2 - 3 * t1 ** 2) + q1 * t1 * (3 * t0 ** 2 - t1 ** 2),
+        (n20 - n02) * (t0 ** 2 - t1 ** 2) + 4 * n11 * t0 * t1,
+        q1 * t0 * (t0 ** 2 - 3 * t1 ** 2) - q0 * t1 * (3 * t0 ** 2 - t1 ** 2),
+    ]
+
+
+def _weighted_moments(flat, rows, cols, weights, size, present):
+    """Centre, ``mu00`` and Hu invariants of each label under ``weights``.
+
+    :returns: ``(centre_r, centre_c, mu00, hu)`` indexed by ``present``;
+        ``hu`` is a list of seven arrays. A label whose weights sum to 0
+        gets NaN.
+    """
+    with np.errstate(invalid='ignore', divide='ignore'):
+        mu00 = np.bincount(flat, weights, size)
+        centre_r = np.bincount(flat, weights * rows, size) / mu00
+        centre_c = np.bincount(flat, weights * cols, size) / mu00
+        dr = rows - centre_r[flat]
+        dc = cols - centre_c[flat]
+        m = [[None] * 4 for _ in range(4)]
+        for p, q in ((2, 0), (0, 2), (1, 1), (3, 0), (0, 3), (2, 1), (1, 2)):
+            mu = np.bincount(flat, weights * dr ** p * dc ** q, size)
+            m[p][q] = (mu / mu00 ** ((p + q) / 2 + 1))[present]
+        hu = _hu_from_moments(m)
+    bad = ~(mu00[present] > 0)
+    hu = [np.where(bad, np.nan, h) for h in hu]
+    return centre_r[present], centre_c[present], mu00[present], hu
+
+
+def _foreground(labels):
+    """Flat label, row and column of every labelled pixel, and the bincount size."""
+    inside = labels.ravel() > 0
+    flat = labels.ravel()[inside]
+    rows, cols = np.indices(labels.shape, dtype=np.float64)
+    return (flat, rows.ravel()[inside], cols.ravel()[inside], inside,
+            int(labels.max()) + 1)
+
+
+def measure_edge_intensity(labels, image):
+    """Intensity on each object's edge pixels, per channel.
+
+    :param labels: 2-D label mask.
+    :param image: ``(H, W, C)`` (or ``(H, W)``) intensities over it.
+    :returns: ``label`` and ``channel_<i>_{integrated,mean,std,max,min}_edge``
+        per channel, one row per label in ascending order.
+
+    The edge is CellProfiler's (MeasureObjectIntensity, ``*IntensityEdge``):
+    the object pixels with a 4-connected neighbour outside the object,
+    including the field border, so a cell touching another cell has its
+    edge there too, and a ring's inner boundary is edge. ``std`` is the
+    population standard deviation.
+    """
+    labels, image, present = _profile_inputs(labels, image)
+    out = {'label': present}
+    padded = np.pad(labels, 1)
+    edge = find_boundaries(padded, connectivity=1, mode='inner')[1:-1, 1:-1]
+    edge &= labels > 0
+    owner = labels[edge]
+    size = int(labels.max()) + 1
+    count = np.bincount(owner, None, size)
+    for c in range(image.shape[-1]):
+        values = image[..., c][edge]
+        base = f'channel_{c}_'
+        total = np.bincount(owner, values, size)
+        with np.errstate(invalid='ignore', divide='ignore'):
+            mean = total / count
+            var = np.bincount(owner, (values - mean[owner]) ** 2, size) / count
+        high = np.full(size, -np.inf)
+        low = np.full(size, np.inf)
+        np.maximum.at(high, owner, values)
+        np.minimum.at(low, owner, values)
+        out[base + 'integrated_edge'] = total[present]
+        out[base + 'mean_edge'] = mean[present]
+        out[base + 'std_edge'] = np.sqrt(var[present])
+        out[base + 'max_edge'] = high[present]
+        out[base + 'min_edge'] = low[present]
+    return pd.DataFrame(out)
+
+
+def measure_intensity_moments(labels, image):
+    """Where each channel's intensity sits in each object.
+
+    :param labels: 2-D label mask.
+    :param image: ``(H, W, C)`` (or ``(H, W)``) intensities, which should be
+        non-negative.
+    :returns: ``label``, and per channel ``channel_<i>_mass_displacement``
+        (pixels from the object's centroid to its intensity-weighted
+        centroid, CellProfiler's ``MassDisplacement``) and
+        ``channel_<i>_weighted_hu_<k>`` for ``k`` 0..6 (Hu's invariants of
+        the intensity-weighted central moments, as
+        :func:`skimage.measure.moments_hu` of the masked object).
+
+    Positions in the field or the bounding box (CellProfiler's
+    ``Location_CenterMassIntensity`` and ``MaxIntensity``) are left out:
+    they say where the object is and which way it faces, not its phenotype.
+    """
+    labels, image, present = _profile_inputs(labels, image)
+    out = {'label': present}
+    flat, rows, cols, inside, size = _foreground(labels)
+    ones = np.ones(flat.size)
+    shape_r, shape_c, _area, _hu = _weighted_moments(
+        flat, rows, cols, ones, size, present)
+    for c in range(image.shape[-1]):
+        weights = image[..., c].ravel()[inside]
+        centre_r, centre_c, _mass, hu = _weighted_moments(
+            flat, rows, cols, weights, size, present)
+        out[f'channel_{c}_mass_displacement'] = np.hypot(
+            centre_r - shape_r, centre_c - shape_c)
+        for k, values in enumerate(hu):
+            out[f'channel_{c}_weighted_hu_{k}'] = values
+    return pd.DataFrame(out)
+
+
+def _object_windows(labels, present, pad=1):
+    """``(label, window)`` for every present label, padded by ``pad``."""
+    slices = find_objects(labels)
+    shape = labels.shape
+    windows = []
+    for label in present:
+        box = slices[label - 1]
+        windows.append((label, tuple(
+            slice(max(0, s.start - pad), min(n, s.stop + pad))
+            for s, n in zip(box, shape))))
+    return windows
+
+
+def measure_shape_extended(labels):
+    """Shape descriptors spaCR's regionprops block does not have.
+
+    :param labels: 2-D label mask.
+    :returns: ``label``, ``form_factor`` (``4 pi area / perimeter^2``),
+        ``compactness`` (``2 pi (mu20 + mu02) / area^2``, 1 for a disc),
+        ``hu_0`` .. ``hu_6`` (Hu's invariants of the mask), and
+        ``max_radius``, ``median_radius``, ``mean_radius`` (the distance of
+        each pixel to the nearest pixel outside the object, CellProfiler's
+        MeasureObjectSizeShape radii).
+
+    Area and perimeter are skimage's regionprops values, as spaCR's
+    ``area`` and ``perimeter`` columns.
+    """
+    from scipy.ndimage import distance_transform_edt as _edt
+
+    labels, _image, present = _profile_inputs(labels, None)
+    out = {'label': present}
+    flat, rows, cols, _inside, size = _foreground(labels)
+    _r, _c, area, hu = _weighted_moments(
+        flat, rows, cols, np.ones(flat.size), size, present)
+    with np.errstate(invalid='ignore', divide='ignore'):
+        mean_r = np.bincount(flat, rows, size) / np.bincount(flat, None, size)
+        mean_c = np.bincount(flat, cols, size) / np.bincount(flat, None, size)
+        spread = np.bincount(
+            flat, (rows - mean_r[flat]) ** 2 + (cols - mean_c[flat]) ** 2,
+            size)[present]
+        perimeter = np.zeros(present.size)
+        if present.size:
+            props = regionprops_table(labels, properties=('label', 'perimeter'))
+            lookup = dict(zip(props['label'], props['perimeter']))
+            perimeter = np.array([lookup[label] for label in present], float)
+        out['form_factor'] = np.where(
+            perimeter > 0, 4 * np.pi * area / perimeter ** 2, np.nan)
+        out['compactness'] = 2 * np.pi * spread / area ** 2
+    for k, values in enumerate(hu):
+        out[f'hu_{k}'] = values
+    radii = np.full((present.size, 3), np.nan)
+    for index, (label, window) in enumerate(_object_windows(labels, present)):
+        mask = labels[window] == label
+        distance = _edt(np.pad(mask, 1))[1:-1, 1:-1][mask]
+        radii[index] = (distance.max(), np.median(distance), distance.mean())
+    out['max_radius'], out['median_radius'], out['mean_radius'] = radii.T
+    return pd.DataFrame(out)
+
+
+def _radial_rows(mask, crop, bins):
+    """``frac_at_d``, ``mean_frac`` and ``radial_cv`` of one object, ``(C, bins)`` each."""
+    from scipy.ndimage import binary_fill_holes
+    from scipy.ndimage import distance_transform_edt as _edt
+
+    filled = binary_fill_holes(mask)
+    to_edge = _edt(np.pad(filled, 1))[1:-1, 1:-1]
+    peak = np.argwhere(to_edge == to_edge.max())
+    centre = np.median(peak, axis=0).astype(int)
+    rr, cc = np.indices(mask.shape)
+    to_centre = np.hypot(rr - centre[0], cc - centre[1])
+    with np.errstate(invalid='ignore', divide='ignore'):
+        normalised = to_centre / (to_centre + to_edge)
+    ring = np.clip(np.ceil(normalised[mask] * bins), 1, bins).astype(int) - 1
+    di, dj = rr[mask] - centre[0], cc[mask] - centre[1]
+    wedge = (di > 0) + 2 * (dj > 0) + 4 * (np.abs(di) > np.abs(dj))
+    cell = ring * 8 + wedge
+    n_ring = np.bincount(ring, minlength=bins).astype(float)
+    n_cell = np.bincount(cell, minlength=bins * 8).astype(float)
+    values = crop[mask]
+    frac = np.full((values.shape[1], bins), np.nan)
+    mean_frac = np.full_like(frac, np.nan)
+    cv = np.full_like(frac, np.nan)
+    with np.errstate(invalid='ignore', divide='ignore'):
+        for c in range(values.shape[1]):
+            v = values[:, c]
+            total = v.sum()
+            in_ring = np.bincount(ring, v, bins)
+            if total != 0:
+                frac[c] = in_ring / total
+                mean_frac[c] = np.where(n_ring > 0,
+                                        frac[c] / (n_ring / v.size), 0.0)
+            wedge_mean = (np.bincount(cell, v, bins * 8)
+                          / n_cell).reshape(bins, 8)
+            spread = np.nanstd(wedge_mean, axis=1)
+            level = np.nanmean(wedge_mean, axis=1)
+            cv[c] = np.where(n_ring == 0, 0.0,
+                             np.where(level != 0, spread / level, np.nan))
+    return frac, mean_frac, cv
+
+
+def measure_radial_distribution(labels, image, bins=PROFILE_RADIAL_BINS):
+    """How each channel's intensity is spread from each object's centre to its edge.
+
+    :param labels: 2-D label mask.
+    :param image: ``(H, W, C)`` (or ``(H, W)``) intensities.
+    :param bins: rings from centre to edge; 4 is CellProfiler's default.
+    :returns: ``label`` and, per channel and ring ``k`` (0 innermost),
+        ``channel_<i>_frac_at_d_<k>`` (the share of the object's intensity
+        in the ring), ``channel_<i>_mean_frac_<k>`` (that share over the
+        ring's share of pixels; 1 is even) and ``channel_<i>_radial_cv_<k>``
+        (the coefficient of variation of the ring's mean intensity over
+        eight 45-degree wedges).
+
+    CellProfiler's MeasureObjectIntensityDistribution with no centre
+    objects: the centre is the point farthest from the edge (the median of
+    ties), and a pixel's ring comes from its distance to the centre over
+    that plus its distance to the edge, so every ring follows the outline.
+    Holes belong to no ring but shape the edge distance of the filled
+    object. A ring with no pixels -- the innermost ring of a cytoplasm,
+    whose centre lies in the nucleus -- has ``frac_at_d`` 0 and
+    ``mean_frac`` and ``radial_cv`` 0 rather than NaN, so the column is not
+    dropped as incomplete. An object with no intensity has NaN fractions.
+    """
+    labels, image, present = _profile_inputs(labels, image)
+    bins = int(bins)
+    n_channels = image.shape[-1]
+    table = np.full((present.size, n_channels, 3, bins), np.nan)
+    for index, (label, window) in enumerate(_object_windows(labels, present)):
+        mask = labels[window] == label
+        table[index] = np.stack(_radial_rows(mask, image[window], bins), axis=1)
+    out = {'label': present}
+    for c in range(n_channels):
+        for s, stat in enumerate(('frac_at_d', 'mean_frac', 'radial_cv')):
+            for k in range(bins):
+                out[f'channel_{c}_{stat}_{k}'] = table[:, c, s, k]
+    return pd.DataFrame(out)
+
+
+def _quantise_object(values, levels):
+    """Object pixels as grey levels ``1..levels`` from their own minimum to maximum."""
+    low, high = values.min(), values.max()
+    if not high > low:
+        return np.ones(values.shape, dtype=np.uint8)
+    scaled = np.floor((values - low) / (high - low) * levels)
+    return (np.minimum(scaled, levels - 1) + 1).astype(np.uint8)
+
+
+def _haralick_row(quantised, distance):
+    """Mahotas' 13 Haralick statistics, mean of four directions, NaN when undefined."""
+    import warnings
+
+    from mahotas.features import haralick
+
+    try:
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore')
+            return haralick(quantised, ignore_zeros=True, distance=distance,
+                            return_mean=True)
+    except ValueError:
+        return np.full(len(_HARALICK_NAMES), np.nan)
+
+
+def _pftas_row(quantised):
+    """Mahotas' 54 PFTAS statistics, thresholded at the object's own Otsu level."""
+    from mahotas import otsu
+    from mahotas.features import pftas
+
+    inside = quantised[quantised > 0]
+    if inside.size == 0 or inside.min() == inside.max():
+        return np.full(54, np.nan)
+    return pftas(quantised, T=otsu(quantised, ignore_zeros=True))
+
+
+def measure_texture(labels, image, haralick=True, pftas=True,
+                    levels=PROFILE_HARALICK_LEVELS,
+                    distance=PROFILE_HARALICK_DISTANCE):
+    """Haralick and threshold-adjacency texture of each channel in each object.
+
+    :param labels: 2-D label mask.
+    :param image: ``(H, W, C)`` (or ``(H, W)``) intensities.
+    :param haralick: write ``channel_<i>_haralick_<name>`` for the 13
+        statistics of Haralick et al. (1973), from a grey-level
+        co-occurrence matrix at ``distance`` pixels averaged over four
+        directions (mahotas, ``ignore_zeros``).
+    :param pftas: write ``channel_<i>_pftas_<k>`` for the 54
+        parameter-free threshold adjacency statistics of Hamilton et al.
+        (2007) (mahotas), thresholded at the object's Otsu level.
+    :param levels: grey levels for the co-occurrence matrix. Each object is
+        scaled from its own minimum to maximum, so texture does not repeat
+        brightness, which the intensity block already holds.
+    :param distance: co-occurrence offset in pixels.
+    :returns: ``label`` and the asked columns; NaN where the statistic is
+        undefined (an object too small for the offset, or a flat object for
+        PFTAS).
+
+    PFTAS reads the same object scaled to 255 levels, so its Otsu threshold
+    is not coarsened by ``levels``. Needs mahotas (``spacr[zernike]``).
+    """
+    labels, image, present = _profile_inputs(labels, image)
+    n_channels = image.shape[-1]
+    har = np.full((present.size, n_channels, len(_HARALICK_NAMES)), np.nan)
+    tas = np.full((present.size, n_channels, 54), np.nan)
+    for index, (label, window) in enumerate(
+            _object_windows(labels, present, pad=0)):
+        mask = labels[window] == label
+        crop = image[window]
+        for c in range(n_channels):
+            values = crop[..., c][mask]
+            if haralick:
+                plane = np.zeros(mask.shape, dtype=np.uint8)
+                plane[mask] = _quantise_object(values, int(levels))
+                har[index, c] = _haralick_row(plane, int(distance))
+            if pftas:
+                plane = np.zeros(mask.shape, dtype=np.uint8)
+                plane[mask] = _quantise_object(values, 255)
+                tas[index, c] = _pftas_row(plane)
+    out = {'label': present}
+    for c in range(n_channels):
+        if haralick:
+            for k, name in enumerate(_HARALICK_NAMES):
+                out[f'channel_{c}_haralick_{name}'] = har[:, c, k]
+        if pftas:
+            for k in range(54):
+                out[f'channel_{c}_pftas_{k}'] = tas[:, c, k]
+    return pd.DataFrame(out)
+
+
+def _grouped_median(sorted_values, starts, counts):
+    """Median of each group of a label-sorted array, as :func:`numpy.median`."""
+    low = sorted_values[starts + (counts - 1) // 2]
+    high = sorted_values[starts + counts // 2]
+    return (low + high) / 2
+
+
+def _sorted_by_label(flat, values):
+    """``values`` sorted within each label: ``(order, sorted values, starts, counts)``."""
+    order = np.lexsort((values, flat))
+    labels_sorted = flat[order]
+    counts = np.bincount(labels_sorted)
+    present = np.nonzero(counts)[0]
+    counts = counts[present]
+    starts = np.concatenate(([0], np.cumsum(counts)[:-1]))
+    return order, values[order], starts, counts, present
+
+
+def _robust_threshold(flat, values, presorted=None):
+    """Each label's ``median + 3 * 1.4826 * MAD`` (spaCR's Manders background), per pixel.
+
+    :param presorted: :func:`_sorted_by_label` of ``values``, when the
+        caller already has it.
+    """
+    _order, ordered, starts, counts, present = (
+        presorted if presorted is not None else _sorted_by_label(flat, values))
+    median = np.zeros(int(flat.max()) + 1)
+    median[present] = _grouped_median(ordered, starts, counts)
+    deviation = np.abs(values - median[flat])
+    _order, ordered, starts, counts, present = _sorted_by_label(flat, deviation)
+    mad = np.zeros_like(median)
+    mad[present] = _grouped_median(ordered, starts, counts)
+    return (median + 3.0 * 1.4826 * mad)[flat]
+
+
+def _within_label_ranks(flat, values, presorted=None):
+    """Average (Spearman) and dense ranks of ``values`` within each label, from 1.
+
+    :param presorted: :func:`_sorted_by_label` of ``values``, when the
+        caller already has it.
+    """
+    order, ordered, starts, counts, present = (
+        presorted if presorted is not None else _sorted_by_label(flat, values))
+    labels_sorted = flat[order]
+    n = ordered.size
+    position = np.arange(n)
+    first = np.zeros(n, dtype=bool)
+    first[starts] = True
+    new_value = first.copy()
+    new_value[1:] |= ordered[1:] != ordered[:-1]
+    run = np.cumsum(new_value) - 1
+    run_first = position[new_value]
+    run_size = np.bincount(run)
+    start_of_label = np.repeat(starts, counts)
+    average = (run_first[run] - start_of_label) + (run_size[run] + 1) / 2
+    dense_all = np.cumsum(new_value)
+    dense = dense_all - dense_all[start_of_label] + 1
+    avg_out = np.empty(n)
+    dense_out = np.empty(n)
+    avg_out[order] = average
+    dense_out[order] = dense
+    max_dense = np.zeros(int(flat.max()) + 1)
+    np.maximum.at(max_dense, labels_sorted, dense)
+    return avg_out, dense_out, max_dense
+
+
+def _pearson_by_label(flat, x, y, size):
+    """Pearson's r of ``x`` and ``y`` within each label (NaN when either is flat)."""
+    count = np.bincount(flat, None, size)
+    with np.errstate(invalid='ignore', divide='ignore'):
+        mx = np.bincount(flat, x, size) / count
+        my = np.bincount(flat, y, size) / count
+        dx = x - mx[flat]
+        dy = y - my[flat]
+        sxy = np.bincount(flat, dx * dy, size)
+        sxx = np.bincount(flat, dx * dx, size)
+        syy = np.bincount(flat, dy * dy, size)
+        r = sxy / np.sqrt(sxx * syy)
+    return np.where((sxx > 0) & (syy > 0), np.clip(r, -1, 1), np.nan), dx, dy
+
+
+def measure_colocalisation(labels, image):
+    """Colocalisation of every channel pair in each object, beyond Pearson and Manders.
+
+    :param labels: 2-D label mask.
+    :param image: ``(H, W, C)`` intensities, at least two channels.
+    :returns: ``label`` and, per pair ``i < j``,
+        ``channel_<i>_channel_<j>_<stat>`` for
+
+        - ``spearman``: Spearman's rank correlation (average ranks of ties);
+        - ``icq``: Li et al.'s (2004) intensity correlation quotient, the
+          share of pixels where both channels sit on the same side of their
+          object means, minus 0.5 (-0.5 to 0.5);
+        - ``k1``, ``k2``: Manders et al.'s (1993) split overlap
+          coefficients ``sum(a b) / sum(a^2)`` and ``sum(a b) / sum(b^2)``;
+        - ``rwc1``, ``rwc2``: Singan et al.'s (2011) rank-weighted
+          colocalisation, ``sum(a w) / sum(a)`` over the pixels where both
+          channels are above background, ``w = (R - |rank_i - rank_j|) / R``
+          with dense ranks within the object and ``R`` their maximum.
+
+        ``a`` and ``b`` are the channels minus their background, with the
+        background each channel's ``median + 3 * 1.4826 * MAD`` in the
+        object -- the background, and so the pixels, of spaCR's
+        ``manders_m1``, ``manders_m2`` and ``manders_overlap_coefficient``
+        (``calculate_correlation``), which these complete. ``k1``, ``k2``,
+        ``rwc1`` and ``rwc2`` are 0 when a channel has nothing above
+        background, as the Manders columns are.
+    """
+    from itertools import combinations
+
+    labels, image, present = _profile_inputs(labels, image)
+    out = {'label': present}
+    if image.shape[-1] < 2:
+        return pd.DataFrame(out)
+    flat, _rows, _cols, inside, size = _foreground(labels)
+    if flat.size == 0:
+        for i, j in combinations(range(image.shape[-1]), 2):
+            for stat in ('spearman', 'icq', 'k1', 'k2', 'rwc1', 'rwc2'):
+                out[f'channel_{i}_channel_{j}_{stat}'] = np.zeros(0)
+        return pd.DataFrame(out)
+    planes = [image[..., c].ravel()[inside] for c in range(image.shape[-1])]
+    sorts = [_sorted_by_label(flat, v) for v in planes]
+    thresholds = [_robust_threshold(flat, v, s)
+                  for v, s in zip(planes, sorts)]
+    ranks = [_within_label_ranks(flat, v, s) for v, s in zip(planes, sorts)]
+    del sorts
+    for i, j in combinations(range(image.shape[-1]), 2):
+        base = f'channel_{i}_channel_{j}_'
+        x, y = planes[i], planes[j]
+        spearman, _dx, _dy = _pearson_by_label(
+            flat, ranks[i][0], ranks[j][0], size)
+        _r, dx, dy = _pearson_by_label(flat, x, y, size)
+        count = np.bincount(flat, None, size)
+        with np.errstate(invalid='ignore', divide='ignore'):
+            icq = np.bincount(flat, (dx * dy > 0).astype(float), size) / count - 0.5
+        a = np.clip(x - thresholds[i], 0, None)
+        b = np.clip(y - thresholds[j], 0, None)
+        sab = np.bincount(flat, a * b, size)
+        saa = np.bincount(flat, a * a, size)
+        sbb = np.bincount(flat, b * b, size)
+        sa = np.bincount(flat, a, size)
+        sb = np.bincount(flat, b, size)
+        both = (x > thresholds[i]) & (y > thresholds[j])
+        top = np.maximum(ranks[i][2], ranks[j][2])[flat]
+        weight = (top - np.abs(ranks[i][1] - ranks[j][1])) / top
+        with np.errstate(invalid='ignore', divide='ignore'):
+            k1 = np.where(saa > 0, sab / saa, 0.0)
+            k2 = np.where(sbb > 0, sab / sbb, 0.0)
+            rwc1 = np.where(sa > 0, np.bincount(
+                flat, np.where(both, a * weight, 0.0), size) / sa, 0.0)
+            rwc2 = np.where(sb > 0, np.bincount(
+                flat, np.where(both, b * weight, 0.0), size) / sb, 0.0)
+        out[base + 'spearman'] = spearman[present]
+        out[base + 'icq'] = icq[present]
+        out[base + 'k1'] = k1[present]
+        out[base + 'k2'] = k2[present]
+        out[base + 'rwc1'] = rwc1[present]
+        out[base + 'rwc2'] = rwc2[present]
+    return pd.DataFrame(out)
+
+
+#: Quantile bins per channel of :func:`measure_colocalisation_extra`'s mutual
+#: information; 4 x 4 joint cells keep the plug-in estimate's bias small on a
+#: nucleus of a few hundred pixels.
+PROFILE_MI_BINS = 4
+
+#: Bisection steps of the Costes threshold search; 2**-16 of each object's
+#: intensity range.
+PROFILE_COSTES_STEPS = 16
+
+
+def _label_extremes(flat, values, size):
+    """Per-label minimum and maximum of ``values``."""
+    low = np.full(size, np.inf)
+    high = np.full(size, -np.inf)
+    np.minimum.at(low, flat, values)
+    np.maximum.at(high, flat, values)
+    return low, high
+
+
+def _costes_manders(flat, x, y, size, steps=PROFILE_COSTES_STEPS):
+    """Manders M1/M2 at Costes et al.'s (2004) automatic thresholds, every label at once.
+
+    The orthogonal regression of ``y`` on ``x`` per label gives the line
+    ``y = a x + c``; the thresholds ``(t, a t + c)`` are lowered until the
+    pixels below either threshold no longer correlate. CellProfiler 4's
+    "faster" mode finds that point by bisection; here every label bisects
+    together, ``steps`` times, with sums by :func:`numpy.bincount`.
+    :returns: ``(m1, m2)`` per label; 0 where the line has no positive
+        slope or nothing lies above both thresholds.
+    """
+    count = np.bincount(flat, None, size)
+    with np.errstate(invalid='ignore', divide='ignore'):
+        mx = np.bincount(flat, x, size) / count
+        my = np.bincount(flat, y, size) / count
+        dx, dy = x - mx[flat], y - my[flat]
+        sxx = np.bincount(flat, dx * dx, size)
+        syy = np.bincount(flat, dy * dy, size)
+        sxy = np.bincount(flat, dx * dy, size)
+        slope = ((syy - sxx) + np.sqrt((syy - sxx) ** 2 + 4 * sxy ** 2)) / (
+            2 * sxy)
+        intercept = my - slope * mx
+    valid = (sxy > 0) & np.isfinite(slope) & (slope > 0)
+    low, high = _label_extremes(flat, x, size)
+    low = np.where(valid, low, 0.0)
+    high = np.where(valid, high, 0.0)
+    for _ in range(int(steps)):
+        mid = (low + high) / 2
+        below = ((x < mid[flat])
+                 | (y < (slope * mid + intercept)[flat])).astype(float)
+        n = np.bincount(flat, below, size)
+        bx = np.bincount(flat, below * x, size)
+        by = np.bincount(flat, below * y, size)
+        bxx = np.bincount(flat, below * x * x, size)
+        byy = np.bincount(flat, below * y * y, size)
+        bxy = np.bincount(flat, below * x * y, size)
+        with np.errstate(invalid='ignore', divide='ignore'):
+            cov = bxy - bx * by / n
+            var = (bxx - bx * bx / n) * (byy - by * by / n)
+            positive = (n > 2) & (var > 0) & (cov > 0)
+        high = np.where(positive, mid, high)
+        low = np.where(positive, low, mid)
+    t_x = (low + high) / 2
+    t_y = slope * t_x + intercept
+    over_x = x > t_x[flat]
+    over_y = y > t_y[flat]
+    both = over_x & over_y
+    sum_x = np.bincount(flat, np.where(over_x, x, 0.0), size)
+    sum_y = np.bincount(flat, np.where(over_y, y, 0.0), size)
+    with np.errstate(invalid='ignore', divide='ignore'):
+        m1 = np.bincount(flat, np.where(both, x, 0.0), size) / sum_x
+        m2 = np.bincount(flat, np.where(both, y, 0.0), size) / sum_y
+    m1 = np.where(valid & (sum_x > 0), m1, 0.0)
+    m2 = np.where(valid & (sum_y > 0), m2, 0.0)
+    return m1, m2
+
+
+def _rank_mutual_information(flat, rank_x, rank_y, count, size, bins):
+    """Normalised mutual information of two within-label rank vectors.
+
+    Ranks become ``bins`` equal-count quantile bins per label, so each
+    channel's marginal is near uniform and the measure sees only how the two
+    co-vary, linearly or not. ``MI / log(bins)``: 0 for independence, 1 for
+    a one-to-one monotone or non-monotone binned relation.
+    """
+    n = count[flat]
+    qx = np.minimum(((rank_x - 0.5) / n * bins).astype(np.int64), bins - 1)
+    qy = np.minimum(((rank_y - 0.5) / n * bins).astype(np.int64), bins - 1)
+    cells = bins * bins
+    joint = np.bincount(flat * cells + qx * bins + qy,
+                        minlength=size * cells).reshape(size, bins, bins)
+    with np.errstate(invalid='ignore', divide='ignore'):
+        p = joint / count[:, None, None]
+        px = p.sum(axis=2, keepdims=True)
+        py = p.sum(axis=1, keepdims=True)
+        terms = np.where(p > 0, p * np.log(p / (px * py)), 0.0)
+        mi = terms.sum(axis=(1, 2)) / np.log(bins)
+    return np.where(count > 1, mi, 0.0)
+
+
+def _puncta(flat, rows, cols, above, size, shape):
+    """Connected above-background spots per label: ``(owner, row, col, n_per_label)``.
+
+    Spots are 8-connected components of the above-background pixels, split
+    where they cross from one label to another; ``shape`` is the field's.
+    """
+    from scipy import ndimage
+
+    field = np.zeros(shape, dtype=bool)
+    r, c = rows.astype(np.int64), cols.astype(np.int64)
+    field[r[above], c[above]] = True
+    components, _n = ndimage.label(field, structure=np.ones((3, 3), bool))
+    key = components[r[above], c[above]].astype(np.int64) * size + flat[above]
+    spots, spot = np.unique(key, return_inverse=True)
+    pixels = np.bincount(spot)
+    spot_row = np.bincount(spot, r[above]) / pixels
+    spot_col = np.bincount(spot, c[above]) / pixels
+    owner = spots % size
+    return owner, spot_row, spot_col, np.bincount(owner, minlength=size)
+
+
+def measure_colocalisation_extra(labels, image, bins=PROFILE_MI_BINS,
+                                 steps=PROFILE_COSTES_STEPS, costes=True):
+    """Colocalisation beyond :func:`measure_colocalisation`: nonlinear, automatic-threshold and object-based.
+
+    :param labels: 2-D label mask.
+    :param image: ``(H, W, C)`` intensities, at least two channels.
+    :param bins: quantile bins per channel for the mutual information.
+    :param steps: bisection steps of the Costes threshold search.
+    :param costes: write ``costes_m1`` and ``costes_m2``. They cost about
+        three times the rest together, so the ``colocalisation_extra``
+        family leaves them out and ``colocalisation_costes``
+        (:func:`measure_costes`) adds them.
+    :returns: ``label``; per channel ``channel_<i>_puncta_count`` (the
+        8-connected above-background spots in the object) and
+        ``channel_<i>_puncta_area_fraction`` (the share of the object's
+        pixels above background); and per pair ``i < j``,
+        ``channel_<i>_channel_<j>_<stat>`` for
+
+        - ``nmi``: mutual information of the two channels' within-object
+          quantile ranks (``bins`` x ``bins``) over ``log(bins)``, which
+          sees dependence Pearson and Spearman miss;
+        - ``costes_m1``, ``costes_m2``: Manders' M1 and M2 at Costes et
+          al.'s (2004) automatic thresholds, found by bisection as
+          CellProfiler 4's faster mode does;
+        - ``puncta_overlap_ij``, ``puncta_overlap_ji``: Lachmanovich et
+          al.'s (2003) object-based colocalisation, the share of channel
+          ``i``'s spots whose centroid falls on above-background pixels of
+          channel ``j``, and the reverse; 0 without spots.
+
+        Above background is spaCR's Manders background, ``median + 3 *
+        1.4826 * MAD`` of the channel in the object, as in
+        :func:`measure_colocalisation`.
+    """
+    from itertools import combinations
+
+    labels, image, present = _profile_inputs(labels, image)
+    out = {'label': present}
+    n_channels = image.shape[-1]
+    flat, rows, cols, inside, size = _foreground(labels)
+    pairs = list(combinations(range(n_channels), 2))
+    stats = (('nmi', 'costes_m1', 'costes_m2') if costes else ('nmi',)) + (
+        'puncta_overlap_ij', 'puncta_overlap_ji')
+    if flat.size == 0:
+        for c in range(n_channels):
+            out[f'channel_{c}_puncta_count'] = np.zeros(0)
+            out[f'channel_{c}_puncta_area_fraction'] = np.zeros(0)
+        for i, j in pairs:
+            for stat in stats:
+                out[f'channel_{i}_channel_{j}_{stat}'] = np.zeros(0)
+        return pd.DataFrame(out)
+    count = np.bincount(flat, None, size).astype(float)
+    planes = [image[..., c].ravel()[inside] for c in range(n_channels)]
+    above, ranks, spots = [], [], []
+    for v in planes:
+        order = _sorted_by_label(flat, v)
+        above.append(v > _robust_threshold(flat, v, order))
+        ranks.append(_within_label_ranks(flat, v, order)[0])
+        spots.append(_puncta(flat, rows, cols, above[-1], size, labels.shape))
+    for c in range(n_channels):
+        with np.errstate(invalid='ignore', divide='ignore'):
+            share = np.bincount(flat, above[c].astype(float), size) / count
+        out[f'channel_{c}_puncta_count'] = spots[c][3][present].astype(float)
+        out[f'channel_{c}_puncta_area_fraction'] = share[present]
+    shape = labels.shape
+    for i, j in pairs:
+        base = f'channel_{i}_channel_{j}_'
+        nmi = _rank_mutual_information(flat, ranks[i], ranks[j], count,
+                                       size, int(bins))
+        out[base + 'nmi'] = nmi[present]
+        if costes:
+            m1, m2 = _costes_manders(flat, planes[i], planes[j], size, steps)
+            out[base + 'costes_m1'] = m1[present]
+            out[base + 'costes_m2'] = m2[present]
+        for name, (a, b) in (('puncta_overlap_ij', (i, j)),
+                             ('puncta_overlap_ji', (j, i))):
+            owner, spot_row, spot_col, n_spots = spots[a]
+            field = np.zeros(shape, dtype=bool)
+            field[rows[above[b]].astype(np.int64),
+                  cols[above[b]].astype(np.int64)] = True
+            hit = field[np.rint(spot_row).astype(np.int64),
+                        np.rint(spot_col).astype(np.int64)].astype(float)
+            with np.errstate(invalid='ignore', divide='ignore'):
+                share = np.bincount(owner, hit, size) / n_spots
+            out[base + name] = np.where(n_spots > 0, share, 0.0)[present]
+    return pd.DataFrame(out)
+
+
+def measure_costes(labels, image, steps=PROFILE_COSTES_STEPS):
+    """Manders' M1 and M2 at Costes et al.'s (2004) automatic thresholds for every channel pair.
+
+    :param labels: 2-D label mask.
+    :param image: ``(H, W, C)`` intensities, at least two channels.
+    :param steps: bisection steps of the threshold search.
+    :returns: ``label`` and ``channel_<i>_channel_<j>_costes_m1`` and
+        ``_costes_m2`` per pair ``i < j``, the values
+        :func:`measure_colocalisation_extra` writes with ``costes=True``:
+        the orthogonal-regression line per object, its thresholds lowered by
+        bisection (CellProfiler 4's faster mode) until the pixels below
+        either threshold stop correlating, and M1 and M2 over the pixels
+        above both; 0 where the line has no positive slope.
+    """
+    from itertools import combinations
+
+    labels, image, present = _profile_inputs(labels, image)
+    out = {'label': present}
+    flat, _rows, _cols, inside, size = _foreground(labels)
+    planes = [image[..., c].ravel()[inside] for c in range(image.shape[-1])]
+    for i, j in combinations(range(image.shape[-1]), 2):
+        base = f'channel_{i}_channel_{j}_'
+        if flat.size == 0:
+            out[base + 'costes_m1'] = np.zeros(0)
+            out[base + 'costes_m2'] = np.zeros(0)
+            continue
+        m1, m2 = _costes_manders(flat, planes[i], planes[j], size, steps)
+        out[base + 'costes_m1'] = m1[present]
+        out[base + 'costes_m2'] = m2[present]
+    return pd.DataFrame(out)
+
+
+def measure_neighbours(labels, radius=50):
+    """Each object's neighbourhood: spaCR's spatial block.
+
+    :param labels: 2-D label mask.
+    :param radius: neighbourhood radius in pixels for
+        ``neighbors_within_<radius>``.
+    :returns: ``label`` and :func:`spatial_column_names` of ``radius``:
+        the count of objects within ``radius``, the nearest and second
+        nearest centroid distance, the share of the edge touching another
+        object and the count of touching objects -- CellProfiler's
+        MeasureObjectNeighbors set less its angle -- as
+        ``spatial_measurements`` writes them, with no NaN.
+    """
+    labels, _image, present = _profile_inputs(labels, None)
+    if present.size == 0:
+        return _empty_spatial_frame(radius)
+    frame = _spatial_measurements(labels, radius=radius)
+    count_col, near_col, second_col, pct_col, touch_col = \
+        spatial_column_names(radius)
+    frame = pd.DataFrame({'label': present}).merge(frame, on='label',
+                                                   how='left')
+    frame[[near_col, second_col, pct_col]] = frame[
+        [near_col, second_col, pct_col]].fillna(_SPATIAL_NO_NEIGHBOUR)
+    frame[[count_col, touch_col]] = frame[
+        [count_col, touch_col]].fillna(0).astype(np.int64)
+    return frame
+
+
+def measure_granularity(labels, image, spectrum_length=16,
+                        background_radius=10, subsample=1.0):
+    """CellProfiler's granularity spectrum of each channel in each object.
+
+    :param labels: 2-D label mask.
+    :param image: ``(H, W, C)`` (or ``(H, W)``) intensities.
+    :param spectrum_length: how many sieve steps; step ``k`` removes
+        bright structures about ``k`` pixels in radius.
+    :param background_radius: the disc radius of the grey opening
+        subtracted first, larger than the granules of interest.
+    :param subsample: sieve the field scaled by this factor (bilinear),
+        as CellProfiler's image sample size; 0.25 is CellProfiler's
+        default and about 16 times faster. ``background_radius`` and each
+        step are then in subsampled pixels, so a step removes structures
+        about ``k / subsample`` full pixels in radius. The background
+        subtraction and every reconstruction are scaled back to the full
+        field before each object is averaged, so small objects keep their
+        values. 1.0, the default, sieves at full resolution.
+    :returns: ``label`` and ``channel_<i>_granularity_<k>`` for ``k`` 1 ..
+        ``spectrum_length``: the percentage of the object's
+        background-subtracted intensity removed at step ``k``.
+
+    As CellProfiler's MeasureGranularity (Maragos 1989 pattern spectrum):
+    the field less its opening by a disc of
+    ``background_radius``, then repeated erosion by a 3 x 3 cross, each
+    followed by grey reconstruction under the field; the per-object mean of
+    each reconstruction gives the spectrum. Objects with no intensity
+    left after the background get NaN.
+    """
+    labels, image, _present = _profile_inputs(labels, image)
+    return _granularity_frames([labels], image, spectrum_length,
+                               background_radius, subsample)[0]
+
+
+def _mask_index(masks):
+    """Per mask: ``(flat labels, inside, size, present, count)`` for bincounts."""
+    index = []
+    for labels in masks:
+        flat, _rows, _cols, inside, size = _foreground(labels)
+        present = np.unique(flat)
+        index.append((flat, inside, size, present,
+                      np.bincount(flat, None, size)))
+    return index
+
+
+def _granularity_frames(masks, image, spectrum_length=16,
+                        background_radius=10, subsample=1.0):
+    """:func:`measure_granularity` of several masks over one image, sieving once.
+
+    :param masks: 2-D label masks over ``image`` (validated by the caller).
+    :param image: ``(H, W, C)`` float intensities.
+    :returns: one frame per mask, as :func:`measure_granularity`.
+    """
+    from scipy import ndimage
+    from skimage.morphology import disk, reconstruction
+
+    index = _mask_index(masks)
+    outs = [{'label': present} for _f, _i, _s, present, _c in index]
+    cross = ndimage.generate_binary_structure(2, 1)
+    footprint = disk(int(background_radius))
+    scale = float(subsample)
+    if not 0 < scale <= 1:
+        raise ValueError(f"granularity subsample must be in (0, 1]; got {subsample}")
+    full = image.shape[:2]
+    for c in range(image.shape[-1]):
+        plane = image[..., c]
+        if scale < 1:
+            plane = ndimage.zoom(plane, scale, order=1)
+        background = ndimage.grey_opening(plane, footprint=footprint)
+        pixels = np.clip(plane - background, 0, None)
+        with np.errstate(invalid='ignore', divide='ignore'):
+            seen = _granularity_full(pixels, full)
+            starts = [np.bincount(flat, seen.ravel()[inside], size) / count
+                      for flat, inside, size, _p, count in index]
+            previous = list(starts)
+            eroded = pixels
+            for k in range(1, int(spectrum_length) + 1):
+                eroded = ndimage.grey_erosion(eroded, footprint=cross)
+                rebuilt = _granularity_full(
+                    reconstruction(eroded, pixels, method='dilation'), full)
+                for m, (flat, inside, size, present, count) in enumerate(index):
+                    current = np.bincount(flat, rebuilt.ravel()[inside],
+                                          size) / count
+                    step = (previous[m] - current) * 100 / starts[m]
+                    outs[m][f'channel_{c}_granularity_{k}'] = np.where(
+                        starts[m][present] > 0, step[present], np.nan)
+                    previous[m] = current
+    return [pd.DataFrame(out) for out in outs]
+
+
+def _granularity_full(plane, shape):
+    """A subsampled granularity plane scaled back to the field (bilinear); unchanged at full size."""
+    if plane.shape == tuple(shape):
+        return plane
+    from skimage.transform import resize
+
+    return resize(plane, shape, order=1, mode='edge', anti_aliasing=False,
+                  preserve_range=True)
+
+
+#: LBP radii of :func:`measure_lbp`; each uses ``8 * radius`` sampling points.
+PROFILE_LBP_RADII = (1, 2)
+
+#: Gabor frequencies (cycles per pixel) of :func:`measure_gabor`: wavelengths
+#: of 4, 8 and 16 pixels.
+PROFILE_GABOR_FREQUENCIES = (0.25, 0.125, 0.0625)
+
+#: Gabor orientations of :func:`measure_gabor`, in multiples of 45 degrees.
+PROFILE_GABOR_ORIENTATIONS = 4
+
+
+def measure_lbp(labels, image, radii=PROFILE_LBP_RADII):
+    """Rotation-invariant uniform local binary pattern histogram of each channel in each object.
+
+    :param labels: 2-D label mask.
+    :param image: ``(H, W, C)`` (or ``(H, W)``) intensities.
+    :param radii: the LBP radii; radius ``r`` samples ``8 r`` points
+        (Ojala et al. 2002, ``method='uniform'``).
+    :returns: ``label`` and ``channel_<i>_lbp_r<r>_<k>`` for ``k`` 0 ..
+        ``8 r + 1``: the share of the object's pixels with uniform pattern
+        ``k`` (``k`` set bits; ``8 r + 1`` collects the non-uniform
+        patterns). Each object's shares sum to 1.
+
+    The codes come from :func:`skimage.feature.local_binary_pattern` on the
+    whole field, so a pixel at the object's edge compares with its
+    neighbours outside. The histogram is invariant to monotonic changes of
+    brightness and to rotation.
+    """
+    labels, image, _present = _profile_inputs(labels, image)
+    return _lbp_frames([labels], image, radii)[0]
+
+
+def _lbp_frames(masks, image, radii=PROFILE_LBP_RADII):
+    """:func:`measure_lbp` of several masks over one image, coding the field once."""
+    from skimage.feature import local_binary_pattern
+
+    index = _mask_index(masks)
+    outs = [{'label': present} for _f, _i, _s, present, _c in index]
+    for c in range(image.shape[-1]):
+        plane = image[..., c]
+        for radius in radii:
+            points = 8 * int(radius)
+            codes = local_binary_pattern(plane, points, float(radius),
+                                         method='uniform').astype(np.int64)
+            for m, (flat, inside, size, present, count) in enumerate(index):
+                code = codes.ravel()[inside]
+                with np.errstate(invalid='ignore', divide='ignore'):
+                    for k in range(points + 2):
+                        share = np.bincount(flat, (code == k).astype(float),
+                                            size) / count
+                        outs[m][f'channel_{c}_lbp_r{int(radius)}_{k}'] = \
+                            share[present]
+    return [pd.DataFrame(out) for out in outs]
+
+
+def measure_gabor(labels, image, frequencies=PROFILE_GABOR_FREQUENCIES,
+                  orientations=PROFILE_GABOR_ORIENTATIONS):
+    """Gabor filter-bank energy of each channel in each object.
+
+    :param labels: 2-D label mask.
+    :param image: ``(H, W, C)`` (or ``(H, W)``) intensities.
+    :param frequencies: filter frequencies in cycles per pixel.
+    :param orientations: how many orientations, evenly over 180 degrees.
+    :returns: ``label`` and, per channel, frequency index ``f`` and
+        orientation index ``o``, ``channel_<i>_gabor_f<f>_o<o>_mean`` and
+        ``_std``: the mean and standard deviation over the object of the
+        response magnitude, each divided by the object's mean intensity so
+        the block holds texture rather than brightness (NaN when that mean
+        is not positive).
+
+    The kernels are :func:`skimage.filters.gabor_kernel` (bandwidth 1),
+    convolved with the whole field by overlap-add
+    (:func:`scipy.signal.oaconvolve`), so each object's response sees its
+    surroundings within about one wavelength of its edge.
+    """
+    labels, image, _present = _profile_inputs(labels, image)
+    return _gabor_frames([labels], image, frequencies, orientations)[0]
+
+
+def _gabor_frames(masks, image, frequencies=PROFILE_GABOR_FREQUENCIES,
+                  orientations=PROFILE_GABOR_ORIENTATIONS):
+    """:func:`measure_gabor` of several masks over one image, filtering the field once."""
+    from scipy.signal import oaconvolve
+    from skimage.filters import gabor_kernel
+
+    index = _mask_index(masks)
+    outs = [{'label': present} for _f, _i, _s, present, _c in index]
+    for c in range(image.shape[-1]):
+        plane = image[..., c]
+        level = [np.bincount(flat, plane.ravel()[inside], size) / count
+                 for flat, inside, size, _p, count in index]
+        for f, frequency in enumerate(frequencies):
+            for o in range(int(orientations)):
+                kernel = gabor_kernel(float(frequency),
+                                      theta=np.pi * o / int(orientations))
+                magnitude = np.abs(oaconvolve(plane, kernel, mode='same'))
+                for m, (flat, inside, size, present, count) in enumerate(index):
+                    value = magnitude.ravel()[inside]
+                    with np.errstate(invalid='ignore', divide='ignore'):
+                        mean = np.bincount(flat, value, size) / count
+                        var = np.bincount(flat, (value - mean[flat]) ** 2,
+                                          size) / count
+                        scale = np.where(level[m] > 0, level[m], np.nan)
+                        base = f'channel_{c}_gabor_f{f}_o{o}_'
+                        outs[m][base + 'mean'] = (mean / scale)[present]
+                        outs[m][base + 'std'] = (np.sqrt(var) / scale)[present]
+    return [pd.DataFrame(out) for out in outs]
+
+
+#: The statistics :func:`measure_periphery` and :func:`measure_outside` write,
+#: in the order of :func:`_periphery_intensity`'s tuples.
+_RING_STATS = ('mean', 'percentile_5', 'percentile_10', 'percentile_25',
+               'percentile_50', 'percentile_75', 'percentile_85',
+               'percentile_95')
+
+
+def _ring_table(rows_by_channel, present, prefix):
+    """Assemble :func:`_periphery_intensity`-style tuples into one frame per label."""
+    out = {'label': present}
+    for c, rows in enumerate(rows_by_channel):
+        values = {int(row[0]): row[1:] for row in rows}
+        block = np.array([values.get(int(label), (np.nan,) * len(_RING_STATS))
+                          for label in present], dtype=float).reshape(
+                              len(present), len(_RING_STATS))
+        for k, stat in enumerate(_RING_STATS):
+            out[f'channel_{c}_{prefix}_{stat}'] = block[:, k]
+    return pd.DataFrame(out)
+
+
+def measure_periphery(labels, image):
+    """Intensity on each object's boundary pixels, per channel, as spaCR's Measure writes it.
+
+    :param labels: 2-D label mask.
+    :param image: ``(H, W, C)`` (or ``(H, W)``) intensities.
+    :returns: ``label`` and ``channel_<i>_periphery_<stat>`` for the mean
+        and the 5th, 10th, 25th, 50th, 75th, 85th and 95th percentiles:
+        :func:`_periphery_intensity`, which Measure writes for nuclei,
+        pathogens and organelles. The boundary is skimage's thick
+        boundary inside the object, the pixels :func:`measure_edge_intensity`
+        reads, so its mean repeats ``mean_edge`` except at the field border;
+        the percentiles are what it adds.
+    """
+    labels, image, present = _profile_inputs(labels, image)
+    rows = [_periphery_intensity(labels, image[..., c])
+            for c in range(image.shape[-1])]
+    return _ring_table(rows, present, 'periphery')
+
+
+def measure_outside(labels, image, distance=5, exclude_foreground=True):
+    """Intensity in a ring just outside each object, per channel, as spaCR's Measure writes it.
+
+    :param labels: 2-D label mask.
+    :param image: ``(H, W, C)`` (or ``(H, W)``) intensities.
+    :param distance: the ring width in pixels.
+    :param exclude_foreground: keep only ring pixels outside every object
+        of ``labels`` (Measure's cell background); False keeps the
+        neighbours' pixels too (Measure's nucleus, pathogen and organelle
+        rings).
+    :returns: ``label``, ``channel_<i>_outside_<stat>`` for the mean and
+        the 5th to 95th percentiles of :func:`_outside_intensity`, NaN when
+        no ring pixel is left -- as for a cell surrounded by other cells with
+        ``exclude_foreground`` -- and ``enclosed``, 1 for such an object and
+        0 otherwise.
+    """
+    labels, image, present = _profile_inputs(labels, image)
+    rows = [_outside_intensity(labels, image[..., c], distance=distance,
+                               exclude_foreground=exclude_foreground)
+            for c in range(image.shape[-1])]
+    table = _ring_table(rows, present, 'outside')
+    table['enclosed'] = (table['channel_0_outside_mean'].isna()
+                         .astype(np.int64) if len(present)
+                         else np.zeros(0, np.int64))
+    return table
+
+
+def measure_profile_features(labels, image, families='profiling',
+                             neighbour_radius=50, granularity_subsample=1.0):
+    """Every asked profiling family of one compartment, one row per object.
+
+    :param labels: 2-D label mask of one compartment.
+    :param image: ``(H, W, C)`` intensities over it.
+    :param families: as :func:`profile_feature_families` reads
+        ``profile_features``.
+    :param neighbour_radius: the radius of ``neighbours``.
+    :param granularity_subsample: ``subsample`` of ``granularity``
+        (:func:`measure_granularity`).
+    :returns: ``label`` and the families' columns, in
+        :data:`PROFILE_FEATURE_FAMILIES` order, one row per label in
+        ascending order.
+    """
+    chosen = profile_feature_families(families)
+    labels, image, present = _profile_inputs(labels, image)
+    frames = []
+    for family in chosen:
+        if family == 'edge_intensity':
+            frames.append(measure_edge_intensity(labels, image))
+        elif family == 'intensity_moments':
+            frames.append(measure_intensity_moments(labels, image))
+        elif family == 'radial_distribution':
+            frames.append(measure_radial_distribution(labels, image))
+        elif family == 'shape_extended':
+            frames.append(measure_shape_extended(labels))
+        elif family == 'texture_haralick':
+            frames.append(measure_texture(labels, image, haralick=True,
+                                          pftas=False))
+        elif family == 'texture_pftas':
+            frames.append(measure_texture(labels, image, haralick=False,
+                                          pftas=True))
+        elif family == 'texture_lbp':
+            frames.append(measure_lbp(labels, image))
+        elif family == 'texture_gabor':
+            frames.append(measure_gabor(labels, image))
+        elif family == 'periphery':
+            frames.append(measure_periphery(labels, image))
+        elif family == 'outside':
+            frames.append(measure_outside(labels, image))
+        elif family == 'colocalisation':
+            frames.append(measure_colocalisation(labels, image))
+        elif family == 'colocalisation_extra':
+            frames.append(measure_colocalisation_extra(labels, image,
+                                                       costes=False))
+        elif family == 'colocalisation_costes':
+            frames.append(measure_costes(labels, image))
+        elif family == 'neighbours':
+            frames.append(measure_neighbours(labels, neighbour_radius))
+        elif family == 'granularity':
+            frames.append(measure_granularity(
+                labels, image, subsample=granularity_subsample))
+    out = pd.DataFrame({'label': present})
+    for frame in frames:
+        out = pd.concat([out, frame.drop(columns='label').reset_index(drop=True)],
+                        axis=1)
+    return out
+
 
 def _estimate_blur(image, mask=None):
     """
