@@ -1663,6 +1663,14 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
     """Cross-setting rules the pipeline entry points enforce at runtime."""
     problems: List[Problem] = []
 
+    if app in ("classify", "classify_merged", "ml_analyze"):
+        from .classify import _ANNOTATION_COLUMN_MISSING, _annotation_labels_missing
+        if _annotation_labels_missing(settings, app):
+            problems.append(Problem(
+                ERROR, "annotation_column", _ANNOTATION_COLUMN_MISSING,
+                "Choose the annotation column in the Classes editor, or set "
+                "dataset_mode to 'metadata'."))
+
     if app == 'measure':
         from .psf_measurement import prepare_measurement_psf
         try:

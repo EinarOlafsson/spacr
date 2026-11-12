@@ -46,8 +46,10 @@ import pandas as pd
 from .errors import ConfigurationError
 
 from .object_roles import (
-    ANCHOR_COLUMN,
     ORGANELLE_ROLES,
+    _has_anchor,
+    _mixed_run_tables,
+    _table_role,
     anchor_column,
     is_one_row_per_cell,
 )
@@ -302,7 +304,7 @@ def _merge_key_structure(frame, keys, table, reason):
     complete = bool(keys) and len(set(keys)) == len(keys) and set(keys).issubset(frame)
     return {
         "reason": reason,
-        "table": table if table in ANCHOR_COLUMN else "custom",
+        "table": _table_role(table) if _has_anchor(table) else "custom",
         "present": [key for key in canonical if key in frame],
         "selected": [key for key in canonical if key in keys],
         "custom_key_count": sum(key not in canonical for key in keys),
@@ -453,7 +455,7 @@ def _merge_duplicate_sources(db_path, tables, overrides=None, standard=False, ob
         base = next(iter(frames))
         image_keys = _keys_in(frames[base], include_file_name=True)
         for table, frame in frames.items():
-            anchor = anchor_column(table) if table in ANCHOR_COLUMN else PARENT_LINK
+            anchor = anchor_column(table) if _has_anchor(table) else PARENT_LINK
             if table == base or (anchor not in frame and table != PNG_TABLE):
                 continue
             missing = set(image_keys) - set(frame)
@@ -763,6 +765,27 @@ def reconcile_duplicates(frame: pd.DataFrame, suffix: str, *,
 
 
 
+def _refuse_mixed_runs(tables: Sequence[str]) -> None:
+    """Refuse a merge whose object tables come from different Measure runs.
+
+    ``cell_1`` and ``pathogen_1`` were measured together and share object
+    labels; ``cell`` and ``pathogen_1`` were not, and joining them would match
+    objects by a coincidence of numbering.
+
+    :param tables: the table names chosen for one merge.
+    :raises MergeError: naming the tables of each run.
+    """
+    runs = _mixed_run_tables(tables)
+    if runs:
+        groups = "; ".join(
+            f"{'current run' if run == 0 else f'run _{run}'}: {', '.join(names)}"
+            for run, names in sorted(runs.items()))
+        raise MergeError(
+            "These tables come from different Measure runs and their objects "
+            f"do not match ({groups}). Choose tables that end in the same "
+            "suffix, for example cell_1, cytoplasm_1 and pathogen_1.")
+
+
 def merge_tables(db_path: str, tables: Sequence[str], *,
                  policy: Optional[MergePolicy] = None) -> pd.DataFrame:
     """Merge the chosen object tables into one table, one row per primary object.
@@ -788,6 +811,7 @@ def merge_tables(db_path: str, tables: Sequence[str], *,
 
     wanted = [t for t in dict.fromkeys([policy.primary, *tables])
               if t in available]
+    _refuse_mixed_runs(wanted)
     if PNG_TABLE in tables and PNG_TABLE not in wanted and PNG_TABLE in available:
         wanted.append(PNG_TABLE)
     cached = _merge_source_frames.get()
@@ -815,7 +839,7 @@ def merge_tables(db_path: str, tables: Sequence[str], *,
         if table == PNG_TABLE:
             merged = _merge_crops(merged, child, keys)
             continue
-        anchor = anchor_column(table) if table in ANCHOR_COLUMN else PARENT_LINK
+        anchor = anchor_column(table) if _has_anchor(table) else PARENT_LINK
         if anchor not in child.columns:
             LOG.info("%s carries no %s, so it cannot be joined onto %s; "
                      "leaving it out", table, anchor, policy.primary)

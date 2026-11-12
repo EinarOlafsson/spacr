@@ -41,6 +41,7 @@ from ...derived_tables import (
     _identifiers,
 )
 from ...merge_tables import MergeError, aggregation_for
+from ...object_roles import _has_anchor, _table_role_and_run, is_one_row_per_cell
 from ..i18n import tr
 from ..job_runner import JobRunner
 from .sortable_table import (
@@ -406,7 +407,7 @@ class MergeTablesDialog(QDialog):
         cancel.clicked.connect(self.reject)
         buttons.addWidget(cancel)
         outer.addLayout(buttons)
-        self.tables.itemChanged.connect(self._selection_changed)
+        self.tables.itemChanged.connect(self._table_toggled)
         self.base.currentTextChanged.connect(self._selection_changed)
         self.name.textChanged.connect(self._invalidate)
         self._selection_changed()
@@ -423,6 +424,40 @@ class MergeTablesDialog(QDialog):
         """Return checked tables plus the explicitly selected base table."""
         return list(dict.fromkeys([self.base.currentText()] + [self.tables.item(i).text()
             for i in range(self.tables.count()) if self.tables.item(i).checkState() == Qt.Checked]))
+
+    def _table_toggled(self, item):
+        """Keep the checked tables and the output table within one Measure run.
+
+        Re-running Measure archives the previous tables as ``cell_1``,
+        ``cytoplasm_1``, ``pathogen_1`` and so on. Checking one of them moves
+        the output table to the same run and unchecks the other run's object
+        tables, so a re-run set merges on its own instead of being refused
+        as a mix of runs.
+
+        :param item: the table entry whose check state changed.
+        """
+        name = item.text()
+        role, run = _table_role_and_run(name)
+        if item.checkState() == Qt.Checked and _has_anchor(name) and role != "png_list":
+            entries = [self.tables.item(i) for i in range(self.tables.count())]
+            base_role, base_run = _table_role_and_run(self.base.currentText())
+            if base_run != run:
+                same_run = [entry.text() for entry in entries
+                            if _table_role_and_run(entry.text())[1] == run]
+                target = next((t for t in same_run if _table_role_and_run(t)[0] == base_role),
+                              next((t for t in same_run if is_one_row_per_cell(t)), None))
+                if target is not None:
+                    self.base.blockSignals(True)
+                    self.base.setCurrentText(target)
+                    self.base.blockSignals(False)
+            self.tables.blockSignals(True)
+            for entry in entries:
+                other_role, other_run = _table_role_and_run(entry.text())
+                if (other_run != run and _has_anchor(entry.text()) and other_role != "png_list"
+                        and entry.checkState() == Qt.Checked):
+                    entry.setCheckState(Qt.Unchecked)
+            self.tables.blockSignals(False)
+        self._selection_changed()
 
     def _invalidate(self, *_args):
         """Prevent applying a preview after any configuration edit."""
