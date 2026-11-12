@@ -33,6 +33,8 @@ from spacr.database_concurrency import (
     connect as connect_database,
 )
 from spacr.database_concurrency import (
+    DatabaseBusy,
+    is_busy_error,
     transaction,
 )
 
@@ -876,17 +878,70 @@ def ensure_annotation_column(db_path: str, column: str, *,
     """
     if not column or not os.path.isfile(db_path):
         return
+    if _annotation_schema_ready(db_path, column, table):
+        return
     safe = column.replace('"', '""')
-    conn = connect_database(db_path, timeout=30)
+    conn = connect_database(db_path, timeout=_SCHEMA_WRITE_TIMEOUT_S)
     try:
         cur = conn.cursor()
-        with transaction(conn):
-            cur.execute(f'PRAGMA table_info("{table}")')
-            cols = {row[1] for row in cur.fetchall()}
-            if column not in cols:
-                cur.execute(f'ALTER TABLE "{table}" ADD COLUMN "{safe}" INTEGER')
-            cur.execute(f'CREATE INDEX IF NOT EXISTS idx_png_path '
-                        f'ON "{table}" (png_path)')
+        try:
+            with transaction(conn):
+                cur.execute(f'PRAGMA table_info("{table}")')
+                cols = {row[1] for row in cur.fetchall()}
+                if column not in cols:
+                    cur.execute(
+                        f'ALTER TABLE "{table}" ADD COLUMN "{safe}" INTEGER')
+                cur.execute(f'CREATE INDEX IF NOT EXISTS idx_png_path '
+                            f'ON "{table}" (png_path)')
+        except sqlite3.OperationalError as exc:
+            if is_busy_error(exc) and not isinstance(exc, DatabaseBusy):
+                raise DatabaseBusy(
+                    f"{db_path} stayed locked by another connection for "
+                    f"{_SCHEMA_WRITE_TIMEOUT_S:g} s: {exc}") from exc
+            raise
+    finally:
+        conn.close()
+
+
+#: Seconds `ensure_annotation_column` waits for the write lock when it really
+#: has a column or index to add. It runs on the GUI thread, so it is bounded
+#: well below the 30 s every other connection here uses.
+_SCHEMA_WRITE_TIMEOUT_S = 10.0
+
+
+def _annotation_schema_ready(db_path: str, column: str, table: str) -> bool:
+    """Whether ``table`` already has ``column`` and the png_path index.
+
+    Issue #184: opening a source called `ensure_annotation_column` on every
+    open, and it always ran a write transaction, because ``CREATE INDEX IF
+    NOT EXISTS`` takes the write lock even when the index is already there.
+    Under the rollback journal that commit has to wait for every reader of
+    the file -- the screen's own population count from a previous open, a
+    Measure or Classify run, a backup client -- and a reader that outlasted
+    the busy timeout surfaced as ``database is locked`` in the slot that
+    opens the source. This check lets every open after the first write
+    nothing; only a source that really needs the column waits for the write
+    lock, for at most ``_SCHEMA_WRITE_TIMEOUT_S`` seconds, and then raises
+    `DatabaseBusy` with nothing changed.
+
+    Read on a read-only connection, so it never asks for the write lock. Any
+    error is answered False and left to the writing path to report.
+    """
+    try:
+        conn = connect_database(db_path, readonly=True,
+                                timeout=_SCHEMA_WRITE_TIMEOUT_S)
+    except sqlite3.Error:
+        return False
+    try:
+        cols = {row[1] for row in conn.execute(
+            f'PRAGMA table_info("{table}")')}
+        if column not in cols:
+            return False
+        return conn.execute(
+            "SELECT 1 FROM sqlite_master WHERE type = 'index' "
+            "AND name = 'idx_png_path'").fetchone() is not None
+    except sqlite3.Error:
+        return False
     finally:
         conn.close()
 

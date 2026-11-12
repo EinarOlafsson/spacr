@@ -129,7 +129,7 @@ def test_child_environment_clears_host_python_and_qt_plugins(tmp_path, monkeypat
     assert service.gui_command(env).parent == Path(service.environments._env_python(str(env))).parent
     assert kwargs['env']['DISPLAY'] == ':1'
     assert kwargs['env']['LD_LIBRARY_PATH'] == '/system/libraries'
-    assert kwargs['env']['PYQTGRAPH_QT_LIB'] == 'PyQt6'
+    assert kwargs['env']['PYQTGRAPH_QT_LIB'] == 'PySide6'
     assert 'QT_PLUGIN_PATH' not in kwargs['env'] and 'PYTHONPATH' not in kwargs['env']
 
 
@@ -257,7 +257,7 @@ def test_frozen_launcher_drops_bundled_libraries_without_original_paths(tmp_path
         monkeypatch.delenv(key + '_ORIG', raising=False)
     values = service.process_environment(tmp_path/'parascape')
     assert 'LD_LIBRARY_PATH' not in values and 'DYLD_LIBRARY_PATH' not in values
-    assert values['QT_API'] == 'pyqt6'
+    assert values['QT_API'] == 'pyside6'
 
 
 def test_completed_install_between_initial_check_and_lock_is_not_rebuilt(tmp_path, monkeypatch):
@@ -274,6 +274,80 @@ def test_completed_install_between_initial_check_and_lock_is_not_rebuilt(tmp_pat
     assert not (tmp_path/'parascape.lock').exists()
 
 
+def fake_pyside6(monkeypatch, qt_lib='PySide6'):
+    """Stand in for ParaScape's PySide6 and pyqtgraph, with PyQt6 absent."""
+    from types import ModuleType
+    qt = ModuleType('PySide6')
+    qt.QtWidgets = ModuleType('PySide6.QtWidgets')
+    graph = ModuleType('pyqtgraph')
+    graph.Qt = ModuleType('pyqtgraph.Qt')
+    graph.Qt.QT_LIB = qt_lib
+    for name, module in {'PySide6': qt, 'PySide6.QtWidgets': qt.QtWidgets,
+                         'pyqtgraph': graph, 'pyqtgraph.Qt': graph.Qt}.items():
+        monkeypatch.setitem(sys.modules, name, module)
+    for name in [name for name in sys.modules if name == 'PyQt6' or name.startswith('PyQt6.')]:
+        monkeypatch.delitem(sys.modules, name)
+
+
+def fake_parascape(monkeypatch):
+    """Install a ready ParaScape package whose metadata reports 0.0.11.0."""
+    import importlib.metadata
+    from types import ModuleType
+    package = ModuleType('parascape')
+    package.paths = ModuleType('parascape.paths')
+    package.paths.check = lambda: (True, 'ready')
+    app = ModuleType('parascape.app')
+    app.main = lambda: None
+    for name, module in {'parascape': package, 'parascape.paths': package.paths,
+                         'parascape.app': app}.items():
+        monkeypatch.setitem(sys.modules, name, module)
+    monkeypatch.setattr(importlib.metadata, 'version', lambda _: '0.0.11.0')
+
+
+def test_selftest_and_environment_use_pyside6_never_pyqt6(tmp_path):
+    """ParaScape is PySide6; loading PyQt6's Qt first breaks PySide6's symbols."""
+    checks = ("if 'PyQt6' in sys.modules:", "'PyQt6 was imported into ParaScape")
+    remainder = service._SELFTEST
+    for check in checks:
+        assert check in remainder
+        remainder = remainder.replace(check, '')
+    assert 'PyQt6' not in remainder
+    assert 'from PySide6 import QtWidgets' in service._SELFTEST
+    assert "pyqtgraph.Qt.QT_LIB != 'PySide6'" in service._SELFTEST
+    lines = service._SELFTEST.splitlines()
+    assert lines[0].index('parascape.app') < lines[0].index('import pyqtgraph.Qt')
+    assert lines[1] == "if 'PyQt6' in sys.modules:"
+    values = service.process_environment(tmp_path/'parascape')
+    assert values['PYQTGRAPH_QT_LIB'] == 'PySide6'
+    assert values['QT_API'] == 'pyside6'
+    assert 'PyQt6' not in service.__doc__
+
+
+def test_selftest_fails_when_anything_imports_pyqt6(monkeypatch, capsys):
+    from types import ModuleType
+    fake_pyside6(monkeypatch)
+    fake_parascape(monkeypatch)
+    monkeypatch.setitem(sys.modules, 'PyQt6', ModuleType('PyQt6'))
+    with pytest.raises(SystemExit, match='PyQt6 was imported into ParaScape'):
+        exec(service._SELFTEST, {})
+    assert capsys.readouterr().out == ''
+
+
+def test_selftest_fails_when_pyqtgraph_binds_another_qt(monkeypatch, capsys):
+    fake_pyside6(monkeypatch, qt_lib='PyQt6')
+    fake_parascape(monkeypatch)
+    with pytest.raises(SystemExit, match='pyqtgraph uses PyQt6, not PySide6'):
+        exec(service._SELFTEST, {})
+    assert capsys.readouterr().out == ''
+
+
+def test_selftest_passes_with_pyside6_pyqtgraph(monkeypatch, capsys):
+    fake_pyside6(monkeypatch)
+    fake_parascape(monkeypatch)
+    exec(service._SELFTEST, {})
+    assert json.loads(capsys.readouterr().out) == {'ok': True, 'version': '0.0.11.0'}
+
+
 def test_selftest_reads_the_single_parascape_distribution(monkeypatch, capsys):
     """Installing ParaScape succeeds without metadata from an auxiliary package."""
     import importlib.metadata
@@ -284,10 +358,9 @@ def test_selftest_reads_the_single_parascape_distribution(monkeypatch, capsys):
     package.paths = paths
     app = ModuleType("parascape.app")
     app.main = lambda: None
-    qt = ModuleType("PyQt6")
-    qt.QtWidgets = ModuleType("PyQt6.QtWidgets")
+    fake_pyside6(monkeypatch)
     for name, module in {"parascape": package, "parascape.paths": paths,
-                         "parascape.app": app, "PyQt6": qt}.items():
+                         "parascape.app": app}.items():
         monkeypatch.setitem(sys.modules, name, module)
     def version(name):
         if name != "parascape":
@@ -436,15 +509,14 @@ def test_missing_data_requires_working_native_bootstrap_without_starting_downloa
     package.paths = paths
     app = ModuleType('parascape.app')
     app.main = lambda: None
-    qt = ModuleType('PyQt6')
-    qt.QtWidgets = ModuleType('PyQt6.QtWidgets')
+    fake_pyside6(monkeypatch)
     setup = ModuleType('parascape.data_download_dialog')
     if bootstrap == 'callable':
         setup.ensure_data = lambda: pytest.fail('data setup requires native user consent')
     elif bootstrap == 'noncallable':
         setup.ensure_data = None
     for name, module in {'parascape': package, 'parascape.paths': paths,
-                         'parascape.app': app, 'PyQt6': qt}.items():
+                         'parascape.app': app}.items():
         monkeypatch.setitem(sys.modules, name, module)
     monkeypatch.setitem(sys.modules, 'parascape.data_download_dialog',
                         None if bootstrap == 'missing' else setup)

@@ -184,3 +184,63 @@ def describe_basis(basis: str) -> str:
                         "Use more than one measurement: a single threshold "
                         "is a gate, not a class definition."),
     }[str(basis).strip().lower()]
+
+
+def _png_list_columns(database: str):
+    """The columns of ``png_list`` in one SQLite database, or None.
+
+    None when the file is missing, is not SQLite, or has no ``png_list``.
+    Read on a read-only connection with a short busy wait.
+    """
+    import os
+    import sqlite3
+
+    from .database_concurrency import connect
+
+    if not os.path.isfile(str(database)):
+        return None
+    try:
+        connection = connect(database, readonly=True, timeout=5.0)
+    except sqlite3.Error:
+        return None
+    try:
+        columns = [row[1] for row in connection.execute('PRAGMA table_info("png_list")')]
+    except sqlite3.Error:
+        return None
+    finally:
+        connection.close()
+    return columns or None
+
+
+def _annotation_column_absent(databases, column: str):
+    """Why ``column`` cannot be trained on, when no ``png_list`` has it.
+
+    Issue #186: Graph Builder kept its annotation columns on the table they
+    were made on, and the error a Classify run then raised named neither
+    ``png_list`` nor the missing save. This names both, and lists the
+    ``png_list`` columns that do exist.
+
+    :param databases: the run's measurement databases; ones without a
+        readable ``png_list`` are passed over.
+    :param column: the annotation column the run trains on.
+    :returns: the message, or None when a ``png_list`` has ``column`` or
+        none could be read.
+    """
+    if not column:
+        return None
+    listed = {}
+    for database in databases:
+        columns = _png_list_columns(database)
+        if columns is None:
+            continue
+        if column in columns:
+            return None
+        listed[str(database)] = columns
+    if not listed:
+        return None
+    names = sorted({name for columns in listed.values() for name in columns})
+    return (f"annotation_column={column!r} is not a column of png_list in "
+            f"{', '.join(listed)}. png_list has: {', '.join(names)}. Classify "
+            f"reads annotation labels only from png_list. Annotations made in "
+            f"Graph Builder must be saved to png_list first: press Save "
+            f"annotations in Graph Builder, or choose one of the columns above.")

@@ -1663,6 +1663,14 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
     """Cross-setting rules the pipeline entry points enforce at runtime."""
     problems: List[Problem] = []
 
+    if app in ("classify", "classify_merged", "ml_analyze"):
+        from .classify import _ANNOTATION_COLUMN_MISSING, _annotation_labels_missing
+        if _annotation_labels_missing(settings, app):
+            problems.append(Problem(
+                ERROR, "annotation_column", _ANNOTATION_COLUMN_MISSING,
+                "Choose the annotation column in the Classes editor, or set "
+                "dataset_mode to 'metadata'."))
+
     if app == 'measure':
         from .psf_measurement import prepare_measurement_psf
         try:
@@ -1874,7 +1882,39 @@ def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
                 "Raise the maximum or lower the minimum so at least one "
                 "parasite size can pass the filter."))
 
+    if app in ("classify", "classify_merged", "ml_analyze"):
+        problems.extend(_check_annotation_column_in_png_list(settings))
+
     return problems
+
+
+def _check_annotation_column_in_png_list(settings: Dict[str, Any]) -> List[Problem]:
+    """An annotation-mode run whose column is in no plate's ``png_list``.
+
+    Issue #186: labels made in Graph Builder stayed on the annotated table, and
+    the run failed later inside :func:`spacr.ml.generate_ml_scores`. Only
+    databases that exist and have a ``png_list`` are read.
+    """
+    from .classify import _annotation_column_named
+    from .training_basis import _annotation_column_absent, resolve_basis
+
+    try:
+        if resolve_basis(settings) != "annotation":
+            return []
+        column = _annotation_column_named(settings)
+    except Exception:                                            # noqa: BLE001
+        return []
+    sources = settings.get("src")
+    if isinstance(sources, str):
+        sources = [sources]
+    databases = [os.path.join(str(src), "measurements", "measurements.db")
+                 for src in sources or () if src]
+    message = _annotation_column_absent(databases, str(column or "").strip())
+    if not message:
+        return []
+    return [Problem(ERROR, "annotation_column", message,
+                    "Save the Graph Builder annotations to png_list, or choose a "
+                    "png_list column that holds the labels.")]
 
 
 

@@ -836,6 +836,19 @@ annotation_column
 |     ``_rules_from_annotation`` **-- reads it**
 |     :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
+|     :py:func:`~spacr.core.preprocess_generate_masks`
+|         :py:func:`~spacr.validate.run_preflight`
+|             :py:func:`~spacr.validate.validate_settings`
+|                 ``_check_app_specific``
+|                     ``_annotation_labels_missing``
+|                         :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
+|                     ``_check_annotation_column_in_png_list``
+|                         :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
+|                     ``dict(...)  [UNRESOLVED]``
+|                 ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
+|         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.deep_spacr.deep_spacr`
 |     :py:func:`~spacr.io.generate_training_dataset` **-- reads it**
 |         :py:func:`~spacr.settings.set_generate_training_dataset_defaults`
@@ -849,10 +862,32 @@ annotation_column
 |     ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.hyperparam.run_search_for_app`
 |     :py:func:`~spacr.hyperparam.load_search_data` **-- reads it**
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.validate.run_preflight`
+|         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_app_specific``
+|                 ``_annotation_labels_missing``
+|                     ``_annotation_column_named``
+|                         :py:func:`~spacr.classify_classes.annotation_column_of` **-- reads it**
+|                     :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
+|                 ``_check_annotation_column_in_png_list``
+|                     ``_annotation_column_named``
+|                         :py:func:`~spacr.classify_classes.annotation_column_of` **-- reads it**
+|                     :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
+|             ``isinstance(...)  [UNRESOLVED]``
+|             ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ml.generate_ml_scores` **-- reads it**
 |     :py:func:`~spacr.settings.set_default_analyze_screen`
 |         :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
 |     :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
+| ``_annotation_labels_named``
+|     ``_annotation_labels_missing``
+|         ``_annotation_column_named``
+|             :py:func:`~spacr.classify_classes.annotation_column_of` **-- reads it**
+|         :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
 | :py:func:`~spacr.settings.set_annotate_default_settings` **-- reads it**
 | :py:func:`~spacr.settings.set_default_classify`
 |     :py:func:`~spacr.settings.set_default_analyze_screen`
@@ -869,10 +904,39 @@ annotation_columns
 | :py:func:`~spacr.classify_classes.normalize_settings`
 |     ``_rules_from_annotation`` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
+|     :py:func:`~spacr.core.preprocess_generate_masks`
+|         :py:func:`~spacr.validate.run_preflight`
+|             :py:func:`~spacr.validate.validate_settings`
+|                 ``_check_app_specific``
+|                     ``_annotation_labels_missing``
+|                         ``_annotation_column_named`` **-- reads it**
+|                     ``_check_annotation_column_in_png_list``
+|                         ``_annotation_column_named`` **-- reads it**
+|                     ``dict(...)  [UNRESOLVED]``
+|                 ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
+|         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.deep_spacr.deep_spacr`
 |     :py:func:`~spacr.io.generate_training_dataset` **-- reads it**
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.validate.run_preflight`
+|         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_app_specific``
+|                 ``_annotation_labels_missing``
+|                     ``_annotation_column_named`` **-- reads it**
+|                 ``_check_annotation_column_in_png_list``
+|                     ``_annotation_column_named`` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
+|             ``isinstance(...)  [UNRESOLVED]``
+|             ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
+| ``_annotation_labels_named``
+|     ``_annotation_labels_missing``
+|         ``_annotation_column_named`` **-- reads it**
 
-Read by ``_rules_from_annotation``, ``generate_training_dataset``.
+Read by ``_annotation_column_named``, ``_rules_from_annotation``, ``generate_training_dataset``.
 
 .. _setting-flow-annotation_counts:
 
@@ -4001,12 +4065,31 @@ classes
 |             :py:func:`~spacr.settings.get_train_test_model_settings` **-- reads it**
 |         ``dict(...)  [UNRESOLVED]``
 |         ``trainer(...)  [UNRESOLVED]``
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.validate.run_preflight`
+|         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_app_specific``
+|                 ``_annotation_labels_missing``
+|                     ``_annotation_column_named``
+|                         :py:func:`~spacr.classify_classes.annotation_column_of` **-- reads it**
+|                 ``_check_annotation_column_in_png_list``
+|                     ``_annotation_column_named``
+|                         :py:func:`~spacr.classify_classes.annotation_column_of` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
+|             ``isinstance(...)  [UNRESOLVED]``
+|             ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
 | :py:func:`~spacr.model_check.check_model`
 |     :py:func:`~spacr.model_check.expected_classes`
 |         :py:func:`~spacr.classify_classes.class_names` **-- reads it**
 |             :py:func:`~spacr.classify_classes.class_rules` **-- reads it**
 | :py:func:`~spacr.model_zoo.entry_from_file`
 |     ``_describe_classifier_training`` **-- reads it**
+| ``_annotation_labels_named``
+|     ``_annotation_labels_missing``
+|         ``_annotation_column_named``
+|             :py:func:`~spacr.classify_classes.annotation_column_of` **-- reads it**
 | ``_migrate_control_wells`` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 | ``_cpu_detect`` **-- reads it**
@@ -4096,6 +4179,10 @@ classifier_family
 |             :py:func:`~spacr.validate.validate_settings`
 |                 ``_model_input_kinds``
 |                     :py:func:`~spacr.classify.resolve_family` **-- reads it**
+|                 ``_check_app_specific``
+|                     ``_annotation_labels_missing``
+|                         :py:func:`~spacr.classify.resolve_family` **-- reads it**
+|                     ``dict(...)  [UNRESOLVED]``
 |                 ``isinstance(...)  [UNRESOLVED]``
 |                 ``dict(...)  [UNRESOLVED]``
 |         ``dict(...)  [UNRESOLVED]``
@@ -4109,6 +4196,10 @@ classifier_family
 |         :py:func:`~spacr.validate.validate_settings`
 |             ``_model_input_kinds``
 |                 :py:func:`~spacr.classify.resolve_family` **-- reads it**
+|             ``_check_app_specific``
+|                 ``_annotation_labels_missing``
+|                     :py:func:`~spacr.classify.resolve_family` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
 |             ``isinstance(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
@@ -4117,6 +4208,9 @@ classifier_family
 |     ``_model_input_kinds``
 |         :py:func:`~spacr.classify.resolve_family` **-- reads it**
 |     ``deepcopy(...)  [UNRESOLVED]``
+| ``_annotation_labels_named``
+|     ``_annotation_labels_missing``
+|         :py:func:`~spacr.classify.resolve_family` **-- reads it**
 | :py:func:`~spacr.qt.screens.app_screen.apply_settings_dict`
 |     ``_model_input_kinds``
 |         :py:func:`~spacr.classify.resolve_family` **-- reads it**
@@ -7479,6 +7573,19 @@ dataset_mode
 | :py:func:`~spacr.classify_classes.normalize_settings`
 |     :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
+|     :py:func:`~spacr.core.preprocess_generate_masks`
+|         :py:func:`~spacr.validate.run_preflight`
+|             :py:func:`~spacr.validate.validate_settings`
+|                 ``_check_app_specific``
+|                     ``_annotation_labels_missing``
+|                         :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
+|                     ``_check_annotation_column_in_png_list``
+|                         :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
+|                     ``dict(...)  [UNRESOLVED]``
+|                 ``isinstance(...)  [UNRESOLVED]``
+|                 ``dict(...)  [UNRESOLVED]``
+|         ``dict(...)  [UNRESOLVED]``
 | :py:func:`~spacr.deep_spacr.deep_spacr`
 |     :py:func:`~spacr.io.generate_training_dataset`
 |         :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
@@ -7486,10 +7593,26 @@ dataset_mode
 |     :py:func:`~spacr.flowview.classify_blueprint.classify_graph`
 |         :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
+| :py:func:`~spacr.measure.measure_crop`
+|     :py:func:`~spacr.validate.run_preflight`
+|         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_app_specific``
+|                 ``_annotation_labels_missing``
+|                     :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
+|                 ``_check_annotation_column_in_png_list``
+|                     :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
+|             ``isinstance(...)  [UNRESOLVED]``
+|             ``dict(...)  [UNRESOLVED]``
+|     ``dict(...)  [UNRESOLVED]``
+|     ``register_outputs(...)  [UNRESOLVED]``
 | :py:func:`~spacr.ml.generate_ml_scores`
 |     :py:func:`~spacr.settings.set_default_analyze_screen`
 |         :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
 |     :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
+| ``_annotation_labels_named``
+|     ``_annotation_labels_missing``
+|         :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
 | :py:func:`~spacr.settings.set_default_classify`
 |     :py:func:`~spacr.settings.set_default_analyze_screen`
 |         :py:func:`~spacr.training_basis.resolve_basis` **-- reads it**
@@ -11831,6 +11954,9 @@ generate_training_dataset
 |                 ``_watch_map_manifest(...)  [UNRESOLVED]``
 |         :py:func:`~spacr.validate.run_preflight`
 |             :py:func:`~spacr.validate.validate_settings`
+|                 ``_check_app_specific``
+|                     ``_annotation_labels_missing`` **-- reads it**
+|                     ``dict(...)  [UNRESOLVED]``
 |                 ``_check_required_paths`` **-- reads it**
 |                 ``isinstance(...)  [UNRESOLVED]``
 |                 ``dict(...)  [UNRESOLVED]``
@@ -11839,13 +11965,18 @@ generate_training_dataset
 | :py:func:`~spacr.measure.measure_crop`
 |     :py:func:`~spacr.validate.run_preflight`
 |         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_app_specific``
+|                 ``_annotation_labels_missing`` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
 |             ``_check_required_paths`` **-- reads it**
 |             ``isinstance(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
+| ``_annotation_labels_named``
+|     ``_annotation_labels_missing`` **-- reads it**
 
-Read by ``_watch_folder_and_analyse``, ``deep_spacr``, ``_preprocess_mapped_volume_series``, ``_check_required_paths``.
+Read by ``_annotation_labels_missing``, ``_watch_folder_and_analyse``, ``deep_spacr``, ``_preprocess_mapped_volume_series``, ``_check_required_paths``.
 
 .. _setting-flow-genes:
 
@@ -34186,6 +34317,7 @@ src
 |             :py:func:`~spacr.validate.validate_settings`
 |                 ``_check_app_specific``
 |                     :py:func:`~spacr.point_spread.fill_psf_settings` **-- reads it**
+|                     ``_check_annotation_column_in_png_list`` **-- reads it**
 |                     ``dict(...)  [UNRESOLVED]``
 |                 ``isinstance(...)  [UNRESOLVED]``
 |                 ``dict(...)  [UNRESOLVED]``
@@ -34285,6 +34417,7 @@ src
 |         :py:func:`~spacr.validate.validate_settings`
 |             ``_check_app_specific``
 |                 :py:func:`~spacr.point_spread.fill_psf_settings` **-- reads it**
+|                 ``_check_annotation_column_in_png_list`` **-- reads it**
 |                 ``dict(...)  [UNRESOLVED]``
 |             ``isinstance(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
@@ -34482,7 +34615,7 @@ src
 | :py:func:`~spacr.timelapse.automated_motility_assay` **-- reads it**
 | :py:func:`~spacr.utils.delete_intermedeate_files` **-- reads it**
 
-Read by ``_settings_after_role``, ``align_folder``, ``anndata_export_settings``, ``run_anndata_export``, ``generate_annotation_dataset``, ``_src_values``, ``default_label``, ``_call_entry``, ``_workflow_plates``, ``convert_folder``, ``_watch_check_settings``, ``_watch_closed_pool_spec``, ``_watch_vendor_recipe``, ``generate_image_umap``, ``generate_screen_graphs``, ``preprocess_generate_masks``, ``reducer_hyperparameter_search``, ``resolve_crop_source``, ``_cross_validate_model``, ``annotate_filter_vision``, ``deep_spacr``, ``generate_activation_map``, ``train_test_model``, ``_import_label_images_for_measure``, ``_plan_label_import``, ``_source_value``, ``run_import``, ``_titration_objects``, ``analyze_host_pathogen``, ``analyze_titration``, ``nuclear_translocation``, ``preview_fields``, ``load_activation_data``, ``load_search_data``, ``umap_checkpoint_path``, ``illumination_settings``, ``prepare_illumination_model``, ``prepare_segmentation_illumination``, ``validate_measurement_illumination_inputs``, ``_preprocess_mapped_volume_series``, ``_preprocess_volume_tiffs``, ``_save_settings_to_db``, ``generate_dataset``, ``generate_training_dataset``, ``open_crop_source``, ``preprocess_img_data``, ``_project_root``, ``_calibration_reference_hashes``, ``_check_measure_field_names``, ``_export_vvvv_measured_field``, ``_measure_crop_core``, ``_measured_fields``, ``_measurement_run_archive_plan``, ``_prepare_measurement_calibration``, ``_prepare_measurement_crop_output``, ``_run_cellprofiler_step``, ``_run_plate_barcode_step``, ``_write_intensity_rescale_record``, ``measure_crop``, ``process_measure_crop_results``, ``_annotation_cache``, ``_ml_eval_frame``, ``_perform_drug_screen_regression``, ``_perform_regression_set_paths``, ``_show_response_distribution``, ``create_extended_radar_plot``, ``export_annotation_sample``, ``generate_ml_scores``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``run_ml_evaluation``, ``_describe_cellpose_training``, ``_describe_classifier_training``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``_needs_cloud_run``, ``_run_with_cloud_sources``, ``_trial_settings``, ``rerun_trial``, ``run_trial_contained``, ``settings_for_trial``, ``compare_figure_sizes``, ``run_figure_scoring``, ``score_figure_folder``, ``graph_importance``, ``plot_data_from_csv``, ``plot_data_from_db``, ``plot_region``, ``fill_psf_settings``, ``_prepare_measure_unmixing``, ``_open_easy_suggestion``, ``apply``, ``build``, ``import_plates_from_csv``, ``_claim_the_project``, ``_confirm_measure_plane_layout``, ``_confirm_ram_guard``, ``_load_regression_results``, ``_lock_analysis_now``, ``_measurements_destination``, ``_on_run``, ``_search_figure_dir``, ``plan_barcode_search``, ``_make_screen``, ``_trial_figures_ready``, ``apply_settings``, ``_on_click``, ``wire_add_current``, ``resolve_default_settings``, ``settings_from_pack``, ``_plan_gains``, ``apply_settings``, ``load_source_async``, ``run_preview``, ``apply_settings``, ``_dose_runs``, ``_journal_dose_runs``, ``_colony_preview_pass``, ``detect_figure``, ``figure_pass``, ``seed_well_boxes``, ``__init__``, ``_open_field_overview``, ``_open_overview_module``, ``run``, ``_protocol_handoff``, ``destination``, ``_settings_point_at``, ``_app_unit_bytes``, ``measurements_db_path``, ``plan_measure_resume``, ``plates_of``, ``_check_lock_for_run``, ``_observe_settings_changes``, ``_recorded_models``, ``check_analysis_lock``, ``_mask_defaults``, ``_measure_defaults``, ``import_plate``, ``run_screen``, ``generate_barecode_mapping``, ``default_settings_analyze_percent_positive``, ``get_analyze_plaque_settings``, ``get_default_apply_cellpose_model_settings``, ``get_default_test_cellpose_model_settings``, ``get_measure_crop_settings``, ``get_train_test_model_settings``, ``set_annotate_default_settings``, ``_run_and_save_queued``, ``run_and_save``, ``run_multiple_simulations``, ``check_cellpose_models``, ``identify_masks_finetune``, ``stream_dataset``, ``_analyze_colony_plates``, ``_analyze_plaque_figures``, ``_recruitment_new_filters``, ``_recruitment_report_impl``, ``_recruitment_tile_config``, ``_replication_report_impl``, ``_replication_tile_config``, ``_segment_plaque_folder``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_percent_positive``, ``analyze_plaques``, ``analyze_recruitment``, ``analyze_replication``, ``apply_cellpose_model``, ``count_phenotypes``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``split_wells``, ``test_cellpose_model``, ``train_cellpose``, ``main``, ``automated_motility_assay``, ``delete_intermedeate_files``, ``measure_test_mode``, ``save_settings``, ``_describe_outputs``, ``_describe_regression_plan``.
+Read by ``_settings_after_role``, ``align_folder``, ``anndata_export_settings``, ``run_anndata_export``, ``generate_annotation_dataset``, ``_src_values``, ``default_label``, ``_call_entry``, ``_workflow_plates``, ``convert_folder``, ``_watch_check_settings``, ``_watch_closed_pool_spec``, ``_watch_vendor_recipe``, ``generate_image_umap``, ``generate_screen_graphs``, ``preprocess_generate_masks``, ``reducer_hyperparameter_search``, ``resolve_crop_source``, ``_cross_validate_model``, ``annotate_filter_vision``, ``deep_spacr``, ``generate_activation_map``, ``train_test_model``, ``_import_label_images_for_measure``, ``_plan_label_import``, ``_source_value``, ``run_import``, ``_titration_objects``, ``analyze_host_pathogen``, ``analyze_titration``, ``nuclear_translocation``, ``preview_fields``, ``load_activation_data``, ``load_search_data``, ``umap_checkpoint_path``, ``illumination_settings``, ``prepare_illumination_model``, ``prepare_segmentation_illumination``, ``validate_measurement_illumination_inputs``, ``_preprocess_mapped_volume_series``, ``_preprocess_volume_tiffs``, ``_save_settings_to_db``, ``generate_dataset``, ``generate_training_dataset``, ``open_crop_source``, ``preprocess_img_data``, ``_project_root``, ``_calibration_reference_hashes``, ``_check_measure_field_names``, ``_export_vvvv_measured_field``, ``_measure_crop_core``, ``_measured_fields``, ``_measurement_run_archive_plan``, ``_prepare_measurement_calibration``, ``_prepare_measurement_crop_output``, ``_run_cellprofiler_step``, ``_run_plate_barcode_step``, ``_write_intensity_rescale_record``, ``measure_crop``, ``process_measure_crop_results``, ``_annotation_cache``, ``_ml_eval_frame``, ``_perform_drug_screen_regression``, ``_perform_regression_set_paths``, ``_show_response_distribution``, ``create_extended_radar_plot``, ``export_annotation_sample``, ``generate_ml_scores``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``run_ml_evaluation``, ``_describe_cellpose_training``, ``_describe_classifier_training``, ``generate_cellpose_masks``, ``generate_cellpose_masks_sam``, ``_needs_cloud_run``, ``_run_with_cloud_sources``, ``_trial_settings``, ``rerun_trial``, ``run_trial_contained``, ``settings_for_trial``, ``compare_figure_sizes``, ``run_figure_scoring``, ``score_figure_folder``, ``graph_importance``, ``plot_data_from_csv``, ``plot_data_from_db``, ``plot_region``, ``fill_psf_settings``, ``_prepare_measure_unmixing``, ``_open_easy_suggestion``, ``apply``, ``build``, ``import_plates_from_csv``, ``_claim_the_project``, ``_confirm_measure_plane_layout``, ``_confirm_ram_guard``, ``_load_regression_results``, ``_lock_analysis_now``, ``_measurements_destination``, ``_on_run``, ``_search_figure_dir``, ``plan_barcode_search``, ``_make_screen``, ``_trial_figures_ready``, ``apply_settings``, ``_on_click``, ``wire_add_current``, ``resolve_default_settings``, ``settings_from_pack``, ``_plan_gains``, ``apply_settings``, ``load_source_async``, ``run_preview``, ``apply_settings``, ``_dose_runs``, ``_journal_dose_runs``, ``_colony_preview_pass``, ``detect_figure``, ``figure_pass``, ``seed_well_boxes``, ``__init__``, ``_open_field_overview``, ``_open_overview_module``, ``run``, ``_protocol_handoff``, ``destination``, ``_settings_point_at``, ``_app_unit_bytes``, ``measurements_db_path``, ``plan_measure_resume``, ``plates_of``, ``_check_lock_for_run``, ``_observe_settings_changes``, ``_recorded_models``, ``check_analysis_lock``, ``_mask_defaults``, ``_measure_defaults``, ``import_plate``, ``run_screen``, ``generate_barecode_mapping``, ``default_settings_analyze_percent_positive``, ``get_analyze_plaque_settings``, ``get_default_apply_cellpose_model_settings``, ``get_default_test_cellpose_model_settings``, ``get_measure_crop_settings``, ``get_train_test_model_settings``, ``set_annotate_default_settings``, ``_run_and_save_queued``, ``run_and_save``, ``run_multiple_simulations``, ``check_cellpose_models``, ``identify_masks_finetune``, ``stream_dataset``, ``_analyze_colony_plates``, ``_analyze_plaque_figures``, ``_recruitment_new_filters``, ``_recruitment_report_impl``, ``_recruitment_tile_config``, ``_replication_report_impl``, ``_replication_tile_config``, ``_segment_plaque_folder``, ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_class_proportion``, ``analyze_endodyogeny``, ``analyze_invasion``, ``analyze_percent_positive``, ``analyze_plaques``, ``analyze_recruitment``, ``analyze_replication``, ``apply_cellpose_model``, ``count_phenotypes``, ``interpret_vision_model``, ``read_and_preprocess_data``, ``split_wells``, ``test_cellpose_model``, ``train_cellpose``, ``main``, ``automated_motility_assay``, ``delete_intermedeate_files``, ``measure_test_mode``, ``save_settings``, ``_check_annotation_column_in_png_list``, ``_describe_outputs``, ``_describe_regression_plan``.
 
 .. _setting-flow-ssmd_estimator:
 
@@ -37946,6 +38079,9 @@ train
 |     :py:func:`~spacr.core.preprocess_generate_masks`
 |         :py:func:`~spacr.validate.run_preflight`
 |             :py:func:`~spacr.validate.validate_settings`
+|                 ``_check_app_specific``
+|                     ``_annotation_labels_missing`` **-- reads it**
+|                     ``dict(...)  [UNRESOLVED]``
 |                 ``_check_required_paths`` **-- reads it**
 |                 ``isinstance(...)  [UNRESOLVED]``
 |                 ``dict(...)  [UNRESOLVED]``
@@ -37965,13 +38101,18 @@ train
 | :py:func:`~spacr.measure.measure_crop`
 |     :py:func:`~spacr.validate.run_preflight`
 |         :py:func:`~spacr.validate.validate_settings`
+|             ``_check_app_specific``
+|                 ``_annotation_labels_missing`` **-- reads it**
+|                 ``dict(...)  [UNRESOLVED]``
 |             ``_check_required_paths`` **-- reads it**
 |             ``isinstance(...)  [UNRESOLVED]``
 |             ``dict(...)  [UNRESOLVED]``
 |     ``dict(...)  [UNRESOLVED]``
 |     ``register_outputs(...)  [UNRESOLVED]``
+| ``_annotation_labels_named``
+|     ``_annotation_labels_missing`` **-- reads it**
 
-Read by ``deep_spacr``, ``train_test_model``, ``get_train_test_model_settings``, ``_check_required_paths``.
+Read by ``_annotation_labels_missing``, ``deep_spacr``, ``train_test_model``, ``get_train_test_model_settings``, ``_check_required_paths``.
 
 .. _setting-flow-train_arch:
 

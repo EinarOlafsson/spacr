@@ -16,7 +16,7 @@ from .preferences import scaled_px
 
 
 class _InstallThread(QThread):
-    """Run the cancellable installer without importing PyQt6 into spaCR."""
+    """Run the cancellable installer without importing ParaScape into spaCR."""
 
     progressed = Signal(int, int, str)
 

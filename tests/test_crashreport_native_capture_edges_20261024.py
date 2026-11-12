@@ -264,7 +264,9 @@ def test_native_platform_survives_unavailable_qt_version(monkeypatch):
     monkeypatch.setattr(cr.platform, 'machine', lambda: 'arm64')
     monkeypatch.setattr(cr, '_distribution_version', lambda name: '6.11.3')
     monkeypatch.setitem(sys.modules, 'PySide6.QtCore', SimpleNamespace(qVersion=unavailable))
-    assert cr._native_platform_context() == {'os': cr._os_family(), 'os_release': '15.0', 'machine': 'arm64', 'pyside6': '6.11.3'}
+    monkeypatch.setattr(cr, '_spacr_version', lambda: '1.5.1.9')
+    assert cr._native_platform_context() == {'os': cr._os_family(), 'os_release': '15.0', 'machine': 'arm64',
+                                             'pyside6': '6.11.3', 'spacr': '1.5.1.9'}
 
 
 def test_consented_native_replay_does_not_invent_screen_or_repeat_event(

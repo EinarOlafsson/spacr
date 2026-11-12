@@ -205,6 +205,68 @@ def resolve_ml_model_type(settings: Mapping[str, Any]) -> str:
     return model_type
 
 
+#: What a run is told when it trains on annotations that no setting names.
+#: Shown by the Classify screen before the run starts and reported by
+#: `spacr.validate`; `spacr.ml.generate_ml_scores` keeps its own error for a
+#: scripted call that reaches it anyway.
+_ANNOTATION_COLUMN_MISSING = (
+    "dataset_mode is 'annotation', but no annotation column is set, so there "
+    "are no labels to train on. Name the png_list column that holds your "
+    "labels in the Classes editor or in annotation_column, or set "
+    "dataset_mode to 'metadata'.")
+
+
+def _annotation_column_named(settings: Mapping[str, Any]) -> str:
+    """The png_list column the settings train on, or an empty string.
+
+    Issue #185: the Classify screen hides ``annotation_column`` because the
+    Classes editor names the column of each class, and its default is None.
+    The ML family read only ``annotation_column``, so a run whose classes
+    named the column still reached ``generate_ml_scores`` without one. This
+    reads the classes first, then ``annotation_column``, then the first of
+    ``annotation_columns``.
+    """
+    from .classify_classes import annotation_column_of
+
+    column = annotation_column_of(settings)
+    if column:
+        return column
+    several = settings.get("annotation_columns")
+    if isinstance(several, str):
+        several = [several]
+    for name in several or ():
+        if str(name).strip():
+            return str(name).strip()
+    return ""
+
+
+def _annotation_labels_missing(settings: Mapping[str, Any],
+                               app_key: str = "classify_merged") -> bool:
+    """Whether a run would train on annotations that no setting names.
+
+    True only when the training basis is ``'annotation'``, the run trains,
+    and neither the Classes editor nor ``annotation_column`` names a column.
+    Anything that cannot be resolved answers False and is left to the
+    pipeline's own checks.
+
+    :param settings: the settings about to be run.
+    :param app_key: ``'classify_merged'``, ``'classify'`` or ``'ml_analyze'``.
+    """
+    from .training_basis import resolve_basis
+
+    try:
+        if resolve_basis(settings) != "annotation":
+            return False
+        ml = (app_key == "ml_analyze" or (
+            app_key == "classify_merged" and resolve_family(settings) == "ml"))
+    except Exception:                                        # noqa: BLE001
+        return False
+    if not ml and not (settings.get("train")
+                       or settings.get("generate_training_dataset")):
+        return False
+    return not _annotation_column_named(settings)
+
+
 def classify(settings: Mapping[str, Any]) -> Any:
     """Run whichever classifier family ``settings`` asks for.
 
@@ -242,6 +304,11 @@ def classify(settings: Mapping[str, Any]) -> Any:
     if family == "ml":
         from .ml import generate_ml_scores
         resolved["model_type_ml"] = ml_model_type
+        if (resolved.get("dataset_mode") == "annotation"
+                and not resolved.get("annotation_column")):
+            column = _annotation_column_named(resolved)
+            if column:
+                resolved["annotation_column"] = column
         if "test_split" in resolved:
             resolved.setdefault("test_size", resolved["test_split"])
         if "cross_validation_enabled" in resolved:

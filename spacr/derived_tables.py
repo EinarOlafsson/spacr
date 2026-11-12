@@ -29,11 +29,12 @@ from .merge_tables import (
     _align_keys, _keys_in, _duplicate_observation_message, _merge_key_structure,
     _duplicate_merge_enabled, _merge_duplicate_sources,
     _read,
+    _refuse_mixed_runs,
     aggregation_for,
     merge_tables,
     roll_up,
 )
-from .object_roles import ANCHOR_COLUMN, anchor_column, is_one_row_per_cell
+from .object_roles import ONE_ROW_PER_CELL, _has_anchor, _table_role, anchor_column, is_one_row_per_cell
 
 METHODS = ("mean", "median", "sum", "min", "max", "count", "first", "last",
            "nunique", "any", "all")
@@ -102,7 +103,8 @@ def default_definition(path, tables, *, name="Merged measurements", base=None,
     """
     available = schemas(path)
     tables = list(dict.fromkeys(tables))
-    base = base or next((t for t in ("cell", "cytoplasm") if t in tables),
+    base = base or next((t for role in ONE_ROW_PER_CELL for t in tables
+                         if _table_role(t) == role),
                         tables[0] if tables else "cell")
     if base not in tables:
         tables.insert(0, base)
@@ -116,12 +118,12 @@ def default_definition(path, tables, *, name="Merged measurements", base=None,
     for table in tables:
         if table == base:
             continue
-        link = anchor_column(table) if table in ANCHOR_COLUMN else ""
+        link = anchor_column(table) if _has_anchor(table) else ""
         joins.append({"table": table, "left_keys": keys + [OBJECT_COLUMN],
                       "right_keys": keys + ([link] if link else []),
                       "relationship": "one-to-one" if is_one_row_per_cell(table)
                                       else "one-to-many",
-                      "how": policy.how_for(table) if table in ANCHOR_COLUMN else "left",
+                      "how": policy.how_for(table) if _has_anchor(table) else "left",
                       "overrides": {c.split(".", 1)[-1]: v for c, v in policy.overrides.items()
                                     if "." not in c or c.startswith(table + ".")},
                       "identifiers": _identifiers(
@@ -281,6 +283,8 @@ def execute(path, definition):
     if definition.get("mode") == "default" and not is_one_row_per_cell(definition["base"]):
         raise MergeError("Default output is one row per cell or cytoplasm. "
                          "Use Customize merging for another observation level.")
+    if definition.get("mode") == "default":
+        _refuse_mixed_runs([definition["base"], *[join["table"] for join in definition["joins"]]])
     base_columns = pd.DataFrame(columns=[column[0] for column in definition['schema'][definition['base']]])
     _require_keys(base_columns, definition['base_keys'], definition['base'])
     for join in definition['joins']:
@@ -326,7 +330,7 @@ def _execute_prepared(path, definition):
         if "time_id" in output and "timeID" not in output:
             output["timeID"] = output["time_id"]
         keys = list(IDENTITY) + [OBJECT_COLUMN] + (["timeID"] if "timeID" in output else [])
-        provenance = (base_name in ANCHOR_COLUMN and set(keys).issubset(output.columns)
+        provenance = (_has_anchor(base_name) and set(keys).issubset(output.columns)
                       and not output.duplicated(keys).any()
                       and not output[keys].isna().any(axis=None))
         output.attrs["merge_definition"] = definition
@@ -346,7 +350,7 @@ def _execute_prepared(path, definition):
     reports = []
     for join in definition["joins"]:
         table = join["table"]
-        if mode == "default" and table not in ANCHOR_COLUMN:
+        if mode == "default" and not _has_anchor(table):
             raise MergeError(f"{table}: no standard spaCR relationship; use Customize merging.")
         child = _read(path, table)
         report, aligned = _join_diagnostics(base, child, join, standard=mode == "default")
@@ -392,7 +396,7 @@ def _execute_prepared(path, definition):
         raise MergeError("Merge increased the base observation count; check the composite keys.")
     if "time_id" in output and "timeID" not in output:
         output["timeID"] = output["time_id"]
-    provenance = (base_name in ANCHOR_COLUMN and
+    provenance = (_has_anchor(base_name) and
                   set(IDENTITY + (OBJECT_COLUMN,)).issubset(output.columns) and
                   set(IDENTITY + (OBJECT_COLUMN,)).issubset(definition["base_keys"]))
     if provenance:
