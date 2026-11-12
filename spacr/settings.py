@@ -2305,6 +2305,10 @@ def _set_classifier_evaluation_defaults(settings):
     settings.setdefault('nested_cv_inner_folds', 0)
     settings.setdefault('cv_group_column', '')
     settings.setdefault('cv_exclude_batch_column', '')
+    settings.setdefault('train_eval_split', 'none')
+    settings.setdefault('train_eval_controls', 'majority, shuffled')
+    settings.setdefault('train_eval_shuffle_seed', 0)
+    settings.setdefault('train_eval_shuffle_repeats', 1)
     settings.setdefault('well_metadata_path', '')
     settings.setdefault('prediction_treatment_column', '')
     settings.setdefault('evaluation_calibration', 'temperature')
@@ -4790,6 +4794,10 @@ expected_types = {
     'nested_cv_inner_folds':int,
     'cv_group_column':str,
     'cv_exclude_batch_column':str,
+    'train_eval_split':str,
+    'train_eval_controls':str,
+    'train_eval_shuffle_seed':int,
+    'train_eval_shuffle_repeats':int,
     'well_metadata_path':str,
     'prediction_treatment_column':(str, list),
     'evaluation_calibration':str,
@@ -6236,6 +6244,10 @@ tooltips = {
     'cv_group_by': "(str) - Train/test independence: 'cell', 'field', 'well' (default), or 'plate'. Cell can place sibling crops from one well on both sides; field narrows but does not close that leak; well matches the usual experimental assignment unit; plate holds out a complete batch. Whole groups make the requested fraction approximate, so runs report held-out groups and cells. Legacy 'none'/'off' alias 'cell'. Crop identities come from spaCR's plate_well_field_object.png names; unverifiable grouped designs are refused rather than silently randomized.",
     'classifier_evaluation': "(bool) - Build the Classifier Evaluation workbench bundle from out-of-fold predictions after Classify (CV): sample-level predictions, confusion matrices, reliability curves, calibrated probabilities, per-plate metrics, leakage reports and a manifest. It requires cross_validation_folds >= 2; a single train/validation split cannot produce unbiased out-of-fold diagnostics. Default True. API: spacr.classifier_evaluation.evaluate_predictions.",
     'cv_group_column': '(str) - Leave-one-group-out cross-validation by a metadata column, for example compound: with cross-validation on, every distinct value of the column is held out once, so there is one fold per value and cross_validation_folds is not used. plate, well and field are read from the crop names; any other column is looked up by well in well_metadata_path. cv_group_by still names the identity that may never cross a fold, so keep it at well or field unless every plate holds one group. Cannot be combined with nested_cv_inner_folds. Blank keeps the stratified folds. Default blank.',
+    'train_eval_split': "(str) - Held-out evaluation of the classifier, as in the machine-learning module: leave_one_well_out trains on every well but one and tests on that one, in turn; leave_one_plate_out does the same per plate; random uses the stratified cross_validation_folds folds. No crop of a test well or plate is seen in training. The pooled and per-fold accuracy, balanced accuracy, macro F1 and AUROC go to ml_eval/metrics.csv in the model folder, beside the controls of train_eval_controls. Turns cross-validation on. none keeps the usual split. Default none.",
+    'train_eval_controls': "(str) - Controls reported beside the classifier when train_eval_split is set, comma-separated. majority always predicts the commonest class; shuffled runs the whole cross-validation again with the training labels permuted within each fold, train_eval_shuffle_repeats times, and averages it. Blank reports no control. Default majority, shuffled.",
+    'train_eval_shuffle_seed': "(int) - Seed of the first shuffled-label control run of train_eval_split; the next runs use the following seeds. Default 0.",
+    'train_eval_shuffle_repeats': "(int) - How many times the shuffled-label control of train_eval_split retrains every fold; its row is the mean. Each repeat costs as much as the classifier itself. Default 1.",
     'cv_exclude_batch_column': "(str) - Not-same-compound-or-batch rule for cross-validation: the column naming each crop's batch, such as plate or an imaging week. Each fold then trains without every crop from a batch among its held-out crops, so a held-out compound is never scored by a model that saw its plate or week. plate, well and field come from the crop names, other columns from well_metadata_path. The fold-composition table lists the excluded batches and any class left without training crops. Not combinable with nested_cv_inner_folds. Default blank.",
     'prediction_treatment_column': "(str or list) - Plate-map column, or columns, naming each well's treatment, for example compound, or compound and concentration, read by well from well_metadata_path. Classify always writes <stem>_per_well.csv (objects, predicted-class counts, mean class probabilities); with this set it also writes <stem>_per_treatment.csv, where each class probability is the mean over the treatment's wells and the predicted class is the most probable. Cross-validation adds the true label and prints treatment accuracy. Default blank.",
     'well_metadata_path': '(str) - Plate-map table (CSV, Excel or Parquet) with one row per well: plateID, the well (wellID such as A01, or rowID and columnID) and metadata columns such as compound, concentration or imaging batch. Classify reads the columns named in cv_group_column, cv_exclude_batch_column and prediction_treatment_column from it, joined to each crop by plate and well. A crop whose well is missing is refused for fold building. Default blank.',
@@ -6486,7 +6498,8 @@ categories = {
     "Computer Vision Data Source": ["image_source", "image_size", "size", "train_channels", "stream_method", "object_array", "channel_arrays", "bounding_box", "crop_shape", "sample", "test_split", "val_split", "balance_to_smallest", "augment", "crop_scaling", "crop_scale_clip", "crop_scale_file", "input_statistics",
         "preprocessing_mismatch", "crop_source", "file_metadata", "file_type", "coordinate_columns",
         "well_metadata_path", "cv_group_column",
-        "cv_exclude_batch_column"],
+        "cv_exclude_batch_column", "train_eval_split", "train_eval_controls",
+        "train_eval_shuffle_seed", "train_eval_shuffle_repeats"],
 
     "Computer Vision Model": ["model_type", "model_name", "init_weights", ],
 
@@ -8482,7 +8495,7 @@ tooltips.update({
     'translocation_null_percentile': '(float) - Translocation: the percentile of the corrected nuclear mean in cells without vacuoles that calls a nucleus positive. Default 99.',
     'translocation_shuffle_n': '(int) - Translocation: how often k is permuted among the cells of each field for the shuffle null. Default 200.',
     'translocation_seed': '(int) - Translocation: the seed of the within-field shuffle null; the same seed gives the same null ratios on a rerun, consumed group by group, raw readout first. Default 0.',
-    'translocation_reference': "(str) - Translocation: an optional reference curve table (effector, k, hrman_total, hrman_ratio), for example parsed from HRMAn's Result.pzfx, for the agreement table. Default .",
+    'translocation_reference': "(str) - Translocation: an optional reference curve for the agreement table: a table with effector, k, hrman_total and hrman_ratio, or a GraphPad Prism .pzfx file such as HRMAn's Result.pzfx, whose Nuclear signal column is read per group table. It is saved as hrman_reference.csv. Default blank.",
     'hp_count_column': '(str) - Optional measured count column on each vacuole. Nonnegative integer counts are accepted; missing values remain unknown. Alternative to a linked parasite table. Default empty. API: spacr.host_pathogen.summarize_tables.',
 })
 
@@ -8673,7 +8686,9 @@ ALPHA_FEATURES = {
                      'ml_eval_features', 'ml_eval_features_table',
                      'ml_eval_join_column', 'ml_eval_random_folds',
                      'annotate_sample_n', 'annotate_sample_seed',
-                     'annotate_sample_strata'),
+                     'annotate_sample_strata', 'train_eval_split',
+                     'train_eval_controls', 'train_eval_shuffle_seed',
+                     'train_eval_shuffle_repeats'),
     },
     910: {
         'settings': ('translocation', 'translocation_merged_folder',

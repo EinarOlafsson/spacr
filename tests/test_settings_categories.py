@@ -371,6 +371,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ml_eval_features", "ml_eval_features_table", "ml_eval_join_column",
     "ml_eval_random_folds", "annotate_sample_n", "annotate_sample_seed",
     "annotate_sample_strata",
+    # 899's CNN route (2026-11-12): held-out evaluation of Classify's network.
+    "train_eval_split", "train_eval_controls", "train_eval_shuffle_seed",
+    "train_eval_shuffle_repeats",
     "figure_condition_labels", "figure_model_labels", "figure_detections",
     "figure_mode_folder", "figure_segmentation_folder", "figure_score_folder",
     "figure_metric", "compare_permutations", "compare_seed", "figure_low_confidence",
