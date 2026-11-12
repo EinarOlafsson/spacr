@@ -4099,6 +4099,7 @@ API_ENTRIES = (
     ('spacr.ops_large_sites.sample_sites', "``n`` sites spread evenly over a well's site list, first and last included."),
     ('spacr.ops_large_sites.segment_cell_painting_site', 'Nuclei and cells of one site with the ``cell_painting_phalloidin`` preset.'),
     ('spacr.ops_large_sites.segment_tiled', 'Segment an image tile by tile and stitch the labels.'),
+    ('spacr.ops_large_sites.stitch_tile_flows', 'One flow field and cell probability map from per-tile network outputs.'),
     ('spacr.ops_large_sites.stitch_tile_labels', 'One label image from per-tile label images.'),
     ('spacr.ops_large_sites.survey_sites', "The plate's nucleus diameter and the tiling-control site from a sample of sites."),
     ('spacr.ops_large_sites.tile_grid', 'The tiles covering an image, in row-major order.'),
