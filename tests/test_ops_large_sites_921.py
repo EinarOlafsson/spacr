@@ -31,15 +31,24 @@ def _label(image):
 
 
 class _FakeModel:
-    """Anything with Cellpose's eval: thresholds its first channel."""
+    """Anything with Cellpose's eval: normalises unless told not to, then
+    thresholds its first channel."""
 
-    def __init__(self):
+    def __init__(self, threshold=0.5):
         self.calls = []
+        self.threshold = threshold
 
     def eval(self, x, batch_size=8, **kwargs):
         """Record the call and return ``(labels,)``."""
         self.calls.append(kwargs)
-        return (_label(x),)
+        x = ols.normalize_site(x) if kwargs.get("normalize", True) else np.asarray(x)
+        x = x[..., 0] if x.ndim == 3 else x
+        return (ndimage.label(x > self.threshold)[0].astype(np.int32),)
+
+
+def _models():
+    """Nucleus and cell stand-ins with thresholds that suit :func:`_site`."""
+    return _FakeModel(2.0), _FakeModel(0.5)
 
 
 def test_discs_crossing_tile_seams_are_found_once_with_their_area():
@@ -192,18 +201,21 @@ def test_preset_settings_expand_and_caller_values_win():
         ols.large_site_settings({"seg_edge_policy": "nope"})
 
 
-def _site(shape=(600, 600)):
-    """A synthetic 5-channel site: nuclei in DNA, larger cells in Phalloidin."""
-    centres = [(100, 100), (100, 400), (300, 250), (500, 120), (480, 480), (5, 300)]
-    dna = _discs(shape, centres, 10).astype(np.uint16) * 1000
-    actin = _discs(shape, centres, 25).astype(np.uint16) * 1000
+def _site(shape=(600, 600), centres=None, seed=0):
+    """A synthetic 5-channel site: nuclei in DNA, larger cells in Phalloidin,
+    on a dim noisy background."""
+    if centres is None:
+        centres = [(100, 100), (100, 400), (300, 250), (500, 120), (480, 480), (5, 300)]
+    noise = np.random.default_rng(seed).integers(0, 50, size=shape + (2,)).astype(np.uint16)
+    dna = _discs(shape, centres, 10).astype(np.uint16) * 1000 + noise[..., 0]
+    actin = _discs(shape, centres, 25).astype(np.uint16) * 1000 + noise[..., 1]
     other = np.zeros(shape, np.uint16)
     return np.stack([dna, actin, other, other, other], axis=-1), centres
 
 
 def test_the_preset_pairs_one_nucleus_per_cell_and_tiles_both():
     stack, centres = _site()
-    nucleus_model, cell_model = _FakeModel(), _FakeModel()
+    nucleus_model, cell_model = _models()
     settings = ols.large_site_settings({"seg_preset": "cell_painting_phalloidin",
                                         "seg_tile_px": 256, "seg_tile_overlap_px": 64})
     nuclei, cells, counts = ols.segment_cell_painting_site(
@@ -214,6 +226,8 @@ def test_the_preset_pairs_one_nucleus_per_cell_and_tiles_both():
         assert np.all(cells[nuclei == k] == k)
     assert all(call.get("diameter") == 20.0 for call in nucleus_model.calls)
     assert all(call.get("channel_axis") == -1 for call in cell_model.calls)
+    assert all(call.get("normalize") is False
+               for call in nucleus_model.calls + cell_model.calls)
     assert len(nucleus_model.calls) == 9
     with pytest.raises(ValueError, match="preset needs"):
         ols.segment_cell_painting_site(stack, ["a", "b", "c", "d", "e"], settings,
@@ -247,10 +261,10 @@ def _write_well(tmp_path, stack, channels, sites=("1", "2")):
             tifffile.imwrite(well / name / f"{name}_Site_{site}.tiff", stack[..., c])
     ref = tmp_path / "ref" / "CP-Well1-1" / "segmentation_masks"
     ref.mkdir(parents=True)
-    cells_ref = ols.relabel_raster(_label(stack[..., 1]))
+    cells_ref = ols.relabel_raster(_label(stack[..., 1] > 500))
     tifffile.imwrite(ref / "Plate_CP_Well_Well1_Site_1_Cells_Objects.tiff", cells_ref)
     tifffile.imwrite(ref / "Plate_CP_Well_Well1_Site_1_Nuclei_Objects.tiff",
-                     ols.relabel_raster(_label(stack[..., 0])))
+                     ols.relabel_raster(_label(stack[..., 0] > 500)))
     return well, tmp_path / "ref"
 
 
@@ -261,12 +275,12 @@ def test_the_settings_run_writes_labels_tables_report_and_reruns_identically(tmp
     assert ols.list_sites(str(well), channels) == ["1", "2"]
     base = {"seg_preset": "cell_painting_phalloidin", "seg_sites_src": str(well),
             "seg_tile_px": 256, "seg_tile_overlap_px": 64, "seg_report_reference": str(ref),
-            "seg_measure_band_px": 200}
+            "seg_measure_band_px": 200, "seg_diameter_min_objects": 3}
     first = ols.run_large_site_segmentation(dict(base, seg_dst=str(tmp_path / "a")),
-                                            models=(_FakeModel(), _FakeModel()),
+                                            models=_models(),
                                             available_bytes=2 ** 40)
     second = ols.run_large_site_segmentation(dict(base, seg_dst=str(tmp_path / "b")),
-                                             models=(_FakeModel(), _FakeModel()),
+                                             models=_models(),
                                              available_bytes=2 ** 40)
     sites = pd.read_csv(tmp_path / "a" / "sites.csv")
     assert list(sites["site"].astype(str)) == ["1", "2"]
@@ -297,7 +311,7 @@ def test_the_run_reads_stacked_npy_sites_and_needs_its_folders(tmp_path):
     out = ols.run_large_site_segmentation(
         {"seg_sites_src": str(folder), "seg_dst": str(tmp_path / "o"), "nucleus_diameter": 20,
          "seg_preset": "cell_painting_phalloidin", "seg_tile_px": 0},
-        models=(_FakeModel(), _FakeModel()), available_bytes=2 ** 40)
+        models=_models(), available_bytes=2 ** 40)
     assert out["sites"][0]["site"] == "7" and out["sites"][0]["nucleus_diameter_px"] == 20
     assert not os.path.exists(tmp_path / "o" / "agreement_well.csv")
     with pytest.raises(ValueError, match="required"):
@@ -332,17 +346,207 @@ def test_the_tiling_control_finds_tiled_and_untiled_runs_identical():
     assert small["at_seams"] == 0 and np.isnan(small["at_seams_share"])
 
 
-def test_the_run_writes_the_tiling_control_for_the_first_site(tmp_path):
-    stack, _ = _site()
+def _npy_well(tmp_path, stacks):
+    """A folder of ``<site>.npy`` stacks."""
     folder = tmp_path / "npy"
     folder.mkdir()
-    np.save(folder / "1.npy", stack)
-    np.save(folder / "2.npy", stack)
+    for site, stack in stacks.items():
+        np.save(folder / f"{site}.npy", stack)
+    return folder
+
+
+def test_the_diameter_and_the_control_come_from_populated_sites_not_the_empty_first(tmp_path):
+    empty, _ = _site(centres=[], seed=1)
+    few, _ = _site(centres=[(300, 300)], seed=2)
+    full, _ = _site(seed=3)
+    crowded, _ = _site(centres=[(100, 100), (100, 400), (300, 250), (500, 120), (480, 480),
+                                (300, 520), (520, 300)], seed=4)
+    folder = _npy_well(tmp_path, {"1": empty, "2": few, "3": full, "4": crowded, "5": full})
+    out = ols.run_large_site_segmentation(
+        {"seg_sites_src": str(folder), "seg_dst": str(tmp_path / "o"),
+         "seg_preset": "cell_painting_phalloidin", "seg_tile_px": 256, "seg_tile_overlap_px": 64,
+         "seg_tiling_control_px": 400, "seg_diameter_sites": 5, "seg_diameter_min_objects": 3},
+        models=_models(), available_bytes=2 ** 40)
+    meta = json.loads((tmp_path / "o" / "nucleus_diameter.json").read_text())
+    assert meta["sites_sampled"] == ["1", "2", "3", "4", "5"]
+    assert meta["objects_per_site"] == {"1": 0, "2": 1, "3": 6, "4": 7, "5": 6}
+    assert meta["sites_used"] == ["3", "4", "5"] and meta["diameter_per_site"]["1"] is None
+    assert meta["nucleus_diameter_source"] == "estimated"
+    assert 19 < meta["nucleus_diameter_px"] < 22
+    assert meta["control_site"] == "5" and out["nucleus_diameter"] == meta
+    sites = pd.read_csv(tmp_path / "o" / "sites.csv")
+    assert (sites["nucleus_diameter_px"] == meta["nucleus_diameter_px"]).all()
+    assert (sites["nucleus_diameter_sites"] == "3;4;5").all()
+    control = json.loads((tmp_path / "o" / "tiling_control.json").read_text())
+    assert control["site"] == "5" and control["site_nuclei"] == 6
+    assert control["objects"] > 0 and control["away_identical"] == control["away_from_seams"]
+
+
+def test_a_well_without_enough_nuclei_fails_instead_of_using_the_floor(tmp_path):
+    empty, _ = _site(centres=[], seed=1)
+    few, _ = _site(centres=[(300, 300)], seed=2)
+    folder = _npy_well(tmp_path, {"1": empty, "2": few})
+    with pytest.raises(ValueError, match="no sampled site has at least 3 nuclei.*site 2: 1"):
+        ols.run_large_site_segmentation(
+            {"seg_sites_src": str(folder), "seg_dst": str(tmp_path / "o"),
+             "seg_preset": "cell_painting_phalloidin", "seg_tile_px": 0,
+             "seg_diameter_min_objects": 3}, models=_models(), available_bytes=2 ** 40)
+
+
+def test_a_fixed_diameter_is_recorded_and_the_control_site_still_surveyed(tmp_path):
+    empty, _ = _site(centres=[], seed=1)
+    full, _ = _site(seed=3)
+    folder = _npy_well(tmp_path, {"1": empty, "2": full})
     ols.run_large_site_segmentation(
         {"seg_sites_src": str(folder), "seg_dst": str(tmp_path / "o"), "nucleus_diameter": 20,
          "seg_preset": "cell_painting_phalloidin", "seg_tile_px": 256, "seg_tile_overlap_px": 64,
-         "seg_tiling_control_px": 400},
-        models=(_FakeModel(), _FakeModel()), available_bytes=2 ** 40)
+         "seg_tiling_control_px": 400, "seg_diameter_min_objects": 3},
+        models=_models(), available_bytes=2 ** 40)
+    meta = json.loads((tmp_path / "o" / "nucleus_diameter.json").read_text())
+    assert meta["nucleus_diameter_source"] == "fixed" and meta["nucleus_diameter_px"] == 20
+    assert meta["control_site"] == "2"
     control = json.loads((tmp_path / "o" / "tiling_control.json").read_text())
-    assert control["site"] == "1" and control["region_px"] == 400
+    assert control["site"] == "2" and control["region_px"] == 400
     assert control["away_identical"] == control["away_from_seams"]
+    sites = pd.read_csv(tmp_path / "o" / "sites.csv")
+    assert sites["nucleus_diameter_sites"].isna().all()
+    no_preset = ols.run_large_site_segmentation(
+        {"seg_sites_src": str(folder), "seg_dst": str(tmp_path / "p"), "seg_tile_px": 0},
+        models=_models(), available_bytes=2 ** 40)
+    assert no_preset["nucleus_diameter"] == {"nucleus_diameter_px": None,
+                                             "nucleus_diameter_source": "none"}
+
+
+def _blobs(n):
+    """``n`` 10 x 10 squares in a row."""
+    out = np.zeros((40, 400), np.int32)
+    for k in range(n):
+        out[10:20, 12 * k:12 * k + 10] = k + 1
+    return out
+
+
+def test_survey_picks_the_median_count_site_and_sample_sites_spreads_evenly():
+    nuclei = {"a": _blobs(0), "b": _blobs(5), "c": _blobs(9), "d": _blobs(7), "e": _blobs(4)}
+    survey = ols.survey_sites(list(nuclei), nuclei, min_objects=5)
+    assert survey["sites_used"] == ["b", "c", "d"] and survey["control_site"] == "d"
+    assert 11 < survey["diameter_px"] < 12
+    assert ols.survey_sites(["b", "c"], nuclei, min_objects=5)["control_site"] == "b"
+    assert ols.sample_sites([str(i) for i in range(1, 101)], 5) == ["1", "26", "51", "75", "100"]
+    assert ols.sample_sites(["1", "2"], 9) == ["1", "2"]
+    assert ols.sample_sites(["7"], 0) == ["7"] and ols.sample_sites([], 3) == []
+
+
+def test_site_normalisation_matches_cellpose_on_one_tile_and_zeroes_flat_channels():
+    from cellpose.transforms import normalize_img
+
+    rng = np.random.default_rng(5)
+    image = rng.gamma(2.0, 300.0, size=(300, 320, 2)).astype(np.float32)
+    image[..., 1] = 7.0
+    out = ols.normalize_site(image)
+    assert out.dtype == np.float32 and not np.shares_memory(out, image)
+    assert np.array_equal(out, normalize_img(image.copy(), axis=-1))
+    assert not out[..., 1].any()
+    big = rng.gamma(2.0, 300.0, size=(2400, 2400)).astype(np.float32)
+    assert np.array_equal(ols.normalize_site(big),
+                          normalize_img(big[..., None].copy(), axis=-1)[..., 0])
+
+
+def _uneven(shape=(1500, 1500), seed=7):
+    """Soft-edged blobs of mixed brightness under a strong illumination gradient."""
+    rng = np.random.default_rng(seed)
+    yy, xx = np.mgrid[:shape[0], :shape[1]].astype(np.float32)
+    image = 200.0 + 1800.0 * (xx / shape[1]) * (0.3 + yy / shape[0])
+    for cy, cx in rng.integers(20, shape[0] - 20, size=(400, 2)):
+        y0, x0 = max(cy - 30, 0), max(cx - 30, 0)
+        patch = (slice(y0, cy + 31), slice(x0, cx + 31))
+        image[patch] += rng.uniform(800, 4000) * np.exp(
+            -((yy[patch] - cy) ** 2 + (xx[patch] - cx) ** 2) / (2 * 7.0 ** 2))
+    return image.astype(np.float32)
+
+
+def _per_tile(x):
+    """The stand-in as Cellpose runs it by default: normalised per call."""
+    return _FakeModel(0.6).eval(x)[0]
+
+
+def _site_scaled(x):
+    """The stand-in on an image normalised once for the whole site."""
+    return _FakeModel(0.6).eval(x, normalize=False)[0]
+
+
+def test_tiled_equals_untiled_away_from_seams_on_uneven_intensity():
+    image = _uneven()
+    tile = (image.shape[0] + 256) // 2 + 1
+    before = ols.tiling_control(image, _per_tile, tile_px=tile, overlap_px=256)
+    assert before["away_identical"] < before["away_from_seams"]
+    after = ols.tiling_control(ols.normalize_site(image), _site_scaled, tile_px=tile,
+                               overlap_px=256)
+    assert after["objects"] > 200 and after["at_seams"] > 20
+    assert after["away_identical"] == after["away_from_seams"]
+    assert after["at_seams_share"] >= 0.99
+
+
+def test_network_tile_starts_follow_cellpose_and_aligned_tiles_share_its_grid():
+    from cellpose import transforms
+
+    for length in (200, 256, 300, 816, 1200, 1999, 2048, 5500):
+        y1, y2, _, _ = transforms.get_pad_yx(length, length, min_size=(256, 256))
+        image = np.zeros((1, length + y1 + y2, 300), np.float32)
+        _, ysub, _, _, _ = transforms.make_tiles(image, bsize=256, tile_overlap=0.1)
+        starts = sorted({int(a) - y1 for a, _ in ysub})
+        assert list(ols.network_tile_starts(length)) == starts
+    tile, step, stride = ols.aligned_tiling(2048, 256)
+    assert (tile, step, stride) == (1968, 1536, 192)
+    layout = ols.tiling_layout((5500, 5500), 2048, 256, align=True)
+    assert layout["aligned"] and layout["padded"] == (5616, 5616)
+    assert layout["tile_px"] == 1968 and layout["overlap_px"] == 432
+    grid = set(range(-8, 5616, stride))
+    for y0, y1, _, _ in layout["boxes"]:
+        assert y0 % stride == 0 and set(int(v) + y0 for v in ols.network_tile_starts(y1 - y0)) <= grid
+    assert ols.tiling_layout((300, 300), 2048, 256, align=True)["boxes"] == [(0, 300, 0, 300)]
+    assert ols.aligned_tiling(200, 64) is None
+    assert ols.control_layout(2048, 256) == (1968, 1200, True)
+    assert ols.control_layout(400, 64) == (400, 233, False)
+
+
+class _TileMeanNet:
+    """A stand-in network whose output depends on where its tiles fall:
+    each network tile is centred on its own mean, as a real network's
+    output depends on the whole tile it sees."""
+
+    def __init__(self):
+        import torch
+
+        self.device, self.dtype = torch.device("cpu"), torch.float32
+
+    def eval(self):
+        """Cellpose puts the network in eval mode first."""
+        return self
+
+    def __call__(self, x):
+        import torch
+
+        y = x[:, :1] - x[:, :1].mean(dim=(2, 3), keepdim=True)
+        return torch.cat([y, y, y], 1), torch.zeros(x.shape[0], 256)
+
+
+def _network_like(x):
+    """Cellpose's own network tiling and tile averaging around the stand-in."""
+    from cellpose.core import run_net
+
+    flows, _ = run_net(_TileMeanNet(), np.asarray(x, np.float32)[None, ..., None], bsize=256)
+    return ndimage.label(flows[0, ..., 2] > 0.4)[0].astype(np.int32)
+
+
+def test_tiles_on_the_network_grid_reproduce_the_untiled_run_away_from_seams():
+    image = ols.normalize_site(_uneven((1200, 1200), seed=11))
+    misplaced = ols.tiling_control(image, _network_like, tile_px=729, overlap_px=256)
+    assert not misplaced["aligned"]
+    assert misplaced["away_identical"] < misplaced["away_from_seams"]
+    region, tile, aligned = ols.control_layout(1200, 256)
+    assert (region, tile, aligned) == (1200, 816, True)
+    out = ols.tiling_control(image, _network_like, tile_px=tile, overlap_px=256, align=True)
+    assert out["aligned"] and out["tile_px"] == 816 and out["overlap_px"] == 432
+    assert out["objects"] > 100 and out["at_seams"] > 20
+    assert out["away_identical"] == out["away_from_seams"]
+    assert out["at_seams_share"] >= 0.99

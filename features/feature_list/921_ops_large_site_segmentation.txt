@@ -66,6 +66,30 @@ REMAINING VALIDATION (GPU machine)
    difference count is reported with the GPU model and deterministic flags.
 5. Record seconds per site (target 15-35 min per well).
 
+FIXES AFTER THE FIRST CP186A WELL1 RUN (2026-11-12)
+The WS run (100 sites, spaCR 3bc1124532) found two bugs.
+- Diameter and tiling control from site 1: both came from sites[0], an
+  empty well-edge site, so the diameter fell to the 10 px floor and the
+  control had nothing to compare. Now seg_diameter_sites (9) sites spread
+  over the well are segmented first (sample_sites); only those with at least
+  seg_diameter_min_objects (50) nuclei count, the diameter is the median over
+  their nuclei, and the control runs on the median-count site
+  (survey_sites). nucleus_diameter.json and sites.csv
+  (nucleus_diameter_sites) record the sites and the value; a well with no
+  such site stops with a message. The cell path has no diameter (Cellpose-SAM
+  runs at its native scale), so it had no such estimate.
+- Tiled and untiled labels differed everywhere (site 76: away_identical
+  0/557, at_seams_share 0.838). Cellpose normalised every tile by its own
+  1st/99th percentiles, and its network tiles fell on different grids in a
+  tile and in the untiled region. Now each channel is normalised once per
+  site (normalize_site, Cellpose's own arithmetic) and Cellpose runs with
+  normalize=False; tiles start on Cellpose's network-tile grid
+  (network_tile_starts, aligned_tiling, tiling_layout: 1968 px tiles with 432
+  px overlap for 2048 / 256), and the control region is sized to that grid
+  (control_layout: 1968 px region, 1200 px tiles). Nuclei with a set
+  diameter are resized per tile by Cellpose, so they get the normalisation
+  fix only.
+
 NOT DONE
 - 'own' needs neighbour crops' placement; the run applies exclude / keep only
   (apply_edge_policy takes neighbours when a caller has them).
