@@ -297,7 +297,8 @@ _PH_PLATE_PHASES = ("ph_flatfield", "aggregate", "ph_tables", "ph_crops",
 #: sweep (item 916) and the per-gene E-test (item 917). Needs no image step
 #: and no database.
 _PROFILE_PHASES = ("profile", "evaluate", "modules", "mitocarta",
-                   "cluster_sweep", "etest")
+                   "cluster_sweep", "etest", "cluster_consensus",
+                   "cluster_bench_test")
 
 #: The nuclear-median flat-field path (alpha, item 912): per-plate maps from
 #: the per-nucleus tables, then their held-out check. Needs no image step
@@ -7745,9 +7746,11 @@ def run_ops(settings: Mapping[str, Any], *,
         The alpha ``"score"`` phase (item 913) runs alone: it scores gene
         profiles and clusterings with copairs and EFAAR
         (:func:`spacr.ops_scoring.score_ops_profiles`). The profile path's
-        alpha ``"cluster_sweep"`` (item 916, the Leiden resolution sweep) and
-        ``"etest"`` (item 917, the per-gene E-test and its power curve)
-        phases run inside :func:`spacr.ops_tvn.run_profile_phases`. Like the
+        alpha ``"cluster_sweep"`` (item 916, the Leiden resolution sweep),
+        ``"etest"`` (item 917, the per-gene E-test and its power curve),
+        ``"cluster_consensus"`` (item 928, guide-bootstrap consensus
+        clustering) and ``"cluster_bench_test"`` (item 929, the calibrated
+        consensus test) phases run inside :func:`spacr.ops_tvn.run_profile_phases`. Like the
         profile path, the flat-field and score phases hold the BLAS and
         OpenMP pools to one thread while ``ops_deterministic_blas`` is on
         (the result's ``blas_threads``). With ``ops_layout`` set to
@@ -7783,7 +7786,8 @@ def run_ops(settings: Mapping[str, Any], *,
         from .ops_tvn import _pinned_blas, run_profile_phases
 
         profile = [phase for phase in phases
-                   if phase in ("profile", "evaluate", "cluster_sweep", "etest")]
+                   if phase in ("profile", "evaluate", "cluster_sweep", "etest",
+                                "cluster_consensus", "cluster_bench_test")]
         result = run_profile_phases(settings, profile, report=_say) if profile else {}
         atlas = [phase for phase in phases if phase in ("modules", "mitocarta")]
         if atlas:

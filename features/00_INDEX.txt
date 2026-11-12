@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-740 Lifecycle: new, 167 Lifecycle: future in features/feature_list/.
+740 Lifecycle: new, 169 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -546,6 +546,12 @@ FUTURE FEATURES
 
   923  OPS PROFILE BENCHMARKS FOR A SECOND SCREEN: CORUM WITHIN-COMPLEX r, STRING AUPRC, PERISCOPE ZERO-TPM HIT RULE
        923_ops_profile_benchmark_hits.txt
+
+  928  OPS GUIDE-BOOTSTRAP CONSENSUS CLUSTERING OF GENE PROFILES
+       928_ops_guide_bootstrap_consensus.txt
+
+  929  OPS CALIBRATED CLUSTER TEST: PAIRED GUIDE-BOOTSTRAP REPLICATES, EXACT SIGN-FLIP P, TWO-LEVEL CI, JITTER GATE
+       929_ops_calibrated_cluster_test.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES
