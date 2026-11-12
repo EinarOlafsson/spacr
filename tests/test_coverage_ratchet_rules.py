@@ -1537,3 +1537,208 @@ def test_retiring_needs_no_integrity_records_and_a_gate_still_demands_them(
 
     assert complete.returncode == 0, complete.stdout + complete.stderr
     assert report["measurement_integrity"]["status"] == "complete"
+
+
+# -- (g) the loss tolerance ---------------------------------------------------
+#
+# Maintainer decision 2026-11-12 (test-suite reduction): a module may lose up
+# to one point of statement-and-branch coverage against the committed
+# baseline. ``demo/logic.py`` measures 100 statements and 40 branches, so
+# one uncovered line is 0.71 points and two are 1.43.
+
+TOLERANCE = ("--loss-tolerance-points", "1")
+
+
+@pytest.mark.parametrize(
+    ("before", "after", "tolerated"),
+    [
+        (
+            {"uncovered_statements": 1},
+            {"uncovered_statements": 2},
+            "uncovered statements rose from 1 to 2 (within the 1-point "
+            "tolerance: 0.71 points lost)",
+        ),
+        (
+            {},
+            {"uncovered_branches": 1},
+            "was at 100% in the baseline and now has 0 uncovered statements, "
+            "1 uncovered branches, 0 pragma: no cover comments, "
+            "0 coverage-excluded lines (within the 1-point tolerance: "
+            "0.71 points lost)",
+        ),
+    ],
+)
+def test_a_loss_within_the_tolerance_passes_and_is_named(
+    tmp_path, before, after, tolerated,
+):
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _logic(**before))
+
+    result, report, text = _gate(
+        project, tmp_path, _logic(**after), *TOLERANCE, baseline=baseline,
+    )
+
+    assert result.returncode == 0, result.stdout
+    logic = _module(report, "demo/logic.py")
+    assert logic["failures"] == []
+    assert logic["tolerated"] == [tolerated]
+    assert f"TOLERATED: demo/logic.py: {tolerated}" in text
+    assert report["summary"]["tolerated_modules"] == 1
+    assert report["loss_tolerance_points"] == 1.0
+    assert json.loads(baseline.read_text(encoding="utf-8"))["modules"][
+        "demo/logic.py"]["uncovered_statements"] == before.get(
+            "uncovered_statements", 0)
+
+
+@pytest.mark.parametrize(
+    ("before", "after", "failure"),
+    [
+        (
+            {"uncovered_statements": 1},
+            {"uncovered_statements": 3},
+            "uncovered statements rose from 1 to 3",
+        ),
+        (
+            {},
+            {"uncovered_statements": 1, "uncovered_branches": 1},
+            "was at 100% in the baseline and now has 1 uncovered statements, "
+            "1 uncovered branches, 0 pragma: no cover comments, "
+            "0 coverage-excluded lines",
+        ),
+    ],
+)
+def test_a_loss_past_the_tolerance_still_fails(tmp_path, before, after, failure):
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _logic(**before))
+
+    result, report, _text = _gate(
+        project, tmp_path, _logic(**after), *TOLERANCE, baseline=baseline,
+    )
+
+    assert result.returncode == 1
+    logic = _module(report, "demo/logic.py")
+    assert logic["failures"] == [failure]
+    assert logic["tolerated"] == []
+
+
+def test_the_tolerance_is_counted_against_the_baseline_not_the_last_run(tmp_path):
+    """Two tolerated losses in a row cannot add up past one point."""
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _logic(uncovered_statements=1))
+
+    first, _report, _text = _gate(
+        project, tmp_path, _logic(uncovered_statements=2), *TOLERANCE,
+        baseline=baseline,
+    )
+    second, report, _text = _gate(
+        project, tmp_path, _logic(uncovered_statements=3), *TOLERANCE,
+        baseline=baseline,
+    )
+
+    assert first.returncode == 0
+    assert second.returncode == 1
+    assert _module(report, "demo/logic.py")["failures"] == [
+        "uncovered statements rose from 1 to 3"
+    ]
+
+
+def test_exactly_one_point_is_within_the_tolerance():
+    base = {"uncovered_statements": 0, "uncovered_branches": 0,
+            "pragma_no_cover": 0, "excluded_lines": 0, "since": "x"}
+
+    def module(statements, branches):
+        return {
+            "path": "demo/logic.py", "measurement_errors": [],
+            "num_statements": 80, "num_branches": 20,
+            "counts": {"uncovered_statements": statements,
+                       "uncovered_branches": branches,
+                       "pragma_no_cover": 0, "excluded_lines": 0},
+        }
+
+    tolerated: list[str] = []
+    failures, _ = ratchet._judge_module(
+        module(1, 0), base, tolerance_points=1.0, tolerated=tolerated,
+    )
+    assert failures == []
+    assert tolerated == [
+        "was at 100% in the baseline and now has 1 uncovered statements, "
+        "0 uncovered branches, 0 pragma: no cover comments, "
+        "0 coverage-excluded lines (within the 1-point tolerance: "
+        "1.00 points lost)"
+    ]
+    tolerated = []
+    failures, _ = ratchet._judge_module(
+        module(1, 1), base, tolerance_points=1.0, tolerated=tolerated,
+    )
+    assert tolerated == []
+    assert len(failures) == 1
+
+
+def test_the_tolerance_never_excuses_hiding_code(tmp_path):
+    project = _project(tmp_path / "project")
+    logic = project / "demo" / "logic.py"
+    baseline = _seed(project, tmp_path, _logic(uncovered_statements=1))
+    logic.write_text(
+        logic.read_text(encoding="utf-8") + "B = 2  # pragma: no cover\n",
+        encoding="utf-8",
+    )
+
+    result, report, _text = _gate(
+        project, tmp_path, _logic(uncovered_statements=2), *TOLERANCE,
+        baseline=baseline,
+    )
+
+    assert result.returncode == 1
+    assert _module(report, "demo/logic.py")["failures"] == [
+        "uncovered statements rose from 1 to 2",
+        "pragma: no cover comments rose from 0 to 1",
+    ]
+
+
+def test_the_tolerance_does_not_lift_the_floor(tmp_path):
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _logic(uncovered_statements=14))
+
+    result, report, _text = _gate(
+        project, tmp_path, _logic(uncovered_statements=15), *TOLERANCE,
+        baseline=baseline,
+    )
+
+    assert result.returncode == 1
+    failures = _module(report, "demo/logic.py")["failures"]
+    assert len(failures) == 1
+    assert failures[0].startswith("is below the 90% floor at 89.29%")
+
+
+def test_without_the_flag_the_gate_stays_strict(tmp_path):
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _logic(uncovered_statements=1))
+
+    result, report, text = _gate(
+        project, tmp_path, _logic(uncovered_statements=2), baseline=baseline,
+    )
+
+    assert result.returncode == 1
+    assert report["loss_tolerance_points"] == 0.0
+    assert "Modules within the loss tolerance: 0 (no tolerance)" in text
+
+
+@pytest.mark.parametrize("value", ["-1", "101"])
+def test_a_tolerance_outside_zero_to_one_hundred_is_refused(tmp_path, value):
+    project = _project(tmp_path / "project")
+
+    result, report, _text = _gate(
+        project, tmp_path, _logic(), "--loss-tolerance-points", value,
+    )
+
+    assert result.returncode == 2
+    assert report is None
+    assert "--loss-tolerance-points must be between 0 and 100" in result.stderr
+
+
+def test_the_coverage_job_allows_one_point_and_no_more():
+    combine = _combine_job()["coverage-combine"]
+    script = "\n".join(step.get("run", "") for step in combine["steps"])
+
+    assert script.count("--loss-tolerance-points") == 1
+    assert "--loss-tolerance-points 1 " in script + " "

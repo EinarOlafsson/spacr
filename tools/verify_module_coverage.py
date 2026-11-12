@@ -60,6 +60,17 @@ baseline entry does, and one whose module now clears the floor is printed so
 it can be removed.  A ``# pragma: no cover`` is NOT the way to do this: the
 repository spent an item removing them and rule (a) counts every one.
 
+THE LOSS TOLERANCE (``--loss-tolerance-points``, maintainer decision
+2026-11-12, test-suite reduction): a module in the baseline may lose up to
+that many percentage points of its statement-and-branch coverage -- the same
+percentage the floor uses -- against its baseline counts before rules (a)
+and (b) fail it.  Only uncovered statements and branches are tolerated; a new
+pragma or excluded line still fails, the floor still applies, and a module
+not in the baseline gets no tolerance.  The allowance is measured against
+the committed baseline, never against the previous run, so repeated small
+losses cannot add up past it.  Every tolerated rise is printed as TOLERATED
+so it stays visible.  CI passes 1; the default is 0, the strict gate.
+
 It PASSES, and prints an improvement notice, when a module's counts fall.
 Every module not yet at 100% is listed on every run, with its baseline
 allowance and the date that allowance was written; the ones below the floor
@@ -123,7 +134,7 @@ from typing import Any, Mapping, Sequence
 
 from setuptools import find_packages
 
-REPORT_SCHEMA = "spacr.module-coverage-ratchet/v4"
+REPORT_SCHEMA = "spacr.module-coverage-ratchet/v5"
 BASELINE_SCHEMA = "spacr.module-coverage-baseline/v1"
 PRAGMA_NO_COVER = re.compile(r"#\s*pragma\s*:\s*no\s*cover\b", re.IGNORECASE)
 
@@ -892,11 +903,54 @@ def write_baseline(path: Path, document: Mapping[str, Any]) -> None:
 # -- the ratchet -----------------------------------------------------------
 
 
+def _loss_points(module: Mapping[str, Any], base: Mapping[str, Any]) -> float | None:
+    """Points of statement-and-branch coverage lost against ``base``.
+
+    Both percentages share the module's current denominator, so the answer is
+    ``100 * (uncovered now - uncovered in the baseline) / (statements +
+    branches)``.  None when the module has nothing to measure.
+    """
+    fraction = coverage_fraction(module)
+    if fraction is None or fraction[1] == 0:
+        return None
+    counts = module["counts"]
+    now = sum(counts[field] for field in EXECUTION_FIELDS)
+    before = sum(base[field] for field in EXECUTION_FIELDS)
+    return 100.0 * (now - before) / fraction[1]
+
+
+def _within_tolerance(
+    module: Mapping[str, Any], base: Mapping[str, Any], tolerance_points: float,
+) -> float | None:
+    """The points lost when a loss is tolerated, else None.
+
+    A loss is tolerated only when ``tolerance_points`` is positive, the
+    module hides no more code than its baseline allows, and the execution
+    counts lost at most that many points in total.
+    """
+    if tolerance_points <= 0:
+        return None
+    counts = module["counts"]
+    if any(counts[field] > base[field]
+           for field in COUNT_FIELDS if field not in EXECUTION_FIELDS):
+        return None
+    lost = _loss_points(module, base)
+    if lost is None or lost > tolerance_points + 1e-9:
+        return None
+    return max(lost, 0.0)
+
+
 def _judge_module(
     module: Mapping[str, Any], base: Mapping[str, Any] | None,
     *, floor: int = COVERAGE_FLOOR_PERCENT, exemption: str | None = None,
+    tolerance_points: float = 0.0, tolerated: list[str] | None = None,
 ) -> tuple[list[tuple[str, bool]], list[str]]:
     """Return (failures, improvements) for one measured module.
+
+    With a positive ``tolerance_points``, rises in uncovered statements and
+    branches that together cost the module at most that many points of
+    coverage against ``base`` are appended to ``tolerated`` instead of
+    failing.
 
     Two things are judged: the FLOOR, which every shipped module clears
     unless ``exemption`` says why it cannot, and NO-REGRESSION against
@@ -937,7 +991,18 @@ def _judge_module(
                     False,
                 ))
         return failures, improvements
+    tolerance = _within_tolerance(module, base, tolerance_points)
+    allowance = (
+        f" (within the {tolerance_points:g}-point tolerance: "
+        f"{tolerance:.2f} points lost)" if tolerance is not None else ""
+    )
     if not any(base[field] for field in COUNT_FIELDS) and not measured_full:
+        if tolerance is not None and tolerated is not None:
+            tolerated.append(
+                "was at 100% in the baseline and now has "
+                + _describe_counts(counts) + allowance
+            )
+            return failures, improvements
         failures.append((
             "was at 100% in the baseline and now has "
             + _describe_counts(counts),
@@ -947,6 +1012,13 @@ def _judge_module(
     for field in COUNT_FIELDS:
         label = COUNT_LABELS[field]
         if counts[field] > base[field]:
+            if (tolerance is not None and tolerated is not None
+                    and field in EXECUTION_FIELDS):
+                tolerated.append(
+                    f"{label} rose from {base[field]} to {counts[field]}"
+                    + allowance
+                )
+                continue
             failures.append((
                 f"{label} rose from {base[field]} to {counts[field]}",
                 field in EXECUTION_FIELDS,
@@ -966,8 +1038,12 @@ def evaluate(
     exemptions: Mapping[str, str] | None = None,
     exemptions_path: str | None = None,
     floor: int = COVERAGE_FLOOR_PERCENT,
+    tolerance_points: float = 0.0,
 ) -> dict[str, Any]:
     """Judge a measurement against the floor and a baseline.
+
+    ``tolerance_points`` is the loss tolerance described in the module
+    docstring; 0 is the strict gate.
 
     ``baseline`` None means no module has a recorded allowance, so the floor
     is the whole gate.  ``exemptions`` maps a module path to the reason it
@@ -990,8 +1066,10 @@ def evaluate(
     for measured in measurement["modules"]:
         entry = dict(measured)
         base = base_modules.get(entry["path"])
+        tolerated: list[str] = []
         judged, improvements = _judge_module(
             entry, base, floor=floor, exemption=exempt.get(entry["path"]),
+            tolerance_points=tolerance_points, tolerated=tolerated,
         )
         failures = [
             message for message, explainable in judged
@@ -1018,6 +1096,7 @@ def evaluate(
         entry["failures"] = failures
         entry["unconfirmed"] = unconfirmed
         entry["improvements"] = improvements
+        entry["tolerated"] = tolerated
         entry["status"] = (
             "fail" if failures else "unconfirmed" if unconfirmed else "pass"
         )
@@ -1049,6 +1128,7 @@ def evaluate(
         "schema": REPORT_SCHEMA,
         "status": status,
         "floor_percent": floor,
+        "loss_tolerance_points": tolerance_points,
         "measurement_integrity": integrity,
         "root": measurement["root"],
         "coverage": dict(measurement["coverage"]),
@@ -1082,6 +1162,7 @@ def evaluate(
             ),
             "integrity_issue_count": len(integrity.get("issues", [])),
             "improved_modules": sum(bool(m["improvements"]) for m in modules),
+            "tolerated_modules": sum(bool(m["tolerated"]) for m in modules),
             "stale_baseline_entries": len(stale),
             "global_issue_count": len(measurement["global_issues"]),
         },
@@ -1412,6 +1493,11 @@ def render_text(report: Mapping[str, Any], notes: Sequence[str] = ()) -> str:
         "Modules with unconfirmed rises (measurement incomplete): "
         f"{summary['unconfirmed_modules']}",
         f"Modules improved: {summary['improved_modules']}",
+        "Modules within the loss tolerance: "
+        f"{summary.get('tolerated_modules', 0)}"
+        + (f" (up to {report['loss_tolerance_points']:g} points of coverage "
+           "per module against the baseline)"
+           if report.get("loss_tolerance_points") else " (no tolerance)"),
         f"Stale baseline entries: {summary['stale_baseline_entries']}",
     ]
     for issue in integrity.get("issues", []):
@@ -1449,6 +1535,9 @@ def render_text(report: Mapping[str, Any], notes: Sequence[str] = ()) -> str:
                 "is incomplete, so this may be coverage data lost with a "
                 "crashed worker rather than coverage the code lost)"
             )
+    for module in report["modules"]:
+        for note in module.get("tolerated", []):
+            lines.append(f"TOLERATED: {module['path']}: {note}")
     for module in report["modules"]:
         for improvement in module["improvements"]:
             lines.append(
@@ -1591,6 +1680,13 @@ def build_parser() -> argparse.ArgumentParser:
         help="how many coverage shards must have left an integrity record",
     )
     parser.add_argument(
+        "--loss-tolerance-points", type=float, default=0.0,
+        help="points of statement-and-branch coverage a module in the "
+        "baseline may lose against its baseline counts before it fails "
+        "(default 0, the strict gate; CI passes 1). New pragmas and excluded "
+        "lines are never tolerated, and the floor still applies",
+    )
+    parser.add_argument(
         "--json-out", type=Path,
         help="machine-readable ratchet report destination; required except "
         "with --retire-module",
@@ -1667,6 +1763,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         parser.error("--update-baseline and --reset-baseline need --baseline")
     if (args.shard_integrity is None) != (args.shard_count is None):
         parser.error("--shard-integrity and --shard-count are given together")
+    if not 0 <= args.loss_tolerance_points <= 100:
+        parser.error("--loss-tolerance-points must be between 0 and 100")
     if args.shard_count is not None and args.shard_count < 1:
         parser.error("--shard-count must be at least 1")
     notes: list[str] = []
@@ -1707,6 +1805,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             exemptions_path=(
                 str(args.floor_exemptions) if args.floor_exemptions else None
             ),
+            tolerance_points=args.loss_tolerance_points,
         )
     except (OSError, ValueError, SyntaxError, tokenize.TokenError) as exc:
         for note in notes:

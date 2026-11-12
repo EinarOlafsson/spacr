@@ -167,7 +167,21 @@ jobs:
           # `numpy<2.0.0`). The suite still has to exercise them:
           # spacr/measure.py imports mahotas at module scope, so without
           # `zernike` this whole suite would fail at collection, not degrade.
-          python -m pip install -e ".[dev,zernike,attribution,btrack,czi,vendor-watch]"
+          #
+          # The optional packages after the extras let the tests that used to
+          # skip in every CI shard for a missing import run here (test-suite
+          # audit, 2026-11-12): API documentation (sphinx-autoapi,
+          # beautifulsoup4), text shaping (uharfbuzz), ROI export
+          # (pycocotools), profiling (pycytominer, copairs), clustering,
+          # Harmony, survival (lifelines), ONNX export and the README deck.
+          # One resolver run, no constraints: this job still answers what
+          # the newest resolution is.
+          python -m pip install -e ".[dev,zernike,attribution,btrack,czi,vendor-watch,clustering,harmony,tem]" \
+            "sphinx-autoapi>=3.3,<4" "beautifulsoup4>=4.12,<5" \
+            "uharfbuzz>=0.39,<1" "pycocotools>=2.0.7,<3" \
+            "pycytominer>=1.1,<2" "copairs==0.6.0" "lifelines>=0.27,<1" \
+            "onnx>=1.16,<2" "onnxruntime>=1.17,<2" \
+            "python-pptx>=1.0,<2" "pypdf>=4,<7"
           # REQUIRED BY `--per-test-timeout` BELOW. The `dev` extra carries
           # pytest, pytest-qt and pytest-xdist and NOT pytest-timeout, so
           # passing `--timeout` without this makes pytest exit on
@@ -681,6 +695,10 @@ jobs:
       # MEASUREMENT (exit 3) with the counts it may have raised marked
       # UNCONFIRMED. It still fails, and says why. --shard-count must equal
       # the matrix length.
+      # Since 2026-11-12 (test-suite reduction) a module in the baseline may
+      # lose up to one point of statement-and-branch coverage against the
+      # committed baseline; each such loss prints as TOLERATED. New pragmas,
+      # excluded lines and the 90% floor are never tolerated.
       - name: Gate on the per-module coverage ratchet baseline
         env:
           SPACR_COVERAGE_INPUT: ${{ runner.temp }}/spacr-coverage-input
@@ -692,6 +710,7 @@ jobs:
             --expected-file-count 700 \
             --baseline tools/coverage_baseline.json \
             --floor-exemptions tools/coverage_floor_exemptions.txt \
+            --loss-tolerance-points 1 \
             --shard-integrity "$SPACR_COVERAGE_INPUT" \
             --shard-count 12 \
             --json-out "$SPACR_COVERAGE_REPORT/module-coverage-ratchet.json" \
