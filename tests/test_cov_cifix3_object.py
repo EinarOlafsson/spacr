@@ -111,3 +111,38 @@ def test_sam_timelapse_fields_reach_the_division_analysis(
         src, batch_size=2, timelapse_mode="trackpy",
         timelapse_division_analysis=True), "cell")
     assert calls == [("cell", "trackpy", 2, 2)]
+
+
+@pytest.mark.parametrize("predict", [True, False])
+def test_divisions_are_predicted_once_after_a_cellpose_run_only_when_asked(
+        tmp_path, fake_cellpose, fake_timelapse, monkeypatch, predict):
+    import spacr.division_analysis as DA
+    import spacr.division_prediction as DP
+
+    monkeypatch.setattr(DA, "_run_division_step", lambda *a, **k: None)
+    predicted = []
+    monkeypatch.setattr(DP, "_predict_after_run",
+                        lambda src, obj, mode, settings: predicted.append((src, obj, mode)))
+    src = tmp_path / "stack"
+    _write_npz(src, n=3)
+    O.generate_cellpose_masks(str(src), _tl(
+        src, timelapse_division_analysis=True,
+        timelapse_division_prediction=predict), "nucleus")
+    assert predicted == ([(str(src), "nucleus", "trackpy")] if predict else [])
+
+
+def test_divisions_are_predicted_once_after_a_sam_run(
+        tmp_path, fake_model, sam_timelapse, monkeypatch):
+    import spacr.division_analysis as DA
+    import spacr.division_prediction as DP
+
+    monkeypatch.setattr(DA, "_run_division_step", lambda *a, **k: None)
+    predicted = []
+    monkeypatch.setattr(DP, "_predict_after_run",
+                        lambda src, obj, mode, settings: predicted.append((src, obj, mode)))
+    src = tmp_path / "stack"
+    _write_sam_npz(src, n=2)
+    O.generate_cellpose_masks_sam(str(src), _tl_settings(
+        src, batch_size=2, timelapse_mode="trackpy",
+        timelapse_division_analysis=True, timelapse_division_prediction=True), "cell")
+    assert predicted == [(str(src), "cell", "trackpy")]

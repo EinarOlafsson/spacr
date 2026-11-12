@@ -14,6 +14,7 @@ import sqlite3
 import numpy as np
 import pandas as pd
 import pytest
+from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
 
 pytest.importorskip("scipy")
 
@@ -210,8 +211,9 @@ def test_missing_fields_are_recorded_once_and_not_retried(tmp_path,
     class _Model:
         """Label the bright regions of the last channel."""
 
-        def eval(self, image, **_kwargs):
-            """Threshold at half the maximum."""
+        def eval(self, image, channel_axis=MISSING_CHANNEL_AXIS, **_kwargs):
+            """Threshold at half the maximum, after checking the call as Cellpose would."""
+            check_cellpose_eval_call(image, channel_axis, require_channel_axis=False)
             plane = np.asarray(image, float)
             plane = plane[..., -1] if plane.ndim == 3 else plane
             return ndimage.label(plane > plane.max() / 2.0)[0], None, None

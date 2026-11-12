@@ -832,9 +832,10 @@ USER_HOME_PATH_RATCHET = {
     # A synthetic path whose point is the space in the directory name (URL
     # quoting); never touched on disk.
     "qt/test_space_theme.py",
-    # Synthetic personal paths shown on screen, whose refusal by the
-    # tutorial capture is the behaviour under test; never touched on disk.
-    "qt/test_tutorial_capture_policy.py",
+    # Synthetic macOS crash reports whose point is that the user's home
+    # folder, user name and private plugin paths never reach the report
+    # (GitHub #182); parsed as text, never touched on disk.
+    "test_native_crash_session_context_182.py",
 }
 
 

@@ -396,3 +396,22 @@ def test_releasing_a_field_leaves_the_other_fields_rows(tmp_path):
     assert _release_vacuole_rows(str(db), 'plate1_B02_1') == 2
     with sqlite3.connect(db) as con:
         assert con.execute('SELECT file_name FROM vacuole').fetchall() == [('plate1_B02_10',)]
+
+
+def test_a_field_with_vacuoles_replaces_its_rows_rather_than_adding_to_them(tmp_path):
+    import sqlite3
+
+    from spacr.measure import _save_vacuole_tables
+
+    os.makedirs(tmp_path / 'measurements')
+    cell = np.zeros((40, 40), np.uint16)
+    cell[2:38, 2:38] = 1
+    parasites = np.zeros_like(cell)
+    parasites[10:16, 10:16] = 1
+    parasites[20:26, 20:26] = 2
+    for _ in range(2):
+        _save_vacuole_tables((cell, parasites, None), 'plate1_B02_1', str(tmp_path),
+                             {'host_min_size': 10})
+    with sqlite3.connect(tmp_path / 'measurements' / 'measurements.db') as con:
+        rows = con.execute('SELECT well, field, host_cell, file_name FROM vacuole').fetchall()
+    assert rows == [('B02', 1, 1, 'plate1_B02_1')] * 2

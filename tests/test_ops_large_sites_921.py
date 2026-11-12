@@ -11,6 +11,7 @@ import pytest
 from scipy import ndimage
 
 from spacr import ops_large_sites as ols
+from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
 
 
 def _discs(shape, centres, radius):
@@ -38,9 +39,16 @@ class _FakeModel:
         self.calls = []
         self.threshold = threshold
 
-    def eval(self, x, batch_size=8, **kwargs):
-        """Record the call and return ``(labels,)``."""
-        self.calls.append(kwargs)
+    def eval(self, x, batch_size=8, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+        """Check the call as Cellpose would, record it and return ``(labels,)``.
+
+        The large-site path passes no ``channel_axis`` for its 2-D nucleus
+        planes and leaves Cellpose to read them as one channel; a call that
+        names one is recorded with it.
+        """
+        check_cellpose_eval_call(x, channel_axis, require_channel_axis=False)
+        self.calls.append(kwargs if channel_axis is MISSING_CHANNEL_AXIS
+                          else dict(kwargs, channel_axis=channel_axis))
         x = ols.normalize_site(x) if kwargs.get("normalize", True) else np.asarray(x)
         x = x[..., 0] if x.ndim == 3 else x
         return (ndimage.label(x > self.threshold)[0].astype(np.int32),)

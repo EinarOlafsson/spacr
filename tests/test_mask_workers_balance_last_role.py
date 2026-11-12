@@ -168,9 +168,15 @@ def test_the_tail_starts_when_the_first_worker_finishes():
     assert mw._tail_split(values, [])['tail_seconds'] is None
 
 
-def test_a_stage_event_from_an_idle_worker_is_ignored():
+def test_a_stage_event_reaches_the_run_only_from_a_busy_worker():
+    seen = []
+    run = {'on_stages': lambda *args: seen.append(args)}
     pool = mw._MaskWorkerPool()
-    pool._inflight = {'0.1': []}
-    pool._runs = [{'on_stages': lambda *args: (_ for _ in ()).throw(AssertionError)}]
+    pool._inflight = {'0.1': [], '0.2': [run]}
+    pool._runs = [run]
     pool._last = {}
+
     pool._handle(0.0, ('stages', '0.1', ('/x/batch0.npz', {'fields': 1})))
+    assert seen == []
+    pool._handle(5.0, ('stages', '0.2', ('/x/batch1.npz', {'fields': 2})))
+    assert seen == [('0.2', '/x/batch1.npz', {'fields': 2}, 5.0)]
