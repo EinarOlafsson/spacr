@@ -264,6 +264,16 @@ def test_measure_groups_vacuoles_and_counts_them_per_cell(tmp_path):
     assert len(read_cells) == 2
 
 
+def test_the_per_cell_export_carries_the_vacuole_counts(tmp_path):
+    tables, cells, _, _ = _measure_field(
+        tmp_path, vacuole_from_parasites=True, vacuole_signal_channel=1, host_min_size=10,
+        vacuole_min_size=5, per_cell_export=True)
+    out = pd.read_csv(tmp_path / 'measurements' / 'per_cell.csv')
+    counts = out.set_index('Metadata_cell_id')[['Metadata_n_vacuoles', 'Metadata_n_pathogens']]
+    assert counts.loc[1].tolist() == [1, 2] and counts.loc[2].tolist() == [1, 1]
+    assert not any(name in ('n_vacuoles', 'n_pathogens') for name in out.columns)
+
+
 def test_measure_without_vacuole_grouping_writes_no_vacuole_columns(tmp_path):
     tables, cells, vacuoles, _ = _measure_field(tmp_path)
     assert 'vacuole' not in tables and vacuoles is None

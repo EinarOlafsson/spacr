@@ -2499,6 +2499,7 @@ _PER_CELL_TABLES = ("cell", "cytoplasm", "nucleus")
 _PER_CELL_LOCATION = re.compile(
     r"(?:centroid(?:_weighted)?-[01]|bbox-[0-3]|distance_to_field_edge)$")
 _PER_CELL_FORMATS = ("parquet", "csv")
+_PER_CELL_COUNTS = ("n_vacuoles", "n_pathogens")
 
 
 def _per_cell_features(frame: pd.DataFrame, table: str) -> List[str]:
@@ -2520,6 +2521,8 @@ def _per_cell_features(frame: pd.DataFrame, table: str) -> List[str]:
     for name in frame.columns:
         text = str(name)
         if text.startswith("Metadata_") or is_provenance_column(text):
+            continue
+        if table == "cell" and text in _PER_CELL_COUNTS:
             continue
         if (not pd.api.types.is_numeric_dtype(frame[name])
                 or pd.api.types.is_bool_dtype(frame[name])):
@@ -2707,6 +2710,12 @@ def per_cell_table(db_path: str, *, nucleus: str = "largest",
     if "Metadata_n_nuclei" in joined.columns:
         metadata["Metadata_n_nuclei"] = joined.pop(
             "Metadata_n_nuclei").to_numpy()
+    for count in _PER_CELL_COUNTS:
+        if count in cell.columns:
+            metadata[f"Metadata_{count}"] = joined[["prcf", "object_label"]].merge(
+                cell.loc[:, ["prcf", "object_label", count]].drop_duplicates(
+                    ["prcf", "object_label"]), on=["prcf", "object_label"],
+                how="left")[count].to_numpy()
     measured = joined.drop(columns=label)
     measured = measured.rename(columns={
         name: f"Location_{name}" for name in measured.columns
