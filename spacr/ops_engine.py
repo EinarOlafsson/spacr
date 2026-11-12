@@ -3159,7 +3159,9 @@ def _ph_measure_table(task: Mapping[str, Any]):
         texture=bool(task["texture"]),
         funk_features=bool(task.get("funk_features", False)),
         zernike=bool(task.get("zernike", False)),
-        gpu=bool(task.get("measure_gpu", False)))
+        gpu=bool(task.get("measure_gpu", False)),
+        profile_features=task.get("profile_features"),
+        granularity_subsample=float(task.get("granularity_subsample") or 1.0))
     table.insert(0, "site", int(task["site"]))
     return table, unreadable, tuple(int(v) for v in stack.shape[:2])
 
@@ -3171,7 +3173,7 @@ def _ph_measure_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         ``cell_path`` and ``texture``; optionally ``flat_folder``, whose
         maps correct the field before it is measured
         (:func:`spacr.ops_flatfield.correct_field`), ``funk_features``,
-        ``zernike``, ``measure_gpu``, which measures intensity and
+        ``zernike``, ``profile_features``, ``measure_gpu``, which measures intensity and
         texture on the card, and ``staged``, a staged copy of the field
         read in place of its raw files.
     :returns: ``site``, ``cells``, ``seconds``, ``unreadable`` and
@@ -3214,6 +3216,37 @@ def _ph_gpu_check(task: Mapping[str, Any], rtol: float = 1e-4
     if gpu is None or cpu is None:
         return {"site": task["site"], "skipped": "the field is unreadable"}
     return {"site": task["site"], **compare_tables(gpu, cpu, rtol=rtol)}
+
+
+def _ph_profile_features(settings: Mapping[str, Any]) -> Optional[List[str]]:
+    """The profiling families ``ops_ph_profile_features`` asks for, or None.
+
+    :param settings: read for ``ops_ph_profile_features``
+        (:func:`spacr.measure.profile_feature_families`).
+    :returns: the family names, or None when the setting is empty, so a run
+        without it measures, and marks its parts, exactly as before.
+    :raises ValueError: for a name that is not a family.
+    """
+    from .measure import profile_feature_families
+
+    families = profile_feature_families(
+        settings.get("ops_ph_profile_features"))
+    return list(families) or None
+
+
+def _ph_granularity_subsample(settings: Mapping[str, Any]
+                               ) -> Optional[float]:
+    """``ops_ph_granularity_subsample`` when granularity is measured, else None.
+
+    :param settings: read for ``ops_ph_profile_features`` and
+        ``ops_ph_granularity_subsample`` (default 1.0).
+    :returns: the subsample factor, or None when no granularity is
+        measured, so the part marker of a run without it is unchanged.
+    """
+    families = _ph_profile_features(settings) or []
+    if "granularity" not in families:
+        return None
+    return float(settings.get("ops_ph_granularity_subsample") or 1.0)
 
 
 def _ph_measure_workers(settings: Mapping[str, Any], fields: int,
@@ -3329,6 +3362,8 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
             "funk_features": bool(settings.get("ops_ph_funk_features",
                                                False)),
             "zernike": bool(settings.get("ops_ph_zernike", False)),
+            "profile_features": _ph_profile_features(settings),
+            "granularity_subsample": _ph_granularity_subsample(settings),
             "measure_gpu": bool(settings.get("ops_ph_measure_gpu", False)),
             "secondary": _ph_secondary(settings) if secondary else None}
         if _ph_flatfield_mode(settings) == "exact":
@@ -3348,6 +3383,8 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                 "flat_folder": flat_folder,
                 "funk_features": options["funk_features"],
                 "zernike": options["zernike"],
+                "profile_features": options["profile_features"],
+                "granularity_subsample": options["granularity_subsample"],
                 "measure_gpu": options["measure_gpu"],
                 "secondary": secondary.get(site)}
 
@@ -3560,6 +3597,8 @@ def _ph_fields(db: str, plate: str, well: str, phenotype_files,
                           if flat_folder else None),
             "funk_features": options["funk_features"],
             "zernike": options["zernike"],
+            "profile_features": options["profile_features"],
+            "granularity_subsample": options["granularity_subsample"],
             "measure_gpu": options["measure_gpu"],
         }
     if field_shape is not None:
@@ -3915,6 +3954,19 @@ def _ph_feature_columns(columns) -> List[str]:
             and not any(s in str(c) for s in skip)]
 
 
+def _ph_outside_ring_column(feature: str) -> bool:
+    """Whether ``feature`` is an ``outside`` profiling column (``*_outside_<stat>``).
+
+    :param feature: a per-cell feature name.
+    :returns: True for the background-ring statistics of
+        :func:`spacr.measure.measure_outside`, which
+        ``ops_drop_nonfinite_rows`` does not count.
+    """
+    import re
+
+    return re.search(r"_outside_(mean|percentile_\d+)$", str(feature)) is not None
+
+
 #: A cell with a larger share of non-finite features is left out when
 #: ``ops_drop_nonfinite_rows`` is on (Brieflow's ``drop_rows_threshold``).
 _PH_NONFINITE_SHARE = 0.01
@@ -4237,7 +4289,10 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     the dropped fields and why are written to
     ``dropped_fields_<plate>.csv``. With ``ops_drop_nonfinite_rows`` a cell
     with more than 1 % of its features not finite is left out; the report's
-    ``dropped_nonfinite_rows`` counts them.
+    ``dropped_nonfinite_rows`` counts them. The ``outside`` profiling
+    columns are not counted: a cell enclosed by its neighbours has no
+    background ring, which is NaN by definition and flagged by
+    ``<compartment>_enclosed``, and such a cell is kept.
 
     With ``ops_profile_normalisation``
     set to ``'tvn'`` the run also writes TVN profiles
@@ -4455,12 +4510,13 @@ def _ph_aggregate(db: str, plate: str, wells: Sequence[str],
     nonfinite_dropped: Optional[int] = None
     if bool(settings.get("ops_drop_nonfinite_rows", False)):
         bad_count = np.zeros(len(cells), np.int64)
-        for start in range(0, len(features), _PH_POOL_BLOCK):
-            block = features[start:start + _PH_POOL_BLOCK]
+        counted = [f for f in features if not _ph_outside_ring_column(f)]
+        for start in range(0, len(counted), _PH_POOL_BLOCK):
+            block = counted[start:start + _PH_POOL_BLOCK]
             values = _ph_read_columns(sources, block).iloc[
                 cells["_row"].to_numpy()].to_numpy(np.float32)
             bad_count += (~np.isfinite(values)).sum(axis=1)
-        broken = bad_count > _PH_NONFINITE_SHARE * len(features)
+        broken = bad_count > _PH_NONFINITE_SHARE * len(counted)
         nonfinite_dropped = int(broken.sum())
         funnel.count("dropped_nonfinite_rows", cells[broken])
         cells = cells[~broken].reset_index(drop=True)
