@@ -3029,15 +3029,6 @@ def _calculate_correlation_object_level(channel_image1, channel_image2, mask, se
 
         return pd.DataFrame(corr_data.values())
 
-# ---------------------------------------------------------------------------
-# Profiling feature families (2026-11-12). Each family is one public function
-# over a 2-D label mask and an ``(H, W, C)`` image that returns one row per
-# label, in ascending label order, with ``channel_<i>_...`` column names.
-# :func:`measure_profile_features` runs a chosen set of them, and
-# ``profile_features`` in the measure settings (``ops_ph_profile_features`` in
-# the OPS phenotype path) switches them on. With the setting empty nothing
-# here runs, so an existing settings file measures exactly as before.
-# ---------------------------------------------------------------------------
 
 #: The families :func:`measure_profile_features` knows, in output order.
 PROFILE_FEATURE_FAMILIES = (
