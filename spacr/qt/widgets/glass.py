@@ -773,12 +773,15 @@ def make_frameless(dialog: QDialog) -> bool:
     """
     try:
         was_showing = not dialog.isHidden()
+        was_placed = dialog.testAttribute(Qt.WidgetAttribute.WA_Moved)
         dialog.setAttribute(Qt.WA_TranslucentBackground, True)
         dialog.setWindowFlags((dialog.windowFlags()
                                & ~Qt.WindowType.Dialog
                                & ~Qt.WindowType.WindowStaysOnTopHint)
                               | Qt.WindowType.Window
                               | Qt.FramelessWindowHint)
+        if not was_placed:
+            dialog.setAttribute(Qt.WidgetAttribute.WA_Moved, False)
         _ensure_alpha_surface(dialog)
         dialog.setProperty(DETACHED, True)
         _paint_nothing_behind_the_card(dialog)
