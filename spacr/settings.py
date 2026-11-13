@@ -3912,6 +3912,21 @@ expected_types = {
     "illumination_vendor_profile": str,
     "illumination_vendor_channel_map": str,
     "illumination_on_missing": str,
+    "illumination_nuclear_channel": (int, type(None)),
+    "illumination_nuclei": (str, type(None)),
+    "illumination_dark_per_plate": (dict, str, type(None)),
+    "illumination_block_px": int,
+    "illumination_fit": str,
+    "illumination_sigma_px": float,
+    "illumination_ridge": (float, type(None)),
+    "illumination_floor": float,
+    "illumination_centre_cells": int,
+    "illumination_lookup": str,
+    "illumination_map_grid": str,
+    "illumination_centre_offset": float,
+    "illumination_holdout_n": int,
+    "illumination_seed": int,
+    "illumination_validate": bool,
     "dst": str,
     "db_path": str,
     "predictions_file": str,
@@ -6587,7 +6602,7 @@ categories = {
 
     "Measurements": ["save_measurements", "calculate_correlation", "profile_features", "profile_granularity_subsample", "spatial_measurements", "spatial_neighbor_radius", "bystander_measurements", "bystander_reach_in_diameters", "homogeneity", "homogeneity_distances", "radial_dist", "distance_gaussian_sigma", "tables", "parasite_table", "compartment", "channel_of_interest", "measurement", "filter_by", "exclude", "cell_min_size", "cytoplasm_min_size", "nucleus_min_size", "pathogen_min_size", "cell_max_size", "nucleus_max_size", "pathogen_max_size", "object_distances", "object_distance_maxima", "object_distance_intensity", "merge_edge_pathogen_cells", "cell_size_range", "cell_intensity_range", "nucleus_size_range", "nucleus_intensity_range", "pathogen_size_range", "pathogen_intensity_range", "cells_per_well", "target_intensity_min", "field_qc", "field_qc_mad", "field_qc_min_cells", "field_qc_min_objects", "max_vacuoles_per_cell", "control_color_by", "background_mask_channel", "merged_dir", "min_solidity", "background_filters", "exclude_edge_objects", "confounder_filter", "report", "report_tiles_per_condition", "report_tile_size", "report_tile_seed", "report_tile_channels", "report_max_conditions_per_row", "report_layout", "well_qc", "well_qc_mad", "well_qc_measures", "object_qc", "object_qc_mad", "object_qc_measures", "qc_group", "outlier_points", "outlier_points_method", "representative_crops", "representative_crops_n", "x_axis_style", "condition_factors", "factor_order", "bracket_pairs", "max_area_quantile", "bin_labels", "field_qc_max_pathogens_per_cell", "field_qc_columns", "confounder_covariates", "adjust_covariates", "adjust_log_outcome", "nuclei_limit", "pathogen_limit", "remove_highly_correlated", "remove_highly_correlated_features", "remove_low_variance_features"],
 
-    "Illumination Correction": ["illumination_correction", "illumination_model", "illumination_estimator", "illumination_degree", "illumination_dark", "illumination_per_plate", "illumination_max_fields", "illumination_qc", "illumination_on_missing", "illumination_vendor_profile", "illumination_vendor_channel_map"],
+    "Illumination Correction": ["illumination_correction", "illumination_model", "illumination_estimator", "illumination_degree", "illumination_dark", "illumination_per_plate", "illumination_max_fields", "illumination_qc", "illumination_on_missing", "illumination_vendor_profile", "illumination_vendor_channel_map", "illumination_nuclear_channel", "illumination_nuclei", "illumination_dark_per_plate", "illumination_block_px", "illumination_fit", "illumination_sigma_px", "illumination_ridge", "illumination_floor", "illumination_centre_cells", "illumination_lookup", "illumination_map_grid", "illumination_centre_offset", "illumination_holdout_n", "illumination_seed", "illumination_validate"],
 
     "Object Crops": ["save_png", "crop_mode", "png_size", "png_channel_mapping", "png_dims", "dialate_pngs", "dialate_png_ratios", "use_bounding_box", "normalize_by", "crop_intensity", "save_arrays", "export_vvvv"],
 
@@ -7455,6 +7470,20 @@ def get_setting_dependencies():
             f"{settings.get('illumination_vendor_profile')!r} and "
             f"{settings.get('illumination_model')!r}. The value is kept and saved."),
     )
+
+    for _key in ('illumination_nuclear_channel', 'illumination_nuclei', 'illumination_dark_per_plate', 'illumination_block_px', 'illumination_fit', 'illumination_sigma_px', 'illumination_ridge', 'illumination_floor', 'illumination_centre_cells', 'illumination_lookup', 'illumination_map_grid', 'illumination_centre_offset', 'illumination_holdout_n', 'illumination_seed', 'illumination_validate',):
+        setting_dependencies[_key] = rule(
+            ('illumination_correction', 'illumination_estimator'),
+            lambda settings, context: (
+                bool(settings.get('illumination_correction', False))
+                and str(settings.get('illumination_estimator') or '') == 'nuclear_median'),
+            lambda settings, context: (
+                "The nuclear-median settings are only read when "
+                "illumination_correction is on and illumination_estimator is "
+                f"'nuclear_median'. They are "
+                f"{settings.get('illumination_correction', False)!r} and "
+                f"{settings.get('illumination_estimator')!r}. The value is kept and saved."),
+        )
 
     setting_dependencies['bleach_correction'] = rule(
         ('timelapse',),
@@ -9349,6 +9378,10 @@ ALPHA_FEATURES = {
     },
     916: {
         'settings': ('ops_cluster_rows', 'ops_cluster_graph', 'ops_cluster_knn', 'ops_cluster_sweep_resolutions', 'ops_cluster_seeds', 'ops_cluster_target_clusters', 'ops_cluster_shuffles', 'ops_cluster_reference_dir', 'ops_cluster_gene_list', 'ops_cluster_published',),
+    },
+    933: {
+        'settings': ('illumination_nuclear_channel', 'illumination_nuclei', 'illumination_dark_per_plate', 'illumination_block_px', 'illumination_fit', 'illumination_sigma_px', 'illumination_ridge', 'illumination_floor', 'illumination_centre_cells', 'illumination_lookup', 'illumination_map_grid', 'illumination_centre_offset', 'illumination_holdout_n', 'illumination_seed', 'illumination_validate',),
+        'choices': {'illumination_estimator': ('nuclear_median',)},
     },
     930: {
         'settings': ('ops_align_model', 'ops_align_tile_min_nuclei', 'ops_align_match_radius', 'ops_align_trim_passes',),

@@ -46,6 +46,7 @@ GROUPS = (
         (538, "Spectral unmixing (bleed-through correction)"),
         (539, "Photobleaching correction"),
         (543, "Vendor flat-field profiles (Harmony, ZEN)"),
+        (933, "Nuclear-median flat-field in Illumination Correction"),
         (580, "Intensity calibration across sessions"),
         (559, "Deep-learning image QC: focus, debris, empty fields"),
         (557, "Self-supervised denoising (Noise2Void), low-light benchmark"),

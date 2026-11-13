@@ -115,7 +115,7 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
-<summary>Illumination Correction α (12 settings)</summary>
+<summary>Illumination Correction α (27 settings)</summary>
 
 #### Illumination Correction α
 
@@ -130,6 +130,21 @@ This linked reference contains the full generated setting descriptions. Return t
 - **`illumination_on_missing`** *(optional)* — (str) - What to do with a field whose plate the model does not cover: 'error' fails that field and stamps the run incomplete, 'skip' measures it uncorrected. Default error, because corrected and uncorrected rows sharing one table is worse than a failed field. Default: `'error'`.
 - **`illumination_vendor_profile`** *(optional)* — (str) - Path to the flat-field correction the microscope software saved, used instead of estimating one from the fields: a Harmony Index.idx.xml or FFC profile (Operetta, Opera Phenix), or a shading reference image (.tif, .czi, .npy) from ZEN, Nikon or Olympus. Harmony profiles are applied at Harmony's own scale, so the corrected pixels match Harmony's corrected export. Empty means estimate. Default empty. Default: `''`.
 - **`illumination_vendor_channel_map`** *(optional)* — (str) - Assign saved intensity channels to a vendor flat-field calibration. Example 0:2,1:1 assigns intensity channels 0 and 1 to calibration channels 2 and 1. Intensity channel numbers start at 0. Calibration channel or image-layer numbers start at 1. Include every corrected intensity channel. An empty value keeps the original channel order. With an empty value, a single calibration image layer applies to all channels. Select a vendor calibration file first. A saved illumination model takes priority. Default empty. Default: `''`.
+- **`illumination_nuclear_channel`** *(optional)* — (int) - Nuclear-median estimator: the channel of the DNA stain whose nuclei the map is fitted to. Required for 'nuclear_median'; the other channels use the polynomial estimator. Default None. Default: `None`.
+- **`illumination_nuclei`** *(optional)* — (str) - Nuclear-median estimator: a per-nucleus table (.parquet, .csv or a measurements.db) with the raw nuclear mean of the DNA channel. None reads the nucleus masks of the merged fields. A table measured with illumination correction on is refused. Default None. Default: `None`.
+- **`illumination_dark_per_plate`** *(optional)* — (dict or str) - Nuclear-median estimator: the camera offset of the DNA channel per plate, as plate:offset pairs or the path of a JSON file. Without it, illumination_dark is used, and it must not be 0. Default None. Default: `None`.
+- **`illumination_block_px`** *(optional)* — (int) - Nuclear-median estimator: the edge of one map cell in field pixels. Each cell holds the median of the nuclei that fall in it. Default 16. Default: `16`.
+- **`illumination_fit`** *(optional)* — (str) - Nuclear-median estimator: how the cell medians are smoothed. 'local_quadratic_log' fits a weighted quadratic to their log around every cell and follows a steep corner fall; 'gaussian' and 'local_linear' are the simpler fits it was compared with. Default local_quadratic_log. Default: `'local_quadratic_log'`.
+- **`illumination_sigma_px`** *(optional)* — (float) - Nuclear-median estimator: the width of the Gaussian weight of the local fit, in field pixels. Larger is smoother and follows the corners less closely. Default 32.0. Default: `32.0`.
+- **`illumination_ridge`** *(optional)* — (float) - Nuclear-median estimator: a small value added to each local fit to keep it stable where few nuclei fall. None uses 1e-6 for the quadratic fit and 1e-9 for the linear fit. Default None. Default: `None`.
+- **`illumination_floor`** *(optional)* — (float) - Nuclear-median estimator: the lowest map value, so no pixel is multiplied by more than one over this. Default 0.1. Default: `0.1`.
+- **`illumination_centre_cells`** *(optional)* — (int) - Nuclear-median estimator: the edge, in map cells, of the central square the map is set to 1 over. Default 18. Default: `18`.
+- **`illumination_lookup`** *(optional)* — (str) - Nuclear-median estimator: how the map is read at field pixels. 'block_centre' puts each map value at the centre of the block it was measured on; 'zoom_endpoints' reads maps made the earlier way. Default block_centre. Default: `'block_centre'`.
+- **`illumination_map_grid`** *(optional)* — (str) - Nuclear-median estimator: where the fit is evaluated. 'block_centre' at each cell's centre; 'lookup' at the place the zoom lookup reads it from, for maps read with zoom_endpoints. Default block_centre. Default: `'block_centre'`.
+- **`illumination_centre_offset`** *(optional)* — (float) - Nuclear-median estimator: the field-pixel offset of a map cell's centre from its first pixel. Default 8.0. Default: `8.0`.
+- **`illumination_holdout_n`** *(optional)* — (int) - Nuclear-median estimator: how many fields per plate the validation leaves out of the map and re-measures. Default 24. Default: `24`.
+- **`illumination_seed`** *(optional)* — (int) - Nuclear-median estimator: the seed of the draw of validation fields; the same seed draws the same fields again. Default 0. Default: `0`.
+- **`illumination_validate`** *(optional)* — (bool) - Nuclear-median estimator: after the map is built, re-measure the nuclei of held-out fields with it and with the polynomial field, and write the intensity per distance from the field centre beside the model. Default False. Default: `False`.
 - **`illumination_for_later_masks`** *(optional)* — (bool) - With illumination_correction on, preprocess on and masks off, still apply the segmentation illumination correction to the prepared mask inputs and save its record in illumination/segmentation_application.json. A later run with preprocess off and masks on (illumination_correction on) then segments the same corrected inputs, so the masks equal those of one combined run. Off, a preprocess-only run leaves the mask inputs uncorrected. Default False. Default: `False`.
 
 </details>
