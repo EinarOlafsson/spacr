@@ -50,10 +50,14 @@ def test_a_spin_that_ends_squares_the_volume_up(canvas, monkeypatch):
     assert called
 
 
-def test_the_setting_off_leaves_the_view_where_the_user_left_it(canvas,
-                                                                monkeypatch):
-    canvas.apply_settings(GateEditorSettings(snap_to_axis=False))
-    canvas._mode = "3D"
+@pytest.mark.parametrize("snap, mode", [
+    (False, "3D"),      # the setting off leaves the view where the user left it
+    (True, "2D"),       # nothing snaps in 2D
+], ids=["the_setting_off", "nothing_snaps_in_2d"])
+def test_the_setting_off_leaves_the_view_where_the_user_left_it(
+        canvas, monkeypatch, snap, mode):
+    canvas.apply_settings(GateEditorSettings(snap_to_axis=snap))
+    canvas._mode = mode
     canvas._view_angles = (23.0, 47.0)
     called = []
     monkeypatch.setattr(canvas, "snap_to_nearest_axis",
@@ -67,17 +71,6 @@ def test_a_volume_nobody_turned_is_not_snapped(canvas, monkeypatch):
     canvas.apply_settings(GateEditorSettings(snap_to_axis=True))
     canvas._mode = "3D"
     canvas._view_angles = None
-    called = []
-    monkeypatch.setattr(canvas, "snap_to_nearest_axis",
-                        lambda: called.append(True) or (0.0, 0.0))
-    canvas._on_button_release(_Release())
-    assert not called
-
-
-def test_nothing_snaps_in_2d(canvas, monkeypatch):
-    canvas.apply_settings(GateEditorSettings(snap_to_axis=True))
-    canvas._mode = "2D"
-    canvas._view_angles = (23.0, 47.0)
     called = []
     monkeypatch.setattr(canvas, "snap_to_nearest_axis",
                         lambda: called.append(True) or (0.0, 0.0))
@@ -146,19 +139,16 @@ class _Move:
         self.x, self.y = x, y
 
 
-def test_a_faster_spin_reports_a_longer_drag(canvas):
-    canvas.apply_settings(GateEditorSettings(spin_speed=2.0))
+@pytest.mark.parametrize("speed, moved_to", [
+    (2.0, 110),     # 10 px of drag read as 20
+    (0.5, 140),     # 40 px of drag read as 20
+], ids=["a_faster_spin_reports_a_longer_drag",
+        "a_slower_spin_reports_a_shorter_one"])
+def test_a_faster_spin_reports_a_longer_drag(canvas, speed, moved_to):
+    canvas.apply_settings(GateEditorSettings(spin_speed=speed))
     axes = _Axes()
     canvas._apply_spin_speed(axes)
-    axes._on_move(_Move(110, 100))
-    assert axes.seen == [(120, 100)]        # 10 px of drag read as 20
-
-
-def test_a_slower_spin_reports_a_shorter_one(canvas):
-    canvas.apply_settings(GateEditorSettings(spin_speed=0.5))
-    axes = _Axes()
-    canvas._apply_spin_speed(axes)
-    axes._on_move(_Move(140, 100))
+    axes._on_move(_Move(moved_to, 100))
     assert axes.seen == [(120, 100)]
 
 

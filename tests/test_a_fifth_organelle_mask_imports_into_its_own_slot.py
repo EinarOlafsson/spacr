@@ -23,6 +23,12 @@ def _write(path, array):
     tifffile.imwrite(path, np.asarray(array), photometric="minisblack")
 
 
+# The first matcher returned on the first token it met: ``organelle_2/``
+# begins with a bare ``organelle`` followed by ``_`` (the ``/`` after the
+# number is not a separator), so a folder token took slot 1 ahead of the
+# ``organelle_2`` in the filename. A bare token is slot 1 only when nothing in
+# the path names a slot; ``organelle_0`` names none. Folder and laser-line
+# tokens (``organelle_488``) are not slot numbers.
 @pytest.mark.parametrize("name, expected", [
     ("organelle_masks/fov001.tif", "organelle"),
     ("organelle_1_masks.tif", "organelle"),
@@ -40,31 +46,24 @@ def _write(path, array):
     ("organelle_702_masks.tif", "organellezz"),
     ("nucleus_organelle_5.tif", "nucleus"),
     ("cell_masks/fov001.tif", "cell"),
-])
-def test_a_filename_names_the_slot_it_spells(name, expected):
-    assert em._suggest_object(name) == expected
-
-
-@pytest.mark.parametrize("name, expected", [
     ("organelle_2/fov001_organelle_2_mask.tif", "organelleb"),
     ("organelle_masks/fov001_organelle_2.tif", "organelleb"),
     ("organelle_masks/fov001_organelle_3_mask.tif", "organellec"),
     ("organelle_masks/fov001_organelle_5_mask.tif", "organellee"),
     ("mitochondria_masks/fov001_organelle_12_mask.tif", "organellel"),
     ("organelle_masks/fov001_organelle_0_mask.tif", "organelle"),
+    ("organelle/fov001.tif", "organelle"),
+    ("organelle_1/fov001.tif", "organelle"),
+    ("organelle_2/fov001.tif", "organelleb"),
+    ("proj/organelle_5_masks/fov001.tif", "organellee"),
+    ("proj/cell_masks/fov001.tif", "cell"),
+    ("proj/nuclei/fov001.tif", "nucleus"),
+    ("organelle_488_masks.tif", "organelle"),
+    ("organelle_561/fov001.tif", "organelle"),
+    ("organelle_masks/fov001_organelle_640.tif", "organelle"),
+    ("organelle_488/fov001_organelle_3_mask.tif", "organellec"),
 ])
-def test_a_numbered_token_outranks_a_bare_one_elsewhere_in_the_path(
-        name, expected):
-    """The first matcher returned on the first token it met.
-
-    ``organelle_2/`` begins with a bare ``organelle`` followed by ``_`` (the
-    ``/`` after the number is not a separator), so a folder token took slot 1
-    ahead of the ``organelle_2`` in the filename. The four hand-written
-    patterns it replaced tried Organelle 4, 3 and 2 before the bare one, and
-    the first three rows here were ``organelleb``/``organellec`` before it
-    and ``organelle`` after it. A bare token is slot 1 only when nothing in
-    the path names a slot; ``organelle_0`` names none.
-    """
+def test_a_filename_names_the_slot_it_spells(name, expected):
     assert em._suggest_object(name) == expected
 
 

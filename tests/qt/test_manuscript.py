@@ -163,17 +163,16 @@ def test_the_model_is_sent_the_digest_and_nothing_else(digest):
 # Splitting the reply
 # ---------------------------------------------------------------------------
 
-def test_the_two_sections_are_split_on_their_headings():
-    methods, results = split_sections(
-        "## Methods\n\nfirst\n\n## Results\n\nsecond\n")
-
-    assert methods == "first"
-    assert results == "second"
-
-
-def test_a_preamble_and_a_different_heading_level_are_tolerated():
-    methods, results = split_sections(
-        "Sure, here you go!\n\n# Methods\nfirst\n\n# Results\nsecond")
+@pytest.mark.parametrize(
+    "reply",
+    [
+        "## Methods\n\nfirst\n\n## Results\n\nsecond\n",
+        "Sure, here you go!\n\n# Methods\nfirst\n\n# Results\nsecond",
+    ],
+    ids=["two_headings", "preamble_and_other_heading_level"],
+)
+def test_the_two_sections_are_split_on_their_headings(reply):
+    methods, results = split_sections(reply)
 
     assert methods == "first"
     assert results == "second"

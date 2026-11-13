@@ -28,17 +28,14 @@ class TestTheShippedDefaultIsOn:
         prefs._settings().remove("ai/on_by_default")
         assert prefs.get_ai_on_by_default() is True
 
-    def test_an_unrecognised_value_reads_as_off(self, prefs):
+    @pytest.mark.parametrize("value", ["perhaps", ""],
+                             ids=["unrecognised_value", "empty_value"])
+    def test_an_unrecognised_value_reads_as_off(self, prefs, value):
         """The failure falls on the quiet side, the rule `issue_prompt`
         follows -- a preference file written by another build must not turn
         the assistant on by accident."""
-        prefs._settings().setValue("ai/on_by_default", "perhaps")
+        prefs._settings().setValue("ai/on_by_default", value)
         assert prefs.get_ai_on_by_default() is False
-
-    def test_an_empty_value_reads_as_off(self, prefs):
-        prefs._settings().setValue("ai/on_by_default", "")
-        assert prefs.get_ai_on_by_default() is False
-
 
 class TestItCanBeTurnedOn:
 

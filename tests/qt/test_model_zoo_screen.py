@@ -744,37 +744,31 @@ def test_an_empty_folder_box_reads_the_catalogue_alone(screen):
     assert "No such folder" not in screen.status_text()
 
 
-def test_selecting_a_row_that_is_not_there_selects_nothing_and_does_not_raise(
-        screen, local_models):
-    """``select`` is the programmatic door and takes whatever it is given.
-
-    A stale row number arrives from a caller that listed the table before a
-    rescan shortened it. Skipping it keeps the OTHER rows in the same call
-    selected, which is the point of going through the selection model at all
-    -- "two selected models" is the whole input to the compare hand-off, and
-    losing one of them to a bad third would silently halve it.
-    """
+@pytest.mark.parametrize(
+    "rows, expected",
+    [
+        # ``select`` is the programmatic door and takes whatever it is given.
+        # A stale row number arrives from a caller that listed the table
+        # before a rescan shortened it. Skipping it keeps the OTHER rows in
+        # the same call selected: "two selected models" is the whole input to
+        # the compare hand-off, and losing one of them to a bad third would
+        # silently halve it.
+        ((0, 99), 1),
+        # The reason `select` does not use `selectRow`: that clears the
+        # selection first in ExtendedSelection mode, so `select(0, 1)` would
+        # leave one row and the compare hand-off would get one model.
+        ((0, 1), 2),
+    ],
+    ids=["a_row_that_is_not_there_is_skipped", "two_rows_really_stay_selected"],
+)
+def test_select_leaves_exactly_the_rows_it_can_select(
+        screen, local_models, rows, expected):
     root, _a, _b = local_models
     screen.scan(str(root), include_catalogue=False)
 
-    screen.select(0, 99)
+    screen.select(*rows)
 
-    assert len(screen.selected_entries()) == 1
-
-
-def test_selecting_two_rows_really_leaves_two_selected(screen, local_models):
-    """The reason `select` does not use `selectRow`, stated as a test.
-
-    `selectRow` clears the selection first in ExtendedSelection mode, so
-    `select(0, 1)` would leave exactly one row selected and the compare
-    hand-off would silently get one model.
-    """
-    root, _a, _b = local_models
-    screen.scan(str(root), include_catalogue=False)
-
-    screen.select(0, 1)
-
-    assert len(screen.selected_entries()) == 2
+    assert len(screen.selected_entries()) == expected
 
 
 def test_selecting_nothing_clears_what_was_selected(screen, local_models):

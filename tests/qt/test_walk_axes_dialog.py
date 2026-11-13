@@ -30,15 +30,16 @@ class TestPanelAxes:
         with pytest.raises(ValueError, match="Not a searchable"):
             panel.set_walk_axes({"nonsense": {"start": "1"}})
 
+    @pytest.mark.parametrize("typed, start", [
+        ("42", "42"),
+        # `5, 15, 50` is three points. A walk starts at one.
+        ("5, 15, 50", "15"),    # from settings
+    ], ids=["the_starting_value_comes_from_the_field",
+            "a_grid_in_a_field_is_not_a_starting_value"])
     def test_the_starting_value_comes_from_the_field_when_it_holds_one(
-            self, panel):
-        panel._value_edits["n_neighbors"].setText("42")
-        assert panel.walk_start_for("n_neighbors") == "42"
-
-    def test_a_grid_in_a_field_is_not_a_starting_value(self, panel):
-        """`5, 15, 50` is three points. A walk starts at one."""
-        panel._value_edits["n_neighbors"].setText("5, 15, 50")
-        assert panel.walk_start_for("n_neighbors") == "15"  # from settings
+            self, panel, typed, start):
+        panel._value_edits["n_neighbors"].setText(typed)
+        assert panel.walk_start_for("n_neighbors") == start
 
     def test_an_axis_with_no_field_starts_at_umaps_own_default(self, panel):
         assert panel.walk_start_for("spread") == "1.0"

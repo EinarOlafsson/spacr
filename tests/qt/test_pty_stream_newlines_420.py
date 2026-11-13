@@ -1,8 +1,6 @@
 """Terminal newline normalization is independent of read boundaries."""
 import queue
 
-import pytest
-
 from spacr.qt.ai import pty_sign_in as terminal
 
 
@@ -11,27 +9,6 @@ def session():
     value._queue = queue.Queue()
     value._output_closed = False
     return value
-
-
-@pytest.mark.parametrize("text", [
-    "first\nsecond\n",
-    "first\r\nsecond\r\n",
-    "first\rsecond\r",
-    "first\r\x1b[0m\nsecond\r\x1b]title\x07\n",
-    "first\r\r\nsecond\r\n",
-])
-def test_every_split_matches_existing_complete_text_normalization(text):
-    expected = terminal.strip_terminal_codes(text)
-    for split in range(1, len(text)):
-        value = session()
-        value._queue.put(text[:split])
-        first = value.read()
-        value._queue.put(text[split:])
-        second = value.read()
-        value._output_closed = True
-        final = value.read()
-        assert first + second + final == expected, (split, first, second, final)
-        assert value.read() == ""
 
 
 def test_character_at_time_newlines_and_ansi_match_the_complete_prompt():

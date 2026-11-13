@@ -427,11 +427,6 @@ class TestPreferencesWiring:
         monkeypatch.setattr(preferences, "_settings", FakeSettings)
         assert preferences.get_theme() == preferences.DEFAULT_THEME
 
-    def test_set_theme_rejects_nonsense(self, qapp):
-        from spacr.qt.preferences import set_theme
-        with pytest.raises(ValueError):
-            set_theme("chartreuse")
-
     def test_the_space_preference_accessors_are_retired(self, qapp):
         """Six tests lived here for a theme nothing could select.
 

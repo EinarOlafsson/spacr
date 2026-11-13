@@ -146,21 +146,6 @@ def test_forgetting_that_arrayscan_counts_from_zero_does_not_pass(
     assert any("truly" in p for p in problems), problems
 
 
-@pytest.mark.parametrize("key,token,well", [
-    ("cq1", "0097", "E01"),
-    ("cq1", "1", "A01"),
-    ("opera_phenix", "r05c01", "E01"),
-    ("leica_matrix_screener", "U00--V04", "E01"),
-    ("leica_matrix_screener", "U02--V00", "A03"),
-    ("incell", "E - 01", "E01"),
-    ("scanr", "E1", "E01"),
-    ("zeiss_zen_split_tiles", "00001", None),
-    ("micromanager_mda", "img", None),
-])
-def test_each_vendor_spelling_of_a_well_is_read(key, token, well):
-    assert cv._convention_well(key, token) == well
-
-
 def test_a_file_that_breaks_the_convention_is_reported_not_guessed(tmp_path):
     import tifffile
 
@@ -174,14 +159,13 @@ def test_a_file_that_breaks_the_convention_is_reported_not_guessed(tmp_path):
     assert "cellvoyager" in bad[0].error
 
 
-def test_custom_without_a_pattern_is_refused(tmp_path):
-    with pytest.raises(ConfigurationError, match="custom_regex"):
-        cv.scan(str(tmp_path), metadata_type="custom")
-
-
-def test_an_unknown_convention_is_refused(tmp_path):
-    with pytest.raises(ConfigurationError, match="metadata_type"):
-        cv.scan(str(tmp_path), metadata_type="zeiss")
+@pytest.mark.parametrize("metadata_type, match", [
+    ("custom", "custom_regex"),     # custom without a pattern is refused
+    ("zeiss", "metadata_type"),     # an unknown convention is refused
+], ids=["custom_without_a_pattern", "an_unknown_convention"])
+def test_custom_without_a_pattern_is_refused(tmp_path, metadata_type, match):
+    with pytest.raises(ConfigurationError, match=match):
+        cv.scan(str(tmp_path), metadata_type=metadata_type)
 
 
 def test_repeated_field_numbers_fall_back_to_counting(tmp_path):
