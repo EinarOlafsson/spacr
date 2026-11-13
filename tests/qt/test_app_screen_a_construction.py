@@ -304,6 +304,12 @@ def test_sections_group_each_apps_categories(qtbot, subtests):
             assert not (keys_out & set(out))
             for key, value in collected.items():
                 assert out[key] is value
+            # Only the object-grid apps mount the per-object table, and they
+            # mount it whenever their settings model is built.
+            has_grid = app in AppScreen.OBJECT_GRID_APPS
+            assert (getattr(scr, "_object_grid", None) is not None) is has_grid
+            assert ("PER-OBJECT SETTINGS" in {t.upper() for t in titles}) \
+                is has_grid
             if app == "umap":
                 assert titles[0] == "INPUT DATA"
             if app.startswith("classify"):
