@@ -1456,6 +1456,20 @@ if app_key == "mask":
     for app, key in train_eval_arrivals:
         assert resolve_default_settings(app)[key] == train_eval_defaults[key]
     recognized_arrivals |= train_eval_arrivals
+    # The profiling families of spacr.measure (2026-11-12): profile_features
+    # ("Default None.") and profile_granularity_subsample ("Default 1.0."),
+    # each resolved by Measure and External Masks, four claims in all. Each
+    # claim is the resolved default, so none is a variant.
+    profiling_defaults = {"profile_features": None,
+                          "profile_granularity_subsample": 1.0}
+    profiling_arrivals = {pair for pair in compared_pairs
+                          if pair[1] in profiling_defaults} - set(variants.keys())
+    assert profiling_arrivals == {(app, key) for app in ("measure", "external_masks")
+                                  for key in profiling_defaults}
+    assert not profiling_arrivals & recognized_arrivals
+    for app, key in profiling_arrivals:
+        assert resolve_default_settings(app)[key] == profiling_defaults[key]
+    recognized_arrivals |= profiling_arrivals
     assert comparisons - len(recognized_arrivals) == 1005
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))
