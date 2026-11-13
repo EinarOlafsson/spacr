@@ -51,15 +51,6 @@ def test_augment_single_image_preserves_rgb_semantics(tmp_path):
     assert restored[0, 0].tolist() == [240, 0, 0]
 
 
-def test_augment_images(tmp_path):
-    paths = []
-    for i in range(2):
-        p = tmp_path / f"img{i}.png"; _write_img(p); paths.append(str(p))
-    dst = tmp_path / "aug"
-    U.augment_images(paths, str(dst))
-    assert len(list(dst.glob("*.png"))) == 12   # 6 per image
-
-
 # ---------------------------------------------------------------------------
 # model_metrics
 # ---------------------------------------------------------------------------

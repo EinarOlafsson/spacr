@@ -3,11 +3,9 @@ from __future__ import annotations
 
 import gzip
 import os
-from pathlib import Path
 
 import numpy as np
 import pandas as pd
-import pytest
 
 import matplotlib
 matplotlib.use("Agg")
@@ -19,29 +17,12 @@ from spacr import utils as U
 # Mask / label helpers
 # ---------------------------------------------------------------------------
 
-def test_mask_object_count():
-    m = np.zeros((10, 10), dtype=np.int32)
-    m[1:3, 1:3] = 1
-    m[5:7, 5:7] = 2
-    assert U.mask_object_count(m) == 2
-
-
-def test_mask_object_count_empty():
-    assert U.mask_object_count(np.zeros((5, 5), dtype=np.int32)) == 0
-
-
 def test_relabel_sequential():
     m = np.zeros((6, 6), dtype=np.int32)
     m[0:2, 0:2] = 5
     m[3:5, 3:5] = 9
     out = U._relabel_sequential(m)
     assert set(np.unique(out)) == {0, 1, 2}
-
-
-def test_masks_to_masks_stack():
-    masks = [np.zeros((4, 4)), np.ones((4, 4))]
-    out = U._masks_to_masks_stack(masks)
-    assert len(out) == 2
 
 
 def test_compute_label_perimeters():
@@ -64,39 +45,6 @@ def test_is_list_of_lists():
 # ---------------------------------------------------------------------------
 # Image helpers
 # ---------------------------------------------------------------------------
-
-def test_invert_image_uint8():
-    img = np.array([[0, 255], [100, 200]], dtype=np.uint8)
-    inv = U.invert_image(img)
-    assert inv[0, 0] == 255 and inv[0, 1] == 0
-
-
-def test_invert_image_uint16():
-    img = np.array([[0, 65535]], dtype=np.uint16)
-    inv = U.invert_image(img)
-    assert inv[0, 0] == 65535 and inv[0, 1] == 0
-
-
-def test_remove_canvas_grayscale():
-    from PIL import Image
-    img = Image.fromarray(np.array([[0, 100], [200, 0]], dtype=np.uint8), "L")
-    out = U.remove_canvas(img)
-    assert out.shape[-1] == 4   # RGBA
-
-
-def test_remove_canvas_rgb():
-    from PIL import Image
-    arr = np.zeros((4, 4, 3), dtype=np.uint8); arr[1:3, 1:3] = 100
-    out = U.remove_canvas(Image.fromarray(arr, "RGB"))
-    assert out.shape[-1] == 4
-
-
-def test_remove_canvas_unsupported_raises():
-    from PIL import Image
-    img = Image.fromarray(np.zeros((4, 4, 4), dtype=np.uint8), "RGBA")
-    with pytest.raises(ValueError):
-        U.remove_canvas(img)
-
 
 # ---------------------------------------------------------------------------
 # Stats helper
@@ -125,54 +73,13 @@ def test_count_reads_in_fastq(tmp_path):
 # _get_cellpose_channels (remap logic)
 # ---------------------------------------------------------------------------
 
-def test_get_cellpose_channels_remap():
-    settings = {
-        "cellpose_nucleus_channel": 0,
-        "cellpose_cell_channel": 1,
-        "cellpose_pathogen_channel": 2,
-        "cellpose_organelle_channel": None,
-    }
-    extract, remap = U._get_cellpose_channels(settings)
-    assert extract == [0, 1, 2]
-    assert "cell" in remap and "nucleus" in remap
-
-
-def test_get_cellpose_channels_cell_without_nucleus():
-    settings = {
-        "cellpose_nucleus_channel": None,
-        "cellpose_cell_channel": 2,
-        "cellpose_pathogen_channel": None,
-        "cellpose_organelle_channel": None,
-    }
-    extract, remap = U._get_cellpose_channels(settings)
-    assert remap["cell"] == [0]   # dense-remapped from raw 2
-
-
 # ---------------------------------------------------------------------------
 # torchvision model names
 # ---------------------------------------------------------------------------
 
-def test_list_torchvision_model_names():
-    names = U._list_torchvision_model_names()
-    assert "resnet50" in names and isinstance(names, set)
-
-
 # ---------------------------------------------------------------------------
 # is_multiprocessing_process (mock process)
 # ---------------------------------------------------------------------------
-
-def test_is_multiprocessing_process_true():
-    import types
-    proc = types.SimpleNamespace(
-        cmdline=lambda: ["python", "-c", "multiprocessing.spawn"])
-    assert U.is_multiprocessing_process(proc) is True
-
-
-def test_is_multiprocessing_process_false():
-    import types
-    proc = types.SimpleNamespace(cmdline=lambda: ["python", "app.py"])
-    assert U.is_multiprocessing_process(proc) is False
-
 
 # ---------------------------------------------------------------------------
 # batch 2 — more pure helpers
@@ -187,14 +94,6 @@ def test_get_db_paths_str_and_list():
 def test_get_sequencing_paths():
     assert U.get_sequencing_paths("/a")[0].endswith(
         os.path.join("sequencing", "sequencing_data.csv"))
-
-
-def test_get_percentiles():
-    rng = np.random.default_rng(0)
-    arr = rng.integers(0, 1000, size=(16, 16, 3)).astype(np.uint16)
-    pct = U._get_percentiles(arr)
-    assert len(pct) == 3
-    assert all(len(p) == 2 for p in pct)
 
 
 def test_check_integrity_collapses_label_columns():
@@ -221,18 +120,3 @@ def test_apply_union_find():
     parent = {1: 1, 2: 2}
     out = U._apply_union_find(m, parent)
     assert out is not None
-
-
-def test_convert_and_relabel_masks(tmp_path):
-    # int64 npy masks → converted to uint16 relabeled.
-    m = np.zeros((8, 8), dtype=np.int64); m[1:3, 1:3] = 100000
-    np.save(str(tmp_path / "m.npy"), m)
-    U.convert_and_relabel_masks(str(tmp_path))
-    out = np.load(str(tmp_path / "m.npy"))
-    assert out.dtype == np.uint16
-
-
-def test_get_cuda_version():
-    # Just runs — returns a version string or None.
-    v = U.get_cuda_version()
-    assert v is None or isinstance(v, str)

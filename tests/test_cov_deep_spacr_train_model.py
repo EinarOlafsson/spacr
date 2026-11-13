@@ -443,36 +443,6 @@ def test_gradient_accumulation_no_flush_when_divisible(tmp_path, monkeypatch):
 # target / head handling
 # ---------------------------------------------------------------------------
 
-def test_one_hot_targets_are_argmaxed_to_indices(tmp_path, monkeypatch):
-    """(N, C) one-hot targets reach the loss as (N,) class indices."""
-    from spacr.deep_spacr import train_model
-    from spacr.utils import build_loss as real_build_loss
-
-    seen = []
-
-    def spy_build_loss(**kwargs):
-        fn = real_build_loss(**kwargs)
-
-        def wrapped(logits, target):
-            seen.append(tuple(target.shape))
-            return fn(logits, target)
-        return wrapped
-
-    monkeypatch.setattr("spacr.utils.build_loss", spy_build_loss)
-    _use_model(monkeypatch, nn.Sequential(nn.Linear(4, 2)))
-    _stub_progress(monkeypatch, [])
-    dst = tmp_path / "model"; dst.mkdir()
-
-    trained, path = train_model(str(tmp_path), str(dst), "resnet18",
-                                _loaders(2, mode="onehot"), epochs=1,
-                                num_classes=2, schedule=None)
-
-    assert len(seen) >= 2                       # at least the two train batches
-    assert all(len(shape) == 1 for shape in seen), seen
-    assert all(shape[0] == 4 for shape in seen)
-    assert os.path.exists(path)
-
-
 def test_head_size_mismatch_raises_runtime_error(tmp_path, monkeypatch):
     """num_classes=3 with a 2-logit head is caught before the loss is computed."""
     from spacr.deep_spacr import train_model

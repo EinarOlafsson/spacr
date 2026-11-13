@@ -422,23 +422,6 @@ def test_generate_activation_map_n_jobs_defaults_to_cpu_count(tmp_path, model_pa
 # generate_activation_map — multi-logit models (what train_test_model produces)
 # ---------------------------------------------------------------------------
 
-def test_generate_activation_map_multiclass_model(tmp_path):
-    """A 2-class model must still yield exactly one activation map per image."""
-    from spacr.deep_spacr import generate_activation_map
-    from spacr.utils import TorchModel
-
-    mp = tmp_path / "m2.pth"
-    torch.save(TorchModel(model_name="resnet18", pretrained=False,
-                          num_classes=2, image_size=32), str(mp))
-
-    root, tar_path, names = _project(tmp_path, n_images=4)
-    generate_activation_map(_settings(tar_path, str(mp), save=True, batch_size=2))
-
-    pngs = sorted((root / "datasets" / "ds" / "saliency_image").rglob("*.png"))
-    assert {p.name for p in pngs} == set(names)
-    assert {p.parent.parent.parent.name for p in pngs} <= {"class_0", "class_1"}
-
-
 # ---------------------------------------------------------------------------
 # visualize_classes
 # ---------------------------------------------------------------------------

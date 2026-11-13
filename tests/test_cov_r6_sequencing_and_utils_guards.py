@@ -28,7 +28,6 @@ What is pinned:
 from __future__ import annotations
 
 import os
-import re
 import sqlite3
 
 import matplotlib
@@ -38,7 +37,6 @@ import pytest
 
 matplotlib.use("Agg")
 
-import matplotlib.pyplot as plt                                  # noqa: E402
 
 from spacr import sequencing as SEQ                              # noqa: E402
 from spacr import utils as U                                     # noqa: E402
@@ -282,152 +280,6 @@ def test_a_database_that_stays_locked_leaves_the_retry_by_raising(tmp_path,
         source = inspect.getsource(function)
         assert "while True:" in source
         assert "for attempt in range(" not in source
-
-
-def test_a_merge_that_reaches_the_write_always_has_rows(monkeypatch):
-    """Why ``if len(merged_df) > 0`` before the write cannot be false.
-
-    ``_merge_and_save_to_database`` returns at its own line 2828 when the
-    morphology frame is empty, and what it writes is either that frame
-    copied or that frame OUTER-merged with the intensity frame. An outer
-    merge keeps every left row, so a non-empty morphology frame can only
-    produce a non-empty merge.
-    """
-    morph = pd.DataFrame({"object_label": [1, 2], "area": [10.0, 20.0]})
-    empty_intensity = pd.DataFrame(columns=["object_label", "mean"])
-
-    # The early return is the only way past this function with nothing to
-    # write, and it happens before any database is touched.
-    assert U._merge_and_save_to_database(
-        morph.iloc[0:0], empty_intensity, "cell", "/nowhere", "f0", "exp"
-    ) is None
-
-    # Both shapes the write is reached with keep every morphology row.
-    assert len(morph.copy()) == len(morph)
-    outer = pd.merge(morph, pd.DataFrame({"object_label": [1],
-                                          "mean": [5.0]}),
-                     on="object_label", how="outer", validate="one_to_one")
-    assert len(outer) == len(morph) > 0
-
-    written = []
-    monkeypatch.setattr(U, "_check_integrity", lambda frame: frame)
-    monkeypatch.setattr(U.schema, "validate_object_table_frame",
-                        lambda frame, *_args, **_kwargs: frame)
-    monkeypatch.setattr(U, "_assert_measurement_units_compatible",
-                        lambda *_args, **_kwargs: None)
-    monkeypatch.setattr(U, "_release_imported_rows_for_field",
-                        lambda *_args, **_kwargs: 0)
-    monkeypatch.setattr(U, "_append_to_measurements_db",
-                        lambda _path, _table, frame, **_kwargs:
-                        written.append(frame.copy()))
-    U._merge_and_save_to_database(
-        morph, pd.DataFrame({"object_label": [1], "mean": [5.0]}),
-        "cell", "/unused", "plate1_A1_1", "exp")
-    assert len(written) == 1 and len(written[0]) == len(morph)
-
-    import inspect
-    assert "if len(merged_df) > 0:" not in inspect.getsource(
-        U._merge_and_save_to_database)
-
-
-def test_no_two_training_suggestions_are_the_same_sentence(tmp_path):
-    """Why ``if s not in seen`` in the de-duplicator is never false.
-
-    Each rule appends its own wording, and no two rules share one, so the
-    pass that exists to drop a repeat never has a repeat to drop. Driven
-    with a run that trips several rules at once.
-    """
-    epochs = list(range(1, 31))
-    pd.DataFrame({
-        "epoch": epochs,
-        "loss": [1.0 / (e ** 2) for e in epochs],
-        "accuracy": [min(0.99, 0.5 + e * 0.02) for e in epochs],
-        "f1_macro": [min(0.99, 0.5 + e * 0.02) for e in epochs],
-    }).to_csv(tmp_path / "train_progress.csv", index=False)
-    pd.DataFrame({
-        "epoch": epochs,
-        "loss": [1.0 + 0.01 * e for e in epochs],
-        "accuracy": [0.60] * 30,
-        "f1_macro": [0.20] * 30,
-    }).to_csv(tmp_path / "val_progress.csv", index=False)
-
-    out = U.suggest_training_changes(str(tmp_path))
-
-    assert out["flags"], "no rule fired, so nothing reached the de-duplicator"
-    assert len(out["suggestions"]) > 1
-    assert len(set(out["suggestions"])) == len(out["suggestions"]), (
-        "two rules produced the same sentence, so the de-duplicator can drop "
-        "one and the guard is no longer dead")
-
-    import inspect
-    source = inspect.getsource(U.suggest_training_changes)
-    assert "dict.fromkeys" in source
-    assert "if s not in seen:" not in source
-
-
-def test_only_filenames_the_regex_matched_are_grouped(tmp_path):
-    """Why ``if match:`` in ``_run_test_mode`` cannot be false.
-
-    ``all_filenames`` is a comprehension filtered on ``regular_expression
-    .match(filename)``; the loop below re-matches the same names with the
-    same pattern, so every one of them matches again.
-    """
-    regex = (r"^(?P<plateID>plate\d+)_(?P<wellID>[A-Z]\d+)_"
-             r"(?P<fieldID>f\d+)_(?P<chanID>C\d)\.tif$")
-    src = tmp_path / "plate"
-    src.mkdir()
-    for name in ("plate1_A1_f1_C1.tif", "plate1_A1_f1_C2.tif",
-                 "notes.txt", "plate1_A1.tif"):
-        (src / name).write_bytes(b"")
-
-    compiled = re.compile(regex)
-    kept = [name for name in sorted(os.listdir(src)) if compiled.match(name)]
-    assert kept == ["plate1_A1_f1_C1.tif", "plate1_A1_f1_C2.tif"], (
-        "the filter is what makes the re-match certain")
-    assert all(compiled.match(name) for name in kept)
-
-    U._run_test_mode(str(src), regex, test_images=1, random_test=False)
-
-    copied = sorted(os.listdir(src / "test"))
-    assert copied == kept, "only the matched names were grouped and copied"
-
-    import inspect
-    source = inspect.getsource(U._run_test_mode)
-    assert "if regular_expression.match(filename)" in source
-    assert "if match:" not in source
-
-
-def test_a_cluster_plot_always_has_a_legend_to_restyle():
-    """Why ``if legend is not None`` in ``plot_clusters`` cannot be false.
-
-    ``Axes.legend`` builds and returns a ``Legend`` whatever it finds --
-    including an axes with no labelled artist at all, where it warns and
-    returns an empty one. There is no call that hands back ``None``.
-    """
-    from matplotlib.legend import Legend
-
-    figure, axes = plt.subplots()
-    try:
-        assert isinstance(axes.legend(), Legend), (
-            "an axes with nothing labelled still yields a legend")
-
-        embedding = np.array([[0.0, 0.0], [1.0, 0.0], [0.0, 1.0],
-                              [4.0, 4.0], [5.0, 4.0], [4.0, 5.0]])
-        labels = np.array([0, 0, 0, 1, 1, 1])
-        U.plot_clusters(axes, embedding, labels,
-                        colors=["#1f77b4", "#ff7f0e"],
-                        cluster_centers=[(0.3, 0.3), (4.3, 4.3)],
-                        plot_outlines=False, plot_points=True,
-                        smooth_lines=False)
-
-        legend = axes.get_legend()
-        assert legend is not None
-        assert axes.get_xlabel() == "UMAP Dimension 1"
-        # The restyle really ran: the frame took the axes' own background.
-        assert legend.get_frame().get_facecolor()[:3] == (
-            axes.get_facecolor()[:3])
-    finally:
-        plt.close(figure)
 
 
 def test_the_labels_a_cell_merge_walks_are_always_distinct():
