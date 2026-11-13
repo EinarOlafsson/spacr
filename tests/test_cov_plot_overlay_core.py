@@ -140,7 +140,7 @@ RED, GREEN, BLUE, MAGENTA = (1., 0., 0.), (0., .5019607843137255, 0.), (0., 0., 
 # plot_image_mask_overlay -- outline mode, the common path
 # ---------------------------------------------------------------------------
 
-def test_overlay_outlines_titles_colors_and_pdf(tmp_path):
+def _case_overlay_outlines_titles_colors_and_pdf(tmp_path):
     """Three masks -> one titled panel per channel, per-object colours, a PDF."""
     from spacr.plot import plot_image_mask_overlay
 
@@ -171,7 +171,7 @@ def test_overlay_outlines_titles_colors_and_pdf(tmp_path):
     assert pdf.read_bytes()[:4] == b"%PDF"
 
 
-def test_overlay_combined_panel_support_is_union_of_masks(tmp_path):
+def _case_overlay_combined_panel_support_is_union_of_masks(tmp_path):
     """The last panel paints exactly the union of all mask pixels on black."""
     from spacr.plot import plot_image_mask_overlay
 
@@ -189,7 +189,7 @@ def test_overlay_combined_panel_support_is_union_of_masks(tmp_path):
     assert np.all(combined[~union] == 0)
 
 
-def test_overlay_label_offsets_keep_objects_distinct(tmp_path):
+def _case_overlay_label_offsets_keep_objects_distinct(tmp_path):
     """Overlapping masks are offset, so nucleus/pathogen recolour cell pixels."""
     from spacr.plot import plot_image_mask_overlay
 
@@ -213,7 +213,7 @@ def test_overlay_label_offsets_keep_objects_distinct(tmp_path):
     assert not np.allclose(c1, c2)
 
 
-def test_overlay_is_deterministic_across_calls(tmp_path):
+def _case_overlay_is_deterministic_across_calls(tmp_path):
     """Seeded colormaps -> byte-identical panels for two identical calls."""
     from spacr.plot import plot_image_mask_overlay
 
@@ -234,7 +234,7 @@ def test_overlay_is_deterministic_across_calls(tmp_path):
 # plot_image_mask_overlay -- mask (filled) mode and the all_* dispatch
 # ---------------------------------------------------------------------------
 
-def test_overlay_masks_mode_paints_only_inside_its_own_mask(tmp_path):
+def _case_overlay_masks_mode_paints_only_inside_its_own_mask(tmp_path):
     """mode='masks', per-channel dispatch: channel 1 is recoloured on nucleus."""
     from spacr.plot import plot_image_mask_overlay
 
@@ -254,7 +254,7 @@ def test_overlay_masks_mode_paints_only_inside_its_own_mask(tmp_path):
     assert len(inside) == 1
 
 
-def test_overlay_all_on_all_masks_mode_paints_every_channel(tmp_path):
+def _case_overlay_all_on_all_masks_mode_paints_every_channel(tmp_path):
     """all_on_all + mode='masks' -> every panel is painted on every object."""
     from spacr.plot import plot_image_mask_overlay
 
@@ -271,7 +271,7 @@ def test_overlay_all_on_all_masks_mode_paints_every_channel(tmp_path):
         assert np.array_equal(_painted(fig, i, stack, i), union)
 
 
-def test_overlay_all_on_all_outlines_mode_draws_all_three_colors(tmp_path):
+def _case_overlay_all_on_all_outlines_mode_draws_all_three_colors(tmp_path):
     """all_on_all + mode='outlines' -> red, blue and green on every panel."""
     from spacr.plot import plot_image_mask_overlay
 
@@ -288,7 +288,7 @@ def test_overlay_all_on_all_outlines_mode_draws_all_three_colors(tmp_path):
         assert _has_color(p, GREEN)
 
 
-def test_overlay_all_outlines_decorates_maskless_channel(tmp_path):
+def _case_overlay_all_outlines_decorates_maskless_channel(tmp_path):
     """A channel with no mask of its own gets every outline in its own colour."""
     from spacr.plot import plot_image_mask_overlay
 
@@ -310,7 +310,7 @@ def test_overlay_all_outlines_decorates_maskless_channel(tmp_path):
     assert not _has_color(extra, GREEN, region=CELL_2_BOX)
 
 
-def test_overlay_all_outlines_masks_mode_fills_maskless_channel(tmp_path):
+def _case_overlay_all_outlines_masks_mode_fills_maskless_channel(tmp_path):
     """all_outlines + mode='masks' fills the maskless channel with objects."""
     from spacr.plot import plot_image_mask_overlay
 
@@ -327,7 +327,7 @@ def test_overlay_all_outlines_masks_mode_fills_maskless_channel(tmp_path):
     assert np.array_equal(_painted(fig, 2, stack, 2), pat > 0)
 
 
-def test_overlay_maskless_channel_left_untouched_without_all_outlines(tmp_path):
+def _case_overlay_maskless_channel_left_untouched_without_all_outlines(tmp_path):
     """Without all_* flags a maskless channel stays pure grayscale."""
     from spacr.plot import plot_image_mask_overlay
 
@@ -346,7 +346,7 @@ def test_overlay_maskless_channel_left_untouched_without_all_outlines(tmp_path):
     assert np.allclose(extra[..., 0], expected)
 
 
-def test_overlay_organelle_channel_adds_a_fourth_object(tmp_path):
+def _case_overlay_organelle_channel_adds_a_fourth_object(tmp_path):
     """organelle_channel shifts every mask dimension and adds a yellow panel."""
     from spacr.plot import plot_image_mask_overlay
 
@@ -371,7 +371,7 @@ def test_overlay_organelle_channel_adds_a_fourth_object(tmp_path):
 # plot_image_mask_overlay -- degenerate inputs
 # ---------------------------------------------------------------------------
 
-def test_overlay_without_any_mask_renders_no_objects_panel(tmp_path):
+def _case_overlay_without_any_mask_renders_no_objects_panel(tmp_path):
     """All object channels None -> plain channels plus a blank 'no objects'."""
     from spacr.plot import plot_image_mask_overlay
 
@@ -390,7 +390,7 @@ def test_overlay_without_any_mask_renders_no_objects_panel(tmp_path):
         assert np.array_equal(p[..., 0], p[..., 2])
 
 
-def test_overlay_empty_mask_plane_yields_black_combined_panel(tmp_path):
+def _case_overlay_empty_mask_plane_yields_black_combined_panel(tmp_path):
     """A mask plane with no labels leaves the combined panel entirely black."""
     from spacr.plot import plot_image_mask_overlay
 
@@ -407,7 +407,7 @@ def test_overlay_empty_mask_plane_yields_black_combined_panel(tmp_path):
     assert np.array_equal(p[..., 0], p[..., 2])
 
 
-def test_overlay_negative_label_plane_hits_empty_colormap_guard(tmp_path):
+def _case_overlay_negative_label_plane_hits_empty_colormap_guard(tmp_path):
     """A plane whose max label is negative -> n_labels<=0 black colormap."""
     from spacr.plot import plot_image_mask_overlay
 
@@ -424,7 +424,7 @@ def test_overlay_negative_label_plane_hits_empty_colormap_guard(tmp_path):
     assert np.all(_panel(fig, -1) == 0)
 
 
-def test_overlay_float_stack_is_not_rescaled(tmp_path):
+def _case_overlay_float_stack_is_not_rescaled(tmp_path):
     """float32 stacks skip the uint->float cast and render identically."""
     from spacr.plot import plot_image_mask_overlay
 
@@ -442,7 +442,7 @@ def test_overlay_float_stack_is_not_rescaled(tmp_path):
         assert np.allclose(_panel(fig_f, i), ref)
 
 
-def test_overlay_single_channel_renders(tmp_path):
+def _case_overlay_single_channel_renders(tmp_path):
     """A one-channel overlay should still produce image + combined panels."""
     from spacr.plot import plot_image_mask_overlay
 
@@ -460,7 +460,7 @@ def test_overlay_single_channel_renders(tmp_path):
 # plot_image_mask_overlay -- filter_dict and tiff export
 # ---------------------------------------------------------------------------
 
-def test_overlay_filter_dict_drops_and_keeps_objects(tmp_path, capsys):
+def _case_overlay_filter_dict_drops_and_keeps_objects(tmp_path, capsys):
     """Area/intensity filtering removes only the objects outside the window."""
     from spacr.plot import plot_image_mask_overlay
 
@@ -486,7 +486,7 @@ def test_overlay_filter_dict_drops_and_keeps_objects(tmp_path, capsys):
     assert not _has_color(_panel(fig, 0), RED)   # no cells left to outline
 
 
-def test_overlay_filter_dict_intensity_window_selects_one_object(tmp_path, capsys):
+def _case_overlay_filter_dict_intensity_window_selects_one_object(tmp_path, capsys):
     """The intensity half of the filter keeps only the bright object."""
     from spacr.plot import plot_image_mask_overlay
 
@@ -511,7 +511,7 @@ def test_overlay_filter_dict_intensity_window_selects_one_object(tmp_path, capsy
     assert np.array_equal(painted, cell == 2)
 
 
-def test_overlay_filter_dict_on_label_free_mask_reports_zero(tmp_path, capsys):
+def _case_overlay_filter_dict_on_label_free_mask_reports_zero(tmp_path, capsys):
     """Filtering an empty mask takes the num_objects == 0 bookkeeping branch."""
     from spacr.plot import plot_image_mask_overlay
 
@@ -531,7 +531,7 @@ def test_overlay_filter_dict_on_label_free_mask_reports_zero(tmp_path, capsys):
     assert np.all(_panel(fig, -1) == 0)
 
 
-def test_overlay_export_tiffs_writes_one_uint16_file_per_plane(tmp_path):
+def _case_overlay_export_tiffs_writes_one_uint16_file_per_plane(tmp_path):
     """export_tiffs dumps every plane of the stack, mask planes included."""
     from spacr.plot import plot_image_mask_overlay
 
@@ -554,7 +554,7 @@ def test_overlay_export_tiffs_writes_one_uint16_file_per_plane(tmp_path):
 # plot_image_mask_overlay_magenta_outlines (legacy variant)
 # ---------------------------------------------------------------------------
 
-def test_magenta_variant_outlines_every_matched_channel(tmp_path):
+def _case_magenta_variant_outlines_every_matched_channel(tmp_path):
     """Each channel with a mask gets its own object outlined in magenta."""
     from spacr.plot import plot_image_mask_overlay_magenta_outlines
 
@@ -575,7 +575,7 @@ def test_magenta_variant_outlines_every_matched_channel(tmp_path):
     assert pdf.is_file() and pdf.read_bytes()[:4] == b"%PDF"
 
 
-def test_magenta_variant_reads_masks_from_the_tail_of_the_stack(tmp_path):
+def _case_magenta_variant_reads_masks_from_the_tail_of_the_stack(tmp_path):
     """cell/-3, nucleus/-2, pathogen/-1: the outlines match the right planes."""
     from spacr.plot import plot_image_mask_overlay_magenta_outlines
 
@@ -597,7 +597,7 @@ def test_magenta_variant_reads_masks_from_the_tail_of_the_stack(tmp_path):
     assert np.array_equal(painted, (cell > 0) | (nuc > 0) | (pat > 0))
 
 
-def test_magenta_variant_all_on_all_outlines_uses_object_colors(tmp_path):
+def _case_magenta_variant_all_on_all_outlines_uses_object_colors(tmp_path):
     """all_on_all draws every outline on every channel in its object colour."""
     from spacr.plot import plot_image_mask_overlay_magenta_outlines
 
@@ -618,7 +618,7 @@ def test_magenta_variant_all_on_all_outlines_uses_object_colors(tmp_path):
         assert not _has_color(p, GREEN, region=CELL_2_BOX)
 
 
-def test_magenta_variant_masks_mode_paints_only_object_pixels(tmp_path):
+def _case_magenta_variant_masks_mode_paints_only_object_pixels(tmp_path):
     """mode='masks' fills each channel's own object and nothing else."""
     from spacr.plot import plot_image_mask_overlay_magenta_outlines
 
@@ -636,7 +636,7 @@ def test_magenta_variant_masks_mode_paints_only_object_pixels(tmp_path):
             np.unique(mask[mask > 0]))
 
 
-def test_magenta_variant_masks_mode_all_on_all(tmp_path):
+def _case_magenta_variant_masks_mode_all_on_all(tmp_path):
     """all_on_all + mode='masks' confines painting to the mask union."""
     from spacr.plot import plot_image_mask_overlay_magenta_outlines
 
@@ -652,7 +652,7 @@ def test_magenta_variant_masks_mode_all_on_all(tmp_path):
         assert np.array_equal(_painted(fig, i, stack, i), union)
 
 
-def test_magenta_variant_all_outlines_only_touches_object_borders(tmp_path):
+def _case_magenta_variant_all_outlines_only_touches_object_borders(tmp_path):
     """all_outlines paints a maskless channel strictly on object contours."""
     from spacr.plot import plot_image_mask_overlay_magenta_outlines
 
@@ -673,7 +673,7 @@ def test_magenta_variant_all_outlines_only_touches_object_borders(tmp_path):
     assert drawn.sum() < union.sum()
 
 
-def test_magenta_variant_all_outlines_masks_mode(tmp_path):
+def _case_magenta_variant_all_outlines_masks_mode(tmp_path):
     """all_outlines + mode='masks' fills the maskless channel."""
     from spacr.plot import plot_image_mask_overlay_magenta_outlines
 
@@ -688,7 +688,7 @@ def test_magenta_variant_all_outlines_masks_mode(tmp_path):
     assert np.array_equal(_painted(fig, 3, stack, 3), union)
 
 
-def test_magenta_variant_all_outlines_uses_consistent_object_colors(tmp_path):
+def _case_magenta_variant_all_outlines_uses_consistent_object_colors(tmp_path):
     """A maskless channel must colour objects the same way all_on_all does."""
     from spacr.plot import plot_image_mask_overlay_magenta_outlines
 
@@ -714,7 +714,7 @@ def test_magenta_variant_all_outlines_uses_consistent_object_colors(tmp_path):
         (None, None, 2, ("pathogen",)),
     ],
 )
-def test_magenta_variant_mask_dim_arithmetic(tmp_path, cell_ch, nuc_ch, pat_ch,
+def _case_magenta_variant_mask_dim_arithmetic(tmp_path, cell_ch, nuc_ch, pat_ch,
                                              masks_key):
     """Every cell/nucleus/pathogen combination reads the correct tail planes."""
     from spacr.plot import plot_image_mask_overlay_magenta_outlines
@@ -738,7 +738,7 @@ def test_magenta_variant_mask_dim_arithmetic(tmp_path, cell_ch, nuc_ch, pat_ch,
     assert np.array_equal(painted, union)
 
 
-def test_magenta_variant_filter_dict_filters_every_object_type(tmp_path, capsys):
+def _case_magenta_variant_filter_dict_filters_every_object_type(tmp_path, capsys):
     """filter_dict is applied to cell, nucleus and pathogen alike."""
     from spacr.plot import plot_image_mask_overlay_magenta_outlines
 
@@ -763,7 +763,7 @@ def test_magenta_variant_filter_dict_filters_every_object_type(tmp_path, capsys)
     assert not _has_color(_panel(fig, 0), MAGENTA)
 
 
-def test_magenta_variant_filter_dict_on_empty_mask(tmp_path, capsys):
+def _case_magenta_variant_filter_dict_on_empty_mask(tmp_path, capsys):
     """Filtering a label-free plane reports zeros instead of NaN averages."""
     from spacr.plot import plot_image_mask_overlay_magenta_outlines
 
@@ -782,7 +782,7 @@ def test_magenta_variant_filter_dict_on_empty_mask(tmp_path, capsys):
     assert np.all(_panel(fig, -1) == 0)
 
 
-def test_magenta_variant_export_tiffs(tmp_path):
+def _case_magenta_variant_export_tiffs(tmp_path):
     """The legacy variant exports the same per-plane uint16 TIFFs."""
     from spacr.plot import plot_image_mask_overlay_magenta_outlines
 
@@ -800,7 +800,7 @@ def test_magenta_variant_export_tiffs(tmp_path):
     assert np.array_equal(arr, stack[..., 5].astype(np.uint16))
 
 
-def test_magenta_variant_single_channel_still_renders(tmp_path):
+def _case_magenta_variant_single_channel_still_renders(tmp_path):
     """One channel: the legacy variant has no ndarray-wrapping guard, so it works."""
     from spacr.plot import plot_image_mask_overlay_magenta_outlines
 
@@ -815,3 +815,49 @@ def test_magenta_variant_single_channel_still_renders(tmp_path):
     assert len(fig.axes) == 2
     assert fig.axes[0].get_title() == "Image - Channel 0"
     assert _has_color(_panel(fig, 0), MAGENTA)
+
+
+def test_plot_overlay_core_cases(request, subtests, capsys):
+    """Case table: 33 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_overlay_outlines_titles_colors_and_pdf,
+        _case_overlay_combined_panel_support_is_union_of_masks,
+        _case_overlay_label_offsets_keep_objects_distinct,
+        _case_overlay_is_deterministic_across_calls,
+        _case_overlay_masks_mode_paints_only_inside_its_own_mask,
+        _case_overlay_all_on_all_masks_mode_paints_every_channel,
+        _case_overlay_all_on_all_outlines_mode_draws_all_three_colors,
+        _case_overlay_all_outlines_decorates_maskless_channel,
+        _case_overlay_all_outlines_masks_mode_fills_maskless_channel,
+        _case_overlay_maskless_channel_left_untouched_without_all_outlines,
+        _case_overlay_organelle_channel_adds_a_fourth_object,
+        _case_overlay_without_any_mask_renders_no_objects_panel,
+        _case_overlay_empty_mask_plane_yields_black_combined_panel,
+        _case_overlay_negative_label_plane_hits_empty_colormap_guard,
+        _case_overlay_float_stack_is_not_rescaled,
+        _case_overlay_single_channel_renders,
+        _case_overlay_filter_dict_drops_and_keeps_objects,
+        _case_overlay_filter_dict_intensity_window_selects_one_object,
+        _case_overlay_filter_dict_on_label_free_mask_reports_zero,
+        _case_overlay_export_tiffs_writes_one_uint16_file_per_plane,
+        _case_magenta_variant_outlines_every_matched_channel,
+        _case_magenta_variant_reads_masks_from_the_tail_of_the_stack,
+        _case_magenta_variant_all_on_all_outlines_uses_object_colors,
+        _case_magenta_variant_masks_mode_paints_only_object_pixels,
+        _case_magenta_variant_masks_mode_all_on_all,
+        _case_magenta_variant_all_outlines_only_touches_object_borders,
+        _case_magenta_variant_all_outlines_masks_mode,
+        _case_magenta_variant_all_outlines_uses_consistent_object_colors,
+        _case_magenta_variant_mask_dim_arithmetic,
+        _case_magenta_variant_filter_dict_filters_every_object_type,
+        _case_magenta_variant_filter_dict_on_empty_mask,
+        _case_magenta_variant_export_tiffs,
+        _case_magenta_variant_single_channel_still_renders,
+        ],
+    )
+    assert ran >= 33

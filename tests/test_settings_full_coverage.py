@@ -26,6 +26,8 @@ import pytest
 
 import spacr.settings as S
 
+from tests import locale_cases
+
 
 # ---------------------------------------------------------------------------
 # bundled_barcode_path — the shipped barcode references
@@ -1137,11 +1139,8 @@ def _defaults_factories():
     return sorted(set(out))
 
 
-@pytest.mark.parametrize("fn_name", _defaults_factories())
-def test_a_defaults_factory_never_overwrites_a_caller_value(fn_name):
-    """Idempotence is the property that lets the GUI merge a saved CSV over
-    the defaults. A factory that assigns instead of setdefault silently
-    discards what the user asked for."""
+def _a_defaults_factory_never_overwrites_a_caller_value_case(fn_name):
+    """One case of :func:`test_a_defaults_factory_never_overwrites_a_caller_value`."""
     fn = getattr(S, fn_name)
     sig = inspect.signature(fn)
     if not sig.parameters:
@@ -1162,10 +1161,17 @@ def test_a_defaults_factory_never_overwrites_a_caller_value(fn_name):
             second[key] != second[key] and value != value), key
 
 
-@pytest.mark.parametrize("fn_name", _defaults_factories())
-def test_a_defaults_factory_returns_a_json_shaped_dict(fn_name):
-    """Every default is written to a settings CSV and read back. A value that
-    is not a literal cannot survive that round trip."""
+def test_a_defaults_factory_never_overwrites_a_caller_value(subtests):
+    """Idempotence is the property that lets the GUI merge a saved CSV over
+    the defaults. A factory that assigns instead of setdefault silently
+    discards what the user asked for."""
+    for label, case in locale_cases.cases(("fn_name", _defaults_factories())):
+        with subtests.test(**label):
+            _a_defaults_factory_never_overwrites_a_caller_value_case(**case)
+
+
+def _a_defaults_factory_returns_a_json_shaped_dict_case(fn_name):
+    """One case of :func:`test_a_defaults_factory_returns_a_json_shaped_dict`."""
     fn = getattr(S, fn_name)
     if not inspect.signature(fn).parameters:
         result = fn()
@@ -1181,6 +1187,14 @@ def test_a_defaults_factory_returns_a_json_shaped_dict(fn_name):
         assert isinstance(
             value, (str, int, float, bool, list, tuple, dict, type(None))
         ), f"{fn_name}[{key}] is a {type(value).__name__}"
+
+
+def test_a_defaults_factory_returns_a_json_shaped_dict(subtests):
+    """Every default is written to a settings CSV and read back. A value that
+    is not a literal cannot survive that round trip."""
+    for label, case in locale_cases.cases(("fn_name", _defaults_factories())):
+        with subtests.test(**label):
+            _a_defaults_factory_returns_a_json_shaped_dict_case(**case)
 
 
 

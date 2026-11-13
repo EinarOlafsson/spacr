@@ -32,6 +32,8 @@ from spacr.feature_dict import (
     parse_column,
 )
 
+from tests import locale_cases
+
 
 # --------------------------------------------------------------------------
 # parse_column on real column names
@@ -128,8 +130,8 @@ REAL_COLUMNS = [
 ]
 
 
-@pytest.mark.parametrize("column,object_type,channel,family", REAL_COLUMNS)
-def test_parse_column_real_names(column, object_type, channel, family):
+def _parse_column_real_names_case(column, object_type, channel, family):
+    """One case of :func:`test_parse_column_real_names`."""
     entry = parse_column(column)
     assert entry.column == column
     assert entry.object_type == object_type
@@ -138,6 +140,12 @@ def test_parse_column_real_names(column, object_type, channel, family):
     assert entry.description, f"{column} has no description"
     assert entry.computed_by and entry.computed_by != "unknown"
     assert entry.family in FEATURE_FAMILIES
+
+
+def test_parse_column_real_names(subtests):
+    for label, case in locale_cases.cases(("column,object_type,channel,family", REAL_COLUMNS)):
+        with subtests.test(**label):
+            _parse_column_real_names_case(**case)
 
 
 def test_parse_column_returns_frozen_dataclass():
@@ -261,12 +269,18 @@ META_NAMES = [
 ]
 
 
-@pytest.mark.parametrize("column", META_NAMES)
-def test_metadata_columns_are_meta(column):
+def _metadata_columns_are_meta_case(column):
+    """One case of :func:`test_metadata_columns_are_meta`."""
     entry = parse_column(column)
     assert entry.family == "meta", f"{column} was mis-parsed as {entry.family}"
     assert entry.description
     assert entry.computed_by and entry.computed_by != "unknown"
+
+
+def test_metadata_columns_are_meta(subtests):
+    for label, case in locale_cases.cases(("column", META_NAMES)):
+        with subtests.test(**label):
+            _metadata_columns_are_meta_case(**case)
 
 
 def test_cell_id_is_meta_not_a_cell_feature():

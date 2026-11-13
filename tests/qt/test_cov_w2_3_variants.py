@@ -25,6 +25,8 @@ import types
 
 import pytest
 
+from tests import locale_cases
+
 pytest.importorskip("PySide6")
 
 GENERATORS = os.path.join(
@@ -147,15 +149,8 @@ def _variant_numbers(gen):
     return [entry["n"] for entry in gen.variants.VARIANTS]
 
 
-@pytest.mark.parametrize("number", range(1, 31))
-def test_every_variant_builds_a_page_that_shows_real_app_names(
-        gen, buildable, number):
-    """Each builder returns a laid-out widget quoting the real registry.
-
-    The assertion is deliberately about registry text rather than widget
-    counts: a page that built but drew none of the app names it was
-    given has failed at the one job every variant shares.
-    """
+def _every_variant_builds_a_page_that_shows_real_app_names_case(gen, buildable, number):
+    """One case of :func:`test_every_variant_builds_a_page_that_shows_real_app_names`."""
     entries = {entry["n"]: entry for entry in gen.variants.VARIANTS}
     assert number in entries, f"variant {number} is not registered"
     entry = entries[number]
@@ -172,6 +167,18 @@ def test_every_variant_builds_a_page_that_shows_real_app_names(
         f"variant {number} ({entry['slug']}) shows only {hits} of the "
         f"{len(names)} registered app names")
     page.deleteLater()
+
+
+def test_every_variant_builds_a_page_that_shows_real_app_names(subtests, gen, buildable):
+    """Each builder returns a laid-out widget quoting the real registry.
+
+    The assertion is deliberately about registry text rather than widget
+    counts: a page that built but drew none of the app names it was
+    given has failed at the one job every variant shares.
+    """
+    for label, case in locale_cases.cases(("number", range(1, 31))):
+        with subtests.test(**label):
+            _every_variant_builds_a_page_that_shows_real_app_names_case(gen=gen, buildable=buildable, **case)
 
 
 def test_the_registry_is_thirty_numbered_variants(gen):

@@ -31,6 +31,8 @@ from spacr.organelle_types import (BASIC_SETTINGS, DEFAULT_TYPE,
                                    resolve_type)
 from spacr.settings import _set_organelle_defaults, categories
 
+from tests import locale_cases
+
 NAMED = [t for t in TYPE_ORDER if t != "custom"]
 
 
@@ -38,15 +40,8 @@ NAMED = [t for t in TYPE_ORDER if t != "custom"]
 # nothing a preset ships may be rejected at run time
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("name", TYPE_ORDER)
-@pytest.mark.parametrize("diameter", [1, 5, 14, 15, 16, 30, 100, 1000])
-def test_every_preset_passes_the_real_validator(name, diameter):
-    """`_validate_organelle_settings` raises before any image is loaded.
-
-    Checked against the VALIDATOR ITSELF, not the copy of its table in
-    `organelle_types`, because a preset that ships an illegal pair fails at
-    the start of a run rather than here.
-    """
+def _every_preset_passes_the_real_validator_case(name, diameter):
+    """One case of :func:`test_every_preset_passes_the_real_validator`."""
     preset = preset_for(name, diameter)
     morphology = preset.get("organelle_morphology")
     if morphology is None:
@@ -61,6 +56,18 @@ def test_every_preset_passes_the_real_validator(name, diameter):
     assert morphology in LEGAL_METHODS
     assert method in LEGAL_METHODS[morphology], (name, diameter, morphology,
                                                  method)
+
+
+def test_every_preset_passes_the_real_validator(subtests):
+    """`_validate_organelle_settings` raises before any image is loaded.
+
+    Checked against the VALIDATOR ITSELF, not the copy of its table in
+    `organelle_types`, because a preset that ships an illegal pair fails at
+    the start of a run rather than here.
+    """
+    for label, case in locale_cases.cases(("name", TYPE_ORDER), ("diameter", [1, 5, 14, 15, 16, 30, 100, 1000])):
+        with subtests.test(**label):
+            _every_preset_passes_the_real_validator_case(**case)
 
 
 def test_the_mirrored_table_still_matches_the_validator():

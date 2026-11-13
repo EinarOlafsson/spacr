@@ -31,6 +31,8 @@ sys.path.insert(0, str(REPO / "tools" / "tutorials"))
 from archived import ARCHIVED_IDS  # noqa: E402
 from build_tutorial_index import display_order, read_catalog  # noqa: E402
 
+from tests import locale_cases
+
 #: The library's display order: the player numbers each visible lesson by
 #: its position here, so archived lessons leave no gaps.
 DISPLAY = display_order(read_catalog(TUTORIALS / "lesson_catalog.js"),
@@ -159,11 +161,17 @@ def test_a_lesson_is_found_by_number_id_screen_or_slug(name, lesson):
     assert suggestions == []
 
 
-@pytest.mark.parametrize("lesson", ARCHIVED_IDS)
-def test_an_archived_lesson_is_not_found_by_id(lesson):
+def _an_archived_lesson_is_not_found_by_id_case(lesson):
+    """One case of :func:`test_an_archived_lesson_is_not_found_by_id`."""
     found, _suggestions = tutorials.find_lesson(lesson)
 
     assert found is None
+
+
+def test_an_archived_lesson_is_not_found_by_id(subtests):
+    for label, case in locale_cases.cases(("lesson", ARCHIVED_IDS)):
+        with subtests.test(**label):
+            _an_archived_lesson_is_not_found_by_id_case(**case)
 
 
 def test_an_unknown_name_gets_close_and_containing_names():

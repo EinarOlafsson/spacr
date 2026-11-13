@@ -31,6 +31,8 @@ import pytest
 from spacr.uniprot import (ACCESSION, BUNDLED_NAMES, ORGANISMS, Resolution,
                            near_misses, resolve)
 
+from tests import locale_cases
+
 
 @lru_cache(maxsize=1)
 def _has_network() -> bool:
@@ -95,11 +97,17 @@ ASKED_FOR = [
 ]
 
 
-@pytest.mark.parametrize("name", ASKED_FOR)
-def test_every_organism_asked_for_resolves(name):
+def _every_organism_asked_for_resolves_case(name):
+    """One case of :func:`test_every_organism_asked_for_resolves`."""
     resolved = resolve(name)
     assert resolved.kind == "organism", f"{name} did not resolve"
     assert isinstance(resolved.taxon, int) and resolved.taxon > 0
+
+
+def test_every_organism_asked_for_resolves(subtests):
+    for label, case in locale_cases.cases(("name", ASKED_FOR)):
+        with subtests.test(**label):
+            _every_organism_asked_for_resolves_case(**case)
 
 
 def test_a_taxon_id_resolves():

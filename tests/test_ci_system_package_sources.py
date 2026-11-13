@@ -9,6 +9,8 @@ import sys
 import pytest
 import yaml
 
+from tests import locale_cases
+
 ROOT = Path(__file__).resolve().parents[1]
 UBUNTU_SOURCES = "/etc/apt/sources.list.d/ubuntu.sources"
 
@@ -44,11 +46,8 @@ def test_all_four_system_library_steps_use_existing_ubuntu_definitions():
         assert "libegl1" in source and "ffmpeg" in source
 
 
-@pytest.mark.skipif(sys.platform != "linux", reason="The Ubuntu CI APT shell runs only on Linux")
-@pytest.mark.parametrize("step", STEPS, ids=lambda row: row[0])
-@pytest.mark.parametrize("failure", ["", "update", "install", "missing-sources"])
-def test_unrelated_feed_is_not_queried_but_ubuntu_and_install_failures_are_fatal(
-        tmp_path, step, failure):
+def _unrelated_feed_is_not_queried_but_ubuntu_and_install_failures_are_fatal_case(tmp_path, step, failure):
+    """One case of :func:`test_unrelated_feed_is_not_queried_but_ubuntu_and_install_failures_are_fatal`."""
     source = tmp_path / "ubuntu.sources"
     if failure != "missing-sources":
         source.write_text("Types: deb\nURIs: mirror+file:/etc/apt/apt-mirrors.txt\n"
@@ -91,6 +90,13 @@ if os.environ["FAIL_STAGE"] == arguments[0]:
     assert [call[1][0] for call in calls] == (["update"] if failure == "update" else ["update", "install"])
     assert all(call[0] == {"Dir::Etc::sourcelist": str(source), "Dir::Etc::sourceparts": "-"} for call in calls)
     assert result.returncode == (100 if failure else 0), result.stdout + result.stderr
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="The Ubuntu CI APT shell runs only on Linux")
+def test_unrelated_feed_is_not_queried_but_ubuntu_and_install_failures_are_fatal(subtests, tmp_path):
+    for label, case in locale_cases.cases(("step", STEPS, lambda row: row[0]), ("failure", ["", "update", "install", "missing-sources"])):
+        with subtests.test(**label):
+            _unrelated_feed_is_not_queried_but_ubuntu_and_install_failures_are_fatal_case(tmp_path=locale_cases.case_dir(tmp_path, label), **case)
 
 
 def test_native_apt_source_selection_excludes_vendor_uris_without_network(tmp_path):

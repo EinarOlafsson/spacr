@@ -155,7 +155,7 @@ def _peak_details_frame():
 # plot_data
 # ---------------------------------------------------------------------------
 
-def test_plot_data_draws_delta_column_against_time():
+def _case_plot_data_draws_delta_column_against_time():
     from spacr.timelapse import plot_data
 
     group = pd.DataFrame({
@@ -174,7 +174,7 @@ def test_plot_data_draws_delta_column_against_time():
     assert line.get_linestyle() == "--"
 
 
-def test_plot_data_defaults_are_circle_marker_solid_line():
+def _case_plot_data_defaults_are_circle_marker_solid_line():
     from spacr.timelapse import plot_data
 
     group = pd.DataFrame({"time": [0, 1], "delta_x": [1.0, 2.0]})
@@ -185,7 +185,7 @@ def test_plot_data_defaults_are_circle_marker_solid_line():
     assert ax.lines[0].get_linestyle() == "-"
 
 
-def test_plot_data_raises_when_delta_column_absent():
+def _case_plot_data_raises_when_delta_column_absent():
     from spacr.timelapse import plot_data
 
     fig, ax = plt.subplots()
@@ -255,7 +255,7 @@ def test_infected_vs_noninfected_all_uninfected_leaves_top_axis_empty():
 # summarize_per_well
 # ---------------------------------------------------------------------------
 
-def test_summarize_per_well_counts_peaks_and_averages_numeric_columns():
+def _case_summarize_per_well_counts_peaks_and_averages_numeric_columns():
     from spacr.timelapse import summarize_per_well
 
     out = summarize_per_well(_peak_details_frame())
@@ -275,7 +275,7 @@ def test_summarize_per_well_counts_peaks_and_averages_numeric_columns():
     np.testing.assert_allclose(out["time"], [6.0, 6.0])
 
 
-def test_summarize_per_well_explodes_ID_into_identifier_columns():
+def _case_summarize_per_well_explodes_ID_into_identifier_columns():
     """The legacy ID spelling — no 'o' on the object — still parses.
 
     ``_peak_details_frame`` uses the key this module wrote before the object
@@ -297,7 +297,7 @@ def test_summarize_per_well_explodes_ID_into_identifier_columns():
     assert list(df["well_ID"]) == ["A_01", "A_01", "A_01", "B_02"]
 
 
-def test_summarize_per_well_all_null_amplitudes_gives_empty_summary():
+def _case_summarize_per_well_all_null_amplitudes_gives_empty_summary():
     from spacr.timelapse import summarize_per_well
 
     df = _peak_details_frame()
@@ -308,7 +308,7 @@ def test_summarize_per_well_all_null_amplitudes_gives_empty_summary():
     assert len(out) == 0
 
 
-def test_summarize_per_well_cells_per_well_is_keyed_by_well():
+def _case_summarize_per_well_cells_per_well_is_keyed_by_well():
     from spacr.timelapse import summarize_per_well
 
     # Well A_01 contributes a single peak-less cell, so it drops out of the
@@ -332,7 +332,7 @@ def test_summarize_per_well_cells_per_well_is_keyed_by_well():
 # summarize_per_well_inf_non_inf
 # ---------------------------------------------------------------------------
 
-def test_summarize_per_well_inf_non_inf_splits_rows_by_infection_status():
+def _case_summarize_per_well_inf_non_inf_splits_rows_by_infection_status():
     from spacr.timelapse import summarize_per_well_inf_non_inf
 
     out = summarize_per_well_inf_non_inf(_peak_details_frame())
@@ -349,7 +349,7 @@ def test_summarize_per_well_inf_non_inf_splits_rows_by_infection_status():
     np.testing.assert_allclose(out["infected"], [2.0, 0.0, 0.0])
 
 
-def test_summarize_per_well_inf_non_inf_treats_nan_infected_as_uninfected():
+def _case_summarize_per_well_inf_non_inf_treats_nan_infected_as_uninfected():
     from spacr.timelapse import summarize_per_well_inf_non_inf
 
     df = _peak_details_frame()
@@ -363,7 +363,7 @@ def test_summarize_per_well_inf_non_inf_treats_nan_infected_as_uninfected():
     assert statuses["A_01|non_infected"] == 2
 
 
-def test_summarize_per_well_inf_non_inf_all_infected_yields_one_row_per_well():
+def _case_summarize_per_well_inf_non_inf_all_infected_yields_one_row_per_well():
     from spacr.timelapse import summarize_per_well_inf_non_inf
 
     df = _peak_details_frame()
@@ -380,7 +380,7 @@ def test_summarize_per_well_inf_non_inf_all_infected_yields_one_row_per_well():
 # preprocess_pathogen_data
 # ---------------------------------------------------------------------------
 
-def test_preprocess_pathogen_data_counts_parasites_and_renames_cell_id():
+def _case_preprocess_pathogen_data_counts_parasites_and_renames_cell_id():
     from spacr.timelapse import preprocess_pathogen_data
 
     df = pd.DataFrame({
@@ -413,7 +413,7 @@ def test_preprocess_pathogen_data_counts_parasites_and_renames_cell_id():
 # analyze_calcium_oscillations — happy path
 # ---------------------------------------------------------------------------
 
-def test_analyze_calcium_oscillations_full_run(tmp_path, capsys):
+def _case_analyze_calcium_oscillations_full_run(tmp_path, capsys):
     from spacr.timelapse import analyze_calcium_oscillations
 
     db = _build_calcium_db(tmp_path)
@@ -484,7 +484,7 @@ def test_analyze_calcium_oscillations_full_run(tmp_path, capsys):
     assert "Average number of peaks per non-infected cell: 1.00" in printed
 
 
-def test_analyze_calcium_oscillations_without_optional_tables(tmp_path):
+def _case_analyze_calcium_oscillations_without_optional_tables(tmp_path):
     """No cytoplasm table, no pathogen figure, quiet mode."""
     from spacr.timelapse import analyze_calcium_oscillations
 
@@ -499,7 +499,7 @@ def test_analyze_calcium_oscillations_without_optional_tables(tmp_path):
     assert len(peak_details_df) == 4
 
 
-def test_analyze_calcium_oscillations_num_lines_subsamples_the_plot(tmp_path):
+def _case_analyze_calcium_oscillations_num_lines_subsamples_the_plot(tmp_path):
     from spacr.timelapse import analyze_calcium_oscillations
 
     db = _build_calcium_db(tmp_path)
@@ -517,7 +517,7 @@ def test_analyze_calcium_oscillations_num_lines_subsamples_the_plot(tmp_path):
     assert len(fig.axes[0].lines) == 1
 
 
-def test_analyze_calcium_oscillations_num_lines_above_track_count_plots_all(tmp_path):
+def _case_analyze_calcium_oscillations_num_lines_above_track_count_plots_all(tmp_path):
     from spacr.timelapse import analyze_calcium_oscillations
 
     db = _build_calcium_db(tmp_path)
@@ -526,7 +526,7 @@ def test_analyze_calcium_oscillations_num_lines_above_track_count_plots_all(tmp_
     assert len(fig.axes[0].lines) == 3
 
 
-def test_analyze_calcium_oscillations_keeps_transient_tracks_when_disabled(tmp_path):
+def _case_analyze_calcium_oscillations_keeps_transient_tracks_when_disabled(tmp_path):
     """remove_transient=False lets the 5-timepoint track through."""
     from spacr.timelapse import analyze_calcium_oscillations
 
@@ -540,7 +540,7 @@ def test_analyze_calcium_oscillations_keeps_transient_tracks_when_disabled(tmp_p
     assert set(peak_details_df["ID"]) == kept
 
 
-def test_analyze_calcium_oscillations_loose_size_filter_keeps_wobbly_cell(tmp_path):
+def _case_analyze_calcium_oscillations_loose_size_filter_keeps_wobbly_cell(tmp_path):
     from spacr.timelapse import analyze_calcium_oscillations
 
     db = _build_calcium_db(tmp_path)
@@ -551,7 +551,7 @@ def test_analyze_calcium_oscillations_loose_size_filter_keeps_wobbly_cell(tmp_pa
         result_df["plate_row_column_field_object"].unique())
 
 
-def test_analyze_calcium_oscillations_high_peak_height_finds_no_peaks(tmp_path):
+def _case_analyze_calcium_oscillations_high_peak_height_finds_no_peaks(tmp_path):
     from spacr.timelapse import analyze_calcium_oscillations
 
     db = _build_calcium_db(tmp_path)
@@ -569,7 +569,7 @@ def test_analyze_calcium_oscillations_high_peak_height_finds_no_peaks(tmp_path):
 # analyze_calcium_oscillations — failure branches
 # ---------------------------------------------------------------------------
 
-def test_analyze_calcium_oscillations_curve_fit_failure_returns_none(tmp_path,
+def _case_analyze_calcium_oscillations_curve_fit_failure_returns_none(tmp_path,
                                                                     monkeypatch,
                                                                     capsys):
     from spacr import timelapse as TL
@@ -585,7 +585,7 @@ def test_analyze_calcium_oscillations_curve_fit_failure_returns_none(tmp_path,
     assert not (tmp_path / "results").exists()
 
 
-def test_analyze_calcium_oscillations_no_suitable_cells_returns_none(tmp_path,
+def _case_analyze_calcium_oscillations_no_suitable_cells_returns_none(tmp_path,
                                                                      capsys):
     from spacr.timelapse import analyze_calcium_oscillations
 
@@ -600,7 +600,7 @@ def test_analyze_calcium_oscillations_no_suitable_cells_returns_none(tmp_path,
     assert not (tmp_path / "results").exists()
 
 
-def test_analyze_calcium_oscillations_everything_transient_returns_none(tmp_path,
+def _case_analyze_calcium_oscillations_everything_transient_returns_none(tmp_path,
                                                                         capsys):
     from spacr.timelapse import analyze_calcium_oscillations
 
@@ -611,7 +611,7 @@ def test_analyze_calcium_oscillations_everything_transient_returns_none(tmp_path
     assert "No suitable cells found for analysis" in capsys.readouterr().out
 
 
-def test_analyze_calcium_oscillations_missing_measurement_column(tmp_path):
+def _case_analyze_calcium_oscillations_missing_measurement_column(tmp_path):
     from spacr.timelapse import analyze_calcium_oscillations
 
     db = _build_calcium_db(tmp_path)
@@ -620,7 +620,7 @@ def test_analyze_calcium_oscillations_missing_measurement_column(tmp_path):
                                      pathogen="pathogen")
 
 
-def test_analyze_calcium_oscillations_missing_db_raises(tmp_path):
+def _case_analyze_calcium_oscillations_missing_db_raises(tmp_path):
     from spacr.timelapse import analyze_calcium_oscillations
 
     # sqlite3.connect happily creates an empty file; the cell table read fails.
@@ -628,7 +628,7 @@ def test_analyze_calcium_oscillations_missing_db_raises(tmp_path):
         analyze_calcium_oscillations(str(tmp_path / "nope.db"))
 
 
-def test_analyze_calcium_oscillations_without_pathogen_table(tmp_path):
+def _case_analyze_calcium_oscillations_without_pathogen_table(tmp_path):
     from spacr.timelapse import analyze_calcium_oscillations
 
     db = _build_calcium_db(tmp_path, with_pathogen=False, with_cytoplasm=False)
@@ -640,7 +640,7 @@ def test_analyze_calcium_oscillations_without_pathogen_table(tmp_path):
     assert (peak_details_df["infected"] == 0).all()
 
 
-def test_a_cytoplasm_row_written_twice_is_caught_not_absorbed(tmp_path):
+def _case_a_cytoplasm_row_written_twice_is_caught_not_absorbed(tmp_path):
     """The cytoplasm join is many_to_one, and says so.
 
     The cytoplasm table carries one object per cell per frame. A second row
@@ -672,3 +672,41 @@ def test_a_cytoplasm_row_written_twice_is_caught_not_absorbed(tmp_path):
 
     with pytest.raises(MergeError):
         analyze_calcium_oscillations(db, cytoplasm="cytoplasm")
+
+
+def test_timelapse_calcium_cases(request, subtests, capsys):
+    """Case table: 25 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_plot_data_draws_delta_column_against_time,
+        _case_plot_data_defaults_are_circle_marker_solid_line,
+        _case_plot_data_raises_when_delta_column_absent,
+        _case_summarize_per_well_counts_peaks_and_averages_numeric_columns,
+        _case_summarize_per_well_explodes_ID_into_identifier_columns,
+        _case_summarize_per_well_all_null_amplitudes_gives_empty_summary,
+        _case_summarize_per_well_cells_per_well_is_keyed_by_well,
+        _case_summarize_per_well_inf_non_inf_splits_rows_by_infection_status,
+        _case_summarize_per_well_inf_non_inf_treats_nan_infected_as_uninfected,
+        _case_summarize_per_well_inf_non_inf_all_infected_yields_one_row_per_well,
+        _case_preprocess_pathogen_data_counts_parasites_and_renames_cell_id,
+        _case_analyze_calcium_oscillations_full_run,
+        _case_analyze_calcium_oscillations_without_optional_tables,
+        _case_analyze_calcium_oscillations_num_lines_subsamples_the_plot,
+        _case_analyze_calcium_oscillations_num_lines_above_track_count_plots_all,
+        _case_analyze_calcium_oscillations_keeps_transient_tracks_when_disabled,
+        _case_analyze_calcium_oscillations_loose_size_filter_keeps_wobbly_cell,
+        _case_analyze_calcium_oscillations_high_peak_height_finds_no_peaks,
+        _case_analyze_calcium_oscillations_curve_fit_failure_returns_none,
+        _case_analyze_calcium_oscillations_no_suitable_cells_returns_none,
+        _case_analyze_calcium_oscillations_everything_transient_returns_none,
+        _case_analyze_calcium_oscillations_missing_measurement_column,
+        _case_analyze_calcium_oscillations_missing_db_raises,
+        _case_analyze_calcium_oscillations_without_pathogen_table,
+        _case_a_cytoplasm_row_written_twice_is_caught_not_absorbed,
+        ],
+    )
+    assert ran >= 25

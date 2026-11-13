@@ -153,7 +153,7 @@ def _db_settings(src, **over):
 # plot_data_from_db
 # ---------------------------------------------------------------------------
 
-def test_plot_data_from_db_saliency_table_plots_and_saves(tmp_path, rng):
+def _case_plot_data_from_db_saliency_table_plots_and_saves(tmp_path, rng):
     """The `saliency_image_correlations` short-circuit reads the table via
     _read_db, annotates conditions and renders + persists a spacrGraph."""
     from spacr.plot import plot_data_from_db
@@ -186,7 +186,7 @@ def test_plot_data_from_db_saliency_table_plots_and_saves(tmp_path, rng):
     assert settings["dst"] == os.path.join(str(src), "results")
 
 
-def test_plot_data_from_db_recruitment_from_merged_tables(tmp_path, rng):
+def _case_plot_data_from_db_recruitment_from_merged_tables(tmp_path, rng):
     """table_names as a list goes through io._read_and_merge_data and the
     'recruitment' data column is derived from pathogen/cytoplasm intensities."""
     from spacr.plot import plot_data_from_db
@@ -225,7 +225,7 @@ def test_plot_data_from_db_recruitment_from_merged_tables(tmp_path, rng):
     assert list(out_dir.iterdir()) == []
 
 
-def test_plot_data_from_db_missing_data_column_returns_none(tmp_path, rng):
+def _case_plot_data_from_db_missing_data_column_returns_none(tmp_path, rng):
     """An absent data_column short-circuits with None (after listing columns)."""
     from spacr.plot import plot_data_from_db
 
@@ -241,7 +241,7 @@ def test_plot_data_from_db_missing_data_column_returns_none(tmp_path, rng):
     assert not (src / "results" / "Fig1").exists()
 
 
-def test_plot_data_from_db_missing_grouping_column_returns_none(tmp_path, rng):
+def _case_plot_data_from_db_missing_grouping_column_returns_none(tmp_path, rng):
     """An absent grouping_column short-circuits with None."""
     from spacr.plot import plot_data_from_db
 
@@ -254,7 +254,7 @@ def test_plot_data_from_db_missing_grouping_column_returns_none(tmp_path, rng):
     assert not (src / "results" / "Fig1").exists()
 
 
-def test_plot_data_from_db_rejects_non_str_non_list_src(tmp_path):
+def _case_plot_data_from_db_rejects_non_str_non_list_src(tmp_path):
     """src must be a str or a list of str."""
     from spacr.plot import plot_data_from_db
 
@@ -262,7 +262,7 @@ def test_plot_data_from_db_rejects_non_str_non_list_src(tmp_path):
         plot_data_from_db(_db_settings(12345))
 
 
-def test_plot_data_from_db_src_list_and_dropna_failures_are_caught(tmp_path, rng, capsys):
+def _case_plot_data_from_db_src_list_and_dropna_failures_are_caught(tmp_path, rng, capsys):
     """Two source dirs are concatenated, 'database' is broadcast to a list, and
     the three dropna() guards survive missing annotation columns."""
     from spacr.plot import plot_data_from_db
@@ -351,7 +351,7 @@ def _csv_stem(settings):
             f"_{settings['grouping_column']}_{settings['graph_type']}")
 
 
-def test_plot_data_from_csv_adds_plate_and_common_columns(tmp_path, rng):
+def _case_plot_data_from_csv_adds_plate_and_common_columns(tmp_path, rng):
     """A CSV without plateID gets plateID='plate1' and common='spacr'."""
     from spacr.plot import plot_data_from_csv
 
@@ -372,7 +372,7 @@ def test_plot_data_from_csv_adds_plate_and_common_columns(tmp_path, rng):
     assert len(saved) == 20
 
 
-def test_plot_data_from_csv_two_sources_split_prc_and_keep_groups(tmp_path, rng):
+def _case_plot_data_from_csv_two_sources_split_prc_and_keep_groups(tmp_path, rng):
     """Two CSVs are concatenated, 'prc' is split into plateID/rowID/columnID and
     keep_groups filters the grouping column."""
     from spacr.plot import plot_data_from_csv
@@ -404,7 +404,7 @@ def test_plot_data_from_csv_two_sources_split_prc_and_keep_groups(tmp_path, rng)
     assert set(p.split("_")[0] for p in saved["prc"]) == {"plate1", "plate2"}
 
 
-def test_plot_data_from_csv_prc_split_failure_is_caught(tmp_path, rng, capsys):
+def _case_plot_data_from_csv_prc_split_failure_is_caught(tmp_path, rng, capsys):
     """A prc value that does not split into exactly 3 parts is reported, not raised."""
     from spacr.plot import plot_data_from_csv
 
@@ -423,7 +423,7 @@ def test_plot_data_from_csv_prc_split_failure_is_caught(tmp_path, rng, capsys):
     assert set(saved["plateID"]) == {"plate1"}
 
 
-def test_plot_data_from_csv_keep_groups_string_is_normalised(tmp_path, rng):
+def _case_plot_data_from_csv_keep_groups_string_is_normalised(tmp_path, rng):
     """A string keep_groups is promoted to a list in-place and does NOT filter."""
     from spacr.plot import plot_data_from_csv
 
@@ -440,7 +440,7 @@ def test_plot_data_from_csv_keep_groups_string_is_normalised(tmp_path, rng):
     assert set(saved["group"]) == {"ctrl", "treat"}
 
 
-def test_plot_data_from_csv_remove_outliers_and_verbose(tmp_path, rng, capsys):
+def _case_plot_data_from_csv_remove_outliers_and_verbose(tmp_path, rng, capsys):
     """remove_outliers strips per-group IQR outliers before plotting."""
     from spacr.plot import plot_data_from_csv
 
@@ -462,7 +462,7 @@ def test_plot_data_from_csv_remove_outliers_and_verbose(tmp_path, rng, capsys):
     assert capsys.readouterr().out != ""
 
 
-def test_plot_data_from_csv_rejects_non_str_non_list_src():
+def _case_plot_data_from_csv_rejects_non_str_non_list_src():
     from spacr.plot import plot_data_from_csv
 
     with pytest.raises(ValueError, match="src must be a string or a list"):
@@ -483,7 +483,7 @@ def _write_png(path, rng, mode="RGB", size=16):
     return str(path)
 
 
-def test_plot_image_grid_rgb_pads_grid_with_black_tiles(tmp_path, rng):
+def _case_plot_image_grid_rgb_pads_grid_with_black_tiles(tmp_path, rng):
     """3 RGB images -> 2x2 grid; the 4th tile is a filled black placeholder."""
     from spacr.plot import plot_image_grid
 
@@ -509,7 +509,7 @@ def test_plot_image_grid_rgb_pads_grid_with_black_tiles(tmp_path, rng):
     assert fig.get_facecolor()[:3] == (0.0, 0.0, 0.0)
 
 
-def test_plot_image_grid_grayscale_normalises_to_full_range(tmp_path, rng):
+def _case_plot_image_grid_grayscale_normalises_to_full_range(tmp_path, rng):
     """Single-channel PNGs take the 2-D normalisation branch."""
     from spacr.plot import plot_image_grid
 
@@ -524,7 +524,7 @@ def test_plot_image_grid_grayscale_normalises_to_full_range(tmp_path, rng):
         assert arr.min() == 0 and arr.max() == 255
 
 
-def test_plot_image_grid_preserves_per_channel_scaling_and_provenance(tmp_path):
+def _case_plot_image_grid_preserves_per_channel_scaling_and_provenance(tmp_path):
     """Rendered pixels and their recorded ranges reproduce the source stretch."""
     from PIL import Image as PILImage
     from spacr.plot import _PANEL_TAG, _percentile_display, plot_image_grid
@@ -558,7 +558,7 @@ def test_plot_image_grid_preserves_per_channel_scaling_and_provenance(tmp_path):
     ]
 
 
-def test_plot_image_grid_single_image(tmp_path, rng):
+def _case_plot_image_grid_single_image(tmp_path, rng):
     """One image should still render a 1x1 grid."""
     from spacr.plot import plot_image_grid
 
@@ -668,7 +668,7 @@ def _region_settings(src, **over):
     return s
 
 
-def test_plot_region_writes_three_pdfs(tmp_path, rng, small_overlay_canvas):
+def _case_plot_region_writes_three_pdfs(tmp_path, rng, small_overlay_canvas):
     """With PNG crops and activation maps present all three figures render and
     are saved as PDFs under <src>/results/<name>/."""
     from spacr.plot import plot_region
@@ -692,7 +692,7 @@ def test_plot_region_writes_three_pdfs(tmp_path, rng, small_overlay_canvas):
         assert pdf.read_bytes()[:4] == b"%PDF"
 
 
-def test_plot_region_without_matching_crops_returns_none_figures(
+def _case_plot_region_without_matching_crops_returns_none_figures(
         tmp_path, rng, capsys, small_overlay_canvas):
     """When neither the PNG nor the activation table has a path containing the
     FOV name, only the mask overlay is produced."""
@@ -715,7 +715,7 @@ def test_plot_region_without_matching_crops_returns_none_figures(
     assert not (dst / f"{FOV_NAME}_activation_grid.pdf").exists()
 
 
-def test_plot_region_masks_mode_and_tiff_export(tmp_path, rng, small_overlay_canvas):
+def _case_plot_region_masks_mode_and_tiff_export(tmp_path, rng, small_overlay_canvas):
     """mode='masks' + export_tiffs=True exercises the alternative overlay path
     and writes one TIFF per plane of the merged stack."""
     from spacr.plot import plot_region
@@ -729,3 +729,35 @@ def test_plot_region_masks_mode_and_tiff_export(tmp_path, rng, small_overlay_can
     tiff_dir = src / "results" / FOV_NAME / "tiff"
     tiffs = sorted(p.name for p in tiff_dir.glob("*.tiff"))
     assert tiffs == [f"{FOV_NAME}_channel_{i}.tiff" for i in range(4)]
+
+
+def test_plot_db_csv_region_cases(request, subtests, capsys):
+    """Case table: 19 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_plot_data_from_db_saliency_table_plots_and_saves,
+        _case_plot_data_from_db_recruitment_from_merged_tables,
+        _case_plot_data_from_db_missing_data_column_returns_none,
+        _case_plot_data_from_db_missing_grouping_column_returns_none,
+        _case_plot_data_from_db_rejects_non_str_non_list_src,
+        _case_plot_data_from_db_src_list_and_dropna_failures_are_caught,
+        _case_plot_data_from_csv_adds_plate_and_common_columns,
+        _case_plot_data_from_csv_two_sources_split_prc_and_keep_groups,
+        _case_plot_data_from_csv_prc_split_failure_is_caught,
+        _case_plot_data_from_csv_keep_groups_string_is_normalised,
+        _case_plot_data_from_csv_remove_outliers_and_verbose,
+        _case_plot_data_from_csv_rejects_non_str_non_list_src,
+        _case_plot_image_grid_rgb_pads_grid_with_black_tiles,
+        _case_plot_image_grid_grayscale_normalises_to_full_range,
+        _case_plot_image_grid_preserves_per_channel_scaling_and_provenance,
+        _case_plot_image_grid_single_image,
+        _case_plot_region_writes_three_pdfs,
+        _case_plot_region_without_matching_crops_returns_none_figures,
+        _case_plot_region_masks_mode_and_tiff_export,
+        ],
+    )
+    assert ran >= 19

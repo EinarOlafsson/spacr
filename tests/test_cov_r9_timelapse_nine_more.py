@@ -80,7 +80,7 @@ class TestTheIouDenominator:
                 assert m1.any() and m2.any()
                 assert np.logical_or(m1, m2).sum() > 0
 
-    def test_disjoint_masks_cost_the_maximum(self):
+    def _case_disjoint_masks_cost_the_maximum(self):
         """The value the guard protects: a pair with no overlap gets a
         cost of 1, which is what keeps the assignment from pairing two
         cells that never touched."""
@@ -96,7 +96,7 @@ class TestTheIouDenominator:
         assert 1 - inter / union == 1.0
         assert T.link_by_iou(m1, m2, iou_threshold=0.1) == []
 
-    def test_identical_masks_cost_nothing(self):
+    def _case_identical_masks_cost_nothing(self):
         m = np.zeros((4, 4), dtype=bool)
         m[1:3, 1:3] = True
 
@@ -221,7 +221,7 @@ class TestCarryingTheFirstGroupsQcPayload:
             assert f'settings["{key}"]' in source[payload:], (
                 f"{key} is no longer carried out of the first group's payload")
 
-    def test_the_payload_comes_from_the_first_group_not_the_last(
+    def _case_the_payload_comes_from_the_first_group_not_the_last(
             self, tmp_path, monkeypatch):
         """WHICH group it is, driven rather than read.
 
@@ -353,7 +353,7 @@ class TestTheXgboostQcPayloads:
         assert refusal < assignment < panel
         assert "if used_feature_cols:" not in source[assignment:panel]
 
-    def test_the_panel_matrix_is_owned_rather_than_viewed(self, tmp_path):
+    def _case_the_panel_matrix_is_owned_rather_than_viewed(self, tmp_path):
         """A pandas-3 trap worth keeping: a homogeneous selection can
         return a READ-ONLY view, and the display-only imputation below
         writes into the matrix it is given.
@@ -416,3 +416,46 @@ class TestTheXgboostQcPayloads:
         assert survivors["cell_solidity"].isna().all(), (
             "the display-only imputation wrote back into the "
             "measurements, so the matrix is a view of them after all")
+
+
+def test_the_iou_denominator_cases(request, subtests):
+    """Case table: 2 cases of TestTheIouDenominator run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        (TestTheIouDenominator, '_case_disjoint_masks_cost_the_maximum'),
+        (TestTheIouDenominator, '_case_identical_masks_cost_nothing'),
+        ],
+    )
+    assert ran >= 2
+
+
+def test_carrying_the_first_groups_qc_payload_cases(request, subtests):
+    """Case table: 1 cases of TestCarryingTheFirstGroupsQcPayload run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        (TestCarryingTheFirstGroupsQcPayload, '_case_the_payload_comes_from_the_first_group_not_the_last'),
+        ],
+    )
+    assert ran >= 1
+
+
+def test_the_xgboost_qc_payloads_cases(request, subtests):
+    """Case table: 1 cases of TestTheXgboostQcPayloads run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        (TestTheXgboostQcPayloads, '_case_the_panel_matrix_is_owned_rather_than_viewed'),
+        ],
+    )
+    assert ran >= 1

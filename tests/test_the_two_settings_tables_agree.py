@@ -32,6 +32,8 @@ from spacr.settings import (RENAMED_SETTINGS, SEMANTIC_FOLDS, expected_types,
                             _fold_renamed_settings, surviving_setting_name)
 from spacr.validate import RETIRED_SETTINGS
 
+from tests import locale_cases
+
 PROBE = "PROBE-VALUE-THAT-NO-DEFAULT-USES"
 
 #: A handful of roles is enough and the full 705 is not: the suffix rules are
@@ -109,14 +111,8 @@ def test_a_semantic_fold_is_declared_rather_than_merely_absent():
         assert settings[key] is False, "the fold must leave it alone"
 
 
-@pytest.mark.parametrize("role", SAMPLE_ROLES)
-@pytest.mark.parametrize("old_suffix", sorted(RENAMED_SETTING_SUFFIXES))
-def test_a_suffix_rename_works_for_every_role_or_none(role, old_suffix):
-    """IMPOSSIBLE: a rename that works on one slot and not the one beside it.
-
-    `organelle_min_size` was in the table and `organelleq_min_size` was not,
-    so the same setting migrated in slot one and vanished in slot seventeen.
-    """
+def _a_suffix_rename_works_for_every_role_or_none_case(role, old_suffix):
+    """One case of :func:`test_a_suffix_rename_works_for_every_role_or_none`."""
     new = f"{role}_{RENAMED_SETTING_SUFFIXES[old_suffix]}"
     old = f"{role}_{old_suffix}"
     # TWO DIFFERENT REASONS TO SKIP, and saying which matters: "the new name
@@ -137,6 +133,17 @@ def test_a_suffix_rename_works_for_every_role_or_none(role, old_suffix):
         f"{old} did not reach {new}; a role-family rename must not depend "
         "on which slot the user happened to use")
     assert old not in settings, f"{old} was left behind as a dead key"
+
+
+def test_a_suffix_rename_works_for_every_role_or_none(subtests):
+    """IMPOSSIBLE: a rename that works on one slot and not the one beside it.
+
+    `organelle_min_size` was in the table and `organelleq_min_size` was not,
+    so the same setting migrated in slot one and vanished in slot seventeen.
+    """
+    for label, case in locale_cases.cases(("role", SAMPLE_ROLES), ("old_suffix", sorted(RENAMED_SETTING_SUFFIXES))):
+        with subtests.test(**label):
+            _a_suffix_rename_works_for_every_role_or_none_case(**case)
 
 
 def test_no_suffix_rename_retires_a_setting_that_is_still_live():
@@ -161,7 +168,7 @@ def test_no_suffix_rename_retires_a_setting_that_is_still_live():
         f"these are LIVE settings and a suffix rule migrated them: {eaten}")
 
 
-def test_the_seven_live_size_settings_are_the_ones_we_measured():
+def test_the_nine_live_size_settings_are_the_ones_we_measured():
     """The liveness gate is load-bearing, so pin what it is protecting.
 
     If this list changes, the `_size -> _area` rule's blast radius changed
@@ -171,8 +178,8 @@ def test_the_seven_live_size_settings_are_the_ones_we_measured():
                   if k.endswith("_min_size") or k.endswith("_max_size"))
     assert live == [
         "cell_max_size", "cell_min_size", "cytoplasm_min_size",
-        "nucleus_max_size", "nucleus_min_size",
-        "pathogen_max_size", "pathogen_min_size",
+        "host_min_size", "nucleus_max_size", "nucleus_min_size",
+        "pathogen_max_size", "pathogen_min_size", "vacuole_min_size",
     ], live
     assert not [k for k in live if k.startswith("organelle")], (
         "organelle's _size pair was retired by b7ae412af; a live one means "

@@ -9,6 +9,8 @@ import pytest
 
 import spacr.settings as S
 
+from tests import locale_cases
+
 
 def _defaults_functions():
     out = []
@@ -20,8 +22,8 @@ def _defaults_functions():
     return sorted(out)
 
 
-@pytest.mark.parametrize("fn_name", _defaults_functions())
-def test_defaults_function_populates_dict(fn_name):
+def _defaults_function_populates_dict_case(fn_name):
+    """One case of :func:`test_defaults_function_populates_dict`."""
     fn = getattr(S, fn_name)
     sig = inspect.signature(fn)
     # Most take a single ``settings`` arg (dict) or default None.
@@ -39,6 +41,12 @@ def test_defaults_function_populates_dict(fn_name):
     # already did.
     # Defaults functions return the (mutated) settings dict.
     assert result is None or isinstance(result, dict)
+
+
+def test_defaults_function_populates_dict(subtests):
+    for label, case in locale_cases.cases(("fn_name", _defaults_functions())):
+        with subtests.test(**label):
+            _defaults_function_populates_dict_case(**case)
 
 
 def test_defaults_are_idempotent():

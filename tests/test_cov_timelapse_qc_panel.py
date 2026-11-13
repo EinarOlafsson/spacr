@@ -96,7 +96,7 @@ def _labelled_stack(T=3, H=16, W=16):
     return mask
 
 
-def test_percentiles_normal_path_values_and_columns():
+def _case_percentiles_normal_path_values_and_columns():
     from spacr.timelapse import _compute_intensity_percentiles_per_channel
 
     mask = _labelled_stack(T=2)
@@ -134,7 +134,7 @@ def test_percentiles_normal_path_values_and_columns():
     assert out["cell_label"].dtype.kind in "iu"
 
 
-def test_percentiles_label_as_track_id_renames_column():
+def _case_percentiles_label_as_track_id_renames_column():
     from spacr.timelapse import _compute_intensity_percentiles_per_channel
 
     mask = _labelled_stack(T=1)
@@ -148,7 +148,7 @@ def test_percentiles_label_as_track_id_renames_column():
     assert out["cell_p50_intensity_ch0"].tolist() == [3.0, 3.0]
 
 
-def test_percentiles_none_intensity_stack_returns_empty_frame():
+def _case_percentiles_none_intensity_stack_returns_empty_frame():
     from spacr.timelapse import _compute_intensity_percentiles_per_channel
 
     out = _compute_intensity_percentiles_per_channel(
@@ -164,7 +164,7 @@ def test_percentiles_none_intensity_stack_returns_empty_frame():
 
 
 @pytest.mark.parametrize("chan", [None, -1, 5])
-def test_percentiles_bad_channel_index_returns_empty_frame(chan):
+def _case_percentiles_bad_channel_index_returns_empty_frame(chan):
     from spacr.timelapse import _compute_intensity_percentiles_per_channel
 
     mask = _labelled_stack(T=1)
@@ -174,7 +174,7 @@ def test_percentiles_bad_channel_index_returns_empty_frame(chan):
     assert list(out.columns) == ["frame", "pathogen_label"]
 
 
-def test_percentiles_skips_empty_frames_and_returns_empty_when_all_empty():
+def _case_percentiles_skips_empty_frames_and_returns_empty_when_all_empty():
     from spacr.timelapse import _compute_intensity_percentiles_per_channel
 
     mask = np.zeros((3, 8, 8), dtype=np.int32)
@@ -195,7 +195,7 @@ def test_percentiles_skips_empty_frames_and_returns_empty_when_all_empty():
     assert list(empty.columns) == ["frame", "cell_label"]
 
 
-def test_percentiles_negative_only_labels_are_skipped():
+def _case_percentiles_negative_only_labels_are_skipped():
     """np.any() is truthy for a -1 mask but there are no labels > 0."""
     from spacr.timelapse import _compute_intensity_percentiles_per_channel
 
@@ -208,7 +208,7 @@ def test_percentiles_negative_only_labels_are_skipped():
     assert list(out.columns) == ["frame", "cell_label"]
 
 
-def test_percentiles_all_nan_object_is_dropped():
+def _case_percentiles_all_nan_object_is_dropped():
     """A label whose pixels are all NaN yields no record (vals.size == 0)."""
     from spacr.timelapse import _compute_intensity_percentiles_per_channel
 
@@ -222,7 +222,7 @@ def test_percentiles_all_nan_object_is_dropped():
     assert out["cell_p50_intensity_ch0"].tolist() == [5.0]
 
 
-def test_percentiles_all_objects_nan_returns_empty():
+def _case_percentiles_all_objects_nan_returns_empty():
     from spacr.timelapse import _compute_intensity_percentiles_per_channel
 
     mask = _labelled_stack(T=1)
@@ -263,7 +263,7 @@ def _full_payload(rng=None, log=False, thr=1.5, chan=2):
     }
 
 
-def test_adjusted_qc_panel_full_payload_writes_png(tmp_path):
+def _case_adjusted_qc_panel_full_payload_writes_png(tmp_path):
     from spacr.timelapse import _make_adjusted_qc_panel
 
     out_dir = tmp_path / "motility"  # deliberately absent -> exercises makedirs
@@ -277,7 +277,7 @@ def test_adjusted_qc_panel_full_payload_writes_png(tmp_path):
     assert expected.read_bytes()[:8] == b"\x89PNG\r\n\x1a\n"
 
 
-def test_adjusted_qc_panel_log_and_multi_well_tag(tmp_path, capsys):
+def _case_adjusted_qc_panel_log_and_multi_well_tag(tmp_path, capsys):
     from spacr.timelapse import _make_adjusted_qc_panel
 
     df = pd.DataFrame(
@@ -291,7 +291,7 @@ def test_adjusted_qc_panel_log_and_multi_well_tag(tmp_path, capsys):
     assert str(expected) in capsys.readouterr().out
 
 
-def test_adjusted_qc_panel_no_threshold_and_no_channel(tmp_path):
+def _case_adjusted_qc_panel_no_threshold_and_no_channel(tmp_path):
     """thr_val None skips the axvline, pathogen_chan None uses the plain label."""
     from spacr.timelapse import _make_adjusted_qc_panel
 
@@ -303,7 +303,7 @@ def test_adjusted_qc_panel_no_threshold_and_no_channel(tmp_path):
     assert (tmp_path / "infection_qc_panel_adjusted_plate1_A01.png").is_file()
 
 
-def test_adjusted_qc_panel_empty_payloads_render_placeholders(tmp_path):
+def _case_adjusted_qc_panel_empty_payloads_render_placeholders(tmp_path):
     """No hist / no PCA / no XGB -> all three 'no data' placeholder branches."""
     from spacr.timelapse import _make_adjusted_qc_panel
 
@@ -313,7 +313,7 @@ def test_adjusted_qc_panel_empty_payloads_render_placeholders(tmp_path):
     assert (tmp_path / "infection_qc_panel_adjusted_plate1_A01.png").is_file()
 
 
-def test_adjusted_qc_panel_malformed_payloads_render_placeholders(tmp_path):
+def _case_adjusted_qc_panel_malformed_payloads_render_placeholders(tmp_path):
     """Present-but-unusable payloads take the same placeholder branches."""
     from spacr.timelapse import _make_adjusted_qc_panel
 
@@ -340,7 +340,7 @@ def test_adjusted_qc_panel_malformed_payloads_render_placeholders(tmp_path):
     assert (tmp_path / "infection_qc_panel_xgb_p9_H12.png").is_file()
 
 
-def test_adjusted_qc_panel_pca_labels_none_takes_placeholder(tmp_path):
+def _case_adjusted_qc_panel_pca_labels_none_takes_placeholder(tmp_path):
     from spacr.timelapse import _make_adjusted_qc_panel
 
     settings = _full_payload()
@@ -350,7 +350,7 @@ def test_adjusted_qc_panel_pca_labels_none_takes_placeholder(tmp_path):
     assert (tmp_path / "infection_qc_panel_adjusted_plate1_A01.png").is_file()
 
 
-def test_adjusted_qc_panel_meta_tag_without_plate_columns(tmp_path):
+def _case_adjusted_qc_panel_meta_tag_without_plate_columns(tmp_path):
     """No plateID/wellID at all -> MULTI_PLATES_MULTI_WELLS filename."""
     from spacr.timelapse import _make_adjusted_qc_panel
 
@@ -364,7 +364,7 @@ def test_adjusted_qc_panel_meta_tag_without_plate_columns(tmp_path):
 # _infection_qc_histogram
 # ---------------------------------------------------------------------------
 
-def test_infection_qc_histogram_relabel_writes_png_and_payload(tmp_path, capsys):
+def _case_infection_qc_histogram_relabel_writes_png_and_payload(tmp_path, capsys):
     from spacr.timelapse import _infection_qc_histogram
 
     df = _qc_df()
@@ -395,7 +395,7 @@ def test_infection_qc_histogram_relabel_writes_png_and_payload(tmp_path, capsys)
     assert "Automatic intensity threshold" in capsys.readouterr().out
 
 
-def test_infection_qc_histogram_no_intensity_column(tmp_path, capsys):
+def _case_infection_qc_histogram_no_intensity_column(tmp_path, capsys):
     from spacr.timelapse import _infection_qc_histogram
 
     df = _qc_df()
@@ -412,7 +412,7 @@ def test_infection_qc_histogram_no_intensity_column(tmp_path, capsys):
     assert not list(tmp_path.iterdir())
 
 
-def test_infection_qc_histogram_falls_back_to_mean_column(tmp_path):
+def _case_infection_qc_histogram_falls_back_to_mean_column(tmp_path):
     from spacr.timelapse import _infection_qc_histogram
 
     df = _qc_df(col="mean")
@@ -423,7 +423,7 @@ def test_infection_qc_histogram_falls_back_to_mean_column(tmp_path):
     assert settings["infection_hist_data"]["intensity_col"] == "cell_mean_intensity_ch2"
 
 
-def test_infection_qc_histogram_prefers_p95_over_mean(tmp_path):
+def _case_infection_qc_histogram_prefers_p95_over_mean(tmp_path):
     from spacr.timelapse import _infection_qc_histogram
 
     df = _qc_df()
@@ -433,7 +433,7 @@ def test_infection_qc_histogram_prefers_p95_over_mean(tmp_path):
     assert settings["infection_hist_data"]["intensity_col"] == "cell_p95_intensity_ch2"
 
 
-def test_infection_qc_histogram_too_few_cells_skips(tmp_path, capsys):
+def _case_infection_qc_histogram_too_few_cells_skips(tmp_path, capsys):
     from spacr.timelapse import _infection_qc_histogram
 
     df = _qc_df(n_cells=8)
@@ -447,7 +447,7 @@ def test_infection_qc_histogram_too_few_cells_skips(tmp_path, capsys):
     assert "Too few cells" in capsys.readouterr().out
 
 
-def test_infection_qc_histogram_constant_intensity_skips(tmp_path, capsys):
+def _case_infection_qc_histogram_constant_intensity_skips(tmp_path, capsys):
     from spacr.timelapse import _infection_qc_histogram
 
     df = _qc_df(n_cells=40)
@@ -460,7 +460,7 @@ def test_infection_qc_histogram_constant_intensity_skips(tmp_path, capsys):
     assert "Too few cells or no intensity variation" in capsys.readouterr().out
 
 
-def test_infection_qc_histogram_drops_stale_adjusted_columns(tmp_path):
+def _case_infection_qc_histogram_drops_stale_adjusted_columns(tmp_path):
     """Re-running on a DB-loaded frame must not produce _x / _y merge suffixes."""
     from spacr.timelapse import _infection_qc_histogram
 
@@ -477,7 +477,7 @@ def test_infection_qc_histogram_drops_stale_adjusted_columns(tmp_path):
     assert _per_cell_positive(out) == 15
 
 
-def test_infection_qc_histogram_percentile_fallback(tmp_path, capsys):
+def _case_infection_qc_histogram_percentile_fallback(tmp_path, capsys):
     """No bin reaches the infected fraction -> percentile fallback threshold."""
     from spacr.timelapse import _infection_qc_histogram
 
@@ -497,7 +497,7 @@ def test_infection_qc_histogram_percentile_fallback(tmp_path, capsys):
     assert "Could not find bin with infected" in capsys.readouterr().out
 
 
-def test_infection_qc_histogram_clamps_bins_fraction_and_percentile(tmp_path):
+def _case_infection_qc_histogram_clamps_bins_fraction_and_percentile(tmp_path):
     from spacr.timelapse import _infection_qc_histogram
 
     settings = {
@@ -519,7 +519,7 @@ def test_infection_qc_histogram_clamps_bins_fraction_and_percentile(tmp_path):
     assert settings2["infection_hist_data"]["bin_edges"].size == 257
 
 
-def test_infection_qc_histogram_remove_mode_drops_conflicting_cells(tmp_path, capsys):
+def _case_infection_qc_histogram_remove_mode_drops_conflicting_cells(tmp_path, capsys):
     from spacr.timelapse import _infection_qc_histogram
 
     df = _qc_df(seed=3)
@@ -540,7 +540,7 @@ def test_infection_qc_histogram_remove_mode_drops_conflicting_cells(tmp_path, ca
     assert not list(tmp_path.iterdir())  # graphs disabled
 
 
-def test_infection_qc_histogram_remove_mode_without_conflicts_keeps_all(tmp_path):
+def _case_infection_qc_histogram_remove_mode_without_conflicts_keeps_all(tmp_path):
     from spacr.timelapse import _infection_qc_histogram
 
     df = _qc_df()
@@ -554,7 +554,7 @@ def test_infection_qc_histogram_remove_mode_without_conflicts_keeps_all(tmp_path
     assert _per_cell_positive(out) == 15
 
 
-def test_infection_qc_histogram_unknown_mode_falls_back_to_relabel(tmp_path, capsys):
+def _case_infection_qc_histogram_unknown_mode_falls_back_to_relabel(tmp_path, capsys):
     from spacr.timelapse import _infection_qc_histogram
 
     settings = {
@@ -567,7 +567,7 @@ def test_infection_qc_histogram_unknown_mode_falls_back_to_relabel(tmp_path, cap
     assert "mode=relabel" in capsys.readouterr().out
 
 
-def test_infection_qc_histogram_relabels_disagreeing_cells(tmp_path, capsys):
+def _case_infection_qc_histogram_relabels_disagreeing_cells(tmp_path, capsys):
     """Mask says infected but intensity is dim -> the label is flipped."""
     from spacr.timelapse import _infection_qc_histogram
 
@@ -581,7 +581,7 @@ def test_infection_qc_histogram_relabels_disagreeing_cells(tmp_path, capsys):
     assert "Adjusted infection labels for 1 cells" in capsys.readouterr().out
 
 
-def test_infection_qc_histogram_nan_cells_fall_back_to_mask_label(tmp_path):
+def _case_infection_qc_histogram_nan_cells_fall_back_to_mask_label(tmp_path):
     """Cells dropped by dropna() get their label back from the mask column."""
     from spacr.timelapse import _infection_qc_histogram
 
@@ -597,7 +597,7 @@ def test_infection_qc_histogram_nan_cells_fall_back_to_mask_label(tmp_path):
     assert bool(out.loc[out["cellID"] == 31, "adjusted_infected"].iloc[0]) is True
 
 
-def test_infection_qc_histogram_graphs_disabled_writes_nothing(tmp_path, capsys):
+def _case_infection_qc_histogram_graphs_disabled_writes_nothing(tmp_path, capsys):
     from spacr.timelapse import _infection_qc_histogram
 
     settings = {"infection_intensity_qc_graphs": False}
@@ -609,7 +609,7 @@ def test_infection_qc_histogram_graphs_disabled_writes_nothing(tmp_path, capsys)
     assert "skipping histogram plot" in capsys.readouterr().out
 
 
-def test_infection_qc_histogram_png_filename_uses_meta_tag(tmp_path):
+def _case_infection_qc_histogram_png_filename_uses_meta_tag(tmp_path):
     from spacr.timelapse import _infection_qc_histogram
 
     df = pd.concat(
@@ -625,7 +625,7 @@ def test_infection_qc_histogram_png_filename_uses_meta_tag(tmp_path):
             "infection_intensity_histogram_MULTI_PLATES_C03.png").is_file()
 
 
-def test_infection_qc_histogram_log_threshold_applied_in_log_space(tmp_path):
+def _case_infection_qc_histogram_log_threshold_applied_in_log_space(tmp_path):
     from spacr.timelapse import _infection_qc_histogram
 
     df = _qc_df()
@@ -642,7 +642,7 @@ def test_infection_qc_histogram_log_threshold_applied_in_log_space(tmp_path):
     assert _per_cell_positive(out) == expected
 
 
-def test_infection_qc_histogram_log_payload_is_log_transformed(tmp_path):
+def _case_infection_qc_histogram_log_payload_is_log_transformed(tmp_path):
     """The plotting payload is in log space when log_transform is on."""
     from spacr.timelapse import _infection_qc_histogram
 
@@ -666,7 +666,7 @@ def test_infection_qc_histogram_log_payload_is_log_transformed(tmp_path):
     assert (tmp_path / "infection_intensity_histogram_plate1_A01.png").is_file()
 
 
-def test_infection_qc_histogram_output_feeds_adjusted_panel(tmp_path):
+def _case_infection_qc_histogram_output_feeds_adjusted_panel(tmp_path):
     """End-to-end: the payload the histogram stores renders the panel."""
     from spacr.timelapse import _infection_qc_histogram, _make_adjusted_qc_panel
 
@@ -680,3 +680,50 @@ def test_infection_qc_histogram_output_feeds_adjusted_panel(tmp_path):
     png = panel_dir / "infection_qc_panel_adjusted_plate1_A01.png"
     assert png.is_file()
     assert png.read_bytes()[:8] == b"\x89PNG\r\n\x1a\n"
+
+
+def test_timelapse_qc_panel_cases(request, subtests, capsys):
+    """Case table: 34 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_percentiles_normal_path_values_and_columns,
+        _case_percentiles_label_as_track_id_renames_column,
+        _case_percentiles_none_intensity_stack_returns_empty_frame,
+        _case_percentiles_bad_channel_index_returns_empty_frame,
+        _case_percentiles_skips_empty_frames_and_returns_empty_when_all_empty,
+        _case_percentiles_negative_only_labels_are_skipped,
+        _case_percentiles_all_nan_object_is_dropped,
+        _case_percentiles_all_objects_nan_returns_empty,
+        _case_adjusted_qc_panel_full_payload_writes_png,
+        _case_adjusted_qc_panel_log_and_multi_well_tag,
+        _case_adjusted_qc_panel_no_threshold_and_no_channel,
+        _case_adjusted_qc_panel_empty_payloads_render_placeholders,
+        _case_adjusted_qc_panel_malformed_payloads_render_placeholders,
+        _case_adjusted_qc_panel_pca_labels_none_takes_placeholder,
+        _case_adjusted_qc_panel_meta_tag_without_plate_columns,
+        _case_infection_qc_histogram_relabel_writes_png_and_payload,
+        _case_infection_qc_histogram_no_intensity_column,
+        _case_infection_qc_histogram_falls_back_to_mean_column,
+        _case_infection_qc_histogram_prefers_p95_over_mean,
+        _case_infection_qc_histogram_too_few_cells_skips,
+        _case_infection_qc_histogram_constant_intensity_skips,
+        _case_infection_qc_histogram_drops_stale_adjusted_columns,
+        _case_infection_qc_histogram_percentile_fallback,
+        _case_infection_qc_histogram_clamps_bins_fraction_and_percentile,
+        _case_infection_qc_histogram_remove_mode_drops_conflicting_cells,
+        _case_infection_qc_histogram_remove_mode_without_conflicts_keeps_all,
+        _case_infection_qc_histogram_unknown_mode_falls_back_to_relabel,
+        _case_infection_qc_histogram_relabels_disagreeing_cells,
+        _case_infection_qc_histogram_nan_cells_fall_back_to_mask_label,
+        _case_infection_qc_histogram_graphs_disabled_writes_nothing,
+        _case_infection_qc_histogram_png_filename_uses_meta_tag,
+        _case_infection_qc_histogram_log_threshold_applied_in_log_space,
+        _case_infection_qc_histogram_log_payload_is_log_transformed,
+        _case_infection_qc_histogram_output_feeds_adjusted_panel,
+        ],
+    )
+    assert ran >= 34

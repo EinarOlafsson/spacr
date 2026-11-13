@@ -7,6 +7,11 @@ a 333-tile well -- and no rerun matched production. The solve now runs on
 one BLAS thread. Pinned here: the same bits whatever the caller's thread
 count, the caller's count restored afterwards, and the answer within 1e-6
 px of the threaded solve it replaced.
+
+Only the solve is pinned; the process keeps its thread pools. Identity
+holds per machine and BLAS build, since another CPU kernel of the same BLAS
+may round the last bits differently. Without threadpoolctl the solve runs
+threaded, as before.
 """
 from __future__ import annotations
 

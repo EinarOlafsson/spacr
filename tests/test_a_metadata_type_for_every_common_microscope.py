@@ -46,6 +46,8 @@ from spacr.regex_infer import (_METADATA_CONVENTIONS, _metadata_autodetect,
                                _metadata_convention_menu,
                                _metadata_parse_report, _metadata_pattern)
 
+from tests import locale_cases
+
 
 #: The four arms `_get_regex` shipped before instruction 441, exactly as they
 #: were, for `img_format='tif'`. Copied from the source at 03cfdbf02.
@@ -133,11 +135,8 @@ def test_an_unknown_convention_is_refused_with_the_whole_vocabulary():
         assert repr(key) in message
 
 
-@pytest.mark.parametrize("record", _METADATA_CONVENTIONS,
-                         ids=[r["key"] for r in _METADATA_CONVENTIONS])
-def test_every_convention_parses_every_example_it_claims(record):
-    """The examples are the evidence; a record whose own examples fail is a
-    guess with a citation attached."""
+def _every_convention_parses_every_example_it_claims_case(record):
+    """One case of :func:`test_every_convention_parses_every_example_it_claims`."""
     for example in record["examples"]:
         pattern = _metadata_pattern(record["key"], _extension_of(example),
                                     custom_regex=r"(?P<wellID>[A-H]\d\d)")
@@ -145,10 +144,16 @@ def test_every_convention_parses_every_example_it_claims(record):
             f"{record['key']} does not parse its own example {example!r}")
 
 
-@pytest.mark.parametrize("record", _METADATA_CONVENTIONS,
-                         ids=[r["key"] for r in _METADATA_CONVENTIONS])
-def test_every_example_fills_every_group_the_importer_reads(record):
-    """Required groups participate; only the documented EVOS slice may be absent."""
+def test_every_convention_parses_every_example_it_claims(subtests):
+    """The examples are the evidence; a record whose own examples fail is a
+    guess with a citation attached."""
+    for label, case in locale_cases.cases(("record", _METADATA_CONVENTIONS, [r["key"] for r in _METADATA_CONVENTIONS])):
+        with subtests.test(**label):
+            _every_convention_parses_every_example_it_claims_case(**case)
+
+
+def _every_example_fills_every_group_the_importer_reads_case(record):
+    """One case of :func:`test_every_example_fills_every_group_the_importer_reads`."""
     required = {"wellID", "fieldID", "chanID"}
     must_not_be_empty = required | {"timeID", "sliceID"}
     for example in record["examples"]:
@@ -175,6 +180,13 @@ def test_every_example_fills_every_group_the_importer_reads(record):
             f"useful about why")
 
 
+def test_every_example_fills_every_group_the_importer_reads(subtests):
+    """Required groups participate; only the documented EVOS slice may be absent."""
+    for label, case in locale_cases.cases(("record", _METADATA_CONVENTIONS, [r["key"] for r in _METADATA_CONVENTIONS])):
+        with subtests.test(**label):
+            _every_example_fills_every_group_the_importer_reads_case(**case)
+
+
 def test_no_convention_claims_a_filename_written_by_another():
     """Two patterns matching one name is how a plate is silently mislabelled."""
     overlaps = set()
@@ -199,21 +211,8 @@ def test_no_convention_claims_a_filename_written_by_another():
         f"{sorted(ALLOWED_OVERLAPS - overlaps)}")
 
 
-@pytest.mark.parametrize("record", _METADATA_CONVENTIONS,
-                         ids=[r["key"] for r in _METADATA_CONVENTIONS])
-def test_every_record_carries_the_evidence_for_itself(record):
-    """Vendor, instrument, source, status, and enough example filenames.
-
-    CONFIRMED NEEDS TWO EXAMPLES AND PROVISIONAL NEEDS ONE. One filename
-    proves a pattern can parse something; two proves it parses a FAMILY, and
-    that is the difference between a convention and a screenshot. EVOS has
-    two exact vendor-documented literals, including the no-Z save dialog.
-    ScanR's two acquisition-user stems omit extensions; both runnable
-    examples explicitly disclose an inferred TIFF suffix.
-    Cytation also remains provisional because its additional upstream
-    real-world-derived names disclose sanitization. The dropdown shows this
-    evidence limit rather than treating a matching example as confirmation.
-    """
+def _every_record_carries_the_evidence_for_itself_case(record):
+    """One case of :func:`test_every_record_carries_the_evidence_for_itself`."""
     for field in ("key", "label", "vendor", "instrument", "pattern",
                   "groups", "source", "status"):
         assert record.get(field), f"{record['key']} has no {field}"
@@ -228,6 +227,24 @@ def test_every_record_carries_the_evidence_for_itself(record):
                            ).groupindex:
         assert name in record["groups"], (
             f"{record['key']} captures {name} and does not say what it means")
+
+
+def test_every_record_carries_the_evidence_for_itself(subtests):
+    """Vendor, instrument, source, status, and enough example filenames.
+
+    CONFIRMED NEEDS TWO EXAMPLES AND PROVISIONAL NEEDS ONE. One filename
+    proves a pattern can parse something; two proves it parses a FAMILY, and
+    that is the difference between a convention and a screenshot. EVOS has
+    two exact vendor-documented literals, including the no-Z save dialog.
+    ScanR's two acquisition-user stems omit extensions; both runnable
+    examples explicitly disclose an inferred TIFF suffix.
+    Cytation also remains provisional because its additional upstream
+    real-world-derived names disclose sanitization. The dropdown shows this
+    evidence limit rather than treating a matching example as confirmation.
+    """
+    for label, case in locale_cases.cases(("record", _METADATA_CONVENTIONS, [r["key"] for r in _METADATA_CONVENTIONS])):
+        with subtests.test(**label):
+            _every_record_carries_the_evidence_for_itself_case(**case)
 
 
 @pytest.mark.parametrize(
