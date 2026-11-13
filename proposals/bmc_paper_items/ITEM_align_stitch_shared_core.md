@@ -214,3 +214,5 @@ Acceptance 'both' (peak ratio + NCC) for general users; 1/10 px sub-pixel kept f
 3. Should `image_stitch.py` (import-time, unknown arrangement) also move onto the core, or stay a documented exception?
 4. Is a second-acquisition (cross-magnification) mode wanted in Align & Stitch at all, or should 930 stay OPS-only?
 5. Once the core is proven, should the `legacy` engine be removed (one implementation), or kept for reproducing earlier runs?
+
+- **Seeded placement:** item 940 (`ITEM_ops_placement_seed_file.md`) defines a saved placement file the core loads instead of solving; it lands in or right after this item.

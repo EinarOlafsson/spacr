@@ -206,3 +206,5 @@ Live genotype shows FDR at a looser 1 % target (the paper target stays on full w
 3. Without a finished run there is no well seed for align. Is a 12-field sparse seed acceptable, or should live align require a finished stitch-and-seed of the well?
 4. Cluster live mode needs cell tables from a finished run. Should it also accept a published profile table (for example, the Funk et al. 2022 gene table) so users can try clustering settings before running their own plate?
 5. Should "Apply to run settings" be allowed while a full run of the same settings file is in progress, or be blocked until it finishes?
+
+- **Seeded placement:** item 940 (`ITEM_ops_placement_seed_file.md`) supplies the saved placement file that live align and phenotype load for a subset (answers open question 3 in part).
