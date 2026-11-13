@@ -28,18 +28,16 @@ def _diff(base, changed):
 class TestTheFrameIsOneInk:
     """D: the spines, the tick marks and the grid are the same furniture."""
 
-    def test_it_colours_the_spines(self, base):
+    @pytest.mark.parametrize("rc_key", ["axes.edgecolor", "grid.color"],
+                             ids=["spines", "grid"])
+    def test_the_one_ink_colours_the_spines_and_the_grid(self, base, rc_key):
         diff = _diff(base, {**base, "chrome_colour": "#FF0000"})
-        assert diff.get("axes.edgecolor") == "#FF0000"
+        assert diff.get(rc_key) == "#FF0000"
 
     def test_it_colours_the_ticks(self, base):
         diff = _diff(base, {**base, "chrome_colour": "#FF0000"})
         assert diff.get("xtick.color") == "#FF0000"
         assert diff.get("ytick.color") == "#FF0000"
-
-    def test_it_colours_the_grid(self, base):
-        diff = _diff(base, {**base, "chrome_colour": "#FF0000"})
-        assert diff.get("grid.color") == "#FF0000"
 
     def test_a_chosen_grid_colour_still_wins(self, base):
         """The one control is the fallback; a per-element choice outranks it."""

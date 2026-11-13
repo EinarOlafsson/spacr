@@ -380,14 +380,6 @@ def _qc_folder(tmp_path, payload):
     return str(tmp_path / "run_1")
 
 
-def test_no_run_folder_reads_nothing():
-    assert read_the_last_run("") == {}
-
-
-def test_a_folder_with_no_diagnostics_reads_nothing(tmp_path):
-    assert read_the_last_run(str(tmp_path)) == {}
-
-
 def test_a_diagnostics_file_that_is_not_json_is_reported_not_used(tmp_path):
     from spacr.regression_qc import QC_NUMBERS_FILE
 

@@ -68,18 +68,16 @@ def test_timepoints_cannot_be_silently_combined(tmp_path):
     assert mapped.original_filename.iloc[0] == "second.tif"
 
 
-def test_conflicting_time_identity_is_rejected_even_if_only_filename_matches(tmp_path):
+@pytest.mark.parametrize("prcf, filename", [
+    # Even if only the filename matches.
+    ("plate1_r1_c1_f1_t2", "plate1_A01_1_1.npy"),
+    # A missing time cannot borrow an existing time.
+    ("plate1_r1_c1_f1", "plate1_A01_1_2.npy"),
+], ids=["only-filename-matches", "missing-time-cannot-borrow"])
+def test_conflicting_time_identity_is_rejected(tmp_path, prcf, filename):
     path = csv_map(tmp_path, [modern()])
     with pytest.raises(ValueError, match="Conflicting"):
-        enrich(pd.DataFrame({"prcf": ["plate1_r1_c1_f1_t2"],
-                             "filename": ["plate1_A01_1_1.npy"]}), path)
-
-
-def test_missing_time_cannot_borrow_an_existing_time(tmp_path):
-    path = csv_map(tmp_path, [modern()])
-    with pytest.raises(ValueError, match="Conflicting"):
-        enrich(pd.DataFrame({"prcf": ["plate1_r1_c1_f1"],
-                             "filename": ["plate1_A01_1_2.npy"]}), path)
+        enrich(pd.DataFrame({"prcf": [prcf], "filename": [filename]}), path)
 
 
 def test_duplicate_basename_across_plates_needs_explicit_plate(tmp_path):

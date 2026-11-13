@@ -106,8 +106,13 @@ class TestTheWellTranslation:
     def test_a_two_letter_row_keeps_counting(self):
         assert well_to_row_and_column("AA01")[0] == "r27"
 
-    def test_an_already_translated_well_is_left_alone(self):
-        assert well_to_row_and_column("r3c11") == ("r3", "c11")
+    @pytest.mark.parametrize("well, expected", [
+        ("r3c11", ("r3", "c11")),   # an already translated well is left alone
+        ("???", ("", "")),          # nonsense gives nothing rather than a guess
+    ])
+    def test_a_well_that_is_already_translated_or_nonsense_is_not_guessed_at(
+            self, well, expected):
+        assert well_to_row_and_column(well) == expected
 
     def test_it_is_not_a_bare_number(self):
         """`spacr/predictions.py` records that png_list.rowID returns 'r1',
@@ -115,10 +120,6 @@ class TestTheWellTranslation:
         looks exactly like a screen with no overlap."""
         row, column = well_to_row_and_column("A01")
         assert row.startswith("r") and column.startswith("c")
-
-    def test_nonsense_gives_nothing_rather_than_a_guess(self):
-        assert well_to_row_and_column("???") == ("", "")
-
 
 class TestThePathParts:
 

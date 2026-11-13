@@ -645,27 +645,22 @@ def test_top_falls_back_to_a_column_that_was_measured():
     assert result.top(3, by="permutation")["feature"].tolist() == ["b", "c", "a"]
 
 
-def test_an_unfaithful_summary_says_the_ranking_is_withheld():
-    """A ranking of noise presented as a ranking is the failure to avoid."""
+@pytest.mark.parametrize("fidelity, baseline, feature, top, fragments", [
+    # A ranking of noise presented as a ranking is the failure to avoid.
+    (0.50, 0.52, "a", 5,
+     ("does NOT reproduce the CV model", "Top 5 features: withheld")),
+    # When it reproduces the model, the features are the point of the report.
+    (0.92, 0.50, "cell_area", 3, ("Top 3 features:", "cell_area")),
+], ids=["unfaithful-withholds-the-ranking", "faithful-prints-the-ranking"])
+def test_the_summary_prints_the_ranking_only_when_it_is_faithful(
+        fidelity, baseline, feature, top, fragments):
     result = surrogate.SurrogateResult(
-        fidelity=0.50, baseline=0.52,
-        importance=pd.DataFrame({"feature": ["a"], "permutation": [0.3]}),
+        fidelity=fidelity, baseline=baseline,
+        importance=pd.DataFrame({"feature": [feature], "permutation": [0.3]}),
         n_objects=100)
-    text = result.summary(5)
-    assert "does NOT reproduce the CV model" in text
-    assert "Top 5 features: withheld" in text
-
-
-def test_a_faithful_summary_prints_the_ranking():
-    """When it reproduces the model, the features are the point of the report."""
-    result = surrogate.SurrogateResult(
-        fidelity=0.92, baseline=0.50,
-        importance=pd.DataFrame({"feature": ["cell_area"],
-                                 "permutation": [0.3]}),
-        n_objects=100)
-    text = result.summary(3)
-    assert "Top 3 features:" in text
-    assert "cell_area" in text
+    text = result.summary(top)
+    for fragment in fragments:
+        assert fragment in text
 
 
 # ---------------------------------------------------------------------------

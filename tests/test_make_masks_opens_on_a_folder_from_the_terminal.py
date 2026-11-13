@@ -174,17 +174,13 @@ def test_the_limit_is_a_number_of_fields(nested, handed):
     assert queue.summary.total == 4
 
 
-def test_a_session_of_no_fields_is_refused(nested):
-    """``--limit 0`` is a typo, not a request; it is answered as one."""
+@pytest.mark.parametrize("limit", [
+    "0",    # ``--limit 0`` is a typo, not a request; it is answered as one
+    "-3",   # ``--limit -3``, which argparse itself accepts as an int
+], ids=["zero", "negative"])
+def test_a_limit_that_asks_for_no_fields_is_refused(nested, limit):
     with pytest.raises(SystemExit) as exit_code:
-        cli_make_masks.main(["--folder", str(nested), "--limit", "0"])
-    assert exit_code.value.code == 2
-
-
-def test_a_negative_limit_is_refused(nested):
-    """As is ``--limit -3``, which argparse itself accepts as an int."""
-    with pytest.raises(SystemExit) as exit_code:
-        cli_make_masks.main(["--folder", str(nested), "--limit", "-3"])
+        cli_make_masks.main(["--folder", str(nested), "--limit", limit])
     assert exit_code.value.code == 2
 
 

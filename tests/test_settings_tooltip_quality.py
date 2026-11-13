@@ -603,9 +603,14 @@ def test_unit_named_settings_keep_their_units_in_the_tooltip():
     # +1 on 2026-11-09 (item 873): ops_pixel_radius, the decode's pixel
     # fallback radius. Its tooltip says pixels, so only the census moved.
     ops_decode_unit_settings = 1
+    # +1 on 2026-11-13: ops_align_match_radius, the OPS alignment's match
+    # radius. Its tooltip names its unit (the missing list below stays empty),
+    # so only the census moved.
+    ops_alignment_unit_settings = 1
     assert len(diameter_or_radius) == (
         base_unit_settings + enhancement_unit_settings + spatial_unit_settings
         + ops_phenotype_unit_settings + ops_decode_unit_settings
+        + ops_alignment_unit_settings
         + per_organelle_unit_settings * MAX_ORGANELLES
     )
     assert not missing, f"unit-bearing tooltips without units: {sorted(missing)}"
@@ -1456,6 +1461,20 @@ if app_key == "mask":
     for app, key in train_eval_arrivals:
         assert resolve_default_settings(app)[key] == train_eval_defaults[key]
     recognized_arrivals |= train_eval_arrivals
+    # The profiling families of spacr.measure (2026-11-12): profile_features
+    # ("Default None.") and profile_granularity_subsample ("Default 1.0."),
+    # each resolved by Measure and External Masks, four claims in all. Each
+    # claim is the resolved default, so none is a variant.
+    profiling_defaults = {"profile_features": None,
+                          "profile_granularity_subsample": 1.0}
+    profiling_arrivals = {pair for pair in compared_pairs
+                          if pair[1] in profiling_defaults} - set(variants.keys())
+    assert profiling_arrivals == {(app, key) for app in ("measure", "external_masks")
+                                  for key in profiling_defaults}
+    assert not profiling_arrivals & recognized_arrivals
+    for app, key in profiling_arrivals:
+        assert resolve_default_settings(app)[key] == profiling_defaults[key]
+    recognized_arrivals |= profiling_arrivals
     assert comparisons - len(recognized_arrivals) == 1005
     census_508 = json.loads((Path(__file__).parent / 'data' / 'release_contracts' /
                              '508_default_claim_census_2026-09-25.json').read_text(encoding="utf-8"))

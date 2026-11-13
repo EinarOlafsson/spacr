@@ -23,7 +23,8 @@ def english(monkeypatch):
     monkeypatch.setenv('SPACR_LANGUAGE', 'en')
 
 
-@pytest.mark.parametrize('bad', [.5, True, np.bool_(False), np.array(True), np.array(.5)])
+@pytest.mark.parametrize('bad', [.5, True, np.bool_(False), np.array(True), np.array(.5),
+                                 float('nan'), float('inf'), -1, np.complex64(1 + 1j)])
 @pytest.mark.parametrize('where', ['requested', 'measured'])
 def test_resolver_refuses_typed_identity_loss(bad, where):
     config, requested = ({'channels': [0, 1, 2]}, bad) if where == 'requested' else ({'channels': [bad, 1, 2]}, 1)
@@ -172,14 +173,3 @@ def test_installed_reviewed_language_at_actual_classifier_boundary(subtests, tmp
     for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is']), ('route', ['cycle', 'viability'])):
         with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
             _installed_reviewed_language_at_actual_classifier_boundary_case(tmp_path=locale_cases.case_dir(tmp_path, label), monkeypatch=case_monkeypatch, **case)
-
-
-@pytest.mark.parametrize('bad', [float('nan'), float('inf'), -1, np.complex64(1 + 1j)])
-@pytest.mark.parametrize('where', ['requested', 'measured'])
-def test_nonfinite_negative_and_complex_identity_refuses_before_mapping(bad, where):
-    config, requested = ({'channels': [0, 1, 2]}, bad) if where == 'requested' else ({'channels': [bad, 1, 2]}, 1)
-    before = copy.deepcopy(config)
-    with pytest.raises(ValueError) as error:
-        measure._measured_channel_column(config, requested)
-    assert str(error.value) == SOURCE
-    np.testing.assert_equal(config, before)

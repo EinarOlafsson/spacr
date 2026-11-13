@@ -204,20 +204,17 @@ def test_the_family_bars_are_capped(screen):
 # ------------------------------------------------------- guide concordance
 
 
-def test_concordance_needs_guide_rows(screen):
-    """A gene-level table has nothing to compare, and says so by drawing
-    nothing rather than by drawing an empty axis."""
+@pytest.mark.parametrize("level", [
+    # A gene-level table has nothing to compare, and says so by drawing
+    # nothing rather than by drawing an empty axis.
+    "gene",
+    # Every gene in this fixture has exactly one guide, so there is nothing to
+    # draw even at guide level: a gene with one guide cannot agree with itself.
+    "guide",
+])
+def test_concordance_draws_nothing_without_guides_to_compare(screen, level):
     wells, fractions, plates = screen
-    result = sweep(wells, fractions, blocks=plates, level="gene")
-
-    assert plot_guide_concordance(result) is None
-
-
-def test_a_gene_with_one_guide_cannot_agree_with_itself(screen):
-    """Every gene in this fixture has exactly one guide, so there is nothing
-    to draw even at guide level."""
-    wells, fractions, plates = screen
-    result = sweep(wells, fractions, blocks=plates, level="guide")
+    result = sweep(wells, fractions, blocks=plates, level=level)
 
     assert plot_guide_concordance(result) is None
 
@@ -287,20 +284,6 @@ def test_the_panel_offers_every_picture(qtbot):
     offered = {panel.picture.itemData(i) for i in range(panel.picture.count())}
     assert offered == {kind for kind, _label in SweepPanel.PICTURES}
     assert panel.picture.currentData() == "heatmap"
-
-
-def test_each_picture_draws_from_the_panel(qtbot, screen):
-    """Every kind reaches its function, and none of them raises."""
-    from spacr.qt.widgets.sweep_panel import SweepPanel
-
-    wells, fractions, plates = screen
-    panel = SweepPanel()
-    qtbot.addWidget(panel)
-    panel._result = sweep(wells, fractions, blocks=plates, level="guide")
-
-    for kind, _label in SweepPanel.PICTURES:
-        figure = panel.figure(kind=kind)
-        assert figure is None or hasattr(figure, "axes"), kind
 
 
 def test_the_saved_picture_is_the_chosen_one(qtbot, screen, tmp_path):

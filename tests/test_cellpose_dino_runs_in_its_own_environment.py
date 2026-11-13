@@ -163,12 +163,6 @@ def test_the_install_builds_its_own_environment_with_both_pins(tmp_path):
                for _argv, e in record[1:])
 
 
-def test_its_worker_keeps_cellpose_downloads_inside_its_environment(tmp_path):
-    env = str(tmp_path / "env")
-    assert SB._worker_env("cellpose_dino", env)[
-        "CELLPOSE_LOCAL_MODELS_PATH"] == os.path.join(env, "models")
-
-
 # ===========================================================================
 # 3. Routing
 # ===========================================================================
@@ -236,13 +230,6 @@ def test_load_backend_refuses_what_it_cannot_run(tmp_path, monkeypatch):
     with pytest.raises(ValueError, match="single 2-D planes"):
         SB._load_backend("cellpose_dino", model_name=str(path),
                          z_plan=object())
-
-
-def test_parallel_preparation_refuses_a_cellpose_dino_object():
-    from spacr._mask_workers import _prepare_mask_model
-
-    with pytest.raises(ValueError, match="requires the Cellpose backend"):
-        _prepare_mask_model({"cell_model_name": "cellpose_dino:/m/w"}, "cell")
 
 
 def _no_cellpose(*args, **kwargs):

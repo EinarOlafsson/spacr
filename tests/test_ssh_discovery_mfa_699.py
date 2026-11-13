@@ -67,9 +67,14 @@ def test_windows_discovery_and_resolution_honour_the_programdata_system_config(t
     assert (resolved['hostname'], resolved['user'], resolved['port']) == ('cluster.example', 'systemwide', '2200')
 
 
-def test_known_hosts_only_does_not_select_missing_config(tmp_path):
-    (tmp_path / 'known_hosts').write_text('@cert-authority host.example ssh-ed25519 PUBLIC\n', encoding="utf-8")
-    assert remote._discover_ssh_settings(tmp_path)[0]['config'] == ''
+@pytest.mark.parametrize("entry, key, expected", [
+    ('@cert-authority host.example ssh-ed25519 PUBLIC\n', 'config', ''),
+    ('[public.example]:2222 ssh-ed25519 PUBLIC\n', 'port', '2222'),
+], ids=["known-hosts-only-selects-no-config", "nondefault-port-is-kept"])
+def test_a_known_hosts_entry_is_read_without_inventing_other_settings(
+        tmp_path, entry, key, expected):
+    (tmp_path / 'known_hosts').write_text(entry, encoding="utf-8")
+    assert remote._discover_ssh_settings(tmp_path)[0][key] == expected
 
 
 @pytest.mark.parametrize('kind', ['cycle', 'large', 'private'])
@@ -360,11 +365,6 @@ def test_proxycommand_wins_when_it_appears_before_proxyjump(tmp_path):
     row = remote._discover_ssh_settings(tmp_path)[0]
     assert row['proxycommand'] == 'proxy %h'
     assert 'proxyjump' not in row
-
-
-def test_nondefault_known_host_port_is_kept(tmp_path):
-    (tmp_path / 'known_hosts').write_text('[public.example]:2222 ssh-ed25519 PUBLIC\n', encoding="utf-8")
-    assert remote._discover_ssh_settings(tmp_path)[0]['port'] == '2222'
 
 
 def test_multiple_jump_hosts_own_and_close_their_entire_chain(ssh_fake):

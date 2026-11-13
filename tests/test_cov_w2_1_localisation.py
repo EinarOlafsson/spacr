@@ -30,19 +30,15 @@ def _bundle(monkeypatch, tmp_path, frame):
     return path
 
 
-def test_a_table_without_a_location_column_colours_nothing(monkeypatch,
-                                                           tmp_path):
-    """A readable CSV that names no compartment yields no lookup at all."""
-    _bundle(monkeypatch, tmp_path,
-            pd.DataFrame({"gene_nr": ["233460"], "notes": ["cytosol"]}))
-
-    assert localisation.table() == {}
-
-
-def test_a_table_without_a_gene_column_colours_nothing(monkeypatch, tmp_path):
-    """A compartment with nothing to join it to is equally unusable."""
-    _bundle(monkeypatch, tmp_path,
-            pd.DataFrame({"accession": ["233460"], "location": ["cytosol"]}))
+@pytest.mark.parametrize("table", [
+    # A readable CSV that names no compartment yields no lookup at all.
+    {"gene_nr": ["233460"], "notes": ["cytosol"]},
+    # A compartment with nothing to join it to is equally unusable.
+    {"accession": ["233460"], "location": ["cytosol"]},
+], ids=["no-location-column", "no-gene-column"])
+def test_a_table_without_a_location_or_gene_column_colours_nothing(
+        monkeypatch, tmp_path, table):
+    _bundle(monkeypatch, tmp_path, pd.DataFrame(table))
 
     assert localisation.table() == {}
 

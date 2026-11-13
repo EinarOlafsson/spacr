@@ -384,17 +384,22 @@ def test_double_clicking_a_column_accepts_the_dialog(qtbot, measdb):
     assert results == ["annotate"]
 
 
-def test_a_list_valued_field_is_appended_to_not_overwritten(qtbot, measdb):
+@pytest.mark.parametrize("picked, expected", [
+    ("test", "['annotate', 'test']"),   # appended to, not overwritten
+    ("annotate", "['annotate']"),       # a duplicate is ignored
+], ids=["a_list_valued_field_is_appended_to", "a_duplicate_is_ignored"])
+def test_a_list_valued_field_is_appended_to_not_overwritten(qtbot, measdb,
+                                                            picked, expected):
     field = QLineEdit("['annotate']")
     qtbot.addWidget(field)
     button = ColumnPickerButton(lambda: measdb.path, table="png_list",
                                 field=field)
     qtbot.addWidget(button)
     button.set_dialog_runner(
-        lambda d: (_settled(qtbot, d).select_column("test"),
+        lambda d: (_settled(qtbot, d).select_column(picked),
                    QDialog.Accepted)[1])
     button.open_picker()
-    assert field.text() == "['annotate', 'test']"
+    assert field.text() == expected
 
 
 def test_a_comma_separated_field_is_appended_to(qtbot, measdb):
@@ -411,19 +416,6 @@ def test_a_comma_separated_field_is_appended_to(qtbot, measdb):
     # Picking the same one twice does not duplicate it.
     button.open_picker()
     assert field.text() == "cell_area, nucleus_area"
-
-
-def test_appending_to_a_list_field_ignores_a_duplicate(qtbot, measdb):
-    field = QLineEdit("['annotate']")
-    qtbot.addWidget(field)
-    button = ColumnPickerButton(lambda: measdb.path, table="png_list",
-                                field=field)
-    qtbot.addWidget(button)
-    button.set_dialog_runner(
-        lambda d: (_settled(qtbot, d).select_column("annotate"),
-                   QDialog.Accepted)[1])
-    button.open_picker()
-    assert field.text() == "['annotate']"
 
 
 def test_appending_to_an_empty_multi_field_just_sets_the_name(qtbot, measdb):

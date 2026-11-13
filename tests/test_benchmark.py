@@ -94,14 +94,24 @@ def test_no_cuda_reports_none_rather_than_zero():
 # The recommendation
 # ---------------------------------------------------------------------------
 
-def test_memory_is_the_bound_when_a_worker_is_large():
-    """The term the core-count defaults omit, and usually the binding one."""
+@pytest.mark.parametrize(
+    "peak_rss_bytes, baseline_rss_bytes, cores, available_bytes, workers, reason",
+    [
+        # The term the core-count defaults omit, and usually the binding one:
+        # 32 GiB budget / 8 GiB per worker = 4.
+        (9 * GIB, 1 * GIB, 32, 34 * GIB, 4, "memory-bound"),
+        # One at a time is what fits; zero workers would run nothing.
+        (41 * GIB, 1 * GIB, 16, 8 * GIB, 1, "one worker at a time"),
+    ], ids=["large-worker", "worker-that-does-not-fit"])
+def test_memory_is_the_bound_when_a_worker_is_large(
+        peak_rss_bytes, baseline_rss_bytes, cores, available_bytes, workers,
+        reason):
     out = recommend_workers(
-        _measurement(peak_rss_bytes=9 * GIB, baseline_rss_bytes=1 * GIB),
-        cores=32, available_bytes=34 * GIB, reserve_bytes=2 * GIB)
-    # 32 GiB budget / 8 GiB per worker = 4
-    assert out.workers == 4
-    assert "memory-bound" in out.reason
+        _measurement(peak_rss_bytes=peak_rss_bytes,
+                     baseline_rss_bytes=baseline_rss_bytes),
+        cores=cores, available_bytes=available_bytes, reserve_bytes=2 * GIB)
+    assert out.workers == workers
+    assert reason in out.reason
 
 
 def test_cores_are_the_bound_when_a_worker_is_small():
@@ -111,15 +121,6 @@ def test_cores_are_the_bound_when_a_worker_is_small():
         cores=4, available_bytes=64 * GIB, reserve_bytes=2 * GIB)
     assert out.workers == 4
     assert "core-bound" in out.reason
-
-
-def test_a_worker_that_does_not_fit_still_gets_one():
-    """One at a time is what fits; zero workers would run nothing."""
-    out = recommend_workers(
-        _measurement(peak_rss_bytes=41 * GIB, baseline_rss_bytes=1 * GIB),
-        cores=16, available_bytes=8 * GIB, reserve_bytes=2 * GIB)
-    assert out.workers == 1
-    assert "one worker at a time" in out.reason
 
 
 def test_the_reserve_is_actually_subtracted():

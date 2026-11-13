@@ -1196,26 +1196,21 @@ def test_spacr_records_its_own_version_in_the_multiscale_metadata(tmp_path):
     assert recorded and recorded != "unknown"
 
 
-def test_distribution_metadata_precedes_the_checkout_version(monkeypatch):
-    """An installed artifact's own metadata remains authoritative."""
+@pytest.mark.parametrize("installed_version, expected", [
+    # An installed artifact's own metadata remains authoritative.
+    ("9.8.7-installed", "9.8.7-installed"),
+    # A source run records its synchronized literal instead of unknown.
+    ("unknown", "1.2.3-checkout"),
+], ids=["distribution-metadata-wins", "checkout-fills-absent-metadata"])
+def test_the_recorded_version_is_the_distribution_s_else_the_checkout_s(
+        monkeypatch, installed_version, expected):
     import spacr._version as checkout
     import spacr.version as installed
 
-    monkeypatch.setattr(installed, "__version__", "9.8.7-installed")
+    monkeypatch.setattr(installed, "__version__", installed_version)
     monkeypatch.setattr(checkout, "__version__", "1.2.3-checkout")
 
-    assert ome_zarr._spacr_version() == "9.8.7-installed"
-
-
-def test_checkout_version_fills_absent_distribution_metadata(monkeypatch):
-    """A source run records its synchronized literal instead of unknown."""
-    import spacr._version as checkout
-    import spacr.version as installed
-
-    monkeypatch.setattr(installed, "__version__", "unknown")
-    monkeypatch.setattr(checkout, "__version__", "1.2.3-checkout")
-
-    assert ome_zarr._spacr_version() == "1.2.3-checkout"
+    assert ome_zarr._spacr_version() == expected
 
 
 def test_a_missing_checkout_version_never_fails_a_write(monkeypatch):

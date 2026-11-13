@@ -33,8 +33,12 @@ def defaults(**given):
 # A. one column, not two
 # ---------------------------------------------------------------------------
 
-def test_the_regression_no_longer_offers_a_second_name_for_the_response():
-    assert "score_column" not in defaults()
+@pytest.mark.parametrize("retired", [
+    "score_column",   # a second name for the response
+    "volcano",        # the retired volcano setting
+])
+def test_the_regression_no_longer_offers_a_retired_setting(retired):
+    assert retired not in defaults()
 
 
 def test_an_old_csv_with_only_score_column_still_names_the_response():
@@ -115,19 +119,15 @@ def test_a_p_that_is_neither_raw_nor_adjusted_is_refused_not_defaulted(bad):
     assert "'adjusted' or 'raw'" in str(raised.value)
 
 
-@pytest.mark.parametrize("bad", [5, 0, 1, -0.01, 1.5])
-def test_an_alpha_that_is_not_a_probability_is_refused(bad):
-    """`p_threshold_alpha=5` for "5%" calls every coefficient a hit."""
+@pytest.mark.parametrize("bad, message", [
+    # `p_threshold_alpha=5` for "5%" calls every coefficient a hit.
+    *[(value, "p_threshold_alpha") for value in (5, 0, 1, -0.01, 1.5)],
+    *[(value, "must be a number") for value in ("0.05", None, True)],
+])
+def test_an_alpha_that_is_not_a_probability_is_refused(bad, message):
     with pytest.raises(ValueError) as raised:
         defaults(p_threshold_alpha=bad)
-    assert "p_threshold_alpha" in str(raised.value)
-
-
-@pytest.mark.parametrize("bad", ["0.05", None, True])
-def test_an_alpha_that_is_not_a_number_is_refused(bad):
-    with pytest.raises(ValueError) as raised:
-        defaults(p_threshold_alpha=bad)
-    assert "must be a number" in str(raised.value)
+    assert message in str(raised.value)
 
 
 # ---------------------------------------------------------------------------

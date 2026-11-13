@@ -89,9 +89,14 @@ def test_the_worker_loads_each_model_once_and_returns_coordinates(
     assert loads == ["general"]
 
 
-def test_ops_refuses_spotiflow_that_cannot_run_rather_than_swap_it():
-    with pytest.raises(ValueError, match="spotiflow' cannot run"):
-        ops_engine._spot_detector({"ops_spot_detector": "Spotiflow"})
+@pytest.mark.parametrize("detector, message", [
+    # Refuses Spotiflow that cannot run rather than swapping it.
+    ("Spotiflow", "spotiflow' cannot run"),
+    ("bigfish", "ops_spot_detector must be one of"),
+], ids=["spotiflow-that-cannot-run", "unknown-detector"])
+def test_ops_refuses_a_spot_detector_it_cannot_use(detector, message):
+    with pytest.raises(ValueError, match=message):
+        ops_engine._spot_detector({"ops_spot_detector": detector})
 
 
 def test_ops_takes_spotiflow_once_installed(tmp_path):

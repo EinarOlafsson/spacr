@@ -100,24 +100,18 @@ class TestARunMovesTheChoices:
         assert one is not None
         assert "1.55" in one.why
 
-    def test_an_influential_point_chooses_a_robust_family(
-            self, readable, tmp_path):
-        _write_numbers(tmp_path, {"max_cooks_distance": 4.2})
+    @pytest.mark.parametrize("numbers, family", [
+        ({"max_cooks_distance": 4.2}, "rlm"),    # an influential point
+        ({"max_vif": 45.0}, "ridge"),            # collinearity
+    ], ids=["influential-point-robust", "collinearity-penalised"])
+    def test_a_diagnostic_chooses_the_family_that_answers_it(
+            self, readable, tmp_path, numbers, family):
+        _write_numbers(tmp_path, numbers)
         from dataclasses import replace
 
         reading = replace(readable, **read_the_last_run(str(tmp_path)))
         one = _choice(advise(reading), "regression_type")
-        assert one is not None and one.value == "rlm"
-
-    def test_collinearity_chooses_a_penalised_family(
-            self, readable, tmp_path):
-        _write_numbers(tmp_path, {"max_vif": 45.0})
-        from dataclasses import replace
-
-        reading = replace(readable, **read_the_last_run(str(tmp_path)))
-        one = _choice(advise(reading), "regression_type")
-        assert one is not None and one.value == "ridge"
-
+        assert one is not None and one.value == family
 
 class TestItSaysWhichRunItRead:
 

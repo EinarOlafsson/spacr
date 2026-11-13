@@ -46,22 +46,20 @@ def test_the_second_set_does_not_overwrite_the_first(tmp_path):
     assert next_png_table(connection) == "png_list_2"
 
 
-def test_it_keeps_counting(tmp_path):
-    connection = sqlite3.connect(
-        _db(tmp_path, ["png_list", "png_list_2", "png_list_3"]))
-    assert next_png_table(connection) == "png_list_4"
+@pytest.mark.parametrize("tables, expected", [
+    (["png_list", "png_list_2", "png_list_3"], "png_list_4"),
+    # Unrelated tables do not take a name.
+    (["cell", "png_lists", "my_png_list"], "png_list"),
+], ids=["it-keeps-counting", "unrelated-tables-do-not-take-a-name"])
+def test_the_next_png_table_name_counts_only_its_own_tables(tmp_path, tables, expected):
+    connection = sqlite3.connect(_db(tmp_path, tables))
+    assert next_png_table(connection) == expected
 
 
 def test_a_gap_is_filled_rather_than_skipped(tmp_path):
     """png_list_2 deleted and png_list_3 kept: the free name is 2."""
     connection = sqlite3.connect(_db(tmp_path, ["png_list", "png_list_3"]))
     assert next_png_table(connection) == "png_list_2"
-
-
-def test_unrelated_tables_do_not_take_a_name(tmp_path):
-    connection = sqlite3.connect(
-        _db(tmp_path, ["cell", "png_lists", "my_png_list"]))
-    assert next_png_table(connection) == "png_list"
 
 
 def test_a_view_takes_the_name_too(tmp_path):
@@ -170,14 +168,13 @@ def test_nothing_set_filters_nothing():
     assert len(filter_selection(_selection(), {})) == 4
 
 
-def test_a_minimum_size_drops_the_small_ones():
-    kept = filter_selection(_selection(), {"cell_min_size": 500})
-    assert list(kept["objectID"]) == [2, 3, 4]
-
-
-def test_a_maximum_size_drops_the_large_ones():
-    kept = filter_selection(_selection(), {"cell_max_size": 5000})
-    assert list(kept["objectID"]) == [1, 2, 3]
+@pytest.mark.parametrize("settings, kept_ids", [
+    ({"cell_min_size": 500}, [2, 3, 4]),     # drops the small ones
+    ({"cell_max_size": 5000}, [1, 2, 3]),    # drops the large ones
+], ids=["minimum-size", "maximum-size"])
+def test_a_size_limit_drops_the_objects_outside_it(settings, kept_ids):
+    kept = filter_selection(_selection(), settings)
+    assert list(kept["objectID"]) == kept_ids
 
 
 def test_zero_is_not_a_minimum():

@@ -45,17 +45,18 @@ def test_a_dark_ground_becomes_the_page(printing):
     assert style.export_colour("#1E1E1E", "ground", printing) == style.PRINT_GROUND
 
 
-def test_a_light_ground_is_somebody_s_choice(printing):
-    """A deliberately tinted light background is not a bug to be corrected."""
-    assert style.export_colour("#FFF8E7", "ground", printing) is None
+@pytest.mark.parametrize("colour, role", [
+    # A deliberately tinted light background is not a bug to be corrected.
+    ("#FFF8E7", "ground"),
+    # ... and the data does not change either: on a volcano, black is the
+    # colour of 'not a hit'.
+    ("#FFFFFF", "data"),
+], ids=["light-ground-is-somebodys-choice", "white-data-point-stays-white"])
+def test_a_light_ground_or_a_white_point_is_not_repainted(printing, colour, role):
+    assert style.export_colour(colour, role, printing) is None
 
 
 # ------------------------------------------------- ... and the data does not
-
-def test_a_white_data_point_stays_white(printing):
-    """On a volcano, black is the colour of 'not a hit'."""
-    assert style.export_colour("#FFFFFF", "data", printing) is None
-
 
 def test_no_kind_of_data_is_ever_repainted(printing):
     for colour in ("#FFFFFF", "#000000", "none", (1.0, 1.0, 1.0),

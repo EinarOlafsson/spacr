@@ -43,26 +43,22 @@ def _intensity_frame(**columns):
     return pd.DataFrame({key: [float(v)] for key, v in columns.items()})
 
 
-def test_a_named_statistic_prints_the_column_it_resolved_to(capsys):
-    """The template is not visible from the settings; the resolved name is."""
+@pytest.mark.parametrize("column, value, stat, name, printed", [
+    # The template is not visible from the settings; the resolved name is.
+    ("pathogen_channel_2_max_intensity", 90.0, "max", "max",
+     "pathogen_channel_2_max_intensity"),
+    # A column spaCR did not name is a choice the log has to record.
+    ("my_own_rim_stat", 12.0, "my_own_rim_stat", "custom", "custom column"),
+], ids=["named-statistic", "custom-column"])
+def test_the_resolved_intensity_column_is_printed(capsys, column, value, stat,
+                                                  name, printed):
     from spacr.submodules import _resolve_invasion_intensity_column
 
-    frame = _intensity_frame(**{"pathogen_channel_2_max_intensity": 90.0})
-    column, name = _resolve_invasion_intensity_column(
-        frame, "pathogen", 2, "max", verbose=True)
-    assert (column, name) == ("pathogen_channel_2_max_intensity", "max")
-    assert "pathogen_channel_2_max_intensity" in capsys.readouterr().out
-
-
-def test_a_custom_column_says_that_it_is_a_custom_column(capsys):
-    """A column spaCR did not name is a choice the log has to record."""
-    from spacr.submodules import _resolve_invasion_intensity_column
-
-    frame = _intensity_frame(**{"my_own_rim_stat": 12.0})
-    column, name = _resolve_invasion_intensity_column(
-        frame, "pathogen", 2, "my_own_rim_stat", verbose=True)
-    assert (column, name) == ("my_own_rim_stat", "custom")
-    assert "custom column" in capsys.readouterr().out
+    frame = _intensity_frame(**{column: value})
+    resolved, label = _resolve_invasion_intensity_column(
+        frame, "pathogen", 2, stat, verbose=True)
+    assert (resolved, label) == (column, name)
+    assert printed in capsys.readouterr().out
 
 
 # ---------------------------------------------------------------------------

@@ -222,7 +222,23 @@ class TestTheLabelsAreLockedToTheWells:
 
         assert _column_label(picker, 1).parentWidget() is holder
         assert _row_label(picker, 1).parentWidget() is holder
-        assert picker.findChild(QScrollArea).widget() is holder
+        assert picker._area.widget() is holder
+
+    def test_the_plate_is_the_only_thing_that_scrolls(self, picker):
+        """No second scroll area around the one the plate already has.
+
+        The application-wide dialog filter wraps a dialog whose contents
+        cannot shrink in a scroll area of its own. A one-line caption held
+        the picker that wide, so the plate's scroll area ended up inside a
+        second one -- in any process where an earlier window had installed
+        the filter, which is every real session.
+        """
+        from spacr.qt import dialogs
+
+        dialogs.make_the_window_resizable(picker)
+        QApplication.processEvents()
+
+        assert picker.findChildren(QScrollArea) == [picker._area]
 
     @pytest.mark.parametrize("layout", [96, 1536])
     def test_a_header_is_not_clipped_by_the_cell_it_is_locked_to(

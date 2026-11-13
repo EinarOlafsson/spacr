@@ -76,6 +76,9 @@ def test_the_historical_cross_role_suggestion_cannot_come_back():
 
 
 @pytest.mark.parametrize("typo,expected", [
+    # Most settings name no role, and nothing about them should change.
+    ("verbos", "verbose"),
+    ("figuresiz", "figuresize"),
     ("cell_backgrond", "cell_background"),
     ("nucleus_diamter", "nucleus_diameter"),
     ("organelle_diamter", "organelle_diameter"),
@@ -84,13 +87,6 @@ def test_the_historical_cross_role_suggestion_cannot_come_back():
 ])
 def test_a_typo_within_one_role_is_still_helped(typo, expected):
     """The guard must not buy silence by refusing to suggest anything."""
-    assert _suggestion(typo) == expected
-
-
-@pytest.mark.parametrize("typo,expected", [("verbos", "verbose"),
-                                           ("figuresiz", "figuresize")])
-def test_keys_with_no_object_role_are_unaffected(typo, expected):
-    """Most settings name no role, and nothing about them should change."""
     assert _suggestion(typo) == expected
 
 

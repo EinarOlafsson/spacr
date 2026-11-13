@@ -409,20 +409,18 @@ def test_assignments_the_reader_cannot_evaluate_are_skipped(tmp_path):
     assert record["offset"] == 5
 
 
-def test_a_name_the_file_never_bound_is_refused():
-    """Resolving it would mean running the file, which is the whole point."""
+@pytest.mark.parametrize("source, message", [
+    # Resolving a name the file never bound would mean running the file,
+    # which is the whole point.
+    ("MYSTERY", "unbound name 'MYSTERY'"),
+    # Not importing the file is worthless if arbitrary calls are evaluated.
+    ("open('/etc/passwd')", "will not\n?\\s*evaluate"),
+], ids=["unbound-name", "call-the-reader-will-not-run"])
+def test_an_expression_the_reader_cannot_resolve_is_refused(source, message):
     import ast
 
-    with pytest.raises(MacroError, match="unbound name 'MYSTERY'"):
-        macro._evaluate(ast.parse("MYSTERY", mode="eval").body, {})
-
-
-def test_an_expression_the_reader_will_not_run_is_refused():
-    """Not importing the file is worthless if arbitrary calls are evaluated."""
-    import ast
-
-    with pytest.raises(MacroError, match="will not\n?\\s*evaluate"):
-        macro._evaluate(ast.parse("open('/etc/passwd')", mode="eval").body, {})
+    with pytest.raises(MacroError, match=message):
+        macro._evaluate(ast.parse(source, mode="eval").body, {})
 
 
 # ---------------------------------------------------------------------------

@@ -6168,7 +6168,9 @@ def _remove_noninfected(stack, cell_dim, nucleus_dim, pathogen_dim):
     else:
         pathogen_mask = np.zeros_like(stack)
 
-    for cell_label in np.unique(cell_mask)[1:]:
+    _labels_0 = np.unique(cell_mask)
+    _labels_0 = _labels_0[_labels_0 != 0]
+    for cell_label in _labels_0:
         cell_region = cell_mask == cell_label
         labels_in_cell = np.unique(pathogen_mask[cell_region])
         labels_in_cell = labels_in_cell[labels_in_cell != 0]
@@ -6191,7 +6193,8 @@ def _remove_outside_objects(stack, cell_dim, nucleus_dim, pathogen_dim):
         return stack
     pathogen_mask = stack[:, :, pathogen_dim]
     nucleus_mask = None if nucleus_dim is None else stack[:, :, nucleus_dim]
-    pathogen_labels = np.unique(pathogen_mask)[1:]
+    pathogen_labels = np.unique(pathogen_mask)
+    pathogen_labels = pathogen_labels[pathogen_labels != 0]
     for pathogen_label in pathogen_labels:
         pathogen_region = pathogen_mask == pathogen_label
         cell_in_pathogen_region = np.unique(cell_mask[pathogen_region])
@@ -6219,7 +6222,9 @@ def _remove_multiobject_cells(stack, mask_dim, cell_dim, nucleus_dim, pathogen_d
     nucleus_mask = None if nucleus_dim is None else stack[:, :, nucleus_dim]
     pathogen_mask = None if pathogen_dim is None else stack[:, :, pathogen_dim]
 
-    for cell_label in np.unique(cell_mask)[1:]:
+    _labels_2 = np.unique(cell_mask)
+    _labels_2 = _labels_2[_labels_2 != 0]
+    for cell_label in _labels_2:
         cell_region = cell_mask == cell_label
         labels_in_cell = np.unique(object_mask[cell_region])
         labels_in_cell = labels_in_cell[labels_in_cell != 0]
@@ -6338,7 +6343,8 @@ def _relabel_parent_with_child_labels(parent_mask, child_mask):
 
     parent_mask_new = np.zeros_like(parent_mask)
 
-    unique_child_labels = np.unique(child_labels)[1:]
+    unique_child_labels = np.unique(child_labels)
+    unique_child_labels = unique_child_labels[unique_child_labels != 0]
     for child_label in unique_child_labels:
         child_area_mask = (child_labels == child_label)
         overlapping_parent_label = np.unique(parent_labels[child_area_mask])
@@ -6347,7 +6353,9 @@ def _relabel_parent_with_child_labels(parent_mask, child_mask):
             if parent_label != 0:
                 parent_mask_new[parent_labels == parent_label] = child_label
 
-    for parent_label in np.unique(parent_mask_new)[1:]:
+    _labels_4 = np.unique(parent_mask_new)
+    _labels_4 = _labels_4[_labels_4 != 0]
+    for parent_label in _labels_4:
         parent_area_mask = (parent_mask_new == parent_label)
         child_labels_in_parent = np.unique(child_mask[parent_area_mask])
         child_labels_in_parent = child_labels_in_parent[child_labels_in_parent != 0]

@@ -29,50 +29,50 @@ def continuous():
 
 
 @pytest.fixture
+def cloud():
+    return pd.DataFrame({"x": [1.0, 1.0, 2.0], "y": [1.0, 2.0, 3.0]})
+
+
+@pytest.fixture
 def ordered():
     return pd.DataFrame({"x": [1.0, 2.0, 3.0], "y": [5.0, 4.0, 6.0]})
 
 
 class TestTheShapeIsReadOffTheData:
 
-    def test_groups_against_a_measurement(self, categorical):
-        assert shape_of(categorical, "g", "v") == "categorical_continuous"
-
-    def test_a_measurement_against_a_measurement(self, continuous):
-        assert shape_of(continuous, "x", "y") == "continuous_continuous"
-
-    def test_an_ordered_x_is_its_own_shape(self, ordered):
-        """Ordered is a property of the VALUES, not of the dtype."""
-        assert shape_of(ordered, "x", "y") == "ordered_continuous"
-
-    def test_a_repeated_x_is_a_cloud_not_a_series(self):
-        """Joining a cloud with a line is 178 A's bug."""
-        cloud = pd.DataFrame({"x": [1.0, 1.0, 2.0], "y": [1.0, 2.0, 3.0]})
-        assert shape_of(cloud, "x", "y") == "continuous_continuous"
-
-    def test_one_column_alone(self, categorical):
-        assert shape_of(categorical, "", "v") == "continuous_only"
-
-    def test_a_missing_column_is_not_an_axis(self, categorical):
-        assert shape_of(categorical, "nope", "v") == "continuous_only"
-
+    @pytest.mark.parametrize("fixture, x, y, shape", [
+        ("categorical", "g", "v", "categorical_continuous"),
+        ("continuous", "x", "y", "continuous_continuous"),
+        # Ordered is a property of the VALUES, not of the dtype.
+        ("ordered", "x", "y", "ordered_continuous"),
+        # Joining a cloud with a line is 178 A's bug.
+        ("cloud", "x", "y", "continuous_continuous"),
+        ("categorical", "", "v", "continuous_only"),
+        # A missing column is not an axis.
+        ("categorical", "nope", "v", "continuous_only"),
+    ], ids=["groups-against-a-measurement", "measurement-against-a-measurement",
+            "ordered-x", "repeated-x-is-a-cloud", "one-column-alone",
+            "missing-column"])
+    def test_the_shape_is_read_off_the_data(self, request, fixture, x, y, shape):
+        frame = request.getfixturevalue(fixture)
+        assert shape_of(frame, x, y) == shape
 
 class TestOnlyWhatFitsIsOffered:
 
-    def test_a_scatter_is_not_offered_for_categories(self, categorical):
-        """"a scatter of one categorical against one continuous is a jitter
-        under another name"."""
-        assert not fits("categorical_continuous", "scatter")
-
-    def test_a_line_is_not_offered_for_unordered_categories(self):
-        """"a line through unordered categories is a row of markers joined
-        for no reason"."""
-        assert not fits("categorical_continuous", "line")
-
-    def test_a_bar_is_not_offered_for_two_continuous_axes(self):
-        """Grouping a continuous x means binning it, which is a different
-        graph of different data."""
-        assert not fits("continuous_continuous", "bar")
+    @pytest.mark.parametrize("shape, graph_type", [
+        # "a scatter of one categorical against one continuous is a jitter
+        # under another name"
+        ("categorical_continuous", "scatter"),
+        # "a line through unordered categories is a row of markers joined for
+        # no reason"
+        ("categorical_continuous", "line"),
+        # Grouping a continuous x means binning it, which is a different
+        # graph of different data.
+        ("continuous_continuous", "bar"),
+    ], ids=["scatter-of-categories", "line-through-unordered-categories",
+            "bar-over-two-continuous-axes"])
+    def test_a_type_that_does_not_fit_is_not_offered(self, shape, graph_type):
+        assert not fits(shape, graph_type)
 
     def test_a_line_is_offered_once_the_x_is_ordered(self):
         assert fits("ordered_continuous", "line")
@@ -143,26 +143,25 @@ class TestTheDefaultIsPerDataType:
         for shape, _ in DATA_SHAPES:
             assert fits(shape, default_for(shape)), shape
 
-    def test_groups_default_to_the_five_numbers_and_the_observations(self):
-        """A BOX with jitter, which is what was asked for.
-
-        This asserted ``bar_jitter`` and cited the same request, which asks
-        for the opposite: "the bargraphs with jutter plot backgrounds should
-        be boxplots with jutter". A bar drawn at a mean shows ONE number, so
-        two groups with the same mean and completely different spreads draw
-        the same bar; the box shows the median, the quartiles and the
-        whiskers, and the jitter stays because the box summarises while the
-        points are the evidence. ``spacr.plot.create_grouped_plot`` and the
-        three ``graph_type`` settings already default to ``jitter_box``, so
-        this table saying otherwise was a second answer to one question.
-        """
-        assert default_for("categorical_continuous") == "box_jitter"
-
-    def test_two_measurements_default_to_a_scatter(self):
-        assert default_for("continuous_continuous") == "scatter"
-
-    def test_an_ordered_x_defaults_to_a_line(self):
-        assert default_for("ordered_continuous") == "line"
+    @pytest.mark.parametrize("shape, default", [
+        # A BOX with jitter, which is what was asked for.
+        #
+        # This asserted ``bar_jitter`` and cited the same request, which asks
+        # for the opposite: "the bargraphs with jutter plot backgrounds should
+        # be boxplots with jutter". A bar drawn at a mean shows ONE number, so
+        # two groups with the same mean and completely different spreads draw
+        # the same bar; the box shows the median, the quartiles and the
+        # whiskers, and the jitter stays because the box summarises while the
+        # points are the evidence. ``spacr.plot.create_grouped_plot`` and the
+        # three ``graph_type`` settings already default to ``jitter_box``, so
+        # this table saying otherwise was a second answer to one question.
+        ("categorical_continuous", "box_jitter"),
+        ("continuous_continuous", "scatter"),
+        ("ordered_continuous", "line"),
+    ], ids=["groups-the-five-numbers-and-the-observations",
+            "two-measurements-a-scatter", "ordered-x-a-line"])
+    def test_each_shape_has_its_default(self, shape, default):
+        assert default_for(shape) == default
 
     def test_the_two_tables_cover_the_same_shapes(self):
         """A shape with fits and no default, or the other way, is a shape

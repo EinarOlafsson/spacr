@@ -57,7 +57,11 @@ class TestEverySpellingOfAPair:
 
 class TestTheCropLayerReadsAPairWrittenAsText:
 
-    def test_a_space_separated_pair_reaches_the_cut(self):
+    @pytest.mark.parametrize("text, expected", [
+        ("[1 99]", [1.0, 99.0]),
+        ("2,98", [2.0, 98.0]),
+    ], ids=["space-separated", "comma-separated"])
+    def test_a_pair_written_as_text_reaches_the_cut(self, text, expected):
         """``[1 99]`` is not valid Python, so it arrived as a string.
 
         A non-empty string is TRUTHY but is not a sequence, so the cut fell
@@ -65,15 +69,9 @@ class TestTheCropLayerReadsAPairWrittenAsText:
         crop ignored it, and nothing said so.
         """
         spec = crop_spec_from_settings(
-            {"normalize": "[1 99]", "crop_mode": ["cell"]})
+            {"normalize": text, "crop_mode": ["cell"]})
 
-        assert list(spec.normalize) == [1.0, 99.0]
-
-    def test_a_comma_separated_pair_reaches_the_cut(self):
-        spec = crop_spec_from_settings(
-            {"normalize": "2,98", "crop_mode": ["cell"]})
-
-        assert list(spec.normalize) == [2.0, 98.0]
+        assert list(spec.normalize) == expected
 
     def test_a_real_list_is_left_exactly_as_it_was(self):
         """The migration must not rewrite what already worked."""

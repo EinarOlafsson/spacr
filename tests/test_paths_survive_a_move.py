@@ -51,17 +51,14 @@ from spacr.utils import correct_paths
 #  The four measured cases, through the real correct_paths
 # --------------------------------------------------------------------------- #
 
-def test_the_same_os_move_still_works():
-    """The case that already worked, held so the fix cannot break it."""
-    assert correct_paths(["/old/home/exp1/data/plate1/a.png"],
-                         "/mnt/newdisk/exp1") == [
-        "/mnt/newdisk/exp1/data/plate1/a.png"]
-
-
-def test_a_windows_path_read_on_linux_re_anchors():
-    """FAIL before: the separator was hard-coded, so nothing matched."""
-    assert correct_paths([r"C:\lab\exp1\data\plate1\a.png"],
-                         "/mnt/newdisk/exp1") == [
+@pytest.mark.parametrize("path", [
+    # The case that already worked, held so the fix cannot break it.
+    "/old/home/exp1/data/plate1/a.png",
+    # FAIL before: the separator was hard-coded, so nothing matched.
+    r"C:\lab\exp1\data\plate1\a.png",
+], ids=["same-os-move", "windows-path-read-on-linux"])
+def test_a_moved_experiment_re_anchors_its_paths(path):
+    assert correct_paths([path], "/mnt/newdisk/exp1") == [
         "/mnt/newdisk/exp1/data/plate1/a.png"]
 
 
