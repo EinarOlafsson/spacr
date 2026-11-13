@@ -2596,18 +2596,25 @@ def _consensus_figure(cooc: np.ndarray, labels: np.ndarray, path: str) -> str:
     import matplotlib
 
     matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
+    from matplotlib.figure import Figure
+
+    from .figures.bundle import _register_figure_data
+    from .figures.style import figure_style, resolve_label_ground
+    from .plot import _checked_savefig
 
     order = np.argsort(labels, kind="stable")
-    figure, ax = plt.subplots(figsize=(6, 5.4))
-    image = ax.imshow(cooc[np.ix_(order, order)], cmap="Blues", vmin=0, vmax=1, interpolation="nearest")
-    ax.set_xticks([])
-    ax.set_yticks([])
-    ax.set_xlabel(f"{len(labels)} rows, ordered by consensus cluster")
-    figure.colorbar(image, ax=ax, fraction=0.046, pad=0.04, label="share of bootstraps in one cluster")
-    figure.tight_layout()
-    figure.savefig(path, dpi=150, bbox_inches="tight")
-    plt.close(figure)
+    shown = cooc[np.ix_(order, order)]
+    with figure_style("print"):
+        figure = Figure(figsize=(6, 5.4))
+        ax = figure.subplots()
+        image = ax.imshow(shown, cmap="Blues", vmin=0, vmax=1, interpolation="nearest")
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.set_xlabel(f"{len(labels)} rows, ordered by consensus cluster")
+        figure.colorbar(image, ax=ax, fraction=0.046, pad=0.04, label="share of bootstraps in one cluster")
+        _register_figure_data(figure, pd.DataFrame(shown), kind="heatmap", matrix=True)
+        figure.tight_layout()
+        _checked_savefig(figure, path, dpi=150, bbox_inches="tight", facecolor=resolve_label_ground("print"))
     return path
 
 
@@ -2729,24 +2736,33 @@ def _bench_figure(units: Mapping[str, Mapping[str, np.ndarray]], path: str) -> s
     import matplotlib
 
     matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
+    from matplotlib.figure import Figure
+
+    from .figures.bundle import _register_figure_data
+    from .figures.style import figure_style, resolve_label_ground
+    from .plot import _checked_savefig
 
     colours = {"consensus": "#1b6f8a", "phate_leiden": "#23395d"}
-    figure, axes = plt.subplots(1, len(CALIBRATED_METRICS), figsize=(3.2 * len(CALIBRATED_METRICS), 3.4))
-    rng = np.random.default_rng(0)
-    for ax, (kind, name) in zip(axes, CALIBRATED_METRICS):
-        for x, arm in enumerate(units):
-            values = 100 * units[arm][kind].mean(1)
-            ax.bar(x, values.mean(), color=colours.get(arm, "#4a90b8"), alpha=0.6, width=0.6)
-            ax.scatter(x + rng.uniform(-0.15, 0.15, len(values)), values, s=10, color="#0d1b2a", alpha=0.6)
-        ax.set_xticks(range(len(units)))
-        ax.set_xticklabels([a.replace("_", " + ").replace("phate", "PHATE").replace("leiden", "Leiden")
-                            for a in units], fontsize=8)
-        ax.set_title(name, fontsize=9)
-        ax.set_ylabel("excess over size-matched null (points)", fontsize=8)
-    figure.tight_layout()
-    figure.savefig(path, dpi=150, bbox_inches="tight")
-    plt.close(figure)
+    with figure_style("print"):
+        figure = Figure(figsize=(3.2 * len(CALIBRATED_METRICS), 3.4))
+        axes = figure.subplots(1, len(CALIBRATED_METRICS))
+        rng = np.random.default_rng(0)
+        for ax, (kind, name) in zip(axes, CALIBRATED_METRICS):
+            for x, arm in enumerate(units):
+                values = 100 * units[arm][kind].mean(1)
+                ax.bar(x, values.mean(), color=colours.get(arm, "#4a90b8"), alpha=0.6, width=0.6)
+                ax.scatter(x + rng.uniform(-0.15, 0.15, len(values)), values, s=10, color="#0d1b2a", alpha=0.6)
+            ax.set_xticks(range(len(units)))
+            ax.set_xticklabels([a.replace("_", " + ").replace("phate", "PHATE").replace("leiden", "Leiden")
+                                for a in units], fontsize=8)
+            ax.set_title(name, fontsize=9)
+            ax.set_ylabel("excess over size-matched null (points)", fontsize=8)
+        _register_figure_data(figure, lambda: pd.DataFrame(
+            [{"arm": arm, "metric": name, "excess": float(v)} for kind, name in CALIBRATED_METRICS
+             for arm in units for v in 100 * units[arm][kind].mean(1)]),
+            x="arm", y="excess", hue="metric", kind="bar")
+        figure.tight_layout()
+        _checked_savefig(figure, path, dpi=150, bbox_inches="tight", facecolor=resolve_label_ground("print"))
     return path
 
 

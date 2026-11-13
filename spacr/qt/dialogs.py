@@ -820,6 +820,11 @@ def _place_dialog_on_first_show(dialog):
 def _centre_dialog_on_its_screen(dialog, owner):
     """Move ``dialog`` to the centre of its screen's work area.
 
+    A dialog larger than the work area is first shrunk to fit it, never below
+    its minimum size: under the app theme a non-native file browser asks for
+    about 1000 pixels of height, and on a smaller screen its buttons would
+    otherwise sit below the bottom edge.
+
     :param dialog: the top-level dialog to move.
     :param owner: its visible owner window, or None for the primary screen.
     :returns: True when it was moved.
@@ -830,7 +835,14 @@ def _centre_dialog_on_its_screen(dialog, owner):
     if screen is None:
         return False
     available = screen.availableGeometry()
-    frame = _centred_dialog_frame(available, dialog.frameGeometry().size(), available)
+    size = dialog.frameGeometry().size()
+    if size.width() > available.width() or size.height() > available.height():
+        frame_w, frame_h = size.width() - dialog.width(), size.height() - dialog.height()
+        least = dialog.minimumSize().expandedTo(dialog.minimumSizeHint())
+        dialog.resize(max(least.width(), min(dialog.width(), available.width() - frame_w)),
+                      max(least.height(), min(dialog.height(), available.height() - frame_h)))
+        size = dialog.frameGeometry().size()
+    frame = _centred_dialog_frame(available, size, available)
     dialog.move(frame.topLeft())
     return True
 

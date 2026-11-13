@@ -4583,13 +4583,16 @@ def power_retrieval(arms: Mapping[str, Tuple[Sequence[str], np.ndarray]], refere
         hit = scored.pivot(index="gene", columns="arm", values="top10_hit")
         for arm in list(arms)[1:]:
             both = ap[[first, arm]].dropna().index
-            result = wilcoxon(ap.loc[both, arm], ap.loc[both, first])
+            # Identical APs on every gene are no evidence of a difference: p = 1, not an
+            # exception from SciPy.
+            differs = bool((ap.loc[both, arm] != ap.loc[both, first]).any())
+            p_ap = float(wilcoxon(ap.loc[both, arm], ap.loc[both, first]).pvalue) if differs else 1.0
             mine = hit.loc[both, arm].astype(bool)
             theirs = hit.loc[both, first].astype(bool)
             only_arm, only_first = int((mine & ~theirs).sum()), int((~mine & theirs).sum())
             tests.append({"reference": reference, "arm": arm, "vs": first, "genes": len(both),
                           "mAP_arm": ap.loc[both, arm].mean(), "mAP_ref": ap.loc[both, first].mean(),
-                          "test": "Wilcoxon AP", "p": float(result.pvalue)})
+                          "test": "Wilcoxon AP", "p": p_ap})
             tests.append({"reference": reference, "arm": arm, "vs": first, "genes": len(both),
                           "top10_arm_only": only_arm, "top10_ref_only": only_first,
                           "test": "McNemar top-10",

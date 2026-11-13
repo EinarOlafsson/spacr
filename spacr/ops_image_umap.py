@@ -245,7 +245,7 @@ def cluster_hierarchy(rows: np.ndarray, labels: np.ndarray, *, method: str = "av
         ``height`` (the linkage height at which the cluster first merges)
         and ``n_genes``.
     """
-    from scipy.cluster.hierarchy import fcluster, linkage
+    from scipy.cluster.hierarchy import linkage
 
     clusters, centroids = cluster_centroids(rows, labels)
     sizes = {c: int((labels == c).sum()) for c in clusters}
@@ -262,11 +262,34 @@ def cluster_hierarchy(rows: np.ndarray, labels: np.ndarray, *, method: str = "av
                 first[leaf] = z[step, 2]
     out = []
     for level in levels:
-        parents = fcluster(z, t=int(level), criterion="maxclust")
+        parents = _cut_into_groups(z, len(clusters), int(level))
         out += [{"cluster": int(c), "level": int(level), "parent": int(p),
                  "height": float(h), "n_genes": sizes[c]}
                 for c, p, h in zip(clusters, parents, first)]
     return pd.DataFrame(out), z
+
+
+def _cut_into_groups(z: np.ndarray, n: int, groups: int) -> np.ndarray:
+    """The ``groups`` top-level groups of a linkage: its first ``n - groups`` merges applied.
+
+    SciPy's ``fcluster(..., criterion="maxclust")`` can return fewer groups
+    than asked when merge heights sit close together (four instead of five
+    for six centroids merging at 0.32, 0.99, 0.99, 1.00 and 1.01), so the
+    merges are replayed here instead.
+
+    :param z: the linkage of ``n`` leaves.
+    :param n: the number of leaves.
+    :param groups: the number of groups wanted; ``n`` or more keeps every leaf apart.
+    :returns: one group per leaf, numbered from 1 in leaf order.
+    """
+    members = {leaf: [leaf] for leaf in range(n)}
+    for step in range(max(0, n - int(groups))):
+        members[n + step] = members.pop(int(z[step, 0])) + members.pop(int(z[step, 1]))
+    group = np.zeros(n, dtype=int)
+    for leaves in members.values():
+        group[leaves] = leaves[0]
+    _, numbered = np.unique(group, return_inverse=True)
+    return numbered + 1
 
 
 def label_sets(sources: Sequence[str], reference_dir: Any) -> Tuple[pd.DataFrame, Dict[str, Any]]:
