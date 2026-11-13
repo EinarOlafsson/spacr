@@ -3209,17 +3209,6 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "vacuole signal mean. Set the minimum vacuole and host sizes to "
         "drop debris. Turn it on when you count parasites per vacuole; "
         "leave it off otherwise.",
-    "FIGURE SCORING Α":
-        "Scores plaque assays read from published figures against what the "
-        "papers report, or merges a figure reading into the meta-analysis "
-        "tables (plaque_mode figure_score or figure_merge). Scoring takes "
-        "the condition table, optional stored model readings, the detector "
-        "boxes and the per-well segmentations, then writes the "
-        "measured-versus-reported table and a summary with a "
-        "permutation control. Choose the panel metric, how wells are "
-        "pooled, the comparison scales and the confidence below which a "
-        "reading is flagged. Use it to check spaCR against the literature; "
-        "ordinary plaque runs do not need it.",
     "PLAQUE SIZE READOUTS Α":
         "Adds per-well size readouts to a plaque run: mean, median and "
         "largest plaque area, the largest relative to the mean, the well "
@@ -4140,6 +4129,11 @@ CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
             "time, or a known time to estimate scale: plaque size alone cannot "
             "determine both. Estimates are approximate and require validation "
             "for the parasite strain, host cells and imaging conditions.",
+        "FIGURE SCORING Α":
+            "Score the wells Figure mode measured against the effects the "
+            "papers report, with a permutation control, or merge a figure "
+            "reading into the meta-analysis tables (plaque_mode figure_score "
+            "or figure_merge).",
         "MODEL":
             "Choose the plaque model and expected plaque diameter in original "
             "input-image or well-crop pixels. Use 0 for the model’s own scale. "
