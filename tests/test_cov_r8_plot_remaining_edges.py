@@ -41,7 +41,7 @@ def _counts(tmp_path, name, values, plate="plate1"):
 
 class TestLorenzCurves:
 
-    def test_two_plates_are_overlaid_with_their_gini(self, tmp_path):
+    def _case_two_plates_are_overlaid_with_their_gini(self, tmp_path):
         first = _counts(tmp_path, "a", [1, 1, 1, 1, 1, 1, 1, 1])
         second = _counts(tmp_path, "b", [1, 1, 1, 1, 1, 1, 1, 90])
 
@@ -53,7 +53,7 @@ class TestLorenzCurves:
         assert any("Gini" in label for label in labels) or axes[0].lines, (
             "neither the curves nor their Gini labels reached the axes")
 
-    def test_no_limits_given_still_lands_on_the_unit_square(self, tmp_path):
+    def _case_no_limits_given_still_lands_on_the_unit_square(self, tmp_path):
         """The None default is replaced at the top, not honoured at the
         bottom.
 
@@ -82,7 +82,7 @@ class TestLorenzCurves:
                 f"{name}'s default is no longer {default}")
             assert f"if {name} is not None:" not in source
 
-    def test_limits_that_are_given_are_applied(self, tmp_path):
+    def _case_limits_that_are_given_are_applied(self, tmp_path):
         path = _counts(tmp_path, "a", [1, 2, 3, 4, 5, 6, 7, 8])
 
         P.plot_lorenz_curves([path], x_lim=[0.25, 0.75],
@@ -108,18 +108,18 @@ def _frame(n=24, groups=("control", "treated")):
 
 class TestOrderingTheGroupingColumn:
 
-    def test_an_explicit_order_is_honoured(self):
+    def _case_an_explicit_order_is_honoured(self):
         graph = P.spacrGraph(_frame(), "grp", "val", graph_type="bar",
                              order=["treated", "control"])
 
         assert list(graph.order) == ["treated", "control"]
 
-    def test_with_no_order_the_unique_values_are_sorted(self):
+    def _case_with_no_order_the_unique_values_are_sorted(self):
         graph = P.spacrGraph(_frame(), "grp", "val", graph_type="bar")
 
         assert list(graph.order) == ["control", "treated"]
 
-    def test_neither_ordering_branch_can_be_skipped(self):
+    def _case_neither_ordering_branch_can_be_skipped(self):
         """THE PIN.
 
         Both arms are guarded on the grouping column being present, and
@@ -204,7 +204,7 @@ class TestWhereTheXPositionsComeFrom:
         with pytest.raises(ValueError, match="[Uu]nknown graph type|is not one of bar, violin"):
             graph.create_plot()
 
-    def test_the_position_chain_covers_every_type_the_draw_chain_draws(self):
+    def _case_the_position_chain_covers_every_type_the_draw_chain_draws(self):
         """THE PIN, and it is load-bearing.
 
         ``_get_positions`` assigns ``x_positions`` inside a branch chain
@@ -277,7 +277,7 @@ class TestWhereTheXPositionsComeFrom:
 
 class TestTrimmingOutliersFromTheDrawing:
 
-    def test_outliers_are_removed_from_the_drawing_only(self, capsys):
+    def _case_outliers_are_removed_from_the_drawing_only(self, capsys):
         frame = _frame(40)
         frame.loc[0, "val"] = 500.0
 
@@ -289,7 +289,7 @@ class TestTrimmingOutliersFromTheDrawing:
         assert "outliers_removed_from_plot_only" in graph.results_df.columns \
             or graph.results_df.empty
 
-    def test_the_results_table_is_never_empty_so_the_flag_always_lands(self):
+    def _case_the_results_table_is_never_empty_so_the_flag_always_lands(self):
         """THE PIN.
 
         ``if not self.results_df.empty`` guards the flag column, and the
@@ -316,3 +316,25 @@ class TestTrimmingOutliersFromTheDrawing:
                 f"{size} points in {len(groups)} group(s) produced no "
                 f"results, so the flag guard is live")
             assert graph.results_df["outliers_removed_from_plot_only"].all()
+
+
+def test_plot_remaining_edges_cases(request, subtests, capsys):
+    """Case table: 9 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        (TestLorenzCurves, '_case_two_plates_are_overlaid_with_their_gini'),
+        (TestLorenzCurves, '_case_no_limits_given_still_lands_on_the_unit_square'),
+        (TestLorenzCurves, '_case_limits_that_are_given_are_applied'),
+        (TestOrderingTheGroupingColumn, '_case_an_explicit_order_is_honoured'),
+        (TestOrderingTheGroupingColumn, '_case_with_no_order_the_unique_values_are_sorted'),
+        (TestOrderingTheGroupingColumn, '_case_neither_ordering_branch_can_be_skipped'),
+        (TestWhereTheXPositionsComeFrom, '_case_the_position_chain_covers_every_type_the_draw_chain_draws'),
+        (TestTrimmingOutliersFromTheDrawing, '_case_outliers_are_removed_from_the_drawing_only'),
+        (TestTrimmingOutliersFromTheDrawing, '_case_the_results_table_is_never_empty_so_the_flag_always_lands'),
+        ],
+    )
+    assert ran >= 9

@@ -10,6 +10,8 @@ from torch import nn
 from spacr import embeddings as emb
 from spacr import torch_artifacts as artifacts
 
+from tests import locale_cases
+
 
 class TinyEncoder(nn.Module):
     num_features = 3
@@ -25,8 +27,8 @@ class TinyEncoder(nn.Module):
         return self.norm(self.conv(x)).mean((2, 3))
 
 
-@pytest.fixture
-def checkpoint(tmp_path, monkeypatch):
+def _checkpoint_factory(tmp_path, monkeypatch):
+    """A writer of tiny local teacher checkpoints, with ``timm`` stubbed."""
     calls = []
 
     def create_model(arch, **kwargs):
@@ -47,6 +49,11 @@ def checkpoint(tmp_path, monkeypatch):
         return path, source, calls
 
     return make
+
+
+@pytest.fixture
+def checkpoint(tmp_path, monkeypatch):
+    return _checkpoint_factory(tmp_path, monkeypatch)
 
 
 @pytest.mark.parametrize('freeze', [True, False])
@@ -350,15 +357,8 @@ def test_teacher_decode_has_no_retry_when_held_bytes_change(checkpoint, monkeypa
     assert path.read_bytes() == expected
 
 
-@pytest.mark.parametrize('fault', [
-    'zero-epochs', 'boolean-epochs', 'zero-batch', 'negative-seed', 'boolean-seed',
-    'zero-rate', 'nonfinite-rate', 'boolean-rate', 'empty-crops', 'nan-crops',
-    'boolean-crops', 'complex-crops', 'empty-channels', 'duplicate-channels',
-    'missing-channel', 'boolean-channel', 'missing-label', 'unknown-label',
-    'missing-group', 'unknown-group', 'one-class', 'existing-output',
-    'teacher-output', 'float32-overflow',
-])
-def test_training_preflight_preserves_teacher_crops_and_existing_outputs(checkpoint, tmp_path, fault):
+def _training_preflight_preserves_teacher_crops_and_existing_outputs_case(checkpoint, tmp_path, fault):
+    """One case of :func:`test_training_preflight_preserves_teacher_crops_and_existing_outputs`."""
     import numpy as np
 
     path, _, calls = checkpoint()
@@ -411,3 +411,18 @@ def test_training_preflight_preserves_teacher_crops_and_existing_outputs(checkpo
     assert path.read_bytes() == original_teacher and calls == []
     assert (output.read_bytes() if output.exists() else None) == existing
     assert not list(tmp_path.glob('.spacr-own-dino-*'))
+
+
+def test_training_preflight_preserves_teacher_crops_and_existing_outputs(subtests, tmp_path):
+    for label, case in locale_cases.cases(('fault', [
+    'zero-epochs', 'boolean-epochs', 'zero-batch', 'negative-seed', 'boolean-seed',
+    'zero-rate', 'nonfinite-rate', 'boolean-rate', 'empty-crops', 'nan-crops',
+    'boolean-crops', 'complex-crops', 'empty-channels', 'duplicate-channels',
+    'missing-channel', 'boolean-channel', 'missing-label', 'unknown-label',
+    'missing-group', 'unknown-group', 'one-class', 'existing-output',
+    'teacher-output', 'float32-overflow',
+])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            case_tmp = locale_cases.case_dir(tmp_path, label)
+            _training_preflight_preserves_teacher_crops_and_existing_outputs_case(
+                checkpoint=_checkpoint_factory(case_tmp, case_monkeypatch), tmp_path=case_tmp, **case)

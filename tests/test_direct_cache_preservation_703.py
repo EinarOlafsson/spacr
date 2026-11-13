@@ -8,6 +8,8 @@ import pytest
 
 from spacr import install_cleanup as cleanup
 
+from tests import locale_cases
+
 
 CONSUMERS = [
     ('SPACR_MODEL_CACHE', 'model_zoo.py', '_model_cache_root', None),
@@ -66,9 +68,8 @@ def installation(tmp_path, monkeypatch, consumer, spelling):
     return root, prefix, code, cache, payload, machine, record
 
 
-@pytest.mark.parametrize('consumer', CONSUMERS, ids=lambda row: row[0])
-@pytest.mark.parametrize('spelling', ['absolute', 'relative', pytest.param('padded', marks=pytest.mark.posix_only), 'home'])
-def test_real_consumer_cache_survives_primary_app_retirement(tmp_path, monkeypatch, consumer, spelling):
+def _real_consumer_cache_survives_primary_app_retirement_case(tmp_path, monkeypatch, consumer, spelling):
+    """One case of :func:`test_real_consumer_cache_survives_primary_app_retirement`."""
     root, _prefix, code, _cache, payload, machine, record = installation(
         tmp_path, monkeypatch, consumer, spelling,
     )
@@ -80,9 +81,15 @@ def test_real_consumer_cache_survives_primary_app_retirement(tmp_path, monkeypat
     assert not (root / '.venv.spacr-update-lock').exists()
 
 
-@pytest.mark.parametrize('consumer', CONSUMERS, ids=lambda row: row[0])
 @pytest.mark.parametrize('spelling', ['absolute', 'relative', pytest.param('padded', marks=pytest.mark.posix_only), 'home'])
-def test_replacement_refuses_actual_consumer_cache_in_runtime(tmp_path, monkeypatch, consumer, spelling):
+def test_real_consumer_cache_survives_primary_app_retirement(subtests, tmp_path, monkeypatch, spelling):
+    for label, case in locale_cases.cases(('consumer', CONSUMERS, lambda row: row[0])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _real_consumer_cache_survives_primary_app_retirement_case(tmp_path=locale_cases.case_dir(tmp_path, label), monkeypatch=case_monkeypatch, spelling=spelling, **case)
+
+
+def _replacement_refuses_actual_consumer_cache_in_runtime_case(tmp_path, monkeypatch, consumer, spelling):
+    """One case of :func:`test_replacement_refuses_actual_consumer_cache_in_runtime`."""
     _root, prefix, code, _cache, payload, machine, _record = installation(
         tmp_path, monkeypatch, consumer, spelling,
     )
@@ -90,6 +97,13 @@ def test_replacement_refuses_actual_consumer_cache_in_runtime(tmp_path, monkeypa
         cleanup._runtime_staging_allowed(str(prefix), machine)
     assert code.read_bytes() == b'primary app code'
     assert payload.read_bytes() == b'user-configured cache bytes\x00\xff'
+
+
+@pytest.mark.parametrize('spelling', ['absolute', 'relative', pytest.param('padded', marks=pytest.mark.posix_only), 'home'])
+def test_replacement_refuses_actual_consumer_cache_in_runtime(subtests, tmp_path, monkeypatch, spelling):
+    for label, case in locale_cases.cases(('consumer', CONSUMERS, lambda row: row[0])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _replacement_refuses_actual_consumer_cache_in_runtime_case(tmp_path=locale_cases.case_dir(tmp_path, label), monkeypatch=case_monkeypatch, spelling=spelling, **case)
 
 
 def test_unconfigured_cache_named_app_files_are_still_retired(tmp_path, monkeypatch):

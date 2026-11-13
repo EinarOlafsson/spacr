@@ -17,6 +17,8 @@ from spacr.condition_annotations import (
     table_identity,
 )
 
+from tests import locale_cases
+
 
 def recipe(frame, source=None):
     definition = new_definition(frame, source or source_context())
@@ -159,7 +161,18 @@ def test_template_preserves_literal_text_order_zero_false_and_na():
     assert apply_conditions(base, definition, source_context()).condition.isna().all()
 
 
-@pytest.mark.parametrize('bad', [
+def _invalid_recipe_refuses_without_mutating_source_case(frame, bad):
+    """One case of :func:`test_invalid_recipe_refuses_without_mutating_source`."""
+    before = frame.copy(deep=True)
+    definition = recipe(frame)
+    definition['columns'] = [bad]
+    with pytest.raises(AnnotationError):
+        apply_conditions(frame, definition, source_context())
+    pd.testing.assert_frame_equal(frame, before)
+
+
+def test_invalid_recipe_refuses_without_mutating_source(subtests, frame):
+    for label, case in locale_cases.cases(('bad', [
     extract('out', group='absent'), extract('out', group=2), extract('out', group=True),
     extract('out', pattern='['), extract('out', pattern=''), extract('out', source='future'),
     extract('out', source=['filename']),
@@ -173,14 +186,9 @@ def test_template_preserves_literal_text_order_zero_false_and_na():
     dict(column='label', kind='rules', conditions=[rule('x', criterion('filename', 'regex', '['))]),
     dict(column='label', kind='rules', conditions=[rule('x', criterion('filename', 'equals', 1))]),
     dict(column='label', kind='rules', conditions=[rule('x', criterion('filename', 'equals', 'x'), match='bad')]),
-])
-def test_invalid_recipe_refuses_without_mutating_source(frame, bad):
-    before = frame.copy(deep=True)
-    definition = recipe(frame)
-    definition['columns'] = [bad]
-    with pytest.raises(AnnotationError):
-        apply_conditions(frame, definition, source_context())
-    pd.testing.assert_frame_equal(frame, before)
+])):
+        with subtests.test(**label):
+            _invalid_recipe_refuses_without_mutating_source_case(frame=frame, **case)
 
 
 def test_source_names_and_forward_dependencies_remain_protected(frame):

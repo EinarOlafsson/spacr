@@ -43,12 +43,12 @@ def _ome(pixels_attrs, channels=(), tiffdata=(), uuid=None):
     (_ome({}, tiffdata=[({"IFD": "0", "FirstZ": "4"}, None)]),
      "invalid OME plane coordinate"),
 ])
-def test_unusable_ome_metadata_is_refused(root, message):
+def _case_unusable_ome_metadata_is_refused(root, message):
     with pytest.raises(ValueError, match=message):
         plot._ome_pixels_for_ifd(root, 0)
 
 
-def test_a_mapping_for_another_file_is_skipped():
+def _case_a_mapping_for_another_file_is_skipped():
     root = _ome({}, tiffdata=[({"IFD": "0"}, "urn:uuid:other")],
                 uuid="urn:uuid:this")
     with pytest.raises(ValueError, match="no unique OME Pixels"):
@@ -61,7 +61,7 @@ def test_display_ranges_accept_one_pair_and_refuse_nonsense():
     assert plot._display_ranges([[1, 2, 3]]) is None
 
 
-def test_empty_planes_are_skipped_in_clip_statistics():
+def _case_empty_planes_are_skipped_in_clip_statistics():
     raw = np.zeros((4, 0, 0), np.uint16)
     stats = plot._raw_clip_stats(raw, [[0, 1]] * 4)
     assert isinstance(stats, dict)
@@ -99,7 +99,7 @@ def test_a_missing_source_is_recorded_as_missing(tmp_path, monkeypatch):
     assert record["exists"] and "mtime" not in record
 
 
-def test_thumbnails_need_a_real_image():
+def _case_thumbnails_need_a_real_image():
     assert plot._panel_thumbnail(np.zeros((4, 4))) is None
     assert plot._panel_thumbnail(np.zeros((64, 64))) is None
     noisy = np.random.default_rng(0).normal(size=(64, 64))
@@ -120,7 +120,7 @@ def test_the_integrity_preference_reads_false_when_unreadable(monkeypatch):
     assert plot._figure_integrity_enabled() is False
 
 
-def test_a_failed_integrity_check_still_writes_the_figure(tmp_path, monkeypatch,
+def _case_a_failed_integrity_check_still_writes_the_figure(tmp_path, monkeypatch,
                                                           capsys):
     def broken(*a, **k):
         raise RuntimeError("check crashed")
@@ -136,7 +136,7 @@ def test_a_failed_integrity_check_still_writes_the_figure(tmp_path, monkeypatch,
     assert "could not run" in capsys.readouterr().out
 
 
-def test_a_failed_provenance_sidecar_is_reported(tmp_path, monkeypatch, capsys):
+def _case_a_failed_provenance_sidecar_is_reported(tmp_path, monkeypatch, capsys):
     def broken(*a, **k):
         raise RuntimeError("disk full")
 
@@ -242,3 +242,22 @@ def test_steps_replay_and_npy_sources_are_read(tmp_path):
     assert out.dtype == np.uint8 and out.shape == (2, 2)
     with pytest.raises(ValueError, match="cannot be replayed"):
         plot._replay_steps(image, [{"op": "rotate"}])
+
+
+def test_figure_integrity_edges_cases(request, subtests, capsys):
+    """Case table: 6 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_unusable_ome_metadata_is_refused,
+        _case_a_mapping_for_another_file_is_skipped,
+        _case_empty_planes_are_skipped_in_clip_statistics,
+        _case_thumbnails_need_a_real_image,
+        _case_a_failed_integrity_check_still_writes_the_figure,
+        _case_a_failed_provenance_sidecar_is_reported,
+        ],
+    )
+    assert ran >= 6

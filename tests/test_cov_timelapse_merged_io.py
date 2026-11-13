@@ -101,7 +101,7 @@ def _mask_and_intensity(T=3, n_labels=2, C=2):
     return masks, inten
 
 
-def test_cell_mean_intensity_per_channel_values_and_shape():
+def _case_cell_mean_intensity_per_channel_values_and_shape():
     from spacr.timelapse import _compute_cell_mean_intensity_per_channel
     masks, inten = _mask_and_intensity(T=3, n_labels=2, C=2)
 
@@ -119,7 +119,7 @@ def test_cell_mean_intensity_per_channel_values_and_shape():
     assert row0["cell_mean_intensity_ch1"] == pytest.approx(10.0 + 1)
 
 
-def test_cell_mean_intensity_skips_empty_frames_only():
+def _case_cell_mean_intensity_skips_empty_frames_only():
     """Frames with no labels are dropped, the rest still contribute rows."""
     from spacr.timelapse import _compute_cell_mean_intensity_per_channel
     masks, inten = _mask_and_intensity(T=3, n_labels=1, C=1)
@@ -131,7 +131,7 @@ def test_cell_mean_intensity_skips_empty_frames_only():
     assert len(df) == 2
 
 
-def test_cell_mean_intensity_none_stack_returns_empty_frame(capsys):
+def _case_cell_mean_intensity_none_stack_returns_empty_frame(capsys):
     from spacr.timelapse import _compute_cell_mean_intensity_per_channel
     masks, _ = _mask_and_intensity(T=2, C=1)
 
@@ -143,7 +143,7 @@ def test_cell_mean_intensity_none_stack_returns_empty_frame(capsys):
 
 
 @pytest.mark.parametrize("bad_channel", [None, -1, 2, 99])
-def test_cell_mean_intensity_invalid_channel_returns_empty_frame(bad_channel, capsys):
+def _case_cell_mean_intensity_invalid_channel_returns_empty_frame(bad_channel, capsys):
     from spacr.timelapse import _compute_cell_mean_intensity_per_channel
     masks, inten = _mask_and_intensity(T=2, C=2)
 
@@ -156,7 +156,7 @@ def test_cell_mean_intensity_invalid_channel_returns_empty_frame(bad_channel, ca
     assert "invalid channel index" in capsys.readouterr().out
 
 
-def test_cell_mean_intensity_all_frames_empty_returns_empty_frame(capsys):
+def _case_cell_mean_intensity_all_frames_empty_returns_empty_frame(capsys):
     from spacr.timelapse import _compute_cell_mean_intensity_per_channel
     masks = np.zeros((4, H, W), dtype=np.int32)
     inten = np.ones((4, H, W, 1), dtype=np.float32)
@@ -234,7 +234,7 @@ def test_summarise_child_features_empty_merge_result_returns_stub_frame():
 # _load_intensity_stack_from_merged
 # ===========================================================================
 
-def test_load_intensity_stack_planes_first(tmp_path):
+def _case_load_intensity_stack_planes_first(tmp_path):
     from spacr.timelapse import _load_intensity_stack_from_merged
     names = ["p1_A01_1_t000.npy", "p1_A01_1_t001.npy"]
     for i, n in enumerate(names):
@@ -253,7 +253,7 @@ def test_load_intensity_stack_planes_first(tmp_path):
     assert np.all(stack[:, :, :, 1] == 200.0)
 
 
-def test_load_intensity_stack_planes_last_layout(tmp_path):
+def _case_load_intensity_stack_planes_last_layout(tmp_path):
     """(H, W, planes) arrays are reoriented before slicing channels."""
     from spacr.timelapse import _load_intensity_stack_from_merged
     arr = np.moveaxis(_planes_first(n_channels=2, mask_planes=1), 0, -1)
@@ -269,7 +269,7 @@ def test_load_intensity_stack_planes_last_layout(tmp_path):
     assert np.all(stack[0, :, :, 1] == 200.0)
 
 
-def test_load_intensity_stack_custom_dtype_and_fewer_planes_than_channels(tmp_path):
+def _case_load_intensity_stack_custom_dtype_and_fewer_planes_than_channels(tmp_path):
     """planes < n_channels -> only the available channels are filled."""
     from spacr.timelapse import _load_intensity_stack_from_merged
     arr = _planes_first(n_channels=2, mask_planes=0)  # 2 planes only
@@ -287,7 +287,7 @@ def test_load_intensity_stack_custom_dtype_and_fewer_planes_than_channels(tmp_pa
     assert np.all(stack[0, :, :, 2] == 0)  # third channel never written
 
 
-def test_load_intensity_stack_no_merged_dir_returns_zero_channels(tmp_path):
+def _case_load_intensity_stack_no_merged_dir_returns_zero_channels(tmp_path):
     from spacr.timelapse import _load_intensity_stack_from_merged
     stack = _load_intensity_stack_from_merged(
         str(tmp_path), ["a.npy", "b.npy"], n_channels=2, height=H, width=W
@@ -297,7 +297,7 @@ def test_load_intensity_stack_no_merged_dir_returns_zero_channels(tmp_path):
 
 
 @pytest.mark.parametrize("n_channels", [None, 0, -1])
-def test_load_intensity_stack_non_positive_channels(tmp_path, n_channels):
+def _case_load_intensity_stack_non_positive_channels(tmp_path, n_channels):
     from spacr.timelapse import _load_intensity_stack_from_merged
     _write_merged(tmp_path, "p1_A01_1_t000.npy", _planes_first(2, 1))
 
@@ -308,7 +308,7 @@ def test_load_intensity_stack_non_positive_channels(tmp_path, n_channels):
     assert stack.shape == (1, H, W, 0)
 
 
-def test_load_intensity_stack_missing_and_non3d_files_leave_zeros(tmp_path):
+def _case_load_intensity_stack_missing_and_non3d_files_leave_zeros(tmp_path):
     from spacr.timelapse import _load_intensity_stack_from_merged
     _write_merged(tmp_path, "f0.npy", _planes_first(2, 1))
     _write_merged(tmp_path, "f2.npy", np.ones((H, W), dtype=np.float32))  # 2-D
@@ -324,7 +324,7 @@ def test_load_intensity_stack_missing_and_non3d_files_leave_zeros(tmp_path):
     assert np.all(stack[2] == 0)  # 2-D array rejected
 
 
-def test_load_intensity_stack_alternate_filename_candidate(tmp_path):
+def _case_load_intensity_stack_alternate_filename_candidate(tmp_path):
     """Falls back to the literal filename when <base>.npy does not exist."""
     from spacr.timelapse import _load_intensity_stack_from_merged
     _write_merged(tmp_path, "f0.tif", _planes_first(2, 1))
@@ -336,7 +336,7 @@ def test_load_intensity_stack_alternate_filename_candidate(tmp_path):
     assert np.all(stack[0, :, :, 1] == 200.0)
 
 
-def test_load_intensity_stack_size_mismatch_is_skipped(tmp_path, capsys):
+def _case_load_intensity_stack_size_mismatch_is_skipped(tmp_path, capsys):
     from spacr.timelapse import _load_intensity_stack_from_merged
     _write_merged(tmp_path, "f0.npy", _planes_first(2, 1, height=6, width=6))
 
@@ -350,7 +350,7 @@ def test_load_intensity_stack_size_mismatch_is_skipped(tmp_path, capsys):
     assert "expected H=8, W=8" in out
 
 
-def test_load_intensity_stack_zero_plane_array_is_skipped(tmp_path):
+def _case_load_intensity_stack_zero_plane_array_is_skipped(tmp_path):
     """A (0, H, W) array reorients to planes=0 -> nothing to copy."""
     from spacr.timelapse import _load_intensity_stack_from_merged
     _write_merged(tmp_path, "f0.npy", np.zeros((0, H, W), dtype=np.float32))
@@ -362,7 +362,7 @@ def test_load_intensity_stack_zero_plane_array_is_skipped(tmp_path):
     assert np.all(stack == 0)
 
 
-def test_load_intensity_stack_reorient_valueerror_is_swallowed(tmp_path, monkeypatch):
+def _case_load_intensity_stack_reorient_valueerror_is_swallowed(tmp_path, monkeypatch):
     from spacr import timelapse as TL
 
     def _boom(arr, n_channels, **kwargs):
@@ -382,7 +382,7 @@ def test_load_intensity_stack_reorient_valueerror_is_swallowed(tmp_path, monkeyp
 # _load_masks_from_merged
 # ===========================================================================
 
-def test_load_masks_cell_only_plane(tmp_path):
+def _case_load_masks_cell_only_plane(tmp_path):
     from spacr.timelapse import _load_masks_from_merged
     _write_merged(tmp_path, "f0.npy", _planes_first(n_channels=2, mask_planes=1))
 
@@ -398,7 +398,7 @@ def test_load_masks_cell_only_plane(tmp_path):
     assert not path.any()
 
 
-def test_load_masks_second_plane_is_nucleus_when_only_nucleus_requested(tmp_path):
+def _case_load_masks_second_plane_is_nucleus_when_only_nucleus_requested(tmp_path):
     from spacr.timelapse import _load_masks_from_merged
     _write_merged(tmp_path, "f0.npy", _planes_first(n_channels=2, mask_planes=2))
 
@@ -413,7 +413,7 @@ def test_load_masks_second_plane_is_nucleus_when_only_nucleus_requested(tmp_path
     assert not path.any()
 
 
-def test_load_masks_second_plane_is_pathogen_when_only_pathogen_requested(tmp_path):
+def _case_load_masks_second_plane_is_pathogen_when_only_pathogen_requested(tmp_path):
     from spacr.timelapse import _load_masks_from_merged
     _write_merged(tmp_path, "f0.npy", _planes_first(n_channels=2, mask_planes=2))
 
@@ -428,7 +428,7 @@ def test_load_masks_second_plane_is_pathogen_when_only_pathogen_requested(tmp_pa
     assert path[0, 5, 5] == 2
 
 
-def test_load_masks_three_planes_nucleus_then_pathogen(tmp_path):
+def _case_load_masks_three_planes_nucleus_then_pathogen(tmp_path):
     from spacr.timelapse import _load_masks_from_merged
     _write_merged(tmp_path, "f0.npy", _planes_first(n_channels=2, mask_planes=3))
 
@@ -444,7 +444,7 @@ def test_load_masks_three_planes_nucleus_then_pathogen(tmp_path):
     assert path[0, 0, 5] == 3
 
 
-def test_load_masks_second_plane_ignored_when_no_child_channels(tmp_path):
+def _case_load_masks_second_plane_ignored_when_no_child_channels(tmp_path):
     """nucleus_chan and pathogen_chan both None -> extra planes are dropped."""
     from spacr.timelapse import _load_masks_from_merged
     _write_merged(tmp_path, "f0.npy", _planes_first(n_channels=2, mask_planes=3))
@@ -459,7 +459,7 @@ def test_load_masks_second_plane_ignored_when_no_child_channels(tmp_path):
     assert not path.any()
 
 
-def test_load_masks_no_mask_planes_returns_zeros(tmp_path):
+def _case_load_masks_no_mask_planes_returns_zeros(tmp_path):
     from spacr.timelapse import _load_masks_from_merged
     _write_merged(tmp_path, "f0.npy", _planes_first(n_channels=2, mask_planes=0))
 
@@ -470,7 +470,7 @@ def test_load_masks_no_mask_planes_returns_zeros(tmp_path):
     assert not cell.any() and not nuc.any() and not path.any()
 
 
-def test_load_masks_no_merged_dir_returns_zero_stacks(tmp_path):
+def _case_load_masks_no_merged_dir_returns_zero_stacks(tmp_path):
     from spacr.timelapse import _load_masks_from_merged
     cell, nuc, path = _load_masks_from_merged(
         str(tmp_path), ["a.npy", "b.npy"], n_channels=2, height=H, width=W
@@ -481,7 +481,7 @@ def test_load_masks_no_merged_dir_returns_zero_stacks(tmp_path):
         assert not m.any()
 
 
-def test_load_masks_missing_and_non3d_files_leave_zeros(tmp_path):
+def _case_load_masks_missing_and_non3d_files_leave_zeros(tmp_path):
     from spacr.timelapse import _load_masks_from_merged
     _write_merged(tmp_path, "f0.npy", _planes_first(2, 1))
     _write_merged(tmp_path, "f2.npy", np.ones((H, W), dtype=np.float32))
@@ -496,7 +496,7 @@ def test_load_masks_missing_and_non3d_files_leave_zeros(tmp_path):
     assert not cell[2].any()
 
 
-def test_load_masks_planes_last_layout(tmp_path):
+def _case_load_masks_planes_last_layout(tmp_path):
     from spacr.timelapse import _load_masks_from_merged
     arr = np.moveaxis(_planes_first(n_channels=2, mask_planes=2), 0, -1)
     _write_merged(tmp_path, "f0.npy", arr)
@@ -510,7 +510,7 @@ def test_load_masks_planes_last_layout(tmp_path):
     assert set(np.unique(nuc)) == {0, 2}
 
 
-def test_load_masks_size_mismatch_is_skipped(tmp_path, capsys):
+def _case_load_masks_size_mismatch_is_skipped(tmp_path, capsys):
     from spacr.timelapse import _load_masks_from_merged
     _write_merged(tmp_path, "f0.npy", _planes_first(2, 1, height=6, width=6))
 
@@ -523,7 +523,7 @@ def test_load_masks_size_mismatch_is_skipped(tmp_path, capsys):
     assert "_load_masks_from_merged] Skipping f0.npy" in out
 
 
-def test_load_masks_reorient_valueerror_is_swallowed(tmp_path, monkeypatch):
+def _case_load_masks_reorient_valueerror_is_swallowed(tmp_path, monkeypatch):
     from spacr import timelapse as TL
 
     def _boom(arr, n_channels, **kwargs):
@@ -538,7 +538,7 @@ def test_load_masks_reorient_valueerror_is_swallowed(tmp_path, monkeypatch):
     assert not cell.any() and not nuc.any() and not path.any()
 
 
-def test_load_masks_alternate_filename_candidate(tmp_path):
+def _case_load_masks_alternate_filename_candidate(tmp_path):
     from spacr.timelapse import _load_masks_from_merged
     _write_merged(tmp_path, "f0.tif", _planes_first(2, 1))
     assert not (tmp_path / "merged" / "f0.npy").exists()
@@ -553,7 +553,7 @@ def test_load_masks_alternate_filename_candidate(tmp_path):
 # _compute_regionprops_stack
 # ===========================================================================
 
-def test_regionprops_stack_with_intensity_columns_and_values():
+def _case_regionprops_stack_with_intensity_columns_and_values():
     from spacr.timelapse import _compute_regionprops_stack
     masks, inten = _mask_and_intensity(T=2, n_labels=2, C=2)
 
@@ -576,7 +576,7 @@ def test_regionprops_stack_with_intensity_columns_and_values():
     assert row["cell_max_intensity"] == pytest.approx(20.0)
 
 
-def test_regionprops_stack_label_as_track_id_keeps_label_unprefixed():
+def _case_regionprops_stack_label_as_track_id_keeps_label_unprefixed():
     from spacr.timelapse import _compute_regionprops_stack
     masks, inten = _mask_and_intensity(T=1, n_labels=2, C=1)
 
@@ -597,7 +597,7 @@ def test_regionprops_stack_label_as_track_id_keeps_label_unprefixed():
     ("real", 7),      # channel index past the end
     ("real", -1),     # negative channel index
 ])
-def test_regionprops_stack_without_intensity_props(stack_kind, channel):
+def _case_regionprops_stack_without_intensity_props(stack_kind, channel):
     from spacr.timelapse import _compute_regionprops_stack
     masks, inten = _mask_and_intensity(T=2, n_labels=1, C=2)
     stack = None if stack_kind == "none" else inten
@@ -612,7 +612,7 @@ def test_regionprops_stack_without_intensity_props(stack_kind, channel):
         assert "intensity" not in col
 
 
-def test_regionprops_stack_skips_blank_frames():
+def _case_regionprops_stack_skips_blank_frames():
     from spacr.timelapse import _compute_regionprops_stack
     masks, inten = _mask_and_intensity(T=3, n_labels=1, C=1)
     masks[0] = 0
@@ -625,7 +625,7 @@ def test_regionprops_stack_skips_blank_frames():
     assert len(df) == 2
 
 
-def test_regionprops_stack_all_blank_returns_empty_frame(capsys):
+def _case_regionprops_stack_all_blank_returns_empty_frame(capsys):
     from spacr.timelapse import _compute_regionprops_stack
     masks = np.zeros((3, H, W), dtype=np.int32)
 
@@ -636,3 +636,48 @@ def test_regionprops_stack_all_blank_returns_empty_frame(capsys):
     assert df.empty
     assert list(df.columns) == ["frame", "cytoplasm_label"]
     assert "cytoplasm: no objects found in any of 3 frames" in capsys.readouterr().out
+
+
+def test_timelapse_merged_io_cases(request, subtests, capsys):
+    """Case table: 32 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_cell_mean_intensity_per_channel_values_and_shape,
+        _case_cell_mean_intensity_skips_empty_frames_only,
+        _case_cell_mean_intensity_none_stack_returns_empty_frame,
+        _case_cell_mean_intensity_invalid_channel_returns_empty_frame,
+        _case_cell_mean_intensity_all_frames_empty_returns_empty_frame,
+        _case_load_intensity_stack_planes_first,
+        _case_load_intensity_stack_planes_last_layout,
+        _case_load_intensity_stack_custom_dtype_and_fewer_planes_than_channels,
+        _case_load_intensity_stack_no_merged_dir_returns_zero_channels,
+        _case_load_intensity_stack_non_positive_channels,
+        _case_load_intensity_stack_missing_and_non3d_files_leave_zeros,
+        _case_load_intensity_stack_alternate_filename_candidate,
+        _case_load_intensity_stack_size_mismatch_is_skipped,
+        _case_load_intensity_stack_zero_plane_array_is_skipped,
+        _case_load_intensity_stack_reorient_valueerror_is_swallowed,
+        _case_load_masks_cell_only_plane,
+        _case_load_masks_second_plane_is_nucleus_when_only_nucleus_requested,
+        _case_load_masks_second_plane_is_pathogen_when_only_pathogen_requested,
+        _case_load_masks_three_planes_nucleus_then_pathogen,
+        _case_load_masks_second_plane_ignored_when_no_child_channels,
+        _case_load_masks_no_mask_planes_returns_zeros,
+        _case_load_masks_no_merged_dir_returns_zero_stacks,
+        _case_load_masks_missing_and_non3d_files_leave_zeros,
+        _case_load_masks_planes_last_layout,
+        _case_load_masks_size_mismatch_is_skipped,
+        _case_load_masks_reorient_valueerror_is_swallowed,
+        _case_load_masks_alternate_filename_candidate,
+        _case_regionprops_stack_with_intensity_columns_and_values,
+        _case_regionprops_stack_label_as_track_id_keeps_label_unprefixed,
+        _case_regionprops_stack_without_intensity_props,
+        _case_regionprops_stack_skips_blank_frames,
+        _case_regionprops_stack_all_blank_returns_empty_frame,
+        ],
+    )
+    assert ran >= 32

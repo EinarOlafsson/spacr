@@ -10,6 +10,8 @@ from spacr.qt.widgets.gate_spec import (
     ViewGate, _EllipsoidGate, gate_from_dict,
 )
 
+from tests import locale_cases
+
 
 def _box():
     return EditableVolumeGate.from_gate(BoxGate.from_limits('volume', ('x', 'y', 'z'), [(0, 1)] * 3))
@@ -324,19 +326,24 @@ def test_surface_contact_computes_each_triangle_normal_only_once(monkeypatch):
     assert len(calls) == 2
 
 
-@pytest.mark.parametrize('dimension', [2, 3])
-@pytest.mark.parametrize('coordinates', [
-    (0., 0., 0.), (.5e-10, 0., 0.), (1e-10, 0., 0.),
-    (.8e-10, .8e-10, 0.), (99e-10, 0., 0.), (100e-10, 0., 0.),
-    (101e-10, 0., 0.), (0., 0., 101e-10),
-    (np.nan, 0., 0.), (np.inf, 0., 0.), (np.nan, np.inf, 0.),
-])
-def test_shared_vertex_distance_matches_original_norm(dimension, coordinates):
+def _shared_vertex_distance_matches_original_norm_case(dimension, coordinates):
+    """One case of :func:`test_shared_vertex_distance_matches_original_norm`."""
     from spacr.qt.widgets.gate_spec import _mesh_shared_vertex
 
     point = np.asarray(coordinates[:dimension])
     vertex = np.zeros(dimension)
     assert bool(_mesh_shared_vertex(point, vertex, 1e-10)) == bool(np.linalg.norm(point - vertex) <= 1e-10)
+
+
+def test_shared_vertex_distance_matches_original_norm(subtests):
+    for label, case in locale_cases.cases(('dimension', [2, 3]), ('coordinates', [
+    (0., 0., 0.), (.5e-10, 0., 0.), (1e-10, 0., 0.),
+    (.8e-10, .8e-10, 0.), (99e-10, 0., 0.), (100e-10, 0., 0.),
+    (101e-10, 0., 0.), (0., 0., 101e-10),
+    (np.nan, 0., 0.), (np.inf, 0., 0.), (np.nan, np.inf, 0.),
+])):
+        with subtests.test(**label):
+            _shared_vertex_distance_matches_original_norm_case(**case)
 
 
 def test_shared_vertex_generic_distance_includes_every_coordinate():

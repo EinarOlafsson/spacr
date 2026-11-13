@@ -93,7 +93,7 @@ def _link_df_shim(monkeypatch):
 # _find_optimal_search_range
 # ===========================================================================
 
-def test_find_optimal_search_range_returns_initial_on_first_success(capsys):
+def _case_find_optimal_search_range_returns_initial_on_first_success(capsys):
     """A search range trackpy accepts is returned untouched (no decrement)."""
     from spacr.timelapse import _find_optimal_search_range, _prepare_for_tracking
 
@@ -104,7 +104,7 @@ def test_find_optimal_search_range_returns_initial_on_first_success(capsys):
     assert "Success with search_range=20" in capsys.readouterr().out
 
 
-def test_find_optimal_search_range_forwards_memory_and_search_range(monkeypatch):
+def _case_find_optimal_search_range_forwards_memory_and_search_range(monkeypatch):
     """The current candidate range and the memory argument reach tp.link."""
     from spacr import timelapse as TL
 
@@ -124,7 +124,7 @@ def test_find_optimal_search_range_forwards_memory_and_search_range(monkeypatch)
     assert seen == {"search_range": 123, "memory": 9, "n_rows": len(features)}
 
 
-def test_find_optimal_search_range_decrements_until_link_succeeds(monkeypatch, capsys):
+def _case_find_optimal_search_range_decrements_until_link_succeeds(monkeypatch, capsys):
     """Each failure shrinks the range by ``increment``; the winner is returned."""
     from spacr import timelapse as TL
 
@@ -148,7 +148,7 @@ def test_find_optimal_search_range_decrements_until_link_succeeds(monkeypatch, c
     assert "too high" not in captured
 
 
-def test_find_optimal_search_range_exhausts_attempts_and_warns(monkeypatch, capsys):
+def _case_find_optimal_search_range_exhausts_attempts_and_warns(monkeypatch, capsys):
     """When every attempt fails the floor value is returned with a warning."""
     from spacr import timelapse as TL
 
@@ -169,7 +169,7 @@ def test_find_optimal_search_range_exhausts_attempts_and_warns(monkeypatch, caps
     assert "timelapse_displacement=20 is too high" in captured
 
 
-def test_find_optimal_search_range_zero_attempts_is_a_noop(monkeypatch, capsys):
+def _case_find_optimal_search_range_zero_attempts_is_a_noop(monkeypatch, capsys):
     """max_attempts=0 never calls trackpy and returns the initial range."""
     from spacr import timelapse as TL
 
@@ -188,7 +188,7 @@ def test_find_optimal_search_range_zero_attempts_is_a_noop(monkeypatch, capsys):
 # _facilitate_trackin_with_adaptive_removal
 # ===========================================================================
 
-def test_facilitate_drops_small_frame0_objects_only(monkeypatch):
+def _case_facilitate_drops_small_frame0_objects_only(monkeypatch):
     """min_mass prunes frame 0 in place; later frames keep every object."""
     from spacr import timelapse as TL
 
@@ -214,7 +214,7 @@ def test_facilitate_drops_small_frame0_objects_only(monkeypatch):
     assert list(tracks.columns) == ["frame", "original_label", "track_id"]
 
 
-def test_facilitate_track_by_iou_gives_one_track_per_object():
+def _case_facilitate_track_by_iou_gives_one_track_per_object():
     """IoU linking survives the label swap and yields exactly two tracks."""
     from spacr.timelapse import _facilitate_trackin_with_adaptive_removal
 
@@ -233,7 +233,7 @@ def test_facilitate_track_by_iou_gives_one_track_per_object():
     assert tid(0, 1) == tid(1, 2) == tid(2, 1) == tid(3, 2)
 
 
-def test_facilitate_auto_search_range_from_area_quantile(monkeypatch):
+def _case_facilitate_auto_search_range_from_area_quantile(monkeypatch):
     """search_range=None -> 2*sqrt(99th-percentile frame-0 area)."""
     from spacr import timelapse as TL
 
@@ -264,7 +264,7 @@ def test_facilitate_auto_search_range_from_area_quantile(monkeypatch):
     assert "particle" in tracks.columns
 
 
-def test_facilitate_retries_with_shrunken_search_range(monkeypatch, capsys):
+def _case_facilitate_retries_with_shrunken_search_range(monkeypatch, capsys):
     """A failed attempt shrinks search_range to 80% and retries."""
     from spacr import timelapse as TL
 
@@ -290,7 +290,7 @@ def test_facilitate_retries_with_shrunken_search_range(monkeypatch, capsys):
     assert "Linked on attempt 2 with search_range=80" in captured
 
 
-def test_facilitate_search_range_never_shrinks_below_one(monkeypatch, capsys):
+def _case_facilitate_search_range_never_shrinks_below_one(monkeypatch, capsys):
     """The max(1, ...) floor keeps search_range positive across many retries."""
     from spacr import timelapse as TL
 
@@ -312,7 +312,7 @@ def test_facilitate_search_range_never_shrinks_below_one(monkeypatch, capsys):
     assert "last search_range=1" in str(exc.value)
 
 
-def test_facilitate_raises_runtime_error_after_max_attempts(monkeypatch):
+def _case_facilitate_raises_runtime_error_after_max_attempts(monkeypatch):
     """Exhausting max_attempts raises RuntimeError, not the inner exception."""
     from spacr import timelapse as TL
 
@@ -326,7 +326,7 @@ def test_facilitate_raises_runtime_error_after_max_attempts(monkeypatch):
             min_mass=10, track_by_iou=False)
 
 
-def test_facilitate_track_by_iou_ignores_link_df_entirely(monkeypatch):
+def _case_facilitate_track_by_iou_ignores_link_df_entirely(monkeypatch):
     """With track_by_iou=True trackpy is never consulted."""
     from spacr import timelapse as TL
 
@@ -340,7 +340,7 @@ def test_facilitate_track_by_iou_ignores_link_df_entirely(monkeypatch):
     assert tracks["track_id"].nunique() == 2
 
 
-def test_facilitate_with_real_trackpy_links_two_particles():
+def _case_facilitate_with_real_trackpy_links_two_particles():
     """Real trackpy links both squares through the module-level ``tp.link_df``."""
     from spacr import timelapse as TL
 
@@ -363,7 +363,7 @@ def test_facilitate_with_real_trackpy_links_two_particles():
     assert len(tracks) == 8
 
 
-def test_facilitate_real_trackpy_predict_kwarg_is_rejected():
+def _case_facilitate_real_trackpy_predict_kwarg_is_rejected():
     """The unpatched trackpy path links instead of raising RuntimeError."""
     from spacr.timelapse import _facilitate_trackin_with_adaptive_removal
 
@@ -378,7 +378,7 @@ def test_facilitate_real_trackpy_predict_kwarg_is_rejected():
 # _trackpy_track_cells
 # ===========================================================================
 
-def test_trackpy_track_cells_writes_csv_and_relabels_masks(monkeypatch, tmp_path, capsys):
+def _case_trackpy_track_cells_writes_csv_and_relabels_masks(monkeypatch, tmp_path, capsys):
     """End-to-end: tracks CSV on disk, masks relabelled to 1-based track ids."""
     from spacr import timelapse as TL
 
@@ -415,7 +415,7 @@ def test_trackpy_track_cells_writes_csv_and_relabels_masks(monkeypatch, tmp_path
     assert "Tracking objects with trackpy" in capsys.readouterr().out
 
 
-def test_trackpy_track_cells_remove_transient_drops_partial_tracks(monkeypatch, tmp_path, capsys):
+def _case_trackpy_track_cells_remove_transient_drops_partial_tracks(monkeypatch, tmp_path, capsys):
     """timelapse_remove_transient=True filters objects missing from some frames."""
     from spacr import timelapse as TL
 
@@ -438,7 +438,7 @@ def test_trackpy_track_cells_remove_transient_drops_partial_tracks(monkeypatch, 
     assert int(stack[0][6, 34]) == 0
 
 
-def test_trackpy_track_cells_keeps_transients_when_flag_false(monkeypatch, tmp_path, capsys):
+def _case_trackpy_track_cells_keeps_transients_when_flag_false(monkeypatch, tmp_path, capsys):
     """timelapse_remove_transient=False keeps every detection."""
     from spacr import timelapse as TL
 
@@ -461,7 +461,7 @@ def test_trackpy_track_cells_keeps_transients_when_flag_false(monkeypatch, tmp_p
     assert int(stack[2][6, 34]) == 0
 
 
-def test_trackpy_track_cells_auto_displacement_uses_find_optimal(monkeypatch, tmp_path, capsys):
+def _case_trackpy_track_cells_auto_displacement_uses_find_optimal(monkeypatch, tmp_path, capsys):
     """timelapse_displacement=None -> _find_optimal_search_range picks it."""
     from spacr import timelapse as TL
 
@@ -495,7 +495,7 @@ def test_trackpy_track_cells_auto_displacement_uses_find_optimal(monkeypatch, tm
     assert len(stack) == 4
 
 
-def test_trackpy_track_cells_falls_back_to_50_when_search_range_is_none(monkeypatch, tmp_path):
+def _case_trackpy_track_cells_falls_back_to_50_when_search_range_is_none(monkeypatch, tmp_path):
     """A None from _find_optimal_search_range is replaced by the 50 px default."""
     from spacr import timelapse as TL
 
@@ -529,7 +529,7 @@ def test_trackpy_track_cells_falls_back_to_50_when_search_range_is_none(monkeypa
 
 
 @pytest.mark.parametrize("plot,save", [(True, False), (False, True), (True, True)])
-def test_trackpy_track_cells_forwards_to_visualizer(monkeypatch, tmp_path, plot, save):
+def _case_trackpy_track_cells_forwards_to_visualizer(monkeypatch, tmp_path, plot, save):
     """plot or save routes the relabelled stack to the plotting helper."""
     import spacr.plot
     from spacr import timelapse as TL
@@ -564,7 +564,7 @@ def test_trackpy_track_cells_forwards_to_visualizer(monkeypatch, tmp_path, plot,
     assert recorded["masks"].shape == (4, 40, 40)
 
 
-def test_trackpy_track_cells_skips_visualizer_when_neither_plot_nor_save(monkeypatch, tmp_path):
+def _case_trackpy_track_cells_skips_visualizer_when_neither_plot_nor_save(monkeypatch, tmp_path):
     """plot=False and save=False must not touch the plotting module."""
     import spacr.plot
     from spacr import timelapse as TL
@@ -587,7 +587,7 @@ def test_trackpy_track_cells_skips_visualizer_when_neither_plot_nor_save(monkeyp
     assert len(stack) == 4
 
 
-def test_trackpy_track_cells_creates_tracks_dir_when_missing(monkeypatch, tmp_path):
+def _case_trackpy_track_cells_creates_tracks_dir_when_missing(monkeypatch, tmp_path):
     """The 'tracks' output folder is created on demand (exist_ok is harmless)."""
     from spacr import timelapse as TL
 
@@ -609,7 +609,7 @@ def test_trackpy_track_cells_creates_tracks_dir_when_missing(monkeypatch, tmp_pa
         "trackpy_tracks_cell_n8a.csv", "trackpy_tracks_cell_n8b.csv"]
 
 
-def test_trackpy_track_cells_track_by_iou_returns_mask_stack(tmp_path):
+def _case_trackpy_track_cells_track_by_iou_returns_mask_stack(tmp_path):
     """track_by_iou=True is an advertised mode and should produce a stack."""
     from spacr.timelapse import _trackpy_track_cells
 
@@ -623,7 +623,7 @@ def test_trackpy_track_cells_track_by_iou_returns_mask_stack(tmp_path):
     assert isinstance(stack, list) and len(stack) == 4
 
 
-def test_automatic_tracking_fallback_uses_a_bounded_range_and_retains_source_labels(tmp_path, monkeypatch):
+def _case_automatic_tracking_fallback_uses_a_bounded_range_and_retains_source_labels(tmp_path, monkeypatch):
     """A failed range estimate falls back to50 without changing either mover's identity."""
     from spacr import timelapse as TL
 
@@ -650,7 +650,7 @@ def test_automatic_tracking_fallback_uses_a_bounded_range_and_retains_source_lab
     assert len(a_ids) == len(b_ids) == 1 and a_ids != b_ids
 
 
-def test_transient_filter_drops_a_one_frame_mover_without_changing_the_persistent_track(tmp_path):
+def _case_transient_filter_drops_a_one_frame_mover_without_changing_the_persistent_track(tmp_path):
     from spacr import timelapse as TL
 
     masks = np.asarray(_two_movers(n_frames=4))
@@ -667,3 +667,41 @@ def test_transient_filter_drops_a_one_frame_mover_without_changing_the_persisten
     assert len(persistent) == 1 and 0 not in persistent
     assert output[3][_b_center(3)] == 0
     np.testing.assert_array_equal(masks, before)
+
+
+def test_timelapse_tracking_core_cases(request, subtests, capsys):
+    """Case table: 25 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_find_optimal_search_range_returns_initial_on_first_success,
+        _case_find_optimal_search_range_forwards_memory_and_search_range,
+        _case_find_optimal_search_range_decrements_until_link_succeeds,
+        _case_find_optimal_search_range_exhausts_attempts_and_warns,
+        _case_find_optimal_search_range_zero_attempts_is_a_noop,
+        _case_facilitate_drops_small_frame0_objects_only,
+        _case_facilitate_track_by_iou_gives_one_track_per_object,
+        _case_facilitate_auto_search_range_from_area_quantile,
+        _case_facilitate_retries_with_shrunken_search_range,
+        _case_facilitate_search_range_never_shrinks_below_one,
+        _case_facilitate_raises_runtime_error_after_max_attempts,
+        _case_facilitate_track_by_iou_ignores_link_df_entirely,
+        _case_facilitate_with_real_trackpy_links_two_particles,
+        _case_facilitate_real_trackpy_predict_kwarg_is_rejected,
+        _case_trackpy_track_cells_writes_csv_and_relabels_masks,
+        _case_trackpy_track_cells_remove_transient_drops_partial_tracks,
+        _case_trackpy_track_cells_keeps_transients_when_flag_false,
+        _case_trackpy_track_cells_auto_displacement_uses_find_optimal,
+        _case_trackpy_track_cells_falls_back_to_50_when_search_range_is_none,
+        _case_trackpy_track_cells_forwards_to_visualizer,
+        _case_trackpy_track_cells_skips_visualizer_when_neither_plot_nor_save,
+        _case_trackpy_track_cells_creates_tracks_dir_when_missing,
+        _case_trackpy_track_cells_track_by_iou_returns_mask_stack,
+        _case_automatic_tracking_fallback_uses_a_bounded_range_and_retains_source_labels,
+        _case_transient_filter_drops_a_one_frame_mover_without_changing_the_persistent_track,
+        ],
+    )
+    assert ran >= 25

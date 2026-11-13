@@ -21,6 +21,8 @@ from spacr.utils import prepare_batch_for_segmentation
 from spacr.zstack import TStackSpec, as_t_first
 from tests import test_object_tstack_wiring as wiring
 
+from tests import locale_cases
+
 
 def _archive(path, values, *, version=None, payload_tail=0):
     """Write the original NPY member bytes, optionally with an invalid tail."""
@@ -55,12 +57,8 @@ def test_newline_payload_bytes_are_staged_verbatim(tmp_path):
         assert np.array_equal(stack, values)
 
 
-@pytest.mark.parametrize('dtype', ['<f4', '>u2'])
-@pytest.mark.parametrize('order', ['C', 'F'])
-@pytest.mark.parametrize('t_axis', [0, 1])
-@pytest.mark.parametrize('version', [(1, 0), (2, 0), (3, 0)])
-def test_numeric_member_header_order_axes_and_owned_normalization_match(
-        tmp_path, dtype, order, t_axis, version):
+def _numeric_member_header_order_axes_and_owned_normalization_match_case(tmp_path, dtype, order, t_axis, version):
+    """One case of :func:`test_numeric_member_header_order_axes_and_owned_normalization_match`."""
     shape = (3, 4, 7, 9, 2) if t_axis == 0 else (4, 3, 7, 9, 2)
     values = np.array(np.arange(np.prod(shape)).reshape(shape), dtype=dtype, order=order)
     path = _archive(tmp_path / 'batch.npz', values, version=version)
@@ -89,6 +87,12 @@ def test_numeric_member_header_order_axes_and_owned_normalization_match(
         del borrowed, stack, owner
     assert np.array_equal(normalized, reference)
     assert not target.exists() and not _private_dirs(path)
+
+
+def test_numeric_member_header_order_axes_and_owned_normalization_match(subtests, tmp_path):
+    for label, case in locale_cases.cases(('dtype', ['<f4', '>u2']), ('order', ['C', 'F']), ('t_axis', [0, 1]), ('version', [(1, 0), (2, 0), (3, 0)])):
+        with subtests.test(**label):
+            _numeric_member_header_order_axes_and_owned_normalization_match_case(tmp_path=locale_cases.case_dir(tmp_path, label), **case)
 
 
 @pytest.mark.parametrize('shape', [(0, 4, 7, 9, 2), (3, 0, 7, 9, 2)])

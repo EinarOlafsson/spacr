@@ -38,6 +38,8 @@ from spacr.feature_dict import (
     parse_column,
 )
 
+from tests import locale_cases
+
 
 # --------------------------------------------------------------------------
 # the vocabulary is the producer's, not this module's
@@ -138,15 +140,20 @@ CONDITIONAL_COLUMNS = [
 ]
 
 
-@pytest.mark.parametrize("column", CONDITIONAL_COLUMNS)
-@pytest.mark.parametrize("units", list(MEASUREMENT_UNITS))
-def test_conditional_unit_resolves_for_every_stamp(column, units):
+def _conditional_unit_resolves_for_every_stamp_case(column, units):
+    """One case of :func:`test_conditional_unit_resolves_for_every_stamp`."""
     entry = parse_column(column, units)
     assert entry.measurement_units == units
     assert entry.unit
     # a resolved unit is a statement, not a menu
     assert "depends on the row's measurement_units" not in entry.unit
     assert "when measurement_units=" not in entry.unit
+
+
+def test_conditional_unit_resolves_for_every_stamp(subtests):
+    for label, case in locale_cases.cases(("column", CONDITIONAL_COLUMNS), ("units", list(MEASUREMENT_UNITS))):
+        with subtests.test(**label):
+            _conditional_unit_resolves_for_every_stamp_case(**case)
 
 
 def test_area_unit_is_px2_in_2d_and_a_volume_in_3d():

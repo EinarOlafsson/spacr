@@ -10,12 +10,12 @@ from spacr import timelapse as tl
 from tests.test_motility_bleaching_f539 import close_figures, field  # noqa: F401
 
 
-def test_the_worker_refuses_an_unknown_method(tmp_path):
+def _case_the_worker_refuses_an_unknown_method(tmp_path):
     with pytest.raises(ValueError, match="Unknown motility bleach correction"):
         tl._process_merged_group(field(tmp_path) + ("sepia",))
 
 
-def test_the_worker_without_a_cell_channel_still_corrects(tmp_path):
+def _case_the_worker_without_a_cell_channel_still_corrects(tmp_path):
     src, names, n_channels, _cell, nucleus, pathogen = field(tmp_path)
     result = tl._process_merged_group((src, names, n_channels, None, nucleus,
                                        pathogen, "ratio"))
@@ -30,7 +30,7 @@ def _settings(tmp_path, method):
                 infection_intensity_qc=False)
 
 
-def test_histogram_matching_runs_beside_an_unrelated_database(tmp_path,
+def _case_histogram_matching_runs_beside_an_unrelated_database(tmp_path,
                                                               monkeypatch,
                                                               capsys):
     field(tmp_path)
@@ -44,7 +44,7 @@ def test_histogram_matching_runs_beside_an_unrelated_database(tmp_path,
     assert "do not interpret these values as quantitative" in capsys.readouterr().out
 
 
-def test_an_assay_whose_workers_return_nothing_corrected(tmp_path, monkeypatch):
+def _case_an_assay_whose_workers_return_nothing_corrected(tmp_path, monkeypatch):
     field(tmp_path)
     monkeypatch.setattr(tl, "_process_merged_group",
                         lambda args: pd.DataFrame())
@@ -55,7 +55,7 @@ def test_an_assay_whose_workers_return_nothing_corrected(tmp_path, monkeypatch):
         tl.automated_motility_assay(settings)
 
 
-def test_a_worker_with_no_intensities_or_fits_still_records_its_files(
+def _case_a_worker_with_no_intensities_or_fits_still_records_its_files(
         tmp_path, monkeypatch):
     monkeypatch.setattr(tl, "_compute_cell_mean_intensity_per_channel",
                         lambda **kwargs: pd.DataFrame())
@@ -67,3 +67,21 @@ def test_a_worker_with_no_intensities_or_fits_still_records_its_files(
     corrected, raw, fits = tl._process_merged_group(field(tmp_path) + ("ratio",))
     assert list(fits.columns[:3]) == ["object_type", "channel", "method"]
     assert fits.empty
+
+
+def test_motility_bleach_edges_cases(request, subtests, capsys):
+    """Case table: 5 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_the_worker_refuses_an_unknown_method,
+        _case_the_worker_without_a_cell_channel_still_corrects,
+        _case_histogram_matching_runs_beside_an_unrelated_database,
+        _case_an_assay_whose_workers_return_nothing_corrected,
+        _case_a_worker_with_no_intensities_or_fits_still_records_its_files,
+        ],
+    )
+    assert ran >= 5

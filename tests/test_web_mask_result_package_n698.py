@@ -11,9 +11,11 @@ import tifffile
 
 from tools.web_mask_generator import results
 
+from tests import locale_cases
 
-@pytest.fixture
-def package(tmp_path):
+
+def _build_package(tmp_path):
+    """A valid upload in ``tmp_path`` and the arguments that package it."""
     source = tmp_path / "upload.tiff"
     image = np.arange(40, dtype=np.uint16).reshape(2, 4, 5)
     tifffile.imwrite(source, image, metadata={"axes": "CYX"}, photometric="minisblack")
@@ -28,6 +30,11 @@ def package(tmp_path):
         cell_probability=np.linspace(-3, 5, 20, dtype=np.float32).reshape(4, 5),
         probability_kind="logits")
     return tmp_path / "result.zip", arguments
+
+
+@pytest.fixture
+def package(tmp_path):
+    return _build_package(tmp_path)
 
 
 def unpack(path):
@@ -92,7 +99,20 @@ def test_no_objects_full_frame_and_single_channel_images(package, occupied, chan
     assert "intensity_mean_channel_0" in frame.columns
 
 
-@pytest.mark.parametrize("changes", [
+def _invalid_results_do_not_replace_existing_download_case(package, changes):
+    """One case of :func:`test_invalid_results_do_not_replace_existing_download`."""
+    target, arguments = package
+    target.write_bytes(b"previous valid result")
+    arguments.update(changes)
+    with pytest.raises((ValueError, TypeError)):
+        results.build_result_zip(target, **arguments)
+    assert target.read_bytes() == b"previous valid result"
+    assert not list(target.parent.glob(".spacr-web-result-*"))
+    assert not list(target.parent.glob("spacr-web-result-*"))
+
+
+def test_invalid_results_do_not_replace_existing_download(subtests, tmp_path):
+    for label, case in locale_cases.cases(("changes", [
     {"image_axes": "YXC"}, {"image": np.zeros((2, 3))},
     {"image": np.full((2, 4, 5), np.nan)},
     {"image": np.full((2, 4, 5), "x")},
@@ -107,16 +127,10 @@ def test_no_objects_full_frame_and_single_channel_images(package, occupied, chan
     {"unavailable": {"flows": "missing"}}, {"unavailable": {"masks": "missing"}},
     {"model_id": ""}, {"model_version": ""}, {"weights_sha256": "not-a-digest"},
     {"settings": {"diameter": float("nan")}}, {"settings": []},
-])
-def test_invalid_results_do_not_replace_existing_download(package, changes):
-    target, arguments = package
-    target.write_bytes(b"previous valid result")
-    arguments.update(changes)
-    with pytest.raises((ValueError, TypeError)):
-        results.build_result_zip(target, **arguments)
-    assert target.read_bytes() == b"previous valid result"
-    assert not list(target.parent.glob(".spacr-web-result-*"))
-    assert not list(target.parent.glob("spacr-web-result-*"))
+])):
+        with subtests.test(**label):
+            _invalid_results_do_not_replace_existing_download_case(
+                package=_build_package(locale_cases.case_dir(tmp_path, label)), **case)
 
 
 @pytest.mark.parametrize("failure", ["table", "zip", "replace"])

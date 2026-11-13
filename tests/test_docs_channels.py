@@ -10,6 +10,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
 from publish_docs_channels import assemble_main, assemble_nightly, prepare
 from report_translation_compatibility import api_issues, audit_record, runtime_issues
 
+from tests import locale_cases
+
 
 def hosted_checkpoint(tmp_path, content, commit='a' * 40, hosted_content=None):
     import hashlib
@@ -595,15 +597,8 @@ def test_nightly_verification_waits_for_the_actual_homepage_bytes(tmp_path, monk
     assert sleeps == [1]
 
 
-@pytest.mark.parametrize('state', [
-    'host-script', 'wrong-variable', 'extra-variable', 'invalid-id', 'uppercase-id',
-    'duplicate', 'misplaced', 'truncated', 'trailing', 'large-trailing',
-    'other-script', 'changed-prefix', 'changed-body', 'foreign-host', 'lookalike-host',
-    'host-script-and-card', 'card-only', 'card-foreign-image', 'card-duplicate',
-    'card-after-head', 'card-changed-tag',
-])
-def test_nightly_verification_accepts_only_the_observed_hf_host_envelope(
-        tmp_path, monkeypatch, state):
+def _nightly_verification_accepts_only_the_observed_hf_host_envelope_case(tmp_path, monkeypatch, state):
+    """One case of :func:`test_nightly_verification_accepts_only_the_observed_hf_host_envelope`."""
     import io
     import publish_docs_channels as publisher
     root = site(tmp_path, 'nightly')
@@ -688,6 +683,18 @@ def test_nightly_verification_accepts_only_the_observed_hf_host_envelope(
         with pytest.raises(RuntimeError, match='public index.html does not match'):
             publisher.verify_nightly(space, url=url, attempts=1, interval=0)
     assert len(read_sizes) == 1
+
+
+def test_nightly_verification_accepts_only_the_observed_hf_host_envelope(subtests, tmp_path, monkeypatch):
+    for label, case in locale_cases.cases(('state', [
+    'host-script', 'wrong-variable', 'extra-variable', 'invalid-id', 'uppercase-id',
+    'duplicate', 'misplaced', 'truncated', 'trailing', 'large-trailing',
+    'other-script', 'changed-prefix', 'changed-body', 'foreign-host', 'lookalike-host',
+    'host-script-and-card', 'card-only', 'card-foreign-image', 'card-duplicate',
+    'card-after-head', 'card-changed-tag',
+])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _nightly_verification_accepts_only_the_observed_hf_host_envelope_case(tmp_path=locale_cases.case_dir(tmp_path, label), monkeypatch=case_monkeypatch, **case)
 
 
 def test_incompatible_catalog_is_registered_and_english_is_publishable(tmp_path):

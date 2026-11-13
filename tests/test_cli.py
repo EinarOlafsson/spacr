@@ -25,6 +25,8 @@ import pytest
 from spacr import cli
 from tests.child_env import child_env
 
+from tests import locale_cases
+
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 PKG_ROOT = REPO_ROOT / "spacr"
@@ -206,20 +208,8 @@ def _top_level_defs(path: Path) -> set:
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))}
 
 
-@pytest.mark.parametrize("key", sorted(cli.MODULES))
-def test_registered_entry_point_exists_on_disk(key):
-    """Every module maps to a function that is really defined in spaCR.
-
-    Checked with ast rather than an import so the whole registry is verified
-    without loading torch — and so a renamed pipeline function fails here
-    instead of at 3am on a compute node.
-
-    A dotted name may be a module OR a package, and until ``anndata_export``
-    every entry here was a flat ``.py``: the check built one path, so a
-    perfectly real ``spacr/anndata_export/__init__.py`` failed as "no such
-    file spacr/anndata_export.py". Both spellings are tried now, which is
-    what ``import`` itself does.
-    """
+def _registered_entry_point_exists_on_disk_case(key):
+    """One case of :func:`test_registered_entry_point_exists_on_disk`."""
     module = cli.MODULES[key]
     assert module.module_name.startswith("spacr."), module.module_name
     relative = module.module_name.split(".", 1)[1].replace(".", "/")
@@ -233,9 +223,26 @@ def test_registered_entry_point_exists_on_disk(key):
         f"{key}: {path} does not define {module.func_name}"
 
 
-@pytest.mark.parametrize("key", sorted(cli.MODULES))
-def test_registered_defaults_helper_exists(key):
-    """Each module's defaults helper is a real callable in spacr.settings."""
+def test_registered_entry_point_exists_on_disk(subtests):
+    """Every module maps to a function that is really defined in spaCR.
+
+    Checked with ast rather than an import so the whole registry is verified
+    without loading torch — and so a renamed pipeline function fails here
+    instead of at 3am on a compute node.
+
+    A dotted name may be a module OR a package, and until ``anndata_export``
+    every entry here was a flat ``.py``: the check built one path, so a
+    perfectly real ``spacr/anndata_export/__init__.py`` failed as "no such
+    file spacr/anndata_export.py". Both spellings are tried now, which is
+    what ``import`` itself does.
+    """
+    for label, case in locale_cases.cases(("key", sorted(cli.MODULES))):
+        with subtests.test(**label):
+            _registered_entry_point_exists_on_disk_case(**case)
+
+
+def _registered_defaults_helper_exists_case(key):
+    """One case of :func:`test_registered_defaults_helper_exists`."""
     module = cli.MODULES[key]
     if module.defaults is None:
         return
@@ -244,12 +251,25 @@ def test_registered_defaults_helper_exists(key):
         f"{key}: spacr.settings has no {module.defaults}"
 
 
-@pytest.mark.parametrize("key", sorted(cli.MODULES))
-def test_registered_validate_key_is_known(key):
-    """A module's pre-flight key is one spacr.validate actually has rules for."""
+def test_registered_defaults_helper_exists(subtests):
+    """Each module's defaults helper is a real callable in spacr.settings."""
+    for label, case in locale_cases.cases(("key", sorted(cli.MODULES))):
+        with subtests.test(**label):
+            _registered_defaults_helper_exists_case(**case)
+
+
+def _registered_validate_key_is_known_case(key):
+    """One case of :func:`test_registered_validate_key_is_known`."""
     from spacr.validate import APP_FUNCTIONS
     module = cli.MODULES[key]
     assert module.validate_key == "" or module.validate_key in APP_FUNCTIONS
+
+
+def test_registered_validate_key_is_known(subtests):
+    """A module's pre-flight key is one spacr.validate actually has rules for."""
+    for label, case in locale_cases.cases(("key", sorted(cli.MODULES))):
+        with subtests.test(**label):
+            _registered_validate_key_is_known_case(**case)
 
 
 def test_gui_only_modules_are_not_runnable():
@@ -293,9 +313,8 @@ def test_list_names_every_module(capsys):
         assert key in out
 
 
-@pytest.mark.parametrize("key", [k for k in cli.MODULES if not k.startswith("_")])
-def test_describe_each_module(capsys, key):
-    """--describe works for every registered module and names its callable."""
+def _describe_each_module_case(capsys, key):
+    """One case of :func:`test_describe_each_module`."""
     rc = cli.main(["--describe", key])
     out = capsys.readouterr().out
     assert rc == cli.EXIT_OK
@@ -306,6 +325,14 @@ def test_describe_each_module(capsys, key):
         assert requirement in out
     for written in module.writes:
         assert written in out
+
+
+def test_describe_each_module(subtests, capsys):
+    """--describe works for every registered module and names its callable."""
+    for label, case in locale_cases.cases(("key", [k for k in cli.MODULES if not k.startswith("_")])):
+        with subtests.test(**label):
+            capsys.readouterr()
+            _describe_each_module_case(capsys=capsys, **case)
 
 
 def test_describe_reports_settings_count(capsys):
@@ -568,7 +595,21 @@ def test_file_values_beat_defaults(tmp_path):
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.parametrize("key,text,expected", [
+def _set_coercion_follows_expected_types_case(key, text, expected):
+    """One case of :func:`test_set_coercion_follows_expected_types`."""
+    from spacr.settings import expected_types
+    result = cli.coerce_value(key, text, None, expected_types)
+    assert result == expected
+    assert type(result) is type(expected)
+
+
+def test_set_coercion_follows_expected_types(subtests):
+    """--set values are coerced with spacr.settings.expected_types, not stored raw.
+
+    A settings CSV round trip already turns every value into a string once;
+    letting --set do it again is how `cell_mask_dim='4'` reaches measure_crop.
+    """
+    for label, case in locale_cases.cases(("key,text,expected", [
     # bool, both spellings people actually type
     ("preprocess", "false", False),
     ("preprocess", "False", False),
@@ -607,17 +648,9 @@ def test_file_values_beat_defaults(tmp_path):
     # dict and tuple
     ("plate_dict", "{'EO1': 'plate1'}", {"EO1": "plate1"}),
     ("motility_xlim", "(0, 10)", (0, 10)),
-])
-def test_set_coercion_follows_expected_types(key, text, expected):
-    """--set values are coerced with spacr.settings.expected_types, not stored raw.
-
-    A settings CSV round trip already turns every value into a string once;
-    letting --set do it again is how `cell_mask_dim='4'` reaches measure_crop.
-    """
-    from spacr.settings import expected_types
-    result = cli.coerce_value(key, text, None, expected_types)
-    assert result == expected
-    assert type(result) is type(expected)
+])):
+        with subtests.test(**label):
+            _set_coercion_follows_expected_types_case(**case)
 
 
 def test_set_coercion_infers_type_from_the_current_value():

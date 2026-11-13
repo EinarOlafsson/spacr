@@ -16,7 +16,7 @@ def _movie(frames=3):
     return masks, images
 
 
-def test_sam2_refuses_bad_stacks_and_skips_empty_movies(tmp_path, capsys):
+def _case_sam2_refuses_bad_stacks_and_skips_empty_movies(tmp_path, capsys):
     src = str(tmp_path / "masks")
     with pytest.raises(ValueError, match="mask stack"):
         tl._sam2_track_cells(src, "b", [], "cell", np.zeros((4, 4)),
@@ -31,7 +31,7 @@ def test_sam2_refuses_bad_stacks_and_skips_empty_movies(tmp_path, capsys):
     assert "nothing to follow" in capsys.readouterr().out
 
 
-def test_sam2_drops_transient_tracks_and_plots_when_asked(tmp_path,
+def _case_sam2_drops_transient_tracks_and_plots_when_asked(tmp_path,
                                                           monkeypatch):
     import spacr.plot as plot
 
@@ -97,3 +97,18 @@ def test_event_detection_needs_tracks_and_matching_annotations(tmp_path):
     tracks.mkdir()
     with pytest.raises(ValueError, match="No trackpy tracks"):
         tl._event_detection(str(tracks), "cell", "trackpy")
+
+
+def test_timelapse_edges_cases(request, subtests, capsys):
+    """Case table: 2 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_sam2_refuses_bad_stacks_and_skips_empty_movies,
+        _case_sam2_drops_transient_tracks_and_plots_when_asked,
+        ],
+    )
+    assert ran >= 2

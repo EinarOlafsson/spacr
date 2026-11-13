@@ -92,7 +92,7 @@ def _bar_axes():
     return figure, ax
 
 
-def test_a_graph_type_with_no_layout_rule_still_gets_the_shared_layout():
+def _case_a_graph_type_with_no_layout_rule_still_gets_the_shared_layout():
     """The per-type step narrows bars, shifts jitter or resizes boxes. A type
     with no rule of its own must still come out square, limited and ticked --
     the layout the method exists to standardise."""
@@ -122,7 +122,7 @@ def test_a_graph_type_with_no_layout_rule_still_gets_the_shared_layout():
     assert known_ax.get_xlim() == (-0.5, 1.5)
 
 
-def test_a_line_graph_is_left_out_of_the_layout_pass_entirely(capsys):
+def _case_a_line_graph_is_left_out_of_the_layout_pass_entirely(capsys):
     """The early return is the one type that opts out of even the shared
     work, and it says so; every other type is resized."""
     from spacr.plot import spacrGraph
@@ -143,3 +143,18 @@ def test_a_line_graph_is_left_out_of_the_layout_pass_entirely(capsys):
     graph._standerdize_figure_format(ax=other_ax, num_groups=2,
                                      graph_type="scatter")
     assert tuple(other_fig.get_size_inches()) == (10.0, 10.0)
+
+
+def test_plot_cases(request, subtests, capsys):
+    """Case table: 2 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_a_graph_type_with_no_layout_rule_still_gets_the_shared_layout,
+        _case_a_line_graph_is_left_out_of_the_layout_pass_entirely,
+        ],
+    )
+    assert ran >= 2

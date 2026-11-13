@@ -36,6 +36,8 @@ import inspect
 import pytest
 
 import matplotlib
+
+from tests import locale_cases
 matplotlib.use("Agg")
 
 
@@ -122,9 +124,8 @@ def test_the_module_table_is_not_empty():
         assert expected in keys
 
 
-@pytest.mark.parametrize("key", _all_module_keys())
-def test_every_dispatched_worker_binds_to_its_call_style(key):
-    """The whole table, not just the two that were broken."""
+def _every_dispatched_worker_binds_to_its_call_style_case(key):
+    """One case of :func:`test_every_dispatched_worker_binds_to_its_call_style`."""
     from spacr.cli import MODULES, import_entry
 
     module = MODULES[key]
@@ -140,6 +141,13 @@ def test_every_dispatched_worker_binds_to_its_call_style(key):
             f"{module.func_name}{inspect.signature(func)} does not accept it")
     else:
         pytest.fail(f"{key}: unknown call style {module.call_style!r}")
+
+
+def test_every_dispatched_worker_binds_to_its_call_style(subtests):
+    """The whole table, not just the two that were broken."""
+    for label, case in locale_cases.cases(("key", _all_module_keys())):
+        with subtests.test(**label):
+            _every_dispatched_worker_binds_to_its_call_style_case(**case)
 
 
 def test_regression_is_dispatched_with_a_single_settings_argument():

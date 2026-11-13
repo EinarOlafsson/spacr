@@ -13,6 +13,8 @@ import pytest
 
 from spacr import resource_log
 
+from tests import locale_cases
+
 GIB = 1024 ** 3
 
 
@@ -144,13 +146,19 @@ GUARDED = [
 ]
 
 
-@pytest.mark.parametrize('module_name, function, key', GUARDED)
-def test_every_pool_site_calls_the_guard(module_name, function, key):
+def _every_pool_site_calls_the_guard_case(module_name, function, key):
+    """One case of :func:`test_every_pool_site_calls_the_guard`."""
     import importlib
     module = importlib.import_module(module_name)
     source = inspect.getsource(getattr(module, function))
     assert '_guard_workers(' in source or '_ram_plan(' in source
     assert key in source
+
+
+def test_every_pool_site_calls_the_guard(subtests):
+    for label, case in locale_cases.cases(('module_name, function, key', GUARDED)):
+        with subtests.test(**label):
+            _every_pool_site_calls_the_guard_case(**case)
 
 
 def test_every_pool_site_is_listed():

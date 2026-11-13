@@ -73,7 +73,7 @@ def _pair(root, stem, suffix):
     return root / "images", root / "masks"
 
 
-def test_a_bare_call_walks_npy_and_tif_and_nothing_else(tmp_path):
+def _case_a_bare_call_walks_npy_and_tif_and_nothing_else(tmp_path):
     """plot.py:1723->1724 -- why the nested default is never the one applied.
 
     ``find_files``' ``if extensions is None`` cannot be true. The enclosing
@@ -128,7 +128,7 @@ def _stack(masks, n_intensity=3):
     return np.dstack([*planes, *[m.astype(np.float32) for m in masks]])
 
 
-def test_every_channel_that_has_an_object_gets_that_object_outlined(tmp_path):
+def _case_every_channel_that_has_an_object_gets_that_object_outlined(tmp_path):
     """plot.py:1149->1152 and 1152->1179 -- why neither can be reached.
 
     ``cell_outlines``/``nucleus_outlines``/``pathogen_outlines`` are each
@@ -171,7 +171,7 @@ def test_every_channel_that_has_an_object_gets_that_object_outlined(tmp_path):
 # apply_contours_on_image -- the image is always the grayscale base
 # ---------------------------------------------------------------------------
 
-def test_a_multichannel_stack_is_outlined_on_its_first_channel_alone():
+def _case_a_multichannel_stack_is_outlined_on_its_first_channel_alone():
     """plot.py:3358->3362 -- the ``else`` that copies a colour image is dead.
 
     ``print_mask_and_flows`` reduces its input to a single plane before it
@@ -227,7 +227,7 @@ def _grouped_frame():
 
 @pytest.mark.parametrize("graph_type", ["bar", "violin", "jitter", "box",
                                         "jitter_box", "jitter_bar", "line"])
-def test_every_graph_type_the_error_message_offers_actually_draws(graph_type):
+def _case_every_graph_type_the_error_message_offers_actually_draws(graph_type):
     """plot.py:4550->4557 -- why the trailing ``not in`` is never False.
 
     The ``elif`` chain above it already consumes ``bar``, ``violin``,
@@ -249,7 +249,7 @@ def test_every_graph_type_the_error_message_offers_actually_draws(graph_type):
     assert isinstance(results, pd.DataFrame)
 
 
-def test_a_graph_type_the_menu_does_not_offer_is_refused_by_name():
+def _case_a_graph_type_the_menu_does_not_offer_is_refused_by_name():
     """The complement of the parametrisation above: an unknown type raises.
 
     Reaching plot.py:4550 at all takes a name none of the eight branches
@@ -266,7 +266,7 @@ def test_a_graph_type_the_menu_does_not_offer_is_refused_by_name():
 # spacrGraph.preprocess_data -- the grouping column is always still there
 # ---------------------------------------------------------------------------
 
-def test_a_grouping_column_that_is_not_in_the_frame_never_reaches_the_ordering():
+def _case_a_grouping_column_that_is_not_in_the_frame_never_reaches_the_ordering():
     """plot.py:4828->4836 -- the ``elif`` can only ever be true.
 
     ``preprocess_data`` opens with ``df.dropna(subset=[self.grouping_column]
@@ -303,7 +303,7 @@ def test_a_grouping_column_that_is_not_in_the_frame_never_reaches_the_ordering()
 # volcano_plot -- the threshold helper's unknown-transform raise
 # ---------------------------------------------------------------------------
 
-def test_an_unknown_x_transform_is_refused_before_any_threshold_is_converted():
+def _case_an_unknown_x_transform_is_refused_before_any_threshold_is_converted():
     """plot.py:7304->7306 -- why the second "Unknown x_transform" is dead.
 
     ``_transform_x`` is applied to the data at plot.py:7332, eight lines
@@ -391,3 +391,23 @@ def test_an_unknown_x_transform_is_refused_before_any_threshold_is_converted():
 # ``read_and_plot__vision_results``). All three of those are pinned
 # executably there; nothing is duplicated here.
 # ---------------------------------------------------------------------------
+
+
+def test_plot_cases(request, subtests):
+    """Case table: 7 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_a_bare_call_walks_npy_and_tif_and_nothing_else,
+        _case_every_channel_that_has_an_object_gets_that_object_outlined,
+        _case_a_multichannel_stack_is_outlined_on_its_first_channel_alone,
+        _case_every_graph_type_the_error_message_offers_actually_draws,
+        _case_a_graph_type_the_menu_does_not_offer_is_refused_by_name,
+        _case_a_grouping_column_that_is_not_in_the_frame_never_reaches_the_ordering,
+        _case_an_unknown_x_transform_is_refused_before_any_threshold_is_converted,
+        ],
+    )
+    assert ran >= 7

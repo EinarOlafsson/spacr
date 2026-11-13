@@ -25,7 +25,7 @@ def test_sort_key():
 # _prepare_for_tracking
 # ---------------------------------------------------------------------------
 
-def test_prepare_for_tracking():
+def _case_prepare_for_tracking():
     frame0 = np.zeros((16, 16), dtype=np.int32); frame0[2:6, 2:6] = 1
     frame1 = np.zeros((16, 16), dtype=np.int32); frame1[3:7, 3:7] = 1
     df = TL._prepare_for_tracking(np.stack([frame0, frame1]))
@@ -47,7 +47,7 @@ def _moving_masks(n=4, size=24):
     return np.stack(masks)
 
 
-def test_link_by_iou():
+def _case_link_by_iou():
     m0 = np.zeros((16, 16), dtype=np.int32); m0[2:8, 2:8] = 1
     m1 = np.zeros((16, 16), dtype=np.int32); m1[3:9, 3:9] = 1
     matches = TL.link_by_iou(m0, m1, iou_threshold=0.1)
@@ -118,26 +118,26 @@ def test_relabel_masks_based_on_tracks():
 # _reorient_merged_array
 # ---------------------------------------------------------------------------
 
-def test_reorient_merged_array_planes_first():
+def _case_reorient_merged_array_planes_first():
     arr = np.zeros((4, 16, 16), dtype=np.float32)   # already planes-first
     out, planes, H, W = TL._reorient_merged_array(arr, n_channels=3)
     assert planes == 4 and (H, W) == (16, 16)
 
 
-def test_reorient_merged_array_planes_last():
+def _case_reorient_merged_array_planes_last():
     arr = np.zeros((16, 16, 4), dtype=np.float32)   # planes last → moved
     out, planes, H, W = TL._reorient_merged_array(arr, n_channels=3)
     assert out.shape[0] == 4 and (H, W) == (16, 16)
 
 
-def test_reorient_merged_array_fallback():
+def _case_reorient_merged_array_fallback():
     # no axis in [n, n+max] → smallest axis chosen
     arr = np.zeros((2, 16, 16), dtype=np.float32)
     out, planes, H, W = TL._reorient_merged_array(arr, n_channels=8)
     assert planes == 2
 
 
-def test_reorient_merged_array_bad_ndim():
+def _case_reorient_merged_array_bad_ndim():
     with pytest.raises(ValueError):
         TL._reorient_merged_array(np.zeros((16, 16)), n_channels=3)
 
@@ -146,7 +146,7 @@ def test_reorient_merged_array_bad_ndim():
 # preprocess_pathogen_data
 # ---------------------------------------------------------------------------
 
-def test_preprocess_pathogen_data():
+def _case_preprocess_pathogen_data():
     """Keyed on the names the measurement writer emits: columnID, timeID, cell_id."""
     rng = np.random.default_rng(0)
     n = 20
@@ -177,3 +177,23 @@ def test_save_figure_and_results(tmp_path):
     assert (tmp_path / "run" / "results" / "figure_1.pdf").exists()
     TL.save_results_dataframe(pd.DataFrame({"a": [1, 2]}), src, "res")
     assert (tmp_path / "run" / "results" / "res.csv").exists()
+
+
+def test_timelapse_cases(request, subtests):
+    """Case table: 7 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_prepare_for_tracking,
+        _case_link_by_iou,
+        _case_reorient_merged_array_planes_first,
+        _case_reorient_merged_array_planes_last,
+        _case_reorient_merged_array_fallback,
+        _case_reorient_merged_array_bad_ndim,
+        _case_preprocess_pathogen_data,
+        ],
+    )
+    assert ran >= 7

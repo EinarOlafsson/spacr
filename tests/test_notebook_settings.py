@@ -18,6 +18,8 @@ from pathlib import Path
 
 import pytest
 
+from tests import locale_cases
+
 REPO = Path(__file__).resolve().parent.parent
 NOTEBOOKS = REPO / "Notebooks"
 TOOL = REPO / "tools" / "build_notebook_settings.py"
@@ -250,8 +252,8 @@ def _generated_source(path, kind):
     return matches[0]
 
 
-@pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
-def test_the_generated_cell_is_valid_python(path):
+def _the_generated_cell_is_valid_python_case(path):
+    """One case of :func:`test_the_generated_cell_is_valid_python`."""
     sources = _generated_settings_cells(path)
     if not sources:
         pytest.skip("no generated cell")
@@ -260,8 +262,14 @@ def test_the_generated_cell_is_valid_python(path):
         assert tree.body, "the generated cell has no statements"
 
 
-@pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
-def test_manifest_owns_exact_imports_and_run_calls(path):
+def test_the_generated_cell_is_valid_python(subtests):
+    for label, case in locale_cases.cases(("path", ALL, lambda p: p.stem)):
+        with subtests.test(**label):
+            _the_generated_cell_is_valid_python_case(**case)
+
+
+def _manifest_owns_exact_imports_and_run_calls_case(path):
+    """One case of :func:`test_manifest_owns_exact_imports_and_run_calls`."""
     tool = _tool()
     spec = tool.NOTEBOOK_SPECS[path.name]
     import_source = _generated_source(path, "function-import")
@@ -285,13 +293,25 @@ def test_manifest_owns_exact_imports_and_run_calls(path):
     ast.parse(run_source)
 
 
-@pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
-def test_all_outputs_and_execution_counts_are_cleared(path):
+def test_manifest_owns_exact_imports_and_run_calls(subtests):
+    for label, case in locale_cases.cases(("path", ALL, lambda p: p.stem)):
+        with subtests.test(**label):
+            _manifest_owns_exact_imports_and_run_calls_case(**case)
+
+
+def _all_outputs_and_execution_counts_are_cleared_case(path):
+    """One case of :func:`test_all_outputs_and_execution_counts_are_cleared`."""
     notebook = json.loads(path.read_text(encoding="utf-8"))
     for cell in notebook["cells"]:
         if cell["cell_type"] == "code":
             assert cell.get("outputs") == []
             assert cell.get("execution_count") is None
+
+
+def test_all_outputs_and_execution_counts_are_cleared(subtests):
+    for label, case in locale_cases.cases(("path", ALL, lambda p: p.stem)):
+        with subtests.test(**label):
+            _all_outputs_and_execution_counts_are_cleared_case(**case)
 
 
 def _explicit_settings_keys_by_variable(path):
@@ -329,8 +349,8 @@ def _settings_keys_by_variable(path):
             for name in [_tool().setting_name(dotted, entries)]}
 
 
-@pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
-def test_each_setting_is_declared_once_per_function(path):
+def _each_setting_is_declared_once_per_function_case(path):
+    """One case of :func:`test_each_setting_is_declared_once_per_function`."""
     by_variable = _explicit_settings_keys_by_variable(path)
     assert by_variable
     for variable, keys in by_variable.items():
@@ -339,8 +359,14 @@ def test_each_setting_is_declared_once_per_function(path):
         assert not duplicates, f"{path.name}:{variable}: {duplicates}"
 
 
-@pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
-def test_organelle_separation_is_derived_from_the_actual_keys(path):
+def test_each_setting_is_declared_once_per_function(subtests):
+    for label, case in locale_cases.cases(("path", ALL, lambda p: p.stem)):
+        with subtests.test(**label):
+            _each_setting_is_declared_once_per_function_case(**case)
+
+
+def _organelle_separation_is_derived_from_the_actual_keys_case(path):
+    """One case of :func:`test_organelle_separation_is_derived_from_the_actual_keys`."""
     tool = _tool()
     notebook = json.loads(path.read_text(encoding="utf-8"))
     cells = {
@@ -357,10 +383,15 @@ def test_organelle_separation_is_derived_from_the_actual_keys(path):
                 assert f"**`{key}`**" in _generated_help(path)
 
 
+def test_organelle_separation_is_derived_from_the_actual_keys(subtests):
+    for label, case in locale_cases.cases(("path", ALL, lambda p: p.stem)):
+        with subtests.test(**label):
+            _organelle_separation_is_derived_from_the_actual_keys_case(**case)
 
-@pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
-def test_every_key_carries_a_description(path):
-    """Every code-cell key is explained in the adjacent Markdown cell."""
+
+
+def _every_key_carries_a_description_case(path):
+    """One case of :func:`test_every_key_carries_a_description`."""
     sources = _generated_settings_cells(path)
     if not sources:
         pytest.skip("no generated cell")
@@ -384,9 +415,15 @@ def test_every_key_carries_a_description(path):
     assert not undescribed, f"{path.name}: no description for {undescribed}"
 
 
-@pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
-def test_explanations_settings_and_call_are_consecutive_cells(path):
-    """Readers meet prose, categorized values, and execution in that order."""
+def test_every_key_carries_a_description(subtests):
+    """Every code-cell key is explained in the adjacent Markdown cell."""
+    for label, case in locale_cases.cases(("path", ALL, lambda p: p.stem)):
+        with subtests.test(**label):
+            _every_key_carries_a_description_case(**case)
+
+
+def _explanations_settings_and_call_are_consecutive_cells_case(path):
+    """One case of :func:`test_explanations_settings_and_call_are_consecutive_cells`."""
     notebook = json.loads(path.read_text(encoding="utf-8"))
     cells = notebook["cells"]
     help_index = next((i for i, cell in enumerate(cells)
@@ -429,22 +466,41 @@ def test_explanations_settings_and_call_are_consecutive_cells(path):
         assert status_lines, f"{path.name}: requirement status is absent"
 
 
-@pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
-def test_each_reference_links_to_the_callable_api(path):
+def test_explanations_settings_and_call_are_consecutive_cells(subtests):
+    """Readers meet prose, categorized values, and execution in that order."""
+    for label, case in locale_cases.cases(("path", ALL, lambda p: p.stem)):
+        with subtests.test(**label):
+            _explanations_settings_and_call_are_consecutive_cells_case(**case)
+
+
+def _each_reference_links_to_the_callable_api_case(path):
+    """One case of :func:`test_each_reference_links_to_the_callable_api`."""
     tool = _tool()
     help_text = _generated_help(path)
     for dotted in tool.declared_functions(path):
         assert f"[`{dotted}`]({tool.api_url(dotted)})" in help_text
 
 
-@pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
-def test_every_documented_setting_states_its_requirement_status(path):
+def test_each_reference_links_to_the_callable_api(subtests):
+    for label, case in locale_cases.cases(("path", ALL, lambda p: p.stem)):
+        with subtests.test(**label):
+            _each_reference_links_to_the_callable_api_case(**case)
+
+
+def _every_documented_setting_states_its_requirement_status_case(path):
+    """One case of :func:`test_every_documented_setting_states_its_requirement_status`."""
     help_text = _generated_help(path)
     for line in help_text.splitlines():
         if line.startswith("- **`"):
             assert any(f"*({status})*" in line for status in (
                 "required", "conditionally required", "optional")), (
                     f"{path.name}: missing requirement status: {line}")
+
+
+def test_every_documented_setting_states_its_requirement_status(subtests):
+    for label, case in locale_cases.cases(("path", ALL, lambda p: p.stem)):
+        with subtests.test(**label):
+            _every_documented_setting_states_its_requirement_status_case(**case)
 
 
 def _documented_status(path, key):
@@ -631,8 +687,8 @@ def test_organelle_settings_have_a_separate_cell(name):
 
 
 
-@pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
-def test_notebook_overviews_use_scientific_section_labels(path):
+def _notebook_overviews_use_scientific_section_labels_case(path):
+    """One case of :func:`test_notebook_overviews_use_scientific_section_labels`."""
     notebook = json.loads(path.read_text(encoding="utf-8"))
     overview = _generated_help(path)
     assert "**Purpose.**" in overview
@@ -640,6 +696,12 @@ def test_notebook_overviews_use_scientific_section_labels(path):
     assert "**Primary outputs.**" in overview
     assert "**What it does.**" not in overview
     assert "**What you get.**" not in overview
+
+
+def test_notebook_overviews_use_scientific_section_labels(subtests):
+    for label, case in locale_cases.cases(("path", ALL, lambda p: p.stem)):
+        with subtests.test(**label):
+            _notebook_overviews_use_scientific_section_labels_case(**case)
 
 
 def test_consolidated_notebooks_name_the_current_desktop_route():
@@ -650,9 +712,8 @@ def test_consolidated_notebooks_name_the_current_desktop_route():
         assert f"**Desktop route.** {route}" in overview
 
 
-@pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
-def test_user_facing_notebook_text_has_no_placeholder_or_informal_scaffolding(
-        path):
+def _user_facing_notebook_text_has_no_placeholder_or_informal_scaffolding_case(path):
+    """One case of :func:`test_user_facing_notebook_text_has_no_placeholder_or_informal_scaffolding`."""
     notebook = json.loads(path.read_text(encoding="utf-8"))
     markdown = "\n".join(
         "".join(cell["source"])
@@ -678,6 +739,12 @@ def test_user_facing_notebook_text_has_no_placeholder_or_informal_scaffolding(
                 if phrase.casefold() in markdown.casefold()]
 
 
+def test_user_facing_notebook_text_has_no_placeholder_or_informal_scaffolding(subtests):
+    for label, case in locale_cases.cases(("path", ALL, lambda p: p.stem)):
+        with subtests.test(**label):
+            _user_facing_notebook_text_has_no_placeholder_or_informal_scaffolding_case(**case)
+
+
 def test_volcano_overview_names_the_scientific_axes_and_actual_output():
     notebook = json.loads(
         (NOTEBOOKS / "30_volcano_plot.ipynb").read_text(encoding="utf-8"))
@@ -686,14 +753,8 @@ def test_volcano_overview_names_the_scientific_axes_and_actual_output():
     assert "configured dimensions and file format" in overview
 
 
-@pytest.mark.parametrize("path", ALL, ids=lambda p: p.stem)
-def test_the_settings_dict_is_used_rather_than_decorative(path):
-    """The dict has to BE the call's arguments, not sit beside them.
-
-    Eight notebooks used to carry a commented-out call restating the whole
-    signature by hand -- a second paste, and one a renamed parameter would
-    have left silently wrong.
-    """
+def _the_settings_dict_is_used_rather_than_decorative_case(path):
+    """One case of :func:`test_the_settings_dict_is_used_rather_than_decorative`."""
     source = _generated(path)
     if not source:
         pytest.skip("no generated cell")
@@ -706,6 +767,18 @@ def test_the_settings_dict_is_used_rather_than_decorative(path):
                      "".join(c["source"]).startswith("# Generated"))
     assert "settings)" in code or "**settings" in code, (
         f"{path.name}: the generated dict is never passed to anything")
+
+
+def test_the_settings_dict_is_used_rather_than_decorative(subtests):
+    """The dict has to BE the call's arguments, not sit beside them.
+
+    Eight notebooks used to carry a commented-out call restating the whole
+    signature by hand -- a second paste, and one a renamed parameter would
+    have left silently wrong.
+    """
+    for label, case in locale_cases.cases(("path", ALL, lambda p: p.stem)):
+        with subtests.test(**label):
+            _the_settings_dict_is_used_rather_than_decorative_case(**case)
 
 
 # ---------------------------------------------------------------------------
@@ -993,8 +1066,8 @@ def test_initial_markdown_has_no_parameter_wall_even_without_html_support():
     assert "'n_jobs':" not in code and "'cell_diameter':" not in code
 
 
-@pytest.mark.parametrize("name", ["00_workflow_browser.ipynb", *[path.name for path in ALL]])
-def test_colab_mirrors_current_workflows_with_native_forms_and_no_hidden_help_wall(name):
+def _colab_mirrors_current_workflows_with_native_forms_and_no_hidden_help_wall_case(name):
+    """One case of :func:`test_colab_mirrors_current_workflows_with_native_forms_and_no_hidden_help_wall`."""
     import hashlib
     nbformat = pytest.importorskip("nbformat")
     tool = _tool()
@@ -1048,6 +1121,12 @@ def test_colab_mirrors_current_workflows_with_native_forms_and_no_hidden_help_wa
             assert settings[key] == namespace[f"stage_{index + 1}_{key}"]
     assert "show_advanced_settings" in kinds["settings-editor"]
     assert "show_help_menu" in kinds["settings-editor"]
+
+
+def test_colab_mirrors_current_workflows_with_native_forms_and_no_hidden_help_wall(subtests):
+    for label, case in locale_cases.cases(("name", ["00_workflow_browser.ipynb", *[path.name for path in ALL]])):
+        with subtests.test(**label):
+            _colab_mirrors_current_workflows_with_native_forms_and_no_hidden_help_wall_case(**case)
 
 
 def test_legacy_is_replaced_by_two_current_sets_and_colab_navigation():
