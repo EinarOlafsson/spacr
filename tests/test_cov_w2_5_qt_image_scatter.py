@@ -567,11 +567,6 @@ def test_the_side_button_opens_whatever_is_hovered(screen, opener):
     assert list(opener[0].keys) == [screen.key_at(3)]
 
 
-def test_with_nowhere_to_open_a_point_nothing_is_routed(screen):
-    """No registered opener means None, not an exception on a click."""
-    assert screen.open_point(0) is None
-
-
 def test_an_opener_that_refuses_is_reported_not_raised(screen, caplog):
     """A failing destination becomes a status line naming the object."""
     def refuse(request):

@@ -35,11 +35,12 @@ class TestWhichAxisWasClicked:
     def test_inside_the_plot_is_neither(self):
         assert axis_at((300.0, 200.0), BOX) is None
 
-    def test_below_the_plot_is_the_x_axis(self):
-        assert axis_at((300.0, 15.0), BOX) == "x"
-
-    def test_left_of_the_plot_is_the_y_axis(self):
-        assert axis_at((20.0, 200.0), BOX) == "y"
+    @pytest.mark.parametrize("point, axis", [
+        ((300.0, 15.0), "x"),   # below the plot is the x axis
+        ((20.0, 200.0), "y"),   # left of the plot is the y axis
+    ], ids=["below_the_plot", "left_of_the_plot"])
+    def test_below_the_plot_is_the_x_axis(self, point, axis):
+        assert axis_at(point, BOX) == axis
 
     def test_above_and_right_belong_to_neither(self):
         """The title strip and the right margin carry no axis, so a click

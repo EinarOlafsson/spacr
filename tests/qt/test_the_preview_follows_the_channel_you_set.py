@@ -70,15 +70,26 @@ def _choose_object(panel, caption: str) -> None:
     pytest.skip(f"this build offers no {caption!r} object")
 
 
-def test_typing_a_channel_moves_the_view_onto_it(panel, qtbot):
-    """The report: cell is primary, Ch 1 is up, cell channel becomes 2."""
+@pytest.mark.parametrize("typed, shown", [
+    # The report: cell is primary, Ch 1 is up, cell channel becomes 2.
+    (2, 2),
+    # Three channels are written as C01-C03 and shown as Ch 0, 1 and 2.
+    # Typing 7 into cell channel asks for a plane that is not in this set.
+    # The view stays where it is rather than blanking or picking something
+    # near it: a spinner can pass through any number on its way to the one
+    # the user means, and the settings still say 7 for the run to complain
+    # about.
+    (7, 1),
+], ids=["typing_a_channel_moves_the_view_onto_it",
+        "a_channel_the_set_does_not_have_leaves_the_view_alone"])
+def test_typing_a_channel_moves_the_view_onto_it(panel, qtbot, typed, shown):
     _choose_object(panel, "cell")
     panel._cell_channel.setValue(1)
     _assert_shown(panel, qtbot, 1)
 
-    panel._cell_channel.setValue(2)
+    panel._cell_channel.setValue(typed)
 
-    _assert_shown(panel, qtbot, 2)
+    _assert_shown(panel, qtbot, shown)
 
 
 def test_each_compartment_is_followed(panel, qtbot):
@@ -90,23 +101,6 @@ def test_each_compartment_is_followed(panel, qtbot):
         _assert_shown(panel, qtbot, 1)
         spinner.setValue(2)
         _assert_shown(panel, qtbot, 2)
-
-
-def test_a_channel_the_set_does_not_have_leaves_the_view_alone(panel, qtbot):
-    """Three channels are written as C01-C03 and shown as Ch 0, 1 and 2.
-
-    Typing 7 into cell channel asks for a plane that is not in this set. The
-    view stays where it is rather than blanking or picking something near it:
-    a spinner can pass through any number on its way to the one the user
-    means, and the settings still say 7 for the run to complain about.
-    """
-    _choose_object(panel, "cell")
-    panel._cell_channel.setValue(1)
-    _assert_shown(panel, qtbot, 1)
-
-    panel._cell_channel.setValue(7)
-
-    _assert_shown(panel, qtbot, 1)
 
 
 def test_two_objects_leave_the_view_alone(panel, qtbot):

@@ -114,37 +114,28 @@ def _sample_settings_column(app_key: str, ambient: bool) -> tuple[float, float]:
         preferences.set_ambient_enabled(was)
 
 
-@pytest.mark.parametrize("app_key", MODULES)
-def test_the_settings_column_is_not_a_black_box(qt_theme_applied, app_key):
-    """With the backdrop off, the settings column still has a colour.
-
-    This is the exact configuration that was reported. At the commit
-    before the fix, `mask` scored 44.4% unpainted here.
-    """
-    unpainted, black = _sample_settings_column(app_key, ambient=False)
+# Ambient off is the exact configuration that was reported: at the commit
+# before the fix, `mask` scored 44.4% unpainted there. Ambient on (the
+# default) runs on fewer modules: the ambient widget paints the page in that
+# mode, so this direction has never been the one that broke. It is here so
+# that a future change to the page colour cannot fix the off case by breaking
+# the on case.
+@pytest.mark.parametrize(
+    "app_key, ambient",
+    [pytest.param(key, False, id=f"{key}-backdrop_off") for key in MODULES]
+    + [pytest.param(key, True, id=f"{key}-backdrop_on") for key in MODULES[:6]],
+)
+def test_the_settings_column_is_not_a_black_box(
+        qt_theme_applied, app_key, ambient):
+    """With the backdrop off (or on), the settings column still has a colour."""
+    unpainted, black = _sample_settings_column(app_key, ambient=ambient)
     assert unpainted + black < TOLERANCE_PCT, (
-        f"{app_key}: {unpainted:.1f}% of the settings column is unpainted "
+        f"{app_key} (ambient backdrop {'on' if ambient else 'off'}): "
+        f"{unpainted:.1f}% of the settings column is unpainted "
         f"and {black:.1f}% is the window colour. Unpainted is the bug -- in "
         f"the real window `bg` (#000000) shows through, which is the black "
         f"box. Do not fix this by making one more container transparent; "
         f"that is what caused it. The page itself needs a colour."
-    )
-
-
-@pytest.mark.parametrize("app_key", MODULES[:6])
-def test_the_settings_column_is_not_a_black_box_with_the_backdrop_on(
-        qt_theme_applied, app_key):
-    """And with the backdrop on, which is the default.
-
-    Fewer modules: the ambient widget paints the page in this mode, so
-    this direction has never been the one that broke. It is here so that
-    a future change to the page colour cannot fix the off case by
-    breaking the on case.
-    """
-    unpainted, black = _sample_settings_column(app_key, ambient=True)
-    assert unpainted + black < TOLERANCE_PCT, (
-        f"{app_key}: {unpainted:.1f}% unpainted, {black:.1f}% window colour "
-        f"with the ambient backdrop enabled"
     )
 
 

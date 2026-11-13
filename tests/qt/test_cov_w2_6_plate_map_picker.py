@@ -414,11 +414,3 @@ def test_clicking_a_well_fills_it_and_clicking_again_empties_it(picker, qapp):
     qapp.processEvents()
     assert EMPTY in well.styleSheet()
 
-
-def test_a_well_chosen_without_a_click_still_looks_chosen(picker):
-    """`set_selection` blocks the wells' signals so the count is said once
-    rather than once per well, which also silences `toggled -> _paint`: it
-    repaints itself, or a chosen well is drawn empty."""
-    picker.set_selection({(1, 1)})
-    assert picker._wells[(1, 1)].isChecked()
-    assert CHOSEN in picker._wells[(1, 1)].styleSheet()

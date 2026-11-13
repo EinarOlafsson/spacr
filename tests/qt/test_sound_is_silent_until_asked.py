@@ -432,17 +432,17 @@ class TestRunSounds:
         monkeypatch.setattr(snd, "_ENGINE", engine)
         return engine
 
-    def test_a_finished_run_plays_the_rising_figure(self, installed, sink):
+    @pytest.mark.parametrize("status, played", [
+        ("success", "run_finished"),    # the rising figure
+        ("failed", "run_failed"),       # the falling figure
+    ], ids=["a_finished_run_plays_the_rising_figure",
+            "a_failed_run_plays_the_falling_figure"])
+    def test_a_finished_run_plays_the_rising_figure(self, installed, sink,
+                                                    status, played):
         from spacr.qt.notify import announce_pipeline_finished
 
-        announce_pipeline_finished("mask", "success", 12.0)
-        assert _plays(sink) == ["run_finished"]
-
-    def test_a_failed_run_plays_the_falling_figure(self, installed, sink):
-        from spacr.qt.notify import announce_pipeline_finished
-
-        announce_pipeline_finished("mask", "failed", 12.0)
-        assert _plays(sink) == ["run_failed"]
+        announce_pipeline_finished("mask", status, 12.0)
+        assert _plays(sink) == [played]
 
     def test_a_run_the_user_stopped_is_silent(self, installed, sink):
         from spacr.qt.notify import announce_pipeline_finished

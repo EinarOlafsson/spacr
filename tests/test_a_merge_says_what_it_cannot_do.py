@@ -34,12 +34,11 @@ def test_an_override_that_exists_beats_the_rule():
         == "max"
 
 
-def test_the_crop_tables_object_spelling_is_read_as_the_same_integer():
-    assert list(object_keys(pd.Series(["o5", "o7"]))) == [5, 7]
-
-
-def test_plain_numeric_text_converts_without_the_png_translator():
-    assert list(object_keys(pd.Series(["5", "7"]))) == [5, 7]
+@pytest.mark.parametrize("spelling", [["o5", "o7"], ["5", "7"]],
+                         ids=["the_crop_tables_o_spelling", "plain_numeric_text"])
+def test_the_crop_tables_object_spelling_is_read_as_the_same_integer(spelling):
+    # Plain numeric text converts without the png translator too.
+    assert list(object_keys(pd.Series(spelling))) == [5, 7]
 
 
 def test_a_key_that_is_neither_becomes_missing_rather_than_fatal():

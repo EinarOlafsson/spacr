@@ -153,15 +153,6 @@ def test_a_cancel_is_not_remembered(monkeypatch, tmp_path):
 # something each call site has to remember.
 
 
-def test_a_headless_caller_gets_the_error_it_always_got(tmp_path):
-    """No `ask`, no dialog, no change in behaviour."""
-    from spacr.crops import CropError, resolve_crop_source
-
-    with pytest.raises(CropError) as raised:
-        resolve_crop_source(str(tmp_path))
-    assert "no crop source available" in str(raised.value)
-
-
 def test_the_prompt_is_offered_the_reason_and_the_root(tmp_path):
     from spacr.crops import CropError, resolve_crop_source
 

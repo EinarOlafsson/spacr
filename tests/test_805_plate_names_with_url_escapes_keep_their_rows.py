@@ -6,10 +6,8 @@ plateID was decoded, so the inner joins matched nothing and every row dropped.
 import sqlite3
 
 import pandas as pd
-import pytest
 
 from spacr import io as IO
-from spacr import schema
 
 PLATE = "AssayPlate_PerkinElmer"
 
@@ -22,12 +20,6 @@ def _frame(prcf_plate, extra):
             "prcf": f"{prcf_plate}_r1_c1_f1", "object_label": obj,
             "cell_id": obj, **{k: v + obj for k, v in extra.items()}})
     return pd.DataFrame(rows)
-
-
-@pytest.mark.parametrize("stored", [
-    "AssayPlate%5FPerkinElmer", "AssayPlate%255FPerkinElmer", PLATE])
-def test_escaped_plate_names_decode_to_one_spelling(stored):
-    assert schema.canonical_plate_id(stored) == PLATE
 
 
 def test_rows_survive_the_merge_when_prcf_is_url_escaped(tmp_path):

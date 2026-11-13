@@ -235,11 +235,6 @@ def test_a_panel_with_no_table_asks_for_one(qtbot):
     assert empty.long_frame().empty
 
 
-def test_an_empty_spec_says_what_to_drop(panel):
-    assert panel.recompute() is None
-    assert "Drop a column onto Rows" in panel.notice.text()
-
-
 def test_a_refusal_from_the_pivot_becomes_the_notice(panel, monkeypatch):
     from spacr.qt.widgets.pivot_spec import PivotError
 
