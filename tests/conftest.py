@@ -1166,6 +1166,54 @@ def _no_test_leaves_an_application_policy_on():
     _take_off_the_policies_put_on_since(before)
 
 
+_REPO_ROOT_FILES = (".coveragerc", "pyproject.toml", "setup.cfg")
+_CWD_BEFORE = pytest.StashKey[tuple]()
+
+
+def _remember_the_working_directory(item):
+    """Remember the working directory and the repo-root files before a test."""
+    root = Path(__file__).resolve().parent.parent
+    item.stash[_CWD_BEFORE] = (
+        os.getcwd(), [n for n in _REPO_ROOT_FILES if (root / n).exists()])
+
+
+def _no_test_leaves_the_working_directory_or_repo_root_files_changed(item):
+    """Fail a test that leaves the cwd moved or a tracked repo-root file gone.
+
+    Called from ``pytest_runtest_teardown`` AFTER every fixture has been torn
+    down, because ``monkeypatch.chdir`` is only undone then; a fixture would
+    report every such test as a leak. The cwd is restored before failing so
+    one offender does not cascade into later tests. A leaked ``os.chdir``
+    breaks every later relative-path test in the same worker, and a cleanup
+    run in the wrong cwd can delete ``.coveragerc``.
+    SPACR_CWD_GUARD_LOG, when set to a file, appends offenders there and
+    only reports (survey mode).
+    """
+    saved = item.stash.get(_CWD_BEFORE, None)
+    if saved is None:
+        return
+    before, present = saved
+    root = Path(__file__).resolve().parent.parent
+    problems = []
+    try:
+        after = os.getcwd()
+    except FileNotFoundError:
+        after = "<deleted directory>"
+    if after != before:
+        problems.append(f"working directory changed from {before} to {after}")
+        os.chdir(before)
+    missing = [n for n in present if not (root / n).exists()]
+    if missing:
+        problems.append(f"repo-root files missing after the test: {missing}")
+    if problems:
+        log = os.environ.get("SPACR_CWD_GUARD_LOG")
+        if log:
+            with open(log, "a", encoding="utf-8") as handle:
+                handle.write(f"{item.nodeid}\t{'; '.join(problems)}\n")
+        else:
+            raise AssertionError("; ".join(problems))
+
+
 @pytest.fixture(autouse=True)
 def _no_provider_stream_outlives_a_test():
     """End any AI provider subprocess a test leaves being read.
@@ -1591,7 +1639,9 @@ def pytest_runtest_teardown(item):
         item.qt_widgets = [
             (_LiveQtWidgetRef(ref), before_close)
             for ref, before_close in widgets]
-    return (yield)
+    outcome = yield
+    _no_test_leaves_the_working_directory_or_repo_root_files_changed(item)
+    return outcome
 
 
 def pytest_runtest_setup(item):
@@ -1601,6 +1651,7 @@ def pytest_runtest_setup(item):
     carries `@pytest.mark.gpu`, and a guard written into each file is a
     guard the next file will not have.
     """
+    _remember_the_working_directory(item)
     if item.get_closest_marker("posix_only") is not None and os.name == "nt":
         pytest.skip("exercises a POSIX-only code path or API")
     if item.get_closest_marker("needs_symlink") is not None and not _symlinks_available():
