@@ -79,7 +79,7 @@ BUILT_OBJECT_TABLES = schema.CANONICAL_OBJECT_TABLES
 #:
 #: WHAT THE FIXTURE IS FOR is the shared project every test here reads: the
 #: bookkeeping tables, the crop index, the parent/child links. It is not the
-#: place that proves 702 slots exist -- the parametrised sweeps below still
+#: place that proves 702 slots exist -- the subtest sweeps below still
 #: walk `BUILT_OBJECT_TABLES` in full, and `test_the_object_key_round_trips
 #: _for_every_slot` walks every slot on the schema side.
 #:
@@ -143,7 +143,7 @@ def build_project(root, fields=('plate1_A01_1', 'plate1_A01_2'),
 
     :param tables: which object tables to write. The default is the whole
         canonical contract, which the module-scoped `project` needs because
-        the sweeps below are parametrised over every one of its 706 names.
+        the sweeps below loop over every one of its 706 names.
         `fresh_project` passes the sample instead -- see
         `BUILT_SAMPLE_OBJECT_TABLES` for why that matters.
     """
@@ -186,7 +186,7 @@ def fresh_project(tmp_path):
     produced no output at all inside a 90-minute chunk timeout.
 
     The module-scoped `project` above still writes the full 706, once, and
-    every sweep parametrised over `CANONICAL_OBJECT_TABLES` reads THAT one.
+    every sweep over `CANONICAL_OBJECT_TABLES` reads THAT one.
     Nothing here needs 702 organelle slots to prove a delete destroys a
     table.
     """
@@ -303,48 +303,59 @@ def test_the_doctor_recognises_a_database_holding_only_a_run_stamp(tmp_path):
         f'{[r.message for r in results]}')
 
 
-@pytest.mark.parametrize('table', schema.CANONICAL_OBJECT_TABLES)
-def test_a_written_object_table_carries_every_required_column(project, table):
-    """The writer's output satisfies ``OBJECT_TABLE_REQUIRED_COLUMNS``."""
-    columns = declared_columns(project, table)
-    missing = [c for c in schema.OBJECT_TABLE_REQUIRED_COLUMNS
-               if c not in columns]
-    assert missing == [], f'{table} is missing {missing}'
+def test_a_written_object_table_carries_every_required_column(project,
+                                                              subtests):
+    """The writer's output satisfies ``OBJECT_TABLE_REQUIRED_COLUMNS``.
+
+    One subtest per canonical object table, so a broken table is named in
+    the report and every broken table is reported, not only the first.
+    """
+    for table in schema.CANONICAL_OBJECT_TABLES:
+        with subtests.test(table=table):
+            columns = declared_columns(project, table)
+            missing = [c for c in schema.OBJECT_TABLE_REQUIRED_COLUMNS
+                       if c not in columns]
+            assert missing == [], f'{table} is missing {missing}'
 
 
-@pytest.mark.parametrize('table', schema.CANONICAL_OBJECT_TABLES)
 def test_the_parent_link_is_present_exactly_where_the_schema_says(project,
-                                                                  table):
+                                                                  subtests):
     """``cell_id`` on the child tables, and on no other.
 
     A parent table that grew a ``cell_id`` would join to itself; a child
     table that lost one silently drops every roll-up onto the cell.
     """
-    contract = schema.object_table_schema(table)
-    columns = declared_columns(project, table)
-    if contract.parent_column is None:
-        assert 'cell_id' not in columns, (
-            f'{table} is a parent table but declares cell_id')
-    else:
-        assert contract.parent_column in columns, (
-            f'{table} is a child table and must declare '
-            f'{contract.parent_column}')
+    for table in schema.CANONICAL_OBJECT_TABLES:
+        with subtests.test(table=table):
+            contract = schema.object_table_schema(table)
+            columns = declared_columns(project, table)
+            if contract.parent_column is None:
+                assert 'cell_id' not in columns, (
+                    f'{table} is a parent table but declares cell_id')
+            else:
+                assert contract.parent_column in columns, (
+                    f'{table} is a child table and must declare '
+                    f'{contract.parent_column}')
 
 
-@pytest.mark.parametrize('table', schema.CANONICAL_OBJECT_TABLES)
-def test_the_declared_key_columns_exist_in_the_written_table(project, table):
+def test_the_declared_key_columns_exist_in_the_written_table(project,
+                                                            subtests):
     """``row_key_columns`` and ``table_key_columns`` name real columns.
 
     Both are consumed as SQL identifiers -- ``resume.clear_field_rows``
     interpolates ``table_key_columns`` straight into a DELETE -- so a name
     the table does not have is a runtime SQL error at the worst moment.
     """
-    columns = set(declared_columns(project, table))
-    contract = schema.object_table_schema(table)
-    for key in contract.row_key_columns():
-        assert key in columns, f'{table}.{key} declared by schema, absent on disk'
-    for key in schema.table_key_columns(table):
-        assert key in columns, f'{table}.{key} declared by schema, absent on disk'
+    for table in schema.CANONICAL_OBJECT_TABLES:
+        with subtests.test(table=table):
+            columns = set(declared_columns(project, table))
+            contract = schema.object_table_schema(table)
+            for key in contract.row_key_columns():
+                assert key in columns, (
+                    f'{table}.{key} declared by schema, absent on disk')
+            for key in schema.table_key_columns(table):
+                assert key in columns, (
+                    f'{table}.{key} declared by schema, absent on disk')
 
 
 def test_the_crop_tables_declared_key_exists_too(project):
@@ -358,8 +369,7 @@ def test_the_crop_tables_declared_key_exists_too(project):
         'join the two on incompatible types')
 
 
-@pytest.mark.parametrize('table', BUILT_OBJECT_TABLES + ('png_list',))
-def test_every_measurement_table_carries_the_field_key(project, table):
+def test_every_measurement_table_carries_the_field_key(project, subtests):
     """The four field key columns are what every module joins on.
 
     ``resume.discover_field_tables`` uses their presence to decide a table
@@ -367,9 +377,13 @@ def test_every_measurement_table_carries_the_field_key(project, table):
     measurements; ``io`` merges on them. One table spelling them differently
     is a silent empty join.
     """
-    columns = set(declared_columns(project, table))
-    missing = [c for c in schema.FIELD_KEY_COLUMNS if c not in columns]
-    assert missing == [], f'{table} is missing field key columns {missing}'
+    for table in BUILT_OBJECT_TABLES + ('png_list',):
+        with subtests.test(table=table):
+            columns = set(declared_columns(project, table))
+            missing = [c for c in schema.FIELD_KEY_COLUMNS
+                       if c not in columns]
+            assert missing == [], (
+                f'{table} is missing field key columns {missing}')
 
 
 # ===========================================================================
@@ -880,23 +894,30 @@ def test_the_writers_really_do_produce_rowid_shadowing_tables(project):
     assert 'cell' in shadowed and 'png_list' in shadowed, shadowed
 
 
-@pytest.mark.parametrize('table', BUILT_OBJECT_TABLES + ('png_list',))
-def test_select_rowid_returns_the_plate_row_not_a_row_identity(project, table):
+def test_select_rowid_returns_the_plate_row_not_a_row_identity(project,
+                                                               subtests):
     """``rowid`` reads the ``rowID`` *column*, and no quoting rescues it."""
     con = sqlite3.connect(project)
     try:
-        bare = [r[0] for r in con.execute(f'SELECT rowid FROM "{table}"')]
-        quoted = [r[0] for r in con.execute(f'SELECT "rowid" FROM "{table}"')]
-        real = [r[0] for r in con.execute(f'SELECT _rowid_ FROM "{table}"')]
+        for table in BUILT_OBJECT_TABLES + ('png_list',):
+            with subtests.test(table=table):
+                bare = [r[0] for r in con.execute(
+                    f'SELECT rowid FROM "{table}"')]
+                quoted = [r[0] for r in con.execute(
+                    f'SELECT "rowid" FROM "{table}"')]
+                real = [r[0] for r in con.execute(
+                    f'SELECT _rowid_ FROM "{table}"')]
+                assert bare, f'{table} is empty'
+                assert set(bare) == {'r1'}, (
+                    f'SELECT rowid FROM {table} returned '
+                    f'{sorted(set(bare))}; it is reading the plate row column')
+                assert quoted == bare, (
+                    f'{table}: quoting does not reach the implicit row id')
+                assert real == sorted(real) and len(set(real)) == len(real), (
+                    f'{table}: _rowid_ is the only spelling that is a row '
+                    f'identity here')
     finally:
         con.close()
-    assert bare, f'{table} is empty'
-    assert set(bare) == {'r1'}, (
-        f'SELECT rowid FROM {table} returned {sorted(set(bare))}; it is '
-        f'reading the plate row column')
-    assert quoted == bare, 'quoting does not reach the implicit row id'
-    assert real == sorted(real) and len(set(real)) == len(real), (
-        '_rowid_ is the only spelling that is a row identity here')
 
 
 def test_a_delete_written_against_rowid_destroys_the_whole_table(
@@ -928,9 +949,8 @@ def test_a_delete_written_against_rowid_destroys_the_whole_table(
         f'should become an equality against the target count')
 
 
-@pytest.mark.parametrize('table', BUILT_OBJECT_TABLES + ('png_list',))
 def test_the_module_that_updates_by_row_identity_picks_a_safe_spelling(
-        project, table):
+        project, subtests):
     """``predictions._rowid_alias`` must return a spelling that really works.
 
     ``predictions`` is the one module that addresses ``png_list`` rows by
@@ -939,18 +959,24 @@ def test_the_module_that_updates_by_row_identity_picks_a_safe_spelling(
     table and checking the values are distinct row identities.
     """
     from spacr.predictions import _rowid_alias
-    columns = list(declared_columns(project, table))
-    alias = _rowid_alias(columns)
-    assert alias.lower() not in {c.lower() for c in columns}
     con = sqlite3.connect(project)
     try:
-        values = [r[0] for r in con.execute(
-            f'SELECT {alias} FROM "{table}"')]
+        for table in BUILT_OBJECT_TABLES + ('png_list',):
+            with subtests.test(table=table):
+                columns = list(declared_columns(project, table))
+                alias = _rowid_alias(columns)
+                assert alias.lower() not in {c.lower() for c in columns}, (
+                    f'{table}: alias {alias!r} is shadowed by a column')
+                values = [r[0] for r in con.execute(
+                    f'SELECT {alias} FROM "{table}"')]
+                count = con.execute(
+                    f'SELECT COUNT(*) FROM "{table}"').fetchone()[0]
+                assert len(set(values)) == len(values) == count, (
+                    f'{alias} is not a row identity in {table}: {values}')
+                assert all(isinstance(v, int) for v in values), (
+                    f'{table}: {alias} returned non-integers {values}')
     finally:
         con.close()
-    assert len(set(values)) == len(values) == row_count(project, table), (
-        f'{alias} is not a row identity in {table}: {values}')
-    assert all(isinstance(v, int) for v in values)
 
 
 # ===========================================================================
