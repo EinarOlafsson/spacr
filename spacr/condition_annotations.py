@@ -16,12 +16,15 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+
+LOG = logging.getLogger("spacr.condition_annotations")
 
 
 class AnnotationError(ValueError):
@@ -811,6 +814,26 @@ def _field_key(plate, row, column, field, time=None):
         return None
 
 
+def _comparable_prcfo(value):
+    """One ``prcfo`` in the form a table row and a ``png_list`` row are matched in.
+
+    An older Measure run stored its plate as ``pplate1`` in ``png_list``,
+    while a merged measurement table reads the plate back through
+    :func:`spacr.schema.canonical_plate_id` as ``plate1``. Matched as written,
+    no row of such a plate met its ``png_list`` row (issue #187), so both
+    sides go through the same normaliser before they are compared.
+
+    :param value: a stored or composed ``prcfo``.
+    :returns: the comparable key, or None for a blank.
+    """
+    from .schema import canonical_plate_id
+
+    if value is None or value is pd.NA or (isinstance(value, float) and np.isnan(value)):
+        return None
+    text = str(value).strip()
+    return canonical_plate_id(text) if text else None
+
+
 def _keyable(columns):
     """Whether rows with these columns carry enough to form their ``prcfo``."""
     columns = set(columns)
@@ -962,17 +985,40 @@ def _owned_png_list_columns(connection):
     return owned
 
 
+_UNMATCHED_SAMPLE = 3
+
+
+def _unmatched_sample(keys, matched):
+    """A few distinct keys of one side that met nothing on the other, in order."""
+    sample = []
+    for key, comparable in keys:
+        if comparable in matched or key is None or key in sample:
+            continue
+        sample.append(key)
+        if len(sample) == _UNMATCHED_SAMPLE:
+            break
+    return sample
+
+
 def _write_png_list_labels(path, labels, columns, source, definition, busy_timeout):
     """Write one database's labels into ``png_list`` by ``prcfo``.
 
-    Columns are added with :func:`spacr.qt.annotate_engine.ensure_annotation_column`,
-    the call Annotate opens a source with. Only rows whose value changes are
+    Rows are matched on :func:`_comparable_prcfo` of both sides, so a plate
+    stored as ``pplate1`` meets a table that reads it as ``plate1``. When no
+    row matches, nothing is written: no column is added and no receipt is
+    stored, and a few unmatched keys of each side are returned so the caller
+    can show why. Otherwise columns are added with
+    :func:`spacr.qt.annotate_engine.ensure_annotation_column`, the call
+    Annotate opens a source with, and only rows whose value changes are
     written, in one transaction that also records the receipt.
 
     :param path: the plate's measurement database.
-    :param labels: one row per ``prcfo`` with every output column.
-    :returns: ``objects`` written, ``labelled`` objects and objects with
-        ``no_png_list_row``.
+    :param labels: one row per comparable key (``__key``) with the table's
+        ``prcfo`` and every output column.
+    :returns: ``objects`` written, ``labelled`` objects, objects with
+        ``no_png_list_row``, ``png_list`` rows ``matched`` and ``updated``,
+        and ``unmatched``: up to three keys of the ``table`` and of
+        ``png_list`` that met nothing, filled only when nothing matched.
     :raises AnnotationError: when ``png_list`` already has an output column
         that no Graph Builder save wrote, so Annotate's labels are never
         overwritten.
@@ -985,13 +1031,27 @@ def _write_png_list_labels(path, labels, columns, source, definition, busy_timeo
     from .filters import rowid_expression
     from .qt.annotate_engine import ensure_annotation_column
 
+    wanted = set(labels["__key"])
+    unmatched = {"table": [], "png_list": []}
     try:
         reader = connect(path, readonly=True, timeout=busy_timeout)
         try:
             existing = [row[1] for row in reader.execute('PRAGMA table_info("png_list")')]
             owned = _owned_png_list_columns(reader)
+            stored_keys = [(value, _comparable_prcfo(value)) for (value,) in
+                           reader.execute('SELECT "prcfo" FROM "png_list"').fetchall()]
         finally:
             reader.close()
+        present = {comparable for _value, comparable in stored_keys if comparable is not None}
+        if not wanted & present:
+            unmatched = {
+                "table": _unmatched_sample(zip(labels["prcfo"].tolist(), labels["__key"].tolist()),
+                                           present),
+                "png_list": _unmatched_sample(
+                    ((None if value is None else str(value), comparable)
+                     for value, comparable in stored_keys), wanted)}
+            return {"objects": 0, "labelled": 0, "no_png_list_row": len(labels),
+                    "matched": 0, "updated": 0, "unmatched": unmatched}
         foreign = [column for column in columns if column in existing and column not in owned]
         if foreign:
             raise AnnotationError(
@@ -1009,12 +1069,16 @@ def _write_png_list_labels(path, labels, columns, source, definition, busy_timeo
                 stored = pd.DataFrame(
                     connection.execute(f'SELECT {rowid}, "prcfo", {selected} FROM "png_list"').fetchall(),
                     columns=["__row", "prcfo", *columns])
-                stored["prcfo"] = stored["prcfo"].astype(str)
-                joined = stored.merge(labels, on="prcfo", how="inner", suffixes=("", "__new"))
+                stored["__key"] = [_comparable_prcfo(value) for value in stored["prcfo"].tolist()]
+                stored = stored[stored["__key"].notna()]
+                joined = stored.drop(columns="prcfo").merge(
+                    labels.drop(columns="prcfo"), on="__key", how="inner", suffixes=("", "__new"))
+                updated = set()
                 for column in columns:
-                    changed = [(wanted, int(row)) for row, current, wanted in zip(
+                    changed = [(wanted_value, int(row)) for row, current, wanted_value in zip(
                         joined["__row"].tolist(), joined[column].tolist(), joined[column + "__new"].tolist())
-                        if not _same_label(current, wanted)]
+                        if not _same_label(current, wanted_value)]
+                    updated.update(row for _value, row in changed)
                     connection.executemany(
                         f'UPDATE "png_list" SET {_quote(column)} = ? WHERE {rowid} = ?', changed)
                 found = connection.execute(
@@ -1037,11 +1101,29 @@ def _write_png_list_labels(path, labels, columns, source, definition, busy_timeo
                 f"{path} is in use by another program, so the annotations were not written "
                 f"there. Close what is using it and save again.") from exc
         raise
-    matched = set(joined["prcfo"])
-    written = labels[labels["prcfo"].isin(matched)]
+    matched = set(joined["__key"])
+    written = labels[labels["__key"].isin(matched)]
     return {"objects": len(written),
             "labelled": int(written[list(columns)].notna().any(axis=1).sum()),
-            "no_png_list_row": len(labels) - len(written)}
+            "no_png_list_row": len(labels) - len(written),
+            "matched": len(joined), "updated": len(updated), "unmatched": unmatched}
+
+
+def _log_png_list_write(database, entry):
+    """Say on the console how many png_list rows one database matched and updated.
+
+    A database where nothing matched is a warning naming a few keys of each
+    side, because that is the case that otherwise looks like a save.
+    """
+    if entry["matched"]:
+        LOG.info("png_list in %s: %d rows matched the table, %d updated; %d table objects "
+                 "have no png_list row.", database, entry["matched"], entry["updated"],
+                 entry["no_png_list_row"])
+        return
+    LOG.warning("png_list in %s: 0 of %d table objects matched a png_list row by prcfo, so "
+                "nothing was written there. Table keys: %s. png_list keys: %s.", database,
+                entry["no_png_list_row"], ", ".join(entry["unmatched"]["table"]) or "none",
+                ", ".join(entry["unmatched"]["png_list"]) or "none (png_list is empty)")
 
 
 def save_annotations_to_png_list(frame, definition, source, *, roots=(), busy_timeout=None):
@@ -1060,15 +1142,23 @@ def save_annotations_to_png_list(frame, definition, source, *, roots=(), busy_ti
     ``roots`` or in the folders above the source file, matched by ``plateID``
     or by the ``source_database`` label of a merged frame.
 
+    Rows are matched on :func:`_comparable_prcfo`, so a plate stored as
+    ``pplate1`` by an older Measure run meets a merged table that reads it as
+    ``plate1``. Each database's matched and updated ``png_list`` rows are
+    logged; a database where nothing matched is logged as a warning with a
+    few keys of each side, and gets no new column.
+
     :param frame: working frame including every annotation output column.
     :param definition: the recipe the frame was labelled with.
     :param source: the annotated source, as :func:`source_context` gives it.
     :param roots: more folders to look in for plate folders.
     :param busy_timeout: seconds to wait for a database another program
         holds before reporting it as in use; None waits five seconds.
-    :returns: a report: ``columns``; ``databases``, per database written,
-        the ``objects`` written, ``labelled`` objects and objects with
-        ``no_png_list_row``; ``busy`` and ``refused``, per database not
+    :returns: a report: ``columns``; ``databases``, per database reached,
+        the ``objects`` written, ``labelled`` objects, objects with
+        ``no_png_list_row``, ``png_list`` rows ``matched`` and ``updated``,
+        and ``unmatched`` sample keys of the ``table`` and ``png_list`` when
+        nothing matched; ``busy`` and ``refused``, per database not
         written, the reason; ``no_key`` rows without an object key;
         ``no_database`` rows whose plate database was not found, of which
         ``unrouted_labels`` carry a label; and ``conflicting`` objects
@@ -1090,6 +1180,7 @@ def save_annotations_to_png_list(frame, definition, source, *, roots=(), busy_ti
             "This table has no prcfo column and no plate, row, column, field and object_label "
             "columns, so its rows cannot be matched to png_list.")
     labels = pd.DataFrame({"prcfo": keys})
+    labels["__key"] = [_comparable_prcfo(key) for key in keys]
     for column in columns:
         labels[column] = [_sql_value(value) for value in frame[column].tolist()]
     labels["__database"] = _plate_databases(frame, source, roots) if len(frame) else []
@@ -1102,14 +1193,15 @@ def save_annotations_to_png_list(frame, definition, source, *, roots=(), busy_ti
     report["unrouted_labels"] = int(unrouted[columns].notna().any(axis=1).sum())
     for database, rows in keyed[keyed["__database"].notna()].groupby("__database", sort=True):
         rows = rows.drop(columns="__database")
-        repeated = rows[rows["prcfo"].duplicated(keep=False)]
+        repeated = rows[rows["__key"].duplicated(keep=False)]
         if len(repeated):
             text = repeated[columns].astype(str)
-            report["conflicting"] += int((text.groupby(repeated["prcfo"]).nunique() > 1).any(axis=1).sum())
-        rows = rows.drop_duplicates(subset="prcfo", keep="first")
+            report["conflicting"] += int((text.groupby(repeated["__key"]).nunique() > 1).any(axis=1).sum())
+        rows = rows.drop_duplicates(subset="__key", keep="first")
         try:
-            report["databases"][database] = _write_png_list_labels(
-                database, rows, columns, source, definition, busy_timeout)
+            entry = _write_png_list_labels(database, rows, columns, source, definition, busy_timeout)
+            report["databases"][database] = entry
+            _log_png_list_write(database, entry)
         except DatabaseBusy as exc:
             report["busy"][database] = str(exc)
         except AnnotationError as exc:
