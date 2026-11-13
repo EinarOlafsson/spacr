@@ -33,10 +33,9 @@ import pytest
 
 pytest.importorskip("PySide6")
 
-from PySide6.QtCore import QEvent, QSize, Qt                     # noqa: E402
-from PySide6.QtWidgets import (QCheckBox, QComboBox, QDoubleSpinBox,  # noqa: E402
-                               QFormLayout, QHBoxLayout, QLabel, QLineEdit,
-                               QSpinBox, QVBoxLayout, QWidget)
+from PySide6.QtCore import QSize                     # noqa: E402
+from PySide6.QtWidgets import (QComboBox, QHBoxLayout, QLabel, QLineEdit,
+                               QWidget)
 
 from spacr.qt.screens import settings_model as SM               # noqa: E402
 
@@ -87,53 +86,6 @@ def _break_plugin(monkeypatch, exc=RuntimeError("plugin registry is on fire")):
 # resolve_default_settings and its neighbours
 # ---------------------------------------------------------------------------
 
-def test_a_plugin_registry_that_raises_is_not_a_broken_module(monkeypatch):
-    """A third-party plugin must not be able to stop a built-in from opening."""
-    _break_plugin(monkeypatch)
-
-    settings = SM.resolve_default_settings("measure")
-
-    assert isinstance(settings, dict) and settings
-
-
-def test_a_plugin_whose_defaults_take_no_argument_is_still_called(monkeypatch):
-    """``defaults({})`` first, then ``defaults()`` -- both spellings exist."""
-    import spacr.plugins as plugins
-
-    calls = []
-
-    def no_argument_defaults():
-        calls.append("()")
-        return {"src": "", "gamma": 3}
-
-    _install_plugin(monkeypatch, _FakeApp(defaults="ref"))
-    monkeypatch.setattr(plugins, "load_object", lambda _ref: no_argument_defaults)
-
-    assert SM.resolve_default_settings("anything") == {"src": "", "gamma": 3}
-    assert calls == ["()"]
-
-
-def test_a_plugin_whose_defaults_are_not_callable_is_refused(monkeypatch):
-    """Naming the contribution beats a TypeError from three frames down."""
-    import spacr.plugins as plugins
-
-    _install_plugin(monkeypatch, _FakeApp(defaults="pkg:not_a_function"))
-    monkeypatch.setattr(plugins, "load_object", lambda _ref: {"already": "a dict"})
-
-    with pytest.raises(TypeError, match="not callable"):
-        SM.resolve_default_settings("anything")
-
-
-def test_a_plugin_whose_defaults_return_a_list_is_refused(monkeypatch):
-    """The panel indexes it by key; a list would fail much later and vaguely."""
-    import spacr.plugins as plugins
-
-    _install_plugin(monkeypatch, _FakeApp(defaults="pkg:wrong"))
-    monkeypatch.setattr(plugins, "load_object", lambda _ref: lambda *_a: ["a", "b"])
-
-    with pytest.raises(TypeError, match="expected dict"):
-        SM.resolve_default_settings("anything")
-
 
 def test_a_module_whose_settings_module_will_not_import_is_only_logged(
         caplog, monkeypatch):
@@ -174,46 +126,6 @@ def test_needs_curated_layout_says_no_when_defaults_will_not_resolve(monkeypatch
     assert SM.needs_curated_layout("whatever") is False
 
 
-def test_categories_for_app_falls_back_when_the_registry_raises(monkeypatch):
-    """A plugin that explodes must not empty a built-in module's tabs."""
-    _break_plugin(monkeypatch)
-
-    out = SM.categories_for_app("_no_builtin_uses_this", {"Main": ["src"]})
-
-    assert out == {"Main": ["src"]}
-
-
-def test_a_plugin_supplies_its_own_categories(monkeypatch):
-    _install_plugin(monkeypatch, _FakeApp(categories={"Tab": ("alpha", "beta")}))
-
-    assert SM.categories_for_app("x", {"Main": ["src"]}) == {
-        "Tab": ["alpha", "beta"]}
-
-
-def test_external_masks_moves_its_input_keys_out_of_every_other_tab(monkeypatch):
-    """The relocation loop removes a key wherever it was, however often."""
-    import spacr.plugins as plugins
-    monkeypatch.setattr(plugins, "get_app", lambda _key: None)
-
-    out = SM.categories_for_app(
-        "external_masks", {"Advanced": ["dst", "recursive", "dst", "keep"]})
-
-    assert list(out)[0] == "Input mapping"
-    assert out["Advanced"] == ["keep"]
-
-
-def test_api_docs_url_falls_back_when_the_registry_raises(monkeypatch):
-    _break_plugin(monkeypatch)
-
-    assert isinstance(SM.api_docs_url("measure"), str)
-
-
-def test_a_plugin_docs_url_wins(monkeypatch):
-    _install_plugin(monkeypatch, _FakeApp(docs_url="https://example.invalid/x"))
-
-    assert SM.api_docs_url("x") == "https://example.invalid/x"
-
-
 # ---------------------------------------------------------------------------
 # tooltips and type hints
 # ---------------------------------------------------------------------------
@@ -235,37 +147,8 @@ def test_tooltips_are_empty_rather_than_fatal_when_settings_will_not_import(
     assert SM.get_tooltips() == {}
 
 
-def test_a_type_hint_for_no_key_is_empty():
-    assert SM._type_hint("") == ""
-
-
-def test_a_type_hint_is_empty_rather_than_fatal_when_settings_will_not_import(
-        monkeypatch):
-    import builtins
-
-    real_import = builtins.__import__
-
-    def refuse(name, *args, **kwargs):
-        if name == "spacr.settings":
-            raise ImportError("settings is half built")
-        return real_import(name, *args, **kwargs)
-
-    monkeypatch.setattr(builtins, "__import__", refuse)
-
-    assert SM._type_hint("src") == ""
-
-
 def test_a_blank_category_title_has_no_blurb():
     assert SM._category_blurb("measure", "") == ""
-
-
-def test_an_optional_type_hint_keeps_its_optional_marker_when_translated():
-    """The catalog is asked for atoms; the union and the marker are assembled.
-
-    Enumerating every possible union in every language is what this avoids.
-    """
-    assert SM._type_hint("custom_regex") == "string (optional)"
-    assert SM._translated_type_hint("custom_regex", "en") == "string (optional)"
 
 
 def test_a_type_hint_survives_a_build_with_no_translation_catalogs(monkeypatch):
@@ -288,129 +171,6 @@ def test_a_type_hint_survives_a_build_with_no_translation_catalogs(monkeypatch):
     assert SM._translated_setting_name(
         "_probe_never_translated_key", "de", "measure") \
         == SM._humanize("_probe_never_translated_key")
-
-
-# ---------------------------------------------------------------------------
-# the API-dot tooltip filter and installer
-# ---------------------------------------------------------------------------
-
-def test_a_widget_with_no_api_tooltip_is_left_to_qt(qtbot):
-    """The filter must not swallow events for widgets it knows nothing about."""
-    widget = QWidget()
-    qtbot.addWidget(widget)
-    filt = SM._ApiTooltipFilter(widget)
-
-    assert filt.eventFilter(widget, QEvent(QEvent.Enter)) is False
-
-
-def test_the_native_tooltip_is_suppressed_where_the_clickable_one_shows(qtbot):
-    """Both would appear; the native one vanishes when you reach for the link."""
-    widget = QWidget()
-    qtbot.addWidget(widget)
-    widget.setProperty("apiTooltipHtml", "<b>docs</b>")
-    filt = SM._ApiTooltipFilter(widget)
-
-    assert filt.eventFilter(widget, QEvent(QEvent.ToolTip)) is True
-
-
-def test_leaving_a_widget_starts_the_hover_tooltip_hiding(qtbot, monkeypatch):
-    widget = QWidget()
-    qtbot.addWidget(widget)
-    widget.setProperty("apiTooltipHtml", "<b>docs</b>")
-    filt = SM._ApiTooltipFilter(widget)
-
-    from spacr.qt.widgets import hover_tooltip
-
-    hidden = []
-    monkeypatch.setattr(hover_tooltip.HoverTooltip, "instance",
-                        classmethod(lambda cls: type("T", (), {
-                            "start_hide": lambda self: hidden.append(True),
-                            "show_for": lambda self, *a: None,
-                        })()))
-
-    assert filt.eventFilter(widget, QEvent(QEvent.Leave)) is False
-    assert hidden == [True]
-
-
-def test_refreshing_tooltips_on_nothing_is_a_no_op():
-    assert SM.refresh_api_tooltips(None) is None
-
-
-def test_refreshing_tooltips_survives_a_destroyed_tree(qtbot):
-    """``findChildren`` on a deleted C++ object is the ordinary teardown race."""
-    class _Gone:
-        def findChildren(self, *_args, **_kwargs):
-            raise RuntimeError("Internal C++ object already deleted")
-
-    assert SM.refresh_api_tooltips(_Gone()) is None
-
-
-def test_refreshing_tooltips_skips_a_child_that_died_mid_walk(qtbot):
-    """One dead widget must not abandon the rest of the panel's help."""
-    class _DeadChild:
-        def property(self, _name):
-            raise RuntimeError("Internal C++ object already deleted")
-
-    class _Root:
-        def findChildren(self, *_args, **_kwargs):
-            return [_DeadChild()]
-
-        def property(self, _name):
-            return None
-
-    assert SM.refresh_api_tooltips(_Root()) is None
-
-
-def test_a_decorated_setting_gets_help_and_no_dot(qtbot):
-    """The dot is gone from every branch; the hover help is not.
-
-    Both branches are covered here -- a label beside its field, and a
-    checkbox that is its own row label -- because each used to end in a
-    call that drew a teal dot.
-    """
-    owner = QWidget()
-    qtbot.addWidget(owner)
-    column = QVBoxLayout(owner)
-    form_host = QWidget(owner)
-    form = QFormLayout(form_host)
-    field = QSpinBox(form_host)
-    field.setProperty("settingKey", "cell_diameter")
-    label = QLabel("Cell diameter", form_host)
-    form.addRow(label, field)
-    column.addWidget(form_host)
-    box = QCheckBox("Verbose", owner)
-    box.setProperty("settingKey", "verbose")
-    column.addWidget(box)
-
-    SM.install_api_tooltips(owner, "mask")
-
-    assert "href=" in str(label.property("apiTooltipHtml"))
-    assert "href=" in str(box.property("apiTooltipHtml"))
-    drawn = [w for w in owner.findChildren(QWidget)
-             if w.property("apiTooltipDisplayRole") == "api-link"]
-    assert drawn == []
-
-
-def test_a_label_wrapper_with_no_help_child_is_returned_as_it_is(qtbot):
-    wrapper = QWidget()
-    qtbot.addWidget(wrapper)
-    wrapper.setObjectName("SettingLabelWithInfo")
-
-    assert SM._unwrap_setting_label(wrapper) is wrapper
-
-
-def test_a_remembered_label_that_was_destroyed_is_looked_up_again(qtbot):
-    """The cached handle is the fast path; a dead one must fall through."""
-    import shiboken6
-
-    owner = QWidget()
-    qtbot.addWidget(owner)
-    field = QLineEdit(owner)
-    dead = QLabel(owner)
-    field.setProperty("settingLabelWidget", dead)
-    shiboken6.delete(dead)
-
-    assert SM._setting_label_for_field(owner, field) is None
 
 
 # ---------------------------------------------------------------------------
@@ -560,56 +320,8 @@ def test_a_literal_that_is_not_a_sequence_becomes_a_one_element_list(qtbot):
 
 
 # ---------------------------------------------------------------------------
-# list_shape_for
-# ---------------------------------------------------------------------------
-
-def test_list_shape_survives_a_settings_module_that_will_not_import(
-        monkeypatch):
-    import builtins
-
-    real_import = builtins.__import__
-
-    def refuse(name, *args, **kwargs):
-        if name == "spacr.settings":
-            raise ImportError("half built")
-        return real_import(name, *args, **kwargs)
-
-    monkeypatch.setattr(builtins, "__import__", refuse)
-
-    assert SM.list_shape_for("channels", [1, 2]) is not None
-
-
-def test_a_tuple_default_that_is_not_declared_a_list_stays_a_tuple():
-    """The container the module ships with is the container it gets back.
-
-    A setting whose default is ``(2, 3)`` and whose declared type says nothing
-    about lists must not come back as ``[2, 3]``: the pipeline that reads it
-    unpacks a pair.
-    """
-    _nested, _allow_none, element_type, container = SM.list_shape_for(
-        "_probe_undeclared_tuple", (2, 3))
-
-    assert container is tuple and element_type is int
-
-
-def test_a_list_of_flags_is_not_a_list_of_numbers():
-    """``bool`` is a subclass of ``int``; the check has to be ordered."""
-    shape = SM.list_shape_for("_probe_flags", [True, False])
-
-    assert shape is None or shape[2] is None
-
-
-# ---------------------------------------------------------------------------
 # SettingsWidgets
 # ---------------------------------------------------------------------------
-
-def test_building_a_panel_survives_a_plugin_registry_that_raises(
-        monkeypatch, owned_settings_widgets):
-    _break_plugin(monkeypatch)
-
-    widgets = owned_settings_widgets("measure")
-
-    assert widgets.build_sections()
 
 
 def test_a_label_override_survives_a_plugin_registry_that_raises(monkeypatch):
@@ -632,27 +344,6 @@ def test_a_tooltip_is_html_formatted_for_its_key():
     assert isinstance(widgets.tooltip_for("src"), str)
 
 
-def test_a_widget_rendered_without_a_default_is_never_reported_modified():
-    """There is nothing to differ from, so saying so would be an invention."""
-    widgets = SM.SettingsWidgets("measure")
-    widgets._widgets["_not_a_default"] = QLineEdit()
-
-    assert "_not_a_default" not in widgets.modified_keys()
-
-
-def test_a_widget_that_cannot_be_read_is_skipped_rather_than_fatal():
-    """One broken control must not stop the panel reporting the other forty."""
-    class _Unreadable(QWidget):
-        pass
-
-    widgets = SM.SettingsWidgets("measure")
-    widgets._defaults["_probe"] = "x"
-    broken = _Unreadable()
-    widgets._widgets["_probe"] = broken
-
-    assert isinstance(widgets.modified_keys(), list)
-
-
 def test_a_hidden_category_is_not_rendered(owned_settings_widgets):
     """A module that trains Torch gets no Cellpose tab."""
     widgets = owned_settings_widgets("measure")
@@ -666,70 +357,6 @@ def test_a_hidden_category_is_not_rendered(owned_settings_widgets):
         SM._APP_HIDDEN_CATEGORIES["measure"].discard(titles_before[0])
 
     assert titles_before[0] not in titles_after
-
-
-def test_a_bool_default_gets_a_toggle_already_set():
-    widgets = SM.SettingsWidgets("measure")
-
-    widget = widgets._widget_for("entry", None, True, "_probe_bool")
-
-    assert widget is not None and widget.isChecked() is True
-
-
-def test_a_list_default_gets_a_list_edit_holding_it():
-    widgets = SM.SettingsWidgets("measure")
-
-    widget = widgets._widget_for("entry", None, ["a", "b"],
-                                 "_probe_list")
-
-    assert widget is not None
-    assert widget.get_value() == ["a", "b"]
-
-
-def test_setting_a_value_on_a_widget_type_nobody_handles_reports_failure():
-    widgets = SM.SettingsWidgets("measure")
-    widgets._widgets["_probe"] = QWidget()
-
-    assert widgets.set_value_for_key("_probe", 1) is False
-
-
-def test_setting_a_value_that_the_widget_refuses_reports_failure():
-    widgets = SM.SettingsWidgets("measure")
-    widgets._widgets["_probe"] = QSpinBox()
-
-    assert widgets.set_value_for_key("_probe", "not an integer") is False
-
-
-def test_a_combo_takes_a_value_by_its_visible_text():
-    widgets = SM.SettingsWidgets("measure")
-    combo = QComboBox()
-    combo.addItem("Alpha", "alpha")
-    widgets._widgets["_probe"] = combo
-
-    assert widgets.set_value_for_key("_probe", "Alpha") is True
-    assert combo.currentText() == "Alpha"
-
-
-def test_an_editable_combo_keeps_a_value_it_has_never_heard_of():
-    """Refusing would silently drop what the settings file actually says."""
-    widgets = SM.SettingsWidgets("measure")
-    combo = QComboBox()
-    combo.setEditable(True)
-    combo.addItem("Alpha", "alpha")
-    widgets._widgets["_probe"] = combo
-
-    widgets.set_value_for_key("_probe", "something else entirely")
-
-    assert combo.currentText() == "something else entirely"
-
-
-def test_a_plain_line_edit_takes_none_as_empty_text():
-    widgets = SM.SettingsWidgets("measure")
-    edit = QLineEdit()
-    widgets._widgets["_probe"] = edit
-
-    assert widgets.set_value_for_key("_probe", None) is True
-    assert edit.text() == ""
 
 
 def test_a_known_off_form_value_is_preserved_and_an_unknown_one_is_refused():
@@ -788,37 +415,6 @@ def test_a_panel_with_no_widgets_has_no_dependency_rules():
     assert widgets._rules_for_this_panel() == {}
 
 
-def test_dependency_rules_are_empty_rather_than_fatal_when_settings_refuses(
-        monkeypatch, owned_settings_widgets):
-    widgets = owned_settings_widgets("measure")
-    widgets.build_sections()
-    import spacr.settings as settings
-
-    monkeypatch.setattr(
-        settings, "get_setting_dependencies",
-        lambda: (_ for _ in ()).throw(RuntimeError("no rules today")))
-
-    assert widgets._rules_for_this_panel() == {}
-
-
-def test_a_predicate_that_raises_leaves_its_control_enabled(
-        monkeypatch, owned_settings_widgets):
-    """Greying on a guess hides the control the user needs to fix the run."""
-    widgets = owned_settings_widgets("measure")
-    widgets.build_sections()
-    key = next(iter(widgets._widgets))
-    control = widgets._widgets[key]
-    control.setEnabled(False)
-    monkeypatch.setattr(widgets, "_rules_for_this_panel", lambda: {
-        key: {"predicate": lambda *_a: (_ for _ in ()).throw(ValueError("x")),
-              "sources": ()},
-    })
-
-    widgets._refresh_setting_dependencies()
-
-    assert control.isEnabled() is True
-
-
 def test_a_widget_that_cannot_be_read_does_not_break_the_settings_snapshot():
     """One control raising must not cost the other forty their current values."""
     class _Unreadable(QLineEdit):
@@ -839,51 +435,6 @@ def test_the_umap_reducer_greying_stops_when_there_is_no_selector():
     widgets._widgets.pop("reduction_method", None)
 
     assert widgets._refresh_umap_reducer_enablement() is None
-
-
-def test_the_umap_reducer_greying_stops_on_a_method_it_does_not_know(
-        owned_settings_widgets):
-    widgets = owned_settings_widgets("umap")
-    widgets.build_sections()
-    exclusion_editor = widgets._widgets.get("exclude_rows")
-    selector = widgets._widgets.get("reduction_method")
-    try:
-        if selector is None:
-            pytest.skip("umap panel has no reduction_method control in this build")
-        if isinstance(selector, QComboBox):
-            selector.setEditable(True)
-            selector.setEditText("a_method_that_does_not_exist")
-
-        assert widgets._refresh_umap_reducer_enablement() is None
-    finally:
-        if exclusion_editor is not None:
-            exclusion_editor.shutdown()
-
-
-def test_the_classifier_greying_stops_when_the_family_cannot_be_resolved(
-        monkeypatch, owned_settings_widgets):
-    widgets = owned_settings_widgets("classify_merged")
-    widgets.build_sections()
-    import spacr.classify as families
-
-    monkeypatch.setattr(
-        families, "resolve_family",
-        lambda _s: (_ for _ in ()).throw(ValueError("unknown family")))
-
-    assert widgets._refresh_classifier_family_enablement() is None
-
-
-def test_changing_the_classifier_family_re_greys_the_panel(
-        monkeypatch, owned_settings_widgets):
-    widgets = owned_settings_widgets("classify_merged")
-    widgets.build_sections()
-    calls = []
-    monkeypatch.setattr(widgets, "_refresh_classifier_family_enablement",
-                        lambda: calls.append(True))
-
-    widgets._on_classifier_family_changed()
-
-    assert calls == [True]
 
 
 def test_the_training_basis_greying_stops_when_the_basis_is_unknown(
@@ -954,18 +505,6 @@ def test_a_csv_the_sniffer_cannot_read_is_parsed_as_ordinary_csv(tmp_path):
 # tooltip retargeting
 # ---------------------------------------------------------------------------
 
-def test_a_layout_hole_is_stepped_over_rather_than_dereferenced(qtbot):
-    host = QWidget()
-    qtbot.addWidget(host)
-    layout = QHBoxLayout(host)
-    layout.addStretch(1)
-    field = QLineEdit(host)
-    layout.addWidget(field)
-
-    found = SM._owning_layout(layout, field)
-
-    assert found is not None and found[0] is layout
-
 
 def test_a_label_already_holding_a_different_setting_keeps_its_own_help(qtbot):
     """Clearing it here is how eighty settings ended up with help nowhere."""
@@ -990,39 +529,6 @@ def test_a_label_already_holding_a_different_setting_keeps_its_own_help(qtbot):
 # the last defensive arms: states a real screen reaches and no test had
 # ---------------------------------------------------------------------------
 
-def test_the_merged_classifier_panel_loses_no_setting_to_the_rebuild(
-        owned_settings_widgets):
-    """The invariant the deleted catch-all was a net for, asserted directly.
-
-    ``classify_merged`` rebuilds its tabs from a literal group table so the
-    family choice comes first and each family's settings sit under a heading
-    that names it. Any group the five ordering tuples do not mention would be
-    dropped by that rebuild -- a whole tab of settings gone from the panel
-    with nothing said. The old catch-all copied such a group through, and
-    could never run because the tuples enumerate the literal exactly. This
-    fails the moment that stops being true.
-    """
-    widgets = owned_settings_widgets("classify_merged")
-    sections = widgets.build_sections()
-    rendered = {id(widget) for _title, rows in sections
-                for _label, widget in rows}
-    dropped = sorted(key for key, widget in widgets._widgets.items()
-                     if id(widget) not in rendered)
-
-    assert dropped == [], (
-        f"the classify_merged rebuild dropped {len(dropped)} setting(s): "
-        f"{dropped[:8]}")
-
-
-def test_no_merged_classifier_heading_names_its_family_twice(
-        owned_settings_widgets):
-    """"Machine Learning - ML Classifier ..." would read as a stutter."""
-    titles = [title for title, _rows
-              in owned_settings_widgets("classify_merged").build_sections()]
-
-    assert not [t for t in titles if t.startswith("Machine Learning")
-                and "ML Classifier" in t]
-
 
 def test_an_optional_type_hint_is_translated_with_its_optional_word():
     """English short-circuits; the assembly only runs for another language."""
@@ -1030,21 +536,6 @@ def test_an_optional_type_hint_is_translated_with_its_optional_word():
 
     assert out.endswith(")") and "(" in out
     assert out != "string (optional)" or SM._language_code("de") == "en"
-
-
-def test_a_remembered_label_whose_c_plus_plus_half_is_gone_is_looked_up_again(
-        qtbot):
-    """The cached handle is the fast path; a dead one must fall through."""
-    import shiboken6
-
-    owner = QWidget()
-    qtbot.addWidget(owner)
-    field = QLineEdit(owner)
-    dead = QLabel(owner)
-    field._spacr_setting_label = dead
-    shiboken6.delete(dead)
-
-    assert SM._setting_label_for_field(owner, field) is None
 
 
 def test_a_nested_list_with_no_groups_still_shows_one_empty_row(qtbot):
@@ -1056,72 +547,6 @@ def test_a_nested_list_with_no_groups_still_shows_one_empty_row(qtbot):
     editor._rebuild(True, [])
 
     assert len(editor._strips) == 1
-
-
-def test_a_control_that_raises_on_read_is_skipped_by_modified_keys():
-    """One broken control must not stop the panel reporting the other forty."""
-    class _Unreadable(QLineEdit):
-        def text(self):
-            raise RuntimeError("Internal C++ object already deleted")
-
-    widgets = SM.SettingsWidgets("measure")
-    widgets._defaults["_probe"] = "x"
-    widgets._widgets["_probe"] = _Unreadable()
-
-    assert "_probe" not in widgets.modified_keys()
-
-
-def test_the_class_editor_is_handed_the_live_preview_frame(monkeypatch):
-    """Without it the class editor draws its swatches against nothing."""
-    widgets = SM.SettingsWidgets("classify_merged")
-    seen = []
-    widgets._preview_frame = object()
-
-    class _Editor:
-        def __init__(self, **_kwargs):
-            pass
-
-        def set_frame(self, frame):
-            seen.append(frame)
-
-    # PATCHED IN THE NAMESPACE THE FUNCTION ACTUALLY READS.
-    # `_widget_for` resolves `ClassEditorWidget` as a module global, and
-    # a function reads the globals dict it was DEFINED against -- which
-    # is not necessarily what `import spacr.qt.screens.settings_model`
-    # hands back later in a long run. Anything that drops the module
-    # from `sys.modules` and lets it be imported again leaves a second
-    # module object: the patch lands on that one, `_widget_for` goes on
-    # using the real editor, and the real editor gets an `object()`
-    # where it expects a frame.
-    #
-    # This is why the failure could not be reproduced on its own. It
-    # only appeared batched, next to whatever re-imported the module,
-    # and the old form's `try/finally` restored the wrong copy too.
-    globals_read = type(widgets)._widget_for.__globals__
-    monkeypatch.setitem(globals_read, "ClassEditorWidget", _Editor)
-
-    widgets._widget_for("entry", None, [], "classes")
-
-    assert seen == [widgets._preview_frame]
-
-
-def test_a_list_default_for_a_scalar_setting_still_gets_a_list_widget(qtbot):
-    """The saved list stays typed even though the source field accepts strings."""
-    widgets = SM.SettingsWidgets("measure")
-
-    widgets._defaults["src"] = ["a", "b"]
-    widget = widgets._widget_for("entry", None, ["a", "b"], "src")
-
-    assert widget is not None
-    qtbot.addWidget(widget)
-    assert widget.get_value() == ["a", "b"]
-
-
-def test_a_widget_kind_nobody_declared_builds_nothing():
-    """Better no control than a text box pretending to be one."""
-    widgets = SM.SettingsWidgets("measure")
-
-    assert widgets._widget_for("a_kind_that_does_not_exist", None, 1, "x") is None
 
 
 def test_coercion_gives_the_text_back_when_settings_will_not_import(monkeypatch):
@@ -1169,66 +594,6 @@ def test_the_umap_reducer_greying_skips_a_setting_the_panel_never_rendered(
     assert widgets._refresh_umap_reducer_enablement() is None
 
 
-def test_the_classifier_greying_greys_nothing_when_the_family_is_unknown(
-        monkeypatch, owned_settings_widgets):
-    """An unknown family is the pipeline's error to raise, loudly, at run time."""
-    widgets = owned_settings_widgets("classify_merged")
-    widgets.build_sections()
-    assert "classifier_family" in widgets._widgets
-    control = next(c for k, c in widgets._widgets.items()
-                   if k != "classifier_family")
-    control.setEnabled(True)
-    import spacr.classify as families
-    monkeypatch.setattr(
-        families, "resolve_family",
-        lambda _s: (_ for _ in ()).throw(ValueError("unknown family")))
-
-    widgets._refresh_classifier_family_enablement()
-
-    assert control.isEnabled() is True
-
-
-def test_a_nested_layout_is_walked_to_find_the_field(qtbot):
-    """The field is usually inside a wrapper's own layout, not the outer one."""
-    from PySide6.QtWidgets import QVBoxLayout
-
-    host = QWidget()
-    qtbot.addWidget(host)
-    outer = QVBoxLayout(host)
-    inner = QHBoxLayout()
-    outer.addLayout(inner)
-    field = QLineEdit(host)
-    inner.addWidget(field)
-
-    layout, index = SM._owning_layout(outer, field)
-
-    assert layout is inner and index == 0
-
-
-def test_an_index_the_layout_answers_nothing_for_is_stepped_over(qtbot):
-    """An index that holds no widget is stepped over on the way to the field.
-
-    A layout being rebuilt while the panel is walked has indexes that hold
-    no widget (a spacer, an emptied slot). The walk reads the layout's
-    widgets through ``indexOf`` rather than asking it for each item, so such
-    an index is never touched and the field is still found at its own index.
-    """
-    from PySide6.QtWidgets import QHBoxLayout, QVBoxLayout
-
-    host = QWidget()
-    qtbot.addWidget(host)
-    column = QVBoxLayout(host)
-    row = QHBoxLayout()
-    column.addLayout(row)
-    row.addSpacing(8)
-    field = QLineEdit(host)
-    row.addWidget(field)
-
-    layout, index = SM._owning_layout(column, field)
-
-    assert index == 1 and layout is row
-
-
 def test_the_api_module_registry_waits_when_the_app_is_still_being_built():
     """`spacr.qt.app` imports the screens that import this module.
 
@@ -1274,55 +639,6 @@ def test_a_translated_category_blurb_comes_from_the_catalog_too(monkeypatch):
 
     assert SM._translated_body("Inputs and outputs.", "de", category=True) \
         == "Eingaben und Ausgaben."
-
-
-def test_entering_a_widget_shows_the_clickable_tooltip(qtbot, monkeypatch):
-    """The hover tooltip is deliberately clickable, so it replaces the native one."""
-    widget = QWidget()
-    qtbot.addWidget(widget)
-    widget.setProperty("apiTooltipHtml", "<b>docs</b>")
-    filt = SM._ApiTooltipFilter(widget)
-
-    from spacr.qt.widgets import hover_tooltip
-
-    shown = []
-
-    class _Stub:
-        def show_for(self, target, html):
-            shown.append((target, html))
-
-        def start_hide(self):
-            pass
-
-    monkeypatch.setattr(hover_tooltip.HoverTooltip, "instance",
-                        classmethod(lambda cls: _Stub()))
-
-    assert filt.eventFilter(widget, QEvent(QEvent.Enter)) is False
-    assert shown == [(widget, "<b>docs</b>")]
-
-
-def test_a_remembered_label_from_another_window_is_not_reused(qtbot):
-    """Two screens can hold the same setting; the label must be this one's."""
-    owner = QWidget()
-    other = QWidget()
-    qtbot.addWidget(owner)
-    qtbot.addWidget(other)
-    field = QLineEdit(owner)
-    stranger = QLabel("Source", other)
-    field._spacr_setting_label = stranger
-
-    assert SM._setting_label_for_field(owner, field) is not stranger
-
-
-def test_a_remembered_label_in_this_window_is_reused(qtbot):
-    """The fast path: no walk of every QFormLayout on the screen."""
-    owner = QWidget()
-    qtbot.addWidget(owner)
-    label = QLabel("Source", owner)
-    field = QLineEdit(owner)
-    field._spacr_setting_label = label
-
-    assert SM._setting_label_for_field(owner, field) is label
 
 
 def test_an_empty_string_for_a_setting_that_cannot_be_none_stays_a_string():

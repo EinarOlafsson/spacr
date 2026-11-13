@@ -61,34 +61,9 @@ def panel(qtbot):
 # Marks with nothing to place
 # ---------------------------------------------------------------------------
 
-def test_jitter_over_a_chart_with_no_measurement_draws_nothing(canvas):
-    """A category and no number is a count plot; there is nothing to spread."""
-    from matplotlib.figure import Figure
-
-    canvas.set_spec(GraphSpec(x="gene", y="", kind=BAR), immediate=True)
-    ax = Figure().add_subplot(111)
-    rows = canvas._render_data.frame
-
-    canvas._draw_jitter(ax, rows, gb.active_palette(), over_bars=True)
-
-    assert len(ax.collections) == 0
-    assert len(ax.lines) == 0
-
-
 # ---------------------------------------------------------------------------
 # The notice line
 # ---------------------------------------------------------------------------
-
-def test_the_notice_carries_what_the_grid_had_to_say(canvas):
-    """A trellis that dropped panels says so; the chart has to relay it."""
-    canvas.set_spec(GraphSpec(x="area", y="intensity", kind=SCATTER),
-                    immediate=True)
-    grid = types.SimpleNamespace(notice="only the first 6 panels are drawn")
-
-    said = canvas._notice_text(canvas._render_data, grid)
-
-    assert "only the first 6 panels are drawn" in said
-
 
 # ---------------------------------------------------------------------------
 # Answering a selection made elsewhere

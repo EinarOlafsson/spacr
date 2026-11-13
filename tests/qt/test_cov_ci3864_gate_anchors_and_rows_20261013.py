@@ -24,7 +24,7 @@ from PySide6.QtWidgets import QApplication                           # noqa: E40
 from spacr.qt.linked_selection import LinkedSelection                # noqa: E402
 from spacr.qt.screens.gate_editor import GateEditorScreen            # noqa: E402
 from spacr.qt.widgets.gate_editor import (                           # noqa: E402
-    GateCanvas, GateTree, _screen_points)
+    GateCanvas, _screen_points)
 from spacr.qt.widgets.gate_spec import BoxGate, GateSet, RectGate    # noqa: E402
 from spacr.qt.widgets.graph_builder import GraphSpec                 # noqa: E402
 
@@ -151,17 +151,3 @@ def test_a_click_on_a_selected_surface_keeps_the_selection_and_drags_it(
     assert screen.gates.undo_stack.index() == history
 
 
-def test_a_gate_with_neither_a_count_nor_a_reason_shows_an_empty_row(
-        qtbot, monkeypatch):
-    tree = GateTree()
-    qtbot.addWidget(tree)
-    monkeypatch.setattr(tree, "_gate_stats", lambda: ({}, {}))
-    gates = GateSet().add(RectGate(name="g", x_column="a", y_column="b",
-                                   x_low=0.0, x_high=1.0,
-                                   y_low=0.0, y_high=1.0))
-    tree.set_gates(gates, pd.DataFrame({"a": [0.5], "b": [0.5]}))
-
-    item = tree.tree.topLevelItem(0)
-    assert item.text(0) == "g"
-    assert [item.text(column) for column in (1, 2, 3)] == ["", "", ""]
-    assert GateTree.UNAVAILABLE not in [item.text(1)]

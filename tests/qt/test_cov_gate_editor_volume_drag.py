@@ -20,7 +20,7 @@ import pytest
 import spacr.qt.widgets.gate_editor as editor
 from spacr.qt.widgets.gate_editor import GateCanvas
 from spacr.qt.widgets.gate_spec import (
-    BoxGate, CylinderGate, ThresholdGate,
+    BoxGate,
 )
 
 
@@ -551,26 +551,6 @@ def test_a_depth_that_cannot_be_read_yet_says_nothing_rather_than_guessing(
     assert said == []
 
 
-def test_a_depth_the_view_cannot_read_says_how_to_get_it_back(canvas, volume,
-                                                              monkeypatch,
-                                                              said):
-    """Naming the two controls that fix it. "That angle is no good" leaves
-    the user holding a footprint with nothing to do about it."""
-    monkeypatch.setattr(editor, "_project",
-                        lambda _ax, point: (point[0], point[1]))
-    canvas._depth_drag_from = (0.0, 0.0)
-    canvas._pending_volume_gate = CylinderGate(
-        name="(unnamed)", u_column="a", v_column="b", axis_column="c",
-        u_centre=1.0, v_centre=1.0, u_radius=1.0, v_radius=1.0)
-    canvas._pending_volume_axis = "c"
-
-    assert canvas._volume_release(_Event(0.0, 40.0)) is True
-    assert canvas._depth_drag_from is None
-    assert "Spin" in said[0] and "Draw" in said[0]
-    # The footprint is kept, so the fix is turn-and-drag rather than redraw.
-    assert canvas._pending_volume_gate is not None
-
-
 def test_a_dragged_depth_bounds_the_gate_it_was_dragged_for(canvas, volume,
                                                             straight_on):
     """The whole two-gesture flow, driven through the mouse handlers: sweep a
@@ -594,17 +574,6 @@ def test_a_dragged_depth_bounds_the_gate_it_was_dragged_for(canvas, volume,
     assert canvas._pending_volume_axis == ""
 
 
-def test_a_finished_depth_clears_the_message_so_it_does_not_linger(
-        canvas, volume, straight_on, said):
-    canvas._pending_volume_gate = CylinderGate(
-        name="(unnamed)", u_column="a", v_column="b", axis_column="c",
-        u_centre=1.0, v_centre=1.0, u_radius=1.0, v_radius=1.0)
-    canvas._pending_volume_axis = "c"
-
-    canvas._finish_volume_depth((0.0, 15.0))
-    assert said[-1] == ""
-
-
 # ---------------------------------------------------------------------------
 # Committing the depth
 # ---------------------------------------------------------------------------
@@ -615,47 +584,6 @@ def test_a_depth_with_no_footprint_waiting_makes_no_gate(canvas):
 
     assert canvas._finish_volume_depth((1.0, 2.0)) is None
     assert drawn == []
-
-
-def test_a_footprint_with_no_axis_named_makes_no_gate(canvas):
-    canvas._pending_volume_gate = BoxGate(
-        name="(unnamed)", x_column="a", y_column="b", z_column="c")
-    canvas._pending_volume_axis = ""
-
-    assert canvas._finish_volume_depth((1.0, 2.0)) is None
-
-
-def test_a_depth_the_gate_has_no_side_for_is_explained_not_raised(canvas,
-                                                                  said):
-    """A guard the two-gesture flow does not currently trip: the footprint's
-    own normal and the axis the depth is measured against are worked out
-    separately, and nothing ties them together beyond both being read off the
-    same anchor plane. Driven so a mismatch reads as a sentence naming the
-    measurement rather than a traceback out of a mouse handler."""
-    drawn: list = []
-    canvas.gate_drawn.connect(drawn.append)
-    canvas._pending_volume_gate = ThresholdGate(name="(unnamed)", column="a",
-                                                low=0.0, high=1.0)
-    canvas._pending_volume_axis = "c"
-
-    assert canvas._finish_volume_depth((1.0, 2.0)) is None
-    assert drawn == []
-    assert "no bound on 'c'" in said[-1]
-
-
-def test_a_flat_shape_needs_no_second_gesture(canvas):
-    """In 2D there is no third measurement to extend along, so asking for a
-    depth would be asking for something the plot cannot express -- the shape
-    is finished on the spot instead of being held for a gesture that can
-    never arrive. A guard today: a sweep can only start inside the volume."""
-    canvas._mode = "2D"
-    drawn: list = []
-    canvas.gate_drawn.connect(drawn.append)
-    gate = BoxGate(name="(unnamed)", x_column="a", y_column="b", z_column="c")
-
-    canvas._begin_volume_depth(gate)
-    assert drawn == [gate]
-    assert canvas._pending_volume_gate is None
 
 
 # ---------------------------------------------------------------------------

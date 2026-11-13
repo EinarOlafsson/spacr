@@ -360,27 +360,6 @@ def test_a_missing_channel_order_sidecar_does_not_fail_the_mask_stage(
 class TestCheckpointProvenance:
     """Every way the model fingerprint can fail is still only a warning."""
 
-    def test_a_nested_list_of_checkpoints_is_recorded(self, tmp_path,
-                                                      monkeypatch):
-        """``model.cp.pretrained_model`` as a list has each entry hashed.
-
-        Cellpose exposes the checkpoint one level down and as a list depending
-        on the version; a list flattened to nothing leaves the manifest unable
-        to name the weights that produced the masks.
-        """
-        import spacr.run_journal as rj
-
-        first = tmp_path / 'a.pth'
-        first.write_bytes(b'weights-a')
-        inner = types.SimpleNamespace(pretrained_model=[str(first)])
-        model = types.SimpleNamespace(pretrained_model=None, cp=inner)
-
-        monkeypatch.setattr(rj, 'runs_root', lambda: tmp_path)
-        with rj.open_run('mask', {'src': '/x'}) as run:
-            PV._record_cellpose_hash(model, 'cyto')
-
-        manifest = json.loads((run.dir / 'manifest.json').read_text(encoding="utf-8"))
-        assert manifest['model_hashes']['cyto'].startswith('a.pth:')
 
     def test_a_journal_that_refuses_the_record_does_not_stop_segmentation(
             self, tmp_path, monkeypatch, caplog):

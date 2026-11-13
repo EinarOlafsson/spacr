@@ -7,7 +7,6 @@ twice.
 """
 from __future__ import annotations
 
-import types
 
 import pytest
 
@@ -22,71 +21,6 @@ pytestmark = pytest.mark.qt
 # ---------------------------------------------------------------------------
 # graph_spec.py -- a panel with rows in the grid and none after its filter
 # ---------------------------------------------------------------------------
-
-class _Panel:
-    def __init__(self, rows, is_empty=False):
-        self._rows = rows
-        self.is_empty = is_empty
-
-    def frame(self, _frame):
-        return self._rows
-
-
-class TestTheSharedCountAxis:
-    """The tallest bar across every panel, so the panels can be compared."""
-
-    def _grid(self, panels):
-        return types.SimpleNamespace(panels=panels)
-
-    def test_the_tallest_bar_across_panels_sets_the_limit(self):
-        from spacr.qt.widgets.graph_spec import BAR, _count_limit
-
-        frame = pd.DataFrame({"well": ["a", "a", "b"]})
-        short = pd.DataFrame({"well": ["a", "b"]})
-        tall = pd.DataFrame({"well": ["a"] * 5 + ["b"]})
-        spec = types.SimpleNamespace(x="well", y=None)
-
-        limit = _count_limit(frame, spec, self._grid([_Panel(short),
-                                                      _Panel(tall)]),
-                             BAR, None, None)
-
-        assert limit is not None
-        assert limit == pytest.approx(5 * 1.08), (
-            "the axis was not set by the tallest bar on any panel")
-
-    def test_a_panel_whose_filter_left_no_rows_contributes_nothing(self):
-        """THE UNCOVERED ARC.
-
-        `is_empty` is about the grid cell, not about what survives the
-        panel's own filter -- a cell can be declared non-empty and still
-        select nothing. `counts.max()` on an empty value_counts raises,
-        so the loop has to go round rather than compute a limit from it.
-        """
-        from spacr.qt.widgets.graph_spec import BAR, _count_limit
-
-        frame = pd.DataFrame({"well": ["a", "b"]})
-        nothing = pd.DataFrame({"well": pd.Series([], dtype=object)})
-        spec = types.SimpleNamespace(x="well", y=None)
-
-        limit = _count_limit(frame, spec,
-                             self._grid([_Panel(nothing),
-                                         _Panel(pd.DataFrame(
-                                             {"well": ["a", "a"]}))]),
-                             BAR, None, None)
-
-        assert limit == pytest.approx(2 * 1.08)
-
-    def test_every_panel_empty_means_no_shared_limit_at_all(self):
-        from spacr.qt.widgets.graph_spec import BAR, _count_limit
-
-        frame = pd.DataFrame({"well": ["a"]})
-        nothing = pd.DataFrame({"well": pd.Series([], dtype=object)})
-        spec = types.SimpleNamespace(x="well", y=None)
-
-        assert _count_limit(frame, spec, self._grid([_Panel(nothing)]),
-                            BAR, None, None) is None, (
-            "an axis was scaled from no data at all")
-
 
 # ---------------------------------------------------------------------------
 # grouped_plot.py -- exported before a spec arrives

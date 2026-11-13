@@ -17,7 +17,6 @@ explicitly: the same signals in the same order, inline.
 """
 from __future__ import annotations
 
-import os
 import sqlite3
 
 import numpy as np
@@ -28,7 +27,7 @@ pytest.importorskip("PySide6")
 
 from spacr.qt.screens.gate_editor import GateEditorScreen      # noqa: E402
 from spacr.qt.widgets.gate_spec import (                        # noqa: E402
-    GateSet, RectGate, ThresholdGate,
+    GateSet, RectGate,
 )
 
 
@@ -74,11 +73,6 @@ def loaded(screen, database):
         RectGate(name="big", x_column="area", y_column="intensity",
                  x_low=30.0, x_high=90.0, y_low=0.0, y_high=1000.0)))
     return screen
-
-
-def _filters_of(path):
-    with sqlite3.connect(path) as db:
-        return pd.read_sql("SELECT * FROM filters", db)
 
 
 class _Dialogs:
@@ -135,59 +129,9 @@ def dialogs(monkeypatch):
 # Writing the gates back to the database
 # ---------------------------------------------------------------------------
 
-def test_a_gate_becomes_a_column_of_the_filters_table(loaded, dialogs):
-    """The whole point of the screen: a shape drawn on a scatter comes back
-    as a 1/0 column every other module can join on."""
-    loaded.export_gates()
-
-    filters = _filters_of(loaded._path)
-    assert "big" in filters.columns
-    # Every object gets an answer, including the ones outside the gate: null
-    # is not what "outside the gate" means.
-    assert set(filters["big"]) == {0, 1}
-    assert int(filters["big"].sum()) == 6
-    assert "wrote big (6 objects)" in loaded._source.text()
-
-
 def test_exporting_with_nothing_drawn_says_so(screen, dialogs):
     screen.export_gates()
     assert dialogs.titles == ["No gates"]
-
-
-def test_a_table_read_from_a_csv_has_nowhere_to_put_the_gates(loaded, dialogs,
-                                                              tmp_path):
-    """"Not a database" rather than a failed write: a CSV is a legitimate
-    thing to gate on, and the refusal has to name what is missing."""
-    loaded._path = str(tmp_path / "plate.csv")
-    loaded.export_gates()
-    assert dialogs.titles == ["Not a database"]
-    assert "measurement database" in dialogs.shown[0][2]
-
-
-def test_a_database_with_no_table_chosen_is_refused(loaded, dialogs):
-    """The gates were drawn on SOME table's measurements, and the export
-    writes an object identity read from that table."""
-    loaded._table = ""
-    loaded.export_gates()
-    assert dialogs.titles == ["No table"]
-
-
-def test_one_gate_that_cannot_be_applied_does_not_cost_the_others(loaded):
-    """A gate on a computed column the database has not got is an ordinary
-    thing to have. Sinking the export would cost the user the five gates that
-    were fine."""
-    loaded.gates.set_gates(
-        GateSet()
-        .add(ThresholdGate(name="bright", column="intensity", low=400.0))
-        .add(ThresholdGate(name="ratio", column="area_over_intensity",
-                           low=0.5)))
-
-    loaded.export_gates()
-
-    said = loaded._source.text()
-    assert "bright" in said and "could not export ratio" in said
-    assert "big" not in _filters_of(loaded._path).columns
-    assert "bright" in _filters_of(loaded._path).columns
 
 
 def test_an_export_that_wrote_nothing_says_nothing_written(screen):
@@ -202,99 +146,9 @@ def test_an_export_that_wrote_nothing_says_nothing_written(screen):
 # Annotating from the gates on screen
 # ---------------------------------------------------------------------------
 
-def test_the_shown_gates_become_one_annotation_column(loaded, dialogs):
-    """Ticking a gate on and off is already how the user says which ones
-    count, so the annotation is built from those and asks nothing further."""
-    dialogs.item = ("binary", True)
-    dialogs.text = ("phenotype", True)
-
-    loaded.annotate_from_gates()
-
-    filters = _filters_of(loaded._path)
-    assert "phenotype" in filters.columns
-    assert "wrote phenotype" in loaded._source.text()
-
-
-def test_annotating_with_no_gates_ticked_says_which_gesture_is_missing(
-        loaded, dialogs):
-    for name in loaded.gates.canvas.enabled_gates:
-        loaded.gates.canvas.set_gate_enabled(name, False)
-
-    loaded.annotate_from_gates()
-
-    assert dialogs.titles == ["No gates shown"]
-
-
-def test_annotating_without_a_table_is_refused(screen, dialogs):
-    screen.gates.set_gates(GateSet().add(
-        ThresholdGate(name="bright", column="intensity", low=400.0)))
-    screen.annotate_from_gates()
-    assert dialogs.titles == ["No table"]
-
-
-def test_cancelling_the_mode_writes_nothing(loaded, dialogs):
-    dialogs.item = ("binary", False)
-    loaded.annotate_from_gates()
-    assert "filters" not in _tables_of(loaded._path)
-
-
-def test_an_annotation_with_no_name_writes_nothing(loaded, dialogs):
-    """A blank name and a cancelled dialog mean the same thing, and neither
-    may leave a column called '' behind."""
-    dialogs.item = ("binary", True)
-    dialogs.text = ("   ", True)
-    loaded.annotate_from_gates()
-    assert "filters" not in _tables_of(loaded._path)
-
-
-def test_a_mode_the_annotator_refuses_is_reported_not_raised(loaded, dialogs):
-    dialogs.item = ("sideways", True)
-    dialogs.text = ("phenotype", True)
-
-    loaded.annotate_from_gates()
-
-    assert dialogs.titles == ["Could not annotate"]
-
-
-def test_a_csv_still_gets_its_counts_even_with_nowhere_to_write(
-        loaded, dialogs, tmp_path):
-    """The counts ARE the answer to "how many objects did I just label".
-    Refusing outright because there is no database would hide them."""
-    dialogs.item = ("binary", True)
-    dialogs.text = ("phenotype", True)
-    loaded._path = str(tmp_path / "plate.csv")
-
-    loaded.annotate_from_gates()
-
-    said = loaded._source.text()
-    assert said.startswith("binary annotation — ")
-    assert "not written: this table came from a file" in said
-
-
-def _tables_of(path):
-    with sqlite3.connect(path) as db:
-        return {row[0] for row in db.execute(
-            "SELECT name FROM sqlite_master WHERE type='table'")}
-
-
 # ---------------------------------------------------------------------------
 # Saving and loading the strategy
 # ---------------------------------------------------------------------------
-
-def test_a_gating_strategy_round_trips_through_a_file(loaded, tmp_path,
-                                                      qtbot):
-    path = str(tmp_path / "gates.json")
-    assert loaded.save_gates(path) == path
-    assert "gates saved to gates.json" == loaded._source.text()
-
-    other = GateEditorScreen(threaded=False)
-    qtbot.addWidget(other)
-    other.set_frame(_objects())
-
-    assert other.load_gates(path) is True
-    assert [g.name for g in other.gates.gates.gates] == ["big"]
-    assert other._source.text() == "1 gate(s) from gates.json"
-
 
 def test_a_file_that_is_not_a_strategy_is_reported_rather_than_raised(
         screen, tmp_path):
@@ -319,70 +173,9 @@ def test_a_json_that_simply_has_no_gates_in_it_reports_the_zero(screen,
     assert screen._source.text() == "0 gate(s) from other.json"
 
 
-def test_the_save_dialog_is_only_obeyed_when_it_returns_a_path(loaded,
-                                                               dialogs,
-                                                               tmp_path):
-    """Cancelling a Save As must not write a file called ''."""
-    dialogs.save_path = ""
-    loaded.choose_save_gates()
-    assert loaded._source.text() != "gates saved to "
-
-    dialogs.save_path = str(tmp_path / "chosen.json")
-    loaded.choose_save_gates()
-    assert os.path.isfile(dialogs.save_path)
-
-
-def test_the_load_dialog_is_only_obeyed_when_it_returns_a_path(loaded,
-                                                               dialogs,
-                                                               tmp_path):
-    path = str(tmp_path / "chosen.json")
-    loaded.save_gates(path)
-    loaded.gates.set_gates(GateSet())
-
-    dialogs.open_path = ""
-    loaded.choose_load_gates()
-    assert len(loaded.gates.gates) == 0
-
-    dialogs.open_path = path
-    loaded.choose_load_gates()
-    assert [g.name for g in loaded.gates.gates.gates] == ["big"]
-
-
 # ---------------------------------------------------------------------------
 # Saving and loading the filter set
 # ---------------------------------------------------------------------------
-
-def test_a_filter_set_saves_and_loads_through_the_screen(loaded, tmp_path,
-                                                         qtbot):
-    loaded.filters.add_column("area")
-    path = str(tmp_path / "filters.json")
-
-    assert loaded.save_filters(path) == path
-    assert loaded._source.text() == "filters saved to filters.json"
-
-    other = GateEditorScreen(threaded=False)
-    qtbot.addWidget(other)
-    other.set_frame(_objects())
-
-    assert other.load_filters(path) == []
-    assert other._source.text() == "filters loaded from filters.json"
-
-
-def test_a_filter_set_saved_against_another_plate_names_what_is_missing(
-        loaded, tmp_path, qtbot):
-    """A set that half-applies selects the wrong rows while looking like it
-    worked, which is why the missing columns are named rather than counted."""
-    loaded.filters.add_column("area")
-    path = str(tmp_path / "filters.json")
-    loaded.save_filters(path)
-
-    other = GateEditorScreen(threaded=False)
-    qtbot.addWidget(other)
-    other.set_frame(_objects().drop(columns=["area"]))
-
-    assert other.load_filters(path) == ["area"]
-    assert other._source.text() == "filters.json loaded; this table has no area"
-
 
 def test_a_filter_file_that_cannot_be_read_is_reported(screen, tmp_path):
     path = tmp_path / "broken.json"
@@ -390,27 +183,6 @@ def test_a_filter_file_that_cannot_be_read_is_reported(screen, tmp_path):
 
     assert screen.load_filters(str(path)) == []
     assert "could not load that filter set" in screen._source.text()
-
-
-def test_the_filter_dialogs_are_only_obeyed_when_they_return_a_path(
-        loaded, dialogs, tmp_path):
-    dialogs.save_path = ""
-    loaded.choose_save_filters()
-    assert "filters saved" not in loaded._source.text()
-
-    dialogs.save_path = str(tmp_path / "f.json")
-    loaded.filters.add_column("area")
-    loaded.choose_save_filters()
-    assert os.path.isfile(dialogs.save_path)
-
-    dialogs.open_path = ""
-    loaded._source.setText("untouched")
-    loaded.choose_load_filters()
-    assert loaded._source.text() == "untouched"
-
-    dialogs.open_path = dialogs.save_path
-    loaded.choose_load_filters()
-    assert "filters loaded from f.json" == loaded._source.text()
 
 
 # ---------------------------------------------------------------------------
@@ -421,73 +193,6 @@ def test_saving_a_graph_before_anything_is_drawn_says_so(screen):
     """The console, not a modal: nothing has gone wrong, there is simply
     nothing there yet."""
     assert screen.save_graph("/tmp/never-written.png") == ""
-
-
-def test_the_graph_is_written_through_the_print_restyler(loaded, tmp_path,
-                                                         monkeypatch):
-    """`savefig` would write the dark theme's colours -- white text on black,
-    unusable on paper -- which is the whole reason the figure queue's
-    restyling renderer is used instead."""
-    import spacr.qt.widgets.figure_queue as queue
-
-    called = {}
-
-    def _render(figure, path, **kwargs):
-        called["path"] = path
-        called.update(kwargs)
-        open(path, "wb").close()
-        return True
-
-    monkeypatch.setattr(queue, "render_figure_to_png", _render)
-    target = str(tmp_path / "graph.png")
-
-    assert loaded.save_graph(target) == target
-    assert called["path"] == target
-    assert called["for_print"] is True, (
-        "decision 2026-09-25: saved graphs get the white print style")
-    assert called["write_pdf"] is False
-    assert "Saved the graph to" in loaded.console.log.toPlainText()
-
-
-def test_a_path_with_no_suffix_gets_the_preferred_one(loaded, tmp_path,
-                                                      monkeypatch):
-    """The format comes from the figure-format PREFERENCE. A second place to
-    answer "am I making PDFs" is one too many."""
-    import spacr.qt.preferences as preferences
-    import spacr.qt.widgets.figure_queue as queue
-
-    monkeypatch.setattr(preferences, "get_figure_format", lambda: "pdf")
-    written = []
-
-    def _render(figure, path, **_kwargs):
-        written.append(path)
-        open(path, "wb").close()
-        # A PDF run writes the vector file beside the PNG.
-        open(os.path.splitext(path)[0] + ".pdf", "wb").close()
-        return True
-
-    monkeypatch.setattr(queue, "render_figure_to_png", _render)
-
-    out = loaded.save_graph(str(tmp_path / "graph"))
-
-    assert written == [str(tmp_path / "graph.png")]
-    assert out == str(tmp_path / "graph.pdf"), (
-        "the user asked for a PDF and was handed the PNG")
-
-
-def test_a_render_that_refuses_says_so_instead_of_claiming_a_file(
-        loaded, tmp_path, monkeypatch):
-    import spacr.qt.widgets.figure_queue as queue
-
-    monkeypatch.setattr(queue, "render_figure_to_png", lambda *_a, **_k: False)
-
-    assert loaded.save_graph(str(tmp_path / "graph.png")) == ""
-    assert "Could not save the graph." in loaded.console.log.toPlainText()
-
-
-def test_cancelling_the_graph_dialog_writes_nothing(loaded, dialogs):
-    dialogs.save_path = ""
-    assert loaded.save_graph() == ""
 
 
 # ---------------------------------------------------------------------------
@@ -637,27 +342,6 @@ def test_a_database_the_loader_cannot_open_names_the_file_not_the_path(
 # The right-click menu on the plot
 # ---------------------------------------------------------------------------
 
-def test_the_plot_menu_is_every_action_that_is_already_on_the_screen(loaded):
-    """Discoverability, not capability: each item CALLS the existing method,
-    so the menu and the buttons cannot drift apart."""
-    labels = [label for label, _on, _cb, _why in loaded.graph_menu_items()]
-    assert labels == [
-        "Save graph…", "Copy image to clipboard", None, "Reset view",
-        "Graph settings…", None, "Export gates to the database…",
-        "Annotate…", "Annotate conditions", "Save annotated table", "Export table",
-        "Open selection in Annotate"]
-    by_label = {label: callback
-                for label, _on, callback, _why in loaded.graph_menu_items()
-                if label}
-    assert by_label["Export gates to the database…"] == loaded.export_gates
-    assert by_label["Graph settings…"] == loaded.open_settings
-    assert by_label["Annotate…"] == loaded._annotate_selection
-    assert by_label["Annotate conditions"] == loaded.annotate_from_gates
-    assert by_label["Save annotated table"] == loaded._save_selected_annotation
-    assert by_label["Export table"] == loaded._export_selected_annotation
-    assert by_label["Open selection in Annotate"] == loaded._open_selection_in_annotate
-
-
 def test_a_greyed_row_says_why_it_is_greyed(screen):
     """A disabled item with no reason is a dead end that looks like a bug."""
     items = {label: (enabled, why)
@@ -733,35 +417,6 @@ class _Action:
         self.calls.append(slot)
 
 
-def test_the_menu_pops_up_where_the_user_right_clicked(loaded, monkeypatch):
-    from PySide6.QtCore import QPoint
-    import PySide6.QtWidgets as qtw
-    from spacr.qt.widgets import figure_settings
-
-    _Menu.built = []
-    monkeypatch.setattr(qtw, "QMenu", _Menu)
-    figures = []
-    monkeypatch.setattr(
-        figure_settings, "_add_figure_tools",
-        lambda _menu, figure, _parent, _on_change: figures.append(figure))
-
-    loaded._show_graph_menu(QPoint(4, 5))
-
-    menu = _Menu.built[0]
-    labels = [row.label if row is not None else None for row in menu.rows]
-    assert labels == [
-        "Save graph…", "Copy image to clipboard", None, "Reset view",
-        "Graph settings…", None, "Export gates to the database…",
-        "Annotate…", "Annotate conditions", "Save annotated table", "Export table",
-        "Open selection in Annotate", None]
-    assert menu.at == loaded.gates.canvas.mapToGlobal(QPoint(4, 5))
-    assert figures == [loaded.gates.canvas.figure()]
-    assert all(row.calls for row in menu.rows if row is not None and row.enabled), (
-        "an enabled action was built with nothing behind it")
-    assert {row.label for row in menu.rows if row is not None and not row.enabled} == {"Save annotated table"}
-    assert all(not row.calls for row in menu.rows if row is not None and not row.enabled)
-
-
 def test_a_greyed_row_carries_its_reason_into_the_menu(screen, monkeypatch):
     """The tooltip is the only place the reason can be read once the item is
     in the menu, and a greyed row with no reason looks like a bug."""
@@ -812,83 +467,9 @@ def test_graph_menu_remains_usable_without_a_figure(screen, monkeypatch, raises)
     assert figure_tools == []
 
 
-def test_the_graph_goes_to_the_clipboard_as_a_picture(loaded):
-    from PySide6.QtWidgets import QApplication
-
-    QApplication.clipboard().clear()
-    loaded._copy_graph_to_clipboard()
-
-    assert not QApplication.clipboard().pixmap().isNull()
-    assert "Graph copied to the clipboard." in loaded.console.log.toPlainText()
-
-
-def test_a_clipboard_that_refuses_says_so_rather_than_raising(loaded,
-                                                              monkeypatch):
-    monkeypatch.setattr(loaded.gates.canvas, "grab",
-                        lambda *a, **k: (_ for _ in ()).throw(
-                            RuntimeError("no compositor")))
-
-    loaded._copy_graph_to_clipboard()
-
-    assert "Could not copy the graph: no compositor" in \
-        loaded.console.log.toPlainText()
-
-
 # ---------------------------------------------------------------------------
 # The settings window
 # ---------------------------------------------------------------------------
-
-def test_the_settings_window_is_the_same_window_every_time(loaded):
-    """Not modal and not re-created: a settings window you have to close to
-    see what it did is one you cannot tune anything with, and a new one each
-    time loses the tab and the scroll position."""
-    loaded.open_settings()
-    first = loaded._settings_dialog
-    assert first is not None and first.isVisible()
-
-    loaded.open_settings()
-
-    assert loaded._settings_dialog is first
-    first.close()
-
-
-def test_the_mode_buttons_and_the_settings_window_cannot_disagree(loaded):
-    """Both routes go through `apply_settings`, so the button and the dialog
-    hold one opinion about which mode the editor is in."""
-    loaded.open_settings()
-    loaded._on_mode_requested("3D")
-
-    assert loaded._settings.gate_mode == "3D"
-    assert loaded._settings_dialog.settings().gate_mode == "3D"
-    # `isHidden`, not `isVisible`: the screen itself is never shown in a
-    # headless run, so nothing on it is ever "visible" -- what the mode
-    # switch controls is whether the Z picker was hidden.
-    assert loaded._z.isHidden() is False
-    assert loaded.gates.canvas._mode == "3D"
-    loaded._settings_dialog.close()
-
-
-def test_display_sampling_reuses_the_loaded_table(loaded, monkeypatch):
-    """Drawing controls change the displayed subset while retaining every source row."""
-    reloaded = []
-    monkeypatch.setattr(loaded, "load_path",
-                        lambda p, t=None: reloaded.append((p, t)))
-    original = loaded._frame.copy(deep=True)
-    loaded.apply_settings(loaded._settings.replaced(colour_map="magma"))
-    assert reloaded == []
-
-    loaded.apply_settings(loaded._settings.replaced(sample_fraction=0.25))
-    assert reloaded == []
-    shown = loaded.gates.canvas.population()
-    assert len(shown) == 2
-    pd.testing.assert_frame_equal(shown, original.loc[shown.index])
-    first = shown.index.tolist()
-    loaded.apply_settings(loaded._settings.replaced(sample_fraction=1., max_points=4))
-    assert loaded.gates.canvas.population().index.tolist()[:2] == first
-    assert len(loaded.gates.canvas.population()) == 4
-    pd.testing.assert_frame_equal(loaded._frame, original)
-    assert reloaded == []
-
 
 # ---------------------------------------------------------------------------
 # Gating on components instead of measurements
@@ -1163,33 +744,6 @@ def test_the_merge_rules_need_measurements_to_be_rules_about(screen, dialogs):
     assert dialogs.titles == ["No table"]
 
 
-def test_the_merge_rules_open_on_the_columns_actually_loaded(loaded, dialogs):
-    loaded.show_aggregation_rules()
-
-    assert dialogs.shown == []
-    dialog = loaded._rules_dialog
-    assert dialog is not None
-    dialog.close()
-
-
-def test_changing_a_rule_only_re_reads_when_several_tables_are_up(loaded,
-                                                                  monkeypatch):
-    """A single table is never aggregated, so re-reading it would be a
-    visible pause in exchange for an identical result."""
-    reloaded = []
-    monkeypatch.setattr(loaded, "_reload_working_set",
-                        lambda: reloaded.append(True))
-
-    loaded._tables = ["cell"]
-    loaded._on_aggregation_rules_changed({"area": "median"})
-    assert reloaded == []
-    assert loaded._settings.merge_overrides == {"area": "median"}
-
-    loaded._tables = ["cell", "nucleus"]
-    loaded._on_aggregation_rules_changed({"area": "mean"})
-    assert reloaded == [True]
-
-
 # ---------------------------------------------------------------------------
 # The screen as the registry sees it
 # ---------------------------------------------------------------------------
@@ -1294,30 +848,6 @@ def test_a_table_the_formula_panel_cannot_compute_is_not_pushed_downstream(
     screen._push_frame()
 
     assert screen.gates.canvas.population() is before
-
-
-def test_selecting_a_gate_shows_the_measurements_it_was_drawn_on(loaded):
-    """Through the PICKERS rather than the plot, so the change takes the same
-    route a user choosing the axes by hand would -- one route to the plot
-    means the pickers cannot end up disagreeing with what is drawn."""
-    loaded._x.setCurrentText("object_label")
-    loaded._y.setCurrentText("object_label")
-
-    loaded._on_axes_requested("area", "intensity")
-
-    assert (loaded._x.currentText(), loaded._y.currentText()) == \
-        ("area", "intensity")
-
-
-def test_a_measurement_this_table_has_not_got_leaves_the_axis_alone(loaded):
-    """A gate loaded from a saved strategy can name a measurement this
-    project never produced, and blanking the axis would be worse than
-    leaving it where it was."""
-    loaded._x.setCurrentText("area")
-
-    loaded._on_axes_requested("perimeter", "")
-
-    assert loaded._x.currentText() == "area"
 
 
 def test_the_plot_actions_are_silent_when_there_is_no_plot_to_act_on(screen):

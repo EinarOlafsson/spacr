@@ -25,6 +25,7 @@ Two genuine defects, now fixed, are regression-tested here:
 """
 from __future__ import annotations
 
+import inspect
 import os
 import sqlite3
 
@@ -172,6 +173,7 @@ def _case_plot_data_draws_delta_column_against_time():
     assert line.get_label() == "Infected"
     assert line.get_marker() == "x"
     assert line.get_linestyle() == "--"
+    return (line.get_xdata().tolist(), line.get_ydata().tolist(), line.get_label(), line.get_marker(), line.get_linestyle())
 
 
 def _case_plot_data_defaults_are_circle_marker_solid_line():
@@ -183,14 +185,16 @@ def _case_plot_data_defaults_are_circle_marker_solid_line():
 
     assert ax.lines[0].get_marker() == "o"
     assert ax.lines[0].get_linestyle() == "-"
+    return (ax.lines[0].get_marker(), ax.lines[0].get_linestyle())
 
 
 def _case_plot_data_raises_when_delta_column_absent():
     from spacr.timelapse import plot_data
 
     fig, ax = plt.subplots()
-    with pytest.raises(KeyError):
+    with pytest.raises(KeyError) as err:
         plot_data("missing", pd.DataFrame({"time": [0, 1]}), ax, "lbl")
+    return (type(err.value).__name__, err.value.args[0])
 
 
 # ---------------------------------------------------------------------------
@@ -215,7 +219,7 @@ def _result_frame_for_split():
     return pd.DataFrame(recs)
 
 
-def test_infected_vs_noninfected_splits_tracks_across_two_axes():
+def _case_infected_vs_noninfected_splits_tracks_across_two_axes():
     from spacr.timelapse import infected_vs_noninfected
 
     df = _result_frame_for_split()
@@ -237,9 +241,10 @@ def test_infected_vs_noninfected_splits_tracks_across_two_axes():
     assert axs[1].lines[0].get_marker() == "o"
     np.testing.assert_allclose(axs[1].lines[0].get_ydata(),
                                [0.0, 0.1, 0.2, 0.30000000000000004])
+    return (len(axs), [len(a.lines) for a in axs], [a.get_title() for a in axs], [a.lines[0].get_marker() for a in axs])
 
 
-def test_infected_vs_noninfected_all_uninfected_leaves_top_axis_empty():
+def _case_infected_vs_noninfected_all_uninfected_leaves_top_axis_empty():
     from spacr.timelapse import infected_vs_noninfected
 
     df = _result_frame_for_split()
@@ -249,6 +254,7 @@ def test_infected_vs_noninfected_all_uninfected_leaves_top_axis_empty():
     axs = plt.gcf().axes
     assert len(axs[0].lines) == 0
     assert len(axs[1].lines) == 3
+    return [len(a.lines) for a in axs]
 
 
 # ---------------------------------------------------------------------------
@@ -273,6 +279,7 @@ def _case_summarize_per_well_counts_peaks_and_averages_numeric_columns():
     np.testing.assert_allclose(out["amplitude"], [0.6, 0.3])
     np.testing.assert_allclose(out["AUC"], [1.0, 3.0])
     np.testing.assert_allclose(out["time"], [6.0, 6.0])
+    return {"well_ID": list(out["well_ID"]), "peaks": list(out["peaks_per_well"]), "uniq": list(out["unique_IDs_with_amplitude"]), "cells": list(out["cells_per_well"]), "per_cell": out["peaks_per_cell"].tolist(), "amplitude": out["amplitude"].tolist(), "AUC": out["AUC"].tolist(), "time": out["time"].tolist()}
 
 
 def _case_summarize_per_well_explodes_ID_into_identifier_columns():
@@ -295,6 +302,7 @@ def _case_summarize_per_well_explodes_ID_into_identifier_columns():
     assert list(df["fieldID"].unique()) == ["f1"]
     assert list(df["object_number"]) == ["o1", "o1", "o2", "o3"]
     assert list(df["well_ID"]) == ["A_01", "A_01", "A_01", "B_02"]
+    return {c: list(df[c]) for c in ("rowID", "columnID", "object_number", "well_ID")}
 
 
 def _case_summarize_per_well_all_null_amplitudes_gives_empty_summary():
@@ -306,6 +314,7 @@ def _case_summarize_per_well_all_null_amplitudes_gives_empty_summary():
 
     assert {"peaks_per_well", "cells_per_well", "peaks_per_cell"} <= set(out.columns)
     assert len(out) == 0
+    return len(out)
 
 
 def _case_summarize_per_well_cells_per_well_is_keyed_by_well():
@@ -326,6 +335,7 @@ def _case_summarize_per_well_cells_per_well_is_keyed_by_well():
     # B_02 really has three distinct cells, each contributing one peak.
     assert list(out["cells_per_well"]) == [3]
     np.testing.assert_allclose(out["peaks_per_cell"], [1.0])
+    return (list(out["well_ID"]), list(out["cells_per_well"]), out["peaks_per_cell"].tolist())
 
 
 # ---------------------------------------------------------------------------
@@ -347,6 +357,7 @@ def _case_summarize_per_well_inf_non_inf_splits_rows_by_infection_status():
     np.testing.assert_allclose(out["peaks_per_cell"], [2.0, 1.0, 1.0])
     np.testing.assert_allclose(out["amplitude"], [0.6, np.nan, 0.3])
     np.testing.assert_allclose(out["infected"], [2.0, 0.0, 0.0])
+    return (list(zip(out["well_ID"], out["infected_status"])), list(out["peaks_per_well"]), list(out["cells_per_well"]), out["peaks_per_cell"].tolist())
 
 
 def _case_summarize_per_well_inf_non_inf_treats_nan_infected_as_uninfected():
@@ -361,6 +372,7 @@ def _case_summarize_per_well_inf_non_inf_treats_nan_infected_as_uninfected():
     # Row 0 moved from 'infected' to 'non_infected'.
     assert statuses["A_01|infected"] == 1
     assert statuses["A_01|non_infected"] == 2
+    return (statuses["A_01|infected"], statuses["A_01|non_infected"])
 
 
 def _case_summarize_per_well_inf_non_inf_all_infected_yields_one_row_per_well():
@@ -374,6 +386,7 @@ def _case_summarize_per_well_inf_non_inf_all_infected_yields_one_row_per_well():
     assert list(out["well_ID"]) == ["A_01", "B_02"]
     assert list(out["cells_per_well"]) == [2, 1]
     np.testing.assert_allclose(out["peaks_per_cell"], [1.5, 1.0])
+    return (set(out["infected_status"]), list(out["well_ID"]), list(out["cells_per_well"]), out["peaks_per_cell"].tolist())
 
 
 # ---------------------------------------------------------------------------
@@ -407,6 +420,7 @@ def _case_preprocess_pathogen_data_counts_parasites_and_renames_cell_id():
     assert t1_host7["note"] == "a"
     assert bool(t1_host7["is_edge"]) is True
     assert out[out["object_label"] == 9].iloc[0]["parasite_count"] == 1
+    return (sorted(out["object_label"]), t1_host7["parasite_count"], t1_host7["pathogen_area"], t1_host7["note"], "cell_id" in out.columns)
 
 
 # ---------------------------------------------------------------------------
@@ -482,6 +496,7 @@ def _case_analyze_calcium_oscillations_full_run(tmp_path, capsys):
     assert "Removed 1 objects due to transience" in printed
     assert "Average number of peaks per infected cell: 2.00" in printed
     assert "Average number of peaks per non-infected cell: 1.00" in printed
+    return {"kept": sorted(kept), "n_rows": len(result_df), "obj1_times": list(obj1["time"]), "obj3_times": list(obj3["time"]), "obj2_rows": len(obj2), "files": sorted(p.name for p in results.iterdir()), "wells": sorted(well["well_ID"]), "n_lines": len(fig.axes[0].lines), "printed_peaks": [ln for ln in printed.splitlines() if ln.startswith("Average number of peaks")]}
 
 
 def _case_analyze_calcium_oscillations_without_optional_tables(tmp_path):
@@ -497,6 +512,7 @@ def _case_analyze_calcium_oscillations_without_optional_tables(tmp_path):
     # figure_2 is only written on the pathogen-plot branch, which also ran
     assert (tmp_path / "results" / "figure_2.pdf").is_file()
     assert len(peak_details_df) == 4
+    return ("cytoplasm_area" in result_df.columns, len(peak_details_df))
 
 
 def _case_analyze_calcium_oscillations_num_lines_subsamples_the_plot(tmp_path):
@@ -515,6 +531,7 @@ def _case_analyze_calcium_oscillations_num_lines_subsamples_the_plot(tmp_path):
     assert result_df["plate_row_column_field_object"].nunique() == 3
     # ... but only one is drawn on the summary axis
     assert len(fig.axes[0].lines) == 1
+    return (result_df["plate_row_column_field_object"].nunique(), len(fig.axes[0].lines))
 
 
 def _case_analyze_calcium_oscillations_num_lines_above_track_count_plots_all(tmp_path):
@@ -524,6 +541,7 @@ def _case_analyze_calcium_oscillations_num_lines_above_track_count_plots_all(tmp
     _, _, fig = analyze_calcium_oscillations(db, pathogen="pathogen",
                                              num_lines=99)
     assert len(fig.axes[0].lines) == 3
+    return len(fig.axes[0].lines)
 
 
 def _case_analyze_calcium_oscillations_keeps_transient_tracks_when_disabled(tmp_path):
@@ -538,6 +556,7 @@ def _case_analyze_calcium_oscillations_keeps_transient_tracks_when_disabled(tmp_
     assert f"{PLATE}_r1_{COLUMN}_{FIELD}_o5" in kept
     assert len(kept) == 4
     assert set(peak_details_df["ID"]) == kept
+    return (len(kept), f"{PLATE}_r1_{COLUMN}_{FIELD}_o5" in kept)
 
 
 def _case_analyze_calcium_oscillations_loose_size_filter_keeps_wobbly_cell(tmp_path):
@@ -549,6 +568,7 @@ def _case_analyze_calcium_oscillations_loose_size_filter_keeps_wobbly_cell(tmp_p
 
     assert f"{PLATE}_r2_{COLUMN}_{FIELD}_o4" in set(
         result_df["plate_row_column_field_object"].unique())
+    return f"{PLATE}_r2_{COLUMN}_{FIELD}_o4" in set(result_df["plate_row_column_field_object"].unique())
 
 
 def _case_analyze_calcium_oscillations_high_peak_height_finds_no_peaks(tmp_path):
@@ -563,6 +583,7 @@ def _case_analyze_calcium_oscillations_high_peak_height_finds_no_peaks(tmp_path)
     assert peak_details_df["amplitude"].isna().all()
     assert peak_details_df["AUC_peak"].isna().all()
     assert list(peak_details_df["infected"]) == [1, 0, 0]
+    return (len(peak_details_df), int(peak_details_df["amplitude"].isna().sum()), int(peak_details_df["AUC_peak"].isna().sum()), list(peak_details_df["infected"]))
 
 
 # ---------------------------------------------------------------------------
@@ -580,9 +601,12 @@ def _case_analyze_calcium_oscillations_curve_fit_failure_returns_none(tmp_path,
     monkeypatch.setattr(TL, "curve_fit", _boom)
     db = _build_calcium_db(tmp_path)
 
-    assert TL.analyze_calcium_oscillations(db, pathogen="pathogen") is None
-    assert "Curve fitting failed for the entire dataset" in capsys.readouterr().out
+    result = TL.analyze_calcium_oscillations(db, pathogen="pathogen")
+    printed = capsys.readouterr().out
+    assert result is None
+    assert "Curve fitting failed for the entire dataset" in printed
     assert not (tmp_path / "results").exists()
+    return (result, "Curve fitting failed for the entire dataset" in printed, (tmp_path / "results").exists())
 
 
 def _case_analyze_calcium_oscillations_no_suitable_cells_returns_none(tmp_path,
@@ -591,13 +615,15 @@ def _case_analyze_calcium_oscillations_no_suitable_cells_returns_none(tmp_path,
 
     db = _build_calcium_db(tmp_path)
     # A negative fluctuation threshold can never be satisfied by std/mean.
-    assert analyze_calcium_oscillations(
-        db, pathogen="pathogen", fluctuation_threshold=-1.0, verbose=True) is None
+    result = analyze_calcium_oscillations(
+        db, pathogen="pathogen", fluctuation_threshold=-1.0, verbose=True)
+    assert result is None
 
     printed = capsys.readouterr().out
     assert "No suitable cells found for analysis" in printed
     assert "Removed 4 objects due to size filter fluctuation" in printed
     assert not (tmp_path / "results").exists()
+    return (result, "No suitable cells found for analysis" in printed, "Removed 4 objects due to size filter fluctuation" in printed, (tmp_path / "results").exists())
 
 
 def _case_analyze_calcium_oscillations_everything_transient_returns_none(tmp_path,
@@ -606,26 +632,31 @@ def _case_analyze_calcium_oscillations_everything_transient_returns_none(tmp_pat
 
     db = _build_calcium_db(tmp_path)
     # threshold == total timepoints -> len(group) <= threshold for every track
-    assert analyze_calcium_oscillations(
-        db, pathogen="pathogen", transience_threshold=1.0) is None
-    assert "No suitable cells found for analysis" in capsys.readouterr().out
+    result = analyze_calcium_oscillations(
+        db, pathogen="pathogen", transience_threshold=1.0)
+    printed = capsys.readouterr().out
+    assert result is None
+    assert "No suitable cells found for analysis" in printed
+    return (result, "No suitable cells found for analysis" in printed)
 
 
 def _case_analyze_calcium_oscillations_missing_measurement_column(tmp_path):
     from spacr.timelapse import analyze_calcium_oscillations
 
     db = _build_calcium_db(tmp_path)
-    with pytest.raises(KeyError):
+    with pytest.raises(KeyError) as err:
         analyze_calcium_oscillations(db, measurement="not_a_column",
                                      pathogen="pathogen")
+    return (type(err.value).__name__, err.value.args[0])
 
 
 def _case_analyze_calcium_oscillations_missing_db_raises(tmp_path):
     from spacr.timelapse import analyze_calcium_oscillations
 
     # sqlite3.connect happily creates an empty file; the cell table read fails.
-    with pytest.raises(pd.errors.DatabaseError):
+    with pytest.raises(pd.errors.DatabaseError) as err:
         analyze_calcium_oscillations(str(tmp_path / "nope.db"))
+    return type(err.value).__name__
 
 
 def _case_analyze_calcium_oscillations_without_pathogen_table(tmp_path):
@@ -638,6 +669,7 @@ def _case_analyze_calcium_oscillations_without_pathogen_table(tmp_path):
     result_df, peak_details_df, _ = out
     assert result_df["plate_row_column_field_object"].nunique() == 3
     assert (peak_details_df["infected"] == 0).all()
+    return (result_df["plate_row_column_field_object"].nunique(), bool((peak_details_df["infected"] == 0).all()))
 
 
 def _case_a_cytoplasm_row_written_twice_is_caught_not_absorbed(tmp_path):
@@ -670,43 +702,86 @@ def _case_a_cytoplasm_row_written_twice_is_caught_not_absorbed(tmp_path):
     grown = cell.merge(doubled, on=keys, how="left", suffixes=("", "_cy"))
     assert len(grown) == len(cell) + 1
 
-    with pytest.raises(MergeError):
+    with pytest.raises(MergeError) as err:
         analyze_calcium_oscillations(db, cytoplasm="cytoplasm")
+    return (type(err.value).__name__, len(grown) - len(cell))
 
 
-def test_timelapse_calcium_cases(request, subtests, capsys):
-    """Case table: 25 cases of the module-level cases run as sub-tests."""
-    from tests.case_table import run_cases
+# ---------------------------------------------------------------------------
+# parametrised entry points: one test per contract, one row per scenario
+# ---------------------------------------------------------------------------
 
-    ran = run_cases(
-        request,
-        subtests,
-        [
-        _case_plot_data_draws_delta_column_against_time,
-        _case_plot_data_defaults_are_circle_marker_solid_line,
-        _case_plot_data_raises_when_delta_column_absent,
-        _case_summarize_per_well_counts_peaks_and_averages_numeric_columns,
-        _case_summarize_per_well_explodes_ID_into_identifier_columns,
-        _case_summarize_per_well_all_null_amplitudes_gives_empty_summary,
-        _case_summarize_per_well_cells_per_well_is_keyed_by_well,
-        _case_summarize_per_well_inf_non_inf_splits_rows_by_infection_status,
-        _case_summarize_per_well_inf_non_inf_treats_nan_infected_as_uninfected,
-        _case_summarize_per_well_inf_non_inf_all_infected_yields_one_row_per_well,
-        _case_preprocess_pathogen_data_counts_parasites_and_renames_cell_id,
-        _case_analyze_calcium_oscillations_full_run,
-        _case_analyze_calcium_oscillations_without_optional_tables,
-        _case_analyze_calcium_oscillations_num_lines_subsamples_the_plot,
-        _case_analyze_calcium_oscillations_num_lines_above_track_count_plots_all,
-        _case_analyze_calcium_oscillations_keeps_transient_tracks_when_disabled,
-        _case_analyze_calcium_oscillations_loose_size_filter_keeps_wobbly_cell,
-        _case_analyze_calcium_oscillations_high_peak_height_finds_no_peaks,
-        _case_analyze_calcium_oscillations_curve_fit_failure_returns_none,
-        _case_analyze_calcium_oscillations_no_suitable_cells_returns_none,
-        _case_analyze_calcium_oscillations_everything_transient_returns_none,
-        _case_analyze_calcium_oscillations_missing_measurement_column,
-        _case_analyze_calcium_oscillations_missing_db_raises,
-        _case_analyze_calcium_oscillations_without_pathogen_table,
-        _case_a_cytoplasm_row_written_twice_is_caught_not_absorbed,
-        ],
-    )
-    assert ran >= 25
+def _call_case(case, **fixtures):
+    wanted = inspect.signature(case).parameters
+    return case(**{k: v for k, v in fixtures.items() if k in wanted})
+
+
+_plots_draw_delta_traces_split_by_infection_CASES = [
+    pytest.param(_case_plot_data_draws_delta_column_against_time, ([1, 2, 3, 4], [0.0, 0.2, -0.1, 0.4], "Infected", "x", "--"), id="plot-data-draws-delta-column-against-time"),
+    pytest.param(_case_plot_data_defaults_are_circle_marker_solid_line, ("o", "-"), id="plot-data-defaults-are-circle-marker-solid-line"),
+    pytest.param(_case_plot_data_raises_when_delta_column_absent, ("KeyError", "delta_missing"), id="plot-data-raises-when-delta-column-absent"),
+    pytest.param(_case_infected_vs_noninfected_splits_tracks_across_two_axes, (2, [2, 1], ["Cells Infected at Some Time", "Cells Never Infected"], ["x", "o"]), id="infected-vs-noninfected-splits-tracks-across-two-axes"),
+    pytest.param(_case_infected_vs_noninfected_all_uninfected_leaves_top_axis_empty, [0, 3], id="infected-vs-noninfected-all-uninfected-leaves-top-axis-empty"),
+]
+
+
+@pytest.mark.parametrize("case, expected", _plots_draw_delta_traces_split_by_infection_CASES)
+def test_plots_draw_delta_traces_split_by_infection(case, expected, tmp_path, monkeypatch, capsys):
+    """plot_data draws delta against time; infected_vs_noninfected splits tracks across two axes."""
+    observed = _call_case(case, tmp_path=tmp_path, monkeypatch=monkeypatch, capsys=capsys)
+    assert observed == expected
+
+
+_summaries_count_peaks_and_cells_per_well_CASES = [
+    pytest.param(_case_summarize_per_well_counts_peaks_and_averages_numeric_columns, {"well_ID": ["A_01", "B_02"], "peaks": [2, 1], "uniq": [1, 1], "cells": [2, 1], "per_cell": [1.0, 1.0], "amplitude": [pytest.approx(0.6), 0.3], "AUC": [1.0, 3.0], "time": [6.0, 6.0]}, id="summarize-per-well-counts-peaks-and-averages-numeric-columns"),
+    pytest.param(_case_summarize_per_well_explodes_ID_into_identifier_columns, {"rowID": ["A", "A", "A", "B"], "columnID": ["01", "01", "01", "02"], "object_number": ["o1", "o1", "o2", "o3"], "well_ID": ["A_01", "A_01", "A_01", "B_02"]}, id="summarize-per-well-explodes-ID-into-identifier-columns"),
+    pytest.param(_case_summarize_per_well_all_null_amplitudes_gives_empty_summary, 0, id="summarize-per-well-all-null-amplitudes-gives-empty-summary"),
+    pytest.param(_case_summarize_per_well_cells_per_well_is_keyed_by_well, (["B_02"], [3], [1.0]), id="summarize-per-well-cells-per-well-is-keyed-by-well"),
+    pytest.param(_case_summarize_per_well_inf_non_inf_splits_rows_by_infection_status, ([("A_01", "infected"), ("A_01", "non_infected"), ("B_02", "non_infected")], [2, 1, 1], [1, 1, 1], [2.0, 1.0, 1.0]), id="summarize-per-well-inf-non-inf-splits-rows-by-infection-status"),
+    pytest.param(_case_summarize_per_well_inf_non_inf_treats_nan_infected_as_uninfected, (1, 2), id="summarize-per-well-inf-non-inf-treats-nan-infected-as-uninfected"),
+    pytest.param(_case_summarize_per_well_inf_non_inf_all_infected_yields_one_row_per_well, ({"infected"}, ["A_01", "B_02"], [2, 1], [1.5, 1.0]), id="summarize-per-well-inf-non-inf-all-infected-yields-one-row-per-well"),
+    pytest.param(_case_preprocess_pathogen_data_counts_parasites_and_renames_cell_id, ([7, 7, 9], 3, pytest.approx(20.0), "a", False), id="preprocess-pathogen-data-counts-parasites-and-renames-cell-id"),
+]
+
+
+@pytest.mark.parametrize("case, expected", _summaries_count_peaks_and_cells_per_well_CASES)
+def test_summaries_count_peaks_and_cells_per_well(case, expected, tmp_path, monkeypatch, capsys):
+    """Per-well peak summaries, the infected split and the parasite-count preprocessing."""
+    observed = _call_case(case, tmp_path=tmp_path, monkeypatch=monkeypatch, capsys=capsys)
+    assert observed == expected
+
+
+_analyze_calcium_oscillations_succeeds_and_writes_results_CASES = [
+    pytest.param(_case_analyze_calcium_oscillations_full_run, {"kept": [f"{PLATE}_r1_{COLUMN}_{FIELD}_o1", f"{PLATE}_r1_{COLUMN}_{FIELD}_o2", f"{PLATE}_r2_{COLUMN}_{FIELD}_o3"], "n_rows": 30, "obj1_times": [4, 8], "obj3_times": [6], "obj2_rows": 1, "files": ["figure_1.pdf", "figure_2.pdf", "peak_details.csv", "results.csv", "well_results.csv", "well_results_inf_non_inf.csv"], "wells": ["r1_c1", "r2_c1"], "n_lines": 3, "printed_peaks": ["Average number of peaks per infected cell: 2.00", "Average number of peaks per non-infected cell: 1.00"]}, id="analyze-calcium-oscillations-full-run"),
+    pytest.param(_case_analyze_calcium_oscillations_without_optional_tables, (False, 4), id="analyze-calcium-oscillations-without-optional-tables"),
+    pytest.param(_case_analyze_calcium_oscillations_num_lines_subsamples_the_plot, (3, 1), id="analyze-calcium-oscillations-num-lines-subsamples-the-plot"),
+    pytest.param(_case_analyze_calcium_oscillations_num_lines_above_track_count_plots_all, 3, id="analyze-calcium-oscillations-num-lines-above-track-count-plots-all"),
+    pytest.param(_case_analyze_calcium_oscillations_keeps_transient_tracks_when_disabled, (4, True), id="analyze-calcium-oscillations-keeps-transient-tracks-when-disabled"),
+    pytest.param(_case_analyze_calcium_oscillations_loose_size_filter_keeps_wobbly_cell, True, id="analyze-calcium-oscillations-loose-size-filter-keeps-wobbly-cell"),
+    pytest.param(_case_analyze_calcium_oscillations_high_peak_height_finds_no_peaks, (3, 3, 3, [1, 0, 0]), id="analyze-calcium-oscillations-high-peak-height-finds-no-peaks"),
+    pytest.param(_case_analyze_calcium_oscillations_without_pathogen_table, (3, True), id="analyze-calcium-oscillations-without-pathogen-table"),
+]
+
+
+@pytest.mark.parametrize("case, expected", _analyze_calcium_oscillations_succeeds_and_writes_results_CASES)
+def test_analyze_calcium_oscillations_succeeds_and_writes_results(case, expected, tmp_path, monkeypatch, capsys):
+    """Successful analysis runs: filters, peak table, figures and result files."""
+    observed = _call_case(case, tmp_path=tmp_path, monkeypatch=monkeypatch, capsys=capsys)
+    assert observed == expected
+
+
+_analyze_calcium_oscillations_refuses_unusable_input_CASES = [
+    pytest.param(_case_analyze_calcium_oscillations_curve_fit_failure_returns_none, (None, True, False), id="analyze-calcium-oscillations-curve-fit-failure-returns-none"),
+    pytest.param(_case_analyze_calcium_oscillations_no_suitable_cells_returns_none, (None, True, True, False), id="analyze-calcium-oscillations-no-suitable-cells-returns-none"),
+    pytest.param(_case_analyze_calcium_oscillations_everything_transient_returns_none, (None, True), id="analyze-calcium-oscillations-everything-transient-returns-none"),
+    pytest.param(_case_analyze_calcium_oscillations_missing_measurement_column, ("KeyError", "not_a_column"), id="analyze-calcium-oscillations-missing-measurement-column"),
+    pytest.param(_case_analyze_calcium_oscillations_missing_db_raises, "DatabaseError", id="analyze-calcium-oscillations-missing-db-raises"),
+    pytest.param(_case_a_cytoplasm_row_written_twice_is_caught_not_absorbed, ("MergeError", 1), id="a-cytoplasm-row-written-twice-is-caught-not-absorbed"),
+]
+
+
+@pytest.mark.parametrize("case, expected", _analyze_calcium_oscillations_refuses_unusable_input_CASES)
+def test_analyze_calcium_oscillations_refuses_unusable_input(case, expected, tmp_path, monkeypatch, capsys):
+    """Unusable input: returns None with a message, or raises."""
+    observed = _call_case(case, tmp_path=tmp_path, monkeypatch=monkeypatch, capsys=capsys)
+    assert observed == expected

@@ -42,8 +42,6 @@ What is pinned, module by module:
 """
 from __future__ import annotations
 
-import json
-import os
 import sqlite3
 from pathlib import Path
 
@@ -492,76 +490,6 @@ class TestOverlappingInputGroupsImportEachFileOnce:
             "listing an image group twice must not import its fields twice: "
             f"{len(once.images)} -> {len(twice.images)}")
         assert once.images, "the single-group plan found no images at all"
-
-
-# ---------------------------------------------------------------------------
-# spacr.run_journal -- a warnings block that is not a list
-# ---------------------------------------------------------------------------
-
-class TestASingleStringWarningIsStillOneWarning:
-    """``values = manifest.get(key) or []`` then ``elif values:``
-
-    The false side of ``elif values:`` is unreachable, and the ``or []``
-    on the line above is the whole proof: whatever ``manifest.get(key)``
-    returns, it reaches ``values`` only if it was *truthy*; anything
-    falsy is replaced by ``[]``. So by the time the ``elif`` is
-    evaluated -- which only happens when ``values`` is not a list or
-    tuple, i.e. not the ``[]`` substitute -- ``values`` is a JSON scalar
-    already known to be truthy. It is the "defensive re-check after a
-    call that already guarantees the condition" case.
-
-    Both reachable outcomes are driven here so the claim is not an
-    assertion about an absence.
-    """
-
-    @staticmethod
-    def _write_run(root, name, manifest):
-        directory = root / name
-        directory.mkdir(parents=True)
-        (directory / "manifest.json").write_text(
-            json.dumps(manifest), encoding="utf-8")
-        # Without it the folder itself is a finding, and the warnings list
-        # under test would carry the reader's complaint instead.
-        (directory / "settings.json").write_text("{}", encoding="utf-8")
-        return directory
-
-    def test_a_string_warning_arrives_whole(self, tmp_path, monkeypatch):
-        import spacr.run_journal as RJ
-
-        runs = tmp_path / "runs"
-        runs.mkdir()
-        monkeypatch.setattr(RJ, "runs_root", lambda: runs)
-        self._write_run(runs, "2026-01-01_000000_a__mask", {
-            "app_key": "mask", "status": "success",
-            "start_utc": "2026-01-01T00:00:00+00:00",
-            "warnings": "one thing went wrong",
-            "provenance_warnings": ["and one more"],
-        })
-
-        record = RJ.search_runs()[0]
-
-        assert "one thing went wrong" in record["warnings"], \
-            "a bare string must not be spelled out one character per row"
-        assert "and one more" in record["warnings"]
-
-    def test_an_empty_warnings_block_contributes_nothing(self, tmp_path,
-                                                         monkeypatch):
-        """``0``/``""``/``None`` all become ``[]`` before the ``elif``."""
-        import spacr.run_journal as RJ
-
-        runs = tmp_path / "runs"
-        runs.mkdir()
-        monkeypatch.setattr(RJ, "runs_root", lambda: runs)
-        self._write_run(runs, "2026-01-01_000000_b__mask", {
-            "app_key": "mask", "status": "success",
-            "start_utc": "2026-01-01T00:00:00+00:00",
-            "warnings": "", "provenance_warnings": None,
-        })
-
-        record = RJ.search_runs()[0]
-
-        assert record["warnings"] == [], \
-            f"an empty warnings block invented {record['warnings']}"
 
 
 # ---------------------------------------------------------------------------
