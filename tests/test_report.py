@@ -474,13 +474,17 @@ def test_pdf_only_figures_are_listed_not_silently_dropped(tmp_path):
     assert "plot_0.pdf" in html
 
 
-def test_a_folder_with_no_figures_says_so(tmp_path):
-    src = tmp_path / "plate_no_figures"
+@pytest.mark.parametrize("section_name, fragment", [
+    ("figures", "No figures were found"),
+    ("settings", "not reproducible"),
+], ids=["no-figures", "no-settings"])
+def test_a_folder_missing_a_section_says_so(tmp_path, section_name, fragment):
+    src = tmp_path / "plate_missing_section"
     _write_db(src, stamps=[_stamp()])
     report = collect_report(src, run_dirs=[])
-    figures = report.section("figures")
-    assert figures.status == STATUS_MISSING
-    assert "No figures were found" in figures.body_html
+    section = report.section(section_name)
+    assert section.status == STATUS_MISSING
+    assert fragment in section.body_html
 
 
 # ---------------------------------------------------------------------------
@@ -661,15 +665,6 @@ def test_settings_section_carries_every_recorded_setting(full_run):
     assert {"src", "channels", "cell_diameter", "magnification"} <= keys
     # The on-disk copy is shown too.
     assert "gen_mask_settings.csv" in section.body_html
-
-
-def test_a_folder_with_no_settings_says_it_is_not_reproducible(tmp_path):
-    src = tmp_path / "plate_no_settings"
-    _write_db(src, stamps=[_stamp()])
-    report = collect_report(src, run_dirs=[])
-    section = report.section("settings")
-    assert section.status == STATUS_MISSING
-    assert "not reproducible" in section.body_html
 
 
 def test_statistics_lists_the_result_csv_and_the_database_tables(full_run):

@@ -140,23 +140,19 @@ def test_the_correction_is_reported_not_silent():
     assert 0.0 < report["scale_factor"] <= 1.0
 
 
-def test_two_guides_with_identical_effects_come_back_at_their_priors():
-    """173's own bar. "The data cannot separate them and the method must not
-    pretend otherwise." """
-    priors = {"a": 0.25, "b": 0.75}
+@pytest.mark.parametrize("seed, priors, effects", [
+    # 173's own bar. "The data cannot separate them and the method must not
+    # pretend otherwise."
+    (6, {"a": 0.25, "b": 0.75}, {"a": [0.5] * 8, "b": [0.5] * 8}),
+    # 173: "Structure surviving a permutation is structure the method
+    # invented." With the effects shuffled away from the data, nothing in a
+    # cell's measurements favours one guide.
+    (7, {"a": 0.4, "b": 0.6}, {"a": [0.0] * 8, "b": [0.0] * 8}),
+], ids=["identical-effects", "permutation"])
+def test_a_posterior_the_data_cannot_separate_comes_back_at_its_priors(
+        seed, priors, effects):
     r, guides, _report = posterior_multivariate(
-        _screen(seed=6), priors, {"a": [0.5] * 8, "b": [0.5] * 8})
-    for index, guide in enumerate(guides):
-        assert np.allclose(r[:, index], priors[guide], atol=1e-6)
-
-
-def test_a_permutation_collapses_the_posterior_to_the_prior():
-    """173: "Structure surviving a permutation is structure the method
-    invented." With the effects shuffled away from the data, nothing in a
-    cell's measurements favours one guide."""
-    priors = {"a": 0.4, "b": 0.6}
-    r, guides, _report = posterior_multivariate(
-        _screen(seed=7), priors, {"a": [0.0] * 8, "b": [0.0] * 8})
+        _screen(seed=seed), priors, effects)
     for index, guide in enumerate(guides):
         assert np.allclose(r[:, index], priors[guide], atol=1e-6)
 

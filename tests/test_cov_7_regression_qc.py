@@ -62,16 +62,16 @@ def test_a_hat_value_outside_zero_to_one_is_a_refusal_not_a_clip():
         rq.leverage_from_design(np.ones((2, 1)), weights=[-1.0, 2.0])
 
 
-def test_cooks_distance_refuses_inputs_that_are_not_the_same_rows():
-    """Residuals and leverage of different lengths are two different fits."""
-    with pytest.raises(ValueError, match="std_resid has shape"):
-        rq.cooks_distance(np.zeros(3), np.zeros(4), 2)
-
-
-def test_cooks_distance_refuses_a_model_with_no_parameters():
-    """``p`` is a divisor; zero would make every distance infinite."""
-    with pytest.raises(ValueError, match="n_params must be positive"):
-        rq.cooks_distance(np.zeros(3), np.zeros(3), 0)
+@pytest.mark.parametrize("std_resid, leverage, n_params, message", [
+    # Residuals and leverage of different lengths are two different fits.
+    (np.zeros(3), np.zeros(4), 2, "std_resid has shape"),
+    # ``p`` is a divisor; zero would make every distance infinite.
+    (np.zeros(3), np.zeros(3), 0, "n_params must be positive"),
+], ids=["not-the-same-rows", "no-parameters"])
+def test_cooks_distance_refuses_inputs_it_cannot_divide_by(
+        std_resid, leverage, n_params, message):
+    with pytest.raises(ValueError, match=message):
+        rq.cooks_distance(std_resid, leverage, n_params)
 
 
 def test_an_empty_design_has_no_condition_number():

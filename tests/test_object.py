@@ -53,17 +53,16 @@ def test_validate_organelle_settings_accepts_valid_combos(morph, method):
         f"morphology '{morph}' accepts every known method")
 
 
-def test_validate_organelle_settings_rejects_unknown_morphology():
-    with pytest.raises(ValueError) as excinfo:
-        O._validate_organelle_settings("mesh", "otsu")
-    assert "organelle_morphology" in str(excinfo.value)
-
-
-def test_validate_organelle_settings_rejects_method_for_morphology():
+@pytest.mark.parametrize("morphology, method, fragment", [
+    ("mesh", "otsu", "organelle_morphology"),
     # 'log' is only valid for 'spots' / 'ring', not for 'network'.
+    ("network", "log", "morphology='network'"),
+], ids=["unknown-morphology", "method-not-valid-for-morphology"])
+def test_validate_organelle_settings_rejects_a_bad_morphology_or_method(
+        morphology, method, fragment):
     with pytest.raises(ValueError) as excinfo:
-        O._validate_organelle_settings("network", "log")
-    assert "morphology='network'" in str(excinfo.value)
+        O._validate_organelle_settings(morphology, method)
+    assert fragment in str(excinfo.value)
 
 
 def test_validate_organelle_settings_rejects_stardist():

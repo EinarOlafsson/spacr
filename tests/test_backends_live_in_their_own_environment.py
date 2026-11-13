@@ -410,18 +410,32 @@ def test_the_plan_runs_pip_only_inside_the_environment():
         "Create the environment", "Update pip", "Install SAMCell", "Check it loads"]
 
 
-@pytest.mark.parametrize("platform,machine,expected", [
-    ("darwin", "x86_64", ["cellpose==3.1.1.3", "packaging", "numba<0.63", "numpy<2"]),
-    ("darwin", "arm64", ["cellpose==3.1.1.3", "packaging"]),
-    ("linux", "x86_64", ["cellpose==3.1.1.3", "packaging"]),
-    ("win32", "AMD64", ["cellpose==3.1.1.3", "packaging"]),
+@pytest.mark.parametrize("backend,platform,machine,expected", [
+    pytest.param("cellpose3", "darwin", "x86_64",
+                 ["cellpose==3.1.1.3", "packaging", "numba<0.63", "numpy<2"],
+                 id="cellpose3-intel-mac"),
+    pytest.param("cellpose3", "darwin", "arm64",
+                 ["cellpose==3.1.1.3", "packaging"], id="cellpose3-arm-mac"),
+    pytest.param("cellpose3", "linux", "x86_64",
+                 ["cellpose==3.1.1.3", "packaging"], id="cellpose3-linux"),
+    pytest.param("cellpose3", "win32", "AMD64",
+                 ["cellpose==3.1.1.3", "packaging"], id="cellpose3-windows"),
+    pytest.param("samcell", "darwin", "x86_64",
+                 ["samcell==1.2.0", "matplotlib>=3.3.0", "numpy<2",
+                  "transformers<5"], id="samcell-intel-mac"),
+    pytest.param("samcell", "darwin", "arm64",
+                 ["samcell==1.2.0", "matplotlib>=3.3.0"], id="samcell-arm-mac"),
+    pytest.param("samcell", "linux", "x86_64",
+                 ["samcell==1.2.0", "matplotlib>=3.3.0"], id="samcell-linux"),
+    pytest.param("samcell", "win32", "AMD64",
+                 ["samcell==1.2.0", "matplotlib>=3.3.0"], id="samcell-windows"),
 ])
-def test_cellpose3_uses_compatible_dependencies_only_on_the_intel_mac_plan(
-        platform, machine, expected):
+def test_a_backend_uses_compatible_dependencies_only_on_the_intel_mac_plan(
+        backend, platform, machine, expected):
     from packaging.requirements import Requirement
 
-    spec = SB._SPECS["cellpose3"]
-    steps = SB._install_plan(spec, "/b/cellpose3", ("/own/python",))
+    spec = SB._SPECS[backend]
+    steps = SB._install_plan(spec, "/b/" + backend, ("/own/python",))
     assert steps[3].argv[-len(spec.requirements):] == spec.requirements
     effective = []
     for text in spec.requirements:
@@ -539,28 +553,6 @@ def test_samcell_installs_its_unconditionally_imported_plotting_dependency():
     dependencies = next(step.argv for step in steps if step.label == "Install SAMCell")
     assert "matplotlib>=3.3.0" in dependencies
     assert "samcell==1.2.0" in dependencies
-
-
-@pytest.mark.parametrize("platform,machine,expected", [
-    ("darwin", "x86_64", ["samcell==1.2.0", "matplotlib>=3.3.0", "numpy<2", "transformers<5"]),
-    ("darwin", "arm64", ["samcell==1.2.0", "matplotlib>=3.3.0"]),
-    ("linux", "x86_64", ["samcell==1.2.0", "matplotlib>=3.3.0"]),
-    ("win32", "AMD64", ["samcell==1.2.0", "matplotlib>=3.3.0"]),
-])
-def test_samcell_uses_compatible_dependencies_only_on_the_intel_mac_plan(
-        platform, machine, expected):
-    from packaging.requirements import Requirement
-
-    spec = SB._SPECS["samcell"]
-    steps = SB._install_plan(spec, "/b/samcell", ("/own/python",))
-    assert steps[3].argv[-len(spec.requirements):] == spec.requirements
-    effective = []
-    for text in spec.requirements:
-        requirement = Requirement(text)
-        if requirement.marker is None or requirement.marker.evaluate(
-                {"sys_platform": platform, "platform_machine": machine}):
-            effective.append(requirement.name + str(requirement.specifier))
-    assert effective == expected
 
 
 @pytest.mark.parametrize("platform,machine,missing", [

@@ -271,10 +271,10 @@ class TestUmapWalkAxes:
                               n_neighbors_max=20)
         assert axes[0].clamp(999) == 20
 
-    def test_a_parameter_umap_does_not_have_is_refused_by_name(self):
-        with pytest.raises(ValueError, match="Not a searchable"):
-            umap_walk_axes({"nonsense": 1}, parameters=["nonsense"])
-
-    def test_a_missing_starting_value_is_refused(self):
-        with pytest.raises(ValueError, match="missing"):
-            umap_walk_axes({"n_neighbors": 15}, parameters=["spread"])
+    @pytest.mark.parametrize("start, parameters, message", [
+        ({"nonsense": 1}, ["nonsense"], "Not a searchable"),
+        ({"n_neighbors": 15}, ["spread"], "missing"),
+    ], ids=["parameter-umap-does-not-have", "missing-starting-value"])
+    def test_an_unusable_walk_request_is_refused(self, start, parameters, message):
+        with pytest.raises(ValueError, match=message):
+            umap_walk_axes(start, parameters=parameters)

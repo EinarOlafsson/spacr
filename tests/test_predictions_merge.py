@@ -1282,36 +1282,27 @@ def test_a_column_already_in_the_model_encoding_is_left_alone(tmp_path):
     assert read(db, "predictions")["predictions"].tolist() == [0, 1, 1]
 
 
-def test_an_all_class_one_column_is_left_alone(tmp_path):
-    """1s with no 2s are already the model's own labels; nothing to undo."""
+@pytest.mark.parametrize("values", [
+    # 1s with no 2s are already the model's own labels; nothing to undo.
+    [1, 1, 1],
+    # 0 -> 2 is only reversible when the column holds nothing but 1s and 2s.
+    # A three-class model's genuine class 2 is indistinguishable from a
+    # mangled 0, so the values are left exactly as they are rather than
+    # guessed at.
+    [1, 2, 3],
+], ids=["all-class-one", "multiclass"])
+def test_a_legacy_column_that_is_not_a_mangled_binary_one_is_left_alone(
+        tmp_path, values):
     from spacr.predictions import migrate_prediction_columns
 
     src = str(tmp_path / "screen")
     write_png_list(src, "plate1", wells=("A1",), fields=(1,))
     db = db_of(src)
     prcfos = read(db, "prcfo")["prcfo"].tolist()
-    legacy_write(db, prcfos, [1, 1, 1])
+    legacy_write(db, prcfos, values)
 
     assert migrate_prediction_columns(db) == []
-    assert read(db, "predictions")["predictions"].tolist() == [1, 1, 1]
-
-
-def test_a_multiclass_legacy_column_is_not_reinterpreted(tmp_path):
-    """0 -> 2 is only reversible when the column holds nothing but 1s and 2s.
-
-    A three-class model's genuine class 2 is indistinguishable from a mangled
-    0, so the values are left exactly as they are rather than guessed at.
-    """
-    from spacr.predictions import migrate_prediction_columns
-
-    src = str(tmp_path / "screen")
-    write_png_list(src, "plate1", wells=("A1",), fields=(1,))
-    db = db_of(src)
-    prcfos = read(db, "prcfo")["prcfo"].tolist()
-    legacy_write(db, prcfos, [1, 2, 3])
-
-    assert migrate_prediction_columns(db) == []
-    assert read(db, "predictions")["predictions"].tolist() == [1, 2, 3]
+    assert read(db, "predictions")["predictions"].tolist() == values
 
 
 def test_a_table_without_the_legacy_column_is_a_no_op(tmp_path):
@@ -1328,6 +1319,10 @@ def test_the_ml_entry_point_repairs_before_reading_png_list(tmp_path, monkeypatc
     The annotation-column branch reads ``png_list`` directly, so the repair has
     to happen before the read -- the same place ``rename_columns_in_db`` sits in
     ``_read_db``.
+
+    ``png_list`` is given the ``test`` column the run trains on: since issue
+    #186 a run whose annotation column ``png_list`` lacks is refused before
+    anything is read, and that refusal would stop it short of the repair.
     """
     import spacr.io as io
     import spacr.ml as ml
@@ -1338,6 +1333,10 @@ def test_the_ml_entry_point_repairs_before_reading_png_list(tmp_path, monkeypatc
     prcfos = read(db, "prcfo")["prcfo"].tolist()
     legacy_write(db, prcfos, [0, 1, 1])
     assert read(db, "predictions")["predictions"].tolist() == [2, 1, 1]
+    con = sqlite3.connect(db)
+    con.execute("ALTER TABLE png_list ADD COLUMN test TEXT")
+    con.commit()
+    con.close()
 
     seen = {}
 
@@ -1441,31 +1440,22 @@ def test_a_row_missing_a_metadata_component_gets_no_rebuilt_key(tmp_path):
     assert report.unmatched_result_rows == 1
 
 
-def test_a_table_with_no_metadata_cannot_rebuild_prcfo(tmp_path):
-    """No key at all is refused, not silently turned into an empty string."""
+@pytest.mark.parametrize("create, insert", [
+    # No key at all is refused, not silently turned into an empty string.
+    ("CREATE TABLE png_list (something TEXT)",
+     "INSERT INTO png_list VALUES ('x')"),
+    # plate/row/column/field name a *field*, not an object.
+    ("CREATE TABLE png_list (plateID TEXT, rowID TEXT, "
+     "columnID TEXT, fieldID TEXT)",
+     "INSERT INTO png_list VALUES ('plate1','r1','c1','f1')"),
+], ids=["no-metadata", "no-object-id-column"])
+def test_a_table_that_cannot_rebuild_prcfo_is_refused(tmp_path, create, insert):
     from spacr.predictions import merge_prediction_results
 
     db = tmp_path / "measurements.db"
     con = sqlite3.connect(db)
-    con.execute("CREATE TABLE png_list (something TEXT)")
-    con.execute("INSERT INTO png_list VALUES ('x')")
-    con.commit()
-    con.close()
-    frame = pd.DataFrame({"prcfo": ["plate1_r1_c1_f1_o1"], "pred": [0.5]})
-
-    with pytest.raises(ValueError, match="No usable join key"):
-        merge_prediction_results(frame, str(db), {"pred": ("pred", "REAL")})
-
-
-def test_metadata_without_an_object_id_column_cannot_rebuild_prcfo(tmp_path):
-    """plate/row/column/field name a *field*, not an object."""
-    from spacr.predictions import merge_prediction_results
-
-    db = tmp_path / "measurements.db"
-    con = sqlite3.connect(db)
-    con.execute("CREATE TABLE png_list (plateID TEXT, rowID TEXT, "
-                "columnID TEXT, fieldID TEXT)")
-    con.execute("INSERT INTO png_list VALUES ('plate1','r1','c1','f1')")
+    con.execute(create)
+    con.execute(insert)
     con.commit()
     con.close()
     frame = pd.DataFrame({"prcfo": ["plate1_r1_c1_f1_o1"], "pred": [0.5]})

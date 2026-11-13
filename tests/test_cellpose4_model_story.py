@@ -371,14 +371,10 @@ def test_the_sam_generator_stops_on_a_checkpoint_that_is_not_there(
 # 4. Old settings files keep loading: legacy names are aliases, not choices
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("legacy", list(U.LEGACY_CELLPOSE_MODELS))
-def test_every_legacy_name_still_loads_and_maps_to_cpsam(legacy):
-    assert S.normalize_cellpose_model_name(legacy) == "cpsam"
-
-
-@pytest.mark.parametrize("blank", [None, "", "   "])
-def test_a_blank_model_setting_means_the_stock_model(blank):
-    assert S.normalize_cellpose_model_name(blank) == "cpsam"
+@pytest.mark.parametrize(
+    "name", [*U.LEGACY_CELLPOSE_MODELS, None, "", "   "])
+def test_every_legacy_or_blank_model_name_maps_to_cpsam(name):
+    assert S.normalize_cellpose_model_name(name) == "cpsam"
 
 
 def test_the_settings_layer_reports_the_substitution_once(capsys):

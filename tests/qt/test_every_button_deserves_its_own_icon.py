@@ -303,16 +303,21 @@ class TestTheNewMarksAreUsable:
         assert silhouette_difference(
             render(iconset.app_icon(key, theme=theme)), fallback) > 0.2
 
-    def test_the_borrowed_png_re_inks_for_the_theme(self):
-        """``explain_cv`` draws a bundled PNG, and those bake their colour.
+    @pytest.mark.parametrize("key", ["explain_cv", "regression_diagnostics"],
+                             ids=["the_borrowed_png", "the_drawn_last_one"])
+    def test_the_borrowed_png_re_inks_for_the_theme(self, key):
+        """A bundled mark re-inks for the theme.
 
-        ``Sidebar.refresh_icons`` rebuilds on a theme change precisely
-        because a QIcon cannot be recoloured after the fact, so the mark has
-        to come out different per theme or one theme gets an invisible one.
-        ``ml_analyze.png`` clears the contrast floor in all four themes --
-        16.1 dark, 15.8 light, 11.3 cell, 9.7 glass against 3.0 required.
+        ``explain_cv`` draws a bundled PNG, and those bake their colour.
+        ``Sidebar.refresh_icons`` rebuilds on a theme change precisely because
+        a QIcon cannot be recoloured after the fact, so the mark has to come
+        out different per theme or one theme gets an invisible one.
+        ``regression_diagnostics`` (Regression's Diagnostics, the button the
+        maintainer named) was drawn rather than borrowed -- every candidate
+        was worse than no icon -- and re-inks per theme like every other mask:
+        contrast 15.8 light and 16.1 dark against a floor of 3.0.
         """
-        path = iconset.bundled_icon_path("explain_cv")
+        path = iconset.bundled_icon_path(key)
         assert path is not None and os.path.isfile(path)
         for theme in THEMES:
             assert iconset.icon_contrast(path, theme) >= \
@@ -407,32 +412,6 @@ class TestTheBorrowingIsWrittenDown:
 
 class TestWhatIsStillOwed:
     """Regression's Diagnostics -- the button the maintainer named."""
-
-    def test_the_last_one_was_drawn_rather_than_borrowed(self):
-        """Regression's Diagnostics -- the button the maintainer named.
-
-        It stayed on the fallback while every candidate was worse than no
-        icon: `outliers.png` is the live Outliers module's mark and taking
-        it makes two modules one picture; `dose_response.png` is a sigmoid
-        near-identical at 16 px to `profiler.png`, which sits BESIDE
-        Diagnostics on Regression's strip; and Font Awesome's `stethoscope`
-        says "diagnostics" the way a gear says "settings", which this
-        instruction rules out.
-
-        So it was drawn: a dashed zero line, six residuals scattered either
-        side of it, and one point ringed as influential -- which is what a
-        residual plot is, and what "Diagnostics" does. Measured against the
-        artwork that already ships: 8.9 % ink at 26 px where the bundled set
-        runs 3-5 % at 16, contrast 15.8 light and 16.1 dark against a floor
-        of 3.0, and it re-inks per theme like every other mask.
-        """
-        path = iconset.bundled_icon_path("regression_diagnostics")
-        assert path is not None and os.path.isfile(path)
-        for theme in THEMES:
-            assert iconset.icon_contrast(path, theme) >= \
-                iconset.MIN_ICON_CONTRAST, theme
-        assert (iconset.icon_ink_color(path, "light")
-                != iconset.icon_ink_color(path, "dark"))
 
     def test_the_debt_is_closed_and_it_was_seven(self):
         """The headline number, so a regression cannot hide behind prose."""

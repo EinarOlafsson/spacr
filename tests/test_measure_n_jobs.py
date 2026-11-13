@@ -160,21 +160,22 @@ def _run(tmp_path, monkeypatch, n_jobs, cpu_count=None):
     return _RecordingPool.created
 
 
-def test_measure_crop_builds_a_pool_of_exactly_one(tmp_path, monkeypatch):
-    """``n_jobs=1`` means one worker, whatever the machine has."""
-    created = _run(tmp_path, monkeypatch, n_jobs=1, cpu_count=32)
-    assert created == [1]
+@pytest.mark.parametrize("n_jobs, cpu_count, expected", [
+    # ``n_jobs=1`` means one worker, whatever the machine has.
+    (1, 32, [1]),
+    # An oversized request is clamped to the cores.
+    (99, 6, [6]),
+], ids=["exactly-one", "oversized-request-is-clamped"])
+def test_measure_crop_builds_the_pool_the_request_allows(
+        tmp_path, monkeypatch, n_jobs, cpu_count, expected):
+    created = _run(tmp_path, monkeypatch, n_jobs=n_jobs, cpu_count=cpu_count)
+    assert created == expected
 
 
 def test_measure_crop_blank_n_jobs_reaches_the_pool(tmp_path, monkeypatch):
     """Blank does not raise, and resolves to ``cpu_count - headroom``."""
     created = _run(tmp_path, monkeypatch, n_jobs=None, cpu_count=32)
     assert created == [32 - M.N_JOBS_HEADROOM]
-
-
-def test_measure_crop_clamps_an_oversized_request(tmp_path, monkeypatch):
-    created = _run(tmp_path, monkeypatch, n_jobs=99, cpu_count=6)
-    assert created == [6]
 
 
 def test_measure_crop_progress_and_pool_agree(tmp_path, monkeypatch):

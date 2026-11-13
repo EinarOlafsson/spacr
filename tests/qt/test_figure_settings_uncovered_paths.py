@@ -932,11 +932,15 @@ def test_cancelling_the_figure_chooser_writes_nothing(qapp, figure, tmp_path,
     assert list(tmp_path.glob("*.png")) == []
 
 
-def test_a_raster_write_that_fails_reports_no_path(qapp, figure, tmp_path):
-    """The PNG path goes through spacr.plot.save_figure, and it can fail too."""
+@pytest.mark.parametrize("name", [
+    "figure.png",   # the PNG path goes through spacr.plot.save_figure, which
+                    # can fail too
+    "figure.svg",   # a save that cannot happen returns "" rather than raising
+], ids=["a_raster_write", "a_vector_write"])
+def test_a_raster_write_that_fails_reports_no_path(qapp, figure, tmp_path, name):
     blocker = tmp_path / "blocker"
     blocker.write_text("a file where a directory would have to be", encoding="utf-8")
-    target = blocker / "figure.png"
+    target = blocker / name
 
     assert fs.save_figure_as(None, figure, str(target)) == ""
     assert blocker.is_file(), "and the thing in the way is left alone"
@@ -975,16 +979,6 @@ def test_a_vector_save_without_the_preference_store_uses_the_print_ground(
                 if node.attrib.get("id") == "patch_1")
     page_style = next(iter(page)).attrib["style"].lower()
     assert f"fill: {PRINT_GROUND.lower()}" in page_style
-
-
-def test_a_write_that_fails_reports_no_path(qapp, figure, tmp_path):
-    """A save that cannot happen returns an empty string rather than raising."""
-    blocker = tmp_path / "blocker"
-    blocker.write_text("a file where a directory would have to be", encoding="utf-8")
-    target = blocker / "figure.svg"
-
-    assert fs.save_figure_as(None, figure, str(target)) == ""
-    assert blocker.is_file(), "and the thing in the way is left alone"
 
 
 # ---------------------------------------------------------------------------

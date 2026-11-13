@@ -97,18 +97,17 @@ def test_a_live_application_is_found(qapp):
 # choosing a renderer
 # ---------------------------------------------------------------------------
 
-def test_a_misspelt_environment_variable_is_auto(monkeypatch):
-    """A typo must not cost the run its figures."""
-    monkeypatch.setenv("SPACR_FIGURE_RENDERER", "pyqtgrahp")
+@pytest.mark.parametrize("value, expected", [
+    # A typo must not cost the run its figures.
+    ("pyqtgrahp", "auto"),
+    # A recognised value is honoured, case- and space-insensitively.
+    ("  MatPlotLib ", "matplotlib"),
+], ids=["misspelt-is-auto", "recognised-is-honoured"])
+def test_the_environment_names_a_renderer_or_means_auto(
+        monkeypatch, value, expected):
+    monkeypatch.setenv("SPACR_FIGURE_RENDERER", value)
 
-    assert fr.requested_renderer() == "auto"
-
-
-def test_the_environment_can_name_a_renderer(monkeypatch):
-    """A recognised value is honoured, case- and space-insensitively."""
-    monkeypatch.setenv("SPACR_FIGURE_RENDERER", "  MatPlotLib ")
-
-    assert fr.requested_renderer() == "matplotlib"
+    assert fr.requested_renderer() == expected
 
 
 def test_a_misspelt_force_argument_falls_back_to_auto(monkeypatch):

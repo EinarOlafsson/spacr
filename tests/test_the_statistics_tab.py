@@ -107,12 +107,19 @@ def test_it_never_shows_a_bare_p(qtbot):
     assert "Hedges" in text or "Cohen" in text, "no effect size"
 
 
-def test_it_names_the_unit_of_replication(qtbot):
-    """A test across cells when the replicate is the well returns p < 1e-10
-    on pure noise, and nothing in the number itself says so."""
+@pytest.mark.parametrize("fragment", [
+    # A test across cells when the replicate is the well returns p < 1e-10 on
+    # pure noise, and nothing in the number itself says so.
+    "coefficient",
+    # The other side of the same rule, so the robust branch is not simply
+    # always taken -- which would cost power on every well-replicated screen.
+    "Student's t",
+], ids=["names-the-unit-of-replication", "enough-replicates-get-the-parametric-test"])
+def test_the_verdict_names_the_unit_of_replication_and_the_test_it_allows(
+        qtbot, fragment):
     dialog = _dialog(qtbot, "controls")
 
-    assert "coefficient" in dialog._stats_verdict.text()
+    assert fragment in dialog._stats_verdict.text()
 
 
 def test_a_handful_of_controls_gets_the_robust_test(qtbot):
@@ -140,14 +147,6 @@ def test_a_handful_of_controls_gets_the_robust_test(qtbot):
     text = dialog._stats_verdict.text()
     assert "Mann-Whitney" in text, text
     assert "n=3" in text
-
-
-def test_enough_replicates_get_the_parametric_test(qtbot):
-    """The other side of the same rule, so the robust branch is not simply
-    always taken -- which would cost power on every well-replicated screen."""
-    dialog = _dialog(qtbot, "controls")
-
-    assert "Student's t" in dialog._stats_verdict.text()
 
 
 # --------------------------------------------------------------------------- #

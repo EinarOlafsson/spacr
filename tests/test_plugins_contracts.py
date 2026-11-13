@@ -168,11 +168,20 @@ def test_categories_report_which_tab_held_the_bad_keys():
 # app contributions
 # --------------------------------------------------------------------------
 
-def test_app_entries_must_be_contributions_or_mappings():
-    with pytest.raises(TypeError, match="apps entries must be"):
-        plugins.plugin_from_mapping({
-            "name": "Contract plugin", "version": "0.1.0", "apps": ["contact_assay"],
-        })
+@pytest.mark.parametrize("manifest, message", [
+    ({"name": "Contract plugin", "version": "0.1.0", "apps": ["contact_assay"]},
+     "apps entries must be"),
+    ({"name": "P", "version": "1", "model_providers": ["contact_models"]},
+     "model_providers entries must be"),
+    ({"name": "P", "version": "1", "report_sections": ["contacts"]},
+     "report_sections entries must be"),
+    ({"name": "P", "version": "1", "translations": ["sv"]},
+     "translations must map language codes"),
+], ids=["apps", "model-providers", "report-sections", "translations"])
+def test_a_contribution_list_entry_must_be_a_contribution_or_a_mapping(
+        manifest, message):
+    with pytest.raises(TypeError, match=message):
+        plugins.plugin_from_mapping(manifest)
 
 
 def test_an_already_built_contribution_is_validated_too():
@@ -208,11 +217,18 @@ def test_a_sixty_four_character_key_is_still_accepted():
     assert plugin.apps[0].key == key
 
 
-@pytest.mark.parametrize("field", ["name", "description"])
-def test_an_app_needs_a_visible_name_and_description(field):
-    """Whitespace is not a name -- the launcher would show an empty tile."""
-    with pytest.raises(ValueError, match="needs a name and description"):
-        plugins.plugin_from_mapping(_manifest(**{field: "   "}))
+@pytest.mark.parametrize("field, value, message", [
+    # Whitespace is not a name -- the launcher would show an empty tile.
+    ("name", "   ", "needs a name and description"),
+    ("description", "   ", "needs a name and description"),
+    *[(field, "not a reference", f"invalid {field} reference") for field in (
+        "entrypoint", "defaults", "validator", "screen_factory",
+        "drop_handler")],
+])
+def test_an_app_field_that_cannot_be_used_is_refused_and_names_itself(
+        field, value, message):
+    with pytest.raises(ValueError, match=message):
+        plugins.plugin_from_mapping(_manifest(**{field: value}))
 
 
 @pytest.mark.parametrize("field,value,message", [
@@ -242,14 +258,6 @@ def test_every_documented_member_of_each_vocabulary_is_accepted(field):
         assert getattr(plugin.apps[0], field) == value
 
 
-@pytest.mark.parametrize("field", [
-    "entrypoint", "defaults", "validator", "screen_factory", "drop_handler",
-])
-def test_every_reference_field_is_checked_and_names_itself(field):
-    with pytest.raises(ValueError, match=f"invalid {field} reference"):
-        plugins.plugin_from_mapping(_manifest(**{field: "not a reference"}))
-
-
 @pytest.mark.parametrize("field", ["validator", "screen_factory", "drop_handler"])
 def test_the_optional_reference_fields_may_be_left_empty(field):
     """Empty means "not contributed" and must not be validated as a reference."""
@@ -261,13 +269,6 @@ def test_the_optional_reference_fields_may_be_left_empty(field):
 # model provider and report section contributions
 # --------------------------------------------------------------------------
 
-def test_model_provider_entries_must_be_contributions_or_mappings():
-    with pytest.raises(TypeError, match="model_providers entries must be"):
-        plugins.plugin_from_mapping({
-            "name": "P", "version": "1", "model_providers": ["contact_models"],
-        })
-
-
 @pytest.mark.parametrize("entry", [
     {"key": "Contact", "provider": "spacr_contract_plugin:models"},
     {"key": "contact_models", "provider": "spacr_contract_plugin.models"},
@@ -276,13 +277,6 @@ def test_a_model_provider_needs_a_valid_key_and_callable_reference(entry):
     with pytest.raises(ValueError, match="model provider needs a valid key"):
         plugins.plugin_from_mapping({
             "name": "P", "version": "1", "model_providers": [entry],
-        })
-
-
-def test_report_section_entries_must_be_contributions_or_mappings():
-    with pytest.raises(TypeError, match="report_sections entries must be"):
-        plugins.plugin_from_mapping({
-            "name": "P", "version": "1", "report_sections": ["contacts"],
         })
 
 
@@ -321,13 +315,6 @@ def test_a_report_section_defaults_to_following_the_statistics_section():
 def test_a_manifest_must_be_a_mapping():
     with pytest.raises(TypeError, match="plugin manifest must be a mapping"):
         plugins.plugin_from_mapping([("name", "P"), ("version", "1")])
-
-
-def test_translations_must_map_language_codes_to_message_mappings():
-    with pytest.raises(TypeError, match="translations must map language codes"):
-        plugins.plugin_from_mapping({
-            "name": "P", "version": "1", "translations": ["sv"],
-        })
 
 
 def test_one_bad_language_is_named_by_its_code():

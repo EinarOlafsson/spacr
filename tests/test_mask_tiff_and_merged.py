@@ -81,20 +81,13 @@ def _run_merged(root):
     return np.load(os.path.join(root, "merged", "fov.npy"))
 
 
-def test_merged_reader_reads_npy_masks(tmp_path):
-    cell, nuc = _build(str(tmp_path), ".npy")
+@pytest.mark.parametrize("extension", [".npy", ".tif"])
+def test_merged_reader_reads_masks(tmp_path, extension):
+    cell, nuc = _build(str(tmp_path), extension)
     merged = _run_merged(str(tmp_path))
     # 2 image channels + cell + nucleus mask slices
     assert merged.shape[-1] == 4
     assert np.array_equal(merged[..., 2], cell)   # labels preserved
-    assert np.array_equal(merged[..., 3], nuc)
-
-
-def test_merged_reader_reads_tif_masks(tmp_path):
-    cell, nuc = _build(str(tmp_path), ".tif")
-    merged = _run_merged(str(tmp_path))
-    assert merged.shape[-1] == 4
-    assert np.array_equal(merged[..., 2], cell)
     assert np.array_equal(merged[..., 3], nuc)
 
 

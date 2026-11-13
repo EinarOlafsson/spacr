@@ -12,24 +12,23 @@ def frame():
                          "intensity": [1.0, 2.0, 3.0, 4.0]})
 
 
-def test_a_column_can_be_named_directly(frame):
-    """`area.mean()` is what people type; `df['area'].mean()` is what they
-    write down afterwards."""
-    assert evaluate("area.mean()", frame) == "25.0"
-
-
-def test_the_frame_is_also_in_scope(frame):
-    assert evaluate("df['area'].max()", frame) == "40.0"
-
-
-def test_a_boolean_answer_is_counted(frame):
-    """The commonest question while gating is "how many objects satisfy
-    this", and a column of True/False is not an answer to it."""
-    assert evaluate("area > 15", frame) == "3 of 4 objects"
-
-
-def test_a_frame_answer_is_summarised_not_dumped(frame):
-    assert evaluate("df[df.area > 15]", frame) == "3 rows × 2 columns"
+@pytest.mark.parametrize("expression, answer", [
+    # `area.mean()` is what people type; `df['area'].mean()` is what they
+    # write down afterwards.
+    ("area.mean()", "25.0"),
+    ("df['area'].max()", "40.0"),
+    # The commonest question while gating is "how many objects satisfy this",
+    # and a column of True/False is not an answer to it.
+    ("area > 15", "3 of 4 objects"),
+    ("df[df.area > 15]", "3 rows \u00d7 2 columns"),
+    ("   ", ""),
+    ("np.median(area)", "25.0"),
+], ids=["column-named-directly", "the-frame-is-in-scope", "boolean-is-counted",
+        "frame-is-summarised-not-dumped", "empty-expression-answers-nothing",
+        "numpy-and-pandas-are-available"])
+def test_an_expression_is_answered_in_the_terms_of_the_frame(
+        frame, expression, answer):
+    assert evaluate(expression, frame) == answer
 
 
 def test_a_typo_comes_back_as_text(frame):
@@ -37,10 +36,6 @@ def test_a_typo_comes_back_as_text(frame):
     answer = evaluate("area.men()", frame)
     assert "AttributeError" in answer
     assert "men" in answer
-
-
-def test_an_empty_expression_answers_nothing(frame):
-    assert evaluate("   ", frame) == ""
 
 
 def test_with_no_table_it_says_so():
@@ -57,10 +52,6 @@ def test_dangerous_builtins_are_not_in_scope(frame):
 def test_a_statement_is_not_an_expression(frame):
     """Rebinding df would let the console and the plot disagree."""
     assert "Error" in evaluate("df = 1", frame)
-
-
-def test_numpy_and_pandas_are_available(frame):
-    assert evaluate("np.median(area)", frame) == "25.0"
 
 
 # ---------------------------------------------------------------------------

@@ -35,15 +35,16 @@ class TestVersionCompare:
         assert updater._lt("1.4.1", "1.4.1") is False
         assert updater._lt("1.4.2", "1.4.1") is False
 
-    def test_lt_four_part_beats_three_part(self):
+    @pytest.mark.parametrize("a, b, expected", [
         # 1.4.1 < 1.4.1.1: the 4-part is a strictly newer polish
-        assert updater._lt("1.4.1", "1.4.1.1") is True
-        assert updater._lt("1.4.1.1", "1.4.1") is False
-
-    def test_lt_four_part_relative(self):
-        assert updater._lt("1.4.1.1", "1.4.1.2") is True
-        assert updater._lt("1.4.1.9", "1.4.2") is True
-
+        ("1.4.1", "1.4.1.1", True),
+        ("1.4.1.1", "1.4.1", False),
+        ("1.4.1.1", "1.4.1.2", True),
+        ("1.4.1.9", "1.4.2", True),
+    ], ids=["four-part-beats-three-part", "three-part-before-four-part",
+            "four-part-relative", "four-part-before-next-three-part"])
+    def test_lt_four_part_orders_against_three_and_four_part(self, a, b, expected):
+        assert updater._lt(a, b) is expected
 
 class TestUpdaterCheck:
     """The check_for_updates path degrades gracefully."""

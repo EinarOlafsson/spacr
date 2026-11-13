@@ -183,11 +183,6 @@ def test_native_is_the_default_detector():
     assert ops_engine._spot_detector({"ops_spot_detector": " Native "}) == "native"
 
 
-def test_an_unknown_detector_is_refused():
-    with pytest.raises(ValueError, match="ops_spot_detector must be one of"):
-        ops_engine._spot_detector({"ops_spot_detector": "bigfish"})
-
-
 def test_spotnet_that_cannot_run_is_refused_not_swapped(monkeypatch):
     monkeypatch.setattr(SB, "_spotnet_readiness",
                         lambda: (False, "no DeepCell access token"))

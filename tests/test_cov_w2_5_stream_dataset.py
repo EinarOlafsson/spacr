@@ -214,20 +214,17 @@ def test_stream_reports_the_missing_field_instead_of_writing_field_ten(tmp_path,
     assert written == []
 
 
-def test_the_stem_comes_from_the_recorded_source_when_there_is_one():
-    """The parser's r1/c1 identifiers would rebuild a stem matching nothing."""
-    row = {"source": "npy: plate1_A01_1_0.npy", "plateID": "plate1",
-           "rowID": "r1", "columnID": "c1", "fieldID": "1"}
-
-    assert sd._stem_of(row) == "plate1_A01_1_0"
-
-
-def test_without_a_source_the_stem_is_rebuilt_from_the_identifiers():
-    """An object table has no file name, so the coordinates make one."""
-    row = {"source": "object table", "plateID": "plate1", "rowID": "A01",
-           "columnID": "", "fieldID": "1"}
-
-    assert sd._stem_of(row) == "plate1_A01_1"
+@pytest.mark.parametrize("row, stem", [
+    # The parser's r1/c1 identifiers would rebuild a stem matching nothing.
+    ({"source": "npy: plate1_A01_1_0.npy", "plateID": "plate1",
+      "rowID": "r1", "columnID": "c1", "fieldID": "1"}, "plate1_A01_1_0"),
+    # An object table has no file name, so the coordinates make one.
+    ({"source": "object table", "plateID": "plate1", "rowID": "A01",
+      "columnID": "", "fieldID": "1"}, "plate1_A01_1"),
+], ids=["recorded-source", "rebuilt-from-identifiers"])
+def test_the_stem_is_read_from_the_source_or_rebuilt_from_the_identifiers(
+        row, stem):
+    assert sd._stem_of(row) == stem
 
 
 # ---------------------------------------------------------------------------

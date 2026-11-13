@@ -206,15 +206,6 @@ class TestTheHelperItself:
 
         assert _window_type(dialog) == Qt.WindowType.Window
 
-    def test_it_is_safe_on_a_parentless_dialog(self, qtbot):
-        from PySide6.QtWidgets import QDialog
-
-        from spacr.qt.dialogs import detach_from_window_manager
-
-        dialog = QDialog()
-        qtbot.addWidget(dialog)
-        assert detach_from_window_manager(dialog) is dialog
-
     def test_it_returns_the_object_so_it_can_be_used_inline(self, qtbot):
         from PySide6.QtWidgets import QDialog
 

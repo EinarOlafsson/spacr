@@ -57,13 +57,18 @@ def test_metal_name_handles_missing_profiler_and_unrecognized_output(monkeypatch
     assert profiler.call_args.kwargs['timeout'] == 10
 
 
-def test_unparseable_macos_version_keeps_the_supported_hardware_explanation(monkeypatch):
+@pytest.mark.parametrize("mac_ver, gpu_name", [
+    ('unknown', 'Apple GPU'),
+    ('', 'Apple Test GPU'),
+], ids=["unparseable-version", "unknown-release"])
+def test_an_unreadable_macos_version_keeps_the_supported_hardware_explanation(
+        monkeypatch, mac_ver, gpu_name):
     monkeypatch.setattr(acc.platform, 'system', lambda: 'Darwin')
     monkeypatch.setattr(acc.platform, 'machine', lambda: 'arm64')
-    monkeypatch.setattr(acc.platform, 'mac_ver', lambda: ('unknown', (), ''))
-    monkeypatch.setattr(acc, '_metal_gpu_name', lambda: 'Apple GPU')
+    monkeypatch.setattr(acc.platform, 'mac_ver', lambda: (mac_ver, (), ''))
+    monkeypatch.setattr(acc, '_metal_gpu_name', lambda: gpu_name)
     label, note = acc._why_metal_is_unavailable()
-    assert label == 'Apple GPU'
+    assert label == gpu_name
     assert 'does not offer a Metal device' in note and 'Upgrading' not in note
 
 
@@ -248,16 +253,6 @@ def test_sysctl_strings_obey_the_two_pass_buffer_protocol(monkeypatch, failure):
     assert acc._sysctl_string(b'machdep.cpu.brand_string') == (
         'Apple Test\ufffd' if failure is None else '')
     assert probe.call_count == (2 if failure in (None, 'value') else 1)
-
-
-def test_an_unknown_macos_release_does_not_invent_an_upgrade_requirement(monkeypatch):
-    monkeypatch.setattr(acc.platform, 'system', lambda: 'Darwin')
-    monkeypatch.setattr(acc.platform, 'machine', lambda: 'arm64')
-    monkeypatch.setattr(acc.platform, 'mac_ver', lambda: ('', (), ''))
-    monkeypatch.setattr(acc, '_metal_gpu_name', lambda: 'Apple Test GPU')
-    label, note = acc._why_metal_is_unavailable()
-    assert label == 'Apple Test GPU'
-    assert 'does not offer a Metal device' in note and 'Upgrading' not in note
 
 
 def test_a_non_apple_sysctl_name_defers_to_the_actual_profiler_row(monkeypatch):

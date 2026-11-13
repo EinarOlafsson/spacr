@@ -80,13 +80,9 @@ def _crops(folder):
     return out
 
 
-def test_the_array_route_finds_both_objects(plate, tmp_path):
-    report = _run(plate, "array", tmp_path / "a")
-    assert report["written"] == 2, report.get("trouble")
-
-
-def test_the_database_route_finds_both_objects(plate, tmp_path):
-    report = _run(plate, "database", tmp_path / "d")
+@pytest.mark.parametrize("route, folder", [("array", "a"), ("database", "d")])
+def test_each_route_finds_both_objects(plate, tmp_path, route, folder):
+    report = _run(plate, route, tmp_path / folder)
     assert report["written"] == 2, report.get("trouble")
 
 

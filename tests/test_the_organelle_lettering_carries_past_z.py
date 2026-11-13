@@ -12,14 +12,6 @@ class TestTheFirstTwentySixAreByteIdentical:
     settings CSV or saved state moves.
     """
 
-    def test_slot_one_is_still_the_bare_word(self):
-        assert organelle_role(1) == "organelle"
-
-    @pytest.mark.parametrize("slot,expected", [
-        (2, "organelleb"), (3, "organellec"), (26, "organellez")])
-    def test_the_lettered_slots_are_unchanged(self, slot, expected):
-        assert organelle_role(slot) == expected
-
     def test_organellea_is_never_minted(self):
         """Slot 1 is the bare word, so a single 'a' cannot collide with 'aa'."""
         assert "organellea" not in {organelle_role(n)
@@ -29,12 +21,14 @@ class TestTheFirstTwentySixAreByteIdentical:
 class TestTheLetteringCarries:
     """A hundred organelles must work, so the alphabet cannot be the ceiling."""
 
-    def test_twenty_seven_carries_to_two_letters(self):
-        assert organelle_role(27) == "organelleaa"
-
     @pytest.mark.parametrize("slot,expected", [
+        # Slots 1..26 keep their exact current names.
+        (1, "organelle"),
+        (2, "organelleb"), (3, "organellec"), (26, "organellez"),
+        # Past z the lettering carries, counting in base twenty-six.
+        (27, "organelleaa"),
         (28, "organelleab"), (52, "organelleaz"), (53, "organelleba")])
-    def test_the_carry_counts_in_base_twenty_six(self, slot, expected):
+    def test_a_slot_is_lettered_in_base_twenty_six(self, slot, expected):
         assert organelle_role(slot) == expected
 
     def test_a_hundred_organelles_is_reachable(self):

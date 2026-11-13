@@ -48,19 +48,20 @@ def test_one_column_belongs_to_one_group_of_each_kind():
     assert column in grouped["family"]["intensity"]
 
 
-def test_choosing_cell_selects_every_cell_measurement():
-    chosen = resolve(COLUMNS, {"object": ["cell"]})
-    assert "cell_area" in chosen
-    assert "cell_channel_1_mean_intensity" in chosen
-    assert "nucleus_area" not in chosen
-
-
-def test_choosing_channel_1_selects_across_objects():
-    """A channel is not owned by one object type."""
-    chosen = resolve(COLUMNS, {"channel": ["channel_1"]})
-    assert "cell_channel_1_mean_intensity" in chosen
-    assert "pathogen_channel_1_mean_intensity" in chosen
-    assert "cell_channel_2_mean_intensity" not in chosen
+@pytest.mark.parametrize("choice, included, excluded", [
+    ({"object": ["cell"]},
+     ("cell_area", "cell_channel_1_mean_intensity"), ("nucleus_area",)),
+    # A channel is not owned by one object type.
+    ({"channel": ["channel_1"]},
+     ("cell_channel_1_mean_intensity", "pathogen_channel_1_mean_intensity"),
+     ("cell_channel_2_mean_intensity",)),
+], ids=["object-cell", "channel-1-across-objects"])
+def test_a_choice_selects_every_matching_measurement(choice, included, excluded):
+    chosen = resolve(COLUMNS, choice)
+    for column in included:
+        assert column in chosen
+    for column in excluded:
+        assert column not in chosen
 
 
 def test_choosing_a_family_selects_the_kind_of_quantity():

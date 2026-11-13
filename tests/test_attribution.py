@@ -941,19 +941,23 @@ class TestTransformers:
         assert np.isfinite(att.map).all()
 
     @requires_torchcam
-    def test_a_cam_on_a_patch_embedding_is_refused_by_name(self, image):
-        """The pure-ViT trap: there *is* a Conv2d, and a CAM over it is junk.
-
-        Grad-CAM on the patch embedding renders happily — a picture of local
-        image statistics with no class information in it. Silence here is the
-        failure mode the item forbids.
-        """
+    @pytest.mark.parametrize("model_class, model_type, fragments", [
+        # The pure-ViT trap: there *is* a Conv2d, and a CAM over it is junk.
+        # Grad-CAM on the patch embedding renders happily -- a picture of
+        # local image statistics with no class information in it. Silence
+        # here is the failure mode the item forbids.
+        (TinyViT, "vit_tiny",
+         ("vit_tiny", "patch embedding", "attention_rollout")),
+        (MLPNet, "linear_probe",
+         ("linear_probe", "no Conv2d layer", "attention_rollout")),
+    ], ids=["patch-embedding", "conv-free-model"])
+    def test_a_cam_on_a_model_without_a_spatial_layer_is_refused_by_name(
+            self, image, model_class, model_type, fragments):
         with pytest.raises(NoSpatialLayerError) as excinfo:
-            attribute(TinyViT(), image, "gradcam", model_type="vit_tiny")
+            attribute(model_class(), image, "gradcam", model_type=model_type)
         message = str(excinfo.value)
-        assert "vit_tiny" in message
-        assert "patch embedding" in message
-        assert "attention_rollout" in message
+        for fragment in fragments:
+            assert fragment in message
 
     @requires_torchcam
     def test_the_patch_embedding_cam_can_be_forced_explicitly(self, image):
@@ -965,15 +969,6 @@ class TestTransformers:
             att = attribute(TinyViT(), image, name, **_fast_kwargs(name))
             assert np.isfinite(att.map).all()
             assert att.map.shape == (IMG, IMG)
-
-    @requires_torchcam
-    def test_a_conv_free_model_names_itself_in_the_cam_error(self, image):
-        with pytest.raises(NoSpatialLayerError) as excinfo:
-            attribute(MLPNet(), image, "gradcam", model_type="linear_probe")
-        message = str(excinfo.value)
-        assert "linear_probe" in message
-        assert "no Conv2d layer" in message
-        assert "attention_rollout" in message
 
     def test_rollout_on_a_model_with_no_attention_names_the_alternative(self,
                                                                        image):

@@ -60,18 +60,15 @@ def _db(tmp_path, *, cell_border=None, pathogen_border=None):
     return str(path)
 
 
-@pytest.mark.parametrize("cell,pathogen", [(True, True), (False, False)])
-def test_matching_border_rules_agree(tmp_path, cell, pathogen):
-    """Both cleared or neither cleared is one population, counted once."""
+@pytest.mark.parametrize("cell,pathogen,agree", [
+    # Both cleared or neither cleared is one population, counted once.
+    (True, True, True), (False, False, True),
+    # Either direction is a mismatch; neither is safe to assume away.
+    (True, False, False), (False, True, False),
+])
+def test_border_rules_agree_only_when_they_match(tmp_path, cell, pathogen, agree):
     assert infection.border_rules_agree(
-        _db(tmp_path, cell_border=cell, pathogen_border=pathogen)) is True
-
-
-@pytest.mark.parametrize("cell,pathogen", [(True, False), (False, True)])
-def test_differing_border_rules_are_reported(tmp_path, cell, pathogen):
-    """Either direction is a mismatch; neither is safe to assume away."""
-    assert infection.border_rules_agree(
-        _db(tmp_path, cell_border=cell, pathogen_border=pathogen)) is False
+        _db(tmp_path, cell_border=cell, pathogen_border=pathogen)) is agree
 
 
 def test_a_database_that_recorded_neither_says_so_rather_than_guessing(

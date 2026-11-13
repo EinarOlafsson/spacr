@@ -302,28 +302,24 @@ class TestMockedSweep:
             "cam_type=gradcam", "cam_type=occlusion", "cam_type=saliency",
         ]
 
-    def test_deletion_auc_is_minimised_not_maximised(self, panel, qtbot):
-        """The one criterion here where a small number wins.
-
-        Ranking it the wrong way puts the least faithful map on top, which is
-        worse than not ranking at all.
-        """
+    @pytest.mark.parametrize("criterion, higher_is_better, winner", [
+        # The one criterion here where a small number wins. Ranking it the
+        # wrong way puts the least faithful map on top, which is worse than
+        # not ranking at all.
+        ("deletion_auc", False, "gradcam"),
+        # Switching the criterion switches the winner.
+        ("pointing_game", True, "occlusion"),
+    ], ids=["deletion_auc_is_minimised_not_maximised",
+            "switching_criterion_switches_the_winner"])
+    def test_deletion_auc_is_minimised_not_maximised(
+            self, panel, qtbot, criterion, higher_is_better, winner):
         _prep(panel)
-        panel._criterion.setCurrentText("deletion_auc")
+        panel._criterion.setCurrentText(criterion)
         panel.set_search_fn(scripted_search())
         with qtbot.waitSignal(panel.search_finished, timeout=5000):
             panel.run_search()
-        assert panel.result.higher_is_better is False
-        assert panel.result.best.params == {"cam_type": "gradcam"}
-
-    def test_switching_criterion_switches_the_winner(self, panel, qtbot):
-        _prep(panel)
-        panel._criterion.setCurrentText("pointing_game")
-        panel.set_search_fn(scripted_search())
-        with qtbot.waitSignal(panel.search_finished, timeout=5000):
-            panel.run_search()
-        assert panel.result.higher_is_better is True
-        assert panel.result.best.params == {"cam_type": "occlusion"}
+        assert panel.result.higher_is_better is higher_is_better
+        assert panel.result.best.params == {"cam_type": winner}
 
     def test_every_trial_carries_every_score(self, panel, qtbot):
         """A row that shows only the ranked criterion hides the finding."""

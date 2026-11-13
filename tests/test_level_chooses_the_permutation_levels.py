@@ -170,20 +170,18 @@ def _enabled(key, inference, regression_type="mixed"):
                               "analysis_unit": "well"}, None)
 
 
-@pytest.mark.parametrize("key", [
-    "regression_type", "regression_backend", "model_plate_position",
-    "random_row_column_effects", "intercept",
+@pytest.mark.parametrize("key, inference", [
+    # A model setting is dead on a permutation run ...
+    *[(key, "nonparametric") for key in (
+        "regression_type", "regression_backend", "model_plate_position",
+        "random_row_column_effects", "intercept")],
+    # ... and a permutation setting is dead on a fitted run.
+    *[(key, "parametric") for key in (
+        "grna_statistic", "guide_permutations", "guide_min_wells",
+        "guide_permutation_seed", "guide_permutation_block")],
 ])
-def test_a_model_setting_is_dead_on_a_permutation_run(key):
-    assert _enabled(key, "nonparametric") is False
-
-
-@pytest.mark.parametrize("key", [
-    "grna_statistic", "guide_permutations", "guide_min_wells",
-    "guide_permutation_seed", "guide_permutation_block",
-])
-def test_a_permutation_setting_is_dead_on_a_fitted_run(key):
-    assert _enabled(key, "parametric") is False
+def test_a_setting_of_the_other_level_is_dead(key, inference):
+    assert _enabled(key, inference) is False
 
 
 def test_the_permutation_section_greys_as_one():

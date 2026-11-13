@@ -154,21 +154,17 @@ class TestDoingItTwice:
 
 class TestItFailsOutLoud:
 
-    def test_a_database_with_no_png_list_says_which_tables_it_has(self,
-                                                                  tmp_path):
-        path = tmp_path / "empty.db"
+    @pytest.mark.parametrize("filename, create, message", [
+        ("empty.db", "CREATE TABLE cell (object_label INTEGER)", "no png_list"),
+        ("nokey.db", "CREATE TABLE png_list (png_path TEXT)", "png_path"),
+    ], ids=["no-png-list-names-the-tables", "missing-key-column-names-what-is-there"])
+    def test_a_database_that_cannot_take_the_write_says_what_it_has(
+            self, tmp_path, filename, create, message):
+        path = tmp_path / filename
         with sqlite3.connect(path) as connection:
-            connection.execute("CREATE TABLE cell (object_label INTEGER)")
+            connection.execute(create)
 
-        with pytest.raises(AttributionWriteError, match="no png_list"):
-            write(str(path), _rows(["x"]), confirmed=True)
-
-    def test_a_missing_key_column_names_what_is_there(self, tmp_path):
-        path = tmp_path / "nokey.db"
-        with sqlite3.connect(path) as connection:
-            connection.execute("CREATE TABLE png_list (png_path TEXT)")
-
-        with pytest.raises(AttributionWriteError, match="png_path"):
+        with pytest.raises(AttributionWriteError, match=message):
             write(str(path), _rows(["x"]), confirmed=True)
 
     def test_nothing_to_write_is_not_an_error(self, database):

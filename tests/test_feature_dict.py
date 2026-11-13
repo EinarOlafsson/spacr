@@ -178,9 +178,15 @@ def test_zernike_notes_record_the_radius_argument_quirk():
     assert "radius" in entry.notes
 
 
-def test_percentile_description_names_the_percentile():
-    assert "75th" in parse_column("cell_channel_1_percentile_75").description
-    assert "5th" in parse_column("cell_channel_1_percentile_5").description
+@pytest.mark.parametrize("column, fragment", [
+    ("cell_channel_1_percentile_75", "75th"),
+    ("cell_channel_1_percentile_5", "5th"),
+    # A composed name is described with ITS number, not the template's.
+    ("cytoplasm_channel_9_percentile_25", "25th percentile"),
+    ("pathogen_rad_dist_channel_3_bin_11", "shell 11"),
+])
+def test_a_parameterised_column_description_names_its_parameter(column, fragment):
+    assert fragment in parse_column(column).description
 
 
 def test_homogeneity_description_names_the_offset():
@@ -215,9 +221,12 @@ def test_single_channel_column_has_no_second_channel():
     assert entry.channel_2 is None
 
 
-def test_manders_notes_say_it_is_not_classical_manders():
-    entry = parse_column("cell_channel_0_channel_1_M1_correlation_15")
-    assert "Manders" in entry.notes
+@pytest.mark.parametrize("column, fragment", [
+    ("cell_channel_0_channel_1_M1_correlation_15", "Manders"),
+    ("cell_channel_0_mode_intensity", "NaN"),
+], ids=["not-classical-manders", "mode-intensity-always-nan"])
+def test_a_column_with_a_caveat_says_it_in_its_notes(column, fragment):
+    assert fragment in parse_column(column).notes
 
 
 # --------------------------------------------------------------------------
@@ -233,23 +242,16 @@ def test_periphery_and_outside_are_distinguished():
     assert "5 px" in outs.description
 
 
-def test_radial_bin_zero_warning_is_present():
-    entry = parse_column("nucleus_rad_dist_channel_0_bin_0")
-    assert entry.channel == 0
+@pytest.mark.parametrize("column, fragment", [
     # bin 0 collects every pixel where the distance map is 0, which includes
     # everything outside the parent cell (measure.py:658).
-    assert "bin_0" in entry.notes
-
-
-def test_blur_column_notes_the_duplicated_prefix():
-    entry = parse_column("cell_channel_0_cell_channel_0_blur")
+    ("nucleus_rad_dist_channel_0_bin_0", "bin_0"),
+    ("cell_channel_0_cell_channel_0_blur", "TWICE"),
+], ids=["radial-bin-zero", "blur-duplicated-prefix"])
+def test_a_column_with_a_quirk_names_its_channel_and_warns(column, fragment):
+    entry = parse_column(column)
     assert entry.channel == 0
-    assert "TWICE" in entry.notes
-
-
-def test_mode_intensity_is_flagged_as_always_nan():
-    entry = parse_column("cell_channel_0_mode_intensity")
-    assert "NaN" in entry.notes
+    assert fragment in entry.notes
 
 
 # --------------------------------------------------------------------------
