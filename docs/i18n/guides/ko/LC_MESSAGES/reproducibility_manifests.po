@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-13 11:37-0500\n"
+"POT-Creation-Date: 2026-11-13 18:37-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
@@ -96,12 +96,20 @@ msgid "A file written before a release changed a default does not hold the chang
 msgstr "릴리스에서 기본값이 바뀌기 전에 쓰인 파일에는 바뀐 키가 없으므로 새 기본값으로 실행되게 됩니다. ``spacr-run``, ``spacr repro``, 배치 대기열 또는 가져오기 설정이 설정 파일을 읽을 때, 파일 버전 이후에 기본값이 바뀌었고 파일이 설정하지 않은 각 키는 그 당시의 기본값을 받습니다. 직접 작성한 파일처럼 ``spacr_settings_version``\\ 이 없는 파일은 가장 오래된 버전으로 읽히며, 로그에는 그 파일에 적용된 모든 이전 기본값이 나열됩니다. 파일이 설정한 키가 항상 우선합니다. 현재 기본값을 사용하려면 해당 키를 설정하거나 파일에 현재 ``spacr_settings_version``\\ 을 추가하십시오."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The changes are kept in one table, ``DEFAULT_CHANGES`` in ``spacr/settings.py``, keyed by the number of the item that changed the default:"
-msgstr "변경 사항은 하나의 표, 즉 ``spacr/settings.py``\\ 의 ``DEFAULT_CHANGES``\\ 에 보관되며, 기본값을 바꾼 항목의 번호를 키로 합니다:"
+msgid "The changes are kept in one table, ``DEFAULT_CHANGES`` in ``spacr/settings.py``, keyed by the number of the item that changed the default. A key is always above every earlier one, so an item that changes a default after a higher-numbered item takes the next free number:"
+msgstr "변경 사항은 하나의 표, 즉 ``spacr/settings.py``\\ 의 ``DEFAULT_CHANGES``\\ 에 보관되며, 기본값을 바꾼 항목의 번호를 키로 합니다. 키는 항상 이전의 모든 키보다 크므로, 번호가 더 큰 항목 다음에 기본값을 바꾸는 항목은 다음 빈 번호를 씁니다:"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "931: ``ops_compose_blend`` was ``'average'``; it is now ``'feather'``."
 msgstr "931: ``ops_compose_blend``\\ 는 ``'average'``\\ 였으며, 이제 ``'feather'``\\ 입니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "932: ``ops_registration_precision`` was ``'float64'`` and ``ops_registration_backend`` ``'cpu'``; they are now ``'float32'`` and ``'gpu'``."
+msgstr "932: ``ops_registration_precision``\\ 는 ``'float64'``\\ , ``ops_registration_backend``\\ 는 ``'cpu'``\\ 였으며, 이제 각각 ``'float32'``\\ 와 ``'gpu'``\\ 입니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "933 (item 930's default switch): ``ops_align_model`` was ``'similarity'``; it is now ``'tile_affine'``."
+msgstr "933 (항목 930의 기본값 전환): ``ops_align_model``\\ 은 ``'similarity'``\\ 였으며, 이제 ``'tile_affine'``\\ 입니다."
 
 msgid "Public API"
 msgstr "공개 API"

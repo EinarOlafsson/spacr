@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-743 Lifecycle: new, 170 Lifecycle: future in features/feature_list/.
+744 Lifecycle: new, 169 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -552,9 +552,6 @@ FUTURE FEATURES
 
   929  OPS CALIBRATED CLUSTER TEST: PAIRED GUIDE-BOOTSTRAP REPLICATES, EXACT SIGN-FLIP P, TWO-LEVEL CI, JITTER GATE
        929_ops_calibrated_cluster_test.txt
-
-  930  OPS PER-TILE AFFINE ALIGNMENT OF PHENOTYPE FIELDS TO THE SEQUENCING NUCLEI
-       930_ops_tile_affine_alignment.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES
@@ -2040,6 +2037,8 @@ NEW FEATURES
        868_plaque_model_left_out_of_lfs.txt
   927  NATIVE CRASH REPORTS LACK SESSION CONTEXT WHEN THE FAULT DUMP IS EMPTY
        927_native_crash_reports_lack_session_context.txt
+  930  OPS PER-TILE AFFINE ALIGNMENT OF PHENOTYPE FIELDS TO THE SEQUENCING NUCLEI
+       930_ops_tile_affine_alignment.txt
   931  OPS FEATHERED TILE BLENDING OF THE SEQUENCING MOSAIC, AND SETTINGS THAT REMEMBER THEIR DEFAULTS
        931_ops_compose_feather_blend.txt
   932  OPS SBS GENOTYPING DECODE SPEED-UP: FLOAT32 OR GPU REGISTRATION, NO STACK COPIES, DIAGNOSTICS OFF, HASH MATCHER

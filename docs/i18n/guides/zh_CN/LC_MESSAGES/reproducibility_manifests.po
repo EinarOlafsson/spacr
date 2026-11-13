@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-13 11:37-0500\n"
+"POT-Creation-Date: 2026-11-13 18:37-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: zh_CN\n"
@@ -96,12 +96,20 @@ msgid "A file written before a release changed a default does not hold the chang
 msgstr "在某个版本更改默认值之前写入的文件不包含被更改的键，因此会以新的默认值运行。当 ``spacr-run``、``spacr repro``、批处理队列或“导入设置”读取设置文件时，凡是默认值在该文件版本之后被更改、且文件中未设置的键，都会获得当时的默认值。没有 ``spacr_settings_version`` 的文件（例如手写的文件）会按最旧版本读取，日志会列出它被赋予的每个旧默认值。文件中设置的键始终优先。若要使用当前的默认值，请设置这些键，或在文件中加入当前的 ``spacr_settings_version``。"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The changes are kept in one table, ``DEFAULT_CHANGES`` in ``spacr/settings.py``, keyed by the number of the item that changed the default:"
-msgstr "这些更改保存在一个表中，即 ``spacr/settings.py`` 中的 ``DEFAULT_CHANGES``，以更改默认值的条目编号为键："
+msgid "The changes are kept in one table, ``DEFAULT_CHANGES`` in ``spacr/settings.py``, keyed by the number of the item that changed the default. A key is always above every earlier one, so an item that changes a default after a higher-numbered item takes the next free number:"
+msgstr "这些更改保存在一个表中，即 ``spacr/settings.py`` 中的 ``DEFAULT_CHANGES``，以更改默认值的条目编号为键。键总是大于此前所有的键，因此在编号更大的条目之后更改默认值的条目使用下一个空闲编号："
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "931: ``ops_compose_blend`` was ``'average'``; it is now ``'feather'``."
 msgstr "931: ``ops_compose_blend`` 原为 ``'average'``；现在为 ``'feather'``。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "932: ``ops_registration_precision`` was ``'float64'`` and ``ops_registration_backend`` ``'cpu'``; they are now ``'float32'`` and ``'gpu'``."
+msgstr "932: ``ops_registration_precision`` 原为 ``'float64'``，``ops_registration_backend`` 原为 ``'cpu'``；现在分别为 ``'float32'`` 和 ``'gpu'``。"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "933 (item 930's default switch): ``ops_align_model`` was ``'similarity'``; it is now ``'tile_affine'``."
+msgstr "933（条目 930 的默认值切换）：``ops_align_model`` 原为 ``'similarity'``；现在为 ``'tile_affine'``。"
 
 msgid "Public API"
 msgstr "公共 API"
