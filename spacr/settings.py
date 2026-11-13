@@ -2528,9 +2528,11 @@ def surviving_setting_name(key):
 
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
-SETTINGS_SCHEMA_VERSION = 931
+SETTINGS_SCHEMA_VERSION = 932
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
+    932: {'ops_registration_precision': 'float64',
+          'ops_registration_backend': 'cpu'},
 }
 
 

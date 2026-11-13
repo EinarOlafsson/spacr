@@ -738,6 +738,11 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # Item 931 (2026-11-13): feathered blending of the OPS sequencing
     # mosaic (OPS stage 1, seam arm none:feather).
     "ops_compose_blend",
+    # Item 932 (2026-11-13): the genotyping decode speed-up -- registration
+    # precision and backend, and the optional per-field diagnostics.
+    "ops_registration_precision",
+    "ops_registration_backend",
+    "ops_field_diagnostics",
     # Item 930 (2026-11-13): per-tile affine alignment of phenotype fields
     # to the sequencing nuclei (OPS stage 1, arm vii).
     "ops_align_model",

@@ -5048,7 +5048,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # contract (871_911_bmc_paper_items_api_arrivals_2026-11-09.json).
     # 2026-11-13 item 931: 20,254 -> 20,255, the optional `blend` keyword of
     # spacr.ops_compose.compose_window (feathered tile blending).
-    assert sum(len(item.parameters) for item in callables) == 20255
+        # 20,255 -> 20,258 on 2026-11-13: item 932's align_field gains the
+    # optional precision, backend and registrations (all defaulted, so the
+    # required total below does not move).
+    assert sum(len(item.parameters) for item in callables) == 20258
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -5155,6 +5158,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # model_zoo_picker.drawing_in_steps, MakeMasksScreen.showEvent,
     # SettingsSearchBar.event, PairedFileTableWidget.eventFilter and
     # Toggle.changeEvent; no existing row changed.
+    # Moved 2026-11-13 for item 932 (was 530b264e...): spacr.ops_cycles.align_field's
+    # three new optional parameters (item 932); the parameter total above
+    # moves by the same three and the required total does not.
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
         f"{','.join(sorted(item.parameters))}\0"
@@ -5381,7 +5387,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # functions of spacr.ops_decode.
     # Moved 2026-11-13 for item 931 (was c82380fb...): compose_window's new
     # `blend` keyword (feathered tile blending).
-) == '530b264e7641c72cfac77d008ecf714816f45a5fff548c19048b9743a059c492'
+) == 'a330e2b57717c690784dcdc2f8572940829eec19a2e093e82e6a384acae76fcd'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
