@@ -76,14 +76,16 @@ Arcs deliberately left uncovered, with the reason each one cannot be taken
 from __future__ import annotations
 
 import builtins
+import inspect
 import os
+import re
 import sqlite3
 
+import matplotlib
 import numpy as np
 import pandas as pd
 import pytest
 
-import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
@@ -128,8 +130,9 @@ def fake_writer(monkeypatch):
     return _FakeWriter
 
 
-def _case_a_frame_with_a_fourth_axis_is_refused_before_the_writer(tmp_path, fake_writer):
+def _scn_a_frame_with_a_fourth_axis_is_refused_before_the_writer(tmp_path, fake_writer):
     """A volume needs an explicit slice or projection before movie export."""
+    _obs = []
     stack = np.zeros((8, 10, 2, 3), dtype=np.uint8)
     stack[..., 0, 0] = 11
     stack[..., 1, 0] = 22
@@ -137,10 +140,13 @@ def _case_a_frame_with_a_fourth_axis_is_refused_before_the_writer(tmp_path, fake
     rgb = np.zeros((8, 10, 3), dtype=np.uint8)
     rgb[..., 0] = 33  # red
 
-    with pytest.raises(ValueError, match="frame 0.*2-D"):
+    with pytest.raises(ValueError, match="frame 0.*2-D") as _raised:
         tl._npz_to_movie([stack, rgb], ["stack.npy", "rgb.npy"],
                          str(tmp_path / "m.avi"))
+    _obs.append(_seen(type(_raised.value).__name__ + ": " + str(_raised.value), True))
     assert fake_writer.instances == []
+    _obs.append(_seen((fake_writer.instances), (fake_writer.instances == [])))
+    return _obs
 
 
 # ===========================================================================
@@ -158,13 +164,14 @@ class _AlwaysFailingLinker:
         raise RuntimeError("no link")
 
 
-def test_a_fractional_increment_walks_past_the_floor_without_warning(monkeypatch, capsys):
+def _scn_a_fractional_increment_walks_past_the_floor_without_warning(monkeypatch, capsys):
     """The warning compares against ``initial - attempts * increment``.
 
     Repeated subtraction of an integer increment lands exactly on that floor
     and warns; a fractional increment drifts a hair above it and the same
     exhausted search says nothing.
     """
+    _obs = []
     linker = _AlwaysFailingLinker()
     monkeypatch.setattr(tl, "tp", linker)
 
@@ -173,16 +180,23 @@ def test_a_fractional_increment_walks_past_the_floor_without_warning(monkeypatch
     )
     warned = capsys.readouterr().out
     assert exact == 470
+    _obs.append(_seen((exact), (exact == 470)))
     assert "timelapse_displacement=470 is too high" in warned
+    _obs.append(_seen(("timelapse_displacement=470 is too high" in warned), ("timelapse_displacement=470 is too high" in warned)))
     assert linker.calls == 3
+    _obs.append(_seen((linker.calls), (linker.calls == 3)))
 
     drifted = tl._find_optimal_search_range(
         features=[], initial_search_range=500.0, increment=0.7, max_attempts=3
     )
     quiet = capsys.readouterr().out
     assert drifted > 500.0 - 3 * 0.7          # floating-point drift, not maths
+    _obs.append(_seen((drifted > 500.0 - 3 * 0.7), (drifted > 500.0 - 3 * 0.7)))
     assert drifted == pytest.approx(497.9)
+    _obs.append(_seen((drifted), (drifted == pytest.approx(497.9))))
     assert "is too high" not in quiet
+    _obs.append(_seen(("is too high" not in quiet), ("is too high" not in quiet)))
+    return _obs
 
 
 # ===========================================================================
@@ -208,23 +222,31 @@ def _pathogen_frame(with_object_label=True):
     return pd.DataFrame(rows)
 
 
-def _case_pathogen_aggregation_without_an_object_label_still_renames_the_cell_link():
+def _scn_pathogen_aggregation_without_an_object_label_still_renames_the_cell_link():
     """``object_label`` is dropped when present and simply absent otherwise.
 
     Either way the host-cell link becomes the frame's ``object_label``.
     """
+    _obs = []
     with_label = tl.preprocess_pathogen_data(_pathogen_frame(True))
     without_label = tl.preprocess_pathogen_data(_pathogen_frame(False))
 
     for out in (with_label, without_label):
         assert len(out) == 2
+        _obs.append(_seen((len(out)), (len(out) == 2)))
         assert "cell_id" not in out.columns
+        _obs.append(_seen(("cell_id" not in out.columns), ("cell_id" not in out.columns)))
         assert sorted(out["object_label"]) == [1, 2]
+        _obs.append(_seen((sorted(out["object_label"])), (sorted(out["object_label"]) == [1, 2])))
         assert sorted(out["parasite_count"]) == [2, 2]
+        _obs.append(_seen((sorted(out["parasite_count"])), (sorted(out["parasite_count"]) == [2, 2])))
         assert out["pathogen_area"].tolist() == [15.0, 15.0]
+        _obs.append(_seen((out["pathogen_area"].tolist()), (out["pathogen_area"].tolist() == [15.0, 15.0])))
 
     # the pathogen's own label never survives, whichever way it arrived
     assert with_label.columns.tolist() == without_label.columns.tolist()
+    _obs.append(_seen((with_label.columns.tolist()), (with_label.columns.tolist() == without_label.columns.tolist())))
+    return _obs
 
 
 # ===========================================================================
@@ -329,8 +351,9 @@ def _xgb_panel_settings(**extra):
     return s
 
 
-def _case_an_all_uninfected_well_draws_only_the_uninfected_half(tmp_path, panels):
+def _scn_an_all_uninfected_well_draws_only_the_uninfected_half(tmp_path, panels):
     """No infected cell -> one violin group and one probability histogram."""
+    _obs = []
     uninfected = _panel_all_df(pathogen_chan=1, infected=lambda c: False)
     uninfected["infection_prob"] = np.linspace(0.05, 0.45, len(uninfected))
     _call_panel(
@@ -342,8 +365,11 @@ def _case_an_all_uninfected_well_draws_only_the_uninfected_half(tmp_path, panels
     )
     _fig, axes = panels[0]
     assert [t.get_text() for t in axes[0].get_xticklabels()] == ["Uninf"]
+    _obs.append(_seen(([t.get_text() for t in axes[0].get_xticklabels()]), ([t.get_text() for t in axes[0].get_xticklabels()] == ["Uninf"])))
     assert len(axes[7].patches) == 20          # a single 20-bin histogram
+    _obs.append(_seen((len(axes[7].patches)), (len(axes[7].patches) == 20)))
     assert [t.get_text() for t in axes[7].get_legend().get_texts()] == ["Uninfected"]
+    _obs.append(_seen(([t.get_text() for t in axes[7].get_legend().get_texts()]), ([t.get_text() for t in axes[7].get_legend().get_texts()] == ["Uninfected"])))
 
     # same panel, one infected cell added: both halves appear
     mixed = _panel_all_df(pathogen_chan=1, infected=lambda c: c == 0)
@@ -357,18 +383,25 @@ def _case_an_all_uninfected_well_draws_only_the_uninfected_half(tmp_path, panels
     )
     _fig2, axes2 = panels[1]
     assert [t.get_text() for t in axes2[0].get_xticklabels()] == ["Inf", "Uninf"]
+    _obs.append(_seen(([t.get_text() for t in axes2[0].get_xticklabels()]), ([t.get_text() for t in axes2[0].get_xticklabels()] == ["Inf", "Uninf"])))
     assert len(axes2[7].patches) == 40
+    _obs.append(_seen((len(axes2[7].patches)), (len(axes2[7].patches) == 40)))
     assert [t.get_text() for t in axes2[7].get_legend().get_texts()] == [
         "Uninfected", "Infected",
     ]
+    _obs.append(_seen(([t.get_text() for t in axes2[7].get_legend().get_texts()]), ([t.get_text() for t in axes2[7].get_legend().get_texts()] == [
+        "Uninfected", "Infected",
+    ])))
+    return _obs
 
 
-def _case_a_pathogen_channel_without_its_columns_adds_no_extra_axes(tmp_path, panels):
+def _scn_a_pathogen_channel_without_its_columns_adds_no_extra_axes(tmp_path, panels):
     """``pathogen_channel`` is set but p75 / pathogen / cytoplasm are absent.
 
     Neither extra intensity axis is allocated and neither is drawn, so the
     panel is exactly one axis per channel plus the three motility axes.
     """
+    _obs = []
     out = _call_panel(
         tmp_path,
         name="bare",
@@ -376,18 +409,27 @@ def _case_a_pathogen_channel_without_its_columns_adds_no_extra_axes(tmp_path, pa
         settings={"pathogen_channel": 1},
     )
     assert sorted(os.listdir(out)) == ["plate1_A01.pdf"]
+    _obs.append(_seen((sorted(os.listdir(out))), (sorted(os.listdir(out)) == ["plate1_A01.pdf"])))
     _fig, axes = panels[0]
     assert len(axes) == 5                          # 2 channels + 3 motility axes
+    _obs.append(_seen((len(axes)), (len(axes) == 5)))
     assert [ax.get_title() for ax in axes[:2]] == ["Ch 0 mean", "Ch 1 mean"]
+    _obs.append(_seen(([ax.get_title() for ax in axes[:2]]), ([ax.get_title() for ax in axes[:2]] == ["Ch 0 mean", "Ch 1 mean"])))
     assert axes[2].get_xlabel() == "x (µm)"        # the all-tracks plot, not p75
+    _obs.append(_seen((axes[2].get_xlabel()), (axes[2].get_xlabel() == "x (µm)")))
 
     # with the columns present the same settings produce the two extra axes
     _call_panel(tmp_path, name="full", settings={"pathogen_channel": 1})
     _fig2, axes2 = panels[1]
     assert len(axes2) == 7
+    _obs.append(_seen((len(axes2)), (len(axes2) == 7)))
     assert [ax.get_title() for ax in axes2[:4]] == [
         "Ch 0 mean", "Ch 1 mean", "Ch 1 p75", "Ch 1 pathogen/cytoplasm",
     ]
+    _obs.append(_seen(([ax.get_title() for ax in axes2[:4]]), ([ax.get_title() for ax in axes2[:4]] == [
+        "Ch 0 mean", "Ch 1 mean", "Ch 1 p75", "Ch 1 pathogen/cytoplasm",
+    ])))
+    return _obs
 
 
 # ===========================================================================
@@ -446,50 +488,68 @@ def _run_group(src, basenames):
     return tl._process_merged_group((src, basenames, 2, 0, 0, 1))
 
 
-def _case_a_dead_intensity_channel_contributes_no_percentile_columns(tmp_path):
+def _scn_a_dead_intensity_channel_contributes_no_percentile_columns(tmp_path):
     """An all-NaN channel yields no percentiles for any compartment.
 
     The finite channel in the same stack still does, for cell, nucleus,
     pathogen and cytoplasm alike.
     """
+    _obs = []
     src, basenames = _write_group(tmp_path, "dead", dead_channel=True)
     df = _run_group(src, basenames)
 
     assert len(df) == 3                                   # one cell x 3 frames
+    _obs.append(_seen((len(df)), (len(df) == 3)))
     for prefix in ("cell", "nucleus", "pathogen", "cytoplasm"):
         assert f"{prefix}_p75_intensity_ch0" in df.columns
+        _obs.append(_seen((f"{prefix}_p75_intensity_ch0" in df.columns), (f"{prefix}_p75_intensity_ch0" in df.columns)))
         assert f"{prefix}_p95_intensity_ch1" not in df.columns
+        _obs.append(_seen((f"{prefix}_p95_intensity_ch1" not in df.columns), (f"{prefix}_p95_intensity_ch1" not in df.columns)))
         assert f"{prefix}_p75_intensity_ch1" not in df.columns
+        _obs.append(_seen((f"{prefix}_p75_intensity_ch1" not in df.columns), (f"{prefix}_p75_intensity_ch1" not in df.columns)))
     # the dead channel still reaches the mean-intensity table, as NaN
     assert df["cell_mean_intensity_ch1"].isna().all()
+    _obs.append(_seen((df["cell_mean_intensity_ch1"].isna().all()), (df["cell_mean_intensity_ch1"].isna().all())))
     assert df["cell_mean_intensity_ch0"].notna().all()
+    _obs.append(_seen((df["cell_mean_intensity_ch0"].notna().all()), (df["cell_mean_intensity_ch0"].notna().all())))
+    return _obs
 
 
-def _case_children_outside_every_cell_produce_no_child_summaries(tmp_path):
+def _scn_children_outside_every_cell_produce_no_child_summaries(tmp_path):
     """Nucleus/pathogen objects that overlap no cell are summarised away.
 
     The cytoplasm, which is carved out of the cell mask itself, always
     overlaps and keeps its summary.
     """
+    _obs = []
     src, basenames = _write_group(tmp_path, "outside", children_outside=True)
     df = _run_group(src, basenames)
 
     assert len(df) == 3
+    _obs.append(_seen((len(df)), (len(df) == 3)))
     assert "n_nuclei" not in df.columns
+    _obs.append(_seen(("n_nuclei" not in df.columns), ("n_nuclei" not in df.columns)))
     assert "n_pathogens" not in df.columns
+    _obs.append(_seen(("n_pathogens" not in df.columns), ("n_pathogens" not in df.columns)))
     assert "n_cytoplasm" in df.columns
+    _obs.append(_seen(("n_cytoplasm" in df.columns), ("n_cytoplasm" in df.columns)))
     assert (df["n_cytoplasm"] == 1).all()
+    _obs.append(_seen(((df["n_cytoplasm"] == 1).all()), ((df["n_cytoplasm"] == 1).all())))
     # cytoplasm == the whole cell, because neither child was subtracted from it
     assert np.allclose(df["cytoplasm_area"], CELL_AREA)
+    _obs.append(_seen((np.allclose(df["cytoplasm_area"], CELL_AREA)), (np.allclose(df["cytoplasm_area"], CELL_AREA))))
 
     # the same masks placed inside the cell do summarise
     src2, basenames2 = _write_group(tmp_path, "inside")
     inside = _run_group(src2, basenames2)
     assert (inside["n_nuclei"] == 1).all()
+    _obs.append(_seen(((inside["n_nuclei"] == 1).all()), ((inside["n_nuclei"] == 1).all())))
     assert (inside["n_pathogens"] == 1).all()
+    _obs.append(_seen(((inside["n_pathogens"] == 1).all()), ((inside["n_pathogens"] == 1).all())))
+    return _obs
 
 
-def _case_an_empty_mean_intensity_table_leaves_the_geometry_intact(tmp_path, monkeypatch):
+def _scn_an_empty_mean_intensity_table_leaves_the_geometry_intact(tmp_path, monkeypatch):
     """Failure injection: the per-channel mean helper finds nothing.
 
     Nothing in the pipeline can produce this -- ``_process_merged_group``
@@ -497,9 +557,11 @@ def _case_an_empty_mean_intensity_table_leaves_the_geometry_intact(tmp_path, mon
     so the guard is driven at the module seam the worker looks the helper up
     through.
     """
+    _obs = []
     src, basenames = _write_group(tmp_path, "nomeans")
     baseline = _run_group(src, basenames)
     assert [c for c in baseline.columns if c.startswith("cell_mean_intensity_ch")]
+    _obs.append(_seen(([c for c in baseline.columns if c.startswith("cell_mean_intensity_ch")]), ([c for c in baseline.columns if c.startswith("cell_mean_intensity_ch")])))
 
     def _nothing(mask_stack, intensity_stack, channel_index):
         return pd.DataFrame(
@@ -510,18 +572,24 @@ def _case_an_empty_mean_intensity_table_leaves_the_geometry_intact(tmp_path, mon
     df = _run_group(src, basenames)
 
     assert len(df) == len(baseline)
+    _obs.append(_seen((len(df)), (len(df) == len(baseline))))
     assert not [c for c in df.columns if c.startswith("cell_mean_intensity_ch")]
+    _obs.append(_seen((not [c for c in df.columns if c.startswith("cell_mean_intensity_ch")]), (not [c for c in df.columns if c.startswith("cell_mean_intensity_ch")])))
     assert (df["cell_area"] == CELL_AREA).all()       # geometry is untouched
+    _obs.append(_seen(((df["cell_area"] == CELL_AREA).all()), ((df["cell_area"] == CELL_AREA).all())))
     assert (df["n_nuclei"] == 1).all()
+    _obs.append(_seen(((df["n_nuclei"] == 1).all()), ((df["n_nuclei"] == 1).all())))
+    return _obs
 
 
-def _case_an_empty_cytoplasm_overlap_drops_only_the_cytoplasm_summary(tmp_path, monkeypatch):
+def _scn_an_empty_cytoplasm_overlap_drops_only_the_cytoplasm_summary(tmp_path, monkeypatch):
     """Failure injection: the cell/cytoplasm overlap table comes back empty.
 
     The cytoplasm mask is the cell mask minus its children, so it can never
     really miss the cell; the nucleus and pathogen summaries in the same run
     show the guard is specific to the compartment whose overlaps vanished.
     """
+    _obs = []
     src, basenames = _write_group(tmp_path, "nocyto")
     real = tl._compute_parent_child_overlaps
 
@@ -540,10 +608,16 @@ def _case_an_empty_cytoplasm_overlap_drops_only_the_cytoplasm_summary(tmp_path, 
     df = _run_group(src, basenames)
 
     assert len(df) == 3
+    _obs.append(_seen((len(df)), (len(df) == 3)))
     assert "n_cytoplasm" not in df.columns
+    _obs.append(_seen(("n_cytoplasm" not in df.columns), ("n_cytoplasm" not in df.columns)))
     assert "cytoplasm_area" not in df.columns
+    _obs.append(_seen(("cytoplasm_area" not in df.columns), ("cytoplasm_area" not in df.columns)))
     assert (df["n_nuclei"] == 1).all()
+    _obs.append(_seen(((df["n_nuclei"] == 1).all()), ((df["n_nuclei"] == 1).all())))
     assert (df["n_pathogens"] == 1).all()
+    _obs.append(_seen(((df["n_pathogens"] == 1).all()), ((df["n_pathogens"] == 1).all())))
+    return _obs
 
 
 # ===========================================================================
@@ -564,12 +638,13 @@ def _smooth_frame(cell_id, values):
     })
 
 
-def _case_an_outlier_beside_a_second_outlier_is_not_interpolated_away():
+def _scn_an_outlier_beside_a_second_outlier_is_not_interpolated_away():
     """Interpolation needs both neighbours below half the z threshold.
 
     Two adjacent spikes keep each other, a lone spike is replaced by the
     mean of its neighbours.
     """
+    _obs = []
     df = pd.concat(
         [
             _smooth_frame(1, [100.0, 100.0, 1000.0, 1000.0, 100.0, 100.0]),
@@ -582,7 +657,10 @@ def _case_an_outlier_beside_a_second_outlier_is_not_interpolated_away():
     pair = out[out["cellID"] == 1]["cell_area"].tolist()
     lone = out[out["cellID"] == 2]["cell_area"].tolist()
     assert pair == [100.0, 100.0, 1000.0, 1000.0, 100.0, 100.0]
+    _obs.append(_seen((pair), (pair == [100.0, 100.0, 1000.0, 1000.0, 100.0, 100.0])))
     assert lone == [100.0, 100.0, 100.0, 100.0, 100.0]
+    _obs.append(_seen((lone), (lone == [100.0, 100.0, 100.0, 100.0, 100.0])))
+    return _obs
 
 
 # ===========================================================================
@@ -626,24 +704,31 @@ def _pca_coords(df, weight):
     return payload["coords"]
 
 
-def _case_a_pathogen_weight_does_nothing_when_every_pathogen_feature_is_degenerate():
+def _scn_a_pathogen_weight_does_nothing_when_every_pathogen_feature_is_degenerate():
     """The weight is applied by feature index, and there may be none.
 
     A constant pathogen-channel column is still a pathogen column, so the
     ``path_cols`` guard passes, but the degeneracy filter has already taken
     it out of the feature matrix and the up-weighting has no column to hit.
     """
+    _obs = []
     degenerate = _pca_frame(constant_pathogen=True)
     assert _pca_coords(degenerate, 1.0) == pytest.approx(
         _pca_coords(degenerate, 4.0)
     )
+    _obs.append(_seen((_pca_coords(degenerate, 1.0)), (_pca_coords(degenerate, 1.0) == pytest.approx(
+        _pca_coords(degenerate, 4.0)
+    ))))
 
     # a pathogen feature that survives the filter really is up-weighted
     usable = _pca_frame(constant_pathogen=False)
     plain = _pca_coords(usable, 1.0)
     weighted = _pca_coords(usable, 4.0)
     assert plain.shape == weighted.shape
+    _obs.append(_seen((plain.shape), (plain.shape == weighted.shape)))
     assert not np.allclose(plain, weighted)
+    _obs.append(_seen((not np.allclose(plain, weighted)), (not np.allclose(plain, weighted))))
+    return _obs
 
 
 # ===========================================================================
@@ -687,17 +772,7 @@ def _patch_strategies(monkeypatch, calls, adjust):
         monkeypatch.setattr(tl, attr, _fake_strategy(calls, adjust))
 
 
-@pytest.mark.parametrize(
-    "scope, drop_col, expected_msg",
-    [
-        ("bogus_scope", None,
-         "Unknown scope='bogus_scope'; using 'combined' behaviour."),
-        ("plate", "plateID",
-         "missing grouping columns ['plateID']; falling back to combined QC."),
-    ],
-    ids=["unknown_scope", "missing_group_column"],
-)
-def _case_a_combined_fallback_keeps_the_helper_column_when_nothing_was_adjusted(
+def _scn_a_combined_fallback_keeps_the_helper_column_when_nothing_was_adjusted(
     tmp_path, monkeypatch, capsys, scope, drop_col, expected_msg,
 ):
     """Both fallbacks return the helper's own label column untouched.
@@ -705,6 +780,7 @@ def _case_a_combined_fallback_keeps_the_helper_column_when_nothing_was_adjusted(
     Whether the scope name is unknown or the grouping column is missing, an
     ``adjusted_infected`` column is only reported when the helper made one.
     """
+    _obs = []
     df = _apply_frame()
     if drop_col:
         df = df.drop(columns=[drop_col])
@@ -719,11 +795,17 @@ def _case_a_combined_fallback_keeps_the_helper_column_when_nothing_was_adjusted(
         df, settings, "infected", 2, str(tmp_path / "mot")
     )
     assert col == "infected"
+    _obs.append(_seen((col), (col == "infected")))
     assert "adjusted_infected" not in out.columns
+    _obs.append(_seen(("adjusted_infected" not in out.columns), ("adjusted_infected" not in out.columns)))
     assert len(out) == len(df)
+    _obs.append(_seen((len(out)), (len(out) == len(df))))
     assert settings["infection_hist_data"] == "hist-payload"   # payload propagated
+    _obs.append(_seen((settings["infection_hist_data"]), (settings["infection_hist_data"] == "hist-payload")))
     assert len(calls) == 1 and calls[0]["n_rows"] == len(df)
+    _obs.append(_seen((len(calls) == 1 and calls[0]["n_rows"] == len(df)), (len(calls) == 1 and calls[0]["n_rows"] == len(df))))
     assert expected_msg in capsys.readouterr().out
+    _obs.append(_seen((expected_msg in capsys.readouterr().out), (expected_msg in capsys.readouterr().out)))
 
     # the same fallback does switch columns when the helper adjusts labels
     calls2 = []
@@ -736,7 +818,10 @@ def _case_a_combined_fallback_keeps_the_helper_column_when_nothing_was_adjusted(
         df, settings2, "infected", 2, str(tmp_path / "mot")
     )
     assert col2 == "adjusted_infected"
+    _obs.append(_seen((col2), (col2 == "adjusted_infected")))
     assert out2["adjusted_infected"].tolist() == [1] * len(df)
+    _obs.append(_seen((out2["adjusted_infected"].tolist()), (out2["adjusted_infected"].tolist() == [1] * len(df))))
+    return _obs
 
 
 # ===========================================================================
@@ -789,12 +874,13 @@ def _xgb_settings(**over):
     return base
 
 
-def _case_a_single_feature_model_skips_correlation_pruning(tmp_path, capsys):
+def _scn_a_single_feature_model_skips_correlation_pruning(tmp_path, capsys):
     """With one feature column there is no correlation matrix to prune.
 
     The same data plus a perfectly correlated second feature does go through
     the filter, which is what makes the single-feature path distinguishable.
     """
+    _obs = []
     settings = _xgb_settings()
     out, col = tl._infection_qc_xgboost(
         all_df=_xgb_frame(),
@@ -805,12 +891,19 @@ def _case_a_single_feature_model_skips_correlation_pruning(tmp_path, capsys):
     )
     txt = capsys.readouterr().out
     assert col == "adjusted_infected"
+    _obs.append(_seen((col), (col == "adjusted_infected")))
     assert out["adjusted_infected"].dtype.kind == "i"
+    _obs.append(_seen((out["adjusted_infected"].dtype.kind), (out["adjusted_infected"].dtype.kind == "i")))
     assert settings["infection_xgb_importance"]["feature_names"] == [
         f"cell_p95_intensity_ch{XGB_CHAN}"
     ]
+    _obs.append(_seen((settings["infection_xgb_importance"]["feature_names"]), (settings["infection_xgb_importance"]["feature_names"] == [
+        f"cell_p95_intensity_ch{XGB_CHAN}"
+    ])))
     assert "Using 1 cell_* features" in txt
+    _obs.append(_seen(("Using 1 cell_* features" in txt), ("Using 1 cell_* features" in txt)))
     assert "Removing highly correlated features" not in txt
+    _obs.append(_seen(("Removing highly correlated features" not in txt), ("Removing highly correlated features" not in txt)))
 
     settings2 = _xgb_settings()
     tl._infection_qc_xgboost(
@@ -822,12 +915,17 @@ def _case_a_single_feature_model_skips_correlation_pruning(tmp_path, capsys):
     )
     txt2 = capsys.readouterr().out
     assert "Removing highly correlated features" in txt2
+    _obs.append(_seen(("Removing highly correlated features" in txt2), ("Removing highly correlated features" in txt2)))
     assert settings2["infection_xgb_importance"]["feature_names"] == [
         f"cell_p95_intensity_ch{XGB_CHAN}"
     ]
+    _obs.append(_seen((settings2["infection_xgb_importance"]["feature_names"]), (settings2["infection_xgb_importance"]["feature_names"] == [
+        f"cell_p95_intensity_ch{XGB_CHAN}"
+    ])))
+    return _obs
 
 
-def _case_a_failing_stdout_does_not_lose_the_relabelled_frame(tmp_path, monkeypatch):
+def _scn_a_failing_stdout_does_not_lose_the_relabelled_frame(tmp_path, monkeypatch):
     """The final count report is best-effort.
 
     A closed pipe under the "Final infection counts" print (BrokenPipeError
@@ -835,6 +933,7 @@ def _case_a_failing_stdout_does_not_lose_the_relabelled_frame(tmp_path, monkeypa
     finishes: the payloads after it are written and the frame is returned
     with its adjusted labels.
     """
+    _obs = []
     seen = []
     real_print = builtins.print
 
@@ -858,13 +957,24 @@ def _case_a_failing_stdout_does_not_lose_the_relabelled_frame(tmp_path, monkeypa
 
     assert any(m.startswith("[_infection_qc_xgboost] Final infection counts")
                for m in seen)
+    _obs.append(_seen((any(m.startswith("[_infection_qc_xgboost] Final infection counts")
+               for m in seen)), (any(m.startswith("[_infection_qc_xgboost] Final infection counts")
+               for m in seen))))
     # everything after the swallowed failure still ran
     assert any(m.startswith("[_infection_qc_xgboost] Top XGBoost features")
                for m in seen)
+    _obs.append(_seen((any(m.startswith("[_infection_qc_xgboost] Top XGBoost features")
+               for m in seen)), (any(m.startswith("[_infection_qc_xgboost] Top XGBoost features")
+               for m in seen))))
     assert settings["infection_xgb_importance"]["feature_names"]
+    _obs.append(_seen((settings["infection_xgb_importance"]["feature_names"]), (settings["infection_xgb_importance"]["feature_names"])))
     assert settings["infection_intensity_qc_panel_type"] == "xgboost"
+    _obs.append(_seen((settings["infection_intensity_qc_panel_type"]), (settings["infection_intensity_qc_panel_type"] == "xgboost")))
     assert col == "adjusted_infected"
+    _obs.append(_seen((col), (col == "adjusted_infected")))
     assert out["adjusted_infected"].notna().all()
+    _obs.append(_seen((out["adjusted_infected"].notna().all()), (out["adjusted_infected"].notna().all())))
+    return _obs
 
 
 # ===========================================================================
@@ -941,7 +1051,7 @@ def _assay_settings(src, **over):
     return base
 
 
-def _case_a_frame_with_no_probability_column_skips_ambiguous_track_filtering(
+def _scn_a_frame_with_no_probability_column_skips_ambiguous_track_filtering(
     tmp_path, panel_calls, capsys,
 ):
     """Auto-discovery runs, finds no candidate at all, and says so.
@@ -949,18 +1059,24 @@ def _case_a_frame_with_no_probability_column_skips_ambiguous_track_filtering(
     The QC scope is off, so nothing wrote a probability column; the same
     assay over a frame that *has* one drops the ambiguous tracks instead.
     """
+    _obs = []
     src = _assay_src(tmp_path, "no_prob")
     df = _assay_frame()
     assert not [c for c in df.columns if "prob" in c.lower()]
+    _obs.append(_seen((not [c for c in df.columns if "prob" in c.lower()]), (not [c for c in df.columns if "prob" in c.lower()])))
     _write_assay_db(src, df)
 
     out = tl.automated_motility_assay(_assay_settings(src))
     txt = capsys.readouterr().out
     assert "no XGBoost probability/score column was found" in txt
+    _obs.append(_seen(("no XGBoost probability/score column was found" in txt), ("no XGBoost probability/score column was found" in txt)))
     assert len(out) == len(df)                     # no track was dropped
+    _obs.append(_seen((len(out)), (len(out) == len(df))))
     assert "adjusted_infected" not in out.columns  # QC scope 'none'
+    _obs.append(_seen(("adjusted_infected" not in out.columns), ("adjusted_infected" not in out.columns)))
     # only the mask panel is drawn when the labels were never adjusted
     assert [c["label_tag"] for c in panel_calls] == ["mask_xgboost"]
+    _obs.append(_seen(([c["label_tag"] for c in panel_calls]), ([c["label_tag"] for c in panel_calls] == ["mask_xgboost"])))
 
     # the same settings over a frame carrying a probability column do filter
     src2 = _assay_src(tmp_path, "with_prob")
@@ -971,33 +1087,75 @@ def _case_a_frame_with_no_probability_column_skips_ambiguous_track_filtering(
     out2 = tl.automated_motility_assay(_assay_settings(src2))
     txt2 = capsys.readouterr().out
     assert "no XGBoost probability/score column was found" not in txt2
+    _obs.append(_seen(("no XGBoost probability/score column was found" not in txt2), ("no XGBoost probability/score column was found" not in txt2)))
     assert "ambiguous XGBoost tracks (0.25 < proba < 0.75)" in txt2
+    _obs.append(_seen(("ambiguous XGBoost tracks (0.25 < proba < 0.75)" in txt2), ("ambiguous XGBoost tracks (0.25 < proba < 0.75)" in txt2)))
     assert (out2["infection_prob"] == 0.95).all()
+    _obs.append(_seen(((out2["infection_prob"] == 0.95).all()), ((out2["infection_prob"] == 0.95).all())))
     assert len(out2) < len(df2)
+    _obs.append(_seen((len(out2) < len(df2)), (len(out2) < len(df2))))
+    return _obs
 
 
-def test_timelapse_cases(request, subtests, capsys):
-    """Case table: 14 cases of the module-level cases run as sub-tests."""
-    from tests.case_table import run_cases
+def _plain(value):
+    """Return a plain comparable copy of a value, or raise ValueError."""
+    if isinstance(value, np.generic):
+        value = value.item()
+    if isinstance(value, str):
+        return re.sub(r"/tmp/pytest-of-[^/]+/pytest-\d+/[^/\s]+", "<tmp>", value)
+    if value is None or isinstance(value, (bool, int)):
+        return value
+    if isinstance(value, float):
+        return None if value != value else round(value, 6)
+    if isinstance(value, (list, tuple)) and len(value) <= 60:
+        return [_plain(v) for v in value]
+    if isinstance(value, (set, frozenset)) and len(value) <= 60:
+        return sorted((_plain(v) for v in value), key=repr)
+    if isinstance(value, dict) and len(value) <= 60:
+        return {str(k): _plain(v) for k, v in value.items()}
+    raise ValueError(type(value))
 
-    ran = run_cases(
-        request,
-        subtests,
-        [
-        _case_a_frame_with_a_fourth_axis_is_refused_before_the_writer,
-        _case_pathogen_aggregation_without_an_object_label_still_renames_the_cell_link,
-        _case_an_all_uninfected_well_draws_only_the_uninfected_half,
-        _case_a_pathogen_channel_without_its_columns_adds_no_extra_axes,
-        _case_a_dead_intensity_channel_contributes_no_percentile_columns,
-        _case_children_outside_every_cell_produce_no_child_summaries,
-        _case_an_empty_mean_intensity_table_leaves_the_geometry_intact,
-        _case_an_empty_cytoplasm_overlap_drops_only_the_cytoplasm_summary,
-        _case_an_outlier_beside_a_second_outlier_is_not_interpolated_away,
-        _case_a_pathogen_weight_does_nothing_when_every_pathogen_feature_is_degenerate,
-        _case_a_combined_fallback_keeps_the_helper_column_when_nothing_was_adjusted,
-        _case_a_single_feature_model_skips_correlation_pruning,
-        _case_a_failing_stdout_does_not_lose_the_relabelled_frame,
-        _case_a_frame_with_no_probability_column_skips_ambiguous_track_filtering,
-        ],
-    )
-    assert ran >= 14
+
+def _seen(value, held):
+    """Observed value of one check: the value itself when plain, else whether the check held."""
+    try:
+        return _plain(value)
+    except ValueError:
+        return bool(held)
+
+
+def _run_scenario(request, scenario, kwargs):
+    """Run one scenario function, resolving its fixtures by name."""
+    wanted = [n for n in inspect.signature(scenario).parameters if n not in kwargs]
+    fixtures = {n: request.getfixturevalue(n) for n in wanted}
+    return scenario(**fixtures, **kwargs)
+
+
+@pytest.mark.parametrize("scenario, kwargs, expected", [
+    pytest.param(_scn_a_frame_with_a_fourth_axis_is_refused_before_the_writer, {}, ['ValueError: frame 0 must be a 2-D image with optional channels, with the same height and width as every other frame', []], id='a-frame-with-a-fourth-axis-is-refused-before-the-writer'),
+    pytest.param(_scn_a_fractional_increment_walks_past_the_floor_without_warning, {}, [470, True, 3, True, 497.9, True], id='a-fractional-increment-walks-past-the-floor-without-warning'),
+    pytest.param(_scn_pathogen_aggregation_without_an_object_label_still_renames_the_cell_link, {}, [2, True, [1, 2], [2, 2], [15.0, 15.0], 2, True, [1, 2], [2, 2], [15.0, 15.0], ['plateID', 'rowID', 'columnID', 'fieldID', 'timeID', 'object_label', 'pathogen_area', 'parasite_count']], id='pathogen-aggregation-without-an-object-label-still-renames-the-cell-link'),
+    pytest.param(_scn_an_all_uninfected_well_draws_only_the_uninfected_half, {}, [['Uninf'], 20, ['Uninfected'], ['Inf', 'Uninf'], 40, ['Uninfected', 'Infected']], id='an-all-uninfected-well-draws-only-the-uninfected-half'),
+    pytest.param(_scn_a_pathogen_channel_without_its_columns_adds_no_extra_axes, {}, [['plate1_A01.pdf'], 5, ['Ch 0 mean', 'Ch 1 mean'], 'x (µm)', 7, ['Ch 0 mean', 'Ch 1 mean', 'Ch 1 p75', 'Ch 1 pathogen/cytoplasm']], id='a-pathogen-channel-without-its-columns-adds-no-extra-axes'),
+    pytest.param(_scn_a_dead_intensity_channel_contributes_no_percentile_columns, {}, [3, True, True, True, True, True, True, True, True, True, True, True, True, True, True], id='a-dead-intensity-channel-contributes-no-percentile-columns'),
+    pytest.param(_scn_children_outside_every_cell_produce_no_child_summaries, {}, [3, True, True, True, True, True, True, True], id='children-outside-every-cell-produce-no-child-summaries'),
+    pytest.param(_scn_an_empty_mean_intensity_table_leaves_the_geometry_intact, {}, [['cell_mean_intensity_ch0', 'cell_mean_intensity_ch1'], 3, True, True, True], id='an-empty-mean-intensity-table-leaves-the-geometry-intact'),
+    pytest.param(_scn_an_empty_cytoplasm_overlap_drops_only_the_cytoplasm_summary, {}, [3, True, True, True, True], id='an-empty-cytoplasm-overlap-drops-only-the-cytoplasm-summary'),
+    pytest.param(_scn_an_outlier_beside_a_second_outlier_is_not_interpolated_away, {}, [[100.0, 100.0, 1000.0, 1000.0, 100.0, 100.0], [100.0, 100.0, 100.0, 100.0, 100.0]], id='an-outlier-beside-a-second-outlier-is-not-interpolated-away'),
+    pytest.param(_scn_a_pathogen_weight_does_nothing_when_every_pathogen_feature_is_degenerate, {}, [True, [120, 2], True], id='a-pathogen-weight-does-nothing-when-every-pathogen-feature-is-degenerate'),
+])
+def test_measurement_writer_panel_and_pca_helpers_handle_degenerate_inputs_without_inventing_values(request, scenario, kwargs, expected):
+    observed = _run_scenario(request, scenario, kwargs)
+    assert observed == expected
+
+
+@pytest.mark.parametrize("scenario, kwargs, expected", [
+    pytest.param(_scn_a_combined_fallback_keeps_the_helper_column_when_nothing_was_adjusted, {"scope": "bogus_scope", "drop_col": None, "expected_msg": "Unknown scope='bogus_scope'; using 'combined' behaviour."}, ['infected', True, 8, 'hist-payload', True, False, 'adjusted_infected', [1, 1, 1, 1, 1, 1, 1, 1]], id='unknown_scope'),
+    pytest.param(_scn_a_combined_fallback_keeps_the_helper_column_when_nothing_was_adjusted, {"scope": "plate", "drop_col": "plateID", "expected_msg": "missing grouping columns ['plateID']; falling back to combined QC."}, ['infected', True, 8, 'hist-payload', True, False, 'adjusted_infected', [1, 1, 1, 1, 1, 1, 1, 1]], id='missing_group_column'),
+    pytest.param(_scn_a_single_feature_model_skips_correlation_pruning, {}, ['adjusted_infected', 'i', ['cell_p95_intensity_ch1'], True, True, True, ['cell_p95_intensity_ch1']], id='a-single-feature-model-skips-correlation-pruning'),
+    pytest.param(_scn_a_failing_stdout_does_not_lose_the_relabelled_frame, {}, [True, True, ['cell_p95_intensity_ch1'], 'xgboost', 'adjusted_infected', True], id='a-failing-stdout-does-not-lose-the-relabelled-frame'),
+    pytest.param(_scn_a_frame_with_no_probability_column_skips_ambiguous_track_filtering, {}, [True, True, 48, True, ['mask_xgboost'], True, True, True, True], id='a-frame-with-no-probability-column-skips-ambiguous-track-filtering'),
+])
+def test_infection_qc_fallbacks_and_the_assay_entry_keep_the_frame_when_nothing_can_be_adjusted(request, scenario, kwargs, expected):
+    observed = _run_scenario(request, scenario, kwargs)
+    assert observed == expected

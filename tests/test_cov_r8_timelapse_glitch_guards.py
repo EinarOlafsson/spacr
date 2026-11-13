@@ -1,4 +1,4 @@
-"""`_smooth_tracks_and_features`: the glitch repair, and two dead guards.
+"""`_smooth_tracks_and_features`: the glitch repair and the inputs it leaves alone.
 
 The repair fixes single-frame "teleport" glitches in a tracked centroid
 -- a frame where the cell appears far from both neighbours while those
@@ -6,12 +6,13 @@ neighbours are close to each other. That is a tracking error, not
 movement, so the centroid is replaced by the midpoint of its neighbours
 and the scalar features are interpolated with it.
 
-Two guards inside that loop cannot fire, and this file says why rather
-than reaching past the producing code to force them.
+Two bounds checks that used to sit inside the repair loop could never fire,
+because the loop only ever visits interior frames of tracks with at least
+three frames. They are gone from the source; the outcome that made them dead
+is asserted by the three-frame row, where every feature value survives.
 """
 from __future__ import annotations
 
-import numpy as np
 import pandas as pd
 import pytest
 
@@ -31,156 +32,66 @@ def _track(centroids, **features):
     return pd.DataFrame(rows)
 
 
-class TestTheRepairItself:
+@pytest.mark.parametrize("centroids,features,expect", [
+    pytest.param(
+        [(0.0, 0.0), (500.0, 500.0), (2.0, 2.0)], {},
+        {"y": [0.0, 1.0, 2.0], "x": [0.0, 1.0, 2.0]},
+        id="teleport-between-close-neighbours-becomes-the-midpoint"),
+    pytest.param(
+        [(0.0, 0.0), (5.0, 5.0), (10.0, 10.0)], {},
+        {"y": [0.0, 5.0, 10.0]},
+        id="ordinary-movement-is-left-alone"),
+    pytest.param(
+        [(0.0, 0.0), (500.0, 500.0), (1000.0, 1000.0)], {},
+        {"rows": 0},
+        id="track-that-keeps-jumping-is-dropped-not-smoothed"),
+    pytest.param(
+        [(0.0, 0.0), (500.0, 500.0), (2.0, 2.0), (4.0, 4.0)], {},
+        {"rows": 4},
+        id="glitchy-track-is-repaired-rather-than-dropped"),
+    pytest.param(
+        [(0.0, 0.0), (500.0, 500.0), (2.0, 2.0)],
+        {"cell_area": [100.0, 9999.0, 300.0]},
+        {"area": [100.0, 200.0, 300.0]},
+        id="scalar-features-are-interpolated-with-the-centroid"),
+    pytest.param(
+        [(0.0, 0.0), (500.0, 500.0)], {},
+        {"y": [0.0, 500.0]},
+        id="two-frame-track-is-never-smoothed"),
+    pytest.param(
+        [(0.0, 0.0), (500.0, 500.0), (2.0, 2.0)],
+        {"cell_area": [10.0, 20.0, 30.0]},
+        {"rows": 3, "area_all_present": True},
+        id="three-frame-track-still-carries-three-feature-values"),
+])
+def test_a_one_frame_teleport_is_repaired_and_every_other_track_shape_is_kept_or_dropped_as_documented(
+        centroids, features, expect):
+    out = _smooth_tracks_and_features(_track(centroids, **features),
+                                      max_displacement=50.0)
+    fixed = out.sort_values("frame")
 
-    def _case_a_single_frame_teleport_is_replaced_by_the_midpoint(self):
-        """Far from both neighbours, which are close to each other."""
-        df = _track([(0.0, 0.0), (500.0, 500.0), (2.0, 2.0)])
-        out = _smooth_tracks_and_features(df, max_displacement=50.0)
-        fixed = out.sort_values("frame")
-        assert fixed["cell_centroid-0"].tolist() == [0.0, 1.0, 2.0]
-        assert fixed["cell_centroid-1"].tolist() == [0.0, 1.0, 2.0]
+    if "rows" in expect:
+        assert len(out) == expect["rows"]
+    if "y" in expect:
+        assert fixed["cell_centroid-0"].tolist() == expect["y"]
+    if "x" in expect:
+        assert fixed["cell_centroid-1"].tolist() == expect["x"]
+    if "area" in expect:
+        assert fixed["cell_area"].tolist() == expect["area"]
+    if expect.get("area_all_present"):
+        assert out["cell_area"].notna().all()
 
-    def _case_ordinary_movement_is_left_alone(self):
-        """Every step short: this is a cell moving, not a tracking error."""
-        df = _track([(0.0, 0.0), (5.0, 5.0), (10.0, 10.0)])
-        out = _smooth_tracks_and_features(df, max_displacement=50.0)
-        assert out.sort_values("frame")["cell_centroid-0"].tolist() == [
-            0.0, 5.0, 10.0]
 
-    def _case_a_track_that_keeps_jumping_is_dropped_not_smoothed(self):
-        """The neighbours must be close to EACH OTHER for it to be a glitch.
-
-        A centroid that moves far and keeps going is not a one-frame
-        teleport, so interpolating it would invent a position the cell
-        was never at. It is not smoothed -- the whole TRACK is dropped,
-        because a series of impossible jumps is a tracking failure and
-        keeping it would put a fictional cell into the measurements.
-        """
-        df = _track([(0.0, 0.0), (500.0, 500.0), (1000.0, 1000.0)])
-        out = _smooth_tracks_and_features(df, max_displacement=50.0)
-        assert len(out) == 0, (
-            "a track of impossible jumps survived into the measurements")
-
-    def _case_a_glitchy_track_is_repaired_rather_than_dropped(self):
-        """The distinction the drop rests on, asserted from the other side.
-
-        One bad frame between two good ones is repairable, so the track
-        is KEPT. Dropping it would throw away every other frame of a cell
-        because of a single tracking error.
-        """
-        df = _track([(0.0, 0.0), (500.0, 500.0), (2.0, 2.0), (4.0, 4.0)])
-        out = _smooth_tracks_and_features(df, max_displacement=50.0)
-        assert len(out) == 4, "a repairable track was thrown away"
-
-    def _case_scalar_features_are_interpolated_with_the_centroid(self):
-        df = _track([(0.0, 0.0), (500.0, 500.0), (2.0, 2.0)],
-                    cell_area=[100.0, 9999.0, 300.0])
-        out = _smooth_tracks_and_features(df, max_displacement=50.0)
-        assert out.sort_values("frame")["cell_area"].tolist() == [
-            100.0, 200.0, 300.0]
-
-    def _case_a_two_frame_track_is_never_smoothed(self):
-        """A glitch needs a frame on both sides; two frames have none."""
-        df = _track([(0.0, 0.0), (500.0, 500.0)])
-        out = _smooth_tracks_and_features(df, max_displacement=50.0)
-        assert out.sort_values("frame")["cell_centroid-0"].tolist() == [
-            0.0, 500.0]
-
-    def _case_an_empty_frame_comes_straight_back(self):
+@pytest.mark.parametrize("scenario", [
+    pytest.param("empty", id="empty-frame-comes-straight-back"),
+    pytest.param("no-centroids", id="frame-without-centroids-is-returned-unchanged"),
+])
+def test_input_that_cannot_be_smoothed_comes_back_as_it_was_given(scenario):
+    if scenario == "empty":
         empty = pd.DataFrame()
         assert _smooth_tracks_and_features(empty).empty
-
-    def _case_a_frame_without_centroids_is_returned_unchanged(self):
+    else:
         df = pd.DataFrame({"plateID": ["p1"], "wellID": ["A01"],
                            "fieldID": ["f1"], "cellID": [1], "frame": [0]})
         out = _smooth_tracks_and_features(df)
         assert list(out.columns) == list(df.columns)
-
-
-class TestTheTwoGuardsThatCannotFire:
-    """Both re-check a bound the producing code has already enforced.
-
-    Neither is covered, and neither should be forced: reaching them
-    would mean constructing `glitch_frames` by hand, which tests a set
-    literal rather than the program. They are pinned from the producing
-    side instead -- if that side ever changes, these fail and the guards
-    stop being dead.
-    """
-
-    def test_every_detected_glitch_is_strictly_interior(self):
-        """`if i_local <= 0 or i_local >= n - 1: continue` cannot fire.
-
-        The set is filled by `for i_local in range(1, n - 1)`, so every
-        member satisfies 1 <= i <= n-2 by construction. The guard below
-        re-tests exactly that.
-        """
-        import inspect
-
-        source = inspect.getsource(_smooth_tracks_and_features)
-        assert "for i_local in range(1, n - 1):" in source, (
-            "the detection loop's bounds changed; the interior guard below "
-            "it may now be reachable and wants a test of its own")
-        assert "if i_local <= 0 or i_local >= n - 1:" not in source
-
-        # and the bound holds for every n the detector can run on
-        for n in range(3, 12):
-            detected = list(range(1, n - 1))
-            assert all(0 < i < n - 1 for i in detected)
-
-    def test_the_feature_series_is_never_shorter_than_three(self):
-        """`if len(s) < 3: continue` cannot fire either.
-
-        The feature loop only runs inside `if n >= 3:`, and the series is
-        taken from the same group, so its length IS n.
-        """
-        import inspect
-
-        source = inspect.getsource(_smooth_tracks_and_features)
-        assert "if n >= 3:" in source, (
-            "the glitch block is no longer guarded by n >= 3; the len(s) "
-            "check inside it may now be reachable")
-        assert "if len(s) < 3:" not in source
-
-    def _case_a_three_frame_track_still_carries_three_feature_values(self):
-        """The shortest track the repair can run on, driven end to end."""
-        df = _track([(0.0, 0.0), (500.0, 500.0), (2.0, 2.0)],
-                    cell_area=[10.0, 20.0, 30.0])
-        out = _smooth_tracks_and_features(df, max_displacement=50.0)
-        assert len(out) == 3
-        assert out["cell_area"].notna().all()
-
-
-def test_the_repair_itself_cases(request, subtests):
-    """Case table: 8 cases of TestTheRepairItself run as sub-tests."""
-    from tests.case_table import run_cases
-
-    ran = run_cases(
-        request,
-        subtests,
-        [
-        (TestTheRepairItself, '_case_a_single_frame_teleport_is_replaced_by_the_midpoint'),
-        (TestTheRepairItself, '_case_ordinary_movement_is_left_alone'),
-        (TestTheRepairItself, '_case_a_track_that_keeps_jumping_is_dropped_not_smoothed'),
-        (TestTheRepairItself, '_case_a_glitchy_track_is_repaired_rather_than_dropped'),
-        (TestTheRepairItself, '_case_scalar_features_are_interpolated_with_the_centroid'),
-        (TestTheRepairItself, '_case_a_two_frame_track_is_never_smoothed'),
-        (TestTheRepairItself, '_case_an_empty_frame_comes_straight_back'),
-        (TestTheRepairItself, '_case_a_frame_without_centroids_is_returned_unchanged'),
-        ],
-    )
-    assert ran >= 8
-
-
-def test_the_two_guards_that_cannot_fire_cases(request, subtests):
-    """Case table: 1 cases of TestTheTwoGuardsThatCannotFire run as sub-tests."""
-    from tests.case_table import run_cases
-
-    ran = run_cases(
-        request,
-        subtests,
-        [
-        (TestTheTwoGuardsThatCannotFire, '_case_a_three_frame_track_still_carries_three_feature_values'),
-        ],
-    )
-    assert ran >= 1
