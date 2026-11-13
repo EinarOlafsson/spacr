@@ -36,7 +36,7 @@ def _scores(tmp_path, name="scores.csv", column="pred"):
 # Concatenating a screen's per-plate files
 # ---------------------------------------------------------------------------
 
-def test_one_file_is_read_as_readily_as_a_list_of_them(tmp_path):
+def case_one_file_is_read_as_readily_as_a_list_of_them(tmp_path):
     """A single-plate screen names one path; a four-plate screen names four."""
     one = _counts(tmp_path, "p1.csv")
     two = _counts(tmp_path, "p2.csv")
@@ -46,7 +46,7 @@ def test_one_file_is_read_as_readily_as_a_list_of_them(tmp_path):
     assert list(ML._concat_named_csvs([one, two]).index) == [0, 1, 2, 3]
 
 
-def test_a_file_that_cannot_be_read_is_named(tmp_path):
+def case_a_file_that_cannot_be_read_is_named(tmp_path):
     """"could not be read" with no file name sends the user through all four."""
     good = _counts(tmp_path, "p1.csv")
     missing = str(tmp_path / "never_written.csv")
@@ -55,7 +55,7 @@ def test_a_file_that_cannot_be_read_is_named(tmp_path):
         ML._concat_named_csvs([good, missing])
 
 
-def test_naming_no_table_at_all_is_refused(tmp_path):
+def case_naming_no_table_at_all_is_refused(tmp_path):
     with pytest.raises(ValueError, match="no table was given to read"):
         ML._concat_named_csvs(None)
     with pytest.raises(ValueError, match="no table was given to read"):
@@ -80,7 +80,7 @@ def _settings(tmp_path, **changes):
     return base
 
 
-def test_the_inputs_carry_the_wells_the_design_calls_controls(tmp_path):
+def case_the_inputs_carry_the_wells_the_design_calls_controls(tmp_path):
     inputs = ML._calibration_inputs(_settings(tmp_path))
 
     assert inputs["positive_guide"] == "pc_1"
@@ -90,14 +90,14 @@ def test_the_inputs_carry_the_wells_the_design_calls_controls(tmp_path):
     assert inputs["wells"][0] == "plate1_r1_c1"
 
 
-def test_a_score_table_with_no_score_column_cannot_be_calibrated(tmp_path):
+def case_a_score_table_with_no_score_column_cannot_be_calibrated(tmp_path):
     settings = _settings(tmp_path, dependent_variable="probability")
 
     with pytest.raises(ValueError, match="'probability' column"):
         ML._calibration_inputs(settings)
 
 
-def test_a_score_table_that_does_not_say_which_well_cannot_be_calibrated(
+def case_a_score_table_that_does_not_say_which_well_cannot_be_calibrated(
         tmp_path):
     """A cell with no well cannot be compared with a well's sequencing."""
     path = tmp_path / "no_well.csv"
@@ -108,18 +108,18 @@ def test_a_score_table_that_does_not_say_which_well_cannot_be_calibrated(
         ML._calibration_inputs(settings)
 
 
-def test_a_design_that_names_no_control_block_cannot_be_calibrated(tmp_path):
+def case_a_design_that_names_no_control_block_cannot_be_calibrated(tmp_path):
     with pytest.raises(ValueError, match="nothing to calibrate against"):
         ML._calibration_inputs(_settings(tmp_path,
                                          positive_control_wells=[]))
 
 
-def test_a_design_with_no_positive_guide_cannot_be_calibrated(tmp_path):
+def case_a_design_with_no_positive_guide_cannot_be_calibrated(tmp_path):
     with pytest.raises(ValueError, match="no gRNA"):
         ML._calibration_inputs(_settings(tmp_path, positive_control_id=""))
 
 
-def test_control_blocks_that_match_no_well_are_refused(tmp_path):
+def case_control_blocks_that_match_no_well_are_refused(tmp_path):
     with pytest.raises(ValueError, match="no pure control to anchor the fit"):
         ML._calibration_inputs(_settings(tmp_path,
                                          positive_control_wells=["c9"],
@@ -130,7 +130,7 @@ def test_control_blocks_that_match_no_well_are_refused(tmp_path):
 # What the caller does with each refusal
 # ---------------------------------------------------------------------------
 
-def test_a_refused_calibration_prints_its_reason_and_keeps_the_threshold(
+def case_a_refused_calibration_prints_its_reason_and_keeps_the_threshold(
         tmp_path, capsys):
     """A user who ticked the box is owed the reason it did nothing."""
     settings = _settings(tmp_path, positive_control_wells=[])
@@ -139,7 +139,7 @@ def test_a_refused_calibration_prints_its_reason_and_keeps_the_threshold(
     assert "calibration did not run" in capsys.readouterr().out
 
 
-def test_a_sweep_that_preferred_no_cut_off_says_so(tmp_path, monkeypatch,
+def case_a_sweep_that_preferred_no_cut_off_says_so(tmp_path, monkeypatch,
                                                     capsys):
     """`chosen` is the key the sweep writes; nothing else is a threshold."""
     from spacr import fraction_calibration
@@ -151,7 +151,7 @@ def test_a_sweep_that_preferred_no_cut_off_says_so(tmp_path, monkeypatch,
     assert "found no cut-off it preferred" in capsys.readouterr().out
 
 
-def test_a_sweep_that_chose_a_cut_off_returns_it(tmp_path, monkeypatch,
+def case_a_sweep_that_chose_a_cut_off_returns_it(tmp_path, monkeypatch,
                                                   capsys):
     from spacr import fraction_calibration
 
@@ -164,7 +164,7 @@ def test_a_sweep_that_chose_a_cut_off_returns_it(tmp_path, monkeypatch,
     assert "the sweep chose 0.42" in capsys.readouterr().out
 
 
-def test_a_sweep_whose_description_fails_still_reports_the_number(
+def case_a_sweep_whose_description_fails_still_reports_the_number(
         tmp_path, monkeypatch, capsys):
     from spacr import fraction_calibration
 
@@ -177,3 +177,31 @@ def test_a_sweep_whose_description_fails_still_reports_the_number(
 
     assert ML._calibrated_fraction_threshold(_settings(tmp_path)) == 0.31
     assert "calibrated to 0.31" in capsys.readouterr().out
+
+
+from tests.case_table import run_cases  # noqa: E402
+
+def test_calibration_inputs_cases(request, subtests):
+    """Behaviour cases for: _calibration_inputs."""
+    ran = run_cases(request, subtests, [
+        case_the_inputs_carry_the_wells_the_design_calls_controls,
+        case_a_score_table_with_no_score_column_cannot_be_calibrated,
+        case_a_score_table_that_does_not_say_which_well_cannot_be_calibrated,
+        case_a_design_that_names_no_control_block_cannot_be_calibrated,
+        case_a_design_with_no_positive_guide_cannot_be_calibrated,
+        case_control_blocks_that_match_no_well_are_refused,
+    ])
+    assert ran >= 6
+
+def test_calibrated_fraction_threshold_cases(request, subtests):
+    """Behaviour cases for: _calibrated_fraction_threshold, _concat_named_csvs."""
+    ran = run_cases(request, subtests, [
+        case_one_file_is_read_as_readily_as_a_list_of_them,
+        case_a_file_that_cannot_be_read_is_named,
+        case_naming_no_table_at_all_is_refused,
+        case_a_refused_calibration_prints_its_reason_and_keeps_the_threshold,
+        case_a_sweep_that_preferred_no_cut_off_says_so,
+        case_a_sweep_that_chose_a_cut_off_returns_it,
+        case_a_sweep_whose_description_fails_still_reports_the_number,
+    ])
+    assert ran >= 7

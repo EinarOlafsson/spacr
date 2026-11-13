@@ -28,7 +28,7 @@ def simple_design(n=30, seed=0):
 # the dispatcher's refusals
 # ---------------------------------------------------------------------------
 
-def test_a_regression_type_spacr_removed_says_why_it_is_gone():
+def case_a_regression_type_spacr_removed_says_why_it_is_gone():
     """A retired family is refused with the recorded reason, not "unsupported".
 
     The name is still valid in an old settings CSV, so the message has to say
@@ -44,7 +44,7 @@ def test_a_regression_type_spacr_removed_says_why_it_is_gone():
     assert UNSUPPORTED_REGRESSION_TYPES[name] in message
 
 
-def test_weighted_least_squares_refuses_weights_that_are_not_cell_counts():
+def case_weighted_least_squares_refuses_weights_that_are_not_cell_counts():
     """Zero, negative or non-finite weights cannot be per-well cell counts.
 
     A zero weight drops a well from the fit while leaving it in the row count,
@@ -59,7 +59,7 @@ def test_weighted_least_squares_refuses_weights_that_are_not_cell_counts():
                             weights=weights)
 
 
-def test_the_hinge_refuses_a_penalty_that_is_not_positive():
+def case_the_hinge_refuses_a_penalty_that_is_not_positive():
     """``alpha`` is the inverse margin, so zero or negative has no meaning.
 
     scikit-learn's own error for C <= 0 names an argument spaCR never exposes;
@@ -73,7 +73,7 @@ def test_the_hinge_refuses_a_penalty_that_is_not_positive():
                             hinge_threshold=0.5)
 
 
-def test_an_automatic_hinge_penalty_needs_two_wells_in_each_class(capsys):
+def case_an_automatic_hinge_penalty_needs_two_wells_in_each_class(capsys):
     """With a minority class too small to split, the default penalty is used.
 
     A two-fold cross-validation on one positive well chooses a penalty from
@@ -95,7 +95,7 @@ def test_an_automatic_hinge_penalty_needs_two_wells_in_each_class(capsys):
     assert model.coef_.shape[-1] == design.shape[1]
 
 
-def test_rra_refuses_a_design_whose_guide_columns_never_vary():
+def case_rra_refuses_a_design_whose_guide_columns_never_vary():
     """With every guide column constant there is no marginal effect to rank.
 
     Ranking constants would give each guide a rank it did not earn and shift
@@ -127,7 +127,7 @@ def horseshoe_inputs(n=20, seed=8):
     return design, counts, exposure
 
 
-def test_the_horseshoe_exposure_must_line_up_with_the_response():
+def case_the_horseshoe_exposure_must_line_up_with_the_response():
     """One cell count per well, and the same wells, or the offset is wrong.
 
     log(Ntotal) is the offset that makes the coefficients rates rather than
@@ -138,7 +138,7 @@ def test_the_horseshoe_exposure_must_line_up_with_the_response():
         ml._fit_horseshoe_poisson(design, counts, np.array([1.0, 2.0, 3.0]))
 
 
-def test_the_horseshoe_exposure_must_be_a_positive_cell_count():
+def case_the_horseshoe_exposure_must_be_a_positive_cell_count():
     """A zero or negative exposure has no logarithm and is refused.
 
     Without this the offset becomes -inf and the well silently leaves the fit.
@@ -150,7 +150,7 @@ def test_the_horseshoe_exposure_must_be_a_positive_cell_count():
         ml._fit_horseshoe_poisson(design, counts, exposure)
 
 
-def test_a_well_cannot_hold_more_positives_than_it_holds_cells():
+def case_a_well_cannot_hold_more_positives_than_it_holds_cells():
     """Npositive above Ntotal is refused, naming how many wells break it.
 
     The response counts positive objects out of the imaged ones; more positives
@@ -282,3 +282,20 @@ def test_the_rra_summary_is_the_per_gene_table():
                              genes=genes)
     assert results.summary() is genes
     assert list(results.params.index) == ['fraction:grna[g1_1]', 'Intercept']
+
+
+from tests.case_table import run_cases  # noqa: E402
+
+def test_regression_model_cases(request, subtests):
+    """Behaviour cases for: _fit_horseshoe_poisson, regression_model."""
+    ran = run_cases(request, subtests, [
+        case_a_regression_type_spacr_removed_says_why_it_is_gone,
+        case_weighted_least_squares_refuses_weights_that_are_not_cell_counts,
+        case_the_hinge_refuses_a_penalty_that_is_not_positive,
+        case_an_automatic_hinge_penalty_needs_two_wells_in_each_class,
+        case_rra_refuses_a_design_whose_guide_columns_never_vary,
+        case_the_horseshoe_exposure_must_line_up_with_the_response,
+        case_the_horseshoe_exposure_must_be_a_positive_cell_count,
+        case_a_well_cannot_hold_more_positives_than_it_holds_cells,
+    ])
+    assert ran >= 8

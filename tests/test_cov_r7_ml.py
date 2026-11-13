@@ -49,7 +49,7 @@ def _close_figures():
 # the absorbed fit: one real singularity guard and one that follows it
 # ---------------------------------------------------------------------------
 
-def test_a_design_holding_the_same_regressor_twice_is_refused_by_name():
+def case_a_design_holding_the_same_regressor_twice_is_refused_by_name():
     """A rank-deficient absorbed design is refused BEFORE the solve.
 
     ``fraction`` and a copy of it are collinear after the row/column factors
@@ -149,7 +149,7 @@ def _one_plate_screen(tmp_path):
             "meta": meta}
 
 
-def test_a_single_level_run_hands_its_qc_verdict_back_to_the_caller(tmp_path):
+def case_a_single_level_run_hands_its_qc_verdict_back_to_the_caller(tmp_path):
     """Instruction 115: ``output`` says whether the fit it holds is diagnosable.
 
     ``regression`` puts the QC manifest on ``coef_df.attrs`` and
@@ -178,7 +178,7 @@ def test_a_single_level_run_hands_its_qc_verdict_back_to_the_caller(tmp_path):
     assert os.path.isfile(manifest['report'])
 
 
-def test_a_manifest_that_reached_no_verdict_still_reports_a_level(tmp_path,
+def case_a_manifest_that_reached_no_verdict_still_reports_a_level(tmp_path,
                                                                   monkeypatch):
     """``verdict`` absent means ``qc_verdict`` absent and the level 'unknown'.
 
@@ -220,7 +220,7 @@ def test_a_manifest_that_reached_no_verdict_still_reports_a_level(tmp_path,
     assert output['qc_verdict_level'] == 'unknown'
 
 
-def test_both_levels_fitted_means_two_manifests_and_therefore_none(tmp_path):
+def case_both_levels_fitted_means_two_manifests_and_therefore_none(tmp_path):
     """``level='both'`` carries no verdict, and this is the arithmetic of it.
 
     ``_perform_regression`` stacks the per-level coefficient tables with
@@ -254,3 +254,16 @@ def test_both_levels_fitted_means_two_manifests_and_therefore_none(tmp_path):
     assert 'qc' not in output
     assert 'qc_verdict_level' not in output
     assert len(output['results']) > 0, "the fit itself is unaffected"
+
+
+from tests.case_table import run_cases  # noqa: E402
+
+def test_perform_regression_cases(request, subtests):
+    """Behaviour cases for: _fit_absorbed_least_squares, _write_regression_qc, perform_regression."""
+    ran = run_cases(request, subtests, [
+        case_a_design_holding_the_same_regressor_twice_is_refused_by_name,
+        case_a_single_level_run_hands_its_qc_verdict_back_to_the_caller,
+        case_a_manifest_that_reached_no_verdict_still_reports_a_level,
+        case_both_levels_fitted_means_two_manifests_and_therefore_none,
+    ])
+    assert ran >= 4

@@ -735,6 +735,12 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_cluster_reference_dir",
     "ops_cluster_gene_list",
     "ops_cluster_published",
+    # Item 930 (2026-11-13): per-tile affine alignment of phenotype fields
+    # to the sequencing nuclei (OPS stage 1, arm vii).
+    "ops_align_model",
+    "ops_align_tile_min_nuclei",
+    "ops_align_match_radius",
+    "ops_align_trim_passes",
     # Items 928 and 929 (2026-11-12): guide-bootstrap consensus clustering
     # and the calibrated cluster test of OPS stage 5.
     "ops_consensus_enabled",

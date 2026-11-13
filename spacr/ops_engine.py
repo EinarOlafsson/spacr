@@ -3684,6 +3684,68 @@ def _ph_field_check(plate: str, well: str, cells, candidates, refined_rows,
     return check
 
 
+#: The models ``ops_align_model`` may name, the first being the default.
+_PH_ALIGN_MODELS = ("similarity", "tile_affine")
+
+
+def _ph_align_options(settings: Mapping[str, Any]
+                      ) -> Tuple[str, int, float, int]:
+    """The ``ops_align_*`` settings of the merge phase, checked.
+
+    :param settings: read for ``ops_align_model``,
+        ``ops_align_tile_min_nuclei``, ``ops_align_match_radius`` and
+        ``ops_align_trim_passes``.
+    :returns: ``(model, min_nuclei, radius, passes)``.
+    :raises ValueError: on an unknown model or a value below its minimum.
+    """
+    from .qt.i18n import tr
+
+    model = str(settings.get("ops_align_model") or "similarity"
+                ).strip().lower()
+    if model not in _PH_ALIGN_MODELS:
+        raise ValueError(tr(
+            "ops_align_model must be one of {models}; got {value}",
+            models=list(_PH_ALIGN_MODELS), value=model))
+    min_nuclei = int(_setting_number(settings.get(
+        "ops_align_tile_min_nuclei"), "ops_align_tile_min_nuclei", 200))
+    radius = float(_setting_number(settings.get(
+        "ops_align_match_radius"), "ops_align_match_radius", 3.0))
+    passes = int(_setting_number(settings.get(
+        "ops_align_trim_passes"), "ops_align_trim_passes", 3))
+    if min_nuclei < 3 or radius <= 0 or passes < 1:
+        raise ValueError(tr(
+            "ops_align_tile_min_nuclei must be at least 3, "
+            "ops_align_match_radius above 0 and ops_align_trim_passes at "
+            "least 1; got {values}",
+            values=[min_nuclei, radius, passes]))
+    return model, min_nuclei, radius, passes
+
+
+def _ph_tile_centres(db: str, plate: str, well: str):
+    """The sequencing tile centres of one well, from ``ops_geometry``.
+
+    :param db: the measurements database.
+    :param plate: the plate name.
+    :param well: the well name.
+    :returns: ``(centres, sites)``: ``(T, 2)`` tile centres ``(y, x)`` in
+        well pixels, of the first cycle, and each tile's site.
+    :raises ValueError: when the well has no ``ops_geometry`` rows.
+    """
+    from .qt.i18n import tr
+
+    geometry = _well_rows(db, "ops_geometry", plate, well)
+    if geometry is None or geometry.empty:
+        raise ValueError(tr(
+            "ops_align_model 'tile_affine' needs well {well}'s sequencing "
+            "tile positions (ops_geometry); run the stitch phase first",
+            well=well))
+    first = geometry[geometry["cycle"] == geometry["cycle"].min()]
+    centres = first[["y", "x"]].to_numpy(float) + np.column_stack(
+        [first["tile_height"].to_numpy(float) / 2.0,
+         first["tile_width"].to_numpy(float) / 2.0])
+    return centres, first["site"].to_numpy(np.int64)
+
+
 def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
               destination: str, gpu: bool) -> Dict[str, Any]:
     """Pair each phenotype cell with its sequencing nucleus; store ``ops_merge``.
@@ -3691,7 +3753,8 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
     :param db: the measurements database.
     :param plate: the plate name.
     :param well: the well name.
-    :param settings: read for ``ops_merge_threshold``.
+    :param settings: read for ``ops_merge_threshold``, ``ops_ownership``
+        and the ``ops_align_*`` settings.
     :param destination: the run folder.
     :param gpu: let the nearest-neighbour search use the card.
     :returns: the merge report.
@@ -3700,7 +3763,14 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
     stored transform, the transform is re-solved on the field's own nuclei
     against the sequencing nuclei under it
     (:func:`spacr.ops_merge.refine_field_transform`), and the cells are
-    paired one to one (:func:`spacr.ops_merge.merge_field`). A sequencing
+    paired one to one (:func:`spacr.ops_merge.merge_field`). With
+    ``ops_align_model`` ``'tile_affine'`` the re-solved similarity is
+    refined further into one affine per field and one per sequencing tile
+    group (:func:`spacr.ops_merge.tile_affine_transform`), every nucleus is
+    moved by its tile group's affine before it is paired, and
+    ``ops_phenotype`` records the model, the device, the field affine and
+    the group affines (``align_tile_transforms``, JSON rows of tile site,
+    nuclei and the six affine numbers). A sequencing
     nucleus claimed by two fields -- an overlap -- keeps one copy, chosen by
     ``ops_ownership``:
 
@@ -3725,11 +3795,15 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
     from .ops_merge import (deduplicate_matches, deepest_field_matches,
                             field_footprint, field_to_well, footprint_depth,
                             merge_field, overlapping_fields,
-                            refine_field_transform)
+                            refine_field_transform, tile_affine_to_well,
+                            tile_affine_transform)
     from .qt.i18n import tr
 
     started = time.perf_counter()
     ownership = _ph_ownership_rule(settings)
+    align_model, tile_min, match_radius, trim_passes = _ph_align_options(
+        settings)
+    tiled = align_model == "tile_affine"
     path = _ph_cells_path(destination, well)
     if not os.path.isfile(path):
         raise ValueError(tr(
@@ -3747,6 +3821,10 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
     object_ids = objects["object_id"].to_numpy(np.int64)
     threshold = float(_setting_number(settings.get("ops_merge_threshold"),
                                       "ops_merge_threshold", 4.0))
+    if tiled:
+        tile_centres, tile_sites = _ph_tile_centres(db, plate, well)
+        identity = (1.0, np.eye(2), np.zeros(2))
+        align_seconds = 0.0
     rows = []
     refined_rows = []
     fields = {}
@@ -3788,17 +3866,45 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
                                              record.field_width / 2.0]]),
                                   seed))[0])),
         })
-        pairs = merge_field(points, target[near], transform,
-                            threshold=threshold, gpu=gpu)
+        if tiled:
+            clock = time.perf_counter()
+            affine, tiles = tile_affine_transform(
+                points, target[near], transform, seed, tile_centres,
+                refined=bool(refined), min_nuclei=tile_min,
+                radius=match_radius, passes=trim_passes)
+            moved = tile_affine_to_well(points, affine, tiles, tile_centres)
+            align_seconds += time.perf_counter() - clock
+            (a11, a12), (a21, a22) = affine[1]
+            refined_rows[-1].update({
+                "align_model": "tile_affine", "align_device": "cpu",
+                "align_a11": float(a11), "align_a12": float(a12),
+                "align_a21": float(a21), "align_a22": float(a22),
+                "align_ty": float(affine[2][0]),
+                "align_tx": float(affine[2][1]),
+                "align_tile_groups": int(len(tiles)),
+                "align_tile_transforms": json.dumps([
+                    [int(tile_sites[tile]), int(t[3]),
+                     *(float(v) for v in np.asarray(t[1]).ravel()),
+                     float(t[2][0]), float(t[2][1])]
+                    for tile, t in sorted(tiles.items())]),
+            })
+            pairs = merge_field(moved, target[near], identity,
+                                threshold=threshold, gpu=gpu)
+            footprint = affine
+        else:
+            pairs = merge_field(points, target[near], transform,
+                                threshold=threshold, gpu=gpu)
+            footprint = transform
         labels = group["label"].to_numpy(np.int64)
         for i, j, distance in pairs:
             rows.append((plate, well, int(site), int(labels[int(i)]),
                          int(object_ids[near[int(j)]]), float(distance),
                          int(refined)))
         if ownership != "closer_match":
-            fields[int(site)] = (transform, points, labels, pairs, near,
+            fields[int(site)] = (footprint, points, labels, pairs, near,
                                  (float(record.field_height),
-                                  float(record.field_width)))
+                                  float(record.field_width)),
+                                 moved if tiled else None)
     frame = pd.DataFrame(rows, columns=["plate", "well", "site", "label",
                                         "object_id", "distance", "refined"])
     check_report = None
@@ -3821,12 +3927,13 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
         neighbours = overlapping_fields(prints)
         depths, flags = [], []
         for site, (transform, points, labels, pairs, near,
-                   _shape) in fields.items():
+                   _shape, tile_moved) in fields.items():
             low, high = prints[site]
             if len(pairs):
                 depths.append(footprint_depth(
                     target[near[pairs[:, 1].astype(int)]], low, high))
-            moved = field_to_well(points, transform)
+            moved = (field_to_well(points, transform) if tile_moved is None
+                     else tile_moved)
             own = footprint_depth(moved, low, high)
             other = np.full(len(moved), -np.inf)
             for neighbour in neighbours[site]:
@@ -3887,8 +3994,9 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
     _replace_well_rows(db, "ops_merge", frame, plate, well)
     refinements = pd.DataFrame(refined_rows)
     if len(refinements):
-        keep = placed.drop(columns=[c for c in refinements.columns
-                                    if c != "site" and c in placed.columns])
+        keep = placed.drop(columns=[c for c in placed.columns if c != "site"
+                                    and (c in refinements.columns
+                                         or str(c).startswith("align_"))])
         _replace_well_rows(db, "ops_phenotype",
                            keep.merge(refinements, on="site", how="left"),
                            plate, well)
@@ -3907,6 +4015,18 @@ def _ph_merge(db: str, plate: str, well: str, settings: Mapping[str, Any],
         "threshold_px": threshold,
         "ownership": owner_report or {"rule": ownership},
         "field_check": check_report,
+        **({"align": {
+            "model": "tile_affine", "device": "cpu",
+            "tile_min_nuclei": tile_min,
+            "match_radius_px": match_radius,
+            "trim_passes": trim_passes,
+            "fields_with_tile_groups": int(sum(
+                r["align_tile_groups"] > 0 for r in refined_rows)),
+            "tile_groups": int(sum(r["align_tile_groups"]
+                                   for r in refined_rows)),
+            "seconds_per_field": round(
+                align_seconds / max(1, len(refined_rows)), 5),
+        }} if tiled else {}),
         "seconds": round(time.perf_counter() - started, 1),
     }
     _say(tr("{well} merge: {merged} of {cells} cells matched to a sequencing "
