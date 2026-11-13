@@ -297,23 +297,29 @@ _LEGACY_GOOD_WELLS = ['A01', 'A1', 'A12', 'B03', 'H12', 'P24', 'Z01', 'A48',
                       'A0', 'A00', 'D6']
 
 
-@pytest.mark.parametrize('well', _LEGACY_GOOD_WELLS)
-@pytest.mark.parametrize('field', ['1', '01', '007', '12'])
-def test_canonical_agrees_with_legacy_on_every_name_legacy_gets_right(well,
-                                                                      field):
-    """No contract change: where the old ``_map_wells`` worked, so does this."""
+def test_canonical_agrees_with_legacy_on_every_name_legacy_gets_right(
+        subtests):
+    """No contract change: where the old ``_map_wells`` worked, so does this.
+
+    Every good well x every field spelling, one subtest per name.
+    """
     from spacr.utils import _map_wells
 
-    name = f'plate1_{well}_{field}'
-    plate, row, column, fld, prcf = S.legacy_map_wells(name)
-    assert (plate, row, column, fld) != ('error',) * 4  # legacy did work
+    for well in _LEGACY_GOOD_WELLS:
+        for field in ('1', '01', '007', '12'):
+            name = f'plate1_{well}_{field}'
+            with subtests.test(name=name):
+                plate, row, column, fld, prcf = S.legacy_map_wells(name)
+                # legacy did work
+                assert (plate, row, column, fld) != ('error',) * 4, name
 
-    parsed = S.parse_field_stem(name)
-    assert (parsed.plateID, parsed.rowID, parsed.columnID, parsed.fieldID) \
-        == (plate, row, column, fld)
-    assert parsed.prcf == prcf
-    # ... and the migrated writer still answers exactly that.
-    assert _map_wells(name) == (plate, row, column, fld, prcf)
+                parsed = S.parse_field_stem(name)
+                assert (parsed.plateID, parsed.rowID, parsed.columnID,
+                        parsed.fieldID) == (plate, row, column, fld), name
+                assert parsed.prcf == prcf, name
+                # ... and the migrated writer still answers exactly that.
+                assert _map_wells(name) == (plate, row, column, fld,
+                                            prcf), name
 
 
 @pytest.mark.parametrize('well', _LEGACY_GOOD_WELLS)
@@ -436,16 +442,19 @@ def test_parse_int_token_parses(token, expected):
     assert S.parse_int_token(token) == expected
 
 
-@pytest.mark.parametrize('token', [
+_NOT_AN_INT_TOKENS = (
     None, '', '   ', 'x', 'xy', 'abc', '1a', 'a1b', '3.7', '1e3', '--1',
     'field', float('nan'), float('inf'), float('-inf'), 2.5,
     True, False, [], {}, ('1',), b'\xff\xfe',
-])
-def test_parse_int_token_returns_none_never_zero(token):
+)
+
+
+def test_parse_int_token_returns_none_never_zero(subtests):
     """The whole point: the honest answer to "no number here" is ``None``."""
-    result = S.parse_int_token(token)
-    assert result is None, f'{token!r} -> {result!r}'
-    assert result != 0
+    for token in _NOT_AN_INT_TOKENS:
+        with subtests.test(token=repr(token)):
+            result = S.parse_int_token(token)
+            assert result is None, f'{token!r} -> {result!r}'
 
 
 def test_parse_int_token_prefix_can_be_switched_off():
@@ -881,14 +890,17 @@ def test_an_untyped_key_is_not_stated_rather_than_a_cell():
     assert S.split_object_id('o7') == (None, '7')
 
 
-@pytest.mark.parametrize('object_type', list(S.OBJECT_TYPES))
-def test_every_declared_object_type_round_trips(object_type):
-    key = S.compose_prcfo('PLATE-4', 'A', 2, 3, 41, object_type=object_type)
-    parsed = S.parse_prcfo(key)
-    assert parsed.prcfo == key
-    assert parsed.objectType == object_type
-    assert parsed.objectLabel == '41'
-    assert S.object_index(parsed.objectID) == 41
+def test_every_declared_object_type_round_trips(subtests):
+    """Every declared object type, one subtest each, named on failure."""
+    for object_type in S.OBJECT_TYPES:
+        with subtests.test(object_type=object_type):
+            key = S.compose_prcfo('PLATE-4', 'A', 2, 3, 41,
+                                  object_type=object_type)
+            parsed = S.parse_prcfo(key)
+            assert parsed.prcfo == key, (object_type, key)
+            assert parsed.objectType == object_type, (object_type, key)
+            assert parsed.objectLabel == '41', (object_type, key)
+            assert S.object_index(parsed.objectID) == 41, (object_type, key)
 
 
 def test_organelle_is_not_read_as_an_untyped_object_labelled_rganelle():

@@ -3835,6 +3835,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("890_917_bmc_paper_remaining_api_arrivals_2026-11-12.json", 5),
         ("measure_profile_families_api_arrivals_2026-11-12.json", 16),
         ("910_899_paper_remaining_api_arrivals_2026-11-12.json", 3),
+        ("928_929_ops_consensus_bench_api_arrivals_2026-11-12.json", 22),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))

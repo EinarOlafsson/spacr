@@ -61,15 +61,18 @@ def test_all_analysis_tables_have_declarative_schemas():
         schema.OBJECT_TABLE_SCHEMAS["other"] = object()
 
 
-@pytest.mark.parametrize("table", schema.CANONICAL_OBJECT_TABLES)
-def test_valid_object_frames_pass_and_preserve_dynamic_features(table):
-    frame = _frame(table, stamped=True)
+def test_valid_object_frames_pass_and_preserve_dynamic_features(subtests):
+    """Every canonical object table, one subtest each, named on failure."""
+    for table in schema.CANONICAL_OBJECT_TABLES:
+        with subtests.test(table=table):
+            frame = _frame(table, stamped=True)
 
-    validated = schema.validate_object_table_frame(frame, table)
+            validated = schema.validate_object_table_frame(frame, table)
 
-    pd.testing.assert_frame_equal(validated, frame)
-    assert validated[f"{table}_area"].tolist() == [10.0, 20.0]
-    assert set(MEASUREMENT_STAMP_COLUMNS) <= set(validated.columns)
+            pd.testing.assert_frame_equal(validated, frame)
+            assert validated[f"{table}_area"].tolist() == [10.0, 20.0], table
+            assert set(MEASUREMENT_STAMP_COLUMNS) <= set(
+                validated.columns), table
 
 
 def test_legacy_metadata_spelling_is_canonicalised_on_return():
