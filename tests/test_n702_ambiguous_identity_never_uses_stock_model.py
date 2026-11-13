@@ -5,6 +5,8 @@ import pytest
 
 from spacr import model_zoo as zoo
 
+from tests import locale_cases
+
 
 @pytest.fixture
 def ambiguous_models(monkeypatch):
@@ -46,8 +48,8 @@ def test_existing_local_weights_still_win_over_ambiguous_catalogue(ambiguous_mod
     assert local.read_bytes() == b'locally selected weights'
 
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'])
-def test_ambiguity_error_uses_real_existing_locale_row(ambiguous_models, monkeypatch, language):
+def _ambiguity_error_uses_real_existing_locale_row_case(ambiguous_models, monkeypatch, language):
+    """One case of :func:`test_ambiguity_error_uses_real_existing_locale_row`."""
     import importlib
     from spacr.qt import i18n
     first, second = ambiguous_models
@@ -61,3 +63,9 @@ def test_ambiguity_error_uses_real_existing_locale_row(ambiguous_models, monkeyp
     assert message.startswith(translated.format(name=repr(first.name), n=2) + ':\n')
     for entry in (first, second):
         assert f'{entry.key}@{entry.version} [sha256={entry.sha256}]' in message
+
+
+def test_ambiguity_error_uses_real_existing_locale_row(subtests, ambiguous_models, monkeypatch):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _ambiguity_error_uses_real_existing_locale_row_case(ambiguous_models=ambiguous_models, monkeypatch=case_monkeypatch, **case)

@@ -9,9 +9,11 @@ from PySide6.QtWidgets import QPushButton
 from spacr.qt import i18n
 from spacr.qt.screens.make_masks import MakeMasksScreen
 
+from tests import locale_cases
 
-@pytest.mark.parametrize("language", ["sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"])
-def test_inversion_help_and_control_names_agree(qtbot, monkeypatch, language):
+
+def _inversion_help_and_control_names_agree_case(qtbot, monkeypatch, language):
+    """One case of :func:`test_inversion_help_and_control_names_agree`."""
     source = json.loads((Path(__file__).resolve().parents[2] /
         "tests/data/release_contracts/435_inversion_help_2026-09-22.json").read_text(encoding="utf-8"))["sources"]
     monkeypatch.setenv(i18n.ENV_LANGUAGE, language)
@@ -39,3 +41,9 @@ def test_inversion_help_and_control_names_agree(qtbot, monkeypatch, language):
     finally:
         screen._magnifier.close()
         screen.close_folded()
+
+
+def test_inversion_help_and_control_names_agree(subtests, qtbot, monkeypatch):
+    for label, case in locale_cases.cases(("language", ["sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _inversion_help_and_control_names_agree_case(qtbot=qtbot, monkeypatch=case_monkeypatch, **case)

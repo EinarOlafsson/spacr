@@ -17,6 +17,8 @@ sys.path.insert(0, str(ROOT / "tools"))
 
 import build_guide_i18n as guide  # noqa: E402
 
+from tests import locale_cases
+
 SCRIPT = ROOT / "docs" / "source" / "_static" / "api_i18n.js"
 LANGUAGES = guide.catalog_languages()
 
@@ -200,8 +202,8 @@ def test_catalog_languages_are_known_and_labelled():
         assert (guide.GLOSSARY_DIR / f"{language}.json").is_file()
 
 
-@pytest.mark.parametrize("language", LANGUAGES)
-def test_published_translations_keep_markup_and_app_ui_names(language):
+def _published_translations_keep_markup_and_app_ui_names_case(language):
+    """One case of :func:`test_published_translations_keep_markup_and_app_ui_names`."""
     pytest.importorskip("babel")
     glossary = guide.load_glossary(language)
     failures = []
@@ -213,6 +215,12 @@ def test_published_translations_keep_markup_and_app_ui_names(language):
             if problems:
                 failures.append(f"{path.name}: {message.id[:50]!r}: {problems}")
     assert not failures, "\n".join(failures[:20])
+
+
+def test_published_translations_keep_markup_and_app_ui_names(subtests):
+    for label, case in locale_cases.cases(("language", LANGUAGES)):
+        with subtests.test(**label):
+            _published_translations_keep_markup_and_app_ui_names_case(**case)
 
 
 def test_glossary_matches_the_runtime_catalogs():

@@ -15,6 +15,8 @@ from PySide6.QtWidgets import (  # noqa: E402
 from spacr import install_cleanup, updater  # noqa: E402
 from spacr.qt import app as qt_app  # noqa: E402
 
+from tests import locale_cases
+
 
 class _Messages:
     """Every message box the update handlers show, recorded instead."""
@@ -651,10 +653,8 @@ def test_pip_handoff_refuses_unsaved_state_without_closing_or_approval(frozen_wi
     assert 'could not be saved' in state.messages.warnings[-1][1]
 
 
-@pytest.mark.parametrize("language", ["sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"])
-def test_private_pip_refusal_and_settings_failure_use_reviewed_locale(
-        qapp, monkeypatch, language):
-    """Real runtime lookup shows the exact reviewed message at both refusal points."""
+def _private_pip_refusal_and_settings_failure_use_reviewed_locale_case(qapp, monkeypatch, language):
+    """One case of :func:`test_private_pip_refusal_and_settings_failure_use_reviewed_locale`."""
     import json
     from types import SimpleNamespace
     from spacr import restart_state
@@ -675,6 +675,13 @@ def test_private_pip_refusal_and_settings_failure_use_reviewed_locale(
     source = "The current settings could not be saved. The update was cancelled and this window will stay open."
     assert seen == [expected[source]]
     assert all(value != source for source, value in expected.items())
+
+
+def test_private_pip_refusal_and_settings_failure_use_reviewed_locale(subtests, qapp, monkeypatch):
+    """Real runtime lookup shows the exact reviewed message at both refusal points."""
+    for label, case in locale_cases.cases(("language", ["sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _private_pip_refusal_and_settings_failure_use_reviewed_locale_case(qapp=qapp, monkeypatch=case_monkeypatch, **case)
 
 
 @pytest.mark.parametrize('frozen_window', ['pip-private-windows-v1', 'windows-frozen-nsis-v1'], indirect=True)

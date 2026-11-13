@@ -93,7 +93,24 @@ def solve_placements(edges: Dict[Tuple[int, int], Tuple[float, float]],
         target[row] = (dy, dx)
     for offset, index in enumerate(sorted(pins.values())):
         design[len(edges) + offset, index] = 1.0
-    solution, *_ = _np.linalg.lstsq(design, target, rcond=None)
+    # ONE BLAS THREAD, SO A RERUN STORES THE SAME BITS (S1 (e)). lstsq
+    # hands the work to LAPACK, and a multithreaded BLAS sums partial
+    # products in an order that changes with the thread count and from run
+    # to run: on a 333-tile well the placements moved 7e-11 to 1.7e-10 px
+    # between reruns, so ops_geometry was never byte-identical. The shifts
+    # are integers and the rows are assembled in insertion order, so with
+    # one thread the answer is fixed. Only this call is pinned; the process
+    # keeps its pools. Identity holds per machine and BLAS build -- another
+    # CPU kernel of the same BLAS may round the last bits differently.
+    # Without threadpoolctl the solve runs threaded, as before.
+    try:
+        from threadpoolctl import threadpool_limits
+        pinned = threadpool_limits(limits=1, user_api="blas")
+    except ImportError:
+        import contextlib
+        pinned = contextlib.nullcontext()
+    with pinned:
+        solution, *_ = _np.linalg.lstsq(design, target, rcond=None)
     return {site: (float(solution[index, 0]), float(solution[index, 1]))
             for site, index in order.items()}
 

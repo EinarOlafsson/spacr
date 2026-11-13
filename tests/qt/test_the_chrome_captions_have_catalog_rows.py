@@ -16,6 +16,8 @@ from pathlib import Path
 
 import pytest
 
+from tests import locale_cases
+
 LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 
 #: One caption per surface that carries chrome text, so a regression on any
@@ -200,14 +202,8 @@ def test_anomaly_percentile_header_is_bound_to_its_live_source():
     assert caption in _builder().extract_static_ui_sources()
 
 
-@pytest.mark.parametrize("language", LANGUAGES)
-def test_every_chrome_caption_resolves_to_its_catalog_row(language):
-    """tr() must return the catalog row, not the English source.
-
-    These captions sit outside the settings fields — tabs, buttons, group
-    headers, placeholders — which is exactly the text the language pass had
-    left behind.
-    """
+def _every_chrome_caption_resolves_to_its_catalog_row_case(language):
+    """One case of :func:`test_every_chrome_caption_resolves_to_its_catalog_row`."""
     from spacr.qt.i18n import _ROWS, CATALOGS, tr
 
     external = _catalog(language).UI
@@ -231,6 +227,18 @@ def test_every_chrome_caption_resolves_to_its_catalog_row(language):
                 source, ()):
             english.append(source)
     assert not english, f"{language} still English: {english}"
+
+
+def test_every_chrome_caption_resolves_to_its_catalog_row(subtests):
+    """tr() must return the catalog row, not the English source.
+
+    These captions sit outside the settings fields — tabs, buttons, group
+    headers, placeholders — which is exactly the text the language pass had
+    left behind.
+    """
+    for label, case in locale_cases.cases(("language", LANGUAGES)):
+        with subtests.test(**label):
+            _every_chrome_caption_resolves_to_its_catalog_row_case(**case)
 
 
 def test_chrome_and_related_prose_enter_the_source_inventory_once():
@@ -296,15 +304,8 @@ def test_chrome_and_related_prose_enter_the_source_inventory_once():
     assert len(auxiliary | subtitles) == 6
 
 
-@pytest.mark.parametrize("language", LANGUAGES)
-def test_a_section_header_is_never_half_translated(language):
-    """An exact row must win over the word-by-word term fallback.
-
-    ``_term_translation`` translates the words it knows and leaves the rest,
-    which turned "Intensity Handling (all objects)" into "Intensity Handling
-    (all Objekt)" and "Plate Sources & Workflow" into "Platta Sources &
-    Arbetsflöde" — one English word in the middle of a Swedish heading.
-    """
+def _a_section_header_is_never_half_translated_case(language):
+    """One case of :func:`test_a_section_header_is_never_half_translated`."""
     from spacr.qt.i18n import _term_translation, tr
 
     mangled = []
@@ -327,14 +328,21 @@ def test_a_section_header_is_never_half_translated(language):
     )
 
 
-@pytest.mark.parametrize("language", LANGUAGES)
-def test_the_maturity_hover_speaks_the_language_of_its_label(language):
-    """Home shows a translated stage label over its stage sentence.
+def test_a_section_header_is_never_half_translated(subtests):
+    """An exact row must win over the word-by-word term fallback.
 
-    The label ("Alpha", "Beta", "Stable") was already translated while the
-    sentence the colour stands in for was not, so the hover text contradicted
-    the badge above it.
+    ``_term_translation`` translates the words it knows and leaves the rest,
+    which turned "Intensity Handling (all objects)" into "Intensity Handling
+    (all Objekt)" and "Plate Sources & Workflow" into "Platta Sources &
+    Arbetsflöde" — one English word in the middle of a Swedish heading.
     """
+    for label, case in locale_cases.cases(("language", LANGUAGES)):
+        with subtests.test(**label):
+            _a_section_header_is_never_half_translated_case(**case)
+
+
+def _the_maturity_hover_speaks_the_language_of_its_label_case(language):
+    """One case of :func:`test_the_maturity_hover_speaks_the_language_of_its_label`."""
     from spacr.qt.i18n import tr
     from spacr.qt.theme import STAGE_NOTE
 
@@ -344,13 +352,20 @@ def test_the_maturity_hover_speaks_the_language_of_its_label(language):
         assert translated == _catalog(language).UI[note]
 
 
-@pytest.mark.parametrize("language", LANGUAGES)
-def test_the_keyboard_legend_keeps_its_markup_and_its_key_names(language):
-    """The annotate cheat strip is HTML, and the keys in it are not words.
+def test_the_maturity_hover_speaks_the_language_of_its_label(subtests):
+    """Home shows a translated stage label over its stage sentence.
 
-    A translation that drops a ``<b>`` pair or renames ``Backspace`` stops
-    describing the keyboard it documents.
+    The label ("Alpha", "Beta", "Stable") was already translated while the
+    sentence the colour stands in for was not, so the hover text contradicted
+    the badge above it.
     """
+    for label, case in locale_cases.cases(("language", LANGUAGES)):
+        with subtests.test(**label):
+            _the_maturity_hover_speaks_the_language_of_its_label_case(**case)
+
+
+def _the_keyboard_legend_keeps_its_markup_and_its_key_names_case(language):
+    """One case of :func:`test_the_keyboard_legend_keeps_its_markup_and_its_key_names`."""
     from spacr.qt.i18n import tr
     from spacr.qt.screens.annotate import AnnotateScreen
 
@@ -365,14 +380,19 @@ def test_the_keyboard_legend_keeps_its_markup_and_its_key_names(language):
             assert key in translated, f"{language}: {key} lost"
 
 
-@pytest.mark.parametrize("language", LANGUAGES)
-def test_a_translated_caption_keeps_the_tokens_that_are_not_prose(language):
-    """Paths, product names and units are data, not words to translate.
+def test_the_keyboard_legend_keeps_its_markup_and_its_key_names(subtests):
+    """The annotate cheat strip is HTML, and the keys in it are not words.
 
-    ``measurements/measurements.db`` is where the annotator looks for its
-    database and ``intercept_value`` is a setting key; a locale that
-    translated either would be describing something that does not exist.
+    A translation that drops a ``<b>`` pair or renames ``Backspace`` stops
+    describing the keyboard it documents.
     """
+    for label, case in locale_cases.cases(("language", LANGUAGES)):
+        with subtests.test(**label):
+            _the_keyboard_legend_keeps_its_markup_and_its_key_names_case(**case)
+
+
+def _a_translated_caption_keeps_the_tokens_that_are_not_prose_case(language):
+    """One case of :func:`test_a_translated_caption_keeps_the_tokens_that_are_not_prose`."""
     from spacr.qt.i18n import tr
     from spacr.qt.i18n_catalogs import setting_tooltip
     from spacr.qt.i18n_catalogs.en import SETTING_TOOLTIPS
@@ -397,14 +417,20 @@ def test_a_translated_caption_keeps_the_tokens_that_are_not_prose(language):
     assert "&nbsp;·&nbsp;" in tr(AnnotateScreen.LEGEND_FULL, language)
 
 
-@pytest.mark.parametrize("language", LANGUAGES)
-def test_the_picture_channel_settings_have_a_label_and_a_tooltip(language):
-    """Every declared setting needs a catalog row in every language.
+def test_a_translated_caption_keeps_the_tokens_that_are_not_prose(subtests):
+    """Paths, product names and units are data, not words to translate.
 
-    The red/green/blue channel choices and the regression intercept were
-    declared by the application while the catalogs had never heard of them,
-    so their panels drew English labels under a translated heading.
+    ``measurements/measurements.db`` is where the annotator looks for its
+    database and ``intercept_value`` is a setting key; a locale that
+    translated either would be describing something that does not exist.
     """
+    for label, case in locale_cases.cases(("language", LANGUAGES)):
+        with subtests.test(**label):
+            _a_translated_caption_keeps_the_tokens_that_are_not_prose_case(**case)
+
+
+def _the_picture_channel_settings_have_a_label_and_a_tooltip_case(language):
+    """One case of :func:`test_the_picture_channel_settings_have_a_label_and_a_tooltip`."""
     from spacr.qt.i18n_catalogs import setting_label, setting_tooltip
     from spacr.qt.i18n_catalogs.en import SETTING_LABELS, SETTING_TOOLTIPS
 
@@ -420,6 +446,18 @@ def test_the_picture_channel_settings_have_a_label_and_a_tooltip(language):
         tooltip_source = SETTING_TOOLTIPS[key]
         tooltip = setting_tooltip(key, tooltip_source, language)
         assert tooltip and tooltip != tooltip_source, f"{language}/{key}: tip"
+
+
+def test_the_picture_channel_settings_have_a_label_and_a_tooltip(subtests):
+    """Every declared setting needs a catalog row in every language.
+
+    The red/green/blue channel choices and the regression intercept were
+    declared by the application while the catalogs had never heard of them,
+    so their panels drew English labels under a translated heading.
+    """
+    for label, case in locale_cases.cases(("language", LANGUAGES)):
+        with subtests.test(**label):
+            _the_picture_channel_settings_have_a_label_and_a_tooltip_case(**case)
 
 
 def test_a_stale_source_still_falls_back_to_english():

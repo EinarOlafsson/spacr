@@ -22,6 +22,8 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 
 from PySide6.QtCore import QObject, QSettings                     # noqa: E402
 
+from tests import locale_cases
+
 MASK_SETTINGS = ("cloud_anonymous", "cloud_profile", "cloud_endpoint",
                  "cloud_cache", "cloud_wells", "cloud_fields", "cloud_level",
                  "cloud_results")
@@ -69,14 +71,8 @@ def test_mask_cloud_controls_have_one_dedicated_category():
     assert tuple(measure["Cloud α"]) == MEASURE_SETTINGS
 
 
-@pytest.mark.parametrize("language", ["sv", "de", "es", "zh_CN", "pt",
-                                     "hi", "ko", "is", "fr"])
-def test_cloud_heading_and_help_are_translated(language, qtbot):
-    """Render a translated heading and curated help for each shipped locale.
-
-    :param language: supported non-English interface language.
-    :param qtbot: pytest-qt fixture that owns the section widget.
-    """
+def _cloud_heading_and_help_are_translated_case(language, qtbot):
+    """One case of :func:`test_cloud_heading_and_help_are_translated`."""
     from spacr.qt.i18n import tr
     from spacr.qt.screens.settings_model import (
         category_tooltip, category_tooltip_is_curated,
@@ -98,6 +94,18 @@ def test_cloud_heading_and_help_are_translated(language, qtbot):
     section._refresh_header_text(language)
     header = section._header.text().replace("&&", "&")
     assert header.endswith(" α") and header != "CLOUD α", header
+
+
+def test_cloud_heading_and_help_are_translated(subtests, qtbot):
+    """Render a translated heading and curated help for each shipped locale.
+
+    :param language: supported non-English interface language.
+    :param qtbot: pytest-qt fixture that owns the section widget.
+    """
+    for label, case in locale_cases.cases(("language", ["sv", "de", "es", "zh_CN", "pt",
+                                     "hi", "ko", "is", "fr"])):
+        with subtests.test(**label):
+            _cloud_heading_and_help_are_translated_case(qtbot=qtbot, **case)
 
 
 def _browse_action(screen):

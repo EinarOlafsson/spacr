@@ -14,6 +14,8 @@ from pathlib import Path
 
 import pytest
 
+from tests import locale_cases
+
 needs_bash = pytest.mark.skipif(sys.platform == "win32" or shutil.which("bash") is None,
                                 reason="runs the POSIX shell installer through bash")
 
@@ -521,13 +523,8 @@ def test_embedded_unix_catalog_preserves_markers_and_is_idempotent(
     assert 'VERSION="7.8.9"' in rendered
 
 
-@pytest.mark.parametrize(
-    "language", ("en", "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
-)
-@needs_bash
-def test_unix_dry_run_detects_every_installer_language(
-    language, tmp_path
-):
+def _unix_dry_run_detects_every_installer_language_case(language, tmp_path):
+    """One case of :func:`test_unix_dry_run_detects_every_installer_language`."""
     renderer = _installer_i18n_module()
     catalog = renderer.catalogs()[language]
     installer = _standalone_unix_installer(tmp_path)
@@ -565,12 +562,15 @@ def test_unix_dry_run_detects_every_installer_language(
     assert not (tmp_path / language).exists()
 
 
-@pytest.mark.parametrize(
-    "language", ("en", "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
-)
-def test_powershell_and_nsis_dry_run_language_paths_keep_exact_catalogs(
-    language,
-):
+@needs_bash
+def test_unix_dry_run_detects_every_installer_language(subtests, tmp_path):
+    for label, case in locale_cases.cases(("language", ("en", "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"))):
+        with subtests.test(**label):
+            _unix_dry_run_detects_every_installer_language_case(tmp_path=locale_cases.case_dir(tmp_path, label), **case)
+
+
+def _powershell_and_nsis_dry_run_language_paths_keep_exact_catalogs_case(language):
+    """One case of :func:`test_powershell_and_nsis_dry_run_language_paths_keep_exact_catalogs`."""
     renderer = _installer_i18n_module()
     values = renderer.catalogs()
     powershell = renderer.render_powershell(values)
@@ -610,6 +610,12 @@ def test_powershell_and_nsis_dry_run_language_paths_keep_exact_catalogs(
         )
         assert selector.search(nsis_installer)
     assert '-Language "$3"' in nsis_installer
+
+
+def test_powershell_and_nsis_dry_run_language_paths_keep_exact_catalogs(subtests):
+    for label, case in locale_cases.cases(("language", ("en", "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"))):
+        with subtests.test(**label):
+            _powershell_and_nsis_dry_run_language_paths_keep_exact_catalogs_case(**case)
 
 
 def test_installer_catalogs_use_reviewed_software_and_screening_terms():

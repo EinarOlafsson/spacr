@@ -11,6 +11,8 @@ import pytest
 from spacr import model_zoo as zoo
 from spacr import utils
 
+from tests import locale_cases
+
 LANGUAGES = ('sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is')
 ROOT = Path(__file__).parents[1]
 
@@ -45,8 +47,8 @@ def records(language):
     return json.loads(path.read_text(encoding="utf-8"))['records']
 
 
-@pytest.mark.parametrize('language', LANGUAGES)
-def test_actual_unknown_request_uses_localized_context(publisher, monkeypatch, language):
+def _actual_unknown_request_uses_localized_context_case(publisher, monkeypatch, language):
+    """One case of :func:`test_actual_unknown_request_uses_localized_context`."""
     raw, source, payload = publisher
     monkeypatch.setenv('SPACR_LANGUAGE', language)
     monkeypatch.setattr(utils, '_installed_cellpose_models', lambda: ('cpsam',))
@@ -67,8 +69,14 @@ def test_actual_unknown_request_uses_localized_context(publisher, monkeypatch, l
     assert source.read_bytes() == payload
 
 
-@pytest.mark.parametrize('language', LANGUAGES)
-def test_actual_native_download_logs_localized_context(publisher, monkeypatch, language, caplog):
+def test_actual_unknown_request_uses_localized_context(subtests, publisher, monkeypatch):
+    for label, case in locale_cases.cases(('language', LANGUAGES)):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _actual_unknown_request_uses_localized_context_case(publisher=publisher, monkeypatch=case_monkeypatch, **case)
+
+
+def _actual_native_download_logs_localized_context_case(publisher, monkeypatch, language, caplog):
+    """One case of :func:`test_actual_native_download_logs_localized_context`."""
     raw, source, payload = publisher
     monkeypatch.setenv('SPACR_LANGUAGE', language)
     requested = '/old-laptop/' + source.name
@@ -80,6 +88,17 @@ def test_actual_native_download_logs_localized_context(publisher, monkeypatch, l
     assert [record.getMessage() for record in caplog.records].count(expected) == 1
     assert result.read_bytes() == source.read_bytes() == payload
     assert result != source
+
+
+def test_actual_native_download_logs_localized_context(subtests, publisher, monkeypatch, caplog, tmp_path):
+    for label, case in locale_cases.cases(('language', LANGUAGES)):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            # every case downloads into an empty model home of its own, as a
+            # separate test did; a model a previous case fetched is not logged
+            case_home = locale_cases.case_dir(tmp_path, label)
+            case_monkeypatch.setattr(zoo, '_spacr_home', lambda: case_home)
+            caplog.clear()
+            _actual_native_download_logs_localized_context_case(publisher=publisher, monkeypatch=case_monkeypatch, caplog=caplog, **case)
 
 
 @pytest.mark.parametrize('language', ('en', 'ko'))

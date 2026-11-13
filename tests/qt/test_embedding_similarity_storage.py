@@ -15,6 +15,8 @@ from spacr import embeddings as emb
 from spacr.qt import preferences
 from spacr.qt.screens.embeddings import EmbeddingsScreen
 
+from tests import locale_cases
+
 
 @pytest.fixture
 def plate(tmp_path):
@@ -272,13 +274,8 @@ def test_current_result_rejects_invalid_object_cardinality(screen, plate, tmp_pa
         emb._mil_frame_from_result(str(plate[0]), keys, screen._result, str(_well_labels(tmp_path)))
 
 
-@pytest.mark.parametrize("language", ["sv", "de", "es", "fr", "pt", "is", "hi", "ko", "zh_CN"])
-@pytest.mark.parametrize("failure,source", [
-    ("keys", "The current embedding has no unique source object keys."),
-    ("metadata", "Some current embedding objects no longer have crop metadata."),
-])
-def test_current_mil_refusal_uses_the_actual_selected_locale(
-        plate, language, failure, source, monkeypatch):
+def _current_mil_refusal_uses_the_actual_selected_locale_case(plate, language, failure, source, monkeypatch):
+    """One case of :func:`test_current_mil_refusal_uses_the_actual_selected_locale`."""
     from hashlib import sha256
     from importlib import import_module
     monkeypatch.setenv("SPACR_LANGUAGE", language)
@@ -298,6 +295,15 @@ def test_current_mil_refusal_uses_the_actual_selected_locale(
         emb._mil_frame_from_result(str(database), keys, result, None)
     assert str(error.value) == expected
     assert sha256(database.read_bytes()).hexdigest() == before
+
+
+def test_current_mil_refusal_uses_the_actual_selected_locale(subtests, plate, monkeypatch):
+    for label, case in locale_cases.cases(("language", ["sv", "de", "es", "fr", "pt", "is", "hi", "ko", "zh_CN"]), ("failure,source", [
+    ("keys", "The current embedding has no unique source object keys."),
+    ("metadata", "Some current embedding objects no longer have crop metadata."),
+])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _current_mil_refusal_uses_the_actual_selected_locale_case(plate=plate, monkeypatch=case_monkeypatch, **case)
 
 
 @pytest.mark.parametrize("accept", [False, True])

@@ -18,6 +18,8 @@ import pytest
 
 from tests.readme_source_words import readme_words
 
+from tests import locale_cases
+
 ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "tools"
 # Compare the current public API with the unchanged baseline after subtracting
@@ -5111,9 +5113,8 @@ def test_visual_regeneration_preserves_localized_workflow_markup(monkeypatch):
         assert 'src="icons/align.png" align="middle"' in localized
 
 
-@pytest.mark.parametrize("language", ["sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"])
-def test_visual_regeneration_keeps_reviewed_organism_heading_and_note(language):
-    """The actual workflow producer uses the accepted live navigation text."""
+def _visual_regeneration_keeps_reviewed_organism_heading_and_note_case(language):
+    """One case of :func:`test_visual_regeneration_keeps_reviewed_organism_heading_and_note`."""
     import importlib.util
     fixture = json.loads((ROOT / "tests/data/release_contracts"
         / "readme_workflow_languages_2026_10_08.json").read_text(encoding="utf-8"))
@@ -5129,6 +5130,13 @@ def test_visual_regeneration_keeps_reviewed_organism_heading_and_note(language):
     assert expected["note"] in text
     assert fixture["source_note"] not in text
     assert text.count("|Module_toxoplasma|") == 2
+
+
+def test_visual_regeneration_keeps_reviewed_organism_heading_and_note(subtests):
+    """The actual workflow producer uses the accepted live navigation text."""
+    for label, case in locale_cases.cases(("language", ["sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"])):
+        with subtests.test(**label):
+            _visual_regeneration_keeps_reviewed_organism_heading_and_note_case(**case)
 
 
 @pytest.mark.parametrize("language", ["sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"])
@@ -5349,23 +5357,8 @@ def test_localized_readmes_keep_reviewed_semantic_and_typographic_fixes():
         assert not any(fragment in readmes[language] for fragment in fragments)
 
 
-@pytest.mark.parametrize(
-    "language,display_text,screening_term",
-    [
-        ("sv", "20% av skärmens kortare kant.", "CRISPR-screening"),
-        ("de", "20% der kürzeren Bildschirmkante.", "CRISPR-Screening"),
-        ("es", "20% del lado más corto de la pantalla.", "cribado CRISPR"),
-        ("zh_CN", "屏幕较短边的 20%。", "CRISPR 筛选"),
-        ("pt", "20% do lado mais curto da tela.", "triagem CRISPR"),
-        ("hi", "स्क्रीन के छोटे किनारे का 20%।", "CRISPR स्क्रीनिंग"),
-        ("ko", "화면의 짧은 변의 20%입니다.", "CRISPR 스크리닝"),
-        ("is", "20% af styttri skjájaðrinum.", "CRISPR-skimun"),
-        ("fr", "20% du côté le plus court de l’écran.", "criblage CRISPR"),
-    ],
-)
-def test_display_edge_geometry_does_not_become_biological_screening(
-    language, display_text, screening_term, monkeypatch,
-):
+def _display_edge_geometry_does_not_become_biological_screening_case(language, display_text, screening_term, monkeypatch):
+    """One case of :func:`test_display_edge_geometry_does_not_become_biological_screening`."""
     import build_i18n_catalogs as builder
     from build_i18n_catalogs import _contextualize, _semantic_false_friends
 
@@ -5383,6 +5376,22 @@ def test_display_edge_geometry_does_not_become_biological_screening(
         assert "scientific-screen-as-ui-screen" in _semantic_false_friends(
             scientific_source, display_text, language,
         )
+
+
+def test_display_edge_geometry_does_not_become_biological_screening(subtests, monkeypatch):
+    for label, case in locale_cases.cases(("language,display_text,screening_term", [
+        ("sv", "20% av skärmens kortare kant.", "CRISPR-screening"),
+        ("de", "20% der kürzeren Bildschirmkante.", "CRISPR-Screening"),
+        ("es", "20% del lado más corto de la pantalla.", "cribado CRISPR"),
+        ("zh_CN", "屏幕较短边的 20%。", "CRISPR 筛选"),
+        ("pt", "20% do lado mais curto da tela.", "triagem CRISPR"),
+        ("hi", "स्क्रीन के छोटे किनारे का 20%।", "CRISPR स्क्रीनिंग"),
+        ("ko", "화면의 짧은 변의 20%입니다.", "CRISPR 스크리닝"),
+        ("is", "20% af styttri skjájaðrinum.", "CRISPR-skimun"),
+        ("fr", "20% du côté le plus court de l’écran.", "criblage CRISPR"),
+    ])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _display_edge_geometry_does_not_become_biological_screening_case(monkeypatch=case_monkeypatch, **case)
 
 
 def test_reviewed_formula_only_block_may_stay_identical_in_every_locale():

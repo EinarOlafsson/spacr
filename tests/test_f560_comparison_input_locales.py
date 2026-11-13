@@ -7,9 +7,11 @@ import pytest
 
 from spacr import embeddings as emb
 
+from tests import locale_cases
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is'])
-def test_installed_foundation_comparison_refusal(monkeypatch, language):
+
+def _installed_foundation_comparison_refusal_case(monkeypatch, language):
+    """One case of :func:`test_installed_foundation_comparison_refusal`."""
     path = (Path(__file__).parents[1] / 'docs/i18n/reviewed/runtime' / language
             / '2026-10-15-foundation-comparison-input.json')
     expected = json.loads(path.read_text(encoding="utf-8"))['records'][0]['translation']
@@ -25,3 +27,9 @@ def test_installed_foundation_comparison_refusal(monkeypatch, language):
     assert expected != 'Provide a four-dimensional crop stack and one label per crop.'
     assert calls == []
     np.testing.assert_array_equal(crops, before)
+
+
+def test_installed_foundation_comparison_refusal(subtests, monkeypatch):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _installed_foundation_comparison_refusal_case(monkeypatch=case_monkeypatch, **case)

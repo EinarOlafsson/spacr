@@ -9,6 +9,8 @@ from PySide6.QtGui import QTextDocument
 
 from spacr.qt.widgets.test_data_chooser import TestDataChooser as Chooser
 
+from tests import locale_cases
+
 
 ROOT = Path(__file__).resolve().parents[2]
 LANGUAGES = ('de', 'es', 'fr', 'hi', 'is', 'ko', 'pt', 'sv', 'zh_CN')
@@ -32,9 +34,8 @@ def test_class_owned_hover_prose_enters_the_english_inventory(monkeypatch):
     assert all(variant.label in sources for variant in IMPORT_VARIANTS)
 
 
-@pytest.mark.parametrize('language', LANGUAGES)
-def test_rest_hover_tooltip_and_pane_use_the_reviewed_translation(
-        qtbot, qt_theme_applied, monkeypatch, language, hover_now):
+def _rest_hover_tooltip_and_pane_use_the_reviewed_translation_case(qtbot, qt_theme_applied, monkeypatch, language, hover_now):
+    """One case of :func:`test_rest_hover_tooltip_and_pane_use_the_reviewed_translation`."""
     monkeypatch.setenv('SPACR_LANGUAGE', language)
     reviewed = json.loads((ROOT/f'docs/i18n/reviewed/runtime/{language}/2026-09-21-test-data-chooser.json').read_text(encoding="utf-8"))
     targets = {}
@@ -65,6 +66,12 @@ def test_rest_hover_tooltip_and_pane_use_the_reviewed_translation(
         assert dialog.description_text() == targets[Chooser.RESTING_TEXT]
     assert dialog.every_description() == tuple(expected)
     assert dialog.chosen == ''  # inspecting a route must not choose/download it
+
+
+def test_rest_hover_tooltip_and_pane_use_the_reviewed_translation(subtests, qtbot, qt_theme_applied, monkeypatch, hover_now):
+    for label, case in locale_cases.cases(('language', LANGUAGES)):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _rest_hover_tooltip_and_pane_use_the_reviewed_translation_case(qtbot=qtbot, qt_theme_applied=qt_theme_applied, monkeypatch=case_monkeypatch, hover_now=hover_now, **case)
 
 
 def test_description_pane_fits_after_live_zoom(qtbot, qt_theme_applied, monkeypatch):

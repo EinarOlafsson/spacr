@@ -13,6 +13,8 @@ import pytest
 
 from spacr import install_cleanup as cleanup, updater
 
+from tests import locale_cases
+
 
 @pytest.fixture
 def runtime(tmp_path):
@@ -91,12 +93,18 @@ def test_updater_refuses_a_downgrade_before_running_any_package_command(monkeypa
     assert 'newer' in message
 
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'])
-def test_downgrade_refusal_has_a_runtime_translation_in_every_locale(language):
+def _downgrade_refusal_has_a_runtime_translation_in_every_locale_case(language):
+    """One case of :func:`test_downgrade_refusal_has_a_runtime_translation_in_every_locale`."""
     from spacr.qt.i18n import has_translation, tr
     source = 'The running spaCR is newer than the requested release. Nothing was changed.'
     assert has_translation(source, language)
     assert tr(source, language) != source
+
+
+def test_downgrade_refusal_has_a_runtime_translation_in_every_locale(subtests):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'])):
+        with subtests.test(**label):
+            _downgrade_refusal_has_a_runtime_translation_in_every_locale_case(**case)
 
 
 def test_retiring_old_application_keeps_nested_cache_and_custom_project(tmp_path):

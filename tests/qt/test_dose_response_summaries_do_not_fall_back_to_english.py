@@ -9,6 +9,8 @@ from string import Formatter
 
 import pytest
 
+from tests import locale_cases
+
 LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 SOURCES = (
     "{name}: pooled EC50 {ec50}{unit} ({low}–{high}) across {used} of {plates} plates, I² {spread}",
@@ -21,9 +23,8 @@ def _fields(text):
     return sorted(field for _, field, _, _ in Formatter().parse(text) if field is not None)
 
 
-@pytest.mark.parametrize("language", LANGUAGES)
-@pytest.mark.parametrize("source", SOURCES)
-def test_fit_summary_is_translated_and_retains_its_data_fields(language, source):
+def _fit_summary_is_translated_and_retains_its_data_fields_case(language, source):
+    """One case of :func:`test_fit_summary_is_translated_and_retains_its_data_fields`."""
     english = import_module("spacr.qt.i18n_catalogs.en")
     catalog = import_module(f"spacr.qt.i18n_catalogs.{language}")
     assert source in english.UI_SOURCES
@@ -36,8 +37,14 @@ def test_fit_summary_is_translated_and_retains_its_data_fields(language, source)
     assert len(re.findall(r"\bI\s*²", translated)) == source.count("I²")
 
 
-@pytest.mark.parametrize("language", LANGUAGES)
-def test_fit_summaries_keep_the_source_bound_technical_review(language):
+def test_fit_summary_is_translated_and_retains_its_data_fields(subtests):
+    for label, case in locale_cases.cases(("language", LANGUAGES), ("source", SOURCES)):
+        with subtests.test(**label):
+            _fit_summary_is_translated_and_retains_its_data_fields_case(**case)
+
+
+def _fit_summaries_keep_the_source_bound_technical_review_case(language):
+    """One case of :func:`test_fit_summaries_keep_the_source_bound_technical_review`."""
     path = (Path(__file__).resolve().parents[2] / "docs/i18n/reviewed/runtime"
             / language / "2026-09-15-dose-response-summary-repair.json")
     records = json.loads(path.read_text(encoding="utf-8"))["records"]
@@ -48,3 +55,9 @@ def test_fit_summaries_keep_the_source_bound_technical_review(language):
         assert record["key"] == record["source"]
         assert record["source_sha256"] == hashlib.sha256(record["source"].encode()).hexdigest()
         assert catalog.UI[record["source"]] == record["translation"]
+
+
+def test_fit_summaries_keep_the_source_bound_technical_review(subtests):
+    for label, case in locale_cases.cases(("language", LANGUAGES)):
+        with subtests.test(**label):
+            _fit_summaries_keep_the_source_bound_technical_review_case(**case)

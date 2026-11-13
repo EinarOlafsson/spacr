@@ -6,6 +6,8 @@ import pytest
 
 from spacr.qt import app
 
+from tests import locale_cases
+
 _LANGUAGES = ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr')
 _ITEM = Path(__file__).resolve().parents[2] / 'features/feature_list/733_easy_mode_content_guided_home.txt'
 
@@ -29,13 +31,19 @@ def test_localized_data_covers_all_original_task_pairs_and_current_aliases():
             assert all(isinstance(target, str) and target.strip() for target in targets)
 
 
-@pytest.mark.parametrize('language', _LANGUAGES)
-def test_every_localized_noun_verb_and_short_task_keeps_its_canonical_modules(language):
+def _every_localized_noun_verb_and_short_task_keeps_its_canonical_modules_case(language):
+    """One case of :func:`test_every_localized_noun_verb_and_short_task_keeps_its_canonical_modules`."""
     for (expected, sources), targets in zip(app._EASY_TASK_GROUPS, app._EASY_TASK_LOCALIZED[language]):
         assert len(sources) == len(targets)
         for source, target in zip(sources, targets):
             assert app._easy_task_keys(target) == expected, (language, source, target)
             assert app._easy_task_keys(target.upper() + '!') == expected, (language, source, target)
+
+
+def test_every_localized_noun_verb_and_short_task_keeps_its_canonical_modules(subtests):
+    for label, case in locale_cases.cases(('language', _LANGUAGES)):
+        with subtests.test(**label):
+            _every_localized_noun_verb_and_short_task_keeps_its_canonical_modules_case(**case)
 
 
 def test_localized_task_and_associated_aliases_have_no_cross_intent_collisions():
@@ -48,11 +56,17 @@ def test_localized_task_and_associated_aliases_have_no_cross_intent_collisions()
             assert previous == tuple(keys), (phrase, previous, tuple(keys))
 
 
-@pytest.mark.parametrize('language', _LANGUAGES)
-def test_every_associated_short_alias_keeps_its_native_intent(language):
+def _every_associated_short_alias_keeps_its_native_intent_case(language):
+    """One case of :func:`test_every_associated_short_alias_keeps_its_native_intent`."""
     assert len(app._EASY_ASSOCIATED_GROUPS) == 27
     translated = app._EASY_ASSOCIATED_LOCALIZED[language]
     assert len(translated) == len(app._EASY_ASSOCIATED_GROUPS)
     for (expected, source), target in zip(app._EASY_ASSOCIATED_GROUPS, translated):
         assert target.strip()
         assert app._easy_task_keys(target) == expected, (language, source, target)
+
+
+def test_every_associated_short_alias_keeps_its_native_intent(subtests):
+    for label, case in locale_cases.cases(('language', _LANGUAGES)):
+        with subtests.test(**label):
+            _every_associated_short_alias_keeps_its_native_intent_case(**case)

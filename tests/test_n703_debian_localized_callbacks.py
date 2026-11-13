@@ -10,6 +10,8 @@ from spacr import install_cleanup
 from spacr.qt import app as app_module
 from spacr.qt import i18n, preferences
 
+from tests import locale_cases
+
 
 METADATA_SOURCE = "invalid Debian package metadata"
 PROMPT_SOURCE = (
@@ -18,8 +20,8 @@ PROMPT_SOURCE = (
 )
 
 
-@pytest.mark.parametrize("language", ["sv", "de", "es", "zh_CN", "pt", "ko", "hi", "is", "fr"])
-def test_debian_localized_refusal_and_cancelled_authorization_prompt(monkeypatch, tmp_path, language):
+def _debian_localized_refusal_and_cancelled_authorization_prompt_case(monkeypatch, tmp_path, language):
+    """One case of :func:`test_debian_localized_refusal_and_cancelled_authorization_prompt`."""
     reviewed = Path(__file__).parents[1] / "docs/i18n/reviewed/runtime" / language / "2026-10-15-debian-update-transaction.json"
     rows = json.loads(reviewed.read_text(encoding="utf-8"))["records"]
     targets = {row["source"]: row["translation"] for row in rows}
@@ -76,3 +78,9 @@ def test_debian_localized_refusal_and_cancelled_authorization_prompt(monkeypatch
     assert window._frozen_update_handshake is None and window._frozen_update_plan is None
     assert archive.read_bytes() == original
     assert preferences.get_language() == language
+
+
+def test_debian_localized_refusal_and_cancelled_authorization_prompt(subtests, monkeypatch, tmp_path):
+    for label, case in locale_cases.cases(("language", ["sv", "de", "es", "zh_CN", "pt", "ko", "hi", "is", "fr"])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _debian_localized_refusal_and_cancelled_authorization_prompt_case(monkeypatch=case_monkeypatch, tmp_path=locale_cases.case_dir(tmp_path, label), **case)

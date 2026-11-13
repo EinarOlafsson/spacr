@@ -23,6 +23,8 @@ from spacr.qt import i18n, i18n_catalogs
 from spacr.qt.screens.settings_model import format_tooltip
 from spacr.settings import tooltips
 
+from tests import locale_cases
+
 pytestmark = pytest.mark.qt
 
 LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
@@ -33,13 +35,12 @@ REVIEW_NAME = "2026-09-15-mask-mean-bounds.json"
 CHANNEL = re.compile(r"\b(?:cell|nucleus|pathogen|organelle[a-z]*)_channel\b")
 
 
-@pytest.fixture(autouse=True)
-def _restored_language(monkeypatch, language):
+def _select_language(monkeypatch, language):
     """Select the real runtime language without writing user preferences."""
     monkeypatch.setenv(i18n.ENV_LANGUAGE, language)
     assert i18n.current_language() == language
-    # monkeypatch restores the prior environment even when an assertion fails.
-    yield
+    # the case's monkeypatch restores the prior environment when it ends,
+    # even when an assertion fails.
 
 
 @pytest.fixture(scope="module")
@@ -86,8 +87,8 @@ def _assert_rendered(key, label, body):
     assert escape(body) in rendered
 
 
-@pytest.mark.parametrize("language", LANGUAGES)
-def test_mask_bounds_publish_current_labels_and_own_channel_help(language, reviewed):
+def _mask_bounds_publish_current_labels_and_own_channel_help_case(language, reviewed):
+    """One case of :func:`test_mask_bounds_publish_current_labels_and_own_channel_help`."""
     # The maintainer, 2026-09-25 (item 511): cell, nucleus and pathogen's
     # mean bounds are object_filters rows now, and their reviewed records
     # were deleted with the settings; the organelle slots keep theirs.
@@ -112,8 +113,15 @@ def test_mask_bounds_publish_current_labels_and_own_channel_help(language, revie
             _assert_rendered(key, label, body)
 
 
-@pytest.mark.parametrize("language", LANGUAGES)
-def test_live_preview_bound_captions_publish_current_translation(language, reviewed):
+def test_mask_bounds_publish_current_labels_and_own_channel_help(subtests, reviewed):
+    for label, case in locale_cases.cases(("language", LANGUAGES)):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _select_language(case_monkeypatch, case["language"])
+            _mask_bounds_publish_current_labels_and_own_channel_help_case(reviewed=reviewed, **case)
+
+
+def _live_preview_bound_captions_publish_current_translation_case(language, reviewed):
+    """One case of :func:`test_live_preview_bound_captions_publish_current_translation`."""
     from spacr.qt.widgets.live_preview import COMPARTMENT_FIELDS
 
     captions = {suffix: caption for suffix, caption, *_rest in COMPARTMENT_FIELDS
@@ -125,9 +133,15 @@ def test_live_preview_bound_captions_publish_current_translation(language, revie
         assert i18n.tr(source) == translated
 
 
-@pytest.mark.parametrize("language", LANGUAGES)
-@pytest.mark.parametrize("slot", (2, 702))
-def test_numbered_slots_keep_current_help_and_their_own_channel(language, slot, reviewed):
+def test_live_preview_bound_captions_publish_current_translation(subtests, reviewed):
+    for label, case in locale_cases.cases(("language", LANGUAGES)):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _select_language(case_monkeypatch, case["language"])
+            _live_preview_bound_captions_publish_current_translation_case(reviewed=reviewed, **case)
+
+
+def _numbered_slots_keep_current_help_and_their_own_channel_case(language, slot, reviewed):
+    """One case of :func:`test_numbered_slots_keep_current_help_and_their_own_channel`."""
     role = organelle_role(slot)
     for bound in ("min", "max"):
         key = f"{role}_{bound}_intensity"
@@ -165,3 +179,10 @@ def test_numbered_slots_keep_current_help_and_their_own_channel(language, slot, 
         # similar setting names must not receive obsolete translated help.
         assert i18n_catalogs.setting_tooltip(key, source + " changed", language) is None
         assert i18n_catalogs.setting_label(key, label_source + " changed", language) is None
+
+
+def test_numbered_slots_keep_current_help_and_their_own_channel(subtests, reviewed):
+    for label, case in locale_cases.cases(("language", LANGUAGES), ("slot", (2, 702))):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _select_language(case_monkeypatch, case["language"])
+            _numbered_slots_keep_current_help_and_their_own_channel_case(reviewed=reviewed, **case)

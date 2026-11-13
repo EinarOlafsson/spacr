@@ -5,6 +5,8 @@ import pytest
 
 from spacr.embeddings import EmbeddingSpec, _mil_bags
 
+from tests import locale_cases
+
 
 @pytest.fixture(autouse=True)
 def english_errors(monkeypatch):
@@ -94,8 +96,8 @@ def test_explicit_mixed_embedding_measurement_selection_still_compares_embedding
         bags_preserving(source, feature_columns=['measurement', 'emb_0'])
 
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is'])
-def test_coordinate_conflict_uses_installed_reviewed_language(language, monkeypatch):
+def _coordinate_conflict_uses_installed_reviewed_language_case(language, monkeypatch):
+    """One case of :func:`test_coordinate_conflict_uses_installed_reviewed_language`."""
     import json
     from pathlib import Path
 
@@ -108,3 +110,9 @@ def test_coordinate_conflict_uses_installed_reviewed_language(language, monkeypa
         bags_preserving(source)
     assert str(error.value) == record['translation']
     assert str(error.value) != record['source']
+
+
+def test_coordinate_conflict_uses_installed_reviewed_language(subtests, monkeypatch):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _coordinate_conflict_uses_installed_reviewed_language_case(monkeypatch=case_monkeypatch, **case)
