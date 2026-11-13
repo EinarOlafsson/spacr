@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import logging
 import os
 import re
 import time
@@ -53,10 +54,13 @@ CPG_PHASES = ("cpg_index", "cpg_merged")
 INDEX_COLUMNS = ("plate", "well", "well_id", "site", "modality", "cycle",
                  "channel", "base", "path", "shape", "dtype", "size")
 
-_WELL_FOLDER = re.compile(r"^(?P<plate>.+)_Well(?P<number>\d+)$")
+_LOG = logging.getLogger(__name__)
+
+_WELL_FOLDER = re.compile(r"^(?P<plate>.+)_Well(?P<number>\d+)$", re.IGNORECASE)
 _SITE_FILE = re.compile(r"^(?P<channel>.+)_Site_(?P<site>\d+)\.tiff?$",
                         re.IGNORECASE)
-_SBS_CHANNEL = re.compile(r"^Cycle(?P<cycle>\d+)_(?P<base>[A-Za-z]+)$")
+_SBS_CHANNEL = re.compile(r"^Cycle(?P<cycle>\d+)_(?P<base>[A-Za-z]+)$",
+                          re.IGNORECASE)
 _RESAMPLE = ("none", "nearest", "linear")
 _MISSING = ("error", "skip_site")
 
@@ -165,6 +169,44 @@ def file_md5(path: str, chunk: int = 1 << 22) -> str:
     return digest.hexdigest()
 
 
+def _drop_sbs_only_well(rows: List[Dict[str, Any]], first: int,
+                        well: Mapping[str, Any], folder: str,
+                        keep_wells: Optional[set]) -> str:
+    """Remove a well's rows when it has sequencing images but no phenotype ones.
+
+    Cycle and channel folder names match without regard to case, so the index
+    holds ``Cycle<CC>_<BASE>`` in canonical case and the real path. A well
+    with sequencing images but no phenotype images (``CP186A_Well6`` in
+    cpg0021) is left out of the index with a logged warning; the caller keeps
+    its name in ``index.attrs["skipped_wells"]``, which
+    :func:`cpg_site_index` passes on as ``skipped_wells`` and the run report
+    and ``cpg_channels.json`` record. Naming such a well in ``cpg_wells``
+    raises an error that says it has no phenotype images. A well with
+    phenotype images and no sequencing images is kept.
+
+    :param rows: the index rows so far; this well's start at ``first``.
+    :param first: the position of the well's first row.
+    :param well: the parsed well folder name.
+    :param folder: the well folder, for the error text.
+    :param keep_wells: the wells asked for, or None.
+    :returns: ``<plate>_Well<N>`` when the well was removed, else ``""``.
+    :raises ValueError: when the removed well was asked for by name.
+    """
+    added = rows[first:]
+    if not added or any(row["modality"] != "sbs" for row in added):
+        return ""
+    name = f"{well['plate']}_{well['well']}"
+    if keep_wells is not None:
+        raise ValueError(
+            f"well {name} has no phenotype images (only sequencing cycles "
+            f"under {folder!r}); it cannot be read as a cropped site. "
+            "Remove it from wells= to skip it")
+    del rows[first:]
+    _LOG.warning("skipping well %s: it has SBS images but no phenotype "
+                 "images", name)
+    return name
+
+
 def cpg_cropped_index(root: str, *, wells: Optional[Sequence[str]] = None,
                       sites: Any = None, md5: bool = False,
                       headers: bool = True) -> pd.DataFrame:
@@ -192,15 +234,17 @@ def cpg_cropped_index(root: str, *, wells: Optional[Sequence[str]] = None,
             keep_wells.add(name)
             if _WELL_FOLDER.match(name):
                 keep_wells.add(parse_well_folder(name)["well"])
-            elif re.fullmatch(r"[Ww](\d+)", name):
-                keep_wells.add(f"Well{int(name[1:])}")
+            elif re.fullmatch(r"[Ww](?:ell)?(\d+)", name):
+                keep_wells.add(f"Well{int(re.sub(r'[^0-9]', '', name))}")
     keep_sites = parse_sites(sites)
     keep_sites = None if keep_sites is None else set(keep_sites)
     rows: List[Dict[str, Any]] = []
+    skipped_wells: List[str] = []
     for folder in _well_folders(root):
         well = parse_well_folder(os.path.basename(folder))
         if keep_wells is not None and well["well"] not in keep_wells:
             continue
+        first = len(rows)
         for channel in sorted(os.listdir(folder)):
             channel_dir = os.path.join(folder, channel)
             if not os.path.isdir(channel_dir):
@@ -210,7 +254,7 @@ def cpg_cropped_index(root: str, *, wells: Optional[Sequence[str]] = None,
                 found = _SITE_FILE.match(name)
                 if not found:
                     continue
-                if found.group("channel") != channel:
+                if found.group("channel").casefold() != channel.casefold():
                     raise ValueError(
                         f"{os.path.join(channel_dir, name)} is in the "
                         f"{channel} folder but names channel "
@@ -224,11 +268,17 @@ def cpg_cropped_index(root: str, *, wells: Optional[Sequence[str]] = None,
                     "well_id": well["well_id"], "site": site,
                     "modality": "sbs" if sbs else "phenotype",
                     "cycle": int(sbs.group("cycle")) if sbs else 0,
-                    "channel": channel,
+                    "channel": (f"Cycle{int(sbs.group('cycle')):02d}_"
+                                f"{sbs.group('base').upper()}") if sbs else channel,
                     "base": sbs.group("base").upper() if sbs else "",
                     "path": path, "size": int(os.path.getsize(path))})
+        name = _drop_sbs_only_well(rows, first, well, folder, keep_wells)
+        if name:
+            skipped_wells.append(name)
     if not rows:
-        raise ValueError(f"no <Channel>_Site_<S>.tiff files under {root!r}")
+        raise ValueError(f"no <Channel>_Site_<S>.tiff files under {root!r}"
+                         + (f" (skipped wells without phenotype images: "
+                            f"{skipped_wells})" if skipped_wells else ""))
     frame = pd.DataFrame(rows)
     if headers:
         found = [_tiff_header(path) for path in frame["path"]]
@@ -243,6 +293,7 @@ def cpg_cropped_index(root: str, *, wells: Optional[Sequence[str]] = None,
     frame = frame[list(INDEX_COLUMNS)].reset_index(drop=True)
     if md5:
         frame["md5"] = [file_md5(path) for path in frame["path"]]
+    frame.attrs["skipped_wells"] = list(skipped_wells)
     return frame
 
 
@@ -503,7 +554,8 @@ def cpg_site_index(settings: Mapping[str, Any], *, md5: Optional[bool] = None
                                  pinned["cpg_sbs_cycles"], pinned["cpg_sbs_bases"],
                                  pinned["cpg_sbs_dapi"])
     checked = check_cpg_complete(index, channels, missing=pinned["cpg_missing"])
-    return {**checked, "channels": channels, "pinned": pinned}
+    return {**checked, "channels": channels, "pinned": pinned,
+            "skipped_wells": list(index.attrs.get("skipped_wells", []))}
 
 
 def _write_json(path: str, record: Mapping[str, Any]) -> None:
@@ -592,7 +644,8 @@ def run_cpg_phases(settings: Mapping[str, Any], phases: Sequence[str] = CPG_PHAS
         "channels_record": os.path.join(destination, "cpg_channels.json"),
         "files": int(len(index)),
         "sites": int(index[["plate", "well", "site"]].drop_duplicates().shape[0]),
-        "skipped": [list(s) for s in built["skipped"]]}
+        "skipped": [list(s) for s in built["skipped"]],
+        "skipped_wells": list(built["skipped_wells"])}
     if "cpg_index" in phases:
         write_table(index, result["index"], canonicalise=False)
         if len(built["missing"]):
@@ -605,6 +658,7 @@ def run_cpg_phases(settings: Mapping[str, Any], phases: Sequence[str] = CPG_PHAS
             "missing": pinned["cpg_missing"], "md5": pinned["cpg_md5"],
             "registration": "none: the crops are already aligned",
             "stacking_order": built["channels"], "settings": pinned,
+            "skipped_wells": built["skipped_wells"],
             "spacr_version": __version__})
         say(f"cpg_index: {result['files']} files, {result['sites']} sites")
     if "cpg_merged" in phases:

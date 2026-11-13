@@ -725,7 +725,8 @@ def test_open_run_always_closes_with_a_manifest(
             assert manifest["warnings"] == ["two fields had no objects"]
             assert manifest["app_key"] == "measure"
             assert json.loads((run.dir / "settings.json").read_text(
-                encoding="utf-8")) == {"diameter": 30}
+                encoding="utf-8")) == {"diameter": 30,
+                                       "spacr_settings_version": 931}
             if raised is not None:
                 assert run.error_traceback.endswith(f"ValueError: {raised}\n")
                 assert manifest["traceback"] == run.error_traceback

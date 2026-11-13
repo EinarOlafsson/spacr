@@ -37,6 +37,7 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_read_threshold": 315.0,
     "ops_raster_overlap": 213,
     "ops_window_overlap": 96,
+    "ops_compose_blend": "feather",
     "ops_footprint": 10.0,
     "ops_store_reads": False,
     "ops_spot_detector": "native",
@@ -404,6 +405,7 @@ OPS_TYPES: Dict[str, object] = {
     "ops_read_threshold": (float, int),
     "ops_raster_overlap": int,
     "ops_window_overlap": int,
+    "ops_compose_blend": str,
     "ops_footprint": (float, int),
     "ops_store_reads": bool,
     "ops_spot_detector": str,
@@ -770,7 +772,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     ],
     "OPS alignment": [
         "cellpose_model", "cellpose_diameter", "ops_raster_overlap",
-        "ops_window_overlap",
+        "ops_window_overlap", "ops_compose_blend",
     ],
     "OPS decoding": [
         "ops_base_channels", "ops_read_threshold", "ops_footprint",
@@ -1137,6 +1139,15 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "affected. 0.03 halved the decoy matches on the Funk et al. 2022 "
         "plates for under half a percent of the nuclei; 0 admits every "
         "one-read nucleus. Default 0.03.",
+    "ops_compose_blend":
+        "(str) - How overlapping sequencing tiles are blended into the "
+        "stitched nuclear image that is segmented and that the phenotype "
+        "fields are aligned to. 'feather' weights each tile by how far a "
+        "pixel lies from that tile's edge, so tiles fade into each other "
+        "and no brightness step is left where they meet; on Funk et al. "
+        "2022 its seams scored like an unstitched tile. 'average' gives "
+        "every tile the same weight, as before, and leaves a step at each "
+        "tile edge. Default 'feather'.",
     "ops_window_overlap":
         "(int) - How far the segmentation windows overlap each other, in "
         "pixels. A nucleus is only numbered once if at least one window saw "

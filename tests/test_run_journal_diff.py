@@ -467,7 +467,7 @@ def test_diff_runs_integrates_with_open_run(_isolated_runs):
         pass
     d = diff_runs(run_a.dir.name, run_b.dir)
     assert d["changed"] == [{"key": "diameter", "a": 30, "b": 60}]
-    assert d["same"] == 1
+    assert d["same"] == 2  # src, and the settings schema stamp (item 931)
     assert d["meta"]["a"]["status"] == "success"
     assert d["meta"]["a"]["spacr_version"]
     assert d["env"] == []  # same process, same environment

@@ -181,7 +181,10 @@ The `ops_flatfield_*` keys stay. The OPS engine translates them into these keys 
 ## Alpha status
 Alpha. All new keys go under one `ALPHA_FEATURES` entry; the default is unchanged.
 
-## Open questions for the maintainer
+## Maintainer decisions (2026-11-13, AskUserQuestion in the master session)
+Spec defaults: centre-normalised maps (identical to OPS); offset restore only with nuclear_median; no non-DNA cell-median map yet (later item if wanted); validation on the bundled example plate plus one BBBC021 plate; refuse instead of a two-pass mode.
+
+## Open questions for the maintainer (answered above)
 1. **Normalisation.** Centre-normalised maps raise corrected intensities relative to today's mean-normalised maps. Should general nuclear maps be centre-normalised (identical to OPS) or mean-normalised (same scale as the other general estimators)? The spec assumes centre, for OPS identity.
 2. **Offset restore.** Should `(I − b)/F + b` become available for the existing estimators too (a separate `illumination_restore_offset` key), or only come with `nuclear_median`?
 3. **Non-OPS nuclear channels.** Is a nuclear map also wanted for non-DNA channels? A cytoplasmic stain has no "nucleus median", but a per-cell median map could be built the same way from cell masks.

@@ -1251,7 +1251,9 @@ def write_settings_file(settings: Mapping[str, Any], path: Any) -> List[str]:
                                 "measure_settings.csv")
             load_settings_file("measure_settings.csv")
     """
-    values = dict(settings)
+    from .settings import _stamp_settings_version
+
+    values = _stamp_settings_version(settings)
     if "model_metadata" in values:
         from .model_zoo import ModelZooError, _validate_model_metadata
 
@@ -1713,11 +1715,36 @@ def resolve_settings(module: Module, settings_path: Optional[str],
     """
     resolved = module_defaults(module)
     if settings_path:
-        resolved.update(
-            _under_todays_names(load_settings_file(settings_path), moved))
+        resolved.update(_in_its_own_era(load_settings_file(settings_path),
+                                         resolved, moved))
     apply_overrides(resolved, overrides, module)
     from .object_settings_table import _canonical_diameters
     return _canonical_diameters(resolved)
+
+
+def _in_its_own_era(settings: Dict[str, Any], known: Any,
+                    moved: Optional[List[Any]] = None) -> Dict[str, Any]:
+    """A loaded settings file under today's names and its own era's defaults.
+
+    The file's ``spacr_settings_version`` stamp is removed and read first,
+    the keys are renamed (:func:`_under_todays_names`), and then every key
+    whose default changed after that version and that the file does not set
+    gets the default it had then (``spacr.settings.DEFAULT_CHANGES``). So a
+    settings file written before a default changed reruns as it ran; a key
+    the file sets always wins, and the new defaults apply only to keys of
+    the pipeline being run.
+
+    :param settings: the mapping just read from a file, edited in place.
+    :param known: the keys the pipeline reads -- its defaults.
+    :param moved: passed to :func:`_under_todays_names`.
+    :returns: the same mapping, for layering over the defaults.
+    """
+    from .settings import _fold_older_defaults, _settings_file_version
+
+    version = _settings_file_version(settings)
+    _under_todays_names(settings, moved)
+    _fold_older_defaults(settings, version, known=known)
+    return settings
 
 
 
@@ -2036,7 +2063,10 @@ def cmd_validate(args: argparse.Namespace) -> int:
             settings = resolve_settings(module, args.settings, args.set or [],
                                         moved)
         else:
+            from .settings import _settings_file_version
+
             settings = load_settings_file(args.settings)
+            _settings_file_version(settings)
             apply_overrides(settings, args.set or [], None)
     except SettingsError as exc:
         print(f"error: {exc}", file=sys.stderr)

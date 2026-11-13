@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-01 01:25-0400\n"
+"POT-Creation-Date: 2026-11-13 11:37-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: fr\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
@@ -82,6 +82,26 @@ msgstr "Comportement en cas de plantage ou d’échec"
 # AI technical review (Codex), no native-speaker signoff.
 msgid "A ``running`` manifest is written before the pipeline starts. Normal context exit attempts an atomic update with success, failure or cancellation status; caught exceptions are re-raised after their traceback is captured. Forced process termination or failure to write the final manifest can leave the stored status as ``running``. Run History can display it as ``interrupted`` when its recorded owner is gone; this does not rewrite the stored manifest. Provenance failures are logged, with recorded warnings retained under ``provenance_warnings`` when the manifest can be written."
 msgstr "Un manifeste ``running`` est écrit avant le démarrage du pipeline. La sortie normale du contexte tente une mise à jour atomique avec un statut de réussite, d’échec ou d’annulation ; les exceptions interceptées sont relancées après capture de leur trace. Un arrêt forcé du processus ou l’échec d’écriture du manifeste final peut laisser le statut enregistré à ``running``. L’historique peut l’afficher comme ``interrupted`` lorsque son processus propriétaire enregistré n’existe plus ; cela ne réécrit pas le manifeste stocké. Les échecs de provenance sont consignés dans les logs, et les avertissements enregistrés sont conservés sous ``provenance_warnings`` lorsque le manifeste peut être écrit."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Settings versions and changed defaults"
+msgstr "Versions des paramètres et valeurs par défaut modifiées"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Every settings file spaCR writes starts with ``spacr_settings_version``: the run folder's ``settings.json`` and ``settings.csv``, the settings saved next to a run, and the file Export settings writes. The number says which defaults the settings were resolved under."
+msgstr "Chaque fichier de paramètres écrit par spaCR commence par ``spacr_settings_version`` : les fichiers ``settings.json`` et ``settings.csv`` du dossier d’exécution, les paramètres enregistrés à côté d’une exécution et le fichier écrit par Exporter les paramètres. Le numéro indique sous quelles valeurs par défaut les paramètres ont été résolus."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "A file written before a release changed a default does not hold the changed key, so it would run with the new default. When a settings file is read by ``spacr-run``, ``spacr repro``, the batch queue or Import settings, each key whose default changed after the file's version, and that the file does not set, gets the default it had then. A file without ``spacr_settings_version``, such as a hand-written one, is read as the oldest version, and the log names every old default it was given. A key the file sets always wins. To use today's defaults, set those keys or add the current ``spacr_settings_version`` to the file."
+msgstr "Un fichier écrit avant qu’une version ne modifie une valeur par défaut ne contient pas la clé modifiée ; il serait donc exécuté avec la nouvelle valeur par défaut. Lorsqu’un fichier de paramètres est lu par ``spacr-run``, ``spacr repro``, la file d’attente de lots ou Importer des paramètres, chaque clé dont la valeur par défaut a changé après la version du fichier, et que le fichier ne définit pas, reçoit la valeur par défaut qu’elle avait alors. Un fichier sans ``spacr_settings_version``, par exemple un fichier écrit à la main, est lu comme la version la plus ancienne, et le journal nomme chaque ancienne valeur par défaut qui lui a été attribuée. Une clé définie par le fichier l’emporte toujours. Pour utiliser les valeurs par défaut actuelles, définissez ces clés ou ajoutez au fichier le ``spacr_settings_version`` actuel."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The changes are kept in one table, ``DEFAULT_CHANGES`` in ``spacr/settings.py``, keyed by the number of the item that changed the default:"
+msgstr "Les changements sont conservés dans une seule table, ``DEFAULT_CHANGES`` dans ``spacr/settings.py``, indexée par le numéro de l’élément qui a modifié la valeur par défaut :"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "931: ``ops_compose_blend`` was ``'average'``; it is now ``'feather'``."
+msgstr "931 : ``ops_compose_blend`` valait ``'average'`` ; il vaut désormais ``'feather'``."
 
 msgid "Public API"
 msgstr "API publique"

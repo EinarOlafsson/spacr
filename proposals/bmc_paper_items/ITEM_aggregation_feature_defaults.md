@@ -180,7 +180,10 @@ These change roll-up results **only** under `aggregation_defaults='per_feature'`
 ## Alpha status
 Alpha. `per_feature` and all new keys sit under one `ALPHA_FEATURES` entry. Legacy is the default.
 
-## Open questions for the maintainer
+## Maintainer decisions (2026-11-13, AskUserQuestion in the master session)
+Counts: per-cell mean as the main column plus a _sum total; correlations: median; area_bbox: max; OPS gene profiles stay median for every feature (Brieflow); per_feature becomes the default for new settings files once tests 3-6 pass, existing files stay legacy through the settings-schema version.
+
+## Open questions for the maintainer (answered above)
 1. Counts: you asked for **sum**. The spec writes both the per-cell mean and the `_sum` total, and uses the mean as the main column, because a sum scales with cells per well. Is mean as the main column acceptable, or should the sum be the main column?
 2. Correlations: median (proposed), or Fisher-z mean with r clipped to ±0.999?
 3. `area_bbox` at roll-up: max, or drop?

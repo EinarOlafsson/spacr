@@ -13320,7 +13320,7 @@ class AppScreen(QWidget):
             return
         _SETTINGS_CSV_FOLDER["last"] = os.path.dirname(path)
         try:
-            loaded = self._load_settings_csv(path)
+            loaded = self._in_its_own_era(self._load_settings_csv(path))
             applied = self.apply_settings_dict(loaded)
             self._console.append_notice(
                 "Loaded {count} settings from {path}\n",
@@ -13329,6 +13329,30 @@ class AppScreen(QWidget):
             self._warn_about_moved_settings(loaded)
         except Exception as e:
             QMessageBox.warning(self, tr("Import failed"), str(e))
+
+    def _in_its_own_era(self, loaded: dict) -> dict:
+        """An imported file with the defaults of the version that wrote it.
+
+        The file's ``spacr_settings_version`` stamp is removed; then each of
+        this app's keys whose default changed after that version, and that
+        the file does not set, gets the default it had then
+        (``spacr.settings.DEFAULT_CHANGES``). Without this the form would
+        keep today's default for such a key, and the imported settings would
+        run differently from the run that saved them.
+
+        :param loaded: the settings read from the file, edited in place.
+        :returns: the same mapping.
+        """
+        from ...settings import _fold_older_defaults, _settings_file_version
+
+        version = _settings_file_version(loaded)
+        model = getattr(self, "_settings_model", None)
+        try:
+            known = set((model.collect() if model is not None else {}) or {})
+        except Exception:                                   # noqa: BLE001
+            known = set()
+        _fold_older_defaults(loaded, version, known=known)
+        return loaded
 
     def _on_export_settings(self):
         """Save the form's current settings to a CSV that Import reads back.
