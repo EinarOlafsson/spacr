@@ -35,8 +35,20 @@ def test_a_custom_pattern_that_does_not_compile_is_refused():
 
 
 @pytest.mark.parametrize("key, token, well", [
-    ("cq1", "", None), ("cq1", "0", None), ("cq1", "25", "B01"),
-    ("opera_phenix", "well5", None), ("opera_phenix", "r02c03", "B03"),
+    ("cq1", "0097", "E01"),
+    ("cq1", "1", "A01"),
+    ("opera_phenix", "r05c01", "E01"),
+    ("leica_matrix_screener", "U00--V04", "E01"),
+    ("leica_matrix_screener", "U02--V00", "A03"),
+    ("incell", "E - 01", "E01"),
+    ("scanr", "E1", "E01"),
+    ("zeiss_zen_split_tiles", "00001", None),
+    ("micromanager_mda", "img", None),
+    ("cq1", "", None),
+    ("cq1", "0", None),
+    ("cq1", "25", "B01"),
+    ("opera_phenix", "well5", None),
+    ("opera_phenix", "r02c03", "B03"),
     ("leica_matrix_screener", "junk", None),
     ("leica_matrix_screener", "U02--V01", "B03"),
 ])

@@ -278,14 +278,22 @@ class TestChefer:
         assert not result.is_flat()
         assert _in_corner_patch(result.map)
 
+    @pytest.mark.parametrize("wiring, said", [
+        # torch averages the heads AFTER using them, so the averaged copy is
+        # not on the gradient path and has no gradient to weight.
+        ("averaged", "not on the gradient path"),
+        # cross-attention weights are not a square token grid
+        ("cross", "non-square"),
+        # need_weights=False passed positionally is left alone, and then there
+        # is nothing to weight.
+        ("no_weights", "not on the gradient path"),
+    ], ids=["weights_averaged_before_they_are_returned",
+            "cross_attention", "weights_the_caller_turned_off"])
     def test_weights_averaged_before_they_are_returned_are_refused(
-            self, image):
-        """torch averages the heads AFTER using them, so the averaged copy
-        is not on the gradient path and has no gradient to weight."""
+            self, image, wiring, said):
         with pytest.raises(att.NoSpatialLayerError) as excinfo:
-            att.attribute(TinyViT(wiring="averaged"), image, "chefer",
-                          target=1)
-        assert "not on the gradient path" in str(excinfo.value)
+            att.attribute(TinyViT(wiring=wiring), image, "chefer", target=1)
+        assert said in str(excinfo.value)
 
     def test_a_single_head_block_returning_3d_weights_is_read(self, image):
         """A hand-rolled block whose (B, L, S) weights ARE the ones used."""
@@ -294,19 +302,6 @@ class TestChefer:
         assert result.map.shape == (IMG, IMG)
         assert not result.is_flat()
         assert _in_corner_patch(result.map)
-
-    def test_cross_attention_is_refused(self, image):
-        with pytest.raises(att.NoSpatialLayerError) as excinfo:
-            att.attribute(TinyViT(wiring="cross"), image, "chefer", target=1)
-        assert "non-square" in str(excinfo.value)
-
-    def test_weights_the_caller_turned_off_are_refused(self, image):
-        """need_weights=False passed positionally is left alone, and then
-        there is nothing to weight."""
-        with pytest.raises(att.NoSpatialLayerError) as excinfo:
-            att.attribute(TinyViT(wiring="no_weights"), image, "chefer",
-                          target=1)
-        assert "not on the gradient path" in str(excinfo.value)
 
     def test_tokens_that_are_not_a_grid_are_refused(self):
         """An 8x12 image in 4x4 patches is six tokens: no square grid."""

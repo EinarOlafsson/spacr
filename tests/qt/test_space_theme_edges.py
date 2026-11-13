@@ -52,14 +52,13 @@ class TestHelpers:
         assert out.shape == (2, 2, 1)
         assert out[0, 0, 0] == pytest.approx(np.mean([0, 1, 4, 5]))
 
-    def test_area_downsample_handles_a_ragged_size(self):
-        img = np.ones((5, 5, 3), dtype=np.float32)
-        assert space._area_downsample(img, 2).shape == (2, 2, 3)
-
-    def test_area_downsample_factor_below_one_is_clamped(self):
-        img = np.ones((4, 4, 3), dtype=np.float32)
-        assert space._area_downsample(img, 0).shape == (4, 4, 3)
-
+    @pytest.mark.parametrize("side, factor, expected", [
+        (5, 2, (2, 2, 3)),     # a ragged size
+        (4, 0, (4, 4, 3)),     # a factor below one is clamped
+    ], ids=["a_ragged_size", "factor_below_one_is_clamped"])
+    def test_area_downsample_handles_a_ragged_size(self, side, factor, expected):
+        img = np.ones((side, side, 3), dtype=np.float32)
+        assert space._area_downsample(img, factor).shape == expected
 
 class TestSplat:
     def test_no_stars_gives_an_empty_buffer(self):
@@ -246,26 +245,25 @@ class TestScreenSize:
         monkeypatch.setattr(space, "_gui_app", boom)
         assert space.screen_size(default=(9, 9)) == (9, 9)
 
-    def test_device_pixel_ratio_is_honoured(self, monkeypatch):
-        """A 1920-logical-px screen at 2x is 3840 real pixels — the whole
-        reason for generating at native resolution."""
+    @pytest.mark.parametrize("logical, ratio, expected", [
+        # A 1920-logical-px screen at 2x is 3840 real pixels -- the whole
+        # reason for generating at native resolution.
+        ((1920, 1080), 2.0, (3840, 2160)),
+        # A zero ratio does not collapse the size.
+        ((2000, 1300), 0.0, (2000, 1300)),
+    ], ids=["device_pixel_ratio_is_honoured", "zero_ratio_does_not_collapse"])
+    def test_device_pixel_ratio_is_honoured(self, monkeypatch, logical, ratio,
+                                            expected):
         monkeypatch.setattr(
             space, "_gui_app",
-            lambda: _FakeApp(_FakeScreen(1920, 1080, ratio=2.0)))
-        assert space.screen_size() == (3840, 2160)
+            lambda: _FakeApp(_FakeScreen(*logical, ratio=ratio)))
+        assert space.screen_size() == expected
 
     def test_an_8k_panel_is_clamped(self, monkeypatch):
         monkeypatch.setattr(
             space, "_gui_app",
             lambda: _FakeApp(_FakeScreen(7680, 4320, ratio=1.0)))
         assert space.screen_size() == space.MAX_DIM
-
-    def test_a_zero_device_pixel_ratio_does_not_collapse_the_size(
-            self, monkeypatch):
-        monkeypatch.setattr(
-            space, "_gui_app",
-            lambda: _FakeApp(_FakeScreen(2000, 1300, ratio=0.0)))
-        assert space.screen_size() == (2000, 1300)
 
     def test_a_small_virtual_screen_still_covers_a_normal_window(
             self, monkeypatch):
