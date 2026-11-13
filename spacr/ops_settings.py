@@ -99,6 +99,8 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_flatfield_min_bin_cells": 100,
     "ops_ph_funk_features": False,
     "ops_ph_zernike": False,
+    "ops_ph_profile_features": None,
+    "ops_ph_granularity_subsample": 1.0,
     "ops_drop_failed_fields": False,
     "ops_drop_nonfinite_rows": False,
     "ops_profile_normalisation": "robust_z",
@@ -435,6 +437,8 @@ OPS_TYPES: Dict[str, object] = {
     "ops_flatfield_min_bin_cells": int,
     "ops_ph_funk_features": bool,
     "ops_ph_zernike": bool,
+    "ops_ph_profile_features": (str, list, type(None)),
+    "ops_ph_granularity_subsample": (float, int),
     "ops_drop_failed_fields": bool,
     "ops_drop_nonfinite_rows": bool,
     "ops_profile_normalisation": str,
@@ -777,6 +781,7 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ph_cell_model", "ops_ph_nucleus_diameter",
         "ops_ph_cell_diameter", "ops_ph_downsample", "ops_ph_batch_size",
         "ops_ph_sites", "ops_ph_texture", "ops_ph_zernike", "ops_ph_funk_features",
+        "ops_ph_profile_features", "ops_ph_granularity_subsample",
         "ops_flatfield", "ops_flatfield_maps", "ops_flatfield_fields",
         "ops_flatfield_field_list", "ops_merge_threshold", "ops_ownership",
         "ops_flatfield_nuclear_channel", "ops_flatfield_nuclei",
@@ -1119,6 +1124,24 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "and the nucleus (zernike_0 to zernike_24, 50 columns), as spaCR's "
         "Measure does with mahotas. They describe the shape of each object "
         "and slow measurement. Needs spacr[zernike]. Default False. Alpha.",
+    "ops_ph_profile_features":
+        "(str, list or None) - Also measure spaCR's image-based profiling "
+        "families on the nucleus, cell and cytoplasm, as Measure's "
+        "profile_features does: 'profiling' adds edge intensity, intensity "
+        "moments, radial distribution, extra shape, Haralick, PFTAS, LBP and "
+        "Gabor texture, periphery and outside-ring intensity (with an "
+        "enclosed flag), colocalisation (Pearson and Manders plus Spearman, "
+        "ICQ, K1/K2 and rank-weighted colocalisation), mutual information "
+        "and spot-based colocalisation, and neighbours, about 2,230 columns "
+        "for four channels; 'all' also adds Costes-threshold Manders and "
+        "the slow granularity spectrum; a list picks families. Turn ops_ph_zernike on with it for the full profiling "
+        "set. Empty measures exactly as before. Default None. Alpha.",
+    "ops_ph_granularity_subsample":
+        "(float) - Sieve the field scaled by this factor for the "
+        "granularity family, as CellProfiler's image sample size. 0.25, "
+        "CellProfiler's default, is about 16 times faster than 1.0, which "
+        "sieves every pixel. Only read when granularity is measured. "
+        "Default 1.0. Alpha.",
     "ops_drop_failed_fields":
         "(bool) - Leave out the cells of fields that did not register. The "
         "merge phase compares each field's link rate with the rate an "

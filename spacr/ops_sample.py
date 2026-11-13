@@ -330,7 +330,10 @@ def pair_nuclei_with_cells(nuclei: np.ndarray, cells: np.ndarray
 
 
 def _measurement_settings(channels: int, texture: bool,
-                          gpu: bool = False) -> Dict[str, object]:
+                          gpu: bool = False,
+                          profile_features=None,
+                          granularity_subsample: float = 1.0
+                          ) -> Dict[str, object]:
     """The measure settings one phenotype field is measured with.
 
     :param channels: how many channels the image holds.
@@ -338,13 +341,25 @@ def _measurement_settings(channels: int, texture: bool,
     :param gpu: run the per-object intensity and texture tables on the CUDA
         card (``measure_gpu``), which computes the same columns within float
         tolerance; morphology stays on the CPU.
+    :param profile_features: the measure setting ``profile_features``
+        (:func:`spacr.measure.profile_feature_families`); with
+        ``'colocalisation'`` among them the per-object Pearson and Manders
+        block (``calculate_correlation``) is on too.
+    :param granularity_subsample: ``profile_granularity_subsample``, the
+        ``subsample`` of :func:`spacr.measure.measure_granularity`.
     :returns: the dict :func:`spacr.measure._morphological_measurements` and
         :func:`spacr.measure._intensity_measurements` read.
     """
+    from .measure import profile_feature_families
+
+    families = profile_feature_families(profile_features)
     return {
         "cell_mask_dim": channels, "nucleus_mask_dim": channels + 1,
         "pathogen_mask_dim": None, "cytoplasm": True,
-        "radial_dist": False, "calculate_correlation": False,
+        "radial_dist": False,
+        "calculate_correlation": "colocalisation" in families,
+        "profile_features": list(families) or None,
+        "profile_granularity_subsample": float(granularity_subsample),
         "homogeneity": bool(texture), "homogeneity_distances": [2, 4, 8],
         "distance_gaussian_sigma": 10, "spatial_measurements": False,
         "channels": list(range(channels)), "verbose": False,
@@ -426,7 +441,9 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
                             *, texture: bool = True,
                             funk_features: bool = False,
                             zernike: bool = False,
-                            gpu: bool = False):
+                            gpu: bool = False,
+                            profile_features=None,
+                            granularity_subsample: float = 1.0):
     """Per-cell features of one phenotype field, with spaCR's own measurement.
 
     :param nuclei: nucleus labels, paired with ``cells`` by
@@ -449,6 +466,13 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
         the cytoplasm gets none. Needs ``spacr[zernike]``. Default False.
     :param gpu: measure intensity and texture on the CUDA card
         (:func:`_measurement_settings`).
+    :param profile_features: the profiling families spaCR's measure adds
+        (:func:`spacr.measure.measure_profile_features`): ``'profiling'``
+        for the default set, ``'all'``, or family names. ``None``, the
+        default, measures exactly as before.
+    :param granularity_subsample: the ``subsample`` of the granularity
+        family (:func:`spacr.measure.measure_granularity`); 1.0 sieves at
+        full resolution, 0.25 is CellProfiler's default.
     :returns: one row per cell, keyed by ``label``, with ``nucleus_``,
         ``cell_`` and ``cytoplasm_`` columns and the nucleus centroid as
         ``centroid_row``/``centroid_col`` in field pixels.
@@ -458,7 +482,9 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
     from :func:`spacr.measure._intensity_measurements` -- so an OPS cell and
     a measured well's cell carry the same columns and nothing is
     re-derived. The cytoplasm is the cell minus its nucleus, under the
-    cell's label.
+    cell's label. The object labels the colocalisation block carries
+    (``*_label_correlation``) are left out, as spaCR's database write
+    leaves them out, so no column repeats the label.
     """
     import pandas as pd
     from scipy import ndimage
@@ -479,7 +505,8 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
         return pd.DataFrame(columns=["label", "centroid_row", "centroid_col"])
     cytoplasm = np.where(nuclei > 0, 0, cells).astype(np.int32)
     blank = np.zeros_like(cells)
-    settings = _measurement_settings(image.shape[2], texture, gpu)
+    settings = _measurement_settings(image.shape[2], texture, gpu,
+                                     profile_features, granularity_subsample)
     morphology = _morphological_measurements(
         cells, nuclei, blank, blank, cytoplasm, settings,
         zernike=bool(zernike))
@@ -512,7 +539,8 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
             frame = frame.rename(columns=renamed)
             frame = frame.loc[:, [c for c in frame.columns
                                   if "pathogen" not in str(c)
-                                  and not str(c).endswith("_cell_id")]]
+                                  and not str(c).endswith("_cell_id")
+                                  and not str(c).endswith("label_correlation")]]
             frame = frame.loc[:, [c for c in frame.columns
                                   if c == "label" or c not in out.columns]]
             frame = frame.assign(label=frame["label"].astype(np.int64))
@@ -520,11 +548,13 @@ def measure_phenotype_field(nuclei: np.ndarray, cells: np.ndarray,
             out = out.merge(frame, on="label", how="left")
     if funk_features:
         for prefix, mask in (("nucleus", nuclei), ("cell", cells)):
-            out = out.merge(funk_object_features(mask, image, channel_names,
-                                                 prefix),
-                            on="label", how="left")
+            funk = funk_object_features(mask, image, channel_names, prefix)
+            funk = funk.loc[:, [c for c in funk.columns
+                                if c == "label" or c not in out.columns]]
+            out = out.merge(funk, on="label", how="left")
             area, perimeter = f"{prefix}_area", f"{prefix}_perimeter"
-            if area in out and perimeter in out:
+            if (area in out and perimeter in out
+                    and f"{prefix}_form_factor" not in out):
                 with np.errstate(invalid="ignore", divide="ignore"):
                     out[f"{prefix}_form_factor"] = (
                         4 * np.pi * out[area].to_numpy(np.float64)

@@ -161,6 +161,18 @@ This linked reference contains the full generated setting descriptions. Return t
 </details>
 
 <details>
+<summary>Machine Learning — Held-out Evaluation α (4 settings)</summary>
+
+#### Machine Learning — Held-out Evaluation α
+
+- **`train_eval_split`** *(optional)* — (str) - Held-out evaluation of the classifier, as in the machine-learning module: leave_one_well_out trains on every well but one and tests on that one, in turn; leave_one_plate_out does the same per plate; random uses the stratified cross_validation_folds folds. No crop of a test well or plate is seen in training. The pooled and per-fold accuracy, balanced accuracy, macro F1 and AUROC go to ml_eval/metrics.csv in the model folder, beside the controls of train_eval_controls. Turns cross-validation on. none keeps the usual split. Default none. Default: `'none'`.
+- **`train_eval_controls`** *(optional)* — (str) - Controls reported beside the classifier when train_eval_split is set, comma-separated. majority always predicts the commonest class; shuffled runs the whole cross-validation again with the training labels permuted within each fold, train_eval_shuffle_repeats times, and averages it. Blank reports no control. Default majority, shuffled. Default: `'majority, shuffled'`.
+- **`train_eval_shuffle_seed`** *(optional)* — (int) - Seed of the first shuffled-label control run of train_eval_split; the next runs use the following seeds. Default 0. Default: `0`.
+- **`train_eval_shuffle_repeats`** *(optional)* — (int) - How many times the shuffled-label control of train_eval_split retrains every fold; its row is the mean. Each repeat costs as much as the classifier itself. Default 1. Default: `1`.
+
+</details>
+
+<details>
 <summary>Evaluation (17 settings)</summary>
 
 #### Evaluation
@@ -221,18 +233,6 @@ This linked reference contains the full generated setting descriptions. Return t
 - **`gpu_memory_margin_gb`** *(optional)* — (float) - GPU memory, in GB, kept free for other jobs on the card. Before each batch spaCR reads the free GPU memory and, when the batch is estimated not to fit with this much to spare, shrinks the batch or waits for memory to be freed. Default 1.5. Default: `1.5`.
 - **`gpu_adaptive_batch`** *(optional)* — (bool) - Size GPU batches to the memory that is free on a shared card. Segmentation, measurement, OPS and classifier runs shrink a batch that would not fit, halve it and retry the same item after an out-of-memory error, fall back to the CPU when batch size 1 does not fit, and grow the batch again after clean items; no item is dropped. spaCR processes share a GPU ledger in the user cache folder, so a new job counts what running jobs will take. Counts appear in the run log. Off runs every batch at the requested size. Default True. Default: `True`.
 - **`gpu_fallback_policy`** *(optional)* — (str) - What a GPU item does when it does not fit in GPU memory even at batch size 1. per_item runs that item on the CPU and records its compute path (gpu or cpu) per item: Measure writes a compute_path column on its object rows when measure_gpu is on, the run report says whether the run stayed on one path, and a warning appears when more than 3 % of items fell back. pause never falls back: the item waits for GPU memory to be freed, so every result comes from the GPU path, at the cost of waiting while the card is full. Default per_item. Default: `'per_item'`.
-
-</details>
-
-<details>
-<summary>Additional Settings (4 settings)</summary>
-
-#### Additional Settings
-
-- **`train_eval_split`** *(optional)* — (str) - Held-out evaluation of the classifier, as in the machine-learning module: leave_one_well_out trains on every well but one and tests on that one, in turn; leave_one_plate_out does the same per plate; random uses the stratified cross_validation_folds folds. No crop of a test well or plate is seen in training. The pooled and per-fold accuracy, balanced accuracy, macro F1 and AUROC go to ml_eval/metrics.csv in the model folder, beside the controls of train_eval_controls. Turns cross-validation on. none keeps the usual split. Default none. Default: `'none'`.
-- **`train_eval_controls`** *(optional)* — (str) - Controls reported beside the classifier when train_eval_split is set, comma-separated. majority always predicts the commonest class; shuffled runs the whole cross-validation again with the training labels permuted within each fold, train_eval_shuffle_repeats times, and averages it. Blank reports no control. Default majority, shuffled. Default: `'majority, shuffled'`.
-- **`train_eval_shuffle_seed`** *(optional)* — (int) - Seed of the first shuffled-label control run of train_eval_split; the next runs use the following seeds. Default 0. Default: `0`.
-- **`train_eval_shuffle_repeats`** *(optional)* — (int) - How many times the shuffled-label control of train_eval_split retrains every fold; its row is the mean. Each repeat costs as much as the classifier itself. Default 1. Default: `1`.
 
 </details>
 
