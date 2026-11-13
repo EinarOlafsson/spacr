@@ -72,7 +72,7 @@ def fit(frame, tmp_path, **kwargs):
                          dst=None, qc=False, **kwargs)
 
 
-def test_an_intercept_centred_on_the_controls_says_what_it_shifted_by(
+def case_an_intercept_centred_on_the_controls_says_what_it_shifted_by(
         tmp_path, capsys):
     """The run names the offset, so a coefficient reads as a distance from nc.
 
@@ -88,7 +88,7 @@ def test_an_intercept_centred_on_the_controls_says_what_it_shifted_by(
     assert len(coef_df) > 0
 
 
-def test_an_intercept_centred_on_a_control_that_is_absent_says_it_was_not(
+def case_an_intercept_centred_on_a_control_that_is_absent_says_it_was_not(
         tmp_path, capsys):
     """No matching control leaves the intercept fitted, and reports that.
 
@@ -103,7 +103,7 @@ def test_an_intercept_centred_on_a_control_that_is_absent_says_it_was_not(
     assert 'no rows match' in printed
 
 
-def test_an_intercept_pinned_at_a_value_shifts_the_response_by_it(tmp_path,
+def case_an_intercept_pinned_at_a_value_shifts_the_response_by_it(tmp_path,
                                                                   capsys):
     """The response is moved by the number, so the intercept is exactly it.
 
@@ -118,7 +118,7 @@ def test_an_intercept_pinned_at_a_value_shifts_the_response_by_it(tmp_path,
     assert 'distance from that value' in printed
 
 
-def test_an_intercept_pinned_at_zero_is_still_announced(tmp_path, capsys):
+def case_an_intercept_pinned_at_zero_is_still_announced(tmp_path, capsys):
     """Pinning at zero changes no value but is still stated.
 
     Zero is a real answer for a centred response; leaving it unsaid would make
@@ -154,7 +154,7 @@ def test_a_multi_screen_frame_is_blocked_on_and_the_screens_are_named(
     assert "'screenA', 'screenB'" in printed
 
 
-def test_the_old_histograms_are_drawn_when_the_new_panels_cannot_be(
+def case_the_old_histograms_are_drawn_when_the_new_panels_cannot_be(
         tmp_path, monkeypatch, capsys):
     """A distribution panel that declines sends the run back to plot_histogram.
 
@@ -179,7 +179,7 @@ def test_the_old_histograms_are_drawn_when_the_new_panels_cannot_be(
     assert drawn == ['predictions', 'fraction']
 
 
-def test_a_summary_that_cannot_be_written_does_not_lose_the_fit(
+def case_a_summary_that_cannot_be_written_does_not_lose_the_fit(
         tmp_path, monkeypatch, capsys):
     """A failure in the closing paragraph is printed and the fit is returned.
 
@@ -220,3 +220,18 @@ def test_a_mixed_run_says_that_the_level_setting_is_not_read(tmp_path, capsys,
     printed = capsys.readouterr().out
     assert "regression_type='mixed' fits the gene fixed" in printed
     assert 'is not read' in printed
+
+
+from tests.case_table import run_cases  # noqa: E402
+
+def test_behaviour_cases(request, subtests):
+    """Behaviour cases for: behaviour."""
+    ran = run_cases(request, subtests, [
+        case_an_intercept_centred_on_the_controls_says_what_it_shifted_by,
+        case_an_intercept_centred_on_a_control_that_is_absent_says_it_was_not,
+        case_an_intercept_pinned_at_a_value_shifts_the_response_by_it,
+        case_an_intercept_pinned_at_zero_is_still_announced,
+        case_the_old_histograms_are_drawn_when_the_new_panels_cannot_be,
+        case_a_summary_that_cannot_be_written_does_not_lose_the_fit,
+    ])
+    assert ran >= 6

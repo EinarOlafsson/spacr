@@ -69,6 +69,10 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_pool_interphase": False,
     "ops_feature_qc": True,
     "ops_ownership": "closer_match",
+    "ops_align_model": "similarity",
+    "ops_align_tile_min_nuclei": 200,
+    "ops_align_match_radius": 3.0,
+    "ops_align_trim_passes": 3,
     "ops_flatfield": "none",
     "ops_flatfield_maps": None,
     "ops_flatfield_fields": 204,
@@ -432,6 +436,10 @@ OPS_TYPES: Dict[str, object] = {
     "ops_pool_interphase": bool,
     "ops_feature_qc": bool,
     "ops_ownership": str,
+    "ops_align_model": str,
+    "ops_align_tile_min_nuclei": int,
+    "ops_align_match_radius": (float, int),
+    "ops_align_trim_passes": int,
     "ops_flatfield": str,
     "ops_flatfield_maps": (str, type(None)),
     "ops_flatfield_fields": int,
@@ -834,6 +842,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_ph_profile_features", "ops_ph_granularity_subsample",
         "ops_flatfield", "ops_flatfield_maps", "ops_flatfield_fields",
         "ops_flatfield_field_list", "ops_merge_threshold", "ops_ownership",
+        "ops_align_model", "ops_align_tile_min_nuclei",
+        "ops_align_match_radius", "ops_align_trim_passes",
         "ops_flatfield_nuclear_channel", "ops_flatfield_nuclei",
         "ops_flatfield_dark", "ops_flatfield_nuclear_maps",
         "ops_flatfield_block_px", "ops_flatfield_fit", "ops_flatfield_sigma_px",
@@ -1495,6 +1505,28 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "lies deepest, and 'a1' the one whose phenotype nucleus does. Both "
         "also leave out cells that touch a field's edge, which needs the "
         "ph_masks phase. Default 'closer_match'. Alpha.",
+    "ops_align_model":
+        "(str) - How the merge phase aligns each phenotype field to the "
+        "sequencing nuclei. 'similarity' re-solves one scale, rotation and "
+        "shift per field, as before. 'tile_affine' then fits one affine per "
+        "field and one per sequencing tile the field covers, and moves each "
+        "nucleus with its tile's affine; on Funk et al. 2022 plates A-D it "
+        "put 97.0-97.5 % of nuclei within 2 px of their sequencing nucleus "
+        "instead of 94.7-95.8 %, at about 0.017 s per field on one CPU "
+        "core. Default 'similarity'. Alpha.",
+    "ops_align_tile_min_nuclei":
+        "(int) - The fewest phenotype nuclei a field must have in one "
+        "sequencing tile for that tile to get its own affine; fewer keep "
+        "the field's affine. Used with ops_align_model 'tile_affine'. "
+        "Default 200. Alpha.",
+    "ops_align_match_radius":
+        "(float) - How close, in sequencing pixels, a moved phenotype "
+        "nucleus and a sequencing nucleus must be to pair while the "
+        "'tile_affine' model is fitted. Default 3. Alpha.",
+    "ops_align_trim_passes":
+        "(int) - How many times the 'tile_affine' model pairs the nuclei, "
+        "drops pairs further apart than 3 x their median (at least 0.5 px) "
+        "and re-fits. Default 3. Alpha.",
     "ops_merge_threshold":
         "(float) - How far, in sequencing pixels, a phenotype nucleus may "
         "land from a sequencing nucleus after alignment and still be called "

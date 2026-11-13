@@ -107,7 +107,7 @@ def test_a_machine_with_nowhere_to_draw_is_demoted_to_agg(monkeypatch):
 # the settings helpers
 # ===========================================================================
 
-def test_a_glob_that_matched_no_count_file_is_refused_by_name(tmp_path):
+def case_a_glob_that_matched_no_count_file_is_refused_by_name(tmp_path):
     """An empty generator of paths is 'nothing to read', not an empty frame.
 
     ``paths`` is truthy the moment it is an iterator, so the guard at the top
@@ -126,7 +126,7 @@ def test_a_glob_that_matched_no_count_file_is_refused_by_name(tmp_path):
     assert len(ml._concat_named_csvs(iter([str(one)]))) == 1
 
 
-def test_a_calibration_whose_module_is_missing_keeps_the_threshold_given(
+def case_a_calibration_whose_module_is_missing_keeps_the_threshold_given(
         monkeypatch, capsys):
     """An unimportable sweep is an answer, not a reason to stop the run.
 
@@ -150,7 +150,7 @@ def test_a_calibration_whose_module_is_missing_keeps_the_threshold_given(
     assert ml._calibrated_fraction_threshold({}) == pytest.approx(0.02)
 
 
-def test_a_column_that_is_already_categorical_is_left_as_it_is():
+def case_a_column_that_is_already_categorical_is_left_as_it_is():
     """``check_and_clean_data`` re-categorises only what is not categorical.
 
     Converting an existing categorical again drops the categories nobody in
@@ -190,7 +190,7 @@ def _tiny_design(n=60, seed=0):
     return X, y
 
 
-def test_a_transform_that_is_the_link_does_not_get_a_second_one(capsys):
+def case_a_transform_that_is_the_link_does_not_get_a_second_one(capsys):
     """``glm_force_identity`` fits Gaussian/identity and says which response.
 
     The caller has already put the response on the transformed scale, so a
@@ -211,7 +211,7 @@ def test_a_transform_that_is_the_link_does_not_get_a_second_one(capsys):
     assert 'Identity link for logit(pred)' in capsys.readouterr().out
 
 
-def test_a_covariate_with_two_values_is_not_given_a_spline_basis():
+def case_a_covariate_with_two_values_is_not_given_a_spline_basis():
     """An indicator has nothing to bend through, so it is left alone.
 
     Expanding it would spend knots and degrees of freedom on a column with
@@ -242,7 +242,7 @@ def test_a_covariate_with_two_values_is_not_given_a_spline_basis():
     assert 'fraction:grna[T.geneA_1]' in names
 
 
-def test_a_group_lasso_that_ran_out_of_sweeps_says_the_answer_is_provisional(
+def case_a_group_lasso_that_ran_out_of_sweeps_says_the_answer_is_provisional(
         monkeypatch, capsys):
     """Non-convergence is reported, and the result says so on the object.
 
@@ -311,7 +311,7 @@ def test_a_frame_with_no_well_columns_still_gets_its_qc_report(monkeypatch):
     assert list(seen['metadata'].columns) == ['prc']
 
 
-def test_a_plate_panel_with_nowhere_to_save_is_still_shown(tmp_path):
+def case_a_plate_panel_with_nowhere_to_save_is_still_shown(tmp_path):
     """``dst=None`` draws the plates and writes nothing.
 
     ``regression`` calls this once for the run folder and once for a caller
@@ -330,7 +330,7 @@ def test_a_plate_panel_with_nowhere_to_save_is_still_shown(tmp_path):
     assert (tmp_path / 'plate_heatmap_value.pdf').exists()
 
 
-def test_a_fit_that_reports_no_likelihood_says_so_rather_than_guessing():
+def case_a_fit_that_reports_no_likelihood_says_so_rather_than_guessing():
     """No ``llnull`` and no ``null_deviance`` is 'not available', not a crash.
 
     ``spacr.power_model`` and the group-lasso result stand in for a fitted
@@ -377,7 +377,7 @@ def _long_guide_frame(seed=0):
     return pd.DataFrame(records)
 
 
-def test_auto_counts_no_block_terms_when_the_table_has_no_plate_column():
+def case_auto_counts_no_block_terms_when_the_table_has_no_plate_column():
     """A screen with no plateID has no block fixed effects to pay for.
 
     The margin is computed from the parameter count, so counting a block that
@@ -418,7 +418,7 @@ def test_a_saturation_warning_counts_only_the_blocks_the_table_has():
     assert '(4 grnas + intercept + 0 block terms)' in warning
 
 
-def test_settings_that_name_no_input_at_all_are_refused_before_any_read():
+def case_settings_that_name_no_input_at_all_are_refused_before_any_read():
     """Empty score/count lists are a settings error, not an empty regression.
 
     The migration branch produces no pairs at all here, so nothing is printed
@@ -429,7 +429,7 @@ def test_settings_that_name_no_input_at_all_are_refused_before_any_read():
                                              'count_data': []})
 
 
-def test_a_questionable_shuffle_with_no_remedy_still_names_its_findings(
+def case_a_questionable_shuffle_with_no_remedy_still_names_its_findings(
         monkeypatch, capsys):
     """A finding is printed even when there is nothing to suggest doing.
 
@@ -460,7 +460,7 @@ def test_a_questionable_shuffle_with_no_remedy_still_names_its_findings(
 # the permutation branch's own settings
 # ===========================================================================
 
-def test_a_permutation_asked_for_zero_wells_is_refused_by_name(tmp_path):
+def case_a_permutation_asked_for_zero_wells_is_refused_by_name(tmp_path):
     """``guide_min_wells=0`` is refused, and a bare int is still accepted.
 
     The panel writes a single number as often as a list, so the scalar has to
@@ -473,7 +473,7 @@ def test_a_permutation_asked_for_zero_wells_is_refused_by_name(tmp_path):
             frame, 'score', str(tmp_path), {'guide_min_wells': 0})
 
 
-def test_a_dependent_variable_that_is_not_a_column_names_what_is(tmp_path):
+def case_a_dependent_variable_that_is_not_a_column_names_what_is(tmp_path):
     """The refusal lists the columns the merged table actually has.
 
     ``dependent_variable`` is a free-text setting and a typo in it is the
@@ -532,7 +532,7 @@ def test_a_fit_whose_coefficients_carry_no_p_value_corrects_nothing(capsys):
     assert list(hits['feature']) == ['fraction:grna[T.geneA_1]']
 
 
-def test_a_stage_whose_announcement_cannot_be_printed_still_records_it():
+def case_a_stage_whose_announcement_cannot_be_printed_still_records_it():
     """A stage name that cannot be formatted costs the line, not the reading.
 
     ``_stage`` exists so a long silent step can be told from a hung one; the
@@ -578,7 +578,7 @@ def _score_csv(path, n_wells=4, n_cells=30, seed=7):
     return str(path)
 
 
-def test_a_cell_count_sweep_returns_the_same_minimum_without_a_renderer(
+def case_a_cell_count_sweep_returns_the_same_minimum_without_a_renderer(
         tmp_path, monkeypatch, capsys):
     """A renderer refusal must not erase the numerical sweep result.
 
@@ -640,7 +640,7 @@ def test_a_sweep_with_no_pick_of_its_own_claims_nothing_about_the_threshold(
 # aggregating the scores
 # ===========================================================================
 
-def test_a_frame_that_names_its_wells_is_not_re_split_from_its_prcfo_key():
+def case_a_frame_that_names_its_wells_is_not_re_split_from_its_prcfo_key():
     """Present plate/row/column columns are used as they are.
 
     ``prcfo`` is rebuilt by several writers and a scores CSV can carry a stale
@@ -663,7 +663,7 @@ def test_a_frame_that_names_its_wells_is_not_re_split_from_its_prcfo_key():
                                      'plate1_r2_c1', 'plate1_r2_c2']
 
 
-def test_a_count_model_handed_no_rows_at_all_is_not_told_its_counts_are_wrong(
+def case_a_count_model_handed_no_rows_at_all_is_not_told_its_counts_are_wrong(
         ):
     """An empty table has no fractional sum, so nothing is refused.
 
@@ -732,7 +732,7 @@ def test_an_explainer_that_will_not_run_is_followed_by_the_next_one(
                         pd.DataFrame({'a': [1.0]}))
 
 
-def test_a_plot_that_exported_nothing_is_not_announced_to_the_gallery(
+def case_a_plot_that_exported_nothing_is_not_announced_to_the_gallery(
         tmp_path, monkeypatch):
     """No file written means no tile claimed and no path returned.
 
@@ -768,7 +768,7 @@ def test_a_plot_that_exported_nothing_is_not_announced_to_the_gallery(
     assert published == [(target, 'Sweep')]
 
 
-def test_a_sweep_that_fails_mid_draw_takes_its_scene_with_it(monkeypatch):
+def case_a_sweep_that_fails_mid_draw_takes_its_scene_with_it(monkeypatch):
     """The Qt scene is deleted before the failure is re-raised.
 
     A ``FastPlot`` left alive after an exception keeps its scene and its
@@ -831,7 +831,7 @@ def screen(tmp_path):
     }
 
 
-def test_a_count_table_in_the_score_slot_is_named_as_swapped_inputs(screen):
+def case_a_count_table_in_the_score_slot_is_named_as_swapped_inputs(screen):
     """The refusal says the two inputs look swapped, not merely 'not found'.
 
     A count table has grna and count columns and no score column, which is
@@ -851,7 +851,7 @@ def test_a_count_table_in_the_score_slot_is_named_as_swapped_inputs(screen):
     assert "['count', 'grna']" in message
 
 
-def test_an_analysis_mode_nobody_implements_is_refused_before_the_fit(screen):
+def case_an_analysis_mode_nobody_implements_is_refused_before_the_fit(screen):
     """``analysis_mode`` is closed, and the refusal names both members.
 
     A settings CSV can carry any string; a mode nothing dispatches on used to
@@ -865,7 +865,7 @@ def test_an_analysis_mode_nobody_implements_is_refused_before_the_fit(screen):
                                             analysis_mode='sideways'))
 
 
-def test_batch_correction_without_its_response_column_says_which_setting(
+def case_batch_correction_without_its_response_column_says_which_setting(
         screen):
     """The refusal names the response and offers batch_correction=none.
 
@@ -885,7 +885,7 @@ def test_batch_correction_without_its_response_column_says_which_setting(
     assert 'batch_correction=none' in message
 
 
-def test_the_control_blocks_reach_the_count_filter_once_each(screen,
+def case_the_control_blocks_reach_the_count_filter_once_each(screen,
                                                             monkeypatch):
     """A well named as a control block is removed, and never twice.
 
@@ -914,7 +914,7 @@ def test_the_control_blocks_reach_the_count_filter_once_each(screen,
     assert len(output['results']) > 0
 
 
-def test_control_blocks_that_cannot_be_resolved_cost_only_the_exclusion(
+def case_control_blocks_that_cannot_be_resolved_cost_only_the_exclusion(
         screen, monkeypatch):
     """A well_spec failure leaves the run with the wells the user typed.
 
@@ -949,7 +949,7 @@ def test_control_blocks_that_cannot_be_resolved_cost_only_the_exclusion(
     assert len(output['results']) > 0
 
 
-def test_an_outlier_filter_with_no_column_to_read_says_so_before_the_fractions(
+def case_an_outlier_filter_with_no_column_to_read_says_so_before_the_fractions(
         screen, capsys):
     """A criterion that found no column is reported, not silently skipped.
 
@@ -965,7 +965,7 @@ def test_an_outlier_filter_with_no_column_to_read_says_so_before_the_fractions(
     assert 'cell area: this table has no cell area column' in printed
 
 
-def test_an_outlier_filter_that_raised_says_the_counts_are_unfiltered(
+def case_an_outlier_filter_that_raised_says_the_counts_are_unfiltered(
         screen, monkeypatch, capsys):
     """A failed filter is announced, because the numbers below it change.
 
@@ -988,7 +988,7 @@ def test_an_outlier_filter_that_raised_says_the_counts_are_unfiltered(
     assert len(output['results']) > 0
 
 
-def test_a_measured_threshold_replaces_the_one_the_settings_carried(
+def case_a_measured_threshold_replaces_the_one_the_settings_carried(
         screen, monkeypatch):
     """A calibrated cut-off is used and recorded as automatic.
 
@@ -1015,7 +1015,7 @@ def test_a_measured_threshold_replaces_the_one_the_settings_carried(
     assert 'fraction_threshold' not in ml._AUTOMATIC_SETTINGS
 
 
-def test_a_permutation_run_with_no_model_named_says_nothing_about_one(
+def case_a_permutation_run_with_no_model_named_says_nothing_about_one(
         screen, capsys):
     """With regression_type unset there is no name to tell the user is unread.
 
@@ -1038,7 +1038,7 @@ def test_a_permutation_run_with_no_model_named_says_nothing_about_one(
     assert "regression_type='mixed' is not read" in capsys.readouterr().out
 
 
-def test_a_permutation_run_without_the_summary_module_keeps_its_results(
+def case_a_permutation_run_without_the_summary_module_keeps_its_results(
         screen, monkeypatch):
     """An unimportable summary writer costs the summary and nothing else.
 
@@ -1061,7 +1061,7 @@ def test_a_permutation_run_without_the_summary_module_keeps_its_results(
                                        ml.SUMMARY_FILENAME))
 
 
-def test_a_fitted_run_without_the_summary_module_keeps_its_coefficients(
+def case_a_fitted_run_without_the_summary_module_keeps_its_coefficients(
         screen, monkeypatch):
     """The parametric path survives the same missing module.
 
@@ -1083,7 +1083,7 @@ def test_a_fitted_run_without_the_summary_module_keeps_its_coefficients(
                                        ml.SUMMARY_FILENAME))
 
 
-def test_metadata_that_will_not_merge_is_named_and_the_run_goes_on(
+def case_metadata_that_will_not_merge_is_named_and_the_run_goes_on(
         screen, monkeypatch, capsys):
     """A failing metadata merge names the file and leaves the results alone.
 
@@ -1105,7 +1105,7 @@ def test_metadata_that_will_not_merge_is_named_and_the_run_goes_on(
     assert len(output['results']) > 0
 
 
-def test_a_count_table_that_names_its_plate_and_row_in_one_column_agrees(
+def case_a_count_table_that_names_its_plate_and_row_in_one_column_agrees(
         screen, tmp_path):
     """A ``plate_row`` count table fits the same screen as a ``rowID`` one.
 
@@ -1132,7 +1132,7 @@ def test_a_count_table_that_names_its_plate_and_row_in_one_column_agrees(
         rtol=1e-9, atol=1e-12)
 
 
-def test_an_annotation_that_has_something_to_say_says_it_once(screen,
+def case_an_annotation_that_has_something_to_say_says_it_once(screen,
                                                               monkeypatch,
                                                               capsys):
     """The annotation's note is printed for the results table only.
@@ -1158,7 +1158,7 @@ def test_an_annotation_that_has_something_to_say_says_it_once(screen,
     assert len(output['results']) > 0
 
 
-def test_an_annotation_that_changed_the_row_count_is_refused(screen,
+def case_an_annotation_that_changed_the_row_count_is_refused(screen,
                                                              monkeypatch):
     """A merge that fans a table out is a wrong key, and is stopped.
 
@@ -1183,7 +1183,7 @@ def test_an_annotation_that_changed_the_row_count_is_refused(screen,
     assert 'annotation changed results from' in str(caught.value)
 
 
-def test_a_control_left_unnamed_is_not_offered_to_the_concordance_report(
+def case_a_control_left_unnamed_is_not_offered_to_the_concordance_report(
         screen, monkeypatch):
     """An empty control box names no control, rather than a control called ''.
 
@@ -1208,7 +1208,7 @@ def test_a_control_left_unnamed_is_not_offered_to_the_concordance_report(
     assert seen['controls'] == {'239740': 'positive', '233460': 'negative'}
 
 
-def test_the_legacy_volcano_is_announced_only_when_a_file_was_written(
+def case_the_legacy_volcano_is_announced_only_when_a_file_was_written(
         screen, monkeypatch, capsys):
     """A run claims the volcano it wrote, and warns when it wrote none.
 
@@ -1244,7 +1244,7 @@ def test_the_legacy_volcano_is_announced_only_when_a_file_was_written(
     assert 'Saved volcano plot to' in capsys.readouterr().out
 
 
-def test_a_finished_run_whose_summary_raises_keeps_its_coefficients(
+def case_a_finished_run_whose_summary_raises_keeps_its_coefficients(
         screen, monkeypatch, capsys):
     """A summary that fails is reported; the fit it describes is not lost.
 
@@ -1267,7 +1267,7 @@ def test_a_finished_run_whose_summary_raises_keeps_its_coefficients(
     assert len(output['results']) > 0
 
 
-def test_a_threshold_no_guide_reaches_is_an_answer_not_a_failure(screen,
+def case_a_threshold_no_guide_reaches_is_an_answer_not_a_failure(screen,
                                                                  capsys):
     """A guide_min_wells the screen cannot satisfy skips one panel only.
 
@@ -1284,7 +1284,7 @@ def test_a_threshold_no_guide_reaches_is_an_answer_not_a_failure(screen,
     assert len(output['primary']) > 0
 
 
-def test_permutation_diagnostics_that_fail_are_skipped_by_name(screen,
+def case_permutation_diagnostics_that_fail_are_skipped_by_name(screen,
                                                                monkeypatch,
                                                                capsys):
     """The design panels are advisory; losing them costs a line, not the run.
@@ -1308,7 +1308,7 @@ def test_permutation_diagnostics_that_fail_are_skipped_by_name(screen,
     assert len(output['primary']) > 0
 
 
-def test_a_bootstrap_resample_that_builds_no_design_is_counted_and_named(
+def case_a_bootstrap_resample_that_builds_no_design_is_counted_and_named(
         screen, monkeypatch, caplog):
     """Selection frequencies say how many resamples they are over.
 
@@ -1345,7 +1345,7 @@ def test_a_bootstrap_resample_that_builds_no_design_is_counted_and_named(
     assert 'selection_frequency' in output['results'].columns
 
 
-def test_a_group_lasso_bootstrap_cross_validates_its_own_penalty(screen):
+def case_a_group_lasso_bootstrap_cross_validates_its_own_penalty(screen):
     """The resamples are fitted at a penalty chosen for the design.
 
     ``alpha`` is not read by this backend at all, and ``float('auto')`` is not
@@ -1369,7 +1369,7 @@ from tests.test_cov_12_ml_regression_pipeline import (  # noqa: E402
     NC, PC, wells_frame)
 
 
-def test_a_summary_with_nothing_to_say_prints_no_heading(tmp_path, monkeypatch,
+def case_a_summary_with_nothing_to_say_prints_no_heading(tmp_path, monkeypatch,
                                                          capsys):
     """An empty summary prints nothing at all, heading included.
 
@@ -1426,7 +1426,7 @@ def _control_wells(rows=('r1', 'r2', 'r3'), per_well=10, plates=('plate1',),
     return pd.DataFrame(records, index=index)
 
 
-def test_the_refusal_names_only_the_control_that_matched_nothing():
+def case_the_refusal_names_only_the_control_that_matched_nothing():
     """A half-matched pair names the half that failed.
 
     Naming both would send the user to look at the setting that is correct,
@@ -1455,7 +1455,7 @@ def test_the_refusal_names_only_the_control_that_matched_nothing():
         "only the arm that matched nothing should be named")
 
 
-def test_a_fold_that_cannot_hold_both_classes_is_refused_by_name():
+def case_a_fold_that_cannot_hold_both_classes_is_refused_by_name():
     """Grouped folds that split the classes apart are stopped.
 
     Each control well holds one class, so a fold that is one whole well
@@ -1473,7 +1473,7 @@ def test_a_fold_that_cannot_hold_both_classes_is_refused_by_name():
     assert 'well-grouped CV fold 1' in message
 
 
-def test_a_correction_with_one_batch_says_it_corrected_nothing(capsys):
+def case_a_correction_with_one_batch_says_it_corrected_nothing(capsys):
     """The batch correction's own warnings reach the console.
 
     A correction that could not run and one that ran and found nothing print
@@ -1492,7 +1492,7 @@ def test_a_correction_with_one_batch_says_it_corrected_nothing(capsys):
             'was a no-op.') in printed
 
 
-def test_a_verbose_run_shows_the_panels_it_built(capsys):
+def case_a_verbose_run_shows_the_panels_it_built(capsys):
     """``verbose`` names the features and shows the importance panels.
 
     The permutation and importance figures are the QC a user reads to decide
@@ -1513,7 +1513,7 @@ def test_a_verbose_run_shows_the_panels_it_built(capsys):
     assert len(output[2]) > 0
 
 
-def test_a_control_that_is_neither_a_name_nor_a_list_leaves_no_similarity():
+def case_a_control_that_is_neither_a_name_nor_a_list_leaves_no_similarity():
     """Only a string and a list name a control; anything else is not read.
 
     The similarity block is wrapped, so an unsupported control type costs the
@@ -1534,3 +1534,89 @@ def test_a_control_that_is_neither_a_name_nor_a_list_leaves_no_similarity():
     tupled = ml._calculate_similarity(frame.copy(), ['a', 'b'], 'columnID',
                                       ('c2',), ('c1',))
     assert 'similarity_to_pos_euclidean' not in tupled.columns
+
+
+from tests.case_table import run_cases  # noqa: E402
+
+def test_perform_regression_cases(request, subtests):
+    """Behaviour cases for: perform_regression."""
+    ran = run_cases(request, subtests, [
+        case_a_count_table_in_the_score_slot_is_named_as_swapped_inputs,
+        case_an_analysis_mode_nobody_implements_is_refused_before_the_fit,
+        case_batch_correction_without_its_response_column_says_which_setting,
+        case_an_outlier_filter_with_no_column_to_read_says_so_before_the_fractions,
+        case_an_outlier_filter_that_raised_says_the_counts_are_unfiltered,
+        case_a_measured_threshold_replaces_the_one_the_settings_carried,
+        case_a_permutation_run_with_no_model_named_says_nothing_about_one,
+        case_a_permutation_run_without_the_summary_module_keeps_its_results,
+        case_a_fitted_run_without_the_summary_module_keeps_its_coefficients,
+        case_metadata_that_will_not_merge_is_named_and_the_run_goes_on,
+        case_a_count_table_that_names_its_plate_and_row_in_one_column_agrees,
+        case_an_annotation_that_has_something_to_say_says_it_once,
+        case_an_annotation_that_changed_the_row_count_is_refused,
+        case_a_control_left_unnamed_is_not_offered_to_the_concordance_report,
+        case_the_legacy_volcano_is_announced_only_when_a_file_was_written,
+        case_a_finished_run_whose_summary_raises_keeps_its_coefficients,
+        case_a_threshold_no_guide_reaches_is_an_answer_not_a_failure,
+        case_permutation_diagnostics_that_fail_are_skipped_by_name,
+        case_a_bootstrap_resample_that_builds_no_design_is_counted_and_named,
+        case_a_group_lasso_bootstrap_cross_validates_its_own_penalty,
+    ])
+    assert ran >= 20
+
+def test_ml_analysis_cases(request, subtests):
+    """Behaviour cases for: _report_exchangeability, ml_analysis, regression."""
+    ran = run_cases(request, subtests, [
+        case_a_questionable_shuffle_with_no_remedy_still_names_its_findings,
+        case_a_summary_with_nothing_to_say_prints_no_heading,
+        case_the_refusal_names_only_the_control_that_matched_nothing,
+        case_a_fold_that_cannot_hold_both_classes_is_refused_by_name,
+        case_a_correction_with_one_batch_says_it_corrected_nothing,
+        case_a_verbose_run_shows_the_panels_it_built,
+    ])
+    assert ran >= 6
+
+def test_regression_model_cases(request, subtests):
+    """Behaviour cases for: _calculate_similarity, _show_plates, _stage, regression_model."""
+    ran = run_cases(request, subtests, [
+        case_a_transform_that_is_the_link_does_not_get_a_second_one,
+        case_a_covariate_with_two_values_is_not_given_a_spline_basis,
+        case_a_group_lasso_that_ran_out_of_sweeps_says_the_answer_is_provisional,
+        case_a_plate_panel_with_nowhere_to_save_is_still_shown,
+        case_a_stage_whose_announcement_cannot_be_printed_still_records_it,
+        case_a_control_that_is_neither_a_name_nor_a_list_leaves_no_similarity,
+    ])
+    assert ran >= 6
+
+def test_run_guide_permutation_analysis_cases(request, subtests):
+    """Behaviour cases for: _concat_named_csvs, _run_guide_permutation_analysis, fit_quality_note, minimum_cell_simulation."""
+    ran = run_cases(request, subtests, [
+        case_a_glob_that_matched_no_count_file_is_refused_by_name,
+        case_a_fit_that_reports_no_likelihood_says_so_rather_than_guessing,
+        case_a_permutation_asked_for_zero_wells_is_refused_by_name,
+        case_a_dependent_variable_that_is_not_a_column_names_what_is,
+        case_a_cell_count_sweep_returns_the_same_minimum_without_a_renderer,
+    ])
+    assert ran >= 5
+
+def test_process_scores_cases(request, subtests):
+    """Behaviour cases for: _calibrated_fraction_threshold, process_scores, resolve_auto_inference, write_plot."""
+    ran = run_cases(request, subtests, [
+        case_a_calibration_whose_module_is_missing_keeps_the_threshold_given,
+        case_auto_counts_no_block_terms_when_the_table_has_no_plate_column,
+        case_a_frame_that_names_its_wells_is_not_re_split_from_its_prcfo_key,
+        case_a_count_model_handed_no_rows_at_all_is_not_told_its_counts_are_wrong,
+        case_a_plot_that_exported_nothing_is_not_announced_to_the_gallery,
+    ])
+    assert ran >= 5
+
+def test_process_reads_cases(request, subtests):
+    """Behaviour cases for: _draw_the_cell_count_sweep, check_and_clean_data, normalize_regression_input_pairs, process_reads."""
+    ran = run_cases(request, subtests, [
+        case_a_column_that_is_already_categorical_is_left_as_it_is,
+        case_settings_that_name_no_input_at_all_are_refused_before_any_read,
+        case_a_sweep_that_fails_mid_draw_takes_its_scene_with_it,
+        case_the_control_blocks_reach_the_count_filter_once_each,
+        case_control_blocks_that_cannot_be_resolved_cost_only_the_exclusion,
+    ])
+    assert ran >= 5

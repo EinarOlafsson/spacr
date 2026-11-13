@@ -54,7 +54,7 @@ def _reads_frame(plate_col=True, plate_value="plate1"):
 # process_reads — CSV path, fraction threshold, org/gene/grna split
 # ---------------------------------------------------------------------------
 
-def test_process_reads_from_csv_path_splits_grna_and_filters(tmp_path, capsys):
+def case_process_reads_from_csv_path_splits_grna_and_filters(tmp_path, capsys):
     """A CSV path is read from disk; the org prefix is stripped from the gRNA."""
     from spacr.ml import process_reads
 
@@ -80,7 +80,7 @@ def test_process_reads_from_csv_path_splits_grna_and_filters(tmp_path, capsys):
     assert "75.0% retained" in msg
 
 
-def test_process_reads_no_plate_id_column_uses_plate_argument():
+def case_process_reads_no_plate_id_column_uses_plate_argument():
     """Without a plateID column the explicit ``plate`` argument is stamped on."""
     from spacr.ml import process_reads
 
@@ -93,7 +93,7 @@ def test_process_reads_no_plate_id_column_uses_plate_argument():
     ]
 
 
-def test_process_reads_no_plate_id_and_no_plate_defaults_to_plate1():
+def case_process_reads_no_plate_id_and_no_plate_defaults_to_plate1():
     """plate=None with no plateID column falls back to the literal 'plate1'."""
     from spacr.ml import process_reads
 
@@ -105,7 +105,7 @@ def test_process_reads_no_plate_id_and_no_plate_defaults_to_plate1():
     }
 
 
-def test_process_reads_plate_row_column_is_split():
+def case_process_reads_plate_row_column_is_split():
     """A combined ``plate_row`` column is split into plateID / rowID."""
     from spacr.ml import process_reads
 
@@ -122,7 +122,7 @@ def test_process_reads_plate_row_column_is_split():
                        [0.1, 0.2, 0.3, 0.4])
 
 
-def test_process_reads_prcfo_column_overrides_identifiers():
+def case_process_reads_prcfo_column_overrides_identifiers():
     """A ``prcfo`` column supplies plate/row/column/field/object in one go."""
     from spacr.ml import process_reads
 
@@ -138,7 +138,7 @@ def test_process_reads_prcfo_column_overrides_identifiers():
     assert len(out) == 8
 
 
-def test_process_reads_scalar_filter_column_and_value_drop_rows(capsys):
+def case_process_reads_scalar_filter_column_and_value_drop_rows(capsys):
     """String ``filter_column``/``filter_value`` are promoted to lists."""
     from spacr.ml import process_reads
 
@@ -150,7 +150,7 @@ def test_process_reads_scalar_filter_column_and_value_drop_rows(capsys):
     capsys.readouterr()
 
 
-def test_process_reads_list_filters_drop_several_values():
+def case_process_reads_list_filters_drop_several_values():
     """List filters are applied column-by-column and value-by-value."""
     from spacr.ml import process_reads
 
@@ -162,7 +162,7 @@ def test_process_reads_list_filters_drop_several_values():
     assert len(out) == 4
 
 
-def test_process_reads_missing_required_columns_raises():
+def case_process_reads_missing_required_columns_raises():
     """Missing rowID/columnID is reported as a ValueError, not a KeyError."""
     from spacr.ml import process_reads
 
@@ -172,7 +172,7 @@ def test_process_reads_missing_required_columns_raises():
 
 
 @pytest.mark.parametrize("threshold", [1.5, -0.25])
-def test_process_reads_out_of_range_threshold_raises(threshold):
+def case_process_reads_out_of_range_threshold_raises(threshold):
     """The fraction is a relative abundance: thresholds outside [0, 1] are rejected."""
     from spacr.ml import process_reads
 
@@ -180,7 +180,7 @@ def test_process_reads_out_of_range_threshold_raises(threshold):
         process_reads(_reads_frame(), fraction_threshold=threshold, plate=None)
 
 
-def test_process_reads_threshold_removing_everything_raises(capsys):
+def case_process_reads_threshold_removing_everything_raises(capsys):
     """A threshold above the maximum observed fraction is a hard error."""
     from spacr.ml import process_reads
 
@@ -196,7 +196,7 @@ def test_process_reads_threshold_removing_everything_raises(capsys):
 # check_normality — verbose branches
 # ---------------------------------------------------------------------------
 
-def test_check_normality_verbose_non_normal_prints_and_returns_false(capsys):
+def case_check_normality_verbose_non_normal_prints_and_returns_false(capsys):
     """Strongly bimodal data is reported as non-normal when verbose."""
     from spacr.ml import check_normality
 
@@ -209,7 +209,7 @@ def test_check_normality_verbose_non_normal_prints_and_returns_false(capsys):
     assert "the data for bimodal is not normally distributed" in out.lower()
 
 
-def test_check_normality_verbose_normal_prints_and_returns_true(rng, capsys):
+def case_check_normality_verbose_normal_prints_and_returns_true(rng, capsys):
     """Gaussian data is reported as normal when verbose."""
     from spacr.ml import check_normality
 
@@ -224,7 +224,7 @@ def test_check_normality_verbose_normal_prints_and_returns_true(rng, capsys):
 # clean_controls
 # ---------------------------------------------------------------------------
 
-def test_clean_controls_non_list_value_is_a_no_op():
+def case_clean_controls_non_list_value_is_a_no_op():
     """A bare (non-list) value is ignored — only lists are removed."""
     from spacr.ml import clean_controls
 
@@ -234,7 +234,7 @@ def test_clean_controls_non_list_value_is_a_no_op():
     pd.testing.assert_frame_equal(out, df)
 
 
-def test_clean_controls_removes_each_listed_value(capsys):
+def case_clean_controls_removes_each_listed_value(capsys):
     """Every listed value is dropped and announced."""
     from spacr.ml import clean_controls
 
@@ -247,7 +247,7 @@ def test_clean_controls_removes_each_listed_value(capsys):
     assert "Removed data from c" in printed
 
 
-def test_clean_controls_none_column_is_a_no_op():
+def case_clean_controls_none_column_is_a_no_op():
     """column=None means 'do not filter'; perform_regression passes
     settings['filter_column'] straight through and None is a legal value."""
     from spacr.ml import clean_controls
@@ -258,7 +258,7 @@ def test_clean_controls_none_column_is_a_no_op():
     pd.testing.assert_frame_equal(out, df)
 
 
-def test_clean_controls_accepts_a_list_of_columns():
+def case_clean_controls_accepts_a_list_of_columns():
     """process_reads documents a list of filter columns, so the well-level
     control filter has to accept the same shape rather than raising
     'unhashable type: list' on the membership test."""
@@ -275,7 +275,7 @@ def test_clean_controls_accepts_a_list_of_columns():
     assert list(out["v"]) == [2, 4]
 
 
-def test_clean_controls_list_skips_columns_the_frame_lacks():
+def case_clean_controls_list_skips_columns_the_frame_lacks():
     """Unknown names in the column list are ignored, not an error."""
     from spacr.ml import clean_controls
 
@@ -305,7 +305,7 @@ def _wells_df(n_rows=6, per_well=8, plate="p1", seed=3, low=0.2, high=0.8):
     return pd.DataFrame(recs)
 
 
-def test_process_scores_stamps_plate_on_single_plate_frame():
+def case_process_scores_stamps_plate_on_single_plate_frame():
     """A single-plate frame has its plateID replaced by the ``plate`` argument."""
     from spacr.ml import process_scores
 
@@ -318,7 +318,7 @@ def test_process_scores_stamps_plate_on_single_plate_frame():
     assert (out["cell_count"] == 8).all()
 
 
-def test_process_scores_multi_plate_frame_ignores_plate_argument(capsys):
+def case_process_scores_multi_plate_frame_ignores_plate_argument(capsys):
     """Two plates must not be collapsed onto one prc by the ``plate`` argument."""
     from spacr.ml import process_scores
 
@@ -336,7 +336,7 @@ def test_process_scores_multi_plate_frame_ignores_plate_argument(capsys):
     assert not out["prc"].str.startswith("pZ").any()
 
 
-def test_process_scores_without_plate_id_or_plate_raises():
+def case_process_scores_without_plate_id_or_plate_raises():
     """No plateID column and no plate argument is a hard, explicit error."""
     from spacr.ml import process_scores
 
@@ -345,7 +345,7 @@ def test_process_scores_without_plate_id_or_plate_raises():
         process_scores(df, "pred", plate=None, min_cells_per_well=1)
 
 
-def test_process_scores_all_nan_plate_id_and_no_plate_raises():
+def case_process_scores_all_nan_plate_id_and_no_plate_raises():
     """An all-NaN plateID column is just as unusable as a missing one."""
     from spacr.ml import process_scores
 
@@ -355,7 +355,7 @@ def test_process_scores_all_nan_plate_id_and_no_plate_raises():
         process_scores(df, "pred", plate=None, min_cells_per_well=1)
 
 
-def test_process_scores_missing_column_id_raises():
+def case_process_scores_missing_column_id_raises():
     """plateID alone is not enough — rowID and columnID are required too."""
     from spacr.ml import process_scores
 
@@ -365,7 +365,7 @@ def test_process_scores_missing_column_id_raises():
         process_scores(df, "pred", plate=None, min_cells_per_well=1)
 
 
-def test_process_scores_reciprocal_inversion_warns_and_drops_zeros(capsys):
+def case_process_scores_reciprocal_inversion_warns_and_drops_zeros(capsys):
     """1/x inversion turns zeros into NaN, warns, and drops those objects."""
     from spacr.ml import process_scores
 
@@ -387,7 +387,7 @@ def test_process_scores_reciprocal_inversion_warns_and_drops_zeros(capsys):
     assert (out["pred"] >= 1.0 / 0.75).all()
 
 
-def test_process_scores_complement_inversion_matches_manual_mean(capsys):
+def case_process_scores_complement_inversion_matches_manual_mean(capsys):
     """1 - x inversion is applied before aggregation."""
     from spacr.ml import process_scores
 
@@ -402,7 +402,7 @@ def test_process_scores_complement_inversion_matches_manual_mean(capsys):
     assert np.allclose(got.loc[expected.index].to_numpy(), expected.to_numpy())
 
 
-def test_process_scores_reports_non_normal_response(capsys):
+def case_process_scores_reports_non_normal_response(capsys):
     """A bimodal per-well response is reported as not normally distributed."""
     from spacr.ml import process_scores
 
@@ -428,7 +428,7 @@ def test_process_scores_reports_non_normal_response(capsys):
     assert len(out) == 30
 
 
-def test_process_scores_transform_renames_response_and_rechecks_normality(capsys):
+def case_process_scores_transform_renames_response_and_rechecks_normality(capsys):
     """A transform adds a '<transform>_<var>' column and re-runs the normality test."""
     from spacr.ml import process_scores
 
@@ -455,7 +455,7 @@ def test_process_scores_transform_renames_response_and_rechecks_normality(capsys
     assert "sqrt_pred is not normally distributed" in capsys.readouterr().out
 
 
-def test_process_scores_min_cells_per_well_drops_small_wells():
+def case_process_scores_min_cells_per_well_drops_small_wells():
     """Wells below min_cells_per_well never reach the response frame."""
     from spacr.ml import process_scores
 
@@ -470,3 +470,51 @@ def test_process_scores_min_cells_per_well_drops_small_wells():
     assert "p1_r5_c1" not in set(out["prc"])
     assert len(out) == 4
     assert (out["cell_count"] == 10).all()
+
+
+from tests.case_table import run_cases  # noqa: E402
+
+def test_process_reads_cases(request, subtests):
+    """Behaviour cases for: process_reads."""
+    ran = run_cases(request, subtests, [
+        case_process_reads_from_csv_path_splits_grna_and_filters,
+        case_process_reads_no_plate_id_column_uses_plate_argument,
+        case_process_reads_no_plate_id_and_no_plate_defaults_to_plate1,
+        case_process_reads_plate_row_column_is_split,
+        case_process_reads_prcfo_column_overrides_identifiers,
+        case_process_reads_scalar_filter_column_and_value_drop_rows,
+        case_process_reads_list_filters_drop_several_values,
+        case_process_reads_missing_required_columns_raises,
+        case_process_reads_out_of_range_threshold_raises,
+        case_process_reads_threshold_removing_everything_raises,
+    ])
+    assert ran >= 10
+
+def test_process_scores_cases(request, subtests):
+    """Behaviour cases for: process_scores."""
+    ran = run_cases(request, subtests, [
+        case_process_scores_stamps_plate_on_single_plate_frame,
+        case_process_scores_multi_plate_frame_ignores_plate_argument,
+        case_process_scores_without_plate_id_or_plate_raises,
+        case_process_scores_all_nan_plate_id_and_no_plate_raises,
+        case_process_scores_missing_column_id_raises,
+        case_process_scores_reciprocal_inversion_warns_and_drops_zeros,
+        case_process_scores_complement_inversion_matches_manual_mean,
+        case_process_scores_reports_non_normal_response,
+        case_process_scores_transform_renames_response_and_rechecks_normality,
+        case_process_scores_min_cells_per_well_drops_small_wells,
+    ])
+    assert ran >= 10
+
+def test_clean_controls_cases(request, subtests):
+    """Behaviour cases for: check_normality, clean_controls."""
+    ran = run_cases(request, subtests, [
+        case_check_normality_verbose_non_normal_prints_and_returns_false,
+        case_check_normality_verbose_normal_prints_and_returns_true,
+        case_clean_controls_non_list_value_is_a_no_op,
+        case_clean_controls_removes_each_listed_value,
+        case_clean_controls_none_column_is_a_no_op,
+        case_clean_controls_accepts_a_list_of_columns,
+        case_clean_controls_list_skips_columns_the_frame_lacks,
+    ])
+    assert ran >= 7

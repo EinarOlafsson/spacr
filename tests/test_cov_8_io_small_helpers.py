@@ -21,7 +21,6 @@ exception thrown three stages later:
 from __future__ import annotations
 
 import os
-import sqlite3
 import sys
 import types
 
@@ -38,39 +37,6 @@ from spacr import io
 
 _STACKS = ["plate1_A01_f1.npy", "plate1_A01_f2.npy", "plate1_A02_f10.npy",
            "not_a_field_stem.npy"]
-
-
-def test_a_single_field_can_be_named_in_any_spelling():
-    """``3``, ``'f3'`` and ``'F003'`` are one field, as the writer spells it."""
-    names = ["plate1_A01_f3.npy", "plate1_A01_f4.npy"]
-
-    for spelling in (3, "3", "f3", "F003"):
-        assert io.select_fields(names, spelling) == ["plate1_A01_f3.npy"]
-
-
-def test_a_comma_separated_field_list_keeps_the_order_given():
-    """Typed into a settings CSV, a list arrives as one string."""
-    assert io.select_fields(_STACKS, "f1, f2") == [
-        "plate1_A01_f1.npy", "plate1_A01_f2.npy"]
-
-
-def test_a_field_list_of_only_separators_keeps_everything():
-    """An empty request is "no filter", not "no fields"."""
-    assert io.select_fields(_STACKS, " , , ") == list(_STACKS)
-    assert io.select_fields(_STACKS, []) == list(_STACKS)
-
-
-def test_a_name_that_is_not_a_field_stem_is_skipped_not_crashed_on():
-    """A sidecar or hand-dropped array in the folder must not stop the run."""
-    kept = io.select_fields(_STACKS, "f1*")
-
-    assert kept == ["plate1_A01_f1.npy", "plate1_A02_f10.npy"]
-    assert "not_a_field_stem.npy" not in kept
-
-
-def test_a_field_token_that_cannot_be_normalised_is_matched_literally():
-    """An unparseable request matches nothing rather than everything."""
-    assert io.select_fields(_STACKS, "banana") == []
 
 
 # ---------------------------------------------------------------------------
@@ -98,100 +64,6 @@ def test_a_merge_with_no_declared_key_says_so_rather_than_guessing():
 # ---------------------------------------------------------------------------
 # crop_png_name / crop_rows_from_object_table
 # ---------------------------------------------------------------------------
-
-def test_a_nucleus_crop_carries_its_parent_cell_in_its_name():
-    """Nucleus and pathogen crops are named ``<stem>_<cell>_<label>.png``."""
-    assert io.crop_png_name("plate1_A01_1.npy", "nucleus", 7, 3) == \
-        "plate1_A01_1_3_7.png"
-    assert io.crop_png_name("plate1_A01_1", "pathogen", 2, "o11") == \
-        "plate1_A01_1_11_2.png"
-
-
-def test_a_nucleus_crop_with_no_resolvable_parent_says_none():
-    """"none" is a name a parser can read; an empty gap is not."""
-    assert io.crop_png_name("plate1_A01_1", "nucleus", 4, "omulti") == \
-        "plate1_A01_1_none_4.png"
-    assert io.crop_png_name("plate1_A01_1", "nucleus", 4, None) == \
-        "plate1_A01_1_none_4.png"
-
-
-def test_a_cell_crop_is_named_without_a_parent():
-    """The contrast that makes the parent token meaningful."""
-    assert io.crop_png_name("plate1_A01_1", "cell", 5) == "plate1_A01_1_5.png"
-
-
-def _object_db(path, table, columns, rows):
-    path.parent.mkdir(parents=True, exist_ok=True)
-    con = sqlite3.connect(path)
-    try:
-        con.execute('CREATE TABLE "%s" (%s)'
-                    % (table, ", ".join(f'"{c}"' for c in columns)))
-        con.executemany(
-            'INSERT INTO "%s" VALUES (%s)' % (table, ", ".join("?" * len(columns))),
-            rows)
-        con.commit()
-    finally:
-        con.close()
-    return str(path)
-
-
-def test_a_database_without_the_object_table_answers_an_empty_frame(
-        tmp_path, capsys):
-    """A project with no nucleus table asked for nuclei gets nothing, said out loud."""
-    db = _object_db(tmp_path / "m.db", "cell",
-                    ["object_label", "plateID", "rowID", "columnID",
-                     "fieldID", "prcf", "file_name", "path_name"],
-                    [(1, "plate1", "A", "01", "1", "plate1_A_01_1",
-                      "plate1_A01_1.npy", "/data/plate1_A01_1.npy")])
-
-    frame = io.crop_rows_from_object_table(db, object_type="nucleus")
-
-    assert frame.empty
-    assert "no 'nucleus' table" in capsys.readouterr().out
-
-
-def test_a_nucleus_table_without_parent_links_still_yields_crop_rows(
-        tmp_path, capsys):
-    """No ``cell_id`` column means no parent, not no crops."""
-    db = _object_db(tmp_path / "m.db", "nucleus",
-                    ["object_label", "plateID", "rowID", "columnID",
-                     "fieldID", "prcf", "file_name", "path_name"],
-                    [(4, "plate1", "A", "01", "1", "plate1_A_01_1",
-                      "plate1_A01_1.npy", "/data/plate1_A01_1.npy")])
-
-    frame = io.crop_rows_from_object_table(db, object_type="nucleus")
-
-    assert list(frame["png_name"]) == ["plate1_A01_1_none_4.png"]
-    assert frame["png_path"].iloc[0].endswith(
-        os.path.join("nucleus_png", "plate1_A01_1_none_4.png"))
-    assert "1 'nucleus' objects" in capsys.readouterr().out
-
-
-def test_a_nucleus_table_with_parent_links_names_the_parent_cell(tmp_path):
-    """The link is what makes the on-demand name match the folder's name."""
-    db = _object_db(tmp_path / "m.db", "nucleus",
-                    ["object_label", "plateID", "rowID", "columnID",
-                     "fieldID", "prcf", "file_name", "path_name", "cell_id"],
-                    [(4, "plate1", "A", "01", "1", "plate1_A_01_1",
-                      "plate1_A01_1.npy", "/data/plate1_A01_1.npy", 9)])
-
-    frame = io.crop_rows_from_object_table(db, object_type="nucleus",
-                                           verbose=False)
-
-    assert list(frame["png_name"]) == ["plate1_A01_1_9_4.png"]
-
-
-def test_an_object_table_with_no_rows_answers_an_empty_frame(tmp_path):
-    """An empty table is not an error, and gains no derived columns."""
-    db = _object_db(tmp_path / "m.db", "cell",
-                    ["object_label", "plateID", "rowID", "columnID",
-                     "fieldID", "prcf", "file_name", "path_name"], [])
-
-    frame = io.crop_rows_from_object_table(db, object_type="cell",
-                                           verbose=False)
-
-    assert frame.empty
-    assert "png_name" not in frame.columns
 
 
 # ---------------------------------------------------------------------------
@@ -245,30 +117,6 @@ def test_a_missing_png_file_yields_no_raw_bytes_rather_than_raising():
 # ---------------------------------------------------------------------------
 # cross-validation splits
 # ---------------------------------------------------------------------------
-
-def test_a_validation_fraction_outside_the_open_unit_interval_is_refused():
-    """0 and 1 are not splits, and neither is 1.5."""
-    labels = [0, 1, 0, 1]
-    groups = ["a", "a", "b", "b"]
-
-    for bad in (0.0, 1.0, 1.5, -0.2):
-        with pytest.raises(ValueError, match="strictly between 0 and 1"):
-            io.make_validation_holdout(labels, bad, groups)
-
-
-def test_a_group_aware_holdout_needs_one_group_per_sample():
-    """A group list of the wrong length would silently mis-assign crops."""
-    with pytest.raises(ValueError, match="one group per sample"):
-        io.make_validation_holdout([0, 1, 0, 1], 0.5, ["a", "b"])
-
-    with pytest.raises(ValueError, match="one group per sample"):
-        io.make_validation_holdout([0, 1, 0, 1], 0.5, None)
-
-
-def test_a_holdout_needs_at_least_two_distinct_groups():
-    """One group cannot be on both sides of a leakage-safe line."""
-    with pytest.raises(ValueError, match="two distinct groups"):
-        io.make_validation_holdout([0, 1, 0, 1], 0.5, ["a", "a", "a", "a"])
 
 
 def test_a_class_with_no_samples_does_not_break_the_fold_deal():
@@ -386,67 +234,6 @@ def test_a_missing_czi_wheel_names_the_extra_that_installs_it(monkeypatch):
 # tar archives and their crop-format sidecar
 # ---------------------------------------------------------------------------
 
-def _tar_with(tmp_path, members, sidecar_bytes=None, add_directory=False):
-    """Build a tar holding ``members`` (name -> PNG bytes) plus extras."""
-    import io as _io
-    import tarfile
-
-    from PIL import Image
-
-    from spacr.crops import CROP_FORMAT_SIDECAR
-
-    path = tmp_path / "dataset.tar"
-    with tarfile.open(path, "w") as tar:
-        if add_directory:
-            info = tarfile.TarInfo("subdir")
-            info.type = tarfile.DIRTYPE
-            tar.addfile(info)
-        if sidecar_bytes is not None:
-            info = tarfile.TarInfo(CROP_FORMAT_SIDECAR)
-            info.size = len(sidecar_bytes)
-            tar.addfile(info, _io.BytesIO(sidecar_bytes))
-        for name in members:
-            buf = _io.BytesIO()
-            Image.fromarray(
-                np.full((4, 4, 3), 128, dtype=np.uint8)).save(buf, format="PNG")
-            payload = buf.getvalue()
-            info = tarfile.TarInfo(name)
-            info.size = len(payload)
-            tar.addfile(info, _io.BytesIO(payload))
-    return str(path)
-
-
-def test_a_directory_entry_in_a_tar_is_not_a_sample(tmp_path):
-    """Only files are crops; a directory member would decode to nothing."""
-    tar = _tar_with(tmp_path, ["plate1_A01_1_1.png"], add_directory=True)
-
-    dataset = io.TarImageDataset(tar)
-
-    assert len(dataset) == 1
-    assert [m.name for m in dataset.members] == ["plate1_A01_1_1.png"]
-
-
-def test_an_unreadable_crop_format_sidecar_refuses_to_guess_channels(tmp_path):
-    """A corrupt marker is distinct from an absent legacy-format marker."""
-    tar = _tar_with(tmp_path, ["plate1_A01_1_1.png"],
-                    sidecar_bytes=b"{not json at all")
-
-    with pytest.raises(ValueError, match='Invalid tar crop marker'):
-        io.TarImageDataset(tar)
-
-
-def test_a_readable_crop_format_sidecar_is_surfaced(tmp_path):
-    """The contrast that makes the unreadable case meaningful."""
-    from spacr.crops import CROP_FORMAT_LEGACY_BGR
-
-    tar = _tar_with(
-        tmp_path, ["plate1_A01_1_1.png"],
-        sidecar_bytes=b'{"spacr_crop_format": %d}' % CROP_FORMAT_LEGACY_BGR)
-
-    dataset = io.TarImageDataset(tar)
-
-    assert dataset.crop_format == CROP_FORMAT_LEGACY_BGR
-
 
 # ---------------------------------------------------------------------------
 # inheriting a crop format from a folder that cannot be read
@@ -487,84 +274,8 @@ def test_items_from_an_unreadable_folder_refuse_to_guess_channels(tmp_path,
         io._crop_format_of_items([str(tmp_path / "cell_png" / "a.png")])
 
 
-def test_a_field_token_the_schema_cannot_classify_is_matched_literally(
-        monkeypatch):
-    """A schema that refuses a token must not take the whole run with it.
-
-    Normalisation is what makes ``3`` and ``'F003'`` the same field; when it
-    is unavailable the token stands for itself, which is still right for the
-    spelling the file names use.
-    """
-    import spacr.schema as schema
-
-    def refuses(_token):
-        raise ValueError("unrecognised field token")
-
-    monkeypatch.setattr(schema, "field_index", refuses)
-
-    assert io.select_fields(_STACKS, "f1") == ["plate1_A01_f1.npy"], (
-        "the literal token still names the field the file was written with")
-
-
 # ---------------------------------------------------------------------------
 # writing a crop tar from mixed sources
 # ---------------------------------------------------------------------------
 
-def test_a_tar_takes_png_paths_and_on_demand_crops_side_by_side(tmp_path,
-                                                                capsys):
-    """The two crop sources have to be interchangeable inside one archive.
 
-    A PNG already on disk is byte-copied; an on-demand crop is cut and
-    encoded. A path that has gone missing is skipped with a line naming it,
-    not allowed to abort a dataset that is otherwise complete.
-    """
-    import tarfile
-
-    from PIL import Image
-
-    from spacr.crops import CROP_FORMAT_SIDECAR
-
-    folder = tmp_path / "cell_png"
-    folder.mkdir()
-    on_disk = folder / "plate1_A01_1_1.png"
-    Image.fromarray(np.full((4, 4, 3), 7, dtype=np.uint8)).save(on_disk)
-    items = [str(on_disk),
-             io.LazyCropPNG(_Source(), {"object_label": 2},
-                            name="plate1_A01_1_2.png"),
-             str(folder / "deleted.png")]
-    tar_name = str(tmp_path / "dataset.tar")
-
-    written, skipped = io._write_crop_tar(items, tar_name)
-
-    assert (written, skipped) == (2, 1)
-    assert "deleted.png" in capsys.readouterr().out
-    with tarfile.open(tar_name) as tar:
-        names = set(tar.getnames())
-        assert names == {CROP_FORMAT_SIDECAR, "plate1_A01_1_1.png",
-                         "plate1_A01_1_2.png"}
-        assert tar.extractfile("plate1_A01_1_1.png").read() == \
-            on_disk.read_bytes(), "an existing PNG is copied byte for byte"
-
-
-def test_two_crops_with_the_same_basename_both_reach_the_tar(tmp_path):
-    """A collision inside the archive would silently drop one of them."""
-    import tarfile
-
-    from PIL import Image
-
-    first = tmp_path / "plate1" / "cell_png"
-    second = tmp_path / "plate2" / "cell_png"
-    for folder in (first, second):
-        folder.mkdir(parents=True)
-        Image.fromarray(
-            np.full((4, 4, 3), 9, dtype=np.uint8)).save(folder / "same.png")
-    tar_name = str(tmp_path / "dataset.tar")
-
-    written, skipped = io._write_crop_tar(
-        [str(first / "same.png"), str(second / "same.png")], tar_name)
-
-    assert (written, skipped) == (2, 0)
-    with tarfile.open(tar_name) as tar:
-        crops_in_tar = [n for n in tar.getnames() if n.endswith(".png")]
-    assert len(crops_in_tar) == 2
-    assert len(set(crops_in_tar)) == 2

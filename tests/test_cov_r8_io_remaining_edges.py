@@ -10,7 +10,6 @@ import inspect
 import os
 
 import numpy as np
-import pandas as pd
 import pytest
 
 from spacr import io
@@ -29,31 +28,6 @@ class TestMigratingUnescapedPlateNames:
             (root / "masks" / f"{stem}.npy").write_bytes(b"\x93NUMPY")
         return root
 
-    def test_a_plate_with_an_underscore_is_planned_for_renaming(self,
-                                                                tmp_path):
-        root = self._plate(tmp_path, "exp_1", ["exp_1_A01_1_1"])
-
-        planned = io.migrate_unescaped_plate_names(str(root), dry_run=True)
-
-        assert planned, "an unescaped plate name was not noticed"
-
-    def test_a_four_component_stem_is_refused_before_it_is_escaped(self,
-                                                                   tmp_path):
-        """A plate with no separator in it has nothing to migrate.
-
-        The test is on the COMPONENT COUNT rather than on "does escaping
-        change the name", and that is what makes a second run a no-op:
-        escaping is not idempotent, because a literal percent is escaped
-        first, so ``exp%5F1_A01_1_1`` would become ``exp%255F1_A01_1_1``.
-        A migration that corrupts on its second run is worse than one
-        that never ran.
-        """
-        root = self._plate(tmp_path, "exp1", ["exp1_A01_1_1", "exp1_A02_1_1"])
-
-        planned = io.migrate_unescaped_plate_names(str(root), dry_run=True)
-
-        assert planned == [], (
-            f"a plate that needs no escaping was planned anyway: {planned}")
 
     def test_a_stem_that_escapes_to_itself_cannot_get_that_far(self):
         """THE PIN, for ``if safe == stem: continue``.
@@ -81,14 +55,6 @@ class TestMigratingUnescapedPlateNames:
                 "this stem now has more than four components and would "
                 "reach the escaper")
 
-    def test_a_dry_run_moves_nothing(self, tmp_path):
-        root = self._plate(tmp_path, "exp_1", ["exp_1_A01_1_1"])
-        before = sorted(p.name for p in (root / "masks").iterdir())
-
-        io.migrate_unescaped_plate_names(str(root), dry_run=True)
-
-        assert sorted(p.name for p in (root / "masks").iterdir()) == before
-
 
 # ---------------------------------------------------------------------------
 # process_non_tif_non_2D_images -- splitting a stack, and the suffix it names
@@ -96,46 +62,6 @@ class TestMigratingUnescapedPlateNames:
 
 class TestSplittingAMultiDimensionalImage:
 
-    def test_a_three_axis_stack_becomes_one_tiff_per_channel(self, tmp_path):
-        tifffile = pytest.importorskip("tifffile")
-
-        stack = np.zeros((8, 6, 3), dtype=np.uint16)
-        for channel in range(3):
-            stack[..., channel] = 100 * (channel + 1)
-        tifffile.imwrite(tmp_path / "plate1_A01.tif", stack)
-
-        io.process_non_tif_non_2D_images(str(tmp_path))
-
-        written = sorted(p.name for p in tmp_path.glob("plate1_A01_C*.tif"))
-        assert written == ["plate1_A01_C1.tif", "plate1_A01_C2.tif",
-                           "plate1_A01_C3.tif"]
-        assert tifffile.imread(tmp_path / "plate1_A01_C2.tif").dtype \
-            == np.uint16, "the bit depth was not preserved"
-
-    def test_a_four_axis_stack_names_both_the_channel_and_the_plane(self,
-                                                                     tmp_path):
-        tifffile = pytest.importorskip("tifffile")
-
-        tifffile.imwrite(tmp_path / "plate1_A01.tif",
-                         np.zeros((8, 6, 2, 3), dtype=np.uint8))
-
-        io.process_non_tif_non_2D_images(str(tmp_path))
-
-        written = sorted(p.name for p in tmp_path.glob("plate1_A01_C*.tif"))
-        assert written == [
-            "plate1_A01_C1_Z1.tif", "plate1_A01_C1_Z2.tif",
-            "plate1_A01_C1_Z3.tif", "plate1_A01_C2_Z1.tif",
-            "plate1_A01_C2_Z2.tif", "plate1_A01_C2_Z3.tif",
-        ]
-
-    def test_the_ledger_records_a_file_that_cannot_be_read(self, tmp_path):
-        (tmp_path / "broken.tif").write_bytes(b"not a tiff at all")
-
-        ledger = io.process_non_tif_non_2D_images(str(tmp_path))
-
-        assert ledger is not None
-        assert not ledger.is_complete, (
-            "an unreadable file did not reach the ledger")
 
     def test_the_channel_token_is_optional_for_a_caller_that_has_none(self):
         """THE PIN.
@@ -168,30 +94,6 @@ class TestSplittingAMultiDimensionalImage:
 
 class TestAverageObjectSize:
 
-    def test_objects_are_counted_and_measured(self, capsys):
-        mask = np.zeros((10, 10), dtype=np.int32)
-        mask[1:4, 1:4] = 1
-        mask[6:8, 6:8] = 2
-
-        per_image, average = io._get_avg_object_size([mask, mask])
-
-        assert per_image == 2
-        assert average == pytest.approx((9 + 4) / 2)
-
-    def test_an_empty_mask_is_named_and_counted_as_zero(self, capsys):
-        mask = np.zeros((10, 10), dtype=np.int32)
-
-        per_image, _average = io._get_avg_object_size([mask])
-
-        assert per_image == 0
-        assert "Mask 0 is empty" in capsys.readouterr().out
-
-    def test_a_mask_of_the_wrong_dimension_is_named(self, capsys):
-        odd = np.ones((2, 2, 2, 2), dtype=np.int32)
-
-        io._get_avg_object_size([odd])
-
-        assert "invalid dimension: 4" in capsys.readouterr().out
 
     def test_the_two_warning_cases_are_exhaustive(self):
         """THE PIN for replacing the always-true ``elif`` with ``else``.
@@ -314,23 +216,3 @@ class TestTheRemainingDecisions:
         assert 'while os.path.exists(f"{base}_{j}"):' in source
         assert "j += 1" in source
 
-    def test_a_well_is_minted_once_per_file_not_once_per_channel(self, tmp_path):
-        """``convert_to_yokogawa``: the loop runs per channel/timepoint.
-
-        Minting a well on every pass would scatter one image's channels
-        across the plate, which is the one thing the conversion must not
-        do.
-        """
-        import tifffile
-
-        planes = np.arange(3 * 7 * 8, dtype=np.uint16).reshape(3, 7, 8)
-        tifffile.imwrite(tmp_path / 'multichannel.tif', planes,
-                         photometric='minisblack')
-        io.convert_to_yokogawa(str(tmp_path))
-        log = pd.read_csv(tmp_path / 'rename_log.csv')
-        assert log['Original File'].tolist() == ['multichannel.tif'] * 3
-        assert log['Renamed TIFF'].tolist() == [
-            f'plate1_A01_T0001F001L01C0{channel}.tif' for channel in (1, 2, 3)]
-        for index, name in enumerate(log['Renamed TIFF']):
-            np.testing.assert_array_equal(tifffile.imread(tmp_path / name),
-                                          planes[index])

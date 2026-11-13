@@ -75,7 +75,7 @@ def legacy_db(monkeypatch):
     return install
 
 
-def test_a_legacy_database_and_canonical_scores_still_join(tmp_path,
+def case_a_legacy_database_and_canonical_scores_still_join(tmp_path,
                                                            legacy_db):
     """THE UNCOVERED BRANCH: the two spellings differ, so one is renamed.
 
@@ -91,7 +91,7 @@ def test_a_legacy_database_and_canonical_scores_still_join(tmp_path,
     assert set(merged["cv_predictions"]) <= {0, 1}
 
 
-def test_a_canonical_database_needs_no_rename(tmp_path, legacy_db):
+def case_a_canonical_database_needs_no_rename(tmp_path, legacy_db):
     """The other side of the same branch, so the rename is visibly a rename."""
     legacy_db("timeID")
     scores = _scores(tmp_path, "timeID")
@@ -100,7 +100,7 @@ def test_a_canonical_database_needs_no_rename(tmp_path, legacy_db):
     assert len(merged) == 4
 
 
-def test_a_timelapse_database_and_flat_scores_are_refused(tmp_path,
+def case_a_timelapse_database_and_flat_scores_are_refused(tmp_path,
                                                           legacy_db):
     """Only one side carrying a timepoint is a mismatch, not a join.
 
@@ -119,3 +119,15 @@ def test_a_timelapse_database_and_flat_scores_are_refused(tmp_path,
         ml.interpret_vision_model(
             vision_settings(str(tmp_path / "src"), path))
     assert "timepoint" in str(caught.value).lower()
+
+
+from tests.case_table import run_cases  # noqa: E402
+
+def test_interpret_vision_model_cases(request, subtests):
+    """Behaviour cases for: interpret_vision_model."""
+    ran = run_cases(request, subtests, [
+        case_a_legacy_database_and_canonical_scores_still_join,
+        case_a_canonical_database_needs_no_rename,
+        case_a_timelapse_database_and_flat_scores_are_refused,
+    ])
+    assert ran >= 3

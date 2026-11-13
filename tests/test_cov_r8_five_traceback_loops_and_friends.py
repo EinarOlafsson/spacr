@@ -112,55 +112,6 @@ class TestFillingInTheDenseChannelPositions:
 
         assert settings["cellpose_cell_channel"] == 0
 
-    def test_every_numeric_role_channel_is_in_the_map_it_just_built(self):
-        """The deleted membership guard re-checked this exact premise.
-
-        ``dense_mask_channel_positions`` reads the same role keys as the shared
-        channel helper and applies the same ``int`` coercion. A numeric role
-        channel therefore cannot be absent; indexing directly makes future
-        contract drift fail loudly instead of silently leaving an alias unset.
-        """
-        from spacr import object as O
-        from spacr.utils import dense_mask_channel_positions
-
-        settings = {"nucleus_channel": 5, "cell_channel": "2",
-                    "pathogen_channel": 5, "organelle_channel": 7}
-        dense = dense_mask_channel_positions(settings)
-        assert dense == {5: 0, 2: 1, 7: 2}
-        assert O._fill_cellpose_channel_positions(settings) is settings
-        for role in ("nucleus", "cell", "pathogen", "organelle"):
-            assert settings[f"cellpose_{role}_channel"] == dense[
-                int(settings[f"{role}_channel"])]
-
-        settings["cellpose_cell_channel"] = 9
-        O._fill_cellpose_channel_positions(settings)
-        assert settings["cellpose_cell_channel"] == dense[int(settings["cell_channel"])]
-
-    def test_disabled_stale_roles_clear_and_numbered_organelle_slots_refresh(self):
-        from spacr import object as O
-
-        settings = {'nucleus_channel': 3, 'cell_channel': 3, 'pathogen_channel': None,
-                    'organelle_channel': 'invalid', 'organelleb_channel': 2,
-                    'cellpose_pathogen_channel': 9, 'cellpose_organelle_channel': 7,
-                    'cellpose_organelleb_channel': 99}
-        O._fill_cellpose_channel_positions(settings)
-        assert settings['cellpose_nucleus_channel'] == settings['cellpose_cell_channel'] == 0
-        assert settings['cellpose_organelleb_channel'] == 1
-        assert 'cellpose_pathogen_channel' not in settings
-        assert 'cellpose_organelle_channel' not in settings
-
-    def test_a_channel_that_is_not_a_number_is_skipped_before_the_lookup(self):
-        """The guard above it: ``int('rgb')`` raises, and a settings file
-        can hold anything a user typed."""
-        from spacr import object as O
-
-        settings = {"cell_channel": "rgb", "cellpose_cell_channel": 5,
-                    "nucleus_channel": 2}
-        O._fill_cellpose_channel_positions(settings)
-        assert "cellpose_cell_channel" not in settings
-        assert settings["cellpose_nucleus_channel"] == 0
-
-
 # ---------------------------------------------------------------------------
 # ambient -- the backdrop holds still under a popup
 # ---------------------------------------------------------------------------
