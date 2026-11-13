@@ -12186,7 +12186,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "count_data",
-    "line": 5752,
+    "line": 5754,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "_count_files_of"
@@ -14723,7 +14723,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "dataset",
-    "line": 948,
+    "line": 950,
     "module": "spacr.gene_class_images",
     "nested": false,
     "qualname": "run_gene_class_images"
@@ -14732,7 +14732,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "dataset",
-    "line": 956,
+    "line": 958,
     "module": "spacr.gene_class_images",
     "nested": false,
     "qualname": "run_gene_class_images"
@@ -30590,7 +30590,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "mode",
-    "line": 716,
+    "line": 718,
     "module": "spacr.gene_class_images",
     "nested": false,
     "qualname": "train_image_fold"
@@ -30599,7 +30599,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "mode",
-    "line": 877,
+    "line": 879,
     "module": "spacr.gene_class_images",
     "nested": false,
     "qualname": "score_bbbc_run"
@@ -52137,7 +52137,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 5745,
+    "line": 5747,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "_count_files_of"
@@ -52146,7 +52146,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 5842,
+    "line": 5844,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "regression_design_scan"
@@ -58558,7 +58558,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_correlation_threshold",
-    "line": 5934,
+    "line": 5943,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -58578,7 +58578,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_databases",
-    "line": 5907,
+    "line": 5916,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -58598,7 +58598,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_feature_selection",
-    "line": 5931,
+    "line": 5940,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -58607,7 +58607,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_feature_selection",
-    "line": 5932,
+    "line": 5941,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -58645,7 +58645,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_metadata",
-    "line": 5910,
+    "line": 5919,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -58665,7 +58665,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_min_variance",
-    "line": 5937,
+    "line": 5946,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -58685,7 +58685,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_na_cutoff",
-    "line": 5935,
+    "line": 5944,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -58705,7 +58705,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_negative_control",
-    "line": 5919,
+    "line": 5928,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -58725,7 +58725,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_normalization",
-    "line": 5917,
+    "line": 5926,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -58745,7 +58745,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_outlier_cutoff",
-    "line": 5936,
+    "line": 5945,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -58765,7 +58765,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_phenotype_column",
-    "line": 5916,
+    "line": 5925,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -58785,7 +58785,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "profiling_treatment_column",
-    "line": 5914,
+    "line": 5923,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_profile_measurements"
@@ -72698,7 +72698,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "threshold",
-    "line": 5608,
+    "line": 5617,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_write_profiles"
@@ -72707,7 +72707,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "threshold",
-    "line": 5613,
+    "line": 5622,
     "module": "spacr.sp_stats",
     "nested": false,
     "qualname": "_write_profiles"
