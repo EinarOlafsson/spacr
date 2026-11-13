@@ -86,7 +86,7 @@ def _fit_formula_model(df):
 # minimum_cell_simulation
 # ===========================================================================
 
-def test_minimum_cell_simulation_returns_elbow_and_writes_pdf(tmp_path):
+def case_minimum_cell_simulation_returns_elbow_and_writes_pdf(tmp_path):
     """Large tolerance -> the very first sample size clears the threshold."""
     from spacr.ml import minimum_cell_simulation
 
@@ -114,7 +114,7 @@ def test_minimum_cell_simulation_returns_elbow_and_writes_pdf(tmp_path):
     assert plt.get_fignums() == [], "a matplotlib figure came back"
 
 
-def test_minimum_cell_simulation_falls_back_to_last_point(tmp_path):
+def case_minimum_cell_simulation_falls_back_to_last_point(tmp_path):
     """An unreachable tolerance leaves elbow_df empty -> last sample size."""
     from spacr.ml import minimum_cell_simulation
 
@@ -129,7 +129,7 @@ def test_minimum_cell_simulation_falls_back_to_last_point(tmp_path):
     assert int(out) == 32
 
 
-def test_minimum_cell_simulation_min_cells_per_well_overrides_marker(tmp_path,
+def case_minimum_cell_simulation_min_cells_per_well_overrides_marker(tmp_path,
                                                                  monkeypatch):
     """min_cells_per_well moves the plotted marker but not the returned elbow."""
     from spacr.ml import minimum_cell_simulation
@@ -164,7 +164,7 @@ def test_minimum_cell_simulation_min_cells_per_well_overrides_marker(tmp_path,
     assert marks == [15.0], marks
 
 
-def test_minimum_cell_simulation_returns_elbow_when_renderer_refuses(
+def case_minimum_cell_simulation_returns_elbow_when_renderer_refuses(
         tmp_path, monkeypatch):
     """Numerical output does not disappear when no Qt renderer is usable."""
     from spacr import ml as ml_module
@@ -185,7 +185,7 @@ def test_minimum_cell_simulation_returns_elbow_when_renderer_refuses(
     assert not (tmp_path / "results" / "cell_min_threshold.pdf").exists()
 
 
-def test_minimum_cell_simulation_concatenates_multiple_score_files(tmp_path):
+def case_minimum_cell_simulation_concatenates_multiple_score_files(tmp_path):
     """Every score_data file is read and tagged with its own plateID."""
     from spacr.ml import minimum_cell_simulation
 
@@ -202,7 +202,7 @@ def test_minimum_cell_simulation_concatenates_multiple_score_files(tmp_path):
     assert int(out) == 102
 
 
-def test_minimum_cell_simulation_uses_existing_prc_column(tmp_path):
+def case_minimum_cell_simulation_uses_existing_prc_column(tmp_path):
     """A pre-existing prc column is respected instead of being rebuilt."""
     from spacr.ml import minimum_cell_simulation
 
@@ -220,7 +220,7 @@ def test_minimum_cell_simulation_uses_existing_prc_column(tmp_path):
     assert int(out) == 42
 
 
-def test_minimum_cell_simulation_rejects_non_numeric_tolerance(tmp_path):
+def case_minimum_cell_simulation_rejects_non_numeric_tolerance(tmp_path):
     from spacr.ml import minimum_cell_simulation
 
     csv = tmp_path / "scores.csv"
@@ -235,7 +235,7 @@ def test_minimum_cell_simulation_rejects_non_numeric_tolerance(tmp_path):
 # process_model_coefficients
 # ===========================================================================
 
-def test_process_model_coefficients_ols_labels_conditions_and_drops_row():
+def case_process_model_coefficients_ols_labels_conditions_and_drops_row():
     from spacr.ml import process_model_coefficients
 
     df = _coef_dataframe()
@@ -275,7 +275,7 @@ def test_process_model_coefficients_ols_labels_conditions_and_drops_row():
 
 @pytest.mark.parametrize("regression_type",
                          ["glm", "logit", "probit", "quasi_binomial"])
-def test_process_model_coefficients_shared_statsmodels_branch(regression_type):
+def case_process_model_coefficients_shared_statsmodels_branch(regression_type):
     """All statsmodels-style types produce the same 3-column core table."""
     from spacr.ml import process_model_coefficients
 
@@ -292,7 +292,7 @@ def test_process_model_coefficients_shared_statsmodels_branch(regression_type):
     assert not coef_df["feature"].str.contains("row").any()
 
 
-def test_process_model_coefficients_beta_adds_wald_statistics():
+def case_process_model_coefficients_beta_adds_wald_statistics():
     from spacr.ml import process_model_coefficients
     import scipy.stats as st
 
@@ -315,7 +315,7 @@ def test_process_model_coefficients_beta_adds_wald_statistics():
 
 
 @pytest.mark.parametrize("estimator", ["ridge", "lasso"])
-def test_process_model_coefficients_sklearn_branch(estimator):
+def case_process_model_coefficients_sklearn_branch(estimator):
     from sklearn.linear_model import Lasso, Ridge
 
     from spacr.ml import process_model_coefficients
@@ -341,7 +341,7 @@ def test_process_model_coefficients_sklearn_branch(estimator):
     assert coef_df["p_value"].between(0.0, 1.0).all()
 
 
-def test_process_model_coefficients_rejects_unknown_regression_type():
+def case_process_model_coefficients_rejects_unknown_regression_type():
     from spacr.ml import process_model_coefficients
 
     model = _fit_formula_model(_coef_dataframe(seed=4))
@@ -356,41 +356,41 @@ def test_process_model_coefficients_rejects_unknown_regression_type():
 # check_distribution
 # ===========================================================================
 
-def test_check_distribution_binary_returns_logit(capsys):
+def case_check_distribution_binary_returns_logit(capsys):
     from spacr.ml import check_distribution
 
     assert check_distribution(np.array([0, 1, 1, 0, 1])) == "logit"
     assert "binary" in capsys.readouterr().out.lower()
 
 
-def test_check_distribution_strict_interior_returns_beta():
+def case_check_distribution_strict_interior_returns_beta():
     from spacr.ml import check_distribution
 
     y = np.array([0.2, 0.35, 0.5, 0.65, 0.8])
     assert check_distribution(y) == "beta"
 
 
-def test_check_distribution_strict_but_near_zero_returns_quasi_binomial():
+def case_check_distribution_strict_but_near_zero_returns_quasi_binomial():
     from spacr.ml import check_distribution
 
     y = np.array([1e-9, 0.4, 0.5, 0.6])       # inside (0, 1) but within epsilon
     assert check_distribution(y) == "quasi_binomial"
 
 
-def test_check_distribution_inclusive_bounds_returns_quasi_binomial():
+def case_check_distribution_inclusive_bounds_returns_quasi_binomial():
     from spacr.ml import check_distribution
 
     assert check_distribution(np.array([0.0, 0.4, 0.7, 1.0])) == "quasi_binomial"
 
 
-def test_check_distribution_normal_returns_ols():
+def case_check_distribution_normal_returns_ols():
     from spacr.ml import check_distribution
 
     y = np.random.default_rng(11).normal(50.0, 5.0, 300)
     assert check_distribution(y) == "ols"
 
 
-def test_check_distribution_beta_shaped_out_of_range_returns_quasi_binomial():
+def case_check_distribution_beta_shaped_out_of_range_returns_quasi_binomial():
     """Beta(2,2)-shaped data with one out-of-range point hits the KS branch."""
     from spacr.ml import check_distribution
 
@@ -407,7 +407,7 @@ def test_check_distribution_beta_shaped_out_of_range_returns_quasi_binomial():
     assert check_distribution(y) == "quasi_binomial"
 
 
-def test_check_distribution_beta_shaped_with_wide_epsilon_returns_beta():
+def case_check_distribution_beta_shaped_with_wide_epsilon_returns_beta():
     """The KS-beta branch returns 'beta' only when epsilon widens the window.
 
     Reaching the KS test requires a value outside [0, 1], which the default
@@ -422,7 +422,7 @@ def test_check_distribution_beta_shaped_with_wide_epsilon_returns_beta():
     assert check_distribution(y, epsilon=-0.5) == "beta"
 
 
-def test_check_distribution_heavy_tailed_returns_glm():
+def case_check_distribution_heavy_tailed_returns_glm():
     from spacr.ml import check_distribution
 
     y = np.random.default_rng(12).lognormal(6.0, 1.0, 200)
@@ -433,7 +433,7 @@ def test_check_distribution_heavy_tailed_returns_glm():
 # pick_glm_family_and_link
 # ===========================================================================
 
-def test_pick_glm_family_binary_uses_binomial_logit():
+def case_pick_glm_family_binary_uses_binomial_logit():
     import statsmodels.api as sm
 
     from spacr.ml import pick_glm_family_and_link
@@ -443,7 +443,7 @@ def test_pick_glm_family_binary_uses_binomial_logit():
     assert isinstance(fam.link, sm.families.links.Logit)
 
 
-def test_pick_glm_family_strict_proportions_use_binomial_logit(capsys):
+def case_pick_glm_family_strict_proportions_use_binomial_logit(capsys):
     """A proportion inside (0, 1) gets the same family as one that touches 0.
 
     This used to raise "Use BetaModel for this data; GLM is not applicable",
@@ -463,7 +463,7 @@ def test_pick_glm_family_strict_proportions_use_binomial_logit(capsys):
     assert "consider regression_type='beta'" in capsys.readouterr().out
 
 
-def test_pick_glm_family_bounded_with_zero_uses_binomial_logit():
+def case_pick_glm_family_bounded_with_zero_uses_binomial_logit():
     import statsmodels.api as sm
 
     from spacr.ml import pick_glm_family_and_link
@@ -473,7 +473,7 @@ def test_pick_glm_family_bounded_with_zero_uses_binomial_logit():
     assert isinstance(fam.link, sm.families.links.Logit)
 
 
-def test_pick_glm_family_normal_uses_gaussian_identity():
+def case_pick_glm_family_normal_uses_gaussian_identity():
     import statsmodels.api as sm
 
     from spacr.ml import pick_glm_family_and_link
@@ -484,7 +484,7 @@ def test_pick_glm_family_normal_uses_gaussian_identity():
     assert isinstance(fam.link, sm.families.links.Identity)
 
 
-def test_pick_glm_family_counts_use_poisson_log():
+def case_pick_glm_family_counts_use_poisson_log():
     import statsmodels.api as sm
 
     from spacr.ml import pick_glm_family_and_link
@@ -495,7 +495,7 @@ def test_pick_glm_family_counts_use_poisson_log():
     assert isinstance(fam.link, sm.families.links.Log)
 
 
-def test_pick_glm_family_inverse_gaussian_sample():
+def case_pick_glm_family_inverse_gaussian_sample():
     import statsmodels.api as sm
     from scipy.stats import invgauss
 
@@ -509,7 +509,7 @@ def test_pick_glm_family_inverse_gaussian_sample():
     assert isinstance(fam.link, sm.families.links.Log)
 
 
-def test_pick_glm_family_overdispersed_uses_negative_binomial():
+def case_pick_glm_family_overdispersed_uses_negative_binomial():
     import statsmodels.api as sm
 
     from spacr.ml import pick_glm_family_and_link
@@ -521,7 +521,7 @@ def test_pick_glm_family_overdispersed_uses_negative_binomial():
     assert isinstance(fam.link, sm.families.links.Log)
 
 
-def test_pick_glm_family_negative_values_fall_back_to_gaussian():
+def case_pick_glm_family_negative_values_fall_back_to_gaussian():
     import statsmodels.api as sm
 
     from spacr.ml import pick_glm_family_and_link
@@ -582,3 +582,58 @@ def test_half_a_band_is_not_drawn(qapp):
                     if isinstance(item, pg.FillBetweenItem)]
     finally:
         plot.deleteLater()
+
+
+from tests.case_table import run_cases  # noqa: E402
+
+def test_check_distribution_cases(request, subtests):
+    """Behaviour cases for: check_distribution."""
+    ran = run_cases(request, subtests, [
+        case_check_distribution_binary_returns_logit,
+        case_check_distribution_strict_interior_returns_beta,
+        case_check_distribution_strict_but_near_zero_returns_quasi_binomial,
+        case_check_distribution_inclusive_bounds_returns_quasi_binomial,
+        case_check_distribution_normal_returns_ols,
+        case_check_distribution_beta_shaped_out_of_range_returns_quasi_binomial,
+        case_check_distribution_beta_shaped_with_wide_epsilon_returns_beta,
+        case_check_distribution_heavy_tailed_returns_glm,
+    ])
+    assert ran >= 8
+
+def test_pick_glm_family_and_link_cases(request, subtests):
+    """Behaviour cases for: pick_glm_family_and_link."""
+    ran = run_cases(request, subtests, [
+        case_pick_glm_family_binary_uses_binomial_logit,
+        case_pick_glm_family_strict_proportions_use_binomial_logit,
+        case_pick_glm_family_bounded_with_zero_uses_binomial_logit,
+        case_pick_glm_family_normal_uses_gaussian_identity,
+        case_pick_glm_family_counts_use_poisson_log,
+        case_pick_glm_family_inverse_gaussian_sample,
+        case_pick_glm_family_overdispersed_uses_negative_binomial,
+        case_pick_glm_family_negative_values_fall_back_to_gaussian,
+    ])
+    assert ran >= 8
+
+def test_minimum_cell_simulation_cases(request, subtests):
+    """Behaviour cases for: minimum_cell_simulation."""
+    ran = run_cases(request, subtests, [
+        case_minimum_cell_simulation_returns_elbow_and_writes_pdf,
+        case_minimum_cell_simulation_falls_back_to_last_point,
+        case_minimum_cell_simulation_min_cells_per_well_overrides_marker,
+        case_minimum_cell_simulation_concatenates_multiple_score_files,
+        case_minimum_cell_simulation_uses_existing_prc_column,
+        case_minimum_cell_simulation_rejects_non_numeric_tolerance,
+    ])
+    assert ran >= 6
+
+def test_process_model_coefficients_cases(request, subtests):
+    """Behaviour cases for: behaviour, process_model_coefficients."""
+    ran = run_cases(request, subtests, [
+        case_minimum_cell_simulation_returns_elbow_when_renderer_refuses,
+        case_process_model_coefficients_ols_labels_conditions_and_drops_row,
+        case_process_model_coefficients_shared_statsmodels_branch,
+        case_process_model_coefficients_beta_adds_wald_statistics,
+        case_process_model_coefficients_sklearn_branch,
+        case_process_model_coefficients_rejects_unknown_regression_type,
+    ])
+    assert ran >= 6

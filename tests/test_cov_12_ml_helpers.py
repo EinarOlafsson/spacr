@@ -76,7 +76,7 @@ def test_a_probability_left_unset_is_not_checked_against_the_unit_interval():
 # noticing which figures a helper wrote
 # ---------------------------------------------------------------------------
 
-def test_a_directory_named_like_a_figure_is_not_stamped(tmp_path):
+def case_a_directory_named_like_a_figure_is_not_stamped(tmp_path):
     """Only real files are stamped, so a folder called ``x.png`` is skipped.
 
     The stamps decide which figures get copied into the run folder; treating a
@@ -90,7 +90,7 @@ def test_a_directory_named_like_a_figure_is_not_stamped(tmp_path):
     assert list(stamps) == [str(real)]
 
 
-def test_a_figure_that_cannot_be_stat_ed_is_skipped_not_fatal(monkeypatch,
+def case_a_figure_that_cannot_be_stat_ed_is_skipped_not_fatal(monkeypatch,
                                                               tmp_path):
     """An entry whose stat fails drops out rather than ending the sweep.
 
@@ -120,7 +120,7 @@ def test_a_figure_that_cannot_be_stat_ed_is_skipped_not_fatal(monkeypatch,
     assert list(stamps) == [str(good)]
 
 
-def test_a_folder_that_cannot_be_listed_is_skipped(tmp_path):
+def case_a_folder_that_cannot_be_listed_is_skipped(tmp_path):
     """A missing figure folder contributes no stamps and no exception.
 
     The screen-level folders are derived from settings, so one of them not
@@ -267,3 +267,15 @@ def test_the_absorbed_summary_prints_as_the_text_it_reports():
     """
     summary = absorbed_results().summary()
     assert str(summary) == summary.as_text()
+
+
+from tests.case_table import run_cases  # noqa: E402
+
+def test_figure_stamps_cases(request, subtests):
+    """Behaviour cases for: _figure_stamps."""
+    ran = run_cases(request, subtests, [
+        case_a_directory_named_like_a_figure_is_not_stamped,
+        case_a_figure_that_cannot_be_stat_ed_is_skipped_not_fatal,
+        case_a_folder_that_cannot_be_listed_is_skipped,
+    ])
+    assert ran >= 3

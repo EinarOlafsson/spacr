@@ -97,7 +97,7 @@ def _mixed_model_frame(n_plates=4, seed=0):
 # QuasiBinomial
 # ---------------------------------------------------------------------------
 
-def test_quasibinomial_variance_method_scales_binomial_variance():
+def case_quasibinomial_variance_method_scales_binomial_variance():
     """The overridden method itself multiplies mu*(1-mu) by the dispersion.
 
     It has to be invoked unbound because statsmodels' ``Binomial.__init__``
@@ -119,7 +119,7 @@ def test_quasibinomial_variance_method_scales_binomial_variance():
     assert np.allclose(plain, mu * (1.0 - mu))
 
 
-def test_quasibinomial_family_applies_dispersion_when_called_normally():
+def case_quasibinomial_family_applies_dispersion_when_called_normally():
     """A dispersion of 3.0 must triple the binomial variance."""
     from spacr.ml import QuasiBinomial
 
@@ -148,7 +148,7 @@ def test_quasibinomial_variance_wrapper_scales_deriv_and_delegates_attributes():
         fam.variance.not_a_varfunc_attribute
 
 
-def test_quasibinomial_survives_pickle_and_deepcopy():
+def case_quasibinomial_survives_pickle_and_deepcopy():
     """statsmodels results hold on to the family, and those get pickled, so
     the variance wrapper must not turn copy/pickle's __setstate__ probe into
     a KeyError on a half-built instance."""
@@ -198,7 +198,7 @@ def test_quasibinomial_dispersion_one_matches_plain_binomial_glm():
 # calculate_p_values — pinv fallback
 # ---------------------------------------------------------------------------
 
-def test_calculate_p_values_uses_pinv_when_xtx_is_singular():
+def case_calculate_p_values_uses_pinv_when_xtx_is_singular():
     """Duplicated design columns make X.T @ X exactly singular; the helper
     must fall back to the pseudo-inverse instead of raising."""
     from sklearn.linear_model import LinearRegression
@@ -227,7 +227,7 @@ def test_calculate_p_values_uses_pinv_when_xtx_is_singular():
 # perform_mixed_model
 # ---------------------------------------------------------------------------
 
-def test_perform_mixed_model_requires_groups():
+def case_perform_mixed_model_requires_groups():
     from spacr.ml import perform_mixed_model
 
     X = pd.DataFrame({"a": [1.0, 2.0, 3.0], "b": [0.5, 0.1, 0.9]})
@@ -236,7 +236,7 @@ def test_perform_mixed_model_requires_groups():
         perform_mixed_model(y, X, None)
 
 
-def test_perform_mixed_model_low_vif_fits_plain_mixedlm(capsys):
+def case_perform_mixed_model_low_vif_fits_plain_mixedlm(capsys):
     """Uncorrelated fixed effects -> no ridge adjustment, and the recovered
     slope on the informative column is close to the simulated 1.5."""
     from spacr.ml import perform_mixed_model
@@ -259,7 +259,7 @@ def test_perform_mixed_model_low_vif_fits_plain_mixedlm(capsys):
     assert abs(float(result.fe_params["b"])) < 0.25
 
 
-def test_perform_mixed_model_high_vif_reports_and_fits_the_given_design(capsys):
+def case_perform_mixed_model_high_vif_reports_and_fits_the_given_design(capsys):
     """Near-duplicate columns are REPORTED; the design is fitted unaltered.
 
     This test used to assert the opposite - that the fixed effects come back
@@ -295,7 +295,7 @@ def test_perform_mixed_model_high_vif_reports_and_fits_the_given_design(capsys):
     assert abs(float(result.fe_params.sum()) - 1.5) < 0.25
 
 
-def test_perform_mixed_model_refuses_a_penalty(capsys):
+def case_perform_mixed_model_refuses_a_penalty(capsys):
     """alpha named a "ridge fallback" that was not ridge; it is refused by name."""
     from spacr.ml import perform_mixed_model
 
@@ -305,7 +305,7 @@ def test_perform_mixed_model_refuses_a_penalty(capsys):
         perform_mixed_model(y, X, np.array([0, 0, 1, 1]), alpha=1.0)
 
 
-def test_perform_mixed_model_refuses_misaligned_groups():
+def case_perform_mixed_model_refuses_misaligned_groups():
     """A groups vector shorter than the design would relabel every later row."""
     from spacr.ml import perform_mixed_model
 
@@ -315,7 +315,7 @@ def test_perform_mixed_model_refuses_misaligned_groups():
         perform_mixed_model(y, X, np.array([0, 0, 1]))
 
 
-def test_perform_mixed_model_refuses_a_rank_deficient_design():
+def case_perform_mixed_model_refuses_a_rank_deficient_design():
     """An aliased column is named, instead of LinAlgError from inside statsmodels."""
     from spacr.ml import perform_mixed_model
 
@@ -332,7 +332,7 @@ def test_perform_mixed_model_refuses_a_rank_deficient_design():
 # fit_mixed_model
 # ---------------------------------------------------------------------------
 
-def test_fit_mixed_model_returns_coefficients_and_writes_histogram(tmp_path):
+def case_fit_mixed_model_returns_coefficients_and_writes_histogram(tmp_path):
     """CONTRACT CHANGED BY INSTRUCTION 132 (maintainer, 2026-08-17).
 
     This test used to assert that ONE fitted design carried both
@@ -419,7 +419,7 @@ def test_fit_mixed_model_returns_coefficients_and_writes_histogram(tmp_path):
     assert {"rowID Var", "columnID Var", "Group Var"} <= feats
 
 
-def test_fit_mixed_model_full_formula_adds_row_and_column_fixed_effects():
+def case_fit_mixed_model_full_formula_adds_row_and_column_fixed_effects():
     """The default formula puts rowID/columnID in the fixed effects too."""
     from spacr.ml import TERM_BLUP, fit_mixed_model, prepare_formula
 
@@ -442,7 +442,7 @@ def test_fit_mixed_model_full_formula_adds_row_and_column_fixed_effects():
     assert np.isfinite(a)
 
 
-def test_fit_mixed_model_refuses_a_frame_that_cannot_nest():
+def case_fit_mixed_model_refuses_a_frame_that_cannot_nest():
     """One guide per gene leaves the guide variance confounded with the residual.
 
     Instruction 132: "If MixedLM cannot express the nesting on this data, say
@@ -461,7 +461,7 @@ def test_fit_mixed_model_refuses_a_frame_that_cannot_nest():
         fit_mixed_model(df, formula, dst=None)
 
 
-def test_fit_mixed_model_refuses_a_frame_with_no_gene_column():
+def case_fit_mixed_model_refuses_a_frame_with_no_gene_column():
     import pytest
 
     from spacr.ml import fit_mixed_model, prepare_formula
@@ -477,7 +477,7 @@ def test_fit_mixed_model_refuses_a_frame_with_no_gene_column():
 # check_and_clean_data
 # ---------------------------------------------------------------------------
 
-def test_check_and_clean_data_drops_rows_with_missing_values(capsys):
+def case_check_and_clean_data_drops_rows_with_missing_values(capsys):
     from spacr.ml import check_and_clean_data
 
     df = _well_frame()
@@ -497,7 +497,7 @@ def test_check_and_clean_data_drops_rows_with_missing_values(capsys):
     assert np.allclose(out["gene_fraction"].values, expect.values)
 
 
-def test_check_and_clean_data_flags_rank_deficiency(capsys):
+def case_check_and_clean_data_flags_rank_deficiency(capsys):
     """A constant (all-zero) dependent variable makes the 2-column matrix
     rank deficient; the warning fires and the frame still comes back whole."""
     from spacr.ml import check_and_clean_data
@@ -518,7 +518,7 @@ def test_check_and_clean_data_flags_rank_deficiency(capsys):
     assert len(out) == len(df)
 
 
-def test_check_and_clean_data_survives_linalgerror_from_vif(monkeypatch, capsys):
+def case_check_and_clean_data_survives_linalgerror_from_vif(monkeypatch, capsys):
     """If statsmodels cannot compute the VIF the helper bails out of the
     collinearity check and still returns a usable frame."""
     from spacr import ml as ml_mod
@@ -540,7 +540,7 @@ def test_check_and_clean_data_survives_linalgerror_from_vif(monkeypatch, capsys)
     assert np.allclose(out["fraction"].values, df["fraction"].values)
 
 
-def test_check_and_clean_data_high_vif_keeps_fraction_column(capsys):
+def case_check_and_clean_data_high_vif_keeps_fraction_column(capsys):
     """A dependent variable proportional to fraction is perfectly collinear
     (VIF = inf). The collinearity is reported, but neither column may be
     dropped: the regression formula needs both, and dropping 'fraction' used
@@ -561,7 +561,7 @@ def test_check_and_clean_data_high_vif_keeps_fraction_column(capsys):
     assert np.allclose(out["fraction"].values, df["fraction"].values)
 
 
-def test_check_and_clean_data_near_collinear_dependent_variable(capsys):
+def case_check_and_clean_data_near_collinear_dependent_variable(capsys):
     """Near- (but not exactly-) collinear columns give a huge finite VIF and
     take the same keep-and-warn path without the rank-deficiency branch."""
     from spacr.ml import check_and_clean_data
@@ -581,3 +581,37 @@ def test_check_and_clean_data_near_collinear_dependent_variable(capsys):
     assert "prediction" in out.columns
     assert "gene_fraction" in out.columns
     assert len(out) == len(df)
+
+
+from tests.case_table import run_cases  # noqa: E402
+
+def test_perform_mixed_model_cases(request, subtests):
+    """Behaviour cases for: QuasiBinomial, calculate_p_values, perform_mixed_model."""
+    ran = run_cases(request, subtests, [
+        case_quasibinomial_variance_method_scales_binomial_variance,
+        case_quasibinomial_family_applies_dispersion_when_called_normally,
+        case_quasibinomial_survives_pickle_and_deepcopy,
+        case_calculate_p_values_uses_pinv_when_xtx_is_singular,
+        case_perform_mixed_model_requires_groups,
+        case_perform_mixed_model_low_vif_fits_plain_mixedlm,
+        case_perform_mixed_model_high_vif_reports_and_fits_the_given_design,
+        case_perform_mixed_model_refuses_a_penalty,
+        case_perform_mixed_model_refuses_misaligned_groups,
+        case_perform_mixed_model_refuses_a_rank_deficient_design,
+    ])
+    assert ran >= 10
+
+def test_check_and_clean_data_cases(request, subtests):
+    """Behaviour cases for: check_and_clean_data, prepare_formula."""
+    ran = run_cases(request, subtests, [
+        case_fit_mixed_model_returns_coefficients_and_writes_histogram,
+        case_fit_mixed_model_full_formula_adds_row_and_column_fixed_effects,
+        case_fit_mixed_model_refuses_a_frame_that_cannot_nest,
+        case_fit_mixed_model_refuses_a_frame_with_no_gene_column,
+        case_check_and_clean_data_drops_rows_with_missing_values,
+        case_check_and_clean_data_flags_rank_deficiency,
+        case_check_and_clean_data_survives_linalgerror_from_vif,
+        case_check_and_clean_data_high_vif_keeps_fraction_column,
+        case_check_and_clean_data_near_collinear_dependent_variable,
+    ])
+    assert ran >= 9

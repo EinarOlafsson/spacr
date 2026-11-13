@@ -221,7 +221,7 @@ def _row_labels(plot):
             for _value, text in group}
 
 
-def test_shap_analysis_returns_closed_summary_figure():
+def case_shap_analysis_returns_closed_summary_figure():
     """shap_analysis explains X_test and hands back a closed summary figure
     whose y ticks are the explained feature names."""
     from sklearn.linear_model import LogisticRegression
@@ -249,7 +249,7 @@ def test_shap_analysis_returns_closed_summary_figure():
     plot.deleteLater()
 
 
-def test_shap_analysis_tree_model_labels_every_feature():
+def case_shap_analysis_tree_model_labels_every_feature():
     """A tree model routes through TreeExplainer; the returned figure still
     carries one beeswarm row per feature."""
     from sklearn.ensemble import RandomForestRegressor
@@ -269,7 +269,7 @@ def test_shap_analysis_tree_model_labels_every_feature():
     plot.deleteLater()
 
 
-def test_shap_analysis_tree_classifier_selects_the_positive_class():
+def case_shap_analysis_tree_classifier_selects_the_positive_class():
     """A binary tree explainer's output axis is not an interaction matrix."""
     from sklearn.ensemble import RandomForestClassifier
 
@@ -293,7 +293,7 @@ def test_shap_analysis_tree_classifier_selects_the_positive_class():
 # find_optimal_threshold
 # ===========================================================================
 
-def test_find_optimal_threshold_picks_the_f1_maximising_cut():
+def case_find_optimal_threshold_picks_the_f1_maximising_cut():
     """On a cleanly separable problem the returned threshold really is the
     F1 optimum over the precision-recall sweep."""
     from sklearn.metrics import f1_score
@@ -309,7 +309,7 @@ def test_find_optimal_threshold_picks_the_f1_maximising_cut():
     assert f1_score(y_true, (proba >= t).astype(int)) == pytest.approx(1.0)
 
 
-def test_find_optimal_threshold_ignores_undefined_f1_points():
+def case_find_optimal_threshold_ignores_undefined_f1_points():
     """Precision-recall sweeps can contain points where precision and recall
     are both 0; the F1 there is undefined and must not win the argmax."""
     from sklearn.metrics import f1_score
@@ -346,7 +346,7 @@ def _similarity_frame(rng, n=24, constant_feature=False):
     return pd.DataFrame(data)
 
 
-def test_calculate_similarity_regularises_a_singular_covariance():
+def case_calculate_similarity_regularises_a_singular_covariance():
     """A zero-variance feature makes np.cov singular; the LinAlgError branch
     regularises the diagonal so the Mahalanobis columns still come out finite."""
     from sklearn.preprocessing import StandardScaler
@@ -372,7 +372,7 @@ def test_calculate_similarity_regularises_a_singular_covariance():
         assert (out[col].to_numpy() >= 0).all()
 
 
-def test_calculate_similarity_swallows_a_failing_metric(monkeypatch):
+def case_calculate_similarity_swallows_a_failing_metric(monkeypatch):
     """safe_similarity turns a raising distance function into NaN without
     taking the other metrics down with it."""
     rng = np.random.default_rng(8)
@@ -440,7 +440,7 @@ def test_calculate_similarity_reports_and_returns_on_assignment_failure(capsys):
     assert sim_cols == ["similarity_to_pos_euclidean", "similarity_to_neg_euclidean"]
 
 
-def test_calculate_similarity_accepts_list_valued_controls():
+def case_calculate_similarity_accepts_list_valued_controls():
     """List controls average across several wells; the resulting reference is
     the mean of the pooled subset."""
     from scipy.spatial.distance import euclidean as _euc
@@ -478,7 +478,7 @@ def test_calculate_similarity_accepts_list_valued_controls():
 # this module comfortably fast.
 
 
-def test_interperate_vision_model_maps_legacy_score_columns(tmp_path, monkeypatch, gallery):
+def case_interperate_vision_model_maps_legacy_score_columns(tmp_path, monkeypatch, gallery):
     """Legacy row/column names map to the canonical object-join columns.
 
     A missing ``object_label`` is also filled from ``object``.
@@ -532,7 +532,7 @@ def test_interperate_vision_model_maps_legacy_score_columns(tmp_path, monkeypatc
     assert not _polar_axes(), "a matplotlib figure came back"
 
 
-def test_interperate_vision_model_keeps_canonical_score_columns(tmp_path, monkeypatch, gallery):
+def case_interperate_vision_model_keeps_canonical_score_columns(tmp_path, monkeypatch, gallery):
     """When the scores CSV already carries rowID/columnID/object_label none of
     the legacy fallbacks fire and the merge still lines up 1:1."""
     from spacr.ml import interperate_vision_model
@@ -572,7 +572,7 @@ def test_interperate_vision_model_keeps_canonical_score_columns(tmp_path, monkey
     assert all("Top 2 Features" in t for t in titles), titles
 
 
-def test_interperate_vision_model_shap_without_subsampling(tmp_path, monkeypatch, gallery):
+def case_interperate_vision_model_shap_without_subsampling(tmp_path, monkeypatch, gallery):
     """shap_sample=False explains every merged object rather than a 1% draw,
     and the SHAP matrix is aggregated into compartment/channel radar plots."""
     from spacr.ml import interperate_vision_model
@@ -618,7 +618,7 @@ def test_interperate_vision_model_shap_without_subsampling(tmp_path, monkeypatch
     assert not _polar_axes(), "the matplotlib radar came back"
 
 
-def test_interperate_vision_model_shap_sample_on_a_small_plate(tmp_path, monkeypatch):
+def case_interperate_vision_model_shap_sample_on_a_small_plate(tmp_path, monkeypatch):
     """shap_sample must degrade gracefully when there are <100 objects."""
     from spacr.ml import interperate_vision_model
 
@@ -653,7 +653,7 @@ def test_interperate_vision_model_shap_sample_on_a_small_plate(tmp_path, monkeyp
     assert len(merged) == len(grid)
 
 
-def test_interperate_vision_model_none_settings_uses_defaults(tmp_path, monkeypatch):
+def case_interperate_vision_model_none_settings_uses_defaults(tmp_path, monkeypatch):
     """Passing None falls back to set_interperate_vision_model_defaults; the
     placeholder 'path' src is snapshotted before the run blows up on it."""
     from spacr.ml import interperate_vision_model
@@ -680,7 +680,7 @@ def test_interperate_vision_model_none_settings_uses_defaults(tmp_path, monkeypa
     assert defaults["top_features"] == "30"
 
 
-def test_interperate_vision_model_save_writes_importance_tables(tmp_path, monkeypatch):
+def case_interperate_vision_model_save_writes_importance_tables(tmp_path, monkeypatch):
     """With save=True both importance tables are written under ``<src>/results``."""
     from spacr.ml import interperate_vision_model
 
@@ -724,7 +724,7 @@ def test_interperate_vision_model_save_writes_importance_tables(tmp_path, monkey
     }
 
 
-def test_interperate_vision_model_save_true_writes_a_real_csv(tmp_path, monkeypatch):
+def case_interperate_vision_model_save_true_writes_a_real_csv(tmp_path, monkeypatch):
     """settings['save']=True must persist the importance table to disk."""
     from spacr.ml import interperate_vision_model
 
@@ -759,7 +759,7 @@ def test_interperate_vision_model_save_true_writes_a_real_csv(tmp_path, monkeypa
     assert hits, "save=True should have written feature_importance.csv"
 
 
-def test_interperate_vision_model_permutation_without_feature_importance(
+def case_interperate_vision_model_permutation_without_feature_importance(
         tmp_path, monkeypatch):
     """permutation_importance must be usable on its own."""
     from spacr.ml import interperate_vision_model
@@ -794,7 +794,7 @@ def test_interperate_vision_model_permutation_without_feature_importance(
     assert len(merged) == len(grid)
 
 
-def test_interperate_vision_model_shap_without_feature_importance(
+def case_interperate_vision_model_shap_without_feature_importance(
         tmp_path, monkeypatch):
     """shap must be usable without also asking for RF feature importance."""
     from spacr.ml import interperate_vision_model
@@ -834,7 +834,7 @@ def test_interperate_vision_model_shap_without_feature_importance(
 # End-to-end: real measurements.db through io._read_and_merge_data
 # ---------------------------------------------------------------------------
 
-def test_interperate_vision_model_end_to_end_real_db(tmp_path, capsys, gallery):
+def case_interperate_vision_model_end_to_end_real_db(tmp_path, capsys, gallery):
     """Feature importance + permutation importance + SHAP all run against a
     real sqlite measurements DB, and the SHAP contributions are folded into
     compartment/channel radar plots covering every channel token."""
@@ -916,3 +916,36 @@ def test_interperate_vision_model_end_to_end_real_db(tmp_path, capsys, gallery):
         frame = pd.read_csv(os.path.join(folder, "data.csv"))
         assert len(frame) == len(set(frame["name"])), folder
     assert not _polar_axes(), "the matplotlib radar came back"
+
+
+from tests.case_table import run_cases  # noqa: E402
+
+def test_behaviour_cases(request, subtests):
+    """Behaviour cases for: behaviour."""
+    ran = run_cases(request, subtests, [
+        case_calculate_similarity_swallows_a_failing_metric,
+        case_interperate_vision_model_maps_legacy_score_columns,
+        case_interperate_vision_model_keeps_canonical_score_columns,
+        case_interperate_vision_model_shap_without_subsampling,
+        case_interperate_vision_model_shap_sample_on_a_small_plate,
+        case_interperate_vision_model_none_settings_uses_defaults,
+        case_interperate_vision_model_save_writes_importance_tables,
+        case_interperate_vision_model_save_true_writes_a_real_csv,
+        case_interperate_vision_model_permutation_without_feature_importance,
+        case_interperate_vision_model_shap_without_feature_importance,
+        case_interperate_vision_model_end_to_end_real_db,
+    ])
+    assert ran >= 11
+
+def test_shap_analysis_cases(request, subtests):
+    """Behaviour cases for: _calculate_similarity, find_optimal_threshold, shap_analysis."""
+    ran = run_cases(request, subtests, [
+        case_shap_analysis_returns_closed_summary_figure,
+        case_shap_analysis_tree_model_labels_every_feature,
+        case_shap_analysis_tree_classifier_selects_the_positive_class,
+        case_find_optimal_threshold_picks_the_f1_maximising_cut,
+        case_find_optimal_threshold_ignores_undefined_f1_points,
+        case_calculate_similarity_regularises_a_singular_covariance,
+        case_calculate_similarity_accepts_list_valued_controls,
+    ])
+    assert ran >= 7
