@@ -26,17 +26,18 @@ def _round_trip(plate, row, column, field, obj, object_type=None):
     return key, parsed
 
 
-@pytest.mark.parametrize("role", ORGANELLE_ROLES)
-def test_every_keyable_organelle_role_round_trips(role):
+def test_every_keyable_organelle_role_round_trips(subtests):
     """Every role the KEY vocabulary admits survives a round trip.
 
-    Parametrized over ``schema.ORGANELLE_ROLES`` rather than over
-    ``range(MAX_ORGANELLES)`` on purpose -- see
-    :func:`test_the_keyable_roles_are_fewer_than_the_slots_offered`, which
-    records that those two numbers do not currently agree.
+    Walks ``schema.ORGANELLE_ROLES`` rather than ``range(MAX_ORGANELLES)``
+    on purpose -- the vocabulary is what a key can carry, and
+    :func:`test_the_keyable_roles_are_exactly_the_slots_offered` pins that
+    the two agree. One subtest per role, so a broken role is named.
     """
-    key, parsed = _round_trip("plate1", 1, 1, 2, 7, object_type=role)
-    assert parsed.objectType == role, (role, key)
+    for role in ORGANELLE_ROLES:
+        with subtests.test(role=role):
+            key, parsed = _round_trip("plate1", 1, 1, 2, 7, object_type=role)
+            assert parsed.objectType == role, (role, key)
 
 
 def test_the_keyable_roles_are_exactly_the_slots_offered():
