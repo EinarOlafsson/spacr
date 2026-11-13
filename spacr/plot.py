@@ -4875,7 +4875,9 @@ def _plot_merged_plot(overlay, image, stack, mask_dims, figuresize, overlayed_im
             channel_image_rgb = np.dstack((channel_image_normalized, channel_image_normalized, channel_image_normalized))
 
             for outline, color in zip(outlines, outline_colors):
-                for j in np.unique(outline)[1:]:
+                _labels_0 = np.unique(outline)
+                _labels_0 = _labels_0[_labels_0 != 0]
+                for j in _labels_0:
                     channel_image_rgb[outline == j] = mpl.colors.to_rgb(color)
 
             ax[v + ax_index].imshow(channel_image_rgb)
@@ -4891,7 +4893,8 @@ def _plot_merged_plot(overlay, image, stack, mask_dims, figuresize, overlayed_im
             ax[i + image.shape[-1] + ax_index].set_title(
                 f'{cls} - {n_obj} object' + ('' if n_obj == 1 else 's'))
             if print_object_number:
-                unique_objects = np.unique(mask)[1:]
+                unique_objects = np.unique(mask)
+                unique_objects = unique_objects[unique_objects != 0]
                 for obj in unique_objects:
                     cy, cx = ndi.center_of_mass(mask == obj)
                     ax[i + image.shape[-1] + ax_index].text(cx, cy, str(obj), color='white', fontsize=8, ha='center', va='center')
