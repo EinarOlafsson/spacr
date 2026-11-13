@@ -711,6 +711,7 @@ class ModelZooScreen(QWidget):
         self._scorecard.verticalHeader().setSectionResizeMode(
             QHeaderView.ResizeToContents)
         self._scorecard.setStyleSheet(_scorecard_qss())
+        install_sorting(self._scorecard)
         self._scorecard.hide()
 
         listing = QWidget(self)
@@ -1373,7 +1374,7 @@ class ModelZooScreen(QWidget):
             for c, text in enumerate(row):
                 item = table.item(r, c)
                 if item is None:
-                    item = QTableWidgetItem()
+                    item = table_item()
                     item.setFlags(Qt.ItemIsEnabled)
                     table.setItem(r, c, item)
                 item.setText(str(text))

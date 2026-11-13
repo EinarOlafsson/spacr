@@ -4305,32 +4305,40 @@ def _etest_figure(hits: pd.DataFrame, path: str) -> str:
     import matplotlib
 
     matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
+    from matplotlib.figure import Figure
+
+    from .figures.bundle import _register_figure_data
+    from .figures.style import figure_style, resolve_label_ground
+    from .plot import _checked_savefig
 
     order = list(dict.fromkeys(hits["n"].astype(str)))
-    figure, ax = plt.subplots(figsize=(6.4, 3.6))
-    width = 0.8 / max(hits["distance"].nunique(), 1)
-    colours = {"euclidean": "#1f6f8b", "sqeuclidean": "#3a7ca5"}
-    rng = np.random.default_rng(0)
-    for k, (metric, d) in enumerate(hits.groupby("distance", sort=False)):
-        x = np.array([order.index(v) for v in d["n"].astype(str)]) + (k - 0.5) * width
-        means = d.groupby("n", sort=False)["hit_pct"].mean().reindex(order)
-        ax.bar(np.arange(len(order)) + (k - 0.5) * width, means.to_numpy(), width,
-               color=colours.get(metric, "#555555"), alpha=0.6, label=f"genes called, {metric}",
-               hatch="" if k == 0 else "..")
-        ax.scatter(x + rng.uniform(-width / 4, width / 4, len(x)), d["hit_pct"], s=10,
-                   color="#0b2545", alpha=0.6)
-    control = hits.groupby("n", sort=False)["nt_pseudo_p05_pct"].mean().reindex(order)
-    ax.plot(np.arange(len(order)), control.to_numpy(), color="#8d99ae", marker="s",
-            label="held-out control pseudo-genes, p < 0.05")
-    ax.set_xticks(np.arange(len(order)))
-    ax.set_xticklabels(order)
-    ax.set_xlabel("cells per gene (at most)")
-    ax.set_ylabel("% of genes")
-    ax.legend(fontsize=7, loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False)
-    figure.tight_layout()
-    figure.savefig(path, dpi=150, bbox_inches="tight")
-    plt.close(figure)
+    with figure_style("print"):
+        figure = Figure(figsize=(6.4, 3.6))
+        ax = figure.subplots()
+        width = 0.8 / max(hits["distance"].nunique(), 1)
+        colours = {"euclidean": "#1f6f8b", "sqeuclidean": "#3a7ca5"}
+        rng = np.random.default_rng(0)
+        for k, (metric, d) in enumerate(hits.groupby("distance", sort=False)):
+            x = np.array([order.index(v) for v in d["n"].astype(str)]) + (k - 0.5) * width
+            means = d.groupby("n", sort=False)["hit_pct"].mean().reindex(order)
+            ax.bar(np.arange(len(order)) + (k - 0.5) * width, means.to_numpy(), width,
+                   color=colours.get(metric, "#555555"), alpha=0.6, label=f"genes called, {metric}",
+                   hatch="" if k == 0 else "..")
+            ax.scatter(x + rng.uniform(-width / 4, width / 4, len(x)), d["hit_pct"], s=10,
+                       color="#0b2545", alpha=0.6)
+        control = hits.groupby("n", sort=False)["nt_pseudo_p05_pct"].mean().reindex(order)
+        ax.plot(np.arange(len(order)), control.to_numpy(), color="#8d99ae", marker="s",
+                label="held-out control pseudo-genes, p < 0.05")
+        ax.set_xticks(np.arange(len(order)))
+        ax.set_xticklabels(order)
+        ax.set_xlabel("cells per gene (at most)")
+        ax.set_ylabel("% of genes")
+        ax.legend(fontsize=7, loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False)
+        _register_figure_data(figure, lambda: hits.assign(n=hits["n"].astype(str)), x="n", y="hit_pct",
+                              hue="distance", kind="bar", order=order)
+        figure.tight_layout()
+        _checked_savefig(figure, path, dpi=150, bbox_inches="tight",
+                         facecolor=resolve_label_ground("print"))
     return path
 
 
@@ -4575,13 +4583,16 @@ def power_retrieval(arms: Mapping[str, Tuple[Sequence[str], np.ndarray]], refere
         hit = scored.pivot(index="gene", columns="arm", values="top10_hit")
         for arm in list(arms)[1:]:
             both = ap[[first, arm]].dropna().index
-            result = wilcoxon(ap.loc[both, arm], ap.loc[both, first])
+            # Identical APs on every gene are no evidence of a difference: p = 1, not an
+            # exception from SciPy.
+            differs = bool((ap.loc[both, arm] != ap.loc[both, first]).any())
+            p_ap = float(wilcoxon(ap.loc[both, arm], ap.loc[both, first]).pvalue) if differs else 1.0
             mine = hit.loc[both, arm].astype(bool)
             theirs = hit.loc[both, first].astype(bool)
             only_arm, only_first = int((mine & ~theirs).sum()), int((~mine & theirs).sum())
             tests.append({"reference": reference, "arm": arm, "vs": first, "genes": len(both),
                           "mAP_arm": ap.loc[both, arm].mean(), "mAP_ref": ap.loc[both, first].mean(),
-                          "test": "Wilcoxon AP", "p": float(result.pvalue)})
+                          "test": "Wilcoxon AP", "p": p_ap})
             tests.append({"reference": reference, "arm": arm, "vs": first, "genes": len(both),
                           "top10_arm_only": only_arm, "top10_ref_only": only_first,
                           "test": "McNemar top-10",

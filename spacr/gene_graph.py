@@ -2765,10 +2765,15 @@ def barplot(df: pd.DataFrame, val: str, pts: Mapping[str, Sequence[float]], titl
 
     matplotlib.use('Agg', force=False)
     import matplotlib.pyplot as plt
+    from matplotlib.figure import Figure
+
+    from .figures.bundle import _register_figure_data
+    from .plot import _checked_savefig
 
     with plt.rc_context({'font.size': 8, 'axes.spines.top': False, 'axes.spines.right': False,
                          'svg.hashsalt': 'spacr', 'svg.fonttype': 'none'}):
-        fig, ax = plt.subplots(figsize=(max(4, 0.32 * len(df) + 1.5), 3.4))
+        fig = Figure(figsize=(max(4, 0.32 * len(df) + 1.5), 3.4))
+        ax = fig.subplots()
         rng = np.random.default_rng(0)
         for i, (_, r) in enumerate(df.iterrows()):
             ax.bar(i, r[val], color=r.color, alpha=0.6, hatch=r.hatch,
@@ -2784,12 +2789,14 @@ def barplot(df: pd.DataFrame, val: str, pts: Mapping[str, Sequence[float]], titl
         ax.set_xticklabels(df.label, rotation=60, ha='right', fontsize=7)
         ax.set_ylabel(ylab)
         ax.set_title(title, fontsize=9)
+        _register_figure_data(fig, lambda: pd.DataFrame(
+            [{'label': k, 'value': float(x)} for k in df.label for x in pts.get(k, [])]),
+            x='label', y='value', kind='bar', order=[str(k) for k in df.label], title=title)
         fig.tight_layout()
         target.parent.mkdir(parents=True, exist_ok=True)
         files = [str(target.with_suffix('.png')), str(target.with_suffix('.svg'))]
-        fig.savefig(files[0], dpi=200)
-        fig.savefig(files[1], metadata={'Date': None})
-        plt.close(fig)
+        _checked_savefig(fig, files[0], dpi=200)
+        _checked_savefig(fig, files[1], metadata={'Date': None})
     return files
 
 
