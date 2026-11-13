@@ -1153,7 +1153,7 @@ def pzfx_reference_curve(path, column='Nuclear signal', kmax=10):
     """A reference translocation curve from a Prism ``.pzfx`` file such as HRMAn's Result.pzfx.
 
     Every table with a ``column`` Y column is one group, named by the table
-    title up to `` (`` ("TgIST (Group 1)" is TgIST). Its first ``kmax + 1``
+    title up to " (" ("TgIST (Group 1)" is TgIST). Its first ``kmax + 1``
     values are the signal at k = 0, 1, ... vacuoles per cell, in row order,
     and the ratio is each value over the k = 0 value. The values are the
     file's data; none is written into spaCR.
@@ -1416,6 +1416,8 @@ def translocation_figure(result, settings=None):
                 ax.set_ylabel(f'{label}\n(relative to 0 vacuoles)', fontsize='small')
     if groups:
         axes[0, 0].legend(fontsize='x-small', frameon=False, loc='upper left')
+    from .figures.bundle import _register_figure_data
+    _register_figure_data(fig, per_well, x='k', y='ratio', hue='effector', kind='bar')
     fig.tight_layout()
     return fig
 

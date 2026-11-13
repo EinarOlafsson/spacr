@@ -691,7 +691,11 @@ def summary_and_stats(data: Mapping[str, Any], activity: Optional[pd.DataFrame],
             for i in range(len(reps)):
                 for j in range(i + 1, len(reps)):
                     a, b = per_gene(reps[i], ref), per_gene(reps[j], ref)
-                    p[f"{ref}: {reps[i]} vs {reps[j]}"] = float(wilcoxon(a.ap, b.loc[a.index].ap).pvalue)
+                    # Identical APs on every gene are no evidence of a difference: p = 1, not an
+                    # exception from SciPy.
+                    p[f"{ref}: {reps[i]} vs {reps[j]}"] = (
+                        float(wilcoxon(a.ap, b.loc[a.index].ap).pvalue)
+                        if (a.ap != b.loc[a.index].ap).any() else 1.0)
             for r in reps:
                 a = per_gene(r, ref)
                 rows.append({"metric": f"Consistency: retrieval mAP of {ref.split('@')[0]} partners",
@@ -768,7 +772,11 @@ def _figures(summary: pd.DataFrame, stats: Mapping[str, Any], folder: str) -> Li
     import matplotlib
 
     matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
+    from matplotlib.figure import Figure
+
+    from .figures.bundle import _register_figure_data
+    from .figures.style import figure_style, resolve_ink, resolve_label_ground
+    from .plot import _checked_savefig
 
     palette = ["#2a9d8f", "#1f3a5f", "#4a90d9", "#9cc3e6"]
     grey = "#8d99ae"
@@ -779,32 +787,34 @@ def _figures(summary: pd.DataFrame, stats: Mapping[str, Any], folder: str) -> Li
         if not len(part):
             continue
         metrics = list(dict.fromkeys(part.metric))
-        fig, axes = plt.subplots(1, len(metrics), figsize=(3.0 * len(metrics), 3.0), squeeze=False)
-        for ax, metric in zip(axes[0], metrics):
-            d = part[part.metric == metric].reset_index(drop=True)
-            for i, row in d.iterrows():
-                colour = palette[i % len(palette)]
-                ax.bar(i, row.value, 0.7, color=colour, alpha=0.6, edgecolor=colour)
-                ax.scatter(i + rng.uniform(-0.15, 0.15), row.value, s=6, color=colour, alpha=0.6,
-                           edgecolor="black", linewidth=0.3)
-            shuffled = d.get("shuffled_value")
-            if shuffled is not None:
-                ax.bar(len(d), float(np.nanmean(shuffled)), 0.7, color=grey, alpha=0.6, edgecolor=grey)
-            ax.set_xticks(range(len(d) + 1), list(d.pipeline) + ["Shuffled"], fontsize=7)
-            ax.set_title(metric, fontsize=7)
-            top = float(np.nanmax(d.value)) if len(d) else 1.0
-            q = dict(stats.get(key, {}).get("q_holm", {}))
-            for k, (pair, value) in enumerate(q.items()):
-                if " vs shuffled" in pair:
-                    continue
-                stars = "***" if value < 0.001 else "**" if value < 0.01 else "*" if value < 0.05 else "ns"
-                ax.text(0.5, top * (1.05 + 0.08 * k), f"{pair}: {stars}", fontsize=5.5, ha="left")
-            ax.spines[["top", "right"]].set_visible(False)
-        fig.tight_layout()
-        path = os.path.join(folder, f"fig_shared_{level}.png")
-        fig.savefig(path, dpi=200, facecolor="white")
-        plt.close(fig)
-        written.append(path)
+        with figure_style("print"):
+            fig = Figure(figsize=(3.0 * len(metrics), 3.0))
+            axes = fig.subplots(1, len(metrics), squeeze=False)
+            for ax, metric in zip(axes[0], metrics):
+                d = part[part.metric == metric].reset_index(drop=True)
+                for i, row in d.iterrows():
+                    colour = palette[i % len(palette)]
+                    ax.bar(i, row.value, 0.7, color=colour, alpha=0.6, edgecolor=colour)
+                    ax.scatter(i + rng.uniform(-0.15, 0.15), row.value, s=6, color=colour, alpha=0.6,
+                               edgecolor=resolve_ink("print"), linewidth=0.3)
+                shuffled = d.get("shuffled_value")
+                if shuffled is not None:
+                    ax.bar(len(d), float(np.nanmean(shuffled)), 0.7, color=grey, alpha=0.6, edgecolor=grey)
+                ax.set_xticks(range(len(d) + 1), list(d.pipeline) + ["Shuffled"], fontsize=7)
+                ax.set_title(metric, fontsize=7)
+                top = float(np.nanmax(d.value)) if len(d) else 1.0
+                q = dict(stats.get(key, {}).get("q_holm", {}))
+                for k, (pair, value) in enumerate(q.items()):
+                    if " vs shuffled" in pair:
+                        continue
+                    stars = "***" if value < 0.001 else "**" if value < 0.01 else "*" if value < 0.05 else "ns"
+                    ax.text(0.5, top * (1.05 + 0.08 * k), f"{pair}: {stars}", fontsize=5.5, ha="left")
+                ax.spines[["top", "right"]].set_visible(False)
+            _register_figure_data(fig, part, x="pipeline", y="value", hue="metric", kind="bar")
+            fig.tight_layout()
+            path = os.path.join(folder, f"fig_shared_{level}.png")
+            _checked_savefig(fig, path, dpi=200, facecolor=resolve_label_ground("print"))
+            written.append(path)
     return written
 
 

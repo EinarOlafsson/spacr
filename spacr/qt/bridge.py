@@ -2300,10 +2300,12 @@ _GATED_IMPORT_ROOTS = frozenset({"torch", "torchvision", "cellpose",
 #: torchvision while another thread is inside it is what breaks, and waiting
 #: at ``spacr.object`` is waiting before that.
 _GATED_SPACR_MODULES = frozenset({
-    "spacr.attribution", "spacr.core", "spacr.deep_spacr", "spacr.io",
-    "spacr.ml", "spacr.object", "spacr.plot", "spacr.sequencing", "spacr.sim",
-    "spacr.spacr_cellpose", "spacr.submodules", "spacr.timelapse",
-    "spacr.torch_artifacts", "spacr.torch_loader", "spacr.toxo", "spacr.utils",
+    "spacr.architecture_training", "spacr.attribution", "spacr.channel_models",
+    "spacr.core", "spacr.deep_spacr", "spacr.gene_function", "spacr.gene_graph",
+    "spacr.gene_knowledge", "spacr.io", "spacr.ml", "spacr.object", "spacr.plot",
+    "spacr.sequencing", "spacr.sim", "spacr.spacr_cellpose", "spacr.submodules",
+    "spacr.timelapse", "spacr.torch_artifacts", "spacr.torch_loader",
+    "spacr.toxo", "spacr.utils", "spacr.well_set_training",
 })
 #: The longest a thread waits for a background import before importing
 #: anyway, the behaviour before the gate existed.

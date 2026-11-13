@@ -165,7 +165,7 @@ def umap_layout(rows: np.ndarray, *, n_neighbors: int = 15, min_dist: float = 0.
         without guides.
     :raises ValueError: for an unknown mode.
     """
-    import umap
+    from .utils import umap
 
     if mode not in ("none", "joint", "project"):
         raise ValueError(f"ops_umap_guides must be 'none', 'joint' or 'project'; got {mode!r}")
@@ -245,7 +245,7 @@ def cluster_hierarchy(rows: np.ndarray, labels: np.ndarray, *, method: str = "av
         ``height`` (the linkage height at which the cluster first merges)
         and ``n_genes``.
     """
-    from scipy.cluster.hierarchy import fcluster, linkage
+    from scipy.cluster.hierarchy import linkage
 
     clusters, centroids = cluster_centroids(rows, labels)
     sizes = {c: int((labels == c).sum()) for c in clusters}
@@ -262,11 +262,34 @@ def cluster_hierarchy(rows: np.ndarray, labels: np.ndarray, *, method: str = "av
                 first[leaf] = z[step, 2]
     out = []
     for level in levels:
-        parents = fcluster(z, t=int(level), criterion="maxclust")
+        parents = _cut_into_groups(z, len(clusters), int(level))
         out += [{"cluster": int(c), "level": int(level), "parent": int(p),
                  "height": float(h), "n_genes": sizes[c]}
                 for c, p, h in zip(clusters, parents, first)]
     return pd.DataFrame(out), z
+
+
+def _cut_into_groups(z: np.ndarray, n: int, groups: int) -> np.ndarray:
+    """The ``groups`` top-level groups of a linkage: its first ``n - groups`` merges applied.
+
+    SciPy's ``fcluster(..., criterion="maxclust")`` can return fewer groups
+    than asked when merge heights sit close together (four instead of five
+    for six centroids merging at 0.32, 0.99, 0.99, 1.00 and 1.01), so the
+    merges are replayed here instead.
+
+    :param z: the linkage of ``n`` leaves.
+    :param n: the number of leaves.
+    :param groups: the number of groups wanted; ``n`` or more keeps every leaf apart.
+    :returns: one group per leaf, numbered from 1 in leaf order.
+    """
+    members = {leaf: [leaf] for leaf in range(n)}
+    for step in range(max(0, n - int(groups))):
+        members[n + step] = members.pop(int(z[step, 0])) + members.pop(int(z[step, 1]))
+    group = np.zeros(n, dtype=int)
+    for leaves in members.values():
+        group[leaves] = leaves[0]
+    _, numbered = np.unique(group, return_inverse=True)
+    return numbered + 1
 
 
 def label_sets(sources: Sequence[str], reference_dir: Any) -> Tuple[pd.DataFrame, Dict[str, Any]]:
@@ -677,6 +700,7 @@ def _figure(coords: pd.DataFrame, hierarchy: pd.DataFrame, z: np.ndarray, top_le
     from scipy.cluster.hierarchy import dendrogram
     from scipy.spatial import ConvexHull
 
+    from .figures.bundle import _register_figure_data
     from .utils import generate_colors
 
     fg, bg = ("#e6edf3", "#0d1b2a") if dark else ("#0d1b2a", "#ffffff")
@@ -708,6 +732,7 @@ def _figure(coords: pd.DataFrame, hierarchy: pd.DataFrame, z: np.ndarray, top_le
         spine.set_color(fg)
     ax.set_title("UMAP layout, for display; clusters are computed on the full profiles",
                  color=fg, fontsize=9)
+    _register_figure_data(fig, genes, x="x", y="y", hue="cluster", kind="scatter")
     for group, panel in panels.items():
         angle = 2 * np.pi * slots[group] / n_slots
         cx, cy = 0.41 + 0.3 * np.cos(angle), 0.49 + 0.4 * np.sin(angle)
@@ -901,12 +926,14 @@ def run_ops_image_umap(settings: Mapping[str, Any]) -> Dict[str, Any]:
                   per_cluster=s["ops_umap_crop_level"] != "top")
     import matplotlib
 
+    from .plot import _checked_savefig
+
     with matplotlib.rc_context({"svg.hashsalt": "spacr-ops-umap"}):
         for ext in ("pdf", "png", "svg"):
-            fig.savefig(os.path.join(dst, f"ops_umap.{ext}"), dpi=200,
-                        facecolor=fig.get_facecolor(),
-                        metadata={"CreationDate": None} if ext == "pdf" else
-                        ({"Date": None} if ext == "svg" else None))
+            _checked_savefig(fig, os.path.join(dst, f"ops_umap.{ext}"), dpi=200,
+                             facecolor=fig.get_facecolor(),
+                             metadata={"CreationDate": None} if ext == "pdf" else
+                             ({"Date": None} if ext == "svg" else None))
 
     inputs = {k: s.get(k) for k in ("ops_umap_profiles", "ops_umap_guide_profiles",
                                     "ops_umap_cell_embedding") if s.get(k)}

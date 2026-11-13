@@ -1585,33 +1585,39 @@ def _sweep_figure(summary: pd.DataFrame, path: str, published: Optional[pd.DataF
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
+    from .figures.bundle import _register_figure_data
+    from .figures.style import figure_style, resolve_label_ground
+    from .plot import _checked_savefig
+
     panels = (("CORUM_pct_enriched_may2025", "CORUM clusters enriched (%)"),
               ("KEGG_pct_enriched_may2025", "KEGG clusters enriched (%)"),
               ("STRING_f1", "STRING pair F1"),
               ("complexes_recovered_pct", "CORUM complexes in one cluster (%)"))
     colours = {"real": "#1f6f8b", "shuffled gene labels": "#9aa5b1"}
-    figure, axes = plt.subplots(1, len(panels), figsize=(4 * len(panels), 3.4))
-    for ax, (metric, title) in zip(axes, panels):
-        for (graph, control), d in summary.groupby(["graph", "control"]):
-            d = d.sort_values("clusters mean")
-            ax.plot(d["clusters mean"], d[f"{metric} mean"], marker="o", ms=3,
-                    color=colours.get(control, "#333333"),
-                    linestyle="-" if graph == "phate" else "--",
-                    label=f"{graph}, {control}")
-        if published is not None:
-            for k, ((name, control), d) in enumerate(published.groupby(["profile", "control"], sort=False)):
-                real = control == "real"
-                ax.scatter(d["clusters"], d[metric], s=28 if real else 14,
-                           marker=("s", "^", "D", "v")[k // 2 % 4],
-                           color="#0b2545" if real else "#9aa5b1", alpha=0.6, zorder=3,
-                           label=f"{name}, {control} (published partition, data not matched)")
-        ax.set_xscale("log")
-        ax.set_xlabel("clusters (mean over seeds)")
-        ax.set_title(title, fontsize=9)
-    axes[-1].legend(fontsize=7, loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False)
-    figure.tight_layout()
-    figure.savefig(path, dpi=150, bbox_inches="tight")
-    plt.close(figure)
+    with figure_style("print"):
+        figure, axes = plt.subplots(1, len(panels), figsize=(4 * len(panels), 3.4))
+        for ax, (metric, title) in zip(axes, panels):
+            for (graph, control), d in summary.groupby(["graph", "control"]):
+                d = d.sort_values("clusters mean")
+                ax.plot(d["clusters mean"], d[f"{metric} mean"], marker="o", ms=3,
+                        color=colours.get(control, "#333333"),
+                        linestyle="-" if graph == "phate" else "--",
+                        label=f"{graph}, {control}")
+            if published is not None:
+                for k, ((name, control), d) in enumerate(published.groupby(["profile", "control"], sort=False)):
+                    real = control == "real"
+                    ax.scatter(d["clusters"], d[metric], s=28 if real else 14,
+                               marker=("s", "^", "D", "v")[k // 2 % 4],
+                               color="#0b2545" if real else "#9aa5b1", alpha=0.6, zorder=3,
+                               label=f"{name}, {control} (published partition, data not matched)")
+            ax.set_xscale("log")
+            ax.set_xlabel("clusters (mean over seeds)")
+            ax.set_title(title, fontsize=9)
+        axes[-1].legend(fontsize=7, loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False)
+        _register_figure_data(figure, summary, x="clusters mean", y=f"{panels[0][0]} mean", hue="control", kind="line")
+        figure.tight_layout()
+        _checked_savefig(figure, path, dpi=150, bbox_inches="tight", facecolor=resolve_label_ground("print"))
+        plt.close(figure)
     return path
 
 
@@ -2590,18 +2596,25 @@ def _consensus_figure(cooc: np.ndarray, labels: np.ndarray, path: str) -> str:
     import matplotlib
 
     matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
+    from matplotlib.figure import Figure
+
+    from .figures.bundle import _register_figure_data
+    from .figures.style import figure_style, resolve_label_ground
+    from .plot import _checked_savefig
 
     order = np.argsort(labels, kind="stable")
-    figure, ax = plt.subplots(figsize=(6, 5.4))
-    image = ax.imshow(cooc[np.ix_(order, order)], cmap="Blues", vmin=0, vmax=1, interpolation="nearest")
-    ax.set_xticks([])
-    ax.set_yticks([])
-    ax.set_xlabel(f"{len(labels)} rows, ordered by consensus cluster")
-    figure.colorbar(image, ax=ax, fraction=0.046, pad=0.04, label="share of bootstraps in one cluster")
-    figure.tight_layout()
-    figure.savefig(path, dpi=150, bbox_inches="tight")
-    plt.close(figure)
+    shown = cooc[np.ix_(order, order)]
+    with figure_style("print"):
+        figure = Figure(figsize=(6, 5.4))
+        ax = figure.subplots()
+        image = ax.imshow(shown, cmap="Blues", vmin=0, vmax=1, interpolation="nearest")
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.set_xlabel(f"{len(labels)} rows, ordered by consensus cluster")
+        figure.colorbar(image, ax=ax, fraction=0.046, pad=0.04, label="share of bootstraps in one cluster")
+        _register_figure_data(figure, pd.DataFrame(shown), kind="heatmap", matrix=True)
+        figure.tight_layout()
+        _checked_savefig(figure, path, dpi=150, bbox_inches="tight", facecolor=resolve_label_ground("print"))
     return path
 
 
@@ -2723,24 +2736,33 @@ def _bench_figure(units: Mapping[str, Mapping[str, np.ndarray]], path: str) -> s
     import matplotlib
 
     matplotlib.use("Agg")
-    import matplotlib.pyplot as plt
+    from matplotlib.figure import Figure
+
+    from .figures.bundle import _register_figure_data
+    from .figures.style import figure_style, resolve_label_ground
+    from .plot import _checked_savefig
 
     colours = {"consensus": "#1b6f8a", "phate_leiden": "#23395d"}
-    figure, axes = plt.subplots(1, len(CALIBRATED_METRICS), figsize=(3.2 * len(CALIBRATED_METRICS), 3.4))
-    rng = np.random.default_rng(0)
-    for ax, (kind, name) in zip(axes, CALIBRATED_METRICS):
-        for x, arm in enumerate(units):
-            values = 100 * units[arm][kind].mean(1)
-            ax.bar(x, values.mean(), color=colours.get(arm, "#4a90b8"), alpha=0.6, width=0.6)
-            ax.scatter(x + rng.uniform(-0.15, 0.15, len(values)), values, s=10, color="#0d1b2a", alpha=0.6)
-        ax.set_xticks(range(len(units)))
-        ax.set_xticklabels([a.replace("_", " + ").replace("phate", "PHATE").replace("leiden", "Leiden")
-                            for a in units], fontsize=8)
-        ax.set_title(name, fontsize=9)
-        ax.set_ylabel("excess over size-matched null (points)", fontsize=8)
-    figure.tight_layout()
-    figure.savefig(path, dpi=150, bbox_inches="tight")
-    plt.close(figure)
+    with figure_style("print"):
+        figure = Figure(figsize=(3.2 * len(CALIBRATED_METRICS), 3.4))
+        axes = figure.subplots(1, len(CALIBRATED_METRICS))
+        rng = np.random.default_rng(0)
+        for ax, (kind, name) in zip(axes, CALIBRATED_METRICS):
+            for x, arm in enumerate(units):
+                values = 100 * units[arm][kind].mean(1)
+                ax.bar(x, values.mean(), color=colours.get(arm, "#4a90b8"), alpha=0.6, width=0.6)
+                ax.scatter(x + rng.uniform(-0.15, 0.15, len(values)), values, s=10, color="#0d1b2a", alpha=0.6)
+            ax.set_xticks(range(len(units)))
+            ax.set_xticklabels([a.replace("_", " + ").replace("phate", "PHATE").replace("leiden", "Leiden")
+                                for a in units], fontsize=8)
+            ax.set_title(name, fontsize=9)
+            ax.set_ylabel("excess over size-matched null (points)", fontsize=8)
+        _register_figure_data(figure, lambda: pd.DataFrame(
+            [{"arm": arm, "metric": name, "excess": float(v)} for kind, name in CALIBRATED_METRICS
+             for arm in units for v in 100 * units[arm][kind].mean(1)]),
+            x="arm", y="excess", hue="metric", kind="bar")
+        figure.tight_layout()
+        _checked_savefig(figure, path, dpi=150, bbox_inches="tight", facecolor=resolve_label_ground("print"))
     return path
 
 

@@ -5471,7 +5471,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_from_nucleus_expand_px",
-    "line": 1481,
+    "line": 1483,
     "module": "spacr.host_pathogen",
     "nested": false,
     "qualname": "nuclear_translocation"
@@ -5480,7 +5480,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_from_nucleus_expand_px",
-    "line": 1484,
+    "line": 1486,
     "module": "spacr.host_pathogen",
     "nested": false,
     "qualname": "nuclear_translocation"
@@ -5509,7 +5509,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "cell_from_nucleus_min_nucleus_size",
-    "line": 1485,
+    "line": 1487,
     "module": "spacr.host_pathogen",
     "nested": false,
     "qualname": "nuclear_translocation"
@@ -12186,7 +12186,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "count_data",
-    "line": 5811,
+    "line": 5754,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "_count_files_of"
@@ -16273,7 +16273,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "dst_root",
-    "line": 1467,
+    "line": 1477,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_ops_profiles"
@@ -16282,7 +16282,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "dst_root",
-    "line": 1474,
+    "line": 1484,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_ops_profiles"
@@ -18469,7 +18469,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "figure_condition_labels",
-    "line": 4347,
+    "line": 4350,
     "module": "spacr.plaque_papers",
     "nested": false,
     "qualname": "compare_figure_sizes"
@@ -18545,7 +18545,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "figure_detections",
-    "line": 4357,
+    "line": 4360,
     "module": "spacr.plaque_papers",
     "nested": false,
     "qualname": "compare_figure_sizes"
@@ -18875,7 +18875,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "figure_score_folder",
-    "line": 4360,
+    "line": 4363,
     "module": "spacr.plaque_papers",
     "nested": false,
     "qualname": "compare_figure_sizes"
@@ -18924,7 +18924,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "figure_segmentation_folder",
-    "line": 4348,
+    "line": 4351,
     "module": "spacr.plaque_papers",
     "nested": false,
     "qualname": "compare_figure_sizes"
@@ -22401,7 +22401,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "hp_parasite_table",
-    "line": 1567,
+    "line": 1569,
     "module": "spacr.host_pathogen",
     "nested": false,
     "qualname": "analyze_host_pathogen"
@@ -22410,7 +22410,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "hp_parasite_table",
-    "line": 1568,
+    "line": 1570,
     "module": "spacr.host_pathogen",
     "nested": false,
     "qualname": "analyze_host_pathogen"
@@ -22459,7 +22459,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "hp_reference_table",
-    "line": 1566,
+    "line": 1568,
     "module": "spacr.host_pathogen",
     "nested": false,
     "qualname": "analyze_host_pathogen"
@@ -22490,7 +22490,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "hp_vacuole_table",
-    "line": 1566,
+    "line": 1568,
     "module": "spacr.host_pathogen",
     "nested": false,
     "qualname": "analyze_host_pathogen"
@@ -29055,7 +29055,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "metric",
-    "line": 650,
+    "line": 673,
     "module": "spacr.ops_image_umap",
     "nested": false,
     "qualname": "layout_stability"
@@ -29064,7 +29064,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "metric",
-    "line": 651,
+    "line": 674,
     "module": "spacr.ops_image_umap",
     "nested": false,
     "qualname": "layout_stability"
@@ -29560,7 +29560,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "min_dist",
-    "line": 650,
+    "line": 673,
     "module": "spacr.ops_image_umap",
     "nested": false,
     "qualname": "layout_stability"
@@ -29569,7 +29569,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "min_dist",
-    "line": 650,
+    "line": 673,
     "module": "spacr.ops_image_umap",
     "nested": false,
     "qualname": "layout_stability"
@@ -32487,7 +32487,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "n_neighbors",
-    "line": 650,
+    "line": 673,
     "module": "spacr.ops_image_umap",
     "nested": false,
     "qualname": "layout_stability"
@@ -32496,7 +32496,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "n_neighbors",
-    "line": 650,
+    "line": 673,
     "module": "spacr.ops_image_umap",
     "nested": false,
     "qualname": "layout_stability"
@@ -36651,7 +36651,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_bench_gate_record",
-    "line": 2692,
+    "line": 2705,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_bench_options"
@@ -36671,7 +36671,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_bench_half",
-    "line": 2693,
+    "line": 2706,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_bench_options"
@@ -36680,7 +36680,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_bench_half",
-    "line": 2693,
+    "line": 2706,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_bench_options"
@@ -36933,7 +36933,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cluster_gene_list",
-    "line": 1712,
+    "line": 1718,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "cluster_sweep_phase"
@@ -36942,7 +36942,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cluster_gene_list",
-    "line": 2524,
+    "line": 2530,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_guide_inputs"
@@ -36962,7 +36962,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cluster_graph",
-    "line": 1688,
+    "line": 1694,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "cluster_sweep_phase"
@@ -36982,7 +36982,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cluster_knn",
-    "line": 1707,
+    "line": 1713,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "cluster_sweep_phase"
@@ -37002,7 +37002,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cluster_published",
-    "line": 1739,
+    "line": 1745,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "cluster_sweep_phase"
@@ -37022,7 +37022,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cluster_reference_dir",
-    "line": 1693,
+    "line": 1699,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "cluster_sweep_phase"
@@ -37031,7 +37031,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cluster_reference_dir",
-    "line": 2794,
+    "line": 2816,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "cluster_bench_test_phase"
@@ -37071,7 +37071,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cluster_rows",
-    "line": 1697,
+    "line": 1703,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "cluster_sweep_phase"
@@ -37080,7 +37080,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cluster_rows",
-    "line": 2500,
+    "line": 2506,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_guide_inputs"
@@ -37129,7 +37129,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cluster_seeds",
-    "line": 1709,
+    "line": 1715,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "cluster_sweep_phase"
@@ -37149,7 +37149,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cluster_shuffles",
-    "line": 1711,
+    "line": 1717,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "cluster_sweep_phase"
@@ -37158,7 +37158,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ops_cluster_shuffles",
-    "line": 1711,
+    "line": 1717,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "cluster_sweep_phase"
@@ -37178,7 +37178,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cluster_sweep_resolutions",
-    "line": 1708,
+    "line": 1714,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "cluster_sweep_phase"
@@ -37218,7 +37218,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cluster_target_clusters",
-    "line": 1710,
+    "line": 1716,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "cluster_sweep_phase"
@@ -37654,7 +37654,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_consensus_bootstraps",
-    "line": 2562,
+    "line": 2568,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37674,7 +37674,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_consensus_draw_seed",
-    "line": 2564,
+    "line": 2570,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37683,7 +37683,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ops_consensus_draw_seed",
-    "line": 2565,
+    "line": 2571,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37723,7 +37723,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_consensus_force_genes",
-    "line": 2569,
+    "line": 2575,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37732,7 +37732,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ops_consensus_force_genes",
-    "line": 2570,
+    "line": 2576,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37752,7 +37752,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_consensus_guides",
-    "line": 2501,
+    "line": 2507,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_guide_inputs"
@@ -37772,7 +37772,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_consensus_k",
-    "line": 2561,
+    "line": 2567,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37792,7 +37792,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_consensus_k_ratio",
-    "line": 2560,
+    "line": 2566,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37812,7 +37812,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_consensus_knn",
-    "line": 2566,
+    "line": 2572,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37832,7 +37832,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_consensus_match_count",
-    "line": 2573,
+    "line": 2579,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37841,7 +37841,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ops_consensus_match_count",
-    "line": 2574,
+    "line": 2580,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37861,7 +37861,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_consensus_method",
-    "line": 2557,
+    "line": 2563,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37890,7 +37890,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_consensus_min_cooc",
-    "line": 2567,
+    "line": 2573,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37910,7 +37910,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_consensus_min_stability",
-    "line": 2571,
+    "line": 2577,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37919,7 +37919,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ops_consensus_min_stability",
-    "line": 2572,
+    "line": 2578,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37959,7 +37959,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_consensus_seed",
-    "line": 2563,
+    "line": 2569,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37968,7 +37968,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ops_consensus_seed",
-    "line": 2563,
+    "line": 2569,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37988,7 +37988,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_control_prefix",
-    "line": 4376,
+    "line": 4384,
     "module": "spacr.gene_measurement_compare",
     "nested": false,
     "qualname": "etest_phase"
@@ -37997,7 +37997,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_control_prefix",
-    "line": 1687,
+    "line": 1693,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "cluster_sweep_phase"
@@ -38006,7 +38006,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_control_prefix",
-    "line": 2499,
+    "line": 2505,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_guide_inputs"
@@ -38966,7 +38966,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_etest_cells",
-    "line": 4367,
+    "line": 4375,
     "module": "spacr.gene_measurement_compare",
     "nested": false,
     "qualname": "etest_phase"
@@ -38986,7 +38986,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_etest_holdout",
-    "line": 4388,
+    "line": 4396,
     "module": "spacr.gene_measurement_compare",
     "nested": false,
     "qualname": "etest_phase"
@@ -39006,7 +39006,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_etest_metric",
-    "line": 4373,
+    "line": 4381,
     "module": "spacr.gene_measurement_compare",
     "nested": false,
     "qualname": "etest_phase"
@@ -39026,7 +39026,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_etest_mode",
-    "line": 4389,
+    "line": 4397,
     "module": "spacr.gene_measurement_compare",
     "nested": false,
     "qualname": "etest_phase"
@@ -39046,7 +39046,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_etest_null",
-    "line": 4387,
+    "line": 4395,
     "module": "spacr.gene_measurement_compare",
     "nested": false,
     "qualname": "etest_phase"
@@ -39066,7 +39066,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_etest_permutations",
-    "line": 4390,
+    "line": 4398,
     "module": "spacr.gene_measurement_compare",
     "nested": false,
     "qualname": "etest_phase"
@@ -39086,7 +39086,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_etest_reference_cells",
-    "line": 4386,
+    "line": 4394,
     "module": "spacr.gene_measurement_compare",
     "nested": false,
     "qualname": "etest_phase"
@@ -40430,7 +40430,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_guide_efficacy",
-    "line": 4457,
+    "line": 4465,
     "module": "spacr.gene_measurement_compare",
     "nested": false,
     "qualname": "power_profile_rows"
@@ -40468,7 +40468,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_guide_efficacy_emax",
-    "line": 4492,
+    "line": 4500,
     "module": "spacr.gene_measurement_compare",
     "nested": false,
     "qualname": "power_profile_rows"
@@ -40506,7 +40506,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_guide_efficacy_iters",
-    "line": 4491,
+    "line": 4499,
     "module": "spacr.gene_measurement_compare",
     "nested": false,
     "qualname": "power_profile_rows"
@@ -40564,7 +40564,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_hits_cell_line",
-    "line": 1306,
+    "line": 1316,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_profile_benchmarks"
@@ -40573,7 +40573,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_hits_cell_line",
-    "line": 1323,
+    "line": 1333,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_profile_benchmarks"
@@ -40593,7 +40593,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_hits_compartments",
-    "line": 1282,
+    "line": 1292,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_profile_benchmarks"
@@ -40613,7 +40613,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_hits_expression_table",
-    "line": 1296,
+    "line": 1306,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_profile_benchmarks"
@@ -40633,7 +40633,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_hits_fdr",
-    "line": 1281,
+    "line": 1291,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_profile_benchmarks"
@@ -40653,7 +40653,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_hits_feature_p",
-    "line": 1325,
+    "line": 1335,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_profile_benchmarks"
@@ -40673,7 +40673,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_hits_min_cells",
-    "line": 1342,
+    "line": 1352,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_profile_benchmarks"
@@ -40693,7 +40693,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_hits_reference_list",
-    "line": 1332,
+    "line": 1342,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_profile_benchmarks"
@@ -40702,7 +40702,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ops_hits_reference_list",
-    "line": 1338,
+    "line": 1348,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_profile_benchmarks"
@@ -42761,7 +42761,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_power_cells",
-    "line": 4382,
+    "line": 4390,
     "module": "spacr.gene_measurement_compare",
     "nested": false,
     "qualname": "etest_phase"
@@ -42781,7 +42781,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_power_gene_list",
-    "line": 4659,
+    "line": 4670,
     "module": "spacr.gene_measurement_compare",
     "nested": false,
     "qualname": "_power_retrieval"
@@ -42801,7 +42801,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_power_reference_rows",
-    "line": 4644,
+    "line": 4655,
     "module": "spacr.gene_measurement_compare",
     "nested": false,
     "qualname": "_power_retrieval"
@@ -42821,7 +42821,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_power_retrieval",
-    "line": 4413,
+    "line": 4421,
     "module": "spacr.gene_measurement_compare",
     "nested": false,
     "qualname": "etest_phase"
@@ -42841,7 +42841,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_power_seeds",
-    "line": 4383,
+    "line": 4391,
     "module": "spacr.gene_measurement_compare",
     "nested": false,
     "qualname": "etest_phase"
@@ -43157,7 +43157,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_profile_gene_universe",
-    "line": 4468,
+    "line": 4476,
     "module": "spacr.gene_measurement_compare",
     "nested": false,
     "qualname": "power_profile_rows"
@@ -43206,7 +43206,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_profile_min_cells",
-    "line": 4641,
+    "line": 4652,
     "module": "spacr.gene_measurement_compare",
     "nested": false,
     "qualname": "_power_retrieval"
@@ -43215,7 +43215,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_profile_min_cells",
-    "line": 1701,
+    "line": 1707,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "cluster_sweep_phase"
@@ -43224,7 +43224,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_profile_min_cells",
-    "line": 2509,
+    "line": 2515,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_guide_inputs"
@@ -43494,7 +43494,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_profile_weighting",
-    "line": 4456,
+    "line": 4464,
     "module": "spacr.gene_measurement_compare",
     "nested": false,
     "qualname": "power_profile_rows"
@@ -43750,7 +43750,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_reference_dir",
-    "line": 4638,
+    "line": 4649,
     "module": "spacr.gene_measurement_compare",
     "nested": false,
     "qualname": "_power_retrieval"
@@ -43759,7 +43759,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_reference_dir",
-    "line": 1693,
+    "line": 1699,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "cluster_sweep_phase"
@@ -43768,7 +43768,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_reference_dir",
-    "line": 2794,
+    "line": 2816,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "cluster_bench_test_phase"
@@ -43786,7 +43786,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_reference_dir",
-    "line": 1511,
+    "line": 1521,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_ops_profiles"
@@ -44053,7 +44053,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_scoring_benchmark_genes",
-    "line": 1360,
+    "line": 1370,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_profile_benchmarks"
@@ -44062,7 +44062,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_scoring_benchmark_genes",
-    "line": 1418,
+    "line": 1428,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_profile_benchmarks"
@@ -44082,7 +44082,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_scoring_benchmark_seed",
-    "line": 1280,
+    "line": 1290,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_profile_benchmarks"
@@ -44102,7 +44102,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_scoring_cluster_jitter",
-    "line": 1492,
+    "line": 1502,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_ops_profiles"
@@ -44122,7 +44122,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_scoring_cluster_seeds",
-    "line": 1491,
+    "line": 1501,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_ops_profiles"
@@ -44142,7 +44142,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_scoring_corum_coverage",
-    "line": 1391,
+    "line": 1401,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_profile_benchmarks"
@@ -44162,7 +44162,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_scoring_corum_file",
-    "line": 1376,
+    "line": 1386,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_profile_benchmarks"
@@ -44182,7 +44182,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_scoring_figures",
-    "line": 1533,
+    "line": 1543,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_ops_profiles"
@@ -44202,7 +44202,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_scoring_genes",
-    "line": 1481,
+    "line": 1491,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_ops_profiles"
@@ -44222,7 +44222,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_scoring_inputs",
-    "line": 1279,
+    "line": 1289,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_profile_benchmarks"
@@ -44231,7 +44231,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_scoring_inputs",
-    "line": 1464,
+    "line": 1474,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_ops_profiles"
@@ -44251,7 +44251,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_scoring_metrics",
-    "line": 1278,
+    "line": 1288,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_profile_benchmarks"
@@ -44260,7 +44260,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_scoring_metrics",
-    "line": 1469,
+    "line": 1479,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_ops_profiles"
@@ -44280,7 +44280,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_scoring_min_complex",
-    "line": 1512,
+    "line": 1522,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_ops_profiles"
@@ -44300,7 +44300,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_scoring_null_size",
-    "line": 1488,
+    "line": 1498,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_ops_profiles"
@@ -44320,7 +44320,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_scoring_pca_variance",
-    "line": 1373,
+    "line": 1383,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_profile_benchmarks"
@@ -44329,7 +44329,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_scoring_pca_variance",
-    "line": 1419,
+    "line": 1429,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_profile_benchmarks"
@@ -44349,7 +44349,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_scoring_references",
-    "line": 1490,
+    "line": 1500,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_ops_profiles"
@@ -44369,7 +44369,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_scoring_string_file",
-    "line": 1382,
+    "line": 1392,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_profile_benchmarks"
@@ -44389,7 +44389,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_scoring_string_thresholds",
-    "line": 1401,
+    "line": 1411,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_profile_benchmarks"
@@ -44409,7 +44409,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_scoring_workers",
-    "line": 1489,
+    "line": 1499,
     "module": "spacr.ops_scoring",
     "nested": false,
     "qualname": "score_ops_profiles"
@@ -52673,7 +52673,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 5804,
+    "line": 5747,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "_count_files_of"
@@ -52682,7 +52682,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 5901,
+    "line": 5844,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "regression_design_scan"
@@ -63688,7 +63688,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "save",
-    "line": 1575,
+    "line": 1577,
     "module": "spacr.host_pathogen",
     "nested": false,
     "qualname": "analyze_host_pathogen"
@@ -67558,7 +67558,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1470,
+    "line": 1472,
     "module": "spacr.host_pathogen",
     "nested": false,
     "qualname": "nuclear_translocation"
@@ -67567,7 +67567,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1500,
+    "line": 1502,
     "module": "spacr.host_pathogen",
     "nested": false,
     "qualname": "nuclear_translocation"
@@ -67576,7 +67576,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1504,
+    "line": 1506,
     "module": "spacr.host_pathogen",
     "nested": false,
     "qualname": "nuclear_translocation"
@@ -67585,7 +67585,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1512,
+    "line": 1514,
     "module": "spacr.host_pathogen",
     "nested": false,
     "qualname": "nuclear_translocation"
@@ -67594,7 +67594,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1554,
+    "line": 1556,
     "module": "spacr.host_pathogen",
     "nested": false,
     "qualname": "analyze_host_pathogen"
@@ -67603,7 +67603,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1554,
+    "line": 1556,
     "module": "spacr.host_pathogen",
     "nested": false,
     "qualname": "analyze_host_pathogen"
@@ -67612,7 +67612,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "src",
-    "line": 1554,
+    "line": 1556,
     "module": "spacr.host_pathogen",
     "nested": false,
     "qualname": "analyze_host_pathogen"
@@ -68602,7 +68602,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 4361,
+    "line": 4364,
     "module": "spacr.plaque_papers",
     "nested": false,
     "qualname": "compare_figure_sizes"
@@ -76211,7 +76211,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "titration_plate_map",
-    "line": 1552,
+    "line": 1554,
     "module": "spacr.host_pathogen",
     "nested": false,
     "qualname": "analyze_host_pathogen"
@@ -77370,7 +77370,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "translocation",
-    "line": 1550,
+    "line": 1552,
     "module": "spacr.host_pathogen",
     "nested": false,
     "qualname": "analyze_host_pathogen"
@@ -77847,7 +77847,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "translocation_kmax",
-    "line": 1495,
+    "line": 1497,
     "module": "spacr.host_pathogen",
     "nested": false,
     "qualname": "nuclear_translocation"
@@ -77858,7 +77858,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "translocation_merged_folder",
-    "line": 1470,
+    "line": 1472,
     "module": "spacr.host_pathogen",
     "nested": false,
     "qualname": "nuclear_translocation"
@@ -77922,7 +77922,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "translocation_reference",
-    "line": 1493,
+    "line": 1495,
     "module": "spacr.host_pathogen",
     "nested": false,
     "qualname": "nuclear_translocation"

@@ -4291,12 +4291,14 @@ def figure_size_figure(scales, agreement):
         readout at 60% opacity, the identity line dashed, R2 and n in the
         corner and the permutation null R2 (95th percentile) beside them.
     """
-    from matplotlib.figure import Figure
+    from matplotlib.figure import Figure as MplFigure
+
+    from .figures.bundle import _register_figure_data
 
     colours = {'number': '#2A9D8F', 'area': '#3A7BD5', 'relative size': '#1F4E79'}
     titles = {'absolute': 'absolute (counts)', 'rel_panel_max': 'relative to panel maximum',
               'rel_well_extent': 'relative to well extent', 'rel_reference': 'log2 vs reference'}
-    fig = Figure(figsize=(12, 3.2), dpi=100)
+    fig = MplFigure(figsize=(12, 3.2), dpi=100)
     axes = fig.subplots(1, 4)
     for ax, scale in zip(axes, FIGURE_SCALES):
         table = scales[scales['scale'] == scale]
@@ -4319,6 +4321,7 @@ def figure_size_figure(scales, agreement):
         ax.set_ylabel('spaCR')
     if len(scales):
         axes[0].legend(fontsize='x-small', frameon=False, loc='lower right')
+    _register_figure_data(fig, scales, x='reported_value', y='spacr_value', hue='readout', kind='scatter')
     fig.tight_layout()
     return fig
 
