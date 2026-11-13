@@ -15,6 +15,8 @@ from PIL import Image
 from spacr import object_classifier as oc
 from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
 
+from tests import locale_cases
+
 ROOT = Path(__file__).resolve().parents[1]
 TOOL = ROOT / "tools" / "train_real_object_classifier.py"
 
@@ -292,9 +294,8 @@ def test_annotation_reader_does_not_create_missing_databases(tmp_path):
     assert not database.exists()
 
 
-@pytest.mark.parametrize('language', ['de', 'es', 'fr', 'hi', 'is', 'ko', 'pt', 'sv', 'zh_CN'])
-@pytest.mark.parametrize('problem', ['fingerprint', 'conflict'])
-def test_annotation_reader_uses_exact_reviewed_runtime_diagnostics(tmp_path, monkeypatch, language, problem):
+def _annotation_reader_uses_exact_reviewed_runtime_diagnostics_case(tmp_path, monkeypatch, language, problem):
+    """One case of :func:`test_annotation_reader_uses_exact_reviewed_runtime_diagnostics`."""
     import shutil
 
     from spacr.qt import i18n
@@ -319,3 +320,9 @@ def test_annotation_reader_uses_exact_reviewed_runtime_diagnostics(tmp_path, mon
         oc._annotated_real_crops(databases)
     assert str(error.value) == target.format(path=str(crop))
     assert all(path.read_bytes() == raw for path, raw in before.items())
+
+
+def test_annotation_reader_uses_exact_reviewed_runtime_diagnostics(subtests, tmp_path, monkeypatch):
+    for label, case in locale_cases.cases(('language', ['de', 'es', 'fr', 'hi', 'is', 'ko', 'pt', 'sv', 'zh_CN']), ('problem', ['fingerprint', 'conflict'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _annotation_reader_uses_exact_reviewed_runtime_diagnostics_case(tmp_path=locale_cases.case_dir(tmp_path, label), monkeypatch=case_monkeypatch, **case)

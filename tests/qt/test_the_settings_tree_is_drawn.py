@@ -30,6 +30,8 @@ from spacr.qt.screens.app_screen import AppScreen
 from spacr.qt.screens.settings_model import SettingsWidgets, section_tooltip
 from spacr.qt.widgets.section import Section
 
+from tests import locale_cases
+
 
 def _screen(qtbot, app_key: str = "mask") -> AppScreen:
     screen = AppScreen(app_key)
@@ -185,18 +187,8 @@ def test_the_innermost_heading_is_the_one_a_consumer_finds(qtbot):
         assert screen._settings_sections.index(found) < screen._settings_sections.index(umbrella)
 
 
-@pytest.mark.parametrize(
-    "code", ["sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"])
-def test_every_heading_of_the_tree_has_an_exact_translation(code, qtbot):
-    """A heading the panel now draws must not be half-translated.
-
-    Drawing the tree put three headings on screen that nothing rendered
-    before, and each is a phrase the word-by-word fallback only partly
-    recognises: "Object Filtration (all objects)" came out as "Objekt
-    Filtration (all Objekt)". An exact catalog row is the only thing that
-    beats that fallback, so each heading is asserted to have one rather
-    than merely to change.
-    """
+def _every_heading_of_the_tree_has_an_exact_translation_case(code, qtbot):
+    """One case of :func:`test_every_heading_of_the_tree_has_an_exact_translation`."""
     from spacr.qt.i18n import _exact_translation
 
     for spec in _model_tree(qtbot):
@@ -206,6 +198,21 @@ def test_every_heading_of_the_tree_has_an_exact_translation(code, qtbot):
             assert _exact_translation(section.title, code) is not None, (
                 f"{section.title!r} has no exact row in {code}; the "
                 "word-by-word fallback will half-translate it")
+
+
+def test_every_heading_of_the_tree_has_an_exact_translation(subtests, qtbot):
+    """A heading the panel now draws must not be half-translated.
+
+    Drawing the tree put three headings on screen that nothing rendered
+    before, and each is a phrase the word-by-word fallback only partly
+    recognises: "Object Filtration (all objects)" came out as "Objekt
+    Filtration (all Objekt)". An exact catalog row is the only thing that
+    beats that fallback, so each heading is asserted to have one rather
+    than merely to change.
+    """
+    for label, case in locale_cases.cases(("code", ["sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"])):
+        with subtests.test(**label):
+            _every_heading_of_the_tree_has_an_exact_translation_case(qtbot=qtbot, **case)
 
 
 # 2026-09-29 (item 595): Measure is no longer flat -- its settings were

@@ -45,6 +45,8 @@ import pytest
 
 from tests.readme_source_words import readme_words
 
+from tests import locale_cases
+
 REPO = pathlib.Path(__file__).resolve().parent.parent
 README = REPO / "README.rst"
 EXCLUDES = REPO / "packaging" / "source_install_excludes.txt"
@@ -682,9 +684,8 @@ def test_both_source_install_sections_read_as_reviewed_prose_in_every_language()
         assert not left, f"{language} still carries the model draft: {left}"
 
 
-@pytest.mark.parametrize("language", ("en", *LANGUAGES))
-def test_light_install_explanations_are_localized_prose_beside_unchanged_commands(language):
-    """Translated choices and limitations belong outside executable shell recipes."""
+def _light_install_explanations_are_localized_prose_beside_unchanged_commands_case(language):
+    """One case of :func:`test_light_install_explanations_are_localized_prose_beside_unchanged_commands`."""
     import yaml
 
     english = yaml.safe_load((REPO / "packaging/readme_source.yaml").read_text(encoding="utf-8"))
@@ -711,6 +712,13 @@ def test_light_install_explanations_are_localized_prose_beside_unchanged_command
     for index, block in enumerate(section):
         if "code" in block:
             assert index > 0 and "p" in section[index - 1], language
+
+
+def test_light_install_explanations_are_localized_prose_beside_unchanged_commands(subtests):
+    """Translated choices and limitations belong outside executable shell recipes."""
+    for label, case in locale_cases.cases(("language", ("en", *LANGUAGES))):
+        with subtests.test(**label):
+            _light_install_explanations_are_localized_prose_beside_unchanged_commands_case(**case)
 
 
 def test_every_current_readme_prose_heading_and_list_has_all_nine_source_bound_targets():

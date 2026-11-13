@@ -13,6 +13,8 @@ from spacr.tabular import read_table, write_database
 from tests.test_cell_cycle_phase_three_ways import _nucleus_table
 from tests.test_live_dead_viability import _signal_table
 
+from tests import locale_cases
+
 SOURCE = 'Measurement channels must be nonnegative integer indices.'
 
 
@@ -154,9 +156,8 @@ def test_valid_cell_cycle_integral_and_fucci_values_still_execute(tmp_path):
     pd.testing.assert_frame_equal(read_table(path, table='nucleus', report=None), original)
 
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is'])
-@pytest.mark.parametrize('route', ['cycle', 'viability'])
-def test_installed_reviewed_language_at_actual_classifier_boundary(tmp_path, language, route, monkeypatch):
+def _installed_reviewed_language_at_actual_classifier_boundary_case(tmp_path, language, route, monkeypatch):
+    """One case of :func:`test_installed_reviewed_language_at_actual_classifier_boundary`."""
     review = Path(__file__).parents[1] / 'docs/i18n/reviewed/runtime' / language / '2026-10-15-measured-channel-identity.json'
     record = json.loads(review.read_text(encoding='utf-8'))['records'][0]
     path, target = write_case(tmp_path, route)
@@ -165,6 +166,12 @@ def test_installed_reviewed_language_at_actual_classifier_boundary(tmp_path, lan
     monkeypatch.setenv('SPACR_LANGUAGE', language)
     assert record['translation'] != SOURCE
     assert_refusal(path, target, config, route, record['translation'])
+
+
+def test_installed_reviewed_language_at_actual_classifier_boundary(subtests, tmp_path, monkeypatch):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is']), ('route', ['cycle', 'viability'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _installed_reviewed_language_at_actual_classifier_boundary_case(tmp_path=locale_cases.case_dir(tmp_path, label), monkeypatch=case_monkeypatch, **case)
 
 
 @pytest.mark.parametrize('bad', [float('nan'), float('inf'), -1, np.complex64(1 + 1j)])

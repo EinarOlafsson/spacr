@@ -9,9 +9,11 @@ from spacr import utils as utilities
 from tests.test_n702_stock_offline_boundary import native_cache as native_cache
 from tests.test_n702_unknown_cellpose_model_refusal import isolated as isolated
 
+from tests import locale_cases
 
-@pytest.mark.parametrize("language", ["sv", "de", "es", "zh_CN", "fr", "pt", "hi", "ko", "is"])
-def test_offline_stock_constructor_refusal_uses_selected_language(native_cache, monkeypatch, language):
+
+def _offline_stock_constructor_refusal_uses_selected_language_case(native_cache, monkeypatch, language):
+    """One case of :func:`test_offline_stock_constructor_refusal_uses_selected_language`."""
     monkeypatch.setenv("SPACR_MODEL_DOWNLOAD", "off")
     monkeypatch.setenv("SPACR_LANGUAGE", language)
     monkeypatch.setattr(utilities.cp_models, "CellposeModel", lambda **kwargs: pytest.fail("Uncached offline model reached constructor"))
@@ -24,3 +26,9 @@ def test_offline_stock_constructor_refusal_uses_selected_language(native_cache, 
     assert str(error.value) == record["translation"].format(
         model=repr("cpsam"), path=str(native_cache / "cpsam"))
     assert not native_cache.exists()
+
+
+def test_offline_stock_constructor_refusal_uses_selected_language(subtests, native_cache, monkeypatch):
+    for label, case in locale_cases.cases(("language", ["sv", "de", "es", "zh_CN", "fr", "pt", "hi", "ko", "is"])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _offline_stock_constructor_refusal_uses_selected_language_case(native_cache=native_cache, monkeypatch=case_monkeypatch, **case)

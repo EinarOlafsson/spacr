@@ -32,6 +32,8 @@ from spacr.measure import (
     _wound_settings_check,
 )
 
+from tests import locale_cases
+
 SHAPE = (384, 384)
 WIDTHS = (160, 130, 100, 70, 40, 0)
 
@@ -541,9 +543,8 @@ def test_the_wound_settings_are_alpha():
     assert entry["widgets"] == ("MeasureWoundToggle",)
 
 
-@pytest.mark.parametrize('value', [-1, -0.5, 0.5, float('nan'), float('inf'), True, np.bool_(False), '1.0', 'bad', 3, 1 + 0j, np.array([1]), np.array([1, 2])])
-@pytest.mark.parametrize('source', ['texture', 'intensity', 'masks'])
-def test_wound_plane_invalid_index_refuses_before_any_pixel_selection(value, source):
+def _wound_plane_invalid_index_refuses_before_any_pixel_selection_case(value, source):
+    """One case of :func:`test_wound_plane_invalid_index_refuses_before_any_pixel_selection`."""
     from spacr.measure import _wound_plane
     class NoPixelSelection:
         shape = (8, 9, 3)
@@ -554,9 +555,14 @@ def test_wound_plane_invalid_index_refuses_before_any_pixel_selection(value, sou
         _wound_plane(NoPixelSelection(), settings)
 
 
-@pytest.mark.parametrize('value', [0, 1, np.int64(2), 1.0, np.float64(2.0), '1', ' +2 '])
-@pytest.mark.parametrize('source', ['texture', 'intensity', 'masks'])
-def test_wound_plane_integral_saved_values_select_exact_pixels_without_mutation(value, source):
+def test_wound_plane_invalid_index_refuses_before_any_pixel_selection(subtests):
+    for label, case in locale_cases.cases(('value', [-1, -0.5, 0.5, float('nan'), float('inf'), True, np.bool_(False), '1.0', 'bad', 3, 1 + 0j, np.array([1]), np.array([1, 2])]), ('source', ['texture', 'intensity', 'masks'])):
+        with subtests.test(**label):
+            _wound_plane_invalid_index_refuses_before_any_pixel_selection_case(**case)
+
+
+def _wound_plane_integral_saved_values_select_exact_pixels_without_mutation_case(value, source):
+    """One case of :func:`test_wound_plane_integral_saved_values_select_exact_pixels_without_mutation`."""
     from spacr.measure import _wound_plane
     data = np.arange(8 * 9 * 3, dtype=np.uint16).reshape(8, 9, 3)
     before = data.copy()
@@ -566,6 +572,12 @@ def test_wound_plane_integral_saved_values_select_exact_pixels_without_mutation(
     np.testing.assert_array_equal(data, before)
 
 
+def test_wound_plane_integral_saved_values_select_exact_pixels_without_mutation(subtests):
+    for label, case in locale_cases.cases(('value', [0, 1, np.int64(2), 1.0, np.float64(2.0), '1', ' +2 ']), ('source', ['texture', 'intensity', 'masks'])):
+        with subtests.test(**label):
+            _wound_plane_integral_saved_values_select_exact_pixels_without_mutation_case(**case)
+
+
 @pytest.mark.parametrize('value', [-1, 0.5, True])
 def test_wound_default_channel_selection_is_also_strict(value):
     from spacr.measure import _wound_plane
@@ -573,9 +585,8 @@ def test_wound_default_channel_selection_is_also_strict(value):
         _wound_plane(np.zeros((8, 9, 3)), {'channels': [value]})
 
 
-@pytest.mark.parametrize('language', ['de', 'es', 'fr', 'hi', 'is', 'ko', 'pt', 'sv', 'zh_CN'])
-@pytest.mark.parametrize('source', ['texture', 'intensity', 'masks'])
-def test_wound_plane_invalid_index_uses_exact_reviewed_runtime_diagnostic(monkeypatch, language, source):
+def _wound_plane_invalid_index_uses_exact_reviewed_runtime_diagnostic_case(monkeypatch, language, source):
+    """One case of :func:`test_wound_plane_invalid_index_uses_exact_reviewed_runtime_diagnostic`."""
     import json
     from pathlib import Path
 
@@ -595,3 +606,9 @@ def test_wound_plane_invalid_index_uses_exact_reviewed_runtime_diagnostic(monkey
     with pytest.raises(ValueError) as error:
         _wound_plane(NoPixelSelection(), {'wound_source': source, 'wound_channel': 0.5, 'cell_mask_dim': 0.5})
     assert str(error.value) == target.format(index='0.5', planes=3)
+
+
+def test_wound_plane_invalid_index_uses_exact_reviewed_runtime_diagnostic(subtests, monkeypatch):
+    for label, case in locale_cases.cases(('language', ['de', 'es', 'fr', 'hi', 'is', 'ko', 'pt', 'sv', 'zh_CN']), ('source', ['texture', 'intensity', 'masks'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _wound_plane_invalid_index_uses_exact_reviewed_runtime_diagnostic_case(monkeypatch=case_monkeypatch, **case)

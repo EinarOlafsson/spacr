@@ -8,6 +8,8 @@ import pytest
 
 from spacr import psf_pipeline as psf
 
+from tests import locale_cases
+
 SOURCE = 'Spectral unmixing requires distinct nonnegative integer channel indices.'
 
 
@@ -36,12 +38,8 @@ def source_hashes(stack):
     return {path.name: hashlib.sha256(path.read_bytes()).hexdigest() for path in stack.glob('*.npy')}
 
 
-@pytest.mark.parametrize('selection', [[.5, 1], [True, 1], [np.bool_(False), 1],
-                                      [-1, 1], [0, 0, 1], [], [np.nan, 1],
-                                      [np.inf, 1], [complex(0), 1], [np.array([0]), 1],
-                                      ['0.5', 1], '01', 0])
-@pytest.mark.parametrize('entrypoint', ['measure', 'direct'])
-def test_invalid_physical_selection_refuses_before_control_load_or_output(plate, selection, entrypoint, monkeypatch):
+def _invalid_physical_selection_refuses_before_control_load_or_output_case(plate, selection, entrypoint, monkeypatch):
+    """One case of :func:`test_invalid_physical_selection_refuses_before_control_load_or_output`."""
     config = settings(plate, selection)
     before = copy.deepcopy(config)
     hashes = source_hashes(plate)
@@ -63,6 +61,15 @@ def test_invalid_physical_selection_refuses_before_control_load_or_output(plate,
     assert not (plate.parent / 'measurements').exists()
     assert source_hashes(plate) == hashes
     np.testing.assert_equal(config, before)
+
+
+def test_invalid_physical_selection_refuses_before_control_load_or_output(subtests, plate, monkeypatch):
+    for label, case in locale_cases.cases(('selection', [[.5, 1], [True, 1], [np.bool_(False), 1],
+                                      [-1, 1], [0, 0, 1], [], [np.nan, 1],
+                                      [np.inf, 1], [complex(0), 1], [np.array([0]), 1],
+                                      ['0.5', 1], '01', 0]), ('entrypoint', ['measure', 'direct'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _invalid_physical_selection_refuses_before_control_load_or_output_case(plate=plate, monkeypatch=case_monkeypatch, **case)
 
 
 @pytest.mark.parametrize('selection', [(0, 1), (1, 0), [0.0, 1.0], ['0', '1'],
@@ -96,8 +103,8 @@ def test_disabled_unmixing_keeps_early_return_even_with_invalid_selection(plate,
     assert not (plate.parent / 'measurements').exists()
 
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is'])
-def test_unmix_refusal_uses_installed_reviewed_language_before_loading(plate, language, monkeypatch):
+def _unmix_refusal_uses_installed_reviewed_language_before_loading_case(plate, language, monkeypatch):
+    """One case of :func:`test_unmix_refusal_uses_installed_reviewed_language_before_loading`."""
     import json
 
     review = Path(__file__).parents[1] / 'docs/i18n/reviewed/runtime' / language / '2026-10-15-unmix-channel-boundary.json'
@@ -122,6 +129,12 @@ def test_unmix_refusal_uses_installed_reviewed_language_before_loading(plate, la
     assert not (plate.parent / 'measurements').exists()
     assert source_hashes(plate) == hashes
     np.testing.assert_equal(config, before)
+
+
+def test_unmix_refusal_uses_installed_reviewed_language_before_loading(subtests, plate, monkeypatch):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _unmix_refusal_uses_installed_reviewed_language_before_loading_case(plate=plate, monkeypatch=case_monkeypatch, **case)
 
 
 @pytest.mark.parametrize('selection', [[np.array(False), 1], [0, np.array(True)]])

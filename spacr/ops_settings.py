@@ -316,6 +316,31 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_cluster_reference_dir": None,
     "ops_cluster_gene_list": None,
     "ops_cluster_published": None,
+    "ops_consensus_enabled": False,
+    "ops_consensus_bootstraps": 10,
+    "ops_consensus_seed": 100,
+    "ops_consensus_draw_seed": 8000,
+    "ops_consensus_knn": 10,
+    "ops_consensus_k": None,
+    "ops_consensus_k_ratio": [209, 2647],
+    "ops_consensus_method": 'average',
+    "ops_consensus_min_cooc": 0.0,
+    "ops_consensus_force_genes": True,
+    "ops_consensus_min_stability": 0.5,
+    "ops_consensus_match_count": True,
+    "ops_consensus_guides": None,
+    "ops_bench_replicates": 20,
+    "ops_bench_replicate_seed": 7000,
+    "ops_bench_cluster_seed": 100,
+    "ops_bench_gate_copies": 40,
+    "ops_bench_gate_noise": 1.7e-3,
+    "ops_bench_gate_alpha": 0.05,
+    "ops_bench_gate_limit": 0.05,
+    "ops_bench_margin_quantile": 0.95,
+    "ops_bench_gate_record": None,
+    "ops_bench_gate_arm": 'consensus',
+    "ops_bench_half": 1,
+    "ops_bench_null_permutations": 200,
     "ops_etest": False,
     "ops_etest_cells": None,
     "ops_etest_metric": 'both',
@@ -654,6 +679,31 @@ OPS_TYPES: Dict[str, object] = {
     "ops_cluster_reference_dir": (str, list, type(None)),
     "ops_cluster_gene_list": (str, type(None)),
     "ops_cluster_published": (list, str, type(None)),
+    "ops_consensus_enabled": bool,
+    "ops_consensus_bootstraps": int,
+    "ops_consensus_seed": int,
+    "ops_consensus_draw_seed": int,
+    "ops_consensus_knn": int,
+    "ops_consensus_k": (int, type(None)),
+    "ops_consensus_k_ratio": (list, tuple),
+    "ops_consensus_method": str,
+    "ops_consensus_min_cooc": (float, int),
+    "ops_consensus_force_genes": bool,
+    "ops_consensus_min_stability": (float, int),
+    "ops_consensus_match_count": bool,
+    "ops_consensus_guides": (str, type(None)),
+    "ops_bench_replicates": int,
+    "ops_bench_replicate_seed": int,
+    "ops_bench_cluster_seed": int,
+    "ops_bench_gate_copies": int,
+    "ops_bench_gate_noise": (float, int),
+    "ops_bench_gate_alpha": (float, int),
+    "ops_bench_gate_limit": (float, int),
+    "ops_bench_margin_quantile": (float, int),
+    "ops_bench_gate_record": (str, type(None)),
+    "ops_bench_gate_arm": str,
+    "ops_bench_half": (int, type(None)),
+    "ops_bench_null_permutations": int,
     "ops_etest": bool,
     "ops_etest_cells": (str, type(None)),
     "ops_etest_metric": str,
@@ -900,6 +950,31 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
         "ops_cluster_reference_dir",
         "ops_cluster_gene_list",
         "ops_cluster_published",
+        "ops_consensus_enabled",
+        "ops_consensus_bootstraps",
+        "ops_consensus_seed",
+        "ops_consensus_draw_seed",
+        "ops_consensus_knn",
+        "ops_consensus_k",
+        "ops_consensus_k_ratio",
+        "ops_consensus_method",
+        "ops_consensus_min_cooc",
+        "ops_consensus_force_genes",
+        "ops_consensus_min_stability",
+        "ops_consensus_match_count",
+        "ops_consensus_guides",
+        "ops_bench_replicates",
+        "ops_bench_replicate_seed",
+        "ops_bench_cluster_seed",
+        "ops_bench_gate_copies",
+        "ops_bench_gate_noise",
+        "ops_bench_gate_alpha",
+        "ops_bench_gate_limit",
+        "ops_bench_margin_quantile",
+        "ops_bench_gate_record",
+        "ops_bench_gate_arm",
+        "ops_bench_half",
+        "ops_bench_null_permutations",
         "ops_etest",
         "ops_etest_cells",
         "ops_etest_metric",
@@ -1736,6 +1811,112 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "each a name, table and optional sheet, gene and cluster column, or "
         "the path of a JSON list of them. Their data is the authors', so the "
         "rows are marked data_matched False. Default None. Alpha.",
+    "ops_consensus_enabled":
+        "(bool) - Also run guide-bootstrap consensus clustering after the "
+        "cluster_sweep phase. Each bootstrap redraws every gene's guides, "
+        "clusters the profile with PHATE + Leiden at the target count, and "
+        "the genes that keep sharing a cluster form the consensus partition, "
+        "so one guide draw or seed no longer decides the clusters. The "
+        "cluster_consensus phase runs it on its own. Default False. Alpha.",
+    "ops_consensus_bootstraps":
+        "(int) - Guide bootstraps the consensus clusters. More give a "
+        "steadier co-clustering matrix and take proportionally longer (one "
+        "PHATE + Leiden run each). Default 10, the value benchmarked. Alpha.",
+    "ops_consensus_seed":
+        "(int) - The consensus clustering seed s: bootstrap b builds its "
+        "PHATE graph and Leiden partition with seed s x 100 + b, and the "
+        "final count matching uses s. Default 100. Alpha.",
+    "ops_consensus_draw_seed":
+        "(int) - The guide-draw seed of the consensus: bootstrap b redraws "
+        "the guides with seed d + b (d + 20 r + b in replicate r of the "
+        "cluster_bench_test phase). Default 8000. Alpha.",
+    "ops_consensus_knn":
+        "(int) - Nearest neighbours of the PHATE graph of every consensus "
+        "bootstrap (cosine). Default 10, as Brieflow. Alpha.",
+    "ops_consensus_k":
+        "(int or None) - The cluster count of every bootstrap and of the "
+        "consensus partition, over the targeting genes. Empty matches "
+        "Brieflow's cluster size: genes x ops_consensus_k_ratio. Default "
+        "None. Alpha.",
+    "ops_consensus_k_ratio":
+        "(list) - [clusters, genes] of the reference clustering whose "
+        "cluster size ops_consensus_k matches when empty. Default [209, "
+        "2647], Brieflow's interphase clusters of its active genes. Alpha.",
+    "ops_consensus_method":
+        "(str) - How the co-clustering matrix is cut: 'average', average "
+        "linkage on 1 - co-clustering cut at the target count (the benchmarked "
+        "rule), or 'leiden', Leiden on the pairs above "
+        "ops_consensus_min_cooc. Default 'average'. Alpha.",
+    "ops_consensus_min_cooc":
+        "(float) - With ops_consensus_method 'leiden', only gene pairs that "
+        "share a cluster in more than this share of bootstraps are linked. "
+        "Default 0.0. Alpha.",
+    "ops_consensus_force_genes":
+        "(bool) - Give every gene a cluster. False makes each gene whose "
+        "mean co-clustering with its own cluster is below "
+        "ops_consensus_min_stability its own singleton (unassigned). "
+        "Benchmarks count unassigned genes as misses. Default True. Alpha.",
+    "ops_consensus_min_stability":
+        "(float) - The stability below which a gene is left unassigned when "
+        "ops_consensus_force_genes is off. Every gene's stability is written "
+        "to consensus_partition.csv either way. Default 0.5. Alpha.",
+    "ops_consensus_match_count":
+        "(bool) - Split or merge the consensus partition to exactly the "
+        "target count when it is more than 10 % off (largest cluster split "
+        "by cosine 2-means, smallest merged into its nearest centroid). "
+        "Default True. Alpha.",
+    "ops_consensus_guides":
+        "(str or None) - The guide rows of ops_cluster_rows (gene, n_cells "
+        "and the same numeric columns), which the bootstraps redraw. Empty "
+        "uses the profile phase's guide table. Default None. Alpha.",
+    "ops_bench_replicates":
+        "(int) - Paired replicates R of the calibrated cluster test: each a "
+        "guide bootstrap plus its own clustering seed. 20 is the value whose "
+        "calibration gate passed; another R needs a new gate "
+        "(ops_bench_gate_copies) or ops_bench_gate_record. Default 20. "
+        "Alpha.",
+    "ops_bench_replicate_seed":
+        "(int) - Replicate r of the calibrated test draws its guides with "
+        "seed s + r. Default 7000. Alpha.",
+    "ops_bench_cluster_seed":
+        "(int) - Replicate r of the calibrated test clusters with seed c + "
+        "r, the same in both arms so replicates are paired. Default 100. "
+        "Alpha.",
+    "ops_bench_gate_copies":
+        "(int) - Jitter copies of the calibration gate: each copy adds tiny "
+        "row noise and is tested against the original, so every rejection "
+        "is a false positive. 0 skips the gate and marks the test 'not "
+        "gated'. Default 40. Alpha.",
+    "ops_bench_gate_noise":
+        "(float) - The gate's row noise, relative to each row's norm. "
+        "Changing it needs a new gate. Default 0.0017. Alpha.",
+    "ops_bench_gate_alpha":
+        "(float) - The level of the calibrated test, of its gate and of the "
+        "Holm-corrected calls. Default 0.05. Alpha.",
+    "ops_bench_gate_limit":
+        "(float) - The largest false-positive share of the gate that passes "
+        "(complexes and STRING pairs). Default 0.05. Alpha.",
+    "ops_bench_margin_quantile":
+        "(float) - When the gate fails, an effect is called only if it also "
+        "exceeds this quantile of the absolute jitter effects (the "
+        "noise-floor margin). Default 0.95. Alpha.",
+    "ops_bench_gate_record":
+        "(str or None) - A saved calibration_gate.csv to reuse instead of "
+        "running the gate; it must match R, the jitter size and the gated "
+        "arm. Default None. Alpha.",
+    "ops_bench_gate_arm":
+        "(str) - The clustering whose jitter copies are gated: 'consensus' "
+        "or 'phate_leiden'. Gating the consensus checks the arm under test; "
+        "gating PHATE + Leiden checks the comparator and is faster, since "
+        "each copy then needs one clustering per replicate instead of one per "
+        "bootstrap. Default 'consensus'. Alpha.",
+    "ops_bench_half":
+        "(int) - The reference half the calibrated test scores: 0 for "
+        "SELECT (used for choices) or 1 for REPORT (reported only); empty "
+        "scores every STRING pair. Default 1. Alpha.",
+    "ops_bench_null_permutations":
+        "(int) - Label permutations of the size-matched null, cluster sizes "
+        "kept, that every metric is an excess over. Default 200. Alpha.",
     "ops_etest":
         "(bool) - Keep the per-cell aligned embedding when the profile phase "
         "runs (cells_E.npy and cells_meta.parquet in its folder), which the "

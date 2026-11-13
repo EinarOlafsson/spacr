@@ -22,6 +22,8 @@ from pathlib import Path
 
 import pytest
 
+from tests import locale_cases
+
 ROOT = Path(__file__).resolve().parents[1]
 README = ROOT / "README.rst"
 GENERATED = ROOT / "docs" / "source" / "_generated" / "hardware_table.rst"
@@ -187,8 +189,8 @@ def test_detected_but_unusable_gpu_never_claims_gpu_acceleration(generator, monk
         f"{RED} CPU"] * 3 + [f"{PURPLE} GPU"]
 
 
-@pytest.mark.parametrize("language", ("en", "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"))
-def test_every_readme_has_current_hardware_table_and_sourced_cpu_context(generator, table, language):
+def _every_readme_has_current_hardware_table_and_sourced_cpu_context_case(generator, table, language):
+    """One case of :func:`test_every_readme_has_current_hardware_table_and_sourced_cpu_context`."""
     tool = generator.build_readme_images
     localized = table if language == "en" else generator.localize_hardware_markup(table, language)
     readme = tool.readme_path(language).read_text(encoding="utf-8")
@@ -220,6 +222,12 @@ def test_every_readme_has_current_hardware_table_and_sourced_cpu_context(generat
     assert not any(row.get("kind") == "paragraph" and
                    "spacr-download" in row.get("text", "") for row in source)
     assert tool.yaml_to_blocks(tool.blocks_to_yaml(source)) == source
+
+
+def test_every_readme_has_current_hardware_table_and_sourced_cpu_context(subtests, generator, table):
+    for label, case in locale_cases.cases(("language", ("en", "sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"))):
+        with subtests.test(**label):
+            _every_readme_has_current_hardware_table_and_sourced_cpu_context_case(generator=generator, table=table, **case)
 
 
 def test_3d_is_a_single_beta_gpu_column_with_supported_cpu_fallback(table):

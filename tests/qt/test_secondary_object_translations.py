@@ -8,6 +8,8 @@ import numpy as np
 import pytest
 from PySide6.QtWidgets import QLabel
 
+from tests import locale_cases
+
 ROOT = Path(__file__).resolve().parents[2]
 LANGUAGES = ('de', 'es', 'fr', 'sv', 'pt', 'is', 'zh_CN', 'ko', 'hi')
 
@@ -62,9 +64,8 @@ def test_long_stop_caption_does_not_force_a_wider_settings_column(qtbot, qt_them
         screen.close()
 
 
-@pytest.mark.parametrize('language', LANGUAGES)
-def test_secondary_controls_and_relationships_are_localized(
-        qtbot, qt_theme_applied, monkeypatch, tmp_path, language):
+def _secondary_controls_and_relationships_are_localized_case(qtbot, qt_theme_applied, monkeypatch, tmp_path, language):
+    """One case of :func:`test_secondary_controls_and_relationships_are_localized`."""
     from spacr.qt import cpu_modes, i18n
     from spacr.qt.screens.make_masks import MakeMasksScreen
 
@@ -133,3 +134,9 @@ def test_secondary_controls_and_relationships_are_localized(
         assert hashlib.sha256(primary_path.read_bytes()).hexdigest() == original_hash
     finally:
         screen.close()
+
+
+def test_secondary_controls_and_relationships_are_localized(subtests, qtbot, qt_theme_applied, monkeypatch, tmp_path):
+    for label, case in locale_cases.cases(('language', LANGUAGES)):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _secondary_controls_and_relationships_are_localized_case(qtbot=qtbot, qt_theme_applied=qt_theme_applied, monkeypatch=case_monkeypatch, tmp_path=locale_cases.case_dir(tmp_path, label), **case)

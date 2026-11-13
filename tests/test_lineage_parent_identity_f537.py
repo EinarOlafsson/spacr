@@ -7,6 +7,8 @@ import pytest
 
 from spacr import _lineage_trees as lineage
 
+from tests import locale_cases
+
 SOURCE = 'Track {track} has conflicting known parent IDs in the lineage table.'
 
 
@@ -90,8 +92,8 @@ def test_absent_parent_column_still_has_no_explicit_links():
     assert lineage._lineage_explicit_parents(frame.drop(columns='parent_track_id'), spans) == {}
 
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is'])
-def test_installed_reviewed_language_at_actual_segment_boundary(language, monkeypatch):
+def _installed_reviewed_language_at_actual_segment_boundary_case(language, monkeypatch):
+    """One case of :func:`test_installed_reviewed_language_at_actual_segment_boundary`."""
     review = Path(__file__).parents[1] / 'docs/i18n/reviewed/runtime' / language / '2026-10-15-lineage-parent-identity.json'
     record = json.loads(review.read_text(encoding="utf-8"))['records'][0]
     frame = actual_tracks()
@@ -102,3 +104,9 @@ def test_installed_reviewed_language_at_actual_segment_boundary(language, monkey
     assert str(error.value) == record['translation'].format(track=3)
     assert str(error.value) != SOURCE.format(track=3)
     pd.testing.assert_frame_equal(frame, before)
+
+
+def test_installed_reviewed_language_at_actual_segment_boundary(subtests, monkeypatch):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _installed_reviewed_language_at_actual_segment_boundary_case(monkeypatch=case_monkeypatch, **case)

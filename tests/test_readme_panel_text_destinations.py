@@ -7,6 +7,8 @@ import pytest
 
 from tests.readme_source_words import readme_tool
 
+from tests import locale_cases
+
 
 class Article(HTMLParser):
     def __init__(self):
@@ -46,8 +48,8 @@ def rendered(markdown):
     return result
 
 
-@pytest.mark.parametrize("language", readme_tool().LANGUAGES)
-def test_every_panel_opens_rendered_words_before_any_other_content(language):
+def _every_panel_opens_rendered_words_before_any_other_content_case(language):
+    """One case of :func:`test_every_panel_opens_rendered_words_before_any_other_content`."""
     tool = readme_tool()
     output = tool.compose(language, render=False)
     assert len(output.pages) == 66
@@ -73,8 +75,14 @@ def test_every_panel_opens_rendered_words_before_any_other_content(language):
     assert "table" in rendered(output.pages["generated-hardware-1"]).tags
 
 
-@pytest.mark.parametrize("language", readme_tool().LANGUAGES)
-def test_authoring_words_keep_their_order_in_each_rendered_article(language):
+def test_every_panel_opens_rendered_words_before_any_other_content(subtests):
+    for label, case in locale_cases.cases(("language", readme_tool().LANGUAGES)):
+        with subtests.test(**label):
+            _every_panel_opens_rendered_words_before_any_other_content_case(**case)
+
+
+def _authoring_words_keep_their_order_in_each_rendered_article_case(language):
+    """One case of :func:`test_authoring_words_keep_their_order_in_each_rendered_article`."""
     tool = readme_tool()
     english = tool.load_source("en")
     local = tool.load_source(language)
@@ -96,6 +104,12 @@ def test_authoring_words_keep_their_order_in_each_rendered_article(language):
             page = tool.TEXT_DIR / language / f"{route}.md"
             article = rendered(page.read_text(encoding="utf-8"))
             assert article.text == " ".join(tool.plain(text) for text in texts)
+
+
+def test_authoring_words_keep_their_order_in_each_rendered_article(subtests):
+    for label, case in locale_cases.cases(("language", readme_tool().LANGUAGES)):
+        with subtests.test(**label):
+            _authoring_words_keep_their_order_in_each_rendered_article_case(**case)
 
 
 def test_markdown_preserves_inline_syntax_tables_and_relative_fragments():

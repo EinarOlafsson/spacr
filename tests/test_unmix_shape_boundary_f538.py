@@ -8,6 +8,8 @@ import pytest
 
 from spacr import psf_pipeline as psf
 
+from tests import locale_cases
+
 SOURCE = 'Spectral unmixing requires images with an explicit channel axis and at least three dimensions.'
 
 
@@ -119,9 +121,8 @@ def test_disabled_unmixing_does_not_load_or_validate_controls(tmp_path):
     assert_files_exact(folder, hashes)
 
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is'])
-@pytest.mark.parametrize('entrypoint', ['controls', 'apply'])
-def test_installed_reviewed_language_guards_both_boundaries(tmp_path, actual_plan, language, entrypoint, monkeypatch):
+def _installed_reviewed_language_guards_both_boundaries_case(tmp_path, actual_plan, language, entrypoint, monkeypatch):
+    """One case of :func:`test_installed_reviewed_language_guards_both_boundaries`."""
     review = Path(__file__).parents[1] / 'docs/i18n/reviewed/runtime' / language / '2026-10-15-unmix-shape-boundary.json'
     record = json.loads(review.read_text(encoding="utf-8"))['records'][0]
     monkeypatch.setenv('SPACR_LANGUAGE', language)
@@ -138,3 +139,9 @@ def test_installed_reviewed_language_guards_both_boundaries(tmp_path, actual_pla
     assert str(error.value) != SOURCE
     np.testing.assert_array_equal(image, before)
     assert_files_exact(folder, hashes)
+
+
+def test_installed_reviewed_language_guards_both_boundaries(subtests, tmp_path, actual_plan, monkeypatch):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is']), ('entrypoint', ['controls', 'apply'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _installed_reviewed_language_guards_both_boundaries_case(tmp_path=locale_cases.case_dir(tmp_path, label), actual_plan=actual_plan, monkeypatch=case_monkeypatch, **case)

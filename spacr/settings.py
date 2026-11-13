@@ -9254,6 +9254,12 @@ ALPHA_FEATURES = {
     916: {
         'settings': ('ops_cluster_rows', 'ops_cluster_graph', 'ops_cluster_knn', 'ops_cluster_sweep_resolutions', 'ops_cluster_seeds', 'ops_cluster_target_clusters', 'ops_cluster_shuffles', 'ops_cluster_reference_dir', 'ops_cluster_gene_list', 'ops_cluster_published',),
     },
+    928: {
+        'settings': ('ops_consensus_enabled', 'ops_consensus_bootstraps', 'ops_consensus_seed', 'ops_consensus_draw_seed', 'ops_consensus_knn', 'ops_consensus_k', 'ops_consensus_k_ratio', 'ops_consensus_method', 'ops_consensus_min_cooc', 'ops_consensus_force_genes', 'ops_consensus_min_stability', 'ops_consensus_match_count', 'ops_consensus_guides',),
+    },
+    929: {
+        'settings': ('ops_bench_replicates', 'ops_bench_replicate_seed', 'ops_bench_cluster_seed', 'ops_bench_gate_copies', 'ops_bench_gate_noise', 'ops_bench_gate_alpha', 'ops_bench_gate_limit', 'ops_bench_margin_quantile', 'ops_bench_gate_record', 'ops_bench_gate_arm', 'ops_bench_half', 'ops_bench_null_permutations',),
+    },
     918: {
         'settings': ('umap_source', 'ops_umap_profiles', 'ops_umap_guide_profiles',
                      'ops_umap_guides', 'ops_umap_graph', 'ops_umap_knn', 'ops_umap_resolution',

@@ -1,0 +1,29 @@
+OPS CALIBRATED CLUSTER TEST: PAIRED GUIDE-BOOTSTRAP REPLICATES, EXACT SIGN-FLIP P, TWO-LEVEL CI, JITTER GATE
+===========================================================================================================
+
+Lifecycle: future
+Status: IMPLEMENTED 2026-11-12 (alpha, under ALPHA_FEATURES[929]); step 6 reproduction proof below — spacr.ops_clusters.paired_replicate_test compares two clusterings over R paired replicates (each a guide bootstrap, seed ops_bench_replicate_seed + r, and its own clustering seed ops_bench_cluster_seed + r): per-unit excess over a size-matched null (partition_units, size_matched_null; complexes recovered, STRING pairs in one cluster, per-gene-capped pairs, on one reference half via calibrated_reference), effect = mean replicate difference, exact two-sided (or one-sided) sign-flip p over the 2^R patterns (signflip_exact), 95 % two-level bootstrap CI over replicates and genes (two_level_ci). calibration_gate tests jitter copies (jitter_rows, relative row noise 1.7e-3) against the base and passes when <= 5 % are rejected for complexes and pairs; when it fails, noise_floor_margin gives the 95th-percentile margin with its cross-validated check and call_effects calls an effect only beyond it (Holm q). The profile-path phase cluster_bench_test runs consensus (928) vs single PHATE + Leiden end to end and writes bench_partitions.npz, bench_replicates.csv, calibration_gate.csv, calibration_margin.csv (gate failed), test_stats.csv, bench_test_summary.json and bench_test.png. R other than 20 is refused without a gate in the run or a matching ops_bench_gate_record. spacr/ops_clusters.py, spacr/ops_tvn.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_consensus_bench_928_929.py.
+Requested: maintainer via paper session (BMC paper item spec ITEM_ops_cluster_bench.md, statistics section; OPS stage 5, feature workflow step 5 approved 2026-11-12).
+Owner: paper session (stage 5 lane).
+Source: profile_design_d/scripts/cal_lib.py (Units, _null, signflip_exact, gene_boot, compare / paired_replicate_test, draw 'jitter:', calibration_gate) and a1_margin.py (noise-floor margin and its cross-validated check).
+Related: 928, 916.
+
+SETTINGS
+ops_bench_replicates (20, the gated value), ops_bench_replicate_seed (7000),
+ops_bench_cluster_seed (100), ops_bench_gate_copies (40), ops_bench_gate_noise
+(1.7e-3), ops_bench_gate_alpha (0.05), ops_bench_gate_limit (0.05),
+ops_bench_margin_quantile (0.95), ops_bench_gate_record (None),
+ops_bench_gate_arm ('consensus'), ops_bench_half (1), ops_bench_null_permutations
+(200).
+
+NOT DONE (rest of ITEM_ops_cluster_bench.md)
+The gene split, the nine-method registry, select_on_dev / final_test and the
+retrieval noise-floor interval test are not part of this item; the test,
+gate and margin are.
+
+VALIDATION (step 6; spacr_stage5_proof/stage5_proof_result.json)
+CPU tests: p and CI equal cal_lib's on a fixture to 1e-9, the gate's
+false-positive count equals cal_lib's loop, the margin equals a1_margin.py.
+Real data: Design D cal_gate_search.csv (40 jitter copies, R 20), Design D
+ledger_design_d_vs_hybrid.csv and Design F's consensus-stage gate recomputed by
+spaCR from the cached partitions and the Brieflow reference files.

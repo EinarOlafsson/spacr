@@ -9,9 +9,11 @@ import pytest
 from spacr.qt import i18n
 from tools.web_mask_generator import masks, service
 
+from tests import locale_cases
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is'])
-def test_actual_configured_startup_key_refusal_is_localized(language, monkeypatch, tmp_path):
+
+def _actual_configured_startup_key_refusal_is_localized_case(language, monkeypatch, tmp_path):
+    """One case of :func:`test_actual_configured_startup_key_refusal_is_localized`."""
     source = 'Unknown provisioned model key: {key}'
     review_path = (Path(__file__).parents[1] / 'docs/i18n/reviewed/runtime' / language /
                    '2026-10-15-configured-startup-preload.json')
@@ -43,3 +45,9 @@ def test_actual_configured_startup_key_refusal_is_localized(language, monkeypatc
     assert str(error.value) == expected
     assert calls == []
     assert path.read_bytes() == original
+
+
+def test_actual_configured_startup_key_refusal_is_localized(subtests, monkeypatch, tmp_path):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _actual_configured_startup_key_refusal_is_localized_case(monkeypatch=case_monkeypatch, tmp_path=locale_cases.case_dir(tmp_path, label), **case)

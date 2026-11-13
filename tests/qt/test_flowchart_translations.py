@@ -5,13 +5,15 @@ from pathlib import Path
 import pytest
 from PySide6.QtWidgets import QDialogButtonBox, QLabel
 
+from tests import locale_cases
+
 
 ROOT = Path(__file__).resolve().parents[2]
 LANGUAGES = ('de', 'es', 'fr', 'sv', 'pt', 'is', 'zh_CN', 'ko', 'hi')
 
 
-@pytest.mark.parametrize('language', LANGUAGES)
-def test_flowchart_controls_and_candidate_explanations(qtbot, qt_theme_applied, monkeypatch, language):
+def _flowchart_controls_and_candidate_explanations_case(qtbot, qt_theme_applied, monkeypatch, language):
+    """One case of :func:`test_flowchart_controls_and_candidate_explanations`."""
     from spacr.qt import i18n
     from spacr.qt.widgets.sample_project import SampleProjectDialog
     from spacr.qt.widgets.workflow_diagram import SpacrFlowchartDialog
@@ -55,3 +57,9 @@ def test_flowchart_controls_and_candidate_explanations(qtbot, qt_theme_applied, 
     buttons = overview.findChild(QDialogButtonBox)
     assert buttons.button(QDialogButtonBox.Ok).text() == targets['Start example']
     assert overview.list.count() == len(overview._entries) == 9
+
+
+def test_flowchart_controls_and_candidate_explanations(subtests, qtbot, qt_theme_applied, monkeypatch):
+    for label, case in locale_cases.cases(('language', LANGUAGES)):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _flowchart_controls_and_candidate_explanations_case(qtbot=qtbot, qt_theme_applied=qt_theme_applied, monkeypatch=case_monkeypatch, **case)

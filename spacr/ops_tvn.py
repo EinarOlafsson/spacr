@@ -1347,8 +1347,12 @@ def run_profile_phases(settings: Mapping[str, Any], phases: Sequence[str] = ("pr
         with ``ops_etest`` on, the profile phase keeps the first cell state's
         per-cell embedding as ``cells_E.npy`` and ``cells_meta.parquet``) and
         ``"cluster_sweep"`` (item 916,
-        :func:`spacr.ops_clusters.cluster_sweep_phase`), which run after them
-        under the same BLAS pin.
+        :func:`spacr.ops_clusters.cluster_sweep_phase`), ``"cluster_consensus"``
+        (item 928, :func:`spacr.ops_clusters.cluster_consensus_phase`; also
+        after ``"cluster_sweep"`` when ``ops_consensus_enabled`` is on) and
+        ``"cluster_bench_test"`` (item 929,
+        :func:`spacr.ops_clusters.cluster_bench_test_phase`), which run after
+        them under the same BLAS pin.
     :param report: called with progress lines.
     :returns: ``{"folder", "outputs", "info"}``.
     :raises ValueError: for a missing ``dst_root``, an unknown similarity,
@@ -1414,12 +1418,31 @@ def run_profile_phases(settings: Mapping[str, Any], phases: Sequence[str] = ("pr
             info["cluster_sweep"] = cluster_sweep_phase(settings, gene_rows, str(settings["dst_root"]),
                                                         report=say)
             outputs.update(info["cluster_sweep"]["outputs"])
+        consensus = "cluster_consensus" in phases or (
+            "cluster_sweep" in phases and bool(settings.get("ops_consensus_enabled", False)))
+        if consensus or "cluster_bench_test" in phases:
+            from .ops_clusters import cluster_bench_test_phase, cluster_consensus_phase
+
+            first = "" if states == ["interphase_rule"] else f"_{states[0]}"
+            tables = [os.path.join(folder, f"{kind}{first}.parquet") for kind in ("genes", "guides")]
+            gene_rows, guide_rows = (read_table(path, canonicalise=False, report=None)
+                                     if os.path.isfile(path) else None for path in tables)
+            for phase, run_phase, wanted in (("cluster_consensus", cluster_consensus_phase, consensus),
+                                             ("cluster_bench_test", cluster_bench_test_phase,
+                                              "cluster_bench_test" in phases)):
+                if wanted:
+                    info[phase] = run_phase(settings, gene_rows, guide_rows, str(settings["dst_root"]), report=say)
+                    outputs.update(info[phase]["outputs"])
     info["blas_threads"] = pinned
     extra = (("ops_mitotic_", "ops_guide_efficacy") if states != ["interphase_rule"]
              or settings.get("ops_mitotic_index_test") else ())
     recorded = ("ops_profile_", "ops_eval_", "ops_reference_") + extra + tuple(
         prefix for phase, prefix in (("cluster_sweep", "ops_cluster_"), ("etest", "ops_etest"),
-                                     ("etest", "ops_power_")) if phase in phases)
+                                     ("etest", "ops_power_"), ("cluster_consensus", "ops_cluster_"),
+                                     ("cluster_consensus", "ops_consensus_"),
+                                     ("cluster_bench_test", "ops_cluster_"),
+                                     ("cluster_bench_test", "ops_consensus_"),
+                                     ("cluster_bench_test", "ops_bench_")) if phase in phases)
     keys = sorted(k for k in settings if k.startswith(recorded)
                   or k in ("ops_tvn_whiten_epsilon", "plate", "ops_control_prefix", "ops_deterministic_blas"))
     record = {"settings": {k: settings[k] for k in keys}, "phases": list(phases), "outputs": outputs, **info}

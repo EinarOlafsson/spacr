@@ -15,15 +15,16 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 import build_documentation_i18n as api
 
+from tests import locale_cases
+
 
 @pytest.fixture(scope="module")
 def current_documents():
     return api.public_docstrings()
 
 
-@pytest.mark.parametrize("language", tuple(api.MODEL_SPECS))
-def test_example_pack_api_publishes_reviewed_import_semantics(
-        language, current_documents):
+def _example_pack_api_publishes_reviewed_import_semantics_case(language, current_documents):
+    """One case of :func:`test_example_pack_api_publishes_reviewed_import_semantics`."""
     path = (ROOT / "docs/i18n/reviewed/api" / language /
             "2026-09-16-example-settings-pack.json")
     records = json.loads(path.read_text(encoding="utf-8"))["records"]
@@ -42,8 +43,14 @@ def test_example_pack_api_publishes_reviewed_import_semantics(
         assert published[int(index)] == record["translation"]
 
 
-@pytest.mark.parametrize("language", tuple(api.MODEL_SPECS))
-def test_example_pack_runtime_publishes_reviewed_counts_and_losses(language):
+def test_example_pack_api_publishes_reviewed_import_semantics(subtests, current_documents):
+    for label, case in locale_cases.cases(("language", tuple(api.MODEL_SPECS))):
+        with subtests.test(**label):
+            _example_pack_api_publishes_reviewed_import_semantics_case(current_documents=current_documents, **case)
+
+
+def _example_pack_runtime_publishes_reviewed_counts_and_losses_case(language):
+    """One case of :func:`test_example_pack_runtime_publishes_reviewed_counts_and_losses`."""
     from spacr.qt import i18n
     from spacr.qt.i18n_catalogs import en
 
@@ -68,3 +75,9 @@ def test_example_pack_runtime_publishes_reviewed_counts_and_losses(language):
         assert api._source_hash(source) == record["source_sha256"]
         assert catalog.UI[source] == record["translation"]
         assert i18n._exact_translation(source, language) == record["translation"]
+
+
+def test_example_pack_runtime_publishes_reviewed_counts_and_losses(subtests):
+    for label, case in locale_cases.cases(("language", tuple(api.MODEL_SPECS))):
+        with subtests.test(**label):
+            _example_pack_runtime_publishes_reviewed_counts_and_losses_case(**case)

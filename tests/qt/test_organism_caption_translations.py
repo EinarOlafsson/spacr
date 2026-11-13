@@ -6,6 +6,8 @@ import pytest
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QLabel
 
+from tests import locale_cases
+
 
 ROOT = Path(__file__).resolve().parents[2]
 LANGUAGES = ('de', 'es', 'fr', 'sv', 'pt', 'is', 'zh_CN', 'ko', 'hi')
@@ -26,10 +28,8 @@ def pinned_review_inputs():
     bootstrap.ensure_review_inputs(ROOT)
 
 
-@pytest.mark.parametrize('language', LANGUAGES)
-@pytest.mark.parametrize('app_key', ['toxoplasma', 'plasmodium', 'candida'])
-def test_organism_labels_tooltips_and_compartment_keys(
-        qtbot, qt_theme_applied, monkeypatch, language, app_key):
+def _organism_labels_tooltips_and_compartment_keys_case(qtbot, qt_theme_applied, monkeypatch, language, app_key):
+    """One case of :func:`test_organism_labels_tooltips_and_compartment_keys`."""
     from spacr.qt import i18n
     from spacr.qt.organisms import ORGANISMS
     from spacr.qt.screens.organism_screen import OrganismScreen
@@ -95,6 +95,12 @@ def test_organism_labels_tooltips_and_compartment_keys(
     empty = ('Hover over the cell to identify a compartment. '
              'Check several labels to keep them highlighted.')
     assert diagram.caption.text() == targets[empty]
+
+
+def test_organism_labels_tooltips_and_compartment_keys(subtests, qtbot, qt_theme_applied, monkeypatch):
+    for label, case in locale_cases.cases(('language', LANGUAGES), ('app_key', ['toxoplasma', 'plasmodium', 'candida'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _organism_labels_tooltips_and_compartment_keys_case(qtbot=qtbot, qt_theme_applied=qt_theme_applied, monkeypatch=case_monkeypatch, **case)
 
 
 @pytest.mark.parametrize("scale", (0.75, 0.9, 1.25))

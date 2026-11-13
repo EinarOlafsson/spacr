@@ -7,6 +7,8 @@ import pytest
 
 from spacr import run_journal as rj
 
+from tests import locale_cases
+
 
 CAPTION = 'A run is in progress. Try again when it has finished.'
 
@@ -104,8 +106,8 @@ def test_missing_source_relocation_cannot_write_metadata_during_active_run(cache
         assert not (tmp_path / 'destination').exists()
 
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'])
-def test_busy_cache_refusal_uses_existing_shipped_locale(cache, monkeypatch, language):
+def _busy_cache_refusal_uses_existing_shipped_locale_case(cache, monkeypatch, language):
+    """One case of :func:`test_busy_cache_refusal_uses_existing_shipped_locale`."""
     from spacr.qt import i18n
     folder, metadata = cache
     translated = importlib.import_module('spacr.qt.i18n_catalogs.' + language).UI[CAPTION]
@@ -116,6 +118,12 @@ def test_busy_cache_refusal_uses_existing_shipped_locale(cache, monkeypatch, lan
         assert rj._clear_cache('news') == (0, [translated])
         assert (folder / 'kept.json').read_bytes() == b'important cache bytes'
         assert metadata.read_bytes() == before
+
+
+def test_busy_cache_refusal_uses_existing_shipped_locale(subtests, cache, monkeypatch):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _busy_cache_refusal_uses_existing_shipped_locale_case(cache=cache, monkeypatch=case_monkeypatch, **case)
 
 
 def test_run_registration_waits_until_cache_mutation_finishes_without_reentrant_lock(cache, tmp_path, monkeypatch):
