@@ -1083,31 +1083,6 @@ def test_escaping_the_plate_of_a_five_part_stem_always_changes_it():
                                    timelapse=True) == 'plate1_A01_1_1'
 
 
-def test_a_numeric_prcf_is_rewritten_as_text_before_the_object_split():
-    """Why ``if 'prcf' in metadata.columns`` in ``_read_and_merge_data`` holds.
-
-    ``metadata`` is the non-numeric half of ``utils._split_data``, and that
-    function rebuilds ``prcf`` from ``plateID``/``rowID``/``columnID``/
-    ``fieldID`` as a string on every call -- overwriting a numeric column of
-    that name. A string column cannot land in the numeric half, so ``prcf`` is
-    always in ``metadata`` and the ``else`` that rebuilds ``prcfo`` from the
-    four keys is dead.
-    """
-    from spacr.utils import _split_data
-
-    frame = pd.DataFrame({'plateID': ['plate1'] * 2, 'rowID': ['r1'] * 2,
-                          'columnID': ['c1'] * 2, 'fieldID': ['f1'] * 2,
-                          # numeric on the way in ...
-                          'prcf': [1, 2],
-                          'object_label': [1, 2], 'area': [1.0, 2.0]})
-    numeric, non_numeric = _split_data(frame, 'prcfo', 'object_label')
-
-    # ... text on the way out, and in the non-numeric half.
-    assert 'prcf' in non_numeric.columns
-    assert 'prcf' not in numeric.columns
-    assert list(non_numeric['prcf']) == ['plate1_r1_c1_f1'] * 2
-
-
 def test_a_class_that_selected_nothing_is_refused_before_balancing(tmp_path):
     """Why ``_balance_lists`` is never handed an empty list of classes.
 

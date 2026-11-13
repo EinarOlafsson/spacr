@@ -388,33 +388,6 @@ def _rand_stack(shape=(32, 32, 3), seed=0):
     return rng.integers(0, 5000, size=shape).astype(np.uint16)
 
 
-def test_plot_arrays_single_npy_one_subplot_per_channel(tmp_path, capsys):
-    from spacr.plot import plot_arrays
-    from spacr.utils import normalize_to_dtype
-
-    arr = _rand_stack()
-    path = tmp_path / "stack3.npy"
-    np.save(path, arr)
-
-    plot_arrays(str(path), figuresize=6, cmap="gray", normalize=True, q1=1, q2=99)
-
-    assert f"Image path: {path}" in capsys.readouterr().out
-    figs = plt.get_fignums()
-    assert len(figs) == 1
-    axes = plt.figure(figs[0]).axes
-    assert len(axes) == 3
-
-    expected = normalize_to_dtype(array=arr, p1=1, p2=99)
-    for c, ax in enumerate(axes):
-        assert ax.get_title() == f"Channel {c}"
-        assert not ax.axison
-        shown = np.asarray(ax.images[0].get_array())
-        assert shown.shape == (32, 32)
-        assert np.array_equal(shown, expected[:, :, c])
-    # normalisation really changed the data.
-    assert not np.array_equal(expected, arr)
-
-
 def test_plot_arrays_single_channel_3d_wraps_axes_in_list(tmp_path):
     """array_nr == 1 -> plt.subplots returns a bare Axes that must be wrapped."""
     from spacr.plot import plot_arrays

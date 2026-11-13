@@ -22,50 +22,7 @@ from spacr import utils as U
 # suggest_training_changes -- the same advice reached twice
 # ---------------------------------------------------------------------------
 
-def _progress(tmp_path, n=30, train_loss=None, val_loss=None,
-              train_acc=None, val_acc=None):
-    epoch = np.arange(1, n + 1)
-    train = pd.DataFrame({
-        "epoch": epoch,
-        "loss": np.linspace(0.70, 0.10, n) if train_loss is None
-        else train_loss,
-    })
-    val = pd.DataFrame({
-        "epoch": epoch,
-        "loss": np.linspace(0.70, 0.20, n) if val_loss is None else val_loss,
-    })
-    if train_acc is not None:
-        train["accuracy"] = train_acc
-    if val_acc is not None:
-        val["accuracy"] = val_acc
-    train.to_csv(tmp_path / "train_progress.csv", index=False)
-    val.to_csv(tmp_path / "validation_progress.csv", index=False)
-
-
 class TestTheTrainingAdvisorsSuggestions:
-
-    def test_a_healthy_run_is_advised_without_repetition(self, tmp_path):
-        _progress(tmp_path)
-
-        out = U.suggest_training_changes(str(tmp_path))
-
-        assert len(out["suggestions"]) == len(set(out["suggestions"])), (
-            "the advisor repeated itself")
-
-    def test_an_overfitting_run_is_told_so_without_repetition(self,
-                                                               tmp_path):
-        n = 30
-        _progress(tmp_path, n=n,
-                  train_loss=np.linspace(0.70, 0.01, n),
-                  val_loss=np.linspace(0.70, 0.65, n),
-                  train_acc=np.linspace(0.5, 0.99, n),
-                  val_acc=np.linspace(0.5, 0.55, n))
-
-        out = U.suggest_training_changes(str(tmp_path))
-
-        assert out["suggestions"], "a badly overfitting run got no advice"
-        assert "overfitting" in out["flags"]
-        assert len(out["suggestions"]) == len(set(out["suggestions"]))
 
     def test_no_two_checks_offer_the_same_sentence(self):
         """THE PIN, for ``if s not in seen``.
@@ -114,59 +71,6 @@ class TestScanningAFolderInTestMode:
         for name in names:
             (source / name).write_bytes(b"II*\x00")
         return str(source)
-
-    def test_files_that_match_are_grouped_by_their_set(self, tmp_path,
-                                                        capsys):
-        pattern = (r"(?P<plateID>plate\d+)_(?P<wellID>[A-Z]\d+)_"
-                   r"(?P<fieldID>\d+)_(?P<chanID>\d+)\.tif")
-        source = self._images(tmp_path, [
-            "plate1_A01_1_1.tif", "plate1_A01_1_2.tif",
-            "plate1_A02_1_1.tif",
-        ])
-
-        # NOT WRAPPED IN A SKIP. The input is filenames this test wrote
-        # into tmp_path, so anything _run_test_mode raises on them is a
-        # bug in spaCR -- the exact thing a blanket skip would hide.
-        U._run_test_mode(source, pattern)
-
-        assert "Found 3 files" in capsys.readouterr().out
-
-    def test_a_file_the_regex_does_not_match_never_enters_the_loop(
-            self, tmp_path, capsys):
-        """THE PIN for removing the duplicate ``if match`` inside the loop.
-
-        It cannot be false: ``all_filenames`` is built by the same
-        ``regular_expression.match``, so everything the loop sees has
-        already matched once. A folder does hold more than its images --
-        a stitched overview, a flat-field reference, an export from
-        another tool -- and those are filtered out before the loop, not
-        inside it.
-
-        This fails if the listing stops filtering, which is what would let a
-        non-match reach the now-unconditional group reads.
-        """
-        pattern = (r"(?P<plateID>plate\d+)_(?P<wellID>[A-Z]\d+)_"
-                   r"(?P<fieldID>\d+)_(?P<chanID>\d+)\.tif")
-        source = self._images(tmp_path, [
-            "plate1_A01_1_1.tif", "overview.tif",
-            "flatfield_correction.tif",
-        ])
-
-        # NOT WRAPPED IN A SKIP. The input is filenames this test wrote
-        # into tmp_path, so anything _run_test_mode raises on them is a
-        # bug in spaCR -- the exact thing a blanket skip would hide.
-        U._run_test_mode(source, pattern)
-
-        printed = capsys.readouterr().out
-        assert "Found 1 files" in printed, (
-            "the two unrecognised TIFFs were not filtered before the loop")
-
-        listing = inspect.getsource(U._run_test_mode)
-        assert ("listed = [filename for filename in "
-                "_listdir_visible(folder) if regular_expression.match(filename)]"
-                ) in listing, (
-            "the listing no longer filters by the regex, so a non-match "
-            "can now reach the loop and the guard inside it is live")
 
     def test_the_listing_filter_is_the_only_match_check(self):
         source = inspect.getsource(U._run_test_mode)

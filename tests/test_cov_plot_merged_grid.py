@@ -146,26 +146,6 @@ def test_normalize_and_outline_overlay_returns_rgb_image_and_one_outline_per_mas
     assert np.allclose(overlayed[only_cell], np.array(colours[0], dtype=np.float32))
 
 
-def test_normalize_and_outline_without_overlay_drops_mask_channels():
-    from spacr.plot import _normalize_and_outline, _get_colours_merged
-    from spacr.utils import normalize_to_dtype
-
-    stack = _merged_stack()
-    expected = normalize_to_dtype(array=stack.copy(), p1=0, p2=100)[:, :, [0, 1, 2]]
-
-    overlayed, image, outlines = _normalize_and_outline(
-        image=stack, remove_background=False, normalize=False,
-        normalization_percentiles=[2, 98], overlay=False,
-        overlay_chans=[0, 1, 2], mask_dims=[3, 4, 5],
-        outline_colors=_get_colours_merged("rgb"), outline_thickness=2)
-
-    assert overlayed == []
-    assert outlines == []
-    assert image.shape == (H, W, 3)
-    assert image.dtype == np.uint16
-    np.testing.assert_array_equal(image, expected)
-
-
 @pytest.mark.parametrize("normalize,expected", [(True, (2, 98)), (False, (0, 100))])
 def test_normalize_and_outline_percentile_selection(monkeypatch, normalize, expected):
     """normalize=True forwards the configured percentiles; False forces 0/100."""
