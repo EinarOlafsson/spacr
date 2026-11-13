@@ -2169,9 +2169,9 @@ def _update_database_with_merged_info(db_path, df, table='png_list', columns=Non
         conn.close()
         raise
     
+    from .foreign import _replace_table_atomically
     try:
-        conn.execute(f"DROP TABLE IF EXISTS {table}")
-        merged_df.to_sql(table, conn, index=False)
+        _replace_table_atomically(conn, table, merged_df)
         print(f"Table {table} successfully updated in the database.")
     except Exception as e:
         print(f"Failed to update table {table} in the database: {e}")
@@ -3512,9 +3512,12 @@ def _pivot_counts_table(db_path):
 
     df = _read_table_to_dataframe(db_path, 'object_counts')
     pivoted_df = _pivot_dataframe(df)
+    from .foreign import _replace_table_atomically
     conn = sqlite3.connect(db_path, timeout=30)
-    pivoted_df.to_sql('pivoted_counts', conn, if_exists='replace', index=False)
-    conn.close()
+    try:
+        _replace_table_atomically(conn, 'pivoted_counts', pivoted_df)
+    finally:
+        conn.close()
     
 #: The order the merged stack's channel axis is built in, and the ONLY order
 #: that describes it. `io.preprocess_img_data` walks these four settings in

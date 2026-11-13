@@ -3,7 +3,7 @@ spaCR FEATURES -- NEW, AND FUTURE
 Canonical discovery: features/FEATURE_LIST.md
 ================================================================================
 
-Regenerated 2026-11-12 by `tools/build_instruction_index.py`, from the files in
+Regenerated 2026-11-13 by `tools/build_instruction_index.py`, from the files in
 these globs and nothing else:
 
   features/feature_list/*.txt
@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-740 Lifecycle: new, 169 Lifecycle: future in features/feature_list/.
+740 Lifecycle: new, 170 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -552,6 +552,9 @@ FUTURE FEATURES
 
   929  OPS CALIBRATED CLUSTER TEST: PAIRED GUIDE-BOOTSTRAP REPLICATES, EXACT SIGN-FLIP P, TWO-LEVEL CI, JITTER GATE
        929_ops_calibrated_cluster_test.txt
+
+  930  OPS PER-TILE AFFINE ALIGNMENT OF PHENOTYPE FIELDS TO THE SEQUENCING NUCLEI
+       930_ops_tile_affine_alignment.txt
 
 --------------------------------------------------------------------------------
 NEW FEATURES

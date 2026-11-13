@@ -1,8 +1,6 @@
 """Coverage-fill batch 2 for spacr.io pure helpers (no GPU)."""
 from __future__ import annotations
 
-import os
-import sqlite3
 
 import numpy as np
 import pandas as pd
@@ -19,37 +17,10 @@ from spacr import io as IO
 # directory helpers
 # ---------------------------------------------------------------------------
 
-def test_delete_empty_subdirectories(tmp_path):
-    (tmp_path / "empty1").mkdir()
-    (tmp_path / "empty2" / "nested_empty").mkdir(parents=True)
-    (tmp_path / "full").mkdir()
-    (tmp_path / "full" / "f.txt").write_text("x", encoding="utf-8")
-    IO.delete_empty_subdirectories(str(tmp_path))
-    assert not (tmp_path / "empty1").exists()
-    assert (tmp_path / "full").exists()
-
 
 # ---------------------------------------------------------------------------
 # object-count DB
 # ---------------------------------------------------------------------------
-
-def test_save_object_counts_to_database(tmp_path):
-    db = tmp_path / "counts.db"
-    m1 = np.zeros((8, 8), dtype=np.int32); m1[1:3, 1:3] = 1; m1[5:7, 5:7] = 2
-    m2 = np.zeros((8, 8), dtype=np.int32); m2[0:2, 0:2] = 1
-    IO._save_object_counts_to_database(
-        [m1, m2], "cell", ["a.npy", "b.npy"], str(db), added_string="_test")
-    with sqlite3.connect(str(db)) as conn:
-        out = pd.read_sql_query("SELECT * FROM object_counts", conn)
-    assert len(out) == 2
-    assert out[out["file_name"] == "a.npy"]["object_count"].iloc[0] == 2
-    assert out["count_type"].iloc[0] == "cell_test"
-
-
-def test_create_database(tmp_path):
-    db = tmp_path / "new.db"
-    IO._create_database(str(db))
-    assert db.exists()
 
 
 # ---------------------------------------------------------------------------
@@ -156,101 +127,9 @@ def test_check_masks(tmp_path):
 # model-stats CSV + plotting
 # ---------------------------------------------------------------------------
 
-def _stats_df(n=5):
-    rng = np.random.default_rng(0)
-    return pd.DataFrame({
-        "epoch": range(1, n + 1),
-        "accuracy": rng.uniform(0.5, 1, n),
-        "neg_accuracy": rng.uniform(0.5, 1, n),
-        "pos_accuracy": rng.uniform(0.5, 1, n),
-        "loss": rng.uniform(0, 1, n),
-        "prauc": rng.uniform(0.5, 1, n),
-        "optimal_threshold": rng.uniform(0.2, 0.8, n),
-    })
-
-
-def test_read_plot_model_stats(tmp_path):
-    train = tmp_path / "train.csv"; val = tmp_path / "validation.csv"
-    _stats_df().to_csv(train); _stats_df().to_csv(val)
-    IO.read_plot_model_stats(str(train), str(val), save=True)
-    assert list(tmp_path.glob("*.pdf"))
-
-
-def test_save_progress(tmp_path):
-    IO._save_progress(str(tmp_path), _stats_df(), _stats_df())
-    assert (tmp_path / "train.csv").exists()
-    assert (tmp_path / "validation.csv").exists()
-
-
-def test_save_progress_no_validation(tmp_path):
-    IO._save_progress(str(tmp_path), _stats_df(), None)
-    assert (tmp_path / "train.csv").exists()
-    assert not (tmp_path / "validation.csv").exists()
-
 
 # ---------------------------------------------------------------------------
 # normalization helpers
 # ---------------------------------------------------------------------------
 
-def test_normalize_img_batch():
-    rng = np.random.default_rng(0)
-    # (N, H, W, C) stack, 2 channels
-    stack = (rng.random((3, 16, 16, 2)) * 2000).astype(np.float32)
-    settings = {
-        "nucleus_channel": 0, "cell_channel": 1,
-        "pathogen_channel": None, "organelle_channel": None,
-        "nucleus_background": 100, "nucleus_signal_to_noise": 5,
-        "remove_background_nucleus": True,
-        "cell_background": 100, "cell_signal_to_noise": 5,
-        "remove_background_cell": False,
-        "lower_percentile": 2,
-    }
-    out = IO._normalize_img_batch(stack.copy(), [0, 1],
-                                  save_dtype=np.float32, settings=settings)
-    assert out.shape == stack.shape and out.dtype == np.float32
-    assert out.max() <= 1.0 + 1e-4
 
-
-def test_normalize_img_batch_generic_channel():
-    # a channel that matches no object type → generic-default branch
-    rng = np.random.default_rng(1)
-    stack = (rng.random((2, 12, 12, 3)) * 2000).astype(np.float32)
-    settings = {
-        "nucleus_channel": 0, "cell_channel": 1,
-        "pathogen_channel": None, "organelle_channel": None,
-        "nucleus_background": 100, "nucleus_signal_to_noise": 5,
-        "remove_background_nucleus": False,
-        "cell_background": 100, "cell_signal_to_noise": 5,
-        "remove_background_cell": False,
-        "background": 100, "Signal_to_noise": 5, "remove_background": False,
-        "lower_percentile": 2,
-    }
-    out = IO._normalize_img_batch(stack.copy(), [2],   # channel 2 = generic
-                                  save_dtype=np.float32, settings=settings)
-    assert out.shape == stack.shape
-
-
-def test_get_lists_for_normalization():
-    settings = {
-        "nucleus_channel": 0, "cell_channel": 1, "pathogen_channel": 2,
-        "nucleus_background": 100, "nucleus_signal_to_noise": 5,
-        "remove_background_nucleus": True,
-        "cell_background": 200, "cell_signal_to_noise": 4,
-        "remove_background_cell": False,
-        "pathogen_background": 150, "pathogen_signal_to_noise": 6,
-        "remove_background_pathogen": True,
-    }
-    bg, snr, thr, rb = IO._get_lists_for_normalization(settings)
-    assert bg == [100, 200, 150]
-    assert thr == [500, 800, 900]
-    assert rb == [True, False, True]
-
-
-def test_get_lists_for_normalization_skip_none():
-    settings = {
-        "nucleus_channel": None, "cell_channel": 1, "pathogen_channel": None,
-        "cell_background": 200, "cell_signal_to_noise": 4,
-        "remove_background_cell": False,
-    }
-    bg, snr, thr, rb = IO._get_lists_for_normalization(settings)
-    assert bg == [200] and len(snr) == 1

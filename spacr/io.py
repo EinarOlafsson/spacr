@@ -1275,7 +1275,9 @@ def _rename_and_organize_image_files(src, regex, batch_size=100, metadata_type='
     channels_seen = set()
 
     src_filenames = _raw_image_names(src, img_format)
-    orig_filenames = _raw_image_names(orig_path, img_format)
+    in_src = set(src_filenames)
+    orig_filenames = [name for name in _raw_image_names(orig_path, img_format)
+                      if name not in in_src]
     source_plate = source_plate or os.path.basename(os.path.normpath(src))
     if metadata_type == 'scanr_indexed':
         from .convert import _indexed_well_map

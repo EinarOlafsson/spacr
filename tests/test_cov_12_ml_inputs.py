@@ -39,7 +39,7 @@ def count_frame(plates=('plate1', 'plate2')):
     })
 
 
-def test_a_count_file_holding_more_plates_is_narrowed_to_the_score_file(
+def case_a_count_file_holding_more_plates_is_narrowed_to_the_score_file(
         tmp_path, capsys):
     """When the score names a subset, the count rows outside it are dropped.
 
@@ -61,7 +61,7 @@ def test_a_count_file_holding_more_plates_is_narrowed_to_the_score_file(
         capsys.readouterr().out
 
 
-def test_a_count_file_of_several_plates_is_assigned_by_the_pair_row(tmp_path):
+def case_a_count_file_of_several_plates_is_assigned_by_the_pair_row(tmp_path):
     """With the score naming no plate, the row's own position picks one.
 
     A count CSV written by the sequencing side carries every plate while the
@@ -82,7 +82,7 @@ def test_a_count_file_of_several_plates_is_assigned_by_the_pair_row(tmp_path):
     assert 'count file holds 2 plates' in audit[0]['rule']
 
 
-def test_two_files_naming_different_plates_are_refused(tmp_path):
+def case_two_files_naming_different_plates_are_refused(tmp_path):
     """Neither side is a subset of the other, so nothing can narrow them.
 
     The three resolution rules all end in ONE plate identity for the row.
@@ -102,3 +102,15 @@ def test_two_files_naming_different_plates_are_refused(tmp_path):
     assert 'conflicts' in message
     assert "'plate1'" in message
     assert "'plate3'" in message and "'plate4'" in message
+
+
+from tests.case_table import run_cases  # noqa: E402
+
+def test_load_regression_input_pairs_cases(request, subtests):
+    """Behaviour cases for: load_regression_input_pairs."""
+    ran = run_cases(request, subtests, [
+        case_a_count_file_holding_more_plates_is_narrowed_to_the_score_file,
+        case_a_count_file_of_several_plates_is_assigned_by_the_pair_row,
+        case_two_files_naming_different_plates_are_refused,
+    ])
+    assert ran >= 3

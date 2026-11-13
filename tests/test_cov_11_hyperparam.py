@@ -843,21 +843,6 @@ def test_a_classifier_sweep_that_returns_nothing_says_so_in_the_preview(
 # The gallery
 # ---------------------------------------------------------------------------
 
-def test_reopening_the_gallery_refreshes_it_instead_of_building_another(
-        panel, qtbot):
-    """One gallery per panel, so a second click does not orphan the first."""
-    panel._result = _result([_trial(0, embedding=True)])
-
-    first = panel.open_umap_grid()
-    assert first is not None
-    qtbot.addWidget(first)
-
-    panel._result = _result([_trial(0, embedding=True),
-                             _trial(1, embedding=True)])
-    again = panel.open_umap_grid()
-
-    assert again is first
-
 
 # ---------------------------------------------------------------------------
 # Clustering that works

@@ -57,7 +57,7 @@ def test_a_table_with_no_well_or_guide_column_gets_no_saturation_warning():
 # is the shuffle defensible
 # ---------------------------------------------------------------------------
 
-def test_a_clean_design_is_reported_as_exchangeable(capsys):
+def case_a_clean_design_is_reported_as_exchangeable(capsys):
     """With nothing found, the numbers behind that verdict are still printed.
 
     "Nothing found" has to carry the Durbin-Watson, the well count and the block
@@ -77,7 +77,7 @@ def test_a_clean_design_is_reported_as_exchangeable(capsys):
     assert 'over 18 well(s) in 2 block(s)' in printed
 
 
-def test_position_that_explains_the_residual_makes_the_shuffle_questionable(
+def case_position_that_explains_the_residual_makes_the_shuffle_questionable(
         capsys):
     """A row effect left in the residual is named, with what to do about it.
 
@@ -97,7 +97,7 @@ def test_position_that_explains_the_residual_makes_the_shuffle_questionable(
     assert report['position']['rowID']['p_value'] < 0.01
 
 
-def test_a_check_that_cannot_run_costs_the_report_and_nothing_else():
+def case_a_check_that_cannot_run_costs_the_report_and_nothing_else():
     """A frame the preparation refuses returns None rather than failing the run.
 
     The exchangeability report is a courtesy; it must never be the reason a run
@@ -202,7 +202,7 @@ def test_a_penalised_fit_without_its_bootstrap_cannot_call_hits(capsys):
 # recording what a stage cost
 # ---------------------------------------------------------------------------
 
-def test_a_stage_that_cannot_be_measured_is_still_remembered(monkeypatch):
+def case_a_stage_that_cannot_be_measured_is_still_remembered(monkeypatch):
     """With the resource recorder unavailable the stage name is kept in settings.
 
     The stage is what the failure report names; losing it would leave a
@@ -219,7 +219,7 @@ def test_a_stage_that_cannot_be_measured_is_still_remembered(monkeypatch):
     assert settings['_regression_stage'] == 'fitting'
 
 
-def test_a_settings_object_that_cannot_be_written_to_costs_only_the_stage(
+def case_a_settings_object_that_cannot_be_written_to_costs_only_the_stage(
         monkeypatch):
     """A non-mapping settings object is left alone and an empty record returned.
 
@@ -234,7 +234,7 @@ def test_a_settings_object_that_cannot_be_written_to_costs_only_the_stage(
     assert ml._stage(object(), 'fitting') == {}
 
 
-def test_a_settings_object_that_is_not_a_mapping_still_reports_the_failure(
+def case_a_settings_object_that_is_not_a_mapping_still_reports_the_failure(
         monkeypatch, capsys):
     """perform_regression re-raises after reporting, whatever settings is.
 
@@ -276,7 +276,7 @@ def test_a_machine_that_can_take_no_reading_says_so_in_the_cost_file(
 # small reporting helpers
 # ---------------------------------------------------------------------------
 
-def test_normality_needs_three_finite_values_and_says_when_it_has_fewer():
+def case_normality_needs_three_finite_values_and_says_when_it_has_fewer():
     """Fewer than three finite values cannot be tested, and it is reported.
 
     scipy's own error names an internal argument; this says what the response
@@ -307,7 +307,7 @@ def test_a_response_panel_that_raises_is_reported_and_the_run_goes_on(
     assert 'the run is unaffected' in printed
 
 
-def test_the_mixed_coefficient_table_drops_the_variance_components():
+def case_the_mixed_coefficient_table_drops_the_variance_components():
     """'Group Var' is a variance, not an effect, so it gets no volcano row.
 
     Left in, it puts a point on the plot that no gene owns and a NaN p-value in
@@ -330,7 +330,7 @@ def test_the_mixed_coefficient_table_drops_the_variance_components():
     assert 'Group Var' not in list(coef_df['feature'])
 
 
-def test_an_automatic_glm_family_that_lands_on_poisson_checks_the_counts(
+def case_an_automatic_glm_family_that_lands_on_poisson_checks_the_counts(
         monkeypatch):
     """A response auto-selected as Poisson is validated before it is fitted.
 
@@ -371,3 +371,21 @@ def test_an_explainer_that_will_not_build_yields_nothing(monkeypatch):
     frame = pd.DataFrame({'a': [1.0, 2.0], 'b': [3.0, 4.0]})
 
     assert list(ml._shap_explainers(model, frame)) == []
+
+
+from tests.case_table import run_cases  # noqa: E402
+
+def test_report_exchangeability_cases(request, subtests):
+    """Behaviour cases for: _fit_glum_glm, _report_exchangeability, _stage, check_normality, perform_regression, process_model_coefficients."""
+    ran = run_cases(request, subtests, [
+        case_a_clean_design_is_reported_as_exchangeable,
+        case_position_that_explains_the_residual_makes_the_shuffle_questionable,
+        case_a_check_that_cannot_run_costs_the_report_and_nothing_else,
+        case_a_stage_that_cannot_be_measured_is_still_remembered,
+        case_a_settings_object_that_cannot_be_written_to_costs_only_the_stage,
+        case_a_settings_object_that_is_not_a_mapping_still_reports_the_failure,
+        case_normality_needs_three_finite_values_and_says_when_it_has_fewer,
+        case_the_mixed_coefficient_table_drops_the_variance_components,
+        case_an_automatic_glm_family_that_lands_on_poisson_checks_the_counts,
+    ])
+    assert ran >= 9

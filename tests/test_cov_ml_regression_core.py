@@ -102,7 +102,7 @@ def _fraction_xy(n=120, seed=0):
 # ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize("alpha", ["auto", None])
-def test_regression_model_ridge_auto_alpha_uses_ridgecv(alpha, capsys):
+def case_regression_model_ridge_auto_alpha_uses_ridgecv(alpha, capsys):
     from sklearn.linear_model import RidgeCV
     from spacr.ml import regression_model
 
@@ -126,7 +126,7 @@ def test_regression_model_ridge_auto_alpha_uses_ridgecv(alpha, capsys):
     assert "non-zero coefficients: 4 of 4" in out
 
 
-def test_regression_model_find_best_alpha_rejects_unknown_model(monkeypatch):
+def case_regression_model_find_best_alpha_rejects_unknown_model(monkeypatch):
     """The ``_find_best_alpha`` guard clause raises on an unknown backend.
 
     The helper is a closure, so it is recovered from the traceback frame of
@@ -165,7 +165,7 @@ def test_regression_model_find_best_alpha_rejects_unknown_model(monkeypatch):
 # regression_model — GLM-binomial var_weights (line 613)
 # ---------------------------------------------------------------------------
 
-def test_regression_model_logit_applies_var_weights():
+def case_regression_model_logit_applies_var_weights():
     from spacr.ml import regression_model
     from statsmodels.genmod.families.links import Logit
 
@@ -186,7 +186,7 @@ def test_regression_model_logit_applies_var_weights():
     assert weighted.params["x"] > 0.3 and plain.params["x"] > 0.3
 
 
-def test_regression_model_probit_uses_probit_link_and_weights():
+def case_regression_model_probit_uses_probit_link_and_weights():
     from spacr.ml import regression_model
 
     X, y = _fraction_xy(seed=15)
@@ -204,7 +204,7 @@ def test_regression_model_probit_uses_probit_link_and_weights():
 # regression_model — mixed dispatch (line 635)
 # ---------------------------------------------------------------------------
 
-def test_regression_model_mixed_dispatches_to_perform_mixed_model(capsys):
+def case_regression_model_mixed_dispatches_to_perform_mixed_model(capsys):
     from spacr.ml import regression_model
 
     rng = np.random.default_rng(16)
@@ -227,7 +227,7 @@ def test_regression_model_mixed_dispatches_to_perform_mixed_model(capsys):
     assert "VIF:" in capsys.readouterr().out
 
 
-def test_regression_model_glm_reports_mcfadden_pseudo_r2(capsys):
+def case_regression_model_glm_reports_mcfadden_pseudo_r2(capsys):
     """Count response -> Poisson/Log GLM, plus the McFadden R2 report."""
     from spacr.ml import regression_model
 
@@ -262,7 +262,7 @@ def test_regression_model_glm_reports_mcfadden_pseudo_r2(capsys):
     assert printed == pytest.approx(mcfadden, abs=1e-4)
 
 
-def test_regression_model_mixed_without_groups_raises():
+def case_regression_model_mixed_without_groups_raises():
     from spacr.ml import regression_model
 
     X, y = _fraction_xy(n=40, seed=17)
@@ -274,7 +274,7 @@ def test_regression_model_mixed_without_groups_raises():
 # regression — full pipeline
 # ---------------------------------------------------------------------------
 
-def test_regression_ols_keeps_the_design_as_measured(tmp_path, capsys):
+def case_regression_ols_keeps_the_design_as_measured(tmp_path, capsys):
     """OLS is fitted on the raw design, intercept intact.
 
     This test used to assert the opposite -- "OLS goes through MinMax
@@ -350,7 +350,7 @@ def test_regression_ols_keeps_the_design_as_measured(tmp_path, capsys):
     assert not (tmp_path / "ols_scores_volcano_plot.pdf").exists()
 
 
-def test_regression_auto_selects_logit_for_binary_response(tmp_path, capsys):
+def case_regression_auto_selects_logit_for_binary_response(tmp_path, capsys):
     from spacr.ml import regression
     from statsmodels.genmod.families.links import Logit
 
@@ -374,7 +374,7 @@ def test_regression_auto_selects_logit_for_binary_response(tmp_path, capsys):
     assert list(tmp_path.iterdir()) == []
 
 
-def test_regression_marks_explicit_controls(tmp_path):
+def case_regression_marks_explicit_controls(tmp_path):
     from spacr.ml import regression
 
     df = _wells_df(seed=2)
@@ -390,7 +390,7 @@ def test_regression_marks_explicit_controls(tmp_path):
     assert by_grna[f"{PC}_b"] == "pc"
 
 
-def test_regression_lasso_skips_scaling_and_reports_pvalues(tmp_path, capsys):
+def case_regression_lasso_skips_scaling_and_reports_pvalues(tmp_path, capsys):
     from spacr.ml import regression
 
     df = _wells_df(seed=5)
@@ -409,7 +409,7 @@ def test_regression_lasso_skips_scaling_and_reports_pvalues(tmp_path, capsys):
     assert len(model.coef_) >= len(coef_df)
 
 
-def test_regression_random_row_column_effects_fits_mixed_model(tmp_path):
+def case_regression_random_row_column_effects_fits_mixed_model(tmp_path):
     from spacr.ml import regression
 
     df = _wells_df(seed=2, n_plates=2, n_rows=2, n_cols=3)
@@ -457,7 +457,7 @@ def test_regression_random_row_column_effects_fits_mixed_model(tmp_path):
     assert "regression_figure_legend.txt" in written, written
 
 
-def test_the_legacy_volcano_is_written_only_when_it_is_asked_for(tmp_path):
+def case_the_legacy_volcano_is_written_only_when_it_is_asked_for(tmp_path):
     """"hide my old version behid a boolean that defaults to off".
 
     The original matplotlib volcano is not deleted -- it is what published
@@ -484,7 +484,7 @@ def test_the_legacy_volcano_is_written_only_when_it_is_asked_for(tmp_path):
     assert (tmp_path / "ols_scores_volcano_plot.pdf").stat().st_size > 0
 
 
-def test_regression_passes_cell_count_weights_to_logit(tmp_path, monkeypatch):
+def case_regression_passes_cell_count_weights_to_logit(tmp_path, monkeypatch):
     from spacr import ml as ML
 
     seen = {}
@@ -506,7 +506,7 @@ def test_regression_passes_cell_count_weights_to_logit(tmp_path, monkeypatch):
                        df["cell_count"].to_numpy(dtype=float))
 
 
-def test_regression_rejects_unsupported_type(tmp_path):
+def case_regression_rejects_unsupported_type(tmp_path):
     from spacr.ml import regression
 
     df = _wells_df(seed=7)
@@ -520,7 +520,7 @@ def test_regression_rejects_unsupported_type(tmp_path):
 # save_summary_to_file
 # ---------------------------------------------------------------------------
 
-def test_save_summary_to_file_writes_model_summary(tmp_path):
+def case_save_summary_to_file_writes_model_summary(tmp_path):
     import statsmodels.api as sm
     from spacr.ml import save_summary_to_file
 
@@ -545,3 +545,34 @@ def test_save_summary_to_file_writes_model_summary(tmp_path):
                 if not line.lstrip().startswith(("Date:", "Time:"))]
 
     assert _stable(text) == _stable(model.summary().as_text())
+
+
+from tests.case_table import run_cases  # noqa: E402
+
+def test_regression_model_cases(request, subtests):
+    """Behaviour cases for: regression_model."""
+    ran = run_cases(request, subtests, [
+        case_regression_model_ridge_auto_alpha_uses_ridgecv,
+        case_regression_model_find_best_alpha_rejects_unknown_model,
+        case_regression_model_logit_applies_var_weights,
+        case_regression_model_probit_uses_probit_link_and_weights,
+        case_regression_model_mixed_dispatches_to_perform_mixed_model,
+        case_regression_model_glm_reports_mcfadden_pseudo_r2,
+        case_regression_model_mixed_without_groups_raises,
+        case_regression_passes_cell_count_weights_to_logit,
+    ])
+    assert ran >= 8
+
+def test_regression_cases(request, subtests):
+    """Behaviour cases for: regression, save_summary_to_file."""
+    ran = run_cases(request, subtests, [
+        case_regression_ols_keeps_the_design_as_measured,
+        case_regression_auto_selects_logit_for_binary_response,
+        case_regression_marks_explicit_controls,
+        case_regression_lasso_skips_scaling_and_reports_pvalues,
+        case_regression_random_row_column_effects_fits_mixed_model,
+        case_the_legacy_volcano_is_written_only_when_it_is_asked_for,
+        case_regression_rejects_unsupported_type,
+        case_save_summary_to_file_writes_model_summary,
+    ])
+    assert ran >= 8

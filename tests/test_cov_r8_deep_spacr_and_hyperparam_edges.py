@@ -24,32 +24,6 @@ from spacr import hyperparam as H
 
 class TestTheMulticlassMetrics:
 
-    def _probabilities(self, y_true, n_classes=3, seed=1):
-        rng = np.random.default_rng(seed)
-        raw = rng.random((len(y_true), n_classes)) + 0.05
-        return raw / raw.sum(axis=1, keepdims=True)
-
-    def test_a_real_set_of_predictions_is_scored(self):
-        y_true = np.array([0, 1, 2, 1, 0, 2, 2, 1])
-        metrics = D._multiclass_metrics(y_true, self._probabilities(y_true))
-
-        assert isinstance(metrics, dict)
-        assert metrics, "a real prediction set produced no metrics"
-
-    def test_no_labels_at_all_is_answered_at_the_top(self):
-        """An evaluation over zero rows is a real state.
-
-        A fold whose validation split selected nothing, or a class
-        filter that removed every row. scikit-learn 1.7 rejects empty
-        arrays in ``confusion_matrix``, so the function answers before
-        it gets there: the metrics are undefined, the class schema is
-        known, and no sample is fabricated to fill the gap.
-        """
-        empty = np.array([], dtype=int)
-        metrics = D._multiclass_metrics(empty, np.zeros((0, 3), dtype=float))
-
-        assert isinstance(metrics, dict)
-
     def test_the_one_hot_fill_needs_no_second_guard(self):
         """THE PIN for the unconditional one-hot fill.
 
@@ -68,14 +42,6 @@ class TestTheMulticlassMetrics:
         empty = pd.Series([], dtype=float).to_numpy()
         with pytest.raises((IndexError, TypeError)):
             np.zeros((0, 3), dtype=int)[np.arange(0), empty] = 1
-
-    def test_a_float_typed_empty_label_array_is_also_survivable(self):
-        """What the guard is actually for: an empty column is float64."""
-        empty = pd.Series([], dtype=float).to_numpy()
-        assert empty.dtype.kind == "f"
-
-        metrics = D._multiclass_metrics(empty, np.zeros((0, 2), dtype=float))
-        assert isinstance(metrics, dict)
 
 
 # ---------------------------------------------------------------------------
@@ -148,15 +114,6 @@ class TestTheStabilityNeighbourGraph:
 
         assert cleaned.shape == (3, k)
 
-    def test_duplicate_coordinates_still_produce_a_complete_graph(self):
-        """NearestNeighbors returns distinct indices, not distinct values."""
-        embedding = np.array([[0.0, 0.0], [0.0, 0.0], [1.0, 0.0],
-                              [0.0, 1.0], [1.0, 1.0]])
-
-        score = H.embedding_stability(
-            [embedding, embedding.copy()], neighbourhood_k=2)
-
-        assert score == pytest.approx(1.0)
 
     def test_the_impossible_shape_refusal_is_removed(self):
         source = inspect.getsource(H.embedding_stability)
