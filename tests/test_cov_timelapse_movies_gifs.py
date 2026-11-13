@@ -94,7 +94,7 @@ def _write_png(path, value, shape):
 # _npz_to_movie
 # ---------------------------------------------------------------------------
 
-def test_npz_to_movie_float32_is_clipped_and_scaled(tmp_path, fake_writer):
+def _case_npz_to_movie_float32_is_clipped_and_scaled(tmp_path, fake_writer):
     """float32 frames are clipped to [0, 1] then scaled to uint8 and greyscale-expanded."""
     from spacr.timelapse import _npz_to_movie
 
@@ -124,7 +124,7 @@ def test_npz_to_movie_float32_is_clipped_and_scaled(tmp_path, fake_writer):
     assert written[22, 5, 0] == 0         # clipped low
 
 
-def test_npz_to_movie_uint16_is_scaled_to_8bit(tmp_path, fake_writer):
+def _case_npz_to_movie_uint16_is_scaled_to_8bit(tmp_path, fake_writer):
     """uint16 frames go through convertScaleAbs (65535 -> 255)."""
     from spacr.timelapse import _npz_to_movie
 
@@ -141,7 +141,7 @@ def test_npz_to_movie_uint16_is_scaled_to_8bit(tmp_path, fake_writer):
     assert written[15, 5, 0] == pytest.approx(128, abs=1)
 
 
-def test_npz_to_movie_single_channel_axis_is_expanded(tmp_path, fake_writer):
+def _case_npz_to_movie_single_channel_axis_is_expanded(tmp_path, fake_writer):
     """(H, W, 1) frames are RGB internally and encoded at the writer boundary."""
     from spacr.timelapse import _npz_to_movie
 
@@ -155,7 +155,7 @@ def test_npz_to_movie_single_channel_axis_is_expanded(tmp_path, fake_writer):
     assert written[5, 5].tolist() == [200, 200, 200]
 
 
-def test_npz_to_movie_two_channel_becomes_red_green(tmp_path, fake_writer):
+def _case_npz_to_movie_two_channel_becomes_red_green(tmp_path, fake_writer):
     """Two RGB planes are converted only when handed to the BGR writer."""
     from spacr.timelapse import _npz_to_movie
 
@@ -173,7 +173,7 @@ def test_npz_to_movie_two_channel_becomes_red_green(tmp_path, fake_writer):
     assert written[5, 5, 2] == 111
 
 
-def test_npz_to_movie_uint16_two_channel_is_scaled_then_packed(tmp_path, fake_writer):
+def _case_npz_to_movie_uint16_two_channel_is_scaled_then_packed(tmp_path, fake_writer):
     """The dtype branch runs before the channel branch for multi-channel frames."""
     from spacr.timelapse import _npz_to_movie
 
@@ -190,7 +190,7 @@ def test_npz_to_movie_uint16_two_channel_is_scaled_then_packed(tmp_path, fake_wr
     assert written[5, 5, 2] == 255
 
 
-def test_npz_to_movie_three_channel_is_rgb_to_bgr_swapped(tmp_path, fake_writer):
+def _case_npz_to_movie_three_channel_is_rgb_to_bgr_swapped(tmp_path, fake_writer):
     """RGB input is converted to the BGR order OpenCV expects."""
     from spacr.timelapse import _npz_to_movie
 
@@ -205,7 +205,7 @@ def test_npz_to_movie_three_channel_is_rgb_to_bgr_swapped(tmp_path, fake_writer)
     assert written[5, 5].tolist() == [30, 20, 10]             # B, G, R
 
 
-def test_npz_to_movie_stamps_filename_on_every_frame(tmp_path, fake_writer):
+def _case_npz_to_movie_stamps_filename_on_every_frame(tmp_path, fake_writer):
     """The per-frame filename is drawn in white near the bottom of the frame."""
     from spacr.timelapse import _npz_to_movie
 
@@ -223,7 +223,7 @@ def test_npz_to_movie_stamps_filename_on_every_frame(tmp_path, fake_writer):
     assert not np.array_equal(written[0], written[1])
 
 
-def test_npz_to_movie_writes_real_containers(tmp_path):
+def _case_npz_to_movie_writes_real_containers(tmp_path):
     """End-to-end with the real cv2 writer: an mp4 and an avi land on disk."""
     from spacr.timelapse import _npz_to_movie
 
@@ -253,7 +253,7 @@ def test_npz_to_movie_writes_real_containers(tmp_path):
 # _scmovie
 # ---------------------------------------------------------------------------
 
-def test_scmovie_writes_one_movie_per_object(tmp_path):
+def _case_scmovie_writes_one_movie_per_object(tmp_path):
     """Each (plate, well, field, object) group becomes its own mp4 under movies/."""
     from spacr.timelapse import _scmovie
 
@@ -271,7 +271,7 @@ def test_scmovie_writes_one_movie_per_object(tmp_path):
         assert os.path.getsize(folder / "movies" / name) > 0
 
 
-def test_scmovie_orders_frames_by_time_and_pads_to_max_size(tmp_path, fake_writer):
+def _case_scmovie_orders_frames_by_time_and_pads_to_max_size(tmp_path, fake_writer):
     """Frames are time-sorted and zero-padded to the largest frame in the group."""
     from spacr.timelapse import _scmovie
 
@@ -302,7 +302,7 @@ def test_scmovie_orders_frames_by_time_and_pads_to_max_size(tmp_path, fake_write
     assert small[:, 9:].max() == 0
 
 
-def test_scmovie_deduplicates_folder_paths(tmp_path, fake_writer):
+def _case_scmovie_deduplicates_folder_paths(tmp_path, fake_writer):
     """A repeated folder path is processed exactly once."""
     from spacr.timelapse import _scmovie
 
@@ -317,7 +317,7 @@ def test_scmovie_deduplicates_folder_paths(tmp_path, fake_writer):
     assert len(fake_writer.instances[0].frames) == 2
 
 
-def test_scmovie_ignores_non_png_and_unparsable_names(tmp_path, fake_writer):
+def _case_scmovie_ignores_non_png_and_unparsable_names(tmp_path, fake_writer):
     """Non-png files and png names that do not match the pattern are skipped."""
     from spacr.timelapse import _scmovie
 
@@ -335,7 +335,7 @@ def test_scmovie_ignores_non_png_and_unparsable_names(tmp_path, fake_writer):
     assert fake_writer.instances == []
 
 
-def test_scmovie_separates_wells_and_fields(tmp_path, fake_writer):
+def _case_scmovie_separates_wells_and_fields(tmp_path, fake_writer):
     """Different well/field keys never share a movie."""
     from spacr.timelapse import _scmovie
 
@@ -356,7 +356,7 @@ def test_scmovie_separates_wells_and_fields(tmp_path, fake_writer):
 # _masks_to_gif
 # ---------------------------------------------------------------------------
 
-def test_masks_to_gif_builds_label_colormap_and_delegates(tmp_path, gif_spy):
+def _case_masks_to_gif_builds_label_colormap_and_delegates(tmp_path, gif_spy):
     """A random opaque colour per label, black background, and the io hand-off."""
     from spacr.timelapse import _masks_to_gif
 
@@ -387,7 +387,7 @@ def test_masks_to_gif_builds_label_colormap_and_delegates(tmp_path, gif_spy):
     assert os.path.exists(call["path"])
 
 
-def test_masks_to_gif_single_label_sequence(tmp_path, gif_spy):
+def _case_masks_to_gif_single_label_sequence(tmp_path, gif_spy):
     """An all-background sequence still yields a 1-entry black colormap."""
     from spacr.timelapse import _masks_to_gif
 
@@ -401,7 +401,7 @@ def test_masks_to_gif_single_label_sequence(tmp_path, gif_spy):
     assert call["path"].endswith("timelapse_masks_pathogen_empty.gif")
 
 
-def test_masks_to_gif_writes_a_real_gif(tmp_path):
+def _case_masks_to_gif_writes_a_real_gif(tmp_path):
     """One un-stubbed run: matplotlib really renders and pillow really writes.
 
     The frame comes out at the movie's own minimum rather than at the old
@@ -465,7 +465,7 @@ def _write_npy_series(folder, plate, well, field, times, shape=(6, 6), channels=
         np.save(os.path.join(folder, f"{plate}_{well}_{field}_{t}.npy"), arr)
 
 
-def test_timelapse_masks_to_gif_one_gif_per_channel(tmp_path, gif_spy):
+def _case_timelapse_masks_to_gif_one_gif_per_channel(tmp_path, gif_spy):
     """Each mask channel of a plate/well/field series becomes its own GIF."""
     from spacr.timelapse import _timelapse_masks_to_gif
 
@@ -497,7 +497,7 @@ def test_timelapse_masks_to_gif_one_gif_per_channel(tmp_path, gif_spy):
     ]
 
 
-def test_timelapse_masks_to_gif_groups_by_plate_well_field(tmp_path, gif_spy):
+def _case_timelapse_masks_to_gif_groups_by_plate_well_field(tmp_path, gif_spy):
     """Different wells / fields never end up in the same GIF."""
     from spacr.timelapse import _timelapse_masks_to_gif
 
@@ -520,7 +520,7 @@ def test_timelapse_masks_to_gif_groups_by_plate_well_field(tmp_path, gif_spy):
     assert by_name["timelapse_masks_cell_2_A02_3.gif"]["masks"].shape[0] == 3
 
 
-def test_timelapse_masks_to_gif_skips_unparsable_filenames(tmp_path, gif_spy):
+def _case_timelapse_masks_to_gif_skips_unparsable_filenames(tmp_path, gif_spy):
     """.npy files that do not carry plate_well_field_time are ignored."""
     from spacr.timelapse import _timelapse_masks_to_gif
 
@@ -537,7 +537,7 @@ def test_timelapse_masks_to_gif_skips_unparsable_filenames(tmp_path, gif_spy):
     assert gif_spy[0]["filenames"] == ["1_A01_1_0.npy"]
 
 
-def test_timelapse_masks_to_gif_empty_folder_still_creates_gif_dir(tmp_path, gif_spy):
+def _case_timelapse_masks_to_gif_empty_folder_still_creates_gif_dir(tmp_path, gif_spy):
     """No matching arrays -> the movies/gif folder exists but nothing is rendered."""
     from spacr.timelapse import _timelapse_masks_to_gif
 
@@ -551,7 +551,7 @@ def test_timelapse_masks_to_gif_empty_folder_still_creates_gif_dir(tmp_path, gif
     assert gif_spy == []
 
 
-def test_timelapse_masks_to_gif_reuses_existing_gif_folder(tmp_path, gif_spy):
+def _case_timelapse_masks_to_gif_reuses_existing_gif_folder(tmp_path, gif_spy):
     """makedirs(exist_ok=True): a pre-existing folder and its contents survive."""
     from spacr.timelapse import _timelapse_masks_to_gif
 
@@ -569,7 +569,7 @@ def test_timelapse_masks_to_gif_reuses_existing_gif_folder(tmp_path, gif_spy):
     assert os.path.exists(gif_spy[0]["path"])
 
 
-def test_movie_labels_do_not_modify_input_pixels(tmp_path, fake_writer):
+def _case_movie_labels_do_not_modify_input_pixels(tmp_path, fake_writer):
     from spacr.timelapse import _npz_to_movie
 
     frame = np.full((64, 200, 3), 17, dtype=np.uint8)
@@ -588,7 +588,7 @@ def test_movie_labels_do_not_modify_input_pixels(tmp_path, fake_writer):
     ([np.zeros((10, 10), np.int32)], ['a']),
     ([np.full((10, 10), np.nan)], ['a']),
 ])
-def test_invalid_movie_input_is_refused_before_opening_writer(
+def _case_invalid_movie_input_is_refused_before_opening_writer(
         tmp_path, fake_writer, frames, names):
     from spacr.timelapse import _npz_to_movie
 
@@ -598,7 +598,7 @@ def test_invalid_movie_input_is_refused_before_opening_writer(
 
 
 @pytest.mark.parametrize('fps', [0, -1, np.nan, np.inf])
-def test_invalid_movie_rate_is_refused_before_opening_writer(tmp_path, fake_writer, fps):
+def _case_invalid_movie_rate_is_refused_before_opening_writer(tmp_path, fake_writer, fps):
     from spacr.timelapse import _npz_to_movie
 
     with pytest.raises(ValueError, match='fps'):
@@ -607,7 +607,7 @@ def test_invalid_movie_rate_is_refused_before_opening_writer(tmp_path, fake_writ
     assert fake_writer.instances == []
 
 
-def test_movie_writer_failure_is_reported_and_released(tmp_path, fake_writer, monkeypatch):
+def _case_movie_writer_failure_is_reported_and_released(tmp_path, fake_writer, monkeypatch):
     from spacr.timelapse import _npz_to_movie
 
     monkeypatch.setattr(fake_writer, 'isOpened', lambda self: False, raising=False)
@@ -617,7 +617,7 @@ def test_movie_writer_failure_is_reported_and_released(tmp_path, fake_writer, mo
     assert not fake_writer.instances[0].frames
 
 
-def test_movie_writer_is_released_when_encoding_raises(tmp_path, fake_writer, monkeypatch):
+def _case_movie_writer_is_released_when_encoding_raises(tmp_path, fake_writer, monkeypatch):
     from spacr.timelapse import _npz_to_movie
 
     def fail(self, frame):
@@ -628,10 +628,50 @@ def test_movie_writer_is_released_when_encoding_raises(tmp_path, fake_writer, mo
     assert fake_writer.instances[0].released
 
 
-def test_float64_movie_has_the_same_scale_as_float32(tmp_path, fake_writer):
+def _case_float64_movie_has_the_same_scale_as_float32(tmp_path, fake_writer):
     from spacr.timelapse import _npz_to_movie
 
     _npz_to_movie([np.full((16, 16), .5)], ['a'], str(tmp_path / 'm.avi'))
     written = fake_writer.instances[0].frames[0]
     assert written.dtype == np.uint8
     assert written[0, 0].tolist() == [127, 127, 127]
+
+
+def test_timelapse_movies_gifs_cases(request, subtests):
+    """Case table: 27 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_npz_to_movie_float32_is_clipped_and_scaled,
+        _case_npz_to_movie_uint16_is_scaled_to_8bit,
+        _case_npz_to_movie_single_channel_axis_is_expanded,
+        _case_npz_to_movie_two_channel_becomes_red_green,
+        _case_npz_to_movie_uint16_two_channel_is_scaled_then_packed,
+        _case_npz_to_movie_three_channel_is_rgb_to_bgr_swapped,
+        _case_npz_to_movie_stamps_filename_on_every_frame,
+        _case_npz_to_movie_writes_real_containers,
+        _case_scmovie_writes_one_movie_per_object,
+        _case_scmovie_orders_frames_by_time_and_pads_to_max_size,
+        _case_scmovie_deduplicates_folder_paths,
+        _case_scmovie_ignores_non_png_and_unparsable_names,
+        _case_scmovie_separates_wells_and_fields,
+        _case_masks_to_gif_builds_label_colormap_and_delegates,
+        _case_masks_to_gif_single_label_sequence,
+        _case_masks_to_gif_writes_a_real_gif,
+        _case_timelapse_masks_to_gif_one_gif_per_channel,
+        _case_timelapse_masks_to_gif_groups_by_plate_well_field,
+        _case_timelapse_masks_to_gif_skips_unparsable_filenames,
+        _case_timelapse_masks_to_gif_empty_folder_still_creates_gif_dir,
+        _case_timelapse_masks_to_gif_reuses_existing_gif_folder,
+        _case_movie_labels_do_not_modify_input_pixels,
+        _case_invalid_movie_input_is_refused_before_opening_writer,
+        _case_invalid_movie_rate_is_refused_before_opening_writer,
+        _case_movie_writer_failure_is_reported_and_released,
+        _case_movie_writer_is_released_when_encoding_raises,
+        _case_float64_movie_has_the_same_scale_as_float32,
+        ],
+    )
+    assert ran >= 27

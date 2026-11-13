@@ -167,7 +167,7 @@ def _track(plate, well, field, cell, infected, xs, ys):
 # _feature_velocity_correlations
 # ===========================================================================
 
-def test_feature_velocity_correlations_empty_track_df_is_a_noop(tmp_path):
+def _case_feature_velocity_correlations_empty_track_df_is_a_noop(tmp_path):
     from spacr.timelapse import _feature_velocity_correlations
 
     all_df, _ = _build_corr_frames()
@@ -175,7 +175,7 @@ def test_feature_velocity_correlations_empty_track_df_is_a_noop(tmp_path):
     assert list(tmp_path.iterdir()) == []
 
 
-def test_feature_velocity_correlations_writes_csv_with_median_aggregation(
+def _case_feature_velocity_correlations_writes_csv_with_median_aggregation(
     tmp_path, capsys
 ):
     from spacr.timelapse import _feature_velocity_correlations
@@ -223,7 +223,7 @@ def test_feature_velocity_correlations_writes_csv_with_median_aggregation(
     assert "Saved velocity–feature" in capsys.readouterr().out
 
 
-def test_feature_velocity_correlations_skips_group_with_too_few_tracks(
+def _case_feature_velocity_correlations_skips_group_with_too_few_tracks(
     tmp_path, capsys
 ):
     """All 8 tracks infected -> 'uninfected' subset is empty and is skipped."""
@@ -238,7 +238,7 @@ def test_feature_velocity_correlations_skips_group_with_too_few_tracks(
     assert "Not enough tracks for correlation (uninfected)." in capsys.readouterr().out
 
 
-def test_feature_velocity_correlations_all_groups_too_small(tmp_path, capsys):
+def _case_feature_velocity_correlations_all_groups_too_small(tmp_path, capsys):
     from spacr.timelapse import _feature_velocity_correlations
 
     all_df, track_df = _build_corr_frames(n_cells=4)
@@ -250,7 +250,7 @@ def test_feature_velocity_correlations_all_groups_too_small(tmp_path, capsys):
     assert not (tmp_path / "velocity_feature_correlations.csv").exists()
 
 
-def test_feature_velocity_correlations_non_finite_velocities_are_dropped(
+def _case_feature_velocity_correlations_non_finite_velocities_are_dropped(
     tmp_path, capsys
 ):
     from spacr.timelapse import _feature_velocity_correlations
@@ -272,7 +272,7 @@ def test_feature_velocity_correlations_non_finite_velocities_are_dropped(
     assert "Not enough tracks for correlation (uninfected)." in out
 
 
-def test_feature_velocity_correlations_no_numeric_columns(tmp_path, capsys):
+def _case_feature_velocity_correlations_no_numeric_columns(tmp_path, capsys):
     from spacr.timelapse import _feature_velocity_correlations
 
     all_df = pd.DataFrame(
@@ -293,7 +293,7 @@ def test_feature_velocity_correlations_no_numeric_columns(tmp_path, capsys):
     assert list(tmp_path.iterdir()) == []
 
 
-def test_feature_velocity_correlations_all_candidates_excluded(tmp_path, capsys):
+def _case_feature_velocity_correlations_all_candidates_excluded(tmp_path, capsys):
     """Numeric columns exist but every one of them lands in ``exclude_cols``."""
     from spacr.timelapse import _feature_velocity_correlations
 
@@ -327,7 +327,7 @@ def test_feature_velocity_correlations_all_candidates_excluded(tmp_path, capsys)
     assert not (tmp_path / "velocity_feature_correlations.csv").exists()
 
 
-def test_feature_velocity_correlations_swallows_write_failure(tmp_path, capsys):
+def _case_feature_velocity_correlations_swallows_write_failure(tmp_path, capsys):
     """A non-existent output directory must be reported, not raised."""
     from spacr.timelapse import _feature_velocity_correlations
 
@@ -378,7 +378,7 @@ def _motility_inputs():
     return track_df, per_well, well_summary_df
 
 
-def test_motility_plots_empty_track_df(tmp_path, capsys):
+def _case_motility_plots_empty_track_df(tmp_path, capsys):
     from spacr.timelapse import (INFECTED_COLOUR, UNINFECTED_COLOUR,
                                  _make_motility_plots)
 
@@ -394,7 +394,7 @@ def test_motility_plots_empty_track_df(tmp_path, capsys):
     assert not out_dir.exists()
 
 
-def test_motility_plots_no_per_well_tracks(tmp_path, capsys):
+def _case_motility_plots_no_per_well_tracks(tmp_path, capsys):
     from spacr.timelapse import (INFECTED_COLOUR, UNINFECTED_COLOUR,
                                  _make_motility_plots)
 
@@ -411,7 +411,7 @@ def test_motility_plots_no_per_well_tracks(tmp_path, capsys):
     assert not out_dir.exists()
 
 
-def test_motility_plots_physical_units_and_axis_limits(
+def _case_motility_plots_physical_units_and_axis_limits(
     tmp_path, captured_figs, capsys
 ):
     from spacr.timelapse import (INFECTED_COLOUR, UNINFECTED_COLOUR,
@@ -505,7 +505,7 @@ def test_motility_plots_physical_units_and_axis_limits(
     assert "Saved combined motility plot" in out
 
 
-def test_motility_plots_pixel_units_without_well_summary(
+def _case_motility_plots_pixel_units_without_well_summary(
     tmp_path, captured_figs, capsys
 ):
     """No calibration, no axis limits, no well summary -> px labels and 'n/a'."""
@@ -575,7 +575,7 @@ def test_motility_plots_pixel_units_without_well_summary(
     assert "all=2.500" in out and "infected=nan (n=0)" in out
 
 
-def test_motility_plots_ignores_malformed_axis_limits(tmp_path, captured_figs):
+def _case_motility_plots_ignores_malformed_axis_limits(tmp_path, captured_figs):
     """xlim/ylim of the wrong length are ignored rather than raising."""
     from spacr.timelapse import (INFECTED_COLOUR, UNINFECTED_COLOUR,
                                  _make_motility_plots)
@@ -633,7 +633,7 @@ def _feature_frames(n_cells=15, n_frames=2, extra=None):
     return pd.DataFrame(rows)
 
 
-def test_select_infection_feature_columns_pathogen_channel_filter():
+def _case_select_infection_feature_columns_pathogen_channel_filter():
     from spacr.timelapse import _select_infection_feature_columns
 
     all_df = _feature_frames()
@@ -652,7 +652,7 @@ def test_select_infection_feature_columns_pathogen_channel_filter():
         assert dropped not in got
 
 
-def test_select_infection_feature_columns_none_channel_keeps_all_intensities():
+def _case_select_infection_feature_columns_none_channel_keeps_all_intensities():
     from spacr.timelapse import _select_infection_feature_columns
 
     all_df = _feature_frames()
@@ -667,7 +667,7 @@ def test_select_infection_feature_columns_none_channel_keeps_all_intensities():
     ]
 
 
-def test_select_infection_feature_columns_unparseable_channel_index_is_kept():
+def _case_select_infection_feature_columns_unparseable_channel_index_is_kept():
     """A channel suffix that is a *digit* but not int()-able keeps the column."""
     from spacr.timelapse import _select_infection_feature_columns
 
@@ -680,7 +680,7 @@ def test_select_infection_feature_columns_unparseable_channel_index_is_kept():
     assert "cell_mean_intensity_ch0" not in got
 
 
-def test_select_infection_feature_columns_drops_low_coverage_and_constant():
+def _case_select_infection_feature_columns_drops_low_coverage_and_constant():
     from spacr.timelapse import _select_infection_feature_columns
 
     # exactly 10 finite cells -> kept; 9 -> dropped; jitter below 1e-6 -> dropped
@@ -699,7 +699,7 @@ def test_select_infection_feature_columns_drops_low_coverage_and_constant():
     assert "near_constant" not in got
 
 
-def test_select_infection_feature_columns_returns_empty_when_all_excluded():
+def _case_select_infection_feature_columns_returns_empty_when_all_excluded():
     from spacr.timelapse import _select_infection_feature_columns
 
     all_df = pd.DataFrame(
@@ -719,3 +719,34 @@ def test_select_infection_feature_columns_returns_empty_when_all_excluded():
         }
     )
     assert _select_infection_feature_columns(all_df, pathogen_chan=1) == []
+
+
+def test_timelapse_corr_plots_cases(request, subtests, capsys):
+    """Case table: 18 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_feature_velocity_correlations_empty_track_df_is_a_noop,
+        _case_feature_velocity_correlations_writes_csv_with_median_aggregation,
+        _case_feature_velocity_correlations_skips_group_with_too_few_tracks,
+        _case_feature_velocity_correlations_all_groups_too_small,
+        _case_feature_velocity_correlations_non_finite_velocities_are_dropped,
+        _case_feature_velocity_correlations_no_numeric_columns,
+        _case_feature_velocity_correlations_all_candidates_excluded,
+        _case_feature_velocity_correlations_swallows_write_failure,
+        _case_motility_plots_empty_track_df,
+        _case_motility_plots_no_per_well_tracks,
+        _case_motility_plots_physical_units_and_axis_limits,
+        _case_motility_plots_pixel_units_without_well_summary,
+        _case_motility_plots_ignores_malformed_axis_limits,
+        _case_select_infection_feature_columns_pathogen_channel_filter,
+        _case_select_infection_feature_columns_none_channel_keeps_all_intensities,
+        _case_select_infection_feature_columns_unparseable_channel_index_is_kept,
+        _case_select_infection_feature_columns_drops_low_coverage_and_constant,
+        _case_select_infection_feature_columns_returns_empty_when_all_excluded,
+        ],
+    )
+    assert ran >= 18

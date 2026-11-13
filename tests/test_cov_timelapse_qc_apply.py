@@ -132,7 +132,7 @@ _PAYLOAD_KEYS = (
 # _apply_infection_intensity_qc -- no-op paths
 # ---------------------------------------------------------------------------
 
-def test_qc_disabled_returns_input_untouched(tmp_path, monkeypatch):
+def _case_qc_disabled_returns_input_untouched(tmp_path, monkeypatch):
     from spacr.timelapse import _apply_infection_intensity_qc
 
     calls = []
@@ -162,7 +162,7 @@ def test_qc_disabled_returns_input_untouched(tmp_path, monkeypatch):
     assert not os.path.exists(motility_dir)
 
 
-def test_qc_without_pathogen_channel_is_noop(tmp_path, monkeypatch):
+def _case_qc_without_pathogen_channel_is_noop(tmp_path, monkeypatch):
     from spacr.timelapse import _apply_infection_intensity_qc
 
     calls = []
@@ -178,7 +178,7 @@ def test_qc_without_pathogen_channel_is_noop(tmp_path, monkeypatch):
 
 
 @pytest.mark.parametrize("scope", ["none", "off", "NONE", "Off"])
-def test_qc_scope_none_skips_qc_but_resets_payloads(tmp_path, monkeypatch, scope):
+def _case_qc_scope_none_skips_qc_but_resets_payloads(tmp_path, monkeypatch, scope):
     from spacr.timelapse import _apply_infection_intensity_qc
 
     calls = []
@@ -221,7 +221,7 @@ def test_qc_scope_none_skips_qc_but_resets_payloads(tmp_path, monkeypatch, scope
         (None, "histogram"),       # str(None) == 'none' -> also unknown
     ],
 )
-def test_qc_strategy_dispatch(tmp_path, monkeypatch, strategy, expected):
+def _case_qc_strategy_dispatch(tmp_path, monkeypatch, strategy, expected):
     from spacr.timelapse import _apply_infection_intensity_qc
 
     calls = []
@@ -253,7 +253,7 @@ def test_qc_strategy_dispatch(tmp_path, monkeypatch, strategy, expected):
     assert settings["infection_hist_data"] == "hist::plate1"
 
 
-def test_qc_default_strategy_is_histogram(tmp_path, monkeypatch):
+def _case_qc_default_strategy_is_histogram(tmp_path, monkeypatch):
     from spacr.timelapse import _apply_infection_intensity_qc
 
     calls = []
@@ -298,7 +298,7 @@ def _single_run_case(case, tmp_path):
     "case", ["combined", "global", "all", "unknown", "missing_group_cols",
              "missing_well_col"],
 )
-def test_global_run_fills_nan_and_casts_to_int(tmp_path, monkeypatch, case):
+def _case_global_run_fills_nan_and_casts_to_int(tmp_path, monkeypatch, case):
     from spacr.timelapse import _apply_infection_intensity_qc
 
     calls = []
@@ -324,7 +324,7 @@ def test_global_run_fills_nan_and_casts_to_int(tmp_path, monkeypatch, case):
 @pytest.mark.parametrize(
     "case", ["combined", "unknown", "missing_group_cols"],
 )
-def test_global_run_falls_back_to_bool_cast(tmp_path, monkeypatch, case):
+def _case_global_run_falls_back_to_bool_cast(tmp_path, monkeypatch, case):
     from spacr.timelapse import _apply_infection_intensity_qc
 
     calls = []
@@ -341,7 +341,7 @@ def test_global_run_falls_back_to_bool_cast(tmp_path, monkeypatch, case):
     assert out["adjusted_infected"].all()
 
 
-def test_global_run_without_adjusted_column_keeps_helper_column(tmp_path, monkeypatch):
+def _case_global_run_without_adjusted_column_keeps_helper_column(tmp_path, monkeypatch):
     from spacr.timelapse import _apply_infection_intensity_qc
 
     calls = []
@@ -359,7 +359,7 @@ def test_global_run_without_adjusted_column_keeps_helper_column(tmp_path, monkey
     assert out is not df                       # helper handed back a copy
 
 
-def test_scope_none_value_defaults_to_combined(tmp_path, monkeypatch):
+def _case_scope_none_value_defaults_to_combined(tmp_path, monkeypatch):
     """settings['infection_intensity_qc_scope'] = None -> 'combined'."""
     from spacr.timelapse import _apply_infection_intensity_qc
 
@@ -388,7 +388,7 @@ def _two_plate_frame():
 
 
 @pytest.mark.parametrize("scope", ["plate", "PER_PLATE", "plateid"])
-def test_scope_plate_runs_qc_per_plate(tmp_path, monkeypatch, scope):
+def _case_scope_plate_runs_qc_per_plate(tmp_path, monkeypatch, scope):
     from spacr.timelapse import _apply_infection_intensity_qc
 
     calls = []
@@ -415,7 +415,7 @@ def test_scope_plate_runs_qc_per_plate(tmp_path, monkeypatch, scope):
 
 
 @pytest.mark.parametrize("scope", ["well", "per_well"])
-def test_scope_well_runs_qc_per_well(tmp_path, monkeypatch, scope):
+def _case_scope_well_runs_qc_per_well(tmp_path, monkeypatch, scope):
     from spacr.timelapse import _apply_infection_intensity_qc
 
     calls = []
@@ -447,7 +447,7 @@ def test_scope_well_runs_qc_per_well(tmp_path, monkeypatch, scope):
     assert sorted(out["wellID"].unique()) == ["A01", "A02"]
 
 
-def test_scope_group_skips_empty_categorical_groups(tmp_path, monkeypatch):
+def _case_scope_group_skips_empty_categorical_groups(tmp_path, monkeypatch):
     """Unused categorical levels yield empty groups, which must be skipped."""
     from spacr.timelapse import _apply_infection_intensity_qc
 
@@ -473,7 +473,7 @@ def test_scope_group_skips_empty_categorical_groups(tmp_path, monkeypatch):
     assert col == "adjusted_infected"
 
 
-def test_scope_group_with_empty_frame_returns_input(tmp_path, monkeypatch):
+def _case_scope_group_with_empty_frame_returns_input(tmp_path, monkeypatch):
     from spacr.timelapse import _apply_infection_intensity_qc
 
     calls = []
@@ -492,7 +492,7 @@ def test_scope_group_with_empty_frame_returns_input(tmp_path, monkeypatch):
     assert col == "infected"
 
 
-def test_scope_group_all_nan_adjusted_keeps_original_column(tmp_path, monkeypatch):
+def _case_scope_group_all_nan_adjusted_keeps_original_column(tmp_path, monkeypatch):
     """adjusted_infected present but entirely NaN -> not treated as adjusted."""
     from spacr.timelapse import _apply_infection_intensity_qc
 
@@ -512,7 +512,7 @@ def test_scope_group_all_nan_adjusted_keeps_original_column(tmp_path, monkeypatc
     assert out["adjusted_infected"].isna().all()
 
 
-def test_scope_group_bool_cast_fallback(tmp_path, monkeypatch):
+def _case_scope_group_bool_cast_fallback(tmp_path, monkeypatch):
     from spacr.timelapse import _apply_infection_intensity_qc
 
     calls = []
@@ -535,7 +535,7 @@ def test_scope_group_bool_cast_fallback(tmp_path, monkeypatch):
 # real histogram strategy, end to end through the dispatcher
 # ---------------------------------------------------------------------------
 
-def test_combined_scope_with_real_histogram_strategy(tmp_path):
+def _case_combined_scope_with_real_histogram_strategy(tmp_path):
     from spacr.timelapse import _apply_infection_intensity_qc
 
     df = _qc_frame(n_cells=24, n_frames=2, pathogen_chan=2)
@@ -570,7 +570,7 @@ def test_combined_scope_with_real_histogram_strategy(tmp_path):
     assert os.path.dirname(png) == motility_dir
 
 
-def test_plate_scope_with_real_histogram_strategy(tmp_path):
+def _case_plate_scope_with_real_histogram_strategy(tmp_path):
     from spacr.timelapse import _apply_infection_intensity_qc
 
     df = pd.concat(
@@ -635,7 +635,7 @@ def _tracks_frame(specs):
     return pd.DataFrame(rows)
 
 
-def test_velocity_missing_centroid_columns(tmp_path):
+def _case_velocity_missing_centroid_columns(tmp_path):
     from spacr.timelapse import _compute_velocities_and_well_summary
 
     df = _qc_frame(n_cells=2, n_frames=2)      # has no centroid columns
@@ -648,7 +648,7 @@ def test_velocity_missing_centroid_columns(tmp_path):
     assert isinstance(track_df, pd.DataFrame)
 
 
-def test_velocity_physical_units_and_straightness():
+def _case_velocity_physical_units_and_straightness():
     from spacr.timelapse import _compute_velocities_and_well_summary
 
     # one perfectly straight track moving 3 px per frame
@@ -688,7 +688,7 @@ def test_velocity_physical_units_and_straightness():
 @pytest.mark.parametrize(
     "px_per_um,sec_per_frame", [(None, 30.0), (3.0, None), (None, None)]
 )
-def test_velocity_pixel_units_when_calibration_missing(px_per_um, sec_per_frame):
+def _case_velocity_pixel_units_when_calibration_missing(px_per_um, sec_per_frame):
     from spacr.timelapse import _compute_velocities_and_well_summary
 
     df = _tracks_frame(
@@ -705,7 +705,7 @@ def test_velocity_pixel_units_when_calibration_missing(px_per_um, sec_per_frame)
     assert well_df.iloc[0]["mean_velocity_uninfected"] == pytest.approx(4.0)
 
 
-def test_velocity_skips_short_and_nonfinite_tracks():
+def _case_velocity_skips_short_and_nonfinite_tracks():
     from spacr.timelapse import _compute_velocities_and_well_summary
 
     nan = float("nan")
@@ -737,7 +737,7 @@ def test_velocity_skips_short_and_nonfinite_tracks():
     assert unit == "px/frame"
 
 
-def test_velocity_no_usable_tracks_returns_empty():
+def _case_velocity_no_usable_tracks_returns_empty():
     from spacr.timelapse import _compute_velocities_and_well_summary
 
     df = _tracks_frame(
@@ -754,7 +754,7 @@ def test_velocity_no_usable_tracks_returns_empty():
     assert unit == "px/frame"          # never upgraded to physical units
 
 
-def test_straightness_filter_drops_tracks_and_prunes_wells():
+def _case_straightness_filter_drops_tracks_and_prunes_wells():
     from spacr.timelapse import _compute_velocities_and_well_summary
 
     df = _tracks_frame(
@@ -783,7 +783,7 @@ def test_straightness_filter_drops_tracks_and_prunes_wells():
     assert unit == "px/frame"
 
 
-def test_straightness_filter_can_remove_every_track():
+def _case_straightness_filter_can_remove_every_track():
     from spacr.timelapse import _compute_velocities_and_well_summary
 
     df = _tracks_frame(
@@ -803,7 +803,7 @@ def test_straightness_filter_can_remove_every_track():
     assert unit == "µm/min"
 
 
-def test_straightness_filter_off_keeps_straight_tracks():
+def _case_straightness_filter_off_keeps_straight_tracks():
     from spacr.timelapse import _compute_velocities_and_well_summary
 
     df = _tracks_frame(
@@ -818,7 +818,7 @@ def test_straightness_filter_off_keeps_straight_tracks():
     assert well_df.iloc[0]["n_tracks"] == 1
 
 
-def test_well_summary_mixed_infection_means():
+def _case_well_summary_mixed_infection_means():
     from spacr.timelapse import _compute_velocities_and_well_summary
 
     df = _tracks_frame(
@@ -844,7 +844,7 @@ def test_well_summary_mixed_infection_means():
     assert len(per_well[("plate1", "A01")]) == 2
 
 
-def test_infection_column_any_over_frames_marks_track_infected():
+def _case_infection_column_any_over_frames_marks_track_infected():
     from spacr.timelapse import _compute_velocities_and_well_summary
 
     # infected on a single frame only -> the whole track counts as infected
@@ -862,7 +862,7 @@ def test_infection_column_any_over_frames_marks_track_infected():
 # _save_measurements_and_well_summary
 # ---------------------------------------------------------------------------
 
-def test_save_measurements_with_well_summary(tmp_path):
+def _case_save_measurements_with_well_summary(tmp_path):
     from spacr.timelapse import _save_measurements_and_well_summary
 
     src = tmp_path / "proj"
@@ -906,7 +906,7 @@ def test_save_measurements_with_well_summary(tmp_path):
         con.close()
 
 
-def test_save_measurements_without_well_summary(tmp_path):
+def _case_save_measurements_without_well_summary(tmp_path):
     from spacr.timelapse import _save_measurements_and_well_summary
 
     src = tmp_path / "proj"
@@ -934,7 +934,7 @@ def test_save_measurements_without_well_summary(tmp_path):
     assert meas_dir.endswith("measurements")
 
 
-def test_save_measurements_replaces_existing_table(tmp_path):
+def _case_save_measurements_replaces_existing_table(tmp_path):
     from spacr.timelapse import _save_measurements_and_well_summary
 
     src = tmp_path / "proj"
@@ -955,7 +955,7 @@ def test_save_measurements_replaces_existing_table(tmp_path):
     assert got["a"].tolist() == [9]
 
 
-def test_save_measurements_roundtrips_velocity_output(tmp_path):
+def _case_save_measurements_roundtrips_velocity_output(tmp_path):
     """The two helpers compose: velocities -> sqlite tables."""
     from spacr.timelapse import (
         _compute_velocities_and_well_summary,
@@ -985,3 +985,47 @@ def test_save_measurements_roundtrips_velocity_output(tmp_path):
     assert sorted(got["wellID"].tolist()) == ["A01", "A02"]
     assert set(got["velocity_unit"]) == {unit}
     assert got.set_index("wellID").loc["A02", "mean_velocity_all"] == pytest.approx(6.0)
+
+
+def test_timelapse_qc_apply_cases(request, subtests):
+    """Case table: 31 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_qc_disabled_returns_input_untouched,
+        _case_qc_without_pathogen_channel_is_noop,
+        _case_qc_scope_none_skips_qc_but_resets_payloads,
+        _case_qc_strategy_dispatch,
+        _case_qc_default_strategy_is_histogram,
+        _case_global_run_fills_nan_and_casts_to_int,
+        _case_global_run_falls_back_to_bool_cast,
+        _case_global_run_without_adjusted_column_keeps_helper_column,
+        _case_scope_none_value_defaults_to_combined,
+        _case_scope_plate_runs_qc_per_plate,
+        _case_scope_well_runs_qc_per_well,
+        _case_scope_group_skips_empty_categorical_groups,
+        _case_scope_group_with_empty_frame_returns_input,
+        _case_scope_group_all_nan_adjusted_keeps_original_column,
+        _case_scope_group_bool_cast_fallback,
+        _case_combined_scope_with_real_histogram_strategy,
+        _case_plate_scope_with_real_histogram_strategy,
+        _case_velocity_missing_centroid_columns,
+        _case_velocity_physical_units_and_straightness,
+        _case_velocity_pixel_units_when_calibration_missing,
+        _case_velocity_skips_short_and_nonfinite_tracks,
+        _case_velocity_no_usable_tracks_returns_empty,
+        _case_straightness_filter_drops_tracks_and_prunes_wells,
+        _case_straightness_filter_can_remove_every_track,
+        _case_straightness_filter_off_keeps_straight_tracks,
+        _case_well_summary_mixed_infection_means,
+        _case_infection_column_any_over_frames_marks_track_infected,
+        _case_save_measurements_with_well_summary,
+        _case_save_measurements_without_well_summary,
+        _case_save_measurements_replaces_existing_table,
+        _case_save_measurements_roundtrips_velocity_output,
+        ],
+    )
+    assert ran >= 31
