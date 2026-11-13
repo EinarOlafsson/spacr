@@ -29,20 +29,20 @@ def _no_ambient_trace(monkeypatch):
 
 class TestTheGateWhenTracingHasNotBeenImported:
 
-    def test_an_unset_environment_variable_keeps_it_out(self):
+    def case_an_unset_environment_variable_keeps_it_out(self):
         """The point of the gate: no import, no cost, no tracing."""
         assert ml._flowview_event("begin", {}, "classify") is False
         assert "spacr.flowview.trace" not in sys.modules
 
     @pytest.mark.parametrize("value", ["", "0", "off", "false", "no",
                                        "maybe", "  "])
-    def test_a_value_that_is_not_a_yes_keeps_it_out(self, monkeypatch, value):
+    def case_a_value_that_is_not_a_yes_keeps_it_out(self, monkeypatch, value):
         monkeypatch.setenv("SPACR_FLOWVIEW", value)
         assert ml._flowview_event("begin", {}, "classify") is False
 
     @pytest.mark.parametrize("value", ["1", "on", "true", "yes",
                                        "TRUE", " Yes "])
-    def test_a_yes_is_read_whatever_its_case_or_spacing(self, monkeypatch,
+    def case_a_yes_is_read_whatever_its_case_or_spacing(self, monkeypatch,
                                                         value):
         """The env value is stripped and case-folded before it is judged.
 
@@ -52,7 +52,7 @@ class TestTheGateWhenTracingHasNotBeenImported:
         monkeypatch.setenv("SPACR_FLOWVIEW", value)
         assert ml._flowview_event("begin", {}, "classify") in (True, False)
 
-    def test_an_import_that_fails_is_answered_no(self, monkeypatch):
+    def case_an_import_that_fails_is_answered_no(self, monkeypatch):
         """FlowView is an optional extra; not having it is not an error."""
         import builtins
 
@@ -70,7 +70,7 @@ class TestTheGateWhenTracingHasNotBeenImported:
 
 class TestTheGateWhenTracingIsThereButUnusable:
 
-    def test_a_module_that_says_it_is_disabled_is_answered_no(self,
+    def case_a_module_that_says_it_is_disabled_is_answered_no(self,
                                                               monkeypatch):
         import types
 
@@ -79,7 +79,7 @@ class TestTheGateWhenTracingIsThereButUnusable:
         monkeypatch.setitem(sys.modules, "spacr.flowview.trace", module)
         assert ml._flowview_event("begin", {}, "classify") is False
 
-    def test_a_module_that_raises_when_asked_is_answered_no(self,
+    def case_a_module_that_raises_when_asked_is_answered_no(self,
                                                             monkeypatch):
         """`except BaseException` -- the outer guard, and it is broad
         on purpose: a KeyboardInterrupt during a run must not be turned
@@ -95,7 +95,7 @@ class TestTheGateWhenTracingIsThereButUnusable:
         monkeypatch.setitem(sys.modules, "spacr.flowview.trace", module)
         assert ml._flowview_event("begin", {}, "classify") is False
 
-    def test_an_unknown_action_is_answered_no_rather_than_raising(
+    def case_an_unknown_action_is_answered_no_rather_than_raising(
             self, monkeypatch):
         """The action names a `_<action>` function on `_classify_stages`.
 
@@ -113,7 +113,7 @@ class TestTheGateWhenTracingIsThereButUnusable:
 class TestThePipelineDecorator:
     """`_flowview_pipeline` reports, and never changes the result."""
 
-    def test_a_failing_function_reports_the_failure_and_re_raises(
+    def case_a_failing_function_reports_the_failure_and_re_raises(
             self, monkeypatch):
         """THE UNCOVERED LINE.
 
@@ -139,7 +139,7 @@ class TestThePipelineDecorator:
         assert isinstance(events[1][1][0], ValueError), (
             "the scientific error was not the one reported")
 
-    def test_a_failure_while_inactive_reports_nothing(self, monkeypatch):
+    def case_a_failure_while_inactive_reports_nothing(self, monkeypatch):
         """If the graph never began there is nothing to fail."""
         events = []
         monkeypatch.setattr(
@@ -154,7 +154,7 @@ class TestThePipelineDecorator:
             explodes({})
         assert events == ["begin"], "it reported a failure it never began"
 
-    def test_a_successful_function_returns_its_own_result(self,
+    def case_a_successful_function_returns_its_own_result(self,
                                                           monkeypatch):
         events = []
 
@@ -171,7 +171,7 @@ class TestThePipelineDecorator:
         assert works({}) == {"score": 0.9}
         assert events == ["begin", "finish"]
 
-    def test_the_settings_are_read_from_a_keyword_too(self, monkeypatch):
+    def case_the_settings_are_read_from_a_keyword_too(self, monkeypatch):
         """`args[0] if args else kwargs.get("settings")` -- callers use both."""
         seen = []
 
@@ -188,3 +188,23 @@ class TestThePipelineDecorator:
 
         works(settings={"from": "keyword"})
         assert seen == [{"from": "keyword"}]
+
+
+from tests.case_table import run_cases  # noqa: E402
+
+def test_flowview_event_cases(request, subtests):
+    """Behaviour cases for: _flowview_event, _flowview_pipeline."""
+    ran = run_cases(request, subtests, [
+        (TestTheGateWhenTracingHasNotBeenImported, 'case_an_unset_environment_variable_keeps_it_out'),
+        (TestTheGateWhenTracingHasNotBeenImported, 'case_a_value_that_is_not_a_yes_keeps_it_out'),
+        (TestTheGateWhenTracingHasNotBeenImported, 'case_a_yes_is_read_whatever_its_case_or_spacing'),
+        (TestTheGateWhenTracingHasNotBeenImported, 'case_an_import_that_fails_is_answered_no'),
+        (TestTheGateWhenTracingIsThereButUnusable, 'case_a_module_that_says_it_is_disabled_is_answered_no'),
+        (TestTheGateWhenTracingIsThereButUnusable, 'case_a_module_that_raises_when_asked_is_answered_no'),
+        (TestTheGateWhenTracingIsThereButUnusable, 'case_an_unknown_action_is_answered_no_rather_than_raising'),
+        (TestThePipelineDecorator, 'case_a_failing_function_reports_the_failure_and_re_raises'),
+        (TestThePipelineDecorator, 'case_a_failure_while_inactive_reports_nothing'),
+        (TestThePipelineDecorator, 'case_a_successful_function_returns_its_own_result'),
+        (TestThePipelineDecorator, 'case_the_settings_are_read_from_a_keyword_too'),
+    ])
+    assert ran >= 11

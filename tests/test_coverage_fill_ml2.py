@@ -15,7 +15,7 @@ from spacr import ml as ML
 # calculate_p_values
 # ---------------------------------------------------------------------------
 
-def test_calculate_p_values_normal():
+def case_calculate_p_values_normal():
     from sklearn.linear_model import LinearRegression
     rng = np.random.default_rng(0)
     X = rng.normal(0, 1, (60, 3))
@@ -25,7 +25,7 @@ def test_calculate_p_values_normal():
     assert len(p) == 3 and np.all(np.isfinite(p))
 
 
-def test_calculate_p_values_underdetermined():
+def case_calculate_p_values_underdetermined():
     from sklearn.linear_model import LinearRegression
     rng = np.random.default_rng(1)
     X = rng.normal(0, 1, (3, 5))    # more features than obs → dof<=0 → NaN
@@ -74,14 +74,14 @@ def _assert_it_recovered_the_truth(model):
             f"expected about {list(TRUE_COEFFICIENTS)}")
 
 
-def test_regression_model_ols():
+def case_regression_model_ols():
     X, y = _Xy()
     model = ML.regression_model(X, y, regression_type="ols")
     assert hasattr(model, "predict")
     _assert_it_recovered_the_truth(model)
 
 
-def test_regression_model_ols_cov_type():
+def case_regression_model_ols_cov_type():
     X, y = _Xy()
     model = ML.regression_model(X, y, regression_type="ols", cov_type="HC3")
     assert hasattr(model, "predict")
@@ -89,7 +89,7 @@ def test_regression_model_ols_cov_type():
     _assert_it_recovered_the_truth(model)
 
 
-def test_regression_model_lasso_fixed_and_auto():
+def case_regression_model_lasso_fixed_and_auto():
     X, y = _Xy()
     m_fixed = ML.regression_model(X, y, regression_type="lasso", alpha=0.1)
     assert hasattr(m_fixed, "coef_")
@@ -97,13 +97,13 @@ def test_regression_model_lasso_fixed_and_auto():
     assert hasattr(m_auto, "coef_")
 
 
-def test_regression_model_ridge():
+def case_regression_model_ridge():
     X, y = _Xy()
     model = ML.regression_model(X, y, regression_type="ridge", alpha=1.0)
     assert hasattr(model, "coef_")
 
 
-def test_regression_model_glm():
+def case_regression_model_glm():
     rng = np.random.default_rng(3)
     X = rng.normal(0, 1, (80, 2))
     y = np.abs(X @ np.array([0.5, 0.3]) + rng.normal(2, 0.3, 80))  # positive
@@ -111,7 +111,7 @@ def test_regression_model_glm():
     assert hasattr(model, "predict")
 
 
-def test_regression_model_unsupported():
+def case_regression_model_unsupported():
     X, y = _Xy()
     with pytest.raises(ValueError):
         ML.regression_model(X, y, regression_type="bogus")
@@ -121,7 +121,7 @@ def test_regression_model_unsupported():
 # _calculate_similarity
 # ---------------------------------------------------------------------------
 
-def test_calculate_similarity():
+def case_calculate_similarity():
     rng = np.random.default_rng(4)
     n = 40
     df = pd.DataFrame({
@@ -136,7 +136,7 @@ def test_calculate_similarity():
     assert "similarity_to_neg_mahalanobis" in out.columns
 
 
-def test_calculate_similarity_list_controls():
+def case_calculate_similarity_list_controls():
     rng = np.random.default_rng(5)
     n = 30
     df = pd.DataFrame({
@@ -175,7 +175,7 @@ def _clean_data_frame(n=40, seed=6):
     return pd.DataFrame(rows)
 
 
-def test_check_and_clean_data():
+def case_check_and_clean_data():
     df = _clean_data_frame()
     out = ML.check_and_clean_data(df, dependent_variable="prediction")
     assert "gene_fraction" in out.columns
@@ -189,7 +189,7 @@ def test_check_and_clean_data():
         assert len(got) == 1 and abs(got[0] - total) < 1e-12
 
 
-def test_check_and_clean_data_refuses_two_fractions_for_one_well_grna():
+def case_check_and_clean_data_refuses_two_fractions_for_one_well_grna():
     """The same gRNA cannot hold two shares of the same well's library.
 
     Left to itself the sum would silently double-count, and a merge that
@@ -220,7 +220,7 @@ def _scores_df(n_wells=4, per_well=10):
 
 
 @pytest.mark.parametrize("agg", ["mean", "median", "quantile"])
-def test_process_scores_agg_types(agg):
+def case_process_scores_agg_types(agg):
     df = _scores_df()
     out, dv = ML.process_scores(
         df, "pred", plate="plate1", min_cells_per_well=2, agg_type=agg)
@@ -228,14 +228,14 @@ def test_process_scores_agg_types(agg):
     assert (out["cell_count"] >= 2).all()
 
 
-def test_process_scores_none_agg():
+def case_process_scores_none_agg():
     df = _scores_df()
     out, dv = ML.process_scores(
         df, "pred", plate="plate1", min_cells_per_well=2, agg_type=None)
     assert "cell_count" in out.columns
 
 
-def test_process_scores_poisson():
+def case_process_scores_poisson():
     df = _scores_df()
     # Poisson models per-well positive-cell counts, so their object-level
     # response must be a binary call rather than an arbitrary score.
@@ -246,7 +246,7 @@ def test_process_scores_poisson():
     assert "cell_count" in out.columns
 
 
-def test_process_scores_invert_complement():
+def case_process_scores_invert_complement():
     df = _scores_df()
     out, dv = ML.process_scores(
         df, "pred", plate="plate1", min_cells_per_well=2,
@@ -254,7 +254,7 @@ def test_process_scores_invert_complement():
     assert "cell_count" in out.columns
 
 
-def test_process_scores_invert_reciprocal():
+def case_process_scores_invert_reciprocal():
     df = _scores_df()
     out, dv = ML.process_scores(
         df, "pred", plate="plate1", min_cells_per_well=2,
@@ -262,7 +262,7 @@ def test_process_scores_invert_reciprocal():
     assert "cell_count" in out.columns
 
 
-def test_process_scores_transform():
+def case_process_scores_transform():
     df = _scores_df()
     out, dv = ML.process_scores(
         df, "pred", plate="plate1", min_cells_per_well=2,
@@ -270,14 +270,14 @@ def test_process_scores_transform():
     assert dv == "log_pred"
 
 
-def test_process_scores_bad_agg():
+def case_process_scores_bad_agg():
     df = _scores_df()
     with pytest.raises(ValueError):
         ML.process_scores(df, "pred", plate="plate1",
                           min_cells_per_well=2, agg_type="bogus")
 
 
-def test_process_scores_bad_invert():
+def case_process_scores_bad_invert():
     df = _scores_df()
     with pytest.raises(ValueError):
         ML.process_scores(df, "pred", plate="plate1",
@@ -314,7 +314,7 @@ def _feature_df(per_class=60):
     return pd.DataFrame(rows, index=index)
 
 
-def test_ml_analysis_random_forest():
+def case_ml_analysis_random_forest():
     df = _feature_df()
     output, figs = ML.ml_analysis(
         df, channel_of_interest=3, location_column="columnID",
@@ -327,7 +327,7 @@ def test_ml_analysis_random_forest():
     assert figs is not None
 
 
-def test_ml_analysis_bad_model_type():
+def case_ml_analysis_bad_model_type():
     df = _feature_df(per_class=30)
     with pytest.raises(ValueError):
         ML.ml_analysis(
@@ -338,7 +338,7 @@ def test_ml_analysis_bad_model_type():
             remove_highly_correlated_features=False, n_jobs=1)
 
 
-def test_ml_analysis_cross_validation():
+def case_ml_analysis_cross_validation():
     df = _feature_df()
     output, figs = ML.ml_analysis(
         df, channel_of_interest=3, location_column="columnID",
@@ -349,7 +349,7 @@ def test_ml_analysis_cross_validation():
     assert output[0] is not None
 
 
-def test_ml_analysis_logistic_regression():
+def case_ml_analysis_logistic_regression():
     # logistic_regression has no feature_importances_ → else branch, which
     # now FILLS the panel from the permutation importance rather than
     # handing back an empty frame and no figure.
@@ -366,7 +366,7 @@ def test_ml_analysis_logistic_regression():
     assert "permutation" in figs[1].axes[0].get_title().lower()
 
 
-def test_ml_analysis_gradient_boosting():
+def case_ml_analysis_gradient_boosting():
     # HistGradientBoostingClassifier lacks feature_importances_ → else branch
     # (regression test: previously raised AttributeError)
     df = _feature_df()
@@ -382,3 +382,49 @@ def test_ml_analysis_gradient_boosting():
     # the panel is drawn from the permutation importance and says so.
     assert figs[1] is not None
     assert "permutation" in figs[1].axes[0].get_title().lower()
+
+
+from tests.case_table import run_cases  # noqa: E402
+
+def test_process_scores_cases(request, subtests):
+    """Behaviour cases for: process_scores."""
+    ran = run_cases(request, subtests, [
+        case_process_scores_agg_types,
+        case_process_scores_none_agg,
+        case_process_scores_poisson,
+        case_process_scores_invert_complement,
+        case_process_scores_invert_reciprocal,
+        case_process_scores_transform,
+        case_process_scores_bad_agg,
+        case_process_scores_bad_invert,
+    ])
+    assert ran >= 8
+
+def test_regression_model_cases(request, subtests):
+    """Behaviour cases for: _calculate_similarity, regression_model."""
+    ran = run_cases(request, subtests, [
+        case_regression_model_ols,
+        case_regression_model_ols_cov_type,
+        case_regression_model_lasso_fixed_and_auto,
+        case_regression_model_ridge,
+        case_regression_model_glm,
+        case_regression_model_unsupported,
+        case_calculate_similarity,
+        case_calculate_similarity_list_controls,
+    ])
+    assert ran >= 8
+
+def test_ml_analysis_cases(request, subtests):
+    """Behaviour cases for: calculate_p_values, check_and_clean_data, ml_analysis."""
+    ran = run_cases(request, subtests, [
+        case_calculate_p_values_normal,
+        case_calculate_p_values_underdetermined,
+        case_check_and_clean_data,
+        case_check_and_clean_data_refuses_two_fractions_for_one_well_grna,
+        case_ml_analysis_random_forest,
+        case_ml_analysis_bad_model_type,
+        case_ml_analysis_cross_validation,
+        case_ml_analysis_logistic_regression,
+        case_ml_analysis_gradient_boosting,
+    ])
+    assert ran >= 9

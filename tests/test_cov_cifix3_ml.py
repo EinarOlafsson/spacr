@@ -55,20 +55,20 @@ def test_class_arms_rejects_a_value_that_is_not_a_list():
         ml._class_arms(5)
 
 
-def test_multiclass_frames_refuse_a_duplicated_location_column():
+def case_multiclass_frames_refuse_a_duplicated_location_column():
     df = pd.DataFrame([["a", "a"], ["b", "b"]], columns=["loc", "loc"])
     with pytest.raises(ValueError, match="2 columns named 'loc'"):
         ml._multiclass_frames(df, "loc", ["a", "b"], _equals)
 
 
-def test_multiclass_frames_refuse_rows_claimed_by_two_classes():
+def case_multiclass_frames_refuse_rows_claimed_by_two_classes():
     df = pd.DataFrame({"loc": ["a", "b", "c"]})
     with pytest.raises(ValueError, match="3 row\\(s\\) of 'loc' match more than one"):
         ml._multiclass_frames(df, "loc", ["a", "b"],
                               lambda column, entry: column.notna())
 
 
-def test_multiclass_frames_name_an_empty_class_and_truncate_the_values_shown(capsys):
+def case_multiclass_frames_name_an_empty_class_and_truncate_the_values_shown(capsys):
     df = pd.DataFrame({"loc": [f"w{i:02d}" for i in range(20)]})
     with pytest.raises(ValueError) as caught:
         ml._multiclass_frames(df, "loc", ["w00", "missing"],
@@ -79,7 +79,7 @@ def test_multiclass_frames_name_an_empty_class_and_truncate_the_values_shown(cap
     assert "Class 0 (w00): 1 samples" in capsys.readouterr().out
 
 
-def test_unused_classes_are_named_and_the_confusion_matrix_is_printed(capsys):
+def case_unused_classes_are_named_and_the_confusion_matrix_is_printed(capsys):
     frame = three_class_frame()
     extra = frame[frame["columnID"] == "c3"].copy()
     extra["columnID"] = "c4"
@@ -97,7 +97,7 @@ def test_unused_classes_are_named_and_the_confusion_matrix_is_printed(capsys):
     assert output[3].spacr_class_labels_ == ["c1", "c2", "c3"]
 
 
-def test_generate_ml_scores_writes_the_multiclass_confusion_matrix(tmp_path, rng):
+def case_generate_ml_scores_writes_the_multiclass_confusion_matrix(tmp_path, rng):
     src = _make_src(tmp_path, "plate1", rng)
     settings = _ml_settings(src, ml_classes=["c1", "c2", "c3"])
     output, _ = ml.generate_ml_scores(settings)
@@ -107,3 +107,17 @@ def test_generate_ml_scores_writes_the_multiclass_confusion_matrix(tmp_path, rng
     assert list(written.index) == ["true_c1", "true_c2", "true_c3"]
     assert list(written.columns) == ["predicted_c1", "predicted_c2", "predicted_c3"]
     assert int(written.to_numpy().sum()) == int(output[3].spacr_confusion_matrix_.to_numpy().sum())
+
+
+from tests.case_table import run_cases  # noqa: E402
+
+def test_multiclass_frames_cases(request, subtests):
+    """Behaviour cases for: _multiclass_frames, generate_ml_scores, ml_analysis."""
+    ran = run_cases(request, subtests, [
+        case_multiclass_frames_refuse_a_duplicated_location_column,
+        case_multiclass_frames_refuse_rows_claimed_by_two_classes,
+        case_multiclass_frames_name_an_empty_class_and_truncate_the_values_shown,
+        case_unused_classes_are_named_and_the_confusion_matrix_is_printed,
+        case_generate_ml_scores_writes_the_multiclass_confusion_matrix,
+    ])
+    assert ran >= 5

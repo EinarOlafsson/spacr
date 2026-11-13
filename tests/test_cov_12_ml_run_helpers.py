@@ -21,7 +21,7 @@ from spacr import ml, schema
 # how well the fit went
 # ---------------------------------------------------------------------------
 
-def test_a_gaussian_fit_with_no_residuals_reports_no_r_squared():
+def case_a_gaussian_fit_with_no_residuals_reports_no_r_squared():
     """A results object missing resid_response says so instead of raising.
 
     The note is printed after a completed fit; an exception here would lose
@@ -31,7 +31,7 @@ def test_a_gaussian_fit_with_no_residuals_reports_no_r_squared():
     assert ml.fit_quality_note(model) == 'R²: not available for this fit'
 
 
-def test_a_constant_response_has_no_variance_to_explain():
+def case_a_constant_response_has_no_variance_to_explain():
     """With zero total sum of squares R² is undefined and named as such.
 
     Dividing by it would give inf or NaN, and "R²: nan" reads as a failed fit
@@ -45,7 +45,7 @@ def test_a_constant_response_has_no_variance_to_explain():
         'R²: not available for this fit (the response is constant)'
 
 
-def test_a_glm_with_no_usable_null_falls_back_and_then_gives_up():
+def case_a_glm_with_no_usable_null_falls_back_and_then_gives_up():
     """A None llnull is stepped over, and a zero null deviance ends the note.
 
     Dividing by a zero null log-likelihood would report a McFadden R² of inf;
@@ -94,7 +94,7 @@ def test_a_well_key_with_an_empty_row_or_column_is_refused():
 # choosing the inference automatically
 # ---------------------------------------------------------------------------
 
-def test_auto_will_not_choose_a_permutation_test_on_per_object_rows():
+def case_auto_will_not_choose_a_permutation_test_on_per_object_rows():
     """Per-object rows send auto to the simultaneous model, with the reason.
 
     The permutation test needs one row per well; choosing it for object rows
@@ -107,7 +107,7 @@ def test_auto_will_not_choose_a_permutation_test_on_per_object_rows():
     assert 'one per OBJECT' in reason
 
 
-def test_a_design_that_cannot_be_measured_gets_the_test_valid_at_any_width():
+def case_a_design_that_cannot_be_measured_gets_the_test_valid_at_any_width():
     """Missing well or guide columns fall back to the permutation test.
 
     The permutation test stays valid however many guides there are, so it is
@@ -124,7 +124,7 @@ def test_a_design_that_cannot_be_measured_gets_the_test_valid_at_any_width():
 # the paired inputs
 # ---------------------------------------------------------------------------
 
-def test_paired_data_that_is_not_a_list_of_rows_is_refused():
+def case_paired_data_that_is_not_a_list_of_rows_is_refused():
     """A scalar or a mapping in paired_data is rejected by shape, with a reason.
 
     A hand-edited settings CSV is the way this arrives; iterating a string here
@@ -139,7 +139,7 @@ def test_paired_data_that_is_not_a_list_of_rows_is_refused():
                              'not a row']})
 
 
-def test_a_legacy_run_with_no_score_list_is_refused_by_name():
+def case_a_legacy_run_with_no_score_list_is_refused_by_name():
     """Migrating an empty score_data leaves a pair with no score, and it says so.
 
     The legacy lists are zipped positionally; a missing side would otherwise
@@ -175,7 +175,7 @@ def test_tables_with_no_well_column_are_reported_as_sharing_no_plate():
 # nuisance columns that cannot be used
 # ---------------------------------------------------------------------------
 
-def test_a_nuisance_column_collinear_with_the_block_is_dropped_and_said(
+def case_a_nuisance_column_collinear_with_the_block_is_dropped_and_said(
         monkeypatch, capsys):
     """A rank-deficient nuisance design drops columns rather than failing the run.
 
@@ -201,7 +201,7 @@ def test_a_nuisance_column_collinear_with_the_block_is_dropped_and_said(
     assert "'rowID' is collinear" in printed
 
 
-def test_a_nuisance_design_that_fails_for_another_reason_keeps_its_columns(
+def case_a_nuisance_design_that_fails_for_another_reason_keeps_its_columns(
         monkeypatch):
     """Only rank deficiency drops a column; any other error stops the pruning.
 
@@ -221,7 +221,7 @@ def test_a_nuisance_design_that_fails_for_another_reason_keeps_its_columns(
             'rowID', 'columnID']
 
 
-def test_nuisance_columns_the_table_does_not_have_are_named_out_loud(capsys):
+def case_nuisance_columns_the_table_does_not_have_are_named_out_loud(capsys):
     """Missing columns are reported, because the shuffle then does not remove them.
 
     A user who believes position was removed and reads a p-value computed
@@ -233,3 +233,22 @@ def test_nuisance_columns_the_table_does_not_have_are_named_out_loud(capsys):
     printed = capsys.readouterr().out
     assert 'named 2 column(s) this table does not have' in printed
     assert 'rowID, columnID' in printed
+
+
+from tests.case_table import run_cases  # noqa: E402
+
+def test_fit_quality_note_cases(request, subtests):
+    """Behaviour cases for: _usable_nuisance_columns, fit_quality_note, normalize_regression_input_pairs, resolve_auto_inference."""
+    ran = run_cases(request, subtests, [
+        case_a_gaussian_fit_with_no_residuals_reports_no_r_squared,
+        case_a_constant_response_has_no_variance_to_explain,
+        case_a_glm_with_no_usable_null_falls_back_and_then_gives_up,
+        case_auto_will_not_choose_a_permutation_test_on_per_object_rows,
+        case_a_design_that_cannot_be_measured_gets_the_test_valid_at_any_width,
+        case_paired_data_that_is_not_a_list_of_rows_is_refused,
+        case_a_legacy_run_with_no_score_list_is_refused_by_name,
+        case_a_nuisance_column_collinear_with_the_block_is_dropped_and_said,
+        case_a_nuisance_design_that_fails_for_another_reason_keeps_its_columns,
+        case_nuisance_columns_the_table_does_not_have_are_named_out_loud,
+    ])
+    assert ran >= 10

@@ -86,7 +86,7 @@ def test_the_response_panel_says_why_it_could_not_be_drawn(no_qt, capsys):
     assert REFUSAL in capsys.readouterr().out
 
 
-def test_the_shap_summary_says_why_it_could_not_be_drawn(no_qt, capsys):
+def case_the_shap_summary_says_why_it_could_not_be_drawn(no_qt, capsys):
     """The explanation bundle is skipped, with the reason on the console.
 
     The CSV of importances has already been written by then, so the picture is
@@ -98,7 +98,7 @@ def test_the_shap_summary_says_why_it_could_not_be_drawn(no_qt, capsys):
     assert REFUSAL in capsys.readouterr().out
 
 
-def test_the_cell_count_sweep_says_why_it_could_not_be_drawn(no_qt, capsys,
+def case_the_cell_count_sweep_says_why_it_could_not_be_drawn(no_qt, capsys,
                                                              tmp_path):
     """The sample-size sweep returns None instead of blocking on a show.
 
@@ -135,7 +135,7 @@ def test_the_importance_chart_says_why_it_could_not_be_drawn(no_qt, capsys):
     assert REFUSAL in capsys.readouterr().out
 
 
-def test_a_shap_beeswarm_with_no_scene_returns_nothing(no_qt, monkeypatch,
+def case_a_shap_beeswarm_with_no_scene_returns_nothing(no_qt, monkeypatch,
                                                        capsys):
     """``shap_analysis`` returns None when there is no application to draw under.
 
@@ -175,7 +175,7 @@ def test_a_response_panel_with_no_finite_values_is_reported(monkeypatch,
     assert 'holds no finite values' in capsys.readouterr().out
 
 
-def test_a_shap_matrix_that_is_not_two_dimensional_draws_nothing(
+def case_a_shap_matrix_that_is_not_two_dimensional_draws_nothing(
         declining_plot):
     """A 1-D or empty SHAP matrix has no beeswarm, so nothing is written.
 
@@ -188,7 +188,7 @@ def test_a_shap_matrix_that_is_not_two_dimensional_draws_nothing(
     assert declining_plot.instances == []
 
 
-def test_a_beeswarm_that_declines_leaves_no_widget_behind(declining_plot):
+def case_a_beeswarm_that_declines_leaves_no_widget_behind(declining_plot):
     """When ``add_beeswarm`` returns False the plot is deleted and None returned.
 
     The widget is created before the draw is attempted; leaking it would hold a
@@ -200,7 +200,7 @@ def test_a_beeswarm_that_declines_leaves_no_widget_behind(declining_plot):
     assert [p.deleted for p in declining_plot.instances] == [True]
 
 
-def test_a_sweep_curve_that_declines_writes_no_file(declining_plot, tmp_path):
+def case_a_sweep_curve_that_declines_writes_no_file(declining_plot, tmp_path):
     """A curve that will not draw returns None rather than writing an empty file.
 
     ``write_plot`` is never reached, so the run folder keeps no stub PDF that
@@ -237,7 +237,7 @@ def test_ranked_bars_that_decline_leave_no_widget_behind(declining_plot):
     assert [p.deleted for p in declining_plot.instances] == [True]
 
 
-def test_a_shap_summary_whose_values_are_not_a_matrix_returns_nothing(
+def case_a_shap_summary_whose_values_are_not_a_matrix_returns_nothing(
         declining_plot, monkeypatch):
     """``shap_analysis`` refuses a non-2-D explanation rather than reshaping it.
 
@@ -251,7 +251,7 @@ def test_a_shap_summary_whose_values_are_not_a_matrix_returns_nothing(
     assert ml.shap_analysis(object(), frame, frame) is None
 
 
-def test_a_shap_beeswarm_that_declines_is_deleted_and_not_returned(
+def case_a_shap_beeswarm_that_declines_is_deleted_and_not_returned(
         declining_plot, monkeypatch):
     """A plot that could not draw the beeswarm is deleted, and None comes back.
 
@@ -296,7 +296,7 @@ def test_a_bundle_holding_no_figure_announces_nothing(monkeypatch, tmp_path):
     assert ml._announce_the_bundle(str(tmp_path), 'a figure') is None
 
 
-def test_nothing_is_written_for_a_plot_that_was_never_built(tmp_path):
+def case_nothing_is_written_for_a_plot_that_was_never_built(tmp_path):
     """``write_plot(None, ...)`` writes nothing, announces nothing, returns None.
 
     A plot that could not be built must not take the run down after the model
@@ -306,7 +306,7 @@ def test_nothing_is_written_for_a_plot_that_was_never_built(tmp_path):
     assert not list(tmp_path.iterdir())
 
 
-def test_a_bare_plot_path_uses_its_absolute_parent(monkeypatch, tmp_path):
+def case_a_bare_plot_path_uses_its_absolute_parent(monkeypatch, tmp_path):
     """A filename without a directory still exports in the working folder.
 
     ``dirname(abspath(target))`` is always non-empty, including for this bare
@@ -342,3 +342,22 @@ def test_a_bare_plot_path_uses_its_absolute_parent(monkeypatch, tmp_path):
     assert (tmp_path / 'result.svg').read_text(encoding='utf-8') == 'plot'
     assert announced == [('result.svg', 'response')]
     assert plot.deleted is True
+
+
+from tests.case_table import run_cases  # noqa: E402
+
+def test_draw_shap_summary_in_pyqtgraph_cases(request, subtests):
+    """Behaviour cases for: _draw_shap_summary_in_pyqtgraph, _draw_the_cell_count_sweep, shap_analysis, write_plot."""
+    ran = run_cases(request, subtests, [
+        case_the_shap_summary_says_why_it_could_not_be_drawn,
+        case_the_cell_count_sweep_says_why_it_could_not_be_drawn,
+        case_a_shap_beeswarm_with_no_scene_returns_nothing,
+        case_a_shap_matrix_that_is_not_two_dimensional_draws_nothing,
+        case_a_beeswarm_that_declines_leaves_no_widget_behind,
+        case_a_sweep_curve_that_declines_writes_no_file,
+        case_a_shap_summary_whose_values_are_not_a_matrix_returns_nothing,
+        case_a_shap_beeswarm_that_declines_is_deleted_and_not_returned,
+        case_nothing_is_written_for_a_plot_that_was_never_built,
+        case_a_bare_plot_path_uses_its_absolute_parent,
+    ])
+    assert ran >= 10

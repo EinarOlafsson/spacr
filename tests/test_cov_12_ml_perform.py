@@ -51,7 +51,7 @@ def screen(tmp_path):
     }
 
 
-def test_a_permutation_run_whose_summary_cannot_be_written_still_returns(
+def case_a_permutation_run_whose_summary_cannot_be_written_still_returns(
         screen, monkeypatch, capsys):
     """A failing run summary is printed and the permutation output is intact.
 
@@ -74,7 +74,7 @@ def test_a_permutation_run_whose_summary_cannot_be_written_still_returns(
     assert len(output['primary']) > 0
 
 
-def test_an_auto_inference_run_says_which_mode_it_chose(screen, capsys):
+def case_an_auto_inference_run_says_which_mode_it_chose(screen, capsys):
     """``inference='auto'`` prints the mode and the reason it was picked.
 
     Auto is a decision about what the numbers mean; a run that made it
@@ -89,7 +89,7 @@ def test_an_auto_inference_run_says_which_mode_it_chose(screen, capsys):
     assert output['res_folder']
 
 
-def test_a_plate_panel_that_declines_falls_back_to_the_old_plate_figure(
+def case_a_plate_panel_that_declines_falls_back_to_the_old_plate_figure(
         screen, monkeypatch):
     """When the house-style plate panel cannot draw, plot_plates is used.
 
@@ -109,7 +109,7 @@ def test_a_plate_panel_that_declines_falls_back_to_the_old_plate_figure(
     assert drawn[0]['grouping'] == 'mean'
 
 
-def test_a_gene_only_run_writes_an_empty_guide_table_and_says_so(screen,
+def case_a_gene_only_run_writes_an_empty_guide_table_and_says_so(screen,
                                                                  capsys):
     """``level='gene'`` still writes results_grna.csv, empty, and names why.
 
@@ -125,7 +125,7 @@ def test_a_gene_only_run_writes_an_empty_guide_table_and_says_so(screen,
     assert len(pd.read_csv(guide_table)) == 0
 
 
-def test_a_missing_metadata_file_is_skipped_not_fatal(screen, capsys, tmp_path):
+def case_a_missing_metadata_file_is_skipped_not_fatal(screen, capsys, tmp_path):
     """An absent or empty annotation file costs the decoration, not the fit.
 
     One bad metadata path used to fail every trial of a sweep that touched it,
@@ -142,7 +142,7 @@ def test_a_missing_metadata_file_is_skipped_not_fatal(screen, capsys, tmp_path):
     assert os.path.isfile(os.path.join(output['res_folder'], 'results.csv'))
 
 
-def test_a_metadata_path_that_cannot_be_stat_ed_is_skipped(screen, monkeypatch,
+def case_a_metadata_path_that_cannot_be_stat_ed_is_skipped(screen, monkeypatch,
                                                            tmp_path):
     """A path whose size cannot be read is stepped over rather than raised.
 
@@ -166,7 +166,7 @@ def test_a_metadata_path_that_cannot_be_stat_ed_is_skipped(screen, monkeypatch,
     assert os.path.isfile(os.path.join(output['res_folder'], 'results.csv'))
 
 
-def test_a_legacy_volcano_that_cannot_be_drawn_is_reported_by_name(
+def case_a_legacy_volcano_that_cannot_be_drawn_is_reported_by_name(
         screen, monkeypatch, capsys):
     """The plain volcano failing is printed; the results are already written.
 
@@ -190,7 +190,7 @@ def test_a_legacy_volcano_that_cannot_be_drawn_is_reported_by_name(
     assert os.path.isfile(os.path.join(output['res_folder'], 'results.csv'))
 
 
-def test_a_legacy_volcano_that_is_drawn_says_where_it_went(screen, monkeypatch,
+def case_a_legacy_volcano_that_is_drawn_says_where_it_went(screen, monkeypatch,
                                                            capsys):
     """A written volcano announces its path, like every other artefact.
 
@@ -214,7 +214,7 @@ def test_a_legacy_volcano_that_is_drawn_says_where_it_went(screen, monkeypatch,
     assert os.path.isfile(os.path.join(output['res_folder'], 'results.csv'))
 
 
-def test_a_guide_support_paragraph_that_fails_costs_only_the_paragraph(
+def case_a_guide_support_paragraph_that_fails_costs_only_the_paragraph(
         screen, monkeypatch, capsys):
     """A concordance report that raises is named and the run still returns.
 
@@ -236,7 +236,7 @@ def test_a_guide_support_paragraph_that_fails_costs_only_the_paragraph(
     assert 'results' in output
 
 
-def test_settings_that_cannot_be_re_saved_do_not_stop_the_run(screen,
+def case_settings_that_cannot_be_re_saved_do_not_stop_the_run(screen,
                                                               monkeypatch,
                                                               capsys):
     """A failed settings re-save is printed and the fit carries on.
@@ -265,3 +265,22 @@ def test_settings_that_cannot_be_re_saved_do_not_stop_the_run(screen,
 
     assert 'Could not re-save the resolved settings' in capsys.readouterr().out
     assert os.path.isfile(os.path.join(output['res_folder'], 'results.csv'))
+
+
+from tests.case_table import run_cases  # noqa: E402
+
+def test_perform_regression_cases(request, subtests):
+    """Behaviour cases for: perform_regression."""
+    ran = run_cases(request, subtests, [
+        case_a_permutation_run_whose_summary_cannot_be_written_still_returns,
+        case_an_auto_inference_run_says_which_mode_it_chose,
+        case_a_plate_panel_that_declines_falls_back_to_the_old_plate_figure,
+        case_a_gene_only_run_writes_an_empty_guide_table_and_says_so,
+        case_a_missing_metadata_file_is_skipped_not_fatal,
+        case_a_metadata_path_that_cannot_be_stat_ed_is_skipped,
+        case_a_legacy_volcano_that_cannot_be_drawn_is_reported_by_name,
+        case_a_legacy_volcano_that_is_drawn_says_where_it_went,
+        case_a_guide_support_paragraph_that_fails_costs_only_the_paragraph,
+        case_settings_that_cannot_be_re_saved_do_not_stop_the_run,
+    ])
+    assert ran >= 10
