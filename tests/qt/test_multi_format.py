@@ -104,20 +104,21 @@ def test_npz_4d_is_fields_h_w_channels(tmp_path):
     assert d.dtype == "float32"
 
 
-def test_npz_3d_small_leading_axis_reads_as_fields(tmp_path):
-    p = tmp_path / "fields.npz"
-    np.savez(p, a=np.zeros((5, 40, 50), np.uint8))     # 5 < 20, 40/50 > 20
+@pytest.mark.parametrize(
+    "shape, fields_channels, plane",
+    [
+        ((5, 40, 50), (5, 1), (40, 50)),    # 5 < 20, 40/50 > 20
+        ((40, 50, 3), (1, 3), (40, 50)),    # 40 not < 20
+    ],
+    ids=["small_leading_axis_is_fields", "big_leading_axis_is_h_w_channels"],
+)
+def test_npz_3d_leading_axis_reads_as_fields_or_h_w_channels(
+        tmp_path, shape, fields_channels, plane):
+    p = tmp_path / "a.npz"
+    np.savez(p, a=np.zeros(shape, np.uint8))
     d = describe_file(p)
-    assert (d.n_fields, d.n_channels) == (5, 1)
-    assert d.shape == (40, 50)
-
-
-def test_npz_3d_big_leading_axis_reads_as_h_w_channels(tmp_path):
-    p = tmp_path / "hwc.npz"
-    np.savez(p, a=np.zeros((40, 50, 3), np.uint8))     # 40 not < 20
-    d = describe_file(p)
-    assert (d.n_fields, d.n_channels) == (1, 3)
-    assert d.shape == (40, 50)
+    assert (d.n_fields, d.n_channels) == fields_channels
+    assert d.shape == plane
 
 
 def test_npz_1d_array_leaves_shape_unknown(tmp_path):
@@ -129,20 +130,22 @@ def test_npz_1d_array_leaves_shape_unknown(tmp_path):
     assert d.dtype == "int64"
 
 
-def test_npz_key_count_raises_n_fields(tmp_path):
+@pytest.mark.parametrize(
+    "n_keys, prefix, notes",
+    [
+        # 1 field from shape, 4 from keys
+        (4, "f", ["arrays=['f0', 'f1', 'f2', 'f3']"]),
+        (7, "k", ["arrays=['k0', 'k1', 'k2', 'k3', 'k4']…"]),
+    ],
+    ids=["four_keys_listed", "more_than_five_keys_truncated_with_ellipsis"],
+)
+def test_npz_key_count_raises_n_fields(tmp_path, n_keys, prefix, notes):
     p = tmp_path / "many.npz"
-    np.savez(p, **{f"f{i}": np.zeros((8, 9), np.uint8) for i in range(4)})
+    np.savez(p, **{f"{prefix}{i}": np.zeros((8, 9), np.uint8)
+                   for i in range(n_keys)})
     d = describe_file(p)
-    assert d.n_fields == 4                       # 1 from shape, 4 from keys
-    assert d.notes == ["arrays=['f0', 'f1', 'f2', 'f3']"]
-
-
-def test_npz_more_than_five_keys_truncates_note_with_ellipsis(tmp_path):
-    p = tmp_path / "lots.npz"
-    np.savez(p, **{f"k{i}": np.zeros((8, 9), np.uint8) for i in range(7)})
-    d = describe_file(p)
-    assert d.n_fields == 7
-    assert d.notes == ["arrays=['k0', 'k1', 'k2', 'k3', 'k4']…"]
+    assert d.n_fields == n_keys
+    assert d.notes == notes
 
 
 def test_npz_keeps_larger_shape_derived_field_count(tmp_path):
@@ -160,9 +163,22 @@ def test_npz_empty_archive_returns_none(tmp_path):
     assert describe_file(p) is None
 
 
-def test_npz_garbage_bytes_returns_none(tmp_path):
-    p = tmp_path / "broken.npz"
-    p.write_bytes(b"this is definitely not a zip archive")
+@pytest.mark.parametrize(
+    "name, payload",
+    [
+        ("broken.npz", b"this is definitely not a zip archive"),
+        ("broken.npy", b"not a numpy header at all"),
+        # Valid TIFF magic, nonsense page offset -> tifffile reports 0 pages.
+        ("broken.tif", b"II*\x00garbage-not-really-a-tiff"),
+        # No TIFF magic -> tifffile raises; the describer must swallow it.
+        ("fake.tif", b"hello world, this is plain text with a .tif name"),
+    ],
+    ids=["npz_garbage", "npy_garbage", "tif_truncated_page_table",
+         "tif_not_a_tiff_at_all"],
+)
+def test_garbage_bytes_return_none(tmp_path, name, payload):
+    p = tmp_path / name
+    p.write_bytes(payload)
     assert describe_file(p) is None
 
 
@@ -189,20 +205,21 @@ def test_npy_4d(tmp_path):
     assert d.shape == (20, 21)
 
 
-def test_npy_3d_small_leading_axis_reads_as_fields(tmp_path):
-    p = tmp_path / "f.npy"
-    np.save(p, np.zeros((3, 44, 45), np.uint8))
+@pytest.mark.parametrize(
+    "shape, fields_channels, plane",
+    [
+        ((3, 44, 45), (3, 1), (44, 45)),
+        ((44, 45, 3), (1, 3), (44, 45)),
+    ],
+    ids=["small_leading_axis_is_fields", "big_leading_axis_is_h_w_channels"],
+)
+def test_npy_3d_leading_axis_reads_as_fields_or_h_w_channels(
+        tmp_path, shape, fields_channels, plane):
+    p = tmp_path / "a.npy"
+    np.save(p, np.zeros(shape, np.uint8))
     d = describe_file(p)
-    assert (d.n_fields, d.n_channels) == (3, 1)
-    assert d.shape == (44, 45)
-
-
-def test_npy_3d_big_leading_axis_reads_as_h_w_channels(tmp_path):
-    p = tmp_path / "hwc.npy"
-    np.save(p, np.zeros((44, 45, 3), np.uint8))
-    d = describe_file(p)
-    assert (d.n_fields, d.n_channels) == (1, 3)
-    assert d.shape == (44, 45)
+    assert (d.n_fields, d.n_channels) == fields_channels
+    assert d.shape == plane
 
 
 def test_npy_scalar_leaves_shape_unknown(tmp_path):
@@ -212,12 +229,6 @@ def test_npy_scalar_leaves_shape_unknown(tmp_path):
     assert d.shape is None
     assert d.dtype == "float64"
     assert d.notes == ["npy_shape=()"]
-
-
-def test_npy_garbage_bytes_returns_none(tmp_path):
-    p = tmp_path / "broken.npy"
-    p.write_bytes(b"not a numpy header at all")
-    assert describe_file(p) is None
 
 
 def test_npy_does_not_load_pixels_into_memory(tmp_path):
@@ -266,20 +277,6 @@ def test_tiff_extension_variant_is_accepted(tmp_path):
     tifffile.imwrite(str(p), np.zeros((2, 8, 9), np.uint8))
     d = describe_file(p)
     assert d is not None and d.kind == "tif_multi" and d.n_fields == 2
-
-
-def test_tif_with_truncated_page_table_returns_none(tmp_path):
-    """Valid TIFF magic, nonsense page offset → tifffile reports 0 pages."""
-    p = tmp_path / "broken.tif"
-    p.write_bytes(b"II*\x00garbage-not-really-a-tiff")
-    assert describe_file(p) is None
-
-
-def test_tif_that_is_not_a_tiff_at_all_returns_none(tmp_path):
-    """No TIFF magic → tifffile raises; the describer must swallow it."""
-    p = tmp_path / "fake.tif"
-    p.write_bytes(b"hello world, this is plain text with a .tif name")
-    assert describe_file(p) is None
 
 
 # ---------------------------------------------------------------------------

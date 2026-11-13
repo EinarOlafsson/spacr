@@ -23,26 +23,23 @@ def _no_flags(n):
     return np.zeros(n, dtype=bool)
 
 
-def test_a_flagged_object_is_told_which_feature_flagged_it():
-    """The z-score is quoted with the feature and the side, because "this
-    object is an outlier" is not a fact anyone can check."""
+@pytest.mark.parametrize(
+    "scores, matrix, expected",
+    [
+        # The z-score is quoted with the feature and the side, because "this
+        # object is an outlier" is not a fact anyone can check.
+        ([[9.4, 0.2, 0.1]], [[900.0, 12.0, 0.5]], ["area high (z=9.4)"]),
+        ([[8.0, 0.2, 0.1]], [[0.5, 12.0, 0.5]], ["area low (z=8.0)"]),
+    ],
+    ids=["flagged_object_names_its_feature", "value_below_its_fence_is_low"],
+)
+def test_a_flagged_object_is_told_which_feature_flagged_it(
+        scores, matrix, expected):
     spec = OutlierSpec(features=tuple(FEATURES), method=METHOD_MAD, k=3.5)
-    scores = np.array([[9.4, 0.2, 0.1]])
-    matrix = np.array([[900.0, 12.0, 0.5]])
-    reasons = _reasons_per_feature(scores, matrix, FEATURES,
-                                   np.array([True]), _no_flags(1), spec,
-                                   FENCES)
-    assert reasons == ["area high (z=9.4)"]
-
-
-def test_a_value_below_its_fence_is_named_as_low():
-    spec = OutlierSpec(features=tuple(FEATURES), method=METHOD_MAD, k=3.5)
-    scores = np.array([[8.0, 0.2, 0.1]])
-    matrix = np.array([[0.5, 12.0, 0.5]])
-    reasons = _reasons_per_feature(scores, matrix, FEATURES,
-                                   np.array([True]), _no_flags(1), spec,
-                                   FENCES)
-    assert reasons == ["area low (z=8.0)"]
+    reasons = _reasons_per_feature(np.array(scores), np.array(matrix),
+                                   FEATURES, np.array([True]), _no_flags(1),
+                                   spec, FENCES)
+    assert reasons == expected
 
 
 def test_at_most_three_features_are_named_worst_first():

@@ -24,15 +24,14 @@ def app():
 
 class TestTheCountFollowsTheGeometry:
 
-    def test_a_bigger_viewport_holds_more(self):
-        _, small = fits_on_a_page(400, 300, 96)
-        _, large = fits_on_a_page(800, 600, 96)
+    @pytest.mark.parametrize("fewer, more", [
+        ((400, 300, 96), (800, 600, 96)),   # a bigger viewport holds more
+        ((800, 600, 128), (800, 600, 48)),  # a bigger thumbnail holds fewer
+    ], ids=["a_bigger_viewport_holds_more", "a_bigger_thumbnail_holds_fewer"])
+    def test_a_bigger_viewport_holds_more(self, fewer, more):
+        _, small = fits_on_a_page(*fewer)
+        _, large = fits_on_a_page(*more)
         assert large > small
-
-    def test_a_bigger_thumbnail_holds_fewer(self):
-        _, big_thumbs = fits_on_a_page(800, 600, 128)
-        _, small_thumbs = fits_on_a_page(800, 600, 48)
-        assert small_thumbs > big_thumbs
 
     def test_the_columns_follow_the_width(self):
         narrow, _ = fits_on_a_page(400, 600, 96)

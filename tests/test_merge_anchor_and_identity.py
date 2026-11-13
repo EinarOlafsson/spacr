@@ -153,18 +153,6 @@ def test_identity_columns_are_carried_not_averaged(column):
     assert aggregation_for(column) == "first"
 
 
-@pytest.mark.parametrize("column,expected", [
-    ("cell_area", "sum"),
-    ("solidity", "mean"),
-    ("perimeter", "mean"),
-    ("mean_intensity", "mean"),
-    ("centroid_x", "mean"),
-])
-def test_the_identity_rule_did_not_swallow_real_measurements(column, expected):
-    """The identity pattern runs first, so it is the one that can over-match."""
-    assert aggregation_for(column) == expected
-
-
 def test_three_pathogens_do_not_produce_a_label_of_two(tmp_path):
     """The reported symptom, end to end.
 

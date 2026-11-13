@@ -44,18 +44,12 @@ def screen(monkeypatch, qapp):
     return use
 
 
-def test_a_13_inch_laptop_starts_at_90_percent(private_store, screen):
+@pytest.mark.parametrize("width, height", [(1440, 875), (1920, 1040)],
+                         ids=["a_13_inch_laptop", "a_1920_wide_screen"])
+def test_a_small_screen_starts_at_90_percent(private_store, screen, width, height):
     from spacr.qt import preferences
 
-    screen(1440, 875)
-    assert preferences.get_gui_scale() == pytest.approx(0.9)
-    assert preferences.get_font_scale() == pytest.approx(0.9)
-
-
-def test_a_1920_wide_screen_starts_at_90_percent(private_store, screen):
-    from spacr.qt import preferences
-
-    screen(1920, 1040)
+    screen(width, height)
     assert preferences.get_gui_scale() == pytest.approx(0.9)
     assert preferences.get_font_scale() == pytest.approx(0.9)
 

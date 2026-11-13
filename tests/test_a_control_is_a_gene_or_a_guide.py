@@ -78,13 +78,10 @@ class TestTheFourCases:
     def prefix(self):
         return common_prefix(LIBRARY)
 
-    def test_no_underscore_is_a_gene(self, prefix):
-        spec = resolve_control("000000", prefix=prefix)
-
-        assert (spec.level, spec.value) == (GENE, "000000")
-
-    def test_one_underscore_with_a_common_head_is_a_gene(self, prefix):
-        spec = resolve_control("TGGT1_000000", prefix=prefix)
+    @pytest.mark.parametrize("name", ["000000", "TGGT1_000000"],
+                             ids=["no_underscore", "one_underscore_with_a_common_head"])
+    def test_no_underscore_is_a_gene(self, prefix, name):
+        spec = resolve_control(name, prefix=prefix)
 
         assert (spec.level, spec.value) == (GENE, "000000")
 
@@ -152,22 +149,22 @@ class TestMatching:
         assert mask.sum() == 10
         assert all(g.startswith("000000_") for g in pd.Series(STORED)[mask])
 
-    def test_a_guide_takes_exactly_one(self):
-        spec = resolve_control("000000_1", names=LIBRARY)
+    @pytest.mark.parametrize("name, taken", [
+        ("000000_1", 1),    # a guide takes exactly one
+        # `nc='23346'` claiming `233460` is the failure this replaces: it
+        # never matches a substring.
+        ("23346", 0),
+    ], ids=["a_guide_takes_exactly_one", "it_never_matches_a_substring"])
+    def test_a_guide_takes_exactly_one(self, name, taken):
+        spec = resolve_control(name, names=LIBRARY)
 
-        assert matches(spec, STORED).sum() == 1
+        assert matches(spec, STORED).sum() == taken
 
     def test_a_gene_uses_the_gene_column_when_there_is_one(self):
         genes = [g.split("_")[0] for g in STORED]
         spec = resolve_control("233460", names=LIBRARY)
 
         assert matches(spec, STORED, genes=genes).sum() == 10
-
-    def test_it_never_matches_a_substring(self):
-        """`nc='23346'` claiming `233460` is the failure this replaces."""
-        spec = resolve_control("23346", names=LIBRARY)
-
-        assert matches(spec, STORED).sum() == 0
 
     def test_a_longer_gene_id_is_not_claimed_by_a_shorter_one(self):
         stored = ["233460_1", "2334600_1"]
@@ -263,12 +260,14 @@ class TestOnlyAThreePartNameCarriesASpeciesTag:
 
         assert (spec.level, spec.value) == (GUIDE, "000000_1")
 
-    def test_one_gene_two_guides_is_not_a_prefix_either(self):
-        assert common_prefix(["000000_1", "000000_2"]) == ""
-
-    def test_three_part_names_still_give_up_their_organism(self):
-        assert common_prefix(["TGGT1_000000_1", "TGGT1_233460_2"]) == "TGGT1"
-
+    @pytest.mark.parametrize("names, prefix", [
+        (["000000_1", "000000_2"], ""),     # one gene, two guides: no prefix
+        # three-part names still give up their organism
+        (["TGGT1_000000_1", "TGGT1_233460_2"], "TGGT1"),
+    ], ids=["one_gene_two_guides_is_not_a_prefix_either",
+            "three_part_names_give_up_their_organism"])
+    def test_one_gene_two_guides_is_not_a_prefix_either(self, names, prefix):
+        assert common_prefix(names) == prefix
 
 class TestOneMatcherForEveryCallSite:
     """184 C. There were two and they disagreed."""
@@ -431,29 +430,23 @@ class TestTheDataHasAlreadyDroppedThePrefix:
 
         assert int(mask.sum()) == 0
 
-    def test_a_head_the_library_does_use_is_left_alone(self):
-        """Only an UNUSED leading token is dropped: if names really do start
-        with it, the two-part reading was right."""
-        held = ["TGGT1_000000", "TGGT1_233460"]
-        mask, _note = rows_for("TGGT1_000000", pd.Series(held))
+    @pytest.mark.parametrize("held, name, matched", [
+        # Only an UNUSED leading token is dropped: if names really do start
+        # with it, the two-part reading was right.
+        (["TGGT1_000000", "TGGT1_233460"], "TGGT1_000000", 1),
+        # What a spreadsheet paste leaves behind, and what it must not do.
+        # "sgCtrl_   " strips to "sgCtrl_", so the part after the separator
+        # is empty and there is nothing to retry with. The answer is zero rows
+        # and no exception: the name really does match nothing, and raising
+        # here would take down normalisation, every volcano baseline and every
+        # nc/pc reference over a stray character.
+        (["TGGT1_233460_1", "TGGT1_233460_2"], "sgCtrl_   ", 0),
+    ], ids=["a_head_the_library_does_use_is_left_alone",
+            "a_name_that_is_nothing_but_a_trailing_separator_matches_nothing"])
+    def test_a_head_the_library_does_use_is_left_alone(self, held, name, matched):
+        mask, _note = rows_for(name, pd.Series(held))
 
-        assert int(mask.sum()) == 1
-
-    def test_a_name_that_is_nothing_but_a_trailing_separator_matches_nothing(
-            self):
-        """What a spreadsheet paste leaves behind, and what it must not do.
-
-        "sgCtrl_   " strips to "sgCtrl_", so the part after the separator is
-        empty and there is nothing to retry with. The answer is zero rows and
-        no exception: the name really does match nothing, and raising here
-        would take down normalisation, every volcano baseline and every nc/pc
-        reference over a stray character.
-        """
-        held = ["TGGT1_233460_1", "TGGT1_233460_2"]
-
-        mask, _note = rows_for("sgCtrl_   ", pd.Series(held))
-
-        assert int(mask.sum()) == 0
+        assert int(mask.sum()) == matched
 
     def test_the_same_name_still_raises_under_strict(self):
         """And giving up quietly must not skip the raise a caller asked for.

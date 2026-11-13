@@ -65,6 +65,24 @@ WEAK = textwrap.dedent('''
 ''')
 
 
+PIN = textwrap.dedent('''
+    import inspect
+    from pathlib import Path
+
+    from toy import calc
+
+
+    def test_clamp_source_is_pinned():
+        text = inspect.getsource(calc.clamp)
+        assert text.startswith("def clamp(value, low=0, high=10):")
+        assert "if value < low:" in text
+
+
+    def test_the_file_still_defines_unused():
+        assert "def unused(flag=True):" in Path(calc.__file__).read_text()
+''')
+
+
 @pytest.fixture
 def toy(tmp_path):
     """A package ``toy`` with ``calc.py`` and two test files beside it."""
@@ -74,6 +92,7 @@ def toy(tmp_path):
     (tmp_path / "checks").mkdir()
     (tmp_path / "checks" / "test_strong.py").write_text(STRONG, encoding="utf-8")
     (tmp_path / "checks" / "test_weak.py").write_text(WEAK, encoding="utf-8")
+    (tmp_path / "checks" / "test_pin.py").write_text(PIN, encoding="utf-8")
     (tmp_path / "pytest.ini").write_text("[pytest]\n", encoding="utf-8")
     return tmp_path
 
@@ -96,18 +115,44 @@ def test_every_kind_is_found_and_docstrings_are_left_alone():
         ("constant", "def clamp(value, low=0, high=10):",
          "def clamp(value, low=1, high=10):"),
         ("return", "return low", "return None"),
-        ("negate", "if value < low:", "if not value < low:"),
+        ("negate", "if value < low:", "if not (value < low):"),
     ],
 )
 def test_one_mutant_changes_exactly_one_thing(kind, before, after):
     mutant = next(m for m in mutant_sample.enumerate_mutants(CALC) if m.kind == kind)
-    clean = [line.strip() for line in
-             mutant_sample.ast.unparse(mutant_sample.ast.parse(CALC)).splitlines()]
+    clean = [line.strip() for line in CALC.splitlines()]
     mutated = [line.strip() for line in
                mutant_sample.apply_mutant(CALC, mutant).splitlines()]
 
+    assert len(mutated) == len(clean)
     changed = [(a, b) for a, b in zip(clean, mutated) if a != b]
     assert changed == [(before, after)]
+
+
+def test_every_mutant_keeps_every_line_number():
+    """Line numbers must not move, or inspect.getsource reads the wrong code."""
+    for source in (CALC, (ROOT / "tools" / "mutant_sample.py").read_text(encoding="utf-8")):
+        for mutant in mutant_sample.enumerate_mutants(source):
+            mutated, aligned = mutant_sample.apply_mutant_aligned(source, mutant)
+            assert aligned, mutant.id
+            assert mutated.count("\n") == source.count("\n"), mutant.id
+            changed = [number for number, (a, b) in enumerate(
+                zip(source.splitlines(), mutated.splitlines()), start=1) if a != b]
+            assert changed and changed[0] >= mutant.line, mutant.id
+
+
+def test_a_multi_line_value_is_replaced_without_moving_later_lines():
+    source = "def f(x):\n    return max(\n        x,\n        1)\n\n\ny = 2\n"
+    mutant = next(m for m in mutant_sample.enumerate_mutants(source) if m.kind == "return")
+
+    mutated, aligned = mutant_sample.apply_mutant_aligned(source, mutant)
+
+    assert aligned
+    assert mutated.splitlines()[-1] == "y = 2"
+    assert mutated.count("\n") == source.count("\n")
+    namespace = {}
+    exec(compile(mutated, "<mutant>", "exec"), namespace)
+    assert namespace["f"](5) is None
 
 
 def test_a_mutant_that_is_not_in_the_source_is_refused():
@@ -204,3 +249,59 @@ def test_a_test_set_failing_on_the_clean_module_stops_the_comparison(toy):
     assert report["status"] == "baseline_failed"
     assert report["baseline"]["broken"]["outcome"] == "killed"
     assert report["mutants"] == []
+
+
+PIN_IDS = ["checks/test_pin.py::test_clamp_source_is_pinned",
+           "checks/test_pin.py::test_the_file_still_defines_unused"]
+
+
+def test_a_source_pin_survives_an_unrelated_mutant_and_is_listed(toy):
+    """Batch 9: a pin on clamp failed for a mutant in unused, a false kill."""
+    report = mutant_sample.run_sample(
+        module=toy / "toy" / "calc.py", root=toy, seed=0, count=1, lines=[16],
+        kinds=["constant"], timeout=120,
+        test_sets={"pins": ["checks/test_pin.py"]},
+    )
+
+    assert report["status"] == "ok"
+    [row] = report["mutants"]
+    assert row["aligned"] is True
+    assert row["results"]["pins"]["outcome"] == "survived"
+    assert report["source_readers"] == {"pins": PIN_IDS}
+    assert report["excluded_tests"] == []
+    assert "2 source-reading tests (kept)" in mutant_sample.render_text(report)
+
+
+def test_a_behavioural_mutant_is_still_killed_next_to_a_pin(toy):
+    report = mutant_sample.run_sample(
+        module=toy / "toy" / "calc.py", root=toy, seed=0, count=1, lines=[7],
+        kinds=["compare"], timeout=120,
+        test_sets={"strong": ["checks/test_strong.py", "checks/test_pin.py"]},
+        exclude_source_readers=True,
+    )
+
+    [row] = report["mutants"]
+    assert row["results"]["strong"]["outcome"] == "killed"
+    assert report["excluded_tests"] == PIN_IDS
+
+
+def test_excluded_source_readers_no_longer_count_as_kills(toy):
+    """The pin sees the mutated text of clamp; only the exclusion hides it."""
+    common = dict(module=toy / "toy" / "calc.py", root=toy, seed=0, count=1,
+                  lines=[7], kinds=["compare"], timeout=120,
+                  test_sets={"weak": ["checks/test_weak.py", "checks/test_pin.py"]})
+
+    kept = mutant_sample.run_sample(**common)
+    dropped = mutant_sample.run_sample(**common, exclude_source_readers=True)
+
+    assert kept["mutants"][0]["results"]["weak"]["outcome"] == "killed"
+    assert dropped["mutants"][0]["results"]["weak"]["outcome"] == "survived"
+    assert dropped["source_readers"]["weak"] == PIN_IDS
+    assert "(excluded)" in mutant_sample.render_text(dropped)
+
+
+def test_the_command_line_offers_the_exclusion():
+    args = mutant_sample.build_parser().parse_args(
+        ["--module", "m.py", "--tests", "t.py", "--exclude-source-readers"])
+
+    assert args.exclude_source_readers is True

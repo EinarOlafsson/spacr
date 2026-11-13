@@ -149,9 +149,14 @@ class TestAPressSelectsAWell:
 
 class TestADragSelectsTheBlock:
 
-    def test_press_move_release_selects_the_rectangle(self, screen):
-        screen.begin_well_drag(2, 3, Qt.NoModifier)
-        screen.drag_wells_to(_centre(screen, (4, 5)))
+    @pytest.mark.parametrize("press, release", [
+        ((2, 3), (4, 5)),
+        ((4, 5), (2, 3)),   # dragging backwards selects the same block
+    ], ids=["press_move_release", "dragging_backwards"])
+    def test_press_move_release_selects_the_rectangle(self, screen, press,
+                                                      release):
+        screen.begin_well_drag(*press, Qt.NoModifier)
+        screen.drag_wells_to(_centre(screen, release))
         screen.finish_well_drag()
 
         assert screen.selected_wells() == {
@@ -163,14 +168,6 @@ class TestADragSelectsTheBlock:
         screen.finish_well_drag()
 
         assert screen.selected_well_names() == ["B03", "B04", "C03", "C04"]
-
-    def test_dragging_backwards_selects_the_same_block(self, screen):
-        screen.begin_well_drag(4, 5, Qt.NoModifier)
-        screen.drag_wells_to(_centre(screen, (2, 3)))
-        screen.finish_well_drag()
-
-        assert screen.selected_wells() == {
-            (r, c) for r in (2, 3, 4) for c in (3, 4, 5)}
 
     def test_shrinking_the_rectangle_leaves_nothing_behind(self, screen):
         """Redrawn from the state at the PRESS rather than from the last
@@ -228,17 +225,16 @@ class TestTheSelectionIsMarkedWithoutHidingTheRole:
     replacing it would trade the information the map exists for against the
     one thing the user can already see."""
 
-    def test_a_chosen_well_carries_the_property_the_sheet_reads(self, screen):
+    @pytest.mark.parametrize("well, chosen", [
+        ((2, 3), "true"),   # a chosen well carries the property the sheet reads
+        ((1, 1), "false"),  # an unchosen one does not
+    ], ids=["a_chosen_well", "an_unchosen_one"])
+    def test_a_chosen_well_carries_the_property_the_sheet_reads(
+            self, screen, well, chosen):
         screen.begin_well_drag(2, 3, Qt.NoModifier)
         screen.finish_well_drag()
 
-        assert _wells(screen)[(2, 3)].property("spacrWellChosen") == "true"
-
-    def test_an_unchosen_one_does_not(self, screen):
-        screen.begin_well_drag(2, 3, Qt.NoModifier)
-        screen.finish_well_drag()
-
-        assert _wells(screen)[(1, 1)].property("spacrWellChosen") == "false"
+        assert _wells(screen)[well].property("spacrWellChosen") == chosen
 
     def test_the_role_survives_being_chosen(self, screen):
         before = _wells(screen)[(2, 3)].property("spacrWellRole")

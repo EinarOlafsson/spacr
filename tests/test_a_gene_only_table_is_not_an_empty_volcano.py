@@ -53,29 +53,21 @@ def _panel(qtbot, frame):
     return panel
 
 
-def test_a_gene_only_table_draws_its_genes(qtbot):
-    panel = _panel(qtbot, _frame("gene"))
-    assert panel.level() == "gene"
-    assert len(panel.volcano._row_xy) == 40
-
-
-def test_a_guide_table_still_opens_on_guides(qtbot):
-    """The four-fold-duplication fix is untouched."""
-    panel = _panel(qtbot, _frame("grna"))
-    assert panel.level() == "grna"
-    assert len(panel.volcano._row_xy) == 40
-
-
-def test_a_table_with_both_opens_on_guides(qtbot):
-    """Both levels present is the case the "grna" default was chosen for.
-
-    A gene and its four guides all name the same gene, so drawing both puts
-    five dots where the screen measured one thing -- and on the ADJUSTED axis
-    Benjamini-Hochberg ties pull them to one height and they stack.
-    """
-    panel = _panel(qtbot, _frame("both"))
-    assert panel.level() == "grna"
-    assert len(panel.volcano._row_xy) == 20
+@pytest.mark.parametrize("table, level, drawn", [
+    ("gene", "gene", 40),
+    # The four-fold-duplication fix is untouched.
+    ("grna", "grna", 40),
+    # Both levels present is the case the "grna" default was chosen for. A
+    # gene and its four guides all name the same gene, so drawing both puts
+    # five dots where the screen measured one thing -- and on the ADJUSTED axis
+    # Benjamini-Hochberg ties pull them to one height and they stack.
+    ("both", "grna", 20),
+], ids=["a_gene_only_table_draws_its_genes", "a_guide_table_opens_on_guides",
+        "a_table_with_both_opens_on_guides"])
+def test_a_gene_only_table_draws_its_genes(qtbot, table, level, drawn):
+    panel = _panel(qtbot, _frame(table))
+    assert panel.level() == level
+    assert len(panel.volcano._row_xy) == drawn
 
 
 def test_a_table_of_nothing_but_nuisance_terms_names_no_level(qtbot):

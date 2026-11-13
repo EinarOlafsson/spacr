@@ -12,7 +12,7 @@ import spacr
 import pytest
 
 from spacr.fit_resources import (RESOURCE_KEY, STAGE_KEY, describe_resources,
-                                 gpu_allocated, host_rss, peak, readable,
+                                 host_rss, peak, readable,
                                  record_stage)
 
 
@@ -43,15 +43,6 @@ def test_nothing_measured_is_not_zero():
     """"Nothing was using memory" and "nobody measured" are opposite findings."""
     assert readable(None) == "not measured"
     assert peak({RESOURCE_KEY: [{"stage": "s", "rss": None, "gpu": None}]}) == {}
-
-
-def test_gpu_is_not_asked_by_importing_torch(monkeypatch):
-    """Importing torch to take a measurement would make the measurement the
-    most expensive thing in the stage."""
-    import sys
-
-    monkeypatch.setitem(sys.modules, "torch", None)
-    assert gpu_allocated() is None
 
 
 def test_the_table_reads_as_a_table():

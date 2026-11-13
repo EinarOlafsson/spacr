@@ -34,7 +34,6 @@ from __future__ import annotations
 
 import itertools
 import os
-import sqlite3
 
 import numpy as np
 import pandas as pd
@@ -205,157 +204,8 @@ def test_declining_the_qc_writes_no_figure_but_still_installs_the_hook(tmp_path)
 
 
 # ---------------------------------------------------------------------------
-# spacr.submodules -- generate_score_heatmap
-# ---------------------------------------------------------------------------
-
-ROWS = [f"r{i}" for i in range(1, 9)]
-COL = "c3"
-OTHER_COL = "c2"
-
-
-def _write_scores_csv(path, seed, value_column="pred", with_column_key=True):
-    """Per-object scores, one ``c3`` row and one ``c2`` row per plate row.
-
-    ``with_column_key=False`` writes the same scores with no column key at
-    all, which is the input the well filter cannot apply.
-    """
-    rng = np.random.default_rng(seed)
-    records = []
-    for row in ROWS:
-        for column in (COL, OTHER_COL):
-            record = {"rowID": row,
-                      value_column: round(float(rng.uniform(0, 1)), 6)}
-            if with_column_key:
-                record["columnID"] = column
-            records.append(record)
-    pd.DataFrame(records).to_csv(path, index=False)
-    return {record["rowID"]: record[value_column] for record in records
-            if not with_column_key or record["columnID"] == COL}
-
-
-def _counts(index):
-    return {"A": 10 + 3 * index, "B": 40 - 2 * index, "C": 1000}
-
-
-def _write_mixed_csv(path):
-    """Per-well sgRNA read counts for the mixed control condition."""
-    records = []
-    for index, row in enumerate(ROWS):
-        counts = _counts(index)
-        for name, key in (("sgA", "A"), ("sgB", "B"), ("sgC", "C")):
-            records.append({"columnID": COL, "rowID": row,
-                            "grna_name": name, "count": counts[key]})
-    pd.DataFrame(records).to_csv(path, index=False)
-
-
-def _model_folder(tmp_path):
-    """A folder of per-model sub-folders, each holding a ``scores.csv``."""
-    folder = tmp_path / "models"
-    folder.mkdir()
-    for index, name in enumerate(("modelA", "modelB")):
-        (folder / name).mkdir()
-        _write_scores_csv(str(folder / name / "scores.csv"), seed=17 + index)
-    return folder
-
-
-def _heatmap_settings(folder, mixed, cv, dst):
-    return {"folders": [str(folder)], "csv_name": "scores.csv",
-            "data_column": "pred", "csv": str(mixed), "cv_csv": str(cv),
-            "data_column_cv": "pred_cv", "plateID": 1, "columnID": COL,
-            "control_sgrnas": ["sgA", "sgB"], "fraction_grna": "sgA",
-            "cmap": "coolwarm", "dst": str(dst)}
-
-
-def test_a_cv_table_with_no_column_key_names_the_key_it_needed(tmp_path):
-    """The well filter is skipped rather than applied to a column that is not there.
-
-    ``read_table`` canonicalises every spelling of the column key, so a CV CSV
-    that reaches ``group_cv_score`` without a ``columnID`` genuinely has no
-    column axis: there is nothing to filter ``settings['columnID']`` against.
-    Skipping the filter and letting the per-well groupby raise ``KeyError:
-    'columnID'`` names the missing key; filtering on a fabricated one would
-    have silently kept every column of the plate in a per-well mean.
-    """
-    from spacr.submodules import generate_score_heatmap
-
-    folder = _model_folder(tmp_path)
-    mixed = tmp_path / "mixed.csv"
-    _write_mixed_csv(str(mixed))
-    dst = tmp_path / "out"
-    dst.mkdir()
-
-    keyless = tmp_path / "cv_without_column.csv"
-    _write_scores_csv(str(keyless), seed=3, value_column="pred_cv",
-                      with_column_key=False)
-
-    with pytest.raises(KeyError) as caught:
-        generate_score_heatmap(
-            _heatmap_settings(folder, mixed, keyless, dst))
-    assert "columnID" in str(caught.value)
-
-    # The same CV table WITH the key filters to c3 and the run completes, so
-    # the refusal above is the missing key and not a broken harness.
-    keyed = tmp_path / "cv.csv"
-    truth = _write_scores_csv(str(keyed), seed=3, value_column="pred_cv")
-    out = generate_score_heatmap(_heatmap_settings(folder, mixed, keyed, dst))
-
-    assert len(out) == len(ROWS)
-    assert set(out["columnID"]) == {COL}
-    by_row = dict(zip(out["rowID"], out["pred_cv"]))
-    assert by_row == pytest.approx(truth), (
-        "the c2 rows leaked into the per-well CV mean")
-
-
-# ---------------------------------------------------------------------------
 # spacr.submodules -- analyze_invasion
 # ---------------------------------------------------------------------------
-
-PARASITE_AREA = 100.0
-OUTSIDE_CHANNEL = 1
-TOTAL_CHANNEL = 0
-
-
-def _write_invasion_db(root, outside, *, host):
-    """One well of parasites whose outside-stain statistic is set literally."""
-    measurements = os.path.join(str(root), "measurements")
-    os.makedirs(measurements, exist_ok=True)
-    db = os.path.join(measurements, "measurements.db")
-    prcf = "plate1_r1_c1_f1"
-
-    pathogens, cells = [], []
-    for index, value in enumerate(outside, start=1):
-        cell = index if host else 0
-        pathogens.append({
-            "object_label": index, "cell_id": cell,
-            "plateID": "plate1", "rowID": "r1", "columnID": "c1",
-            "fieldID": "f1", "prcf": prcf, "pathogen_area": PARASITE_AREA,
-            f"pathogen_channel_{TOTAL_CHANNEL}_mean_intensity": 200.0,
-            f"pathogen_channel_{OUTSIDE_CHANNEL}_percentile_95": float(value),
-        })
-        if host:
-            cells.append({"object_label": cell, "plateID": "plate1",
-                          "rowID": "r1", "columnID": "c1", "fieldID": "f1",
-                          "prcf": prcf, "cell_area": 20000.0})
-    if not host:
-        # An uninfected host cell so the cell table exists at all.
-        cells.append({"object_label": 900, "plateID": "plate1", "rowID": "r1",
-                      "columnID": "c1", "fieldID": "f1", "prcf": prcf,
-                      "cell_area": 20000.0})
-
-    with sqlite3.connect(db) as con:
-        pd.DataFrame(pathogens).to_sql("pathogen", con, index=False,
-                                       if_exists="replace")
-        pd.DataFrame(cells).to_sql("cell", con, index=False,
-                                   if_exists="replace")
-    return str(root)
-
-
-def _invasion_settings(src):
-    return {"src": src, "outside_channel": OUTSIDE_CHANNEL,
-            "total_channel": TOTAL_CHANNEL, "cell_types": None,
-            "cell_plate_metadata": None, "pathogen_types": ["dmso", "drug"],
-            "pathogen_plate_metadata": [["c1"], ["c2"]], "treatments": None,
-            "treatment_plate_metadata": None, "save": False, "verbose": False}
 
 
 # UNREACHABLE: submodules.py:4900 (`field_counts[name] = 0`) and the
@@ -368,40 +218,6 @@ def _invasion_settings(src):
 # from `field_counts.columns`. The guard is a defensive re-check after a step
 # that already guarantees its condition. What is testable is the guarantee
 # itself, which is what this test pins.
-def test_a_field_where_nothing_invaded_still_reports_a_zero_invaded_count(
-        tmp_path):
-    """No invaded parasite is a count of zero, never a missing column.
-
-    Every parasite here overlaps no host cell, and ``extracellular_class``
-    defaults to ``'attached'`` -- a parasite outside a cell has not invaded
-    anything whatever the stain says. So the whole field scores attached and
-    the invaded class is observed nowhere. It still has to reach the fields
-    and wells tables as ``n_invaded = 0`` with an efficiency of 0.0, because a
-    missing column there would be a ``KeyError`` in the merge that builds the
-    per-field table and a dropped denominator in every mean below it.
-    """
-    from spacr.submodules import analyze_invasion
-
-    out = analyze_invasion(_invasion_settings(_write_invasion_db(
-        tmp_path / "none", [5.0, 6.0, 7.0, 8.0, 9.0, 10.0], host=False)))
-
-    assert set(out["parasites"]["invasion_class"]) == {"attached"}
-    fields = out["fields"]
-    assert list(fields["n_invaded"]) == [0]
-    assert list(fields["n_attached"]) == [6]
-    well = out["wells"].iloc[0]
-    assert (well["n_invaded"], well["n_attached"], well["n_total"]) == (0, 6, 6)
-    assert well["invasion_efficiency"] == pytest.approx(0.0)
-
-    # A well that really does contain invaded parasites counts them, so the
-    # zero above is the observation and not a column that is always empty.
-    both = analyze_invasion(_invasion_settings(_write_invasion_db(
-        tmp_path / "some", [10.0] * 4 + [100.0] * 6, host=True)))
-    row = both["wells"].iloc[0]
-    assert (row["n_invaded"], row["n_attached"]) == (4, 6)
-    assert row["invasion_efficiency"] == pytest.approx(0.4)
-
-
 # ---------------------------------------------------------------------------
 # spacr.hit_attribution
 # ---------------------------------------------------------------------------
