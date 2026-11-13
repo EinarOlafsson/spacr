@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-13 11:37-0500\n"
+"POT-Creation-Date: 2026-11-13 18:37-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: hi\n"
@@ -96,12 +96,20 @@ msgid "A file written before a release changed a default does not hold the chang
 msgstr "किसी रिलीज़ द्वारा डिफ़ॉल्ट बदलने से पहले लिखी गई फ़ाइल में बदली गई कुंजी नहीं होती, इसलिए वह नए डिफ़ॉल्ट के साथ चलती। जब किसी सेटिंग्स फ़ाइल को ``spacr-run``, ``spacr repro``, बैच कतार या आयात सेटिंग्स द्वारा पढ़ा जाता है, तो हर वह कुंजी जिसका डिफ़ॉल्ट फ़ाइल के संस्करण के बाद बदला गया और जिसे फ़ाइल सेट नहीं करती, उसे वही डिफ़ॉल्ट मिलता है जो उस समय था। ``spacr_settings_version`` के बिना फ़ाइल, जैसे हाथ से लिखी गई फ़ाइल, सबसे पुराने संस्करण के रूप में पढ़ी जाती है, और लॉग हर उस पुराने डिफ़ॉल्ट का नाम बताता है जो उसे दिया गया। फ़ाइल द्वारा सेट की गई कुंजी को हमेशा प्राथमिकता मिलती है। आज के डिफ़ॉल्ट उपयोग करने के लिए, उन कुंजियों को सेट करें या फ़ाइल में वर्तमान ``spacr_settings_version`` जोड़ें।"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The changes are kept in one table, ``DEFAULT_CHANGES`` in ``spacr/settings.py``, keyed by the number of the item that changed the default:"
-msgstr "बदलाव एक ही तालिका में रखे जाते हैं, ``spacr/settings.py`` में ``DEFAULT_CHANGES``, जिसकी कुंजी उस आइटम की संख्या है जिसने डिफ़ॉल्ट बदला:"
+msgid "The changes are kept in one table, ``DEFAULT_CHANGES`` in ``spacr/settings.py``, keyed by the number of the item that changed the default. A key is always above every earlier one, so an item that changes a default after a higher-numbered item takes the next free number:"
+msgstr "बदलाव एक ही तालिका में रखे जाते हैं, ``spacr/settings.py`` में ``DEFAULT_CHANGES``, जिसकी कुंजी उस आइटम की संख्या है जिसने डिफ़ॉल्ट बदला। कोई कुंजी हमेशा सभी पिछली कुंजियों से बड़ी होती है, इसलिए जो आइटम किसी ऊँची संख्या वाले आइटम के बाद डिफ़ॉल्ट बदलता है, वह अगली खाली संख्या लेता है:"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "931: ``ops_compose_blend`` was ``'average'``; it is now ``'feather'``."
 msgstr "931: ``ops_compose_blend`` पहले ``'average'`` था; अब यह ``'feather'`` है।"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "932: ``ops_registration_precision`` was ``'float64'`` and ``ops_registration_backend`` ``'cpu'``; they are now ``'float32'`` and ``'gpu'``."
+msgstr "932: ``ops_registration_precision`` पहले ``'float64'`` था और ``ops_registration_backend`` ``'cpu'``; अब ये ``'float32'`` और ``'gpu'`` हैं।"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "933 (item 930's default switch): ``ops_align_model`` was ``'similarity'``; it is now ``'tile_affine'``."
+msgstr "933 (आइटम 930 का डिफ़ॉल्ट बदलाव): ``ops_align_model`` पहले ``'similarity'`` था; अब यह ``'tile_affine'`` है।"
 
 msgid "Public API"
 msgstr "सार्वजनिक API"

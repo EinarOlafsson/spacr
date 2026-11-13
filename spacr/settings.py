@@ -2528,11 +2528,12 @@ def surviving_setting_name(key):
 
 
 SETTINGS_VERSION_KEY = 'spacr_settings_version'
-SETTINGS_SCHEMA_VERSION = 932
+SETTINGS_SCHEMA_VERSION = 933
 DEFAULT_CHANGES = {
     931: {'ops_compose_blend': 'average'},
     932: {'ops_registration_precision': 'float64',
           'ops_registration_backend': 'cpu'},
+    933: {'ops_align_model': 'similarity'},
 }
 
 
@@ -2586,7 +2587,12 @@ def _fold_older_defaults(settings, version, known=None):
 
     TO CHANGE A DEFAULT: add one row to ``DEFAULT_CHANGES``, keyed by the
     item number that changes it and holding the OLD default, and raise
-    ``SETTINGS_SCHEMA_VERSION`` to that number.
+    ``SETTINGS_SCHEMA_VERSION`` to that number. The key must be above every
+    existing key, because files are already stamped with the current
+    version; an item whose number is lower takes the next free number and
+    is listed under that number in docs/source/reproducibility_manifests.rst.
+    933 is item 930's switch of ``ops_align_model`` to ``'tile_affine'``:
+    it landed after 932, so it could not take 930.
 
     :param settings: the file's settings under today's names, edited in
         place.
@@ -9384,9 +9390,6 @@ ALPHA_FEATURES = {
     933: {
         'settings': ('illumination_nuclear_channel', 'illumination_nuclei', 'illumination_dark_per_plate', 'illumination_block_px', 'illumination_fit', 'illumination_sigma_px', 'illumination_ridge', 'illumination_floor', 'illumination_centre_cells', 'illumination_lookup', 'illumination_map_grid', 'illumination_centre_offset', 'illumination_holdout_n', 'illumination_seed', 'illumination_validate',),
         'choices': {'illumination_estimator': ('nuclear_median',)},
-    },
-    930: {
-        'settings': ('ops_align_model', 'ops_align_tile_min_nuclei', 'ops_align_match_radius', 'ops_align_trim_passes',),
     },
     928: {
         'settings': ('ops_consensus_enabled', 'ops_consensus_bootstraps', 'ops_consensus_seed', 'ops_consensus_draw_seed', 'ops_consensus_knn', 'ops_consensus_k', 'ops_consensus_k_ratio', 'ops_consensus_method', 'ops_consensus_min_cooc', 'ops_consensus_force_genes', 'ops_consensus_min_stability', 'ops_consensus_match_count', 'ops_consensus_guides',),

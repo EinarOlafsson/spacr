@@ -3915,7 +3915,7 @@ def _ph_field_check(plate: str, well: str, cells, candidates, refined_rows,
 
 
 #: The models ``ops_align_model`` may name, the first being the default.
-_PH_ALIGN_MODELS = ("similarity", "tile_affine")
+_PH_ALIGN_MODELS = ("tile_affine", "similarity")
 
 
 def _ph_align_options(settings: Mapping[str, Any]
@@ -3930,7 +3930,7 @@ def _ph_align_options(settings: Mapping[str, Any]
     """
     from .qt.i18n import tr
 
-    model = str(settings.get("ops_align_model") or "similarity"
+    model = str(settings.get("ops_align_model") or _PH_ALIGN_MODELS[0]
                 ).strip().lower()
     if model not in _PH_ALIGN_MODELS:
         raise ValueError(tr(

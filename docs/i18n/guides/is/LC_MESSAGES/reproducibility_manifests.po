@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-13 11:37-0500\n"
+"POT-Creation-Date: 2026-11-13 18:37-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: is\n"
@@ -96,12 +96,20 @@ msgid "A file written before a release changed a default does not hold the chang
 msgstr "Skrá sem var skrifuð áður en útgáfa breytti sjálfgefnu gildi inniheldur ekki breytta lykilinn, svo hún myndi keyra með nýja sjálfgefna gildinu. Þegar stillingaskrá er lesin af ``spacr-run``, ``spacr repro``, runuröðinni eða Innflutningsstillingum fær hver lykill, sem fékk breytt sjálfgefið gildi eftir útgáfu skrárinnar og sem skráin stillir ekki, sjálfgefna gildið sem hann hafði þá. Skrá án ``spacr_settings_version``, til dæmis handskrifuð skrá, er lesin sem elsta útgáfan, og atvikaskráin nefnir hvert gamalt sjálfgefið gildi sem hún fékk. Lykill sem skráin stillir ræður alltaf. Til að nota sjálfgefin gildi dagsins í dag skaltu stilla þá lykla eða bæta núverandi ``spacr_settings_version`` við skrána."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The changes are kept in one table, ``DEFAULT_CHANGES`` in ``spacr/settings.py``, keyed by the number of the item that changed the default:"
-msgstr "Breytingarnar eru geymdar í einni töflu, ``DEFAULT_CHANGES`` í ``spacr/settings.py``, með númer atriðisins sem breytti sjálfgefna gildinu sem lykil:"
+msgid "The changes are kept in one table, ``DEFAULT_CHANGES`` in ``spacr/settings.py``, keyed by the number of the item that changed the default. A key is always above every earlier one, so an item that changes a default after a higher-numbered item takes the next free number:"
+msgstr "Breytingarnar eru geymdar í einni töflu, ``DEFAULT_CHANGES`` í ``spacr/settings.py``, með númer atriðisins sem breytti sjálfgefna gildinu sem lykil. Lykill er alltaf hærri en allir fyrri lyklar, svo atriði sem breytir sjálfgefnu gildi á eftir atriði með hærra númer tekur næsta lausa númer:"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "931: ``ops_compose_blend`` was ``'average'``; it is now ``'feather'``."
 msgstr "931: ``ops_compose_blend`` var ``'average'``; nú er það ``'feather'``."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "932: ``ops_registration_precision`` was ``'float64'`` and ``ops_registration_backend`` ``'cpu'``; they are now ``'float32'`` and ``'gpu'``."
+msgstr "932: ``ops_registration_precision`` var ``'float64'`` og ``ops_registration_backend`` ``'cpu'``; nú eru þau ``'float32'`` og ``'gpu'``."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "933 (item 930's default switch): ``ops_align_model`` was ``'similarity'``; it is now ``'tile_affine'``."
+msgstr "933 (breyting atriðis 930 á sjálfgefnu gildi): ``ops_align_model`` var ``'similarity'``; nú er það ``'tile_affine'``."
 
 msgid "Public API"
 msgstr "Opinbert API"

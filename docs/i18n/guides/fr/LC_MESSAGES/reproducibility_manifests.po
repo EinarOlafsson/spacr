@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-13 11:37-0500\n"
+"POT-Creation-Date: 2026-11-13 18:37-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: fr\n"
@@ -96,12 +96,20 @@ msgid "A file written before a release changed a default does not hold the chang
 msgstr "Un fichier écrit avant qu’une version ne modifie une valeur par défaut ne contient pas la clé modifiée ; il serait donc exécuté avec la nouvelle valeur par défaut. Lorsqu’un fichier de paramètres est lu par ``spacr-run``, ``spacr repro``, la file d’attente de lots ou Importer des paramètres, chaque clé dont la valeur par défaut a changé après la version du fichier, et que le fichier ne définit pas, reçoit la valeur par défaut qu’elle avait alors. Un fichier sans ``spacr_settings_version``, par exemple un fichier écrit à la main, est lu comme la version la plus ancienne, et le journal nomme chaque ancienne valeur par défaut qui lui a été attribuée. Une clé définie par le fichier l’emporte toujours. Pour utiliser les valeurs par défaut actuelles, définissez ces clés ou ajoutez au fichier le ``spacr_settings_version`` actuel."
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
-msgid "The changes are kept in one table, ``DEFAULT_CHANGES`` in ``spacr/settings.py``, keyed by the number of the item that changed the default:"
-msgstr "Les changements sont conservés dans une seule table, ``DEFAULT_CHANGES`` dans ``spacr/settings.py``, indexée par le numéro de l’élément qui a modifié la valeur par défaut :"
+msgid "The changes are kept in one table, ``DEFAULT_CHANGES`` in ``spacr/settings.py``, keyed by the number of the item that changed the default. A key is always above every earlier one, so an item that changes a default after a higher-numbered item takes the next free number:"
+msgstr "Les changements sont conservés dans une seule table, ``DEFAULT_CHANGES`` dans ``spacr/settings.py``, indexée par le numéro de l’élément qui a modifié la valeur par défaut. Une clé est toujours supérieure à toutes les précédentes ; un élément qui modifie une valeur par défaut après un élément de numéro plus élevé prend donc le numéro libre suivant :"
 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "931: ``ops_compose_blend`` was ``'average'``; it is now ``'feather'``."
 msgstr "931 : ``ops_compose_blend`` valait ``'average'`` ; il vaut désormais ``'feather'``."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "932: ``ops_registration_precision`` was ``'float64'`` and ``ops_registration_backend`` ``'cpu'``; they are now ``'float32'`` and ``'gpu'``."
+msgstr "932 : ``ops_registration_precision`` valait ``'float64'`` et ``ops_registration_backend`` ``'cpu'`` ; ils valent désormais ``'float32'`` et ``'gpu'``."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "933 (item 930's default switch): ``ops_align_model`` was ``'similarity'``; it is now ``'tile_affine'``."
+msgstr "933 (le changement de valeur par défaut de l’élément 930) : ``ops_align_model`` valait ``'similarity'`` ; il vaut désormais ``'tile_affine'``."
 
 msgid "Public API"
 msgstr "API publique"
