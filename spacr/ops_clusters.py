@@ -1756,10 +1756,6 @@ def cluster_sweep_phase(settings: Mapping[str, Any], genes: Optional[pd.DataFram
     return {"folder": out_dir, "outputs": outputs, "rows": int(len(names)), "graphs": tags}
 
 
-# ---------------------------------------------------------------------------------------------------------------------
-# Guide-bootstrap consensus clustering (item 928) and the calibrated cluster test (item 929)
-# ---------------------------------------------------------------------------------------------------------------------
-
 #: Bootstrap ``b`` of consensus replicate ``r`` draws its guides with seed
 #: ``ops_consensus_draw_seed + CONSENSUS_REPLICATE_STRIDE * r + b``.
 CONSENSUS_REPLICATE_STRIDE = 20
@@ -2144,9 +2140,6 @@ def target_cluster_count(n_genes: int, ratio: Sequence[int] = CONSENSUS_K_RATIO)
     return int(round(int(n_genes) * int(ratio[0]) / int(ratio[1])))
 
 
-# ----------------------------------------------------------------------------------------------- calibrated test
-
-
 def calibrated_reference(genes: Sequence[str], refs: Mapping[str, Any], half: Optional[int] = 1
                          ) -> Dict[str, Any]:
     """The units the calibrated test scores on one gene set and reference half.
@@ -2485,9 +2478,6 @@ def call_effects(tests: pd.DataFrame, margins: Optional[Mapping[str, float]] = N
                    for q, d, m in zip(out["q"], out["diff_pts"], out["margin_pts"])]
     out["gate"] = "not gated" if gated is None else ("passed" if gated else "failed: margin rule")
     return out
-
-
-# ----------------------------------------------------------------------------------------------- settings-file phases
 
 
 def _guide_inputs(settings: Mapping[str, Any], genes: Optional[pd.DataFrame], guides: Optional[pd.DataFrame]
@@ -2840,7 +2830,6 @@ def cluster_bench_test_phase(settings: Mapping[str, Any], genes: Optional[pd.Dat
     outputs["bench_replicates"] = write_table(pd.DataFrame(records), os.path.join(out_dir, "bench_replicates.csv"),
                                               canonicalise=False)
     gate_arm = options.gate_arm
-    # the test level and gate limit, passed by name through a mapping
     level = {"alpha": options.alpha, "limit": options.limit}
     gate, share, passed = None, None, None
     if options.gate_copies > 0:
