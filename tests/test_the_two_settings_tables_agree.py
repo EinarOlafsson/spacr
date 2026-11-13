@@ -168,7 +168,7 @@ def test_no_suffix_rename_retires_a_setting_that_is_still_live():
         f"these are LIVE settings and a suffix rule migrated them: {eaten}")
 
 
-def test_the_seven_live_size_settings_are_the_ones_we_measured():
+def test_the_nine_live_size_settings_are_the_ones_we_measured():
     """The liveness gate is load-bearing, so pin what it is protecting.
 
     If this list changes, the `_size -> _area` rule's blast radius changed
@@ -178,8 +178,8 @@ def test_the_seven_live_size_settings_are_the_ones_we_measured():
                   if k.endswith("_min_size") or k.endswith("_max_size"))
     assert live == [
         "cell_max_size", "cell_min_size", "cytoplasm_min_size",
-        "nucleus_max_size", "nucleus_min_size",
-        "pathogen_max_size", "pathogen_min_size",
+        "host_min_size", "nucleus_max_size", "nucleus_min_size",
+        "pathogen_max_size", "pathogen_min_size", "vacuole_min_size",
     ], live
     assert not [k for k in live if k.startswith("organelle")], (
         "organelle's _size pair was retired by b7ae412af; a live one means "
