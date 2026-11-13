@@ -73,9 +73,14 @@ class TestTheStatisticTravelsWithTheName:
     def test_the_skew_is_there(self, skewed):
         assert describe(skewed)["skew"] > 1.0
 
-    def test_both_appear_in_the_caption(self, skewed):
+    @pytest.mark.parametrize("fragments", [
+        ("D'Agostino p", "skew"),
+        ("before", "after log"),
+    ], ids=["statistic-travels-with-the-name", "shows-both-sides"])
+    def test_the_caption_carries_the_statistic_and_both_sides(self, skewed, fragments):
         text = caption(compare(skewed, "log"))
-        assert "D'Agostino p" in text and "skew" in text
+        for fragment in fragments:
+            assert fragment in text
 
 
 class TestTheTransformIsTheRunsOwn:
@@ -88,12 +93,9 @@ class TestTheTransformIsTheRunsOwn:
     def test_sqrt_is_sqrt(self, skewed):
         assert np.allclose(transformed(skewed, "sqrt"), np.sqrt(skewed))
 
-    def test_an_unknown_transform_changes_nothing(self, skewed):
-        assert np.allclose(transformed(skewed, "no_such_thing"), skewed)
-
-    def test_none_changes_nothing(self, skewed):
-        assert np.allclose(transformed(skewed, "none"), skewed)
-
+    @pytest.mark.parametrize("name", ["no_such_thing", "none"])
+    def test_an_unknown_or_none_transform_changes_nothing(self, skewed, name):
+        assert np.allclose(transformed(skewed, name), skewed)
 
 class TestASkewedResponseBecomesSymmetric:
     """Checked on generated data where the answer is known."""
@@ -103,11 +105,6 @@ class TestASkewedResponseBecomesSymmetric:
         assert result["before"]["skew"] > 3.0
         assert result["after"]["skew"] < 1.5
         assert result["changed"]
-
-    def test_and_the_caption_shows_both(self, skewed):
-        text = caption(compare(skewed, "log"))
-        assert "before" in text and "after log" in text
-
 
 class TestNoneStillDraws:
     """An absent panel reads as a missing feature rather than an answer."""

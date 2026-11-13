@@ -84,13 +84,16 @@ class TestTheJoinIsOnTheGeneNumber:
         assert first["fit_invitro_hff"].iloc[0] == \
             second["fit_invitro_hff"].iloc[0]
 
-    def test_a_design_term_does_too(self):
-        assert gene_number("gene_fraction:gene[200010]") == "200010"
-        assert gene_number("fraction:grna[200010_2]") == "200010"
-
-    def test_a_split_gene_model_collapses_to_its_parent(self):
-        assert gene_number("TGME49_201180A") == "201180"
-        assert gene_number("TGME49_201180B") == "201180"
+    @pytest.mark.parametrize("name, expected", [
+        ("gene_fraction:gene[200010]", "200010"),
+        ("fraction:grna[200010_2]", "200010"),
+        # A split gene model collapses to its parent.
+        ("TGME49_201180A", "201180"),
+        ("TGME49_201180B", "201180"),
+    ])
+    def test_a_design_term_or_a_split_gene_model_joins_on_its_gene_number(
+            self, name, expected):
+        assert gene_number(name) == expected
 
     def test_something_that_names_no_gene_is_none(self):
         for value in ("Intercept", "rowID[T.r03]", "", None, float("nan")):

@@ -162,15 +162,24 @@ def test_extract_sequence_and_quality():
     assert q == "IIII"
 
 
-def test_get_consensus_base_prefers_non_N():
-    assert SEQ.get_consensus_base([("N", "!"), ("A", "!")]) == "A"
-    assert SEQ.get_consensus_base([("A", "!"), ("N", "!")]) == "A"
-
-
-def test_get_consensus_base_prefers_higher_quality():
+@pytest.mark.parametrize("reads, expected", [
+    ([("N", "!"), ("A", "!")], "A"),
+    ([("A", "!"), ("N", "!")], "A"),
     # ASCII quality: '!' = 33, 'I' = 73
-    assert SEQ.get_consensus_base([("A", "!"), ("G", "I")]) == "G"
-    assert SEQ.get_consensus_base([("A", "I"), ("G", "!")]) == "A"
+    ([("A", "!"), ("G", "I")], "G"),
+    ([("A", "I"), ("G", "!")], "A"),
+    # 'N' with the *better* quality still loses: an N is not a measurement.
+    ([("N", "I"), ("A", "!")], "A"),
+    ([("A", "!"), ("N", "I")], "A"),
+    # Ties break toward the first read; otherwise quality decides.
+    ([("A", "I"), ("C", "I")], "A"),
+    ([("A", "!"), ("C", "I")], "C"),
+], ids=["n-first", "n-last", "higher-quality-second", "higher-quality-first",
+        "n-with-better-quality-first", "n-with-better-quality-last",
+        "tie-goes-to-the-first-read", "quality-breaks-the-tie"])
+def test_get_consensus_base_prefers_a_call_then_quality_then_the_first_read(
+        reads, expected):
+    assert SEQ.get_consensus_base(reads) == expected
 
 
 def test_create_consensus_takes_best_per_position():

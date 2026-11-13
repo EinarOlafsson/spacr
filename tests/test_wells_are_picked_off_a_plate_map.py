@@ -31,8 +31,12 @@ class TestTheFourSpellings:
 
         assert len(parse_one("c1", 96)) == rows
 
-    def test_a_plate_map_well(self):
-        assert parse_one("A01", 96) == {(1, 1)}
+    @pytest.mark.parametrize("well, expected", [
+        ("A01", {(1, 1)}),      # a plate-map well
+        ("H12", {(8, 12)}),     # the same well is fine on a bigger plate
+    ])
+    def test_a_well_parses_on_the_layout_it_belongs_to(self, well, expected):
+        assert parse_one(well, 96) == expected
 
     def test_the_rc_well_spacr_already_writes(self):
         assert parse_one("r1_c1", 96) == {(1, 1)}
@@ -80,9 +84,6 @@ class TestTheLayoutIsPartOfTheQuestion:
         message = str(raised.value)
         assert "24" in message and "D06" in message
 
-    def test_the_same_well_is_fine_on_a_bigger_plate(self):
-        assert parse_one("H12", 96) == {(8, 12)}
-
     def test_an_unknown_layout_is_refused_with_the_offer(self):
         with pytest.raises(WellSpecError, match="1536"):
             shape(100)
@@ -127,11 +128,9 @@ class TestWritingItBack:
 
         assert parse(to_text(cells, 96), 96) == cells
 
-    def test_a_whole_row_collapses_to_the_compact_form(self):
-        assert to_text(parse("r3", 96), 96) == "r3"
-
-    def test_a_whole_column_collapses_too(self):
-        assert to_text(parse("c5", 96), 96) == "c5"
+    @pytest.mark.parametrize("text", ["r3", "c5"], ids=["row", "column"])
+    def test_a_whole_row_or_column_collapses_to_the_compact_form(self, text):
+        assert to_text(parse(text, 96), 96) == text
 
     def test_anything_else_is_listed_as_wells(self):
         """Not a range: inventing A01:A06 would be a fifth spelling that
@@ -186,23 +185,20 @@ class TestThePicker:
         assert (1, 1) not in picker.selection()
         assert (3, 3) in picker.selection()
 
-    def test_it_opens_showing_the_field_it_was_given(self, qtbot):
+    @pytest.mark.parametrize("field, shown", [
+        ("r2", "r2"),
+        # The picker is how a user FIXES a value they typed wrong, so it must
+        # not refuse to open on one.
+        ("nonsense!", ""),
+    ], ids=["the-field-it-was-given", "a-field-that-will-not-parse-opens-empty"])
+    def test_it_opens_showing_the_field_it_was_given_or_empty_if_it_will_not_parse(
+            self, qtbot, field, shown):
         from spacr.qt.widgets.plate_map_picker import PlateMapPicker
 
-        widget = PlateMapPicker("r2", layout=96)
+        widget = PlateMapPicker(field, layout=96)
         qtbot.addWidget(widget)
 
-        assert widget.value() == "r2"
-
-    def test_a_field_that_will_not_parse_opens_empty(self, qtbot):
-        """The picker is how a user FIXES a value they typed wrong, so it
-        must not refuse to open on one."""
-        from spacr.qt.widgets.plate_map_picker import PlateMapPicker
-
-        widget = PlateMapPicker("nonsense!", layout=96)
-        qtbot.addWidget(widget)
-
-        assert widget.value() == ""
+        assert widget.value() == shown
 
     def test_changing_the_layout_keeps_what_still_fits_and_says_what_did_not(
             self, picker):

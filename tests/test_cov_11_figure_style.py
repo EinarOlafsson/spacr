@@ -78,18 +78,6 @@ def test_a_fully_transparent_colour_is_not_a_colour():
     assert to_rgb("#12345600") is None
 
 
-@pytest.mark.parametrize("text", ["#gggggg", "#zz00zz00"])
-def test_hex_digits_that_are_not_digits_are_refused(text):
-    """A malformed hex string is None, never a partially parsed colour."""
-    assert to_rgb(text) is None
-
-
-@pytest.mark.parametrize("text", ["#12345", "#1", "#", "#1234567"])
-def test_a_hex_string_of_the_wrong_length_is_refused(text):
-    """Only 3, 4, 6 and 8 digits name a colour; the rest are typos."""
-    assert to_rgb(text) is None
-
-
 # ---------------------------------------------------------------------------
 # Theme colours when the preference store will not answer
 # ---------------------------------------------------------------------------

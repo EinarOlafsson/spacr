@@ -173,10 +173,19 @@ def test_every_settings_column_is_one_the_ordering_knows():
     assert set(RUN_SETTING_COLUMNS) <= set(PREFERRED_COLUMNS)
 
 
-def test_a_permutation_run_reports_its_shuffles():
-    row = _run_settings_row({"analysis_mode": "guide_permutation",
-                             "guide_permutations": 200000})
-    assert row["guide_permutations"] == 200000
+@pytest.mark.parametrize(
+    "settings, shuffles",
+    [
+        ({"analysis_mode": "guide_permutation", "guide_permutations": 200000},
+         200000),
+        ({"inference": "nonparametric", "guide_permutations": 0}, 0),
+    ],
+    ids=["a_permutation_run_reports_its_shuffles",
+         "zero_shuffles_and_no_permutation_are_different_facts"],
+)
+def test_a_run_with_shuffles_reports_them(settings, shuffles):
+    row = _run_settings_row(settings)
+    assert row["guide_permutations"] == shuffles
 
 
 def test_a_least_squares_run_reports_no_shuffles():
@@ -185,12 +194,6 @@ def test_a_least_squares_run_reports_no_shuffles():
     row = _run_settings_row({"inference": "parametric",
                              "guide_permutations": 200000})
     assert "guide_permutations" not in row
-
-
-def test_zero_shuffles_and_no_permutation_are_different_facts():
-    row = _run_settings_row({"inference": "nonparametric",
-                             "guide_permutations": 0})
-    assert row["guide_permutations"] == 0
 
 
 def test_the_backend_is_reported_either_way():

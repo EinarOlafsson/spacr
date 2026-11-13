@@ -28,13 +28,17 @@ class TestThePlateNameIsReadRightToLeft:
 
         return pd.DataFrame({"prc": keys})
 
-    def test_a_plain_three_token_key_is_unchanged(self):
-        """Every screen this has ever run on. The fix must not move them."""
+    @pytest.mark.parametrize("keys, expected", [
+        # Every screen this has ever run on. The fix must not move them.
+        (["plate1_r10_c11", "plate2_r1_c1", "plate1_r2_c3"], ["plate1", "plate2"]),
+        # The order is the order the data gives.
+        (["plate3_r1_c1", "plate1_r1_c1", "plate3_r2_c2"], ["plate3", "plate1"]),
+    ], ids=["plain-three-token-key", "order-the-data-gives"])
+    def test_a_plain_key_gives_its_plates_in_the_order_the_data_gives(
+            self, keys, expected):
         from spacr.figures.plates import plate_names
 
-        assert plate_names(self._frame(
-            ["plate1_r10_c11", "plate2_r1_c1", "plate1_r2_c3"])) == \
-            ["plate1", "plate2"]
+        assert plate_names(self._frame(keys)) == expected
 
     def test_an_experiment_prefix_no_longer_collapses_two_plates(self):
         from spacr.figures.plates import plate_names
@@ -59,13 +63,6 @@ class TestThePlateNameIsReadRightToLeft:
 
         assert "rubbish" in names
 
-    def test_the_order_is_the_order_the_data_gives(self):
-        from spacr.figures.plates import plate_names
-
-        assert plate_names(self._frame(
-            ["plate3_r1_c1", "plate1_r1_c1", "plate3_r2_c2"])) == \
-            ["plate3", "plate1"]
-
     def test_it_agrees_with_the_module_that_already_owns_this_rule(self):
         """Two copies of one parsing rule is how they drift apart."""
         from spacr.ml import _split_prc
@@ -74,4 +71,3 @@ class TestThePlateNameIsReadRightToLeft:
                     "exp1_plate1_r2_c2"):
             plate, _row, _column = _split_prc(key)
             assert plate_names(self._frame([key])) == [plate], key
-

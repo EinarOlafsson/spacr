@@ -21,6 +21,25 @@ plant the same mutants, which is what lets an old and a new test set be
 compared on identical bugs.  ``--lines`` limits the sites to chosen line
 numbers, for example the lines the old tests cover.
 
+THE MUTANT KEEPS THE FILE'S LAYOUT.  A mutant is a small text edit at its
+site (the operator, the literal, the returned value, or ``not (...)``
+around a condition), never a reformatted rewrite, so every other line keeps
+its number and its text.  The hook also registers the mutated text in
+:mod:`linecache` under the module's file name, so ``inspect.getsource`` and
+tracebacks read the same lines the code objects were compiled from.  (An
+earlier version unparsed the whole tree, which moved every line: a test
+pinning one function's source then received another function's text and
+failed on every mutant, which inflated the kill counts.)  A site whose text
+edit cannot be checked against the AST falls back to the unparsed form, and
+its row says ``"aligned": false``.
+
+SOURCE-READING TESTS.  During the baseline run the plugin records every test
+that reads the module's source, through ``inspect`` on the module's objects
+or by opening its file.  The report lists them per test set under
+``source_readers``.  With ``--exclude-source-readers`` those tests are
+deselected from every mutant run of every test set, so only behavioural
+failures count as kills.
+
 THE WORKING TREE IS NEVER EDITED.  Each mutant's source is written to a
 temporary directory, and pytest runs in a subprocess with a small plugin
 that installs an import hook: when the target module is imported, the hook
@@ -51,6 +70,7 @@ import ast
 import json
 import os
 import random
+import re
 import subprocess
 import sys
 import tempfile
@@ -74,14 +94,71 @@ PLUGIN_NAME = "spacr_mutant_import_hook"
 PLUGIN_SOURCE = '''"""Pytest plugin written by tools/mutant_sample.py: load one mutated module."""
 import importlib.abc
 import importlib.util
+import inspect
+import linecache
 import os
 import sys
 from pathlib import Path
+
+import pytest
 
 _NAME = os.environ["SPACR_MUTANT_MODULE"]
 _ORIGIN = os.environ["SPACR_MUTANT_ORIGIN"]
 _SOURCE = Path(os.environ["SPACR_MUTANT_SOURCE"]).read_text(encoding="utf-8")
 _MARKER = Path(os.environ["SPACR_MUTANT_MARKER"])
+_READERS = os.environ.get("SPACR_MUTANT_READERS")
+_REAL_ORIGIN = os.path.realpath(_ORIGIN)
+_BASENAME = os.path.basename(_ORIGIN)
+_CURRENT = [None]
+_SEEN = set()
+
+
+def _register_lines():
+    """Serve the mutated text for the module's file name from linecache."""
+    linecache.cache[_ORIGIN] = (
+        len(_SOURCE), None, _SOURCE.splitlines(True), _ORIGIN)
+
+
+def _note_reader():
+    """Record the running test as one that reads the module's source."""
+    nodeid = _CURRENT[0]
+    if _READERS and nodeid is not None and nodeid not in _SEEN:
+        _SEEN.add(nodeid)
+        with open(_READERS, "a", encoding="utf-8") as handle:
+            handle.write(nodeid + "\\n")
+
+
+def _is_origin(path):
+    """Whether ``path`` names the target module's file."""
+    try:
+        text = os.fsdecode(path)
+        return (os.path.basename(text) == _BASENAME
+                and os.path.realpath(text) == _REAL_ORIGIN)
+    except (TypeError, ValueError):
+        return False
+
+
+def _audit(event, args):
+    """Note a test that opens the module's file to read its text."""
+    if (event == "open" and _CURRENT[0] is not None and args
+            and isinstance(args[0], (str, bytes, os.PathLike))
+            and _is_origin(args[0])):
+        _note_reader()
+
+
+_real_findsource = inspect.findsource
+
+
+def _findsource(obj):
+    """``inspect.findsource`` that keeps linecache current and notes readers."""
+    try:
+        source_file = inspect.getsourcefile(obj) or inspect.getfile(obj)
+    except TypeError:
+        source_file = None
+    if source_file is not None and _is_origin(source_file):
+        _register_lines()
+        _note_reader()
+    return _real_findsource(obj)
 
 
 class _MutantLoader(importlib.abc.Loader):
@@ -94,8 +171,13 @@ class _MutantLoader(importlib.abc.Loader):
     def exec_module(self, module):
         """Compile the mutant under the original file name and run it."""
         _MARKER.write_text(_NAME, encoding="utf-8")
+        _register_lines()
         code = compile(_SOURCE, _ORIGIN, "exec")
         exec(code, module.__dict__)
+
+    def get_source(self, fullname):
+        """The mutated text, for tools that ask the loader directly."""
+        return _SOURCE
 
 
 class _MutantFinder(importlib.abc.MetaPathFinder):
@@ -113,8 +195,21 @@ class _MutantFinder(importlib.abc.MetaPathFinder):
         )
 
 
+@pytest.hookimpl(wrapper=True)
+def pytest_runtest_protocol(item, nextitem):
+    """Remember which test is running, for the source-reader record."""
+    _CURRENT[0] = item.nodeid
+    try:
+        return (yield)
+    finally:
+        _CURRENT[0] = None
+
+
 sys.modules.pop(_NAME, None)
 sys.meta_path.insert(0, _MutantFinder())
+inspect.findsource = _findsource
+if _READERS:
+    sys.addaudithook(_audit)
 '''
 
 
@@ -256,15 +351,107 @@ class _Apply(ast.NodeTransformer):
         return node
 
 
-def apply_mutant(source: str, mutant: Mutant) -> str:
-    """Return ``source`` with ``mutant`` planted; raises if it is not there."""
+OPERATOR_TEXT = {
+    ast.Eq: "==", ast.NotEq: "!=", ast.Lt: "<", ast.LtE: "<=",
+    ast.Gt: ">", ast.GtE: ">=", ast.Is: " is ", ast.IsNot: " is not ",
+    ast.In: " in ", ast.NotIn: " not in ",
+}
+
+_OPERATOR_PATTERN = re.compile(
+    r"not\s+in\b|\bis\s+not\b|==|!=|<=|>=|<|>|\bin\b|\bis\b")
+
+
+def _line_starts(source: str) -> list[int]:
+    """Character offset at which each (1-based) line of ``source`` starts."""
+    starts = [0, 0]
+    for line in source.splitlines(keepends=True):
+        starts.append(starts[-1] + len(line))
+    return starts
+
+
+def _offset(source: str, starts: list[int], line: int, col: int) -> int:
+    """Character offset of an AST (line, UTF-8 byte column) position."""
+    begin = starts[line]
+    end = starts[line + 1] if line + 1 < len(starts) else len(source)
+    text = source[begin:end]
+    return begin + len(text.encode("utf-8")[:col].decode("utf-8", errors="ignore"))
+
+
+def _span(source: str, starts: list[int], node: ast.AST) -> tuple[int, int]:
+    """Character offsets where ``node``'s text starts and ends."""
+    return (_offset(source, starts, node.lineno, node.col_offset),
+            _offset(source, starts, node.end_lineno, node.end_col_offset))
+
+
+def _keep_lines(old: str, new: str) -> str:
+    """``new``, wrapped so it spans as many lines as ``old`` did."""
+    missing = old.count("\n") - new.count("\n")
+    return f"({new}{chr(10) * missing})" if missing > 0 else new
+
+
+def _text_edit(source: str, node: ast.AST, kind: str, index: int) -> tuple[int, int, str]:
+    """The (start, end, replacement) text edit that plants one mutant."""
+    starts = _line_starts(source)
+    if kind == "compare":
+        before = node.left if index == 0 else node.comparators[index - 1]
+        start = _span(source, starts, before)[1]
+        end = _span(source, starts, node.comparators[index])[0]
+        gap = re.sub(r"#[^\n]*", lambda m: " " * len(m.group()), source[start:end])
+        found = list(_OPERATOR_PATTERN.finditer(gap))
+        if len(found) != 1:
+            raise ValueError("operator not found in the comparison text")
+        flipped = FLIPPED_COMPARISON[type(node.ops[index])]
+        return (start + found[0].start(), start + found[0].end(),
+                OPERATOR_TEXT[flipped])
+    if kind == "constant" or (kind == "negate" and isinstance(node, ast.Constant)):
+        start, end = _span(source, starts, node)
+        value = node.value + 1 if kind == "constant" else not node.value
+        return start, end, _keep_lines(source[start:end], repr(value))
+    if kind == "return":
+        start, end = _span(source, starts, node.value)
+        return start, end, _keep_lines(source[start:end], "None")
+    start, end = _span(source, starts, node.test)
+    return start, end, f"not ({source[start:end]})"
+
+
+def apply_mutant_aligned(source: str, mutant: Mutant) -> tuple[str, bool]:
+    """``source`` with ``mutant`` planted, and whether its layout was kept.
+
+    The mutant is planted as a small text edit, so every line keeps its
+    number and every other line its text.  The edit is checked by parsing
+    it: if its tree differs from the planned mutation, the whole tree is
+    unparsed instead (``False``), which reformats the module.
+    """
     tree = ast.parse(source)
     transformer = _Apply(mutant)
     transformer.plan(tree)
+    edit = None
+    for node in ast.walk(tree):
+        target = transformer.targets.get(id(node))
+        if target is not None:
+            try:
+                edit = _text_edit(source, node, *target)
+            except (ValueError, AttributeError, TypeError, IndexError):
+                edit = None
+            break
     tree = transformer.visit(tree)
     if not transformer.applied:
         raise ValueError(f"mutant {mutant.id} does not exist in this source")
-    return ast.unparse(ast.fix_missing_locations(tree)) + "\n"
+    if edit is not None:
+        start, end, text = edit
+        edited = source[:start] + text + source[end:]
+        try:
+            same = ast.dump(ast.parse(edited)) == ast.dump(tree)
+        except SyntaxError:
+            same = False
+        if same and edited.count("\n") == source.count("\n"):
+            return edited, True
+    return ast.unparse(ast.fix_missing_locations(tree)) + "\n", False
+
+
+def apply_mutant(source: str, mutant: Mutant) -> str:
+    """Return ``source`` with ``mutant`` planted; raises if it is not there."""
+    return apply_mutant_aligned(source, mutant)[0]
 
 
 def module_name(path: Path, root: Path) -> str:
@@ -278,8 +465,13 @@ def module_name(path: Path, root: Path) -> str:
 def _run_tests(
     tests: Sequence[str], *, name: str, origin: Path, source: str,
     workdir: Path, cwd: Path, timeout: float, pytest_args: Sequence[str],
+    readers: Path | None = None, deselect: Sequence[str] = (),
 ) -> dict:
-    """Run one test set against ``source`` loaded as module ``name``."""
+    """Run one test set against ``source`` loaded as module ``name``.
+
+    With ``readers`` the plugin appends to that file the node id of every
+    test that reads the module's source; ``deselect`` drops tests by id.
+    """
     source_file = workdir / "mutant_source.py"
     marker = workdir / "imported.marker"
     source_file.write_text(source, encoding="utf-8")
@@ -292,11 +484,15 @@ def _run_tests(
         "SPACR_MUTANT_MARKER": str(marker),
         "PYTHONDONTWRITEBYTECODE": "1",
     })
+    env.pop("SPACR_MUTANT_READERS", None)
+    if readers is not None:
+        env["SPACR_MUTANT_READERS"] = str(readers)
     env["PYTHONPATH"] = os.pathsep.join(
         [str(workdir), str(cwd)] + ([env["PYTHONPATH"]] if env.get("PYTHONPATH") else []))
     command = [
         sys.executable, "-m", "pytest", "-p", PLUGIN_NAME, "-x", "-q",
-        "-p", "no:cacheprovider", *pytest_args, *tests,
+        "-p", "no:cacheprovider", *pytest_args,
+        *(f"--deselect={nodeid}" for nodeid in deselect), *tests,
     ]
     started = time.monotonic()
     try:
@@ -325,8 +521,14 @@ def run_sample(
     seed: int, count: int, kinds: Iterable[str] = KINDS,
     lines: Iterable[int] | None = None, timeout: float = 600.0,
     pytest_args: Sequence[str] = (), cwd: Path | None = None,
+    exclude_source_readers: bool = False,
 ) -> dict:
-    """Plant the sample in ``module`` and run every test set on every mutant."""
+    """Plant the sample in ``module`` and run every test set on every mutant.
+
+    ``report["source_readers"]`` lists, per test set, the tests the baseline
+    saw reading the module's source.  With ``exclude_source_readers`` the
+    tests in all of those lists are deselected from every mutant run.
+    """
     module = module.resolve()
     root = root.resolve()
     cwd = (cwd or root).resolve()
@@ -339,25 +541,37 @@ def run_sample(
         "seed": seed, "count": count, "kinds": sorted(set(kinds)),
         "test_sets": {label: list(tests) for label, tests in test_sets.items()},
         "baseline": {}, "mutants": [], "summary": {},
+        "source_readers": {}, "exclude_source_readers": exclude_source_readers,
+        "excluded_tests": [],
     }
     with tempfile.TemporaryDirectory(prefix="spacr-mutants-") as scratch:
         workdir = Path(scratch)
         (workdir / f"{PLUGIN_NAME}.py").write_text(PLUGIN_SOURCE, encoding="utf-8")
         for label, tests in test_sets.items():
+            readers = workdir / f"readers-{len(report['baseline'])}.txt"
             report["baseline"][label] = _run_tests(
                 tests, name=name, origin=module, source=source, workdir=workdir,
-                cwd=cwd, timeout=timeout, pytest_args=pytest_args)
+                cwd=cwd, timeout=timeout, pytest_args=pytest_args,
+                readers=readers)
+            found = (readers.read_text(encoding="utf-8").split("\n")
+                     if readers.exists() else [])
+            report["source_readers"][label] = sorted(set(filter(None, found)))
+        deselect: list[str] = []
+        if exclude_source_readers:
+            deselect = sorted(set().union(*report["source_readers"].values()))
+        report["excluded_tests"] = deselect
         if any(run["outcome"] != "survived" for run in report["baseline"].values()):
             report["status"] = "baseline_failed"
             return report
         for mutant in mutants:
-            mutated = apply_mutant(source, mutant)
+            mutated, aligned = apply_mutant_aligned(source, mutant)
             row = asdict(mutant)
+            row["aligned"] = aligned
             row["results"] = {
                 label: _run_tests(
                     tests, name=name, origin=module, source=mutated,
                     workdir=workdir, cwd=cwd, timeout=timeout,
-                    pytest_args=pytest_args)
+                    pytest_args=pytest_args, deselect=deselect)
                 for label, tests in test_sets.items()
             }
             report["mutants"].append(row)
@@ -398,6 +612,18 @@ def render_text(report: dict) -> str:
             f"{label}: killed {summary['killed']} of {summary['total']}, "
             f"survived {summary['survived']}, not imported "
             f"{summary['not_imported']}, errors {summary['error']}")
+    readers = report.get("source_readers", {})
+    for label in labels:
+        found = readers.get(label, [])
+        if found:
+            lines.append(f"{label}: {len(found)} source-reading tests "
+                         + ("(excluded)" if report.get("exclude_source_readers")
+                            else "(kept)"))
+            lines.extend(f"    {nodeid}" for nodeid in found)
+    unaligned = [row["id"] for row in report["mutants"]
+                 if row.get("aligned") is False]
+    if unaligned:
+        lines.append("reformatted (line numbers moved): " + ", ".join(unaligned))
     return "\n".join(lines) + "\n"
 
 
@@ -426,6 +652,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--list", action="store_true",
                         help="print the sampled mutants and run nothing")
     parser.add_argument("--json-out", type=Path)
+    parser.add_argument(
+        "--exclude-source-readers", action="store_true",
+        help="deselect, in every mutant run of every test set, the tests the "
+             "baseline saw reading the module's source (inspect or file text)")
     return parser
 
 
@@ -447,7 +677,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     report = run_sample(
         module=args.module, root=args.root, test_sets=test_sets, seed=args.seed,
         count=args.count, kinds=args.kinds, lines=lines, timeout=args.timeout,
-        pytest_args=args.pytest_arg)
+        pytest_args=args.pytest_arg,
+        exclude_source_readers=args.exclude_source_readers)
     if args.json_out is not None:
         args.json_out.write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print(render_text(report), end="")

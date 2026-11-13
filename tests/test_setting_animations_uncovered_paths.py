@@ -159,28 +159,21 @@ def test_a_ring_that_flashes_is_measured_as_the_whole_border(tmp_path):
     assert SA.measure_border_artifact(_flashing_border(tmp_path)) == 1.0
 
 
+@pytest.mark.parametrize("missing", [
+    # Without NumPy the border check answers 0.0 for a 1.0 animation. The
+    # direction is the opposite of the change measurement on purpose: this
+    # validator fails animations ABOVE its threshold, so the quiet answer is
+    # the floor rather than the ceiling.
+    "numpy",
+    # NumPy present, Pillow absent: the undecodable frames are not a crash.
+    # This path reaches the border check through the decoder's ``None``
+    # rather than through its own import guard.
+    "PIL",
+], ids=["without-numpy", "without-pillow"])
 def test_an_unmeasurable_border_reports_no_artifact_rather_than_raising(
-        tmp_path, monkeypatch):
-    """Without NumPy the border check answers 0.0 for a 1.0 animation.
-
-    The direction is the opposite of the change measurement on purpose:
-    this validator fails animations ABOVE its threshold, so the quiet
-    answer is the floor rather than the ceiling.
-    """
+        tmp_path, monkeypatch, missing):
     ring = _flashing_border(tmp_path)
-    _blocked(monkeypatch, "numpy")
-    assert SA.measure_border_artifact(ring) == 0.0
-
-
-def test_a_border_measured_without_pillow_reports_no_artifact(
-        tmp_path, monkeypatch):
-    """NumPy present, Pillow absent: the undecodable frames are not a crash.
-
-    This is the path that reaches the border check through the decoder's
-    ``None`` rather than through its own import guard.
-    """
-    ring = _flashing_border(tmp_path)
-    _blocked(monkeypatch, "PIL")
+    _blocked(monkeypatch, missing)
     assert SA.measure_border_artifact(ring) == 0.0
 
 

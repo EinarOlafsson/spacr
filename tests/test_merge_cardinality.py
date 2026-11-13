@@ -91,20 +91,19 @@ def test_consolidate_on_makes_nucleus_inner():
 
 
 @pytest.mark.parametrize("table", ["pathogen", "organelle"])
-def test_consolidating_does_not_delete_the_uninfected_controls(table):
-    """The exception, and instruction 77 item (c) is why it exists.
-
-    Consolidating on the cell must not silently condition every result on
-    infection. The uninfected cells are the comparison group.
-    """
-    policy = MergePolicy(consolidate_on_cell=True, keep_uninfected=True)
-    assert policy.how_for(table) == "left"
-
-
-@pytest.mark.parametrize("table", ["pathogen", "organelle"])
-def test_restricting_to_infected_cells_is_available_and_explicit(table):
-    policy = MergePolicy(consolidate_on_cell=True, keep_uninfected=False)
-    assert policy.how_for(table) == "inner"
+@pytest.mark.parametrize("keep_uninfected, how", [
+    # The exception, and instruction 77 item (c) is why it exists.
+    # Consolidating on the cell must not silently condition every result on
+    # infection. The uninfected cells are the comparison group.
+    (True, "left"),
+    # Restricting to infected cells is available and explicit.
+    (False, "inner"),
+], ids=["keeping_the_uninfected_controls", "restricting_to_infected_cells"])
+def test_consolidating_does_not_delete_the_uninfected_controls(
+        table, keep_uninfected, how):
+    policy = MergePolicy(consolidate_on_cell=True,
+                         keep_uninfected=keep_uninfected)
+    assert policy.how_for(table) == how
 
 
 def test_a_one_per_cell_table_is_unaffected_by_consolidation():
@@ -125,6 +124,10 @@ def test_consolidate_on_cell_is_the_recommended_default():
 # 3. Aggregation per measurement type
 # ---------------------------------------------------------------------------
 
+# A perimeter describes ONE object; four children do not have a combined one.
+# Maintainer's call, 2026-08-11 -- lengths average, areas and volumes sum. The
+# identity pattern runs first, so it is the one that can over-match: it must
+# not swallow real measurements such as cell_area or centroid_x.
 @pytest.mark.parametrize("column,expected", [
     ("area", "sum"),
     ("filled_area", "sum"),
@@ -139,6 +142,11 @@ def test_consolidate_on_cell_is_the_recommended_default():
     ("perimeter", "mean"),
     ("eccentricity", "mean"),
     ("object_label", "first"),
+    ("count_pathogen", "sum"),
+    ("channel_1_min_intensity", "min"),
+    ("centroid_x", "mean"),
+    ("cell_area", "sum"),
+    ("solidity", "mean"),
 ])
 def test_each_measurement_combines_the_way_it_should(column, expected):
     """Summing a mean is meaningless; averaging an area under-reports it."""

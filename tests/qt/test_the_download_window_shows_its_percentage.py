@@ -71,8 +71,15 @@ def _say(dialog, name, done, total):
     return dialog.spacr_caption.text()
 
 
-def test_a_percentage_is_shown(dialog):
-    assert _say(dialog, "plate1-data.tar", 2500, 8300).startswith("30%")
+@pytest.mark.parametrize("name, done, total, shown", [
+    ("plate1-data.tar", 2500, 8300, "30%"),
+    ("x.tif", 0, 0, "0%"),          # a zero total does not divide by zero
+    ("x.tar", 99, 10, "100%"),      # a stream reporting more than it promised
+                                    # must not read as 130%
+], ids=["a_percentage_is_shown", "a_zero_total_does_not_divide_by_zero",
+        "progress_past_the_total_is_clamped"])
+def test_a_percentage_is_shown(dialog, name, done, total, shown):
+    assert _say(dialog, name, done, total).startswith(shown)
 
 
 def test_the_percentage_comes_first(dialog):
@@ -84,15 +91,6 @@ def test_the_percentage_comes_first(dialog):
 
 def test_the_counts_are_shown_too(dialog):
     assert "(2500/8300)" in _say(dialog, "x.tar", 2500, 8300)
-
-
-def test_a_zero_total_does_not_divide_by_zero(dialog):
-    assert _say(dialog, "x.tif", 0, 0).startswith("0%")
-
-
-def test_progress_past_the_total_is_clamped(dialog):
-    """A stream that reports more than it promised must not read as 130%."""
-    assert _say(dialog, "x.tar", 99, 10).startswith("100%")
 
 
 def test_the_bar_follows_the_numbers(dialog):

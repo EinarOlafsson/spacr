@@ -53,15 +53,16 @@ class TestDTheFurnitureIsOneInk:
         for element in ("grid", "spine", "box"):
             assert chrome_of(style, element) == "#888888"
 
-    def test_a_per_element_override_wins_where_it_is_set(self):
-        """"A per-element override can exist under it; the one control is
-        what a user reaches for"."""
+    @pytest.mark.parametrize("element, expected", [
+        # "A per-element override can exist under it; the one control is what a
+        # user reaches for" ...
+        ("grid", "#EEEEEE"),
+        # ... and only where it is set.
+        ("spine", "#888888"),
+    ])
+    def test_a_per_element_override_wins_only_where_it_is_set(self, element, expected):
         style = {"chrome_colour": "#888888", "grid_colour": "#EEEEEE"}
-        assert chrome_of(style, "grid") == "#EEEEEE"
-
-    def test_and_only_where_it_is_set(self):
-        style = {"chrome_colour": "#888888", "grid_colour": "#EEEEEE"}
-        assert chrome_of(style, "spine") == "#888888"
+        assert chrome_of(style, element) == expected
 
     def test_the_default_follows_the_ink_rather_than_a_literal(self):
         """A frame pinned to a literal while the text follows the theme is a

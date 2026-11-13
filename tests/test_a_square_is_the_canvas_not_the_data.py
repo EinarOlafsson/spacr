@@ -194,24 +194,19 @@ def test_a_free_canvas_still_writes_the_widgets_own_proportion(volcano,
     assert width != height, f"a free canvas came out square at {width}x{height}"
 
 
-def test_a_square_canvas_writes_a_square_svg(volcano, tmp_path):
-    path = tmp_path / "square.svg"
+@pytest.mark.parametrize("suffix, page_size", [
+    ("svg", _svg_size),
+    # The PDF's own MediaBox, read out of the bytes.
+    ("pdf", _pdf_page_size),
+], ids=["svg", "pdf-page"])
+def test_a_square_canvas_writes_a_square_file(volcano, tmp_path, suffix,
+                                              page_size):
+    path = tmp_path / f"square.{suffix}"
     volcano.set_canvas_shape("square")
 
     volcano.export(str(path))
 
-    width, height = _svg_size(path)
-    assert width == pytest.approx(height, rel=0.01), f"{width} x {height}"
-
-
-def test_a_square_canvas_writes_a_square_pdf_page(volcano, tmp_path):
-    """The PDF's own MediaBox, read out of the bytes."""
-    path = tmp_path / "square.pdf"
-    volcano.set_canvas_shape("square")
-
-    volcano.export(str(path))
-
-    width, height = _pdf_page_size(path)
+    width, height = page_size(path)
     assert width == pytest.approx(height, rel=0.01), f"{width} x {height}"
 
 

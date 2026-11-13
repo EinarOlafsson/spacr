@@ -9,7 +9,7 @@ import torch
 
 from spacr import deep_spacr as deep
 from spacr import model_zoo as zoo
-from tests.test_cov_deep_spacr_apply_model import _tar_settings
+from tests.test_deep_spacr_tar_inference import _tar_settings
 from tests.test_cov_deep_spacr_entry_fusion import ds_stubs
 
 

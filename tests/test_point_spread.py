@@ -219,13 +219,6 @@ def test_gaussian_invalid_or_unbounded_extent_is_rejected(fwhm):
         gaussian_psf(fwhm_um=fwhm, sampling_um=.1)
 
 
-@pytest.mark.parametrize('iterations', [0, 201, 1.5, True])
-def test_deconvolution_iteration_range_is_explicit(iterations):
-    with pytest.raises(ValueError, match='iterations'):
-        apply_psf(np.ones((5, 5)), gaussian_psf(fwhm_um=.3, sampling_um=.1),
-                  operation='deconvolve', image_sampling_um=.1, iterations=iterations)
-
-
 def test_loading_is_cancellable_and_size_bounded(tmp_path, monkeypatch):
     import spacr.point_spread as psf
     cancel = threading.Event()
@@ -246,7 +239,7 @@ def test_invalid_channel_axis_is_actionable(axis):
                   operation='convolve', image_sampling_um=.1, channel_axis=axis)
 
 
-@pytest.mark.parametrize('value', [None, np.inf, np.nan, 'many'])
+@pytest.mark.parametrize('value', [None, np.inf, np.nan, 'many', 0, 201, 1.5, True])
 def test_malformed_iteration_values_are_rejected(value):
     with pytest.raises(ValueError, match='iterations'):
         apply_psf(np.ones((5,5)), gaussian_psf(fwhm_um=.3, sampling_um=.1),

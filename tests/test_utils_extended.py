@@ -27,12 +27,12 @@ def test_is_list_of_lists_false_for_flat_list():
     assert U.is_list_of_lists([1, 2, 3]) is False
 
 
-def test_all_elements_match_true():
-    assert U.all_elements_match([1, 2, 3], [1, 2, 3]) is True
-
-
-def test_all_elements_match_false():
-    assert U.all_elements_match([1, 2, 3], [1, 2, 4]) is False
+@pytest.mark.parametrize("a, b, expected", [
+    ([1, 2, 3], [1, 2, 3], True),
+    ([1, 2, 3], [1, 2, 4], False),
+], ids=["true", "false"])
+def test_all_elements_match(a, b, expected):
+    assert U.all_elements_match(a, b) is expected
 
 
 @pytest.mark.parametrize("val,neg,pos,mix,expect", [
@@ -317,12 +317,12 @@ def test_normalize_src_path_list_of_strs():
 # Non-overlapping position search
 # ---------------------------------------------------------------------------
 
-def test_check_overlap_false_when_far():
-    assert U.check_overlap((0, 0), [(100, 100)], threshold=5) is False
-
-
-def test_check_overlap_true_when_close():
-    assert U.check_overlap((0, 0), [(1, 1)], threshold=5) is True
+@pytest.mark.parametrize("others, expected", [
+    ([(100, 100)], False),   # far
+    ([(1, 1)], True),        # close
+], ids=["false-when-far", "true-when-close"])
+def test_check_overlap_is_true_only_when_close(others, expected):
+    assert U.check_overlap((0, 0), others, threshold=5) is expected
 
 
 def test_find_non_overlapping_position_returns_far_point():

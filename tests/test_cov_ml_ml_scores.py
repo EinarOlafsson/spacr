@@ -160,7 +160,7 @@ def _ml_settings(src, **over):
 # generate_ml_scores
 # ---------------------------------------------------------------------------
 
-def test_generate_ml_scores_writes_every_artifact_and_updates_png_list(tmp_path, rng):
+def case_generate_ml_scores_writes_every_artifact_and_updates_png_list(tmp_path, rng):
     """The full DB -> model -> results/ path: 10-tuple + heatmap returned,
     all CSV/PDF artifacts on disk, and the scores back on png_list."""
     from spacr.ml import generate_ml_scores
@@ -329,7 +329,7 @@ def test_classify_flowview_matches_run_journal_and_database(
         assert f"metrics={encoded_metrics}" in log_text
 
 
-def test_generate_ml_scores_refuses_to_invent_a_second_annotation_class(
+def case_generate_ml_scores_refuses_to_invent_a_second_annotation_class(
         tmp_path, rng):
     """One real class plus unknowns is not a two-class training set.
 
@@ -358,7 +358,7 @@ def test_generate_ml_scores_refuses_to_invent_a_second_annotation_class(
     assert settings["negative_control_id"] == "c1"
 
 
-def test_generate_ml_scores_names_an_annotation_column_with_no_labels(
+def case_generate_ml_scores_names_an_annotation_column_with_no_labels(
         tmp_path, rng):
     """An empty label column fails before control matching or sklearn."""
     from spacr.ml import generate_ml_scores
@@ -374,7 +374,7 @@ def test_generate_ml_scores_names_an_annotation_column_with_no_labels(
     assert "n_samples=0" not in message
 
 
-def test_generate_ml_scores_annotation_column_autoselects_controls(tmp_path, rng):
+def case_generate_ml_scores_annotation_column_autoselects_controls(tmp_path, rng):
     """Two annotated classes with no controls configured: positive/negative
     control are auto-derived from the unique annotation values."""
     from spacr.ml import generate_ml_scores
@@ -392,7 +392,7 @@ def test_generate_ml_scores_annotation_column_autoselects_controls(tmp_path, rng
     assert len(output[0]) == N_OBJ
 
 
-def test_generate_ml_scores_annotation_column_missing_raises(tmp_path, rng):
+def case_generate_ml_scores_annotation_column_missing_raises(tmp_path, rng):
     """A png_list without the requested annotation column is a hard error."""
     from spacr.ml import generate_ml_scores
 
@@ -401,7 +401,7 @@ def test_generate_ml_scores_annotation_column_missing_raises(tmp_path, rng):
         generate_ml_scores(_ml_settings(src, annotation_column="test"))
 
 
-def test_generate_ml_scores_unknown_heatmap_feature_raises(tmp_path, rng):
+def case_generate_ml_scores_unknown_heatmap_feature_raises(tmp_path, rng):
     """heatmap_feature must name a numeric column of the scored frame."""
     from spacr.ml import generate_ml_scores
 
@@ -410,7 +410,7 @@ def test_generate_ml_scores_unknown_heatmap_feature_raises(tmp_path, rng):
         generate_ml_scores(_ml_settings(src, heatmap_feature="not_a_feature"))
 
 
-def test_generate_ml_scores_survives_missing_pathogen_channel_column(tmp_path, rng):
+def case_generate_ml_scores_survives_missing_pathogen_channel_column(tmp_path, rng):
     """recruitment must be skipped (not crash) when the pathogen intensity
     column is absent while the cytoplasm one is present."""
     from spacr.ml import generate_ml_scores
@@ -453,7 +453,7 @@ def _feature_df(per_class=40, loc_values=("c1", "c2", "c3")):
     return pd.DataFrame(rows, index=index)
 
 
-def test_ml_analysis_prunes_features_and_drops_cells_per_well(capsys, rng):
+def case_ml_analysis_prunes_features_and_drops_cells_per_well(capsys, rng):
     """verbose + prune_features + a model that exposes feature_importances_:
     SelectKBest caps the feature space, cells_per_well is dropped and both
     figures are produced."""
@@ -485,7 +485,7 @@ def test_ml_analysis_prunes_features_and_drops_cells_per_well(capsys, rng):
     assert "Classification Report:" in out
 
 
-def test_ml_analysis_cross_validation_averages_folds(capsys, rng):
+def case_ml_analysis_cross_validation_averages_folds(capsys, rng):
     """cross_validation=True aggregates 5 folds and re-scores every row."""
     import spacr.ml as ML
 
@@ -508,7 +508,7 @@ def test_ml_analysis_cross_validation_averages_folds(capsys, rng):
     assert "Fold 5 Classification Report:" in out
 
 
-def test_ml_analysis_applies_batch_correction_before_training(capsys, rng):
+def case_ml_analysis_applies_batch_correction_before_training(capsys, rng):
     """The shared correction runs on features while plate metadata stays out."""
     import spacr.ml as ML
 
@@ -538,7 +538,7 @@ def test_ml_analysis_applies_batch_correction_before_training(capsys, rng):
     assert "Batch correction center:" in capsys.readouterr().out
 
 
-def test_ml_analysis_matches_list_controls_numerically(rng):
+def case_ml_analysis_matches_list_controls_numerically(rng):
     """Controls given as a list: each entry is matched exactly, numerically
     and as a stripped string, and un-matchable entries are skipped."""
     import spacr.ml as ML
@@ -559,7 +559,7 @@ def test_ml_analysis_matches_list_controls_numerically(rng):
     assert output[0].loc[output[0]["columnID"] == "3", "data_usage"].eq("not_used").all()
 
 
-def test_ml_analysis_duplicate_location_column_matches_nothing(rng):
+def case_ml_analysis_duplicate_location_column_matches_nothing(rng):
     """A duplicated location column makes df[location_column] a DataFrame, so
     all three matching strategies fail and no control rows are found.
 
@@ -584,7 +584,7 @@ def test_ml_analysis_duplicate_location_column_matches_nothing(rng):
 
 @pytest.mark.parametrize("model_type,cls_name", [("svm", "CalibratedClassifierCV"),
                                                  ("mlp", "MLPClassifier")])
-def test_ml_analysis_models_without_feature_importances(model_type, cls_name, rng):
+def case_ml_analysis_models_without_feature_importances(model_type, cls_name, rng):
     """svm / mlp have no `feature_importances_`, and they get the panel
     anyway -- from the PERMUTATION importance, which is model-agnostic by
     construction and was already computed a few lines earlier.
@@ -649,7 +649,7 @@ def _install_stub(monkeypatch, mod_name, attr_name, cls):
     monkeypatch.setitem(sys.modules, mod_name, module)
 
 
-def test_ml_analysis_lightgbm_forwards_hyperparameters(monkeypatch, rng):
+def case_ml_analysis_lightgbm_forwards_hyperparameters(monkeypatch, rng):
     """model_type='lightgbm' builds LGBMClassifier with spacr's hyperparameters."""
     import spacr.ml as ML
 
@@ -668,7 +668,7 @@ def test_ml_analysis_lightgbm_forwards_hyperparameters(monkeypatch, rng):
     assert output[0]["predictions"].isin([0, 1]).all()
 
 
-def test_ml_analysis_catboost_forwards_hyperparameters(monkeypatch, rng):
+def case_ml_analysis_catboost_forwards_hyperparameters(monkeypatch, rng):
     """model_type='catboost' maps spacr's kwargs onto CatBoost's names."""
     import spacr.ml as ML
 
@@ -689,7 +689,7 @@ def test_ml_analysis_catboost_forwards_hyperparameters(monkeypatch, rng):
 
 
 @pytest.mark.parametrize("model_type", ["lightgbm", "catboost"])
-def test_ml_analysis_missing_optional_backend_raises_actionable_importerror(
+def case_ml_analysis_missing_optional_backend_raises_actionable_importerror(
         model_type, monkeypatch, rng):
     """When the optional package cannot be imported the user gets an
     ImportError naming the pip install, not a bare ModuleNotFoundError."""
@@ -702,3 +702,34 @@ def test_ml_analysis_missing_optional_backend_raises_actionable_importerror(
         ML.ml_analysis(_feature_df(per_class=20), positive_control="c2",
                        negative_control="c1", model_type=model_type,
                        n_estimators=5, verbose=False, **COMMON)
+
+
+from tests.case_table import run_cases  # noqa: E402
+
+def test_ml_analysis_cases(request, subtests):
+    """Behaviour cases for: ml_analysis."""
+    ran = run_cases(request, subtests, [
+        case_ml_analysis_prunes_features_and_drops_cells_per_well,
+        case_ml_analysis_cross_validation_averages_folds,
+        case_ml_analysis_applies_batch_correction_before_training,
+        case_ml_analysis_matches_list_controls_numerically,
+        case_ml_analysis_duplicate_location_column_matches_nothing,
+        case_ml_analysis_models_without_feature_importances,
+        case_ml_analysis_lightgbm_forwards_hyperparameters,
+        case_ml_analysis_catboost_forwards_hyperparameters,
+        case_ml_analysis_missing_optional_backend_raises_actionable_importerror,
+    ])
+    assert ran >= 9
+
+def test_generate_ml_scores_cases(request, subtests):
+    """Behaviour cases for: generate_ml_scores."""
+    ran = run_cases(request, subtests, [
+        case_generate_ml_scores_writes_every_artifact_and_updates_png_list,
+        case_generate_ml_scores_refuses_to_invent_a_second_annotation_class,
+        case_generate_ml_scores_names_an_annotation_column_with_no_labels,
+        case_generate_ml_scores_annotation_column_autoselects_controls,
+        case_generate_ml_scores_annotation_column_missing_raises,
+        case_generate_ml_scores_unknown_heatmap_feature_raises,
+        case_generate_ml_scores_survives_missing_pathogen_channel_column,
+    ])
+    assert ran >= 7

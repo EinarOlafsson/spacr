@@ -9254,6 +9254,9 @@ ALPHA_FEATURES = {
     916: {
         'settings': ('ops_cluster_rows', 'ops_cluster_graph', 'ops_cluster_knn', 'ops_cluster_sweep_resolutions', 'ops_cluster_seeds', 'ops_cluster_target_clusters', 'ops_cluster_shuffles', 'ops_cluster_reference_dir', 'ops_cluster_gene_list', 'ops_cluster_published',),
     },
+    930: {
+        'settings': ('ops_align_model', 'ops_align_tile_min_nuclei', 'ops_align_match_radius', 'ops_align_trim_passes',),
+    },
     928: {
         'settings': ('ops_consensus_enabled', 'ops_consensus_bootstraps', 'ops_consensus_seed', 'ops_consensus_draw_seed', 'ops_consensus_knn', 'ops_consensus_k', 'ops_consensus_k_ratio', 'ops_consensus_method', 'ops_consensus_min_cooc', 'ops_consensus_force_genes', 'ops_consensus_min_stability', 'ops_consensus_match_count', 'ops_consensus_guides',),
     },

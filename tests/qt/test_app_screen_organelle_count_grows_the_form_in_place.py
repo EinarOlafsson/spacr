@@ -367,20 +367,23 @@ def test_a_spawned_switch_is_followed_through_the_signal_that_accepts(
 # the commits that shape the form
 
 
-def test_a_committed_organelle_count_is_followed(screen, swap_model,
-                                                 monkeypatch, qtbot):
-    count = QSpinBox()
-    qtbot.addWidget(count)
-    swap_model(types.SimpleNamespace(_widgets={"number_of_organelles": count}))
-    followed = []
-    monkeypatch.setattr(screen, "_follow_the_organelle_count",
-                        lambda *a: followed.append(True))
+@pytest.mark.parametrize("make_widget, key, reaction", [
+    (QSpinBox, "number_of_organelles", "_follow_the_organelle_count"),
+    (QLineEdit, "some_shape", "_rebuild_the_form"),
+], ids=["a_committed_organelle_count_is_followed",
+        "a_committed_shape_key_rebuilds_the_form"])
+def test_a_committed_organelle_count_is_followed(
+        screen, swap_model, monkeypatch, qtbot, make_widget, key, reaction):
+    widget = make_widget()
+    qtbot.addWidget(widget)
+    swap_model(types.SimpleNamespace(_widgets={key: widget}))
+    reacted = []
+    monkeypatch.setattr(screen, reaction, lambda *a: reacted.append(True))
     monkeypatch.setattr(screen, "_object_switches_on_this_form", lambda: ())
-    monkeypatch.setattr(screen, "_form_shaping_keys",
-                        lambda: ("number_of_organelles",))
+    monkeypatch.setattr(screen, "_form_shaping_keys", lambda: (key,))
     screen._watch_the_settings_that_decide_the_form()
-    count.editingFinished.emit()
-    assert followed == [True]
+    widget.editingFinished.emit()
+    assert reacted == [True]
 
 
 def test_a_cellpose3_chooser_is_followed_by_the_first_signal_that_takes(
@@ -405,21 +408,6 @@ def test_no_rebuild_while_settings_are_being_applied(screen, swap_model,
     screen._rebuild_the_form()
     assert asked == []
     assert not getattr(screen, "_form_rebuild_deferred", False)
-
-
-def test_a_committed_shape_key_rebuilds_the_form(screen, swap_model,
-                                                 monkeypatch, qtbot):
-    shaper = QLineEdit()
-    qtbot.addWidget(shaper)
-    swap_model(types.SimpleNamespace(_widgets={"some_shape": shaper}))
-    rebuilt = []
-    monkeypatch.setattr(screen, "_rebuild_the_form",
-                        lambda *a: rebuilt.append(True))
-    monkeypatch.setattr(screen, "_object_switches_on_this_form", lambda: ())
-    monkeypatch.setattr(screen, "_form_shaping_keys", lambda: ("some_shape",))
-    screen._watch_the_settings_that_decide_the_form()
-    shaper.editingFinished.emit()
-    assert rebuilt == [True]
 
 
 def test_a_chooser_with_no_signal_to_follow_is_skipped(screen):

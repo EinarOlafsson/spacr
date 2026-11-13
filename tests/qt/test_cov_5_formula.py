@@ -30,25 +30,19 @@ def frame() -> pd.DataFrame:
 #  Reading the text
 # --------------------------------------------------------------------------- #
 
-def test_a_backtick_that_never_closes_says_where_it_opened():
-    """An unterminated backtick names the position and the right spelling.
-
-    Backticks are how a column with a space in its name is written. The half
-    of the formula after the opening tick would otherwise be swallowed into a
-    column name that does not exist, and the error would be about the name.
-    """
-    with pytest.raises(FormulaError, match="unterminated"):
-        tokenize("`cell area / 2")
-
-
-def test_backticks_around_nothing_are_not_a_column():
-    """Empty backticks are refused rather than read as a blank name.
-
-    A blank column name matches nothing, so the formula would fail later with
-    "there is no column called ''", which does not point at the typo.
-    """
-    with pytest.raises(FormulaError, match="empty column name"):
-        tokenize("`  ` / 2")
+@pytest.mark.parametrize("text, match", [
+    # An unterminated backtick names the position and the right spelling.
+    # Backticks are how a column with a space in its name is written; the
+    # half of the formula after the opening tick would otherwise be swallowed
+    # into a column name that does not exist.
+    ("`cell area / 2", "unterminated"),
+    # Empty backticks are refused rather than read as a blank name, which
+    # would fail later with "there is no column called ''".
+    ("`  ` / 2", "empty column name"),
+], ids=["a_backtick_that_never_closes", "backticks_around_nothing"])
+def test_a_backtick_that_never_closes_says_where_it_opened(text, match):
+    with pytest.raises(FormulaError, match=match):
+        tokenize(text)
 
 
 # --------------------------------------------------------------------------- #

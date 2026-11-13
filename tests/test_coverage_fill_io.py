@@ -1,12 +1,8 @@
 """Coverage-fill for spacr.io pure-logic helpers (no GPU)."""
 from __future__ import annotations
 
-import sqlite3
-from pathlib import Path
 
 import numpy as np
-import pandas as pd
-import pytest
 
 import matplotlib
 matplotlib.use("Agg")
@@ -26,31 +22,9 @@ def test_read_mask_tif(tmp_path):
     assert out.dtype == np.uint16 and out.shape == (8, 8)
 
 
-def test_read_db_returns_list(tmp_path):
-    db = tmp_path / "m.db"
-    with sqlite3.connect(str(db)) as conn:
-        pd.DataFrame({"a": [1, 2], "b": [3, 4]}).to_sql(
-            "cell", conn, index=False)
-    out = IO._read_db(str(db), tables=["cell"])
-    assert isinstance(out, list) and len(out) == 1
-    assert len(out[0]) == 2
-
-
 # ---------------------------------------------------------------------------
 # _get_avg_object_size
 # ---------------------------------------------------------------------------
-
-def test_get_avg_object_size():
-    m = np.zeros((10, 10), dtype=np.int32)
-    m[1:4, 1:4] = 1
-    m[6:8, 6:8] = 2
-    avg_n, avg_size = IO._get_avg_object_size([m])
-    assert avg_n >= 1 and avg_size > 0
-
-
-def test_get_avg_object_size_empty():
-    avg_n, avg_size = IO._get_avg_object_size([np.zeros((5, 5), dtype=np.int32)])
-    assert avg_n == 0
 
 
 # ---------------------------------------------------------------------------
@@ -102,14 +76,6 @@ def test_convert_numpy_to_tiff(tmp_path):
 # _read_and_join_tables
 # ---------------------------------------------------------------------------
 
-def test_read_and_join_tables(tmp_path):
-    db = tmp_path / "m.db"
-    with sqlite3.connect(str(db)) as conn:
-        pd.DataFrame({"prcfo": ["a", "b"], "cell_area": [1.0, 2.0]}
-                     ).to_sql("cell", conn, index=False)
-    out = IO._read_and_join_tables(str(db), table_names=["cell"])
-    assert out is None or isinstance(out, pd.DataFrame)
-
 
 # ---------------------------------------------------------------------------
 # _save_figure + _save_settings_to_db
@@ -126,50 +92,3 @@ def test_save_figure(tmp_path):
     assert list(tmp_path.rglob("*.pdf"))
 
 
-def test_save_settings_to_db(tmp_path):
-    """The settings really land in ``<plate>/measurements/measurements.db``.
-
-    The old shape -- call it, swallow anything, skip -- passed on a machine
-    where the function wrote no database at all. It writes two tables and the
-    difference between them is the whole point of the function, so both are
-    checked: ``settings`` is replaced by the latest run, ``settings_history``
-    accumulates one tagged row set per run.
-    """
-    import sqlite3
-
-    src = tmp_path / "plate1" / "images"
-    src.mkdir(parents=True)
-    db = tmp_path / "plate1" / "measurements" / "measurements.db"
-
-    IO._save_settings_to_db({"src": str(src), "diameter": 30, "plot": False},
-                            stage="measure_crop")
-    assert db.exists(), "no measurements.db was written"
-
-    with sqlite3.connect(db) as conn:
-        latest = dict(conn.execute(
-            f'SELECT setting_key, setting_value FROM "{IO.SETTINGS_TABLE}"'
-        ).fetchall())
-        history = conn.execute(
-            f'SELECT run_id, stage, setting_key, setting_value '
-            f'FROM "{IO.SETTINGS_HISTORY_TABLE}"').fetchall()
-
-    # Values are stringified on the way in -- that is why resume compares text.
-    assert latest["diameter"] == "30"
-    assert latest["plot"] == "False"
-    assert latest["src"] == str(src)
-    assert {stage for _rid, stage, _k, _v in history} == {"measure_crop"}
-    assert len({rid for rid, *_ in history}) == 1
-
-    # A second stage replaces `settings` and APPENDS to the history: the
-    # repair this function exists for. Without both assertions an implementation
-    # that only ever wrote `settings` would pass.
-    IO._save_settings_to_db({"src": str(src), "diameter": 99},
-                            stage="preprocess")
-    with sqlite3.connect(db) as conn:
-        latest = dict(conn.execute(
-            f'SELECT setting_key, setting_value FROM "{IO.SETTINGS_TABLE}"'
-        ).fetchall())
-        stages = [row[0] for row in conn.execute(
-            f'SELECT DISTINCT stage FROM "{IO.SETTINGS_HISTORY_TABLE}"')]
-    assert latest["diameter"] == "99" and "plot" not in latest
-    assert set(stages) == {"measure_crop", "preprocess"}

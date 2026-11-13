@@ -24,8 +24,8 @@ PARALLEL_MEMORY_AMPLIFIERS = {
     "test_group_lasso_keeps_the_gene_together.py": {
         "test_lasso_splits_a_gene_where_group_lasso_cannot",
     },
-    "test_cov_submodules_vision_model.py": {
-        "test_shap_sample_explains_one_percent_of_the_objects",
+    "test_submodules_vision_model.py": {
+        "test_interperate_vision_model_ranks_groups_and_saves_importances",
     },
     "test_plate_position_is_a_setting.py": {
         "test_regression_levels_passes_the_setting_through_to_both_fits",

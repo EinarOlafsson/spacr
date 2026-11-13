@@ -10,19 +10,24 @@ written ``gradient_accumulation: false`` beside the default four steps.
 """
 from __future__ import annotations
 
+import pytest
+
 from spacr.settings import _fold_gradient_accumulation
 
 
-def test_a_stored_false_collapses_the_step_count():
-    """The whole reason the migration exists.
-
-    Their training was NOT accumulating. Ignoring the flag and leaving four
-    steps would start it, silently, on the next run.
-    """
-    settings = {"gradient_accumulation": False,
-                "gradient_accumulation_steps": 4}
+@pytest.mark.parametrize("flag, steps, expected", [
+    # The whole reason the migration exists. Their training was NOT
+    # accumulating. Ignoring the flag and leaving four steps would start it,
+    # silently, on the next run.
+    (False, 4, 1),
+    # The steps already say how many; the flag added nothing.
+    (True, 8, 8),
+], ids=["false-collapses-the-step-count", "true-leaves-the-step-count-alone"])
+def test_a_stored_flag_is_folded_into_the_step_count(flag, steps, expected):
+    settings = {"gradient_accumulation": flag,
+                "gradient_accumulation_steps": steps}
     _fold_gradient_accumulation(settings)
-    assert settings["gradient_accumulation_steps"] == 1
+    assert settings["gradient_accumulation_steps"] == expected
     assert "gradient_accumulation" not in settings
 
 
@@ -33,15 +38,6 @@ def test_the_string_spellings_a_settings_file_carries_are_honoured():
                     "gradient_accumulation_steps": 8}
         _fold_gradient_accumulation(settings)
         assert settings["gradient_accumulation_steps"] == 1, spelling
-
-
-def test_a_stored_true_leaves_the_step_count_alone():
-    """The steps already say how many; the flag added nothing."""
-    settings = {"gradient_accumulation": True,
-                "gradient_accumulation_steps": 8}
-    _fold_gradient_accumulation(settings)
-    assert settings["gradient_accumulation_steps"] == 8
-    assert "gradient_accumulation" not in settings
 
 
 def test_a_settings_file_without_the_flag_is_untouched():

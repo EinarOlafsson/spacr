@@ -349,21 +349,18 @@ def test_describe_module_without_defaults(capsys):
     assert "none — every setting must come from the settings file" in out
 
 
-def test_describe_unknown_module_exits_2(capsys):
-    rc = cli.main(["--describe", "meesure"])
+@pytest.mark.parametrize("module, fragments", [
+    # An unknown module names itself and offers the did-you-mean.
+    ("meesure", ("meesure", "measure")),
+    # 'annotate' is not a typo -- say why it cannot run headless.
+    ("annotate", ("GUI-only", "spacr-qt")),
+], ids=["unknown-module", "gui-only-module"])
+def test_describe_a_module_it_cannot_describe_exits_2(capsys, module, fragments):
+    rc = cli.main(["--describe", module])
     err = capsys.readouterr().err
     assert rc == cli.EXIT_USAGE
-    assert "meesure" in err
-    assert "measure" in err  # the did-you-mean
-
-
-def test_describe_gui_only_module_explains(capsys):
-    """'annotate' is not a typo — say why it cannot run headless."""
-    rc = cli.main(["--describe", "annotate"])
-    err = capsys.readouterr().err
-    assert rc == cli.EXIT_USAGE
-    assert "GUI-only" in err
-    assert "spacr-qt" in err
+    for fragment in fragments:
+        assert fragment in err
 
 
 def test_version(capsys):
@@ -561,20 +558,17 @@ def test_settings_file_wrong_columns_exits_2(capsys, tmp_path):
     assert "not a spaCR settings CSV" in err
 
 
-def test_settings_json_not_an_object_exits_2(capsys, tmp_path):
+@pytest.mark.parametrize("text, message", [
+    ("[1, 2, 3]", "not a settings object"),
+    ("{oops", "could not parse"),
+], ids=["not-an-object", "malformed"])
+def test_a_settings_json_that_is_not_a_settings_object_exits_2(
+        capsys, tmp_path, text, message):
     path = tmp_path / "settings.json"
-    path.write_text("[1, 2, 3]", encoding="utf-8")
+    path.write_text(text, encoding="utf-8")
     rc = cli.main(["measure", "--settings", str(path)])
     assert rc == cli.EXIT_USAGE
-    assert "not a settings object" in capsys.readouterr().err
-
-
-def test_settings_json_malformed_exits_2(capsys, tmp_path):
-    path = tmp_path / "settings.json"
-    path.write_text("{oops", encoding="utf-8")
-    rc = cli.main(["measure", "--settings", str(path)])
-    assert rc == cli.EXIT_USAGE
-    assert "could not parse" in capsys.readouterr().err
+    assert message in capsys.readouterr().err
 
 
 def test_load_settings_file_without_a_path():
@@ -677,23 +671,20 @@ def test_set_applies_after_the_file(tmp_path):
     assert resolved["cell_mask_dim"] == 6
 
 
-def test_set_unknown_key_exits_2_and_names_it(capsys, fake_settings):
-    """A typo'd override is an error: silently doing nothing is worse."""
+@pytest.mark.parametrize("assignment, fragments", [
+    # A typo'd override is an error: silently doing nothing is worse.
+    ("cell_min_sze=200", ("cell_min_sze", "cell_min_size")),  # did-you-mean
+    ("zzzqqq=1", ("zzzqqq", "does not exist")),
+    ("cell_mask_dim=abc", ("cell_mask_dim", "int")),
+], ids=["unknown-key", "unknown-key-without-a-close-match", "uncoercible-value"])
+def test_a_set_override_that_is_refused_exits_2_and_names_the_key(
+        capsys, fake_settings, assignment, fragments):
     rc = cli.main(["measure", "--settings", fake_settings, "--dry-run",
-                   "--set", "cell_min_sze=200"])
+                   "--set", assignment])
     err = capsys.readouterr().err
     assert rc == cli.EXIT_USAGE
-    assert "cell_min_sze" in err
-    assert "cell_min_size" in err  # the did-you-mean
-
-
-def test_set_unknown_key_without_a_close_match(capsys, fake_settings):
-    rc = cli.main(["measure", "--settings", fake_settings, "--dry-run",
-                   "--set", "zzzqqq=1"])
-    err = capsys.readouterr().err
-    assert rc == cli.EXIT_USAGE
-    assert "zzzqqq" in err
-    assert "does not exist" in err
+    for fragment in fragments:
+        assert fragment in err
 
 
 def test_set_without_equals_exits_2(capsys, fake_settings):
@@ -704,26 +695,16 @@ def test_set_without_equals_exits_2(capsys, fake_settings):
     assert "key=value" in err
 
 
-def test_set_with_empty_key_exits_2(capsys, fake_settings):
-    rc = cli.main(["measure", "--settings", fake_settings, "--dry-run", "--set", "=4"])
-    assert rc == cli.EXIT_USAGE
-    assert "empty key" in capsys.readouterr().err
-
-
-def test_set_uncoercible_value_exits_2(capsys, fake_settings):
+@pytest.mark.parametrize("assignment, message", [
+    ("=4", "empty key"),
+    ("channels=[0, 1", "not a valid list"),
+], ids=["empty-key", "malformed-list"])
+def test_a_set_override_that_cannot_be_parsed_exits_2(
+        capsys, fake_settings, assignment, message):
     rc = cli.main(["measure", "--settings", fake_settings, "--dry-run",
-                   "--set", "cell_mask_dim=abc"])
-    err = capsys.readouterr().err
+                   "--set", assignment])
     assert rc == cli.EXIT_USAGE
-    assert "cell_mask_dim" in err
-    assert "int" in err
-
-
-def test_set_malformed_list_exits_2(capsys, fake_settings):
-    rc = cli.main(["measure", "--settings", fake_settings, "--dry-run",
-                   "--set", "channels=[0, 1"])
-    assert rc == cli.EXIT_USAGE
-    assert "not a valid list" in capsys.readouterr().err
+    assert message in capsys.readouterr().err
 
 
 def test_set_malformed_dict_exits_2():
@@ -864,10 +845,14 @@ def test_no_preflight_skips_the_check(capsys, fake_pipeline, tmp_path):
     assert "spaCR pre-flight check" not in out
 
 
-def test_run_without_a_settings_file_exits_2(capsys):
-    rc = cli.main(["measure"])
+@pytest.mark.parametrize("command, message", [
+    ("measure", "no settings file given"),
+    ("validate", "needs a settings file"),
+], ids=["run", "validate"])
+def test_a_command_without_a_settings_file_exits_2(capsys, command, message):
+    rc = cli.main([command])
     assert rc == cli.EXIT_USAGE
-    assert "no settings file given" in capsys.readouterr().err
+    assert message in capsys.readouterr().err
 
 
 def test_run_neutralises_plt_show(fake_pipeline, fake_settings, monkeypatch):
@@ -991,28 +976,21 @@ def test_validate_without_a_module_runs_generic_checks(capsys, tmp_path):
     assert "spaCR pre-flight check" in capsys.readouterr().out
 
 
-def test_validate_without_settings_exits_2(capsys):
-    rc = cli.main(["validate"])
+@pytest.mark.parametrize("extra, message", [
+    (["--module", "nonsense"], "unknown module"),
+    (["--set", "nope_key=1"], "nope_key"),
+], ids=["unknown-module", "bad-override"])
+def test_validate_refuses_an_unknown_module_or_a_bad_override(
+        capsys, fake_settings, extra, message):
+    rc = cli.main(["validate", "--settings", fake_settings, *extra])
     assert rc == cli.EXIT_USAGE
-    assert "needs a settings file" in capsys.readouterr().err
-
-
-def test_validate_unknown_module_exits_2(capsys, fake_settings):
-    rc = cli.main(["validate", "--settings", fake_settings, "--module", "nonsense"])
-    assert rc == cli.EXIT_USAGE
-    assert "unknown module" in capsys.readouterr().err
+    assert message in capsys.readouterr().err
 
 
 def test_validate_missing_file_exits_2(capsys, tmp_path):
     rc = cli.main(["validate", "--settings", str(tmp_path / "nope.csv")])
     assert rc == cli.EXIT_USAGE
     assert "not found" in capsys.readouterr().err
-
-
-def test_validate_rejects_a_bad_override(capsys, fake_settings):
-    rc = cli.main(["validate", "--settings", fake_settings, "--set", "nope_key=1"])
-    assert rc == cli.EXIT_USAGE
-    assert "nope_key" in capsys.readouterr().err
 
 
 # ---------------------------------------------------------------------------

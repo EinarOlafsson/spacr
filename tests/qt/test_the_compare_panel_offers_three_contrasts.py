@@ -91,11 +91,15 @@ class TestTheContrastIsOnThePanel:
 
         assert panel.comparison().counts()[REST] < before
 
-    def test_the_report_names_the_contrast(self, panel):
-        panel.contrast.setCurrentIndex(
-            panel.contrast.findData("within_well"))
+    @pytest.mark.parametrize("contrast, sentence", [
+        ("within_well", "within the well"),
+        # No control named is a sentence.
+        ("against_controls", "needs the controls named"),
+    ], ids=["the_report_names_the_contrast", "no_control_named_is_a_sentence"])
+    def test_the_report_names_the_contrast(self, panel, contrast, sentence):
+        panel.contrast.setCurrentIndex(panel.contrast.findData(contrast))
 
-        assert "within the well" in panel.report.toPlainText()
+        assert sentence in panel.report.toPlainText()
 
 
 class TestTheControlsFieldAppearsWhereItMeansSomething:
@@ -116,38 +120,20 @@ class TestTheControlsFieldAppearsWhereItMeansSomething:
 
         assert not panel.controls.isEnabled()
 
-    def test_no_control_named_is_a_sentence(self, panel):
+    @pytest.mark.parametrize("text, wells", [
+        ("000000", 1),          # ONE control well, at the default WELL level
+        ("000000_1", 1),        # 184: gene or guide, either spelling
+        ("000000, 000456", 2),  # two controls are comma separated
+    ], ids=["a_named_control_resolves_to_its_wells",
+            "a_control_named_as_a_guide_works_too",
+            "two_controls_are_comma_separated"])
+    def test_a_named_control_resolves_to_its_wells(self, panel, text, wells):
         panel.contrast.setCurrentIndex(
             panel.contrast.findData("against_controls"))
-
-        assert "needs the controls named" in panel.report.toPlainText()
-
-    def test_a_named_control_resolves_to_its_wells(self, panel):
-        panel.contrast.setCurrentIndex(
-            panel.contrast.findData("against_controls"))
-        panel.controls.setText("000000")
+        panel.controls.setText(text)
         panel.refresh()
 
-        # ONE control well, at the panel's default WELL level.
-        assert panel.comparison().counts().get(REST) == 1
-
-    def test_a_control_named_as_a_guide_works_too(self, panel):
-        """184: gene or guide, either spelling."""
-        panel.contrast.setCurrentIndex(
-            panel.contrast.findData("against_controls"))
-        panel.controls.setText("000000_1")
-        panel.refresh()
-
-        assert panel.comparison().counts().get(REST) == 1
-
-    def test_two_controls_are_comma_separated(self, panel):
-        panel.contrast.setCurrentIndex(
-            panel.contrast.findData("against_controls"))
-        panel.controls.setText("000000, 000456")
-        panel.refresh()
-
-        assert panel.comparison().counts().get(REST) == 2
-
+        assert panel.comparison().counts().get(REST) == wells
 
 class TestTheWellsAreChosen:
 

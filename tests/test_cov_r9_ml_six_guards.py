@@ -126,7 +126,7 @@ class TestTheColumnsTheLineAboveEnsured:
             "split below it can be skipped and the guide/gene assumption "
             "goes unstated")
 
-    def test_the_positional_split_uses_the_middle_token_as_the_gene(self):
+    def case_the_positional_split_uses_the_middle_token_as_the_gene(self):
         """The assumption APPLIED, on a real pooled-library name.
 
         '<org>_<gene>_<guide>' is a naming convention: nothing in
@@ -149,7 +149,7 @@ class TestTheColumnsTheLineAboveEnsured:
             f"'<org>_<gene>_<guide>'")
         assert list(out["grna"]) == ["GENEA_g1", "GENEB_g2"]
 
-    def test_the_positional_split_is_documented_as_an_assumption(self, capsys):
+    def case_the_positional_split_is_documented_as_an_assumption(self, capsys):
         """The assumption STATED and CHECKED, which is the half that
         matters: it is a naming convention and not a fact about the
         data, so a table whose names are not all three components is
@@ -285,3 +285,14 @@ def test_the_penalised_warning_has_no_impossible_swallowing_handler(capsys):
     assert "pd.to_numeric" in helper
     assert "except Exception" not in helper
     assert "_warn_if_penalised_no_hits(settings, coef_df)" in caller
+
+
+from tests.case_table import run_cases  # noqa: E402
+
+def test_process_reads_cases(request, subtests):
+    """Behaviour cases for: process_reads."""
+    ran = run_cases(request, subtests, [
+        (TestTheColumnsTheLineAboveEnsured, 'case_the_positional_split_uses_the_middle_token_as_the_gene'),
+        (TestTheColumnsTheLineAboveEnsured, 'case_the_positional_split_is_documented_as_an_assumption'),
+    ])
+    assert ran >= 2

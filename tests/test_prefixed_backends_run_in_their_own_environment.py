@@ -288,11 +288,15 @@ def test_load_backend_refuses_what_it_cannot_run(tmp_path, monkeypatch):
         SB._load_backend("stardist", model_name="stardist:", z_plan=object())
 
 
-def test_parallel_preparation_refuses_a_prefixed_object():
+@pytest.mark.parametrize("settings, kind", [
+    ({"cell_model_name": "cellpose_dino:/m/w"}, "cell"),
+    ({"nucleus_model_name": "stardist:"}, "nucleus"),
+], ids=["cellpose-dino", "stardist"])
+def test_parallel_preparation_refuses_a_prefixed_object(settings, kind):
     from spacr._mask_workers import _prepare_mask_model
 
     with pytest.raises(ValueError, match="requires the Cellpose backend"):
-        _prepare_mask_model({"nucleus_model_name": "stardist:"}, "nucleus")
+        _prepare_mask_model(settings, kind)
 
 
 def _no_cellpose(*args, **kwargs):
@@ -589,10 +593,17 @@ def test_instanseg_pins_its_package_and_names_its_models():
     assert "instanseg_models_v0.1.1" in spec.licence_note
 
 
-def test_instanseg_keeps_its_downloads_inside_its_environment(tmp_path):
+@pytest.mark.parametrize("backend, variable, folder", [
+    ("cellpose_dino", "CELLPOSE_LOCAL_MODELS_PATH", "models"),
+    ("instanseg", "INSTANSEG_BIOIMAGEIO_PATH", "instanseg_models"),
+    ("omnipose", "CELLPOSE_LOCAL_MODELS_PATH", "models"),
+    ("spotiflow", "SPOTIFLOW_CACHE_DIR", "models"),
+])
+def test_a_backend_keeps_its_downloads_inside_its_environment(
+        tmp_path, backend, variable, folder):
     env = str(tmp_path / "env")
-    assert SB._worker_env("instanseg", env)["INSTANSEG_BIOIMAGEIO_PATH"] == (
-        os.path.join(env, "instanseg_models"))
+    assert SB._worker_env(backend, env)[variable] == (
+        os.path.join(env, folder))
 
 
 @pytest.mark.parametrize("value, object_type, target", [
@@ -740,12 +751,6 @@ def test_omnipose_pins_its_package_and_says_its_licence_is_noncommercial():
     assert "noncommercial purposes only" in spec.licence_note
 
 
-def test_omnipose_keeps_its_downloads_inside_its_environment(tmp_path):
-    env = str(tmp_path / "env")
-    assert SB._worker_env("omnipose", env)["CELLPOSE_LOCAL_MODELS_PATH"] == (
-        os.path.join(env, "models"))
-
-
 class _FakeOmniModel:
     """``cellpose_omni.models.CellposeModel`` as far as the adapter sees it."""
 
@@ -837,12 +842,6 @@ def test_spotiflow_pins_its_package_and_names_its_2d_models():
     assert spec.default_model == "general" and spec.prefix == "spotiflow:"
     assert spec.licence == "BSD-3-Clause" and spec.alpha
     assert "weigertlab/spotiflow-models" in spec.licence_note
-
-
-def test_spotiflow_keeps_its_downloads_inside_its_environment(tmp_path):
-    env = str(tmp_path / "env")
-    assert SB._worker_env("spotiflow", env)["SPOTIFLOW_CACHE_DIR"] == (
-        os.path.join(env, "models"))
 
 
 class _FakeSpotiflow:

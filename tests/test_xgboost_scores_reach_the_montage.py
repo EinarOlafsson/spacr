@@ -76,12 +76,17 @@ def test_the_scores_land_on_the_right_objects():
     assert by_object["o6"] == pytest.approx(0.9)
 
 
-def test_the_doubled_plate_prefix_does_not_break_the_join():
-    """`pplate1` in the database against `plate1` in the scores."""
+@pytest.mark.parametrize("plate, matched", [
+    # `pplate1` in the database against `plate1` in the scores.
+    ("plate1", 6),
+    # The join must stay strict: a different plate is not a match.
+    ("pplate9", 0),
+], ids=["doubled-plate-prefix", "another-experiment"])
+def test_the_join_is_strict_about_the_plate_but_not_the_doubled_prefix(plate, matched):
     scores = _xgboost_scores()
-    scores["plate"] = "plate1"
-    _joined, matched = attach_predictions(_png_list(), scores)
-    assert matched == 6
+    scores["plate"] = plate
+    _joined, count = attach_predictions(_png_list(), scores)
+    assert count == matched
 
 
 def test_a_cv_score_file_still_joins_by_path():
@@ -102,14 +107,6 @@ def test_a_frame_with_no_score_at_all_matches_nothing():
     joined, matched = attach_predictions(_png_list(), scores)
     assert matched == 0
     assert "pred" not in joined.columns
-
-
-def test_scores_for_another_experiment_match_nothing():
-    """The join must stay strict: a different plate is not a match."""
-    scores = _xgboost_scores()
-    scores["plate"] = "pplate9"
-    _joined, matched = attach_predictions(_png_list(), scores)
-    assert matched == 0
 
 
 def test_first_present_survives_a_frame_with_no_columns():

@@ -290,16 +290,15 @@ def test_one_segment_over_two_objects_detects_both_of_them():
     assert shared[(0, 7)] == 2
 
 
-def test_two_movies_of_different_length_are_refused():
-    with pytest.raises(ValueError, match='the same movie'):
-        tb.match_vertices(np.zeros((2, 4, 4), dtype=np.int32),
-                          np.zeros((3, 4, 4), dtype=np.int32))
-
-
-def test_two_frames_of_different_size_are_refused():
-    with pytest.raises(ValueError, match='in the ground truth'):
-        tb.match_vertices(np.zeros((1, 4, 4), dtype=np.int32),
-                          np.zeros((1, 8, 8), dtype=np.int32))
+@pytest.mark.parametrize("truth_shape, predicted_shape, message", [
+    ((2, 4, 4), (3, 4, 4), 'the same movie'),      # different length
+    ((1, 4, 4), (1, 8, 8), 'in the ground truth'),  # different frame size
+], ids=["different-length", "different-frame-size"])
+def test_two_movies_that_do_not_line_up_are_refused(
+        truth_shape, predicted_shape, message):
+    with pytest.raises(ValueError, match=message):
+        tb.match_vertices(np.zeros(truth_shape, dtype=np.int32),
+                          np.zeros(predicted_shape, dtype=np.int32))
 
 
 # ---------------------------------------------------------------------------

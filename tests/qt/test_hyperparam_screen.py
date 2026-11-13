@@ -650,23 +650,21 @@ class TestRunningASearch:
         assert panel._table.item(last, _col(panel, 'score')).text() == "-"
         assert "2 trials failed" in panel._status.text()
 
-    def test_the_summary_reports_the_spread(self, panel, qtbot):
+    @pytest.mark.parametrize("scores, needles", [
+        ([0.9, 0.5, 0.7, 0.6],
+         ("Best multi_objective=0.9000", "spread over 4 trials")),
+        # Four scores inside the fold standard deviation: the panel says the
+        # winner is arbitrary instead of quietly showing rank 1.
+        ([0.9000, 0.8999, 0.8998, 0.8997], ("WITHIN NOISE", "arbitrary")),
+    ], ids=["the_summary_reports_the_spread",
+            "the_within_noise_flag_reaches_the_status_line"])
+    def test_the_summary_reports_the_spread(self, panel, qtbot, scores, needles):
         self._prep(panel)
-        panel.set_search_fn(scripted_search([0.9, 0.5, 0.7, 0.6]))
+        panel.set_search_fn(scripted_search(scores))
         with qtbot.waitSignal(panel.search_finished, timeout=5000):
             panel.run_search()
-        assert "Best multi_objective=0.9000" in panel._status.text()
-        assert "spread over 4 trials" in panel._status.text()
-
-    def test_the_within_noise_flag_reaches_the_status_line(self, panel, qtbot):
-        """Four scores inside the fold standard deviation: the panel says the
-        winner is arbitrary instead of quietly showing rank 1."""
-        self._prep(panel)
-        panel.set_search_fn(scripted_search([0.9000, 0.8999, 0.8998, 0.8997]))
-        with qtbot.waitSignal(panel.search_finished, timeout=5000):
-            panel.run_search()
-        assert "WITHIN NOISE" in panel._status.text()
-        assert "arbitrary" in panel._status.text()
+        for needle in needles:
+            assert needle in panel._status.text()
 
     def test_notes_are_shown(self, panel, qtbot):
         self._prep(panel, "5")

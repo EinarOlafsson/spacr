@@ -884,9 +884,15 @@ def test_no_fresh_frame_cannot_claim_a_complete_held_paint(qtbot):
     assert canvas.pixelColor(40, 30).alpha() == 0
 
 
-def test_unknown_power_supply_entries_do_not_override_a_real_discharging_battery(tmp_path):
+@pytest.mark.parametrize("kind", [
+    "USB_PD",           # unknown entries do not override a real discharging
+                        # battery
+    "VendorPrivate",    # vendor-specific records do not masquerade as mains
+], ids=["usb_pd_entry", "unrecognized_kind"])
+def test_unknown_power_supply_entries_do_not_override_a_real_discharging_battery(
+        tmp_path, kind):
     """Only system battery and mains records take part in the local sysfs decision."""
-    for name, values in [('unknown', {'type': 'USB_PD'}),
+    for name, values in [('unknown', {'type': kind}),
                          ('battery', {'type': 'Battery', 'status': 'Discharging'})]:
         folder = tmp_path / name
         folder.mkdir()
@@ -980,17 +986,6 @@ def test_gl_table_adapter_rewrites_each_distinct_lookup_without_changing_indices
     source = captured['fragment_shader']
     assert 'ivec2(int(3), 0)' in source and 'ivec2(int(9), 0)' in source
     assert source.count('texelFetch(spacr_palette,') == 2
-
-
-def test_unrecognized_power_supply_kind_is_ignored_before_battery_policy(tmp_path):
-    """Vendor-specific supply records do not masquerade as mains power."""
-    for name, values in [('unknown', {'type': 'VendorPrivate'}),
-                         ('battery', {'type': 'Battery', 'status': 'Discharging'})]:
-        folder = tmp_path / name
-        folder.mkdir()
-        for key, value in values.items():
-            (folder / key).write_text(value)
-    assert ambient._linux_on_battery(tmp_path) is True
 
 
 def test_disallowed_external_priming_still_joins_an_owned_resident_worker(monkeypatch):

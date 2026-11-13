@@ -47,14 +47,16 @@ def test_a_dead_owner_with_no_children_is_taken_over(tmp_path, windows):
     assert ic._lease_owner_dead(_lease(tmp_path, _owner())) is True
 
 
-def test_a_surviving_child_keeps_the_lease(tmp_path, windows):
-    windows["children"] = [(5200, "filetime:133000000000000500")]
-    assert ic._lease_owner_dead(_lease(tmp_path, _owner())) is False
-
-
-def test_a_child_older_than_the_owner_belonged_to_an_earlier_holder_of_its_pid(tmp_path, windows):
-    windows["children"] = [(5200, "filetime:132999999999999999")]
-    assert ic._lease_owner_dead(_lease(tmp_path, _owner())) is True
+@pytest.mark.parametrize("child_started, dead", [
+    # A surviving child keeps the lease.
+    ("filetime:133000000000000500", False),
+    # A child older than the owner belonged to an earlier holder of its pid.
+    ("filetime:132999999999999999", True),
+], ids=["surviving-child-keeps-the-lease", "child-older-than-the-owner"])
+def test_a_child_decides_whether_the_lease_owner_is_dead(
+        tmp_path, windows, child_started, dead):
+    windows["children"] = [(5200, child_started)]
+    assert ic._lease_owner_dead(_lease(tmp_path, _owner())) is dead
 
 
 @pytest.mark.parametrize("children", [None, [(5200, "ticks:5")], [(5200, "filetime:x")]])

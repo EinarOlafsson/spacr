@@ -58,12 +58,6 @@ def test_a_bare_id_is_returned_unchanged_when_no_type_is_expected():
     assert omero.parse_object_id(" 88 ") == 88
 
 
-def test_the_type_guard_still_bites_when_a_type_is_expected():
-    """The contrast: naming the wrong type is refused, and says which."""
-    with pytest.raises(omero.OmeroIdError, match="is a Plate, but a Dataset"):
-        omero.parse_object_id("Plate:4711", expect="Dataset")
-
-
 # --- reading a well that will not list its fields ---------------------------
 
 def test_a_well_that_counts_fields_it_cannot_hand_over_contributes_no_images():

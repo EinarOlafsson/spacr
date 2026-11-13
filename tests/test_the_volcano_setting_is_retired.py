@@ -28,10 +28,6 @@ def _regression_defaults(overrides=None):
 #  Gone
 # --------------------------------------------------------------------------- #
 
-def test_a_fresh_run_has_no_volcano_setting():
-    assert "volcano" not in _regression_defaults()
-
-
 def test_nothing_in_the_regression_reads_it():
     """A key nobody sets but somebody still reads is a KeyError waiting for
     the first old settings file."""

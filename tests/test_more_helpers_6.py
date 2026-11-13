@@ -172,18 +172,16 @@ def test_measure_map_child_to_parent_child_with_no_parent():
 # spacr.sequencing — extract_sequence_and_quality
 # ===========================================================================
 
-def test_sequencing_extract_sequence_and_quality_exact_slice():
+@pytest.mark.parametrize("sequence, quality, start, end, expected_sequence, expected_quality", [
+    ("ATGCATGC", "IIIIIIII", 2, 6, "GCAT", "IIII"),
+    ("ATGC", "IIII", 2, 2, "", ""),
+], ids=["exact-slice", "empty-slice"])
+def test_sequencing_extract_sequence_and_quality_slices_both_strings(
+        sequence, quality, start, end, expected_sequence, expected_quality):
     from spacr.sequencing import extract_sequence_and_quality
-    s, q = extract_sequence_and_quality("ATGCATGC", "IIIIIIII", 2, 6)
-    assert s == "GCAT"
-    assert q == "IIII"
-
-
-def test_sequencing_extract_sequence_and_quality_empty_slice():
-    from spacr.sequencing import extract_sequence_and_quality
-    s, q = extract_sequence_and_quality("ATGC", "IIII", 2, 2)
-    assert s == ""
-    assert q == ""
+    s, q = extract_sequence_and_quality(sequence, quality, start, end)
+    assert s == expected_sequence
+    assert q == expected_quality
 
 
 # ===========================================================================

@@ -38,12 +38,16 @@ def test_the_input_is_not_modified():
     assert raw == {"cell_diameter": "60.0"}
 
 
-def test_a_fractional_value_for_an_int_key_is_left_alone():
-    """Truncating would change the run without saying so. Left as it was, so
-    the validator reports it."""
-    out = coerce_expected_types({"batch_size": "60.5"}, "mask")
-    assert out["batch_size"] == "60.5"
-    assert any(p.setting == "batch_size"
+@pytest.mark.parametrize("key, value", [
+    # Truncating would change the run without saying so. Left as it was, so
+    # the validator reports it.
+    ("batch_size", "60.5"),
+    ("cell_diameter", "thirty"),
+], ids=["fractional-value-for-an-int-key", "unparseable-value"])
+def test_a_value_that_cannot_be_restored_is_left_for_the_validator(key, value):
+    out = coerce_expected_types({key: value}, "mask")
+    assert out[key] == value
+    assert any(p.setting == key
                for p in validate_settings(dict(out), "mask"))
 
 
@@ -56,12 +60,15 @@ def test_a_fractional_diameter_is_a_diameter():
     assert out["nucleus_diameter"] == "auto"
 
 
-def test_a_key_that_legitimately_holds_text_is_untouched():
-    """"30" is a NAME for a model, not a number."""
-    out = coerce_expected_types(
-        {"cell_model_name": "30", "custom_regex": "12"}, "mask")
-    assert out["cell_model_name"] == "30"
-    assert out["custom_regex"] == "12"
+@pytest.mark.parametrize("given", [
+    # "30" is a NAME for a model, not a number.
+    {"cell_model_name": "30", "custom_regex": "12"},
+    {"batch_size": "", "not_a_real_setting": "7"},
+], ids=["keys-that-legitimately-hold-text", "blank-and-unknown-keys"])
+def test_values_that_must_not_be_coerced_are_left_alone(given):
+    out = coerce_expected_types(dict(given), "mask")
+    for key, value in given.items():
+        assert out[key] == value
 
 
 @pytest.mark.parametrize("written, expected", [
@@ -73,20 +80,6 @@ def test_written_booleans_are_restored(written, expected):
     other order turns "1" into the integer 1 for a key that wanted True."""
     out = coerce_expected_types({"normalize": written}, "mask")
     assert out["normalize"] is expected
-
-
-def test_an_unparseable_value_is_left_for_the_validator():
-    out = coerce_expected_types({"cell_diameter": "thirty"}, "mask")
-    assert out["cell_diameter"] == "thirty"
-    assert any(p.setting == "cell_diameter"
-               for p in validate_settings(dict(out), "mask"))
-
-
-def test_blank_and_unknown_keys_are_left_alone():
-    out = coerce_expected_types(
-        {"batch_size": "", "not_a_real_setting": "7"}, "mask")
-    assert out["batch_size"] == ""
-    assert out["not_a_real_setting"] == "7"
 
 
 def test_a_blank_diameter_is_the_magnification_default():

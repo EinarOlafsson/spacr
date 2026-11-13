@@ -185,24 +185,16 @@ def _meminfo(text, monkeypatch):
     monkeypatch.setattr(builtins, "open", fake_open)
 
 
-def test_meminfo_without_a_memavailable_line_reports_zero(monkeypatch):
-    """Old kernels have MemFree but no MemAvailable. Falling back to MemFree
-    would size workers against memory the page cache is already using."""
-    _meminfo("MemTotal:       32000000 kB\nMemFree:         1000000 kB\n",
-             monkeypatch)
-
-    assert B.available_memory_bytes() == 0
-
-
-def test_a_memavailable_line_that_is_not_a_number_reports_zero(monkeypatch):
-    _meminfo("MemAvailable:   not-a-number kB\n", monkeypatch)
-
-    assert B.available_memory_bytes() == 0
-
-
-def test_a_truncated_memavailable_line_reports_zero(monkeypatch):
-    """A /proc read torn mid-line has the key and no value."""
-    _meminfo("MemAvailable:\n", monkeypatch)
+@pytest.mark.parametrize("text", [
+    # Old kernels have MemFree but no MemAvailable. Falling back to MemFree
+    # would size workers against memory the page cache is already using.
+    "MemTotal:       32000000 kB\nMemFree:         1000000 kB\n",
+    "MemAvailable:   not-a-number kB\n",
+    # A /proc read torn mid-line has the key and no value.
+    "MemAvailable:\n",
+], ids=["no-memavailable-line", "not-a-number", "truncated-line"])
+def test_a_meminfo_without_a_usable_memavailable_reports_zero(text, monkeypatch):
+    _meminfo(text, monkeypatch)
 
     assert B.available_memory_bytes() == 0
 

@@ -86,7 +86,7 @@ def _agreeing_plate(path, plate):
     return str(path), float(frame["pred"].sum())
 
 
-def test_two_plates_that_already_agree_are_told_apart_from_one_plate(
+def case_two_plates_that_already_agree_are_told_apart_from_one_plate(
         tmp_path, capsys):
     """Zero shift across TWO batches is a finding, not the one-plate no-op.
 
@@ -139,7 +139,7 @@ def test_two_plates_that_already_agree_are_told_apart_from_one_plate(
     assert not (absent < 0.05).any()
 
 
-def test_two_shifted_plates_report_a_nonzero_batch_correction(
+def case_two_shifted_plates_report_a_nonzero_batch_correction(
         tmp_path, capsys):
     """Two different batch centroids take the ordinary successful path."""
     scores = tmp_path / "scores"
@@ -268,7 +268,7 @@ def test_a_scores_file_spelled_row_and_col_is_canonical_without_aliases(
     assert "if 'columnID' not in scores_df.columns:" not in source
 
 
-def test_a_scores_file_with_no_well_identity_falls_through_and_names_it(
+def case_a_scores_file_with_no_well_identity_falls_through_and_names_it(
         tmp_path):
     """No row and no column anywhere is refused by the join contract.
 
@@ -321,7 +321,7 @@ def test_the_two_sides_of_the_timepoint_join_are_canonical_before_the_rename(
 # process_reads / process_scores: guards about columns just rewritten
 # ---------------------------------------------------------------------------
 
-def test_process_reads_rebuilds_gene_from_grna_even_when_gene_is_supplied(
+def case_process_reads_rebuilds_gene_from_grna_even_when_gene_is_supplied(
         tmp_path):
     """A caller's ``gene`` column is dropped, so the split is always attempted.
 
@@ -395,7 +395,7 @@ def test_process_scores_has_the_well_columns_without_a_second_check():
     assert source.count(check) == 1
 
 
-def test_process_scores_never_returns_a_prcfo_column_to_drop():
+def case_process_scores_never_returns_a_prcfo_column_to_drop():
     """The ``prcfo`` drop at ml.py:9515 cannot survive into a result.
 
     Two statements above it the frame is narrowed to ``['prc',
@@ -430,7 +430,7 @@ def _one_well_frame(per_class=20, wells=("c1",)):
     return frame
 
 
-def test_cross_validation_is_never_handed_a_single_group():
+def case_cross_validation_is_never_handed_a_single_group():
     """``n_folds < 2`` is unreachable: ``grouped_split`` refused first.
 
     ml.py:10518-10523 recomputes the distinct group count from the SAME array
@@ -470,7 +470,7 @@ def test_cross_validation_is_never_handed_a_single_group():
 # the QC manifest that never arrives
 # ---------------------------------------------------------------------------
 
-def test_the_qc_manifest_survives_the_level_annotation():
+def case_the_qc_manifest_survives_the_level_annotation():
     """``output['qc']`` was unreachable, and this is why it now is not.
 
     ``regression`` puts the manifest on ``coef_df.attrs`` (ml.py:5058) and
@@ -548,7 +548,7 @@ def test_the_permutation_level_schema_needs_no_rechecks():
 # a folder that is always there to make
 # ---------------------------------------------------------------------------
 
-def test_an_absolute_paths_parent_is_never_empty(tmp_path, monkeypatch):
+def case_an_absolute_paths_parent_is_never_empty(tmp_path, monkeypatch):
     """The removed ``if folder/parent`` guards could never be False.
 
     Both spell the same thing -- ``os.path.dirname(os.path.abspath(path))`` --
@@ -582,7 +582,7 @@ def test_an_absolute_paths_parent_is_never_empty(tmp_path, monkeypatch):
 # a sentence that must not be able to break a run
 # ---------------------------------------------------------------------------
 
-def test_a_class_list_that_cannot_be_built_costs_only_the_sentence(capsys):
+def case_a_class_list_that_cannot_be_built_costs_only_the_sentence(capsys):
     """The untrained-class note is cosmetic, and it fails like one.
 
     ``ml_analysis`` prints which classes of ``location_column`` were scored by
@@ -625,3 +625,21 @@ def test_a_class_list_that_cannot_be_built_costs_only_the_sentence(capsys):
     # the run itself is intact: the same 40 control rows, scored
     assert len(scored[0]) == len(unhashable)
     assert scored[0]["predictions"].notna().all()
+
+
+from tests.case_table import run_cases  # noqa: E402
+
+def test_perform_regression_cases(request, subtests):
+    """Behaviour cases for: _annotate_level_coefficients, interpret_vision_model, ml_analysis, perform_regression, process_reads, process_scores, save_summary_to_file."""
+    ran = run_cases(request, subtests, [
+        case_two_plates_that_already_agree_are_told_apart_from_one_plate,
+        case_two_shifted_plates_report_a_nonzero_batch_correction,
+        case_a_scores_file_with_no_well_identity_falls_through_and_names_it,
+        case_process_reads_rebuilds_gene_from_grna_even_when_gene_is_supplied,
+        case_process_scores_never_returns_a_prcfo_column_to_drop,
+        case_cross_validation_is_never_handed_a_single_group,
+        case_the_qc_manifest_survives_the_level_annotation,
+        case_an_absolute_paths_parent_is_never_empty,
+        case_a_class_list_that_cannot_be_built_costs_only_the_sentence,
+    ])
+    assert ran >= 9

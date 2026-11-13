@@ -72,44 +72,42 @@ def test_an_empty_palette_entry_is_not_used(qapp, monkeypatch):
 
 # -- the colour spellings the palette may hand back --------------------------
 
-def test_a_four_component_rgba_string_keeps_its_alpha():
-    colour = ls._rgba("rgba(10, 20, 30, 40)", QColor("#000000"))
+@pytest.mark.parametrize(
+    "spec, alpha",
+    [
+        ("rgba(10, 20, 30, 40)", 40),
+        # ``rgba(r, g, b)`` names no alpha, so the colour is fully opaque.
+        ("rgba(10, 20, 30)", 255),
+    ],
+    ids=["four_components_keep_alpha", "three_components_are_opaque"],
+)
+def test_an_rgba_string_keeps_its_alpha_or_is_opaque(spec, alpha):
+    colour = ls._rgba(spec, QColor("#000000"))
 
     assert (colour.red(), colour.green(), colour.blue()) == (10, 20, 30)
-    assert colour.alpha() == 40
+    assert colour.alpha() == alpha
 
 
-def test_a_three_component_rgba_string_is_opaque():
-    """``rgba(r, g, b)`` names no alpha, so the colour is fully opaque."""
-    colour = ls._rgba("rgba(10, 20, 30)", QColor("#000000"))
+@pytest.mark.parametrize(
+    "spec, fallback",
+    [
+        ("rgba(10, 20)", "#445566"),
+        # A misspelt palette entry paints the fallback rather than raising.
+        ("rgba(ten, twenty, thirty, one)", "#445566"),
+        ("chartreuse-ish", "#778899"),
+    ],
+    ids=["wrong_number_of_parts", "parts_not_numbers", "qt_cannot_parse"],
+)
+def test_an_unusable_colour_spelling_falls_back(spec, fallback):
+    colour = ls._rgba(spec, QColor(fallback))
 
-    assert (colour.red(), colour.green(), colour.blue()) == (10, 20, 30)
-    assert colour.alpha() == 255
-
-
-def test_an_rgba_string_with_the_wrong_number_of_parts_falls_back():
-    colour = ls._rgba("rgba(10, 20)", QColor("#445566"))
-
-    assert colour.name() == "#445566"
-
-
-def test_an_rgba_string_whose_parts_are_not_numbers_falls_back():
-    """A misspelt palette entry paints the fallback rather than raising."""
-    colour = ls._rgba("rgba(ten, twenty, thirty, one)", QColor("#445566"))
-
-    assert colour.name() == "#445566"
+    assert colour.name() == fallback
 
 
 def test_a_float_rgba_string_is_truncated_to_channels():
     colour = ls._rgba("rgba(10.9, 20.2, 30.7, 255)", QColor("#000000"))
 
     assert (colour.red(), colour.green(), colour.blue()) == (10, 20, 30)
-
-
-def test_a_colour_qt_cannot_parse_falls_back():
-    colour = ls._rgba("chartreuse-ish", QColor("#778899"))
-
-    assert colour.name() == "#778899"
 
 
 def test_a_hash_colour_is_taken_as_written():

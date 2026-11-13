@@ -16,9 +16,8 @@ and swallowed any failure into ``pytest.skip``. It skipped for its entire
 life -- the synthetic schema had no ``prcf`` column, so not one line of
 ``analyze_recruitment`` / ``analyze_endodyogeny`` /
 ``analyze_class_proportion`` was ever executed by it -- while
-``test_cov_submodules_recruitment_plaques.py`` (14 tests),
-``test_cov_submodules_endodyogeny.py`` and
-``test_cov_submodules_class_proportion.py`` drive all three for real and
+``test_submodules_well_assays.py`` and
+``test_submodules_class_and_volume_bins.py`` drive all three for real and
 assert on the tables and files they write. It was deleted rather than
 repaired: repairing it would have reproduced those three modules.
 """
