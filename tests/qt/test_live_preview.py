@@ -475,17 +475,13 @@ class TestHover:
 # ---------------------------------------------------------------------------
 
 class TestAppScreenIntegration:
-    def test_mask_screen_has_live_preview(self, qtbot):
+    @pytest.mark.parametrize("attribute", ["_live_preview", "_runtime_splitter"],
+                             ids=["has_live_preview", "uses_splitter_between_lp_and_console"])
+    def test_mask_screen_has_live_preview(self, qtbot, attribute):
         from spacr.qt.screens.app_screen import AppScreen
         scr = AppScreen("mask")
         qtbot.addWidget(scr)
-        assert getattr(scr, "_live_preview", None) is not None
-
-    def test_mask_screen_uses_splitter_between_lp_and_console(self, qtbot):
-        from spacr.qt.screens.app_screen import AppScreen
-        scr = AppScreen("mask")
-        qtbot.addWidget(scr)
-        assert getattr(scr, "_runtime_splitter", None) is not None
+        assert getattr(scr, attribute, None) is not None
 
     # measure now has its own crop preview (a splitter) — covered separately in
     # test_measure_preview.py — so it's excluded here.

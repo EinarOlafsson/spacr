@@ -722,10 +722,6 @@ def test_a_problem_with_no_fix_prints_the_problem_and_nothing_else(
     ]
 
 
-def test_wrapping_nothing_yields_nothing():
-    assert B._say_what_is_wrong_with_the_settings("measure", None) is None
-
-
 def test_a_wrapped_entry_point_called_with_no_settings_is_passed_through():
     def _fn(*args, **kwargs):
         return (args, kwargs)

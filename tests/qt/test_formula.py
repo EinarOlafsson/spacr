@@ -223,17 +223,40 @@ def test_numbers_stored_as_text_still_work():
     np.testing.assert_allclose(values_of(frame, "n * 2"), [2.0, 4.0, np.nan])
 
 
-def test_unknown_function_lists_the_ones_that_exist(frame):
+@pytest.mark.parametrize("expression, needles", [
+    # The function list is printed.
+    ("logg(area)", ("logg()", "log10")),
+    # ``mean()`` reaches the arity check rather than the argument loop: a user
+    # who knows the function's name and not its shape gets what it takes, not
+    # a syntax error about ``)``.
+    ("mean()", ("takes 1 argument(s), not 0", "mean(x)")),
+    ("area.mean", ("attribute access",)),
+    ("clip()", ("takes 3 argument(s), not 0",)),
+], ids=["unknown_function_lists_the_ones_that_exist",
+        "no_arguments_is_parsed_then_refused",
+        "a_dot_explains_the_language",
+        "a_three_argument_function_called_empty"])
+def test_unknown_function_lists_the_ones_that_exist(frame, expression, needles):
     with pytest.raises(FormulaError) as excinfo:
-        parse("logg(area)")
+        parse(expression)
     message = str(excinfo.value)
-    assert "logg()" in message
-    assert "log10" in message           # the function list is printed
+    for needle in needles:
+        assert needle in message
 
 
-def test_wrong_arity_names_the_function(frame):
-    with pytest.raises(FormulaError, match=r"clip\(\) takes 3 argument"):
-        parse("clip(area, 1)")
+@pytest.mark.parametrize("expression, match", [
+    ("clip(area, 1)", r"clip\(\) takes 3 argument"),
+    ("(area + 1", "never closed"),
+    ("   ", "empty"),
+    ("gene == 'a'", "Local Data Filter"),
+    ("area > 1 & area < 5", "'and'"),
+    ("area = 5", "=="),
+], ids=["wrong_arity_names_the_function", "unbalanced_parenthesis",
+        "empty_formula", "quotes_point_at_the_filter_panel",
+        "ampersand_suggests_the_word", "assignment_suggests_the_comparison"])
+def test_wrong_arity_names_the_function(frame, expression, match):
+    with pytest.raises(FormulaError, match=match):
+        parse(expression)
 
 
 def test_chained_comparison_is_refused_with_the_rewrite(frame):
@@ -241,16 +264,6 @@ def test_chained_comparison_is_refused_with_the_rewrite(frame):
         parse("0 < area < 5")
     assert "chained comparison" in str(excinfo.value)
     assert "'and'" in str(excinfo.value)
-
-
-def test_unbalanced_parenthesis_says_which_one(frame):
-    with pytest.raises(FormulaError, match="never closed"):
-        parse("(area + 1")
-
-
-def test_empty_formula_suggests_one():
-    with pytest.raises(FormulaError, match="empty"):
-        parse("   ")
 
 
 def test_a_failed_formula_adds_no_columns(frame):
@@ -335,27 +348,6 @@ def test_the_hostile_expressions_wrote_nothing(frame, tmp_path):
         with pytest.raises(FormulaError):
             values_of(frame, expression)
     assert not os.path.exists(target)
-
-
-def test_the_error_for_a_dot_explains_the_language(frame):
-    with pytest.raises(FormulaError) as excinfo:
-        parse("area.mean")
-    assert "attribute access" in str(excinfo.value)
-
-
-def test_quotes_point_at_the_filter_panel(frame):
-    with pytest.raises(FormulaError, match="Local Data Filter"):
-        parse("gene == 'a'")
-
-
-def test_ampersand_suggests_the_word(frame):
-    with pytest.raises(FormulaError, match="'and'"):
-        parse("area > 1 & area < 5")
-
-
-def test_assignment_suggests_the_comparison(frame):
-    with pytest.raises(FormulaError, match="=="):
-        parse("area = 5")
 
 
 def test_a_giant_integer_power_cannot_hang_the_gui(frame):
@@ -574,14 +566,14 @@ def test_a_typo_disables_add_and_says_which_column(panel):
     assert "perimeter" in panel.status()          # the suggestion
 
 
-def test_the_preview_reports_the_infinities_before_the_column_is_added(panel):
-    type_formula(panel, "ratio", "area / perimeter")
-    assert "3 of 4 rows have a finite value" in panel.status()
-
-
-def test_an_aggregate_formula_says_it_depends_on_the_table(panel):
-    type_formula(panel, "z", "zscore(area)")
-    assert "uses the whole table" in panel.status()
+@pytest.mark.parametrize("name, text, said", [
+    ("ratio", "area / perimeter", "3 of 4 rows have a finite value"),
+    ("z", "zscore(area)", "uses the whole table"),
+], ids=["the_preview_reports_the_infinities", "an_aggregate_formula_depends_on_the_table"])
+def test_the_preview_reports_the_infinities_before_the_column_is_added(
+        panel, name, text, said):
+    type_formula(panel, name, text)
+    assert said in panel.status()
 
 
 def test_removing_a_formula_removes_its_column(panel):

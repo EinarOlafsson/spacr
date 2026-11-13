@@ -141,27 +141,23 @@ def _oblong(cells) -> dict:
 class TestNeitherPlateCanBeUnlocked:
 
     @pytest.mark.parametrize("width", [NARROW, WIDE])
+    @pytest.mark.parametrize("which", ["design", "picker"])
     def test_every_cell_of_the_design_plate_is_square(self, qtbot,
-                                                      hostile_theme, width):
+                                                      hostile_theme, width,
+                                                      which):
         # HELD IN A NAME. `qtbot.addWidget` keeps only a weak reference, so
         # a plate read straight out of the call that built it is collected
         # mid-measurement and every cell answers "already deleted".
-        plate = _design(qtbot, width=width)
-        cells = _design_cells(plate)
+        if which == "design":
+            plate = _design(qtbot, width=width)
+            cells = _design_cells(plate)
+        else:
+            plate = _picker(qtbot, width=width)
+            cells = _picker_cells(plate)
 
         assert len(cells) == 96 + 8 + 12
         assert not _oblong(cells), \
-            f"the blanket rule unlocked the design plate: {_oblong(cells)}"
-
-    @pytest.mark.parametrize("width", [NARROW, WIDE])
-    def test_every_cell_of_the_picker_plate_is_square(self, qtbot,
-                                                      hostile_theme, width):
-        plate = _picker(qtbot, width=width)
-        cells = _picker_cells(plate)
-
-        assert len(cells) == 96 + 8 + 12
-        assert not _oblong(cells), \
-            f"the blanket rule unlocked the picker plate: {_oblong(cells)}"
+            f"the blanket rule unlocked the {which} plate: {_oblong(cells)}"
 
     def test_both_header_strips_on_both_plates_hold_it_too(self, qtbot,
                                                            hostile_theme):

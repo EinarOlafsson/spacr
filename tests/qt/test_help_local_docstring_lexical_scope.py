@@ -71,21 +71,34 @@ def test_control_flow_helpers_are_available_without_execution(source_reader, blo
     assert source_reader(source, "outer.helper") == "Useful offline help."
 
 
-def test_qualified_async_and_class_scopes_survive_control_flow(source_reader):
-    source = '''
-        if enabled:
-            class Panel:
-                try:
-                    async def prepare(self):
-                        with context():
-                            def finish():
-                                """Finish this panel's own preparation."""
-                except Exception:
-                    pass
-    '''
-    assert source_reader(source, "Panel.prepare.finish") == (
-        "Finish this panel's own preparation."
-    )
+@pytest.mark.parametrize("source, qualname, expected", [
+    ('\n'
+     '        if enabled:\n'
+     '            class Panel:\n'
+     '                try:\n'
+     '                    async def prepare(self):\n'
+     '                        with context():\n'
+     '                            def finish():\n'
+     '                                """Finish this panel\'s own preparation."""\n'
+     '                except Exception:\n'
+     '                    pass\n'
+     '    ',
+     "Panel.prepare.finish", "Finish this panel's own preparation."),
+    ('\n'
+     '        def outer():\n'
+     '            if enabled:\n'
+     '                def decoy():\n'
+     '                    try:\n'
+     '                        def target():\n'
+     '                            """The explicitly requested helper."""\n'
+     '                    finally:\n'
+     '                        pass\n'
+     '    ',
+     "outer.decoy.target", "The explicitly requested helper."),
+], ids=["qualified_async_and_class_scopes", "an_explicit_nested_scope"])
+def test_qualified_async_and_class_scopes_survive_control_flow(
+        source_reader, source, qualname, expected):
+    assert source_reader(source, qualname) == expected
 
 
 @pytest.mark.parametrize("qualname", ["target", "outer.target"])
@@ -112,18 +125,3 @@ def test_unmatched_function_and_class_scopes_are_not_searched(source_reader, qua
     '''
     assert source_reader(source, qualname) == ""
 
-
-def test_an_explicit_nested_scope_still_resolves_its_own_helper(source_reader):
-    source = '''
-        def outer():
-            if enabled:
-                def decoy():
-                    try:
-                        def target():
-                            """The explicitly requested helper."""
-                    finally:
-                        pass
-    '''
-    assert source_reader(source, "outer.decoy.target") == (
-        "The explicitly requested helper."
-    )

@@ -21,22 +21,16 @@ def _reading(cores=32, memory=64.0, override=None):
             "override": override}
 
 
-def test_a_big_machine_is_left_alone():
-    on, why = LM.wanted(_reading(cores=32, memory=64.0))
-    assert on is False
-    assert "32 usable core" in why
-
-
-def test_few_cores_turns_it_on():
-    on, why = LM.wanted(_reading(cores=2, memory=64.0))
-    assert on is True
-    assert "fewer than" in why
-
-
-def test_little_memory_turns_it_on():
-    on, why = LM.wanted(_reading(cores=32, memory=4.0))
-    assert on is True
-    assert "less than" in why
+@pytest.mark.parametrize("cores, memory, turned_on, said", [
+    (32, 64.0, False, "32 usable core"),    # a big machine is left alone
+    (2, 64.0, True, "fewer than"),          # few cores turns it on
+    (32, 4.0, True, "less than"),           # little memory turns it on
+], ids=["a_big_machine_is_left_alone", "few_cores_turns_it_on",
+        "little_memory_turns_it_on"])
+def test_a_big_machine_is_left_alone(cores, memory, turned_on, said):
+    on, why = LM.wanted(_reading(cores=cores, memory=memory))
+    assert on is turned_on
+    assert said in why
 
 
 def test_both_reasons_are_given_when_both_hold():
