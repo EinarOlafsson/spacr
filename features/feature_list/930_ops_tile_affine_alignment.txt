@@ -1,0 +1,47 @@
+OPS PER-TILE AFFINE ALIGNMENT OF PHENOTYPE FIELDS TO THE SEQUENCING NUCLEI
+==========================================================================
+
+Lifecycle: future
+Status: IMPLEMENTED 2026-11-13 (alpha, under ALPHA_FEATURES[930]); step 6 reproduction proof below — with ops_align_model 'tile_affine' the merge phase refines each field's re-solved similarity (refine_field_transform, unchanged) into one affine per field and one per sequencing tile group of the field (spacr.ops_merge.tile_affine_transform: mutual nearest pairs within ops_align_match_radius, ops_align_trim_passes passes, pairs beyond max(3 x median, 0.5) px dropped before each least-squares fit; a group is the field nuclei whose nearest sequencing tile centre (ops_geometry, first cycle) is that tile under the field affine, and gets its own affine with at least ops_align_tile_min_nuclei nuclei; every fit must stay within 2 % scale, 1 degree rotation and 2 % anisotropy of the stored seed, else the field keeps the similarity and a group the field affine). Each nucleus is moved by its group's affine (tile_affine_to_well) before it is paired. ops_phenotype records align_model, align_device ('cpu'), the field affine (align_a11..align_a22, align_ty, align_tx), align_tile_groups and align_tile_transforms (JSON rows: tile site, nuclei, a11, a12, a21, a22, ty, tx). The fits run on one BLAS thread. spacr/ops_merge.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_tile_affine_930.py.
+Requested: maintainer (OPS stage 1 iteration card S1-it1, arm (vii), signed off 2026-11-13; feature workflow steps 5 and 6).
+Owner: paper session (stage 1 lane).
+Source: proof_s1s2/iter/scripts/s1it_arms.py arm (vii) (polish, mutual, fit_affine, ok_bounds, run_arms) and arm (ii), the field affine it starts from; s1it_vii_gpu.py (GPU-batched variant, not ported).
+Related: 752 (the merge phase), 921, READINESS.md stage 1.
+
+SETTINGS
+ops_align_model ('similarity'; 'tile_affine'), ops_align_tile_min_nuclei (200),
+ops_align_match_radius (3.0 px), ops_align_trim_passes (3). The similarity
+re-solve keeps its own radius (min(3, ops_merge_threshold)).
+
+DEFAULT IDENTITY
+With ops_align_model 'similarity' (default) ops_merge and ops_phenotype are
+the same as before (tests/test_ops_tile_affine_930.py::
+test_the_default_model_leaves_the_merge_unchanged, and plate A well A1
+compared with the nightly code below). A later similarity run removes the
+align_* columns a tile-affine run wrote.
+
+NOT PORTED
+The GPU-batched torch path of s1it_vii_gpu.py: 0.008 s per field plus the
+same 0.017 s CPU similarity refine, against 0.0167 s per field for the whole
+CPU path on one core, so the card would add work, not save it. No
+ops_align_device setting; align_device records 'cpu'.
+
+VALIDATION (step 6; scripts and tables in
+/nas_mnt/data/sync/papers/BMCspacr/reanalysis/proof_stage1_stage2/iterations/S1a_spacr_step6/)
+Plate A (Funk et al. 2022, 20200202_6W-LaC024A) well A1, production inputs
+(link_A1.sqlite seeds, measurements.db ops_objects/ops_geometry, phenotype
+cells), copied into a fresh folder; spaCR's merge phase run with
+ops_align_model 'tile_affine' on CPU (gpu off), compared per field with the
+arm (vii) script (s1it_arms.run_arms rerun on one BLAS thread, and
+iter/out/s1it_vii_plateA_A1_fields.parquet):
+  fields 1,271 of 1,271; moved nuclei identical to the script, max
+  difference 0.0 px; same tile groups on 1,271 fields (2,795 groups, every
+  field has at least one); within-2-px share identical on every field
+  (median per field 97.47 %, as the script; similarity 95.83 %); residual
+  medians within 3.4e-11 px of iter/out; 0 failed fields. Merge: 1,161,832
+  links (similarity 1,161,734), median link distance 0.538 px (0.645).
+  Time per field on one core (load ~32): similarity refine 0.0087 s +
+  tile affine 0.0132 s = 0.0219 s; the script 0.0208 s.
+Default identity: the same well merged with the default settings by this
+branch and by the nightly code (d91937a548) gives the same ops_merge and
+ops_phenotype (frame equality and identical sqlite dumps).
