@@ -18,8 +18,12 @@ case, so a table does not hide which row broke.
 """
 from __future__ import annotations
 
+import collections
 import contextlib
+import gc
 import inspect
+import io
+import sys
 import itertools
 
 import pytest
@@ -27,6 +31,48 @@ from _pytest.fixtures import FixtureFunctionDefinition
 
 _OUTER = ("capsys", "capfd", "caplog", "capsysbinary", "capfdbinary", "request",
           "recwarn")
+
+
+_Captured = collections.namedtuple("_Captured", "out err")
+
+
+class _Capture:
+    """A capsys stand-in that works inside a sub-test (stdout and stderr to buffers)."""
+
+    def __init__(self, stack):
+        self._out, self._err = io.StringIO(), io.StringIO()
+        stack.enter_context(contextlib.redirect_stdout(self._out))
+        stack.enter_context(contextlib.redirect_stderr(self._err))
+
+    def readouterr(self):
+        out, err = self._out.getvalue(), self._err.getvalue()
+        for buffer in (self._out, self._err):
+            buffer.seek(0)
+            buffer.truncate()
+        return _Captured(out, err)
+
+
+def _release():
+    """Do what the end of a test of its own would: deliver Qt deletions, tick the collector."""
+    module = sys.modules.get("PySide6.QtWidgets")
+    if module is not None:
+        try:
+            from PySide6.QtCore import QEvent
+
+            app = module.QApplication.instance()
+            if app is not None:
+                from spacr.qt import gc_policy
+
+                module.QApplication.sendPostedEvents(None, QEvent.DeferredDelete)
+                if gc_policy.is_installed():
+                    gc_policy.collect_once()
+        except Exception:  # noqa: BLE001
+            pass
+    pyplot = sys.modules.get("matplotlib.pyplot")
+    if pyplot is not None:
+        pyplot.close("all")
+    if module is None:
+        gc.collect()
 
 
 def _is_fixture(obj):
@@ -94,7 +140,10 @@ def run_cases(request, subtests, entries, tmp_path_factory=None):
         for n, params in enumerate(_expand_parametrize(case.func)):
             label = case.label if not params else f"{case.label}[{n}]"
             with subtests.test(msg=label):
-                _run_one(request, case, params, base / f"case{index}_{n}")
+                try:
+                    _run_one(request, case, params, base / f"case{index}_{n}")
+                finally:
+                    _release()
             ran += 1
     return ran
 
@@ -116,9 +165,11 @@ def _run_one(request, case, params, workdir):
                 value = stack.enter_context(pytest.MonkeyPatch.context())
             elif name == "tmp_path":
                 value = workdir
+            elif name in ("capsys", "capfd"):
+                value = _Capture(stack)
             elif name in _OUTER:
                 value = request.getfixturevalue(name)
-                if name in ("capsys", "capfd", "capsysbinary", "capfdbinary"):
+                if name in ("capsysbinary", "capfdbinary"):
                     value.readouterr()
                 elif name == "caplog":
                     value.clear()

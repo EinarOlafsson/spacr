@@ -199,7 +199,7 @@ class TestTheLevelColumn:
         assert "levelled['level'] = 'grna'" in source
         assert "if 'level' not in gene_rows.columns:" not in source
 
-    def test_the_reader_asking_for_genes_gets_genes(self, tmp_path):
+    def case_the_reader_asking_for_genes_gets_genes(self, tmp_path):
         """What ``level='gene'`` means is that the reader asked for
         genes, so genes are what the primary table reports.
 
@@ -507,3 +507,13 @@ class TestTheGenePanelShutdown:
         assert stopped == [True], (
             "the quit hook no longer shuts the warming down, which is "
             "the path closeEvent does not cover")
+
+
+from tests.case_table import run_cases  # noqa: E402
+
+def test_run_guide_permutation_analysis_cases(request, subtests):
+    """Behaviour cases for: _run_guide_permutation_analysis."""
+    ran = run_cases(request, subtests, [
+        (TestTheLevelColumn, 'case_the_reader_asking_for_genes_gets_genes'),
+    ])
+    assert ran >= 1
