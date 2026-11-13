@@ -4887,7 +4887,7 @@ def _plot_merged_plot(overlay, image, stack, mask_dims, figuresize, overlayed_im
             mask = np.take(stack, mask_dim, axis=2)
             random_cmap = _generate_mask_random_cmap(mask)
             ax[i + image.shape[-1] + ax_index].imshow(mask, cmap=random_cmap)
-            n_obj = int(len(np.unique(mask)) - 1)
+            n_obj = int(np.count_nonzero(np.unique(mask)))
             cls = (mask_names[i] if mask_names and i < len(mask_names)
                    else f'Mask {i + 1}')
             ax[i + image.shape[-1] + ax_index].set_title(
