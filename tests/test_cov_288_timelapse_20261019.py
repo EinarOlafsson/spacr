@@ -196,7 +196,7 @@ def _plain(value):
     if isinstance(value, np.generic):
         value = value.item()
     if isinstance(value, str):
-        return re.sub(r"\S*pytest-of-[^/\\]+[/\\]pytest-\d+[/\\](?:popen-gw\d+[/\\])?[^/\\\s]+", "<tmp>", value)
+        return re.sub(r"\S*pytest-of-[^/]+/pytest-\d+/(?:popen-gw\d+/)?[^/\s]+", "<tmp>", value.replace("\\", "/"))
     if value is None or isinstance(value, (bool, int)):
         return value
     if isinstance(value, float):
