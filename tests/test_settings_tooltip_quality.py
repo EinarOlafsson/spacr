@@ -603,9 +603,14 @@ def test_unit_named_settings_keep_their_units_in_the_tooltip():
     # +1 on 2026-11-09 (item 873): ops_pixel_radius, the decode's pixel
     # fallback radius. Its tooltip says pixels, so only the census moved.
     ops_decode_unit_settings = 1
+    # +1 on 2026-11-13: ops_align_match_radius, the OPS alignment's match
+    # radius. Its tooltip names its unit (the missing list below stays empty),
+    # so only the census moved.
+    ops_alignment_unit_settings = 1
     assert len(diameter_or_radius) == (
         base_unit_settings + enhancement_unit_settings + spatial_unit_settings
         + ops_phenotype_unit_settings + ops_decode_unit_settings
+        + ops_alignment_unit_settings
         + per_organelle_unit_settings * MAX_ORGANELLES
     )
     assert not missing, f"unit-bearing tooltips without units: {sorted(missing)}"
