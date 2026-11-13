@@ -9,9 +9,15 @@ Everything here is CPU-only, offline and headless (Agg). The figures the
 functions leave on the pyplot stack are inspected directly (bar heights,
 line data, axis limits) so each test asserts a real numeric property
 rather than merely touching the line.
+
+Three parametrised tests carry the contracts: the summary figures, the
+vision-results chart and the annotation jitter plot. Each row names a helper
+that drives one call and returns what it observed, beside the value the
+contract requires.
 """
 from __future__ import annotations
 
+import inspect
 import os
 
 import numpy as np
@@ -34,6 +40,12 @@ def _no_figure_leak():
 # ===========================================================================
 # helpers
 # ===========================================================================
+
+def _call(request, helper):
+    """Run a case helper, giving it the fixtures named in its signature."""
+    names = inspect.signature(helper).parameters
+    return helper(**{n: request.getfixturevalue(n) for n in names})
+
 
 def _counts_csv(path, names, counts):
     pd.DataFrame({"grna_name": list(names), "count": list(counts)}).to_csv(
@@ -58,33 +70,29 @@ def _gini_reference(data):
 # plot_histogram
 # ===========================================================================
 
-def test_plot_histogram_writes_pdf_and_labels_axes(tmp_path):
+def _case_plot_histogram_writes_pdf_and_labels_axes(tmp_path):
     from spacr.plot import plot_histogram
 
     df = pd.DataFrame({"recruitment": np.linspace(0.0, 4.0, 50)})
     plot_histogram(df, "recruitment", dst=str(tmp_path))
 
     out = tmp_path / "recruitment_histogram.pdf"
-    assert out.is_file()
     with out.open("rb") as fh:
-        assert fh.read(4) == b"%PDF"
+        magic = fh.read(4)
 
     ax = plt.gcf().axes[0]
-    assert ax.get_title() == "Histogram of recruitment"
-    assert ax.get_xlabel() == "recruitment"
-    assert ax.get_ylabel() == "Frequency"
-    # Every one of the 50 observations landed in some bar.
-    assert sum(p.get_height() for p in ax.patches) == pytest.approx(50.0)
+    # Last item: every one of the 50 observations landed in some bar.
+    return (out.is_file(), magic, ax.get_title(), ax.get_xlabel(),
+            ax.get_ylabel(), sum(p.get_height() for p in ax.patches))
 
 
-def test_plot_histogram_without_dst_writes_nothing(tmp_path):
+def _case_plot_histogram_without_dst_writes_nothing(tmp_path):
     from spacr.plot import plot_histogram
 
     df = pd.DataFrame({"x": np.arange(20, dtype=float)})
     plot_histogram(df, "x", dst=None)
 
-    assert list(tmp_path.iterdir()) == []
-    assert plt.gcf().axes[0].get_xlabel() == "x"
+    return (list(tmp_path.iterdir()), plt.gcf().axes[0].get_xlabel())
 
 
 # ===========================================================================
@@ -115,25 +123,26 @@ def _case_plot_lorenz_curves_two_plates_curves_and_gini(tmp_path, capsys):
         assert x[0] == 0.0 and x[-1] == pytest.approx(1.0)
         assert len(x) == len(y)
 
-    # 10 values per plate -> 11 points; combined has 20 values -> 21 points.
-    assert len(lines[0].get_ydata()) == 11
-    assert len(lines[2].get_ydata()) == 21
-    assert lines[2].get_linestyle() == "--"
-
-    # Default limits from the None-guarded defaults.
-    assert ax.get_xlim() == (0.0, 1.0)
-    assert ax.get_ylim() == (0.0, 1.0)
-    assert ax.get_title() == "Lorenz Curves"
-
     out = capsys.readouterr().out
     g_equal = _gini_reference(equal)
     g_skew = _gini_reference(skewed)
-    assert f"plate 1: Gini Coefficient = {g_equal:.4f}" in out
-    assert f"plate 2: Gini Coefficient = {g_skew:.4f}" in out
-    assert "Combined: Gini Coefficient = " in out
     # The uneven library must be scored as more unequal than the even one.
     assert g_skew > g_equal
-    assert f"plate 1 (Gini: {g_equal:.4f})" == lines[0].get_label()
+    return {
+        # 10 values per plate -> 11 points; combined has 20 values -> 21.
+        "points": (len(lines[0].get_ydata()), len(lines[2].get_ydata())),
+        "combined_linestyle": lines[2].get_linestyle(),
+        # Default limits from the None-guarded defaults.
+        "xlim": ax.get_xlim(),
+        "ylim": ax.get_ylim(),
+        "title": ax.get_title(),
+        "plate1_gini_printed":
+            f"plate 1: Gini Coefficient = {g_equal:.4f}" in out,
+        "plate2_gini_printed":
+            f"plate 2: Gini Coefficient = {g_skew:.4f}" in out,
+        "combined_gini_printed": "Combined: Gini Coefficient = " in out,
+        "label": lines[0].get_label() == f"plate 1 (Gini: {g_equal:.4f})",
+    }
 
 
 def _case_plot_lorenz_curves_remove_keys_drops_rows(tmp_path, capsys):
@@ -147,11 +156,11 @@ def _case_plot_lorenz_curves_remove_keys_drops_rows(tmp_path, capsys):
     plot_lorenz_curves([f1], remove_keys=["control"], save=False)
 
     lines = plt.gcf().axes[0].get_lines()
-    # 9 surviving rows -> 10 Lorenz points (the 10_000 outlier is gone).
-    assert len(lines[0].get_ydata()) == 10
-    assert capsys.readouterr().out.count(
-        f"Gini Coefficient = {_gini_reference([5] * 9):.4f}"
-    ) == 2  # plate 1 and Combined are identical here
+    # 9 surviving rows -> 10 Lorenz points (the 10_000 outlier is gone);
+    # plate 1 and Combined print an identical Gini here.
+    return (len(lines[0].get_ydata()),
+            capsys.readouterr().out.count(
+                f"Gini Coefficient = {_gini_reference([5] * 9):.4f}"))
 
 
 def _case_plot_lorenz_curves_remove_outliers_by_wells(tmp_path):
@@ -168,8 +177,8 @@ def _case_plot_lorenz_curves_remove_outliers_by_wells(tmp_path):
     plot_lorenz_curves([f1], remove_keys=[], remove_outliers=False, save=False)
     unfiltered = plt.gcf().axes[0].get_lines()[0].get_ydata()
 
-    assert len(unfiltered) == 51          # all 50 rows
-    assert len(kept) == 21                # 'hog' (30 wells) removed
+    # all 50 rows, then 'hog' (30 wells) removed
+    return (len(unfiltered), len(kept))
 
 
 def _case_plot_lorenz_curves_saves_pdf_and_honours_limits(tmp_path, capsys):
@@ -181,14 +190,13 @@ def _case_plot_lorenz_curves_saves_pdf_and_honours_limits(tmp_path, capsys):
     plot_lorenz_curves([f1], remove_keys=[], x_lim=[0.2, 0.8], y_lim=[0.1, 0.9])
 
     saved = tmp_path / "results" / "lorenz_curve_with_gini.pdf"
-    assert saved.is_file()
     with saved.open("rb") as fh:
-        assert fh.read(4) == b"%PDF"
-    assert f"Saved Lorenz Curve: {saved}" in capsys.readouterr().out
+        magic = fh.read(4)
 
     ax = plt.gcf().axes[0]
-    assert ax.get_xlim() == (0.2, 0.8)
-    assert ax.get_ylim() == (0.1, 0.9)
+    return (saved.is_file(), magic,
+            f"Saved Lorenz Curve: {saved}" in capsys.readouterr().out,
+            ax.get_xlim(), ax.get_ylim())
 
 
 def _case_plot_lorenz_curves_default_remove_keys(tmp_path):
@@ -198,7 +206,7 @@ def _case_plot_lorenz_curves_default_remove_keys(tmp_path):
     f1 = _counts_csv(tmp_path / "p1.csv", [f"g{i}" for i in range(6)],
                      np.arange(1, 7))
     plot_lorenz_curves([f1], save=False)
-    assert len(plt.gcf().axes[0].get_lines()[0].get_ydata()) == 7
+    return len(plt.gcf().axes[0].get_lines()[0].get_ydata())
 
 
 def _case_plot_lorenz_curves_gini_of_equal_distribution_is_zero(tmp_path, capsys):
@@ -206,14 +214,14 @@ def _case_plot_lorenz_curves_gini_of_equal_distribution_is_zero(tmp_path, capsys
 
     f1 = _counts_csv(tmp_path / "p1.csv", [f"g{i}" for i in range(10)], [3] * 10)
     plot_lorenz_curves([f1], remove_keys=[], save=False)
-    assert "plate 1: Gini Coefficient = 0.0000" in capsys.readouterr().out
+    return "plate 1: Gini Coefficient = 0.0000" in capsys.readouterr().out
 
 
 # ===========================================================================
 # plot_permutation / plot_feature_importance
 # ===========================================================================
 
-def test_plot_permutation_bar_widths_and_layout():
+def _case_plot_permutation_bar_widths_and_layout():
     from spacr.plot import plot_permutation
 
     from matplotlib.container import BarContainer, ErrorbarContainer
@@ -228,11 +236,7 @@ def test_plot_permutation_bar_widths_and_layout():
     fig = plot_permutation(df)
     ax = fig.axes[0]
 
-    assert tuple(fig.get_size_inches()) == (10.0, 8.0)  # min height clamp
     widths = [p.get_width() for p in ax.patches]
-    assert widths == pytest.approx(list(means))
-    assert ax.get_xlabel() == "Permutation Importance"
-    assert [t.get_text() for t in ax.get_yticklabels()] == ["a", "b", "c"]
 
     bars = [c for c in ax.containers if isinstance(c, BarContainer)]
     errs = [c for c in ax.containers if isinstance(c, ErrorbarContainer)]
@@ -240,12 +244,18 @@ def test_plot_permutation_bar_widths_and_layout():
     assert len(errs) == 1
     # importance_std became the horizontal error bars: mean +- std.
     segments = errs[0][2][0].get_segments()
-    assert [s[0][0] for s in segments] == pytest.approx(list(means - stds))
-    assert [s[1][0] for s in segments] == pytest.approx(list(means + stds))
-    assert ax.xaxis.label.get_size() == pytest.approx(max(10, 12 - 3 * 0.2))
+    return {
+        "size": tuple(fig.get_size_inches()),  # min height clamp
+        "widths": widths,
+        "xlabel": ax.get_xlabel(),
+        "yticklabels": [t.get_text() for t in ax.get_yticklabels()],
+        "error_lows": [s[0][0] for s in segments],
+        "error_highs": [s[1][0] for s in segments],
+        "label_size": ax.xaxis.label.get_size(),
+    }
 
 
-def test_plot_permutation_height_grows_with_feature_count():
+def _case_plot_permutation_height_grows_with_feature_count():
     from spacr.plot import plot_permutation
 
     n = 60
@@ -255,12 +265,11 @@ def test_plot_permutation_height_grows_with_feature_count():
         "importance_std": np.full(n, 0.01),
     })
     fig = plot_permutation(df)
-    assert tuple(fig.get_size_inches()) == (10.0, n * 0.3)
-    assert fig.axes[0].xaxis.label.get_size() == pytest.approx(10.0)
-    assert len(fig.axes[0].patches) == n
+    return (tuple(fig.get_size_inches()),
+            fig.axes[0].xaxis.label.get_size(), len(fig.axes[0].patches))
 
 
-def test_plot_feature_importance_bar_widths():
+def _case_plot_feature_importance_bar_widths():
     from spacr.plot import plot_feature_importance
 
     imp = np.array([0.1, 0.4, 0.5, 0.2])
@@ -268,10 +277,8 @@ def test_plot_feature_importance_bar_widths():
     fig = plot_feature_importance(df)
     ax = fig.axes[0]
 
-    assert [p.get_width() for p in ax.patches] == pytest.approx(list(imp))
-    assert ax.get_xlabel() == "Feature Importance"
-    assert tuple(fig.get_size_inches()) == (10.0, 8.0)
-    assert len(ax.containers) == 1
+    return ([p.get_width() for p in ax.patches], ax.get_xlabel(),
+            tuple(fig.get_size_inches()), len(ax.containers))
 
 
 # ===========================================================================
@@ -326,19 +333,19 @@ def _case_read_and_plot_vision_results_averages_per_model(tmp_path, patched_mkdi
 
     read_and_plot__vision_results(str(base))
 
-    assert patched_mkdir == [str(base / "result")]
-
     ax = plt.gcf().axes[0]
-    # Sorted ascending by the metric -> vgg16 first.
-    assert [t.get_text() for t in ax.get_xticklabels()] == ["vgg16", "resnet50"]
-    assert [p.get_height() for p in ax.patches] == pytest.approx([0.71, 0.85])
-    assert ax.get_xlabel() == "Model"
-    assert ax.get_ylabel() == "accuracy"
-    assert ax.get_title() == "Average Accuracy per Model"
-    assert ax.get_ylim() == (0.8, 0.9)  # default y_lim
-
     out = capsys.readouterr().out
-    assert "resnet50" in out and "vgg16" in out
+    return {
+        "made_dirs": patched_mkdir == [str(base / "result")],
+        # Sorted ascending by the metric -> vgg16 first.
+        "xticks": [t.get_text() for t in ax.get_xticklabels()],
+        "heights": [p.get_height() for p in ax.patches],
+        "xlabel": ax.get_xlabel(),
+        "ylabel": ax.get_ylabel(),
+        "title": ax.get_title(),
+        "ylim": ax.get_ylim(),  # default y_lim
+        "printed": ("resnet50" in out, "vgg16" in out),
+    }
 
 
 def _case_read_and_plot_vision_results_custom_metric_and_ylim(tmp_path, patched_mkdir):
@@ -354,9 +361,8 @@ def _case_read_and_plot_vision_results_custom_metric_and_ylim(tmp_path, patched_
     read_and_plot__vision_results(str(base), y_axis="f1", y_lim=[0.0, 1.0])
 
     ax = plt.gcf().axes[0]
-    assert [p.get_height() for p in ax.patches] == pytest.approx([0.5])
-    assert ax.get_ylabel() == "f1"
-    assert ax.get_ylim() == (0.0, 1.0)
+    return ([p.get_height() for p in ax.patches], ax.get_ylabel(),
+            ax.get_ylim())
 
 
 def _case_read_and_plot_vision_results_no_csv_files(tmp_path, patched_mkdir, capsys):
@@ -367,8 +373,9 @@ def _case_read_and_plot_vision_results_no_csv_files(tmp_path, patched_mkdir, cap
 
     read_and_plot__vision_results(str(base))
 
-    assert "No CSV files found in the specified directory." in capsys.readouterr().out
-    assert plt.get_fignums() == []  # nothing plotted
+    return ("No CSV files found in the specified directory."
+            in capsys.readouterr().out,
+            plt.get_fignums())  # nothing plotted
 
 
 def _case_read_and_plot_vision_results_creates_result_dir(tmp_path):
@@ -378,7 +385,7 @@ def _case_read_and_plot_vision_results_creates_result_dir(tmp_path):
     _vision_tree(base, {"epoch_1": ("resnet50", [0.8, 0.9])})
 
     read_and_plot__vision_results(str(base))
-    assert (base / "result").is_dir()
+    return (base / "result").is_dir()
 
 
 def _case_read_and_plot_vision_results_honours_name_split(tmp_path, patched_mkdir):
@@ -394,7 +401,7 @@ def _case_read_and_plot_vision_results_honours_name_split(tmp_path, patched_mkdi
     read_and_plot__vision_results(str(base), name_split="_run")
 
     ax = plt.gcf().axes[0]
-    assert [t.get_text() for t in ax.get_xticklabels()] == ["resnet50"]
+    return [t.get_text() for t in ax.get_xticklabels()]
 
 
 # ===========================================================================
@@ -485,28 +492,28 @@ def _case_jitterplot_balances_groups_and_keeps_annotated_wells(fake_db_readers, 
 
     # Readers were handed the paths built from src.
     database = os.path.join("/exp/src", "measurements", "measurements.db")
-    assert fake_db_readers["merge_calls"][0]["locs"] == [database]
-    assert fake_db_readers["merge_calls"][0]["tables"] == [
-        "cell", "nucleus", "pathogen", "cytoplasm"
-    ]
-    assert fake_db_readers["merge_calls"][0]["nuclei_limit"] is True
-    assert fake_db_readers["db_calls"][0]["tables"] == ["png_list"]
-    assert fake_db_readers["db_calls"][0]["loc"] == database
-
-    # Well c3 has no annotated object at all -> dropped entirely.
-    assert set(out["col_x"]) == {"c1", "c2"}
+    merge_call = fake_db_readers["merge_calls"][0]
     # Groups: pos(3), neg(2), 'NaN'(6) inside the retained wells -> min 2.
     counts = out["annotation"].value_counts()
-    assert set(counts.index) == {"pos", "neg", "NaN"}
-    assert set(counts.values) == {2}
-    assert len(out) == 6
-    assert "Found 2 annotated images" in capsys.readouterr().out
 
     ax = plt.gcf().axes[0]
-    assert ax.get_xlabel() == "annotation"
-    assert ax.get_ylabel() == "recruitment"
-    assert ax.get_title() == "Jitter Plot"
-    assert len(ax.collections) == 3  # one PathCollection per hue level
+    return {
+        "merge_locs": merge_call["locs"] == [database],
+        "merge_tables": merge_call["tables"],
+        "nuclei_limit": merge_call["nuclei_limit"],
+        "db_tables": fake_db_readers["db_calls"][0]["tables"],
+        "db_loc": fake_db_readers["db_calls"][0]["loc"] == database,
+        # Well c3 has no annotated object at all -> dropped entirely.
+        "wells": set(out["col_x"]),
+        "groups": set(counts.index),
+        "group_sizes": set(counts.values),
+        "rows": len(out),
+        "found_printed": "Found 2 annotated images" in capsys.readouterr().out,
+        "xlabel": ax.get_xlabel(),
+        "ylabel": ax.get_ylabel(),
+        "title": ax.get_title(),
+        "hue_collections": len(ax.collections),  # one per hue level
+    }
 
 
 def _case_jitterplot_is_deterministic(fake_db_readers):
@@ -516,6 +523,7 @@ def _case_jitterplot_is_deterministic(fake_db_readers):
     plt.close("all")
     b = jitterplot_by_annotation("/exp/src", "annotation", "recruitment")
     pd.testing.assert_frame_equal(a, b)
+    return (len(a), len(b))
 
 
 def _case_jitterplot_saves_to_output_path(tmp_path, fake_db_readers, capsys,
@@ -537,10 +545,9 @@ def _case_jitterplot_saves_to_output_path(tmp_path, fake_db_readers, capsys,
 
     assert dst.is_file() and dst.stat().st_size > 0
     with dst.open("rb") as fh:
-        assert fh.read(4) == b"\x89PNG"
-    assert f"Jitter plot saved to {dst}" in capsys.readouterr().out
-    assert plt.gcf().axes[0].get_title() == "Annotated recruitment"
-    assert len(out) == 6
+        magic = fh.read(4)
+    return (magic, f"Jitter plot saved to {dst}" in capsys.readouterr().out,
+            plt.gcf().axes[0].get_title(), len(out))
 
 
 def _case_jitterplot_filter_column_str(fake_db_readers):
@@ -550,11 +557,9 @@ def _case_jitterplot_filter_column_str(fake_db_readers):
         "/exp/src", "annotation", "recruitment",
         filter_column="condition", filter_values=["treat"],
     )
-    assert set(out["condition"]) == {"treat"}
     # treat objects: c1 -> o1,o3,o5 (pos,pos,NaN), c2 -> o1,o3,o5 (neg,NaN,NaN)
     counts = out["annotation"].value_counts()
-    assert set(counts.index) == {"pos", "neg", "NaN"}
-    assert set(counts.values) == {1}
+    return (set(out["condition"]), set(counts.index), set(counts.values))
 
 
 def _case_jitterplot_filter_column_list(fake_db_readers, capsys):
@@ -565,12 +570,10 @@ def _case_jitterplot_filter_column_list(fake_db_readers, capsys):
         filter_column=["condition", "col_x"],
         filter_values=[["treat", "ctrl"], ["c1"]],
     )
-    assert set(out["col_x"]) == {"c1"}
     # Only well c1 survives: pos x3, 'NaN' x3 -> balanced to 3 each.
     counts = out["annotation"].value_counts()
-    assert set(counts.index) == {"pos", "NaN"}
-    assert set(counts.values) == {3}
-    assert capsys.readouterr().out.count("hello") == 2
+    return (set(out["col_x"]), set(counts.index), set(counts.values),
+            capsys.readouterr().out.count("hello"))
 
 
 def _case_jitterplot_missing_plate_columns_raises_keyerror(monkeypatch):
@@ -584,8 +587,9 @@ def _case_jitterplot_missing_plate_columns_raises_keyerror(monkeypatch):
                         lambda *a, **k: (df.copy(), []))
     monkeypatch.setattr(sio, "_read_db", lambda *a, **k: [png.copy()])
 
-    with pytest.raises(KeyError, match="plateID"):
+    with pytest.raises(KeyError, match="plateID") as raised:
         jitterplot_by_annotation("/exp/src", "annotation", "recruitment")
+    return "plateID" in str(raised.value)
 
 
 def _case_jitterplot_works_with_current_column_names(fake_db_readers):
@@ -593,35 +597,122 @@ def _case_jitterplot_works_with_current_column_names(fake_db_readers):
 
     fake_db_readers["legacy"] = False
     out = jitterplot_by_annotation("/exp/src", "annotation", "recruitment")
-    assert len(out) == 6
+    return len(out)
 
 
-def test_plot_stats_plots_cases(request, subtests, capsys):
-    """Case table: 18 cases of the module-level cases run as sub-tests."""
-    from tests.case_table import run_cases
+_LORENZ_2 = {
+    "points": (11, 21),
+    "combined_linestyle": "--",
+    "xlim": (0.0, 1.0),
+    "ylim": (0.0, 1.0),
+    "title": "Lorenz Curves",
+    "plate1_gini_printed": True,
+    "plate2_gini_printed": True,
+    "combined_gini_printed": True,
+    "label": True,
+}
 
-    ran = run_cases(
-        request,
-        subtests,
-        [
-        _case_plot_lorenz_curves_two_plates_curves_and_gini,
-        _case_plot_lorenz_curves_remove_keys_drops_rows,
-        _case_plot_lorenz_curves_remove_outliers_by_wells,
-        _case_plot_lorenz_curves_saves_pdf_and_honours_limits,
-        _case_plot_lorenz_curves_default_remove_keys,
-        _case_plot_lorenz_curves_gini_of_equal_distribution_is_zero,
+
+@pytest.mark.parametrize("helper, expected", [
+    pytest.param(_case_plot_histogram_writes_pdf_and_labels_axes,
+                 (True, b"%PDF", "Histogram of recruitment", "recruitment",
+                  "Frequency", pytest.approx(50.0)),
+                 id="histogram-writes-pdf-and-labels-axes"),
+    pytest.param(_case_plot_histogram_without_dst_writes_nothing,
+                 ([], "x"), id="histogram-without-dst-writes-nothing"),
+    pytest.param(_case_plot_lorenz_curves_two_plates_curves_and_gini,
+                 _LORENZ_2, id="lorenz-two-plates-curves-and-gini"),
+    pytest.param(_case_plot_lorenz_curves_remove_keys_drops_rows,
+                 (10, 2), id="lorenz-remove-keys-drops-rows"),
+    pytest.param(_case_plot_lorenz_curves_remove_outliers_by_wells,
+                 (51, 21), id="lorenz-remove-outliers-by-wells"),
+    pytest.param(_case_plot_lorenz_curves_saves_pdf_and_honours_limits,
+                 (True, b"%PDF", True, (0.2, 0.8), (0.1, 0.9)),
+                 id="lorenz-saves-pdf-and-honours-limits"),
+    pytest.param(_case_plot_lorenz_curves_default_remove_keys,
+                 7, id="lorenz-default-remove-keys-removes-nothing"),
+    pytest.param(_case_plot_lorenz_curves_gini_of_equal_distribution_is_zero,
+                 True, id="lorenz-gini-of-equal-distribution-is-zero"),
+    pytest.param(_case_plot_permutation_bar_widths_and_layout,
+                 {"size": (10.0, 8.0),
+                  "widths": pytest.approx([0.05, 0.20, 0.35]),
+                  "xlabel": "Permutation Importance",
+                  "yticklabels": ["a", "b", "c"],
+                  "error_lows": pytest.approx([0.04, 0.18, 0.32]),
+                  "error_highs": pytest.approx([0.06, 0.22, 0.38]),
+                  "label_size": pytest.approx(max(10, 12 - 3 * 0.2))},
+                 id="permutation-bar-widths-and-layout"),
+    pytest.param(_case_plot_permutation_height_grows_with_feature_count,
+                 ((10.0, 60 * 0.3), pytest.approx(10.0), 60),
+                 id="permutation-height-grows-with-feature-count"),
+    pytest.param(_case_plot_feature_importance_bar_widths,
+                 (pytest.approx([0.1, 0.4, 0.5, 0.2]), "Feature Importance",
+                  (10.0, 8.0), 1),
+                 id="feature-importance-bar-widths"),
+])
+def test_summary_plots_draw_what_the_data_says(request, helper, expected):
+    """Histogram, Lorenz, permutation and feature-importance figures carry the
+    numbers of the data handed in."""
+    observed = _call(request, helper)
+    assert observed == expected
+
+
+@pytest.mark.parametrize("helper, expected", [
+    pytest.param(
         _case_read_and_plot_vision_results_averages_per_model,
+        {"made_dirs": True, "xticks": ["vgg16", "resnet50"],
+         "heights": pytest.approx([0.71, 0.85]), "xlabel": "Model",
+         "ylabel": "accuracy", "title": "Average Accuracy per Model",
+         "ylim": (0.8, 0.9), "printed": (True, True)},
+        id="vision-averages-per-model"),
+    pytest.param(
         _case_read_and_plot_vision_results_custom_metric_and_ylim,
-        _case_read_and_plot_vision_results_no_csv_files,
-        _case_read_and_plot_vision_results_creates_result_dir,
-        _case_read_and_plot_vision_results_honours_name_split,
+        (pytest.approx([0.5]), "f1", (0.0, 1.0)),
+        id="vision-custom-metric-and-ylim"),
+    pytest.param(_case_read_and_plot_vision_results_no_csv_files,
+                 (True, []), id="vision-no-csv-files-plots-nothing"),
+    pytest.param(_case_read_and_plot_vision_results_creates_result_dir,
+                 True, id="vision-creates-result-dir"),
+    pytest.param(_case_read_and_plot_vision_results_honours_name_split,
+                 ["resnet50"], id="vision-honours-name-split"),
+])
+def test_vision_results_chart_averages_the_metric_per_model(
+        request, helper, expected):
+    """The per-model chart reads only ``*_test_result.csv`` files."""
+    observed = _call(request, helper)
+    assert observed == expected
+
+
+@pytest.mark.parametrize("helper, expected", [
+    pytest.param(
         _case_jitterplot_balances_groups_and_keeps_annotated_wells,
-        _case_jitterplot_is_deterministic,
-        _case_jitterplot_saves_to_output_path,
-        _case_jitterplot_filter_column_str,
-        _case_jitterplot_filter_column_list,
-        _case_jitterplot_missing_plate_columns_raises_keyerror,
-        _case_jitterplot_works_with_current_column_names,
-        ],
-    )
-    assert ran >= 18
+        {"merge_locs": True,
+         "merge_tables": ["cell", "nucleus", "pathogen", "cytoplasm"],
+         "nuclei_limit": True, "db_tables": ["png_list"], "db_loc": True,
+         "wells": {"c1", "c2"}, "groups": {"pos", "neg", "NaN"},
+         "group_sizes": {2}, "rows": 6, "found_printed": True,
+         "xlabel": "annotation", "ylabel": "recruitment",
+         "title": "Jitter Plot", "hue_collections": 3},
+        id="jitter-balances-groups-and-keeps-annotated-wells"),
+    pytest.param(_case_jitterplot_is_deterministic, (6, 6),
+                 id="jitter-is-deterministic"),
+    pytest.param(_case_jitterplot_saves_to_output_path,
+                 (b"\x89PNG", True, "Annotated recruitment", 6),
+                 id="jitter-saves-to-output-path"),
+    pytest.param(_case_jitterplot_filter_column_str,
+                 ({"treat"}, {"pos", "neg", "NaN"}, {1}),
+                 id="jitter-filter-column-string"),
+    pytest.param(_case_jitterplot_filter_column_list,
+                 ({"c1"}, {"pos", "NaN"}, {3}, 2),
+                 id="jitter-filter-column-list"),
+    pytest.param(_case_jitterplot_missing_plate_columns_raises_keyerror,
+                 True, id="jitter-missing-plate-columns-raises-keyerror"),
+    pytest.param(_case_jitterplot_works_with_current_column_names, 6,
+                 id="jitter-works-with-current-column-names"),
+])
+def test_jitterplot_by_annotation_balances_and_filters_annotated_objects(
+        request, helper, expected):
+    """The annotation jitter plot joins the two readers, keeps annotated
+    wells, balances the groups and honours the filters."""
+    observed = _call(request, helper)
+    assert observed == expected
