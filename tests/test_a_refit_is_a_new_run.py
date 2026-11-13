@@ -23,6 +23,8 @@ from spacr import refit
 from spacr.ml import (REGRESSION_SETTINGS_USED, REGRESSION_TYPES,
                       _reject_unused_settings)
 
+from tests import locale_cases
+
 
 def _base(**over):
     settings = {
@@ -85,16 +87,8 @@ def test_auto_alpha_is_not_a_request():
     assert not any("alpha" in n for n in notes), notes
 
 
-@pytest.mark.parametrize("regression_type", sorted(REGRESSION_TYPES))
-def test_every_backend_can_be_refit_into(regression_type):
-    """THE GUARD AGAINST DRIFT. For every backend, a settings dict with every
-    policed knob set away from its default must come out of the prune
-    acceptable to the check that would otherwise refuse it.
-
-    Written as the fit's own check rather than a restatement of it: a second
-    copy of the defaults table is exactly what goes stale the first time a
-    backend gains a knob.
-    """
+def _every_backend_can_be_refit_into_case(regression_type):
+    """One case of :func:`test_every_backend_can_be_refit_into`."""
     loaded = _base(alpha=0.3, l1_ratio=0.9, cov_type="HC3", quantile=0.25,
                    hinge_threshold=0.5, huber_t=2.0, lasso_n_boot=50,
                    lasso_selection_threshold=0.9, hinge_n_boot=50,
@@ -127,6 +121,20 @@ def test_every_backend_can_be_refit_into(regression_type):
     _reject_unused_settings(regression_type, {
         name: (settings[name], default)
         for name, default in refit.policed_settings().items()})
+
+
+def test_every_backend_can_be_refit_into(subtests):
+    """THE GUARD AGAINST DRIFT. For every backend, a settings dict with every
+    policed knob set away from its default must come out of the prune
+    acceptable to the check that would otherwise refuse it.
+
+    Written as the fit's own check rather than a restatement of it: a second
+    copy of the defaults table is exactly what goes stale the first time a
+    backend gains a knob.
+    """
+    for label, case in locale_cases.cases(("regression_type", sorted(REGRESSION_TYPES))):
+        with subtests.test(**label):
+            _every_backend_can_be_refit_into_case(**case)
 
 
 def test_the_prune_covers_every_policed_knob():

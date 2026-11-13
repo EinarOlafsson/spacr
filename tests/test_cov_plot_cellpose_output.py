@@ -94,7 +94,7 @@ def _img_array(ax):
 # plot_cellpose4_output
 # ---------------------------------------------------------------------------
 
-def test_plot_cellpose4_output_builds_channel_mask_and_flow_panels():
+def _case_plot_cellpose4_output_builds_channel_mask_and_flow_panels():
     from spacr.plot import plot_cellpose4_output
 
     batch = _batch(n=1, size=32, chans=2)
@@ -126,7 +126,7 @@ def test_plot_cellpose4_output_builds_channel_mask_and_flow_panels():
     assert fig.axes[2].texts[0].get_color() == "white"
 
 
-def test_plot_cellpose4_output_without_object_numbers_draws_no_text():
+def _case_plot_cellpose4_output_without_object_numbers_draws_no_text():
     from spacr.plot import plot_cellpose4_output
 
     batch = _batch(n=1, size=32, chans=1)
@@ -141,7 +141,7 @@ def test_plot_cellpose4_output_without_object_numbers_draws_no_text():
     assert all(len(a.texts) == 0 for a in fig.axes)
 
 
-def test_plot_cellpose4_output_nr_caps_the_number_of_figures():
+def _case_plot_cellpose4_output_nr_caps_the_number_of_figures():
     from spacr.plot import plot_cellpose4_output
 
     batch = _batch(n=4, size=16, chans=1)
@@ -157,7 +157,7 @@ def test_plot_cellpose4_output_nr_caps_the_number_of_figures():
         np.testing.assert_array_equal(_img_array(fig.axes[2]), flows[i])
 
 
-def test_plot_cellpose4_output_accepts_2d_flow_field():
+def _case_plot_cellpose4_output_accepts_2d_flow_field():
     from spacr.plot import plot_cellpose4_output
 
     batch = _batch(n=1, size=16, chans=1)
@@ -171,7 +171,7 @@ def test_plot_cellpose4_output_accepts_2d_flow_field():
     assert fig.axes[2].get_images()[0].get_cmap().name == "viridis"
 
 
-def test_plot_cellpose4_output_labels_every_object_when_mask_has_no_background():
+def _case_plot_cellpose4_output_labels_every_object_when_mask_has_no_background():
     from spacr.plot import plot_cellpose4_output
 
     batch = _batch(n=1, size=16, chans=2)
@@ -197,7 +197,7 @@ def _organelle_batch(n=1, size=48, seed=3):
     return img
 
 
-def test_plot_organelle_output_spots_otsu_three_panels():
+def _case_plot_organelle_output_spots_otsu_three_panels():
     from spacr.plot import plot_organelle_output
 
     imgs = _organelle_batch(n=1, size=48)
@@ -233,7 +233,7 @@ def test_plot_organelle_output_spots_otsu_three_panels():
     assert [a.axison for a in fig.axes] == [False, False, False]
 
 
-def test_plot_organelle_output_defaults_to_spots_otsu_when_settings_empty():
+def _case_plot_organelle_output_defaults_to_spots_otsu_when_settings_empty():
     from spacr.plot import plot_organelle_output
 
     imgs = _organelle_batch(n=1, size=48)
@@ -246,7 +246,7 @@ def test_plot_organelle_output_defaults_to_spots_otsu_when_settings_empty():
     assert fig.axes[1].get_title() == "Mask (2 objects)"
 
 
-def test_plot_organelle_output_counts_all_labels_when_mask_has_no_background():
+def _case_plot_organelle_output_counts_all_labels_when_mask_has_no_background():
     from spacr.plot import plot_organelle_output
 
     imgs = _organelle_batch(n=1, size=16)
@@ -264,7 +264,7 @@ def test_plot_organelle_output_counts_all_labels_when_mask_has_no_background():
     assert fig.axes[2].get_title().startswith("Gaussian smoothed")
 
 
-def test_plot_organelle_output_without_object_numbers_draws_no_text():
+def _case_plot_organelle_output_without_object_numbers_draws_no_text():
     from spacr.plot import plot_organelle_output
 
     imgs = _organelle_batch(n=1, size=48)
@@ -277,7 +277,7 @@ def test_plot_organelle_output_without_object_numbers_draws_no_text():
     assert all(len(a.texts) == 0 for a in fig.axes)
 
 
-def test_plot_organelle_output_stops_at_the_smallest_of_masks_nr_and_batch():
+def _case_plot_organelle_output_stops_at_the_smallest_of_masks_nr_and_batch():
     from spacr.plot import plot_organelle_output
 
     imgs = _organelle_batch(n=2, size=32)          # batch limit = 2
@@ -290,7 +290,7 @@ def test_plot_organelle_output_stops_at_the_smallest_of_masks_nr_and_batch():
         np.testing.assert_allclose(_img_array(fig.axes[0]), img)
 
 
-def test_plot_organelle_output_with_no_masks_draws_nothing():
+def _case_plot_organelle_output_with_no_masks_draws_nothing():
     from spacr.plot import plot_organelle_output
 
     imgs = _organelle_batch(n=2, size=16)
@@ -302,7 +302,7 @@ def test_plot_organelle_output_with_no_masks_draws_nothing():
 # plot_masks
 # ---------------------------------------------------------------------------
 
-def test_plot_masks_png_file_type_unwraps_the_first_flow_element():
+def _case_plot_masks_png_file_type_unwraps_the_first_flow_element():
     from spacr.plot import plot_masks
 
     batch = _batch(n=1, size=32, chans=2)
@@ -321,7 +321,7 @@ def test_plot_masks_png_file_type_unwraps_the_first_flow_element():
     assert sorted(t.get_text() for t in fig.axes[2].texts) == ["1", "2", "3"]
 
 
-def test_plot_masks_expands_a_single_3d_image_and_wraps_bare_arrays():
+def _case_plot_masks_expands_a_single_3d_image_and_wraps_bare_arrays():
     from spacr.plot import plot_masks
 
     single = _batch(n=1, size=16, chans=1)[0]       # (H, W, C) -> expanded
@@ -340,7 +340,7 @@ def test_plot_masks_expands_a_single_3d_image_and_wraps_bare_arrays():
     assert sorted(t.get_text() for t in fig.axes[1].texts) == ["1", "2"]
 
 
-def test_plot_masks_nr_zero_creates_no_figure():
+def _case_plot_masks_nr_zero_creates_no_figure():
     from spacr.plot import plot_masks
 
     batch = _batch(n=1, size=16, chans=1)
@@ -356,7 +356,7 @@ def _write_npz(path, arr):
     np.savez(path, data=arr)
 
 
-def test_plot_4D_arrays_multichannel_plots_one_panel_per_channel(tmp_path):
+def _case_plot_4D_arrays_multichannel_plots_one_panel_per_channel(tmp_path):
     from spacr.plot import _plot_4D_arrays
 
     stack = np.random.default_rng(5).random((2, 16, 16, 3)).astype(np.float32)
@@ -381,7 +381,7 @@ def test_plot_4D_arrays_multichannel_plots_one_panel_per_channel(tmp_path):
     assert ax.title.get_size() == pytest.approx(_montage_type_size(2))
 
 
-def test_plot_4D_arrays_single_channel_uses_one_axes(tmp_path):
+def _case_plot_4D_arrays_single_channel_uses_one_axes(tmp_path):
     from spacr.plot import _plot_4D_arrays
 
     stack = np.random.default_rng(6).random((1, 16, 16, 1)).astype(np.float32)
@@ -398,7 +398,7 @@ def test_plot_4D_arrays_single_channel_uses_one_axes(tmp_path):
     assert fig.axes[0].get_images()[0].get_cmap().name == "gray"
 
 
-def test_plot_4D_arrays_nr_npz_caps_files_and_ignores_non_npz(tmp_path):
+def _case_plot_4D_arrays_nr_npz_caps_files_and_ignores_non_npz(tmp_path):
     from spacr.plot import _plot_4D_arrays
 
     stacks = {}
@@ -419,7 +419,7 @@ def test_plot_4D_arrays_nr_npz_caps_files_and_ignores_non_npz(tmp_path):
     assert len(drawn) == 2  # two *different* files were sampled
 
 
-def test_plot_4D_arrays_empty_directory_plots_nothing(tmp_path):
+def _case_plot_4D_arrays_empty_directory_plots_nothing(tmp_path):
     from spacr.plot import _plot_4D_arrays
 
     (tmp_path / "only.txt").write_text("nothing to plot", encoding="utf-8")
@@ -427,7 +427,7 @@ def test_plot_4D_arrays_empty_directory_plots_nothing(tmp_path):
     assert plt.get_fignums() == []
 
 
-def test_plot_4D_arrays_nr_larger_than_stack_is_clamped(tmp_path):
+def _case_plot_4D_arrays_nr_larger_than_stack_is_clamped(tmp_path):
     from spacr.plot import _plot_4D_arrays
 
     stack = np.zeros((2, 8, 8, 2), dtype=np.float32)
@@ -437,3 +437,35 @@ def test_plot_4D_arrays_nr_larger_than_stack_is_clamped(tmp_path):
 
     assert len(_figures()) == 2  # min(99, num_images=2)
     assert os.path.exists(tmp_path / "small.npz")
+
+
+def test_plot_cellpose_output_cases(request, subtests):
+    """Case table: 19 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_plot_cellpose4_output_builds_channel_mask_and_flow_panels,
+        _case_plot_cellpose4_output_without_object_numbers_draws_no_text,
+        _case_plot_cellpose4_output_nr_caps_the_number_of_figures,
+        _case_plot_cellpose4_output_accepts_2d_flow_field,
+        _case_plot_cellpose4_output_labels_every_object_when_mask_has_no_background,
+        _case_plot_organelle_output_spots_otsu_three_panels,
+        _case_plot_organelle_output_defaults_to_spots_otsu_when_settings_empty,
+        _case_plot_organelle_output_counts_all_labels_when_mask_has_no_background,
+        _case_plot_organelle_output_without_object_numbers_draws_no_text,
+        _case_plot_organelle_output_stops_at_the_smallest_of_masks_nr_and_batch,
+        _case_plot_organelle_output_with_no_masks_draws_nothing,
+        _case_plot_masks_png_file_type_unwraps_the_first_flow_element,
+        _case_plot_masks_expands_a_single_3d_image_and_wraps_bare_arrays,
+        _case_plot_masks_nr_zero_creates_no_figure,
+        _case_plot_4D_arrays_multichannel_plots_one_panel_per_channel,
+        _case_plot_4D_arrays_single_channel_uses_one_axes,
+        _case_plot_4D_arrays_nr_npz_caps_files_and_ignores_non_npz,
+        _case_plot_4D_arrays_empty_directory_plots_nothing,
+        _case_plot_4D_arrays_nr_larger_than_stack_is_clamped,
+        ],
+    )
+    assert ran >= 19

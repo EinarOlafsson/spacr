@@ -172,7 +172,7 @@ def timelapse_tracks():
 # _save_scimg_plot
 # ---------------------------------------------------------------------------
 
-def test_save_scimg_plot_defaults_to_three_channels_and_forwards_args(
+def _case_save_scimg_plot_defaults_to_three_channels_and_forwards_args(
     scimg_dir, grid_recorder, figure_recorder
 ):
     """channel_indices=None -> [0,1,2]; one combined figure + one per channel."""
@@ -211,7 +211,7 @@ def test_save_scimg_plot_defaults_to_three_channels_and_forwards_args(
     assert all(c["n_axes"] == 1 for c in figure_recorder)
 
 
-def test_save_scimg_plot_standardize_keeps_only_the_largest_size_group(
+def _case_save_scimg_plot_standardize_keeps_only_the_largest_size_group(
     scimg_dir, grid_recorder, figure_recorder
 ):
     """standardize=True drops the odd-sized crop; the .txt file is never listed."""
@@ -227,7 +227,7 @@ def test_save_scimg_plot_standardize_keeps_only_the_largest_size_group(
     assert [c["text"] for c in figure_recorder] == ["all_channels", "channel_1"]
 
 
-def test_save_scimg_plot_without_standardize_uses_every_image(
+def _case_save_scimg_plot_without_standardize_uses_every_image(
     scimg_dir, grid_recorder, figure_recorder
 ):
     """standardize=False skips _find_similar_sized_images entirely."""
@@ -242,7 +242,7 @@ def test_save_scimg_plot_without_standardize_uses_every_image(
     assert [c["text"] for c in figure_recorder] == ["all_channels", "channel_2"]
 
 
-def test_save_scimg_plot_nr_imgs_subsamples_deterministically(
+def _case_save_scimg_plot_nr_imgs_subsamples_deterministically(
     scimg_dir, grid_recorder, figure_recorder
 ):
     """nr_imgs < len(files) -> a seeded random subset, identical for every figure."""
@@ -265,7 +265,7 @@ def test_save_scimg_plot_nr_imgs_subsamples_deterministically(
     assert grid_recorder[0]["files"] == grid_recorder[1]["files"]
 
 
-def test_save_scimg_plot_nr_imgs_larger_than_folder_keeps_all(
+def _case_save_scimg_plot_nr_imgs_larger_than_folder_keeps_all(
     scimg_dir, grid_recorder, figure_recorder
 ):
     """nr_imgs >= number of images -> no sampling, the full list is plotted."""
@@ -277,7 +277,7 @@ def test_save_scimg_plot_nr_imgs_larger_than_folder_keeps_all(
     assert grid_recorder[0]["files"] == scimg_dir["all"]
 
 
-def test_save_scimg_plot_writes_pdfs_to_the_figure_folder(scimg_dir):
+def _case_save_scimg_plot_writes_pdfs_to_the_figure_folder(scimg_dir):
     """End-to-end with the real grid plotter and the real _save_figure."""
     from spacr.plot import _save_scimg_plot
 
@@ -298,7 +298,7 @@ def test_save_scimg_plot_writes_pdfs_to_the_figure_folder(scimg_dir):
     assert plt.get_fignums() == []
 
 
-def test_save_scimg_plot_with_a_single_image(scimg_dir, figure_recorder):
+def _case_save_scimg_plot_with_a_single_image(scimg_dir, figure_recorder):
     """A one-crop folder/sample is a legal input and should still emit figures."""
     from spacr.plot import _save_scimg_plot
 
@@ -312,7 +312,7 @@ def test_save_scimg_plot_with_a_single_image(scimg_dir, figure_recorder):
 # _plot_cropped_arrays
 # ---------------------------------------------------------------------------
 
-def test_plot_cropped_arrays_2d_label_image_gets_random_object_cmap():
+def _case_plot_cropped_arrays_2d_label_image_gets_random_object_cmap():
     """<= threshold unique values -> random label cmap + object count in title."""
     from spacr.plot import _plot_cropped_arrays
 
@@ -336,7 +336,7 @@ def test_plot_cropped_arrays_2d_label_image_gets_random_object_cmap():
     assert fig.get_size_inches().tolist() == [3.0, 3.0]
 
 
-def test_plot_cropped_arrays_2d_intensity_image_keeps_requested_cmap():
+def _case_plot_cropped_arrays_2d_intensity_image_keeps_requested_cmap():
     """> threshold unique values -> the caller's cmap and an unannotated title."""
     from spacr.plot import _plot_cropped_arrays
 
@@ -354,7 +354,7 @@ def test_plot_cropped_arrays_2d_intensity_image_keeps_requested_cmap():
     np.testing.assert_allclose(cmap(0.0), plt.get_cmap("inferno")(0.0))
 
 
-def test_plot_cropped_arrays_3d_makes_one_axis_per_channel():
+def _case_plot_cropped_arrays_3d_makes_one_axis_per_channel():
     from spacr.plot import _plot_cropped_arrays
 
     stack = np.zeros((8, 8, 3), dtype=np.uint16)
@@ -374,7 +374,7 @@ def test_plot_cropped_arrays_3d_makes_one_axis_per_channel():
     assert all(ax.axison is False for ax in fig.axes)
 
 
-def test_plot_cropped_arrays_object_count_excludes_background():
+def _case_plot_cropped_arrays_object_count_excludes_background():
     """The "(obj.)" count is the number of labels, not of distinct values.
 
     Regression: the title used to print ``len(np.unique(array))``, so the
@@ -407,7 +407,7 @@ def test_plot_cropped_arrays_object_count_excludes_background():
         == "Channel one, 2 (obj.)"
 
 
-def test_plot_cropped_arrays_single_channel_stack():
+def _case_plot_cropped_arrays_single_channel_stack():
     """A stack with exactly one channel is a valid shape and must not crash."""
     from spacr.plot import _plot_cropped_arrays
 
@@ -423,7 +423,7 @@ def test_plot_cropped_arrays_single_channel_stack():
 # _visualize_and_save_timelapse_stack_with_tracks
 # ---------------------------------------------------------------------------
 
-def test_timelapse_save_builds_label_colormap_and_gif_path(
+def _case_timelapse_save_builds_label_colormap_and_gif_path(
     tmp_path, timelapse_masks, timelapse_tracks, gif_recorder
 ):
     from spacr.plot import _visualize_and_save_timelapse_stack_with_tracks
@@ -462,7 +462,7 @@ def test_timelapse_save_builds_label_colormap_and_gif_path(
     assert plt.get_fignums() == []
 
 
-def test_timelapse_without_save_or_plot_writes_nothing(
+def _case_timelapse_without_save_or_plot_writes_nothing(
     tmp_path, timelapse_masks, timelapse_tracks, gif_recorder
 ):
     from spacr.plot import _visualize_and_save_timelapse_stack_with_tracks
@@ -481,7 +481,7 @@ def test_timelapse_without_save_or_plot_writes_nothing(
     assert plt.get_fignums() == []
 
 
-def test_timelapse_interactive_renders_the_first_frame_with_tracks(
+def _case_timelapse_interactive_renders_the_first_frame_with_tracks(
     tmp_path, timelapse_masks, timelapse_tracks
 ):
     """plot + interactive -> ipywidgets.interact draws frame 0 immediately."""
@@ -520,7 +520,7 @@ def test_timelapse_interactive_renders_the_first_frame_with_tracks(
     np.testing.assert_allclose(ax.lines[0].get_ydata(), [3.0, 4.0])
 
 
-def test_timelapse_plot_non_interactive_displays_the_saved_gif(
+def _case_timelapse_plot_non_interactive_displays_the_saved_gif(
     tmp_path, monkeypatch, timelapse_masks, timelapse_tracks, gif_recorder
 ):
     import spacr.plot
@@ -547,7 +547,7 @@ def test_timelapse_plot_non_interactive_displays_the_saved_gif(
     assert plt.get_fignums() == []
 
 
-def test_timelapse_interactive_save_does_not_display_the_gif(
+def _case_timelapse_interactive_save_does_not_display_the_gif(
     tmp_path, monkeypatch, timelapse_masks, timelapse_tracks, gif_recorder
 ):
     """interactive=True suppresses the inline gif in favour of the slider."""
@@ -570,7 +570,7 @@ def test_timelapse_interactive_save_does_not_display_the_gif(
     assert shown == []  # _display_gif was not reached
 
 
-def test_timelapse_empty_mask_list_raises(tmp_path, timelapse_tracks, gif_recorder):
+def _case_timelapse_empty_mask_list_raises(tmp_path, timelapse_tracks, gif_recorder):
     """No frames -> max() over an empty generator; nothing is written."""
     from spacr.plot import _visualize_and_save_timelapse_stack_with_tracks
 
@@ -590,7 +590,7 @@ def test_timelapse_empty_mask_list_raises(tmp_path, timelapse_tracks, gif_record
 # _display_gif
 # ---------------------------------------------------------------------------
 
-def test_display_gif_hands_the_raw_bytes_to_an_ipython_image(tmp_path, monkeypatch):
+def _case_display_gif_hands_the_raw_bytes_to_an_ipython_image(tmp_path, monkeypatch):
     import spacr.plot
     from spacr.plot import _display_gif
 
@@ -609,7 +609,7 @@ def test_display_gif_hands_the_raw_bytes_to_an_ipython_image(tmp_path, monkeypat
     assert shown[0].format == "gif"
 
 
-def test_display_gif_states_the_format_rather_than_leaving_it_to_ipython(
+def _case_display_gif_states_the_format_rather_than_leaving_it_to_ipython(
         tmp_path, monkeypatch):
     """The format must be PASSED, not inferred from the bytes.
 
@@ -651,7 +651,7 @@ def test_display_gif_states_the_format_rather_than_leaving_it_to_ipython(
         "IPython available on the Python 3.9/3.10 cells of the matrix")
 
 
-def test_display_gif_missing_file_raises(tmp_path, monkeypatch):
+def _case_display_gif_missing_file_raises(tmp_path, monkeypatch):
     import spacr.plot
     from spacr.plot import _display_gif
 
@@ -661,3 +661,37 @@ def test_display_gif_missing_file_raises(tmp_path, monkeypatch):
     with pytest.raises(FileNotFoundError):
         _display_gif(str(tmp_path / "does_not_exist.gif"))
     assert shown == []
+
+
+def test_plot_scimg_timelapse_cases(request, subtests):
+    """Case table: 21 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_save_scimg_plot_defaults_to_three_channels_and_forwards_args,
+        _case_save_scimg_plot_standardize_keeps_only_the_largest_size_group,
+        _case_save_scimg_plot_without_standardize_uses_every_image,
+        _case_save_scimg_plot_nr_imgs_subsamples_deterministically,
+        _case_save_scimg_plot_nr_imgs_larger_than_folder_keeps_all,
+        _case_save_scimg_plot_writes_pdfs_to_the_figure_folder,
+        _case_save_scimg_plot_with_a_single_image,
+        _case_plot_cropped_arrays_2d_label_image_gets_random_object_cmap,
+        _case_plot_cropped_arrays_2d_intensity_image_keeps_requested_cmap,
+        _case_plot_cropped_arrays_3d_makes_one_axis_per_channel,
+        _case_plot_cropped_arrays_object_count_excludes_background,
+        _case_plot_cropped_arrays_single_channel_stack,
+        _case_timelapse_save_builds_label_colormap_and_gif_path,
+        _case_timelapse_without_save_or_plot_writes_nothing,
+        _case_timelapse_interactive_renders_the_first_frame_with_tracks,
+        _case_timelapse_plot_non_interactive_displays_the_saved_gif,
+        _case_timelapse_interactive_save_does_not_display_the_gif,
+        _case_timelapse_empty_mask_list_raises,
+        _case_display_gif_hands_the_raw_bytes_to_an_ipython_image,
+        _case_display_gif_states_the_format_rather_than_leaving_it_to_ipython,
+        _case_display_gif_missing_file_raises,
+        ],
+    )
+    assert ran >= 21

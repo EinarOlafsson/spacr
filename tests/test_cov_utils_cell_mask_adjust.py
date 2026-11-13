@@ -18,6 +18,8 @@ matplotlib = pytest.importorskip("matplotlib")
 matplotlib.use("Agg", force=True)
 import matplotlib.pyplot as plt  # noqa: E402
 
+from tests import locale_cases
+
 
 @pytest.fixture(autouse=True)
 def _close_figures():
@@ -78,11 +80,8 @@ def _write_triple(tmp_path, name="f0.npy", with_organelle=False, n_files=1):
 # adjust_cell_masks
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize('role', ['parasite', 'cell', 'nuclei', 'organelle'])
-@pytest.mark.parametrize('damage', ['shape', 'truncated', 'object'])
-@pytest.mark.parametrize('workers', [1, 2])
-def test_adjustment_checks_later_array_before_changing_any_field(
-        tmp_path, monkeypatch, role, damage, workers):
+def _adjustment_checks_later_array_before_changing_any_field_case(tmp_path, monkeypatch, role, damage, workers):
+    """One case of :func:`test_adjustment_checks_later_array_before_changing_any_field`."""
     import spacr.utils as U
 
     folders = _write_triple(tmp_path, with_organelle=True, n_files=2)
@@ -103,6 +102,12 @@ def test_adjustment_checks_later_array_before_changing_any_field(
         U.adjust_cell_masks(folders['parasite'], folders['cell'], folders['nuclei'],
                             organelle_folder=folders['organelle'], n_jobs=workers)
     assert before == {path: path.read_bytes() for path in tmp_path.rglob('*.npy')}
+
+
+def test_adjustment_checks_later_array_before_changing_any_field(subtests, tmp_path, monkeypatch):
+    for label, case in locale_cases.cases(('role', ['parasite', 'cell', 'nuclei', 'organelle']), ('damage', ['shape', 'truncated', 'object']), ('workers', [1, 2])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _adjustment_checks_later_array_before_changing_any_field_case(tmp_path=locale_cases.case_dir(tmp_path, label), monkeypatch=case_monkeypatch, **case)
 
 
 # ---------------------------------------------------------------------------

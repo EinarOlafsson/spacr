@@ -128,7 +128,7 @@ def fake_writer(monkeypatch):
     return _FakeWriter
 
 
-def test_a_frame_with_a_fourth_axis_is_refused_before_the_writer(tmp_path, fake_writer):
+def _case_a_frame_with_a_fourth_axis_is_refused_before_the_writer(tmp_path, fake_writer):
     """A volume needs an explicit slice or projection before movie export."""
     stack = np.zeros((8, 10, 2, 3), dtype=np.uint8)
     stack[..., 0, 0] = 11
@@ -208,7 +208,7 @@ def _pathogen_frame(with_object_label=True):
     return pd.DataFrame(rows)
 
 
-def test_pathogen_aggregation_without_an_object_label_still_renames_the_cell_link():
+def _case_pathogen_aggregation_without_an_object_label_still_renames_the_cell_link():
     """``object_label`` is dropped when present and simply absent otherwise.
 
     Either way the host-cell link becomes the frame's ``object_label``.
@@ -329,7 +329,7 @@ def _xgb_panel_settings(**extra):
     return s
 
 
-def test_an_all_uninfected_well_draws_only_the_uninfected_half(tmp_path, panels):
+def _case_an_all_uninfected_well_draws_only_the_uninfected_half(tmp_path, panels):
     """No infected cell -> one violin group and one probability histogram."""
     uninfected = _panel_all_df(pathogen_chan=1, infected=lambda c: False)
     uninfected["infection_prob"] = np.linspace(0.05, 0.45, len(uninfected))
@@ -363,7 +363,7 @@ def test_an_all_uninfected_well_draws_only_the_uninfected_half(tmp_path, panels)
     ]
 
 
-def test_a_pathogen_channel_without_its_columns_adds_no_extra_axes(tmp_path, panels):
+def _case_a_pathogen_channel_without_its_columns_adds_no_extra_axes(tmp_path, panels):
     """``pathogen_channel`` is set but p75 / pathogen / cytoplasm are absent.
 
     Neither extra intensity axis is allocated and neither is drawn, so the
@@ -446,7 +446,7 @@ def _run_group(src, basenames):
     return tl._process_merged_group((src, basenames, 2, 0, 0, 1))
 
 
-def test_a_dead_intensity_channel_contributes_no_percentile_columns(tmp_path):
+def _case_a_dead_intensity_channel_contributes_no_percentile_columns(tmp_path):
     """An all-NaN channel yields no percentiles for any compartment.
 
     The finite channel in the same stack still does, for cell, nucleus,
@@ -465,7 +465,7 @@ def test_a_dead_intensity_channel_contributes_no_percentile_columns(tmp_path):
     assert df["cell_mean_intensity_ch0"].notna().all()
 
 
-def test_children_outside_every_cell_produce_no_child_summaries(tmp_path):
+def _case_children_outside_every_cell_produce_no_child_summaries(tmp_path):
     """Nucleus/pathogen objects that overlap no cell are summarised away.
 
     The cytoplasm, which is carved out of the cell mask itself, always
@@ -489,7 +489,7 @@ def test_children_outside_every_cell_produce_no_child_summaries(tmp_path):
     assert (inside["n_pathogens"] == 1).all()
 
 
-def test_an_empty_mean_intensity_table_leaves_the_geometry_intact(tmp_path, monkeypatch):
+def _case_an_empty_mean_intensity_table_leaves_the_geometry_intact(tmp_path, monkeypatch):
     """Failure injection: the per-channel mean helper finds nothing.
 
     Nothing in the pipeline can produce this -- ``_process_merged_group``
@@ -515,7 +515,7 @@ def test_an_empty_mean_intensity_table_leaves_the_geometry_intact(tmp_path, monk
     assert (df["n_nuclei"] == 1).all()
 
 
-def test_an_empty_cytoplasm_overlap_drops_only_the_cytoplasm_summary(tmp_path, monkeypatch):
+def _case_an_empty_cytoplasm_overlap_drops_only_the_cytoplasm_summary(tmp_path, monkeypatch):
     """Failure injection: the cell/cytoplasm overlap table comes back empty.
 
     The cytoplasm mask is the cell mask minus its children, so it can never
@@ -564,7 +564,7 @@ def _smooth_frame(cell_id, values):
     })
 
 
-def test_an_outlier_beside_a_second_outlier_is_not_interpolated_away():
+def _case_an_outlier_beside_a_second_outlier_is_not_interpolated_away():
     """Interpolation needs both neighbours below half the z threshold.
 
     Two adjacent spikes keep each other, a lone spike is replaced by the
@@ -626,7 +626,7 @@ def _pca_coords(df, weight):
     return payload["coords"]
 
 
-def test_a_pathogen_weight_does_nothing_when_every_pathogen_feature_is_degenerate():
+def _case_a_pathogen_weight_does_nothing_when_every_pathogen_feature_is_degenerate():
     """The weight is applied by feature index, and there may be none.
 
     A constant pathogen-channel column is still a pathogen column, so the
@@ -697,7 +697,7 @@ def _patch_strategies(monkeypatch, calls, adjust):
     ],
     ids=["unknown_scope", "missing_group_column"],
 )
-def test_a_combined_fallback_keeps_the_helper_column_when_nothing_was_adjusted(
+def _case_a_combined_fallback_keeps_the_helper_column_when_nothing_was_adjusted(
     tmp_path, monkeypatch, capsys, scope, drop_col, expected_msg,
 ):
     """Both fallbacks return the helper's own label column untouched.
@@ -789,7 +789,7 @@ def _xgb_settings(**over):
     return base
 
 
-def test_a_single_feature_model_skips_correlation_pruning(tmp_path, capsys):
+def _case_a_single_feature_model_skips_correlation_pruning(tmp_path, capsys):
     """With one feature column there is no correlation matrix to prune.
 
     The same data plus a perfectly correlated second feature does go through
@@ -827,7 +827,7 @@ def test_a_single_feature_model_skips_correlation_pruning(tmp_path, capsys):
     ]
 
 
-def test_a_failing_stdout_does_not_lose_the_relabelled_frame(tmp_path, monkeypatch):
+def _case_a_failing_stdout_does_not_lose_the_relabelled_frame(tmp_path, monkeypatch):
     """The final count report is best-effort.
 
     A closed pipe under the "Final infection counts" print (BrokenPipeError
@@ -941,7 +941,7 @@ def _assay_settings(src, **over):
     return base
 
 
-def test_a_frame_with_no_probability_column_skips_ambiguous_track_filtering(
+def _case_a_frame_with_no_probability_column_skips_ambiguous_track_filtering(
     tmp_path, panel_calls, capsys,
 ):
     """Auto-discovery runs, finds no candidate at all, and says so.
@@ -974,3 +974,30 @@ def test_a_frame_with_no_probability_column_skips_ambiguous_track_filtering(
     assert "ambiguous XGBoost tracks (0.25 < proba < 0.75)" in txt2
     assert (out2["infection_prob"] == 0.95).all()
     assert len(out2) < len(df2)
+
+
+def test_timelapse_cases(request, subtests, capsys):
+    """Case table: 14 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_a_frame_with_a_fourth_axis_is_refused_before_the_writer,
+        _case_pathogen_aggregation_without_an_object_label_still_renames_the_cell_link,
+        _case_an_all_uninfected_well_draws_only_the_uninfected_half,
+        _case_a_pathogen_channel_without_its_columns_adds_no_extra_axes,
+        _case_a_dead_intensity_channel_contributes_no_percentile_columns,
+        _case_children_outside_every_cell_produce_no_child_summaries,
+        _case_an_empty_mean_intensity_table_leaves_the_geometry_intact,
+        _case_an_empty_cytoplasm_overlap_drops_only_the_cytoplasm_summary,
+        _case_an_outlier_beside_a_second_outlier_is_not_interpolated_away,
+        _case_a_pathogen_weight_does_nothing_when_every_pathogen_feature_is_degenerate,
+        _case_a_combined_fallback_keeps_the_helper_column_when_nothing_was_adjusted,
+        _case_a_single_feature_model_skips_correlation_pruning,
+        _case_a_failing_stdout_does_not_lose_the_relabelled_frame,
+        _case_a_frame_with_no_probability_column_skips_ambiguous_track_filtering,
+        ],
+    )
+    assert ran >= 14

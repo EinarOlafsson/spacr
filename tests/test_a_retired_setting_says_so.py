@@ -19,6 +19,8 @@ from spacr.validate import (                                     # noqa: E402
     RETIRED_SETTINGS, _check_retired_keys, _check_unknown_keys,
 )
 
+from tests import locale_cases
+
 #: A retired name whose neighbours went with it, so fuzzy matching is blind
 #: to it. This is the case the whole table exists for.
 UNREACHABLE_BY_FUZZY = "upscale_factor"
@@ -105,6 +107,12 @@ def test_a_non_string_key_does_not_raise():
     assert _check_retired_keys({7: "x", None: "y"}) == []
 
 
-@pytest.mark.parametrize("key", sorted(RETIRED_SETTINGS))
-def test_each_retired_name_is_reported(key):
+def _each_retired_name_is_reported_case(key):
+    """One case of :func:`test_each_retired_name_is_reported`."""
     assert len(_check_retired_keys({key: 1})) == 1
+
+
+def test_each_retired_name_is_reported(subtests):
+    for label, case in locale_cases.cases(("key", sorted(RETIRED_SETTINGS))):
+        with subtests.test(**label):
+            _each_retired_name_is_reported_case(**case)

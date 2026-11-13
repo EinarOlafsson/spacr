@@ -224,7 +224,7 @@ def test_create_results_figure_layout():
     ],
     ids=["empty_all_df", "empty_track_df", "no_tracks"],
 )
-def test_panel_returns_early_on_missing_inputs(tmp_path, capsys, over):
+def _case_panel_returns_early_on_missing_inputs(tmp_path, capsys, over):
     out = _call(tmp_path, **over)
     msg = capsys.readouterr().out
     assert "No data for panel 'mask_labels'" in msg
@@ -232,7 +232,7 @@ def test_panel_returns_early_on_missing_inputs(tmp_path, capsys, over):
     assert not os.path.isdir(out)
 
 
-def test_panel_requires_plate_and_well_columns(tmp_path, capsys):
+def _case_panel_requires_plate_and_well_columns(tmp_path, capsys):
     df = _all_df()
     out = _call(tmp_path, all_df=df.drop(columns=["wellID"]))
     msg = capsys.readouterr().out
@@ -242,7 +242,7 @@ def test_panel_requires_plate_and_well_columns(tmp_path, capsys):
     assert _pdfs(out) == []
 
 
-def test_panel_skips_well_without_tracks(tmp_path, capsys):
+def _case_panel_skips_well_without_tracks(tmp_path, capsys):
     """A well present in all_df but absent from per_well_tracks is skipped."""
     out = _call(
         tmp_path,
@@ -254,7 +254,7 @@ def test_panel_skips_well_without_tracks(tmp_path, capsys):
     assert _pdfs(out) == []
 
 
-def test_panel_skips_well_without_intensity_columns(tmp_path, capsys):
+def _case_panel_skips_well_without_intensity_columns(tmp_path, capsys):
     out = _call(
         tmp_path,
         all_df=_all_df(n_channels=1, intensity_prefix="bogus_intensity_ch"),
@@ -270,7 +270,7 @@ def test_panel_skips_well_without_intensity_columns(tmp_path, capsys):
 # mask panel — happy path
 # ---------------------------------------------------------------------------
 
-def test_mask_panel_full_layout_and_filename(tmp_path, panels):
+def _case_mask_panel_full_layout_and_filename(tmp_path, panels):
     out = _call(
         tmp_path,
         settings={
@@ -320,7 +320,7 @@ def test_mask_panel_full_layout_and_filename(tmp_path, panels):
     assert fig._suptitle.get_text().startswith("Infection panel – mask labels – method=none")
 
 
-def test_mask_panel_pixel_units_when_no_calibration(tmp_path, panels):
+def _case_mask_panel_pixel_units_when_no_calibration(tmp_path, panels):
     out = _call(
         tmp_path,
         all_df=_all_df(n_channels=2, pathogen_chan=None),
@@ -340,7 +340,7 @@ def test_mask_panel_pixel_units_when_no_calibration(tmp_path, panels):
     assert ax_all.get_xlim()[1] > 20
 
 
-def test_mask_panel_two_wells_emits_two_pdfs(tmp_path, panels):
+def _case_mask_panel_two_wells_emits_two_pdfs(tmp_path, panels):
     all_df = pd.concat(
         [_all_df(well="A01", pathogen_chan=1), _all_df(well="B02", pathogen_chan=1)],
         ignore_index=True,
@@ -356,7 +356,7 @@ def test_mask_panel_two_wells_emits_two_pdfs(tmp_path, panels):
     assert len(panels) == 2
 
 
-def test_mask_panel_unknown_label_tag_uses_fallback_filename(tmp_path, panels):
+def _case_mask_panel_unknown_label_tag_uses_fallback_filename(tmp_path, panels):
     out = _call(
         tmp_path,
         label_tag="weird_tag",
@@ -368,7 +368,7 @@ def test_mask_panel_unknown_label_tag_uses_fallback_filename(tmp_path, panels):
     assert "– weird_tag labels – method=histogram" in fig._suptitle.get_text()
 
 
-def test_mask_panel_blank_strategy_reports_method_none(tmp_path, panels):
+def _case_mask_panel_blank_strategy_reports_method_none(tmp_path, panels):
     out = _call(tmp_path, settings={"pathogen_channel": 1, "infection_intensity_strategy": ""})
     assert _pdfs(out) == ["plate1_A01.pdf"]
     fig, _axes = panels[0]
@@ -393,7 +393,7 @@ def _write_png(path):
         ("something_else", "Infection QC"),
     ],
 )
-def test_mask_panel_embeds_qc_png(tmp_path, panels, panel_type, expected):
+def _case_mask_panel_embeds_qc_png(tmp_path, panels, panel_type, expected):
     png = _write_png(tmp_path / "qc.png")
     out = _call(
         tmp_path,
@@ -412,7 +412,7 @@ def test_mask_panel_embeds_qc_png(tmp_path, panels, panel_type, expected):
     assert not ax_qc.axison
 
 
-def test_mask_panel_hides_qc_axis_when_png_unreadable(tmp_path, panels, capsys):
+def _case_mask_panel_hides_qc_axis_when_png_unreadable(tmp_path, panels, capsys):
     bad = tmp_path / "broken.png"
     bad.write_bytes(b"definitely not a png")
     out = _call(
@@ -430,7 +430,7 @@ def test_mask_panel_hides_qc_axis_when_png_unreadable(tmp_path, panels, capsys):
     assert axes[7].get_visible() is False
 
 
-def test_mask_panel_ignores_qc_png_when_graphs_disabled(tmp_path, panels):
+def _case_mask_panel_ignores_qc_png_when_graphs_disabled(tmp_path, panels):
     png = _write_png(tmp_path / "qc.png")
     _call(
         tmp_path,
@@ -444,7 +444,7 @@ def test_mask_panel_ignores_qc_png_when_graphs_disabled(tmp_path, panels):
     assert len(axes) == 7  # no QC axis allocated
 
 
-def test_mask_panel_ignores_missing_qc_png_path(tmp_path, panels):
+def _case_mask_panel_ignores_missing_qc_png_path(tmp_path, panels):
     _call(
         tmp_path,
         settings={
@@ -460,7 +460,7 @@ def test_mask_panel_ignores_missing_qc_png_path(tmp_path, panels):
 # adjusted panel — histogram strategy
 # ---------------------------------------------------------------------------
 
-def test_adjusted_histogram_computed_from_well_dataframe(tmp_path, panels):
+def _case_adjusted_histogram_computed_from_well_dataframe(tmp_path, panels):
     out = _call(
         tmp_path,
         label_tag="adjusted_labels",
@@ -486,7 +486,7 @@ def test_adjusted_histogram_computed_from_well_dataframe(tmp_path, panels):
     assert "adjusted labels – method=histogram" in fig._suptitle.get_text()
 
 
-def test_adjusted_histogram_from_settings_payload(tmp_path, panels):
+def _case_adjusted_histogram_from_settings_payload(tmp_path, panels):
     payload = {
         "intensities_inf": [1.0, 2.0, 3.0],
         "intensities_uninf": [0.1, 0.2],
@@ -510,7 +510,7 @@ def test_adjusted_histogram_from_settings_payload(tmp_path, panels):
     assert len(ax_hist.lines) == 1  # threshold
 
 
-def test_adjusted_histogram_payload_invalid_hides_axis(tmp_path, panels, capsys):
+def _case_adjusted_histogram_payload_invalid_hides_axis(tmp_path, panels, capsys):
     _call(
         tmp_path,
         label_tag="adjusted_labels",
@@ -525,7 +525,7 @@ def test_adjusted_histogram_payload_invalid_hides_axis(tmp_path, panels, capsys)
     assert axes[7].get_visible() is False
 
 
-def test_adjusted_histogram_all_nan_intensity_hides_axis(tmp_path, panels):
+def _case_adjusted_histogram_all_nan_intensity_hides_axis(tmp_path, panels):
     df = _all_df(n_channels=2, pathogen_chan=1)
     df["nan_intensity"] = np.nan
     _call(
@@ -543,7 +543,7 @@ def test_adjusted_histogram_all_nan_intensity_hides_axis(tmp_path, panels):
     assert len(axes[7].patches) == 0
 
 
-def test_adjusted_histogram_dataframe_payload_without_intensity_column(tmp_path, panels):
+def _case_adjusted_histogram_dataframe_payload_without_intensity_column(tmp_path, panels):
     """A non-dict payload is treated as a frame; no usable column -> axis hidden."""
     payload = pd.DataFrame({"plateID": [PLATE] * 2, "unrelated": [1.0, 2.0]})
     _call(
@@ -561,7 +561,7 @@ def test_adjusted_histogram_dataframe_payload_without_intensity_column(tmp_path,
     assert len(axes[7].patches) == 0
 
 
-def test_adjusted_histogram_without_pathogen_channel_uses_first_channel(tmp_path, panels):
+def _case_adjusted_histogram_without_pathogen_channel_uses_first_channel(tmp_path, panels):
     _call(
         tmp_path,
         all_df=_all_df(n_channels=2, pathogen_chan=None),
@@ -585,7 +585,7 @@ def test_adjusted_histogram_without_pathogen_channel_uses_first_channel(tmp_path
 # ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize("strategy,method", [("pca", "PCA"), ("umap", "UMAP"), ("tsne", "t-SNE")])
-def test_adjusted_embedding_qc_axis(tmp_path, panels, strategy, method):
+def _case_adjusted_embedding_qc_axis(tmp_path, panels, strategy, method):
     rng = np.random.default_rng(0)
     coords = rng.normal(size=(20, 2))
     labels = np.arange(20) % 2 == 0
@@ -615,7 +615,7 @@ def test_adjusted_embedding_qc_axis(tmp_path, panels, strategy, method):
     assert ax.collections[1].get_offsets().shape == (10, 2)
 
 
-def test_adjusted_embedding_defaults_to_pca_label(tmp_path, panels):
+def _case_adjusted_embedding_defaults_to_pca_label(tmp_path, panels):
     _call(
         tmp_path,
         label_tag="adjusted_labels",
@@ -632,7 +632,7 @@ def test_adjusted_embedding_defaults_to_pca_label(tmp_path, panels):
     assert axes[7].get_xlabel() == "PCA 1"
 
 
-def test_adjusted_embedding_invalid_payload_hides_axis(tmp_path, panels, capsys):
+def _case_adjusted_embedding_invalid_payload_hides_axis(tmp_path, panels, capsys):
     _call(
         tmp_path,
         label_tag="adjusted_labels",
@@ -647,7 +647,7 @@ def test_adjusted_embedding_invalid_payload_hides_axis(tmp_path, panels, capsys)
     assert axes[7].get_visible() is False
 
 
-def test_adjusted_embedding_one_dimensional_coords_hides_axis(tmp_path, panels):
+def _case_adjusted_embedding_one_dimensional_coords_hides_axis(tmp_path, panels):
     _call(
         tmp_path,
         label_tag="adjusted_labels",
@@ -662,7 +662,7 @@ def test_adjusted_embedding_one_dimensional_coords_hides_axis(tmp_path, panels):
     assert len(axes[7].collections) == 0
 
 
-def test_adjusted_embedding_without_payload_allocates_no_qc_axis(tmp_path, panels):
+def _case_adjusted_embedding_without_payload_allocates_no_qc_axis(tmp_path, panels):
     out = _call(
         tmp_path,
         label_tag="adjusted_labels",
@@ -690,7 +690,7 @@ def _xgb_settings(**extra):
     return s
 
 
-def test_adjusted_xgboost_prob_and_importance_axes(tmp_path, panels):
+def _case_adjusted_xgboost_prob_and_importance_axes(tmp_path, panels):
     df = _all_df(n_channels=2, pathogen_chan=1)
     df["infection_prob"] = np.linspace(0.05, 0.95, len(df))
     out = _call(
@@ -718,7 +718,7 @@ def test_adjusted_xgboost_prob_and_importance_axes(tmp_path, panels):
     assert ax_imp.get_ylim()[0] > ax_imp.get_ylim()[1]
 
 
-def test_adjusted_xgboost_uses_configured_probability_column(tmp_path, panels):
+def _case_adjusted_xgboost_uses_configured_probability_column(tmp_path, panels):
     df = _all_df(n_channels=2, pathogen_chan=1)
     df["my_proba"] = np.linspace(0.1, 0.9, len(df))
     _call(
@@ -732,7 +732,7 @@ def test_adjusted_xgboost_uses_configured_probability_column(tmp_path, panels):
     assert len(axes[7].patches) == 40
 
 
-def test_adjusted_xgboost_hides_prob_axis_without_probability_column(tmp_path, panels):
+def _case_adjusted_xgboost_hides_prob_axis_without_probability_column(tmp_path, panels):
     _call(
         tmp_path,
         label_tag="adjusted_labels",
@@ -743,7 +743,7 @@ def test_adjusted_xgboost_hides_prob_axis_without_probability_column(tmp_path, p
     assert axes[8].get_visible() is True  # importance axis still drawn
 
 
-def test_adjusted_xgboost_hides_prob_axis_when_all_probabilities_nan(tmp_path, panels):
+def _case_adjusted_xgboost_hides_prob_axis_when_all_probabilities_nan(tmp_path, panels):
     df = _all_df(n_channels=2, pathogen_chan=1)
     df["infection_prob"] = np.nan
     _call(
@@ -757,7 +757,7 @@ def test_adjusted_xgboost_hides_prob_axis_when_all_probabilities_nan(tmp_path, p
     assert len(axes[7].patches) == 0
 
 
-def test_adjusted_xgboost_single_class_probabilities(tmp_path, panels):
+def _case_adjusted_xgboost_single_class_probabilities(tmp_path, panels):
     """All cells infected -> only the 'Infected' histogram is drawn."""
     df = _all_df(n_channels=2, pathogen_chan=1, all_infected=True)
     df["infection_prob"] = np.linspace(0.2, 0.8, len(df))
@@ -773,7 +773,7 @@ def test_adjusted_xgboost_single_class_probabilities(tmp_path, panels):
     assert [t.get_text() for t in axes[0].get_xticklabels()] == ["Inf"]
 
 
-def test_adjusted_xgboost_importance_payload_invalid_hides_axis(tmp_path, panels, capsys):
+def _case_adjusted_xgboost_importance_payload_invalid_hides_axis(tmp_path, panels, capsys):
     df = _all_df(n_channels=2, pathogen_chan=1)
     df["infection_prob"] = np.linspace(0.05, 0.95, len(df))
     _call(
@@ -787,7 +787,7 @@ def test_adjusted_xgboost_importance_payload_invalid_hides_axis(tmp_path, panels
     assert axes[8].get_visible() is False
 
 
-def test_adjusted_xgboost_empty_feature_list_hides_axis(tmp_path, panels):
+def _case_adjusted_xgboost_empty_feature_list_hides_axis(tmp_path, panels):
     _call(
         tmp_path,
         label_tag="adjusted_labels",
@@ -800,7 +800,7 @@ def test_adjusted_xgboost_empty_feature_list_hides_axis(tmp_path, panels):
     assert len(axes[8].patches) == 0
 
 
-def test_adjusted_xgboost_without_payload_allocates_no_qc_axes(tmp_path, panels):
+def _case_adjusted_xgboost_without_payload_allocates_no_qc_axes(tmp_path, panels):
     out = _call(
         tmp_path,
         label_tag="adjusted_labels",
@@ -811,7 +811,7 @@ def test_adjusted_xgboost_without_payload_allocates_no_qc_axes(tmp_path, panels)
     assert len(axes) == 7
 
 
-def test_adjusted_panel_with_qc_graphs_disabled(tmp_path, panels):
+def _case_adjusted_panel_with_qc_graphs_disabled(tmp_path, panels):
     _call(
         tmp_path,
         label_tag="adjusted_labels",
@@ -825,7 +825,7 @@ def test_adjusted_panel_with_qc_graphs_disabled(tmp_path, panels):
 # per-axis fallbacks inside the panel
 # ---------------------------------------------------------------------------
 
-def test_violin_axis_hidden_when_value_column_is_all_nan(tmp_path, panels):
+def _case_violin_axis_hidden_when_value_column_is_all_nan(tmp_path, panels):
     df = _all_df(n_channels=2, pathogen_chan=1)
     df["cell_p75_intensity_ch1"] = np.nan
     _call(tmp_path, all_df=df)
@@ -834,7 +834,7 @@ def test_violin_axis_hidden_when_value_column_is_all_nan(tmp_path, panels):
     assert axes[1].get_visible() is True
 
 
-def test_violin_axis_not_anchored_at_zero_for_negative_values(tmp_path, panels):
+def _case_violin_axis_not_anchored_at_zero_for_negative_values(tmp_path, panels):
     df = _all_df(n_channels=2, pathogen_chan=1)
     df["pathogen_mean_intensity_ch1"] = -df["pathogen_mean_intensity_ch1"]
     _call(tmp_path, all_df=df)
@@ -844,7 +844,7 @@ def test_violin_axis_not_anchored_at_zero_for_negative_values(tmp_path, panels):
     assert ax_ratio.get_ylim()[0] < 0
 
 
-def test_all_tracks_axis_hidden_when_every_track_is_too_short(tmp_path, panels):
+def _case_all_tracks_axis_hidden_when_every_track_is_too_short(tmp_path, panels):
     short = _tracks(length=1)
     out = _call(tmp_path, per_well_tracks={"w": short})
     assert _pdfs(out) == ["plate1_A01.pdf"]
@@ -857,7 +857,7 @@ def test_all_tracks_axis_hidden_when_every_track_is_too_short(tmp_path, panels):
     assert axes[6].get_title() == "Uninfected\n(n=0, v=1.50 um/s)"
 
 
-def test_tracks_shorter_than_two_points_are_skipped(tmp_path, panels):
+def _case_tracks_shorter_than_two_points_are_skipped(tmp_path, panels):
     tracks = _tracks()
     tracks[0]["x_px"] = np.array([5.0])
     tracks[0]["y_px"] = np.array([6.0])
@@ -867,7 +867,7 @@ def test_tracks_shorter_than_two_points_are_skipped(tmp_path, panels):
     assert axes[5].get_title().startswith("Infected\n(n=1,")
 
 
-def test_all_uninfected_tracks_report_nan_infected_velocity(tmp_path, panels):
+def _case_all_uninfected_tracks_report_nan_infected_velocity(tmp_path, panels):
     infected = (False, False, False, False)
     _call(
         tmp_path,
@@ -881,8 +881,60 @@ def test_all_uninfected_tracks_report_nan_infected_velocity(tmp_path, panels):
     assert axes[6].get_title().startswith("Uninfected\n(n=4,")
 
 
-def test_all_infected_cells_produce_single_violin_group(tmp_path, panels):
+def _case_all_infected_cells_produce_single_violin_group(tmp_path, panels):
     _call(tmp_path, all_df=_all_df(n_channels=2, pathogen_chan=1, all_infected=True))
     _fig, axes = panels[0]
     assert [t.get_text() for t in axes[0].get_xticklabels()] == ["Inf"]
     assert list(axes[0].get_xticks()) == [0]
+
+
+def test_timelapse_motility_panel_cases(request, subtests, capsys):
+    """Case table: 39 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_panel_returns_early_on_missing_inputs,
+        _case_panel_requires_plate_and_well_columns,
+        _case_panel_skips_well_without_tracks,
+        _case_panel_skips_well_without_intensity_columns,
+        _case_mask_panel_full_layout_and_filename,
+        _case_mask_panel_pixel_units_when_no_calibration,
+        _case_mask_panel_two_wells_emits_two_pdfs,
+        _case_mask_panel_unknown_label_tag_uses_fallback_filename,
+        _case_mask_panel_blank_strategy_reports_method_none,
+        _case_mask_panel_embeds_qc_png,
+        _case_mask_panel_hides_qc_axis_when_png_unreadable,
+        _case_mask_panel_ignores_qc_png_when_graphs_disabled,
+        _case_mask_panel_ignores_missing_qc_png_path,
+        _case_adjusted_histogram_computed_from_well_dataframe,
+        _case_adjusted_histogram_from_settings_payload,
+        _case_adjusted_histogram_payload_invalid_hides_axis,
+        _case_adjusted_histogram_all_nan_intensity_hides_axis,
+        _case_adjusted_histogram_dataframe_payload_without_intensity_column,
+        _case_adjusted_histogram_without_pathogen_channel_uses_first_channel,
+        _case_adjusted_embedding_qc_axis,
+        _case_adjusted_embedding_defaults_to_pca_label,
+        _case_adjusted_embedding_invalid_payload_hides_axis,
+        _case_adjusted_embedding_one_dimensional_coords_hides_axis,
+        _case_adjusted_embedding_without_payload_allocates_no_qc_axis,
+        _case_adjusted_xgboost_prob_and_importance_axes,
+        _case_adjusted_xgboost_uses_configured_probability_column,
+        _case_adjusted_xgboost_hides_prob_axis_without_probability_column,
+        _case_adjusted_xgboost_hides_prob_axis_when_all_probabilities_nan,
+        _case_adjusted_xgboost_single_class_probabilities,
+        _case_adjusted_xgboost_importance_payload_invalid_hides_axis,
+        _case_adjusted_xgboost_empty_feature_list_hides_axis,
+        _case_adjusted_xgboost_without_payload_allocates_no_qc_axes,
+        _case_adjusted_panel_with_qc_graphs_disabled,
+        _case_violin_axis_hidden_when_value_column_is_all_nan,
+        _case_violin_axis_not_anchored_at_zero_for_negative_values,
+        _case_all_tracks_axis_hidden_when_every_track_is_too_short,
+        _case_tracks_shorter_than_two_points_are_skipped,
+        _case_all_uninfected_tracks_report_nan_infected_velocity,
+        _case_all_infected_cells_produce_single_violin_group,
+        ],
+    )
+    assert ran >= 39

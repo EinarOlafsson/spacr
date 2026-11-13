@@ -10,9 +10,11 @@ import pytest
 from spacr.qt import mask_engine as engine
 from spacr.tiff_io import write_tiff
 
+from tests import locale_cases
 
-@pytest.fixture
-def graph(tmp_path):
+
+def _build_graph(tmp_path):
+    """A parent that divided into two daughters, plus one unrelated cell."""
     frame, later = str(tmp_path / "first.tif"), str(tmp_path / "next.tif")
     state, parent = engine.new_lineage_cell(None, "parent", 1, frame)
     state = engine.assign_lineage_label(state, frame, 1, parent)
@@ -21,6 +23,11 @@ def graph(tmp_path):
                                                 ["first", "second"], [2, 3])
     return state, {"parent": parent, "first": children[0], "second": children[1],
                    "other": other, "frame": frame, "later": later}
+
+
+@pytest.fixture
+def graph(tmp_path):
+    return _build_graph(tmp_path)
 
 
 def _resolve(value, names):
@@ -33,31 +40,8 @@ def _resolve(value, names):
     return value
 
 
-@pytest.mark.parametrize("path,value,reason", [
-    (("cells",), [], "graph"),
-    (("frame_ids",), [], "frame identities"),
-    (("frames", ""), {}, "frame path"),
-    (("frame_ids", "$frame"), "A0000000-0000-0000-0000-000000000001", "frame identity"),
-    (("frame_revisions",), [], "revisions"),
-    (("deleted_cells",), [], "deleted cells"),
-    (("deleted_cells", "$other"), True, "deleted cell revision"),
-    (("cells", "A0000000-0000-0000-0000-000000000001"), {}, "UUID"),
-    (("cells", "$other", "name"), " ", "name"),
-    (("cells", "$other", "parent_uuid"), "$parent", "parent division"),
-    (("cells", "$parent", "children"), ["$first"], "children"),
-    (("cells", "$parent", "children"), ["$first", "$other"], "daughter"),
-    (("cells", "$parent", "division_frame"), None, "division"),
-    (("cells", "$other", "born_frame_id"), str(UUID(int=999)), "ancestry frame identity"),
-    (("cells", "$other", "label"), True, "label"),
-    (("cells", "$other", "revision"), True, "revision"),
-    (("deleted_cells", "$other"), 2**127, "deleted cell"),
-    (("frames", "$later"), [], "frame mapping"),
-    (("frames", "$later"), {"2": "$first", "3": "$first"}, "duplicate identity"),
-    (("frames", "$later"), {"02": "$first"}, "frame label"),
-    (("frame_revisions", "$later"), True, "frame revision"),
-])
-def test_corrupt_embedded_lineage_is_rejected_without_rewriting_the_tiff(
-        graph, tmp_path, path, value, reason):
+def _corrupt_embedded_lineage_is_rejected_without_rewriting_the_tiff_case(graph, tmp_path, path, value, reason):
+    """One case of :func:`test_corrupt_embedded_lineage_is_rejected_without_rewriting_the_tiff`."""
     state, names = graph
     corrupted = copy.deepcopy(state)
     target = corrupted
@@ -80,6 +64,36 @@ def test_corrupt_embedded_lineage_is_rejected_without_rewriting_the_tiff(
     assert destination.read_bytes() == original_bytes
     assert corrupted == before
     assert engine.validate_lineage(state) == state
+
+
+def test_corrupt_embedded_lineage_is_rejected_without_rewriting_the_tiff(subtests, tmp_path):
+    for label, case in locale_cases.cases(("path,value,reason", [
+    (("cells",), [], "graph"),
+    (("frame_ids",), [], "frame identities"),
+    (("frames", ""), {}, "frame path"),
+    (("frame_ids", "$frame"), "A0000000-0000-0000-0000-000000000001", "frame identity"),
+    (("frame_revisions",), [], "revisions"),
+    (("deleted_cells",), [], "deleted cells"),
+    (("deleted_cells", "$other"), True, "deleted cell revision"),
+    (("cells", "A0000000-0000-0000-0000-000000000001"), {}, "UUID"),
+    (("cells", "$other", "name"), " ", "name"),
+    (("cells", "$other", "parent_uuid"), "$parent", "parent division"),
+    (("cells", "$parent", "children"), ["$first"], "children"),
+    (("cells", "$parent", "children"), ["$first", "$other"], "daughter"),
+    (("cells", "$parent", "division_frame"), None, "division"),
+    (("cells", "$other", "born_frame_id"), str(UUID(int=999)), "ancestry frame identity"),
+    (("cells", "$other", "label"), True, "label"),
+    (("cells", "$other", "revision"), True, "revision"),
+    (("deleted_cells", "$other"), 2**127, "deleted cell"),
+    (("frames", "$later"), [], "frame mapping"),
+    (("frames", "$later"), {"2": "$first", "3": "$first"}, "duplicate identity"),
+    (("frames", "$later"), {"02": "$first"}, "frame label"),
+    (("frame_revisions", "$later"), True, "frame revision"),
+])):
+        with subtests.test(**label):
+            case_tmp = locale_cases.case_dir(tmp_path, label)
+            _corrupt_embedded_lineage_is_rejected_without_rewriting_the_tiff_case(
+                graph=_build_graph(case_tmp), tmp_path=case_tmp, **case)
 
 
 def test_a_reciprocal_parent_cycle_is_rejected_even_with_valid_uuid_links(graph):

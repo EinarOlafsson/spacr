@@ -107,7 +107,7 @@ def _positive_df():
 # overlay_masks_on_images
 # ===========================================================================
 
-def test_overlay_masks_on_images_saves_resized_rgb_overlays(tmp_path):
+def _case_overlay_masks_on_images_saves_resized_rgb_overlays(tmp_path):
     """save=True + resize=True writes 1000x1000 RGB PNG-ish TIFFs with red outlines."""
     import cv2
     from spacr.plot import overlay_masks_on_images
@@ -138,7 +138,7 @@ def test_overlay_masks_on_images_saves_resized_rgb_overlays(tmp_path):
     assert np.any(saved[..., 2].astype(int) - saved[..., 0].astype(int) > 50)
 
 
-def test_overlay_masks_on_images_plot_branch_no_resize_and_mask_rescale(tmp_path, no_show):
+def _case_overlay_masks_on_images_plot_branch_no_resize_and_mask_rescale(tmp_path, no_show):
     """plot=True, normalize=False, resize=False; mask of a different size is resized."""
     from spacr.plot import overlay_masks_on_images
 
@@ -159,7 +159,7 @@ def test_overlay_masks_on_images_plot_branch_no_resize_and_mask_rescale(tmp_path
     assert not (img_dir / "overlay").exists()
 
 
-def test_overlay_masks_on_images_rgb_input_keeps_three_channels(tmp_path, no_show):
+def _case_overlay_masks_on_images_rgb_input_keeps_three_channels(tmp_path, no_show):
     """An already-RGB image takes the image.copy() branch instead of cvtColor."""
     from spacr.plot import overlay_masks_on_images
 
@@ -176,7 +176,7 @@ def test_overlay_masks_on_images_rgb_input_keeps_three_channels(tmp_path, no_sho
     assert no_show[0]["shape"] == (80, 80, 3)
 
 
-def test_overlay_masks_on_images_no_common_filenames(tmp_path, capsys, no_show):
+def _case_overlay_masks_on_images_no_common_filenames(tmp_path, capsys, no_show):
     """Disjoint filenames -> early return, nothing plotted or written."""
     from spacr.plot import overlay_masks_on_images
 
@@ -210,7 +210,7 @@ def _importance_csv(path, seed=0, data_col="compartment_importance_sum"):
     return df
 
 
-def test_graph_importance_concatenates_csvs_and_saves(tmp_path, no_show):
+def _case_graph_importance_concatenates_csvs_and_saves(tmp_path, no_show):
     """Two CSVs are concatenated, defaults filled in, and artefacts saved."""
     from spacr.plot import graph_importance
 
@@ -242,7 +242,7 @@ def test_graph_importance_concatenates_csvs_and_saves(tmp_path, no_show):
     assert len(no_show) >= 1
 
 
-def test_graph_importance_missing_columns_returns_early(tmp_path, capsys, no_show):
+def _case_graph_importance_missing_columns_returns_early(tmp_path, capsys, no_show):
     """A CSV without the requested data column prints and bails out before plotting."""
     from spacr.plot import graph_importance
 
@@ -264,7 +264,7 @@ def test_graph_importance_missing_columns_returns_early(tmp_path, capsys, no_sho
     assert (tmp_path / "settings" / "graph_importance.csv").is_file()
 
 
-def test_graph_importance_accepts_a_single_path_string(tmp_path, monkeypatch, no_show):
+def _case_graph_importance_accepts_a_single_path_string(tmp_path, monkeypatch, no_show):
     """A bare string path should behave like a one-element list."""
     from spacr.plot import graph_importance
 
@@ -298,7 +298,7 @@ def _proportion_df():
 
 
 @pytest.mark.parametrize("level", ["well"])
-def test_plot_proportion_stacked_bars_well_level(level):
+def _case_plot_proportion_stacked_bars_well_level(level):
     """Well level aggregates per-well proportions and adds SD error bars.
 
     "plateID" used to be parametrized here too, and it passed because the
@@ -348,7 +348,7 @@ def test_plot_proportion_stacked_bars_well_level(level):
     assert any(getattr(c, "errorbar", None) is not None for c in ax.containers)
 
 
-def test_plot_proportion_stacked_bars_object_level_matches_raw_proportions():
+def _case_plot_proportion_stacked_bars_object_level_matches_raw_proportions():
     """The default object level plots raw count proportions (no aggregation)."""
     from spacr.plot import plot_proportion_stacked_bars
 
@@ -428,7 +428,7 @@ def test_create_venn_diagram_negative_filter_coeff_keeps_downregulated(tmp_path,
         (".dat", lambda df, p: df.to_csv(p, sep="\t", index=False)),  # sniffed tab
     ],
 )
-def test_volcano_plot_reads_every_delimited_format(tmp_path, suffix, writer):
+def _case_volcano_plot_reads_every_delimited_format(tmp_path, suffix, writer):
     """Extension dispatch + delimiter sniffing all reach the same plotted points."""
     from spacr.plot import volcano_plot
 
@@ -446,7 +446,7 @@ def test_volcano_plot_reads_every_delimited_format(tmp_path, suffix, writer):
     assert hits == []
 
 
-def test_volcano_plot_reads_excel_sheet_by_name(tmp_path):
+def _case_volcano_plot_reads_excel_sheet_by_name(tmp_path):
     """.xlsx dispatch honours the sheet_name argument."""
     pytest.importorskip("openpyxl")
     from spacr.plot import volcano_plot
@@ -467,7 +467,7 @@ def test_volcano_plot_reads_excel_sheet_by_name(tmp_path):
     assert np.allclose(sorted(offsets[:, 0]), sorted(df["fc"].to_numpy()))
 
 
-def test_volcano_plot_excel_without_engine_raises_helpful_importerror(tmp_path, monkeypatch):
+def _case_volcano_plot_excel_without_engine_raises_helpful_importerror(tmp_path, monkeypatch):
     """A missing Excel engine is re-raised with install instructions."""
     from spacr.plot import volcano_plot
 
@@ -486,7 +486,7 @@ def test_volcano_plot_excel_without_engine_raises_helpful_importerror(tmp_path, 
     assert isinstance(exc.value.__cause__, ImportError)
 
 
-def test_volcano_plot_non_numeric_column_raises(tmp_path):
+def _case_volcano_plot_non_numeric_column_raises(tmp_path):
     """A wholly non-numeric column cannot be coerced and is rejected by name."""
     from spacr.plot import volcano_plot
 
@@ -497,7 +497,7 @@ def test_volcano_plot_non_numeric_column_raises(tmp_path):
 
 
 @pytest.mark.parametrize("missing", ["fold_change_col", "p_value_col", "name_col"])
-def test_volcano_plot_missing_columns_raise_keyerror(missing):
+def _case_volcano_plot_missing_columns_raise_keyerror(missing):
     """Each of the three column arguments is validated separately."""
     from spacr.plot import volcano_plot
 
@@ -510,7 +510,7 @@ def test_volcano_plot_missing_columns_raise_keyerror(missing):
     assert "nope" in str(exc.value)
 
 
-def test_volcano_plot_drops_nan_rows():
+def _case_volcano_plot_drops_nan_rows():
     """Rows with NaN in either numeric column are dropped before plotting."""
     from spacr.plot import volcano_plot
 
@@ -532,7 +532,7 @@ def test_volcano_plot_drops_nan_rows():
     "mode,fn",
     [("log2", np.log2), ("log10", np.log10), ("ln", np.log), ("log", np.log)],
 )
-def test_volcano_plot_x_transforms(mode, fn):
+def _case_volcano_plot_x_transforms(mode, fn):
     """Each log x-transform is applied to the plotted x values and the label."""
     from spacr.plot import volcano_plot
 
@@ -545,7 +545,7 @@ def test_volcano_plot_x_transforms(mode, fn):
     assert ax.get_xlabel() == f"{mode}(fc)"
 
 
-def test_volcano_plot_x_transform_rejects_non_positive():
+def _case_volcano_plot_x_transform_rejects_non_positive():
     """A log x-transform on negative fold changes points at x_transform='none'."""
     from spacr.plot import volcano_plot
 
@@ -556,7 +556,7 @@ def test_volcano_plot_x_transform_rejects_non_positive():
     assert "x_transform='none'" in str(exc.value)
 
 
-def test_volcano_plot_unknown_x_transform_raises():
+def _case_volcano_plot_unknown_x_transform_raises():
     """An unrecognised (but positive-safe) x_transform is rejected."""
     from spacr.plot import volcano_plot
 
@@ -577,7 +577,7 @@ def test_volcano_plot_unknown_x_transform_raises():
         ("log", np.log),
     ],
 )
-def test_volcano_plot_y_transforms(mode, fn):
+def _case_volcano_plot_y_transforms(mode, fn):
     """Each y-transform maps p-values onto the plotted y axis and label."""
     from spacr.plot import volcano_plot
 
@@ -590,7 +590,7 @@ def test_volcano_plot_y_transforms(mode, fn):
     assert ax.get_ylabel() == ("p" if mode == "none" else f"{mode}(p)")
 
 
-def test_volcano_plot_y_transform_clips_zero_p_values():
+def _case_volcano_plot_y_transform_clips_zero_p_values():
     """p=0 is clipped to the smallest positive float instead of producing inf."""
     from spacr.plot import volcano_plot
 
@@ -603,7 +603,7 @@ def test_volcano_plot_y_transform_clips_zero_p_values():
     assert y[0] == pytest.approx(-np.log10(np.finfo(float).tiny))
 
 
-def test_volcano_plot_unknown_y_transform_raises():
+def _case_volcano_plot_unknown_y_transform_raises():
     """An unrecognised y_transform is rejected."""
     from spacr.plot import volcano_plot
 
@@ -617,7 +617,7 @@ def test_volcano_plot_unknown_y_transform_raises():
 # volcano_plot — thresholds
 # ===========================================================================
 
-def test_volcano_plot_thresholds_none_transform_draws_lines_and_colors():
+def _case_volcano_plot_thresholds_none_transform_draws_lines_and_colors():
     """x_transform='none': the FC threshold is used verbatim (as |t|)."""
     from spacr.plot import volcano_plot
 
@@ -644,7 +644,7 @@ def test_volcano_plot_thresholds_none_transform_draws_lines_and_colors():
 @pytest.mark.parametrize(
     "mode,fn", [("log2", np.log2), ("log10", np.log10), ("ln", np.log)]
 )
-def test_volcano_plot_fc_threshold_converted_to_plot_units(mode, fn):
+def _case_volcano_plot_fc_threshold_converted_to_plot_units(mode, fn):
     """With a log x-transform the FC threshold is converted to plot units."""
     from spacr.plot import volcano_plot
 
@@ -657,7 +657,7 @@ def test_volcano_plot_fc_threshold_converted_to_plot_units(mode, fn):
     assert ax.lines[1].get_xdata()[0] == pytest.approx(expected)
 
 
-def test_volcano_plot_fc_threshold_must_be_positive_for_log_transform():
+def _case_volcano_plot_fc_threshold_must_be_positive_for_log_transform():
     """A non-positive FC threshold makes no sense in log space."""
     from spacr.plot import volcano_plot
 
@@ -667,7 +667,7 @@ def test_volcano_plot_fc_threshold_must_be_positive_for_log_transform():
     assert "fold_change_threshold must be > 0" in str(exc.value)
 
 
-def test_volcano_plot_p_threshold_must_be_positive():
+def _case_volcano_plot_p_threshold_must_be_positive():
     """p_value_threshold <= 0 is rejected."""
     from spacr.plot import volcano_plot
 
@@ -677,7 +677,7 @@ def test_volcano_plot_p_threshold_must_be_positive():
     assert "p_value_threshold must be > 0" in str(exc.value)
 
 
-def test_volcano_plot_p_threshold_untransformed_axis():
+def _case_volcano_plot_p_threshold_untransformed_axis():
     """y_transform='none' compares raw p-values against the raw threshold."""
     from spacr.plot import volcano_plot
 
@@ -692,7 +692,7 @@ def test_volcano_plot_p_threshold_untransformed_axis():
     assert hits == ["A", "B", "C", "E", "F"]
 
 
-def test_volcano_plot_p_threshold_positive_log_axis():
+def _case_volcano_plot_p_threshold_positive_log_axis():
     """A non-negated log y-transform flips the significance comparison."""
     from spacr.plot import volcano_plot
 
@@ -710,7 +710,7 @@ def test_volcano_plot_p_threshold_positive_log_axis():
 # volcano_plot — figure plumbing
 # ===========================================================================
 
-def test_volcano_plot_uses_supplied_axes_and_style_kwargs(tmp_path):
+def _case_volcano_plot_uses_supplied_axes_and_style_kwargs(tmp_path):
     """ax=..., scatter/threshold/text kwargs, title, xlim/ylim and save_path."""
     from spacr.plot import volcano_plot
 
@@ -750,7 +750,7 @@ def test_volcano_plot_uses_supplied_axes_and_style_kwargs(tmp_path):
     assert out.is_file() and out.stat().st_size > 0
 
 
-def test_volcano_plot_show_true_calls_plt_show(no_show):
+def _case_volcano_plot_show_true_calls_plt_show(no_show):
     """show=True routes through plt.show exactly once."""
     from spacr.plot import volcano_plot
 
@@ -758,7 +758,7 @@ def test_volcano_plot_show_true_calls_plt_show(no_show):
     assert len(no_show) == 1
 
 
-def test_volcano_plot_without_thresholds_is_all_gray():
+def _case_volcano_plot_without_thresholds_is_all_gray():
     """No thresholds -> a single gray colour and no threshold lines."""
     from spacr.plot import volcano_plot
 
@@ -775,7 +775,7 @@ def test_volcano_plot_without_thresholds_is_all_gray():
 # volcano_plot — annotation
 # ===========================================================================
 
-def test_volcano_plot_annotate_needs_thresholds_or_annotate_max():
+def _case_volcano_plot_annotate_needs_thresholds_or_annotate_max():
     """With no thresholds and no cap, nothing is annotated."""
     from spacr.plot import volcano_plot
 
@@ -787,7 +787,7 @@ def test_volcano_plot_annotate_needs_thresholds_or_annotate_max():
     assert len(ax.texts) == 0
 
 
-def test_volcano_plot_annotate_max_picks_highest_y():
+def _case_volcano_plot_annotate_max_picks_highest_y():
     """annotate_max keeps only the top-y points, in descending y order."""
     from spacr.plot import volcano_plot
 
@@ -800,7 +800,7 @@ def test_volcano_plot_annotate_max_picks_highest_y():
     assert sorted(t.get_text() for t in ax.texts) == ["B", "C"]
 
 
-def test_volcano_plot_annotate_disabled():
+def _case_volcano_plot_annotate_disabled():
     """annotate=False leaves the axes text-free even with thresholds set."""
     from spacr.plot import volcano_plot
 
@@ -813,7 +813,7 @@ def test_volcano_plot_annotate_disabled():
     assert len(ax.texts) == 0
 
 
-def test_volcano_plot_annotation_requires_adjusttext(monkeypatch):
+def _case_volcano_plot_annotation_requires_adjusttext(monkeypatch):
     """Missing adjustText raises a helpful ImportError from the annotation block."""
     from spacr.plot import volcano_plot
 
@@ -834,3 +834,50 @@ def test_volcano_plot_annotation_requires_adjusttext(monkeypatch):
     assert "adjustText" in str(exc.value)
     assert "pip install adjustText" in str(exc.value)
     assert isinstance(exc.value.__cause__, ImportError)
+
+
+def test_plot_importance_volcano_cases(request, subtests, capsys):
+    """Case table: 34 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_overlay_masks_on_images_saves_resized_rgb_overlays,
+        _case_overlay_masks_on_images_plot_branch_no_resize_and_mask_rescale,
+        _case_overlay_masks_on_images_rgb_input_keeps_three_channels,
+        _case_overlay_masks_on_images_no_common_filenames,
+        _case_graph_importance_concatenates_csvs_and_saves,
+        _case_graph_importance_missing_columns_returns_early,
+        _case_graph_importance_accepts_a_single_path_string,
+        _case_plot_proportion_stacked_bars_well_level,
+        _case_plot_proportion_stacked_bars_object_level_matches_raw_proportions,
+        _case_volcano_plot_reads_every_delimited_format,
+        _case_volcano_plot_reads_excel_sheet_by_name,
+        _case_volcano_plot_excel_without_engine_raises_helpful_importerror,
+        _case_volcano_plot_non_numeric_column_raises,
+        _case_volcano_plot_missing_columns_raise_keyerror,
+        _case_volcano_plot_drops_nan_rows,
+        _case_volcano_plot_x_transforms,
+        _case_volcano_plot_x_transform_rejects_non_positive,
+        _case_volcano_plot_unknown_x_transform_raises,
+        _case_volcano_plot_y_transforms,
+        _case_volcano_plot_y_transform_clips_zero_p_values,
+        _case_volcano_plot_unknown_y_transform_raises,
+        _case_volcano_plot_thresholds_none_transform_draws_lines_and_colors,
+        _case_volcano_plot_fc_threshold_converted_to_plot_units,
+        _case_volcano_plot_fc_threshold_must_be_positive_for_log_transform,
+        _case_volcano_plot_p_threshold_must_be_positive,
+        _case_volcano_plot_p_threshold_untransformed_axis,
+        _case_volcano_plot_p_threshold_positive_log_axis,
+        _case_volcano_plot_uses_supplied_axes_and_style_kwargs,
+        _case_volcano_plot_show_true_calls_plt_show,
+        _case_volcano_plot_without_thresholds_is_all_gray,
+        _case_volcano_plot_annotate_needs_thresholds_or_annotate_max,
+        _case_volcano_plot_annotate_max_picks_highest_y,
+        _case_volcano_plot_annotate_disabled,
+        _case_volcano_plot_annotation_requires_adjusttext,
+        ],
+    )
+    assert ran >= 34

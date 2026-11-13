@@ -12,6 +12,8 @@ pytest.importorskip("gradio")
 
 from tools.web_mask_generator import app, results
 
+from tests import locale_cases
+
 
 @pytest.fixture
 def demo(tmp_path, monkeypatch):
@@ -191,9 +193,8 @@ def test_space_file_entry_imports_source_checkout_and_calls_only_main(monkeypatc
     assert calls == ["entry"]
 
 
-@pytest.mark.parametrize("position", [3, 4, 5, 7, 8])
-@pytest.mark.parametrize("invalid", [0.5, float("nan"), float("inf"), True])
-def test_fractional_nonfinite_and_bool_indices_never_reach_gpu(demo, tmp_path, monkeypatch, position, invalid):
+def _fractional_nonfinite_and_bool_indices_never_reach_gpu_case(demo, tmp_path, monkeypatch, position, invalid):
+    """One case of :func:`test_fractional_nonfinite_and_bool_indices_never_reach_gpu`."""
     import sys
     import types
     original, calls = demo
@@ -221,6 +222,12 @@ def test_fractional_nonfinite_and_bool_indices_never_reach_gpu(demo, tmp_path, m
         assert calls == []
     finally:
         actual.close()
+
+
+def test_fractional_nonfinite_and_bool_indices_never_reach_gpu(subtests, demo, tmp_path, monkeypatch):
+    for label, case in locale_cases.cases(("position", [3, 4, 5, 7, 8]), ("invalid", [0.5, float("nan"), float("inf"), True])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _fractional_nonfinite_and_bool_indices_never_reach_gpu_case(demo=demo, tmp_path=locale_cases.case_dir(tmp_path, label), monkeypatch=case_monkeypatch, **case)
 
 
 def test_header_choice_callback_rejects_fractional_series_without_truncation(demo, tmp_path):

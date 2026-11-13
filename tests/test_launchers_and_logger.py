@@ -25,6 +25,8 @@ from unittest.mock import patch
 
 import pytest
 
+from tests import locale_cases
+
 
 # ---------------------------------------------------------------------------
 # 1. spacr.__main__: CLI parser + dispatch
@@ -292,17 +294,8 @@ def test_the_headless_commands_are_still_installed():
         assert command in declared, f"{command} is no longer installed"
 
 
-@pytest.mark.parametrize("command", sorted(_declared_console_scripts()))
-def test_every_console_script_names_a_callable_that_exists(command):
-    """A command whose target attribute is gone dies with AttributeError the
-    first time it is typed, and nothing else in the suite types them.
-
-    Only the attribute half is asserted here. Whether the target MODULE still
-    exists is the subject of
-    ``test_gui_dispatch_call_styles.test_every_console_script_target_module_exists``,
-    so a deleted module is reported once, by name, in one place rather than
-    once per command that pointed at it.
-    """
+def _every_console_script_names_a_callable_that_exists_case(command):
+    """One case of :func:`test_every_console_script_names_a_callable_that_exists`."""
     import importlib.util
 
     target = _declared_console_scripts()[command]
@@ -312,6 +305,21 @@ def test_every_console_script_names_a_callable_that_exists(command):
     module = importlib.import_module(module_name)
     entry = getattr(module, attr, None)
     assert callable(entry), f"{command} -> {target} is not callable"
+
+
+def test_every_console_script_names_a_callable_that_exists(subtests):
+    """A command whose target attribute is gone dies with AttributeError the
+    first time it is typed, and nothing else in the suite types them.
+
+    Only the attribute half is asserted here. Whether the target MODULE still
+    exists is the subject of
+    ``test_gui_dispatch_call_styles.test_every_console_script_target_module_exists``,
+    so a deleted module is reported once, by name, in one place rather than
+    once per command that pointed at it.
+    """
+    for label, case in locale_cases.cases(("command", sorted(_declared_console_scripts()))):
+        with subtests.test(**label):
+            _every_console_script_names_a_callable_that_exists_case(**case)
 
 
 def test_make_masks_is_reachable_as_a_qt_screen():

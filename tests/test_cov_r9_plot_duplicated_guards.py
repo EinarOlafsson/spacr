@@ -77,7 +77,7 @@ class TestTheSaveFlag:
 
 class TestTheTransformNameIsCheckedTwice:
 
-    def test_an_unknown_x_transform_is_refused_by_the_first_check(self):
+    def _case_an_unknown_x_transform_is_refused_by_the_first_check(self):
         """THE PIN, for the second ``raise ValueError(f"Unknown
         x_transform")``.
 
@@ -107,7 +107,7 @@ class TestTheTransformNameIsCheckedTwice:
         assert len(copies) == 1
         assert "mode" in copies[0]
 
-    def test_threshold_conversion_relies_on_the_validated_vocabulary(self):
+    def _case_threshold_conversion_relies_on_the_validated_vocabulary(self):
         transform = _nested(P.volcano_plot, "_transform_x")
         threshold = _nested(P.volcano_plot, "_threshold_x_in_plot_units")
 
@@ -140,7 +140,7 @@ class TestTheTransformNameIsCheckedTwice:
                 f"with the natural log, so the fallback is not the arm "
                 f"the validated vocabulary leaves behind")
 
-    def test_a_natural_log_threshold_is_converted_in_plot_units(self):
+    def _case_a_natural_log_threshold_is_converted_in_plot_units(self):
         """The fallback is natural log because validation already reduced
         the remaining vocabulary to ``ln`` and ``log``."""
         import pandas as pd
@@ -181,3 +181,19 @@ class TestGrayscaleContours:
         assert "if image.ndim == 2:" not in helper
         assert "image.copy()" not in helper
         assert "cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)" in helper
+
+
+def test_the_transform_name_is_checked_twice_cases(request, subtests):
+    """Case table: 3 cases of TestTheTransformNameIsCheckedTwice run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        (TestTheTransformNameIsCheckedTwice, '_case_an_unknown_x_transform_is_refused_by_the_first_check'),
+        (TestTheTransformNameIsCheckedTwice, '_case_threshold_conversion_relies_on_the_validated_vocabulary'),
+        (TestTheTransformNameIsCheckedTwice, '_case_a_natural_log_threshold_is_converted_in_plot_units'),
+        ],
+    )
+    assert ran >= 3

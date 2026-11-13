@@ -36,6 +36,8 @@ matplotlib.use("Agg")
 from spacr.regression_spec import NO_P_VALUE_TYPES, REGRESSION_TYPES
 import spacr.regression_summary as RS
 
+from tests import locale_cases
+
 
 INFERENCES = ("parametric", "nonparametric")
 GUIDES = [f"{gene}_{i}" for gene in ("000000", "220950", "gene3", "gene4")
@@ -238,19 +240,26 @@ def _check_every_field_is_answered(summary):
                          for name in names}
 
 
-@pytest.mark.parametrize("regression_type", REGRESSION_TYPES)
-@pytest.mark.parametrize("inference", INFERENCES)
-def test_every_type_and_inference_answers_every_field(regression_type,
-                                                      inference, run_folder):
-    """The item's own acceptance test, over all thirty-eight combinations."""
+def _every_type_and_inference_answers_every_field_case(regression_type, inference, run_folder):
+    """One case of :func:`test_every_type_and_inference_answers_every_field`."""
     _check_every_field_is_answered(
         _summary(regression_type, inference, run_folder))
 
 
-@pytest.mark.parametrize("regression_type", REGRESSION_TYPES)
-@pytest.mark.parametrize("inference", INFERENCES)
-def test_the_contract_holds_with_a_fitted_model_too(regression_type, inference,
-                                                    run_folder, ols_fit):
+def test_every_type_and_inference_answers_every_field(subtests, run_folder):
+    """The item's own acceptance test, over all thirty-eight combinations."""
+    for label, case in locale_cases.cases(("regression_type", REGRESSION_TYPES), ("inference", INFERENCES)):
+        with subtests.test(**label):
+            _every_type_and_inference_answers_every_field_case(run_folder=run_folder, **case)
+
+
+def _the_contract_holds_with_a_fitted_model_too_case(regression_type, inference, run_folder, ols_fit):
+    """One case of :func:`test_the_contract_holds_with_a_fitted_model_too`."""
+    _check_every_field_is_answered(
+        _summary(regression_type, inference, run_folder, model=ols_fit))
+
+
+def test_the_contract_holds_with_a_fitted_model_too(subtests, run_folder, ols_fit):
     """The same product, with a real model attached.
 
     The model is an OLS fit whatever the type string says, and deliberately
@@ -259,8 +268,9 @@ def test_the_contract_holds_with_a_fitted_model_too(regression_type, inference,
     design matrix — never leaves a field unanswered. Reading a real fit is
     where the exceptions live; the type string is what chooses the sentence.
     """
-    _check_every_field_is_answered(
-        _summary(regression_type, inference, run_folder, model=ols_fit))
+    for label, case in locale_cases.cases(("regression_type", REGRESSION_TYPES), ("inference", INFERENCES)):
+        with subtests.test(**label):
+            _the_contract_holds_with_a_fitted_model_too_case(run_folder=run_folder, ols_fit=ols_fit, **case)
 
 
 def test_every_field_reaches_the_rendered_text(run_folder):

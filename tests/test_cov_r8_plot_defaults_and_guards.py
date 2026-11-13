@@ -46,7 +46,7 @@ def _paired_folders(tmp_path, name="field1", suffix=".npy"):
 class TestWhatTheseFunctionsActuallyDo:
     """The live behaviour, driven through the public entry points."""
 
-    def test_arrays_are_found_and_drawn(self, tmp_path):
+    def _case_arrays_are_found_and_drawn(self, tmp_path):
         """AN IMAGE AND A MASK, which is what actually draws.
 
         The pair this test used to build -- two folders of the same
@@ -79,7 +79,7 @@ class TestWhatTheseFunctionsActuallyDo:
         assert axes[0].images, "the image panel is empty"
         plt.close("all")
 
-    def test_two_arrays_of_the_same_kind_draw_nothing(self, tmp_path):
+    def _case_two_arrays_of_the_same_kind_draw_nothing(self, tmp_path):
         """The other side, and the reason the test above had to change.
 
         Pinned rather than left implicit: a pair the function cannot
@@ -97,7 +97,7 @@ class TestWhatTheseFunctionsActuallyDo:
             "two arrays of the same kind produced a figure; the "
             "image-versus-mask classification has changed")
 
-    def test_a_file_outside_the_image_formats_is_ignored(self, tmp_path):
+    def _case_a_file_outside_the_image_formats_is_ignored(self, tmp_path):
         """A folder pair holding only .txt groups nothing, and that must
         not raise -- an empty result is an ordinary answer."""
         a, b = tmp_path / "a", tmp_path / "b"
@@ -119,7 +119,7 @@ class TestWhatTheseFunctionsActuallyDo:
         assert not plt.get_fignums(), (
             "a folder pair with no images still produced a figure")
 
-    def test_an_explicit_extension_list_is_honoured(self, tmp_path):
+    def _case_an_explicit_extension_list_is_honoured(self, tmp_path):
         import matplotlib.pyplot as plt
 
         a, b = _paired_folders(tmp_path)
@@ -134,7 +134,7 @@ class TestWhatTheseFunctionsActuallyDo:
         # the same files without raising on the filter.
         assert not plt.get_fignums()
 
-    def test_asking_for_overlay_says_it_uses_the_first_two_folders(
+    def _case_asking_for_overlay_says_it_uses_the_first_two_folders(
             self, tmp_path, capsys):
         """Overlay composes two channels, so a third folder cannot take
         part. Saying so is the difference between a user seeing two of
@@ -144,7 +144,7 @@ class TestWhatTheseFunctionsActuallyDo:
                                  randomize=False)
         assert "first two folders" in capsys.readouterr().out
 
-    def test_the_callers_image_is_never_drawn_on_in_place(self):
+    def _case_the_callers_image_is_never_drawn_on_in_place(self):
         """Contours go onto a copy, whatever shape arrives."""
         pytest.importorskip("cv2")
         mask = np.zeros((16, 16), dtype=np.uint16)
@@ -171,7 +171,7 @@ class TestTheVolcanoAxisTransform:
                              "p": [0.01, 0.5, 0.001],
                              "g": list("abc")})
 
-    def test_an_unknown_transform_is_refused_by_name(self):
+    def _case_an_unknown_transform_is_refused_by_name(self):
         """Falling through to linear would draw the threshold line in the
         wrong place on a log axis -- a wrong picture that looks like a
         right one. The message names the value, so a typo in a settings
@@ -183,7 +183,7 @@ class TestTheVolcanoAxisTransform:
                            fold_change_threshold=2.0)
 
     @pytest.mark.parametrize("transform", ["log2", "log10", "ln", "log"])
-    def test_every_named_transform_is_accepted(self, transform):
+    def _case_every_named_transform_is_accepted(self, transform):
         figure, axes, _rest = P.volcano_plot(
             self._positive_frame(), fold_change_col="fc",
             p_value_col="p", name_col="g",
@@ -199,7 +199,7 @@ class TestTheVolcanoAxisTransform:
 
         plt.close(figure)
 
-    def test_a_negative_fold_change_is_refused_before_the_transform(self):
+    def _case_a_negative_fold_change_is_refused_before_the_transform(self):
         """A log of a negative fold change is not a number, and the
         message says what to do about it rather than letting numpy
         produce NaN."""
@@ -210,7 +210,7 @@ class TestTheVolcanoAxisTransform:
                            name_col="g", x_transform="log2",
                            fold_change_threshold=1.0)
 
-    def test_a_non_positive_threshold_on_a_log_axis_is_refused(self):
+    def _case_a_non_positive_threshold_on_a_log_axis_is_refused(self):
         """log(0) is not a place on the axis."""
         with pytest.raises(ValueError, match="must be > 0"):
             P.volcano_plot(self._positive_frame(), fold_change_col="fc",
@@ -260,7 +260,7 @@ class TestTheDefaultsThatNoCallerCanReach:
                 "'nucleus', 'pathogen', 'cytoplasm'])") in source, (
             "the annotation join is no longer given an explicit table list")
 
-    def test_the_annotation_join_receives_all_four_object_tables(
+    def _case_the_annotation_join_receives_all_four_object_tables(
             self, monkeypatch):
         """Exercise the call boundary as well as pinning its source shape."""
         import spacr.io as io
@@ -310,7 +310,7 @@ class TestTheDefaultsThatNoCallerCanReach:
             "a stack of another rank now reaches the contour helper, so its "
             "copy branch is reachable")
 
-    def test_the_threshold_transform_is_guarded_by_an_identical_check(self):
+    def _case_the_threshold_transform_is_guarded_by_an_identical_check(self):
         """Two helpers test the same set of names, and the data one runs
         first -- so the threshold helper's own `Unknown x_transform`
         raise cannot be the one that fires.
@@ -323,3 +323,54 @@ class TestTheDefaultsThatNoCallerCanReach:
         with pytest.raises(ValueError, match="Unknown x_transform"):
             P.volcano_plot(frame, fold_change_col="fc", p_value_col="p",
                            name_col="g", x_transform="cube_root")
+
+
+def test_what_these_functions_actually_do_cases(request, subtests, capsys):
+    """Case table: 6 cases of TestWhatTheseFunctionsActuallyDo run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        (TestWhatTheseFunctionsActuallyDo, '_case_arrays_are_found_and_drawn'),
+        (TestWhatTheseFunctionsActuallyDo, '_case_two_arrays_of_the_same_kind_draw_nothing'),
+        (TestWhatTheseFunctionsActuallyDo, '_case_a_file_outside_the_image_formats_is_ignored'),
+        (TestWhatTheseFunctionsActuallyDo, '_case_an_explicit_extension_list_is_honoured'),
+        (TestWhatTheseFunctionsActuallyDo, '_case_asking_for_overlay_says_it_uses_the_first_two_folders'),
+        (TestWhatTheseFunctionsActuallyDo, '_case_the_callers_image_is_never_drawn_on_in_place'),
+        ],
+    )
+    assert ran >= 6
+
+
+def test_the_volcano_axis_transform_cases(request, subtests):
+    """Case table: 4 cases of TestTheVolcanoAxisTransform run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        (TestTheVolcanoAxisTransform, '_case_an_unknown_transform_is_refused_by_name'),
+        (TestTheVolcanoAxisTransform, '_case_every_named_transform_is_accepted'),
+        (TestTheVolcanoAxisTransform, '_case_a_negative_fold_change_is_refused_before_the_transform'),
+        (TestTheVolcanoAxisTransform, '_case_a_non_positive_threshold_on_a_log_axis_is_refused'),
+        ],
+    )
+    assert ran >= 4
+
+
+def test_the_defaults_that_no_caller_can_reach_cases(request, subtests):
+    """Case table: 2 cases of TestTheDefaultsThatNoCallerCanReach run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        (TestTheDefaultsThatNoCallerCanReach, '_case_the_annotation_join_receives_all_four_object_tables'),
+        (TestTheDefaultsThatNoCallerCanReach, '_case_the_threshold_transform_is_guarded_by_an_identical_check'),
+        ],
+    )
+    assert ran >= 2

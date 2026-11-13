@@ -22,6 +22,8 @@ import sys
 
 import pytest
 
+from tests import locale_cases
+
 REPO_ROOT = os.path.normpath(
     os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 GENERATORS = os.path.join(REPO_ROOT, "spacr", "resources", "home", "versions",
@@ -253,15 +255,8 @@ def test_a_registered_variant_keeps_the_prose_it_was_given(kit):
         del variants.VARIANTS[before:]
 
 
-@pytest.mark.parametrize("index", range(30), ids=lambda i: f"v{i + 1:02d}")
-def test_every_variant_builds_a_page_that_draws_something(
-        index, ctx, buildable, frozen_home):
-    """Each builder returns a laid-out page carrying real app names.
-
-    Building is not enough on its own -- a page that returns an empty column
-    would build too -- so the result is laid out at the render size and has
-    to name at least one app from the live registry.
-    """
+def _every_variant_builds_a_page_that_draws_something_case(index, ctx, buildable, frozen_home):
+    """One case of :func:`test_every_variant_builds_a_page_that_draws_something`."""
     spec = _specs(buildable)[index]
     page = spec["build"](ctx)
     try:
@@ -276,6 +271,18 @@ def test_every_variant_builds_a_page_that_draws_something(
         assert page.sizeHint().width() > 0
     finally:
         page.deleteLater()
+
+
+def test_every_variant_builds_a_page_that_draws_something(subtests, ctx, buildable, frozen_home):
+    """Each builder returns a laid-out page carrying real app names.
+
+    Building is not enough on its own -- a page that returns an empty column
+    would build too -- so the result is laid out at the render size and has
+    to name at least one app from the live registry.
+    """
+    for label, case in locale_cases.cases(("index", range(30), lambda i: f"v{i + 1:02d}")):
+        with subtests.test(**label):
+            _every_variant_builds_a_page_that_draws_something_case(ctx=ctx, buildable=buildable, frozen_home=frozen_home, **case)
 
 
 def test_a_missing_run_journal_still_freezes_the_system_panel(
