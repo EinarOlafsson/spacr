@@ -197,7 +197,10 @@ Every card shows the settings that differ from the full-run settings file, and t
 ## Alpha status
 Alpha. The whole feature sits under one `ALPHA_FEATURES` entry. With alpha off, the OPS panel shows no live toggle.
 
-## Open questions for the maintainer
+## Maintainer decisions (2026-11-13, AskUserQuestion in the master session)
+Live genotype shows FDR at a looser 1 % target (the paper target stays on full wells); decoy library k = 0 for identity with full runs; a 12-field sparse align seed is allowed and labelled; cluster live mode also accepts a published profile table; 'Apply to run settings' is blocked while a full run of the same settings file is in progress.
+
+## Open questions for the maintainer (answered above)
 1. Genotype FDR sizing: is 10 expected decoys the right floor, giving about 12,700 assigned cells at FDR 0.1 %, which may be more than a "handful" of tiles? Or should live genotype show the FDR only at a looser target (1 %), with the paper target left to full wells?
 2. Can `ops_decoy_library_k > 0` (a larger decoy library) be used in live mode to get more decoy draws from the same cells? That would need the FDR scale recalibrated for the larger library. Is it worth it, or should live mode stay at k = 0 for identity with full runs?
 3. Without a finished run there is no well seed for align. Is a 12-field sparse seed acceptable, or should live align require a finished stitch-and-seed of the well?
