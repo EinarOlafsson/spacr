@@ -56,7 +56,7 @@ def _counts_csv(path, counts):
     return str(path)
 
 
-def test_lorenz_curves_are_drawn_on_the_unit_square_by_default(tmp_path):
+def _case_lorenz_curves_are_drawn_on_the_unit_square_by_default(tmp_path):
     """plot.py:3905 / 3908 -- why ``x_lim is not None`` cannot be False.
 
     Both limits are replaced with ``[0.0, 1]`` and ``[0, 1]`` at the top of
@@ -105,7 +105,7 @@ def _stack(tmp_path, masks, n_intensity=3):
     return str(path)
 
 
-def test_every_channel_with_a_mask_gets_that_mask_drawn(tmp_path):
+def _case_every_channel_with_a_mask_gets_that_mask_drawn(tmp_path):
     """plot.py:734 / 739 -- the invariant that makes both re-checks dead.
 
     ``channel_to_outline`` is built in the same function that consumes it,
@@ -143,7 +143,7 @@ def test_every_channel_with_a_mask_gets_that_mask_drawn(tmp_path):
 # The default behind read_and_plot__vision_results' dead re-check
 # ---------------------------------------------------------------------------
 
-def test_vision_results_use_the_documented_default_y_limits(tmp_path):
+def _case_vision_results_use_the_documented_default_y_limits(tmp_path):
     """plot.py:4077 -- ``y_lim`` is never None by the time it is applied.
 
     ``y_lim=None`` is replaced with ``[0.8, 0.9]`` before any file is read,
@@ -165,3 +165,19 @@ def test_vision_results_use_the_documented_default_y_limits(tmp_path):
     assert ax.get_ylim() == (0.0, 1.0)
     assert [t.get_text() for t in ax.get_xticklabels()] == ["alpha", "beta"]
     assert os.path.isdir(os.path.join(str(tmp_path), "result"))
+
+
+def test_plot_cases(request, subtests):
+    """Case table: 3 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_lorenz_curves_are_drawn_on_the_unit_square_by_default,
+        _case_every_channel_with_a_mask_gets_that_mask_drawn,
+        _case_vision_results_use_the_documented_default_y_limits,
+        ],
+    )
+    assert ran >= 3

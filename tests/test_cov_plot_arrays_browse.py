@@ -146,7 +146,7 @@ def test_get_colours_merged_exact_tables(order, expected):
 # plot_images_and_arrays
 # ---------------------------------------------------------------------------
 
-def test_plot_images_and_arrays_pairs_mask_with_normalised_image(tmp_path, capsys):
+def _case_plot_images_and_arrays_pairs_mask_with_normalised_image(tmp_path, capsys):
     """.npy intensity + .tif mask are paired; .png files are skipped."""
     from spacr.plot import plot_images_and_arrays
 
@@ -180,7 +180,7 @@ def test_plot_images_and_arrays_pairs_mask_with_normalised_image(tmp_path, capsy
     assert "Overlay will only work" not in capsys.readouterr().out
 
 
-def test_plot_images_and_arrays_overlay_draws_contours_and_skips_tiny_regions(tmp_path, capsys):
+def _case_plot_images_and_arrays_overlay_draws_contours_and_skips_tiny_regions(tmp_path, capsys):
     from spacr.plot import plot_images_and_arrays
 
     folders, _ = _make_pair_folders(tmp_path, names=("f1",), with_single_pixel=True)
@@ -204,7 +204,7 @@ def test_plot_images_and_arrays_overlay_draws_contours_and_skips_tiny_regions(tm
                           (np.abs(np.asarray(ys) - 60) < 1.5))
 
 
-def test_plot_images_and_arrays_max_nr_limits_plotted_groups(tmp_path):
+def _case_plot_images_and_arrays_max_nr_limits_plotted_groups(tmp_path):
     from spacr.plot import plot_images_and_arrays
 
     folders, _ = _make_pair_folders(tmp_path, names=("f1", "f2", "f3"))
@@ -217,7 +217,7 @@ def test_plot_images_and_arrays_max_nr_limits_plotted_groups(tmp_path):
     assert len(titles) == 2
 
 
-def test_plot_images_and_arrays_randomize_shuffles_before_truncating(tmp_path, monkeypatch):
+def _case_plot_images_and_arrays_randomize_shuffles_before_truncating(tmp_path, monkeypatch):
     """randomize=True shuffles the key order, then max_nr slices the result."""
     import spacr.plot as P
 
@@ -241,7 +241,7 @@ def test_plot_images_and_arrays_randomize_shuffles_before_truncating(tmp_path, m
     assert plt.figure(plt.get_fignums()[0]).axes[0].get_title() == f"{expected_key} - Mask"
 
 
-def test_plot_images_and_arrays_no_intensity_image_plots_nothing(tmp_path):
+def _case_plot_images_and_arrays_no_intensity_image_plots_nothing(tmp_path):
     """Two label-only folders never populate image_data -> no figure."""
     from spacr.plot import plot_images_and_arrays
 
@@ -257,7 +257,7 @@ def test_plot_images_and_arrays_no_intensity_image_plots_nothing(tmp_path):
     assert plt.get_fignums() == []
 
 
-def test_plot_images_and_arrays_extensions_argument_filters_candidates(tmp_path):
+def _case_plot_images_and_arrays_extensions_argument_filters_candidates(tmp_path):
     """Restricting extensions can leave a key present in only one folder."""
     from spacr.plot import plot_images_and_arrays
 
@@ -277,7 +277,7 @@ def test_plot_images_and_arrays_extensions_argument_filters_candidates(tmp_path)
 # _filter_objects_in_plot
 # ---------------------------------------------------------------------------
 
-def test_filter_objects_in_plot_none_min_max_keeps_every_object(capsys):
+def _case_filter_objects_in_plot_none_min_max_keeps_every_object(capsys):
     """filter_min_max=None falls back to the wide-open default range."""
     from spacr.plot import _filter_objects_in_plot
 
@@ -299,7 +299,7 @@ def test_filter_objects_in_plot_none_min_max_keeps_every_object(capsys):
     assert "removed 0 pathogens" in printed
 
 
-def test_filter_objects_in_plot_area_filter_drops_small_cells(capsys):
+def _case_filter_objects_in_plot_area_filter_drops_small_cells(capsys):
     from spacr.plot import _filter_objects_in_plot
 
     stack = _multi_object_stack()
@@ -325,7 +325,7 @@ def test_filter_objects_in_plot_area_filter_drops_small_cells(capsys):
     assert "removed 1 cells" in capsys.readouterr().out
 
 
-def test_filter_objects_in_plot_both_limits_false_removes_multiobject_cells():
+def _case_filter_objects_in_plot_both_limits_false_removes_multiobject_cells():
     """Both limits off -> every cell holding >1 nucleus OR >1 pathogen goes."""
     from spacr.plot import _filter_objects_in_plot
 
@@ -344,7 +344,7 @@ def test_filter_objects_in_plot_both_limits_false_removes_multiobject_cells():
     assert out[50, 50, 2] == 4
 
 
-def test_nuclei_limit_false_removes_the_multinucleated_cell():
+def _case_nuclei_limit_false_removes_the_multinucleated_cell():
     """nuclei_limit=False documents 'do not keep multinucleated cells'.
 
     Cell 1 has two nuclei, cell 2 has two pathogens. With only nuclei_limit
@@ -362,7 +362,7 @@ def test_nuclei_limit_false_removes_the_multinucleated_cell():
     assert _labels(out[:, :, 0]) == {0, 2, 3}
 
 
-def test_pathogen_limit_false_removes_the_multiinfected_cell():
+def _case_pathogen_limit_false_removes_the_multiinfected_cell():
     """pathogen_limit=False must drop the multi-infected cell (cell 2).
 
     plot.py passes ``object_dim=nucleus_mask_dim`` here, so the
@@ -415,7 +415,7 @@ def test_plot_arrays_single_npy_one_subplot_per_channel(tmp_path, capsys):
     assert not np.array_equal(expected, arr)
 
 
-def test_plot_arrays_single_channel_3d_wraps_axes_in_list(tmp_path):
+def _case_plot_arrays_single_channel_3d_wraps_axes_in_list(tmp_path):
     """array_nr == 1 -> plt.subplots returns a bare Axes that must be wrapped."""
     from spacr.plot import plot_arrays
 
@@ -431,7 +431,7 @@ def test_plot_arrays_single_channel_3d_wraps_axes_in_list(tmp_path):
     assert np.asarray(axes[0].images[0].get_array()).shape == (24, 24)
 
 
-def test_plot_arrays_npz_uses_first_key_and_first_batch_item(tmp_path):
+def _case_plot_arrays_npz_uses_first_key_and_first_batch_item(tmp_path):
     from spacr.plot import plot_arrays
 
     first = _rand_stack(shape=(16, 16, 2), seed=1)
@@ -454,7 +454,7 @@ def test_plot_arrays_npz_uses_first_key_and_first_batch_item(tmp_path):
     assert not np.array_equal(np.asarray(axes[0].images[0].get_array()), other[:, :, 0])
 
 
-def test_plot_arrays_directory_samples_nr_arrays(tmp_path, capsys):
+def _case_plot_arrays_directory_samples_nr_arrays(tmp_path, capsys):
     from spacr.plot import plot_arrays
 
     src = tmp_path / "arrays"
@@ -478,7 +478,7 @@ def test_plot_arrays_directory_samples_nr_arrays(tmp_path, capsys):
     assert len(plt.get_fignums()) == 2
 
 
-def test_plot_arrays_directory_nr_larger_than_available(tmp_path):
+def _case_plot_arrays_directory_nr_larger_than_available(tmp_path):
     from spacr.plot import plot_arrays
 
     src = tmp_path / "few"
@@ -491,7 +491,7 @@ def test_plot_arrays_directory_nr_larger_than_available(tmp_path):
     assert len(plt.get_fignums()) == 2
 
 
-def test_plot_arrays_2d_array_falls_back_to_single_axes(tmp_path):
+def _case_plot_arrays_2d_array_falls_back_to_single_axes(tmp_path):
     """A 2-D array takes the non-3-D branch: one axes titled 'Channel 0'."""
     from spacr.plot import plot_arrays
 
@@ -510,7 +510,7 @@ def test_plot_arrays_2d_array_falls_back_to_single_axes(tmp_path):
     assert np.array_equal(np.asarray(axes[0].images[0].get_array()), arr)
 
 
-def test_plot_arrays_2d_array_with_default_normalisation(tmp_path):
+def _case_plot_arrays_2d_array_with_default_normalisation(tmp_path):
     """plot_arrays explicitly supports 2-D arrays, but normalize defaults to
     True and normalize_to_dtype requires an (H, W, C) stack, so the documented
     2-D path raises IndexError for every caller that keeps the default."""
@@ -524,3 +524,33 @@ def test_plot_arrays_2d_array_with_default_normalisation(tmp_path):
 
     assert len(plt.get_fignums()) == 1
     assert plt.figure(plt.get_fignums()[0]).axes[0].get_title() == "Channel 0"
+
+
+def test_plot_arrays_browse_cases(request, subtests, capsys):
+    """Case table: 17 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_plot_images_and_arrays_pairs_mask_with_normalised_image,
+        _case_plot_images_and_arrays_overlay_draws_contours_and_skips_tiny_regions,
+        _case_plot_images_and_arrays_max_nr_limits_plotted_groups,
+        _case_plot_images_and_arrays_randomize_shuffles_before_truncating,
+        _case_plot_images_and_arrays_no_intensity_image_plots_nothing,
+        _case_plot_images_and_arrays_extensions_argument_filters_candidates,
+        _case_filter_objects_in_plot_none_min_max_keeps_every_object,
+        _case_filter_objects_in_plot_area_filter_drops_small_cells,
+        _case_filter_objects_in_plot_both_limits_false_removes_multiobject_cells,
+        _case_nuclei_limit_false_removes_the_multinucleated_cell,
+        _case_pathogen_limit_false_removes_the_multiinfected_cell,
+        _case_plot_arrays_single_channel_3d_wraps_axes_in_list,
+        _case_plot_arrays_npz_uses_first_key_and_first_batch_item,
+        _case_plot_arrays_directory_samples_nr_arrays,
+        _case_plot_arrays_directory_nr_larger_than_available,
+        _case_plot_arrays_2d_array_falls_back_to_single_axes,
+        _case_plot_arrays_2d_array_with_default_normalisation,
+        ],
+    )
+    assert ran >= 17

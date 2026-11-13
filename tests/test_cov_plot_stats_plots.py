@@ -91,7 +91,7 @@ def test_plot_histogram_without_dst_writes_nothing(tmp_path):
 # plot_lorenz_curves
 # ===========================================================================
 
-def test_plot_lorenz_curves_two_plates_curves_and_gini(tmp_path, capsys):
+def _case_plot_lorenz_curves_two_plates_curves_and_gini(tmp_path, capsys):
     """Two plates + a combined dashed curve; Gini printed for all three."""
     from spacr.plot import plot_lorenz_curves
 
@@ -136,7 +136,7 @@ def test_plot_lorenz_curves_two_plates_curves_and_gini(tmp_path, capsys):
     assert f"plate 1 (Gini: {g_equal:.4f})" == lines[0].get_label()
 
 
-def test_plot_lorenz_curves_remove_keys_drops_rows(tmp_path, capsys):
+def _case_plot_lorenz_curves_remove_keys_drops_rows(tmp_path, capsys):
     """Names listed in remove_keys never reach the Lorenz/Gini maths."""
     from spacr.plot import plot_lorenz_curves
 
@@ -154,7 +154,7 @@ def test_plot_lorenz_curves_remove_keys_drops_rows(tmp_path, capsys):
     ) == 2  # plate 1 and Combined are identical here
 
 
-def test_plot_lorenz_curves_remove_outliers_by_wells(tmp_path):
+def _case_plot_lorenz_curves_remove_outliers_by_wells(tmp_path):
     """remove_outliers=True drops names whose well count is a 1.5*IQR outlier."""
     from spacr.plot import plot_lorenz_curves
 
@@ -172,7 +172,7 @@ def test_plot_lorenz_curves_remove_outliers_by_wells(tmp_path):
     assert len(kept) == 21                # 'hog' (30 wells) removed
 
 
-def test_plot_lorenz_curves_saves_pdf_and_honours_limits(tmp_path, capsys):
+def _case_plot_lorenz_curves_saves_pdf_and_honours_limits(tmp_path, capsys):
     from spacr.plot import plot_lorenz_curves
 
     f1 = _counts_csv(tmp_path / "p1.csv", [f"g{i}" for i in range(12)],
@@ -191,7 +191,7 @@ def test_plot_lorenz_curves_saves_pdf_and_honours_limits(tmp_path, capsys):
     assert ax.get_ylim() == (0.1, 0.9)
 
 
-def test_plot_lorenz_curves_default_remove_keys(tmp_path):
+def _case_plot_lorenz_curves_default_remove_keys(tmp_path):
     """remove_keys defaults to None and must mean 'remove nothing'."""
     from spacr.plot import plot_lorenz_curves
 
@@ -201,7 +201,7 @@ def test_plot_lorenz_curves_default_remove_keys(tmp_path):
     assert len(plt.gcf().axes[0].get_lines()[0].get_ydata()) == 7
 
 
-def test_plot_lorenz_curves_gini_of_equal_distribution_is_zero(tmp_path, capsys):
+def _case_plot_lorenz_curves_gini_of_equal_distribution_is_zero(tmp_path, capsys):
     from spacr.plot import plot_lorenz_curves
 
     f1 = _counts_csv(tmp_path / "p1.csv", [f"g{i}" for i in range(10)], [3] * 10)
@@ -315,7 +315,7 @@ def patched_mkdir(monkeypatch):
     return calls
 
 
-def test_read_and_plot_vision_results_averages_per_model(tmp_path, patched_mkdir, capsys):
+def _case_read_and_plot_vision_results_averages_per_model(tmp_path, patched_mkdir, capsys):
     from spacr.plot import read_and_plot__vision_results
 
     base = tmp_path / "runs"
@@ -341,7 +341,7 @@ def test_read_and_plot_vision_results_averages_per_model(tmp_path, patched_mkdir
     assert "resnet50" in out and "vgg16" in out
 
 
-def test_read_and_plot_vision_results_custom_metric_and_ylim(tmp_path, patched_mkdir):
+def _case_read_and_plot_vision_results_custom_metric_and_ylim(tmp_path, patched_mkdir):
     from spacr.plot import read_and_plot__vision_results
 
     base = tmp_path / "runs"
@@ -359,7 +359,7 @@ def test_read_and_plot_vision_results_custom_metric_and_ylim(tmp_path, patched_m
     assert ax.get_ylim() == (0.0, 1.0)
 
 
-def test_read_and_plot_vision_results_no_csv_files(tmp_path, patched_mkdir, capsys):
+def _case_read_and_plot_vision_results_no_csv_files(tmp_path, patched_mkdir, capsys):
     from spacr.plot import read_and_plot__vision_results
 
     base = tmp_path / "empty"
@@ -371,7 +371,7 @@ def test_read_and_plot_vision_results_no_csv_files(tmp_path, patched_mkdir, caps
     assert plt.get_fignums() == []  # nothing plotted
 
 
-def test_read_and_plot_vision_results_creates_result_dir(tmp_path):
+def _case_read_and_plot_vision_results_creates_result_dir(tmp_path):
     from spacr.plot import read_and_plot__vision_results
 
     base = tmp_path / "runs"
@@ -381,7 +381,7 @@ def test_read_and_plot_vision_results_creates_result_dir(tmp_path):
     assert (base / "result").is_dir()
 
 
-def test_read_and_plot_vision_results_honours_name_split(tmp_path, patched_mkdir):
+def _case_read_and_plot_vision_results_honours_name_split(tmp_path, patched_mkdir):
     from spacr.plot import read_and_plot__vision_results
 
     base = tmp_path / "runs"
@@ -478,7 +478,7 @@ def fake_db_readers(monkeypatch):
     return state
 
 
-def test_jitterplot_balances_groups_and_keeps_annotated_wells(fake_db_readers, capsys):
+def _case_jitterplot_balances_groups_and_keeps_annotated_wells(fake_db_readers, capsys):
     from spacr.plot import jitterplot_by_annotation
 
     out = jitterplot_by_annotation("/exp/src", "annotation", "recruitment")
@@ -509,7 +509,7 @@ def test_jitterplot_balances_groups_and_keeps_annotated_wells(fake_db_readers, c
     assert len(ax.collections) == 3  # one PathCollection per hue level
 
 
-def test_jitterplot_is_deterministic(fake_db_readers):
+def _case_jitterplot_is_deterministic(fake_db_readers):
     from spacr.plot import jitterplot_by_annotation
 
     a = jitterplot_by_annotation("/exp/src", "annotation", "recruitment")
@@ -518,7 +518,7 @@ def test_jitterplot_is_deterministic(fake_db_readers):
     pd.testing.assert_frame_equal(a, b)
 
 
-def test_jitterplot_saves_to_output_path(tmp_path, fake_db_readers, capsys,
+def _case_jitterplot_saves_to_output_path(tmp_path, fake_db_readers, capsys,
                                          monkeypatch):
     import spacr.plot as P
     from spacr.plot import jitterplot_by_annotation
@@ -543,7 +543,7 @@ def test_jitterplot_saves_to_output_path(tmp_path, fake_db_readers, capsys,
     assert len(out) == 6
 
 
-def test_jitterplot_filter_column_str(fake_db_readers):
+def _case_jitterplot_filter_column_str(fake_db_readers):
     from spacr.plot import jitterplot_by_annotation
 
     out = jitterplot_by_annotation(
@@ -557,7 +557,7 @@ def test_jitterplot_filter_column_str(fake_db_readers):
     assert set(counts.values) == {1}
 
 
-def test_jitterplot_filter_column_list(fake_db_readers, capsys):
+def _case_jitterplot_filter_column_list(fake_db_readers, capsys):
     from spacr.plot import jitterplot_by_annotation
 
     out = jitterplot_by_annotation(
@@ -573,7 +573,7 @@ def test_jitterplot_filter_column_list(fake_db_readers, capsys):
     assert capsys.readouterr().out.count("hello") == 2
 
 
-def test_jitterplot_missing_plate_columns_raises_keyerror(monkeypatch):
+def _case_jitterplot_missing_plate_columns_raises_keyerror(monkeypatch):
     """A merged frame without any plate/row/column columns must raise KeyError."""
     import spacr.io as sio
     from spacr.plot import jitterplot_by_annotation
@@ -588,9 +588,40 @@ def test_jitterplot_missing_plate_columns_raises_keyerror(monkeypatch):
         jitterplot_by_annotation("/exp/src", "annotation", "recruitment")
 
 
-def test_jitterplot_works_with_current_column_names(fake_db_readers):
+def _case_jitterplot_works_with_current_column_names(fake_db_readers):
     from spacr.plot import jitterplot_by_annotation
 
     fake_db_readers["legacy"] = False
     out = jitterplot_by_annotation("/exp/src", "annotation", "recruitment")
     assert len(out) == 6
+
+
+def test_plot_stats_plots_cases(request, subtests, capsys):
+    """Case table: 18 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_plot_lorenz_curves_two_plates_curves_and_gini,
+        _case_plot_lorenz_curves_remove_keys_drops_rows,
+        _case_plot_lorenz_curves_remove_outliers_by_wells,
+        _case_plot_lorenz_curves_saves_pdf_and_honours_limits,
+        _case_plot_lorenz_curves_default_remove_keys,
+        _case_plot_lorenz_curves_gini_of_equal_distribution_is_zero,
+        _case_read_and_plot_vision_results_averages_per_model,
+        _case_read_and_plot_vision_results_custom_metric_and_ylim,
+        _case_read_and_plot_vision_results_no_csv_files,
+        _case_read_and_plot_vision_results_creates_result_dir,
+        _case_read_and_plot_vision_results_honours_name_split,
+        _case_jitterplot_balances_groups_and_keeps_annotated_wells,
+        _case_jitterplot_is_deterministic,
+        _case_jitterplot_saves_to_output_path,
+        _case_jitterplot_filter_column_str,
+        _case_jitterplot_filter_column_list,
+        _case_jitterplot_missing_plate_columns_raises_keyerror,
+        _case_jitterplot_works_with_current_column_names,
+        ],
+    )
+    assert ran >= 18

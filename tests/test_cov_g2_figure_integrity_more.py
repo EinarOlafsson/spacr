@@ -24,7 +24,7 @@ def _root(pixels_xml, uuid="urn:uuid:1"):
         f'{pixels_xml}</Pixels></Image></OME>')
 
 
-def test_a_mapping_to_this_file_and_packed_rgb_resolve():
+def _case_a_mapping_to_this_file_and_packed_rgb_resolve():
     root = _root('SizeZ="1" SizeT="1" SizeC="3" DimensionOrder="XYCZT">'
                  '<Channel SamplesPerPixel="3"/>'
                  '<TiffData IFD="0" PlaneCount="1"><UUID>urn:uuid:1</UUID></TiffData>')
@@ -50,13 +50,13 @@ def test_byte_descriptions_are_decoded_and_bounded():
     assert "SignificantBits is absent" in record["reason"]
 
 
-def test_empty_planes_are_skipped_in_clip_stats():
+def _case_empty_planes_are_skipped_in_clip_stats():
     raw = np.zeros((4, 0, 2), np.uint16)
     stats = plot._raw_clip_stats(raw, [[0, 1], [0, 1]])
     assert stats["clipped_high"] == 0.0
 
 
-def test_a_flat_detail_signature_is_zeros():
+def _case_a_flat_detail_signature_is_zeros():
     picture = np.tile(np.linspace(0, 255, 64), (64, 1)).astype(np.uint8)
     signature = plot._panel_thumbnail(picture)
     assert signature is None or np.all(np.isfinite(signature[1]))
@@ -71,7 +71,7 @@ def _figure_with(data):
     return fig, ax, image
 
 
-def test_panel_records_survive_broken_axes_and_odd_kinds(monkeypatch):
+def _case_panel_records_survive_broken_axes_and_odd_kinds(monkeypatch):
     fig, ax, image = _figure_with(np.zeros((20, 20)))
     monkeypatch.setattr(image, "get_array", lambda: np.zeros((20, 20, 2)))
     monkeypatch.setattr(ax, "get_title", lambda: (_ for _ in ()).throw(RuntimeError()))
@@ -81,7 +81,7 @@ def test_panel_records_survive_broken_axes_and_odd_kinds(monkeypatch):
     assert record["display_range"] is None and record["exported_pixels"] is None
 
 
-def test_scalar_and_rgb_panels_without_limits():
+def _case_scalar_and_rgb_panels_without_limits():
     fig, ax, image = _figure_with(np.zeros((20, 20), np.uint8))
     image.set_clim(None, None)
     record, _ = plot._panel_record(0, 0, ax, image, fig, 50.0)
@@ -190,7 +190,7 @@ def test_an_unstatable_sidecar_entry_is_skipped(tmp_path, monkeypatch):
                                        str(tmp_path / "new.png")) == []
 
 
-def test_float_clip_stats_have_no_sensor_ceiling():
+def _case_float_clip_stats_have_no_sensor_ceiling():
     stats = plot._raw_clip_stats(np.ones((4, 4), np.float32), [[0.0, 0.5]])
     assert stats["clipped_high"] == 1.0 and stats["sensor_saturated"] == 0.0
 
@@ -203,14 +203,14 @@ def test_large_sources_are_recorded_without_a_hash(tmp_path, monkeypatch):
     assert record["bytes"] == 3 and "sha256" not in record
 
 
-def test_a_texture_free_picture_has_a_zero_detail_signature(monkeypatch):
+def _case_a_texture_free_picture_has_a_zero_detail_signature(monkeypatch):
     monkeypatch.setattr(plot.ndi, "uniform_filter", lambda values, *a, **k: values)
     picture = np.tile(np.linspace(0, 1, 32, dtype=np.float32), (32, 1))
     layout, detail = plot._panel_thumbnail(picture)
     assert not detail.any()
 
 
-def test_non_image_artists_and_blank_panels_are_passed_over(monkeypatch):
+def _case_non_image_artists_and_blank_panels_are_passed_over(monkeypatch):
     fig, ax, image = _figure_with(np.full((20, 20), np.nan))
     monkeypatch.setattr(ax, "get_images", lambda: [object(), image])
     assert [found[2] for found in plot._figure_panels(fig)] == [image]
@@ -221,3 +221,24 @@ def test_non_image_artists_and_blank_panels_are_passed_over(monkeypatch):
         [{"panel": 0, "displayed_sha256": "a", "source": []},
          {"panel": 1, "displayed_sha256": "b", "source": []}], [flat, flat + 1])
     assert isinstance(findings, list)
+
+
+def test_figure_integrity_more_cases(request, subtests):
+    """Case table: 8 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_a_mapping_to_this_file_and_packed_rgb_resolve,
+        _case_empty_planes_are_skipped_in_clip_stats,
+        _case_a_flat_detail_signature_is_zeros,
+        _case_panel_records_survive_broken_axes_and_odd_kinds,
+        _case_scalar_and_rgb_panels_without_limits,
+        _case_float_clip_stats_have_no_sensor_ceiling,
+        _case_a_texture_free_picture_has_a_zero_detail_signature,
+        _case_non_image_artists_and_blank_panels_are_passed_over,
+        ],
+    )
+    assert ran >= 8

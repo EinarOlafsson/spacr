@@ -264,7 +264,7 @@ def test_visualize_cellpose_masks_custom_titles():
     assert fig.get_suptitle() == "Masks Comparison for None"
 
 
-def test_visualize_cellpose_masks_title_count_mismatch_asserts():
+def _case_visualize_cellpose_masks_title_count_mismatch_asserts():
     """Mismatched titles/masks raise before any figure is created."""
     from spacr.plot import visualize_cellpose_masks
     plt.close("all")
@@ -274,7 +274,7 @@ def test_visualize_cellpose_masks_title_count_mismatch_asserts():
     assert plt.get_fignums() == []
 
 
-def test_visualize_cellpose_masks_saves_pdf_under_src(tmp_path, capsys):
+def _case_visualize_cellpose_masks_saves_pdf_under_src(tmp_path, capsys):
     """save=True writes <src>/results/<filename>.pdf and prints the path."""
     from spacr.plot import visualize_cellpose_masks
     masks = [_blob_mask(16, n=2), _blob_mask(16, n=3)]
@@ -289,7 +289,7 @@ def test_visualize_cellpose_masks_saves_pdf_under_src(tmp_path, capsys):
     assert str(out) in capsys.readouterr().out
 
 
-def test_visualize_cellpose_masks_save_defaults_src_to_cwd(tmp_path, monkeypatch):
+def _case_visualize_cellpose_masks_save_defaults_src_to_cwd(tmp_path, monkeypatch):
     """src=None falls back to os.getcwd()."""
     from spacr.plot import visualize_cellpose_masks
     monkeypatch.chdir(tmp_path)
@@ -299,7 +299,7 @@ def test_visualize_cellpose_masks_save_defaults_src_to_cwd(tmp_path, monkeypatch
     assert (tmp_path / "results" / "cwd_field.pdf").is_file()
 
 
-def test_visualize_cellpose_masks_reuses_existing_results_dir(tmp_path):
+def _case_visualize_cellpose_masks_reuses_existing_results_dir(tmp_path):
     """An already-present results/ directory is reused (exist_ok=True)."""
     from spacr.plot import visualize_cellpose_masks
     (tmp_path / "results").mkdir()
@@ -311,7 +311,7 @@ def test_visualize_cellpose_masks_reuses_existing_results_dir(tmp_path):
     assert (tmp_path / "results" / "second.pdf").is_file()
 
 
-def test_visualize_cellpose_masks_does_not_save_when_save_is_false(tmp_path):
+def _case_visualize_cellpose_masks_does_not_save_when_save_is_false(tmp_path):
     """save=False leaves the filesystem untouched."""
     from spacr.plot import visualize_cellpose_masks
     masks = [_blob_mask(16, n=1), _blob_mask(16, n=1)]
@@ -343,7 +343,7 @@ def _comparison_records():
     ]
 
 
-def test_plot_comparison_results_builds_four_metric_panels():
+def _case_plot_comparison_results_builds_four_metric_panels():
     """Returns the figure; each panel is titled/labelled for its metric family."""
     from spacr.plot import plot_comparison_results
     fig = plot_comparison_results(_comparison_records())
@@ -370,7 +370,7 @@ def test_plot_comparison_results_builds_four_metric_panels():
     assert axs[0].get_xticklabels()[0].get_rotation() == pytest.approx(45.0)
 
 
-def test_plot_comparison_results_strip_points_match_the_input_rows():
+def _case_plot_comparison_results_strip_points_match_the_input_rows():
     """The stripplot on the Jaccard panel holds one point per input file."""
     from spacr.plot import plot_comparison_results
     records = _comparison_records()
@@ -383,7 +383,7 @@ def test_plot_comparison_results_strip_points_match_the_input_rows():
         r["jaccard_a_b"] for r in records)
 
 
-def test_plot_comparison_results_handles_two_comparisons_per_metric():
+def _case_plot_comparison_results_handles_two_comparisons_per_metric():
     """Two comparison columns per family give two x categories per panel."""
     from spacr.plot import plot_comparison_results
     records = [
@@ -402,7 +402,7 @@ def test_plot_comparison_results_handles_two_comparisons_per_metric():
     assert len(fig.axes[3].get_xticklabels()) == 2
 
 
-def test_plot_comparison_results_requires_a_filename_column():
+def _case_plot_comparison_results_requires_a_filename_column():
     """pd.melt needs 'filename' as the id var -> KeyError without it."""
     from spacr.plot import plot_comparison_results
     with pytest.raises(KeyError):
@@ -428,7 +428,7 @@ def record_plot_images(monkeypatch):
     return calls
 
 
-def test_plot_object_outlines_default_objects_and_channels(record_plot_images, capsys):
+def _case_plot_object_outlines_default_objects_and_channels(record_plot_images, capsys):
     """Defaults iterate nucleus/cell/pathogen against channel folders 1/2/3."""
     from spacr.plot import plot_object_outlines
     src = os.path.join("data", "plate01")
@@ -451,7 +451,7 @@ def test_plot_object_outlines_default_objects_and_channels(record_plot_images, c
     assert printed.count("mask_stack") == 3
 
 
-def test_plot_object_outlines_custom_objects_and_channels(record_plot_images):
+def _case_plot_object_outlines_custom_objects_and_channels(record_plot_images):
     """Explicit objects/channels skip the defaults; folder = channel + 1."""
     from spacr.plot import plot_object_outlines
     plot_object_outlines("/root", objects=["cell"], channels=[3])
@@ -462,7 +462,7 @@ def test_plot_object_outlines_custom_objects_and_channels(record_plot_images):
     ]
 
 
-def test_plot_object_outlines_zip_truncates_to_the_shorter_sequence(record_plot_images):
+def _case_plot_object_outlines_zip_truncates_to_the_shorter_sequence(record_plot_images):
     """More objects than channels -> only the paired prefix is plotted."""
     from spacr.plot import plot_object_outlines
     plot_object_outlines("/root", objects=["cell", "nucleus", "pathogen"],
@@ -471,15 +471,42 @@ def test_plot_object_outlines_zip_truncates_to_the_shorter_sequence(record_plot_
     assert record_plot_images[0]["folders"][0].endswith("cell_mask_stack")
 
 
-def test_plot_object_outlines_empty_objects_plots_nothing(record_plot_images):
+def _case_plot_object_outlines_empty_objects_plots_nothing(record_plot_images):
     """An empty object list is respected rather than replaced by the defaults."""
     from spacr.plot import plot_object_outlines
     plot_object_outlines("/root", objects=[], channels=[])
     assert record_plot_images == []
 
 
-def test_plot_object_outlines_forwards_max_nr(record_plot_images):
+def _case_plot_object_outlines_forwards_max_nr(record_plot_images):
     """max_nr must reach plot_images_and_arrays."""
     from spacr.plot import plot_object_outlines
     plot_object_outlines("/root", objects=["cell"], channels=[0], max_nr=3)
     assert record_plot_images[0]["kwargs"]["max_nr"] == 3
+
+
+def test_plot_compare_viz_cases(request, subtests, capsys):
+    """Case table: 14 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_visualize_cellpose_masks_title_count_mismatch_asserts,
+        _case_visualize_cellpose_masks_saves_pdf_under_src,
+        _case_visualize_cellpose_masks_save_defaults_src_to_cwd,
+        _case_visualize_cellpose_masks_reuses_existing_results_dir,
+        _case_visualize_cellpose_masks_does_not_save_when_save_is_false,
+        _case_plot_comparison_results_builds_four_metric_panels,
+        _case_plot_comparison_results_strip_points_match_the_input_rows,
+        _case_plot_comparison_results_handles_two_comparisons_per_metric,
+        _case_plot_comparison_results_requires_a_filename_column,
+        _case_plot_object_outlines_default_objects_and_channels,
+        _case_plot_object_outlines_custom_objects_and_channels,
+        _case_plot_object_outlines_zip_truncates_to_the_shorter_sequence,
+        _case_plot_object_outlines_empty_objects_plots_nothing,
+        _case_plot_object_outlines_forwards_max_nr,
+        ],
+    )
+    assert ran >= 14

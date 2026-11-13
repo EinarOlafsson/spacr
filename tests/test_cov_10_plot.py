@@ -70,7 +70,7 @@ def test_an_unknown_forced_format_falls_back_to_the_preference():
         f".{P.figure_output_preferences()[0]}")
 
 
-def test_save_figure_writes_the_preferred_format_for_an_unknown_one(tmp_path):
+def _case_save_figure_writes_the_preferred_format_for_an_unknown_one(tmp_path):
     """The same fallback on the writing path: a run must not lose a figure
     over a typo in the format argument."""
     fig = plt.figure()
@@ -125,7 +125,7 @@ def test_a_colour_that_cannot_be_read_is_skipped_not_fatal():
     assert P.data_colours(stub) == []
 
 
-def test_an_artist_that_will_not_report_its_colour_is_left_alone():
+def _case_an_artist_that_will_not_report_its_colour_is_left_alone():
     """One unreadable artist must not abort a print-ready export; the rest
     of the figure is still restyled."""
     fig = plt.figure()
@@ -143,7 +143,7 @@ def test_an_artist_that_will_not_report_its_colour_is_left_alone():
         assert ax.title.get_color() != "#FFFFFF"
 
 
-def test_an_artist_that_refuses_a_new_colour_is_not_recorded_for_restore():
+def _case_an_artist_that_refuses_a_new_colour_is_not_recorded_for_restore():
     """A setter that raises leaves that artist as it was. Recording it for
     restore anyway would try to set it a second time on the way out."""
     fig = plt.figure()
@@ -162,7 +162,7 @@ def test_an_artist_that_refuses_a_new_colour_is_not_recorded_for_restore():
     assert original == "#FFFFFF"
 
 
-def test_a_restore_that_fails_does_not_escape_the_export():
+def _case_a_restore_that_fails_does_not_escape_the_export():
     """The context manager's whole promise is that the on-screen figure is
     the same afterwards. When one artist cannot be put back, the remaining
     artists must still be restored rather than the exception unwinding the
@@ -192,7 +192,7 @@ def test_a_restore_that_fails_does_not_escape_the_export():
 # Plotters drawing data that is not there
 # ---------------------------------------------------------------------------
 
-def test_a_field_with_no_object_masks_draws_an_empty_named_panel(tmp_path):
+def _case_a_field_with_no_object_masks_draws_an_empty_named_panel(tmp_path):
     """With no cell, nucleus or pathogen channel there is nothing to
     combine. The last panel says "no objects" rather than raising on
     ``outlines[0]`` or drawing the previous field's mask."""
@@ -209,7 +209,7 @@ def test_a_field_with_no_object_masks_draws_an_empty_named_panel(tmp_path):
     assert float(np.asarray(combined).max()) == 0.0
 
 
-def test_a_plate_panel_that_cannot_be_drawn_says_why(capsys):
+def _case_a_plate_panel_that_cannot_be_drawn_says_why(capsys):
     """A table with no well grid produces no heatmap. Printing the reason is
     what stops a silently blank results folder."""
     df = pd.DataFrame({"prc": [], "recruitment": []})
@@ -218,7 +218,7 @@ def test_a_plate_panel_that_cannot_be_drawn_says_why(capsys):
     assert "No plate heatmap drawn" in capsys.readouterr().out
 
 
-def test_a_line_across_groups_honours_the_requested_group_order(tmp_path):
+def _case_a_line_across_groups_honours_the_requested_group_order(tmp_path):
     """The order argument is how a user puts the control first. A line chart
     that ignored it would put the groups in alphabetical order while the bar
     chart of the same data obeyed it."""
@@ -258,7 +258,7 @@ def test_a_figure_that_refuses_the_replot_recipe_is_still_returned(
     assert not results.empty
 
 
-def test_paired_arms_of_different_lengths_are_refused_by_name():
+def _case_paired_arms_of_different_lengths_are_refused_by_name():
     """A paired test matches observation to observation. Two arms of
     different sizes cannot be matched, and the row says so instead of
     reporting a p-value from whatever scipy did with the mismatch."""
@@ -272,7 +272,7 @@ def test_paired_arms_of_different_lengths_are_refused_by_name():
     assert "cannot be matched up" in str(refused.iloc[0]["Why This Test"])
 
 
-def test_one_measurement_column_asked_for_as_a_line_draws_across_the_groups():
+def _case_one_measurement_column_asked_for_as_a_line_draws_across_the_groups():
     """A line needs two axes. With a single data column there is no second
     column to put on x, so the group becomes the x axis and the point on each
     group is the same summary the bar chart would draw -- the two pictures
@@ -289,7 +289,7 @@ def test_one_measurement_column_asked_for_as_a_line_draws_across_the_groups():
     assert list(graph.summary_df["centre"]) == [3.0, 8.0]
 
 
-def test_a_line_across_groups_takes_the_log_scale_it_was_asked_for():
+def _case_a_line_across_groups_takes_the_log_scale_it_was_asked_for():
     """``log_y`` is set on the object, not on the axes the caller sees, so
     the across-groups line has to apply it itself. Drawing a linear axis
     while the object says log makes the same figure mean two things."""
@@ -334,7 +334,7 @@ def test_a_single_group_has_no_glm_contrast_and_says_so():
     assert out["unit"].unique().tolist() == ["prc"]
 
 
-def test_a_table_with_no_replication_unit_says_the_p_value_is_too_small(
+def _case_a_table_with_no_replication_unit_says_the_p_value_is_too_small(
         capsys):
     """Without a well column the only test possible is over objects, which
     are not independent. The caller has to be told that the number is
@@ -350,3 +350,27 @@ def test_a_table_with_no_replication_unit_says_the_p_value_is_too_small(
     assert "smaller than the experiment" in printed
     assert results["unit"].tolist() == ["object"]
     assert fig is not None
+
+
+def test_plot_cases(request, subtests, capsys):
+    """Case table: 11 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_save_figure_writes_the_preferred_format_for_an_unknown_one,
+        _case_an_artist_that_will_not_report_its_colour_is_left_alone,
+        _case_an_artist_that_refuses_a_new_colour_is_not_recorded_for_restore,
+        _case_a_restore_that_fails_does_not_escape_the_export,
+        _case_a_field_with_no_object_masks_draws_an_empty_named_panel,
+        _case_a_plate_panel_that_cannot_be_drawn_says_why,
+        _case_a_line_across_groups_honours_the_requested_group_order,
+        _case_paired_arms_of_different_lengths_are_refused_by_name,
+        _case_one_measurement_column_asked_for_as_a_line_draws_across_the_groups,
+        _case_a_line_across_groups_takes_the_log_scale_it_was_asked_for,
+        _case_a_table_with_no_replication_unit_says_the_p_value_is_too_small,
+        ],
+    )
+    assert ran >= 11
