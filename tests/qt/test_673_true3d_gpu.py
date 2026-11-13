@@ -155,59 +155,33 @@ def test_backends_offered_and_the_choice_is_remembered(view, qtbot):
     assert mm._volume_view_settings()[0] == "cpu"
 
 
-def test_native_metal_and_user_scale_survive_same_build_restart(tmp_path):
-    """Check two real Cocoa processes sharing only their owned portable profile."""
-    _run_native_volume_probe(tmp_path, scenario='restart')
-
-
-def test_native_image_opacity_changes_only_its_layer_and_restores_the_frame(tmp_path):
-    """Check the actual image slider and exact Metal frame restoration."""
-    _run_native_volume_probe(tmp_path, scenario='image_opacity')
-
-
-def test_native_image_visibility_contrast_and_rendering_restore_the_frame(tmp_path):
-    """Check seven real image-control states without changing sibling layers."""
-    _run_native_volume_probe(tmp_path, scenario='image_controls')
-
-
-def test_native_masks_opacity_rendering_and_finish_restore_the_frame(tmp_path):
-    """Check seven real mask-layer states and the intentional finish preference."""
-    _run_native_volume_probe(tmp_path, scenario='mask_controls')
-
-
-def test_native_masks_visibility_restores_the_frame(tmp_path):
-    """Use the actual Masks eye without changing sibling layers or voxel data."""
-    _run_native_volume_probe(tmp_path, scenario='mask_visibility')
-
-
-def test_native_image_colour_restores_the_frame_without_changing_label_ids(tmp_path):
-    """Change the actual Image colour combo without changing Masks or label IDs."""
-    _run_native_volume_probe(tmp_path, scenario='image_colour')
-
-
-def test_native_remaining_image_renderings_each_restore_mip(tmp_path):
-    """Check the three other offered Image renderings without replaying attenuation."""
-    _run_native_volume_probe(tmp_path, scenario='image_renderings')
-
-
-def test_native_remaining_masks_finishes_each_restore_matte(tmp_path):
-    """Check the two other offered Masks finishes without replaying satin."""
-    _run_native_volume_probe(tmp_path, scenario='mask_finishes')
-
-
-def test_native_second_channel_visibility_restores_the_additive_frame(tmp_path):
-    """Load the actual CZYX fixture and toggle only its second channel's eye."""
-    _run_native_volume_probe(tmp_path, scenario='channels')
-
-
-def test_native_volume_chooser_opens_a_unicode_and_spaces_channel_path(tmp_path):
-    """Use the real owned Qt chooser controls, not a replacement pathname return."""
-    _run_native_volume_probe(tmp_path, scenario='chooser')
-
-
-def test_native_volume_chooser_cancel_preserves_the_loaded_session(tmp_path):
-    """Cancel the real owned picker without leaving or changing the loaded volume."""
-    _run_native_volume_probe(tmp_path, scenario='chooser_cancel')
+@pytest.mark.parametrize("scenario", [
+    "restart",              # two real Cocoa processes sharing only their owned
+                            # portable profile: native Metal and user scale
+                            # survive a same-build restart
+    "image_opacity",        # the actual image slider and exact Metal frame
+                            # restoration, only its layer changes
+    "image_controls",       # seven real image-control states without changing
+                            # sibling layers
+    "mask_controls",        # seven real mask-layer states and the intentional
+                            # finish preference
+    "mask_visibility",      # the actual Masks eye, without changing sibling
+                            # layers or voxel data
+    "image_colour",         # the actual Image colour combo, without changing
+                            # Masks or label IDs
+    "image_renderings",     # the three other offered Image renderings without
+                            # replaying attenuation
+    "mask_finishes",        # the two other offered Masks finishes without
+                            # replaying satin
+    "channels",             # the actual CZYX fixture, toggling only its second
+                            # channel's eye
+    "chooser",              # the real owned Qt chooser controls, not a
+                            # replacement pathname return
+    "chooser_cancel",       # cancelling the real owned picker leaves the loaded
+                            # volume unchanged
+])
+def test_native_volume_scenario_restores_the_frame(tmp_path, scenario):
+    _run_native_volume_probe(tmp_path, scenario=scenario)
 
 
 def _run_native_volume_probe(tmp_path, *, scenario):

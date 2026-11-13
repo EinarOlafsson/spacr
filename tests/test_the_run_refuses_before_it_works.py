@@ -23,11 +23,16 @@ def _said(settings) -> str:
 
 class TestTheCombinationThatWasHit:
 
-    def test_cell_with_the_permutation_test_is_refused(self):
+    @pytest.mark.parametrize("fragments", [
+        ("guide_permutation", "one row per well"),
+        ("analysis_unit='well'", "analysis_mode='regression'"),   # both ways out
+    ], ids=["refused", "names-both-ways-out"])
+    def test_cell_with_the_permutation_test_is_refused_and_names_both_ways_out(
+            self, fragments):
         said = _said({"analysis_unit": "cell",
                       "analysis_mode": "guide_permutation"})
-        assert "guide_permutation" in said
-        assert "one row per well" in said
+        for fragment in fragments:
+            assert fragment in said
 
     def test_it_is_caught_under_the_name_the_user_typed(self):
         """`inference='nonparametric'` SELECTS guide_permutation. The user
@@ -46,13 +51,6 @@ class TestTheCombinationThatWasHit:
                          "analysis_mode": "guide_permutation"})
         about_permutation = [m for m in said if "permutation" in m]
         assert len(about_permutation) == 1, about_permutation
-
-    def test_the_message_names_both_ways_out(self):
-        said = _said({"analysis_unit": "cell",
-                      "analysis_mode": "guide_permutation"})
-        assert "analysis_unit='well'" in said
-        assert "analysis_mode='regression'" in said
-
 
 class TestTheSettingThatWouldBeIgnored:
     """A control the user changed and the run ignored is how somebody
@@ -93,11 +91,12 @@ class TestWhatAPanelShouldLock:
         assert "agg_type" in needed
         assert needed["agg_type"] is None
 
-    def test_well_constrains_nothing(self):
-        assert requirements_for_unit("well") == {}
-
-    def test_an_unknown_unit_constrains_nothing_rather_than_raising(self):
-        assert requirements_for_unit("galaxy") == {}
+    @pytest.mark.parametrize("unit", [
+        "well",
+        "galaxy",   # an unknown unit constrains nothing rather than raising
+    ])
+    def test_a_unit_that_constrains_nothing_gives_no_requirements(self, unit):
+        assert requirements_for_unit(unit) == {}
 
     def test_applying_the_requirements_clears_the_refusals(self):
         """The end of the contract: what the panel would set must actually
@@ -111,14 +110,14 @@ class TestWhatAPanelShouldLock:
 class TestTheOtherRefusalsStillFire:
     """The new checks must not have displaced the ones that were there."""
 
-    def test_combat_without_a_covariate(self):
-        said = _said({"batch_correction": "combat"})
-        assert "covariate" in said
-
-    def test_control_center_without_controls(self):
-        said = _said({"batch_correction": "control_center"})
-        assert "batch_control_column" in said
-
+    @pytest.mark.parametrize("correction, fragment", [
+        ("combat", "covariate"),
+        ("control_center", "batch_control_column"),
+    ])
+    def test_a_correction_without_what_it_needs_is_still_refused(
+            self, correction, fragment):
+        said = _said({"batch_correction": correction})
+        assert fragment in said
 
 class TestTheUnitChoosesWhatItNeeds:
     """"if cell is chosen then the settings it needs should be chosen and

@@ -410,22 +410,19 @@ def test_a_sampler_on_top_of_a_reweighting_loss_is_flagged(loss, mode):
     assert "compound" in msg and "WARNING" in msg
 
 
-def test_weighted_loss_is_idempotent():
+@pytest.mark.parametrize("loss, head, expected_loss, expected_note", [
+    ("ce_weighted", 2, "ce_weighted", "already"),
+    # ce_weighted is a multiclass loss; a 1-logit head must not be broken.
+    ("binary_cross_entropy_with_logits", 1,
+     "binary_cross_entropy_with_logits", "focal_alpha"),
+], ids=["idempotent", "single-logit-head"])
+def test_weighted_loss_resolves_without_breaking_the_head(
+        loss, head, expected_loss, expected_note):
     from spacr.deep_spacr import resolve_class_balance_loss
 
-    lt, msg = resolve_class_balance_loss("ce_weighted", "weighted_loss", 2)
-    assert lt == "ce_weighted"
-    assert "already" in msg
-
-
-def test_weighted_loss_declines_on_a_single_logit_head():
-    """ce_weighted is a multiclass loss; a 1-logit head must not be broken."""
-    from spacr.deep_spacr import resolve_class_balance_loss
-
-    lt, msg = resolve_class_balance_loss("binary_cross_entropy_with_logits",
-                                         "weighted_loss", 1)
-    assert lt == "binary_cross_entropy_with_logits"
-    assert "focal_alpha" in msg
+    lt, msg = resolve_class_balance_loss(loss, "weighted_loss", head)
+    assert lt == expected_loss
+    assert expected_note in msg
 
 
 def test_ce_weighted_actually_upweights_the_rare_class():

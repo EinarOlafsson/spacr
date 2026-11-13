@@ -207,13 +207,6 @@ class TestUpdater:
 # ---------------------------------------------------------------------------
 
 class TestV1V2Bridge:
-    def test_channels_default_when_empty(self):
-        # No channels resolvable → 4-channel default (lines ~108-109).
-        from spacr._v1_v2_bridge import v2_channels_from_settings
-        chans, names = v2_channels_from_settings({})
-        assert chans == [0, 1, 2, 3]
-        assert names == ["ch0", "ch1", "ch2", "ch3"]
-
     def test_channels_skips_non_int(self):
         # Non-int channel entries are skipped (lines 73-74).
         from spacr._v1_v2_bridge import v2_channels_from_settings

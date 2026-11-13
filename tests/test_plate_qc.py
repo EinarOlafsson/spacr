@@ -514,24 +514,15 @@ def test_parse_column_label(label, expected):
 
 @pytest.mark.parametrize("row,col,expected", [
     (1, 1, "A01"), (3, 7, "C07"), (16, 24, "P24"), (32, 48, "AF48"),
-])
-def test_well_id(row, col, expected):
-    assert well_id(row, col) == expected
-
-
-@pytest.mark.parametrize("row,col,expected", [
+    # A layout table has to render every cell it was handed.
+    # :func:`spacr.schema.well_id` is the definition and it *raises* for a
+    # position that is not a well -- right for a key, wrong for a report. This
+    # wrapper keeps the ``'?'`` so a QC figure still draws.
     (0, 5, "?05"),          # no such row
     (3, 0, "C00"),          # no such column
     (-2, 3, "?03"),
 ])
-def test_well_id_renders_an_impossible_position_rather_than_raising(
-        row, col, expected):
-    """A layout table has to render every cell it was handed.
-
-    :func:`spacr.schema.well_id` is the definition and it *raises* for a
-    position that is not a well — right for a key, wrong for a report. This
-    wrapper keeps the ``'?'`` so a QC figure still draws.
-    """
+def test_well_id(row, col, expected):
     assert well_id(row, col) == expected
 
 

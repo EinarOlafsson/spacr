@@ -13,6 +13,7 @@ way to tell one guide's cells from another's. Unsaid, that reads as a bug.
 from __future__ import annotations
 
 import pandas as pd
+import pytest
 
 from spacr.cell_montage import (Coefficient, MontagePlan, ScoreWindow,
                                 WellSelection)
@@ -43,15 +44,14 @@ class TestTheCaptionSaysTheGuidesShareCells:
         assert ":param share:" in (WellSelection.__doc__ or "")
         assert "round(8 x 0.75) = 6" in well.describe()
 
-    def test_the_note_is_in_the_arithmetic(self):
+    @pytest.mark.parametrize("fragment", [
+        "the guides are not given DIFFERENT cells",
+        "can add to more than the well holds",   # what a reader would do
+    ])
+    def test_the_arithmetic_says_the_guides_share_cells(self, fragment):
         said = _plan().arithmetic()
 
-        assert "the guides are not given DIFFERENT cells" in said
-
-    def test_it_names_the_arithmetic_a_reader_would_do(self):
-        said = _plan().arithmetic()
-
-        assert "can add to more than the well holds" in said
+        assert fragment in said
 
     def test_it_says_which_heuristic_this_is_and_what_fixes_it(self):
         """Not a bug and not a shrug: the per-cell attribution is the fix."""

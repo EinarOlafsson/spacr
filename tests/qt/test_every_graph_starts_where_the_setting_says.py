@@ -221,14 +221,21 @@ class TestALivePanelOpensOnTheChoice:
 class TestTheFallbackIsSaidOutLoud:
     """"A violin of two points" -- the fallback is explicit, not silent."""
 
-    def test_a_violin_over_three_point_groups_draws_the_points(self, qtbot,
-                                                               prefer):
-        prefer("violin")
+    @pytest.mark.parametrize("choice, mark", [
+        ("violin", "jitter"),
+        # A box WITH the observations on it shows the reader the n, so a
+        # choice that keeps its points is never talked out of.
+        ("box_jitter", "jitter_box"),
+    ], ids=["a_violin_over_three_point_groups_draws_the_points",
+            "a_choice_that_keeps_its_points_is_never_talked_out_of"])
+    def test_a_violin_over_three_point_groups_draws_the_points(
+            self, qtbot, prefer, choice, mark):
+        prefer(choice)
         controls = _controls(qtbot)
 
         controls.set_groups(_groups(sizes=(3, 3, 4)))
 
-        assert controls.mark() == "jitter"
+        assert controls.mark() == mark
 
     def test_the_plot_says_why_it_is_not_the_violin(self, qtbot, prefer):
         prefer("violin")
@@ -264,16 +271,6 @@ class TestTheFallbackIsSaidOutLoud:
         assert controls.mark() == "violin"
         assert "Right-click to draw" not in controls._status.text()
         assert "too few to have a shape" in controls._status.text()
-
-    def test_a_choice_that_keeps_its_points_is_never_talked_out_of(
-            self, qtbot, prefer):
-        """A box WITH the observations on it shows the reader the n."""
-        prefer("box_jitter")
-        controls = _controls(qtbot)
-
-        controls.set_groups(_groups(sizes=(3, 3, 4)))
-
-        assert controls.mark() == "jitter_box"
 
     def test_the_other_live_panel_is_measured_too(self, qtbot, prefer):
         """The size rule is not a Control-separation special case. Guide

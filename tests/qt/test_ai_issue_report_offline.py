@@ -193,13 +193,24 @@ def test_traceback_hash_is_deterministic_and_six_hex_chars():
     assert all(c in "0123456789abcdef" for c in h)
 
 
-def test_traceback_hash_survives_line_number_churn():
-    """REGRESSION: an unrelated edit above the failure shifts every line
-    number. The same bug must keep the same fingerprint, or every run
-    files a fresh duplicate issue."""
+@pytest.mark.parametrize("old, new", [
+    # REGRESSION: an unrelated edit above the failure shifts every line
+    # number. The same bug must keep the same fingerprint, or every run files
+    # a fresh duplicate issue.
+    ("line 42", "line 57"),
+    # The message routinely embeds a filename or plate id -- including it
+    # would fork the fingerprint on every run of the same bug.
+    ("channels must be a list, got None",
+     "channels must be a list, got 'plate_042'"),
+    # Blank lines are ignored.
+    ('    boom()\n', '    boom()\n\n   \n'),
+    # So are the source echo lines.
+    ("    boom()", "    boom(a, b)  # reformatted"),
+], ids=["line_number_churn", "volatile_exception_message", "blank_lines",
+        "source_echo_lines"])
+def test_traceback_hash_survives_line_number_churn(old, new):
     from spacr.qt.ai import issue_report as ir
-    shifted = _TB.replace("line 42", "line 57")
-    assert ir._traceback_hash(shifted) == ir._traceback_hash(_TB)
+    assert ir._traceback_hash(_TB.replace(old, new)) == ir._traceback_hash(_TB)
 
 
 def test_traceback_hash_separates_different_exception_types():
@@ -211,33 +222,12 @@ def test_traceback_hash_separates_different_exception_types():
     assert ir._traceback_hash(other) != ir._traceback_hash(_TB)
 
 
-def test_traceback_hash_ignores_the_volatile_exception_message():
-    """The message routinely embeds a filename or plate id — including it
-    would fork the fingerprint on every run of the same bug."""
-    from spacr.qt.ai import issue_report as ir
-    same_bug = _TB.replace("channels must be a list, got None",
-                           "channels must be a list, got 'plate_042'")
-    assert ir._traceback_hash(same_bug) == ir._traceback_hash(_TB)
-
-
 def test_traceback_hash_separates_different_call_sites():
     from spacr.qt.ai import issue_report as ir
     elsewhere = _TB.replace("spacr/core.py", "spacr/measure.py")
     assert ir._traceback_hash(elsewhere) != ir._traceback_hash(_TB)
     other_func = _TB.replace("in run", "in preprocess")
     assert ir._traceback_hash(other_func) != ir._traceback_hash(_TB)
-
-
-def test_traceback_hash_ignores_blank_lines():
-    from spacr.qt.ai import issue_report as ir
-    padded = _TB.replace('    boom()\n', '    boom()\n\n   \n')
-    assert ir._traceback_hash(padded) == ir._traceback_hash(_TB)
-
-
-def test_traceback_hash_ignores_the_source_echo_lines():
-    from spacr.qt.ai import issue_report as ir
-    reformatted = _TB.replace("    boom()", "    boom(a, b)  # reformatted")
-    assert ir._traceback_hash(reformatted) == ir._traceback_hash(_TB)
 
 
 def test_traceback_hash_falls_back_to_whole_text_without_file_lines():
@@ -275,18 +265,15 @@ def test_build_report_title_skips_indented_traceback_frames():
     assert "FileNotFoundError: no such file" in r["title"]
 
 
-def test_build_report_without_log_tail_omits_the_section(monkeypatch):
+@pytest.mark.parametrize("include, tail", [
+    (False, "should never be called"),  # without the log tail: no section
+    (True, ""),                         # an empty tail: no section either
+], ids=["without_log_tail", "tail_is_empty"])
+def test_build_report_without_log_tail_omits_the_section(monkeypatch, include,
+                                                         tail):
     from spacr.qt.ai import issue_report as ir
-    monkeypatch.setattr(ir, "log_tail",
-                        lambda *a, **k: "should never be called")
-    body = ir.build_report("E: x", include_log_tail=False)["body"]
-    assert "Recent log lines" not in body
-
-
-def test_build_report_omits_log_section_when_tail_is_empty(monkeypatch):
-    from spacr.qt.ai import issue_report as ir
-    monkeypatch.setattr(ir, "log_tail", lambda *a, **k: "")
-    body = ir.build_report("E: x", include_log_tail=True)["body"]
+    monkeypatch.setattr(ir, "log_tail", lambda *a, **k: tail)
+    body = ir.build_report("E: x", include_log_tail=include)["body"]
     assert "Recent log lines" not in body
 
 
@@ -540,20 +527,14 @@ def test_file_issue_posts_via_api_when_signed_in(monkeypatch, no_browser):
     assert "ValueError: boom" in seen["body"]
 
 
-def test_file_issue_falls_back_to_browser_when_api_call_fails(monkeypatch,
-                                                               no_browser):
+@pytest.mark.parametrize("create", [
+    lambda *a, **k: (False, "GitHub API error 401: nope"),
+    lambda *a, **k: (True, ""),     # the API says ok but returns no url
+], ids=["api_call_fails", "api_returns_ok_but_no_url"])
+def test_file_issue_falls_back_to_browser_when_api_call_fails(
+        monkeypatch, no_browser, create):
     from spacr.qt.ai import issue_report as ir
-    _patch_auth(monkeypatch, authed=True,
-                create=lambda *a, **k: (False, "GitHub API error 401: nope"))
-    url = ir.file_issue("ValueError: boom")
-    assert url.startswith("https://github.com/EinarOlafsson/spacr/issues/new?")
-    assert no_browser == [url]
-
-
-def test_file_issue_falls_back_when_api_returns_ok_but_no_url(monkeypatch,
-                                                               no_browser):
-    from spacr.qt.ai import issue_report as ir
-    _patch_auth(monkeypatch, authed=True, create=lambda *a, **k: (True, ""))
+    _patch_auth(monkeypatch, authed=True, create=create)
     url = ir.file_issue("ValueError: boom")
     assert url.startswith("https://github.com/EinarOlafsson/spacr/issues/new?")
     assert no_browser == [url]

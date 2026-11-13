@@ -37,22 +37,18 @@ def sheets(qapp):
 
 
 @pytest.mark.parametrize("view", VIEWS)
-def test_every_item_view_styles_its_selection(sheets, view):
+@pytest.mark.parametrize("suffix, why", [
+    ("::item:selected",
+     "has no selection rule, so it falls through to Qt's default, which "
+     "assumes a light background"),
+    # Qt dims an inactive selection to a grey close to the surface. That is
+    # how a picked column vanishes the moment the user clicks OK.
+    ("::item:selected:!active",
+     "loses its selection colour when unfocused"),
+], ids=["styles_its_selection", "survives_losing_focus"])
+def test_every_item_view_styles_its_selection(sheets, view, suffix, why):
     for name, sheet in sheets.items():
-        assert f"{view}::item:selected" in sheet, (
-            f"{name}: {view} has no selection rule, so it falls through to "
-            f"Qt's default, which assumes a light background")
-
-
-@pytest.mark.parametrize("view", VIEWS)
-def test_the_selection_survives_losing_focus(sheets, view):
-    """Qt dims an inactive selection to a grey close to the surface.
-
-    That is how a picked column vanishes the moment the user clicks OK.
-    """
-    for name, sheet in sheets.items():
-        assert f"{view}::item:selected:!active" in sheet, (
-            f"{name}: {view} loses its selection colour when unfocused")
+        assert f"{view}{suffix}" in sheet, f"{name}: {view} {why}"
 
 
 def _rule_after(sheet: str, needle: str) -> str:

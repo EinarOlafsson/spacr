@@ -47,12 +47,23 @@ def _step_out_from_under_pytest(monkeypatch):
 # --- whether there is anybody to ask --------------------------------------
 
 
-def test_nobody_is_there_when_prompts_are_switched_off(monkeypatch, qapp):
-    """``SPACR_NO_PROMPTS`` is how a batch run says "never block on me"."""
+@pytest.mark.parametrize("variable, value, somebody", [
+    # SPACR_NO_PROMPTS is how a batch run says "never block on me".
+    ("SPACR_NO_PROMPTS", "1", False),
+    # Offscreen is a render farm or a test, and neither can answer.
+    ("QT_QPA_PLATFORM", "offscreen", False),
+    # The one arrangement that earns a dialog: a running application on a
+    # real platform, where a person could answer it.
+    ("QT_QPA_PLATFORM", "xcb", True),
+], ids=["prompts_are_switched_off", "an_offscreen_platform",
+        "a_running_application_on_a_real_platform"])
+def test_nobody_is_there_when_prompts_are_switched_off(monkeypatch, qapp,
+                                                       variable, value,
+                                                       somebody):
     _step_out_from_under_pytest(monkeypatch)
-    monkeypatch.setenv("SPACR_NO_PROMPTS", "1")
+    monkeypatch.setenv(variable, value)
 
-    assert ASK.somebody_is_there() is False
+    assert ASK.somebody_is_there() is somebody
 
 
 def test_nobody_is_there_without_a_qt_binding(monkeypatch, qapp):
@@ -79,23 +90,6 @@ def test_nobody_is_there_before_a_qapplication_exists(monkeypatch, qapp):
     monkeypatch.setenv("QT_QPA_PLATFORM", "xcb")
 
     assert ASK.somebody_is_there() is False
-
-
-def test_nobody_is_there_on_an_offscreen_platform(monkeypatch, qapp):
-    """Offscreen is a render farm or a test, and neither can answer."""
-    _step_out_from_under_pytest(monkeypatch)
-    monkeypatch.setenv("QT_QPA_PLATFORM", "offscreen")
-
-    assert ASK.somebody_is_there() is False
-
-
-def test_somebody_is_there_with_a_running_application_on_a_real_platform(
-        monkeypatch, qapp):
-    """The one arrangement that earns a dialog: a person could answer it."""
-    _step_out_from_under_pytest(monkeypatch)
-    monkeypatch.setenv("QT_QPA_PLATFORM", "xcb")
-
-    assert ASK.somebody_is_there() is True
 
 
 def test_a_folder_prompt_says_there_is_nobody_rather_than_waiting(tmp_path):

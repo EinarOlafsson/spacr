@@ -54,9 +54,12 @@ class TestTheRefusalsAreTheRunsOwn:
         assert "batch_covariate_column" in said
         assert "no_covariate" in said
 
-    def test_combat_WITH_a_covariate_is_not_refused(self):
-        assert refusals({"batch_correction": "combat",
-                         "batch_covariate_column": "condition"}) == ()
+    @pytest.mark.parametrize("settings", [
+        {"batch_correction": "combat", "batch_covariate_column": "condition"},
+        {"batch_correction": "center", "regression_type": "beta"},
+    ], ids=["combat-with-a-covariate", "a-dict-the-run-would-accept"])
+    def test_a_settings_dict_the_run_accepts_says_nothing(self, settings):
+        assert refusals(settings) == ()
 
     def test_an_explicit_no_covariate_is_an_answer(self):
         from spacr.batch_correction import NO_COVARIATE
@@ -74,11 +77,6 @@ class TestTheRefusalsAreTheRunsOwn:
         said = refusals({"regression_type": "sideways"})
 
         assert said and "sideways" in said[0]
-
-    def test_a_settings_dict_the_run_would_accept_says_nothing(self):
-        assert refusals({"batch_correction": "center",
-                         "regression_type": "beta"}) == ()
-
 
 class TestTheProposalRuns:
     """The acceptance criterion, in one line: press it, accept, press Run."""

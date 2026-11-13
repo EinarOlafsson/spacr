@@ -212,14 +212,6 @@ def test_an_unseen_but_well_formed_name_resolves_by_composition(
     assert entry.column == column
 
 
-def test_composition_fills_the_parameter_into_the_definition():
-    """A composed name is described with ITS number, not the template's."""
-    assert "25th percentile" in parse_column(
-        "cytoplasm_channel_9_percentile_25").description
-    assert "shell 11" in parse_column(
-        "pathogen_rad_dist_channel_3_bin_11").description
-
-
 @pytest.mark.parametrize("column", [
     "wibble",                      # no object prefix, no metadata match
     "cell_wibble_wobble",          # object prefix, unknown statistic

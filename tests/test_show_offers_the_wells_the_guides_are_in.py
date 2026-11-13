@@ -123,16 +123,15 @@ class TestNoSelectionIsAnAnswer:
 
 class TestTheSentence:
 
-    def test_it_names_the_comparison(self, objects):
+    @pytest.mark.parametrize("fragments", [
+        ("well-mates", "imaging session"),
+        ("2 objects", "4 of their well-mates"),
+    ], ids=["names-the-comparison", "counts-both-sides"])
+    def test_it_names_the_comparison_and_counts_both_sides(self, objects, fragments):
         _, report = select(objects, scope="wells", guides=["g1"])
         text = describe(report)
-        assert "well-mates" in text and "imaging session" in text
-
-    def test_it_counts_both_sides(self, objects):
-        _, report = select(objects, scope="wells", guides=["g1"])
-        text = describe(report)
-        assert "2 objects" in text and "4 of their well-mates" in text
-
+        for fragment in fragments:
+            assert fragment in text
 
 class TestThroughThePanel:
 

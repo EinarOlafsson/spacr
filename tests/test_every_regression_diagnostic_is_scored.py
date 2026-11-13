@@ -82,10 +82,19 @@ def test_the_sentence_says_which_direction_it_read():
 
 # -------------------------------------------------- the conventional thresholds
 
-@pytest.mark.parametrize("value, level", [(2.0, "pass"), (7.0, "check"),
-                                          (25.0, "fail")])
-def test_vif_uses_the_conventional_bands(value, level):
-    assert qc.score_panel("vif", {"max_vif": value}).level == level
+@pytest.mark.parametrize("panel, key, value, level", [
+    ("vif", "max_vif", 2.0, "pass"),
+    ("vif", "max_vif", 7.0, "check"),
+    ("vif", "max_vif", 25.0, "fail"),
+    # Belsley's bands for the condition number.
+    ("condition_number", "condition_number", 9.0, "pass"),
+    ("condition_number", "condition_number", 55.0, "check"),
+    ("condition_number", "condition_number", 400.0, "fail"),
+], ids=["vif-pass", "vif-check", "vif-fail", "condition-number-pass",
+        "condition-number-check", "condition-number-fail"])
+def test_a_diagnostic_is_scored_by_its_conventional_bands(
+        panel, key, value, level):
+    assert qc.score_panel(panel, {key: value}).level == level
 
 
 def test_an_aliased_predictor_fails_outright():
@@ -93,13 +102,6 @@ def test_an_aliased_predictor_fails_outright():
     verdict = qc.score_panel("vif", {"n_aliased": 2, "max_vif": 1.0})
     assert verdict.level == "fail"
     assert "linear combinations" in verdict.headline
-
-
-@pytest.mark.parametrize("value, level", [(9.0, "pass"), (55.0, "check"),
-                                          (400.0, "fail")])
-def test_the_condition_number_uses_belsleys_bands(value, level):
-    assert qc.score_panel("condition_number",
-                          {"condition_number": value}).level == level
 
 
 @pytest.mark.parametrize("value, level", [(0.2, "pass"), (0.7, "check"),
