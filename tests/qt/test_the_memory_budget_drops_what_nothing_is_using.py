@@ -28,11 +28,19 @@ def _entry(key, megabytes, minutes_idle):
 # idleness decides whether a trim happens
 # ---------------------------------------------------------------------------
 
-def test_nothing_idle_and_nothing_over_the_ceiling_drops_nothing():
-    entries = [_entry("a", 10.0, 1), _entry("b", 10.0, 2)]
-
+@pytest.mark.parametrize("entries, ceiling_mb", [
+    ([_entry("a", 10.0, 1), _entry("b", 10.0, 2)], 1000),
+    # The contract's own sentence, made a test: fifty times the size of
+    # everything else and touched a minute ago is the model the user is
+    # working with, and evicting it is the failure the ordering rule exists
+    # to prevent.
+    ([_entry("the model", 5000.0, 1), _entry("thumb", 1.0, 1)], 100_000),
+], ids=["nothing_idle_and_nothing_over_the_ceiling",
+        "a_large_entry_in_active_use"])
+def test_nothing_idle_and_nothing_over_the_ceiling_drops_nothing(
+        entries, ceiling_mb):
     assert mb.what_to_drop(entries, NOW, idle_minutes=30,
-                           ceiling_mb=1000) == []
+                           ceiling_mb=ceiling_mb) == []
 
 
 def test_an_entry_idle_longer_than_the_timeout_goes():
@@ -40,19 +48,6 @@ def test_an_entry_idle_longer_than_the_timeout_goes():
 
     assert mb.what_to_drop(entries, NOW, idle_minutes=30,
                            ceiling_mb=1000) == ["stale"]
-
-
-def test_a_large_entry_in_active_use_is_not_dropped():
-    """The contract's own sentence, made a test.
-
-    Fifty times the size of everything else and touched a minute ago: this is
-    the model the user is working with, and evicting it is the failure the
-    ordering rule exists to prevent.
-    """
-    entries = [_entry("the model", 5000.0, 1), _entry("thumb", 1.0, 1)]
-
-    assert mb.what_to_drop(entries, NOW, idle_minutes=30,
-                           ceiling_mb=100_000) == []
 
 
 # ---------------------------------------------------------------------------
@@ -143,16 +138,13 @@ def test_memory_that_cannot_be_measured_is_not_treated_as_short(monkeypatch):
     assert mb.headroom_is_short(floor_mb=100_000) is False
 
 
-def test_free_memory_below_the_floor_is_short(monkeypatch):
-    monkeypatch.setattr(mb, "free_megabytes", lambda: 100.0)
+@pytest.mark.parametrize("free_mb, short", [(100.0, True), (5000.0, False)],
+                         ids=["below_the_floor_is_short",
+                              "above_the_floor_is_not"])
+def test_free_memory_below_the_floor_is_short(monkeypatch, free_mb, short):
+    monkeypatch.setattr(mb, "free_megabytes", lambda: free_mb)
 
-    assert mb.headroom_is_short(floor_mb=500.0) is True
-
-
-def test_free_memory_above_the_floor_is_not(monkeypatch):
-    monkeypatch.setattr(mb, "free_megabytes", lambda: 5000.0)
-
-    assert mb.headroom_is_short(floor_mb=500.0) is False
+    assert mb.headroom_is_short(floor_mb=500.0) is short
 
 
 def test_a_floor_that_cannot_be_read_is_not_a_shortage(monkeypatch):

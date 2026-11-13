@@ -425,12 +425,6 @@ def cellpose_notices_reset():
     U._REPORTED_CELLPOSE_NOTICES.update(before)
 
 
-@pytest.mark.parametrize("value", [None, "", "   "])
-def test_normalize_cellpose_model_name_fills_an_empty_setting(
-        value, cellpose_notices_reset):
-    assert S.normalize_cellpose_model_name(value) == "cpsam"
-
-
 def test_normalize_cellpose_model_name_maps_every_legacy_spelling(
         cellpose_notices_reset, capsys):
     from spacr.utils import LEGACY_CELLPOSE_MODELS

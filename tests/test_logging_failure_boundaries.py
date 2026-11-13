@@ -201,10 +201,12 @@ def test_boundary_drain_flushes_a_burst_after_its_timer_cannot_start(
     assert handler.stream is not None and not handler.stream.closed
 
 
-def test_a_non_rotating_handler_is_not_rewired():
+@pytest.mark.parametrize("attribute", ["_spacr_late_flush_pid",
+                                       "_spacr_flushed_at"])
+def test_a_non_rotating_handler_is_not_rewired(attribute):
     handler = logging.StreamHandler()
     assert lu._quicken(handler) is handler
-    assert not hasattr(handler, "_spacr_late_flush_pid")
+    assert not hasattr(handler, attribute)
 
 
 def test_a_failed_late_flush_releases_the_next_burst(monkeypatch):

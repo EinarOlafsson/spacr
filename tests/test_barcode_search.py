@@ -506,12 +506,18 @@ def test_a_reference_table_is_read_with_its_names(planted):
     assert all(name.startswith("c") for name in table.sequences.values())
 
 
-def test_a_table_without_a_sequence_column_is_refused(tmp_path):
-    """A file of the wrong shape is named rather than silently empty."""
-    path = tmp_path / "wrong.csv"
-    path.write_text("name,barcode\nc1,ACGTACGT\n", encoding="utf-8")
+@pytest.mark.parametrize("text, message", [
+    # A file of the wrong shape is named rather than silently empty.
+    ("name,barcode\nc1,ACGTACGT\n", "sequence"),
+    # A header alone would otherwise search for nothing and find nothing.
+    ("name,sequence\n\n", "no barcode sequences"),
+], ids=["no-sequence-column", "empty-table"])
+def test_a_table_that_cannot_be_read_as_barcodes_is_refused(
+        tmp_path, text, message):
+    path = tmp_path / "table.csv"
+    path.write_text(text, encoding="utf-8")
 
-    with pytest.raises(ValueError, match="sequence"):
+    with pytest.raises(ValueError, match=message):
         bs.load_barcode_table(str(path))
 
 
@@ -523,15 +529,6 @@ def test_a_row_without_a_sequence_is_skipped(tmp_path):
     table = bs.load_barcode_table(str(path), role="column")
 
     assert table.sequences == {"ACGTACGT": "c2"}
-
-
-def test_an_empty_table_is_refused(tmp_path):
-    """A header alone would otherwise search for nothing and find nothing."""
-    path = tmp_path / "empty.csv"
-    path.write_text("name,sequence\n\n", encoding="utf-8")
-
-    with pytest.raises(ValueError, match="no barcode sequences"):
-        bs.load_barcode_table(str(path))
 
 
 def test_a_table_without_names_still_loads(tmp_path):

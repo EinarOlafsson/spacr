@@ -243,21 +243,13 @@ def test_installing_the_hook_twice_connects_it_once(monkeypatch):
 # What each mode does to the visual settings
 # ---------------------------------------------------------------------------
 
-def test_balanced_leaves_every_visual_setting_alone():
+@pytest.mark.parametrize("mode", ["balanced", "performance"])
+def test_balanced_leaves_every_visual_setting_alone(mode):
     prefs.set_ambient_animation("drift")
     prefs.set_setting_animations_enabled(True)
     prefs.set_field_fade_enabled(True)
     before = prefs._visual_snapshot()
-    prefs.set_spacr_mode("balanced")
-    assert prefs._visual_snapshot() == before
-
-
-def test_performance_leaves_every_visual_setting_alone():
-    prefs.set_ambient_animation("drift")
-    prefs.set_setting_animations_enabled(True)
-    prefs.set_field_fade_enabled(True)
-    before = prefs._visual_snapshot()
-    prefs.set_spacr_mode("performance")
+    prefs.set_spacr_mode(mode)
     assert prefs._visual_snapshot() == before
 
 

@@ -69,14 +69,13 @@ def test_the_filters_reach_the_generator(dialog):
     assert collected["max_objects"] == 5
 
 
-def test_the_channels_are_parsed(dialog):
-    dialog._channels.setText("3, 1, 0")
-    assert dialog._collected()["channel_arrays"] == [3, 1, 0]
-
-
-def test_empty_channels_fall_back_rather_than_crashing(dialog):
-    dialog._channels.setText("")
-    assert dialog._collected()["channel_arrays"] == [0, 1, 2]
+@pytest.mark.parametrize("text, channels", [
+    ("3, 1, 0", [3, 1, 0]),
+    ("", [0, 1, 2]),        # empty channels fall back rather than crashing
+], ids=["the_channels_are_parsed", "empty_channels_fall_back"])
+def test_the_channels_are_parsed(dialog, text, channels):
+    dialog._channels.setText(text)
+    assert dialog._collected()["channel_arrays"] == channels
 
 
 def test_a_run_that_writes_nothing_says_so(dialog, monkeypatch):

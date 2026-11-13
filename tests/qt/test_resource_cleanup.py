@@ -384,8 +384,13 @@ def test_the_confirmations_name_the_specific_mechanism():
     assert "read" in rc.confirmation_text("disk")
 
 
-def test_the_ram_confirmation_admits_the_cost_of_pressing_it():
-    assert "slower" in rc.confirmation_text("ram")
+@pytest.mark.parametrize(
+    "kind, admission",
+    [("ram", "slower"), ("vram", "another process")],
+    ids=["ram_admits_the_cost_of_pressing_it", "vram_admits_the_limit"],
+)
+def test_a_confirmation_admits_what_pressing_it_costs(kind, admission):
+    assert admission in rc.confirmation_text(kind)
 
 
 def test_the_cpu_confirmation_promises_not_to_kill_anything():
@@ -394,10 +399,6 @@ def test_the_cpu_confirmation_promises_not_to_kill_anything():
     assert "no running or queued job is stopped" in text
     assert "anybody else" in text, (
         "the promise is about other people's work, so it has to say so")
-
-
-def test_the_vram_confirmation_admits_the_limit():
-    assert "another process" in rc.confirmation_text("vram")
 
 
 def test_the_disk_confirmation_promises_it_writes_nothing():

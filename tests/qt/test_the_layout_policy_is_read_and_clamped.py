@@ -69,15 +69,16 @@ class TestTheWidthItRecommends:
         assert lp.minimum_width_for(1.0, measured) == 1400
         assert lp.minimum_width_for(2.0, measured) == 2100
 
-    def test_between_two_scales_it_rounds_up(self, measured):
-        """Rounding down opens a window that fits the smaller scale."""
-        assert lp.minimum_width_for(1.5, measured) == 2100
-
-    def test_above_every_measured_scale_it_takes_the_widest(self, measured):
-        assert lp.minimum_width_for(4.0, measured) == 2100
-
-    def test_below_every_measured_scale_it_takes_the_smallest(self, measured):
-        assert lp.minimum_width_for(0.5, measured) == 1400
+    @pytest.mark.parametrize("scale, width", [
+        (1.5, 2100),    # between two scales it rounds up: rounding down opens
+                        # a window that fits the smaller scale
+        (4.0, 2100),    # above every measured scale it takes the widest
+        (0.5, 1400),    # below every measured scale it takes the smallest
+    ], ids=["between_two_scales_it_rounds_up",
+            "above_every_measured_scale_it_takes_the_widest",
+            "below_every_measured_scale_it_takes_the_smallest"])
+    def test_between_two_scales_it_rounds_up(self, measured, scale, width):
+        assert lp.minimum_width_for(scale, measured) == width
 
     @pytest.mark.parametrize("bad", ["wide", None, object()])
     def test_a_scale_that_is_not_a_number_answers_nothing(self, measured, bad):

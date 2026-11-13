@@ -83,14 +83,13 @@ def test_unparsable_field_name_fails_once_and_names_the_file(tmp_path):
     assert not (root / 'measurements' / 'measurements.db').exists() or True
 
 
-def test_measure_crop_fills_its_own_defaults(tmp_path):
-    root = _plate(tmp_path, 'plate01_A01_1.npy')
-    _run(_docstring_settings(root))
-    assert (root / 'measurements' / 'measurements.db').is_file()
-
-
-def test_old_none_named_stack_still_measures(tmp_path):
-    root = _plate(tmp_path, 'plate01_A01_1_None.npy')
+@pytest.mark.parametrize("stack", [
+    'plate01_A01_1.npy',
+    'plate01_A01_1_None.npy',   # the old None-named stack
+], ids=["fills-its-own-defaults", "old-none-named-stack"])
+def test_measure_crop_measures_a_stack_with_or_without_the_none_name(
+        tmp_path, stack):
+    root = _plate(tmp_path, stack)
     _run(_docstring_settings(root))
     assert (root / 'measurements' / 'measurements.db').is_file()
 

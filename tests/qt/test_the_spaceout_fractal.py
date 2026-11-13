@@ -15,19 +15,18 @@ from spacr.qt.widgets import fractal_travel as F  # noqa: E402
 # --- which renderer, and the honest answer about it -----------------------
 
 
-def test_auto_resolves_to_something_real():
+@pytest.mark.parametrize("backend", ["auto", "sideways"],
+                         ids=["auto", "an_unknown_backend_falls_back"])
+def test_auto_resolves_to_something_real(backend):
     """Never 'auto': a caller showing the user their backend cannot show
-    them a word that means "ask again"."""
-    assert F.resolve_backend("auto") in ("gpu", "cpu")
+    them a word that means "ask again". An unknown backend falls back rather
+    than raising."""
+    assert F.resolve_backend(backend) in ("gpu", "cpu")
 
 
 def test_auto_follows_whether_vispy_is_installed():
     expected = "gpu" if F.gpu_is_available() else "cpu"
     assert F.resolve_backend("auto") == expected
-
-
-def test_an_unknown_backend_falls_back_rather_than_raising():
-    assert F.resolve_backend("sideways") in ("gpu", "cpu")
 
 
 def test_asking_for_the_gpu_never_stops_the_application(qtbot):

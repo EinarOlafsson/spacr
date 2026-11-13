@@ -16,13 +16,10 @@ from spacr.qt.widgets.empty_state import _WrappedLabel
 # Iconset
 # ---------------------------------------------------------------------------
 
-def test_iconset_returns_qicon_for_known_name(qt_theme_applied):
-    ic = iconset.icon("open")
-    assert isinstance(ic, QIcon)
-
-
-def test_iconset_unknown_name_falls_back_to_placeholder(qt_theme_applied):
-    ic = iconset.icon("this-doesnt-exist")
+@pytest.mark.parametrize("name", ["open", "this-doesnt-exist"],
+                         ids=["known_name", "unknown_name_falls_back_to_placeholder"])
+def test_iconset_returns_qicon_for_known_name(qt_theme_applied, name):
+    ic = iconset.icon(name)
     assert isinstance(ic, QIcon)
 
 

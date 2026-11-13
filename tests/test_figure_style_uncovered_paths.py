@@ -224,7 +224,13 @@ def test_a_colour_matplotlib_reads_as_fully_transparent_is_not_a_colour():
     assert to_rgb(("red", 1.0)) == (1.0, 0.0, 0.0)
 
 
-@pytest.mark.parametrize("spec", [(0.5, 0.5), "chartreusey", (), "rgb(1,2,3)"])
+@pytest.mark.parametrize("spec", [
+    (0.5, 0.5), "chartreusey", (), "rgb(1,2,3)",
+    # Malformed hex digits and hex strings of the wrong length (only 3, 4, 6
+    # and 8 digits name a colour; the rest are typos).
+    "#gggggg", "#zz00zz00",
+    "#12345", "#1", "#", "#1234567",
+])
 def test_a_specification_matplotlib_refuses_is_refused_here_too(spec):
     """Anything neither parser can read comes back as None, never a guess.
 

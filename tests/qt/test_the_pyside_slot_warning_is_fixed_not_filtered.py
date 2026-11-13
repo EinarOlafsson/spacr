@@ -63,23 +63,17 @@ MUST_SURVIVE = (
 )
 
 
-@pytest.mark.parametrize("message", REPORTED)
+# REPORTED: the warning reports a real defect, so it has to be audible.
+# Filtering it was defensible only while the cause was unknown. Now that a
+# poisoned child silently loses its virtual overrides, this line is the only
+# notice anyone gets, and hiding it hides that.
+# MUST_SURVIVE: the remaining filter is a scalpel, not a mute.
+@pytest.mark.parametrize("message", tuple(REPORTED) + tuple(MUST_SURVIVE))
 def test_the_warning_is_no_longer_swallowed(message):
-    """It reports a real defect, so it has to be audible.
-
-    Filtering it was defensible only while the cause was unknown. Now that
-    a poisoned child silently loses its virtual overrides, this line is the
-    only notice anyone gets, and hiding it hides that.
-    """
     assert not _QT_NOISE.search(message), (
-        "this warning reports a widget that has lost its Shiboken wrapper "
-        "-- fix the ChildAdded filter that caused it, do not filter this")
-
-
-@pytest.mark.parametrize("message", MUST_SURVIVE)
-def test_a_warning_that_matters_still_gets_through(message):
-    """The remaining filter is a scalpel, not a mute."""
-    assert not _QT_NOISE.search(message), f"wrongly swallowed: {message}"
+        f"wrongly swallowed: {message} -- a warning that reports a widget "
+        "that has lost its Shiboken wrapper must stay audible: fix the "
+        "ChildAdded filter that caused it, do not filter this")
 
 
 def test_the_filter_still_only_covers_the_two_cosmetic_lines():

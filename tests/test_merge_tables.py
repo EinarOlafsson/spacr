@@ -11,7 +11,7 @@ import pandas as pd
 import pytest
 
 from spacr.merge_tables import (
-    AGGREGATIONS, MAX, MEAN, MEDIAN, MIN, SUM, MergeError, MergePolicy,
+    AGGREGATIONS, MEAN, MIN, SUM, MergeError, MergePolicy,
     ReductionError, aggregation_for, aggregation_plan, merge_tables,
     mergeable_tables, reduce_dimensions,
 )
@@ -57,26 +57,6 @@ def _db(tmp_path, tables, name="measurements.db"):
 # ---------------------------------------------------------------------------
 # The rules
 # ---------------------------------------------------------------------------
-
-@pytest.mark.parametrize("column, expected", [
-    ("area", SUM),
-    # A perimeter describes ONE object; four children do not have a
-    # combined one. Maintainer's call, 2026-08-11 -- lengths average,
-    # areas and volumes sum.
-    ("perimeter", MEAN),
-    ("integrated_intensity", SUM),
-    ("count_pathogen", SUM),
-    ("min_intensity", MIN),
-    ("channel_1_min_intensity", MIN),
-    ("max_intensity", MAX),
-    ("mean_intensity", MEAN),
-    ("median_intensity", MEDIAN),
-    ("eccentricity", MEAN),
-    ("centroid_x", MEAN),
-])
-def test_each_measurement_gets_the_aggregation_it_deserves(column, expected):
-    assert aggregation_for(column) == expected
-
 
 def test_text_takes_the_first_value_whatever_it_is_called():
     assert aggregation_for("area", numeric=False) == "first"

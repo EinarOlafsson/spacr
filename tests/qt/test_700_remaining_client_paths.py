@@ -91,15 +91,16 @@ class TestWhatTheHostedRequestCarries:
 class TestRefusalSentences:
     """A refusal that is not a used-up allowance gets its own sentence."""
 
-    def test_an_unreachable_relay_says_to_check_the_network(self):
-        text = providers.hosted_refusal_message("network")
-        assert text == ("spaCR hosted AI could not be reached. Check the "
-                        "network connection and try again later.")
-
-    def test_any_other_refusal_says_to_try_later(self):
-        text = providers.hosted_refusal_message("error")
-        assert text == ("spaCR hosted AI could not answer this time. Try "
-                        "again later.")
+    @pytest.mark.parametrize("kind, sentence", [
+        ("network", "spaCR hosted AI could not be reached. Check the "
+                    "network connection and try again later."),
+        ("error", "spaCR hosted AI could not answer this time. Try "
+                  "again later."),
+    ], ids=["an_unreachable_relay_says_to_check_the_network",
+            "any_other_refusal_says_to_try_later"])
+    def test_an_unreachable_relay_says_to_check_the_network(self, kind,
+                                                            sentence):
+        assert providers.hosted_refusal_message(kind) == sentence
 
     def test_no_allowance_has_no_text(self):
         assert providers.hosted_allowance_text(None) == ""

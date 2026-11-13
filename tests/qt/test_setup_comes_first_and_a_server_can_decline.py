@@ -135,11 +135,24 @@ class TestDeclining:
                 assert namespace["initial_app"] == expected
                 assert flag not in namespace["argv"]
 
-    @pytest.mark.parametrize("said", ["1", "true", "TRUE", "yes", "on"])
-    def test_the_environment_variable_says_yes(self, said):
+    @pytest.mark.parametrize("environ, declined", [
+        *[({"SPACR_NO_SETUP": said}, True)
+          for said in ("1", "true", "TRUE", "yes", "on")],
+        *[({"QT_QPA_PLATFORM": platform}, True)
+          for platform in ("offscreen", "minimal", "vnc")],
+        *[({"QT_QPA_PLATFORM": platform}, False)
+          for platform in ("xcb", "wayland", "cocoa", "")],
+    ], ids=[
+        *[f"no_setup_says_{said}" for said in ("1", "true", "TRUE", "yes", "on")],
+        *[f"platform_{platform}_declines_by_itself"
+          for platform in ("offscreen", "minimal", "vnc")],
+        *[f"real_display_{platform or 'blank'}_does_not_decline"
+          for platform in ("xcb", "wayland", "cocoa", "")],
+    ])
+    def test_the_environment_says_whether_setup_declines(self, environ, declined):
         from spacr.qt.setup_screen import skipped_on_purpose
 
-        assert skipped_on_purpose({"SPACR_NO_SETUP": said}) is True
+        assert skipped_on_purpose(environ) is declined
 
     @pytest.mark.parametrize("said", ["0", "false", "no", "off"])
     def test_the_environment_variable_says_no_and_is_believed(self, said):
@@ -150,20 +163,6 @@ class TestDeclining:
 
         assert skipped_on_purpose({"SPACR_NO_SETUP": said,
                                    "QT_QPA_PLATFORM": "offscreen"}) is False
-
-    @pytest.mark.parametrize("platform", ["offscreen", "minimal", "vnc"])
-    def test_a_platform_with_nobody_looking_declines_by_itself(self,
-                                                               platform):
-        from spacr.qt.setup_screen import skipped_on_purpose
-
-        assert skipped_on_purpose({"QT_QPA_PLATFORM": platform}) is True
-
-    @pytest.mark.parametrize("platform", ["xcb", "wayland", "cocoa", ""])
-    def test_a_real_display_does_not_decline(self, platform):
-        from spacr.qt.setup_screen import skipped_on_purpose
-
-        assert skipped_on_purpose({"QT_QPA_PLATFORM": platform}) is False
-
 
 # ---------------------------------------------------------------------------
 # The two questions are kept apart

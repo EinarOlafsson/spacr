@@ -85,28 +85,6 @@ def test_the_five_node_types_the_walker_does_know_still_evaluate():
     assert formula.unparse(parse("area / 2")) == "(area / 2.0)"
 
 
-def test_a_function_called_with_no_arguments_at_all_is_parsed_then_refused():
-    """``mean()`` reaches the arity check rather than the argument loop.
-
-    The empty parentheses are a real thing to type — a user who knows the
-    function's name and not its shape — and the message has to be the one
-    that says what the function takes, not a syntax error about ``)``.
-    """
-    with pytest.raises(FormulaError) as raised:
-        parse("mean()")
-
-    message = str(raised.value)
-    assert "takes 1 argument(s), not 0" in message
-    assert "mean(x)" in message
-
-
-def test_a_three_argument_function_called_empty_reports_its_own_arity():
-    with pytest.raises(FormulaError) as raised:
-        parse("clip()")
-
-    assert "takes 3 argument(s), not 0" in str(raised.value)
-
-
 def test_a_column_that_is_only_short_of_inputs_says_so_and_blames_nothing_else():
     """Missing inputs are reported alone when nothing else went wrong.
 

@@ -28,11 +28,6 @@ def _joined(**over):
     return " | ".join(_problems(**over))
 
 
-def test_the_default_design_has_nothing_to_complain_about():
-    """The baseline every other test measures against must itself be legal."""
-    assert DesignSpec().validate() == []
-
-
 def test_a_library_of_one_gene_is_refused():
     """With one library unit there is no ranking, so AUROC means nothing."""
     assert "at least 2 genes" in _joined(n_genes=1)

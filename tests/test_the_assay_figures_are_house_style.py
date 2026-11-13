@@ -77,7 +77,7 @@ def _invasion_frames(wells=2, per_well=60, seed=1):
 
 
 def _regression_csv(path):
-    """The fixture ``tests/test_cov_submodules_heatmap_postreg.py`` designed.
+    """The post-regression fixture of ``tests/test_submodules_reads_and_heatmaps.py``.
 
     Built so the correlation matrix is exactly +-1 and the propagated effect
     sizes are known in closed form -- which is what makes "the restyle did not

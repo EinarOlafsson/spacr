@@ -139,10 +139,11 @@ def test_theme_roundtrip(qt_theme_applied):
     assert get_theme() == "system"
 
 
-def test_theme_invalid_raises(qt_theme_applied):
+@pytest.mark.parametrize("name", ["purple", "chartreuse"])
+def test_theme_invalid_raises(qt_theme_applied, name):
     from spacr.qt.preferences import set_theme
     with pytest.raises(ValueError):
-        set_theme("purple")
+        set_theme(name)
 
 
 def test_theme_recovers_from_corrupt_value(qt_theme_applied):

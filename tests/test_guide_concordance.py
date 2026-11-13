@@ -78,14 +78,16 @@ class TestGuideSupport:
 
 class TestTheReport:
 
-    def test_it_names_the_single_guide_hits(self):
+    @pytest.mark.parametrize("rows, expected", [
+        ([("fraction:grna[244480_3]", 2.0, 1.6e-12),
+          ("gene_fraction:gene[244480]", 2.0, 1.6e-12)], "SINGLE GUIDE"),
+        ([("fraction:grna[1_1]", 0.1, 0.9),
+          ("gene_fraction:gene[1]", 0.1, 0.9)], "No gene reached"),
+    ], ids=["single-guide-hits", "nothing-significant"])
+    def test_the_report_says_what_it_found(self, rows, expected):
         from spacr.guide_concordance import concordance_report
 
-        text = concordance_report(_frame([
-            ("fraction:grna[244480_3]", 2.0, 1.6e-12),
-            ("gene_fraction:gene[244480]", 2.0, 1.6e-12),
-        ]))
-        assert "SINGLE GUIDE" in text
+        assert expected in concordance_report(_frame(rows))
 
     def test_a_control_in_the_hit_list_is_called_out(self):
         """The most useful line in the report, and the easiest to miss when
@@ -97,15 +99,6 @@ class TestTheReport:
                     ("gene_fraction:gene[233460]", 1.0, 0.002)]),
             controls={"233460": "negative"})
         assert "NEGATIVE CONTROL" in text
-
-    def test_nothing_significant_says_so(self):
-        from spacr.guide_concordance import concordance_report
-
-        text = concordance_report(_frame([
-            ("fraction:grna[1_1]", 0.1, 0.9),
-            ("gene_fraction:gene[1]", 0.1, 0.9),
-        ]))
-        assert "No gene reached" in text
 
     def test_no_guide_terms_at_all_is_reported_not_guessed(self):
         from spacr.guide_concordance import concordance_report

@@ -526,24 +526,19 @@ def test_correct_from_metadata_accepts_the_explicit_none_answer():
     assert report.covariate_columns == []
 
 
-def test_correct_from_metadata_refuses_a_blank_covariate_setting():
+@pytest.mark.parametrize("covariate, message", [
+    ("", "which biology to keep"),
+    ("treatment", "absent from the input metadata"),
+], ids=["blank-covariate", "missing-covariate-column"])
+def test_correct_from_metadata_refuses_an_unusable_covariate_setting(
+        covariate, message):
     from spacr.batch_correction import correct_from_metadata
 
     features, metadata = _screen()
-    with pytest.raises(ValueError, match="which biology to keep"):
+    with pytest.raises(ValueError, match=message):
         correct_from_metadata(
             features, metadata,
-            batch_correction="combat", batch_covariate_column="")
-
-
-def test_correct_from_metadata_names_the_missing_covariate_column():
-    from spacr.batch_correction import correct_from_metadata
-
-    features, metadata = _screen()
-    with pytest.raises(ValueError, match="absent from the input metadata"):
-        correct_from_metadata(
-            features, metadata,
-            batch_correction="combat", batch_covariate_column="treatment")
+            batch_correction="combat", batch_covariate_column=covariate)
 
 
 def test_the_covariate_setting_is_ignored_by_every_other_method():

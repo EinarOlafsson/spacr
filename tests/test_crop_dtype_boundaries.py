@@ -408,19 +408,17 @@ def test_a_clip_would_have_saturated_where_the_rescale_does_not():
     assert list(rescaled.ravel()) == [1, 11, 46, 255]
 
 
-def test_normalised_floats_are_multiplied_by_255():
+@pytest.mark.parametrize("values, expected", [
+    # Normalised floats are multiplied by 255.
+    ([0.0, 0.5, 1.0], [0, 128, 255]),
+    # A float array carries no dtype range, so the crop's own maximum is used.
+    ([10.0, 20.0, 30.0], [85, 170, 255]),
+], ids=["normalised", "unnormalised"])
+def test_floats_are_rescaled_to_uint8(values, expected):
     from spacr.measure import _crop_to_uint8
 
-    arr = np.array([[[0.0, 0.5, 1.0]]], dtype=np.float32)
-    assert list(_crop_to_uint8(arr).ravel()) == [0, 128, 255]
-
-
-def test_unnormalised_floats_rescale_off_their_own_maximum():
-    """A float array carries no dtype range, so the crop's own is used."""
-    from spacr.measure import _crop_to_uint8
-
-    arr = np.array([[[10.0, 20.0, 30.0]]], dtype=np.float32)
-    assert list(_crop_to_uint8(arr).ravel()) == [85, 170, 255]
+    arr = np.array([[values]], dtype=np.float32)
+    assert list(_crop_to_uint8(arr).ravel()) == expected
 
 
 def test_negative_floats_clamp_to_background():

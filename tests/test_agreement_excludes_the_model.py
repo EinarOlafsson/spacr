@@ -194,20 +194,16 @@ def test_a_report_over_humans_alone_carries_no_such_warning(scored_database):
 # the sampled-negatives column, and the guard against over-reach
 # ---------------------------------------------------------------------------
 
-def test_a_sampled_negatives_column_is_excluded_when_its_source_is_present():
-    """``generate_training_dataset`` writes ``<col>_random`` beside ``<col>``.
-
-    1 for the rows it drew as controls, NULL elsewhere. That is a sample, not
-    a pass.
-    """
-    columns = ['png_path', 'annotate', 'annotate_random']
-    assert _is_model_column('annotate_random', columns) is True
-
-
-def test_a_random_named_annotator_survives_when_there_is_no_source_column():
-    """The rule is precise, not a bare suffix match."""
-    columns = ['png_path', 'blind_random', 'careful']
-    assert _is_model_column('blind_random', columns) is False
+@pytest.mark.parametrize("name, columns, expected", [
+    # ``generate_training_dataset`` writes ``<col>_random`` beside ``<col>``:
+    # 1 for the rows it drew as controls, NULL elsewhere. A sample, not a pass.
+    ('annotate_random', ['png_path', 'annotate', 'annotate_random'], True),
+    # The rule is precise, not a bare suffix match.
+    ('blind_random', ['png_path', 'blind_random', 'careful'], False),
+], ids=["sampled-negatives-with-source", "random-named-annotator-without-source"])
+def test_a_sampled_negatives_column_is_excluded_only_when_its_source_is_present(
+        name, columns, expected):
+    assert _is_model_column(name, columns) is expected
 
 
 def test_per_class_probability_columns_are_excluded_by_prefix():

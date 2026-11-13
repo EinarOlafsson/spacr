@@ -132,16 +132,16 @@ class TestWhatItSays:
         _device, note = pick_device()
         assert "62" in note and "24000" in note
 
-    def test_it_says_the_run_will_be_slower(self, monkeypatch):
+    @pytest.mark.parametrize("words", [
+        "slower",
+        # The fix is not spaCR's to make -- something else is using the GPU,
+        # and the user decides whether to wait or to free it, so the note
+        # names how to find out what is holding the card.
+        "nvidia-smi",
+    ], ids=["the_run_will_be_slower", "how_to_find_what_holds_the_card"])
+    def test_it_says_the_run_will_be_slower(self, monkeypatch, words):
         _Card(free_mb=62).install(monkeypatch)
-        assert "slower" in pick_device()[1]
-
-    def test_it_names_how_to_find_out_what_is_holding_the_card(self,
-                                                               monkeypatch):
-        """The fix is not spaCR's to make -- something else is using the
-        GPU, and the user decides whether to wait or to free it."""
-        _Card(free_mb=62).install(monkeypatch)
-        assert "nvidia-smi" in pick_device()[1]
+        assert words in pick_device()[1]
 
     def test_the_stage_is_named(self, monkeypatch):
         """A log with several stages has to say which one fell back."""
