@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import os
 import sqlite3
-import warnings
 
 import numpy as np
 import pandas as pd
@@ -129,256 +128,7 @@ _PAYLOAD_KEYS = (
 
 
 # ---------------------------------------------------------------------------
-# _apply_infection_intensity_qc -- no-op paths
-# ---------------------------------------------------------------------------
-
-def _case_qc_disabled_returns_input_untouched(tmp_path, monkeypatch):
-    from spacr.timelapse import _apply_infection_intensity_qc
-
-    calls = []
-    _patch_all_strategies(monkeypatch, calls)
-
-    df = _qc_frame(n_cells=4, n_frames=1)
-    settings = {
-        "infection_intensity_qc": False,
-        "infection_hist_data": "stale",
-        "infection_pca_data": "stale",
-        "infection_xgb_importance": "stale",
-        "infection_intensity_qc_panel_type": "stale",
-        "infection_intensity_qc_panel_path": "stale",
-    }
-    motility_dir = str(tmp_path / "never_created")
-
-    out, col = _apply_infection_intensity_qc(
-        df, settings, "infected", 2, motility_dir
-    )
-
-    assert out is df
-    assert col == "infected"
-    assert calls == []
-    # every stale QC payload was reset
-    assert all(settings[k] is None for k in _PAYLOAD_KEYS)
-    # the output dir is only created once QC actually runs
-    assert not os.path.exists(motility_dir)
-
-
-def _case_qc_without_pathogen_channel_is_noop(tmp_path, monkeypatch):
-    from spacr.timelapse import _apply_infection_intensity_qc
-
-    calls = []
-    _patch_all_strategies(monkeypatch, calls)
-
-    df = _qc_frame(n_cells=4, n_frames=1)
-    settings = {"infection_intensity_qc": True}
-    out, col = _apply_infection_intensity_qc(
-        df, settings, "infected", None, str(tmp_path / "mot")
-    )
-    assert out is df and col == "infected"
-    assert calls == []
-
-
-@pytest.mark.parametrize("scope", ["none", "off", "NONE", "Off"])
-def _case_qc_scope_none_skips_qc_but_resets_payloads(tmp_path, monkeypatch, scope):
-    from spacr.timelapse import _apply_infection_intensity_qc
-
-    calls = []
-    _patch_all_strategies(monkeypatch, calls)
-
-    df = _qc_frame(n_cells=4, n_frames=1)
-    motility_dir = str(tmp_path / "mot")
-    settings = {
-        "infection_intensity_qc": True,
-        "infection_intensity_qc_scope": scope,
-        "infection_hist_data": "stale",
-    }
-    out, col = _apply_infection_intensity_qc(
-        df, settings, "infected", 2, motility_dir
-    )
-
-    assert out is df and col == "infected"
-    assert calls == []
-    assert settings["infection_hist_data"] is None
-    # makedirs happens before the scope check
-    assert os.path.isdir(motility_dir)
-
-
-# ---------------------------------------------------------------------------
-# strategy dispatch
-# ---------------------------------------------------------------------------
-
-@pytest.mark.parametrize(
-    "strategy,expected",
-    [
-        ("hist", "histogram"),
-        ("histogram", "histogram"),
-        ("HISTAGRAM", "histogram"),
-        ("xgboost", "xgboost"),
-        ("XGB", "xgboost"),
-        ("pca", "pca"),
-        ("umap", "pca"),
-        ("tsne", "pca"),
-        ("banana", "histogram"),   # unknown -> histogram fallback
-        (None, "histogram"),       # str(None) == 'none' -> also unknown
-    ],
-)
-def _case_qc_strategy_dispatch(tmp_path, monkeypatch, strategy, expected):
-    from spacr.timelapse import _apply_infection_intensity_qc
-
-    calls = []
-    _patch_all_strategies(monkeypatch, calls)
-
-    df = _qc_frame(n_cells=4, n_frames=1)
-    motility_dir = str(tmp_path / "mot")
-    settings = {
-        "infection_intensity_qc": True,
-        "infection_intensity_strategy": strategy,
-        "infection_intensity_qc_scope": "combined",
-    }
-    out, col = _apply_infection_intensity_qc(
-        df, settings, "infected", 3, motility_dir
-    )
-
-    assert [c["name"] for c in calls] == [expected]
-    assert calls[0]["pathogen_chan"] == 3
-    assert calls[0]["motility_dir"] == motility_dir
-    assert calls[0]["infection_col"] == "infected"
-    # the helper is handed a COPY of settings, not the caller's dict
-    assert calls[0]["settings"] is not settings
-    assert col == "infected"          # passthrough mode -> no adjusted column
-    assert "adjusted_infected" not in out.columns
-    assert len(out) == len(df)
-    assert os.path.isdir(motility_dir)
-    # payloads written by the helper are propagated back onto the real settings
-    assert settings["infection_intensity_qc_panel_type"] == expected
-    assert settings["infection_hist_data"] == "hist::plate1"
-
-
-def _case_qc_default_strategy_is_histogram(tmp_path, monkeypatch):
-    from spacr.timelapse import _apply_infection_intensity_qc
-
-    calls = []
-    _patch_all_strategies(monkeypatch, calls)
-    df = _qc_frame(n_cells=3, n_frames=1)
-    settings = {"infection_intensity_qc": True}
-    _apply_infection_intensity_qc(df, settings, "infected", 1, str(tmp_path / "m"))
-    assert [c["name"] for c in calls] == ["histogram"]
-
-
-# ---------------------------------------------------------------------------
-# the three "single global run" code paths:
-#   * scope == combined
-#   * unknown scope -> combined behaviour
-#   * plate/well scope with the grouping columns missing -> combined behaviour
-# ---------------------------------------------------------------------------
-
-def _single_run_case(case, tmp_path):
-    """Return (df, settings) for one of the three global-run entry points."""
-    df = _qc_frame(n_cells=4, n_frames=1)
-    settings = {"infection_intensity_qc": True, "infection_intensity_strategy": "hist"}
-    if case == "combined":
-        settings["infection_intensity_qc_scope"] = "combined"
-    elif case == "global":
-        settings["infection_intensity_qc_scope"] = "GLOBAL"
-    elif case == "all":
-        settings["infection_intensity_qc_scope"] = "all"
-    elif case == "unknown":
-        settings["infection_intensity_qc_scope"] = "sideways"
-    elif case == "missing_group_cols":
-        settings["infection_intensity_qc_scope"] = "plate"
-        df = df.drop(columns=["plateID"])
-    elif case == "missing_well_col":
-        settings["infection_intensity_qc_scope"] = "per_well"
-        df = df.drop(columns=["wellID"])
-    else:  # pragma: no cover - guarded by the parametrisation
-        raise AssertionError(case)
-    return df, settings
-
-
-@pytest.mark.parametrize(
-    "case", ["combined", "global", "all", "unknown", "missing_group_cols",
-             "missing_well_col"],
-)
-def _case_global_run_fills_nan_and_casts_to_int(tmp_path, monkeypatch, case):
-    from spacr.timelapse import _apply_infection_intensity_qc
-
-    calls = []
-    _patch_all_strategies(monkeypatch, calls, mode="nan_numeric")
-    df, settings = _single_run_case(case, tmp_path)
-
-    out, col = _apply_infection_intensity_qc(
-        df, settings, "infected", 2, str(tmp_path / "mot")
-    )
-
-    assert len(calls) == 1                     # one single global QC run
-    assert calls[0]["n_rows"] == len(df)
-    assert col == "adjusted_infected"
-    assert not out["adjusted_infected"].isna().any()
-    assert pd.api.types.is_integer_dtype(out["adjusted_infected"])
-    # row 0 was NaN and its 'infected' label is False -> filled with 0;
-    # the remaining rows keep the alternating 0/1 pattern.
-    expected = [0] + [i % 2 for i in range(1, len(df))]
-    assert out["adjusted_infected"].tolist() == expected
-    assert settings["infection_xgb_importance"] == "xgb::" + calls[0]["tag"]
-
-
-@pytest.mark.parametrize(
-    "case", ["combined", "unknown", "missing_group_cols"],
-)
-def _case_global_run_falls_back_to_bool_cast(tmp_path, monkeypatch, case):
-    from spacr.timelapse import _apply_infection_intensity_qc
-
-    calls = []
-    _patch_all_strategies(monkeypatch, calls, mode="strings")
-    df, settings = _single_run_case(case, tmp_path)
-
-    out, col = _apply_infection_intensity_qc(
-        df, settings, "infected", 2, str(tmp_path / "mot")
-    )
-
-    assert len(calls) == 1
-    assert col == "adjusted_infected"
-    assert out["adjusted_infected"].dtype == bool
-    assert out["adjusted_infected"].all()
-
-
-def _case_global_run_without_adjusted_column_keeps_helper_column(tmp_path, monkeypatch):
-    from spacr.timelapse import _apply_infection_intensity_qc
-
-    calls = []
-    _patch_all_strategies(monkeypatch, calls, mode="passthrough")
-    df = _qc_frame(n_cells=4, n_frames=1)
-    settings = {
-        "infection_intensity_qc": True,
-        "infection_intensity_qc_scope": "combined",
-    }
-    out, col = _apply_infection_intensity_qc(
-        df, settings, "infected", 2, str(tmp_path / "mot")
-    )
-    assert col == "infected"
-    assert "adjusted_infected" not in out.columns
-    assert out is not df                       # helper handed back a copy
-
-
-def _case_scope_none_value_defaults_to_combined(tmp_path, monkeypatch):
-    """settings['infection_intensity_qc_scope'] = None -> 'combined'."""
-    from spacr.timelapse import _apply_infection_intensity_qc
-
-    calls = []
-    _patch_all_strategies(monkeypatch, calls, mode="passthrough")
-    df = _qc_frame(n_cells=4, n_frames=1)
-    settings = {
-        "infection_intensity_qc": True,
-        "infection_intensity_qc_scope": None,
-    }
-    out, col = _apply_infection_intensity_qc(
-        df, settings, "infected", 2, str(tmp_path / "mot")
-    )
-    assert len(calls) == 1 and calls[0]["n_rows"] == len(df)
-    assert col == "infected"
-
-
-# ---------------------------------------------------------------------------
-# grouped scopes
+# _apply_infection_intensity_qc with stand-in strategy helpers
 # ---------------------------------------------------------------------------
 
 def _two_plate_frame():
@@ -387,40 +137,8 @@ def _two_plate_frame():
     return pd.concat([a, b], ignore_index=True)
 
 
-@pytest.mark.parametrize("scope", ["plate", "PER_PLATE", "plateid"])
-def _case_scope_plate_runs_qc_per_plate(tmp_path, monkeypatch, scope):
-    from spacr.timelapse import _apply_infection_intensity_qc
-
-    calls = []
-    _patch_all_strategies(monkeypatch, calls, mode="nan_numeric")
-    df = _two_plate_frame()
-    settings = {
-        "infection_intensity_qc": True,
-        "infection_intensity_qc_scope": scope,
-    }
-    out, col = _apply_infection_intensity_qc(
-        df, settings, "infected", 2, str(tmp_path / "mot")
-    )
-
-    assert [c["tag"] for c in calls] == ["plateA", "plateB"]
-    assert [c["n_rows"] for c in calls] == [4, 4]
-    assert col == "adjusted_infected"
-    assert len(out) == len(df)
-    assert pd.api.types.is_integer_dtype(out["adjusted_infected"])
-    assert not out["adjusted_infected"].isna().any()
-    # payloads come from the FIRST processed group only
-    assert settings["infection_hist_data"] == "hist::plateA"
-    assert settings["infection_pca_data"] == "pca::plateA"
-    assert settings["infection_intensity_qc_panel_path"] == "histogram::plateA.png"
-
-
-@pytest.mark.parametrize("scope", ["well", "per_well"])
-def _case_scope_well_runs_qc_per_well(tmp_path, monkeypatch, scope):
-    from spacr.timelapse import _apply_infection_intensity_qc
-
-    calls = []
-    _patch_all_strategies(monkeypatch, calls, mode="passthrough")
-    df = pd.concat(
+def _three_well_frame():
+    return pd.concat(
         [
             _qc_frame(n_cells=2, n_frames=1, plate="plateA", well="A01"),
             _qc_frame(n_cells=2, n_frames=1, plate="plateA", well="A02",
@@ -430,112 +148,201 @@ def _case_scope_well_runs_qc_per_well(tmp_path, monkeypatch, scope):
         ],
         ignore_index=True,
     )
-    settings = {
-        "infection_intensity_qc": True,
-        "infection_intensity_qc_scope": scope,
-    }
-    out, col = _apply_infection_intensity_qc(
-        df, settings, "infected", 2, str(tmp_path / "mot")
-    )
-
-    # one QC call per (plateID, wellID) pair
-    assert len(calls) == 3
-    assert [c["n_rows"] for c in calls] == [2, 2, 2]
-    # no group produced adjusted labels -> the original column name survives
-    assert col == "infected"
-    assert len(out) == len(df)
-    assert sorted(out["wellID"].unique()) == ["A01", "A02"]
 
 
-def _case_scope_group_skips_empty_categorical_groups(tmp_path, monkeypatch):
-    """Unused categorical levels yield empty groups, which must be skipped."""
-    from spacr.timelapse import _apply_infection_intensity_qc
-
-    calls = []
-    _patch_all_strategies(monkeypatch, calls, mode="nan_numeric")
+def _ghost_plate_frame():
     df = _qc_frame(n_cells=4, n_frames=1, plate="plateA", well="A01")
-    df["plateID"] = pd.Categorical(
-        df["plateID"], categories=["plateA", "plateGHOST"]
-    )
-    settings = {
-        "infection_intensity_qc": True,
-        "infection_intensity_qc_scope": "plate",
-    }
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
-        out, col = _apply_infection_intensity_qc(
-            df, settings, "infected", 2, str(tmp_path / "mot")
-        )
-
-    # the empty 'plateGHOST' group never reached the QC helper
-    assert [c["tag"] for c in calls] == ["plateA"]
-    assert len(out) == 4
-    assert col == "adjusted_infected"
+    df["plateID"] = pd.Categorical(df["plateID"], categories=["plateA", "plateGHOST"])
+    return df
 
 
-def _case_scope_group_with_empty_frame_returns_input(tmp_path, monkeypatch):
+def _plain4():
+    return _qc_frame(n_cells=4, n_frames=1)
+
+
+def _small_frame_no(col):
+    return lambda: _qc_frame(n_cells=4, n_frames=1).drop(columns=[col])
+
+
+_STALE_ALL = {k: "stale" for k in _PAYLOAD_KEYS}
+_ON = {"infection_intensity_qc": True}
+
+
+def _on(**kw):
+    return {**_ON, **kw}
+
+
+_ALTERNATING = [0, 1, 0, 1]   # row 0 was NaN with label False -> 0, then 0/1 pattern
+
+_QC_ROWS = [
+    # no-op paths
+    pytest.param("passthrough", _plain4, {"infection_intensity_qc": False, **_STALE_ALL}, 2,
+                 dict(calls_names=[], out_is_df=True, col="infected",
+                      reset_keys=_PAYLOAD_KEYS, dir_exists=False), id="qc-disabled-resets-payloads"),
+    pytest.param("passthrough", _plain4, _on(), None,
+                 dict(calls_names=[], out_is_df=True, col="infected"), id="no-pathogen-channel"),
+] + [
+    pytest.param("passthrough", _plain4,
+                 _on(infection_intensity_qc_scope=scope, infection_hist_data="stale"), 2,
+                 dict(calls_names=[], out_is_df=True, col="infected",
+                      reset_keys=("infection_hist_data",), dir_exists=True),
+                 id=f"scope-none-{scope}")
+    for scope in ["none", "off", "NONE", "Off"]
+] + [
+    pytest.param("passthrough", _plain4,
+                 _on(infection_intensity_strategy=strategy,
+                     infection_intensity_qc_scope="combined"), 3,
+                 dict(calls_names=[expected], col="infected", adjusted=None, len_out=4,
+                      dispatch=3, dir_exists=True,
+                      payloads={"infection_intensity_qc_panel_type": expected,
+                                "infection_hist_data": "hist::plate1"}),
+                 id=f"strategy-{strategy}")
+    for strategy, expected in [
+        ("hist", "histogram"), ("histogram", "histogram"), ("HISTAGRAM", "histogram"),
+        ("xgboost", "xgboost"), ("XGB", "xgboost"), ("pca", "pca"), ("umap", "pca"),
+        ("tsne", "pca"), ("banana", "histogram"), (None, "histogram"),
+    ]
+] + [
+    pytest.param("passthrough", _plain4, _on(), 1,
+                 dict(calls_names=["histogram"]), id="default-strategy-is-histogram"),
+] + [
+    # single global run
+    pytest.param("nan_numeric", build, _on(infection_intensity_strategy="hist",
+                                           infection_intensity_qc_scope=scope), 2,
+                 dict(calls_names=["histogram"], n_rows=[4], col="adjusted_infected",
+                      adjusted="int", values=_ALTERNATING, xgb_tag=True),
+                 id=f"global-fills-nan-and-casts-int-{case}")
+    for case, scope, build in [
+        ("combined", "combined", _plain4),
+        ("global", "GLOBAL", _plain4),
+        ("all", "all", _plain4),
+        ("unknown", "sideways", _plain4),
+        ("missing-plate-col", "plate", _small_frame_no("plateID")),
+        ("missing-well-col", "per_well", _small_frame_no("wellID")),
+    ]
+] + [
+    pytest.param("strings", build, _on(infection_intensity_strategy="hist",
+                                       infection_intensity_qc_scope=scope), 2,
+                 dict(calls_names=["histogram"], col="adjusted_infected",
+                      adjusted="bool_all"),
+                 id=f"global-falls-back-to-bool-cast-{case}")
+    for case, scope, build in [
+        ("combined", "combined", _plain4),
+        ("unknown", "sideways", _plain4),
+        ("missing-plate-col", "plate", _small_frame_no("plateID")),
+    ]
+] + [
+    pytest.param("passthrough", _plain4, _on(infection_intensity_qc_scope="combined"), 2,
+                 dict(calls_names=["histogram"], col="infected", adjusted=None,
+                      out_is_df=False), id="global-without-adjusted-column-keeps-helper-column"),
+    pytest.param("passthrough", _plain4, _on(infection_intensity_qc_scope=None), 2,
+                 dict(calls_names=["histogram"], n_rows=[4], col="infected"),
+                 id="scope-none-value-defaults-to-combined"),
+] + [
+    # grouped scopes
+    pytest.param("nan_numeric", _two_plate_frame, _on(infection_intensity_qc_scope=scope), 2,
+                 dict(calls_tags=["plateA", "plateB"], n_rows=[4, 4], col="adjusted_infected",
+                      len_out=8, adjusted="int",
+                      payloads={"infection_hist_data": "hist::plateA",
+                                "infection_pca_data": "pca::plateA",
+                                "infection_intensity_qc_panel_path": "histogram::plateA.png"}),
+                 id=f"scope-plate-runs-per-plate-{scope}")
+    for scope in ["plate", "PER_PLATE", "plateid"]
+] + [
+    pytest.param("passthrough", _three_well_frame, _on(infection_intensity_qc_scope=scope), 2,
+                 dict(n_calls=3, n_rows=[2, 2, 2], col="infected", len_out=6,
+                      wells=["A01", "A02"]),
+                 id=f"scope-well-runs-per-well-{scope}")
+    for scope in ["well", "per_well"]
+] + [
+    pytest.param("nan_numeric", _ghost_plate_frame, _on(infection_intensity_qc_scope="plate"), 2,
+                 dict(calls_tags=["plateA"], len_out=4, col="adjusted_infected"),
+                 id="scope-group-skips-empty-categorical-groups"),
+    pytest.param("nan_numeric", lambda: _qc_frame(n_cells=2, n_frames=1).iloc[0:0],
+                 _on(infection_intensity_qc_scope="well"), 2,
+                 dict(calls_names=[], out_is_df=True, col="infected", empty_in=True),
+                 id="scope-group-with-empty-frame-returns-input"),
+    pytest.param("all_nan", _two_plate_frame, _on(infection_intensity_qc_scope="plate"), 2,
+                 dict(n_calls=2, col="infected", adjusted="all_nan"),
+                 id="scope-group-all-nan-adjusted-keeps-original-column"),
+    pytest.param("strings", _two_plate_frame, _on(infection_intensity_qc_scope="plate"), 2,
+                 dict(col="adjusted_infected", adjusted="bool_all", len_out=8),
+                 id="scope-group-bool-cast-fallback"),
+]
+
+
+@pytest.mark.parametrize("mode, build, settings, chan, expect", _QC_ROWS)
+def test_infection_qc_dispatches_strategy_and_scope_and_adjusts_labels(
+        tmp_path, monkeypatch, mode, build, settings, chan, expect):
+    """Strategy choice, scope grouping, no-op paths and the label cast of the QC dispatcher."""
     from spacr.timelapse import _apply_infection_intensity_qc
 
     calls = []
-    _patch_all_strategies(monkeypatch, calls, mode="nan_numeric")
-    df = _qc_frame(n_cells=2, n_frames=1).iloc[0:0]
-    assert df.empty and "plateID" in df.columns
-    settings = {
-        "infection_intensity_qc": True,
-        "infection_intensity_qc_scope": "well",
-    }
-    out, col = _apply_infection_intensity_qc(
-        df, settings, "infected", 2, str(tmp_path / "mot")
-    )
-    assert calls == []
-    assert out is df
-    assert col == "infected"
+    _patch_all_strategies(monkeypatch, calls, mode=mode)
+    df = build()
+    settings = dict(settings)
+    motility_dir = str(tmp_path / "mot")
+    if expect.get("empty_in"):
+        assert df.empty and "plateID" in df.columns
 
+    out, col = _apply_infection_intensity_qc(df, settings, "infected", chan, motility_dir)
 
-def _case_scope_group_all_nan_adjusted_keeps_original_column(tmp_path, monkeypatch):
-    """adjusted_infected present but entirely NaN -> not treated as adjusted."""
-    from spacr.timelapse import _apply_infection_intensity_qc
+    if "calls_names" in expect:
+        assert [c["name"] for c in calls] == expect["calls_names"]
+    if "calls_tags" in expect:
+        assert [c["tag"] for c in calls] == expect["calls_tags"]
+    if "n_calls" in expect:
+        assert len(calls) == expect["n_calls"]
+    if "n_rows" in expect:
+        assert [c["n_rows"] for c in calls] == expect["n_rows"]
+        if len(expect["n_rows"]) == 1:
+            assert calls[0]["n_rows"] == len(df)
+    if "col" in expect:
+        assert col == expect["col"]
+    if expect.get("out_is_df") is True:
+        assert out is df
+    if expect.get("out_is_df") is False:
+        assert out is not df
+    if "len_out" in expect:
+        assert len(out) == len(df) == expect["len_out"]
+    if "dir_exists" in expect:
+        assert os.path.exists(motility_dir) is expect["dir_exists"]
+    for key in expect.get("reset_keys", ()):
+        assert settings[key] is None
+    for key, value in expect.get("payloads", {}).items():
+        assert settings[key] == value
+    if "dispatch" in expect:
+        assert calls[0]["pathogen_chan"] == expect["dispatch"]
+        assert calls[0]["motility_dir"] == motility_dir
+        assert calls[0]["infection_col"] == "infected"
+        # the helper is handed a COPY of settings, not the caller dict
+        assert calls[0]["settings"] is not settings
+    if expect.get("xgb_tag"):
+        assert settings["infection_xgb_importance"] == "xgb::" + calls[0]["tag"]
+    if "wells" in expect:
+        assert sorted(out["wellID"].unique()) == expect["wells"]
 
-    calls = []
-    _patch_all_strategies(monkeypatch, calls, mode="all_nan")
-    df = _two_plate_frame()
-    settings = {
-        "infection_intensity_qc": True,
-        "infection_intensity_qc_scope": "plate",
-    }
-    out, col = _apply_infection_intensity_qc(
-        df, settings, "infected", 2, str(tmp_path / "mot")
-    )
-    assert len(calls) == 2
-    assert col == "infected"
-    assert "adjusted_infected" in out.columns
-    assert out["adjusted_infected"].isna().all()
-
-
-def _case_scope_group_bool_cast_fallback(tmp_path, monkeypatch):
-    from spacr.timelapse import _apply_infection_intensity_qc
-
-    calls = []
-    _patch_all_strategies(monkeypatch, calls, mode="strings")
-    df = _two_plate_frame()
-    settings = {
-        "infection_intensity_qc": True,
-        "infection_intensity_qc_scope": "plate",
-    }
-    out, col = _apply_infection_intensity_qc(
-        df, settings, "infected", 2, str(tmp_path / "mot")
-    )
-    assert col == "adjusted_infected"
-    assert out["adjusted_infected"].dtype == bool
-    assert out["adjusted_infected"].all()
-    assert len(out) == len(df)
+    kind = expect.get("adjusted", "skip")
+    if kind is None:
+        assert "adjusted_infected" not in out.columns
+    elif kind == "int":
+        assert not out["adjusted_infected"].isna().any()
+        assert pd.api.types.is_integer_dtype(out["adjusted_infected"])
+        if "values" in expect:
+            assert out["adjusted_infected"].tolist() == expect["values"]
+    elif kind == "bool_all":
+        assert out["adjusted_infected"].dtype == bool
+        assert out["adjusted_infected"].all()
+    elif kind == "all_nan":
+        assert "adjusted_infected" in out.columns
+        assert out["adjusted_infected"].isna().all()
 
 
 # ---------------------------------------------------------------------------
 # real histogram strategy, end to end through the dispatcher
 # ---------------------------------------------------------------------------
 
-def _case_combined_scope_with_real_histogram_strategy(tmp_path):
+def _real_combined(tmp_path):
     from spacr.timelapse import _apply_infection_intensity_qc
 
     df = _qc_frame(n_cells=24, n_frames=2, pathogen_chan=2)
@@ -546,53 +353,50 @@ def _case_combined_scope_with_real_histogram_strategy(tmp_path):
         "infection_intensity_qc_scope": "combined",
         "infection_intensity_qc_graphs": True,
     }
-
-    out, col = _apply_infection_intensity_qc(
-        df, settings, "infected", 2, motility_dir
-    )
-
+    out, col = _apply_infection_intensity_qc(df, settings, "infected", 2, motility_dir)
     assert col == "adjusted_infected"
     assert pd.api.types.is_integer_dtype(out["adjusted_infected"])
     # bright cells (second half) are called infected, dim ones are not
     bright = out["cellID"] > 12
     assert out.loc[bright, "adjusted_infected"].eq(1).all()
     assert out.loc[~bright, "adjusted_infected"].eq(0).all()
-
     payload = settings["infection_hist_data"]
     assert isinstance(payload, dict)
     assert payload["intensity_col"] == "cell_p95_intensity_ch2"
-    # threshold must sit strictly between the dim (<=131) and bright (>=1112)
-    # populations built by _qc_frame
+    # threshold must sit strictly between the dim (<=131) and bright (>=1112) populations
     assert 131.0 < payload["thr_val"] <= 1112.0
     assert settings["infection_intensity_qc_panel_type"] == "histogram"
     png = settings["infection_intensity_qc_panel_path"]
     assert png is not None and os.path.isfile(png)
     assert os.path.dirname(png) == motility_dir
+    return {
+        "col": col, "bright_sum": int(out.loc[bright, "adjusted_infected"].sum()),
+        "n_bright": int(bright.sum()), "dim_sum": int(out.loc[~bright, "adjusted_infected"].sum()),
+        "intensity_col": payload["intensity_col"], "panel_type": settings["infection_intensity_qc_panel_type"],
+        "png_dir_is_motility_dir": os.path.dirname(png) == motility_dir,
+        "threshold_between_populations": bool(131.0 < payload["thr_val"] <= 1112.0),
+    }
 
 
-def _case_plate_scope_with_real_histogram_strategy(tmp_path):
+def _real_per_plate(tmp_path):
     from spacr.timelapse import _apply_infection_intensity_qc
 
     df = pd.concat(
         [
             _qc_frame(n_cells=24, n_frames=1, plate="plateA", well="A01"),
-            _qc_frame(n_cells=24, n_frames=1, plate="plateB", well="B01",
-                      cell_offset=100),
+            _qc_frame(n_cells=24, n_frames=1, plate="plateB", well="B01", cell_offset=100),
         ],
         ignore_index=True,
     )
-    motility_dir = str(tmp_path / "motility")
     settings = {
         "infection_intensity_qc": True,
         "infection_intensity_strategy": "hist",
         "infection_intensity_qc_scope": "plate",
         "infection_intensity_qc_graphs": False,   # keep it fast: no PNG
     }
-
     out, col = _apply_infection_intensity_qc(
-        df, settings, "infected", 2, motility_dir
+        df, settings, "infected", 2, str(tmp_path / "motility")
     )
-
     assert col == "adjusted_infected"
     assert len(out) == len(df)
     assert pd.api.types.is_integer_dtype(out["adjusted_infected"])
@@ -600,12 +404,34 @@ def _case_plate_scope_with_real_histogram_strategy(tmp_path):
     for plate in ("plateA", "plateB"):
         sub = out[out["plateID"] == plate]
         assert sub["adjusted_infected"].sum() == 12
-        assert (
-            sub.loc[sub["infected"], "adjusted_infected"].eq(1).all()
-        )
+        assert sub.loc[sub["infected"], "adjusted_infected"].eq(1).all()
     # graphs disabled -> payload present but no PNG on disk
     assert settings["infection_intensity_qc_panel_path"] is None
     assert isinstance(settings["infection_hist_data"], dict)
+    return {
+        "col": col, "n_rows": len(out),
+        "infected_per_plate": {pl: int(out.loc[out["plateID"] == pl, "adjusted_infected"].sum())
+                               for pl in ("plateA", "plateB")},
+        "panel_path": settings["infection_intensity_qc_panel_path"],
+        "hist_payload_is_dict": isinstance(settings["infection_hist_data"], dict),
+    }
+
+
+@pytest.mark.parametrize("run, expected", [
+    pytest.param(_real_combined, {
+        "col": "adjusted_infected", "bright_sum": 24, "n_bright": 24, "dim_sum": 0,
+        "intensity_col": "cell_p95_intensity_ch2", "panel_type": "histogram",
+        "png_dir_is_motility_dir": True, "threshold_between_populations": True,
+    }, id="combined-scope-with-graph"),
+    pytest.param(_real_per_plate, {
+        "col": "adjusted_infected", "n_rows": 48,
+        "infected_per_plate": {"plateA": 12, "plateB": 12},
+        "panel_path": None, "hist_payload_is_dict": True,
+    }, id="per-plate-scope-without-graph"),
+])
+def test_infection_qc_real_histogram_strategy_recovers_the_injected_split(tmp_path, run, expected):
+    observed = run(tmp_path)
+    assert observed == expected
 
 
 # ---------------------------------------------------------------------------
@@ -635,45 +461,31 @@ def _tracks_frame(specs):
     return pd.DataFrame(rows)
 
 
-def _case_velocity_missing_centroid_columns(tmp_path):
-    from spacr.timelapse import _compute_velocities_and_well_summary
+def _any_infected_frame():
+    rows = _track_rows("plate1", "A01", 1, 1, [0, 2, 4], [0, 0, 0], False)
+    rows[1]["infected"] = True
+    return pd.DataFrame(rows)
 
-    df = _qc_frame(n_cells=2, n_frames=2)      # has no centroid columns
-    track_df, per_well, well_df, unit = _compute_velocities_and_well_summary(
-        df, {}, "infected", 1.0, 60.0
-    )
+
+def _chk_missing_centroids(track_df, per_well, well_df, unit):
     assert track_df.empty and well_df.empty
     assert per_well == {}
     assert unit == "px/frame"
-    assert isinstance(track_df, pd.DataFrame)
 
 
-def _case_velocity_physical_units_and_straightness():
-    from spacr.timelapse import _compute_velocities_and_well_summary
-
-    # one perfectly straight track moving 3 px per frame
-    df = _tracks_frame(
-        [("plate1", "A01", 1, 1, [0, 3, 6, 9], [0, 0, 0, 0], True)]
-    )
-    # factor = (1/3 px per um) * (60 / 30 s) = 0.666...
-    track_df, per_well, well_df, unit = _compute_velocities_and_well_summary(
-        df, {}, "infected", pixels_per_um=3.0, seconds_per_frame=30.0
-    )
-
+def _chk_physical_units(track_df, per_well, well_df, unit):
     assert unit == "µm/min"
     assert len(track_df) == 1
     rec = track_df.iloc[0]
     assert rec["v_px_per_frame"] == pytest.approx(3.0)
     assert rec["velocity"] == pytest.approx(2.0)
     assert rec["straightness"] == pytest.approx(1.0)
-    assert rec["infected"] is True or bool(rec["infected"]) is True
+    assert bool(rec["infected"]) is True
     assert track_df["velocity_unit"].unique().tolist() == ["µm/min"]
-
     assert list(per_well.keys()) == [("plate1", "A01")]
     tr = per_well[("plate1", "A01")][0]
     assert tr["x_px"].tolist() == [0.0, 3.0, 6.0, 9.0]
     assert tr["y_px"].tolist() == [0.0, 0.0, 0.0, 0.0]
-
     assert len(well_df) == 1
     w = well_df.iloc[0]
     assert w["n_tracks"] == 1
@@ -685,18 +497,7 @@ def _case_velocity_physical_units_and_straightness():
     assert w["velocity_unit"] == "µm/min"
 
 
-@pytest.mark.parametrize(
-    "px_per_um,sec_per_frame", [(None, 30.0), (3.0, None), (None, None)]
-)
-def _case_velocity_pixel_units_when_calibration_missing(px_per_um, sec_per_frame):
-    from spacr.timelapse import _compute_velocities_and_well_summary
-
-    df = _tracks_frame(
-        [("plate1", "A01", 1, 1, [0, 4, 8], [0, 0, 0], False)]
-    )
-    track_df, _per_well, well_df, unit = _compute_velocities_and_well_summary(
-        df, {}, "infected", px_per_um, sec_per_frame
-    )
+def _chk_pixel_units(track_df, per_well, well_df, unit):
     assert unit == "px/frame"
     assert track_df.iloc[0]["velocity"] == pytest.approx(4.0)
     assert well_df.iloc[0]["n_uninfected_tracks"] == 1
@@ -705,26 +506,7 @@ def _case_velocity_pixel_units_when_calibration_missing(px_per_um, sec_per_frame
     assert well_df.iloc[0]["mean_velocity_uninfected"] == pytest.approx(4.0)
 
 
-def _case_velocity_skips_short_and_nonfinite_tracks():
-    from spacr.timelapse import _compute_velocities_and_well_summary
-
-    nan = float("nan")
-    df = _tracks_frame(
-        [
-            # single frame -> too short
-            ("plate1", "A01", 1, 1, [0], [0], False),
-            # all-NaN centroids -> no finite displacements
-            ("plate1", "A01", 1, 2, [nan, nan, nan], [nan, nan, nan], False),
-            # stationary -> zero path length -> NaN straightness
-            ("plate1", "A01", 1, 3, [5, 5, 5], [7, 7, 7], False),
-            # usable track
-            ("plate1", "A01", 1, 4, [0, 2, 4], [0, 0, 0], True),
-        ]
-    )
-    track_df, per_well, well_df, unit = _compute_velocities_and_well_summary(
-        df, {}, "infected", None, None
-    )
-
+def _chk_short_and_nonfinite(track_df, per_well, well_df, unit):
     assert sorted(track_df["cellID"].tolist()) == [3, 4]
     stationary = track_df.set_index("cellID").loc[3]
     assert stationary["v_px_per_frame"] == pytest.approx(0.0)
@@ -737,40 +519,13 @@ def _case_velocity_skips_short_and_nonfinite_tracks():
     assert unit == "px/frame"
 
 
-def _case_velocity_no_usable_tracks_returns_empty():
-    from spacr.timelapse import _compute_velocities_and_well_summary
-
-    df = _tracks_frame(
-        [
-            ("plate1", "A01", 1, 1, [0], [0], False),
-            ("plate1", "A01", 1, 2, [3], [3], True),
-        ]
-    )
-    track_df, per_well, well_df, unit = _compute_velocities_and_well_summary(
-        df, {}, "infected", 2.0, 60.0
-    )
+def _chk_no_usable_tracks(track_df, per_well, well_df, unit):
     assert track_df.empty and well_df.empty
     assert per_well == {}
     assert unit == "px/frame"          # never upgraded to physical units
 
 
-def _case_straightness_filter_drops_tracks_and_prunes_wells():
-    from spacr.timelapse import _compute_velocities_and_well_summary
-
-    df = _tracks_frame(
-        [
-            # A01: only a perfectly straight (artifact-like) track
-            ("plate1", "A01", 1, 1, [0, 3, 6, 9], [0, 0, 0, 0], True),
-            # A02: one straight track + one back-and-forth track
-            ("plate1", "A02", 1, 2, [0, 3, 6, 9], [0, 0, 0, 0], True),
-            ("plate1", "A02", 1, 3, [0, 5, 0, 5], [0, 0, 0, 0], False),
-        ]
-    )
-    settings = {"drop_straight_tracks": True, "straightness_threshold": 0.95}
-    track_df, per_well, well_df, unit = _compute_velocities_and_well_summary(
-        df, settings, "infected", None, None
-    )
-
+def _chk_filter_prunes_wells(track_df, per_well, well_df, unit):
     assert track_df["cellID"].tolist() == [3]
     assert track_df.iloc[0]["straightness"] == pytest.approx(5.0 / 15.0)
     # A01 lost every track and was removed entirely; A02 kept the wiggly one
@@ -783,19 +538,7 @@ def _case_straightness_filter_drops_tracks_and_prunes_wells():
     assert unit == "px/frame"
 
 
-def _case_straightness_filter_can_remove_every_track():
-    from spacr.timelapse import _compute_velocities_and_well_summary
-
-    df = _tracks_frame(
-        [
-            ("plate1", "A01", 1, 1, [0, 3, 6], [0, 0, 0], True),
-            ("plate1", "A02", 1, 2, [0, 1, 2], [0, 0, 0], False),
-        ]
-    )
-    settings = {"drop_straight_tracks": True, "straightness_threshold": 0.5}
-    track_df, per_well, well_df, unit = _compute_velocities_and_well_summary(
-        df, settings, "infected", 1.0, 60.0
-    )
+def _chk_filter_removes_every_track(track_df, per_well, well_df, unit):
     assert track_df.empty
     assert per_well == {}
     assert well_df.empty
@@ -803,33 +546,14 @@ def _case_straightness_filter_can_remove_every_track():
     assert unit == "µm/min"
 
 
-def _case_straightness_filter_off_keeps_straight_tracks():
-    from spacr.timelapse import _compute_velocities_and_well_summary
-
-    df = _tracks_frame(
-        [("plate1", "A01", 1, 1, [0, 3, 6], [0, 0, 0], True)]
-    )
-    track_df, per_well, well_df, _unit = _compute_velocities_and_well_summary(
-        df, {"straightness_threshold": 0.9}, "infected", None, None
-    )
+def _chk_filter_off_keeps_straight(track_df, per_well, well_df, unit):
     assert len(track_df) == 1
     assert track_df.iloc[0]["straightness"] == pytest.approx(1.0)
     assert len(per_well[("plate1", "A01")]) == 1
     assert well_df.iloc[0]["n_tracks"] == 1
 
 
-def _case_well_summary_mixed_infection_means():
-    from spacr.timelapse import _compute_velocities_and_well_summary
-
-    df = _tracks_frame(
-        [
-            ("plate1", "A01", 1, 1, [0, 5, 0, 5], [0, 0, 0, 0], True),    # 5 px
-            ("plate1", "A01", 2, 2, [0, 1, 0, 1], [0, 0, 0, 0], False),   # 1 px
-        ]
-    )
-    track_df, per_well, well_df, unit = _compute_velocities_and_well_summary(
-        df, {}, "infected", None, None
-    )
+def _chk_mixed_means(track_df, per_well, well_df, unit):
     assert len(track_df) == 2
     assert len(well_df) == 1
     w = well_df.iloc[0]
@@ -844,118 +568,160 @@ def _case_well_summary_mixed_infection_means():
     assert len(per_well[("plate1", "A01")]) == 2
 
 
-def _case_infection_column_any_over_frames_marks_track_infected():
-    from spacr.timelapse import _compute_velocities_and_well_summary
-
+def _chk_any_frame_infected(track_df, per_well, well_df, unit):
     # infected on a single frame only -> the whole track counts as infected
-    rows = _track_rows("plate1", "A01", 1, 1, [0, 2, 4], [0, 0, 0], False)
-    rows[1]["infected"] = True
-    track_df, _pw, well_df, _u = _compute_velocities_and_well_summary(
-        pd.DataFrame(rows), {}, "infected", None, None
-    )
     assert bool(track_df.iloc[0]["infected"]) is True
     assert well_df.iloc[0]["n_infected_tracks"] == 1
     assert well_df.iloc[0]["n_uninfected_tracks"] == 0
+
+
+_NAN = float("nan")
+_STRAIGHT = [("plate1", "A01", 1, 1, [0, 3, 6, 9], [0, 0, 0, 0], True)]
+_FILTER = {"drop_straight_tracks": True, "straightness_threshold": 0.95}
+
+_VELOCITY_ROWS = [
+    pytest.param(lambda: _qc_frame(n_cells=2, n_frames=2), {}, 1.0, 60.0,
+                 _chk_missing_centroids, ("px/frame", 0, 0, {}, pytest.approx([]), pytest.approx([], nan_ok=True)), id="missing-centroid-columns"),
+    pytest.param(lambda: _tracks_frame(_STRAIGHT), {}, 3.0, 30.0,
+                 _chk_physical_units, ("µm/min", 1, 1, {("plate1", "A01"): 1}, pytest.approx([2.0]), pytest.approx([1.0], nan_ok=True)), id="physical-units-and-straightness"),
+] + [
+    pytest.param(lambda: _tracks_frame([("plate1", "A01", 1, 1, [0, 4, 8], [0, 0, 0], False)]),
+                 {}, ppu, spf, _chk_pixel_units, ("px/frame", 1, 1, {("plate1", "A01"): 1}, pytest.approx([4.0]), pytest.approx([1.0], nan_ok=True)), id=f"pixel-units-when-calibration-missing-{name}")
+    for name, ppu, spf in [("no-scale", None, 30.0), ("no-interval", 3.0, None),
+                           ("neither", None, None)]
+] + [
+    pytest.param(lambda: _tracks_frame([
+        ("plate1", "A01", 1, 1, [0], [0], False),
+        ("plate1", "A01", 1, 2, [_NAN] * 3, [_NAN] * 3, False),
+        ("plate1", "A01", 1, 3, [5, 5, 5], [7, 7, 7], False),
+        ("plate1", "A01", 1, 4, [0, 2, 4], [0, 0, 0], True),
+    ]), {}, None, None, _chk_short_and_nonfinite, ("px/frame", 2, 1, {("plate1", "A01"): 2}, pytest.approx([0.0, 2.0]), pytest.approx([float("nan"), 1.0], nan_ok=True)), id="skips-short-and-nonfinite-tracks"),
+    pytest.param(lambda: _tracks_frame([
+        ("plate1", "A01", 1, 1, [0], [0], False),
+        ("plate1", "A01", 1, 2, [3], [3], True),
+    ]), {}, 2.0, 60.0, _chk_no_usable_tracks, ("px/frame", 0, 0, {}, pytest.approx([]), pytest.approx([], nan_ok=True)), id="no-usable-tracks-returns-empty"),
+    pytest.param(lambda: _tracks_frame([
+        ("plate1", "A01", 1, 1, [0, 3, 6, 9], [0, 0, 0, 0], True),
+        ("plate1", "A02", 1, 2, [0, 3, 6, 9], [0, 0, 0, 0], True),
+        ("plate1", "A02", 1, 3, [0, 5, 0, 5], [0, 0, 0, 0], False),
+    ]), _FILTER, None, None, _chk_filter_prunes_wells, ("px/frame", 1, 1, {("plate1", "A02"): 1}, pytest.approx([5.0]), pytest.approx([1 / 3], nan_ok=True)),
+        id="straightness-filter-drops-tracks-and-prunes-wells"),
+    pytest.param(lambda: _tracks_frame([
+        ("plate1", "A01", 1, 1, [0, 3, 6], [0, 0, 0], True),
+        ("plate1", "A02", 1, 2, [0, 1, 2], [0, 0, 0], False),
+    ]), {"drop_straight_tracks": True, "straightness_threshold": 0.5}, 1.0, 60.0,
+        _chk_filter_removes_every_track, ("µm/min", 0, 0, {}, pytest.approx([]), pytest.approx([], nan_ok=True)), id="straightness-filter-can-remove-every-track"),
+    pytest.param(lambda: _tracks_frame([("plate1", "A01", 1, 1, [0, 3, 6], [0, 0, 0], True)]),
+                 {"straightness_threshold": 0.9}, None, None, _chk_filter_off_keeps_straight, ("px/frame", 1, 1, {("plate1", "A01"): 1}, pytest.approx([3.0]), pytest.approx([1.0], nan_ok=True)),
+                 id="straightness-filter-off-keeps-straight-tracks"),
+    pytest.param(lambda: _tracks_frame([
+        ("plate1", "A01", 1, 1, [0, 5, 0, 5], [0, 0, 0, 0], True),
+        ("plate1", "A01", 2, 2, [0, 1, 0, 1], [0, 0, 0, 0], False),
+    ]), {}, None, None, _chk_mixed_means, ("px/frame", 2, 1, {("plate1", "A01"): 2}, pytest.approx([5.0, 1.0]), pytest.approx([1 / 3, 1 / 3], nan_ok=True)), id="well-summary-mixed-infection-means"),
+    pytest.param(_any_infected_frame, {}, None, None, _chk_any_frame_infected, ("px/frame", 1, 1, {("plate1", "A01"): 1}, pytest.approx([2.0]), pytest.approx([1.0], nan_ok=True)),
+                 id="any-infected-frame-marks-track-infected"),
+]
+
+
+@pytest.mark.parametrize("build, settings, ppu, spf, check, expected", _VELOCITY_ROWS)
+def test_velocities_and_well_summary_report_per_track_and_per_well_motility(
+        build, settings, ppu, spf, check, expected):
+    from spacr.timelapse import _compute_velocities_and_well_summary
+
+    out = _compute_velocities_and_well_summary(build(), dict(settings), "infected", ppu, spf)
+    track_df, per_well, well_df, unit = out
+    check(*out)
+    observed = (
+        unit, len(track_df), len(well_df),
+        {k: len(v) for k, v in per_well.items()},
+        track_df["velocity"].tolist() if "velocity" in track_df else [],
+        track_df["straightness"].tolist() if "straightness" in track_df else [],
+    )
+    assert observed == expected
 
 
 # ---------------------------------------------------------------------------
 # _save_measurements_and_well_summary
 # ---------------------------------------------------------------------------
 
-def _case_save_measurements_with_well_summary(tmp_path):
+def _tables(con):
+    return {
+        r[0]
+        for r in con.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
+    }
+
+
+def _save_with_well_summary(src):
     from spacr.timelapse import _save_measurements_and_well_summary
 
-    src = tmp_path / "proj"
-    src.mkdir()
     all_df = pd.DataFrame(
         {"plateID": ["p1", "p1"], "wellID": ["A01", "A02"], "value": [1.5, 2.5]}
     )
     well_df = pd.DataFrame(
-        {
-            "plateID": ["p1"],
-            "wellID": ["A01"],
-            "n_tracks": [3],
-            "velocity_unit": ["px/frame"],
-        }
+        {"plateID": ["p1"], "wellID": ["A01"], "n_tracks": [3], "velocity_unit": ["px/frame"]}
     )
-
     meas_dir, db_path = _save_measurements_and_well_summary(
         all_df, well_df, str(src), "motility"
     )
-
     assert meas_dir == os.path.join(str(src), "measurements")
     assert os.path.isdir(meas_dir)
     assert db_path == os.path.join(meas_dir, "measurements.db")
     assert os.path.isfile(db_path)
-
     con = sqlite3.connect(db_path)
     try:
-        tables = {
-            r[0]
-            for r in con.execute(
-                "SELECT name FROM sqlite_master WHERE type='table'"
-            ).fetchall()
-        }
-        assert {"motility", "motility_well_motility"} <= tables
-        got = pd.read_sql("SELECT * FROM motility", con)
-        assert got["value"].tolist() == [1.5, 2.5]
+        assert {"motility", "motility_well_motility"} <= _tables(con)
+        assert pd.read_sql("SELECT * FROM motility", con)["value"].tolist() == [1.5, 2.5]
         got_well = pd.read_sql("SELECT * FROM motility_well_motility", con)
         assert got_well["n_tracks"].tolist() == [3]
         assert got_well["velocity_unit"].tolist() == ["px/frame"]
+        observed = (os.path.basename(meas_dir), os.path.basename(db_path),
+                    sorted(_tables(con)), pd.read_sql("SELECT * FROM motility", con)["value"].tolist(),
+                    got_well["n_tracks"].tolist(), got_well["velocity_unit"].tolist())
     finally:
         con.close()
+    return observed
 
 
-def _case_save_measurements_without_well_summary(tmp_path):
+def _save_without_well_summary(src):
     from spacr.timelapse import _save_measurements_and_well_summary
 
-    src = tmp_path / "proj"
     (src / "measurements").mkdir(parents=True)   # already-existing dir is fine
-    all_df = pd.DataFrame({"a": [1, 2, 3]})
-
     meas_dir, db_path = _save_measurements_and_well_summary(
-        all_df, pd.DataFrame(), str(src), "tracks"
+        pd.DataFrame({"a": [1, 2, 3]}), pd.DataFrame(), str(src), "tracks"
     )
-
     assert os.path.isfile(db_path)
     con = sqlite3.connect(db_path)
     try:
-        tables = {
-            r[0]
-            for r in con.execute(
-                "SELECT name FROM sqlite_master WHERE type='table'"
-            ).fetchall()
-        }
+        tables = _tables(con)
         assert "tracks" in tables
         assert "tracks_well_motility" not in tables
         assert pd.read_sql("SELECT * FROM tracks", con)["a"].tolist() == [1, 2, 3]
+        observed = (sorted(tables), pd.read_sql("SELECT * FROM tracks", con)["a"].tolist())
     finally:
         con.close()
     assert meas_dir.endswith("measurements")
+    return observed + (os.path.basename(meas_dir),)
 
 
-def _case_save_measurements_replaces_existing_table(tmp_path):
+def _save_replaces_existing_table(src):
     from spacr.timelapse import _save_measurements_and_well_summary
 
-    src = tmp_path / "proj"
-    src.mkdir()
-    first = pd.DataFrame({"a": [1, 2, 3]})
-    second = pd.DataFrame({"a": [9]})
-
-    _save_measurements_and_well_summary(first, pd.DataFrame(), str(src), "tracks")
-    _, db_path = _save_measurements_and_well_summary(
-        second, pd.DataFrame(), str(src), "tracks"
+    _save_measurements_and_well_summary(
+        pd.DataFrame({"a": [1, 2, 3]}), pd.DataFrame(), str(src), "tracks"
     )
-
+    _, db_path = _save_measurements_and_well_summary(
+        pd.DataFrame({"a": [9]}), pd.DataFrame(), str(src), "tracks"
+    )
     con = sqlite3.connect(db_path)
     try:
         got = pd.read_sql("SELECT * FROM tracks", con)
     finally:
         con.close()
     assert got["a"].tolist() == [9]
+    return got["a"].tolist()
 
 
-def _case_save_measurements_roundtrips_velocity_output(tmp_path):
+def _save_roundtrips_velocity_output(src):
     """The two helpers compose: velocities -> sqlite tables."""
     from spacr.timelapse import (
         _compute_velocities_and_well_summary,
@@ -971,12 +737,9 @@ def _case_save_measurements_roundtrips_velocity_output(tmp_path):
     _track_df, _pw, well_df, unit = _compute_velocities_and_well_summary(
         df, {}, "infected", None, None
     )
-    src = tmp_path / "proj"
-    src.mkdir()
     _meas_dir, db_path = _save_measurements_and_well_summary(
         df, well_df, str(src), "motility"
     )
-
     con = sqlite3.connect(db_path)
     try:
         got = pd.read_sql("SELECT * FROM motility_well_motility", con)
@@ -985,47 +748,23 @@ def _case_save_measurements_roundtrips_velocity_output(tmp_path):
     assert sorted(got["wellID"].tolist()) == ["A01", "A02"]
     assert set(got["velocity_unit"]) == {unit}
     assert got.set_index("wellID").loc["A02", "mean_velocity_all"] == pytest.approx(6.0)
+    return (sorted(got["wellID"].tolist()), sorted(set(got["velocity_unit"])),
+            float(got.set_index("wellID").loc["A02", "mean_velocity_all"]))
 
 
-def test_timelapse_qc_apply_cases(request, subtests):
-    """Case table: 31 cases of the module-level cases run as sub-tests."""
-    from tests.case_table import run_cases
-
-    ran = run_cases(
-        request,
-        subtests,
-        [
-        _case_qc_disabled_returns_input_untouched,
-        _case_qc_without_pathogen_channel_is_noop,
-        _case_qc_scope_none_skips_qc_but_resets_payloads,
-        _case_qc_strategy_dispatch,
-        _case_qc_default_strategy_is_histogram,
-        _case_global_run_fills_nan_and_casts_to_int,
-        _case_global_run_falls_back_to_bool_cast,
-        _case_global_run_without_adjusted_column_keeps_helper_column,
-        _case_scope_none_value_defaults_to_combined,
-        _case_scope_plate_runs_qc_per_plate,
-        _case_scope_well_runs_qc_per_well,
-        _case_scope_group_skips_empty_categorical_groups,
-        _case_scope_group_with_empty_frame_returns_input,
-        _case_scope_group_all_nan_adjusted_keeps_original_column,
-        _case_scope_group_bool_cast_fallback,
-        _case_combined_scope_with_real_histogram_strategy,
-        _case_plate_scope_with_real_histogram_strategy,
-        _case_velocity_missing_centroid_columns,
-        _case_velocity_physical_units_and_straightness,
-        _case_velocity_pixel_units_when_calibration_missing,
-        _case_velocity_skips_short_and_nonfinite_tracks,
-        _case_velocity_no_usable_tracks_returns_empty,
-        _case_straightness_filter_drops_tracks_and_prunes_wells,
-        _case_straightness_filter_can_remove_every_track,
-        _case_straightness_filter_off_keeps_straight_tracks,
-        _case_well_summary_mixed_infection_means,
-        _case_infection_column_any_over_frames_marks_track_infected,
-        _case_save_measurements_with_well_summary,
-        _case_save_measurements_without_well_summary,
-        _case_save_measurements_replaces_existing_table,
-        _case_save_measurements_roundtrips_velocity_output,
-        ],
-    )
-    assert ran >= 31
+@pytest.mark.parametrize("scenario, expected", [
+    pytest.param(_save_with_well_summary,
+                 ("measurements", "measurements.db", ["motility", "motility_well_motility"],
+                  [1.5, 2.5], [3], ["px/frame"]), id="with-well-summary"),
+    pytest.param(_save_without_well_summary,
+                 (["tracks"], [1, 2, 3], "measurements"), id="without-well-summary"),
+    pytest.param(_save_replaces_existing_table, [9], id="replaces-existing-table"),
+    pytest.param(_save_roundtrips_velocity_output,
+                 (["A01", "A02"], ["px/frame"], pytest.approx(6.0)), id="roundtrips-velocity-output"),
+])
+def test_save_measurements_writes_tables_into_the_project_database(tmp_path, scenario, expected):
+    src = tmp_path / "proj"
+    if scenario is not _save_without_well_summary:
+        src.mkdir()
+    observed = scenario(src)
+    assert observed == expected

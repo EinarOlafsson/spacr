@@ -18,7 +18,9 @@ files, DB tables, payload dicts or raised exception types).
 from __future__ import annotations
 
 import builtins
+import inspect
 import os
+import re
 import sqlite3
 
 import numpy as np
@@ -29,7 +31,6 @@ import pytest
 # is slow to load, and one test below arms an import hook that would otherwise
 # make the very first lazy import of the module explode.
 import spacr.timelapse  # noqa: E402,F401
-
 
 # ---------------------------------------------------------------------------
 # fixtures / helpers
@@ -127,8 +128,9 @@ def _run_xgb(all_df, settings, motility_dir, infection_col="infected",
 # _infection_qc_xgboost -- early fallbacks
 # ===========================================================================
 
-def _case_xgboost_import_failure_falls_back_to_histogram(tmp_path, monkeypatch, capsys):
+def _scn_xgboost_import_failure_falls_back_to_histogram(tmp_path, monkeypatch, capsys):
     """ImportError on ``import xgboost`` routes to the histogram QC."""
+    _obs = []
     all_df = _build_all_df(_separable_specs())
     real_import = builtins.__import__
 
@@ -144,29 +146,43 @@ def _case_xgboost_import_failure_falls_back_to_histogram(tmp_path, monkeypatch, 
 
     txt = capsys.readouterr().out
     assert "XGBoost not installed" in txt
+    _obs.append(_seen(("XGBoost not installed" in txt), ("XGBoost not installed" in txt)))
     # histogram QC relabels and leaves a PNG behind
     assert col == "adjusted_infected"
+    _obs.append(_seen((col), (col == "adjusted_infected")))
     assert settings["infection_intensity_qc_panel_type"] == "histogram"
+    _obs.append(_seen((settings["infection_intensity_qc_panel_type"]), (settings["infection_intensity_qc_panel_type"] == "histogram")))
     assert os.path.isfile(settings["infection_intensity_qc_panel_path"])
+    _obs.append(_seen((os.path.isfile(settings["infection_intensity_qc_panel_path"])), (os.path.isfile(settings["infection_intensity_qc_panel_path"]))))
     assert "infection_prob" not in out_df.columns
+    _obs.append(_seen(("infection_prob" not in out_df.columns), ("infection_prob" not in out_df.columns)))
+    return _obs
 
 
-def _case_pathogen_chan_none_falls_back_without_relabelling(tmp_path, capsys):
+def _scn_pathogen_chan_none_falls_back_without_relabelling(tmp_path, capsys):
+    _obs = []
     all_df = _build_all_df(_separable_specs())
     settings = _settings()
     out_df, col = _run_xgb(all_df, settings, tmp_path, pathogen_chan=None)
 
     txt = capsys.readouterr().out
     assert "pathogen_chan is None" in txt
+    _obs.append(_seen(("pathogen_chan is None" in txt), ("pathogen_chan is None" in txt)))
     # histogram QC cannot find cell_*_ch None -> labels untouched
     assert col == "infected"
+    _obs.append(_seen((col), (col == "infected")))
     assert "adjusted_infected" not in out_df.columns
+    _obs.append(_seen(("adjusted_infected" not in out_df.columns), ("adjusted_infected" not in out_df.columns)))
     assert settings["infection_intensity_qc_panel_path"] is None
+    _obs.append(_seen((settings["infection_intensity_qc_panel_path"] is None), (settings["infection_intensity_qc_panel_path"] is None)))
     assert settings["infection_hist_data"] is None
+    _obs.append(_seen((settings["infection_hist_data"] is None), (settings["infection_hist_data"] is None)))
+    return _obs
 
 
-def _case_stale_adjusted_and_prob_columns_are_dropped(tmp_path):
+def _scn_stale_adjusted_and_prob_columns_are_dropped(tmp_path):
     """Columns left over from a previous QC run must be recomputed, not merged."""
+    _obs = []
     all_df = _build_all_df(_separable_specs())
     all_df["adjusted_infected"] = 7
     all_df["adjusted_infected_x"] = 8
@@ -176,14 +192,21 @@ def _case_stale_adjusted_and_prob_columns_are_dropped(tmp_path):
     out_df, col = _run_xgb(all_df, _settings(), tmp_path)
 
     assert col == "adjusted_infected"
+    _obs.append(_seen((col), (col == "adjusted_infected")))
     assert "adjusted_infected_x" not in out_df.columns
+    _obs.append(_seen(("adjusted_infected_x" not in out_df.columns), ("adjusted_infected_x" not in out_df.columns)))
     assert "infection_prob_y" not in out_df.columns
+    _obs.append(_seen(("infection_prob_y" not in out_df.columns), ("infection_prob_y" not in out_df.columns)))
     # freshly computed, not the stale sentinel values
     assert set(out_df["adjusted_infected"].unique()) <= {0, 1}
+    _obs.append(_seen((set(out_df["adjusted_infected"].unique()) <= {0, 1}), (set(out_df["adjusted_infected"].unique()) <= {0, 1})))
     assert not np.allclose(out_df["infection_prob"].to_numpy(), 0.123)
+    _obs.append(_seen((not np.allclose(out_df["infection_prob"].to_numpy(), 0.123)), (not np.allclose(out_df["infection_prob"].to_numpy(), 0.123))))
+    return _obs
 
 
-def _case_infection_column_recovered_from_infect_like_column(tmp_path, capsys):
+def _scn_infection_column_recovered_from_infect_like_column(tmp_path, capsys):
+    _obs = []
     all_df = _build_all_df(_separable_specs())
     all_df = all_df.rename(columns={"infected": "is_infected_flag"})
     settings = _settings()
@@ -192,11 +215,16 @@ def _case_infection_column_recovered_from_infect_like_column(tmp_path, capsys):
 
     txt = capsys.readouterr().out
     assert "not found; using 'is_infected_flag' instead" in txt
+    _obs.append(_seen(("not found; using 'is_infected_flag' instead" in txt), ("not found; using 'is_infected_flag' instead" in txt)))
     assert col == "adjusted_infected"
+    _obs.append(_seen((col), (col == "adjusted_infected")))
     assert out_df["adjusted_infected"].dtype.kind == "i"
+    _obs.append(_seen((out_df["adjusted_infected"].dtype.kind), (out_df["adjusted_infected"].dtype.kind == "i")))
+    return _obs
 
 
-def _case_infection_column_created_from_n_pathogens(tmp_path, capsys):
+def _scn_infection_column_created_from_n_pathogens(tmp_path, capsys):
+    _obs = []
     all_df = _build_all_df(_separable_specs()).drop(columns=["infected"])
     settings = _settings()
 
@@ -204,16 +232,22 @@ def _case_infection_column_created_from_n_pathogens(tmp_path, capsys):
 
     txt = capsys.readouterr().out
     assert "_infected_from_n_pathogens" in txt
+    _obs.append(_seen(("_infected_from_n_pathogens" in txt), ("_infected_from_n_pathogens" in txt)))
     assert col == "adjusted_infected"
+    _obs.append(_seen((col), (col == "adjusted_infected")))
     # the derived label column was materialised on the frame-level table
     assert "_infected_from_n_pathogens" in out_df.columns
+    _obs.append(_seen(("_infected_from_n_pathogens" in out_df.columns), ("_infected_from_n_pathogens" in out_df.columns)))
     derived = out_df["_infected_from_n_pathogens"].to_numpy()
     expected = (out_df["n_pathogens"] > 0).astype(int).to_numpy()
     assert np.array_equal(derived, expected)
+    _obs.append(_seen((np.array_equal(derived, expected)), (np.array_equal(derived, expected))))
+    return _obs
 
 
-def _case_no_label_and_no_n_pathogens_falls_back(tmp_path, capsys):
+def _scn_no_label_and_no_n_pathogens_falls_back(tmp_path, capsys):
     """No infection label at all -> histogram QC, which is itself a no-op."""
+    _obs = []
     all_df = _build_all_df(_separable_specs()).drop(
         columns=["infected", "n_pathogens"]
     )
@@ -233,19 +267,27 @@ def _case_no_label_and_no_n_pathogens_falls_back(tmp_path, capsys):
 
     txt = capsys.readouterr().out
     assert "No infection label and no 'n_pathogens'" in txt
+    _obs.append(_seen(("No infection label and no 'n_pathogens'" in txt), ("No infection label and no 'n_pathogens'" in txt)))
     assert col == "infected"
+    _obs.append(_seen((col), (col == "infected")))
     assert "adjusted_infected" not in out_df.columns
+    _obs.append(_seen(("adjusted_infected" not in out_df.columns), ("adjusted_infected" not in out_df.columns)))
     assert out_df.shape == all_df.shape
+    _obs.append(_seen((out_df.shape), (out_df.shape == all_df.shape)))
+    return _obs
 
 
-@pytest.mark.parametrize("missing", KEY_COLS)
-def _case_missing_key_column_raises_keyerror(tmp_path, missing):
+def _scn_missing_key_column_raises_keyerror(tmp_path, missing):
+    _obs = []
     all_df = _build_all_df(_separable_specs()).drop(columns=[missing])
-    with pytest.raises(KeyError, match=missing):
+    with pytest.raises(KeyError, match=missing) as _raised:
         _run_xgb(all_df, _settings(), tmp_path)
+    _obs.append(_seen(type(_raised.value).__name__ + ": " + str(_raised.value), True))
+    return _obs
 
 
-def _case_unknown_tracked_object_falls_back_to_cell(tmp_path, capsys):
+def _scn_unknown_tracked_object_falls_back_to_cell(tmp_path, capsys):
+    _obs = []
     all_df = _build_all_df(_separable_specs())
     settings = _settings(tracked_object="mitochondrion")
 
@@ -253,13 +295,19 @@ def _case_unknown_tracked_object_falls_back_to_cell(tmp_path, capsys):
 
     txt = capsys.readouterr().out
     assert "Unknown tracked_object" in txt
+    _obs.append(_seen(("Unknown tracked_object" in txt), ("Unknown tracked_object" in txt)))
     assert col == "adjusted_infected"
+    _obs.append(_seen((col), (col == "adjusted_infected")))
     assert settings["infection_xgb_importance"]["tracked_object"] == "cell"
+    _obs.append(_seen((settings["infection_xgb_importance"]["tracked_object"]), (settings["infection_xgb_importance"]["tracked_object"] == "cell")))
     assert settings["infection_pca_data"]["tracked_object"] == "cell"
+    _obs.append(_seen((settings["infection_pca_data"]["tracked_object"]), (settings["infection_pca_data"]["tracked_object"] == "cell")))
+    return _obs
 
 
-def _case_no_intensity_column_for_tracked_object_falls_back(tmp_path, capsys):
+def _scn_no_intensity_column_for_tracked_object_falls_back(tmp_path, capsys):
     """tracked_object='nucleus' but only cell_* intensities exist."""
+    _obs = []
     all_df = _build_all_df(_separable_specs())
     settings = _settings(tracked_object="nucleus")
 
@@ -267,58 +315,61 @@ def _case_no_intensity_column_for_tracked_object_falls_back(tmp_path, capsys):
 
     txt = capsys.readouterr().out
     assert "No pathogen-channel intensity column found" in txt
+    _obs.append(_seen(("No pathogen-channel intensity column found" in txt), ("No pathogen-channel intensity column found" in txt)))
     # histogram QC took over and did relabel using cell_p95_intensity_ch1
     assert col == "adjusted_infected"
+    _obs.append(_seen((col), (col == "adjusted_infected")))
     assert settings["infection_intensity_qc_panel_type"] == "histogram"
+    _obs.append(_seen((settings["infection_intensity_qc_panel_type"]), (settings["infection_intensity_qc_panel_type"] == "histogram")))
     assert settings["infection_hist_data"]["intensity_col"] == (
         f"cell_p95_intensity_ch{PATHOGEN_CHAN}"
     )
+    _obs.append(_seen((settings["infection_hist_data"]["intensity_col"]), (settings["infection_hist_data"]["intensity_col"] == (
+        f"cell_p95_intensity_ch{PATHOGEN_CHAN}"
+    ))))
+    return _obs
 
 
-def _case_all_degenerate_features_falls_back(tmp_path, capsys):
-    """Every cell_* column constant -> no usable features."""
-    specs = [("A01", i % 2 == 0, 500.0) for i in range(40)]
-    all_df = _build_all_df(specs)
+def _degenerate_features_frame():
+    all_df = _build_all_df([("A01", i % 2 == 0, 500.0) for i in range(40)])
     for c in list(all_df.columns):
         if c.startswith("cell_"):
             all_df[c] = 1.0
-
-    settings = _settings()
-    out_df, col = _run_xgb(all_df, settings, tmp_path)
-
-    txt = capsys.readouterr().out
-    assert "No usable cell_* feature columns" in txt
-    # histogram QC also bails: no intensity variation
-    assert col == "infected"
-    assert "adjusted_infected" not in out_df.columns
+    return all_df
 
 
-def _case_too_few_infected_cells_falls_back(tmp_path, capsys):
-    specs = [("A01", i < 5, 900.0 if i < 5 else 200.0) for i in range(40)]
-    all_df = _build_all_df(specs)
-    settings = _settings()
-
-    out_df, col = _run_xgb(all_df, settings, tmp_path)
-
-    txt = capsys.readouterr().out
-    assert "Too few infected or uninfected cells overall" in txt
-    # histogram QC still runs on 40 cells with 2 distinct intensities
-    assert col == "adjusted_infected"
-    assert settings["infection_hist_data"] is not None
-
-
-def _case_non_finite_intensities_fall_back(tmp_path, capsys):
+def _non_finite_intensity_frame():
     all_df = _build_all_df(_separable_specs())
     all_df[f"cell_p95_intensity_ch{PATHOGEN_CHAN}"] = np.nan
+    return all_df
+
+
+def _too_few_infected_frame():
+    return _build_all_df([("A01", i < 5, 900.0 if i < 5 else 200.0) for i in range(40)])
+
+
+def _scn_xgboost_qc_hands_over_to_histogram_qc_when_it_cannot_train(
+        tmp_path, capsys, build, message, relabelled):
+    """Unusable training data prints the reason; the histogram check then relabels only if it still can."""
+    _obs = []
+    all_df = build()
     settings = _settings()
 
     out_df, col = _run_xgb(all_df, settings, tmp_path)
 
-    txt = capsys.readouterr().out
-    assert "No finite intensities for infected/uninfected" in txt
-    # histogram QC drops every row on dropna -> no relabelling
-    assert col == "infected"
-    assert "adjusted_infected" not in out_df.columns
+    assert message in capsys.readouterr().out
+    _obs.append(_seen((message in capsys.readouterr().out), (message in capsys.readouterr().out)))
+    if relabelled:
+        assert col == "adjusted_infected"
+        _obs.append(_seen((col), (col == "adjusted_infected")))
+        assert settings["infection_hist_data"] is not None
+        _obs.append(_seen((settings["infection_hist_data"] is not None), (settings["infection_hist_data"] is not None)))
+    else:
+        assert col == "infected"
+        _obs.append(_seen((col), (col == "infected")))
+        assert "adjusted_infected" not in out_df.columns
+        _obs.append(_seen(("adjusted_infected" not in out_df.columns), ("adjusted_infected" not in out_df.columns)))
+    return _obs
 
 
 # ===========================================================================
@@ -344,7 +395,8 @@ def _curation_specs():
     return specs
 
 
-def _case_balanced_per_well_sampling_and_single_class_skip(tmp_path, capsys):
+def _scn_balanced_per_well_sampling_and_single_class_skip(tmp_path, capsys):
+    _obs = []
     all_df = _build_all_df(_curation_specs(), seed=11)
     settings = _settings(infection_xgb_min_cells_per_class=5)
 
@@ -352,10 +404,15 @@ def _case_balanced_per_well_sampling_and_single_class_skip(tmp_path, capsys):
 
     txt = capsys.readouterr().out
     assert "Extreme-intensity candidates: infected=22, uninfected=8" in txt
+    _obs.append(_seen(("Extreme-intensity candidates: infected=22, uninfected=8" in txt), ("Extreme-intensity candidates: infected=22, uninfected=8" in txt)))
     # A01: 16 pos vs 8 neg -> balanced down to 8 per class
     assert "wells used=1, positives=8, negatives=8" in txt
+    _obs.append(_seen(("wells used=1, positives=8, negatives=8" in txt), ("wells used=1, positives=8, negatives=8" in txt)))
     assert "Wells skipped due to single class in extreme set: plate1_A03" in txt
+    _obs.append(_seen(("Wells skipped due to single class in extreme set: plate1_A03" in txt), ("Wells skipped due to single class in extreme set: plate1_A03" in txt)))
     assert col == "adjusted_infected"
+    _obs.append(_seen((col), (col == "adjusted_infected")))
+    return _obs
 
 
 def _curation_specs_negative_heavy():
@@ -374,7 +431,8 @@ def _curation_specs_negative_heavy():
     return specs
 
 
-def _case_negative_heavy_well_downsamples_negatives(tmp_path, capsys):
+def _scn_negative_heavy_well_downsamples_negatives(tmp_path, capsys):
+    _obs = []
     all_df = _build_all_df(_curation_specs_negative_heavy(), seed=24)
     settings = _settings(infection_xgb_min_cells_per_class=5)
 
@@ -382,12 +440,17 @@ def _case_negative_heavy_well_downsamples_negatives(tmp_path, capsys):
 
     txt = capsys.readouterr().out
     assert "Extreme-intensity candidates: infected=8, uninfected=16" in txt
+    _obs.append(_seen(("Extreme-intensity candidates: infected=8, uninfected=16" in txt), ("Extreme-intensity candidates: infected=8, uninfected=16" in txt)))
     # positives kept whole, negatives sampled down to match
     assert "wells used=1, positives=8, negatives=8" in txt
+    _obs.append(_seen(("wells used=1, positives=8, negatives=8" in txt), ("wells used=1, positives=8, negatives=8" in txt)))
     assert col == "adjusted_infected"
+    _obs.append(_seen((col), (col == "adjusted_infected")))
+    return _obs
 
 
-def _case_small_well_keeps_all_extremes(tmp_path, capsys):
+def _scn_small_well_keeps_all_extremes(tmp_path, capsys):
+    _obs = []
     all_df = _build_all_df(_curation_specs(), seed=12)
     settings = _settings(infection_xgb_min_cells_per_class=1000)
 
@@ -396,9 +459,12 @@ def _case_small_well_keeps_all_extremes(tmp_path, capsys):
     txt = capsys.readouterr().out
     # min_per_class not reached -> the "keep everything" branch
     assert "wells used=1, positives=16, negatives=8" in txt
+    _obs.append(_seen(("wells used=1, positives=16, negatives=8" in txt), ("wells used=1, positives=16, negatives=8" in txt)))
+    return _obs
 
 
-def _case_bad_random_state_falls_back_to_default_seed(tmp_path):
+def _scn_bad_random_state_falls_back_to_default_seed(tmp_path):
+    _obs = []
     all_df = _build_all_df(_curation_specs(), seed=13)
     settings = _settings(
         infection_xgb_min_cells_per_class=5,
@@ -406,11 +472,15 @@ def _case_bad_random_state_falls_back_to_default_seed(tmp_path):
     )
     out_df, col = _run_xgb(all_df, settings, tmp_path)
     assert col == "adjusted_infected"
+    _obs.append(_seen((col), (col == "adjusted_infected")))
     assert out_df["adjusted_infected"].notna().all()
+    _obs.append(_seen((out_df["adjusted_infected"].notna().all()), (out_df["adjusted_infected"].notna().all())))
+    return _obs
 
 
-def _case_no_well_with_both_classes_falls_back(tmp_path, capsys):
+def _scn_no_well_with_both_classes_falls_back(tmp_path, capsys):
     """Every well is single-class in the extreme set -> skip XGBoost QC."""
+    _obs = []
     specs = []
     # well A01: only infected; well A02: only uninfected
     specs += [("A01", True, 1000.0 + i) for i in range(20)]
@@ -424,15 +494,20 @@ def _case_no_well_with_both_classes_falls_back(tmp_path, capsys):
 
     txt = capsys.readouterr().out
     assert "No wells with both infected and uninfected" in txt
+    _obs.append(_seen(("No wells with both infected and uninfected" in txt), ("No wells with both infected and uninfected" in txt)))
     assert col == "adjusted_infected"          # histogram QC took over
+    _obs.append(_seen((col), (col == "adjusted_infected")))
     assert settings["infection_intensity_qc_panel_type"] == "histogram"
+    _obs.append(_seen((settings["infection_intensity_qc_panel_type"]), (settings["infection_intensity_qc_panel_type"] == "histogram")))
+    return _obs
 
 
 # ===========================================================================
 # _infection_qc_xgboost -- feature matrix handling
 # ===========================================================================
 
-def _case_correlated_feature_is_pruned(tmp_path, capsys):
+def _scn_correlated_feature_is_pruned(tmp_path, capsys):
+    _obs = []
     all_df = _build_all_df(_separable_specs(), seed=5)
     all_df["cell_bbox_area"] = all_df["cell_area"] * 2.0 + 1.0  # r == 1.0
 
@@ -441,12 +516,17 @@ def _case_correlated_feature_is_pruned(tmp_path, capsys):
 
     txt = capsys.readouterr().out
     assert "Removing highly correlated features" in txt
+    _obs.append(_seen(("Removing highly correlated features" in txt), ("Removing highly correlated features" in txt)))
     used = settings["infection_xgb_importance"]["feature_names"]
     assert "cell_area" in used
+    _obs.append(_seen(("cell_area" in used), ("cell_area" in used)))
     assert "cell_bbox_area" not in used
+    _obs.append(_seen(("cell_bbox_area" not in used), ("cell_bbox_area" not in used)))
+    return _obs
 
 
-def _case_feature_selection_excludes_other_channels_and_centroids(tmp_path):
+def _scn_feature_selection_excludes_other_channels_and_centroids(tmp_path):
+    _obs = []
     all_df = _build_all_df(_separable_specs(), seed=6)
     settings = _settings(infection_xgb_corr_threshold=1.5)  # disable pruning
 
@@ -454,15 +534,23 @@ def _case_feature_selection_excludes_other_channels_and_centroids(tmp_path):
 
     used = settings["infection_xgb_importance"]["feature_names"]
     assert used, "expected a non-empty feature list"
+    _obs.append(_seen((used), (used)))
     assert all(f.startswith("cell_") for f in used)
+    _obs.append(_seen((all(f.startswith("cell_") for f in used)), (all(f.startswith("cell_") for f in used))))
     assert not any("centroid" in f for f in used)
+    _obs.append(_seen((not any("centroid" in f for f in used)), (not any("centroid" in f for f in used))))
     assert "cell_mean_intensity_ch0" not in used
+    _obs.append(_seen(("cell_mean_intensity_ch0" not in used), ("cell_mean_intensity_ch0" not in used)))
     assert "nucleus_area" not in used
+    _obs.append(_seen(("nucleus_area" not in used), ("nucleus_area" not in used)))
     assert f"cell_p95_intensity_ch{PATHOGEN_CHAN}" in used
+    _obs.append(_seen((f"cell_p95_intensity_ch{PATHOGEN_CHAN}" in used), (f"cell_p95_intensity_ch{PATHOGEN_CHAN}" in used)))
+    return _obs
 
 
-def _case_all_nonfinite_feature_column_is_zero_imputed(tmp_path):
+def _scn_all_nonfinite_feature_column_is_zero_imputed(tmp_path):
     """A ±inf column survives the degeneracy filter and is zeroed out."""
+    _obs = []
     all_df = _build_all_df(_separable_specs(), seed=7)
     all_df["cell_solidity"] = np.where(
         np.arange(len(all_df)) % 2 == 0, np.inf, -np.inf
@@ -472,23 +560,29 @@ def _case_all_nonfinite_feature_column_is_zero_imputed(tmp_path):
     out_df, col = _run_xgb(all_df, settings, tmp_path)
 
     assert col == "adjusted_infected"
+    _obs.append(_seen((col), (col == "adjusted_infected")))
     used = settings["infection_xgb_importance"]["feature_names"]
     assert "cell_solidity" in used
+    _obs.append(_seen(("cell_solidity" in used), ("cell_solidity" in used)))
     # a constant (zeroed) feature can carry no gain
     imp = dict(
         zip(used, settings["infection_xgb_importance"]["feature_importances"])
     )
     assert imp["cell_solidity"] == 0.0
+    _obs.append(_seen((imp["cell_solidity"]), (imp["cell_solidity"] == 0.0)))
     # PCA still produced finite coordinates despite the inf column
     coords = settings["infection_pca_data"]["coords"]
     assert np.isfinite(coords).all()
+    _obs.append(_seen((np.isfinite(coords).all()), (np.isfinite(coords).all())))
+    return _obs
 
 
 # ===========================================================================
 # _infection_qc_xgboost -- relabel / remove / ambiguous band
 # ===========================================================================
 
-def _case_relabel_mode_payloads_and_columns(tmp_path, capsys):
+def _scn_relabel_mode_payloads_and_columns(tmp_path, capsys):
+    _obs = []
     all_df = _build_all_df(_separable_specs(), seed=8)
     n_rows_before = len(all_df)
     settings = _settings(infection_xgb_drop_ambiguous=False)
@@ -497,38 +591,60 @@ def _case_relabel_mode_payloads_and_columns(tmp_path, capsys):
 
     txt = capsys.readouterr().out
     assert "Relabel mode" in txt
+    _obs.append(_seen(("Relabel mode" in txt), ("Relabel mode" in txt)))
     assert col == "adjusted_infected"
+    _obs.append(_seen((col), (col == "adjusted_infected")))
     # nothing dropped when the ambiguous band is disabled
     assert len(out_df) == n_rows_before
+    _obs.append(_seen((len(out_df)), (len(out_df) == n_rows_before)))
     assert out_df["adjusted_infected"].dtype.kind == "i"
+    _obs.append(_seen((out_df["adjusted_infected"].dtype.kind), (out_df["adjusted_infected"].dtype.kind == "i")))
     assert out_df["infection_prob"].between(0.0, 1.0).all()
+    _obs.append(_seen((out_df["infection_prob"].between(0.0, 1.0).all()), (out_df["infection_prob"].between(0.0, 1.0).all())))
 
     hist = settings["infection_hist_data"]
     assert hist["intensity_col"] == f"cell_p95_intensity_ch{PATHOGEN_CHAN}"
+    _obs.append(_seen((hist["intensity_col"]), (hist["intensity_col"] == f"cell_p95_intensity_ch{PATHOGEN_CHAN}")))
     assert hist["pathogen_chan"] == PATHOGEN_CHAN
+    _obs.append(_seen((hist["pathogen_chan"]), (hist["pathogen_chan"] == PATHOGEN_CHAN)))
     assert hist["log_transform"] is False
+    _obs.append(_seen((hist["log_transform"] is False), (hist["log_transform"] is False)))
     assert hist["bin_edges"].size >= 11
+    _obs.append(_seen((hist["bin_edges"].size >= 11), (hist["bin_edges"].size >= 11)))
     assert hist["intensities_inf"].size + hist["intensities_uninf"].size == 72
+    _obs.append(_seen((hist["intensities_inf"].size + hist["intensities_uninf"].size), (hist["intensities_inf"].size + hist["intensities_uninf"].size == 72)))
 
     pca = settings["infection_pca_data"]
     assert pca["method_label"] == "PCA"
+    _obs.append(_seen((pca["method_label"]), (pca["method_label"] == "PCA")))
     assert pca["coords"].shape == (72, 2)
+    _obs.append(_seen((pca["coords"].shape), (pca["coords"].shape == (72, 2))))
     assert pca["labels"].shape == (72,)
+    _obs.append(_seen((pca["labels"].shape), (pca["labels"].shape == (72,))))
 
     imp = settings["infection_xgb_importance"]
     assert len(imp["feature_names"]) == len(imp["feature_importances"])
+    _obs.append(_seen((len(imp["feature_names"])), (len(imp["feature_names"]) == len(imp["feature_importances"]))))
     assert all(v >= 0.0 for v in imp["feature_importances"])
+    _obs.append(_seen((all(v >= 0.0 for v in imp["feature_importances"])), (all(v >= 0.0 for v in imp["feature_importances"]))))
     # sorted descending by gain
     assert imp["feature_importances"] == sorted(
         imp["feature_importances"], reverse=True
     )
+    _obs.append(_seen((imp["feature_importances"]), (imp["feature_importances"] == sorted(
+        imp["feature_importances"], reverse=True
+    ))))
 
     # no PNG for the xgboost strategy
     assert settings["infection_intensity_qc_panel_type"] == "xgboost"
+    _obs.append(_seen((settings["infection_intensity_qc_panel_type"]), (settings["infection_intensity_qc_panel_type"] == "xgboost")))
     assert settings["infection_intensity_qc_panel_path"] is None
+    _obs.append(_seen((settings["infection_intensity_qc_panel_path"] is None), (settings["infection_intensity_qc_panel_path"] is None)))
+    return _obs
 
 
-def _case_relabel_mode_with_margin_leaves_uncertain_labels_untouched(tmp_path):
+def _scn_relabel_mode_with_margin_leaves_uncertain_labels_untouched(tmp_path):
+    _obs = []
     all_df = _build_all_df(_separable_specs(), seed=9)
     settings = _settings(
         infection_xgb_drop_ambiguous=False,
@@ -542,11 +658,15 @@ def _case_relabel_mode_with_margin_leaves_uncertain_labels_untouched(tmp_path):
     mid = (probs > 0.01) & (probs < 0.99)
     orig = out_df["infected"].astype(int).to_numpy()
     assert np.array_equal(adj[mid], orig[mid])
+    _obs.append(_seen((np.array_equal(adj[mid], orig[mid])), (np.array_equal(adj[mid], orig[mid]))))
     assert np.array_equal(adj[probs >= 0.99], np.ones(int((probs >= 0.99).sum()), int))
+    _obs.append(_seen((np.array_equal(adj[probs >= 0.99], np.ones(int((probs >= 0.99).sum()), int))), (np.array_equal(adj[probs >= 0.99], np.ones(int((probs >= 0.99).sum()), int)))))
+    return _obs
 
 
-def _case_remove_mode_drops_disagreements(tmp_path, capsys):
+def _scn_remove_mode_drops_disagreements(tmp_path, capsys):
     """A block of mislabelled cells is removed rather than relabelled."""
+    _obs = []
     specs = _separable_specs(seed=10)
     # flip labels of 6 high-intensity cells: the model will disagree
     specs = [
@@ -564,14 +684,21 @@ def _case_remove_mode_drops_disagreements(tmp_path, capsys):
 
     txt = capsys.readouterr().out
     assert "Remove mode: removed" in txt
+    _obs.append(_seen(("Remove mode: removed" in txt), ("Remove mode: removed" in txt)))
     assert col == "adjusted_infected"
+    _obs.append(_seen((col), (col == "adjusted_infected")))
     n_cells_out = out_df[KEY_COLS].drop_duplicates().shape[0]
     assert n_cells_out < 72
+    _obs.append(_seen((n_cells_out < 72), (n_cells_out < 72)))
     assert len(out_df) == n_cells_out * 3      # whole tracks removed
+    _obs.append(_seen((len(out_df)), (len(out_df) == n_cells_out * 3)))
     assert out_df["infection_prob"].notna().all()
+    _obs.append(_seen((out_df["infection_prob"].notna().all()), (out_df["infection_prob"].notna().all())))
+    return _obs
 
 
-def _case_remove_mode_zero_margin_has_no_ambiguous_band(tmp_path, capsys):
+def _scn_remove_mode_zero_margin_has_no_ambiguous_band(tmp_path, capsys):
+    _obs = []
     specs = _separable_specs(seed=15)
     specs = [
         (w, (not inf) if (i % 7 == 0) else inf, val)
@@ -587,14 +714,24 @@ def _case_remove_mode_zero_margin_has_no_ambiguous_band(tmp_path, capsys):
 
     txt = capsys.readouterr().out
     assert "margin=0.00" in txt
+    _obs.append(_seen(("margin=0.00" in txt), ("margin=0.00" in txt)))
     # with margin 0 every disagreement is a removal, so what survives agrees
     assert np.array_equal(
         out_df["adjusted_infected"].to_numpy(),
         (out_df["infection_prob"].to_numpy() >= 0.5).astype(int),
     )
+    _obs.append(_seen((np.array_equal(
+        out_df["adjusted_infected"].to_numpy(),
+        (out_df["infection_prob"].to_numpy() >= 0.5).astype(int),
+    )), (np.array_equal(
+        out_df["adjusted_infected"].to_numpy(),
+        (out_df["infection_prob"].to_numpy() >= 0.5).astype(int),
+    ))))
+    return _obs
 
 
-def _case_unknown_mode_is_treated_as_relabel(tmp_path, capsys):
+def _scn_unknown_mode_is_treated_as_relabel(tmp_path, capsys):
+    _obs = []
     all_df = _build_all_df(_separable_specs(), seed=16)
     n_before = len(all_df)
     settings = _settings(
@@ -603,10 +740,14 @@ def _case_unknown_mode_is_treated_as_relabel(tmp_path, capsys):
     )
     out_df, _ = _run_xgb(all_df, settings, tmp_path)
     assert "Relabel mode" in capsys.readouterr().out
+    _obs.append(_seen(("Relabel mode" in capsys.readouterr().out), ("Relabel mode" in capsys.readouterr().out)))
     assert len(out_df) == n_before
+    _obs.append(_seen((len(out_df)), (len(out_df) == n_before)))
+    return _obs
 
 
-def _case_ambiguous_band_drops_cells_and_swaps_reversed_bounds(tmp_path, capsys):
+def _scn_ambiguous_band_drops_cells_and_swaps_reversed_bounds(tmp_path, capsys):
+    _obs = []
     all_df = _build_all_df(_separable_specs(), seed=17)
     settings = _settings(
         infection_xgb_drop_ambiguous=True,
@@ -618,12 +759,17 @@ def _case_ambiguous_band_drops_cells_and_swaps_reversed_bounds(tmp_path, capsys)
 
     txt = capsys.readouterr().out
     assert "ambiguous XGBoost probability in [0.00, 1.00]" in txt
+    _obs.append(_seen(("ambiguous XGBoost probability in [0.00, 1.00]" in txt), ("ambiguous XGBoost probability in [0.00, 1.00]" in txt)))
     # the whole [0, 1] band is ambiguous -> every cell dropped
     assert out_df.empty
+    _obs.append(_seen((out_df.empty), (out_df.empty)))
     assert col == "adjusted_infected"
+    _obs.append(_seen((col), (col == "adjusted_infected")))
+    return _obs
 
 
-def _case_ambiguous_band_partial_drop(tmp_path, capsys):
+def _scn_ambiguous_band_partial_drop(tmp_path, capsys):
+    _obs = []
     all_df = _build_all_df(_separable_specs(), seed=18)
     n_cells_before = all_df[KEY_COLS].drop_duplicates().shape[0]
     settings = _settings(
@@ -635,12 +781,16 @@ def _case_ambiguous_band_partial_drop(tmp_path, capsys):
 
     n_cells_after = out_df[KEY_COLS].drop_duplicates().shape[0]
     assert n_cells_after <= n_cells_before
+    _obs.append(_seen((n_cells_after <= n_cells_before), (n_cells_after <= n_cells_before)))
     probs = out_df["infection_prob"].to_numpy()
     assert not ((probs >= 0.45) & (probs <= 0.55)).any()
+    _obs.append(_seen((not ((probs >= 0.45) & (probs <= 0.55)).any()), (not ((probs >= 0.45) & (probs <= 0.55)).any())))
+    return _obs
 
 
-def _case_rows_with_nan_keys_keep_their_original_label(tmp_path):
+def _scn_rows_with_nan_keys_keep_their_original_label(tmp_path):
     """Rows whose group key is NaN never reach cell_level and are back-filled."""
+    _obs = []
     all_df = _build_all_df(_separable_specs(), seed=19)
     all_df["fieldID"] = all_df["fieldID"].astype(object)
     orphan = all_df["cellID"] == 1
@@ -652,16 +802,22 @@ def _case_rows_with_nan_keys_keep_their_original_label(tmp_path):
 
     kept = out_df[out_df["fieldID"].isna()]
     assert len(kept) == 3
+    _obs.append(_seen((len(kept)), (len(kept) == 3)))
     assert (kept["adjusted_infected"] == orig_label).all()
+    _obs.append(_seen(((kept["adjusted_infected"] == orig_label).all()), ((kept["adjusted_infected"] == orig_label).all())))
     assert kept["infection_prob"].isna().all()
+    _obs.append(_seen((kept["infection_prob"].isna().all()), (kept["infection_prob"].isna().all())))
     assert out_df["adjusted_infected"].dtype.kind == "i"
+    _obs.append(_seen((out_df["adjusted_infected"].dtype.kind), (out_df["adjusted_infected"].dtype.kind == "i")))
+    return _obs
 
 
 # ===========================================================================
 # _infection_qc_xgboost -- payload failure paths
 # ===========================================================================
 
-def _case_pca_payload_failure_is_swallowed(tmp_path, monkeypatch, capsys):
+def _scn_pca_payload_failure_is_swallowed(tmp_path, monkeypatch, capsys):
+    _obs = []
     all_df = _build_all_df(_separable_specs(), seed=20)
     real_import = builtins.__import__
 
@@ -677,15 +833,22 @@ def _case_pca_payload_failure_is_swallowed(tmp_path, monkeypatch, capsys):
 
     txt = capsys.readouterr().out
     assert "Could not compute histogram/PCA payloads" in txt
+    _obs.append(_seen(("Could not compute histogram/PCA payloads" in txt), ("Could not compute histogram/PCA payloads" in txt)))
     assert settings["infection_pca_data"] is None
+    _obs.append(_seen((settings["infection_pca_data"] is None), (settings["infection_pca_data"] is None)))
     # the histogram payload was built before the failure point
     assert settings["infection_hist_data"] is not None
+    _obs.append(_seen((settings["infection_hist_data"] is not None), (settings["infection_hist_data"] is not None)))
     # ... and the QC result itself is unaffected
     assert col == "adjusted_infected"
+    _obs.append(_seen((col), (col == "adjusted_infected")))
     assert settings["infection_xgb_importance"] is not None
+    _obs.append(_seen((settings["infection_xgb_importance"] is not None), (settings["infection_xgb_importance"] is not None)))
+    return _obs
 
 
-def _case_feature_importance_failure_is_swallowed(tmp_path, capsys):
+def _scn_feature_importance_failure_is_swallowed(tmp_path, capsys):
+    _obs = []
     all_df = _build_all_df(_separable_specs(), seed=21)
     settings = _settings(
         infection_xgb_drop_ambiguous=False,
@@ -695,12 +858,18 @@ def _case_feature_importance_failure_is_swallowed(tmp_path, capsys):
 
     txt = capsys.readouterr().out
     assert "Could not compute feature importances" in txt
+    _obs.append(_seen(("Could not compute feature importances" in txt), ("Could not compute feature importances" in txt)))
     assert settings["infection_xgb_importance"] is None
+    _obs.append(_seen((settings["infection_xgb_importance"] is None), (settings["infection_xgb_importance"] is None)))
     assert col == "adjusted_infected"
+    _obs.append(_seen((col), (col == "adjusted_infected")))
     assert settings["infection_intensity_qc_panel_type"] == "xgboost"
+    _obs.append(_seen((settings["infection_intensity_qc_panel_type"]), (settings["infection_intensity_qc_panel_type"] == "xgboost")))
+    return _obs
 
 
-def _case_zero_top_features_yields_empty_importance_payload(tmp_path, capsys):
+def _scn_zero_top_features_yields_empty_importance_payload(tmp_path, capsys):
+    _obs = []
     all_df = _build_all_df(_separable_specs(), seed=22)
     settings = _settings(
         infection_xgb_drop_ambiguous=False,
@@ -710,13 +879,18 @@ def _case_zero_top_features_yields_empty_importance_payload(tmp_path, capsys):
 
     txt = capsys.readouterr().out
     assert "Top XGBoost features (gain)" not in txt
+    _obs.append(_seen(("Top XGBoost features (gain)" not in txt), ("Top XGBoost features (gain)" not in txt)))
     imp = settings["infection_xgb_importance"]
     assert imp["feature_names"] == []
+    _obs.append(_seen((imp["feature_names"]), (imp["feature_names"] == [])))
     assert imp["feature_importances"] == []
+    _obs.append(_seen((imp["feature_importances"]), (imp["feature_importances"] == [])))
+    return _obs
 
 
-def _case_histogram_payload_skipped_when_too_few_cells(tmp_path):
+def _scn_histogram_payload_skipped_when_too_few_cells(tmp_path):
     """Fewer than 10 surviving cells -> no histogram payload, PCA still built."""
+    _obs = []
     all_df = _build_all_df(_separable_specs(), seed=23)
     settings = _settings(
         infection_xgb_drop_ambiguous=True,
@@ -726,7 +900,10 @@ def _case_histogram_payload_skipped_when_too_few_cells(tmp_path):
     out_df, col = _run_xgb(all_df, settings, tmp_path)
 
     assert settings["infection_hist_data"] is None
+    _obs.append(_seen((settings["infection_hist_data"] is None), (settings["infection_hist_data"] is None)))
     assert col == "adjusted_infected"
+    _obs.append(_seen((col), (col == "adjusted_infected")))
+    return _obs
 
 
 # ===========================================================================
@@ -795,7 +972,8 @@ def panel_calls(monkeypatch):
     return calls
 
 
-def _case_reuse_from_db_runs_full_xgboost_pipeline(tmp_path, panel_calls, capsys):
+def _scn_reuse_from_db_runs_full_xgboost_pipeline(tmp_path, panel_calls, capsys):
+    _obs = []
     from spacr.timelapse import automated_motility_assay
 
     src = _make_src(tmp_path)
@@ -807,16 +985,22 @@ def _case_reuse_from_db_runs_full_xgboost_pipeline(tmp_path, panel_calls, capsys
 
     txt = capsys.readouterr().out
     assert "Loaded ORIGINAL measurements from DB" in txt
+    _obs.append(_seen(("Loaded ORIGINAL measurements from DB" in txt), ("Loaded ORIGINAL measurements from DB" in txt)))
     assert "Reusing ORIGINAL smoothed measurements" in txt
+    _obs.append(_seen(("Reusing ORIGINAL smoothed measurements" in txt), ("Reusing ORIGINAL smoothed measurements" in txt)))
 
     # adjusted labels exist on the returned (adjusted) frame
     assert "adjusted_infected" in out.columns
+    _obs.append(_seen(("adjusted_infected" in out.columns), ("adjusted_infected" in out.columns)))
     assert "infection_prob" in out.columns
+    _obs.append(_seen(("infection_prob" in out.columns), ("infection_prob" in out.columns)))
 
     # adjusted CSV emitted with the strategy in its name
     csv_path = src / "measurements" / f"{TABLE}_adjusted_xgboost.csv"
     assert csv_path.is_file()
+    _obs.append(_seen((csv_path.is_file()), (csv_path.is_file())))
     assert "adjusted_infected" in pd.read_csv(csv_path).columns
+    _obs.append(_seen(("adjusted_infected" in pd.read_csv(csv_path).columns), ("adjusted_infected" in pd.read_csv(csv_path).columns)))
 
     # the canonical SQLite table holds the PRE-QC snapshot only
     with sqlite3.connect(src / "measurements" / "measurements.db") as con:
@@ -829,27 +1013,44 @@ def _case_reuse_from_db_runs_full_xgboost_pipeline(tmp_path, panel_calls, capsys
         canonical = pd.read_sql_query(f"SELECT * FROM {TABLE}", con)
         wells = pd.read_sql_query(f"SELECT * FROM {TABLE}_well_motility", con)
     assert f"{TABLE}_well_motility" in tables
+    _obs.append(_seen((f"{TABLE}_well_motility" in tables), (f"{TABLE}_well_motility" in tables)))
     assert "adjusted_infected" not in canonical.columns
+    _obs.append(_seen(("adjusted_infected" not in canonical.columns), ("adjusted_infected" not in canonical.columns)))
     assert set(wells["wellID"]) == {"A01", "A02"}
+    _obs.append(_seen((set(wells["wellID"])), (set(wells["wellID"]) == {"A01", "A02"})))
     assert {"mean_velocity_all", "velocity_unit"}.issubset(wells.columns)
+    _obs.append(_seen(({"mean_velocity_all", "velocity_unit"}.issubset(wells.columns)), ({"mean_velocity_all", "velocity_unit"}.issubset(wells.columns))))
     assert (wells["velocity_unit"] == "µm/min").all()
+    _obs.append(_seen(((wells["velocity_unit"] == "µm/min").all()), ((wells["velocity_unit"] == "µm/min").all())))
 
     # correlation CSV + debug plot PDF
     assert (src / "measurements" / "velocity_feature_correlations.csv").is_file()
+    _obs.append(_seen(((src / "measurements" / "velocity_feature_correlations.csv").is_file()), ((src / "measurements" / "velocity_feature_correlations.csv").is_file())))
     assert list((src / "motility_plots").glob("merged_planes_*.pdf"))
+    _obs.append(_seen((list((src / "motility_plots").glob("merged_planes_*.pdf"))), (list((src / "motility_plots").glob("merged_planes_*.pdf")))))
 
     # both panels were requested, with the strategy encoded in the tag
     assert [c["label_tag"] for c in panel_calls] == [
         "mask_xgboost",
         "adjusted_xgboost",
     ]
+    _obs.append(_seen(([c["label_tag"] for c in panel_calls]), ([c["label_tag"] for c in panel_calls] == [
+        "mask_xgboost",
+        "adjusted_xgboost",
+    ])))
     assert panel_calls[0]["infection_col"] == "infected"
+    _obs.append(_seen((panel_calls[0]["infection_col"]), (panel_calls[0]["infection_col"] == "infected")))
     assert panel_calls[1]["infection_col"] == "adjusted_infected"
+    _obs.append(_seen((panel_calls[1]["infection_col"]), (panel_calls[1]["infection_col"] == "adjusted_infected")))
     assert panel_calls[0]["n_channels"] == 3
+    _obs.append(_seen((panel_calls[0]["n_channels"]), (panel_calls[0]["n_channels"] == 3)))
     assert panel_calls[0]["vel_unit"] == "µm/min"
+    _obs.append(_seen((panel_calls[0]["vel_unit"]), (panel_calls[0]["vel_unit"] == "µm/min")))
+    return _obs
 
 
-def _case_missing_proba_column_warns_and_keeps_all_rows(tmp_path, panel_calls, capsys):
+def _scn_missing_proba_column_warns_and_keeps_all_rows(tmp_path, panel_calls, capsys):
+    _obs = []
     from spacr.timelapse import automated_motility_assay
 
     src = _make_src(tmp_path)
@@ -862,10 +1063,14 @@ def _case_missing_proba_column_warns_and_keeps_all_rows(tmp_path, panel_calls, c
 
     txt = capsys.readouterr().out
     assert "no XGBoost probability/score column was found" in txt
+    _obs.append(_seen(("no XGBoost probability/score column was found" in txt), ("no XGBoost probability/score column was found" in txt)))
     assert "_ambiguous_flag" not in out.columns
+    _obs.append(_seen(("_ambiguous_flag" not in out.columns), ("_ambiguous_flag" not in out.columns)))
+    return _obs
 
 
-def _case_auto_detected_infection_prob_column_is_used(tmp_path, panel_calls, capsys):
+def _scn_auto_detected_infection_prob_column_is_used(tmp_path, panel_calls, capsys):
+    _obs = []
     from spacr.timelapse import automated_motility_assay
 
     src = _make_src(tmp_path)
@@ -878,15 +1083,19 @@ def _case_auto_detected_infection_prob_column_is_used(tmp_path, panel_calls, cap
     txt = capsys.readouterr().out
     # fell through the "xgb"-named candidates to the "infection"-named ones
     assert "no XGBoost probability/score column was found" not in txt
+    _obs.append(_seen(("no XGBoost probability/score column was found" not in txt), ("no XGBoost probability/score column was found" not in txt)))
     # cell-level QC already removed the [0.25, 0.75] band, so no track is left
     # inside the open (0.25, 0.75) interval
     probs = (
         out.groupby(KEY_COLS)["infection_prob"].mean().dropna().to_numpy()
     )
     assert not ((probs > 0.25) & (probs < 0.75)).any()
+    _obs.append(_seen((not ((probs > 0.25) & (probs < 0.75)).any()), (not ((probs > 0.25) & (probs < 0.75)).any())))
+    return _obs
 
 
-def _case_xgb_named_column_triggers_ambiguous_track_drop(tmp_path, panel_calls, capsys):
+def _scn_xgb_named_column_triggers_ambiguous_track_drop(tmp_path, panel_calls, capsys):
+    _obs = []
     from spacr.timelapse import automated_motility_assay
 
     src = _make_src(tmp_path)
@@ -900,12 +1109,17 @@ def _case_xgb_named_column_triggers_ambiguous_track_drop(tmp_path, panel_calls, 
 
     txt = capsys.readouterr().out
     assert "ambiguous XGBoost tracks (0.25 < proba < 0.75)" in txt
+    _obs.append(_seen(("ambiguous XGBoost tracks (0.25 < proba < 0.75)" in txt), ("ambiguous XGBoost tracks (0.25 < proba < 0.75)" in txt)))
     assert "_ambiguous_flag" not in out.columns
+    _obs.append(_seen(("_ambiguous_flag" not in out.columns), ("_ambiguous_flag" not in out.columns)))
     # every surviving track sits outside the ambiguous band
     assert (out["nucleus_xgb_prob"] == 0.95).all()
+    _obs.append(_seen(((out["nucleus_xgb_prob"] == 0.95).all()), ((out["nucleus_xgb_prob"] == 0.95).all())))
+    return _obs
 
 
-def _case_per_well_qc_scope(tmp_path, panel_calls, capsys):
+def _scn_per_well_qc_scope(tmp_path, panel_calls, capsys):
+    _obs = []
     from spacr.timelapse import automated_motility_assay
 
     src = _make_src(tmp_path)
@@ -924,8 +1138,12 @@ def _case_per_well_qc_scope(tmp_path, panel_calls, capsys):
     out = automated_motility_assay(settings)
 
     assert "adjusted_infected" in out.columns
+    _obs.append(_seen(("adjusted_infected" in out.columns), ("adjusted_infected" in out.columns)))
     assert set(out["wellID"]) == {"A01", "A02"}
+    _obs.append(_seen((set(out["wellID"])), (set(out["wellID"]) == {"A01", "A02"})))
     assert out["adjusted_infected"].notna().all()
+    _obs.append(_seen((out["adjusted_infected"].notna().all()), (out["adjusted_infected"].notna().all())))
+    return _obs
 
 
 # --- recompute-from-merged paths ------------------------------------------
@@ -935,7 +1153,8 @@ def _fake_group_df(n_frames=4, seed=40):
                          seed=seed)
 
 
-def _case_recompute_from_merged_sequential(tmp_path, panel_calls, monkeypatch, capsys):
+def _scn_recompute_from_merged_sequential(tmp_path, panel_calls, monkeypatch, capsys):
+    _obs = []
     import spacr.resource_log as resource_log
     import spacr.timelapse as tl
 
@@ -962,30 +1181,46 @@ def _case_recompute_from_merged_sequential(tmp_path, panel_calls, monkeypatch, c
 
     txt = capsys.readouterr().out
     assert "Using n_jobs=1" in txt
+    _obs.append(_seen(("Using n_jobs=1" in txt), ("Using n_jobs=1" in txt)))
     assert "Combined raw measurements" in txt
+    _obs.append(_seen(("Combined raw measurements" in txt), ("Combined raw measurements" in txt)))
     assert "After smoothing" in txt
+    _obs.append(_seen(("After smoothing" in txt), ("After smoothing" in txt)))
     # one (plate, well, field) group -> one worker call, with the right args
     assert len(seen) == 1
+    _obs.append(_seen((len(seen)), (len(seen) == 1)))
     assert len(preflight) == 1
+    _obs.append(_seen((len(preflight)), (len(preflight) == 1)))
     assert preflight[0][:2] == ("motility", 1)
+    _obs.append(_seen((preflight[0][:2]), (preflight[0][:2] == ("motility", 1))))
     first_group = seen[0][1]
     first = first_group[0]
     expected_path = first if os.path.isabs(str(first)) else src / "merged" / first
     assert os.path.isfile(expected_path)
+    _obs.append(_seen((os.path.isfile(expected_path)), (os.path.isfile(expected_path))))
     expected_bytes = np.load(expected_path, mmap_mode="r").nbytes
     assert expected_bytes > 0
+    _obs.append(_seen((expected_bytes > 0), (expected_bytes > 0)))
     assert preflight[0][2] == len(first_group) * expected_bytes
+    _obs.append(_seen((preflight[0][2]), (preflight[0][2] == len(first_group) * expected_bytes)))
     assert seen[0][0] == str(src)
+    _obs.append(_seen((seen[0][0]), (seen[0][0] == str(src))))
     assert seen[0][2] == 3                     # n_channels
+    _obs.append(_seen((seen[0][2]), (seen[0][2] == 3)))
     assert seen[0][5] == PATHOGEN_CHAN
+    _obs.append(_seen((seen[0][5]), (seen[0][5] == PATHOGEN_CHAN)))
     assert "adjusted_infected" in out.columns
+    _obs.append(_seen(("adjusted_infected" in out.columns), ("adjusted_infected" in out.columns)))
     # DB was created from scratch
     with sqlite3.connect(src / "measurements" / "measurements.db") as con:
         stored = pd.read_sql_query(f"SELECT * FROM {TABLE}", con)
     assert len(stored) == 15 * 2 * 2 * 4       # cells x classes x wells x frames
+    _obs.append(_seen((len(stored)), (len(stored) == 15 * 2 * 2 * 4)))
+    return _obs
 
 
-def _case_recompute_uses_pool_when_n_jobs_gt_one(tmp_path, panel_calls, monkeypatch):
+def _scn_recompute_uses_pool_when_n_jobs_gt_one(tmp_path, panel_calls, monkeypatch):
+    _obs = []
     import spacr.resource_log as resource_log
     import spacr.timelapse as tl
 
@@ -1013,12 +1248,18 @@ def _case_recompute_uses_pool_when_n_jobs_gt_one(tmp_path, panel_calls, monkeypa
     out = tl.automated_motility_assay(settings)
 
     assert created["processes"] == 3
+    _obs.append(_seen((created["processes"]), (created["processes"] == 3)))
     assert created["n_args"] == 1
+    _obs.append(_seen((created["n_args"]), (created["n_args"] == 1)))
     assert not out.empty
+    _obs.append(_seen((not out.empty), (not out.empty)))
+    return _obs
 
 
-def _case_njobs_none_derives_from_cpu_count(tmp_path, panel_calls, monkeypatch, capsys):
+def _scn_njobs_none_derives_from_cpu_count(tmp_path, panel_calls, monkeypatch, capsys):
+    _obs = []
     import multiprocessing
+
     import spacr.timelapse as tl
 
     src = _make_src(tmp_path, n_files=1)
@@ -1029,11 +1270,15 @@ def _case_njobs_none_derives_from_cpu_count(tmp_path, panel_calls, monkeypatch, 
     out = tl.automated_motility_assay(settings)
 
     assert "Using n_jobs=1" in capsys.readouterr().out
+    _obs.append(_seen(("Using n_jobs=1" in capsys.readouterr().out), ("Using n_jobs=1" in capsys.readouterr().out)))
     assert not out.empty
+    _obs.append(_seen((not out.empty), (not out.empty)))
+    return _obs
 
 
-def _case_db_reuse_with_missing_table_recomputes(tmp_path, panel_calls, monkeypatch,
+def _scn_db_reuse_with_missing_table_recomputes(tmp_path, panel_calls, monkeypatch,
                                                 capsys):
+    _obs = []
     import spacr.timelapse as tl
 
     src = _make_src(tmp_path, n_files=1)
@@ -1045,11 +1290,15 @@ def _case_db_reuse_with_missing_table_recomputes(tmp_path, panel_calls, monkeypa
 
     txt = capsys.readouterr().out
     assert "Failed to reuse existing measurements" in txt
+    _obs.append(_seen(("Failed to reuse existing measurements" in txt), ("Failed to reuse existing measurements" in txt)))
     assert not out.empty
+    _obs.append(_seen((not out.empty), (not out.empty)))
+    return _obs
 
 
-def _case_db_reuse_with_wrong_columns_recomputes(tmp_path, panel_calls, monkeypatch,
+def _scn_db_reuse_with_wrong_columns_recomputes(tmp_path, panel_calls, monkeypatch,
                                                 capsys):
+    _obs = []
     import spacr.timelapse as tl
 
     src = _make_src(tmp_path, n_files=1)
@@ -1061,38 +1310,50 @@ def _case_db_reuse_with_wrong_columns_recomputes(tmp_path, panel_calls, monkeypa
 
     txt = capsys.readouterr().out
     assert "empty or missing required columns" in txt
+    _obs.append(_seen(("empty or missing required columns" in txt), ("empty or missing required columns" in txt)))
     assert not out.empty
+    _obs.append(_seen((not out.empty), (not out.empty)))
+    return _obs
 
 
-def _case_missing_merged_dir_raises(tmp_path):
+def _scn_missing_merged_dir_raises(tmp_path):
+    _obs = []
     from spacr.timelapse import automated_motility_assay
 
     src = tmp_path / "no_merged"
     src.mkdir()
-    with pytest.raises(FileNotFoundError, match="No merged directory"):
+    with pytest.raises(FileNotFoundError, match="No merged directory") as _raised:
         automated_motility_assay(_assay_settings(src))
+    _obs.append(_seen(type(_raised.value).__name__ + ": " + str(_raised.value), True))
+    return _obs
 
 
-def _case_empty_merged_dir_raises(tmp_path):
+def _scn_empty_merged_dir_raises(tmp_path):
+    _obs = []
     from spacr.timelapse import automated_motility_assay
 
     src = tmp_path / "empty_merged"
     (src / "merged").mkdir(parents=True)
     (src / "merged" / "README.txt").write_text("not an npy", encoding="utf-8")
-    with pytest.raises(FileNotFoundError, match="No .npy files found"):
+    with pytest.raises(FileNotFoundError, match="No .npy files found") as _raised:
         automated_motility_assay(_assay_settings(src))
+    _obs.append(_seen(type(_raised.value).__name__ + ": " + str(_raised.value), True))
+    return _obs
 
 
-@pytest.mark.parametrize("channels", [[], "not-a-list"])
-def _case_bad_channels_setting_raises_valueerror(tmp_path, channels):
+def _scn_bad_channels_setting_raises_valueerror(tmp_path, channels):
+    _obs = []
     from spacr.timelapse import automated_motility_assay
 
     src = _make_src(tmp_path, n_files=1)
-    with pytest.raises(ValueError, match="non-empty list of channels"):
+    with pytest.raises(ValueError, match="non-empty list of channels") as _raised:
         automated_motility_assay(_assay_settings(src, channels=channels))
+    _obs.append(_seen(type(_raised.value).__name__ + ": " + str(_raised.value), True))
+    return _obs
 
 
-def _case_infected_derived_from_n_pathogens(tmp_path, panel_calls, capsys):
+def _scn_infected_derived_from_n_pathogens(tmp_path, panel_calls, capsys):
+    _obs = []
     from spacr.timelapse import automated_motility_assay
 
     src = _make_src(tmp_path)
@@ -1104,12 +1365,17 @@ def _case_infected_derived_from_n_pathogens(tmp_path, panel_calls, capsys):
     out = automated_motility_assay(settings)
 
     assert out["infected"].dtype == bool
+    _obs.append(_seen((out["infected"].dtype), (out["infected"].dtype == bool)))
     expected = out["n_pathogens"] > 0
     assert np.array_equal(out["infected"].to_numpy(), expected.to_numpy())
+    _obs.append(_seen((np.array_equal(out["infected"].to_numpy(), expected.to_numpy())), (np.array_equal(out["infected"].to_numpy(), expected.to_numpy()))))
     assert "Tracks (mask-based)" in capsys.readouterr().out
+    _obs.append(_seen(("Tracks (mask-based)" in capsys.readouterr().out), ("Tracks (mask-based)" in capsys.readouterr().out)))
+    return _obs
 
 
-def _case_no_infection_information_defaults_to_false(tmp_path, panel_calls, capsys):
+def _scn_no_infection_information_defaults_to_false(tmp_path, panel_calls, capsys):
+    _obs = []
     from spacr.timelapse import automated_motility_assay
 
     src = _make_src(tmp_path)
@@ -1121,12 +1387,16 @@ def _case_no_infection_information_defaults_to_false(tmp_path, panel_calls, caps
     out = automated_motility_assay(settings)
 
     assert (~out["infected"]).all()
+    _obs.append(_seen(((~out["infected"]).all()), ((~out["infected"]).all())))
     assert "infected=0, uninfected=60" in capsys.readouterr().out
+    _obs.append(_seen(("infected=0, uninfected=60" in capsys.readouterr().out), ("infected=0, uninfected=60" in capsys.readouterr().out)))
+    return _obs
 
 
-def _case_qc_disabled_uses_plain_adjusted_csv_name_and_one_panel(
+def _scn_qc_disabled_uses_plain_adjusted_csv_name_and_one_panel(
     tmp_path, panel_calls, capsys
 ):
+    _obs = []
     from spacr.timelapse import automated_motility_assay
 
     src = _make_src(tmp_path)
@@ -1139,12 +1409,17 @@ def _case_qc_disabled_uses_plain_adjusted_csv_name_and_one_panel(
     out = automated_motility_assay(settings)
 
     assert (src / "measurements" / f"{TABLE}_adjusted.csv").is_file()
+    _obs.append(_seen(((src / "measurements" / f"{TABLE}_adjusted.csv").is_file()), ((src / "measurements" / f"{TABLE}_adjusted.csv").is_file())))
     assert "adjusted_infected" not in out.columns
+    _obs.append(_seen(("adjusted_infected" not in out.columns), ("adjusted_infected" not in out.columns)))
     # infection_col stayed 'infected' -> the adjusted panel is skipped
     assert [c["label_tag"] for c in panel_calls] == ["mask_none"]
+    _obs.append(_seen(([c["label_tag"] for c in panel_calls]), ([c["label_tag"] for c in panel_calls] == ["mask_none"])))
+    return _obs
 
 
-def _case_panels_can_be_disabled(tmp_path, panel_calls):
+def _scn_panels_can_be_disabled(tmp_path, panel_calls):
+    _obs = []
     from spacr.timelapse import automated_motility_assay
 
     src = _make_src(tmp_path)
@@ -1157,12 +1432,16 @@ def _case_panels_can_be_disabled(tmp_path, panel_calls):
     out = automated_motility_assay(settings)
 
     assert panel_calls == []
+    _obs.append(_seen((panel_calls), (panel_calls == [])))
     assert "adjusted_infected" in out.columns
+    _obs.append(_seen(("adjusted_infected" in out.columns), ("adjusted_infected" in out.columns)))
+    return _obs
 
 
-def _case_adjusted_csv_failure_is_reported_but_not_fatal(
+def _scn_adjusted_csv_failure_is_reported_but_not_fatal(
     tmp_path, panel_calls, monkeypatch, capsys
 ):
+    _obs = []
     from spacr.timelapse import automated_motility_assay
 
     src = _make_src(tmp_path)
@@ -1184,13 +1463,19 @@ def _case_adjusted_csv_failure_is_reported_but_not_fatal(
 
     txt = capsys.readouterr().out
     assert "failed to save adjusted CSV" in txt
+    _obs.append(_seen(("failed to save adjusted CSV" in txt), ("failed to save adjusted CSV" in txt)))
     assert "disk on fire" in txt
+    _obs.append(_seen(("disk on fire" in txt), ("disk on fire" in txt)))
     # the run continued: velocity correlations and the DB were still written
     assert not out.empty
+    _obs.append(_seen((not out.empty), (not out.empty)))
     assert (src / "measurements" / "velocity_feature_correlations.csv").is_file()
+    _obs.append(_seen(((src / "measurements" / "velocity_feature_correlations.csv").is_file()), ((src / "measurements" / "velocity_feature_correlations.csv").is_file())))
+    return _obs
 
 
-def _case_no_measurements_raises_runtimeerror(tmp_path, panel_calls, monkeypatch):
+def _scn_no_measurements_raises_runtimeerror(tmp_path, panel_calls, monkeypatch):
+    _obs = []
     import spacr.timelapse as tl
 
     src = _make_src(tmp_path, n_files=1)
@@ -1198,69 +1483,138 @@ def _case_no_measurements_raises_runtimeerror(tmp_path, panel_calls, monkeypatch
         tl, "_process_merged_group", lambda args: pd.DataFrame()
     )
     settings = _assay_settings(src, reuse_existing_measurements=False)
-    with pytest.raises(RuntimeError, match="No measurements were produced"):
+    with pytest.raises(RuntimeError, match="No measurements were produced") as _raised:
         tl.automated_motility_assay(settings)
+    _obs.append(_seen(type(_raised.value).__name__ + ": " + str(_raised.value), True))
+    return _obs
 
 
-def test_timelapse_qc_xgb_entry_cases(request, subtests, capsys):
-    """Case table: 51 cases of the module-level cases run as sub-tests."""
-    from tests.case_table import run_cases
+def _plain(value):
+    """Return a plain comparable copy of a value, or raise ValueError."""
+    if isinstance(value, np.generic):
+        value = value.item()
+    if isinstance(value, str):
+        return re.sub(r"\S*pytest-of-[^/\\]+[/\\]pytest-\d+[/\\](?:popen-gw\d+[/\\])?[^/\\\s]+", "<tmp>", value)
+    if value is None or isinstance(value, (bool, int)):
+        return value
+    if isinstance(value, float):
+        return None if value != value else round(value, 6)
+    if isinstance(value, (list, tuple)) and len(value) <= 60:
+        return [_plain(v) for v in value]
+    if isinstance(value, (set, frozenset)) and len(value) <= 60:
+        return sorted((_plain(v) for v in value), key=repr)
+    if isinstance(value, dict) and len(value) <= 60:
+        return {str(k): _plain(v) for k, v in value.items()}
+    raise ValueError(type(value))
 
-    ran = run_cases(
-        request,
-        subtests,
-        [
-        _case_xgboost_import_failure_falls_back_to_histogram,
-        _case_pathogen_chan_none_falls_back_without_relabelling,
-        _case_stale_adjusted_and_prob_columns_are_dropped,
-        _case_infection_column_recovered_from_infect_like_column,
-        _case_infection_column_created_from_n_pathogens,
-        _case_no_label_and_no_n_pathogens_falls_back,
-        _case_missing_key_column_raises_keyerror,
-        _case_unknown_tracked_object_falls_back_to_cell,
-        _case_no_intensity_column_for_tracked_object_falls_back,
-        _case_all_degenerate_features_falls_back,
-        _case_too_few_infected_cells_falls_back,
-        _case_non_finite_intensities_fall_back,
-        _case_balanced_per_well_sampling_and_single_class_skip,
-        _case_negative_heavy_well_downsamples_negatives,
-        _case_small_well_keeps_all_extremes,
-        _case_bad_random_state_falls_back_to_default_seed,
-        _case_no_well_with_both_classes_falls_back,
-        _case_correlated_feature_is_pruned,
-        _case_feature_selection_excludes_other_channels_and_centroids,
-        _case_all_nonfinite_feature_column_is_zero_imputed,
-        _case_relabel_mode_payloads_and_columns,
-        _case_relabel_mode_with_margin_leaves_uncertain_labels_untouched,
-        _case_remove_mode_drops_disagreements,
-        _case_remove_mode_zero_margin_has_no_ambiguous_band,
-        _case_unknown_mode_is_treated_as_relabel,
-        _case_ambiguous_band_drops_cells_and_swaps_reversed_bounds,
-        _case_ambiguous_band_partial_drop,
-        _case_rows_with_nan_keys_keep_their_original_label,
-        _case_pca_payload_failure_is_swallowed,
-        _case_feature_importance_failure_is_swallowed,
-        _case_zero_top_features_yields_empty_importance_payload,
-        _case_histogram_payload_skipped_when_too_few_cells,
-        _case_reuse_from_db_runs_full_xgboost_pipeline,
-        _case_missing_proba_column_warns_and_keeps_all_rows,
-        _case_auto_detected_infection_prob_column_is_used,
-        _case_xgb_named_column_triggers_ambiguous_track_drop,
-        _case_per_well_qc_scope,
-        _case_recompute_from_merged_sequential,
-        _case_recompute_uses_pool_when_n_jobs_gt_one,
-        _case_njobs_none_derives_from_cpu_count,
-        _case_db_reuse_with_missing_table_recomputes,
-        _case_db_reuse_with_wrong_columns_recomputes,
-        _case_missing_merged_dir_raises,
-        _case_empty_merged_dir_raises,
-        _case_bad_channels_setting_raises_valueerror,
-        _case_infected_derived_from_n_pathogens,
-        _case_no_infection_information_defaults_to_false,
-        _case_qc_disabled_uses_plain_adjusted_csv_name_and_one_panel,
-        _case_panels_can_be_disabled,
-        _case_adjusted_csv_failure_is_reported_but_not_fatal,
-        _case_no_measurements_raises_runtimeerror,
-        ],
-    )
-    assert ran >= 51
+
+def _seen(value, held):
+    """Observed value of one check: the value itself when plain, else whether the check held."""
+    try:
+        return _plain(value)
+    except ValueError:
+        return bool(held)
+
+
+def _run_scenario(request, scenario, kwargs):
+    """Run one scenario function, resolving its fixtures by name."""
+    wanted = [n for n in inspect.signature(scenario).parameters if n not in kwargs]
+    fixtures = {n: request.getfixturevalue(n) for n in wanted}
+    return scenario(**fixtures, **kwargs)
+
+
+@pytest.mark.parametrize("scenario, kwargs, expected", [
+    pytest.param(_scn_xgboost_import_failure_falls_back_to_histogram, {}, [True, 'adjusted_infected', 'histogram', True, True], id='xgboost-import-failure-falls-back-to-histogram'),
+    pytest.param(_scn_pathogen_chan_none_falls_back_without_relabelling, {}, [True, 'infected', True, True, True], id='pathogen-chan-none-falls-back-without-relabelling'),
+    pytest.param(_scn_stale_adjusted_and_prob_columns_are_dropped, {}, ['adjusted_infected', True, True, True, True], id='stale-adjusted-and-prob-columns-are-dropped'),
+    pytest.param(_scn_infection_column_recovered_from_infect_like_column, {}, [True, 'adjusted_infected', 'i'], id='infection-column-recovered-from-infect-like-column'),
+    pytest.param(_scn_infection_column_created_from_n_pathogens, {}, [True, 'adjusted_infected', True, True], id='infection-column-created-from-n-pathogens'),
+    pytest.param(_scn_no_label_and_no_n_pathogens_falls_back, {}, [True, 'infected', True, [216, 14]], id='no-label-and-no-n-pathogens-falls-back'),
+    pytest.param(_scn_missing_key_column_raises_keyerror, {'missing': 'plateID'}, ['KeyError: "[_infection_qc_xgboost] Required column \'plateID\' not in all_df."'], id='missing-key-column-plateID-raises-keyerror'),
+    pytest.param(_scn_missing_key_column_raises_keyerror, {'missing': 'wellID'}, ['KeyError: "[_infection_qc_xgboost] Required column \'wellID\' not in all_df."'], id='missing-key-column-wellID-raises-keyerror'),
+    pytest.param(_scn_missing_key_column_raises_keyerror, {'missing': 'fieldID'}, ['KeyError: "[_infection_qc_xgboost] Required column \'fieldID\' not in all_df."'], id='missing-key-column-fieldID-raises-keyerror'),
+    pytest.param(_scn_missing_key_column_raises_keyerror, {'missing': 'cellID'}, ['KeyError: "[_infection_qc_xgboost] Required column \'cellID\' not in all_df."'], id='missing-key-column-cellID-raises-keyerror'),
+    pytest.param(_scn_unknown_tracked_object_falls_back_to_cell, {}, [True, 'adjusted_infected', 'cell', 'cell'], id='unknown-tracked-object-falls-back-to-cell'),
+    pytest.param(_scn_no_intensity_column_for_tracked_object_falls_back, {}, [True, 'adjusted_infected', 'histogram', 'cell_p95_intensity_ch1'], id='no-intensity-column-for-tracked-object-falls-back'),
+    pytest.param(_scn_xgboost_qc_hands_over_to_histogram_qc_when_it_cannot_train, {"build": _degenerate_features_frame, "message": "No usable cell_* feature columns", "relabelled": False}, [False, 'infected', True], id='constant-features'),
+    pytest.param(_scn_xgboost_qc_hands_over_to_histogram_qc_when_it_cannot_train, {"build": _non_finite_intensity_frame, "message": "No finite intensities for infected/uninfected", "relabelled": False}, [False, 'infected', True], id='non-finite-intensities'),
+    pytest.param(_scn_xgboost_qc_hands_over_to_histogram_qc_when_it_cannot_train, {"build": _too_few_infected_frame, "message": "Too few infected or uninfected cells overall", "relabelled": True}, [False, 'adjusted_infected', True], id='too-few-infected'),
+])
+def test_xgboost_qc_falls_back_to_histogram_qc_or_refuses_when_inputs_cannot_support_training(request, scenario, kwargs, expected):
+    observed = _run_scenario(request, scenario, kwargs)
+    assert observed == expected
+
+
+@pytest.mark.parametrize("scenario, kwargs, expected", [
+    pytest.param(_scn_balanced_per_well_sampling_and_single_class_skip, {}, [True, True, True, 'adjusted_infected'], id='balanced-per-well-sampling-and-single-class-skip'),
+    pytest.param(_scn_negative_heavy_well_downsamples_negatives, {}, [True, True, 'adjusted_infected'], id='negative-heavy-well-downsamples-negatives'),
+    pytest.param(_scn_small_well_keeps_all_extremes, {}, [True], id='small-well-keeps-all-extremes'),
+    pytest.param(_scn_bad_random_state_falls_back_to_default_seed, {}, ['adjusted_infected', True], id='bad-random-state-falls-back-to-default-seed'),
+    pytest.param(_scn_no_well_with_both_classes_falls_back, {}, [True, 'adjusted_infected', 'histogram'], id='no-well-with-both-classes-falls-back'),
+])
+def test_xgboost_qc_curates_a_balanced_per_well_training_set_and_survives_a_bad_seed(request, scenario, kwargs, expected):
+    observed = _run_scenario(request, scenario, kwargs)
+    assert observed == expected
+
+
+@pytest.mark.parametrize("scenario, kwargs, expected", [
+    pytest.param(_scn_correlated_feature_is_pruned, {}, [True, True, True], id='correlated-feature-is-pruned'),
+    pytest.param(_scn_feature_selection_excludes_other_channels_and_centroids, {}, [['cell_mean_intensity_ch1', 'cell_p95_intensity_ch1', 'cell_area', 'cell_perimeter', 'cell_solidity'], True, True, True, True, True], id='feature-selection-excludes-other-channels-and-centroids'),
+    pytest.param(_scn_all_nonfinite_feature_column_is_zero_imputed, {}, ['adjusted_infected', True, 0.0, True], id='all-nonfinite-feature-column-is-zero-imputed'),
+])
+def test_xgboost_qc_prunes_correlated_features_and_imputes_unusable_ones(request, scenario, kwargs, expected):
+    observed = _run_scenario(request, scenario, kwargs)
+    assert observed == expected
+
+
+@pytest.mark.parametrize("scenario, kwargs, expected", [
+    pytest.param(_scn_relabel_mode_payloads_and_columns, {}, [True, 'adjusted_infected', 216, 'i', True, 'cell_p95_intensity_ch1', 1, True, True, 72, 'PCA', [72, 2], [72], 3, True, [5.614759, 2.262591, 0.0], 'xgboost', True], id='relabel-mode-payloads-and-columns'),
+    pytest.param(_scn_relabel_mode_with_margin_leaves_uncertain_labels_untouched, {}, [True, True], id='relabel-mode-with-margin-leaves-uncertain-labels-untouched'),
+    pytest.param(_scn_remove_mode_drops_disagreements, {}, [True, 'adjusted_infected', True, 156, True], id='remove-mode-drops-disagreements'),
+    pytest.param(_scn_remove_mode_zero_margin_has_no_ambiguous_band, {}, [True, True], id='remove-mode-zero-margin-has-no-ambiguous-band'),
+    pytest.param(_scn_unknown_mode_is_treated_as_relabel, {}, [False, 216], id='unknown-mode-is-treated-as-relabel'),
+    pytest.param(_scn_ambiguous_band_drops_cells_and_swaps_reversed_bounds, {}, [True, True, 'adjusted_infected'], id='ambiguous-band-drops-cells-and-swaps-reversed-bounds'),
+    pytest.param(_scn_ambiguous_band_partial_drop, {}, [True, True], id='ambiguous-band-partial-drop'),
+    pytest.param(_scn_rows_with_nan_keys_keep_their_original_label, {}, [3, True, True, 'i'], id='rows-with-nan-keys-keep-their-original-label'),
+])
+def test_xgboost_qc_relabels_or_removes_cells_and_drops_ambiguous_tracks(request, scenario, kwargs, expected):
+    observed = _run_scenario(request, scenario, kwargs)
+    assert observed == expected
+
+
+@pytest.mark.parametrize("scenario, kwargs, expected", [
+    pytest.param(_scn_pca_payload_failure_is_swallowed, {}, [True, True, True, 'adjusted_infected', True], id='pca-payload-failure-is-swallowed'),
+    pytest.param(_scn_feature_importance_failure_is_swallowed, {}, [True, True, 'adjusted_infected', 'xgboost'], id='feature-importance-failure-is-swallowed'),
+    pytest.param(_scn_zero_top_features_yields_empty_importance_payload, {}, [True, [], []], id='zero-top-features-yields-empty-importance-payload'),
+    pytest.param(_scn_histogram_payload_skipped_when_too_few_cells, {}, [True, 'adjusted_infected'], id='histogram-payload-skipped-when-too-few-cells'),
+])
+def test_xgboost_qc_payload_failures_are_swallowed_and_never_lose_the_frame(request, scenario, kwargs, expected):
+    observed = _run_scenario(request, scenario, kwargs)
+    assert observed == expected
+
+
+@pytest.mark.parametrize("scenario, kwargs, expected", [
+    pytest.param(_scn_reuse_from_db_runs_full_xgboost_pipeline, {}, [True, True, True, True, True, True, True, True, ['A01', 'A02'], True, True, True, True, ['mask_xgboost', 'adjusted_xgboost'], 'infected', 'adjusted_infected', 3, 'µm/min'], id='reuse-from-db-runs-full-xgboost-pipeline'),
+    pytest.param(_scn_missing_proba_column_warns_and_keeps_all_rows, {}, [True, True], id='missing-proba-column-warns-and-keeps-all-rows'),
+    pytest.param(_scn_auto_detected_infection_prob_column_is_used, {}, [True, True], id='auto-detected-infection-prob-column-is-used'),
+    pytest.param(_scn_xgb_named_column_triggers_ambiguous_track_drop, {}, [True, True, True], id='xgb-named-column-triggers-ambiguous-track-drop'),
+    pytest.param(_scn_per_well_qc_scope, {}, [True, ['A01', 'A02'], True], id='per-well-qc-scope'),
+    pytest.param(_scn_recompute_from_merged_sequential, {}, [True, True, True, 1, 1, ['motility', 1], True, True, 864, '<tmp>/assay', 3, 1, True, 240], id='recompute-from-merged-sequential'),
+    pytest.param(_scn_recompute_uses_pool_when_n_jobs_gt_one, {}, [3, 1, True], id='recompute-uses-pool-when-n-jobs-gt-one'),
+    pytest.param(_scn_njobs_none_derives_from_cpu_count, {}, [False, True], id='njobs-none-derives-from-cpu-count'),
+    pytest.param(_scn_db_reuse_with_missing_table_recomputes, {}, [True, True], id='db-reuse-with-missing-table-recomputes'),
+    pytest.param(_scn_db_reuse_with_wrong_columns_recomputes, {}, [True, True], id='db-reuse-with-wrong-columns-recomputes'),
+    pytest.param(_scn_missing_merged_dir_raises, {}, ['FileNotFoundError: No merged directory at: <tmp>/no_merged/merged'], id='missing-merged-dir-raises'),
+    pytest.param(_scn_empty_merged_dir_raises, {}, ['FileNotFoundError: No .npy files found in <tmp>/empty_merged/merged'], id='empty-merged-dir-raises'),
+    pytest.param(_scn_bad_channels_setting_raises_valueerror, {'channels': []}, ["ValueError: settings['channels'] must be a non-empty list of channels used in merged arrays."], id='bad-channels-empty-list'),
+    pytest.param(_scn_bad_channels_setting_raises_valueerror, {'channels': 'not-a-list'}, ["ValueError: settings['channels'] must be a non-empty list of channels used in merged arrays."], id='bad-channels-string'),
+    pytest.param(_scn_infected_derived_from_n_pathogens, {}, [True, True, False], id='infected-derived-from-n-pathogens'),
+    pytest.param(_scn_no_infection_information_defaults_to_false, {}, [True, False], id='no-infection-information-defaults-to-false'),
+    pytest.param(_scn_qc_disabled_uses_plain_adjusted_csv_name_and_one_panel, {}, [True, True, ['mask_none']], id='qc-disabled-uses-plain-adjusted-csv-name-and-one-panel'),
+    pytest.param(_scn_panels_can_be_disabled, {}, [[], True], id='panels-can-be-disabled'),
+    pytest.param(_scn_adjusted_csv_failure_is_reported_but_not_fatal, {}, [True, True, True, True], id='adjusted-csv-failure-is-reported-but-not-fatal'),
+    pytest.param(_scn_no_measurements_raises_runtimeerror, {}, ['RuntimeError: No measurements were produced from merged .npy files.'], id='no-measurements-raises-runtimeerror'),
+])
+def test_motility_assay_entry_point_reuses_or_recomputes_measurements_and_writes_outputs(request, scenario, kwargs, expected):
+    observed = _run_scenario(request, scenario, kwargs)
+    assert observed == expected

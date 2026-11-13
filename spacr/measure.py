@@ -2748,7 +2748,9 @@ def _periphery_intensity(label_mask, image):
     boxes = _label_bounding_boxes(label_mask)
     whole = _whole_field_window(np.asarray(label_mask).shape)
     cut_points = [5, 10, 25, 50, 75, 85, 95]
-    for region in np.unique(label_mask)[1:]:
+    _labels_0 = np.unique(label_mask)
+    _labels_0 = _labels_0[_labels_0 != 0]
+    for region in _labels_0:
         box = _box_for(boxes, region)
         window = whole if box is None else box
         region_boundary = boundary[window] & (label_mask[window] == region)
@@ -2994,7 +2996,9 @@ def _calculate_correlation_object_level(channel_image1, channel_image2, mask, se
         corr_data = {}
         boxes = _label_bounding_boxes(mask)
         whole = _whole_field_window(np.asarray(mask).shape)
-        for i in np.unique(mask)[1:]:
+        _labels_1 = np.unique(mask)
+        _labels_1 = _labels_1[_labels_1 != 0]
+        for i in _labels_1:
             box = _box_for(boxes, i)
             window = whole if box is None else box
             object_mask = (mask[window] == i)

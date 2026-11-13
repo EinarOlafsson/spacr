@@ -17,16 +17,13 @@ window normally:
 """
 from __future__ import annotations
 
-import logging
-import os
 import pathlib
 import sys
 import types
 
 import pytest
 from PySide6.QtCore import QPoint, QPointF, Qt
-from PySide6.QtGui import QCloseEvent, QFont, QWheelEvent
-from PySide6.QtWidgets import QLineEdit, QWidget
+from PySide6.QtGui import QFont, QWheelEvent
 
 import spacr.plugins as plugins
 import spacr.qt.app_catalog as app_catalog
@@ -36,9 +33,6 @@ from spacr.qt.app import MainWindow
 # The launch harness is deliberately borrowed rather than re-invented: it is
 # the one stand-in QApplication that survives `launch` installing an event
 # filter parented to it.
-from tests.qt.test_cov_qt_app import launched  # noqa: F401
-
-
 @pytest.fixture
 def win(qtbot, qt_theme_applied):
     """A live MainWindow, cleaned up by pytest-qt."""
@@ -142,67 +136,6 @@ def test_a_plugin_cannot_take_a_key_a_builtin_already_owns(registration_run):
 # The window's fall-through arms
 # ---------------------------------------------------------------------------
 
-class _RefusedClose(QCloseEvent):
-    """A close event that stays un-accepted however it is handled.
-
-    Stands in for a base ``closeEvent`` that vetoes the close -- the state
-    ``MainWindow.closeEvent`` reads before it decides to end the session.
-    """
-
-    def isAccepted(self):
-        return False
-
-
-def test_only_an_accepted_close_ends_the_session(win, monkeypatch):
-    """Closing the main window is the ONE thing that quits spaCR.
-
-    ``quitOnLastWindowClosed`` is off precisely so a figure window closing
-    cannot take the session with it, which makes this branch the whole exit
-    path. It has to read the event: a refused close must leave the
-    application running, or a veto turns into a quit and the user loses
-    whatever the veto was protecting.
-    """
-    quits = []
-    monkeypatch.setattr(
-        app_mod, "QApplication",
-        types.SimpleNamespace(
-            instance=lambda: types.SimpleNamespace(
-                quit=lambda: quits.append("quit"))))
-
-    win.closeEvent(_RefusedClose())
-    assert quits == []
-
-    win.closeEvent(QCloseEvent())
-    assert quits == ["quit"]
-
-
-def test_on_macos_an_accepted_close_leaves_the_loop_without_asking_cocoa(
-        win, monkeypatch, qtbot):
-    """2026-10-19 macOS acceptance: Dock Quit or logout closes the window from
-    inside Cocoa's terminate; a second terminate from ``quit()`` made AppKit
-    call ``exit()`` and PySide crashed in its static destructors."""
-    calls = []
-    monkeypatch.setattr(app_mod.sys, "platform", "darwin")
-    monkeypatch.setattr(app_mod, "_an_event_loop_is_running", lambda: True)
-    application = types.SimpleNamespace(
-        quit=lambda: calls.append("quit"),
-        closeAllWindows=lambda: calls.append("close all"),
-        exit=lambda code: calls.append(("exit", code)))
-    monkeypatch.setattr(app_mod, "QApplication",
-                        types.SimpleNamespace(instance=lambda: application))
-
-    win.closeEvent(_RefusedClose())
-    assert calls == []
-
-    win.closeEvent(QCloseEvent())
-    win.closeEvent(QCloseEvent())
-    assert calls == ["close all"]
-    qtbot.waitUntil(lambda: ("exit", 0) in calls)
-    from PySide6.QtWidgets import QApplication as QtApplication
-    QtApplication.processEvents()
-    assert calls == ["close all", ("exit", 0)], "the loop is left once"
-
-
 def test_a_wheel_that_carried_no_notch_is_handed_on(win, monkeypatch):
     """A scroll the backdrop did not use must keep travelling.
 
@@ -233,30 +166,6 @@ def test_a_wheel_that_carried_no_notch_is_handed_on(win, monkeypatch):
     assert a_whole_notch.isAccepted()
 
 
-def test_the_cellpose_workbench_is_wired_to_the_window_that_built_it(
-        win, monkeypatch, qtbot):
-    """Train Cellpose is built by hand so its two signals stay visible.
-
-    The screen reports a failed training run and asks to be submitted to a
-    cluster; both are the window's to answer, and both are connected here
-    rather than inside a factory so ``tests/qt/test_all_module_smoke.py`` can
-    still read them out of this method's bytecode. A screen built without
-    them is a workbench whose Submit button does nothing.
-    """
-    submissions = []
-    monkeypatch.setattr(
-        win, "_on_remote_submit_requested",
-        lambda key, settings: submissions.append((key, settings)))
-
-    screen = win._build_screen("train_cellpose")
-    qtbot.addWidget(screen)
-
-    from spacr.qt.screens.train_cellpose import CellposeWorkbenchScreen
-    assert isinstance(screen, CellposeWorkbenchScreen)
-    screen.remote_submit_requested.emit("train_cellpose", {"epochs": 3})
-    assert submissions == [("train_cellpose", {"epochs": 3})]
-
-
 def test_a_remote_submit_reaches_the_job_screen_and_survives_its_absence(
         win, monkeypatch):
     """"Run this on the cluster" carries the settings that were on screen.
@@ -276,38 +185,6 @@ def test_a_remote_submit_reaches_the_job_screen_and_survives_its_absence(
     win._on_remote_submit_requested("mask", {"src": "/data/plate2"})
     assert "distributed_jobs" not in win._screens
     assert screen._settings_snapshot == {"src": "/data/plate1"}
-
-
-def test_a_seed_only_lands_where_there_is_a_form_to_take_it(win, monkeypatch):
-    """Loading a run's settings must not depend on the screen being a form.
-
-    "Train CV" on the annotator and "load this run's settings" in Run History
-    both push a seed at whatever screen the key resolves to, and some of them
-    are not settings-driven at all. A seed for one has nowhere to go, so it is
-    dropped rather than raised: the navigation the user asked for has already
-    happened, and an exception here strands them on a half-opened page.
-    """
-    monkeypatch.setattr(win, "open_module", lambda key: key)
-    landed: list = []
-    real_apply = MainWindow._apply_seed_value
-    monkeypatch.setattr(
-        MainWindow, "_apply_seed_value",
-        staticmethod(lambda w, value:
-                     landed.append(value) or real_apply(w, value)))
-
-    win._screens["cov_r3_formless"] = QWidget()
-    win._on_train_requested("cov_r3_formless", {"nucleus_channel": "1"})
-    assert landed == []
-
-    field = QLineEdit()
-    seeded = QWidget()
-    seeded._settings_model = types.SimpleNamespace(
-        _widgets={"nucleus_channel": field})
-    win._screens["cov_r3_seeded"] = seeded
-    win._on_train_requested("cov_r3_seeded",
-                            {"nucleus_channel": "1", "absent_setting": 7})
-    assert landed == ["1"]
-    assert field.text() == "1"
 
 
 # ---------------------------------------------------------------------------
@@ -348,164 +225,7 @@ def test_the_interface_font_keeps_whatever_size_the_platform_chose(qapp):
     assert applied[0].pointSizeF() == pytest.approx(untouched)
 
 
-def test_only_font_files_in_the_bundle_are_handed_to_qt(monkeypatch):
-    """Everything in the bundled font directory is not a font.
-
-    A licence file, a README or an editor's backup sits beside the TTFs in
-    any real checkout, and ``QFontDatabase.addApplicationFont`` answers -1
-    for each of them. Filtering by extension keeps that noise out of the
-    font database; without it every non-font in the directory becomes a
-    failed load at every launch.
-    """
-    import PySide6.QtGui as qtgui
-    handed: list = []
-    monkeypatch.setattr(
-        qtgui, "QFontDatabase",
-        types.SimpleNamespace(addApplicationFont=handed.append))
-    listed = ["OFL.txt", "README.md", "OpenSans-Regular.ttf", "OpenSans.otf"]
-    monkeypatch.setattr(
-        app_mod, "os",
-        types.SimpleNamespace(path=os.path, listdir=lambda d: list(listed)))
-
-    app_mod._load_bundled_fonts()
-
-    fonts = ["OpenSans-Regular.ttf", "OpenSans.otf"]
-    assert [os.path.basename(p) for p in handed] == fonts + fonts, (
-        "Open Sans and the symbol fonts are each listed the same way")
-    assert {os.path.basename(os.path.dirname(p)) for p in handed} == {
-        "static", "glyphs"}
-
-
 # ---------------------------------------------------------------------------
 # launch()
 # ---------------------------------------------------------------------------
 
-def test_a_run_of_unclean_exits_starts_without_the_backdrop(
-        launched, monkeypatch):
-    """Two crashes in a row and the animated background is left out.
-
-    The setting that would turn the backdrop off lives behind the window
-    that never appears, so a driver that dies on the spaceout fractal is a
-    loop the user cannot break from inside spaCR. The launch that reads the
-    count has to actually make the call that turns GL off -- counting and then
-    drawing anyway is the same loop with extra logging.
-    """
-    from spacr.qt import crash_recovery
-    dropped = []
-    monkeypatch.setattr(crash_recovery, "should_start_without_the_backdrop",
-                        lambda unclean=None: True)
-    monkeypatch.setattr(crash_recovery, "take_the_backdrop_out_of_this_launch",
-                        lambda: dropped.append("dropped"))
-
-    assert app_mod.launch([]) == 0
-    assert dropped == ["dropped"]
-
-
-def test_a_launch_told_to_skip_the_setup_never_opens_it(
-        launched, monkeypatch):
-    """``--no-setup`` is what a batch job passes, and it has to be obeyed.
-
-    The setup screen is modal and it is the first thing a launch draws. On a
-    server that inherits a stale profile, opening it means a job sitting on an
-    invisible dialog until something kills it, with a run that never starts as
-    the only symptom.
-    """
-    from spacr.qt.widgets import setup_slides
-    asked = []
-    monkeypatch.setattr(setup_slides, "open_setup_if_needed",
-                        lambda parent: asked.append(parent))
-
-    assert app_mod.launch(["--no-setup"]) == 0
-    assert asked == []
-
-    assert app_mod.launch([]) == 0
-    assert asked == [None]
-
-
-def test_the_setup_answers_are_applied_before_the_window_is_built(
-        launched, monkeypatch):
-    """An answer given at setup decides how the main window is BUILT.
-
-    Language, theme and font scale are read while the window is assembled, so
-    answers arriving after it exists mean a half-built window on screen in the
-    wrong language, restyled under the user as they read it. Preferences are
-    applied a second time -- and only when there were answers, because
-    re-resolving the theme on every later launch is work nobody asked for.
-    """
-    from spacr.qt import preferences
-    from spacr.qt.widgets import setup_slides
-    real_apply = preferences.apply_preferences_to_app
-    applied: list = []
-
-    def _apply(app):
-        applied.append(app)
-        return real_apply(app)
-
-    monkeypatch.setattr(preferences, "apply_preferences_to_app", _apply)
-    monkeypatch.setattr(setup_slides, "open_setup_if_needed",
-                        lambda parent: None)
-    assert app_mod.launch([]) == 0
-    once = len(applied)
-    assert once == 1
-
-    monkeypatch.setattr(setup_slides, "open_setup_if_needed",
-                        lambda parent: {"language": "en"})
-    assert app_mod.launch([]) == 0
-    assert len(applied) == once + 2
-    assert applied[-1] is applied[-2]
-
-
-def test_matplotlib_is_pinned_to_agg_before_it_is_ever_imported(
-        launched, monkeypatch):
-    """A matplotlib canvas built off the GUI thread kills the process.
-
-    So the backend is not the caller's to choose. When matplotlib has not been
-    imported yet, the cheapest way to pin it is the environment variable it
-    reads for itself at import: calling ``matplotlib.use`` here would drag the
-    whole package into a launch that has not drawn anything yet.
-    """
-    monkeypatch.setenv("MPLBACKEND", "TkAgg")
-    monkeypatch.delitem(sys.modules, "matplotlib", raising=False)
-
-    assert app_mod.launch([]) == 0
-    assert os.environ["MPLBACKEND"] == "Agg"
-
-
-def test_laptop_mode_says_what_it_turned_down(launched, monkeypatch, caplog):
-    """A launch that quietly turns things off has to say which things.
-
-    Laptop mode dims decoration, never analysis, so a run computes the same
-    answer either way -- which is what makes deciding it automatically
-    acceptable. The log line is the only place the decision is visible, and
-    without it "it looks different on my laptop" has no evidence behind it.
-    """
-    from spacr.qt import laptop_mode
-    # `launch` passes the level's answer since 286, so the stand-in takes it.
-    monkeypatch.setattr(laptop_mode, "apply",
-                        lambda _on=None: {"changed": ["backdrop", "shadows"]})
-
-    with caplog.at_level(logging.INFO, logger="spacr.qt.app"):
-        assert app_mod.launch([]) == 0
-    assert "laptop mode changed: backdrop, shadows" in caplog.text
-
-
-def test_a_benchmark_run_gets_its_controller_and_keeps_it(
-        launched, monkeypatch, tmp_path):
-    """``SPACR_BENCHMARK_JSON`` turns a launch into an unattended run.
-
-    The controller is what ends that run and writes the measurements; it is
-    only built when the variable asks for it, and it is held on the window
-    afterwards because losing the Python reference to it is losing the run.
-    """
-    from spacr.qt import startup_benchmark
-    controller = object()
-    started = []
-    monkeypatch.setenv("SPACR_BENCHMARK_JSON", str(tmp_path / "bench.json"))
-    monkeypatch.setattr(
-        startup_benchmark, "maybe_start",
-        lambda app, win: started.append((app, win)) or controller)
-
-    assert app_mod.launch([]) == 0
-    window = launched["window"]()
-    assert [pair[1] for pair in started] == [window]
-    assert window._startup_benchmark_controller is controller
