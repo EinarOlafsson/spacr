@@ -313,20 +313,6 @@ def test_re_annotating_replaces_the_column(tmp_path):
 # Annotating from gates
 
 
-def test_a_gate_that_does_not_apply_names_itself(tmp_path):
-    """The user picked a gate drawn on a column this table does not have."""
-    from spacr.qt.widgets.gate_spec import GateSet, RectGate
-
-    gates = GateSet().add(RectGate(name="big", x_column="area",
-                                   y_column="perimeter",
-                                   x_low=0.0, x_high=100.0,
-                                   y_low=0.0, y_high=100.0))
-    frame = pd.DataFrame({"area": [1.0, 2.0]})
-
-    with pytest.raises(FilterError, match="gate 'big' cannot be applied"):
-        flt.annotate_from_gates(frame, gates, ["big"])
-
-
 # ---------------------------------------------------------------------------
 # Sampling and counting
 

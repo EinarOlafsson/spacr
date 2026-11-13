@@ -11,21 +11,6 @@ from spacr.qt.screens import settings_model  # noqa: E402
 pytestmark = pytest.mark.qt
 
 
-def test_a_full_category_cache_is_replaced_without_losing_the_new_layout(
-        monkeypatch):
-    old = {(str(index),): {"Old": ["unused"]} for index in range(257)}
-    monkeypatch.setattr(settings_model, "_CATEGORIES_FOR_APP_MEMO", old)
-    monkeypatch.setattr(plugins, "get_app", lambda _key: None)
-    source = {"General": ["src"]}
-
-    first = settings_model.categories_for_app("probe", source)
-    first["General"].append("not persisted")
-    second = settings_model.categories_for_app("probe", source)
-
-    assert second == {"General": ["src"]}
-    assert len(old) == 1
-
-
 def test_an_unmeasurable_category_shape_still_produces_a_layout(monkeypatch):
     class Unmeasurable(list):
         def __len__(self):

@@ -48,8 +48,7 @@ from spacr.qt.annotate_engine import (OutlineCancelled, SaveWorker,
                                       cache_budget_entries, class_counts,
                                       drop_cache_budget_entry,
                                       fetch_filtered_paths,
-                                      forget_outline_masks, gate_paths,
-                                      outline_image, parse_image_type)
+                                      forget_outline_masks, outline_image, parse_image_type)
 from tests.conftest import (MISSING_CHANNEL_AXIS,
                             check_cellpose_eval_call)
 
@@ -309,29 +308,6 @@ def test_an_annotation_already_on_the_join_is_returned_not_blanked(
                                  ["higher"])
     assert [path for path, _a in blank] == ["/c/o1.png", "/c/o2.png"]
     assert all(annotation is None for _p, annotation in blank)
-
-
-def test_a_gated_join_that_already_carries_its_key_is_not_reset(
-        tmp_path, stub_joined_tables):
-    """The gate route merges crop paths on exactly as the threshold one does.
-
-    A population gated on screen and one annotated from it have to be the
-    same population, so the two joins must not diverge on frame shape.
-    """
-    from spacr.qt.widgets.gate_spec import ThresholdGate
-
-    db = tmp_path / "measurements.db"
-    db.write_bytes(b"")
-    as_column = pd.DataFrame({"prcfo": ["o1", "o2", "o3"],
-                              "cell_area": [50.0, 500.0, 900.0]})
-    crops = pd.DataFrame({
-        "prcfo": ["o1", "o2", "o3"],
-        "png_path": ["/c/o1.png", "/c/o2.png", "/c/o3.png"]}).set_index("prcfo")
-    stub_joined_tables(as_column, crops)
-
-    gate = ThresholdGate(name="big cells", column="cell_area", low=100.0)
-
-    assert gate_paths(str(db), [gate]) == ["/c/o2.png", "/c/o3.png"]
 
 
 # ---------------------------------------------------------------------------

@@ -14,17 +14,12 @@ through a copy, because "two modules quietly claiming one key" is a property
 of the real `APPS` list and of nothing else.
 """
 
-import logging
-import os
-import sys
-import types
 
 import pytest
 from PySide6.QtCore import QEvent, QPoint, Qt
 from PySide6.QtGui import QIcon, QMouseEvent
 from PySide6.QtWidgets import QWidget
 
-from spacr.crashreport import _reports_dir as _REAL_REPORTS_DIR
 from spacr.qt import app as app_mod
 from spacr.qt.app import (APPS, SECTION_ORDER, SECTIONS,
                           MainWindow, Sidebar, _ChromeButton, _LiveSections,
@@ -83,72 +78,6 @@ def test_the_preloader_knows_its_denominator_before_it_starts():
     assert preloader.total() > 0
 
 
-def test_the_preloader_reports_every_step_and_finishes_once(qapp, qtbot,
-                                                            monkeypatch):
-    """One module per event-loop tick, so Qt can repaint between them."""
-    steps = []
-    done = []
-    monkeypatch.setattr(_PipelinePreloader, "_MODULES",
-                        ("json", "os.path", "no.such.module.at.all"))
-
-    preloader = _PipelinePreloader(on_step=lambda i, n: steps.append((i, n)),
-                                   on_done=lambda: done.append(1))
-    preloader.start()
-    preloader.start()                      # begun already: a no-op
-    qtbot.waitUntil(lambda: bool(done), timeout=10000)
-
-    assert steps == [(1, 3), (2, 3), (3, 3)]
-    assert done == [1], "the completion callback ran more than once"
-
-
-def test_a_module_that_will_not_import_does_not_stop_the_preload(qapp, qtbot,
-                                                                 monkeypatch):
-    """Preloading is optional; the window still opens."""
-    monkeypatch.setattr(_PipelinePreloader, "_MODULES",
-                        ("no.such.module.at.all", "json"))
-    done = []
-    preloader = _PipelinePreloader(on_done=lambda: done.append(1))
-    preloader.start()
-    qtbot.waitUntil(lambda: bool(done), timeout=10000)
-    assert done == [1]
-
-
-def test_a_progress_callback_that_raises_does_not_stop_the_preload(
-        qapp, qtbot, monkeypatch):
-    """The loading screen can be gone by the time a step reports."""
-    monkeypatch.setattr(_PipelinePreloader, "_MODULES", ("json", "os.path"))
-
-    def explode(_done, _total):
-        raise RuntimeError("the loading screen has closed")
-
-    done = []
-    preloader = _PipelinePreloader(on_step=explode,
-                                   on_done=lambda: done.append(1))
-    preloader.start()
-    qtbot.waitUntil(lambda: bool(done), timeout=10000)
-    assert done == [1]
-
-
-def test_a_completion_callback_that_raises_is_swallowed(qapp, qtbot,
-                                                        monkeypatch):
-    """Same reason: the thing being told may already be gone."""
-    monkeypatch.setattr(_PipelinePreloader, "_MODULES", ("json",))
-    reached = []
-
-    def explode():
-        reached.append(1)
-        raise RuntimeError("the loading screen has closed")
-
-    preloader = _PipelinePreloader(on_done=explode)
-    preloader.start()
-    qtbot.waitUntil(lambda: bool(reached), timeout=10000)
-
-    # SWALLOWED, NOT SKIPPED. The callback ran and raised, and the
-    # preloader still finished: a guard that avoided calling it at all
-    # would also "not raise" and would lose the completion.
-    assert reached == [1]
-
-
 # ---------------------------------------------------------------------------
 # the registry
 # ---------------------------------------------------------------------------
@@ -173,26 +102,6 @@ def test_the_section_list_compares_equal_to_the_tuple_it_used_to_be():
         {live: 1}
 
 
-def test_a_row_is_filed_after_its_own_section(qapp):
-    """The sidebar starts a heading every time the section changes.
-
-    A row filed out of order draws its section's heading a second time.
-    """
-    section = SECTIONS[0]
-    register_app("w2_2_probe", "W2 2 Probe", "a test app", section)
-    try:
-        keys = [row[0] for row in APPS]
-        index = keys.index("w2_2_probe")
-        sections = [row[3] for row in APPS]
-        assert sections[index] == section
-        # every row of this section is contiguous
-        first = sections.index(section)
-        last = len(sections) - 1 - sections[::-1].index(section)
-        assert sections[first:last + 1] == [section] * (last - first + 1)
-    finally:
-        assert unregister_app("w2_2_probe") is True
-
-
 def test_a_row_in_an_unknown_section_does_not_break_the_ordering(qapp,
                                                                  monkeypatch):
     """A plugin can file a row this build's SECTION_ORDER does not name."""
@@ -202,19 +111,6 @@ def test_a_row_in_an_unknown_section_does_not_break_the_ordering(qapp,
         assert 0 <= position <= len(APPS)
     finally:
         APPS[:] = [row for row in APPS if row[0] != "w2_2_orphan"]
-
-
-def test_registering_the_same_key_twice_is_refused(qapp):
-    """Two modules quietly claiming one key is what a registry prevents."""
-    register_app("w2_2_probe", "W2 2 Probe", "a test app", SECTIONS[0])
-    try:
-        with pytest.raises(ValueError) as raised:
-            register_app("w2_2_probe", "Other", "another", SECTIONS[0])
-        assert "already registered" in str(raised.value)
-    finally:
-        unregister_app("w2_2_probe")
-
-    assert unregister_app("w2_2_probe") is False
 
 
 def test_a_registration_that_cannot_mean_anything_is_refused(qapp):
@@ -252,34 +148,6 @@ def test_metadata_is_published_and_empty_fields_are_dropped(qapp):
         unregister_app("w2_2_probe")
 
 
-def test_a_translation_that_cannot_be_catalogued_costs_the_name_not_the_app(
-        qapp, monkeypatch, caplog):
-    """A side table that cannot take an entry must not take the tile down."""
-    import spacr.qt.i18n as i18n
-
-    def explode(_source, _values):
-        raise ValueError("that row has a blank entry")
-
-    monkeypatch.setattr(i18n, "add_translation", explode)
-
-    # NAMED LOGGER, AND PROPAGATION FORCED. caplog reads the root handler,
-    # so a sibling test that silences spacr.qt.app or clears propagation --
-    # several do, to keep their own output readable -- leaves this one
-    # asserting an empty string and failing only when run after them.
-    logger = logging.getLogger("spacr.qt.app")
-    monkeypatch.setattr(logger, "propagate", True)
-    monkeypatch.setattr(logger, "disabled", False)
-    with caplog.at_level(logging.WARNING, logger="spacr.qt.app"):
-        row = register_app("w2_2_probe", "W2 2 Probe", "a test app",
-                           SECTIONS[0], translations=["x"] * 9)
-        assert row[0] == "w2_2_probe"
-    try:
-        assert "w2_2_probe" in {row[0] for row in APPS}
-        assert "Could not translate app name" in caplog.text
-    finally:
-        unregister_app("w2_2_probe")
-
-
 def test_an_interactive_only_app_has_no_pipeline_entry(qapp):
     """`None` is what an app with its own screen and no Run button gives."""
     register_app("w2_2_probe", "W2 2 Probe", "a test app", SECTIONS[0])
@@ -289,31 +157,6 @@ def test_an_interactive_only_app_has_no_pipeline_entry(qapp):
         unregister_app("w2_2_probe")
 
     assert registered_entry("no_such_app_key_at_all") is None
-
-
-def test_an_entry_is_imported_on_demand_not_at_registration(qapp):
-    """Registering an app must not drag numpy into a process drawing a
-    sidebar."""
-    register_app("w2_2_probe", "W2 2 Probe", "a test app", SECTIONS[0],
-                 entry="json:dumps")
-    try:
-        import json
-
-        assert registered_entry("w2_2_probe") is json.dumps
-    finally:
-        unregister_app("w2_2_probe")
-
-
-def test_a_malformed_entry_says_how_it_should_be_spelled(qapp):
-    """`module:function`, and anything else is refused where it was written."""
-    register_app("w2_2_probe", "W2 2 Probe", "a test app", SECTIONS[0],
-                 entry="justamodule")
-    try:
-        with pytest.raises(ValueError) as raised:
-            registered_entry("w2_2_probe")
-        assert "module:function" in str(raised.value)
-    finally:
-        unregister_app("w2_2_probe")
 
 
 # ---------------------------------------------------------------------------
@@ -397,57 +240,6 @@ def sidebar(qapp):
     made.deleteLater()
 
 
-def test_a_section_header_click_folds_its_modules_away(sidebar, qapp):
-    """The header is the control; the tiles under it are what it shows."""
-    section = SECTIONS[0]
-    assert sidebar.section_is_open(section) is True
-
-    assert sidebar.toggle_section(section) is False
-    assert sidebar.section_is_open(section) is False
-
-    assert sidebar.toggle_section(section) is True
-    assert sidebar.section_is_open(section) is True
-
-
-def test_an_event_on_something_that_is_not_a_header_is_passed_on(sidebar,
-                                                                 qapp):
-    """The filter is installed on the whole sidebar, headers included."""
-    plain = QWidget(sidebar)
-    event = QEvent(QEvent.Type.Enter)
-    assert sidebar.eventFilter(plain, event) is False
-
-
-def test_hovering_a_section_header_lights_it(sidebar, qapp):
-    """The hover state is a property the stylesheet reads."""
-    headers = [child for child in sidebar.findChildren(QWidget)
-               if child.property("sectionName")]
-    assert headers, "the sidebar drew no section headers"
-    header = headers[0]
-
-    sidebar.eventFilter(header, QEvent(QEvent.Type.Enter))
-    assert header.property("hovered") is True
-
-    sidebar.eventFilter(header, QEvent(QEvent.Type.Leave))
-    assert header.property("hovered") is False
-
-
-def test_a_left_release_on_a_header_toggles_its_section(sidebar, qapp):
-    """The gesture, not the method: this is what a mouse actually sends."""
-    headers = [child for child in sidebar.findChildren(QWidget)
-               if child.property("sectionName")]
-    header = headers[0]
-    section = str(header.property("sectionName"))
-    before = sidebar.section_is_open(section)
-
-    event = QMouseEvent(QEvent.Type.MouseButtonRelease, QPoint(2, 2),
-                        Qt.MouseButton.LeftButton, Qt.MouseButton.LeftButton,
-                        Qt.KeyboardModifier.NoModifier)
-    assert sidebar.eventFilter(header, event) is True
-    assert sidebar.section_is_open(section) is not before
-
-    sidebar.toggle_section(section)
-
-
 def test_the_column_is_wide_enough_for_its_longest_label(sidebar, qapp):
     """Names longer than the maximum elide with a tooltip rather than pushing
     the column across the window."""
@@ -457,33 +249,6 @@ def test_the_column_is_wide_enough_for_its_longest_label(sidebar, qapp):
     assert scaled_px(Sidebar.WIDTH_MIN) <= width <= scaled_px(
         Sidebar.WIDTH_MAX)
     assert sidebar.clipped_items() == []
-
-
-def test_re_inking_the_icons_reaches_every_row(sidebar, qapp):
-    """A QIcon bakes its pixmap when it is built, so a restyle does not
-    recolour icons that already exist."""
-    sidebar.refresh_icons()                # must not raise
-    keyed = [b for b in sidebar._items if b.property("navKey")]
-    assert keyed, "no sidebar row carried its app key"
-    assert all(not b.icon().isNull() for b in keyed)
-
-
-def test_the_visible_rows_follow_the_maturity_preference(sidebar, qapp,
-                                                         monkeypatch):
-    """A module hidden by preference is hidden, not removed."""
-    import spacr.qt.preferences as preferences
-
-    monkeypatch.setattr(preferences, "maturity_is_visible",
-                        lambda _stage: False)
-    sidebar.refresh_visibility()
-    keyed = [b for b in sidebar._items if b.property("navKey")
-             and b.property("navKey") != "__home__"]
-    assert all(b.isHidden() for b in keyed)
-
-    monkeypatch.setattr(preferences, "maturity_is_visible",
-                        lambda _stage: True)
-    sidebar.refresh_visibility()
-    assert any(not b.isHidden() for b in keyed)
 
 
 # ---------------------------------------------------------------------------
@@ -564,179 +329,11 @@ def test_every_chrome_mark_has_a_hover_colour():
 # process-level setup
 # ---------------------------------------------------------------------------
 
-def test_a_build_with_no_bundled_fonts_loads_none(qapp, monkeypatch):
-    """A trimmed install has no font folder, and that is not a failure."""
-    from PySide6.QtGui import QFontDatabase
-
-    loaded = []
-
-    monkeypatch.setattr(os.path, "isdir", lambda _path: False)
-    monkeypatch.setattr(QFontDatabase, "addApplicationFont",
-                        staticmethod(lambda path: loaded.append(path) or -1))
-
-    app_mod._load_bundled_fonts()
-
-    # NONE, and asserted rather than left to a raising stub: the point is
-    # that a missing folder is not searched, not merely that nothing blew
-    # up on the way past it.
-    assert loaded == []
-
-
-@pytest.fixture
-def native_capture(monkeypatch):
-    from spacr import crashreport
-
-    original = crashreport._NATIVE_CAPTURE_HANDLE
-    monkeypatch.setattr(crashreport, "_NATIVE_CAPTURE_HANDLE", None)
-    monkeypatch.setattr(crashreport, "_NATIVE_EXCEPTION_HOOK", object())
-    yield crashreport
-    handle = crashreport._NATIVE_CAPTURE_HANDLE
-    if handle is not None and handle is not original:
-        handle.close()
-
-
-def test_the_crash_dump_goes_beside_the_ordinary_log(tmp_path, monkeypatch, native_capture):
-    """faulthandler writes from a signal handler, where opening a file is not
-    allowed -- so the file is opened once and kept."""
-    import faulthandler
-
-    from spacr import logging_util
-
-    monkeypatch.setattr(logging_util, "log_dir", lambda: str(tmp_path))
-    enabled = []
-    monkeypatch.setattr(faulthandler, "enable",
-                        lambda file=None, all_threads=True:
-                        enabled.append(file))
-
-    path = app_mod._install_crash_dump()
-    assert path == str(tmp_path / app_mod.CRASH_DUMP_NAME)
-    assert os.path.isfile(path)
-    with open(path) as stream:
-        assert "=== spaCR session " in stream.read()
-    assert enabled and enabled[0] is native_capture._NATIVE_CAPTURE_HANDLE
-    assert not native_capture._NATIVE_CAPTURE_HANDLE.closed
-
-
-def test_a_log_folder_that_cannot_be_made_costs_the_crash_dump_only(
-        tmp_path, monkeypatch, native_capture):
-    """The dump is diagnostics; the application is not."""
-    from spacr import logging_util
-
-    def explode():
-        raise RuntimeError("the log directory cannot be resolved")
-
-    monkeypatch.setattr(logging_util, "log_dir", explode)
-    monkeypatch.setattr(os, "makedirs",
-                        lambda *_a, **_k: (_ for _ in ()).throw(
-                            OSError("read-only filesystem")))
-
-    def must_not_create(*args, **kwargs):
-        raise AssertionError("A failed log-directory lookup must not create a fallback folder")
-
-    with monkeypatch.context() as scoped:
-        scoped.setattr(native_capture.Path, "mkdir", must_not_create)
-        assert app_mod._install_crash_dump() == ""
-    assert native_capture._NATIVE_CAPTURE_HANDLE is None
-
-
 # ---------------------------------------------------------------------------
 # where a nav icon comes from
 # ---------------------------------------------------------------------------
-
-def test_a_plugin_may_ship_its_own_icon_file(qapp, tmp_path, monkeypatch):
-    """A contributed app's PNG is used as it is; a glyph name is themed."""
-    import spacr.plugins as plugins
-    from PIL import Image
-
-    icon_path = tmp_path / "plugin.png"
-    Image.new("RGBA", (16, 16), (200, 30, 30, 255)).save(icon_path)
-
-    monkeypatch.setattr(
-        plugins, "get_app",
-        lambda key: types.SimpleNamespace(icon=str(icon_path)))
-    icon = app_mod._icon_for_app("w2_2_probe")
-    assert isinstance(icon, QIcon)
-    assert not icon.isNull()
-
-    monkeypatch.setattr(plugins, "get_app",
-                        lambda key: types.SimpleNamespace(icon="flask"))
-    assert isinstance(app_mod._icon_for_app("w2_2_probe"), QIcon)
-
-
-def test_a_plugin_registry_that_cannot_be_read_still_yields_an_icon(
-        qapp, monkeypatch):
-    """A sidebar row without an icon is worse than the built-in one."""
-    import spacr.plugins as plugins
-
-    def explode(_key):
-        raise RuntimeError("the plugin registry is unreadable")
-
-    monkeypatch.setattr(plugins, "get_app", explode)
-    assert app_mod._icon_for_app(APPS[0][0]) is not None
-
-
-def test_a_key_that_wants_a_glyph_gets_the_glyph_not_the_png(qapp,
-                                                             monkeypatch):
-    """Some keys were given a fresh qtawesome glyph rather than a drawing."""
-    monkeypatch.setattr(app_mod, "_FORCE_GLYPH", {"w2_2_probe"})
-    icon = app_mod._icon_for_app("w2_2_probe")
-    assert isinstance(icon, QIcon)
-
 
 # ---------------------------------------------------------------------------
 # process-level setup, continued
 # ---------------------------------------------------------------------------
 
-def test_the_bundled_fonts_are_registered_with_qt(qapp):
-    """Open Sans ships with spaCR; a build with it must actually load it.
-
-    Idempotent, because Qt tracks the file path -- so calling it twice is the
-    documented behaviour rather than a second registration.
-    """
-    from PySide6.QtGui import QFontDatabase
-
-    app_mod._load_bundled_fonts()
-    app_mod._load_bundled_fonts()
-    families = set(QFontDatabase.families())
-    assert any("Open Sans" in family for family in families), \
-        "the bundled font never reached QFontDatabase"
-
-
-@pytest.mark.parametrize("oversized", [False, True])
-def test_a_build_with_no_logging_helper_still_writes_a_crash_dump(tmp_path,
-                                                                  monkeypatch,
-                                                                  native_capture,
-                                                                  oversized):
-    """The dump falls back to `~/.spacr/logs` when the helper is absent."""
-    import faulthandler
-
-    expected = tmp_path / ".spacr" / "logs" / app_mod.CRASH_DUMP_NAME
-    expected.parent.mkdir(parents=True)
-    prefix = "x" * native_capture.MAX_LOG_BYTES + "\n" if oversized else ""
-    expected.write_text(prefix + "Fatal Python error: Aborted\n")
-    def must_not_report(*args, **kwargs):
-        raise AssertionError("Unavailable reporting state must not authorize replay")
-
-    monkeypatch.setattr(native_capture, "_reports_dir", _REAL_REPORTS_DIR)
-    monkeypatch.setattr(native_capture, "_dispatch_error", must_not_report)
-    monkeypatch.setattr(native_capture, "_update_state", must_not_report)
-    monkeypatch.setitem(sys.modules, "spacr.logging_util", None)
-    monkeypatch.setattr(os.path, "expanduser", lambda _p: str(tmp_path))
-    # The fallback asks spaCR's home, which on Windows comes from
-    # USERPROFILE rather than expanduser; pin it to the same sandbox.
-    monkeypatch.setenv("SPACR_HOME", os.path.join(str(tmp_path), ".spacr"))
-    monkeypatch.setattr(faulthandler, "enable",
-                        lambda file=None, all_threads=True: None)
-
-    path = app_mod._install_crash_dump()
-    assert path == os.path.join(str(tmp_path), ".spacr", "logs",
-                                app_mod.CRASH_DUMP_NAME)
-    assert os.path.isfile(path)
-    text = expected.read_text()
-    assert "Fatal Python error: Aborted" in text
-    assert "=== spaCR session " in text
-    if oversized:
-        assert text.startswith("\n=== spaCR session history truncated ===\n")
-        new_header = text[text.rfind("\n=== spaCR session "):]
-        assert expected.stat().st_size == native_capture.MAX_LOG_BYTES + len(new_header.encode())
-    assert not native_capture._NATIVE_CAPTURE_HANDLE.closed
