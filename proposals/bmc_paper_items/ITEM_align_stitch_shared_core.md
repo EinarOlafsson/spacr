@@ -205,7 +205,10 @@ The OPS keys stay. One mapping, `OPS_TO_ALIGN_KEYS`, documents the equivalence, 
 ## Alpha status
 Alpha. `align_engine='core'` and all new keys sit under one `ALPHA_FEATURES` entry. The default stays `legacy`. Making `core` the default is a separate maintainer decision after tests 3, 5 and 9.
 
-## Open questions for the maintainer
+## Maintainer decisions (2026-11-13, AskUserQuestion in the master session)
+Acceptance 'both' (peak ratio + NCC) for general users; 1/10 px sub-pixel kept for general users, integer shifts for OPS; image_stitch.py stays a documented exception; cross-magnification stays OPS-only; the legacy engine is kept for reproducing earlier runs.
+
+## Open questions for the maintainer (answered above)
 1. Acceptance for general users: OPS uses peak ratio against a layout prediction; `align` uses NCC of the shifted strips. Should the core default for Align & Stitch be `'both'` (safer, slightly slower), or the OPS rule?
 2. Sub-pixel: OPS shifts are integers, while `align` refines to 1/10 px. Is sub-pixel worth keeping for general users? It changes composed pixels by interpolation. Or should the core be integer-only, as OPS is?
 3. Should `image_stitch.py` (import-time, unknown arrangement) also move onto the core, or stay a documented exception?

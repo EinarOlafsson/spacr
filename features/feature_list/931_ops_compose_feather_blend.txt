@@ -1,0 +1,39 @@
+OPS FEATHERED TILE BLENDING OF THE SEQUENCING MOSAIC, AND SETTINGS THAT REMEMBER THEIR DEFAULTS
+=================================================================================================
+
+Lifecycle: new
+Status: IMPLEMENTED 2026-11-13 (default on, not alpha); step 6 reproduction proof below — spacr.ops_compose.compose_window takes blend='feather' (default) or 'average'. Feather weights each tile's pixel by its distance in pixels to the nearest edge of that tile, plus one (min(row, column, height - 1 - row, width - 1 - column) + 1, 0-based tile pixels, the rounded production placement), and the composite is sum(w x tile) / sum(w), summed in float64 and returned as the requested dtype (float32); 'average' is the earlier plain mean, byte for byte. Coverage (the tile count) is unchanged for either blend. The setting ops_compose_blend ('feather') reaches both compose_window calls of spacr.ops_engine (_objects, the segmented mosaic, and _phenotype, the anchor windows the phenotype fields are aligned to) through _compose_blend, which refuses any other name; each well's objects report records compose_blend. Because the default changed, saved settings now carry spacr_settings_version (spacr.settings.SETTINGS_SCHEMA_VERSION = 931): run journals (settings.json, settings.csv), spacr.utils.save_settings and spacr.cli.write_settings_file (Export settings) write it, and spacr-run, spacr repro, the batch queue and Import settings read it. A file with an older stamp or none gets, for every key of its pipeline that it does not set, the default the key had then (spacr.settings.DEFAULT_CHANGES, {931: {'ops_compose_blend': 'average'}}), with a logged notice; a key the file sets always wins. spacr/ops_compose.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, spacr/cli.py, spacr/cli_repro.py, spacr/batch.py, spacr/run_journal.py, spacr/utils.py, spacr/qt/screens/app_screen.py, tests/test_the_nuclear_map_is_composed_window_by_window.py, tests/test_settings_schema_version_931.py.
+Requested: maintainer (OPS stage 1, S1 (c) seams; decision 2026-11-13 late: ops_compose_blend = 'feather' | 'average', feather the default; option B for reproducibility, 2026-11-13).
+Owner: paper session (stage 1 lane).
+Source: proof_stage1_stage2/iterations2/scripts/s1it2_seam_arms.py (arm none:feather, compose()), s1c_restated_score.py; REPORT_iterations2.md addendum 2.
+Related: 372 (the composer), 930, READINESS.md stage 1, experiment_designs/20261112_stage1_stage2_proof_cards.md.
+
+SETTINGS
+ops_compose_blend ('feather'; 'average'). OPS alignment category.
+spacr_settings_version is a stamp, not a setting: it is removed when a file is
+read and never reaches a pipeline.
+
+EVIDENCE (before the build)
+Restated S1 (c) seam test, stitched - position-matched single-tile cut, strong
+seam share (above the tile-centre p95), cluster bootstrap over 624 tile pairs:
+none:feather +0.32 (-0.21 to 0.85) on A A1 and -0.11 (-0.59 to 0.32) on B A1;
+fresh held-out wells C B2 0.00 (-0.53 to 0.53) and D B2 -0.27 (-0.75 to 0.21),
+seam - centre median upper CI <= +1 point; none:average +11.54 and +10.95 on
+C B2 and D B2. No flat-field or gain correction: the fastest passing arm.
+
+STEP 6 (spaCR, 2026-11-13; Funk 2022 plate A well A1, DAPI cycle 1, production
+ops_geometry, 333 tiles, 841 production windows of 1024 px, overlap 96)
+- Identity: the spaCR feather composite equals the script's none:feather cast
+  to float32 on every pixel of the well (873,113,822 px; 0 ulp); against the
+  script's float64 image the largest difference is 0.0019 (float32 rounding).
+  Coverage identical. The same holds on all 1,872 seam windows.
+- Seam test rerun on the spaCR-composed images (s1c_restated_score.py): share
+  difference +0.32 (-0.21 to 0.85), seam - centre median -0.13 (-0.61 to
+  0.43) -- the script's plate A result exactly; spaCR average reproduces the
+  script's none:average (+8.97, 7.48 to 10.52).
+- Average path: blend='average' gives nightly 5704bc7b53's composite and
+  coverage byte for byte on every window.
+- Time, CPU s per well on one core, tiles in memory: feather 10.2, average
+  3.3 (mean of two rounds in reversed order). Brieflow builds no mosaic.
+- Determinism: two feather runs give the same SHA-256 over every window.
+Scripts and outputs: proof_stage1_stage2/spacr_feather/ (scripts/, out/).

@@ -5046,7 +5046,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 2026-11-10: 20,422 -> 20,254, 10,483 -> 10,372 and the digest below,
     # the 873/876/877/878 callables now checked by the paper items' arrival
     # contract (871_911_bmc_paper_items_api_arrivals_2026-11-09.json).
-    assert sum(len(item.parameters) for item in callables) == 20254
+    # 2026-11-13 item 931: 20,254 -> 20,255, the optional `blend` keyword of
+    # spacr.ops_compose.compose_window (feathered tile blending).
+    assert sum(len(item.parameters) for item in callables) == 20255
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -5377,7 +5379,9 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # decode-QC functions of spacr.ops_decode.
     # Moved 2026-11-09 for item 878 (was 5161f08d...): the six comparison
     # functions of spacr.ops_decode.
-) == 'c82380fb35c1ab60369627f4c2b3801b6bf822c108fec3fdc1c24ef4d4e47815'
+    # Moved 2026-11-13 for item 931 (was c82380fb...): compose_window's new
+    # `blend` keyword (feathered tile blending).
+) == '530b264e7641c72cfac77d008ecf714816f45a5fff548c19048b9743a059c492'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
