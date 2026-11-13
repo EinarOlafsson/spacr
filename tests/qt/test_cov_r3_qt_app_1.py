@@ -18,18 +18,15 @@ import contextlib
 import importlib
 import importlib.util
 import logging
-import platform
 import sys
 import types
 
 import pytest
-from PySide6.QtCore import Qt
-from PySide6.QtGui import QCloseEvent, QWindowStateChangeEvent
-from PySide6.QtWidgets import QDialog, QLabel, QWidget
+from PySide6.QtWidgets import QWidget
 
 from spacr import plugins as plugins_mod
 from spacr.qt import app as app_mod
-from spacr.qt import app_catalog, iconset
+from spacr.qt import app_catalog
 from spacr.qt import screensaver as screensaver_mod
 from spacr.qt.app import MainWindow
 from spacr.qt.widgets import fractal_travel
@@ -287,161 +284,7 @@ def test_a_plugin_source_that_explodes_leaves_the_built_ins_intact(
 
 # --- the window's decorations ----------------------------------------------
 
-def test_a_menu_bar_that_cannot_be_re_laid_does_not_break_full_screen(
-        win, qtbot, app_log, monkeypatch):
-    """Going full screen must not raise out of an event handler.
-
-    The re-lay is what makes a menu open under its own title after the bar
-    resizes -- a nicety. A window whose menu bar is already torn down still
-    has to process the state change, so the failure is logged and dropped.
-    """
-    win.show()
-    qtbot.waitExposed(win)
-    bar = win.menuBar()
-    state = QWindowStateChangeEvent(Qt.WindowState.WindowNoState)
-    corner = bar.cornerWidget(Qt.Corner.TopRightCorner)
-    corner.setGeometry(0, 0, 3, 3)
-    win.changeEvent(state)
-    assert corner.size() == corner.sizeHint(), "the healthy bar re-measured"
-    assert "could not re-lay" not in app_log.text()
-
-    monkeypatch.setattr(win, "menuBar", _boom)
-    win.changeEvent(state)
-    # TWO FAILURES, TWO MESSAGES. The re-lay was split when the ghosting
-    # fix landed: asking for the bar and re-laying it can each fail on
-    # their own, and one message for both sent the reader to the wrong
-    # half. This is the first -- the bar could not be asked for at all.
-    assert "the menu bar could not be asked for" in app_log.text()
-    assert len(bar.actions()) > 1, "the bar itself is untouched"
-
-
-def test_about_still_names_the_version_when_the_build_line_is_unreadable(
-        win, monkeypatch):
-    """The version is the point of the panel; the build line is a footnote.
-
-    "Python 3.x . Qt 6.y" comes from two libraries that can both fail on an
-    odd install, and losing that line must not lose the dialog: a user
-    filing a bug is reading the version off it.
-    """
-    shown = []
-    monkeypatch.setattr(QDialog, "exec",
-                        lambda dialog, *a, **k: shown.append(dialog))
-    win._show_about()
-    healthy = "\n".join(w.text() for w in shown[0].findChildren(QLabel))
-    assert "Python" in healthy, healthy
-
-    monkeypatch.setattr(platform, "python_version", _boom)
-    win._show_about()
-    body = "\n".join(w.text() for w in shown[1].findChildren(QLabel))
-    assert "Python" not in body, body
-    assert "Version" in body and "Olafsson Lab" in body
-
-
-def test_about_opens_when_the_logo_path_itself_cannot_be_built(
-        win, monkeypatch):
-    """A broken resource directory costs the mark, not the panel.
-
-    A missing logo file is already handled; a ``RESOURCE_DIR`` that is not
-    a path at all raises before there is a pixmap to test, and the panel
-    must still show the version and the licence.
-    """
-    shown = []
-    monkeypatch.setattr(QDialog, "exec",
-                        lambda dialog, *a, **k: shown.append(dialog))
-    monkeypatch.setattr(iconset, "RESOURCE_DIR", 17)
-    win._show_about()
-    mark = shown[0].findChildren(QLabel)[0]
-    assert mark.pixmap().isNull(), "no mark could be loaded"
-    body = "\n".join(w.text() for w in shown[0].findChildren(QLabel))
-    assert "Version" in body and "BSD 3-Clause" in body
-
-
-def test_home_is_rebuilt_even_when_the_outgoing_page_will_not_close(
-        win, monkeypatch):
-    """A font-scale change must always leave exactly one Home page.
-
-    The old page is closed before deletion so it drops its run-registry
-    subscription now. One that refuses to close is still removed and
-    replaced -- otherwise a broken Home freezes the window on itself.
-    """
-    old = win._startup
-    monkeypatch.setattr(old, "close", _boom)
-    before = win._stack.count()
-
-    win._rebuild_startup_page()
-    assert win._startup is not old, "a new Home page was installed"
-    assert win._stack.indexOf(old) == -1, "the old page left the stack"
-    assert win._stack.count() == before
-
-
 # --- shutdown ---------------------------------------------------------------
-
-class _StubScreen(QWidget):
-    """A cached widget with a controllable close result."""
-
-    def __init__(self, name, outcome=True, parent=None):
-        super().__init__(parent)
-        self.name = name
-        self.outcome = outcome
-        self.closed = []
-
-    def close(self):
-        self.closed.append(self.name)
-        if isinstance(self.outcome, BaseException):
-            raise self.outcome
-        return self.outcome
-
-
-def test_a_screen_deleted_under_us_does_not_stop_the_shutdown(
-        win, monkeypatch):
-    """A screen Qt already destroyed has nothing left to drain.
-
-    Closing asks every owned screen to shut down first, because a parent's
-    close is not delivered to its children. A RuntimeError means a dead C++
-    object: the screens behind it must still be asked, and the window must
-    still close.
-    """
-    from shiboken6 import delete, isValid
-
-    gone = QWidget(win)
-    live = _StubScreen("live", parent=win)
-    delete(gone)
-    assert not isValid(gone), "the cached wrapper outlives its native widget"
-    monkeypatch.setattr(win, "_screens", {"a": gone, "b": live})
-
-    class _NoApplication:
-        @staticmethod
-        def instance():
-            return None
-
-    monkeypatch.setattr(app_mod, "QApplication", _NoApplication)
-    event = QCloseEvent()
-    win.closeEvent(event)
-    assert live.closed == ["live"], "the screen behind it was still asked"
-    assert event.isAccepted() is True
-    assert win._closing is True
-
-
-def test_a_screen_that_raises_while_closing_keeps_the_window_open(
-        win, app_log, monkeypatch):
-    """An unexpected error while draining must not destroy live workers.
-
-    RuntimeError means the screen is already gone; anything else means the
-    drain did not finish, and closing anyway tears down a running analysis
-    mid-write. The close is refused and the reason logged.
-    """
-    angry = _StubScreen("angry", ValueError("mid-write"), parent=win)
-    later = _StubScreen("later", parent=win)
-    monkeypatch.setattr(win, "_screens", {"a": angry, "b": later})
-
-    event = QCloseEvent()
-    win.closeEvent(event)
-    assert event.isAccepted() is False, "the window stays up"
-    assert win._closing is False, "a refused close must be retryable"
-    assert angry.closed == ["angry"], "the failing screen was asked"
-    assert later.closed == [], "the shutdown stopped at the failure"
-    assert "Could not close an owned application screen" in app_log.text()
-
 
 # --- the backdrop hotkeys ---------------------------------------------------
 

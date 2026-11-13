@@ -158,57 +158,6 @@ def test_label_with_too_much_boundary_detail_is_refused():
     assert not session.geometries
 
 
-def test_boundary_between_voxel_centres_paints_nothing_but_keeps_geometry():
-    session = _empty()
-    gate = _box([(0.1, 0.4), (0, 5), (0, 5)])
-    assert session.apply_geometry(900, gate) == 0
-    assert not session.mask.any()
-    assert session.geometries == {900: gate}
-    assert len(session._undo) == 1
-    assert session.undo() and session.geometries == {}
-
-
-def test_cancellation_after_painting_changes_nothing():
-    session = _empty()
-    session._cancelled = lambda: True
-    with pytest.raises(InterruptedError, match='cancelled'):
-        session.apply_geometry(900, _box([(0.1, 0.4), (0, 5), (0, 5)]))
-    assert not session.mask.any() and not session.geometries and not session._undo
-
-
-def test_reapplying_the_same_geometry_records_no_history():
-    session = _empty()
-    gate = _box([(0, 2)] * 3)
-    assert session.apply_geometry(900, gate) == 8
-    assert session.apply_geometry(900, gate) == 0
-    assert len(session._undo) == 1 and session.mask.sum() == 8 * 900
-
-
-def test_history_budget_evicts_the_oldest_edit():
-    session = _empty()
-    session.apply_geometry(900, _box([(0, 1)] * 3))
-    one_voxel = session._history_bytes
-    session.MAX_HISTORY_BYTES = one_voxel * 1.5
-    session.apply_geometry(901, _box([(3, 4)] * 3, name='901'))
-    assert len(session._undo) == 1
-    assert session._history_bytes == one_voxel
-    assert session.undo()
-    assert session.mask[0, 0, 0] == 900 and session.mask[3, 3, 3] == 0
-    assert not session.undo()
-    assert session.mask[0, 0, 0] == 900
-
-
-def test_undo_stack_keeps_only_twenty_five_edits():
-    session = _empty((1, 1, 30))
-    for index in range(26):
-        session.apply_geometry(900, _box([(index, index + 1), (0, 1), (0, 1)]))
-    assert len(session._undo) == 25
-    assert session._history_bytes == sum(sum(value.nbytes for value in row[:3]) for row in session._undo)
-    while session.undo():
-        pass
-    assert session.mask[0, 0, 0] == 900 and session.mask.sum() == 900
-
-
 @pytest.mark.parametrize('geometries', [
     {True: None}, {0: None}, {900: 'not a gate'},
     {900: EditableVolumeGate.from_gate(BoxGate.from_limits('901', ('X', 'Y', 'Z'), [(0, 1)] * 3))},

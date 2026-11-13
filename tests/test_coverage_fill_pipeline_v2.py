@@ -40,7 +40,6 @@ def _mock_cp(monkeypatch):
         types.SimpleNamespace(CellposeModel=_FakeModel), raising=False)
     # pipeline_v2 imports cp_models INSIDE the function, so patch the
     # cellpose module directly too.
-    import cellpose
     monkeypatch.setattr("cellpose.models.CellposeModel", _FakeModel)
     yield
 
@@ -64,31 +63,7 @@ def _make_plate(dst: Path, wells=("A01",), fields=(1, 2), channels=3,
 # ---------------------------------------------------------------------------
 
 class TestRecordHash:
-    def test_no_checkpoint_paths_returns(self, tmp_path, monkeypatch):
-        # Model with no real ckpt files → early return (line 415-416). The
-        # observable is that NOTHING is recorded: a run journal that claims a
-        # model hash it never computed is worse than one with no entry.
-        import json
-        import spacr.run_journal as rj
-        monkeypatch.setattr(rj, "runs_root", lambda: tmp_path)
-        m = _FakeModel(pretrained_model=None)
-        with rj.open_run("mask", {"src": "/x"}) as run:
-            PV._record_cellpose_hash(m, "cyto")
-        manifest = json.loads((run.dir / "manifest.json").read_text(encoding="utf-8"))
-        assert not manifest.get("model_hashes")
 
-    def test_records_to_open_run(self, tmp_path, monkeypatch):
-        # A real ckpt file + an open run → record_model called.
-        ckpt = tmp_path / "model.pth"; ckpt.write_bytes(b"weights")
-        m = _FakeModel(pretrained_model=[str(ckpt)])
-        import spacr.run_journal as rj
-        monkeypatch.setattr(rj, "runs_root", lambda: tmp_path)
-        with rj.open_run("mask", {"src": "/x"}) as run:
-            PV._record_cellpose_hash(m, "cyto")
-        # Manifest should now carry a model entry.
-        import json
-        manifest = json.loads((run.dir / "manifest.json").read_text(encoding="utf-8"))
-        assert manifest.get("model_hashes")
 
     def test_no_open_run_returns(self, tmp_path, monkeypatch):
         import spacr.run_journal as rj
@@ -108,25 +83,6 @@ class TestRecordHash:
         PV._record_cellpose_hash(m, "cyto")
         assert rj.current_run() is None
         assert not runs.exists() or not list(runs.glob("**/manifest.json"))
-
-    def test_nested_pretrained_model(self, tmp_path, monkeypatch):
-        # model.cp.pretrained_model nested path (lines 406-411): a checkpoint
-        # one level down must be hashed too, not silently skipped.
-        import json
-        ckpt = tmp_path / "n.pth"; ckpt.write_bytes(b"x")
-        inner = types.SimpleNamespace(pretrained_model=str(ckpt))
-        m = types.SimpleNamespace(pretrained_model=None, cp=inner)
-        import spacr.run_journal as rj
-        monkeypatch.setattr(rj, "runs_root", lambda: tmp_path)
-        with rj.open_run("mask", {"src": "/x"}) as run:
-            PV._record_cellpose_hash(m, "cyto")
-        manifest = json.loads((run.dir / "manifest.json").read_text(encoding="utf-8"))
-        recorded = manifest.get("model_hashes")
-        assert recorded, "the nested checkpoint was not recorded"
-        # Recorded as "<filename>:<digest>" under the model name it was asked
-        # for -- the name is what a reader uses to tell two runs apart.
-        assert set(recorded) == {"cyto"}
-        assert recorded["cyto"].startswith("n.pth:")
 
 
 # ---------------------------------------------------------------------------

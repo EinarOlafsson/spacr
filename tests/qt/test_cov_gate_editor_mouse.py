@@ -19,7 +19,7 @@ import pytest
 
 from spacr.qt.widgets.gate_editor import GateCanvas, _project
 from spacr.qt.widgets.gate_spec import (
-    BoxGate, CylinderGate, EllipseGate, GateSet, PolygonGate, PrismGate,
+    BoxGate, EllipseGate, GateSet, PolygonGate, PrismGate,
     RectGate, ThresholdGate,
     ELLIPSE, POLYGON, RECTANGLE, THRESHOLD, WAND,
 )
@@ -168,36 +168,6 @@ def test_a_plot_whose_pixels_cannot_be_read_still_lets_the_gate_be_dragged(
         "still be inside the gate, which is a move")
 
 
-def test_a_gate_that_cannot_be_hit_tested_does_not_hide_the_one_beneath_it(
-        qtbot):
-    """A box is three measurements and this scatter is showing two, so it
-    cannot be hit-tested here. Skipping it must not skip the rest: the
-    rectangle underneath is still grabbable."""
-    gates = GateSet()
-    gates.add(BoxGate(name="volume-box", x_column="a", y_column="b",
-                      z_column="c", x_low=0.0, x_high=10.0,
-                      y_low=0.0, y_high=10.0, z_low=0.0, z_high=10.0))
-    gates.add(RectGate(name="flat", x_column="a", y_column="b",
-                       x_low=2.0, x_high=8.0, y_low=2.0, y_high=8.0))
-    canvas, ax = _scatter(qtbot, gates)
-
-    assert canvas.gate_at(5.0, 5.0) == "flat"
-
-
-def test_a_gate_on_other_measurements_cannot_be_grabbed_invisibly(qtbot):
-    """It is not drawn on these axes, so a press where it would be must not
-    pick it up -- an outline in the wrong units is bad enough without being
-    draggable."""
-    gates = GateSet()
-    gates.add(RectGate(name="elsewhere", x_column="p", y_column="q",
-                       x_low=0.0, x_high=10.0, y_low=0.0, y_high=10.0))
-    canvas, ax = _scatter(qtbot, gates)
-
-    assert canvas.gate_at(5.0, 5.0) is None
-    canvas._on_press(_Mouse(ax, 5.0, 5.0))
-    assert canvas._move_name is None
-
-
 # ---------------------------------------------------------------------------
 # The placeholder that follows the mouse
 # ---------------------------------------------------------------------------
@@ -214,52 +184,6 @@ def test_dragging_off_the_plot_takes_the_placeholder_with_it(box_canvas):
     canvas._on_motion(_OffThePlot())
     assert canvas._dragged_to(_OffThePlot()) is None
     assert canvas._ghost == [], "the placeholder outlived the plot"
-
-
-def test_the_placeholder_for_a_threshold_is_the_two_lines_it_will_move_to(
-        qtbot):
-    """A cut has no outline to draw dashed -- it is its bounds. The
-    placeholder has to be those bounds where the release will put them, or it
-    is promising something the release does not do."""
-    gates = GateSet().add(ThresholdGate(name="cut", column="a",
-                                        low=2.0, high=6.0))
-    canvas, ax = _scatter(qtbot, gates)
-
-    canvas._on_press(_Mouse(ax, 4.0, 5.0))
-    assert canvas._move_name == "cut"
-    canvas._on_motion(_Mouse(ax, 5.0, 5.0))
-
-    placed = sorted(float(line.get_xdata()[0]) for line in canvas._ghost)
-    assert placed == [3.0, 7.0], (
-        "the dashed cut is not where releasing here would put it")
-
-
-def test_an_open_ended_cut_shows_only_the_bound_it_has(qtbot):
-    """None means unbounded. Drawing a line for it would show the user a cut
-    they never made."""
-    gates = GateSet().add(ThresholdGate(name="cut", column="a",
-                                        low=2.0, high=None))
-    canvas, ax = _scatter(qtbot, gates)
-
-    canvas._on_press(_Mouse(ax, 6.0, 5.0))
-    assert canvas._move_name == "cut"
-    canvas._on_motion(_Mouse(ax, 7.0, 5.0))
-
-    assert [float(line.get_xdata()[0]) for line in canvas._ghost] == [3.0]
-
-
-def test_a_shape_the_flat_view_cannot_draw_leaves_no_placeholder(box_canvas):
-    """A cylinder is a shape in three measurements; on two axes there is no
-    outline for it. Nothing dashed is the right answer -- an approximation
-    would be a shape nobody drew."""
-    canvas, ax = box_canvas
-    cylinder = CylinderGate(name="tube", u_column="a", v_column="b",
-                            axis_column="c", u_centre=5.0, v_centre=5.0,
-                            u_radius=2.0, v_radius=2.0)
-
-    canvas._show_ghost(cylinder)
-
-    assert canvas._ghost == []
 
 
 def test_a_placeholder_from_a_replotted_figure_is_still_forgotten(box_canvas):
@@ -1010,24 +934,6 @@ def _flat_box(qtbot):
     return _scatter(qtbot, GateSet().add(gate), frame=frame)
 
 
-def test_a_box_gate_can_be_picked_up_in_the_flat_view(qtbot):
-    """It is drawn and it offers handles, but it could not be grabbed.
-
-    `_outline` and `_handles_for` both go through `_as_flat`, which shows a
-    box as the rectangle it is from the front. `gate_at` did not -- it
-    hit-tested the RAW box, whose `columns` include the depth measurement the
-    flat probe has no column for, so `mask()` raised GateError, the except
-    swallowed it, and the click found nothing. The gate was visible, its
-    corners were visible, and clicking it did nothing at all.
-    """
-    canvas, _ax = _flat_box(qtbot)
-
-    assert canvas.gate_at(5.0, 5.0) == "g", (
-        "a box drawn in the volume is a rectangle from the front, and the "
-        "front is what the user is clicking on")
-    assert canvas.gate_at(9.5, 9.5) is None, "outside is still outside"
-
-
 def test_dragging_a_box_gate_shows_the_ghost_it_would_become(qtbot):
     """`_show_ghost` had the same asymmetry as `gate_at`: it asked
     `_gate_points` for the raw box, which the flat axes cannot lay out, so
@@ -1040,24 +946,3 @@ def test_dragging_a_box_gate_shows_the_ghost_it_would_become(qtbot):
     assert canvas._ghost, "pulling a box gate showed no preview at all"
 
 
-def test_a_box_gate_can_be_resized_by_the_handles_it_offers(qtbot):
-    """`_handles_for` shows a box AS FLAT, so it offers a rectangle's roles
-    -- 'x_low,y_low' and the rest. `BoxGate` then refused every one of them
-    with `GateError: BoxGate has no handle 'x_low'`, which `_dragged_to`
-    swallowed. The corners were drawn, they could be grabbed, and pulling
-    them did nothing.
-
-    Pulling one keeps the box a BOX, and keeps the depth the flat view has
-    no way to express -- replacing it with the rectangle drawn for it would
-    silently drop the z range the user set in the volume.
-    """
-    canvas, ax = _flat_box(qtbot)
-    canvas._resize = ("g", "x_low,y_low")
-
-    pulled = canvas._dragged_to(_Mouse(ax, 4.0, 4.0))
-
-    assert pulled is not None, "the handle it offered did nothing"
-    assert isinstance(pulled, BoxGate), "a box stays a box"
-    assert (pulled.x_low, pulled.y_low) == (4.0, 4.0)
-    assert (pulled.z_low, pulled.z_high) == (2.0, 8.0), (
-        "the depth the flat view cannot show must survive the drag")

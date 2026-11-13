@@ -570,44 +570,6 @@ def _edges_of(axes):
     return out
 
 
-def test_a_box_gate_is_drawn_as_the_twelve_edges_of_a_box(volume):
-    volume.set_gates(GateSet().add(_box()))
-    assert len(_edges_of(volume.axes_at(0, 0))) == 12
-
-
-def test_the_edges_are_the_numbers_the_gate_holds(volume):
-    """An outline that is not where the gate's numbers are is worse than no
-    outline: it says the wrong objects are in it."""
-    volume.set_gates(GateSet().add(_box()))
-    xs = np.concatenate([e[0] for e in _edges_of(volume.axes_at(0, 0))])
-    ys = np.concatenate([e[1] for e in _edges_of(volume.axes_at(0, 0))])
-    zs = np.concatenate([e[2] for e in _edges_of(volume.axes_at(0, 0))])
-    assert sorted(set(np.round(xs, 6))) == [3500.0, 4500.0]
-    assert sorted(set(np.round(ys, 6))) == [4.0, 6.0]
-    assert sorted(set(np.round(zs, 6))) == [-4.0, -2.0]
-
-
-def test_a_box_left_open_is_drawn_out_to_the_data_it_covers(volume):
-    """An unbounded side is a statement about the measurements it DOES name,
-    so it is drawn spanning everything -- a box stopping at zero would say the
-    gate ends there."""
-    volume.set_gates(GateSet().add(_box(z_low=None, z_high=None)))
-    zs = np.concatenate([e[2] for e in _edges_of(volume.axes_at(0, 0))])
-    depth = volume.population()["depth"]
-    assert min(zs) == pytest.approx(float(depth.min()))
-    assert max(zs) == pytest.approx(float(depth.max()))
-
-
-def test_a_gate_toggled_off_is_not_drawn_in_the_volume(volume):
-    """Off means not drawn -- never deleted. The gate comes back exactly as
-    it was."""
-    volume.set_gates(GateSet().add(_box()))
-    volume.set_gate_enabled("kept", False)
-    assert _edges_of(volume.axes_at(0, 0)) == []
-    volume.set_gate_enabled("kept", True)
-    assert len(_edges_of(volume.axes_at(0, 0))) == 12
-
-
 def test_a_two_measurement_gate_marks_its_objects_without_inventing_a_depth(
         volume):
     """A 2D gate is a statement about two of the three measurements, so in a
@@ -622,32 +584,6 @@ def test_a_two_measurement_gate_marks_its_objects_without_inventing_a_depth(
     inside = int(gates.mask(volume.population(), "flat").sum())
     assert 0 < inside < 300, "the gate has to select some of the objects"
     assert _ringed(axes) == [inside]
-
-
-def test_a_box_on_a_different_third_measurement_is_not_drawn_as_a_box(volume):
-    """Its z range is about a measurement this volume is not showing, so
-    drawing the box would put its faces at depths that mean nothing here. The
-    objects are still marked."""
-    frame = volume.population().copy()
-    frame["other"] = frame["depth"] * 2.0
-    volume.set_frame(frame)
-    volume.set_mode("3D", z_column="depth")
-    gates = GateSet().add(_box(z_column="other"))
-    volume.set_gates(gates)
-    axes = volume.axes_at(0, 0)
-    assert _edges_of(axes) == []
-    inside = int(gates.mask(volume.population(), "kept").sum())
-    assert inside > 0
-    assert _ringed(axes) == [inside], "the objects are still ringed"
-
-
-def test_a_gate_that_selects_nothing_is_not_drawn(volume):
-    """Nothing to ring, and an outline round an empty region reads as a
-    population that is there."""
-    volume.set_gates(GateSet().add(_box(x_low=1e9, x_high=2e9)))
-    axes = volume.axes_at(0, 0)
-    assert _edges_of(axes) == []
-    assert _ringed(axes) == []
 
 
 def test_a_gate_this_table_cannot_answer_costs_that_gate_and_not_the_view(

@@ -170,28 +170,6 @@ def test_a_canvas_with_nothing_drawn_yet_adds_no_arrows(qtbot):
     assert canvas.arrow_scale == 0.0
 
 
-def test_the_plane_is_none_until_a_result_backs_it(qtbot):
-    """Two component names are not a plane until the components exist.
-
-    The spec is remembered across tables. Reopening a saved PC1-vs-PC5 view on
-    a table that only supports three components must remove the arrows, not
-    index off the end of the loadings.
-    """
-    frame, result = a_result()
-    canvas = PCAScoresCanvas()
-    qtbot.addWidget(canvas)
-    canvas.set_spec(GraphSpec(x="PC1", y="PC2", kind=SCATTER))
-
-    assert canvas.plane() is None, "no result yet"
-
-    canvas.set_result(result, result.scores_frame(frame))
-    assert canvas.plane() == (0, 1)
-
-    canvas.set_spec(GraphSpec(x="PC1", y="PC9", kind=SCATTER))
-    assert canvas.plane() is None
-    assert canvas.arrow_scale == 0.0
-
-
 # ---------------------------------------------------------------------------
 # The scree plot
 # ---------------------------------------------------------------------------

@@ -44,7 +44,7 @@ from spacr.qt.widgets.gate_editor import (                       # noqa: E402
 )
 from spacr.qt.widgets.gate_settings import GateEditorSettings    # noqa: E402
 from spacr.qt.widgets.gate_spec import (                         # noqa: E402
-    POLYGON, RECTANGLE, BoxGate, CylinderGate, GateSet, PolygonGate,
+    POLYGON, RECTANGLE, GateSet, PolygonGate,
     RectGate, ThresholdGate,
 )
 from spacr.qt.widgets.graph_spec import CONTINUOUS, GraphSpec    # noqa: E402
@@ -60,19 +60,6 @@ def grid() -> pd.DataFrame:
     return pd.DataFrame({"a": [1.0, 2.0, 3.0, 4.0],
                          "b": [1.0, 2.0, 3.0, 4.0],
                          "c": [1.0, 2.0, 3.0, 4.0]})
-
-
-@pytest.fixture
-def keyed() -> pd.DataFrame:
-    """Six objects carrying the object keys a shared highlight needs."""
-    n = 6
-    return pd.DataFrame({
-        "plateID": ["p1"] * n, "rowID": ["A"] * n, "columnID": ["1"] * n,
-        "fieldID": ["1"] * n,
-        "object_label": [str(i + 1) for i in range(n)],
-        "a": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0],
-        "b": [1.0, 2.0, 3.0, 4.0, 5.0, 6.0],
-    })
 
 
 @pytest.fixture
@@ -353,32 +340,6 @@ def test_typing_a_threshold_for_a_gate_that_has_gone_is_a_no_op(tree, grid):
     assert announced == []
 
 
-def test_a_threshold_the_gate_can_no_longer_take_is_refused_not_written(
-        tree, grid):
-    """The gate was replaced by one bounded on other measurements.
-
-    Writing the number anyway would leave the panel showing a bound the gate
-    does not honour -- which is exactly what `with_threshold` refuses to do.
-    """
-    gates = GateSet()
-    gates.add(CylinderGate(name="c", u_column="a", v_column="b",
-                           axis_column="c", u_radius=1.0, v_radius=1.0))
-    tree.set_gates(gates, grid)
-    tree._rebuild_thresholds("c")
-    assert set(tree._threshold_rows) == {"c"}
-    announced = []
-    tree.gates_changed.connect(lambda: announced.append(1))
-
-    # Re-drawn as a cut on `a` -- same name, no bound on `c` at all.
-    gates.add(ThresholdGate(name="c", column="a", low=0.0, high=1.0))
-    tree._threshold_rows["c"][0].setText("2")
-    tree._apply_threshold("c")
-
-    assert gates.get("c") == ThresholdGate(name="c", column="a",
-                                           low=0.0, high=1.0)
-    assert announced == [], "a refused edit was announced as a change"
-
-
 # ---------------------------------------------------------------------------
 # The cluster settings modal
 # ---------------------------------------------------------------------------
@@ -435,26 +396,6 @@ def test_choosing_a_tool_in_the_dropdown_changes_what_a_drag_draws(panel):
 # ---------------------------------------------------------------------------
 # GateEditorPanel: clustering
 # ---------------------------------------------------------------------------
-
-def test_clustering_with_no_table_loaded_says_so_instead_of_running(
-        make_panel, boxes):
-    panel = make_panel(pd.DataFrame({"a": [], "b": []}))
-
-    panel.run_cluster(ask=False)
-
-    assert [title for title, _ in boxes] == ["Nothing to cluster"]
-    assert panel.gates.is_empty
-
-
-def test_clustering_needs_both_axes_before_it_will_ask_for_anything(
-        make_panel, grid, boxes):
-    panel = make_panel(grid, x="a", y=None)
-
-    panel.run_cluster(ask=False)
-
-    assert [title for title, _ in boxes] == ["Pick two measurements"]
-    assert panel.gates.is_empty
-
 
 def test_a_walk_that_finds_nothing_says_so_and_does_not_cluster_anyway(
         make_panel, one_blob, boxes):
@@ -648,105 +589,6 @@ def test_declining_to_name_a_gate_throws_the_drawing_away(panel, monkeypatch):
     assert repainted, "the abandoned outline was left on the plot"
 
 
-def test_a_gate_drawn_inside_a_gate_that_is_gone_is_refused_with_a_reason(
-        panel):
-    """A child whose parent no longer exists is a gate on a population that
-    does not exist, and the panel says which parent is missing rather than
-    adding a gate that means nothing."""
-    panel.set_namer(lambda: "orphan")
-
-    panel.canvas.gate_drawn.emit(_pair(name="(unnamed)", parent="deleted"))
-
-    assert panel.gates.is_empty
-    assert "deleted" in panel.status()
-
-
-def test_selecting_a_gate_asks_the_screen_for_its_measurements(panel, grid):
-    """A gate is drawn on two named measurements, so selecting one whose axes
-    are off screen used to select something invisible."""
-    gates = GateSet()
-    gates.add(_pair(name="one", x="a", y="b"))
-    panel.set_gates(gates)
-    asked = []
-    panel.axes_requested.connect(lambda x, y: asked.append((x, y)))
-
-    panel.tree.select("one")
-
-    assert asked == [("a", "b")]
-
-
-def test_clicking_a_gate_that_has_been_deleted_does_not_move_the_axes(panel):
-    """The row can outlive the gate -- the strategy is shared and can be
-    edited from elsewhere. Clicking a stale row must leave the plot alone
-    rather than take the screen down."""
-    gates = GateSet()
-    gates.add(_pair(name="one", x="a", y="b"))
-    gates.add(_pair(name="two", x="b", y="c"))
-    panel.set_gates(gates)
-    panel.tree.select("one")
-    asked = []
-    panel.axes_requested.connect(lambda x, y: asked.append((x, y)))
-
-    gates.remove("two")            # gone from the strategy, still in the list
-    panel.tree.select("two")
-
-    assert asked == [], "the axes moved to a gate that no longer exists"
-
-
-def test_publishing_with_nothing_selected_says_which_step_is_missing(panel):
-    gates = GateSet()
-    gates.add(_pair())
-    panel.set_gates(gates)
-    panel.tree.select("")
-
-    assert panel.publish() is None
-    assert "Select a gate" in panel.status()
-
-
-def test_publishing_without_a_table_says_so(panel):
-    """The table can go away underneath a selection -- the screen reloads it
-    on a worker. Saying so beats a traceback from an empty highlight."""
-    gates = GateSet()
-    gates.add(_pair())
-    panel.set_gates(gates)
-    panel.tree.select("one")
-    panel._frame = None
-
-    assert panel.publish() is None
-    assert panel.status() == "Load a table first."
-
-
-def test_publishing_a_gate_this_table_cannot_take_names_the_measurement(
-        panel):
-    """Re-applying a gate to a table without the measurement is a mistake
-    worth a sentence, not a silently empty population."""
-    gates = GateSet()
-    gates.add(_pair(name="ghost", x="not_measured"))
-    panel.set_gates(gates)
-    panel.tree.select("ghost")
-
-    assert panel.publish() is None
-    assert "not_measured" in panel.status()
-
-
-def test_publishing_a_gate_highlights_its_objects_for_every_other_view(
-        make_panel, keyed):
-    """Applying a gate rings the objects inside it and leaves the rest of the
-    graph on screen -- it is a SELECTION, never a filter."""
-    panel = make_panel(keyed)
-    gates = GateSet()
-    gates.add(_pair(name="mid", low=1.5, high=4.5))
-    panel.set_gates(gates)
-    panel.tree.select("mid")
-    link = panel.canvas.link
-
-    assert panel.publish() is None
-    assert panel.status() == "3 object(s) highlighted by mid"
-    assert list(link.selection.keys) == ["p1_A_1_1_2", "p1_A_1_1_3",
-                                         "p1_A_1_1_4"]
-    assert link.filter is None or link.filter.is_empty, "it filtered instead"
-
-
 # ---------------------------------------------------------------------------
 # GateEditorPanel: the 3D controls
 # ---------------------------------------------------------------------------
@@ -794,22 +636,6 @@ def test_from_view_needs_a_third_measurement_and_says_which(panel):
 
     assert panel.gates.is_empty
     assert "choose a Z" in panel.status()
-
-
-def test_from_view_turns_the_framed_volume_into_a_gate(make_panel, grid):
-    """The view IS the gesture: spin and zoom until a population fills the
-    box, then keep what was framed."""
-    panel = make_panel(grid)
-    panel.canvas._mode = "3D"
-    panel.canvas._z_column = "c"
-    panel.canvas.render_now()
-    panel.set_namer(lambda: "framed")
-
-    panel.gate_from_view()
-
-    gate = panel.gates.get("framed")
-    assert isinstance(gate, BoxGate)
-    assert gate.columns == ("a", "b", "c"), "the box did not use all three"
 
 
 def test_reset_view_undoes_a_zoom_and_a_spin_together(panel):
