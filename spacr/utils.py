@@ -1596,8 +1596,10 @@ def save_settings(settings, name='settings', show=False):
         from .model_zoo import _validate_model_metadata
 
         _validate_model_metadata(settings)
-    settings_2 = settings.copy()
-    
+    from .settings import _stamp_settings_version
+
+    settings_2 = _stamp_settings_version(settings)
+
     if isinstance(settings_2['src'], list):
         src = settings_2['src'][0]
         name = f"{name}_list"

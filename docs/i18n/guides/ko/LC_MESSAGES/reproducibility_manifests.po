@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-01 01:25-0400\n"
+"POT-Creation-Date: 2026-11-13 11:37-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: ko\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
@@ -82,6 +82,26 @@ msgstr "충돌 및 실패 시 동작"
 # AI technical review (Codex), no native-speaker signoff.
 msgid "A ``running`` manifest is written before the pipeline starts. Normal context exit attempts an atomic update with success, failure or cancellation status; caught exceptions are re-raised after their traceback is captured. Forced process termination or failure to write the final manifest can leave the stored status as ``running``. Run History can display it as ``interrupted`` when its recorded owner is gone; this does not rewrite the stored manifest. Provenance failures are logged, with recorded warnings retained under ``provenance_warnings`` when the manifest can be written."
 msgstr "파이프라인 시작 전에 ``running`` 매니페스트를 씁니다. 정상적인 컨텍스트 종료는 성공, 실패 또는 취소 상태로 원자적 갱신을 시도하며, 잡힌 예외는 추적을 캡처한 뒤 다시 발생시킵니다. 강제 프로세스 종료나 최종 매니페스트 쓰기 실패로 저장 상태가 ``running`` 으로 남을 수 있습니다. 기록된 소유자 프로세스가 사라지면 실행 기록은 이를 ``interrupted`` 로 표시할 수 있으며, 저장된 매니페스트를 다시 쓰지는 않습니다. 출처 기록 실패는 로그에 남기며, 매니페스트를 쓸 수 있을 때 기록된 경고를 ``provenance_warnings`` 에 보존합니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Settings versions and changed defaults"
+msgstr "설정 버전과 변경된 기본값"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Every settings file spaCR writes starts with ``spacr_settings_version``: the run folder's ``settings.json`` and ``settings.csv``, the settings saved next to a run, and the file Export settings writes. The number says which defaults the settings were resolved under."
+msgstr "spaCR가 쓰는 모든 설정 파일은 ``spacr_settings_version``\\ 으로 시작합니다. 실행 폴더의 ``settings.json``\\ 과 ``settings.csv``, 실행 옆에 저장된 설정, 그리고 내보내기 설정이 쓰는 파일이 해당됩니다. 이 번호는 설정이 어떤 기본값 아래에서 결정되었는지를 나타냅니다."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "A file written before a release changed a default does not hold the changed key, so it would run with the new default. When a settings file is read by ``spacr-run``, ``spacr repro``, the batch queue or Import settings, each key whose default changed after the file's version, and that the file does not set, gets the default it had then. A file without ``spacr_settings_version``, such as a hand-written one, is read as the oldest version, and the log names every old default it was given. A key the file sets always wins. To use today's defaults, set those keys or add the current ``spacr_settings_version`` to the file."
+msgstr "릴리스에서 기본값이 바뀌기 전에 쓰인 파일에는 바뀐 키가 없으므로 새 기본값으로 실행되게 됩니다. ``spacr-run``, ``spacr repro``, 배치 대기열 또는 가져오기 설정이 설정 파일을 읽을 때, 파일 버전 이후에 기본값이 바뀌었고 파일이 설정하지 않은 각 키는 그 당시의 기본값을 받습니다. 직접 작성한 파일처럼 ``spacr_settings_version``\\ 이 없는 파일은 가장 오래된 버전으로 읽히며, 로그에는 그 파일에 적용된 모든 이전 기본값이 나열됩니다. 파일이 설정한 키가 항상 우선합니다. 현재 기본값을 사용하려면 해당 키를 설정하거나 파일에 현재 ``spacr_settings_version``\\ 을 추가하십시오."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The changes are kept in one table, ``DEFAULT_CHANGES`` in ``spacr/settings.py``, keyed by the number of the item that changed the default:"
+msgstr "변경 사항은 하나의 표, 즉 ``spacr/settings.py``\\ 의 ``DEFAULT_CHANGES``\\ 에 보관되며, 기본값을 바꾼 항목의 번호를 키로 합니다:"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "931: ``ops_compose_blend`` was ``'average'``; it is now ``'feather'``."
+msgstr "931: ``ops_compose_blend``\\ 는 ``'average'``\\ 였으며, 이제 ``'feather'``\\ 입니다."
 
 msgid "Public API"
 msgstr "공개 API"

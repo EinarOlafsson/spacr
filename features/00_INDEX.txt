@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-740 Lifecycle: new, 170 Lifecycle: future in features/feature_list/.
+741 Lifecycle: new, 170 Lifecycle: future in features/feature_list/.
 BOTH LISTS ARE REQUIRED FOR RELEASE 1.5.1.5 (historical scope).
 Maintainer requirement: implement every listed item and complete its
 applicable acceptance before publication. Historical DONE headers alone
@@ -2040,3 +2040,5 @@ NEW FEATURES
        868_plaque_model_left_out_of_lfs.txt
   927  NATIVE CRASH REPORTS LACK SESSION CONTEXT WHEN THE FAULT DUMP IS EMPTY
        927_native_crash_reports_lack_session_context.txt
+  931  OPS FEATHERED TILE BLENDING OF THE SEQUENCING MOSAIC, AND SETTINGS THAT REMEMBER THEIR DEFAULTS
+       931_ops_compose_feather_blend.txt

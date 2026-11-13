@@ -1185,6 +1185,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'ops_compare_spacr_calls',
     'ops_compare_spacr_masks',
     'ops_compare_tables',
+    'ops_compose_blend',
     'ops_confidence_bins',
     'ops_confidence_calibration',
     'ops_confidence_min',

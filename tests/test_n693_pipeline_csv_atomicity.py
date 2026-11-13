@@ -68,7 +68,8 @@ def test_success_preserves_csv_bytes_and_existing_mode(tmp_path):
     mode = stat.S_IMODE(target.stat().st_mode)
     assert mode == 0o640 or os.name == 'nt'
     settings = {'src': str(tmp_path), 'value': 3, 'channels': [0, 1], 'none': None, 'text': 'μm,a'}
-    expected = pd.DataFrame(list(settings.items()), columns=['Key', 'Value']).to_csv(index=False)
+    stamped = {'spacr_settings_version': 931, **settings}  # item 931
+    expected = pd.DataFrame(list(stamped.items()), columns=['Key', 'Value']).to_csv(index=False)
     save_settings(settings, name='sample')
     assert target.read_bytes() == expected.encode('utf-8')
     assert stat.S_IMODE(target.stat().st_mode) == mode

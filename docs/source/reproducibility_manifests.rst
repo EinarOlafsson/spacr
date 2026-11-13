@@ -72,6 +72,30 @@ when its recorded owner is gone; this does not rewrite the stored manifest.
 Provenance failures are logged, with recorded warnings retained under
 ``provenance_warnings`` when the manifest can be written.
 
+Settings versions and changed defaults
+--------------------------------------
+
+Every settings file spaCR writes starts with ``spacr_settings_version``: the
+run folder's ``settings.json`` and ``settings.csv``, the settings saved next to
+a run, and the file Export settings writes. The number says which defaults the
+settings were resolved under.
+
+A file written before a release changed a default does not hold the changed
+key, so it would run with the new default. When a settings file is read by
+``spacr-run``, ``spacr repro``, the batch queue or Import settings, each key
+whose default changed after the file's version, and that the file does not set,
+gets the default it had then. A file without ``spacr_settings_version``, such
+as a hand-written one, is read as the oldest version, and the log names every
+old default it was given. A key the file sets always wins. To use today's
+defaults, set those keys or add the current ``spacr_settings_version`` to the
+file.
+
+The changes are kept in one table, ``DEFAULT_CHANGES`` in
+``spacr/settings.py``, keyed by the number of the item that changed the
+default:
+
+- 931: ``ops_compose_blend`` was ``'average'``; it is now ``'feather'``.
+
 Public API
 ----------
 
