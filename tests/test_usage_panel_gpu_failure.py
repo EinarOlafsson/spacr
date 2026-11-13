@@ -49,7 +49,7 @@ def broken_driver(monkeypatch):
     monkeypatch.setitem(sys.modules, "GPUtil", fake)
     # The host has an nvidia-smi -- that is the whole point. A machine
     # without one never enters GPUtil at all, which is a different case and
-    # is covered in tests/qt/test_cov_app_screen.py.
+    # is covered in tests/qt/test_app_screen_b_module_helpers.py.
     monkeypatch.setattr(app_screen, "_nvidia_smi_available", lambda: True)
     monkeypatch.setattr(app_screen, "_nvml_gpu_usage", lambda: None)
     return app_screen
