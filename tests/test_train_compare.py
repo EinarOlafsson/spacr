@@ -867,26 +867,23 @@ def test_an_unreadable_manifest_is_ignored(tmp_path):
 # Malformed progress CSVs
 # ---------------------------------------------------------------------------
 
-def test_a_log_without_an_epoch_column_falls_back_to_row_order(tmp_path):
+@pytest.mark.parametrize("text, note, epochs", [
+    # A log without an epoch column falls back to row order.
+    ("accuracy,loss\n0.5,1.0\n0.7,0.5\n",
+     "no 'epoch' column \u2014 using row order", [1.0, 2.0]),
+    # Rows with an unreadable epoch are dropped and counted.
+    ("epoch,accuracy\n1,0.5\nlater,0.6\n3,0.7\n",
+     "1 row(s) with an unreadable epoch were dropped", [1.0, 3.0]),
+], ids=["no-epoch-column", "unreadable-epoch"])
+def test_a_log_with_missing_or_unreadable_epochs_is_read_and_says_so(
+        tmp_path, text, note, epochs):
     folder = tmp_path / "run"
     folder.mkdir()
-    (folder / "train.csv").write_text("accuracy,loss\n0.5,1.0\n0.7,0.5\n", encoding="utf-8")
+    (folder / "train.csv").write_text(text, encoding="utf-8")
     run = load_run(str(folder), run_id="A")
-    assert any("no 'epoch' column — using row order" in n for n in run.notes)
+    assert any(note in n for n in run.notes)
     series = compare_runs([run]).series_for("A · train")
-    assert list(series.epochs) == [1.0, 2.0]
-
-
-def test_rows_with_an_unreadable_epoch_are_dropped_and_counted(tmp_path):
-    folder = tmp_path / "run"
-    folder.mkdir()
-    (folder / "train.csv").write_text(
-        "epoch,accuracy\n1,0.5\nlater,0.6\n3,0.7\n", encoding="utf-8")
-    run = load_run(str(folder), run_id="A")
-    assert any("1 row(s) with an unreadable epoch were dropped" in n
-               for n in run.notes)
-    series = compare_runs([run]).series_for("A · train")
-    assert list(series.epochs) == [1.0, 3.0]
+    assert list(series.epochs) == epochs
 
 
 def test_a_csv_pandas_cannot_parse_is_reported_not_raised(tmp_path):

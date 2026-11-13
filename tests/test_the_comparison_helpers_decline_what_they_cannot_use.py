@@ -70,24 +70,18 @@ def test_no_groups_at_all_names_no_wells():
 # control_wells — a count table that cannot answer
 # ---------------------------------------------------------------------------
 
-def test_a_count_table_without_the_guide_column_names_no_controls():
-    """Arc 218 -> 219: the guide column decides which rows are controls.
-
-    Returning () rather than raising lets the comparison draw without a
-    control band, which is a weaker figure and still a figure.
-    """
+@pytest.mark.parametrize("columns", [
+    # Arc 218 -> 219: the guide column decides which rows are controls.
+    {"prc": ["p1_r1_c1"], "count": [10]},
+    # The other half of the same guard.
+    {"grna": ["g1"], "count": [10]},
+], ids=["no-guide-column", "no-well-column"])
+def test_a_count_table_without_the_guide_or_well_column_names_no_controls(columns):
+    """Returning () rather than raising lets the comparison draw without a
+    control band, which is a weaker figure and still a figure."""
     from spacr.gene_measurement_compare import control_wells
 
-    counts = pd.DataFrame({"prc": ["p1_r1_c1"], "count": [10]})
-
-    assert control_wells(counts, ["nc"]) == ()
-
-
-def test_a_count_table_without_a_well_column_names_no_controls():
-    """The other half of the same guard."""
-    from spacr.gene_measurement_compare import control_wells
-
-    counts = pd.DataFrame({"grna": ["g1"], "count": [10]})
+    counts = pd.DataFrame(columns)
 
     assert control_wells(counts, ["nc"]) == ()
 

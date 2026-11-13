@@ -102,18 +102,17 @@ class TestASilentZeroIsTheRealFault:
     """"A join that matches nothing raises or is reported, never drawn as
     empty"."""
 
-    def test_no_overlap_is_reported(self, objects, tmp_path):
+    @pytest.mark.parametrize("fragment", [
+        "MATCHED NOTHING",
+        # "there is no run where zero of the objects have a prediction"
+        "join-key",
+    ])
+    def test_a_join_that_matches_nothing_is_reported_as_a_join_key_fault(
+            self, objects, tmp_path, fragment):
         elsewhere = [f"plate9_r9_c9_f9_o{o}" for o in range(1, 17)]
         db = _database(tmp_path / "measurements.db", elsewhere)
         _, note = join_measurements(objects, [db])
-        assert "MATCHED NOTHING" in note
-
-    def test_the_note_says_it_is_a_join_key(self, objects, tmp_path):
-        """"there is no run where zero of the objects have a prediction"."""
-        elsewhere = [f"plate9_r9_c9_f9_o{o}" for o in range(1, 17)]
-        db = _database(tmp_path / "measurements.db", elsewhere)
-        _, note = join_measurements(objects, [db])
-        assert "join-key" in note
+        assert fragment in note
 
     def test_the_original_rows_come_back_untouched(self, objects, tmp_path):
         """Handing on a frame of all-NaN measurement columns is how the empty

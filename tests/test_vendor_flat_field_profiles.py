@@ -147,11 +147,15 @@ def test_a_channel_harmony_never_profiled_is_refused(tmp_path):
         ill._vendor_illumination(str(index), [0, 2], verbose=False)
 
 
-def test_xml_without_a_profile_is_refused(tmp_path):
-    empty = tmp_path / "Index.idx.xml"
-    empty.write_text("<Root><Images/></Root>", encoding="utf-8")
-    with pytest.raises(ill.IlluminationError, match="no Harmony"):
-        ill._vendor_illumination(str(empty), [0], verbose=False)
+@pytest.mark.parametrize("xml, message", [
+    ("<Root><Images/></Root>", "no Harmony"),
+    ("<Root><unclosed></Root>", "could not be read as XML"),
+], ids=["without-a-profile", "unreadable"])
+def test_xml_that_gives_no_profile_is_refused(tmp_path, xml, message):
+    index = tmp_path / "Index.idx.xml"
+    index.write_text(xml, encoding="utf-8")
+    with pytest.raises(ill.IlluminationError, match=message):
+        ill._vendor_illumination(str(index), [0], verbose=False)
 
 
 def test_a_shading_reference_image_is_normalised_and_applied(tmp_path):
@@ -201,13 +205,6 @@ def test_only_polynomial_profiles_are_evaluated():
     profile["Profile"]["Type"] = "Spline"
     with pytest.raises(ill.IlluminationError, match="is not supported"):
         ill._harmony_surface(profile)
-
-
-def test_unreadable_xml_is_refused(tmp_path):
-    broken = tmp_path / "Index.idx.xml"
-    broken.write_text("<Root><unclosed></Root>", encoding="utf-8")
-    with pytest.raises(ill.IlluminationError, match="could not be read as XML"):
-        ill._vendor_illumination(str(broken), [0], verbose=False)
 
 
 def test_profiles_are_numbered_by_entry_or_by_order_and_flat_ones_skipped(

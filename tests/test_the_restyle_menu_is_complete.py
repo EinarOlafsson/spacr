@@ -871,13 +871,19 @@ def test_a_histogram_greys_the_point_controls_rather_than_hiding_them(
     assert any("Shape by a column" in text for text in greyed), greyed
 
 
-def test_the_greyed_entry_is_disabled_AND_says_why(histogram):
-    """Either half alone is a failure. Disabled with no reason is a dead
-    control; a reason on a live control is a lie."""
-    action = _action(histogram, "Point size")
+@pytest.mark.parametrize("plot, entry, reason", [
+    # Either half alone is a failure. Disabled with no reason is a dead
+    # control; a reason on a live control is a lie.
+    ("histogram", "Point size", "nothing on this plot is drawn as points"),
+    # The control panel is handed arrays of effects, not a frame. "Choose any
+    # column" has no answer there, and the honest one is to say so.
+    ("controls", "Colour by a column", "holds no table"),
+], ids=["no-points-to-size", "no-table-to-map-a-column"])
+def test_a_greyed_entry_is_disabled_AND_says_why(request, plot, entry, reason):
+    action = _action(request.getfixturevalue(plot), entry)
 
     assert not action.isEnabled()
-    assert "nothing on this plot is drawn as points" in action.text()
+    assert reason in action.text()
 
 
 def test_the_reason_is_on_the_tooltip_as_well_as_in_the_label(histogram):
@@ -892,16 +898,6 @@ def test_the_menu_shows_action_tooltips_so_the_fallback_is_reachable(
     """Qt hides action tooltips unless the menu asks for them. Without this
     the fallback would exist and never be seen."""
     assert histogram.build_style_menu().toolTipsVisible()
-
-
-def test_a_plot_with_no_table_says_that_is_why_it_cannot_map_a_column(
-        controls):
-    """The control panel is handed arrays of effects, not a frame. "Choose any
-    column" has no answer there, and the honest one is to say so."""
-    action = _action(controls, "Colour by a column")
-
-    assert not action.isEnabled()
-    assert "holds no table" in action.text()
 
 
 def test_a_plot_whose_table_has_no_numeric_column_says_that_instead(qtbot):

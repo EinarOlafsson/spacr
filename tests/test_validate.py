@@ -327,11 +327,16 @@ def test_str_where_int_expected_is_an_error(tmp_path):
     assert "CSV" in offenders[0].fix
 
 
-def test_bool_where_a_number_is_expected_is_a_warning(tmp_path):
+@pytest.mark.parametrize("key, severity", [
+    ("cell_min_size", warnings_of),    # a bool where a number is expected is a warning
+    # measure_crop prints a warning and returns when normalize is a bare True.
+    ("normalize", errors),
+], ids=["warning-for-a-number", "error-for-normalize"])
+def test_a_bool_where_a_number_is_expected_is_reported(tmp_path, key, severity):
     _plate, merged = make_merged_plate(tmp_path, n_planes=7)
     settings = valid_measure_settings(merged)
-    settings["cell_min_size"] = True
-    offenders = settings_named(warnings_of(validate_settings(settings, "measure")), "cell_min_size")
+    settings[key] = True
+    offenders = settings_named(severity(validate_settings(settings, "measure")), key)
     assert offenders
 
 
@@ -437,18 +442,16 @@ def test_zero_diameter_is_auto_and_a_negative_one_is_an_error(tmp_path):
     assert settings_named(errors(validate_settings(settings, "mask")), "cell_diameter")
 
 
-def test_batch_size_below_one_is_an_error(tmp_path):
+@pytest.mark.parametrize("key, value", [
+    ("batch_size", 0),                          # below one
+    ("cell_min_intensity_percentile", 140),     # outside 0-100
+    ("n_jobs", 0),                              # unusable
+])
+def test_an_unusable_mask_setting_is_an_error(tmp_path, key, value):
     src = make_raw_plate(tmp_path, n_channels=3)
     settings = valid_mask_settings(src)
-    settings["batch_size"] = 0
-    assert settings_named(errors(validate_settings(settings, "mask")), "batch_size")
-
-
-def test_percentile_outside_0_100_is_an_error(tmp_path):
-    src = make_raw_plate(tmp_path, n_channels=3)
-    settings = valid_mask_settings(src)
-    settings["cell_min_intensity_percentile"] = 140
-    assert settings_named(errors(validate_settings(settings, "mask")), "cell_min_intensity_percentile")
+    settings[key] = value
+    assert settings_named(errors(validate_settings(settings, "mask")), key)
 
 
 def test_inverted_percentile_pair_is_an_error(tmp_path):
@@ -469,13 +472,6 @@ def test_cellpose_probability_outside_its_range_is_a_warning(tmp_path):
     assert settings_named(warnings_of(problems), "cell_cellprob_threshold")
 
 
-def test_unusable_n_jobs_is_an_error(tmp_path):
-    src = make_raw_plate(tmp_path, n_channels=3)
-    settings = valid_mask_settings(src)
-    settings["n_jobs"] = 0
-    assert settings_named(errors(validate_settings(settings, "mask")), "n_jobs")
-
-
 # ---------------------------------------------------------------------------
 # app-specific rules
 # ---------------------------------------------------------------------------
@@ -487,15 +483,6 @@ def test_mask_run_with_no_segmentation_channel_is_an_error(tmp_path):
         settings[key] = None
     problems = validate_settings(settings, "mask")
     assert [p for p in errors(problems) if "no segmentation channel" in p.message]
-
-
-def test_measure_rejects_normalize_true(tmp_path):
-    """measure_crop prints a warning and returns when normalize is a bare True."""
-    _plate, merged = make_merged_plate(tmp_path, n_planes=7)
-    settings = valid_measure_settings(merged)
-    settings["normalize"] = True
-    offenders = settings_named(errors(validate_settings(settings, "measure")), "normalize")
-    assert offenders
 
 
 def test_measure_rejects_an_unknown_normalize_by(tmp_path):

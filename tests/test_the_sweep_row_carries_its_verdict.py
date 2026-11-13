@@ -32,13 +32,14 @@ SATURATED = {**HEALTHY, "n_parameters": 800, "design_rank": 600,
 
 class TestTheVerdictIsOnTheRow:
 
-    def test_a_healthy_design_passes(self):
-        assert qc_verdicts(HEALTHY)["qc_design"] == "pass"
-
-    def test_a_rank_deficient_design_fails(self):
-        """The case the whole column exists for: this trial can out-hit an
-        identifiable one and its coefficients mean nothing."""
-        assert qc_verdicts(SATURATED)["qc_design"] == "fail"
+    @pytest.mark.parametrize("numbers, verdict", [
+        (HEALTHY, "pass"),
+        # The case the whole column exists for: this trial can out-hit an
+        # identifiable one and its coefficients mean nothing.
+        (SATURATED, "fail"),
+    ], ids=["healthy-design-passes", "rank-deficient-design-fails"])
+    def test_the_design_verdict_is_on_the_row(self, numbers, verdict):
+        assert qc_verdicts(numbers)["qc_design"] == verdict
 
     def test_the_worst_of_the_panels_is_what_a_reader_sorts_by(self):
         """Not a pass rate. `worst_verdict`'s own reason holds here: 19

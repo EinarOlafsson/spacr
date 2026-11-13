@@ -772,9 +772,14 @@ def test_an_unusable_id_is_refused(value):
         omero.parse_object_ref(value)
 
 
-def test_a_plate_reference_is_refused_by_the_dataset_importer():
-    with pytest.raises(omero.OmeroIdError, match="Plate.*Dataset"):
-        omero.parse_object_id("Plate:7", expect="Dataset")
+@pytest.mark.parametrize("reference, message", [
+    ("Plate:7", "Plate.*Dataset"),
+    # The contrast: naming the wrong type is refused, and says which.
+    ("Plate:4711", "is a Plate, but a Dataset"),
+], ids=["plate-seven", "plate-4711-says-which"])
+def test_a_plate_reference_is_refused_by_the_dataset_importer(reference, message):
+    with pytest.raises(omero.OmeroIdError, match=message):
+        omero.parse_object_id(reference, expect="Dataset")
 
 
 def test_a_bare_id_is_taken_at_the_callers_word():
@@ -823,14 +828,13 @@ def test_a_session_key_is_a_credential_without_a_user_name():
     assert settings.auth_mode == "session"
 
 
-def test_a_missing_host_is_refused_and_names_the_variable():
-    with pytest.raises(omero.OmeroConnectionError, match="OMERO_HOST"):
-        omero.connection_settings(env={"OMERO_PASSWORD": "p"})
-
-
-def test_a_missing_credential_is_refused_and_names_the_variable():
-    with pytest.raises(omero.OmeroConnectionError, match="OMERO_PASSWORD"):
-        omero.connection_settings(env={"OMERO_HOST": "h"})
+@pytest.mark.parametrize("env, variable", [
+    ({"OMERO_PASSWORD": "p"}, "OMERO_HOST"),
+    ({"OMERO_HOST": "h"}, "OMERO_PASSWORD"),
+], ids=["missing-host", "missing-credential"])
+def test_a_missing_setting_is_refused_and_names_the_variable(env, variable):
+    with pytest.raises(omero.OmeroConnectionError, match=variable):
+        omero.connection_settings(env=env)
 
 
 def test_a_password_without_a_user_name_is_refused():
@@ -1689,17 +1693,17 @@ def test_a_missing_dimension_defaults_to_one_rather_than_zero():
     assert info.n_planes == 2
 
 
-def test_upload_types_come_from_the_system_table_off_windows(monkeypatch):
-    """/etc/mime.types and the rest of the system table keep answering on Linux and macOS."""
+@pytest.mark.parametrize("system_type, name, windows, expected", [
+    # /etc/mime.types and the rest of the system table keep answering on
+    # Linux and macOS.
+    ("application/x-site-local", "results.lab", False, "application/x-site-local"),
+    # On Windows a fresh table without the registry is asked, so Excel cannot
+    # claim .csv.
+    ("application/vnd.ms-excel", "results.csv", True, "text/csv"),
+], ids=["system-table-off-windows", "windows-registry-ignored"])
+def test_upload_types_come_from_the_system_table_except_on_windows(
+        monkeypatch, system_type, name, windows, expected):
     import mimetypes
 
-    monkeypatch.setattr(mimetypes, "guess_type", lambda name, strict=True: ("application/x-site-local", None))
-    assert omero._guess_upload_type("results.lab", windows=False) == "application/x-site-local"
-
-
-def test_upload_types_ignore_the_windows_registry(monkeypatch):
-    """On Windows a fresh table without the registry is asked, so Excel cannot claim .csv."""
-    import mimetypes
-
-    monkeypatch.setattr(mimetypes, "guess_type", lambda name, strict=True: ("application/vnd.ms-excel", None))
-    assert omero._guess_upload_type("results.csv", windows=True) == "text/csv"
+    monkeypatch.setattr(mimetypes, "guess_type", lambda name, strict=True: (system_type, None))
+    assert omero._guess_upload_type(name, windows=windows) == expected

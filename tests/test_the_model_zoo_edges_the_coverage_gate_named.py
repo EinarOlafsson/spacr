@@ -24,17 +24,12 @@ from spacr import model_zoo as mz
 @pytest.mark.parametrize("uri", [
     "https://[huggingface.co/einarolafsson/models/resolve/main/w",
     "https://[::1/einarolafsson/models",
-])
-def test_a_url_that_does_not_parse_belongs_to_no_repository(uri):
-    assert mz.hf_repo_of(uri) == ""
-
-
-@pytest.mark.parametrize("uri", [
+    # An owner or repo name Hugging Face would refuse is nobody's.
     "https://huggingface.co/-einarolafsson/models/resolve/main/w",
     "https://huggingface.co/einarolafsson/mo dels/resolve/main/w",
     "https://huggingface.co/datasets/einarolafsson/.models/resolve/main/w",
 ])
-def test_an_owner_or_repo_name_hugging_face_would_refuse_is_nobodys(uri):
+def test_a_url_that_does_not_parse_belongs_to_no_repository(uri):
     assert mz.hf_repo_of(uri) == ""
 
 

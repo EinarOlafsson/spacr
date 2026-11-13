@@ -361,19 +361,18 @@ def test_scn_incomplete_scan_is_refused_by_reader_and_describer(tmp_path, option
         _describe_scn(str(path))
 
 
-def test_scn_truncated_mime_header_has_no_image(tmp_path):
-    path = tmp_path / "truncated.scn"
-    path.write_bytes(b'MIME-Version: 1.0\r\nContent-Type: multipart/mixed; '
-                     b'boundary="outer"\r\n\r\n--outer\r\n'
-                     b"Content-Description: ScanImageTag0")
-    with pytest.raises(ValueError, match="no ScanImageTag image"):
-        read_scn(path)
-
-
-def test_scn_declared_multipart_without_parts_has_no_image(tmp_path):
-    path = tmp_path / "no-parts.scn"
-    path.write_bytes(b'MIME-Version: 1.0\nContent-Type: multipart/mixed; '
-                     b'boundary="outer"\n\n')
+@pytest.mark.parametrize("content", [
+    # A truncated MIME header.
+    (b'MIME-Version: 1.0\r\nContent-Type: multipart/mixed; '
+     b'boundary="outer"\r\n\r\n--outer\r\n'
+     b"Content-Description: ScanImageTag0"),
+    # A declared multipart without parts.
+    (b'MIME-Version: 1.0\nContent-Type: multipart/mixed; '
+     b'boundary="outer"\n\n'),
+], ids=["truncated-mime-header", "declared-multipart-without-parts"])
+def test_scn_without_a_readable_image_part_has_no_image(tmp_path, content):
+    path = tmp_path / "broken.scn"
+    path.write_bytes(content)
     with pytest.raises(ValueError, match="no ScanImageTag image"):
         read_scn(path)
 
@@ -397,4 +396,3 @@ def test_scn_unequal_scans_remain_individually_readable(tmp_path):
     np.testing.assert_array_equal(read_scn(path, 0)[0], 4095 - first)
     np.testing.assert_array_equal(read_scn(path, -1)[0], 4095 - second)
     assert path.read_bytes() == original
-
