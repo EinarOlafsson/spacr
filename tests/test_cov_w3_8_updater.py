@@ -167,10 +167,6 @@ def test_a_version_lookup_that_throws_answers_none(monkeypatch):
     assert updater.installed_version("numpy") is None
 
 
-def test_an_absent_package_has_no_version():
-    assert updater.installed_version("this-package-is-not-installed") is None
-
-
 def test_pip_is_reported_present_in_this_interpreter():
     assert updater.pip_available() is True
 

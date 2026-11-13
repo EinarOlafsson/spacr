@@ -127,9 +127,14 @@ class TestTheTextbox:
                  if l.startswith(("annotates_everything", "careful"))]
         assert lines[0].startswith("careful"), text
 
-    def test_it_says_abstaining_is_correct(self):
-        text = module.quality_report({"x": self._Verdict(1.0, 0.2, 0.2)})
-        assert "Coverage, precision, and recall are reported separately" in text
+    @pytest.mark.parametrize("verdict, expected", [
+        ((1.0, 0.2, 0.2),
+         "Coverage, precision, and recall are reported separately"),
+        ((0.5, 0.8, 0.4), "Annotation quality"),
+    ], ids=["abstaining-is-correct", "nothing-but-the-verdicts"])
+    def test_it_reports_the_verdicts_alone(self, verdict, expected):
+        text = module.quality_report({"x": self._Verdict(*verdict)})
+        assert expected in text
 
     def test_it_reports_the_unreachable_guides(self):
         fractions = {"w0": {"big": 0.9, "trace": 0.001}}
@@ -149,11 +154,6 @@ class TestTheTextbox:
             size=module.screen_size_for(fractions, sensitivity=0.96,
                                         specificity=0.98))
         assert "More cells per well increase" in text
-
-    def test_it_works_with_nothing_but_the_verdicts(self):
-        text = module.quality_report({"x": self._Verdict(0.5, 0.8, 0.4)})
-        assert "Annotation quality" in text
-
 
 class TestNothingIsBakedIn:
 

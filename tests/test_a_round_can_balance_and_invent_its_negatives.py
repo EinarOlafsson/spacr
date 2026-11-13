@@ -203,24 +203,20 @@ def test_the_invented_negatives_are_never_written_to_the_database(screen):
     assert _annotations(screen["db"]) == before
 
 
-def test_a_non_binary_class_refuses_rather_than_guessing(screen):
-    """There is no defensible "other class" for class 3."""
-    label(screen["db"], {screen["paths"][i]: 3 for i in range(30)})
+@pytest.mark.parametrize("annotation, synthetic, message", [
+    # There is no defensible "other class" for class 3.
+    (3, 30, "binary classes 1 and 2 only"),
+    # A refusal that names both numbers, rather than an IndexError.
+    (1, 500, "only 90 unannotated crops"),
+], ids=["non-binary-class", "more-negatives-than-exist"])
+def test_a_round_that_cannot_invent_its_negatives_refuses(
+        screen, annotation, synthetic, message):
+    label(screen["db"], {screen["paths"][i]: annotation for i in range(30)})
 
-    with pytest.raises(ValueError, match="binary classes 1 and 2 only"):
+    with pytest.raises(ValueError, match=message):
         al.retrain_round(screen["db"], "annotate",
                          features=screen["features"], seed=0,
-                         save_model=False, synthetic_negatives=30)
-
-
-def test_asking_for_more_negatives_than_exist_says_so(screen):
-    """A refusal that names both numbers, rather than an IndexError."""
-    label(screen["db"], {screen["paths"][i]: 1 for i in range(30)})
-
-    with pytest.raises(ValueError, match="only 90 unannotated crops"):
-        al.retrain_round(screen["db"], "annotate",
-                         features=screen["features"], seed=0,
-                         save_model=False, synthetic_negatives=500)
+                         save_model=False, synthetic_negatives=synthetic)
 
 
 def _annotations(db: str) -> dict:

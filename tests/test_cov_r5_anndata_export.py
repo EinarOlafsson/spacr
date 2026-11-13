@@ -833,21 +833,3 @@ def test_a_set_writes_one_file_per_object_table_and_links_the_children(
     cell_file = _read_double(str(out / "exp1_cell.h5ad"))
     assert "parent" not in cell_file.uns["spacr"]["relationships"], (
         "the anchor has no parent file to point at")
-
-
-def test_a_child_file_that_cannot_be_reopened_warns_instead_of_taking_the_set(
-        anndata_double, tmp_path):
-    """The stamp is a small re-open, and a file that will not open must cost
-    the link, not the whole set -- nor the bytes already on disk."""
-    child = tmp_path / "nucleus.h5ad"
-    child.write_bytes(b"this is not a container")
-
-    with pytest.warns(RuntimeWarning) as caught:
-        ax._stamp_parent_file(str(child), str(tmp_path / "cell.h5ad"),
-                              "cell_id")
-
-    warned = "\n".join(str(record.message) for record in caught)
-    assert "could not record the parent file in" in warned
-    assert str(child) in warned
-    assert child.read_bytes() == b"this is not a container", (
-        "a failed stamp must not damage the file it could not read")

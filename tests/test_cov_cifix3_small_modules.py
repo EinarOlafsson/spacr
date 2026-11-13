@@ -37,14 +37,12 @@ def test_rescale_warnings_stop_after_the_limit(capsys):
     assert corrector._warned == illumination._MAX_CLIP_WARNINGS + 3
 
 
-def test_an_unknown_normalization_falls_back_to_symmetric():
-    """A mistyped mode gives the same statistics as symmetric."""
-    assert normalization_stats("not-a-mode") == normalization_stats("symmetric")
-
-
-def test_auto_normalization_means_symmetric_without_a_log_line():
-    """The auto mode resolves to the symmetric statistics."""
-    assert normalization_stats("auto") == normalization_stats("symmetric")
+@pytest.mark.parametrize("mode", [
+    "not-a-mode",   # a mistyped mode gives the same statistics as symmetric
+    "auto",         # the auto mode resolves to the symmetric statistics
+])
+def test_an_unknown_or_auto_normalization_means_symmetric(mode):
+    assert normalization_stats(mode) == normalization_stats("symmetric")
 
 
 def test_a_setting_whose_literal_differs_has_no_notebook():
