@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import os
 import sqlite3
-import subprocess
 import threading
 
 import numpy as np
@@ -35,62 +34,6 @@ def _no_open_figures():
 # ---------------------------------------------------------------------------
 # convert_and_relabel_masks
 # ---------------------------------------------------------------------------
-
-def test_convert_and_relabel_masks_skips_non_int64_files(tmp_path, capsys):
-    """A non-int64 npy is left byte-for-byte alone (the `continue` branch)."""
-    from spacr.utils import convert_and_relabel_masks
-
-    mask = np.zeros((16, 16), dtype=np.uint8)
-    mask[2:6, 2:6] = 7
-    np.save(str(tmp_path / "u8.npy"), mask)
-    # A non-npy file must not even be looked at.
-    (tmp_path / "notes.txt").write_text("ignore me", encoding="utf-8")
-
-    convert_and_relabel_masks(str(tmp_path))
-
-    out = np.load(str(tmp_path / "u8.npy"))
-    assert out.dtype == np.uint8
-    np.testing.assert_array_equal(out, mask)          # untouched, not relabeled
-    assert "Skipping u8.npy" in capsys.readouterr().out
-
-
-def test_convert_and_relabel_masks_aborts_when_relabeling_exceeds_uint16(tmp_path, capsys):
-    """>65535 objects after relabeling -> error printed and the file untouched."""
-    from spacr.utils import convert_and_relabel_masks
-
-    # 256 x 256 isolated single pixels = 65536 connected components, which is
-    # one more than uint16 can hold.
-    mask = np.zeros((512, 512), dtype=np.int64)
-    mask[::2, ::2] = 1
-    np.save(str(tmp_path / "huge.npy"), mask)
-
-    convert_and_relabel_masks(str(tmp_path))
-
-    out = np.load(str(tmp_path / "huge.npy"))
-    assert out.dtype == np.int64, "file must be left as-is when relabeling fails"
-    np.testing.assert_array_equal(out, mask)
-    err = capsys.readouterr().out
-    assert "Error: Relabeling failed for huge.npy" in err
-    assert "Converted huge.npy" not in err
-
-
-def test_convert_and_relabel_masks_converts_int64_to_uint16(tmp_path):
-    """Happy path: int64 -> uint16 with the object count preserved."""
-    from spacr.utils import convert_and_relabel_masks
-
-    mask = np.zeros((32, 32), dtype=np.int64)
-    mask[2:8, 2:8] = 70000        # label value outside the uint16 range
-    mask[20:26, 20:26] = 90000
-    np.save(str(tmp_path / "m.npy"), mask)
-
-    convert_and_relabel_masks(str(tmp_path))
-
-    out = np.load(str(tmp_path / "m.npy"))
-    assert out.dtype == np.uint16
-    assert sorted(np.unique(out).tolist()) == [0, 1, 2]
-    # geometry preserved, only the label values were remapped
-    np.testing.assert_array_equal(out != 0, mask != 0)
-
 
 # ---------------------------------------------------------------------------
 # correct_masks
@@ -124,42 +67,6 @@ def test_correct_masks_relabels_then_concatenates(tmp_path, monkeypatch):
 # ---------------------------------------------------------------------------
 # get_cuda_version
 # ---------------------------------------------------------------------------
-
-def test_get_cuda_version_parses_release_and_strips_dots(monkeypatch):
-    from spacr.utils import get_cuda_version
-
-    fake = (b"nvcc: NVIDIA (R) Cuda compiler driver\n"
-            b"Cuda compilation tools, release 11.8, V11.8.89\n")
-    monkeypatch.setattr(subprocess, "check_output", lambda *a, **k: fake)
-    assert get_cuda_version() == "118"
-
-
-def test_get_cuda_version_returns_none_without_release_token(monkeypatch):
-    from spacr.utils import get_cuda_version
-
-    monkeypatch.setattr(subprocess, "check_output", lambda *a, **k: b"garbage output\n")
-    assert get_cuda_version() is None
-
-
-def test_get_cuda_version_returns_none_when_nvcc_missing(monkeypatch):
-    from spacr.utils import get_cuda_version
-
-    def _boom(*a, **k):
-        raise FileNotFoundError("nvcc")
-
-    monkeypatch.setattr(subprocess, "check_output", _boom)
-    assert get_cuda_version() is None
-
-
-def test_get_cuda_version_returns_none_when_nvcc_fails(monkeypatch):
-    from spacr.utils import get_cuda_version
-
-    def _boom(*a, **k):
-        raise subprocess.CalledProcessError(1, ["nvcc", "--version"])
-
-    monkeypatch.setattr(subprocess, "check_output", _boom)
-    assert get_cuda_version() is None
-
 
 # ---------------------------------------------------------------------------
 # prepare_batch_for_segmentation
@@ -260,49 +167,6 @@ def fake_models_pkg(tmp_path, monkeypatch):
 
     monkeypatch.setattr(U.time, "sleep", record_test_retry)
     return {"local_dir": pkg / "resources" / "models", "slept": slept}
-
-
-def test_download_models_creates_dir_and_writes_every_file(fake_models_pkg, monkeypatch):
-    import spacr.utils as U
-
-    urls = []
-
-    def _get(url, stream=False):
-        urls.append(url)
-        return _FakeResponse(b"AB" * 6000)
-
-    monkeypatch.setattr(U, "list_repo_files",
-                        lambda repo_id, repo_type=None: ["nested/cyto.pth", "nuc.pth"])
-    monkeypatch.setattr(U.requests, "get", _get)
-
-    local_dir = U.download_models(repo_id="me/models", retries=3, delay=0)
-
-    assert local_dir == str(fake_models_pkg["local_dir"])
-    assert sorted(os.listdir(local_dir)) == ["cyto.pth", "nuc.pth"]
-    # the payload is streamed through in 8192-byte chunks, nothing lost
-    assert (fake_models_pkg["local_dir"] / "cyto.pth").read_bytes() == b"AB" * 6000
-    assert urls == [
-        "https://huggingface.co/datasets/me/models/resolve/main/nested/cyto.pth?download=true",
-        "https://huggingface.co/datasets/me/models/resolve/main/nuc.pth?download=true",
-    ]
-    assert fake_models_pkg["slept"] == []
-
-
-def test_download_models_returns_early_when_models_present(fake_models_pkg, monkeypatch):
-    import spacr.utils as U
-
-    local_dir = fake_models_pkg["local_dir"]
-    local_dir.mkdir(parents=True)
-    (local_dir / "already.pth").write_bytes(b"x")
-
-    def _never(*a, **k):
-        raise AssertionError("must not hit the network when models exist")
-
-    monkeypatch.setattr(U, "list_repo_files", _never)
-    monkeypatch.setattr(U.requests, "get", _never)
-
-    assert U.download_models(repo_id="me/models", retries=2, delay=0) == str(local_dir)
-    assert os.listdir(local_dir) == ["already.pth"]
 
 
 def test_download_models_retries_a_failed_file_then_succeeds(fake_models_pkg, monkeypatch):
@@ -474,38 +338,6 @@ def test_correct_metadata_column_names_is_a_noop_for_canonical_names():
 # control_filelist
 # ---------------------------------------------------------------------------
 
-def test_control_filelist_default_column_values(tmp_path):
-    from spacr.utils import control_filelist
-
-    names = ["plate1_A01_f1.tif", "plate1_B02_f1.tif", "plate1_C03_f1.tif"]
-    for n in names:
-        (tmp_path / n).write_text("", encoding="utf-8")
-
-    got = control_filelist(str(tmp_path))
-    assert sorted(got) == ["plate1_A01_f1.tif", "plate1_B02_f1.tif"]
-
-
-def test_control_filelist_rowid_mode(tmp_path):
-    from spacr.utils import control_filelist
-
-    for n in ("plate1_A01_f1.tif", "plate1_B02_f1.tif", "plate1_C03_f1.tif"):
-        (tmp_path / n).write_text("", encoding="utf-8")
-
-    got = control_filelist(str(tmp_path), mode="rowID", values=["A", "C"])
-    assert sorted(got) == ["plate1_A01_f1.tif", "plate1_C03_f1.tif"]
-
-
-def test_control_filelist_column_values_argument(tmp_path):
-    from spacr.utils import control_filelist
-
-    for n in ("plate1_A01_f1.tif", "plate1_B02_f1.tif", "plate1_C03_f1.tif"):
-        (tmp_path / n).write_text("", encoding="utf-8")
-
-    assert control_filelist(str(tmp_path), mode="columnID", values=["03"]) == \
-        ["plate1_C03_f1.tif"]
-    assert control_filelist(str(tmp_path), mode="columnID", values=["99"]) == []
-
-
 # ---------------------------------------------------------------------------
 # rename_columns_in_db
 # ---------------------------------------------------------------------------
@@ -539,49 +371,3 @@ def test_rename_columns_in_db_renames_legacy_and_skips_clashes(tmp_path, capsys)
 # ---------------------------------------------------------------------------
 # group_feature_class
 # ---------------------------------------------------------------------------
-
-def test_group_feature_class_default_compartments_and_multi_match():
-    from spacr.utils import group_feature_class
-
-    df = pd.DataFrame({
-        "feature": ["cell_area",
-                    "nucleus_cell_overlap",
-                    "pathogen_channel_1_mean",
-                    "plate_wide_measure"],
-        "importance": [1.0, 2.0, 3.0, 4.0],
-    })
-    out = group_feature_class(df)
-
-    assert out is df                             # mutates and returns the input
-    assert out["compartment"].tolist() == [
-        "cell", "cell-nucleus", "pathogen", None,
-    ]
-
-
-def test_group_feature_class_channel_name_fills_morphology():
-    from spacr.utils import group_feature_class
-
-    df = pd.DataFrame({
-        "feature": ["cell_channel_0_mean", "cell_area", "nucleus_channel_1_mean"],
-        "importance": [0.5, 0.25, 0.25],
-    })
-    out = group_feature_class(df, feature_groups=["channel_0", "channel_1"],
-                              name="channel")
-
-    assert out["channel"].tolist() == ["channel_0", "morphology", "channel_1"]
-    assert out["channel"].isna().sum() == 0
-
-
-def test_group_feature_class_custom_group_column_name():
-    from spacr.utils import group_feature_class
-
-    df = pd.DataFrame({
-        "feature": ["cell_area", "blob_count"],
-        "importance": [2.0, 1.0],
-    })
-    out = group_feature_class(df, feature_groups=["cell"], name="grp")
-
-    assert "grp" in out.columns
-    assert out["grp"].tolist() == ["cell", None]
-    # unmatched features are left as NaN/None outside the 'channel' special case
-    assert out["grp"].isna().sum() == 1

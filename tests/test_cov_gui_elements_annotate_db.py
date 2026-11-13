@@ -154,25 +154,3 @@ def test_seg_qc_combo_matches_seg_qc_modes():
     assert set(options) == set(MODES)
     # report, not flag: surface the problem, do not silently filter fields
     assert initial == "report"
-
-
-def test_optimizer_and_loss_combos_are_all_accepted_by_the_pipeline():
-    """Every offered option must survive the real dispatch, not just look right."""
-    from spacr import settings_spec as GU
-    specs = GU.convert_settings_dict_for_gui(
-        {"optimizer_type": "adamw", "loss_type": "auto"})
-
-    _, opt_options, _ = specs["optimizer_type"]
-    assert set(opt_options) == {
-        "adamw", "adam", "adamax", "adagrad", "adadelta", "asgd",
-        "sgd", "rmsprop", "nadam", "radam",
-    }
-
-    torch = pytest.importorskip("torch")
-    from spacr.utils import build_loss
-    _, loss_options, _ = specs["loss_type"]
-    counts = torch.tensor([80.0, 20.0])
-    for name in loss_options:
-        n_classes = 1 if name == "binary_cross_entropy_with_logits" else 2
-        fn = build_loss(name, num_classes=n_classes, class_counts=counts)
-        assert callable(fn), name

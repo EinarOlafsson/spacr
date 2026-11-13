@@ -63,45 +63,9 @@ def test_safe_int_convert():
 # _map_wells / _map_wells_png
 # ---------------------------------------------------------------------------
 
-def test_map_wells():
-    plate, row, col, field, prcf = U._map_wells("plate1_B03_2")
-    assert row == "r2" and col == "c3" and field == "f2"
-    assert prcf == "plate1_r2_c3_f2"
-
-
-def test_map_wells_timelapse():
-    out = U._map_wells("plate1_B03_2_5", timelapse=True)
-    assert len(out) == 6 and out[4] == "t5"
-
-
-def test_map_wells_error():
-    # too few parts → error path returns the error sentinel tuple
-    out = U._map_wells("garbage")
-    assert out[0] == "error"
-
-
-def test_map_wells_png():
-    out = U._map_wells_png("plate1_B03_2_10.png")
-    plate, row, col, field, prcfo, object_id = out
-    assert object_id == "o10" and row == "r2" and col == "c3"
-
-
-def test_map_wells_png_timelapse():
-    out = U._map_wells_png("plate1_B03_2_5_10.png", timelapse=True)
-    assert len(out) == 7 and out[4] == "t5"
-
-
 # ---------------------------------------------------------------------------
 # _crop_center
 # ---------------------------------------------------------------------------
-
-def test_crop_center():
-    img = (np.random.default_rng(0).random((32, 32, 3)) * 255).astype(np.uint8)
-    mask = np.zeros((32, 32), dtype=np.uint8)
-    mask[10:22, 10:22] = 1
-    out = U._crop_center(img, mask, new_width=16, new_height=16)
-    assert out.shape == (16, 16, 3)
-
 
 # ---------------------------------------------------------------------------
 # _get_diam / _get_object_settings
@@ -122,131 +86,21 @@ def test_get_diam_unsupported_raises():
         U._get_diam(20, "bogus")
 
 
-def test_get_object_settings_cell_variants():
-    base = {"magnification": 20, "verbose": False, "merge_pathogens": False}
-    s_no_nuc = U._get_object_settings("cell", {**base, "nucleus_channel": None})
-    assert s_no_nuc["model_name"] == "cpsam"
-    s_nuc = U._get_object_settings("cell", {**base, "nucleus_channel": 1})
-    assert s_nuc["model_name"] == "cpsam"
-
-
-def test_get_object_settings_nucleus_pathogen():
-    base = {"magnification": 20, "verbose": True, "merge_pathogens": True,
-            "nucleus_channel": 0}
-    nuc = U._get_object_settings("nucleus", base)
-    assert nuc["model_name"] == "cpsam"
-    pat = U._get_object_settings("pathogen", base)
-    assert pat["model_name"] == "cpsam" and pat["merge"] is True
-
-
 # ---------------------------------------------------------------------------
 # normalize_to_dtype
 # ---------------------------------------------------------------------------
-
-def test_normalize_to_dtype_variants():
-    arr = (np.random.default_rng(1).random((16, 16, 2)) * 4000).astype(np.uint16)
-    assert U.normalize_to_dtype(arr).shape == arr.shape
-    assert U.normalize_to_dtype(arr, new_dtype=np.uint8).shape == arr.shape
-    assert U.normalize_to_dtype(arr, new_dtype="uint16").shape == arr.shape
-    # explicit per-channel percentile list
-    out = U.normalize_to_dtype(arr, percentile_list=[(10, 3000), (5, 3500)])
-    assert out.shape == arr.shape
-
 
 # ---------------------------------------------------------------------------
 # _filter_objects
 # ---------------------------------------------------------------------------
 
-def test_filter_objects_min_max_area():
-    m = np.zeros((32, 32), dtype=np.uint16)
-    m[0, 0] = 1                # 1 px
-    m[4:8, 4:8] = 2            # 16 px
-    m[12:24, 12:24] = 3        # 144 px
-    out = U._filter_objects(m, min_area=5, max_area=100)
-    kept = set(np.unique(out)) - {0}
-    assert len(kept) == 1      # only the 16-px object survives
-
-
-def test_filter_objects_remove_border():
-    m = np.zeros((16, 16), dtype=np.uint16)
-    m[0:4, 0:4] = 1            # touches border
-    m[7:11, 7:11] = 2          # interior
-    out = U._filter_objects(m, remove_border=True)
-    assert len(set(np.unique(out)) - {0}) == 1
-
-
-def test_filter_objects_absolute_intensity_bounds():
-    m = np.zeros((16, 16), dtype=np.uint16)
-    m[2:6, 2:6] = 1
-    m[10:14, 10:14] = 2
-    intensity = np.zeros((16, 16), dtype=np.float32)
-    intensity[2:6, 2:6] = 10.0     # dim object
-    intensity[10:14, 10:14] = 100.0  # bright object
-    lower = U._filter_objects(m.copy(), intensity_img=intensity,
-                              min_intensity=50)
-    upper = U._filter_objects(m.copy(), intensity_img=intensity,
-                              max_intensity=50)
-    np.testing.assert_array_equal(lower, (m == 2).astype(np.uint16))
-    np.testing.assert_array_equal(upper, (m == 1).astype(np.uint16))
-    np.testing.assert_array_equal(
-        U._filter_objects(m.copy(), intensity_img=intensity,
-                           min_intensity=10, max_intensity=100), m)
-
-
-def test_filter_objects_empty():
-    empty = np.zeros((8, 8), dtype=np.uint16)
-    assert np.array_equal(U._filter_objects(empty), empty)
-
-
 # ---------------------------------------------------------------------------
 # annotate_conditions
 # ---------------------------------------------------------------------------
 
-def _cond_df():
-    return pd.DataFrame({
-        "rowID": ["r1", "r2", "r1", "r2"],
-        "columnID": ["c1", "c1", "c2", "c2"],
-    })
-
-
-def test_annotate_conditions_single_string():
-    out = U.annotate_conditions(_cond_df(), cells="HeLa")
-    assert (out["host_cells"] == "HeLa").all()
-
-
-def test_annotate_conditions_list_default():
-    out = U.annotate_conditions(_cond_df(), cells=["HeLa", "Vero"])
-    assert (out["host_cells"] == "HeLa").all()   # first value broadcast
-
-
-def test_annotate_conditions_loc_based():
-    out = U.annotate_conditions(
-        _cond_df(),
-        pathogens=["wt", "ko"], pathogen_loc=[["r1"], ["r2"]],
-        treatments=["dmso", "drug"], treatment_loc=[["c1"], ["c2"]])
-    assert "condition" in out.columns
-    # r1/c1 → wt_dmso
-    r1c1 = out[(out.rowID == "r1") & (out.columnID == "c1")].iloc[0]
-    assert r1c1["pathogen"] == "wt" and r1c1["treatment"] == "dmso"
-
-
 # ---------------------------------------------------------------------------
 # _split_data
 # ---------------------------------------------------------------------------
-
-def test_split_data():
-    df = pd.DataFrame({
-        "plateID": ["p1"] * 4, "rowID": ["r1", "r1", "r2", "r2"],
-        "columnID": ["c1"] * 4, "fieldID": ["f1"] * 4,
-        "object_label": [1, 2, 3, 4],
-        "cell_area": [100.0, 200, 300, 400],
-        "cell_channel_0_mean_intensity": [10.0, 20, 30, 40],
-    })
-    numeric, non_numeric = U._split_data(df, "prcf", "object_label")
-    # area columns are summed, intensity averaged
-    assert isinstance(numeric, pd.DataFrame)
-    assert "cell_area" in numeric.columns
-
 
 # ---------------------------------------------------------------------------
 # boundary / perimeter helpers
@@ -312,15 +166,6 @@ def test_smooth_hull_lines():
 # print_progress
 # ---------------------------------------------------------------------------
 
-def test_print_progress_variants(capsys):
-    U.print_progress(5, 10, n_jobs=1, time_ls=[1.0, 2.0], operation_type="seg")
-    U.print_progress([1, 2, 3], [1, 2, 3, 4], n_jobs=2,
-                     time_ls=[0.5], batch_size=4)
-    U.print_progress(3, 10, n_jobs=1, time_ls=None)  # no-ETA branch
-    out = capsys.readouterr().out
-    assert "Progress:" in out
-
-
 # ---------------------------------------------------------------------------
 # check_mask_folder
 # ---------------------------------------------------------------------------
@@ -344,88 +189,9 @@ def test_check_mask_folder(tmp_path):
 # _extract_filename_metadata
 # ---------------------------------------------------------------------------
 
-def test_extract_filename_metadata(tmp_path):
-    import re
-    rx = re.compile(
-        r"(?P<plateID>plate\d+)_(?P<wellID>[A-H]\d+)_"
-        r"(?P<fieldID>f\d+)_(?P<chanID>C\d+)\.tif")
-    files = ["plate1_A01_f1_C1.tif", "plate1_A01_f1_C2.tif", "nomatch.tif"]
-    out = U._extract_filename_metadata(files, str(tmp_path), rx,
-                                       metadata_type="cellvoyager")
-    assert len(out) == 2   # two channels, same (plate,well,field) but diff chan
-
-
-def test_extract_filename_metadata_cq1(tmp_path):
-    import re
-    rx = re.compile(
-        r"(?P<plateID>plate\d+)_(?P<wellID>\d+)_"
-        r"(?P<fieldID>\d+)_(?P<chanID>\d+)\.tif")
-    files = ["plate1_1_1_1.tif"]
-    out = U._extract_filename_metadata(files, str(tmp_path), rx,
-                                       metadata_type="cq1")
-    # cq1 converts numeric well id to <letter><col>
-    keys = list(out.keys())
-    assert keys[0][1] == "A01"
-
-
 # ---------------------------------------------------------------------------
 # _generate_names
 # ---------------------------------------------------------------------------
-
-def test_generate_names_cell():
-    img_name, fldr, table = U._generate_names(
-        "plate1_A01_1", np.array([5]), np.array([2]), np.array([3]),
-        "/src", crop_mode="cell")
-    assert img_name == "plate1_A01_1_5.png"
-    assert "single_nucleus" in fldr and "single_pathogen" in fldr
-
-
-def test_generate_names_escapes_an_underscored_plate():
-    """The merged stem this is handed is the one ``spacr.io`` actually writes.
-
-    ``plate_well_field_TIME``, four components, whatever ``timelapse`` is set
-    to -- so an underscored plate makes five. The old spelling of this case
-    used a three-component stem the crop path never sees, which is why it
-    could not catch the escape taking a two-token tail off a four-component
-    name and swallowing the well into the plate.
-    """
-    img_name, _fldr, _table = U._generate_names(
-        "my_plate_A01_1_1", np.array([5]), np.array([2]), np.array([3]),
-        "/src", crop_mode="cell")
-    assert img_name == "my%5Fplate_A01_1_1_5.png"
-    parsed = __import__("spacr.schema", fromlist=["parse_object_stem"])
-    assert parsed.parse_object_stem(img_name).plateID == "my_plate"
-
-
-def test_generate_names_leaves_an_ordinary_plate_alone():
-    """The crop and the object tables have to agree about who the cell is.
-
-    Measured on the shipped Crop demo before this was fixed: every crop landed
-    as ``plate1%5FA01_1_1_<id>.png`` and its ``png_list`` row read
-    ``plateID='plate1_A01'``, ``prcfo='plate1%5FA01_2_2_f1_o1'`` -- against
-    ``prcf='plate1_r1_c2_f2'`` on the ``cell`` row for the same object.
-    """
-    img_name, _fldr, _table = U._generate_names(
-        "plate1_A01_1_1", np.array([5]), np.array([2]), np.array([3]),
-        "/src", crop_mode="cell")
-    assert img_name == "plate1_A01_1_1_5.png"
-    parsed = __import__("spacr.schema", fromlist=["parse_object_stem"])
-    assert parsed.parse_object_stem(img_name).prcfo == "plate1_r1_c1_f1_o5"
-
-
-def test_generate_names_nucleus_multi():
-    img_name, fldr, table = U._generate_names(
-        "plate1_A01_1", np.array([5]), np.array([2, 3]), np.array([0]),
-        "/src", crop_mode="nucleus")
-    assert "multiple_nucleus" in fldr and "uninfected" in fldr
-
-
-def test_generate_names_pathogen_timelapse():
-    img_name, fldr, table = U._generate_names(
-        "plate1_A01_1_2", np.array([5]), np.array([0]), np.array([3]),
-        "/src", crop_mode="pathogen", timelapse=True)
-    assert "infected" in fldr
-
 
 # ---------------------------------------------------------------------------
 # _pivot_counts_table

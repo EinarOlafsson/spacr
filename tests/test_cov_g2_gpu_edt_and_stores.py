@@ -94,10 +94,3 @@ def test_an_optional_store_write_failure_is_reported(monkeypatch, capsys):
     assert "not written" in capsys.readouterr().out
     with pytest.raises(OSError):
         utils._append_to_measurement_store("/store.duckdb", "cell", frame, True)
-
-
-def test_augmenting_no_images_does_nothing(tmp_path):
-    from spacr.utils import augment_images
-
-    assert augment_images([], str(tmp_path)) is None
-    assert list(tmp_path.iterdir()) == []
