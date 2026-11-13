@@ -24,6 +24,7 @@ defaults changes a test says so:
 """
 from __future__ import annotations
 
+import inspect
 import os
 
 import numpy as np
@@ -70,15 +71,13 @@ def _case_lorenz_curves_are_drawn_on_the_unit_square_by_default(tmp_path):
 
     P.plot_lorenz_curves([csv], save=False)
     free = plt.gcf().axes[0]
-    assert free.get_xlim() == (0.0, 1.0)
-    assert free.get_ylim() == (0.0, 1.0)
-    assert free.get_xlabel() == "Cumulative Share of Individuals"
+    free_view = (free.get_xlim(), free.get_ylim(), free.get_xlabel())
 
     P.plot_lorenz_curves([csv], x_lim=(0.2, 0.8), y_lim=(0.1, 0.6),
                          save=False)
     clamped = plt.gcf().axes[0]
-    assert clamped.get_xlim() == (0.2, 0.8)
-    assert clamped.get_ylim() == (0.1, 0.6)
+    return {"free": free_view,
+            "clamped": (clamped.get_xlim(), clamped.get_ylim())}
 
 
 # ---------------------------------------------------------------------------
@@ -132,11 +131,14 @@ def _case_every_channel_with_a_mask_gets_that_mask_drawn(tmp_path):
         return bool(np.any(np.all(np.isclose(p, rgb, atol=1e-6), axis=-1)))
 
     red, green, blue = (1., 0., 0.), (0., .5019607843137255, 0.), (0., 0., 1.)
-    assert has(panel(0), red) and not has(panel(0), blue)
-    assert has(panel(1), blue) and not has(panel(1), red)
-    assert has(panel(2), green) and not has(panel(2), red)
-    assert [a.get_title() for a in fig.axes][:3] == [
-        "cell (channel 0)", "nucleus (channel 1)", "pathogen (channel 2)"]
+    return {
+        "colours_per_panel": [
+            (has(panel(0), red), has(panel(0), blue)),
+            (has(panel(1), blue), has(panel(1), red)),
+            (has(panel(2), green), has(panel(2), red)),
+        ],
+        "titles": [a.get_title() for a in fig.axes][:3],
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -158,26 +160,39 @@ def _case_vision_results_use_the_documented_default_y_limits(tmp_path):
             epoch / f"{model}_time0_test_result.csv", index=False)
 
     P.read_and_plot__vision_results(str(tmp_path))
-    assert plt.gcf().axes[0].get_ylim() == (0.8, 0.9)
+    default_ylim = plt.gcf().axes[0].get_ylim()
 
     P.read_and_plot__vision_results(str(tmp_path), y_lim=[0.0, 1.0])
     ax = plt.gcf().axes[0]
-    assert ax.get_ylim() == (0.0, 1.0)
-    assert [t.get_text() for t in ax.get_xticklabels()] == ["alpha", "beta"]
     assert os.path.isdir(os.path.join(str(tmp_path), "result"))
+    return {"default_ylim": default_ylim, "explicit_ylim": ax.get_ylim(),
+            "labels": [t.get_text() for t in ax.get_xticklabels()]}
 
 
-def test_plot_cases(request, subtests):
-    """Case table: 3 cases of the module-level cases run as sub-tests."""
-    from tests.case_table import run_cases
+def _call(request, helper):
+    """Run a case helper, giving it the fixtures named in its signature."""
+    names = inspect.signature(helper).parameters
+    return helper(**{n: request.getfixturevalue(n) for n in names})
 
-    ran = run_cases(
-        request,
-        subtests,
-        [
+
+@pytest.mark.parametrize("helper, expected", [
+    pytest.param(
         _case_lorenz_curves_are_drawn_on_the_unit_square_by_default,
+        {"free": ((0.0, 1.0), (0.0, 1.0), "Cumulative Share of Individuals"),
+         "clamped": ((0.2, 0.8), (0.1, 0.6))},
+        id="lorenz-unit-square-unless-limits-given"),
+    pytest.param(
         _case_every_channel_with_a_mask_gets_that_mask_drawn,
+        {"colours_per_panel": [(True, False), (True, False), (True, False)],
+         "titles": ["cell (channel 0)", "nucleus (channel 1)",
+                    "pathogen (channel 2)"]},
+        id="each-mask-channel-draws-only-its-own-colour"),
+    pytest.param(
         _case_vision_results_use_the_documented_default_y_limits,
-        ],
-    )
-    assert ran >= 3
+        {"default_ylim": (0.8, 0.9), "explicit_ylim": (0.0, 1.0),
+         "labels": ["alpha", "beta"]},
+        id="vision-results-default-and-explicit-y-limits"),
+])
+def test_documented_defaults_behind_the_dead_guards(request, helper, expected):
+    observed = _call(request, helper)
+    assert observed == expected
