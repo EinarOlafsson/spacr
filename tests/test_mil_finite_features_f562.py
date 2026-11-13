@@ -7,6 +7,8 @@ import pytest
 
 from spacr.embeddings import _mil_bags
 
+from tests import locale_cases
+
 
 @pytest.fixture(autouse=True)
 def english_errors(monkeypatch):
@@ -62,8 +64,8 @@ def test_nan_drop_does_not_hide_an_infinite_retained_feature():
     pd.testing.assert_frame_equal(source, before)
 
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is'])
-def test_actual_finite_refusal_uses_installed_reviewed_language(language, monkeypatch):
+def _actual_finite_refusal_uses_installed_reviewed_language_case(language, monkeypatch):
+    """One case of :func:`test_actual_finite_refusal_uses_installed_reviewed_language`."""
     import json
     from pathlib import Path
 
@@ -77,3 +79,9 @@ def test_actual_finite_refusal_uses_installed_reviewed_language(language, monkey
         _mil_bags(source, label_column='label', well_column='well', feature_columns=['embedding_0', 'embedding_1'])
     assert str(error.value) == expected
     pd.testing.assert_frame_equal(source, before)
+
+
+def test_actual_finite_refusal_uses_installed_reviewed_language(subtests, monkeypatch):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _actual_finite_refusal_uses_installed_reviewed_language_case(monkeypatch=case_monkeypatch, **case)

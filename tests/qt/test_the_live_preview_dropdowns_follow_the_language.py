@@ -30,6 +30,8 @@ from spacr.qt.i18n import retranslate_widget_tree, set_translatable_items, tr
 from spacr.qt.widgets import live_preview as LP
 from spacr.qt.widgets.preview_controls import populate_channel_combo
 
+from tests import locale_cases
+
 
 LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 
@@ -56,10 +58,8 @@ def _values(combo: QComboBox) -> list[str]:
 # The captions follow the language; the values never move
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("language", LANGUAGES)
-def test_every_value_carrying_entry_is_translated_and_keeps_its_value(
-        panel, language):
-    """Caption in the chosen language, value in the one the code is written in."""
+def _every_value_carrying_entry_is_translated_and_keeps_its_value_case(panel, language):
+    """One case of :func:`test_every_value_carrying_entry_is_translated_and_keeps_its_value`."""
     retranslate_widget_tree(panel, language)
 
     for combo, sources in (
@@ -80,6 +80,13 @@ def test_every_value_carrying_entry_is_translated_and_keeps_its_value(
     assert panel._channel_box.itemText(0) == tr("All channels", language)
     # A plane's name is an identifier, not prose, in every language.
     assert _captions(panel._channel_box)[1:] == ["Ch 0", "Ch 1", "Ch 2"]
+
+
+def test_every_value_carrying_entry_is_translated_and_keeps_its_value(subtests, panel):
+    """Caption in the chosen language, value in the one the code is written in."""
+    for label, case in locale_cases.cases(("language", LANGUAGES)):
+        with subtests.test(**label):
+            _every_value_carrying_entry_is_translated_and_keeps_its_value_case(panel=panel, **case)
 
 
 def test_the_captions_come_back_to_english(panel):
@@ -112,9 +119,8 @@ def test_a_choice_survives_the_language_change(panel):
 # The two dropdowns that were quietly writing translated values
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("language", LANGUAGES)
-def test_the_worker_is_asked_for_a_compartment_it_knows(panel, language):
-    """``cell``, never ``cellen``: the entry is the key every setting is spelled with."""
+def _the_worker_is_asked_for_a_compartment_it_knows_case(panel, language):
+    """One case of :func:`test_the_worker_is_asked_for_a_compartment_it_knows`."""
     retranslate_widget_tree(panel, language)
     panel._object_box.setCurrentIndex(LP.OBJECT_TYPES.index("cell + nucleus"))
 
@@ -128,10 +134,15 @@ def test_the_worker_is_asked_for_a_compartment_it_knows(panel, language):
     assert not [key for key in settings if key.startswith("cellen")]
 
 
-@pytest.mark.parametrize("language", LANGUAGES)
-def test_the_displayed_channel_is_read_from_the_entry_not_the_caption(
-        panel, language):
-    """A translated ``All channels`` still means "show it as stored"."""
+def test_the_worker_is_asked_for_a_compartment_it_knows(subtests, panel):
+    """``cell``, never ``cellen``: the entry is the key every setting is spelled with."""
+    for label, case in locale_cases.cases(("language", LANGUAGES)):
+        with subtests.test(**label):
+            _the_worker_is_asked_for_a_compartment_it_knows_case(panel=panel, **case)
+
+
+def _the_displayed_channel_is_read_from_the_entry_not_the_caption_case(panel, language):
+    """One case of :func:`test_the_displayed_channel_is_read_from_the_entry_not_the_caption`."""
     retranslate_widget_tree(panel, language)
 
     panel._channel_box.setCurrentIndex(0)
@@ -139,6 +150,13 @@ def test_the_displayed_channel_is_read_from_the_entry_not_the_caption(
     for index in (1, 2, 3):
         panel._channel_box.setCurrentIndex(index)
         assert panel.display_channel() == index - 1
+
+
+def test_the_displayed_channel_is_read_from_the_entry_not_the_caption(subtests, panel):
+    """A translated ``All channels`` still means "show it as stored"."""
+    for label, case in locale_cases.cases(("language", LANGUAGES)):
+        with subtests.test(**label):
+            _the_displayed_channel_is_read_from_the_entry_not_the_caption_case(panel=panel, **case)
 
 
 def test_a_reload_keeps_the_chosen_channel_across_the_language(panel):

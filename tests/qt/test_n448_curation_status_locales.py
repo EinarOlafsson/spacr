@@ -10,10 +10,11 @@ from spacr.qt import i18n
 from spacr.qt.screens.make_masks import MakeMasksScreen, _StatusLabel
 from tests.qt.test_n448_complete_curation_status import TEMPLATES
 
+from tests import locale_cases
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is'])
-def test_actual_curation_status_callbacks_use_all_reviewed_sentences(
-        qapp, monkeypatch, tmp_path, language):
+
+def _actual_curation_status_callbacks_use_all_reviewed_sentences_case(qapp, monkeypatch, tmp_path, language):
+    """One case of :func:`test_actual_curation_status_callbacks_use_all_reviewed_sentences`."""
     review_path = (Path(__file__).parents[2] / 'docs/i18n/reviewed/runtime' / language /
                    '2026-10-15-complete-curation-status.json')
     review = json.loads(review_path.read_text(encoding="utf-8"))
@@ -47,3 +48,9 @@ def test_actual_curation_status_callbacks_use_all_reviewed_sentences(
         assert calls == ['next', 'tally']
         status.close()
         status.deleteLater()
+
+
+def test_actual_curation_status_callbacks_use_all_reviewed_sentences(subtests, qapp, monkeypatch, tmp_path):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _actual_curation_status_callbacks_use_all_reviewed_sentences_case(qapp=qapp, monkeypatch=case_monkeypatch, tmp_path=locale_cases.case_dir(tmp_path, label), **case)

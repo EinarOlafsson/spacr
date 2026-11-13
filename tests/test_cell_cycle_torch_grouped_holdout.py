@@ -11,6 +11,8 @@ import pytest
 from spacr import deep_spacr, measure
 from spacr.classifier_evaluation import split_group_values
 
+from tests import locale_cases
+
 
 @pytest.fixture
 def phase_case(tmp_path, monkeypatch):
@@ -168,8 +170,8 @@ def test_saved_model_application_does_not_invent_new_split(phase_case, tmp_path)
     assert phases.notna().all() and confidence.notna().all()
 
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'])
-def test_actual_torch_holdout_refusal_uses_existing_reviewed_translation(phase_case, monkeypatch, language):
+def _actual_torch_holdout_refusal_uses_existing_reviewed_translation_case(phase_case, monkeypatch, language):
+    """One case of :func:`test_actual_torch_holdout_refusal_uses_existing_reviewed_translation`."""
     frame, labels, paths, settings, calls, work, run, before = phase_case
     frame.loc[:, ['plateID', 'rowID', 'columnID']] = ['p', 'r1', 'c1']
     monkeypatch.setenv('SPACR_LANGUAGE', language)
@@ -182,3 +184,9 @@ def test_actual_torch_holdout_refusal_uses_existing_reviewed_translation(phase_c
     assert str(error.value) == record['translation']
     assert isinstance(error.value.__cause__, ValueError)
     assert calls == []
+
+
+def test_actual_torch_holdout_refusal_uses_existing_reviewed_translation(subtests, phase_case, monkeypatch):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _actual_torch_holdout_refusal_uses_existing_reviewed_translation_case(phase_case=phase_case, monkeypatch=case_monkeypatch, **case)

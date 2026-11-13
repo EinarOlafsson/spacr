@@ -13,15 +13,22 @@ if str(TOOLS) not in sys.path:
 
 from build_i18n_catalogs import _contextualize, _syntax_preserved  # noqa: E402
 
+from tests import locale_cases
 
-@pytest.mark.parametrize("language", ["sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"])
-@pytest.mark.parametrize("source", ["ER (Y)", "DNA (B)"])
-def test_subcell_colour_marker_is_scientific_identity(language, source):
+
+def _subcell_colour_marker_is_scientific_identity_case(language, source):
+    """One case of :func:`test_subcell_colour_marker_is_scientific_identity`."""
     import build_i18n_catalogs as builder
 
     assert builder._reviewed_translation(source, language) == source
     assert builder._contextualize(source, language, source) == source
     assert not builder._translation_rejection_reasons(source, source, language)
+
+
+def test_subcell_colour_marker_is_scientific_identity(subtests):
+    for label, case in locale_cases.cases(("language", ["sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"]), ("source", ["ER (Y)", "DNA (B)"])):
+        with subtests.test(**label):
+            _subcell_colour_marker_is_scientific_identity_case(**case)
 
 
 def test_scientific_marker_identity_does_not_admit_copied_mapping_instructions():

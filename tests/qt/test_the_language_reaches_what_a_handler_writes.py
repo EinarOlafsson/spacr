@@ -36,6 +36,8 @@ from spacr.qt.i18n import (
 )
 from spacr.qt.screens.app_screen import AppScreen
 
+from tests import locale_cases
+
 
 @pytest.fixture()
 def swedish(qtbot, monkeypatch):
@@ -214,13 +216,18 @@ def test_a_code_name_is_never_translated_word_by_word(source, code):
             assert name in rendered, (code, rendered)
 
 
-@pytest.mark.parametrize("code", ["sv", "de", "es", "pt", "hi", "ko", "is",
-                                  "fr", "zh_CN"])
-@pytest.mark.parametrize("name", ["image_path", "png_path", "png_list",
-                                  "fdr_bh", "seg_qc", "RdBu_r"])
-def test_the_catalogs_answer_an_identifier_with_itself(name, code):
-    """These are combo entries a module reads back; a period breaks them."""
+def _the_catalogs_answer_an_identifier_with_itself_case(name, code):
+    """One case of :func:`test_the_catalogs_answer_an_identifier_with_itself`."""
     assert tr(name, code) == name
+
+
+def test_the_catalogs_answer_an_identifier_with_itself(subtests):
+    """These are combo entries a module reads back; a period breaks them."""
+    for label, case in locale_cases.cases(("code", ["sv", "de", "es", "pt", "hi", "ko", "is",
+                                  "fr", "zh_CN"]), ("name", ["image_path", "png_path", "png_list",
+                                  "fdr_bh", "seg_qc", "RdBu_r"])):
+        with subtests.test(**label):
+            _the_catalogs_answer_an_identifier_with_itself_case(**case)
 
 
 # ---------------------------------------------------------------------------

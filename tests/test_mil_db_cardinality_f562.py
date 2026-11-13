@@ -6,6 +6,8 @@ import pytest
 
 from spacr.embeddings import _mil_frame_from_db
 
+from tests import locale_cases
+
 
 @pytest.fixture(autouse=True)
 def english_errors(monkeypatch):
@@ -79,9 +81,8 @@ def test_unique_rows_and_explicit_metadata_preserve_input_order(tmp_path):
     assert result.plateID.tolist() == ['override', 'plate1']
 
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is'])
-@pytest.mark.parametrize('conflict', ['embedding', 'acquisition'])
-def test_db_object_conflict_uses_installed_reviewed_language(tmp_path, language, conflict, monkeypatch):
+def _db_object_conflict_uses_installed_reviewed_language_case(tmp_path, language, conflict, monkeypatch):
+    """One case of :func:`test_db_object_conflict_uses_installed_reviewed_language`."""
     import json
     from pathlib import Path
 
@@ -98,3 +99,9 @@ def test_db_object_conflict_uses_installed_reviewed_language(tmp_path, language,
         read_database(tmp_path, crops, stored)
     assert str(error.value) == record['translation'].format(key=crop()['prcfo'])
     assert str(error.value) != record['source'].format(key=crop()['prcfo'])
+
+
+def test_db_object_conflict_uses_installed_reviewed_language(subtests, tmp_path, monkeypatch):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is']), ('conflict', ['embedding', 'acquisition'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _db_object_conflict_uses_installed_reviewed_language_case(tmp_path=locale_cases.case_dir(tmp_path, label), monkeypatch=case_monkeypatch, **case)

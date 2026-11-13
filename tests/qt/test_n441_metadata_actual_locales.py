@@ -6,10 +6,11 @@ from pathlib import Path
 
 import pytest
 
+from tests import locale_cases
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'fr', 'pt', 'hi', 'ko', 'is', 'zh_CN'])
-def test_actual_metadata_widgets_use_all_ten_installed_translations(
-        qapp, monkeypatch, tmp_path, language):
+
+def _actual_metadata_widgets_use_all_ten_installed_translations_case(qapp, monkeypatch, tmp_path, language):
+    """One case of :func:`test_actual_metadata_widgets_use_all_ten_installed_translations`."""
     from PySide6.QtCore import QSettings
     from spacr.qt import i18n, preferences
     from spacr.qt.screens import settings_model as model
@@ -90,3 +91,9 @@ def test_actual_metadata_widgets_use_all_ten_installed_translations(
     finally:
         field.close()
         field.deleteLater()
+
+
+def test_actual_metadata_widgets_use_all_ten_installed_translations(subtests, qapp, monkeypatch, tmp_path):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'fr', 'pt', 'hi', 'ko', 'is', 'zh_CN'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _actual_metadata_widgets_use_all_ten_installed_translations_case(qapp=qapp, monkeypatch=case_monkeypatch, tmp_path=locale_cases.case_dir(tmp_path, label), **case)

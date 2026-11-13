@@ -5,10 +5,11 @@ from pathlib import Path
 
 import pytest
 
+from tests import locale_cases
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'pt', 'fr', 'zh_CN', 'hi', 'ko', 'is'])
-@pytest.mark.usefixtures("console_info_enabled")
-def test_actual_suggest_controls_and_console_use_reviewed_language(qtbot, monkeypatch, language):
+
+def _actual_suggest_controls_and_console_use_reviewed_language_case(qtbot, monkeypatch, language):
+    """One case of :func:`test_actual_suggest_controls_and_console_use_reviewed_language`."""
     from spacr.qt import i18n
     from spacr.qt.screens.annotate import AnnotateScreen
 
@@ -76,3 +77,10 @@ def test_actual_suggest_controls_and_console_use_reviewed_language(qtbot, monkey
         'Label crops from more wells for validation with independent wells. ({why})',
     ]:
         assert targets[source].format(why='E42') in console
+
+
+@pytest.mark.usefixtures("console_info_enabled")
+def test_actual_suggest_controls_and_console_use_reviewed_language(subtests, qtbot, monkeypatch):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'pt', 'fr', 'zh_CN', 'hi', 'ko', 'is'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _actual_suggest_controls_and_console_use_reviewed_language_case(qtbot=qtbot, monkeypatch=case_monkeypatch, **case)

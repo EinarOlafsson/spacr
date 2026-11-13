@@ -4,9 +4,11 @@ from pathlib import Path
 
 import pytest
 
+from tests import locale_cases
 
-@pytest.mark.parametrize('language', ['de', 'es', 'fr', 'hi', 'is', 'ko', 'pt', 'sv', 'zh_CN'])
-def test_table_selection_runtime_tooltip(language):
+
+def _table_selection_runtime_tooltip_case(language):
+    """One case of :func:`test_table_selection_runtime_tooltip`."""
     from spacr.qt.i18n_catalogs import setting_tooltip
 
     root = Path(__file__).resolve().parents[1]
@@ -15,3 +17,9 @@ def test_table_selection_runtime_tooltip(language):
     record, = review['records']
     assert setting_tooltip('tables', record['source'], language, 'ml_analyze') == record['translation']
     assert record['translation'] != record['source']
+
+
+def test_table_selection_runtime_tooltip(subtests):
+    for label, case in locale_cases.cases(('language', ['de', 'es', 'fr', 'hi', 'is', 'ko', 'pt', 'sv', 'zh_CN'])):
+        with subtests.test(**label):
+            _table_selection_runtime_tooltip_case(**case)

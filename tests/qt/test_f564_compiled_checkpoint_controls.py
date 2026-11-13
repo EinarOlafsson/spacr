@@ -8,9 +8,11 @@ from PySide6.QtCore import QSettings
 from PySide6.QtGui import QTextDocument
 from PySide6.QtWidgets import QFormLayout
 
+from tests import locale_cases
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'fr', 'pt', 'is', 'hi', 'ko', 'zh_CN'])
-def test_actual_checkpoint_labels_and_help_use_compiled_targets(qtbot, tmp_path, monkeypatch, language):
+
+def _actual_checkpoint_labels_and_help_use_compiled_targets_case(qtbot, tmp_path, monkeypatch, language):
+    """One case of :func:`test_actual_checkpoint_labels_and_help_use_compiled_targets`."""
     from spacr.qt import preferences
     from spacr.qt.i18n import retranslate_widget_tree
     from spacr.qt.screens.app_screen import AppScreen
@@ -58,3 +60,9 @@ def test_actual_checkpoint_labels_and_help_use_compiled_targets(qtbot, tmp_path,
     finally:
         retire_pyqtgraph_menus(screen)
         screen.close()
+
+
+def test_actual_checkpoint_labels_and_help_use_compiled_targets(subtests, qtbot, tmp_path, monkeypatch):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'fr', 'pt', 'is', 'hi', 'ko', 'zh_CN'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _actual_checkpoint_labels_and_help_use_compiled_targets_case(qtbot=qtbot, tmp_path=locale_cases.case_dir(tmp_path, label), monkeypatch=case_monkeypatch, **case)

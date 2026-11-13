@@ -6,9 +6,11 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from tests import locale_cases
 
-@pytest.mark.parametrize('language', ['de', 'es', 'fr', 'hi', 'is', 'ko', 'pt', 'sv', 'zh_CN'])
-def test_reference_plate_runtime_lookup_and_refusal(language, tmp_path, monkeypatch):
+
+def _reference_plate_runtime_lookup_and_refusal_case(language, tmp_path, monkeypatch):
+    """One case of :func:`test_reference_plate_runtime_lookup_and_refusal`."""
     from spacr import intensity_rescale
     from spacr.qt import i18n
     from spacr.qt.i18n_catalogs import setting_label, setting_tooltip
@@ -50,3 +52,9 @@ def test_reference_plate_runtime_lookup_and_refusal(language, tmp_path, monkeypa
     assert str(caught.value).startswith(i18n.tr('Bad settings', language=language) + ': ')
     assert key in str(caught.value) and 'missing' in str(caught.value)
     assert list(tmp_path.iterdir()) == [field] and field.read_bytes() == before
+
+
+def test_reference_plate_runtime_lookup_and_refusal(subtests, tmp_path, monkeypatch):
+    for label, case in locale_cases.cases(('language', ['de', 'es', 'fr', 'hi', 'is', 'ko', 'pt', 'sv', 'zh_CN'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _reference_plate_runtime_lookup_and_refusal_case(tmp_path=locale_cases.case_dir(tmp_path, label), monkeypatch=case_monkeypatch, **case)

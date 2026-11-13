@@ -18,6 +18,8 @@ from spacr.organelle_types import _background_switch_key, organelle_role
 from spacr.qt import i18n_catalogs as catalogs
 from spacr.settings import tooltips
 
+from tests import locale_cases
+
 ROOT = Path(__file__).resolve().parents[2]
 LANGUAGES = catalogs.CATALOG_LANGUAGES
 
@@ -26,8 +28,8 @@ def _source(key):
     return " ".join(re.sub(r"^\s*\([^)]*\)\s*[-–:]?\s*", "", tooltips[key]).split())
 
 
-@pytest.mark.parametrize("language", LANGUAGES)
-def test_every_numbered_switch_has_its_own_translated_label_and_floor(language):
+def _every_numbered_switch_has_its_own_translated_label_and_floor_case(language):
+    """One case of :func:`test_every_numbered_switch_has_its_own_translated_label_and_floor`."""
     # Include materialized slots, the first alias, a letter rollover and the
     # registry's upper bound. No GUI, preview worker or model is started.
     for number in (1, 2, 3, 4, 5, 26, 27, 702):
@@ -47,8 +49,14 @@ def test_every_numbered_switch_has_its_own_translated_label_and_floor(language):
         assert catalogs.setting_tooltip(key, source + " changed", language) is None
 
 
-@pytest.mark.parametrize("language", LANGUAGES)
-def test_reviewed_switch_records_are_published_and_source_bound(language):
+def test_every_numbered_switch_has_its_own_translated_label_and_floor(subtests):
+    for label, case in locale_cases.cases(("language", LANGUAGES)):
+        with subtests.test(**label):
+            _every_numbered_switch_has_its_own_translated_label_and_floor_case(**case)
+
+
+def _reviewed_switch_records_are_published_and_source_bound_case(language):
+    """One case of :func:`test_reviewed_switch_records_are_published_and_source_bound`."""
     path = ROOT / "docs/i18n/reviewed/runtime" / language / "2026-09-21-organelle-background.json"
     records = json.loads(path.read_text(encoding="utf-8"))["records"]
     assert len(records) == 8
@@ -60,6 +68,12 @@ def test_reviewed_switch_records_are_published_and_source_bound(language):
         assert record["source_sha256"] == hashlib.sha256(source.encode()).hexdigest()
         lookup = catalogs.setting_label if is_label else catalogs.setting_tooltip
         assert lookup(key, source, language) == record["translation"]
+
+
+def test_reviewed_switch_records_are_published_and_source_bound(subtests):
+    for label, case in locale_cases.cases(("language", LANGUAGES)):
+        with subtests.test(**label):
+            _reviewed_switch_records_are_published_and_source_bound_case(**case)
 
 
 def test_dynamic_switches_refuse_stale_translation_and_missing_template(monkeypatch):

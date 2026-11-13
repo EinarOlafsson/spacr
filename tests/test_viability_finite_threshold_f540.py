@@ -12,6 +12,8 @@ from spacr import measure
 from spacr.tabular import read_table, write_database
 from tests.test_live_dead_viability import _signal_table
 
+from tests import locale_cases
+
 SOURCE = 'Manual viability thresholds must be finite numbers or automatic.'
 
 
@@ -90,11 +92,17 @@ def test_valid_finite_cut_still_classifies_declared_synthetic_signals(accepted_d
     pd.testing.assert_frame_equal(read_table(path, table='nucleus', report=None), original)
 
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is'])
-def test_installed_reviewed_language_at_classifier_refusal(accepted_database, language, monkeypatch):
+def _installed_reviewed_language_at_classifier_refusal_case(accepted_database, language, monkeypatch):
+    """One case of :func:`test_installed_reviewed_language_at_classifier_refusal`."""
     review = Path(__file__).parents[1] / 'docs/i18n/reviewed/runtime' / language / '2026-10-15-viability-finite-threshold.json'
     record = json.loads(review.read_text(encoding="utf-8"))['records'][0]
     monkeypatch.setenv('SPACR_LANGUAGE', language)
     path, _ = accepted_database
     assert record['translation'] != SOURCE
     assert_refusal_keeps_database(path, settings(['NaN', None]), record['translation'])
+
+
+def test_installed_reviewed_language_at_classifier_refusal(subtests, accepted_database, monkeypatch):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _installed_reviewed_language_at_classifier_refusal_case(accepted_database=accepted_database, monkeypatch=case_monkeypatch, **case)

@@ -5,6 +5,8 @@ import pytest
 
 from spacr import model_zoo as zoo
 
+from tests import locale_cases
+
 _DECLARED_CATALOGUE = zoo.catalogue
 
 
@@ -84,8 +86,8 @@ def test_offline_resolver_uses_declared_catalogue_without_metadata(offline_model
         zoo._ensure_model_file('/laptop/' + entry.name)
 
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'])
-def test_offline_copy_instructions_use_the_selected_language(offline_model, tmp_path, monkeypatch, language):
+def _offline_copy_instructions_use_the_selected_language_case(offline_model, tmp_path, monkeypatch, language):
+    """One case of :func:`test_offline_copy_instructions_use_the_selected_language`."""
     import importlib
     from spacr.qt import i18n
     entry, _payload = offline_model
@@ -100,3 +102,9 @@ def test_offline_copy_instructions_use_the_selected_language(offline_model, tmp_
     assert str(error.value) == target.format(
         model=entry.key, sha256=entry.sha256, path=str(cached)) + (
         '\n' + zoo._manual_model_copy_command(entry, cached))
+
+
+def test_offline_copy_instructions_use_the_selected_language(subtests, offline_model, tmp_path, monkeypatch):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _offline_copy_instructions_use_the_selected_language_case(offline_model=offline_model, tmp_path=tmp_path, monkeypatch=case_monkeypatch, **case)

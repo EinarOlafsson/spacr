@@ -31,6 +31,8 @@ from spacr.object_settings_table import (
 )
 from tests.cellpose_api_contract import MISSING_CHANNEL_AXIS, eval_arguments
 
+from tests import locale_cases
+
 
 @pytest.mark.parametrize("mag, cell, nucleus, pathogen", [
     (20, 120, 60, 20),
@@ -409,10 +411,8 @@ def test_the_backend_client_keeps_the_estimates_it_was_sent():
     assert client.estimated_diameters == [38.0]
 
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'])
-@pytest.mark.parametrize('diagnostic', [0, 1, 2])
-def test_diameter_failures_are_localized_without_changing_the_fallback(
-        language, diagnostic, monkeypatch, capsys):
+def _diameter_failures_are_localized_without_changing_the_fallback_case(language, diagnostic, monkeypatch, capsys):
+    """One case of :func:`test_diameter_failures_are_localized_without_changing_the_fallback`."""
     from pathlib import Path
     from spacr.settings import _own_diameter
     from spacr.object import _eval_diameter, _note_the_diameter
@@ -438,3 +438,10 @@ def test_diameter_failures_are_localized_without_changing_the_fallback(
         monkeypatch.setattr(journal, '_record_diameter', unavailable)
         _note_the_diameter({'magnification': 20}, 'nucleus')
     assert capsys.readouterr().out.strip() == record['translation'].format(**values)
+
+
+def test_diameter_failures_are_localized_without_changing_the_fallback(subtests, monkeypatch, capsys):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr']), ('diagnostic', [0, 1, 2])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            capsys.readouterr()
+            _diameter_failures_are_localized_without_changing_the_fallback_case(monkeypatch=case_monkeypatch, capsys=capsys, **case)

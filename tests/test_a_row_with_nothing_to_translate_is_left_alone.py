@@ -39,6 +39,8 @@ from pathlib import Path
 
 import pytest
 
+from tests import locale_cases
+
 ROOT = Path(__file__).resolve().parents[1]
 LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 
@@ -83,9 +85,8 @@ DAMAGED_ROWS = (
 )
 
 
-@pytest.mark.parametrize("language", LANGUAGES)
-def test_plate_barcode_assignment_example_stays_executable(builder, catalogs, language):
-    """The placeholder retains identifiers while its explanatory prose translates."""
+def _plate_barcode_assignment_example_stays_executable_case(builder, catalogs, language):
+    """One case of :func:`test_plate_barcode_assignment_example_stays_executable`."""
     source = "plate1=BC001; plate2=BC002"
     assert builder._reviewed_translation(source, language) == source
     assert not builder._translation_rejection_reasons(source, source, language)
@@ -100,23 +101,33 @@ def test_plate_barcode_assignment_example_stays_executable(builder, catalogs, la
     assert catalogs[language].UI[explanation] != explanation
 
 
+def test_plate_barcode_assignment_example_stays_executable(subtests, builder, catalogs):
+    """The placeholder retains identifiers while its explanatory prose translates."""
+    for label, case in locale_cases.cases(("language", LANGUAGES)):
+        with subtests.test(**label):
+            _plate_barcode_assignment_example_stays_executable_case(builder=builder, catalogs=catalogs, **case)
+
+
 @pytest.mark.parametrize("source", DAMAGED_ROWS)
 def test_the_predicate_finds_no_prose_in_these(builder, source):
     """These are the rows with nothing a translator could change."""
     assert not builder._has_prose_outside_protected_literals(source)
 
 
-@pytest.mark.parametrize("language", LANGUAGES)
-@pytest.mark.parametrize("source", DAMAGED_ROWS)
-def test_every_locale_leaves_these_rows_exactly_alone(
-    catalogs, language, source,
-):
+def _every_locale_leaves_these_rows_exactly_alone_case(catalogs, language, source):
+    """One case of :func:`test_every_locale_leaves_these_rows_exactly_alone`."""
+    assert catalogs[language].UI[source] == source
+
+
+def test_every_locale_leaves_these_rows_exactly_alone(subtests, catalogs):
     """The row must be byte-identical to the English in all nine locales.
 
     This is the assertion the coverage audits could not make: they ask whether
     the value DIFFERS from English, and here differing IS the defect.
     """
-    assert catalogs[language].UI[source] == source
+    for label, case in locale_cases.cases(("language", LANGUAGES), ("source", DAMAGED_ROWS)):
+        with subtests.test(**label):
+            _every_locale_leaves_these_rows_exactly_alone_case(catalogs=catalogs, **case)
 
 
 # Which locale table answers each source table, and how the row is keyed.
@@ -137,14 +148,8 @@ _TABLES = (
 )
 
 
-@pytest.mark.parametrize("language", LANGUAGES)
-def test_no_all_protected_row_was_altered_anywhere(builder, catalogs, language):
-    """The general rule, not just the three known rows.
-
-    Sweeps every runtime source. A row with no prose outside its protected
-    literals must survive untouched UNLESS a human wrote a reviewed record for
-    it -- see the next test for why that exception has to exist.
-    """
+def _no_all_protected_row_was_altered_anywhere_case(builder, catalogs, language):
+    """One case of :func:`test_no_all_protected_row_was_altered_anywhere`."""
     reviewed = builder.reviewed_runtime_translations(language)
     catalog = catalogs[language]
     sources = builder.canonical_sources()
@@ -170,8 +175,28 @@ def test_no_all_protected_row_was_altered_anywhere(builder, catalogs, language):
     assert altered == [], f"{language}: {altered[:5]}"
 
 
-@pytest.mark.parametrize("language", LANGUAGES)
-def test_a_reviewed_record_still_beats_the_identity_rule(catalogs, language):
+def test_no_all_protected_row_was_altered_anywhere(subtests, builder, catalogs):
+    """The general rule, not just the three known rows.
+
+    Sweeps every runtime source. A row with no prose outside its protected
+    literals must survive untouched UNLESS a human wrote a reviewed record for
+    it -- see the next test for why that exception has to exist.
+    """
+    for label, case in locale_cases.cases(("language", LANGUAGES)):
+        with subtests.test(**label):
+            _no_all_protected_row_was_altered_anywhere_case(builder=builder, catalogs=catalogs, **case)
+
+
+def _a_reviewed_record_still_beats_the_identity_rule_case(catalogs, language):
+    """One case of :func:`test_a_reviewed_record_still_beats_the_identity_rule`."""
+    value = catalogs[language].UI["{location}: {path}"]
+    assert value != "{location}: {path}", (
+        f"{language} lost its hand-written record for this row"
+    )
+    assert "{location}" in value and "{path}" in value
+
+
+def test_a_reviewed_record_still_beats_the_identity_rule(subtests, catalogs):
     """`{location}: {path}` is all-protected AND deliberately translated.
 
     A reviewer added the word path/Pfad/chemin/sökväg to all nine locales to
@@ -181,11 +206,9 @@ def test_a_reviewed_record_still_beats_the_identity_rule(catalogs, language):
     identity rule has been moved above reviewed evidence and is now discarding
     hand-written translations.
     """
-    value = catalogs[language].UI["{location}: {path}"]
-    assert value != "{location}: {path}", (
-        f"{language} lost its hand-written record for this row"
-    )
-    assert "{location}" in value and "{path}" in value
+    for label, case in locale_cases.cases(("language", LANGUAGES)):
+        with subtests.test(**label):
+            _a_reviewed_record_still_beats_the_identity_rule_case(catalogs=catalogs, **case)
 
 
 def test_the_reviewed_record_for_that_row_exists_in_every_locale():

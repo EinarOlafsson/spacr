@@ -6,6 +6,8 @@ import pytest
 
 from spacr.qt.i18n import tr
 
+from tests import locale_cases
+
 
 ROOT = Path(__file__).resolve().parents[2]
 NAMES = (
@@ -23,7 +25,13 @@ def _cases():
                 yield language, record['source'], record['translation']
 
 
-@pytest.mark.parametrize('language,source,target', list(_cases()))
-def test_exact_scientific_diagnostic_uses_current_runtime_locale(language, source, target):
+def _exact_scientific_diagnostic_uses_current_runtime_locale_case(language, source, target):
+    """One case of :func:`test_exact_scientific_diagnostic_uses_current_runtime_locale`."""
     values = {'well': 'plate_A_1', 'key': 'plate_A_1_f1_o1'}
     assert tr(source, language, **values) == target.format(**values)
+
+
+def test_exact_scientific_diagnostic_uses_current_runtime_locale(subtests):
+    for label, case in locale_cases.cases(('language,source,target', list(_cases()))):
+        with subtests.test(**label):
+            _exact_scientific_diagnostic_uses_current_runtime_locale_case(**case)

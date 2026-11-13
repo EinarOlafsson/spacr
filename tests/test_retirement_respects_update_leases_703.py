@@ -9,6 +9,8 @@ import pytest
 
 from spacr import install_cleanup as ic
 
+from tests import locale_cases
+
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = 'This installation could not be locked for removal. Nothing was removed.'
@@ -228,8 +230,8 @@ def test_retirement_release_never_removes_a_replaced_outer_lease(installation, t
     assert (root / 'cache/model').read_text(encoding="utf-8") == 'weights'
 
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'])
-def test_actual_removal_refusal_uses_exact_reviewed_locale(installation, monkeypatch, language):
+def _actual_removal_refusal_uses_exact_reviewed_locale_case(installation, monkeypatch, language):
+    """One case of :func:`test_actual_removal_refusal_uses_exact_reviewed_locale`."""
     root, _launcher, machine, record = installation
     monkeypatch.setenv('SPACR_LANGUAGE', language)
     (root / '.venv.spacr-update-lock').mkdir()
@@ -239,3 +241,13 @@ def test_actual_removal_refusal_uses_exact_reviewed_locale(installation, monkeyp
     assert reviewed['source'] == SOURCE
     assert reviewed['translation'] != SOURCE
     assert ic.remove_install(record, system=machine).failed == [(str(root), reviewed['translation'])]
+
+
+def test_actual_removal_refusal_uses_exact_reviewed_locale(subtests, installation, monkeypatch):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            # the previous case's lease is released, so each case takes its own
+            lease = installation[0] / '.venv.spacr-update-lock'
+            if lease.is_dir():
+                lease.rmdir()
+            _actual_removal_refusal_uses_exact_reviewed_locale_case(installation=installation, monkeypatch=case_monkeypatch, **case)
