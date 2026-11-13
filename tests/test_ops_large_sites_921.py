@@ -11,6 +11,7 @@ import pytest
 from scipy import ndimage
 
 from spacr import ops_large_sites as ols
+from tests.cellpose_api_contract import configured_eval_arguments
 from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call
 
 
@@ -39,7 +40,13 @@ class _FakeModel:
         self.calls = []
         self.threshold = threshold
 
-    def eval(self, x, batch_size=8, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+    def eval(self, x, batch_size=8, resample=True, channels=None,
+             channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+             rescale=None, diameter=None, flow_threshold=0.4,
+             cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+             flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+             max_size_fraction=0.4, niter=None, augment=False,
+             tile_overlap=0.1, bsize=None, compute_masks=True, progress=None):
         """Check the call as Cellpose would, record it and return ``(labels,)``,
         or Cellpose's ``(masks, [rgb, flows, cellprob], styles)`` without masks.
 
@@ -47,12 +54,15 @@ class _FakeModel:
         planes and leaves Cellpose to read them as one channel; a call that
         names one is recorded with it.
         """
+        bound = locals()
         check_cellpose_eval_call(x, channel_axis, require_channel_axis=False)
-        self.calls.append(kwargs if channel_axis is MISSING_CHANNEL_AXIS
-                          else dict(kwargs, channel_axis=channel_axis))
-        x = ols.normalize_site(x) if kwargs.get("normalize", True) else np.asarray(x)
+        call = configured_eval_arguments(bound)
+        if channel_axis is MISSING_CHANNEL_AXIS:
+            call.pop("channel_axis", None)
+        self.calls.append(call)
+        x = ols.normalize_site(x) if normalize else np.asarray(x)
         x = x[..., 0] if x.ndim == 3 else x
-        if kwargs.get("compute_masks", True) is False:
+        if compute_masks is False:
             return np.zeros(0), [None, np.zeros((2,) + x.shape, np.float32),
                                  (x - self.threshold).astype(np.float32)], None
         return (ndimage.label(x > self.threshold)[0].astype(np.int32),)
@@ -604,8 +614,13 @@ class _GradientCellpose:
 
         self.device = torch.device("cpu")
 
-    def eval(self, x, batch_size=8, normalize=True, compute_masks=True,
-             channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+    def eval(self, x, batch_size=8, resample=True, channels=None,
+             channel_axis=MISSING_CHANNEL_AXIS, z_axis=None, normalize=True,
+             rescale=None, diameter=None, flow_threshold=0.4,
+             cellprob_threshold=0.0, do_3D=False, anisotropy=None,
+             flow3D_smooth=0, stitch_threshold=0.0, min_size=15,
+             max_size_fraction=0.4, niter=None, augment=False,
+             tile_overlap=0.1, bsize=None, compute_masks=True, progress=None):
         """Flows, then masks unless ``compute_masks`` is False."""
         from cellpose.core import run_net
 
