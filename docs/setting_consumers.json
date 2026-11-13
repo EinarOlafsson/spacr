@@ -3011,7 +3011,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "batch_fields",
-    "line": 1085,
+    "line": 1091,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_preflight_plate_partitions"
@@ -3020,7 +3020,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "batch_fields",
-    "line": 1368,
+    "line": 1374,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -3029,7 +3029,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "batch_fields",
-    "line": 1370,
+    "line": 1376,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -4408,7 +4408,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "cell_cellprob_threshold",
-    "line": 565,
+    "line": 571,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -5251,7 +5251,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "cell_diameter",
-    "line": 567,
+    "line": 573,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -5406,7 +5406,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "cell_flow_threshold",
-    "line": 564,
+    "line": 570,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -7454,7 +7454,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "cellpose_diameter",
-    "line": 567,
+    "line": 573,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -8655,7 +8655,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 1083,
+    "line": 1089,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_preflight_plate_partitions"
@@ -8664,7 +8664,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 1098,
+    "line": 1104,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_preflight_plate_partitions"
@@ -8673,7 +8673,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 1294,
+    "line": 1300,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -8682,7 +8682,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "channels",
-    "line": 1329,
+    "line": 1335,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -8691,7 +8691,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 1330,
+    "line": 1336,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -8700,7 +8700,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 1337,
+    "line": 1343,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -8709,7 +8709,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 1344,
+    "line": 1350,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -8718,7 +8718,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 1346,
+    "line": 1352,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -8727,7 +8727,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "channels",
-    "line": 1349,
+    "line": 1355,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -13760,7 +13760,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "custom_regex",
-    "line": 1278,
+    "line": 1284,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -13769,7 +13769,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "custom_regex",
-    "line": 1279,
+    "line": 1285,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -15396,7 +15396,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "diameter",
-    "line": 1368,
+    "line": 1374,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -15405,7 +15405,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "diameter",
-    "line": 1370,
+    "line": 1376,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -19663,7 +19663,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "flow_threshold",
-    "line": 1368,
+    "line": 1374,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -19672,7 +19672,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "flow_threshold",
-    "line": 1372,
+    "line": 1378,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -26094,7 +26094,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "keep_npz",
-    "line": 1368,
+    "line": 1374,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -26103,7 +26103,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "keep_npz",
-    "line": 1371,
+    "line": 1377,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -27517,7 +27517,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "magnification",
-    "line": 573,
+    "line": 579,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -27526,7 +27526,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "magnification",
-    "line": 575,
+    "line": 581,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -28790,7 +28790,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "metadata_type",
-    "line": 1278,
+    "line": 1284,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -28799,7 +28799,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "metadata_type",
-    "line": 1278,
+    "line": 1284,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -31588,7 +31588,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "model_name",
-    "line": 1368,
+    "line": 1374,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -31597,7 +31597,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "model_name",
-    "line": 1368,
+    "line": 1374,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -35240,7 +35240,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "nucleus_cellprob_threshold",
-    "line": 565,
+    "line": 571,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -35777,7 +35777,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "nucleus_diameter",
-    "line": 567,
+    "line": 573,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -35923,7 +35923,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "nucleus_flow_threshold",
-    "line": 564,
+    "line": 570,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -37103,7 +37103,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "object_type",
-    "line": 1093,
+    "line": 1099,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_preflight_plate_partitions"
@@ -42774,7 +42774,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "ops_ph_cell_diameter",
-    "line": 567,
+    "line": 573,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -43116,7 +43116,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "ops_ph_nucleus_diameter",
-    "line": 567,
+    "line": 573,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -46188,7 +46188,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_cellprob_threshold",
-    "line": 565,
+    "line": 571,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -46657,7 +46657,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_diameter",
-    "line": 567,
+    "line": 573,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -46917,7 +46917,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelle_flow_threshold",
-    "line": 564,
+    "line": 570,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -48676,7 +48676,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelleb_cellprob_threshold",
-    "line": 565,
+    "line": 571,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -48941,7 +48941,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelleb_diameter",
-    "line": 567,
+    "line": 573,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -49078,7 +49078,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelleb_flow_threshold",
-    "line": 564,
+    "line": 570,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -49616,7 +49616,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organellec_cellprob_threshold",
-    "line": 565,
+    "line": 571,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -49881,7 +49881,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organellec_diameter",
-    "line": 567,
+    "line": 573,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -50018,7 +50018,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organellec_flow_threshold",
-    "line": 564,
+    "line": 570,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -50556,7 +50556,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelled_cellprob_threshold",
-    "line": 565,
+    "line": 571,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -50821,7 +50821,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelled_diameter",
-    "line": 567,
+    "line": 573,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -50958,7 +50958,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "organelled_flow_threshold",
-    "line": 564,
+    "line": 570,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -54042,7 +54042,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "pathogen_cellprob_threshold",
-    "line": 565,
+    "line": 571,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -54543,7 +54543,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "pathogen_diameter",
-    "line": 567,
+    "line": 573,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -54689,7 +54689,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "pathogen_flow_threshold",
-    "line": 564,
+    "line": 570,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -56930,7 +56930,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "pixel_size_um",
-    "line": 570,
+    "line": 576,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -63478,7 +63478,7 @@
     "form": "keyword",
     "function_depth": 1,
     "key": "resample",
-    "line": 1368,
+    "line": 1374,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -63487,7 +63487,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "resample",
-    "line": 1373,
+    "line": 1379,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_run_partitioned_v2"
@@ -66259,7 +66259,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "seg_qc_min_diameter",
-    "line": 567,
+    "line": 573,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -67216,7 +67216,7 @@
     "form": "subscript-dynamic",
     "function_depth": 1,
     "key": "spatial_diameter",
-    "line": 567,
+    "line": 573,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_backend_mask_settings"
@@ -70173,7 +70173,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 3502,
+    "line": 3505,
     "module": "spacr.run_journal",
     "nested": false,
     "qualname": "_recorded_models"
@@ -70182,7 +70182,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 3870,
+    "line": 3873,
     "module": "spacr.run_journal",
     "nested": false,
     "qualname": "_observe_settings_changes"
@@ -70191,7 +70191,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 3923,
+    "line": 3926,
     "module": "spacr.run_journal",
     "nested": false,
     "qualname": "check_analysis_lock"
@@ -70200,7 +70200,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "src",
-    "line": 3980,
+    "line": 3983,
     "module": "spacr.run_journal",
     "nested": false,
     "qualname": "_check_lock_for_run"
@@ -79986,7 +79986,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "unmix_background_percentile",
-    "line": 1099,
+    "line": 1105,
     "module": "spacr.pipeline_v2",
     "nested": false,
     "qualname": "_preflight_plate_partitions"
