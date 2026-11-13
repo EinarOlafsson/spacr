@@ -20,9 +20,15 @@ Where the guaranteed value is worth holding on to, it is pinned from the
 public API rather than argued in prose, so that the day one of these
 guarantees stops holding a test says so. Nothing is excluded from coverage.
 
-CPU-only and offline throughout.
+CPU-only and offline throughout. The guarantees are stated by one
+parametrised test: each row is a helper that does the setup and returns what
+it observed, next to the value promised, and the graph types the error message
+of ``create_grouped_plot`` offers get a row each.
 """
 from __future__ import annotations
+
+import inspect
+import re
 
 import numpy as np
 import pandas as pd
@@ -93,19 +99,18 @@ def _case_a_bare_call_walks_npy_and_tif_and_nothing_else(tmp_path):
     folders = [str(tmp_path / "images"), str(tmp_path / "masks")]
 
     P.plot_images_and_arrays(folders, randomize=False)
-    assert sorted(t for t in _titles() if t.endswith("- Mask")) == [
-        "arrays - Mask", "tiffs - Mask"]
+    default_titles = sorted(t for t in _titles() if t.endswith("- Mask"))
 
     # An explicit list beats the default, which is what makes the pair above
     # the default's doing and not everything that happens to be on disk.
     plt.close("all")
     P.plot_images_and_arrays(folders, extensions=[".npy"], randomize=False)
-    assert sorted(t for t in _titles() if t.endswith("- Mask")) == [
-        "arrays - Mask"]
+    npy_only_titles = sorted(t for t in _titles() if t.endswith("- Mask"))
 
     plt.close("all")
     P.plot_images_and_arrays(folders, extensions=[".jpg"], randomize=False)
-    assert _titles() == []
+    return {"default": default_titles, "npy_only": npy_only_titles,
+            "jpg_only": _titles()}
 
 
 # ---------------------------------------------------------------------------
@@ -160,11 +165,14 @@ def _case_every_channel_that_has_an_object_gets_that_object_outlined(tmp_path):
 
     # Every object channel is outlined, and each panel's magenta sits on its
     # own object's bounding box rather than on a neighbour's.
+    observed = []
     for index, region in enumerate((np.s_[4:20, 4:20], np.s_[8:14, 8:14],
                                     np.s_[30:38, 30:38])):
         drawn = magenta_pixels(index)
         assert drawn.any(), f"channel {index} was not outlined"
-        assert drawn.sum() == drawn[region].sum()
+        observed.append((bool(drawn.any()),
+                         bool(drawn.sum() == drawn[region].sum())))
+    return observed
 
 
 # ---------------------------------------------------------------------------
@@ -192,24 +200,26 @@ def _case_a_multichannel_stack_is_outlined_on_its_first_channel_alone():
     P.print_mask_and_flows(stack, mask, flows=None, overlay=True)
     panel = np.asarray(plt.gcf().axes[1].images[0].get_array())
 
-    assert panel.shape == (32, 32, 3)
     red = np.all(panel == (255, 0, 0), axis=-1)
     assert red.any()                     # the contour really was drawn
     # Everywhere else the three channels are equal: the base is channel 0
     # replicated, not the green and blue planes of the stack.
     grey = panel[~red]
-    assert np.array_equal(grey[:, 0], grey[:, 1])
-    assert np.array_equal(grey[:, 1], grey[:, 2])
-    expected = np.clip(base, 0, 1) * 255
-    assert panel[0, 0, 0] == expected.astype(np.uint8)[0, 0]
-    assert panel[31, 0, 0] == expected.astype(np.uint8)[31, 0]
+    grey_planes_equal = (np.array_equal(grey[:, 0], grey[:, 1])
+                         and np.array_equal(grey[:, 1], grey[:, 2]))
+    expected = (np.clip(base, 0, 1) * 255).astype(np.uint8)
+    corners = (int(panel[0, 0, 0]), int(panel[31, 0, 0]))
+    expected_corners = (int(expected[0, 0]), int(expected[31, 0]))
 
     # The 2-D form takes the same branch and produces the same panel, which
     # is why the else has no caller of its own.
     plt.close("all")
     P.print_mask_and_flows(base, mask, flows=None, overlay=True)
-    assert np.array_equal(
+    same_as_2d = np.array_equal(
         np.asarray(plt.gcf().axes[1].images[0].get_array()), panel)
+    return {"shape": panel.shape, "grey_planes_equal": grey_planes_equal,
+            "corners_match_channel_0": corners == expected_corners,
+            "2d_gives_same_panel": same_as_2d}
 
 
 # ---------------------------------------------------------------------------
@@ -225,9 +235,7 @@ def _grouped_frame():
     })
 
 
-@pytest.mark.parametrize("graph_type", ["bar", "violin", "jitter", "box",
-                                        "jitter_box", "jitter_bar", "line"])
-def _case_every_graph_type_the_error_message_offers_actually_draws(graph_type):
+def _draw_a_graph_type_the_error_message_offers(graph_type):
     """plot.py:4550->4557 -- why the trailing ``not in`` is never False.
 
     The ``elif`` chain above it already consumes ``bar``, ``violin``,
@@ -244,9 +252,9 @@ def _case_every_graph_type_the_error_message_offers_actually_draws(graph_type):
     figure, results = P.create_grouped_plot(
         df=_grouped_frame(), grouping_column="grp", data_column="val",
         graph_type=graph_type, save=False)
-    assert figure.axes
-    assert any(axes.has_data() for axes in figure.axes)
-    assert isinstance(results, pd.DataFrame)
+    return (bool(figure.axes),
+            any(axes.has_data() for axes in figure.axes),
+            isinstance(results, pd.DataFrame))
 
 
 def _case_a_graph_type_the_menu_does_not_offer_is_refused_by_name():
@@ -256,10 +264,13 @@ def _case_a_graph_type_the_menu_does_not_offer_is_refused_by_name():
     matched, and then the ``not in`` can only be true -- so the raise is the
     branch's whole behaviour.
     """
-    with pytest.raises(ValueError, match="graph_type='swarm' is not one of"):
+    with pytest.raises(ValueError, match="graph_type='swarm' is not one of") \
+            as refusal:
         P.create_grouped_plot(df=_grouped_frame(), grouping_column="grp",
                               data_column="val", graph_type="swarm",
                               save=False)
+    return re.search(r"graph_type='swarm' is not one of",
+                     str(refusal.value)).group(0)
 
 
 # ---------------------------------------------------------------------------
@@ -285,18 +296,20 @@ def _case_a_grouping_column_that_is_not_in_the_frame_never_reaches_the_ordering(
         P.spacrGraph(frame, "no_such_column", "val")
 
     default = P.spacrGraph(frame, "grp", "val").df
-    assert isinstance(default["grp"].dtype, pd.CategoricalDtype)
-    assert list(default["grp"].cat.categories) == ["a", "b"]
+    default_is_categorical = isinstance(default["grp"].dtype,
+                                        pd.CategoricalDtype)
 
     ordered = P.spacrGraph(frame, "grp", "val", order=["b", "a"]).df
-    assert list(ordered["grp"].cat.categories) == ["b", "a"]
 
     # Aggregating to one row per well still leaves the grouping column in
     # the frame, which is the other half of why the test cannot be false.
     wells = frame.assign(prc=["p1_r1_c1"] * 12 + ["p1_r1_c2"] * 12)
     per_well = P.spacrGraph(wells, "grp", "val", representation="well").df
-    assert "grp" in per_well.columns
-    assert list(per_well["grp"].cat.categories) == ["a", "b"]
+    return {"default_is_categorical": default_is_categorical,
+            "default_order": list(default["grp"].cat.categories),
+            "explicit_order": list(ordered["grp"].cat.categories),
+            "well_level_has_grouping_column": "grp" in per_well.columns,
+            "well_level_order": list(per_well["grp"].cat.categories)}
 
 
 # ---------------------------------------------------------------------------
@@ -319,7 +332,7 @@ def _case_an_unknown_x_transform_is_refused_before_any_threshold_is_converted():
         P.volcano_plot(frame, fold_change_col="fc", p_value_col="p",
                        x_transform="LogE", fold_change_threshold=1.5,
                        show=False)
-    assert str(failure.value) == "Unknown x_transform: loge"
+    message = str(failure.value)
 
     # A transform that IS known gets as far as converting the threshold into
     # plot units, so the refusal above is about the name and not about the
@@ -333,7 +346,7 @@ def _case_an_unknown_x_transform_is_refused_before_any_threshold_is_converted():
     verticals = sorted({round(float(line.get_xdata()[0]), 6)
                         for line in axes.lines
                         if len(set(line.get_xdata())) == 1})
-    assert verticals == [-1.0, 0.0, 1.0]
+    return {"message": message, "threshold_lines": verticals}
 
 
 # ---------------------------------------------------------------------------
@@ -393,21 +406,56 @@ def _case_an_unknown_x_transform_is_refused_before_any_threshold_is_converted():
 # ---------------------------------------------------------------------------
 
 
-def test_plot_cases(request, subtests):
-    """Case table: 7 cases of the module-level cases run as sub-tests."""
-    from tests.case_table import run_cases
+def _bind(helper, *args):
+    """A fixture-free case that calls ``helper`` with fixed arguments."""
+    def case():
+        return helper(*args)
+    return case
 
-    ran = run_cases(
-        request,
-        subtests,
-        [
+
+def _call(request, helper):
+    """Run a case helper, giving it the fixtures named in its signature."""
+    names = inspect.signature(helper).parameters
+    return helper(**{n: request.getfixturevalue(n) for n in names})
+
+
+@pytest.mark.parametrize("helper, expected", [
+    pytest.param(
         _case_a_bare_call_walks_npy_and_tif_and_nothing_else,
+        {"default": ["arrays - Mask", "tiffs - Mask"],
+         "npy_only": ["arrays - Mask"], "jpg_only": []},
+        id="find-files-default-walks-npy-and-tif"),
+    pytest.param(
         _case_every_channel_that_has_an_object_gets_that_object_outlined,
+        [(True, True), (True, True), (True, True)],
+        id="magenta-outlines-each-channel-on-its-own-object"),
+    pytest.param(
         _case_a_multichannel_stack_is_outlined_on_its_first_channel_alone,
-        _case_every_graph_type_the_error_message_offers_actually_draws,
+        {"shape": (32, 32, 3), "grey_planes_equal": True,
+         "corners_match_channel_0": True, "2d_gives_same_panel": True},
+        id="multichannel-stack-outlined-on-first-channel"),
+    pytest.param(
         _case_a_graph_type_the_menu_does_not_offer_is_refused_by_name,
+        "graph_type='swarm' is not one of",
+        id="unknown-graph-type-refused-by-name"),
+    pytest.param(
         _case_a_grouping_column_that_is_not_in_the_frame_never_reaches_the_ordering,
+        {"default_is_categorical": True, "default_order": ["a", "b"],
+         "explicit_order": ["b", "a"],
+         "well_level_has_grouping_column": True,
+         "well_level_order": ["a", "b"]},
+        id="grouping-column-always-ordered-categorical"),
+    pytest.param(
         _case_an_unknown_x_transform_is_refused_before_any_threshold_is_converted,
-        ],
-    )
-    assert ran >= 7
+        {"message": "Unknown x_transform: loge",
+         "threshold_lines": [-1.0, 0.0, 1.0]},
+        id="unknown-x-transform-refused-known-one-draws-thresholds"),
+] + [
+    pytest.param(_bind(_draw_a_graph_type_the_error_message_offers, kind),
+                 (True, True, True), id=f"{kind}-draws")
+    for kind in ("bar", "violin", "jitter", "box", "jitter_box", "jitter_bar",
+                 "line")
+])
+def test_guarantees_behind_the_unreachable_guards(request, helper, expected):
+    observed = _call(request, helper)
+    assert observed == expected

@@ -501,6 +501,9 @@ def save_figure(fig, path, *, fmt=None, dpi=None, close=False,
         chosen_fmt = preferred_fmt
     chosen_dpi = int(dpi) if dpi else preferred_dpi
 
+    if path is None:
+        return None
+
     destination = _with_extension(path, chosen_fmt)
     directory = os.path.dirname(str(destination))
     if directory:
@@ -6278,7 +6281,8 @@ def visualize_cellpose_masks(masks, titles=None, filename=None, save=False, src=
             src = os.getcwd()
         results_dir = os.path.join(src, 'results')
         os.makedirs(results_dir, exist_ok=True)
-        fig_path = os.path.join(results_dir, f'{filename}.pdf')
+        stem = 'masks_comparison' if filename is None else filename
+        fig_path = os.path.join(results_dir, f'{stem}.pdf')
         fig_path = save_figure(fig, fig_path)
         print(f'Saved figure to {fig_path}')
     return
