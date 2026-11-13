@@ -165,3 +165,10 @@ In the same commit as the code (catalogue symbols rule):
 3. Should windows partly covered by unlisted tiles be composed (with a flag in the journal) or skipped (recommended: composed, flagged)?
 4. Should a seed from a different spaCR minor version be accepted with a warning (recommended) or refused?
 5. Should `ops_placement_seed_export` be on by default for full runs, so every finished well leaves a seed? That is a default change with a `DEFAULT_CHANGES` row, and costs a few KB per well.
+
+## Maintainer decisions (2026-11-13)
+1. File format: JSON (`<plate>_<well>.ops_placement.json`); reading straight from `measurements.db` stays supported.
+2. Default `ops_placement_seed_mode`: 'subset'.
+3. Windows partly covered by unlisted tiles: composed and flagged as `partial_windows` in the journal; left out of identity checks.
+4. Seeds written by a different spaCR version: accepted with a warning.
+5. `ops_placement_seed_export` is on by default for full runs. This is a default change: it gets a `DEFAULT_CHANGES` row (old stamped files keep export off) in the commit that ships it.
