@@ -2171,8 +2171,6 @@ def _update_database_with_merged_info(db_path, df, table='png_list', columns=Non
     
     from .foreign import _replace_table_atomically
     try:
-        # Staged and swapped in one transaction: a bare DROP commits on its
-        # own, so a failed write after it would lose the user's table.
         _replace_table_atomically(conn, table, merged_df)
         print(f"Table {table} successfully updated in the database.")
     except Exception as e:
