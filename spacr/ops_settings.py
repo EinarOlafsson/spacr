@@ -44,6 +44,9 @@ OPS_DEFAULTS: Dict[str, object] = {
     "ops_cell_rule": "mapped",
     "ops_crosstalk": "argmax_median",
     "ops_channel_registration": "spots",
+    "ops_registration_precision": "float32",
+    "ops_registration_backend": "gpu",
+    "ops_field_diagnostics": False,
     "ops_read_mismatches": 0,
     "ops_min_reads": None,
     "ops_min_fraction": 0.6,
@@ -412,6 +415,9 @@ OPS_TYPES: Dict[str, object] = {
     "ops_cell_rule": str,
     "ops_crosstalk": str,
     "ops_channel_registration": str,
+    "ops_registration_precision": str,
+    "ops_registration_backend": str,
+    "ops_field_diagnostics": bool,
     "ops_read_mismatches": int,
     "ops_min_reads": (int, type(None)),
     "ops_min_fraction": (float, int),
@@ -777,6 +783,8 @@ OPS_CATEGORIES: Dict[str, List[str]] = {
     "OPS decoding": [
         "ops_base_channels", "ops_read_threshold", "ops_footprint",
         "ops_store_reads", "ops_spot_detector", "ops_channel_registration",
+        "ops_registration_precision", "ops_registration_backend",
+        "ops_field_diagnostics",
         "ops_crosstalk",
         "ops_cell_rule",
         "ops_read_mismatches", "ops_min_reads", "ops_min_fraction",
@@ -1103,6 +1111,26 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "a believed spot answer within ops_registration_refine_px of the "
         "background answer, correcting small residual shifts. Default "
         "'spots'.",
+    "ops_registration_precision":
+        "(str) - The precision of the Fourier transforms that register the "
+        "sequencing channels and cycles. 'float32' takes about half the "
+        "time of 'float64' and, on 443 fields of the Funk et al. 2022 "
+        "plates, gave the same shifts, reads and calls; 'float64' is the "
+        "arithmetic used before, kept for an exact rerun of older results. "
+        "Default 'float32'.",
+    "ops_registration_backend":
+        "(str) - Where those transforms run. 'gpu' batches each cycle's "
+        "transforms on a CUDA card, with the same shifts and calls as "
+        "'cpu' and about a third less time per field, and uses the CPU "
+        "when there is no card, when ops_gpu is off, or when the decode "
+        "runs in several workers (n_workers above 1). 'cpu' never uses the "
+        "card. Default 'gpu'.",
+    "ops_field_diagnostics":
+        "(bool) - Also write each sequencing field's diagnostics to "
+        "<well>/decode_diagnostics/: intensity percentiles and focus per "
+        "cycle, DAPI focus, the spot filter's 99.9th percentile and every "
+        "registration's shift and peak. No decode result reads them; they "
+        "cost about a fifth of the field step. Default False.",
     "ops_crosstalk":
         "(str) - How the base caller undoes dye bleed-through between the "
         "four channels, after each cycle is put on a common scale. "

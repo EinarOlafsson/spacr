@@ -1600,7 +1600,8 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     """
     from scipy import ndimage
 
-    from .ops_cycles import align_field
+    from .ops_cycles import (FFT_BACKEND, FFT_PRECISION, _fft_backend_used,
+                             align_field)
     from .ops_sbs import (attribute_reads, call_reads, called_bases,
                           estimate_read_locations, extract_bases, find_peaks)
 
@@ -1633,14 +1634,21 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
         return {**base, "skipped": "the reference cycle could not be read"}
 
     tick = time.perf_counter()
+    diagnostics = (_field_diagnostics_before(task, planes, unreadable)
+                   if task.get("diagnostics_folder") else None)
     field = align_field(planes, reference=reference, gpu=gpu,
                         channel_mode=str(task.get("channel_mode")
                                          or "background"),
+                        registrations=(diagnostics["registrations"]
+                                       if diagnostics is not None else None),
                         **task.get("registration", {}))
     ticks["align"] = time.perf_counter() - tick
     base.update(kept=list(field.kept), refused=list(field.refused),
                 refused_channels=[list(pair) for pair in field.refused_channels],
-        spot_replaced=[list(pair) for pair in field.spot_replaced])
+        spot_replaced=[list(pair) for pair in field.spot_replaced],
+        registration_backend=_fft_backend_used(
+            task.get("registration", {}).get("backend", FFT_BACKEND), gpu,
+            task.get("registration", {}).get("precision", FFT_PRECISION)))
     if len(field.kept) < _MIN_CYCLES:
         return {**base, "skipped": f"{len(field.kept)} usable cycles"}
 
@@ -1664,6 +1672,8 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     shifts += [abs(v) for per in field.channel_shifts.values()
                for pair in per for v in pair]
     margin = 5 + max(shifts + [0])
+    if diagnostics is not None:
+        _write_field_diagnostics(task, field, filtered, diagnostics, base)
     if task.get("rule_a"):
         result = _decode_field_rule_a(task, field, stack, filtered, spotnet,
                                       margin, gpu)
@@ -1734,6 +1744,185 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
             if intensities is not None and len(intensities)
             else np.zeros((len(rows), len(cycles), len(_BASES)), np.float32))
     return result
+
+
+def _registration_choice(value: Any, key: str) -> str:
+    """``ops_registration_precision`` or ``ops_registration_backend``, checked.
+
+    :param value: the setting's value; None or empty takes the default.
+    :param key: which of the two keys it is.
+    :returns: the value, lower case; the default when the key is unset.
+    :raises ValueError: for a value the registration does not offer.
+    """
+    from .ops_cycles import (FFT_BACKEND, FFT_BACKENDS, FFT_PRECISION,
+                             FFT_PRECISIONS)
+
+    precision = key == "ops_registration_precision"
+    allowed = FFT_PRECISIONS if precision else FFT_BACKENDS
+    value = str(value or (FFT_PRECISION if precision
+                          else FFT_BACKEND)).strip().lower()
+    if value not in allowed:
+        raise ValueError(f"{key} must be one of {list(allowed)}; got {value!r}")
+    return value
+
+
+def _registration_report(tasks, results) -> Dict[str, Any]:
+    """The decode report's ``registration`` entry (item 932).
+
+    :param tasks: the field tasks.
+    :param results: every field's result.
+    :returns: the precision and backend asked for, how many fields ran on
+        each backend, and the diagnostics folder or None.
+    """
+    asked = tasks[0]["registration"] if tasks else {}
+    folder = tasks[0].get("diagnostics_folder") if tasks else None
+    table = _field_diagnostics_table(folder)
+    path = None
+    if table is not None and len(table):
+        path = os.path.join(folder, "field_diagnostics.csv")
+        table.to_csv(path, index=False)
+    return {
+        "precision": asked.get("precision"), "backend": asked.get("backend"),
+        "fields_by_backend": dict(Counter(r["registration_backend"]
+                                          for r in results
+                                          if "registration_backend" in r)),
+        "field_diagnostics": folder, "field_diagnostics_table": path,
+    }
+
+
+def _field_diagnostics_table(folder: Optional[str]):
+    """One row per field from the diagnostics JSONs, or None when there are none.
+
+    The decode-yield study's per-field table (its ``field_diag``): the
+    weakest channel and cycle registration peaks, the median cycle peak,
+    the largest channel shift, the refused cycles, the DAPI focus and each
+    cycle's focus and mean 99.9th percentile. The diagnostics are optional
+    (``ops_field_diagnostics``, off by default), so a missing folder gives
+    None and a field written without a key gives NaN in its columns rather
+    than an error.
+
+    :param folder: ``<well>/decode_diagnostics``, or None.
+    :returns: a DataFrame sorted by site, or None.
+    """
+    import glob
+
+    import pandas as pd
+
+    if not folder or not os.path.isdir(folder):
+        return None
+    rows = []
+    for path in sorted(glob.glob(os.path.join(folder, "site*.json"))):
+        try:
+            with open(path, encoding="utf-8") as handle:
+                record = json.load(handle)
+        except (OSError, ValueError):
+            continue
+        registrations = record.get("registrations") or []
+        cycles = len(record.get("kept") or []) + len(record.get("refused") or [])
+        channels = [r[2] for r in registrations[:3 * cycles]]
+        across = [r[2] for r in registrations[3 * cycles:]]
+        shifts = [abs(v) for per in (record.get("channel_shifts") or {}).values()
+                  for pair in per for v in pair]
+        diag = record.get("diag") or {}
+        row = {"site": record.get("site"),
+               "chan_peak_min": min(channels) if channels else np.nan,
+               "cycle_peak_min": min(across) if across else np.nan,
+               "cycle_peak_median": float(np.median(across)) if across else np.nan,
+               "max_chan_shift": max(shifts) if shifts else np.nan,
+               "refused": len(record.get("refused") or []),
+               "dapi_focus": diag.get("dapi_focus", np.nan)}
+        for cycle, values in sorted(diag.items()):
+            if isinstance(values, dict):
+                row[f"focus_c{cycle}"] = values.get("focus_lapvar", np.nan)
+                row[f"p999_c{cycle}"] = (float(np.mean(values["p999"]))
+                                         if values.get("p999") else np.nan)
+        rows.append(row)
+    if not rows:
+        return None
+    return pd.DataFrame(rows).sort_values("site", kind="stable").reset_index(drop=True)
+
+
+def _field_diagnostics_before(task: Mapping[str, Any], planes,
+                              unreadable: list) -> Dict[str, Any]:
+    """The per-field diagnostics measured on the raw planes (item 932).
+
+    Off unless ``ops_field_diagnostics`` is set: no rule reads them, and on
+    a 1,480 px field they cost about 4 CPU s of the decode.
+
+    :param task: the field's task; ``dapi`` is the reference cycle's DAPI
+        source, or None.
+    :param planes: ``cycle -> raw planes``, None for a cycle not read.
+    :param unreadable: the field's unreadable sources, appended to.
+    :returns: ``diag`` (per cycle the planes' 50th and 99.9th percentiles
+        and the variance of the Laplacian of the cycle's
+        :func:`spacr.ops_cycles.sbs_mean_target`; ``dapi_focus``, the
+        variance of the Laplacian of the DAPI plane divided by its 99th
+        percentile) and an empty ``registrations`` list for
+        :func:`spacr.ops_cycles.align_field` to fill.
+    """
+    from scipy import ndimage
+
+    from .ops_cycles import sbs_mean_target
+
+    diag: Dict[str, Any] = {}
+    for cycle in task["cycles"]:
+        found = planes.get(cycle)
+        if found is None:
+            continue
+        laplace = ndimage.laplace(np.asarray(sbs_mean_target(found), np.float32))
+        diag[str(cycle)] = {
+            "p50": [float(np.percentile(plane, 50)) for plane in found],
+            "p999": [float(np.percentile(plane, 99.9)) for plane in found],
+            "focus_lapvar": float(laplace.var())}
+    dapi = _read_plane(task["dapi"], unreadable) if task.get("dapi") else None
+    if dapi is not None:
+        dapi = np.asarray(dapi, np.float32)
+        diag["dapi_focus"] = float(ndimage.laplace(
+            dapi / max(np.percentile(dapi, 99), 1)).var())
+    return {"diag": diag, "registrations": []}
+
+
+def _write_field_diagnostics(task: Mapping[str, Any], field, filtered,
+                             diagnostics: Mapping[str, Any],
+                             base: Mapping[str, Any]) -> str:
+    """Write one field's diagnostics as ``site<NNNN>.json`` (item 932).
+
+    The keys are the decode-yield study's field JSON: ``diag``,
+    ``log_p999`` (per kept cycle, each channel's 99.9th percentile after the
+    -LoG filter), ``registrations`` (every background registration as
+    ``[dy, dx, peak_ratio, accepted]``) and the field's alignment.
+
+    :param task: the field's task, with ``diagnostics_folder``.
+    :param field: the aligned field.
+    :param filtered: the aligned stack after the -LoG filter.
+    :param diagnostics: from :func:`_field_diagnostics_before`, its
+        ``registrations`` filled by the alignment.
+    :param base: the field's result so far.
+    :returns: the path written.
+    """
+    folder = task["diagnostics_folder"]
+    os.makedirs(folder, exist_ok=True)
+    record = {
+        "site": int(task["site"]), "kept": list(field.kept),
+        "refused": list(field.refused), "missing": list(field.missing),
+        "cycle_shifts": {str(k): list(v) for k, v in field.cycle_shifts.items()},
+        "channel_shifts": {str(k): [list(p) for p in v]
+                           for k, v in field.channel_shifts.items()},
+        "spot_replaced": [list(p) for p in field.spot_replaced],
+        "channel_mode": str(task.get("channel_mode") or "background"),
+        "registration": dict(task.get("registration", {}),
+                             used=base.get("registration_backend")),
+        "registrations": [list(r) for r in diagnostics["registrations"]],
+        "diag": diagnostics["diag"],
+        "log_p999": {str(c): [float(np.percentile(filtered[i, k], 99.9))
+                              for k in range(filtered.shape[1])]
+                     for i, c in enumerate(field.kept)},
+        "unreadable": [list(map(str, item)) for item in base.get("unreadable", [])],
+    }
+    path = os.path.join(folder, f"site{int(task['site']):04d}.json")
+    with open(path, "w", encoding="utf-8") as handle:
+        json.dump(record, handle)
+    return path
 
 
 def _decode_field_rule_a(task: Mapping[str, Any], field, stack, filtered,
@@ -2025,6 +2214,7 @@ def _decode_rule_a_report(db, plate, well, settings, rule_a, tasks, results,
         "crosstalk": crosstalk, "channel_registration": channel_mode,
         "channels_spot_registered": sum(len(r.get("spot_replaced", ()))
                                         for r in decoded),
+        "registration": _registration_report(tasks, results),
         "read_threshold": rule_a["threshold"], "footprint": rule_a["footprint"],
         "spot_detector": detector, "store_reads": bool(store_reads),
         "base_channels": list(channels), "workers": workers,
@@ -2135,7 +2325,15 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         "spot_overrule_share": float(_setting_number(
             settings.get("ops_spot_overrule_share"), "ops_spot_overrule_share",
             0.5)),
+        "precision": _registration_choice(
+            settings.get("ops_registration_precision"), "ops_registration_precision"),
+        "backend": _registration_choice(
+            settings.get("ops_registration_backend"), "ops_registration_backend"),
     }
+    diagnostics_folder = (os.path.join(os.path.dirname(os.path.abspath(db)),
+                                       well, "decode_diagnostics")
+                          if bool(settings.get("ops_field_diagnostics", False))
+                          else None)
     decoys: List[str] = []
     rule, mismatches, min_reads, min_fraction = _cell_rule(settings, library)
     if rule_a["active"] and rule == "mapped":
@@ -2166,9 +2364,12 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         near = np.flatnonzero((oy > top - 30) & (oy < top + shape[0] + 30)
                               & (ox > left - 30) & (ox < left + shape[1] + 30))
         planes = {}
+        dapi = None
         for cycle in cycles:
             sources = _plane_sources(cycle_files[cycle].get(site, {}))
             planes[cycle] = [sources.get(name) for name in channels]
+            if cycle == reference:
+                dapi = sources.get("DAPI")
         tasks.append({
             "site": site, "planes": planes, "cycles": cycles,
             "reference": reference,
@@ -2180,6 +2381,8 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
             "crosstalk": crosstalk, "channel_mode": channel_mode,
             "registration": registration, "rule_a": rule_a,
             "cache_folder": cache_folder,
+            "diagnostics_folder": diagnostics_folder,
+            "dapi": dapi if diagnostics_folder else None,
         })
 
     library_set = frozenset(library)
@@ -2322,6 +2525,7 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         "crosstalk": crosstalk, "channel_registration": channel_mode,
         "channels_spot_registered": sum(len(r.get("spot_replaced", ()))
                                         for r in decoded),
+        "registration": _registration_report(tasks, results),
         "min_reads": min_reads, "min_fraction": min_fraction,
         "reads_mapped": reads_mapped,
         "objects_with_a_mapped_read": objects_with_mapped,
