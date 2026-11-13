@@ -743,6 +743,23 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_registration_precision",
     "ops_registration_backend",
     "ops_field_diagnostics",
+    # Item 933 (2026-11-13): the nuclear-median estimator of the general
+    # illumination correction (the OPS flat-field of item 912).
+    "illumination_nuclear_channel",
+    "illumination_nuclei",
+    "illumination_dark_per_plate",
+    "illumination_block_px",
+    "illumination_fit",
+    "illumination_sigma_px",
+    "illumination_ridge",
+    "illumination_floor",
+    "illumination_centre_cells",
+    "illumination_lookup",
+    "illumination_map_grid",
+    "illumination_centre_offset",
+    "illumination_holdout_n",
+    "illumination_seed",
+    "illumination_validate",
     # Item 930 (2026-11-13): per-tile affine alignment of phenotype fields
     # to the sequencing nuclei (OPS stage 1, arm vii).
     "ops_align_model",
