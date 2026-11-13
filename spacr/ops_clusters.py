@@ -1576,33 +1576,39 @@ def _sweep_figure(summary: pd.DataFrame, path: str, published: Optional[pd.DataF
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
+    from .figures.bundle import _register_figure_data
+    from .figures.style import figure_style, resolve_label_ground
+    from .plot import _checked_savefig
+
     panels = (("CORUM_pct_enriched_may2025", "CORUM clusters enriched (%)"),
               ("KEGG_pct_enriched_may2025", "KEGG clusters enriched (%)"),
               ("STRING_f1", "STRING pair F1"),
               ("complexes_recovered_pct", "CORUM complexes in one cluster (%)"))
     colours = {"real": "#1f6f8b", "shuffled gene labels": "#9aa5b1"}
-    figure, axes = plt.subplots(1, len(panels), figsize=(4 * len(panels), 3.4))
-    for ax, (metric, title) in zip(axes, panels):
-        for (graph, control), d in summary.groupby(["graph", "control"]):
-            d = d.sort_values("clusters mean")
-            ax.plot(d["clusters mean"], d[f"{metric} mean"], marker="o", ms=3,
-                    color=colours.get(control, "#333333"),
-                    linestyle="-" if graph == "phate" else "--",
-                    label=f"{graph}, {control}")
-        if published is not None:
-            for k, ((name, control), d) in enumerate(published.groupby(["profile", "control"], sort=False)):
-                real = control == "real"
-                ax.scatter(d["clusters"], d[metric], s=28 if real else 14,
-                           marker=("s", "^", "D", "v")[k // 2 % 4],
-                           color="#0b2545" if real else "#9aa5b1", alpha=0.6, zorder=3,
-                           label=f"{name}, {control} (published partition, data not matched)")
-        ax.set_xscale("log")
-        ax.set_xlabel("clusters (mean over seeds)")
-        ax.set_title(title, fontsize=9)
-    axes[-1].legend(fontsize=7, loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False)
-    figure.tight_layout()
-    figure.savefig(path, dpi=150, bbox_inches="tight")
-    plt.close(figure)
+    with figure_style("print"):
+        figure, axes = plt.subplots(1, len(panels), figsize=(4 * len(panels), 3.4))
+        for ax, (metric, title) in zip(axes, panels):
+            for (graph, control), d in summary.groupby(["graph", "control"]):
+                d = d.sort_values("clusters mean")
+                ax.plot(d["clusters mean"], d[f"{metric} mean"], marker="o", ms=3,
+                        color=colours.get(control, "#333333"),
+                        linestyle="-" if graph == "phate" else "--",
+                        label=f"{graph}, {control}")
+            if published is not None:
+                for k, ((name, control), d) in enumerate(published.groupby(["profile", "control"], sort=False)):
+                    real = control == "real"
+                    ax.scatter(d["clusters"], d[metric], s=28 if real else 14,
+                               marker=("s", "^", "D", "v")[k // 2 % 4],
+                               color="#0b2545" if real else "#9aa5b1", alpha=0.6, zorder=3,
+                               label=f"{name}, {control} (published partition, data not matched)")
+            ax.set_xscale("log")
+            ax.set_xlabel("clusters (mean over seeds)")
+            ax.set_title(title, fontsize=9)
+        axes[-1].legend(fontsize=7, loc="center left", bbox_to_anchor=(1.02, 0.5), frameon=False)
+        _register_figure_data(figure, summary, x="clusters mean", y=f"{panels[0][0]} mean", hue="control", kind="line")
+        figure.tight_layout()
+        _checked_savefig(figure, path, dpi=150, bbox_inches="tight", facecolor=resolve_label_ground("print"))
+        plt.close(figure)
     return path
 
 

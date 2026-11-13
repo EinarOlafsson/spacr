@@ -165,7 +165,7 @@ def umap_layout(rows: np.ndarray, *, n_neighbors: int = 15, min_dist: float = 0.
         without guides.
     :raises ValueError: for an unknown mode.
     """
-    import umap
+    from .utils import umap
 
     if mode not in ("none", "joint", "project"):
         raise ValueError(f"ops_umap_guides must be 'none', 'joint' or 'project'; got {mode!r}")
@@ -677,6 +677,7 @@ def _figure(coords: pd.DataFrame, hierarchy: pd.DataFrame, z: np.ndarray, top_le
     from scipy.cluster.hierarchy import dendrogram
     from scipy.spatial import ConvexHull
 
+    from .figures.bundle import _register_figure_data
     from .utils import generate_colors
 
     fg, bg = ("#e6edf3", "#0d1b2a") if dark else ("#0d1b2a", "#ffffff")
@@ -708,6 +709,7 @@ def _figure(coords: pd.DataFrame, hierarchy: pd.DataFrame, z: np.ndarray, top_le
         spine.set_color(fg)
     ax.set_title("UMAP layout, for display; clusters are computed on the full profiles",
                  color=fg, fontsize=9)
+    _register_figure_data(fig, genes, x="x", y="y", hue="cluster", kind="scatter")
     for group, panel in panels.items():
         angle = 2 * np.pi * slots[group] / n_slots
         cx, cy = 0.41 + 0.3 * np.cos(angle), 0.49 + 0.4 * np.sin(angle)
@@ -901,12 +903,14 @@ def run_ops_image_umap(settings: Mapping[str, Any]) -> Dict[str, Any]:
                   per_cluster=s["ops_umap_crop_level"] != "top")
     import matplotlib
 
+    from .plot import _checked_savefig
+
     with matplotlib.rc_context({"svg.hashsalt": "spacr-ops-umap"}):
         for ext in ("pdf", "png", "svg"):
-            fig.savefig(os.path.join(dst, f"ops_umap.{ext}"), dpi=200,
-                        facecolor=fig.get_facecolor(),
-                        metadata={"CreationDate": None} if ext == "pdf" else
-                        ({"Date": None} if ext == "svg" else None))
+            _checked_savefig(fig, os.path.join(dst, f"ops_umap.{ext}"), dpi=200,
+                             facecolor=fig.get_facecolor(),
+                             metadata={"CreationDate": None} if ext == "pdf" else
+                             ({"Date": None} if ext == "svg" else None))
 
     inputs = {k: s.get(k) for k in ("ops_umap_profiles", "ops_umap_guide_profiles",
                                     "ops_umap_cell_embedding") if s.get(k)}

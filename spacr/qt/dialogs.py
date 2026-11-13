@@ -797,7 +797,9 @@ def _place_dialog_on_first_show(dialog):
     :returns: True when its initial frame was moved, otherwise False.
     """
     from functools import partial
-    from PySide6.QtCore import Qt, QTimer
+    from PySide6.QtCore import Qt
+
+    from . import _after
 
     if dialog.property("spacrInitiallyPlaced"):
         return False
@@ -811,7 +813,7 @@ def _place_dialog_on_first_show(dialog):
         return False
     if not _centre_dialog_on_its_screen(dialog, owner):
         return False
-    QTimer.singleShot(0, dialog, partial(_centre_again_unless_moved, dialog, dialog.pos()))
+    _after(0, dialog, partial(_centre_again_unless_moved, dialog, dialog.pos()))
     return True
 
 

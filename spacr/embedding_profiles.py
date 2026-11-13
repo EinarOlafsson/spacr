@@ -525,7 +525,9 @@ def well_umap(wells: pd.DataFrame, *, features: Optional[Sequence[str]] = None,
         names the umap-learn release.
     :raises ImportError: when umap-learn is missing.
     """
-    import umap
+    from importlib.metadata import version
+
+    from .utils import umap
 
     features = list(features) if features is not None else [
         c for c in wells.columns if str(c).startswith('emb_')]
@@ -535,7 +537,7 @@ def well_umap(wells: pd.DataFrame, *, features: Optional[Sequence[str]] = None,
                        random_state=int(seed), n_jobs=1).fit_transform(values)
     carried = wells[[c for c in wells.columns if c not in set(features)]].reset_index(drop=True)
     result = carried.assign(x=points[:, 0], y=points[:, 1])
-    result.attrs['umap_version'] = getattr(umap, '__version__', '')
+    result.attrs['umap_version'] = version('umap-learn')
     return result
 
 
