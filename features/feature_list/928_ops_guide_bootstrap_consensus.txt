@@ -1,0 +1,33 @@
+OPS GUIDE-BOOTSTRAP CONSENSUS CLUSTERING OF GENE PROFILES
+=========================================================
+
+Lifecycle: future
+Status: IMPLEMENTED 2026-11-12 (alpha, under ALPHA_FEATURES[928]); step 6 reproduction proof below — the profile-path phase cluster_consensus (spacr-run ops, phases ["cluster_consensus"]; also after cluster_sweep when ops_consensus_enabled) clusters ops_consensus_bootstraps guide bootstraps of the gene profile (spacr.ops_clusters.guide_bootstrap_profiles: every gene's guides drawn with replacement, row shifted by the change of the cell-weighted guide mean; seed ops_consensus_draw_seed + b) with PHATE (knn ops_consensus_knn) + Leiden at the matched cluster count (match_resolution; seed ops_consensus_seed x 100 + b), builds the co-clustering matrix (coclustering_matrix), cuts it by average linkage on 1 - C at the target count (consensus_partition, or Leiden with ops_consensus_method='leiden'), reports each gene's stability (consensus_stability) and matches the count within 10 % (match_count). Every gene gets a cluster unless ops_consensus_force_genes is off. Writes <dst_root>/results/ops_clusters/consensus_cooc.npz, consensus_partition.csv, consensus_runs.csv, consensus_summary.json and consensus.png. spacr/ops_clusters.py, spacr/ops_tvn.py, spacr/ops_engine.py, spacr/ops_settings.py, spacr/settings.py, tests/test_ops_consensus_bench_928_929.py.
+Requested: maintainer via paper session (BMC paper item spec ITEM_ops_consensus_clustering.md; OPS stage 5, feature workflow step 5 approved 2026-11-12).
+Owner: paper session (stage 5 lane).
+Source: Design F f_arms._consensus (cons_forced arm: B = 10 inner guide-bootstrap redraws 1000 + 20 r + b, PHATE knn 10 + Leiden with resolution bisection at the matched count, seeds seed x 100 + b, average linkage on 1 - co-association, f_lib.cut_count over [2, 4k]) and f_lib.finish (cs_lib.adjust_count with seed 100 + r); cs_lib.Resampler (guide bootstrap), cs_lib.search_res, bench.to_k.
+Related: 916 (gene_graph and leiden_partitions reused unchanged), 929 (the calibrated test), 855 (the older consensus_clustering, unchanged).
+
+SETTINGS
+ops_consensus_enabled (False), ops_consensus_bootstraps (10), ops_consensus_seed
+(100), ops_consensus_draw_seed (8000), ops_consensus_knn (10), ops_consensus_k
+(None = round(genes x 209 / 2647)), ops_consensus_k_ratio ([209, 2647]),
+ops_consensus_method ('average'), ops_consensus_min_cooc (0.0),
+ops_consensus_force_genes (True), ops_consensus_min_stability (0.5),
+ops_consensus_match_count (True), ops_consensus_guides (None). The seeds are
+chosen so that replicate r of the cluster_bench_test phase (seed 100 + r, draw
+seed 8000 + 20 r) is Design F's replicate r. Item 855's ops_consensus_runs and
+consensus_clustering are unchanged; their outputs stay the same.
+
+DEFAULT IDENTITY
+With every new setting at its default, cluster_sweep writes the same files
+(tests/test_ops_consensus_bench_928_929.py::
+test_the_default_settings_leave_the_sweep_outputs_identical); the phases run
+only when named or enabled.
+
+VALIDATION (step 6; script + result JSON in
+/nas_mnt/data/sync/papers/BMCspacr/reanalysis/spacr_stage5_proof/)
+See spacr_stage5_proof/stage5_proof_result.json: Design F plate A partitions
+of cons_forced~hyb (spaCR rebuilds the guide bootstrap itself) and
+cons_forced~L:DD_H2_trim (the complexes winner, same bootstrap inputs), same
+seeds, compared label for label (consensus cut and final partition).
