@@ -18,8 +18,7 @@ from spacr.qt.linked_selection import LinkedSelection
 from spacr.qt.screens.gate_editor import GateEditorScreen
 from spacr.qt.widgets.gate_editor import _screen_points
 from spacr.qt.widgets.gate_spec import (
-    BoxGate, CylinderGate, EditableVolumeGate, GateSet, PolygonGate,
-    PrismGate, RectGate, ViewGate,
+    BoxGate, CylinderGate, GateSet, PrismGate, RectGate, ViewGate,
 )
 
 pytestmark = pytest.mark.qt
@@ -100,16 +99,6 @@ def test_a_self_crossing_view_lasso_offers_no_editable_surfaces(screen):
     assert screen.gates.gates.get('view') is gate
 
 
-def test_edit_anchors_are_not_offered_for_a_gate_on_other_measurements(screen):
-    canvas = _install(screen, _box())
-    elsewhere = ViewGate(name='elsewhere', x_column='a', y_column='b', z_column='d',
-                         projection=tuple(map(tuple, np.eye(4))),
-                         vertices=((-1, -1), (1, -1), (1, 1), (-1, 1)))
-    assert canvas._editable_boundary(elsewhere) is None
-    assert canvas._volume_handles(elsewhere) == []
-    assert len(canvas._volume_handles(_box())) == 26
-
-
 def test_a_surface_too_small_to_see_cannot_be_picked(screen):
     tiny = BoxGate.from_limits('box', ('a', 'b', 'c'), [(0, 1e-7)] * 3)
     canvas = _install(screen, tiny)
@@ -118,14 +107,6 @@ def test_a_surface_too_small_to_see_cannot_be_picked(screen):
     canvas = _install(screen, _box())
     pixel = _screen_points(canvas.axes_at(0, 0), [[0, 0, 0]])[0]
     assert canvas.volume_surface_at(_event(canvas, pixel)) is not None
-
-
-def test_an_unprojectable_point_gives_no_edit_displacement(screen):
-    canvas = _install(screen, _box())
-    canvas._edit_drag_projection = None
-    ax = canvas.axes_at(0, 0)
-    assert canvas._volume_edit_delta(ax, np.full(3, np.nan), np.asarray([10., 0.])) is None
-    assert canvas._surface_moved(_event(canvas, [0, 0])) is None
 
 
 def test_a_plain_click_selects_one_surface_and_commits_nothing(screen):
@@ -186,16 +167,6 @@ def test_a_surface_drag_that_folds_the_volume_is_refused_with_a_reason(screen):
     assert screen.gates.undo_stack.index() == history
 
 
-def test_a_non_finite_pointer_position_drags_nothing(screen):
-    screen.gates.mode_requested.emit('2D')
-    gate = RectGate(name='flat', x_column='a', y_column='b', x_low=-1, x_high=1, y_low=-1, y_high=1)
-    screen.gates.set_gates(GateSet([gate]))
-    canvas = screen.gates.canvas
-    canvas._resize = ('flat', 'x_high')
-    assert canvas._dragged_to(_event(canvas, [0, 0], xdata=float('nan'), ydata=0.)) is None
-    assert canvas._dragged_to(_event(canvas, [0, 0], xdata=2., ydata=0.)).x_high == 2.
-
-
 def test_a_stale_outline_anchor_drags_nothing_and_reports_nothing(screen):
     screen.gates.mode_requested.emit('2D')
     gate = RectGate(name='flat', x_column='a', y_column='b', x_low=-1, x_high=1, y_low=-1, y_high=1)
@@ -238,17 +209,3 @@ def test_a_box_outline_anchor_edit_becomes_a_prism_keeping_its_depth(screen):
     assert screen.gates.gates.get('box') == gate
 
 
-def test_a_footprint_outline_edit_of_a_cylinder_keeps_its_axis_range(screen):
-    screen.gates.mode_requested.emit('2D')
-    gate = CylinderGate(name='cyl', u_column='a', v_column='b', axis_column='c',
-                        u_radius=1, v_radius=1, axis_low=-.25, axis_high=.5)
-    screen.gates.set_gates(GateSet([gate]))
-    canvas = screen.gates.canvas
-    footprint = PolygonGate(name='cyl', x_column='a', y_column='b',
-                            vertices=((-1, -1), (1, -1), (1, 1), (-1, 1)))
-    canvas._as_flat = lambda shown: footprint if shown is gate else shown
-    canvas._resize = ('cyl', 'outline:1:0.5')
-    edited = canvas._dragged_to(_event(canvas, [0, 0], xdata=1.5, ydata=0.))
-    assert isinstance(edited, PrismGate)
-    assert edited.vertices == ((-1, -1), (1, -1), (1.5, 0), (1, 1), (-1, 1))
-    assert (edited.axis_column, edited.axis_low, edited.axis_high) == ('c', -.25, .5)

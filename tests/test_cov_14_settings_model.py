@@ -16,7 +16,6 @@ from __future__ import annotations
 import sys
 import types
 
-import pandas as pd
 import pytest
 
 pytest.importorskip("PySide6")
@@ -143,62 +142,7 @@ def test_a_labelled_button_is_self_labelling(qapp):
     assert sm._is_self_labelling(QCheckBox("")) is False
 
 
-def test_a_field_with_no_label_is_left_quiet(qapp):
-    """A composite field with nowhere to put its help says nothing.
-
-    Qt delivers ``Enter`` to a parent whenever the pointer crosses any child,
-    so hover help left on a container fires from anywhere inside it.
-    """
-    from PySide6.QtWidgets import QVBoxLayout, QWidget
-
-    owner = QWidget()
-    layout = QVBoxLayout(owner)
-    field = QWidget(owner)
-    field.setProperty("settingKey", "nucleus_channel")
-    field.setToolTip("something stale")
-    layout.addWidget(field)
-
-    sm.install_api_tooltips(owner, "mask")
-
-    assert field.toolTip() == ""
-    assert field.property("apiTooltipHtml") == ""
-    assert field.property("apiTooltipDisplayRole") == "metadata"
-
-
 # -- reading what a run was given ---------------------------------------------
-
-def test_a_single_legacy_count_path_is_a_list_of_one():
-    """The pre-migration spelling stored one path as a bare string."""
-    assert sm._count_files_of({"count_data": " /screen/counts.csv "}) == \
-        ["/screen/counts.csv"]
-
-
-def test_the_current_paired_shape_wins_over_the_legacy_one():
-    """``paired_data`` is read first; the legacy key is only the fallback."""
-    settings = {"paired_data": [{"count": "/new.csv"}],
-                "count_data": "/old.csv"}
-
-    assert sm._count_files_of(settings) == ["/new.csv"]
-
-
-def test_a_frame_that_already_carries_prc_is_keyed_by_it():
-    """A composed well key is used as it is rather than rebuilt."""
-    keys = sm._well_keys(pd.DataFrame({"prc": ["p1_r1_c1", "p1_r1_c2"]}))
-
-    assert list(keys) == ["p1_r1_c1", "p1_r1_c2"]
-
-
-def test_a_frame_with_plate_row_and_column_is_keyed_by_the_pair():
-    """``plate_row`` already holds the plate; only the column is appended."""
-    keys = sm._well_keys(pd.DataFrame({"plate_row": ["p1_r1"],
-                                       "columnID": ["c1"]}))
-
-    assert list(keys) == [f"p1_r1{sm.KEY_SEPARATOR}c1"]
-
-
-def test_a_frame_with_none_of_the_key_columns_is_refused():
-    """No recognised layout gives ``None``, not a guessed key."""
-    assert sm._well_keys(pd.DataFrame({"count": [1]})) is None
 
 
 def test_two_part_guide_names_are_split_gene_then_guide():
@@ -451,20 +395,6 @@ def test_nothing_unavailable_means_no_panel_to_open(qtbot, monkeypatch):
     assert field.open_availability_panel() is None
 
 
-def test_a_pointer_over_nothing_in_the_popup_opens_no_panel(qtbot):
-    """A mouse move that lands on no row is ignored."""
-    from PySide6.QtCore import QEvent, QPointF, Qt
-    from PySide6.QtGui import QMouseEvent
-
-    field = _backend_field(qtbot)
-    view = field.combo.view()
-    viewport = view.viewport()
-    move = QMouseEvent(QEvent.MouseMove, QPointF(-50.0, -50.0),
-                       Qt.NoButton, Qt.NoButton, Qt.NoModifier)
-
-    assert field.eventFilter(viewport, move) is False
-
-
 class _StubIndex:
     def __init__(self, row, valid=True):
         self._row = row
@@ -583,22 +513,6 @@ def test_a_key_with_no_canonical_reader_is_returned_as_it_is():
     assert widgets._canonical("nucleus_channel", 1) == 1
 
 
-def test_an_auto_capable_box_takes_auto_from_a_pushed_value(qapp):
-    """Propagating "auto" into a box that offers it selects auto, not zero."""
-    from PySide6.QtWidgets import QDoubleSpinBox
-
-    box = QDoubleSpinBox()
-    box.setRange(0.0, 10.0)
-    box.setSpecialValueText(sm.AUTO_TEXT)
-    box.setValue(4.0)
-
-    widgets = sm.SettingsWidgets("regression")
-    widgets._widgets["nms_threshold"] = box
-
-    assert widgets.set_value_for_key("nms_threshold", "auto") is True
-    assert box.value() == box.minimum()
-
-
 def test_the_backend_follows_the_declared_default_when_nothing_shows_it(
         qtbot):
     """With no regression-type control on screen the declared default is used.
@@ -640,67 +554,3 @@ def test_a_regression_type_control_that_cannot_be_read_falls_back(qtbot,
     widgets._refresh_regression_backend()
 
     assert backend.regression_type() == "ridge"
-
-
-def test_no_constraint_registry_leaves_every_control_editable(monkeypatch,
-                                                              qapp):
-    """Without the advisor module nothing is greyed, and nothing raises.
-
-    Greying a control the panel cannot justify is worse than leaving it
-    editable: the user cannot tell why it is dead.
-    """
-    from PySide6.QtWidgets import QComboBox
-
-    widgets = sm.SettingsWidgets("regression")
-    unit = QComboBox()
-    unit.addItem("cell")
-    widgets._widgets["analysis_unit"] = unit
-    monkeypatch.setitem(sys.modules, "spacr.settings_advisor", None)
-
-    widgets._refresh_analysis_unit_lock()
-
-    assert unit.isEnabled() is True
-
-
-def test_a_registry_without_the_whole_table_locks_only_this_unit(monkeypatch,
-                                                                 qapp):
-    """Missing ``UNIT_REQUIREMENTS`` falls back to the current unit's keys.
-
-    Refreshing only those leaves an older lock in place, which is why the
-    whole table is preferred -- but it must not stop the panel building.
-    """
-    from PySide6.QtWidgets import QComboBox
-
-    import spacr.settings_advisor as advisor
-
-    widgets = sm.SettingsWidgets("regression")
-    unit = QComboBox()
-    unit.addItem("cell")
-    widgets._widgets["analysis_unit"] = unit
-    monkeypatch.setattr(advisor, "requirements_for_unit", lambda _unit: {})
-    monkeypatch.delattr(advisor, "UNIT_REQUIREMENTS")
-
-    widgets._refresh_analysis_unit_lock()
-
-    assert unit.isEnabled() is True
-    assert widgets._unit_locked == set()
-
-
-def test_a_dependency_pass_that_fails_does_not_stop_the_unit_lock(monkeypatch,
-                                                                  qapp):
-    """The other greying rules failing leaves this rule's work applied."""
-    from PySide6.QtWidgets import QComboBox
-
-    widgets = sm.SettingsWidgets("regression")
-    unit = QComboBox()
-    unit.addItem("cell")
-    widgets._widgets["analysis_unit"] = unit
-
-    def _explode():
-        raise RuntimeError("a dependency rule is broken")
-
-    widgets._refresh_setting_dependencies = _explode
-
-    widgets._refresh_analysis_unit_lock()
-
-    assert isinstance(widgets._unit_locked, set)

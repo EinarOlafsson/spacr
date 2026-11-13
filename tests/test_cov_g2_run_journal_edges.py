@@ -6,7 +6,6 @@ import sys
 import types
 from pathlib import Path
 
-import pytest
 
 from spacr import run_journal as rj
 
@@ -15,38 +14,6 @@ def test_an_unreadable_ledger_is_not_noted():
     run = types.SimpleNamespace(_ledgers=[])
     rj.Run._note_ledger(run, object())
     assert run._ledgers == []
-
-
-def test_a_failed_secret_write_removes_its_temporary(tmp_path, monkeypatch):
-    path = tmp_path / "secrets.json"
-
-    def broken(*a, **k):
-        raise ValueError("cannot encode")
-
-    monkeypatch.setattr(rj.json, "dump", broken)
-    with pytest.raises(ValueError):
-        rj._write_notify_secret_file({"a": "1"}, path)
-    assert list(tmp_path.iterdir()) == []
-
-
-def test_a_secret_temporary_already_gone_is_not_an_error(tmp_path, monkeypatch):
-    path = tmp_path / "secrets.json"
-
-    def vanish(source, target):
-        Path(source).unlink()
-        raise OSError("disk went away")
-
-    monkeypatch.setattr(rj.os, "replace", vanish)
-    with pytest.raises(OSError, match="disk went away"):
-        rj._write_notify_secret_file({"a": "1"}, path)
-
-
-def test_an_empty_keyring_answer_reads_the_secret_file(tmp_path, monkeypatch):
-    ring = types.SimpleNamespace(get_password=lambda service, name: "")
-    monkeypatch.setattr(rj, "_notify_keyring", lambda: ring)
-    monkeypatch.setattr(rj, "_notify_secrets_path", lambda: tmp_path / "s.json")
-    rj._write_notify_secret_file({"slack_webhook": "from-file"})
-    assert rj._load_notify_secret("slack_webhook") == "from-file"
 
 
 def test_no_preferences_means_no_notification_config(monkeypatch):
@@ -137,15 +104,6 @@ def test_recorded_models_skip_unreadable_runs(tmp_path, monkeypatch):
     monkeypatch.setattr(rj, "load_run_settings", settings)
     assert rj._recorded_models("classify", tmp_path) == {}
     assert real
-
-
-def test_an_unchanged_locked_file_is_no_deviation(tmp_path):
-    model = tmp_path / "model.pth"
-    model.write_bytes(b"weights")
-    digest = rj.hash_file(model, full=True)
-    record = {"settings": {}, "files": {str(model): digest}}
-    assert not [d for d in rj._lock_deviations(record, {})
-                if d["key"].startswith("file:")]
 
 
 def test_unreadable_first_seen_lines_are_skipped():

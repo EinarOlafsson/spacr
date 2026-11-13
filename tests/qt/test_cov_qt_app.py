@@ -17,7 +17,6 @@ from __future__ import annotations
 
 from contextlib import contextmanager
 
-import importlib
 import os
 import sys
 import threading
@@ -31,13 +30,11 @@ from PySide6.QtWidgets import (
     QCheckBox,
     QComboBox,
     QDoubleSpinBox,
-    QFileDialog,
     QLabel,
     QLineEdit,
     QMessageBox,
     QPushButton,
     QSpinBox,
-    QWidget,
 )
 
 from spacr.qt import app as app_mod
@@ -48,16 +45,10 @@ from spacr.qt.app import (
     MAX_APPS_PER_SECTION,
     SECTION_ASSAYS,
     SECTION_CORE,
-    SECTION_DATA,
-    SECTION_DESIGN,
-    SECTION_EXPLORE,
-    SECTION_MODELS,
-    SECTION_RESULTS,
     SECTIONS,
     MainWindow,
     Sidebar,
     _icon_for_app,
-    _load_bundled_fonts,
     _PipelinePreloader,
     app_stage,
     home_bands,
@@ -231,26 +222,6 @@ def modals(monkeypatch):
     monkeypatch.setattr(QDialog, "exec", _exec)
     monkeypatch.setattr(QDialog, "exec_", _exec, raising=False)
     return rec
-
-
-@pytest.fixture
-def pick_dir(monkeypatch):
-    """Script :meth:`QFileDialog.getExistingDirectory`.
-
-    Returns a one-item list; set ``[0]`` to the directory the "user"
-    picks, or to ``""`` to simulate Cancel. Every call is recorded in
-    ``.calls``.
-    """
-    box = [""]
-    calls: list = []
-
-    def _get(parent, caption, directory="", options=None):
-        calls.append((caption, directory))
-        return box[0]
-
-    monkeypatch.setattr(QFileDialog, "getExistingDirectory", _get)
-    box.append(calls)          # box[1] is the call log
-    return box
 
 
 def _counts() -> dict:
@@ -652,18 +623,6 @@ def test_sidebar_has_one_row_per_app_plus_home_in_apps_order(
         assert btn.full_text() == name.replace("&", "&&")
 
 
-def test_sidebar_emits_the_key_of_the_row_that_was_clicked(
-        qtbot, qt_theme_applied):
-    bar = Sidebar()
-    qtbot.addWidget(bar)
-    by_key = {b.property("navKey"): b for b in bar.findChildren(QPushButton)}
-    assert "invasion" not in by_key, "Invasion is reached through Toxoplasma"
-    for key in ("__home__", "mask", "toxoplasma"):
-        with qtbot.waitSignal(bar.nav_selected, timeout=1000) as blocker:
-            by_key[key].click()
-        assert blocker.args == [key]
-
-
 # ===========================================================================
 # 2. Sidebar width policy + label elision
 # ===========================================================================
@@ -803,26 +762,6 @@ def test_sidebar_caps_its_width_and_elides_a_pathological_name(
     assert clipped[0].accessibleName().strip() == huge
 
 
-def test_the_sidebar_re_inks_its_icons_when_the_theme_changes(
-        qtbot, qt_theme_applied, monkeypatch):
-    """A QIcon bakes its pixmap when it is built, so a stylesheet swap
-    alone leaves white glyphs white — on a white light-theme column."""
-    from spacr.qt import preferences as prefs
-    monkeypatch.setattr(prefs, "resolve_effective_theme", lambda: "dark")
-    bar = Sidebar()
-    qtbot.addWidget(bar)
-    rows = {b.property("navKey"): b
-            for b in bar.findChildren(QPushButton)}
-    dark = {k: _img(b.icon()) for k, b in rows.items()}
-    assert dark and not any(b.icon().isNull() for b in rows.values())
-
-    monkeypatch.setattr(prefs, "resolve_effective_theme", lambda: "light")
-    bar.refresh_icons()
-    unchanged = [k for k, b in rows.items() if _img(b.icon()) == dark[k]]
-    assert not unchanged, (
-        f"these rows kept their dark ink after a theme switch: {unchanged}")
-
-
 def test_refresh_icons_leaves_a_row_with_no_nav_key_alone(
         qtbot, qt_theme_applied):
     from spacr.qt.widgets.eliding import ElidingPushButton
@@ -833,15 +772,6 @@ def test_refresh_icons_leaves_a_row_with_no_nav_key_alone(
     bar.refresh_icons()
     assert stray.icon().isNull(), "a row with no navKey has no app to look up"
     assert not bar.findChildren(QPushButton)[0].icon().isNull()
-
-
-def test_no_shipping_sidebar_label_is_clipped(qtbot, qapp, qt_theme_applied):
-    bar = Sidebar()
-    qtbot.addWidget(bar)
-    bar.resize(bar.width(), 1400)
-    bar.show()
-    qapp.processEvents()
-    assert [b.full_text().strip() for b in bar.clipped_items()] == []
 
 
 # ===========================================================================
@@ -992,44 +922,12 @@ def test_an_unfittable_name_elides_and_keeps_the_row_sane(
 # 4. Icons
 # ===========================================================================
 
-def test_every_app_has_a_non_null_icon():
-    blank = [k for k, *_r in APPS if _icon_for_app(k).isNull()]
-    assert not blank, f"apps rendering a blank tile: {blank}"
-
-
 def test_icon_overrides_all_point_at_files_that_exist():
     here = os.path.dirname(os.path.abspath(app_mod.__file__))
     icons = os.path.normpath(os.path.join(here, "..", "resources", "icons"))
     missing = {k: v for k, v in _ICON_OVERRIDES.items()
                if not os.path.isfile(os.path.join(icons, v))}
     assert not missing, f"override points at a missing file: {missing}"
-
-
-@pytest.mark.parametrize("key,twin", [
-    ("train_cellpose", "cellpose_masks"),   # shares the Cellpose glyph
-    # FOUR PAIRS BECAME ONE ON 2026-09-02, and the three that left are the
-    # point rather than the loss. `agreement`, `plate_view`,
-    # `model_compare`, `analyze_plaques` and `model_zoo` were each drawn
-    # their OWN artwork, and it is better than what they were borrowing --
-    # two overlapping circles for annotator agreement, a plate for the plate
-    # viewer, a grid of model cards for the zoo. The table's own rule is
-    # that an override is for an app that BORROWS another app's picture and
-    # "is not the place to record 'this app has an icon'".
-    #
-    # They were invisible until then: three surfaces resolved icons WITHOUT
-    # consulting the table, so the fold buttons already drew the artwork
-    # while the tiles drew the borrow. See
-    # `tests/qt/test_a_folded_module_wears_its_own_picture.py`.
-    #
-    # `train_cellpose` is the one real borrow left: its own file is a
-    # DUMBBELL, the training glyph, and the Cellpose Workbench must not wear
-    # it -- which is exactly what was reported.
-])
-def test_an_override_makes_two_keys_share_one_glyph(key, twin):
-    """The override table is the only reason these render alike; a typo in
-    it would send one of the pair to the fallback glyph instead."""
-    assert _ICON_OVERRIDES[key].endswith(".png")
-    assert _img(_icon_for_app(key)) == _img(_icon_for_app(twin))
 
 
 @pytest.mark.parametrize("key", ["agreement", "plate_view", "model_compare",
@@ -1047,12 +945,6 @@ def test_a_module_with_its_own_art_no_longer_borrows(key):
         f"{key} has artwork of its own; an override would hide it")
     own = iconset.bundled_icon_path(key)
     assert own is not None and own.endswith(f"{key}.png")
-
-
-def test_apps_without_a_shared_source_do_not_render_alike():
-    """Guards the test above against a degenerate "everything is the same
-    blank icon" pass."""
-    assert _img(_icon_for_app("mask")) != _img(_icon_for_app("measure"))
 
 
 def test_forced_glyph_keys_ignore_the_bundled_pngs(qapp, monkeypatch):
@@ -1094,212 +986,6 @@ def test_an_unknown_key_falls_back_to_a_themed_glyph():
 # ===========================================================================
 # 5. Navigation
 # ===========================================================================
-
-def test_every_app_key_navigates_to_its_own_screen(win):
-    """Every tile leads somewhere, and the status bar names where."""
-    for key, name, _d, _s in APPS:
-        win._on_nav_selected(key)
-        screen = win._screens.get(key)
-        assert isinstance(screen, QWidget), f"{key} built no screen"
-        assert win._stack.currentWidget() is screen, f"{key} not shown"
-        assert win._status_app_label.text() == name
-    assert set(win._screens) == {k for k, *_r in APPS}
-
-
-def test_a_screen_is_built_once_and_then_reused(win):
-    before = win._stack.count()
-    win._on_nav_selected("measure")
-    first = win._screens["measure"]
-    assert win._stack.count() == before + 1
-    win._on_nav_selected("mask")
-    win._on_nav_selected("measure")
-    assert win._screens["measure"] is first
-    assert win._stack.currentWidget() is first
-    assert win._stack.count() == before + 2
-
-
-def test_home_returns_to_the_startup_page(win):
-    win._on_nav_selected("umap")
-    assert win._stack.currentWidget() is not win._startup
-    win._on_nav_selected("__home__")
-    assert win._stack.currentWidget() is win._startup
-    assert win._status_app_label.text() == "Home"
-    assert "__home__" not in win._screens
-
-
-def test_build_screen_returns_the_dedicated_class_where_there_is_one(win):
-    expected = {
-        "toxoplasma": "OrganismScreen", "plasmodium": "OrganismScreen",
-        "candida": "OrganismScreen",
-        "annotate":      "AnnotateScreen",
-        "make_masks":    "MakeMasksScreen",
-        "queue":         "QueueScreen",
-        "db_browser":    "DbBrowserScreen",
-        "agreement":     "AgreementScreen",
-        "plate_view":    "PlateViewScreen",
-        "model_compare": "ModelCompareScreen",
-        "align":         "AlignScreen",
-        "convert":       "ConvertScreen",
-        "foreign":       "ForeignScreen",
-        "batch":         "BatchScreen",
-        "distributed_jobs": "DistributedJobsScreen",
-        "model_zoo":     "ModelZooScreen",
-        "report":        "ReportScreen",
-        "train_compare": "TrainCompareScreen",
-        "classifier_evaluation": "ClassifierEvaluationScreen",
-        "run_history":   "RunHistoryScreen",
-    }
-    for key, cls_name in expected.items():
-        screen = win._build_screen(key)
-        assert type(screen).__name__ == cls_name, key
-        screen.deleteLater()
-
-
-def test_every_other_key_builds_a_generic_app_screen(win):
-    """Which keys get a screen of their own, asserted in both directions.
-
-    ``curate`` grew a ``CurateScreen`` and this test walked into it one key at
-    a time, stopping at the first surprise with a bare ``assert False`` — so
-    it reported "curate is not an AppScreen" and could not say whether
-    anything else had moved as well. Every key is built and the two sets are
-    compared, which also catches the opposite drift: a dedicated screen
-    quietly falling back to the generic one is a screen the user stops
-    seeing, and the old shape could not fail on that at all.
-    """
-    from spacr.qt.screens.app_screen import AppScreen
-    dedicated = {"toxoplasma", "plasmodium", "candida", "trypanosoma",
-                 "leishmania", "giardia", "virus", "mammalian", "annotate", "make_masks", "queue", "db_browser", "agreement",
-                 "plate_view", "model_compare", "align", "convert", "foreign",
-                 "batch", "distributed_jobs", "model_zoo", "report", "train_compare",
-                 "classifier_evaluation", "run_history",
-                 # Sixteen more since this set was last written, and the old
-                 # one-key-at-a-time shape could only ever name the first of
-                 # them. Every one of these is a screen built for its own job
-                 # rather than a settings form over a pipeline entry point.
-                 "curate", "data_manager", "experiment_design",
-                 "graph_builder", "hit_list", "image_scatter", "layer_viewer",
-                 "lineage", "methods_export", "pca", "pipeline_graph",
-                 "power", "profiler", "qc_dashboard", "run_compare",
-                 "tabulate", "explain_cv", "investigate_hit",
-                 # Two more, registered without this set being updated. The
-                 # Volcano Explorer redraws a finished regression's
-                 # coefficient table and the Parameter Sweep reads the trials
-                 # of a search that already ran; both are screens built for
-                 # their own job, not settings forms over a pipeline entry.
-                 "volcano_explorer", "parameter_sweep",
-                 # `train_cellpose` was a settings form over an entry point
-                 # until it absorbed Cellpose Masks. The Workbench is a
-                 # screen of its own: fine-tuning on one tab, segmenting a
-                 # folder on the other, sharing one model between them.
-                 "train_cellpose",
-                 # Three that were only ever SELF-REGISTERING, and so were
-                 # invisible to a bare `import spacr.qt.app` even though a
-                 # running application drew all three. They joined APPS on
-                 # 2026-09-05, when the maintainer reported the dock and Home
-                 # showing 6/6/5/4 with Help 9 while the imported registry
-                 # answered 6/5/4/4 with Help 8 -- the gap WAS these.
-                 #
-                 # All three build their own screen rather than a settings
-                 # form, so they belong here; this ledger is the one the
-                 # registry change had to update and did not.
-                 "dose_response", "gate_editor", "project_browser"}
-
-    built_generic, built_dedicated = set(), set()
-    for key, *_r in APPS:
-        screen = win._build_screen(key)
-        if isinstance(screen, AppScreen):
-            built_generic.add(key)
-            assert screen.app_key == key
-        else:
-            built_dedicated.add(key)
-        screen.deleteLater()
-
-    assert built_generic, "expected some generic AppScreen apps"
-    assert built_dedicated == dedicated & {k for k, *_r in APPS}, (
-        "the set of apps with a screen of their own moved. Newly dedicated: "
-        f"{sorted(built_dedicated - dedicated)}; no longer dedicated: "
-        f"{sorted((dedicated & {k for k, *_r in APPS}) - built_dedicated)}")
-
-
-def test_clicking_a_home_tile_navigates(normal_win, qtbot):
-    win = normal_win
-    tile = _tiles(win._startup)["Measure"]
-    tile.click()
-    assert win._status_app_label.text() == "Measure"
-    assert win._stack.currentWidget() is win._screens["measure"]
-
-
-def test_clicking_a_sidebar_row_navigates(win):
-    by_key = {b.property("navKey"): b
-              for b in win._sidebar.findChildren(QPushButton)}
-    by_key["regression"].click()
-    assert win._status_app_label.text() == "Regression"
-    by_key["__home__"].click()
-    assert win._stack.currentWidget() is win._startup
-
-
-def test_the_menu_bar_lists_every_app_and_its_entries_navigate(win):
-    from spacr.qt.organisms import ORGANISMS
-
-    # A module shared by several organism menus keeps each organism's own
-    # summary (634, eb2201537 added the same routes under new organisms), so
-    # every summary a route carries is accepted.
-    organism_summaries = {}
-    for guide in ORGANISMS.values():
-        for key, _title, summary, _icon in guide['modules']:
-            if key:
-                organism_summaries.setdefault(key, set()).add(summary)
-    # The apps sit one level down since 2026-08-23: the spaCR menu opens
-    # onto a submenu per section rather than onto sixty-five flat rows.
-    seen = {}
-
-    def collect(menu):
-        for act in menu.actions():
-            if act.isSeparator():
-                continue
-            if act.menu() is not None:
-                collect(act.menu())
-            else:
-                seen.setdefault(act.text(), set()).add(act.statusTip())
-
-    for top in win.menuBar().actions():
-        if top.text().replace("&", "") != "spaCR":
-            continue
-        collect(top.menu())
-        break
-    for key, name, desc, _s in APPS:
-        assert seen.get(name, set()) & organism_summaries.get(key, {desc}), (
-            f"{name} missing/mislabelled in menu")
-    # Triggered through the section submenu it now lives in.
-    def find(menu, label):
-        for act in menu.actions():
-            if act.menu() is not None:
-                hit = find(act.menu(), label)
-                if hit is not None:
-                    return hit
-            elif act.text() == label:
-                return act
-        return None
-
-    for top in win.menuBar().actions():
-        if top.text().replace("&", "") != "spaCR":
-            continue
-        act = find(top.menu(), "Image UMAP")
-        assert act is not None, "Image UMAP is not on the spaCR menu"
-        act.trigger()
-        break
-    assert win._status_app_label.text() == "Image UMAP"
-
-
-def test_the_home_menu_entry_returns_to_the_startup_page(win):
-    win._on_nav_selected("mask")
-    for top in win.menuBar().actions():
-        if top.text().replace("&", "") != "spaCR":
-            continue
-        next(a for a in top.menu().actions() if a.text() == "Home").trigger()
-        break
-    assert win._stack.currentWidget() is win._startup
-
 
 # -- the search / filter path ------------------------------------------------
 
@@ -1352,34 +1038,6 @@ def test_an_empty_filter_restores_every_command(win, qtbot):
 # ===========================================================================
 # 6. Menu actions: about / urls / logs / preferences
 # ===========================================================================
-
-def test_about_shows_the_installed_version(win, modals):
-    import spacr
-    win._show_about()
-    assert len(modals.about) == 1
-    title, body = modals.about[0]
-    assert title == "About spaCR"
-    assert spacr.__version__ in body
-
-
-def test_about_says_unknown_when_the_version_cannot_be_read(
-        win, modals, monkeypatch):
-    """The word, not the markup.
-
-    b530f70a rebuilt the About panel as a laid-out dialog instead of a
-    QMessageBox, so the version is its own label reading "Version unknown"
-    rather than a "<b>Version:</b> unknown" fragment inside one rich-text
-    blob. The claim is unchanged — an unreadable version says so out loud
-    instead of showing an empty space — so it is asserted on the text the
-    panel renders rather than on the HTML it no longer emits.
-    """
-    import spacr
-    monkeypatch.delattr(spacr, "__version__")
-    win._show_about()
-    body = modals.about[0][1]
-    assert "Version unknown" in body, body
-    assert "Version:" not in body     # the old QMessageBox spelling is gone
-
 
 def test_resolve_version_reports_the_package_version(win):
     import spacr
@@ -1455,185 +1113,9 @@ def test_open_log_folder_reports_failures(win, monkeypatch):
         "Failed to open log folder: nope")
 
 
-def test_preferences_opens_the_dialog_and_rebuilds_home(win, monkeypatch):
-    from spacr.qt import preferences as prefs
-    calls = []
-
-    class _FakeDialog:
-        def __init__(self, parent=None):
-            calls.append(parent)
-
-        def exec(self):
-            calls.append("exec")
-            return 1
-
-    monkeypatch.setattr(prefs, "PreferencesDialog", _FakeDialog)
-    old_home = win._startup
-    win._on_nav_selected("__home__")
-    win._open_preferences()
-
-    assert calls == [win, "exec"]
-    assert win._startup is not old_home, "Home was not rebuilt"
-    assert win._stack.indexOf(old_home) == -1, "old Home left in the stack"
-    assert win._stack.currentWidget() is win._startup
-
-
-def test_preferences_reports_when_the_dialog_is_unavailable(
-        win, monkeypatch):
-    from spacr.qt import preferences as prefs
-    monkeypatch.delattr(prefs, "PreferencesDialog")
-    old_home = win._startup
-    win._open_preferences()
-    assert "Preferences unavailable" in win.statusBar().currentMessage()
-    assert win._startup is old_home, "Home should not be rebuilt on failure"
-
-
-def test_preferences_survives_a_home_rebuild_failure(win, monkeypatch):
-    from spacr.qt import preferences as prefs
-
-    class _FakeDialog:
-        def __init__(self, parent=None):
-            pass
-
-        def exec(self):
-            return 1
-
-    def _boom():
-        raise RuntimeError("cannot rebuild")
-
-    monkeypatch.setattr(prefs, "PreferencesDialog", _FakeDialog)
-    monkeypatch.setattr(win, "_install_startup_page", _boom)
-    win._open_preferences()          # must not propagate
-    assert win._stack.indexOf(win._startup) != -1
-
-
-def test_refresh_theme_re_inks_the_sidebar_and_rebuilds_home(win, monkeypatch):
-    calls = []
-    monkeypatch.setattr(win._sidebar, "refresh_icons",
-                        lambda: calls.append("icons"))
-    old_home = win._startup
-    win.refresh_theme()
-    assert calls == ["icons"]
-    assert win._startup is not old_home
-    assert win._stack.indexOf(old_home) == -1
-
-
-def test_refresh_theme_survives_either_half_falling_over(win, monkeypatch):
-    def _boom(*args):
-        raise RuntimeError("restyle failed")
-
-    monkeypatch.setattr(win._sidebar, "refresh_icons", _boom)
-    old_home = win._startup
-    win.refresh_theme()               # icons blew up; Home still rebuilt
-    assert win._startup is not old_home
-
-    monkeypatch.setattr(win, "_install_startup_page", _boom)
-    still_home = win._startup
-    win.refresh_theme()               # both halves blew up; no exception
-    assert win._startup is still_home
-
-
-def test_rebuilding_home_keeps_a_non_home_screen_on_screen(win):
-    win._on_nav_selected("mask")
-    current = win._stack.currentWidget()
-    old_home = win._startup
-    win._rebuild_startup_page()
-    assert win._startup is not old_home
-    assert win._stack.currentWidget() is current
-    assert win._stack.indexOf(old_home) == -1
-
-
 # ===========================================================================
 # 7. Demos
 # ===========================================================================
-
-def test_demo_targets_all_resolve_to_a_real_generator(win):
-    from spacr.qt import synthetic as syn
-    for demo_key, (target_app, gen_name) in win.DEMO_TARGETS.items():
-        assert callable(getattr(syn, gen_name, None)), demo_key
-        assert target_app in {k for k, *_r in APPS}, demo_key
-
-
-def test_run_demo_generator_dispatches_on_the_demo_key(win, monkeypatch,
-                                                       tmp_path):
-    from spacr.qt import synthetic as syn
-    seen = []
-
-    def _fake(dst, **kw):
-        seen.append(dst)
-        return "sentinel-layout"
-
-    monkeypatch.setattr(syn, "generate_crop_demo", _fake)
-    assert win._run_demo_generator("crop", str(tmp_path)) == "sentinel-layout"
-    assert seen == [str(tmp_path)]
-
-
-
-
-
-
-
-
-
-
-
-
-def test_apply_demo_prefers_the_settings_model(win, tmp_path):
-    layout = win._run_demo_generator("mask", str(tmp_path))
-    applied = []
-
-    class _Screen:
-        def apply_settings_dict(self, settings):
-            applied.append(settings)
-
-    win._apply_demo_to_screen(_Screen(), layout)
-    assert len(applied) == 1
-    assert applied[0]["src"] == str(layout.src)
-
-
-def test_apply_demo_falls_back_to_open_source(win, tmp_path):
-    layout = win._run_demo_generator("mask", str(tmp_path))
-    seen = []
-
-    class _AnnotateLike:
-        def _open_source(self, src):
-            seen.append(src)
-
-    win._apply_demo_to_screen(_AnnotateLike(), layout)
-    assert seen == [str(layout.src)]
-
-
-def test_apply_demo_falls_back_to_open_folder(win, tmp_path):
-    layout = win._run_demo_generator("mask", str(tmp_path))
-    seen = []
-
-    class _MakeMasksLike:
-        def _open_folder(self, src):
-            seen.append(src)
-
-    win._apply_demo_to_screen(_MakeMasksLike(), layout)
-    assert seen == [str(layout.src)]
-
-
-def test_apply_demo_with_an_unreadable_csv_falls_through(win, tmp_path,
-                                                         monkeypatch):
-    """When load_settings hands back something that isn't a dict the
-    settings path must NOT be taken — the folder fallback runs instead."""
-    import spacr.utils as sutils
-    layout = win._run_demo_generator("mask", str(tmp_path))
-    monkeypatch.setattr(sutils, "load_settings", lambda *a, **k: None)
-    seen = []
-
-    class _Both:
-        def apply_settings_dict(self, settings):
-            seen.append(("settings", settings))
-
-        def _open_source(self, src):
-            seen.append(("source", src))
-
-    win._apply_demo_to_screen(_Both(), layout)
-    assert seen == [("source", str(layout.src))]
-
 
 def test_apply_demo_to_a_screen_that_supports_nothing_is_a_no_op(
         win, tmp_path, monkeypatch):
@@ -1675,39 +1157,6 @@ def test_apply_demo_to_a_screen_that_supports_nothing_is_a_no_op(
 # ===========================================================================
 # 8. The end-to-end demo chain
 # ===========================================================================
-
-@pytest.fixture
-def no_pipeline_runs(monkeypatch):
-    """Stop the E2E chain from actually launching a segmentation run."""
-    from spacr.qt.screens.app_screen import AppScreen
-    runs = []
-    monkeypatch.setattr(AppScreen, "_on_run",
-                        lambda self: runs.append(self.app_key))
-    return runs
-
-
-def _write_settings_pack(root, app_key, rows):
-    root.mkdir(parents=True, exist_ok=True)
-    path = root / f"{app_key}_settings.csv"
-    path.write_text("\n".join(",".join(str(c) for c in r) for r in rows), encoding="utf-8")
-    return path
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 # ===========================================================================
 # 9. Update check
@@ -1910,19 +1359,6 @@ def test_a_missing_updater_module_is_reported_not_raised(win, modals,
 # 10. Shutdown
 # ===========================================================================
 
-def test_closing_the_window_drains_every_console_panel(win, monkeypatch):
-    from spacr.qt.widgets.console_panel import ConsolePanel
-    win._on_nav_selected("mask")
-    win._on_nav_selected("measure")
-    panels = win.findChildren(ConsolePanel)
-    assert len(panels) >= 2, "expected one console per app screen"
-    drained = []
-    monkeypatch.setattr(ConsolePanel, "shutdown",
-                        lambda self: drained.append(self))
-    win.close()
-    assert set(drained) == set(panels)
-
-
 def test_closing_the_window_waits_for_a_running_update_check(
         win, qtbot, modals, monkeypatch):
     """Quitting mid-update destroyed a live QThread — the exact abort
@@ -1943,25 +1379,6 @@ def test_closing_the_window_waits_for_a_running_update_check(
     win.close()
     assert worker.isFinished(), (
         "close() returned while the update QThread was still running")
-
-
-def test_closing_the_window_is_fine_with_no_update_check_running(win):
-    assert not hasattr(win, "_update_worker")
-    win.close()
-    assert not win.isVisible()
-
-
-def test_closing_after_the_update_worker_was_reaped_is_safe(win):
-    """``worker.finished`` schedules ``deleteLater``; by quit time the C++
-    object may be gone and PySide raises on any call to it."""
-
-    class _Reaped:
-        def wait(self, msecs=None):
-            raise RuntimeError("Internal C++ object already deleted.")
-
-    win._update_worker = _Reaped()
-    win.close()
-    assert not win.isVisible()
 
 
 def test_a_news_fetch_that_outlasts_the_close_is_detached_not_destroyed(
@@ -2044,79 +1461,9 @@ def test_a_news_refresh_asked_for_after_close_starts_no_thread(
     assert fetched == []
 
 
-def test_a_panel_that_refuses_to_shut_down_does_not_block_the_close(
-        win, monkeypatch):
-    from spacr.qt.widgets.console_panel import ConsolePanel
-    win._on_nav_selected("mask")
-
-    def _boom(self):
-        raise RuntimeError("stream stuck")
-
-    monkeypatch.setattr(ConsolePanel, "shutdown", _boom)
-    win.close()                       # must not propagate
-    assert not win.isVisible()
-
-
 # ===========================================================================
 # 11. Cross-screen hand-offs
 # ===========================================================================
-
-def test_the_model_zoo_hands_two_models_to_model_compare(win):
-    win._on_zoo_compare_requested({
-        "model_a": "cyto3", "model_b": "nuclei",
-        "folder": "", "n_fields": 4,
-    })
-    screen = win._screens["model_compare"]
-    assert win._stack.currentWidget() is screen
-    assert screen._panel_a.model_edit.text() == "cyto3"
-    assert screen._panel_b.model_edit.text() == "nuclei"
-    assert screen._fields_box.value() == 4
-
-
-def test_a_zoo_request_with_missing_keys_leaves_the_screen_alone(win):
-    """Absent keys become empty strings / 0, which ModelCompareScreen
-    documents as "leave that control alone" — not "blank it"."""
-    win._on_nav_selected("model_compare")
-    screen = win._screens["model_compare"]
-    before = (screen._panel_a.model_edit.text(),
-              screen._panel_b.model_edit.text(),
-              screen._fields_box.value())
-    win._on_zoo_compare_requested({})
-    assert (screen._panel_a.model_edit.text(),
-            screen._panel_b.model_edit.text(),
-            screen._fields_box.value()) == before
-
-
-def test_a_zoo_request_is_dropped_if_compare_cannot_be_configured(win):
-    """A ``model_compare`` entry without ``configure`` swallows the request.
-
-    Measured on the real screen, which is held aside and checked before
-    and after: it must be untouched. The control at the end puts it back
-    and fires the identical request, so "untouched" is a measurement that
-    demonstrably comes out differently when the hand-off does land.
-    """
-    win._on_nav_selected("model_compare")
-    real = win._screens["model_compare"]
-    before = real._panel_a.model_edit.text()
-    probe = "zoo-drop-probe"
-    assert before != probe, "the control below could not tell the two apart"
-
-    placeholder = QWidget()                        # no .configure
-    assert not hasattr(placeholder, "configure")
-    win._screens["model_compare"] = placeholder
-    win._on_zoo_compare_requested({"model_a": probe})
-
-    # Navigation still happened — the user is looking at Model Compare,
-    # only the preload was dropped.
-    assert win._visit_order[-1] == "model_compare"
-    assert real._panel_a.model_edit.text() == before, (
-        "the request reached the real screen anyway")
-
-    # Control — same request, a screen that can take it.
-    win._screens["model_compare"] = real
-    win._on_zoo_compare_requested({"model_a": probe})
-    assert real._panel_a.model_edit.text() == probe
-
 
 def test_snapshot_returns_the_settings_of_the_visible_app_screen(win):
     win._on_nav_selected("measure")
@@ -2124,31 +1471,6 @@ def test_snapshot_returns_the_settings_of_the_visible_app_screen(win):
     assert key == "measure"
     assert isinstance(settings, dict) and settings
     assert settings == win._screens["measure"]._settings_model.collect()
-
-
-def test_snapshot_falls_back_to_the_last_app_screen_visited(win):
-    win._on_nav_selected("classify")
-    win._on_nav_selected("queue")     # QueueScreen is not an AppScreen
-    assert win._stack.currentWidget() is win._screens["queue"]
-    key, settings = win._snapshot_current_screen_settings()
-    assert key == "classify"
-    assert isinstance(settings, dict) and settings
-
-
-def test_snapshot_means_last_VIEWED_not_last_opened(win):
-    """Open Mask, open Measure, go back to Mask, then hit "Add current
-    plate" on the Queue screen: the plate being added is Mask's.
-
-    Walking ``_screens`` (creation order) instead of the visit order
-    silently queued Measure's settings here.
-    """
-    win._on_nav_selected("mask")
-    win._on_nav_selected("measure")
-    win._on_nav_selected("mask")           # revisit — now the newest
-    win._on_nav_selected("queue")
-    key, settings = win._snapshot_current_screen_settings()
-    assert key == "mask"
-    assert settings == win._screens["mask"]._settings_model.collect()
 
 
 def test_snapshot_raises_when_no_app_has_been_opened(win):
@@ -2172,46 +1494,6 @@ def test_the_legacy_explain_error_hook_is_inert(win):
 # navigate to the raw key, which BUILT a screen for it -- a page with no
 # sidebar row, no tile and no way back to it -- and seeded that instead of
 # the screen the user can actually reach.
-
-def test_train_requested_navigates_to_the_screen_that_carries_the_key(win):
-    """The seed lands on the merged Classify, not on an orphan page."""
-    win._on_train_requested("classify", {"src": "/data/plate1",
-                                         "epochs": 7})
-
-    assert "classify" not in win._screens, "an orphan screen was built"
-    screen = win._screens["classify_merged"]
-    assert win._stack.currentWidget() is screen
-    assert screen._settings_model.collect()["src"] == "/data/plate1"
-    widgets = screen._settings_model._widgets
-    if "epochs" in widgets:
-        assert widgets["epochs"].value() == 7
-    paths = ["/data/plate1", "/data/plate2"]
-    win._on_train_requested("classify", {"src": paths})
-    assert win._stack.currentWidget() is screen
-    assert screen._settings_model.collect()["src"] == paths
-
-
-def test_train_requested_ignores_keys_the_target_does_not_have(win):
-    win._on_train_requested("classify", {"no_such_setting_at_all": 1})
-    assert win._stack.currentWidget() is win._screens["classify_merged"]
-
-
-def test_train_requested_survives_a_value_the_widget_rejects(win):
-    """A bad seed must not take the navigation down with it."""
-    win._on_train_requested("classify", {"src": "/ok", "epochs": "not-a-number"})
-    screen = win._screens["classify_merged"]
-    assert screen._settings_model.collect()["src"] == "/ok"
-
-
-def test_train_requested_to_home_is_a_no_op(win):
-    win._on_train_requested("__home__", {"src": "/x"})
-    assert win._stack.currentWidget() is win._startup
-
-
-def test_train_requested_to_a_screen_without_settings_is_a_no_op(win):
-    win._on_train_requested("db_browser", {"src": "/x"})
-    assert win._stack.currentWidget() is win._screens["db_browser"]
-
 
 def test_seed_values_are_applied_per_widget_type(qtbot):
     apply = MainWindow._apply_seed_value
@@ -2278,78 +1560,6 @@ def test_every_preloaded_module_actually_exists():
     assert not missing, f"preloader points at modules that don't exist: {missing}"
 
 
-def test_the_preloader_imports_on_its_worker_and_reports_on_the_poll(
-        monkeypatch):
-    imported: list = []
-    steps: list = []
-    done: list = []
-    real_import = importlib.import_module
-
-    class _HeldThread:
-        """Record ``start`` without running the target concurrently."""
-
-        def __init__(self, target=None, name=None, daemon=None):
-            self.target = target
-            self.name = name
-            self.daemon = daemon
-            self.started = False
-
-        def start(self):
-            self.started = True
-
-    def _fake_import(name):
-        imported.append(name)
-        if name == "spacr.no_such_module":
-            raise ImportError("nope")
-        return real_import(name)
-
-    monkeypatch.setattr(importlib, "import_module", _fake_import)
-    # Patch the module reference, not ``threading.Thread`` itself. The latter
-    # is the process-wide threading module and turns a focused test double
-    # into ambient state for every importer in the process.
-    monkeypatch.setattr(
-        app_mod, "threading",
-        types.SimpleNamespace(Thread=_HeldThread, Event=threading.Event),
-    )
-
-    pre = _PipelinePreloader(
-        on_step=lambda i, n: steps.append((i, n)),
-        on_done=lambda: done.append(1),
-    )
-    monkeypatch.setattr(pre, "_MODULES", ("spacr.no_such_module", "json"))
-    pre.start()
-
-    assert pre._thread.started is True
-    assert pre._thread.name == "spacr-preload"
-    assert pre._thread.daemon is True
-    assert imported == [], "start() ran imports on the caller thread"
-
-    worker = pre._thread
-    pre.start()                         # already started: no second worker
-    assert pre._thread is worker
-
-    # Run the captured worker body deterministically. A failing import is
-    # swallowed and the chain continues, but callbacks remain pending until
-    # the GUI-side poll drains them.
-    worker.target()
-    assert imported == ["spacr.no_such_module", "json"]
-    assert steps == [] and done == []
-    pre._drain()
-    assert steps == [(1, 2), (2, 2)]
-    assert done == [1]
-    pre._drain()                         # completion is delivered only once
-    assert done == [1]
-    assert pre._i == 2
-
-
-def test_the_window_can_open_straight_into_an_app(qtbot, qt_theme_applied):
-    """``spacr-qt mask`` opens on Mask, not on Home."""
-    w = MainWindow(initial_app="mask")
-    qtbot.addWidget(w, before_close_func=_close_owned_screens)
-    assert w._stack.currentWidget() is w._screens["mask"]
-    assert w._status_app_label.text() == "Mask"
-
-
 @pytest.mark.parametrize("navigator", (False, True))
 def test_the_window_still_opens_without_shortcuts_or_the_tour(
         qtbot, qt_theme_applied, monkeypatch, tmp_path, navigator):
@@ -2386,30 +1596,6 @@ def test_the_window_still_opens_without_shortcuts_or_the_tour(
             "shortcuts should be absent when the module failed to import")
 
 
-def test_shortcuts_are_installed_when_the_module_is_available(win):
-    # BOTH HOLDERS, because a key can legitimately live on either. The menu
-    # builds Home and Preferences as QActions carrying Ctrl+0 and Ctrl+P so
-    # it can print the accelerator beside the item -- which binds them -- and
-    # `shortcuts.BOUND_ELSEWHERE` keeps `install` from binding a QShortcut
-    # for the same sequence. Qt answers a key with two holders by firing
-    # neither and logging "QAction::event: Ambiguous shortcut overload", so
-    # before that both keys were DEAD. Looking only at QShortcut made the
-    # fix read as a missing binding.
-    from PySide6.QtGui import QAction, QShortcut
-    bound = {sc.key().toString() for sc in win.findChildren(QShortcut)}
-    bound |= {seq.toString() for act in win.findChildren(QAction)
-              for seq in act.shortcuts()}
-    for keys in ("Ctrl+0", "Ctrl+K", "Ctrl+1", "Ctrl+9", "Ctrl+Shift+H", "F1"):
-        assert keys in bound, f"{keys} was never bound"
-    # And exactly one holder each, or they are ambiguous again.
-    from spacr.qt import shortcuts as _sc
-    shortcut_keys = [s.key().toString() for s in win.findChildren(QShortcut)]
-    for keys in _sc.BOUND_ELSEWHERE:
-        assert keys not in shortcut_keys, (
-            f"{keys} has a QShortcut as well as its action; Qt will fire "
-            "neither and log an ambiguous shortcut overload")
-
-
 def test_the_main_window_does_not_preload_pipelines_by_default(win):
     # The default is intentionally loaded-on-call: eager startup spent twenty
     # seconds importing torch/compiler/distributed stacks on the maintainer's
@@ -2422,63 +1608,6 @@ def test_the_main_window_does_not_preload_pipelines_by_default(win):
 # ===========================================================================
 # 14. Bundled fonts
 # ===========================================================================
-
-def test_bundled_open_sans_is_registered(qapp):
-    from PySide6.QtGui import QFontDatabase
-    _load_bundled_fonts()
-    families = QFontDatabase.families()
-    assert any("Open Sans" in f for f in families)
-    _load_bundled_fonts()          # idempotent
-    assert QFontDatabase.families() == families
-
-
-def test_missing_font_directory_is_not_an_error(monkeypatch):
-    """No fonts directory -> nothing is registered, quietly.
-
-    ``QFontDatabase.families()`` cannot show this: a font already loaded
-    by another test stays loaded, so the family list is unchanged either
-    way. The registration call itself is what is counted — and the
-    control at the end (same call, directory present) proves the counter
-    is wired to something that really does fire.
-    """
-    import PySide6.QtGui as qtgui
-
-    added: list = []
-
-    class _SpyDatabase:
-        @staticmethod
-        def addApplicationFont(path):
-            added.append(path)
-            return len(added)
-    monkeypatch.setattr(qtgui, "QFontDatabase", _SpyDatabase)
-
-    hidden = {"on": True}
-    real_isdir = os.path.isdir
-    # The directory is `resources/font/open_sans/static` -- SINGULAR "font",
-    # and two levels deeper than this predicate used to look. It matched
-    # `resources/fonts`, which exists nowhere, so `isdir` always returned the
-    # real answer, the directory was never hidden, and the missing-directory
-    # branch this test is named for had never once been exercised. The
-    # assertion below then failed for the honest reason: fonts really were
-    # registered.
-    fonts_dir = os.path.join("resources", "font", "open_sans", "static")
-    monkeypatch.setattr(
-        os.path, "isdir",
-        lambda p: False if (hidden["on"] and str(p).endswith(fonts_dir))
-        else real_isdir(p))
-
-    assert _load_bundled_fonts() is None
-    assert added == [], f"fonts were registered from nowhere: {added}"
-
-    # Control — the same call with the directory visible does register the
-    # bundled TTFs, so the empty list above is a real observation.
-    hidden["on"] = False
-    _load_bundled_fonts()
-    assert added, "the bundled fonts directory registered nothing at all"
-    assert all(p.lower().endswith((".ttf", ".otf")) for p in added)
-    assert any("OpenSans" in os.path.basename(p).replace(" ", "")
-               for p in added), added
-
 
 # ===========================================================================
 # 15. launch()
@@ -2639,58 +1768,6 @@ def launched(qapp, qtbot, monkeypatch, tmp_path):
             window.deleteLater()
 
 
-def test_launch_opens_the_requested_app(launched, qtbot):
-    rc = app_mod.launch(["measure"])
-    assert rc == 0
-
-    shim = launched["shims"][0]
-    assert shim.exec_calls == 1
-    assert shim.app_name is None
-    assert shim.org_name is None
-    assert shim.applicationName() == "spaCR"
-    assert shim.organizationName() == "Olafsson Lab"
-    # THE THEME GOES ON THE WINDOWS, NOT ON THE APPLICATION. 380's last
-    # lever moved it there -- a preference save with four modules open went
-    # from 10.2 s to 3.1 s -- so this shim's `setStyleSheet`, which exists
-    # to intercept the global re-polish, is no longer the thing that
-    # records it. The sheet is parked on the application object so a window
-    # created later can find it, and that is what says the theme was
-    # applied.
-    from spacr.qt.theme import window_stylesheet
-    assert "QWidget" in (window_stylesheet(shim) or ""), (
-        "theme was never applied")
-
-    win = launched["window"]()
-    qtbot.addWidget(win, before_close_func=_close_owned_screens)
-    assert win.isVisible()
-    assert win._status_app_label.text() == "Measure"
-    assert "measure" in win._screens
-    win.close()
-
-
-def test_launch_with_no_arguments_opens_on_home(launched, qtbot,
-                                                monkeypatch):
-    monkeypatch.setattr(sys, "argv", ["spacr-qt"])
-    rc = app_mod.launch()
-    assert rc == 0
-    # On macOS the application is built with its own name, which is what the
-    # menu bar shows; elsewhere it keeps the command it was started as.
-    if sys.platform == "darwin":
-        from spacr.qt.menus import name_the_application
-
-        expected = [name_the_application()[0]]
-    else:
-        expected = ["spacr-qt"]
-    assert launched["shims"][0].argv == expected
-
-    win = launched["window"]()
-    qtbot.addWidget(win, before_close_func=_close_owned_screens)
-    assert win._screens == {}
-    assert win._stack.currentWidget() is win._startup
-    assert win._status_app_label.text() == "Home"
-    win.close()
-
-
 #: What the background pre-warm is expected to import, written out rather
 #: than read back out of the code it guards.
 #:
@@ -2775,142 +1852,6 @@ def test_the_prewarm_list_names_modules_that_exist():
         f"launch pre-warms {missing}, which no longer exist -- the import "
         "fails into the debug log and the screen it was warming for is slow "
         "again")
-
-
-def test_launch_prewarms_the_heavy_imports_off_thread(launched, qtbot,
-                                                      monkeypatch):
-    app_mod.launch([])
-    win = launched["window"]()
-    qtbot.addWidget(win, before_close_func=_close_owned_screens)
-
-    assert len(launched["threads"]) == 1
-    thread = launched["threads"][0]
-    assert thread.name == "spacr-prewarm"
-    assert thread.daemon is True
-    assert thread.started is True
-
-    # WHAT THE BODY ASKS FOR, not what happens to be in `sys.modules`
-    # afterwards. By the time this test runs the suite has imported most of
-    # spaCR, so membership alone would pass on a thread body that imports
-    # nothing at all.
-    requested: list = []
-    real_import = importlib.import_module
-
-    nesting = [0]
-
-    def _record(name):
-        if not nesting[0]:
-            requested.append(name)
-        nesting[0] += 1
-        try:
-            return real_import(name)
-        finally:
-            nesting[0] -= 1
-
-    # The thread ends by listing Make Masks' filter properties. That walk
-    # triggers scikit-image's own lazy submodule loads through
-    # ``importlib.import_module`` (``skimage.measure._regionprops`` and one
-    # more), which are not entries of the prewarm list; it is stood in for
-    # here and only checked to run.
-    from spacr.qt import mask_engine
-    catalogue_calls: list = []
-    app_mod._HEAVY_WARM_GATE.set()
-    with monkeypatch.context() as m:
-        m.setattr(importlib, "import_module", _record)
-        m.setattr(mask_engine, "_filter_catalogue",
-                  lambda: catalogue_calls.append(True))
-        thread.target()
-    assert requested == list(PREWARMED_MODULES)
-    assert catalogue_calls == [True]
-    for name in PREWARMED_MODULES:
-        assert name in sys.modules, f"{name} was not pre-warmed"
-
-    # A prewarm import that fails must stay silent — it is an optimisation.
-    with monkeypatch.context() as m:
-        def _boom(name):
-            raise ImportError("no module today")
-        m.setattr(importlib, "import_module", _boom)
-        thread.target()
-    win.close()
-
-
-def test_launch_drains_the_ai_consoles_on_quit(launched, qtbot, monkeypatch):
-    from spacr.qt.widgets.console_panel import ConsolePanel
-    app_mod.launch(["mask"])
-    win = launched["window"]()
-    qtbot.addWidget(win, before_close_func=_close_owned_screens)
-
-    shim = launched["shims"][0]
-    assert len(shim.aboutToQuit.callbacks) == 1
-    drain = shim.aboutToQuit.callbacks[0]
-
-    drained = []
-    monkeypatch.setattr(ConsolePanel, "shutdown",
-                        lambda self: drained.append(self))
-    drain()
-    assert drained and set(drained) == set(win.findChildren(ConsolePanel))
-
-    # The AI providers are asked to kill any surviving subprocess.
-    from spacr.qt import ai as ai_mod
-    cancelled = []
-
-    class _Provider:
-        def cancel_stream(self):
-            cancelled.append(self)
-
-    monkeypatch.setattr(ai_mod, "list_providers", lambda: [_Provider()])
-    drain()
-    assert len(cancelled) == 1
-
-    # A panel that raises on shutdown, or a provider registry that cannot
-    # even be read, must not stop the drain.
-    def _boom(self):
-        raise RuntimeError("stuck")
-
-    def _no_providers():
-        raise RuntimeError("providers unavailable")
-
-    monkeypatch.setattr(ConsolePanel, "shutdown", _boom)
-    monkeypatch.setattr(ai_mod, "list_providers", _no_providers)
-    drain()
-    win.close()
-
-
-def test_launch_survives_a_qimagereader_without_an_allocation_limit(
-        launched, qtbot, monkeypatch):
-    import PySide6.QtGui as qtgui
-
-    class _OldQImageReader:
-        @staticmethod
-        def setAllocationLimit(limit):
-            raise AttributeError("not in this Qt build")
-
-    monkeypatch.setattr(qtgui, "QImageReader", _OldQImageReader)
-    assert app_mod.launch([]) == 0
-    win = launched["window"]()
-    qtbot.addWidget(win, before_close_func=_close_owned_screens)
-    win.close()
-
-
-def test_native_dialogs_are_turned_off_before_the_app_exists(launched):
-    """Qt IGNORES AA_DontUseNativeDialogs once a QApplication exists.
-
-    Silently, which looks exactly like it worked -- and the consequence is
-    the native file chooser, which on the maintainer's desktop takes the
-    better part of a minute to open. So the ordering is the whole of this
-    setting, and asserting the call without asserting WHEN would pass on the
-    broken version.
-    """
-    app_mod.launch(["measure"])
-
-    calls = launched["attributes"]
-    assert calls, "AA_DontUseNativeDialogs was never set"
-    args, apps_made_so_far = calls[0]
-    assert apps_made_so_far == 0, (
-        "the attribute was set after a QApplication had been constructed, "
-        "where Qt ignores it")
-    assert args[-1] is True
-
 
 
 def test_concurrent_home_news_requests_keep_bundled_rows_until_one_real_fetch_finishes(

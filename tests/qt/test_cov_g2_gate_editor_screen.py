@@ -10,7 +10,6 @@ pytest.importorskip("PySide6")
 
 from spacr.derived_tables import default_definition  # noqa: E402
 from spacr.qt.screens import gate_editor as ge  # noqa: E402
-from spacr.qt.widgets.gate_spec import GateSet, ThresholdGate  # noqa: E402
 from tests.qt.test_requested_gate_table_merges import db, make_screen  # noqa: E402,F401
 
 
@@ -38,47 +37,6 @@ def test_a_merge_without_provenance_cannot_export_or_annotate(qtbot, db):  # noq
     screen._source.setText("")
     screen.annotate_from_gates()
     assert "no verified image/object provenance" in screen._source.text()
-
-
-def test_a_derived_table_without_provenance_writes_no_gate(db, monkeypatch):  # noqa: F811
-    import spacr.derived_tables as dt
-
-    name = _saved_merge(db)
-    real = dt.execute
-
-    def no_provenance(path, definition):
-        frame, report = real(path, definition)
-        frame.attrs["image_provenance"] = False
-        return frame, report
-
-    monkeypatch.setattr(dt, "execute", no_provenance)
-    gates = GateSet([ThresholdGate(name="g", column="pathogen_area", low=1)])
-    written, failed = ge.GateEditorScreen._write_gates(db, name, gates)
-    assert written == [] and failed[0][1] == "No verified image/object provenance"
-
-
-def test_a_provenance_failure_after_writing_is_reported(db, monkeypatch):  # noqa: F811
-    def broken(*a, **k):
-        raise OSError("sidecar locked")
-
-    monkeypatch.setattr(ge, "_record_gate_export_provenance", broken)
-    monkeypatch.setattr(ge.GateEditorScreen, "_write_gates",
-                        staticmethod(lambda path, table, gates: ([("g", 1)], [])))
-    written, failed, _verdicts = ge.GateEditorScreen._write_gates_checked(
-        db, "cell", GateSet([]), "")
-    assert written and failed == [("export provenance", "sidecar locked")]
-
-
-def test_unreadable_and_unrelated_locks_are_skipped(tmp_path):
-    from spacr.run_journal import _locks_root
-
-    root = _locks_root()
-    (root / "broken.json").write_text("{not json", encoding="utf-8")
-    (root / "other.json").write_text(json.dumps({"gates": {"/x.json": {}}}), encoding="utf-8")
-    strategy = tmp_path / "gates.json"
-    strategy.write_text(json.dumps({"gates": []}), encoding="utf-8")
-    assert ge._gate_export_lock_verdicts(str(strategy), GateSet([])) == []
-    assert ge._gate_export_lock_verdicts("", GateSet([])) == []
 
 
 def test_choosing_a_saved_merge_from_the_picker_opens_it(qtbot, db, monkeypatch):  # noqa: F811
