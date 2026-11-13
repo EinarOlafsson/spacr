@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: spaCR user guide VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-01 01:25-0400\n"
+"POT-Creation-Date: 2026-11-13 11:37-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Codex (AI technical translation)\n"
+"Last-Translator: Claude Opus 5.5 (AI technical translation)\n"
 "Language: sv\n"
 "Language-Team: spaCR AI translation <noreply@spacr>\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -82,6 +82,26 @@ msgstr "Beteende vid krasch och fel"
 # AI technical review (Codex), no native-speaker signoff.
 msgid "A ``running`` manifest is written before the pipeline starts. Normal context exit attempts an atomic update with success, failure or cancellation status; caught exceptions are re-raised after their traceback is captured. Forced process termination or failure to write the final manifest can leave the stored status as ``running``. Run History can display it as ``interrupted`` when its recorded owner is gone; this does not rewrite the stored manifest. Provenance failures are logged, with recorded warnings retained under ``provenance_warnings`` when the manifest can be written."
 msgstr "Ett manifest med ``running`` skrivs innan pipelinen börjar. Ett normalt avslut av kontexten försöker uppdatera atomiskt med status för framgång, fel eller avbrott; fångade undantag kastas vidare efter att stackspårningen fångats. Tvingad processavslutning eller fel när slutmanifestet skrivs kan lämna den lagrade statusen som ``running``. Körhistoriken kan visa den som ``interrupted`` när den registrerade ägarprocessen är borta; det skriver inte om det lagrade manifestet. Proveniensfel loggas, och registrerade varningar bevaras under ``provenance_warnings`` när manifestet kan skrivas."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Settings versions and changed defaults"
+msgstr "Inställningsversioner och ändrade standardvärden"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "Every settings file spaCR writes starts with ``spacr_settings_version``: the run folder's ``settings.json`` and ``settings.csv``, the settings saved next to a run, and the file Export settings writes. The number says which defaults the settings were resolved under."
+msgstr "Varje inställningsfil som spaCR skriver börjar med ``spacr_settings_version``: körmappens ``settings.json`` och ``settings.csv``, inställningarna som sparas bredvid en körning och filen som Exportinställningar skriver. Numret anger under vilka standardvärden inställningarna löstes upp."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "A file written before a release changed a default does not hold the changed key, so it would run with the new default. When a settings file is read by ``spacr-run``, ``spacr repro``, the batch queue or Import settings, each key whose default changed after the file's version, and that the file does not set, gets the default it had then. A file without ``spacr_settings_version``, such as a hand-written one, is read as the oldest version, and the log names every old default it was given. A key the file sets always wins. To use today's defaults, set those keys or add the current ``spacr_settings_version`` to the file."
+msgstr "En fil som skrevs innan en version ändrade ett standardvärde innehåller inte den ändrade nyckeln, så den skulle köras med det nya standardvärdet. När en inställningsfil läses av ``spacr-run``, ``spacr repro``, batchkön eller Importinställningar får varje nyckel vars standardvärde ändrades efter filens version, och som filen inte anger, det standardvärde den hade då. En fil utan ``spacr_settings_version``, till exempel en handskriven, läses som den äldsta versionen, och loggen namnger varje gammalt standardvärde den fick. En nyckel som filen anger vinner alltid. För att använda dagens standardvärden anger du de nycklarna eller lägger till den aktuella ``spacr_settings_version`` i filen."
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "The changes are kept in one table, ``DEFAULT_CHANGES`` in ``spacr/settings.py``, keyed by the number of the item that changed the default:"
+msgstr "Ändringarna hålls i en enda tabell, ``DEFAULT_CHANGES`` i ``spacr/settings.py``, med numret på det objekt som ändrade standardvärdet som nyckel:"
+
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "931: ``ops_compose_blend`` was ``'average'``; it is now ``'feather'``."
+msgstr "931: ``ops_compose_blend`` var ``'average'``; nu är det ``'feather'``."
 
 msgid "Public API"
 msgstr "Publikt API"

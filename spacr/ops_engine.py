@@ -1010,8 +1010,9 @@ def _phenotype(db: str, plate: str, well: str, cycle_files, reference: int,
     :param magnifications: the two acquisitions' objectives, sequencing
         first, from the tile names; either may be None, which only costs the
         alignment its second seed.
-    :param settings: unused today; taken so the phase signature matches the
-        others and a future knob does not change every call site.
+    :param settings: read for ``ops_compose_blend``, the blend of the
+        sequencing windows the anchor fields are aligned to -- the same
+        blend the objects phase segments, so both see one mosaic.
     :returns: the phenotype report.
     :raises ValueError: when the well has no phenotype tile with a nuclear
         plane, when its field count is not a round well's, or when fewer
@@ -1046,6 +1047,7 @@ def _phenotype(db: str, plate: str, well: str, cycle_files, reference: int,
                                 phenotype_centres, phenotype_site_map)
 
     started = time.perf_counter()
+    blend = _compose_blend(settings)
     placements, shape = _placements(db, plate, well)
     sbs_centres = {site: (top + shape[0] / 2.0, left + shape[1] / 2.0)
                    for site, (top, left) in placements.items()}
@@ -1155,7 +1157,7 @@ def _phenotype(db: str, plate: str, well: str, cycle_files, reference: int,
         if window is None:
             continue
         image, coverage = compose_window(window, usable_under(window), read_sbs,
-                                         tile_shape=shape)
+                                         tile_shape=shape, blend=blend)
         covered = coverage > 0
         if not covered.any():
             continue
@@ -1275,6 +1277,26 @@ def _cellpose_model(settings: Mapping[str, Any], gpu: bool,
     return models.CellposeModel(pretrained_model=name, **kwargs)
 
 
+def _compose_blend(settings: Mapping[str, Any]) -> str:
+    """The ``ops_compose_blend`` the run asked for, checked before any read.
+
+    :param settings: read for ``ops_compose_blend``; empty means feather.
+    :returns: ``'feather'`` or ``'average'``, the blends
+        :func:`spacr.ops_compose.compose_window` takes.
+    :raises ValueError: for any other name -- a typo falling back to the
+        default would compose a different mosaic than the run recorded.
+    """
+    from .ops_compose import _BLENDS
+    from .qt.i18n import tr
+
+    blend = str(settings.get("ops_compose_blend") or _BLENDS[0]).strip().lower()
+    if blend not in _BLENDS:
+        raise ValueError(tr(
+            "ops_compose_blend must be one of {blends}; got {value}",
+            blends=list(_BLENDS), value=blend))
+    return blend
+
+
 def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
              settings: Mapping[str, Any], gpu: bool) -> Dict[str, Any]:
     """Compose, segment, sew and number the well; store ``ops_objects``.
@@ -1284,7 +1306,8 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
     :param well: the well name.
     :param cycle_files: ``cycle -> site -> channel -> path`` for this well.
     :param reference: the cycle carrying the nuclear stain.
-    :param settings: read for the Cellpose model and diameter.
+    :param settings: read for the Cellpose model and diameter, and for
+        ``ops_compose_blend``.
     :param gpu: segment on the card.
     :returns: the objects report.
     """
@@ -1306,6 +1329,7 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
               if sources[site] is not None and read(site) is not None}
     canvas = (int(np.ceil(max(y for y, _ in usable.values()))) + shape[0],
               int(np.ceil(max(x for _, x in usable.values()))) + shape[1])
+    blend = _compose_blend(settings)
     model = _cellpose_model(settings, gpu)
     diameter = settings.get("cellpose_diameter")
     extra = {"diameter": float(diameter)} if diameter else {}
@@ -1321,7 +1345,8 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
     empty = 0
     for count, window in enumerate(windows, start=1):
         tick = time.perf_counter()
-        image, coverage = compose_window(window, usable, read, tile_shape=shape)
+        image, coverage = compose_window(window, usable, read, tile_shape=shape,
+                                         blend=blend)
         seconds["compose"] += time.perf_counter() - tick
         covered = coverage > 0
         if not covered.any():
@@ -1374,6 +1399,7 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
                      if refused else None),
         "n_observations": dict(Counter(int(o.n_observations) for o in objects)),
         "area_median_px": float(np.median(frame["area"])),
+        "compose_blend": blend,
         "overlap_gain": round(sum(g * a for g, a in gains) / max(1, sum(a for _, a in gains)), 3),
         "objects_ready": [bool(gate), gate.rows, gate.reason],
         "unreadable": unreadable,

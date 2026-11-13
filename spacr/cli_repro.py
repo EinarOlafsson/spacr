@@ -39,6 +39,37 @@ from typing import Any, Dict, List, Optional
 from .run_journal import load_run_settings, open_run, runs_root
 
 
+def _replayed_settings(settings: Dict[str, Any], app_key: Any) -> Dict[str, Any]:
+    """A journal's settings with the defaults of the version that wrote them.
+
+    A journal records the fully resolved settings of its run, but only the
+    keys that existed then. Its ``spacr_settings_version`` stamp is removed,
+    and every key of this pipeline whose default changed after that version
+    and that the journal lacks gets the default it had then
+    (``spacr.settings.DEFAULT_CHANGES``); a journal with no stamp predates
+    the stamp and gets them all. Without this a replay of a run made before
+    a default changed would silently run with the new default.
+
+    :param settings: the journal's settings, edited in place.
+    :param app_key: the journal's pipeline; when it is not a headless
+        module its keys are unknown and no default is added.
+    :returns: the same mapping.
+    """
+    from .cli import module_defaults, resolve_module
+    from .settings import _fold_older_defaults, _settings_file_version
+
+    version = _settings_file_version(settings)
+    module = resolve_module(str(app_key or ""))
+    if module is None:
+        return settings
+    try:
+        known = module_defaults(module)
+    except Exception:                                      # noqa: BLE001
+        return settings
+    _fold_older_defaults(settings, version, known=known)
+    return settings
+
+
 def _print_manifest(run_dir: Path) -> None:
     """Print the recorded run summary and optional model hashes.
 
@@ -476,6 +507,7 @@ def main(argv=None) -> int:
         print()
         _print_settings(settings)
         return 0
+    settings = _replayed_settings(settings, app_key)
 
     entry = _resolve_pipeline(app_key)
     if entry is None:

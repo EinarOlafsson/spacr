@@ -134,7 +134,10 @@ A ratchet test, `tests/test_ops_measurements_are_measure_features.py`:
 ## Alpha status
 Alpha. All new keys go under one `ALPHA_FEATURES` entry. Proposed: `profile_features` and `profile_granularity_subsample` move under the same entry (open question 1).
 
-## Open questions for the maintainer
+## Maintainer decisions (2026-11-13, AskUserQuestion in the master session)
+profile_features stays visible (no alpha gate, users already have it); OPS keeps channel-named columns and Measure offers channel_names as an option; Funk's mass displacement is a separate column if the definitions differ; the post-measure OPS analyses become a later item.
+
+## Open questions for the maintainer (answered above)
 1. `profile_features` (the 15 profiling families) is in Measure today **without** the alpha gate, which conflicts with "new features ship as alpha". Should it be gated now? Gating hides it from users who already see it.
 2. Should channel-named columns (`channel_names`) be offered in Measure at all, or should OPS move to `channel_<i>` names with a name map in the database? The second changes OPS column names and therefore the paper's reference tables.
 3. If Funk's mass displacement and spaCR's differ by definition, which should be the Measure default under `intensity_moments`?

@@ -2527,6 +2527,102 @@ def surviving_setting_name(key):
     return names
 
 
+SETTINGS_VERSION_KEY = 'spacr_settings_version'
+SETTINGS_SCHEMA_VERSION = 931
+DEFAULT_CHANGES = {
+    931: {'ops_compose_blend': 'average'},
+}
+
+
+def _stamp_settings_version(settings):
+    """``settings`` with the current settings schema version written in.
+
+    :param settings: a settings mapping about to be saved.
+    :returns: a new dict, the stamp first and every setting after it in
+        its order; a stamp already in ``settings`` is replaced.
+    """
+    stamped = {SETTINGS_VERSION_KEY: SETTINGS_SCHEMA_VERSION}
+    stamped.update((key, value) for key, value in dict(settings).items()
+                   if key != SETTINGS_VERSION_KEY)
+    return stamped
+
+
+def _settings_file_version(settings):
+    """Remove a loaded file's schema stamp and return its version.
+
+    The stamp says which defaults the file was written under; it is not a
+    setting, so no pipeline ever sees it.
+
+    :param settings: the mapping just read from a file, edited in place.
+    :returns: the stamped version, or 0 when the file has none (or one that
+        is not a whole number) -- the oldest version.
+    """
+    value = settings.pop(SETTINGS_VERSION_KEY, None)
+    if value is None or isinstance(value, bool):
+        return 0
+    try:
+        return int(str(value).strip())
+    except ValueError:
+        LOG.warning("%s %r is not a whole number; the file is read as the "
+                    "oldest settings version", SETTINGS_VERSION_KEY, value)
+        return 0
+
+
+def _fold_older_defaults(settings, version, known=None):
+    """Give a file the defaults of the version it was written under.
+
+    WHY (item 931). A saved settings file or run journal must give the same
+    result when it is run again, but a file only holds the keys that existed
+    when it was written. When a later release changes a default, a key the
+    file never set would silently take the NEW default. Every file spaCR
+    writes therefore carries ``SETTINGS_VERSION_KEY`` =
+    ``SETTINGS_SCHEMA_VERSION``, and ``DEFAULT_CHANGES`` says, per version,
+    what a key's default was BEFORE that version. A file with no stamp --
+    hand-written or older than the stamp -- is read as the oldest version
+    and gets every old default listed, with a logged notice naming each one
+    and how to take today's default instead.
+
+    TO CHANGE A DEFAULT: add one row to ``DEFAULT_CHANGES``, keyed by the
+    item number that changes it and holding the OLD default, and raise
+    ``SETTINGS_SCHEMA_VERSION`` to that number.
+
+    :param settings: the file's settings under today's names, edited in
+        place.
+    :param version: the file's schema version from
+        :func:`_settings_file_version`; 0 for an unstamped file.
+    :param known: the keys the pipeline being run reads, or None for any key.
+        A row for another pipeline's key is not added to this one's settings.
+    :returns: ``key -> (old default, version that changed it)`` for every key
+        filled in. A key the file sets is never touched. When a key changed
+        more than once, the default of the earliest change after ``version``
+        is the one the file was written under.
+    """
+    applied = {}
+    for changed in sorted(DEFAULT_CHANGES):
+        if changed <= int(version):
+            continue
+        for key, old in DEFAULT_CHANGES[changed].items():
+            if key in settings or key in applied:
+                continue
+            if known is not None and key not in known:
+                continue
+            applied[key] = (old, changed)
+    for key, (old, _changed) in applied.items():
+        settings[key] = old
+    if applied:
+        era = (f"{SETTINGS_VERSION_KEY} {version}" if version
+               else f"no {SETTINGS_VERSION_KEY}")
+        listed = ", ".join(f"{key}={old!r} (the default before settings "
+                           f"version {changed})"
+                           for key, (old, changed) in sorted(applied.items()))
+        LOG.warning(
+            "These settings have %s, so keys they do not set keep the "
+            "defaults they were written under: %s. To use today's defaults, "
+            "set these keys yourself or add %s = %d to the file.",
+            era, listed, SETTINGS_VERSION_KEY, SETTINGS_SCHEMA_VERSION)
+    return applied
+
+
 def _fold_renamed_settings(settings):
     """Move any renamed key onto its new name, before anything reads it.
 

@@ -211,7 +211,9 @@ def test_export_then_import_gives_back_the_same_form(
     with path.open(newline="", encoding="utf-8") as handle:
         rows = list(csv.reader(handle))
     assert rows[0] == ["Key", "Value"]
-    assert [row[0] for row in rows[1:]] == list(expected)
+    # Item 931: the file leads with the settings schema version, which the
+    # import reads and removes, so it is not in the form.
+    assert [row[0] for row in rows[1:]] == ["spacr_settings_version", *expected]
 
 
 def test_measure_round_trip_covers_every_value_type(
@@ -236,6 +238,9 @@ def test_the_csv_loads_with_the_non_gui_loaders(qtbot, monkeypatch,
 
     expected, _imported, path, _defaults = _export_round_trip(
         qtbot, monkeypatch, tmp_path, "measure")
+    # Item 931: the plain loaders keep the settings schema stamp the export
+    # leads with; the GUI import and spacr-run read and remove it.
+    expected = {"spacr_settings_version": 931, **expected}
     for loaded in (load_settings_file(str(path)),
                    load_settings(str(path), setting_key="Key",
                                  setting_value="Value")):

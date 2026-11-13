@@ -58,8 +58,9 @@ def test_actual_cli_journal_records_original_pin_and_effective_verified_model(tm
     assert len(observed) == 1
     directory = observed[0]
     recorded = json.loads((directory / 'settings.json').read_text(encoding="utf-8"))
-    assert recorded == original
-    assert cli.load_settings_file(str(directory / 'settings.csv')) == original
+    stamped = {'spacr_settings_version': 931, **original}
+    assert recorded == stamped
+    assert cli.load_settings_file(str(directory / 'settings.csv')) == stamped
     manifest = json.loads((directory / 'manifest.json').read_text(encoding="utf-8"))
     assert manifest['status'] == 'success'
     actual = manifest['model_files']['cell_model_name']

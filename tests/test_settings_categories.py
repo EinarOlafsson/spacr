@@ -735,6 +735,9 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_cluster_reference_dir",
     "ops_cluster_gene_list",
     "ops_cluster_published",
+    # Item 931 (2026-11-13): feathered blending of the OPS sequencing
+    # mosaic (OPS stage 1, seam arm none:feather).
+    "ops_compose_blend",
     # Item 930 (2026-11-13): per-tile affine alignment of phenotype fields
     # to the sequencing nuclei (OPS stage 1, arm vii).
     "ops_align_model",

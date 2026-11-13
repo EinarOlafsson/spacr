@@ -89,8 +89,9 @@ def test_alpha_registry_and_csv_json_roundtrip(tmp_path):
     settings = {'src': '/dataset', KEY: 'plate2'}
     target = tmp_path / 'selected.csv'
     write_settings_file(settings, target)
-    assert load_settings_file(str(target)) == settings
-    assert load_settings_file(str(target.with_suffix('.json'))) == settings
+    stamped = {'spacr_settings_version': 931, **settings}  # item 931
+    assert load_settings_file(str(target)) == stamped
+    assert load_settings_file(str(target.with_suffix('.json'))) == stamped
 
 
 def test_actual_measurement_records_reference_and_changed_selection_refuses_resume(tmp_path, monkeypatch):
