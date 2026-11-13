@@ -41,7 +41,7 @@ def absorbable_design(n_rows=3, n_columns=3, extra=('fraction',), seed=0):
 # the absorbing backend
 # ---------------------------------------------------------------------------
 
-def test_the_absorbing_backend_needs_a_named_design():
+def case_the_absorbing_backend_needs_a_named_design():
     """A bare array has no column names, so nothing can be identified as a dummy.
 
     Which columns are rowID and columnID indicators is read off the names; a
@@ -51,7 +51,7 @@ def test_the_absorbing_backend_needs_a_named_design():
         ml._fit_absorbed_least_squares(np.ones((4, 2)), np.arange(4.0))
 
 
-def test_a_design_that_is_only_intercept_and_absorbed_terms_reports_nothing():
+def case_a_design_that_is_only_intercept_and_absorbed_terms_reports_nothing():
     """With every column absorbed there is no coefficient left to report.
 
     Fitting it would produce an empty coefficient table that reads as a screen
@@ -66,7 +66,7 @@ def test_a_design_that_is_only_intercept_and_absorbed_terms_reports_nothing():
         ml._fit_absorbed_least_squares(design, np.arange(4.0))
 
 
-def test_weights_that_do_not_line_up_with_the_rows_are_refused():
+def case_weights_that_do_not_line_up_with_the_rows_are_refused():
     """A weight vector of the wrong length is refused, not broadcast.
 
     The weights are per-well cell counts; silently recycling them would weight
@@ -80,7 +80,7 @@ def test_weights_that_do_not_line_up_with_the_rows_are_refused():
                                        kind='WLS')
 
 
-def test_weights_that_are_not_positive_counts_are_refused():
+def case_weights_that_are_not_positive_counts_are_refused():
     """Zero, negative or non-finite weights cannot be cell counts.
 
     A zero weight silently drops a well from the fit while it stays in the
@@ -96,7 +96,7 @@ def test_weights_that_are_not_positive_counts_are_refused():
                                        kind='WLS')
 
 
-def test_projections_that_do_not_converge_are_refused(monkeypatch):
+def case_projections_that_do_not_converge_are_refused(monkeypatch):
     """Unconverged demeaning means the design was never fully partialled out.
 
     The coefficients would then not be the least-squares ones, and nothing
@@ -113,7 +113,7 @@ def test_projections_that_do_not_converge_are_refused(monkeypatch):
                                        np.arange(float(len(design))))
 
 
-def test_an_absorbed_design_whose_normal_equations_are_singular_is_refused(
+def case_an_absorbed_design_whose_normal_equations_are_singular_is_refused(
         monkeypatch):
     """Two identical reported columns are not identified, and it says why.
 
@@ -137,7 +137,7 @@ def test_an_absorbed_design_whose_normal_equations_are_singular_is_refused(
         ml._fit_absorbed_least_squares(design, y)
 
 
-def test_a_design_with_no_residual_degrees_of_freedom_is_refused():
+def case_a_design_with_no_residual_degrees_of_freedom_is_refused():
     """Charging for the absorbed parameters can leave nothing to estimate with.
 
     n minus the reported parameters alone would report standard errors for a
@@ -222,7 +222,7 @@ def test_a_family_with_no_known_information_weight_is_refused():
         ml._glum_information_weights(sm.families.Gamma(), [1.0], [1.0])
 
 
-def test_the_glum_backend_needs_a_named_design():
+def case_the_glum_backend_needs_a_named_design():
     """One coefficient per design column means the column names are required.
 
     A bare array would produce a coefficient table with positional names that
@@ -232,7 +232,7 @@ def test_the_glum_backend_needs_a_named_design():
         ml._fit_glum_glm(np.ones((4, 2)), np.arange(4.0), 'glm')
 
 
-def test_a_poisson_exposure_of_the_wrong_length_is_refused():
+def case_a_poisson_exposure_of_the_wrong_length_is_refused():
     """Each well must carry its own cell count, so the lengths must agree.
 
     A recycled exposure would put one well's headcount under another well's
@@ -246,7 +246,7 @@ def test_a_poisson_exposure_of_the_wrong_length_is_refused():
         ml._fit_glum_glm(design, y, 'poisson', exposure=np.array([10.0, 20.0]))
 
 
-def test_a_poisson_exposure_that_is_not_a_positive_count_is_refused():
+def case_a_poisson_exposure_that_is_not_a_positive_count_is_refused():
     """A zero or negative cell count has no logarithm and is not an exposure.
 
     log(0) is -inf, and the offset would silently remove that well from the
@@ -262,7 +262,7 @@ def test_a_poisson_exposure_that_is_not_a_positive_count_is_refused():
         ml._fit_glum_glm(design, y, 'poisson', exposure=exposure)
 
 
-def test_binomial_weights_of_the_wrong_length_are_refused():
+def case_binomial_weights_of_the_wrong_length_are_refused():
     """The per-well cell counts must line up with the response rows.
 
     The weights are what make a well of 20 cells count more than a well of 2;
@@ -276,7 +276,7 @@ def test_binomial_weights_of_the_wrong_length_are_refused():
         ml._fit_glum_glm(design, y, 'logit', weights=np.array([5.0, 6.0]))
 
 
-def test_a_family_glum_cannot_fit_is_refused_by_name(monkeypatch):
+def case_a_family_glum_cannot_fit_is_refused_by_name(monkeypatch):
     """A family outside poisson/binomial/gaussian is sent to statsmodels.
 
     Mapping it onto the nearest glum family would fit a different model under
@@ -291,7 +291,7 @@ def test_a_family_glum_cannot_fit_is_refused_by_name(monkeypatch):
         ml._fit_glum_glm(design, np.array([1.0, 2.0, 3.0, 4.0]), 'glm')
 
 
-def test_a_glum_information_matrix_that_is_singular_is_refused(monkeypatch):
+def case_a_glum_information_matrix_that_is_singular_is_refused(monkeypatch):
     """Vanishing information weights leave the coefficients unidentified.
 
     Every fitted probability at 0 or 1 -- complete separation -- makes the
@@ -314,7 +314,7 @@ def test_a_glum_information_matrix_that_is_singular_is_refused(monkeypatch):
                          exposure=np.full(12, 100.0))
 
 
-def test_a_gaussian_glum_fit_estimates_its_own_dispersion():
+def case_a_gaussian_glum_fit_estimates_its_own_dispersion():
     """A Gaussian GLM has a free dispersion, taken over the residual df.
 
     Fixing it at one would report standard errors that ignore how much scatter
@@ -356,3 +356,32 @@ def test_a_design_with_a_different_number_of_rows_than_the_response_is_refused()
     with pytest.raises(ValueError, match='same number of observations'):
         ml._validate_poisson_response(np.array([1.0, 2.0, 3.0]),
                                       X=np.ones((2, 2)))
+
+
+from tests.case_table import run_cases  # noqa: E402
+
+def test_fit_absorbed_least_squares_cases(request, subtests):
+    """Behaviour cases for: _fit_absorbed_least_squares."""
+    ran = run_cases(request, subtests, [
+        case_the_absorbing_backend_needs_a_named_design,
+        case_a_design_that_is_only_intercept_and_absorbed_terms_reports_nothing,
+        case_weights_that_do_not_line_up_with_the_rows_are_refused,
+        case_weights_that_are_not_positive_counts_are_refused,
+        case_projections_that_do_not_converge_are_refused,
+        case_an_absorbed_design_whose_normal_equations_are_singular_is_refused,
+        case_a_design_with_no_residual_degrees_of_freedom_is_refused,
+    ])
+    assert ran >= 7
+
+def test_fit_glum_glm_cases(request, subtests):
+    """Behaviour cases for: _fit_glum_glm."""
+    ran = run_cases(request, subtests, [
+        case_the_glum_backend_needs_a_named_design,
+        case_a_poisson_exposure_of_the_wrong_length_is_refused,
+        case_a_poisson_exposure_that_is_not_a_positive_count_is_refused,
+        case_binomial_weights_of_the_wrong_length_are_refused,
+        case_a_family_glum_cannot_fit_is_refused_by_name,
+        case_a_glum_information_matrix_that_is_singular_is_refused,
+        case_a_gaussian_glum_fit_estimates_its_own_dispersion,
+    ])
+    assert ran >= 7

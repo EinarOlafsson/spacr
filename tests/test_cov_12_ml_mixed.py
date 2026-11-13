@@ -59,7 +59,7 @@ def mixed_model_frame(n_plates=4, seed=0):
 # centring on the negative control
 # ---------------------------------------------------------------------------
 
-def test_no_control_named_leaves_the_response_exactly_as_it_was():
+def case_no_control_named_leaves_the_response_exactly_as_it_was():
     """With no control, or a response column that is not there, nothing shifts.
 
     Centring on a control the frame does not contain would either shift by a
@@ -73,7 +73,7 @@ def test_no_control_named_leaves_the_response_exactly_as_it_was():
     assert ml.centre_on_controls(frame, 'score', '   ') == (frame, 0.0)
 
 
-def test_control_rows_with_no_finite_value_shift_nothing():
+def case_control_rows_with_no_finite_value_shift_nothing():
     """A control whose response is all NaN gives no median, so no offset.
 
     A median over an empty selection is NaN, and subtracting NaN would erase
@@ -87,7 +87,7 @@ def test_control_rows_with_no_finite_value_shift_nothing():
     assert shifted is frame
 
 
-def test_a_control_median_of_exactly_zero_is_not_a_shift():
+def case_a_control_median_of_exactly_zero_is_not_a_shift():
     """When the control already sits at zero the frame is returned unchanged.
 
     Copying the frame to subtract zero costs memory on a screen-sized table and
@@ -105,7 +105,7 @@ def test_a_control_median_of_exactly_zero_is_not_a_shift():
 # the GPU mixed fit
 # ---------------------------------------------------------------------------
 
-def test_a_gpu_fit_that_runs_out_of_memory_falls_back_to_the_cpu(
+def case_a_gpu_fit_that_runs_out_of_memory_falls_back_to_the_cpu(
         cuda_present, monkeypatch, capsys):
     """An OOM on the shared card is announced and the same model is fitted on CPU.
 
@@ -136,7 +136,7 @@ def test_a_gpu_fit_that_runs_out_of_memory_falls_back_to_the_cpu(
     assert abs(float(result.fe_params['a']) - 1.5) < 0.25
 
 
-def test_a_gpu_failure_that_is_not_memory_is_not_quietly_retried(
+def case_a_gpu_failure_that_is_not_memory_is_not_quietly_retried(
         cuda_present, monkeypatch):
     """Any other GPU error propagates, so a broken backend is not hidden.
 
@@ -161,7 +161,7 @@ def test_a_gpu_failure_that_is_not_memory_is_not_quietly_retried(
                                regression_backend='torch')
 
 
-def test_a_gpu_fit_that_succeeds_is_returned_with_its_summary_line(
+def case_a_gpu_fit_that_succeeds_is_returned_with_its_summary_line(
         cuda_present, monkeypatch, capsys):
     """The torch result is handed back as-is, after printing its summary line.
 
@@ -190,7 +190,7 @@ def test_a_gpu_fit_that_succeeds_is_returned_with_its_summary_line(
 # the nested mixed fit
 # ---------------------------------------------------------------------------
 
-def test_the_nested_fit_on_the_gpu_uses_the_same_call_shape(
+def case_the_nested_fit_on_the_gpu_uses_the_same_call_shape(
         cuda_present, monkeypatch, capsys):
     """``mixedlm_torch`` is handed the formula, frame, groups and vc_formula.
 
@@ -230,7 +230,7 @@ def test_the_nested_fit_on_the_gpu_uses_the_same_call_shape(
     assert seen['vc_formula']['columnID'] == '0 + C(columnID)'
 
 
-def test_a_backend_refusal_survives_the_nested_fit_untouched(cuda_present,
+def case_a_backend_refusal_survives_the_nested_fit_untouched(cuda_present,
                                                              monkeypatch):
     """``MixedBackendUnavailable`` is re-raised, not rewrapped as a data problem.
 
@@ -251,7 +251,7 @@ def test_a_backend_refusal_survives_the_nested_fit_untouched(cuda_present,
                            regression_backend='torch')
 
 
-def test_a_cache_that_will_not_empty_does_not_stop_the_cpu_fallback(
+def case_a_cache_that_will_not_empty_does_not_stop_the_cpu_fallback(
         cuda_present, monkeypatch, capsys):
     """Freeing the GPU cache is best-effort; the CPU fit runs either way.
 
@@ -283,7 +283,7 @@ def test_a_cache_that_will_not_empty_does_not_stop_the_cpu_fallback(
     assert list(result.params.index) == ['a', 'b', 'Group Var']
 
 
-def test_a_nested_gpu_fit_that_succeeds_reports_its_backend(cuda_present,
+def case_a_nested_gpu_fit_that_succeeds_reports_its_backend(cuda_present,
                                                             monkeypatch,
                                                             capsys):
     """A torch nested fit is read exactly as the statsmodels one is.
@@ -321,3 +321,22 @@ def test_a_nested_gpu_fit_that_succeeds_reports_its_backend(cuda_present,
     variance_row = coef_df.loc[coef_df['feature'] == 'gene Var']
     assert float(variance_row['coefficient'].iloc[0]) == pytest.approx(0.02)
     assert np.isnan(float(variance_row['p_value'].iloc[0]))
+
+
+from tests.case_table import run_cases  # noqa: E402
+
+def test_perform_mixed_model_cases(request, subtests):
+    """Behaviour cases for: centre_on_controls, perform_mixed_model, prepare_formula."""
+    ran = run_cases(request, subtests, [
+        case_no_control_named_leaves_the_response_exactly_as_it_was,
+        case_control_rows_with_no_finite_value_shift_nothing,
+        case_a_control_median_of_exactly_zero_is_not_a_shift,
+        case_a_gpu_fit_that_runs_out_of_memory_falls_back_to_the_cpu,
+        case_a_gpu_failure_that_is_not_memory_is_not_quietly_retried,
+        case_a_gpu_fit_that_succeeds_is_returned_with_its_summary_line,
+        case_the_nested_fit_on_the_gpu_uses_the_same_call_shape,
+        case_a_backend_refusal_survives_the_nested_fit_untouched,
+        case_a_cache_that_will_not_empty_does_not_stop_the_cpu_fallback,
+        case_a_nested_gpu_fit_that_succeeds_reports_its_backend,
+    ])
+    assert ran >= 10

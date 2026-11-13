@@ -34,7 +34,7 @@ def test_pandas_merge_really_does_drop_attrs():
     assert pd.concat([left]).attrs == {"qc_manifest": {"verdict": "pass"}}
 
 
-def test_the_manifest_survives_the_level_annotation():
+def case_the_manifest_survives_the_level_annotation():
     """The fix: what `regression` wrote is still there for the reader."""
     # `feature` is the input; `grna`/`gene` are derived from it by the
     # bracketed-identifier map, so they must not be supplied.
@@ -58,7 +58,7 @@ def test_the_manifest_survives_the_level_annotation():
     assert out.loc[out["gene"] == "GENE1", "gene_count"].iloc[0] == 3
 
 
-def test_a_frame_with_no_manifest_gains_no_empty_one():
+def case_a_frame_with_no_manifest_gains_no_empty_one():
     """Absent must stay absent: a key holding None reads as "QC ran and
     concluded nothing", which is not what happened."""
     coef = pd.DataFrame({"feature": ["grna[g1]"], "coefficient": [0.5]})
@@ -68,3 +68,14 @@ def test_a_frame_with_no_manifest_gains_no_empty_one():
     out = _annotate_level_coefficients(coef, n_grna, n_gene)
 
     assert "qc_manifest" not in out.attrs
+
+
+from tests.case_table import run_cases  # noqa: E402
+
+def test_annotate_level_coefficients_cases(request, subtests):
+    """Behaviour cases for: _annotate_level_coefficients."""
+    ran = run_cases(request, subtests, [
+        case_the_manifest_survives_the_level_annotation,
+        case_a_frame_with_no_manifest_gains_no_empty_one,
+    ])
+    assert ran >= 2

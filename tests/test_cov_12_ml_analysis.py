@@ -56,7 +56,7 @@ def feature_frame(per_class=40, locations=('c1', 'c2'), plates=('plate1',),
     return pd.DataFrame(rows, index=index)
 
 
-def test_a_missing_location_column_lists_the_columns_and_the_likely_cause():
+def case_a_missing_location_column_lists_the_columns_and_the_likely_cause():
     """The refusal names the columns present and how many there are.
 
     A pandas KeyError three frames down names the column and not the reason it
@@ -76,7 +76,7 @@ def test_a_missing_location_column_lists_the_columns_and_the_likely_cause():
     assert 'annotation mode' in message
 
 
-def test_a_named_holdout_plate_is_trained_without_and_scored_on():
+def case_a_named_holdout_plate_is_trained_without_and_scored_on():
     """Naming one plate holds it out entirely rather than splitting at random.
 
     Cross-validation inside one plate lets a model learn the PLATE rather than
@@ -92,3 +92,14 @@ def test_a_named_holdout_plate_is_trained_without_and_scored_on():
     scored = output[0]
     assert 'predictions' in scored.columns
     assert len(scored) == len(frame)
+
+
+from tests.case_table import run_cases  # noqa: E402
+
+def test_ml_analysis_cases(request, subtests):
+    """Behaviour cases for: ml_analysis."""
+    ran = run_cases(request, subtests, [
+        case_a_missing_location_column_lists_the_columns_and_the_likely_cause,
+        case_a_named_holdout_plate_is_trained_without_and_scored_on,
+    ])
+    assert ran >= 2

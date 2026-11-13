@@ -691,8 +691,6 @@ def summary_and_stats(data: Mapping[str, Any], activity: Optional[pd.DataFrame],
             for i in range(len(reps)):
                 for j in range(i + 1, len(reps)):
                     a, b = per_gene(reps[i], ref), per_gene(reps[j], ref)
-                    # Identical APs on every gene are no evidence of a difference: p = 1, not an
-                    # exception from SciPy.
                     p[f"{ref}: {reps[i]} vs {reps[j]}"] = (
                         float(wilcoxon(a.ap, b.loc[a.index].ap).pvalue)
                         if (a.ap != b.loc[a.index].ap).any() else 1.0)
