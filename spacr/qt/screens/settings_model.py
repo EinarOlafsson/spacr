@@ -124,6 +124,8 @@ _FOLDED_DEFAULTS_MODULES: Dict[str, str] = {
     "barcode_qc": "spacr.sequencing_qc",
     "explain_cv": "spacr.surrogate",
     "anndata_export": "spacr.anndata_export",
+    "moa_benchmark": "spacr.moa_benchmark",
+    "profiling_evaluation": "spacr.moa_benchmark",
 }
 
 
