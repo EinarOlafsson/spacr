@@ -15,6 +15,8 @@ from spacr.settings import set_default_settings_preprocess_generate_masks
 from spacr.utils import MASK_CHANNEL_ROLE_ORDER
 from tests.test_cov_object_masks_sam import fake_model as fake_model
 
+from tests import locale_cases
+
 
 @pytest.mark.parametrize('channels', [(3, 3, 2), (3, 1, 2)])
 @pytest.mark.parametrize('stale_positions', [False, True])
@@ -208,10 +210,9 @@ def test_swapped_archive_channels_fail_before_loading_any_role_model(
         generator(str(root), settings, 'cell')
 
 
-@pytest.mark.parametrize('raw_channels', [(cell, nucleus, pathogen)
-    for cell in range(4) for nucleus in range(4) for pathogen in range(4)])
-def test_exhaustive_four_channel_role_routing_across_uneven_archives(
+def _exhaustive_four_channel_role_routing_across_uneven_archives_case(
         tmp_path, monkeypatch, raw_channels, archive_counts=(2, 3, 1), batch_size=2, save=False):
+    """One case of :func:`test_exhaustive_four_channel_role_routing_across_uneven_archives`."""
     import types
 
     from spacr import io
@@ -325,8 +326,16 @@ def test_exhaustive_four_channel_role_routing_across_uneven_archives(
     assert all(Path(path).read_bytes() == contents for path, contents in original.items())
 
 
+def test_exhaustive_four_channel_role_routing_across_uneven_archives(subtests, tmp_path):
+    for label, case in locale_cases.cases(('raw_channels', [(cell, nucleus, pathogen)
+            for cell in range(4) for nucleus in range(4) for pathogen in range(4)])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _exhaustive_four_channel_role_routing_across_uneven_archives_case(
+                tmp_path=locale_cases.case_dir(tmp_path, label), monkeypatch=case_monkeypatch, **case)
+
+
 def test_single_archive_103_fields_keeps_mask_names_across_50_image_offsets(tmp_path, monkeypatch):
-    test_exhaustive_four_channel_role_routing_across_uneven_archives(
+    _exhaustive_four_channel_role_routing_across_uneven_archives_case(
         tmp_path, monkeypatch, (0, 0, 1), archive_counts=(103,), batch_size=50, save=True)
 
 

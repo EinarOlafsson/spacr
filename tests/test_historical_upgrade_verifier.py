@@ -7,6 +7,8 @@ import sys
 
 import pytest
 
+from tests import locale_cases
+
 ROOT = Path(__file__).resolve().parents[1]
 DRIVER = ROOT / 'tools/accept_historical_upgrade.py'
 SOURCE_BINDINGS = ROOT / 'tools/historical_upgrade_sources.json'
@@ -100,30 +102,8 @@ def test_verifier_requires_a_genuine_upgrade_after_the_repair(tmp_path, target):
     assert any('must be newer' in error for error in accepted['errors'])
 
 
-@pytest.mark.parametrize(('fault', 'message'), [
-    ('source_escape', 'source origin escapes'),
-    ('source_digest', 'exact historical PyPI wheel'),
-    ('source_missing', 'exact installed source provenance'),
-    ('source_bad_digest', 'source digest is malformed'),
-    ('executable_escape', 'executable location escapes'),
-    ('torch_escape', 'torch origin escapes'),
-    ('wrong_version', 'Version transition'),
-    ('changed_prefix', 'private installation environment changed'),
-    ('pip_seeded', 'pip was installed'),
-    ('cuda_wheel', 'CPU backend'),
-    ('cuda_available', 'CPU backend'),
-    ('gui_target', 'same public upgrade target'),
-    ('gui_prefix', 'same version-bound private installation'),
-    ('gui_version', 'same version-bound private installation'),
-    ('gui_provenance', 'GUI provenance differs'),
-    ('gui_action', 'Help action witness'),
-    ('gui_command', 'actual expected updater subprocess'),
-    ('gui_terminal', 'required actual terminal dialog'),
-    ('failed_stage', 'One or more stages failed'),
-    ('missing_failure_text', 'missing-pip failure is absent'),
-])
-def test_verifier_rejects_incomplete_or_contradictory_receipts(tmp_path, fault, message):
-    """Each deliberately corrupted verifier fixture must fail independently."""
+def _verifier_rejects_incomplete_or_contradictory_receipts_case(tmp_path, fault, message):
+    """One case of :func:`test_verifier_rejects_incomplete_or_contradictory_receipts`."""
     evidence, records = _fixture(tmp_path)
     before = records['before']['state']
     after = records['after']['state']
@@ -173,6 +153,34 @@ def test_verifier_rejects_incomplete_or_contradictory_receipts(tmp_path, fault, 
     assert completed.returncode != 0
     assert accepted['passed'] is False
     assert any(message in error for error in accepted['errors'])
+
+
+def test_verifier_rejects_incomplete_or_contradictory_receipts(subtests, tmp_path):
+    """Each deliberately corrupted verifier fixture must fail independently."""
+    for label, case in locale_cases.cases((('fault', 'message'), [
+    ('source_escape', 'source origin escapes'),
+    ('source_digest', 'exact historical PyPI wheel'),
+    ('source_missing', 'exact installed source provenance'),
+    ('source_bad_digest', 'source digest is malformed'),
+    ('executable_escape', 'executable location escapes'),
+    ('torch_escape', 'torch origin escapes'),
+    ('wrong_version', 'Version transition'),
+    ('changed_prefix', 'private installation environment changed'),
+    ('pip_seeded', 'pip was installed'),
+    ('cuda_wheel', 'CPU backend'),
+    ('cuda_available', 'CPU backend'),
+    ('gui_target', 'same public upgrade target'),
+    ('gui_prefix', 'same version-bound private installation'),
+    ('gui_version', 'same version-bound private installation'),
+    ('gui_provenance', 'GUI provenance differs'),
+    ('gui_action', 'Help action witness'),
+    ('gui_command', 'actual expected updater subprocess'),
+    ('gui_terminal', 'required actual terminal dialog'),
+    ('failed_stage', 'One or more stages failed'),
+    ('missing_failure_text', 'missing-pip failure is absent'),
+])):
+        with subtests.test(**label):
+            _verifier_rejects_incomplete_or_contradictory_receipts_case(tmp_path=locale_cases.case_dir(tmp_path, label), **case)
 
 
 def test_verifier_rejects_absent_failure_log(tmp_path):

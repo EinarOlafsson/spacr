@@ -32,6 +32,8 @@ from spacr.settings import (RENAMED_SETTINGS, SEMANTIC_FOLDS, expected_types,
                             _fold_renamed_settings, surviving_setting_name)
 from spacr.validate import RETIRED_SETTINGS
 
+from tests import locale_cases
+
 PROBE = "PROBE-VALUE-THAT-NO-DEFAULT-USES"
 
 #: A handful of roles is enough and the full 705 is not: the suffix rules are
@@ -109,14 +111,8 @@ def test_a_semantic_fold_is_declared_rather_than_merely_absent():
         assert settings[key] is False, "the fold must leave it alone"
 
 
-@pytest.mark.parametrize("role", SAMPLE_ROLES)
-@pytest.mark.parametrize("old_suffix", sorted(RENAMED_SETTING_SUFFIXES))
-def test_a_suffix_rename_works_for_every_role_or_none(role, old_suffix):
-    """IMPOSSIBLE: a rename that works on one slot and not the one beside it.
-
-    `organelle_min_size` was in the table and `organelleq_min_size` was not,
-    so the same setting migrated in slot one and vanished in slot seventeen.
-    """
+def _a_suffix_rename_works_for_every_role_or_none_case(role, old_suffix):
+    """One case of :func:`test_a_suffix_rename_works_for_every_role_or_none`."""
     new = f"{role}_{RENAMED_SETTING_SUFFIXES[old_suffix]}"
     old = f"{role}_{old_suffix}"
     # TWO DIFFERENT REASONS TO SKIP, and saying which matters: "the new name
@@ -137,6 +133,17 @@ def test_a_suffix_rename_works_for_every_role_or_none(role, old_suffix):
         f"{old} did not reach {new}; a role-family rename must not depend "
         "on which slot the user happened to use")
     assert old not in settings, f"{old} was left behind as a dead key"
+
+
+def test_a_suffix_rename_works_for_every_role_or_none(subtests):
+    """IMPOSSIBLE: a rename that works on one slot and not the one beside it.
+
+    `organelle_min_size` was in the table and `organelleq_min_size` was not,
+    so the same setting migrated in slot one and vanished in slot seventeen.
+    """
+    for label, case in locale_cases.cases(("role", SAMPLE_ROLES), ("old_suffix", sorted(RENAMED_SETTING_SUFFIXES))):
+        with subtests.test(**label):
+            _a_suffix_rename_works_for_every_role_or_none_case(**case)
 
 
 def test_no_suffix_rename_retires_a_setting_that_is_still_live():

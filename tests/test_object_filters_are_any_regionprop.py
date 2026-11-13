@@ -25,6 +25,8 @@ from skimage.measure import regionprops_table
 from spacr.qt import mask_engine as engine
 from spacr.utils import _filter_objects, _relabel_sequential
 
+from tests import locale_cases
+
 
 def field():
     """Five objects that differ in size, shape, topology and brightness."""
@@ -63,8 +65,8 @@ def test_every_scalar_regionprop_is_offered_and_nothing_else():
         "an intensity property was offered with no intensity image")
 
 
-@pytest.mark.parametrize("name", engine.filter_properties(intensity=True))
-def test_each_property_judges_objects_as_regionprops_measures_them(name):
+def _each_property_judges_objects_as_regionprops_measures_them_case(name):
+    """One case of :func:`test_each_property_judges_objects_as_regionprops_measures_them`."""
     labels, image = field()
     table = regionprops_table(labels.astype(np.int32), intensity_image=image,
                               properties=["label", name])
@@ -79,6 +81,12 @@ def test_each_property_judges_objects_as_regionprops_measures_them(name):
     for removal in removals:
         assert removal.failed[0].property == name
         assert removal.failed[0].value == pytest.approx(values[removal.label])
+
+
+def test_each_property_judges_objects_as_regionprops_measures_them(subtests):
+    for label, case in locale_cases.cases(("name", engine.filter_properties(intensity=True))):
+        with subtests.test(**label):
+            _each_property_judges_objects_as_regionprops_measures_them_case(**case)
 
 
 def test_a_property_spacr_never_hard_coded_filters_objects():

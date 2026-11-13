@@ -21,6 +21,8 @@ REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "tools" / "tutorials"))
 from archived import load_index  # noqa: E402
 
+from tests import locale_cases
+
 ARCHIVED_MODULES = sorted(
     entry["app_key"] for entry in load_index()["lessons"].values() if entry.get("app_key"))
 
@@ -46,13 +48,19 @@ def test_the_bundled_table_names_every_archived_module_and_no_visible_one():
         range(1, len(bundled["catalog"]) + 1))
 
 
-@pytest.mark.parametrize("app_key", ARCHIVED_MODULES)
-def test_an_archived_module_gets_a_badge_and_no_link(app_key):
+def _an_archived_module_gets_a_badge_and_no_link_case(app_key):
+    """One case of :func:`test_an_archived_module_gets_a_badge_and_no_link`."""
     html = tutorials._tutorial_word_html(app_key)
 
     assert tutorials.tutorial_url(app_key) == ""
     assert "Coming soon" in html and "Tutorial" in html
     assert "<a " not in html and "#lesson=" not in html
+
+
+def test_an_archived_module_gets_a_badge_and_no_link(subtests):
+    for label, case in locale_cases.cases(("app_key", ARCHIVED_MODULES)):
+        with subtests.test(**label):
+            _an_archived_module_gets_a_badge_and_no_link_case(**case)
 
 
 def test_a_module_with_a_lesson_keeps_its_link():

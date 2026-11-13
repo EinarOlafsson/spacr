@@ -33,6 +33,8 @@ from spacr import import_examples as ix  # noqa: E402
 from spacr import regex_infer  # noqa: E402
 from spacr.errors import ConfigurationError  # noqa: E402
 
+from tests import locale_cases
+
 GENERATED = [v.key for v in ix.IMPORT_VARIANTS if v.route == "import"]
 
 
@@ -61,20 +63,32 @@ def test_every_metadata_type_mask_offers_has_a_variant():
     assert offered <= covered, sorted(offered - covered)
 
 
-@pytest.mark.parametrize("key", GENERATED)
-def test_the_variant_imports_as_what_it_truly_is(results, key):
+def _the_variant_imports_as_what_it_truly_is_case(results, key):
+    """One case of :func:`test_the_variant_imports_as_what_it_truly_is`."""
     assert results[key] == [], "\n".join(results[key])
 
 
-@pytest.mark.parametrize("key", GENERATED)
-def test_the_manifest_lists_every_file_on_disk(dataset, key):
-    """The check compares against the manifest, so the manifest must be whole."""
+def test_the_variant_imports_as_what_it_truly_is(subtests, results):
+    for label, case in locale_cases.cases(("key", GENERATED)):
+        with subtests.test(**label):
+            _the_variant_imports_as_what_it_truly_is_case(results=results, **case)
+
+
+def _the_manifest_lists_every_file_on_disk_case(dataset, key):
+    """One case of :func:`test_the_manifest_lists_every_file_on_disk`."""
     listed = {row["path"] for row in ix.manifest_rows(dataset)
               if row["variant"] == key}
     on_disk = {p.relative_to(dataset).as_posix()
                for p in (dataset / "variants" / key).rglob("*")
                if p.is_file()}
     assert on_disk == listed
+
+
+def test_the_manifest_lists_every_file_on_disk(subtests, dataset):
+    """The check compares against the manifest, so the manifest must be whole."""
+    for label, case in locale_cases.cases(("key", GENERATED)):
+        with subtests.test(**label):
+            _the_manifest_lists_every_file_on_disk_case(dataset=dataset, **case)
 
 
 def test_the_zeiss_variant_is_real_czi_carrying_its_channel_name(dataset):

@@ -63,6 +63,8 @@ from spacr.attribution import (
     smoothgrad,
 )
 
+from tests import locale_cases
+
 
 IMG = 16
 
@@ -164,6 +166,10 @@ class MLPNet(nn.Module):
 @pytest.fixture
 def image():
     """A fixed random 3-channel image."""
+    return _seeded_image()
+
+
+def _seeded_image():
     torch.manual_seed(99)
     return torch.randn(3, IMG, IMG)
 
@@ -280,18 +286,26 @@ class TestRegistry:
 # Every method, both head shapes
 # ---------------------------------------------------------------------------
 
+def _finite_map_at_the_input_shape_case(name, n_out, image):
+    """One case of :meth:`TestEveryMethodOnBothHeads.test_finite_map_at_the_input_shape`."""
+    if name in TORCHCAM_METHODS and not TORCHCAM_AVAILABLE:
+        pytest.skip("optional TorchCAM backend is not installed")
+    model = TinyCNN(n_out=n_out)
+    att = attribute(model, image, name, **_fast_kwargs(name))
+    assert att.map.shape == (IMG, IMG)
+    assert att.map.dtype == np.float32
+    assert np.isfinite(att.map).all()
+    assert att.method == name
+    assert att.n_classes == (2 if n_out == 1 else n_out)
+    assert att.single_logit is (n_out == 1)
+
+
 class TestEveryMethodOnBothHeads:
-    @pytest.mark.parametrize("name", CNN_METHODS)
-    @pytest.mark.parametrize("n_out", [1, 3])
-    def test_finite_map_at_the_input_shape(self, name, n_out, image):
-        model = TinyCNN(n_out=n_out)
-        att = attribute(model, image, name, **_fast_kwargs(name))
-        assert att.map.shape == (IMG, IMG)
-        assert att.map.dtype == np.float32
-        assert np.isfinite(att.map).all()
-        assert att.method == name
-        assert att.n_classes == (2 if n_out == 1 else n_out)
-        assert att.single_logit is (n_out == 1)
+    def test_finite_map_at_the_input_shape(self, subtests):
+        for label, case in locale_cases.cases(("name", CNN_METHODS), ("n_out", [1, 3])):
+            with subtests.test(**label):
+                # each case starts from the seed the per-item ``image`` fixture set
+                _finite_map_at_the_input_shape_case(image=_seeded_image(), **case)
 
     @pytest.mark.parametrize("name", CNN_METHODS)
     def test_every_class_of_a_multi_logit_head_is_addressable(self, name, image):
