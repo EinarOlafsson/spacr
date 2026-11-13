@@ -687,6 +687,11 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_profile_similarity", "ops_guide_null_size",
     "ops_profile_responder_alpha", "ops_profile_space",
     "ops_fusion_blocks",
+    # 2026-11-12: the image-based profiling families of spaCR's measurement
+    # module (Measure and the OPS phenotype path) and the granularity
+    # sieve's subsampling.
+    "profile_features", "profile_granularity_subsample",
+    "ops_ph_profile_features", "ops_ph_granularity_subsample",
     # Item 912: the nuclear-median DNA flat-field map (2026-11-10).
     "ops_flatfield_nuclear_channel", "ops_flatfield_nuclei",
     "ops_flatfield_dark", "ops_flatfield_nuclear_maps",

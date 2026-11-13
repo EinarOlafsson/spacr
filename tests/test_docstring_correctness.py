@@ -3265,12 +3265,12 @@ def _validated_bmc_paper_items_4_callables(callables):
     root = pathlib.Path(__file__).resolve().parents[1]
     entries = json.loads((root / "tests/data/release_contracts"
         / "918_923_bmc_paper_items_4_api_arrivals_2026-11-11.json").read_text(encoding="utf-8"))
-    assert len(entries) == 105
+    assert len(entries) == 106
     assert {"spacr.cpg_cropped", "spacr.ops_prefix", "spacr.ops_image_umap",
             "spacr.ops_large_sites", "spacr.ops_decode.run_compare_masks",
             "spacr.ops_scoring.score_profile_benchmarks"} <= entries.keys()
     found = {item.symbol: item for item in callables if item.symbol in entries}
-    assert len(found) == 101
+    assert len(found) == 102
     for symbol, item in found.items():
         assert item.exposure == "autoapi"
         assert item.parameters == item.accepted_documented_parameters
@@ -3353,6 +3353,30 @@ def _validated_bmc_paper_remaining_callables(callables):
         "spacr.ops_clusters.published_record",
         "spacr.ops_clusters.score_published",
     }
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == entries.keys()
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
+def _validated_measure_profile_family_callables(callables):
+    """Check the public profiling measurement families of spacr.measure against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "measure_profile_families_api_arrivals_2026-11-12.json").read_text(encoding="utf-8"))
+    assert set(entries) == {f"spacr.measure.{name}" for name in (
+        "measure_colocalisation", "measure_colocalisation_extra",
+        "measure_costes", "measure_edge_intensity", "measure_gabor", "measure_granularity",
+        "measure_intensity_moments", "measure_lbp", "measure_neighbours",
+        "measure_outside", "measure_periphery", "measure_profile_features",
+        "measure_radial_distribution", "measure_shape_extended",
+        "measure_texture", "profile_feature_families")}
     found = {item.symbol: item for item in callables if item.symbol in entries}
     assert found.keys() == entries.keys()
     for symbol, item in found.items():
@@ -3476,6 +3500,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_png_list_annotation_callables(callables)
     callables = _validated_gate_editor_png_list_callables(callables)
     callables = _validated_bmc_paper_remaining_callables(callables)
+    callables = _validated_measure_profile_family_callables(callables)
     callables = _validated_paper_remaining_910_899_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
@@ -6187,11 +6212,12 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("871_911_bmc_paper_items_api_arrivals_2026-11-09.json", 171),
         ("884_911_bmc_paper_items_2_api_arrivals_2026-11-10.json", 376),
         ("912_917_bmc_paper_items_3_api_arrivals_2026-11-10.json", 54),
-        ("918_923_bmc_paper_items_4_api_arrivals_2026-11-11.json", 105),
+        ("918_923_bmc_paper_items_4_api_arrivals_2026-11-11.json", 106),
         ("annotate_jump_api_arrivals_2026-11-11.json", 4),
         ("issue_186_png_list_annotations_api_arrivals_2026-11-11.json", 3),
         ("gate_editor_png_list_annotations_api_arrivals_2026-11-12.json", 1),
         ("890_917_bmc_paper_remaining_api_arrivals_2026-11-12.json", 5),
+        ("measure_profile_families_api_arrivals_2026-11-12.json", 16),
         ("910_899_paper_remaining_api_arrivals_2026-11-12.json", 3),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
@@ -6782,6 +6808,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "issue_186_png_list_annotations_api_arrivals_2026-11-11.json",
                      "gate_editor_png_list_annotations_api_arrivals_2026-11-12.json",
                      "890_917_bmc_paper_remaining_api_arrivals_2026-11-12.json",
+                     "measure_profile_families_api_arrivals_2026-11-12.json",
                      "910_899_paper_remaining_api_arrivals_2026-11-12.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -6914,6 +6941,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "issue_186_png_list_annotations_api_arrivals_2026-11-11.json",
                      "gate_editor_png_list_annotations_api_arrivals_2026-11-12.json",
                      "890_917_bmc_paper_remaining_api_arrivals_2026-11-12.json",
+                     "measure_profile_families_api_arrivals_2026-11-12.json",
                      "910_899_paper_remaining_api_arrivals_2026-11-12.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))

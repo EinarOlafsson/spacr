@@ -40,7 +40,8 @@ class _FakeModel:
         self.threshold = threshold
 
     def eval(self, x, batch_size=8, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
-        """Check the call as Cellpose would, record it and return ``(labels,)``.
+        """Check the call as Cellpose would, record it and return ``(labels,)``,
+        or Cellpose's ``(masks, [rgb, flows, cellprob], styles)`` without masks.
 
         The large-site path passes no ``channel_axis`` for its 2-D nucleus
         planes and leaves Cellpose to read them as one channel; a call that
@@ -51,7 +52,24 @@ class _FakeModel:
                           else dict(kwargs, channel_axis=channel_axis))
         x = ols.normalize_site(x) if kwargs.get("normalize", True) else np.asarray(x)
         x = x[..., 0] if x.ndim == 3 else x
+        if kwargs.get("compute_masks", True) is False:
+            return np.zeros(0), [None, np.zeros((2,) + x.shape, np.float32),
+                                 (x - self.threshold).astype(np.float32)], None
         return (ndimage.label(x > self.threshold)[0].astype(np.int32),)
+
+
+@pytest.fixture(autouse=True)
+def _stand_in_masks(monkeypatch):
+    """Masks from a stand-in's flows: its cell probability above zero."""
+    real = ols._cellpose_masks
+
+    def masks(model, flows, cellprob):
+        """Label the stand-in's cell probability; real Cellpose models keep Cellpose's step."""
+        if isinstance(model, _FakeModel):
+            return ndimage.label(cellprob > 0)[0].astype(np.int32)
+        return real(model, flows, cellprob)
+
+    monkeypatch.setattr(ols, "_cellpose_masks", masks)
 
 
 def _models():
@@ -120,11 +138,11 @@ def test_the_planner_halves_the_tile_and_refuses_an_impossible_cap():
     plan = ols.plan_site_memory((5500, 5500), 5, {"seg_max_ram_gb": 24, "seg_tile_px": 2048,
                                                    "seg_workers": 4}, available_bytes=big)
     assert plan["tile_px"] == 2048 and plan["workers"] == 4 and plan["estimate_gb"] <= 24
-    small = ols.plan_site_memory((5500, 5500), 5, {"seg_max_ram_gb": 2.2, "seg_tile_px": 2048,
+    small = ols.plan_site_memory((5500, 5500), 5, {"seg_max_ram_gb": 11.9, "seg_tile_px": 2048,
                                                     "seg_tile_overlap_px": 64},
                                  available_bytes=big)
-    assert small["tile_px"] < 2048 and small["estimate_gb"] <= 2.2
-    whole = ols.plan_site_memory((5500, 5500), 5, {"seg_max_ram_gb": 3, "seg_tile_px": 0},
+    assert small["tile_px"] < 2048 and small["estimate_gb"] <= 11.9
+    whole = ols.plan_site_memory((5500, 5500), 5, {"seg_max_ram_gb": 12.5, "seg_tile_px": 0},
                                  available_bytes=big)
     assert whole["tile_px"] in (512, 1375, 2750)
     with pytest.raises(ols.MemoryPlanError, match="cannot hold"):
@@ -558,3 +576,67 @@ def test_tiles_on_the_network_grid_reproduce_the_untiled_run_away_from_seams():
     assert out["objects"] > 100 and out["at_seams"] > 20
     assert out["away_identical"] == out["away_from_seams"]
     assert out["at_seams_share"] >= 0.99
+
+
+class _GradientNet(_TileMeanNet):
+    """A stand-in network with Cellpose's outputs: flows up the image's
+    gradient and a cell probability centred on each network tile's mean."""
+
+    def __call__(self, x):
+        import torch
+        import torch.nn.functional as F
+
+        image = x[:, :1]
+        gy = F.pad(image[:, :, 2:] - image[:, :, :-2], (0, 0, 1, 1))
+        gx = F.pad(image[..., 2:] - image[..., :-2], (1, 1, 0, 0))
+        norm = torch.sqrt(gy ** 2 + gx ** 2 + 1e-4)
+        prob = 4 * (image - image.mean(dim=(2, 3), keepdim=True)) - 1
+        return (torch.cat([5 * gy / norm, 5 * gx / norm, prob], 1),
+                torch.zeros(x.shape[0], 256))
+
+
+class _GradientCellpose:
+    """Cellpose's eval around :class:`_GradientNet`: its tiling, tile
+    averaging and mask step."""
+
+    def __init__(self):
+        import torch
+
+        self.device = torch.device("cpu")
+
+    def eval(self, x, batch_size=8, normalize=True, compute_masks=True,
+             channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+        """Flows, then masks unless ``compute_masks`` is False."""
+        from cellpose.core import run_net
+
+        check_cellpose_eval_call(x, channel_axis, require_channel_axis=False)
+
+        out, _ = run_net(_GradientNet(), np.asarray(x, np.float32)[None, ..., None], bsize=256,
+                         batch_size=batch_size)
+        flows, prob = np.ascontiguousarray(out[0, ..., :2].transpose(2, 0, 1)), out[0, ..., 2]
+        if not compute_masks:
+            return np.zeros(0), [None, flows, prob], None
+        return ols._cellpose_masks(self, flows, prob), [None, flows, prob], None
+
+
+def test_stitched_flows_and_one_mask_step_reproduce_cellpose_untiled():
+    model = _GradientCellpose()
+    image = ols.normalize_site(_uneven((1968, 1968), seed=13))
+    region, tile, aligned = ols.control_layout(1968, 2 * ols.FLOW_MARGIN_PX)
+    assert (region, tile, aligned) == (1968, 1392, True)
+
+    def whole(x):
+        return ols._eval_labels(model, x, {}, None)
+
+    labels_only = ols.tiling_control(image, whole, tile_px=tile, overlap_px=256, align=True)
+    assert labels_only["away_identical"] < labels_only["away_from_seams"]
+    out = ols.tiling_control(image, whole, tile_px=tile, overlap_px=256, align=True,
+                             flows=lambda x: ols._eval_flows(model, x, {}),
+                             masks=lambda f, p: ols._cellpose_masks(model, f, p))
+    assert out["objects"] > 100 and out["at_seams"] > 20
+    assert out["away_identical"] == out["away_from_seams"]
+    assert out["at_seams_iou_ge_0_9"] == out["at_seams"]
+    tiled = ols.segment_tiled(image, whole, tile_px=tile, overlap_px=256, align=True,
+                              flows=lambda x: ols._eval_flows(model, x, {}),
+                              masks=lambda f, p: ols._cellpose_masks(model, f, p))
+    assert np.array_equal(tiled, ols.relabel_raster(whole(image)))
