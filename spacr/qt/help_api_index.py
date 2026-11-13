@@ -4129,6 +4129,7 @@ API_ENTRIES = (
     ('spacr.ops_large_sites.aligned_tiling', "A tile side and step that put every tile's network tiles on one grid."),
     ('spacr.ops_large_sites.apply_edge_policy', "Apply the crop-edge cell policy to one site's labels."),
     ('spacr.ops_large_sites.basic_features', 'Shape and intensity features of every object in a label image.'),
+    ('spacr.ops_large_sites.cells_from_nucleus_seeds', "Grow one cell from every nucleus inside the cell network's foreground."),
     ('spacr.ops_large_sites.control_layout', 'The region and tile sides of the tiling control.'),
     ('spacr.ops_large_sites.estimate_nucleus_diameter', "The plate's nucleus diameter from a first segmentation pass."),
     ('spacr.ops_large_sites.large_site_settings', "Item 921's settings with defaults, the preset expanded and checked."),

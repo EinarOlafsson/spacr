@@ -33975,6 +33975,18 @@ seed_wells_from_cells
 
 Read by ``_set_analyze_invasion_defaults``, ``_set_analyze_replication_defaults``, ``analyze_invasion``, ``analyze_replication``.
 
+.. _setting-flow-seg_cells_from_nucleus_seeds:
+
+seg_cells_from_nucleus_seeds
+----------------------------
+
+| :py:func:`~spacr.ops_large_sites.run_large_site_segmentation`
+|     ``_edge_step`` **-- reads it**
+|     :py:func:`~spacr.ops_large_sites.segment_cell_painting_site` **-- reads it**
+|     ``dict(...)  [UNRESOLVED]``
+
+Read by ``_edge_step``, ``segment_cell_painting_site``.
+
 .. _setting-flow-seg_diameter_min_objects:
 
 seg_diameter_min_objects
@@ -34010,10 +34022,11 @@ Read by ``run_large_site_segmentation``.
 seg_edge_policy
 ---------------
 
-| :py:func:`~spacr.ops_large_sites.run_large_site_segmentation` **-- reads it**
+| :py:func:`~spacr.ops_large_sites.run_large_site_segmentation`
+|     ``_edge_step`` **-- reads it**
 |     ``dict(...)  [UNRESOLVED]``
 
-Read by ``run_large_site_segmentation``.
+Read by ``_edge_step``.
 
 .. _setting-flow-seg_gpu:
 
