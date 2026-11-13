@@ -3559,7 +3559,10 @@ _TOOLTIPS = {
         "'polynomial' fits a low-order surface, which cannot bend around a "
         "cell and is the right choice for a lamp profile plus a vignette; "
         "'smooth' Gaussian-blurs the median instead and can follow a dust "
-        "shadow the polynomial would miss. Default polynomial."),
+        "shadow the polynomial would miss; 'nuclear_median' (alpha) fits the "
+        "map to the median brightness of the DNA-stain nuclei in small blocks "
+        "of the field, follows a steep corner fall, and needs "
+        "illumination_nuclear_channel. Default polynomial."),
     'illumination_degree': (
         '(int) - Order of the fitted illumination surface. 4 gives fifteen '
         'terms, enough for a lamp profile, a vignette and a tilt. Raising it '
