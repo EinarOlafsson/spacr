@@ -367,31 +367,23 @@ class TestReportingAnIssueThatWasSeenBefore:
         return {"fingerprint": "abc123", "title": "It broke",
                 "body": "the traceback"}
 
-    def test_a_landed_comment_returns_the_existing_issue(self, monkeypatch):
-        """A second occurrence is still information: it says the bug is
-        reproducible and carries that run's environment."""
-        issue_report, calls = self._seam(monkeypatch, comment_ok=True)
+    @pytest.mark.parametrize("comment_ok, url, calls", [
+        # A second occurrence is still information: it says the bug is
+        # reproducible and carries that run's environment.
+        (True, "https://x/issues/12", {"created": 0, "commented": 1}),
+        # The duplicate was found, but the comment did not land -- a locked
+        # issue, a revoked token, a transient 5xx. Returning the existing URL
+        # then would tell the user their report was filed when nothing was
+        # written anywhere, so it falls through to a new issue.
+        (False, "https://x/issues/99", {"created": 1, "commented": 1}),
+    ], ids=["a_landed_comment_returns_the_existing_issue",
+            "a_failed_comment_falls_through_to_a_new_issue"])
+    def test_a_landed_comment_returns_the_existing_issue(
+            self, monkeypatch, comment_ok, url, calls):
+        issue_report, seen = self._seam(monkeypatch, comment_ok=comment_ok)
 
-        url = issue_report.submit_report(self._report())
-
-        assert url == "https://x/issues/12"
-        assert calls == {"created": 0, "commented": 1}
-
-    def test_a_comment_that_failed_falls_through_to_a_new_issue(self,
-                                                                monkeypatch):
-        """THE UNCOVERED ARC.
-
-        The duplicate was found, but the comment did not land -- a
-        locked issue, a revoked token, a transient 5xx. Returning the
-        existing URL then would tell the user their report was filed
-        when nothing was written anywhere.
-        """
-        issue_report, calls = self._seam(monkeypatch, comment_ok=False)
-
-        url = issue_report.submit_report(self._report())
-
-        assert url == "https://x/issues/99"
-        assert calls == {"created": 1, "commented": 1}
+        assert issue_report.submit_report(self._report()) == url
+        assert seen == calls
 
     def test_without_the_seam_the_whole_flow_is_refused(self):
         """The fence itself: no environment escape hatch, by design."""

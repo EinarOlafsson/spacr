@@ -92,27 +92,18 @@ def test_a_known_fingerprint_comments_rather_than_opening_a_new_issue(
     assert url == "u/79", "the caller was not pointed at the existing issue"
 
 
+@pytest.mark.parametrize("found", [
+    (True, None),       # an unknown fingerprint still opens an issue
+    # Losing a crash report is worse than filing a duplicate, so a failed
+    # SEARCH must not be read as "no match".
+    (False, None),
+], ids=["an_unknown_fingerprint", "a_search_that_could_not_run"])
 def test_an_unknown_fingerprint_still_opens_an_issue(
-        monkeypatch, offline_transport):
+        monkeypatch, offline_transport, found):
     created = []
     monkeypatch.setattr(github_auth, "is_authenticated", lambda: True)
     monkeypatch.setattr(github_auth, "find_issue_by_fingerprint",
-                        lambda repo, fp: (True, None))
-    monkeypatch.setattr(github_auth, "create_issue",
-                        lambda *a, **k: created.append(a) or (True, "NEW"))
-
-    assert issue_report.file_issue(TB) == "NEW"
-    assert len(created) == 1
-
-
-def test_a_search_that_could_not_run_still_files(
-        monkeypatch, offline_transport):
-    """Losing a crash report is worse than filing a duplicate, so a failed
-    SEARCH must not be read as "no match"."""
-    created = []
-    monkeypatch.setattr(github_auth, "is_authenticated", lambda: True)
-    monkeypatch.setattr(github_auth, "find_issue_by_fingerprint",
-                        lambda repo, fp: (False, None))
+                        lambda repo, fp: found)
     monkeypatch.setattr(github_auth, "create_issue",
                         lambda *a, **k: created.append(a) or (True, "NEW"))
 

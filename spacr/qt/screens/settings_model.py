@@ -124,6 +124,8 @@ _FOLDED_DEFAULTS_MODULES: Dict[str, str] = {
     "barcode_qc": "spacr.sequencing_qc",
     "explain_cv": "spacr.surrogate",
     "anndata_export": "spacr.anndata_export",
+    "moa_benchmark": "spacr.moa_benchmark",
+    "profiling_evaluation": "spacr.moa_benchmark",
 }
 
 
@@ -3200,6 +3202,63 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "decay, or histogram matching. Corrected intensities are written "
         "beside the measured ones with the method, and the fitted decay is "
         "plotted.",
+    "VACUOLES Α":
+        "Groups the measured parasites into vacuoles and writes the "
+        "vacuole and vacuole_host tables to measurements.db, with "
+        "vacuole and parasite counts added to the cell table. Parasites "
+        "closer than the gap are one vacuole, each parasite is linked to "
+        "the vacuole it overlaps most, and you can pick a channel for the "
+        "vacuole signal mean. Set the minimum vacuole and host sizes to "
+        "drop debris. Turn it on when you count parasites per vacuole; "
+        "leave it off otherwise.",
+    "PLAQUE SIZE READOUTS Α":
+        "Adds per-well size readouts to a plaque run: mean, median and "
+        "largest plaque area, the largest relative to the mean, the well "
+        "extent and the plaque area over it, and each plaque relative to "
+        "the largest in its well. Millimetre areas appear when the image "
+        "has a scale. Turn it on to compare plaque sizes across wells and "
+        "plates; off leaves the per-image and per-plaque tables unchanged.",
+    "HELD-OUT EVALUATION Α":
+        "Tests the classifier on objects it never saw and writes the scores "
+        "to results/ml_eval. Choose how objects are held out (one well, one "
+        "plate or a random split), which labels and feature columns are "
+        "scored, and the controls reported beside the model: always "
+        "guessing the commonest class, and labels shuffled within each "
+        "training fold. Use it to learn whether a model generalises to a "
+        "new well or plate; leave it off for a quick fit.",
+    "CELLS FROM NUCLEI Α":
+        "Makes cell masks when there is no cell stain by growing each "
+        "nucleus outward, without overlap, until it meets its neighbours or "
+        "reaches the set distance. Nuclei smaller than the minimum are "
+        "removed first, which keeps parasite nuclei in the DNA channel from "
+        "becoming cells. Use it when only a nuclear channel exists; with a "
+        "real cell stain, segment the cells directly.",
+    "TITRATION READOUT Α":
+        "Counts parasites per vacuole from existing masks and compares "
+        "conditions across a dose series. It takes the plate map, an "
+        "optional table of published values, and the vacuole and host size "
+        "limits. A classifier trained on your own table can call parasites "
+        "per vacuole, sizes can be put on that table's scale, and a signal "
+        "floor drops uninfected vacuoles before counting. Set the plate map "
+        "to run it; ordinary Host-Pathogen runs do not need it.",
+    "TRANSLOCATION Α":
+        "Measures how much of a secreted effector reaches the host nucleus. "
+        "Per host cell it takes the effector signal in the nucleus, leaves "
+        "out pixels near parasites, subtracts the field background and "
+        "plots it against vacuoles per cell, relative to cells with none. "
+        "Choose the effector and control channels, the background method, "
+        "the largest vacuole count binned and an optional reference curve "
+        "to check agreement. Turn it on only for nuclear translocation "
+        "experiments.",
+    "OPS GENE MAP CROPS":
+        "Shows example cells for each cluster of the OPS gene map. For "
+        "every Leiden cluster or top-level group it picks the cells closest "
+        "to the medoid gene's profile and writes a panel of crops in the "
+        "channels and colours you choose. All crops share one display range "
+        "per channel, taken from percentiles of the pooled pixels, so "
+        "brightness is comparable. Cells below the minimum size are "
+        "skipped. Set the crop size and the output folder to suit the "
+        "screen.",
     "MEASUREMENT BACKEND Α":
         "Copies a finished run's measurements into DuckDB or Parquet for "
         "very large screens, or into PostgreSQL for labs that share one "
@@ -4072,7 +4131,7 @@ CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
             "time, or a known time to estimate scale: plaque size alone cannot "
             "determine both. Estimates are approximate and require validation "
             "for the parasite strain, host cells and imaging conditions.",
-        "FIGURE SCORING α":
+        "FIGURE SCORING Α":
             "Score the wells Figure mode measured against the effects the "
             "papers report, with a permutation control, or merge a figure "
             "reading into the meta-analysis tables (plaque_mode figure_score "

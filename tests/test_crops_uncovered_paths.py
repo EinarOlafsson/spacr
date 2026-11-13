@@ -328,30 +328,23 @@ def test_a_null_label_column_falls_through_to_the_next_one(tmp_path):
     assert crop.any(), "the object's pixels must survive the crop"
 
 
-def test_a_field_name_that_does_not_end_in_a_number_is_not_shortened(tmp_path):
-    """Only a trailing object suffix is dropped, never a real name segment."""
+@pytest.mark.parametrize("saved, seed, file_name, resolved", [
+    # Only a trailing object suffix is dropped, never a real name segment.
+    # ``plate1_A01.npy`` is a decoy the shortening rule would land on if it
+    # dropped any last segment rather than only a numeric one.
+    ("plate1_A01.npy", 18, "plate1_A01_top.tif", "plate1_A01_top.npy"),
+    # A png_list name carries the object label; the field name does not.
+    ("plate1_A01_17_1.npy", 12, "plate1_A01_17_1_2.png", "plate1_A01_17_1.npy"),
+], ids=["name-not-ending-in-a-number", "object-suffix-dropped"])
+def test_a_crop_row_is_shortened_to_its_field_only_by_a_numeric_object_suffix(
+        tmp_path, saved, seed, file_name, resolved):
     root = tmp_path / "merged"
     root.mkdir()
-    # A decoy the shortening rule would land on if it dropped any last
-    # segment rather than only a numeric one.
-    np.save(root / "plate1_A01.npy", _field(seed=18))
+    np.save(root / saved, _field(seed=seed))
     source = MergedCropSource(merged_root=str(root))
 
-    resolved = source.resolve_path({"file_name": "plate1_A01_top.tif"})
-
-    assert resolved == os.path.join(str(root), "plate1_A01_top.npy")
-
-
-def test_a_crop_row_drops_its_object_suffix_to_find_the_field(tmp_path):
-    """A png_list name carries the object label; the field name does not."""
-    root = tmp_path / "merged"
-    root.mkdir()
-    np.save(root / "plate1_A01_17_1.npy", _field(seed=12))
-    source = MergedCropSource(merged_root=str(root))
-
-    resolved = source.resolve_path({"file_name": "plate1_A01_17_1_2.png"})
-
-    assert resolved == os.path.join(str(root), "plate1_A01_17_1.npy")
+    assert source.resolve_path({"file_name": file_name}) == os.path.join(
+        str(root), resolved)
 
 
 # ---------------------------------------------------------------------------

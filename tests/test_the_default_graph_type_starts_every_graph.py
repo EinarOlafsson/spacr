@@ -158,17 +158,16 @@ class TestTheStartingForm:
         assert graph_types.start_for("categorical_continuous") == \
             (graph_types.DEFAULTS["categorical_continuous"], "")
 
-    def test_the_choice_beats_the_caller_s_own_form(self, saved):
-        saved["categorical_continuous"] = "violin"
+    @pytest.mark.parametrize("choice, form", [
+        ("violin", "violin"),     # the choice beats the caller's own form
+        ("scatter", "jitter"),    # a choice the shape cannot take leaves the form alone
+    ], ids=["the-choice-beats-the-callers-form",
+            "a-choice-the-shape-cannot-take-leaves-the-form-alone"])
+    def test_a_saved_choice_decides_the_form(self, saved, choice, form):
+        saved["categorical_continuous"] = choice
         assert graph_types.start_for(
             "categorical_continuous", [40, 35], fallback="jitter") == \
-            ("violin", "")
-
-    def test_a_choice_the_shape_cannot_take_leaves_the_form_alone(self, saved):
-        saved["categorical_continuous"] = "scatter"
-        assert graph_types.start_for(
-            "categorical_continuous", [40, 35], fallback="jitter") == \
-            ("jitter", "")
+            (form, "")
 
     def test_a_choice_the_data_cannot_support_falls_back_out_loud(self, saved):
         """The fallback is explicit: the plot says so, and names both."""
@@ -182,12 +181,6 @@ class TestTheStartingForm:
         assert "Jitter" in note
         assert "2" in note
         assert "Right-click" in note
-
-    def test_the_fallback_only_happens_when_it_has_to(self, saved):
-        saved["categorical_continuous"] = "violin"
-        assert graph_types.start_for(
-            "categorical_continuous", [40, 35], fallback="jitter") == \
-            ("violin", "")
 
     def test_the_table_default_is_never_talked_out_of_itself(self, saved):
         """An ordered x has one point per x, and `line` is its default. Held

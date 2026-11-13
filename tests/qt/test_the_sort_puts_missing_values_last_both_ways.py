@@ -91,25 +91,20 @@ def test_two_missing_values_do_not_reorder_each_other():
 # what "sorts numerically" means
 # ---------------------------------------------------------------------------
 
-def test_numbers_sort_as_numbers_and_not_as_text():
-    """The failure this replaces: "10" before "9" in a string sort."""
-    proxy = _proxy(["9", "10", "100", "2"], Qt.AscendingOrder)
+@pytest.mark.parametrize("values, shown", [
+    # The failure this replaces: "10" before "9" in a string sort.
+    (["9", "10", "100", "2"], ["2", "9", "10", "100"]),
+    # p-values arrive formatted, and 1e-9 is smaller than 0.04.
+    (["0.04", "1e-9", "0.5", "3.2e-3"], ["1e-9", "3.2e-3", "0.04", "0.5"]),
+    # Gene names, and a case-sensitive sort puts every lowercase name last.
+    (["beta", "Alpha", "gamma", "Delta"], ["Alpha", "beta", "Delta", "gamma"]),
+], ids=["numbers_sort_as_numbers_and_not_as_text",
+        "scientific_notation_sorts_with_the_plain_numbers",
+        "text_that_is_not_a_number_sorts_case_insensitively"])
+def test_numbers_sort_as_numbers_and_not_as_text(values, shown):
+    proxy = _proxy(values, Qt.AscendingOrder)
 
-    assert _shown(proxy) == ["2", "9", "10", "100"]
-
-
-def test_scientific_notation_sorts_with_the_plain_numbers():
-    """p-values arrive formatted, and 1e-9 is smaller than 0.04."""
-    proxy = _proxy(["0.04", "1e-9", "0.5", "3.2e-3"], Qt.AscendingOrder)
-
-    assert _shown(proxy) == ["1e-9", "3.2e-3", "0.04", "0.5"]
-
-
-def test_text_that_is_not_a_number_sorts_case_insensitively():
-    """Gene names, and a case-sensitive sort puts every lowercase name last."""
-    proxy = _proxy(["beta", "Alpha", "gamma", "Delta"], Qt.AscendingOrder)
-
-    assert _shown(proxy) == ["Alpha", "beta", "Delta", "gamma"]
+    assert _shown(proxy) == shown
 
 
 def test_a_number_sorts_before_text_that_is_not_a_number():

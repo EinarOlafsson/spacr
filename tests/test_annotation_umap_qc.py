@@ -33,19 +33,17 @@ class TestTheReadoutIsANumber:
     sizes and the distances between them are artefacts of the projection;
     who is near whom is all it preserves."""
 
-    def test_a_cell_among_the_positives_scores_one(self):
+    @pytest.mark.parametrize("centre, expected", [
+        (6.0, 1.0),   # among the positives
+        (0.0, 0.0),   # among the negatives
+    ], ids=["positives-score-one", "negatives-score-zero"])
+    def test_a_cell_scores_the_share_of_positives_among_its_neighbours(
+            self, centre, expected):
         points, labels = _two_blobs()
-        query = np.array([[6.0, 6.0]])
+        query = np.array([[centre, centre]])
         purity = module.neighbour_purity(
             np.vstack([points, query]), list(labels) + [None], k=15)
-        assert purity[-1] == pytest.approx(1.0)
-
-    def test_a_cell_among_the_negatives_scores_zero(self):
-        points, labels = _two_blobs()
-        query = np.array([[0.0, 0.0]])
-        purity = module.neighbour_purity(
-            np.vstack([points, query]), list(labels) + [None], k=15)
-        assert purity[-1] == pytest.approx(0.0)
+        assert purity[-1] == pytest.approx(expected)
 
     def test_a_cell_between_them_scores_between(self):
         points, labels = _two_blobs()

@@ -52,19 +52,19 @@ class TestWhenItIsTaken:
         assert on is False
         assert "cpu" in note.lower()
 
-    def test_the_cpu_refusal_says_what_it_did_instead(self):
-        """Silently doing nothing is the defect this replaces."""
-        _on, note = resolve_mixed_precision(True, torch.device("cpu"))
-        assert "full precision" in note.lower()
+    @pytest.mark.parametrize("device, fragment", [
+        # Silently doing nothing is the defect this replaces.
+        ("cpu", "full precision"),
+        # A score from a half-precision run and a score from a full one are
+        # not comparable, and a screen is a pile of scores.
+        ("cuda", "compare"),
+    ], ids=["cpu-refusal-says-what-it-did-instead", "numbers-move-warning"])
+    def test_the_note_says_what_it_did_or_what_moves(self, device, fragment):
+        _on, note = resolve_mixed_precision(True, torch.device(device))
+        assert fragment in note.lower()
 
 
 class TestWhatItSays:
-    def test_it_warns_that_the_numbers_move(self):
-        """A score from a half-precision run and a score from a full one
-        are not comparable, and a screen is a pile of scores."""
-        _on, note = resolve_mixed_precision(True, torch.device("cuda"))
-        assert "compare" in note.lower()
-
     def test_it_says_what_stays_in_full_precision(self):
         """"Mixed" is the whole point: a reader who thinks the weights are
         float16 will not trust the result."""

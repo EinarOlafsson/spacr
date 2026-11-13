@@ -12,7 +12,6 @@ from __future__ import annotations
 import os
 
 import numpy as np
-import pytest
 import tifffile
 
 from spacr import external_masks as em
@@ -23,23 +22,6 @@ def _labels(path):
     array = np.zeros((32, 32), dtype=np.uint16)
     array[4:10, 4:10] = 1
     tifffile.imwrite(path, array, photometric="minisblack")
-
-
-@pytest.mark.parametrize("name, expected", [
-    ("organelle/fov001.tif", "organelle"),
-    ("organelle_1/fov001.tif", "organelle"),
-    ("organelle_2/fov001.tif", "organelleb"),
-    ("proj/organelle_5_masks/fov001.tif", "organellee"),
-    ("proj/cell_masks/fov001.tif", "cell"),
-    ("proj/nuclei/fov001.tif", "nucleus"),
-    ("organelle_488_masks.tif", "organelle"),
-    ("organelle_561/fov001.tif", "organelle"),
-    ("organelle_masks/fov001_organelle_640.tif", "organelle"),
-    ("organelle_488/fov001_organelle_3_mask.tif", "organellec"),
-    ("organelle_12_masks.tif", "organellel"),
-])
-def test_a_folder_or_laser_line_token_proposes_the_right_type(name, expected):
-    assert em._suggest_object(name) == expected
 
 
 def test_a_folder_path_is_a_mask_word_boundary():

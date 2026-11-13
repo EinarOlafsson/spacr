@@ -78,13 +78,19 @@ def console(qapp, monkeypatch, manual_error_batches):
     qapp.processEvents()
 
 
-def test_an_answer_is_returned_for_the_error_it_explains(console, manual_error_batches):
+@pytest.mark.parametrize("ok, text, attached", [
+    (True, "The diameter arrives as a string.",
+     "The diameter arrives as a string."),
+    (False, "provider refused the request", ""),
+], ids=["an_answer_is_returned_for_the_error_it_explains",
+        "a_failed_stream_attaches_nothing"])
+def test_an_answer_is_returned_for_the_error_it_explains(
+        console, manual_error_batches, ok, text, attached):
     console.open_error_flow(FIRST, active_app="mask")
     manual_error_batches()
-    console._on_stream_finished(True, "The diameter arrives as a string.")
+    console._on_stream_finished(ok, text)
 
-    assert console.ai_explanation_of(FIRST) == (
-        "The diameter arrives as a string.")
+    assert console.ai_explanation_of(FIRST) == attached
 
 
 def test_it_is_not_returned_for_a_different_error(console, manual_error_batches):
@@ -105,13 +111,6 @@ def test_an_unfinished_stream_attaches_nothing(console, manual_error_batches):
     rather than a half-written one."""
     console.open_error_flow(FIRST, active_app="mask")
     manual_error_batches()
-    assert console.ai_explanation_of(FIRST) == ""
-
-
-def test_a_failed_stream_attaches_nothing(console, manual_error_batches):
-    console.open_error_flow(FIRST, active_app="mask")
-    manual_error_batches()
-    console._on_stream_finished(False, "provider refused the request")
     assert console.ai_explanation_of(FIRST) == ""
 
 

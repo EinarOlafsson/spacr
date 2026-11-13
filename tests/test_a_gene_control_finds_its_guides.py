@@ -45,24 +45,16 @@ class TestAGeneFindsEveryGuideOfIt:
             sorted(n for n in library if "000000" in n)
 
     @pytest.mark.parametrize("library", [PREFIXED, BARE])
-    def test_the_prefixed_gene_spelling(self, library):
-        mask, _said = rows_for("TGGT1_000000", pd.Series(library),
-                               names=library)
+    @pytest.mark.parametrize("name, found", [
+        ("TGGT1_000000", 4),        # the prefixed gene spelling
+        ("000000_11", 1),           # a guide finds exactly itself
+        ("TGGT1_000000_11", 1),     # a prefixed guide does too
+    ], ids=["the_prefixed_gene_spelling", "a_guide_finds_exactly_itself",
+            "a_prefixed_guide_does_too"])
+    def test_the_prefixed_gene_spelling(self, library, name, found):
+        mask, _said = rows_for(name, pd.Series(library), names=library)
 
-        assert int(mask.sum()) == 4
-
-    @pytest.mark.parametrize("library", [PREFIXED, BARE])
-    def test_a_guide_finds_exactly_itself(self, library):
-        mask, _said = rows_for("000000_11", pd.Series(library), names=library)
-
-        assert int(mask.sum()) == 1
-
-    @pytest.mark.parametrize("library", [PREFIXED, BARE])
-    def test_a_prefixed_guide_does_too(self, library):
-        mask, _said = rows_for("TGGT1_000000_11", pd.Series(library),
-                               names=library)
-
-        assert int(mask.sum()) == 1
+        assert int(mask.sum()) == found
 
     def test_all_four_spellings_agree(self):
         """184's own claim, on the library shape that broke it."""

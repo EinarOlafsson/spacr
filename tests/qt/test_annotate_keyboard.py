@@ -103,30 +103,47 @@ def _labels(screen) -> List:
 # ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize("given,expected", [
-    ("1", "1"), ("9", "9"), ("0", "0"),
-    ("h", "left"), ("j", "down"), ("k", "up"), ("l", "right"),
-    ("H", "left"), ("L", "right"),
-    ("left", "left"), ("Right", "right"), ("UP", "up"), ("Down", "down"),
-    (" ", "space"), ("space", "space"),
-    ("backspace", "backspace"), ("u", "undo"),
-    ("enter", "enter"), ("return", "enter"), ("?", "help"),
+    ("1", "1"),
+    ("9", "9"),
+    ("0", "0"),
+    ("h", "left"),
+    ("j", "down"),
+    ("k", "up"),
+    ("l", "right"),
+    ("H", "left"),
+    ("L", "right"),
+    ("left", "left"),
+    ("Right", "right"),
+    ("UP", "up"),
+    ("Down", "down"),
+    (" ", "space"),
+    ("space", "space"),
+    ("backspace", "backspace"),
+    ("u", "undo"),
+    ("enter", "enter"),
+    ("return", "enter"),
+    ("?", "help"),
+    (Qt.Key_1, "1"),
+    (Qt.Key_9, "9"),
+    (Qt.Key_0, "0"),
+    (Qt.Key_Left, "left"),
+    (Qt.Key_Right, "right"),
+    (Qt.Key_Up, "up"),
+    (Qt.Key_Down, "down"),
+    (Qt.Key_H, "left"),
+    (Qt.Key_J, "down"),
+    (Qt.Key_K, "up"),
+    (Qt.Key_L, "right"),
+    (Qt.Key_Space, "space"),
+    (Qt.Key_Backspace, "backspace"),
+    (Qt.Key_U, "undo"),
+    (Qt.Key_Return, "enter"),
+    (Qt.Key_Enter, "enter"),
+    (Qt.Key_Question, "help"),
+    (Qt.Key_Escape, "escape"),
 ])
 def test_key_token_from_text(given, expected):
     assert annotate_mod.key_token(given) == expected
-
-
-@pytest.mark.parametrize("qt_key,expected", [
-    (Qt.Key_1, "1"), (Qt.Key_9, "9"), (Qt.Key_0, "0"),
-    (Qt.Key_Left, "left"), (Qt.Key_Right, "right"),
-    (Qt.Key_Up, "up"), (Qt.Key_Down, "down"),
-    (Qt.Key_H, "left"), (Qt.Key_J, "down"),
-    (Qt.Key_K, "up"), (Qt.Key_L, "right"),
-    (Qt.Key_Space, "space"), (Qt.Key_Backspace, "backspace"),
-    (Qt.Key_U, "undo"), (Qt.Key_Return, "enter"), (Qt.Key_Enter, "enter"),
-    (Qt.Key_Question, "help"), (Qt.Key_Escape, "escape"),
-])
-def test_key_token_from_qt_code(qt_key, expected):
-    assert annotate_mod.key_token(qt_key) == expected
 
 
 @pytest.mark.parametrize("given", ["z", "qq", "", "  ", "F5", None, object()])

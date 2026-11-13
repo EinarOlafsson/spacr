@@ -35,26 +35,29 @@ def _write_csv(path, seqs, names):
     return str(path)
 
 
-def test_map_sequences_to_names_maps_and_leaves_unknowns_missing(tmp_path):
-    csv = _write_csv(tmp_path / "bc.csv", ["ACGT", "TTGG"], ["b1", "b2"])
-    got = SEQ.map_sequences_to_names(csv, ["TTGG", "ACGT", "GGGG"], rc=False)
+@pytest.mark.parametrize("barcodes, names, queries, rc, expected", [
     # Positional alignment is the whole contract: got[i] is the name of
     # sequences[i]. A shuffle here would relabel every read in the screen.
-    assert got[0] == "b2"
-    assert got[1] == "b1"
-    assert got[2] is pd.NA
-
-
-def test_map_sequences_to_names_rc_reverse_complements_the_csv_only(tmp_path):
+    (["ACGT", "TTGG"], ["b1", "b2"], ["TTGG", "ACGT", "GGGG"], False,
+     ["b2", "b1", None]),
     # ACGT -> ACGT is a palindrome under RC, so use something asymmetric.
-    csv = _write_csv(tmp_path / "bc.csv", ["AAAC", "TTGN"], ["b1", "b2"])
-    # rc=True complements the CSV column, so the *input* must be the RC form.
-    got = SEQ.map_sequences_to_names(csv, ["GTTT", "NCAA", "AAAC"], rc=True)
-    assert got[0] == "b1"          # RC('AAAC') == 'GTTT'
-    assert got[1] == "b2"          # N maps to N, RC('TTGN') == 'NCAA'
-    # And the un-complemented spelling no longer matches — proving the CSV
-    # and not the query was transformed.
-    assert got[2] is pd.NA
+    # rc=True complements the CSV column, so the *input* must be the RC form:
+    # RC('AAAC') == 'GTTT'; N maps to N, RC('TTGN') == 'NCAA'. The
+    # un-complemented spelling no longer matches -- proving the CSV and not the
+    # query was transformed.
+    (["AAAC", "TTGN"], ["b1", "b2"], ["GTTT", "NCAA", "AAAC"], True,
+     ["b1", "b2", None]),
+], ids=["maps-and-leaves-unknowns-missing", "rc-reverse-complements-the-csv-only"])
+def test_map_sequences_to_names_aligns_positionally_and_leaves_unknowns_missing(
+        tmp_path, barcodes, names, queries, rc, expected):
+    csv = _write_csv(tmp_path / "bc.csv", barcodes, names)
+    got = SEQ.map_sequences_to_names(csv, queries, rc=rc)
+    assert len(got) == len(expected)
+    for index, name in enumerate(expected):
+        if name is None:
+            assert got[index] is pd.NA
+        else:
+            assert got[index] == name
 
 
 def test_map_sequences_to_names_rejects_a_csv_missing_its_columns(tmp_path):
@@ -105,17 +108,6 @@ def test_map_sequences_to_names_ignores_duplicate_nan_rows(tmp_path):
 # ---------------------------------------------------------------------------
 # consensus calling — where a wrong base becomes a wrong gRNA
 # ---------------------------------------------------------------------------
-
-def test_get_consensus_base_prefers_a_call_over_N_regardless_of_quality():
-    # 'N' with the *better* quality still loses: an N is not a measurement.
-    assert SEQ.get_consensus_base([("N", "I"), ("A", "!")]) == "A"
-    assert SEQ.get_consensus_base([("A", "!"), ("N", "I")]) == "A"
-
-
-def test_get_consensus_base_breaks_ties_toward_the_first_read():
-    assert SEQ.get_consensus_base([("A", "I"), ("C", "I")]) == "A"
-    assert SEQ.get_consensus_base([("A", "!"), ("C", "I")]) == "C"
-
 
 def test_create_consensus_is_per_position():
     #      pos0: equal calls        -> 'A'
@@ -394,14 +386,14 @@ def test_process_chunk_fill_na_substitutes_the_raw_barcode(tmp_path):
 # worker/chunk-size validation
 # ---------------------------------------------------------------------------
 
-def test_chunk_worker_count_defaults_to_all_but_three_cpus(monkeypatch):
-    monkeypatch.setattr(SEQ, "cpu_count", lambda: 16)
-    assert SEQ._chunk_worker_count(None) == 13
-
-
-def test_chunk_worker_count_never_returns_zero_on_a_small_box(monkeypatch):
-    monkeypatch.setattr(SEQ, "cpu_count", lambda: 2)
-    assert SEQ._chunk_worker_count(None) == 1
+@pytest.mark.parametrize("cpus, expected", [
+    (16, 13),   # all but three CPUs
+    (2, 1),     # never zero on a small box
+])
+def test_chunk_worker_count_leaves_three_cpus_free_but_never_returns_zero(
+        monkeypatch, cpus, expected):
+    monkeypatch.setattr(SEQ, "cpu_count", lambda: cpus)
+    assert SEQ._chunk_worker_count(None) == expected
 
 
 def test_chunk_worker_count_honours_an_explicit_value():

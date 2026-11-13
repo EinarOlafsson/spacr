@@ -133,18 +133,18 @@ def test_resolve_token_falls_through_to_gh_cli(monkeypatch):
     assert ga.is_authenticated() is True
 
 
-def test_resolve_token_prefers_github_token_over_gh_token(monkeypatch):
+@pytest.mark.parametrize("env, expected", [
+    # GITHUB_TOKEN is preferred over GH_TOKEN.
+    ({"GH_TOKEN": "second", "GITHUB_TOKEN": "first"}, ("first", "env")),
+    # A blank GITHUB_TOKEN is skipped, so GH_TOKEN is used.
+    ({"GITHUB_TOKEN": "   ", "GH_TOKEN": "  fallback  "}, ("fallback", "env")),
+], ids=["prefers_github_token_over_gh_token", "uses_gh_token_when_github_token_blank"])
+def test_resolve_token_prefers_github_token_over_gh_token(monkeypatch, env,
+                                                          expected):
     from spacr.qt.ai import github_auth as ga
-    monkeypatch.setenv("GH_TOKEN", "second")
-    monkeypatch.setenv("GITHUB_TOKEN", "first")
-    assert ga.resolve_token() == ("first", "env")
-
-
-def test_resolve_token_uses_gh_token_when_github_token_blank(monkeypatch):
-    from spacr.qt.ai import github_auth as ga
-    monkeypatch.setenv("GITHUB_TOKEN", "   ")     # blank -> skipped
-    monkeypatch.setenv("GH_TOKEN", "  fallback  ")
-    assert ga.resolve_token() == ("fallback", "env")
+    for name, value in env.items():
+        monkeypatch.setenv(name, value)
+    assert ga.resolve_token() == expected
 
 
 def test_resolve_token_returns_none_source_when_nothing_available():
@@ -322,17 +322,24 @@ def test_create_issue_401_reports_github_message(monkeypatch):
     assert "ghp_dead_token" not in err        # the token must not leak
 
 
-def test_create_issue_422_validation_failure(monkeypatch):
+@pytest.mark.parametrize("status, reason, body, title, expected", [
+    (422, "Unprocessable Entity",
+     b'{"message": "Validation Failed", "errors": []}', "",
+     "GitHub API error 422: Validation Failed"),
+    # An error with an empty message falls back to the reason.
+    (403, "Forbidden", b'{"message": ""}', "t",
+     "GitHub API error 403: Forbidden"),
+], ids=["422_validation_failure", "empty_message_falls_back_to_reason"])
+def test_create_issue_422_validation_failure(monkeypatch, status, reason, body,
+                                             title, expected):
     from spacr.qt.ai import github_auth as ga
     ga.set_stored_token("ghp_x")
 
     def _handler(req, t):
-        raise _http_error(422, "Unprocessable Entity",
-                          b'{"message": "Validation Failed", "errors": []}')
+        raise _http_error(status, reason, body)
 
     _stub_urlopen(monkeypatch, _handler)
-    assert ga.create_issue("o/r", "", "b") == \
-        (False, "GitHub API error 422: Validation Failed")
+    assert ga.create_issue("o/r", title, "b") == (False, expected)
 
 
 def test_create_issue_429_with_non_json_body_falls_back_to_reason(monkeypatch):
@@ -346,19 +353,6 @@ def test_create_issue_429_with_non_json_body_falls_back_to_reason(monkeypatch):
     _stub_urlopen(monkeypatch, _handler)
     ok, err = ga.create_issue("o/r", "t", "b")
     assert (ok, err) == (False, "GitHub API error 429: Too Many Requests")
-
-
-def test_create_issue_error_with_empty_message_falls_back_to_reason(
-        monkeypatch):
-    from spacr.qt.ai import github_auth as ga
-    ga.set_stored_token("ghp_x")
-
-    def _handler(req, t):
-        raise _http_error(403, "Forbidden", b'{"message": ""}')
-
-    _stub_urlopen(monkeypatch, _handler)
-    assert ga.create_issue("o/r", "t", "b") == \
-        (False, "GitHub API error 403: Forbidden")
 
 
 def test_create_issue_error_body_unreadable(monkeypatch):

@@ -77,23 +77,22 @@ def test_it_names_the_hits():
     assert text.count("(") >= 3, text
 
 
-def test_it_separates_significant_from_worth_following_up():
-    """With a thousand wells a trivial effect is significant. The effect-size
-    cut is what separates detectable from worth following up, and both
-    numbers belong in the sentence."""
+@pytest.mark.parametrize("fragments", [
+    # With a thousand wells a trivial effect is significant. The effect-size
+    # cut is what separates detectable from worth following up, and both
+    # numbers belong in the sentence.
+    ("effect-size cut",
+     "smaller than the spread of the guides that target nothing"),
+    # A screen whose controls do not separate has not measured anything,
+    # however many hits the correction reports.
+    ("Assay window", "\u03c3 of the negative spread"),
+], ids=["significant-vs-worth-following-up", "assay-window"])
+def test_the_summary_separates_significant_from_worth_following_up_and_reports_the_window(
+        fragments):
     text = summarise(_results())
 
-    assert "effect-size cut" in text
-    assert "smaller than the spread of the guides that target nothing" in text
-
-
-def test_it_reports_the_assay_window():
-    """A screen whose controls do not separate has not measured anything,
-    however many hits the correction reports."""
-    text = summarise(_results())
-
-    assert "Assay window" in text
-    assert "σ of the negative spread" in text
+    for fragment in fragments:
+        assert fragment in text
 
 
 def test_no_positive_controls_is_said_rather_than_skipped():

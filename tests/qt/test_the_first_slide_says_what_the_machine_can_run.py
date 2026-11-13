@@ -154,22 +154,14 @@ def test_a_card_torch_cannot_reach_is_sent_to_the_doctor(qtbot, tmp_path,
     assert "NVIDIA GeForce RTX 3090" in text
 
 
+@pytest.mark.parametrize("card", [
+    (False, ""),    # nothing for the doctor to diagnose: the fix is hardware
+    (True, "NVIDIA GeForce RTX 3090"),
+], ids=["no_card_at_all", "a_working_card"])
 def test_no_card_at_all_is_not_sent_to_the_doctor(qtbot, tmp_path,
-                                                  monkeypatch):
-    """There is nothing for it to diagnose: the fix is hardware."""
+                                                  monkeypatch, card):
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
-    monkeypatch.setattr(setup_slides, "graphics_card", lambda: (False, ""))
-    made = SetupSlides()
-    qtbot.addWidget(made)
-
-    assert "spacr-doctor" not in made._gpu_note.text()
-
-
-def test_a_working_card_is_not_sent_to_the_doctor(qtbot, tmp_path,
-                                                  monkeypatch):
-    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
-    monkeypatch.setattr(setup_slides, "graphics_card",
-                        lambda: (True, "NVIDIA GeForce RTX 3090"))
+    monkeypatch.setattr(setup_slides, "graphics_card", lambda: card)
     made = SetupSlides()
     qtbot.addWidget(made)
 

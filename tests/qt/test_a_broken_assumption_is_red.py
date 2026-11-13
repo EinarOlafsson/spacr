@@ -77,10 +77,13 @@ def view(qtbot):
 
 class TestOnlyTheRejectedLineIsRed:
 
-    def test_the_rejected_assumption_is_coloured(self, view):
+    @pytest.mark.parametrize("needle", ["REJECTED at", "! inference"],
+                             ids=["the_rejected_assumption",
+                                  "a_blocking_recommendation"])
+    def test_the_rejected_assumption_is_coloured(self, view, needle):
         from spacr.qt.theme import active_palette
 
-        colour = _colour_of(view, "REJECTED at")
+        colour = _colour_of(view, needle)
         assert colour is not None
         assert colour.lower() == active_palette()["error"].lower()
 
@@ -91,13 +94,6 @@ class TestOnlyTheRejectedLineIsRed:
         """A leverage count above a rule of thumb is a caution, not a
         failure. Colour that fires on everything means nothing."""
         assert _colour_of(view, "max leverage") is None
-
-    def test_a_blocking_recommendation_is_coloured(self, view):
-        from spacr.qt.theme import active_palette
-
-        colour = _colour_of(view, "! inference")
-        assert colour is not None
-        assert colour.lower() == active_palette()["error"].lower()
 
     def test_a_suggestion_is_not(self, view):
         assert _colour_of(view, "- grna_statistic") is None

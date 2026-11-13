@@ -535,15 +535,14 @@ def test_parse_well(well, expected):
     assert S.parse_well(well) == expected
 
 
-@pytest.mark.parametrize('well', ['', '   ', None])
-def test_an_empty_well_raises(well):
-    with pytest.raises(WellParseError, match='empty'):
-        S.parse_well(well)
-
-
-@pytest.mark.parametrize('well', ['A', 'a', 'AA', 'AF'])
-def test_a_well_with_no_column_raises_instead_of_becoming_c0(well):
-    with pytest.raises(WellParseError, match='no column'):
+@pytest.mark.parametrize("well, message", [
+    ('', 'empty'), ('   ', 'empty'), (None, 'empty'),
+    # A well with no column raises instead of becoming c0.
+    ('A', 'no column'), ('a', 'no column'), ('AA', 'no column'),
+    ('AF', 'no column'),
+])
+def test_a_well_that_names_no_position_raises(well, message):
+    with pytest.raises(WellParseError, match=message):
         S.parse_well(well)
 
 

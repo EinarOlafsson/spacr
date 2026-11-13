@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "label": "tests",
-  "message": "90652/91115, 593 skipped",
+  "message": "90302/90731, 590 skipped",
   "color": "green",
-  "passed": 90652,
-  "total": 91115,
-  "skipped": 593,
-  "run_id": "43384799415",
-  "source_sha": "71ada71ec97c9ba384d84c8589e6f6de3857991a"
+  "passed": 90302,
+  "total": 90731,
+  "skipped": 590,
+  "run_id": "43407349893",
+  "source_sha": "edc87b82cff30e4902cebcb98693f1e89680bc91"
 }

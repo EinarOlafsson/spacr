@@ -140,12 +140,15 @@ def test_the_summary_is_written_whether_or_not_the_run_is_verbose():
 #  Finding it again
 # --------------------------------------------------------------------------- #
 
-def test_a_run_folder_finds_its_own_summary(tmp_path):
+@pytest.mark.parametrize("filename", [
+    "model_summary.txt",
+    "mode_summary.csv",    # an old run with the typo name still answers
+], ids=["its-own-summary", "old-typo-name"])
+def test_a_run_folder_finds_its_own_summary(tmp_path, filename):
     _results_table(tmp_path)
-    (tmp_path / "model_summary.txt").write_text("OLS Regression Results\n", encoding="utf-8")
+    (tmp_path / filename).write_text("OLS Regression Results\n", encoding="utf-8")
 
-    assert find_summary_file(str(tmp_path)) == str(
-        tmp_path / "model_summary.txt")
+    assert find_summary_file(str(tmp_path)) == str(tmp_path / filename)
 
 
 def test_the_results_csv_finds_the_summary_beside_it(tmp_path):
@@ -153,14 +156,6 @@ def test_the_results_csv_finds_the_summary_beside_it(tmp_path):
     (tmp_path / "model_summary.txt").write_text("OLS Regression Results\n", encoding="utf-8")
 
     assert find_summary_file(path) == str(tmp_path / "model_summary.txt")
-
-
-def test_an_old_run_with_the_typo_name_still_answers(tmp_path):
-    _results_table(tmp_path)
-    (tmp_path / "mode_summary.csv").write_text("OLS Regression Results\n", encoding="utf-8")
-
-    assert find_summary_file(str(tmp_path)) == str(
-        tmp_path / "mode_summary.csv")
 
 
 def test_the_new_name_wins_when_a_folder_holds_both(tmp_path):

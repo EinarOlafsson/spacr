@@ -174,11 +174,18 @@ def test_other_keys_fall_through_to_the_dialog(palette):
 # 3. Filtering
 # ---------------------------------------------------------------------------
 
-def test_a_keyword_finds_a_command_its_label_does_not_name(palette):
-    """"cellpose" has to find Mask; that is what the keyword list is for."""
-    palette._on_filter("landing")          # a Home keyword, not in its label
+@pytest.mark.parametrize("typed, label", [
+    # "landing" is a Home keyword, not in its label: the keyword list is what
+    # lets a word the label does not name find the command.
+    ("landing", "Home"),
+    # Filtering is case-insensitive and ignores padding.
+    ("  PREFERENCES  ", "Preferences"),
+], ids=["a_keyword_the_label_does_not_name", "case_insensitive_and_padding"])
+def test_a_keyword_finds_a_command_its_label_does_not_name(palette, typed,
+                                                           label):
+    palette._on_filter(typed)
     labels = [palette._list.item(i).text() for i in range(palette._list.count())]
-    assert any("Home" in text for text in labels)
+    assert any(label in text for text in labels)
 
 
 def test_clearing_the_filter_restores_every_command(palette):
@@ -187,12 +194,6 @@ def test_clearing_the_filter_restores_every_command(palette):
     assert palette._list.count() < full
     palette._on_filter("")
     assert palette._list.count() == full
-
-
-def test_filtering_is_case_insensitive_and_ignores_padding(palette):
-    palette._on_filter("  PREFERENCES  ")
-    labels = [palette._list.item(i).text() for i in range(palette._list.count())]
-    assert any("Preferences" in text for text in labels)
 
 
 # ---------------------------------------------------------------------------

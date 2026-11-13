@@ -190,26 +190,21 @@ def test_indexed_scanr_requires_explicit_well_identity_before_sorting(tmp_path):
 # multi-dimensional / non-tif splitting
 # ---------------------------------------------------------------------------
 
-def test_process_non_tif_non_2D_splits_3d_stack(tmp_path, rng):
-    """A 3-D TIFF is split into one grayscale TIFF per plane."""
+@pytest.mark.parametrize("folder, name, shape, label", [
+    # A 3-D TIFF is split into one grayscale TIFF per plane.
+    ("multi", "stack.tif", (3, 16, 16), "3-D stack"),
+    # A 3-channel TIFF is split into one grayscale TIFF per channel.
+    ("rgb", "c.tif", (16, 16, 3), "multi-channel tif"),
+], ids=["3d-stack", "rgb-tif"])
+def test_process_non_tif_non_2D_splits_a_multi_plane_or_multi_channel_tif(
+        tmp_path, rng, folder, name, shape, label):
     from spacr.io import process_non_tif_non_2D_images
-    d = tmp_path / "multi"; d.mkdir()
-    tifffile.imwrite(str(d / "stack.tif"),
-                     rng.integers(0, 500, (3, 16, 16)).astype(np.uint16))
+    d = tmp_path / folder; d.mkdir()
+    tifffile.imwrite(str(d / name),
+                     rng.integers(0, 500, shape).astype(np.uint16))
     process_non_tif_non_2D_images(str(d))
     produced = [p.name for p in d.glob("*.tif")]
-    assert len(produced) > 1, f"3-D stack not split: {produced}"
-
-
-def test_process_non_tif_non_2D_rgb_tif(tmp_path, rng):
-    """A 3-channel TIFF is split into one grayscale TIFF per channel."""
-    from spacr.io import process_non_tif_non_2D_images
-    d = tmp_path / "rgb"; d.mkdir()
-    tifffile.imwrite(str(d / "c.tif"),
-                     rng.integers(0, 500, (16, 16, 3)).astype(np.uint16))
-    process_non_tif_non_2D_images(str(d))
-    produced = [p.name for p in d.glob("*.tif")]
-    assert len(produced) > 1, f"multi-channel tif not split: {produced}"
+    assert len(produced) > 1, f"{label} not split: {produced}"
 
 
 # ---------------------------------------------------------------------------

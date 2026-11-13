@@ -36,6 +36,10 @@ from spacr import schema
     ("pplate1_r8_c19_f11_o84", "plate1_r8_c19_f11_o84"),
     ("p1", "p1"),                 # a single p is a real plate name
     ("plate_1", "plate_1"),
+    # URL escapes decode to one spelling.
+    ("AssayPlate%5FPerkinElmer", "AssayPlate_PerkinElmer"),
+    ("AssayPlate%255FPerkinElmer", "AssayPlate_PerkinElmer"),
+    ("AssayPlate_PerkinElmer", "AssayPlate_PerkinElmer"),
 ])
 def test_the_rule_collapses_only_a_doubled_prefix(stored, expected):
     assert schema.canonical_plate_id(stored) == expected

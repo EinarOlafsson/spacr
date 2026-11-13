@@ -19,6 +19,11 @@ def session():
     "Open \x1b]0;Private sign-in title\x1b\\https://example.org/auth now\n",
     "Open \x1bMhttps://example.org/auth now\n",
     "ASCII and Ó 中文 🔑 https://example.org/auth now\n",
+    "first\nsecond\n",
+    "first\r\nsecond\r\n",
+    "first\rsecond\r",
+    "first\r\x1b[0m\nsecond\r\x1b]title\x07\n",
+    "first\r\r\nsecond\r\n",
 ])
 def test_clean_terminal_text_is_independent_of_every_single_split(text):
     expected = terminal.strip_terminal_codes(text)

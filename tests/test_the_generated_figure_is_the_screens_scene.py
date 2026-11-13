@@ -138,21 +138,19 @@ def test_a_headless_run_writes_its_figures_and_says_who_drew_them(
     assert "by matplotlib" in capsys.readouterr().out
 
 
-def test_the_headless_reason_is_stated_rather_than_implied():
-    renderer, reason = fast_render.renderer_for("volcano")
+@pytest.mark.parametrize("panel, reason", [
+    ("volcano", "no live plot"),                      # headless
+    ("plate_heatmap", "no interactive twin"),         # an unknown panel has no twin
+], ids=["headless-reason-is-stated", "unknown-panel-says-which"])
+def test_the_reason_for_the_matplotlib_renderer_is_stated(panel, reason):
+    renderer, said = fast_render.renderer_for(panel)
     assert renderer == "matplotlib"
-    assert "no live plot" in reason
+    assert reason in said
 
 
 def test_forcing_matplotlib_says_so():
     assert fast_render.renderer_for("volcano", "matplotlib") == (
         "matplotlib", "matplotlib was asked for")
-
-
-def test_an_unknown_panel_has_no_twin_and_says_which():
-    renderer, reason = fast_render.renderer_for("plate_heatmap")
-    assert renderer == "matplotlib"
-    assert "no interactive twin" in reason
 
 
 def test_a_misspelt_renderer_falls_back_rather_than_raising(monkeypatch):

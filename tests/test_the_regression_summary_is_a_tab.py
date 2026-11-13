@@ -46,11 +46,17 @@ def _under_determined():
 #  It is the real summary
 # --------------------------------------------------------------------------- #
 
-def test_it_is_statsmodels_own_summary():
-    text = summary_text(_well_posed())
+@pytest.mark.parametrize("build, fragments", [
+    (_well_posed, ("OLS Regression Results", "R-squared")),   # statsmodels' own summary
+    # "not identifiable" without the counts is an assertion; with them it is a
+    # diagnosis the reader can check.
+    (_under_determined, ("20 analysed observations", "26 parameters")),
+], ids=["statsmodels-own-summary", "warning-names-the-two-numbers"])
+def test_the_summary_text_says_what_it_should(build, fragments):
+    text = summary_text(build())
 
-    assert "OLS Regression Results" in text
-    assert "R-squared" in text
+    for fragment in fragments:
+        assert fragment in text
 
 
 def test_the_header_numbers_are_there():
@@ -82,15 +88,6 @@ def test_an_unidentifiable_fit_says_so_above_its_own_table():
     # And the table is still there -- the warning annotates, it does not
     # replace. A reader who wants the numbers should still get them.
     assert "OLS Regression Results" in text
-
-
-def test_the_warning_names_the_two_numbers():
-    """"not identifiable" without the counts is an assertion; with them it is
-    a diagnosis the reader can check."""
-    text = summary_text(_under_determined())
-
-    assert "20 analysed observations" in text
-    assert "26 parameters" in text
 
 
 def test_the_warning_names_the_way_out():

@@ -29,34 +29,24 @@ class Style:
     pass
 
 
-def test_a_class_named_for_the_convention_loses_its_suffix():
-    """The taken side: VolcanoStyle keys as 'volcano'."""
+@pytest.mark.parametrize("style_class, expected", [
+    # The taken side: VolcanoStyle keys as 'volcano'.
+    (VolcanoStyle, "volcano"),
+    # Arc 112 -> 114: nothing is stripped. Removing a suffix that is not there
+    # would turn 'Heatmap' into something shorter and key two different styles
+    # onto one name, which is the collision the function exists to prevent.
+    (Heatmap, "heatmap"),
+    # The ``or "figure"`` beside it: stripping everything leaves nothing. An
+    # empty key would collide with every other empty key, which is worse than
+    # a shared generic one.
+    (Style, "figure"),
+], ids=["convention-loses-its-suffix", "other-name-keeps-its-whole-name",
+        "only-style-falls-back-to-figure"])
+def test_a_style_class_is_keyed_by_its_name_without_the_style_suffix(
+        style_class, expected):
     from spacr.style_base import style_kind
 
-    assert style_kind(VolcanoStyle()) == "volcano"
-
-
-def test_a_class_not_named_for_the_convention_keeps_its_whole_name():
-    """Arc 112 -> 114: nothing is stripped.
-
-    Removing a suffix that is not there would turn 'Heatmap' into something
-    shorter and key two different styles onto one name, which is the collision
-    the function exists to prevent.
-    """
-    from spacr.style_base import style_kind
-
-    assert style_kind(Heatmap()) == "heatmap"
-
-
-def test_a_class_called_only_style_falls_back_to_figure():
-    """The ``or "figure"`` beside it: stripping everything leaves nothing.
-
-    An empty key would collide with every other empty key, which is worse than
-    a shared generic one.
-    """
-    from spacr.style_base import style_kind
-
-    assert style_kind(Style()) == "figure"
+    assert style_kind(style_class()) == expected
 
 
 # ---------------------------------------------------------------------------

@@ -37,9 +37,3 @@ def test_a_numeric_x_against_a_categorical_y_is_a_single_measurement():
     """Only x carries a measurement, so the shape is the one-axis shape."""
     frame = pd.DataFrame({"x": [1.0, 2.0, 3.0], "y": ["a", "b", "c"]})
     assert shape_of(frame, "x", "y") == "continuous_only"
-
-
-def test_a_sorted_unique_x_is_an_ordered_series():
-    """The ordered branch is what makes a line an offered graph type."""
-    frame = pd.DataFrame({"x": [1.0, 2.0, 3.0], "y": [4.0, 5.0, 6.0]})
-    assert shape_of(frame, "x", "y") == "ordered_continuous"

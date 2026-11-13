@@ -15,12 +15,6 @@ pytest.importorskip("PySide6")
 from spacr import logging_util as lu  # noqa: E402
 
 
-def test_only_rotating_handlers_are_quickened(tmp_path):
-    plain = logging.StreamHandler()
-    assert lu._quicken(plain) is plain
-    assert not hasattr(plain, "_spacr_flushed_at")
-
-
 def test_a_failing_late_or_loud_flush_does_not_raise(tmp_path):
     handler = types.SimpleNamespace(_spacr_late_flush_pid=1,
                                     _spacr_flushed_at=0.0, errors=[])

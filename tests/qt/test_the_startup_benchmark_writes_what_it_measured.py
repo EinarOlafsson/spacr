@@ -36,24 +36,18 @@ def test_the_default_deadline_is_used_when_nothing_is_set(monkeypatch):
     assert sb._timeout_seconds() == pytest.approx(sb.DEFAULT_TIMEOUT_S)
 
 
-@pytest.mark.parametrize("raw,expected", [("45", 45.0), ("1.5", 1.5)])
-def test_a_deadline_in_the_environment_is_honoured(monkeypatch, raw, expected):
-    monkeypatch.setenv(sb.TIMEOUT_ENV, raw)
-
-    assert sb._timeout_seconds() == pytest.approx(expected)
-
-
-@pytest.mark.parametrize("raw,expected", [("0", 1.0), ("-30", 1.0),
-                                          ("100000", 300.0)])
-def test_an_absurd_deadline_is_clamped_rather_than_obeyed(monkeypatch, raw,
-                                                          expected):
-    """A zero or negative deadline fires before the window exists.
-
-    The benchmark would then report every screen as timed out, which looks
-    exactly like a catastrophic regression and is a typo in an environment
-    variable. The ceiling is the other half: an unattended run that waits five
-    minutes per screen is a hung CI job.
-    """
+# A zero or negative deadline fires before the window exists: the benchmark
+# would report every screen as timed out, which looks exactly like a
+# catastrophic regression and is a typo in an environment variable. The
+# ceiling is the other half: an unattended run that waits five minutes per
+# screen is a hung CI job.
+@pytest.mark.parametrize("raw,expected", [
+    ("45", 45.0), ("1.5", 1.5),
+    ("0", 1.0), ("-30", 1.0), ("100000", 300.0),
+], ids=["honoured_45", "honoured_1_5", "zero_is_clamped",
+        "negative_is_clamped", "absurd_is_clamped"])
+def test_a_deadline_in_the_environment_is_honoured_or_clamped(monkeypatch, raw,
+                                                              expected):
     monkeypatch.setenv(sb.TIMEOUT_ENV, raw)
 
     assert sb._timeout_seconds() == pytest.approx(expected)

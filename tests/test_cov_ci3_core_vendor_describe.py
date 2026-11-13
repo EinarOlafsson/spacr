@@ -320,18 +320,15 @@ def _index(path, body):
     return str(path)
 
 
-def test_harmony_entry_needs_url_and_position(tmp_path):
-    path = _index(tmp_path / 'Index.xml',
-                  '<Images><Image><URL>a.tiff</URL><Row>1</Row><Col>x</Col><FieldID>1</FieldID>'
-                  '<TimepointID>0</TimepointID><PlaneID>1</PlaneID><ChannelID>1</ChannelID>'
-                  '</Image></Images>')
-    with pytest.raises(ValueError, match='lacks its URL or position'):
-        core._watch_harmony_fields(path, 'Index.xml')
-
-
-def test_harmony_index_without_images_is_refused(tmp_path):
-    path = _index(tmp_path / 'Index.xml', '<Plates><Plate><Name>P1</Name></Plate></Plates>')
-    with pytest.raises(ValueError, match='the index lists no images'):
+@pytest.mark.parametrize("xml, message", [
+    ('<Images><Image><URL>a.tiff</URL><Row>1</Row><Col>x</Col><FieldID>1</FieldID>'
+     '<TimepointID>0</TimepointID><PlaneID>1</PlaneID><ChannelID>1</ChannelID>'
+     '</Image></Images>', 'lacks its URL or position'),
+    ('<Plates><Plate><Name>P1</Name></Plate></Plates>', 'the index lists no images'),
+], ids=["entry-without-url-and-position", "index-without-images"])
+def test_a_harmony_index_that_cannot_be_read_is_refused(tmp_path, xml, message):
+    path = _index(tmp_path / 'Index.xml', xml)
+    with pytest.raises(ValueError, match=message):
         core._watch_harmony_fields(path, 'Index.xml')
 
 
