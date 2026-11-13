@@ -128,12 +128,12 @@ class TestTheSeriesGoOnTheRightPanel:
         assert monitor._panel_for("loss") == "loss"
         assert monitor._panel_for("val_loss") == "loss"
 
-    def test_accuracy_is_its_own_panel(self, monitor):
-        assert monitor._panel_for("accuracy") == "accuracy"
-
-    def test_anything_else_is_per_class(self, monitor):
-        assert monitor._panel_for("class_nc") == "per_class"
-
+    @pytest.mark.parametrize("series, panel", [
+        ("accuracy", "accuracy"),       # accuracy is its own panel
+        ("class_nc", "per_class"),      # anything else is per class
+    ], ids=["accuracy_is_its_own_panel", "anything_else_is_per_class"])
+    def test_accuracy_is_its_own_panel(self, monitor, series, panel):
+        assert monitor._panel_for(series) == panel
 
 class TestBadNumbers:
 

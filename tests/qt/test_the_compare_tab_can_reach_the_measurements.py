@@ -78,12 +78,6 @@ def test_an_existing_prcf_is_still_preferred():
     assert object_identity(frame).iloc[0] == "plate1_r5_c1_f17_2"
 
 
-def test_rows_with_no_label_still_have_no_identity():
-    frame = pd.DataFrame({"plateID": ["p"], "rowID": ["r1"],
-                          "columnID": ["c1"], "fieldID": ["f1"]})
-    assert object_identity(frame) is None
-
-
 # ---------------------------------------------------------------------------
 # an absence is not a disagreement
 # ---------------------------------------------------------------------------

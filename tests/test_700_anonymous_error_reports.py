@@ -397,8 +397,12 @@ class TestSending:
 class TestQueue:
     """At most 20, at most 7 days, retried on 429 or no network, dropped on 4xx."""
 
-    def test_429_keeps_the_report_for_later(self, relay):
-        relay.answers = [(429, {"refused": "quota"})]
+    @pytest.mark.parametrize("answer", [
+        (429, {"refused": "quota"}),
+        (503, {"error": "busy"}),
+    ], ids=["429_keeps_the_report_for_later", "a_server_error_keeps_the_report"])
+    def test_429_keeps_the_report_for_later(self, relay, answer):
+        relay.answers = [answer]
         assert cr.submit_public_summary(_summary())["status"] == \
             cr.REPORT_QUEUED
         assert len(cr.queued_summaries()) == 1
@@ -408,12 +412,6 @@ class TestQueue:
         ConnectionResetError("reset")])
     def test_a_network_error_keeps_the_report(self, relay, error):
         relay.answers = [error]
-        assert cr.submit_public_summary(_summary())["status"] == \
-            cr.REPORT_QUEUED
-        assert len(cr.queued_summaries()) == 1
-
-    def test_a_server_error_keeps_the_report(self, relay):
-        relay.answers = [(503, {"error": "busy"})]
         assert cr.submit_public_summary(_summary())["status"] == \
             cr.REPORT_QUEUED
         assert len(cr.queued_summaries()) == 1

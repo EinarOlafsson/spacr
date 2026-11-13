@@ -191,19 +191,20 @@ class TestModifierClickAddsAndRemoves:
 
 class TestTheBand:
 
-    def test_a_band_selects_everything_inside_it(self, volcano):
+    @pytest.mark.parametrize("rect", [
         # x from 0.5 to 2.5 catches g3 (1.0) and g4 (2.0), not g5 (3.0).
-        volcano.select_in_rect(0.5, 0.0, 2.5, 5.0)
+        (0.5, 0.0, 2.5, 5.0),
+        # The corners can be dragged in any direction.
+        (2.5, 5.0, 0.5, 0.0),
+    ], ids=["a_band_selects_everything_inside_it", "corners_dragged_backwards"])
+    def test_a_band_selects_everything_inside_it(self, volcano, rect):
+        volcano.select_in_rect(*rect)
         assert volcano.selected_keys() == ["g3", "g4"]
 
     def test_a_band_excludes_by_the_other_axis_too(self, volcano):
         # Same x window, but y capped below g4's 4.0.
         volcano.select_in_rect(0.5, 0.0, 2.5, 3.5)
         assert volcano.selected_keys() == ["g3"]
-
-    def test_the_corners_can_be_dragged_in_any_direction(self, volcano):
-        volcano.select_in_rect(2.5, 5.0, 0.5, 0.0)
-        assert volcano.selected_keys() == ["g3", "g4"]
 
     def test_a_drag_reaches_the_band(self, volcano, app):
         """Through the ViewBox handler, which is what a real drag calls."""

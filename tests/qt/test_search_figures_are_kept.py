@@ -28,8 +28,10 @@ class TestItLandsInTheRunFolder:
         relative = pathlib.Path(target).relative_to(tmp_path)
         assert relative.parts[:2] == ("results", "hyperparameter_search")
 
-    def test_the_folder_is_created_not_merely_named(self, tmp_path):
-        target = _search_figure_dir({"src": str(tmp_path)}, "umap")
+    @pytest.mark.parametrize("app_key", ["umap", ""],
+                             ids=["named_app_key", "empty_app_key"])
+    def test_the_folder_is_created_not_merely_named(self, tmp_path, app_key):
+        target = _search_figure_dir({"src": str(tmp_path)}, app_key)
         assert pathlib.Path(target).is_dir()
 
     def test_the_app_key_is_in_the_name(self, tmp_path):
@@ -73,7 +75,3 @@ class TestTheNameIsSafe:
                                                  "../../etc"))
         assert tmp_path in target.parents
         assert ".." not in target.parts
-
-    def test_an_empty_app_key_still_produces_a_folder(self, tmp_path):
-        target = _search_figure_dir({"src": str(tmp_path)}, "")
-        assert pathlib.Path(target).is_dir()
