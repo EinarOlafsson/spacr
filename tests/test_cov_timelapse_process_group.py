@@ -124,7 +124,7 @@ def _close_figs():
 # _process_merged_group — early-exit / defensive branches
 # ---------------------------------------------------------------------------
 
-def test_process_merged_group_empty_basenames_returns_empty_df():
+def _case_process_merged_group_empty_basenames_returns_empty_df():
     from spacr.timelapse import _process_merged_group
 
     out = _process_merged_group(("/nonexistent", [], 2, 0, 0, 1))
@@ -133,7 +133,7 @@ def test_process_merged_group_empty_basenames_returns_empty_df():
     assert list(out.columns) == []
 
 
-def test_process_merged_group_first_array_not_3d_returns_empty_df(tmp_path):
+def _case_process_merged_group_first_array_not_3d_returns_empty_df(tmp_path):
     from spacr.timelapse import _process_merged_group
 
     src, basenames = _build_merged_group(tmp_path, n_frames=2)
@@ -145,7 +145,7 @@ def test_process_merged_group_first_array_not_3d_returns_empty_df(tmp_path):
     assert out.empty
 
 
-def test_process_merged_group_reorient_failure_returns_empty_df(tmp_path, monkeypatch):
+def _case_process_merged_group_reorient_failure_returns_empty_df(tmp_path, monkeypatch):
     """Failure injection: the reorientation helper blows up on the first file."""
     import spacr.timelapse as tl
 
@@ -161,7 +161,7 @@ def test_process_merged_group_reorient_failure_returns_empty_df(tmp_path, monkey
     assert out.empty
 
 
-def test_process_merged_group_without_mask_planes_returns_empty_df(tmp_path):
+def _case_process_merged_group_without_mask_planes_returns_empty_df(tmp_path):
     """merged arrays carrying only intensity planes -> no cell masks at all."""
     from spacr.timelapse import _process_merged_group
 
@@ -175,7 +175,7 @@ def test_process_merged_group_without_mask_planes_returns_empty_df(tmp_path):
     assert out.empty
 
 
-def test_process_merged_group_empty_cell_props_returns_empty_df(tmp_path, monkeypatch):
+def _case_process_merged_group_empty_cell_props_returns_empty_df(tmp_path, monkeypatch):
     """Failure injection: regionprops yields nothing for a non-empty mask."""
     import spacr.timelapse as tl
 
@@ -196,7 +196,7 @@ def test_process_merged_group_empty_cell_props_returns_empty_df(tmp_path, monkey
 # ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize("layout", ["planes_first", "channels_last"])
-def test_process_merged_group_full_feature_table(tmp_path, layout):
+def _case_process_merged_group_full_feature_table(tmp_path, layout):
     from spacr.timelapse import _process_merged_group
 
     src, basenames = _build_merged_group(
@@ -264,7 +264,7 @@ def test_process_merged_group_full_feature_table(tmp_path, layout):
     assert np.allclose(df.loc[df["track_id"] == 1, "pathogen_area"], PATH_AREA)
 
 
-def test_process_merged_group_layouts_agree(tmp_path):
+def _case_process_merged_group_layouts_agree(tmp_path):
     """(planes, H, W) and (H, W, planes) merged files must give the same table."""
     from spacr.timelapse import _process_merged_group
 
@@ -281,7 +281,7 @@ def test_process_merged_group_layouts_agree(tmp_path):
     pd.testing.assert_frame_equal(df_a[num], df_b[num])
 
 
-def test_process_merged_group_nucleus_only(tmp_path):
+def _case_process_merged_group_nucleus_only(tmp_path):
     from spacr.timelapse import _process_merged_group
 
     src, basenames = _build_merged_group(
@@ -297,7 +297,7 @@ def test_process_merged_group_nucleus_only(tmp_path):
     assert np.allclose(df["cytoplasm_area"], CELL1_AREA - NUC_AREA)
 
 
-def test_process_merged_group_pathogen_only(tmp_path):
+def _case_process_merged_group_pathogen_only(tmp_path):
     from spacr.timelapse import _process_merged_group
 
     src, basenames = _build_merged_group(
@@ -315,7 +315,7 @@ def test_process_merged_group_pathogen_only(tmp_path):
     assert np.allclose(cyto.loc[2], CELL2_AREA)
 
 
-def test_process_merged_group_cell_masks_only(tmp_path):
+def _case_process_merged_group_cell_masks_only(tmp_path):
     """No nucleus and no pathogen planes -> no cytoplasm, no child summaries."""
     from spacr.timelapse import _process_merged_group
 
@@ -332,7 +332,7 @@ def test_process_merged_group_cell_masks_only(tmp_path):
     assert "cell_mean_intensity_ch1" in df.columns
 
 
-def test_process_merged_group_nucleus_covers_whole_cell_has_no_cytoplasm(tmp_path):
+def _case_process_merged_group_nucleus_covers_whole_cell_has_no_cytoplasm(tmp_path):
     """When the nucleus fills the cell the cytoplasm mask is empty."""
     from spacr.timelapse import _process_merged_group
 
@@ -349,7 +349,7 @@ def test_process_merged_group_nucleus_covers_whole_cell_has_no_cytoplasm(tmp_pat
     assert "cytoplasm_area" not in df.columns
 
 
-def test_process_merged_group_without_intensity_channels(tmp_path):
+def _case_process_merged_group_without_intensity_channels(tmp_path):
     """n_channels=0: geometry only, no percentile or mean-intensity columns."""
     from spacr.timelapse import _process_merged_group
 
@@ -367,7 +367,7 @@ def test_process_merged_group_without_intensity_channels(tmp_path):
     assert "cell_solidity" in df.columns
 
 
-def test_process_merged_group_single_frame_group(tmp_path):
+def _case_process_merged_group_single_frame_group(tmp_path):
     from spacr.timelapse import _process_merged_group
 
     src, basenames = _build_merged_group(tmp_path, n_frames=1, name="one_frame")
@@ -399,7 +399,7 @@ def _track_frame(cell_id, xs, ys=None, **extra):
     return pd.DataFrame(data)
 
 
-def test_smooth_tracks_empty_dataframe_returns_input():
+def _case_smooth_tracks_empty_dataframe_returns_input():
     from spacr.timelapse import _smooth_tracks_and_features
 
     df = pd.DataFrame()
@@ -408,7 +408,7 @@ def test_smooth_tracks_empty_dataframe_returns_input():
     assert out.empty
 
 
-def test_smooth_tracks_missing_centroid_columns_is_noop():
+def _case_smooth_tracks_missing_centroid_columns_is_noop():
     from spacr.timelapse import _smooth_tracks_and_features
 
     df = pd.DataFrame({
@@ -428,7 +428,7 @@ def test_smooth_tracks_missing_centroid_columns_is_noop():
     assert out["cell_area"].tolist() == [11.0, 12.0, 10.0]
 
 
-def test_smooth_tracks_interpolates_scalar_features_at_glitch_frame():
+def _case_smooth_tracks_interpolates_scalar_features_at_glitch_frame():
     from spacr.timelapse import _smooth_tracks_and_features
 
     df = _track_frame(7, xs=[10.0, 500.0, 12.0],
@@ -441,7 +441,7 @@ def test_smooth_tracks_interpolates_scalar_features_at_glitch_frame():
     assert out["cell_centroid-0"].tolist() == [10.0, 10.0, 10.0]
 
 
-def test_smooth_tracks_writes_back_glitch_centroid_for_float32_columns():
+def _case_smooth_tracks_writes_back_glitch_centroid_for_float32_columns():
     """float32 centroids force ``to_numpy(dtype=float)`` to copy, so the
     write-back guard actually sees a difference and the fix lands in the
     returned frame."""
@@ -460,7 +460,7 @@ def test_smooth_tracks_writes_back_glitch_centroid_for_float32_columns():
     assert out["cell_area"].tolist() == [100.0, 110.0, 120.0]
 
 
-def test_smooth_tracks_writes_back_glitch_corrected_centroid():
+def _case_smooth_tracks_writes_back_glitch_corrected_centroid():
     from spacr.timelapse import _smooth_tracks_and_features
 
     df = _track_frame(7, xs=[10.0, 500.0, 12.0],
@@ -471,7 +471,7 @@ def test_smooth_tracks_writes_back_glitch_corrected_centroid():
     assert out["cell_centroid-1"].tolist() == [10.0, 11.0, 12.0]
 
 
-def test_smooth_tracks_drops_track_with_unrecoverable_jump():
+def _case_smooth_tracks_drops_track_with_unrecoverable_jump():
     from spacr.timelapse import _smooth_tracks_and_features
 
     bad = _track_frame(1, xs=[10.0, 10.0, 300.0])
@@ -487,7 +487,7 @@ def test_smooth_tracks_drops_track_with_unrecoverable_jump():
     assert out.index.tolist() == [0, 1, 2]
 
 
-def test_smooth_tracks_keeps_short_tracks_untouched():
+def _case_smooth_tracks_keeps_short_tracks_untouched():
     """1-frame tracks are skipped; 2-frame tracks are never dropped."""
     from spacr.timelapse import _smooth_tracks_and_features
 
@@ -504,7 +504,7 @@ def test_smooth_tracks_keeps_short_tracks_untouched():
     assert out.loc[out["cellID"] == 1, "cell_centroid-1"].tolist() == [5.0]
 
 
-def test_smooth_tracks_zscore_smoothing_of_scalar_features():
+def _case_smooth_tracks_zscore_smoothing_of_scalar_features():
     from spacr.timelapse import _smooth_tracks_and_features
 
     df = _track_frame(
@@ -528,7 +528,7 @@ def test_smooth_tracks_zscore_smoothing_of_scalar_features():
     assert out["cell_max_intensity"].tolist()[-1] == 9.0
 
 
-def test_smooth_tracks_zscore_leaves_mild_outliers_alone():
+def _case_smooth_tracks_zscore_leaves_mild_outliers_alone():
     from spacr.timelapse import _smooth_tracks_and_features
 
     df = _track_frame(1, xs=[20.0] * 5,
@@ -538,7 +538,7 @@ def test_smooth_tracks_zscore_leaves_mild_outliers_alone():
     assert out["cell_area"].tolist() == [100.0, 100.0, 130.0, 100.0, 100.0]
 
 
-def test_smooth_tracks_casts_integer_columns_to_float():
+def _case_smooth_tracks_casts_integer_columns_to_float():
     from spacr.timelapse import _smooth_tracks_and_features
 
     df = _track_frame(1, xs=[10, 11, 12], ys=[10, 10, 10],
@@ -553,7 +553,7 @@ def test_smooth_tracks_casts_integer_columns_to_float():
     assert out["cell_area"].tolist() == [100.0, 101.0, 102.0]
 
 
-def test_smooth_tracks_glitch_in_one_track_does_not_affect_others():
+def _case_smooth_tracks_glitch_in_one_track_does_not_affect_others():
     from spacr.timelapse import _smooth_tracks_and_features
 
     glitchy = _track_frame(1, xs=[10.0, 500.0, 12.0], cell_area=[10.0, 90.0, 14.0])
@@ -577,7 +577,7 @@ def test_smooth_tracks_glitch_in_one_track_does_not_affect_others():
 # the two functions composed: worker output feeds the smoother
 # ---------------------------------------------------------------------------
 
-def test_process_merged_group_output_is_smoothable(tmp_path):
+def _case_process_merged_group_output_is_smoothable(tmp_path):
     from spacr.timelapse import _process_merged_group, _smooth_tracks_and_features
 
     src, basenames = _build_merged_group(tmp_path, n_frames=3, name="pipeline")
@@ -591,3 +591,41 @@ def test_process_merged_group_output_is_smoothable(tmp_path):
     c1 = smoothed[smoothed["cellID"] == 1].sort_values("frame")
     assert np.allclose(c1["cell_centroid-1"].to_numpy(), [11.5, 13.5, 15.5])
     assert (smoothed["cell_area"] == float(CELL1_AREA)).all()
+
+
+def test_timelapse_process_group_cases(request, subtests):
+    """Case table: 25 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_process_merged_group_empty_basenames_returns_empty_df,
+        _case_process_merged_group_first_array_not_3d_returns_empty_df,
+        _case_process_merged_group_reorient_failure_returns_empty_df,
+        _case_process_merged_group_without_mask_planes_returns_empty_df,
+        _case_process_merged_group_empty_cell_props_returns_empty_df,
+        _case_process_merged_group_full_feature_table,
+        _case_process_merged_group_layouts_agree,
+        _case_process_merged_group_nucleus_only,
+        _case_process_merged_group_pathogen_only,
+        _case_process_merged_group_cell_masks_only,
+        _case_process_merged_group_nucleus_covers_whole_cell_has_no_cytoplasm,
+        _case_process_merged_group_without_intensity_channels,
+        _case_process_merged_group_single_frame_group,
+        _case_smooth_tracks_empty_dataframe_returns_input,
+        _case_smooth_tracks_missing_centroid_columns_is_noop,
+        _case_smooth_tracks_interpolates_scalar_features_at_glitch_frame,
+        _case_smooth_tracks_writes_back_glitch_centroid_for_float32_columns,
+        _case_smooth_tracks_writes_back_glitch_corrected_centroid,
+        _case_smooth_tracks_drops_track_with_unrecoverable_jump,
+        _case_smooth_tracks_keeps_short_tracks_untouched,
+        _case_smooth_tracks_zscore_smoothing_of_scalar_features,
+        _case_smooth_tracks_zscore_leaves_mild_outliers_alone,
+        _case_smooth_tracks_casts_integer_columns_to_float,
+        _case_smooth_tracks_glitch_in_one_track_does_not_affect_others,
+        _case_process_merged_group_output_is_smoothable,
+        ],
+    )
+    assert ran >= 25

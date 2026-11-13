@@ -46,7 +46,7 @@ def test_images_are_moved_to_channels_first_only_when_channels_are_last():
     assert tl._timepose_images(plain).shape == (3, 16, 16)
 
 
-def test_a_mask_stack_that_is_not_three_dimensional_is_refused(tmp_path):
+def _case_a_mask_stack_that_is_not_three_dimensional_is_refused(tmp_path):
     with pytest.raises(ValueError) as caught:
         tl._timepose_track_cells(src=str(tmp_path / "m"), name="f", batch_filenames=None,
                                  object_type="cell", masks=np.zeros((8, 8), np.int32),
@@ -54,7 +54,7 @@ def test_a_mask_stack_that_is_not_three_dimensional_is_refused(tmp_path):
     assert "(8, 8)" in str(caught.value)
 
 
-def test_a_single_frame_has_nothing_to_link_and_never_loads_a_model(tmp_path, monkeypatch, capsys):
+def _case_a_single_frame_has_nothing_to_link_and_never_loads_a_model(tmp_path, monkeypatch, capsys):
     def boom(*args, **kwargs):
         raise AssertionError("the model must not be loaded")
     monkeypatch.setattr(model_zoo, "_load_timepose", boom)
@@ -68,7 +68,7 @@ def test_a_single_frame_has_nothing_to_link_and_never_loads_a_model(tmp_path, mo
     assert not (tmp_path / "tracks").exists()
 
 
-def test_images_that_do_not_match_the_masks_are_refused(tmp_path):
+def _case_images_that_do_not_match_the_masks_are_refused(tmp_path):
     masks, _ = _blocks()
     for images in (np.zeros((3, 24, 24)), np.zeros((4, 20, 24))):
         with pytest.raises(ValueError) as caught:
@@ -78,7 +78,7 @@ def test_images_that_do_not_match_the_masks_are_refused(tmp_path):
         assert "does not match" in str(caught.value)
 
 
-def test_transient_objects_are_dropped_from_the_table_and_the_masks(tmp_path, monkeypatch, capsys):
+def _case_transient_objects_are_dropped_from_the_table_and_the_masks(tmp_path, monkeypatch, capsys):
     masks, edges = _blocks()
     _install(monkeypatch, Adapter(masks, edges))
     src = tmp_path / "run" / "masks"
@@ -96,7 +96,7 @@ def test_transient_objects_are_dropped_from_the_table_and_the_masks(tmp_path, mo
     assert out[0, 14:18, 14:18].max() == 0
 
 
-def test_plot_and_save_hand_the_tracked_stack_to_the_track_visualiser(tmp_path, monkeypatch):
+def _case_plot_and_save_hand_the_tracked_stack_to_the_track_visualiser(tmp_path, monkeypatch):
     masks, edges = _blocks()
     _install(monkeypatch, Adapter(masks, edges))
     seen = []
@@ -118,7 +118,7 @@ def test_plot_and_save_hand_the_tracked_stack_to_the_track_visualiser(tmp_path, 
     assert filenames == names and got_src == str(src)
 
 
-def test_an_empty_result_writes_an_empty_table_without_lineage_columns(tmp_path, monkeypatch):
+def _case_an_empty_result_writes_an_empty_table_without_lineage_columns(tmp_path, monkeypatch):
     masks = np.zeros((3, 12, 12), np.int32)
     _install(monkeypatch, Adapter(masks, []))
     src = tmp_path / "run" / "masks"
@@ -142,3 +142,22 @@ def test_a_frame_without_objects_starts_no_track_and_the_next_frame_carries_on()
     assert tracked[0].max() == 1
     assert tracked[2].max() == 2
     assert parents == {}
+
+
+def test_timelapse_20261019_cases(request, subtests, capsys):
+    """Case table: 6 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_a_mask_stack_that_is_not_three_dimensional_is_refused,
+        _case_a_single_frame_has_nothing_to_link_and_never_loads_a_model,
+        _case_images_that_do_not_match_the_masks_are_refused,
+        _case_transient_objects_are_dropped_from_the_table_and_the_masks,
+        _case_plot_and_save_hand_the_tracked_stack_to_the_track_visualiser,
+        _case_an_empty_result_writes_an_empty_table_without_lineage_columns,
+        ],
+    )
+    assert ran >= 6

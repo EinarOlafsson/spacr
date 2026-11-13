@@ -36,7 +36,7 @@ def test_trackastra_division_links_become_parent_tracks(monkeypatch, tmp_path):
     assert table.groupby("track_id")["parent_track_id"].first().to_dict()[2] == 1
 
 
-def test_sam2_following_nothing_writes_an_empty_track_table(tmp_path):
+def _case_sam2_following_nothing_writes_an_empty_track_table(tmp_path):
     masks = np.zeros((2, 12, 12), np.int32)
     masks[0, 2:5, 2:5] = 1
     images = masks.astype(np.float32)
@@ -73,7 +73,7 @@ def test_ultrack_without_a_lineage_graph_leaves_parents_unset(monkeypatch,
     assert "parent_track_id_source" not in table.columns
 
 
-def test_a_calcium_trace_unknown_at_its_start_keeps_an_unknown_first_delta(
+def _case_a_calcium_trace_unknown_at_its_start_keeps_an_unknown_first_delta(
         tmp_path):
     from tests.test_calcium_bleaching_f539 import (LEVEL, RING, database,
                                                    measured_frame)
@@ -86,3 +86,18 @@ def test_a_calcium_trace_unknown_at_its_start_keeps_an_unknown_first_delta(
         bleach_correction="ratio", remove_transient=False)
     start = result[(result.object_label == 42) & (result.time == first)]
     assert start["delta_" + LEVEL].isna().all()
+
+
+def test_tracker_lineage_cases(request, subtests):
+    """Case table: 2 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_sam2_following_nothing_writes_an_empty_track_table,
+        _case_a_calcium_trace_unknown_at_its_start_keeps_an_unknown_first_delta,
+        ],
+    )
+    assert ran >= 2

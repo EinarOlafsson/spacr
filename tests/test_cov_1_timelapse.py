@@ -185,13 +185,13 @@ def _tracks_csv(tmp_path, object_type="cell", name="plate1_A01_1"):
 # What is not a stack of frames
 # ---------------------------------------------------------------------------
 
-def test_an_empty_batch_of_frames_is_refused(tmp_path, fake_btrack):
+def _case_an_empty_batch_of_frames_is_refused(tmp_path, fake_btrack):
     """A batch with no frames cannot be tracked, and says so."""
     with pytest.raises(ValueError, match="nothing to track"):
         _run(tmp_path / "stack", [])
 
 
-def test_frames_of_different_shapes_are_refused(tmp_path, fake_btrack):
+def _case_frames_of_different_shapes_are_refused(tmp_path, fake_btrack):
     """Frames of two sizes cannot be one acquisition.
 
     Stacking them would either raise deep inside numpy or, worse, broadcast
@@ -202,7 +202,7 @@ def test_frames_of_different_shapes_are_refused(tmp_path, fake_btrack):
         _run(tmp_path / "stack", masks)
 
 
-def test_a_single_frame_is_not_a_timelapse(tmp_path, fake_btrack):
+def _case_a_single_frame_is_not_a_timelapse(tmp_path, fake_btrack):
     """A 2-D mask has no time axis; the message names the shape it got."""
     with pytest.raises(ValueError, match=r"must be 3D"):
         _run(tmp_path / "stack", np.zeros((32, 32), np.uint16))
@@ -212,7 +212,7 @@ def test_a_single_frame_is_not_a_timelapse(tmp_path, fake_btrack):
 # Nothing segmented
 # ---------------------------------------------------------------------------
 
-def test_a_batch_with_nothing_segmented_never_loads_the_native_tracker(
+def _case_a_batch_with_nothing_segmented_never_loads_the_native_tracker(
         tmp_path, fake_btrack, drawn):
     """No objects has a complete answer without btrack's native solver.
 
@@ -238,7 +238,7 @@ def test_a_batch_with_nothing_segmented_never_loads_the_native_tracker(
     assert len(drawn) == 1, "the empty batch is still drawn when asked"
 
 
-def test_an_empty_batch_skips_drawing_when_not_requested(
+def _case_an_empty_batch_skips_drawing_when_not_requested(
         tmp_path, fake_btrack, drawn):
     src = tmp_path / "stack"
     masks = np.zeros((3, 16, 16), dtype=np.uint16)
@@ -256,7 +256,7 @@ def test_an_empty_batch_skips_drawing_when_not_requested(
 # The tracked path
 # ---------------------------------------------------------------------------
 
-def test_a_tracked_batch_relabels_its_masks_with_the_track_ids(tmp_path,
+def _case_a_tracked_batch_relabels_its_masks_with_the_track_ids(tmp_path,
                                                                fake_btrack,
                                                                drawn):
     """Every object carries its track id, and the table names its well.
@@ -290,7 +290,7 @@ def test_a_tracked_batch_relabels_its_masks_with_the_track_ids(tmp_path,
     assert len(drawn) == 1
 
 
-def test_the_tracker_is_configured_the_way_the_pipeline_needs_it(tmp_path,
+def _case_the_tracker_is_configured_the_way_the_pipeline_needs_it(tmp_path,
                                                                  fake_btrack):
     """The volume, the search radius and the update method all reach btrack.
 
@@ -312,7 +312,7 @@ def test_the_tracker_is_configured_the_way_the_pipeline_needs_it(tmp_path,
     assert ("track", ["motion", "visual"], None) in fake_btrack["calls"]
 
 
-def test_an_older_btrack_is_driven_through_its_own_api(tmp_path, fake_btrack):
+def _case_an_older_btrack_is_driven_through_its_own_api(tmp_path, fake_btrack):
     """``track(tracking_updates=...)`` is new; the fallback still tracks.
 
     An older btrack takes the updates as an attribute and a step size. Without
@@ -333,7 +333,7 @@ def test_an_older_btrack_is_driven_through_its_own_api(tmp_path, fake_btrack):
 # The optimiser
 # ---------------------------------------------------------------------------
 
-def test_the_glpk_limits_the_caller_set_are_passed_through(tmp_path,
+def _case_the_glpk_limits_the_caller_set_are_passed_through(tmp_path,
                                                            fake_btrack):
     """A time limit in seconds becomes GLPK's tm_lim in milliseconds."""
     _run(tmp_path / "stack", two_blobs(),
@@ -345,7 +345,7 @@ def test_the_glpk_limits_the_caller_set_are_passed_through(tmp_path,
         "options": {"options": {"tm_lim": 1500, "mip_gap": 0.05}}}]
 
 
-def test_no_limits_means_glpk_s_own_defaults(tmp_path, fake_btrack):
+def _case_no_limits_means_glpk_s_own_defaults(tmp_path, fake_btrack):
     """With nothing to pass, the optimiser is called with no options at all.
 
     An empty options dict is not the same request as no options: it is what a
@@ -359,7 +359,7 @@ def test_no_limits_means_glpk_s_own_defaults(tmp_path, fake_btrack):
     assert tracker.optimized == [{"backend": "glpk", "options": None}]
 
 
-def test_a_stalling_optimiser_leaves_the_tracks_it_already_had(tmp_path,
+def _case_a_stalling_optimiser_leaves_the_tracks_it_already_had(tmp_path,
                                                                fake_btrack,
                                                                caplog):
     """GLPK failing is a warning and the pre-optimisation tracks, not a crash.
@@ -378,7 +378,7 @@ def test_a_stalling_optimiser_leaves_the_tracks_it_already_had(tmp_path,
                for record in caplog.records)
 
 
-def test_a_batch_too_big_to_optimise_says_so_and_skips_it(tmp_path,
+def _case_a_batch_too_big_to_optimise_says_so_and_skips_it(tmp_path,
                                                           fake_btrack,
                                                           caplog):
     """Past the object ceiling the global optimisation is not attempted.
@@ -396,7 +396,7 @@ def test_a_batch_too_big_to_optimise_says_so_and_skips_it(tmp_path,
                for record in caplog.records)
 
 
-def test_optimisation_can_be_turned_off_outright(tmp_path, fake_btrack):
+def _case_optimisation_can_be_turned_off_outright(tmp_path, fake_btrack):
     """``run_optimization=False`` is honoured however small the batch is."""
     _run(tmp_path / "stack", two_blobs(), run_optimization=False)
 
@@ -409,7 +409,7 @@ def test_optimisation_can_be_turned_off_outright(tmp_path, fake_btrack):
 # Tracks that do not survive
 # ---------------------------------------------------------------------------
 
-def test_removing_transients_can_empty_the_table_without_emptying_the_batch(
+def _case_removing_transients_can_empty_the_table_without_emptying_the_batch(
         tmp_path, fake_btrack, caplog):
     """Every track shorter than the batch goes; the stack comes back unlabelled.
 
@@ -433,7 +433,7 @@ def test_removing_transients_can_empty_the_table_without_emptying_the_batch(
                for record in caplog.records)
 
 
-def test_a_name_the_well_parser_chokes_on_still_writes_the_tracks(
+def _case_a_name_the_well_parser_chokes_on_still_writes_the_tracks(
         tmp_path, fake_btrack, monkeypatch, caplog):
     """An unreadable batch name costs the well columns, not the batch.
 
@@ -459,7 +459,7 @@ def test_a_name_the_well_parser_chokes_on_still_writes_the_tracks(
                for record in caplog.records)
 
 
-def test_a_list_of_frames_is_stacked_before_tracking(tmp_path, fake_btrack):
+def _case_a_list_of_frames_is_stacked_before_tracking(tmp_path, fake_btrack):
     """Cellpose hands its masks over as a list of 2-D frames.
 
     That is the shape the mask generators actually call this with, so the list
@@ -529,3 +529,32 @@ def test_the_module_still_imports_where_trapezoid_is_called_trapz(monkeypatch):
         assert callable(module._btrack_track_cells)
     finally:
         sys.modules.pop(name, None)
+
+
+def test_timelapse_cases(request, subtests, caplog):
+    """Case table: 16 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_an_empty_batch_of_frames_is_refused,
+        _case_frames_of_different_shapes_are_refused,
+        _case_a_single_frame_is_not_a_timelapse,
+        _case_a_batch_with_nothing_segmented_never_loads_the_native_tracker,
+        _case_an_empty_batch_skips_drawing_when_not_requested,
+        _case_a_tracked_batch_relabels_its_masks_with_the_track_ids,
+        _case_the_tracker_is_configured_the_way_the_pipeline_needs_it,
+        _case_an_older_btrack_is_driven_through_its_own_api,
+        _case_the_glpk_limits_the_caller_set_are_passed_through,
+        _case_no_limits_means_glpk_s_own_defaults,
+        _case_a_stalling_optimiser_leaves_the_tracks_it_already_had,
+        _case_a_batch_too_big_to_optimise_says_so_and_skips_it,
+        _case_optimisation_can_be_turned_off_outright,
+        _case_removing_transients_can_empty_the_table_without_emptying_the_batch,
+        _case_a_name_the_well_parser_chokes_on_still_writes_the_tracks,
+        _case_a_list_of_frames_is_stacked_before_tracking,
+        ],
+    )
+    assert ran >= 16

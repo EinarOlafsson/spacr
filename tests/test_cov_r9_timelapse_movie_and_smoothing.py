@@ -124,7 +124,7 @@ def _track(n_frames, glitch_at=None):
 
 class TestRepairingAGlitch:
 
-    def test_a_single_frame_teleport_is_interpolated_away(self):
+    def _case_a_single_frame_teleport_is_interpolated_away(self):
         """The behaviour the two guards below sit inside."""
         df = _track(5, glitch_at=2)
 
@@ -135,19 +135,19 @@ class TestRepairingAGlitch:
             "the teleported frame was not replaced by the midpoint of its "
             "neighbours")
 
-    def test_a_clean_track_is_left_alone(self):
+    def _case_a_clean_track_is_left_alone(self):
         df = _track(5)
 
         out = T._smooth_tracks_and_features(df)
 
         assert list(out["cell_centroid-0"]) == list(df["cell_centroid-0"])
 
-    def test_an_empty_frame_is_returned_untouched(self):
+    def _case_an_empty_frame_is_returned_untouched(self):
         empty = pd.DataFrame()
 
         assert T._smooth_tracks_and_features(empty).empty
 
-    def test_a_two_frame_track_is_too_short_to_have_an_interior(self):
+    def _case_a_two_frame_track_is_too_short_to_have_an_interior(self):
         """The guard that makes the two below unreachable: nothing is
         detected at all unless the track has three frames."""
         df = _track(2, glitch_at=1)
@@ -191,7 +191,7 @@ class TestRepairingAGlitch:
         gate = source.index("if n >= 3:")
         assert "if len(s) < 3:" not in source[gate:]
 
-    def test_a_feature_is_interpolated_at_the_repaired_frame(self):
+    def _case_a_feature_is_interpolated_at_the_repaired_frame(self):
         """The work the inner loop does when it is not skipping: the
         scalar features move with the centroid, so a repaired track does
         not carry the glitch frame's area."""
@@ -204,3 +204,21 @@ class TestRepairingAGlitch:
         assert area != 9999.0, (
             "the glitch frame kept its feature value while its centroid was "
             "repaired, so the row is half-corrected")
+
+
+def test_repairing_a_glitch_cases(request, subtests):
+    """Case table: 5 cases of TestRepairingAGlitch run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        (TestRepairingAGlitch, '_case_a_single_frame_teleport_is_interpolated_away'),
+        (TestRepairingAGlitch, '_case_a_clean_track_is_left_alone'),
+        (TestRepairingAGlitch, '_case_an_empty_frame_is_returned_untouched'),
+        (TestRepairingAGlitch, '_case_a_two_frame_track_is_too_short_to_have_an_interior'),
+        (TestRepairingAGlitch, '_case_a_feature_is_interpolated_at_the_repaired_frame'),
+        ],
+    )
+    assert ran >= 5

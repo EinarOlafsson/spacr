@@ -250,7 +250,7 @@ def test_an_absent_mask_is_not_a_distance_partner():
     assert "pathogen_centre_to_nucleus_surface" in with_nucleus.columns
 
 
-def test_a_link_only_pairs_labels_that_are_in_both_masks():
+def _case_a_link_only_pairs_labels_that_are_in_both_masks():
     """timelapse.py:388 -- why ``if union > 0`` can never be False.
 
     The IoU cost matrix is built over ``np.unique(mask)[1:]``, so every row
@@ -346,7 +346,7 @@ def _apply(monkeypatch, tmp_path, df, scope, add_adjusted):
 
 
 @pytest.mark.parametrize("scope", ["sideways", "per_plate"])
-def test_qc_that_adjusts_nothing_keeps_the_original_column(
+def _case_qc_that_adjusts_nothing_keeps_the_original_column(
         monkeypatch, tmp_path, scope):
     """timelapse.py:5413 / 5451 / 5510 -- no ``adjusted_infected`` produced.
 
@@ -367,7 +367,7 @@ def test_qc_that_adjusts_nothing_keeps_the_original_column(
     assert sorted(adjusted["adjusted_infected"]) == [0, 0, 1, 1]
 
 
-def test_a_grouped_scope_without_its_columns_falls_back_to_combined(
+def _case_a_grouped_scope_without_its_columns_falls_back_to_combined(
         monkeypatch, tmp_path):
     """timelapse.py:5451 -- the missing-grouping-columns fallback.
 
@@ -383,7 +383,7 @@ def test_a_grouped_scope_without_its_columns_falls_back_to_combined(
     assert settings["infection_hist_data"] == {"seen": 4}
 
 
-def test_an_empty_plate_group_is_skipped(monkeypatch, tmp_path):
+def _case_an_empty_plate_group_is_skipped(monkeypatch, tmp_path):
     """timelapse.py:5499 -- ``if df_group.empty: continue``.
 
     A categorical plateID with a category no row uses makes pandas hand the
@@ -441,3 +441,20 @@ def test_measure_records_explicit_parasite_to_vacuole_overlap_links(tmp_path):
         stored = pd.read_sql_query('SELECT * FROM organelle', connection).set_index('object_label')
     assert stored.loc[1, 'pathogen_id'] == 1
     assert pd.isna(stored.loc[2, 'pathogen_id'])
+
+
+def test_tracking_and_measurement_cases(request, subtests):
+    """Case table: 4 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_a_link_only_pairs_labels_that_are_in_both_masks,
+        _case_qc_that_adjusts_nothing_keeps_the_original_column,
+        _case_a_grouped_scope_without_its_columns_falls_back_to_combined,
+        _case_an_empty_plate_group_is_skipped,
+        ],
+    )
+    assert ran >= 4
