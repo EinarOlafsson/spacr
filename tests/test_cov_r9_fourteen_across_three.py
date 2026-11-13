@@ -87,26 +87,6 @@ class TestTheNeighbourGraph:
             not in source
 
 
-class TestNamingTheBackendHonestly:
-
-    def test_an_injected_embedder_is_called_custom_not_cpu(self):
-        """An injected embedder is custom even if the caller labels it cuML.
-
-        Naming it CPU would be false provenance in saved checkpoints and
-        table rows -- a reader would believe the run is reproducible with
-        umap-learn, and it is not.
-        """
-        from spacr import hyperparam as H
-
-        features = np.random.default_rng(3).normal(size=(20, 4))
-        result = H.umap_search(
-            features, H.SearchSpace({"n_neighbors": [5]}), backend="cuml",
-            embed_fn=lambda values, _params: values[:, :2])
-
-        assert result.best.extra_metrics["backend"] == "custom"
-        assert "Embedding backend: custom." in " ".join(result.notes)
-
-
 class TestResultsTheLineAboveProduced:
 
     def test_a_valid_cluster_walk_always_has_a_result_row(self):

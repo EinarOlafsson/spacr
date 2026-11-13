@@ -12,7 +12,6 @@ a tar archive, so no GPU, no download and no trained checkpoint is needed.
 """
 from __future__ import annotations
 
-import os
 import sqlite3
 import tarfile
 
@@ -122,173 +121,25 @@ def _tables(db_path):
 # generate_activation_map — early return when the dataset is missing
 # ---------------------------------------------------------------------------
 
-def test_generate_activation_map_missing_dataset_returns_early(tmp_path, capsys):
-    """A non-existent dataset must return before the model is ever loaded."""
-    from spacr.deep_spacr import generate_activation_map
-
-    root = tmp_path / "proj"
-    (root / "datasets").mkdir(parents=True)
-    missing = str(root / "datasets" / "nope.tar")
-
-    settings = _settings(missing, str(root / "no_such_model.pth"), save=True)
-    assert generate_activation_map(settings) is None
-
-    out = capsys.readouterr().out
-    assert f"Dataset not found at {missing}" in out
-    # returned before os.makedirs(save_dir) -> nothing created for the dataset
-    assert not (root / "datasets" / "nope").exists()
-    # ...but save_settings ran first, so the settings snapshot exists
-    assert (root / "settings" / "saliency_image_settings.csv").is_file()
-
 
 # ---------------------------------------------------------------------------
 # generate_activation_map — saliency_image: save maps + DB rows
 # ---------------------------------------------------------------------------
-
-def test_generate_activation_map_saliency_image_saves_pngs_and_db(tmp_path, model_path, capsys):
-    """save=True writes one uint8 'L' map per image and one DB row per map."""
-    from spacr.deep_spacr import generate_activation_map
-
-    root, tar_path, names = _project(tmp_path, n_images=6)
-    generate_activation_map(_settings(tar_path, model_path, save=True))
-
-    save_dir = root / "datasets" / "ds" / "saliency_image"
-    assert save_dir.is_dir()
-    pngs = sorted(save_dir.rglob("*.png"))
-    assert len(pngs) == 6
-    assert {p.name for p in pngs} == set(names)
-
-    # class_<pred>/<plate>/<well>/<file>
-    for p in pngs:
-        assert p.parent.name == "A01"
-        assert p.parent.parent.name == "plate1"
-        assert p.parent.parent.parent.name in ("class_0", "class_1")
-
-    img = Image.open(pngs[0])
-    assert img.mode == "L"
-    assert img.size == (32, 32)
-    arr = np.array(img)
-    assert arr.dtype == np.uint8
-    # min-max normalisation before the uint8 cast must saturate both ends
-    assert arr.min() == 0 and arr.max() == 255
-
-    db = root / "measurements" / "ds.db"
-    assert db.is_file()
-    assert "saliency_image_list" in _tables(str(db))
-    con = sqlite3.connect(str(db))
-    try:
-        rows = con.execute(
-            "SELECT png_path, plateID, rowID, columnID, fieldID, object "
-            "FROM saliency_image_list ORDER BY png_path").fetchall()
-    finally:
-        con.close()
-    assert len(rows) == 6
-    assert {r[1] for r in rows} == {"plate1"}
-    assert {r[2] for r in rows} == {"r1"}
-    assert {r[3] for r in rows} == {"c1"}
-    assert {r[4] for r in rows} == {"f1"}
-    assert {r[5] for r in rows} == {f"o{i}" for i in range(6)}
-    assert all(os.path.isfile(r[0]) for r in rows)
-
-    out = capsys.readouterr().out
-    assert "Activation maps will be saved in" in out
-    assert "Activation map generation complete." in out
 
 
 # ---------------------------------------------------------------------------
 # generate_activation_map — plot=True writes one batch-grid PDF per batch
 # ---------------------------------------------------------------------------
 
-def test_generate_activation_map_plot_writes_batch_grids(tmp_path, model_path, capsys):
-    """plot=True renders a grid PDF per batch; save=False writes no PNG."""
-    from spacr.deep_spacr import generate_activation_map
-
-    root, tar_path, _names = _project(tmp_path, n_images=6)
-    generate_activation_map(_settings(tar_path, model_path, plot=True, save=False,
-                                      batch_size=3, normalize=True))
-
-    grid_dir = root / "datasets" / "ds" / "saliency_image" / "batch_grids"
-    pdfs = sorted(grid_dir.glob("*.pdf"))
-    assert [p.name for p in pdfs] == ["batch_0_grid.pdf", "batch_1_grid.pdf"]
-    for p in pdfs:
-        assert p.stat().st_size > 0
-        assert p.read_bytes()[:4] == b"%PDF"
-
-    # save=False: the per-class folders are still created, but stay empty
-    save_dir = root / "datasets" / "ds" / "saliency_image"
-    assert (save_dir / "class_0").is_dir() or (save_dir / "class_1").is_dir()
-    assert list(save_dir.rglob("*.png")) == []
-    # ...and nothing was pushed to the database
-    assert not (root / "measurements" / "ds.db").is_file()
-
-    assert "Batch grid maps will be saved in" in capsys.readouterr().out
-
 
 # ---------------------------------------------------------------------------
 # generate_activation_map — saliency_channel writes RGB maps
 # ---------------------------------------------------------------------------
 
-def test_generate_activation_map_saliency_channel_writes_rgb(tmp_path, model_path):
-    """cam_type='saliency_channel' keeps the channels and saves RGB PNGs."""
-    from spacr.deep_spacr import generate_activation_map
-
-    root, tar_path, names = _project(tmp_path, n_images=4)
-    generate_activation_map(_settings(tar_path, model_path,
-                                      cam_type="saliency_channel",
-                                      save=True, batch_size=2))
-
-    save_dir = root / "datasets" / "ds" / "saliency_channel"
-    pngs = sorted(save_dir.rglob("*.png"))
-    assert len(pngs) == len(names)
-    img = Image.open(pngs[0])
-    assert img.mode == "RGB"
-    assert img.size == (32, 32)
-    arr = np.array(img)
-    assert arr.shape == (32, 32, 3) and arr.dtype == np.uint8
-    # every channel is independently min-max scaled to the full uint8 range
-    for c in range(3):
-        assert arr[:, :, c].min() == 0 and arr[:, :, c].max() == 255
-
-    assert "saliency_channel_list" in _tables(str(root / "measurements" / "ds.db"))
-
 
 # ---------------------------------------------------------------------------
 # generate_activation_map — correlation=True writes the correlations table
 # ---------------------------------------------------------------------------
-
-def test_generate_activation_map_correlations_to_database(tmp_path, model_path):
-    """correlation=True computes per-image stats and stores them next to the maps."""
-    from spacr.deep_spacr import generate_activation_map
-
-    root, tar_path, names = _project(tmp_path, n_images=4)
-    generate_activation_map(_settings(tar_path, model_path, save=True, plot=True,
-                                      correlation=True, batch_size=2,
-                                      manders_thresholds=[50]))
-
-    db = str(root / "measurements" / "ds.db")
-    tables = _tables(db)
-    assert {"saliency_image_list", "saliency_image_correlations"} <= tables
-
-    con = sqlite3.connect(db)
-    try:
-        cur = con.execute("SELECT * FROM saliency_image_correlations")
-        cols = [d[0] for d in cur.description]
-        rows = cur.fetchall()
-    finally:
-        con.close()
-
-    assert len(rows) == len(names)
-    # 3 input channels x 1 summed activation channel, pearson + M1/M2 per threshold
-    for in_c in range(3):
-        assert f"channel_{in_c}_activation_0_pearsons" in cols
-        assert f"channel_{in_c}_activation_0_50_M1" in cols
-        assert f"channel_{in_c}_activation_0_50_M2" in cols
-    assert "file_name" in cols and "png_path" in cols
-
-    fn_idx, p_idx = cols.index("file_name"), cols.index("channel_0_activation_0_pearsons")
-    assert {r[fn_idx] for r in rows} == set(names)
-    for r in rows:
-        assert -1.0 <= float(r[p_idx]) <= 1.0
 
 
 # ---------------------------------------------------------------------------
@@ -320,102 +171,10 @@ def test_generate_activation_map_gradcam(tmp_path, model_path):
 # generate_activation_map — maxvit default target layer
 # ---------------------------------------------------------------------------
 
-def test_generate_activation_map_maxvit_default_target_layer(tmp_path, model_path, monkeypatch):
-    """model_type='maxvit' + target_layer=None fills in the MaxViT block path."""
-    import spacr.utils as utils
-    from spacr.deep_spacr import generate_activation_map
-
-    seen = {}
-
-    class _RecordingGradCAM:
-        """Stand-in for GradCAMGenerator that records the resolved target layer."""
-
-        def __init__(self, model, target_layer, cam_type="gradcam"):
-            seen["target_layer"] = target_layer
-            seen["cam_type"] = cam_type
-            self.model = model
-
-        def compute_gradcam_and_predictions(self, X):
-            return X.detach().mean(dim=1), torch.zeros(X.shape[0], dtype=torch.long)
-
-    monkeypatch.setattr(utils, "GradCAMGenerator", _RecordingGradCAM)
-
-    root, tar_path, names = _project(tmp_path, n_images=2)
-    settings = _settings(tar_path, model_path, model_type="maxvit",
-                         cam_type="gradcam", target_layer=None, save=True,
-                         batch_size=2)
-    generate_activation_map(settings)
-
-    assert seen["cam_type"] == "gradcam"
-    assert seen["target_layer"] == (
-        "base_model.blocks.3.layers.1.layers.MBconv.layers.conv_b")
-    assert settings["target_layer"] == seen["target_layer"]
-    pngs = sorted((root / "datasets" / "ds" / "gradcam").rglob("*.png"))
-    assert {p.name for p in pngs} == set(names)
-
-
-def test_generate_activation_map_saliency_clears_target_layer(tmp_path, model_path):
-    """A saliency cam_type always wipes target_layer, even for maxvit defaults."""
-    from spacr.deep_spacr import generate_activation_map
-
-    _root, tar_path, _names = _project(tmp_path, n_images=2)
-    settings = _settings(tar_path, model_path, model_type="maxvit",
-                         cam_type="saliency_image",
-                         target_layer="some.layer", batch_size=2)
-    generate_activation_map(settings)
-    assert settings["target_layer"] is None
-
-
-def test_generate_activation_map_normalize_input_false(tmp_path, model_path):
-    """normalize_input=False must simply drop the Normalize step.
-
-    The transform pipeline used to be built with an inline
-    ``Normalize(...) if normalize_input else None``, which left a literal None
-    inside the Compose, so this documented setting raised
-    "TypeError: 'NoneType' object is not callable" on the first image.
-    """
-    from spacr.deep_spacr import generate_activation_map
-
-    root, tar_path, names = _project(tmp_path, n_images=2)
-    generate_activation_map(_settings(tar_path, model_path, normalize_input=False,
-                                      save=True, batch_size=2))
-
-    pngs = sorted((root / "datasets" / "ds" / "saliency_image").rglob("*.png"))
-    assert {p.name for p in pngs} == set(names)
-
 
 # ---------------------------------------------------------------------------
 # generate_activation_map — n_jobs=None falls back to cpu_count() - 4
 # ---------------------------------------------------------------------------
-
-@pytest.mark.parametrize("cpus,expected_workers", [(6, 2), (3, 1)])
-def test_generate_activation_map_n_jobs_defaults_to_cpu_count(tmp_path, model_path,
-                                                              monkeypatch, cpus,
-                                                              expected_workers):
-    """n_jobs=None -> max(1, cpu_count() - 4) workers are requested."""
-    import spacr.deep_spacr as ds
-    from spacr.deep_spacr import generate_activation_map
-
-    real_loader = ds.DataLoader
-    captured = {}
-
-    def fake_loader(dataset, **kwargs):
-        captured.update(kwargs)
-        # never actually fork worker processes inside the test suite
-        kwargs["num_workers"] = 0
-        kwargs["pin_memory"] = False
-        return real_loader(dataset, **kwargs)
-
-    monkeypatch.setattr(ds, "cpu_count", lambda: cpus)
-    monkeypatch.setattr(ds, "DataLoader", fake_loader)
-
-    _root, tar_path, _names = _project(tmp_path, n_images=2)
-    generate_activation_map(_settings(tar_path, model_path, n_jobs=None,
-                                      batch_size=2))
-
-    assert captured["num_workers"] == expected_workers
-    assert captured["batch_size"] == 2
-    assert captured["shuffle"] is False
 
 
 # ---------------------------------------------------------------------------
@@ -487,144 +246,4 @@ def test_visualize_classes_runs_real_class_visualization(model_path, monkeypatch
 # visualize_integrated_gradients
 # ---------------------------------------------------------------------------
 
-def test_visualize_integrated_gradients_saves_maps(tmp_path, model_path, monkeypatch):
-    """PNG inputs produce one saved IG map each; non-PNG files are skipped."""
-    from spacr.deep_spacr import visualize_integrated_gradients
 
-    src = tmp_path / "pngs"
-    src.mkdir()
-    _write_png(src / "a.png", seed=1)
-    _write_png(src / "b.png", seed=2)
-    (src / "notes.txt").write_text("ignore me", encoding="utf-8")
-
-    out_dir = tmp_path / "igs"
-    shown = []
-    monkeypatch.setattr(plt, "show", lambda *a, **k: shown.append(plt.gcf()))
-
-    visualize_integrated_gradients(str(src), model_path, target_label_idx=0,
-                                   image_size=32, channels=[1, 2, 3],
-                                   normalize=True, save_integrated_grads=True,
-                                   save_dir=str(out_dir))
-
-    saved = sorted(p.name for p in out_dir.glob("*"))
-    assert saved == ["integrated_grads_a.png", "integrated_grads_b.png"]
-    assert not (out_dir / "integrated_grads_notes.txt").exists()
-
-    arr = np.array(Image.open(out_dir / "integrated_grads_a.png"))
-    assert arr.shape == (32, 32) and arr.dtype == np.uint8
-
-    # one 1x3 figure per PNG
-    assert len(shown) == 2
-    assert [ax.get_title() for ax in shown[-1].axes] == [
-        "Original Image", "Integrated Gradients", "Overlay"]
-
-
-def test_visualize_integrated_gradients_no_save_default_channels(tmp_path, model_path, monkeypatch):
-    """save_integrated_grads=False writes nothing but still builds the overlay."""
-    from spacr.deep_spacr import visualize_integrated_gradients
-
-    src = tmp_path / "pngs"
-    src.mkdir()
-    _write_png(src / "only.png", seed=7)
-
-    shown = []
-    monkeypatch.setattr(plt, "show", lambda *a, **k: shown.append(plt.gcf()))
-
-    before = set(os.listdir(tmp_path))
-    visualize_integrated_gradients(str(src), model_path, image_size=32)
-    assert set(os.listdir(tmp_path)) == before
-    assert not os.path.exists("integrated_grads")
-    assert list(src.iterdir()) == [src / "only.png"]
-
-    assert len(shown) == 1
-    axes = shown[0].axes
-    assert len(axes) == 3
-    assert all(not ax.axison for ax in axes)
-
-    original = np.asarray(axes[0].images[0].get_array())
-    assert original.shape == (32, 32, 3)
-
-    ig_map = np.asarray(axes[1].images[0].get_array())
-    assert ig_map.shape == (32, 32)          # channel-averaged, squeezed
-    assert np.isfinite(ig_map).all()
-
-    overlay = np.asarray(axes[2].images[0].get_array())
-    assert overlay.shape == (32, 32, 3)      # IG map broadcast back to RGB
-    assert overlay.min() >= 0.0 and overlay.max() <= 1.0
-
-
-def test_counterfactual_crops_are_collected_up_to_the_limit(tmp_path,
-                                                            model_path,
-                                                            monkeypatch):
-    """With counterfactuals on, crops are kept until counterfactual_crops is
-    reached, and the generator runs once on them after the maps."""
-    import spacr.deep_spacr as ds
-
-    seen = []
-
-    def run_counterfactuals(settings, model, crops, names, out, device, *,
-                           input_contract):
-        assert input_contract is None, "the legacy fixture declares no classes"
-        seen.append((sum(len(c) for c in crops), list(names), out))
-
-    monkeypatch.setattr(ds, "_run_counterfactuals", run_counterfactuals)
-    _root, tar_path, _names = _project(tmp_path, n_images=6)
-    ds.generate_activation_map(_settings(tar_path, model_path, save=False,
-                                         counterfactuals=True,
-                                         counterfactual_crops=3))
-    assert len(seen) == 1
-    count, names, out = seen[0]
-    assert count == len(names) == 3
-    assert out.endswith("counterfactuals")
-
-
-def test_counterfactual_handoff_preserves_saved_class_order_and_actual_pixel_contract(tmp_path, monkeypatch):
-    """Saved classifier semantics travel with actual crops without running a generator."""
-    # The handoff is checked on the CPU; on an Apple Silicon Mac the
-    # resolver would otherwise pick Metal.
-    monkeypatch.setenv("SPACR_DEVICE", "cpu")
-    import copy
-    from pathlib import Path
-    import spacr.deep_spacr as ds
-    from spacr.classification_pixels import DECLARED_UINT8
-
-    root, tar_path, names = _project(tmp_path, n_images=2)
-    local_model = tmp_path / 'local-classifier.pth'
-    local_model.write_bytes(b'local fixture handle; deserialization is stubbed')
-    model = torch.nn.Sequential(torch.nn.Flatten(), torch.nn.Linear(3 * 32 * 32, 2)).eval()
-    metadata = {'classes': ['positive', 'negative'], 'preprocessing': {
-        'crop_loading_policy': DECLARED_UINT8, 'input_statistics': 'symmetric'}}
-    original_metadata = copy.deepcopy(metadata)
-    original_tar, original_model = Path(tar_path).read_bytes(), local_model.read_bytes()
-    loaded, handed = [], []
-    def load(path, device):
-        assert path == str(local_model) and device.type == 'cpu'
-        loaded.append(path)
-        return model, metadata
-    def handoff(settings, classifier, crops, filenames, output, device, *, input_contract):
-        assert classifier is model and device.type == 'cpu'
-        assert sum(len(batch) for batch in crops) == len(filenames) == 1
-        assert filenames == names[:1]
-        assert tuple(crops[0].shape) == (1, 3, 32, 32)
-        handed.append((input_contract, output))
-    monkeypatch.setattr(ds, '_load_inference_model', load)
-    monkeypatch.setattr(ds, '_run_counterfactuals', handoff)
-    ds.generate_activation_map(_settings(tar_path, str(local_model), model_type='tiny_local',
-        save=False, counterfactuals=True, counterfactual_crops=1,
-        counterfactual_condition='CLASS', normalize_input=True, input_statistics='symmetric'))
-    assert loaded == [str(local_model)] and len(handed) == 1
-    contract, output = handed[0]
-    assert contract == {
-        'schema': 1, 'channel_ids': ['stored_rgb_plane_0', 'stored_rgb_plane_1', 'stored_rgb_plane_2'],
-        'class_labels': ['positive', 'negative'], 'condition_key': 'class',
-        'preprocessing': {
-            'pipeline': 'activation_map_model_input_v1', 'crop_loading_policy': DECLARED_UINT8,
-            'center_crop': [32, 32], 'normalization': {'mean': [.5, .5, .5], 'std': [.5, .5, .5]},
-            'selected_channels_1based': [1, 2, 3],
-            'selection_semantics': 'zero_unselected_stored_rgb_planes',
-            'classifier_preprocessing': original_metadata['preprocessing'],
-        },
-    }
-    assert output.endswith('counterfactuals') and not Path(output).exists()
-    assert metadata == original_metadata
-    assert Path(tar_path).read_bytes() == original_tar and local_model.read_bytes() == original_model

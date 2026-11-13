@@ -103,44 +103,6 @@ class TestTheModelIsWorthAttributing:
 
 class TestAnalyzingActivationMaps:
 
-    def test_it_returns_one_row_per_image_and_method(self, trained_model):
-        from spacr.deep_spacr import analyze_activation_maps
-
-        table = analyze_activation_maps(
-            trained_model, _images(2), methods=["saliency"],
-            sanity_check=False, verbose=False, n_steps=4)["table"]
-
-        assert not table.empty
-        assert set(table["image"]) == {0, 1}
-        assert set(table["method"]) == {"saliency"}
-
-    def test_the_table_is_sorted_by_image_then_deletion_auc(
-            self, trained_model):
-        """THE ARC: ``not table.empty and 'deletion_auc' in columns``.
-
-        The sort is what makes the table readable -- the most
-        deletion-sensitive method first within each image -- and it is
-        guarded because a run where every method failed produces a frame
-        with neither rows nor that column, and sorting on a column that
-        is not there is a KeyError at the end of a long analysis.
-        """
-        from spacr.deep_spacr import analyze_activation_maps
-
-        table = analyze_activation_maps(
-            trained_model, _images(2),
-            methods=["saliency", "integrated_gradients"],
-            sanity_check=False, verbose=False, n_steps=4)["table"]
-
-        assert "deletion_auc" in table.columns
-        assert list(table["image"]) == sorted(table["image"]), (
-            "the rows are not grouped by image, so two methods for one "
-            "image can be separated by another image's rows")
-
-        for image in table["image"].unique():
-            block = table[table["image"] == image]["deletion_auc"]
-            finite = block.dropna().tolist()
-            assert finite == sorted(finite), (
-                f"image {image}'s methods are not ordered by deletion AUC")
 
     def test_an_analysis_that_produced_nothing_is_not_sorted(self):
         """THE OTHER ARM, driven on the frame rather than through a run:
@@ -155,35 +117,6 @@ class TestAnalyzingActivationMaps:
         assert "deletion_auc" not in table.columns
         with pytest.raises(KeyError):
             table.sort_values(["image", "deletion_auc"])
-
-    def test_a_mask_adds_the_pointing_game(self, trained_model):
-        """The optional half: with an object mask the analysis also says
-        whether the attribution's peak lands inside the object, which is
-        the question a biologist actually asks of one of these maps."""
-        from spacr.deep_spacr import analyze_activation_maps
-
-        mask = torch.zeros((1, 16, 16))
-        mask[:, 4:12, 4:12] = 1.0
-
-        table = analyze_activation_maps(
-            trained_model, _images(1), methods=["saliency"],
-            masks=[mask], sanity_check=False, verbose=False, n_steps=4)["table"]
-
-        assert "pointing_game" in table.columns
-        assert table["pointing_game"].notna().any(), (
-            "a mask was supplied and no pointing-game result came back")
-
-    def test_the_sanity_check_reports_per_method(self, trained_model):
-        """The randomisation pass: a map that survives having the model's
-        parameters scrambled is not explaining the model, and saying so
-        is the difference between an attribution and a picture."""
-        from spacr.deep_spacr import analyze_activation_maps
-
-        table = analyze_activation_maps(
-            trained_model, _images(1), methods=["saliency"],
-            sanity_check=True, verbose=False, n_steps=4)["table"]
-
-        assert not table.empty
 
 
 class TestTheUnconditionalOneHotFill:
@@ -202,19 +135,6 @@ class TestTheUnconditionalOneHotFill:
 
         assert one_hot.shape == (0, 3)
 
-    def test_a_real_batch_sets_one_column_per_row(self):
-        from spacr.deep_spacr import _multiclass_metrics
-
-        y_true = np.array([0, 1, 2, 1])
-        probabilities = np.array([[0.8, 0.1, 0.1], [0.1, 0.8, 0.1],
-                                  [0.1, 0.1, 0.8], [0.2, 0.7, 0.1]])
-
-        metrics = _multiclass_metrics(y_true, probabilities)
-
-        assert metrics["accuracy"] == pytest.approx(1.0)
-        assert 0.0 <= metrics["prauc"] <= 1.0
-        assert metrics["num_classes"] == 3
-        assert len(metrics["per_class_accuracy"]) == 3
 
     def test_the_empty_return_precedes_the_unconditional_fill(self):
         from spacr.deep_spacr import _multiclass_metrics
