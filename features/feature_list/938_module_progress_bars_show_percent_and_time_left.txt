@@ -1,0 +1,63 @@
+MODULE PROGRESS BARS SHOW PERCENT DONE AND TIME LEFT, ON THE MODULE AND ON HOME
+==============================================================================
+
+Lifecycle: new
+Status: OPEN 2026-11-13
+Requested: maintainer, 2026-11-13 ("the progress bar in each module does not
+reflect the time that is left for the analysis. This is often printed in the
+console. Where possible, implement a progress bar that shows how far along the
+analysis is (0-100 %) and also show an estimate for how long is left. These
+progress bars should also appear on the home screen run bars that appear when
+something is running.")
+Owner: unassigned.
+Related: spacr.utils.print_progress, spacr/qt/bridge.py (_PROGRESS_RE,
+fraction), spacr/qt/widgets/home.py (RunningBanner.refresh),
+spacr/qt/screens/app_screen.py (the module run bar), 935 (OPS live mode).
+
+WHAT IS THERE NOW
+- Workers print "Progress: n/total, operation_type: ..., Time/image: ...,
+  Time_left: x min." (spacr.utils.print_progress, nine callers) or their own
+  "Progress: n/total" lines (power, mask GPUs, watch folder).
+- bridge._PROGRESS_RE reads only n/total. The time left the worker already
+  printed is dropped; the module bar and the home banner show elapsed time
+  and "n of total", or a busy bar when no Progress line has arrived.
+- A module with several stages (for example measure: masks, then crops, then
+  tables) restarts n/total per stage, so the bar runs 0-100 % more than once
+  and says nothing about the whole run.
+
+WHAT TO BUILD
+1. One progress record per run: overall fraction 0-1 and seconds left (or
+   unknown), carried on the run handle next to progress and elapsed.
+2. Overall fraction across stages: a module declares its stages with a weight
+   (measured share of run time on a reference dataset, stored beside the
+   module's settings); overall = finished-stage weights + current stage
+   weight x stage fraction. A module that declares no stages keeps the
+   per-stage fraction and labels the stage.
+3. Time left: use the worker's own estimate when it prints one
+   (Time_left in print_progress; parse it in the bridge); otherwise estimate
+   from the overall fraction and elapsed time, smoothed (exponential moving
+   average of the rate) and shown only after the first 5 % or 30 s, so the
+   first number is not wild. Round for display ("about 12 min", "about
+   2 h 10 min"); show "estimating..." before that and nothing when the run
+   has no countable steps (keep the busy bar).
+4. Show it in both places: the module run bar (percent in the bar, "about X
+   left" beside it) and every home-screen running banner (same bar and text;
+   RunningBanner.refresh already re-reads the handle).
+5. Cover the modules whose loops print no Progress line yet: audit each GUI
+   module's main loop and add print_progress (or a structured progress
+   callback) where the number of units is known in advance. List the modules
+   where it is not possible (unknown total) in this file, with the reason.
+6. Paused time does not count toward the rate; on resume the estimate picks
+   up from the last rate.
+
+ACCEPTANCE
+- For each module with a known total: the bar moves monotonically 0 to 100 %
+  over the whole run, and the time-left estimate at 50 % is within a stated
+  tolerance of the real remaining time on a reference dataset (measure and
+  record per module; a control row with the naive elapsed/fraction estimate).
+- The home banner shows the same percent and time left as the module bar.
+- Tests: bridge parsing of the Time_left field and of multi-stage progress;
+  the estimator (warm-up, smoothing, pause); the banner and module bar text,
+  offscreen Qt.
+- Tutorials that show a running bar are re-recorded once this lands (current
+  layout only).

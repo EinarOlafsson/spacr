@@ -2277,7 +2277,10 @@ def recent_runs(limit: int = 10) -> List[Dict[str, Any]]:
         """Sort a recent-run entry by parsed start time, then folder mtime."""
         s = e.get("start_utc") or ""
         try:
-            return (datetime.fromisoformat(s), e["dir"].stat().st_mtime)
+            started = datetime.fromisoformat(s)
+            if started.tzinfo is None:
+                started = started.replace(tzinfo=timezone.utc)
+            return (started, e["dir"].stat().st_mtime)
         except Exception:
             return (datetime.fromtimestamp(0, tz=timezone.utc),
                      e["dir"].stat().st_mtime)

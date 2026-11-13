@@ -270,7 +270,7 @@ def _eval_doubles():
     ``self``. Nothing else in this suite has that shape: ``torch.nn.Module``
     stand-ins spell it ``def eval(self)``, and ``ModelConfig.eval_kwargs`` is a
     different name. Matching on shape rather than on the class's name is
-    deliberate — ``_M``, ``_FakeCP`` and ``_RecordingCP`` are CellposeModel
+    deliberate — ``_M`` and ``_RecordingCP`` are CellposeModel
     stand-ins and nothing about their names says so.
     """
     out = []
@@ -321,7 +321,7 @@ def test_the_double_sweep_finds_the_doubles_it_is_supposed_to():
         f"filter has stopped matching"
     )
     names = {cls for _, cls, _, _ in doubles}
-    assert {"_M", "_FakeCP", "_RecordingCP"} <= names, (
+    assert {"_M", "_RecordingCP"} <= names, (
         "the name-invisible doubles are not being found, so the filter has "
         "gone back to matching on class names"
     )
