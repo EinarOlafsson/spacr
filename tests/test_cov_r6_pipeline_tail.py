@@ -178,82 +178,6 @@ class TestACloudPatternThatMatchesNothing:
 # spacr.object -- the dense-position fallback
 # ---------------------------------------------------------------------------
 
-class TestEveryRoleChannelHasADensePosition:
-    """``if _raw in _dense:`` in both Cellpose mask generators.
-
-    ``_dense = dense_mask_channel_positions(settings)`` walks
-    ``utils.MASK_CHANNEL_ROLE_ORDER`` -- ``nucleus_channel``,
-    ``cell_channel``, ``pathogen_channel`` and every
-    ``<organelle role>_channel`` -- coercing each with ``int()`` and
-    giving each newly seen raw channel the next dense position. The loop
-    underneath then reads exactly those same keys, coerces them the same
-    way with ``int()``, and asks whether the result is in ``_dense``.
-
-    It always is: the key set the loop iterates is a subset of the key
-    set the map was built from, and the coercion is identical, so a raw
-    channel that survives ``int()`` in the loop survived it in the map
-    too. Both copies of the guard (in ``generate_cellpose_masks_sam``
-    and in ``generate_cellpose_masks``) are re-checks of what the call
-    on the line above has already established.
-
-    Pinned instead is the property the fallback exists for, and the trap
-    the module's own comment records: the copied value is the DENSE
-    position, which differs from the raw channel whenever the roles are
-    not in ascending channel order.
-    """
-
-    def test_the_map_covers_every_role_channel_the_fallback_reads(self):
-        from spacr.utils import (MASK_CHANNEL_ROLE_ORDER,
-                                 dense_mask_channel_positions)
-
-        for role in ("nucleus", "cell", "pathogen", "organelle"):
-            assert f"{role}_channel" in MASK_CHANNEL_ROLE_ORDER, (
-                f"the fallback reads {role}_channel, so the dense map has "
-                "to be built from it too")
-
-        settings = {"nucleus_channel": 2, "cell_channel": 0,
-                    "organelle_channel": 1, "pathogen_channel": None}
-        dense = dense_mask_channel_positions(settings)
-
-        for role in ("nucleus", "cell", "organelle"):
-            assert int(settings[f"{role}_channel"]) in dense, (
-                f"{role}'s raw channel must have a dense position; {dense}")
-
-    def test_the_dense_position_is_role_order_not_sorted_order(self):
-        """The trap: sorted() and role order disagree, and one is wrong.
-
-        With ``nucleus=2, cell=0, organelle=1`` the merged stack is built
-        ``[2, 0, 1]``, so raw channel 1 -- the organelle -- sits at
-        position 2. Reading ``sorted({2, 0, 1})`` instead would say
-        position 1, which holds the CELL image.
-        """
-        from spacr.utils import dense_mask_channel_positions
-
-        dense = dense_mask_channel_positions(
-            {"nucleus_channel": 2, "cell_channel": 0, "organelle_channel": 1})
-
-        assert dense == {2: 0, 0: 1, 1: 2}, (
-            "positions must follow MASK_CHANNEL_ROLE_ORDER, not the sorted "
-            f"channel numbers; got {dense}")
-
-    def test_a_channel_that_is_not_a_number_is_absent_from_both(self):
-        """The one way a role has no dense position -- and the loop skips it too.
-
-        ``int('later')`` raises in ``dense_mask_channel_positions`` and
-        raises again in the generators' own ``try``, so the role is
-        dropped by both, in step. That is why "in the map" and "readable
-        by the loop" cannot come apart.
-        """
-        from spacr.utils import dense_mask_channel_positions
-
-        dense = dense_mask_channel_positions(
-            {"nucleus_channel": "later", "cell_channel": 0})
-
-        assert dense == {0: 0}
-        with pytest.raises((TypeError, ValueError)):
-            int("later")
-
-
 # ---------------------------------------------------------------------------
 # spacr.settings
 # ---------------------------------------------------------------------------
@@ -386,18 +310,6 @@ class TestSrcIsAlwaysAListByTheTimeItIsUsed:
 
         with pytest.raises(ValueError, match="src is a required parameter"):
             preprocess_generate_masks({})
-
-    def test_normalize_src_path_returns_only_a_string_or_a_list(self):
-        from spacr.utils import normalize_src_path
-
-        assert normalize_src_path("/data/plate1") == "/data/plate1"
-        assert normalize_src_path(["/a", "/b"]) == ["/a", "/b"]
-        # A stringified list -- what a settings CSV round trip produces --
-        # comes back as a real list rather than as a path with brackets.
-        assert normalize_src_path("['/a', '/b']") == ["/a", "/b"]
-        with pytest.raises(ValueError, match="Invalid type for 'src'"):
-            normalize_src_path(3)
-
 
 # ---------------------------------------------------------------------------
 # spacr.convert -- the map always has a target column

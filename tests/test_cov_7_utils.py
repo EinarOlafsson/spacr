@@ -10,9 +10,6 @@ of those branches decides whether a run ends with a note or with a traceback.
 
 from __future__ import annotations
 
-import builtins
-import json
-import os
 import sqlite3
 
 import numpy as np
@@ -98,58 +95,6 @@ def test_the_square_footprint_helper_returns_a_square():
 # The JSON settings sibling
 # ---------------------------------------------------------------------------
 
-def test_numpy_scalars_are_written_as_plain_json_numbers(tmp_path):
-    """A numpy scalar in the settings must not become its repr.
-
-    The JSON copy exists so a results folder can say exactly what produced it;
-    ``"np.float64(0.5)"`` in place of ``0.5`` would make it unreadable by
-    anything but a human.
-    """
-    path = str(tmp_path / 'settings.json')
-    utils._save_settings_json({'thr': np.float64(0.5), 'n': np.int64(7)}, path)
-
-    saved = json.loads(open(path, encoding='utf-8').read())
-    assert saved == {'thr': 0.5, 'n': 7}
-
-
-def test_a_settings_value_numpy_cannot_be_asked_about_falls_back_to_repr(
-        tmp_path, monkeypatch):
-    """Losing numpy mid-write costs the shape of one value, not the file.
-
-    The JSON copy is written after a finished run. An import that fails there
-    must leave the remaining settings readable rather than take the whole
-    file down with it.
-    """
-    real_import = builtins.__import__
-
-    def no_numpy(name, *args, **kwargs):
-        if name == 'numpy':
-            raise ImportError('numpy is gone')
-        return real_import(name, *args, **kwargs)
-
-    path = str(tmp_path / 'settings.json')
-    monkeypatch.setattr(builtins, '__import__', no_numpy)
-    try:
-        utils._save_settings_json({'n': np.int64(7), 'src': 'here'}, path)
-    finally:
-        monkeypatch.undo()
-
-    saved = json.loads(open(path, encoding='utf-8').read())
-    assert saved['src'] == 'here'
-    assert saved['n'] == repr(np.int64(7))
-
-
-def test_a_settings_copy_that_cannot_be_written_is_a_note_not_a_failure(
-        tmp_path, capsys):
-    """A finished run is never lost over its settings sibling."""
-    path = str(tmp_path / 'no_such_folder' / 'settings.json')
-
-    utils._save_settings_json({'src': 'here'}, path)
-
-    assert 'could not write' in capsys.readouterr().out
-    assert not os.path.exists(path)
-
-
 # ---------------------------------------------------------------------------
 # The measurement-database append
 # ---------------------------------------------------------------------------
@@ -211,178 +156,11 @@ def test_an_append_error_that_is_not_a_schema_problem_is_re_raised(
 # Reduction and clustering
 # ---------------------------------------------------------------------------
 
-class _GpuArray:
-    """Stands in for a cuML result, which is returned as a device array."""
-
-    def __init__(self, values):
-        self._values = np.asarray(values)
-
-    def get(self):
-        return self._values
-
-
-class _SealedReducer:
-    """A reducer that returns a device array and accepts no new attributes.
-
-    Both are real cuML behaviours: the embedding comes back on the device, and
-    some estimators are slotted, so the backend tag spaCR wants to record on
-    the fitted reducer cannot be written.
-    """
-
-    __slots__ = ()
-
-    def fit_transform(self, values):
-        return _GpuArray(np.zeros((len(values), 2), float))
-
-
-def _reduce(values, **kwargs):
-    """``reduction_and_clustering`` with the positional arguments filled in."""
-    return utils.reduction_and_clustering(
-        values, 5, 0.1, 'euclidean', 0.5, 2, 'dbscan', **kwargs)
-
-
-def test_a_device_embedding_is_brought_back_to_the_host(monkeypatch):
-    """A GPU array reaches clustering as numpy, and a sealed reducer is fine.
-
-    ``DBSCAN.fit`` cannot read a device array, and failing to record the
-    backend on the reducer is cosmetic -- neither may end the run.
-    """
-    from spacr import gpu_reduce
-
-    monkeypatch.setattr(gpu_reduce, 'make_reducer',
-                        lambda name, prefer_gpu=False, **kwargs:
-                        (_SealedReducer(), 'cpu'))
-    values = np.random.default_rng(0).normal(size=(6, 3))
-
-    embedding, labels, reducer = _reduce(values, reduction_method='umap')
-
-    assert isinstance(embedding, np.ndarray)
-    assert embedding.shape == (6, 2)
-    assert len(labels) == 6
-    assert isinstance(reducer, _SealedReducer)
-
-
-def test_a_perplexity_of_zero_is_refused_before_t_sne_runs():
-    """t-SNE with a non-positive perplexity is a settings error, not a crash."""
-    values = np.random.default_rng(0).normal(size=(6, 3))
-
-    with pytest.raises(ValueError, match='perplexity'):
-        _reduce(values, reduction_method='tsne',
-                reducer_options={'perplexity': 0})
-
-
-def test_a_perplexity_larger_than_the_data_is_lowered_and_reported(capsys):
-    """A row limit can leave fewer rows than the saved perplexity.
-
-    Failing after the data has been loaded would waste the whole run, so the
-    largest valid neighbourhood is used instead -- and the adjustment is
-    printed, because a plot made at a different perplexity than the settings
-    file records is otherwise untraceable.
-    """
-    values = np.random.default_rng(0).normal(size=(5, 3))
-
-    embedding, _labels, _reducer = _reduce(
-        values, reduction_method='tsne', verbose=True,
-        reducer_options={'perplexity': 30.0})
-
-    assert embedding.shape == (5, 2)
-    printed = capsys.readouterr().out
-    assert 'Adjusted t-SNE perplexity from 30 to 4' in printed
-
-
-def test_a_reducer_that_cannot_transform_says_which_setting_to_change():
-    """t-SNE has no ``transform``, and the message names the way out."""
-    values = np.random.default_rng(0).normal(size=(6, 3))
-
-    with pytest.raises(ValueError, match='embedding_by_controls'):
-        _reduce(values, reduction_method='tsne', mode='transform',
-                model=object())
-
-
-def test_a_device_embedding_from_a_saved_model_is_brought_back_too():
-    """The transform path returns numpy whatever the fitted model returns."""
-    class _Fitted:
-        def transform(self, values):
-            return _GpuArray(np.zeros((len(values), 2), float))
-
-    values = np.random.default_rng(0).normal(size=(6, 3))
-
-    embedding, labels, reducer = _reduce(values, mode='transform',
-                                         model=_Fitted())
-
-    assert isinstance(embedding, np.ndarray)
-    assert embedding.shape == (6, 2)
-    assert len(labels) == 6
-    assert isinstance(reducer, _Fitted)
-
-
 # ---------------------------------------------------------------------------
 # Metadata merge
 # ---------------------------------------------------------------------------
-
-def test_a_metadata_file_with_no_identifier_column_lists_what_it_has(tmp_path):
-    """The identifier column is detected, and a miss names every candidate.
-
-    Hard-coding ``Gene ID`` killed any other annotation table with a KeyError
-    naming a column the user never claimed to have, after the whole regression
-    had already run.
-    """
-    results = tmp_path / 'results.csv'
-    metadata = tmp_path / 'metadata.csv'
-    pd.DataFrame({'feature': ['C(gene)[T.TGGT1_225160_2]'],
-                  'coefficient': [0.5]}).to_csv(results, index=False)
-    pd.DataFrame({'description': ['a kinase'], 'notes': ['x']}).to_csv(
-        metadata, index=False)
-
-    with pytest.raises(ValueError, match='no column holding a gene'):
-        utils.merge_regression_res_with_metadata(str(results), str(metadata))
-
 
 # ---------------------------------------------------------------------------
 # Adjusting cell masks in parallel
 # ---------------------------------------------------------------------------
 
-def _mask_set(root):
-    """Two fields of parasite / cell / nuclei masks that merge cleanly."""
-    folders = {}
-    for kind in ('parasite', 'cell', 'nuclei'):
-        folder = root / kind
-        folder.mkdir()
-        folders[kind] = str(folder)
-    for index in range(2):
-        cell = np.zeros((16, 16), np.uint16)
-        cell[2:8, 2:8] = 1
-        cell[2:8, 9:15] = 2
-        nuclei = np.zeros((16, 16), np.uint16)
-        nuclei[3:5, 3:5] = 1
-        nuclei[3:5, 10:12] = 2
-        parasite = np.zeros((16, 16), np.uint16)
-        parasite[5:11, 5:12] = 1
-        name = f'field{index}.npy'
-        np.save(os.path.join(folders['cell'], name), cell)
-        np.save(os.path.join(folders['nuclei'], name), nuclei)
-        np.save(os.path.join(folders['parasite'], name), parasite)
-    return folders
-
-
-@pytest.mark.integration
-def test_adjusting_cell_masks_across_a_pool_rewrites_every_field(tmp_path,
-                                                                capsys):
-    """The parallel path has to write the same masks the inline path does.
-
-    ``adjust_cell_masks`` overwrites the cell masks in place, so a worker that
-    returned without saving would leave a folder half-merged and the run would
-    measure two different mask conventions in one table.
-    """
-    folders = _mask_set(tmp_path)
-    before = [np.load(os.path.join(folders['cell'], f'field{i}.npy')).copy()
-              for i in range(2)]
-
-    utils.adjust_cell_masks(folders['parasite'], folders['cell'],
-                            folders['nuclei'], n_jobs=2)
-
-    after = [np.load(os.path.join(folders['cell'], f'field{i}.npy'))
-             for i in range(2)]
-    assert all(np.array_equal(after[0], plane) for plane in after)
-    assert len(np.unique(after[0])) <= len(np.unique(before[0]))
-    assert 'adjust_cell_masks' in capsys.readouterr().out

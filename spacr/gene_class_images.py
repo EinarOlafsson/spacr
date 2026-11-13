@@ -134,14 +134,14 @@ class OpsCrops:
         idx.loc[is_nt, 'gene'] = idx.loc[is_nt, 'sgRNA'].map(ntmap)
         idx = idx.dropna(subset=['gene'])
         if cfg.get('genes'):
-            keep = set(Path(cfg['genes']).read_text().split())
+            keep = set(Path(cfg['genes']).read_text(encoding='utf-8').split())
             idx = idx[idx['gene'].isin(keep)]
         idx = idx[idx['window_edge'] == 0] if cfg.get('drop_window_edge', False) else idx
         cap = cfg.get('cells_per_gene_cap', 0)
         if cap:
             idx = pd.concat([_cap_sample(g, cap) for _, g in idx.groupby('gene', sort=True)])
         self.idx = idx.reset_index(drop=True)
-        self.scales = json.loads(Path(cfg['scales']).read_text())
+        self.scales = json.loads(Path(cfg['scales']).read_text(encoding='utf-8'))
 
 
 def _cap_sample(g: pd.DataFrame, cap: int) -> pd.DataFrame:
@@ -763,7 +763,7 @@ def train_image_fold(cfg: Mapping[str, Any], fold: int, out: Any) -> Dict[str, A
                 _jsonl_log(log_path, t_start, {'event': 'step', 'step': step, 'loss': round(loss_sum, 4),
                                                'lr': sched.get_last_lr()[0], 'micro_batch': micro})
         train_s = time.time() - t0
-        saved_spec = json.loads((out / 'transform.json').read_text())
+        saved_spec = json.loads((out / 'transform.json').read_text(encoding='utf-8'))
         check_transform(saved_spec, transform_spec(cfg, S['c_in']))
         prep_te = DevicePrep(saved_spec, False)
         model.eval()
@@ -837,7 +837,7 @@ def score_bbbc_run(run: Any, cfg: Optional[Mapping[str, Any]] = None) -> Dict[st
     from .well_set_training import moa_folds
 
     run = Path(os.fspath(run))
-    cfg = dict(cfg or json.loads((run / 'config.json').read_text()))
+    cfg = dict(cfg or json.loads((run / 'config.json').read_text(encoding='utf-8')))
     idx = _read(cfg['index'])
     classes = sorted(idx['moa'].unique())
     fl = moa_folds(idx, cfg['design'])
@@ -857,7 +857,7 @@ def score_bbbc_run(run: Any, cfg: Optional[Mapping[str, Any]] = None) -> Dict[st
         w['solvable'] = w['moa'].isin(trained)
         wells.append(w)
         if (fd / 'timing.json').is_file():
-            tim.append(json.loads((fd / 'timing.json').read_text()))
+            tim.append(json.loads((fd / 'timing.json').read_text(encoding='utf-8')))
     if not wells:
         raise FileNotFoundError(f"no fold_*/cell_probs.parquet in {run}")
     w = pd.concat(wells, ignore_index=True)

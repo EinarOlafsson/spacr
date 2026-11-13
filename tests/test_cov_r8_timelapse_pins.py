@@ -32,7 +32,7 @@ class TestPackingAFrameForTheWriter:
         (None, [17, 17, 17]), (1, [17, 17, 17]),
         (2, [0, 34, 17]), (3, [51, 34, 17]), (4, [51, 34, 17]),
     ])
-    def test_frames_reach_the_writer_as_three_channels(
+    def _case_frames_reach_the_writer_as_three_channels(
             self, monkeypatch, tmp_path, channels, expected_bgr):
         """Grayscale expands, two stains keep a zero blue plane, and RGB trims."""
         from types import SimpleNamespace
@@ -126,7 +126,7 @@ class TestSmoothingASingleFrameGlitch:
             })
         return pd.DataFrame(rows)
 
-    def test_a_single_frame_teleport_is_interpolated_away(self):
+    def _case_a_single_frame_teleport_is_interpolated_away(self):
         frame = self._track()
 
         smoothed = T._smooth_tracks_and_features(frame.copy())
@@ -175,7 +175,7 @@ class TestSmoothingASingleFrameGlitch:
         assert len(group["cell_area"].to_numpy()) == len(group), (
             "a feature column is no longer as long as its group")
 
-    def test_a_track_too_short_to_smooth_is_returned_unchanged(self):
+    def _case_a_track_too_short_to_smooth_is_returned_unchanged(self):
         frame = self._track(n=2, glitch_at=1)
 
         smoothed = T._smooth_tracks_and_features(frame.copy())
@@ -184,13 +184,13 @@ class TestSmoothingASingleFrameGlitch:
         assert smoothed["cell_centroid-0"].tolist() == \
             frame["cell_centroid-0"].tolist()
 
-    def test_an_empty_frame_is_returned_as_it_came(self, capsys):
+    def _case_an_empty_frame_is_returned_as_it_came(self, capsys):
         empty = pd.DataFrame()
 
         assert T._smooth_tracks_and_features(empty).empty
         assert "Input DataFrame is empty" in capsys.readouterr().out
 
-    def test_a_frame_with_no_centroids_is_left_alone(self, capsys):
+    def _case_a_frame_with_no_centroids_is_left_alone(self, capsys):
         frame = self._track().drop(columns=["cell_centroid-1"])
 
         returned = T._smooth_tracks_and_features(frame.copy())
@@ -232,3 +232,34 @@ class TestTheMergedRgbPanel:
         for index, channel in enumerate(("red", "green", "blue")):
             assert f"merged_rgb[..., {index}] = norm_intensity[{index}]" \
                 in source, f"the {channel} write changed shape"
+
+
+def test_packing_a_frame_for_the_writer_cases(request, subtests):
+    """Case table: 1 cases of TestPackingAFrameForTheWriter run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        (TestPackingAFrameForTheWriter, '_case_frames_reach_the_writer_as_three_channels'),
+        ],
+    )
+    assert ran >= 1
+
+
+def test_smoothing_a_single_frame_glitch_cases(request, subtests, capsys):
+    """Case table: 4 cases of TestSmoothingASingleFrameGlitch run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        (TestSmoothingASingleFrameGlitch, '_case_a_single_frame_teleport_is_interpolated_away'),
+        (TestSmoothingASingleFrameGlitch, '_case_a_track_too_short_to_smooth_is_returned_unchanged'),
+        (TestSmoothingASingleFrameGlitch, '_case_an_empty_frame_is_returned_as_it_came'),
+        (TestSmoothingASingleFrameGlitch, '_case_a_frame_with_no_centroids_is_left_alone'),
+        ],
+    )
+    assert ran >= 4

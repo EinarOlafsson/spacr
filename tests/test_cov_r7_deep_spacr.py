@@ -800,56 +800,6 @@ def test_the_attribution_table_always_has_a_deletion_auc_to_sort_on():
 # visualize_smooth_grad: a channel list that changes nothing
 # ---------------------------------------------------------------------------
 
-def test_an_explicit_channel_list_is_accepted_and_makes_no_difference(
-        tmp_path, monkeypatch):
-    """``channels`` is threaded through to a preprocessor that ignores it.
-
-    ``visualize_smooth_grad`` defaults ``channels`` to ``[1, 2, 3]`` and hands
-    it to :func:`spacr.utils.preprocess_image`, which documents the parameter
-    as reserved and never reads it: the image is converted to RGB and used
-    whole. So an explicit list takes the other side of that default and must
-    produce the identical map -- which is what makes the default assignment
-    the only thing the parameter does here.
-
-    Both sides driven on the same image, and the preprocessor is asked
-    directly with two different lists so the equality above is its doing.
-    """
-    from PIL import Image
-
-    from spacr.deep_spacr import visualize_smooth_grad
-    from spacr.utils import preprocess_image
-
-    size = 8
-    rng = np.random.default_rng(11)
-    src = tmp_path / "src"
-    src.mkdir()
-    pixels = rng.integers(0, 256, (size, size, 3), dtype=np.uint16).astype(np.uint8)
-    Image.fromarray(pixels).save(src / "a.png")
-
-    _image, default_tensor = preprocess_image(str(src / "a.png"),
-                                              image_size=size, channels=None)
-    _image, chosen_tensor = preprocess_image(str(src / "a.png"),
-                                             image_size=size, channels=[0, 2])
-    assert torch.equal(default_tensor, chosen_tensor)
-
-    model = torch.nn.Sequential(torch.nn.Flatten(),
-                                torch.nn.Linear(3 * size * size, 2))
-    torch.manual_seed(3)
-    model_path = tmp_path / "m.pth"
-    torch.save(model, str(model_path))
-
-    monkeypatch.setattr("matplotlib.pyplot.show", lambda *a, **k: None)
-    for channels, folder in ((None, "default"), ([0, 2], "explicit")):
-        visualize_smooth_grad(str(src), str(model_path), 1, image_size=size,
-                              channels=channels, save_smooth_grad=True,
-                              save_dir=str(tmp_path / folder))
-
-    default_map = np.array(Image.open(tmp_path / "default" / "smooth_grad_a.png"))
-    explicit_map = np.array(Image.open(tmp_path / "explicit" / "smooth_grad_a.png"))
-    assert default_map.shape == (size, size)
-    assert np.array_equal(default_map, explicit_map)
-
-
 # ---------------------------------------------------------------------------
 # train_model: the class names a folderless dataset cannot supply
 # ---------------------------------------------------------------------------

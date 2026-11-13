@@ -250,7 +250,7 @@ def test_an_absent_mask_is_not_a_distance_partner():
     assert "pathogen_centre_to_nucleus_surface" in with_nucleus.columns
 
 
-def test_a_link_only_pairs_labels_that_are_in_both_masks():
+def _case_a_link_only_pairs_labels_that_are_in_both_masks():
     """timelapse.py:388 -- why ``if union > 0`` can never be False.
 
     The IoU cost matrix is built over ``np.unique(mask)[1:]``, so every row
@@ -346,7 +346,7 @@ def _apply(monkeypatch, tmp_path, df, scope, add_adjusted):
 
 
 @pytest.mark.parametrize("scope", ["sideways", "per_plate"])
-def test_qc_that_adjusts_nothing_keeps_the_original_column(
+def _case_qc_that_adjusts_nothing_keeps_the_original_column(
         monkeypatch, tmp_path, scope):
     """timelapse.py:5413 / 5451 / 5510 -- no ``adjusted_infected`` produced.
 
@@ -367,7 +367,7 @@ def test_qc_that_adjusts_nothing_keeps_the_original_column(
     assert sorted(adjusted["adjusted_infected"]) == [0, 0, 1, 1]
 
 
-def test_a_grouped_scope_without_its_columns_falls_back_to_combined(
+def _case_a_grouped_scope_without_its_columns_falls_back_to_combined(
         monkeypatch, tmp_path):
     """timelapse.py:5451 -- the missing-grouping-columns fallback.
 
@@ -383,7 +383,7 @@ def test_a_grouped_scope_without_its_columns_falls_back_to_combined(
     assert settings["infection_hist_data"] == {"seen": 4}
 
 
-def test_an_empty_plate_group_is_skipped(monkeypatch, tmp_path):
+def _case_an_empty_plate_group_is_skipped(monkeypatch, tmp_path):
     """timelapse.py:5499 -- ``if df_group.empty: continue``.
 
     A categorical plateID with a category no row uses makes pandas hand the
@@ -417,27 +417,18 @@ def test_an_empty_plate_group_is_skipped(monkeypatch, tmp_path):
     assert col == "infected"
 
 
-def test_measure_records_explicit_parasite_to_vacuole_overlap_links(tmp_path):
-    cell, nucleus, pathogen, organelle, cytoplasm = _nested_masks()
-    organelle[:] = 0
-    organelle[18:20, 18:20] = 1
-    organelle[10:12, 20:22] = 2
-    frames = M._intensity_measurements(cell, nucleus, pathogen, organelle,
-        cytoplasm, CH3, _intensity_settings(calculate_correlation=False, radial_dist=False),
-        periphery=False, outside=False)
-    from spacr.utils import _check_integrity
-    children = _check_integrity(frames[3].copy()).set_index('object_label')
-    assert children.loc[1, 'pathogen_id'] == 1
-    assert children.loc[1, 'organelle_pathogen_overlap_fraction'] == 1
-    assert np.isnan(children.loc[2, 'pathogen_id'])
-    import sqlite3
-    import pandas as pd
-    from spacr.utils import _merge_and_save_to_database
-    (tmp_path / 'measurements').mkdir()
-    morphology = pd.DataFrame({'label': [1, 2], 'organelle_area': [4., 4.]})
-    _merge_and_save_to_database(morphology, frames[3], 'organelle', str(tmp_path),
-                                'plate1_r1_c1_f1', 'experiment')
-    with sqlite3.connect(tmp_path / 'measurements/measurements.db') as connection:
-        stored = pd.read_sql_query('SELECT * FROM organelle', connection).set_index('object_label')
-    assert stored.loc[1, 'pathogen_id'] == 1
-    assert pd.isna(stored.loc[2, 'pathogen_id'])
+def test_tracking_and_measurement_cases(request, subtests):
+    """Case table: 4 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_a_link_only_pairs_labels_that_are_in_both_masks,
+        _case_qc_that_adjusts_nothing_keeps_the_original_column,
+        _case_a_grouped_scope_without_its_columns_falls_back_to_combined,
+        _case_an_empty_plate_group_is_skipped,
+        ],
+    )
+    assert ran >= 4

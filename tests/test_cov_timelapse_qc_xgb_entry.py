@@ -127,7 +127,7 @@ def _run_xgb(all_df, settings, motility_dir, infection_col="infected",
 # _infection_qc_xgboost -- early fallbacks
 # ===========================================================================
 
-def test_xgboost_import_failure_falls_back_to_histogram(tmp_path, monkeypatch, capsys):
+def _case_xgboost_import_failure_falls_back_to_histogram(tmp_path, monkeypatch, capsys):
     """ImportError on ``import xgboost`` routes to the histogram QC."""
     all_df = _build_all_df(_separable_specs())
     real_import = builtins.__import__
@@ -151,7 +151,7 @@ def test_xgboost_import_failure_falls_back_to_histogram(tmp_path, monkeypatch, c
     assert "infection_prob" not in out_df.columns
 
 
-def test_pathogen_chan_none_falls_back_without_relabelling(tmp_path, capsys):
+def _case_pathogen_chan_none_falls_back_without_relabelling(tmp_path, capsys):
     all_df = _build_all_df(_separable_specs())
     settings = _settings()
     out_df, col = _run_xgb(all_df, settings, tmp_path, pathogen_chan=None)
@@ -165,7 +165,7 @@ def test_pathogen_chan_none_falls_back_without_relabelling(tmp_path, capsys):
     assert settings["infection_hist_data"] is None
 
 
-def test_stale_adjusted_and_prob_columns_are_dropped(tmp_path):
+def _case_stale_adjusted_and_prob_columns_are_dropped(tmp_path):
     """Columns left over from a previous QC run must be recomputed, not merged."""
     all_df = _build_all_df(_separable_specs())
     all_df["adjusted_infected"] = 7
@@ -183,7 +183,7 @@ def test_stale_adjusted_and_prob_columns_are_dropped(tmp_path):
     assert not np.allclose(out_df["infection_prob"].to_numpy(), 0.123)
 
 
-def test_infection_column_recovered_from_infect_like_column(tmp_path, capsys):
+def _case_infection_column_recovered_from_infect_like_column(tmp_path, capsys):
     all_df = _build_all_df(_separable_specs())
     all_df = all_df.rename(columns={"infected": "is_infected_flag"})
     settings = _settings()
@@ -196,7 +196,7 @@ def test_infection_column_recovered_from_infect_like_column(tmp_path, capsys):
     assert out_df["adjusted_infected"].dtype.kind == "i"
 
 
-def test_infection_column_created_from_n_pathogens(tmp_path, capsys):
+def _case_infection_column_created_from_n_pathogens(tmp_path, capsys):
     all_df = _build_all_df(_separable_specs()).drop(columns=["infected"])
     settings = _settings()
 
@@ -212,7 +212,7 @@ def test_infection_column_created_from_n_pathogens(tmp_path, capsys):
     assert np.array_equal(derived, expected)
 
 
-def test_no_label_and_no_n_pathogens_falls_back(tmp_path, capsys):
+def _case_no_label_and_no_n_pathogens_falls_back(tmp_path, capsys):
     """No infection label at all -> histogram QC, which is itself a no-op."""
     all_df = _build_all_df(_separable_specs()).drop(
         columns=["infected", "n_pathogens"]
@@ -239,13 +239,13 @@ def test_no_label_and_no_n_pathogens_falls_back(tmp_path, capsys):
 
 
 @pytest.mark.parametrize("missing", KEY_COLS)
-def test_missing_key_column_raises_keyerror(tmp_path, missing):
+def _case_missing_key_column_raises_keyerror(tmp_path, missing):
     all_df = _build_all_df(_separable_specs()).drop(columns=[missing])
     with pytest.raises(KeyError, match=missing):
         _run_xgb(all_df, _settings(), tmp_path)
 
 
-def test_unknown_tracked_object_falls_back_to_cell(tmp_path, capsys):
+def _case_unknown_tracked_object_falls_back_to_cell(tmp_path, capsys):
     all_df = _build_all_df(_separable_specs())
     settings = _settings(tracked_object="mitochondrion")
 
@@ -258,7 +258,7 @@ def test_unknown_tracked_object_falls_back_to_cell(tmp_path, capsys):
     assert settings["infection_pca_data"]["tracked_object"] == "cell"
 
 
-def test_no_intensity_column_for_tracked_object_falls_back(tmp_path, capsys):
+def _case_no_intensity_column_for_tracked_object_falls_back(tmp_path, capsys):
     """tracked_object='nucleus' but only cell_* intensities exist."""
     all_df = _build_all_df(_separable_specs())
     settings = _settings(tracked_object="nucleus")
@@ -275,7 +275,7 @@ def test_no_intensity_column_for_tracked_object_falls_back(tmp_path, capsys):
     )
 
 
-def test_all_degenerate_features_falls_back(tmp_path, capsys):
+def _case_all_degenerate_features_falls_back(tmp_path, capsys):
     """Every cell_* column constant -> no usable features."""
     specs = [("A01", i % 2 == 0, 500.0) for i in range(40)]
     all_df = _build_all_df(specs)
@@ -293,7 +293,7 @@ def test_all_degenerate_features_falls_back(tmp_path, capsys):
     assert "adjusted_infected" not in out_df.columns
 
 
-def test_too_few_infected_cells_falls_back(tmp_path, capsys):
+def _case_too_few_infected_cells_falls_back(tmp_path, capsys):
     specs = [("A01", i < 5, 900.0 if i < 5 else 200.0) for i in range(40)]
     all_df = _build_all_df(specs)
     settings = _settings()
@@ -307,7 +307,7 @@ def test_too_few_infected_cells_falls_back(tmp_path, capsys):
     assert settings["infection_hist_data"] is not None
 
 
-def test_non_finite_intensities_fall_back(tmp_path, capsys):
+def _case_non_finite_intensities_fall_back(tmp_path, capsys):
     all_df = _build_all_df(_separable_specs())
     all_df[f"cell_p95_intensity_ch{PATHOGEN_CHAN}"] = np.nan
     settings = _settings()
@@ -344,7 +344,7 @@ def _curation_specs():
     return specs
 
 
-def test_balanced_per_well_sampling_and_single_class_skip(tmp_path, capsys):
+def _case_balanced_per_well_sampling_and_single_class_skip(tmp_path, capsys):
     all_df = _build_all_df(_curation_specs(), seed=11)
     settings = _settings(infection_xgb_min_cells_per_class=5)
 
@@ -374,7 +374,7 @@ def _curation_specs_negative_heavy():
     return specs
 
 
-def test_negative_heavy_well_downsamples_negatives(tmp_path, capsys):
+def _case_negative_heavy_well_downsamples_negatives(tmp_path, capsys):
     all_df = _build_all_df(_curation_specs_negative_heavy(), seed=24)
     settings = _settings(infection_xgb_min_cells_per_class=5)
 
@@ -387,7 +387,7 @@ def test_negative_heavy_well_downsamples_negatives(tmp_path, capsys):
     assert col == "adjusted_infected"
 
 
-def test_small_well_keeps_all_extremes(tmp_path, capsys):
+def _case_small_well_keeps_all_extremes(tmp_path, capsys):
     all_df = _build_all_df(_curation_specs(), seed=12)
     settings = _settings(infection_xgb_min_cells_per_class=1000)
 
@@ -398,7 +398,7 @@ def test_small_well_keeps_all_extremes(tmp_path, capsys):
     assert "wells used=1, positives=16, negatives=8" in txt
 
 
-def test_bad_random_state_falls_back_to_default_seed(tmp_path):
+def _case_bad_random_state_falls_back_to_default_seed(tmp_path):
     all_df = _build_all_df(_curation_specs(), seed=13)
     settings = _settings(
         infection_xgb_min_cells_per_class=5,
@@ -409,7 +409,7 @@ def test_bad_random_state_falls_back_to_default_seed(tmp_path):
     assert out_df["adjusted_infected"].notna().all()
 
 
-def test_no_well_with_both_classes_falls_back(tmp_path, capsys):
+def _case_no_well_with_both_classes_falls_back(tmp_path, capsys):
     """Every well is single-class in the extreme set -> skip XGBoost QC."""
     specs = []
     # well A01: only infected; well A02: only uninfected
@@ -432,7 +432,7 @@ def test_no_well_with_both_classes_falls_back(tmp_path, capsys):
 # _infection_qc_xgboost -- feature matrix handling
 # ===========================================================================
 
-def test_correlated_feature_is_pruned(tmp_path, capsys):
+def _case_correlated_feature_is_pruned(tmp_path, capsys):
     all_df = _build_all_df(_separable_specs(), seed=5)
     all_df["cell_bbox_area"] = all_df["cell_area"] * 2.0 + 1.0  # r == 1.0
 
@@ -446,7 +446,7 @@ def test_correlated_feature_is_pruned(tmp_path, capsys):
     assert "cell_bbox_area" not in used
 
 
-def test_feature_selection_excludes_other_channels_and_centroids(tmp_path):
+def _case_feature_selection_excludes_other_channels_and_centroids(tmp_path):
     all_df = _build_all_df(_separable_specs(), seed=6)
     settings = _settings(infection_xgb_corr_threshold=1.5)  # disable pruning
 
@@ -461,7 +461,7 @@ def test_feature_selection_excludes_other_channels_and_centroids(tmp_path):
     assert f"cell_p95_intensity_ch{PATHOGEN_CHAN}" in used
 
 
-def test_all_nonfinite_feature_column_is_zero_imputed(tmp_path):
+def _case_all_nonfinite_feature_column_is_zero_imputed(tmp_path):
     """A ±inf column survives the degeneracy filter and is zeroed out."""
     all_df = _build_all_df(_separable_specs(), seed=7)
     all_df["cell_solidity"] = np.where(
@@ -488,7 +488,7 @@ def test_all_nonfinite_feature_column_is_zero_imputed(tmp_path):
 # _infection_qc_xgboost -- relabel / remove / ambiguous band
 # ===========================================================================
 
-def test_relabel_mode_payloads_and_columns(tmp_path, capsys):
+def _case_relabel_mode_payloads_and_columns(tmp_path, capsys):
     all_df = _build_all_df(_separable_specs(), seed=8)
     n_rows_before = len(all_df)
     settings = _settings(infection_xgb_drop_ambiguous=False)
@@ -528,7 +528,7 @@ def test_relabel_mode_payloads_and_columns(tmp_path, capsys):
     assert settings["infection_intensity_qc_panel_path"] is None
 
 
-def test_relabel_mode_with_margin_leaves_uncertain_labels_untouched(tmp_path):
+def _case_relabel_mode_with_margin_leaves_uncertain_labels_untouched(tmp_path):
     all_df = _build_all_df(_separable_specs(), seed=9)
     settings = _settings(
         infection_xgb_drop_ambiguous=False,
@@ -545,7 +545,7 @@ def test_relabel_mode_with_margin_leaves_uncertain_labels_untouched(tmp_path):
     assert np.array_equal(adj[probs >= 0.99], np.ones(int((probs >= 0.99).sum()), int))
 
 
-def test_remove_mode_drops_disagreements(tmp_path, capsys):
+def _case_remove_mode_drops_disagreements(tmp_path, capsys):
     """A block of mislabelled cells is removed rather than relabelled."""
     specs = _separable_specs(seed=10)
     # flip labels of 6 high-intensity cells: the model will disagree
@@ -571,7 +571,7 @@ def test_remove_mode_drops_disagreements(tmp_path, capsys):
     assert out_df["infection_prob"].notna().all()
 
 
-def test_remove_mode_zero_margin_has_no_ambiguous_band(tmp_path, capsys):
+def _case_remove_mode_zero_margin_has_no_ambiguous_band(tmp_path, capsys):
     specs = _separable_specs(seed=15)
     specs = [
         (w, (not inf) if (i % 7 == 0) else inf, val)
@@ -594,7 +594,7 @@ def test_remove_mode_zero_margin_has_no_ambiguous_band(tmp_path, capsys):
     )
 
 
-def test_unknown_mode_is_treated_as_relabel(tmp_path, capsys):
+def _case_unknown_mode_is_treated_as_relabel(tmp_path, capsys):
     all_df = _build_all_df(_separable_specs(), seed=16)
     n_before = len(all_df)
     settings = _settings(
@@ -606,7 +606,7 @@ def test_unknown_mode_is_treated_as_relabel(tmp_path, capsys):
     assert len(out_df) == n_before
 
 
-def test_ambiguous_band_drops_cells_and_swaps_reversed_bounds(tmp_path, capsys):
+def _case_ambiguous_band_drops_cells_and_swaps_reversed_bounds(tmp_path, capsys):
     all_df = _build_all_df(_separable_specs(), seed=17)
     settings = _settings(
         infection_xgb_drop_ambiguous=True,
@@ -623,7 +623,7 @@ def test_ambiguous_band_drops_cells_and_swaps_reversed_bounds(tmp_path, capsys):
     assert col == "adjusted_infected"
 
 
-def test_ambiguous_band_partial_drop(tmp_path, capsys):
+def _case_ambiguous_band_partial_drop(tmp_path, capsys):
     all_df = _build_all_df(_separable_specs(), seed=18)
     n_cells_before = all_df[KEY_COLS].drop_duplicates().shape[0]
     settings = _settings(
@@ -639,7 +639,7 @@ def test_ambiguous_band_partial_drop(tmp_path, capsys):
     assert not ((probs >= 0.45) & (probs <= 0.55)).any()
 
 
-def test_rows_with_nan_keys_keep_their_original_label(tmp_path):
+def _case_rows_with_nan_keys_keep_their_original_label(tmp_path):
     """Rows whose group key is NaN never reach cell_level and are back-filled."""
     all_df = _build_all_df(_separable_specs(), seed=19)
     all_df["fieldID"] = all_df["fieldID"].astype(object)
@@ -661,7 +661,7 @@ def test_rows_with_nan_keys_keep_their_original_label(tmp_path):
 # _infection_qc_xgboost -- payload failure paths
 # ===========================================================================
 
-def test_pca_payload_failure_is_swallowed(tmp_path, monkeypatch, capsys):
+def _case_pca_payload_failure_is_swallowed(tmp_path, monkeypatch, capsys):
     all_df = _build_all_df(_separable_specs(), seed=20)
     real_import = builtins.__import__
 
@@ -685,7 +685,7 @@ def test_pca_payload_failure_is_swallowed(tmp_path, monkeypatch, capsys):
     assert settings["infection_xgb_importance"] is not None
 
 
-def test_feature_importance_failure_is_swallowed(tmp_path, capsys):
+def _case_feature_importance_failure_is_swallowed(tmp_path, capsys):
     all_df = _build_all_df(_separable_specs(), seed=21)
     settings = _settings(
         infection_xgb_drop_ambiguous=False,
@@ -700,7 +700,7 @@ def test_feature_importance_failure_is_swallowed(tmp_path, capsys):
     assert settings["infection_intensity_qc_panel_type"] == "xgboost"
 
 
-def test_zero_top_features_yields_empty_importance_payload(tmp_path, capsys):
+def _case_zero_top_features_yields_empty_importance_payload(tmp_path, capsys):
     all_df = _build_all_df(_separable_specs(), seed=22)
     settings = _settings(
         infection_xgb_drop_ambiguous=False,
@@ -715,7 +715,7 @@ def test_zero_top_features_yields_empty_importance_payload(tmp_path, capsys):
     assert imp["feature_importances"] == []
 
 
-def test_histogram_payload_skipped_when_too_few_cells(tmp_path):
+def _case_histogram_payload_skipped_when_too_few_cells(tmp_path):
     """Fewer than 10 surviving cells -> no histogram payload, PCA still built."""
     all_df = _build_all_df(_separable_specs(), seed=23)
     settings = _settings(
@@ -795,7 +795,7 @@ def panel_calls(monkeypatch):
     return calls
 
 
-def test_reuse_from_db_runs_full_xgboost_pipeline(tmp_path, panel_calls, capsys):
+def _case_reuse_from_db_runs_full_xgboost_pipeline(tmp_path, panel_calls, capsys):
     from spacr.timelapse import automated_motility_assay
 
     src = _make_src(tmp_path)
@@ -849,7 +849,7 @@ def test_reuse_from_db_runs_full_xgboost_pipeline(tmp_path, panel_calls, capsys)
     assert panel_calls[0]["vel_unit"] == "µm/min"
 
 
-def test_missing_proba_column_warns_and_keeps_all_rows(tmp_path, panel_calls, capsys):
+def _case_missing_proba_column_warns_and_keeps_all_rows(tmp_path, panel_calls, capsys):
     from spacr.timelapse import automated_motility_assay
 
     src = _make_src(tmp_path)
@@ -865,7 +865,7 @@ def test_missing_proba_column_warns_and_keeps_all_rows(tmp_path, panel_calls, ca
     assert "_ambiguous_flag" not in out.columns
 
 
-def test_auto_detected_infection_prob_column_is_used(tmp_path, panel_calls, capsys):
+def _case_auto_detected_infection_prob_column_is_used(tmp_path, panel_calls, capsys):
     from spacr.timelapse import automated_motility_assay
 
     src = _make_src(tmp_path)
@@ -886,7 +886,7 @@ def test_auto_detected_infection_prob_column_is_used(tmp_path, panel_calls, caps
     assert not ((probs > 0.25) & (probs < 0.75)).any()
 
 
-def test_xgb_named_column_triggers_ambiguous_track_drop(tmp_path, panel_calls, capsys):
+def _case_xgb_named_column_triggers_ambiguous_track_drop(tmp_path, panel_calls, capsys):
     from spacr.timelapse import automated_motility_assay
 
     src = _make_src(tmp_path)
@@ -905,7 +905,7 @@ def test_xgb_named_column_triggers_ambiguous_track_drop(tmp_path, panel_calls, c
     assert (out["nucleus_xgb_prob"] == 0.95).all()
 
 
-def test_per_well_qc_scope(tmp_path, panel_calls, capsys):
+def _case_per_well_qc_scope(tmp_path, panel_calls, capsys):
     from spacr.timelapse import automated_motility_assay
 
     src = _make_src(tmp_path)
@@ -935,7 +935,7 @@ def _fake_group_df(n_frames=4, seed=40):
                          seed=seed)
 
 
-def test_recompute_from_merged_sequential(tmp_path, panel_calls, monkeypatch, capsys):
+def _case_recompute_from_merged_sequential(tmp_path, panel_calls, monkeypatch, capsys):
     import spacr.resource_log as resource_log
     import spacr.timelapse as tl
 
@@ -985,7 +985,7 @@ def test_recompute_from_merged_sequential(tmp_path, panel_calls, monkeypatch, ca
     assert len(stored) == 15 * 2 * 2 * 4       # cells x classes x wells x frames
 
 
-def test_recompute_uses_pool_when_n_jobs_gt_one(tmp_path, panel_calls, monkeypatch):
+def _case_recompute_uses_pool_when_n_jobs_gt_one(tmp_path, panel_calls, monkeypatch):
     import spacr.resource_log as resource_log
     import spacr.timelapse as tl
 
@@ -1017,7 +1017,7 @@ def test_recompute_uses_pool_when_n_jobs_gt_one(tmp_path, panel_calls, monkeypat
     assert not out.empty
 
 
-def test_njobs_none_derives_from_cpu_count(tmp_path, panel_calls, monkeypatch, capsys):
+def _case_njobs_none_derives_from_cpu_count(tmp_path, panel_calls, monkeypatch, capsys):
     import multiprocessing
     import spacr.timelapse as tl
 
@@ -1032,7 +1032,7 @@ def test_njobs_none_derives_from_cpu_count(tmp_path, panel_calls, monkeypatch, c
     assert not out.empty
 
 
-def test_db_reuse_with_missing_table_recomputes(tmp_path, panel_calls, monkeypatch,
+def _case_db_reuse_with_missing_table_recomputes(tmp_path, panel_calls, monkeypatch,
                                                 capsys):
     import spacr.timelapse as tl
 
@@ -1048,7 +1048,7 @@ def test_db_reuse_with_missing_table_recomputes(tmp_path, panel_calls, monkeypat
     assert not out.empty
 
 
-def test_db_reuse_with_wrong_columns_recomputes(tmp_path, panel_calls, monkeypatch,
+def _case_db_reuse_with_wrong_columns_recomputes(tmp_path, panel_calls, monkeypatch,
                                                 capsys):
     import spacr.timelapse as tl
 
@@ -1064,7 +1064,7 @@ def test_db_reuse_with_wrong_columns_recomputes(tmp_path, panel_calls, monkeypat
     assert not out.empty
 
 
-def test_missing_merged_dir_raises(tmp_path):
+def _case_missing_merged_dir_raises(tmp_path):
     from spacr.timelapse import automated_motility_assay
 
     src = tmp_path / "no_merged"
@@ -1073,7 +1073,7 @@ def test_missing_merged_dir_raises(tmp_path):
         automated_motility_assay(_assay_settings(src))
 
 
-def test_empty_merged_dir_raises(tmp_path):
+def _case_empty_merged_dir_raises(tmp_path):
     from spacr.timelapse import automated_motility_assay
 
     src = tmp_path / "empty_merged"
@@ -1084,7 +1084,7 @@ def test_empty_merged_dir_raises(tmp_path):
 
 
 @pytest.mark.parametrize("channels", [[], "not-a-list"])
-def test_bad_channels_setting_raises_valueerror(tmp_path, channels):
+def _case_bad_channels_setting_raises_valueerror(tmp_path, channels):
     from spacr.timelapse import automated_motility_assay
 
     src = _make_src(tmp_path, n_files=1)
@@ -1092,7 +1092,7 @@ def test_bad_channels_setting_raises_valueerror(tmp_path, channels):
         automated_motility_assay(_assay_settings(src, channels=channels))
 
 
-def test_infected_derived_from_n_pathogens(tmp_path, panel_calls, capsys):
+def _case_infected_derived_from_n_pathogens(tmp_path, panel_calls, capsys):
     from spacr.timelapse import automated_motility_assay
 
     src = _make_src(tmp_path)
@@ -1109,7 +1109,7 @@ def test_infected_derived_from_n_pathogens(tmp_path, panel_calls, capsys):
     assert "Tracks (mask-based)" in capsys.readouterr().out
 
 
-def test_no_infection_information_defaults_to_false(tmp_path, panel_calls, capsys):
+def _case_no_infection_information_defaults_to_false(tmp_path, panel_calls, capsys):
     from spacr.timelapse import automated_motility_assay
 
     src = _make_src(tmp_path)
@@ -1124,7 +1124,7 @@ def test_no_infection_information_defaults_to_false(tmp_path, panel_calls, capsy
     assert "infected=0, uninfected=60" in capsys.readouterr().out
 
 
-def test_qc_disabled_uses_plain_adjusted_csv_name_and_one_panel(
+def _case_qc_disabled_uses_plain_adjusted_csv_name_and_one_panel(
     tmp_path, panel_calls, capsys
 ):
     from spacr.timelapse import automated_motility_assay
@@ -1144,7 +1144,7 @@ def test_qc_disabled_uses_plain_adjusted_csv_name_and_one_panel(
     assert [c["label_tag"] for c in panel_calls] == ["mask_none"]
 
 
-def test_panels_can_be_disabled(tmp_path, panel_calls):
+def _case_panels_can_be_disabled(tmp_path, panel_calls):
     from spacr.timelapse import automated_motility_assay
 
     src = _make_src(tmp_path)
@@ -1160,7 +1160,7 @@ def test_panels_can_be_disabled(tmp_path, panel_calls):
     assert "adjusted_infected" in out.columns
 
 
-def test_adjusted_csv_failure_is_reported_but_not_fatal(
+def _case_adjusted_csv_failure_is_reported_but_not_fatal(
     tmp_path, panel_calls, monkeypatch, capsys
 ):
     from spacr.timelapse import automated_motility_assay
@@ -1190,7 +1190,7 @@ def test_adjusted_csv_failure_is_reported_but_not_fatal(
     assert (src / "measurements" / "velocity_feature_correlations.csv").is_file()
 
 
-def test_no_measurements_raises_runtimeerror(tmp_path, panel_calls, monkeypatch):
+def _case_no_measurements_raises_runtimeerror(tmp_path, panel_calls, monkeypatch):
     import spacr.timelapse as tl
 
     src = _make_src(tmp_path, n_files=1)
@@ -1200,3 +1200,67 @@ def test_no_measurements_raises_runtimeerror(tmp_path, panel_calls, monkeypatch)
     settings = _assay_settings(src, reuse_existing_measurements=False)
     with pytest.raises(RuntimeError, match="No measurements were produced"):
         tl.automated_motility_assay(settings)
+
+
+def test_timelapse_qc_xgb_entry_cases(request, subtests, capsys):
+    """Case table: 51 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_xgboost_import_failure_falls_back_to_histogram,
+        _case_pathogen_chan_none_falls_back_without_relabelling,
+        _case_stale_adjusted_and_prob_columns_are_dropped,
+        _case_infection_column_recovered_from_infect_like_column,
+        _case_infection_column_created_from_n_pathogens,
+        _case_no_label_and_no_n_pathogens_falls_back,
+        _case_missing_key_column_raises_keyerror,
+        _case_unknown_tracked_object_falls_back_to_cell,
+        _case_no_intensity_column_for_tracked_object_falls_back,
+        _case_all_degenerate_features_falls_back,
+        _case_too_few_infected_cells_falls_back,
+        _case_non_finite_intensities_fall_back,
+        _case_balanced_per_well_sampling_and_single_class_skip,
+        _case_negative_heavy_well_downsamples_negatives,
+        _case_small_well_keeps_all_extremes,
+        _case_bad_random_state_falls_back_to_default_seed,
+        _case_no_well_with_both_classes_falls_back,
+        _case_correlated_feature_is_pruned,
+        _case_feature_selection_excludes_other_channels_and_centroids,
+        _case_all_nonfinite_feature_column_is_zero_imputed,
+        _case_relabel_mode_payloads_and_columns,
+        _case_relabel_mode_with_margin_leaves_uncertain_labels_untouched,
+        _case_remove_mode_drops_disagreements,
+        _case_remove_mode_zero_margin_has_no_ambiguous_band,
+        _case_unknown_mode_is_treated_as_relabel,
+        _case_ambiguous_band_drops_cells_and_swaps_reversed_bounds,
+        _case_ambiguous_band_partial_drop,
+        _case_rows_with_nan_keys_keep_their_original_label,
+        _case_pca_payload_failure_is_swallowed,
+        _case_feature_importance_failure_is_swallowed,
+        _case_zero_top_features_yields_empty_importance_payload,
+        _case_histogram_payload_skipped_when_too_few_cells,
+        _case_reuse_from_db_runs_full_xgboost_pipeline,
+        _case_missing_proba_column_warns_and_keeps_all_rows,
+        _case_auto_detected_infection_prob_column_is_used,
+        _case_xgb_named_column_triggers_ambiguous_track_drop,
+        _case_per_well_qc_scope,
+        _case_recompute_from_merged_sequential,
+        _case_recompute_uses_pool_when_n_jobs_gt_one,
+        _case_njobs_none_derives_from_cpu_count,
+        _case_db_reuse_with_missing_table_recomputes,
+        _case_db_reuse_with_wrong_columns_recomputes,
+        _case_missing_merged_dir_raises,
+        _case_empty_merged_dir_raises,
+        _case_bad_channels_setting_raises_valueerror,
+        _case_infected_derived_from_n_pathogens,
+        _case_no_infection_information_defaults_to_false,
+        _case_qc_disabled_uses_plain_adjusted_csv_name_and_one_panel,
+        _case_panels_can_be_disabled,
+        _case_adjusted_csv_failure_is_reported_but_not_fatal,
+        _case_no_measurements_raises_runtimeerror,
+        ],
+    )
+    assert ran >= 51

@@ -227,7 +227,7 @@ def src_dir(tmp_path):
 # real-btrack happy paths
 # ---------------------------------------------------------------------------
 
-def test_btrack_tracks_moving_cells_end_to_end(src_dir):
+def _case_btrack_tracks_moving_cells_end_to_end(src_dir):
     """Four drifting blobs keep one label per object across all four frames."""
     masks = _moving_masks()
     out = _run(src_dir, masks)
@@ -255,7 +255,7 @@ def test_btrack_tracks_moving_cells_end_to_end(src_dir):
     assert set(df["original_label"]) == {1, 2, 3, 4}
 
 
-def test_btrack_writes_well_metadata_parsed_from_name(src_dir):
+def _case_btrack_writes_well_metadata_parsed_from_name(src_dir):
     """The npz batch name is decomposed into plate/row/column/field/well."""
     masks = _moving_masks(n_frames=3)
     _run(src_dir, masks)
@@ -270,7 +270,7 @@ def test_btrack_writes_well_metadata_parsed_from_name(src_dir):
     assert set(df["wellID"]) == {"A01"}
 
 
-def test_btrack_accepts_a_list_of_2d_masks(src_dir, tmp_path):
+def _case_btrack_accepts_a_list_of_2d_masks(src_dir, tmp_path):
     """A list of 2-D frames is stacked and gives the same answer as an ndarray."""
     masks = _moving_masks(n_frames=3)
     from_array = _run(src_dir, masks)
@@ -284,12 +284,12 @@ def test_btrack_accepts_a_list_of_2d_masks(src_dir, tmp_path):
         np.testing.assert_array_equal(a, b)
 
 
-def test_btrack_rejects_empty_mask_list(src_dir):
+def _case_btrack_rejects_empty_mask_list(src_dir):
     with pytest.raises(ValueError, match="empty list"):
         _run(src_dir, [])
 
 
-def test_btrack_rejects_ragged_mask_list(src_dir):
+def _case_btrack_rejects_ragged_mask_list(src_dir):
     ragged = [np.zeros((8, 8), dtype=np.int32), np.zeros((8, 9), dtype=np.int32)]
     with pytest.raises(ValueError, match="same shape"):
         _run(src_dir, ragged)
@@ -297,7 +297,7 @@ def test_btrack_rejects_ragged_mask_list(src_dir):
 
 @pytest.mark.parametrize("bad", [np.zeros((8, 8), np.int32),
                                  np.zeros((2, 3, 4, 5), np.int32)])
-def test_btrack_rejects_non_3d_masks(src_dir, bad):
+def _case_btrack_rejects_non_3d_masks(src_dir, bad):
     with pytest.raises(ValueError, match="must be 3D"):
         _run(src_dir, bad)
 
@@ -306,7 +306,7 @@ def test_btrack_rejects_non_3d_masks(src_dir, bad):
 # tracker configuration (fake BayesianTracker)
 # ---------------------------------------------------------------------------
 
-def test_btrack_configures_tracker_from_arguments(src_dir, monkeypatch):
+def _case_btrack_configures_tracker_from_arguments(src_dir, monkeypatch):
     from btrack import datasets as btrack_datasets
     from btrack.constants import BayesianUpdates
 
@@ -329,7 +329,7 @@ def test_btrack_configures_tracker_from_arguments(src_dir, monkeypatch):
 
 
 @pytest.mark.parametrize("size,expected_radius", [(64, 3), (16, 1)])
-def test_btrack_derives_radius_from_image_width(src_dir, monkeypatch, size,
+def _case_btrack_derives_radius_from_image_width(src_dir, monkeypatch, size,
                                                 expected_radius):
     """radius=None -> width/20, floored at 1 for tiny images."""
     centres = CENTRES if size == 64 else [(8, 8)]
@@ -342,7 +342,7 @@ def test_btrack_derives_radius_from_image_width(src_dir, monkeypatch, size,
     assert rec["instance"].volume == ((0, size), (0, size))
 
 
-def test_btrack_falls_back_to_step_size_track_on_typeerror(src_dir, monkeypatch):
+def _case_btrack_falls_back_to_step_size_track_on_typeerror(src_dir, monkeypatch):
     """Older btrack: track(tracking_updates=...) -> TypeError -> attribute + step_size."""
     masks = _moving_masks(n_frames=3)
     rec = _install_fake_tracker(
@@ -364,7 +364,7 @@ def test_btrack_falls_back_to_step_size_track_on_typeerror(src_dir, monkeypatch)
 # global optimisation branches
 # ---------------------------------------------------------------------------
 
-def test_btrack_passes_glpk_options_and_uses_optimised_tracks(src_dir, monkeypatch):
+def _case_btrack_passes_glpk_options_and_uses_optimised_tracks(src_dir, monkeypatch):
     masks = _moving_masks(n_frames=3)
     rec = _install_fake_tracker(
         monkeypatch,
@@ -382,7 +382,7 @@ def test_btrack_passes_glpk_options_and_uses_optimised_tracks(src_dir, monkeypat
     assert set(np.unique(out[0])) == {0, 100, 200, 300, 400}
 
 
-def test_btrack_optimises_with_default_options_when_none_given(src_dir, monkeypatch):
+def _case_btrack_optimises_with_default_options_when_none_given(src_dir, monkeypatch):
     masks = _moving_masks(n_frames=3)
     rec = _install_fake_tracker(monkeypatch, _tracks_from_masks(masks))
 
@@ -399,7 +399,7 @@ def test_btrack_optimises_with_default_options_when_none_given(src_dir, monkeypa
         (0, 0, None),
     ],
 )
-def test_btrack_ignores_non_positive_optimiser_settings(src_dir, monkeypatch,
+def _case_btrack_ignores_non_positive_optimiser_settings(src_dir, monkeypatch,
                                                         time_limit, mip_gap,
                                                         expected):
     """Zero time-limit / MIP gap are treated as 'unset', not as literal zeros."""
@@ -416,7 +416,7 @@ def test_btrack_ignores_non_positive_optimiser_settings(src_dir, monkeypatch,
         ]
 
 
-def test_btrack_skips_optimisation_when_disabled(src_dir, monkeypatch):
+def _case_btrack_skips_optimisation_when_disabled(src_dir, monkeypatch):
     masks = _moving_masks(n_frames=3)
     rec = _install_fake_tracker(
         monkeypatch,
@@ -430,7 +430,7 @@ def test_btrack_skips_optimisation_when_disabled(src_dir, monkeypatch):
     assert set(np.unique(out[0])) == {0, 10, 20, 30, 40}
 
 
-def test_btrack_skips_optimisation_for_too_many_objects(src_dir, monkeypatch, caplog):
+def _case_btrack_skips_optimisation_for_too_many_objects(src_dir, monkeypatch, caplog):
     masks = _moving_masks(n_frames=3)  # 12 real objects
     rec = _install_fake_tracker(
         monkeypatch,
@@ -447,7 +447,7 @@ def test_btrack_skips_optimisation_for_too_many_objects(src_dir, monkeypatch, ca
     assert set(np.unique(out[0])) == {0, 10, 20, 30, 40}
 
 
-def test_btrack_falls_back_to_raw_tracks_when_optimiser_fails(src_dir, monkeypatch,
+def _case_btrack_falls_back_to_raw_tracks_when_optimiser_fails(src_dir, monkeypatch,
                                                               caplog):
     masks = _moving_masks(n_frames=3)
     rec = _install_fake_tracker(
@@ -474,7 +474,7 @@ def test_btrack_falls_back_to_raw_tracks_when_optimiser_fails(src_dir, monkeypat
 
 @pytest.mark.parametrize("remove_transient,expect_transient", [(True, False),
                                                                (False, True)])
-def test_btrack_transient_filter_drops_single_frame_tracks(src_dir, monkeypatch,
+def _case_btrack_transient_filter_drops_single_frame_tracks(src_dir, monkeypatch,
                                                            remove_transient,
                                                            expect_transient):
     """A track that only exists in frame 0 survives only when filtering is off."""
@@ -497,7 +497,7 @@ def test_btrack_transient_filter_drops_single_frame_tracks(src_dir, monkeypatch,
 # well-metadata parsing failure
 # ---------------------------------------------------------------------------
 
-def test_btrack_survives_unparsable_well_metadata(src_dir, monkeypatch, caplog):
+def _case_btrack_survives_unparsable_well_metadata(src_dir, monkeypatch, caplog):
     """An IndexError out of _map_wells is logged and the CSV is still written."""
     import spacr.utils
 
@@ -531,7 +531,7 @@ def test_btrack_survives_unparsable_well_metadata(src_dir, monkeypatch, caplog):
     (False, True, True),
     (True, True, True),
 ])
-def test_btrack_hands_masks_and_tracks_to_the_visualiser(src_dir, monkeypatch,
+def _case_btrack_hands_masks_and_tracks_to_the_visualiser(src_dir, monkeypatch,
                                                          plot, save, expect_call):
     import spacr.plot
 
@@ -571,7 +571,7 @@ def test_btrack_hands_masks_and_tracks_to_the_visualiser(src_dir, monkeypatch,
 # empty-input regressions (both were real crashes, now fixed)
 # ---------------------------------------------------------------------------
 
-def test_btrack_with_no_objects_returns_zeroed_stack(src_dir):
+def _case_btrack_with_no_objects_returns_zeroed_stack(src_dir):
     masks = np.zeros((3, 32, 32), dtype=np.int32)
     out = _run(src_dir, masks, radius=5)
 
@@ -579,7 +579,7 @@ def test_btrack_with_no_objects_returns_zeroed_stack(src_dir):
     assert all(int(np.count_nonzero(f)) == 0 for f in out)
 
 
-def test_btrack_all_tracks_transient_returns_zeroed_stack(src_dir, monkeypatch):
+def _case_btrack_all_tracks_transient_returns_zeroed_stack(src_dir, monkeypatch):
     masks = _moving_masks(n_frames=3)
     # every fake track lives for a single frame -> all shorter than n_frames
     tracks = _tracks_from_masks(masks, factor=10, only_first_frame_for=(1, 2, 3, 4))
@@ -590,3 +590,36 @@ def test_btrack_all_tracks_transient_returns_zeroed_stack(src_dir, monkeypatch):
     assert len(out) == 3
     assert all(int(np.count_nonzero(f)) == 0 for f in out)
     assert _tracks_csv(src_dir).exists()
+
+
+def test_timelapse_btrack_cases(request, subtests, caplog):
+    """Case table: 20 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_btrack_tracks_moving_cells_end_to_end,
+        _case_btrack_writes_well_metadata_parsed_from_name,
+        _case_btrack_accepts_a_list_of_2d_masks,
+        _case_btrack_rejects_empty_mask_list,
+        _case_btrack_rejects_ragged_mask_list,
+        _case_btrack_rejects_non_3d_masks,
+        _case_btrack_configures_tracker_from_arguments,
+        _case_btrack_derives_radius_from_image_width,
+        _case_btrack_falls_back_to_step_size_track_on_typeerror,
+        _case_btrack_passes_glpk_options_and_uses_optimised_tracks,
+        _case_btrack_optimises_with_default_options_when_none_given,
+        _case_btrack_ignores_non_positive_optimiser_settings,
+        _case_btrack_skips_optimisation_when_disabled,
+        _case_btrack_skips_optimisation_for_too_many_objects,
+        _case_btrack_falls_back_to_raw_tracks_when_optimiser_fails,
+        _case_btrack_transient_filter_drops_single_frame_tracks,
+        _case_btrack_survives_unparsable_well_metadata,
+        _case_btrack_hands_masks_and_tracks_to_the_visualiser,
+        _case_btrack_with_no_objects_returns_zeroed_stack,
+        _case_btrack_all_tracks_transient_returns_zeroed_stack,
+        ],
+    )
+    assert ran >= 20

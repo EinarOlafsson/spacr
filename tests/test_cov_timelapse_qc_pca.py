@@ -227,7 +227,7 @@ def _install_const_kmeans(monkeypatch, value):
 # _debug_plot_merged_planes
 # ===========================================================================
 
-def test_debug_plot_missing_file_returns_early(tmp_path, capsys):
+def _case_debug_plot_missing_file_returns_early(tmp_path, capsys):
     from spacr.timelapse import _debug_plot_merged_planes
 
     out = tmp_path / "out"
@@ -237,7 +237,7 @@ def test_debug_plot_missing_file_returns_early(tmp_path, capsys):
     assert list(out.iterdir()) == []
 
 
-def test_debug_plot_hwp_three_channels_two_masks(tmp_path, monkeypatch, capsys):
+def _case_debug_plot_hwp_three_channels_two_masks(tmp_path, monkeypatch, capsys):
     """(Y, X, planes) input: 3 intensity channels + 2 masks + merged panel."""
     from spacr.timelapse import _debug_plot_merged_planes
 
@@ -264,7 +264,7 @@ def test_debug_plot_hwp_three_channels_two_masks(tmp_path, monkeypatch, capsys):
     assert "Saved merged plane debug figure" in txt
 
 
-def test_debug_plot_planes_first_layout_no_masks(tmp_path, monkeypatch):
+def _case_debug_plot_planes_first_layout_no_masks(tmp_path, monkeypatch):
     """arr.shape[0] == n_channels keeps the array as-is (plane-first)."""
     from spacr.timelapse import _debug_plot_merged_planes
 
@@ -279,7 +279,7 @@ def test_debug_plot_planes_first_layout_no_masks(tmp_path, monkeypatch):
     assert ncols == [2]  # no mask planes -> no overlay panel
 
 
-def test_debug_plot_flat_channel_and_empty_masks(tmp_path, monkeypatch, capsys):
+def _case_debug_plot_flat_channel_and_empty_masks(tmp_path, monkeypatch, capsys):
     """A constant channel normalises to zeros; all-zero masks kill the overlay."""
     from spacr.timelapse import _debug_plot_merged_planes
 
@@ -302,7 +302,7 @@ def test_debug_plot_flat_channel_and_empty_masks(tmp_path, monkeypatch, capsys):
     assert "Saved merged plane debug figure" in capsys.readouterr().out
 
 
-def test_debug_plot_4d_timepoint_moveaxis(tmp_path, monkeypatch):
+def _case_debug_plot_4d_timepoint_moveaxis(tmp_path, monkeypatch):
     """4-D (T, Y, X, planes) takes the first timepoint."""
     from spacr.timelapse import _debug_plot_merged_planes
 
@@ -318,7 +318,7 @@ def test_debug_plot_4d_timepoint_moveaxis(tmp_path, monkeypatch):
     assert ncols[0] in (3, 4)
 
 
-def test_debug_plot_4d_collapses_time_into_planes(tmp_path, monkeypatch, capsys):
+def _case_debug_plot_4d_collapses_time_into_planes(tmp_path, monkeypatch, capsys):
     """last axis smaller than n_channels -> reshape(-1, H, W) fallback."""
     from spacr.timelapse import _debug_plot_merged_planes
 
@@ -334,7 +334,7 @@ def test_debug_plot_4d_collapses_time_into_planes(tmp_path, monkeypatch, capsys)
     assert ncols[0] >= 5
 
 
-def test_debug_plot_2d_array_is_skipped(tmp_path, capsys):
+def _case_debug_plot_2d_array_is_skipped(tmp_path, capsys):
     from spacr.timelapse import _debug_plot_merged_planes
 
     _write_merged(tmp_path, "flat2d.npy", np.zeros((8, 8), dtype=np.uint16))
@@ -345,7 +345,7 @@ def test_debug_plot_2d_array_is_skipped(tmp_path, capsys):
     assert list(out.iterdir()) == []
 
 
-def test_debug_plot_clamps_n_channels_to_available_planes(tmp_path, monkeypatch):
+def _case_debug_plot_clamps_n_channels_to_available_planes(tmp_path, monkeypatch):
     from spacr.timelapse import _debug_plot_merged_planes
 
     rng = np.random.default_rng(7)
@@ -361,7 +361,7 @@ def test_debug_plot_clamps_n_channels_to_available_planes(tmp_path, monkeypatch)
     assert (out / "merged_planes_clamp.pdf").is_file()
 
 
-def test_debug_plot_zero_channels_returns_before_plotting(tmp_path, capsys):
+def _case_debug_plot_zero_channels_returns_before_plotting(tmp_path, capsys):
     from spacr.timelapse import _debug_plot_merged_planes
 
     arr = _stack_planes([np.ones((6, 6), dtype=np.uint16)])
@@ -373,7 +373,7 @@ def test_debug_plot_zero_channels_returns_before_plotting(tmp_path, capsys):
     assert list(out.iterdir()) == []
 
 
-def test_debug_plot_falls_back_when_cmap_helper_missing(tmp_path, monkeypatch):
+def _case_debug_plot_falls_back_when_cmap_helper_missing(tmp_path, monkeypatch):
     """Deleting _generate_mask_random_cmap exercises the NameError fallback."""
     from spacr.timelapse import _debug_plot_merged_planes
     tl = _tl()
@@ -401,7 +401,7 @@ def test_debug_plot_falls_back_when_cmap_helper_missing(tmp_path, monkeypatch):
 # _infection_qc_pca_clustering - early returns
 # ===========================================================================
 
-def test_qc_empty_df_short_circuits(capsys):
+def _case_qc_empty_df_short_circuits(capsys):
     from spacr.timelapse import _infection_qc_pca_clustering
 
     df = pd.DataFrame()
@@ -410,7 +410,7 @@ def test_qc_empty_df_short_circuits(capsys):
     assert "all_df is empty" in capsys.readouterr().out
 
 
-def test_qc_missing_infection_col(capsys):
+def _case_qc_missing_infection_col(capsys):
     from spacr.timelapse import _infection_qc_pca_clustering
 
     df = make_all_df(n_infected=2, n_uninfected=2, n_frames=1).drop(columns=["infected"])
@@ -419,7 +419,7 @@ def test_qc_missing_infection_col(capsys):
     assert "missing" in capsys.readouterr().out
 
 
-def test_qc_unsupported_mode(capsys):
+def _case_qc_unsupported_mode(capsys):
     from spacr.timelapse import _infection_qc_pca_clustering
 
     df = make_all_df(n_infected=2, n_uninfected=2, n_frames=1)
@@ -429,7 +429,7 @@ def test_qc_unsupported_mode(capsys):
     assert "Unsupported mode" in capsys.readouterr().out
 
 
-def test_qc_missing_key_column_raises_keyerror():
+def _case_qc_missing_key_column_raises_keyerror():
     from spacr.timelapse import _infection_qc_pca_clustering
 
     df = make_all_df(n_infected=2, n_uninfected=2, n_frames=1).drop(columns=["fieldID"])
@@ -437,7 +437,7 @@ def test_qc_missing_key_column_raises_keyerror():
         _infection_qc_pca_clustering(df, {}, "infected", 2, None)
 
 
-def test_qc_no_numeric_cell_features(capsys):
+def _case_qc_no_numeric_cell_features(capsys):
     from spacr.timelapse import _infection_qc_pca_clustering
 
     df = pd.DataFrame({
@@ -452,7 +452,7 @@ def test_qc_no_numeric_cell_features(capsys):
     assert "No numeric cell_* features" in capsys.readouterr().out
 
 
-def test_the_infection_call_cannot_be_a_feature_as_well(capsys):
+def _case_the_infection_call_cannot_be_a_feature_as_well(capsys):
     """It used to die sixty lines later with a message about a Series.
 
     ``cols_for_group`` is ``key_cols + numeric_cols + [infection_col]``, so an
@@ -477,7 +477,7 @@ def test_the_infection_call_cannot_be_a_feature_as_well(capsys):
     assert "cell_area" in message and "a cell_* feature" in message
 
 
-def test_the_infection_call_cannot_be_a_grouping_key_either(capsys):
+def _case_the_infection_call_cannot_be_a_grouping_key_either(capsys):
     """``groupby`` refused it with "Grouper for 'cellID' not 1-dimensional"."""
     from spacr.timelapse import _infection_qc_pca_clustering
 
@@ -489,7 +489,7 @@ def test_the_infection_call_cannot_be_a_grouping_key_either(capsys):
     assert "cellID" in message and "a grouping key" in message
 
 
-def test_the_merge_always_carries_the_infection_call_through(capsys):
+def _case_the_merge_always_carries_the_infection_call_through(capsys):
     """The invariant that made the recovery block dead, asserted directly.
 
     ``inf_any`` is ``group[infection_col].max()``, so it always carries the
@@ -510,7 +510,7 @@ def test_the_merge_always_carries_the_infection_call_through(capsys):
     assert "adjusted_infected" in out.columns
 
 
-def test_an_unknown_embedding_strategy_falls_back_to_pca_once(capsys):
+def _case_an_unknown_embedding_strategy_falls_back_to_pca_once(capsys):
     """A second, identical `not in {pca, umap, tsne}` fallback stood below it.
 
     It could not run: the branch above assigns either ``strategy``, which is
@@ -526,7 +526,7 @@ def test_an_unknown_embedding_strategy_falls_back_to_pca_once(capsys):
     assert settings["infection_pca_method"] == "pca"
 
 
-def test_qc_no_pathogen_channel_given(capsys):
+def _case_qc_no_pathogen_channel_given(capsys):
     from spacr.timelapse import _infection_qc_pca_clustering
 
     df = make_all_df(n_infected=5, n_uninfected=5, n_frames=1)
@@ -536,7 +536,7 @@ def test_qc_no_pathogen_channel_given(capsys):
     assert "No pathogen-channel cell_* intensity column" in capsys.readouterr().out
 
 
-def test_qc_pathogen_channel_without_matching_column(capsys):
+def _case_qc_pathogen_channel_without_matching_column(capsys):
     """The candidate loop runs but nothing matches channel 99."""
     from spacr.timelapse import _infection_qc_pca_clustering
 
@@ -546,7 +546,7 @@ def test_qc_pathogen_channel_without_matching_column(capsys):
     assert "No pathogen-channel cell_* intensity column" in capsys.readouterr().out
 
 
-def test_qc_all_features_degenerate(capsys):
+def _case_qc_all_features_degenerate(capsys):
     from spacr.timelapse import _infection_qc_pca_clustering
 
     n = 30
@@ -572,7 +572,7 @@ def test_qc_all_features_degenerate(capsys):
         (60, 5, "Not enough cells with finite intensity"),    # < 10 uninfected
     ],
 )
-def test_qc_ground_truth_too_small(n_inf, n_uninf, expect, capsys):
+def _case_qc_ground_truth_too_small(n_inf, n_uninf, expect, capsys):
     from spacr.timelapse import _infection_qc_pca_clustering
 
     df = make_all_df(n_infected=n_inf, n_uninfected=n_uninf, n_frames=1)
@@ -586,7 +586,7 @@ def test_qc_ground_truth_too_small(n_inf, n_uninf, expect, capsys):
 # _infection_qc_pca_clustering - PCA happy path
 # ===========================================================================
 
-def test_qc_pca_relabel_happy_path(tmp_path, capsys, png_figure_preference):
+def _case_qc_pca_relabel_happy_path(tmp_path, capsys, png_figure_preference):
     from spacr.timelapse import _infection_qc_pca_clustering
 
     df = make_all_df(n_infected=60, n_uninfected=60, n_frames=3)
@@ -628,7 +628,7 @@ def test_qc_pca_relabel_happy_path(tmp_path, capsys, png_figure_preference):
     assert "Relabel mode" in capsys.readouterr().out
 
 
-def test_qc_pca_unknown_strategy_falls_back_to_pca(tmp_path):
+def _case_qc_pca_unknown_strategy_falls_back_to_pca(tmp_path):
     from spacr.timelapse import _infection_qc_pca_clustering
 
     df = make_all_df(n_infected=60, n_uninfected=60, n_frames=1)
@@ -639,7 +639,7 @@ def test_qc_pca_unknown_strategy_falls_back_to_pca(tmp_path):
     assert settings["infection_pca_data"]["method_label"] == "PCA"
 
 
-def test_qc_small_ground_truth_warns_but_still_runs(capsys):
+def _case_qc_small_ground_truth_warns_but_still_runs(capsys):
     from spacr.timelapse import _infection_qc_pca_clustering
 
     df = make_all_df(n_infected=22, n_uninfected=22, n_frames=1)
@@ -650,7 +650,7 @@ def test_qc_small_ground_truth_warns_but_still_runs(capsys):
     assert "Ground-truth sets:" in txt
 
 
-def test_qc_pathogen_weight_and_no_log_transform():
+def _case_qc_pathogen_weight_and_no_log_transform():
     from spacr.timelapse import _infection_qc_pca_clustering
 
     df = make_all_df(n_infected=60, n_uninfected=60, n_frames=1)
@@ -665,7 +665,7 @@ def test_qc_pathogen_weight_and_no_log_transform():
     assert (out["adjusted_infected"].to_numpy() == out["infected"].to_numpy()).all()
 
 
-def test_qc_negative_intensity_skips_log1p():
+def _case_qc_negative_intensity_skips_log1p():
     """A negative value in an intensity feature disables its log1p transform."""
     from spacr.timelapse import _infection_qc_pca_clustering
 
@@ -677,7 +677,7 @@ def test_qc_negative_intensity_skips_log1p():
     assert settings["infection_pca_data"]["coords"].shape[0] == 120
 
 
-def test_qc_nan_features_are_median_imputed():
+def _case_qc_nan_features_are_median_imputed():
     from spacr.timelapse import _infection_qc_pca_clustering
 
     df = make_all_df(n_infected=60, n_uninfected=60, n_frames=1)
@@ -693,7 +693,7 @@ def test_qc_nan_features_are_median_imputed():
     assert np.isfinite(settings["infection_pca_data"]["coords"]).all()
 
 
-def test_qc_feature_with_too_few_observations_is_dropped():
+def _case_qc_feature_with_too_few_observations_is_dropped():
     """A feature observed in <10 cells is discarded before the embedding."""
     from spacr.timelapse import _infection_qc_pca_clustering
 
@@ -715,7 +715,7 @@ def test_qc_feature_with_too_few_observations_is_dropped():
     )
 
 
-def test_qc_intensity_column_readded_when_channel_case_mismatches():
+def _case_qc_intensity_column_readded_when_channel_case_mismatches():
     """`pathogen_chan='A'` -> the ch-matching filter misses `..._chA`, so the
     intensity column has to be re-added explicitly; the embedding must match
     the equivalent all-lowercase run exactly."""
@@ -740,7 +740,7 @@ def test_qc_intensity_column_readded_when_channel_case_mismatches():
     assert s_up["infection_pca_data"]["gt_sep_score"] == pytest.approx(1.0)
 
 
-def test_qc_subsampling_leaves_unsampled_cells_with_original_labels(capsys):
+def _case_qc_subsampling_leaves_unsampled_cells_with_original_labels(capsys):
     from spacr.timelapse import _infection_qc_pca_clustering
 
     df = make_all_df(n_infected=60, n_uninfected=60, n_frames=2)
@@ -760,7 +760,7 @@ def test_qc_subsampling_leaves_unsampled_cells_with_original_labels(capsys):
 # _infection_qc_pca_clustering - remove mode
 # ===========================================================================
 
-def test_qc_remove_mode_drops_disagreeing_cells(capsys):
+def _case_qc_remove_mode_drops_disagreeing_cells(capsys):
     from spacr.timelapse import _infection_qc_pca_clustering
 
     df = make_all_df(n_infected=60, n_uninfected=60, n_frames=2, n_mislabeled=8)
@@ -777,7 +777,7 @@ def test_qc_remove_mode_drops_disagreeing_cells(capsys):
     assert "Remove mode: removed 8 cells" in capsys.readouterr().out
 
 
-def test_qc_remove_mode_with_no_disagreement_keeps_everything(capsys):
+def _case_qc_remove_mode_with_no_disagreement_keeps_everything(capsys):
     from spacr.timelapse import _infection_qc_pca_clustering
 
     df = make_all_df(n_infected=60, n_uninfected=60, n_frames=1)
@@ -793,7 +793,7 @@ def test_qc_remove_mode_with_no_disagreement_keeps_everything(capsys):
 # _infection_qc_pca_clustering - degenerate clustering (failure injection)
 # ===========================================================================
 
-def test_qc_single_cluster_zero_gives_empty_uninfected_cluster(
+def _case_qc_single_cluster_zero_gives_empty_uninfected_cluster(
         tmp_path, capsys, png_figure_preference):
     """KMeans collapsing to one cluster: empty-cluster centroid + 0.5 GT frac."""
     from spacr.timelapse import _infection_qc_pca_clustering
@@ -824,7 +824,7 @@ def test_qc_single_cluster_zero_gives_empty_uninfected_cluster(
     assert (motility / "infection_pca_qc_embedding.png").is_file()
 
 
-def test_qc_single_cluster_one_gives_empty_infected_cluster():
+def _case_qc_single_cluster_one_gives_empty_infected_cluster():
     from spacr.timelapse import _infection_qc_pca_clustering
     mp = pytest.MonkeyPatch()
     try:
@@ -846,7 +846,7 @@ def test_qc_single_cluster_one_gives_empty_infected_cluster():
     assert not bool(out["adjusted_infected"].any())
 
 
-def test_qc_silhouette_failure_is_swallowed(tmp_path, png_figure_preference):
+def _case_qc_silhouette_failure_is_swallowed(tmp_path, png_figure_preference):
     """A raising silhouette_score leaves silhouette_score=None in the payload."""
     from spacr.timelapse import _infection_qc_pca_clustering
     import sklearn.metrics
@@ -872,7 +872,7 @@ def test_qc_silhouette_failure_is_swallowed(tmp_path, png_figure_preference):
     assert (motility / "infection_pca_qc_embedding.png").is_file()
 
 
-def test_qc_plot_failure_is_reported_not_raised(tmp_path, capsys):
+def _case_qc_plot_failure_is_reported_not_raised(tmp_path, capsys):
     """motility_dir pointing at a FILE makes os.makedirs blow up."""
     from spacr.timelapse import _infection_qc_pca_clustering
 
@@ -892,7 +892,7 @@ def test_qc_plot_failure_is_reported_not_raised(tmp_path, capsys):
 # _infection_qc_pca_clustering - UMAP branch
 # ===========================================================================
 
-def test_qc_umap_unavailable_falls_back_to_pca(monkeypatch, capsys):
+def _case_qc_umap_unavailable_falls_back_to_pca(monkeypatch, capsys):
     from spacr.timelapse import _infection_qc_pca_clustering
     from spacr import utils
 
@@ -906,7 +906,7 @@ def test_qc_umap_unavailable_falls_back_to_pca(monkeypatch, capsys):
     assert "not available; falling back to PCA" in capsys.readouterr().out
 
 
-def test_qc_umap_no_search_uses_configured_params(monkeypatch, tmp_path,
+def _case_qc_umap_no_search_uses_configured_params(monkeypatch, tmp_path,
                                                   png_figure_preference):
     from spacr.timelapse import _infection_qc_pca_clustering
 
@@ -931,7 +931,7 @@ def test_qc_umap_no_search_uses_configured_params(monkeypatch, tmp_path,
     assert (motility / "infection_umap_qc_embedding.png").is_file()
 
 
-def test_qc_umap_grid_search_picks_best_and_survives_failures(monkeypatch, capsys):
+def _case_qc_umap_grid_search_picks_best_and_survives_failures(monkeypatch, capsys):
     from spacr.timelapse import _infection_qc_pca_clustering
 
     calls = _install_fake_umap(monkeypatch, fail_when=lambda nn, md: nn == 3)
@@ -952,7 +952,7 @@ def test_qc_umap_grid_search_picks_best_and_survives_failures(monkeypatch, capsy
     assert "UMAP best params" in txt
 
 
-def test_qc_umap_all_trials_fail_raises(monkeypatch):
+def _case_qc_umap_all_trials_fail_raises(monkeypatch):
     from spacr.timelapse import _infection_qc_pca_clustering
 
     _install_fake_umap(monkeypatch, fail_when=lambda nn, md: True)
@@ -970,7 +970,7 @@ def test_qc_umap_all_trials_fail_raises(monkeypatch):
 # _infection_qc_pca_clustering - t-SNE branch
 # ===========================================================================
 
-def test_qc_tsne_unavailable_falls_back_to_pca(monkeypatch, capsys):
+def _case_qc_tsne_unavailable_falls_back_to_pca(monkeypatch, capsys):
     from spacr.timelapse import _infection_qc_pca_clustering
     import sklearn.manifold
 
@@ -984,7 +984,7 @@ def test_qc_tsne_unavailable_falls_back_to_pca(monkeypatch, capsys):
     assert "not available; falling back to PCA" in capsys.readouterr().out
 
 
-def test_qc_tsne_no_search_single_run(monkeypatch, tmp_path,
+def _case_qc_tsne_no_search_single_run(monkeypatch, tmp_path,
                                       png_figure_preference):
     from spacr.timelapse import _infection_qc_pca_clustering
 
@@ -1007,7 +1007,7 @@ def test_qc_tsne_no_search_single_run(monkeypatch, tmp_path,
     assert (motility / "infection_tsne_qc_embedding.png").is_file()
 
 
-def test_qc_tsne_no_search_nonpositive_perplexity_uses_max(monkeypatch):
+def _case_qc_tsne_no_search_nonpositive_perplexity_uses_max(monkeypatch):
     from spacr.timelapse import _infection_qc_pca_clustering
 
     calls = _install_fake_tsne(monkeypatch)
@@ -1025,7 +1025,7 @@ def test_qc_tsne_no_search_nonpositive_perplexity_uses_max(monkeypatch):
         pytest.approx(max_perp)
 
 
-def test_qc_tsne_grid_search_picks_highest_score(monkeypatch, capsys):
+def _case_qc_tsne_grid_search_picks_highest_score(monkeypatch, capsys):
     from spacr.timelapse import _infection_qc_pca_clustering
 
     calls = _install_fake_tsne(monkeypatch)
@@ -1041,7 +1041,7 @@ def test_qc_tsne_grid_search_picks_highest_score(monkeypatch, capsys):
     assert "t-SNE best params" in capsys.readouterr().out
 
 
-def test_qc_tsne_all_perplexities_filtered_out(monkeypatch):
+def _case_qc_tsne_all_perplexities_filtered_out(monkeypatch):
     from spacr.timelapse import _infection_qc_pca_clustering
 
     calls = _install_fake_tsne(monkeypatch)
@@ -1060,7 +1060,7 @@ def test_qc_tsne_all_perplexities_filtered_out(monkeypatch):
     }
 
 
-def test_qc_tsne_all_trials_fail_raises(monkeypatch, capsys):
+def _case_qc_tsne_all_trials_fail_raises(monkeypatch, capsys):
     from spacr.timelapse import _infection_qc_pca_clustering
 
     _install_fake_tsne(monkeypatch, always_fail=True)
@@ -1073,3 +1073,64 @@ def test_qc_tsne_all_trials_fail_raises(monkeypatch, capsys):
     with pytest.raises(RuntimeError, match="t-SNE hyperparameter search failed"):
         _infection_qc_pca_clustering(df, settings, "infected", 2, None)
     assert "t-SNE trial failed" in capsys.readouterr().out
+
+
+def test_timelapse_qc_pca_cases(request, subtests, capsys):
+    """Case table: 48 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_debug_plot_missing_file_returns_early,
+        _case_debug_plot_hwp_three_channels_two_masks,
+        _case_debug_plot_planes_first_layout_no_masks,
+        _case_debug_plot_flat_channel_and_empty_masks,
+        _case_debug_plot_4d_timepoint_moveaxis,
+        _case_debug_plot_4d_collapses_time_into_planes,
+        _case_debug_plot_2d_array_is_skipped,
+        _case_debug_plot_clamps_n_channels_to_available_planes,
+        _case_debug_plot_zero_channels_returns_before_plotting,
+        _case_debug_plot_falls_back_when_cmap_helper_missing,
+        _case_qc_empty_df_short_circuits,
+        _case_qc_missing_infection_col,
+        _case_qc_unsupported_mode,
+        _case_qc_missing_key_column_raises_keyerror,
+        _case_qc_no_numeric_cell_features,
+        _case_the_infection_call_cannot_be_a_feature_as_well,
+        _case_the_infection_call_cannot_be_a_grouping_key_either,
+        _case_the_merge_always_carries_the_infection_call_through,
+        _case_an_unknown_embedding_strategy_falls_back_to_pca_once,
+        _case_qc_no_pathogen_channel_given,
+        _case_qc_pathogen_channel_without_matching_column,
+        _case_qc_all_features_degenerate,
+        _case_qc_ground_truth_too_small,
+        _case_qc_pca_relabel_happy_path,
+        _case_qc_pca_unknown_strategy_falls_back_to_pca,
+        _case_qc_small_ground_truth_warns_but_still_runs,
+        _case_qc_pathogen_weight_and_no_log_transform,
+        _case_qc_negative_intensity_skips_log1p,
+        _case_qc_nan_features_are_median_imputed,
+        _case_qc_feature_with_too_few_observations_is_dropped,
+        _case_qc_intensity_column_readded_when_channel_case_mismatches,
+        _case_qc_subsampling_leaves_unsampled_cells_with_original_labels,
+        _case_qc_remove_mode_drops_disagreeing_cells,
+        _case_qc_remove_mode_with_no_disagreement_keeps_everything,
+        _case_qc_single_cluster_zero_gives_empty_uninfected_cluster,
+        _case_qc_single_cluster_one_gives_empty_infected_cluster,
+        _case_qc_silhouette_failure_is_swallowed,
+        _case_qc_plot_failure_is_reported_not_raised,
+        _case_qc_umap_unavailable_falls_back_to_pca,
+        _case_qc_umap_no_search_uses_configured_params,
+        _case_qc_umap_grid_search_picks_best_and_survives_failures,
+        _case_qc_umap_all_trials_fail_raises,
+        _case_qc_tsne_unavailable_falls_back_to_pca,
+        _case_qc_tsne_no_search_single_run,
+        _case_qc_tsne_no_search_nonpositive_perplexity_uses_max,
+        _case_qc_tsne_grid_search_picks_highest_score,
+        _case_qc_tsne_all_perplexities_filtered_out,
+        _case_qc_tsne_all_trials_fail_raises,
+        ],
+    )
+    assert ran >= 48

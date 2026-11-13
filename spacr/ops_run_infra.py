@@ -622,7 +622,7 @@ def stress_rows(destination: str, plate: str, wells: Sequence[str],
             from . import schema
 
             row_id, column_id = schema.parse_well(well)
-            conn = sqlite3.connect(database)
+            conn = sqlite3.connect(database, timeout=30)
             try:
                 count = conn.execute(
                     "SELECT COUNT(*) FROM cell WHERE rowID = ? AND columnID = ?",

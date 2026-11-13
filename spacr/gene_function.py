@@ -1019,6 +1019,10 @@ def gene_function_figures(settings: Mapping[str, Any]) -> List[str]:
 
     matplotlib.use('Agg', force=False)
     import matplotlib.pyplot as plt
+    from matplotlib.figure import Figure
+
+    from .figures.bundle import _register_figure_data
+    from .plot import _checked_savefig
 
     o = options(settings)
     f = folders(o)
@@ -1031,16 +1035,17 @@ def gene_function_figures(settings: Mapping[str, Any]) -> List[str]:
             'fig1': ('link_AUPRC_2022', 'link_AUPRC_2022_noparalog', 'link_base_2022', 'link_base_2022_noparalog', 'link'),
             'fig2': ('cat_micro_AUPRC', 'cat_micro_AUPRC_noparalog', 'cat_base', 'cat_base_noparalog', 'category')}.items():
         with plt.rc_context(rc):
-            fig, axs = plt.subplots(1, 2, figsize=(9, 5.2), sharey=True)
+            fig = Figure(figsize=(9, 5.2))
+            axs = fig.subplots(1, 2, sharey=True)
             pts = []
             for ax, met, base, title in ((axs[0], m1, b1, f'{name}: all pairs'),
                                          (axs[1], m2, b2, f'{name}: paralog pairs removed')):
                 pts += _panel(ax, F_, met, base, title)
+            _register_figure_data(fig, pd.DataFrame(pts), x='label', y='value', hue='metric', kind='bar')
             fig.tight_layout()
             stem = figs / f'{fig_id}_heldout_{name}'
-            fig.savefig(stem.with_suffix('.png'), dpi=200)
-            fig.savefig(stem.with_suffix('.svg'), metadata={'Date': None})
-            plt.close(fig)
+            _checked_savefig(fig, stem.with_suffix('.png'), dpi=200)
+            _checked_savefig(fig, stem.with_suffix('.svg'), metadata={'Date': None})
         files += [str(stem.with_suffix('.png')), str(stem.with_suffix('.svg'))]
         gg._write(pd.DataFrame(pts), t / f'{fig_id}_heldout_{name}_points.csv')
     D = gg._read(t / 'paired_deltas.csv', sep=',')
@@ -1050,7 +1055,8 @@ def gene_function_figures(settings: Mapping[str, Any]) -> List[str]:
            ('cosine', 'k_h', 'vs noOPS')]
     out = []
     with plt.rc_context(rc):
-        fig, axs = plt.subplots(1, 2, figsize=(9, 3.6), sharey=True)
+        fig = Figure(figsize=(9, 3.6))
+        axs = fig.subplots(1, 2, sharey=True)
         for ax, met in zip(axs, ['link_AUPRC_2022_noparalog', 'cat_micro_AUPRC_noparalog']):
             for i, (m, a, cmp) in enumerate(sel):
                 r = D[(D.model == m) & (D.arm == a) & (D.comparison == cmp) & (D.metric == met)]
@@ -1067,11 +1073,11 @@ def gene_function_figures(settings: Mapping[str, Any]) -> List[str]:
             ax.set_yticklabels([f'{m} {a}: {c}' for m, a, c in sel])
             ax.invert_yaxis()
             ax.set_xlabel(f"delta {met.replace('_', ' ')} (mean; line = fold range)")
+        _register_figure_data(fig, pd.DataFrame(out), x='comparison', y='mean_delta', hue='metric', kind='bar')
         fig.tight_layout()
         stem = figs / 'fig3_screen_contribution'
-        fig.savefig(stem.with_suffix('.png'), dpi=200)
-        fig.savefig(stem.with_suffix('.svg'), metadata={'Date': None})
-        plt.close(fig)
+        _checked_savefig(fig, stem.with_suffix('.png'), dpi=200)
+        _checked_savefig(fig, stem.with_suffix('.svg'), metadata={'Date': None})
     gg._write(pd.DataFrame(out), t / 'fig3_screen_contribution.csv')
     return files + [str(stem.with_suffix('.png')), str(stem.with_suffix('.svg'))]
 

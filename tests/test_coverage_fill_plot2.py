@@ -40,7 +40,7 @@ def test_get_colours_merged(fmt, expected0):
 # _filter_objects_in_plot
 # ---------------------------------------------------------------------------
 
-def test_filter_objects_in_plot():
+def _case_filter_objects_in_plot():
     size = 24
     cell = np.zeros((size, size), dtype=np.int32)
     cell[2:10, 2:10] = 1
@@ -127,3 +127,17 @@ def test_random_cmap_and_public():
     assert P.random_cmap(30).N >= 30
     m = np.zeros((8, 8), dtype=np.int32); m[1:4, 1:4] = 1
     assert P.generate_mask_random_cmap(m) is not None
+
+
+def test_plot2_cases(request, subtests):
+    """Case table: 1 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_filter_objects_in_plot,
+        ],
+    )
+    assert ran >= 1
