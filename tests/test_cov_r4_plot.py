@@ -62,7 +62,7 @@ def _close_figures():
 # save_figure
 # ---------------------------------------------------------------------------
 
-def test_a_figure_saved_by_bare_name_lands_in_the_working_directory(
+def _case_a_figure_saved_by_bare_name_lands_in_the_working_directory(
         tmp_path, monkeypatch):
     """``os.path.dirname('fig.png')`` is ``''``, and ``os.makedirs('')``
     raises ``FileNotFoundError``. Every save that names no directory -- which
@@ -118,7 +118,7 @@ def _painted(fig, index, colour=(1.0, 0.0, 1.0)):
     return np.all(np.isclose(panel, colour, atol=1e-6), axis=-1)
 
 
-def test_an_already_normalised_float_stack_is_overlaid_like_a_uint_one(
+def _case_an_already_normalised_float_stack_is_overlaid_like_a_uint_one(
         tmp_path):
     """The uint16/uint8 cast is a normalisation, not an entry requirement.
 
@@ -176,7 +176,7 @@ def _label_mask(size=16, n=3):
     return mask
 
 
-def test_a_mask_panel_can_be_drawn_without_its_object_numbers():
+def _case_a_mask_panel_can_be_drawn_without_its_object_numbers():
     """The numbers are an annotation, and on a crowded field they are ink
     over the objects they name. Turning them off must leave the mask panel
     itself untouched -- same image, same title -- so both are asserted
@@ -225,7 +225,7 @@ def _nucleus_only_stack():
     return stack
 
 
-def test_a_run_with_only_a_nucleus_mask_reports_only_the_nucleus(capsys):
+def _case_a_run_with_only_a_nucleus_mask_reports_only_the_nucleus(capsys):
     """The three summary lines are printed per object type, and each one
     reads its own counters. With the cell and pathogen planes disabled those
     counters were never assigned, so printing their line would raise
@@ -258,7 +258,7 @@ def test_a_run_with_only_a_nucleus_mask_reports_only_the_nucleus(capsys):
 # _plot_cropped_arrays
 # ---------------------------------------------------------------------------
 
-def test_a_one_dimensional_crop_matches_no_panel_layout():
+def _case_a_one_dimensional_crop_matches_no_panel_layout():
     """``_plot_cropped_arrays`` lays out either one panel (2D) or one per
     channel (3D). A 1D array matches neither, so the function falls through
     to ``return fig`` with ``fig`` never assigned -- which is what its
@@ -311,7 +311,7 @@ def _restore_rcparams():
     matplotlib.rcParams.update(saved)
 
 
-def test_a_strain_column_that_repeats_the_condition_gets_no_legend_to_remove(
+def _case_a_strain_column_that_repeats_the_condition_gets_no_legend_to_remove(
         _restore_rcparams):
     """seaborn draws no legend when the hue only restates the x axis, and the
     recruitment grid then has nothing to remove. Calling ``ax.legend_.remove()``
@@ -348,7 +348,7 @@ def test_a_strain_column_that_repeats_the_condition_gets_no_legend_to_remove(
 # _finite_p_value
 # ---------------------------------------------------------------------------
 
-def test_a_p_value_that_is_not_a_number_has_no_answer():
+def _case_a_p_value_that_is_not_a_number_has_no_answer():
     """A skipped test records ``None`` and a refused one records ``nan``, and
     both mean the comparison was never made. Coercing either to a float and
     comparing it against 0.05 is how "no test" becomes "not significant" on a
@@ -393,7 +393,7 @@ def _brackets(ax):
     return out
 
 
-def test_a_y_limit_of_one_number_is_a_floor_and_anything_else_is_ignored():
+def _case_a_y_limit_of_one_number_is_a_floor_and_anything_else_is_ignored():
     """``y_lim`` is documented as two numbers and accepted as one (a floor).
     A list of any other length is neither, and pinning the axis from it would
     put the plot in a window the caller never asked for. All three forms are
@@ -422,7 +422,7 @@ def test_a_y_limit_of_one_number_is_a_floor_and_anything_else_is_ignored():
     assert three.fig.axes[0].patches
 
 
-def test_an_order_naming_no_group_in_the_frame_leaves_no_legend_to_remove():
+def _case_an_order_naming_no_group_in_the_frame_leaves_no_legend_to_remove():
     """``order`` selects which groups are drawn. When it names none of them
     seaborn draws nothing and attaches no legend, and the tidy-up that strips
     the redundant legend then has nothing to strip -- ``legend.remove()`` on
@@ -454,7 +454,7 @@ def test_an_order_naming_no_group_in_the_frame_leaves_no_legend_to_remove():
     assert not missing.results_df.empty
 
 
-def test_removing_outliers_says_nothing_when_there_are_none():
+def _case_removing_outliers_says_nothing_when_there_are_none():
     """The trim is announced because the reader has to know the plot and the
     p-values used different points. When nothing was trimmed there is no such
     gap, and printing "0 of 20 points are hidden" is a warning about a
@@ -480,7 +480,7 @@ def test_removing_outliers_says_nothing_when_there_are_none():
     assert trimmed.df["val"].max() < 5000.0
 
 
-def test_a_wide_panel_stops_growing_with_the_number_of_groups():
+def _case_a_wide_panel_stops_growing_with_the_number_of_groups():
     """The figure side is ``max(6, 2n)/4`` with a floor of 10 inches, so it
     is pinned at 10 up to nineteen groups and grows from twenty on. Without
     the floor a two-group plot would be a 3-inch square with unreadable
@@ -531,7 +531,7 @@ def test_a_results_table_with_no_pairwise_row_names_no_pair():
     assert ("a", "b") in [(first, second) for first, second, _p in pairs]
 
 
-def test_a_table_of_normality_rows_alone_draws_no_bracket(capsys):
+def _case_a_table_of_normality_rows_alone_draws_no_bracket(capsys):
     """Every row of ``results_df`` can be a per-group normality row -- one
     data column, two groups, and a comparison the engine refused to name.
     There is no pair in that table, and the annotation pass has to say so and
@@ -555,7 +555,7 @@ def test_a_table_of_normality_rows_alone_draws_no_bracket(capsys):
     assert "No comparisons available to annotate." in capsys.readouterr().out
 
 
-def test_several_measurements_on_one_axis_are_not_bracketed():
+def _case_several_measurements_on_one_axis_are_not_bracketed():
     """With more than one data column the x axis is one position per
     (column, group) pair and the symbol table underneath says which is which.
     A bracket has no unambiguous pair of ends to sit on there, so the pass
@@ -579,7 +579,7 @@ def test_several_measurements_on_one_axis_are_not_bracketed():
     assert _brackets(ax) == []
 
 
-def test_a_bracket_stack_on_an_axis_with_no_data_starts_at_the_view_top():
+def _case_a_bracket_stack_on_an_axis_with_no_data_starts_at_the_view_top():
     """The stack is placed above the data, read off ``ax.dataLim``. An axis
     that has had nothing added to it reports ``-inf`` there, and ``min(-inf,
     top)`` would put every bracket at negative infinity -- off the figure,
@@ -669,7 +669,7 @@ def _db_settings(src, **over):
     return settings
 
 
-def test_each_source_can_name_its_own_database_file(tmp_path, rng):
+def _case_each_source_can_name_its_own_database_file(tmp_path, rng):
     """``database`` is broadcast to one name per source only when it is a
     single string. A caller who already listed one file per source is naming
     files that differ, and overwriting that list with the first name would
@@ -755,7 +755,7 @@ def _prc_frame(rng, with_well_columns, groups=("ctrl", "treat"), n_wells=8):
     return pd.DataFrame(rows)
 
 
-def test_a_frame_that_already_names_its_wells_keeps_the_names_it_came_with(
+def _case_a_frame_that_already_names_its_wells_keeps_the_names_it_came_with(
         tmp_path, rng):
     """``prc`` is split into plateID/rowID/columnID only when the frame does
     not already carry those columns. Splitting regardless would overwrite the
@@ -792,7 +792,7 @@ def test_a_frame_that_already_names_its_wells_keeps_the_names_it_came_with(
     assert set(split["rowID"]) == {"r1", "r2"}
 
 
-def test_a_keep_groups_that_is_neither_a_name_nor_a_list_filters_nothing(
+def _case_a_keep_groups_that_is_neither_a_name_nor_a_list_filters_nothing(
         tmp_path, rng):
     """``keep_groups`` is a name or a list of names. A tuple, a set or a
     number is neither, and filtering on it would either raise or -- worse --
@@ -899,7 +899,7 @@ def _region_settings(src, **over):
     return settings
 
 
-def test_an_overlay_that_came_back_empty_costs_no_file_and_no_crash(
+def _case_an_overlay_that_came_back_empty_costs_no_file_and_no_crash(
         tmp_path, rng, monkeypatch):
     """``plot_region`` saves each of its three figures only if there is one.
     The mask overlay is the one that can come back as ``None`` -- a field of
@@ -942,3 +942,34 @@ def test_an_overlay_that_came_back_empty_costs_no_file_and_no_crash(
     assert not (dst / f"{FOV_NAME}_mask_overlay.pdf").exists()
     assert (dst / f"{FOV_NAME}_png_grid.pdf").is_file()
     assert (dst / f"{FOV_NAME}_activation_grid.pdf").is_file()
+
+
+def test_plot_cases(request, subtests, capsys):
+    """Case table: 18 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_a_figure_saved_by_bare_name_lands_in_the_working_directory,
+        _case_an_already_normalised_float_stack_is_overlaid_like_a_uint_one,
+        _case_a_mask_panel_can_be_drawn_without_its_object_numbers,
+        _case_a_run_with_only_a_nucleus_mask_reports_only_the_nucleus,
+        _case_a_one_dimensional_crop_matches_no_panel_layout,
+        _case_a_strain_column_that_repeats_the_condition_gets_no_legend_to_remove,
+        _case_a_p_value_that_is_not_a_number_has_no_answer,
+        _case_a_y_limit_of_one_number_is_a_floor_and_anything_else_is_ignored,
+        _case_an_order_naming_no_group_in_the_frame_leaves_no_legend_to_remove,
+        _case_removing_outliers_says_nothing_when_there_are_none,
+        _case_a_wide_panel_stops_growing_with_the_number_of_groups,
+        _case_a_table_of_normality_rows_alone_draws_no_bracket,
+        _case_several_measurements_on_one_axis_are_not_bracketed,
+        _case_a_bracket_stack_on_an_axis_with_no_data_starts_at_the_view_top,
+        _case_each_source_can_name_its_own_database_file,
+        _case_a_frame_that_already_names_its_wells_keeps_the_names_it_came_with,
+        _case_a_keep_groups_that_is_neither_a_name_nor_a_list_filters_nothing,
+        _case_an_overlay_that_came_back_empty_costs_no_file_and_no_crash,
+        ],
+    )
+    assert ran >= 18

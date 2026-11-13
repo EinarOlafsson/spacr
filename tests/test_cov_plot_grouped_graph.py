@@ -100,7 +100,7 @@ def line_df(groups=("p1", "p2", "p3"), n=8):
 # create_grouped_plot
 # ===========================================================================
 
-def test_a_grouped_plot_does_not_restyle_the_rest_of_the_session():
+def _case_a_grouped_plot_does_not_restyle_the_rest_of_the_session():
     """One grouped plot must not decide how every later figure looks.
 
     ``sns.set(style="whitegrid")`` writes a whole seaborn theme -- grid,
@@ -131,7 +131,7 @@ def test_a_grouped_plot_does_not_restyle_the_rest_of_the_session():
         f"later figure of the session inherits it: {changed}")
 
 
-def test_create_grouped_plot_two_normal_groups_uses_ttest_and_explicit_order():
+def _case_create_grouped_plot_two_normal_groups_uses_ttest_and_explicit_order():
     """order= branch + 2-group normal branch (T-test)."""
     from spacr.plot import create_grouped_plot
 
@@ -150,7 +150,7 @@ def test_create_grouped_plot_two_normal_groups_uses_ttest_and_explicit_order():
     assert [t.get_text() for t in ax.get_xticklabels()] == ["a", "b"]
 
 
-def test_create_grouped_plot_two_skewed_groups_uses_mann_whitney():
+def _case_create_grouped_plot_two_skewed_groups_uses_mann_whitney():
     """2-group non-normal branch (Mann-Whitney U)."""
     from spacr.plot import create_grouped_plot
 
@@ -165,7 +165,7 @@ def test_create_grouped_plot_two_skewed_groups_uses_mann_whitney():
     assert 0.0 <= float(pw["p-value"].iloc[0]) <= 1.0
 
 
-def test_create_grouped_plot_three_skewed_groups_use_a_pairwise_rank_test():
+def _case_create_grouped_plot_three_skewed_groups_use_a_pairwise_rank_test():
     """CHANGED 2026-08-17: the three rows said 'Kruskal-Wallis test'.
 
     They were `kruskal(data1, data2)` -- Kruskal-Wallis across TWO groups,
@@ -185,7 +185,7 @@ def test_create_grouped_plot_three_skewed_groups_use_a_pairwise_rank_test():
     assert "Tukey HSD Post-hoc" not in set(results["Test Name"])
 
 
-def test_create_grouped_plot_three_normal_groups_adds_tukey_posthoc():
+def _case_create_grouped_plot_three_normal_groups_adds_tukey_posthoc():
     """CHANGED 2026-08-17: the three pairwise rows said 'One-way ANOVA'.
 
     A LABEL CHANGE, not an answer change: `f_oneway` on two groups returns
@@ -209,7 +209,7 @@ def test_create_grouped_plot_three_normal_groups_adds_tukey_posthoc():
     assert float(pair["p-value"].iloc[0]) == pytest.approx(expected)
 
 
-def test_create_grouped_plot_sem_errorbars_custom_colors_and_ylim():
+def _case_create_grouped_plot_sem_errorbars_custom_colors_and_ylim():
     """sem error-bar branch + explicit colors branch + y_lim branch."""
     import matplotlib.pyplot as plt
     from spacr.plot import create_grouped_plot
@@ -228,7 +228,7 @@ def test_create_grouped_plot_sem_errorbars_custom_colors_and_ylim():
     assert len(bars) == 3
 
 
-def test_create_grouped_plot_rejects_unknown_error_bar_type():
+def _case_create_grouped_plot_rejects_unknown_error_bar_type():
     from spacr.plot import create_grouped_plot
 
     df = normal_df(groups=("a", "b"), n=20)
@@ -238,7 +238,7 @@ def test_create_grouped_plot_rejects_unknown_error_bar_type():
 
 
 @pytest.mark.parametrize("graph_type", ["violin", "jitter", "box", "jitter_box"])
-def test_create_grouped_plot_other_graph_types(graph_type):
+def _case_create_grouped_plot_other_graph_types(graph_type):
     """The violin / jitter / box / jitter_box rendering branches."""
     from spacr.plot import create_grouped_plot
 
@@ -253,7 +253,7 @@ def test_create_grouped_plot_other_graph_types(graph_type):
     assert len(results) == 3 + 3 + 3  # normality + pairwise + tukey
 
 
-def test_create_grouped_plot_saves_plot_and_stats(tmp_path):
+def _case_create_grouped_plot_saves_plot_and_stats(tmp_path):
     from spacr.plot import create_grouped_plot
 
     df = normal_df(groups=("a", "b"), n=20)
@@ -291,7 +291,7 @@ def test_set_reordered_theme_without_order_returns_palette_untouched(monkeypatch
     assert calls == [1]  # show_theme actually rendered the palette
 
 
-def test_set_theme_reorders_palette():
+def _case_set_theme_reorders_palette():
     import seaborn as sns
     from spacr.plot import spacrGraph
 
@@ -304,7 +304,7 @@ def test_set_theme_reorders_palette():
 # spacrGraph.preprocess_data
 # ===========================================================================
 
-def test_preprocess_object_representation_does_not_aggregate():
+def _case_preprocess_object_representation_does_not_aggregate():
     from spacr.plot import spacrGraph
 
     df = normal_df(("a", "b"), n=20)
@@ -313,7 +313,7 @@ def test_preprocess_object_representation_does_not_aggregate():
     assert list(g.df["grp"].cat.categories) == ["a", "b"]
 
 
-def test_preprocess_well_representation_aggregates_per_prc():
+def _case_preprocess_well_representation_aggregates_per_prc():
     from spacr.plot import spacrGraph
 
     df = normal_df(("a", "b"), n=20)
@@ -323,7 +323,7 @@ def test_preprocess_well_representation_aggregates_per_prc():
     assert len(g.df) < len(df)
 
 
-def test_preprocess_plate_representation_splits_prc():
+def _case_preprocess_plate_representation_splits_prc():
     from spacr.plot import spacrGraph
 
     df = normal_df(("a", "b"), n=20)
@@ -334,7 +334,7 @@ def test_preprocess_plate_representation_splits_prc():
     assert set(g.df["plateID"]) == {"plate1", "plate2"}
 
 
-def test_preprocess_plate_representation_grouping_on_plate_id():
+def _case_preprocess_plate_representation_grouping_on_plate_id():
     """grouping_column == 'plateID' collapses group_cols to a single column."""
     from spacr.plot import spacrGraph
 
@@ -345,7 +345,7 @@ def test_preprocess_plate_representation_grouping_on_plate_id():
     assert len(g.df) == 2
 
 
-def test_preprocess_plate_representation_without_prc_raises_keyerror():
+def _case_preprocess_plate_representation_without_prc_raises_keyerror():
     from spacr.plot import spacrGraph
 
     df = normal_df(("a", "b"), n=20).drop(columns=["prc"])
@@ -353,7 +353,7 @@ def test_preprocess_plate_representation_without_prc_raises_keyerror():
         spacrGraph(df, "grp", "v1", representation="plate")
 
 
-def test_preprocess_unknown_representation_raises_valueerror():
+def _case_preprocess_unknown_representation_raises_valueerror():
     from spacr.plot import spacrGraph
 
     with pytest.raises(ValueError, match="Unknown representation: sample"):
@@ -361,7 +361,7 @@ def test_preprocess_unknown_representation_raises_valueerror():
                    representation="sample")
 
 
-def test_preprocess_falls_back_to_sorted_categories_when_order_empty():
+def _case_preprocess_falls_back_to_sorted_categories_when_order_empty():
     """All-NaN grouping column -> self.order == [] -> default-category branch."""
     from pandas.api.types import CategoricalDtype
     from spacr.plot import spacrGraph
@@ -394,7 +394,7 @@ def test_remove_outliers_from_plot_keeps_inliers():
     assert set(filtered["grp"]) == {"a", "b"}
 
 
-def test_create_plot_with_remove_outliers_still_plots():
+def _case_create_plot_with_remove_outliers_still_plots():
     from spacr.plot import spacrGraph
 
     base = list(np.linspace(1.0, 11.0, 11))
@@ -464,7 +464,7 @@ def test_perform_normality_tests_flags_skewed_groups():
     assert all(r["p-value"] < 0.05 for r in results)
 
 
-def test_degenerate_groups_are_refused_rather_than_named():
+def _case_degenerate_groups_are_refused_rather_than_named():
     """One value per well cannot establish normality or equal variance.
 
     CHANGED 2026-08-17: the comparison used to be reported as
@@ -495,7 +495,7 @@ def test_degenerate_groups_are_refused_rather_than_named():
                 if issubclass(warning.category, RuntimeWarning)]
 
 
-def test_constant_groups_do_not_license_a_t_test():
+def _case_constant_groups_do_not_license_a_t_test():
     """CHANGED 2026-08-17: was 'T-test' with a NaN statistic.
 
     Five wells that all read exactly the same number carry no spread, so the
@@ -541,7 +541,7 @@ def test_perform_levene_test_returns_stat_and_p():
     assert p > 0.05
 
 
-def test_paired_ttest_branch():
+def _case_paired_ttest_branch():
     from spacr.plot import spacrGraph
 
     df = normal_df(("a", "b"), n=20)
@@ -559,7 +559,7 @@ def test_paired_ttest_branch():
     assert res[0]["p-value"] < 0.05  # b is shifted +2 from a
 
 
-def test_paired_differences_with_no_spread_are_refused():
+def _case_paired_differences_with_no_spread_are_refused():
     """CHANGED 2026-08-17: was reported as 'Paired T-test' with a NaN p.
 
     `normal_df` shifts group b by a constant, so every matched difference is
@@ -589,7 +589,7 @@ def test_paired_differences_with_no_spread_are_refused():
                 if issubclass(warning.category, RuntimeWarning)]
 
 
-def test_paired_wilcoxon_branch():
+def _case_paired_wilcoxon_branch():
     from spacr.plot import spacrGraph
 
     df = skewed_df(("a", "b"), n=20)
@@ -602,7 +602,7 @@ def test_paired_wilcoxon_branch():
     assert 0.0 <= float(res[0]["p-value"]) <= 1.0
 
 
-def test_unpaired_mannwhitney_branch():
+def _case_unpaired_mannwhitney_branch():
     from spacr.plot import spacrGraph
 
     df = skewed_df(("a", "b"), n=20)
@@ -614,7 +614,7 @@ def test_unpaired_mannwhitney_branch():
     assert res[0]["n_well"] == 40
 
 
-def test_anova_and_kruskal_branches_for_three_groups():
+def _case_anova_and_kruskal_branches_for_three_groups():
     from spacr.plot import spacrGraph
 
     g = spacrGraph(normal_df(("a", "b", "c"), n=20), "grp", "v1",
@@ -631,7 +631,7 @@ def test_anova_and_kruskal_branches_for_three_groups():
     assert kruskal[0]["p-value"] < 0.01
 
 
-def test_statistical_tests_run_once_per_data_column():
+def _case_statistical_tests_run_once_per_data_column():
     from spacr.plot import spacrGraph
 
     g = spacrGraph(multi_col_df(("a", "b"), n=12), "grp", ["v1", "v2"],
@@ -646,7 +646,7 @@ def test_statistical_tests_run_once_per_data_column():
 # spacrGraph.perform_posthoc_tests
 # ===========================================================================
 
-def test_posthoc_tukey_for_normal_multi_group():
+def _case_posthoc_tukey_for_normal_multi_group():
     from spacr.plot import spacrGraph
 
     g = spacrGraph(normal_df(("a", "b", "c"), n=20), "grp", "v1",
@@ -660,7 +660,7 @@ def test_posthoc_tukey_for_normal_multi_group():
     assert all(r["n_object"] == 40 and r["n_well"] == 40 for r in res)
 
 
-def test_posthoc_dunn_for_non_normal_multi_group(capsys):
+def _case_posthoc_dunn_for_non_normal_multi_group(capsys):
     from spacr.plot import spacrGraph
 
     g = spacrGraph(skewed_df(("a", "b", "c"), n=20), "grp", "v1",
@@ -677,7 +677,7 @@ def test_posthoc_dunn_for_non_normal_multi_group(capsys):
     assert all(r["n_object"] == 40 for r in res)
 
 
-def test_posthoc_dunn_n_well_counts_only_the_two_groups():
+def _case_posthoc_dunn_n_well_counts_only_the_two_groups():
     from spacr.plot import spacrGraph
 
     g = spacrGraph(skewed_df(("a", "b", "c"), n=20), "grp", "v1",
@@ -688,7 +688,7 @@ def test_posthoc_dunn_n_well_counts_only_the_two_groups():
     assert all(r["n_well"] == 40 for r in res), [r["n_well"] for r in res]
 
 
-def test_posthoc_returns_empty_without_all_to_all():
+def _case_posthoc_returns_empty_without_all_to_all():
     from spacr.plot import spacrGraph
 
     g = spacrGraph(normal_df(("a", "b", "c"), n=20), "grp", "v1",
@@ -698,7 +698,7 @@ def test_posthoc_returns_empty_without_all_to_all():
     assert g.perform_posthoc_tests(False, g.df["grp"].unique()) == []
 
 
-def test_posthoc_returns_empty_for_two_groups():
+def _case_posthoc_returns_empty_for_two_groups():
     from spacr.plot import spacrGraph
 
     g = spacrGraph(normal_df(("a", "b"), n=20), "grp", "v1",
@@ -712,7 +712,7 @@ def test_posthoc_returns_empty_for_two_groups():
 
 @pytest.mark.parametrize("graph_type", ["bar", "jitter", "box", "violin",
                                         "jitter_box", "jitter_bar"])
-def test_create_plot_single_data_column_graph_types(graph_type):
+def _case_create_plot_single_data_column_graph_types(graph_type):
     from spacr.plot import spacrGraph
 
     g = spacrGraph(normal_df(("a", "b", "c"), n=20), "grp", "v1",
@@ -738,7 +738,7 @@ def test_create_plot_single_data_column_graph_types(graph_type):
 
 @pytest.mark.parametrize("graph_type", ["bar", "jitter", "box", "violin",
                                         "jitter_box", "jitter_bar"])
-def test_create_plot_log_scales(graph_type):
+def _case_create_plot_log_scales(graph_type):
     from spacr.plot import spacrGraph
 
     g = spacrGraph(normal_df(("a", "b", "c"), n=20), "grp", "v1",
@@ -751,7 +751,7 @@ def test_create_plot_log_scales(graph_type):
     assert ax.get_xscale() == "log"
 
 
-def test_create_plot_reuses_supplied_axes():
+def _case_create_plot_reuses_supplied_axes():
     import matplotlib.pyplot as plt
     from spacr.plot import spacrGraph
 
@@ -764,7 +764,7 @@ def test_create_plot_reuses_supplied_axes():
     assert len(ax.patches) > 0
 
 
-def test_create_plot_rejects_unknown_graph_type():
+def _case_create_plot_rejects_unknown_graph_type():
     from spacr.plot import spacrGraph
 
     g = spacrGraph(normal_df(("a", "b"), n=20), "grp", "v1",
@@ -773,7 +773,7 @@ def test_create_plot_rejects_unknown_graph_type():
         g.create_plot()
 
 
-def test_create_plot_y_lim_single_element_sets_only_bottom():
+def _case_create_plot_y_lim_single_element_sets_only_bottom():
     from spacr.plot import spacrGraph
 
     g = spacrGraph(normal_df(("a", "b", "c"), n=20), "grp", "v1",
@@ -785,7 +785,7 @@ def test_create_plot_y_lim_single_element_sets_only_bottom():
     assert top > 2.0
 
 
-def test_create_plot_y_lim_two_elements():
+def _case_create_plot_y_lim_two_elements():
     from spacr.plot import spacrGraph
 
     g = spacrGraph(normal_df(("a", "b", "c"), n=20), "grp", "v1",
@@ -794,7 +794,7 @@ def test_create_plot_y_lim_two_elements():
     assert g.get_figure().get_axes()[0].get_ylim() == (1.0, 50.0)
 
 
-def test_create_plot_multi_data_column_builds_symbol_table():
+def _case_create_plot_multi_data_column_builds_symbol_table():
     from spacr.plot import spacrGraph
 
     g = spacrGraph(multi_col_df(("a", "b", "c"), n=12), "grp", ["v1", "v2"],
@@ -818,7 +818,7 @@ def test_create_plot_multi_data_column_builds_symbol_table():
     assert len(fig.axes) == 2
 
 
-def test_create_plot_multi_data_column_jitter_bar_places_symbols_per_position():
+def _case_create_plot_multi_data_column_jitter_bar_places_symbols_per_position():
     from spacr.plot import spacrGraph
 
     g = spacrGraph(multi_col_df(("a", "b", "c"), n=12), "grp", ["v1", "v2"],
@@ -834,7 +834,7 @@ def test_create_plot_multi_data_column_jitter_bar_places_symbols_per_position():
     assert texts.count("+") == texts.count("-")
 
 
-def test_create_plot_multi_data_column_draws_one_bar_per_combined_group():
+def _case_create_plot_multi_data_column_draws_one_bar_per_combined_group():
     import matplotlib.pyplot as plt
     from spacr.plot import spacrGraph
 
@@ -847,7 +847,7 @@ def test_create_plot_multi_data_column_draws_one_bar_per_combined_group():
     assert len(bars) == 6, f"expected 3 groups x 2 columns, got {len(bars)}"
 
 
-def test_create_plot_multi_data_column_box():
+def _case_create_plot_multi_data_column_box():
     from spacr.plot import spacrGraph
 
     g = spacrGraph(multi_col_df(("a", "b", "c"), n=12), "grp", ["v1", "v2"],
@@ -856,7 +856,7 @@ def test_create_plot_multi_data_column_box():
     assert g.get_figure() is not None
 
 
-def test_create_plot_multi_data_column_jitter_box():
+def _case_create_plot_multi_data_column_jitter_box():
     from spacr.plot import spacrGraph
 
     g = spacrGraph(multi_col_df(("a", "b", "c"), n=12), "grp", ["v1", "v2"],
@@ -865,7 +865,7 @@ def test_create_plot_multi_data_column_jitter_box():
     assert g.get_figure() is not None
 
 
-def test_create_plot_multi_data_column_violin_and_jitter():
+def _case_create_plot_multi_data_column_violin_and_jitter():
     from spacr.plot import spacrGraph
 
     for graph_type in ("violin", "jitter"):
@@ -881,7 +881,7 @@ def test_create_plot_multi_data_column_violin_and_jitter():
 # spacrGraph line graphs
 # ===========================================================================
 
-def test_create_plot_line_graph():
+def _case_create_plot_line_graph():
     from spacr.plot import spacrGraph
 
     g = spacrGraph(line_df(), "grp", ["epoch", "acc"], graph_type="line",
@@ -897,7 +897,7 @@ def test_create_plot_line_graph():
     assert len(g.summary_df) == 24
 
 
-def test_create_plot_line_graph_log_transforms_columns():
+def _case_create_plot_line_graph_log_transforms_columns():
     from spacr.plot import spacrGraph
 
     df = line_df(groups=("p1", "p2"), n=8)
@@ -924,7 +924,7 @@ def test_create_line_graph_raises_for_missing_column():
         g._create_line_graph(ax)
 
 
-def test_create_plot_line_std_area():
+def _case_create_plot_line_std_area():
     from spacr.plot import spacrGraph
 
     g = spacrGraph(line_df(), "grp", ["epoch", "acc"], graph_type="line_std",
@@ -945,7 +945,7 @@ def test_create_plot_line_std_area():
     assert verts[:, 1].max() == pytest.approx(hi)
 
 
-def test_create_plot_line_std_log_transforms():
+def _case_create_plot_line_std_log_transforms():
     from spacr.plot import spacrGraph
 
     df = line_df(groups=("p1", "p2"), n=8)
@@ -962,7 +962,7 @@ def test_create_plot_line_std_log_transforms():
 # spacrGraph._standerdize_figure_format
 # ===========================================================================
 
-def test_standerdize_figure_format_skips_line_graphs(capsys):
+def _case_standerdize_figure_format_skips_line_graphs(capsys):
     import matplotlib.pyplot as plt
     from spacr.plot import spacrGraph
 
@@ -976,7 +976,7 @@ def test_standerdize_figure_format_skips_line_graphs(capsys):
     assert tuple(fig.get_size_inches()) == (3.0, 3.0)   # untouched
 
 
-def test_standerdize_figure_format_resizes_box_artists():
+def _case_standerdize_figure_format_resizes_box_artists():
     """The box/violin branch resizes every Axes-level artist."""
     import matplotlib.pyplot as plt
     from matplotlib.artist import Artist
@@ -1006,7 +1006,7 @@ def test_standerdize_figure_format_resizes_box_artists():
     assert ax.get_xlim() == (-0.5, 2.5)
 
 
-def test_standerdize_figure_format_shrinks_bars_and_moves_legend():
+def _case_standerdize_figure_format_shrinks_bars_and_moves_legend():
     import matplotlib.pyplot as plt
     from spacr.plot import spacrGraph
 
@@ -1024,7 +1024,7 @@ def test_standerdize_figure_format_shrinks_bars_and_moves_legend():
     assert ax.get_legend() is not None
 
 
-def test_standerdize_figure_format_shifts_jitter_collections():
+def _case_standerdize_figure_format_shifts_jitter_collections():
     import matplotlib.pyplot as plt
     from spacr.plot import spacrGraph
 
@@ -1046,7 +1046,7 @@ def test_standerdize_figure_format_shifts_jitter_collections():
 # spacrGraph._save_results
 # ===========================================================================
 
-def test_save_results_writes_figure_stats_and_data(tmp_path, capsys):
+def _case_save_results_writes_figure_stats_and_data(tmp_path, capsys):
     from spacr.plot import spacrGraph
 
     out = tmp_path / "results"
@@ -1106,7 +1106,7 @@ def test_significance_marker_boundaries():
     assert _significance_marker(0.051) == "ns"
 
 
-def test_a_p_value_that_is_not_a_number_has_no_answer():
+def _case_a_p_value_that_is_not_a_number_has_no_answer():
     """A results row can carry a value no float can be made of.
 
     A skipped test writes ``None``; a refused one can write a string, and a
@@ -1126,7 +1126,7 @@ def test_a_p_value_that_is_not_a_number_has_no_answer():
     assert _finite_p_value({}) is None
 
 
-def test_a_non_finite_p_value_has_no_answer_either():
+def _case_a_non_finite_p_value_has_no_answer_either():
     """``nan`` is what a refused test writes, and it is not a small number.
 
     ``nan < 0.05`` is False, so a NaN would silently read as "not
@@ -1143,7 +1143,7 @@ def test_a_non_finite_p_value_has_no_answer_either():
     assert _finite_p_value(float("-inf")) is None
 
 
-def test_a_real_p_value_comes_back_as_a_float():
+def _case_a_real_p_value_comes_back_as_a_float():
     """Otherwise the four refusals above would pass on a function that only
     ever returns None."""
     from spacr.plot import _finite_p_value
@@ -1152,3 +1152,71 @@ def test_a_real_p_value_comes_back_as_a_float():
     assert _finite_p_value("0.04") == pytest.approx(0.04)
     assert _finite_p_value(0) == pytest.approx(0.0)
     assert isinstance(_finite_p_value(1), float)
+
+
+def test_plot_grouped_graph_cases(request, subtests, capsys):
+    """Case table: 55 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_a_grouped_plot_does_not_restyle_the_rest_of_the_session,
+        _case_create_grouped_plot_two_normal_groups_uses_ttest_and_explicit_order,
+        _case_create_grouped_plot_two_skewed_groups_uses_mann_whitney,
+        _case_create_grouped_plot_three_skewed_groups_use_a_pairwise_rank_test,
+        _case_create_grouped_plot_three_normal_groups_adds_tukey_posthoc,
+        _case_create_grouped_plot_sem_errorbars_custom_colors_and_ylim,
+        _case_create_grouped_plot_rejects_unknown_error_bar_type,
+        _case_create_grouped_plot_other_graph_types,
+        _case_create_grouped_plot_saves_plot_and_stats,
+        _case_set_theme_reorders_palette,
+        _case_preprocess_object_representation_does_not_aggregate,
+        _case_preprocess_well_representation_aggregates_per_prc,
+        _case_preprocess_plate_representation_splits_prc,
+        _case_preprocess_plate_representation_grouping_on_plate_id,
+        _case_preprocess_plate_representation_without_prc_raises_keyerror,
+        _case_preprocess_unknown_representation_raises_valueerror,
+        _case_preprocess_falls_back_to_sorted_categories_when_order_empty,
+        _case_create_plot_with_remove_outliers_still_plots,
+        _case_degenerate_groups_are_refused_rather_than_named,
+        _case_constant_groups_do_not_license_a_t_test,
+        _case_paired_ttest_branch,
+        _case_paired_differences_with_no_spread_are_refused,
+        _case_paired_wilcoxon_branch,
+        _case_unpaired_mannwhitney_branch,
+        _case_anova_and_kruskal_branches_for_three_groups,
+        _case_statistical_tests_run_once_per_data_column,
+        _case_posthoc_tukey_for_normal_multi_group,
+        _case_posthoc_dunn_for_non_normal_multi_group,
+        _case_posthoc_dunn_n_well_counts_only_the_two_groups,
+        _case_posthoc_returns_empty_without_all_to_all,
+        _case_posthoc_returns_empty_for_two_groups,
+        _case_create_plot_single_data_column_graph_types,
+        _case_create_plot_log_scales,
+        _case_create_plot_reuses_supplied_axes,
+        _case_create_plot_rejects_unknown_graph_type,
+        _case_create_plot_y_lim_single_element_sets_only_bottom,
+        _case_create_plot_y_lim_two_elements,
+        _case_create_plot_multi_data_column_builds_symbol_table,
+        _case_create_plot_multi_data_column_jitter_bar_places_symbols_per_position,
+        _case_create_plot_multi_data_column_draws_one_bar_per_combined_group,
+        _case_create_plot_multi_data_column_box,
+        _case_create_plot_multi_data_column_jitter_box,
+        _case_create_plot_multi_data_column_violin_and_jitter,
+        _case_create_plot_line_graph,
+        _case_create_plot_line_graph_log_transforms_columns,
+        _case_create_plot_line_std_area,
+        _case_create_plot_line_std_log_transforms,
+        _case_standerdize_figure_format_skips_line_graphs,
+        _case_standerdize_figure_format_resizes_box_artists,
+        _case_standerdize_figure_format_shrinks_bars_and_moves_legend,
+        _case_standerdize_figure_format_shifts_jitter_collections,
+        _case_save_results_writes_figure_stats_and_data,
+        _case_a_p_value_that_is_not_a_number_has_no_answer,
+        _case_a_non_finite_p_value_has_no_answer_either,
+        _case_a_real_p_value_comes_back_as_a_float,
+        ],
+    )
+    assert ran >= 55

@@ -47,7 +47,7 @@ def _prc_df(prc, values):
 # ---------------------------------------------------------------------------
 
 @pytest.mark.parametrize("bad_min_count", [None, "two", object()])
-def test_generate_plate_heatmap_non_numeric_min_count_is_treated_as_zero(bad_min_count):
+def _case_generate_plate_heatmap_non_numeric_min_count_is_treated_as_zero(bad_min_count):
     """A non-numeric ``min_count`` is coerced to 0, so nothing is filtered."""
     from spacr.plot import generate_plate_heatmap
 
@@ -62,7 +62,7 @@ def test_generate_plate_heatmap_non_numeric_min_count_is_treated_as_zero(bad_min
     assert (vmin, vmax) == (1.0, 3.0)
 
 
-def test_generate_plate_heatmap_min_count_drops_sparse_wells():
+def _case_generate_plate_heatmap_min_count_drops_sparse_wells():
     """``min_count`` removes wells whose true row count is below the threshold."""
     from spacr.plot import generate_plate_heatmap
 
@@ -78,7 +78,7 @@ def test_generate_plate_heatmap_min_count_drops_sparse_wells():
     assert (vmin, vmax) == (2.0, 3.0)
 
 
-def test_generate_plate_heatmap_min_count_filtering_everything_returns_empty_map():
+def _case_generate_plate_heatmap_min_count_filtering_everything_returns_empty_map():
     """Every well filtered out -> empty pivot and the neutral [0, 1] colour range."""
     from spacr.plot import generate_plate_heatmap
 
@@ -90,7 +90,7 @@ def test_generate_plate_heatmap_min_count_filtering_everything_returns_empty_map
     assert (vmin, vmax) == (0.0, 1.0)
 
 
-def test_generate_plate_heatmap_unknown_plate_returns_empty_map():
+def _case_generate_plate_heatmap_unknown_plate_returns_empty_map():
     """Selecting a plate that is not in the frame yields an empty heatmap."""
     from spacr.plot import generate_plate_heatmap
 
@@ -107,7 +107,7 @@ def test_generate_plate_heatmap_unknown_plate_returns_empty_map():
 # generate_plate_heatmap — 4-part prc identifiers
 # ---------------------------------------------------------------------------
 
-def test_generate_plate_heatmap_four_part_prc_is_rebuilt_with_plate_number():
+def _case_generate_plate_heatmap_four_part_prc_is_rebuilt_with_plate_number():
     """A 4-token prc (``exp_plate_row_col``) is rewritten as ``<plate_number>_row_col``."""
     from spacr.plot import generate_plate_heatmap
 
@@ -127,7 +127,7 @@ def test_generate_plate_heatmap_four_part_prc_is_rebuilt_with_plate_number():
     assert (vmin, vmax) == (0.0, 9.0)
 
 
-def test_generate_plate_heatmap_four_part_prc_does_not_mutate_caller_prc():
+def _case_generate_plate_heatmap_four_part_prc_does_not_mutate_caller_prc():
     """The 4-part branch copies the frame, so the caller's ``prc`` is untouched."""
     from spacr.plot import generate_plate_heatmap
 
@@ -141,7 +141,7 @@ def test_generate_plate_heatmap_four_part_prc_does_not_mutate_caller_prc():
 # generate_plate_heatmap — metadata back-fill from legacy column names
 # ---------------------------------------------------------------------------
 
-def test_generate_plate_heatmap_reads_the_column_from_prc_not_from_a_column_column():
+def _case_generate_plate_heatmap_reads_the_column_from_prc_not_from_a_column_column():
     """A legacy ``column`` column does not get a vote on where a well is drawn.
 
     Renamed from the "backfills columnID" spelling it had while the function
@@ -165,7 +165,7 @@ def test_generate_plate_heatmap_reads_the_column_from_prc_not_from_a_column_colu
     assert (vmin, vmax) == (0.0, 7.0)
 
 
-def test_generate_plate_heatmap_takes_the_plate_from_prc_over_a_plate_column():
+def _case_generate_plate_heatmap_takes_the_plate_from_prc_over_a_plate_column():
     """``plateID`` comes from the identifier even when a ``plate`` column exists.
 
     Renamed from "backfills plateID from plate" for the reason given above:
@@ -184,7 +184,7 @@ def test_generate_plate_heatmap_takes_the_plate_from_prc_over_a_plate_column():
     assert plate_map.loc["r2", "c2"] == 6.0
 
 
-def test_generate_plate_heatmap_ignores_a_plate_name_column_entirely():
+def _case_generate_plate_heatmap_ignores_a_plate_name_column_entirely():
     """``plate_name`` names nothing this function reads.
 
     Renamed from "backfills plateID from plate_name": that fallback was
@@ -201,7 +201,7 @@ def test_generate_plate_heatmap_ignores_a_plate_name_column_entirely():
     assert plate_map.loc["r1", "c1"] == 4.0
 
 
-def test_generate_plate_heatmap_names_the_plate_in_prc_with_no_metadata_columns():
+def _case_generate_plate_heatmap_names_the_plate_in_prc_with_no_metadata_columns():
     """With no plate metadata at all the plate is still the one in the prc.
 
     Renamed from "default plateID when no metadata columns": the ``'p1'``
@@ -221,7 +221,7 @@ def test_generate_plate_heatmap_names_the_plate_in_prc_with_no_metadata_columns(
 # generate_plate_heatmap — aggregation modes
 # ---------------------------------------------------------------------------
 
-def test_generate_plate_heatmap_sum_grouping_adds_values_per_well():
+def _case_generate_plate_heatmap_sum_grouping_adds_values_per_well():
     """``grouping='sum'`` totals the variable inside each well."""
     from spacr.plot import generate_plate_heatmap
 
@@ -235,7 +235,7 @@ def test_generate_plate_heatmap_sum_grouping_adds_values_per_well():
     assert (vmin, vmax) == (6.0, 100.0)
 
 
-def test_generate_plate_heatmap_sum_coerces_non_numeric_values_to_nan():
+def _case_generate_plate_heatmap_sum_coerces_non_numeric_values_to_nan():
     """Non-numeric cells are coerced with ``errors='coerce'`` and sum as 0."""
     from spacr.plot import generate_plate_heatmap
 
@@ -248,7 +248,7 @@ def test_generate_plate_heatmap_sum_coerces_non_numeric_values_to_nan():
     assert plate_map.loc["r2", "c1"] == 4.0
 
 
-def test_generate_plate_heatmap_sum_missing_variable_raises_keyerror():
+def _case_generate_plate_heatmap_sum_missing_variable_raises_keyerror():
     from spacr.plot import generate_plate_heatmap
 
     with pytest.raises(KeyError):
@@ -266,7 +266,7 @@ def _sum_map_df():
     return _prc_df(prc, [1, 2, 3, 100, 5, 6])
 
 
-def test_generate_plate_heatmap_min_max_int_pair_is_used_verbatim():
+def _case_generate_plate_heatmap_min_max_int_pair_is_used_verbatim():
     """An explicit non-float [vmin, vmax] pair is taken literally."""
     from spacr.plot import generate_plate_heatmap
 
@@ -277,7 +277,7 @@ def test_generate_plate_heatmap_min_max_int_pair_is_used_verbatim():
     assert isinstance(vmin, float) and isinstance(vmax, float)
 
 
-def test_generate_plate_heatmap_min_max_tuple_pair_is_accepted():
+def _case_generate_plate_heatmap_min_max_tuple_pair_is_accepted():
     """Tuples work as well as lists."""
     from spacr.plot import generate_plate_heatmap
 
@@ -287,7 +287,7 @@ def test_generate_plate_heatmap_min_max_tuple_pair_is_accepted():
     assert (vmin, vmax) == (0.0, 42.0)
 
 
-def test_generate_plate_heatmap_min_max_float_pair_is_treated_as_quantiles():
+def _case_generate_plate_heatmap_min_max_float_pair_is_treated_as_quantiles():
     """A pair of floats selects quantiles of the plate map rather than limits."""
     from spacr.plot import generate_plate_heatmap
 
@@ -301,7 +301,7 @@ def test_generate_plate_heatmap_min_max_float_pair_is_treated_as_quantiles():
     assert vmin > plate_map.values.min() and vmax < plate_map.values.max()
 
 
-def test_generate_plate_heatmap_min_max_allq_clips_to_2_98_quantiles():
+def _case_generate_plate_heatmap_min_max_allq_clips_to_2_98_quantiles():
     """``'allq'`` clamps the colour range to the 2nd/98th percentiles."""
     from spacr.plot import generate_plate_heatmap
 
@@ -315,7 +315,7 @@ def test_generate_plate_heatmap_min_max_allq_clips_to_2_98_quantiles():
     assert vmax < plate_map.values.max()
 
 
-def test_generate_plate_heatmap_unknown_min_max_falls_back_to_full_range():
+def _case_generate_plate_heatmap_unknown_min_max_falls_back_to_full_range():
     """An unrecognised ``min_max`` spec falls back to nanmin/nanmax."""
     from spacr.plot import generate_plate_heatmap
 
@@ -327,7 +327,7 @@ def test_generate_plate_heatmap_unknown_min_max_falls_back_to_full_range():
     assert (vmin, vmax) == (6.0, 100.0)
 
 
-def test_generate_plate_heatmap_three_element_min_max_falls_back_to_full_range():
+def _case_generate_plate_heatmap_three_element_min_max_falls_back_to_full_range():
     """A malformed 3-element spec also lands in the fallback branch."""
     from spacr.plot import generate_plate_heatmap
 
@@ -337,7 +337,7 @@ def test_generate_plate_heatmap_three_element_min_max_falls_back_to_full_range()
     assert (vmin, vmax) == (6.0, 100.0)
 
 
-def test_generate_plate_heatmap_degenerate_range_is_nudged():
+def _case_generate_plate_heatmap_degenerate_range_is_nudged():
     """A constant plate map would give vmin == vmax, so vmax is bumped."""
     from spacr.plot import generate_plate_heatmap
 
@@ -351,7 +351,7 @@ def test_generate_plate_heatmap_degenerate_range_is_nudged():
     assert vmax > vmin
 
 
-def test_generate_plate_heatmap_rejects_unknown_grouping():
+def _case_generate_plate_heatmap_rejects_unknown_grouping():
     from spacr.plot import generate_plate_heatmap
 
     with pytest.raises(ValueError, match="grouping must be"):
@@ -364,7 +364,7 @@ def test_generate_plate_heatmap_rejects_unknown_grouping():
 # plot_plates
 # ---------------------------------------------------------------------------
 
-def test_plot_plates_lays_out_one_axis_per_plate_and_saves_pdf(tmp_path, show_recorder):
+def _case_plot_plates_lays_out_one_axis_per_plate_and_saves_pdf(tmp_path, show_recorder):
     """Five plates -> one small multiple, one shared colour bar, one file."""
     from spacr.plot import plot_plates
 
@@ -388,7 +388,7 @@ def test_plot_plates_lays_out_one_axis_per_plate_and_saves_pdf(tmp_path, show_re
     assert show_recorder == []          # verbose=False must not call plt.show
 
 
-def test_plot_plates_rewrites_its_own_file_rather_than_numbering_a_new_one(
+def _case_plot_plates_rewrites_its_own_file_rather_than_numbering_a_new_one(
         tmp_path, show_recorder):
     """The export is named for the measurement it draws, and replaced.
 
@@ -413,7 +413,7 @@ def test_plot_plates_rewrites_its_own_file_rather_than_numbering_a_new_one(
     assert (tmp_path / "plate_heatmap_value.pdf").stat().st_size > 0
 
 
-def test_plot_plates_verbose_calls_show_and_skips_saving(tmp_path, show_recorder):
+def _case_plot_plates_verbose_calls_show_and_skips_saving(tmp_path, show_recorder):
     from spacr.plot import plot_plates
 
     df = _prc_df(["p1_r1_c1", "p2_r2_c2"], [1.0, 2.0])
@@ -447,7 +447,7 @@ def _only_figure():
     return plt.figure(nums[0])
 
 
-def test_print_mask_and_flows_without_flows_uses_two_panels(show_recorder):
+def _case_print_mask_and_flows_without_flows_uses_two_panels(show_recorder):
     """``flows=None`` -> 2-panel figure; a 2D stack is displayed as-is."""
     from spacr.plot import print_mask_and_flows
 
@@ -464,7 +464,7 @@ def test_print_mask_and_flows_without_flows_uses_two_panels(show_recorder):
     assert show_recorder == [1]
 
 
-def test_print_mask_and_flows_overlay_draws_red_contours(show_recorder):
+def _case_print_mask_and_flows_overlay_draws_red_contours(show_recorder):
     """The overlay panel is an RGB uint8 image carrying pure-red contour pixels."""
     from spacr.plot import print_mask_and_flows
 
@@ -482,7 +482,7 @@ def test_print_mask_and_flows_overlay_draws_red_contours(show_recorder):
     assert red.sum() < mask.sum()
 
 
-def test_print_mask_and_flows_without_overlay_shows_raw_mask(show_recorder):
+def _case_print_mask_and_flows_without_overlay_shows_raw_mask(show_recorder):
     """``overlay=False`` shows the label mask itself in the second panel."""
     from spacr.plot import print_mask_and_flows
 
@@ -498,7 +498,7 @@ def test_print_mask_and_flows_without_overlay_shows_raw_mask(show_recorder):
     assert np.array_equal(shown, mask)
 
 
-def test_print_mask_and_flows_squeezes_singleton_channel(show_recorder):
+def _case_print_mask_and_flows_squeezes_singleton_channel(show_recorder):
     """An ``(H, W, 1)`` stack is squeezed to 2D before display."""
     from spacr.plot import print_mask_and_flows
 
@@ -511,7 +511,7 @@ def test_print_mask_and_flows_squeezes_singleton_channel(show_recorder):
     assert shown.shape == stack.shape[:2]
 
 
-def test_print_mask_and_flows_multichannel_stack_uses_first_channel(show_recorder):
+def _case_print_mask_and_flows_multichannel_stack_uses_first_channel(show_recorder):
     """A 3-channel stack falls back to channel 0 for the 'Original Image' panel."""
     from spacr.plot import print_mask_and_flows
 
@@ -527,7 +527,7 @@ def test_print_mask_and_flows_multichannel_stack_uses_first_channel(show_recorde
     assert np.allclose(shown, stack[..., 0])
 
 
-def test_print_mask_and_flows_downsamples_large_inputs(show_recorder):
+def _case_print_mask_and_flows_downsamples_large_inputs(show_recorder):
     """Anything larger than ``max_size`` is resized, channels preserved."""
     from spacr.plot import print_mask_and_flows
 
@@ -557,7 +557,7 @@ def test_print_mask_and_flows_downsamples_large_inputs(show_recorder):
     assert fig.axes[2].get_title() == "Flows"
 
 
-def test_print_mask_and_flows_small_input_is_not_resized(show_recorder):
+def _case_print_mask_and_flows_small_input_is_not_resized(show_recorder):
     """Below ``max_size`` the arrays are passed through untouched."""
     from spacr.plot import print_mask_and_flows
 
@@ -571,7 +571,7 @@ def test_print_mask_and_flows_small_input_is_not_resized(show_recorder):
     assert np.asarray(fig.axes[2].images[0].get_array()).shape == (20, 16)
 
 
-def test_print_mask_and_flows_three_dimensional_flow_uses_first_channel(show_recorder):
+def _case_print_mask_and_flows_three_dimensional_flow_uses_first_channel(show_recorder):
     """A (H, W, C) flow array is reduced to its first channel for display."""
     from spacr.plot import print_mask_and_flows
 
@@ -587,7 +587,7 @@ def test_print_mask_and_flows_three_dimensional_flow_uses_first_channel(show_rec
     assert np.allclose(shown, 0.75)
 
 
-def test_print_mask_and_flows_empty_flow_list_raises(show_recorder):
+def _case_print_mask_and_flows_empty_flow_list_raises(show_recorder):
     """An empty flow list is structurally invalid and must raise."""
     from spacr.plot import print_mask_and_flows
 
@@ -597,7 +597,7 @@ def test_print_mask_and_flows_empty_flow_list_raises(show_recorder):
     assert show_recorder == []
 
 
-def test_print_mask_and_flows_rejects_four_dimensional_stack(show_recorder):
+def _case_print_mask_and_flows_rejects_four_dimensional_stack(show_recorder):
     """A 4D stack is not displayable."""
     from spacr.plot import print_mask_and_flows
 
@@ -605,3 +605,50 @@ def test_print_mask_and_flows_rejects_four_dimensional_stack(show_recorder):
     with pytest.raises(ValueError, match="stack dimensionality"):
         print_mask_and_flows(stack, _blob_mask((20, 16)), None, overlay=False)
     assert show_recorder == []
+
+
+def test_plot_plates_heatmap_cases(request, subtests):
+    """Case table: 34 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_generate_plate_heatmap_non_numeric_min_count_is_treated_as_zero,
+        _case_generate_plate_heatmap_min_count_drops_sparse_wells,
+        _case_generate_plate_heatmap_min_count_filtering_everything_returns_empty_map,
+        _case_generate_plate_heatmap_unknown_plate_returns_empty_map,
+        _case_generate_plate_heatmap_four_part_prc_is_rebuilt_with_plate_number,
+        _case_generate_plate_heatmap_four_part_prc_does_not_mutate_caller_prc,
+        _case_generate_plate_heatmap_reads_the_column_from_prc_not_from_a_column_column,
+        _case_generate_plate_heatmap_takes_the_plate_from_prc_over_a_plate_column,
+        _case_generate_plate_heatmap_ignores_a_plate_name_column_entirely,
+        _case_generate_plate_heatmap_names_the_plate_in_prc_with_no_metadata_columns,
+        _case_generate_plate_heatmap_sum_grouping_adds_values_per_well,
+        _case_generate_plate_heatmap_sum_coerces_non_numeric_values_to_nan,
+        _case_generate_plate_heatmap_sum_missing_variable_raises_keyerror,
+        _case_generate_plate_heatmap_min_max_int_pair_is_used_verbatim,
+        _case_generate_plate_heatmap_min_max_tuple_pair_is_accepted,
+        _case_generate_plate_heatmap_min_max_float_pair_is_treated_as_quantiles,
+        _case_generate_plate_heatmap_min_max_allq_clips_to_2_98_quantiles,
+        _case_generate_plate_heatmap_unknown_min_max_falls_back_to_full_range,
+        _case_generate_plate_heatmap_three_element_min_max_falls_back_to_full_range,
+        _case_generate_plate_heatmap_degenerate_range_is_nudged,
+        _case_generate_plate_heatmap_rejects_unknown_grouping,
+        _case_plot_plates_lays_out_one_axis_per_plate_and_saves_pdf,
+        _case_plot_plates_rewrites_its_own_file_rather_than_numbering_a_new_one,
+        _case_plot_plates_verbose_calls_show_and_skips_saving,
+        _case_print_mask_and_flows_without_flows_uses_two_panels,
+        _case_print_mask_and_flows_overlay_draws_red_contours,
+        _case_print_mask_and_flows_without_overlay_shows_raw_mask,
+        _case_print_mask_and_flows_squeezes_singleton_channel,
+        _case_print_mask_and_flows_multichannel_stack_uses_first_channel,
+        _case_print_mask_and_flows_downsamples_large_inputs,
+        _case_print_mask_and_flows_small_input_is_not_resized,
+        _case_print_mask_and_flows_three_dimensional_flow_uses_first_channel,
+        _case_print_mask_and_flows_empty_flow_list_raises,
+        _case_print_mask_and_flows_rejects_four_dimensional_stack,
+        ],
+    )
+    assert ran >= 34

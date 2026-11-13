@@ -129,7 +129,7 @@ class TestTheGraphTypeDispatch:
         for graph_type in handled:
             assert graph_type in handled
 
-    def test_an_unknown_type_is_refused_rather_than_blanked(self):
+    def _case_an_unknown_type_is_refused_rather_than_blanked(self):
         """THE ARC, and the defect it was written for.
 
         An unhandled type fell through, drew nothing, and ``plt.gcf()``
@@ -195,7 +195,7 @@ class TestTheGroupingOrder:
 
         assert list(ordered.categories) == ["a", "b", "c"]
 
-    def test_missing_grouping_columns_are_refused_before_ordering(self):
+    def _case_missing_grouping_columns_are_refused_before_ordering(self):
         frame = pd.DataFrame({"other": [1], "val": [2.0]})
 
         with pytest.raises(KeyError):
@@ -215,7 +215,7 @@ class TestTheJitterPositions:
 
         assert x_positions == []
 
-    def test_the_dispatch_uses_the_validated_final_else(self):
+    def _case_the_dispatch_uses_the_validated_final_else(self):
         """The final ``else`` is the line pair's arm and nothing else
         reaches it: the drawing dispatch refuses an unknown graph type
         before positions are ever read, so the only remaining pair is
@@ -260,7 +260,7 @@ class TestMarkingTheTrimmedResults:
         results["outliers_removed_from_plot_only"] = True
         assert bool(results["outliers_removed_from_plot_only"].iloc[0])
 
-    def test_a_real_graph_always_has_a_result_row_to_stamp(self):
+    def _case_a_real_graph_always_has_a_result_row_to_stamp(self):
         frame = pd.DataFrame({"grp": ["a", "a", "b", "b"],
                               "val": [1.0, 1.1, 2.0, 2.1]})
         graph = P.spacrGraph(frame, "grp", "val", graph_type="box",
@@ -276,3 +276,20 @@ class TestMarkingTheTrimmedResults:
         assert "remove_outliers: {trimmed} of {len(stats_df)} points" in source, (
             "the trim no longer says how many of how many were dropped, so a "
             "reader cannot tell whether it removed a tail or half the data")
+
+
+def test_plot_ten_more_cases(request, subtests):
+    """Case table: 4 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        (TestTheGraphTypeDispatch, '_case_an_unknown_type_is_refused_rather_than_blanked'),
+        (TestTheGroupingOrder, '_case_missing_grouping_columns_are_refused_before_ordering'),
+        (TestTheJitterPositions, '_case_the_dispatch_uses_the_validated_final_else'),
+        (TestMarkingTheTrimmedResults, '_case_a_real_graph_always_has_a_result_row_to_stamp'),
+        ],
+    )
+    assert ran >= 4

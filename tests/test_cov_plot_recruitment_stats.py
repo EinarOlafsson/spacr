@@ -73,7 +73,7 @@ def _recruitment_df(channel=1, n=24, seed=0):
     return pd.DataFrame(data)
 
 
-def test_plot_recruitment_default_columns_builds_two_figures():
+def _case_plot_recruitment_default_columns_builds_two_figures():
     """columns=None -> the five hard-coded recruitment columns on a 2x3 grid."""
     df = _recruitment_df(channel=1)
 
@@ -106,7 +106,7 @@ def test_plot_recruitment_default_columns_builds_two_figures():
     assert all(ax.get_legend() is None for ax in grid.axes[:5])
 
 
-def test_a_recruitment_plot_does_not_recolour_the_next_plot():
+def _case_a_recruitment_plot_does_not_recolour_the_next_plot():
     """Drawing one figure must not restyle the ones the user draws after it.
 
     ``_plot_recruitment`` picks its own four colours, which is fine -- but it
@@ -139,7 +139,7 @@ def test_a_recruitment_plot_does_not_recolour_the_next_plot():
         "colour cycle; the next figure of the session inherits it")
 
 
-def test_plot_recruitment_extra_columns_widen_grid_and_skip_ylim_after_index_5():
+def _case_plot_recruitment_extra_columns_widen_grid_and_skip_ylim_after_index_5():
     """Extra user columns are prepended; the 7th panel (i=6) keeps its autoscale."""
     df = _recruitment_df(channel=0)
     user_cols = ["extra_a", "extra_b"]
@@ -160,7 +160,7 @@ def test_plot_recruitment_extra_columns_widen_grid_and_skip_ylim_after_index_5()
     assert grid.axes[6].get_ylim()[0] == 0.0
 
 
-def test_plot_recruitment_prints_the_column_list(capsys):
+def _case_plot_recruitment_prints_the_column_list(capsys):
     df = _recruitment_df(channel=2)
     P._plot_recruitment(df, "test", 2, figuresize=4)
     out = capsys.readouterr().out
@@ -190,7 +190,7 @@ def _controls_df(chans=(0, 1, 2, 3), conditions=("ctrl", "trt"), n=12, seed=1):
     ([0, 1], [0, 1, 2]),
     ([0, 1, 2], [0, 1, 2, 3]),
 ])
-def test_plot_controls_adds_the_channel_of_interest_without_mutating(mask_chans, expected):
+def _case_plot_controls_adds_the_channel_of_interest_without_mutating(mask_chans, expected):
     """channel_of_interest is added to a copy; the list passed in is untouched."""
     n_chan = len(expected)
     df = _controls_df(chans=tuple(range(n_chan)))
@@ -209,7 +209,7 @@ def test_plot_controls_adds_the_channel_of_interest_without_mutating(mask_chans,
     ]
 
 
-def test_plot_controls_keeps_the_real_channel_numbers():
+def _case_plot_controls_keeps_the_real_channel_numbers():
     """Channels [0, 3] are plotted as channels 0 and 3, not renumbered 0 and 1."""
     df = _controls_df(chans=(0, 3))
     P._plot_controls(df, [0], channel_of_interest=3, figuresize=1)
@@ -221,7 +221,7 @@ def test_plot_controls_keeps_the_real_channel_numbers():
     assert np.allclose(heights, [sub[f"{c}_channel_3_mean_intensity"].mean() for c in _COMPONENTS])
 
 
-def test_plot_controls_bar_heights_are_the_per_condition_means():
+def _case_plot_controls_bar_heights_are_the_per_condition_means():
     df = _controls_df(chans=(0, 1))
 
     P._plot_controls(df, [0], channel_of_interest=1, figuresize=1)
@@ -240,7 +240,7 @@ def test_plot_controls_bar_heights_are_the_per_condition_means():
             assert ax.get_ylabel() == "Mean Intensity"
 
 
-def test_plot_controls_single_condition_is_duplicated_into_two_rows():
+def _case_plot_controls_single_condition_is_duplicated_into_two_rows():
     df = _controls_df(chans=(0,), conditions=("only",), n=8)
 
     P._plot_controls(df, [], channel_of_interest=0, figuresize=1)
@@ -257,7 +257,7 @@ def test_plot_controls_single_condition_is_duplicated_into_two_rows():
     assert np.allclose(top, bottom)
 
 
-def test_plot_controls_all_nan_column_is_plotted_as_zero():
+def _case_plot_controls_all_nan_column_is_plotted_as_zero():
     df = _controls_df(chans=(0,))
     df["cell_channel_0_mean_intensity"] = np.nan
 
@@ -269,7 +269,7 @@ def test_plot_controls_all_nan_column_is_plotted_as_zero():
     assert all(np.isfinite(h) and h > 0 for h in heights[1:])
 
 
-def test_plot_controls_tolerates_a_missing_component_column():
+def _case_plot_controls_tolerates_a_missing_component_column():
     df = _controls_df(chans=(0,)).drop(columns=["pathogen_channel_0_mean_intensity"])
 
     P._plot_controls(df, [], channel_of_interest=0, figuresize=1)
@@ -529,3 +529,26 @@ def test_reg_v_plot_without_significant_rows_adds_no_text():
     ax = _figs()[0].axes[0]
     assert len(ax.texts) == 0
     assert np.allclose(df["-log10(p)"], [-np.log10(0.5), -np.log10(0.9)])
+
+
+def test_plot_recruitment_stats_cases(request, subtests, capsys):
+    """Case table: 10 cases of the module-level cases run as sub-tests."""
+    from tests.case_table import run_cases
+
+    ran = run_cases(
+        request,
+        subtests,
+        [
+        _case_plot_recruitment_default_columns_builds_two_figures,
+        _case_a_recruitment_plot_does_not_recolour_the_next_plot,
+        _case_plot_recruitment_extra_columns_widen_grid_and_skip_ylim_after_index_5,
+        _case_plot_recruitment_prints_the_column_list,
+        _case_plot_controls_adds_the_channel_of_interest_without_mutating,
+        _case_plot_controls_keeps_the_real_channel_numbers,
+        _case_plot_controls_bar_heights_are_the_per_condition_means,
+        _case_plot_controls_single_condition_is_duplicated_into_two_rows,
+        _case_plot_controls_all_nan_column_is_plotted_as_zero,
+        _case_plot_controls_tolerates_a_missing_component_column,
+        ],
+    )
+    assert ran >= 10
