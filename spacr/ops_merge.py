@@ -449,3 +449,197 @@ def deepest_field_matches(frame, *, key: str = "object_id",
                                 kind="mergesort")
     kept = ordered.drop_duplicates(subset=[key], keep="first")
     return kept, int(len(frame) - len(kept))
+
+
+def _one_blas_thread():
+    """A context that runs its block on one BLAS thread.
+
+    :returns: a ``threadpoolctl`` limit, or a null context when
+        ``threadpoolctl`` is not installed.
+
+    Threaded BLAS may change the last bits of a least-squares solve with
+    the thread count, so the affine fits run on one thread and a rerun on
+    any machine stores the same transforms (as
+    :func:`spacr.ops_solve.solve_placements`).
+    """
+    try:
+        from threadpoolctl import threadpool_limits
+        return threadpool_limits(limits=1, user_api="blas")
+    except ImportError:
+        import contextlib
+        return contextlib.nullcontext()
+
+
+def affine_polish(points, targets, matrix, offset, *, radius: float = 3.0,
+                  passes: int = 3, min_pairs: int = 20, tree=None):
+    """Re-fit a 6-parameter affine on mutual nearest pairs, trimmed.
+
+    :param points: ``(N, 2)`` field points, field pixels.
+    :param targets: ``(M, 2)`` sequencing nuclei, well pixels.
+    :param matrix: the starting ``2 x 2`` linear part.
+    :param offset: the starting translation, ``(y, x)``.
+    :param radius: a moved point and its nearest target pair only within
+        this many well pixels.
+    :param passes: how many times the pairs are found and the affine
+        re-fitted.
+    :param min_pairs: the fewest pairs a pass may fit on.
+    :param tree: a ``cKDTree`` of ``targets``, built when None.
+    :returns: ``(matrix, offset, pairs)``, or None when a pass finds fewer
+        than ``min_pairs`` pairs.
+
+    Each pass moves the points with the current affine, pairs a point with
+    its nearest target within ``radius`` when that target's nearest moved
+    point is the same point (mutual nearest), drops pairs further apart
+    than ``max(3 x median, 0.5)`` px and solves the affine by least squares
+    on the rest.
+    """
+    from scipy.spatial import cKDTree
+
+    src = np.asarray(points, float).reshape(-1, 2)
+    dst = np.asarray(targets, float).reshape(-1, 2)
+    if tree is None:
+        tree = cKDTree(dst)
+    matrix = np.asarray(matrix, float)
+    offset = np.asarray(offset, float)
+    count = 0
+    for _ in range(int(passes)):
+        moved = src @ matrix.T + offset
+        distance, j = tree.query(moved, distance_upper_bound=float(radius))
+        found = np.isfinite(distance)
+        i = np.flatnonzero(found)
+        j = j[found]
+        back = cKDTree(moved).query(dst[j])[1]
+        mutual = back == i
+        i, j = i[mutual], j[mutual]
+        if len(i) < int(min_pairs):
+            return None
+        r = np.hypot(*(moved[i] - dst[j]).T)
+        keep = r <= max(3 * np.median(r), 0.5)
+        i, j = i[keep], j[keep]
+        design = np.c_[src[i], np.ones(len(i))]
+        solution = np.linalg.lstsq(design, dst[j], rcond=None)[0]
+        matrix, offset = solution[:2].T, solution[2]
+        count = len(i)
+    return matrix, offset, count
+
+
+def affine_within_bounds(matrix, seed, *, max_scale_change: float = 0.02,
+                         max_degrees_change: float = 1.0,
+                         max_anisotropy: float = 0.02) -> bool:
+    """Whether a fitted affine stays near the field's seed.
+
+    :param matrix: the ``2 x 2`` linear part of the affine.
+    :param seed: the field's stored ``(scale, rotation, translation)``.
+    :param max_scale_change: how far the mean singular value may move from
+        the seed's scale, as a fraction.
+    :param max_degrees_change: how far the rotation of its polar factor
+        may move from the seed's, in degrees.
+    :param max_anisotropy: the largest ratio of the two singular values,
+        minus one.
+    :returns: True when every bound holds and the affine does not mirror.
+
+    The scale and rotation bounds are those of
+    :func:`refine_field_transform`; the anisotropy bound stops a crowded
+    corner from shearing the field.
+    """
+    a = np.asarray(matrix, float)
+    scale0 = float(seed[0])
+    rotation0 = np.asarray(seed[1], float)
+    u, singular, vt = np.linalg.svd(a)
+    rotation = u @ vt
+    degrees = abs(np.degrees(np.arctan2(rotation[1, 0], rotation[0, 0])
+                             - np.arctan2(rotation0[1, 0], rotation0[0, 0])))
+    return bool(abs(singular.mean() - scale0) <= max_scale_change * scale0
+                and degrees <= max_degrees_change
+                and singular[0] / singular[1] - 1 <= max_anisotropy
+                and np.linalg.det(a) > 0)
+
+
+def tile_affine_transform(points, targets, start, seed, tile_centres, *,
+                          refined: bool = True, min_nuclei: int = 200,
+                          radius: float = 3.0, passes: int = 3):
+    """One affine per field and one per sequencing tile group of the field.
+
+    :param points: ``(N, 2)`` field nucleus centroids, field pixels.
+    :param targets: ``(M, 2)`` sequencing nuclei near the field, well
+        pixels.
+    :param start: the field's re-solved ``(scale, rotation, translation)``
+        from :func:`refine_field_transform`.
+    :param seed: the field's stored ``(scale, rotation, translation)``;
+        every fit must stay within :func:`affine_within_bounds` of it.
+    :param tile_centres: ``(T, 2)`` centres of the sequencing tiles, well
+        pixels. A field point belongs to the group of the tile whose centre
+        is nearest to it under the field affine.
+    :param refined: whether ``start`` is a re-solve; when it is the seed
+        nothing is fitted.
+    :param min_nuclei: the fewest field nuclei a tile group needs for its
+        own affine; smaller groups keep the field affine.
+    :param radius: the pairing radius of :func:`affine_polish`, well px.
+    :param passes: the trimmed passes of :func:`affine_polish`.
+    :returns: ``(field, groups)``: ``field`` is the field affine as
+        ``(1.0, matrix, offset)``, a transform :func:`field_to_well` takes,
+        and ``groups`` maps a tile index to ``(1.0, matrix, offset, nuclei)``.
+
+    WHY PER TILE. The sequencing mosaic is stitched from tiles placed one
+    by one, so the residual of a phenotype field changes where it crosses a
+    tile seam; a single similarity per field leaves that step in. On Funk
+    et al. 2022 plates A-D (well A1) the share of nuclei within 2 px of
+    their sequencing nucleus rose from 94.7-95.8 % to 97.0-97.5 % with no
+    failed field. The field affine starts from ``start`` and falls back to
+    it when its fit fails or leaves the bounds; a group fit that fails or
+    leaves the bounds keeps the field affine. The solves run on one BLAS
+    thread, so the result does not depend on the thread count.
+    """
+    from scipy.spatial import cKDTree
+
+    src = np.asarray(points, float).reshape(-1, 2)
+    dst = np.asarray(targets, float).reshape(-1, 2)
+    matrix = float(start[0]) * np.asarray(start[1], float)
+    offset = np.asarray(start[2], float)
+    groups = {}
+    if not refined or src.shape[0] < 3 or dst.shape[0] < 3:
+        return (1.0, matrix, offset), groups
+    tree = cKDTree(dst)
+    with _one_blas_thread():
+        fit = affine_polish(src, dst, matrix, offset, radius=radius,
+                            passes=passes, tree=tree)
+        if fit is not None and affine_within_bounds(fit[0], seed):
+            matrix, offset = fit[0], fit[1]
+        centres = np.asarray(tile_centres, float).reshape(-1, 2)
+        if centres.shape[0] == 0:
+            return (1.0, matrix, offset), groups
+        _, own = cKDTree(centres).query(src @ matrix.T + offset)
+        for tile in np.unique(own):
+            members = np.flatnonzero(own == tile)
+            if len(members) < int(min_nuclei):
+                continue
+            fit = affine_polish(src[members], dst, matrix, offset,
+                                radius=radius, passes=passes, tree=tree)
+            if fit is not None and affine_within_bounds(fit[0], seed):
+                groups[int(tile)] = (1.0, fit[0], fit[1], int(len(members)))
+    return (1.0, matrix, offset), groups
+
+
+def tile_affine_to_well(points, field, groups, tile_centres) -> np.ndarray:
+    """Field points moved into the well frame by their tile group's affine.
+
+    :param points: ``(N, 2)`` field points.
+    :param field: the field affine from :func:`tile_affine_transform`.
+    :param groups: its tile groups, ``{tile: (1.0, matrix, offset, ...)}``.
+    :param tile_centres: the same ``(T, 2)`` tile centres the fit used.
+    :returns: ``(N, 2)`` well-frame ``(y, x)``. A point takes the affine of
+        the tile whose centre is nearest to it under the field affine, and
+        the field affine when that tile has none.
+    """
+    from scipy.spatial import cKDTree
+
+    src = np.asarray(points, float).reshape(-1, 2)
+    moved = src @ np.asarray(field[1], float).T + np.asarray(field[2], float)
+    if groups and src.shape[0]:
+        centres = np.asarray(tile_centres, float).reshape(-1, 2)
+        _, own = cKDTree(centres).query(moved)
+        for tile, transform in groups.items():
+            members = own == int(tile)
+            moved[members] = (src[members] @ np.asarray(transform[1], float).T
+                              + np.asarray(transform[2], float))
+    return moved
