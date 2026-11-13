@@ -107,6 +107,20 @@ MIN_TILE_PX = 512
 NET_TILE_PX = 256
 NET_TILE_OVERLAP = 0.1
 
+#: How far in from a cut tile edge Cellpose's flows still depend on the tile:
+#: the first and last network tiles of a tile start 8 px into its padding, so
+#: they reach ``NET_TILE_PX - 8`` px in. Tiles whose flows are stitched
+#: overlap by at least twice this, so that every pixel lies at least this far
+#: from the cut edges of the tile it is taken from.
+FLOW_MARGIN_PX = NET_TILE_PX - 8
+
+#: Bytes per site pixel for the stitched flows (three float32 planes) and for
+#: Cellpose's mask step on the whole site (flow following, the seed histogram
+#: and the flow check of every mask). Measured on CP186A Well1 site 76 at
+#: 5,500 px: 52 bytes per pixel with 10 % and 205 with 60 % of pixels inside
+#: cells; 330 covers a site whose every pixel is inside a cell.
+SITE_FLOW_BYTES_PER_PIXEL = 3 * 4 + 330
+
 
 class MemoryPlanError(ValueError):
     """The per-worker RAM cap cannot be met for this site."""
@@ -251,7 +265,7 @@ def tiling_layout(shape: Tuple[int, int], tile_px: int, overlap_px: int,
         shape), ``tile_px`` and ``overlap_px`` (those used) and ``aligned``.
     """
     shape = (int(shape[0]), int(shape[1]))
-    boxes = tile_grid(shape, tile_px, overlap_px)
+    boxes = tile_grid(shape, tile_px, min(int(overlap_px), max(int(tile_px) - 1, 0)))
     plan = aligned_tiling(tile_px, overlap_px) if align and len(boxes) > 1 else None
     if plan is None:
         return {"boxes": boxes, "padded": shape, "tile_px": int(tile_px),
@@ -295,7 +309,8 @@ def plan_site_memory(shape: Tuple[int, int], n_channels: int, settings: Mapping[
     """Tile size and worker count that keep each worker under the cap.
 
     One worker holds the raw site (uint16, every channel), two label images
-    (int32), the network and one tile in flight
+    (int32), the site's stitched flows and their mask post-processing
+    (:data:`SITE_FLOW_BYTES_PER_PIXEL`), the network and one tile in flight
     (:data:`TILE_BYTES_PER_PIXEL`). The tile is halved from ``seg_tile_px``
     down to :data:`MIN_TILE_PX` until it fits; workers are capped by
     ``seg_workers`` and by the machine's available memory divided by the cap.
@@ -312,7 +327,7 @@ def plan_site_memory(shape: Tuple[int, int], n_channels: int, settings: Mapping[
     """
     cap = float(settings.get("seg_max_ram_gb") or LARGE_SITE_DEFAULTS["seg_max_ram_gb"]) * 2 ** 30
     pixels = int(shape[0]) * int(shape[1])
-    fixed = pixels * (2 * int(n_channels) + 2 * 4) + MODEL_BYTES
+    fixed = pixels * (2 * int(n_channels) + 2 * 4 + SITE_FLOW_BYTES_PER_PIXEL) + MODEL_BYTES
     requested = int(settings.get("seg_tile_px") or 0)
     overlap = int(settings.get("seg_tile_overlap_px") or 0)
     tile = requested if requested else max(int(shape[0]), int(shape[1]))
@@ -412,6 +427,51 @@ def stitch_tile_labels(tiles: Sequence[Tuple[Tuple[int, int, int, int], np.ndarr
     return relabel_raster(out)
 
 
+def _flow_bounds(starts: Sequence[int], ends: Sequence[int], size: int) -> List[Tuple[int, int]]:
+    """The span each tile gives along one axis: neighbours split their
+    shared strip at its middle."""
+    bounds, lo = [], 0
+    for i, (start, end) in enumerate(zip(starts, ends)):
+        hi = size if i == len(starts) - 1 else (starts[i + 1] + end) // 2
+        bounds.append((max(lo, start), hi))
+        lo = hi
+    return bounds
+
+
+def stitch_tile_flows(tiles: Sequence[Tuple[Tuple[int, int, int, int], np.ndarray, np.ndarray]],
+                      shape: Tuple[int, int]) -> Tuple[np.ndarray, np.ndarray]:
+    """One flow field and cell probability map from per-tile network outputs.
+
+    Each pixel is taken from one tile: along each axis, two neighbouring
+    tiles split the strip they share at its middle, so a pixel comes from
+    the tile in which it lies deepest. With tiles from
+    :func:`tiling_layout` (``align=True``) that overlap by at least
+    ``2 * FLOW_MARGIN_PX``, every pixel's value is the one Cellpose computes
+    for the untiled image, bit for bit.
+
+    :param tiles: ``((y0, y1, x0, x1), flows, cellprob)`` per tile, in the
+        row-major order of :func:`tile_grid`; ``flows`` is ``(2, h, w)``.
+    :param shape: the full image ``(height, width)``.
+    :returns: ``(flows, cellprob)`` of shapes ``(2, H, W)`` and ``(H, W)``,
+        float32.
+    """
+    boxes = [box for box, _, _ in tiles]
+    rows = sorted({(b[0], b[1]) for b in boxes})
+    cols = sorted({(b[2], b[3]) for b in boxes})
+    row_span = dict(zip(rows, _flow_bounds([r[0] for r in rows], [r[1] for r in rows],
+                                           int(shape[0]))))
+    col_span = dict(zip(cols, _flow_bounds([c[0] for c in cols], [c[1] for c in cols],
+                                           int(shape[1]))))
+    flows = np.zeros((2, int(shape[0]), int(shape[1])), np.float32)
+    cellprob = np.zeros((int(shape[0]), int(shape[1])), np.float32)
+    for (y0, y1, x0, x1), tile_flows, tile_prob in tiles:
+        a0, a1 = row_span[(y0, y1)]
+        b0, b1 = col_span[(x0, x1)]
+        flows[:, a0:a1, b0:b1] = np.asarray(tile_flows)[:, a0 - y0:a1 - y0, b0 - x0:b1 - x0]
+        cellprob[a0:a1, b0:b1] = np.asarray(tile_prob)[a0 - y0:a1 - y0, b0 - x0:b1 - x0]
+    return flows, cellprob
+
+
 def relabel_raster(labels: np.ndarray) -> np.ndarray:
     """Renumber labels 1..N in raster order of each object's first pixel.
 
@@ -427,9 +487,22 @@ def relabel_raster(labels: np.ndarray) -> np.ndarray:
     return lookup[flat].reshape(np.shape(labels))
 
 
+def _flow_overlap(tile_px: int, overlap_px: int, align: bool, flows: Any, masks: Any) -> int:
+    """The overlap flow stitching needs, or 0 when the tiles' flows are not
+    stitched (no ``align``, ``flows`` or ``masks``, or no aligned tile of
+    ``tile_px`` leaves that much overlap)."""
+    if not (align and flows is not None and masks is not None):
+        return 0
+    overlap = max(int(overlap_px), 2 * FLOW_MARGIN_PX)
+    return overlap if aligned_tiling(tile_px, overlap) is not None else 0
+
+
 def segment_tiled(image: np.ndarray, segment: Callable[[np.ndarray], np.ndarray], *,
                   tile_px: int = 2048, overlap_px: int = 256, iou: float = 0.5,
-                  align: bool = False) -> np.ndarray:
+                  align: bool = False,
+                  flows: Optional[Callable[[np.ndarray], Tuple[np.ndarray, np.ndarray]]] = None,
+                  masks: Optional[Callable[[np.ndarray, np.ndarray], np.ndarray]] = None
+                  ) -> np.ndarray:
     """Segment an image tile by tile and stitch the labels.
 
     :param image: ``(H, W)`` or ``(H, W, C)``.
@@ -443,9 +516,19 @@ def segment_tiled(image: np.ndarray, segment: Callable[[np.ndarray], np.ndarray]
         (:func:`tiling_layout`), so that objects away from the seams are the
         untiled run's objects pixel for pixel; only for a segmenter that
         does not resize the image.
+    :param flows: with ``masks`` and ``align``, the network part of
+        ``segment`` (an image to its ``(flows, cellprob)``): the tiles'
+        network outputs are stitched (:func:`stitch_tile_flows`) and
+        ``masks`` turns the whole image's flows into labels once, so that
+        Cellpose's mask steps, which look at the whole image, see what they
+        see untiled. The overlap is raised to ``2 * FLOW_MARGIN_PX``.
+    :param masks: ``(flows, cellprob)`` to a label image.
     :returns: an int32 label image of the image's height and width.
     """
     shape = tuple(int(v) for v in np.shape(image)[:2])
+    by_flows = _flow_overlap(tile_px, overlap_px, align, flows, masks)
+    if by_flows:
+        overlap_px = by_flows
     layout = tiling_layout(shape, tile_px, overlap_px, align)
     if len(layout["boxes"]) == 1:
         return np.asarray(segment(image))
@@ -453,6 +536,13 @@ def segment_tiled(image: np.ndarray, segment: Callable[[np.ndarray], np.ndarray]
     if padded != shape:
         image = np.pad(image, [(0, padded[0] - shape[0]), (0, padded[1] - shape[1])]
                        + [(0, 0)] * (np.ndim(image) - 2))
+    if by_flows:
+        stitched = stitch_tile_flows(
+            [((y0, y1, x0, x1),) + tuple(flows(image[y0:y1, x0:x1]))
+             for y0, y1, x0, x1 in layout["boxes"]], padded)
+        del image
+        labels = np.asarray(masks(*stitched), np.int32)
+        return relabel_raster(labels[:shape[0], :shape[1]])
     tiles = [((y0, y1, x0, x1), np.asarray(segment(image[y0:y1, x0:x1])))
              for y0, y1, x0, x1 in layout["boxes"]]
     labels = stitch_tile_labels(tiles, padded, iou)
@@ -461,7 +551,10 @@ def segment_tiled(image: np.ndarray, segment: Callable[[np.ndarray], np.ndarray]
 
 def tiling_control(image: np.ndarray, segment: Callable[[np.ndarray], np.ndarray], *,
                    tile_px: int, overlap_px: int, iou: float = 0.5,
-                   align: bool = False) -> Dict[str, Any]:
+                   align: bool = False,
+                   flows: Optional[Callable[[np.ndarray], Tuple[np.ndarray, np.ndarray]]] = None,
+                   masks: Optional[Callable[[np.ndarray, np.ndarray], np.ndarray]] = None
+                   ) -> Dict[str, Any]:
     """Tiled against untiled segmentation of one region that fits untiled.
 
     Objects of the untiled run that stay clear of every seam zone (the
@@ -478,6 +571,8 @@ def tiling_control(image: np.ndarray, segment: Callable[[np.ndarray], np.ndarray
     :param overlap_px: the overlap of the tiled run.
     :param iou: passed to :func:`stitch_tile_labels`.
     :param align: passed to :func:`segment_tiled`.
+    :param flows: passed to :func:`segment_tiled`.
+    :param masks: passed to :func:`segment_tiled`.
     :returns: ``objects``, ``away_from_seams``, ``away_identical``,
         ``at_seams``, ``at_seams_iou_ge_0_9``, ``at_seams_share`` (``nan``
         without seam objects), and ``tile_px``, ``overlap_px`` and
@@ -486,7 +581,8 @@ def tiling_control(image: np.ndarray, segment: Callable[[np.ndarray], np.ndarray
     shape = tuple(int(v) for v in np.shape(image)[:2])
     untiled = relabel_raster(np.asarray(segment(image)))
     tiled = segment_tiled(image, segment, tile_px=tile_px, overlap_px=overlap_px, iou=iou,
-                          align=align)
+                          align=align, flows=flows, masks=masks)
+    overlap_px = _flow_overlap(tile_px, overlap_px, align, flows, masks) or overlap_px
     layout = tiling_layout(shape, tile_px, overlap_px, align)
     cover = np.zeros(layout["padded"], np.int32)
     for y0, y1, x0, x1 in layout["boxes"]:
@@ -817,6 +913,28 @@ def _eval_labels(model: Any, image: np.ndarray, settings: Mapping[str, Any],
                       np.int32)
 
 
+def _eval_flows(model: Any, image: np.ndarray, settings: Mapping[str, Any],
+                **kwargs: Any) -> Tuple[np.ndarray, np.ndarray]:
+    """Cellpose's network outputs for a site-normalised image, without masks."""
+    from ._gpu_governor import _governed_eval
+
+    out = _governed_eval(model, image, site="ops_large_sites", settings=settings, batch_size=8,
+                         normalize=False, compute_masks=False, **kwargs)
+    return np.asarray(out[1][1], np.float32), np.asarray(out[1][2], np.float32)
+
+
+def _cellpose_masks(model: Any, flows: np.ndarray, cellprob: np.ndarray) -> np.ndarray:
+    """Cellpose's mask step on a whole image's flows, with ``eval``'s defaults
+    for an image that is not resized."""
+    import torch
+    from cellpose.dynamics import resize_and_compute_masks
+
+    device = getattr(model, "device", None) or torch.device("cpu")
+    return np.asarray(resize_and_compute_masks(
+        flows, cellprob, niter=200, cellprob_threshold=0.0, flow_threshold=0.4, do_3D=False,
+        min_size=15, max_size_fraction=0.4, resize=None, device=device), np.int32)
+
+
 def segment_cell_painting_site(stack: np.ndarray, channel_names: Sequence[str],
                                settings: Mapping[str, Any], models: Tuple[Any, Any], *,
                                nucleus_diameter: Optional[float] = None
@@ -826,8 +944,9 @@ def segment_cell_painting_site(stack: np.ndarray, channel_names: Sequence[str],
     Nuclei are segmented on the DNA channel, cells on ``cell_channels``
     (Phalloidin, then DNA), each normalised once on the whole site
     (:func:`normalize_site`) and tiled by :func:`segment_tiled` on Cellpose's
-    network grid (nuclei only without a diameter, since a diameter resizes
-    each tile); then each
+    network grid, with the tiles' flows stitched and Cellpose's mask step run
+    once on the whole site (nuclei only without a diameter, since a diameter
+    resizes each tile); then each
     nucleus is paired with one cell by
     :func:`spacr.ops_sample.pair_nuclei_with_cells` (cells without a nucleus
     are dropped, as in the OPS phenotype path).
@@ -856,12 +975,16 @@ def segment_cell_painting_site(stack: np.ndarray, channel_names: Sequence[str],
     nucleus_model, cell_model = models
     dna = normalize_site(stack[..., names.index(wanted[0])])
     nuclei = segment_tiled(dna, lambda x: _eval_labels(nucleus_model, x, settings, diameter),
-                           tile_px=tile, overlap_px=overlap, iou=iou, align=not diameter)
+                           tile_px=tile, overlap_px=overlap, iou=iou, align=not diameter,
+                           flows=lambda x: _eval_flows(nucleus_model, x, settings),
+                           masks=lambda f, p: _cellpose_masks(nucleus_model, f, p))
     body = normalize_site(np.stack([stack[..., names.index(c)] for c in settings["cell_channels"]],
                                    axis=-1))
     cells = segment_tiled(body, lambda x: _eval_labels(cell_model, x, settings, None,
                                                        channel_axis=-1),
-                          tile_px=tile, overlap_px=overlap, iou=iou, align=True)
+                          tile_px=tile, overlap_px=overlap, iou=iou, align=True,
+                          flows=lambda x: _eval_flows(cell_model, x, settings, channel_axis=-1),
+                          masks=lambda f, p: _cellpose_masks(cell_model, f, p))
     return pair_nuclei_with_cells(nuclei, cells)
 
 
@@ -1025,7 +1148,9 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
             found[site] = segment_tiled(
                 dna, lambda x: _eval_labels(models[0], x, local, None),
                 tile_px=plan["tile_px"], overlap_px=int(local["seg_tile_overlap_px"]),
-                iou=float(local["seg_stitch_iou"]), align=True)
+                iou=float(local["seg_stitch_iou"]), align=True,
+                flows=lambda x: _eval_flows(models[0], x, local),
+                masks=lambda f, p: _cellpose_masks(models[0], f, p))
             del stack, dna
         survey = survey_sites(sampled, found,
                               tuple(settings.get("seg_nucleus_diameter_range") or (10.0, 80.0)),
@@ -1052,7 +1177,8 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
             local = dict(settings, seg_tile_px=plan["tile_px"])
             if control_px and site == survey.get("control_site"):
                 overlap = int(local["seg_tile_overlap_px"])
-                side, control_tile, _ = control_layout(min(control_px, *stack.shape[:2]), overlap)
+                side, control_tile, _ = control_layout(min(control_px, *stack.shape[:2]),
+                                                       max(overlap, 2 * FLOW_MARGIN_PX))
                 y0, x0 = (stack.shape[0] - side) // 2, (stack.shape[1] - side) // 2
                 body = normalize_site(np.stack([stack[..., channels.index(c)]
                                                 for c in local["cell_channels"]], axis=-1))
@@ -1061,7 +1187,9 @@ def run_large_site_segmentation(settings: Mapping[str, Any], *, models: Optional
                 control = tiling_control(
                     region, lambda x: _eval_labels(models[1], x, local, None, channel_axis=-1),
                     tile_px=control_tile, overlap_px=overlap,
-                    iou=float(local["seg_stitch_iou"]), align=True)
+                    iou=float(local["seg_stitch_iou"]), align=True,
+                    flows=lambda x: _eval_flows(models[1], x, local, channel_axis=-1),
+                    masks=lambda f, p: _cellpose_masks(models[1], f, p))
                 control.update({"site": site, "region_px": side, "origin": [y0, x0],
                                 "site_nuclei": survey["objects_per_site"][site]})
                 with open(os.path.join(dst, "tiling_control.json"), "w", encoding="utf-8") as handle:

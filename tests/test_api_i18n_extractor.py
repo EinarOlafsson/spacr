@@ -2289,7 +2289,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     zoo_arrivals = {**zoo_arrivals, **paper_item_3_arrivals}
     paper_item_4_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "918_923_bmc_paper_items_4_api_arrivals_2026-11-11.json").read_text(encoding="utf-8"))
-    assert len(paper_item_4_arrivals) == 105
+    assert len(paper_item_4_arrivals) == 106
     assert {key: docs[key] for key in paper_item_4_arrivals} == paper_item_4_arrivals
     assert not paper_item_4_arrivals.keys() & (
         zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
@@ -2332,6 +2332,15 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **paper_remaining_arrivals}
+    measure_family_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "measure_profile_families_api_arrivals_2026-11-12.json").read_text(encoding="utf-8"))
+    assert len(measure_family_arrivals) == 16
+    assert {key: docs[key] for key in measure_family_arrivals} == measure_family_arrivals
+    assert not measure_family_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **measure_family_arrivals}
     items_910_899_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts" / "910_899_paper_remaining_api_arrivals_2026-11-12.json").read_text(encoding="utf-8"))
     assert len(items_910_899_arrivals) == 3
