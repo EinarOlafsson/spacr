@@ -11,6 +11,8 @@ import pytest
 
 from spacr import measure
 
+from tests import locale_cases
+
 
 SOURCE = 'Wound calibration {name} must be a finite number greater than zero, or blank.'
 BASE = dict(channels=[0], cell_mask_dim=1, wound_source='masks',
@@ -107,9 +109,8 @@ def test_valid_and_unspecified_time_calibration_preserve_native_table_inputs(
             for path in tmp_path.glob('*.npy')} == before
 
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'pt', 'ko', 'hi', 'is', 'fr'])
-@pytest.mark.parametrize('route', ['preview', 'table'])
-def test_installed_reviewed_language_at_actual_wound_boundary(monkeypatch, language, route):
+def _installed_reviewed_language_at_actual_wound_boundary_case(monkeypatch, language, route):
+    """One case of :func:`test_installed_reviewed_language_at_actual_wound_boundary`."""
     path = Path(__file__).parents[1] / 'docs/i18n/reviewed/runtime' / language / '2026-10-15-wound-calibration.json'
     target = json.loads(path.read_text(encoding="utf-8"))['records'][0]['translation']
     assert target != SOURCE
@@ -134,3 +135,9 @@ def test_installed_reviewed_language_at_actual_wound_boundary(monkeypatch, langu
             measure._wound_closure_tables('/must-not-read', settings)
         assert not listed
     assert str(error.value) == target.format(name=name)
+
+
+def test_installed_reviewed_language_at_actual_wound_boundary(subtests, monkeypatch):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'zh_CN', 'pt', 'ko', 'hi', 'is', 'fr']), ('route', ['preview', 'table'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _installed_reviewed_language_at_actual_wound_boundary_case(monkeypatch=case_monkeypatch, **case)

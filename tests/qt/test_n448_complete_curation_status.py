@@ -7,6 +7,8 @@ import pytest
 from spacr.qt import i18n
 from spacr.qt.screens.make_masks import MakeMasksScreen, _StatusLabel
 
+from tests import locale_cases
+
 
 TEMPLATES = {
     ('moved', True): '{judged} kept  —  now on {now}',
@@ -30,11 +32,8 @@ FRENCH = {
 }
 
 
-@pytest.mark.parametrize('language', ['en', 'fr'])
-@pytest.mark.parametrize('state', ['moved', 'empty', 'last', 'other'])
-@pytest.mark.parametrize('keep', [True, False])
-def test_actual_verdict_status_is_complete_and_preserves_navigation(
-        qapp, monkeypatch, tmp_path, language, state, keep):
+def _actual_verdict_status_is_complete_and_preserves_navigation_case(qapp, monkeypatch, tmp_path, language, state, keep):
+    """One case of :func:`test_actual_verdict_status_is_complete_and_preserves_navigation`."""
     monkeypatch.setenv(i18n.ENV_LANGUAGE, language)
     files = ['judged.tif'] if state == 'last' else ['judged.tif', 'following.tif']
     originals = {}
@@ -68,3 +67,9 @@ def test_actual_verdict_status_is_complete_and_preserves_navigation(
     assert all(path.read_bytes() == before for path, before in originals.items())
     status.close()
     status.deleteLater()
+
+
+def test_actual_verdict_status_is_complete_and_preserves_navigation(subtests, qapp, monkeypatch, tmp_path):
+    for label, case in locale_cases.cases(('language', ['en', 'fr']), ('state', ['moved', 'empty', 'last', 'other']), ('keep', [True, False])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _actual_verdict_status_is_complete_and_preserves_navigation_case(qapp=qapp, monkeypatch=case_monkeypatch, tmp_path=locale_cases.case_dir(tmp_path, label), **case)

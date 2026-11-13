@@ -7,11 +7,11 @@ import pytest
 from spacr import embeddings as emb
 from tests.test_own_dino_classifier import checkpoint as checkpoint
 
+from tests import locale_cases
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is'])
-@pytest.mark.parametrize('boundary', ['invalid', 'cancelled'])
-def test_installed_own_dino_classifier_refusals(checkpoint, monkeypatch, tmp_path,
-                                               language, boundary):
+
+def _installed_own_dino_classifier_refusals_case(checkpoint, monkeypatch, tmp_path, language, boundary):
+    """One case of :func:`test_installed_own_dino_classifier_refusals`."""
     import numpy as np
 
     review_file = ('2026-10-15-f561-classifier-backend-home-b.json'
@@ -41,3 +41,9 @@ def test_installed_own_dino_classifier_refusals(checkpoint, monkeypatch, tmp_pat
     assert str(error.value) == expected
     assert path.read_bytes() == before
     assert not output.exists()
+
+
+def test_installed_own_dino_classifier_refusals(subtests, checkpoint, monkeypatch, tmp_path):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is']), ('boundary', ['invalid', 'cancelled'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _installed_own_dino_classifier_refusals_case(checkpoint=checkpoint, monkeypatch=case_monkeypatch, tmp_path=locale_cases.case_dir(tmp_path, label), **case)

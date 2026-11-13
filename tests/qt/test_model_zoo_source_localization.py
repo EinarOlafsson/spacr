@@ -8,6 +8,8 @@ from spacr import model_zoo
 from spacr.qt import i18n
 from spacr.qt.widgets import model_zoo_picker as picker
 
+from tests import locale_cases
+
 
 LANGUAGES = ("sv", "de", "es", "fr", "pt", "is", "zh_CN", "hi", "ko")
 
@@ -32,9 +34,8 @@ def localized_sources(tmp_path, monkeypatch):
     return settings, raw, targets
 
 
-@pytest.mark.parametrize("language", LANGUAGES)
-def test_constructor_translates_all_six_captions_with_canonical_ids(
-        qtbot, monkeypatch, localized_sources, language):
+def _constructor_translates_all_six_captions_with_canonical_ids_case(qtbot, monkeypatch, localized_sources, language):
+    """One case of :func:`test_constructor_translates_all_six_captions_with_canonical_ids`."""
     settings, raw, targets = localized_sources
     monkeypatch.setenv("SPACR_LANGUAGE", language)
     strip = picker.SourceStrip()
@@ -50,6 +51,12 @@ def test_constructor_translates_all_six_captions_with_canonical_ids(
     assert strip.enabled() == model_zoo.DEFAULT_ZOO_SOURCES
     assert picker._SOURCE_TOOLTIPS == raw
     assert not settings.contains(picker._SOURCES_SETTING)
+
+
+def test_constructor_translates_all_six_captions_with_canonical_ids(subtests, qtbot, monkeypatch, localized_sources):
+    for label, case in locale_cases.cases(("language", LANGUAGES)):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _constructor_translates_all_six_captions_with_canonical_ids_case(qtbot=qtbot, monkeypatch=case_monkeypatch, localized_sources=localized_sources, **case)
 
 
 def test_language_round_trip_preserves_source_keys_and_user_selection(

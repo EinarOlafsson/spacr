@@ -23,6 +23,8 @@ from spacr.qt.screens import make_masks as mm
 from spacr.qt.screens.make_masks import (MODE_BRUSH, MODE_ERASE, MakeMasksScreen,
                                          _MaskCanvas)
 
+from tests import locale_cases
+
 CANVAS_W, CANVAS_H = 600, 400
 IMG_N = 64
 PIXMAP_N = 400
@@ -464,8 +466,8 @@ def test_the_brush_button_says_what_shift_does(screen):
     assert "tools other than the Brush" in screen._zoom_speed.property('apiTooltipDescriptionSource')
 
 
-@pytest.mark.parametrize('language', ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'))
-def test_brush_and_pan_hints_follow_each_language_without_changing_the_tool(screen, language):
+def _brush_and_pan_hints_follow_each_language_without_changing_the_tool_case(screen, language):
+    """One case of :func:`test_brush_and_pan_hints_follow_each_language_without_changing_the_tool`."""
     from spacr.qt.i18n import retranslate_widget_tree, tr
 
     retranslate_widget_tree(screen, 'en')
@@ -483,3 +485,9 @@ def test_brush_and_pan_hints_follow_each_language_without_changing_the_tool(scre
                       and widget.property('settingKey') == 'make_masks_zoom_speed')
     assert tr(zoom_tip, language) in zoom_label.toolTip()
     assert screen._canvas.mode == MODE_BRUSH
+
+
+def test_brush_and_pan_hints_follow_each_language_without_changing_the_tool(subtests, screen):
+    for label, case in locale_cases.cases(('language', ('sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'))):
+        with subtests.test(**label):
+            _brush_and_pan_hints_follow_each_language_without_changing_the_tool_case(screen=screen, **case)

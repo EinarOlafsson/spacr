@@ -7,6 +7,8 @@ from spacr.qt.widgets.home import _EasyHomePage
 from tests.qt.test_733_easy_commands import commands as commands
 from tests.qt.test_startup_ai_reporting_choice import private_ai_profile as private_ai_profile
 
+from tests import locale_cases
+
 
 @pytest.fixture
 def shortcut_page(commands, qtbot, monkeypatch, tmp_path):
@@ -27,17 +29,18 @@ def shortcut_page(commands, qtbot, monkeypatch, tmp_path):
     return page, calls
 
 
-@pytest.mark.parametrize('phrase,command', [
-    ('update spacr', 'updater'), ('uppdate spacr', 'updater'), ('spacr updates', 'updater'),
-    ('pypi', 'pypi'), ('pip', 'pypi'), ('pip install spacr', 'pypi'), ('install spacr', 'pypi'),
-    ('conda', 'conda'), ('conda install spacr', 'conda'), ('conda-forge', 'conda'),
-    ('stats', 'statistics'), ('spacr stats', 'statistics'), ('statistics', 'statistics'),
-    ('logs', 'logs'), ('spacr logs', 'logs'), ('cach', 'cache'), ('cache', 'cache'),
-    ('models', 'models'), ('spacr models', 'models'), ('docker', 'docker'),
-    ('tutorials', 'tutorials'), ('spacr tutorials', 'tutorials'), ('nightly', 'nightly'),
-])
-def test_real_enter_shortcuts_use_existing_actions_without_module_launch(
-        commands, shortcut_page, qtbot, tmp_path, phrase, command):
+def _reset_shortcut_state(commands, shortcut_page):
+    """Forget what the previous case asked for, so each case starts clean."""
+    _page, calls = shortcut_page
+    calls.clear()
+    for name in ("urls", "opened", "navigated"):
+        recorded = getattr(commands, name, None)
+        if isinstance(recorded, list):
+            recorded.clear()
+
+
+def _real_enter_shortcuts_use_existing_actions_without_module_launch_case(commands, shortcut_page, qtbot, tmp_path, phrase, command):
+    """One case of :func:`test_real_enter_shortcuts_use_existing_actions_without_module_launch`."""
     page, calls = shortcut_page
     page.path_edit.setText(phrase)
     assert not calls and not commands.urls
@@ -53,8 +56,28 @@ def test_real_enter_shortcuts_use_existing_actions_without_module_launch(
     assert not commands.opened and not commands.navigated
 
 
-@pytest.mark.parametrize('locale', tuple(app._EASY_SHORTCUT_LOCALIZED))
-def test_all_localized_shortcut_nouns_and_actions_keep_the_same_targets(monkeypatch, tmp_path, locale):
+def test_real_enter_shortcuts_use_existing_actions_without_module_launch(subtests, commands, shortcut_page, qtbot, tmp_path):
+    for label, case in locale_cases.cases(('phrase,command', [
+    ('update spacr', 'updater'), ('uppdate spacr', 'updater'), ('spacr updates', 'updater'),
+    ('pypi', 'pypi'), ('pip', 'pypi'), ('pip install spacr', 'pypi'), ('install spacr', 'pypi'),
+    ('conda', 'conda'), ('conda install spacr', 'conda'), ('conda-forge', 'conda'),
+    ('stats', 'statistics'), ('spacr stats', 'statistics'), ('statistics', 'statistics'),
+    ('logs', 'logs'), ('spacr logs', 'logs'), ('cach', 'cache'), ('cache', 'cache'),
+    ('models', 'models'), ('spacr models', 'models'), ('docker', 'docker'),
+    ('tutorials', 'tutorials'), ('spacr tutorials', 'tutorials'), ('nightly', 'nightly'),
+])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            # a folder an earlier case opened would turn this phrase into a
+            # folder name, so each case works in an empty directory of its own
+            case_path = locale_cases.case_dir(tmp_path, label)
+            case_monkeypatch.chdir(case_path)
+            case_monkeypatch.setattr(app, '_easy_shortcut_folder', lambda command: case_path / command)
+            _reset_shortcut_state(commands, shortcut_page)
+            _real_enter_shortcuts_use_existing_actions_without_module_launch_case(commands=commands, shortcut_page=shortcut_page, qtbot=qtbot, tmp_path=case_path, **case)
+
+
+def _all_localized_shortcut_nouns_and_actions_keep_the_same_targets_case(monkeypatch, tmp_path, locale):
+    """One case of :func:`test_all_localized_shortcut_nouns_and_actions_keep_the_same_targets`."""
     monkeypatch.chdir(tmp_path)
     monkeypatch.setenv('SPACR_LANGUAGE', locale)
     for command, phrases in app._EASY_SHORTCUT_LOCALIZED[locale].items():
@@ -66,6 +89,12 @@ def test_all_localized_shortcut_nouns_and_actions_keep_the_same_targets(monkeypa
         assert app._easy_shortcut_match('Analyseanleitung') == 'protocols'
         assert app._easy_shortcut_match('Analyseanleitungen') == 'protocols'
         assert app._easy_shortcut_match('Protocols', explicit=True) == 'protocols'
+
+
+def test_all_localized_shortcut_nouns_and_actions_keep_the_same_targets(subtests, monkeypatch, tmp_path):
+    for label, case in locale_cases.cases(('locale', tuple(app._EASY_SHORTCUT_LOCALIZED))):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _all_localized_shortcut_nouns_and_actions_keep_the_same_targets_case(monkeypatch=case_monkeypatch, tmp_path=locale_cases.case_dir(tmp_path, label), **case)
 
 
 @pytest.mark.parametrize('key,phrase', [('__easy_command__:Spaceout', 'Spaceout'), ('parascape', 'ParaScape')])
@@ -121,9 +150,8 @@ def test_parascape_explicit_route_keeps_alpha_guard(commands, monkeypatch):
     assert not called and not commands.opened
 
 
-@pytest.mark.parametrize('locale', tuple(app._EASY_SHORTCUT_LOCALIZED))
-def test_localized_statistics_action_takes_real_enter_precedence(
-        commands, shortcut_page, qtbot, monkeypatch, locale):
+def _localized_statistics_action_takes_real_enter_precedence_case(commands, shortcut_page, qtbot, monkeypatch, locale):
+    """One case of :func:`test_localized_statistics_action_takes_real_enter_precedence`."""
     monkeypatch.setenv('SPACR_LANGUAGE', locale)
     page, calls = shortcut_page
     phrase = app._EASY_SHORTCUT_LOCALIZED[locale]['statistics'][1]
@@ -131,3 +159,10 @@ def test_localized_statistics_action_takes_real_enter_precedence(
     qtbot.keyClick(page.path_edit, Qt.Key_Return)
     assert commands.urls == [app._EASY_SHORTCUT_URLS['statistics']]
     assert not commands.opened and not calls
+
+
+def test_localized_statistics_action_takes_real_enter_precedence(subtests, commands, shortcut_page, qtbot, monkeypatch):
+    for label, case in locale_cases.cases(('locale', tuple(app._EASY_SHORTCUT_LOCALIZED))):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _reset_shortcut_state(commands, shortcut_page)
+            _localized_statistics_action_takes_real_enter_precedence_case(commands=commands, shortcut_page=shortcut_page, qtbot=qtbot, monkeypatch=case_monkeypatch, **case)

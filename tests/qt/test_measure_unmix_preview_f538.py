@@ -7,6 +7,8 @@ import pytest
 
 from spacr.qt.widgets import measure_preview as mp
 
+from tests import locale_cases
+
 
 @pytest.fixture
 def plate(tmp_path):
@@ -186,8 +188,8 @@ def test_alpha_gate_disarms_processed_display(qtbot, plate, monkeypatch):
     assert all('unmixing' not in entry for entry in widget._crops)
 
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'pt', 'fr', 'zh_CN', 'hi', 'ko', 'is'])
-def test_unmixed_display_control_uses_source_bound_locale(qtbot, monkeypatch, language):
+def _unmixed_display_control_uses_source_bound_locale_case(qtbot, monkeypatch, language):
+    """One case of :func:`test_unmixed_display_control_uses_source_bound_locale`."""
     import hashlib
     import json
     from pathlib import Path
@@ -222,6 +224,12 @@ def test_unmixed_display_control_uses_source_bound_locale(qtbot, monkeypatch, la
     assert widget._unmix_btn.text() == records[0]['translation']
     assert widget._unmix_btn.toolTip() == records[1]['translation']
     assert not widget._unmix_btn.isChecked()
+
+
+def test_unmixed_display_control_uses_source_bound_locale(subtests, qtbot, monkeypatch):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'pt', 'fr', 'zh_CN', 'hi', 'ko', 'is'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _unmixed_display_control_uses_source_bound_locale_case(qtbot=qtbot, monkeypatch=case_monkeypatch, **case)
 
 
 def test_persisted_calibration_refuses_raw_load_and_cached_checked_crops(plate):

@@ -5,9 +5,11 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+from tests import locale_cases
 
-@pytest.mark.parametrize('language', ['de', 'es', 'fr', 'sv', 'pt', 'is', 'zh_CN', 'ko', 'hi'])
-def test_pending_and_failed_wand_status_is_localized(qtbot, monkeypatch, language):
+
+def _pending_and_failed_wand_status_is_localized_case(qtbot, monkeypatch, language):
+    """One case of :func:`test_pending_and_failed_wand_status_is_localized`."""
     from spacr.qt import i18n, detect_chain
     from spacr.qt.screens.make_masks import _MaskCanvas
 
@@ -38,3 +40,9 @@ def test_pending_and_failed_wand_status_is_localized(qtbot, monkeypatch, languag
     assert not canvas.mask.any()
     np.testing.assert_array_equal(canvas.image, original)
     canvas.close_enhancer()
+
+
+def test_pending_and_failed_wand_status_is_localized(subtests, qtbot, monkeypatch):
+    for label, case in locale_cases.cases(('language', ['de', 'es', 'fr', 'sv', 'pt', 'is', 'zh_CN', 'ko', 'hi'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _pending_and_failed_wand_status_is_localized_case(qtbot=qtbot, monkeypatch=case_monkeypatch, **case)

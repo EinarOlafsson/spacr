@@ -12,6 +12,8 @@ from spacr.cli import load_settings_file
 from spacr.qt.screens.app_screen import AppScreen
 from spacr.qt.widgets import model_zoo_picker as picker_module
 
+from tests import locale_cases
+
 
 _REAL_DIALOG_EXEC = QDialog.exec
 
@@ -458,9 +460,8 @@ def test_failed_pin_commit_is_refused_and_restores_previously_absent_or_present_
     assert model.collect() == before
 
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is'])
-def test_actual_worker_start_status_uses_its_reviewed_locale(
-        selected_model, qtbot, monkeypatch, qapp, language):
+def _actual_worker_start_status_uses_its_reviewed_locale_case(selected_model, qtbot, monkeypatch, qapp, language):
+    """One case of :func:`test_actual_worker_start_status_uses_its_reviewed_locale`."""
     import json
     from pathlib import Path
     import threading
@@ -502,6 +503,12 @@ def test_actual_worker_start_status_uses_its_reviewed_locale(
     qtbot.waitUntil(lambda: picker.chosen_path() is not None)
     assert picker.chosen_path() == str(selected_model[0])
     assert dict(picker._chosen_reference.record)['sha256'] == selected_model[1]['sha256']
+
+
+def test_actual_worker_start_status_uses_its_reviewed_locale(subtests, selected_model, qtbot, monkeypatch, qapp):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'zh_CN', 'fr', 'pt', 'hi', 'ko', 'is'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _actual_worker_start_status_uses_its_reviewed_locale_case(selected_model=selected_model, qtbot=qtbot, monkeypatch=case_monkeypatch, qapp=qapp, **case)
 
 
 @pytest.mark.parametrize('obj', ['cell', 'nucleus', 'pathogen'])

@@ -13,12 +13,11 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 import build_i18n_catalogs as builder
 import i18n_caption_arrivals as arrivals
 
+from tests import locale_cases
 
-@pytest.mark.parametrize("language", arrivals.LANGUAGES)
-@pytest.mark.parametrize("defect", ["missing_review", "source_hash"])
-@pytest.mark.parametrize("change", ["arrival", "changed_body"])
-def test_refresh_refuses_incomplete_locale_evidence_without_writing(
-        tmp_path, monkeypatch, language, defect, change):
+
+def _refresh_refuses_incomplete_locale_evidence_without_writing_case(tmp_path, monkeypatch, language, defect, change):
+    """One case of :func:`test_refresh_refuses_incomplete_locale_evidence_without_writing`."""
     baseline_source = "Object diameter"
     row = {"table": "SETTING_LABELS", "key": "diameter",
            "source": baseline_source, "source_sha256": arrivals._sha(baseline_source)}
@@ -73,6 +72,12 @@ def test_refresh_refuses_incomplete_locale_evidence_without_writing(
         arrivals.refresh_arrival_contract()
     assert fixture.read_bytes() == original
     assert arrivals.load_arrival_contract()["baseline"] == [row]
+
+
+def test_refresh_refuses_incomplete_locale_evidence_without_writing(subtests, tmp_path, monkeypatch):
+    for label, case in locale_cases.cases(("language", arrivals.LANGUAGES), ("defect", ["missing_review", "source_hash"]), ("change", ["arrival", "changed_body"])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _refresh_refuses_incomplete_locale_evidence_without_writing_case(tmp_path=locale_cases.case_dir(tmp_path, label), monkeypatch=case_monkeypatch, **case)
 
 
 def test_refresh_refuses_a_rewritten_baseline_before_changing_the_file(tmp_path, monkeypatch):

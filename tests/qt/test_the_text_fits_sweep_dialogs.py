@@ -41,6 +41,8 @@ from spacr.qt.preferences import FONT_SCALE_MAX
 
 from .test_the_text_fits_sweep import _offenders, at_font_scale  # noqa: F401
 
+from tests import locale_cases
+
 #: Dialogs that construct with no required arguments, as
 #: ``(module path, class name)``. Measured rather than hand-listed; see the
 #: module docstring for why the other 24 are absent.
@@ -453,14 +455,8 @@ def _build(module_path: str, class_name: str, qtbot):
     return dialog
 
 
-@pytest.mark.parametrize("scale", SCALES)
-@pytest.mark.parametrize("locale", LOCALES)
-@pytest.mark.parametrize("module_path,class_name", DIALOGS,
-                         ids=[name for _path, name in DIALOGS])
-def test_no_dialog_caption_is_cut_off(module_path, class_name, locale, scale,
-                                      qtbot, at_font_scale,  # noqa: F811
-                                      monkeypatch):
-    """One dialog, in one language, at one font scale."""
+def _no_dialog_caption_is_cut_off_case(module_path, class_name, locale, scale, qtbot, at_font_scale, monkeypatch):
+    """One case of :func:`test_no_dialog_caption_is_cut_off`."""
     monkeypatch.setenv(I.ENV_LANGUAGE, locale)
     at_font_scale(scale)
     dialog = _build(module_path, class_name, qtbot)
@@ -473,6 +469,15 @@ def test_no_dialog_caption_is_cut_off(module_path, class_name, locale, scale,
     assert len(offenders) <= allowed, (
         f"{class_name} in {locale} at {scale:g}x: {len(offenders)} captions "
         f"cut off, {allowed} recorded. {detail}")
+
+
+@pytest.mark.parametrize("module_path,class_name", DIALOGS,
+                         ids=[name for _path, name in DIALOGS])
+def test_no_dialog_caption_is_cut_off(subtests, module_path, class_name, qtbot, at_font_scale, monkeypatch):
+    """One dialog, in one language, at one font scale."""
+    for label, case in locale_cases.cases(("scale", SCALES), ("locale", LOCALES)):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _no_dialog_caption_is_cut_off_case(module_path=module_path, class_name=class_name, qtbot=qtbot, at_font_scale=at_font_scale, monkeypatch=case_monkeypatch, **case)
 
 
 def test_the_dialog_sweep_can_actually_fail(qtbot, at_font_scale):  # noqa: F811
@@ -502,21 +507,8 @@ def test_the_dialog_sweep_can_actually_fail(qtbot, at_font_scale):  # noqa: F811
     )
 
 
-@pytest.mark.parametrize("scale", SCALES)
-@pytest.mark.parametrize("locale", LOCALES)
-@pytest.mark.parametrize("module_path,class_name,make_argument",
-                         DIALOGS_WITH_ARGUMENTS,
-                         ids=[name for _p, name, _f in DIALOGS_WITH_ARGUMENTS])
-def test_no_argumented_dialog_caption_is_cut_off(module_path, class_name,
-                                                 make_argument, locale, scale,
-                                                 qtbot, at_font_scale,  # noqa: F811
-                                                 monkeypatch):
-    """The dialogs that take a settings object or a title.
-
-    Same checker, same rules, same locales and scales as the argument-free
-    sweep above -- only the construction differs, and it differs by supplying
-    the value the application itself supplies.
-    """
+def _no_argumented_dialog_caption_is_cut_off_case(module_path, class_name, make_argument, locale, scale, qtbot, at_font_scale, monkeypatch):
+    """One case of :func:`test_no_argumented_dialog_caption_is_cut_off`."""
     monkeypatch.setenv(I.ENV_LANGUAGE, locale)
     at_font_scale(scale)
     dialog = _build_with(module_path, class_name, make_argument, qtbot)
@@ -530,15 +522,41 @@ def test_no_argumented_dialog_caption_is_cut_off(module_path, class_name,
     )
 
 
-@pytest.mark.parametrize("scale", SCALES)
-@pytest.mark.parametrize("locale", LOCALES)
+@pytest.mark.parametrize("module_path,class_name,make_argument",
+                         DIALOGS_WITH_ARGUMENTS,
+                         ids=[name for _p, name, _f in DIALOGS_WITH_ARGUMENTS])
+def test_no_argumented_dialog_caption_is_cut_off(subtests, module_path, class_name, make_argument, qtbot, at_font_scale, monkeypatch):
+    """The dialogs that take a settings object or a title.
+
+    Same checker, same rules, same locales and scales as the argument-free
+    sweep above -- only the construction differs, and it differs by supplying
+    the value the application itself supplies.
+    """
+    for label, case in locale_cases.cases(("scale", SCALES), ("locale", LOCALES)):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _no_argumented_dialog_caption_is_cut_off_case(module_path=module_path, class_name=class_name, make_argument=make_argument, qtbot=qtbot, at_font_scale=at_font_scale, monkeypatch=case_monkeypatch, **case)
+
+
+def _no_multi_argument_dialog_caption_is_cut_off_case(module_path, class_name, make_argument, locale, scale, qtbot, at_font_scale, monkeypatch):
+    """One case of :func:`test_no_multi_argument_dialog_caption_is_cut_off`."""
+    monkeypatch.setenv(I.ENV_LANGUAGE, locale)
+    at_font_scale(scale)
+    dialog = _build_with(module_path, class_name, make_argument, qtbot)
+
+    offenders = _offenders(dialog)
+    allowed = KNOWN_OFFENDERS.get((class_name, locale, scale), 0)
+    detail = "; ".join(offenders[:6]) if offenders else ""
+    assert len(offenders) <= allowed, (
+        f"{class_name} in {locale} at {scale:g}x: {len(offenders)} captions "
+        f"cut off, {allowed} allowed. {detail}"
+    )
+
+
 @pytest.mark.parametrize("module_path,class_name,make_argument",
                          DIALOGS_WITH_ARGUMENTS_MULTI,
                          ids=[name for _p, name, _f
                               in DIALOGS_WITH_ARGUMENTS_MULTI])
-def test_no_multi_argument_dialog_caption_is_cut_off(
-        module_path, class_name, make_argument, locale, scale,
-        qtbot, at_font_scale, monkeypatch):  # noqa: F811
+def test_no_multi_argument_dialog_caption_is_cut_off(subtests, module_path, class_name, make_argument, qtbot, at_font_scale, monkeypatch):
     """The six added on 2026-09-07, by the same rule as the five above.
 
     Six more of the twenty-four turned out not to need an invented fixture
@@ -548,14 +566,6 @@ def test_no_multi_argument_dialog_caption_is_cut_off(
     dialog as the user gets it, which is the line this file has drawn from
     the start.
     """
-    monkeypatch.setenv(I.ENV_LANGUAGE, locale)
-    at_font_scale(scale)
-    dialog = _build_with(module_path, class_name, make_argument, qtbot)
-
-    offenders = _offenders(dialog)
-    allowed = KNOWN_OFFENDERS.get((class_name, locale, scale), 0)
-    detail = "; ".join(offenders[:6]) if offenders else ""
-    assert len(offenders) <= allowed, (
-        f"{class_name} in {locale} at {scale:g}x: {len(offenders)} captions "
-        f"cut off, {allowed} allowed. {detail}"
-    )
+    for label, case in locale_cases.cases(("scale", SCALES), ("locale", LOCALES)):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _no_multi_argument_dialog_caption_is_cut_off_case(module_path=module_path, class_name=class_name, make_argument=make_argument, qtbot=qtbot, at_font_scale=at_font_scale, monkeypatch=case_monkeypatch, **case)

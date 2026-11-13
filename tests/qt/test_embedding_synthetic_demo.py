@@ -8,6 +8,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
+from tests import locale_cases
+
 pytestmark = pytest.mark.qt
 
 
@@ -117,11 +119,8 @@ def test_a_demo_preparation_error_keeps_the_existing_selection(
     assert "example directory is not writable" in demo_screen._status.text()
 
 
-@pytest.mark.parametrize("language", [
-    "sv", "de", "es", "zh_CN", "fr", "pt", "hi", "ko", "is",
-])
-def test_the_demo_uses_installed_translations_and_control_captions(
-        qtbot, monkeypatch, tmp_path, language):
+def _the_demo_uses_installed_translations_and_control_captions_case(qtbot, monkeypatch, tmp_path, language):
+    """One case of :func:`test_the_demo_uses_installed_translations_and_control_captions`."""
     from spacr import example_archives
     from spacr.qt import preferences
     from spacr.qt.i18n import tr
@@ -152,6 +151,14 @@ def test_the_demo_uses_installed_translations_and_control_captions(
     assert screen._status.text() == records[4]["translation"].format(
         embed=tr("Embed"), classifier=tr("Classifier"), run=tr("Run"),
         folder=tmp_path / "demo")
+
+
+def test_the_demo_uses_installed_translations_and_control_captions(subtests, qtbot, monkeypatch, tmp_path):
+    for label, case in locale_cases.cases(("language", [
+    "sv", "de", "es", "zh_CN", "fr", "pt", "hi", "ko", "is",
+])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _the_demo_uses_installed_translations_and_control_captions_case(qtbot=qtbot, monkeypatch=case_monkeypatch, tmp_path=locale_cases.case_dir(tmp_path, label), **case)
 
 
 def _fake_example_plate(folder):

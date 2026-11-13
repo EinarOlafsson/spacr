@@ -8,9 +8,11 @@ import pytest
 
 from spacr import attribution as cf
 
+from tests import locale_cases
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'fr', 'pt', 'is', 'hi', 'ko', 'zh_CN'])
-def test_actual_pinned_checkpoint_refusal_is_localized(tmp_path, monkeypatch, language):
+
+def _actual_pinned_checkpoint_refusal_is_localized_case(tmp_path, monkeypatch, language):
+    """One case of :func:`test_actual_pinned_checkpoint_refusal_is_localized`."""
     reviews = (Path(__file__).parents[1] / 'docs/i18n/reviewed/runtime' / language
                / '2026-10-15-counterfactual-pinned-reuse.json')
     record = next(row for row in json.loads(reviews.read_text(encoding="utf-8"))['records']
@@ -27,3 +29,9 @@ def test_actual_pinned_checkpoint_refusal_is_localized(tmp_path, monkeypatch, la
     assert str(error.value) == record['translation']
     assert str(error.value) != record['source']
     assert path.read_bytes() == original
+
+
+def test_actual_pinned_checkpoint_refusal_is_localized(subtests, tmp_path, monkeypatch):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'fr', 'pt', 'is', 'hi', 'ko', 'zh_CN'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _actual_pinned_checkpoint_refusal_is_localized_case(tmp_path=locale_cases.case_dir(tmp_path, label), monkeypatch=case_monkeypatch, **case)

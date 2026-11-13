@@ -12,25 +12,29 @@ from build_documentation_i18n import (
     _reviewed_api_block_valid,
 )
 
+from tests import locale_cases
 
-@pytest.mark.parametrize("validate", [_api_block_valid, _reviewed_api_block_valid])
-@pytest.mark.parametrize('language, conjunction', [
-    ('de', 'oder'), ('es', 'o'), ('fr', 'ou'), ('hi', 'या'), ('is', 'eða'),
-    ('ko', '또는'), ('pt', 'ou'), ('sv', 'eller'), ('zh_CN', '或'),
-])
-@pytest.mark.parametrize('source, protected', [
-    (':data:`EXTERNAL_STATUS_SUFFIX` or :data:`EXTERNAL_SCORES_SUFFIX`.',
-     'EXTERNAL_SCORES_SUFFIX'),
-    ("``location_column`` — ``'columnID'`` or ``'rowID'``.", 'rowID'),
-])
-def test_reference_alternatives_translate_the_conjunction_and_keep_both_targets(
-    validate, language, conjunction, source, protected,
-):
+
+def _reference_alternatives_translate_the_conjunction_and_keep_both_targets_case(validate, language, conjunction, source, protected):
+    """One case of :func:`test_reference_alternatives_translate_the_conjunction_and_keep_both_targets`."""
     translated = source.replace(' or ', f' {conjunction} ')
     assert _api_block_requires_translation(source)
     assert validate(source, translated, language)
     assert not validate(source, source, language)
     assert not validate(source, translated.replace(protected, 'WRONG'), language)
+
+
+def test_reference_alternatives_translate_the_conjunction_and_keep_both_targets(subtests):
+    for label, case in locale_cases.cases(("validate", [_api_block_valid, _reviewed_api_block_valid]), ('language, conjunction', [
+    ('de', 'oder'), ('es', 'o'), ('fr', 'ou'), ('hi', 'या'), ('is', 'eða'),
+    ('ko', '또는'), ('pt', 'ou'), ('sv', 'eller'), ('zh_CN', '或'),
+]), ('source, protected', [
+    (':data:`EXTERNAL_STATUS_SUFFIX` or :data:`EXTERNAL_SCORES_SUFFIX`.',
+     'EXTERNAL_SCORES_SUFFIX'),
+    ("``location_column`` — ``'columnID'`` or ``'rowID'``.", 'rowID'),
+])):
+        with subtests.test(**label):
+            _reference_alternatives_translate_the_conjunction_and_keep_both_targets_case(**case)
 
 
 @pytest.mark.parametrize('source', ['``or``', ':data:`or`', '``no``', '``(H, W, C)``.'])

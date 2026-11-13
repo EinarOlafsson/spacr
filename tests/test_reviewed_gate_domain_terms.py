@@ -27,6 +27,8 @@ sys.path.insert(0, str(ROOT / "tools"))
 
 from build_i18n_catalogs import _semantic_false_friends  # noqa: E402
 
+from tests import locale_cases
+
 POWER_DESIGN = ("Power / Design — estimate how many cells per well, and how "
                 "many wells, a screen needs.")
 IMAGE_SCREEN = ("The **Map Barcodes** module connects a sequencing run to an "
@@ -94,9 +96,15 @@ REJECTED = [
 ]
 
 
-@pytest.mark.parametrize("language, source, target", ACCEPTED)
-def test_correct_domain_words_pass_the_sense_gates(language, source, target):
+def _correct_domain_words_pass_the_sense_gates_case(language, source, target):
+    """One case of :func:`test_correct_domain_words_pass_the_sense_gates`."""
     assert _semantic_false_friends(source, target, language) == ()
+
+
+def test_correct_domain_words_pass_the_sense_gates(subtests):
+    for label, case in locale_cases.cases(("language, source, target", ACCEPTED)):
+        with subtests.test(**label):
+            _correct_domain_words_pass_the_sense_gates_case(**case)
 
 
 @pytest.mark.parametrize("language, source, target, label", REJECTED)

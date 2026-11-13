@@ -61,6 +61,8 @@ from spacr.qt.preferences import FONT_SCALE_MAX            # noqa: E402
 
 from .test_no_caption_is_clipped import painted_text       # noqa: E402
 
+from tests import locale_cases
+
 #: The screens the sweep builds.
 #:
 #: It began as eight, "chosen to cover the shapes rather than the count": the
@@ -506,18 +508,8 @@ def _offenders(screen):
 KNOWN_OFFENDERS: dict = {}
 
 
-@pytest.mark.parametrize("scale", SCALES)
-@pytest.mark.parametrize("locale", LOCALES)
-@pytest.mark.parametrize("app_key", SCREENS)
-def test_no_caption_is_cut_off(app_key, locale, scale, qtbot, at_font_scale,
-                               monkeypatch):
-    """One screen, in one language, at one font scale, by the rules above.
-
-    THE SCALE IS APPLIED BEFORE THE SCREEN IS BUILT, which is not a detail:
-    `scaled_px` is read at construction, so a screen built at 100 % and then
-    handed a 200 % stylesheet is a shape no user has -- 200 % glyphs in 100 %
-    boxes -- and would report clipping the application does not have.
-    """
+def _no_caption_is_cut_off_case(app_key, locale, scale, qtbot, at_font_scale, monkeypatch):
+    """One case of :func:`test_no_caption_is_cut_off`."""
     monkeypatch.setenv(I.ENV_LANGUAGE, locale)
     at_font_scale(scale)
     _host, screen = screen_in_a_container(qtbot, app_key)
@@ -534,6 +526,20 @@ def test_no_caption_is_cut_off(app_key, locale, scale, qtbot, at_font_scale,
         f"{app_key} in {locale} at {scale:g}x now has {len(offenders)} of "
         f"the {allowed} recorded -- lower or remove its entry in "
         f"KNOWN_OFFENDERS")
+
+
+@pytest.mark.parametrize("app_key", SCREENS)
+def test_no_caption_is_cut_off(subtests, app_key, qtbot, at_font_scale, monkeypatch):
+    """One screen, in one language, at one font scale, by the rules above.
+
+    THE SCALE IS APPLIED BEFORE THE SCREEN IS BUILT, which is not a detail:
+    `scaled_px` is read at construction, so a screen built at 100 % and then
+    handed a 200 % stylesheet is a shape no user has -- 200 % glyphs in 100 %
+    boxes -- and would report clipping the application does not have.
+    """
+    for label, case in locale_cases.cases(("scale", SCALES), ("locale", LOCALES)):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _no_caption_is_cut_off_case(app_key=app_key, qtbot=qtbot, at_font_scale=at_font_scale, monkeypatch=case_monkeypatch, **case)
 
 
 def test_empty_state_subtitle_refits_after_font_scale_and_text_changes(

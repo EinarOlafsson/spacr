@@ -21,6 +21,8 @@ from tests.qt.test_startup_ai_reporting_choice import private_ai_profile  # noqa
 from PySide6.QtCore import QPoint, QRect  # noqa: E402
 from PySide6.QtWidgets import QApplication, QLabel, QToolTip, QWidget  # noqa: E402
 
+from tests import locale_cases
+
 LONG_TIP = (
     "spaCR keeps logs and a folder per run in its home folder. Pruning "
     "deletes the oldest of them once a folder is over its size cap, and "
@@ -93,10 +95,8 @@ def test_a_long_tooltip_is_whole_at_every_zoom(qapp, window_sheets, scale):
     _assert_tip_holds(_shown_tip_label(), LONG_TIP)
 
 
-@pytest.mark.parametrize("language", LANGUAGES)
-@pytest.mark.parametrize("scale", [1.0, 2.0])
-def test_a_long_translated_tooltip_is_whole(qapp, window_sheets, scale,
-                                            language):
+def _a_long_translated_tooltip_is_whole_case(qapp, window_sheets, scale, language):
+    """One case of :func:`test_a_long_translated_tooltip_is_whole`."""
     from spacr.qt.tooltip_policy import _wrapped_tooltip
 
     window_sheets(scale)
@@ -106,6 +106,12 @@ def test_a_long_translated_tooltip_is_whole(qapp, window_sheets, scale,
     for _ in range(3):
         QApplication.processEvents()
     _assert_tip_holds(_shown_tip_label(), text)
+
+
+def test_a_long_translated_tooltip_is_whole(subtests, qapp, window_sheets):
+    for label, case in locale_cases.cases(("language", LANGUAGES), ("scale", [1.0, 2.0])):
+        with subtests.test(**label):
+            _a_long_translated_tooltip_is_whole_case(qapp=qapp, window_sheets=window_sheets, **case)
 
 
 def test_a_reused_tooltip_is_measured_in_its_styled_font(qapp, window_sheets):
@@ -231,10 +237,8 @@ def test_off_greys_the_two_surface_switches(qtbot, private_preferences):
     assert box.isEnabled() and bottom.isEnabled()
 
 
-@pytest.mark.parametrize("language", LANGUAGES)
-@pytest.mark.parametrize("scale", [1.0, 2.0])
-def test_the_navigator_placeholder_is_whole(qapp, qtbot, private_ai_profile,
-                                            monkeypatch, scale, language):
+def _the_navigator_placeholder_is_whole_case(qapp, qtbot, private_ai_profile, monkeypatch, scale, language):
+    """One case of :func:`test_the_navigator_placeholder_is_whole`."""
     from spacr.qt import theme
     from spacr.qt.widgets.home import _EasyHomePage
 
@@ -266,3 +270,9 @@ def test_the_navigator_placeholder_is_whole(qapp, qtbot, private_ai_profile,
             f"and has {room}")
     finally:
         qapp.setStyleSheet(before)
+
+
+def test_the_navigator_placeholder_is_whole(subtests, qapp, qtbot, private_ai_profile, monkeypatch):
+    for label, case in locale_cases.cases(("language", LANGUAGES), ("scale", [1.0, 2.0])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _the_navigator_placeholder_is_whole_case(qapp=qapp, qtbot=qtbot, private_ai_profile=private_ai_profile, monkeypatch=case_monkeypatch, **case)

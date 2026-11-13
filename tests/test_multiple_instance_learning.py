@@ -19,6 +19,8 @@ from spacr.embeddings import (_mil_bags, _mil_fit, _mil_from_table,
                               _mil_predict, _mil_scorecard,
                               _synthetic_mil_bags)
 
+from tests import locale_cases
+
 _FIT = {"epochs": 40}
 
 
@@ -359,8 +361,8 @@ def test_direct_mil_only_participating_rows_can_contradict_well_identity():
     pd.testing.assert_frame_equal(frame, original)
 
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'])
-def test_direct_mil_conflict_uses_actual_reviewed_locale_callback(language, monkeypatch):
+def _direct_mil_conflict_uses_actual_reviewed_locale_callback_case(language, monkeypatch):
+    """One case of :func:`test_direct_mil_conflict_uses_actual_reviewed_locale_callback`."""
     import hashlib
     import json
 
@@ -377,3 +379,9 @@ def test_direct_mil_conflict_uses_actual_reviewed_locale_callback(language, monk
         _mil_bags(frame)
     assert str(error.value) == row['translation'].format(well='A1')
     pd.testing.assert_frame_equal(frame, original)
+
+
+def test_direct_mil_conflict_uses_actual_reviewed_locale_callback(subtests, monkeypatch):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _direct_mil_conflict_uses_actual_reviewed_locale_callback_case(monkeypatch=case_monkeypatch, **case)

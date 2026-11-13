@@ -8,11 +8,13 @@ import pytest
 
 from spacr import install_cleanup as ic
 
+from tests import locale_cases
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'])
-def test_actual_cli_help_and_error_templates_use_exact_reviewed_locale(monkeypatch, capsys, language):
+def _actual_cli_help_and_error_templates_use_exact_reviewed_locale_case(monkeypatch, capsys, language):
+    """One case of :func:`test_actual_cli_help_and_error_templates_use_exact_reviewed_locale`."""
     monkeypatch.setenv('SPACR_LANGUAGE', language)
     monkeypatch.setenv('COLUMNS', '240')
     records = json.loads((ROOT / 'docs/i18n/reviewed/runtime' / language /
@@ -38,6 +40,13 @@ def test_actual_cli_help_and_error_templates_use_exact_reviewed_locale(monkeypat
             assert ' '.join(expected[source].split()) in help_text
 
 
+def test_actual_cli_help_and_error_templates_use_exact_reviewed_locale(subtests, monkeypatch, capsys):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            capsys.readouterr()
+            _actual_cli_help_and_error_templates_use_exact_reviewed_locale_case(monkeypatch=case_monkeypatch, capsys=capsys, **case)
+
+
 def test_extracted_helper_still_formats_message_when_application_cannot_import(monkeypatch):
     original = builtins.__import__
     def without_application(name, *args, **kwargs):
@@ -57,8 +66,8 @@ def test_each_added_cli_caption_is_a_literal_translation_call():
     assert {row['source'] for row in records} <= calls
 
 
-@pytest.mark.parametrize('language', ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'])
-def test_installer_metadata_command_help_uses_exact_reviewed_locale(monkeypatch, capsys, language):
+def _installer_metadata_command_help_uses_exact_reviewed_locale_case(monkeypatch, capsys, language):
+    """One case of :func:`test_installer_metadata_command_help_uses_exact_reviewed_locale`."""
     monkeypatch.setenv('SPACR_LANGUAGE', language)
     monkeypatch.setenv('COLUMNS', '240')
     records = json.loads((ROOT / 'docs/i18n/reviewed/runtime' / language /
@@ -71,3 +80,10 @@ def test_installer_metadata_command_help_uses_exact_reviewed_locale(monkeypatch,
         ic._main(['--help'])
     assert stopped.value.code == 0
     assert ' '.join(target.split()) in ' '.join(capsys.readouterr().out.split())
+
+
+def test_installer_metadata_command_help_uses_exact_reviewed_locale(subtests, monkeypatch, capsys):
+    for label, case in locale_cases.cases(('language', ['sv', 'de', 'es', 'zh_CN', 'pt', 'hi', 'ko', 'is', 'fr'])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            capsys.readouterr()
+            _installer_metadata_command_help_uses_exact_reviewed_locale_case(monkeypatch=case_monkeypatch, capsys=capsys, **case)

@@ -8,6 +8,8 @@ from PySide6.QtWidgets import QDialog, QTreeWidget
 
 from spacr.qt import install_consent as consent
 
+from tests import locale_cases
+
 
 @pytest.fixture
 def preview(tmp_path):
@@ -202,8 +204,8 @@ def test_production_preview_disables_deletion_and_explains_why(qtbot, tmp_path):
     assert dialog.choices()["keys"] == []
 
 
-@pytest.mark.parametrize("language", ["sv", "de", "es", "zh_CN", "fr", "pt", "hi", "ko", "is"])
-def test_actual_inventory_retention_reason_and_keep_button_use_reviewed_locale(qtbot, tmp_path, monkeypatch, language):
+def _actual_inventory_retention_reason_and_keep_button_use_reviewed_locale_case(qtbot, tmp_path, monkeypatch, language):
+    """One case of :func:`test_actual_inventory_retention_reason_and_keep_button_use_reviewed_locale`."""
     import importlib
     from PySide6.QtWidgets import QPushButton
     from spacr import install_cleanup as ic
@@ -238,6 +240,12 @@ def test_actual_inventory_retention_reason_and_keep_button_use_reviewed_locale(q
     assert dialog.choices()["keys"] == []
     assert not tree.topLevelItem(0).flags() & Qt.ItemIsEnabled
     assert (folder / "releases.json").read_text(encoding="utf-8") == "{}"
+
+
+def test_actual_inventory_retention_reason_and_keep_button_use_reviewed_locale(subtests, qtbot, tmp_path, monkeypatch):
+    for label, case in locale_cases.cases(("language", ["sv", "de", "es", "zh_CN", "fr", "pt", "hi", "ko", "is"])):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _actual_inventory_retention_reason_and_keep_button_use_reviewed_locale_case(qtbot=qtbot, tmp_path=locale_cases.case_dir(tmp_path, label), monkeypatch=case_monkeypatch, **case)
 
 
 def test_live_guard_preview_starts_unchecked_then_selected_gui_choice_reaches_backend(qtbot, tmp_path):

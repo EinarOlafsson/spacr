@@ -20,6 +20,8 @@ from pathlib import Path
 
 import pytest
 
+from tests import locale_cases
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -72,9 +74,15 @@ def test_every_language_has_a_source_and_the_tool_knows_them_all():
         assert set(tool.FONT_COVERAGE) == set(LANGUAGES)
 
 
-@pytest.mark.parametrize("language", LANGUAGES[1:])
-def test_each_translation_has_the_english_block_structure(language):
+def _each_translation_has_the_english_block_structure_case(language):
+    """One case of :func:`test_each_translation_has_the_english_block_structure`."""
     assert _tool().check_structure(language) == []
+
+
+def test_each_translation_has_the_english_block_structure(subtests):
+    for label, case in locale_cases.cases(("language", LANGUAGES[1:])):
+        with subtests.test(**label):
+            _each_translation_has_the_english_block_structure_case(**case)
 
 
 WEBSITE_LINE = re.compile(
@@ -82,9 +90,8 @@ WEBSITE_LINE = re.compile(
     r"<https://einarolafsson\.github\.io/projects/spacr/>`_")
 
 
-@pytest.mark.parametrize("language", LANGUAGES)
-def test_the_readme_holds_only_images_code_badges_and_markers(language):
-    """No prose, list, heading or table reaches the README as text."""
+def _the_readme_holds_only_images_code_badges_and_markers_case(language):
+    """One case of :func:`test_the_readme_holds_only_images_code_badges_and_markers`."""
     tool = _tool()
     text = _readme(language).read_text(encoding="utf-8")
     for block in tool.parse_rst(text):
@@ -103,8 +110,15 @@ def test_the_readme_holds_only_images_code_badges_and_markers(language):
                 f"{block.get('text', block)!r:.120}")
 
 
-@pytest.mark.parametrize("language", LANGUAGES)
-def test_every_readme_image_has_alt_text_and_the_svg_says_the_same(language):
+def test_the_readme_holds_only_images_code_badges_and_markers(subtests):
+    """No prose, list, heading or table reaches the README as text."""
+    for label, case in locale_cases.cases(("language", LANGUAGES)):
+        with subtests.test(**label):
+            _the_readme_holds_only_images_code_badges_and_markers_case(**case)
+
+
+def _every_readme_image_has_alt_text_and_the_svg_says_the_same_case(language):
+    """One case of :func:`test_every_readme_image_has_alt_text_and_the_svg_says_the_same`."""
     tool = _tool()
     path = _readme(language)
     images = [image for image in _images(path.read_text(encoding="utf-8"))
@@ -122,9 +136,14 @@ def test_every_readme_image_has_alt_text_and_the_svg_says_the_same(language):
         assert tool._alt(unescape(desc)) == alt, image["src"]
 
 
-@pytest.mark.parametrize("language", LANGUAGES)
-def test_panel_alt_text_is_the_full_text_of_its_source_blocks(language):
-    """Every prose block's text is in some image's alt, word for word."""
+def test_every_readme_image_has_alt_text_and_the_svg_says_the_same(subtests):
+    for label, case in locale_cases.cases(("language", LANGUAGES)):
+        with subtests.test(**label):
+            _every_readme_image_has_alt_text_and_the_svg_says_the_same_case(**case)
+
+
+def _panel_alt_text_is_the_full_text_of_its_source_blocks_case(language):
+    """One case of :func:`test_panel_alt_text_is_the_full_text_of_its_source_blocks`."""
     tool = _tool()
     alts = " ".join(image.get("alt", "") for image in _images(
         _readme(language).read_text(encoding="utf-8")))
@@ -141,6 +160,13 @@ def test_panel_alt_text_is_the_full_text_of_its_source_blocks(language):
                     assert tool._alt(label) in alts
             else:
                 assert tool._alt(plain) in alts, (language, plain[:80])
+
+
+def test_panel_alt_text_is_the_full_text_of_its_source_blocks(subtests):
+    """Every prose block's text is in some image's alt, word for word."""
+    for label, case in locale_cases.cases(("language", LANGUAGES)):
+        with subtests.test(**label):
+            _panel_alt_text_is_the_full_text_of_its_source_blocks_case(**case)
 
 
 def test_the_readmes_and_images_are_current():
@@ -161,9 +187,8 @@ def test_no_stray_images_are_left_behind():
         assert on_disk == used, (language, sorted(on_disk ^ used)[:10])
 
 
-@pytest.mark.parametrize("language", LANGUAGES)
-def test_each_image_embeds_the_fonts_its_script_needs(language):
-    """Open Sans everywhere; Noto for Devanagari, Hangul and Han."""
+def _each_image_embeds_the_fonts_its_script_needs_case(language):
+    """One case of :func:`test_each_image_embeds_the_fonts_its_script_needs`."""
     tool = _tool()
     families = set()
     for path in (tool.IMAGE_DIR / language).glob("*.svg"):
@@ -173,6 +198,13 @@ def test_each_image_embeds_the_fonts_its_script_needs(language):
         assert "@import" not in text and "href=\"http" not in text
     assert "spacr-os" in families
     assert ("spacr-script" in families) == (language in tool.SCRIPT_FONT)
+
+
+def test_each_image_embeds_the_fonts_its_script_needs(subtests):
+    """Open Sans everywhere; Noto for Devanagari, Hangul and Han."""
+    for label, case in locale_cases.cases(("language", LANGUAGES)):
+        with subtests.test(**label):
+            _each_image_embeds_the_fonts_its_script_needs_case(**case)
 
 
 def test_light_body_and_regular_headings():

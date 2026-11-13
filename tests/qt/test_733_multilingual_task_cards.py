@@ -9,6 +9,8 @@ from spacr.qt.widgets.home import _EasyHomePage
 from tests.qt.test_733_easy_commands import commands as commands
 from tests.qt.test_startup_ai_reporting_choice import private_ai_profile as private_ai_profile
 
+from tests import locale_cases
+
 _QUESTIONS = [
     ('sv', 'jag vill mäta cellegenskaper', ('measure',)),
     ('de', 'ich möchte Bilder analysieren', ('mask', 'measure', 'qc_dashboard')),
@@ -25,9 +27,8 @@ _QUESTIONS = [
 ]
 
 
-@pytest.mark.parametrize('locale,question,expected', _QUESTIONS)
-def test_natural_locale_questions_make_real_cards_on_enter(
-        commands, qtbot, monkeypatch, locale, question, expected):
+def _natural_locale_questions_make_real_cards_on_enter_case(commands, qtbot, monkeypatch, locale, question, expected):
+    """One case of :func:`test_natural_locale_questions_make_real_cards_on_enter`."""
     monkeypatch.setenv('SPACR_LANGUAGE', locale)
     monkeypatch.setattr(app, 'app_is_visible', lambda key: True)
     page = _EasyHomePage(commands)
@@ -41,6 +42,12 @@ def test_natural_locale_questions_make_real_cards_on_enter(
     qtbot.waitUntil(lambda: bool(page.field.cards), timeout=3000)
     assert tuple(card._key for card in page.field.cards) == expected
     assert not commands.opened and not commands.navigated
+
+
+def test_natural_locale_questions_make_real_cards_on_enter(subtests, commands, qtbot, monkeypatch):
+    for label, case in locale_cases.cases(('locale,question,expected', _QUESTIONS)):
+        with subtests.test(**label), locale_cases.monkeypatch_scope() as case_monkeypatch:
+            _natural_locale_questions_make_real_cards_on_enter_case(commands=commands, qtbot=qtbot, monkeypatch=case_monkeypatch, **case)
 
 
 def test_unicode_normalization_preserves_hindi_marks_and_canonical_accents():

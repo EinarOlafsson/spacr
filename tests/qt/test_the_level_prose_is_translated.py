@@ -26,6 +26,8 @@ pytest.importorskip("PySide6")
 from spacr.qt import memory_budget as mb
 from spacr.qt import preferences as P
 
+from tests import locale_cases
+
 pytestmark = pytest.mark.qt
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -43,8 +45,8 @@ def test_the_level_prose_reaches_the_runtime_catalog_sources():
         assert text in sources, f"never extracted for translation: {text!r}"
 
 
-@pytest.mark.parametrize("language", LANGUAGES)
-def test_every_level_string_is_translated(language):
+def _every_level_string_is_translated_case(language):
+    """One case of :func:`test_every_level_string_is_translated`."""
     from spacr.qt.i18n import _exact_translation
 
     missing = [text for text in (*P.PERFORMANCE_LABELS.values(), *PROSE)
@@ -52,3 +54,9 @@ def test_every_level_string_is_translated(language):
     assert missing == [], (
         f"{language} shows these performance-level strings in English:\n"
         + "\n".join(missing))
+
+
+def test_every_level_string_is_translated(subtests):
+    for label, case in locale_cases.cases(("language", LANGUAGES)):
+        with subtests.test(**label):
+            _every_level_string_is_translated_case(**case)
