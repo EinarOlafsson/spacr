@@ -8102,7 +8102,8 @@ def run_ops(settings: Mapping[str, Any], *,
     well_phases = [p for p in phases if p not in _PH_PLATE_PHASES
                    and p not in ("decode_qc", "compare_calls")]
     only_qc = set(phases) <= {"decode_qc", "compare_calls"}
-    for well in ([] if only_qc else chosen):
+    well_list = [] if only_qc else list(chosen)
+    for well_number, well in enumerate(well_list, start=1):
         folder = os.path.join(destination, well)
         report_path = os.path.join(folder, "ops_report.json")
         if settings.get("ops_gpu_admission") and os.path.exists(
@@ -8115,6 +8116,8 @@ def run_ops(settings: Mapping[str, Any], *,
                                          well, well_phases, settings)
             if resumed is not None:
                 out["wells"][well] = resumed
+                print(f"Progress: {well_number}/{len(well_list)}, "
+                      f"operation_type: OPS wells", flush=True)
                 continue
         report: Dict[str, Any] = {}
         if not sequencing and os.path.isfile(report_path):
@@ -8202,6 +8205,8 @@ def run_ops(settings: Mapping[str, Any], *,
                 delete_local=bool(settings.get("ops_archive_delete_local")),
                 report=report)
         out["wells"][well] = report
+        print(f"Progress: {well_number}/{len(well_list)}, "
+              f"operation_type: OPS wells", flush=True)
     if _wants_decode_qc(settings, phases):
         from .ops_decode import results_folder, run_decode_qc
 
@@ -10357,6 +10362,8 @@ def run_spatial_masks(settings: Mapping[str, Any], *,
     empty = 0
     channels = 0
     for index, piece in enumerate(windows):
+        print(f"Progress: {index}/{len(windows)}, "
+              f"operation_type: Segmenting tiles", flush=True)
         tick = time.perf_counter()
         bounds = (col0 + piece.left, row0 + piece.top, piece.width,
                   piece.height)
@@ -10414,6 +10421,8 @@ def run_spatial_masks(settings: Mapping[str, Any], *,
         np.save(os.path.join(scratch, f"{stem}_nuclei.npy"), nuclei)
         observations.extend(found)
         stems[piece.offset()] = (index, stem)
+    print(f"Progress: {len(windows)}/{len(windows)}, "
+          f"operation_type: Segmenting tiles", flush=True)
     tick = time.perf_counter()
     groups = sew(observations)
     unseen = len(unseen_records(groups))
@@ -10662,7 +10671,7 @@ def run_spatial_map(settings: Mapping[str, Any]) -> Dict[str, Any]:
     in_cell = np.zeros(total, dtype=bool)
     best = (None, -1)
     tick = time.perf_counter()
-    for _row, field in fields.iterrows():
+    for field_number, (_row, field) in enumerate(fields.iterrows(), start=1):
         frame_xy = _st_field_frame(xy0, field)
         radius = radius0 / float(field["scale_x"])
         width, height = int(field["width"]), int(field["height"])
@@ -10697,6 +10706,8 @@ def run_spatial_map(settings: Mapping[str, Any]) -> Dict[str, Any]:
                     prcfo=_st_prcfo(prcf, coverage["object_label"])))
             if kind == kinds[0] and len(labels) > best[1]:
                 best = (field, len(labels))
+        print(f"Progress: {field_number}/{len(fields)}, "
+              f"operation_type: Assigning spots", flush=True)
     assign_seconds = time.perf_counter() - tick
     output = os.path.join(masks_dir, "spatial_transcriptomics")
     os.makedirs(output, exist_ok=True)
