@@ -12186,7 +12186,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "count_data",
-    "line": 5779,
+    "line": 5811,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "_count_files_of"
@@ -36651,7 +36651,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_bench_gate_record",
-    "line": 2702,
+    "line": 2692,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_bench_options"
@@ -36671,7 +36671,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_bench_half",
-    "line": 2703,
+    "line": 2693,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_bench_options"
@@ -36680,7 +36680,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_bench_half",
-    "line": 2703,
+    "line": 2693,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_bench_options"
@@ -36942,7 +36942,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cluster_gene_list",
-    "line": 2534,
+    "line": 2524,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_guide_inputs"
@@ -37031,7 +37031,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cluster_reference_dir",
-    "line": 2804,
+    "line": 2794,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "cluster_bench_test_phase"
@@ -37080,7 +37080,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_cluster_rows",
-    "line": 2510,
+    "line": 2500,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_guide_inputs"
@@ -37654,7 +37654,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_consensus_bootstraps",
-    "line": 2572,
+    "line": 2562,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37674,7 +37674,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_consensus_draw_seed",
-    "line": 2574,
+    "line": 2564,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37683,7 +37683,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ops_consensus_draw_seed",
-    "line": 2575,
+    "line": 2565,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37723,7 +37723,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_consensus_force_genes",
-    "line": 2579,
+    "line": 2569,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37732,7 +37732,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ops_consensus_force_genes",
-    "line": 2580,
+    "line": 2570,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37752,7 +37752,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_consensus_guides",
-    "line": 2511,
+    "line": 2501,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_guide_inputs"
@@ -37772,7 +37772,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_consensus_k",
-    "line": 2571,
+    "line": 2561,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37792,7 +37792,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_consensus_k_ratio",
-    "line": 2570,
+    "line": 2560,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37812,7 +37812,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_consensus_knn",
-    "line": 2576,
+    "line": 2566,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37832,7 +37832,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_consensus_match_count",
-    "line": 2583,
+    "line": 2573,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37841,7 +37841,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ops_consensus_match_count",
-    "line": 2584,
+    "line": 2574,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37861,7 +37861,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_consensus_method",
-    "line": 2567,
+    "line": 2557,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37890,7 +37890,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_consensus_min_cooc",
-    "line": 2577,
+    "line": 2567,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37910,7 +37910,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_consensus_min_stability",
-    "line": 2581,
+    "line": 2571,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37919,7 +37919,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ops_consensus_min_stability",
-    "line": 2582,
+    "line": 2572,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37959,7 +37959,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_consensus_seed",
-    "line": 2573,
+    "line": 2563,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -37968,7 +37968,7 @@
     "form": "subscript",
     "function_depth": 1,
     "key": "ops_consensus_seed",
-    "line": 2573,
+    "line": 2563,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_consensus_options"
@@ -38006,7 +38006,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_control_prefix",
-    "line": 2509,
+    "line": 2499,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_guide_inputs"
@@ -43224,7 +43224,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_profile_min_cells",
-    "line": 2519,
+    "line": 2509,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "_guide_inputs"
@@ -43768,7 +43768,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_reference_dir",
-    "line": 2804,
+    "line": 2794,
     "module": "spacr.ops_clusters",
     "nested": false,
     "qualname": "cluster_bench_test_phase"
@@ -52673,7 +52673,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 5772,
+    "line": 5804,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "_count_files_of"
@@ -52682,7 +52682,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 5869,
+    "line": 5901,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "regression_design_scan"
