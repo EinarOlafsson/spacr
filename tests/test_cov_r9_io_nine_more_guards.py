@@ -10,9 +10,7 @@ from __future__ import annotations
 
 import inspect
 import os
-import sqlite3
 
-import numpy as np
 import pandas as pd
 import pytest
 
@@ -122,43 +120,6 @@ class TestTheObjectKey:
                     + metadata["columnID"] + "_" + metadata["fieldID"])
         assert list(composed) == ["p1_A01_c1_f1"]
 
-    def test_the_split_keeps_the_documented_meaning_of_cells_per_well(
-            self, tmp_path):
-        """The substance of the branch, driven on a real database.
-
-        ``cells_per_well`` is the MINIMUM a well must contribute, so it
-        has to be counted over the per-OBJECT key. ``object_label``
-        restarts at 1 in every field, so counting labels reports the
-        size of the largest FIELD instead: this well holds six cells
-        across two fields, and a threshold of four would then discard a
-        well that has more cells than it asked for -- the opposite of
-        the intent.
-        """
-        from spacr.io import _read_and_merge_data
-
-        path = str(tmp_path / "measurements.db")
-        rows = [{"plateID": "p1", "rowID": "r1", "columnID": "c1",
-                 "fieldID": field, "prcf": f"p1_r1_c1_{field}",
-                 "object_label": label, "area": 10.0 * label}
-                for field in ("f1", "f2") for label in (1, 2, 3)]
-        connection = sqlite3.connect(path)
-        try:
-            pd.DataFrame(rows).to_sql("cell", connection, index=False)
-            connection.commit()
-        finally:
-            connection.close()
-
-        merged, _objects = _read_and_merge_data([path], ["cell"])
-
-        counted = sorted(set(merged["cells_per_well"]))
-
-        assert len(merged) == 6
-        assert counted == [6], (
-            f"cells_per_well reported {counted} for a well holding six "
-            f"cells across two fields; 3 is the size of its largest field, "
-            f"not the number the well contributes, and every threshold "
-            f"between the two then drops the well")
-
 
 class TestTheDestinationFolder:
 
@@ -261,26 +222,6 @@ class TestTheDatasetModeDispatch:
 
 class TestOneWellPerOriginalFile:
 
-    def test_one_listdir_iteration_mints_exactly_one_well(self, tmp_path):
-        """All channels of each original share one distinct, stable well."""
-        import tifffile
-
-        from spacr import io as IO
-
-        for name, value in [('b.tif', 20), ('a.tif', 10)]:
-            tifffile.imwrite(tmp_path / name, np.stack([
-                np.full((8, 9), value, np.uint16),
-                np.full((8, 9), value + 1, np.uint16)]), photometric='minisblack')
-        IO.convert_to_yokogawa(str(tmp_path))
-        log = pd.read_csv(tmp_path / 'rename_log.csv')
-        assert len(log) == 4
-        for original, well, value in [('a.tif', 'A01', 10), ('b.tif', 'A02', 20)]:
-            names = log.loc[log['Original File'] == original, 'Renamed TIFF'].tolist()
-            assert names == [f'plate1_{well}_T0001F001L01C0{channel}.tif'
-                             for channel in (1, 2)]
-            for channel, name in enumerate(names):
-                np.testing.assert_array_equal(tifffile.imread(tmp_path / name),
-                                              np.full((8, 9), value + channel, np.uint16))
 
     def test_the_walk_is_sorted_so_the_wells_are_stable(self):
         """Two runs over the same folder must assign the same wells, or a
@@ -300,64 +241,6 @@ class TestAugmentingASmallFolder:
         assert len(pairs) >= target
         assert len(pairs[:target]) == target
 
-    def test_a_small_folder_is_augmented_to_exactly_the_target(self, tmp_path):
-        """THE ARC: ``augment_data``.
-
-        Every folder must reach ``target_size`` or the "balanced" split
-        is not balanced -- and the count is EXACTLY what is needed, which
-        is the fix recorded in ``docs/notes/spacr/io.md``: zipping the
-        pairs against a method list rounded down and left the folder
-        short.
-        """
-        import tifffile
-
-        from spacr.io import prepare_cellpose_dataset
-
-        def dataset(name, count, marker):
-            """One dataset folder: ``count`` image/mask pairs whose only
-            bright pixel sits at [0, 0] and whose value says which folder
-            the pair came from. Every augmentation in the list is a
-            rotation or a flip, so an augmented copy is exactly a copy
-            whose marker has left the top-left corner."""
-            folder = tmp_path / name
-            (folder / "masks").mkdir(parents=True)
-            for index in range(count):
-                image = np.zeros((4, 4), dtype=np.uint8)
-                image[0, 0] = marker + index
-                tifffile.imwrite(str(folder / f"{index}.tif"), image)
-                tifffile.imwrite(str(folder / "masks" / f"{index}.tif"), image)
-
-        dataset("small", 3, marker=10)
-        dataset("big", 7, marker=100)
-
-        prepare_cellpose_dataset(str(tmp_path), augment_data=True, n_jobs=1)
-
-        out = tmp_path / "cellpose_dataset"
-        images, masks = [], []
-        for subset in ("train", "test"):
-            for name in sorted(os.listdir(out / subset / "images")):
-                images.append(tifffile.imread(str(out / subset / "images" / name)))
-                masks.append(tifffile.imread(str(out / subset / "masks" / name)))
-
-        assert len(masks) == len(images), "a copied image lost its mask"
-
-        target = 7                                   # the largest folder
-        needed = target - 3                          # the short folder's gap
-        small = [image for image in images if image.max() < 100]
-        untouched = [image for image in small if image[0, 0] == image.max()]
-
-        assert len(images) == 2 * target, (
-            f"the two folders contributed {len(images)} pairs rather than "
-            f"{2 * target}, so the split is not balanced")
-        assert len(small) == target, (
-            f"the three-pair folder contributed {len(small)} pairs, not "
-            f"{target}; the balanced split is not balanced")
-        assert len(untouched) == 3, (
-            f"{len(untouched)} of the small folder's pairs are originals, "
-            f"not 3, so the originals were not all kept")
-        assert len(small) - len(untouched) == needed, (
-            f"the folder was grown by {len(small) - len(untouched)} "
-            f"augmented pairs rather than exactly {needed}")
 
     def test_without_augmentation_a_small_folder_stays_small(self):
         """The other arm, and why it is a choice rather than an

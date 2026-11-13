@@ -10,7 +10,7 @@ answer cannot change mid-run -- and a trap in a test process, both ways:
   failed.
 * INTO a test: on a GPU workstation a ``cuda:0`` cached earlier keeps
   answering after a test patches ``torch.cuda.is_available`` to False.
-  tests/test_cov_object_organelle_sam.py then read ``'cuda:0' == 'cpu'``
+  The organelle SAM tests then read ``'cuda:0' == 'cpu'``
   and ``torch.load(map_location=cuda:0)`` refused to deserialize. CI has no
   GPU, so CI never saw it; the pair below reproduces it WITHOUT a GPU by
   caching a fake ``cuda:0``.
@@ -82,7 +82,7 @@ def test_a_test_that_hides_cuda_is_not_answered_by_an_earlier_gpu(
         monkeypatch):
     """THE REGRESSION, inward direction -- the GPU-workstation failure.
 
-    The shape of tests/test_cov_object_organelle_sam.py's ``_force_cpu``:
+    The shape of tests/test_object_organelle_masks.py's ``_force_cpu``:
     hide CUDA, then let product code ask the resolver. A cached ``cuda:0``
     from the test before must not answer for this machine.
     """

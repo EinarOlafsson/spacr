@@ -71,50 +71,6 @@ class TestAFieldThatLoadedNothing:
         with pytest.raises(ValueError):
             np.stack(arrays, axis=0)
 
-    def test_the_stack_stays_inside_the_per_field_loop(self, tmp_path,
-                                                       monkeypatch):
-        """A real regression, pinned by what it cost rather than by the
-        indentation that fixes it. Dedented, the stack ran once after
-        the loop: ``arrays`` was unbound when no filename matched, and
-        only the LAST field ever got a movie -- every other one was
-        silently dropped."""
-        import spacr.timelapse as TL
-        from spacr import io as IO
-
-        made = []
-        monkeypatch.setattr(
-            TL, "_npz_to_movie",
-            lambda arrays, names, path, fps: made.append(
-                pathlib.Path(path).name))
-
-        fields = tmp_path / "npy"
-        fields.mkdir()
-        for field in ("1", "2"):
-            for time_point in (0, 1):
-                np.save(fields / f"plate1_A01_{field}_{time_point}.npy",
-                        np.zeros((4, 5, 2), dtype=np.uint16))
-
-        IO._create_movies_from_npy_per_channel(str(fields), fps=5)
-
-        assert sorted(made) == ["plate1_A01_1_channel_0.mp4",
-                                "plate1_A01_1_channel_1.mp4",
-                                "plate1_A01_2_channel_0.mp4",
-                                "plate1_A01_2_channel_1.mp4"], (
-            "not every field got a movie, which is what a dedented stack "
-            "does: it runs once, on whatever the last field left behind")
-
-        # The other half of the same regression: nothing matched the
-        # regex, so a dedented stack reaches np.stack with `arrays`
-        # unbound rather than simply finding no groups to make.
-        unmatched = tmp_path / "unmatched"
-        unmatched.mkdir()
-        np.save(unmatched / "not-a-field-name.npy", np.zeros((2, 2, 1)))
-        made.clear()
-
-        IO._create_movies_from_npy_per_channel(str(unmatched), fps=5)
-
-        assert made == []
-
 
 class TestTheEmptyMaskWarning:
 

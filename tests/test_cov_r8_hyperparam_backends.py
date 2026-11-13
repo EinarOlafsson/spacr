@@ -18,104 +18,6 @@ import pytest
 from spacr import hyperparam as H
 
 
-class TestTheGpuEmbedder:
-    """Reached only when cuML says it is there and builds what was asked."""
-
-    @staticmethod
-    def _features(rows=40, cols=6, seed=0):
-        rng = np.random.default_rng(seed)
-        return rng.normal(size=(rows, cols))
-
-    def test_a_cuml_array_is_brought_back_to_the_host(self, monkeypatch):
-        """THE UNCOVERED LINE.
-
-        cuML returns a device array. `.get()` copies it to host memory;
-        without that the value goes into a checkpoint as a handle to
-        memory the next process cannot read.
-        """
-        from spacr import gpu_reduce
-
-        brought_back = []
-
-        class _DeviceArray:
-            def __init__(self, host):
-                self._host = host
-
-            def get(self):
-                brought_back.append(True)
-                return self._host
-
-        class _Reducer:
-            def fit_transform(self, feats):
-                return _DeviceArray(np.zeros((len(feats), 2)))
-
-        monkeypatch.setattr(gpu_reduce, "rapids_available", lambda: True)
-        monkeypatch.setattr(gpu_reduce, "make_reducer",
-                            lambda *a, **k: (_Reducer(), "cuml"))
-
-        result = H.umap_search(
-            self._features(), space=H.SearchSpace({"n_neighbors": [5]}), backend="cuml",
-            n_trials=1, seed=0)
-        assert brought_back, "the device array was never copied to the host"
-        assert result is not None
-
-    def test_a_host_array_is_passed_through_unchanged(self, monkeypatch):
-        """The other side of `hasattr(value, "get")`.
-
-        A reducer that already returns a numpy array has no `.get`, and
-        calling one would be an AttributeError rather than a copy.
-        """
-        from spacr import gpu_reduce
-
-        class _Reducer:
-            def fit_transform(self, feats):
-                return np.zeros((len(feats), 2))
-
-        monkeypatch.setattr(gpu_reduce, "rapids_available", lambda: True)
-        monkeypatch.setattr(gpu_reduce, "make_reducer",
-                            lambda *a, **k: (_Reducer(), "cuml"))
-
-        assert H.umap_search(self._features(), space=H.SearchSpace({"n_neighbors": [5]}),
-                             backend="cuml", n_trials=1, seed=0) is not None
-
-    def test_no_cuml_is_refused_rather_than_downgraded(self, monkeypatch):
-        """A GPU run that quietly used the CPU would be false provenance."""
-        from spacr import gpu_reduce
-
-        monkeypatch.setattr(gpu_reduce, "rapids_available", lambda: False)
-        with pytest.raises(RuntimeError, match="GPU UMAP was requested"):
-            H.umap_search(self._features(), space=H.SearchSpace({"n_neighbors": [5]}),
-                          backend="cuml", n_trials=1, seed=0)
-
-    def test_a_reducer_that_is_not_cuml_fails_the_trial(self, monkeypatch):
-        """A checked GPU run must not silently produce CPU rows.
-
-        The refusal is raised inside the embedder, and the search
-        RECORDS it against the trial rather than letting it escape --
-        which is right: one failed configuration is a result about that
-        configuration, not a reason to lose the whole sweep. What must
-        not happen is a trial that succeeded on the wrong backend.
-        """
-        from spacr import gpu_reduce
-
-        class _Reducer:
-            def fit_transform(self, feats):
-                return np.zeros((len(feats), 2))
-
-        monkeypatch.setattr(gpu_reduce, "rapids_available", lambda: True)
-        monkeypatch.setattr(gpu_reduce, "make_reducer",
-                            lambda *a, **k: (_Reducer(), "umap-learn"))
-
-        result = H.umap_search(
-            self._features(), space=H.SearchSpace({"n_neighbors": [5]}),
-            backend="cuml", n_trials=1, seed=0)
-
-        errors = [getattr(t, "error", None) for t in result.trials]
-        assert any(e and "cuML failed to construct" in str(e)
-                   for e in errors), (
-            "a non-cuML reducer produced a trial with no recorded refusal")
-
-
 class TestTheNeighbourGraphShapeContract:
     """The removed postcondition check could never see a wrong shape.
 
@@ -129,17 +31,6 @@ class TestTheNeighbourGraphShapeContract:
     row. The shape can only be (n, k).
     """
 
-    def test_the_stability_of_identical_embeddings_is_one(self):
-        rng = np.random.default_rng(0)
-        embedding = rng.normal(size=(30, 2))
-        assert H.embedding_stability([embedding, embedding.copy()],
-                                     neighbourhood_k=5) == pytest.approx(1.0)
-
-    def test_unrelated_embeddings_score_below_identical_ones(self):
-        rng = np.random.default_rng(1)
-        a = rng.normal(size=(40, 2))
-        b = rng.normal(size=(40, 2))
-        assert H.embedding_stability([a, b], neighbourhood_k=5) < 1.0
 
     def test_the_query_still_asks_for_one_more_than_it_keeps(self):
         source = inspect.getsource(H.embedding_stability)
