@@ -114,6 +114,8 @@ msgstr "933 (항목 930의 기본값 전환): ``ops_align_model``\\ 은 ``'simil
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "934 (item 937): ``aggregation_defaults`` was ``'legacy'``; it is now ``'per_feature'``, so the screen pipeline also writes a well table in which every feature takes its own default."
 msgstr "934 (항목 937): ``aggregation_defaults``\\ 는 ``'legacy'``\\ 였으며, 이제 ``'per_feature'``\\ 이므로 스크린 파이프라인은 모든 특징이 자체 기본값을 따르는 웰 표도 함께 씁니다."
+msgid "935 (item 940's default switch): ``ops_placement_seed_export`` was ``False``; it is now ``True``."
+msgstr "935 (항목 940의 기본값 전환): ``ops_placement_seed_export``\\ 은 ``False``\\ 였으며, 이제 ``True``\\ 입니다."
 
 msgid "Public API"
 msgstr "공개 API"

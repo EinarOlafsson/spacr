@@ -602,6 +602,27 @@ class _FFTEngine:
         return out
 
 
+#: One CPU :class:`_FFTEngine` per precision, built on first use.
+_CPU_ENGINES: Dict[str, "_FFTEngine"] = {}
+
+
+def _cpu_engine(precision: str) -> "_FFTEngine":
+    """The CPU transform engine for ``precision``, shared by every caller.
+
+    :func:`spacr.ops_register.phase_correlate` computes its float32 surface
+    through this engine (item 936), so the stitch and the cycle
+    registration use one set of float32 transforms.
+
+    :param precision: one of :data:`FFT_PRECISIONS`.
+    :returns: an engine that never uses the card.
+    """
+    engine = _CPU_ENGINES.get(precision)
+    if engine is None:
+        engine = _CPU_ENGINES[precision] = _FFTEngine(precision, "cpu",
+                                                      gpu=False)
+    return engine
+
+
 def _surface_near(surface: np.ndarray, shift) -> float:
     """The surface's largest value within one pixel of ``shift``."""
     height, width = surface.shape

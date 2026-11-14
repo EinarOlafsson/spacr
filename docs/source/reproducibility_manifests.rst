@@ -104,6 +104,8 @@ default after a higher-numbered item takes the next free number:
 - 934 (item 937): ``aggregation_defaults`` was ``'legacy'``; it is now
   ``'per_feature'``, so the screen pipeline also writes a well table in which
   every feature takes its own default.
+- 935 (item 940's default switch): ``ops_placement_seed_export`` was
+  ``False``; it is now ``True``.
 
 Public API
 ----------

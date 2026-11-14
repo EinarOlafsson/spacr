@@ -1571,7 +1571,9 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 2026-11-03 item 749: +3/-0, spacr.qt.widgets.dock.SectionHeader.set_open, .event and .paintEvent
     # (reviewed in spacr-translations 26599a10).
     # 2026-11-05 items 791, 770, 771: +22/-0, sp_stats.flag_degenerate_features, batch_correction.spherize_features and .harmony_embedding, the spacr.division_analysis module and its fourteen functions, and batch_correction's EMBEDDING_METHODS, TVN_WHITENINGS, TVN_SCOPES and HARMONY_MISSING_MESSAGE.
-    expected = 13_215
+    # 2026-11-13 items 936/940: +2/-0, the spacr.stitch_core module docstring and spacr.stitch_core.StripRegistration.shift
+    # (the ten new callables are in 936_940_stitch_core_api_arrivals_2026-11-13.json; nine-language records on spacr-translations translations-936-940-1113).
+    expected = 13_217
     worker_arrivals = json.loads((Path(__file__).resolve().parent
         / "data/release_contracts/664_665_worker_api_arrivals_2026-10-08.json").read_text(encoding="utf-8"))
     assert len(worker_arrivals) == 8
@@ -2395,6 +2397,15 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
         | home_ui_arrivals.keys() | volume_arrivals.keys()
     )
     zoo_arrivals = {**zoo_arrivals, **aggregation_arrivals}
+    stitch_core_arrivals = json.loads((Path(__file__).resolve().parent
+        / "data/release_contracts" / "936_940_stitch_core_api_arrivals_2026-11-13.json").read_text(encoding="utf-8"))
+    assert len(stitch_core_arrivals) == 10
+    assert {key: docs[key] for key in stitch_core_arrivals} == stitch_core_arrivals
+    assert not stitch_core_arrivals.keys() & (
+        zoo_arrivals.keys() | hidden_close.keys() | worker_arrivals.keys()
+        | home_ui_arrivals.keys() | volume_arrivals.keys()
+    )
+    zoo_arrivals = {**zoo_arrivals, **stitch_core_arrivals}
     help_escape_arrivals = {
         'spacr.qt.help_search.HelpSearchField.event': 'Keep Escape in this field before window shortcuts handle it.\n\n:param event: the incoming Qt event.\n:returns: Whether the event was handled.',
     }
@@ -2463,7 +2474,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # All 13,177 prior English records preserved; 662_yolo_support receipt.
     # 2026-11-03 item 749: 13,190 -> 13,193 with `expected` above.
     # 2026-11-05 items 791, 770, 771: 13,193 -> 13,215 with `expected` above.
-    assert len((historical_docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_home.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_215
+    assert len((historical_docs.keys() - hidden_close.keys() - worker_arrivals.keys() - home_ui_arrivals.keys() - volume_arrivals.keys() - zoo_arrivals.keys()) | retired_home.keys()) == expected + len(builder.API_DOC_ALIASES) == 13_217
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be

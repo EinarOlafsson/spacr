@@ -114,6 +114,8 @@ msgstr "933（条目 930 的默认值切换）：``ops_align_model`` 原为 ``'s
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "934 (item 937): ``aggregation_defaults`` was ``'legacy'``; it is now ``'per_feature'``, so the screen pipeline also writes a well table in which every feature takes its own default."
 msgstr "934（条目 937）：``aggregation_defaults`` 原为 ``'legacy'``；现在为 ``'per_feature'``，因此筛选流程还会写出一张孔表，其中每个特征都采用各自的默认聚合方法。"
+msgid "935 (item 940's default switch): ``ops_placement_seed_export`` was ``False``; it is now ``True``."
+msgstr "935（条目 940 的默认值切换）：``ops_placement_seed_export`` 原为 ``False``；现在为 ``True``。"
 
 msgid "Public API"
 msgstr "公共 API"

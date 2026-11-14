@@ -3471,6 +3471,35 @@ def _validated_aggregation_defaults_937_callables(callables):
     return [item for item in callables if item.symbol not in entries]
 
 
+def _validated_stitch_core_936_940_callables(callables):
+    """Check the public callables of items 936 and 940 (the shared stitch core and placement seeds) against their source."""
+    import json
+
+    root = pathlib.Path(__file__).resolve().parents[1]
+    entries = json.loads((root / "tests/data/release_contracts"
+        / "936_940_stitch_core_api_arrivals_2026-11-13.json").read_text(encoding="utf-8"))
+    assert set(entries) == {
+        "spacr.align.write_windows",
+        "spacr.stitch_core.StripRegistration",
+        "spacr.stitch_core.feather_weights",
+        "spacr.stitch_core.load_placement_seed",
+        "spacr.stitch_core.ops_seed_from_db",
+        "spacr.stitch_core.register_strip_pair",
+        "spacr.stitch_core.seed_to_placements",
+        "spacr.stitch_core.solve_positions",
+        "spacr.stitch_core.validate_placement_seed",
+        "spacr.stitch_core.write_placement_seed",
+    }
+    found = {item.symbol: item for item in callables if item.symbol in entries}
+    assert found.keys() == entries.keys()
+    for symbol, item in found.items():
+        assert item.exposure == "autoapi"
+        assert item.parameters == item.accepted_documented_parameters
+        assert item.variant_count == 1 and item.docless_variant_count == 0
+        assert item.docstring == entries[symbol]
+    return [item for item in callables if item.symbol not in entries]
+
+
 def _validated_bmc_paper_remaining_callables(callables):
     """Check the public callables that finish BMC paper items 890, 891, 916 and 917 against their source."""
     import json
@@ -3639,6 +3668,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     callables = _validated_nuclear_flatfield_933_callables(callables)
     callables = _validated_threshold_auto_939_callables(callables)
     callables = _validated_aggregation_defaults_937_callables(callables)
+    callables = _validated_stitch_core_936_940_callables(callables)
     help_event_symbol = "spacr.qt.help_search.HelpSearchField.event"
     help_events = [item for item in callables if item.symbol == help_event_symbol]
     assert len(help_events) == 1
@@ -5122,10 +5152,12 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 20,255 -> 20,258 on 2026-11-13: item 932's align_field gains the
     # optional precision, backend and registrations (all defaulted, so the
     # required total below does not move).
-    # 20,258 -> 20,262 on 2026-11-13: item 937's optional `level` and
+    # 20,258 -> 20,264 on 2026-11-13: item 937's optional `level` and
     # `defaults` of spacr.merge_tables.aggregation_for, `defaults` of
-    # aggregation_plan and the `defaults` field of MergePolicy (all defaulted).
-    assert sum(len(item.parameters) for item in callables) == 20262
+    # aggregation_plan and the `defaults` field of MergePolicy, and item 936's
+    # optional `precision` of spacr.ops_register.phase_correlate and
+    # `edge_workers` of spacr.ops_stitch.stitch_well (all defaulted).
+    assert sum(len(item.parameters) for item in callables) == 20264
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -5461,10 +5493,12 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # functions of spacr.ops_decode.
     # Moved 2026-11-13 for item 931 (was c82380fb...): compose_window's new
     # `blend` keyword (feathered tile blending).
-    # Moved 2026-11-13 for item 937 (was a330e2b5...): the new `level` and
-    # `defaults` of spacr.merge_tables.aggregation_for, `defaults` of
-    # aggregation_plan and MergePolicy.
-) == '35f32e2f0d2a7f9a3e04697f7e042b9d0373a70be64374a375239c28c2d0389c'
+    # Moved 2026-11-13 for items 937, 936 and 940 (was a330e2b5...): the new
+    # `level` and `defaults` of spacr.merge_tables.aggregation_for, `defaults`
+    # of aggregation_plan and MergePolicy, phase_correlate's new `precision`
+    # keyword and stitch_well's new `edge_workers` keyword; the new
+    # stitch_core callables are checked by their arrival contract.
+) == 'REMEASURE'
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -6377,6 +6411,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("933_illumination_nuclear_flatfield_api_arrivals_2026-11-13.json", 6),
         ("939_ops_decode_threshold_auto_api_arrivals_2026-11-13.json", 2),
         ("937_aggregation_feature_defaults_api_arrivals_2026-11-13.json", 3),
+        ("936_940_stitch_core_api_arrivals_2026-11-13.json", 10),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -6515,12 +6550,14 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 2026-11-05 items 791, 770, 771: 13157 -> 13179, +22: the seventeen functions, the
     # spacr.division_analysis module docstring and batch_correction's
     # EMBEDDING_METHODS, TVN_WHITENINGS, TVN_SCOPES and HARMONY_MISSING_MESSAGE.
+    # 2026-11-13 items 936/940: 13179 -> 13181, the spacr.stitch_core module
+    # docstring and StripRegistration.shift.
     assert len((historical_docs.keys() - hidden_close.keys() - home_ui_arrivals.keys() - worker_additions.keys() - private_additions.keys() - radius_symbols
                - channel_additions.keys() - scn_additions.keys()
                - popup_additions.keys() - background_additions.keys()
                - animation_arrivals.keys()
                - volume_additions.keys()
-               - zoo_additions.keys()) | retired_home.keys()) == 13179
+               - zoo_additions.keys()) | retired_home.keys()) == 13181
     # 2026-10-31: 13,138 -> 13,149, +11 documented symbols: the eight public
     # callables above plus the nested helpers _CrampedScroll._fit_content.tallest
     # and MakeMasksScreen._hold_the_title_bar_to_its_text.measure and
@@ -6972,7 +7009,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "930_ops_tile_affine_api_arrivals_2026-11-13.json",
                      "933_illumination_nuclear_flatfield_api_arrivals_2026-11-13.json",
                      "939_ops_decode_threshold_auto_api_arrivals_2026-11-13.json",
-                     "937_aggregation_feature_defaults_api_arrivals_2026-11-13.json"):
+                     "937_aggregation_feature_defaults_api_arrivals_2026-11-13.json",
+                     "936_940_stitch_core_api_arrivals_2026-11-13.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -7110,7 +7148,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "930_ops_tile_affine_api_arrivals_2026-11-13.json",
                      "933_illumination_nuclear_flatfield_api_arrivals_2026-11-13.json",
                      "939_ops_decode_threshold_auto_api_arrivals_2026-11-13.json",
-                     "937_aggregation_feature_defaults_api_arrivals_2026-11-13.json"):
+                     "937_aggregation_feature_defaults_api_arrivals_2026-11-13.json",
+                     "936_940_stitch_core_api_arrivals_2026-11-13.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -7217,7 +7256,9 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     # ApplyResult, and folder_consolidation's ConsolidationResult.
     # 66 -> 67 on 2026-09-29, +1 / -0, item 600's DropClassification
     # (one required field, kind).
-    assert len(required_ivars) == 67
+    # 67 -> 68 on 2026-11-13, +1 / -0, item 936's
+    # spacr.stitch_core.StripRegistration (six required fields).
+    assert len(required_ivars) == 68
     # 156 -> 165 on 2026-09-10: nine fields across Alignment and
     # StitchedWell, the two dataclasses the count above admitted.
     # 165 -> 171, +6: the six fields of `BarcodeSearchPlan` named above.
@@ -7238,7 +7279,9 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     # 246 -> 262, +16: item 593's ParsedName (2), SetName (3), PlanRow (5),
     # SortPlan (2), ApplyResult (2) and ConsolidationResult (2).
     # 262 -> 263 on 2026-09-29: item 600's DropClassification.kind.
-    assert sum(map(len, required_ivars.values())) == 263
+    # 263 -> 269 on 2026-11-13: StripRegistration's dy, dx, peak_ratio, ncc,
+    # accepted and backend (item 936).
+    assert sum(map(len, required_ivars.values())) == 269
     # 30 -> 32 and 145 -> 154: Alignment and StitchedWell again, with
     # their nine fields between them.
     # 32 -> 33 and 154 -> 160: `BarcodeSearchPlan` and its six fields. The
@@ -7258,14 +7301,14 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     # 54 -> 60 on 2026-09-28: item 593's six dataclasses with required
     # fields, wholly in the GENERATED half.
     # 60 -> 61 on 2026-09-29: item 600's DropClassification.
-    assert len(generated) == 61
+    assert len(generated) == 62
     # 161 -> 181, the 20 fields of the five curation_queue dataclasses.
     # 181 -> 187 on 2026-09-15, +6: the same six AlignedField fields.
     # 187 -> 204 on 2026-09-20, moving with the generated constructors.
     # 224 -> 232, the same eight fields.
     # 232 -> 248, the same sixteen fields.
     # 248 -> 249 with it (its one required field, kind).
-    assert sum(map(len, generated.values())) == 249
+    assert sum(map(len, generated.values())) == 255
     # `dataclass_constructor` 31 -> 32: `BarcodeSearchPlan`. The namedtuple
     # bucket is unchanged, which is the part worth asserting -- a namedtuple
     # arriving here would be a different event.
@@ -7279,7 +7322,8 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         # 39 -> 44 on 2026-09-20, five more dataclasses.
         # 46 -> 52 on 2026-09-28: item 593's six dataclasses.
         # 52 -> 53 on 2026-09-29: item 600's DropClassification.
-        "dataclass_constructor": 53,
+        # 53 -> 54 on 2026-11-13: item 936's StripRegistration.
+        "dataclass_constructor": 54,
         # 1 -> 4 on 2026-09-20. THE BUCKET THE COMMENT ABOVE SAYS IS THE
         # PART WORTH ASSERTING HAS MOVED: three namedtuples now generate
         # ivar prose where one did. That is a different event from a
@@ -7303,7 +7347,8 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
         # asserting: these are namedtuple fields, not dataclass ones.
         # 200 -> 216 on 2026-09-28: item 593's sixteen required fields.
         # 216 -> 217 on 2026-09-29: DropClassification.kind (item 600).
-        "dataclass_constructor": 217,
+        # 217 -> 223 on 2026-11-13: StripRegistration's six (item 936).
+        "dataclass_constructor": 223,
         # 24 -> 32 on 2026-09-25: the eight namedtuple fields above.
         "namedtuple_constructor": 32,
     }
@@ -7340,7 +7385,8 @@ def test_generated_constructor_ivar_reduction_is_exact_and_rendered():
     # 54 -> 60 on 2026-09-28, tracking `generated`: item 593's six
     # dataclasses document every required field; the zeros still hold.
     # 60 -> 61 with item 600's DropClassification.
-    assert sum(not names for names in remaining.values()) == 61
+    # 61 -> 62 with item 936's StripRegistration.
+    assert sum(not names for names in remaining.values()) == 62
     assert sum(bool(names) for names in remaining.values()) == 0
     assert sum(map(len, remaining.values())) == 0
     assert all(

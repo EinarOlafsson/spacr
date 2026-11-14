@@ -3842,6 +3842,7 @@ def test_documentation_api_catalog_inventory_and_hashes_are_current(
         ("933_illumination_nuclear_flatfield_api_arrivals_2026-11-13.json", 6),
         ("939_ops_decode_threshold_auto_api_arrivals_2026-11-13.json", 2),
         ("937_aggregation_feature_defaults_api_arrivals_2026-11-13.json", 3),
+        ("936_940_stitch_core_api_arrivals_2026-11-13.json", 10),
     ):
         arrivals = json.loads((ROOT / "tests/data/release_contracts"
                               / filename).read_text(encoding="utf-8"))

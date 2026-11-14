@@ -240,6 +240,35 @@ def _surface_numpy(first: np.ndarray, second: np.ndarray) -> np.ndarray:
     return np.fft.irfft2(product, s=first.shape)
 
 
+def _surface_float32(first: np.ndarray, second: np.ndarray) -> np.ndarray:
+    """The same surface in float32 through ``scipy.fft`` on one thread.
+
+    Item 936's stitch speed-up (the S1 stitch speed card, candidates 1 and
+    3): the transforms run in float32 through the CPU engine of
+    :mod:`spacr.ops_cycles` (item 932), and the cross-power spectrum is
+    normalised in place. The in-place order is the one NumPy's temporary
+    elision gives ``a * np.conj(b)``: conjugate ``b`` into itself, multiply
+    it by ``a`` into itself, then divide by its magnitude with a zero
+    magnitude read as one. The other order, ``a *= np.conj(b)``, rounds
+    some products one unit in the last place differently. On well A1 of
+    Funk et al. 2022 plates A to D this surface gave the same integer
+    shifts and acceptances on all 624 edges as the float64 surface, and
+    peak ratios within 5.7e-6 (relative).
+    """
+    from .ops_cycles import _cpu_engine
+
+    engine = _cpu_engine("float32")
+    a = engine._forward(first)
+    b = engine._forward(second)
+    np.conjugate(b, out=b)
+    np.multiply(b, a, out=b)
+    magnitude = np.abs(b)
+    magnitude[magnitude == 0] = 1
+    b /= magnitude
+    b[0, 0] = 0
+    return engine._inverse(b, first.shape)
+
+
 def _surface_cupy(first: np.ndarray, second: np.ndarray) -> np.ndarray:
     """The same surface on CUDA through CuPy, returned as NumPy."""
     cupy = _cupy()
@@ -303,7 +332,8 @@ def phase_correlate(first: np.ndarray, second: np.ndarray, *,
                     tolerance=None,
                     backend: Optional[str] = None,
                     gpu: bool = True,
-                    min_peak_ratio: float = MIN_PEAK_RATIO) -> Registration:
+                    min_peak_ratio: float = MIN_PEAK_RATIO,
+                    precision: str = "float64") -> Registration:
     """Measure the translation between two overlapping fields.
 
     The result is the shift that lands ``second`` on ``first``: rolling
@@ -333,13 +363,26 @@ def phase_correlate(first: np.ndarray, second: np.ndarray, *,
     :param backend: force one; None takes the best available.
     :param gpu: False keeps it on the CPU even where a card exists.
     :param min_peak_ratio: below this the pair is not a neighbour.
+    :param precision: ``'float64'`` (the default, the arithmetic before item
+        936, bit for bit) or ``'float32'``, which computes the CPU surface
+        with ``scipy.fft`` in float32 on one thread and normalises it in
+        place. On well A1 of Funk et al. 2022 plates A to D the float32
+        surface gave the same integer shifts and acceptances on all 624
+        edges in half the CPU time. It changes only the CPU (NumPy) surface;
+        the GPU backends already run in float32.
     :returns: the registration, accepted or not.
     :raises ValueError: when the two tiles are not the same 2-D shape,
         which is a caller error rather than a failed registration and must
-        not come back as a confident (0, 0).
+        not come back as a confident (0, 0), or for an unknown
+        ``precision``.
     """
-    first = np.asarray(first, dtype=np.float64)
-    second = np.asarray(second, dtype=np.float64)
+    if precision not in ("float32", "float64"):
+        raise ValueError(f"precision must be 'float32' or 'float64'; "
+                         f"got {precision!r}")
+    single = precision == "float32"
+    dtype = np.float32 if single else np.float64
+    first = np.asarray(first, dtype=dtype)
+    second = np.asarray(second, dtype=dtype)
     if first.ndim != 2 or first.shape != second.shape:
         raise ValueError(
             f"phase correlation needs two 2-D tiles of one shape, got "
@@ -353,9 +396,11 @@ def phase_correlate(first: np.ndarray, second: np.ndarray, *,
         if function is None:
             raise ValueError(f"unknown backend {name!r}; "
                              f"expected one of {sorted(_SURFACES)}")
+        if single and name == "numpy":
+            function = _surface_float32
         try:
             surface = function(first, second)
-            used = name
+            used = "scipy" if single and name == "numpy" else name
             break
         except Exception:                                # noqa: BLE001
             LOG.debug("the %s backend could not register this pair", name,
@@ -368,7 +413,10 @@ def phase_correlate(first: np.ndarray, second: np.ndarray, *,
     flat = int(np.argmax(surface))
     peak_y, peak_x = np.unravel_index(flat, surface.shape)
     height = float(surface.flat[flat])
-    mean = float(np.abs(surface).mean())
+    if used == "scipy":
+        mean = float(np.abs(surface, out=surface).mean())
+    else:
+        mean = float(np.abs(surface).mean())
     return _read_peak(int(peak_y), int(peak_x), height, mean, first.shape,
                       expected=expected, tolerance=tolerance,
                       min_peak_ratio=min_peak_ratio, backend=used)
@@ -481,12 +529,53 @@ def register_edge(first: np.ndarray, second: np.ndarray, axis: str, *,
 
     down = axis == "vertical"
     extent = first.shape[0] if down else first.shape[1]
-    band = max(8, min(extent, int(round(extent * float(overlap_fraction)))))
+    band = _edge_band(extent, overlap_fraction)
     if down:
         strip_first, strip_second = first[-band:, :], second[:band, :]
     else:
         strip_first, strip_second = first[:, -band:], second[:, :band]
+    return _register_strips(strip_first, strip_second, axis, extent,
+                            expected_overlap=expected_overlap,
+                            tolerance=tolerance, skew=skew, **kwargs)
 
+
+def _edge_band(extent: int, overlap_fraction: float) -> int:
+    """How many pixels of a tile's edge :func:`register_edge` correlates.
+
+    :param extent: the tile's length across the edge.
+    :param overlap_fraction: the share of the tile the strip takes.
+    :returns: the strip width, at least 8 and at most the tile.
+    """
+    return max(8, min(extent, int(round(extent * float(overlap_fraction)))))
+
+
+def _register_strips(strip_first: np.ndarray, strip_second: np.ndarray,
+                     axis: str, extent: int, *,
+                     expected_overlap: Optional[int] = None,
+                     tolerance: Optional[int] = None,
+                     skew: Optional[int] = SKEW_PX,
+                     **kwargs) -> Registration:
+    """:func:`register_edge` on strips already cut from the two tiles.
+
+    The parallel edges of :func:`spacr.ops_stitch.stitch_well` (item 936)
+    send only these strips to a worker, not the two tiles, and
+    :func:`spacr.stitch_core.register_strip_pair` cuts its strips from
+    windows of tiles it never reads whole.
+
+    :param strip_first: the last rows (``vertical``) or columns
+        (``horizontal``) of the first tile.
+    :param strip_second: the first rows or columns of the second tile, the
+        same shape.
+    :param axis: ``"vertical"`` or ``"horizontal"``.
+    :param extent: the tiles' length across the edge.
+    :param expected_overlap: as :func:`register_edge`.
+    :param tolerance: as :func:`register_edge`.
+    :param skew: as :func:`register_edge`.
+    :param kwargs: passed to :func:`phase_correlate`.
+    :returns: the registration in tile coordinates.
+    """
+    down = axis == "vertical"
+    band = strip_first.shape[0] if down else strip_first.shape[1]
     guess = band - int(expected_overlap) if expected_overlap else 0
     expected = (guess, 0) if down else (0, guess)
     across = tolerance if skew is None else skew

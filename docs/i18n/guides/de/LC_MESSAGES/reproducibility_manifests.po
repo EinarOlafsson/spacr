@@ -114,6 +114,8 @@ msgstr "933 (die Standardwert-Umstellung von Item 930): ``ops_align_model`` war 
 # AI technical review (Claude Opus 5.5), no native-speaker signoff.
 msgid "934 (item 937): ``aggregation_defaults`` was ``'legacy'``; it is now ``'per_feature'``, so the screen pipeline also writes a well table in which every feature takes its own default."
 msgstr "934 (Item 937): ``aggregation_defaults`` war ``'legacy'``; jetzt ist es ``'per_feature'``, sodass die Screen-Pipeline zusätzlich eine Well-Tabelle schreibt, in der jedes Merkmal seinen eigenen Standardwert erhält."
+msgid "935 (item 940's default switch): ``ops_placement_seed_export`` was ``False``; it is now ``True``."
+msgstr "935 (die Standardwert-Umstellung von Item 940): ``ops_placement_seed_export`` war ``False``; jetzt ist es ``True``."
 
 msgid "Public API"
 msgstr "Öffentliche API"

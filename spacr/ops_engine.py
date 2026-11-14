@@ -707,7 +707,10 @@ def _stitch(db: str, plate: str, well: str, cycle_files, reference: int,
     :param well: the well name.
     :param cycle_files: ``cycle -> site -> channel -> path`` for this well.
     :param reference: the cycle carrying the nuclear stain.
-    :param settings: read for ``ops_raster_overlap``.
+    :param settings: read for ``ops_raster_overlap``,
+        ``ops_registration_precision``, ``ops_stitch_read_threads``,
+        ``ops_stitch_edge_workers``, ``ops_placement_seed`` and
+        ``ops_placement_seed_export``.
     :param gpu: let the registration use the card.
     :returns: the stitch report.
     """
@@ -723,17 +726,39 @@ def _stitch(db: str, plate: str, well: str, cycle_files, reference: int,
                for site, files in cycle_files[reference].items()}
     sites = sorted(site for site, source in sources.items() if source)
     unreadable: list = []
-    read = functools.lru_cache(maxsize=64)(
-        lambda site: _read_plane(sources[site], unreadable))
-    first = next((site for site in sites if read(site) is not None), None)
-    if first is None:
-        raise ValueError(f"no nuclear tile of well {well} could be read")
-    ordered = [first] + [site for site in sites if site != first]
-    layout = round_well_layout(max(cycle_files[reference]) + 1)
     overlap = _setting_number(settings.get("ops_raster_overlap"),
                               "ops_raster_overlap", _RASTER_OVERLAP)
-    result = stitch_well(read, layout, overlap=overlap,
-                         tolerance=_STITCH_TOLERANCE, gpu=gpu, sites=ordered)
+    precision = _registration_choice(settings.get("ops_registration_precision"),
+                                     "ops_registration_precision")
+    if settings.get("ops_placement_seed"):
+        return _stitch_seeded(db, plate, well, cycle_files, reference,
+                              settings, gpu, sources, sites, overlap,
+                              precision, started)
+    probe = functools.partial(_nuclear_plane, sources, [])
+    if next((site for site in sites if probe(site) is not None), None) is None:
+        raise ValueError(f"no nuclear tile of well {well} could be read")
+    layout = round_well_layout(max(cycle_files[reference]) + 1)
+    threads = int(_setting_number(settings.get("ops_stitch_read_threads"),
+                                  "ops_stitch_read_threads",
+                                  _STITCH_READ_THREADS))
+    workers = max(1, int(_setting_number(settings.get("ops_stitch_edge_workers"),
+                                         "ops_stitch_edge_workers", 1)))
+    plane = functools.partial(_nuclear_plane, sources, unreadable)
+    reader = (_TileReadAhead(plane, _first_use_order(layout, sites), threads)
+              if threads > 1 else None)
+    read = reader.get if reader is not None else functools.lru_cache(
+        maxsize=64)(plane)
+    try:
+        first = next((site for site in sites if read(site) is not None), None)
+        if first is None:
+            raise ValueError(f"no nuclear tile of well {well} could be read")
+        ordered = [first] + [site for site in sites if site != first]
+        result = stitch_well(read, layout, overlap=overlap,
+                             tolerance=_STITCH_TOLERANCE, gpu=gpu, sites=ordered,
+                             edge_workers=workers, precision=precision)
+    finally:
+        if reader is not None:
+            reader.close()
     placed = _largest_component(result.edges, sites)
     origin_y = min(result.placements[site][0] for site in placed)
     origin_x = min(result.placements[site][1] for site in placed)
@@ -755,10 +780,488 @@ def _stitch(db: str, plate: str, well: str, cycle_files, reference: int,
         "canvas": list(result.canvas), "expected_canvas": list(result.expected_canvas),
         "canvas_agrees": bool(result.canvas_agrees()), "raster_overlap": overlap,
         "unreadable": unreadable, "seconds": round(time.perf_counter() - started, 1),
+        "placement": "solved", "registration_precision": precision,
+        "read_threads": threads, "edge_workers": workers,
     }
+    if bool(settings.get("ops_placement_seed_export", True)):
+        rows = {site: (result.placements[site][0] - origin_y,
+                       result.placements[site][1] - origin_x) for site in placed}
+        report["placement_seed_file"] = _export_placement_seed(
+            db, plate, well, reference, rows, (height, width),
+            (origin_y, origin_x), sources, layout.site_count, overlap)
     _say(f"{well} stitch: {result.summary()}; {len(placed)} of {len(sites)} "
          f"in the solved component, {report['seconds']} s")
     return report
+
+
+#: How many threads read the nuclear tiles of a well for the stitch
+#: (``ops_stitch_read_threads``, item 936). On well A1 of Funk et al. 2022
+#: plates A and B, four reader threads halved the stitch step's wall time
+#: (234-237 s to 114-132 s, tiles on network storage) for about 25-35 extra
+#: CPU s per well, with ``ops_geometry`` bit-identical.
+_STITCH_READ_THREADS = 4
+
+
+def _nuclear_plane(sources: Mapping[int, Any], unreadable: list,
+                   site: int) -> Optional[np.ndarray]:
+    """One site's nuclear plane, or None, recording a failure.
+
+    :param sources: ``site -> (path, plane)``.
+    :param unreadable: where a failure is recorded.
+    :param site: the site.
+    :returns: the plane as float32, or None.
+    """
+    return _read_plane(sources[site], unreadable)
+
+
+def _first_use_order(layout, sites: Sequence[int]) -> List[int]:
+    """The order the stitch first asks for each site.
+
+    :param layout: the well layout.
+    :param sites: the sites with a nuclear plane.
+    :returns: the sites in the order the layout's pairs first use them,
+        then any site no pair uses.
+    """
+    known = set(sites)
+    order: List[int] = []
+    seen = set()
+    for a, b, _axis in layout.pairs():
+        for site in (a, b):
+            if site in known and site not in seen:
+                seen.add(site)
+                order.append(site)
+    order.extend(site for site in sites if site not in seen)
+    return order
+
+
+class _TileReadAhead:
+    """Read a well's tiles ahead of the stitch on a few threads (item 936).
+
+    The stitch asks for tiles in the order its pairs use them, and each read
+    from network storage mostly waits. This reads the next tiles of that
+    order on ``threads`` threads while the stitch registers the current
+    ones, keeps the 64 most recently used, and gives back exactly what one
+    sequential read would: a tile asked for out of order, or after it was
+    dropped, is read on the spot. The reads are I/O, so the threads start
+    together rather than ten seconds apart like spaCR's processing pools.
+
+    :param read: ``site -> plane``.
+    :param order: the sites in the order they will be asked for.
+    :param threads: how many reader threads.
+    :param keep: how many read tiles to keep.
+    """
+
+    def __init__(self, read, order: Sequence[int], threads: int,
+                 keep: int = 64):
+        """Start the reader threads.
+
+        :param read: ``site -> plane``.
+        :param order: the expected order of requests.
+        :param threads: reader threads.
+        :param keep: tiles kept after use.
+        """
+        from collections import OrderedDict
+        from concurrent.futures import ThreadPoolExecutor as _ReaderThreads
+
+        self._read = read
+        self._order = list(order)
+        self._next = 0
+        self._ahead = 4 * int(threads)
+        self._futures: Dict[int, Any] = {}
+        self._kept: "OrderedDict[int, Any]" = OrderedDict()
+        self._keep = int(keep)
+        self._pool = _ReaderThreads(max_workers=int(threads),
+                                    thread_name_prefix="ops-stitch-read")
+        self._top_up()
+
+    def _top_up(self) -> None:
+        """Queue reads until ``4 x threads`` are waiting to be used."""
+        while len(self._futures) < self._ahead and self._next < len(self._order):
+            site = self._order[self._next]
+            self._next += 1
+            if site not in self._kept and site not in self._futures:
+                self._futures[site] = self._pool.submit(self._read, site)
+
+    def get(self, site: int):
+        """The plane of ``site``, as the sequential read gives it.
+
+        :param site: the site.
+        :returns: the plane, or None for an unreadable tile.
+        """
+        if site in self._kept:
+            self._kept.move_to_end(site)
+            return self._kept[site]
+        future = self._futures.pop(site, None)
+        value = future.result() if future is not None else self._read(site)
+        self._kept[site] = value
+        while len(self._kept) > self._keep:
+            self._kept.popitem(last=False)
+        self._top_up()
+        return value
+
+    def close(self) -> None:
+        """Stop the threads and drop every queued read."""
+        for future in self._futures.values():
+            future.cancel()
+        self._futures.clear()
+        self._kept.clear()
+        self._pool.shutdown(wait=True)
+
+
+def _compose_canvas(placements: Mapping[int, Tuple[float, float]],
+                    shape: Tuple[int, int]) -> Tuple[int, int]:
+    """The canvas the objects phase composes a well on.
+
+    :param placements: ``site -> (y, x)`` in well pixels.
+    :param shape: the tile ``(height, width)``.
+    :returns: ``(height, width)``: the furthest tile corner, rounded up.
+    """
+    return (int(np.ceil(max(y for y, _ in placements.values()))) + shape[0],
+            int(np.ceil(max(x for _, x in placements.values()))) + shape[1])
+
+
+def _plane_record(source: Optional[Tuple[str, Optional[int]]]):
+    """``(file name, byte size)`` of a plane's file, never its pixels.
+
+    :param source: ``(path, plane)``.
+    :returns: the pair, or None when the file cannot be listed.
+    """
+    if not source:
+        return None
+    try:
+        return os.path.basename(source[0]), int(os.path.getsize(source[0]))
+    except OSError:
+        return None
+
+
+def _plane_dtype(source: Optional[Tuple[str, Optional[int]]]) -> Optional[str]:
+    """The pixel type a plane's file stores, read from its header.
+
+    :param source: ``(path, plane)``.
+    :returns: the dtype name, or None when the header cannot be read.
+    """
+    if not source:
+        return None
+    try:
+        import tifffile
+
+        with tifffile.TiffFile(source[0]) as handle:
+            return str(handle.series[0].dtype)
+    except Exception:                                    # noqa: BLE001
+        return None
+
+
+def _seed_settings_hash(overlap: int) -> str:
+    """The hash of the settings that decide a well's placement.
+
+    :param overlap: the raster overlap the stitch used.
+    :returns: a sha256 hex digest.
+    """
+    import hashlib
+
+    text = json.dumps({"ops_raster_overlap": int(overlap),
+                       "tolerance": _STITCH_TOLERANCE}, sort_keys=True)
+    return hashlib.sha256(text.encode("utf-8")).hexdigest()
+
+
+def _tile_records(sources: Mapping[int, Any],
+                  sites) -> Dict[int, Tuple[str, int]]:
+    """``site -> (file name, byte size)`` for the sites whose file is listed.
+
+    :param sources: ``site -> (path, plane)``.
+    :param sites: the sites.
+    :returns: the records.
+    """
+    found = {}
+    for site in sites:
+        record = _plane_record(sources.get(site))
+        if record is not None:
+            found[site] = record
+    return found
+
+
+def _export_placement_seed(db: str, plate: str, well: str, reference: int,
+                           placements: Mapping[int, Tuple[float, float]],
+                           shape: Tuple[int, int], origin: Tuple[float, float],
+                           sources: Mapping[int, Any], n_tiles: int,
+                           overlap: int) -> Optional[str]:
+    """Write the well's placement file after a solved stitch (item 940).
+
+    ``<plate>_<well>.ops_placement.json`` in the well's folder beside the
+    database: the ``ops_geometry`` rows just written, with the provenance a
+    later subset run checks (:func:`spacr.stitch_core.validate_placement_seed`).
+    A file that cannot be written is logged, not raised: the stitch itself
+    succeeded.
+
+    :param db: the measurements database.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param reference: the reference cycle.
+    :param placements: ``site -> (y, x)`` as stored.
+    :param shape: the tile ``(height, width)``.
+    :param origin: ``(origin_y, origin_x)`` as stored.
+    :param sources: ``site -> (path, plane)`` of the nuclear planes.
+    :param n_tiles: the layout's tile count.
+    :param overlap: the raster overlap the stitch used.
+    :returns: the path written, or None.
+    """
+    from .stitch_core import write_placement_seed
+
+    folder = os.path.join(os.path.dirname(os.path.abspath(db)), str(well))
+    path = os.path.join(folder, f"{plate}_{well}.ops_placement.json")
+    try:
+        return write_placement_seed(
+            path, plate=plate, well=well, placements=placements,
+            tile_shape=shape, origin=origin,
+            canvas=_compose_canvas(placements, shape), acquisition="sbs",
+            cycle=int(reference),
+            dtype=_plane_dtype(sources.get(min(placements))),
+            n_tiles_in_well=int(n_tiles), raster_overlap=int(overlap),
+            tile_files=_tile_records(sources, placements),
+            settings_hash=_seed_settings_hash(overlap))
+    except (OSError, ValueError) as failure:
+        LOG.warning("the placement file of well %s could not be written: %s",
+                    well, failure)
+        return None
+
+
+def _load_seed_setting(value: Any, plate: str, well: str):
+    """The placement seed ``ops_placement_seed`` names, read and checked.
+
+    :param value: a ``.ops_placement.json`` file, a folder holding
+        ``<plate>_<well>.ops_placement.json``, or a ``measurements.db``
+        whose ``ops_geometry`` rows are taken
+        (:func:`spacr.stitch_core.ops_seed_from_db`).
+    :param plate: the plate name.
+    :param well: the well name.
+    :returns: the seed from :func:`spacr.stitch_core.load_placement_seed`.
+    """
+    from .stitch_core import load_placement_seed, ops_seed_from_db
+
+    path = os.fspath(value)
+    if os.path.isdir(path):
+        path = os.path.join(path, f"{plate}_{well}.ops_placement.json")
+    if path.lower().endswith(".db"):
+        return load_placement_seed(ops_seed_from_db(path, plate, well))
+    return load_placement_seed(path)
+
+
+def _seed_pixel_check(seed: Mapping[str, Any], positions, sources, sites,
+                      layout, overlap: int, precision: str, gpu: bool,
+                      well: str, tolerance: float,
+                      unreadable: list) -> Dict[str, Any]:
+    """Re-register up to six seam pairs and compare them with the seed.
+
+    :param seed: the loaded seed.
+    :param positions: ``site -> (y, x)`` from the seed.
+    :param sources: ``site -> (path, plane)``.
+    :param sites: the sites of this run.
+    :param layout: the well layout.
+    :param overlap: the raster overlap.
+    :param precision: the registration precision.
+    :param gpu: let the registration use the card.
+    :param well: the well name, for the message.
+    :param tolerance: the largest accepted disagreement in pixels.
+    :param unreadable: where unreadable planes are recorded.
+    :returns: the pairs compared and the outcome.
+    :raises ValueError: naming the pair and both offsets, when one
+        disagrees by more than ``tolerance``.
+    """
+    from .ops_register import register_edge
+    from .qt.i18n import tr
+
+    known = set(sites)
+    pairs = [(a, b, axis) for a, b, axis in layout.pairs()
+             if a in known and b in known][:6]
+    compared = []
+    for a, b, axis in pairs:
+        tile_a = _read_plane(sources[a], unreadable)
+        tile_b = _read_plane(sources[b], unreadable)
+        if tile_a is None or tile_b is None:
+            continue
+        found = register_edge(tile_a, tile_b, axis, expected_overlap=overlap,
+                              tolerance=_STITCH_TOLERANCE, gpu=gpu,
+                              precision=precision)
+        if not found.accepted:
+            continue
+        stored = (positions[b][0] - positions[a][0],
+                  positions[b][1] - positions[a][1])
+        gap = float(np.hypot(stored[0] - found.dy, stored[1] - found.dx))
+        compared.append({"pair": [a, b], "file": list(stored),
+                         "measured": [found.dy, found.dx], "px": gap})
+        if gap > tolerance:
+            raise ValueError(tr(
+                "placement file {path}: sites {a} and {b} of well {well} are "
+                "{stored} apart in the file but {measured} in the tiles, "
+                "{gap} px more than ops_placement_seed_tolerance {tolerance}",
+                path=seed.get("path"), a=a, b=b, well=well,
+                stored=[round(v, 2) for v in stored],
+                measured=[found.dy, found.dx], gap=round(gap, 2),
+                tolerance=tolerance))
+    return {"asked": True, "pairs": compared, "tolerance_px": tolerance,
+            "passed": True}
+
+
+def _stitch_seeded(db: str, plate: str, well: str, cycle_files, reference: int,
+                   settings: Mapping[str, Any], gpu: bool, sources, sites,
+                   overlap: int, precision: str,
+                   started: float) -> Dict[str, Any]:
+    """Place the well's tiles from a placement seed instead of solving (item 940).
+
+    The seed's positions are written to ``ops_geometry`` in the seed's
+    whole-well frame -- its origin, not one re-zeroed to this run's tiles --
+    for the sites of this run, so the objects phase composes each window
+    the full run composed from the same tiles, at the same places. No pair
+    is registered and nothing is solved, and the largest-component rule is
+    not applied: the file defines the placement. With
+    ``ops_placement_seed_check_pixels`` up to six seam pairs are registered
+    and compared with the file, within ``ops_placement_seed_tolerance``
+    pixels; the positions are never changed.
+
+    :param db: the measurements database.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param cycle_files: ``cycle -> site -> channel -> path``.
+    :param reference: the reference cycle.
+    :param settings: read for the ``ops_placement_seed*`` keys.
+    :param gpu: let the optional pixel check use the card.
+    :param sources: ``site -> (path, plane)`` of the nuclear planes.
+    :param sites: the sites with a nuclear plane.
+    :param overlap: the raster overlap.
+    :param precision: the registration precision of the pixel check.
+    :param started: when the phase started.
+    :returns: the stitch report, marked ``placement: seeded``. The well's
+        layout is the seed's (``n_tiles_in_well``), not one fitted to this
+        run's highest site, which a subset need not hold; under 'subset' the
+        run's highest site must lie inside it, under 'strict' the counts
+        must agree.
+    :raises ValueError: when the seed does not belong to this run, or the
+        pixel check disagrees.
+    """
+    import pandas as pd
+
+    from .stitch_core import seed_to_placements, validate_placement_seed
+
+    from .ops_layout import round_well_layout
+
+    seed = _load_seed_setting(settings.get("ops_placement_seed"), plate, well)
+    mode = str(settings.get("ops_placement_seed_mode") or "subset").strip().lower()
+    unreadable: list = []
+    count = max(cycle_files[reference]) + 1
+    first, plane = None, None
+    for site in sites:
+        plane = _read_plane(sources[site], unreadable)
+        if plane is not None:
+            first = site
+            break
+    if first is None:
+        raise ValueError(f"no nuclear tile of well {well} could be read")
+    shape = (int(plane.shape[0]), int(plane.shape[1]))
+    warnings = validate_placement_seed(
+        seed, plate=plate, well=well, sites=sites, mode=mode,
+        n_tiles_in_well=count, tile_shape=shape,
+        dtype=_plane_dtype(sources.get(first)), acquisition="sbs",
+        cycle=reference, tile_files=_tile_records(sources, sites))
+    positions = seed_to_placements(seed, sites)
+    check: Dict[str, Any] = {"asked": False}
+    if bool(settings.get("ops_placement_seed_check_pixels", False)):
+        layout = round_well_layout(int(seed.get("n_tiles_in_well") or count))
+        check = _seed_pixel_check(
+            seed, positions, sources, sites, layout, overlap, precision, gpu,
+            well, float(_setting_number(
+                settings.get("ops_placement_seed_tolerance"),
+                "ops_placement_seed_tolerance", 2.0)), unreadable)
+    origin_y, origin_x = (float(v) for v in seed["origin"])
+    frame = pd.DataFrame([{
+        "plate": plate, "well": well, "cycle": reference, "site": site,
+        "y": positions[site][0], "x": positions[site][1],
+        "origin_y": origin_y, "origin_x": origin_x,
+        "tile_height": shape[0], "tile_width": shape[1],
+    } for site in sorted(positions)])
+    _replace_well_rows(db, "ops_geometry", frame, plate, well)
+    listed = {int(tile["site"]) for tile in seed["tiles"]}
+    report = {
+        "placement": "seeded", "sites": len(sites), "placed": len(positions),
+        "edges_proposed": None, "edges_accepted": None,
+        "canvas": list(seed["canvas"]), "raster_overlap": overlap,
+        "placement_seed": {
+            "path": seed.get("path"), "sha256": seed.get("sha256"),
+            "schema_version": seed.get("schema_version"), "mode": mode,
+            "tiles_used": len(positions), "tiles_in_file": len(listed),
+            "provenance": seed.get("provenance"), "check": check,
+            "warnings": warnings,
+        },
+        "unreadable": unreadable,
+        "seconds": round(time.perf_counter() - started, 1),
+    }
+    _say(f"{well} stitch: {len(positions)} of {len(listed)} tiles placed from "
+         f"the placement file {seed.get('path')}, nothing solved, "
+         f"{report['seconds']} s")
+    return report
+
+
+def _seeded_compose(settings: Mapping[str, Any], plate: str, well: str,
+                    usable: Mapping[int, Tuple[float, float]],
+                    shape: Tuple[int, int]):
+    """The seed's canvas and the tiles it lists that this run does not use.
+
+    :param settings: read for ``ops_placement_seed``.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param usable: ``site -> (y, x)`` of the tiles this run composes.
+    :param shape: the tile ``(height, width)``.
+    :returns: ``(canvas, unlisted)`` -- the seed's canvas and ``site -> (y,
+        x)`` of the seed's other tiles -- or None without a seed.
+    """
+    from .stitch_core import seed_to_placements
+
+    if not settings.get("ops_placement_seed"):
+        return None
+    seed = _load_seed_setting(settings.get("ops_placement_seed"), plate, well)
+    others = {site: place for site, place in seed_to_placements(seed).items()
+              if site not in usable}
+    return (int(seed["canvas"][0]), int(seed["canvas"][1])), others
+
+
+def _partial_windows(windows, usable: Mapping[int, Tuple[float, float]],
+                     others: Mapping[int, Tuple[float, float]],
+                     shape: Tuple[int, int]) -> List[List[int]]:
+    """Windows a seeded run composes that an unlisted tile also covers.
+
+    A window's pixels depend on every tile that covers it, so a window
+    covered by this run's tiles and by a tile the seed lists but this run
+    does not use differs from the full run where that tile contributed. These
+    windows are composed and reported (item 940), and are left out of
+    identity checks.
+
+    :param windows: the windows of the run.
+    :param usable: ``site -> (y, x)`` of the tiles this run composes.
+    :param others: ``site -> (y, x)`` of the seed's other tiles.
+    :param shape: the tile ``(height, width)``.
+    :returns: ``[top, left]`` of each such window.
+    """
+    found = []
+    for window in windows:
+        if _touches(window, others, shape) and _touches(window, usable, shape):
+            found.append([int(window.top), int(window.left)])
+    return found
+
+
+def _touches(window, placements: Mapping[int, Tuple[float, float]],
+             shape: Tuple[int, int]) -> bool:
+    """Whether any tile, at its rounded position, overlaps ``window``.
+
+    :param window: an :class:`spacr.ops_compose.Window`.
+    :param placements: ``site -> (y, x)``.
+    :param shape: the tile ``(height, width)``.
+    :returns: True when one does, by the rounding ``compose_window`` uses.
+    """
+    for top, left in placements.values():
+        t_top, t_left = int(round(float(top))), int(round(float(left)))
+        if (t_top < window.bottom and t_top + shape[0] > window.top
+                and t_left < window.right and t_left + shape[1] > window.left):
+            return True
+    return False
 
 
 def _placements(db: str, plate: str, well: str):
@@ -1327,8 +1830,8 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
         lambda site: _read_plane(sources[site], unreadable))
     usable = {site: place for site, place in placements.items()
               if sources[site] is not None and read(site) is not None}
-    canvas = (int(np.ceil(max(y for y, _ in usable.values()))) + shape[0],
-              int(np.ceil(max(x for _, x in usable.values()))) + shape[1])
+    seeded = _seeded_compose(settings, plate, well, usable, shape)
+    canvas = seeded[0] if seeded else _compose_canvas(usable, shape)
     blend = _compose_blend(settings)
     model = _cellpose_model(settings, gpu)
     diameter = settings.get("cellpose_diameter")
@@ -1339,6 +1842,8 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
                                          _WINDOW_OVERLAP))
     windows = list(windows_over(canvas, size=_WINDOW,
                                 overlap=window_overlap))
+    partial = (_partial_windows(windows, usable, seeded[1], shape)
+               if seeded else None)
     seconds = Counter()
     observations: list = []
     gains = []
@@ -1406,6 +1911,9 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
         "seconds": {k: round(v, 1) for k, v in seconds.items()},
         "total_seconds": round(time.perf_counter() - started, 1),
     }
+    if seeded:
+        report.update({"placement": "seeded", "partial_windows": partial,
+                       "n_partial_windows": len(partial)})
     _say(f"{well} objects: {len(objects)} from {len(observations)} observations "
          f"in {report['total_seconds']} s")
     return report

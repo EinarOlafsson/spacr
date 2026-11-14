@@ -768,6 +768,15 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     "ops_decode_auto_ci",
     "ops_decode_auto_tune_fraction",
     "ops_decode_auto_seed",
+    # Items 936 and 940 (2026-11-13): stitch reader threads and edge
+    # workers, and the placement seed file.
+    "ops_stitch_read_threads",
+    "ops_stitch_edge_workers",
+    "ops_placement_seed",
+    "ops_placement_seed_mode",
+    "ops_placement_seed_export",
+    "ops_placement_seed_check_pixels",
+    "ops_placement_seed_tolerance",
     # Item 930 (2026-11-13): per-tile affine alignment of phenotype fields
     # to the sequencing nuclei (OPS stage 1, arm vii).
     "ops_align_model",
