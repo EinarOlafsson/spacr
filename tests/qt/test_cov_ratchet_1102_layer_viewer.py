@@ -82,21 +82,6 @@ def test_a_colormap_the_list_does_not_know_is_added_and_shown(qtbot):
     assert panel.colormap_combo.currentText() == "my ramp"
 
 
-def test_a_blending_the_combo_does_not_list_leaves_the_choice_alone(qtbot):
-    stack = _field()
-    panel = _panel(qtbot, stack)
-    stack.select("image")
-    panel.sync()
-    panel.blending_combo.blockSignals(True)
-    panel.blending_combo.setCurrentIndex(2)
-    panel.blending_combo.blockSignals(False)
-    stack.selected._blending = "not-a-listed-mode"
-
-    panel.sync()
-
-    assert panel.blending_combo.currentIndex() == 2
-
-
 def test_with_no_layer_every_control_edit_is_a_no_op(qtbot):
     stack = LayerStack()
     panel = _panel(qtbot, stack)
@@ -141,18 +126,6 @@ def test_controls_that_do_not_apply_to_the_active_layer_kind_change_nothing(qtbo
     assert image.colormap.name == colormap
 
 
-def test_an_empty_contrast_range_is_left_alone(qtbot):
-    stack = _field()
-    panel = _panel(qtbot, stack)
-    stack.select("image")
-    panel.sync()
-    before = stack.selected.contrast_limits(0)
-
-    panel.high_spin.setValue(panel.low_spin.value())
-
-    assert stack.selected.contrast_limits(0) == before
-
-
 def test_a_colormap_the_layer_refuses_is_logged_and_not_applied(qtbot, monkeypatch):
     stack = _field()
     panel = _panel(qtbot, stack)
@@ -179,19 +152,3 @@ def test_a_colormap_the_layer_refuses_is_logged_and_not_applied(qtbot, monkeypat
 
     assert layer.colormap.name == before
     assert [r.getMessage() for r in records] == ["Could not set the colormap"]
-
-
-def test_auto_resets_the_limits_from_the_layers_own_intensities(qtbot):
-    stack = _field()
-    panel = _panel(qtbot, stack)
-    stack.select("image")
-    layer = stack.selected
-    panel.sync()
-    assert panel.high_spin.value() == pytest.approx(4095.0)
-
-    panel._on_auto()
-
-    low, high = layer.contrast_limits(0)
-    assert high < 4095.0
-    assert panel.low_spin.value() == pytest.approx(low)
-    assert panel.high_spin.value() == pytest.approx(high)

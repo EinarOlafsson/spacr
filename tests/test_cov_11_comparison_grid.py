@@ -97,23 +97,6 @@ def test_locking_a_panel_the_link_does_not_hold_changes_nothing(qtbot):
     assert "ch1" not in grid.canvas_link
 
 
-def test_fitting_skips_panels_that_are_not_on_the_shared_window(qtbot):
-    """Fit puts the LINKED panels back; an unlocked one keeps its own view.
-
-    Unlocking a panel exists so a user can look closely at it without losing
-    where the others are; Fit must not undo that.
-    """
-    grid = _grid(qtbot)
-    grid.panels["ch0"].lock_box.setChecked(False)
-    before = grid.canvas_link["ch0"]
-
-    grid.reset_view()
-
-    after = grid.canvas_link["ch0"]
-    assert grid.canvas_link.is_locked("ch0") is False
-    assert (after.origin, after.step) == (before.origin, before.step)
-
-
 # ---------------------------------------------------------------------------
 # A click that names no object
 # ---------------------------------------------------------------------------

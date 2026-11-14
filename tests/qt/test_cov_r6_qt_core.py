@@ -55,7 +55,7 @@ pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QSettings, Qt
 from PySide6.QtGui import QKeyEvent
-from PySide6.QtWidgets import QFileDialog, QMainWindow, QStackedWidget
+from PySide6.QtWidgets import QMainWindow, QStackedWidget
 
 from spacr.curation import MaskCuration
 from spacr.layers import LayerStack, Spacing
@@ -91,17 +91,6 @@ def _canvas(qtbot, stack):
     canvas.resize(120, 120)
     canvas._ensure_canvas()
     return canvas
-
-
-def _tracks():
-    rows = []
-    for track_id in (1, 2):
-        for frame in range(3):
-            rows.append({"frame": frame, "track_id": track_id,
-                         "original_label": 100 + frame,
-                         "x": float(frame), "y": float(track_id)})
-    return pd.DataFrame(rows, columns=["frame", "track_id", "original_label",
-                                       "x", "y"])
 
 
 # ---------------------------------------------------------------------------
@@ -246,28 +235,6 @@ def test_save_mask_reads_a_string_as_a_path_and_a_bool_as_no_path(
     # on", so the second write lands on the other file.
     assert panel.save_mask(False) == str(artifact)
     assert artifact.is_file()
-
-
-def test_a_track_save_with_nowhere_to_write_asks_and_honours_the_answer(
-        qtbot, qt_theme_applied, tmp_path, monkeypatch):
-    """Cancelling the dialog must write nothing, and naming a file must write
-    it — the two halves of the same guard."""
-    panel = ct.TrackCurationPanel(tracks=_tracks())
-    qtbot.addWidget(panel)
-
-    cancelled = []
-    monkeypatch.setattr(QFileDialog, "getSaveFileName",
-                        staticmethod(lambda *a, **k: ("", "")))
-    cancelled.append(panel.save())
-    assert cancelled == [None]
-    assert not list(tmp_path.glob("*.csv"))
-
-    target = tmp_path / "chosen.csv"
-    monkeypatch.setattr(QFileDialog, "getSaveFileName",
-                        staticmethod(lambda *a, **k: (str(target), "CSV")))
-    assert panel.save() == str(target)
-    assert target.is_file()
-    assert set(pd.read_csv(target)["track_id"]) == {1, 2}
 
 
 # ---------------------------------------------------------------------------

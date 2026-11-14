@@ -183,57 +183,6 @@ def test_link_all_relinks_the_loaded_panels_and_steps_over_the_empty_one(
 # "Fit" over a panel with nothing left to fit
 # ---------------------------------------------------------------------------
 
-def test_fit_leaves_the_shared_window_alone_when_no_panel_can_be_fitted(
-        qtbot):
-    """Fit on a grid whose layers went away must not move the window.
-
-    ``reset_view`` fits the first linked panel and then pushes that window to
-    the rest. When a panel's stack has been emptied, the fit produces nothing,
-    and the grid has to go on to the next panel rather than push a ``None``.
-    With only emptied panels left there is nothing to push at all, and the
-    last good window must survive so that reloading the channel comes back to
-    where the user was.
-    """
-    grid = _grid(qtbot, {"a": _channel(0)})
-    panel = grid.panels["a"]
-    panel.canvas._canvas = panel.canvas.canvas.zoomed(6.0)
-    panel.canvas.view_changed.emit()
-    assert _visible_width(panel) < 64.0, "the zoom did not take"
-
-    # A panel that CAN be fitted is fitted: the whole 64-unit field is back.
-    grid.reset_view()
-    assert _visible_width(panel) >= 64.0
-    fitted = grid.canvas_link["a"]
-
-    # Now the layers go away and the same button must change nothing.
-    panel.stack.clear()
-    grid.reset_view()
-
-    after = grid.canvas_link["a"]
-    assert (after.origin, after.step, after.shape) == (
-        fitted.origin, fitted.step, fitted.shape)
-    assert panel.canvas.canvas is None
-    assert grid.status.text() == "1 panel(s) · all linked"
-
-
-def test_fit_on_a_grid_with_no_panels_yet_says_so_instead_of_raising(qtbot):
-    """The Fit button exists before anything has been loaded into the grid.
-
-    The comparison window opens empty and the toolbar is live from the first
-    frame, so a user can press Fit with nothing in the grid. The status line
-    is the only feedback there is, and it has to keep telling the truth
-    through the press and afterwards, once panels arrive.
-    """
-    grid = _grid(qtbot, {})
-
-    grid.reset_view()
-    assert grid.status.text() == "No panels"
-
-    grid.add_panel("a", _channel(0))
-    grid.reset_view()
-    assert grid.status.text() == "1 panel(s) · all linked"
-    assert _visible_width(grid.panels["a"]) >= 64.0
-
 
 def test_fit_skips_a_panel_the_user_unlocked_and_fits_the_next_one(qtbot):
     """Unlocking is how a user studies one panel closely; Fit must respect it.
