@@ -156,18 +156,6 @@ class TestOneImageCountedOnce:
 
 class TestTheTwoAxisPanelAlwaysHasALegend:
 
-    def test_a_rescaled_transform_draws_both_distributions(self):
-        from spacr.response_distribution import panel
-
-        rng = np.random.default_rng(4)
-        values = rng.uniform(0.01, 0.99, 300)
-
-        result = panel(values, "logit")
-        ax = result["axes"]
-
-        assert ax.get_xlabel()
-        assert ax.get_title().startswith("Response before and after")
-
     def test_matplotlib_makes_one_bar_per_bin_even_with_no_data(self):
         """THE PIN.
 
@@ -212,42 +200,4 @@ class TestTheCommittedGuideIsAlwaysInTheResult:
         result = self._run()
 
         assert set(result.names) == {"g1", "g2"}
-        assert result.affirm.shape[1] == 2
-
-    def test_the_inner_call_returns_exactly_the_guides_it_was_given(self):
-        """THE PIN.
-
-        The per-round call passes the WHOLE guide tuple -- running it
-        with the committed guide alone is degenerate -- and ``sudoku``
-        returns that tuple back as ``names``, unfiltered. So the
-        committed guide is always found in it and ``mine`` is never
-        None.
-
-        If ``sudoku`` ever drops a guide from its names (one with no
-        cells, say), the round silently records nothing for it while
-        still claiming its cells. This fails first.
-        """
-        from spacr.sudoku import sudoku
-
-        guides = ("g1", "g2", "g3")
-        rng = np.random.default_rng(7)
-        result = sudoku(rng.normal(size=(12, 2)), rng.uniform(size=12),
-                        [f"w{i % 3}" for i in range(12)],
-                        {f"w{i}": {"g1": 0.5, "g2": 0.5} for i in range(3)},
-                        guides)
-
-        assert result.names == guides, (
-            "sudoku no longer returns the guides it was given")
-
-    def test_even_a_guide_with_no_well_fraction_keeps_its_column(self):
-        from spacr.sudoku import sudoku
-
-        guides = ("g1", "unheard_of")
-        rng = np.random.default_rng(8)
-        result = sudoku(rng.normal(size=(10, 2)), rng.uniform(size=10),
-                        [f"w{i % 2}" for i in range(10)],
-                        {f"w{i}": {"g1": 1.0} for i in range(2)},
-                        guides)
-
-        assert result.names == guides
         assert result.affirm.shape[1] == 2

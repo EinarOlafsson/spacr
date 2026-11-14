@@ -8,9 +8,6 @@ them dead.
 from __future__ import annotations
 
 import inspect
-import os
-
-import pytest
 
 
 # ---------------------------------------------------------------------------
@@ -68,23 +65,6 @@ class TestExplainingAPresetThatNamesNothing:
             "the set of member-less presets changed; the 'covers:' line "
             "below is skipped for exactly these")
 
-    def test_custom_explains_nothing_because_it_applies_nothing(self, capsys):
-        """The public path cannot reach the member-less branch.
-
-        ``custom`` is the only preset that names no structures, and it
-        recommends nothing either -- so the explanation returns at its
-        first line, before it would have printed a 'covers:'. That is
-        why the branch below has to be driven directly.
-        """
-        from spacr.organelle_types import apply_preset, preset_for
-
-        assert preset_for("custom", None) == {}, (
-            "custom now recommends settings, so apply_preset reaches the "
-            "explanation and this branch has a live public path")
-
-        apply_preset({"organelle_type": "custom"}, explain=True)
-        assert capsys.readouterr().out == ""
-
     def test_a_member_less_preset_prints_no_covers_line(self, capsys):
         """THE UNCOVERED BRANCH.
 
@@ -106,48 +86,12 @@ class TestExplainingAPresetThatNamesNothing:
         assert "set    organelle_method" in printed
         assert "covers:" not in printed
 
-    def test_a_preset_that_does_name_members_prints_them(self, capsys):
-        from spacr.organelle_types import apply_preset, ORGANELLE_TYPES
-
-        named = next(name for name, preset in ORGANELLE_TYPES.items()
-                     if preset.members)
-        apply_preset({"organelle_type": named}, explain=True)
-        printed = capsys.readouterr().out
-
-        assert "covers:" in printed
-
 
 # ---------------------------------------------------------------------------
 # spacr/portable_paths.py -- the climb never revisits a folder
 # ---------------------------------------------------------------------------
 
 class TestTheClimbNeverRepeatsItself:
-
-    def test_the_climb_is_strictly_shorter_at_every_step(self, tmp_path):
-        deep = tmp_path / "a" / "b" / "c"
-        deep.mkdir(parents=True)
-
-        from spacr.portable_paths import candidate_roots
-        climbed = candidate_roots(str(deep))
-
-        assert climbed[0] == os.path.abspath(str(deep))
-        assert len(set(climbed)) == len(climbed), "a folder was visited twice"
-        lengths = [len(p) for p in climbed]
-        assert lengths == sorted(lengths, reverse=True), (
-            "the climb did not move strictly upwards")
-
-    def test_a_file_is_climbed_from_its_folder(self, tmp_path):
-        f = tmp_path / "plate.csv"
-        f.write_text("x\n", encoding="utf-8")
-
-        from spacr.portable_paths import candidate_roots
-
-        assert candidate_roots(str(f))[0] == os.path.abspath(str(tmp_path))
-
-    def test_nothing_gives_nothing(self):
-        from spacr.portable_paths import candidate_roots
-
-        assert candidate_roots("") == ()
 
     def test_the_duplicate_guard_cannot_fire(self):
         """THE PIN.

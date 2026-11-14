@@ -123,6 +123,10 @@ msgstr "935 (항목 940의 기본값 전환): ``ops_placement_seed_export``\\ �
 msgid "936: ``ops_blas_threads`` was ``1`` and ``ops_consensus_space`` ``'refit'``; they are now ``2`` and ``'hybrid'``."
 msgstr "936: ``ops_blas_threads``\\ 는 ``1``\\ , ``ops_consensus_space``\\ 는 ``'refit'``\\ 였으며, 이제 각각 ``2``\\ 와 ``'hybrid'``\\ 입니다."
 
+# AI technical review (Claude Opus 5.5), no native-speaker signoff.
+msgid "937 (item 941): ``profile_optional_families`` and ``ops_ph_profile_optional_families`` were ``['texture_gabor', 'colocalisation', 'colocalisation_extra']``, the slow families the ``'profiling'`` preset measured; they are now ``None``, so ``'profiling'`` leaves Gabor, granularity and colocalisation out."
+msgstr "937 (항목 941): ``profile_optional_families``\\ 와 ``ops_ph_profile_optional_families``\\ 는 ``['texture_gabor', 'colocalisation', 'colocalisation_extra']``\\ 였으며, 이는 ``'profiling'`` 프리셋이 측정하던 느린 계열입니다. 이제 ``None``\\ 이므로 ``'profiling'``\\ 는 Gabor, 입도와 공동국재를 제외합니다."
+
 msgid "Public API"
 msgstr "공개 API"
 

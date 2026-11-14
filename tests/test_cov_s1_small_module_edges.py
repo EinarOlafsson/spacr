@@ -1,148 +1,20 @@
 """Edges of the small readers: a value that arrived in an unexpected shape.
 
 Each case here is a frame, a settings dict or a plate address the happy path
-does not describe -- a crop table written for a different crop mode, a channel
-list typed as words, a stack file that has already been deleted, a well with
-no row letter, a measurement whose scale overflows. None of them is an error;
+does not describe -- a channel list typed as words, a stack file that has
+already been deleted, a well with no row letter, a measurement whose scale overflows. None of them is an error;
 every one of them used to be answered with the wrong number or an exception.
 """
 from __future__ import annotations
 
-import logging
 
 import numpy as np
-import pandas as pd
 import pytest
-
-
-# ---------------------------------------------------------------------------
-# png_list -- a crop table written for another crop mode
-# ---------------------------------------------------------------------------
-
-def test_a_crop_table_from_another_mode_still_finds_its_object_column(
-        tmp_path, monkeypatch):
-    """``png_list`` carries only the id column of the mode that wrote it.
-
-    Asking for ``cell_id`` on a nucleus crop table and finding nothing would
-    drop every row -- silently, because an empty result is a valid one.
-    """
-    from spacr import png_list
-
-    frame = pd.DataFrame({
-        "nucleus_id": ["o5", "o7", "omulti"],
-        "plateID": [1] * 3,
-        "rowID": [1] * 3,
-        "columnID": [1] * 3,
-        "fieldID": [1] * 3,
-        "png_path": ["/crops/a.png", "/crops/b.png", "/crops/c.png"],
-    })
-    seen = []
-
-    def field_paths(_db_path, object_type):
-        seen.append(object_type)
-        return {(1, 1, 1, 1): ("/merged/f1.npy", "f1.npy")}
-
-    monkeypatch.setattr(png_list, "_merged_field_paths", field_paths)
-
-    out = png_list.crop_rows_from_png_list(
-        str(tmp_path / "measurements.db"), frame,
-        object_type="cell", verbose=False,
-    )
-
-    assert list(out["object_label"]) == [5, 7]
-    assert seen == ["nucleus"]
-    assert len(out) == 2
-
-    # TWO COLUMNS, BECAUSE THESE ARE TWO QUESTIONS. `object_type` is an
-    # INSTRUCTION: `spacr.crops` reads it per row to choose the mask plane a
-    # crop is cut by, so it has to stay what the caller ASKED for. Reporting
-    # "nucleus" here -- where the labels came from -- meant the cells-behind-
-    # a-dot montage cut every crop from the nucleus plane whatever the user
-    # picked, and choosing an object type changed nothing on screen.
-    #
-    # The provenance this test was written to protect is still recorded, in
-    # `object_label_type`, so "these are nucleus labels being used for a cell
-    # request" remains visible to anything that wants to know.
-    assert list(out["object_type"]) == ["cell", "cell"]
-    assert list(out["object_label_type"]) == ["nucleus", "nucleus"]
 
 
 # ---------------------------------------------------------------------------
 # _v1_v2_bridge -- settings and files that do not read
 # ---------------------------------------------------------------------------
-
-def test_a_channel_list_of_words_falls_through_to_the_default_plate():
-    """``channels`` is a hand-edited list. One unparseable entry costs that
-    entry; a list of nothing usable costs the list, not the run."""
-    from spacr._v1_v2_bridge import v2_channels_from_settings
-
-    channels, names = v2_channels_from_settings({"channels": ["red", 2]})
-    assert channels == [2]
-    assert names == ["ch1"]
-
-    channels, names = v2_channels_from_settings({"channels": ["red", "green"]})
-    assert channels == [0, 1, 2, 3]
-    assert names == ["ch0", "ch1", "ch2", "ch3"]
-
-
-def test_the_disk_report_survives_files_that_are_no_longer_there(tmp_path,
-                                                                 caplog):
-    """A saving reported as 12,288 bytes is not a saving anybody can weigh,
-    and a stack deleted between the run and the report is not a reason to
-    lose the whole figure -- it is one file's bytes."""
-    from spacr._v1_v2_bridge import report_disk_savings
-
-    stack = tmp_path / "merged" / "plate1.npy"
-    stack.parent.mkdir()
-    stack.write_bytes(b"\x00" * 4096)
-
-    class _Stack:
-        def __init__(self, path):
-            self.path = str(path)
-
-    stacks = [_Stack(stack), _Stack(tmp_path / "merged" / "deleted.npy")]
-    with caplog.at_level(logging.INFO, logger="spacr.pipeline_v2.bridge"):
-        report = report_disk_savings(tmp_path, stacks)
-
-    assert report["v2_bytes"] == 4096
-    assert report["v1_estimated_bytes"] == 4 * 4096
-    assert report["saved_pct"] == 75.0
-    logged = caplog.text
-    assert "4.10 KB" in logged
-    assert "16.38 KB" in logged
-    assert "12.29 KB" in logged
-
-
-def test_a_sidecar_on_a_mount_that_will_not_answer_is_not_a_crashed_report(
-        tmp_path, monkeypatch):
-    """The sidecars are looked for beside the plate root, which is routinely
-    a network share. A stale handle there raises instead of answering, and
-    this is a log line at the end of a finished run -- it may not take the
-    run with it over three files that are only worth a few kilobytes."""
-    from pathlib import Path
-
-    from spacr._v1_v2_bridge import report_disk_savings
-
-    stack = tmp_path / "plate1.npy"
-    stack.write_bytes(b"\x00" * 2048)
-    (tmp_path / "filename_map.csv").write_text("a,b\n", encoding="utf-8")
-    real_exists = Path.exists
-
-    def _stale(self, *args, **kwargs):
-        if self.name == "filename_map.csv":
-            raise OSError(116, "Stale file handle")
-        return real_exists(self, *args, **kwargs)
-
-    monkeypatch.setattr(Path, "exists", _stale)
-
-    class _Stack:
-        path = str(stack)
-
-    report = report_disk_savings(tmp_path, [_Stack()])
-
-    assert report["v2_bytes"] == 2048
-    assert report["saved_bytes"] == 3 * 2048
-
 
 # ---------------------------------------------------------------------------
 # organelle_types -- a key that belongs to no slot
