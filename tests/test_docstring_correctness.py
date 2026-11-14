@@ -6534,6 +6534,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
         ("938_run_progress_api_arrivals_2026-11-13.json", 20),
         ("941_measure_optional_families_api_arrivals_2026-11-13.json", 1),
         ("945_ops_large_site_mask_vram_api_arrivals_2026-11-14.json", 3),
+        ("938_progress_reporters_api_arrivals_2026-11-14.json", 3),
     ):
         additions = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
@@ -7137,7 +7138,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "stage3_hybrid_profile_api_arrivals_2026-11-13.json",
                      "938_run_progress_api_arrivals_2026-11-13.json",
                      "941_measure_optional_families_api_arrivals_2026-11-13.json",
-                     "945_ops_large_site_mask_vram_api_arrivals_2026-11-14.json"):
+                     "945_ops_large_site_mask_vram_api_arrivals_2026-11-14.json",
+                     "938_progress_reporters_api_arrivals_2026-11-14.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
@@ -7281,7 +7283,8 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
                      "stage3_hybrid_profile_api_arrivals_2026-11-13.json",
                      "938_run_progress_api_arrivals_2026-11-13.json",
                      "941_measure_optional_families_api_arrivals_2026-11-13.json",
-                     "945_ops_large_site_mask_vram_api_arrivals_2026-11-14.json"):
+                     "945_ops_large_site_mask_vram_api_arrivals_2026-11-14.json",
+                     "938_progress_reporters_api_arrivals_2026-11-14.json"):
         entries = json.loads((pathlib.Path(__file__).resolve().parent
             / "data/release_contracts" / contract).read_text(encoding="utf-8"))
         if contract == "703_background_update_and_uninstall_api_arrivals_2026-10-17.json":
