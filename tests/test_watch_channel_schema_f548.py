@@ -12,14 +12,6 @@ from tests.test_watch_nested_f548 import _fast, _write
 from tests.test_watch_conversion_manifest_f548 import _map, _rows
 
 
-@pytest.mark.parametrize('indices', [[0, 4], [-1, 0], [0, 0], [False], [0.0], [], 'not-a-list', '[0, 4]', None])
-def test_invalid_selected_positions_fail_before_watch_outputs(tmp_path, indices):
-    _map(tmp_path, (1, 2, 3, 4))
-    with pytest.raises(ValueError, match='distinct zero-based positions'):
-        core._watch_folder_and_analyse(dict(_fast(tmp_path), channels=indices), Recorder())
-    assert not (tmp_path / 'spacr_watch').exists()
-
-
 @pytest.mark.parametrize('indices', [[0, 3], '[0, 3]', (3, 0)])
 def test_known_convert_schema_accepts_valid_nonconsecutive_selections(tmp_path, indices):
     _map(tmp_path, (1, 2, 3, 4))
@@ -28,24 +20,6 @@ def test_known_convert_schema_accepts_valid_nonconsecutive_selections(tmp_path, 
     recorder = Recorder()
     result = core._watch_folder_and_analyse(dict(_fast(tmp_path), channels=indices), recorder)
     assert len(result['done']) == 1 and len(recorder.calls) == 1
-
-
-@pytest.mark.parametrize('kind', ['uniform_sparse', 'mixed_dense', 'mixed_plates'])
-def test_map_schema_that_would_shift_channel_positions_is_rejected(tmp_path, kind):
-    if kind == 'uniform_sparse':
-        _map(tmp_path, (1, 4))
-    else:
-        rows = _map(tmp_path, (1, 2), ('A01', 'A02'))
-        rows = [row for row in rows if not (row['well'] == 'A02' and row['channel'] == 2)]
-        if kind == 'mixed_plates':
-            for row in rows:
-                if row['well'] == 'A02':
-                    row['plate'] = 'plate2'
-                    row['target'] = convert.target_name('plate2', 'A02', 1, row['channel'])
-        _rows(tmp_path, rows)
-    with pytest.raises(ValueError, match='sparse or mixed fields would shift channel positions'):
-        core._watch_folder_and_analyse(_fast(tmp_path), Recorder())
-    assert not (tmp_path / 'spacr_watch').exists()
 
 
 def test_real_convert_sparse_field_map_refused_without_source_changes(tmp_path):
@@ -104,3 +78,49 @@ def test_valid_converted_fields_preserve_actual_batch_stack_order(tmp_path):
         assert data.shape[-1] == 4
         assert data[0, 0, [0, 3]].tolist() == [7, 28]
     assert settings['channels'] == [0, 3]
+
+
+def _uniform_sparse_map(tmp_path):
+    _map(tmp_path, (1, 4))
+
+
+def _mixed_dense_map(tmp_path):
+    rows = _map(tmp_path, (1, 2), ('A01', 'A02'))
+    _rows(tmp_path, [row for row in rows if not (row['well'] == 'A02' and row['channel'] == 2)])
+
+
+def _mixed_plates_map(tmp_path):
+    rows = _map(tmp_path, (1, 2), ('A01', 'A02'))
+    rows = [row for row in rows if not (row['well'] == 'A02' and row['channel'] == 2)]
+    for row in rows:
+        if row['well'] == 'A02':
+            row['plate'] = 'plate2'
+            row['target'] = convert.target_name('plate2', 'A02', 1, row['channel'])
+    _rows(tmp_path, rows)
+
+
+def _a_full_four_channel_map(tmp_path):
+    _map(tmp_path, (1, 2, 3, 4))
+
+
+@pytest.mark.parametrize('build, channels, said', [
+    *[pytest.param(_a_full_four_channel_map, indices, 'distinct zero-based positions',
+                   id=f'selected-positions-{index}')
+      for index, indices in enumerate([[0, 4], [-1, 0], [0, 0], [False], [0.0], [],
+                                       'not-a-list', '[0, 4]', None])],
+    pytest.param(_uniform_sparse_map, 'unset',
+                 'sparse or mixed fields would shift channel positions', id='uniform-sparse-map'),
+    pytest.param(_mixed_dense_map, 'unset',
+                 'sparse or mixed fields would shift channel positions', id='mixed-dense-map'),
+    pytest.param(_mixed_plates_map, 'unset',
+                 'sparse or mixed fields would shift channel positions', id='mixed-plates-map'),
+])
+def test_a_channel_schema_that_would_shift_positions_is_refused_before_watch_outputs(
+        tmp_path, build, channels, said):
+    build(tmp_path)
+    settings = _fast(tmp_path)
+    if channels != 'unset':
+        settings = dict(settings, channels=channels)
+    with pytest.raises(ValueError, match=said):
+        core._watch_folder_and_analyse(settings, Recorder())
+    assert not (tmp_path / 'spacr_watch').exists()
