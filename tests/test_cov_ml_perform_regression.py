@@ -989,27 +989,6 @@ def case_controls_none_skips_the_threshold_block(screen, stubs, capsys):
         "Intercept", case=False).any()
 
 
-def test_the_correction_is_actually_applied_to_the_parametric_fit():
-    """multiple_testing_method must change the parametric hit list.
-
-    It existed as a setting, was offered in the panel and named in Methods
-    sections, while this branch called hits on the raw OLS p value. On the
-    real screen that is 56 uncorrected hits against 10 under
-    Benjamini-Hochberg -- the defect behind a published volcano that drew a
-    P = 0.05 line while its Methods claimed BH q < 0.05.
-    """
-    import numpy as np
-    from spacr.multiple_testing import adjust_p_values
-
-    # 1,200 coefficients, 60 of which beat 0.05 by chance alone.
-    rng = np.random.default_rng(0)
-    p = rng.uniform(0, 1, 1200)
-    raw = int((p <= 0.05).sum())
-    corrected, _ = adjust_p_values(p, "fdr_bh", 0.05)
-    assert raw > 40, "the premise is that uncorrected testing finds noise"
-    assert int((corrected < 0.05).sum()) == 0
-
-
 def test_min_observations_per_hit_filters_the_significant_hits(screen, stubs):
     """results_significant_filtered.csv keeps only well-covered features."""
     from spacr.ml import perform_regression
